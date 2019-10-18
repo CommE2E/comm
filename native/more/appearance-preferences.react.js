@@ -18,6 +18,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../components/button.react';
+import colors from '../themes/colors';
 
 const CheckIcon = (props: {||}) => (
   <Icon
@@ -60,6 +61,24 @@ class AppearancePreferences extends React.PureComponent<Props> {
   };
 
   render() {
+    const isDark = this.props.globalThemeInfo.activeTheme === 'dark';
+    const scrollViewStyle = isDark
+      ? styles.scrollViewDark
+      : styles.scrollViewLight;
+    const headerStyle = isDark
+      ? [ styles.header, styles.headerDark ]
+      : [ styles.header, styles.headerLight ];
+    const sectionStyle = isDark
+      ? [ styles.section, styles.sectionDark ]
+      : [ styles.section, styles.sectionLight ];
+    const hrStyle = isDark
+      ? [ styles.hr, styles.hrDark ]
+      : [ styles.hr, styles.hrLight ];
+    const optionStyle = isDark
+      ? [ styles.option, styles.optionDark ]
+      : [ styles.option, styles.optionLight ];
+    const { iosHighlightUnderlay } = isDark ? colors.dark : colors.light;
+
     const options = [];
     for (let i = 0; i < optionTexts.length; i++) {
       const { themePreference, text } = optionTexts[i];
@@ -71,23 +90,25 @@ class AppearancePreferences extends React.PureComponent<Props> {
           onPress={() => this.onSelectThemePreference(themePreference)}
           style={styles.row}
           iosFormat="highlight"
-          iosHighlightUnderlayColor="#EEEEEEDD"
+          iosHighlightUnderlayColor={iosHighlightUnderlay}
           key={`button_${themePreference}`}
         >
-          <Text style={styles.option}>{text}</Text>
+          <Text style={optionStyle}>{text}</Text>
           {icon}
         </Button>
       );
       if (i + 1 < optionTexts.length) {
-        options.push(<View style={styles.hr} key={`hr_${themePreference}`} />);
+        options.push(<View style={hrStyle} key={`hr_${themePreference}`} />);
       }
     }
+
     return (
-      <ScrollView contentContainerStyle={styles.scrollView}>
-        <Text style={styles.header}>APP THEME</Text>
-        <View style={styles.slightlyPaddedSection}>
-          {options}
-        </View>
+      <ScrollView
+        contentContainerStyle={styles.scrollViewContentContainer}
+        style={scrollViewStyle}
+      >
+        <Text style={headerStyle}>APP THEME</Text>
+        <View style={sectionStyle}>{options}</View>
       </ScrollView>
     );
   }
@@ -108,23 +129,40 @@ class AppearancePreferences extends React.PureComponent<Props> {
 }
 
 const styles = StyleSheet.create({
-  scrollView: {
+  scrollViewContentContainer: {
     paddingTop: 24,
+  },
+  scrollViewLight: {
+    backgroundColor: colors.light.background,
+  },
+  scrollViewDark: {
+    backgroundColor: colors.dark.background,
   },
   header: {
     paddingHorizontal: 24,
     paddingBottom: 3,
     fontSize: 12,
     fontWeight: "400",
-    color: "#888888",
   },
-  slightlyPaddedSection: {
-    backgroundColor: 'white',
+  headerLight: {
+    color: colors.light.backgroundLabel,
+  },
+  headerDark: {
+    color: colors.dark.backgroundLabel,
+  },
+  section: {
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: "#CCCCCC",
     marginBottom: 24,
     paddingVertical: 2,
+  },
+  sectionLight: {
+    backgroundColor: colors.light.foreground,
+    borderColor: colors.light.foregroundBorder,
+  },
+  sectionDark: {
+    backgroundColor: colors.dark.foreground,
+    borderColor: colors.dark.foregroundBorder,
   },
   row: {
     flexDirection: 'row',
@@ -133,16 +171,26 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   option: {
-    color: 'black',
     fontSize: 16,
+  },
+  optionLight: {
+    color: colors.light.foregroundLabel,
+  },
+  optionDark: {
+    color: colors.dark.foregroundLabel,
   },
   icon: {
     lineHeight: Platform.OS === "ios" ? 18 : 20,
   },
   hr: {
     height: 1,
-    backgroundColor: "#CCCCCC",
     marginHorizontal: 15,
+  },
+  hrLight: {
+    backgroundColor: colors.light.foregroundBorder,
+  },
+  hrDark: {
+    backgroundColor: colors.dark.foregroundBorder,
   },
 });
 
