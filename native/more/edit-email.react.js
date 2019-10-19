@@ -7,12 +7,12 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { AccountUpdate } from 'lib/types/user-types';
 import type { ChangeUserSettingsResult } from 'lib/types/account-types';
+import type { Styles } from '../types/styles';
 
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import {
   Text,
-  StyleSheet,
   View,
   TextInput,
   ScrollView,
@@ -33,12 +33,14 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import Button from '../components/button.react';
 import OnePasswordButton from '../components/one-password-button.react';
+import { styleSelector } from '../themes/colors';
 
 type Props = {|
   navigation: NavigationScreenProp<*>,
   // Redux state
   email: ?string,
   loadingStatus: LoadingStatus,
+  styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -51,7 +53,7 @@ type State = {|
   password: string,
   onePasswordSupported: bool,
 |};
-class InnerEditEmail extends React.PureComponent<Props, State> {
+class EditEmail extends React.PureComponent<Props, State> {
 
   static propTypes = {
     navigation: PropTypes.shape({
@@ -59,6 +61,7 @@ class InnerEditEmail extends React.PureComponent<Props, State> {
     }).isRequired,
     email: PropTypes.string,
     loadingStatus: loadingStatusPropType.isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     changeUserSettings: PropTypes.func.isRequired,
   };
@@ -105,19 +108,22 @@ class InnerEditEmail extends React.PureComponent<Props, State> {
       onePasswordButton = (
         <OnePasswordButton
           onPress={this.onPressOnePassword}
-          style={styles.onePasswordButton}
+          style={this.props.styles.onePasswordButton}
         />
       );
     }
     const buttonContent = this.props.loadingStatus === "loading"
       ? <ActivityIndicator size="small" color="white" />
-      : <Text style={styles.saveText}>Save</Text>;
+      : <Text style={this.props.styles.saveText}>Save</Text>;
     return (
-      <ScrollView contentContainerStyle={styles.scrollView}>
-        <Text style={styles.header}>EMAIL</Text>
-        <View style={styles.section}>
+      <ScrollView
+        contentContainerStyle={this.props.styles.scrollViewContentContainer}
+        style={this.props.styles.scrollView}
+      >
+        <Text style={this.props.styles.header}>EMAIL</Text>
+        <View style={this.props.styles.section}>
           <TextInput
-            style={styles.input}
+            style={this.props.styles.input}
             underlineColorAndroid="transparent"
             value={this.state.email}
             onChangeText={this.onChangeEmailText}
@@ -129,10 +135,10 @@ class InnerEditEmail extends React.PureComponent<Props, State> {
             ref={this.emailInputRef}
           />
         </View>
-        <Text style={styles.header}>PASSWORD</Text>
-        <View style={styles.section}>
+        <Text style={this.props.styles.header}>PASSWORD</Text>
+        <View style={this.props.styles.section}>
           <TextInput
-            style={styles.input}
+            style={this.props.styles.input}
             underlineColorAndroid="transparent"
             value={this.state.password}
             onChangeText={this.onChangePasswordText}
@@ -146,7 +152,7 @@ class InnerEditEmail extends React.PureComponent<Props, State> {
         </View>
         <Button
           onPress={this.submitEmail}
-          style={styles.saveButton}
+          style={this.props.styles.saveButton}
         >
           {buttonContent}
         </Button>
@@ -286,41 +292,44 @@ class InnerEditEmail extends React.PureComponent<Props, State> {
 
 }
 
-const styles = StyleSheet.create({
-  scrollView: {
+const styles = {
+  scrollViewContentContainer: {
     paddingTop: 24,
+  },
+  scrollView: {
+    backgroundColor: 'background',
   },
   header: {
     paddingHorizontal: 24,
     paddingBottom: 3,
     fontSize: 12,
     fontWeight: "400",
-    color: "#888888",
+    color: 'backgroundLabel',
   },
   section: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: 'white',
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: "#CCCCCC",
     paddingVertical: Platform.select({
       ios: 12,
       default: 8,
     }),
     paddingHorizontal: 24,
     marginBottom: 24,
+    backgroundColor: 'foreground',
+    borderColor: 'foregroundBorder',
   },
   input: {
     flex: 1,
     fontSize: 16,
-    color: "#333333",
+    color: 'modalBackgroundLabel',
     fontFamily: 'Arial',
     paddingVertical: 0,
   },
   saveButton: {
     flex: 1,
-    backgroundColor: "#88BB88",
+    backgroundColor: 'greenButton',
     marginVertical: 12,
     marginHorizontal: 24,
     borderRadius: 5,
@@ -329,25 +338,25 @@ const styles = StyleSheet.create({
   saveText: {
     fontSize: 18,
     textAlign: 'center',
-    color: "white",
+    color: 'foregroundLabel',
   },
   onePasswordButton: {
     marginLeft: 6,
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 const loadingStatusSelector = createLoadingStatusSelector(
   changeUserSettingsActionTypes,
 );
 
-const EditEmail = connect(
+export default connect(
   (state: AppState) => ({
     email: state.currentUserInfo && !state.currentUserInfo.anonymous
       ? state.currentUserInfo.email
       : undefined,
     loadingStatus: loadingStatusSelector(state),
+    styles: stylesSelector(state),
   }),
   { changeUserSettings },
-)(InnerEditEmail);
-
-export default EditEmail;
+)(EditEmail);

@@ -6,13 +6,10 @@ import type {
   NavigationScreenProp,
   NavigationLeafRoute,
 } from 'react-navigation';
+import type { Styles } from '../types/styles';
 
 import * as React from 'react';
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-} from 'react-native';
+import { Text, TextInput } from 'react-native';
 import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
@@ -22,6 +19,7 @@ import Button from '../components/button.react';
 import { createModal } from '../components/modal.react';
 import { CustomServerModalRouteName } from '../navigation/route-names';
 import { setCustomServer } from '../utils/url-utils';
+import { styleSelector } from '../themes/colors';
 
 const Modal = createModal(CustomServerModalRouteName);
 
@@ -30,6 +28,7 @@ type Props = {|
   // Redux state
   urlPrefix: string,
   customServer: ?string,
+  styles: Styles,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 |};
@@ -44,6 +43,7 @@ class CustomServerModal extends React.PureComponent<Props, State> {
     }).isRequired,
     urlPrefix: PropTypes.string.isRequired,
     customServer: PropTypes.string,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
 
@@ -59,11 +59,11 @@ class CustomServerModal extends React.PureComponent<Props, State> {
     return (
       <Modal
         navigation={this.props.navigation}
-        containerStyle={styles.container}
-        modalStyle={styles.modal}
+        containerStyle={this.props.styles.container}
+        modalStyle={this.props.styles.modal}
       >
         <TextInput
-          style={styles.textInput}
+          style={this.props.styles.textInput}
           underlineColorAndroid="transparent"
           value={this.state.customServer}
           onChangeText={this.onChangeCustomServer}
@@ -71,9 +71,9 @@ class CustomServerModal extends React.PureComponent<Props, State> {
         />
         <Button
           onPress={this.onPressGo}
-          style={styles.button}
+          style={this.props.styles.button}
         >
-          <Text style={styles.buttonText}>Go</Text>
+          <Text style={this.props.styles.buttonText}>Go</Text>
         </Button>
       </Modal>
     );
@@ -96,7 +96,7 @@ class CustomServerModal extends React.PureComponent<Props, State> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     justifyContent: 'flex-end',
   },
@@ -108,11 +108,11 @@ const styles = StyleSheet.create({
     padding: 0,
     margin: 0,
     fontSize: 16,
-    color: '#333333',
+    color: 'modalBackgroundLabel',
     flex: 1,
   },
   button: {
-    backgroundColor: "#88BB88",
+    backgroundColor: 'greenButton',
     marginVertical: 2,
     marginHorizontal: 2,
     borderRadius: 5,
@@ -122,14 +122,16 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     textAlign: 'center',
-    color: "white",
+    color: 'white',
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 export default connect(
   (state: AppState) => ({
     urlPrefix: state.urlPrefix,
     customServer: state.customServer,
+    styles: stylesSelector(state),
   }),
   null,
   true,

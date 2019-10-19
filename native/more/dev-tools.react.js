@@ -6,9 +6,11 @@ import type {
   NavigationScreenProp,
   NavigationLeafRoute,
 } from 'react-navigation';
+import type { Styles } from '../types/styles';
+import { type GlobalTheme, globalThemePropType } from '../types/themes';
 
 import * as React from 'react';
-import { StyleSheet, View, Text, ScrollView, Platform } from 'react-native';
+import { View, Text, ScrollView, Platform } from 'react-native';
 import ExitApp from 'react-native-exit-app';
 import Icon from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
@@ -21,6 +23,7 @@ import Button from '../components/button.react';
 import { getPersistor } from '../redux/persist';
 import { serverOptions } from '../utils/url-utils';
 import { CustomServerModalRouteName } from '../navigation/route-names';
+import { colors, styleSelector } from '../themes/colors';
 
 const ServerIcon = (props: {||}) => (
   <Icon
@@ -36,10 +39,12 @@ type Props = {|
   // Redux state
   urlPrefix: string,
   customServer: ?string,
+  activeTheme: ?GlobalTheme,
+  styles: Styles,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 |};
-class InnerDevTools extends React.PureComponent<Props> {
+class DevTools extends React.PureComponent<Props> {
 
   static propTypes = {
     navigation: PropTypes.shape({
@@ -47,6 +52,8 @@ class InnerDevTools extends React.PureComponent<Props> {
     }).isRequired,
     urlPrefix: PropTypes.string.isRequired,
     customServer: PropTypes.string,
+    activeTheme: globalThemePropType,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
   static navigationOptions = {
@@ -54,6 +61,9 @@ class InnerDevTools extends React.PureComponent<Props> {
   };
 
   render() {
+    const isDark = this.props.activeTheme === 'dark';
+    const { iosHighlightUnderlay } = isDark ? colors.dark : colors.light;
+
     const serverButtons = [];
     for (let server of serverOptions) {
       const icon = server === this.props.urlPrefix
@@ -62,28 +72,34 @@ class InnerDevTools extends React.PureComponent<Props> {
       serverButtons.push(
         <Button
           onPress={() => this.onSelectServer(server)}
-          style={styles.row}
+          style={this.props.styles.row}
           iosFormat="highlight"
-          iosHighlightUnderlayColor="#EEEEEEDD"
+          iosHighlightUnderlayColor={iosHighlightUnderlay}
           key={`server${server}`}
         >
-          <Text style={styles.serverText}>{server}</Text>
+          <Text style={this.props.styles.serverText}>{server}</Text>
           {icon}
         </Button>
       );
-      serverButtons.push(<View style={styles.hr} key={`hr${server}`} />);
+      serverButtons.push(
+        <View style={this.props.styles.hr} key={`hr${server}`} />
+      );
     }
     const customServerLabel = this.props.customServer
       ? (
           <Text>
-            <Text style={styles.customServerLabel}>{"custom: "}</Text>
-            <Text style={styles.serverText}>{this.props.customServer}</Text>
+            <Text style={this.props.styles.customServerLabel}>
+              {"custom: "}
+            </Text>
+            <Text style={this.props.styles.serverText}>
+              {this.props.customServer}
+            </Text>
           </Text>
         )
       : (
           <Text style={[
-            styles.customServerLabel,
-            styles.serverContainer,
+            this.props.styles.customServerLabel,
+            this.props.styles.serverContainer,
           ]}>custom</Text>
         );
     const customServerIcon = this.props.customServer === this.props.urlPrefix
@@ -92,9 +108,9 @@ class InnerDevTools extends React.PureComponent<Props> {
     serverButtons.push(
       <Button
         onPress={this.onSelectCustomServer}
-        style={styles.row}
+        style={this.props.styles.row}
         iosFormat="highlight"
-        iosHighlightUnderlayColor="#EEEEEEDD"
+        iosHighlightUnderlayColor={iosHighlightUnderlay}
         key="customServer"
       >
         {customServerLabel}
@@ -103,38 +119,43 @@ class InnerDevTools extends React.PureComponent<Props> {
     );
 
     return (
-      <View style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scrollView}>
-          <View style={styles.slightlyPaddedSection}>
+      <View style={this.props.styles.container}>
+        <ScrollView
+          contentContainerStyle={this.props.styles.scrollViewContentContainer}
+          style={this.props.styles.scrollView}
+        >
+          <View style={this.props.styles.slightlyPaddedSection}>
             <Button
               onPress={this.onPressCrash}
-              style={styles.row}
+              style={this.props.styles.row}
               iosFormat="highlight"
-              iosHighlightUnderlayColor="#EEEEEEDD"
+              iosHighlightUnderlayColor={iosHighlightUnderlay}
             >
-              <Text style={styles.redText}>Trigger a crash</Text>
+              <Text style={this.props.styles.redText}>Trigger a crash</Text>
             </Button>
-            <View style={styles.hr} />
+            <View style={this.props.styles.hr} />
             <Button
               onPress={this.onPressKill}
-              style={styles.row}
+              style={this.props.styles.row}
               iosFormat="highlight"
-              iosHighlightUnderlayColor="#EEEEEEDD"
+              iosHighlightUnderlayColor={iosHighlightUnderlay}
             >
-              <Text style={styles.redText}>Kill the app</Text>
+              <Text style={this.props.styles.redText}>Kill the app</Text>
             </Button>
-            <View style={styles.hr} />
+            <View style={this.props.styles.hr} />
             <Button
               onPress={this.onPressWipe}
-              style={styles.row}
+              style={this.props.styles.row}
               iosFormat="highlight"
-              iosHighlightUnderlayColor="#EEEEEEDD"
+              iosHighlightUnderlayColor={iosHighlightUnderlay}
             >
-              <Text style={styles.redText}>Wipe state and kill app</Text>
+              <Text style={this.props.styles.redText}>
+                Wipe state and kill app
+              </Text>
             </Button>
           </View>
-          <Text style={styles.header}>SERVER</Text>
-          <View style={styles.slightlyPaddedSection}>
+          <Text style={this.props.styles.header}>SERVER</Text>
+          <View style={this.props.styles.slightlyPaddedSection}>
             {serverButtons}
           </View>
         </ScrollView>
@@ -168,20 +189,23 @@ class InnerDevTools extends React.PureComponent<Props> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
   },
-  scrollView: {
+  scrollViewContentContainer: {
     paddingTop: 24,
   },
+  scrollView: {
+    backgroundColor: 'background',
+  },
   slightlyPaddedSection: {
-    backgroundColor: 'white',
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: "#CCCCCC",
     marginBottom: 24,
     paddingVertical: 2,
+    backgroundColor: 'foreground',
+    borderColor: 'foregroundBorder',
   },
   row: {
     flexDirection: 'row',
@@ -191,12 +215,12 @@ const styles = StyleSheet.create({
   },
   redText: {
     fontSize: 16,
-    color: "#AA0000",
+    color: 'redText',
     flex: 1,
   },
   hr: {
     height: 1,
-    backgroundColor: "#CCCCCC",
+    backgroundColor: 'foregroundBorder',
     marginHorizontal: 15,
   },
   header: {
@@ -204,14 +228,14 @@ const styles = StyleSheet.create({
     paddingBottom: 3,
     fontSize: 12,
     fontWeight: "400",
-    color: "#888888",
+    color: 'backgroundLabel',
   },
   customServerLabel: {
-    color: "#888888",
+    color: 'foregroundSecondaryLabel',
     fontSize: 16,
   },
   serverText: {
-    color: 'black',
+    color: 'foregroundLabel',
     fontSize: 16,
   },
   serverContainer: {
@@ -220,13 +244,15 @@ const styles = StyleSheet.create({
   icon: {
     lineHeight: Platform.OS === "ios" ? 18 : 20,
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 export default connect(
   (state: AppState) => ({
     urlPrefix: state.urlPrefix,
-    customServer: state.customServer,
+    activeTheme: state.globalThemeInfo.activeTheme,
+    styles: stylesSelector(state),
   }),
   null,
   true,
-)(InnerDevTools);
+)(DevTools);

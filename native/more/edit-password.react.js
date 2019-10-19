@@ -7,12 +7,12 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { AccountUpdate } from 'lib/types/user-types';
 import type { ChangeUserSettingsResult } from 'lib/types/account-types';
+import type { Styles } from '../types/styles';
 
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import {
   Text,
-  StyleSheet,
   View,
   TextInput,
   ScrollView,
@@ -33,11 +33,13 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import Button from '../components/button.react';
 import OnePasswordButton from '../components/one-password-button.react';
 import { setNativeCredentials } from '../account/native-credentials';
+import { styleSelector } from '../themes/colors';
 
 type Props = {
   navigation: NavigationScreenProp<*>,
   // Redux state
   loadingStatus: LoadingStatus,
+  styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -51,13 +53,14 @@ type State = {|
   confirmPassword: string,
   onePasswordSupported: bool,
 |};
-class InnerEditPassword extends React.PureComponent<Props, State> {
+class EditPassword extends React.PureComponent<Props, State> {
 
   static propTypes = {
     navigation: PropTypes.shape({
       navigate: PropTypes.func.isRequired,
     }).isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     changeUserSettings: PropTypes.func.isRequired,
   };
@@ -107,26 +110,29 @@ class InnerEditPassword extends React.PureComponent<Props, State> {
       onePasswordCurrentPasswordButton = (
         <OnePasswordButton
           onPress={this.onPressOnePasswordCurrentPassword}
-          style={styles.onePasswordButton}
+          style={this.props.styles.onePasswordButton}
         />
       );
       onePasswordNewPasswordButton = (
         <OnePasswordButton
           onPress={this.onPressOnePasswordNewPassword}
-          style={styles.onePasswordButton}
+          style={this.props.styles.onePasswordButton}
         />
       );
     }
     const buttonContent = this.props.loadingStatus === "loading"
       ? <ActivityIndicator size="small" color="white" />
-      : <Text style={styles.saveText}>Save</Text>;
+      : <Text style={this.props.styles.saveText}>Save</Text>;
     return (
-      <ScrollView contentContainerStyle={styles.scrollView}>
-        <Text style={styles.header}>CURRENT PASSWORD</Text>
-        <View style={styles.section}>
-          <View style={styles.row}>
+      <ScrollView
+        contentContainerStyle={this.props.styles.scrollViewContentContainer}
+        style={this.props.styles.scrollView}
+      >
+        <Text style={this.props.styles.header}>CURRENT PASSWORD</Text>
+        <View style={this.props.styles.section}>
+          <View style={this.props.styles.row}>
             <TextInput
-              style={styles.input}
+              style={this.props.styles.input}
               underlineColorAndroid="transparent"
               value={this.state.currentPassword}
               onChangeText={this.onChangeCurrentPassword}
@@ -140,11 +146,11 @@ class InnerEditPassword extends React.PureComponent<Props, State> {
             {onePasswordCurrentPasswordButton}
           </View>
         </View>
-        <Text style={styles.header}>NEW PASSWORD</Text>
-        <View style={styles.section}>
-          <View style={styles.row}>
+        <Text style={this.props.styles.header}>NEW PASSWORD</Text>
+        <View style={this.props.styles.section}>
+          <View style={this.props.styles.row}>
             <TextInput
-              style={styles.input}
+              style={this.props.styles.input}
               underlineColorAndroid="transparent"
               value={this.state.newPassword}
               onChangeText={this.onChangeNewPassword}
@@ -156,10 +162,10 @@ class InnerEditPassword extends React.PureComponent<Props, State> {
             />
             {onePasswordNewPasswordButton}
           </View>
-          <View style={styles.hr} />
-          <View style={styles.row}>
+          <View style={this.props.styles.hr} />
+          <View style={this.props.styles.row}>
             <TextInput
-              style={styles.input}
+              style={this.props.styles.input}
               underlineColorAndroid="transparent"
               value={this.state.confirmPassword}
               onChangeText={this.onChangeConfirmPassword}
@@ -173,7 +179,7 @@ class InnerEditPassword extends React.PureComponent<Props, State> {
         </View>
         <Button
           onPress={this.submitPassword}
-          style={styles.saveButton}
+          style={this.props.styles.saveButton}
         >
           {buttonContent}
         </Button>
@@ -342,27 +348,30 @@ class InnerEditPassword extends React.PureComponent<Props, State> {
 
 }
 
-const styles = StyleSheet.create({
-  scrollView: {
+const styles = {
+  scrollViewContentContainer: {
     paddingTop: 24,
+  },
+  scrollView: {
+    backgroundColor: 'background',
   },
   header: {
     paddingHorizontal: 24,
     paddingBottom: 3,
     fontSize: 12,
     fontWeight: "400",
-    color: "#888888",
+    color: 'backgroundLabel',
   },
   section: {
-    backgroundColor: 'white',
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: "#CCCCCC",
     paddingVertical: Platform.select({
       ios: 3,
       default: 2,
     }),
     marginBottom: 24,
+    backgroundColor: 'foreground',
+    borderColor: 'foregroundBorder',
   },
   row: {
     flexDirection: 'row',
@@ -375,19 +384,19 @@ const styles = StyleSheet.create({
   },
   hr: {
     height: 1,
-    backgroundColor: "#CCCCCC",
+    backgroundColor: 'foregroundBorder',
     marginHorizontal: 15,
   },
   input: {
     flex: 1,
     fontSize: 16,
-    color: "#333333",
+    color: 'modalBackgroundLabel',
     fontFamily: 'Arial',
     paddingVertical: 0,
   },
   saveButton: {
     flex: 1,
-    backgroundColor: "#88BB88",
+    backgroundColor: 'greenButton',
     marginVertical: 12,
     marginHorizontal: 24,
     borderRadius: 5,
@@ -396,22 +405,22 @@ const styles = StyleSheet.create({
   saveText: {
     fontSize: 18,
     textAlign: 'center',
-    color: "white",
+    color: 'foregroundLabel',
   },
   onePasswordButton: {
     marginLeft: 6,
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 const loadingStatusSelector = createLoadingStatusSelector(
   changeUserSettingsActionTypes,
 );
 
-const EditPassword = connect(
+export default connect(
   (state: AppState) => ({
     loadingStatus: loadingStatusSelector(state),
+    styles: stylesSelector(state),
   }),
   { changeUserSettings },
-)(InnerEditPassword);
-
-export default EditPassword;
+)(EditPassword);

@@ -8,11 +8,12 @@ import type { CalendarQuery } from 'lib/types/entry-types';
 import type { LogOutResult } from 'lib/types/account-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
+import type { Styles } from '../types/styles';
+import { type GlobalTheme, globalThemePropType } from '../types/themes';
 
-import React from 'react';
+import * as React from 'react';
 import {
   View,
-  StyleSheet,
   Text,
   Alert,
   Platform,
@@ -47,6 +48,7 @@ import {
   DevToolsRouteName,
   AppearancePreferencesRouteName,
 } from '../navigation/route-names';
+import { colors, styleSelector } from '../themes/colors';
 
 type Props = {
   navigation: NavigationScreenProp<*>,
@@ -55,13 +57,15 @@ type Props = {
   email: ?string,
   emailVerified: ?bool,
   resendVerificationLoadingStatus: LoadingStatus,
+  activeTheme: ?GlobalTheme,
+  styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   logOut: () => Promise<LogOutResult>,
   resendVerificationEmail: () => Promise<void>,
 };
-class InnerMoreScreen extends React.PureComponent<Props> {
+class MoreScreen extends React.PureComponent<Props> {
 
   static propTypes = {
     navigation: PropTypes.shape({
@@ -71,6 +75,8 @@ class InnerMoreScreen extends React.PureComponent<Props> {
     email: PropTypes.string,
     emailVerified: PropTypes.bool,
     resendVerificationLoadingStatus: loadingStatusPropType.isRequired,
+    activeTheme: globalThemePropType,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     logOut: PropTypes.func.isRequired,
     resendVerificationEmail: PropTypes.func.isRequired,
@@ -84,9 +90,9 @@ class InnerMoreScreen extends React.PureComponent<Props> {
     if (this.props.emailVerified === true) {
       emailVerified = (
         <Text style={[
-          styles.verification,
-          styles.verificationText,
-          styles.emailVerified,
+          this.props.styles.verification,
+          this.props.styles.verificationText,
+          this.props.styles.emailVerified,
         ]}>
           Verified
         </Text>
@@ -97,24 +103,27 @@ class InnerMoreScreen extends React.PureComponent<Props> {
         resendVerificationEmailSpinner = (
           <ActivityIndicator
             size="small"
-            style={styles.resendVerificationEmailSpinner}
+            style={this.props.styles.resendVerificationEmailSpinner}
           />
         );
       }
       emailVerified = (
-        <View style={styles.verification}>
-          <Text style={[styles.verificationText, styles.emailNotVerified]}>
+        <View style={this.props.styles.verification}>
+          <Text style={[
+            this.props.styles.verificationText,
+            this.props.styles.emailNotVerified,
+          ]}>
             Not verified
           </Text>
-          <Text style={styles.verificationText}>{" - "}</Text>
+          <Text style={this.props.styles.verificationText}>{" - "}</Text>
           <Button
             onPress={this.onPressResendVerificationEmail}
-            style={styles.resendVerificationEmailButton}
+            style={this.props.styles.resendVerificationEmailButton}
           >
             {resendVerificationEmailSpinner}
             <Text style={[
-              styles.verificationText,
-              styles.resendVerificationEmailText,
+              this.props.styles.verificationText,
+              this.props.styles.resendVerificationEmailText,
             ]}>
               resend verification email
             </Text>
@@ -122,26 +131,36 @@ class InnerMoreScreen extends React.PureComponent<Props> {
         </View>
       );
     }
+
+    const isDark = this.props.activeTheme === 'dark';
+    const { iosHighlightUnderlay, link: linkColor } = isDark
+      ? colors.dark
+      : colors.light;
     return (
-      <View style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scrollView}>
-          <View style={styles.section}>
-            <View style={styles.row}>
-              <Text style={styles.label} numberOfLines={1}>
+      <View style={this.props.styles.container}>
+        <ScrollView
+          contentContainerStyle={this.props.styles.scrollViewContentContainer}
+          style={this.props.styles.scrollView}
+        >
+          <View style={this.props.styles.section}>
+            <View style={this.props.styles.row}>
+              <Text style={this.props.styles.label} numberOfLines={1}>
                 {"Logged in as "}
-                <Text style={styles.username}>{this.props.username}</Text>
+                <Text style={this.props.styles.username}>
+                  {this.props.username}
+                </Text>
               </Text>
               <Button onPress={this.onPressLogOut}>
-                <Text style={styles.logOutText}>Log out</Text>
+                <Text style={this.props.styles.logOutText}>Log out</Text>
               </Button>
             </View>
           </View>
-          <Text style={styles.header}>ACCOUNT</Text>
-          <View style={styles.section}>
-            <View style={styles.row}>
-              <Text style={styles.label}>Email</Text>
-              <View style={styles.content}>
-                <Text style={styles.value} numberOfLines={1}>
+          <Text style={this.props.styles.header}>ACCOUNT</Text>
+          <View style={this.props.styles.section}>
+            <View style={this.props.styles.row}>
+              <Text style={this.props.styles.label}>Email</Text>
+              <View style={this.props.styles.content}>
+                <Text style={this.props.styles.value} numberOfLines={1}>
                   {this.props.email}
                 </Text>
                 {emailVerified}
@@ -149,73 +168,78 @@ class InnerMoreScreen extends React.PureComponent<Props> {
               <EditSettingButton
                 onPress={this.onPressEditEmail}
                 canChangeSettings={true}
-                style={styles.editEmailButton}
+                style={this.props.styles.editEmailButton}
               />
             </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Password</Text>
-              <Text style={[styles.content, styles.value]} numberOfLines={1}>
+            <View style={this.props.styles.row}>
+              <Text style={this.props.styles.label}>Password</Text>
+              <Text style={[
+                this.props.styles.content,
+                this.props.styles.value,
+              ]} numberOfLines={1}>
                 ••••••••••••••••
               </Text>
               <EditSettingButton
                 onPress={this.onPressEditPassword}
                 canChangeSettings={true}
-                style={styles.editPasswordButton}
+                style={this.props.styles.editPasswordButton}
               />
             </View>
           </View>
-          <Text style={styles.header}>PREFERENCES</Text>
-          <View style={styles.slightlyPaddedSection}>
+          <Text style={this.props.styles.header}>PREFERENCES</Text>
+          <View style={this.props.styles.slightlyPaddedSection}>
             <Button
               onPress={this.onPressAppearance}
-              style={styles.submenuButton}
+              style={this.props.styles.submenuButton}
               iosFormat="highlight"
-              iosHighlightUnderlayColor="#EEEEEEDD"
+              iosHighlightUnderlayColor={iosHighlightUnderlay}
             >
-              <Text style={styles.submenuText}>Appearance</Text>
+              <Text style={this.props.styles.submenuText}>Appearance</Text>
               <Icon
                 name="ios-arrow-forward"
                 size={20}
-                color="#036AFF"
+                color={linkColor}
               />
             </Button>
           </View>
-          <View style={styles.slightlyPaddedSection}>
+          <View style={this.props.styles.slightlyPaddedSection}>
             <Button
               onPress={this.onPressBuildInfo}
-              style={styles.submenuButton}
+              style={this.props.styles.submenuButton}
               iosFormat="highlight"
-              iosHighlightUnderlayColor="#EEEEEEDD"
+              iosHighlightUnderlayColor={iosHighlightUnderlay}
             >
-              <Text style={styles.submenuText}>Build info</Text>
+              <Text style={this.props.styles.submenuText}>Build info</Text>
               <Icon
                 name="ios-arrow-forward"
                 size={20}
-                color="#036AFF"
+                color={linkColor}
               />
             </Button>
             <Button
               onPress={this.onPressDevTools}
-              style={styles.submenuButton}
+              style={this.props.styles.submenuButton}
               iosFormat="highlight"
-              iosHighlightUnderlayColor="#EEEEEEDD"
+              iosHighlightUnderlayColor={iosHighlightUnderlay}
             >
-              <Text style={styles.submenuText}>Developer tools</Text>
+              <Text style={this.props.styles.submenuText}>Developer tools</Text>
               <Icon
                 name="ios-arrow-forward"
                 size={20}
-                color="#036AFF"
+                color={linkColor}
               />
             </Button>
           </View>
-          <View style={styles.unpaddedSection}>
+          <View style={this.props.styles.unpaddedSection}>
             <Button
               onPress={this.onPressDeleteAccount}
-              style={styles.deleteAccountButton}
+              style={this.props.styles.deleteAccountButton}
               iosFormat="highlight"
-              iosHighlightUnderlayColor="#EEEEEEDD"
+              iosHighlightUnderlayColor={iosHighlightUnderlay}
             >
-              <Text style={styles.deleteAccountText}>Delete account...</Text>
+              <Text style={this.props.styles.deleteAccountText}>
+                Delete account...
+              </Text>
             </Button>
           </View>
         </ScrollView>
@@ -315,36 +339,39 @@ class InnerMoreScreen extends React.PureComponent<Props> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
   },
+  scrollViewContentContainer: {
+    paddingTop: 24,
+  },
   scrollView: {
-    paddingVertical: 24,
+    backgroundColor: 'background',
   },
   section: {
-    backgroundColor: 'white',
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: "#CCCCCC",
     paddingVertical: 12,
     paddingHorizontal: 24,
     marginBottom: 24,
+    backgroundColor: 'foreground',
+    borderColor: 'foregroundBorder',
   },
   unpaddedSection: {
-    backgroundColor: 'white',
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: "#CCCCCC",
     marginBottom: 24,
+    backgroundColor: 'foreground',
+    borderColor: 'foregroundBorder',
   },
   slightlyPaddedSection: {
-    backgroundColor: 'white',
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: "#CCCCCC",
     marginBottom: 24,
     paddingVertical: 2,
+    backgroundColor: 'foreground',
+    borderColor: 'foregroundBorder',
   },
   row: {
     flex: 1,
@@ -353,14 +380,14 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    color: "#888888",
+    color: 'foregroundSecondaryLabel',
     paddingRight: 12,
   },
   username: {
-    color: "#000000",
+    color: 'foregroundLabel',
   },
   value: {
-    color: "#000000",
+    color: 'foregroundLabel',
     fontSize: 16,
     textAlign: 'right',
   },
@@ -369,7 +396,7 @@ const styles = StyleSheet.create({
   },
   logOutText: {
     fontSize: 16,
-    color: "#036AFF",
+    color: 'link',
     paddingLeft: 6,
   },
   header: {
@@ -377,7 +404,7 @@ const styles = StyleSheet.create({
     paddingBottom: 3,
     fontSize: 12,
     fontWeight: "400",
-    color: "#888888",
+    color: 'backgroundLabel',
   },
   verification: {
     flexDirection: 'row',
@@ -389,10 +416,10 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   emailVerified: {
-    color: 'green',
+    color: 'greenText',
   },
   emailNotVerified: {
-    color: 'red',
+    color: 'redText',
   },
   resendVerificationEmailButton: {
     flexDirection: 'row',
@@ -400,7 +427,7 @@ const styles = StyleSheet.create({
   },
   resendVerificationEmailText: {
     fontStyle: 'italic',
-    color: "#036AFF",
+    color: 'link',
   },
   resendVerificationEmailSpinner: {
     paddingHorizontal: 4,
@@ -418,7 +445,7 @@ const styles = StyleSheet.create({
   },
   deleteAccountText: {
     fontSize: 16,
-    color: "#AA0000",
+    color: 'redText',
     flex: 1,
   },
   submenuButton: {
@@ -427,18 +454,19 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   submenuText: {
-    color: 'black',
+    color: 'foregroundLabel',
     fontSize: 16,
     flex: 1,
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 registerFetchKey(logOutActionTypes);
 const resendVerificationLoadingStatusSelector = createLoadingStatusSelector(
   resendVerificationEmailActionTypes,
 );
 
-const MoreScreen = connect(
+export default connect(
   (state: AppState) => ({
     username: state.currentUserInfo && !state.currentUserInfo.anonymous
       ? state.currentUserInfo.username
@@ -451,8 +479,8 @@ const MoreScreen = connect(
       : undefined,
     resendVerificationLoadingStatus:
       resendVerificationLoadingStatusSelector(state),
+    activeTheme: state.globalThemeInfo.activeTheme,
+    styles: stylesSelector(state),
   }),
   { logOut, resendVerificationEmail },
-)(InnerMoreScreen);
-
-export default MoreScreen;
+)(MoreScreen);

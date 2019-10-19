@@ -6,12 +6,12 @@ import type { NavigationScreenProp } from 'react-navigation';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { LogOutResult } from 'lib/types/account-types';
+import type { Styles } from '../types/styles';
 
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import {
   Text,
-  StyleSheet,
   View,
   TextInput,
   ScrollView,
@@ -32,12 +32,14 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import Button from '../components/button.react';
 import OnePasswordButton from '../components/one-password-button.react';
 import { deleteNativeCredentialsFor } from '../account/native-credentials';
+import { styleSelector } from '../themes/colors';
 
 type Props = {|
   navigation: NavigationScreenProp<*>,
   // Redux state
   loadingStatus: LoadingStatus,
   username: ?string,
+  styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -47,7 +49,7 @@ type State = {|
   password: string,
   onePasswordSupported: bool,
 |};
-class InnerDeleteAccount extends React.PureComponent<Props, State> {
+class DeleteAccount extends React.PureComponent<Props, State> {
 
   static propTypes = {
     navigation: PropTypes.shape({
@@ -55,6 +57,7 @@ class InnerDeleteAccount extends React.PureComponent<Props, State> {
     }).isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
     username: PropTypes.string,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     deleteAccount: PropTypes.func.isRequired,
   };
@@ -99,29 +102,35 @@ class InnerDeleteAccount extends React.PureComponent<Props, State> {
       onePasswordButton = (
         <OnePasswordButton
           onPress={this.onPressOnePassword}
-          style={styles.onePasswordButton}
+          style={this.props.styles.onePasswordButton}
         />
       );
     }
     const buttonContent = this.props.loadingStatus === "loading"
       ? <ActivityIndicator size="small" color="white" />
-      : <Text style={styles.saveText}>Delete account</Text>;
+      : <Text style={this.props.styles.saveText}>Delete account</Text>;
     return (
-      <ScrollView contentContainerStyle={styles.scrollView}>
+      <ScrollView
+        contentContainerStyle={this.props.styles.scrollViewContentContainer}
+        style={this.props.styles.scrollView}
+      >
         <View>
-          <Text style={styles.warningText}>
+          <Text style={this.props.styles.warningText}>
             Your account will be permanently deleted.
           </Text>
         </View>
         <View>
-          <Text style={[styles.warningText, styles.lastWarningText]}>
+          <Text style={[
+            this.props.styles.warningText,
+            this.props.styles.lastWarningText,
+          ]}>
             There is no way to reverse this.
           </Text>
         </View>
-        <Text style={styles.header}>PASSWORD</Text>
-        <View style={styles.section}>
+        <Text style={this.props.styles.header}>PASSWORD</Text>
+        <View style={this.props.styles.section}>
           <TextInput
-            style={styles.input}
+            style={this.props.styles.input}
             underlineColorAndroid="transparent"
             value={this.state.password}
             onChangeText={this.onChangePasswordText}
@@ -135,7 +144,7 @@ class InnerDeleteAccount extends React.PureComponent<Props, State> {
         </View>
         <Button
           onPress={this.submitDeletion}
-          style={styles.deleteButton}
+          style={this.props.styles.deleteButton}
         >
           {buttonContent}
         </Button>
@@ -209,41 +218,44 @@ class InnerDeleteAccount extends React.PureComponent<Props, State> {
 
 }
 
-const styles = StyleSheet.create({
-  scrollView: {
+const styles = {
+  scrollViewContentContainer: {
     paddingTop: 24,
+  },
+  scrollView: {
+    backgroundColor: 'background',
   },
   header: {
     paddingHorizontal: 24,
     paddingBottom: 3,
     fontSize: 12,
     fontWeight: "400",
-    color: "#888888",
+    color: 'backgroundLabel',
   },
   section: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: 'white',
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: "#CCCCCC",
     paddingVertical: Platform.select({
       ios: 12,
       default: 8,
     }),
     paddingHorizontal: 24,
     marginBottom: 24,
+    backgroundColor: 'foreground',
+    borderColor: 'foregroundBorder',
   },
   input: {
     flex: 1,
     fontSize: 16,
-    color: "#333333",
+    color: 'modalBackgroundLabel',
     fontFamily: 'Arial',
     paddingVertical: 0,
   },
   deleteButton: {
     flex: 1,
-    backgroundColor: "#BB8888",
+    backgroundColor: 'redButton',
     marginVertical: 12,
     marginHorizontal: 24,
     borderRadius: 5,
@@ -252,7 +264,7 @@ const styles = StyleSheet.create({
   saveText: {
     fontSize: 18,
     textAlign: 'center',
-    color: "white",
+    color: 'foregroundLabel',
   },
   onePasswordButton: {
     marginLeft: 6,
@@ -260,26 +272,26 @@ const styles = StyleSheet.create({
   warningText: {
     marginHorizontal: 24,
     textAlign: 'center',
-    color: "#333333",
+    color: 'modalBackgroundLabel',
     fontSize: 16,
   },
   lastWarningText: {
     marginBottom: 24,
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 const loadingStatusSelector = createLoadingStatusSelector(
   deleteAccountActionTypes,
 );
 
-const DeleteAccount = connect(
+export default connect(
   (state: AppState) => ({
     loadingStatus: loadingStatusSelector(state),
     username: state.currentUserInfo && !state.currentUserInfo.anonymous
       ? state.currentUserInfo.username
       : undefined,
+    styles: stylesSelector(state),
   }),
   { deleteAccount },
-)(InnerDeleteAccount);
-
-export default DeleteAccount;
+)(DeleteAccount);

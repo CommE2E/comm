@@ -5,11 +5,10 @@ import type {
   NavigationLeafRoute,
 } from 'react-navigation';
 import type { AppState } from '../redux/redux-setup';
-import type { ViewStyle } from '../types/styles';
+import type { ViewStyle, Styles } from '../types/styles';
 
 import * as React from 'react';
 import {
-  StyleSheet,
   View,
   TouchableWithoutFeedback,
   BackHandler,
@@ -20,6 +19,7 @@ import { connect } from 'lib/utils/redux-utils';
 
 import KeyboardAvoidingView from './keyboard-avoiding-view.react';
 import { createIsForegroundSelector } from '../selectors/nav-selectors';
+import { styleSelector } from '../themes/colors';
 
 type Props = $ReadOnly<{|
   navigation: NavigationScreenProp<NavigationLeafRoute>,
@@ -28,6 +28,7 @@ type Props = $ReadOnly<{|
   modalStyle?: ViewStyle,
   // Redux state
   isForeground: bool,
+  styles: Styles,
 |}>;
 class Modal extends React.PureComponent<Props> {
 
@@ -37,6 +38,7 @@ class Modal extends React.PureComponent<Props> {
       goBack: PropTypes.func.isRequired,
     }).isRequired,
     isForeground: PropTypes.bool.isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     containerStyle: ViewPropTypes.style,
     modalStyle: ViewPropTypes.style,
   };
@@ -81,11 +83,14 @@ class Modal extends React.PureComponent<Props> {
   render() {
     const { containerStyle, modalStyle, children } = this.props;
     return (
-      <KeyboardAvoidingView style={[styles.container, containerStyle]}>
+      <KeyboardAvoidingView style={[
+        this.props.styles.container,
+        containerStyle,
+      ]}>
         <TouchableWithoutFeedback onPress={this.close}>
-          <View style={styles.backdrop} />
+          <View style={this.props.styles.backdrop} />
         </TouchableWithoutFeedback>
-        <View style={[styles.modal, modalStyle]}>
+        <View style={[ this.props.styles.modal, modalStyle ]}>
           {children}
         </View>
       </KeyboardAvoidingView>
@@ -94,7 +99,7 @@ class Modal extends React.PureComponent<Props> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
     justifyContent: "center",
@@ -115,17 +120,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 12,
     borderRadius: 5,
-    backgroundColor: '#EEEEEE',
+    backgroundColor: 'modalBackground',
     marginHorizontal: 15,
     marginTop: 100,
     marginBottom: 30,
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 function createModal(routeName: string) {
   const isForegroundSelector = createIsForegroundSelector(routeName);
   return connect((state: AppState) => ({
     isForeground: isForegroundSelector(state),
+    styles: stylesSelector(state),
   }))(Modal);
 }
 
