@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import PropTypes from 'prop-types';
+import invariant from 'invariant';
 
 const ANDROID_VERSION_LOLLIPOP = 21;
 
@@ -28,7 +29,7 @@ type Props = {
   androidBorderlessRipple: bool,
   iosFormat: "highlight" | "opacity",
   androidFormat: "ripple" | "highlight" | "opacity",
-  iosHighlightUnderlayColor: string,
+  iosHighlightUnderlayColor?: string,
   iosActiveOpacity: number,
 };
 class Button extends React.PureComponent<Props> {
@@ -56,7 +57,6 @@ class Button extends React.PureComponent<Props> {
     androidBorderlessRipple: false,
     iosFormat: "opacity",
     androidFormat: "ripple",
-    iosHighlightUnderlayColor: "#CCCCCCDD",
     iosActiveOpacity: 0.2,
   };
 
@@ -89,6 +89,11 @@ class Button extends React.PureComponent<Props> {
     }
     if (format === "highlight") {
       const underlayColor = this.props.iosHighlightUnderlayColor;
+      invariant(
+        underlayColor,
+        "iosHighlightUnderlayColor should be specified to Button in " +
+          "format='higlight'",
+      );
       const child = this.props.children ? this.props.children : <View />;
       return (
         <TouchableHighlight

@@ -21,8 +21,10 @@ const colors = {
     panelForegroundLabel: 'black',
     panelForegroundSecondaryLabel: '#888888',
     panelIosHighlightUnderlay: '#EEEEEEDD',
+    modalForegroundLabel: 'black',
     modalBackground: '#E5E5EA',
     modalBackgroundLabel: '#333333',
+    modalIosHighlightUnderlay: '#CCCCCCDD',
   },
   dark: {
     redButton: '#FF4444',
@@ -37,8 +39,10 @@ const colors = {
     panelForegroundLabel: 'white',
     panelForegroundSecondaryLabel: '#AAAAAA',
     panelIosHighlightUnderlay: '#444444DD',
+    modalForegroundLabel: 'white',
     modalBackground: '#2C2C2E',
     modalBackgroundLabel: '#CCCCCC',
+    modalIosHighlightUnderlay: '#AAAAAA88',
   },
 };
 

@@ -23,13 +23,13 @@ import type {
   NavigationScreenProp,
   NavigationRoute,
 } from 'react-navigation';
+import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import {
   View,
   Text,
   TextInput,
-  StyleSheet,
   Platform,
   TouchableWithoutFeedback,
   Alert,
@@ -75,6 +75,7 @@ import {
   nonThreadCalendarQuery,
 } from '../selectors/nav-selectors';
 import LoadingIndicator from './loading-indicator.react';
+import { colors, styleSelector } from '../themes/colors';
 
 type Props = {|
   navigation: NavigationScreenProp<NavigationRoute>,
@@ -91,6 +92,7 @@ type Props = {|
   threadPickerActive: bool,
   foregroundKey: string,
   online: bool,
+  styles: Styles,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
@@ -125,6 +127,7 @@ class InternalEntry extends React.Component<Props, State> {
     threadPickerActive: PropTypes.bool.isRequired,
     foregroundKey: PropTypes.string.isRequired,
     online: PropTypes.bool.isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     createEntry: PropTypes.func.isRequired,
@@ -248,7 +251,9 @@ class InternalEntry extends React.Component<Props, State> {
     if (active) {
       const actionLinksColor = darkColor ? '#D3D3D3' : '#404040';
       const actionLinksTextStyle = { color: actionLinksColor };
-      const actionLinksUnderlayColor = darkColor ? "#AAAAAA88" : "#CCCCCCDD";
+      const { modalIosHighlightUnderlay: actionLinksUnderlayColor } = darkColor
+        ? colors.dark
+        : colors.light;
       let editButtonContent = null;
       if (editing && this.state.text.trim() === "") {
       } else if (editing) {
@@ -259,7 +264,10 @@ class InternalEntry extends React.Component<Props, State> {
               size={14}
               color={actionLinksColor}
             />
-            <Text style={[styles.leftLinksText, actionLinksTextStyle]}>
+            <Text style={[
+              this.props.styles.leftLinksText,
+              actionLinksTextStyle,
+            ]}>
               SAVE
             </Text>
           </React.Fragment>
@@ -271,31 +279,37 @@ class InternalEntry extends React.Component<Props, State> {
               name="pencil"
               size={12}
               color={actionLinksColor}
-              style={styles.pencilIcon}
+              style={this.props.styles.pencilIcon}
             />
-            <Text style={[styles.leftLinksText, actionLinksTextStyle]}>
+            <Text style={[
+              this.props.styles.leftLinksText,
+              actionLinksTextStyle,
+            ]}>
               EDIT
             </Text>
           </React.Fragment>
         );
       }
       actionLinks = (
-        <View style={styles.actionLinks}>
-          <View style={styles.leftLinks}>
+        <View style={this.props.styles.actionLinks}>
+          <View style={this.props.styles.leftLinks}>
             <Button
               onPress={this.delete}
               iosFormat="highlight"
               iosHighlightUnderlayColor={actionLinksUnderlayColor}
               iosActiveOpacity={0.85}
-              style={styles.button}
+              style={this.props.styles.button}
             >
-              <View style={styles.buttonContents}>
+              <View style={this.props.styles.buttonContents}>
                 <Icon
                   name="close"
                   size={14}
                   color={actionLinksColor}
                 />
-                <Text style={[styles.leftLinksText, actionLinksTextStyle]}>
+                <Text style={[
+                  this.props.styles.leftLinksText,
+                  actionLinksTextStyle,
+                ]}>
                   DELETE
                 </Text>
               </View>
@@ -305,14 +319,14 @@ class InternalEntry extends React.Component<Props, State> {
               iosFormat="highlight"
               iosHighlightUnderlayColor={actionLinksUnderlayColor}
               iosActiveOpacity={0.85}
-              style={styles.button}
+              style={this.props.styles.button}
             >
-              <View style={styles.buttonContents}>
+              <View style={this.props.styles.buttonContents}>
                 {editButtonContent}
               </View>
             </Button>
           </View>
-          <View style={styles.rightLinks}>
+          <View style={this.props.styles.rightLinks}>
             <LoadingIndicator
               loadingStatus={this.state.loadingStatus}
               color={actionLinksColor}
@@ -322,10 +336,13 @@ class InternalEntry extends React.Component<Props, State> {
               iosFormat="highlight"
               iosHighlightUnderlayColor={actionLinksUnderlayColor}
               iosActiveOpacity={0.85}
-              style={styles.button}
+              style={this.props.styles.button}
             >
               <Text
-                style={[styles.rightLinksText, actionLinksTextStyle]}
+                style={[
+                  this.props.styles.rightLinksText,
+                  actionLinksTextStyle,
+                ]}
                 numberOfLines={1}
               >
                 {this.state.threadInfo.uiName}
@@ -346,7 +363,7 @@ class InternalEntry extends React.Component<Props, State> {
       const selectionColor = darkColor ? '#129AFF' : '#036AFF';
       textInput = (
         <TextInput
-          style={[styles.textInput, textInputStyle]}
+          style={[ this.props.styles.textInput, textInputStyle ]}
           underlineColorAndroid="transparent"
           value={this.state.text}
           onChangeText={this.onChangeText}
@@ -363,7 +380,9 @@ class InternalEntry extends React.Component<Props, State> {
       rawText += " ";
     }
     const textStyle = { color: textColor };
-    const linkStyle = darkColor ? styles.lightLinkText : styles.darkLinkText;
+    const linkStyle = darkColor
+      ? this.props.styles.lightLinkText
+      : this.props.styles.darkLinkText;
     // We use an empty View to set the height of the entry, and then position
     // the Text and TextInput absolutely. This allows to measure height changes
     // to the Text while controlling the actual height of the entry.
@@ -372,10 +391,10 @@ class InternalEntry extends React.Component<Props, State> {
     const opacity = editing ? 1.0 : 0.6;
     return (
       <TouchableWithoutFeedback onPress={this.props.onPressWhitespace}>
-        <View style={styles.container}>
+        <View style={this.props.styles.container}>
           <Button
             onPress={this.setActive}
-            style={[styles.entry, entryStyle]}
+            style={[ this.props.styles.entry, entryStyle ]}
             androidFormat="opacity"
             iosActiveOpacity={opacity}
           >
@@ -384,10 +403,10 @@ class InternalEntry extends React.Component<Props, State> {
               <Hyperlink
                 linkDefault={true}
                 linkStyle={linkStyle}
-                style={styles.textContainer}
+                style={this.props.styles.textContainer}
               >
                 <Text
-                  style={[styles.text, textStyle]}
+                  style={[ this.props.styles.text, textStyle ]}
                   onLayout={this.onTextLayout}
                 >
                   {rawText}
@@ -651,7 +670,7 @@ class InternalEntry extends React.Component<Props, State> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     backgroundColor: '#FFFFFF',
   },
@@ -666,7 +685,6 @@ const styles = StyleSheet.create({
     paddingBottom: 6,
     paddingLeft: 10,
     paddingRight: 10,
-    color: '#333333',
     fontFamily: 'Arial',
   },
   textContainer: {
@@ -731,7 +749,8 @@ const styles = StyleSheet.create({
     paddingTop: 1,
     lineHeight: 13,
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 registerFetchKey(saveEntryActionTypes);
 registerFetchKey(deleteEntryActionTypes);
@@ -745,6 +764,7 @@ const Entry = connect(
     threadPickerActive: activeThreadPickerSelector(state),
     foregroundKey: foregroundKeySelector(state),
     online: state.connection.status === "connected",
+    styles: stylesSelector(state),
   }),
   { createEntry, saveEntry, deleteEntry },
 )(InternalEntry);

@@ -1,5 +1,8 @@
 // @flow
 
+import type { AppState } from '../redux/redux-setup';
+import { type GlobalTheme, globalThemePropType } from '../types/themes';
+
 import type { ViewStyle } from '../types/styles';
 import type {
   NativeMethodsMixinType,
@@ -22,7 +25,10 @@ import {
 import tinycolor from 'tinycolor2';
 import invariant from 'invariant';
 
+import { connect } from 'lib/utils/redux-utils';
+
 import Button from './button.react';
+import { colors } from '../themes/colors';
 
 type PanEvent = {
   nativeEvent: {
@@ -42,6 +48,8 @@ type Props = {|
   style?: ViewStyle,
   buttonText: string,
   oldButtonText: string,
+  // Redux state
+  activeTheme: ?GlobalTheme,
 |};
 type State = {|
   color: HSVColor,
@@ -66,6 +74,7 @@ class ColorPicker extends React.PureComponent<Props, State> {
     style: ViewPropTypes.style,
     buttonText: PropTypes.string,
     oldButtonText: PropTypes.string,
+    activeTheme: globalThemePropType,
   };
   static defaultProps = {
     buttonText: "Select",
@@ -318,6 +327,10 @@ class ColorPicker extends React.PureComponent<Props, State> {
     const tc = tinycolor(color);
     const selectedColor: string = tc.toHexString();
     const isDark: bool = tc.isDark();
+    const { modalIosHighlightUnderlay: underlayColor } =
+      this.props.activeTheme === 'dark'
+        ? colors.dark
+        : colors.light;
 
     let picker = null;
     if (pickerSize) {
@@ -384,6 +397,7 @@ class ColorPicker extends React.PureComponent<Props, State> {
           ]}
           onPress={this._onOldColorSelected}
           iosFormat="highlight"
+          iosHighlightUnderlayColor={underlayColor}
           iosActiveOpacity={0.6}
         >
           <Text style={[styles.buttonText, oldButtonTextStyle]}>
@@ -420,6 +434,7 @@ class ColorPicker extends React.PureComponent<Props, State> {
               topStyle={styles.colorPreview}
               onPress={this._onColorSelected}
               iosFormat="highlight"
+              iosHighlightUnderlayColor={underlayColor}
               iosActiveOpacity={0.6}
             >
               <Text style={[styles.buttonText, buttonTextStyle]}>
@@ -640,4 +655,6 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ColorPicker;
+export default connect((state: AppState) => ({
+  activeTheme: state.globalThemeInfo.activeTheme,
+}))(ColorPicker);

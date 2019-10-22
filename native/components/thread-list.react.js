@@ -49,7 +49,14 @@ class ThreadList extends React.PureComponent<Props, State> {
     searchResults: new Set(),
   };
 
-  listDataSelector = createSelector(
+  listDataSelector = createSelector<
+    PropsAndState,
+    void,
+    $ReadOnlyArray<ThreadInfo>,
+    $ReadOnlyArray<ThreadInfo>,
+    string,
+    Set<string>,
+  >(
     (propsAndState: PropsAndState) => propsAndState.threadInfos,
     (propsAndState: PropsAndState) => propsAndState.searchText,
     (propsAndState: PropsAndState) => propsAndState.searchResults,
@@ -57,7 +64,7 @@ class ThreadList extends React.PureComponent<Props, State> {
       threadInfos: $ReadOnlyArray<ThreadInfo>,
       text: string,
       searchResults: Set<string>,
-    ) => text
+    ): $ReadOnlyArray<ThreadInfo> => text
       ? threadInfos.filter(threadInfo => searchResults.has(threadInfo.id))
       : threadInfos,
   );

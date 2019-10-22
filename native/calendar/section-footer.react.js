@@ -1,43 +1,55 @@
 // @flow
 
-import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableWithoutFeedback,
-} from 'react-native';
+import type { AppState } from '../redux/redux-setup';
+import type { Styles } from '../types/styles';
+import { type GlobalTheme, globalThemePropType } from '../types/themes';
+
+import * as React from 'react';
+import { View, Text, TouchableWithoutFeedback } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
 
-import Button from '../components/button.react';
+import { connect } from 'lib/utils/redux-utils';
 
-type Props = {
+import Button from '../components/button.react';
+import { colors, styleSelector } from '../themes/colors';
+
+type Props = {|
   dateString: string,
   onAdd: (dateString: string) => void,
   onPressWhitespace: () => void,
-};
+  // Redux state
+  activeTheme: ?GlobalTheme,
+  styles: Styles,
+|};
 class SectionFooter extends React.PureComponent<Props> {
 
   static propTypes = {
     dateString: PropTypes.string.isRequired,
     onAdd: PropTypes.func.isRequired,
     onPressWhitespace: PropTypes.func.isRequired,
+    activeTheme: globalThemePropType,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
 
   render() {
+    const { modalIosHighlightUnderlay: underlayColor } =
+      this.props.activeTheme === 'dark'
+        ? colors.dark
+        : colors.light;
     return (
       <TouchableWithoutFeedback onPress={this.props.onPressWhitespace}>
-        <View style={styles.sectionFooter}>
+        <View style={this.props.styles.sectionFooter}>
           <Button
             onPress={this.onSubmit}
             iosFormat="highlight"
+            iosHighlightUnderlayColor={underlayColor}
             iosActiveOpacity={0.85}
-            style={styles.addButton}
+            style={this.props.styles.addButton}
           >
-            <View style={styles.addButtonContents}>
-              <Icon name="plus" style={styles.addIcon} />
-              <Text style={styles.actionLinksText}>Add</Text>
+            <View style={this.props.styles.addButtonContents}>
+              <Icon name="plus" style={this.props.styles.addIcon} />
+              <Text style={this.props.styles.actionLinksText}>Add</Text>
             </View>
           </Button>
         </View>
@@ -51,7 +63,7 @@ class SectionFooter extends React.PureComponent<Props> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   sectionFooter: {
     backgroundColor: 'white',
     height: 40,
@@ -79,6 +91,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#555555',
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
-export default SectionFooter;
+export default connect((state: AppState) => ({
+  activeTheme: state.globalThemeInfo.activeTheme,
+  styles: stylesSelector(state),
+}))(SectionFooter);
