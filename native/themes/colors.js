@@ -9,7 +9,7 @@ import { createSelector } from 'reselect';
 
 const colors = {
   light: {
-    background: '#E9E9EE',
+    background: '#E0E0E5',
     backgroundLabel: '#8E8E93',
     foreground: '#F2F2F7',
     foregroundBorder: '#D1D1D6',
@@ -38,7 +38,7 @@ const colors = {
     greenButton: '#44BB44',
     redText: '#FF4444',
     greenText: '#44FF44',
-    link: '#428FFF',
+    link: '#129AFF',
   },
 };
 
