@@ -63,7 +63,7 @@ const styles = {
     paddingTop: 24,
   },
   scrollView: {
-    backgroundColor: 'background',
+    backgroundColor: 'panelBackground',
   },
   section: {
     borderTopWidth: 1,
@@ -71,8 +71,8 @@ const styles = {
     paddingVertical: 6,
     paddingHorizontal: 24,
     marginBottom: 24,
-    backgroundColor: 'foreground',
-    borderColor: 'foregroundBorder',
+    backgroundColor: 'panelForeground',
+    borderColor: 'panelForegroundBorder',
   },
   row: {
     flexDirection: 'row',
@@ -81,7 +81,7 @@ const styles = {
   },
   label: {
     fontSize: 16,
-    color: 'foregroundSecondaryLabel',
+    color: 'panelForegroundSecondaryLabel',
     paddingRight: 12,
   },
   releaseText: {
@@ -90,12 +90,12 @@ const styles = {
   },
   text: {
     fontSize: 16,
-    color: 'foregroundLabel',
+    color: 'panelForegroundLabel',
   },
   thanksText: {
     flex: 1,
     fontSize: 16,
-    color: 'foregroundLabel',
+    color: 'panelForegroundLabel',
     textAlign: 'center',
   },
 };

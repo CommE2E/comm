@@ -65,7 +65,9 @@ class AppearancePreferences extends React.PureComponent<Props> {
 
   render() {
     const isDark = this.props.globalThemeInfo.activeTheme === 'dark';
-    const { iosHighlightUnderlay } = isDark ? colors.dark : colors.light;
+    const { panelIosHighlightUnderlay: underlay } = isDark
+      ? colors.dark
+      : colors.light;
 
     const options = [];
     for (let i = 0; i < optionTexts.length; i++) {
@@ -78,7 +80,7 @@ class AppearancePreferences extends React.PureComponent<Props> {
           onPress={() => this.onSelectThemePreference(themePreference)}
           style={this.props.styles.row}
           iosFormat="highlight"
-          iosHighlightUnderlayColor={iosHighlightUnderlay}
+          iosHighlightUnderlayColor={underlay}
           key={`button_${themePreference}`}
         >
           <Text style={this.props.styles.option}>{text}</Text>
@@ -126,22 +128,22 @@ const styles = {
     paddingTop: 24,
   },
   scrollView: {
-    backgroundColor: 'background',
+    backgroundColor: 'panelBackground',
   },
   header: {
     paddingHorizontal: 24,
     paddingBottom: 3,
     fontSize: 12,
     fontWeight: "400",
-    color: 'backgroundLabel',
+    color: 'panelBackgroundLabel',
   },
   section: {
     borderTopWidth: 1,
     borderBottomWidth: 1,
     marginBottom: 24,
     paddingVertical: 2,
-    backgroundColor: 'foreground',
-    borderColor: 'foregroundBorder',
+    backgroundColor: 'panelForeground',
+    borderColor: 'panelForegroundBorder',
   },
   row: {
     flexDirection: 'row',
@@ -151,7 +153,7 @@ const styles = {
   },
   option: {
     fontSize: 16,
-    color: 'foregroundLabel',
+    color: 'panelForegroundLabel',
   },
   icon: {
     lineHeight: Platform.OS === "ios" ? 18 : 20,
@@ -159,7 +161,7 @@ const styles = {
   hr: {
     height: 1,
     marginHorizontal: 15,
-    backgroundColor: 'foregroundBorder',
+    backgroundColor: 'panelForegroundBorder',
   },
 };
 const stylesSelector = styleSelector(styles);

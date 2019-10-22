@@ -297,14 +297,14 @@ const styles = {
     paddingTop: 24,
   },
   scrollView: {
-    backgroundColor: 'background',
+    backgroundColor: 'panelBackground',
   },
   header: {
     paddingHorizontal: 24,
     paddingBottom: 3,
     fontSize: 12,
     fontWeight: "400",
-    color: 'backgroundLabel',
+    color: 'panelBackgroundLabel',
   },
   section: {
     flexDirection: 'row',
@@ -317,8 +317,8 @@ const styles = {
     }),
     paddingHorizontal: 24,
     marginBottom: 24,
-    backgroundColor: 'foreground',
-    borderColor: 'foregroundBorder',
+    backgroundColor: 'panelForeground',
+    borderColor: 'panelForegroundBorder',
   },
   input: {
     flex: 1,
@@ -338,7 +338,7 @@ const styles = {
   saveText: {
     fontSize: 18,
     textAlign: 'center',
-    color: 'foregroundLabel',
+    color: 'panelForegroundLabel',
   },
   onePasswordButton: {
     marginLeft: 6,

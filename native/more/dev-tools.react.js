@@ -62,7 +62,9 @@ class DevTools extends React.PureComponent<Props> {
 
   render() {
     const isDark = this.props.activeTheme === 'dark';
-    const { iosHighlightUnderlay } = isDark ? colors.dark : colors.light;
+    const { panelIosHighlightUnderlay: underlay } = isDark
+      ? colors.dark
+      : colors.light;
 
     const serverButtons = [];
     for (let server of serverOptions) {
@@ -74,7 +76,7 @@ class DevTools extends React.PureComponent<Props> {
           onPress={() => this.onSelectServer(server)}
           style={this.props.styles.row}
           iosFormat="highlight"
-          iosHighlightUnderlayColor={iosHighlightUnderlay}
+          iosHighlightUnderlayColor={underlay}
           key={`server${server}`}
         >
           <Text style={this.props.styles.serverText}>{server}</Text>
@@ -110,7 +112,7 @@ class DevTools extends React.PureComponent<Props> {
         onPress={this.onSelectCustomServer}
         style={this.props.styles.row}
         iosFormat="highlight"
-        iosHighlightUnderlayColor={iosHighlightUnderlay}
+        iosHighlightUnderlayColor={underlay}
         key="customServer"
       >
         {customServerLabel}
@@ -129,7 +131,7 @@ class DevTools extends React.PureComponent<Props> {
               onPress={this.onPressCrash}
               style={this.props.styles.row}
               iosFormat="highlight"
-              iosHighlightUnderlayColor={iosHighlightUnderlay}
+              iosHighlightUnderlayColor={underlay}
             >
               <Text style={this.props.styles.redText}>Trigger a crash</Text>
             </Button>
@@ -138,7 +140,7 @@ class DevTools extends React.PureComponent<Props> {
               onPress={this.onPressKill}
               style={this.props.styles.row}
               iosFormat="highlight"
-              iosHighlightUnderlayColor={iosHighlightUnderlay}
+              iosHighlightUnderlayColor={underlay}
             >
               <Text style={this.props.styles.redText}>Kill the app</Text>
             </Button>
@@ -147,7 +149,7 @@ class DevTools extends React.PureComponent<Props> {
               onPress={this.onPressWipe}
               style={this.props.styles.row}
               iosFormat="highlight"
-              iosHighlightUnderlayColor={iosHighlightUnderlay}
+              iosHighlightUnderlayColor={underlay}
             >
               <Text style={this.props.styles.redText}>
                 Wipe state and kill app
@@ -197,15 +199,15 @@ const styles = {
     paddingTop: 24,
   },
   scrollView: {
-    backgroundColor: 'background',
+    backgroundColor: 'panelBackground',
   },
   slightlyPaddedSection: {
     borderTopWidth: 1,
     borderBottomWidth: 1,
     marginBottom: 24,
     paddingVertical: 2,
-    backgroundColor: 'foreground',
-    borderColor: 'foregroundBorder',
+    backgroundColor: 'panelForeground',
+    borderColor: 'panelForegroundBorder',
   },
   row: {
     flexDirection: 'row',
@@ -220,7 +222,7 @@ const styles = {
   },
   hr: {
     height: 1,
-    backgroundColor: 'foregroundBorder',
+    backgroundColor: 'panelForegroundBorder',
     marginHorizontal: 15,
   },
   header: {
@@ -228,14 +230,14 @@ const styles = {
     paddingBottom: 3,
     fontSize: 12,
     fontWeight: "400",
-    color: 'backgroundLabel',
+    color: 'panelBackgroundLabel',
   },
   customServerLabel: {
-    color: 'foregroundSecondaryLabel',
+    color: 'panelForegroundSecondaryLabel',
     fontSize: 16,
   },
   serverText: {
-    color: 'foregroundLabel',
+    color: 'panelForegroundLabel',
     fontSize: 16,
   },
   serverContainer: {

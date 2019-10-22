@@ -133,7 +133,7 @@ class MoreScreen extends React.PureComponent<Props> {
     }
 
     const isDark = this.props.activeTheme === 'dark';
-    const { iosHighlightUnderlay, link: linkColor } = isDark
+    const { panelIosHighlightUnderlay: underlay, link: linkColor } = isDark
       ? colors.dark
       : colors.light;
     return (
@@ -192,7 +192,7 @@ class MoreScreen extends React.PureComponent<Props> {
               onPress={this.onPressAppearance}
               style={this.props.styles.submenuButton}
               iosFormat="highlight"
-              iosHighlightUnderlayColor={iosHighlightUnderlay}
+              iosHighlightUnderlayColor={underlay}
             >
               <Text style={this.props.styles.submenuText}>Appearance</Text>
               <Icon
@@ -207,7 +207,7 @@ class MoreScreen extends React.PureComponent<Props> {
               onPress={this.onPressBuildInfo}
               style={this.props.styles.submenuButton}
               iosFormat="highlight"
-              iosHighlightUnderlayColor={iosHighlightUnderlay}
+              iosHighlightUnderlayColor={underlay}
             >
               <Text style={this.props.styles.submenuText}>Build info</Text>
               <Icon
@@ -220,7 +220,7 @@ class MoreScreen extends React.PureComponent<Props> {
               onPress={this.onPressDevTools}
               style={this.props.styles.submenuButton}
               iosFormat="highlight"
-              iosHighlightUnderlayColor={iosHighlightUnderlay}
+              iosHighlightUnderlayColor={underlay}
             >
               <Text style={this.props.styles.submenuText}>Developer tools</Text>
               <Icon
@@ -235,7 +235,7 @@ class MoreScreen extends React.PureComponent<Props> {
               onPress={this.onPressDeleteAccount}
               style={this.props.styles.deleteAccountButton}
               iosFormat="highlight"
-              iosHighlightUnderlayColor={iosHighlightUnderlay}
+              iosHighlightUnderlayColor={underlay}
             >
               <Text style={this.props.styles.deleteAccountText}>
                 Delete account...
@@ -347,7 +347,7 @@ const styles = {
     paddingTop: 24,
   },
   scrollView: {
-    backgroundColor: 'background',
+    backgroundColor: 'panelBackground',
   },
   section: {
     borderTopWidth: 1,
@@ -355,23 +355,23 @@ const styles = {
     paddingVertical: 12,
     paddingHorizontal: 24,
     marginBottom: 24,
-    backgroundColor: 'foreground',
-    borderColor: 'foregroundBorder',
+    backgroundColor: 'panelForeground',
+    borderColor: 'panelForegroundBorder',
   },
   unpaddedSection: {
     borderTopWidth: 1,
     borderBottomWidth: 1,
     marginBottom: 24,
-    backgroundColor: 'foreground',
-    borderColor: 'foregroundBorder',
+    backgroundColor: 'panelForeground',
+    borderColor: 'panelForegroundBorder',
   },
   slightlyPaddedSection: {
     borderTopWidth: 1,
     borderBottomWidth: 1,
     marginBottom: 24,
     paddingVertical: 2,
-    backgroundColor: 'foreground',
-    borderColor: 'foregroundBorder',
+    backgroundColor: 'panelForeground',
+    borderColor: 'panelForegroundBorder',
   },
   row: {
     flex: 1,
@@ -380,14 +380,14 @@ const styles = {
   },
   label: {
     fontSize: 16,
-    color: 'foregroundSecondaryLabel',
+    color: 'panelForegroundSecondaryLabel',
     paddingRight: 12,
   },
   username: {
-    color: 'foregroundLabel',
+    color: 'panelForegroundLabel',
   },
   value: {
-    color: 'foregroundLabel',
+    color: 'panelForegroundLabel',
     fontSize: 16,
     textAlign: 'right',
   },
@@ -404,7 +404,7 @@ const styles = {
     paddingBottom: 3,
     fontSize: 12,
     fontWeight: "400",
-    color: 'backgroundLabel',
+    color: 'panelBackgroundLabel',
   },
   verification: {
     flexDirection: 'row',
@@ -454,7 +454,7 @@ const styles = {
     paddingVertical: 10,
   },
   submenuText: {
-    color: 'foregroundLabel',
+    color: 'panelForegroundLabel',
     fontSize: 16,
     flex: 1,
   },
