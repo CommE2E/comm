@@ -1,7 +1,9 @@
 // @flow
 
-import type { ViewStyle, TextStyle } from '../types/styles';
+import type { ViewStyle, TextStyle, Styles } from '../types/styles';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import type { AppState } from '../redux/redux-setup';
+import { type GlobalTheme, globalThemePropType } from '../types/themes';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -10,7 +12,6 @@ import {
   ViewPropTypes,
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   TextInput,
   Platform,
@@ -20,8 +21,10 @@ import invariant from 'invariant';
 import { createSelector } from 'reselect';
 
 import SearchIndex from 'lib/shared/search-index';
+import { connect } from 'lib/utils/redux-utils';
 
 import ThreadListThread from './thread-list-thread.react';
+import { colors, styleSelector } from '../themes/colors';
 
 type Props = {|
   threadInfos: $ReadOnlyArray<ThreadInfo>,
@@ -29,6 +32,9 @@ type Props = {|
   itemStyle?: ViewStyle,
   itemTextStyle?: TextStyle,
   searchIndex?: SearchIndex,
+  // Redux state
+  activeTheme: ?GlobalTheme,
+  styles: Styles,
 |};
 type State = {|
   searchText: string,
@@ -43,6 +49,8 @@ class ThreadList extends React.PureComponent<Props, State> {
     itemStyle: ViewPropTypes.style,
     itemTextStyle: Text.propTypes.style,
     searchIndex: PropTypes.instanceOf(SearchIndex),
+    activeTheme: globalThemePropType,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
   state = {
     searchText: "",
@@ -76,6 +84,9 @@ class ThreadList extends React.PureComponent<Props, State> {
   render() {
     let searchBar = null;
     if (this.props.searchIndex) {
+      const { listSearchIcon: iconColor } = this.props.activeTheme === 'dark'
+        ? colors.dark
+        : colors.light;
       let clearSearchInputIcon = null;
       if (this.state.searchText) {
         clearSearchInputIcon = (
@@ -86,26 +97,26 @@ class ThreadList extends React.PureComponent<Props, State> {
             <Icon
               name="times-circle"
               size={18}
-              color="#AAAAAA"
+              color={iconColor}
             />
           </TouchableOpacity>
         );
       }
       searchBar = (
-        <View style={styles.search}>
+        <View style={this.props.styles.search}>
           <Icon
             name="search"
             size={18}
-            color="#AAAAAA"
-            style={styles.searchIcon}
+            color={iconColor}
+            style={this.props.styles.searchIcon}
           />
           <TextInput
-            style={styles.searchInput}
+            style={this.props.styles.searchInput}
             underlineColorAndroid="transparent"
             value={this.state.searchText}
             onChangeText={this.onChangeSearchText}
             placeholder="Search threads"
-            placeholderTextColor="#AAAAAA"
+            placeholderTextColor={iconColor}
             returnKeyType="go"
             autoFocus={true}
           />
@@ -159,12 +170,12 @@ class ThreadList extends React.PureComponent<Props, State> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   searchIcon: {
     paddingBottom: Platform.OS === "android" ? 0 : 2,
   },
   search: {
-    backgroundColor: '#DDDDDD',
+    backgroundColor: 'listSearchBackground',
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
@@ -180,8 +191,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     padding: 0,
     marginVertical: 0,
-    color: 'black',
+    color: 'modalForegroundLabel',
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
-export default ThreadList;
+export default connect((state: AppState) => ({
+  activeTheme: state.globalThemeInfo.activeTheme,
+  styles: stylesSelector(state),
+}))(ThreadList);

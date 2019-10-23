@@ -1,8 +1,13 @@
 // @flow
 
-import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import type { AppState } from '../redux/redux-setup';
+import type { Styles } from '../types/styles';
+
+import * as React from 'react';
+import { View, Text } from 'react-native';
 import PropTypes from 'prop-types';
+
+import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../components/button.react';
 import {
@@ -10,10 +15,13 @@ import {
   addKeyboardDismissListener,
   removeKeyboardListener,
 } from '../keyboard';
+import { styleSelector } from '../themes/colors';
 
 type Props = {|
   onSave: () => void,
   disabled: bool,
+  // Redux state
+  styles: Styles,
 |};
 type State = {|
   keyboardActive: bool,
@@ -23,6 +31,7 @@ class CalendarInputBar extends React.PureComponent<Props, State> {
   static propTypes = {
     onSave: PropTypes.func.isRequired,
     disabled: PropTypes.bool.isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
   state = {
     keyboardActive: false,
@@ -59,14 +68,14 @@ class CalendarInputBar extends React.PureComponent<Props, State> {
   render() {
     const inactiveStyle = this.state.keyboardActive && !this.props.disabled
       ? undefined
-      : styles.inactiveContainer;
+      : this.props.styles.inactiveContainer;
     return (
-      <View style={[styles.container, inactiveStyle]}>
+      <View style={[ this.props.styles.container, inactiveStyle ]}>
         <Button
           onPress={this.props.onSave}
           iosActiveOpacity={0.5}
         >
-          <Text style={styles.saveButtonText}>
+          <Text style={this.props.styles.saveButtonText}>
             Save
           </Text>
         </Button>
@@ -76,9 +85,9 @@ class CalendarInputBar extends React.PureComponent<Props, State> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
-    backgroundColor: '#E2E2E2',
+    backgroundColor: 'listInputBar',
     alignItems: 'flex-end',
   },
   inactiveContainer: {
@@ -86,12 +95,15 @@ const styles = StyleSheet.create({
     opacity: 0,
   },
   saveButtonText: {
-    color: "#036AFF",
+    color: 'link',
     fontWeight: 'bold',
     fontSize: 16,
     padding: 8,
     marginRight: 5,
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
-export default CalendarInputBar;
+export default connect((state: AppState) => ({
+  styles: stylesSelector(state),
+}))(CalendarInputBar);

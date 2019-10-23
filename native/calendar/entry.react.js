@@ -45,6 +45,7 @@ import _isEqual from 'lodash/fp/isEqual';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { NavigationActions } from 'react-navigation';
 import Hyperlink from 'react-native-hyperlink';
+import tinycolor from 'tinycolor2';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
 import {
@@ -76,6 +77,13 @@ import {
 } from '../selectors/nav-selectors';
 import LoadingIndicator from './loading-indicator.react';
 import { colors, styleSelector } from '../themes/colors';
+
+function hueDistance(firstColor: string, secondColor: string): number {
+  const firstHue = tinycolor(firstColor).toHsv().h;
+  const secondHue = tinycolor(secondColor).toHsv().h;
+  const distance = Math.abs(firstHue - secondHue);
+  return distance > 180 ? 360 - distance : distance;
+}
 
 type Props = {|
   navigation: NavigationScreenProp<NavigationRoute>,
@@ -245,6 +253,7 @@ class InternalEntry extends React.Component<Props, State> {
   render() {
     const active = InternalEntry.isActive(this.props, this.state);
     const { editing } = this.state;
+    const threadColor = `#${this.state.threadInfo.color}`;
 
     const darkColor = colorIsDark(this.state.threadInfo.color);
     let actionLinks = null;
@@ -254,6 +263,7 @@ class InternalEntry extends React.Component<Props, State> {
       const { modalIosHighlightUnderlay: actionLinksUnderlayColor } = darkColor
         ? colors.dark
         : colors.light;
+      const loadingIndicatorCanUseRed = hueDistance('red', threadColor) > 50;
       let editButtonContent = null;
       if (editing && this.state.text.trim() === "") {
       } else if (editing) {
@@ -330,6 +340,7 @@ class InternalEntry extends React.Component<Props, State> {
             <LoadingIndicator
               loadingStatus={this.state.loadingStatus}
               color={actionLinksColor}
+              canUseRed={loadingIndicatorCanUseRed}
             />
             <Button
               onPress={this.onPressThreadName}
@@ -358,7 +369,7 @@ class InternalEntry extends React.Component<Props, State> {
     if (editing) {
       const textInputStyle = {
         color: textColor,
-        backgroundColor: `#${this.state.threadInfo.color}`,
+        backgroundColor: threadColor,
       };
       const selectionColor = darkColor ? '#129AFF' : '#036AFF';
       textInput = (
@@ -380,14 +391,15 @@ class InternalEntry extends React.Component<Props, State> {
       rawText += " ";
     }
     const textStyle = { color: textColor };
-    const linkStyle = darkColor
-      ? this.props.styles.lightLinkText
-      : this.props.styles.darkLinkText;
+    const linkColorStyle = darkColor
+      ? { color: colors.dark.link }
+      : { color: colors.light.link };
+    const linkStyle = [ this.props.styles.linkText, linkColorStyle ];
     // We use an empty View to set the height of the entry, and then position
     // the Text and TextInput absolutely. This allows to measure height changes
     // to the Text while controlling the actual height of the entry.
     const heightStyle = { height: this.state.height };
-    const entryStyle = { backgroundColor: `#${this.state.threadInfo.color}` };
+    const entryStyle = { backgroundColor: threadColor };
     const opacity = editing ? 1.0 : 0.6;
     return (
       <TouchableWithoutFeedback onPress={this.props.onPressWhitespace}>
@@ -672,7 +684,7 @@ class InternalEntry extends React.Component<Props, State> {
 
 const styles = {
   container: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'listBackground',
   },
   entry: {
     borderRadius: 8,
@@ -737,12 +749,7 @@ const styles = {
   button: {
     padding: 5,
   },
-  darkLinkText: {
-    color: "#036AFF",
-    textDecorationLine: "underline",
-  },
-  lightLinkText: {
-    color: "#129AFF",
+  linkText: {
     textDecorationLine: "underline",
   },
   pencilIcon: {

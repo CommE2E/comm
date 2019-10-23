@@ -1,28 +1,54 @@
 // @flow
 
-import React from 'react';
-import { ActivityIndicator, StyleSheet } from 'react-native';
+import type { AppState } from '../redux/redux-setup';
+import type { Styles } from '../types/styles';
+import { type GlobalTheme, globalThemePropType } from '../types/themes';
 
-class ListLoadingIndicator extends React.PureComponent<{||}> {
+import * as React from 'react';
+import { ActivityIndicator } from 'react-native';
+import PropTypes from 'prop-types';
+
+import { connect } from 'lib/utils/redux-utils';
+
+import { colors, styleSelector } from '../themes/colors';
+
+type Props = {|
+  // Redux state
+  activeTheme: ?GlobalTheme,
+  styles: Styles,
+|};
+class ListLoadingIndicator extends React.PureComponent<Props> {
+
+  static propTypes = {
+    activeTheme: globalThemePropType,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
+  };
 
   render() {
+    const { listBackgroundLabel } = this.props.activeTheme === 'dark'
+      ? colors.dark
+      : colors.light;
     return (
       <ActivityIndicator
-        color="black"
+        color={listBackgroundLabel}
         size="large"
-        style={styles.loadingIndicator}
+        style={this.props.styles.loadingIndicator}
       />
     );
   }
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   loadingIndicator: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: 'listBackground',
     padding: 10,
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
-export default ListLoadingIndicator;
+export default connect((state: AppState) => ({
+  activeTheme: state.globalThemeInfo.activeTheme,
+  styles: stylesSelector(state),
+}))(ListLoadingIndicator);

@@ -65,12 +65,12 @@ class SectionFooter extends React.PureComponent<Props> {
 
 const styles = {
   sectionFooter: {
-    backgroundColor: 'white',
+    backgroundColor: 'listBackground',
     height: 40,
     alignItems: 'flex-start',
   },
   addButton: {
-    backgroundColor: '#EEEEEE',
+    backgroundColor: 'listSeparator',
     paddingLeft: 10,
     paddingRight: 10,
     paddingTop: 5,
@@ -85,11 +85,11 @@ const styles = {
   addIcon: {
     fontSize: 14,
     paddingRight: 6,
-    color: '#555555',
+    color: 'listSeparatorLabel',
   },
   actionLinksText: {
     fontWeight: 'bold',
-    color: '#555555',
+    color: 'listSeparatorLabel',
   },
 };
 const stylesSelector = styleSelector(styles);

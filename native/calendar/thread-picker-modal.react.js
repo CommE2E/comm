@@ -90,12 +90,6 @@ class ThreadPickerModal extends React.PureComponent<Props> {
 }
 
 const styles = StyleSheet.create({
-  headerText: {
-    fontSize: 24,
-    textAlign: 'center',
-    color: "black",
-    paddingBottom: 8,
-  },
   threadListItem: {
     paddingVertical: 2,
     paddingLeft: 10,

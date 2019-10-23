@@ -31,11 +31,12 @@ import {
   type ConnectionStatus,
   connectionStatusPropType,
 } from 'lib/types/socket-types';
+import type { Styles } from '../types/styles';
+import { type GlobalTheme, globalThemePropType } from '../types/themes';
 
 import * as React from 'react';
 import {
   View,
-  StyleSheet,
   Text,
   FlatList,
   AppState as NativeAppState,
@@ -96,6 +97,7 @@ import {
 } from '../navigation/route-names';
 import DisconnectedBar from '../navigation/disconnected-bar.react';
 import SafeAreaView from '../components/safe-area-view.react';
+import { colors, styleSelector } from '../themes/colors';
 
 export type EntryInfoWithHeight = {|
   ...EntryInfo,
@@ -136,6 +138,8 @@ type Props = {
   contentVerticalOffset: number,
   loadingStatus: LoadingStatus,
   connectionStatus: ConnectionStatus,
+  activeTheme: ?GlobalTheme,
+  styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -184,6 +188,8 @@ class Calendar extends React.PureComponent<Props, State> {
     contentVerticalOffset: PropTypes.number.isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
     connectionStatus: connectionStatusPropType.isRequired,
+    activeTheme: globalThemePropType,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     updateCalendarQuery: PropTypes.func.isRequired,
   };
@@ -192,7 +198,7 @@ class Calendar extends React.PureComponent<Props, State> {
     tabBarIcon: ({ tintColor }) => (
       <Icon
         name="calendar"
-        style={[styles.icon, { color: tintColor }]}
+        style={[ styles.icon, { color: tintColor } ]}
       />
     ),
     tabBarOnPress: ({ navigation, defaultHandler }: {
@@ -662,12 +668,12 @@ class Calendar extends React.PureComponent<Props, State> {
     }
     const dateObj = dateFromString(item.dateString).getDay();
     const weekendStyle = dateObj === 0 || dateObj === 6
-      ? styles.weekendSectionHeader
+      ? this.props.styles.weekendSectionHeader
       : null;
     return (
       <TouchableWithoutFeedback onPress={this.makeAllEntriesInactive}>
-        <View style={[styles.sectionHeader, weekendStyle]}>
-          <Text style={styles.sectionHeaderText}>
+        <View style={[ this.props.styles.sectionHeader, weekendStyle ]}>
+          <Text style={this.props.styles.sectionHeaderText}>
             {date}
           </Text>
         </View>
@@ -737,6 +743,9 @@ class Calendar extends React.PureComponent<Props, State> {
   }
 
   render() {
+    const isDark = this.props.activeTheme === 'dark';
+    const { listSeparatorLabel } = isDark ? colors.dark : colors.light;
+
     const listDataWithHeights = this.state.listDataWithHeights;
     let flatList = null;
     if (listDataWithHeights) {
@@ -757,7 +766,7 @@ class Calendar extends React.PureComponent<Props, State> {
           onScrollEndDrag={this.onScrollEndDrag}
           scrollsToTop={false}
           extraData={this.state.extraData}
-          style={[styles.flatList, flatListStyle]}
+          style={[ this.props.styles.flatList, flatListStyle ]}
           ref={this.flatListRef}
         />
       );
@@ -765,24 +774,24 @@ class Calendar extends React.PureComponent<Props, State> {
     let loadingIndicator = null;
     if (!listDataWithHeights || !this.state.readyToShowList) {
       loadingIndicator = (
-        <View style={styles.loadingIndicatorContainer}>
+        <View style={this.props.styles.loadingIndicatorContainer}>
           <ActivityIndicator
-            color="black"
+            color={listSeparatorLabel}
             size="large"
-            style={styles.loadingIndicator}
+            style={this.props.styles.loadingIndicator}
           />
         </View>
       );
     }
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={this.props.styles.container}>
         <DisconnectedBar />
         <TextHeightMeasurer
           textToMeasure={this.state.textToMeasure}
           allHeightsMeasuredCallback={this.allHeightsMeasured}
           style={[entryStyles.entry, entryStyles.text]}
         />
-        <KeyboardAvoidingView style={styles.keyboardAvoidingView}>
+        <KeyboardAvoidingView style={this.props.styles.keyboardAvoidingView}>
           {loadingIndicator}
           {flatList}
           <CalendarInputBar
@@ -1132,31 +1141,30 @@ class Calendar extends React.PureComponent<Props, State> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   icon: {
     fontSize: 28,
   },
   container: {
     flex: 1,
-    backgroundColor: '#E9E9EF',
+    backgroundColor: 'listSeparator',
   },
   flatList: {
     flex: 1,
-    backgroundColor: '#EEEEEE',
+    backgroundColor: 'listSeparator',
   },
   sectionHeader: {
     height: 31,
-    backgroundColor: '#EEEEEE',
+    backgroundColor: 'listSeparator',
     borderBottomWidth: 2,
-    borderColor: '#FFFFFF',
+    borderColor: 'listBackground',
   },
   weekendSectionHeader: {
-    backgroundColor: '#EEEEEE',
   },
   sectionHeaderText: {
     padding: 5,
     fontWeight: 'bold',
-    color: '#555555',
+    color: 'listSeparatorLabel',
   },
   loadingIndicator: {
     flex: 1,
@@ -1171,7 +1179,8 @@ const styles = StyleSheet.create({
   keyboardAvoidingView: {
     flex: 1,
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 const loadingStatusSelector = createLoadingStatusSelector(
   updateCalendarQueryActionTypes,
@@ -1192,6 +1201,8 @@ export default connect(
     contentVerticalOffset: contentVerticalOffsetSelector(state),
     loadingStatus: loadingStatusSelector(state),
     connectionStatus: state.connection.status,
+    activeTheme: state.globalThemeInfo.activeTheme,
+    styles: stylesSelector(state),
   }),
   { updateCalendarQuery },
 )(Calendar);
