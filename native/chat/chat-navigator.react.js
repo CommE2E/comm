@@ -6,6 +6,7 @@ import type {
 } from 'react-navigation';
 
 import * as React from 'react';
+import { Platform } from 'react-native';
 import { createStackNavigator } from 'react-navigation-stack';
 
 import ChatThreadList from './chat-thread-list.react';
@@ -23,6 +24,7 @@ import {
   ChatThreadListRouteName,
 } from '../navigation/route-names';
 import Header from '../navigation/header.react';
+import HeaderBackButton from '../navigation/header-back-button.react';
 
 const ChatNavigator = createStackNavigator(
   {
@@ -33,9 +35,13 @@ const ChatNavigator = createStackNavigator(
     [DeleteThreadRouteName]: DeleteThread,
   },
   {
-    defaultNavigationOptions: {
+    defaultNavigationOptions: ({ navigation }) => ({
       header: Header,
-    },
+      headerLeft:
+        Platform.OS === "android" && !navigation.isFirstRouteInParent()
+          ? HeaderBackButton
+          : undefined,
+    }),
     cardStyle: {
       backgroundColor: "#E9E9EF",
     },

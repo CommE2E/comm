@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { createStackNavigator } from 'react-navigation-stack';
 
@@ -22,6 +22,7 @@ import {
   AppearancePreferencesRouteName,
 } from '../navigation/route-names';
 import Header from '../navigation/header.react';
+import HeaderBackButton from '../navigation/header-back-button.react';
 
 const More = createStackNavigator(
   {
@@ -34,9 +35,13 @@ const More = createStackNavigator(
     [AppearancePreferencesRouteName]: AppearancePreferences,
   },
   {
-    defaultNavigationOptions: {
+    defaultNavigationOptions: ({ navigation }) => ({
       header: Header,
-    },
+      headerLeft:
+        Platform.OS === "android" && !navigation.isFirstRouteInParent()
+          ? HeaderBackButton
+          : undefined,
+    }),
     cardStyle: {
       backgroundColor: "#E9E9EF",
     },
