@@ -116,6 +116,7 @@ import {
 } from '../chat/text-message-tooltip-modal.react';
 import ThreadSettingsMemberTooltipModal
   from '../chat/settings/thread-settings-member-tooltip-modal.react';
+import TabBar from './tab-bar.react';
 
 useScreens();
 
@@ -153,6 +154,7 @@ const TabNavigator = createBottomTabNavigator(
   {
     initialRouteName: CalendarRouteName,
     lazy: false,
+    tabBarComponent: TabBar,
     tabBarOptions: {
       keyboardHidesTabBar: false,
     },
