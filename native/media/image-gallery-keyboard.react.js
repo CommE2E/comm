@@ -335,7 +335,7 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
   render() {
     let content;
     const { imageInfos, error, containerHeight } = this.state;
-    if (imageInfos && containerHeight) {
+    if (imageInfos && imageInfos.length > 0 && containerHeight) {
       content = (
         <FlatList
           horizontal={true}
@@ -352,6 +352,8 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
           ref={this.flatListRef}
         />
       );
+    } else if (imageInfos && containerHeight) {
+      content = <Text style={styles.error}>no media was found!</Text>;
     } else if (error) {
       content = <Text style={styles.error}>{error}</Text>;
     } else {
