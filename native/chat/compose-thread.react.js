@@ -23,10 +23,12 @@ import {
 } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { UserSearchResult } from 'lib/types/search-types';
+import type { Styles } from '../types/styles';
+import type { Colors } from '../themes/colors';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import { View, Text, Alert } from 'react-native';
 import invariant from 'invariant';
 import _flow from 'lodash/fp/flow';
 import _filter from 'lodash/fp/filter';
@@ -63,6 +65,7 @@ import LinkButton from '../components/link-button.react';
 import { MessageListRouteName } from '../navigation/route-names';
 import { registerChatScreen } from './chat-screen-registry';
 import ThreadVisibility from '../components/thread-visibility.react';
+import { colorsSelector, styleSelector } from '../themes/colors';
 
 const tagInputProps = {
   placeholder: "username",
@@ -107,6 +110,8 @@ type Props = {|
   otherUserInfos: {[id: string]: AccountUserInfo},
   userSearchIndex: SearchIndex,
   threadInfos: {[id: string]: ThreadInfo},
+  colors: Colors,
+  styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -138,6 +143,8 @@ class ComposeThread extends React.PureComponent<Props, State> {
     otherUserInfos: PropTypes.objectOf(accountUserInfoPropType).isRequired,
     userSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
     threadInfos: PropTypes.objectOf(threadInfoPropType).isRequired,
+    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     newThread: PropTypes.func.isRequired,
     searchUsers: PropTypes.func.isRequired,
@@ -238,17 +245,17 @@ class ComposeThread extends React.PureComponent<Props, State> {
     const { existingThreads, userSearchResults } = this;
     if (existingThreads.length > 0) {
       existingThreadsSection = (
-        <View style={styles.existingThreads}>
-          <View style={styles.existingThreadsRow}>
-            <Text style={styles.existingThreadsLabel}>
+        <View style={this.props.styles.existingThreads}>
+          <View style={this.props.styles.existingThreadsRow}>
+            <Text style={this.props.styles.existingThreadsLabel}>
               Existing threads
             </Text>
           </View>
-          <View style={styles.existingThreadList}>
+          <View style={this.props.styles.existingThreadList}>
             <ThreadList
               threadInfos={existingThreads}
               onSelect={this.onSelectExistingThread}
-              itemTextStyle={styles.listItem}
+              itemTextStyle={this.props.styles.listItem}
             />
           </View>
         </View>
@@ -267,11 +274,15 @@ class ComposeThread extends React.PureComponent<Props, State> {
         threadType !== undefined && threadType !== null,
         `no threadType provided for ${parentThreadID}`,
       );
+      const threadVisibilityColor = this.props.colors.modalForegroundLabel;
       parentThreadRow = (
-        <View style={styles.parentThreadRow}>
-          <ThreadVisibility threadType={threadType} />
-          <Text style={styles.parentThreadLabel}>within</Text>
-          <Text style={styles.parentThreadName}>
+        <View style={this.props.styles.parentThreadRow}>
+          <ThreadVisibility
+            threadType={threadType}
+            color={threadVisibilityColor}
+          />
+          <Text style={this.props.styles.parentThreadLabel}>within</Text>
+          <Text style={this.props.styles.parentThreadName}>
             {parentThreadInfo.uiName}
           </Text>
         </View>
@@ -282,11 +293,11 @@ class ComposeThread extends React.PureComponent<Props, State> {
       onSubmitEditing: this.onPressCreateThread,
     };
     return (
-      <View style={styles.container}>
+      <View style={this.props.styles.container}>
         {parentThreadRow}
-        <View style={styles.userSelectionRow}>
-          <Text style={styles.tagInputLabel}>To: </Text>
-          <View style={styles.tagInputContainer}>
+        <View style={this.props.styles.userSelectionRow}>
+          <Text style={this.props.styles.tagInputLabel}>To: </Text>
+          <View style={this.props.styles.tagInputContainer}>
             <TagInput
               value={this.state.userInfoInputArray}
               onChange={this.onChangeTagInput}
@@ -298,11 +309,11 @@ class ComposeThread extends React.PureComponent<Props, State> {
             />
           </View>
         </View>
-        <View style={styles.userList}>
+        <View style={this.props.styles.userList}>
           <UserList
             userInfos={userSearchResults}
             onSelect={this.onUserSelect}
-            itemTextStyle={styles.listItem}
+            itemTextStyle={this.props.styles.listItem}
           />
         </View>
         {existingThreadsSection}
@@ -430,39 +441,39 @@ class ComposeThread extends React.PureComponent<Props, State> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
   },
   parentThreadRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: "#CCCCCC",
+    backgroundColor: 'modalSubtext',
     paddingVertical: 6,
     paddingLeft: 12,
   },
   parentThreadLabel: {
     fontSize: 16,
-    color: "#777777",
+    color: 'modalSubtextLabel',
     paddingLeft: 6,
   },
   parentThreadName: {
     fontSize: 16,
     paddingLeft: 6,
-    color: "black",
+    color: 'modalForegroundLabel',
   },
   userSelectionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: "white",
+    backgroundColor: 'modalForeground',
     paddingVertical: 6,
     borderBottomWidth: 1,
-    borderColor: "#CCCCCC",
+    borderColor: 'modalForegroundBorder',
   },
   tagInputLabel: {
     paddingLeft: 12,
     fontSize: 16,
-    color: "#888888",
+    color: 'modalForegroundSecondaryLabel',
   },
   tagInputContainer: {
     flex: 1,
@@ -473,31 +484,34 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingLeft: 35,
     paddingRight: 12,
+    backgroundColor: 'modalBackground',
   },
   listItem: {
-    color: "#222222",
+    color: 'modalForegroundLabel',
   },
   existingThreadsRow: {
-    backgroundColor: "white",
+    backgroundColor: 'modalForeground',
     paddingVertical: 6,
     borderBottomWidth: 1,
     borderTopWidth: 1,
-    borderColor: "#CCCCCC",
+    borderColor: 'modalForegroundBorder',
   },
   existingThreadsLabel: {
     textAlign: 'center',
     paddingLeft: 12,
     fontSize: 16,
-    color: "#888888",
+    color: 'modalForegroundSecondaryLabel',
   },
   existingThreadList: {
     flex: 1,
-    marginRight: 12,
+    paddingRight: 12,
+    backgroundColor: 'modalBackground',
   },
   existingThreads: {
     flex: 1,
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 const loadingStatusSelector
   = createLoadingStatusSelector(newThreadActionTypes);
@@ -518,6 +532,8 @@ export default connect(
         userInfoSelectorForOtherMembersOfThread((null: ?string))(state),
       userSearchIndex: userSearchIndexForOtherMembersOfThread(null)(state),
       threadInfos: threadInfoSelector(state),
+      colors: colorsSelector(state),
+      styles: stylesSelector(state),
     };
   },
   { newThread, searchUsers },

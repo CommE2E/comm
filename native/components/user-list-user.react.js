@@ -85,7 +85,7 @@ const styles = {
     fontSize: 16,
   },
   parentThreadNotice: {
-    color: "#888888",
+    color: 'modalForegroundSecondaryLabel',
     fontStyle: 'italic',
   },
 };

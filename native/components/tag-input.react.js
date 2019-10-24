@@ -3,6 +3,7 @@
 import type { ViewStyle, TextStyle } from '../types/styles';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 import type { AppState } from '../redux/redux-setup';
+import type { Colors } from '../themes/colors';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -22,6 +23,7 @@ import invariant from 'invariant';
 import { connect } from 'lib/utils/redux-utils';
 
 import { dimensionsSelector } from '../selectors/dimension-selectors';
+import { colorsSelector } from '../themes/colors';
 
 type Props<T> = {|
   /**
@@ -50,11 +52,11 @@ type Props<T> = {|
   /**
    * Background color of tags
    */
-  tagColor: string,
+  tagColor?: string,
   /**
    * Text color of tags
    */
-  tagTextColor: string,
+  tagTextColor?: string,
   /**
    * Styling override for container surrounding tag text
    */
@@ -66,7 +68,7 @@ type Props<T> = {|
   /**
    * Color of text input
    */
-  inputColor: string,
+  inputColor?: string,
   /**
    * Any misc. TextInput props (autoFocus, placeholder, returnKeyType, etc.)
    */
@@ -92,6 +94,7 @@ type Props<T> = {|
   innerRef?: (tagInput: ?TagInput<T>) => void,
   // Redux state
   dimensions: Dimensions,
+  colors: Colors,
 |};
 type State = {|
   wrapperHeight: number,
@@ -119,6 +122,7 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
     defaultInputWidth: PropTypes.number,
     innerRef: PropTypes.func,
     dimensions: dimensionsPropType.isRequired,
+    colors: PropTypes.objectOf(PropTypes.string).isRequired,
   };
   // scroll to bottom
   scrollViewHeight = 0;
@@ -128,9 +132,6 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
   scrollView: ?React.ElementRef<typeof ScrollView> = null;
 
   static defaultProps = {
-    tagColor: '#dddddd',
-    tagTextColor: '#777777',
-    inputColor: '#777777',
     minHeight: 30,
     maxHeight: 75,
     defaultInputWidth: 90,
@@ -222,6 +223,11 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
   }
 
   render() {
+    const tagColor = this.props.tagColor || this.props.colors.modalSubtext;
+    const tagTextColor = this.props.tagTextColor ||
+      this.props.colors.modalSubtextLabel;
+    const inputColor = this.props.inputColor ||
+      this.props.colors.modalSubtextLabel;
     const tags = this.props.value.map((tag, index) => (
       <Tag
         index={index}
@@ -229,8 +235,8 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
         isLastTag={this.props.value.length === index + 1}
         onLayoutLastTag={this.onLayoutLastTag}
         removeIndex={this.removeIndex}
-        tagColor={this.props.tagColor}
-        tagTextColor={this.props.tagTextColor}
+        tagColor={tagColor}
+        tagTextColor={tagTextColor}
         tagContainerStyle={this.props.tagContainerStyle}
         tagTextStyle={this.props.tagTextStyle}
         key={index}
@@ -273,13 +279,14 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
                   value={this.props.text}
                   style={[styles.textInput, {
                     width: inputWidth,
-                    color: this.props.inputColor,
+                    color: inputColor,
                   }]}
                   onBlur={Platform.OS === "ios" ? this.onBlur : undefined}
                   onChangeText={this.props.onChangeText}
                   autoCapitalize="none"
                   autoCorrect={false}
                   placeholder="Start typing"
+                  placeholderTextColor={tagColor}
                   returnKeyType="done"
                   keyboardType="default"
                   underlineColorAndroid="rgba(0,0,0,0)"
@@ -460,5 +467,6 @@ const styles = StyleSheet.create({
 export default connect(
   (state: AppState) => ({
     dimensions: dimensionsSelector(state),
+    colors: colorsSelector(state),
   }),
 )(TagInput);

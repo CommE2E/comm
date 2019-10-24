@@ -13,14 +13,14 @@ import PropTypes from 'prop-types';
 
 type Props = {|
   threadType: ThreadType,
-  color?: string,
+  color: string,
   includeLabel: bool,
 |};
 class ThreadVisibility extends React.PureComponent<Props> {
 
   static propTypes = {
     threadType: threadTypePropType.isRequired,
-    color: PropTypes.string,
+    color: PropTypes.string.isRequired,
     includeLabel: PropTypes.bool,
   };
   static defaultProps = {
@@ -28,11 +28,10 @@ class ThreadVisibility extends React.PureComponent<Props> {
   };
 
   render() {
-    const threadType = this.props.threadType;
-    const color = this.props.color ? this.props.color : "black";
-    const visLabelStyle = [styles.visibilityLabel, { color }];
+    const { threadType, color, includeLabel } = this.props;
+    const visLabelStyle = [ styles.visibilityLabel, { color } ];
     if (threadType === threadTypes.CHAT_NESTED_OPEN) {
-      const label = this.props.includeLabel
+      const label = includeLabel
         ? <Text style={visLabelStyle}>Open</Text>
         : null;
       return (
@@ -42,7 +41,7 @@ class ThreadVisibility extends React.PureComponent<Props> {
         </View>
       );
     } else {
-      const label = this.props.includeLabel
+      const label = includeLabel
         ? <Text style={visLabelStyle}>Secret</Text>
         : null;
       return (

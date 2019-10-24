@@ -1,18 +1,24 @@
 // @flow
 
-import type { ViewStyle } from '../types/styles';
+import type { ViewStyle, Styles } from '../types/styles';
+import type { AppState } from '../redux/redux-setup';
 
-import React from 'react';
-import { Text, StyleSheet, Platform, ViewPropTypes } from 'react-native';
+import * as React from 'react';
+import { Text, ViewPropTypes } from 'react-native';
 import PropTypes from 'prop-types';
 
+import { connect } from 'lib/utils/redux-utils';
+
 import Button from './button.react';
+import { styleSelector } from '../themes/colors';
 
 type Props = {
   text: string,
   onPress: () => void,
   disabled?: bool,
   style?: ViewStyle,
+  // Redux state
+  styles: Styles,
 };
 class LinkButton extends React.PureComponent<Props> {
 
@@ -21,10 +27,13 @@ class LinkButton extends React.PureComponent<Props> {
     onPress: PropTypes.func.isRequired,
     disabled: PropTypes.bool,
     style: ViewPropTypes.style,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
 
   render() {
-    const disabledStyle = this.props.disabled ? styles.disabled : null;
+    const disabledStyle = this.props.disabled
+      ? this.props.styles.disabled
+      : null;
     return (
       <Button
         onPress={this.props.onPress}
@@ -33,26 +42,27 @@ class LinkButton extends React.PureComponent<Props> {
         disabled={!!this.props.disabled}
         style={this.props.style}
       >
-        <Text style={[styles.text, disabledStyle]}>{this.props.text}</Text>
+        <Text style={[ this.props.styles.text, disabledStyle ]}>
+          {this.props.text}
+        </Text>
       </Button>
     );
   }
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   text: {
     fontSize: 17,
     paddingHorizontal: 10,
-    color: Platform.select({
-      ios: '#037AFF',
-      android: '#0077CC',
-    }),
-    fontWeight: Platform.select({ android: 'bold' }),
+    color: 'link',
   },
   disabled: {
-    color: "#AAAAAA",
+    color: 'modalBackgroundSecondaryLabel',
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
-export default LinkButton;
+export default connect((state: AppState) => ({
+  styles: stylesSelector(state),
+}))(LinkButton);
