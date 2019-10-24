@@ -554,7 +554,7 @@ const styles = {
     paddingHorizontal: 10,
     borderRadius: 10,
     fontSize: 16,
-    color: 'listBackgroundLabel',
+    color: 'listForegroundLabel',
   },
   bottomAligned: {
     alignSelf: 'flex-end',

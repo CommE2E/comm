@@ -6,9 +6,12 @@ import {
   messageTypes,
 } from 'lib/types/message-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import type { Styles } from '../types/styles';
+import type { AppState } from '../redux/redux-setup';
 
-import React from 'react';
-import { StyleSheet, Text } from 'react-native';
+import * as React from 'react';
+import { Text } from 'react-native';
+import PropTypes from 'prop-types';
 
 import { messagePreviewText } from 'lib/shared/message-utils';
 import {
@@ -16,22 +19,28 @@ import {
   threadIsTwoPersonChat,
 } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
+import { connect } from 'lib/utils/redux-utils';
+
+import { styleSelector } from '../themes/colors';
 
 type Props = {|
   messageInfo: MessageInfo,
   threadInfo: ThreadInfo,
+  // Redux state
+  styles: Styles,
 |};
 class MessagePreview extends React.PureComponent<Props> {
 
   static propTypes = {
     messageInfo: messageInfoPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
 
   render() {
     const messageInfo: MessageInfo = this.props.messageInfo;
     const unreadStyle = this.props.threadInfo.currentUser.unread
-      ? styles.unread
+      ? this.props.styles.unread
       : null;
     if (messageInfo.type === messageTypes.TEXT) {
       let usernameText = null;
@@ -42,11 +51,17 @@ class MessagePreview extends React.PureComponent<Props> {
         const userString = stringForUser(messageInfo.creator);
         const username = `${userString}: `;
         usernameText = (
-          <Text style={[styles.username, unreadStyle]}>{username}</Text>
+          <Text style={[
+            this.props.styles.username,
+            unreadStyle,
+          ]}>{username}</Text>
         );
       }
       return (
-        <Text style={[styles.lastMessage, unreadStyle]} numberOfLines={1}>
+        <Text style={[
+          this.props.styles.lastMessage,
+          unreadStyle,
+        ]} numberOfLines={1}>
           {usernameText}
           {messageInfo.text}
         </Text>
@@ -55,7 +70,11 @@ class MessagePreview extends React.PureComponent<Props> {
       const preview = messagePreviewText(messageInfo, this.props.threadInfo);
       return (
         <Text
-          style={[styles.lastMessage, styles.preview, unreadStyle]}
+          style={[
+            this.props.styles.lastMessage,
+            this.props.styles.preview,
+            unreadStyle,
+          ]}
           numberOfLines={1}
         >
           {preview}
@@ -66,22 +85,25 @@ class MessagePreview extends React.PureComponent<Props> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   lastMessage: {
     flex: 1,
     paddingLeft: 10,
     fontSize: 16,
-    color: '#666666',
+    color: 'listForegroundTertiaryLabel',
   },
   username: {
-    color: '#AAAAAA',
+    color: 'listForegroundQuaternaryLabel',
   },
   preview: {
-    color: '#AAAAAA',
+    color: 'listForegroundQuaternaryLabel',
   },
   unread: {
-    color: 'black',
+    color: 'listForegroundLabel',
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
-export default MessagePreview;
+export default connect((state: AppState) => ({
+  styles: stylesSelector(state),
+}))(MessagePreview);

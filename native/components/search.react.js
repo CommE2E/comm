@@ -117,7 +117,7 @@ const styles = {
     fontSize: 16,
     padding: 0,
     marginVertical: 0,
-    color: 'modalForegroundLabel',
+    color: 'listForegroundLabel',
   },
 };
 const stylesSelector = styleSelector(styles);
