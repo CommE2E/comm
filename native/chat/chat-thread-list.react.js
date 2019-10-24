@@ -7,17 +7,15 @@ import {
   chatThreadItemPropType,
 } from 'lib/selectors/chat-selectors';
 import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
+import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import {
   View,
-  StyleSheet,
   FlatList,
   Platform,
   TextInput,
-  TouchableOpacity,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
 import _sum from 'lodash/fp/sum';
@@ -37,6 +35,8 @@ import {
   ComposeThreadRouteName,
   MessageListRouteName,
 } from '../navigation/route-names';
+import { styleSelector } from '../themes/colors';
+import Search from '../components/search.react';
 
 const floatingActions = [{
   text: 'Compose',
@@ -53,6 +53,7 @@ type Props = {|
   chatListData: $ReadOnlyArray<ChatThreadItem>,
   viewerID: ?string,
   threadSearchIndex: SearchIndex,
+  styles: Styles,
 |};
 type State = {|
   searchText: string,
@@ -71,6 +72,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     chatListData: PropTypes.arrayOf(chatThreadItemPropType).isRequired,
     viewerID: PropTypes.string,
     threadSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
   static navigationOptions = ({ navigation }) => ({
     title: 'Threads',
@@ -104,51 +106,20 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   renderItem = (row: { item: Item }) => {
     const item = row.item;
     if (item.type === "search") {
-      return this.renderSearchBar();
-    }
-    return (
-      <ChatThreadListItem data={item} onPressItem={this.onPressItem} />
-    );
-  }
-
-  renderSearchBar() {
-    let clearSearchInputIcon = null;
-    if (this.state.searchText) {
-      clearSearchInputIcon = (
-        <TouchableOpacity
-          onPress={this.clearSearch}
-          activeOpacity={0.5}
-        >
-          <Icon
-            name="times-circle"
-            size={18}
-            color="#AAAAAA"
+      return (
+        <View style={this.props.styles.searchContainer}>
+          <Search
+            searchText={this.state.searchText}
+            onChangeText={this.onChangeSearchText}
+            style={this.props.styles.search}
+            placeholder="Search threads"
+            ref={this.searchInputRef}
           />
-        </TouchableOpacity>
+        </View>
       );
     }
     return (
-      <View style={styles.searchContainer}>
-        <View style={styles.search}>
-          <Icon
-            name="search"
-            size={18}
-            color="#AAAAAA"
-            style={styles.searchIcon}
-          />
-          <TextInput
-            style={styles.searchInput}
-            underlineColorAndroid="transparent"
-            value={this.state.searchText}
-            onChangeText={this.onChangeSearchText}
-            placeholder="Search threads"
-            placeholderTextColor="#AAAAAA"
-            returnKeyType="go"
-            ref={this.searchInputRef}
-          />
-          {clearSearchInputIcon}
-        </View>
-      </View>
+      <ChatThreadListItem data={item} onPressItem={this.onPressItem} />
     );
   }
 
@@ -234,7 +205,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       );
     }
     return (
-      <View style={styles.container}>
+      <View style={this.props.styles.container}>
         <FlatList
           data={this.listData}
           renderItem={this.renderItem}
@@ -243,7 +214,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
           extraData={this.props.viewerID}
           initialNumToRender={11}
           keyboardShouldPersistTaps="handled"
-          style={styles.flatList}
+          style={this.props.styles.flatList}
           ref={this.flatListRef}
         />
         {floatingAction}
@@ -260,12 +231,8 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     this.setState({ searchText, searchResults: new Set(results) });
   }
 
-  clearSearch = () => {
-    this.onChangeSearchText("");
-  }
-
   onPressItem = (threadInfo: ThreadInfo) => {
-    this.clearSearch();
+    this.onChangeSearchText("");
     if (this.searchInput) {
       this.searchInput.blur();
     }
@@ -285,7 +252,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   icon: {
     fontSize: 28,
   },
@@ -298,38 +265,21 @@ const styles = StyleSheet.create({
     borderColor: '#DDDDDD',
     marginBottom: 5,
   },
-  searchIcon: {
-    paddingBottom: Platform.OS === "android" ? 0 : 2,
-  },
   search: {
-    backgroundColor: '#DDDDDD',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 12,
     marginBottom: 8,
+    marginHorizontal: 12,
     marginTop: Platform.OS === "android" ? 10 : 8,
-    paddingLeft: 14,
-    paddingRight: 12,
-    paddingTop: Platform.OS === "android" ? 1 : 6,
-    paddingBottom: Platform.OS === "android" ? 2 : 6,
-    borderRadius: 6,
-  },
-  searchInput: {
-    flex: 1,
-    marginLeft: 8,
-    fontSize: 16,
-    padding: 0,
-    marginVertical: 0,
-    color: 'black',
   },
   flatList: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: 'listBackground',
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 export default connect((state: AppState) => ({
   chatListData: chatListData(state),
   viewerID: state.currentUserInfo && state.currentUserInfo.id,
   threadSearchIndex: threadSearchIndex(state),
+  styles: stylesSelector(state),
 }))(ChatThreadList);
