@@ -27,11 +27,12 @@ import {
   keyboardStatePropType,
   withKeyboardState,
 } from '../navigation/keyboard-state';
+import type { Styles } from '../types/styles';
+import { type GlobalTheme, globalThemePropType } from '../types/themes';
 
 import * as React from 'react';
 import {
   View,
-  StyleSheet,
   TextInput,
   TouchableOpacity,
   LayoutAnimation,
@@ -71,6 +72,7 @@ import {
   imageGalleryBackgroundColor,
 } from '../media/image-gallery-keyboard.react';
 import { ChatInputStateContext } from './chat-input-state';
+import { colors, styleSelector } from '../themes/colors';
 
 const draftKeyFromThreadID =
   (threadID: string) => `${threadID}/message_composer`;
@@ -83,6 +85,8 @@ type Props = {|
   joinThreadLoadingStatus: LoadingStatus,
   calendarQuery: () => CalendarQuery,
   nextLocalID: number,
+  activeTheme: ?GlobalTheme,
+  styles: Styles,
   // withKeyboardState
   keyboardState: ?KeyboardState,
   // Redux dispatch functions
@@ -110,6 +114,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     joinThreadLoadingStatus: loadingStatusPropType.isRequired,
     calendarQuery: PropTypes.func.isRequired,
     nextLocalID: PropTypes.number.isRequired,
+    activeTheme: globalThemePropType,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     keyboardState: keyboardStatePropType,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -208,21 +214,21 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   get expandoButtonsStyle() {
     return {
-      ...styles.expandoButtons,
+      ...this.props.styles.expandoButtons,
       width: this.expandoButtonsWidth,
     };
   }
 
   get cameraRollIconStyle() {
     return {
-      ...styles.cameraRollIcon,
+      ...this.props.styles.cameraRollIcon,
       opacity: this.cameraRollOpacity,
     };
   }
 
   get expandIconStyle() {
     return {
-      ...styles.expandIcon,
+      ...this.props.styles.expandIcon,
       opacity: this.expandOpacity,
     };
   }
@@ -240,20 +246,20 @@ class ChatInputBar extends React.PureComponent<Props, State> {
           <ActivityIndicator
             size="small"
             color="white"
-            style={styles.joinThreadLoadingIndicator}
+            style={this.props.styles.joinThreadLoadingIndicator}
           />
         );
       } else {
         buttonContent = (
-          <Text style={styles.joinButtonText}>Join Thread</Text>
+          <Text style={this.props.styles.joinButtonText}>Join Thread</Text>
         );
       }
       joinButton = (
-        <View style={styles.joinButtonContainer}>
+        <View style={this.props.styles.joinButtonContainer}>
           <Button
             onPress={this.onPressJoin}
             iosActiveOpacity={0.5}
-            style={styles.joinButton}
+            style={this.props.styles.joinButton}
           >
             {buttonContent}
           </Button>
@@ -263,58 +269,61 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
     let content;
     if (threadHasPermission(this.props.threadInfo, threadPermissions.VOICED)) {
+      const themeColors =
+        this.props.activeTheme === 'dark' ? colors.dark : colors.light;
+
       let button = null;
       if (this.state.text.trim()) {
         button = (
           <TouchableOpacity
             onPress={this.onSend}
             activeOpacity={0.4}
-            style={styles.bottomAligned}
+            style={this.props.styles.bottomAligned}
           >
             <Icon
               name="md-send"
               size={25}
-              style={styles.sendIcon}
-              color="#88BB88"
+              style={this.props.styles.sendIcon}
+              color={themeColors.greenButton}
             />
           </TouchableOpacity>
         );
       }
       content = (
         <TouchableWithoutFeedback onPress={this.dismissKeyboard}>
-          <View style={styles.inputContainer}>
+          <View style={this.props.styles.inputContainer}>
             <Animated.View style={this.expandoButtonsStyle}>
               <TouchableOpacity
                 onPress={this.onRightmostButtonPress}
                 activeOpacity={0.4}
-                style={styles.expandoButtons}
+                style={this.props.styles.expandoButtons}
               >
                 <Animated.View style={this.expandIconStyle}>
                   <FAIcon
                     name="chevron-right"
                     size={19}
-                    color="#888888"
+                    color={themeColors.listInputButton}
                   />
                 </Animated.View>
                 <Animated.View style={this.cameraRollIconStyle}>
                   <Icon
                     name="md-image"
                     size={25}
-                    color="#888888"
+                    color={themeColors.listInputButton}
                   />
                 </Animated.View>
               </TouchableOpacity>
             </Animated.View>
-            <View style={styles.textInputContainer}>
+            <View style={this.props.styles.textInputContainer}>
               <TextInput
                 value={this.state.text}
                 onChangeText={this.updateText}
                 underlineColorAndroid="transparent"
                 placeholder="Send a message..."
-                placeholderTextColor="#888888"
+                placeholderTextColor={themeColors.listInputButton}
                 multiline={true}
                 onContentSizeChange={this.onContentSizeChange}
-                style={[styles.textInput, this.textInputStyle]}
+                style={[this.props.styles.textInput, this.textInputStyle]}
                 ref={this.textInputRef}
               />
             </View>
@@ -324,7 +333,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       );
     } else if (isMember) {
       content = (
-        <Text style={styles.explanation}>
+        <Text style={this.props.styles.explanation}>
           You don't have permission to send messages.
         </Text>
       );
@@ -340,13 +349,13 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         !!defaultRole.permissions[threadPermissions.VOICED];
       if (membersAreVoiced) {
         content = (
-          <Text style={styles.explanation}>
+          <Text style={this.props.styles.explanation}>
             Join this thread to send messages.
           </Text>
         );
       } else {
         content = (
-          <Text style={styles.explanation}>
+          <Text style={this.props.styles.explanation}>
             You don't have permission to send messages.
           </Text>
         );
@@ -370,7 +379,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     }
 
     return (
-      <View style={styles.container}>
+      <View style={this.props.styles.container}>
         {joinButton}
         {content}
         {keyboardAccessoryView}
@@ -530,30 +539,27 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
-    backgroundColor: 'white',
+    backgroundColor: 'listBackground',
   },
   inputContainer: {
     flexDirection: 'row',
-    backgroundColor: '#EEEEEE',
-    borderTopWidth: 1,
-    borderColor: '#AAAAAAAA',
   },
   textInputContainer: {
     flex: 1,
   },
   textInput: {
-    backgroundColor: 'white',
+    backgroundColor: 'listInputBackground',
     marginVertical: 5,
     marginHorizontal: 4,
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 10,
     fontSize: 16,
-    borderColor: '#AAAAAAAA',
+    borderColor: 'listInputBorder',
     borderWidth: 1,
-    color: 'black',
+    color: 'listBackgroundLabel',
   },
   bottomAligned: {
     alignSelf: 'flex-end',
@@ -576,7 +582,7 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.OS === "ios" ? 5 : 8,
   },
   explanation: {
-    color: '#777777',
+    color: 'listBackgroundSecondaryLabel',
     textAlign: 'center',
     paddingTop: 1,
     paddingBottom: 4,
@@ -591,19 +597,20 @@ const styles = StyleSheet.create({
     paddingTop: 3,
     paddingBottom: 5,
     flex: 1,
-    backgroundColor: '#44CC99FF',
+    backgroundColor: 'mintButton',
     borderRadius: 5,
     justifyContent: 'center',
   },
   joinButtonText: {
     fontSize: 20,
-    color: 'white',
+    color: 'listBackground',
     textAlign: 'center',
   },
   joinThreadLoadingIndicator: {
     paddingVertical: 2,
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 const joinThreadLoadingStatusSelector
   = createLoadingStatusSelector(joinThreadActionTypes);
@@ -617,6 +624,8 @@ export default connect(
       joinThreadLoadingStatus: joinThreadLoadingStatusSelector(state),
       calendarQuery: nonThreadCalendarQuery(state),
       nextLocalID: state.nextLocalID,
+      activeTheme: state.globalThemeInfo.activeTheme,
+      styles: stylesSelector(state),
     };
   },
   { sendTextMessage, joinThread },
