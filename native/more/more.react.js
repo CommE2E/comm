@@ -37,10 +37,9 @@ const More = createStackNavigator(
   {
     defaultNavigationOptions: ({ navigation }) => ({
       header: Header,
-      headerLeft:
-        Platform.OS === "android" && !navigation.isFirstRouteInParent()
-          ? HeaderBackButton
-          : undefined,
+      headerLeft: navigation.isFirstRouteInParent()
+        ? undefined
+        : HeaderBackButton,
     }),
   },
 );
