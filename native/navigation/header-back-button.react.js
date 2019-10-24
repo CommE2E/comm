@@ -1,7 +1,7 @@
 // @flow
 
 import type { AppState } from '../redux/redux-setup';
-import type { GlobalTheme } from '../types/themes';
+import type { Colors } from '../themes/colors';
 
 import * as React from 'react';
 import {
@@ -10,24 +10,22 @@ import {
 
 import { connect } from 'lib/utils/redux-utils';
 
-import { colors } from '../themes/colors';
+import { colorsSelector } from '../themes/colors';
 
 type Props = {
   ...React.ElementConfig<typeof BaseHeaderBackButton>,
   // Redux state
-  activeTheme: ?GlobalTheme,
+  colors: Colors,
 };
 function HeaderBackButton(props: Props) {
   if (props.scene && props.scene.index === 0) {
     return null;
   }
-  const { activeTheme, ...rest } = props;
-  const { link: tintColor } = activeTheme === 'dark'
-    ? colors.dark
-    : colors.light;
+  const { colors, ...rest } = props;
+  const { link: tintColor } = colors;
   return <BaseHeaderBackButton {...rest} tintColor={tintColor} />;
 }
 
 export default connect((state: AppState) => ({
-  activeTheme: state.globalThemeInfo.activeTheme,
+  colors: colorsSelector(state),
 }))(HeaderBackButton);

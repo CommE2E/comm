@@ -9,7 +9,7 @@ import type { LogOutResult } from 'lib/types/account-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { Styles } from '../types/styles';
-import { type GlobalTheme, globalThemePropType } from '../types/themes';
+import type { Colors } from '../themes/colors';
 
 import * as React from 'react';
 import {
@@ -48,7 +48,7 @@ import {
   DevToolsRouteName,
   AppearancePreferencesRouteName,
 } from '../navigation/route-names';
-import { colors, styleSelector } from '../themes/colors';
+import { colorsSelector, styleSelector } from '../themes/colors';
 
 type Props = {
   navigation: NavigationScreenProp<*>,
@@ -57,7 +57,7 @@ type Props = {
   email: ?string,
   emailVerified: ?bool,
   resendVerificationLoadingStatus: LoadingStatus,
-  activeTheme: ?GlobalTheme,
+  colors: Colors,
   styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
@@ -75,7 +75,7 @@ class MoreScreen extends React.PureComponent<Props> {
     email: PropTypes.string,
     emailVerified: PropTypes.bool,
     resendVerificationLoadingStatus: loadingStatusPropType.isRequired,
-    activeTheme: globalThemePropType,
+    colors: PropTypes.objectOf(PropTypes.string).isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     logOut: PropTypes.func.isRequired,
@@ -132,10 +132,10 @@ class MoreScreen extends React.PureComponent<Props> {
       );
     }
 
-    const isDark = this.props.activeTheme === 'dark';
-    const { panelIosHighlightUnderlay: underlay, link: linkColor } = isDark
-      ? colors.dark
-      : colors.light;
+    const {
+      panelIosHighlightUnderlay: underlay,
+      link: linkColor,
+    } = this.props.colors;
     return (
       <View style={this.props.styles.container}>
         <ScrollView
@@ -479,7 +479,7 @@ export default connect(
       : undefined,
     resendVerificationLoadingStatus:
       resendVerificationLoadingStatusSelector(state),
-    activeTheme: state.globalThemeInfo.activeTheme,
+    colors: colorsSelector(state),
     styles: stylesSelector(state),
   }),
   { logOut, resendVerificationEmail },

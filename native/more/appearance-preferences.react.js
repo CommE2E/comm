@@ -10,6 +10,7 @@ import {
 } from '../types/themes';
 import { updateThemeInfoActionType } from '../redux/action-types';
 import type { Styles } from '../types/styles';
+import type { Colors } from '../themes/colors';
 
 import * as React from 'react';
 import { View, Text, ScrollView, Platform } from 'react-native';
@@ -19,7 +20,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../components/button.react';
-import { colors, styleSelector } from '../themes/colors';
+import { colorsSelector, styleSelector } from '../themes/colors';
 
 const CheckIcon = (props: {||}) => (
   <Icon
@@ -49,6 +50,7 @@ type Props = {|
   // Redux state
   globalThemeInfo: GlobalThemeInfo,
   styles: Styles,
+  colors: Colors,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 |};
@@ -57,6 +59,7 @@ class AppearancePreferences extends React.PureComponent<Props> {
   static propTypes = {
     globalThemeInfo: globalThemeInfoPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
+    colors: PropTypes.objectOf(PropTypes.string).isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
   static navigationOptions = {
@@ -64,10 +67,7 @@ class AppearancePreferences extends React.PureComponent<Props> {
   };
 
   render() {
-    const isDark = this.props.globalThemeInfo.activeTheme === 'dark';
-    const { panelIosHighlightUnderlay: underlay } = isDark
-      ? colors.dark
-      : colors.light;
+    const { panelIosHighlightUnderlay: underlay } = this.props.colors;
 
     const options = [];
     for (let i = 0; i < optionTexts.length; i++) {
@@ -169,6 +169,7 @@ const stylesSelector = styleSelector(styles);
 export default connect(
   (state: AppState) => ({
     globalThemeInfo: state.globalThemeInfo,
+    colors: colorsSelector(state),
     styles: stylesSelector(state),
   }),
   null,

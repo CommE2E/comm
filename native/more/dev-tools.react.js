@@ -7,7 +7,7 @@ import type {
   NavigationLeafRoute,
 } from 'react-navigation';
 import type { Styles } from '../types/styles';
-import { type GlobalTheme, globalThemePropType } from '../types/themes';
+import type { Colors } from '../themes/colors';
 
 import * as React from 'react';
 import { View, Text, ScrollView, Platform } from 'react-native';
@@ -23,7 +23,7 @@ import Button from '../components/button.react';
 import { getPersistor } from '../redux/persist';
 import { serverOptions } from '../utils/url-utils';
 import { CustomServerModalRouteName } from '../navigation/route-names';
-import { colors, styleSelector } from '../themes/colors';
+import { colorsSelector, styleSelector } from '../themes/colors';
 
 const ServerIcon = (props: {||}) => (
   <Icon
@@ -39,7 +39,7 @@ type Props = {|
   // Redux state
   urlPrefix: string,
   customServer: ?string,
-  activeTheme: ?GlobalTheme,
+  colors: Colors,
   styles: Styles,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
@@ -52,7 +52,7 @@ class DevTools extends React.PureComponent<Props> {
     }).isRequired,
     urlPrefix: PropTypes.string.isRequired,
     customServer: PropTypes.string,
-    activeTheme: globalThemePropType,
+    colors: PropTypes.objectOf(PropTypes.string).isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
@@ -61,10 +61,7 @@ class DevTools extends React.PureComponent<Props> {
   };
 
   render() {
-    const isDark = this.props.activeTheme === 'dark';
-    const { panelIosHighlightUnderlay: underlay } = isDark
-      ? colors.dark
-      : colors.light;
+    const { panelIosHighlightUnderlay: underlay } = this.props.colors;
 
     const serverButtons = [];
     for (let server of serverOptions) {
@@ -252,7 +249,7 @@ const stylesSelector = styleSelector(styles);
 export default connect(
   (state: AppState) => ({
     urlPrefix: state.urlPrefix,
-    activeTheme: state.globalThemeInfo.activeTheme,
+    colors: colorsSelector(state),
     styles: stylesSelector(state),
   }),
   null,

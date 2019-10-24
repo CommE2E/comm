@@ -32,7 +32,7 @@ import {
   connectionStatusPropType,
 } from 'lib/types/socket-types';
 import type { Styles } from '../types/styles';
-import { type GlobalTheme, globalThemePropType } from '../types/themes';
+import type { Colors } from '../themes/colors';
 
 import * as React from 'react';
 import {
@@ -97,7 +97,7 @@ import {
 } from '../navigation/route-names';
 import DisconnectedBar from '../navigation/disconnected-bar.react';
 import SafeAreaView from '../components/safe-area-view.react';
-import { colors, styleSelector } from '../themes/colors';
+import { colorsSelector, styleSelector } from '../themes/colors';
 
 export type EntryInfoWithHeight = {|
   ...EntryInfo,
@@ -138,7 +138,7 @@ type Props = {
   contentVerticalOffset: number,
   loadingStatus: LoadingStatus,
   connectionStatus: ConnectionStatus,
-  activeTheme: ?GlobalTheme,
+  colors: Colors,
   styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
@@ -188,7 +188,7 @@ class Calendar extends React.PureComponent<Props, State> {
     contentVerticalOffset: PropTypes.number.isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
     connectionStatus: connectionStatusPropType.isRequired,
-    activeTheme: globalThemePropType,
+    colors: PropTypes.objectOf(PropTypes.string).isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     updateCalendarQuery: PropTypes.func.isRequired,
@@ -743,8 +743,7 @@ class Calendar extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const isDark = this.props.activeTheme === 'dark';
-    const { listSeparatorLabel } = isDark ? colors.dark : colors.light;
+    const { listSeparatorLabel } = this.props.colors;
 
     const listDataWithHeights = this.state.listDataWithHeights;
     let flatList = null;
@@ -1201,7 +1200,7 @@ export default connect(
     contentVerticalOffset: contentVerticalOffsetSelector(state),
     loadingStatus: loadingStatusSelector(state),
     connectionStatus: state.connection.status,
-    activeTheme: state.globalThemeInfo.activeTheme,
+    colors: colorsSelector(state),
     styles: stylesSelector(state),
   }),
   { updateCalendarQuery },

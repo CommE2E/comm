@@ -1,7 +1,7 @@
 // @flow
 
 import type { AppState } from '../redux/redux-setup';
-import { type GlobalTheme, globalThemePropType } from '../types/themes';
+import type { Colors } from '../themes/colors';
 
 import type { ViewStyle } from '../types/styles';
 import type {
@@ -28,7 +28,7 @@ import invariant from 'invariant';
 import { connect } from 'lib/utils/redux-utils';
 
 import Button from './button.react';
-import { colors } from '../themes/colors';
+import { colorsSelector } from '../themes/colors';
 
 type PanEvent = {
   nativeEvent: {
@@ -49,7 +49,7 @@ type Props = {|
   buttonText: string,
   oldButtonText: string,
   // Redux state
-  activeTheme: ?GlobalTheme,
+  colors: Colors,
 |};
 type State = {|
   color: HSVColor,
@@ -74,7 +74,7 @@ class ColorPicker extends React.PureComponent<Props, State> {
     style: ViewPropTypes.style,
     buttonText: PropTypes.string,
     oldButtonText: PropTypes.string,
-    activeTheme: globalThemePropType,
+    colors: PropTypes.objectOf(PropTypes.string).isRequired,
   };
   static defaultProps = {
     buttonText: "Select",
@@ -327,10 +327,7 @@ class ColorPicker extends React.PureComponent<Props, State> {
     const tc = tinycolor(color);
     const selectedColor: string = tc.toHexString();
     const isDark: bool = tc.isDark();
-    const { modalIosHighlightUnderlay: underlayColor } =
-      this.props.activeTheme === 'dark'
-        ? colors.dark
-        : colors.light;
+    const { modalIosHighlightUnderlay: underlayColor } = this.props.colors;
 
     let picker = null;
     if (pickerSize) {
@@ -656,5 +653,5 @@ const styles = StyleSheet.create({
 });
 
 export default connect((state: AppState) => ({
-  activeTheme: state.globalThemeInfo.activeTheme,
+  colors: colorsSelector(state),
 }))(ColorPicker);

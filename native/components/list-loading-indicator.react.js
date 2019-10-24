@@ -2,7 +2,7 @@
 
 import type { AppState } from '../redux/redux-setup';
 import type { Styles } from '../types/styles';
-import { type GlobalTheme, globalThemePropType } from '../types/themes';
+import type { Colors } from '../themes/colors';
 
 import * as React from 'react';
 import { ActivityIndicator } from 'react-native';
@@ -10,24 +10,22 @@ import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
 
-import { colors, styleSelector } from '../themes/colors';
+import { colorsSelector, styleSelector } from '../themes/colors';
 
 type Props = {|
   // Redux state
-  activeTheme: ?GlobalTheme,
+  colors: Colors,
   styles: Styles,
 |};
 class ListLoadingIndicator extends React.PureComponent<Props> {
 
   static propTypes = {
-    activeTheme: globalThemePropType,
+    colors: PropTypes.objectOf(PropTypes.string).isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
 
   render() {
-    const { listBackgroundLabel } = this.props.activeTheme === 'dark'
-      ? colors.dark
-      : colors.light;
+    const { listBackgroundLabel } = this.props.colors;
     return (
       <ActivityIndicator
         color={listBackgroundLabel}
@@ -49,6 +47,6 @@ const styles = {
 const stylesSelector = styleSelector(styles);
 
 export default connect((state: AppState) => ({
-  activeTheme: state.globalThemeInfo.activeTheme,
+  colors: colorsSelector(state),
   styles: stylesSelector(state),
 }))(ListLoadingIndicator);

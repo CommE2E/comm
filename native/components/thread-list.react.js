@@ -3,7 +3,7 @@
 import type { ViewStyle, TextStyle, Styles } from '../types/styles';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { AppState } from '../redux/redux-setup';
-import { type GlobalTheme, globalThemePropType } from '../types/themes';
+import type { Colors } from '../themes/colors';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -24,7 +24,7 @@ import SearchIndex from 'lib/shared/search-index';
 import { connect } from 'lib/utils/redux-utils';
 
 import ThreadListThread from './thread-list-thread.react';
-import { colors, styleSelector } from '../themes/colors';
+import { colorsSelector, styleSelector } from '../themes/colors';
 
 type Props = {|
   threadInfos: $ReadOnlyArray<ThreadInfo>,
@@ -33,7 +33,7 @@ type Props = {|
   itemTextStyle?: TextStyle,
   searchIndex?: SearchIndex,
   // Redux state
-  activeTheme: ?GlobalTheme,
+  colors: Colors,
   styles: Styles,
 |};
 type State = {|
@@ -49,7 +49,7 @@ class ThreadList extends React.PureComponent<Props, State> {
     itemStyle: ViewPropTypes.style,
     itemTextStyle: Text.propTypes.style,
     searchIndex: PropTypes.instanceOf(SearchIndex),
-    activeTheme: globalThemePropType,
+    colors: PropTypes.objectOf(PropTypes.string).isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
   state = {
@@ -57,14 +57,7 @@ class ThreadList extends React.PureComponent<Props, State> {
     searchResults: new Set(),
   };
 
-  listDataSelector = createSelector<
-    PropsAndState,
-    void,
-    $ReadOnlyArray<ThreadInfo>,
-    $ReadOnlyArray<ThreadInfo>,
-    string,
-    Set<string>,
-  >(
+  listDataSelector = createSelector(
     (propsAndState: PropsAndState) => propsAndState.threadInfos,
     (propsAndState: PropsAndState) => propsAndState.searchText,
     (propsAndState: PropsAndState) => propsAndState.searchResults,
@@ -72,7 +65,7 @@ class ThreadList extends React.PureComponent<Props, State> {
       threadInfos: $ReadOnlyArray<ThreadInfo>,
       text: string,
       searchResults: Set<string>,
-    ): $ReadOnlyArray<ThreadInfo> => text
+    ) => text
       ? threadInfos.filter(threadInfo => searchResults.has(threadInfo.id))
       : threadInfos,
   );
@@ -84,9 +77,7 @@ class ThreadList extends React.PureComponent<Props, State> {
   render() {
     let searchBar = null;
     if (this.props.searchIndex) {
-      const { listSearchIcon: iconColor } = this.props.activeTheme === 'dark'
-        ? colors.dark
-        : colors.light;
+      const { listSearchIcon: iconColor } = this.props.colors;
       let clearSearchInputIcon = null;
       if (this.state.searchText) {
         clearSearchInputIcon = (
@@ -197,6 +188,6 @@ const styles = {
 const stylesSelector = styleSelector(styles);
 
 export default connect((state: AppState) => ({
-  activeTheme: state.globalThemeInfo.activeTheme,
+  colors: colorsSelector(state),
   styles: stylesSelector(state),
 }))(ThreadList);

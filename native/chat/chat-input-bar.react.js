@@ -28,7 +28,7 @@ import {
   withKeyboardState,
 } from '../navigation/keyboard-state';
 import type { Styles } from '../types/styles';
-import { type GlobalTheme, globalThemePropType } from '../types/themes';
+import type { Colors } from '../themes/colors';
 
 import * as React from 'react';
 import {
@@ -72,7 +72,7 @@ import {
   imageGalleryBackgroundColor,
 } from '../media/image-gallery-keyboard.react';
 import { ChatInputStateContext } from './chat-input-state';
-import { colors, styleSelector } from '../themes/colors';
+import { colorsSelector, styleSelector } from '../themes/colors';
 
 const draftKeyFromThreadID =
   (threadID: string) => `${threadID}/message_composer`;
@@ -85,7 +85,7 @@ type Props = {|
   joinThreadLoadingStatus: LoadingStatus,
   calendarQuery: () => CalendarQuery,
   nextLocalID: number,
-  activeTheme: ?GlobalTheme,
+  colors: Colors,
   styles: Styles,
   // withKeyboardState
   keyboardState: ?KeyboardState,
@@ -114,7 +114,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     joinThreadLoadingStatus: loadingStatusPropType.isRequired,
     calendarQuery: PropTypes.func.isRequired,
     nextLocalID: PropTypes.number.isRequired,
-    activeTheme: globalThemePropType,
+    colors: PropTypes.objectOf(PropTypes.string).isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     keyboardState: keyboardStatePropType,
     dispatchActionPayload: PropTypes.func.isRequired,
@@ -269,9 +269,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
     let content;
     if (threadHasPermission(this.props.threadInfo, threadPermissions.VOICED)) {
-      const themeColors =
-        this.props.activeTheme === 'dark' ? colors.dark : colors.light;
-
       let button = null;
       if (this.state.text.trim()) {
         button = (
@@ -284,7 +281,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
               name="md-send"
               size={25}
               style={this.props.styles.sendIcon}
-              color={themeColors.greenButton}
+              color={this.props.colors.greenButton}
             />
           </TouchableOpacity>
         );
@@ -302,14 +299,14 @@ class ChatInputBar extends React.PureComponent<Props, State> {
                   <FAIcon
                     name="chevron-right"
                     size={19}
-                    color={themeColors.listInputButton}
+                    color={this.props.colors.listInputButton}
                   />
                 </Animated.View>
                 <Animated.View style={this.cameraRollIconStyle}>
                   <Icon
                     name="md-image"
                     size={25}
-                    color={themeColors.listInputButton}
+                    color={this.props.colors.listInputButton}
                   />
                 </Animated.View>
               </TouchableOpacity>
@@ -320,7 +317,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
                 onChangeText={this.updateText}
                 underlineColorAndroid="transparent"
                 placeholder="Send a message..."
-                placeholderTextColor={themeColors.listInputButton}
+                placeholderTextColor={this.props.colors.listInputButton}
                 multiline={true}
                 onContentSizeChange={this.onContentSizeChange}
                 style={[this.props.styles.textInput, this.textInputStyle]}
@@ -624,7 +621,7 @@ export default connect(
       joinThreadLoadingStatus: joinThreadLoadingStatusSelector(state),
       calendarQuery: nonThreadCalendarQuery(state),
       nextLocalID: state.nextLocalID,
-      activeTheme: state.globalThemeInfo.activeTheme,
+      colors: colorsSelector(state),
       styles: stylesSelector(state),
     };
   },

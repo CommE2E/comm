@@ -2,7 +2,7 @@
 
 import type { ViewStyle, TextStyle, Styles } from '../types/styles';
 import type { AppState } from '../redux/redux-setup';
-import { type GlobalTheme, globalThemePropType } from '../types/themes';
+import type { Colors } from '../themes/colors';
 
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 
@@ -14,7 +14,7 @@ import { connect } from 'lib/utils/redux-utils';
 
 import Button from './button.react';
 import ColorSplotch from './color-splotch.react';
-import { colors, styleSelector } from '../themes/colors';
+import { colorsSelector, styleSelector } from '../themes/colors';
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -22,7 +22,7 @@ type Props = {|
   style?: ViewStyle,
   textStyle?: TextStyle,
   // Redux state
-  activeTheme: ?GlobalTheme,
+  colors: Colors,
   styles: Styles,
 |};
 class ThreadListThread extends React.PureComponent<Props> {
@@ -32,15 +32,12 @@ class ThreadListThread extends React.PureComponent<Props> {
     onSelect: PropTypes.func.isRequired,
     style: ViewPropTypes.style,
     textStyle: Text.propTypes.style,
-    activeTheme: globalThemePropType,
+    colors: PropTypes.objectOf(PropTypes.string).isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
 
   render() {
-    const { modalIosHighlightUnderlay: underlayColor } =
-      this.props.activeTheme === 'dark'
-        ? colors.dark
-        : colors.light;
+    const { modalIosHighlightUnderlay: underlayColor } = this.props.colors;
     return (
       <Button
         onPress={this.onSelect}
@@ -83,6 +80,6 @@ const styles = {
 const stylesSelector = styleSelector(styles);
 
 export default connect((state: AppState) => ({
-  activeTheme: state.globalThemeInfo.activeTheme,
+  colors: colorsSelector(state),
   styles: stylesSelector(state),
 }))(ThreadListThread);

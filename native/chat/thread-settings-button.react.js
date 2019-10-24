@@ -3,7 +3,7 @@
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { Navigate } from '../navigation/route-names';
 import type { AppState } from '../redux/redux-setup';
-import { type GlobalTheme, globalThemePropType } from '../types/themes';
+import type { Colors } from '../themes/colors';
 
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
@@ -14,26 +14,24 @@ import { connect } from 'lib/utils/redux-utils';
 
 import { ThreadSettingsRouteName } from '../navigation/route-names';
 import Button from '../components/button.react';
-import { colors } from '../themes/colors';
+import { colorsSelector } from '../themes/colors';
 
 type Props = {|
   threadInfo: ThreadInfo,
   navigate: Navigate,
   // Redux state
-  activeTheme: ?GlobalTheme,
+  colors: Colors,
 |};
 class ThreadSettingsButton extends React.PureComponent<Props> {
 
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     navigate: PropTypes.func.isRequired,
-    activeTheme: globalThemePropType,
+    colors: PropTypes.objectOf(PropTypes.string).isRequired,
   };
 
   render() {
-    const { link: color } = this.props.activeTheme === 'dark'
-      ? colors.dark
-      : colors.light;
+    const { link: color } = this.props.colors;
     return (
       <Button onPress={this.onPress} androidBorderlessRipple={true}>
         <Icon
@@ -64,5 +62,5 @@ const styles = StyleSheet.create({
 });
 
 export default connect((state: AppState) => ({
-  activeTheme: state.globalThemeInfo.activeTheme,
+  colors: colorsSelector(state),
 }))(ThreadSettingsButton);

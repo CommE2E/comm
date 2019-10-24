@@ -3,7 +3,7 @@
 import type { TextStyle, Styles } from '../types/styles';
 import { type UserListItem, userListItemPropType } from 'lib/types/user-types';
 import type { AppState } from '../redux/redux-setup';
-import { type GlobalTheme, globalThemePropType } from '../types/themes';
+import type { Colors } from '../themes/colors';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -12,7 +12,7 @@ import { Text, Platform } from 'react-native';
 import { connect } from 'lib/utils/redux-utils';
 
 import Button from './button.react';
-import { colors, styleSelector } from '../themes/colors';
+import { colorsSelector, styleSelector } from '../themes/colors';
 
 const getUserListItemHeight = (item: UserListItem) => {
   return Platform.OS === "ios" ? 31.5 : 33.5;
@@ -23,7 +23,7 @@ type Props = {|
   onSelect: (userID: string) => void,
   textStyle?: TextStyle,
   // Redux state
-  activeTheme: ?GlobalTheme,
+  colors: Colors,
   styles: Styles,
 |};
 class UserListUser extends React.PureComponent<Props> {
@@ -32,7 +32,7 @@ class UserListUser extends React.PureComponent<Props> {
     userInfo: userListItemPropType.isRequired,
     onSelect: PropTypes.func.isRequired,
     textStyle: Text.propTypes.style,
-    activeTheme: globalThemePropType,
+    colors: PropTypes.objectOf(PropTypes.string).isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
 
@@ -45,10 +45,7 @@ class UserListUser extends React.PureComponent<Props> {
         </Text>
       );
     }
-    const { modalIosHighlightUnderlay: underlayColor } =
-      this.props.activeTheme === 'dark'
-        ? colors.dark
-        : colors.light;
+    const { modalIosHighlightUnderlay: underlayColor } = this.props.colors;
     return (
       <Button
         onPress={this.onSelect}
@@ -95,7 +92,7 @@ const styles = {
 const stylesSelector = styleSelector(styles);
 
 const WrappedUserListUser = connect((state: AppState) => ({
-  activeTheme: state.globalThemeInfo.activeTheme,
+  colors: colorsSelector(state),
   styles: stylesSelector(state),
 }))(UserListUser);
 

@@ -2,7 +2,7 @@
 
 import type { TextStyle } from '../types/styles';
 import type { AppState } from '../redux/redux-setup';
-import type { GlobalTheme } from '../types/themes';
+import type { Colors } from '../themes/colors';
 
 import * as React from 'react';
 import { TouchableOpacity, StyleSheet, Platform } from 'react-native';
@@ -10,14 +10,14 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { connect } from 'lib/utils/redux-utils';
 
-import { colors } from '../themes/colors';
+import { colorsSelector } from '../themes/colors';
 
 type Props = {|
   onPress: () => void,
   canChangeSettings: bool,
   style?: TextStyle,
   // Redux state
-  activeTheme: ?GlobalTheme,
+  colors: Colors,
 |};
 function EditSettingButton(props: Props) {
   if (!props.canChangeSettings) {
@@ -27,8 +27,7 @@ function EditSettingButton(props: Props) {
   if (props.style) {
     appliedStyles.push(props.style);
   }
-  const isDark = props.activeTheme === 'dark';
-  const { link: linkColor } = isDark ? colors.dark : colors.light;
+  const { link: linkColor } = props.colors;
   return (
     <TouchableOpacity onPress={props.onPress}>
       <Icon
@@ -50,5 +49,5 @@ const styles = StyleSheet.create({
 });
 
 export default connect((state: AppState) => ({
-  activeTheme: state.globalThemeInfo.activeTheme,
+  colors: colorsSelector(state),
 }))(EditSettingButton);
