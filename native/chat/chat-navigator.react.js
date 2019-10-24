@@ -42,9 +42,6 @@ const ChatNavigator = createStackNavigator(
           ? HeaderBackButton
           : undefined,
     }),
-    cardStyle: {
-      backgroundColor: "#E9E9EF",
-    },
   },
 );
 ChatNavigator.navigationOptions = ({ navigation }) => ({

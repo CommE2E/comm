@@ -107,15 +107,13 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     const item = row.item;
     if (item.type === "search") {
       return (
-        <View style={this.props.styles.searchContainer}>
-          <Search
-            searchText={this.state.searchText}
-            onChangeText={this.onChangeSearchText}
-            style={this.props.styles.search}
-            placeholder="Search threads"
-            ref={this.searchInputRef}
-          />
-        </View>
+        <Search
+          searchText={this.state.searchText}
+          onChangeText={this.onChangeSearchText}
+          style={this.props.styles.search}
+          placeholder="Search threads"
+          ref={this.searchInputRef}
+        />
       );
     }
     return (
@@ -258,12 +256,6 @@ const styles = {
   },
   container: {
     flex: 1,
-  },
-  searchContainer: {
-    backgroundColor: '#F6F6F6',
-    borderBottomWidth: 1,
-    borderColor: '#DDDDDD',
-    marginBottom: 5,
   },
   search: {
     marginBottom: 8,

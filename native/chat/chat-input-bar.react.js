@@ -554,8 +554,6 @@ const styles = {
     paddingHorizontal: 10,
     borderRadius: 10,
     fontSize: 16,
-    borderColor: 'listInputBorder',
-    borderWidth: 1,
     color: 'listBackgroundLabel',
   },
   bottomAligned: {

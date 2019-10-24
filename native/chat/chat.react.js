@@ -8,7 +8,7 @@ import ChatNavigator from './chat-navigator.react';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 import MessageStorePruner from './message-store-pruner.react';
 
-class Chat extends React.PureComponent<{}> {
+class Chat extends React.PureComponent<{ ... }> {
 
   render() {
     return (

@@ -42,9 +42,6 @@ const More = createStackNavigator(
           ? HeaderBackButton
           : undefined,
     }),
-    cardStyle: {
-      backgroundColor: "#E9E9EF",
-    },
   },
 );
 More.navigationOptions = ({ navigation }) => ({
