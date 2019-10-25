@@ -81,7 +81,7 @@ const styles = {
   },
   label: {
     fontSize: 16,
-    color: 'panelForegroundSecondaryLabel',
+    color: 'panelForegroundTertiaryLabel',
     paddingRight: 12,
   },
   releaseText: {

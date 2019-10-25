@@ -230,7 +230,7 @@ const styles = {
     color: 'panelBackgroundLabel',
   },
   customServerLabel: {
-    color: 'panelForegroundSecondaryLabel',
+    color: 'panelForegroundTertiaryLabel',
     fontSize: 16,
   },
   serverText: {
