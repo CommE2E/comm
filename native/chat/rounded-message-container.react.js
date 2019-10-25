@@ -4,10 +4,16 @@ import type { ChatMessageInfoItemWithHeight } from './message.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { ViewStyle } from '../types/styles';
 import type { Corners } from 'lib/types/media-types';
+import type { AppState } from '../redux/redux-setup';
+import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, View, ViewPropTypes } from 'react-native';
+import { View, ViewPropTypes } from 'react-native';
+
+import { connect } from 'lib/utils/redux-utils';
+
+import { styleSelector } from '../themes/colors';
 
 function filterCorners(
   corners: Corners,
@@ -48,6 +54,8 @@ type Props = {|
   borderRadius: number,
   style?: ViewStyle,
   children: React.Node,
+  // Redux state
+  styles: Styles,
 |};
 class RoundedMessageContainer extends React.PureComponent<Props> {
 
@@ -56,6 +64,7 @@ class RoundedMessageContainer extends React.PureComponent<Props> {
     borderRadius: PropTypes.number.isRequired,
     style: ViewPropTypes.style,
     children: PropTypes.node.isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
   static defaultProps = {
     borderRadius: 8,
@@ -68,7 +77,7 @@ class RoundedMessageContainer extends React.PureComponent<Props> {
       borderRadius,
     );
     return (
-      <View style={[styles.message, cornerStyle, style]}>
+      <View style={[ this.props.styles.message, cornerStyle, style ]}>
         {this.props.children}
       </View>
     );
@@ -76,16 +85,23 @@ class RoundedMessageContainer extends React.PureComponent<Props> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   message: {
-    backgroundColor: 'white',
+    backgroundColor: 'listBackground',
     overflow: 'hidden',
   },
-});
+};
+const stylesSelector = styleSelector(styles);
+
+const WrappedRoundedMessageContainer = connect(
+  (state: AppState) => ({
+    styles: stylesSelector(state),
+  }),
+)(RoundedMessageContainer);
 
 export {
   allCorners,
   filterCorners,
   getRoundedContainerStyle,
-  RoundedMessageContainer,
+  WrappedRoundedMessageContainer as RoundedMessageContainer,
 };

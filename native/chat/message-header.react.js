@@ -1,29 +1,35 @@
 // @flow
 
 import type { ChatMessageInfoItemWithHeight } from './message.react';
+import type { AppState } from '../redux/redux-setup';
+import type { Styles } from '../types/styles';
 
 import * as React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 
 import { stringForUser } from 'lib/shared/user-utils';
+import { connect } from 'lib/utils/redux-utils';
 
 import Timestamp from './timestamp.react';
+import { styleSelector } from '../themes/colors';
 
 type Props = {|
   item: ChatMessageInfoItemWithHeight,
   focused: bool,
-  color: 'light' | 'dark',
+  contrast: 'high' | 'low',
+  // Redux state
+  styles: Styles,
 |};
 function MessageHeader(props: Props) {
-  const { item, focused, color } = props;
+  const { item, focused, contrast } = props;
   const { creator, time } = item.messageInfo;
   const { isViewer } = creator;
 
   let authorName = null;
   if (!isViewer && (item.startsCluster || focused)) {
-    const style = color === 'light' || !item.startsCluster
-      ? [ styles.authorName, styles.light ]
-      : [ styles.authorName, styles.dark ];
+    const style = contrast === 'high' || !item.startsCluster
+      ? [ props.styles.authorName, props.styles.highContrast ]
+      : [ props.styles.authorName, props.styles.lowContrast ];
     authorName = (
       <Text style={style} numberOfLines={1}>
         {stringForUser(creator)}
@@ -31,18 +37,18 @@ function MessageHeader(props: Props) {
     );
   }
 
-  const timestampColor = color === 'light' || !item.startsConversation
-    ? 'light'
-    : 'dark';
+  const timestampContrast = contrast === 'high' || !item.startsConversation
+    ? 'high'
+    : 'low';
   const timestamp = focused || item.startsConversation
-    ? <Timestamp time={time} color={timestampColor} />
+    ? <Timestamp time={time} contrast={timestampContrast} />
     : null;
   if (!timestamp && !authorName) {
     return null;
   }
 
   const style = !item.startsCluster
-    ? styles.clusterMargin
+    ? props.styles.clusterMargin
     : null;
   return (
     <View style={style}>
@@ -52,12 +58,11 @@ function MessageHeader(props: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = {
   clusterMargin: {
     marginTop: 7,
   },
   authorName: {
-    color: '#777777',
     fontSize: 14,
     marginLeft: 12,
     marginRight: 7,
@@ -65,12 +70,16 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     height: 25,
   },
-  dark: {
-    color: '#777777',
+  lowContrast: {
+    color: 'listBackgroundSecondaryLabel',
   },
-  light: {
+  highContrast: {
+    // high contrast framed against LightboxNavigator-dimmed background
     color: 'white',
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
-export default MessageHeader;
+export default connect((state: AppState) => ({
+  styles: stylesSelector(state),
+}))(MessageHeader);

@@ -13,14 +13,10 @@ import {
   keyboardStatePropType,
   withKeyboardState,
 } from '../navigation/keyboard-state';
+import type { Styles } from '../types/styles';
 
 import * as React from 'react';
-import {
-  Text,
-  StyleSheet,
-  TouchableWithoutFeedback,
-  View,
-} from 'react-native';
+import { Text, TouchableWithoutFeedback, View } from 'react-native';
 import PropTypes from 'prop-types';
 import Hyperlink from 'react-native-hyperlink';
 
@@ -34,6 +30,7 @@ import { connect } from 'lib/utils/redux-utils';
 
 import { MessageListRouteName } from '../navigation/route-names';
 import Timestamp from './timestamp.react';
+import { styleSelector } from '../themes/colors';
 
 export type ChatRobotextMessageInfoItemWithHeight = {|
   itemType: "message",
@@ -60,6 +57,8 @@ type Props = {|
   toggleFocus: (messageKey: string) => void,
   // withKeyboardState
   keyboardState: ?KeyboardState,
+  // Redux state
+  styles: Styles,
   ...React.ElementProps<typeof View>,
 |};
 class RobotextMessage extends React.PureComponent<Props> {
@@ -69,6 +68,7 @@ class RobotextMessage extends React.PureComponent<Props> {
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
     keyboardState: keyboardStatePropType,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
 
   render() {
@@ -82,7 +82,7 @@ class RobotextMessage extends React.PureComponent<Props> {
     let timestamp = null;
     if (focused || item.startsConversation) {
       timestamp = (
-        <Timestamp time={item.messageInfo.time} color="dark" />
+        <Timestamp time={item.messageInfo.time} contrast="low" />
       );
     }
     return (
@@ -120,8 +120,8 @@ class RobotextMessage extends React.PureComponent<Props> {
       }
     }
     return (
-      <Hyperlink linkDefault={true} linkStyle={styles.link}>
-        <Text style={styles.robotext}>{textParts}</Text>
+      <Hyperlink linkDefault={true} linkStyle={this.props.styles.link}>
+        <Text style={this.props.styles.robotext}>{textParts}</Text>
       </Hyperlink>
     );
   }
@@ -137,13 +137,18 @@ class RobotextMessage extends React.PureComponent<Props> {
 
 }
 
-const WrappedRobotextMessage = withKeyboardState(RobotextMessage);
+const WrappedRobotextMessage = connect(
+  (state: AppState) => ({
+    styles: stylesSelector(state),
+  }),
+)(withKeyboardState(RobotextMessage));
 
 type InnerThreadEntityProps = {
   id: string,
   name: string,
   // Redux state
   threadInfo: ThreadInfo,
+  styles: Styles,
   // Redux dispatch functions
   dispatch: Dispatch,
 };
@@ -153,12 +158,13 @@ class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
     id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     threadInfo: threadInfoPropType.isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatch: PropTypes.func.isRequired,
   };
 
   render() {
     return (
-      <Text style={styles.link} onPress={this.onPressThread}>
+      <Text style={this.props.styles.link} onPress={this.onPressThread}>
         {this.props.name}
       </Text>
     );
@@ -178,6 +184,7 @@ class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
 const ThreadEntity = connect(
   (state: AppState, ownProps: { id: string }) => ({
     threadInfo: threadInfoSelector(state)[ownProps.id],
+    styles: stylesSelector(state),
   }),
   null,
   true,
@@ -188,10 +195,10 @@ function ColorEntity(props: {| color: string |}) {
   return <Text style={colorStyle}>{props.color}</Text>;
 }
 
-const styles = StyleSheet.create({
+const styles = {
   robotext: {
     textAlign: 'center',
-    color: '#333333',
+    color: 'listForegroundSecondaryLabel',
     paddingVertical: 6,
     marginBottom: 5,
     marginHorizontal: 24,
@@ -199,9 +206,10 @@ const styles = StyleSheet.create({
     fontFamily: 'Arial',
   },
   link: {
-    color: '#3333FF',
+    color: 'link',
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 export {
   WrappedRobotextMessage as RobotextMessage,

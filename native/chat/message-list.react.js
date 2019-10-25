@@ -22,15 +22,11 @@ import {
   keyboardStatePropType,
   withKeyboardState,
 } from '../navigation/keyboard-state';
+import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import {
-  View,
-  StyleSheet,
-  FlatList,
-  TouchableWithoutFeedback,
-} from 'react-native';
+import { View, FlatList, TouchableWithoutFeedback } from 'react-native';
 import _sum from 'lodash/fp/sum';
 import _find from 'lodash/fp/find';
 import { createSelector } from 'reselect';
@@ -56,6 +52,7 @@ import ListLoadingIndicator from '../components/list-loading-indicator.react';
 import {
   scrollBlockingChatModalsClosedSelector,
 } from '../selectors/nav-selectors';
+import { styleSelector } from '../themes/colors';
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -65,6 +62,7 @@ type Props = {|
   viewerID: ?string,
   startReached: bool,
   scrollBlockingModalsClosed: bool,
+  styles: Styles,
   // withOverlayableScrollViewState
   overlayableScrollViewState: ?OverlayableScrollViewState,
   // withKeyboardState
@@ -102,6 +100,7 @@ class MessageList extends React.PureComponent<Props, State> {
     viewerID: PropTypes.string,
     startReached: PropTypes.bool.isRequired,
     scrollBlockingModalsClosed: PropTypes.bool.isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     overlayableScrollViewState: overlayableScrollViewStatePropType,
     keyboardState: keyboardStatePropType,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -204,7 +203,7 @@ class MessageList extends React.PureComponent<Props, State> {
     if (row.item.itemType === "loader") {
       return (
         <TouchableWithoutFeedback onPress={this.dismissKeyboard}>
-          <View style={styles.listLoadingIndicator}>
+          <View style={this.props.styles.listLoadingIndicator}>
             <ListLoadingIndicator />
           </View>
         </TouchableWithoutFeedback>
@@ -268,17 +267,16 @@ class MessageList extends React.PureComponent<Props, State> {
     return _sum(data.map(this.itemHeight));
   }
 
-  static ListFooterComponent(props: {}) {
-    // Actually header, it's just that our FlatList is inverted
-    return <View style={styles.header} />;
-  }
+  // Actually header, it's just that our FlatList is inverted
+  ListFooterComponent =
+    (props: {}) => <View style={this.props.styles.header} />;
 
   render() {
     const { messageListData, startReached } = this.props;
-    const footer = startReached ? MessageList.ListFooterComponent : undefined;
+    const footer = startReached ? this.ListFooterComponent : undefined;
     return (
       <View
-        style={styles.container}
+        style={this.props.styles.container}
         ref={this.flatListContainerRef}
         onLayout={this.onFlatListContainerLayout}
       >
@@ -369,10 +367,10 @@ class MessageList extends React.PureComponent<Props, State> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'listBackground',
   },
   header: {
     height: 12,
@@ -380,7 +378,8 @@ const styles = StyleSheet.create({
   listLoadingIndicator: {
     flex: 1,
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 registerFetchKey(fetchMessagesBeforeCursorActionTypes);
 registerFetchKey(fetchMostRecentMessagesActionTypes);
@@ -393,6 +392,7 @@ export default connect(
       startReached: !!(state.messageStore.threads[threadID] &&
         state.messageStore.threads[threadID].startReached),
       scrollBlockingModalsClosed: scrollBlockingChatModalsClosedSelector(state),
+      styles: stylesSelector(state),
     };
   },
   { fetchMessagesBeforeCursor, fetchMostRecentMessages },

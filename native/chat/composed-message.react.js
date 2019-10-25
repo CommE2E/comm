@@ -4,6 +4,7 @@ import type { ChatMessageInfoItemWithHeight } from './message.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import { assertComposableMessageType } from 'lib/types/message-types';
 import type { AppState } from '../redux/redux-setup';
+import type { Colors } from '../themes/colors';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -15,6 +16,7 @@ import { connect } from 'lib/utils/redux-utils';
 import FailedSend from './failed-send.react';
 import { composedMessageMaxWidthSelector } from './composed-message-width';
 import MessageHeader from './message-header.react';
+import { colorsSelector } from '../themes/colors';
 
 type Props = {|
   item: ChatMessageInfoItemWithHeight,
@@ -23,6 +25,7 @@ type Props = {|
   children: React.Node,
   // Redux state
   composedMessageMaxWidth: number,
+  colors: Colors,
   ...React.ElementProps<typeof View>,
 |};
 class ComposedMessage extends React.PureComponent<Props> {
@@ -33,6 +36,7 @@ class ComposedMessage extends React.PureComponent<Props> {
     focused: PropTypes.bool.isRequired,
     children: PropTypes.node.isRequired,
     composedMessageMaxWidth: PropTypes.number.isRequired,
+    colors: PropTypes.objectOf(PropTypes.string).isRequired,
   };
 
   render() {
@@ -56,12 +60,12 @@ class ComposedMessage extends React.PureComponent<Props> {
     let failedSendInfo = null;
     if (isViewer) {
       let deliveryIconName;
-      let deliveryIconColor = item.threadInfo.color;
+      let deliveryIconColor = `#${item.threadInfo.color}`;
       if (id !== null && id !== undefined) {
         deliveryIconName = "check-circle";
       } else if (sendFailed) {
         deliveryIconName = "x-circle";
-        deliveryIconColor = "FF0000";
+        deliveryIconColor = this.props.colors.redText;
         failedSendInfo = <FailedSend item={item} />;
       } else {
         deliveryIconName = "circle";
@@ -70,7 +74,7 @@ class ComposedMessage extends React.PureComponent<Props> {
         <View style={styles.iconContainer}>
           <Icon
             name={deliveryIconName}
-            style={[styles.icon, { color: `#${deliveryIconColor}` }]}
+            style={[ styles.icon, { color: deliveryIconColor } ]}
           />
         </View>
       );
@@ -78,7 +82,7 @@ class ComposedMessage extends React.PureComponent<Props> {
 
     return (
       <View {...viewProps}>
-        <MessageHeader item={item} focused={focused} color="dark" />
+        <MessageHeader item={item} focused={focused} contrast="low" />
         <View style={containerStyle}>
           <View style={[ styles.content, alignStyle ]}>
             <View style={[ styles.messageBox, messageBoxStyle, alignStyle ]}>
@@ -128,5 +132,6 @@ const styles = StyleSheet.create({
 export default connect(
   (state: AppState) => ({
     composedMessageMaxWidth: composedMessageMaxWidthSelector(state),
+    colors: colorsSelector(state),
   }),
 )(ComposedMessage);

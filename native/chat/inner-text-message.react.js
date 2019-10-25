@@ -2,6 +2,9 @@
 
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
+import { type GlobalTheme, globalThemePropType } from '../types/themes';
+import type { AppState } from '../redux/redux-setup';
+import type { Colors } from '../themes/colors';
 
 import * as React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
@@ -10,13 +13,18 @@ import Hyperlink from 'react-native-hyperlink';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
 import { onlyEmojiRegex } from 'lib/shared/emojis';
+import { connect } from 'lib/utils/redux-utils';
 
 import { RoundedMessageContainer } from './rounded-message-container.react';
+import { colorsSelector, colors } from '../themes/colors';
 
 type Props = {|
   item: ChatTextMessageInfoItemWithHeight,
   onPress: () => void,
   messageRef?: (message: ?View) => void,
+  // Redux state
+  activeTheme: ?GlobalTheme,
+  colors: Colors,
 |};
 class InnerTextMessage extends React.PureComponent<Props> {
 
@@ -24,6 +32,8 @@ class InnerTextMessage extends React.PureComponent<Props> {
     item: chatMessageItemPropType.isRequired,
     onPress: PropTypes.func.isRequired,
     messageRef: PropTypes.func,
+    activeTheme: globalThemePropType,
+    colors: PropTypes.objectOf(PropTypes.string).isRequired,
   };
 
   render() {
@@ -31,19 +41,21 @@ class InnerTextMessage extends React.PureComponent<Props> {
     const { text, id, creator } = item.messageInfo;
     const { isViewer } = creator;
 
-    let messageStyle = {}, textCustomStyle = {}, darkColor = false;
+    let messageStyle = {}, textCustomStyle = {}, darkColor;
     if (isViewer) {
       const threadColor = item.threadInfo.color;
       messageStyle.backgroundColor = `#${threadColor}`;
       darkColor = colorIsDark(threadColor);
-      textCustomStyle.color = darkColor ? 'white' : 'black';
     } else {
-      messageStyle.backgroundColor = "#DDDDDDBB";
-      textCustomStyle.color = 'black';
+      messageStyle.backgroundColor = this.props.colors.listChatBubble;
+      darkColor = this.props.activeTheme === 'dark';
     }
     textCustomStyle.height = item.contentHeight;
 
     const linkStyle = darkColor ? styles.lightLinkText : styles.darkLinkText;
+    textCustomStyle.color = darkColor
+      ? colors.dark.listForegroundLabel
+      : colors.light.listForegroundLabel;
     const textStyle = onlyEmojiRegex.test(text)
       ? styles.emojiOnlyText
       : styles.text;
@@ -57,7 +69,7 @@ class InnerTextMessage extends React.PureComponent<Props> {
         <RoundedMessageContainer item={item}>
           <Hyperlink
             linkDefault={true}
-            style={[styles.message, messageStyle]}
+            style={[ styles.message, messageStyle ]}
             linkStyle={linkStyle}
           >
             <Text
@@ -100,13 +112,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   darkLinkText: {
-    color: "#036AFF",
+    color: colors.light.link,
     textDecorationLine: "underline",
   },
   lightLinkText: {
-    color: "#129AFF",
+    color: colors.dark.link,
     textDecorationLine: "underline",
   },
 });
 
-export default InnerTextMessage;
+export default connect((state: AppState) => ({
+  activeTheme: state.globalThemeInfo.activeTheme,
+  colors: colorsSelector(state),
+}))(InnerTextMessage);

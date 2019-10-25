@@ -391,10 +391,7 @@ class InternalEntry extends React.Component<Props, State> {
       rawText += " ";
     }
     const textStyle = { color: textColor };
-    const linkColorStyle = darkColor
-      ? { color: colors.dark.link }
-      : { color: colors.light.link };
-    const linkStyle = [ this.props.styles.linkText, linkColorStyle ];
+    const linkStyle = darkColor ? styles.lightLinkText : styles.darkLinkText;
     // We use an empty View to set the height of the entry, and then position
     // the Text and TextInput absolutely. This allows to measure height changes
     // to the Text while controlling the actual height of the entry.
@@ -749,7 +746,12 @@ const styles = {
   button: {
     padding: 5,
   },
-  linkText: {
+  lightLinkText: {
+    color: colors.dark.link,
+    textDecorationLine: "underline",
+  },
+  darkLinkText: {
+    color: colors.light.link,
     textDecorationLine: "underline",
   },
   pencilIcon: {

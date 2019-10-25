@@ -16,10 +16,12 @@ import {
   type MessageListNavProp,
   messageListNavPropType,
 } from './message-list-types';
+import type { Colors } from '../themes/colors';
+import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { View, Platform, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Platform, ActivityIndicator } from 'react-native';
 import _differenceWith from 'lodash/fp/differenceWith';
 import invariant from 'invariant';
 import hoistNonReactStatics from 'hoist-non-react-statics';
@@ -50,6 +52,7 @@ import {
   chatInputStatePropType,
   withChatInputState,
 } from './chat-input-state';
+import { colorsSelector, styleSelector } from '../themes/colors';
 
 export type ChatMessageItemWithHeight =
   {| itemType: "loader" |} |
@@ -62,6 +65,8 @@ type Props = {|
   messageListData: $ReadOnlyArray<ChatMessageItem>,
   textMessageMaxWidth: number,
   composedMessageMaxWidth: number,
+  colors: Colors,
+  styles: Styles,
   // withChatInputState
   chatInputState: ?ChatInputState,
 |};
@@ -77,6 +82,8 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
     textMessageMaxWidth: PropTypes.number.isRequired,
     composedMessageMaxWidth: PropTypes.number.isRequired,
+    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     chatInputState: chatInputStatePropType,
   };
   static navigationOptions = ({ navigation }) => ({
@@ -124,8 +131,8 @@ class MessageListContainer extends React.PureComponent<Props, State> {
       if (messageInfo.type === messageTypes.TEXT) {
         const style = [
           onlyEmojiRegex.test(messageInfo.text)
-            ? styles.emojiOnlyText
-            : styles.text,
+            ? this.props.styles.emojiOnlyText
+            : this.props.styles.text,
           { width: this.props.textMessageMaxWidth },
         ];
         textToMeasure.push({
@@ -137,7 +144,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
         textToMeasure.push({
           id: messageKey(messageInfo),
           text: robotextToRawString(item.robotext),
-          style: styles.robotext,
+          style: this.props.styles.robotext,
         });
       }
     }
@@ -210,18 +217,18 @@ class MessageListContainer extends React.PureComponent<Props, State> {
       );
     } else {
       messageList = (
-        <View style={styles.loadingIndicatorContainer}>
+        <View style={this.props.styles.loadingIndicatorContainer}>
           <ActivityIndicator
-            color="black"
+            color={this.props.colors.listSeparatorLabel}
             size="large"
-            style={styles.loadingIndicator}
+            style={this.props.styles.loadingIndicator}
           />
         </View>
       );
     }
 
     return (
-      <View style={styles.container}>
+      <View style={this.props.styles.container}>
         <TextHeightMeasurer
           textToMeasure={this.state.textToMeasure}
           allHeightsMeasuredCallback={this.allHeightsMeasured}
@@ -326,9 +333,10 @@ class MessageListContainer extends React.PureComponent<Props, State> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
+    backgroundColor: 'listSeparator',
   },
   loadingIndicator: {
     flex: 1,
@@ -350,7 +358,8 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: 'Arial',
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 const ConnectedMessageListContainer = connect(
   (state: AppState, ownProps: { navigation: MessageListNavProp }) => {
@@ -360,6 +369,8 @@ const ConnectedMessageListContainer = connect(
       messageListData: messageListData(threadID)(state),
       textMessageMaxWidth: textMessageMaxWidthSelector(state),
       composedMessageMaxWidth: composedMessageMaxWidthSelector(state),
+      colors: colorsSelector(state),
+      styles: stylesSelector(state),
     };
   },
 )(withChatInputState(MessageListContainer));

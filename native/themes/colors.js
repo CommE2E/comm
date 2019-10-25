@@ -37,7 +37,8 @@ const light = Object.freeze({
   listForegroundQuaternaryLabel: '#AAAAAA',
   listBackground: 'white',
   listBackgroundLabel: 'black',
-  listBackgroundSecondaryLabel: '#777777',
+  listBackgroundSecondaryLabel: '#444444',
+  listBackgroundTernaryLabel: '#999999',
   listSeparator: '#EEEEEE',
   listSeparatorLabel: '#555555',
   listInputBar: '#E2E2E2',
@@ -47,10 +48,11 @@ const light = Object.freeze({
   listIosHighlightUnderlay: '#DDDDDDDD',
   listSearchBackground: '#DDDDDD',
   listSearchIcon: '#AAAAAA',
+  listChatBubble: '#DDDDDDBB',
 });
 export type Colors = $Exact<typeof light>;
 
-const dark: Colors = {
+const dark: Colors = Object.freeze({
   redButton: '#FF4444',
   greenButton: '#44BB44',
   mintButton: '#44CC99',
@@ -81,6 +83,7 @@ const dark: Colors = {
   listBackground: '#1C1C1E',
   listBackgroundLabel: '#C7C7CC',
   listBackgroundSecondaryLabel: '#BBBBBB',
+  listBackgroundTernaryLabel: '#555555',
   listSeparator: '#3A3A3C',
   listSeparatorLabel: '#EEEEEE',
   listInputBar: '#555555',
@@ -90,7 +93,8 @@ const dark: Colors = {
   listIosHighlightUnderlay: '#BBBBBB88',
   listSearchBackground: '#555555',
   listSearchIcon: '#AAAAAA',
-};
+  listChatBubble: '#444444DD',
+});
 const colors = { light, dark };
 
 const colorsSelector: (state: AppState) => Colors = createSelector(

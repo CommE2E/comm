@@ -10,9 +10,10 @@ import {
 } from 'lib/types/message-types';
 import type { AppState } from '../redux/redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import type { Styles } from '../types/styles';
 
 import * as React from 'react';
-import { Text, StyleSheet, View } from 'react-native';
+import { Text, View } from 'react-native';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 
@@ -29,11 +30,13 @@ import {
 } from './chat-input-state';
 
 import Button from '../components/button.react';
+import { styleSelector } from '../themes/colors';
 
 type Props = {|
   item: ChatMessageInfoItemWithHeight,
   // Redux state
   rawMessageInfo: ?RawMessageInfo,
+  styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -50,6 +53,7 @@ class FailedSend extends React.PureComponent<Props> {
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     rawMessageInfo: PropTypes.object,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     sendTextMessage: PropTypes.func.isRequired,
     chatInputState: chatInputStatePropType,
@@ -60,12 +64,12 @@ class FailedSend extends React.PureComponent<Props> {
       return null;
     }
     return (
-      <View style={styles.failedSendInfo}>
-        <Text style={styles.deliveryFailed} numberOfLines={1}>
+      <View style={this.props.styles.failedSendInfo}>
+        <Text style={this.props.styles.deliveryFailed} numberOfLines={1}>
           DELIVERY FAILED.
         </Text>
         <Button onPress={this.retrySend}>
-          <Text style={styles.retrySend} numberOfLines={1}>
+          <Text style={this.props.styles.retrySend} numberOfLines={1}>
             RETRY?
           </Text>
         </Button>
@@ -128,7 +132,7 @@ class FailedSend extends React.PureComponent<Props> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   failedSendInfo: {
     paddingTop: 5,
     flex: 1,
@@ -138,19 +142,21 @@ const styles = StyleSheet.create({
   },
   deliveryFailed: {
     paddingHorizontal: 3,
-    color: '#555555',
+    color: 'listSeparatorLabel',
   },
   retrySend: {
     paddingHorizontal: 3,
-    color: "#036AFF",
+    color: 'link',
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 export default connect(
   (state: AppState, ownProps: { item: ChatMessageInfoItemWithHeight }) => {
     const id = messageID(ownProps.item.messageInfo);
     return {
       rawMessageInfo: state.messageStore.messages[id],
+      styles: stylesSelector(state),
     };
   },
   { sendTextMessage },

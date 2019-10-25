@@ -3,25 +3,33 @@
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
 import type { Navigate } from '../navigation/route-names';
+import type { AppState } from '../redux/redux-setup';
+import type { Styles } from '../types/styles';
 
 import * as React from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
+import { View, Text, Platform } from 'react-native';
 import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { HeaderTitle } from 'react-navigation-stack';
 
+import { connect } from 'lib/utils/redux-utils';
+
 import Button from '../components/button.react';
 import { ThreadSettingsRouteName } from '../navigation/route-names';
+import { styleSelector } from '../themes/colors';
 
 type Props = {|
   threadInfo: ThreadInfo,
   navigate: Navigate,
+  // Redux state
+  styles: Styles,
 |};
 class MessageListHeaderTitle extends React.PureComponent<Props> {
 
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     navigate: PropTypes.func.isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
 
   render() {
@@ -31,26 +39,25 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
         <Icon
           name="ios-arrow-forward"
           size={20}
-          style={styles.forwardIcon}
-          color="#036AFF"
+          style={this.props.styles.forwardIcon}
         />
       );
       fakeIcon = (
         <Icon
           name="ios-arrow-forward"
           size={20}
-          style={styles.fakeIcon}
+          style={this.props.styles.fakeIcon}
         />
       );
     }
     return (
       <Button
         onPress={this.onPress}
-        style={styles.button}
-        topStyle={styles.button}
+        style={this.props.styles.button}
+        topStyle={this.props.styles.button}
         androidBorderlessRipple={true}
       >
-        <View style={styles.container}>
+        <View style={this.props.styles.container}>
           {fakeIcon}
           <HeaderTitle>
             {this.props.threadInfo.uiName}
@@ -72,7 +79,7 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   button: {
     position: 'absolute',
     left: 0,
@@ -89,12 +96,18 @@ const styles = StyleSheet.create({
   forwardIcon: {
     flex: 1,
     minWidth: 25,
+    color: 'link',
   },
   fakeIcon: {
     flex: 1,
     minWidth: 25,
     opacity: 0,
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
-export default MessageListHeaderTitle;
+export default connect((state: AppState) => ({
+  urlPrefix: state.urlPrefix,
+  customServer: state.customServer,
+  styles: stylesSelector(state),
+}))(MessageListHeaderTitle);

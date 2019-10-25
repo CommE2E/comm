@@ -86,7 +86,7 @@ const styles = {
   },
   releaseText: {
     fontSize: 16,
-    color: 'red',
+    color: 'redText',
   },
   text: {
     fontSize: 16,

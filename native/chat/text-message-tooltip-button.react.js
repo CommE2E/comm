@@ -94,7 +94,7 @@ class TextMessageTooltipButton extends React.PureComponent<Props> {
     return (
       <React.Fragment>
         <Animated.View style={this.headerStyle}>
-          <MessageHeader item={item} focused={true} color="light" />
+          <MessageHeader item={item} focused={true} contrast="high" />
         </Animated.View>
         <InnerTextMessage 
           item={item}
