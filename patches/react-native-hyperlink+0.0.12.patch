@@ -1,5 +1,5 @@
 diff --git a/node_modules/react-native-hyperlink/dist/index.js b/node_modules/react-native-hyperlink/dist/index.js
-index a895324..caa80b6 100644
+index a63c4ee..a345761 100644
 --- a/node_modules/react-native-hyperlink/dist/index.js
 +++ b/node_modules/react-native-hyperlink/dist/index.js
 @@ -52,13 +52,11 @@ var Hyperlink = function (_Component) {
@@ -21,17 +21,8 @@ index a895324..caa80b6 100644
      }
    }, {
      key: 'render',
-@@ -115,7 +113,7 @@ var Hyperlink = function (_Component) {
-           if (_this2.props.linkText) text = typeof _this2.props.linkText === 'function' ? _this2.props.linkText(url) : _this2.props.linkText;
- 
-           var clickHandlerProps = {};
--          if (OS !== 'web') {
-+          if (OS !== 'web' && this.props.onLongPress) {
-             clickHandlerProps.onLongPress = _this2.props.onLongPress ? function () {
-               return _this2.props.onLongPress(url, text);
-             } : undefined;
 diff --git a/node_modules/react-native-hyperlink/src/Hyperlink.js b/node_modules/react-native-hyperlink/src/Hyperlink.js
-index c391bb0..7d6f69e 100644
+index ad90132..9406200 100644
 --- a/node_modules/react-native-hyperlink/src/Hyperlink.js
 +++ b/node_modules/react-native-hyperlink/src/Hyperlink.js
 @@ -23,8 +23,10 @@ class Hyperlink extends Component {
@@ -47,12 +38,3 @@ index c391bb0..7d6f69e 100644
    }
  
    render() {
-@@ -79,7 +81,7 @@ class Hyperlink extends Component {
-               : this.props.linkText
- 
-         const clickHandlerProps = {}
--        if (OS !== 'web') {
-+        if (OS !== 'web' && this.props.onLongPress) {
-           clickHandlerProps.onLongPress = this.props.onLongPress 
-             ? () => this.props.onLongPress(url, text)
-             : undefined
