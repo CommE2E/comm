@@ -1,7 +1,7 @@
 // @flow
 
 import type { AppState } from '../redux/redux-setup';
-import type { Colors } from '../themes/colors';
+import { type Colors, colorsPropType } from '../themes/colors';
 
 import type { ViewStyle } from '../types/styles';
 import type {
@@ -74,7 +74,7 @@ class ColorPicker extends React.PureComponent<Props, State> {
     style: ViewPropTypes.style,
     buttonText: PropTypes.string,
     oldButtonText: PropTypes.string,
-    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    colors: colorsPropType.isRequired,
   };
   static defaultProps = {
     buttonText: "Select",

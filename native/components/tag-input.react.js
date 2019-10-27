@@ -3,7 +3,7 @@
 import type { ViewStyle, TextStyle } from '../types/styles';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 import type { AppState } from '../redux/redux-setup';
-import type { Colors } from '../themes/colors';
+import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -122,7 +122,7 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
     defaultInputWidth: PropTypes.number,
     innerRef: PropTypes.func,
     dimensions: dimensionsPropType.isRequired,
-    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    colors: colorsPropType.isRequired,
   };
   // scroll to bottom
   scrollViewHeight = 0;

@@ -9,7 +9,7 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { AppState } from '../../redux/redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { Colors } from '../../themes/colors';
+import { type Colors, colorsPropType } from '../../themes/colors';
 import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
@@ -53,7 +53,7 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
     canDeleteThread: PropTypes.bool.isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
     otherUsersButNoOtherAdmins: PropTypes.bool.isRequired,
-    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     leaveThread: PropTypes.func.isRequired,

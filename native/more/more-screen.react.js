@@ -9,7 +9,7 @@ import type { LogOutResult } from 'lib/types/account-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { Styles } from '../types/styles';
-import type { Colors } from '../themes/colors';
+import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import {
@@ -75,7 +75,7 @@ class MoreScreen extends React.PureComponent<Props> {
     email: PropTypes.string,
     emailVerified: PropTypes.bool,
     resendVerificationLoadingStatus: loadingStatusPropType.isRequired,
-    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     logOut: PropTypes.func.isRequired,

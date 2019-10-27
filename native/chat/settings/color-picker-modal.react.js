@@ -13,7 +13,7 @@ import {
   type UpdateThreadRequest,
 } from 'lib/types/thread-types';
 import type { Styles } from '../../types/styles';
-import type { Colors } from '../../themes/colors';
+import { type Colors, colorsPropType } from '../../themes/colors';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -66,7 +66,7 @@ class ColorPickerModal extends React.PureComponent<Props> {
       }).isRequired,
       goBack: PropTypes.func.isRequired,
     }).isRequired,
-    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     changeThreadSettings: PropTypes.func.isRequired,

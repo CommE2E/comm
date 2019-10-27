@@ -11,7 +11,7 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { AppState } from '../../redux/redux-setup';
-import type { Colors } from '../../themes/colors';
+import { type Colors, colorsPropType } from '../../themes/colors';
 import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
@@ -71,7 +71,7 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
     setDescriptionTextHeight: PropTypes.func.isRequired,
     canChangeSettings: PropTypes.bool.isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
-    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     changeThreadSettings: PropTypes.func.isRequired,

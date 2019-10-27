@@ -28,7 +28,7 @@ import {
   type Navigate,
   ThreadSettingsMemberTooltipModalRouteName,
 } from '../../navigation/route-names';
-import type { Colors } from '../../themes/colors';
+import { type Colors, colorsPropType } from '../../themes/colors';
 import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
@@ -84,7 +84,7 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
     verticalBounds: verticalBoundsPropType,
     removeUserLoadingStatus: loadingStatusPropType.isRequired,
     changeRoleLoadingStatus: loadingStatusPropType.isRequired,
-    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     overlayableScrollViewState: overlayableScrollViewStatePropType,
     keyboardState: keyboardStatePropType,

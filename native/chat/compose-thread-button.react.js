@@ -2,7 +2,7 @@
 
 import type { Navigate } from '../navigation/route-names';
 import type { AppState } from '../redux/redux-setup';
-import type { Colors } from '../themes/colors';
+import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
@@ -24,7 +24,7 @@ class ComposeThreadButton extends React.PureComponent<Props> {
 
   static propTypes = {
     navigate: PropTypes.func.isRequired,
-    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    colors: colorsPropType.isRequired,
   };
 
   render() {

@@ -6,7 +6,6 @@ import type { Colors } from '../themes/colors';
 
 import * as React from 'react';
 import { ActivityIndicator } from 'react-native';
-import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
 
@@ -17,24 +16,15 @@ type Props = {|
   colors: Colors,
   styles: Styles,
 |};
-class ListLoadingIndicator extends React.PureComponent<Props> {
-
-  static propTypes = {
-    colors: PropTypes.objectOf(PropTypes.string).isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-  };
-
-  render() {
-    const { listBackgroundLabel } = this.props.colors;
-    return (
-      <ActivityIndicator
-        color={listBackgroundLabel}
-        size="large"
-        style={this.props.styles.loadingIndicator}
-      />
-    );
-  }
-
+function ListLoadingIndicator(props: Props) {
+  const { listBackgroundLabel } = props.colors;
+  return (
+    <ActivityIndicator
+      color={listBackgroundLabel}
+      size="large"
+      style={props.styles.loadingIndicator}
+    />
+  );
 }
 
 const styles = {

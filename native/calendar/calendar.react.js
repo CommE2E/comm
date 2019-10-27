@@ -32,7 +32,7 @@ import {
   connectionStatusPropType,
 } from 'lib/types/socket-types';
 import type { Styles } from '../types/styles';
-import type { Colors } from '../themes/colors';
+import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import {
@@ -188,7 +188,7 @@ class Calendar extends React.PureComponent<Props, State> {
     contentVerticalOffset: PropTypes.number.isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
     connectionStatus: connectionStatusPropType.isRequired,
-    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     updateCalendarQuery: PropTypes.func.isRequired,

@@ -28,7 +28,7 @@ import {
   withKeyboardState,
 } from '../navigation/keyboard-state';
 import type { Styles } from '../types/styles';
-import type { Colors } from '../themes/colors';
+import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import {
@@ -114,7 +114,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     joinThreadLoadingStatus: loadingStatusPropType.isRequired,
     calendarQuery: PropTypes.func.isRequired,
     nextLocalID: PropTypes.number.isRequired,
-    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     keyboardState: keyboardStatePropType,
     dispatchActionPayload: PropTypes.func.isRequired,

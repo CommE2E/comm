@@ -4,7 +4,7 @@ import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
 import { type GlobalTheme, globalThemePropType } from '../types/themes';
 import type { AppState } from '../redux/redux-setup';
-import type { Colors } from '../themes/colors';
+import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
@@ -33,7 +33,7 @@ class InnerTextMessage extends React.PureComponent<Props> {
     onPress: PropTypes.func.isRequired,
     messageRef: PropTypes.func,
     activeTheme: globalThemePropType,
-    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    colors: colorsPropType.isRequired,
   };
 
   render() {

@@ -2,7 +2,7 @@
 
 import type { AppState } from '../redux/redux-setup';
 import type { Styles } from '../types/styles';
-import type { Colors } from '../themes/colors';
+import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import { View, Text, TouchableWithoutFeedback } from 'react-native';
@@ -28,7 +28,7 @@ class SectionFooter extends React.PureComponent<Props> {
     dateString: PropTypes.string.isRequired,
     onAdd: PropTypes.func.isRequired,
     onPressWhitespace: PropTypes.func.isRequired,
-    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
 

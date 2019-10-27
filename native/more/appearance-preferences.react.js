@@ -10,7 +10,7 @@ import {
 } from '../types/themes';
 import { updateThemeInfoActionType } from '../redux/action-types';
 import type { Styles } from '../types/styles';
-import type { Colors } from '../themes/colors';
+import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import { View, Text, ScrollView, Platform } from 'react-native';
@@ -59,7 +59,7 @@ class AppearancePreferences extends React.PureComponent<Props> {
   static propTypes = {
     globalThemeInfo: globalThemeInfoPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    colors: colorsPropType.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
   static navigationOptions = {

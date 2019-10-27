@@ -6,6 +6,7 @@ import type { AppState } from '../redux/redux-setup';
 
 import { StyleSheet } from 'react-native';
 import { createSelector } from 'reselect';
+import PropTypes from 'prop-types';
 
 const light = Object.freeze({
   redButton: '#BB8888',
@@ -58,6 +59,10 @@ const light = Object.freeze({
   listChatBubble: '#DDDDDDBB',
 });
 export type Colors = $Exact<typeof light>;
+
+const colorsPropType = PropTypes.objectOf(
+  PropTypes.oneOfType([ PropTypes.string, PropTypes.number ]),
+);
 
 const dark: Colors = Object.freeze({
   redButton: '#FF4444',
@@ -151,6 +156,7 @@ function styleSelector<+S: Styles>(obj: S): (state: AppState) => S {
 }
 
 export {
+  colorsPropType,
   colors,
   colorsSelector,
   styleSelector,

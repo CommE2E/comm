@@ -11,7 +11,7 @@ import {
   type LeaveThreadPayload,
 } from 'lib/types/thread-types';
 import type { Styles } from '../../types/styles';
-import type { Colors } from '../../themes/colors';
+import { type Colors, colorsPropType } from '../../themes/colors';
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -77,7 +77,7 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
     }).isRequired,
     threadInfo: threadInfoPropType,
     loadingStatus: loadingStatusPropType.isRequired,
-    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     deleteThread: PropTypes.func.isRequired,

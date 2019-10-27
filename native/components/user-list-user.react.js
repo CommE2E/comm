@@ -3,7 +3,7 @@
 import type { TextStyle, Styles } from '../types/styles';
 import { type UserListItem, userListItemPropType } from 'lib/types/user-types';
 import type { AppState } from '../redux/redux-setup';
-import type { Colors } from '../themes/colors';
+import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -32,7 +32,7 @@ class UserListUser extends React.PureComponent<Props> {
     userInfo: userListItemPropType.isRequired,
     onSelect: PropTypes.func.isRequired,
     textStyle: Text.propTypes.style,
-    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
 

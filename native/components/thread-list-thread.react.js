@@ -2,7 +2,7 @@
 
 import type { ViewStyle, TextStyle, Styles } from '../types/styles';
 import type { AppState } from '../redux/redux-setup';
-import type { Colors } from '../themes/colors';
+import { type Colors, colorsPropType } from '../themes/colors';
 
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 
@@ -32,7 +32,7 @@ class ThreadListThread extends React.PureComponent<Props> {
     onSelect: PropTypes.func.isRequired,
     style: ViewPropTypes.style,
     textStyle: Text.propTypes.style,
-    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
 

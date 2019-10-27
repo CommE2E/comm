@@ -1,7 +1,7 @@
 // @flow
 
 import type { AppState } from '../redux/redux-setup';
-import type { Colors } from '../themes/colors';
+import { type Colors, colorsPropType } from '../themes/colors';
 import type { ViewStyle, Styles } from '../types/styles';
 
 import * as React from 'react';
@@ -36,7 +36,7 @@ class Search extends React.PureComponent<Props> {
     onChangeText: PropTypes.func.isRequired,
     style: ViewPropTypes.style,
     textInputRef: PropTypes.func,
-    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
 

@@ -7,7 +7,7 @@ import type {
   NavigationLeafRoute,
 } from 'react-navigation';
 import type { Styles } from '../types/styles';
-import type { Colors } from '../themes/colors';
+import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import { View, Text, ScrollView, Platform } from 'react-native';
@@ -52,7 +52,7 @@ class DevTools extends React.PureComponent<Props> {
     }).isRequired,
     urlPrefix: PropTypes.string.isRequired,
     customServer: PropTypes.string,
-    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };

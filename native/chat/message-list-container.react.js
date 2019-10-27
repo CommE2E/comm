@@ -16,7 +16,7 @@ import {
   type MessageListNavProp,
   messageListNavPropType,
 } from './message-list-types';
-import type { Colors } from '../themes/colors';
+import { type Colors, colorsPropType } from '../themes/colors';
 import type { Styles } from '../types/styles';
 
 import * as React from 'react';
@@ -82,7 +82,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
     textMessageMaxWidth: PropTypes.number.isRequired,
     composedMessageMaxWidth: PropTypes.number.isRequired,
-    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     chatInputState: chatInputStatePropType,
   };
