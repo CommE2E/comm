@@ -39,6 +39,7 @@ const light = Object.freeze({
   modalButtonLabel: 'black',
   modalContrastBackground: 'black',
   modalContrastForegroundLabel: 'white',
+  modalContrastOpacity: 0.7,
   listForegroundLabel: 'black',
   listForegroundSecondaryLabel: '#333333',
   listForegroundTertiaryLabel: '#666666',
@@ -95,6 +96,7 @@ const dark: Colors = Object.freeze({
   modalButtonLabel: 'white',
   modalContrastBackground: 'white',
   modalContrastForegroundLabel: 'black',
+  modalContrastOpacity: 0.85,
   listForegroundLabel: 'white',
   listForegroundSecondaryLabel: '#CCCCCC',
   listForegroundTertiaryLabel: '#999999',
@@ -131,7 +133,13 @@ for (let theme in colors) {
   }
 }
 
-function styleSelector<+S: Styles>(obj: S): (state: AppState) => S {
+// Distinct type needed here because we replace type of some fields with strings
+type InStyles = { [name: string]: { [field: string]: number | string } };
+
+function styleSelector<
+  IS: InStyles,
+  +OS: Styles,
+>(obj: IS): (state: AppState) => OS {
   return createSelector(
     colorsSelector,
     (themeColors: Colors) => {

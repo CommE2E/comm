@@ -113,7 +113,7 @@ const styles = {
   },
   backdrop: {
     backgroundColor: 'modalContrastBackground',
-    opacity: 0.8,
+    opacity: 'modalContrastOpacity',
     position: 'absolute',
     top: 0,
     bottom: 0,
