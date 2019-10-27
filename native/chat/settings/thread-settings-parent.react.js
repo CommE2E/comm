@@ -3,9 +3,10 @@
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { AppState } from '../../redux/redux-setup';
 import type { Navigate } from '../../navigation/route-names';
+import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
-import { Text, StyleSheet, View, Platform } from 'react-native';
+import { Text, View, Platform } from 'react-native';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 
@@ -14,12 +15,14 @@ import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../../components/button.react';
 import { MessageListRouteName } from '../../navigation/route-names';
+import { styleSelector } from '../../themes/colors';
 
 type Props = {|
   threadInfo: ThreadInfo,
   navigate: Navigate,
   // Redux state
   parentThreadInfo?: ?ThreadInfo,
+  styles: Styles,
 |};
 class ThreadSettingsParent extends React.PureComponent<Props> {
 
@@ -27,15 +30,22 @@ class ThreadSettingsParent extends React.PureComponent<Props> {
     threadInfo: threadInfoPropType.isRequired,
     navigate: PropTypes.func.isRequired,
     parentThreadInfo: threadInfoPropType,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
 
   render() {
     let parent;
     if (this.props.parentThreadInfo) {
       parent = (
-        <Button onPress={this.onPressParentThread} style={styles.currentValue}>
+        <Button
+          onPress={this.onPressParentThread}
+          style={this.props.styles.currentValue}
+        >
           <Text
-            style={[styles.currentValueText, styles.parentThreadLink]}
+            style={[
+              this.props.styles.currentValueText,
+              this.props.styles.parentThreadLink,
+            ]}
             numberOfLines={1}
           >
             {this.props.parentThreadInfo.uiName}
@@ -45,9 +55,9 @@ class ThreadSettingsParent extends React.PureComponent<Props> {
     } else if (this.props.threadInfo.parentThreadID) {
       parent = (
         <Text style={[
-          styles.currentValue,
-          styles.currentValueText,
-          styles.noParent,
+          this.props.styles.currentValue,
+          this.props.styles.currentValueText,
+          this.props.styles.noParent,
         ]}>
           Secret parent
         </Text>
@@ -55,17 +65,17 @@ class ThreadSettingsParent extends React.PureComponent<Props> {
     } else {
       parent = (
         <Text style={[
-          styles.currentValue,
-          styles.currentValueText,
-          styles.noParent,
+          this.props.styles.currentValue,
+          this.props.styles.currentValueText,
+          this.props.styles.noParent,
         ]}>
           No parent
         </Text>
       );
     }
     return (
-      <View style={styles.row}>
-        <Text style={styles.label}>
+      <View style={this.props.styles.row}>
+        <Text style={this.props.styles.label}>
           Parent
         </Text>
         {parent}
@@ -85,16 +95,16 @@ class ThreadSettingsParent extends React.PureComponent<Props> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   row: {
     flexDirection: 'row',
     paddingHorizontal: 24,
-    backgroundColor: "white",
+    backgroundColor: 'panelForeground',
   },
   label: {
     fontSize: 16,
     width: 96,
-    color: "#888888",
+    color: 'panelForegroundTertiaryLabel',
     paddingVertical: 4,
   },
   currentValue: {
@@ -106,7 +116,7 @@ const styles = StyleSheet.create({
     paddingRight: 0,
     margin: 0,
     fontSize: 16,
-    color: "#333333",
+    color: 'panelForegroundSecondaryLabel',
     fontFamily: 'Arial',
   },
   noParent: {
@@ -114,9 +124,10 @@ const styles = StyleSheet.create({
     paddingLeft: 2,
   },
   parentThreadLink: {
-    color: "#036AFF",
+    color: 'link',
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 export default connect(
   (state: AppState, ownProps: { threadInfo: ThreadInfo }) => {
@@ -126,6 +137,7 @@ export default connect(
       : null;
     return {
       parentThreadInfo,
+      styles: stylesSelector(state),
     };
   },
 )(ThreadSettingsParent);

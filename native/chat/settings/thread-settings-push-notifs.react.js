@@ -7,9 +7,10 @@ import type {
   SubscriptionUpdateRequest,
   SubscriptionUpdateResult,
 } from 'lib/types/subscription-types';
+import type { Styles } from '../../types/styles';
 
-import React from 'react';
-import { Text, StyleSheet, View, Switch } from 'react-native';
+import * as React from 'react';
+import { Text, View, Switch } from 'react-native';
 import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
@@ -18,8 +19,12 @@ import {
   updateSubscription,
 } from 'lib/actions/user-actions';
 
+import { styleSelector } from '../../themes/colors';
+
 type Props = {|
   threadInfo: ThreadInfo,
+  // Redux state
+  styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -34,6 +39,7 @@ class ThreadSettingsPushNotifs extends React.PureComponent<Props, State> {
 
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     updateSubscription: PropTypes.func.isRequired,
   };
@@ -47,9 +53,9 @@ class ThreadSettingsPushNotifs extends React.PureComponent<Props, State> {
 
   render() {
     return (
-      <View style={styles.row}>
-        <Text style={styles.label}>Push notifs</Text>
-        <View style={styles.currentValue}>
+      <View style={this.props.styles.row}>
+        <Text style={this.props.styles.label}>Push notifs</Text>
+        <View style={this.props.styles.currentValue}>
           <Switch
             value={this.state.currentValue}
             onValueChange={this.onValueChange}
@@ -74,18 +80,18 @@ class ThreadSettingsPushNotifs extends React.PureComponent<Props, State> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 24,
-    backgroundColor: "white",
+    backgroundColor: 'panelForeground',
     paddingVertical: 3,
   },
   label: {
     fontSize: 16,
     width: 96,
-    color: "#888888",
+    color: 'panelForegroundTertiaryLabel',
   },
   currentValue: {
     flex: 1,
@@ -95,9 +101,12 @@ const styles = StyleSheet.create({
     margin: 0,
     alignItems: 'flex-end',
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 export default connect(
-  undefined,
+  (state: AppState) => ({
+    styles: stylesSelector(state),
+  }),
   { updateSubscription },
 )(ThreadSettingsPushNotifs);

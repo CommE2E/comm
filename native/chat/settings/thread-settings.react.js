@@ -20,10 +20,11 @@ import {
   overlayableScrollViewStatePropType,
   withOverlayableScrollViewState,
 } from '../../navigation/overlayable-scroll-view-state';
+import type { Styles } from '../../types/styles';
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { View, FlatList, StyleSheet } from 'react-native';
+import { View, FlatList } from 'react-native';
 import _isEqual from 'lodash/fp/isEqual';
 import invariant from 'invariant';
 import hoistNonReactStatics from 'hoist-non-react-statics';
@@ -76,6 +77,7 @@ import {
   ChatRouteName,
 } from '../../navigation/route-names';
 import { createActiveTabSelector } from '../../selectors/nav-selectors';
+import { styleSelector } from '../../themes/colors';
 
 const itemPageLength = 5;
 
@@ -191,6 +193,7 @@ type Props = {|
   childThreadInfos: ?ThreadInfo[],
   somethingIsSaving: bool,
   tabActive: bool,
+  styles: Styles,
   // withOverlayableScrollViewState
   overlayableScrollViewState: ?OverlayableScrollViewState,
 |};
@@ -223,6 +226,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     childThreadInfos: PropTypes.arrayOf(threadInfoPropType),
     somethingIsSaving: PropTypes.bool.isRequired,
     tabActive: PropTypes.bool.isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     overlayableScrollViewState: overlayableScrollViewStatePropType,
   };
   static navigationOptions = ({ navigation }) => ({
@@ -582,13 +586,13 @@ class ThreadSettings extends React.PureComponent<Props, State> {
 
     return (
       <View
-        style={styles.container}
+        style={this.props.styles.container}
         ref={this.flatListContainerRef}
         onLayout={this.onFlatListContainerLayout}
       >
         <FlatList
           data={listData}
-          contentContainerStyle={styles.flatList}
+          contentContainerStyle={this.props.styles.flatList}
           renderItem={this.renderItem}
           scrollEnabled={!ThreadSettings.scrollDisabled(this.props)}
         />
@@ -765,14 +769,16 @@ class ThreadSettings extends React.PureComponent<Props, State> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
+    backgroundColor: 'panelBackground',
   },
   flatList: {
     paddingVertical: 16,
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 const editNameLoadingStatusSelector = createLoadingStatusSelector(
   changeThreadSettingsActionTypes,
@@ -784,7 +790,7 @@ const editColorLoadingStatusSelector = createLoadingStatusSelector(
 );
 const editDescriptionLoadingStatusSelector = createLoadingStatusSelector(
   changeThreadSettingsActionTypes,
-  `${changeThreadSettingsActionTypes.started}:color`,
+  `${changeThreadSettingsActionTypes.started}:description`,
 );
 const leaveThreadLoadingStatusSelector
   = createLoadingStatusSelector(leaveThreadActionTypes);
@@ -832,6 +838,7 @@ const WrappedThreadSettings = connect(
       childThreadInfos: childThreadInfos(state)[threadID],
       somethingIsSaving: somethingIsSaving(state, threadMembers),
       tabActive: activeTabSelector(state),
+      styles: stylesSelector(state),
     };
   },
 )(withOverlayableScrollViewState(ThreadSettings));

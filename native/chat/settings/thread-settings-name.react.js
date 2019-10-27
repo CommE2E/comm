@@ -10,11 +10,12 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { AppState } from '../../redux/redux-setup';
+import type { Colors } from '../../themes/colors';
+import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
 import {
   Text,
-  StyleSheet,
   Alert,
   ActivityIndicator,
   TextInput,
@@ -32,6 +33,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import EditSettingButton from '../../components/edit-setting-button.react';
 import SaveSettingButton from './save-setting-button.react';
+import { colorsSelector, styleSelector } from '../../themes/colors';
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -42,6 +44,8 @@ type Props = {|
   canChangeSettings: bool,
   // Redux state
   loadingStatus: LoadingStatus,
+  colors: Colors,
+  styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -59,6 +63,8 @@ class ThreadSettingsName extends React.PureComponent<Props> {
     setNameTextHeight: PropTypes.func.isRequired,
     canChangeSettings: PropTypes.bool.isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
+    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     changeThreadSettings: PropTypes.func.isRequired,
   };
@@ -66,8 +72,8 @@ class ThreadSettingsName extends React.PureComponent<Props> {
 
   render() {
     return (
-      <View style={styles.row}>
-        <Text style={styles.label}>Name</Text>
+      <View style={this.props.styles.row}>
+        <Text style={this.props.styles.label}>Name</Text>
         {this.renderContent()}
       </View>
     );
@@ -81,7 +87,7 @@ class ThreadSettingsName extends React.PureComponent<Props> {
       return (
         <React.Fragment>
           <Text
-            style={styles.currentValue}
+            style={this.props.styles.currentValue}
             onLayout={this.onLayoutText}
           >
             {this.props.threadInfo.uiName}
@@ -98,7 +104,12 @@ class ThreadSettingsName extends React.PureComponent<Props> {
     if (this.props.loadingStatus !== "loading") {
       button = <SaveSettingButton onPress={this.onSubmit} />;
     } else {
-      button = <ActivityIndicator size="small" />;
+      button = (
+        <ActivityIndicator
+          size="small"
+          color={this.props.colors.panelForegroundSecondaryLabel}
+        />
+      );
     }
 
     const textInputStyle = {};
@@ -112,7 +123,7 @@ class ThreadSettingsName extends React.PureComponent<Props> {
     return (
       <React.Fragment>
         <TextInput
-          style={[styles.currentValue, textInputStyle]}
+          style={[ this.props.styles.currentValue, textInputStyle ]}
           underlineColorAndroid="transparent"
           value={this.props.nameEditValue}
           onChangeText={this.props.setNameEditValue}
@@ -204,17 +215,17 @@ class ThreadSettingsName extends React.PureComponent<Props> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   row: {
     flexDirection: 'row',
     paddingHorizontal: 24,
-    backgroundColor: "white",
+    backgroundColor: 'panelForeground',
     paddingVertical: 8,
   },
   label: {
     fontSize: 16,
     width: 96,
-    color: "#888888",
+    color: 'panelForegroundTertiaryLabel',
   },
   currentValue: {
     flex: 1,
@@ -223,10 +234,11 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
     margin: 0,
     fontSize: 16,
-    color: "#333333",
+    color: 'panelForegroundSecondaryLabel',
     fontFamily: 'Arial',
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 const loadingStatusSelector = createLoadingStatusSelector(
   changeThreadSettingsActionTypes,
@@ -236,6 +248,8 @@ const loadingStatusSelector = createLoadingStatusSelector(
 export default connect(
   (state: AppState) => ({
     loadingStatus: loadingStatusSelector(state),
+    colors: colorsSelector(state),
+    styles: stylesSelector(state),
   }),
   { changeThreadSettings },
 )(ThreadSettingsName);

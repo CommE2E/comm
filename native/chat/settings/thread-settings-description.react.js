@@ -11,11 +11,12 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { AppState } from '../../redux/redux-setup';
+import type { Colors } from '../../themes/colors';
+import type { Styles } from '../../types/styles';
 
-import React from 'react';
+import * as React from 'react';
 import {
   Text,
-  StyleSheet,
   Alert,
   ActivityIndicator,
   TextInput,
@@ -40,6 +41,7 @@ import {
   ThreadSettingsCategoryFooter,
 } from './thread-settings-category.react';
 import Button from '../../components/button.react';
+import { colorsSelector, styleSelector } from '../../themes/colors';
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -50,6 +52,8 @@ type Props = {|
   canChangeSettings: bool,
   // Redux state
   loadingStatus: LoadingStatus,
+  colors: Colors,
+  styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -67,6 +71,8 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
     setDescriptionTextHeight: PropTypes.func.isRequired,
     canChangeSettings: PropTypes.bool.isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
+    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     changeThreadSettings: PropTypes.func.isRequired,
   };
@@ -77,9 +83,17 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
       this.props.descriptionEditValue !== null &&
       this.props.descriptionEditValue !== undefined
     ) {
-      const button = this.props.loadingStatus !== "loading"
-        ? <SaveSettingButton onPress={this.onSubmit} />
-        : <ActivityIndicator size="small" />;
+      let button;
+      if (this.props.loadingStatus !== "loading") {
+        button = <SaveSettingButton onPress={this.onSubmit} />;
+      } else {
+        button = (
+          <ActivityIndicator
+            size="small"
+            color={this.props.colors.panelForegroundSecondaryLabel}
+          />
+        );
+      }
       const textInputStyle = {};
       if (
         this.props.descriptionTextHeight !== undefined &&
@@ -90,9 +104,9 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
       return (
         <View>
           <ThreadSettingsCategoryHeader type="full" title="Description" />
-          <View style={styles.row}>
+          <View style={this.props.styles.row}>
             <TextInput
-              style={[ styles.text, textInputStyle ]}
+              style={[ this.props.styles.text, textInputStyle ]}
               underlineColorAndroid="transparent"
               value={this.props.descriptionEditValue}
               onChangeText={this.props.setDescriptionEditValue}
@@ -115,8 +129,8 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
       return (
         <View>
           <ThreadSettingsCategoryHeader type="full" title="Description" />
-          <View style={styles.row}>
-            <Text style={styles.text} onLayout={this.onLayoutText}>
+          <View style={this.props.styles.row}>
+            <Text style={this.props.styles.text} onLayout={this.onLayoutText}>
               {this.props.threadInfo.description}
             </Text>
             <EditSettingButton
@@ -134,25 +148,25 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
       this.props.threadInfo,
       threadPermissions.EDIT_THREAD,
     );
+    const { panelIosHighlightUnderlay } = this.props.colors;
     if (canEditThread) {
       return (
         <View>
           <ThreadSettingsCategoryHeader type="outline" title="Description" />
-          <View style={styles.outlineCategory}>
+          <View style={this.props.styles.outlineCategory}>
             <Button
               onPress={this.onPressEdit}
-              style={styles.addDescriptionButton}
+              style={this.props.styles.addDescriptionButton}
               iosFormat="highlight"
-              iosHighlightUnderlayColor="#EEEEEEDD"
+              iosHighlightUnderlayColor={panelIosHighlightUnderlay}
             >
-              <Text style={styles.addDescriptionText}>
+              <Text style={this.props.styles.addDescriptionText}>
                 Add a description...
               </Text>
               <Icon
                 name="pencil"
                 size={16}
-                style={styles.editIcon}
-                color="#888888"
+                style={this.props.styles.editIcon}
               />
             </Button>
           </View>
@@ -237,11 +251,11 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   row: {
     flexDirection: 'row',
     paddingHorizontal: 24,
-    backgroundColor: "white",
+    backgroundColor: 'panelForeground',
     paddingVertical: 4,
   },
   text: {
@@ -249,7 +263,7 @@ const styles = StyleSheet.create({
     padding: 0,
     margin: 0,
     fontSize: 16,
-    color: "#333333",
+    color: 'panelForegroundSecondaryLabel',
     fontFamily: 'Arial',
   },
   addDescriptionButton: {
@@ -259,14 +273,14 @@ const styles = StyleSheet.create({
   },
   addDescriptionText: {
     fontSize: 16,
-    color: "#888888",
+    color: 'panelForegroundTertiaryLabel',
     flex: 1,
   },
   outlineCategory: {
-    backgroundColor: "#F5F5F5FF",
+    backgroundColor: 'panelSecondaryForeground',
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: "#CCCCCC",
+    borderColor: 'panelSecondaryForegroundBorder',
     marginLeft: -1,
     marginRight: -1,
     borderRadius: 1,
@@ -274,8 +288,10 @@ const styles = StyleSheet.create({
   editIcon: {
     textAlign: 'right',
     paddingLeft: 10,
+    color: 'panelForegroundTertiaryLabel',
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 const loadingStatusSelector = createLoadingStatusSelector(
   changeThreadSettingsActionTypes,
@@ -285,6 +301,8 @@ const loadingStatusSelector = createLoadingStatusSelector(
 export default connect(
   (state: AppState) => ({
     loadingStatus: loadingStatusSelector(state),
+    colors: colorsSelector(state),
+    styles: stylesSelector(state),
   }),
   { changeThreadSettings },
 )(ThreadSettingsDescription);

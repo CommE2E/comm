@@ -12,10 +12,12 @@ import {
   type ChangeThreadSettingsResult,
   type UpdateThreadRequest,
 } from 'lib/types/thread-types';
+import type { Styles } from '../../types/styles';
+import type { Colors } from '../../themes/colors';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { TouchableHighlight, StyleSheet, Alert } from 'react-native';
+import { TouchableHighlight, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { connect } from 'lib/utils/redux-utils';
@@ -27,6 +29,7 @@ import {
 import { createModal } from '../../components/modal.react';
 import { AddUsersModalRouteName } from '../../navigation/route-names';
 import ColorPicker from '../../components/color-picker.react';
+import { colorsSelector, styleSelector } from '../../themes/colors';
 
 const Modal = createModal(AddUsersModalRouteName);
 type NavProp = NavigationScreenProp<{|
@@ -40,6 +43,9 @@ type NavProp = NavigationScreenProp<{|
 
 type Props = {|
   navigation: NavProp,
+  // Redux state
+  colors: Colors,
+  styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -60,6 +66,8 @@ class ColorPickerModal extends React.PureComponent<Props> {
       }).isRequired,
       goBack: PropTypes.func.isRequired,
     }).isRequired,
+    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     changeThreadSettings: PropTypes.func.isRequired,
   };
@@ -69,24 +77,23 @@ class ColorPickerModal extends React.PureComponent<Props> {
     return (
       <Modal
         navigation={this.props.navigation}
-        modalStyle={styles.colorPickerContainer}
+        modalStyle={this.props.styles.colorPickerContainer}
       >
         <ColorPicker
           defaultColor={color}
           oldColor={threadInfo.color}
           onColorSelected={this.onColorSelected}
-          style={styles.colorPicker}
+          style={this.props.styles.colorPicker}
         />
         <TouchableHighlight
           onPress={this.close}
-          style={styles.closeButton}
-          underlayColor="#CCCCCCDD"
+          style={this.props.styles.closeButton}
+          underlayColor={this.props.colors.modalIosHighlightUnderlay}
         >
           <Icon
             name="close"
             size={16}
-            color="#AAAAAA"
-            style={styles.closeButtonIcon}
+            style={this.props.styles.closeButtonIcon}
           />
         </TouchableHighlight>
       </Modal>
@@ -135,11 +142,11 @@ class ColorPickerModal extends React.PureComponent<Props> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   colorPickerContainer: {
     flex: 0,
     height: 350,
-    backgroundColor: '#EEEEEE',
+    backgroundColor: 'modalBackground',
     marginVertical: 20,
     marginHorizontal: 15,
     borderRadius: 5,
@@ -161,11 +168,16 @@ const styles = StyleSheet.create({
   },
   closeButtonIcon: {
     position: 'absolute',
+    color: 'modalBackgroundSecondaryLabel',
     left: 3,
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 export default connect(
-  null,
+  (state: AppState) => ({
+    colors: colorsSelector(state),
+    styles: stylesSelector(state),
+  }),
   { changeThreadSettings },
 )(ColorPickerModal);

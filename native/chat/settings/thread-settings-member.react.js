@@ -28,12 +28,13 @@ import {
   type Navigate,
   ThreadSettingsMemberTooltipModalRouteName,
 } from '../../navigation/route-names';
+import type { Colors } from '../../themes/colors';
+import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   Platform,
   ActivityIndicator,
   TouchableOpacity,
@@ -53,6 +54,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import EditSettingButton from '../../components/edit-setting-button.react';
 import Button from '../../components/button.react';
 import PencilIcon from './pencil-icon.react';
+import { colorsSelector, styleSelector } from '../../themes/colors';
 
 type Props = {|
   memberInfo: RelativeMemberInfo,
@@ -64,6 +66,8 @@ type Props = {|
   // Redux state
   removeUserLoadingStatus: LoadingStatus,
   changeRoleLoadingStatus: LoadingStatus,
+  colors: Colors,
+  styles: Styles,
   // withOverlayableScrollViewState
   overlayableScrollViewState: ?OverlayableScrollViewState,
   // withKeyboardState
@@ -80,6 +84,8 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
     verticalBounds: verticalBoundsPropType,
     removeUserLoadingStatus: loadingStatusPropType.isRequired,
     changeRoleLoadingStatus: loadingStatusPropType.isRequired,
+    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     overlayableScrollViewState: overlayableScrollViewStatePropType,
     keyboardState: keyboardStatePropType,
   };
@@ -131,11 +137,16 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
     let userInfo = null;
     if (this.props.memberInfo.username) {
       userInfo = (
-        <Text style={styles.username} numberOfLines={1}>{userText}</Text>
+        <Text style={this.props.styles.username} numberOfLines={1}>
+          {userText}
+        </Text>
       );
     } else {
       userInfo = (
-        <Text style={[styles.username, styles.anonymous]} numberOfLines={1}>
+        <Text style={[
+          this.props.styles.username,
+          this.props.styles.anonymous,
+        ]} numberOfLines={1}>
           {userText}
         </Text>
       );
@@ -146,10 +157,18 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
       this.props.removeUserLoadingStatus === "loading" ||
       this.props.changeRoleLoadingStatus === "loading"
     ) {
-      editButton = <ActivityIndicator size="small" />;
+      editButton = (
+        <ActivityIndicator
+          size="small"
+          color={this.props.colors.panelForegroundSecondaryLabel}
+        />
+      );
     } else if (this.visibleEntryIDs().length !== 0) {
       editButton = (
-        <TouchableOpacity onPress={this.onPressEdit} style={styles.editButton}>
+        <TouchableOpacity
+          onPress={this.onPressEdit}
+          style={this.props.styles.editButton}
+        >
           <View onLayout={this.onEditButtonLayout} ref={this.editButtonRef}>
             <PencilIcon />
           </View>
@@ -160,8 +179,8 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
     let roleInfo = null;
     if (memberIsAdmin(this.props.memberInfo, this.props.threadInfo)) {
       roleInfo = (
-        <View style={styles.row}>
-          <Text style={styles.role}>admin</Text>
+        <View style={this.props.styles.row}>
+          <Text style={this.props.styles.role}>admin</Text>
         </View>
       );
     } else {
@@ -174,20 +193,20 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
         this.props.memberInfo.permissions[threadPermissions.CHANGE_ROLE].value;
       if (canChangeRoles) {
         roleInfo = (
-          <View style={styles.row}>
-            <Text style={styles.role}>parent admin</Text>
+          <View style={this.props.styles.row}>
+            <Text style={this.props.styles.role}>parent admin</Text>
           </View>
         );
       }
     }
 
     const lastInnerContainer = this.props.lastListItem
-      ? styles.lastInnerContainer
+      ? this.props.styles.lastInnerContainer
       : null;
     return (
-      <View style={styles.container}>
-        <View style={[styles.innerContainer, lastInnerContainer]}>
-          <View style={styles.row}>
+      <View style={this.props.styles.container}>
+        <View style={[ this.props.styles.innerContainer, lastInnerContainer ]}>
+          <View style={this.props.styles.row}>
             {userInfo}
             {editButton}
           </View>
@@ -240,17 +259,17 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
     paddingHorizontal: 12,
-    backgroundColor: "white",
+    backgroundColor: 'panelForeground',
   },
   innerContainer: {
     flex: 1,
     paddingHorizontal: 12,
     borderTopWidth: 1,
-    borderColor: "#CCCCCC",
+    borderColor: 'panelForegroundBorder',
     paddingVertical: 8,
   },
   row: {
@@ -261,16 +280,16 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     lineHeight: 20,
-    color: "#333333",
+    color: 'panelForegroundSecondaryLabel',
   },
   anonymous: {
     fontStyle: 'italic',
-    color: "#888888",
+    color: 'panelForegroundTertiaryLabel',
   },
   role: {
     flex: 1,
     fontSize: 14,
-    color: "#888888",
+    color: 'panelForegroundTertiaryLabel',
     paddingTop: 4,
   },
   lastInnerContainer: {
@@ -280,7 +299,8 @@ const styles = StyleSheet.create({
   editButton: {
     paddingLeft: 10,
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 export default connect(
   (state: AppState, ownProps: { memberInfo: RelativeMemberInfo }) => ({
@@ -292,5 +312,7 @@ export default connect(
       changeThreadMemberRolesActionTypes,
       `${changeThreadMemberRolesActionTypes.started}:${ownProps.memberInfo.id}`,
     )(state),
+    colors: colorsSelector(state),
+    styles: stylesSelector(state),
   }),
 )(withKeyboardState(withOverlayableScrollViewState(ThreadSettingsMember)));

@@ -8,15 +8,11 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { AppState } from '../../redux/redux-setup';
 import type { Navigate } from '../../navigation/route-names';
+import type { Colors } from '../../themes/colors';
+import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
-import {
-  Text,
-  StyleSheet,
-  ActivityIndicator,
-  View,
-  Platform,
-} from 'react-native';
+import { Text, ActivityIndicator, View, Platform } from 'react-native';
 import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
@@ -26,6 +22,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import EditSettingButton from '../../components/edit-setting-button.react';
 import ColorSplotch from '../../components/color-splotch.react';
 import { ColorPickerModalRouteName } from '../../navigation/route-names';
+import { colorsSelector, styleSelector } from '../../themes/colors';
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -35,6 +32,8 @@ type Props = {|
   navigate: Navigate,
   // Redux state
   loadingStatus: LoadingStatus,
+  colors: Colors,
+  styles: Styles,
 |};
 class ThreadSettingsColor extends React.PureComponent<Props> {
 
@@ -45,6 +44,8 @@ class ThreadSettingsColor extends React.PureComponent<Props> {
     canChangeSettings: PropTypes.bool.isRequired,
     navigate: PropTypes.func.isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
+    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
 
   render() {
@@ -54,17 +55,26 @@ class ThreadSettingsColor extends React.PureComponent<Props> {
         <EditSettingButton
           onPress={this.onPressEditColor}
           canChangeSettings={this.props.canChangeSettings}
-          style={styles.colorLine}
+          style={this.props.styles.colorLine}
         />
       );
     } else {
-      colorButton = <ActivityIndicator size="small" key="activityIndicator" />;
+      colorButton = (
+        <ActivityIndicator
+          size="small"
+          key="activityIndicator"
+          color={this.props.colors.panelForegroundSecondaryLabel}
+        />
+      );
     }
 
     return (
-      <View style={styles.colorRow}>
-        <Text style={[styles.label, styles.colorLine]}>Color</Text>
-        <View style={styles.currentValue}>
+      <View style={this.props.styles.colorRow}>
+        <Text style={[
+          this.props.styles.label,
+          this.props.styles.colorLine,
+        ]}>Color</Text>
+        <View style={this.props.styles.currentValue}>
           <ColorSplotch color={this.props.threadInfo.color} />
         </View>
         {colorButton}
@@ -85,13 +95,13 @@ class ThreadSettingsColor extends React.PureComponent<Props> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   colorRow: {
     flexDirection: 'row',
     paddingTop: 4,
     paddingBottom: 8,
     paddingHorizontal: 24,
-    backgroundColor: "white",
+    backgroundColor: 'panelForeground',
   },
   colorLine: {
     lineHeight: Platform.select({ android: 22, default: 25 }),
@@ -99,13 +109,14 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     width: 96,
-    color: "#888888",
+    color: 'panelForegroundTertiaryLabel',
   },
   currentValue: {
     flex: 1,
     paddingLeft: 4,
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 const loadingStatusSelector = createLoadingStatusSelector(
   changeThreadSettingsActionTypes,
@@ -114,4 +125,6 @@ const loadingStatusSelector = createLoadingStatusSelector(
 
 export default connect((state: AppState) => ({
   loadingStatus: loadingStatusSelector(state),
+  colors: colorsSelector(state),
+  styles: stylesSelector(state),
 }))(ThreadSettingsColor);

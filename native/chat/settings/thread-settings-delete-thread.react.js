@@ -2,18 +2,27 @@
 
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { Navigate } from '../../navigation/route-names';
+import type { AppState } from '../../redux/redux-setup';
+import type { Colors } from '../../themes/colors';
+import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
-import { Text, StyleSheet, View, Platform } from 'react-native';
+import { Text, View, Platform } from 'react-native';
 import PropTypes from 'prop-types';
+
+import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../../components/button.react';
 import { DeleteThreadRouteName } from '../../navigation/route-names';
+import { colorsSelector, styleSelector } from '../../themes/colors';
 
 type Props = {|
   threadInfo: ThreadInfo,
   navigate: Navigate,
   canLeaveThread: bool,
+  // Redux state
+  colors: Colors,
+  styles: Styles,
 |};
 class ThreadSettingsDeleteThread extends React.PureComponent<Props> {
 
@@ -21,19 +30,24 @@ class ThreadSettingsDeleteThread extends React.PureComponent<Props> {
     threadInfo: threadInfoPropType.isRequired,
     navigate: PropTypes.func.isRequired,
     canLeaveThread: PropTypes.bool.isRequired,
+    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
 
   render() {
-    const borderStyle = this.props.canLeaveThread ? styles.border : null;
+    const borderStyle = this.props.canLeaveThread
+      ? this.props.styles.border
+      : null;
+    const { panelIosHighlightUnderlay } = this.props.colors;
     return (
-      <View style={styles.container}>
+      <View style={this.props.styles.container}>
         <Button
           onPress={this.onPress}
-          style={[styles.button, borderStyle]}
+          style={[ this.props.styles.button, borderStyle ]}
           iosFormat="highlight"
-          iosHighlightUnderlayColor="#EEEEEEDD"
+          iosHighlightUnderlayColor={panelIosHighlightUnderlay}
         >
-          <Text style={styles.text}>Delete thread...</Text>
+          <Text style={this.props.styles.text}>Delete thread...</Text>
         </Button>
       </View>
     );
@@ -50,9 +64,9 @@ class ThreadSettingsDeleteThread extends React.PureComponent<Props> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
-    backgroundColor: "white",
+    backgroundColor: 'panelForeground',
     paddingHorizontal: 12,
   },
   button: {
@@ -63,13 +77,17 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 16,
-    color: "#AA0000",
+    color: 'redText',
     flex: 1,
   },
   border: {
     borderTopWidth: 1,
-    borderColor: "#CCCCCC",
+    borderColor: 'panelForegroundBorder',
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
-export default ThreadSettingsDeleteThread;
+export default connect((state: AppState) => ({
+  colors: colorsSelector(state),
+  styles: stylesSelector(state),
+}))(ThreadSettingsDeleteThread);

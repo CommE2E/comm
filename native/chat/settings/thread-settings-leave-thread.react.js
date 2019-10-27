@@ -9,11 +9,12 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { AppState } from '../../redux/redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import type { Colors } from '../../themes/colors';
+import type { Styles } from '../../types/styles';
 
-import React from 'react';
+import * as React from 'react';
 import {
   Text,
-  StyleSheet,
   Alert,
   ActivityIndicator,
   View,
@@ -30,6 +31,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors';
 
 import Button from '../../components/button.react';
+import { colorsSelector, styleSelector } from '../../themes/colors';
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -37,6 +39,8 @@ type Props = {|
   // Redux state
   loadingStatus: LoadingStatus,
   otherUsersButNoOtherAdmins: bool,
+  colors: Colors,
+  styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -49,26 +53,32 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
     canDeleteThread: PropTypes.bool.isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
     otherUsersButNoOtherAdmins: PropTypes.bool.isRequired,
+    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     leaveThread: PropTypes.func.isRequired,
   };
 
   render() {
+    const {
+      panelIosHighlightUnderlay,
+      panelForegroundSecondaryLabel,
+    } = this.props.colors;
     const loadingIndicator = this.props.loadingStatus === "loading"
-      ? <ActivityIndicator size="small" />
+      ? <ActivityIndicator size="small" color={panelForegroundSecondaryLabel} />
       : null;
     const lastButtonStyle = this.props.canDeleteThread
       ? null
-      : styles.lastButton;
+      : this.props.styles.lastButton;
     return (
-      <View style={styles.container}>
+      <View style={this.props.styles.container}>
         <Button
           onPress={this.onPress}
-          style={[styles.button, lastButtonStyle]}
+          style={[ this.props.styles.button, lastButtonStyle ]}
           iosFormat="highlight"
-          iosHighlightUnderlayColor="#EEEEEEDD"
+          iosHighlightUnderlayColor={panelIosHighlightUnderlay}
         >
-          <Text style={styles.text}>Leave thread...</Text>
+          <Text style={this.props.styles.text}>Leave thread...</Text>
           {loadingIndicator}
         </Button>
       </View>
@@ -112,9 +122,9 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
-    backgroundColor: "white",
+    backgroundColor: 'panelForeground',
     paddingHorizontal: 12,
   },
   button: {
@@ -128,10 +138,11 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 16,
-    color: "#AA0000",
+    color: 'redText',
     flex: 1,
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 const loadingStatusSelector
   = createLoadingStatusSelector(leaveThreadActionTypes);
@@ -141,6 +152,8 @@ export default connect(
     loadingStatus: loadingStatusSelector(state),
     otherUsersButNoOtherAdmins:
       otherUsersButNoOtherAdmins(ownProps.threadInfo.id)(state),
+    colors: colorsSelector(state),
+    styles: stylesSelector(state),
   }),
   { leaveThread },
 )(ThreadSettingsLeaveThread);

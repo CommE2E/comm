@@ -10,12 +10,13 @@ import {
   threadInfoPropType,
   type LeaveThreadPayload,
 } from 'lib/types/thread-types';
+import type { Styles } from '../../types/styles';
+import type { Colors } from '../../themes/colors';
 
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
   Text,
-  StyleSheet,
   View,
   TextInput,
   ScrollView,
@@ -37,6 +38,7 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 
 import Button from '../../components/button.react';
 import OnePasswordButton from '../../components/one-password-button.react';
+import { colorsSelector, styleSelector } from '../../themes/colors';
 
 type NavProp =
   & { state: { params: { threadInfo: ThreadInfo } } }
@@ -47,6 +49,8 @@ type Props = {|
   // Redux state
   threadInfo: ?ThreadInfo,
   loadingStatus: LoadingStatus,
+  colors: Colors,
+  styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -73,6 +77,8 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
     }).isRequired,
     threadInfo: threadInfoPropType,
     loadingStatus: loadingStatusPropType.isRequired,
+    colors: PropTypes.objectOf(PropTypes.string).isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     deleteThread: PropTypes.func.isRequired,
   };
@@ -80,15 +86,15 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
     headerTitle: "Delete thread",
     headerBackTitle: "Back",
   };
+  state = {
+    password: "",
+    onePasswordSupported: false,
+  };
   mounted = false;
   passwordInput: ?TextInput;
 
   constructor(props: Props) {
     super(props);
-    this.state = {
-      password: "",
-      onePasswordSupported: false,
-    };
     this.determineOnePasswordSupport();
   }
 
@@ -102,6 +108,12 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.mounted = false;
+  }
+
+  guardedSetState(change, callback) {
+    if (this.mounted) {
+      this.setState(change, callback);
+    }
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -119,9 +131,7 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
     } catch (e) {
       onePasswordSupported = false;
     }
-    if (this.mounted) {
-      this.setState({ onePasswordSupported });
-    }
+    this.guardedSetState({ onePasswordSupported });
   }
 
   render() {
@@ -130,30 +140,35 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
       onePasswordButton = (
         <OnePasswordButton
           onPress={this.onPressOnePassword}
-          style={styles.onePasswordButton}
+          style={this.props.styles.onePasswordButton}
         />
       );
     }
     const buttonContent = this.props.loadingStatus === "loading"
       ? <ActivityIndicator size="small" color="white" />
-      : <Text style={styles.saveText}>Delete thread</Text>;
+      : <Text style={this.props.styles.deleteText}>Delete thread</Text>;
     const threadInfo = InnerDeleteThread.getThreadInfo(this.props);
+    const { panelForegroundTertiaryLabel } = this.props.colors;
     return (
-      <ScrollView contentContainerStyle={styles.scrollView}>
+      <ScrollView
+        contentContainerStyle={this.props.styles.scrollViewContentContainer}
+        style={this.props.styles.scrollView}
+      >
         <View>
-          <Text style={styles.warningText}>
+          <Text style={this.props.styles.warningText}>
             {`The thread "${threadInfo.uiName}" will be permanently deleted. `}
             There is no way to reverse this.
           </Text>
         </View>
-        <Text style={styles.header}>PASSWORD</Text>
-        <View style={styles.section}>
+        <Text style={this.props.styles.header}>PASSWORD</Text>
+        <View style={this.props.styles.section}>
           <TextInput
-            style={styles.input}
+            style={this.props.styles.input}
             underlineColorAndroid="transparent"
             value={this.state.password}
             onChangeText={this.onChangePasswordText}
             placeholder="Password"
+            placeholderTextColor={panelForegroundTertiaryLabel}
             secureTextEntry={true}
             returnKeyType="go"
             onSubmitEditing={this.submitDeletion}
@@ -163,7 +178,7 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
         </View>
         <Button
           onPress={this.submitDeletion}
-          style={styles.deleteButton}
+          style={this.props.styles.deleteButton}
         >
           {buttonContent}
         </Button>
@@ -172,7 +187,7 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
   }
 
   onChangePasswordText = (newPassword: string) => {
-    this.setState({ password: newPassword });
+    this.guardedSetState({ password: newPassword });
   }
 
   passwordInputRef = (passwordInput: ?TextInput) => {
@@ -187,7 +202,7 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
   onPressOnePassword = async () => {
     try {
       const credentials = await OnePassword.findLogin("https://squadcal.org");
-      this.setState({ password: credentials.password });
+      this.guardedSetState({ password: credentials.password });
     } catch (e) { }
   }
 
@@ -229,7 +244,7 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
   }
 
   onErrorAlertAcknowledged = () => {
-    this.setState(
+    this.guardedSetState(
       { password: "" },
       this.focusPasswordInput,
     );
@@ -237,24 +252,27 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
 
 }
 
-const styles = StyleSheet.create({
-  scrollView: {
+const styles = {
+  scrollViewContentContainer: {
     paddingTop: 24,
+  },
+  scrollView: {
+    backgroundColor: 'panelBackground',
   },
   header: {
     paddingHorizontal: 24,
     paddingBottom: 3,
     fontSize: 12,
     fontWeight: "400",
-    color: "#888888",
+    color: 'panelBackgroundLabel',
   },
   section: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: 'white',
+    backgroundColor: 'panelForeground',
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: "#CCCCCC",
+    borderColor: 'panelForegroundBorder',
     paddingVertical: Platform.select({
       ios: 12,
       default: 8,
@@ -265,22 +283,22 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: "#333333",
+    color: 'panelForegroundLabel',
     fontFamily: 'Arial',
     paddingVertical: 0,
   },
   deleteButton: {
     flex: 1,
-    backgroundColor: "#BB8888",
+    backgroundColor: 'redButton',
     marginVertical: 12,
     marginHorizontal: 24,
     borderRadius: 5,
     padding: 12,
   },
-  saveText: {
+  deleteText: {
     fontSize: 18,
     textAlign: 'center',
-    color: "white",
+    color: 'white',
   },
   onePasswordButton: {
     marginLeft: 6,
@@ -288,11 +306,12 @@ const styles = StyleSheet.create({
   warningText: {
     marginHorizontal: 24,
     textAlign: 'center',
-    color: "#333333",
+    color: 'panelForegroundLabel',
     fontSize: 16,
     marginBottom: 24,
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 const loadingStatusSelector = createLoadingStatusSelector(
   deleteThreadActionTypes,
@@ -304,6 +323,8 @@ const DeleteThread = connect(
     return {
       threadInfo: threadInfoSelector(state)[threadID],
       loadingStatus: loadingStatusSelector(state),
+      colors: colorsSelector(state),
+      styles: stylesSelector(state),
     };
   },
   { deleteThread },

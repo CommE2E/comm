@@ -20,11 +20,11 @@ import type {
   NavigationScreenProp,
   NavigationLeafRoute,
 } from 'react-navigation';
+import type { Styles } from '../../types/styles';
 
-import React from 'react';
+import * as React from 'react';
 import {
   View,
-  StyleSheet,
   Text,
   ActivityIndicator,
   Alert,
@@ -58,10 +58,12 @@ import TagInput from '../../components/tag-input.react';
 import Button from '../../components/button.react';
 import { createModal } from '../../components/modal.react';
 import { AddUsersModalRouteName } from '../../navigation/route-names';
+import { styleSelector } from '../../themes/colors';
 
 const tagInputProps = {
   placeholder: "Select users to add",
   autoFocus: true,
+  returnKeyType: "go",
 };
 
 const Modal = createModal(AddUsersModalRouteName);
@@ -79,6 +81,7 @@ type Props = {|
   otherUserInfos: {[id: string]: AccountUserInfo},
   userSearchIndex: SearchIndex,
   changeThreadSettingsLoadingStatus: LoadingStatus,
+  styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -107,6 +110,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     otherUserInfos: PropTypes.objectOf(accountUserInfoPropType).isRequired,
     userSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
     changeThreadSettingsLoadingStatus: loadingStatusPropType.isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     changeThreadSettings: PropTypes.func.isRequired,
     searchUsers: PropTypes.func.isRequired,
@@ -168,7 +172,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       let activityIndicator = null;
       if (this.props.changeThreadSettingsLoadingStatus === "loading") {
         activityIndicator = (
-          <View style={styles.activityIndicator}>
+          <View style={this.props.styles.activityIndicator}>
             <ActivityIndicator color="#555" />
           </View>
         );
@@ -177,11 +181,11 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       addButton = (
         <Button
           onPress={this.onPressAdd}
-          style={styles.addButton}
+          style={this.props.styles.addButton}
           disabled={this.props.changeThreadSettingsLoadingStatus === "loading"}
         >
           {activityIndicator}
-          <Text style={styles.addText}>{addButtonText}</Text>
+          <Text style={this.props.styles.addText}>{addButtonText}</Text>
         </Button>
       );
     }
@@ -191,9 +195,9 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       cancelButton = (
         <Button
           onPress={this.close}
-          style={styles.cancelButton}
+          style={this.props.styles.cancelButton}
         >
-          <Text style={styles.cancelText}>Cancel</Text>
+          <Text style={this.props.styles.cancelText}>Cancel</Text>
         </Button>
       );
     } else {
@@ -202,6 +206,10 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       );
     }
 
+    const inputProps = {
+      ...tagInputProps,
+      onSubmitEditing: this.onPressAdd,
+    };
     return (
       <Modal navigation={this.props.navigation}>
         <TagInput
@@ -212,14 +220,14 @@ class AddUsersModal extends React.PureComponent<Props, State> {
           labelExtractor={this.tagDataLabelExtractor}
           defaultInputWidth={160}
           maxHeight={36}
-          inputProps={tagInputProps}
+          inputProps={inputProps}
           innerRef={this.tagInputRef}
         />
         <UserList
           userInfos={this.userSearchResults}
           onSelect={this.onUserSelect}
         />
-        <View style={styles.buttons}>
+        <View style={this.props.styles.buttons}>
           {cancelButton}
           {addButton}
         </View>
@@ -272,6 +280,9 @@ class AddUsersModal extends React.PureComponent<Props, State> {
   }
 
   onPressAdd = () => {
+    if (this.state.userInfoInputArray.length === 0) {
+      return;
+    }
     this.props.dispatchActionPromise(
       changeThreadSettingsActionTypes,
       this.addUsersToThread(),
@@ -318,7 +329,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   buttons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -328,17 +339,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 3,
-    backgroundColor: '#AAAAAA',
+    backgroundColor: 'modalButton',
   },
   cancelText: {
     fontSize: 18,
-    color: '#444444',
+    color: 'modalButtonLabel',
   },
   addButton: {
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 3,
-    backgroundColor: '#AACCAA',
+    backgroundColor: 'greenButton',
     flexDirection: 'row',
   },
   activityIndicator: {
@@ -346,9 +357,10 @@ const styles = StyleSheet.create({
   },
   addText: {
     fontSize: 18,
-    color: '#444444',
+    color: 'white',
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 const changeThreadSettingsLoadingStatusSelector
   = createLoadingStatusSelector(changeThreadSettingsActionTypes);
@@ -368,6 +380,7 @@ export default connect(
       userSearchIndex: userSearchIndexForOtherMembersOfThread(null)(state),
       changeThreadSettingsLoadingStatus:
         changeThreadSettingsLoadingStatusSelector(state),
+      styles: stylesSelector(state),
     };
   },
   { changeThreadSettings, searchUsers },
