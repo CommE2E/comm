@@ -5,13 +5,18 @@ import type {
   NavigationLeafRoute,
   NavigationStackScene,
 } from 'react-navigation';
+import type { AppState } from '../redux/redux-setup';
+import type { Styles } from '../types/styles';
 
 import * as React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import PropTypes from 'prop-types';
 import Animated from 'react-native-reanimated';
 
+import { connect } from 'lib/utils/redux-utils';
+
 import { contentBottomOffset } from '../selectors/dimension-selectors';
+import { styleSelector } from '../themes/colors';
 
 const {
   Value,
@@ -30,6 +35,8 @@ type Props = {|
   navigation: NavProp,
   scene: NavigationStackScene,
   position: Value,
+  // Redux state
+  styles: Styles,
 |};
 class ActionResultModal extends React.PureComponent<Props> {
 
@@ -44,6 +51,7 @@ class ActionResultModal extends React.PureComponent<Props> {
     }).isRequired,
     scene: PropTypes.object.isRequired,
     position: PropTypes.instanceOf(Value).isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
   progress: Value;
 
@@ -72,7 +80,7 @@ class ActionResultModal extends React.PureComponent<Props> {
 
   get containerStyle() {
     return {
-      ...styles.container,
+      ...this.props.styles.container,
       opacity: this.progress,
     };
   }
@@ -81,9 +89,9 @@ class ActionResultModal extends React.PureComponent<Props> {
     const { message } = this.props.navigation.state.params;
     return (
       <Animated.View style={this.containerStyle}>
-        <View style={styles.message}>
-          <View style={styles.backdrop} />
-          <Text style={styles.text}>{message}</Text>
+        <View style={this.props.styles.message}>
+          <View style={this.props.styles.backdrop} />
+          <Text style={this.props.styles.text}>{message}</Text>
         </View>
       </Animated.View>
     );
@@ -91,7 +99,7 @@ class ActionResultModal extends React.PureComponent<Props> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
     justifyContent: 'flex-end',
@@ -104,8 +112,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   backdrop: {
-    backgroundColor: 'black',
-    opacity: 0.7,
+    backgroundColor: 'modalContrastBackground',
+    opacity: 0.8,
     position: 'absolute',
     top: 0,
     bottom: 0,
@@ -114,8 +122,11 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 20,
-    color: 'white',
+    color: 'modalContrastForegroundLabel',
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
-export default ActionResultModal;
+export default connect((state: AppState) => ({
+  styles: stylesSelector(state),
+}))(ActionResultModal);
