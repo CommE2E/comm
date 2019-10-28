@@ -7,6 +7,7 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { AccountUpdate } from 'lib/types/user-types';
 import type { ChangeUserSettingsResult } from 'lib/types/account-types';
+import { type GlobalTheme, globalThemePropType } from '../types/themes';
 import type { Styles } from '../types/styles';
 
 import * as React from 'react';
@@ -39,6 +40,7 @@ type Props = {
   navigation: NavigationScreenProp<*>,
   // Redux state
   loadingStatus: LoadingStatus,
+  activeTheme: ?GlobalTheme,
   styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
@@ -60,6 +62,7 @@ class EditPassword extends React.PureComponent<Props, State> {
       navigate: PropTypes.func.isRequired,
     }).isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
+    activeTheme: globalThemePropType,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     changeUserSettings: PropTypes.func.isRequired,
@@ -107,15 +110,18 @@ class EditPassword extends React.PureComponent<Props, State> {
     let onePasswordCurrentPasswordButton = null;
     let onePasswordNewPasswordButton = null;
     if (this.state.onePasswordSupported) {
+      const theme = this.props.activeTheme ? this.props.activeTheme : 'light';
       onePasswordCurrentPasswordButton = (
         <OnePasswordButton
           onPress={this.onPressOnePasswordCurrentPassword}
+          theme={theme}
           style={this.props.styles.onePasswordButton}
         />
       );
       onePasswordNewPasswordButton = (
         <OnePasswordButton
           onPress={this.onPressOnePasswordNewPassword}
+          theme={theme}
           style={this.props.styles.onePasswordButton}
         />
       );
@@ -420,6 +426,7 @@ const loadingStatusSelector = createLoadingStatusSelector(
 export default connect(
   (state: AppState) => ({
     loadingStatus: loadingStatusSelector(state),
+    activeTheme: state.globalThemeInfo.activeTheme,
     styles: stylesSelector(state),
   }),
   { changeUserSettings },

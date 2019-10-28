@@ -1,20 +1,28 @@
 // @flow
 
 import type { ImageStyle } from '../types/styles';
+import type { GlobalTheme } from '../types/themes';
 
 import * as React from 'react';
 import { TouchableWithoutFeedback, Image, StyleSheet } from 'react-native';
 
 type Props = {|
   onPress: () => Promise<void>,
+  theme: GlobalTheme,
   style?: ImageStyle,
 |};
 function OnePasswordButton(props: Props) {
+  let source;
+  if (props.theme === 'dark') {
+    source = require('../img/onepassword-light.png');
+  } else {
+    source = require('../img/onepassword-dark.png');
+  }
   return (
     <TouchableWithoutFeedback onPress={props.onPress}>
       <Image
-        source={require("../img/onepassword.png")}
-        style={[styles.image, props.style]}
+        source={source}
+        style={[ styles.image, props.style ]}
       />
     </TouchableWithoutFeedback>
   );

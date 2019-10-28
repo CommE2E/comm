@@ -6,6 +6,7 @@ import type { NavigationScreenProp } from 'react-navigation';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { LogOutResult } from 'lib/types/account-types';
+import { type GlobalTheme, globalThemePropType } from '../types/themes';
 import type { Styles } from '../types/styles';
 
 import * as React from 'react';
@@ -39,6 +40,7 @@ type Props = {|
   // Redux state
   loadingStatus: LoadingStatus,
   username: ?string,
+  activeTheme: ?GlobalTheme,
   styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
@@ -57,6 +59,7 @@ class DeleteAccount extends React.PureComponent<Props, State> {
     }).isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
     username: PropTypes.string,
+    activeTheme: globalThemePropType,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     deleteAccount: PropTypes.func.isRequired,
@@ -99,9 +102,11 @@ class DeleteAccount extends React.PureComponent<Props, State> {
   render() {
     let onePasswordButton = null;
     if (this.state.onePasswordSupported) {
+      const theme = this.props.activeTheme ? this.props.activeTheme : 'light';
       onePasswordButton = (
         <OnePasswordButton
           onPress={this.onPressOnePassword}
+          theme={theme}
           style={this.props.styles.onePasswordButton}
         />
       );
@@ -291,6 +296,7 @@ export default connect(
     username: state.currentUserInfo && !state.currentUserInfo.anonymous
       ? state.currentUserInfo.username
       : undefined,
+    activeTheme: state.globalThemeInfo.activeTheme,
     styles: stylesSelector(state),
   }),
   { deleteAccount },

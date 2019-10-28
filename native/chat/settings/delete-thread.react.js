@@ -10,10 +10,11 @@ import {
   threadInfoPropType,
   type LeaveThreadPayload,
 } from 'lib/types/thread-types';
+import { type GlobalTheme, globalThemePropType } from '../../types/themes';
 import type { Styles } from '../../types/styles';
 import { type Colors, colorsPropType } from '../../themes/colors';
 
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import {
   Text,
@@ -49,6 +50,7 @@ type Props = {|
   // Redux state
   threadInfo: ?ThreadInfo,
   loadingStatus: LoadingStatus,
+  activeTheme: ?GlobalTheme,
   colors: Colors,
   styles: Styles,
   // Redux dispatch functions
@@ -77,6 +79,7 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
     }).isRequired,
     threadInfo: threadInfoPropType,
     loadingStatus: loadingStatusPropType.isRequired,
+    activeTheme: globalThemePropType,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -137,9 +140,11 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
   render() {
     let onePasswordButton = null;
     if (this.state.onePasswordSupported) {
+      const theme = this.props.activeTheme ? this.props.activeTheme : 'light';
       onePasswordButton = (
         <OnePasswordButton
           onPress={this.onPressOnePassword}
+          theme={theme}
           style={this.props.styles.onePasswordButton}
         />
       );
@@ -323,6 +328,7 @@ const DeleteThread = connect(
     return {
       threadInfo: threadInfoSelector(state)[threadID],
       loadingStatus: loadingStatusSelector(state),
+      activeTheme: state.globalThemeInfo.activeTheme,
       colors: colorsSelector(state),
       styles: stylesSelector(state),
     };

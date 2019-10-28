@@ -7,6 +7,7 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { AccountUpdate } from 'lib/types/user-types';
 import type { ChangeUserSettingsResult } from 'lib/types/account-types';
+import { type GlobalTheme, globalThemePropType } from '../types/themes';
 import type { Styles } from '../types/styles';
 
 import * as React from 'react';
@@ -40,6 +41,7 @@ type Props = {|
   // Redux state
   email: ?string,
   loadingStatus: LoadingStatus,
+  activeTheme: ?GlobalTheme,
   styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
@@ -61,6 +63,7 @@ class EditEmail extends React.PureComponent<Props, State> {
     }).isRequired,
     email: PropTypes.string,
     loadingStatus: loadingStatusPropType.isRequired,
+    activeTheme: globalThemePropType,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     changeUserSettings: PropTypes.func.isRequired,
@@ -105,9 +108,11 @@ class EditEmail extends React.PureComponent<Props, State> {
   render() {
     let onePasswordButton = null;
     if (this.state.onePasswordSupported) {
+      const theme = this.props.activeTheme ? this.props.activeTheme : 'light';
       onePasswordButton = (
         <OnePasswordButton
           onPress={this.onPressOnePassword}
+          theme={theme}
           style={this.props.styles.onePasswordButton}
         />
       );
@@ -356,6 +361,7 @@ export default connect(
       ? state.currentUserInfo.email
       : undefined,
     loadingStatus: loadingStatusSelector(state),
+    activeTheme: state.globalThemeInfo.activeTheme,
     styles: stylesSelector(state),
   }),
   { changeUserSettings },

@@ -82,6 +82,7 @@ function PanelOnePasswordButton(props: {| onPress: () => Promise<void> |}) {
   return (
     <OnePasswordButton
       onPress={props.onPress}
+      theme="light"
       style={styles.onePasswordImage}
     />
   );
