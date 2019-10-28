@@ -26,6 +26,7 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import {
@@ -36,6 +37,7 @@ import {
 } from 'react-native-gesture-handler';
 import Orientation from 'react-native-orientation-locker';
 import Animated, { Easing } from 'react-native-reanimated';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 import { connect } from 'lib/utils/redux-utils';
 
@@ -47,6 +49,7 @@ import {
 import Multimedia from './multimedia.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import { clamp } from '../utils/animation-utils';
+import { saveImage } from './save-image';
 
 const {
   Value,
@@ -62,6 +65,7 @@ const {
   eq,
   neq,
   greaterThan,
+  lessThan,
   add,
   sub,
   multiply,
@@ -107,14 +111,26 @@ function panDelta(value: Value, gestureActive: Value) {
   );
 }
 
-function gestureJustEnded(tapState: Value) {
+function gestureJustStarted(state: Value) {
   const prevValue = new Value(-1);
   return cond(
-    eq(prevValue, tapState),
+    eq(prevValue, state),
     0,
     [
-      set(prevValue, tapState),
-      eq(tapState, GestureState.END),
+      set(prevValue, state),
+      eq(state, GestureState.ACTIVE),
+    ],
+  );
+}
+
+function gestureJustEnded(state: Value) {
+  const prevValue = new Value(-1);
+  return cond(
+    eq(prevValue, state),
+    0,
+    [
+      set(prevValue, state),
+      eq(state, GestureState.END),
     ],
   );
 }
@@ -182,7 +198,6 @@ function runDecay(
       ],
     ),
     decay(clock, state, config),
-    set(velocity, state.velocity),
     cond(
       state.finished,
       startStopClock && stopClock(clock),
@@ -209,7 +224,11 @@ type Props = {|
   screenDimensions: Dimensions,
   contentVerticalOffset: number,
 |};
-class MultimediaModal extends React.PureComponent<Props> {
+type State = {|
+  closeButtonEnabled: bool,
+  actionLinksEnabled: bool,
+|};
+class MultimediaModal extends React.PureComponent<Props, State> {
 
   static propTypes = {
     navigation: PropTypes.shape({
@@ -228,6 +247,23 @@ class MultimediaModal extends React.PureComponent<Props> {
     screenDimensions: dimensionsPropType.isRequired,
     contentVerticalOffset: PropTypes.number.isRequired,
   };
+  state = {
+    closeButtonEnabled: true,
+    actionLinksEnabled: true,
+  };
+
+  closeButton: ?TouchableOpacity;
+  saveButton: ?TouchableOpacity;
+  closeButtonX = new Value(0);
+  closeButtonY = new Value(0);
+  closeButtonWidth = new Value(0);
+  closeButtonHeight = new Value(0);
+  closeButtonLastState = new Value(1);
+  saveButtonX = new Value(0);
+  saveButtonY = new Value(0);
+  saveButtonWidth = new Value(0);
+  saveButtonHeight = new Value(0);
+  actionLinksLastState = new Value(1);
 
   centerX = new Value(0);
   centerY = new Value(0);
@@ -238,19 +274,36 @@ class MultimediaModal extends React.PureComponent<Props> {
 
   pinchHandler = React.createRef();
   panHandler = React.createRef();
-  tapHandler = React.createRef();
-  handlerRefs = [ this.pinchHandler, this.panHandler, this.tapHandler ];
-  priorityHandlerRefs = [ this.pinchHandler, this.panHandler ];
+  singleTapHandler = React.createRef();
+  doubleTapHandler = React.createRef();
+  handlerRefs = [
+    this.pinchHandler,
+    this.panHandler,
+    this.singleTapHandler,
+    this.doubleTapHandler,
+  ];
+  beforeDoubleTapRefs = [
+    this.pinchHandler,
+    this.panHandler,
+  ];
+  beforeSingleTapRefs = [
+    this.pinchHandler,
+    this.panHandler,
+    this.doubleTapHandler,
+  ];
 
   pinchEvent;
   panEvent;
-  tapEvent;
+  singleTapEvent;
+  doubleTapEvent;
 
   scale: Value;
   x: Value;
   y: Value;
-  opacity: Value;
+  backdropOpacity: Value;
   imageContainerOpacity: Value;
+  actionLinksOpacity: Value;
+  closeButtonOpacity: Value;
 
   constructor(props: Props) {
     super(props);
@@ -276,7 +329,7 @@ class MultimediaModal extends React.PureComponent<Props> {
 
     const { position } = props;
     const { index } = props.scene;
-    const progress = interpolate(
+    const navigationProgress = interpolate(
       position,
       {
         inputRange: [ index - 1, index ],
@@ -291,6 +344,8 @@ class MultimediaModal extends React.PureComponent<Props> {
     const panTranslationY = new Value(0);
     const panVelocityX = new Value(0);
     const panVelocityY = new Value(0);
+    const panAbsoluteX = new Value(0);
+    const panAbsoluteY = new Value(0);
     this.panEvent = event([{
       nativeEvent: {
         state: panState,
@@ -298,9 +353,37 @@ class MultimediaModal extends React.PureComponent<Props> {
         translationY: panTranslationY,
         velocityX: panVelocityX,
         velocityY: panVelocityY,
+        absoluteX: panAbsoluteX,
+        absoluteY: panAbsoluteY,
       },
     }]);
-    const panActive = eq(panState, GestureState.ACTIVE);
+    const curPanActive = new Value(0);
+    const panActive = [
+      cond(
+        and(
+          gestureJustStarted(panState),
+          this.outsideButtons(
+            sub(panAbsoluteX, panTranslationX),
+            sub(panAbsoluteY, panTranslationY),
+          ),
+        ),
+        set(curPanActive, 1),
+      ),
+      cond(
+        gestureJustEnded(panState),
+        set(curPanActive, 0),
+      ),
+      curPanActive,
+    ];
+    const lastPanActive = new Value(0);
+    const panJustEnded = cond(
+      eq(lastPanActive, panActive),
+      0,
+      [
+        set(lastPanActive, panActive),
+        eq(panActive, 0),
+      ],
+    );
 
     // The inputs we receive from PinchGestureHandler
     const pinchState = new Value(-1);
@@ -317,15 +400,27 @@ class MultimediaModal extends React.PureComponent<Props> {
     }]);
     const pinchActive = eq(pinchState, GestureState.ACTIVE);
 
-    // The inputs we receive from TapGestureHandler
-    const tapState = new Value(-1);
-    const tapX = new Value(0);
-    const tapY = new Value(0);
-    this.tapEvent = event([{
+    // The inputs we receive from single TapGestureHandler
+    const singleTapState = new Value(-1);
+    const singleTapX = new Value(0);
+    const singleTapY = new Value(0);
+    this.singleTapEvent = event([{
       nativeEvent: {
-        state: tapState,
-        x: tapX,
-        y: tapY,
+        state: singleTapState,
+        x: singleTapX,
+        y: singleTapY,
+      },
+    }]);
+
+    // The inputs we receive from double TapGestureHandler
+    const doubleTapState = new Value(-1);
+    const doubleTapX = new Value(0);
+    const doubleTapY = new Value(0);
+    this.doubleTapEvent = event([{
+      nativeEvent: {
+        state: doubleTapState,
+        x: doubleTapX,
+        y: doubleTapY,
       },
     }]);
 
@@ -333,7 +428,9 @@ class MultimediaModal extends React.PureComponent<Props> {
     const curScale = new Value(1);
     const curX = new Value(0);
     const curY = new Value(0);
-    const curOpacity = new Value(1);
+    const curBackdropOpacity = new Value(1);
+    const curCloseButtonOpacity = new Value(1);
+    const curActionLinksOpacity = new Value(1);
 
     // The centered variables help us know if we need to be recentered
     const recenteredScale = max(curScale, 1);
@@ -371,10 +468,18 @@ class MultimediaModal extends React.PureComponent<Props> {
         curX,
         curY,
       ),
+      this.singleTapUpdate(
+        singleTapState,
+        singleTapX,
+        singleTapY,
+        roundedCurScale,
+        curCloseButtonOpacity,
+        curActionLinksOpacity,
+      ),
       this.doubleTapUpdate(
-        tapState,
-        tapX,
-        tapY,
+        doubleTapState,
+        doubleTapX,
+        doubleTapY,
         roundedCurScale,
         zoomClock,
         gestureActive,
@@ -382,15 +487,15 @@ class MultimediaModal extends React.PureComponent<Props> {
         curX,
         curY,
       ),
-      this.opacityUpdate(
-        panState,
+      this.backdropOpacityUpdate(
+        panJustEnded,
         pinchActive,
         panVelocityX,
         panVelocityY,
         curX,
         curY,
         roundedCurScale,
-        curOpacity,
+        curBackdropOpacity,
         dismissingFromPan,
       ),
       this.recenter(
@@ -408,6 +513,7 @@ class MultimediaModal extends React.PureComponent<Props> {
         resetXClock,
         resetYClock,
         activeInteraction,
+        panJustEnded,
         panVelocityX,
         panVelocityY,
         horizontalPanSpace,
@@ -419,29 +525,49 @@ class MultimediaModal extends React.PureComponent<Props> {
     const updatedScale = [ updates, curScale ];
     const updatedCurX = [ updates, curX ];
     const updatedCurY = [ updates, curY ];
-    const updatedOpacity = [ updates, curOpacity ];
+    const updatedBackdropOpacity = [ updates, curBackdropOpacity ];
+    const updatedCloseButtonOpacity = [ updates, curCloseButtonOpacity ];
+    const updatedActionLinksOpacity = [ updates, curActionLinksOpacity ];
 
-    const reverseProgress = sub(1, progress);
+    const reverseNavigationProgress = sub(1, navigationProgress);
     this.scale = add(
-      multiply(reverseProgress, initialScale),
-      multiply(progress, updatedScale),
+      multiply(reverseNavigationProgress, initialScale),
+      multiply(navigationProgress, updatedScale),
     );
     this.x = add(
-      multiply(reverseProgress, initialTranslateX),
-      multiply(progress, updatedCurX),
+      multiply(reverseNavigationProgress, initialTranslateX),
+      multiply(navigationProgress, updatedCurX),
     );
     this.y = add(
-      multiply(reverseProgress, initialTranslateY),
-      multiply(progress, updatedCurY),
+      multiply(reverseNavigationProgress, initialTranslateY),
+      multiply(navigationProgress, updatedCurY),
     );
-    this.opacity = multiply(progress, updatedOpacity);
+    this.backdropOpacity = multiply(navigationProgress, updatedBackdropOpacity);
     this.imageContainerOpacity = interpolate(
-      progress,
+      navigationProgress,
       {
         inputRange: [ 0, 0.1 ],
         outputRange: [ 0, 1 ],
         extrapolate: Extrapolate.CLAMP,
       },
+    );
+    const buttonOpacity = interpolate(
+      updatedBackdropOpacity,
+      {
+        inputRange: [ 0.95, 1 ],
+        outputRange: [ 0, 1 ],
+        extrapolate: Extrapolate.CLAMP,
+      },
+    )
+    this.closeButtonOpacity = multiply(
+      navigationProgress,
+      buttonOpacity,
+      updatedCloseButtonOpacity,
+    );
+    this.actionLinksOpacity = multiply(
+      navigationProgress,
+      buttonOpacity,
+      updatedActionLinksOpacity,
     );
   }
 
@@ -504,6 +630,37 @@ class MultimediaModal extends React.PureComponent<Props> {
     );
   }
 
+  outsideButtons(x: Value, y: Value) {
+    const {
+      closeButtonX,
+      closeButtonY,
+      closeButtonWidth,
+      closeButtonHeight,
+      closeButtonLastState,
+      saveButtonX,
+      saveButtonY,
+      saveButtonWidth,
+      saveButtonHeight,
+      actionLinksLastState,
+    } = this;
+    return and(
+      or(
+        eq(closeButtonLastState, 0),
+        lessThan(x, closeButtonX),
+        greaterThan(x, add(closeButtonX, closeButtonWidth)),
+        lessThan(y, closeButtonY),
+        greaterThan(y, add(closeButtonY, closeButtonHeight)),
+      ),
+      or(
+        eq(actionLinksLastState, 0),
+        lessThan(x, saveButtonX),
+        greaterThan(x, add(saveButtonX, saveButtonWidth)),
+        lessThan(y, saveButtonY),
+        greaterThan(y, add(saveButtonY, saveButtonHeight)),
+      ),
+    );
+  }
+
   panUpdate(
     // Inputs
     panActive: Value,
@@ -524,11 +681,101 @@ class MultimediaModal extends React.PureComponent<Props> {
     );
   }
 
+  singleTapUpdate(
+    // Inputs
+    singleTapState: Value,
+    singleTapX: Value,
+    singleTapY: Value,
+    roundedCurScale: Value,
+    // Outputs
+    curCloseButtonOpacity: Value,
+    curActionLinksOpacity: Value,
+  ): Value {
+    const lastTapX = new Value(0);
+    const lastTapY = new Value(0);
+    const tapJustEnded = and(
+      gestureJustEnded(singleTapState),
+      this.outsideButtons(lastTapX, lastTapY),
+    );
+
+    const wasZoomed = new Value(0);
+    const isZoomed = greaterThan(roundedCurScale, 1);
+    const becameUnzoomed = and(wasZoomed, not(isZoomed));
+
+    const closeButtonState = cond(
+      or(
+        tapJustEnded,
+        and(becameUnzoomed, eq(this.closeButtonLastState, 0)),
+      ),
+      sub(1, this.closeButtonLastState),
+      this.closeButtonLastState,
+    );
+
+    const actionLinksState = cond(
+      isZoomed,
+      0,
+      cond(
+        or(tapJustEnded, becameUnzoomed),
+        sub(1, this.actionLinksLastState),
+        this.actionLinksLastState,
+      ),
+    );
+
+    const closeButtonAppearClock = new Clock();
+    const closeButtonDisappearClock = new Clock();
+    const actionLinksAppearClock = new Clock();
+    const actionLinksDisappearClock = new Clock();
+    return [
+      tapJustEnded,
+      set(
+        curCloseButtonOpacity,
+        cond(
+          eq(closeButtonState, 1),
+          [
+            stopClock(closeButtonDisappearClock),
+            runTiming(closeButtonAppearClock, curCloseButtonOpacity, 1),
+          ],
+          [
+            stopClock(closeButtonAppearClock),
+            runTiming(closeButtonDisappearClock, curCloseButtonOpacity, 0),
+          ],
+        ),
+      ),
+      set(
+        curActionLinksOpacity,
+        cond(
+          eq(actionLinksState, 1),
+          [
+            stopClock(actionLinksDisappearClock),
+            runTiming(actionLinksAppearClock, curActionLinksOpacity, 1),
+          ],
+          [
+            stopClock(actionLinksAppearClock),
+            runTiming(actionLinksDisappearClock, curActionLinksOpacity, 0),
+          ],
+        ),
+      ),
+      set(this.actionLinksLastState, actionLinksState),
+      set(this.closeButtonLastState, closeButtonState),
+      set(wasZoomed, isZoomed),
+      set(lastTapX, singleTapX),
+      set(lastTapY, singleTapY),
+      call(
+        [ eq(curCloseButtonOpacity, 1) ],
+        this.setCloseButtonEnabled,
+      ),
+      call(
+        [ eq(curActionLinksOpacity, 1) ],
+        this.setActionLinksEnabled,
+      ),
+    ];
+  }
+
   doubleTapUpdate(
     // Inputs
-    tapState: Value,
-    tapX: Value,
-    tapY: Value,
+    doubleTapState: Value,
+    doubleTapX: Value,
+    doubleTapY: Value,
     roundedCurScale: Value,
     zoomClock: Clock,
     gestureActive: Value,
@@ -541,8 +788,8 @@ class MultimediaModal extends React.PureComponent<Props> {
     const zoomActive = and(not(gestureActive), zoomClockRunning);
     const targetScale = cond(greaterThan(roundedCurScale, 1), 1, 3);
 
-    const tapXDiff = sub(tapX, this.centerX, curX);
-    const tapYDiff = sub(tapY, this.centerY, curY);
+    const tapXDiff = sub(doubleTapX, this.centerX, curX);
+    const tapYDiff = sub(doubleTapY, this.centerY, curY);
     const tapXPercent = divide(tapXDiff, this.imageWidth, curScale);
     const tapYPercent = divide(tapYDiff, this.imageHeight, curScale);
 
@@ -576,7 +823,10 @@ class MultimediaModal extends React.PureComponent<Props> {
     const deltaX = panDelta(zoomX, zoomActive);
     const deltaY = panDelta(zoomY, zoomActive);
 
-    const tapJustEnded = gestureJustEnded(tapState);
+    const tapJustEnded = and(
+      gestureJustEnded(doubleTapState),
+      this.outsideButtons(doubleTapX, doubleTapY),
+    );
 
     return cond(
       [ tapJustEnded, deltaX, deltaY, deltaScale, gestureActive ],
@@ -595,9 +845,9 @@ class MultimediaModal extends React.PureComponent<Props> {
     );
   }
 
-  opacityUpdate(
+  backdropOpacityUpdate(
     // Inputs
-    panState: Value,
+    panJustEnded: Value,
     pinchActive: Value,
     panVelocityX: Value,
     panVelocityY: Value,
@@ -605,7 +855,7 @@ class MultimediaModal extends React.PureComponent<Props> {
     curY: Value,
     roundedCurScale: Value,
     // Outputs
-    curOpacity: Value,
+    curBackdropOpacity: Value,
     dismissingFromPan: Value,
   ): Value {
     const progressiveOpacity = max(
@@ -615,7 +865,6 @@ class MultimediaModal extends React.PureComponent<Props> {
       ),
       0,
     );
-    const panJustEnded = gestureJustEnded(panState);
 
     const resetClock = new Clock();
 
@@ -639,10 +888,13 @@ class MultimediaModal extends React.PureComponent<Props> {
       decay,
       cond(
         or(pinchActive, greaterThan(roundedCurScale, 1)),
-        set(curOpacity, runTiming(resetClock, curOpacity, 1)),
+        set(
+          curBackdropOpacity,
+          runTiming(resetClock, curBackdropOpacity, 1),
+        ),
         [
           stopClock(resetClock),
-          set(curOpacity, progressiveOpacity),
+          set(curBackdropOpacity, progressiveOpacity),
           set(dismissingFromPan, shouldGoBack),
           cond(
             shouldGoBack,
@@ -720,6 +972,7 @@ class MultimediaModal extends React.PureComponent<Props> {
     resetXClock: Clock,
     resetYClock: Clock,
     activeInteraction: Value,
+    panJustEnded: Value,
     panVelocityX: Value,
     panVelocityY: Value,
     horizontalPanSpace: Value,
@@ -754,24 +1007,30 @@ class MultimediaModal extends React.PureComponent<Props> {
         cond(
           clockRunning(resetXClock),
           stopClock(flingXClock),
-          [
-            set(curX, recenteredX),
-            cond(
-              neq(decayX, recenteredX),
-              stopClock(flingXClock),
-            ),
-          ],
+          cond(
+            or(panJustEnded, clockRunning(flingXClock)),
+            [
+              set(curX, recenteredX),
+              cond(
+                neq(decayX, recenteredX),
+                stopClock(flingXClock),
+              ),
+            ],
+          ),
         ),
         cond(
           clockRunning(resetYClock),
           stopClock(flingYClock),
-          [
-            set(curY, recenteredY),
-            cond(
-              neq(decayY, recenteredY),
-              stopClock(flingYClock),
-            ),
-          ],
+          cond(
+            or(panJustEnded, clockRunning(flingYClock)),
+            [
+              set(curY, recenteredY),
+              cond(
+                neq(decayY, recenteredY),
+                stopClock(flingYClock),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -896,11 +1155,12 @@ class MultimediaModal extends React.PureComponent<Props> {
     const statusBar = MultimediaModal.isActive(this.props)
       ? <ConnectedStatusBar barStyle="light-content" />
       : null;
-    const backdropStyle = { opacity: this.opacity };
+    const backdropStyle = { opacity: this.backdropOpacity };
     const closeButtonStyle = {
-      opacity: this.opacity,
+      opacity: this.closeButtonOpacity,
       top: Math.max(this.props.contentVerticalOffset - 2, 4),
     };
+    const saveButtonStyle = { opacity: this.actionLinksOpacity };
     const view = (
       <Animated.View style={styles.container}>
         {statusBar}
@@ -914,10 +1174,33 @@ class MultimediaModal extends React.PureComponent<Props> {
           styles.closeButtonContainer,
           closeButtonStyle,
         ]}>
-          <TouchableOpacity onPress={this.close}>
+          <TouchableOpacity
+            onPress={this.close}
+            disabled={!this.state.closeButtonEnabled}
+            onLayout={this.onCloseButtonLayout}
+            ref={this.closeButtonRef}
+          >
             <Text style={styles.closeButton}>
               ×
             </Text>
+          </TouchableOpacity>
+        </Animated.View>
+        <Animated.View style={[
+          styles.saveButtonContainer,
+          saveButtonStyle,
+        ]}>
+          <TouchableOpacity
+            onPress={this.save}
+            disabled={!this.state.actionLinksEnabled}
+            style={styles.saveButton}
+            onLayout={this.onSaveButtonLayout}
+            ref={this.saveButtonRef}
+          >
+            <Icon
+              name={Platform.OS === 'ios' ? 'ios-save' : 'md-save'}
+              style={styles.saveButtonIcon}
+            />
+            <Text style={styles.saveButtonText}>Save</Text>
           </TouchableOpacity>
         </Animated.View>
       </Animated.View>
@@ -939,13 +1222,23 @@ class MultimediaModal extends React.PureComponent<Props> {
           >
             <Animated.View style={styles.container}>
               <TapGestureHandler
-                onHandlerStateChange={this.tapEvent}
+                onHandlerStateChange={this.doubleTapEvent}
                 simultaneousHandlers={this.handlerRefs}
-                ref={this.tapHandler}
-                waitFor={this.priorityHandlerRefs}
+                ref={this.doubleTapHandler}
+                waitFor={this.beforeDoubleTapRefs}
                 numberOfTaps={2}
               >
-                {view}
+                <Animated.View style={styles.container}>
+                  <TapGestureHandler
+                    onHandlerStateChange={this.singleTapEvent}
+                    simultaneousHandlers={this.handlerRefs}
+                    ref={this.singleTapHandler}
+                    waitFor={this.beforeSingleTapRefs}
+                    numberOfTaps={1}
+                  >
+                    {view}
+                  </TapGestureHandler>
+                </Animated.View>
               </TapGestureHandler>
             </Animated.View>
           </PanGestureHandler>
@@ -956,6 +1249,58 @@ class MultimediaModal extends React.PureComponent<Props> {
 
   close = () => {
     this.props.navigation.goBack();
+  }
+
+  save = async () => {
+    await saveImage(this.props.navigation.state.params.mediaInfo);
+  }
+
+  setCloseButtonEnabled = ([ enabledNum ]: [ number ]) => {
+    const enabled = !!enabledNum;
+    if (this.state.closeButtonEnabled !== enabled) {
+      this.setState({ closeButtonEnabled: enabled });
+    }
+  }
+
+  setActionLinksEnabled = ([ enabledNum ]: [ number ]) => {
+    const enabled = !!enabledNum;
+    if (this.state.actionLinksEnabled !== enabled) {
+      this.setState({ actionLinksEnabled: enabled });
+    }
+  }
+
+  closeButtonRef = (closeButton: ?TouchableOpacity) => {
+    this.closeButton = closeButton;
+  }
+
+  saveButtonRef = (saveButton: ?TouchableOpacity) => {
+    this.saveButton = saveButton;
+  }
+
+  onCloseButtonLayout = () => {
+    const { closeButton } = this;
+    if (!closeButton) {
+      return;
+    }
+    closeButton.measure((x, y, width, height, pageX, pageY) => {
+      this.closeButtonX.setValue(pageX);
+      this.closeButtonY.setValue(pageY);
+      this.closeButtonWidth.setValue(width);
+      this.closeButtonHeight.setValue(height);
+    });
+  }
+
+  onSaveButtonLayout = () => {
+    const { saveButton } = this;
+    if (!saveButton) {
+      return;
+    }
+    saveButton.measure((x, y, width, height, pageX, pageY) => {
+      this.saveButtonX.setValue(pageX);
+      this.saveButtonY.setValue(pageY);
+      this.saveButtonWidth.setValue(width);
+      this.saveButtonHeight.setValue(height);
+    });
   }
 
 }
@@ -988,6 +1333,32 @@ const styles = StyleSheet.create({
     fontSize: 36,
     color: "white",
     textShadowColor: "#000",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
+  },
+  saveButtonContainer: {
+    position: "absolute",
+    left: 16,
+    bottom: contentBottomOffset + 8,
+  },
+  saveButton: {
+    alignItems: 'center',
+    paddingTop: 2,
+    paddingBottom: 2,
+    paddingLeft: 8,
+    paddingRight: 8,
+  },
+  saveButtonIcon: {
+    fontSize: 36,
+    color: "#D7D7DC",
+    textShadowColor: "#1C1C1E",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
+  },
+  saveButtonText: {
+    fontSize: 14,
+    color: "#D7D7DC",
+    textShadowColor: "#1C1C1E",
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,
   },

@@ -7,6 +7,9 @@ const {
   Clock,
   cond,
   greaterThan,
+  eq,
+  sub,
+  set,
 } = Animated;
 
 function clamp(value: Value, minValue: Value, maxValue: Value): Value {
@@ -21,6 +24,24 @@ function clamp(value: Value, minValue: Value, maxValue: Value): Value {
   );
 }
 
+function delta(value: Value) {
+  const prevValue = new Value(0);
+  const deltaValue = new Value(0);
+  return [
+    set(
+      deltaValue,
+      cond(
+        eq(prevValue, 0),
+        0,
+        sub(value, prevValue),
+      ),
+    ),
+    set(prevValue, value),
+    deltaValue,
+  ];
+}
+
 export {
   clamp,
+  delta,
 };
