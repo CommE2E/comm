@@ -9,14 +9,18 @@ import type {
   NavigationScreenProp,
   NavigationLeafRoute,
 } from 'react-navigation';
+import type { AppState } from '../../redux/redux-setup';
+import { type Colors, colorsPropType } from '../../themes/colors';
+import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, Text } from 'react-native';
+import { Text } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 
 import { threadTypeDescriptions } from 'lib/shared/thread-utils';
+import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../../components/button.react';
 import {
@@ -24,6 +28,7 @@ import {
   ComposeThreadRouteName,
 } from '../../navigation/route-names';
 import { createModal } from '../../components/modal.react';
+import { colorsSelector, styleSelector } from '../../themes/colors';
 
 const Modal = createModal(ComposeSubthreadModalRouteName);
 type NavProp = NavigationScreenProp<{|
@@ -35,6 +40,9 @@ type NavProp = NavigationScreenProp<{|
 
 type Props = {|
   navigation: NavProp,
+  // Redux state
+  colors: Colors,
+  styles: Styles,
 |};
 class ComposeSubthreadModal extends React.PureComponent<Props> {
 
@@ -47,39 +55,47 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
       }).isRequired,
       navigate: PropTypes.func.isRequired,
     }).isRequired,
+    colors: colorsPropType.isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
 
   render() {
     return (
       <Modal
         navigation={this.props.navigation}
-        modalStyle={styles.modal}
+        modalStyle={this.props.styles.modal}
       >
-        <Text style={styles.visibility}>Thread type</Text>
-        <Button style={styles.option} onPress={this.onPressOpen}>
-          <Icon name="public" size={32} color="black" />
-          <Text style={styles.optionText}>Open</Text>
-          <Text style={styles.optionExplanation}>
+        <Text style={this.props.styles.visibility}>Thread type</Text>
+        <Button style={this.props.styles.option} onPress={this.onPressOpen}>
+          <Icon
+            name="public"
+            size={32}
+            style={this.props.styles.visibilityIcon}
+          />
+          <Text style={this.props.styles.optionText}>Open</Text>
+          <Text style={this.props.styles.optionExplanation}>
             {threadTypeDescriptions[threadTypes.CHAT_NESTED_OPEN]}
           </Text>
           <IonIcon
             name="ios-arrow-forward"
             size={20}
-            color="#036AFF"
-            style={styles.forwardIcon}
+            style={this.props.styles.forwardIcon}
           />
         </Button>
-        <Button style={styles.option} onPress={this.onPressSecret}>
-          <Icon name="lock-outline" size={32} color="black" />
-          <Text style={styles.optionText}>Secret</Text>
-          <Text style={styles.optionExplanation}>
+        <Button style={this.props.styles.option} onPress={this.onPressSecret}>
+          <Icon
+            name="lock-outline"
+            size={32}
+            style={this.props.styles.visibilityIcon}
+          />
+          <Text style={this.props.styles.optionText}>Secret</Text>
+          <Text style={this.props.styles.optionExplanation}>
             {threadTypeDescriptions[threadTypes.CHAT_SECRET]}
           </Text>
           <IonIcon
             name="ios-arrow-forward"
             size={20}
-            color="#036AFF"
-            style={styles.forwardIcon}
+            style={this.props.styles.forwardIcon}
           />
         </Button>
       </Modal>
@@ -113,14 +129,14 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
 
 }
 
-const styles = StyleSheet.create({
+const styles = {
   modal: {
     flex: 0,
   },
   visibility: {
     fontSize: 24,
     textAlign: 'center',
-    color: "black",
+    color: 'modalBackgroundLabel',
   },
   option: {
     flexDirection: 'row',
@@ -131,18 +147,27 @@ const styles = StyleSheet.create({
   optionText: {
     fontSize: 20,
     paddingLeft: 5,
-    color: "black",
+    color: 'modalBackgroundLabel',
   },
   optionExplanation: {
     flex: 1,
     fontSize: 14,
-    paddingLeft: 10,
+    paddingLeft: 20,
     textAlign: 'center',
-    color: "black",
+    color: 'modalBackgroundLabel',
   },
   forwardIcon: {
     paddingLeft: 10,
+    color: 'link',
   },
-});
+  visibilityIcon: {
+    color: 'modalBackgroundLabel',
+    paddingRight: 3,
+  },
+};
+const stylesSelector = styleSelector(styles);
 
-export default ComposeSubthreadModal;
+export default connect((state: AppState) => ({
+  colors: colorsSelector(state),
+  styles: stylesSelector(state),
+}))(ComposeSubthreadModal);

@@ -509,6 +509,7 @@ const styles = StyleSheet.create({
     borderTopColor: 'transparent',
     borderRightColor: 'transparent',
     borderLeftColor: 'transparent',
+    bottom: Platform.OS === "android" ? -1 : 0,
   },
 });
 
