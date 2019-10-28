@@ -69,7 +69,6 @@ import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import { getKeyboardHeight } from '../keyboard';
 import {
   imageGalleryKeyboardName,
-  imageGalleryBackgroundColor,
 } from '../media/image-gallery-keyboard.react';
 import { ChatInputStateContext } from './chat-input-state';
 import { colorsSelector, styleSelector } from '../themes/colors';
@@ -123,9 +122,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     joinThread: PropTypes.func.isRequired,
   };
   static contextType = ChatInputStateContext;
-  static kbInitialProps = {
-    backgroundColor: imageGalleryBackgroundColor,
-  };
   textInput: ?TextInput;
   cameraRollOpacity: Animated.Value;
   expandOpacity: Animated.Value;
@@ -367,7 +363,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         <KeyboardAccessoryView
           kbInputRef={this.textInput}
           kbComponent={kbComponent}
-          kbInitialProps={ChatInputBar.kbInitialProps}
+          kbInitialProps={this.props.styles.kbInitialProps}
           onItemSelected={this.onImageGalleryItemSelected}
           onKeyboardResigned={this.hideCustomKeyboard}
           manageScrollView={false}
@@ -603,6 +599,9 @@ const styles = {
   },
   joinThreadLoadingIndicator: {
     paddingVertical: 2,
+  },
+  kbInitialProps: {
+    backgroundColor: 'listBackground',
   },
 };
 const stylesSelector = styleSelector(styles);

@@ -4,13 +4,13 @@ import type { GalleryImageInfo } from './image-gallery-image.react';
 import type { AppState } from '../redux/redux-setup';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
-import type { ViewStyle } from '../types/styles';
+import type { ViewStyle, Styles } from '../types/styles';
+import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   Platform,
   PermissionsAndroid,
   FlatList,
@@ -34,6 +34,7 @@ import {
 } from '../selectors/dimension-selectors';
 import ImageGalleryImage from './image-gallery-image.react';
 import Animated, { Easing } from 'react-native-reanimated';
+import { colorsSelector, styleSelector } from '../themes/colors';
 
 const animationSpec = {
   duration: 400,
@@ -44,6 +45,8 @@ type Props = {|
   // Redux state
   screenDimensions: Dimensions,
   foreground: bool,
+  colors: Colors,
+  styles: Styles,
 |};
 type State = {|
   imageInfos: ?$ReadOnlyArray<GalleryImageInfo>,
@@ -60,6 +63,8 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
   static propTypes = {
     screenDimensions: dimensionsPropType.isRequired,
     foreground: PropTypes.bool.isRequired,
+    colors: colorsPropType.isRequired,
+    styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
   mounted = false;
   fetchingPhotos = false;
@@ -80,7 +85,7 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
       },
     );
     this.sendButtonStyle = {
-      ...styles.sendButton,
+      ...props.styles.sendButton,
       opacity: this.queueModeProgress,
       transform: [
         { scale: sendButtonScale },
@@ -324,8 +329,8 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
     );
   }
 
-  static renderItemSeparator() {
-    return <View style={styles.separator} />;
+  ItemSeparator = () => {
+    return <View style={this.props.styles.separator} />;
   }
 
   static keyExtractor(item: GalleryImageInfo) {
@@ -341,7 +346,7 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
           horizontal={true}
           data={imageInfos}
           renderItem={this.renderItem}
-          ItemSeparatorComponent={ImageGalleryKeyboard.renderItemSeparator}
+          ItemSeparatorComponent={this.ItemSeparator}
           keyExtractor={ImageGalleryKeyboard.keyExtractor}
           scrollsToTop={false}
           showsHorizontalScrollIndicator={false}
@@ -353,15 +358,19 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
         />
       );
     } else if (imageInfos && containerHeight) {
-      content = <Text style={styles.error}>no media was found!</Text>;
+      content = (
+        <Text style={this.props.styles.error}>
+          no media was found!
+        </Text>
+      );
     } else if (error) {
-      content = <Text style={styles.error}>{error}</Text>;
+      content = <Text style={this.props.styles.error}>{error}</Text>;
     } else {
       content = (
         <ActivityIndicator
-          color="black"
+          color={this.props.colors.listSeparatorLabel}
           size="large"
-          style={styles.loadingIndicator}
+          style={this.props.styles.loadingIndicator}
         />
       );
     }
@@ -369,17 +378,20 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
     const { queuedImageURIs } = this.state;
     const queueCount = queuedImageURIs ? queuedImageURIs.size : 0;
     return (
-      <View style={styles.container} onLayout={this.onContainerLayout}>
+      <View
+        style={this.props.styles.container}
+        onLayout={this.onContainerLayout}
+      >
         {content}
         <TouchableOpacity
           onPress={this.sendQueuedImages}
           activeOpacity={0.6}
-          style={styles.sendButtonContainer}
+          style={this.props.styles.sendButtonContainer}
         >
           <Animated.View style={this.sendButtonStyle}>
-            <Icon name="send" style={styles.sendIcon} />
-            <View style={styles.queueCountBubble}>
-              <Text style={styles.queueCountText}>
+            <Icon name="send" style={this.props.styles.sendIcon} />
+            <View style={this.props.styles.queueCountBubble}>
+              <Text style={this.props.styles.queueCountText}>
                 {queueCount}
               </Text>
             </View>
@@ -485,16 +497,15 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
 }
 
 const imageGalleryKeyboardName = 'ImageGalleryKeyboard';
-const imageGalleryBackgroundColor = '#EEEEEE';
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     position: 'absolute',
     top: 0,
     bottom: -contentBottomOffset,
     left: 0,
     right: 0,
-    backgroundColor: imageGalleryBackgroundColor,
+    backgroundColor: 'listBackground',
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -503,6 +514,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     textAlign: 'center',
     marginBottom: contentBottomOffset,
+    color: 'listBackgroundLabel',
   },
   separator: {
     width: 2,
@@ -547,12 +559,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: 'white',
   },
-});
+};
+const stylesSelector = styleSelector(styles);
 
 const ReduxConnectedImageGalleryKeyboard = connect(
   (state: AppState) => ({
     screenDimensions: dimensionsSelector(state),
     foreground: state.foreground,
+    colors: colorsSelector(state),
+    styles: stylesSelector(state),
   }),
 )(ImageGalleryKeyboard);
 
@@ -571,5 +586,4 @@ KeyboardRegistry.registerKeyboard(
 
 export {
   imageGalleryKeyboardName,
-  imageGalleryBackgroundColor,
 };
