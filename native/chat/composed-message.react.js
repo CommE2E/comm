@@ -82,7 +82,7 @@ class ComposedMessage extends React.PureComponent<Props> {
 
     return (
       <View {...viewProps}>
-        <MessageHeader item={item} focused={focused} contrast="low" />
+        <MessageHeader item={item} focused={focused} display="lowContrast" />
         <View style={containerStyle}>
           <View style={[ styles.content, alignStyle ]}>
             <View style={[ styles.messageBox, messageBoxStyle, alignStyle ]}>

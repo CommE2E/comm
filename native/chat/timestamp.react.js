@@ -11,16 +11,19 @@ import { connect } from 'lib/utils/redux-utils';
 
 import { styleSelector } from '../themes/colors';
 
+export type DisplayType = 'lowContrast' | 'modal';
+
 type Props = {|
   time: number,
-  contrast: 'high' | 'low',
+  display: DisplayType,
   // Redux state
   styles: Styles,
 |};
 function Timestamp(props: Props) {
-  const style = props.contrast === 'high'
-    ? [ props.styles.timestamp, props.styles.highContrast ]
-    : [ props.styles.timestamp, props.styles.lowContrast ];
+  const style = [ props.styles.timestamp ];
+  if (props.display === 'modal') {
+    style.push(props.styles.modal);
+  }
   return (
     <Text style={style} numberOfLines={1}>
       {longAbsoluteDate(props.time).toUpperCase()}
@@ -28,23 +31,29 @@ function Timestamp(props: Props) {
   );
 }
 
+const timestampHeight = 26;
+
 const styles = {
   timestamp: {
     fontSize: 14,
     paddingVertical: 3,
     alignSelf: 'center',
-    height: 26,
-  },
-  lowContrast: {
+    height: timestampHeight,
     color: 'listBackgroundTernaryLabel',
+    bottom: 0,
   },
-  highContrast: {
+  modal: {
     // high contrast framed against LightboxNavigator-dimmed background
     color: 'white',
   },
 };
 const stylesSelector = styleSelector(styles);
 
-export default connect((state: AppState) => ({
+const WrappedTimestamp = connect((state: AppState) => ({
   styles: stylesSelector(state),
 }))(Timestamp);
+
+export {
+  WrappedTimestamp as Timestamp,
+  timestampHeight,
+};

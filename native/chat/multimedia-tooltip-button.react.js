@@ -123,7 +123,7 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
     return (
       <React.Fragment>
         <Animated.View style={this.headerStyle}>
-          <MessageHeader item={item} focused={true} contrast="high" />
+          <MessageHeader item={item} focused={true} display="modal" />
         </Animated.View>
         <View style={[ styles.media, roundedStyle ]}>
           <InlineMultimedia

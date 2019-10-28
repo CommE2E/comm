@@ -3,6 +3,7 @@
 import type { ChatMessageInfoItemWithHeight } from './message.react';
 import type { AppState } from '../redux/redux-setup';
 import type { Styles } from '../types/styles';
+import type { DisplayType } from './timestamp.react';
 
 import * as React from 'react';
 import { View, Text } from 'react-native';
@@ -10,26 +11,28 @@ import { View, Text } from 'react-native';
 import { stringForUser } from 'lib/shared/user-utils';
 import { connect } from 'lib/utils/redux-utils';
 
-import Timestamp from './timestamp.react';
+import { Timestamp, timestampHeight } from './timestamp.react';
 import { styleSelector } from '../themes/colors';
 
 type Props = {|
   item: ChatMessageInfoItemWithHeight,
   focused: bool,
-  contrast: 'high' | 'low',
+  display: DisplayType,
   // Redux state
   styles: Styles,
 |};
 function MessageHeader(props: Props) {
-  const { item, focused, contrast } = props;
+  const { item, focused, display } = props;
   const { creator, time } = item.messageInfo;
   const { isViewer } = creator;
+  const modalDisplay = display === 'modal';
 
   let authorName = null;
-  if (!isViewer && (item.startsCluster || focused)) {
-    const style = contrast === 'high' || !item.startsCluster
-      ? [ props.styles.authorName, props.styles.highContrast ]
-      : [ props.styles.authorName, props.styles.lowContrast ];
+  if (!isViewer && (modalDisplay || item.startsCluster)) {
+    const style = [ props.styles.authorName ];
+    if (modalDisplay) {
+      style.push(props.styles.modal);
+    }
     authorName = (
       <Text style={style} numberOfLines={1}>
         {stringForUser(creator)}
@@ -37,18 +40,23 @@ function MessageHeader(props: Props) {
     );
   }
 
-  const timestampContrast = contrast === 'high' || !item.startsConversation
-    ? 'high'
-    : 'low';
-  const timestamp = focused || item.startsConversation
-    ? <Timestamp time={time} contrast={timestampContrast} />
+  const timestamp = modalDisplay || item.startsConversation
+    ? <Timestamp time={time} display={display} />
     : null;
-  if (!timestamp && !authorName) {
-    return null;
+
+  let topMargin = 0;
+  if (!item.startsCluster) {
+    topMargin += 7;
+  }
+  if (focused && !modalDisplay && !item.startsCluster) {
+    topMargin += authorNameHeight;
+  }
+  if (focused && !modalDisplay && !item.startsConversation) {
+    topMargin += timestampHeight;
   }
 
-  const style = !item.startsCluster
-    ? props.styles.clusterMargin
+  const style = topMargin
+    ? { marginTop: topMargin }
     : null;
   return (
     <View style={style}>
@@ -58,22 +66,20 @@ function MessageHeader(props: Props) {
   );
 }
 
+const authorNameHeight = 25;
+
 const styles = {
-  clusterMargin: {
-    marginTop: 7,
-  },
   authorName: {
     fontSize: 14,
     marginLeft: 12,
     marginRight: 7,
     paddingHorizontal: 12,
     paddingVertical: 4,
-    height: 25,
-  },
-  lowContrast: {
+    height: authorNameHeight,
     color: 'listBackgroundSecondaryLabel',
+    bottom: 0,
   },
-  highContrast: {
+  modal: {
     // high contrast framed against LightboxNavigator-dimmed background
     color: 'white',
   },

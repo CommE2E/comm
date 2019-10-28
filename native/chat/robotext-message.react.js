@@ -29,7 +29,7 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { connect } from 'lib/utils/redux-utils';
 
 import { MessageListRouteName } from '../navigation/route-names';
-import Timestamp from './timestamp.react';
+import { Timestamp } from './timestamp.react';
 import { styleSelector } from '../themes/colors';
 
 export type ChatRobotextMessageInfoItemWithHeight = {|
@@ -82,7 +82,7 @@ class RobotextMessage extends React.PureComponent<Props> {
     let timestamp = null;
     if (focused || item.startsConversation) {
       timestamp = (
-        <Timestamp time={item.messageInfo.time} contrast="low" />
+        <Timestamp time={item.messageInfo.time} display="lowContrast" />
       );
     }
     return (
