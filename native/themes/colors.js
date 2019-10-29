@@ -8,6 +8,8 @@ import { StyleSheet } from 'react-native';
 import { createSelector } from 'reselect';
 import PropTypes from 'prop-types';
 
+import { backgroundIsDarkSelector } from '../selectors/nav-selectors';
+
 const light = Object.freeze({
   redButton: '#BB8888',
   greenButton: '#88BB88',
@@ -126,6 +128,14 @@ const colorsSelector: (state: AppState) => Colors = createSelector(
   },
 );
 
+const overlayColorsSelector: (state: AppState) => Colors = createSelector(
+  backgroundIsDarkSelector,
+  (backgroundIsDark: bool) => {
+    const syntheticTheme = backgroundIsDark ? 'dark' : 'light';
+    return colors[syntheticTheme];
+  },
+);
+
 const magicStrings = new Set();
 for (let theme in colors) {
   for (let magicString in colors[theme]) {
@@ -136,30 +146,45 @@ for (let theme in colors) {
 // Distinct type needed here because we replace type of some fields with strings
 type InStyles = { [name: string]: { [field: string]: number | string } };
 
+function stylesFromColors<
+  IS: InStyles,
+  +OS: Styles,
+>(obj: IS, themeColors: Colors): OS {
+  const result = {};
+  for (let key in obj) {
+    const style = obj[key];
+    const filledInStyle = { ...style };
+    for (let styleKey in style) {
+      const styleValue = style[styleKey];
+      if (magicStrings.has(styleValue)) {
+        const mapped = themeColors[styleValue];
+        if (mapped) {
+          filledInStyle[styleKey] = mapped;
+        }
+      }
+    }
+    result[key] = filledInStyle;
+  }
+  return StyleSheet.create(result);
+}
+
 function styleSelector<
   IS: InStyles,
   +OS: Styles,
 >(obj: IS): (state: AppState) => OS {
   return createSelector(
     colorsSelector,
-    (themeColors: Colors) => {
-      const result = {};
-      for (let key in obj) {
-        const style = obj[key];
-        const filledInStyle = { ...style };
-        for (let styleKey in style) {
-          const styleValue = style[styleKey];
-          if (magicStrings.has(styleValue)) {
-            const mapped = themeColors[styleValue];
-            if (mapped) {
-              filledInStyle[styleKey] = mapped;
-            }
-          }
-        }
-        result[key] = filledInStyle;
-      }
-      return StyleSheet.create(result);
-    },
+    (themeColors: Colors) => stylesFromColors(obj, themeColors),
+  );
+}
+
+function overlayStyleSelector<
+  IS: InStyles,
+  +OS: Styles,
+>(obj: IS): (state: AppState) => OS {
+  return createSelector(
+    overlayColorsSelector,
+    (themeColors: Colors) => stylesFromColors(obj, themeColors),
   );
 }
 
@@ -167,5 +192,7 @@ export {
   colorsPropType,
   colors,
   colorsSelector,
+  overlayColorsSelector,
   styleSelector,
+  overlayStyleSelector,
 };

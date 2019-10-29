@@ -16,7 +16,7 @@ import Animated from 'react-native-reanimated';
 import { connect } from 'lib/utils/redux-utils';
 
 import { contentBottomOffset } from '../selectors/dimension-selectors';
-import { styleSelector } from '../themes/colors';
+import { overlayStyleSelector } from '../themes/colors';
 
 const {
   Value,
@@ -125,7 +125,7 @@ const styles = {
     color: 'modalContrastForegroundLabel',
   },
 };
-const stylesSelector = styleSelector(styles);
+const stylesSelector = overlayStyleSelector(styles);
 
 export default connect((state: AppState) => ({
   styles: stylesSelector(state),

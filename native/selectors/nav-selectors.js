@@ -4,6 +4,7 @@ import type { AppState } from '../redux/redux-setup';
 import type { NavigationState } from 'react-navigation';
 import type { CalendarFilter } from 'lib/types/filter-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
+import type { GlobalTheme } from '../types/themes';
 
 import { createSelector } from 'reselect';
 import invariant from 'invariant';
@@ -22,6 +23,7 @@ import {
   ChatRouteName,
   CalendarRouteName,
   ThreadPickerModalRouteName,
+  ActionResultModalRouteName,
   accountModals,
   scrollBlockingChatModals,
 } from '../navigation/route-names';
@@ -84,6 +86,29 @@ const scrollBlockingChatModalsClosedSelector: (
     const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
     const currentAppSubroute = appRoute.routes[appRoute.index];
     return !scrollBlockingChatModals.includes(currentAppSubroute.routeName);
+  },
+);
+
+const backgroundIsDarkSelector: (state: AppState) => bool = createSelector(
+  (state: AppState) => state.navInfo.navigationState,
+  (state: AppState) => state.globalThemeInfo.activeTheme,
+  (navigationState: NavigationState, theme: ?GlobalTheme) => {
+    const currentRootSubroute = navigationState.routes[navigationState.index];
+    if (currentRootSubroute.routeName !== AppRouteName) {
+      // Very bright... we'll call it non-dark. Doesn't matter right now since
+      // we only use this selector for determining ActionResultModal appearance
+      return false;
+    }
+    const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
+    let currentAppSubroute = appRoute.routes[appRoute.index];
+    if (currentAppSubroute.routeName === ActionResultModalRouteName) {
+      currentAppSubroute = appRoute.routes[appRoute.index - 1];
+    }
+    if (scrollBlockingChatModals.includes(currentAppSubroute.routeName)) {
+      // All the scroll-blocking chat modals have a dark background
+      return true;
+    }
+    return theme === 'dark';
   },
 );
 
@@ -197,6 +222,7 @@ export {
   foregroundKeySelector,
   createActiveTabSelector,
   scrollBlockingChatModalsClosedSelector,
+  backgroundIsDarkSelector,
   lightboxTransitioningSelector,
   activeThreadSelector,
   appCanRespondToBackButtonSelector,
