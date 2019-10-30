@@ -106,7 +106,7 @@ const dark: Colors = Object.freeze({
   listBackground: '#1C1C1E',
   listBackgroundLabel: '#C7C7CC',
   listBackgroundSecondaryLabel: '#BBBBBB',
-  listBackgroundTernaryLabel: '#555555',
+  listBackgroundTernaryLabel: '#888888',
   listSeparator: '#3A3A3C',
   listSeparatorLabel: '#EEEEEE',
   listInputBar: '#555555',
