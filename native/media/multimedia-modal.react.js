@@ -1153,7 +1153,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   render() {
     const { mediaInfo } = this.props.navigation.state.params;
     const statusBar = MultimediaModal.isActive(this.props)
-      ? <ConnectedStatusBar barStyle="light-content" />
+      ? <ConnectedStatusBar hidden />
       : null;
     const backdropStyle = { opacity: this.backdropOpacity };
     const closeButtonStyle = {
