@@ -91,6 +91,7 @@ import {
   ActionResultModalRouteName,
   TextMessageTooltipModalRouteName,
   ThreadSettingsMemberTooltipModalRouteName,
+  CameraModalRouteName,
   accountModals,
 } from './route-names';
 import {
@@ -116,6 +117,7 @@ import {
 } from '../chat/text-message-tooltip-modal.react';
 import ThreadSettingsMemberTooltipModal
   from '../chat/settings/thread-settings-member-tooltip-modal.react';
+import CameraModal from '../media/camera-modal.react';
 import TabBar from './tab-bar.react';
 
 useScreens();
@@ -169,6 +171,7 @@ const AppNavigator = createLightboxNavigator(
     [ActionResultModalRouteName]: ActionResultModal,
     [TextMessageTooltipModalRouteName]: TextMessageTooltipModal,
     [ThreadSettingsMemberTooltipModalRouteName]: ThreadSettingsMemberTooltipModal,
+    [CameraModalRouteName]: CameraModal,
   },
 );
 

@@ -42,6 +42,7 @@ export const ActionResultModalRouteName = 'ActionResultModal';
 export const TextMessageTooltipModalRouteName = 'TextMessageTooltipModal';
 export const ThreadSettingsMemberTooltipModalRouteName =
   'ThreadSettingsMemberTooltipModal';
+export const CameraModalRouteName = 'CameraModal';
 
 export const accountModals = [
   LoggedOutModalRouteName,
