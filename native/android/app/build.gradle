@@ -133,6 +133,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 39
         versionName "0.0.39"
+        multiDexEnabled true
     }
     splits {
         abi {
@@ -190,6 +191,7 @@ dependencies {
     implementation project(':reactnativekeyboardinput')
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "com.facebook.react:react-native:+"  // From node_modules
+    implementation "androidx.multidex:multidex:2.0.1"
 
     if (enableHermes) {
       def hermesPath = "../../../node_modules/hermesvm/android/";
