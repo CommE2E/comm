@@ -24,6 +24,8 @@ import {
 
 const {
   Value,
+  Extrapolate,
+  interpolate,
 } = Animated;
 
 type Props = {|
@@ -45,15 +47,38 @@ class CameraModal extends React.PureComponent<Props> {
     screenDimensions: dimensionsPropType.isRequired,
     contentVerticalOffset: PropTypes.number.isRequired,
   };
+  progress: Value;
+
+  constructor(props: Props) {
+    super(props);
+
+    const { position } = props;
+    const { index } = props.scene;
+    this.progress = interpolate(
+      position,
+      {
+        inputRange: [ index - 1, index ],
+        outputRange: [ 0, 1 ],
+        extrapolate: Extrapolate.CLAMP,
+      },
+    );
+  }
+
+  get containerStyle() {
+    return {
+      ...styles.container,
+      opacity: this.progress,
+    };
+  }
 
   render() {
     return (
-      <View style={styles.container}>
+      <Animated.View style={this.containerStyle}>
         <RNCamera
           captureAudio={false}
           style={styles.preview}
         />
-      </View>
+      </Animated.View>
     );
   }
 
@@ -62,6 +87,7 @@ class CameraModal extends React.PureComponent<Props> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'black',
   },
   preview: {
     flex: 1,
