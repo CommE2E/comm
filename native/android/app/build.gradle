@@ -133,6 +133,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 39
         versionName "0.0.39"
+        missingDimensionStrategy 'react-native-camera', 'general'
         multiDexEnabled true
     }
     splits {
