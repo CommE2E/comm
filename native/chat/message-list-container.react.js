@@ -234,7 +234,10 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           allHeightsMeasuredCallback={this.allHeightsMeasured}
         />
         {messageList}
-        <ChatInputBar threadInfo={threadInfo} />
+        <ChatInputBar
+          threadInfo={threadInfo}
+          navigation={this.props.navigation}
+        />
       </View>
     );
   }

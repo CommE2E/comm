@@ -29,6 +29,10 @@ import {
 } from '../navigation/keyboard-state';
 import type { Styles } from '../types/styles';
 import { type Colors, colorsPropType } from '../themes/colors';
+import {
+  type MessageListNavProp,
+  messageListNavPropType,
+} from './message-list-types';
 
 import * as React from 'react';
 import {
@@ -72,12 +76,14 @@ import {
 } from '../media/image-gallery-keyboard.react';
 import { ChatInputStateContext } from './chat-input-state';
 import { colorsSelector, styleSelector } from '../themes/colors';
+import { CameraModalRouteName } from '../navigation/route-names';
 
 const draftKeyFromThreadID =
   (threadID: string) => `${threadID}/message_composer`;
 
 type Props = {|
   threadInfo: ThreadInfo,
+  navigation: MessageListNavProp,
   // Redux state
   viewerID: ?string,
   draft: string,
@@ -108,6 +114,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
+    navigation: messageListNavPropType.isRequired,
     viewerID: PropTypes.string,
     draft: PropTypes.string.isRequired,
     joinThreadLoadingStatus: loadingStatusPropType.isRequired,
@@ -123,8 +130,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   };
   static contextType = ChatInputStateContext;
   textInput: ?TextInput;
-  cameraRollOpacity: Animated.Value;
   expandOpacity: Animated.Value;
+  expandoButtonsOpacity: Animated.Value;
   expandoButtonsWidth: Animated.Value;
 
   constructor(props: Props) {
@@ -134,13 +141,13 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       height: 0,
       buttonsExpanded: true,
     };
-    this.cameraRollOpacity = new Animated.Value(1);
-    this.expandOpacity = Animated.sub(1, this.cameraRollOpacity);
+    this.expandoButtonsOpacity = new Animated.Value(1);
+    this.expandOpacity = Animated.sub(1, this.expandoButtonsOpacity);
     this.expandoButtonsWidth = Animated.interpolate(
-      this.cameraRollOpacity,
+      this.expandoButtonsOpacity,
       {
         inputRange: [ 0, 1 ],
-        outputRange: [ 22, 28 ],
+        outputRange: [ 22, 58 ],
       },
     );
   }
@@ -218,7 +225,14 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   get cameraRollIconStyle() {
     return {
       ...this.props.styles.cameraRollIcon,
-      opacity: this.cameraRollOpacity,
+      opacity: this.expandoButtonsOpacity,
+    };
+  }
+
+  get cameraIconStyle() {
+    return {
+      ...this.props.styles.cameraIcon,
+      opacity: this.expandoButtonsOpacity,
     };
   }
 
@@ -282,30 +296,55 @@ class ChatInputBar extends React.PureComponent<Props, State> {
           </TouchableOpacity>
         );
       }
+      const expandoButton = (
+        <TouchableOpacity
+          onPress={this.expandButtons}
+          activeOpacity={0.4}
+          style={this.props.styles.expandButton}
+        >
+          <Animated.View style={this.expandIconStyle}>
+            <FAIcon
+              name="chevron-right"
+              size={19}
+              color={this.props.colors.listInputButton}
+            />
+          </Animated.View>
+        </TouchableOpacity>
+      );
       content = (
         <TouchableWithoutFeedback onPress={this.dismissKeyboard}>
           <View style={this.props.styles.inputContainer}>
             <Animated.View style={this.expandoButtonsStyle}>
-              <TouchableOpacity
-                onPress={this.onRightmostButtonPress}
-                activeOpacity={0.4}
-                style={this.props.styles.expandoButtons}
-              >
-                <Animated.View style={this.expandIconStyle}>
-                  <FAIcon
-                    name="chevron-right"
-                    size={19}
-                    color={this.props.colors.listInputButton}
-                  />
-                </Animated.View>
-                <Animated.View style={this.cameraRollIconStyle}>
-                  <Icon
-                    name="md-image"
-                    size={25}
-                    color={this.props.colors.listInputButton}
-                  />
-                </Animated.View>
-              </TouchableOpacity>
+              <View style={this.props.styles.innerExpandoButtons}>
+                {this.state.buttonsExpanded ? expandoButton : null}
+                <TouchableOpacity
+                  onPress={this.openImageGallery}
+                  activeOpacity={0.4}
+                >
+                  <Animated.View style={this.cameraRollIconStyle}>
+                    <Icon
+                      name="md-image"
+                      size={25}
+                      color={this.props.colors.listInputButton}
+                    />
+                  </Animated.View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={this.openCamera}
+                  activeOpacity={0.4}
+                  disabled={!this.state.buttonsExpanded}
+                  pointerEvents={this.state.buttonsExpanded ? 'auto' : 'none'}
+                >
+                  <Animated.View style={this.cameraIconStyle}>
+                    <FAIcon
+                      name="camera"
+                      size={19}
+                      color={this.props.colors.listInputButton}
+                    />
+                  </Animated.View>
+                </TouchableOpacity>
+                {this.state.buttonsExpanded ? null : expandoButton}
+              </View>
             </Animated.View>
             <View style={this.props.styles.textInputContainer}>
               <TextInput
@@ -365,7 +404,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
           kbComponent={kbComponent}
           kbInitialProps={this.props.styles.kbInitialProps}
           onItemSelected={this.onImageGalleryItemSelected}
-          onKeyboardResigned={this.hideCustomKeyboard}
+          onKeyboardResigned={this.hideImageGallery}
           manageScrollView={false}
         />
       );
@@ -471,12 +510,12 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     });
   }
 
-  expandButtons() {
+  expandButtons = () => {
     if (this.state.buttonsExpanded) {
       return;
     }
     Animated.timing(
-      this.cameraRollOpacity,
+      this.expandoButtonsOpacity,
       { duration: 500, toValue: 1, easing: Easing.inOut(Easing.ease) },
     ).start();
     this.setState({ buttonsExpanded: true });
@@ -491,21 +530,20 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       return;
     }
     Animated.timing(
-      this.cameraRollOpacity,
+      this.expandoButtonsOpacity,
       { duration: 500, toValue: 0, easing: Easing.inOut(Easing.ease) },
     ).start();
     this.setState({ buttonsExpanded: false });
   }
 
-  onRightmostButtonPress = () => {
-    if (!this.state.buttonsExpanded) {
-      this.expandButtons();
-    } else {
-      this.setImageGalleryOpen(true);
-    }
+  openCamera = () => {
   }
 
-  hideCustomKeyboard = () => {
+  openImageGallery = () => {
+    this.setImageGalleryOpen(true);
+  }
+
+  hideImageGallery = () => {
     this.setImageGalleryOpen(false);
   }
 
@@ -559,18 +597,30 @@ const styles = {
   expandoButtons: {
     alignSelf: 'flex-end',
   },
+  innerExpandoButtons: {
+    alignSelf: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+  },
   sendIcon: {
     paddingLeft: 5,
     paddingRight: 8,
   },
-  expandIcon: {
+  expandButton: {
     position: 'absolute',
     right: 0,
-    bottom: Platform.OS === "ios" ? 10 : 12,
+    bottom: 0,
+  },
+  expandIcon: {
+    paddingBottom: Platform.OS === "ios" ? 10 : 12,
   },
   cameraRollIcon: {
-    paddingRight: 2,
+    paddingRight: 7,
     paddingBottom: Platform.OS === "ios" ? 5 : 8,
+  },
+  cameraIcon: {
+    paddingRight: 3,
+    paddingBottom: Platform.OS === "ios" ? 10 : 12,
   },
   explanation: {
     color: 'listBackgroundSecondaryLabel',
