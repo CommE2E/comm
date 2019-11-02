@@ -1,6 +1,7 @@
 // @flow
 
 import Animated from 'react-native-reanimated';
+import { State as GestureState } from 'react-native-gesture-handler';
 
 const {
   Value,
@@ -41,7 +42,33 @@ function delta(value: Value) {
   ];
 }
 
+function gestureJustStarted(state: Value) {
+  const prevValue = new Value(-1);
+  return cond(
+    eq(prevValue, state),
+    0,
+    [
+      set(prevValue, state),
+      eq(state, GestureState.ACTIVE),
+    ],
+  );
+}
+
+function gestureJustEnded(state: Value) {
+  const prevValue = new Value(-1);
+  return cond(
+    eq(prevValue, state),
+    0,
+    [
+      set(prevValue, state),
+      eq(state, GestureState.END),
+    ],
+  );
+}
+
 export {
   clamp,
   delta,
+  gestureJustStarted,
+  gestureJustEnded,
 };

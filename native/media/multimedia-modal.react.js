@@ -48,7 +48,11 @@ import {
 } from '../selectors/dimension-selectors';
 import Multimedia from './multimedia.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
-import { clamp } from '../utils/animation-utils';
+import {
+  clamp,
+  gestureJustStarted,
+  gestureJustEnded,
+} from '../utils/animation-utils';
 import { saveImage } from './save-image';
 
 const {
@@ -108,30 +112,6 @@ function panDelta(value: Value, gestureActive: Value) {
       diffThisFrame,
     ],
     set(prevValue, 0),
-  );
-}
-
-function gestureJustStarted(state: Value) {
-  const prevValue = new Value(-1);
-  return cond(
-    eq(prevValue, state),
-    0,
-    [
-      set(prevValue, state),
-      eq(state, GestureState.ACTIVE),
-    ],
-  );
-}
-
-function gestureJustEnded(state: Value) {
-  const prevValue = new Value(-1);
-  return cond(
-    eq(prevValue, state),
-    0,
-    [
-      set(prevValue, state),
-      eq(state, GestureState.END),
-    ],
   );
 }
 
