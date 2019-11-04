@@ -10,7 +10,7 @@ import RemoteImage from './remote-image.react';
 
 type Props = {|
   mediaInfo: MediaInfo,
-  spinnerColor: "black" | "white",
+  spinnerColor: string,
 |};
 type State = {|
   currentURI: string,
@@ -20,7 +20,7 @@ class Multimedia extends React.PureComponent<Props, State> {
 
   static propTypes = {
     mediaInfo: mediaInfoPropType.isRequired,
-    spinnerColor: PropTypes.oneOf([ "black", "white" ]).isRequired,
+    spinnerColor: PropTypes.string.isRequired,
   };
   static defaultProps = {
     spinnerColor: "black",

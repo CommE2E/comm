@@ -21,6 +21,7 @@ type Props = {|
   onLongPress: () => void,
   postInProgress: bool,
   pendingUpload: ?PendingMultimediaUpload,
+  spinnerColor: string,
 |};
 class InlineMultimedia extends React.PureComponent<Props> {
 
@@ -30,6 +31,7 @@ class InlineMultimedia extends React.PureComponent<Props> {
     onLongPress: PropTypes.func.isRequired,
     postInProgress: PropTypes.bool.isRequired,
     pendingUpload: pendingMultimediaUploadPropType,
+    spinnerColor: PropTypes.string.isRequired,
   };
 
   render() {
@@ -79,7 +81,10 @@ class InlineMultimedia extends React.PureComponent<Props> {
         style={styles.expand}
       >
         <View style={styles.expand}>
-          <Multimedia mediaInfo={mediaInfo} />
+          <Multimedia
+            mediaInfo={mediaInfo}
+            spinnerColor={this.props.spinnerColor}
+          />
           {progressIndicator}
         </View>
       </TouchableOpacity>

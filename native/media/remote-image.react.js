@@ -17,7 +17,7 @@ import { connect } from 'lib/utils/redux-utils';
 type Props = {|
   uri: string,
   onLoad: (uri: string) => void,
-  spinnerColor: "black" | "white",
+  spinnerColor: string,
   style: ImageStyle,
   invisibleLoad: bool,
   // Redux state
@@ -32,7 +32,7 @@ class RemoteImage extends React.PureComponent<Props, State> {
   static propTypes = {
     uri: PropTypes.string.isRequired,
     onLoad: PropTypes.func.isRequired,
-    spinnerColor: PropTypes.oneOf([ "black", "white" ]).isRequired,
+    spinnerColor: PropTypes.string.isRequired,
     invisibleLoad: PropTypes.bool.isRequired,
     connectionStatus: connectionStatusPropType.isRequired,
   };

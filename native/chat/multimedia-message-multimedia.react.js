@@ -31,6 +31,8 @@ import {
   keyboardStatePropType,
   withKeyboardState,
 } from '../navigation/keyboard-state';
+import type { AppState } from '../redux/redux-setup';
+import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -40,9 +42,11 @@ import invariant from 'invariant';
 
 import { messageKey } from 'lib/shared/message-utils';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
+import { connect } from 'lib/utils/redux-utils';
 
 import InlineMultimedia from './inline-multimedia.react';
 import { multimediaTooltipHeight } from './multimedia-tooltip-modal.react';
+import { colorsSelector } from '../themes/colors';
 
 type Props = {|
   mediaInfo: MediaInfo,
@@ -56,6 +60,8 @@ type Props = {|
   pendingUpload: ?PendingMultimediaUpload,
   messageFocused: bool,
   toggleMessageFocus: (messageKey: string) => void,
+  // Redux state
+  colors: Colors,
   // withOverlayableScrollViewState
   overlayableScrollViewState: ?OverlayableScrollViewState,
   // withKeyboardState
@@ -78,6 +84,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     pendingUpload: pendingMultimediaUploadPropType,
     messageFocused: PropTypes.bool.isRequired,
     toggleMessageFocus: PropTypes.func.isRequired,
+    colors: colorsPropType.isRequired,
     overlayableScrollViewState: overlayableScrollViewStatePropType,
     keyboardState: keyboardStatePropType,
   };
@@ -152,6 +159,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
             onLongPress={this.onLongPress}
             postInProgress={this.props.postInProgress}
             pendingUpload={this.props.pendingUpload}
+            spinnerColor={this.props.colors.listSeparatorLabel}
           />
         </View>
       </Animated.View>
@@ -281,6 +289,12 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withKeyboardState(
-  withOverlayableScrollViewState(MultimediaMessageMultimedia),
+export default connect((state: AppState) => ({
+  colors: colorsSelector(state),
+}))(
+  withKeyboardState(
+    withOverlayableScrollViewState(
+      MultimediaMessageMultimedia,
+    ),
+  ),
 );

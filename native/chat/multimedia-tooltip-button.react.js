@@ -132,6 +132,7 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
             onLongPress={this.onPress}
             postInProgress={postInProgress}
             pendingUpload={pendingUpload}
+            spinnerColor="white"
           />
         </View>
       </React.Fragment>
