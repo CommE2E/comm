@@ -13,6 +13,7 @@ import { connect } from 'lib/utils/redux-utils';
 
 import { Timestamp, timestampHeight } from './timestamp.react';
 import { styleSelector } from '../themes/colors';
+import { clusterEndHeight } from './composed-message.react';
 
 type Props = {|
   item: ChatMessageInfoItemWithHeight,
@@ -48,7 +49,7 @@ function MessageHeader(props: Props) {
   if (focused && !modalDisplay) {
     let topMargin = 0;
     if (!item.startsCluster && !item.messageInfo.creator.isViewer) {
-      topMargin += authorNameHeight;
+      topMargin += authorNameHeight + clusterEndHeight;
     }
     if (!item.startsConversation) {
       topMargin += timestampHeight;

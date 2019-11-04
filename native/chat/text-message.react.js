@@ -34,7 +34,7 @@ import { messageKey } from 'lib/shared/message-utils';
 import InnerTextMessage from './inner-text-message.react';
 import { textMessageTooltipHeight } from './text-message-tooltip-modal.react';
 import { TextMessageTooltipModalRouteName } from '../navigation/route-names';
-import ComposedMessage from './composed-message.react';
+import { ComposedMessage } from './composed-message.react';
 
 export type ChatTextMessageInfoItemWithHeight = {|
   itemType: "message",

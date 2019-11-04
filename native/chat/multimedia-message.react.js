@@ -24,7 +24,7 @@ import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import Animated from 'react-native-reanimated';
 
-import ComposedMessage from './composed-message.react';
+import { ComposedMessage } from './composed-message.react';
 import MultimediaMessageMultimedia from './multimedia-message-multimedia.react';
 import {
   withLightboxPositionContext,

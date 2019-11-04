@@ -18,6 +18,8 @@ import { composedMessageMaxWidthSelector } from './composed-message-width';
 import MessageHeader from './message-header.react';
 import { colorsSelector } from '../themes/colors';
 
+const clusterEndHeight = 7;
+
 type Props = {|
   item: ChatMessageInfoItemWithHeight,
   sendFailed: bool,
@@ -50,7 +52,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       : styles.leftChatBubble;
     const containerStyle = [
       styles.alignment,
-      { marginBottom: item.endsCluster ? 12 : 5 },
+      { marginBottom: 5 + (item.endsCluster ? clusterEndHeight : 0) },
     ];
     const messageBoxStyle = {
       maxWidth: this.props.composedMessageMaxWidth,
@@ -129,9 +131,14 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect(
+const ConnectedComposedMessage = connect(
   (state: AppState) => ({
     composedMessageMaxWidth: composedMessageMaxWidthSelector(state),
     colors: colorsSelector(state),
   }),
 )(ComposedMessage);
+
+export {
+  ConnectedComposedMessage as ComposedMessage,
+  clusterEndHeight,
+};
