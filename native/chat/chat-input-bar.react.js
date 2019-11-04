@@ -621,7 +621,7 @@ const styles = {
   },
   cameraIcon: {
     paddingRight: 3,
-    paddingBottom: Platform.OS === "ios" ? 10 : 12,
+    paddingBottom: Platform.OS === "ios" ? 10 : 11,
   },
   explanation: {
     color: 'listBackgroundSecondaryLabel',

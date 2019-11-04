@@ -42,6 +42,7 @@ import {
   MultimediaMessage,
   multimediaMessageItemHeight,
 } from './multimedia-message.react';
+import { timestampHeight } from './timestamp.react';
 
 export type ChatMessageInfoItemWithHeight =
   | ChatRobotextMessageInfoItemWithHeight
@@ -61,7 +62,7 @@ function messageItemHeight(
     height += robotextMessageItemHeight(item, viewerID);
   }
   if (item.startsConversation) {
-    height += 27; // for time bar
+    height += timestampHeight + 1;
   }
   return height;
 }

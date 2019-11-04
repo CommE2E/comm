@@ -44,20 +44,18 @@ function MessageHeader(props: Props) {
     ? <Timestamp time={time} display={display} />
     : null;
 
-  let topMargin = 0;
-  if (!item.startsCluster) {
-    topMargin += 7;
-  }
-  if (focused && !modalDisplay && !item.startsCluster) {
-    topMargin += authorNameHeight;
-  }
-  if (focused && !modalDisplay && !item.startsConversation) {
-    topMargin += timestampHeight;
+  let style = null;
+  if (focused && !modalDisplay) {
+    let topMargin = 0;
+    if (!item.startsCluster && !item.messageInfo.creator.isViewer) {
+      topMargin += authorNameHeight;
+    }
+    if (!item.startsConversation) {
+      topMargin += timestampHeight;
+    }
+    style = { marginTop: topMargin };
   }
 
-  const style = topMargin
-    ? { marginTop: topMargin }
-    : null;
   return (
     <View style={style}>
       {timestamp}
