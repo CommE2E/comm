@@ -24,6 +24,7 @@ import {
   PinchGestureHandler,
   State as GestureState,
 } from 'react-native-gesture-handler';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 import { connect } from 'lib/utils/redux-utils';
 
@@ -65,6 +66,12 @@ const zoomUpdateFactor = (() => {
   }
   return 0.03;
 })();
+const permissionRationale = {
+  title: "Access Your Camera",
+  message: "Requesting access to your device camera",
+};
+let hasCamerasOnBothSides = true;
+let defaultUseFrontCamera = false;
 
 type Props = {|
   navigation: NavigationStackProp<NavigationLeafRoute>,
@@ -77,6 +84,8 @@ type Props = {|
 |};
 type State = {|
   zoom: number,
+  useFrontCamera: bool,
+  hasCamerasOnBothSides: bool,
 |};
 class CameraModal extends React.PureComponent<Props, State> {
 
@@ -92,6 +101,8 @@ class CameraModal extends React.PureComponent<Props, State> {
   };
   state = {
     zoom: 0,
+    useFrontCamera: defaultUseFrontCamera,
+    hasCamerasOnBothSides,
   };
   camera: ?RNCamera;
 
@@ -108,6 +119,12 @@ class CameraModal extends React.PureComponent<Props, State> {
   photoButtonY = new Value(0);
   photoButtonWidth = new Value(0);
   photoButtonHeight = new Value(0);
+
+  switchCameraButton: ?TouchableOpacity;
+  switchCameraButtonX = new Value(0);
+  switchCameraButtonY = new Value(0);
+  switchCameraButtonWidth = new Value(0);
+  switchCameraButtonHeight = new Value(0);
 
   pinchEvent;
   animationCode: Value;
@@ -198,12 +215,32 @@ class CameraModal extends React.PureComponent<Props, State> {
   }
 
   render() {
+    let switchCameraButton = null;
+    if (this.state.hasCamerasOnBothSides) {
+      switchCameraButton = (
+        <TouchableOpacity
+          onPress={this.switchCamera}
+          onLayout={this.onSwitchCameraButtonLayout}
+          style={styles.switchCameraButton}
+          ref={this.switchCameraButtonRef}
+        >
+          <Icon
+            name="ios-reverse-camera"
+            style={styles.switchCameraIcon}
+          />
+        </TouchableOpacity>
+      );
+    }
+
     const statusBar = CameraModal.isActive(this.props)
       ? <ConnectedStatusBar hidden />
       : null;
     const closeButtonStyle = {
       top: Math.max(this.props.contentVerticalOffset - 2, 4),
     };
+    const type = this.state.useFrontCamera
+      ? RNCamera.Constants.Type.front
+      : RNCamera.Constants.Type.back;
     return (
       <PinchGestureHandler
         onGestureEvent={this.pinchEvent}
@@ -213,10 +250,12 @@ class CameraModal extends React.PureComponent<Props, State> {
           {statusBar}
           <Animated.Code exec={this.animationCode} />
           <RNCamera
+            type={type}
             captureAudio={false}
             maxZoom={maxZoom}
             zoom={this.state.zoom}
             style={styles.fill}
+            androidCameraPermissionOptions={permissionRationale}
             ref={this.cameraRef}
           />
           <TouchableOpacity
@@ -229,16 +268,17 @@ class CameraModal extends React.PureComponent<Props, State> {
               ×
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={this.takePhoto}
-            onLayout={this.onPhotoButtonLayout}
-            style={styles.saveButtonContainer}
-            ref={this.photoButtonRef}
-          >
-            <View style={styles.saveButton}>
+          <View style={styles.bottomButtonsContainer}>
+            <TouchableOpacity
+              onPress={this.takePhoto}
+              onLayout={this.onPhotoButtonLayout}
+              style={styles.saveButton}
+              ref={this.photoButtonRef}
+            >
               <View style={styles.saveButtonInner} />
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
+            {switchCameraButton}
+          </View>
         </Animated.View>
       </PinchGestureHandler>
     );
@@ -246,6 +286,9 @@ class CameraModal extends React.PureComponent<Props, State> {
 
   cameraRef = (camera: ?RNCamera) => {
     this.camera = camera;
+    if (camera) {
+      this.fetchCameraIDs();
+    }
   }
 
   closeButtonRef = (closeButton: ?TouchableOpacity) => {
@@ -282,6 +325,23 @@ class CameraModal extends React.PureComponent<Props, State> {
     });
   }
 
+  switchCameraButtonRef = (switchCameraButton: ?TouchableOpacity) => {
+    this.switchCameraButton = switchCameraButton;
+  }
+
+  onSwitchCameraButtonLayout = () => {
+    const { switchCameraButton } = this;
+    if (!switchCameraButton) {
+      return;
+    }
+    switchCameraButton.measure((x, y, width, height, pageX, pageY) => {
+      this.switchCameraButtonX.setValue(pageX);
+      this.switchCameraButtonY.setValue(pageY);
+      this.switchCameraButtonWidth.setValue(width);
+      this.switchCameraButtonHeight.setValue(height);
+    });
+  }
+
   close = () => {
     this.props.navigation.goBack();
   }
@@ -289,8 +349,43 @@ class CameraModal extends React.PureComponent<Props, State> {
   takePhoto = () => {
   }
 
+  switchCamera = () => {
+    this.setState((prevState: State) => ({
+      useFrontCamera: !prevState.useFrontCamera,
+    }));
+  }
+
   updateZoom = ([ zoom ]: [ number ]) => {
     this.setState({ zoom });
+  }
+
+  fetchCameraIDs = async () => {
+    const { camera } = this;
+    if (!camera) {
+      return;
+    }
+    if (!camera._cameraHandle) {
+      setTimeout(this.fetchCameraIDs, 50);
+      return;
+    }
+    const deviceCameras = await camera.getCameraIdsAsync();
+
+    let hasFront = false, hasBack = false, i = 0;
+    while ((!hasFront || !hasBack) && i < deviceCameras.length) {
+      const deviceCamera = deviceCameras[i];
+      if (deviceCamera.type === RNCamera.Constants.Type.front) {
+        hasFront = true;
+      } else if (deviceCamera.type === RNCamera.Constants.Type.back) {
+        hasBack = true;
+      }
+      i++;
+    }
+
+    hasCamerasOnBothSides = hasFront && hasBack;
+    defaultUseFrontCamera = !hasBack && hasFront;
+    if (hasCamerasOnBothSides !== this.state.hasCamerasOnBothSides) {
+      this.setState({ hasCamerasOnBothSides });
+    }
   }
 
 }
@@ -305,7 +400,7 @@ const styles = StyleSheet.create({
   },
   closeButtonContainer: {
     position: "absolute",
-    right: 4,
+    left: 4,
   },
   closeButton: {
     paddingTop: 2,
@@ -318,7 +413,7 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,
   },
-  saveButtonContainer: {
+  bottomButtonsContainer: {
     position: "absolute",
     left: 0,
     right: 0,
@@ -340,6 +435,17 @@ const styles = StyleSheet.create({
     width: 60,
     borderRadius: 60,
     backgroundColor: '#FFFFFF88',
+  },
+  switchCameraButton: {
+    position: 'absolute',
+    right: 24,
+    top: 0,
+    bottom: 2,
+    justifyContent: 'center',
+  },
+  switchCameraIcon: {
+    color: 'white',
+    fontSize: 36,
   },
 });
 
