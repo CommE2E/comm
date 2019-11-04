@@ -24,7 +24,7 @@ import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import Animated from 'react-native-reanimated';
 
-import { ComposedMessage } from './composed-message.react';
+import { ComposedMessage, clusterEndHeight } from './composed-message.react';
 import MultimediaMessageMultimedia from './multimedia-message-multimedia.react';
 import {
   withLightboxPositionContext,
@@ -34,6 +34,8 @@ import {
   filterCorners,
   getRoundedContainerStyle,
 } from './rounded-message-container.react';
+import { authorNameHeight } from './message-header.react';
+import { failedSendHeight } from './failed-send.react';
 
 type ContentHeights = {|
   imageHeight: number,
@@ -135,13 +137,13 @@ function multimediaMessageItemHeight(
   const { isViewer } = creator;
   let height = 5 + contentHeight; // for margin and images
   if (!isViewer && startsCluster) {
-    height += 25; // for username
+    height += authorNameHeight;
   }
   if (endsCluster) {
-    height += 7; // extra padding at the end of a cluster
+    height += clusterEndHeight;
   }
   if (sendFailed(item)) {
-    height += 22; // extra padding for sendFailed
+    height += failedSendHeight;
   }
   return height;
 }

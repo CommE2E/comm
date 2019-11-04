@@ -34,7 +34,9 @@ import { messageKey } from 'lib/shared/message-utils';
 import InnerTextMessage from './inner-text-message.react';
 import { textMessageTooltipHeight } from './text-message-tooltip-modal.react';
 import { TextMessageTooltipModalRouteName } from '../navigation/route-names';
-import { ComposedMessage } from './composed-message.react';
+import { ComposedMessage, clusterEndHeight } from './composed-message.react';
+import { authorNameHeight } from './message-header.react';
+import { failedSendHeight } from './failed-send.react';
 
 export type ChatTextMessageInfoItemWithHeight = {|
   itemType: "message",
@@ -57,10 +59,10 @@ function textMessageItemHeight(
   const { isViewer } = creator;
   let height = 17 + contentHeight; // for padding, margin, and text
   if (!isViewer && startsCluster) {
-    height += 25; // for username
+    height += authorNameHeight;
   }
   if (endsCluster) {
-    height += 7; // extra padding at the end of a cluster
+    height += clusterEndHeight;
   }
   if (
     isViewer &&
@@ -68,7 +70,7 @@ function textMessageItemHeight(
     item.localMessageInfo &&
     item.localMessageInfo.sendFailed
   ) {
-    height += 22; // extra padding for sendFailed
+    height += failedSendHeight;
   }
   return height;
 }

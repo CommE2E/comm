@@ -13,9 +13,9 @@ import Icon from 'react-native-vector-icons/Feather';
 
 import { connect } from 'lib/utils/redux-utils';
 
-import FailedSend from './failed-send.react';
+import { FailedSend } from './failed-send.react';
 import { composedMessageMaxWidthSelector } from './composed-message-width';
-import MessageHeader from './message-header.react';
+import { MessageHeader } from './message-header.react';
 import { colorsSelector } from '../themes/colors';
 
 const clusterEndHeight = 7;

@@ -32,6 +32,8 @@ import {
 import Button from '../components/button.react';
 import { styleSelector } from '../themes/colors';
 
+const failedSendHeight = 22;
+
 type Props = {|
   item: ChatMessageInfoItemWithHeight,
   // Redux state
@@ -151,7 +153,7 @@ const styles = {
 };
 const stylesSelector = styleSelector(styles);
 
-export default connect(
+const ConnectedFailedSend = connect(
   (state: AppState, ownProps: { item: ChatMessageInfoItemWithHeight }) => {
     const id = messageID(ownProps.item.messageInfo);
     return {
@@ -161,3 +163,8 @@ export default connect(
   },
   { sendTextMessage },
 )(withChatInputState(FailedSend));
+
+export {
+  ConnectedFailedSend as FailedSend,
+  failedSendHeight,
+};

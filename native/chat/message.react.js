@@ -62,7 +62,7 @@ function messageItemHeight(
     height += robotextMessageItemHeight(item, viewerID);
   }
   if (item.startsConversation) {
-    height += timestampHeight + 1;
+    height += timestampHeight;
   }
   return height;
 }

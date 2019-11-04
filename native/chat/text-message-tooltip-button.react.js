@@ -24,7 +24,7 @@ import { connect } from 'lib/utils/redux-utils';
 
 import { dimensionsSelector } from '../selectors/dimension-selectors';
 import InnerTextMessage from './inner-text-message.react';
-import MessageHeader from './message-header.react';
+import { MessageHeader } from './message-header.react';
 
 const { Value } = Animated;
 

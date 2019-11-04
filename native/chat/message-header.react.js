@@ -85,6 +85,11 @@ const styles = {
 };
 const stylesSelector = styleSelector(styles);
 
-export default connect((state: AppState) => ({
+const ConnectedMessageHeader = connect((state: AppState) => ({
   styles: stylesSelector(state),
 }))(MessageHeader);
+
+export {
+  ConnectedMessageHeader as MessageHeader,
+  authorNameHeight,
+};
