@@ -2094,6 +2094,16 @@ apn@^2.2.0:
     node-forge "^0.7.1"
     verror "^1.10.0"
 
+"apn@git+https://github.com/node-apn/node-apn.git#3.0.0":
+  version "3.0.0"
+  resolved "git+https://github.com/node-apn/node-apn.git#38a357ed0c153aad09c2857e48a710527e685bfc"
+  dependencies:
+    debug "^3.1.0"
+    http2 "https://github.com/node-apn/node-http2/archive/apn-2.1.4.tar.gz"
+    jsonwebtoken "^8.1.0"
+    node-forge "^0.7.1"
+    verror "^1.10.0"
+
 append-field@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/append-field/-/append-field-1.0.0.tgz#1e3440e915f0b1203d23748e78edd7b9b5b43e56"

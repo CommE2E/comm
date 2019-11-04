@@ -480,6 +480,7 @@ function prepareIOSNotification(
   notification.badge = unreadCount;
   notification.threadId = threadInfo.id;
   notification.id = uniqueID;
+  notification.pushType = "alert";
   notification.payload.id = uniqueID;
   notification.payload.threadID = threadInfo.id;
   notification.payload.messageInfos = JSON.stringify(newRawMessageInfos);
