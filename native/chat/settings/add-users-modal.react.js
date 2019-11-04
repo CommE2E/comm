@@ -173,7 +173,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       if (this.props.changeThreadSettingsLoadingStatus === "loading") {
         activityIndicator = (
           <View style={this.props.styles.activityIndicator}>
-            <ActivityIndicator color="#555" />
+            <ActivityIndicator color="white" />
           </View>
         );
       }
