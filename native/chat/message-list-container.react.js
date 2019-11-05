@@ -21,7 +21,7 @@ import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { View, Platform, ActivityIndicator } from 'react-native';
+import { View, Platform } from 'react-native';
 import _differenceWith from 'lodash/fp/differenceWith';
 import invariant from 'invariant';
 import hoistNonReactStatics from 'hoist-non-react-statics';
@@ -53,6 +53,7 @@ import {
   withChatInputState,
 } from './chat-input-state';
 import { colorsSelector, styleSelector } from '../themes/colors';
+import ContentLoading from '../components/content-loading.react';
 
 export type ChatMessageItemWithHeight =
   {| itemType: "loader" |} |
@@ -217,13 +218,10 @@ class MessageListContainer extends React.PureComponent<Props, State> {
       );
     } else {
       messageList = (
-        <View style={this.props.styles.loadingIndicatorContainer}>
-          <ActivityIndicator
-            color={this.props.colors.listSeparatorLabel}
-            size="large"
-            style={this.props.styles.loadingIndicator}
-          />
-        </View>
+        <ContentLoading
+          fillType="flex"
+          colors={this.props.colors}
+        />
       );
     }
 
@@ -340,12 +338,6 @@ const styles = {
   container: {
     flex: 1,
     backgroundColor: 'listSeparator',
-  },
-  loadingIndicator: {
-    flex: 1,
-  },
-  loadingIndicatorContainer: {
-    flex: 1,
   },
   text: {
     fontSize: 18,

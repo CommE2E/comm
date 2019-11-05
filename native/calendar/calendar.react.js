@@ -41,7 +41,6 @@ import {
   FlatList,
   AppState as NativeAppState,
   Platform,
-  ActivityIndicator,
   Keyboard,
   LayoutAnimation,
   TouchableWithoutFeedback,
@@ -98,6 +97,7 @@ import {
 import DisconnectedBar from '../navigation/disconnected-bar.react';
 import SafeAreaView from '../components/safe-area-view.react';
 import { colorsSelector, styleSelector } from '../themes/colors';
+import ContentLoading from '../components/content-loading.react';
 
 export type EntryInfoWithHeight = {|
   ...EntryInfo,
@@ -743,8 +743,6 @@ class Calendar extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { listSeparatorLabel } = this.props.colors;
-
     const listDataWithHeights = this.state.listDataWithHeights;
     let flatList = null;
     if (listDataWithHeights) {
@@ -773,13 +771,10 @@ class Calendar extends React.PureComponent<Props, State> {
     let loadingIndicator = null;
     if (!listDataWithHeights || !this.state.readyToShowList) {
       loadingIndicator = (
-        <View style={this.props.styles.loadingIndicatorContainer}>
-          <ActivityIndicator
-            color={listSeparatorLabel}
-            size="large"
-            style={this.props.styles.loadingIndicator}
-          />
-        </View>
+        <ContentLoading
+          fillType="absolute"
+          colors={this.props.colors}
+        />
       );
     }
     return (
@@ -1164,16 +1159,6 @@ const styles = {
     padding: 5,
     fontWeight: 'bold',
     color: 'listSeparatorLabel',
-  },
-  loadingIndicator: {
-    flex: 1,
-  },
-  loadingIndicatorContainer: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
   },
   keyboardAvoidingView: {
     flex: 1,
