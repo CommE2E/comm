@@ -115,7 +115,10 @@ async function accountUpdater(
       userID: viewer.userID,
       time: Date.now(),
     }];
-    await createUpdates(updateDatas, { viewer });
+    await createUpdates(
+      updateDatas,
+      { viewer, updatesForCurrentSession: "broadcast" },
+    );
   }
 }
 

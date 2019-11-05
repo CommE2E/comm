@@ -111,7 +111,10 @@ async function handleCodeVerificationRequest(
       userID,
       time: Date.now(),
     }];
-    await createUpdates(updateDatas, { viewer });
+    await createUpdates(
+      updateDatas,
+      { viewer, updatesForCurrentSession: "broadcast" },
+    );
     return { success: true, field: verifyField.EMAIL };
   } else if (field === verifyField.RESET_PASSWORD) {
     const usernameQuery = SQL`SELECT username FROM users WHERE id = ${userID}`;
