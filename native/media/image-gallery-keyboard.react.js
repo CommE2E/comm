@@ -295,7 +295,7 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
       }
       this.androidPermissionsGranted = true;
     } catch (err) {
-      this.guardedSetState({ error: "don't have permissions :(" });
+      this.guardedSetState({ error: "don't have permission :(" });
       this.androidPermissionsGranted = false;
     }
     return this.androidPermissionsGranted;

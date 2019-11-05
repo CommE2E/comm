@@ -42,6 +42,8 @@ import {
 } from '../selectors/dimension-selectors';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import { gestureJustEnded } from '../utils/animation-utils';
+import ContentLoading from '../components/content-loading.react';
+import { colors } from '../themes/colors';
 
 const {
   Value,
@@ -236,6 +238,36 @@ class CameraModal extends React.PureComponent<Props, State> {
     if (camera && camera._cameraHandle) {
       this.fetchCameraIDs(camera);
     }
+    const topButtonStyle = {
+      top: Math.max(this.props.contentVerticalOffset, 6),
+    };
+    return (
+      <>
+        {this.renderCameraContent(status)}
+        <TouchableOpacity
+          onPress={this.close}
+          onLayout={this.onCloseButtonLayout}
+          style={[ styles.closeButton, topButtonStyle ]}
+          ref={this.closeButtonRef}
+        >
+          <Text style={styles.closeIcon}>×</Text>
+        </TouchableOpacity>
+      </>
+    );
+  }
+
+  renderCameraContent(status) {
+    if (status === 'PENDING_AUTHORIZATION') {
+      return <ContentLoading fillType="flex" colors={colors.dark} />;
+    } else if (status === 'NOT_AUTHORIZED') {
+      return (
+        <View style={styles.authorizationDeniedContainer}>
+          <Text style={styles.authorizationDeniedText}>
+            {"don't have permission :("}
+          </Text>
+        </View>
+      );
+    }
 
     let switchCameraButton = null;
     if (this.state.hasCamerasOnBothSides) {
@@ -273,14 +305,6 @@ class CameraModal extends React.PureComponent<Props, State> {
     };
     return (
       <>
-        <TouchableOpacity
-          onPress={this.close}
-          onLayout={this.onCloseButtonLayout}
-          style={[ styles.closeButton, topButtonStyle ]}
-          ref={this.closeButtonRef}
-        >
-          <Text style={styles.closeIcon}>×</Text>
-        </TouchableOpacity>
         <TouchableOpacity
           onPress={this.changeFlashMode}
           onLayout={this.onFlashButtonLayout}
@@ -549,6 +573,16 @@ const styles = StyleSheet.create({
     textShadowColor: "#000",
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,
+  },
+  authorizationDeniedContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  authorizationDeniedText: {
+    color: colors.dark.listSeparatorLabel,
+    fontSize: 28,
+    textAlign: 'center',
   },
 });
 
