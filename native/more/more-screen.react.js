@@ -412,6 +412,7 @@ const styles = {
     height: 20,
   },
   verificationText: {
+    color: 'panelForegroundLabel',
     fontSize: 13,
     fontStyle: 'italic',
   },
