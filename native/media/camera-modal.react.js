@@ -246,7 +246,7 @@ class CameraModal extends React.PureComponent<Props, State> {
       ? <ConnectedStatusBar hidden />
       : null;
     const closeButtonStyle = {
-      top: Math.max(this.props.contentVerticalOffset - 2, 4),
+      top: Math.max(this.props.contentVerticalOffset, 6),
     };
     const type = this.state.useFrontCamera
       ? RNCamera.Constants.Type.front
@@ -423,13 +423,9 @@ const styles = StyleSheet.create({
   },
   closeButtonContainer: {
     position: "absolute",
-    left: 4,
+    left: 24,
   },
   closeButton: {
-    paddingTop: 2,
-    paddingBottom: 2,
-    paddingLeft: 8,
-    paddingRight: 8,
     fontSize: 36,
     color: "white",
     textShadowColor: "#000",
@@ -443,6 +439,7 @@ const styles = StyleSheet.create({
     bottom: contentBottomOffset + 20,
     flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'center',
   },
   saveButton: {
     height: 75,
@@ -462,13 +459,15 @@ const styles = StyleSheet.create({
   switchCameraButton: {
     position: 'absolute',
     right: 24,
-    top: 0,
-    bottom: 2,
     justifyContent: 'center',
   },
   switchCameraIcon: {
     color: 'white',
     fontSize: 36,
+    paddingBottom: 2,
+    textShadowColor: "#000",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
   },
 });
 
