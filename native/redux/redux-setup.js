@@ -34,6 +34,10 @@ import {
   type GlobalThemeInfo,
   defaultGlobalThemeInfo,
 } from '../types/themes';
+import {
+  type DeviceCameraInfo,
+  defaultDeviceCameraInfo,
+} from '../types/camera';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -73,6 +77,7 @@ import {
   updateDimensionsActiveType,
   updateConnectivityActiveType,
   updateThemeInfoActionType,
+  updateDeviceCameraInfoActionType,
 } from './action-types';
 import {
   defaultNavInfo,
@@ -124,6 +129,7 @@ export type AppState = {|
   dimensions: Dimensions,
   connectivity: ConnectivityInfo,
   globalThemeInfo: GlobalThemeInfo,
+  deviceCameraInfo: DeviceCameraInfo,
 |};
 
 const { height, width } = NativeDimensions.get('window');
@@ -166,6 +172,7 @@ const defaultState = ({
   dimensions: { height, width },
   connectivity: defaultConnectivityInfo,
   globalThemeInfo: defaultGlobalThemeInfo,
+  deviceCameraInfo: defaultDeviceCameraInfo,
 }: AppState);
 
 function chatRouteFromNavInfo(navInfo: NavInfo): NavigationStateRoute {
@@ -229,6 +236,14 @@ function reducer(state: AppState = defaultState, action: *) {
       ...state,
       globalThemeInfo: {
         ...state.globalThemeInfo,
+        ...action.payload,
+      },
+    };
+  } else if (action.type === updateDeviceCameraInfoActionType) {
+    return {
+      ...state,
+      deviceCameraInfo: {
+        ...state.deviceCameraInfo,
         ...action.payload,
       },
     };

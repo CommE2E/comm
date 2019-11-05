@@ -5,6 +5,7 @@ import { defaultCalendarFilters } from 'lib/types/filter-types';
 import { defaultConnectionInfo } from 'lib/types/socket-types';
 import { messageTypes } from 'lib/types/message-types';
 import { defaultGlobalThemeInfo } from '../types/themes';
+import { defaultDeviceCameraInfo } from '../types/camera';
 
 import { createMigrate } from 'redux-persist';
 import invariant from 'invariant';
@@ -136,6 +137,10 @@ const migrations = {
     ...state,
     globalThemeInfo: defaultGlobalThemeInfo,
   }),
+  [13]: (state: AppState) => ({
+    ...state,
+    deviceCameraInfo: defaultDeviceCameraInfo,
+  }),
 };
 
 const persistConfig = {
@@ -143,7 +148,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist,
   debug: __DEV__,
-  version: 12,
+  version: 13,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
   timeout: __DEV__ ? 0 : undefined,
 };

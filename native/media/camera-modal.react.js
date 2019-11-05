@@ -8,6 +8,12 @@ import type {
 } from 'react-navigation-stack';
 import type { AppState } from '../redux/redux-setup';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
+import type { DispatchActionPayload } from 'lib/utils/action-utils';
+import { updateDeviceCameraInfoActionType } from '../redux/action-types';
+import {
+  type DeviceCameraInfo,
+  deviceCameraInfoPropType,
+} from '../types/camera';
 
 import * as React from 'react';
 import {
@@ -70,10 +76,8 @@ const permissionRationale = {
   title: "Access Your Camera",
   message: "Requesting access to your device camera",
 };
-let hasCamerasOnBothSides = true;
-let defaultUseFrontCamera = false;
 
-type Props = {|
+type Props = {
   navigation: NavigationStackProp<NavigationLeafRoute>,
   scene: NavigationStackScene,
   transitionProps: NavigationStackTransitionProps,
@@ -81,7 +85,10 @@ type Props = {|
   // Redux state
   screenDimensions: Dimensions,
   contentVerticalOffset: number,
-|};
+  deviceCameraInfo: DeviceCameraInfo,
+  // Redux dispatch functions
+  dispatchActionPayload: DispatchActionPayload,
+};
 type State = {|
   zoom: number,
   useFrontCamera: bool,
@@ -98,11 +105,8 @@ class CameraModal extends React.PureComponent<Props, State> {
     position: PropTypes.instanceOf(Value).isRequired,
     screenDimensions: dimensionsPropType.isRequired,
     contentVerticalOffset: PropTypes.number.isRequired,
-  };
-  state = {
-    zoom: 0,
-    useFrontCamera: defaultUseFrontCamera,
-    hasCamerasOnBothSides,
+    deviceCameraInfo: deviceCameraInfoPropType.isRequired,
+    dispatchActionPayload: PropTypes.func.isRequired,
   };
   camera: ?RNCamera;
 
@@ -131,6 +135,12 @@ class CameraModal extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
+
+    this.state = {
+      zoom: 0,
+      useFrontCamera: props.deviceCameraInfo.defaultUseFrontCamera,
+      hasCamerasOnBothSides: props.deviceCameraInfo.hasCamerasOnBothSides,
+    };
 
     const { position } = props;
     const { index } = props.scene;
@@ -381,10 +391,23 @@ class CameraModal extends React.PureComponent<Props, State> {
       i++;
     }
 
-    hasCamerasOnBothSides = hasFront && hasBack;
-    defaultUseFrontCamera = !hasBack && hasFront;
+    const hasCamerasOnBothSides = hasFront && hasBack;
+    const defaultUseFrontCamera = !hasBack && hasFront;
     if (hasCamerasOnBothSides !== this.state.hasCamerasOnBothSides) {
       this.setState({ hasCamerasOnBothSides });
+    }
+    const {
+      hasCamerasOnBothSides: oldHasCamerasOnBothSides,
+      defaultUseFrontCamera: oldDefaultUseFrontCamera,
+    } = this.props.deviceCameraInfo;
+    if (
+      hasCamerasOnBothSides !== oldHasCamerasOnBothSides ||
+      defaultUseFrontCamera !== oldDefaultUseFrontCamera
+    ) {
+      this.props.dispatchActionPayload(
+        updateDeviceCameraInfoActionType,
+        { hasCamerasOnBothSides, defaultUseFrontCamera },
+      );
     }
   }
 
@@ -453,5 +476,8 @@ export default connect(
   (state: AppState) => ({
     screenDimensions: dimensionsSelector(state),
     contentVerticalOffset: contentVerticalOffsetSelector(state),
+    deviceCameraInfo: state.deviceCameraInfo,
   }),
+  null,
+  true,
 )(CameraModal);
