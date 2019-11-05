@@ -31,6 +31,7 @@ import {
   State as GestureState,
 } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
+import IonIcon from 'react-native-vector-icons/Ionicons';
 
 import { connect } from 'lib/utils/redux-utils';
 
@@ -93,6 +94,7 @@ type State = {|
   zoom: number,
   useFrontCamera: bool,
   hasCamerasOnBothSides: bool,
+  flashMode: number,
 |};
 class CameraModal extends React.PureComponent<Props, State> {
 
@@ -130,6 +132,12 @@ class CameraModal extends React.PureComponent<Props, State> {
   switchCameraButtonWidth = new Value(0);
   switchCameraButtonHeight = new Value(0);
 
+  flashButton: ?TouchableOpacity;
+  flashButtonX = new Value(0);
+  flashButtonY = new Value(0);
+  flashButtonWidth = new Value(0);
+  flashButtonHeight = new Value(0);
+
   pinchEvent;
   animationCode: Value;
 
@@ -140,6 +148,7 @@ class CameraModal extends React.PureComponent<Props, State> {
       zoom: 0,
       useFrontCamera: props.deviceCameraInfo.defaultUseFrontCamera,
       hasCamerasOnBothSides: props.deviceCameraInfo.hasCamerasOnBothSides,
+      flashMode: RNCamera.Constants.FlashMode.off,
     };
 
     const { position } = props;
@@ -242,12 +251,28 @@ class CameraModal extends React.PureComponent<Props, State> {
       );
     }
 
+    const topButtonStyle = {
+      top: Math.max(this.props.contentVerticalOffset, 6),
+    };
+
+    let flashIconName, flashButtonStyle = topButtonStyle;
+    let flashIcon;
+    if (this.state.flashMode === RNCamera.Constants.FlashMode.on) {
+      flashIcon = <IonIcon name="ios-flash" style={styles.flashIcon} />;
+    } else if (this.state.flashMode === RNCamera.Constants.FlashMode.off) {
+      flashIcon = <IonIcon name="ios-flash-off" style={styles.flashIcon} />;
+    } else {
+      flashIcon = (
+        <>
+          <IonIcon name="ios-flash" style={styles.flashIcon} />
+          <Text style={styles.flashIconAutoText}>A</Text>
+        </>
+      );
+    }
+
     const statusBar = CameraModal.isActive(this.props)
       ? <ConnectedStatusBar hidden />
       : null;
-    const closeButtonStyle = {
-      top: Math.max(this.props.contentVerticalOffset, 6),
-    };
     const type = this.state.useFrontCamera
       ? RNCamera.Constants.Type.front
       : RNCamera.Constants.Type.back;
@@ -264,6 +289,7 @@ class CameraModal extends React.PureComponent<Props, State> {
             captureAudio={false}
             maxZoom={maxZoom}
             zoom={this.state.zoom}
+            flashMode={this.state.flashMode}
             style={styles.fill}
             androidCameraPermissionOptions={permissionRationale}
             ref={this.cameraRef}
@@ -271,12 +297,18 @@ class CameraModal extends React.PureComponent<Props, State> {
           <TouchableOpacity
             onPress={this.close}
             onLayout={this.onCloseButtonLayout}
-            style={[ styles.closeButtonContainer, closeButtonStyle ]}
+            style={[ styles.closeButton, topButtonStyle ]}
             ref={this.closeButtonRef}
           >
-            <Text style={styles.closeButton}>
-              ×
-            </Text>
+            <Text style={styles.closeIcon}>×</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={this.changeFlashMode}
+            onLayout={this.onFlashButtonLayout}
+            style={[ styles.flashButton, flashButtonStyle ]}
+            ref={this.flashButtonRef}
+          >
+            {flashIcon}
           </TouchableOpacity>
           <View style={styles.bottomButtonsContainer}>
             <TouchableOpacity
@@ -352,6 +384,23 @@ class CameraModal extends React.PureComponent<Props, State> {
     });
   }
 
+  flashButtonRef = (flashButton: ?TouchableOpacity) => {
+    this.flashButton = flashButton;
+  }
+
+  onFlashButtonLayout = () => {
+    const { flashButton } = this;
+    if (!flashButton) {
+      return;
+    }
+    flashButton.measure((x, y, width, height, pageX, pageY) => {
+      this.flashButtonX.setValue(pageX);
+      this.flashButtonY.setValue(pageY);
+      this.flashButtonWidth.setValue(width);
+      this.flashButtonHeight.setValue(height);
+    });
+  }
+
   close = () => {
     this.props.navigation.goBack();
   }
@@ -367,6 +416,16 @@ class CameraModal extends React.PureComponent<Props, State> {
 
   updateZoom = ([ zoom ]: [ number ]) => {
     this.setState({ zoom });
+  }
+
+  changeFlashMode = () => {
+    if (this.state.flashMode === RNCamera.Constants.FlashMode.on) {
+      this.setState({ flashMode: RNCamera.Constants.FlashMode.off });
+    } else if (this.state.flashMode === RNCamera.Constants.FlashMode.off) {
+      this.setState({ flashMode: RNCamera.Constants.FlashMode.auto });
+    } else {
+      this.setState({ flashMode: RNCamera.Constants.FlashMode.on });
+    }
   }
 
   fetchCameraIDs = async () => {
@@ -421,11 +480,11 @@ const styles = StyleSheet.create({
   fill: {
     flex: 1,
   },
-  closeButtonContainer: {
+  closeButton: {
     position: "absolute",
     left: 24,
   },
-  closeButton: {
+  closeIcon: {
     fontSize: 36,
     color: "white",
     textShadowColor: "#000",
@@ -458,13 +517,36 @@ const styles = StyleSheet.create({
   },
   switchCameraButton: {
     position: 'absolute',
-    right: 24,
+    right: 26,
     justifyContent: 'center',
   },
   switchCameraIcon: {
     color: 'white',
     fontSize: 36,
     paddingBottom: 2,
+    textShadowColor: "#000",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
+  },
+  flashButton: {
+    position: "absolute",
+    marginTop: Platform.select({ android: 15, default: 13 }),
+    right: 25,
+  },
+  flashIcon: {
+    fontSize: 24,
+    color: "white",
+    textShadowColor: "#000",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
+  },
+  flashIconAutoText: {
+    position: "absolute",
+    top: -3,
+    right: -5,
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: "white",
     textShadowColor: "#000",
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,
