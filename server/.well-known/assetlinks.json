@@ -11,5 +11,23 @@
         "78:8A:30:DF:7E:1F:AB:0E:F6:2B:69:8B:98:21:00:FE:97:E7:EB:34:AD:21:45:50:7D:A1:EE:CF:74:C8:FD:0D"
       ]
     }
+  },
+  {
+    "relation": ["delegate_permission/common.get_login_creds"],
+    "target": {
+      "namespace": "web",
+      "site": "https://squadcal.org"
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.get_login_creds"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "org.squadcal",
+      "sha256_cert_fingerprints": [
+        "A8:81:32:91:5C:9A:D9:9E:14:68:1B:10:EA:5D:4E:D0:62:D0:BF:13:15:77:AA:BF:1D:C9:E6:67:ED:AD:E7:6F",
+        "78:8A:30:DF:7E:1F:AB:0E:F6:2B:69:8B:98:21:00:FE:97:E7:EB:34:AD:21:45:50:7D:A1:EE:CF:74:C8:FD:0D"
+      ]
+    }
   }
 ]
