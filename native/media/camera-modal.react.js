@@ -110,9 +110,6 @@ class CameraModal extends React.PureComponent<Props, State> {
     deviceCameraInfo: deviceCameraInfoPropType.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
-  camera: ?RNCamera;
-
-  progress: Value;
 
   closeButton: ?TouchableOpacity;
   closeButtonX = new Value(0);
@@ -139,7 +136,9 @@ class CameraModal extends React.PureComponent<Props, State> {
   flashButtonHeight = new Value(0);
 
   pinchEvent;
+  navigationProgress: Value;
   animationCode: Value;
+  cameraIDsFetched = false;
 
   constructor(props: Props) {
     super(props);
@@ -153,7 +152,7 @@ class CameraModal extends React.PureComponent<Props, State> {
 
     const { position } = props;
     const { index } = props.scene;
-    this.progress = interpolate(
+    this.navigationProgress = interpolate(
       position,
       {
         inputRange: [ index - 1, index ],
@@ -229,11 +228,15 @@ class CameraModal extends React.PureComponent<Props, State> {
   get containerStyle() {
     return {
       ...styles.container,
-      opacity: this.progress,
+      opacity: this.navigationProgress,
     };
   }
 
-  render() {
+  renderCamera = ({ camera, status }) => {
+    if (camera && camera._cameraHandle) {
+      this.fetchCameraIDs(camera);
+    }
+
     let switchCameraButton = null;
     if (this.state.hasCamerasOnBothSides) {
       switchCameraButton = (
@@ -251,11 +254,6 @@ class CameraModal extends React.PureComponent<Props, State> {
       );
     }
 
-    const topButtonStyle = {
-      top: Math.max(this.props.contentVerticalOffset, 6),
-    };
-
-    let flashIconName, flashButtonStyle = topButtonStyle;
     let flashIcon;
     if (this.state.flashMode === RNCamera.Constants.FlashMode.on) {
       flashIcon = <IonIcon name="ios-flash" style={styles.flashIcon} />;
@@ -270,6 +268,43 @@ class CameraModal extends React.PureComponent<Props, State> {
       );
     }
 
+    const topButtonStyle = {
+      top: Math.max(this.props.contentVerticalOffset, 6),
+    };
+    return (
+      <>
+        <TouchableOpacity
+          onPress={this.close}
+          onLayout={this.onCloseButtonLayout}
+          style={[ styles.closeButton, topButtonStyle ]}
+          ref={this.closeButtonRef}
+        >
+          <Text style={styles.closeIcon}>×</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={this.changeFlashMode}
+          onLayout={this.onFlashButtonLayout}
+          style={[ styles.flashButton, topButtonStyle ]}
+          ref={this.flashButtonRef}
+        >
+          {flashIcon}
+        </TouchableOpacity>
+        <View style={styles.bottomButtonsContainer}>
+          <TouchableOpacity
+            onPress={this.takePhoto}
+            onLayout={this.onPhotoButtonLayout}
+            style={styles.saveButton}
+            ref={this.photoButtonRef}
+          >
+            <View style={styles.saveButtonInner} />
+          </TouchableOpacity>
+          {switchCameraButton}
+        </View>
+      </>
+    );
+  }
+
+  render() {
     const statusBar = CameraModal.isActive(this.props)
       ? <ConnectedStatusBar hidden />
       : null;
@@ -292,45 +327,12 @@ class CameraModal extends React.PureComponent<Props, State> {
             flashMode={this.state.flashMode}
             style={styles.fill}
             androidCameraPermissionOptions={permissionRationale}
-            ref={this.cameraRef}
-          />
-          <TouchableOpacity
-            onPress={this.close}
-            onLayout={this.onCloseButtonLayout}
-            style={[ styles.closeButton, topButtonStyle ]}
-            ref={this.closeButtonRef}
           >
-            <Text style={styles.closeIcon}>×</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={this.changeFlashMode}
-            onLayout={this.onFlashButtonLayout}
-            style={[ styles.flashButton, flashButtonStyle ]}
-            ref={this.flashButtonRef}
-          >
-            {flashIcon}
-          </TouchableOpacity>
-          <View style={styles.bottomButtonsContainer}>
-            <TouchableOpacity
-              onPress={this.takePhoto}
-              onLayout={this.onPhotoButtonLayout}
-              style={styles.saveButton}
-              ref={this.photoButtonRef}
-            >
-              <View style={styles.saveButtonInner} />
-            </TouchableOpacity>
-            {switchCameraButton}
-          </View>
+            {this.renderCamera}
+          </RNCamera>
         </Animated.View>
       </PinchGestureHandler>
     );
-  }
-
-  cameraRef = (camera: ?RNCamera) => {
-    this.camera = camera;
-    if (camera) {
-      this.fetchCameraIDs();
-    }
   }
 
   closeButtonRef = (closeButton: ?TouchableOpacity) => {
@@ -428,15 +430,12 @@ class CameraModal extends React.PureComponent<Props, State> {
     }
   }
 
-  fetchCameraIDs = async () => {
-    const { camera } = this;
-    if (!camera) {
+  fetchCameraIDs = async (camera: RNCamera) => {
+    if (this.cameraIDsFetched) {
       return;
     }
-    if (!camera._cameraHandle) {
-      setTimeout(this.fetchCameraIDs, 50);
-      return;
-    }
+    this.cameraIDsFetched = true;
+
     const deviceCameras = await camera.getCameraIdsAsync();
 
     let hasFront = false, hasBack = false, i = 0;
