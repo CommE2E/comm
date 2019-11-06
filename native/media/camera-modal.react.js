@@ -28,10 +28,12 @@ import Animated from 'react-native-reanimated';
 import { RNCamera } from 'react-native-camera';
 import {
   PinchGestureHandler,
+  TapGestureHandler,
   State as GestureState,
 } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
+import Orientation from 'react-native-orientation-locker';
 
 import { connect } from 'lib/utils/redux-utils';
 
@@ -53,9 +55,12 @@ const {
   set,
   call,
   cond,
+  and,
   or,
   eq,
   greaterThan,
+  lessThan,
+  add,
   sub,
   multiply,
   divide,
@@ -113,33 +118,37 @@ class CameraModal extends React.PureComponent<Props, State> {
     dispatchActionPayload: PropTypes.func.isRequired,
   };
 
+  pinchEvent;
+  pinchHandler = React.createRef();
+  tapEvent;
+  tapHandler = React.createRef();
+  navigationProgress: Value;
+  animationCode: Value;
+
   closeButton: ?TouchableOpacity;
-  closeButtonX = new Value(0);
-  closeButtonY = new Value(0);
+  closeButtonX = new Value(-1);
+  closeButtonY = new Value(-1);
   closeButtonWidth = new Value(0);
   closeButtonHeight = new Value(0);
 
   photoButton: ?TouchableOpacity;
-  photoButtonX = new Value(0);
-  photoButtonY = new Value(0);
+  photoButtonX = new Value(-1);
+  photoButtonY = new Value(-1);
   photoButtonWidth = new Value(0);
   photoButtonHeight = new Value(0);
 
   switchCameraButton: ?TouchableOpacity;
-  switchCameraButtonX = new Value(0);
-  switchCameraButtonY = new Value(0);
+  switchCameraButtonX = new Value(-1);
+  switchCameraButtonY = new Value(-1);
   switchCameraButtonWidth = new Value(0);
   switchCameraButtonHeight = new Value(0);
 
   flashButton: ?TouchableOpacity;
-  flashButtonX = new Value(0);
-  flashButtonY = new Value(0);
+  flashButtonX = new Value(-1);
+  flashButtonY = new Value(-1);
   flashButtonWidth = new Value(0);
   flashButtonHeight = new Value(0);
 
-  pinchEvent;
-  navigationProgress: Value;
-  animationCode: Value;
   cameraIDsFetched = false;
 
   constructor(props: Props) {
@@ -172,9 +181,28 @@ class CameraModal extends React.PureComponent<Props, State> {
       },
     }]);
 
+    const tapState = new Value(-1);
+    const tapX = new Value(0);
+    const tapY = new Value(0);
+    this.tapEvent = event([{
+      nativeEvent: {
+        state: tapState,
+        x: tapX,
+        y: tapY,
+      },
+    }]);
+
+    this.animationCode = block([
+      this.zoomAnimationCode(pinchState, pinchScale),
+      this.focusAnimationCode(tapState, tapX, tapY),
+    ]);
+  }
+
+  zoomAnimationCode(pinchState: Value, pinchScale: Value): Value {
+    const pinchJustEnded = gestureJustEnded(pinchState);
+
     const zoomBase = new Value(1);
     const zoomReported = new Value(1);
-    const pinchJustEnded = gestureJustEnded(pinchState);
 
     const currentZoom = interpolate(
       multiply(zoomBase, pinchScale),
@@ -198,7 +226,7 @@ class CameraModal extends React.PureComponent<Props, State> {
       zoomBase,
     );
 
-    this.animationCode = block([
+    return [
       cond(
         pinchJustEnded,
         set(zoomBase, currentZoom),
@@ -219,12 +247,108 @@ class CameraModal extends React.PureComponent<Props, State> {
           ),
         ],
       ),
-    ]);
+    ];
+  }
+
+  focusAnimationCode(tapState: Value, tapX: Value, tapY: Value): Value {
+    const lastTapX = new Value(0);
+    const lastTapY = new Value(0);
+    const tapJustEnded = and(
+      gestureJustEnded(tapState),
+      this.outsideButtons(lastTapX, lastTapY),
+    );
+    return [
+      cond(
+        tapJustEnded,
+        call(
+          [ tapX, tapY ],
+          this.focusOnPoint,
+        ),
+      ),
+      set(lastTapX, tapX),
+      set(lastTapY, tapY),
+    ];
+  }
+
+  outsideButtons(x: Value, y: Value) {
+    const {
+      closeButtonX,
+      closeButtonY,
+      closeButtonWidth,
+      closeButtonHeight,
+      photoButtonX,
+      photoButtonY,
+      photoButtonWidth,
+      photoButtonHeight,
+      switchCameraButtonX,
+      switchCameraButtonY,
+      switchCameraButtonWidth,
+      switchCameraButtonHeight,
+      flashButtonX,
+      flashButtonY,
+      flashButtonWidth,
+      flashButtonHeight,
+    } = this;
+    return and(
+      or(
+        lessThan(x, closeButtonX),
+        greaterThan(x, add(closeButtonX, closeButtonWidth)),
+        lessThan(y, closeButtonY),
+        greaterThan(y, add(closeButtonY, closeButtonHeight)),
+      ),
+      or(
+        lessThan(x, photoButtonX),
+        greaterThan(x, add(photoButtonX, photoButtonWidth)),
+        lessThan(y, photoButtonY),
+        greaterThan(y, add(photoButtonY, photoButtonHeight)),
+      ),
+      or(
+        lessThan(x, switchCameraButtonX),
+        greaterThan(x, add(switchCameraButtonX, switchCameraButtonWidth)),
+        lessThan(y, switchCameraButtonY),
+        greaterThan(y, add(switchCameraButtonY, switchCameraButtonHeight)),
+      ),
+      or(
+        lessThan(x, flashButtonX),
+        greaterThan(x, add(flashButtonX, flashButtonWidth)),
+        lessThan(y, flashButtonY),
+        greaterThan(y, add(flashButtonY, flashButtonHeight)),
+      ),
+    );
   }
 
   static isActive(props) {
     const { index } = props.scene;
     return index === props.transitionProps.index;
+  }
+
+  componentDidMount() {
+    if (CameraModal.isActive(this.props)) {
+      Orientation.unlockAllOrientations();
+    }
+  }
+
+  componentWillUnmount() {
+    if (CameraModal.isActive(this.props)) {
+      Orientation.lockToPortrait();
+    }
+  }
+
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    const isActive = CameraModal.isActive(this.props);
+    const wasActive = CameraModal.isActive(prevProps);
+    if (isActive && !wasActive) {
+      Orientation.unlockAllOrientations();
+    } else if (!isActive && wasActive) {
+      Orientation.lockToPortrait();
+    }
+
+    if (!this.state.hasCamerasOnBothSides && prevState.hasCamerasOnBothSides) {
+      this.switchCameraButtonX.setValue(-1);
+      this.switchCameraButtonY.setValue(-1);
+      this.switchCameraButtonWidth.setValue(0);
+      this.switchCameraButtonHeight.setValue(0);
+    }
   }
 
   get containerStyle() {
@@ -339,21 +463,32 @@ class CameraModal extends React.PureComponent<Props, State> {
       <PinchGestureHandler
         onGestureEvent={this.pinchEvent}
         onHandlerStateChange={this.pinchEvent}
+        simultaneousHandlers={this.tapHandler}
+        ref={this.pinchHandler}
       >
         <Animated.View style={this.containerStyle}>
           {statusBar}
           <Animated.Code exec={this.animationCode} />
-          <RNCamera
-            type={type}
-            captureAudio={false}
-            maxZoom={maxZoom}
-            zoom={this.state.zoom}
-            flashMode={this.state.flashMode}
-            style={styles.fill}
-            androidCameraPermissionOptions={permissionRationale}
+          <TapGestureHandler
+            onHandlerStateChange={this.tapEvent}
+            simultaneousHandlers={this.pinchHandler}
+            waitFor={this.pinchHandler}
+            ref={this.tapHandler}
           >
-            {this.renderCamera}
-          </RNCamera>
+            <Animated.View style={styles.fill}>
+              <RNCamera
+                type={type}
+                captureAudio={false}
+                maxZoom={maxZoom}
+                zoom={this.state.zoom}
+                flashMode={this.state.flashMode}
+                style={styles.fill}
+                androidCameraPermissionOptions={permissionRationale}
+              >
+                {this.renderCamera}
+              </RNCamera>
+            </Animated.View>
+          </TapGestureHandler>
         </Animated.View>
       </PinchGestureHandler>
     );
@@ -454,6 +589,15 @@ class CameraModal extends React.PureComponent<Props, State> {
     }
   }
 
+  focusOnPoint = ([ x, y ]: [ number, number ]) => {
+    const screenWidth = this.props.screenDimensions.width;
+    const screenHeight =
+      this.props.screenDimensions.height + contentBottomOffset;
+    const relativeX = x / screenWidth;
+    const relativeY = y / screenHeight;
+    console.log(`tap occurred at ${x}, ${y}. aka ${relativeX}, ${relativeY}`);
+  }
+
   fetchCameraIDs = async (camera: RNCamera) => {
     if (this.cameraIDsFetched) {
       return;
@@ -504,18 +648,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   closeButton: {
-    position: "absolute",
+    position: 'absolute',
     left: 24,
   },
   closeIcon: {
     fontSize: 36,
-    color: "white",
-    textShadowColor: "#000",
+    color: 'white',
+    textShadowColor: 'black',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,
   },
   bottomButtonsContainer: {
-    position: "absolute",
+    position: 'absolute',
     left: 0,
     right: 0,
     bottom: contentBottomOffset + 20,
@@ -547,30 +691,30 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 36,
     paddingBottom: 2,
-    textShadowColor: "#000",
+    textShadowColor: 'black',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,
   },
   flashButton: {
-    position: "absolute",
+    position: 'absolute',
     marginTop: Platform.select({ android: 15, default: 13 }),
     right: 25,
   },
   flashIcon: {
     fontSize: 24,
-    color: "white",
-    textShadowColor: "#000",
+    color: 'white',
+    textShadowColor: 'black',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,
   },
   flashIconAutoText: {
-    position: "absolute",
+    position: 'absolute',
     top: -3,
     right: -5,
     fontSize: 10,
     fontWeight: 'bold',
     color: "white",
-    textShadowColor: "#000",
+    textShadowColor: 'black',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,
   },

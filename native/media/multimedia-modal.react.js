@@ -234,13 +234,13 @@ class MultimediaModal extends React.PureComponent<Props, State> {
 
   closeButton: ?TouchableOpacity;
   saveButton: ?TouchableOpacity;
-  closeButtonX = new Value(0);
-  closeButtonY = new Value(0);
+  closeButtonX = new Value(-1);
+  closeButtonY = new Value(-1);
   closeButtonWidth = new Value(0);
   closeButtonHeight = new Value(0);
   closeButtonLastState = new Value(1);
-  saveButtonX = new Value(0);
-  saveButtonY = new Value(0);
+  saveButtonX = new Value(-1);
+  saveButtonY = new Value(-1);
   saveButtonWidth = new Value(0);
   saveButtonHeight = new Value(0);
   actionLinksLastState = new Value(1);
@@ -1032,6 +1032,12 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   componentDidMount() {
     if (MultimediaModal.isActive(this.props)) {
       Orientation.unlockAllOrientations();
+    }
+  }
+
+  componentWillUnmount() {
+    if (MultimediaModal.isActive(this.props)) {
+      Orientation.lockToPortrait();
     }
   }
 
