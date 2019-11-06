@@ -15,3 +15,4 @@ export const updateDimensionsActiveType = "UPDATE_DIMENSIONS";
 export const updateConnectivityActiveType = "UPDATE_CONNECTIVITY";
 export const updateThemeInfoActionType = "UPDATE_THEME_INFO";
 export const updateDeviceCameraInfoActionType = "UPDATE_DEVICE_CAMERA_INFO";
+export const updateDeviceOrientationActionType = "UPDATE_DEVICE_ORIENTATION";

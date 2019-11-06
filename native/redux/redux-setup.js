@@ -38,6 +38,7 @@ import {
   type DeviceCameraInfo,
   defaultDeviceCameraInfo,
 } from '../types/camera';
+import type { Orientations } from 'react-native-orientation-locker';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -58,6 +59,7 @@ import {
   Platform,
   Dimensions as NativeDimensions,
 } from 'react-native';
+import Orientation from 'react-native-orientation-locker';
 
 import baseReducer from 'lib/reducers/master-reducer';
 import {
@@ -78,6 +80,7 @@ import {
   updateConnectivityActiveType,
   updateThemeInfoActionType,
   updateDeviceCameraInfoActionType,
+  updateDeviceOrientationActionType,
 } from './action-types';
 import {
   defaultNavInfo,
@@ -130,6 +133,7 @@ export type AppState = {|
   connectivity: ConnectivityInfo,
   globalThemeInfo: GlobalThemeInfo,
   deviceCameraInfo: DeviceCameraInfo,
+  deviceOrientation: Orientations,
 |};
 
 const { height, width } = NativeDimensions.get('window');
@@ -173,6 +177,7 @@ const defaultState = ({
   connectivity: defaultConnectivityInfo,
   globalThemeInfo: defaultGlobalThemeInfo,
   deviceCameraInfo: defaultDeviceCameraInfo,
+  deviceOrientation: Orientation.getInitialOrientation(),
 }: AppState);
 
 function chatRouteFromNavInfo(navInfo: NavInfo): NavigationStateRoute {
@@ -246,6 +251,11 @@ function reducer(state: AppState = defaultState, action: *) {
         ...state.deviceCameraInfo,
         ...action.payload,
       },
+    };
+  } else if (action.type === updateDeviceOrientationActionType) {
+    return {
+      ...state,
+      deviceOrientation: action.payload,
     };
   }
 

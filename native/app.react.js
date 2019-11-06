@@ -42,6 +42,7 @@ import DimensionsUpdater from './redux/dimensions-updater.react';
 import ConnectivityUpdater from './redux/connectivity-updater.react';
 import PushHandler from './push/push-handler.react';
 import ThemeHandler from './themes/theme-handler.react';
+import OrientationHandler from './navigation/orientation-handler.react';
 import Socket from './socket.react';
 
 if (Platform.OS === "android") {
@@ -149,6 +150,7 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
           detectUnsupervisedBackground={detectUnsupervisedBackground}
         />
         <ThemeHandler />
+        <OrientationHandler />
       </View>
     );
   }

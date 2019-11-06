@@ -11,6 +11,7 @@ import { createMigrate } from 'redux-persist';
 import invariant from 'invariant';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
+import Orientation from 'react-native-orientation-locker';
 
 import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors';
 import { unshimMessageStore } from 'lib/shared/unshim-utils';
@@ -24,6 +25,7 @@ const baseBlacklist = [
   'messageSentFromRoute',
   'dimensions',
   'connectivity',
+  'deviceOrientation',
 ];
 const blacklist = __DEV__
   ? baseBlacklist
@@ -140,6 +142,7 @@ const migrations = {
   [13]: (state: AppState) => ({
     ...state,
     deviceCameraInfo: defaultDeviceCameraInfo,
+    deviceOrientation: Orientation.getInitialOrientation(),
   }),
 };
 
