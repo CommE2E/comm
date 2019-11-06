@@ -673,7 +673,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   ): Value {
     const lastTapX = new Value(0);
     const lastTapY = new Value(0);
-    const tapJustEnded = and(
+    const fingerJustReleased = and(
       gestureJustEnded(singleTapState),
       this.outsideButtons(lastTapX, lastTapY),
     );
@@ -684,7 +684,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
 
     const closeButtonState = cond(
       or(
-        tapJustEnded,
+        fingerJustReleased,
         and(becameUnzoomed, eq(this.closeButtonLastState, 0)),
       ),
       sub(1, this.closeButtonLastState),
@@ -695,7 +695,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
       isZoomed,
       0,
       cond(
-        or(tapJustEnded, becameUnzoomed),
+        or(fingerJustReleased, becameUnzoomed),
         sub(1, this.actionLinksLastState),
         this.actionLinksLastState,
       ),
@@ -706,7 +706,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     const actionLinksAppearClock = new Clock();
     const actionLinksDisappearClock = new Clock();
     return [
-      tapJustEnded,
+      fingerJustReleased,
       set(
         curCloseButtonOpacity,
         cond(
@@ -803,16 +803,16 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     const deltaX = panDelta(zoomX, zoomActive);
     const deltaY = panDelta(zoomY, zoomActive);
 
-    const tapJustEnded = and(
+    const fingerJustReleased = and(
       gestureJustEnded(doubleTapState),
       this.outsideButtons(doubleTapX, doubleTapY),
     );
 
     return cond(
-      [ tapJustEnded, deltaX, deltaY, deltaScale, gestureActive ],
+      [ fingerJustReleased, deltaX, deltaY, deltaScale, gestureActive ],
       stopClock(zoomClock),
       cond(
-        or(zoomClockRunning, tapJustEnded),
+        or(zoomClockRunning, fingerJustReleased ),
         [
           zoomX,
           zoomY,

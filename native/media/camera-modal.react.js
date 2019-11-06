@@ -25,7 +25,7 @@ import {
   Platform,
 } from 'react-native';
 import PropTypes from 'prop-types';
-import Animated from 'react-native-reanimated';
+import Animated, { Easing } from 'react-native-reanimated';
 import { RNCamera } from 'react-native-camera';
 import {
   PinchGestureHandler,
@@ -45,18 +45,20 @@ import {
   contentVerticalOffsetSelector,
 } from '../selectors/dimension-selectors';
 import ConnectedStatusBar from '../connected-status-bar.react';
-import { gestureJustEnded } from '../utils/animation-utils';
+import { clamp, gestureJustEnded } from '../utils/animation-utils';
 import ContentLoading from '../components/content-loading.react';
 import { colors } from '../themes/colors';
 
 const {
   Value,
+  Clock,
   event,
   Extrapolate,
   block,
   set,
   call,
   cond,
+  not,
   and,
   or,
   eq,
@@ -68,6 +70,12 @@ const {
   divide,
   abs,
   interpolate,
+  startClock,
+  stopClock,
+  clockRunning,
+  timing,
+  spring,
+  SpringUtils,
 } = Animated;
 const maxZoom = 8;
 const zoomUpdateFactor = (() => {
@@ -86,6 +94,130 @@ const permissionRationale = {
   title: "Access Your Camera",
   message: "Requesting access to your device camera",
 };
+
+const indicatorSpringConfig = {
+  ...SpringUtils.makeDefaultConfig(),
+  damping: 0,
+  mass: 0.6,
+  toValue: 1,
+};
+const indicatorTimingConfig = {
+  duration: 500,
+  easing: Easing.out(Easing.ease),
+  toValue: 0,
+};
+function runIndicatorAnimation(
+  // Inputs
+  springClock: Clock,
+  delayClock: Clock,
+  timingClock: Clock,
+  animationRunning: Value,
+  // Outputs
+  scale: Value,
+  opacity: Value,
+): Value {
+  const delayStart = new Value(0);
+
+  const springScale = new Value(0.75);
+  const delayScale = new Value(0);
+  const timingScale = new Value(0.75);
+
+  const animatedScale = cond(
+    clockRunning(springClock),
+    springScale,
+    cond(
+      clockRunning(delayClock),
+      delayScale,
+      timingScale,
+    ),
+  );
+  const lastAnimatedScale = new Value(0.75);
+  const numScaleLoops = new Value(0);
+
+  const springState = {
+    finished: new Value(1),
+    velocity: new Value(0),
+    time: new Value(0),
+    position: springScale,
+  };
+  const timingState = {
+    finished: new Value(1),
+    frameTime: new Value(0),
+    time: new Value(0),
+    position: timingScale,
+  };
+
+  return block([
+    cond(
+      not(animationRunning),
+      [
+        set(springState.finished, 0),
+        set(springState.velocity, 0),
+        set(springState.time, 0),
+        set(springScale, 0.75),
+        set(lastAnimatedScale, 0.75),
+        set(numScaleLoops, 0),
+        set(opacity, 1),
+        startClock(springClock),
+      ],
+    ),
+    [
+      cond(
+        clockRunning(springClock),
+        spring(springClock, springState, indicatorSpringConfig),
+      ),
+      timing(timingClock, timingState, indicatorTimingConfig),
+    ],
+    [
+      cond(
+        and(
+          greaterThan(animatedScale, 1.2),
+          not(greaterThan(lastAnimatedScale, 1.2)),
+        ),
+        [
+          set(numScaleLoops, add(numScaleLoops, 1)),
+          cond(
+            greaterThan(numScaleLoops, 1),
+            [
+              set(springState.finished, 1),
+              stopClock(springClock),
+              set(delayScale, springScale),
+              set(delayStart, delayClock),
+              startClock(delayClock),
+            ],
+          ),
+        ],
+      ),
+      set(lastAnimatedScale, animatedScale),
+    ],
+    cond(
+      and(
+        clockRunning(delayClock),
+        greaterThan(delayClock, add(delayStart, 400)),
+      ),
+      [
+        stopClock(delayClock),
+        set(timingState.finished, 0),
+        set(timingState.frameTime, 0),
+        set(timingState.time, 0),
+        set(timingScale, delayScale),
+        startClock(timingClock),
+      ],
+    ),
+    cond(
+      and(springState.finished, timingState.finished),
+      stopClock(timingClock),
+    ),
+    set(scale, animatedScale),
+    cond(
+      clockRunning(timingClock),
+      set(
+        opacity,
+        clamp(animatedScale, 0, 1),
+      ),
+    ),
+  ]);
+}
 
 type Props = {
   navigation: NavigationStackProp<NavigationLeafRoute>,
@@ -153,6 +285,11 @@ class CameraModal extends React.PureComponent<Props, State> {
   flashButtonY = new Value(-1);
   flashButtonWidth = new Value(0);
   flashButtonHeight = new Value(0);
+
+  focusIndicatorX = new Value(-1);
+  focusIndicatorY = new Value(-1);
+  focusIndicatorScale = new Value(0);
+  focusIndicatorOpacity = new Value(0);
 
   cameraIDsFetched = false;
 
@@ -259,16 +396,44 @@ class CameraModal extends React.PureComponent<Props, State> {
   focusAnimationCode(tapState: Value, tapX: Value, tapY: Value): Value {
     const lastTapX = new Value(0);
     const lastTapY = new Value(0);
-    const tapJustEnded = and(
+    const fingerJustReleased = and(
       gestureJustEnded(tapState),
       this.outsideButtons(lastTapX, lastTapY),
     );
+
+    const indicatorSpringClock = new Clock();
+    const indicatorDelayClock = new Clock();
+    const indicatorTimingClock = new Clock();
+    const indicatorAnimationRunning = or(
+      clockRunning(indicatorSpringClock),
+      clockRunning(indicatorDelayClock),
+      clockRunning(indicatorTimingClock),
+    );
+
     return [
       cond(
-        tapJustEnded,
-        call(
-          [ tapX, tapY ],
-          this.focusOnPoint,
+        fingerJustReleased,
+        [
+          call(
+            [ tapX, tapY ],
+            this.focusOnPoint,
+          ),
+          set(this.focusIndicatorX, tapX),
+          set(this.focusIndicatorY, tapY),
+          stopClock(indicatorSpringClock),
+          stopClock(indicatorDelayClock),
+          stopClock(indicatorTimingClock),
+        ],
+      ),
+      cond(
+        or(fingerJustReleased, indicatorAnimationRunning),
+        runIndicatorAnimation(
+          indicatorSpringClock,
+          indicatorDelayClock,
+          indicatorTimingClock,
+          indicatorAnimationRunning,
+          this.focusIndicatorScale,
+          this.focusIndicatorOpacity,
         ),
       ),
       set(lastTapX, tapX),
@@ -364,6 +529,18 @@ class CameraModal extends React.PureComponent<Props, State> {
     };
   }
 
+  get focusIndicatorStyle() {
+    return {
+      ...styles.focusIndicator,
+      opacity: this.focusIndicatorOpacity,
+      transform: [
+        { translateX: this.focusIndicatorX },
+        { translateY: this.focusIndicatorY },
+        { scale: this.focusIndicatorScale },
+      ],
+    };
+  }
+
   renderCamera = ({ camera, status }) => {
     if (camera && camera._cameraHandle) {
       this.fetchCameraIDs(camera);
@@ -435,6 +612,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     };
     return (
       <>
+        <Animated.View style={this.focusIndicatorStyle} />
         <TouchableOpacity
           onPress={this.changeFlashMode}
           onLayout={this.onFlashButtonLayout}
@@ -760,6 +938,16 @@ const styles = StyleSheet.create({
     color: colors.dark.listSeparatorLabel,
     fontSize: 28,
     textAlign: 'center',
+  },
+  focusIndicator: {
+    position: 'absolute',
+    left: -12,
+    top: -12,
+    height: 24,
+    width: 24,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'white',
   },
 });
 
