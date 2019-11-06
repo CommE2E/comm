@@ -291,6 +291,8 @@ class CameraModal extends React.PureComponent<Props, State> {
   focusIndicatorScale = new Value(0);
   focusIndicatorOpacity = new Value(0);
 
+  cancelIndicatorAnimation = new Value(0);
+
   cameraIDsFetched = false;
 
   constructor(props: Props) {
@@ -426,6 +428,16 @@ class CameraModal extends React.PureComponent<Props, State> {
         ],
       ),
       cond(
+        this.cancelIndicatorAnimation,
+        [
+          set(this.cancelIndicatorAnimation, 0),
+          stopClock(indicatorSpringClock),
+          stopClock(indicatorDelayClock),
+          stopClock(indicatorTimingClock),
+          set(this.focusIndicatorOpacity, 0),
+        ],
+      ),
+      cond(
         or(fingerJustReleased, indicatorAnimationRunning),
         runIndicatorAnimation(
           indicatorSpringClock,
@@ -519,6 +531,11 @@ class CameraModal extends React.PureComponent<Props, State> {
       this.switchCameraButtonY.setValue(-1);
       this.switchCameraButtonWidth.setValue(0);
       this.switchCameraButtonHeight.setValue(0);
+    }
+
+    if (this.props.deviceOrientation !== prevProps.deviceOrientation) {
+      this.setState({ autoFocusPointOfInterest: null });
+      this.cancelIndicatorAnimation.setValue(1);
     }
   }
 
