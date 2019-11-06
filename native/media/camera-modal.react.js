@@ -14,6 +14,7 @@ import {
   type DeviceCameraInfo,
   deviceCameraInfoPropType,
 } from '../types/camera';
+import type { Orientations } from 'react-native-orientation-locker';
 
 import * as React from 'react';
 import {
@@ -34,6 +35,7 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import Orientation from 'react-native-orientation-locker';
+import invariant from 'invariant';
 
 import { connect } from 'lib/utils/redux-utils';
 
@@ -94,6 +96,7 @@ type Props = {
   screenDimensions: Dimensions,
   contentVerticalOffset: number,
   deviceCameraInfo: DeviceCameraInfo,
+  deviceOrientation: Orientations,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 };
@@ -102,6 +105,7 @@ type State = {|
   useFrontCamera: bool,
   hasCamerasOnBothSides: bool,
   flashMode: number,
+  autoFocusPointOfInterest: ?{| x: number, y: number, autoExposure?: bool |},
 |};
 class CameraModal extends React.PureComponent<Props, State> {
 
@@ -115,6 +119,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     screenDimensions: dimensionsPropType.isRequired,
     contentVerticalOffset: PropTypes.number.isRequired,
     deviceCameraInfo: deviceCameraInfoPropType.isRequired,
+    deviceOrientation: PropTypes.string.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
 
@@ -159,6 +164,7 @@ class CameraModal extends React.PureComponent<Props, State> {
       useFrontCamera: props.deviceCameraInfo.defaultUseFrontCamera,
       hasCamerasOnBothSides: props.deviceCameraInfo.hasCamerasOnBothSides,
       flashMode: RNCamera.Constants.FlashMode.off,
+      autoFocusPointOfInterest: undefined,
     };
 
     const { position } = props;
@@ -482,6 +488,7 @@ class CameraModal extends React.PureComponent<Props, State> {
                 maxZoom={maxZoom}
                 zoom={this.state.zoom}
                 flashMode={this.state.flashMode}
+                autoFocusPointOfInterest={this.state.autoFocusPointOfInterest}
                 style={styles.fill}
                 androidCameraPermissionOptions={permissionRationale}
               >
@@ -589,13 +596,39 @@ class CameraModal extends React.PureComponent<Props, State> {
     }
   }
 
-  focusOnPoint = ([ x, y ]: [ number, number ]) => {
+  focusOnPoint = ([ inputX, inputY ]: [ number, number ]) => {
     const screenWidth = this.props.screenDimensions.width;
     const screenHeight =
       this.props.screenDimensions.height + contentBottomOffset;
-    const relativeX = x / screenWidth;
-    const relativeY = y / screenHeight;
-    console.log(`tap occurred at ${x}, ${y}. aka ${relativeX}, ${relativeY}`);
+    const relativeX = inputX / screenWidth;
+    const relativeY = inputY / screenHeight;
+
+    // react-native-camera's autoFocusPointOfInterest prop is based on a
+    // LANDSCAPE-LEFT orientation, so we need to map to that
+    let x, y;
+    if (this.props.deviceOrientation === 'LANDSCAPE-LEFT') {
+      x = relativeX;
+      y = relativeY;
+    } else if (this.props.deviceOrientation === 'LANDSCAPE-RIGHT') {
+      x = 1 - relativeX;
+      y = 1 - relativeY;
+    } else if (this.props.deviceOrientation === 'PORTRAIT') {
+      x = relativeY;
+      y = 1 - relativeX;
+    } else if (this.props.deviceOrientation === 'PORTRAIT-UPSIDEDOWN') {
+      x = 1 - relativeY;
+      y = relativeX;
+    } else {
+      invariant(
+        false,
+        `unexpected device orientation ${this.props.deviceOrientation}`,
+      );
+    }
+
+    const autoFocusPointOfInterest = Platform.OS === "ios"
+      ? { x, y, autoExposure: true }
+      : { x, y };
+    this.setState({ autoFocusPointOfInterest });
   }
 
   fetchCameraIDs = async (camera: RNCamera) => {
@@ -735,6 +768,7 @@ export default connect(
     screenDimensions: dimensionsSelector(state),
     contentVerticalOffset: contentVerticalOffsetSelector(state),
     deviceCameraInfo: state.deviceCameraInfo,
+    deviceOrientation: state.deviceOrientation,
   }),
   null,
   true,
