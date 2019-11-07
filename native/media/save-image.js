@@ -38,6 +38,14 @@ async function intentionalSaveImage(mediaInfo: SaveImageInfo) {
   displayActionResultModal(message);
 }
 
+async function saveImage(mediaInfo: SaveImageInfo) {
+  if (Platform.OS === "android") {
+    await saveImageAndroid(mediaInfo, "check");
+  } else if (Platform.OS === "ios") {
+    await saveImageIOS(mediaInfo);
+  }
+}
+
 // On Android, we save the image to our own SquadCal folder in the
 // Pictures directory, and then trigger the media scanner to pick it up
 async function saveImageAndroid(
@@ -108,4 +116,5 @@ async function saveToDisk(uri: string, directory: string) {
 
 export {
   intentionalSaveImage,
+  saveImage,
 };

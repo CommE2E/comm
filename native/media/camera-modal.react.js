@@ -53,6 +53,7 @@ import ConnectedStatusBar from '../connected-status-bar.react';
 import { clamp, gestureJustEnded } from '../utils/animation-utils';
 import ContentLoading from '../components/content-loading.react';
 import { colors } from '../themes/colors';
+import { saveImage } from './save-image';
 
 const {
   Value,
@@ -809,10 +810,13 @@ class CameraModal extends React.PureComponent<Props, State> {
     const imageInfos = [ { uri, width, height } ];
     const { chatInputState } = this.props;
     invariant(chatInputState, "chatInputState should be set");
-    await chatInputState.sendMultimediaMessage(
-      this.props.navigation.state.params.threadID,
-      imageInfos,
-    );
+    await Promise.all([
+      chatInputState.sendMultimediaMessage(
+        this.props.navigation.state.params.threadID,
+        imageInfos,
+      ),
+      saveImage({ uri, type: "photo" }),
+    ]);
   }
 
   switchCamera = () => {
