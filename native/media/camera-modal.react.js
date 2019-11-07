@@ -19,6 +19,7 @@ import {
   type ChatInputState,
   chatInputStatePropType,
   withChatInputState,
+  type ClientImageInfo,
 } from '../chat/chat-input-state';
 
 import * as React from 'react';
@@ -254,6 +255,7 @@ type State = {|
   hasCamerasOnBothSides: bool,
   flashMode: number,
   autoFocusPointOfInterest: ?{| x: number, y: number, autoExposure?: bool |},
+  pendingImageInfo: ?ClientImageInfo,
 |};
 class CameraModal extends React.PureComponent<Props, State> {
 
@@ -328,6 +330,7 @@ class CameraModal extends React.PureComponent<Props, State> {
       hasCamerasOnBothSides: props.deviceCameraInfo.hasCamerasOnBothSides,
       flashMode: RNCamera.Constants.FlashMode.off,
       autoFocusPointOfInterest: undefined,
+      pendingImageInfo: undefined,
     };
 
     const { position } = props;
@@ -807,21 +810,29 @@ class CameraModal extends React.PureComponent<Props, State> {
     const { uri, width, height } = await camera.takePictureAsync({
       pauseAfterCapture: true,
     });
-    const imageInfos = [ {
+    const pendingImageInfo = {
       uri,
       width,
       height,
       unlinkURIAfterRemoving: true,
-    } ];
+    };
+    this.setState({ pendingImageInfo });
+    await this.sendPhoto();
+  }
+
+  async sendPhoto() {
+    const { pendingImageInfo } = this.state;
+    invariant(pendingImageInfo, "pendingImageInfo should be set");
     const { chatInputState } = this.props;
     invariant(chatInputState, "chatInputState should be set");
     await Promise.all([
       chatInputState.sendMultimediaMessage(
         this.props.navigation.state.params.threadID,
-        imageInfos,
+        [ pendingImageInfo ],
       ),
-      saveImage({ uri, type: "photo" }),
+      saveImage({ uri: pendingImageInfo.uri, type: "photo" }),
     ]);
+    this.close();
   }
 
   switchCamera = () => {
