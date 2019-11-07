@@ -15,6 +15,11 @@ import {
   deviceCameraInfoPropType,
 } from '../types/camera';
 import type { Orientations } from 'react-native-orientation-locker';
+import {
+  type ChatInputState,
+  chatInputStatePropType,
+  withChatInputState,
+} from '../chat/chat-input-state';
 
 import * as React from 'react';
 import {
@@ -219,8 +224,15 @@ function runIndicatorAnimation(
   ]);
 }
 
+type NavProp = NavigationStackProp<{|
+  ...NavigationLeafRoute,
+  params: {|
+    threadID: string,
+  |},
+|}>;
+
 type Props = {
-  navigation: NavigationStackProp<NavigationLeafRoute>,
+  navigation: NavProp,
   scene: NavigationStackScene,
   transitionProps: NavigationStackTransitionProps,
   position: Value,
@@ -230,6 +242,8 @@ type Props = {
   deviceCameraInfo: DeviceCameraInfo,
   deviceOrientation: Orientations,
   foreground: bool,
+  // withChatInputState
+  chatInputState: ?ChatInputState,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 };
@@ -244,6 +258,11 @@ class CameraModal extends React.PureComponent<Props, State> {
 
   static propTypes = {
     navigation: PropTypes.shape({
+      state: PropTypes.shape({
+        params: PropTypes.shape({
+          threadID: PropTypes.string.isRequired,
+        }).isRequired,
+      }).isRequired,
       goBack: PropTypes.func.isRequired,
     }).isRequired,
     scene: PropTypes.object.isRequired,
@@ -254,6 +273,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     deviceCameraInfo: deviceCameraInfoPropType.isRequired,
     deviceOrientation: PropTypes.string.isRequired,
     foreground: PropTypes.bool.isRequired,
+    chatInputState: chatInputStatePropType,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
   camera: ?RNCamera;
@@ -780,7 +800,19 @@ class CameraModal extends React.PureComponent<Props, State> {
     this.props.navigation.goBack();
   }
 
-  takePhoto = () => {
+  takePhoto = async () => {
+    const { camera } = this;
+    invariant(camera, "camera ref should be set");
+    const { uri, width, height } = await camera.takePictureAsync({
+      pauseAfterCapture: true,
+    });
+    const imageInfos = [ { uri, width, height } ];
+    const { chatInputState } = this.props;
+    invariant(chatInputState, "chatInputState should be set");
+    await chatInputState.sendMultimediaMessage(
+      this.props.navigation.state.params.threadID,
+      imageInfos,
+    );
   }
 
   switchCamera = () => {
@@ -990,4 +1022,4 @@ export default connect(
   }),
   null,
   true,
-)(CameraModal);
+)(withChatInputState(CameraModal));

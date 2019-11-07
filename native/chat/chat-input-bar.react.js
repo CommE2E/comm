@@ -537,7 +537,10 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   }
 
   openCamera = () => {
-    this.props.navigation.navigate({ routeName: CameraModalRouteName });
+    this.props.navigation.navigate({
+      routeName: CameraModalRouteName,
+      params: { threadID: this.props.threadInfo.id },
+    });
   }
 
   openImageGallery = () => {
