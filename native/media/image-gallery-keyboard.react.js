@@ -15,13 +15,11 @@ import {
   PermissionsAndroid,
   FlatList,
   ActivityIndicator,
-  TouchableOpacity,
 } from 'react-native';
 import { KeyboardRegistry } from 'react-native-keyboard-input';
 import invariant from 'invariant';
 import { Provider } from 'react-redux';
 import CameraRoll from '@react-native-community/cameraroll';
-import Icon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
@@ -36,6 +34,7 @@ import ImageGalleryImage from './image-gallery-image.react';
 import Animated, { Easing } from 'react-native-reanimated';
 import { colorsSelector, styleSelector } from '../themes/colors';
 import { getAndroidPermission } from '../utils/android-permissions';
+import SendMediaButton from './send-media-button.react';
 
 const animationSpec = {
   duration: 400,
@@ -85,7 +84,6 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
       },
     );
     this.sendButtonStyle = {
-      ...props.styles.sendButton,
       opacity: this.queueModeProgress,
       transform: [
         { scale: sendButtonScale },
@@ -374,20 +372,12 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
         onLayout={this.onContainerLayout}
       >
         {content}
-        <TouchableOpacity
+        <SendMediaButton
           onPress={this.sendQueuedImages}
-          activeOpacity={0.6}
-          style={this.props.styles.sendButtonContainer}
-        >
-          <Animated.View style={this.sendButtonStyle}>
-            <Icon name="send" style={this.props.styles.sendIcon} />
-            <View style={this.props.styles.queueCountBubble}>
-              <Text style={this.props.styles.queueCountText}>
-                {queueCount}
-              </Text>
-            </View>
-          </Animated.View>
-        </TouchableOpacity>
+          queueCount={queueCount}
+          containerStyle={this.props.styles.sendButtonContainer}
+          style={this.sendButtonStyle}
+        />
       </View>
     );
   }
@@ -518,37 +508,6 @@ const styles = {
     position: 'absolute',
     bottom: 30,
     right: 30,
-  },
-  sendButton: {
-    backgroundColor: '#7ED321',
-    borderRadius: 30,
-    paddingLeft: 14,
-    paddingRight: 16,
-    paddingTop: 14,
-    paddingBottom: 16,
-    borderWidth: 4,
-    borderColor: 'white',
-  },
-  sendIcon: {
-    color: 'white',
-    fontSize: 22,
-  },
-  queueCountBubble: {
-    backgroundColor: '#222222',
-    position: 'absolute',
-    top: -8,
-    right: -8,
-    width: 25,
-    height: 25,
-    paddingLeft: 1,
-    paddingBottom: Platform.OS === "android" ? 2 : 0,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  queueCountText: {
-    textAlign: 'center',
-    color: 'white',
   },
 };
 const stylesSelector = styleSelector(styles);
