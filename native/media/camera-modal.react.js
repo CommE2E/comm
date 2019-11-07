@@ -21,6 +21,7 @@ import {
   withChatInputState,
   type ClientImageInfo,
 } from '../chat/chat-input-state';
+import type { ViewStyle } from '../types/styles';
 
 import * as React from 'react';
 import {
@@ -29,6 +30,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Platform,
+  Image,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import Animated, { Easing } from 'react-native-reanimated';
@@ -39,7 +41,6 @@ import {
   State as GestureState,
 } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
-import IonIcon from 'react-native-vector-icons/Ionicons';
 import Orientation from 'react-native-orientation-locker';
 import invariant from 'invariant';
 
@@ -55,6 +56,7 @@ import { clamp, gestureJustEnded } from '../utils/animation-utils';
 import ContentLoading from '../components/content-loading.react';
 import { colors } from '../themes/colors';
 import { saveImage } from './save-image';
+import SendMediaButton from './send-media-button.react';
 
 const {
   Value,
@@ -100,6 +102,11 @@ const zoomUpdateFactor = (() => {
 const permissionRationale = {
   title: "Access Your Camera",
   message: "Requesting access to your device camera",
+};
+
+const stagingModeAnimationConfig = {
+  duration: 150,
+  easing: Easing.inOut(Easing.ease),
 };
 
 const indicatorSpringConfig = {
@@ -255,6 +262,7 @@ type State = {|
   hasCamerasOnBothSides: bool,
   flashMode: number,
   autoFocusPointOfInterest: ?{| x: number, y: number, autoExposure?: bool |},
+  stagingMode: bool,
   pendingImageInfo: ?ClientImageInfo,
 |};
 class CameraModal extends React.PureComponent<Props, State> {
@@ -321,6 +329,11 @@ class CameraModal extends React.PureComponent<Props, State> {
 
   cameraIDsFetched = false;
 
+  stagingModeProgress = new Value(0);
+  sendButtonProgress = new Value(0);
+  sendButtonStyle: ViewStyle;
+  overlayStyle: ViewStyle;
+
   constructor(props: Props) {
     super(props);
 
@@ -330,6 +343,7 @@ class CameraModal extends React.PureComponent<Props, State> {
       hasCamerasOnBothSides: props.deviceCameraInfo.hasCamerasOnBothSides,
       flashMode: RNCamera.Constants.FlashMode.off,
       autoFocusPointOfInterest: undefined,
+      stagingMode: false,
       pendingImageInfo: undefined,
     };
 
@@ -343,6 +357,33 @@ class CameraModal extends React.PureComponent<Props, State> {
         extrapolate: Extrapolate.CLAMP,
       },
     );
+
+    const sendButtonScale = interpolate(
+      this.sendButtonProgress,
+      {
+        inputRange: [ 0, 1 ],
+        outputRange: [ 1.1, 1 ],
+      },
+    );
+    this.sendButtonStyle = {
+      opacity: this.sendButtonProgress,
+      transform: [
+        { scale: sendButtonScale },
+      ],
+    };
+
+    const overlayOpacity = interpolate(
+      this.stagingModeProgress,
+      {
+        inputRange: [ 0, 0.01, 1 ],
+        outputRange: [ 0, 0.5, 0 ],
+        extrapolate: Extrapolate.CLAMP,
+      },
+    );
+    this.overlayStyle = {
+      ...styles.overlay,
+      opacity: overlayOpacity,
+    };
 
     const pinchState = new Value(-1);
     const pinchScale = new Value(1);
@@ -568,6 +609,26 @@ class CameraModal extends React.PureComponent<Props, State> {
     if (this.props.foreground && !prevProps.foreground && this.camera) {
       this.camera.refreshAuthorizationStatus();
     }
+
+    if (this.state.stagingMode && !prevState.stagingMode) {
+      this.cancelIndicatorAnimation.setValue(1);
+      this.focusIndicatorOpacity.setValue(0);
+      timing(
+        this.stagingModeProgress,
+        { ...stagingModeAnimationConfig, toValue: 1 },
+      ).start();
+    } else if (!this.state.stagingMode && prevState.stagingMode) {
+      this.stagingModeProgress.setValue(0);
+    }
+
+    if (this.state.pendingImageInfo && !prevState.pendingImageInfo) {
+      timing(
+        this.sendButtonProgress,
+        { ...stagingModeAnimationConfig, toValue: 1 },
+      ).start();
+    } else if (!this.state.pendingImageInfo && prevState.pendingImageInfo) {
+      this.sendButtonProgress.setValue(0);
+    }
   }
 
   get containerStyle() {
@@ -593,6 +654,9 @@ class CameraModal extends React.PureComponent<Props, State> {
     if (camera && camera._cameraHandle) {
       this.fetchCameraIDs(camera);
     }
+    if (this.state.stagingMode) {
+      return this.renderStagingView();
+    }
     const topButtonStyle = {
       top: Math.max(this.props.contentVerticalOffset, 6),
     };
@@ -607,6 +671,36 @@ class CameraModal extends React.PureComponent<Props, State> {
         >
           <Text style={styles.closeIcon}>×</Text>
         </TouchableOpacity>
+      </>
+    );
+  }
+
+  renderStagingView() {
+    let image = null;
+    if (this.state.pendingImageInfo) {
+      const imageSource = { uri: this.state.pendingImageInfo.uri };
+      image = <Image source={imageSource} style={styles.stagingImage} />;
+    } else {
+      image = <ContentLoading fillType="flex" colors={colors.dark} />;
+    }
+
+    const topButtonStyle = {
+      top: Math.max(this.props.contentVerticalOffset - 3, 3),
+    };
+    return (
+      <>
+        {image}
+        <TouchableOpacity
+          onPress={this.clearPendingImage}
+          style={[ styles.retakeButton, topButtonStyle ]}
+        >
+          <Icon name="ios-arrow-back" style={styles.retakeIcon} />
+        </TouchableOpacity>
+        <SendMediaButton
+          onPress={this.sendPhoto}
+          containerStyle={styles.sendButtonContainer}
+          style={this.sendButtonStyle}
+        />
       </>
     );
   }
@@ -643,13 +737,13 @@ class CameraModal extends React.PureComponent<Props, State> {
 
     let flashIcon;
     if (this.state.flashMode === RNCamera.Constants.FlashMode.on) {
-      flashIcon = <IonIcon name="ios-flash" style={styles.flashIcon} />;
+      flashIcon = <Icon name="ios-flash" style={styles.flashIcon} />;
     } else if (this.state.flashMode === RNCamera.Constants.FlashMode.off) {
-      flashIcon = <IonIcon name="ios-flash-off" style={styles.flashIcon} />;
+      flashIcon = <Icon name="ios-flash-off" style={styles.flashIcon} />;
     } else {
       flashIcon = (
         <>
-          <IonIcon name="ios-flash" style={styles.flashIcon} />
+          <Icon name="ios-flash" style={styles.flashIcon} />
           <Text style={styles.flashIconAutoText}>A</Text>
         </>
       );
@@ -724,6 +818,10 @@ class CameraModal extends React.PureComponent<Props, State> {
         >
           {this.renderCamera}
         </RNCamera>
+        <Animated.View
+          style={this.overlayStyle}
+          pointerEvents="none"
+        />
       </Animated.View>
     );
   }
@@ -807,32 +905,51 @@ class CameraModal extends React.PureComponent<Props, State> {
   takePhoto = async () => {
     const { camera } = this;
     invariant(camera, "camera ref should be set");
-    const { uri, width, height } = await camera.takePictureAsync({
-      pauseAfterCapture: true,
+    this.setState({ stagingMode: true });
+
+    const photoPromise = camera.takePictureAsync({
+      pauseAfterCapture: Platform.OS === "android",
     });
+    if (Platform.OS === "ios") {
+      camera.pausePreview();
+    }
+
+    const { uri, width, height } = await photoPromise;
     const pendingImageInfo = {
       uri,
       width,
       height,
       unlinkURIAfterRemoving: true,
     };
-    this.setState({ pendingImageInfo });
-    await this.sendPhoto();
+    this.setState({
+      pendingImageInfo,
+      zoom: 0,
+      autoFocusPointOfInterest: undefined,
+    });
   }
 
-  async sendPhoto() {
+  sendPhoto = async () => {
     const { pendingImageInfo } = this.state;
-    invariant(pendingImageInfo, "pendingImageInfo should be set");
+    if (!pendingImageInfo) {
+      return;
+    }
     const { chatInputState } = this.props;
     invariant(chatInputState, "chatInputState should be set");
-    await Promise.all([
-      chatInputState.sendMultimediaMessage(
-        this.props.navigation.state.params.threadID,
-        [ pendingImageInfo ],
-      ),
-      saveImage({ uri: pendingImageInfo.uri, type: "photo" }),
-    ]);
     this.close();
+    chatInputState.sendMultimediaMessage(
+      this.props.navigation.state.params.threadID,
+      [ pendingImageInfo ],
+    );
+    saveImage({ uri: pendingImageInfo.uri, type: "photo" });
+  }
+
+  clearPendingImage = () => {
+    invariant(this.camera, "camera ref should be set");
+    this.camera.resumePreview();
+    this.setState({
+      stagingMode: false,
+      pendingImageInfo: undefined,
+    });
   }
 
   switchCamera = () => {
@@ -871,17 +988,12 @@ class CameraModal extends React.PureComponent<Props, State> {
     } else if (this.props.deviceOrientation === 'LANDSCAPE-RIGHT') {
       x = 1 - relativeX;
       y = 1 - relativeY;
-    } else if (this.props.deviceOrientation === 'PORTRAIT') {
-      x = relativeY;
-      y = 1 - relativeX;
     } else if (this.props.deviceOrientation === 'PORTRAIT-UPSIDEDOWN') {
       x = 1 - relativeY;
       y = relativeX;
     } else {
-      invariant(
-        false,
-        `unexpected device orientation ${this.props.deviceOrientation}`,
-      );
+      x = relativeY;
+      y = 1 - relativeX;
     }
 
     const autoFocusPointOfInterest = Platform.OS === "ios"
@@ -1015,6 +1127,20 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,
   },
+  retakeButton: {
+    position: 'absolute',
+    left: 20,
+    marginTop: Platform.select({ android: 15, default: 15 }),
+    paddingBottom: 3,
+    paddingHorizontal: 10,
+  },
+  retakeIcon: {
+    fontSize: 24,
+    color: 'white',
+    textShadowColor: 'black',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
+  },
   authorizationDeniedContainer: {
     flex: 1,
     alignItems: 'center',
@@ -1034,6 +1160,24 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 1,
     borderColor: 'white',
+  },
+  sendButtonContainer: {
+    position: 'absolute',
+    right: 32,
+    bottom: contentBottomOffset + 22,
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'white',
+  },
+  stagingImage: {
+    flex: 1,
+    backgroundColor: 'black',
+    resizeMode: "contain",
   },
 });
 

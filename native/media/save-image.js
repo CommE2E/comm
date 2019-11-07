@@ -54,16 +54,16 @@ async function saveImageAndroid(
 ) {
   let hasPermission;
   if (permissions === "check") {
+    hasPermission = await PermissionsAndroid.check(
+      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+    );
+  } else {
     hasPermission = await getAndroidPermission(
       PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
       {
         title: "Save Photo",
         message: "Requesting access to your external storage",
       },
-    );
-  } else {
-    hasPermission = await PermissionsAndroid.check(
-      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
     );
   }
   if (!hasPermission) {
