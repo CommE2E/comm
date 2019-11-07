@@ -1312,10 +1312,8 @@ const styles = StyleSheet.create({
     right: 4,
   },
   closeButton: {
-    paddingTop: 2,
-    paddingBottom: 2,
-    paddingLeft: 8,
-    paddingRight: 8,
+    paddingVertical: 2,
+    paddingHorizontal: 8,
     fontSize: 36,
     color: "white",
     textShadowColor: "#000",

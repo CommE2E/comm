@@ -656,7 +656,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     }
 
     const topButtonStyle = {
-      top: Math.max(this.props.contentVerticalOffset, 6),
+      top: Math.max(this.props.contentVerticalOffset - 3, 3),
     };
     return (
       <>
@@ -941,7 +941,9 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     position: 'absolute',
-    left: 24,
+    left: 16,
+    paddingBottom: 2,
+    paddingHorizontal: 8,
   },
   closeIcon: {
     fontSize: 36,
@@ -976,21 +978,24 @@ const styles = StyleSheet.create({
   },
   switchCameraButton: {
     position: 'absolute',
-    right: 26,
+    right: 18,
+    paddingVertical: 2,
+    paddingHorizontal: 8,
     justifyContent: 'center',
   },
   switchCameraIcon: {
     color: 'white',
     fontSize: 36,
-    paddingBottom: 2,
     textShadowColor: 'black',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,
   },
   flashButton: {
     position: 'absolute',
+    right: 15,
     marginTop: Platform.select({ android: 15, default: 13 }),
-    right: 25,
+    paddingVertical: 3,
+    paddingHorizontal: 10,
   },
   flashIcon: {
     fontSize: 24,
@@ -1001,8 +1006,8 @@ const styles = StyleSheet.create({
   },
   flashIconAutoText: {
     position: 'absolute',
-    top: -3,
-    right: -5,
+    top: 0,
+    right: 5,
     fontSize: 10,
     fontWeight: 'bold',
     color: "white",
