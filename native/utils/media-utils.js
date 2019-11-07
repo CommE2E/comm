@@ -21,10 +21,17 @@ export type MediaValidationResult = {
   mediaType: MediaType,
   blob: ReactNativeBlob,
 };
+type ValidateMediaInput = {
+  uri: string,
+  height: number,
+  width: number,
+  ...
+};
 async function validateMedia(
-  imageInfo: GalleryImageInfo,
+  imageInfo: ValidateMediaInput,
 ): Promise<?MediaValidationResult> {
-  const { uri, ...dimensions } = imageInfo;
+  const { uri, height, width } = imageInfo;
+  const dimensions = { height, width };
   const response = await fetch(uri);
   const blob = await response.blob();
   const reportedMIME = blob.type;

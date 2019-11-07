@@ -807,7 +807,12 @@ class CameraModal extends React.PureComponent<Props, State> {
     const { uri, width, height } = await camera.takePictureAsync({
       pauseAfterCapture: true,
     });
-    const imageInfos = [ { uri, width, height } ];
+    const imageInfos = [ {
+      uri,
+      width,
+      height,
+      unlinkURIAfterRemoving: true,
+    } ];
     const { chatInputState } = this.props;
     invariant(chatInputState, "chatInputState should be set");
     await Promise.all([

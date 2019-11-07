@@ -1,6 +1,11 @@
 // @flow
 
 import { type MediaInfo, mediaInfoPropType } from 'lib/types/media-types';
+import {
+  type ChatInputState,
+  chatInputStatePropType,
+  withChatInputState,
+} from '../chat/chat-input-state';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -11,6 +16,8 @@ import RemoteImage from './remote-image.react';
 type Props = {|
   mediaInfo: MediaInfo,
   spinnerColor: string,
+  // withChatInputState
+  chatInputState: ?ChatInputState,
 |};
 type State = {|
   currentURI: string,
@@ -21,6 +28,7 @@ class Multimedia extends React.PureComponent<Props, State> {
   static propTypes = {
     mediaInfo: mediaInfoPropType.isRequired,
     spinnerColor: PropTypes.string.isRequired,
+    chatInputState: chatInputStatePropType,
   };
   static defaultProps = {
     spinnerColor: "black",
@@ -65,7 +73,7 @@ class Multimedia extends React.PureComponent<Props, State> {
       return (
         <RemoteImage
           uri={uri}
-          onLoad={this.onRemoteImageLoad}
+          onLoad={this.onLoad}
           spinnerColor={this.props.spinnerColor}
           style={styles.image}
           invisibleLoad={invisibleLoad}
@@ -85,15 +93,14 @@ class Multimedia extends React.PureComponent<Props, State> {
     }
   }
 
-  onRemoteImageLoad = (uri: string) => {
-    if (this.state.departingURI) {
-      this.setState({ departingURI: null });
-    }
-  }
-
   onLoad = () => {
-    if (this.state.departingURI) {
-      this.setState({ departingURI: null });
+    const { departingURI } = this.state;
+    if (!departingURI) {
+      return;
+    }
+    this.setState({ departingURI: null });
+    if (this.props.chatInputState) {
+      this.props.chatInputState.clearURI(departingURI);
     }
   }
 
@@ -112,4 +119,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Multimedia;
+export default withChatInputState(Multimedia);

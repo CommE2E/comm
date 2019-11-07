@@ -11,6 +11,11 @@ export type PendingMultimediaUpload = {|
   progressPercent: number,
 |};
 
+export type ClientImageInfo = {|
+  ...GalleryImageInfo,
+  unlinkURIAfterRemoving?: bool,
+|};
+
 const pendingMultimediaUploadPropType = PropTypes.shape({
   failed: PropTypes.string,
   progressPercent: PropTypes.number.isRequired,
@@ -36,10 +41,11 @@ export type ChatInputState = {|
   pendingUploads: PendingMultimediaUploads,
   sendMultimediaMessage: (
     threadID: string,
-    imageInfos: $ReadOnlyArray<GalleryImageInfo>,
+    imageInfos: $ReadOnlyArray<ClientImageInfo>,
   ) => Promise<void>,
   messageHasUploadFailure: (localMessageID: string) => bool,
   retryMultimediaMessage: (localMessageID: string) => Promise<void>,
+  clearURI: (uri: string) => Promise<void>,
 |};
 
 const chatInputStatePropType = PropTypes.shape({
@@ -47,6 +53,7 @@ const chatInputStatePropType = PropTypes.shape({
   sendMultimediaMessage: PropTypes.func.isRequired,
   messageHasUploadFailure: PropTypes.func.isRequired,
   retryMultimediaMessage: PropTypes.func.isRequired,
+  clearURI: PropTypes.func.isRequired,
 });
 
 const ChatInputStateContext = React.createContext<?ChatInputState>(null);

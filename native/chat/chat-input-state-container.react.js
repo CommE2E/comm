@@ -1,7 +1,9 @@
 // @flow
 
-import type { PendingMultimediaUploads } from './chat-input-state';
-import type { GalleryImageInfo } from '../media/image-gallery-image.react';
+import type {
+  PendingMultimediaUploads,
+  ClientImageInfo,
+} from './chat-input-state';
 import type { AppState } from '../redux/redux-setup';
 import type {
   DispatchActionPayload,
@@ -82,6 +84,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
   state = {
     pendingUploads: {},
   };
+  pendingUnlinkURIs = new Set();
 
   static getCompletedUploads(props: Props, state: State): CompletedUploads {
     const completedUploads = {};
@@ -239,13 +242,20 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       sendMultimediaMessage: this.sendMultimediaMessage,
       messageHasUploadFailure: this.messageHasUploadFailure,
       retryMultimediaMessage: this.retryMultimediaMessage,
+      clearURI: this.clearURI,
     }),
   );
 
   sendMultimediaMessage = async (
     threadID: string,
-    inputImageInfos: $ReadOnlyArray<GalleryImageInfo>,
+    inputImageInfos: $ReadOnlyArray<ClientImageInfo>,
   ) => {
+    const urisToUnlink = new Set(
+      inputImageInfos.filter(
+        inputImageInfo => !!inputImageInfo.unlinkURIAfterRemoving,
+      ).map(inputImageInfo => inputImageInfo.uri),
+    );
+
     const validationResults = await Promise.all(
       inputImageInfos.map(validateMedia),
     );
@@ -265,11 +275,14 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     }
 
     const pendingUploads = {};
-    for (let { localID } of imageInfos) {
+    for (let { localID, uri } of imageInfos) {
       pendingUploads[localID] = {
         failed: null,
         progressPercent: 0,
       };
+      if (urisToUnlink.has(uri)) {
+        this.pendingUnlinkURIs.add(uri);
+      }
     }
 
     this.setState(
@@ -532,6 +545,24 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     }));
 
     await this.uploadFiles(localMessageID, imageInfos);
+  }
+
+  clearURI = async (uri: string) => {
+    if (!this.pendingUnlinkURIs.has(uri)) {
+      return;
+    }
+    this.pendingUnlinkURIs.delete(uri);
+    const matches = uri.match(/^file:\/\/(.*)$/);
+    if (!matches) {
+      return;
+    }
+    const path = matches[1];
+    if (!path) {
+      return;
+    }
+    try {
+      await filesystem.unlink(path);
+    } catch (e) { }
   }
 
   render() {
