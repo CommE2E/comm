@@ -659,28 +659,44 @@ class CameraModal extends React.PureComponent<Props, State> {
       top: Math.max(this.props.contentVerticalOffset - 3, 3),
     };
     return (
-      <>
-        <Animated.View style={this.focusIndicatorStyle} />
-        <TouchableOpacity
-          onPress={this.changeFlashMode}
-          onLayout={this.onFlashButtonLayout}
-          style={[ styles.flashButton, topButtonStyle ]}
-          ref={this.flashButtonRef}
-        >
-          {flashIcon}
-        </TouchableOpacity>
-        <View style={styles.bottomButtonsContainer}>
-          <TouchableOpacity
-            onPress={this.takePhoto}
-            onLayout={this.onPhotoButtonLayout}
-            style={styles.saveButton}
-            ref={this.photoButtonRef}
+      <PinchGestureHandler
+        onGestureEvent={this.pinchEvent}
+        onHandlerStateChange={this.pinchEvent}
+        simultaneousHandlers={this.tapHandler}
+        ref={this.pinchHandler}
+      >
+        <Animated.View style={styles.fill}>
+          <TapGestureHandler
+            onHandlerStateChange={this.tapEvent}
+            simultaneousHandlers={this.pinchHandler}
+            waitFor={this.pinchHandler}
+            ref={this.tapHandler}
           >
-            <View style={styles.saveButtonInner} />
-          </TouchableOpacity>
-          {switchCameraButton}
-        </View>
-      </>
+            <Animated.View style={styles.fill}>
+              <Animated.View style={this.focusIndicatorStyle} />
+              <TouchableOpacity
+                onPress={this.changeFlashMode}
+                onLayout={this.onFlashButtonLayout}
+                style={[ styles.flashButton, topButtonStyle ]}
+                ref={this.flashButtonRef}
+              >
+                {flashIcon}
+              </TouchableOpacity>
+              <View style={styles.bottomButtonsContainer}>
+                <TouchableOpacity
+                  onPress={this.takePhoto}
+                  onLayout={this.onPhotoButtonLayout}
+                  style={styles.saveButton}
+                  ref={this.photoButtonRef}
+                >
+                  <View style={styles.saveButtonInner} />
+                </TouchableOpacity>
+                {switchCameraButton}
+              </View>
+            </Animated.View>
+          </TapGestureHandler>
+        </Animated.View>
+      </PinchGestureHandler>
     );
   }
 
@@ -692,39 +708,23 @@ class CameraModal extends React.PureComponent<Props, State> {
       ? RNCamera.Constants.Type.front
       : RNCamera.Constants.Type.back;
     return (
-      <PinchGestureHandler
-        onGestureEvent={this.pinchEvent}
-        onHandlerStateChange={this.pinchEvent}
-        simultaneousHandlers={this.tapHandler}
-        ref={this.pinchHandler}
-      >
-        <Animated.View style={this.containerStyle}>
-          {statusBar}
-          <Animated.Code exec={this.animationCode} />
-          <TapGestureHandler
-            onHandlerStateChange={this.tapEvent}
-            simultaneousHandlers={this.pinchHandler}
-            waitFor={this.pinchHandler}
-            ref={this.tapHandler}
-          >
-            <Animated.View style={styles.fill}>
-              <RNCamera
-                type={type}
-                captureAudio={false}
-                maxZoom={maxZoom}
-                zoom={this.state.zoom}
-                flashMode={this.state.flashMode}
-                autoFocusPointOfInterest={this.state.autoFocusPointOfInterest}
-                style={styles.fill}
-                androidCameraPermissionOptions={permissionRationale}
-                ref={this.cameraRef}
-              >
-                {this.renderCamera}
-              </RNCamera>
-            </Animated.View>
-          </TapGestureHandler>
-        </Animated.View>
-      </PinchGestureHandler>
+      <Animated.View style={this.containerStyle}>
+        {statusBar}
+        <Animated.Code exec={this.animationCode} />
+        <RNCamera
+          type={type}
+          captureAudio={false}
+          maxZoom={maxZoom}
+          zoom={this.state.zoom}
+          flashMode={this.state.flashMode}
+          autoFocusPointOfInterest={this.state.autoFocusPointOfInterest}
+          style={styles.fill}
+          androidCameraPermissionOptions={permissionRationale}
+          ref={this.cameraRef}
+        >
+          {this.renderCamera}
+        </RNCamera>
+      </Animated.View>
     );
   }
 
