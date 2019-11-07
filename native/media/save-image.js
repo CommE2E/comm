@@ -11,6 +11,7 @@ import { fileInfoFromData } from 'lib/utils/file-utils';
 
 import { blobToDataURI, dataURIToIntArray } from '../utils/media-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
+import { getAndroidPermission } from '../utils/android-permissions';
 
 async function saveImage(mediaInfo: MediaInfo) {
   let result, message;
@@ -34,7 +35,13 @@ async function saveImage(mediaInfo: MediaInfo) {
 // On Android, we save the image to our own SquadCal folder in the
 // Pictures directory, and then trigger the media scanner to pick it up
 async function saveImageAndroid(mediaInfo: MediaInfo) {
-  const hasPermission = await getAndroidPermissions();
+  const hasPermission = await getAndroidPermission(
+    PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+    {
+      title: "Save Photo",
+      message: "Requesting access to your external storage",
+    },
+  );
   if (!hasPermission) {
     return false;
   }
@@ -43,24 +50,6 @@ async function saveImageAndroid(mediaInfo: MediaInfo) {
   const filePath = await saveToDisk(mediaInfo.uri, saveFolder);
   await filesystem.scanFile(filePath);
   return true;
-}
-
-async function getAndroidPermissions() {
-  try {
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-      {
-        title: "Save Photo",
-        message: "Requesting access to your external storage",
-      },
-    )
-    if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-      throw new Error('android_permissions');
-    }
-    return true;
-  } catch (err) {
-    return false;
-  }
 }
 
 // On iOS, we save the image to the camera roll

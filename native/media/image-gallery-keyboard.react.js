@@ -35,6 +35,7 @@ import {
 import ImageGalleryImage from './image-gallery-image.react';
 import Animated, { Easing } from 'react-native-reanimated';
 import { colorsSelector, styleSelector } from '../themes/colors';
+import { getAndroidPermission } from '../utils/android-permissions';
 
 const animationSpec = {
   duration: 400,
@@ -73,7 +74,6 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
   queueModeProgress = new Animated.Value(0);
   sendButtonStyle: ViewStyle;
   imagesSelected = false;
-  androidPermissionsGranted: bool | void;
 
   constructor(props: Props) {
     super(props);
@@ -279,26 +279,17 @@ class ImageGalleryKeyboard extends React.PureComponent<Props, State> {
   }
 
   async getAndroidPermissions(): Promise<bool> {
-    if (this.androidPermissionsGranted !== undefined) {
-      return this.androidPermissionsGranted;
-    }
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-        {
-          title: "Access Your Photos",
-          message: "Requesting access to your external storage",
-        },
-      )
-      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-        throw new Error('android_permissions');
-      }
-      this.androidPermissionsGranted = true;
-    } catch (err) {
+    const granted = await getAndroidPermission(
+      PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+      {
+        title: "Access Your Photos",
+        message: "Requesting access to your external storage",
+      },
+    )
+    if (!granted) {
       this.guardedSetState({ error: "don't have permission :(" });
-      this.androidPermissionsGranted = false;
     }
-    return this.androidPermissionsGranted;
+    return granted;
   }
 
   get queueModeActive() {
