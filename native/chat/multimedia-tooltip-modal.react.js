@@ -7,7 +7,7 @@ import type {
 
 import { createTooltip, tooltipHeight } from '../navigation/tooltip.react';
 import MultimediaTooltipButton from './multimedia-tooltip-button.react';
-import { saveImage } from '../media/save-image';
+import { intentionalSaveImage } from '../media/save-image';
 
 type CustomProps = {
   item: ChatMultimediaMessageInfoItem,
@@ -16,7 +16,7 @@ type CustomProps = {
 };
 
 function onPressSave(props: CustomProps) {
-  return saveImage(props.mediaInfo);
+  return intentionalSaveImage(props.mediaInfo);
 }
 
 const spec = {

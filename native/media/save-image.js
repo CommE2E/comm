@@ -1,6 +1,6 @@
 // @flow
 
-import type { MediaInfo } from 'lib/types/media-types';
+import type { MediaType } from 'lib/types/media-types';
 
 import { Platform, PermissionsAndroid } from 'react-native';
 import filesystem from 'react-native-fs';
@@ -13,10 +13,16 @@ import { blobToDataURI, dataURIToIntArray } from '../utils/media-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
 import { getAndroidPermission } from '../utils/android-permissions';
 
-async function saveImage(mediaInfo: MediaInfo) {
+type SaveImageInfo = {
+  uri: string,
+  type: MediaType,
+  ...
+};
+
+async function intentionalSaveImage(mediaInfo: SaveImageInfo) {
   let result, message;
   if (Platform.OS === "android") {
-    result = await saveImageAndroid(mediaInfo);
+    result = await saveImageAndroid(mediaInfo, "request");
   } else if (Platform.OS === "ios") {
     result = await saveImageIOS(mediaInfo);
   } else {
@@ -34,17 +40,28 @@ async function saveImage(mediaInfo: MediaInfo) {
 
 // On Android, we save the image to our own SquadCal folder in the
 // Pictures directory, and then trigger the media scanner to pick it up
-async function saveImageAndroid(mediaInfo: MediaInfo) {
-  const hasPermission = await getAndroidPermission(
-    PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-    {
-      title: "Save Photo",
-      message: "Requesting access to your external storage",
-    },
-  );
+async function saveImageAndroid(
+  mediaInfo: SaveImageInfo,
+  permissions: "check" | "request",
+) {
+  let hasPermission;
+  if (permissions === "check") {
+    hasPermission = await getAndroidPermission(
+      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+      {
+        title: "Save Photo",
+        message: "Requesting access to your external storage",
+      },
+    );
+  } else {
+    hasPermission = await PermissionsAndroid.check(
+      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+    );
+  }
   if (!hasPermission) {
     return false;
   }
+
   const saveFolder = `${filesystem.PicturesDirectoryPath}/SquadCal`;
   await filesystem.mkdir(saveFolder);
   const filePath = await saveToDisk(mediaInfo.uri, saveFolder);
@@ -53,7 +70,7 @@ async function saveImageAndroid(mediaInfo: MediaInfo) {
 }
 
 // On iOS, we save the image to the camera roll
-async function saveImageIOS(mediaInfo: MediaInfo) {
+async function saveImageIOS(mediaInfo: SaveImageInfo) {
   const { uri, type } = mediaInfo;
 
   let tempFile;
@@ -90,5 +107,5 @@ async function saveToDisk(uri: string, directory: string) {
 }
 
 export {
-  saveImage,
+  intentionalSaveImage,
 };

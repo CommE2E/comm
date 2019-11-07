@@ -53,7 +53,7 @@ import {
   gestureJustStarted,
   gestureJustEnded,
 } from '../utils/animation-utils';
-import { saveImage } from './save-image';
+import { intentionalSaveImage } from './save-image';
 
 const {
   Value,
@@ -1238,7 +1238,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   }
 
   save = async () => {
-    await saveImage(this.props.navigation.state.params.mediaInfo);
+    await intentionalSaveImage(this.props.navigation.state.params.mediaInfo);
   }
 
   setCloseButtonEnabled = ([ enabledNum ]: [ number ]) => {
