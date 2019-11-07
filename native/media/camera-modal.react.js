@@ -229,6 +229,7 @@ type Props = {
   contentVerticalOffset: number,
   deviceCameraInfo: DeviceCameraInfo,
   deviceOrientation: Orientations,
+  foreground: bool,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 };
@@ -252,8 +253,10 @@ class CameraModal extends React.PureComponent<Props, State> {
     contentVerticalOffset: PropTypes.number.isRequired,
     deviceCameraInfo: deviceCameraInfoPropType.isRequired,
     deviceOrientation: PropTypes.string.isRequired,
+    foreground: PropTypes.bool.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
+  camera: ?RNCamera;
 
   pinchEvent;
   pinchHandler = React.createRef();
@@ -537,6 +540,10 @@ class CameraModal extends React.PureComponent<Props, State> {
       this.setState({ autoFocusPointOfInterest: null });
       this.cancelIndicatorAnimation.setValue(1);
     }
+
+    if (this.props.foreground && !prevProps.foreground && this.camera) {
+      this.camera.refreshAuthorizationStatus();
+    }
   }
 
   get containerStyle() {
@@ -686,6 +693,7 @@ class CameraModal extends React.PureComponent<Props, State> {
                 autoFocusPointOfInterest={this.state.autoFocusPointOfInterest}
                 style={styles.fill}
                 androidCameraPermissionOptions={permissionRationale}
+                ref={this.cameraRef}
               >
                 {this.renderCamera}
               </RNCamera>
@@ -694,6 +702,10 @@ class CameraModal extends React.PureComponent<Props, State> {
         </Animated.View>
       </PinchGestureHandler>
     );
+  }
+
+  cameraRef = (camera: ?RNCamera) => {
+    this.camera = camera;
   }
 
   closeButtonRef = (closeButton: ?TouchableOpacity) => {
@@ -974,6 +986,7 @@ export default connect(
     contentVerticalOffset: contentVerticalOffsetSelector(state),
     deviceCameraInfo: state.deviceCameraInfo,
     deviceOrientation: state.deviceOrientation,
+    foreground: state.foreground,
   }),
   null,
   true,
