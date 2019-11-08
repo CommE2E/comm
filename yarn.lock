@@ -1324,15 +1324,6 @@
   resolved "https://registry.yarnpkg.com/@protobufjs/utf8/-/utf8-1.1.0.tgz#a777360b5b39a1a2e5106f8e858f2fd2d060c570"
   integrity sha1-p3c2C1s5oaLlEG+OhY8v0tBgxXA=
 
-"@react-native-community/art@^1.0.1", "@react-native-community/art@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@react-native-community/art/-/art-1.0.2.tgz#38671edcf4eb3d820d62dc5ba3a151d75352f847"
-  integrity sha512-GFqRy5DfHmD0LF+cIn1TPeNienFNTuLsv3SNq1vsg2J04l51ESSAUq7dY35cCE/g6Hfi9t8zx+A9sEMplRKZ0g==
-  dependencies:
-    art "^0.10.3"
-    invariant "^2.2.4"
-    prop-types "^15.7.2"
-
 "@react-native-community/async-storage@^1.6.1":
   version "1.6.2"
   resolved "https://registry.yarnpkg.com/@react-native-community/async-storage/-/async-storage-1.6.2.tgz#a19ca7149c4dfe8216f2330e6b1ebfe2d075ef92"
@@ -2083,17 +2074,6 @@ anymatch@^3.0.1:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
-apn@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/apn/-/apn-2.2.0.tgz#211ae4adf31b115a033342376b7ce23a5d18c393"
-  integrity sha512-YIypYzPVJA9wzNBLKZ/mq2l1IZX/2FadPvwmSv4ZeR0VH7xdNITQ6Pucgh0Uw6ZZKC+XwheaJ57DFZAhJ0FvPg==
-  dependencies:
-    debug "^3.1.0"
-    http2 "https://github.com/node-apn/node-http2/archive/apn-2.1.4.tar.gz"
-    jsonwebtoken "^8.1.0"
-    node-forge "^0.7.1"
-    verror "^1.10.0"
-
 "apn@git+https://github.com/node-apn/node-apn.git#3.0.0":
   version "3.0.0"
   resolved "git+https://github.com/node-apn/node-apn.git#38a357ed0c153aad09c2857e48a710527e685bfc"
@@ -2222,7 +2202,7 @@ arrify@^2.0.0:
   resolved "https://registry.yarnpkg.com/arrify/-/arrify-2.0.1.tgz#c9655e9331e0abcd588d2a7cad7e9956f66701fa"
   integrity sha512-3duEwti880xqi4eAMN8AyR4a0ByT90zoYdLlevfrvU43vb0YZwZVfxOgxWrLXXXpyugL0hNZc9G6BiB5B3nUug==
 
-art@^0.10.0, art@^0.10.3:
+art@^0.10.0:
   version "0.10.3"
   resolved "https://registry.yarnpkg.com/art/-/art-0.10.3.tgz#b01d84a968ccce6208df55a733838c96caeeaea2"
   integrity sha512-HXwbdofRTiJT6qZX/FnchtldzJjS3vkLJxQilc3Xj+ma2MXjY4UAyQ0ls1XZYVnDvVIBiFZbC6QsvtW86TD6tQ==
@@ -10168,12 +10148,10 @@ react-native-orientation-locker@^1.1.6:
   resolved "https://registry.yarnpkg.com/react-native-orientation-locker/-/react-native-orientation-locker-1.1.6.tgz#7d66a62cdbf4dd1548522efe69a4e04af5daf929"
   integrity sha512-yXTC8KmKfhuEAh+gCOcehx0v4IjYapV0lJ6W1muafoISvxMsT+Cizzy+Iz78hQywVZTJNB/Xusl7WMXev7OxDQ==
 
-react-native-progress@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/react-native-progress/-/react-native-progress-4.0.1.tgz#9d61adb997d3d767365e7b68c96a188f2f3ed983"
-  integrity sha512-libLQjUm8MJyAbW0drxDBUNyDB3C/pmv8rxR2EjdsdBAMsnDTPrL6ljN+vXWi2zfKOcbn+TFU5llnl/vcGPoaA==
+"react-native-progress@git+https://git@github.com/oblador/react-native-progress.git#984c9f2232d5c1a3f9c5481633d34ed6bc6ca476":
+  version "3.6.0"
+  resolved "git+https://git@github.com/oblador/react-native-progress.git#984c9f2232d5c1a3f9c5481633d34ed6bc6ca476"
   dependencies:
-    "@react-native-community/art" "^1.0.1"
     prop-types "^15.7.2"
 
 react-native-reanimated@^1.3.0:

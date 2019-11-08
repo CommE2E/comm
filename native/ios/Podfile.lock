@@ -38,6 +38,8 @@ PODS:
     - React-RCTText (= 0.60.6)
     - React-RCTVibration (= 0.60.6)
     - React-RCTWebSocket (= 0.60.6)
+  - React-ART (0.60.6):
+    - React-Core (= 0.60.6)
   - React-Core (0.60.6):
     - Folly (= 2018.10.22.00)
     - React-cxxreact (= 0.60.6)
@@ -123,8 +125,6 @@ PODS:
     - React-Core (= 0.60.6)
   - React-RCTWebSocket (0.60.6):
     - React-Core (= 0.60.6)
-  - ReactNativeART (1.0.2):
-    - React
   - ReactNativeDarkMode (0.2.0-rc.1):
     - React
   - RNCAsyncStorage (1.6.2):
@@ -162,6 +162,7 @@ DEPENDENCIES:
   - lottie-ios (from `../../node_modules/lottie-ios`)
   - lottie-react-native (from `../../node_modules/lottie-react-native`)
   - React (from `../../node_modules/react-native/`)
+  - React-ART (from `../../node_modules/react-native/Libraries/ART`)
   - React-Core (from `../../node_modules/react-native/React`)
   - React-cxxreact (from `../../node_modules/react-native/ReactCommon/cxxreact`)
   - React-DevSupport (from `../../node_modules/react-native/React`)
@@ -189,7 +190,6 @@ DEPENDENCIES:
   - React-RCTText (from `../../node_modules/react-native/Libraries/Text`)
   - React-RCTVibration (from `../../node_modules/react-native/Libraries/Vibration`)
   - React-RCTWebSocket (from `../../node_modules/react-native/Libraries/WebSocket`)
-  - "ReactNativeART (from `../../node_modules/@react-native-community/art`)"
   - ReactNativeDarkMode (from `../../node_modules/react-native-dark-mode`)
   - "RNCAsyncStorage (from `../../node_modules/@react-native-community/async-storage`)"
   - RNExitApp (from `../../node_modules/react-native-exit-app`)
@@ -223,6 +223,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/lottie-react-native"
   React:
     :path: "../../node_modules/react-native/"
+  React-ART:
+    :path: "../../node_modules/react-native/Libraries/ART"
   React-Core:
     :path: "../../node_modules/react-native/React"
   React-cxxreact:
@@ -277,8 +279,6 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native/Libraries/Vibration"
   React-RCTWebSocket:
     :path: "../../node_modules/react-native/Libraries/WebSocket"
-  ReactNativeART:
-    :path: "../../node_modules/@react-native-community/art"
   ReactNativeDarkMode:
     :path: "../../node_modules/react-native-dark-mode"
   RNCAsyncStorage:
@@ -312,6 +312,7 @@ SPEC CHECKSUMS:
   lottie-ios: 496ac5cea1bbf1a7bd1f1f472f3232eb1b8d744b
   lottie-react-native: b123a79529cc732201091f585c62c89bb4747252
   React: 68e7f8dfc27729eade18423072a143120f2f32ab
+  React-ART: b5b51652ddd2096f23c3c045ce4f4309b2aafcf6
   React-Core: fc9dace551f6c8c1007dd2d3cb1bc10c90a01d3e
   React-cxxreact: abe59014fce932d41a08bf1aa5dcad9ca8f0a2c5
   React-DevSupport: b0da2fd9ad4ffb25561bf2a328ab84f78f871bdd
@@ -339,7 +340,6 @@ SPEC CHECKSUMS:
   React-RCTText: d91537e29e38dc69cf09cbca0875cf5dc7402da6
   React-RCTVibration: 7655d72dfb919dd6d8e135ca108a5a2bd9fcd7b4
   React-RCTWebSocket: 7cd2c8d0f8ddd680dc76404defba7ab1f56b83af
-  ReactNativeART: 103929e284be663b5a2f921ed912821f04120a70
   ReactNativeDarkMode: 88317ff05ba95fd063dd347ad32f8c4cefd3166c
   RNCAsyncStorage: 60a80e72d95bf02a01cace55d3697d9724f0d77f
   RNExitApp: c4e052df2568b43bec8a37c7cd61194d4cfee2c3
@@ -354,6 +354,6 @@ SPEC CHECKSUMS:
   SDWebImageWebPCoder: cc72085bb20368b2f8dbb21b7e355c667e1309b7
   yoga: 5079887aa3e4c62142d6bcee493022643ee4d730
 
-PODFILE CHECKSUM: e26aea06ce400ed298a228b8276f9af7174eef68
+PODFILE CHECKSUM: 7292900a639369e9530fcdd5b003e1b768d4dd0e
 
 COCOAPODS: 1.7.5
