@@ -156,9 +156,22 @@ async function convertMedia(
   };
 }
 
+function pathFromURI(uri: string): ?string {
+  const matches = uri.match(/^file:\/\/(.*)$/);
+  if (!matches) {
+    return null;
+  }
+  const path = matches[1];
+  if (!path) {
+    return null;
+  }
+  return path;
+}
+
 export {
   validateMedia,
   blobToDataURI,
   dataURIToIntArray,
   convertMedia,
+  pathFromURI,
 };

@@ -43,6 +43,7 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import Orientation from 'react-native-orientation-locker';
 import invariant from 'invariant';
+import filesystem from 'react-native-fs';
 
 import { connect } from 'lib/utils/redux-utils';
 
@@ -57,6 +58,7 @@ import ContentLoading from '../components/content-loading.react';
 import { colors } from '../themes/colors';
 import { saveImage } from './save-image';
 import SendMediaButton from './send-media-button.react';
+import { pathFromURI } from '../utils/media-utils';
 
 const {
   Value,
@@ -627,8 +629,22 @@ class CameraModal extends React.PureComponent<Props, State> {
         { ...stagingModeAnimationConfig, toValue: 1 },
       ).start();
     } else if (!this.state.pendingImageInfo && prevState.pendingImageInfo) {
+      CameraModal.cleanUpPendingImageInfo(prevState.pendingImageInfo);
       this.sendButtonProgress.setValue(0);
     }
+  }
+
+  static async cleanUpPendingImageInfo(pendingImageInfo: ClientImageInfo) {
+    if (!pendingImageInfo.unlinkURIAfterRemoving) {
+      return;
+    }
+    const path = pathFromURI(pendingImageInfo.uri);
+    if (!path) {
+      return;
+    }
+    try {
+      await filesystem.unlink(path);
+    } catch (e) { }
   }
 
   get containerStyle() {

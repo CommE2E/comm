@@ -36,7 +36,7 @@ import {
 } from 'lib/actions/message-actions';
 
 import { ChatInputStateContext } from './chat-input-state';
-import { validateMedia, convertMedia } from '../utils/media-utils';
+import { validateMedia, convertMedia, pathFromURI } from '../utils/media-utils';
 
 let nextLocalUploadID = 0;
 type ImageInfo = {|
@@ -552,11 +552,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       return;
     }
     this.pendingUnlinkURIs.delete(uri);
-    const matches = uri.match(/^file:\/\/(.*)$/);
-    if (!matches) {
-      return;
-    }
-    const path = matches[1];
+    const path = pathFromURI(uri);
     if (!path) {
       return;
     }
