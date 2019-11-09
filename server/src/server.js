@@ -41,6 +41,7 @@ if (cluster.isMaster) {
   const router = express.Router();
   router.use('/images', express.static('images'));
   router.use('/fonts', express.static('fonts'));
+  router.use('/misc', express.static('misc'));
   router.use(
     '/.well-known',
     express.static(
