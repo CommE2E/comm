@@ -907,8 +907,19 @@ class CameraModal extends React.PureComponent<Props, State> {
     invariant(camera, "camera ref should be set");
     this.setState({ stagingMode: true });
 
+    const {
+      hasCamerasOnBothSides,
+      defaultUseFrontCamera,
+    } = this.props.deviceCameraInfo;
+    // We avoid flipping this.state.useFrontCamera if we discover we don't
+    // actually have a back camera since it causes a bit of lag, but this
+    // means there are cases where it is false but we are actually using the
+    // front camera
+    const usingFrontCamera = this.state.useFrontCamera ||
+      (!hasCamerasOnBothSides && defaultUseFrontCamera);
     const photoPromise = camera.takePictureAsync({
       pauseAfterCapture: Platform.OS === "android",
+      mirrorImage: usingFrontCamera,
     });
     if (Platform.OS === "ios") {
       camera.pausePreview();
