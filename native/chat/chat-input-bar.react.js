@@ -147,7 +147,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       this.expandoButtonsOpacity,
       {
         inputRange: [ 0, 1 ],
-        outputRange: [ 22, 58 ],
+        outputRange: [ 22, 60 ],
       },
     );
   }
@@ -338,7 +338,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
                   <Animated.View style={this.cameraIconStyle}>
                     <FAIcon
                       name="camera"
-                      size={19}
+                      size={20}
                       color={this.props.colors.listInputButton}
                     />
                   </Animated.View>
@@ -619,12 +619,12 @@ const styles = {
     paddingBottom: Platform.OS === "ios" ? 10 : 12,
   },
   cameraRollIcon: {
-    paddingRight: 7,
+    paddingRight: 8,
     paddingBottom: Platform.OS === "ios" ? 5 : 8,
   },
   cameraIcon: {
     paddingRight: 3,
-    paddingBottom: Platform.OS === "ios" ? 10 : 11,
+    paddingBottom: 10,
   },
   explanation: {
     color: 'listBackgroundSecondaryLabel',
