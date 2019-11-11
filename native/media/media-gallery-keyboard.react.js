@@ -454,7 +454,9 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
 
   sendQueuedMedia = () => {
     const { mediaInfos, queuedMediaURIs } = this.state;
-    invariant(mediaInfos && queuedMediaURIs, "should be set");
+    if (!mediaInfos || !queuedMediaURIs) {
+      return;
+    }
     const queuedMediaInfos = [];
     for (let uri of queuedMediaURIs) {
       for (let mediaInfo of mediaInfos) {
