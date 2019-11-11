@@ -129,19 +129,21 @@ async function activityUpdater(
   const memberSetToUnread = setToUnread.filter(filterFunc);
 
   const time = Date.now();
-  const makeUpdates = (
+  const updateDatas = [];
+  const appendUpdateDatas = (
     threadIDs: $ReadOnlyArray<string>,
     unread: bool,
-  ) => createUpdates(
-    threadIDs.map(threadID => ({
-      type: updateTypes.UPDATE_THREAD_READ_STATUS,
-      userID: viewer.userID,
-      time,
-      threadID,
-      unread,
-    })),
-    { viewer, updatesForCurrentSession: "ignore" },
-  );
+  ) => {
+    for (let threadID of threadIDs) {
+      updateDatas.push({
+        type: updateTypes.UPDATE_THREAD_READ_STATUS,
+        userID: viewer.userID,
+        time,
+        threadID,
+        unread,
+      });
+    }
+  }
 
   const promises = [ focusUpdatePromise ];
   if (memberSetToRead.length > 0) {
@@ -151,7 +153,7 @@ async function activityUpdater(
       WHERE thread IN (${memberSetToRead})
         AND user = ${viewer.userID}
     `));
-    promises.push(makeUpdates(memberSetToRead, false));
+    appendUpdateDatas(memberSetToRead, false);
   }
   if (memberSetToUnread.length > 0) {
     promises.push(dbQuery(SQL`
@@ -160,8 +162,12 @@ async function activityUpdater(
       WHERE thread IN (${memberSetToUnread})
         AND user = ${viewer.userID}
     `));
-    promises.push(makeUpdates(memberSetToUnread, true));
+    appendUpdateDatas(memberSetToUnread, true);
   }
+  promises.push(createUpdates(
+    updateDatas,
+    { viewer, updatesForCurrentSession: "ignore" },
+  ));
 
   await Promise.all(promises);
 
