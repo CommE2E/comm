@@ -24,7 +24,7 @@ async function fetchOrCreateDayID(
 
   const [ id ] = await createIDs("days", 1);
   const insertQuery = SQL`
-    INSERT INTO days(id, date, thread) VALUES ${[[ id, date, threadID]]}
+    INSERT INTO days(id, date, thread) VALUES ${[[ id, date, threadID ]]}
   `;
   try {
     await dbQuery(insertQuery);
