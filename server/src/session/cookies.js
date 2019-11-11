@@ -281,26 +281,42 @@ async function fetchViewerFromCookieData(
   req: $Request,
   sessionParameterInfo: SessionParameterInfo,
 ): Promise<FetchViewerResult> {
+  let viewerResult;
   const { user, anonymous } = req.cookies;
   if (user) {
-    return await fetchUserViewer(
+    viewerResult = await fetchUserViewer(
       user,
       cookieSources.HEADER,
       sessionParameterInfo,
     );
   } else if (anonymous) {
-    return await fetchAnonymousViewer(
+    viewerResult = await fetchAnonymousViewer(
       anonymous,
       cookieSources.HEADER,
       sessionParameterInfo,
     );
+  } else {
+    return {
+      type: "nonexistant",
+      cookieName: null,
+      cookieSource: null,
+      sessionParameterInfo,
+    };
   }
-  return {
-    type: "nonexistant",
-    cookieName: null,
-    cookieSource: null,
-    sessionParameterInfo,
-  };
+
+  // We protect against CSRF attacks by making sure that on web,
+  // non-GET requests cannot use a bare cookie for session identification
+  if (viewerResult.type === "valid") {
+    const { viewer } = viewerResult;
+    invariant(
+      req.method === "GET" ||
+        viewer.sessionIdentifierType !== sessionIdentifierTypes.COOKIE_ID ||
+        viewer.platform !== "web",
+      "non-GET request from web using sessionIdentifierTypes.COOKIE_ID",
+    );
+  }
+
+  return viewerResult;
 }
 
 async function fetchViewerFromRequestBody(
