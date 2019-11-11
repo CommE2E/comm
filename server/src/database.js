@@ -65,7 +65,7 @@ function FakeSQLResult() {
 FakeSQLResult.prototype = Array.prototype;
 const fakeResult: any = new FakeSQLResult();
 
-async function dbQuery(statement: SQLStatement) {
+async function dbQuery(statement: SQLStatement, triesLeft?: number = 2) {
   try {
     const sql = statement.sql.trim();
     if (
@@ -79,6 +79,10 @@ async function dbQuery(statement: SQLStatement) {
     }
     return await pool.query(statement);
   } catch (e) {
+    if (e.errno === 1213 && triesLeft > 0) {
+      console.log('deadlock occurred, trying again', e);
+      return await dbQuery(statement, triesLeft - 1);
+    }
     e.query = statement.sql;
     throw e;
   }
