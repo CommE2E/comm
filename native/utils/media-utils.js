@@ -1,7 +1,6 @@
 // @flow
 
 import type { Dimensions, MediaType } from 'lib/types/media-types';
-import type { GalleryImageInfo } from '../media/image-gallery-image.react';
 
 import { Platform, Image } from 'react-native';
 import base64 from 'base-64';

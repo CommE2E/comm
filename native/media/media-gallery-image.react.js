@@ -27,7 +27,7 @@ import
 from 'react-native-reanimated';
 import invariant from 'invariant';
 
-export type GalleryImageInfo = {|
+export type GalleryMediaInfo = {|
   ...Dimensions,
   uri: string,
 |};
@@ -43,14 +43,14 @@ const reanimatedSpec = {
 const isAndroid44 = Platform.OS === "android" && Platform.Version < 21;
 
 type Props = {|
-  imageInfo: GalleryImageInfo,
+  imageInfo: GalleryMediaInfo,
   containerHeight: number,
   queueModeActive: bool,
   isQueued: bool,
-  setImageQueued: (image: GalleryImageInfo, isQueued: bool) => void,
-  sendImage: (image: GalleryImageInfo) => void,
+  setImageQueued: (image: GalleryMediaInfo, isQueued: bool) => void,
+  sendImage: (image: GalleryMediaInfo) => void,
   isFocused: bool,
-  setFocus: (image: GalleryImageInfo, isFocused: bool) => void,
+  setFocus: (image: GalleryMediaInfo, isFocused: bool) => void,
   screenWidth: number,
 |};
 class ImageGalleryImage extends React.PureComponent<Props> {

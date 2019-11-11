@@ -21,7 +21,7 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { KeyboardEvent } from '../keyboard';
-import type { GalleryImageInfo } from '../media/image-gallery-image.react';
+import type { GalleryMediaInfo } from '../media/media-gallery-image.react';
 import {
   type KeyboardState,
   keyboardStatePropType,
@@ -72,8 +72,8 @@ import Button from '../components/button.react';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import { getKeyboardHeight } from '../keyboard';
 import {
-  imageGalleryKeyboardName,
-} from '../media/image-gallery-keyboard.react';
+  mediaGalleryKeyboardName,
+} from '../media/media-gallery-keyboard.react';
 import { ChatInputStateContext } from './chat-input-state';
 import { colorsSelector, styleSelector } from '../themes/colors';
 import { CameraModalRouteName } from '../navigation/route-names';
@@ -152,9 +152,9 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     );
   }
 
-  static imageGalleryOpen(props: Props) {
+  static mediaGalleryOpen(props: Props) {
     const { keyboardState } = props;
-    return !!(keyboardState && keyboardState.imageGalleryOpen);
+    return !!(keyboardState && keyboardState.mediaGalleryOpen);
   }
 
   static systemKeyboardShowing(props: Props) {
@@ -186,8 +186,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       this.expandButtons();
     }
 
-    const imageGalleryIsOpen = ChatInputBar.imageGalleryOpen(this.props);
-    const imageGalleryWasOpen = ChatInputBar.imageGalleryOpen(prevProps);
+    const imageGalleryIsOpen = ChatInputBar.mediaGalleryOpen(this.props);
+    const imageGalleryWasOpen = ChatInputBar.mediaGalleryOpen(prevProps);
     if (!imageGalleryIsOpen && imageGalleryWasOpen) {
       this.hideButtons();
     } else if (imageGalleryIsOpen && !imageGalleryWasOpen) {
@@ -318,7 +318,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
               <View style={this.props.styles.innerExpandoButtons}>
                 {this.state.buttonsExpanded ? expandoButton : null}
                 <TouchableOpacity
-                  onPress={this.openImageGallery}
+                  onPress={this.openMediaGallery}
                   activeOpacity={0.4}
                 >
                   <Animated.View style={this.cameraRollIconStyle}>
@@ -395,16 +395,16 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     }
 
     let keyboardAccessoryView = null;
-    const imageGalleryIsOpen = ChatInputBar.imageGalleryOpen(this.props);
+    const imageGalleryIsOpen = ChatInputBar.mediaGalleryOpen(this.props);
     if (Platform.OS !== "android" || imageGalleryIsOpen) {
-      const kbComponent = imageGalleryIsOpen ? imageGalleryKeyboardName : null;
+      const kbComponent = imageGalleryIsOpen ? mediaGalleryKeyboardName : null;
       keyboardAccessoryView = (
         <KeyboardAccessoryView
           kbInputRef={this.textInput}
           kbComponent={kbComponent}
           kbInitialProps={this.props.styles.kbInitialProps}
-          onItemSelected={this.onImageGalleryItemSelected}
-          onKeyboardResigned={this.hideImageGallery}
+          onItemSelected={this.onMediaGalleryItemSelected}
+          onKeyboardResigned={this.hideMediaGallery}
           manageScrollView={false}
         />
       );
@@ -523,7 +523,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   hideButtons() {
     if (
-      ChatInputBar.imageGalleryOpen(this.props) ||
+      ChatInputBar.mediaGalleryOpen(this.props) ||
       !this.systemKeyboardShowing ||
       !this.state.buttonsExpanded
     ) {
@@ -543,17 +543,17 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     });
   }
 
-  openImageGallery = () => {
-    this.setImageGalleryOpen(true);
+  openMediaGallery = () => {
+    this.setMediaGalleryOpen(true);
   }
 
-  hideImageGallery = () => {
-    this.setImageGalleryOpen(false);
+  hideMediaGallery = () => {
+    this.setMediaGalleryOpen(false);
   }
 
-  onImageGalleryItemSelected = (
+  onMediaGalleryItemSelected = (
     keyboardName: string,
-    imageInfos: $ReadOnlyArray<GalleryImageInfo>,
+    imageInfos: $ReadOnlyArray<GalleryMediaInfo>,
   ) => {
     this.dismissKeyboard();
     const chatInputState = this.context;
@@ -561,10 +561,10 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     chatInputState.sendMultimediaMessage(this.props.threadInfo.id, imageInfos);
   }
 
-  setImageGalleryOpen(imageGalleryOpen: bool) {
+  setMediaGalleryOpen(mediaGalleryOpen: bool) {
     const { keyboardState } = this.props;
     invariant(keyboardState, "keyboardState should be initialized");
-    keyboardState.setImageGalleryOpen(imageGalleryOpen);
+    keyboardState.setMediaGalleryOpen(mediaGalleryOpen);
   }
 
   dismissKeyboard = () => {

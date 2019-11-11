@@ -8,8 +8,8 @@ export type KeyboardState = {|
   dismissKeyboard: () => void,
   dismissKeyboardIfShowing: () => bool,
   systemKeyboardShowing: bool,
-  imageGalleryOpen: bool,
-  setImageGalleryOpen: (imageGalleryOpen: bool) => void,
+  mediaGalleryOpen: bool,
+  setMediaGalleryOpen: (mediaGalleryOpen: bool) => void,
 |};
 
 const keyboardStatePropType = PropTypes.shape({
@@ -17,8 +17,8 @@ const keyboardStatePropType = PropTypes.shape({
   dismissKeyboard: PropTypes.func.isRequired,
   dismissKeyboardIfShowing: PropTypes.func.isRequired,
   systemKeyboardShowing: PropTypes.bool.isRequired,
-  imageGalleryOpen: PropTypes.bool.isRequired,
-  setImageGalleryOpen: PropTypes.func.isRequired,
+  mediaGalleryOpen: PropTypes.bool.isRequired,
+  setMediaGalleryOpen: PropTypes.func.isRequired,
 });
 
 const KeyboardContext = React.createContext<?KeyboardState>(null);

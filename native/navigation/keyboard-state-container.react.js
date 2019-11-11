@@ -16,7 +16,7 @@ type Props = {|
 |};
 type State = {|
   systemKeyboardShowing: bool,
-  imageGalleryOpen: bool,
+  mediaGalleryOpen: bool,
 |};
 class KeyboardStateContainer extends React.PureComponent<Props, State> {
 
@@ -25,7 +25,7 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
   };
   state = {
     systemKeyboardShowing: false,
-    imageGalleryOpen: false,
+    mediaGalleryOpen: false,
   };
   keyboardShowListener: ?Object;
   keyboardDismissListener: ?Object;
@@ -69,29 +69,29 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
   }
 
   get keyboardShowing() {
-    const { systemKeyboardShowing, imageGalleryOpen } = this.state;
-    return systemKeyboardShowing || imageGalleryOpen;
+    const { systemKeyboardShowing, mediaGalleryOpen } = this.state;
+    return systemKeyboardShowing || mediaGalleryOpen;
   }
 
-  setImageGalleryOpen = (imageGalleryOpen: bool) => {
-    this.setState({ imageGalleryOpen });
+  setMediaGalleryOpen = (mediaGalleryOpen: bool) => {
+    this.setState({ mediaGalleryOpen });
   }
 
   render() {
-    const { systemKeyboardShowing, imageGalleryOpen } = this.state;
+    const { systemKeyboardShowing, mediaGalleryOpen } = this.state;
     const {
       keyboardShowing,
       dismissKeyboard,
       dismissKeyboardIfShowing,
-      setImageGalleryOpen,
+      setMediaGalleryOpen,
     } = this;
     const keyboardState = {
       keyboardShowing,
       dismissKeyboard,
       dismissKeyboardIfShowing,
       systemKeyboardShowing,
-      imageGalleryOpen,
-      setImageGalleryOpen,
+      mediaGalleryOpen,
+      setMediaGalleryOpen,
     };
     return (
       <KeyboardContext.Provider value={keyboardState}>
