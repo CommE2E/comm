@@ -277,20 +277,23 @@ class ChatInputBar extends React.PureComponent<Props> {
   }
 
   send() {
+    let { nextLocalID } = this.props;
+
     const text = this.props.chatInputState.draft.trim();
     if (text) {
       // TODO we should make the send button appear dynamically
       // iff trimmed text is nonempty, just like native
-      this.dispatchTextMessageAction(text);
+      this.dispatchTextMessageAction(text, nextLocalID);
+      nextLocalID++;
     }
 
-    this.props.chatInputState.createMultimediaMessage();
+    this.props.chatInputState.createMultimediaMessage(nextLocalID);
   }
 
-  dispatchTextMessageAction(text: string) {
+  dispatchTextMessageAction(text: string, nextLocalID: number) {
     this.props.chatInputState.setDraft("");
 
-    const localID = `local${this.props.nextLocalID}`;
+    const localID = `local${nextLocalID}`;
     const creatorID = this.props.viewerID;
     invariant(creatorID, "should have viewer ID in order to send a message");
     const messageInfo = ({

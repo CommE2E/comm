@@ -51,7 +51,7 @@ export type ChatInputState = {|
   draft: string,
   appendFiles: (files: $ReadOnlyArray<File>) => Promise<void>,
   cancelPendingUpload: (localUploadID: string) => void,
-  createMultimediaMessage: () => void,
+  createMultimediaMessage: (localID?: number) => void,
   setDraft: (draft: string) => void,
   messageHasUploadFailure: (localMessageID: string) => bool,
   retryMultimediaMessage: (localMessageID: string) => void,

@@ -303,8 +303,8 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
           this.appendFiles(threadID, files),
         cancelPendingUpload: (localUploadID: string) =>
           this.cancelPendingUpload(threadID, localUploadID),
-        createMultimediaMessage: () =>
-          this.createMultimediaMessage(threadID),
+        createMultimediaMessage: (localID?: number) =>
+          this.createMultimediaMessage(threadID, localID),
         setDraft: (draft: string) => this.setDraft(threadID, draft),
         messageHasUploadFailure: (localMessageID: string) =>
           this.messageHasUploadFailure(threadAssignedUploads[localMessageID]),
@@ -606,8 +606,11 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
 
   // Creates a MultimediaMessage from the unassigned pending uploads,
   // if there are any
-  createMultimediaMessage(threadID: string) {
-    const localMessageID = `local${this.props.nextLocalID}`;
+  createMultimediaMessage(threadID: string, localID: ?number) {
+    const nextLocalID = (localID !== null && localID !== undefined)
+      ? localID
+      : this.props.nextLocalID;
+    const localMessageID = `local${nextLocalID}`;
     this.setState(prevState => {
       const currentPendingUploads = prevState.pendingUploads[threadID];
       if (!currentPendingUploads) {
