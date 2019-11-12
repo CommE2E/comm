@@ -18,29 +18,37 @@ type Props = {|
   queueCount?: number,
   containerStyle?: ViewStyle,
   style?: ViewStyle,
+  ...$Shape<React.ElementProps<typeof View>>,
 |};
 function SendMediaButton(props: Props) {
-  let queueCount = null;
-  if (props.queueCount !== undefined && props.queueCount !== null) {
-    queueCount = (
+  const {
+    onPress,
+    queueCount,
+    containerStyle,
+    style,
+    ...containerProps
+  } = props;
+
+  let queueCountText = null;
+  if (queueCount !== undefined && queueCount !== null) {
+    queueCountText = (
       <View style={styles.queueCountBubble}>
         <Text style={styles.queueCountText}>
-          {props.queueCount}
+          {queueCount}
         </Text>
       </View>
     );
   }
+
   return (
-    <TouchableOpacity
-      onPress={props.onPress}
-      activeOpacity={0.6}
-      style={props.containerStyle}
-    >
-      <Animated.View style={[ styles.sendButton, props.style ]}>
-        <Icon name="send" style={styles.sendIcon} />
-        {queueCount}
-      </Animated.View>
-    </TouchableOpacity>
+    <View {...containerProps} style={containerStyle}>
+      <TouchableOpacity onPress={onPress} activeOpacity={0.6}>
+        <Animated.View style={[ styles.sendButton, style ]}>
+          <Icon name="send" style={styles.sendIcon} />
+          {queueCountText}
+        </Animated.View>
+      </TouchableOpacity>
+    </View>
   );
 }
 

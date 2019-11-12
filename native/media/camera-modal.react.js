@@ -693,8 +693,9 @@ class CameraModal extends React.PureComponent<Props, State> {
 
   renderStagingView() {
     let image = null;
-    if (this.state.pendingImageInfo) {
-      const imageSource = { uri: this.state.pendingImageInfo.uri };
+    const { pendingImageInfo } = this.state;
+    if (pendingImageInfo) {
+      const imageSource = { uri: pendingImageInfo.uri };
       image = <Image source={imageSource} style={styles.stagingImage} />;
     } else {
       image = <ContentLoading fillType="flex" colors={colors.dark} />;
@@ -714,6 +715,7 @@ class CameraModal extends React.PureComponent<Props, State> {
         </TouchableOpacity>
         <SendMediaButton
           onPress={this.sendPhoto}
+          pointerEvents={pendingImageInfo ? 'auto' : 'none'}
           containerStyle={styles.sendButtonContainer}
           style={this.sendButtonStyle}
         />

@@ -375,6 +375,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
         <SendMediaButton
           onPress={this.sendQueuedMedia}
           queueCount={queueCount}
+          pointerEvents={queuedMediaURIs ? 'auto' : 'none'}
           containerStyle={this.props.styles.sendButtonContainer}
           style={this.sendButtonStyle}
         />
