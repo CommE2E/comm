@@ -1,7 +1,7 @@
 // @flow
 
 import type { Dimensions } from 'lib/types/media-types';
-import type { GalleryMediaInfo } from '../media/media-gallery-image.react';
+import type { GalleryMediaInfo } from '../media/media-gallery-media.react';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';

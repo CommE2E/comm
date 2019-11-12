@@ -43,20 +43,20 @@ const reanimatedSpec = {
 const isAndroid44 = Platform.OS === "android" && Platform.Version < 21;
 
 type Props = {|
-  imageInfo: GalleryMediaInfo,
+  mediaInfo: GalleryMediaInfo,
   containerHeight: number,
   queueModeActive: bool,
   isQueued: bool,
-  setImageQueued: (image: GalleryMediaInfo, isQueued: bool) => void,
-  sendImage: (image: GalleryMediaInfo) => void,
+  setMediaQueued: (media: GalleryMediaInfo, isQueued: bool) => void,
+  sendMedia: (media: GalleryMediaInfo) => void,
   isFocused: bool,
-  setFocus: (image: GalleryMediaInfo, isFocused: bool) => void,
+  setFocus: (media: GalleryMediaInfo, isFocused: bool) => void,
   screenWidth: number,
 |};
-class ImageGalleryImage extends React.PureComponent<Props> {
+class MediaGalleryMedia extends React.PureComponent<Props> {
 
   static propTypes = {
-    imageInfo: PropTypes.shape({
+    mediaInfo: PropTypes.shape({
       height: PropTypes.number.isRequired,
       width: PropTypes.number.isRequired,
       uri: PropTypes.string.isRequired,
@@ -64,8 +64,8 @@ class ImageGalleryImage extends React.PureComponent<Props> {
     containerHeight: PropTypes.number.isRequired,
     queueModeActive: PropTypes.bool.isRequired,
     isQueued: PropTypes.bool.isRequired,
-    setImageQueued: PropTypes.func.isRequired,
-    sendImage: PropTypes.func.isRequired,
+    setMediaQueued: PropTypes.func.isRequired,
+    sendMedia: PropTypes.func.isRequired,
     isFocused: PropTypes.bool.isRequired,
     setFocus: PropTypes.func.isRequired,
     screenWidth: PropTypes.number.isRequired,
@@ -134,8 +134,8 @@ class ImageGalleryImage extends React.PureComponent<Props> {
   componentDidUpdate(prevProps: Props) {
     const animations = [];
 
-    const isActive = ImageGalleryImage.isActive(this.props);
-    const wasActive = ImageGalleryImage.isActive(prevProps);
+    const isActive = MediaGalleryMedia.isActive(this.props);
+    const wasActive = MediaGalleryMedia.isActive(prevProps);
     const { backdrop, backdropProgress } = this;
     if (isActive && !wasActive) {
       if (backdropProgress) {
@@ -186,10 +186,9 @@ class ImageGalleryImage extends React.PureComponent<Props> {
   }
 
   render() {
-    const { imageInfo, containerHeight } = this.props;
-    const { uri, width, height } = imageInfo;
-    const source = { uri };
-    const active = ImageGalleryImage.isActive(this.props);
+    const { mediaInfo, containerHeight } = this.props;
+    const { uri, width, height } = mediaInfo;
+    const active = MediaGalleryMedia.isActive(this.props);
     const dimensionsStyle = {
       height: containerHeight,
       width: Math.max(
@@ -232,6 +231,7 @@ class ImageGalleryImage extends React.PureComponent<Props> {
       );
     }
 
+    const source = { uri };
     const image = (
       <Reanimated.Image
         source={source}
@@ -295,16 +295,16 @@ class ImageGalleryImage extends React.PureComponent<Props> {
 
   onPressBackdrop = () => {
     if (this.props.isQueued) {
-      this.props.setImageQueued(this.props.imageInfo, false);
+      this.props.setMediaQueued(this.props.mediaInfo, false);
     } else if (this.props.queueModeActive) {
-      this.props.setImageQueued(this.props.imageInfo, true);
+      this.props.setMediaQueued(this.props.mediaInfo, true);
     } else {
-      this.props.setFocus(this.props.imageInfo, !this.props.isFocused);
+      this.props.setFocus(this.props.mediaInfo, !this.props.isFocused);
     }
   }
 
   onBackdropStateChange = (from: number, to: number) => {
-    if (ImageGalleryImage.isActive(this.props)) {
+    if (MediaGalleryMedia.isActive(this.props)) {
       return;
     }
     const { backdropProgress } = this;
@@ -325,11 +325,11 @@ class ImageGalleryImage extends React.PureComponent<Props> {
   }
 
   onPressSend = () => {
-    this.props.sendImage(this.props.imageInfo);
+    this.props.sendMedia(this.props.mediaInfo);
   }
 
   onPressEnqueue = () => {
-    this.props.setImageQueued(this.props.imageInfo, true);
+    this.props.setMediaQueued(this.props.mediaInfo, true);
   }
 
   onAnimatingBackdropToZeroCompletion = ({ finished }: { finished: bool }) => {
@@ -388,4 +388,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ImageGalleryImage;
+export default MediaGalleryMedia;

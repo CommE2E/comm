@@ -21,7 +21,7 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { KeyboardEvent } from '../keyboard';
-import type { GalleryMediaInfo } from '../media/media-gallery-image.react';
+import type { GalleryMediaInfo } from '../media/media-gallery-media.react';
 import {
   type KeyboardState,
   keyboardStatePropType,

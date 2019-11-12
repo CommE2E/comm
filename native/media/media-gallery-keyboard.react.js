@@ -1,6 +1,6 @@
 // @flow
 
-import type { GalleryMediaInfo } from './media-gallery-image.react';
+import type { GalleryMediaInfo } from './media-gallery-media.react';
 import type { AppState } from '../redux/redux-setup';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
@@ -30,7 +30,7 @@ import {
   dimensionsSelector,
   contentBottomOffset,
 } from '../selectors/dimension-selectors';
-import MediaGalleryImage from './media-gallery-image.react';
+import MediaGalleryMedia from './media-gallery-media.react';
 import Animated, { Easing } from 'react-native-reanimated';
 import { colorsSelector, styleSelector } from '../themes/colors';
 import { getAndroidPermission } from '../utils/android-permissions';
@@ -304,13 +304,13 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     const isQueued = !!(queuedMediaURIs && queuedMediaURIs.has(uri));
     const { queueModeActive } = this;
     return (
-      <MediaGalleryImage
-        imageInfo={row.item}
+      <MediaGalleryMedia
+        mediaInfo={row.item}
         containerHeight={containerHeight}
         queueModeActive={queueModeActive}
         isQueued={isQueued}
-        setImageQueued={this.setMediaQueued}
-        sendImage={this.sendSingleMedia}
+        setMediaQueued={this.setMediaQueued}
+        sendMedia={this.sendSingleMedia}
         isFocused={this.state.focusedMediaURI === uri}
         setFocus={this.setFocus}
         screenWidth={this.state.screenWidth}
