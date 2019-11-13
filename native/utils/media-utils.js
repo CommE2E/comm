@@ -24,16 +24,29 @@ type ValidateMediaInput = {
   uri: string,
   height: number,
   width: number,
+  type: MediaType,
   ...
 };
 async function validateMedia(
   imageInfo: ValidateMediaInput,
 ): Promise<?MediaValidationResult> {
-  const { uri, height, width } = imageInfo;
+  // React Native always resolves FBMediaKit's ph:// scheme as an image so that
+  // the Image component can render thumbnails of videos. In order to force
+  // fetch() to return a blob of the video, we need to use the ph-upload://
+  // scheme. https://git.io/Jerlh
+  const fbMediaKitURL = imageInfo.uri.startsWith('ph://');
+  const uri = (fbMediaKitURL && imageInfo.type === "video")
+    ? imageInfo.uri.replace(/^ph:/, 'ph-upload:')
+    : imageInfo.uri;
+  const { height, width } = imageInfo;
+
   const dimensions = { height, width };
   const response = await fetch(uri);
   const blob = await response.blob();
-  const reportedMIME = blob.type;
+  const reportedMIME = (fbMediaKitURL && blob.type === "application/octet-stream")
+    ? "video/quicktime"
+    : blob.type;
+
   const mediaType = mimeTypesToMediaTypes[reportedMIME];
   if (!mediaType) {
     return null;
@@ -128,7 +141,7 @@ async function convertMedia(
         uploadURI: resizedURI,
         shouldDisposePath: path,
         name,
-        mime: "image/jpeg",
+        mime: reportedMIME === "image/png" ? "image/png" : "image/jpeg",
         mediaType: "photo",
         dimensions: resizedDimensions,
       };

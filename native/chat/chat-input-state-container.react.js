@@ -504,7 +504,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     );
 
     const imageGalleryImages = retryMedia.map(
-      ({ dimensions, uri }) => ({ ...dimensions, uri }),
+      ({ dimensions, uri, type }) => ({ ...dimensions, uri, type }),
     );
     const validationResults = await Promise.all(
       imageGalleryImages.map(validateMedia),

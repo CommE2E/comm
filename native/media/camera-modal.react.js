@@ -950,6 +950,7 @@ class CameraModal extends React.PureComponent<Props, State> {
       uri,
       width,
       height,
+      type: "photo",
       unlinkURIAfterRemoving: true,
     };
 
