@@ -1,7 +1,12 @@
 // @flow
 
-import type { Dimensions } from 'lib/types/media-types';
+import {
+  type Dimensions,
+  type MediaType,
+  mediaTypePropType,
+} from 'lib/types/media-types';
 import type { ViewStyle, ImageStyle } from '../types/styles';
+import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -26,9 +31,11 @@ import
   { Easing as ReanimatedEasing }
 from 'react-native-reanimated';
 import invariant from 'invariant';
+import Video from 'react-native-video';
 
 export type GalleryMediaInfo = {|
   ...Dimensions,
+  type: MediaType,
   uri: string,
 |};
 const animatedSpec = {
@@ -52,6 +59,7 @@ type Props = {|
   isFocused: bool,
   setFocus: (media: GalleryMediaInfo, isFocused: bool) => void,
   screenWidth: number,
+  colors: Colors,
 |};
 class MediaGalleryMedia extends React.PureComponent<Props> {
 
@@ -59,6 +67,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     mediaInfo: PropTypes.shape({
       height: PropTypes.number.isRequired,
       width: PropTypes.number.isRequired,
+      type: mediaTypePropType.isRequired,
       uri: PropTypes.string.isRequired,
     }).isRequired,
     containerHeight: PropTypes.number.isRequired,
@@ -69,6 +78,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     isFocused: PropTypes.bool.isRequired,
     setFocus: PropTypes.func.isRequired,
     screenWidth: PropTypes.number.isRequired,
+    colors: colorsPropType.isRequired,
   };
   backdrop: ?TouchableOpacity;
   focusProgress = new Reanimated.Value(0);
@@ -76,6 +86,8 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
   backdropProgress: ?Reanimated.Value;
   animatingBackdropToZero = false;
   imageStyle: ImageStyle;
+  videoContainerStyle: ViewStyle;
+  videoOverlayStyle: ViewStyle;
   checkProgress = new Animated.Value(0);
 
   constructor(props: Props) {
@@ -96,7 +108,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
       ],
     };
 
-    const imageScale = Reanimated.interpolate(
+    const mediaScale = Reanimated.interpolate(
       this.focusProgress,
       {
         inputRange: [ 0, 1 ],
@@ -106,9 +118,10 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     if (isAndroid44) {
       this.imageStyle = {
         transform: [
-          { scale: imageScale },
+          { scale: mediaScale },
         ],
       };
+      this.videoOverlayStyle = {};
     } else {
       this.backdropProgress = new Reanimated.Value(0);
       const backdropOpacity = Reanimated.interpolate(
@@ -121,10 +134,27 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
       this.imageStyle = {
         opacity: backdropOpacity,
         transform: [
-          { scale: imageScale },
+          { scale: mediaScale },
         ],
       };
+      const overlayOpacity = Reanimated.interpolate(
+        this.backdropProgress,
+        {
+          inputRange: [ 0, 1 ],
+          outputRange: [ 0, 0.8 ],
+        },
+      );
+      this.videoOverlayStyle = {
+        ...styles.videoOverlay,
+        opacity: overlayOpacity,
+        backgroundColor: props.colors.listBackground,
+      };
     }
+    this.videoContainerStyle = {
+      transform: [
+        { scale: mediaScale },
+      ],
+    };
   }
 
   static isActive(props: Props) {
@@ -187,7 +217,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
 
   render() {
     const { mediaInfo, containerHeight } = this.props;
-    const { uri, width, height } = mediaInfo;
+    const { uri, width, height, type } = mediaInfo;
     const active = MediaGalleryMedia.isActive(this.props);
     const dimensionsStyle = {
       height: containerHeight,
@@ -232,12 +262,27 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     }
 
     const source = { uri };
-    const image = (
-      <Reanimated.Image
-        source={source}
-        style={[ this.imageStyle, dimensionsStyle ]}
-      />
-    );
+    let media;
+    if (type === "video") {
+      media = (
+        <Reanimated.View style={this.videoContainerStyle}>
+          <Video
+            source={source}
+            repeat={true}
+            style={dimensionsStyle}
+          />
+          <Reanimated.View style={this.videoOverlayStyle} />
+        </Reanimated.View>
+      );
+    } else {
+      media = (
+        <Reanimated.Image
+          source={source}
+          style={[ this.imageStyle, dimensionsStyle ]}
+        />
+      );
+    }
+
     const checkAnimation = (
       <LottieView
         source={require('../animations/check.json')}
@@ -258,7 +303,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
             style={backdropStyle}
             ref={this.backdropRef}
           >
-            {image}
+            {media}
           </TouchableOpacity>
           <Reanimated.View style={this.buttonsStyle} pointerEvents="none">
             {checkAnimation}
@@ -274,7 +319,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
           onStateChange={this.onBackdropStateChange}
           delayPressOut={1}
         >
-          {image}
+          {media}
           <Reanimated.View style={this.buttonsStyle}>
             {checkAnimation}
           </Reanimated.View>
@@ -385,6 +430,13 @@ const styles = StyleSheet.create({
   checkAnimation: {
     position: 'absolute',
     width: 128,
+  },
+  videoOverlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
 });
 

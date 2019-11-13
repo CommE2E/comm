@@ -192,7 +192,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
   static getPhotosQuery(after: ?string) {
     const base = {};
     base.first = 20;
-    base.assetType = "Photos";
+    base.assetType = "All";
     if (Platform.OS !== "android") {
       base.groupTypes = "All";
     }
@@ -228,7 +228,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
       let first = true;
       const mediaInfos = edges.map(
         ({ node }) => {
-          const { uri, height, width } = node.image;
+          const { uri, height, width, playableDuration } = node.image;
           if (existingURIs.has(uri)) {
             if (first) {
               firstRemoved = true;
@@ -240,7 +240,17 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
           first = false;
           lastRemoved = false;
           existingURIs.add(uri);
-          return { uri, height, width };
+
+          const isVideo =
+            (Platform.OS === "android" &&
+              playableDuration !== null && playableDuration !== undefined) ||
+            (Platform.OS === "ios" && node.type === "video");
+          return {
+            height,
+            width,
+            type: isVideo ? "video" : "photo",
+            uri,
+          };
         },
       ).filter(Boolean);
 
@@ -314,6 +324,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
         isFocused={this.state.focusedMediaURI === uri}
         setFocus={this.setFocus}
         screenWidth={this.state.screenWidth}
+        colors={this.props.colors}
       />
     );
   }
