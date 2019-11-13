@@ -180,10 +180,27 @@ function pathFromURI(uri: string): ?string {
   return path;
 }
 
+function getCompatibleMediaURI(uri: string, ext: string): string {
+  if (!uri.startsWith('ph://')) {
+    return uri;
+  }
+  const photoKitLocalIdentifier = uri.split('/')[2];
+  if (!photoKitLocalIdentifier) {
+    return uri;
+  }
+  // While the ph:// scheme is a Facebook hack used by FBMediaKit, the
+  // assets-library:// scheme is a legacy Apple identifier. Certain components
+  // and libraries (namely react-native-video) don't know how to handle the
+  // ph:// scheme yet, so we have to map to the legacy assets-library:// scheme
+  return `assets-library://asset/asset.${ext}` +
+    `?id=${photoKitLocalIdentifier}&ext=${ext}`;
+}
+
 export {
   validateMedia,
   blobToDataURI,
   dataURIToIntArray,
   convertMedia,
   pathFromURI,
+  getCompatibleMediaURI,
 };

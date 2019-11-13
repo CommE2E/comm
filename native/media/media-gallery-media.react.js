@@ -37,6 +37,7 @@ export type GalleryMediaInfo = {|
   ...Dimensions,
   type: MediaType,
   uri: string,
+  compatibleURI?: string,
 |};
 const animatedSpec = {
   duration: 400,
@@ -69,6 +70,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
       width: PropTypes.number.isRequired,
       type: mediaTypePropType.isRequired,
       uri: PropTypes.string.isRequired,
+      compatibleURI: PropTypes.string,
     }).isRequired,
     containerHeight: PropTypes.number.isRequired,
     queueModeActive: PropTypes.bool.isRequired,
@@ -217,7 +219,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
 
   render() {
     const { mediaInfo, containerHeight } = this.props;
-    const { uri, width, height, type } = mediaInfo;
+    const { uri, width, height, compatibleURI, type } = mediaInfo;
     const active = MediaGalleryMedia.isActive(this.props);
     const dimensionsStyle = {
       height: containerHeight,
@@ -261,9 +263,9 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
       );
     }
 
-    const source = { uri };
     let media;
     if (type === "video") {
+      const source = { uri: compatibleURI ? compatibleURI : uri };
       media = (
         <Reanimated.View style={this.videoContainerStyle}>
           <Video
@@ -275,6 +277,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
         </Reanimated.View>
       );
     } else {
+      const source = { uri };
       media = (
         <Reanimated.Image
           source={source}
