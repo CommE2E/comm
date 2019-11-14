@@ -34,9 +34,10 @@ import {
   sendMultimediaMessageActionTypes,
   sendMultimediaMessage,
 } from 'lib/actions/message-actions';
+import { pathFromURI } from 'lib/utils/file-utils';
 
 import { ChatInputStateContext } from './chat-input-state';
-import { validateMedia, convertMedia, pathFromURI } from '../utils/media-utils';
+import { validateMedia, convertMedia } from '../utils/media-utils';
 
 let nextLocalUploadID = 0;
 type ImageInfo = {|

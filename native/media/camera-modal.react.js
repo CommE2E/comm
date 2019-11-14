@@ -46,6 +46,7 @@ import invariant from 'invariant';
 import filesystem from 'react-native-fs';
 
 import { connect } from 'lib/utils/redux-utils';
+import { pathFromURI } from 'lib/utils/file-utils';
 
 import {
   contentBottomOffset,
@@ -58,7 +59,6 @@ import ContentLoading from '../components/content-loading.react';
 import { colors } from '../themes/colors';
 import { saveImage } from './save-image';
 import SendMediaButton from './send-media-button.react';
-import { pathFromURI } from '../utils/media-utils';
 
 const {
   Value,

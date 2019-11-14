@@ -168,18 +168,6 @@ async function convertMedia(
   };
 }
 
-function pathFromURI(uri: string): ?string {
-  const matches = uri.match(/^file:\/\/(.*)$/);
-  if (!matches) {
-    return null;
-  }
-  const path = matches[1];
-  if (!path) {
-    return null;
-  }
-  return path;
-}
-
 function getCompatibleMediaURI(uri: string, ext: string): string {
   if (!uri.startsWith('ph://')) {
     return uri;
@@ -201,6 +189,5 @@ export {
   blobToDataURI,
   dataURIToIntArray,
   convertMedia,
-  pathFromURI,
   getCompatibleMediaURI,
 };
