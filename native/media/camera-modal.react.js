@@ -46,7 +46,7 @@ import invariant from 'invariant';
 import filesystem from 'react-native-fs';
 
 import { connect } from 'lib/utils/redux-utils';
-import { pathFromURI } from 'lib/utils/file-utils';
+import { pathFromURI, filenameFromPathOrURI } from 'lib/utils/file-utils';
 
 import {
   contentBottomOffset,
@@ -946,8 +946,15 @@ class CameraModal extends React.PureComponent<Props, State> {
       camera.pausePreview();
     }
     const { uri, width, height } = await photoPromise;
+    const filename = filenameFromPathOrURI(uri);
+    invariant(
+      filename,
+      `unable to parse filename out of react-native-camera URI ${uri}`,
+    );
+
     const pendingImageInfo = {
       uri,
+      filename,
       width,
       height,
       type: "photo",

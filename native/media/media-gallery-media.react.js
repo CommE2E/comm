@@ -33,11 +33,15 @@ from 'react-native-reanimated';
 import invariant from 'invariant';
 import Video from 'react-native-video';
 
+import { extensionFromFilename } from 'lib/utils/file-utils';
+
+import { getCompatibleMediaURI } from '../utils/media-utils';
+
 export type GalleryMediaInfo = {|
   ...Dimensions,
   type: MediaType,
   uri: string,
-  compatibleURI?: string,
+  filename: string,
 |};
 const animatedSpec = {
   duration: 400,
@@ -70,7 +74,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
       width: PropTypes.number.isRequired,
       type: mediaTypePropType.isRequired,
       uri: PropTypes.string.isRequired,
-      compatibleURI: PropTypes.string,
+      filename: PropTypes.string.isRequired,
     }).isRequired,
     containerHeight: PropTypes.number.isRequired,
     queueModeActive: PropTypes.bool.isRequired,
@@ -217,9 +221,18 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     }
   }
 
+  get compatibleURI() {
+    const { uri, filename } = this.props.mediaInfo;
+    const extension = extensionFromFilename(filename);
+    if (!extension) {
+      return uri;
+    }
+    return getCompatibleMediaURI(uri, extension);
+  }
+
   render() {
     const { mediaInfo, containerHeight } = this.props;
-    const { uri, width, height, compatibleURI, type } = mediaInfo;
+    const { uri, width, height, type } = mediaInfo;
     const active = MediaGalleryMedia.isActive(this.props);
     const dimensionsStyle = {
       height: containerHeight,
@@ -265,7 +278,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
 
     let media;
     if (type === "video") {
-      const source = { uri: compatibleURI ? compatibleURI : uri };
+      const source = { uri: this.compatibleURI };
       media = (
         <Reanimated.View style={this.videoContainerStyle}>
           <Video
