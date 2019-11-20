@@ -7,6 +7,7 @@ import {
 import {
   messageTypes,
   type SendMessageResult,
+  type SendMessagePayload,
   type RawComposableMessageInfo,
   type RawTextMessageInfo,
   assertComposableMessageType,
@@ -96,7 +97,9 @@ class FailedSend extends React.PureComponent<Props> {
     }
   }
 
-  async sendTextMessageAction(messageInfo: RawTextMessageInfo) {
+  async sendTextMessageAction(
+    messageInfo: RawTextMessageInfo,
+  ): Promise<SendMessagePayload> {
     try {
       const { localID } = messageInfo;
       invariant(

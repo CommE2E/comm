@@ -8,6 +8,7 @@ import type {
 import {
   type RawTextMessageInfo,
   type SendMessageResult,
+  type SendMessagePayload,
   messageTypes,
 } from 'lib/types/message-types';
 import {
@@ -463,7 +464,9 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     );
   }
 
-  async sendTextMessageAction(messageInfo: RawTextMessageInfo) {
+  async sendTextMessageAction(
+    messageInfo: RawTextMessageInfo,
+  ): Promise<SendMessagePayload> {
     try {
       const { localID } = messageInfo;
       invariant(

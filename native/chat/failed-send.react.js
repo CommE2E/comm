@@ -5,6 +5,7 @@ import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import {
   messageTypes,
   type SendMessageResult,
+  type SendMessagePayload,
   type RawTextMessageInfo,
   type RawMessageInfo,
 } from 'lib/types/message-types';
@@ -107,7 +108,9 @@ class FailedSend extends React.PureComponent<Props> {
     }
   }
 
-  async sendTextMessageAction(messageInfo: RawTextMessageInfo) {
+  async sendTextMessageAction(
+    messageInfo: RawTextMessageInfo,
+  ): Promise<SendMessagePayload> {
     try {
       const { localID } = messageInfo;
       invariant(

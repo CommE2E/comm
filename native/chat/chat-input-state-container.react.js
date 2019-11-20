@@ -15,6 +15,7 @@ import {
   type RawMessageInfo,
   type RawMultimediaMessageInfo,
   type SendMessageResult,
+  type SendMessagePayload,
 } from 'lib/types/message-types';
 import type { MediaValidationResult } from '../utils/media-utils';
 
@@ -30,7 +31,7 @@ import {
   updateMultimediaMessageMediaActionType,
 } from 'lib/actions/upload-actions';
 import {
-  createLocalMultimediaMessageActionType,
+  createLocalMessageActionType,
   sendMultimediaMessageActionTypes,
   sendMultimediaMessage,
 } from 'lib/actions/message-actions';
@@ -211,7 +212,9 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     );
   }
 
-  async sendMultimediaMessageAction(messageInfo: RawMultimediaMessageInfo) {
+  async sendMultimediaMessageAction(
+    messageInfo: RawMultimediaMessageInfo,
+  ): Promise<SendMessagePayload> {
     const { localID, threadID, media } = messageInfo;
     invariant(
       localID !== null && localID !== undefined,
@@ -316,7 +319,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
           ),
         }: RawMultimediaMessageInfo);
         this.props.dispatchActionPayload(
-          createLocalMultimediaMessageActionType,
+          createLocalMessageActionType,
           messageInfo,
         );
       },
