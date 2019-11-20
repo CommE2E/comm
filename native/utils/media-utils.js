@@ -11,36 +11,50 @@ import {
   mimeTypesToMediaTypes,
 } from 'lib/utils/file-utils';
 
+import { transcodeVideo } from './video-utils';
+
 type ReactNativeBlob = 
   & Blob
   & { data: { type: string, name: string, size: number } };
-export type MediaValidationResult = {
-  uri: string,
-  dimensions: Dimensions,
-  mediaType: MediaType,
-  blob: ReactNativeBlob,
-};
+export type MediaValidationResult =
+  | {|
+      mediaType: "photo",
+      uri: string,
+      dimensions: Dimensions,
+      blob: ReactNativeBlob,
+    |}
+  | {|
+      mediaType: "video",
+      uri: string,
+      dimensions: Dimensions,
+      filename: string,
+    |};
 type ValidateMediaInput = {
   uri: string,
   height: number,
   width: number,
   type: MediaType,
+  filename: string,
   ...
 };
 async function validateMedia(
-  imageInfo: ValidateMediaInput,
+  mediaInfo: ValidateMediaInput,
 ): Promise<?MediaValidationResult> {
+  const { height, width, filename } = mediaInfo;
+  const dimensions = { height, width };
+  if (mediaInfo.type === "video") {
+    return { mediaType: "video", uri: mediaInfo.uri, dimensions, filename };
+  }
+
   // React Native always resolves FBMediaKit's ph:// scheme as an image so that
   // the Image component can render thumbnails of videos. In order to force
   // fetch() to return a blob of the video, we need to use the ph-upload://
   // scheme. https://git.io/Jerlh
-  const fbMediaKitURL = imageInfo.uri.startsWith('ph://');
-  const uri = (fbMediaKitURL && imageInfo.type === "video")
-    ? imageInfo.uri.replace(/^ph:/, 'ph-upload:')
-    : imageInfo.uri;
-  const { height, width } = imageInfo;
+  const fbMediaKitURL = mediaInfo.uri.startsWith('ph://');
+  const uri = (fbMediaKitURL && mediaInfo.type === "video")
+    ? mediaInfo.uri.replace(/^ph:/, 'ph-upload:')
+    : mediaInfo.uri;
 
-  const dimensions = { height, width };
   const response = await fetch(uri);
   const blob = await response.blob();
   const reportedMIME = (fbMediaKitURL && blob.type === "application/octet-stream")
@@ -48,10 +62,10 @@ async function validateMedia(
     : blob.type;
 
   const mediaType = mimeTypesToMediaTypes[reportedMIME];
-  if (!mediaType) {
+  if (mediaType !== "photo") {
     return null;
   }
-  return { uri, dimensions, mediaType, blob };
+  return { mediaType: "photo", uri, dimensions, blob };
 }
 
 function blobToDataURI(blob: Blob): Promise<string> {
@@ -105,7 +119,7 @@ function getDimensions(uri: string): Promise<Dimensions> {
   });
 }
 
-type MediaConversionResult = {|
+export type MediaConversionResult = {|
   uploadURI: string,
   shouldDisposePath: ?string,
   name: string,
@@ -117,6 +131,23 @@ async function convertMedia(
   validationResult: MediaValidationResult,
 ): Promise<?MediaConversionResult> {
   const { uri, dimensions } = validationResult;
+  if (validationResult.mediaType === "video") {
+    const result = await transcodeVideo(validationResult);
+    if (!result) {
+      return null;
+    }
+    const { uri: uploadURI, filename } = result.videoInfo;
+    const shouldDisposePath = uri !== uploadURI ? uploadURI : null;
+    return {
+      uploadURI,
+      shouldDisposePath,
+      name: filename,
+      mime: "video/mp4",
+      mediaType: "video",
+      dimensions,
+    };
+  }
+
   let { blob } = validationResult;
 
   const { type: reportedMIME, size } = blob;
@@ -158,18 +189,21 @@ async function convertMedia(
   }
 
   const { name, mime, mediaType } = fileInfo;
+  if (mediaType !== "photo") {
+    return null;
+  }
   return {
     uploadURI: Platform.OS === "ios" ? dataURI : uri,
     shouldDisposePath: null,
     name,
     mime,
-    mediaType,
+    mediaType: "photo",
     dimensions,
   };
 }
 
 function getCompatibleMediaURI(uri: string, ext: string): string {
-  if (!uri.startsWith('ph://')) {
+  if (!uri.startsWith('ph://') && !uri.startsWith('ph-upload://')) {
     return uri;
   }
   const photoKitLocalIdentifier = uri.split('/')[2];

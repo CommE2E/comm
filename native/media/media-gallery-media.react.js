@@ -33,10 +33,6 @@ from 'react-native-reanimated';
 import invariant from 'invariant';
 import Video from 'react-native-video';
 
-import { extensionFromFilename } from 'lib/utils/file-utils';
-
-import { getCompatibleMediaURI } from '../utils/media-utils';
-
 export type GalleryMediaInfo = {|
   ...Dimensions,
   type: MediaType,
@@ -221,15 +217,6 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     }
   }
 
-  get compatibleURI() {
-    const { uri, filename } = this.props.mediaInfo;
-    const extension = extensionFromFilename(filename);
-    if (!extension) {
-      return uri;
-    }
-    return getCompatibleMediaURI(uri, extension);
-  }
-
   render() {
     const { mediaInfo, containerHeight } = this.props;
     const { uri, width, height, type } = mediaInfo;
@@ -277,8 +264,8 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     }
 
     let media;
+    const source = { uri };
     if (type === "video") {
-      const source = { uri: this.compatibleURI };
       media = (
         <Reanimated.View style={this.videoContainerStyle}>
           <Video
@@ -290,7 +277,6 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
         </Reanimated.View>
       );
     } else {
-      const source = { uri };
       media = (
         <Reanimated.Image
           source={source}

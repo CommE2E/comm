@@ -23,7 +23,10 @@ import CameraRoll from '@react-native-community/cameraroll';
 import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
-import { mimeTypesToMediaTypes } from 'lib/utils/file-utils';
+import {
+  mimeTypesToMediaTypes,
+  extensionFromFilename,
+} from 'lib/utils/file-utils';
 
 import { store } from '../redux/redux-setup';
 import {
@@ -35,6 +38,7 @@ import Animated, { Easing } from 'react-native-reanimated';
 import { colorsSelector, styleSelector } from '../themes/colors';
 import { getAndroidPermission } from '../utils/android-permissions';
 import SendMediaButton from './send-media-button.react';
+import { getCompatibleMediaURI } from '../utils/media-utils';
 
 const animationSpec = {
   duration: 400,
@@ -203,6 +207,14 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     return base;
   }
 
+  static compatibleURI(uri: string, filename: string) {
+    const extension = extensionFromFilename(filename);
+    if (!extension) {
+      return uri;
+    }
+    return getCompatibleMediaURI(uri, extension);
+  }
+
   async fetchPhotos(after?: ?string) {
     if (this.fetchingPhotos) {
       return;
@@ -245,11 +257,14 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
             (Platform.OS === "android" &&
               playableDuration !== null && playableDuration !== undefined) ||
             (Platform.OS === "ios" && node.type === "video");
+          const compatibleURI = isVideo
+            ? MediaGalleryKeyboard.compatibleURI(uri, filename)
+            : uri;
           return {
             height,
             width,
             type: isVideo ? "video" : "photo",
-            uri,
+            uri: compatibleURI,
             filename,
           };
         },

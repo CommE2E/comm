@@ -40,8 +40,8 @@ import { ChatInputStateContext } from './chat-input-state';
 import { validateMedia, convertMedia } from '../utils/media-utils';
 
 let nextLocalUploadID = 0;
-type ImageInfo = {|
-  ...$Exact<MediaValidationResult>,
+type MediaInfo = {|
+  validationResult: MediaValidationResult,
   localID: string,
 |};
 type CompletedUploads = { [localMessageID: string]: ?Set<string> };
@@ -260,23 +260,25 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     const validationResults = await Promise.all(
       inputImageInfos.map(validateMedia),
     );
-    const imageInfos = validationResults.filter(Boolean).map(imageInfo => ({
-      ...imageInfo,
-      localID: `localUpload${nextLocalUploadID++}`,
-    }));
+    const mediaInfos = validationResults.filter(Boolean).map(
+      validationResult => ({
+        validationResult,
+        localID: `localUpload${nextLocalUploadID++}`,
+      }),
+    );
     const localMessageID = `local${this.props.nextLocalID}`;
 
-    if (imageInfos.length < validationResults.length) {
+    if (mediaInfos.length < validationResults.length) {
       // Since we filter our MIME types in our calls to CameraRoll,
       // this should never be triggered
       console.log('unexpected MIME type found');
     }
-    if (imageInfos.length === 0) {
+    if (mediaInfos.length === 0) {
       return;
     }
 
     const pendingUploads = {};
-    for (let { localID, uri } of imageInfos) {
+    for (let { localID, validationResult: { uri } } of mediaInfos) {
       pendingUploads[localID] = {
         failed: null,
         progressPercent: 0,
@@ -304,8 +306,8 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
           threadID,
           creatorID,
           time: Date.now(),
-          media: imageInfos.map(
-            ({ localID, uri, dimensions }) => ({
+          media: mediaInfos.map(
+            ({ localID, validationResult: { uri, dimensions } }) => ({
               id: localID,
               uri,
               type: "photo",
@@ -320,21 +322,21 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       },
     );
 
-    await this.uploadFiles(localMessageID, imageInfos);
+    await this.uploadFiles(localMessageID, mediaInfos);
   }
 
   uploadFiles(
     localMessageID: string,
-    imageInfos: $ReadOnlyArray<ImageInfo>,
+    mediaInfos: $ReadOnlyArray<MediaInfo>,
   ) {
     return Promise.all(
-      imageInfos.map(imageInfo => this.uploadFile(localMessageID, imageInfo)),
+      mediaInfos.map(mediaInfo => this.uploadFile(localMessageID, mediaInfo)),
     );
   }
 
-  async uploadFile(localMessageID: string, imageInfo: ImageInfo) {
-    const { localID } = imageInfo;
-    const conversionResult = await convertMedia(imageInfo);
+  async uploadFile(localMessageID: string, mediaInfo: MediaInfo) {
+    const { localID, validationResult } = mediaInfo;
+    const conversionResult = await convertMedia(validationResult);
     if (!conversionResult) {
       this.handleUploadFailure(
         localMessageID,
@@ -511,28 +513,28 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       imageGalleryImages.map(validateMedia),
     );
 
-    const imageInfos = [];
+    const mediaInfos = [];
     for (let i = 0; i < validationResults.length; i++) {
       const result = validationResults[i];
       if (!result) {
         continue;
       }
       const { id } = retryMedia[i];
-      imageInfos.push({
-        ...result,
+      mediaInfos.push({
+        validationResult: result,
         localID: id,
       });
     }
-    if (imageInfos.length < validationResults.length) {
+    if (mediaInfos.length < validationResults.length) {
       // Since we filter our MIME types in our calls to CameraRoll,
       // this should never be triggered
       console.log('unexpected MIME type found');
     }
-    if (imageInfos.length === 0) {
+    if (mediaInfos.length === 0) {
       return;
     }
 
-    for (let { localID } of imageInfos) {
+    for (let { localID } of mediaInfos) {
       pendingUploads[localID] = {
         failed: null,
         progressPercent: 0,
@@ -545,7 +547,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       },
     }));
 
-    await this.uploadFiles(localMessageID, imageInfos);
+    await this.uploadFiles(localMessageID, mediaInfos);
   }
 
   clearURI = async (uri: string) => {
