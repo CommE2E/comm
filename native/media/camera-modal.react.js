@@ -88,7 +88,7 @@ const {
   spring,
   SpringUtils,
 } = Animated;
-const maxZoom = 8;
+const maxZoom = 16;
 const zoomUpdateFactor = (() => {
   if (Platform.OS === "ios") {
     return 0.002;
