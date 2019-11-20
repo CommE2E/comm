@@ -1,4 +1,4 @@
-platform :ios, '9.0'
+platform :ios, '9.3'
 require_relative '../../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
 target 'SquadCal' do
@@ -30,6 +30,7 @@ target 'SquadCal' do
 
   pod 'react-native-keyboard-tracking-view', :path => '../../node_modules/react-native-keyboard-tracking-view'
   pod 'react-native-keyboard-input', :path => '../../node_modules/react-native-keyboard-input'
+  pod 'react-native-ffmpeg/min-lts', :podspec => '../../node_modules/react-native-ffmpeg/ios/react-native-ffmpeg.podspec'
 
   use_native_modules!("..")
 end
