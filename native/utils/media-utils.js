@@ -5,6 +5,7 @@ import type { Dimensions, MediaType } from 'lib/types/media-types';
 import { Platform, Image } from 'react-native';
 import base64 from 'base-64';
 import ImageResizer from 'react-native-image-resizer';
+import invariant from 'invariant';
 
 import {
   fileInfoFromData,
@@ -29,20 +30,29 @@ export type MediaValidationResult =
       dimensions: Dimensions,
       filename: string,
     |};
-type ValidateMediaInput = {
-  uri: string,
-  height: number,
-  width: number,
-  type: MediaType,
-  filename: string,
-  ...
-};
+type ValidateMediaInput =
+  | {
+      type: "photo",
+      uri: string,
+      height: number,
+      width: number,
+      ...
+    }
+  | {
+      type: "video",
+      uri: string,
+      height: number,
+      width: number,
+      filename: string,
+      ...
+    };
 async function validateMedia(
   mediaInfo: ValidateMediaInput,
 ): Promise<?MediaValidationResult> {
-  const { height, width, filename } = mediaInfo;
+  const { height, width } = mediaInfo;
   const dimensions = { height, width };
   if (mediaInfo.type === "video") {
+    const { filename } = mediaInfo;
     return { mediaType: "video", uri: mediaInfo.uri, dimensions, filename };
   }
 

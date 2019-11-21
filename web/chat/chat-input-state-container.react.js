@@ -440,6 +440,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
           currentMediaID: upload.localID,
           mediaUpdate: {
             id: result.id,
+            filename: undefined,
           },
         },
       );

@@ -260,13 +260,22 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
           const compatibleURI = isVideo
             ? MediaGalleryKeyboard.compatibleURI(uri, filename)
             : uri;
-          return {
-            height,
-            width,
-            type: isVideo ? "video" : "photo",
-            uri: compatibleURI,
-            filename,
-          };
+          if (isVideo) {
+            return {
+              type: "video",
+              height,
+              width,
+              uri: compatibleURI,
+              filename,
+            };
+          } else {
+            return {
+              type: "photo",
+              height,
+              width,
+              uri: compatibleURI,
+            };
+          }
         },
       ).filter(Boolean);
 

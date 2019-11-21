@@ -33,12 +33,20 @@ from 'react-native-reanimated';
 import invariant from 'invariant';
 import Video from 'react-native-video';
 
-export type GalleryMediaInfo = {|
-  ...Dimensions,
-  type: MediaType,
-  uri: string,
-  filename: string,
-|};
+export type GalleryMediaInfo =
+  | {|
+      type: "photo",
+      uri: string,
+      height: number,
+      width: number,
+    |}
+  | {|
+      type: "video",
+      uri: string,
+      height: number,
+      width: number,
+      filename: string,
+    |};
 const animatedSpec = {
   duration: 400,
   easing: Easing.inOut(Easing.ease),

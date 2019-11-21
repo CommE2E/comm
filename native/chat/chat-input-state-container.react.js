@@ -311,9 +311,10 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         const creatorID = this.props.viewerID;
         invariant(creatorID, "need viewer ID in order to send a message");
         const media = mediaInfos.map(
-          ({ localID, validationResult: { uri, dimensions, mediaType } }) => {
+          ({ localID, validationResult }) => {
             // This conditional is for Flow
-            if (mediaType === "photo") {
+            if (validationResult.mediaType === "photo") {
+              const { uri, dimensions, mediaType } = validationResult;
               return {
                 id: localID,
                 uri,
@@ -321,11 +322,13 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
                 dimensions,
               };
             } else {
+              const { uri, dimensions, mediaType, filename } = validationResult;
               return {
                 id: localID,
                 uri,
                 type: "video",
                 dimensions,
+                filename,
               };
             }
           },
@@ -398,6 +401,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
             uri: result.uri,
             type: mediaType,
             dimensions: conversionResult.dimensions,
+            filename: undefined,
           },
         },
       );
@@ -547,9 +551,15 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       newRawMessageInfo,
     );
 
-    const imageGalleryImages = retryMedia.map(
-      ({ dimensions, uri, type }) => ({ ...dimensions, uri, type }),
-    );
+    const imageGalleryImages = retryMedia.map(singleMedia => {
+      if (singleMedia.type === "photo") {
+        const { dimensions, uri } = singleMedia;
+        return { type: "photo", ...dimensions, uri };
+      } else {
+        const { dimensions, uri, filename } = singleMedia;
+        return { type: "video", ...dimensions, uri, filename };
+      }
+    });
     const validationResults = await Promise.all(
       imageGalleryImages.map(validateMedia),
     );

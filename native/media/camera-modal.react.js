@@ -954,7 +954,6 @@ class CameraModal extends React.PureComponent<Props, State> {
 
     const pendingImageInfo = {
       uri,
-      filename,
       width,
       height,
       type: "photo",
