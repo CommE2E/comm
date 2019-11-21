@@ -4,10 +4,7 @@ import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from '../redux/redux-setup';
-import {
-  messageTypeIsRobotext,
-  type RobotextMessageInfo,
-} from 'lib/types/message-types';
+import type { RobotextMessageInfo } from 'lib/types/message-types';
 import {
   type KeyboardState,
   keyboardStatePropType,

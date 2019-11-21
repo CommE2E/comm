@@ -13,6 +13,7 @@ import {
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import invariant from 'invariant';
 
 import { longAbsoluteDate } from 'lib/utils/date-utils';
 
@@ -90,6 +91,7 @@ class Message extends React.PureComponent<Props> {
         />
       );
     } else {
+      invariant(item.robotext, "Flow can't handle our fancy types :(");
       message = (
         <RobotextMessage
           item={item}

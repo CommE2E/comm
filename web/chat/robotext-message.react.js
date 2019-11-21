@@ -1,10 +1,9 @@
 // @flow
 
 import {
-  type ChatMessageInfoItem,
+  type RobotextChatMessageInfoItem,
   chatMessageItemPropType,
 } from 'lib/selectors/chat-selectors';
-import { messageTypeIsRobotext } from 'lib/types/message-types';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
 import {
   type AppState,
@@ -16,7 +15,6 @@ import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { MessagePositionInfo } from './message.react';
 
 import * as React from 'react';
-import invariant from 'invariant';
 import Linkify from 'react-linkify';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -32,7 +30,7 @@ import { connect } from 'lib/utils/redux-utils';
 import css from './chat-message-list.css';
 
 type Props = {|
-  item: ChatMessageInfoItem,
+  item: RobotextChatMessageInfoItem,
   setMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
 |};
 class RobotextMessage extends React.PureComponent<Props> {
@@ -41,21 +39,6 @@ class RobotextMessage extends React.PureComponent<Props> {
     item: chatMessageItemPropType.isRequired,
     setMouseOver: PropTypes.func.isRequired,
   };
-
-  constructor(props: Props) {
-    super(props);
-    invariant(
-      messageTypeIsRobotext(props.item.messageInfo.type),
-      "TextMessage can only be used for robotext",
-    );
-  }
-
-  componentDidUpdate() {
-    invariant(
-      messageTypeIsRobotext(this.props.item.messageInfo.type),
-      "TextMessage can only be used for robotext",
-    );
-  }
 
   render() {
     return (
@@ -68,12 +51,8 @@ class RobotextMessage extends React.PureComponent<Props> {
   }
 
   linkedRobotext() {
-    const item = this.props.item;
-    invariant(
-      item.robotext && typeof item.robotext === "string",
-      "Flow can't handle our fancy types :(",
-    );
-    const robotext = item.robotext;
+    const { item } = this.props;
+    const { robotext } = item;
     const robotextParts = splitRobotext(robotext);
     const textParts = [];
     for (let splitPart of robotextParts) {
@@ -87,7 +66,7 @@ class RobotextMessage extends React.PureComponent<Props> {
 
       const { rawText, entityType, id } = parseRobotextEntity(splitPart);
 
-      if (entityType === "t" && id !== this.props.item.messageInfo.threadID) {
+      if (entityType === "t" && id !== item.messageInfo.threadID) {
         textParts.push(<ThreadEntity key={id} id={id} name={rawText} />);
       } else if (entityType === "c") {
         textParts.push(<ColorEntity key={id} color={rawText} />);
