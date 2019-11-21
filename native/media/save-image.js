@@ -13,11 +13,17 @@ import { blobToDataURI, dataURIToIntArray } from '../utils/media-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
 import { getAndroidPermission } from '../utils/android-permissions';
 
-type SaveImageInfo = {
-  uri: string,
-  type: MediaType,
-  ...
-};
+type SaveImageInfo =
+  | {
+      type: "photo",
+      uri: string,
+      ...
+    }
+  | {
+      type: "video",
+      uri: string,
+      ...
+    };
 
 async function intentionalSaveImage(mediaInfo: SaveImageInfo) {
   let result, message;

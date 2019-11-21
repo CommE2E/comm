@@ -18,6 +18,7 @@ import invariant from 'invariant';
 
 import { ServerError } from 'lib/utils/errors';
 import { threadPermissions } from 'lib/types/thread-types';
+import { createMediaMessageData } from 'lib/shared/message-utils';
 
 import createMessages from '../creators/message-creator';
 import { validateInput, tShape } from '../utils/validation-utils';
@@ -121,14 +122,12 @@ async function multimediaMessageCreationResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  const messageData = {
-    type: messageTypes.IMAGES,
+  const messageData = createMediaMessageData({
     localID,
     threadID,
     creatorID: viewer.id,
-    time: Date.now(),
     media,
-  };
+  });
   const [ newMessageInfo ] = await createMessages(viewer, [messageData]);
 
   const { id } = newMessageInfo;

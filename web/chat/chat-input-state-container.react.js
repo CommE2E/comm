@@ -10,6 +10,8 @@ import type { PendingMultimediaUpload } from './chat-input-state';
 import {
   messageTypes,
   type RawMessageInfo,
+  type RawImagesMessageInfo,
+  type RawMediaMessageInfo,
   type RawMultimediaMessageInfo,
   type SendMessageResult,
   type SendMessagePayload,
@@ -38,6 +40,7 @@ import {
   sendMultimediaMessageActionTypes,
   sendMultimediaMessage,
 } from 'lib/actions/message-actions';
+import { createMediaMessageInfo } from 'lib/shared/message-utils';
 
 import ChatMessageList from './chat-message-list.react';
 import { validateFile, preloadImage } from '../utils/media-utils';
@@ -164,21 +167,32 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       const { uploads, threadID } = assignedUploads;
       const creatorID = this.props.viewerID;
       invariant(creatorID, "need viewer ID in order to send a message");
-      const messageInfo = ({
-        type: messageTypes.IMAGES,
+      const media = uploads.map(
+        ({ localID, serverID, uri, mediaType, dimensions }) => {
+          // This conditional is for Flow
+          if (mediaType === "photo") {
+            return {
+              id: serverID ? serverID : localID,
+              uri,
+              type: "photo",
+              dimensions,
+            };
+          } else {
+            return {
+              id: serverID ? serverID : localID,
+              uri,
+              type: "video",
+              dimensions,
+            };
+          }
+        },
+      );
+      const messageInfo = createMediaMessageInfo({
         localID: messageID,
         threadID,
         creatorID,
-        time: Date.now(),
-        media: uploads.map(
-          ({ localID, serverID, uri, mediaType, dimensions }) => ({
-            id: serverID ? serverID : localID,
-            uri,
-            type: mediaType,
-            dimensions,
-          }),
-        ),
-      }: RawMultimediaMessageInfo);
+        media,
+      });
       newMessageInfos.set(messageID, messageInfo);
     }
 
@@ -216,8 +230,9 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       `rawMessageInfo ${localMessageID} should exist`,
     );
     invariant(
-      rawMessageInfo.type === messageTypes.IMAGES,
-      `rawMessageInfo ${localMessageID} should be messageTypes.IMAGES`,
+      rawMessageInfo.type === messageTypes.IMAGES ||
+        rawMessageInfo.type === messageTypes.MULTIMEDIA,
+      `rawMessageInfo ${localMessageID} should be multimedia`,
     );
     return rawMessageInfo;
   }
@@ -234,16 +249,20 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
   async sendMultimediaMessageAction(
     messageInfo: RawMultimediaMessageInfo,
   ): Promise<SendMessagePayload> {
-    const { localID, threadID, media } = messageInfo;
+    const { localID, threadID } = messageInfo;
     invariant(
       localID !== null && localID !== undefined,
       "localID should be set",
     );
+    const mediaIDs = [];
+    for (let { id } of messageInfo.media) {
+      mediaIDs.push(id);
+    }
     try {
       const result = await this.props.sendMultimediaMessage(
         threadID,
         localID,
-        media.map(({ id }) => id),
+        mediaIDs,
       );
       this.setState(prevState => {
         const prevUploads = prevState.pendingUploads[threadID];
@@ -700,7 +719,19 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     pendingUploads: ?$ReadOnlyArray<PendingMultimediaUpload>,
   ) {
     const rawMessageInfo = this.getRawMultimediaMessageInfo(localMessageID);
-    const newRawMessageInfo = { ...rawMessageInfo, time: Date.now() };
+    let newRawMessageInfo;
+    // This conditional is for Flow
+    if (rawMessageInfo.type === messageTypes.MULTIMEDIA) {
+      newRawMessageInfo = ({
+        ...rawMessageInfo,
+        time: Date.now(),
+      }: RawMediaMessageInfo);
+    } else {
+      newRawMessageInfo = ({
+        ...rawMessageInfo,
+        time: Date.now(),
+      }: RawImagesMessageInfo);
+    }
 
     const completed = ChatInputStateContainer.completedMessageIDs(this.state);
     if (completed.has(localMessageID)) {

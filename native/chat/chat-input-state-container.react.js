@@ -16,6 +16,8 @@ import {
   type RawMultimediaMessageInfo,
   type SendMessageResult,
   type SendMessagePayload,
+  type RawImagesMessageInfo,
+  type RawMediaMessageInfo,
 } from 'lib/types/message-types';
 import type { MediaValidationResult } from '../utils/media-utils';
 
@@ -36,6 +38,7 @@ import {
   sendMultimediaMessage,
 } from 'lib/actions/message-actions';
 import { pathFromURI } from 'lib/utils/file-utils';
+import { createMediaMessageInfo } from 'lib/shared/message-utils';
 
 import { ChatInputStateContext } from './chat-input-state';
 import { validateMedia, convertMedia } from '../utils/media-utils';
@@ -215,16 +218,20 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
   async sendMultimediaMessageAction(
     messageInfo: RawMultimediaMessageInfo,
   ): Promise<SendMessagePayload> {
-    const { localID, threadID, media } = messageInfo;
+    const { localID, threadID } = messageInfo;
     invariant(
       localID !== null && localID !== undefined,
       "localID should be set",
     );
+    const mediaIDs = [];
+    for (let { id } of messageInfo.media) {
+      mediaIDs.push(id);
+    }
     try {
       const result = await this.props.sendMultimediaMessage(
         threadID,
         localID,
-        media.map(({ id }) => id),
+        mediaIDs,
       );
       return {
         localID,
@@ -303,21 +310,32 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       () => {
         const creatorID = this.props.viewerID;
         invariant(creatorID, "need viewer ID in order to send a message");
-        const messageInfo = ({
-          type: messageTypes.IMAGES,
+        const media = mediaInfos.map(
+          ({ localID, validationResult: { uri, dimensions, mediaType } }) => {
+            // This conditional is for Flow
+            if (mediaType === "photo") {
+              return {
+                id: localID,
+                uri,
+                type: "photo",
+                dimensions,
+              };
+            } else {
+              return {
+                id: localID,
+                uri,
+                type: "video",
+                dimensions,
+              };
+            }
+          },
+        );
+        const messageInfo = createMediaMessageInfo({
           localID: localMessageID,
           threadID,
           creatorID,
-          time: Date.now(),
-          media: mediaInfos.map(
-            ({ localID, validationResult: { uri, dimensions } }) => ({
-              id: localID,
-              uri,
-              type: "photo",
-              dimensions,
-            }),
-          ),
-        }: RawMultimediaMessageInfo);
+          media,
+        });
         this.props.dispatchActionPayload(
           createLocalMessageActionType,
           messageInfo,
@@ -470,14 +488,34 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
   retryMultimediaMessage = async (localMessageID: string) => {
     const rawMessageInfo = this.props.messageStoreMessages[localMessageID];
     invariant(
-      rawMessageInfo && rawMessageInfo.type === messageTypes.IMAGES,
-      "messageStore should contain entry for message being retried",
+      rawMessageInfo,
+      `rawMessageInfo ${localMessageID} should exist`,
     );
-    const newRawMessageInfo = { ...rawMessageInfo, time: Date.now() };
+    let newRawMessageInfo;
+    // This conditional is for Flow
+    if (rawMessageInfo.type === messageTypes.MULTIMEDIA) {
+      newRawMessageInfo = ({
+        ...rawMessageInfo,
+        time: Date.now(),
+      }: RawMediaMessageInfo);
+    } else if (rawMessageInfo.type === messageTypes.IMAGES) {
+      newRawMessageInfo = ({
+        ...rawMessageInfo,
+        time: Date.now(),
+      }: RawImagesMessageInfo);
+    } else {
+      invariant(
+        false,
+        `rawMessageInfo ${localMessageID} should be multimedia`,
+      );
+    }
 
-    const incompleteMedia = rawMessageInfo.media.filter(
-      ({ id }) => id.startsWith('localUpload'),
-    );
+    const incompleteMedia = [];
+    for (let singleMedia of newRawMessageInfo.media) {
+      if (singleMedia.id.startsWith('localUpload')) {
+        incompleteMedia.push(singleMedia);
+      }
+    }
     if (incompleteMedia.length === 0) {
       this.dispatchMultimediaMessageAction(newRawMessageInfo);
       this.setState(prevState => ({
