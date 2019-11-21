@@ -80,7 +80,7 @@ class Message extends React.PureComponent<Props> {
           chatInputState={this.props.chatInputState}
         />
       );
-    } else if (item.messageInfo.type === messageTypes.MULTIMEDIA) {
+    } else if (item.messageInfo.type === messageTypes.IMAGES) {
       message = (
         <MultimediaMessage
           item={item}

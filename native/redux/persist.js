@@ -132,7 +132,7 @@ const migrations = {
     ...state,
     messageStore: unshimMessageStore(
       state.messageStore,
-      [ messageTypes.MULTIMEDIA ],
+      [ messageTypes.IMAGES ],
     ),
   }),
   [12]: (state: AppState) => ({

@@ -97,8 +97,8 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         continue;
       }
       invariant(
-        rawMessageInfo.type === messageTypes.MULTIMEDIA,
-        `${localMessageID} should be messageTypes.MULTIMEDIA`,
+        rawMessageInfo.type === messageTypes.IMAGES,
+        `${localMessageID} should be messageTypes.IMAGES`,
       );
 
       const completed = [];
@@ -196,8 +196,8 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         continue;
       }
       invariant(
-        rawMessageInfo.type === messageTypes.MULTIMEDIA,
-        `${localMessageID} should be messageTypes.MULTIMEDIA`,
+        rawMessageInfo.type === messageTypes.IMAGES,
+        `${localMessageID} should be messageTypes.IMAGES`,
       );
       this.dispatchMultimediaMessageAction(rawMessageInfo);
     }
@@ -304,7 +304,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         const creatorID = this.props.viewerID;
         invariant(creatorID, "need viewer ID in order to send a message");
         const messageInfo = ({
-          type: messageTypes.MULTIMEDIA,
+          type: messageTypes.IMAGES,
           localID: localMessageID,
           threadID,
           creatorID,
@@ -470,7 +470,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
   retryMultimediaMessage = async (localMessageID: string) => {
     const rawMessageInfo = this.props.messageStoreMessages[localMessageID];
     invariant(
-      rawMessageInfo && rawMessageInfo.type === messageTypes.MULTIMEDIA,
+      rawMessageInfo && rawMessageInfo.type === messageTypes.IMAGES,
       "messageStore should contain entry for message being retried",
     );
     const newRawMessageInfo = { ...rawMessageInfo, time: Date.now() };

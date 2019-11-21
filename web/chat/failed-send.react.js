@@ -90,7 +90,7 @@ class FailedSend extends React.PureComponent<Props> {
         undefined,
         newRawMessageInfo,
       );
-    } else if (rawMessageInfo.type === messageTypes.MULTIMEDIA) {
+    } else if (rawMessageInfo.type === messageTypes.IMAGES) {
       const { localID } = rawMessageInfo;
       invariant(localID, "failed RawMessageInfo should have localID");
       this.props.chatInputState.retryMultimediaMessage(localID);
@@ -135,7 +135,7 @@ export default connect(
     assertComposableMessageType(rawMessageInfo.type);
     invariant(
       rawMessageInfo.type === messageTypes.TEXT ||
-        rawMessageInfo.type === messageTypes.MULTIMEDIA,
+        rawMessageInfo.type === messageTypes.IMAGES,
       "FailedSend should only be used for composable message types",
     );
     return { rawMessageInfo };

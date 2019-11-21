@@ -122,7 +122,7 @@ async function createMessages(
         date: messageData.date,
         text: messageData.text,
       });
-    } else if (messageData.type === messageTypes.MULTIMEDIA) {
+    } else if (messageData.type === messageTypes.IMAGES) {
       content = JSON.stringify(messageData.media.map(
         ({ id }) => parseInt(id, 10),
       ));

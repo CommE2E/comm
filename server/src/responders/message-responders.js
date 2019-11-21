@@ -122,7 +122,7 @@ async function multimediaMessageCreationResponder(
   }
 
   const messageData = {
-    type: messageTypes.MULTIMEDIA,
+    type: messageTypes.IMAGES,
     localID,
     threadID,
     creatorID: viewer.id,

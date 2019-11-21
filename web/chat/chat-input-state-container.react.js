@@ -165,7 +165,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       const creatorID = this.props.viewerID;
       invariant(creatorID, "need viewer ID in order to send a message");
       const messageInfo = ({
-        type: messageTypes.MULTIMEDIA,
+        type: messageTypes.IMAGES,
         localID: messageID,
         threadID,
         creatorID,
@@ -216,8 +216,8 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       `rawMessageInfo ${localMessageID} should exist`,
     );
     invariant(
-      rawMessageInfo.type === messageTypes.MULTIMEDIA,
-      `rawMessageInfo ${localMessageID} should be messageTypes.MULTIMEDIA`,
+      rawMessageInfo.type === messageTypes.IMAGES,
+      `rawMessageInfo ${localMessageID} should be messageTypes.IMAGES`,
     );
     return rawMessageInfo;
   }

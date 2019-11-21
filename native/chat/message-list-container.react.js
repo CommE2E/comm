@@ -263,7 +263,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
       }
       const { messageInfo } = item;
       const key = messageKey(messageInfo);
-      if (messageInfo.type === messageTypes.MULTIMEDIA) {
+      if (messageInfo.type === messageTypes.IMAGES) {
         // Conditional due to Flow...
         const localMessageInfo = item.localMessageInfo
           ? item.localMessageInfo

@@ -103,7 +103,7 @@ async function fetchCollapsableNotifs(
     FROM notifications n
     LEFT JOIN messages m ON m.id = n.message
     LEFT JOIN uploads up
-      ON m.type = ${messageTypes.MULTIMEDIA}
+      ON m.type = ${messageTypes.IMAGES}
         AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = n.user
     LEFT JOIN memberships stm
@@ -367,7 +367,7 @@ function rawMessageInfoFromRows(
       date: content.date,
       text: content.text,
     };
-  } else if (type === messageTypes.MULTIMEDIA) {
+  } else if (type === messageTypes.IMAGES) {
     const media = [];
     for (let row of rows) {
       if (!row.uploadID) {
@@ -383,7 +383,7 @@ function rawMessageInfoFromRows(
     }
     const [ row ] = rows;
     const rawMultimediaMessageInfo: RawMultimediaMessageInfo = {
-      type: messageTypes.MULTIMEDIA,
+      type: messageTypes.IMAGES,
       id: row.id.toString(),
       threadID: row.threadID.toString(),
       time: row.time,
@@ -430,7 +430,7 @@ async function fetchMessageInfos(
           up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret,
           up.extra AS uploadExtra
         FROM messages m
-        LEFT JOIN uploads up ON m.type = ${messageTypes.MULTIMEDIA}
+        LEFT JOIN uploads up ON m.type = ${messageTypes.IMAGES}
           AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
         LEFT JOIN memberships mm
           ON mm.thread = m.thread AND mm.user = ${viewerID}
@@ -592,7 +592,7 @@ async function fetchMessageInfosSince(
       up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret,
       up.extra AS uploadExtra
     FROM messages m
-    LEFT JOIN uploads up ON m.type = ${messageTypes.MULTIMEDIA}
+    LEFT JOIN uploads up ON m.type = ${messageTypes.IMAGES}
       AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
     LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
@@ -691,7 +691,7 @@ async function fetchMessageInfoForLocalID(
       up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret,
       up.extra AS uploadExtra
     FROM messages m
-    LEFT JOIN uploads up ON m.type = ${messageTypes.MULTIMEDIA}
+    LEFT JOIN uploads up ON m.type = ${messageTypes.IMAGES}
       AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
     LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
@@ -720,7 +720,7 @@ async function fetchMessageInfoForEntryAction(
       m.user AS creatorID, up.id AS uploadID, up.type AS uploadType,
       up.secret AS uploadSecret, up.extra AS uploadExtra
     FROM messages m
-    LEFT JOIN uploads up ON m.type = ${messageTypes.MULTIMEDIA}
+    LEFT JOIN uploads up ON m.type = ${messageTypes.IMAGES}
       AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
     WHERE m.user = ${viewerID} AND m.thread = ${threadID} AND

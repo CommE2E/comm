@@ -41,8 +41,8 @@ class MultimediaMessage extends React.PureComponent<Props> {
   static multimediaUploadFailed(props: Props) {
     const { messageInfo } = props.item;
     invariant(
-      messageInfo.type === messageTypes.MULTIMEDIA,
-      "MultimediaMessage should only be used for messageTypes.MULTIMEDIA",
+      messageInfo.type === messageTypes.IMAGES,
+      "MultimediaMessage should only be used for messageTypes.IMAGES",
     );
     const { id, localID, media } = messageInfo;
     if (id) {
@@ -55,8 +55,8 @@ class MultimediaMessage extends React.PureComponent<Props> {
   render() {
     const { item, setModal } = this.props;
     invariant(
-      item.messageInfo.type === messageTypes.MULTIMEDIA,
-      "MultimediaMessage should only be used for messageTypes.MULTIMEDIA",
+      item.messageInfo.type === messageTypes.IMAGES,
+      "MultimediaMessage should only be used for messageTypes.IMAGES",
     );
     const { id, localID, media } = item.messageInfo;
     const { isViewer } = item.messageInfo.creator;
