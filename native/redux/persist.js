@@ -144,6 +144,13 @@ const migrations = {
     deviceCameraInfo: defaultDeviceCameraInfo,
     deviceOrientation: Orientation.getInitialOrientation(),
   }),
+  [14]: (state: AppState) => ({
+    ...state,
+    messageStore: unshimMessageStore(
+      state.messageStore,
+      [ messageTypes.MULTIMEDIA ],
+    ),
+  }),
 };
 
 const persistConfig = {
@@ -151,7 +158,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist,
   debug: __DEV__,
-  version: 13,
+  version: 14,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
   timeout: __DEV__ ? 0 : undefined,
 };
