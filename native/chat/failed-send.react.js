@@ -96,7 +96,10 @@ class FailedSend extends React.PureComponent<Props> {
         undefined,
         newRawMessageInfo,
       );
-    } else if (rawMessageInfo.type === messageTypes.IMAGES) {
+    } else if (
+      rawMessageInfo.type === messageTypes.IMAGES ||
+      rawMessageInfo.type === messageTypes.MULTIMEDIA
+    ) {
       const { localID } = rawMessageInfo;
       invariant(localID, "failed RawMessageInfo should have localID");
       const { chatInputState } = this.props;

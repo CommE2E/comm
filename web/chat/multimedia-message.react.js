@@ -41,10 +41,11 @@ class MultimediaMessage extends React.PureComponent<Props> {
   static multimediaUploadFailed(props: Props) {
     const { messageInfo } = props.item;
     invariant(
-      messageInfo.type === messageTypes.IMAGES,
-      "MultimediaMessage should only be used for messageTypes.IMAGES",
+      messageInfo.type === messageTypes.IMAGES ||
+        messageInfo.type === messageTypes.MULTIMEDIA,
+      "MultimediaMessage should only be used for multimedia messages",
     );
-    const { id, localID, media } = messageInfo;
+    const { id, localID } = messageInfo;
     if (id) {
       return false;
     }
@@ -55,8 +56,9 @@ class MultimediaMessage extends React.PureComponent<Props> {
   render() {
     const { item, setModal } = this.props;
     invariant(
-      item.messageInfo.type === messageTypes.IMAGES,
-      "MultimediaMessage should only be used for messageTypes.IMAGES",
+      item.messageInfo.type === messageTypes.IMAGES ||
+        item.messageInfo.type === messageTypes.MULTIMEDIA,
+      "MultimediaMessage should only be used for multimedia messages",
     );
     const { id, localID, media } = item.messageInfo;
     const { isViewer } = item.messageInfo.creator;
@@ -70,11 +72,12 @@ class MultimediaMessage extends React.PureComponent<Props> {
     const pendingUploads = localID
       ? this.props.chatInputState.assignedUploads[localID]
       : null;
-    const multimedia = media.map(singleMedia => {
+    const multimedia = [];
+    for (let singleMedia of media) {
       const pendingUpload = pendingUploads
         ? pendingUploads.find(upload => upload.localID === singleMedia.id)
         : null;
-      return (
+      multimedia.push(
         <Multimedia
           uri={singleMedia.uri}
           pendingUpload={pendingUpload}
@@ -82,7 +85,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
           key={singleMedia.id}
         />
       );
-    });
+    }
 
     invariant(
       multimedia.length > 0,

@@ -100,16 +100,21 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         continue;
       }
       invariant(
-        rawMessageInfo.type === messageTypes.IMAGES,
-        `${localMessageID} should be messageTypes.IMAGES`,
+        rawMessageInfo.type === messageTypes.IMAGES ||
+          rawMessageInfo.type === messageTypes.MULTIMEDIA,
+        `rawMessageInfo ${localMessageID} should be multimedia`,
       );
 
       const completed = [];
       let allUploadsComplete = true;
       for (let localUploadID in messagePendingUploads) {
-        const media = rawMessageInfo.media.find(
-          media => media.id === localUploadID,
-        );
+        let media;
+        for (let singleMedia of rawMessageInfo.media) {
+          if (singleMedia.id === localUploadID) {
+            media = singleMedia;
+            break;
+          }
+        }
         if (media) {
           allUploadsComplete = false;
         } else {
@@ -199,8 +204,9 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         continue;
       }
       invariant(
-        rawMessageInfo.type === messageTypes.IMAGES,
-        `${localMessageID} should be messageTypes.IMAGES`,
+        rawMessageInfo.type === messageTypes.IMAGES ||
+          rawMessageInfo.type === messageTypes.MULTIMEDIA,
+        `rawMessageInfo ${localMessageID} should be multimedia`,
       );
       this.dispatchMultimediaMessageAction(rawMessageInfo);
     }

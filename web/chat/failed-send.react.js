@@ -47,11 +47,6 @@ type Props = {|
     localID: string,
     text: string,
   ) => Promise<SendMessageResult>,
-  sendMultimediaMessage: (
-    threadID: string,
-    localID: string,
-    mediaIDs: $ReadOnlyArray<string>,
-  ) => Promise<SendMessageResult>,
 |};
 class FailedSend extends React.PureComponent<Props> {
 
@@ -62,7 +57,6 @@ class FailedSend extends React.PureComponent<Props> {
     rawMessageInfo: PropTypes.object.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     sendTextMessage: PropTypes.func.isRequired,
-    sendMultimediaMessage: PropTypes.func.isRequired,
   };
 
   render() {
@@ -90,7 +84,10 @@ class FailedSend extends React.PureComponent<Props> {
         undefined,
         newRawMessageInfo,
       );
-    } else if (rawMessageInfo.type === messageTypes.IMAGES) {
+    } else if (
+      rawMessageInfo.type === messageTypes.IMAGES ||
+      rawMessageInfo.type === messageTypes.MULTIMEDIA
+    ) {
       const { localID } = rawMessageInfo;
       invariant(localID, "failed RawMessageInfo should have localID");
       this.props.chatInputState.retryMultimediaMessage(localID);
@@ -135,7 +132,8 @@ export default connect(
     assertComposableMessageType(rawMessageInfo.type);
     invariant(
       rawMessageInfo.type === messageTypes.TEXT ||
-        rawMessageInfo.type === messageTypes.IMAGES,
+        rawMessageInfo.type === messageTypes.IMAGES ||
+        rawMessageInfo.type === messageTypes.MULTIMEDIA,
       "FailedSend should only be used for composable message types",
     );
     return { rawMessageInfo };
