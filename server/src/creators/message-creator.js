@@ -122,10 +122,15 @@ async function createMessages(
         date: messageData.date,
         text: messageData.text,
       });
-    } else if (messageData.type === messageTypes.IMAGES) {
-      content = JSON.stringify(messageData.media.map(
-        ({ id }) => parseInt(id, 10),
-      ));
+    } else if (
+      messageData.type === messageTypes.IMAGES ||
+      messageData.type === messageTypes.MULTIMEDIA
+    ) {
+      const mediaIDs = [];
+      for (let { id } of messageData.media) {
+        mediaIDs.push(parseInt(id, 10));
+      }
+      content = JSON.stringify(mediaIDs);
     }
 
     const creation = messageData.localID && viewer.hasSessionInfo

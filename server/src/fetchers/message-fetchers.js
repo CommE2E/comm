@@ -13,7 +13,6 @@ import {
   type MessageTruncationStatuses,
   type FetchMessageInfosResult,
   type RawTextMessageInfo,
-  type RawMultimediaMessageInfo,
 } from 'lib/types/message-types';
 import { threadPermissions } from 'lib/types/thread-types';
 import type { Viewer } from '../session/viewer';
@@ -24,6 +23,7 @@ import { notifCollapseKeyForRawMessageInfo } from 'lib/shared/notif-utils';
 import {
   sortMessageInfoList,
   shimUnsupportedRawMessageInfos,
+  createMediaMessageInfo,
 } from 'lib/shared/message-utils';
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 import { ServerError } from 'lib/utils/errors';
@@ -103,7 +103,7 @@ async function fetchCollapsableNotifs(
     FROM notifications n
     LEFT JOIN messages m ON m.id = n.message
     LEFT JOIN uploads up
-      ON m.type = ${messageTypes.IMAGES}
+      ON m.type IN (${[ messageTypes.IMAGES, messageTypes.MULTIMEDIA ]})
         AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = n.user
     LEFT JOIN memberships stm
@@ -367,34 +367,41 @@ function rawMessageInfoFromRows(
       date: content.date,
       text: content.text,
     };
-  } else if (type === messageTypes.IMAGES) {
+  } else if (
+    type === messageTypes.IMAGES ||
+    type === messageTypes.MULTIMEDIA
+  ) {
     const media = [];
     for (let row of rows) {
       if (!row.uploadID) {
         continue;
       }
       const uploadID = row.uploadID.toString();
-      media.push({
-        id: uploadID,
-        uri: getUploadURL(uploadID, row.uploadSecret),
-        type: row.uploadType,
-        dimensions: row.uploadExtra,
-      });
+      if (row.uploadType === "photo") {
+        media.push({
+          id: uploadID,
+          uri: getUploadURL(uploadID, row.uploadSecret),
+          type: "photo",
+          dimensions: row.uploadExtra,
+        });
+      } else {
+        media.push({
+          id: uploadID,
+          uri: getUploadURL(uploadID, row.uploadSecret),
+          type: "video",
+          dimensions: row.uploadExtra,
+        });
+      }
     }
     const [ row ] = rows;
-    const rawMultimediaMessageInfo: RawMultimediaMessageInfo = {
-      type: messageTypes.IMAGES,
-      id: row.id.toString(),
+    return createMediaMessageInfo({
       threadID: row.threadID.toString(),
-      time: row.time,
       creatorID: row.creatorID.toString(),
       media,
-    };
-    const localID = localIDFromCreationString(viewer, row.creation);
-    if (localID) {
-      rawMultimediaMessageInfo.localID = localID;
-    }
-    return rawMultimediaMessageInfo;
+      id: row.id.toString(),
+      localID: localIDFromCreationString(viewer, row.creation),
+      time: row.time,
+    });
   } else {
     invariant(false, `unrecognized messageType ${type}`);
   }
@@ -430,8 +437,9 @@ async function fetchMessageInfos(
           up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret,
           up.extra AS uploadExtra
         FROM messages m
-        LEFT JOIN uploads up ON m.type = ${messageTypes.IMAGES}
-          AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
+        LEFT JOIN uploads up
+          ON m.type IN (${[ messageTypes.IMAGES, messageTypes.MULTIMEDIA ]})
+            AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
         LEFT JOIN memberships mm
           ON mm.thread = m.thread AND mm.user = ${viewerID}
         LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
@@ -592,8 +600,9 @@ async function fetchMessageInfosSince(
       up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret,
       up.extra AS uploadExtra
     FROM messages m
-    LEFT JOIN uploads up ON m.type = ${messageTypes.IMAGES}
-      AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
+    LEFT JOIN uploads up
+      ON m.type IN (${[ messageTypes.IMAGES, messageTypes.MULTIMEDIA ]})
+        AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
     LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
       AND stm.thread = m.content AND stm.user = ${viewerID}
@@ -691,8 +700,9 @@ async function fetchMessageInfoForLocalID(
       up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret,
       up.extra AS uploadExtra
     FROM messages m
-    LEFT JOIN uploads up ON m.type = ${messageTypes.IMAGES}
-      AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
+    LEFT JOIN uploads up
+      ON m.type IN (${[ messageTypes.IMAGES, messageTypes.MULTIMEDIA ]})
+        AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
     LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
       AND stm.thread = m.content AND stm.user = ${viewerID}
@@ -720,8 +730,9 @@ async function fetchMessageInfoForEntryAction(
       m.user AS creatorID, up.id AS uploadID, up.type AS uploadType,
       up.secret AS uploadSecret, up.extra AS uploadExtra
     FROM messages m
-    LEFT JOIN uploads up ON m.type = ${messageTypes.IMAGES}
-      AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
+    LEFT JOIN uploads up
+      ON m.type IN (${[ messageTypes.IMAGES, messageTypes.MULTIMEDIA ]})
+        AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
     WHERE m.user = ${viewerID} AND m.thread = ${threadID} AND
       m.type = ${messageType} AND
