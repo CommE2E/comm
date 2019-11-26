@@ -36,14 +36,18 @@ async function fetchErrorReportInfos(
   const userInfos = {};
   for (let row of result) {
     const viewerID = row.user.toString();
-    reports.push({
-      id: row.id.toString(),
-      viewerID,
-      platformDetails: {
+    let { platformDetails } = row.report;
+    if (!platformDetails) {
+      platformDetails = {
         platform: row.platform,
         codeVersion: row.report.codeVersion,
         stateVersion: row.report.stateVersion,
-      },
+      };
+    }
+    reports.push({
+      id: row.id.toString(),
+      viewerID,
+      platformDetails,
       creationTime: row.creation_time,
     });
     if (row.username) {

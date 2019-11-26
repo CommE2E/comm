@@ -40,14 +40,14 @@ async function createReport(
     return null;
   }
   const [ id ] = await createIDs("reports", 1);
-  let type, platformDetails, report, time;
+  let type, report, time;
   if (request.type === reportTypes.THREAD_INCONSISTENCY) {
-    ({ type, platformDetails, time, ...report } = request);
+    ({ type, time, ...report } = request);
     time = time ? time : Date.now();
   } else if (request.type === reportTypes.ENTRY_INCONSISTENCY) {
-    ({ type, platformDetails, time, ...report } = request);
+    ({ type, time, ...report } = request);
   } else {
-    ({ type, platformDetails, ...report } = request);
+    ({ type, ...report } = request);
     time = Date.now();
     report = {
       ...report,
@@ -60,7 +60,7 @@ async function createReport(
     id,
     viewer.id,
     type,
-    platformDetails.platform,
+    request.platformDetails.platform,
     JSON.stringify(report),
     time,
   ];
