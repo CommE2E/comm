@@ -55,6 +55,7 @@ import {
   KeyboardAccessoryView,
   TextInputKeyboardMangerIOS,
 } from 'react-native-keyboard-input';
+import _throttle from 'lodash/throttle';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
@@ -426,11 +427,18 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   updateText = (text: string) => {
     this.setState({ text });
-    this.props.dispatchActionPayload(
-      saveDraftActionType,
-      { key: draftKeyFromThreadID(this.props.threadInfo.id), draft: text },
-    );
+    this.saveDraft(text);
   }
+
+  saveDraft = _throttle(
+    (text: string) => {
+      this.props.dispatchActionPayload(
+        saveDraftActionType,
+        { key: draftKeyFromThreadID(this.props.threadInfo.id), draft: text },
+      );
+    },
+    400,
+  );
 
   onContentSizeChange = (event) => {
     let height = event.nativeEvent.contentSize.height;
