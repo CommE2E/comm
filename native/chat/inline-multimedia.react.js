@@ -68,6 +68,7 @@ class InlineMultimedia extends React.PureComponent<Props> {
             thickness={15}
             showsText={true}
             textStyle={styles.progressIndicatorText}
+            formatText={this.formatProgressText}
           />
         </View>
       );
@@ -90,6 +91,8 @@ class InlineMultimedia extends React.PureComponent<Props> {
       </TouchableOpacity>
     );
   }
+
+  formatProgressText = (progress: number) => `${Math.floor(progress * 100)}%`
 
 }
 
