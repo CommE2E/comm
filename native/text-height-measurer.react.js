@@ -119,7 +119,6 @@ class TextHeightMeasurer extends React.PureComponent<Props, State> {
 
   done(textToMeasure: TextToMeasure[]) {
     invariant(this.leftToMeasure.size === 0, "should be 0 left to measure");
-    invariant(this.leftInBatch === 0, "batch should be complete");
     invariant(this.nextTextToHeight, "nextTextToHeight should be set");
     this.currentTextToHeight = this.nextTextToHeight;
     this.nextTextToHeight = null;
