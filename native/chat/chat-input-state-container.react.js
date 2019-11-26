@@ -434,6 +434,11 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       if (!pendingUpload) {
         return {};
       }
+      const newOutOfHundred = Math.floor(progressPercent * 100);
+      const oldOutOfHundred = Math.floor(pendingUpload.progressPercent * 100);
+      if (newOutOfHundred === oldOutOfHundred) {
+        return {};
+      }
       const newPendingUploads = {
         ...pendingUploads,
         [localUploadID]: {
