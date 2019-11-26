@@ -562,6 +562,21 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       newRawMessageInfo,
     );
 
+    // We clear out the failed status on individual media here,
+    // which makes the UI show pending status instead of error messages
+    for (let { id } of retryMedia) {
+      pendingUploads[id] = {
+        failed: null,
+        progressPercent: 0,
+      };
+    }
+    this.setState(prevState => ({
+      pendingUploads: {
+        ...prevState.pendingUploads,
+        [localMessageID]: pendingUploads,
+      },
+    }));
+
     const imageGalleryImages = retryMedia.map(singleMedia => {
       if (singleMedia.type === "photo") {
         const { dimensions, uri } = singleMedia;
@@ -576,12 +591,17 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     );
 
     const mediaInfos = [];
+    const newPendingUploads = {};
     for (let i = 0; i < validationResults.length; i++) {
       const result = validationResults[i];
+      const { id } = retryMedia[i];
       if (!result) {
+        newPendingUploads[id] = {
+          failed: "validation",
+          progressPercent: 0,
+        };
         continue;
       }
-      const { id } = retryMedia[i];
       mediaInfos.push({
         validationResult: result,
         localID: id,
@@ -592,24 +612,21 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       // this should never be triggered
       console.log('unexpected MIME type found');
     }
-    if (mediaInfos.length === 0) {
-      return;
+    if (Object.keys(newPendingUploads).length > 0) {
+      this.setState(prevState => ({
+        pendingUploads: {
+          ...prevState.pendingUploads,
+          [localMessageID]: {
+            ...prevState.pendingUploads[localMessageID],
+            ...newPendingUploads,
+          },
+        },
+      }));
     }
 
-    for (let { localID } of mediaInfos) {
-      pendingUploads[localID] = {
-        failed: null,
-        progressPercent: 0,
-      };
+    if (mediaInfos.length > 0) {
+      await this.uploadFiles(localMessageID, mediaInfos);
     }
-    this.setState(prevState => ({
-      pendingUploads: {
-        ...prevState.pendingUploads,
-        [localMessageID]: pendingUploads,
-      },
-    }));
-
-    await this.uploadFiles(localMessageID, mediaInfos);
   }
 
   clearURI = async (uri: string) => {

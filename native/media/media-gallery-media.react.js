@@ -78,7 +78,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
       width: PropTypes.number.isRequired,
       type: mediaTypePropType.isRequired,
       uri: PropTypes.string.isRequired,
-      filename: PropTypes.string.isRequired,
+      filename: PropTypes.string,
     }).isRequired,
     containerHeight: PropTypes.number.isRequired,
     queueModeActive: PropTypes.bool.isRequired,
