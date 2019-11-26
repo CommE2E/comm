@@ -32,6 +32,7 @@ import {
 } from 'lib/actions/message-actions';
 
 import css from './chat-message-list.css';
+import multimediaMessageSendFailed from './multimedia-message-send-failed';
 
 type Props = {|
   item: ChatMessageInfoItem,
@@ -58,6 +59,28 @@ class FailedSend extends React.PureComponent<Props> {
     dispatchActionPromise: PropTypes.func.isRequired,
     sendTextMessage: PropTypes.func.isRequired,
   };
+  retryingText = false;
+  retryingMedia = false;
+
+  componentDidUpdate(prevProps: Props) {
+    const newItem = this.props.item;
+    const prevItem = prevProps.item;
+    const isFailed = multimediaMessageSendFailed(
+      this.props.item,
+      this.props.chatInputState,
+    );
+    const wasFailed = multimediaMessageSendFailed(
+      prevProps.item,
+      prevProps.chatInputState,
+    );
+    const isDone = this.props.item.messageInfo.id !== null &&
+      this.props.item.messageInfo.id !== undefined;
+    const wasDone = prevProps.item.messageInfo.id !== null &&
+      prevProps.item.messageInfo.id !== undefined;
+    if ((isFailed && !wasFailed) || (isDone && !wasDone)) {
+      this.retryingMedia = false;
+    }
+  }
 
   render() {
     return (
@@ -77,6 +100,9 @@ class FailedSend extends React.PureComponent<Props> {
 
     const { rawMessageInfo } = this.props;
     if (rawMessageInfo.type === messageTypes.TEXT) {
+      if (this.retryingText) {
+        return;
+      }
       const newRawMessageInfo = { ...rawMessageInfo, time: Date.now() };
       this.props.dispatchActionPromise(
         sendTextMessageActionTypes,
@@ -90,6 +116,10 @@ class FailedSend extends React.PureComponent<Props> {
     ) {
       const { localID } = rawMessageInfo;
       invariant(localID, "failed RawMessageInfo should have localID");
+      if (this.retryingMedia) {
+        return;
+      }
+      this.retryingMedia = true;
       this.props.chatInputState.retryMultimediaMessage(localID);
     }
   }
@@ -97,6 +127,7 @@ class FailedSend extends React.PureComponent<Props> {
   async sendTextMessageAction(
     messageInfo: RawTextMessageInfo,
   ): Promise<SendMessagePayload> {
+    this.retryingText = true;
     try {
       const { localID } = messageInfo;
       invariant(
@@ -118,6 +149,8 @@ class FailedSend extends React.PureComponent<Props> {
       e.localID = messageInfo.localID;
       e.threadID = messageInfo.threadID;
       throw e;
+    } finally {
+      this.retryingText = false;
     }
   }
 

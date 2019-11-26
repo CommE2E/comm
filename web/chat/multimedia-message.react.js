@@ -20,6 +20,7 @@ import classNames from 'classnames';
 import css from './chat-message-list.css';
 import Multimedia from './multimedia.react';
 import ComposedMessage from './composed-message.react';
+import sendFailed from './multimedia-message-send-failed';
 
 type Props = {|
   item: ChatMessageInfoItem,
@@ -38,21 +39,6 @@ class MultimediaMessage extends React.PureComponent<Props> {
     setModal: PropTypes.func.isRequired,
   };
 
-  static multimediaUploadFailed(props: Props) {
-    const { messageInfo } = props.item;
-    invariant(
-      messageInfo.type === messageTypes.IMAGES ||
-        messageInfo.type === messageTypes.MULTIMEDIA,
-      "MultimediaMessage should only be used for multimedia messages",
-    );
-    const { id, localID } = messageInfo;
-    if (id) {
-      return false;
-    }
-    invariant(localID, "localID should be set if serverID is not");
-    return props.chatInputState.messageHasUploadFailure(localID);
-  }
-
   render() {
     const { item, setModal } = this.props;
     invariant(
@@ -62,12 +48,6 @@ class MultimediaMessage extends React.PureComponent<Props> {
     );
     const { id, localID, media } = item.messageInfo;
     const { isViewer } = item.messageInfo.creator;
-
-    const sendFailed =
-      isViewer &&
-      (id === null || id === undefined) &&
-      (MultimediaMessage.multimediaUploadFailed(this.props) ||
-        (item.localMessageInfo && item.localMessageInfo.sendFailed));
 
     const pendingUploads = localID
       ? this.props.chatInputState.assignedUploads[localID]
@@ -100,7 +80,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
       <ComposedMessage
         item={item}
         threadInfo={this.props.threadInfo}
-        sendFailed={!!sendFailed}
+        sendFailed={sendFailed(this.props.item, this.props.chatInputState)}
         setMouseOver={this.props.setMouseOver}
         className={className}
         borderRadius={16}
