@@ -17,6 +17,7 @@ import {
   rawMessageInfoFromMessageData,
   messageTypeGeneratesNotifs,
   shimUnsupportedRawMessageInfos,
+  stripLocalIDs,
 } from 'lib/shared/message-utils';
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 
@@ -153,7 +154,7 @@ async function createMessages(
     viewer,
     threadsToMessageIndices,
     subthreadPermissionsToCheck,
-    messageInfos,
+    stripLocalIDs(messageInfos),
   ));
 
   const messageInsertQuery = SQL`
