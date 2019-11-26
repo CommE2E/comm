@@ -12,6 +12,11 @@ import {
 import type { AppState } from '../redux/redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { Styles } from '../types/styles';
+import {
+  type ChatInputState,
+  chatInputStatePropType,
+  withChatInputState,
+} from './chat-input-state';
 
 import * as React from 'react';
 import { Text, View } from 'react-native';
@@ -24,14 +29,10 @@ import {
   sendTextMessageActionTypes,
   sendTextMessage,
 } from 'lib/actions/message-actions';
-import {
-  type ChatInputState,
-  chatInputStatePropType,
-  withChatInputState,
-} from './chat-input-state';
 
 import Button from '../components/button.react';
 import { styleSelector } from '../themes/colors';
+import multimediaMessageSendFailed from './multimedia-message-send-failed';
 
 const failedSendHeight = 22;
 
@@ -61,6 +62,28 @@ class FailedSend extends React.PureComponent<Props> {
     sendTextMessage: PropTypes.func.isRequired,
     chatInputState: chatInputStatePropType,
   };
+  retryingText = false;
+  retryingMedia = false;
+
+  componentDidUpdate(prevProps: Props) {
+    const newItem = this.props.item;
+    if (newItem.messageShapeType !== "multimedia") {
+      return;
+    }
+    const prevItem = prevProps.item;
+    if (prevItem.messageShapeType !== "multimedia") {
+      return;
+    }
+    const isFailed = multimediaMessageSendFailed(newItem);
+    const wasFailed = multimediaMessageSendFailed(prevItem);
+    const isDone = newItem.messageInfo.id !== null &&
+      newItem.messageInfo.id !== undefined;
+    const wasDone = prevItem.messageInfo.id !== null &&
+      prevItem.messageInfo.id !== undefined;
+    if ((isFailed && !wasFailed) || (isDone && !wasDone)) {
+      this.retryingMedia = false;
+    }
+  }
 
   render() {
     if (!this.props.rawMessageInfo) {
@@ -73,7 +96,7 @@ class FailedSend extends React.PureComponent<Props> {
         </Text>
         <Button onPress={this.retrySend}>
           <Text style={this.props.styles.retrySend} numberOfLines={1}>
-            RETRY?
+            {"RETRY?"}
           </Text>
         </Button>
       </View>
@@ -86,6 +109,9 @@ class FailedSend extends React.PureComponent<Props> {
       return;
     }
     if (rawMessageInfo.type === messageTypes.TEXT) {
+      if (this.retryingText) {
+        return;
+      }
       const newRawMessageInfo = {
         ...rawMessageInfo,
         time: Date.now(),
@@ -107,6 +133,10 @@ class FailedSend extends React.PureComponent<Props> {
         chatInputState,
         `chatInputState should be initialized before user can hit retry`,
       );
+      if (this.retryingMedia) {
+        return;
+      }
+      this.retryingMedia = true;
       chatInputState.retryMultimediaMessage(localID);
     }
   }
@@ -114,6 +144,7 @@ class FailedSend extends React.PureComponent<Props> {
   async sendTextMessageAction(
     messageInfo: RawTextMessageInfo,
   ): Promise<SendMessagePayload> {
+    this.retryingText = true;
     try {
       const { localID } = messageInfo;
       invariant(
@@ -135,6 +166,8 @@ class FailedSend extends React.PureComponent<Props> {
       e.localID = messageInfo.localID;
       e.threadID = messageInfo.threadID;
       throw e;
+    } finally {
+      this.retryingText = false;
     }
   }
 

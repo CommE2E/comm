@@ -36,6 +36,7 @@ import {
 } from './rounded-message-container.react';
 import { authorNameHeight } from './message-header.react';
 import { failedSendHeight } from './failed-send.react';
+import sendFailed from './multimedia-message-send-failed';
 
 type ContentHeights = {|
   imageHeight: number,
@@ -98,32 +99,6 @@ function multimediaMessageContentHeights(
     + (numRows - 1) * spaceBetweenImages;
 
   return { imageHeight, contentHeight };
-}
-
-function sendFailed(item: ChatMultimediaMessageInfoItem) {
-  const { messageInfo, localMessageInfo, pendingUploads } = item;
-  const { id: serverID } = messageInfo;
-  if (serverID !== null && serverID !== undefined) {
-    return false;
-  }
-
-  const { isViewer } = messageInfo.creator;
-  if (!isViewer) {
-    return false;
-  }
-
-  if (localMessageInfo && localMessageInfo.sendFailed) {
-    return true;
-  }
-
-  for (let media of messageInfo.media) {
-    const pendingUpload = pendingUploads && pendingUploads[media.id];
-    if (pendingUpload && pendingUpload.failed) {
-      return true;
-    }
-  }
-
-  return !pendingUploads;
 }
 
 // Called by Message
@@ -338,4 +313,5 @@ export {
   WrappedMultimediaMessage as MultimediaMessage,
   multimediaMessageContentHeights,
   multimediaMessageItemHeight,
+  sendFailed as multimediaMessageSendFailed,
 };
