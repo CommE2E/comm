@@ -57,7 +57,7 @@ import _filter from 'lodash/fp/filter';
 import _sum from 'lodash/fp/sum';
 import _pickBy from 'lodash/fp/pickBy';
 import _size from 'lodash/fp/size';
-import _debounce from 'lodash/debounce';
+import _throttle from 'lodash/throttle';
 
 import { entryKey } from 'lib/shared/entry-utils';
 import { dateString, prettyDate, dateFromString } from 'lib/utils/date-utils';
@@ -1067,7 +1067,7 @@ class Calendar extends React.PureComponent<Props, State> {
     );
   }
 
-  loadMoreAbove = _debounce(
+  loadMoreAbove = _throttle(
     () => {
       if (
         this.topLoadingFromScroll &&
@@ -1078,10 +1078,9 @@ class Calendar extends React.PureComponent<Props, State> {
       }
     },
     1000,
-    { leading: true, trailing: true },
   )
 
-  loadMoreBelow = _debounce(
+  loadMoreBelow = _throttle(
     () => {
       if (
         this.bottomLoadingFromScroll &&
@@ -1092,7 +1091,6 @@ class Calendar extends React.PureComponent<Props, State> {
       }
     },
     1000,
-    { leading: true, trailing: true },
   )
 
   onScroll = (event: { nativeEvent: { contentOffset: { y: number } } }) => {
