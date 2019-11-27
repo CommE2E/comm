@@ -36,6 +36,7 @@ export default connect(
       connection: state.connection,
       currentCalendarQuery: nativeCalendarQuery(state),
       hasWiFi: state.connectivity.hasWiFi,
+      frozen: state.frozen,
     };
   },
   { logOut },

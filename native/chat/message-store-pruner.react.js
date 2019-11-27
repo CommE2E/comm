@@ -19,6 +19,7 @@ type Props = {|
   nextMessagePruneTime: ?number,
   pruneThreadIDs: () => $ReadOnlyArray<string>,
   foreground: bool,
+  frozen: bool,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 |};
@@ -28,10 +29,14 @@ class MessageStorePruner extends React.PureComponent<Props> {
     nextMessagePruneTime: PropTypes.number,
     pruneThreadIDs: PropTypes.func.isRequired,
     foreground: PropTypes.bool.isRequired,
+    frozen: PropTypes.bool.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
 
   componentDidUpdate(prevProps: Props) {
+    if (this.props.frozen) {
+      return;
+    }
     const { nextMessagePruneTime } = this.props;
     if (nextMessagePruneTime === null || nextMessagePruneTime === undefined) {
       return;
@@ -62,6 +67,7 @@ export default connect(
     pruneThreadIDs: pruneThreadIDsSelector(state),
     // We include this so that componentDidUpdate will be called on foreground
     foreground: state.foreground,
+    frozen: state.frozen,
   }),
   null,
   true,

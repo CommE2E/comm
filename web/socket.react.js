@@ -35,6 +35,7 @@ export default connect(
       connection: state.connection,
       currentCalendarQuery: webCalendarQuery(state),
       hasWiFi: true,
+      frozen: false,
     };
   },
   { logOut },
