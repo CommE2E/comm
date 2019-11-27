@@ -80,8 +80,19 @@ async function fetchReduxToolsImport(
   }
   const row = result[0];
 
+  const _persist = row.report.preloadedState._persist
+    ? row.report.preloadedState._persist
+    : {};
   return {
-    preloadedState: row.report.preloadedState,
+    preloadedState: {
+      ...row.report.preloadedState,
+      _persist: {
+        ..._persist,
+        // Setting this to false disables redux-persist
+        rehydrated: false,
+      },
+      frozen: true,
+    },
     payload: row.report.actions,
   };
 }

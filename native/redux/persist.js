@@ -26,6 +26,7 @@ const baseBlacklist = [
   'dimensions',
   'connectivity',
   'deviceOrientation',
+  'frozen',
 ];
 const blacklist = __DEV__
   ? baseBlacklist

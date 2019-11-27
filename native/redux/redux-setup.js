@@ -134,6 +134,7 @@ export type AppState = {|
   globalThemeInfo: GlobalThemeInfo,
   deviceCameraInfo: DeviceCameraInfo,
   deviceOrientation: Orientations,
+  frozen: bool,
 |};
 
 const { height, width } = NativeDimensions.get('window');
@@ -178,6 +179,7 @@ const defaultState = ({
   globalThemeInfo: defaultGlobalThemeInfo,
   deviceCameraInfo: defaultDeviceCameraInfo,
   deviceOrientation: Orientation.getInitialOrientation(),
+  frozen: false,
 }: AppState);
 
 function chatRouteFromNavInfo(navInfo: NavInfo): NavigationStateRoute {
