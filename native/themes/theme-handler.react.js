@@ -85,7 +85,7 @@ class ThemeHandler extends React.PureComponent<Props> {
 export default connect(
   (state: AppState) => ({
     globalThemeInfo: state.globalThemeInfo,
-    rehydrateConcluded: state._persist && state._persist.rehydrated,
+    rehydrateConcluded: !!(state._persist && state._persist.rehydrated),
   }),
   null,
   true,

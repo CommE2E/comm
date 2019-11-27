@@ -594,7 +594,7 @@ AppRegistry.registerHeadlessTask(
 
 export default connect(
   (state: AppState) => ({
-    rehydrateConcluded: state._persist && state._persist.rehydrated,
+    rehydrateConcluded: !!(state._persist && state._persist.rehydrated),
     unreadCount: unreadCount(state),
     activeThread: activeThreadSelector(state),
     appLoggedIn: appLoggedInSelector(state),
