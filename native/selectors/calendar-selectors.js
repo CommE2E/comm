@@ -2,13 +2,17 @@
 
 import type { EntryInfo } from 'lib/types/entry-types';
 import type { AppState } from '../redux/redux-setup';
+import type { ThreadInfo } from 'lib/types/thread-types';
 
 import { createSelector } from 'reselect';
 import _map from 'lodash/fp/map';
 const _mapWithKeys = _map.convert({ cap: false });
 import invariant from 'invariant';
 
-import { currentDaysToEntries } from 'lib/selectors/thread-selectors';
+import {
+  currentDaysToEntries,
+  threadInfoSelector,
+} from 'lib/selectors/thread-selectors';
 import { dateString } from 'lib/utils/date-utils';
 
 export type SectionHeaderItem = {|
@@ -30,15 +34,18 @@ export type CalendarItem =
   | {|
       itemType: "entryInfo",
       entryInfo: EntryInfo,
+      threadInfo: ThreadInfo,
     |};
 
 const calendarListData: (state: AppState) => ?CalendarItem[] = createSelector(
   (state: AppState) => !!(state.currentUserInfo &&
     !state.currentUserInfo.anonymous && true),
   currentDaysToEntries,
+  threadInfoSelector,
   (
     loggedIn: bool,
-    daysToEntries: {[dayString: string]: EntryInfo[]},
+    daysToEntries: { [dayString: string]: EntryInfo[] },
+    threadInfos: { [id: string]: ThreadInfo },
   ) => {
     if (!loggedIn || daysToEntries[dateString(new Date())] === undefined) {
       return null;
@@ -47,7 +54,10 @@ const calendarListData: (state: AppState) => ?CalendarItem[] = createSelector(
     for (let dayString in daysToEntries) {
       items.push({ itemType: "header", dateString: dayString });
       for (let entryInfo of daysToEntries[dayString]) {
-        items.push({ itemType: "entryInfo", entryInfo });
+        const threadInfo = threadInfos[entryInfo.threadID];
+        if (threadInfo) {
+          items.push({ itemType: "entryInfo", entryInfo, threadInfo });
+        }
       }
       items.push({ itemType: "footer", dateString: dayString });
     }

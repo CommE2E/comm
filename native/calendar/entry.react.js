@@ -61,7 +61,6 @@ import { connect } from 'lib/utils/redux-utils';
 import { ServerError } from 'lib/utils/errors';
 import { entryKey } from 'lib/shared/entry-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { dateString } from 'lib/utils/date-utils';
 
 import Button from '../components/button.react';
@@ -88,6 +87,7 @@ function hueDistance(firstColor: string, secondColor: string): number {
 type Props = {|
   navigation: NavigationScreenProp<NavigationRoute>,
   entryInfo: EntryInfoWithHeight,
+  threadInfo: ThreadInfo,
   visible: bool,
   active: bool,
   makeActive: (entryKey: string, active: bool) => void,
@@ -95,7 +95,6 @@ type Props = {|
   onPressWhitespace: () => void,
   entryRef: (entryKey: string, entry: ?InternalEntry) => void,
   // Redux state
-  threadInfo: ThreadInfo,
   calendarQuery: () => CalendarQuery,
   threadPickerActive: bool,
   foregroundKey: string,
@@ -114,7 +113,6 @@ type State = {|
   text: string,
   loadingStatus: LoadingStatus,
   height: number,
-  threadInfo: ThreadInfo,
 |};
 class InternalEntry extends React.Component<Props, State> {
   
@@ -124,13 +122,13 @@ class InternalEntry extends React.Component<Props, State> {
       goBack: PropTypes.func.isRequired,
     }).isRequired,
     entryInfo: entryInfoPropType.isRequired,
+    threadInfo: threadInfoPropType.isRequired,
     visible: PropTypes.bool.isRequired,
     active: PropTypes.bool.isRequired,
     makeActive: PropTypes.func.isRequired,
     onEnterEditMode: PropTypes.func.isRequired,
     onPressWhitespace: PropTypes.func.isRequired,
     entryRef: PropTypes.func.isRequired,
-    threadInfo: threadInfoPropType.isRequired,
     calendarQuery: PropTypes.func.isRequired,
     threadPickerActive: PropTypes.bool.isRequired,
     foregroundKey: PropTypes.string.isRequired,
@@ -153,17 +151,11 @@ class InternalEntry extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    invariant(props.threadInfo, "should be set");
     this.state = {
       editing: false,
       text: props.entryInfo.text,
       loadingStatus: "inactive",
       height: props.entryInfo.textHeight,
-      // On log out, it's possible for the thread to be deauthorized before
-      // the log out animation completes. To avoid having rendering issues in
-      // that case, we cache the threadInfo in state and don't reset it when the
-      // threadInfo is undefined.
-      threadInfo: props.threadInfo,
     };
     this.state.editing = InternalEntry.isActive(props, this.state);
   }
@@ -197,13 +189,6 @@ class InternalEntry extends React.Component<Props, State> {
         height: this.props.entryInfo.textHeight,
       });
       this.currentlySaving = null;
-    }
-
-    if (
-      this.props.threadInfo &&
-      !_isEqual(this.props.threadInfo)(this.state.threadInfo)
-    ) {
-      this.guardedSetState({ threadInfo: this.props.threadInfo });
     }
 
     // Our parent will set the active prop to false if something else gets
@@ -253,9 +238,9 @@ class InternalEntry extends React.Component<Props, State> {
   render() {
     const active = InternalEntry.isActive(this.props, this.state);
     const { editing } = this.state;
-    const threadColor = `#${this.state.threadInfo.color}`;
+    const threadColor = `#${this.props.threadInfo.color}`;
 
-    const darkColor = colorIsDark(this.state.threadInfo.color);
+    const darkColor = colorIsDark(this.props.threadInfo.color);
     let actionLinks = null;
     if (active) {
       const actionLinksColor = darkColor ? '#D3D3D3' : '#404040';
@@ -356,7 +341,7 @@ class InternalEntry extends React.Component<Props, State> {
                 ]}
                 numberOfLines={1}
               >
-                {this.state.threadInfo.uiName}
+                {this.props.threadInfo.uiName}
               </Text>
             </Button>
           </View>
@@ -665,7 +650,7 @@ class InternalEntry extends React.Component<Props, State> {
 
   onPressThreadName = () => {
     Keyboard.dismiss();
-    const threadInfo = this.props.threadInfo;
+    const { threadInfo } = this.props;
     this.props.navigation.navigate({
       routeName: ChatRouteName,
       params: {},
@@ -767,8 +752,7 @@ const activeThreadPickerSelector =
   createIsForegroundSelector(ThreadPickerModalRouteName);
 
 const Entry = connect(
-  (state: AppState, ownProps: { entryInfo: EntryInfoWithHeight }) => ({
-    threadInfo: threadInfoSelector(state)[ownProps.entryInfo.threadID],
+  (state: AppState) => ({
     calendarQuery: nonThreadCalendarQuery(state),
     threadPickerActive: activeThreadPickerSelector(state),
     foregroundKey: foregroundKeySelector(state),

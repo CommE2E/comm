@@ -33,6 +33,7 @@ import {
 } from 'lib/types/socket-types';
 import type { Styles } from '../types/styles';
 import { type Colors, colorsPropType } from '../themes/colors';
+import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 
 import * as React from 'react';
 import {
@@ -110,6 +111,7 @@ type CalendarItemWithHeight =
   | {|
       itemType: "entryInfo",
       entryInfo: EntryInfoWithHeight,
+      threadInfo: ThreadInfo,
     |};
 type ExtraData = $ReadOnly<{|
   activeEntries: {[key: string]: bool},
@@ -173,6 +175,7 @@ class Calendar extends React.PureComponent<Props, State> {
       PropTypes.shape({
         itemType: PropTypes.oneOf(["entryInfo"]),
         entryInfo: entryInfoPropType.isRequired,
+        threadInfo: threadInfoPropType.isRequired,
       }),
       PropTypes.shape({
         itemType: PropTypes.oneOf(["footer"]),
@@ -604,6 +607,7 @@ class Calendar extends React.PureComponent<Props, State> {
           item.entryInfo,
           textHeight,
         ),
+        threadInfo: item.threadInfo,
       };
     })(listData);
     if (
@@ -649,6 +653,7 @@ class Calendar extends React.PureComponent<Props, State> {
         <Entry
           navigation={this.props.navigation}
           entryInfo={item.entryInfo}
+          threadInfo={item.threadInfo}
           active={!!this.state.extraData.activeEntries[key]}
           visible={!!this.state.extraData.visibleEntries[key]}
           makeActive={this.makeActive}
