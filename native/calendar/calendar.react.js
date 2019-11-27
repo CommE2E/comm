@@ -625,7 +625,9 @@ class Calendar extends React.PureComponent<Props, State> {
       animated = this.props.calendarActive;
     }
     const ldwh = this.state.listDataWithHeights;
-    invariant(ldwh, "scrollToToday called, but listDataWithHeights isn't set");
+    if (!ldwh) {
+      return;
+    }
     const todayIndex = _findIndex(['dateString', dateString(new Date())])(ldwh);
     invariant(this.flatList, "scrollToToday called, but flatList isn't set");
     this.flatList.scrollToIndex({
