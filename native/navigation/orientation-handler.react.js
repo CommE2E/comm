@@ -12,12 +12,15 @@ import Orientation from 'react-native-orientation-locker';
 import { connect } from 'lib/utils/redux-utils';
 
 type Props = {
+  // Redux state
+  deviceOrientation: Orientations,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 };
 class OrientationHandler extends React.PureComponent<Props> {
 
   static propTypes = {
+    deviceOrientation: PropTypes.string.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
 
@@ -27,6 +30,19 @@ class OrientationHandler extends React.PureComponent<Props> {
 
   componentWillUnmount() {
     Orientation.removeOrientationListener(this.updateOrientation);
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.deviceOrientation !== prevProps.deviceOrientation) {
+      Orientation.getOrientation(orientation => {
+        if (orientation !== this.props.deviceOrientation) {
+          // If the orientation in Redux changes, but it doesn't match what's
+          // being reported by native, then update Redux. This should only
+          // happen when importing a frozen app state via React Native Debugger
+          this.updateOrientation(orientation);
+        }
+      });
+    }
   }
 
   updateOrientation = orientation => {
@@ -43,7 +59,9 @@ class OrientationHandler extends React.PureComponent<Props> {
 }
 
 export default connect(
-  null,
+  (state: AppState) => ({
+    deviceOrientation: state.deviceOrientation,
+  }),
   null,
   true,
 )(OrientationHandler);
