@@ -240,7 +240,15 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
       let first = true;
       const mediaInfos = edges.map(
         ({ node }) => {
-          const { uri, height, width, filename, playableDuration } = node.image;
+          const { height, width, filename, playableDuration } = node.image;
+          const isVideo =
+            (Platform.OS === "android" &&
+              playableDuration !== null && playableDuration !== undefined) ||
+            (Platform.OS === "ios" && node.type === "video");
+          const uri = isVideo
+            ? MediaGalleryKeyboard.compatibleURI(node.image.uri, filename)
+            : node.image.uri;
+
           if (existingURIs.has(uri)) {
             if (first) {
               firstRemoved = true;
@@ -253,19 +261,12 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
           lastRemoved = false;
           existingURIs.add(uri);
 
-          const isVideo =
-            (Platform.OS === "android" &&
-              playableDuration !== null && playableDuration !== undefined) ||
-            (Platform.OS === "ios" && node.type === "video");
-          const compatibleURI = isVideo
-            ? MediaGalleryKeyboard.compatibleURI(uri, filename)
-            : uri;
           if (isVideo) {
             return {
               type: "video",
               height,
               width,
-              uri: compatibleURI,
+              uri,
               filename,
             };
           } else {
@@ -273,7 +274,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
               type: "photo",
               height,
               width,
-              uri: compatibleURI,
+              uri,
             };
           }
         },
