@@ -9,7 +9,7 @@ import type {
   DispatchActionPayload,
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
-import type { UploadMultimediaResult } from 'lib/types/media-types';
+import type { UploadMultimediaResult, Media } from 'lib/types/media-types';
 import {
   messageTypes,
   type RawMessageInfo,
@@ -20,6 +20,7 @@ import {
   type RawMediaMessageInfo,
 } from 'lib/types/message-types';
 import type { MediaValidationResult } from '../utils/media-utils';
+import type { GalleryMediaInfo } from '../media/media-gallery-media.react';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -525,7 +526,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       );
     }
 
-    const incompleteMedia = [];
+    const incompleteMedia: Media[] = [];
     for (let singleMedia of newRawMessageInfo.media) {
       if (singleMedia.id.startsWith('localUpload')) {
         incompleteMedia.push(singleMedia);
@@ -577,17 +578,22 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       },
     }));
 
-    const imageGalleryImages = retryMedia.map(singleMedia => {
-      if (singleMedia.type === "photo") {
-        const { dimensions, uri } = singleMedia;
-        return { type: "photo", ...dimensions, uri };
-      } else {
-        const { dimensions, uri, filename } = singleMedia;
-        return { type: "video", ...dimensions, uri, filename };
-      }
-    });
+    const galleryMediaInfos: GalleryMediaInfo[] =
+      retryMedia.map(singleMedia => {
+        if (singleMedia.type === "photo") {
+          const { dimensions, uri } = singleMedia;
+          return { type: "photo", ...dimensions, uri };
+        } else {
+          const { dimensions, uri, filename } = singleMedia;
+          invariant(
+            filename,
+            "filename should be set on locally created Video",
+          );
+          return { type: "video", ...dimensions, uri, filename };
+        }
+      });
     const validationResults = await Promise.all(
-      imageGalleryImages.map(validateMedia),
+      galleryMediaInfos.map(validateMedia),
     );
 
     const mediaInfos = [];
