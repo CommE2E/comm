@@ -14,6 +14,23 @@ import {
 
 import { transcodeVideo } from './video-utils';
 
+async function getBlobFromURI(
+  uri: string,
+  type: MediaType,
+): Promise<ReactNativeBlob> {
+  // React Native always resolves FBMediaKit's ph:// scheme as an image so that
+  // the Image component can render thumbnails of videos. In order to force
+  // fetch() to return a blob of the video, we need to use the ph-upload://
+  // scheme. https://git.io/Jerlh
+  const fbMediaKitURL = uri.startsWith('ph://');
+  const fixedURI = (fbMediaKitURL && type === "video")
+    ? uri.replace(/^ph:/, 'ph-upload:')
+    : uri;
+  const start = Date.now();
+  const response = await fetch(fixedURI);
+  return await response.blob();
+}
+
 type ReactNativeBlob = 
   & Blob
   & { data: { type: string, name: string, size: number } };
@@ -51,25 +68,17 @@ async function validateMedia(
 ): Promise<?MediaValidationResult> {
   const { height, width } = mediaInfo;
   const dimensions = { height, width };
+  const { uri, type } = mediaInfo;
   if (mediaInfo.type === "video") {
     const { filename } = mediaInfo;
-    return { mediaType: "video", uri: mediaInfo.uri, dimensions, filename };
+    return { mediaType: "video", uri, dimensions, filename };
   }
 
-  // React Native always resolves FBMediaKit's ph:// scheme as an image so that
-  // the Image component can render thumbnails of videos. In order to force
-  // fetch() to return a blob of the video, we need to use the ph-upload://
-  // scheme. https://git.io/Jerlh
-  const fbMediaKitURL = mediaInfo.uri.startsWith('ph://');
-  const uri = (fbMediaKitURL && mediaInfo.type === "video")
-    ? mediaInfo.uri.replace(/^ph:/, 'ph-upload:')
-    : mediaInfo.uri;
-
-  const response = await fetch(uri);
-  const blob = await response.blob();
-  const reportedMIME = (fbMediaKitURL && blob.type === "application/octet-stream")
-    ? "video/quicktime"
-    : blob.type;
+  const blob = await getBlobFromURI(uri, type);
+  const reportedMIME =
+    (uri.startsWith('ph://') && blob.type === "application/octet-stream")
+      ? "video/quicktime"
+      : blob.type;
 
   const mediaType = mimeTypesToMediaTypes[reportedMIME];
   if (mediaType !== "photo") {
