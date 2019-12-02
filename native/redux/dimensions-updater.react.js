@@ -34,29 +34,27 @@ class DimensionsUpdater extends React.PureComponent<Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { height, width } = NativeDimensions.get('window');
     if (
-      (this.props.dimensions.height !== prevProps.dimensions.height ||
-        this.props.dimensions.width !== prevProps.dimensions.width) &&
-      (this.props.dimensions.height !== height ||
-        this.props.dimensions.width !== width)
+      this.props.dimensions.height !== prevProps.dimensions.height ||
+      this.props.dimensions.width !== prevProps.dimensions.width
     ) {
-      // If the dimensions in Redux change, but they don't match what's being
-      // reported by React Native, then update Redux. This should only happen
-      // when importing a frozen app state via React Native Debugger
-      this.props.dispatchActionPayload(
-        updateDimensionsActiveType,
-        { height, width },
-      );
+      // Most of the time, this is triggered as a result of an action dispatched
+      // by the handler attached above, so the onDimensionsChnage call should be
+      // a no-op. This conditional is here to correct Redux state when it is
+      // imported from another device context.
+      this.onDimensionsChange({ window: NativeDimensions.get('window') });
     }
   }
 
   onDimensionsChange = (allDimensions: { window: Dimensions }) => {
-    const dimensions = allDimensions.window;
-    this.props.dispatchActionPayload(
-      updateDimensionsActiveType,
-      dimensions,
-    );
+    const { height: newHeight, width: newWidth } = allDimensions.window;
+    const { height: oldHeight, width: oldWidth } = this.props.dimensions;
+    if (newHeight !== oldHeight || newWidth !== oldWidth) {
+      this.props.dispatchActionPayload(
+        updateDimensionsActiveType,
+        { height: newHeight, width: newWidth },
+      );
+    }
   }
 
   render() {
