@@ -34,22 +34,21 @@ class OrientationHandler extends React.PureComponent<Props> {
 
   componentDidUpdate(prevProps: Props) {
     if (this.props.deviceOrientation !== prevProps.deviceOrientation) {
-      Orientation.getOrientation(orientation => {
-        if (orientation !== this.props.deviceOrientation) {
-          // If the orientation in Redux changes, but it doesn't match what's
-          // being reported by native, then update Redux. This should only
-          // happen when importing a frozen app state via React Native Debugger
-          this.updateOrientation(orientation);
-        }
-      });
+      // Most of the time, this is triggered as a result of an action dispatched
+      // by the handler attached above, so the updateOrientation call should be
+      // a no-op. This conditional is here to correct Redux state when it is
+      // imported from another device context.
+      Orientation.getOrientation(this.updateOrientation);
     }
   }
 
   updateOrientation = orientation => {
-    this.props.dispatchActionPayload(
-      updateDeviceOrientationActionType,
-      orientation,
-    );
+    if (orientation !== this.props.deviceOrientation) {
+      this.props.dispatchActionPayload(
+        updateDeviceOrientationActionType,
+        orientation,
+      );
+    }
   }
 
   render() {
