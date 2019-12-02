@@ -22,7 +22,6 @@ import { connect } from 'lib/utils/redux-utils';
 type Props = {|
   // Redux state
   globalThemeInfo: GlobalThemeInfo,
-  rehydrateConcluded: bool,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 |};
@@ -30,37 +29,28 @@ class ThemeHandler extends React.PureComponent<Props> {
 
   static propTypes = {
     globalThemeInfo: globalThemeInfoPropType.isRequired,
-    rehydrateConcluded: PropTypes.bool.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
 
   componentDidMount() {
-    if (this.props.rehydrateConcluded) {
-      this.startListening();
+    if (!osCanTheme) {
+      return;
     }
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (this.props.rehydrateConcluded && !prevProps.rehydrateConcluded) {
-      this.startListening();
-    }
+    systemThemeEventEmitter.addListener(
+      'currentModeChanged',
+      this.updateSystemTheme,
+    );
+    this.updateSystemTheme(initialSystemTheme);
   }
 
   componentWillUnmount() {
+    if (!osCanTheme) {
+      return;
+    }
     systemThemeEventEmitter.removeListener(
       'currentModeChanged',
       this.updateSystemTheme,
     );
-  }
-
-  startListening() {
-    if (osCanTheme) {
-      systemThemeEventEmitter.addListener(
-        'currentModeChanged',
-        this.updateSystemTheme,
-      );
-      this.updateSystemTheme(initialSystemTheme);
-    }
   }
 
   updateSystemTheme = (colorScheme: GlobalTheme) => {
@@ -85,7 +75,6 @@ class ThemeHandler extends React.PureComponent<Props> {
 export default connect(
   (state: AppState) => ({
     globalThemeInfo: state.globalThemeInfo,
-    rehydrateConcluded: !!(state._persist && state._persist.rehydrated),
   }),
   null,
   true,

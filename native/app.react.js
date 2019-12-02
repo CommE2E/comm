@@ -24,6 +24,7 @@ import { createReduxContainer } from 'react-navigation-redux-helpers';
 import PropTypes from 'prop-types';
 import SplashScreen from 'react-native-splash-screen';
 import Orientation from 'react-native-orientation-locker';
+import { PersistGate } from 'redux-persist/integration/react';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
@@ -44,6 +45,7 @@ import PushHandler from './push/push-handler.react';
 import ThemeHandler from './themes/theme-handler.react';
 import OrientationHandler from './navigation/orientation-handler.react';
 import Socket from './socket.react';
+import { getPersistor } from './redux/persist';
 
 if (Platform.OS === "android") {
   UIManager.setLayoutAnimationEnabledExperimental &&
@@ -129,20 +131,15 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
 
   render() {
     const { detectUnsupervisedBackground } = this.state;
+    const { detectUnsupervisedBackgroundRef } = this;
     const reactNavigationTheme = this.props.activeTheme
       ? this.props.activeTheme
       : 'no-preference';
-    return (
-      <View style={styles.app}>
+    const gated: React.Node = (
+      <>
         <Socket
-          detectUnsupervisedBackgroundRef={this.detectUnsupervisedBackgroundRef}
+          detectUnsupervisedBackgroundRef={detectUnsupervisedBackgroundRef}
         />
-        <ReduxifiedRootNavigator
-          state={this.props.navigationState}
-          dispatch={this.props.dispatch}
-          theme={reactNavigationTheme}
-        />
-        <ConnectedStatusBar />
         <DisconnectedBarVisibilityHandler />
         <DimensionsUpdater />
         <ConnectivityUpdater />
@@ -151,6 +148,19 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
         />
         <ThemeHandler />
         <OrientationHandler />
+      </>
+    );
+    return (
+      <View style={styles.app}>
+        <PersistGate persistor={getPersistor()}>
+          {gated}
+        </PersistGate>
+        <ReduxifiedRootNavigator
+          state={this.props.navigationState}
+          dispatch={this.props.dispatch}
+          theme={reactNavigationTheme}
+        />
+        <ConnectedStatusBar />
       </View>
     );
   }

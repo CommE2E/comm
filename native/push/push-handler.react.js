@@ -83,7 +83,6 @@ const supportsTapticFeedback = Platform.OS === "ios" &&
 type Props = {
   detectUnsupervisedBackground: ?((alreadyClosed: bool) => bool),
   // Redux state
-  rehydrateConcluded: bool,
   unreadCount: number,
   activeThread: ?string,
   appLoggedIn: bool,
@@ -113,7 +112,6 @@ class PushHandler extends React.PureComponent<Props, State> {
 
   static propTypes = {
     detectUnsupervisedBackground: PropTypes.func,
-    rehydrateConcluded: PropTypes.bool.isRequired,
     unreadCount: PropTypes.number.isRequired,
     activeThread: PropTypes.string,
     appLoggedIn: PropTypes.bool.isRequired,
@@ -141,12 +139,6 @@ class PushHandler extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.appStarted = Date.now();
     NativeAppState.addEventListener('change', this.handleAppStateChange);
-    if (this.props.rehydrateConcluded) {
-      this.onReduxRehydrate();
-    }
-  }
-
-  onReduxRehydrate() {
     this.onForeground();
     if (Platform.OS === "ios") {
       NotificationsIOS.addEventListener(
@@ -263,9 +255,7 @@ class PushHandler extends React.PureComponent<Props, State> {
       }
     }
 
-    if (this.props.rehydrateConcluded && !prevProps.rehydrateConcluded) {
-      this.onReduxRehydrate();
-    } else if (
+    if (
       (this.props.appLoggedIn && !prevProps.appLoggedIn) ||
       (!this.props.deviceToken && prevProps.deviceToken)
     ) {
@@ -594,7 +584,6 @@ AppRegistry.registerHeadlessTask(
 
 export default connect(
   (state: AppState) => ({
-    rehydrateConcluded: !!(state._persist && state._persist.rehydrated),
     unreadCount: unreadCount(state),
     activeThread: activeThreadSelector(state),
     appLoggedIn: appLoggedInSelector(state),
