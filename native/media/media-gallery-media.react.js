@@ -280,6 +280,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
           <Video
             source={source}
             repeat={true}
+            muted={true}
             style={dimensionsStyle}
             onLoad={this.onVideoLoad}
           />
