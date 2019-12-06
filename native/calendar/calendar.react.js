@@ -786,7 +786,9 @@ class Calendar extends React.PureComponent<Props, State> {
     }
     return (
       <SafeAreaView style={this.props.styles.container}>
-        <DisconnectedBar />
+        <DisconnectedBar
+          visible={this.props.calendarActive}
+        />
         <TextHeightMeasurer
           textToMeasure={this.state.textToMeasure}
           allHeightsMeasuredCallback={this.allHeightsMeasured}

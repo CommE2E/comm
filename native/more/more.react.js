@@ -1,6 +1,6 @@
 // @flow
 
-import React from 'react';
+import * as React from 'react';
 import { StyleSheet, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { createStackNavigator } from 'react-navigation-stack';
@@ -21,7 +21,7 @@ import {
   DevToolsRouteName,
   AppearancePreferencesRouteName,
 } from '../navigation/route-names';
-import Header from '../navigation/header.react';
+import MoreHeader from './more-header.react';
 import HeaderBackButton from '../navigation/header-back-button.react';
 
 const More = createStackNavigator(
@@ -36,7 +36,7 @@ const More = createStackNavigator(
   },
   {
     defaultNavigationOptions: ({ navigation }) => ({
-      header: Header,
+      header: MoreHeader,
       headerLeft: navigation.isFirstRouteInParent()
         ? undefined
         : HeaderBackButton,

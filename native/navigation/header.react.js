@@ -1,16 +1,23 @@
 // @flow
 
+import type { HeaderProps } from 'react-navigation-stack';
+
 import * as React from 'react';
 import { Header } from 'react-navigation-stack';
 import { View } from 'react-native';
 
 import DisconnectedBar from './disconnected-bar.react';
 
-export default function CustomHeader(props: React.ElementProps<typeof Header>) {
+type Props = {|
+  activeTab: bool,
+  ...$Exact<HeaderProps>,
+|};
+export default function CustomHeader(props: Props) {
+  const { activeTab, ...rest } = props;
   return (
     <View>
-      <Header {...props} />
-      <DisconnectedBar />
+      <Header {...rest} />
+      <DisconnectedBar visible={activeTab} />
     </View>
   );
 }

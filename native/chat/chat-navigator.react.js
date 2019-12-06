@@ -23,8 +23,8 @@ import {
   MessageListRouteName,
   ChatThreadListRouteName,
 } from '../navigation/route-names';
-import Header from '../navigation/header.react';
 import HeaderBackButton from '../navigation/header-back-button.react';
+import ChatHeader from './chat-header.react';
 
 const ChatNavigator = createStackNavigator(
   {
@@ -36,7 +36,7 @@ const ChatNavigator = createStackNavigator(
   },
   {
     defaultNavigationOptions: ({ navigation }) => ({
-      header: Header,
+      header: ChatHeader,
       headerLeft: navigation.isFirstRouteInParent()
         ? undefined
         : HeaderBackButton,

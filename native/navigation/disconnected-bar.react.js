@@ -9,17 +9,20 @@ import PropTypes from 'prop-types';
 import { connect } from 'lib/utils/redux-utils';
 
 type Props = {|
+  visible: bool,
   // Redux state
   showDisconnectedBar: bool,
 |};
 class DisconnectedBar extends React.PureComponent<Props> {
 
   static propTypes = {
+    visible: PropTypes.bool.isRequired,
     showDisconnectedBar: PropTypes.bool.isRequired,
   };
 
   componentDidUpdate(prevProps: Props) {
-    if (this.props.showDisconnectedBar !== prevProps.showDisconnectedBar) {
+    const { visible, showDisconnectedBar } = this.props;
+    if (visible && showDisconnectedBar !== prevProps.showDisconnectedBar) {
       LayoutAnimation.easeInEaseOut();
     }
   }
