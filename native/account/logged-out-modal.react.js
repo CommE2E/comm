@@ -8,7 +8,7 @@ import type {
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from '../redux/redux-setup';
 import type { Action } from '../navigation/navigation-setup';
-import type { KeyboardEvent, EmitterSubscription } from '../keyboard';
+import type { KeyboardEvent, EmitterSubscription } from '../keyboard/keyboard';
 import type { LogInState } from './log-in-panel.react';
 import type { RegisterState } from './register-panel.react';
 import type { LogInExtraInfo } from 'lib/types/account-types';
@@ -62,7 +62,7 @@ import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
   removeKeyboardListener,
-} from '../keyboard';
+} from '../keyboard/keyboard';
 import {
   type SimpleStateSetter,
   type StateContainer,

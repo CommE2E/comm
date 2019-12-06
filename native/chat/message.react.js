@@ -22,7 +22,7 @@ import {
   type KeyboardState,
   keyboardStatePropType,
   withKeyboardState,
-} from '../navigation/keyboard-state';
+} from '../keyboard/keyboard-state';
 
 import * as React from 'react';
 import {

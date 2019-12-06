@@ -110,7 +110,7 @@ import { MultimediaTooltipModal } from '../chat/multimedia-tooltip-modal.react';
 import ChatInputStateContainer from '../chat/chat-input-state-container.react';
 import OverlayableScrollViewStateContainer
   from './overlayable-scroll-view-state-container.react';
-import KeyboardStateContainer from './keyboard-state-container.react';
+import KeyboardStateContainer from '../keyboard/keyboard-state-container.react';
 import ActionResultModal from './action-result-modal.react';
 import {
   TextMessageTooltipModal,

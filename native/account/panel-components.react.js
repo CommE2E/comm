@@ -3,7 +3,7 @@
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { ViewStyle } from '../types/styles';
-import type { KeyboardEvent, EmitterSubscription } from '../keyboard';
+import type { KeyboardEvent, EmitterSubscription } from '../keyboard/keyboard';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 import type { AppState } from '../redux/redux-setup';
 
@@ -30,7 +30,7 @@ import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
   removeKeyboardListener,
-} from '../keyboard';
+} from '../keyboard/keyboard';
 
 type ButtonProps = {|
   text: string,

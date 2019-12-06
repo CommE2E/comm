@@ -15,7 +15,7 @@ import type {
 } from '../selectors/calendar-selectors';
 import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { KeyboardEvent } from '../keyboard';
+import type { KeyboardEvent } from '../keyboard/keyboard';
 import type { TextToMeasure } from '../text-height-measurer.react';
 import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
 import {
@@ -89,8 +89,8 @@ import {
   addKeyboardDismissListener,
   addKeyboardDidDismissListener,
   removeKeyboardListener,
-} from '../keyboard';
-import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
+} from '../keyboard/keyboard';
+import KeyboardAvoidingView from '../keyboard/keyboard-avoiding-view.react';
 import {
   CalendarRouteName,
   ThreadPickerModalRouteName,

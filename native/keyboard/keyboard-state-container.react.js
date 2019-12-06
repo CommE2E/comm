@@ -8,7 +8,7 @@ import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
   removeKeyboardListener,
-} from '../keyboard';
+} from './keyboard';
 import { KeyboardContext } from './keyboard-state';
 
 type Props = {|

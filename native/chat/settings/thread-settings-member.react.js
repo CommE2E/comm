@@ -23,7 +23,7 @@ import {
   type KeyboardState,
   keyboardStatePropType,
   withKeyboardState,
-} from '../../navigation/keyboard-state';
+} from '../../keyboard/keyboard-state';
 import {
   type Navigate,
   ThreadSettingsMemberTooltipModalRouteName,

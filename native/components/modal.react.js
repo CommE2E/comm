@@ -17,7 +17,7 @@ import {
 import PropTypes from 'prop-types';
 import { connect } from 'lib/utils/redux-utils';
 
-import KeyboardAvoidingView from './keyboard-avoiding-view.react';
+import KeyboardAvoidingView from '../keyboard/keyboard-avoiding-view.react';
 import { createIsForegroundSelector } from '../selectors/nav-selectors';
 import { styleSelector } from '../themes/colors';
 

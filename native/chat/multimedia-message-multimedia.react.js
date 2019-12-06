@@ -30,7 +30,7 @@ import {
   type KeyboardState,
   keyboardStatePropType,
   withKeyboardState,
-} from '../navigation/keyboard-state';
+} from '../keyboard/keyboard-state';
 import type { AppState } from '../redux/redux-setup';
 import { type Colors, colorsPropType } from '../themes/colors';
 

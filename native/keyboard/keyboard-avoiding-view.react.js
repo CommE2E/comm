@@ -1,7 +1,7 @@
 // @flow
 
 import type { ViewStyle } from '../types/styles';
-import type { EmitterSubscription } from '../keyboard';
+import type { EmitterSubscription } from './keyboard';
 
 import * as React from 'react';
 import {

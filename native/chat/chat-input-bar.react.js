@@ -21,13 +21,13 @@ import {
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
-import type { KeyboardEvent } from '../keyboard';
+import type { KeyboardEvent } from '../keyboard/keyboard';
 import type { GalleryMediaInfo } from '../media/media-gallery-media.react';
 import {
   type KeyboardState,
   keyboardStatePropType,
   withKeyboardState,
-} from '../navigation/keyboard-state';
+} from '../keyboard/keyboard-state';
 import type { Styles } from '../types/styles';
 import { type Colors, colorsPropType } from '../themes/colors';
 import {
@@ -72,7 +72,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import Button from '../components/button.react';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
-import { getKeyboardHeight } from '../keyboard';
+import { getKeyboardHeight } from '../keyboard/keyboard';
 import {
   mediaGalleryKeyboardName,
 } from '../media/media-gallery-keyboard.react';

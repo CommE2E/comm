@@ -14,7 +14,7 @@ import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
   removeKeyboardListener,
-} from '../keyboard';
+} from '../keyboard/keyboard';
 import { styleSelector } from '../themes/colors';
 
 type Props = {|

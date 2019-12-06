@@ -7,7 +7,7 @@ import { BottomTabBar } from 'react-navigation-tabs';
 import {
   type KeyboardState,
   withKeyboardState,
-} from '../navigation/keyboard-state';
+} from '../keyboard/keyboard-state';
 
 type Props = {|
   ...React.ElementConfig<typeof BottomTabBar>,

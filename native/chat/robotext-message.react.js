@@ -9,7 +9,7 @@ import {
   type KeyboardState,
   keyboardStatePropType,
   withKeyboardState,
-} from '../navigation/keyboard-state';
+} from '../keyboard/keyboard-state';
 import type { Styles } from '../types/styles';
 
 import * as React from 'react';

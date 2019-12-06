@@ -5,7 +5,7 @@ import { StyleSheet } from 'react-native';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 
 import ChatNavigator from './chat-navigator.react';
-import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
+import KeyboardAvoidingView from '../keyboard/keyboard-avoiding-view.react';
 import MessageStorePruner from './message-store-pruner.react';
 
 class Chat extends React.PureComponent<{ ... }> {

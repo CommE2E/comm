@@ -14,7 +14,7 @@ import {
   verifyField,
   type HandleVerificationCodeResult,
 } from 'lib/types/verify-types';
-import type { KeyboardEvent } from '../keyboard';
+import type { KeyboardEvent } from '../keyboard/keyboard';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 import type { ImageStyle } from '../types/styles';
 
@@ -57,7 +57,7 @@ import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
   removeKeyboardListener,
-} from '../keyboard';
+} from '../keyboard/keyboard';
 import { VerificationModalRouteName } from '../navigation/route-names';
 import SafeAreaView from '../components/safe-area-view.react';
 
