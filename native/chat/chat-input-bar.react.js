@@ -528,6 +528,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   }
 
   openCamera = () => {
+    this.dismissKeyboard();
     this.props.navigation.navigate({
       routeName: CameraModalRouteName,
       params: { threadID: this.props.threadInfo.id },
