@@ -152,6 +152,7 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
     );
     return (
       <View style={styles.app}>
+        <ConnectedStatusBar />
         <PersistGate persistor={getPersistor()}>
           {gated}
         </PersistGate>
@@ -160,7 +161,6 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
           dispatch={this.props.dispatch}
           theme={reactNavigationTheme}
         />
-        <ConnectedStatusBar />
       </View>
     );
   }
