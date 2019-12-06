@@ -9,16 +9,17 @@ import PropTypes from 'prop-types';
 import { connect } from 'lib/utils/redux-utils';
 
 type Props = {|
-  visible: bool,
+  // Redux state
+  showDisconnectedBar: bool,
 |};
 class DisconnectedBar extends React.PureComponent<Props> {
 
   static propTypes = {
-    visible: PropTypes.bool.isRequired,
+    showDisconnectedBar: PropTypes.bool.isRequired,
   };
 
   componentDidUpdate(prevProps: Props) {
-    if (this.props.visible !== prevProps.visible) {
+    if (this.props.showDisconnectedBar !== prevProps.showDisconnectedBar) {
       LayoutAnimation.easeInEaseOut();
     }
   }
@@ -26,7 +27,7 @@ class DisconnectedBar extends React.PureComponent<Props> {
   render() {
     const disconnectedBarStyles = [ styles.disconnectedBar ];
     let text;
-    if (this.props.visible) {
+    if (this.props.showDisconnectedBar) {
       text = <Text style={styles.disconnectedText}>DISCONNECTED</Text>;
     } else {
       disconnectedBarStyles.push(styles.hiddenDisconnectedBar);
@@ -53,5 +54,5 @@ const styles = StyleSheet.create({
 });
 
 export default connect((state: AppState) => ({
-  visible: state.connection.showDisconnectedBar,
+  showDisconnectedBar: state.connection.showDisconnectedBar,
 }))(DisconnectedBar);
