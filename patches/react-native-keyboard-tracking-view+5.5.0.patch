@@ -1,15 +1,15 @@
-diff --git a/node_modules/react-native-keyboard-tracking-view/react-native-keyboard-tracking-view.podspec b/node_modules/react-native-keyboard-tracking-view/react-native-keyboard-tracking-view.podspec
+diff --git a/node_modules/react-native-keyboard-tracking-view/KeyboardTrackingView.podspec b/node_modules/react-native-keyboard-tracking-view/KeyboardTrackingView.podspec
 new file mode 100644
 index 0000000..8a63c79
 --- /dev/null
-+++ b/node_modules/react-native-keyboard-tracking-view/react-native-keyboard-tracking-view.podspec
++++ b/node_modules/react-native-keyboard-tracking-view/KeyboardTrackingView.podspec
 @@ -0,0 +1,17 @@
 +require 'json'
 +version = JSON.parse(File.read('package.json'))["version"]
 +
 +Pod::Spec.new do |s|
 +
-+  s.name                  = "react-native-keyboard-tracking-view"
++  s.name                  = "KeyboardTrackingView"
 +  s.version               = version
 +  s.summary               = "Keyboard Tracking View for React Native."
 +  s.homepage              = "https://github.com/wix/react-native-keyboard-tracking-view"

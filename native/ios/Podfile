@@ -28,8 +28,8 @@ target 'SquadCal' do
   pod 'glog', :podspec => '../../node_modules/react-native/third-party-podspecs/glog.podspec'
   pod 'Folly', :podspec => '../../node_modules/react-native/third-party-podspecs/Folly.podspec'
 
-  pod 'react-native-keyboard-tracking-view', :path => '../../node_modules/react-native-keyboard-tracking-view'
-  pod 'react-native-keyboard-input', :path => '../../node_modules/react-native-keyboard-input'
+  pod 'KeyboardTrackingView', :path => '../../node_modules/react-native-keyboard-tracking-view'
+  pod 'ReactNativeKeyboardInput', :path => '../../node_modules/react-native-keyboard-input'
   pod 'react-native-ffmpeg/min-lts', :podspec => '../../node_modules/react-native-ffmpeg/ios/react-native-ffmpeg.podspec'
 
   use_native_modules!("..")

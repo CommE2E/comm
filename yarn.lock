@@ -10122,10 +10122,10 @@ react-native-in-app-message@^1.0.2:
   resolved "https://registry.yarnpkg.com/react-native-in-app-message/-/react-native-in-app-message-1.0.2.tgz#e971c039bcd0e238306f73fbea43fc866aa94a69"
   integrity sha512-dbzC3AMT5CzGafzUu8ifFMd5g6v0Ww5q9oQgw8RRqjMhggoXDipct9BBI9g4tAoUB2xE2axqu2tKC5pnpBnbdQ==
 
-react-native-keyboard-input@^5.3.1:
-  version "5.3.1"
-  resolved "https://registry.yarnpkg.com/react-native-keyboard-input/-/react-native-keyboard-input-5.3.1.tgz#e90f43e17c070535cb54cc0be66a247f177474fc"
-  integrity sha512-NdKgueDFetyh77CC8veXE9jgISxatKbWkOpe3wfyPjw9O0J/c7EI5CEjSp5/ICufkvY6oLVDsZrP6TngTxTrXw==
+react-native-keyboard-input@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-keyboard-input/-/react-native-keyboard-input-6.0.0.tgz#db71ddc8f7c6fdb799b17b9ebdeb783c7ca55c08"
+  integrity sha512-dpmkLaLk1+hqYfsRFktB5z0UuJHvJSBCQG67o8MhHa9uOq01OSwMIQUujuOwnGwJ/iIzexZs7YaI2Yb6M34g5g==
   dependencies:
     lodash "^4.17.4"
     react-native-keyboard-tracking-view "^5.5.0"

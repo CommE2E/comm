@@ -1,13 +1,13 @@
 diff --git a/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/CustomKeyboardRootViewShadow.java b/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/CustomKeyboardRootViewShadow.java
-index 3c8d37e..069e216 100644
+index 46d2207..830c7b5 100644
 --- a/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/CustomKeyboardRootViewShadow.java
 +++ b/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/CustomKeyboardRootViewShadow.java
-@@ -13,7 +13,6 @@ public class CustomKeyboardRootViewShadow extends LayoutShadowNode {
+@@ -14,7 +14,6 @@ public class CustomKeyboardRootViewShadow extends LayoutShadowNode {
          mLayout.setShadowNode(this);
      }
  
 -    @Override
-     public void onBeforeLayout() {
+     public void onBeforeLayout(NativeViewHierarchyOptimizer nativeViewHierarchyOptimizer) {
          mLayout.setShadowNode(this);
      }
 diff --git a/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomInputController.m b/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomInputController.m
@@ -23,54 +23,15 @@ index 2a31b47..21090bf 100644
  {
      UIView* inputField = [self.bridge.uiManager viewForReactTag:inputFieldTag];
      if(inputField != nil)
-diff --git a/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomKeyboardViewController.m b/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomKeyboardViewController.m
-index e856264..3286907 100644
---- a/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomKeyboardViewController.m
-+++ b/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomKeyboardViewController.m
-@@ -7,8 +7,8 @@
- 
- #import "RCTCustomKeyboardViewController.h"
- 
--#if __has_include(<KeyboardTrackingView/ObservingInputAccessoryView.h>)
--    #import <KeyboardTrackingView/ObservingInputAccessoryView.h>
-+#if __has_include(<react-native-keyboard-tracking-view/ObservingInputAccessoryView.h>)
-+    #import <react-native-keyboard-tracking-view/ObservingInputAccessoryView.h>
-     #define ObservingInputAccessoryView_IsAvailable true
- #endif
- 
-diff --git a/node_modules/react-native-keyboard-input/react-native-keyboard-input.podspec b/node_modules/react-native-keyboard-input/react-native-keyboard-input.podspec
-new file mode 100644
-index 0000000..9f724be
---- /dev/null
-+++ b/node_modules/react-native-keyboard-input/react-native-keyboard-input.podspec
-@@ -0,0 +1,18 @@
-+require 'json'
-+version = JSON.parse(File.read('package.json'))["version"]
-+
-+Pod::Spec.new do |s|
-+
-+  s.name                  = "react-native-keyboard-input"
-+  s.version               = version
-+  s.summary               = "Keyboard Input for React Native."
-+  s.homepage              = "https://github.com/wix/react-native-keyboard-input"
-+  s.license               = 'MIT'
-+  s.source                = { path: '.' }
-+  s.ios.deployment_target = '9.0'
-+  s.authors               = { 'Leo Natan' => 'lnatan@wix.com' }
-+  s.source_files          = 'lib/ios/{LNInterpolation/*,RCTCustomInputController/*}.{h,m,mm}'
-+  s.dependency 'React'
-+  s.dependency 'react-native-keyboard-tracking-view'
-+
-+end 
 diff --git a/node_modules/react-native-keyboard-input/src/CustomKeyboardView.js b/node_modules/react-native-keyboard-input/src/CustomKeyboardView.js
-index 078efb6..da709f1 100644
+index 59cae03..ec6f756 100644
 --- a/node_modules/react-native-keyboard-input/src/CustomKeyboardView.js
 +++ b/node_modules/react-native-keyboard-input/src/CustomKeyboardView.js
-@@ -49,16 +49,16 @@ export default class CustomKeyboardView extends Component {
+@@ -75,16 +75,16 @@ export default class CustomKeyboardView extends Component {
      }
    }
  
--  async componentWillReceiveProps(nextProps) {
+-  async UNSAFE_componentWillReceiveProps(nextProps) { //eslint-disable-line
 -    const {inputRef, component, initialProps, onRequestShowKeyboard} = nextProps;
 +  async componentDidUpdate(prevProps) {
 +    const {inputRef, component, initialProps, onRequestShowKeyboard} = this.props;
@@ -87,7 +48,7 @@ index 078efb6..da709f1 100644
        if (component) {
          TextInputKeyboardManagerIOS.setInputComponent(inputRef, {component, initialProps});
        } else {
-@@ -72,7 +72,7 @@ export default class CustomKeyboardView extends Component {
+@@ -98,7 +98,7 @@ export default class CustomKeyboardView extends Component {
          onRequestShowKeyboard(args.keyboardId);
        });
      }
@@ -95,7 +56,7 @@ index 078efb6..da709f1 100644
 +    this.registerListener(prevProps, this.props);
    }
  
-   shouldComponentUpdate(nextProps) {
+   registerListener(props, nextProps) {
 diff --git a/node_modules/react-native-keyboard-input/src/TextInputKeyboardMangerIOS.js b/node_modules/react-native-keyboard-input/src/TextInputKeyboardMangerIOS.js
 index 20d61c9..13a6493 100644
 --- a/node_modules/react-native-keyboard-input/src/TextInputKeyboardMangerIOS.js
