@@ -25,12 +25,7 @@ import {
 } from '../keyboard/keyboard-state';
 
 import * as React from 'react';
-import {
-  View,
-  LayoutAnimation,
-  TouchableWithoutFeedback,
-  Platform,
-} from 'react-native';
+import { View, LayoutAnimation, TouchableWithoutFeedback } from 'react-native';
 import PropTypes from 'prop-types';
 
 import { TextMessage, textMessageItemHeight } from './text-message.react';
@@ -126,12 +121,6 @@ class Message extends React.PureComponent<Props> {
           toggleFocus={this.props.toggleFocus}
         />
       );
-    }
-    if (Platform.OS === "android" && Platform.Version < 21) {
-      // On old Android 4.4 devices, we can get a stack overflow during draw
-      // when we use the TouchableWithoutFeedback below. It's just too deep of
-      // a stack for the old hardware to handle
-      return message;
     }
     return (
       <TouchableWithoutFeedback onPress={this.dismissKeyboard}>

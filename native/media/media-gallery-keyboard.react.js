@@ -328,10 +328,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
   }
 
   get queueModeActive() {
-    // On old Android 4.4 devices, we get a stack overflow just trying to draw
-    // the buttons for standard mode, so we force queue mode on always.
-    return !!this.state.queuedMediaURIs ||
-      (Platform.OS === "android" && Platform.Version < 21);
+    return !!this.state.queuedMediaURIs;
   }
 
   renderItem = (row: { item: GalleryMediaInfo }) => {
