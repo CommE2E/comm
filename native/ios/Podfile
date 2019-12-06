@@ -31,6 +31,7 @@ target 'SquadCal' do
   pod 'KeyboardTrackingView', :path => '../../node_modules/react-native-keyboard-tracking-view'
   pod 'ReactNativeKeyboardInput', :path => '../../node_modules/react-native-keyboard-input'
   pod 'react-native-ffmpeg/min-lts', :podspec => '../../node_modules/react-native-ffmpeg/ios/react-native-ffmpeg.podspec'
+  pod 'react-native-video/VideoCaching', :podspec => '../../node_modules/react-native-video/react-native-video.podspec'
 
   use_native_modules!("..")
 end
