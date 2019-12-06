@@ -22,7 +22,6 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { KeyboardEvent } from '../keyboard/keyboard';
-import type { GalleryMediaInfo } from '../media/media-gallery-media.react';
 import {
   type KeyboardState,
   keyboardStatePropType,
@@ -51,10 +50,7 @@ import FAIcon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import Animated, { Easing } from 'react-native-reanimated';
-import {
-  KeyboardAccessoryView,
-  TextInputKeyboardMangerIOS,
-} from 'react-native-keyboard-input';
+import { TextInputKeyboardMangerIOS } from 'react-native-keyboard-input';
 import _throttle from 'lodash/throttle';
 
 import { connect } from 'lib/utils/redux-utils';
@@ -73,12 +69,9 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import Button from '../components/button.react';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import { getKeyboardHeight } from '../keyboard/keyboard';
-import {
-  mediaGalleryKeyboardName,
-} from '../media/media-gallery-keyboard.react';
-import { ChatInputStateContext } from './chat-input-state';
 import { colorsSelector, styleSelector } from '../themes/colors';
 import { CameraModalRouteName } from '../navigation/route-names';
+import KeyboardInputHost from '../keyboard/keyboard-input-host.react';
 
 const draftKeyFromThreadID =
   (threadID: string) => `${threadID}/message_composer`;
@@ -130,7 +123,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     sendTextMessage: PropTypes.func.isRequired,
     joinThread: PropTypes.func.isRequired,
   };
-  static contextType = ChatInputStateContext;
   textInput: ?TextInput;
   expandOpacity: Animated.Value;
   expandoButtonsOpacity: Animated.Value;
@@ -396,27 +388,11 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       }
     }
 
-    let keyboardAccessoryView = null;
-    const imageGalleryIsOpen = ChatInputBar.mediaGalleryOpen(this.props);
-    if (Platform.OS !== "android" || imageGalleryIsOpen) {
-      const kbComponent = imageGalleryIsOpen ? mediaGalleryKeyboardName : null;
-      keyboardAccessoryView = (
-        <KeyboardAccessoryView
-          kbInputRef={this.textInput}
-          kbComponent={kbComponent}
-          kbInitialProps={this.props.styles.kbInitialProps}
-          onItemSelected={this.onMediaGalleryItemSelected}
-          onKeyboardResigned={this.hideMediaGallery}
-          manageScrollView={false}
-        />
-      );
-    }
-
     return (
       <View style={this.props.styles.container}>
         {joinButton}
         {content}
-        {keyboardAccessoryView}
+        <KeyboardInputHost textInputRef={this.textInput} />
       </View>
     );
   }
@@ -560,22 +536,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     keyboardState.showMediaGallery(this.props.threadInfo.id);
   }
 
-  hideMediaGallery = () => {
-    const { keyboardState } = this.props;
-    invariant(keyboardState, "keyboardState should be initialized");
-    keyboardState.hideMediaGallery();
-  }
-
-  onMediaGalleryItemSelected = (
-    keyboardName: string,
-    imageInfos: $ReadOnlyArray<GalleryMediaInfo>,
-  ) => {
-    this.dismissKeyboard();
-    const chatInputState = this.context;
-    invariant(chatInputState, "chatInputState should be set in ChatInputBar");
-    chatInputState.sendMultimediaMessage(this.props.threadInfo.id, imageInfos);
-  }
-
   dismissKeyboard = () => {
     const { keyboardState } = this.props;
     keyboardState && keyboardState.dismissKeyboard();
@@ -662,9 +622,6 @@ const styles = {
   },
   joinThreadLoadingIndicator: {
     paddingVertical: 2,
-  },
-  kbInitialProps: {
-    backgroundColor: 'listBackground',
   },
 };
 const stylesSelector = styleSelector(styles);

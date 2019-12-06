@@ -1,5 +1,7 @@
 // @flow
 
+import type { GalleryMediaInfo } from '../media/media-gallery-media.react';
+
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { KeyboardUtils } from 'react-native-keyboard-input';
@@ -80,8 +82,10 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
   }
 
   hideMediaGallery = () => {
-    this.setState({ mediaGalleryOpen: false });
+    this.setState({ mediaGalleryOpen: false, mediaGalleryThreadID: null });
   }
+
+  getMediaGalleryThreadID = () => this.state.mediaGalleryThreadID;
 
   render() {
     const { systemKeyboardShowing, mediaGalleryOpen } = this.state;
@@ -91,6 +95,7 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
       dismissKeyboardIfShowing,
       showMediaGallery,
       hideMediaGallery,
+      getMediaGalleryThreadID,
     } = this;
     const keyboardState = {
       keyboardShowing,
@@ -100,6 +105,7 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
       mediaGalleryOpen,
       showMediaGallery,
       hideMediaGallery,
+      getMediaGalleryThreadID,
     };
     return (
       <KeyboardContext.Provider value={keyboardState}>

@@ -11,6 +11,7 @@ export type KeyboardState = {|
   mediaGalleryOpen: bool,
   showMediaGallery: (threadID: string) => void,
   hideMediaGallery: () => void,
+  getMediaGalleryThreadID: () => ?string,
 |};
 
 const keyboardStatePropType = PropTypes.shape({
@@ -21,6 +22,7 @@ const keyboardStatePropType = PropTypes.shape({
   mediaGalleryOpen: PropTypes.bool.isRequired,
   showMediaGallery: PropTypes.func.isRequired,
   hideMediaGallery: PropTypes.func.isRequired,
+  getMediaGalleryThreadID: PropTypes.func.isRequired,
 });
 
 const KeyboardContext = React.createContext<?KeyboardState>(null);
