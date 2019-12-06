@@ -5,6 +5,7 @@ import type { GalleryMediaInfo } from '../media/media-gallery-media.react';
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { KeyboardUtils } from 'react-native-keyboard-input';
+import { Platform } from 'react-native';
 
 import {
   addKeyboardShowListener,
@@ -12,6 +13,7 @@ import {
   removeKeyboardListener,
 } from './keyboard';
 import { KeyboardContext } from './keyboard-state';
+import KeyboardInputHost from './keyboard-input-host.react';
 
 type Props = {|
   children: React.Node,
@@ -107,9 +109,13 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
       hideMediaGallery,
       getMediaGalleryThreadID,
     };
+    const keyboardInputHost = (Platform.OS === "android" && mediaGalleryOpen)
+      ? <KeyboardInputHost />
+      : null;
     return (
       <KeyboardContext.Provider value={keyboardState}>
         {this.props.children}
+        {keyboardInputHost}
       </KeyboardContext.Provider>
     );
   }

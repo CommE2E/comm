@@ -51,11 +51,9 @@ class KeyboardInputHost extends React.PureComponent<Props> {
   }
 
   render() {
-    const imageGalleryIsOpen = KeyboardInputHost.mediaGalleryOpen(this.props);
-    if (Platform.OS === "android" && !imageGalleryIsOpen) {
-      return null;
-    }
-    const kbComponent = imageGalleryIsOpen ? mediaGalleryKeyboardName : null;
+    const kbComponent = KeyboardInputHost.mediaGalleryOpen(this.props)
+      ? mediaGalleryKeyboardName
+      : null;
     return (
       <KeyboardAccessoryView
         kbInputRef={this.props.textInputRef}

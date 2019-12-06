@@ -388,11 +388,15 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       }
     }
 
+    const keyboardInputHost = Platform.OS === "android"
+      ? null
+      : <KeyboardInputHost textInputRef={this.textInput} />;
+
     return (
       <View style={this.props.styles.container}>
         {joinButton}
         {content}
-        <KeyboardInputHost textInputRef={this.textInput} />
+        {keyboardInputHost}
       </View>
     );
   }
