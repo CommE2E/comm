@@ -320,7 +320,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
               <View style={this.props.styles.innerExpandoButtons}>
                 {this.state.buttonsExpanded ? expandoButton : null}
                 <TouchableOpacity
-                  onPress={this.openMediaGallery}
+                  onPress={this.showMediaGallery}
                   activeOpacity={0.4}
                 >
                   <Animated.View style={this.cameraRollIconStyle}>
@@ -554,12 +554,16 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     });
   }
 
-  openMediaGallery = () => {
-    this.setMediaGalleryOpen(true);
+  showMediaGallery = () => {
+    const { keyboardState } = this.props;
+    invariant(keyboardState, "keyboardState should be initialized");
+    keyboardState.showMediaGallery(this.props.threadInfo.id);
   }
 
   hideMediaGallery = () => {
-    this.setMediaGalleryOpen(false);
+    const { keyboardState } = this.props;
+    invariant(keyboardState, "keyboardState should be initialized");
+    keyboardState.hideMediaGallery();
   }
 
   onMediaGalleryItemSelected = (
@@ -570,12 +574,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     const chatInputState = this.context;
     invariant(chatInputState, "chatInputState should be set in ChatInputBar");
     chatInputState.sendMultimediaMessage(this.props.threadInfo.id, imageInfos);
-  }
-
-  setMediaGalleryOpen(mediaGalleryOpen: bool) {
-    const { keyboardState } = this.props;
-    invariant(keyboardState, "keyboardState should be initialized");
-    keyboardState.setMediaGalleryOpen(mediaGalleryOpen);
   }
 
   dismissKeyboard = () => {

@@ -17,6 +17,7 @@ type Props = {|
 type State = {|
   systemKeyboardShowing: bool,
   mediaGalleryOpen: bool,
+  mediaGalleryThreadID: ?string,
 |};
 class KeyboardStateContainer extends React.PureComponent<Props, State> {
 
@@ -26,6 +27,7 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
   state = {
     systemKeyboardShowing: false,
     mediaGalleryOpen: false,
+    mediaGalleryThreadID: null,
   };
   keyboardShowListener: ?Object;
   keyboardDismissListener: ?Object;
@@ -73,8 +75,12 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
     return systemKeyboardShowing || mediaGalleryOpen;
   }
 
-  setMediaGalleryOpen = (mediaGalleryOpen: bool) => {
-    this.setState({ mediaGalleryOpen });
+  showMediaGallery = (threadID: string) => {
+    this.setState({ mediaGalleryOpen: true, mediaGalleryThreadID: threadID });
+  }
+
+  hideMediaGallery = () => {
+    this.setState({ mediaGalleryOpen: false });
   }
 
   render() {
@@ -83,7 +89,8 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
       keyboardShowing,
       dismissKeyboard,
       dismissKeyboardIfShowing,
-      setMediaGalleryOpen,
+      showMediaGallery,
+      hideMediaGallery,
     } = this;
     const keyboardState = {
       keyboardShowing,
@@ -91,7 +98,8 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
       dismissKeyboardIfShowing,
       systemKeyboardShowing,
       mediaGalleryOpen,
-      setMediaGalleryOpen,
+      showMediaGallery,
+      hideMediaGallery,
     };
     return (
       <KeyboardContext.Provider value={keyboardState}>
