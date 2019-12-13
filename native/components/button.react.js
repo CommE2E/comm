@@ -92,7 +92,7 @@ class Button extends React.PureComponent<Props> {
       invariant(
         underlayColor,
         "iosHighlightUnderlayColor should be specified to Button in " +
-          "format='higlight'",
+          "format='highlight'",
       );
       const child = this.props.children ? this.props.children : <View />;
       return (
