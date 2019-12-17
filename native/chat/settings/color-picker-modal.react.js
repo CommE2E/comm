@@ -145,7 +145,7 @@ class ColorPickerModal extends React.PureComponent<Props> {
 const styles = {
   colorPickerContainer: {
     flex: 0,
-    height: 350,
+    height: 370,
     backgroundColor: 'modalBackground',
     marginVertical: 20,
     marginHorizontal: 15,

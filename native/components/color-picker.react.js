@@ -19,7 +19,6 @@ import {
   PanResponder,
   ViewPropTypes,
   Text,
-  Platform,
   Keyboard,
 } from 'react-native';
 import tinycolor from 'tinycolor2';
@@ -185,15 +184,21 @@ class ColorPicker extends React.PureComponent<Props, State> {
     // the screen. This is because PanResponder's relative position information
     // is double broken (#12591, #15290). Unfortunately, the only way to get
     // absolute positioning for a View is via measure() after onLayout (#10556).
-    InteractionManager.runAfterInteractions(() => {
-      if (!this._pickerContainer) {
-        return;
-      }
-      this._pickerContainer.measure((x, y, width, height, pageX, pageY) => {
-        this._pageX = pageX;
-        this._pageY = pageY;
-      });
-    });
+    // The setTimeout is necessary to make sure that the ColorPickerModal
+    // completes its slide-in animation before we measure.
+    setTimeout(
+      () => {
+        if (!this._pickerContainer) {
+          return;
+        }
+        this._pickerContainer.measure((x, y, width, height, pageX, pageY) => {
+          const { pickerPadding } = getPickerProperties(pickerSize);
+          this._pageX = pageX;
+          this._pageY = pageY - pickerPadding - 3;
+        });
+      },
+      500,
+    );
   }
 
   _computeHValue(x: number, y: number) {
@@ -219,7 +224,7 @@ class ColorPicker extends React.PureComponent<Props, State> {
 
   _handleHColorChange({ x, y }: { x: number, y: number }) {
     const { s, v } = this._getColor();
-    const pickerSize = this.state.pickerSize;
+    const { pickerSize } = this.state;
     invariant(
       pickerSize !== null && pickerSize !== undefined,
       "pickerSize should be set",
@@ -346,34 +351,36 @@ class ColorPicker extends React.PureComponent<Props, State> {
         isRTL: I18nManager.isRTL,
       });
       picker = (
-        <View>
-          <View style={[styles.triangleContainer, computed.triangleContainer]}>
-            <View style={[
-              styles.triangleUnderlayingColor,
-              computed.triangleUnderlayingColor,
-            ]} />
-            <Image
-              style={computed.triangleImage}
-              source={require('../img/hsv_triangle_mask.png')}
-            />
-          </View>
-          <View
-            {...pickerResponder.panHandlers}
-            style={computed.picker}
-            collapsable={false}
-          >
-            <Image
-              source={require('../img/color-circle.png')}
-              resizeMode='contain'
-              style={[styles.pickerImage]}
-            />
-            <View style={[styles.pickerIndicator, computed.pickerIndicator]}>
+        <View style={styles.pickerContainer}>
+          <View>
+            <View style={[styles.triangleContainer, computed.triangleContainer]}>
               <View style={[
-                styles.pickerIndicatorTick,
-                computed.pickerIndicatorTick,
+                styles.triangleUnderlayingColor,
+                computed.triangleUnderlayingColor,
               ]} />
+              <Image
+                style={computed.triangleImage}
+                source={require('../img/hsv_triangle_mask.png')}
+              />
             </View>
-            <View style={[styles.svIndicator, computed.svIndicator]} />
+            <View
+              {...pickerResponder.panHandlers}
+              style={computed.picker}
+              collapsable={false}
+            >
+              <Image
+                source={require('../img/color-circle.png')}
+                resizeMode='contain'
+                style={[styles.pickerImage]}
+              />
+              <View style={[styles.pickerIndicator, computed.pickerIndicator]}>
+                <View style={[
+                  styles.pickerIndicatorTick,
+                  computed.pickerIndicatorTick,
+                ]} />
+              </View>
+              <View style={[styles.svIndicator, computed.svIndicator]} />
+            </View>
           </View>
         </View>
       );
@@ -415,30 +422,26 @@ class ColorPicker extends React.PureComponent<Props, State> {
       color: isDark ? 'white' : 'black',
     };
     return (
-      <View style={style}>
-        <View
-          onLayout={this._onLayout}
-          ref={this.pickerContainerRef}
-          style={styles.pickerContainer}
-        >
-          {picker}
-        </View>
-        <View>
-          <View style={[styles.colorPreviews, colorPreviewsStyle]}>
-            {oldColorButton}
-            <Button
-              style={[styles.buttonContents, buttonContentsStyle]}
-              topStyle={styles.colorPreview}
-              onPress={this._onColorSelected}
-              iosFormat="highlight"
-              iosHighlightUnderlayColor={underlayColor}
-              iosActiveOpacity={0.6}
-            >
-              <Text style={[styles.buttonText, buttonTextStyle]}>
-                {this.props.buttonText}
-              </Text>
-            </Button>
-          </View>
+      <View
+        onLayout={this._onLayout}
+        ref={this.pickerContainerRef}
+        style={style}
+      >
+        {picker}
+        <View style={[ styles.colorPreviews, colorPreviewsStyle ]}>
+          {oldColorButton}
+          <Button
+            style={[styles.buttonContents, buttonContentsStyle]}
+            topStyle={styles.colorPreview}
+            onPress={this._onColorSelected}
+            iosFormat="highlight"
+            iosHighlightUnderlayColor={underlayColor}
+            iosActiveOpacity={0.6}
+          >
+            <Text style={[styles.buttonText, buttonTextStyle]}>
+              {this.props.buttonText}
+            </Text>
+          </Button>
         </View>
       </View>
     )
@@ -643,7 +646,7 @@ const styles = StyleSheet.create({
   buttonContents: {
     flex: 1,
     borderRadius: 3,
-    padding: Platform.select({ ios: 3, default: 0 }),
+    padding: 3,
   },
   buttonText: {
     flex: 1,
