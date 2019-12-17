@@ -32,6 +32,7 @@ class UserList extends React.PureComponent<Props> {
         getItemLayout={UserList.getItemLayout}
         keyboardShouldPersistTaps="handled"
         initialNumToRender={20}
+        extraData={this.props.itemTextStyle}
       />
     );
   }

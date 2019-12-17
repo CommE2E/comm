@@ -54,13 +54,19 @@ class ThreadList extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.threadInfos,
     (propsAndState: PropsAndState) => propsAndState.searchText,
     (propsAndState: PropsAndState) => propsAndState.searchResults,
+    (propsAndState: PropsAndState) => propsAndState.itemStyle,
+    (propsAndState: PropsAndState) => propsAndState.itemTextStyle,
     (
       threadInfos: $ReadOnlyArray<ThreadInfo>,
       text: string,
       searchResults: Set<string>,
+      itemStyle: ?ViewStyle,
+      itemTextStyle: ?TextStyle,
     ) => text
       ? threadInfos.filter(threadInfo => searchResults.has(threadInfo.id))
-      : threadInfos,
+      // We spread to make sure the result of this selector updates when
+      // any input param (namely itemStyle or itemTextStyle) changes
+      : [ ...threadInfos ],
   );
 
   get listData() {
