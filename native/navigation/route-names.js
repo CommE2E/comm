@@ -55,3 +55,9 @@ export const scrollBlockingChatModals = [
   TextMessageTooltipModalRouteName,
   ThreadSettingsMemberTooltipModalRouteName,
 ];
+
+export const chatRootModals = [
+  AddUsersModalRouteName,
+  ColorPickerModalRouteName,
+  ComposeSubthreadModalRouteName,
+];

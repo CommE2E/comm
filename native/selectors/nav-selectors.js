@@ -26,6 +26,7 @@ import {
   ActionResultModalRouteName,
   accountModals,
   scrollBlockingChatModals,
+  chatRootModals,
 } from '../navigation/route-names';
 import {
   assertNavigationRouteNotLeafNode,
@@ -127,9 +128,16 @@ const lightboxTransitioningSelector: (state: AppState) => bool = createSelector(
 const activeThreadSelector: (state: AppState) => ?string = createSelector(
   (state: AppState) => state.navInfo.navigationState,
   (navigationState: NavigationState): ?string => {
-    const currentRootSubroute = navigationState.routes[navigationState.index];
-    if (currentRootSubroute.routeName !== AppRouteName) {
-      return null;
+    let rootIndex = navigationState.index;
+    let currentRootSubroute = navigationState.routes[rootIndex];
+    while (currentRootSubroute.routeName !== AppRouteName) {
+      if (!chatRootModals.includes(currentRootSubroute.routeName)) {
+        return null;
+      }
+      if (rootIndex === 0) {
+        return null;
+      }
+      currentRootSubroute = navigationState.routes[--rootIndex];
     }
     const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
     const [ firstAppSubroute ] = appRoute.routes;
