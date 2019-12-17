@@ -14,6 +14,7 @@ import {
 } from 'lib/types/thread-types';
 import type { Styles } from '../../types/styles';
 import { type Colors, colorsPropType } from '../../themes/colors';
+import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -30,6 +31,7 @@ import { createModal } from '../../components/modal.react';
 import { AddUsersModalRouteName } from '../../navigation/route-names';
 import ColorPicker from '../../components/color-picker.react';
 import { colorsSelector, styleSelector } from '../../themes/colors';
+import { dimensionsSelector } from '../../selectors/dimension-selectors';
 
 const Modal = createModal(AddUsersModalRouteName);
 type NavProp = NavigationScreenProp<{|
@@ -46,6 +48,7 @@ type Props = {|
   // Redux state
   colors: Colors,
   styles: Styles,
+  screenDimensions: Dimensions,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -68,16 +71,20 @@ class ColorPickerModal extends React.PureComponent<Props> {
     }).isRequired,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
+    screenDimensions: dimensionsPropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     changeThreadSettings: PropTypes.func.isRequired,
   };
 
   render() {
     const { color, threadInfo } = this.props.navigation.state.params;
+    // Based on the assumption we are always in portrait,
+    // and consequently width is the lowest dimensions
+    const modalStyle = { height: this.props.screenDimensions.width - 5 };
     return (
       <Modal
         navigation={this.props.navigation}
-        modalStyle={this.props.styles.colorPickerContainer}
+        modalStyle={[ this.props.styles.colorPickerContainer, modalStyle ]}
       >
         <ColorPicker
           defaultColor={color}
@@ -145,7 +152,6 @@ class ColorPickerModal extends React.PureComponent<Props> {
 const styles = {
   colorPickerContainer: {
     flex: 0,
-    height: 370,
     backgroundColor: 'modalBackground',
     marginVertical: 20,
     marginHorizontal: 15,
@@ -178,6 +184,7 @@ export default connect(
   (state: AppState) => ({
     colors: colorsSelector(state),
     styles: stylesSelector(state),
+    screenDimensions: dimensionsSelector(state),
   }),
   { changeThreadSettings },
 )(ColorPickerModal);
