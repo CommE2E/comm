@@ -1117,8 +1117,9 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   }
 
   static isActive(props) {
-    const { index } = props.scene;
-    return index === props.transitionProps.index;
+    const ourIndex = props.scene.index;
+    const curIndex = props.transitionProps.index;
+    return curIndex >= ourIndex;
   }
 
   get contentContainerStyle() {
