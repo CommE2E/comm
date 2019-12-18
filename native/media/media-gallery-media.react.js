@@ -1,6 +1,6 @@
 // @flow
 
-import { type Dimensions, mediaTypePropType } from 'lib/types/media-types';
+import { mediaTypePropType } from 'lib/types/media-types';
 import type { ViewStyle, ImageStyle } from '../types/styles';
 import { type Colors, colorsPropType } from '../themes/colors';
 
@@ -64,10 +64,6 @@ type Props = {|
   setFocus: (media: GalleryMediaInfo, isFocused: bool) => void,
   screenWidth: number,
   colors: Colors,
-  setRealVideoDimensions: (
-    compatibleURI: string,
-    dimensions: Dimensions,
-  ) => void,
 |};
 class MediaGalleryMedia extends React.PureComponent<Props> {
 
@@ -88,7 +84,6 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     setFocus: PropTypes.func.isRequired,
     screenWidth: PropTypes.number.isRequired,
     colors: colorsPropType.isRequired,
-    setRealVideoDimensions: PropTypes.func.isRequired,
   };
   focusProgress = new Reanimated.Value(0);
   buttonsStyle: ViewStyle;
@@ -267,7 +262,6 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
             muted={true}
             resizeMode="contain"
             style={dimensionsStyle}
-            onLoad={this.onVideoLoad}
           />
           <Reanimated.View style={this.videoOverlayStyle} />
         </Reanimated.View>
@@ -349,15 +343,6 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
 
   onAnimatingBackdropToZeroCompletion = ({ finished }: { finished: bool }) => {
     this.animatingBackdropToZero = false;
-  }
-
-  onVideoLoad = (videoLoadProps: {
-    naturalSize: { height: number, width: number, ... },
-    ...
-  }) => {
-    const { height, width } = videoLoadProps.naturalSize;
-    const { uri } = this.props.mediaInfo;
-    this.props.setRealVideoDimensions(uri, { height, width });
   }
 
 }

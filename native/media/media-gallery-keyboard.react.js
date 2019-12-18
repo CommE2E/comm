@@ -77,7 +77,6 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
   queueModeProgress = new Animated.Value(0);
   sendButtonStyle: ViewStyle;
   mediaSelected = false;
-  realVideoDimensions = new Map();
 
   constructor(props: Props) {
     super(props);
@@ -349,7 +348,6 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
         setFocus={this.setFocus}
         screenWidth={this.state.screenWidth}
         colors={this.props.colors}
-        setRealVideoDimensions={this.setRealVideoDimensions}
       />
     );
   }
@@ -511,18 +509,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
       return;
     }
     this.mediaSelected = true;
-    const fixedVideoDimensionsMediaInfos = mediaInfos.map(mediaInfo => {
-      const fixedDimensions = this.realVideoDimensions.get(mediaInfo.uri);
-      return fixedDimensions ? { ...mediaInfo, ...fixedDimensions } : mediaInfo;
-    });
-    KeyboardRegistry.onItemSelected(
-      mediaGalleryKeyboardName,
-      fixedVideoDimensionsMediaInfos,
-    );
-  }
-
-  setRealVideoDimensions = (compatibleURI: string, dimensions: Dimensions) => {
-    this.realVideoDimensions.set(compatibleURI, dimensions);
+    KeyboardRegistry.onItemSelected(mediaGalleryKeyboardName, mediaInfos);
   }
 
 }
