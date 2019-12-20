@@ -226,9 +226,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-    if (this.props.rehydrateConcluded) {
-      this.onInitialAppLoad();
-    }
     if (this.props.isForeground) {
       this.onForeground();
     }
