@@ -68,6 +68,7 @@ import {
 } from 'lib/actions/message-actions';
 import { reduxLoggerMiddleware } from 'lib/utils/redux-logger';
 import { getConfig } from 'lib/utils/config';
+import { invalidSessionDowngrade } from 'lib/shared/account-utils';
 
 import { activeThreadSelector } from '../selectors/nav-selectors';
 import {
@@ -190,6 +191,16 @@ function chatRouteFromNavInfo(navInfo: NavInfo): NavigationStateRoute {
 }
 
 function reducer(state: AppState = defaultState, action: *) {
+  if (
+    action.type === setNewSessionActionType &&
+    invalidSessionDowngrade(
+      state.currentUserInfo,
+      action.payload.sessionChange.currentUserInfo,
+      action.payload.requestCurrentUserInfo,
+    )
+  ) {
+    return state;
+  }
   if (
     action.type === recordAndroidNotificationActionType ||
     action.type === clearAndroidNotificationsActionType ||

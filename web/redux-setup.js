@@ -22,6 +22,7 @@ import {
   deleteThreadActionTypes,
 } from 'lib/actions/thread-actions';
 import { mostRecentReadThreadSelector } from 'lib/selectors/thread-selectors';
+import { invalidSessionDowngrade } from 'lib/shared/account-utils';
 
 import { activeThreadSelector } from './selectors/nav-selectors';
 
@@ -97,9 +98,14 @@ export function reducer(oldState: AppState | void, action: Action) {
         windowDimensions: action.payload,
       },
     );
-  }
-
-  if (action.type === setNewSessionActionType) {
+  } else if (action.type === setNewSessionActionType) {
+    if (invalidSessionDowngrade(
+      oldState.currentUserInfo,
+      action.payload.sessionChange.currentUserInfo,
+      action.payload.requestCurrentUserInfo,
+    )) {
+      return oldState;
+    }
     state = {
       ...state,
       sessionID: action.payload.sessionChange.sessionID,
