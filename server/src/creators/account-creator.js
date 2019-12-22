@@ -13,7 +13,7 @@ import bcrypt from 'twin-bcrypt';
 import {
   validUsernameRegex,
   validEmailRegex,
-} from 'lib/shared/account-regexes';
+} from 'lib/shared/account-utils';
 import { ServerError } from 'lib/utils/errors';
 import { values } from 'lib/utils/objects';
 import ashoat from 'lib/facts/ashoat';

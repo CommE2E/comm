@@ -26,7 +26,7 @@ import { connect } from 'lib/utils/redux-utils';
 import {
   validUsernameRegex,
   validEmailRegex,
-} from 'lib/shared/account-regexes';
+} from 'lib/shared/account-utils';
 
 import {
   TextInput,

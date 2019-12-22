@@ -14,7 +14,7 @@ import invariant from 'invariant';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
-import { validEmailRegex } from 'lib/shared/account-regexes';
+import { validEmailRegex } from 'lib/shared/account-utils';
 import {
   deleteAccountActionTypes,
   deleteAccount,

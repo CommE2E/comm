@@ -29,7 +29,7 @@ import {
   changeUserSettingsActionTypes,
   changeUserSettings,
 } from 'lib/actions/user-actions';
-import { validEmailRegex } from 'lib/shared/account-regexes';
+import { validEmailRegex } from 'lib/shared/account-utils';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import Button from '../components/button.react';

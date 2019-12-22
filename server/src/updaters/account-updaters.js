@@ -11,7 +11,7 @@ import { updateTypes } from 'lib/types/update-types';
 
 import bcrypt from 'twin-bcrypt';
 
-import { validEmailRegex } from 'lib/shared/account-regexes';
+import { validEmailRegex } from 'lib/shared/account-utils';
 import { promiseAll } from 'lib/utils/promises';
 import { ServerError } from 'lib/utils/errors';
 import { verifyField } from 'lib/types/verify-types';

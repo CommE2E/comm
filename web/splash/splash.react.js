@@ -13,7 +13,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 
-import { validEmailRegex } from 'lib/shared/account-regexes';
+import { validEmailRegex } from 'lib/shared/account-utils';
 import { connect } from 'lib/utils/redux-utils';
 import {
   requestAccessActionTypes,
