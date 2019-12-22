@@ -415,7 +415,7 @@ function createTooltip<
         cookie,
         urlPrefix,
         sessionID,
-        currentUserInfoLoggedIn: loggedIn,
+        currentUserInfo,
         connectionStatus,
       } = this.props.serverCallState;
       return createBoundServerCallsSelector(serverCall)({
@@ -423,7 +423,7 @@ function createTooltip<
         cookie,
         urlPrefix,
         sessionID,
-        loggedIn,
+        currentUserInfo,
         connectionStatus,
       });
     }
