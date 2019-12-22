@@ -8,6 +8,10 @@ import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { LogOutResult } from 'lib/types/account-types';
 import { type GlobalTheme, globalThemePropType } from '../types/themes';
 import type { Styles } from '../types/styles';
+import {
+  type CurrentUserInfo,
+  currentUserPropType,
+} from 'lib/types/user-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -39,13 +43,16 @@ type Props = {|
   navigation: NavigationScreenProp<*>,
   // Redux state
   loadingStatus: LoadingStatus,
-  username: ?string,
+  currentUserInfo: ?CurrentUserInfo,
   activeTheme: ?GlobalTheme,
   styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  deleteAccount: (password: string) => Promise<LogOutResult>,
+  deleteAccount: (
+    password: string,
+    requestCurrentUserInfo: ?CurrentUserInfo,
+  ) => Promise<LogOutResult>,
 |};
 type State = {|
   password: string,
@@ -58,7 +65,7 @@ class DeleteAccount extends React.PureComponent<Props, State> {
       navigate: PropTypes.func.isRequired,
     }).isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
-    username: PropTypes.string,
+    currentUserInfo: currentUserPropType,
     activeTheme: globalThemePropType,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -97,6 +104,12 @@ class DeleteAccount extends React.PureComponent<Props, State> {
     if (this.mounted) {
       this.setState({ onePasswordSupported });
     }
+  }
+
+  get username() {
+    return this.props.currentUserInfo && !this.props.currentUserInfo.anonymous
+      ? this.props.currentUserInfo.username
+      : undefined;
   }
 
   render() {
@@ -186,10 +199,13 @@ class DeleteAccount extends React.PureComponent<Props, State> {
 
   async deleteAccount() {
     try {
-      if (this.props.username) {
-        await deleteNativeCredentialsFor(this.props.username);
+      if (this.username) {
+        await deleteNativeCredentialsFor(this.username);
       }
-      const result = await this.props.deleteAccount(this.state.password);
+      const result = await this.props.deleteAccount(
+        this.state.password,
+        this.props.currentUserInfo,
+      );
       return result;
     } catch (e) {
       if (e.message === 'invalid_credentials') {
@@ -293,9 +309,7 @@ const loadingStatusSelector = createLoadingStatusSelector(
 export default connect(
   (state: AppState) => ({
     loadingStatus: loadingStatusSelector(state),
-    username: state.currentUserInfo && !state.currentUserInfo.anonymous
-      ? state.currentUserInfo.username
-      : undefined,
+    currentUserInfo: state.currentUserInfo,
     activeTheme: state.globalThemeInfo.activeTheme,
     styles: stylesSelector(state),
   }),

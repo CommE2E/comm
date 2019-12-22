@@ -69,6 +69,10 @@ import {
 import { reduxLoggerMiddleware } from 'lib/utils/redux-logger';
 import { getConfig } from 'lib/utils/config';
 import { invalidSessionDowngrade } from 'lib/shared/account-utils';
+import {
+  logOutActionTypes,
+  deleteAccountActionTypes,
+} from 'lib/actions/user-actions';
 
 import { activeThreadSelector } from '../selectors/nav-selectors';
 import {
@@ -192,11 +196,26 @@ function chatRouteFromNavInfo(navInfo: NavInfo): NavigationStateRoute {
 
 function reducer(state: AppState = defaultState, action: *) {
   if (
-    action.type === setNewSessionActionType &&
-    invalidSessionDowngrade(
-      state.currentUserInfo,
-      action.payload.sessionChange.currentUserInfo,
-      action.payload.requestCurrentUserInfo,
+    (action.type === setNewSessionActionType &&
+      invalidSessionDowngrade(
+        state.currentUserInfo,
+        action.payload.sessionChange.currentUserInfo,
+        action.payload.requestCurrentUserInfo,
+      )
+    ) ||
+    (action.type === logOutActionTypes.success &&
+      invalidSessionDowngrade(
+        state.currentUserInfo,
+        action.payload.currentUserInfo,
+        action.payload.requestCurrentUserInfo,
+      )
+    ) ||
+    (action.type === deleteAccountActionTypes.success &&
+      invalidSessionDowngrade(
+        state.currentUserInfo,
+        action.payload.currentUserInfo,
+        action.payload.requestCurrentUserInfo,
+      )
     )
   ) {
     return state;

@@ -10,6 +10,10 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { Styles } from '../types/styles';
 import { type Colors, colorsPropType } from '../themes/colors';
+import {
+  type CurrentUserInfo,
+  currentUserPropType,
+} from 'lib/types/user-types';
 
 import * as React from 'react';
 import {
@@ -53,16 +57,14 @@ import { colorsSelector, styleSelector } from '../themes/colors';
 type Props = {
   navigation: NavigationScreenProp<*>,
   // Redux state
-  username: ?string,
-  email: ?string,
-  emailVerified: ?bool,
+  currentUserInfo: ?CurrentUserInfo,
   resendVerificationLoadingStatus: LoadingStatus,
   colors: Colors,
   styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  logOut: () => Promise<LogOutResult>,
+  logOut: (requestCurrentUserInfo: ?CurrentUserInfo) => Promise<LogOutResult>,
   resendVerificationEmail: () => Promise<void>,
 };
 class MoreScreen extends React.PureComponent<Props> {
@@ -71,9 +73,7 @@ class MoreScreen extends React.PureComponent<Props> {
     navigation: PropTypes.shape({
       navigate: PropTypes.func.isRequired,
     }).isRequired,
-    username: PropTypes.string,
-    email: PropTypes.string,
-    emailVerified: PropTypes.bool,
+    currentUserInfo: currentUserPropType,
     resendVerificationLoadingStatus: loadingStatusPropType.isRequired,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
@@ -85,10 +85,29 @@ class MoreScreen extends React.PureComponent<Props> {
     headerTitle: "More",
   };
 
+  get username() {
+    return this.props.currentUserInfo && !this.props.currentUserInfo.anonymous
+      ? this.props.currentUserInfo.username
+      : undefined;
+  }
+
+  get email() {
+    return this.props.currentUserInfo && !this.props.currentUserInfo.anonymous
+      ? this.props.currentUserInfo.email
+      : undefined;
+  }
+
+  get emailVerified() {
+    return this.props.currentUserInfo && !this.props.currentUserInfo.anonymous
+      ? this.props.currentUserInfo.emailVerified
+      : undefined;
+  }
+
   render() {
-    let emailVerified = null;
-    if (this.props.emailVerified === true) {
-      emailVerified = (
+    const { emailVerified } = this;
+    let emailVerifiedNode = null;
+    if (emailVerified === true) {
+      emailVerifiedNode = (
         <Text style={[
           this.props.styles.verification,
           this.props.styles.verificationText,
@@ -97,7 +116,7 @@ class MoreScreen extends React.PureComponent<Props> {
           Verified
         </Text>
       );
-    } else if (this.props.emailVerified === false) {
+    } else if (emailVerified === false) {
       let resendVerificationEmailSpinner;
       if (this.props.resendVerificationLoadingStatus === "loading") {
         resendVerificationEmailSpinner = (
@@ -107,7 +126,7 @@ class MoreScreen extends React.PureComponent<Props> {
           />
         );
       }
-      emailVerified = (
+      emailVerifiedNode = (
         <View style={this.props.styles.verification}>
           <Text style={[
             this.props.styles.verificationText,
@@ -147,7 +166,7 @@ class MoreScreen extends React.PureComponent<Props> {
               <Text style={this.props.styles.label} numberOfLines={1}>
                 {"Logged in as "}
                 <Text style={this.props.styles.username}>
-                  {this.props.username}
+                  {this.username}
                 </Text>
               </Text>
               <Button onPress={this.onPressLogOut}>
@@ -161,9 +180,9 @@ class MoreScreen extends React.PureComponent<Props> {
               <Text style={this.props.styles.label}>Email</Text>
               <View style={this.props.styles.content}>
                 <Text style={this.props.styles.value} numberOfLines={1}>
-                  {this.props.email}
+                  {this.email}
                 </Text>
-                {emailVerified}
+                {emailVerifiedNode}
               </View>
               <EditSettingButton
                 onPress={this.onPressEditEmail}
@@ -275,7 +294,7 @@ class MoreScreen extends React.PureComponent<Props> {
   logOutButKeepNativeCredentialsWrapper = () => {
     this.props.dispatchActionPromise(
       logOutActionTypes,
-      this.props.logOut(),
+      this.logOut(),
     );
   }
 
@@ -286,11 +305,15 @@ class MoreScreen extends React.PureComponent<Props> {
     );
   }
 
+  logOut() {
+    return this.props.logOut(this.props.currentUserInfo);
+  }
+
   async logOutAndDeleteNativeCredentials() {
-    const username = this.props.username;
+    const { username } = this;
     invariant(username, "can't log out if not logged in");
     await deleteNativeCredentialsFor(username);
-    return await this.props.logOut();
+    return await this.logOut();
   }
 
   onPressResendVerificationEmail = () => {
@@ -469,15 +492,7 @@ const resendVerificationLoadingStatusSelector = createLoadingStatusSelector(
 
 export default connect(
   (state: AppState) => ({
-    username: state.currentUserInfo && !state.currentUserInfo.anonymous
-      ? state.currentUserInfo.username
-      : undefined,
-    email: state.currentUserInfo && !state.currentUserInfo.anonymous
-      ? state.currentUserInfo.email
-      : undefined,
-    emailVerified: state.currentUserInfo && !state.currentUserInfo.anonymous
-      ? state.currentUserInfo.emailVerified
-      : undefined,
+    currentUserInfo: state.currentUserInfo,
     resendVerificationLoadingStatus:
       resendVerificationLoadingStatusSelector(state),
     colors: colorsSelector(state),

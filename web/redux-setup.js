@@ -23,6 +23,10 @@ import {
 } from 'lib/actions/thread-actions';
 import { mostRecentReadThreadSelector } from 'lib/selectors/thread-selectors';
 import { invalidSessionDowngrade } from 'lib/shared/account-utils';
+import {
+  logOutActionTypes,
+  deleteAccountActionTypes,
+} from 'lib/actions/user-actions';
 
 import { activeThreadSelector } from './selectors/nav-selectors';
 
@@ -110,6 +114,23 @@ export function reducer(oldState: AppState | void, action: Action) {
       ...state,
       sessionID: action.payload.sessionChange.sessionID,
     };
+  } else if (
+    (action.type === logOutActionTypes.success &&
+      invalidSessionDowngrade(
+        oldState.currentUserInfo,
+        action.payload.currentUserInfo,
+        action.payload.requestCurrentUserInfo,
+      )
+    ) ||
+    (action.type === deleteAccountActionTypes.success &&
+      invalidSessionDowngrade(
+        oldState.currentUserInfo,
+        action.payload.currentUserInfo,
+        action.payload.requestCurrentUserInfo,
+      )
+    )
+  ) {
+    return oldState;
   }
 
   return validateState(oldState, baseReducer(state, action));

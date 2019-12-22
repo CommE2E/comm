@@ -3,7 +3,11 @@
 import type { AppState } from '../../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import type { AccountUpdate } from 'lib/types/user-types';
+import {
+  type AccountUpdate,
+  type CurrentUserInfo,
+  currentUserPropType,
+} from 'lib/types/user-types';
 import type {
   LogOutResult,
   ChangeUserSettingsResult,
@@ -61,21 +65,22 @@ class Tab extends React.PureComponent<TabProps> {
 type Props = {
   setModal: (modal: ?React.Node) => void,
   // Redux state
-  username: string,
-  email: string,
-  emailVerified: bool,
+  currentUserInfo: ?CurrentUserInfo,
   inputDisabled: bool,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  deleteAccount: (password: string) => Promise<LogOutResult>,
+  deleteAccount: (
+    password: string,
+    requestCurrentUserInfo: ?CurrentUserInfo,
+  ) => Promise<LogOutResult>,
   changeUserSettings: (
     accountUpdate: AccountUpdate,
   ) => Promise<ChangeUserSettingsResult>,
   resendVerificationEmail: () => Promise<void>,
 };
 type State = {
-  email: string,
+  email: ?string,
   emailVerified: ?bool,
   newPassword: string,
   confirmNewPassword: string,
@@ -86,6 +91,15 @@ type State = {
 
 class UserSettingsModal extends React.PureComponent<Props, State> {
 
+  static propTypes = {
+    setModal: PropTypes.func.isRequired,
+    currentUserInfo: currentUserPropType,
+    inputDisabled: PropTypes.bool.isRequired,
+    dispatchActionPromise: PropTypes.func.isRequired,
+    deleteAccount: PropTypes.func.isRequired,
+    changeUserSettings: PropTypes.func.isRequired,
+    resendVerificationEmail: PropTypes.func.isRequired,
+  };
   emailInput: ?HTMLInputElement;
   newPasswordInput: ?HTMLInputElement;
   currentPasswordInput: ?HTMLInputElement;
@@ -93,8 +107,8 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      email: props.email,
-      emailVerified: props.emailVerified,
+      email: this.email,
+      emailVerified: this.emailVerified,
       newPassword: "",
       confirmNewPassword: "",
       currentPassword: "",
@@ -106,6 +120,24 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
   componentDidMount() {
     invariant(this.emailInput, "email ref unset");
     this.emailInput.focus();
+  }
+
+  get username() {
+    return this.props.currentUserInfo && !this.props.currentUserInfo.anonymous
+      ? this.props.currentUserInfo.username
+      : undefined;
+  }
+
+  get email() {
+    return this.props.currentUserInfo && !this.props.currentUserInfo.anonymous
+      ? this.props.currentUserInfo.email
+      : undefined;
+  }
+
+  get emailVerified() {
+    return this.props.currentUserInfo && !this.props.currentUserInfo.anonymous
+      ? this.props.currentUserInfo.emailVerified
+      : undefined;
   }
 
   render() {
@@ -133,7 +165,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
         <div>
           <div className={css['form-text']}>
             <div className={css['form-title']}>Username</div>
-            <div className={css['form-content']}>{this.props.username}</div>
+            <div className={css['form-content']}>{this.username}</div>
           </div>
           <div>
             <div className={css['form-title']}>Email</div>
@@ -279,8 +311,8 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
     invariant(target instanceof HTMLInputElement, "target not input");
     this.setState({
       email: target.value,
-      emailVerified: target.value === this.props.email
-        ? this.props.emailVerified
+      emailVerified: target.value === this.email
+        ? this.emailVerified
         : null,
     });
   }
@@ -337,7 +369,8 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
       return;
     }
 
-    if (this.state.email.search(validEmailRegex) === -1) {
+    const { email } = this.state;
+    if (!email || email.search(validEmailRegex) === -1) {
       this.setState(
         {
           email: "",
@@ -354,12 +387,11 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
 
     this.props.dispatchActionPromise(
       changeUserSettingsActionTypes,
-      this.changeUserSettingsAction(),
+      this.changeUserSettingsAction(email),
     );
   }
 
-  async changeUserSettingsAction() {
-    const email = this.state.email;
+  async changeUserSettingsAction(email: string) {
     try {
       const result = await this.props.changeUserSettings({
         updatedFields: {
@@ -368,7 +400,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
         },
         currentPassword: this.state.currentPassword,
       });
-      if (email !== this.props.email) {
+      if (email !== this.email) {
         this.props.setModal(<VerifyEmailModal onClose={this.clearModal} />);
       } else {
         this.clearModal();
@@ -392,8 +424,8 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
       } else if (e.message === 'email_taken') {
         this.setState(
           {
-            email: this.props.email,
-            emailVerified: this.props.emailVerified,
+            email: this.email,
+            emailVerified: this.emailVerified,
             errorMessage: "email already taken",
             currentTabType: "general",
           },
@@ -405,8 +437,8 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
       } else {
         this.setState(
           {
-            email: this.props.email,
-            emailVerified: this.props.emailVerified,
+            email: this.email,
+            emailVerified: this.emailVerified,
             newPassword: "",
             confirmNewPassword: "",
             currentPassword: "",
@@ -435,6 +467,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
     try {
       const response = await this.props.deleteAccount(
         this.state.currentPassword,
+        this.props.currentUserInfo,
       );
       this.clearModal();
       return response;
@@ -465,18 +498,6 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
 
 }
 
-UserSettingsModal.propTypes = {
-  setModal: PropTypes.func.isRequired,
-  username: PropTypes.string.isRequired,
-  email: PropTypes.string.isRequired,
-  emailVerified: PropTypes.bool.isRequired,
-  inputDisabled: PropTypes.bool.isRequired,
-  dispatchActionPromise: PropTypes.func.isRequired,
-  deleteAccount: PropTypes.func.isRequired,
-  changeUserSettings: PropTypes.func.isRequired,
-  resendVerificationEmail: PropTypes.func.isRequired,
-};
-
 const deleteAccountLoadingStatusSelector
   = createLoadingStatusSelector(deleteAccountActionTypes);
 const changeUserSettingsLoadingStatusSelector
@@ -486,15 +507,7 @@ const resendVerificationEmailLoadingStatusSelector
 
 export default connect(
   (state: AppState) => ({
-    username: state.currentUserInfo && !state.currentUserInfo.anonymous
-      ? state.currentUserInfo.username
-      : undefined,
-    email: state.currentUserInfo && !state.currentUserInfo.anonymous
-      ? state.currentUserInfo.email
-      : undefined,
-    emailVerified: state.currentUserInfo && !state.currentUserInfo.anonymous
-      ? state.currentUserInfo.emailVerified
-      : undefined,
+    currentUserInfo: state.currentUserInfo,
     inputDisabled: deleteAccountLoadingStatusSelector(state) === "loading" ||
       changeUserSettingsLoadingStatusSelector(state) === "loading" ||
       resendVerificationEmailLoadingStatusSelector(state) === "loading",

@@ -9,6 +9,10 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from './redux/redux-setup';
 import type { ErrorData } from 'lib/types/report-types';
 import type { LogOutResult } from 'lib/types/account-types';
+import {
+  type CurrentUserInfo,
+  currentUserPropType,
+} from 'lib/types/user-types';
 
 import * as React from 'react';
 import {
@@ -44,13 +48,15 @@ const errorTitles = [
 
 type Props = {
   errorData: $ReadOnlyArray<ErrorData>,
+  // Redux state
+  currentUserInfo: ?CurrentUserInfo,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   sendReport: (
     request: ClientReportCreationRequest,
   ) => Promise<ReportCreationResponse>,
-  logOut: () => Promise<LogOutResult>,
+  logOut: (requestCurrentUserInfo: ?CurrentUserInfo) => Promise<LogOutResult>,
 };
 type State = {|
   errorReportID: ?string,
@@ -65,6 +71,7 @@ class Crash extends React.PureComponent<Props, State> {
         componentStack: PropTypes.string.isRequired,
       }),
     })).isRequired,
+    currentUserInfo: currentUserPropType,
     dispatchActionPromise: PropTypes.func.isRequired,
     sendReport: PropTypes.func.isRequired,
     logOut: PropTypes.func.isRequired,
@@ -188,7 +195,7 @@ class Crash extends React.PureComponent<Props, State> {
 
   async logOutAndExit() {
     try {
-      await this.props.logOut();
+      await this.props.logOut(this.props.currentUserInfo);
     } catch (e) { }
     getPersistor().purge();
     ExitApp.exitApp();
@@ -269,6 +276,8 @@ const styles = StyleSheet.create({
 });
 
 export default connect(
-  undefined,
+  (state: AppState) => ({
+    currentUserInfo: state.currentUserInfo,
+  }),
   { sendReport, logOut },
 )(Crash);

@@ -4,6 +4,10 @@ import type { AppState } from './redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { LogOutResult } from 'lib/types/account-types';
+import {
+  type CurrentUserInfo,
+  currentUserPropType,
+} from 'lib/types/user-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -22,12 +26,11 @@ import { htmlTargetFromEvent } from './vector-utils';
 type Props = {|
   setModal: (modal: ?React.Node) => void,
   // Redux state
-  loggedIn: bool,
-  username: ?string,
+  currentUserInfo: ?CurrentUserInfo,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  logOut: () => Promise<LogOutResult>,
+  logOut: (requestCurrentUserInfo: ?CurrentUserInfo) => Promise<LogOutResult>,
 |};
 type State = {|
   expanded: bool,
@@ -36,8 +39,7 @@ class AccountBar extends React.PureComponent<Props, State> {
 
   static propTypes = {
     setModal: PropTypes.func.isRequired,
-    loggedIn: PropTypes.bool.isRequired,
-    username: PropTypes.string,
+    currentUserInfo: currentUserPropType,
     dispatchActionPromise: PropTypes.func.isRequired,
     logOut: PropTypes.func.isRequired,
   };
@@ -53,8 +55,19 @@ class AccountBar extends React.PureComponent<Props, State> {
     }
   }
 
+  get loggedIn() {
+    return !!(this.props.currentUserInfo &&
+      !this.props.currentUserInfo.anonymous && true);
+  }
+
+  get username() {
+    return this.props.currentUserInfo && !this.props.currentUserInfo.anonymous
+      ? this.props.currentUserInfo.username
+      : undefined;
+  }
+
   render() {
-    if (!this.props.loggedIn) {
+    if (!this.loggedIn) {
       return (
         <div className={css['account-bar']}>
           <div className={css['account-button']}>
@@ -101,7 +114,7 @@ class AccountBar extends React.PureComponent<Props, State> {
       <div className={css['account-bar']} onMouseDown={this.onMouseDown}>
         <div className={css['account-button']}>
           <span>{"logged in as "}</span>
-          <span className={css['username']}>{this.props.username}</span>
+          <span className={css['username']}>{this.username}</span>
           {caret}
         </div>
         {menu}
@@ -143,7 +156,10 @@ class AccountBar extends React.PureComponent<Props, State> {
 
   onLogOut = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.props.dispatchActionPromise(logOutActionTypes, this.props.logOut());
+    this.props.dispatchActionPromise(
+      logOutActionTypes,
+      this.props.logOut(this.props.currentUserInfo),
+    );
     this.setState({ expanded: false });
   }
 
@@ -167,11 +183,7 @@ class AccountBar extends React.PureComponent<Props, State> {
 
 export default connect(
   (state: AppState) => ({
-    loggedIn: !!(state.currentUserInfo &&
-      !state.currentUserInfo.anonymous && true),
-    username: state.currentUserInfo && !state.currentUserInfo.anonymous
-      ? state.currentUserInfo.username
-      : undefined,
+    currentUserInfo: state.currentUserInfo,
   }),
   { logOut },
 )(AccountBar);
