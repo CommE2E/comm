@@ -1,7 +1,6 @@
 {
   "name": "native",
   "version": "0.0.1",
-  "type": "module",
   "private": true,
   "license": "BSD-3-Clause",
   "scripts": {
