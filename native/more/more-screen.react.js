@@ -14,6 +14,10 @@ import {
   type CurrentUserInfo,
   currentUserPropType,
 } from 'lib/types/user-types';
+import {
+  type PreRequestUserState,
+  preRequestUserStatePropType,
+} from 'lib/types/session-types';
 
 import * as React from 'react';
 import {
@@ -37,6 +41,7 @@ import {
   resendVerificationEmail,
 } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 
 import {
   getNativeSharedWebCredentials,
@@ -58,13 +63,14 @@ type Props = {
   navigation: NavigationScreenProp<*>,
   // Redux state
   currentUserInfo: ?CurrentUserInfo,
+  preRequestUserState: PreRequestUserState,
   resendVerificationLoadingStatus: LoadingStatus,
   colors: Colors,
   styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  logOut: (requestCurrentUserInfo: ?CurrentUserInfo) => Promise<LogOutResult>,
+  logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
   resendVerificationEmail: () => Promise<void>,
 };
 class MoreScreen extends React.PureComponent<Props> {
@@ -74,6 +80,7 @@ class MoreScreen extends React.PureComponent<Props> {
       navigate: PropTypes.func.isRequired,
     }).isRequired,
     currentUserInfo: currentUserPropType,
+    preRequestUserState: preRequestUserStatePropType.isRequired,
     resendVerificationLoadingStatus: loadingStatusPropType.isRequired,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
@@ -306,7 +313,7 @@ class MoreScreen extends React.PureComponent<Props> {
   }
 
   logOut() {
-    return this.props.logOut(this.props.currentUserInfo);
+    return this.props.logOut(this.props.preRequestUserState);
   }
 
   async logOutAndDeleteNativeCredentials() {
@@ -493,6 +500,7 @@ const resendVerificationLoadingStatusSelector = createLoadingStatusSelector(
 export default connect(
   (state: AppState) => ({
     currentUserInfo: state.currentUserInfo,
+    preRequestUserState: preRequestUserStateSelector(state),
     resendVerificationLoadingStatus:
       resendVerificationLoadingStatusSelector(state),
     colors: colorsSelector(state),

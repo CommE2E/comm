@@ -10,9 +10,9 @@ import type { AppState } from './redux/redux-setup';
 import type { ErrorData } from 'lib/types/report-types';
 import type { LogOutResult } from 'lib/types/account-types';
 import {
-  type CurrentUserInfo,
-  currentUserPropType,
-} from 'lib/types/user-types';
+  type PreRequestUserState,
+  preRequestUserStatePropType,
+} from 'lib/types/session-types';
 
 import * as React from 'react';
 import {
@@ -36,6 +36,7 @@ import sleep from 'lib/utils/sleep';
 import { reduxLogger } from 'lib/utils/redux-logger';
 import { logOutActionTypes, logOut } from 'lib/actions/user-actions';
 import { sanitizeAction, sanitizeState } from 'lib/utils/sanitization';
+import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 
 import Button from './components/button.react';
 import { store } from './redux/redux-setup';
@@ -49,14 +50,14 @@ const errorTitles = [
 type Props = {
   errorData: $ReadOnlyArray<ErrorData>,
   // Redux state
-  currentUserInfo: ?CurrentUserInfo,
+  preRequestUserState: PreRequestUserState,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   sendReport: (
     request: ClientReportCreationRequest,
   ) => Promise<ReportCreationResponse>,
-  logOut: (requestCurrentUserInfo: ?CurrentUserInfo) => Promise<LogOutResult>,
+  logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
 };
 type State = {|
   errorReportID: ?string,
@@ -71,7 +72,7 @@ class Crash extends React.PureComponent<Props, State> {
         componentStack: PropTypes.string.isRequired,
       }),
     })).isRequired,
-    currentUserInfo: currentUserPropType,
+    preRequestUserState: preRequestUserStatePropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     sendReport: PropTypes.func.isRequired,
     logOut: PropTypes.func.isRequired,
@@ -195,7 +196,7 @@ class Crash extends React.PureComponent<Props, State> {
 
   async logOutAndExit() {
     try {
-      await this.props.logOut(this.props.currentUserInfo);
+      await this.props.logOut(this.props.preRequestUserState);
     } catch (e) { }
     getPersistor().purge();
     ExitApp.exitApp();
@@ -277,7 +278,7 @@ const styles = StyleSheet.create({
 
 export default connect(
   (state: AppState) => ({
-    currentUserInfo: state.currentUserInfo,
+    preRequestUserState: preRequestUserStateSelector(state),
   }),
   { sendReport, logOut },
 )(Crash);

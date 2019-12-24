@@ -5,6 +5,7 @@ import type { AppState } from './redux-setup';
 import { connect } from 'lib/utils/redux-utils';
 import { logOut } from 'lib/actions/user-actions';
 import Socket from 'lib/socket/socket.react';
+import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 
 import {
   openSocketSelector,
@@ -36,7 +37,7 @@ export default connect(
       currentCalendarQuery: webCalendarQuery(state),
       hasWiFi: true,
       frozen: false,
-      currentUserInfo: state.currentUserInfo,
+      preRequestUserState: preRequestUserStateSelector(state),
     };
   },
   { logOut },

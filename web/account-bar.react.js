@@ -8,6 +8,10 @@ import {
   type CurrentUserInfo,
   currentUserPropType,
 } from 'lib/types/user-types';
+import {
+  type PreRequestUserState,
+  preRequestUserStatePropType,
+} from 'lib/types/session-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -15,6 +19,7 @@ import PropTypes from 'prop-types';
 
 import { logOut, logOutActionTypes } from 'lib/actions/user-actions';
 import { connect } from 'lib/utils/redux-utils';
+import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 
 import css from './style.css';
 import LogInModal from './modals/account/log-in-modal.react';
@@ -27,10 +32,11 @@ type Props = {|
   setModal: (modal: ?React.Node) => void,
   // Redux state
   currentUserInfo: ?CurrentUserInfo,
+  preRequestUserState: PreRequestUserState,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  logOut: (requestCurrentUserInfo: ?CurrentUserInfo) => Promise<LogOutResult>,
+  logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
 |};
 type State = {|
   expanded: bool,
@@ -40,6 +46,7 @@ class AccountBar extends React.PureComponent<Props, State> {
   static propTypes = {
     setModal: PropTypes.func.isRequired,
     currentUserInfo: currentUserPropType,
+    preRequestUserState: preRequestUserStatePropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     logOut: PropTypes.func.isRequired,
   };
@@ -158,7 +165,7 @@ class AccountBar extends React.PureComponent<Props, State> {
     event.preventDefault();
     this.props.dispatchActionPromise(
       logOutActionTypes,
-      this.props.logOut(this.props.currentUserInfo),
+      this.props.logOut(this.props.preRequestUserState),
     );
     this.setState({ expanded: false });
   }
@@ -184,6 +191,7 @@ class AccountBar extends React.PureComponent<Props, State> {
 export default connect(
   (state: AppState) => ({
     currentUserInfo: state.currentUserInfo,
+    preRequestUserState: preRequestUserStateSelector(state),
   }),
   { logOut },
 )(AccountBar);

@@ -104,9 +104,9 @@ export function reducer(oldState: AppState | void, action: Action) {
     );
   } else if (action.type === setNewSessionActionType) {
     if (invalidSessionDowngrade(
-      oldState.currentUserInfo,
+      oldState,
       action.payload.sessionChange.currentUserInfo,
-      action.payload.requestCurrentUserInfo,
+      action.payload.preRequestUserState,
     )) {
       return oldState;
     }
@@ -117,16 +117,16 @@ export function reducer(oldState: AppState | void, action: Action) {
   } else if (
     (action.type === logOutActionTypes.success &&
       invalidSessionDowngrade(
-        oldState.currentUserInfo,
+        oldState,
         action.payload.currentUserInfo,
-        action.payload.requestCurrentUserInfo,
+        action.payload.preRequestUserState,
       )
     ) ||
     (action.type === deleteAccountActionTypes.success &&
       invalidSessionDowngrade(
-        oldState.currentUserInfo,
+        oldState,
         action.payload.currentUserInfo,
-        action.payload.requestCurrentUserInfo,
+        action.payload.preRequestUserState,
       )
     )
   ) {

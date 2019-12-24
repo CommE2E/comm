@@ -12,6 +12,10 @@ import type {
   LogOutResult,
   ChangeUserSettingsResult,
 } from 'lib/types/account-types';
+import {
+  type PreRequestUserState,
+  preRequestUserStatePropType,
+} from 'lib/types/session-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -29,6 +33,7 @@ import {
 } from 'lib/actions/user-actions';
 import { connect } from 'lib/utils/redux-utils';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
@@ -66,13 +71,14 @@ type Props = {
   setModal: (modal: ?React.Node) => void,
   // Redux state
   currentUserInfo: ?CurrentUserInfo,
+  preRequestUserState: PreRequestUserState,
   inputDisabled: bool,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   deleteAccount: (
     password: string,
-    requestCurrentUserInfo: ?CurrentUserInfo,
+    preRequestUserState: PreRequestUserState,
   ) => Promise<LogOutResult>,
   changeUserSettings: (
     accountUpdate: AccountUpdate,
@@ -94,6 +100,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
   static propTypes = {
     setModal: PropTypes.func.isRequired,
     currentUserInfo: currentUserPropType,
+    preRequestUserState: preRequestUserStatePropType.isRequired,
     inputDisabled: PropTypes.bool.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     deleteAccount: PropTypes.func.isRequired,
@@ -467,7 +474,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
     try {
       const response = await this.props.deleteAccount(
         this.state.currentPassword,
-        this.props.currentUserInfo,
+        this.props.preRequestUserState,
       );
       this.clearModal();
       return response;
@@ -508,6 +515,7 @@ const resendVerificationEmailLoadingStatusSelector
 export default connect(
   (state: AppState) => ({
     currentUserInfo: state.currentUserInfo,
+    preRequestUserState: preRequestUserStateSelector(state),
     inputDisabled: deleteAccountLoadingStatusSelector(state) === "loading" ||
       changeUserSettingsLoadingStatusSelector(state) === "loading" ||
       resendVerificationEmailLoadingStatusSelector(state) === "loading",

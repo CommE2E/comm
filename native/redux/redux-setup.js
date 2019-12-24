@@ -40,7 +40,7 @@ import {
 } from '../types/camera';
 import type { Orientations } from 'react-native-orientation-locker';
 
-import React from 'react';
+import * as React from 'react';
 import invariant from 'invariant';
 import thunk from 'redux-thunk';
 import {
@@ -198,23 +198,23 @@ function reducer(state: AppState = defaultState, action: *) {
   if (
     (action.type === setNewSessionActionType &&
       invalidSessionDowngrade(
-        state.currentUserInfo,
+        state,
         action.payload.sessionChange.currentUserInfo,
-        action.payload.requestCurrentUserInfo,
+        action.payload.preRequestUserState,
       )
     ) ||
     (action.type === logOutActionTypes.success &&
       invalidSessionDowngrade(
-        state.currentUserInfo,
+        state,
         action.payload.currentUserInfo,
-        action.payload.requestCurrentUserInfo,
+        action.payload.preRequestUserState,
       )
     ) ||
     (action.type === deleteAccountActionTypes.success &&
       invalidSessionDowngrade(
-        state.currentUserInfo,
+        state,
         action.payload.currentUserInfo,
-        action.payload.requestCurrentUserInfo,
+        action.payload.preRequestUserState,
       )
     )
   ) {

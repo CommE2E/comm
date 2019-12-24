@@ -9,9 +9,9 @@ import type { LogOutResult } from 'lib/types/account-types';
 import { type GlobalTheme, globalThemePropType } from '../types/themes';
 import type { Styles } from '../types/styles';
 import {
-  type CurrentUserInfo,
-  currentUserPropType,
-} from 'lib/types/user-types';
+  type PreRequestUserState,
+  preRequestUserStatePropType,
+} from 'lib/types/session-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -33,6 +33,7 @@ import {
   deleteAccount,
 } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 
 import Button from '../components/button.react';
 import OnePasswordButton from '../components/one-password-button.react';
@@ -43,7 +44,8 @@ type Props = {|
   navigation: NavigationScreenProp<*>,
   // Redux state
   loadingStatus: LoadingStatus,
-  currentUserInfo: ?CurrentUserInfo,
+  username: ?string,
+  preRequestUserState: PreRequestUserState,
   activeTheme: ?GlobalTheme,
   styles: Styles,
   // Redux dispatch functions
@@ -51,7 +53,7 @@ type Props = {|
   // async functions that hit server APIs
   deleteAccount: (
     password: string,
-    requestCurrentUserInfo: ?CurrentUserInfo,
+    preRequestUserState: PreRequestUserState,
   ) => Promise<LogOutResult>,
 |};
 type State = {|
@@ -65,7 +67,8 @@ class DeleteAccount extends React.PureComponent<Props, State> {
       navigate: PropTypes.func.isRequired,
     }).isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
-    currentUserInfo: currentUserPropType,
+    username: PropTypes.string,
+    preRequestUserState: preRequestUserStatePropType.isRequired,
     activeTheme: globalThemePropType,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -104,12 +107,6 @@ class DeleteAccount extends React.PureComponent<Props, State> {
     if (this.mounted) {
       this.setState({ onePasswordSupported });
     }
-  }
-
-  get username() {
-    return this.props.currentUserInfo && !this.props.currentUserInfo.anonymous
-      ? this.props.currentUserInfo.username
-      : undefined;
   }
 
   render() {
@@ -199,12 +196,12 @@ class DeleteAccount extends React.PureComponent<Props, State> {
 
   async deleteAccount() {
     try {
-      if (this.username) {
-        await deleteNativeCredentialsFor(this.username);
+      if (this.props.username) {
+        await deleteNativeCredentialsFor(this.props.username);
       }
       const result = await this.props.deleteAccount(
         this.state.password,
-        this.props.currentUserInfo,
+        this.props.preRequestUserState,
       );
       return result;
     } catch (e) {
@@ -309,7 +306,10 @@ const loadingStatusSelector = createLoadingStatusSelector(
 export default connect(
   (state: AppState) => ({
     loadingStatus: loadingStatusSelector(state),
-    currentUserInfo: state.currentUserInfo,
+    username: state.currentUserInfo && !state.currentUserInfo.anonymous
+      ? state.currentUserInfo.username
+      : undefined,
+    preRequestUserState: preRequestUserStateSelector(state),
     activeTheme: state.globalThemeInfo.activeTheme,
     styles: stylesSelector(state),
   }),
