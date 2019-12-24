@@ -125,40 +125,53 @@ const lightboxTransitioningSelector: (state: AppState) => bool = createSelector(
   },
 );
 
+function activeThread(
+  navigationState: NavigationState,
+  validRouteNames: $ReadOnlyArray<string>,
+): ?string {
+  let rootIndex = navigationState.index;
+  let currentRootSubroute = navigationState.routes[rootIndex];
+  while (currentRootSubroute.routeName !== AppRouteName) {
+    if (!chatRootModals.includes(currentRootSubroute.routeName)) {
+      return null;
+    }
+    if (rootIndex === 0) {
+      return null;
+    }
+    currentRootSubroute = navigationState.routes[--rootIndex];
+  }
+  const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
+  const [ firstAppSubroute ] = appRoute.routes;
+  if (firstAppSubroute.routeName !== TabNavigatorRouteName) {
+    return null;
+  }
+  const tabRoute = assertNavigationRouteNotLeafNode(firstAppSubroute);
+  const currentTabSubroute = tabRoute.routes[tabRoute.index];
+  if (currentTabSubroute.routeName !== ChatRouteName) {
+    return null;
+  }
+  const chatRoute = assertNavigationRouteNotLeafNode(currentTabSubroute);
+  const currentChatSubroute = chatRoute.routes[chatRoute.index];
+  if (!validRouteNames.includes(currentChatSubroute.routeName)) {
+    return null;
+  }
+  return getThreadIDFromParams(currentChatSubroute);
+}
+
 const activeThreadSelector: (state: AppState) => ?string = createSelector(
   (state: AppState) => state.navInfo.navigationState,
-  (navigationState: NavigationState): ?string => {
-    let rootIndex = navigationState.index;
-    let currentRootSubroute = navigationState.routes[rootIndex];
-    while (currentRootSubroute.routeName !== AppRouteName) {
-      if (!chatRootModals.includes(currentRootSubroute.routeName)) {
-        return null;
-      }
-      if (rootIndex === 0) {
-        return null;
-      }
-      currentRootSubroute = navigationState.routes[--rootIndex];
-    }
-    const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
-    const [ firstAppSubroute ] = appRoute.routes;
-    if (firstAppSubroute.routeName !== TabNavigatorRouteName) {
-      return null;
-    }
-    const tabRoute = assertNavigationRouteNotLeafNode(firstAppSubroute);
-    const currentTabSubroute = tabRoute.routes[tabRoute.index];
-    if (currentTabSubroute.routeName !== ChatRouteName) {
-      return null;
-    }
-    const chatRoute = assertNavigationRouteNotLeafNode(currentTabSubroute);
-    const currentChatSubroute = chatRoute.routes[chatRoute.index];
-    if (
-      currentChatSubroute.routeName !== MessageListRouteName &&
-      currentChatSubroute.routeName !== ThreadSettingsRouteName
-    ) {
-      return null;
-    }
-    return getThreadIDFromParams(currentChatSubroute);
-  },
+  (navigationState: NavigationState): ?string => activeThread(
+    navigationState,
+    [ MessageListRouteName, ThreadSettingsRouteName ],
+  ),
+);
+
+const activeMessageListSelector: (state: AppState) => ?string = createSelector(
+  (state: AppState) => state.navInfo.navigationState,
+  (navigationState: NavigationState): ?string => activeThread(
+    navigationState,
+    [ MessageListRouteName ],
+  ),
 );
 
 const appCanRespondToBackButtonSelector: (
@@ -233,6 +246,7 @@ export {
   backgroundIsDarkSelector,
   lightboxTransitioningSelector,
   activeThreadSelector,
+  activeMessageListSelector,
   appCanRespondToBackButtonSelector,
   calendarActiveSelector,
   nativeCalendarQuery,

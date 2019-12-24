@@ -26,11 +26,13 @@ import { styleSelector } from '../themes/colors';
 import {
   mediaGalleryKeyboardName,
 } from '../media/media-gallery-keyboard.react';
+import { activeMessageListSelector } from '../selectors/nav-selectors';
 
 type Props = {|
   textInputRef: ?TextInput,
   // Redux state
   styles: Styles,
+  activeMessageList: ?string,
   // withKeyboardState
   keyboardState: ?KeyboardState,
   // withChatInput
@@ -41,9 +43,19 @@ class KeyboardInputHost extends React.PureComponent<Props> {
   static propTypes = {
     textInputRef: PropTypes.instanceOf(TextInput),
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
+    activeMessageList: PropTypes.string,
     keyboardState: keyboardStatePropType,
     chatInputState: chatInputStatePropType,
   };
+
+  componentDidUpdate(prevProps: Props) {
+    if (
+      prevProps.activeMessageList &&
+      this.props.activeMessageList !== prevProps.activeMessageList
+    ) {
+      this.hideMediaGallery();
+    }
+  }
 
   static mediaGalleryOpen(props: Props) {
     const { keyboardState } = props;
@@ -120,4 +132,5 @@ const stylesSelector = styleSelector(styles);
 
 export default connect((state: AppState) => ({
   styles: stylesSelector(state),
+  activeMessageList: activeMessageListSelector(state),
 }))(withKeyboardState(withChatInputState(KeyboardInputHost)));

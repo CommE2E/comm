@@ -64,6 +64,7 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
 
   dismissKeyboard = () => {
     KeyboardUtils.dismiss();
+    this.hideMediaGallery();
   }
 
   dismissKeyboardIfShowing = () => {
