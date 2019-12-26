@@ -1,5 +1,7 @@
 // @flow
 
+import { saveMessagesActionType } from 'lib/actions/message-actions';
+
 export const handleURLActionType = "HANDLE_URL";
 export const navigateToAppActionType = "NAVIGATE_TO_APP";
 export const resetUserStateActionType = "RESET_USER_STATE";
@@ -16,3 +18,9 @@ export const updateConnectivityActiveType = "UPDATE_CONNECTIVITY";
 export const updateThemeInfoActionType = "UPDATE_THEME_INFO";
 export const updateDeviceCameraInfoActionType = "UPDATE_DEVICE_CAMERA_INFO";
 export const updateDeviceOrientationActionType = "UPDATE_DEVICE_ORIENTATION";
+
+export const backgroundActionTypes: Set<string> = new Set([
+  saveMessagesActionType,
+  recordAndroidNotificationActionType,
+  rescindAndroidNotificationActionType,
+]);

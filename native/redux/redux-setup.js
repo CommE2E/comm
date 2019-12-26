@@ -62,10 +62,7 @@ import {
 import Orientation from 'react-native-orientation-locker';
 
 import baseReducer from 'lib/reducers/master-reducer';
-import {
-  sendTextMessageActionTypes,
-  saveMessagesActionType,
-} from 'lib/actions/message-actions';
+import { sendTextMessageActionTypes } from 'lib/actions/message-actions';
 import { reduxLoggerMiddleware } from 'lib/utils/redux-logger';
 import { getConfig } from 'lib/utils/config';
 import { invalidSessionDowngrade } from 'lib/shared/account-utils';
@@ -86,6 +83,7 @@ import {
   updateThemeInfoActionType,
   updateDeviceCameraInfoActionType,
   updateDeviceOrientationActionType,
+  backgroundActionTypes,
 } from './action-types';
 import {
   defaultNavInfo,
@@ -395,7 +393,7 @@ function validateState(
     activeThread &&
     (NativeAppState.currentState === "active" ||
       (appLastBecameInactive + 10000 < Date.now() &&
-      action.type !== saveMessagesActionType)) &&
+      !backgroundActionTypes.has(action.type))) &&
     state.threadStore.threadInfos[activeThread].currentUser.unread
   ) {
     // Makes sure a currently focused thread is never unread. Note that we
@@ -403,8 +401,8 @@ function validateState(
     // changed to inactive more than 10 seconds ago. This is because there is a
     // delay when NativeAppState is updating in response to a foreground, and
     // actions don't get processed more than 10 seconds after a backgrounding
-    // anyways. However we don't consider this for saveMessagesActionType, since
-    // that action can be expected to happen while the app is backgrounded.
+    // anyways. However we don't consider this for action types that can be
+    // expected to happen while the app is backgrounded.
     state = {
       ...state,
       threadStore: {
