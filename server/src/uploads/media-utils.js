@@ -8,6 +8,12 @@ import { fileInfoFromData } from 'lib/utils/file-utils';
 
 const fiveMegabytes = 5 * 1024 * 1024;
 
+const allowedMimeTypes = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/gif",
+]);
+
 async function validateAndConvert(
   initialBuffer: Buffer,
   initialName: string,
@@ -19,7 +25,7 @@ async function validateAndConvert(
   }
 
   const { mime } = fileInfo;
-  if (mime === "image/heic") {
+  if (!allowedMimeTypes.has(mime)) {
     // This should've gotten converted on the client
     return null;
   }
