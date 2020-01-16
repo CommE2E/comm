@@ -2,10 +2,7 @@
 
 import type { MediaType, Dimensions } from 'lib/types/media-types';
 
-import {
-  fileInfoFromData,
-  mimeTypesToMediaTypes,
-} from 'lib/utils/file-utils';
+import { fileInfoFromData } from 'lib/utils/file-utils';
 
 function blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
   const fileReader = new FileReader();
@@ -48,6 +45,9 @@ async function validateFile(file: File): Promise<?FileValidationResult> {
     return null;
   }
   const { name, mime, mediaType } = fileInfo;
+  if (!allowedMimeTypes.has(mime)) {
+    return null;
+  }
   let dimensions = null;
   if (mediaType === "photo") {
     dimensions = await getPhotoDimensions(file);
@@ -58,7 +58,13 @@ async function validateFile(file: File): Promise<?FileValidationResult> {
   return { file: fixedFile, mediaType, dimensions };
 }
 
-const allowedMimeTypeString = Object.keys(mimeTypesToMediaTypes).join(',');
+const allowedMimeTypeArray = [
+  "image/png",
+  "image/jpeg",
+  "image/gif",
+];
+const allowedMimeTypes = new Set(allowedMimeTypeArray);
+const allowedMimeTypeString = allowedMimeTypeArray.join(',');
 
 function preloadImage(uri: string): Promise<Dimensions> {
   return new Promise((resolve, reject) => {
