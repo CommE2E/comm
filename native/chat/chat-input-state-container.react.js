@@ -43,6 +43,7 @@ import { createMediaMessageInfo } from 'lib/shared/message-utils';
 
 import { ChatInputStateContext } from './chat-input-state';
 import { validateMedia, convertMedia } from '../utils/media-utils';
+import { displayActionResultModal } from '../navigation/action-result-modal';
 
 let nextLocalUploadID = 0;
 type MediaInfo = {|
@@ -289,8 +290,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       // Since we filter our MIME types in our calls to CameraRoll,
       // this should never be triggered
       console.log('unexpected MIME type found');
-    }
-    if (mediaInfos.length === 0) {
+      displayActionResultModal("unsupported media type :(");
       return;
     }
 
