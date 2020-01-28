@@ -264,16 +264,14 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
           if (isVideo) {
             return {
               type: "video",
-              height,
-              width,
+              dimensions: { height, width },
               uri,
               filename,
             };
           } else {
             return {
               type: "photo",
-              height,
-              width,
+              dimensions: { height, width },
               uri,
             };
           }

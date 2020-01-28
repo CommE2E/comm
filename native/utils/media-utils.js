@@ -51,24 +51,20 @@ type ValidateMediaInput =
   | {
       type: "photo",
       uri: string,
-      height: number,
-      width: number,
+      dimensions: Dimensions,
       ...
     }
   | {
       type: "video",
       uri: string,
-      height: number,
-      width: number,
+      dimensions: Dimensions,
       filename: string,
       ...
     };
 async function validateMedia(
   mediaInfo: ValidateMediaInput,
 ): Promise<?MediaValidationResult> {
-  const { height, width } = mediaInfo;
-  const dimensions = { height, width };
-  const { uri, type } = mediaInfo;
+  const { dimensions, uri, type } = mediaInfo;
   if (mediaInfo.type === "video") {
     const { filename } = mediaInfo;
     return { mediaType: "video", uri, dimensions, filename };

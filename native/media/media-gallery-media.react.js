@@ -1,6 +1,10 @@
 // @flow
 
-import { mediaTypePropType } from 'lib/types/media-types';
+import {
+  mediaTypePropType,
+  type Dimensions,
+  dimensionsPropType,
+} from 'lib/types/media-types';
 import type { ViewStyle, ImageStyle } from '../types/styles';
 import { type Colors, colorsPropType } from '../themes/colors';
 
@@ -33,14 +37,12 @@ export type GalleryMediaInfo =
   | {|
       type: "photo",
       uri: string,
-      height: number,
-      width: number,
+      dimensions: Dimensions,
     |}
   | {|
       type: "video",
       uri: string,
-      height: number,
-      width: number,
+      dimensions: Dimensions,
       filename: string,
     |};
 const animatedSpec = {
@@ -69,8 +71,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
 
   static propTypes = {
     mediaInfo: PropTypes.shape({
-      height: PropTypes.number.isRequired,
-      width: PropTypes.number.isRequired,
+      dimensions: dimensionsPropType.isRequired,
       type: mediaTypePropType.isRequired,
       uri: PropTypes.string.isRequired,
       filename: PropTypes.string,
@@ -207,7 +208,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
 
   render() {
     const { mediaInfo, containerHeight } = this.props;
-    const { uri, width, height, type } = mediaInfo;
+    const { uri, dimensions: { width, height }, type } = mediaInfo;
     const active = MediaGalleryMedia.isActive(this.props);
     const dimensionsStyle = {
       height: containerHeight,

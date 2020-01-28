@@ -1,7 +1,5 @@
 // @flow
 
-import type { GalleryMediaInfo } from '../media/media-gallery-media.react';
-
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { KeyboardUtils } from 'react-native-keyboard-input';

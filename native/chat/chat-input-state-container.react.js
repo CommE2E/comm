@@ -582,14 +582,14 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       retryMedia.map(singleMedia => {
         if (singleMedia.type === "photo") {
           const { dimensions, uri } = singleMedia;
-          return { type: "photo", ...dimensions, uri };
+          return { type: "photo", dimensions, uri };
         } else {
           const { dimensions, uri, filename } = singleMedia;
           invariant(
             filename,
             "filename should be set on locally created Video",
           );
-          return { type: "video", ...dimensions, uri, filename };
+          return { type: "video", dimensions, uri, filename };
         }
       });
     const validationResults = await Promise.all(
