@@ -2,7 +2,7 @@
 
 import type {
   PendingMultimediaUploads,
-  ClientImageInfo,
+  ClientMediaInfo,
 } from './chat-input-state';
 import type { AppState } from '../redux/redux-setup';
 import type {
@@ -267,16 +267,16 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
 
   sendMultimediaMessage = async (
     threadID: string,
-    inputImageInfos: $ReadOnlyArray<ClientImageInfo>,
+    inputMediaInfos: $ReadOnlyArray<ClientMediaInfo>,
   ) => {
     const urisToUnlink = new Set(
-      inputImageInfos.filter(
+      inputMediaInfos.filter(
         inputImageInfo => !!inputImageInfo.unlinkURIAfterRemoving,
       ).map(inputImageInfo => inputImageInfo.uri),
     );
 
     const validationResults = await Promise.all(
-      inputImageInfos.map(validateMedia),
+      inputMediaInfos.map(validateMedia),
     );
     const mediaInfos = validationResults.filter(Boolean).map(
       validationResult => ({

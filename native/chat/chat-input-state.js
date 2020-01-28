@@ -10,7 +10,7 @@ export type PendingMultimediaUpload = {|
   progressPercent: number,
 |};
 
-export type ClientImageInfo = {|
+export type ClientMediaInfo = {|
   ...GalleryMediaInfo,
   unlinkURIAfterRemoving?: bool,
 |};
@@ -40,7 +40,7 @@ export type ChatInputState = {|
   pendingUploads: PendingMultimediaUploads,
   sendMultimediaMessage: (
     threadID: string,
-    imageInfos: $ReadOnlyArray<ClientImageInfo>,
+    mediaInfos: $ReadOnlyArray<ClientMediaInfo>,
   ) => Promise<void>,
   messageHasUploadFailure: (localMessageID: string) => bool,
   retryMultimediaMessage: (localMessageID: string) => Promise<void>,

@@ -19,7 +19,7 @@ import {
   type ChatInputState,
   chatInputStatePropType,
   withChatInputState,
-  type ClientImageInfo,
+  type ClientMediaInfo,
 } from '../chat/chat-input-state';
 import type { ViewStyle } from '../types/styles';
 
@@ -265,7 +265,7 @@ type State = {|
   flashMode: number,
   autoFocusPointOfInterest: ?{| x: number, y: number, autoExposure?: bool |},
   stagingMode: bool,
-  pendingImageInfo: ?ClientImageInfo,
+  pendingMediaInfo: ?ClientMediaInfo,
 |};
 class CameraModal extends React.PureComponent<Props, State> {
 
@@ -346,7 +346,7 @@ class CameraModal extends React.PureComponent<Props, State> {
       flashMode: RNCamera.Constants.FlashMode.off,
       autoFocusPointOfInterest: undefined,
       stagingMode: false,
-      pendingImageInfo: undefined,
+      pendingMediaInfo: undefined,
     };
 
     const { position } = props;
@@ -623,22 +623,22 @@ class CameraModal extends React.PureComponent<Props, State> {
       this.stagingModeProgress.setValue(0);
     }
 
-    if (this.state.pendingImageInfo && !prevState.pendingImageInfo) {
+    if (this.state.pendingMediaInfo && !prevState.pendingMediaInfo) {
       timing(
         this.sendButtonProgress,
         { ...stagingModeAnimationConfig, toValue: 1 },
       ).start();
-    } else if (!this.state.pendingImageInfo && prevState.pendingImageInfo) {
-      CameraModal.cleanUpPendingImageInfo(prevState.pendingImageInfo);
+    } else if (!this.state.pendingMediaInfo && prevState.pendingMediaInfo) {
+      CameraModal.cleanUpPendingImageInfo(prevState.pendingMediaInfo);
       this.sendButtonProgress.setValue(0);
     }
   }
 
-  static async cleanUpPendingImageInfo(pendingImageInfo: ClientImageInfo) {
-    if (!pendingImageInfo.unlinkURIAfterRemoving) {
+  static async cleanUpPendingImageInfo(pendingMediaInfo: ClientMediaInfo) {
+    if (!pendingMediaInfo.unlinkURIAfterRemoving) {
       return;
     }
-    const path = pathFromURI(pendingImageInfo.uri);
+    const path = pathFromURI(pendingMediaInfo.uri);
     if (!path) {
       return;
     }
@@ -693,9 +693,9 @@ class CameraModal extends React.PureComponent<Props, State> {
 
   renderStagingView() {
     let image = null;
-    const { pendingImageInfo } = this.state;
-    if (pendingImageInfo) {
-      const imageSource = { uri: pendingImageInfo.uri };
+    const { pendingMediaInfo } = this.state;
+    if (pendingMediaInfo) {
+      const imageSource = { uri: pendingMediaInfo.uri };
       image = <Image source={imageSource} style={styles.stagingImage} />;
     } else {
       image = <ContentLoading fillType="flex" colors={colors.dark} />;
@@ -715,7 +715,7 @@ class CameraModal extends React.PureComponent<Props, State> {
         </TouchableOpacity>
         <SendMediaButton
           onPress={this.sendPhoto}
-          pointerEvents={pendingImageInfo ? 'auto' : 'none'}
+          pointerEvents={pendingMediaInfo ? 'auto' : 'none'}
           containerStyle={styles.sendButtonContainer}
           style={this.sendButtonStyle}
         />
@@ -952,7 +952,7 @@ class CameraModal extends React.PureComponent<Props, State> {
       `unable to parse filename out of react-native-camera URI ${uri}`,
     );
 
-    const pendingImageInfo = {
+    const pendingMediaInfo = {
       uri,
       dimensions: { width, height },
       type: "photo",
@@ -960,15 +960,15 @@ class CameraModal extends React.PureComponent<Props, State> {
     };
 
     this.setState({
-      pendingImageInfo,
+      pendingMediaInfo,
       zoom: 0,
       autoFocusPointOfInterest: undefined,
     });
   }
 
   sendPhoto = async () => {
-    const { pendingImageInfo } = this.state;
-    if (!pendingImageInfo) {
+    const { pendingMediaInfo } = this.state;
+    if (!pendingMediaInfo) {
       return;
     }
     const { chatInputState } = this.props;
@@ -976,9 +976,9 @@ class CameraModal extends React.PureComponent<Props, State> {
     this.close();
     chatInputState.sendMultimediaMessage(
       this.props.navigation.state.params.threadID,
-      [ pendingImageInfo ],
+      [ pendingMediaInfo ],
     );
-    saveImage({ uri: pendingImageInfo.uri, type: "photo" });
+    saveImage({ uri: pendingMediaInfo.uri, type: "photo" });
   }
 
   clearPendingImage = () => {
@@ -986,7 +986,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     this.camera.resumePreview();
     this.setState({
       stagingMode: false,
-      pendingImageInfo: undefined,
+      pendingMediaInfo: undefined,
     });
   }
 
