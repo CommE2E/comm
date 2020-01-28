@@ -1,6 +1,6 @@
 // @flow
 
-import type { GalleryMediaInfo } from '../media/media-gallery-media.react';
+import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -10,10 +10,36 @@ export type PendingMultimediaUpload = {|
   progressPercent: number,
 |};
 
-export type ClientMediaInfo = {|
-  ...GalleryMediaInfo,
-  unlinkURIAfterRemoving?: bool,
-|};
+export type ClientMediaInfo =
+  | {|
+      type: "photo",
+      uri: string,
+      dimensions: Dimensions,
+      unlinkURIAfterRemoving?: bool,
+    |}
+  | {|
+      type: "video",
+      uri: string,
+      dimensions: Dimensions,
+      unlinkURIAfterRemoving?: bool,
+      filename: string,
+    |};
+
+export const clientMediaInfoPropType = PropTypes.oneOf([
+  PropTypes.shape({
+    type: PropTypes.oneOf([ "photo" ]).isRequired,
+    uri: PropTypes.string.isRequired,
+    dimensions: dimensionsPropType.isRequired,
+    unlinkURIAfterRemoving: PropTypes.bool,
+  }),
+  PropTypes.shape({
+    type: PropTypes.oneOf([ "video" ]).isRequired,
+    uri: PropTypes.string.isRequired,
+    dimensions: dimensionsPropType.isRequired,
+    unlinkURIAfterRemoving: PropTypes.bool,
+    filename: PropTypes.string.isRequired,
+  }),
+]);
 
 const pendingMultimediaUploadPropType = PropTypes.shape({
   failed: PropTypes.string,

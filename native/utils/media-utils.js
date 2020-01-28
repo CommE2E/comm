@@ -1,6 +1,7 @@
 // @flow
 
 import type { Dimensions, MediaType } from 'lib/types/media-types';
+import type { ClientMediaInfo } from '../chat/chat-input-state';
 
 import { Platform, Image } from 'react-native';
 import base64 from 'base-64';
@@ -47,22 +48,8 @@ export type MediaValidationResult =
       dimensions: Dimensions,
       filename: string,
     |};
-type ValidateMediaInput =
-  | {
-      type: "photo",
-      uri: string,
-      dimensions: Dimensions,
-      ...
-    }
-  | {
-      type: "video",
-      uri: string,
-      dimensions: Dimensions,
-      filename: string,
-      ...
-    };
 async function validateMedia(
-  mediaInfo: ValidateMediaInput,
+  mediaInfo: ClientMediaInfo,
 ): Promise<?MediaValidationResult> {
   const { dimensions, uri, type } = mediaInfo;
   if (mediaInfo.type === "video") {

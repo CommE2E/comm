@@ -1,12 +1,11 @@
 // @flow
 
-import {
-  mediaTypePropType,
-  type Dimensions,
-  dimensionsPropType,
-} from 'lib/types/media-types';
 import type { ViewStyle, ImageStyle } from '../types/styles';
 import { type Colors, colorsPropType } from '../themes/colors';
+import {
+  type ClientMediaInfo,
+  clientMediaInfoPropType,
+} from '../chat/chat-input-state';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -33,18 +32,6 @@ from 'react-native-reanimated';
 import invariant from 'invariant';
 import Video from 'react-native-video';
 
-export type GalleryMediaInfo =
-  | {|
-      type: "photo",
-      uri: string,
-      dimensions: Dimensions,
-    |}
-  | {|
-      type: "video",
-      uri: string,
-      dimensions: Dimensions,
-      filename: string,
-    |};
 const animatedSpec = {
   duration: 400,
   easing: Easing.inOut(Easing.ease),
@@ -56,26 +43,21 @@ const reanimatedSpec = {
 };
 
 type Props = {|
-  mediaInfo: GalleryMediaInfo,
+  mediaInfo: ClientMediaInfo,
   containerHeight: number,
   queueModeActive: bool,
   isQueued: bool,
-  setMediaQueued: (media: GalleryMediaInfo, isQueued: bool) => void,
-  sendMedia: (media: GalleryMediaInfo) => void,
+  setMediaQueued: (media: ClientMediaInfo, isQueued: bool) => void,
+  sendMedia: (media: ClientMediaInfo) => void,
   isFocused: bool,
-  setFocus: (media: GalleryMediaInfo, isFocused: bool) => void,
+  setFocus: (media: ClientMediaInfo, isFocused: bool) => void,
   screenWidth: number,
   colors: Colors,
 |};
 class MediaGalleryMedia extends React.PureComponent<Props> {
 
   static propTypes = {
-    mediaInfo: PropTypes.shape({
-      dimensions: dimensionsPropType.isRequired,
-      type: mediaTypePropType.isRequired,
-      uri: PropTypes.string.isRequired,
-      filename: PropTypes.string,
-    }).isRequired,
+    mediaInfo: clientMediaInfoPropType.isRequired,
     containerHeight: PropTypes.number.isRequired,
     queueModeActive: PropTypes.bool.isRequired,
     isQueued: PropTypes.bool.isRequired,

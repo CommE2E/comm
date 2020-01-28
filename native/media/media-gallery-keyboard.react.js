@@ -1,11 +1,11 @@
 // @flow
 
-import type { GalleryMediaInfo } from './media-gallery-media.react';
 import type { AppState } from '../redux/redux-setup';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
 import type { ViewStyle, Styles } from '../types/styles';
 import { type Colors, colorsPropType } from '../themes/colors';
+import type { ClientMediaInfo } from '../chat/chat-input-state';
 
 import * as React from 'react';
 import {
@@ -53,7 +53,7 @@ type Props = {|
   styles: Styles,
 |};
 type State = {|
-  mediaInfos: ?$ReadOnlyArray<GalleryMediaInfo>,
+  mediaInfos: ?$ReadOnlyArray<ClientMediaInfo>,
   error: ?string,
   containerHeight: ?number,
   // null means end reached; undefined means no fetch yet
@@ -328,7 +328,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     return !!this.state.queuedMediaURIs;
   }
 
-  renderItem = (row: { item: GalleryMediaInfo }) => {
+  renderItem = (row: { item: ClientMediaInfo }) => {
     const { containerHeight, queuedMediaURIs } = this.state;
     invariant(containerHeight, "should be set");
     const { uri } = row.item;
@@ -354,7 +354,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     return <View style={this.props.styles.separator} />;
   }
 
-  static keyExtractor(item: GalleryMediaInfo) {
+  static keyExtractor(item: ClientMediaInfo) {
     return item.uri;
   }
 
@@ -445,7 +445,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     this.viewableIndices = viewableIndices;
   }
 
-  setMediaQueued = (mediaInfo: GalleryMediaInfo, isQueued: bool) => {
+  setMediaQueued = (mediaInfo: ClientMediaInfo, isQueued: bool) => {
     this.setState((prevState: State) => {
       const prevQueuedMediaURIs = prevState.queuedMediaURIs
         ? [ ...prevState.queuedMediaURIs ]
@@ -472,7 +472,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     });
   }
 
-  setFocus = (mediaInfo: GalleryMediaInfo, isFocused: bool) => {
+  setFocus = (mediaInfo: ClientMediaInfo, isFocused: bool) => {
     const { uri } = mediaInfo;
     if (isFocused) {
       this.setState({ focusedMediaURI: uri });
@@ -481,7 +481,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     }
   }
 
-  sendSingleMedia = (mediaInfo: GalleryMediaInfo) => {
+  sendSingleMedia = (mediaInfo: ClientMediaInfo) => {
     this.sendMedia([ mediaInfo ]);
   }
 
@@ -502,7 +502,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     this.sendMedia(queuedMediaInfos);
   }
 
-  sendMedia(mediaInfos: $ReadOnlyArray<GalleryMediaInfo>) {
+  sendMedia(mediaInfos: $ReadOnlyArray<ClientMediaInfo>) {
     if (this.mediaSelected) {
       return;
     }

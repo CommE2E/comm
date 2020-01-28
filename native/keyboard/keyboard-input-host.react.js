@@ -6,13 +6,13 @@ import {
   type ChatInputState,
   chatInputStatePropType,
   withChatInputState,
+  type ClientMediaInfo,
 } from '../chat/chat-input-state';
 import {
   type KeyboardState,
   keyboardStatePropType,
   withKeyboardState,
 } from '../keyboard/keyboard-state';
-import type { GalleryMediaInfo } from '../media/media-gallery-media.react';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -80,7 +80,7 @@ class KeyboardInputHost extends React.PureComponent<Props> {
 
   onMediaGalleryItemSelected = (
     keyboardName: string,
-    mediaInfos: $ReadOnlyArray<GalleryMediaInfo>,
+    mediaInfos: $ReadOnlyArray<ClientMediaInfo>,
   ) => {
     const { keyboardState } = this.props;
     invariant(

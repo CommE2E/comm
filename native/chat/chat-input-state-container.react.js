@@ -20,7 +20,6 @@ import {
   type RawMediaMessageInfo,
 } from 'lib/types/message-types';
 import type { MediaValidationResult } from '../utils/media-utils';
-import type { GalleryMediaInfo } from '../media/media-gallery-media.react';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -578,7 +577,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       },
     }));
 
-    const galleryMediaInfos: GalleryMediaInfo[] =
+    const galleryMediaInfos: ClientMediaInfo[] =
       retryMedia.map(singleMedia => {
         if (singleMedia.type === "photo") {
           const { dimensions, uri } = singleMedia;
