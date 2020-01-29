@@ -40,6 +40,7 @@ import { createMediaMessageInfo } from 'lib/shared/message-utils';
 
 import { ChatInputStateContext } from './chat-input-state';
 import { validateMedia, convertMedia } from '../utils/media-utils';
+import { displayActionResultModal } from '../navigation/action-result-modal';
 
 let nextLocalUploadID = 0;
 type MediaInfoWithID = {|
@@ -335,37 +336,38 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     await this.uploadFiles(localMessageID, mediaInfosWithIDs);
   }
 
-  uploadFiles(
+  async uploadFiles(
     localMessageID: string,
     mediaInfosWithIDs: $ReadOnlyArray<MediaInfoWithID>,
   ) {
-    return Promise.all(
+    const results = await Promise.all(
       mediaInfosWithIDs.map(mediaInfo => this.uploadFile(
         localMessageID,
         mediaInfo,
       )),
     );
+    const errors = [ ...new Set(results.filter(Boolean)) ];
+    if (errors.length > 0) {
+      displayActionResultModal(errors.join(", ") + " :(");
+    }
   }
 
-  async uploadFile(localMessageID: string, mediaInfoWithID: MediaInfoWithID) {
+  async uploadFile(
+    localMessageID: string,
+    mediaInfoWithID: MediaInfoWithID,
+  ): Promise<?string> {
     const { localID, mediaInfo } = mediaInfoWithID;
     const validationResult = await validateMedia(mediaInfo);
     if (!validationResult) {
-      this.handleUploadFailure(
-        localMessageID,
-        localID,
-        new Error("validation"),
-      );
-      return;
+      const message = "validation failed";
+      this.handleUploadFailure(localMessageID, localID, message);
+      return message;
     }
     const conversionResult = await convertMedia(validationResult);
     if (!conversionResult) {
-      this.handleUploadFailure(
-        localMessageID,
-        localID,
-        new Error("conversion failed"),
-      );
-      return;
+      const message = "conversion failed";
+      this.handleUploadFailure(localMessageID, localID, message);
+      return message;
     }
     const {
       uploadURI,
@@ -375,7 +377,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       mediaType,
     } = conversionResult;
 
-    let result;
+    let result, message;
     try {
       result = await this.props.uploadMultimedia(
         { uri: uploadURI, name, type: mime },
@@ -386,7 +388,8 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         ),
       );
     } catch (e) {
-      this.handleUploadFailure(localMessageID, localID, e);
+      message = "upload failed";
+      this.handleUploadFailure(localMessageID, localID, message);
     }
     if (result) {
       this.props.dispatchActionPayload(
@@ -406,11 +409,12 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       );
     }
     if (!shouldDisposePath) {
-      return;
+      return message;
     }
     try {
       await filesystem.unlink(shouldDisposePath);
     } catch (e) { }
+    return message;
   }
 
   setProgress(
@@ -451,7 +455,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
   handleUploadFailure(
     localMessageID: string,
     localUploadID: string,
-    e: any,
+    message: string,
   ) {
     this.setState(prevState => {
       const uploads = prevState.pendingUploads[localMessageID];
@@ -460,9 +464,6 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         // The upload has been completed before it failed
         return {};
       }
-      const failed = (e instanceof Error && e.message)
-        ? e.message
-        : "failed";
       return {
         pendingUploads: {
           ...prevState.pendingUploads,
@@ -470,7 +471,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
             ...uploads,
             [localUploadID]: {
               ...upload,
-              failed,
+              failed: message,
               progressPercent: 0,
             },
           },
