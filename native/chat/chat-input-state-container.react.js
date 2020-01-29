@@ -37,7 +37,6 @@ import {
   sendMultimediaMessageActionTypes,
   sendMultimediaMessage,
 } from 'lib/actions/message-actions';
-import { pathFromURI } from 'lib/utils/file-utils';
 import { createMediaMessageInfo } from 'lib/shared/message-utils';
 
 import { ChatInputStateContext } from './chat-input-state';
@@ -90,7 +89,6 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
   state = {
     pendingUploads: {},
   };
-  pendingUnlinkURIs = new Set();
 
   static getCompletedUploads(props: Props, state: State): CompletedUploads {
     const completedUploads = {};
@@ -260,7 +258,6 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       sendMultimediaMessage: this.sendMultimediaMessage,
       messageHasUploadFailure: this.messageHasUploadFailure,
       retryMultimediaMessage: this.retryMultimediaMessage,
-      clearURI: this.clearURI,
     }),
   );
 
@@ -268,12 +265,6 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     threadID: string,
     inputMediaInfos: $ReadOnlyArray<ClientMediaInfo>,
   ) => {
-    const urisToUnlink = new Set(
-      inputMediaInfos.filter(
-        inputImageInfo => !!inputImageInfo.unlinkURIAfterRemoving,
-      ).map(inputImageInfo => inputImageInfo.uri),
-    );
-
     const validationResults = await Promise.all(
       inputMediaInfos.map(validateMedia),
     );
@@ -299,9 +290,6 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         failed: null,
         progressPercent: 0,
       };
-      if (urisToUnlink.has(uri)) {
-        this.pendingUnlinkURIs.add(uri);
-      }
     }
 
     this.setState(
@@ -318,24 +306,30 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         invariant(creatorID, "need viewer ID in order to send a message");
         const media = mediaInfos.map(
           ({ localID, validationResult }) => {
+            const {
+              uri,
+              dimensions,
+              filename,
+              unlinkURIAfterRemoving,
+            } = validationResult;
             // This conditional is for Flow
             if (validationResult.type === "photo") {
-              const { uri, dimensions, filename } = validationResult;
               return {
                 id: localID,
                 uri,
                 type: "photo",
                 dimensions,
                 filename,
+                unlinkURIAfterRemoving,
               };
             } else {
-              const { uri, dimensions, filename } = validationResult;
               return {
                 id: localID,
                 uri,
                 type: "video",
                 dimensions,
                 filename,
+                unlinkURIAfterRemoving,
               };
             }
           },
@@ -409,6 +403,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
             type: mediaType,
             dimensions: conversionResult.dimensions,
             filename: undefined,
+            unlinkURIAfterRemoving: undefined,
           },
         },
       );
@@ -578,26 +573,38 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       },
     }));
 
-    const galleryMediaInfos: ClientMediaInfo[] =
+    const clientMediaInfos: ClientMediaInfo[] =
       retryMedia.map(singleMedia => {
+        const {
+          dimensions,
+          uri,
+          filename,
+          unlinkURIAfterRemoving,
+        } = singleMedia;
+        invariant(
+          filename,
+          "filename should be set on locally created Media",
+        );
         if (singleMedia.type === "photo") {
-          const { dimensions, uri, filename } = singleMedia;
-          invariant(
+          return {
+            type: "photo",
+            dimensions,
+            uri,
             filename,
-            "filename should be set on locally created Video",
-          );
-          return { type: "photo", dimensions, uri, filename };
+            unlinkURIAfterRemoving,
+          };
         } else {
-          const { dimensions, uri, filename } = singleMedia;
-          invariant(
+          return {
+            type: "video",
+            dimensions,
+            uri,
             filename,
-            "filename should be set on locally created Video",
-          );
-          return { type: "video", dimensions, uri, filename };
+            unlinkURIAfterRemoving,
+          };
         }
       });
     const validationResults = await Promise.all(
-      galleryMediaInfos.map(validateMedia),
+      clientMediaInfos.map(validateMedia),
     );
 
     const mediaInfos = [];
@@ -637,20 +644,6 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     if (mediaInfos.length > 0) {
       await this.uploadFiles(localMessageID, mediaInfos);
     }
-  }
-
-  clearURI = async (uri: string) => {
-    if (!this.pendingUnlinkURIs.has(uri)) {
-      return;
-    }
-    this.pendingUnlinkURIs.delete(uri);
-    const path = pathFromURI(uri);
-    if (!path) {
-      return;
-    }
-    try {
-      await filesystem.unlink(path);
-    } catch (e) { }
   }
 
   render() {

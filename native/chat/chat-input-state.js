@@ -76,7 +76,6 @@ export type ChatInputState = {|
   ) => Promise<void>,
   messageHasUploadFailure: (localMessageID: string) => bool,
   retryMultimediaMessage: (localMessageID: string) => Promise<void>,
-  clearURI: (uri: string) => Promise<void>,
 |};
 
 const chatInputStatePropType = PropTypes.shape({
@@ -84,7 +83,6 @@ const chatInputStatePropType = PropTypes.shape({
   sendMultimediaMessage: PropTypes.func.isRequired,
   messageHasUploadFailure: PropTypes.func.isRequired,
   retryMultimediaMessage: PropTypes.func.isRequired,
-  clearURI: PropTypes.func.isRequired,
 });
 
 const ChatInputStateContext = React.createContext<?ChatInputState>(null);

@@ -1,34 +1,30 @@
 // @flow
 
 import { type MediaInfo, mediaInfoPropType } from 'lib/types/media-types';
-import {
-  type ChatInputState,
-  chatInputStatePropType,
-  withChatInputState,
-} from '../chat/chat-input-state';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { View, Image, StyleSheet } from 'react-native';
+import filesystem from 'react-native-fs';
+
+import { pathFromURI } from 'lib/utils/file-utils';
 
 import RemoteImage from './remote-image.react';
 
 type Props = {|
   mediaInfo: MediaInfo,
   spinnerColor: string,
-  // withChatInputState
-  chatInputState: ?ChatInputState,
 |};
 type State = {|
   currentURI: string,
   departingURI: ?string,
+  unlinkDepartingURI: bool,
 |};
 class Multimedia extends React.PureComponent<Props, State> {
 
   static propTypes = {
     mediaInfo: mediaInfoPropType.isRequired,
     spinnerColor: PropTypes.string.isRequired,
-    chatInputState: chatInputStatePropType,
   };
   static defaultProps = {
     spinnerColor: "black",
@@ -39,6 +35,7 @@ class Multimedia extends React.PureComponent<Props, State> {
     this.state = {
       currentURI: props.mediaInfo.uri,
       departingURI: null,
+      unlinkDepartingURI: false,
     };
   }
 
@@ -46,7 +43,12 @@ class Multimedia extends React.PureComponent<Props, State> {
     const newURI = this.props.mediaInfo.uri;
     const oldURI = prevProps.mediaInfo.uri;
     if (newURI !== oldURI && !this.state.departingURI) {
-      this.setState({ currentURI: newURI, departingURI: oldURI });
+      const unlinkDepartingURI = !!prevProps.mediaInfo.unlinkURIAfterRemoving;
+      this.setState({
+        currentURI: newURI,
+        departingURI: oldURI,
+        unlinkDepartingURI,
+      });
     } else if (newURI !== oldURI) {
       this.setState({ currentURI: newURI });
     }
@@ -93,15 +95,25 @@ class Multimedia extends React.PureComponent<Props, State> {
     }
   }
 
-  onLoad = () => {
-    const { departingURI } = this.state;
-    if (!departingURI) {
+  onLoad = async () => {
+    const { departingURI, unlinkDepartingURI } = this.state;
+    if (!departingURI && !unlinkDepartingURI) {
       return;
     }
-    this.setState({ departingURI: null });
-    if (this.props.chatInputState) {
-      this.props.chatInputState.clearURI(departingURI);
+    this.setState({ departingURI: null, unlinkDepartingURI: false });
+
+    if (!departingURI || !unlinkDepartingURI) {
+      return;
     }
+
+    const path = pathFromURI(departingURI);
+    if (!path) {
+      return;
+    }
+
+    try {
+      await filesystem.unlink(path);
+    } catch (e) { }
   }
 
 }
@@ -119,4 +131,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withChatInputState(Multimedia);
+export default Multimedia;
