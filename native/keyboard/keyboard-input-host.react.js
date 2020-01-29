@@ -103,9 +103,9 @@ class KeyboardInputHost extends React.PureComponent<Props> {
     const mappedMediaInfos = [];
     for (let mediaInfo of mediaInfos) {
       if (mediaInfo.type === "photo") {
-        mappedMediaInfos.push({ ...mediaInfo });
+        mappedMediaInfos.push({ type: "photo", ...mediaInfo });
       } else {
-        mappedMediaInfos.push({ ...mediaInfo });
+        mappedMediaInfos.push({ type: "video", ...mediaInfo });
       }
     }
 

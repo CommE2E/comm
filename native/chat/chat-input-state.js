@@ -10,34 +10,40 @@ export type PendingMultimediaUpload = {|
   progressPercent: number,
 |};
 
+export type ClientPhotoInfo = {|
+  type: "photo",
+  uri: string,
+  dimensions: Dimensions,
+  filename: string,
+  unlinkURIAfterRemoving?: bool,
+|};
+
+export type ClientVideoInfo = {|
+  type: "video",
+  uri: string,
+  dimensions: Dimensions,
+  filename: string,
+  unlinkURIAfterRemoving?: bool,
+|};
+
 export type ClientMediaInfo =
-  | {|
-      type: "photo",
-      uri: string,
-      dimensions: Dimensions,
-      unlinkURIAfterRemoving?: bool,
-    |}
-  | {|
-      type: "video",
-      uri: string,
-      dimensions: Dimensions,
-      unlinkURIAfterRemoving?: bool,
-      filename: string,
-    |};
+  | ClientPhotoInfo
+  | ClientVideoInfo;
 
 export const clientMediaInfoPropType = PropTypes.oneOf([
   PropTypes.shape({
     type: PropTypes.oneOf([ "photo" ]).isRequired,
     uri: PropTypes.string.isRequired,
     dimensions: dimensionsPropType.isRequired,
+    filename: PropTypes.string.isRequired,
     unlinkURIAfterRemoving: PropTypes.bool,
   }),
   PropTypes.shape({
     type: PropTypes.oneOf([ "video" ]).isRequired,
     uri: PropTypes.string.isRequired,
     dimensions: dimensionsPropType.isRequired,
-    unlinkURIAfterRemoving: PropTypes.bool,
     filename: PropTypes.string.isRequired,
+    unlinkURIAfterRemoving: PropTypes.bool,
   }),
 ]);
 

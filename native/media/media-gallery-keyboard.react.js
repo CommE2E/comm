@@ -273,6 +273,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
               type: "photo",
               dimensions: { height, width },
               uri,
+              filename,
             };
           }
         },

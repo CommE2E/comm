@@ -319,16 +319,17 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         const media = mediaInfos.map(
           ({ localID, validationResult }) => {
             // This conditional is for Flow
-            if (validationResult.mediaType === "photo") {
-              const { uri, dimensions, mediaType } = validationResult;
+            if (validationResult.type === "photo") {
+              const { uri, dimensions, filename } = validationResult;
               return {
                 id: localID,
                 uri,
                 type: "photo",
                 dimensions,
+                filename,
               };
             } else {
-              const { uri, dimensions, mediaType, filename } = validationResult;
+              const { uri, dimensions, filename } = validationResult;
               return {
                 id: localID,
                 uri,
@@ -580,8 +581,12 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     const galleryMediaInfos: ClientMediaInfo[] =
       retryMedia.map(singleMedia => {
         if (singleMedia.type === "photo") {
-          const { dimensions, uri } = singleMedia;
-          return { type: "photo", dimensions, uri };
+          const { dimensions, uri, filename } = singleMedia;
+          invariant(
+            filename,
+            "filename should be set on locally created Video",
+          );
+          return { type: "photo", dimensions, uri, filename };
         } else {
           const { dimensions, uri, filename } = singleMedia;
           invariant(

@@ -1,7 +1,11 @@
 // @flow
 
 import type { Dimensions, MediaType } from 'lib/types/media-types';
-import type { ClientMediaInfo } from '../chat/chat-input-state';
+import type {
+  ClientPhotoInfo,
+  ClientVideoInfo,
+  ClientMediaInfo,
+} from '../chat/chat-input-state';
 
 import { Platform, Image } from 'react-native';
 import base64 from 'base-64';
@@ -37,24 +41,16 @@ type ReactNativeBlob =
   & { data: { type: string, name: string, size: number } };
 export type MediaValidationResult =
   | {|
-      mediaType: "photo",
-      uri: string,
-      dimensions: Dimensions,
+      ...ClientPhotoInfo,
       blob: ReactNativeBlob,
     |}
-  | {|
-      mediaType: "video",
-      uri: string,
-      dimensions: Dimensions,
-      filename: string,
-    |};
+  | ClientVideoInfo;
 async function validateMedia(
   mediaInfo: ClientMediaInfo,
 ): Promise<?MediaValidationResult> {
-  const { dimensions, uri, type } = mediaInfo;
+  const { dimensions, uri, type, filename } = mediaInfo;
   if (mediaInfo.type === "video") {
-    const { filename } = mediaInfo;
-    return { mediaType: "video", uri, dimensions, filename };
+    return { type: "video", uri, dimensions, filename };
   }
 
   const blob = await getBlobFromURI(uri, type);
@@ -67,7 +63,7 @@ async function validateMedia(
   if (mediaType !== "photo") {
     return null;
   }
-  return { mediaType: "photo", uri, dimensions, blob };
+  return { type: "photo", uri, dimensions, filename, blob };
 }
 
 function blobToDataURI(blob: Blob): Promise<string> {
@@ -133,7 +129,7 @@ async function convertMedia(
   validationResult: MediaValidationResult,
 ): Promise<?MediaConversionResult> {
   const { uri, dimensions } = validationResult;
-  if (validationResult.mediaType === "video") {
+  if (validationResult.type === "video") {
     const result = await transcodeVideo(validationResult);
     if (!result) {
       return null;
