@@ -1,5 +1,5 @@
-// flow-typed signature: 47eb60de49014dd5bfdd9b1acb98383a
-// flow-typed version: c6154227d1/react-router-dom_v4.x.x/flow_>=v0.98.x <=v0.103.x
+// flow-typed signature: 5c3ecc173e04f53b410aa08d80e28aa2
+// flow-typed version: cb4e8f3aa2/react-router-dom_v5.x.x/flow_>=v0.98.x <=v0.103.x
 
 declare module "react-router-dom" {
   declare export var BrowserRouter: React$ComponentType<{|
@@ -28,8 +28,8 @@ declare module "react-router-dom" {
     to: string | LocationShape,
     activeClassName?: string,
     className?: string,
-    activeStyle?: Object,
-    style?: Object,
+    activeStyle?: { +[string]: mixed },
+    style?: { +[string]: mixed },
     isActive?: (match: Match, location: Location) => boolean,
     children?: React$Node,
     exact?: boolean,
@@ -160,7 +160,7 @@ declare module "react-router-dom" {
   ): React$ComponentType<$Diff<React$ElementConfig<Component>, ContextRouterVoid>>;
 
   declare type MatchPathOptions = {
-    path?: string,
+    path?: string | string[],
     exact?: boolean,
     sensitive?: boolean,
     strict?: boolean
@@ -168,9 +168,9 @@ declare module "react-router-dom" {
 
   declare export function matchPath(
     pathname: string,
-    options?: MatchPathOptions | string,
+    options?: MatchPathOptions | string | string[],
     parent?: Match
   ): null | Match;
 
-  declare export function generatePath(pattern?: string, params?: Object): string;
+  declare export function generatePath(pattern?: string, params?: { +[string]: mixed }): string;
 }
