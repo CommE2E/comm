@@ -130,6 +130,7 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
   // refs
   tagInput: ?React.ElementRef<typeof TextInput> = null;
   scrollView: ?React.ElementRef<typeof ScrollView> = null;
+  lastChange: ?{| time: number, prevText: string |};
 
   static defaultProps = {
     minHeight: 30,
@@ -187,13 +188,28 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
     }
   }
 
+  onChangeText = (text: string) => {
+    this.lastChange = { time: Date.now(), prevText: this.props.text };
+    this.props.onChangeText(text);
+  }
+
   onBlur = (event: { nativeEvent: { text: string } }) => {
     invariant(Platform.OS === "ios", "only iOS gets text on TextInput.onBlur");
-    this.props.onChangeText(event.nativeEvent.text);
+    this.onChangeText(event.nativeEvent.text);
   }
 
   onKeyPress = (event: { nativeEvent: { key: string } }) => {
-    if (this.props.text !== '' || event.nativeEvent.key !== 'Backspace') {
+    const { lastChange } = this;
+    let { text } = this.props;
+    if (
+      Platform.OS === "android" &&
+      lastChange !== null &&
+      lastChange !== undefined &&
+      Date.now() - lastChange.time < 150
+    ) {
+      text = lastChange.prevText;
+    }
+    if (text !== '' || event.nativeEvent.key !== 'Backspace') {
       return;
     }
     const tags = [...this.props.value];
@@ -282,7 +298,7 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
                     color: inputColor,
                   }]}
                   onBlur={Platform.OS === "ios" ? this.onBlur : undefined}
-                  onChangeText={this.props.onChangeText}
+                  onChangeText={this.onChangeText}
                   autoCapitalize="none"
                   autoCorrect={false}
                   placeholder="Start typing"
