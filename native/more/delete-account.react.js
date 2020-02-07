@@ -8,6 +8,7 @@ import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { LogOutResult } from 'lib/types/account-types';
 import { type GlobalTheme, globalThemePropType } from '../types/themes';
 import type { Styles } from '../types/styles';
+import { type Colors, colorsPropType } from '../themes/colors';
 import {
   type PreRequestUserState,
   preRequestUserStatePropType,
@@ -37,7 +38,7 @@ import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import Button from '../components/button.react';
 import OnePasswordButton from '../components/one-password-button.react';
 import { deleteNativeCredentialsFor } from '../account/native-credentials';
-import { styleSelector } from '../themes/colors';
+import { colorsSelector, styleSelector } from '../themes/colors';
 
 type Props = {|
   navigation: NavigationScreenProp<*>,
@@ -46,6 +47,7 @@ type Props = {|
   username: ?string,
   preRequestUserState: PreRequestUserState,
   activeTheme: ?GlobalTheme,
+  colors: Colors,
   styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
@@ -69,6 +71,7 @@ class DeleteAccount extends React.PureComponent<Props, State> {
     username: PropTypes.string,
     preRequestUserState: preRequestUserStatePropType.isRequired,
     activeTheme: globalThemePropType,
+    colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     deleteAccount: PropTypes.func.isRequired,
@@ -123,6 +126,7 @@ class DeleteAccount extends React.PureComponent<Props, State> {
     const buttonContent = this.props.loadingStatus === "loading"
       ? <ActivityIndicator size="small" color="white" />
       : <Text style={this.props.styles.saveText}>Delete account</Text>;
+    const { panelForegroundTertiaryLabel } = this.props.colors;
     return (
       <ScrollView
         contentContainerStyle={this.props.styles.scrollViewContentContainer}
@@ -149,6 +153,7 @@ class DeleteAccount extends React.PureComponent<Props, State> {
             value={this.state.password}
             onChangeText={this.onChangePasswordText}
             placeholder="Password"
+            placeholderTextColor={panelForegroundTertiaryLabel}
             secureTextEntry={true}
             returnKeyType="go"
             onSubmitEditing={this.submitDeletion}
@@ -263,7 +268,7 @@ const styles = {
   input: {
     flex: 1,
     fontSize: 16,
-    color: 'panelBackgroundLabel',
+    color: 'panelForegroundLabel',
     fontFamily: 'Arial',
     paddingVertical: 0,
   },
@@ -278,7 +283,7 @@ const styles = {
   saveText: {
     fontSize: 18,
     textAlign: 'center',
-    color: 'panelForegroundLabel',
+    color: 'white',
   },
   onePasswordButton: {
     marginLeft: 6,
@@ -286,7 +291,7 @@ const styles = {
   warningText: {
     marginHorizontal: 24,
     textAlign: 'center',
-    color: 'modalBackgroundLabel',
+    color: 'panelForegroundLabel',
     fontSize: 16,
   },
   lastWarningText: {
@@ -307,6 +312,7 @@ export default connect(
       : undefined,
     preRequestUserState: preRequestUserStateSelector(state),
     activeTheme: state.globalThemeInfo.activeTheme,
+    colors: colorsSelector(state),
     styles: stylesSelector(state),
   }),
   { deleteAccount },

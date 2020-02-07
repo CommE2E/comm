@@ -239,11 +239,13 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
   }
 
   render() {
-    const tagColor = this.props.tagColor || this.props.colors.modalSubtext;
+    const tagColor = this.props.tagColor ||
+      this.props.colors.modalSubtext;
     const tagTextColor = this.props.tagTextColor ||
-      this.props.colors.modalSubtextLabel;
+      this.props.colors.modalForegroundLabel;
     const inputColor = this.props.inputColor ||
-      this.props.colors.modalSubtextLabel;
+      this.props.colors.modalForegroundLabel;
+    const placeholderColor = this.props.colors.modalForegroundTertiaryLabel;
     const tags = this.props.value.map((tag, index) => (
       <Tag
         index={index}
@@ -302,7 +304,7 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
                   autoCapitalize="none"
                   autoCorrect={false}
                   placeholder="Start typing"
-                  placeholderTextColor={tagColor}
+                  placeholderTextColor={placeholderColor}
                   returnKeyType="done"
                   keyboardType="default"
                   underlineColorAndroid="rgba(0,0,0,0)"
@@ -455,7 +457,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   textInput: {
-    fontSize: 18,
+    fontSize: 16,
     height: 24,
     flex: .6,
     padding: 0,
@@ -467,7 +469,7 @@ const styles = StyleSheet.create({
   },
   tag: {
     justifyContent: 'center',
-    marginTop: 3,
+    marginBottom: 3,
     marginRight: 3,
     paddingVertical: 2,
     paddingHorizontal: 6,

@@ -9,6 +9,7 @@ import type { AccountUpdate } from 'lib/types/user-types';
 import type { ChangeUserSettingsResult } from 'lib/types/account-types';
 import { type GlobalTheme, globalThemePropType } from '../types/themes';
 import type { Styles } from '../types/styles';
+import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -33,13 +34,14 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import Button from '../components/button.react';
 import OnePasswordButton from '../components/one-password-button.react';
 import { setNativeCredentials } from '../account/native-credentials';
-import { styleSelector } from '../themes/colors';
+import { colorsSelector, styleSelector } from '../themes/colors';
 
 type Props = {
   navigation: NavigationScreenProp<*>,
   // Redux state
   loadingStatus: LoadingStatus,
   activeTheme: ?GlobalTheme,
+  colors: Colors,
   styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
@@ -62,6 +64,7 @@ class EditPassword extends React.PureComponent<Props, State> {
     }).isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
     activeTheme: globalThemePropType,
+    colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     changeUserSettings: PropTypes.func.isRequired,
@@ -128,6 +131,7 @@ class EditPassword extends React.PureComponent<Props, State> {
     const buttonContent = this.props.loadingStatus === "loading"
       ? <ActivityIndicator size="small" color="white" />
       : <Text style={this.props.styles.saveText}>Save</Text>;
+    const { panelForegroundTertiaryLabel } = this.props.colors;
     return (
       <ScrollView
         contentContainerStyle={this.props.styles.scrollViewContentContainer}
@@ -142,6 +146,7 @@ class EditPassword extends React.PureComponent<Props, State> {
               value={this.state.currentPassword}
               onChangeText={this.onChangeCurrentPassword}
               placeholder="Current password"
+              placeholderTextColor={panelForegroundTertiaryLabel}
               secureTextEntry={true}
               autoFocus={true}
               returnKeyType="next"
@@ -160,6 +165,7 @@ class EditPassword extends React.PureComponent<Props, State> {
               value={this.state.newPassword}
               onChangeText={this.onChangeNewPassword}
               placeholder="New password"
+              placeholderTextColor={panelForegroundTertiaryLabel}
               secureTextEntry={true}
               returnKeyType="next"
               onSubmitEditing={this.focusConfirmPassword}
@@ -175,6 +181,7 @@ class EditPassword extends React.PureComponent<Props, State> {
               value={this.state.confirmPassword}
               onChangeText={this.onChangeConfirmPassword}
               placeholder="Confirm password"
+              placeholderTextColor={panelForegroundTertiaryLabel}
               secureTextEntry={true}
               returnKeyType="go"
               onSubmitEditing={this.submitPassword}
@@ -389,7 +396,7 @@ const styles = {
   input: {
     flex: 1,
     fontSize: 16,
-    color: 'modalBackgroundLabel',
+    color: 'panelForegroundLabel',
     fontFamily: 'Arial',
     paddingVertical: 0,
   },
@@ -404,7 +411,7 @@ const styles = {
   saveText: {
     fontSize: 18,
     textAlign: 'center',
-    color: 'panelForegroundLabel',
+    color: 'white',
   },
   onePasswordButton: {
     marginLeft: 6,
@@ -420,6 +427,7 @@ export default connect(
   (state: AppState) => ({
     loadingStatus: loadingStatusSelector(state),
     activeTheme: state.globalThemeInfo.activeTheme,
+    colors: colorsSelector(state),
     styles: stylesSelector(state),
   }),
   { changeUserSettings },

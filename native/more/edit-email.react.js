@@ -9,6 +9,7 @@ import type { AccountUpdate } from 'lib/types/user-types';
 import type { ChangeUserSettingsResult } from 'lib/types/account-types';
 import { type GlobalTheme, globalThemePropType } from '../types/themes';
 import type { Styles } from '../types/styles';
+import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -33,7 +34,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import Button from '../components/button.react';
 import OnePasswordButton from '../components/one-password-button.react';
-import { styleSelector } from '../themes/colors';
+import { colorsSelector, styleSelector } from '../themes/colors';
 
 type Props = {|
   navigation: NavigationScreenProp<*>,
@@ -41,6 +42,7 @@ type Props = {|
   email: ?string,
   loadingStatus: LoadingStatus,
   activeTheme: ?GlobalTheme,
+  colors: Colors,
   styles: Styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
@@ -63,6 +65,7 @@ class EditEmail extends React.PureComponent<Props, State> {
     email: PropTypes.string,
     loadingStatus: loadingStatusPropType.isRequired,
     activeTheme: globalThemePropType,
+    colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     changeUserSettings: PropTypes.func.isRequired,
@@ -119,6 +122,7 @@ class EditEmail extends React.PureComponent<Props, State> {
     const buttonContent = this.props.loadingStatus === "loading"
       ? <ActivityIndicator size="small" color="white" />
       : <Text style={this.props.styles.saveText}>Save</Text>;
+    const { panelForegroundTertiaryLabel } = this.props.colors;
     return (
       <ScrollView
         contentContainerStyle={this.props.styles.scrollViewContentContainer}
@@ -132,6 +136,7 @@ class EditEmail extends React.PureComponent<Props, State> {
             value={this.state.email}
             onChangeText={this.onChangeEmailText}
             placeholder="Email"
+            placeholderTextColor={panelForegroundTertiaryLabel}
             autoFocus={true}
             selectTextOnFocus={true}
             returnKeyType="next"
@@ -147,6 +152,7 @@ class EditEmail extends React.PureComponent<Props, State> {
             value={this.state.password}
             onChangeText={this.onChangePasswordText}
             placeholder="Password"
+            placeholderTextColor={panelForegroundTertiaryLabel}
             secureTextEntry={true}
             returnKeyType="go"
             onSubmitEditing={this.submitEmail}
@@ -324,7 +330,7 @@ const styles = {
   input: {
     flex: 1,
     fontSize: 16,
-    color: 'modalBackgroundLabel',
+    color: 'panelForegroundLabel',
     fontFamily: 'Arial',
     paddingVertical: 0,
   },
@@ -339,7 +345,7 @@ const styles = {
   saveText: {
     fontSize: 18,
     textAlign: 'center',
-    color: 'panelForegroundLabel',
+    color: 'white',
   },
   onePasswordButton: {
     marginLeft: 6,
@@ -358,6 +364,7 @@ export default connect(
       : undefined,
     loadingStatus: loadingStatusSelector(state),
     activeTheme: state.globalThemeInfo.activeTheme,
+    colors: colorsSelector(state),
     styles: stylesSelector(state),
   }),
   { changeUserSettings },
