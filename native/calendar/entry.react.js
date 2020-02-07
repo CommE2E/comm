@@ -689,8 +689,8 @@ const styles = {
   },
   textInput: {
     position: 'absolute',
-    top: Platform.OS === "android" ? 2 : 0,
-    left: 10,
+    top: Platform.OS === "android" ? 4.8 : 0,
+    left: Platform.OS === "android" ? 9.8 : 10,
     right: 10,
     padding: 0,
     margin: 0,

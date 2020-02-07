@@ -21,7 +21,6 @@ import {
   View,
   TextInput,
   ScrollView,
-  Platform,
   Alert,
   ActivityIndicator,
 } from 'react-native';
@@ -278,10 +277,7 @@ const styles = {
     borderTopWidth: 1,
     borderBottomWidth: 1,
     borderColor: 'panelForegroundBorder',
-    paddingVertical: Platform.select({
-      ios: 12,
-      default: 8,
-    }),
+    paddingVertical: 12,
     paddingHorizontal: 24,
     marginBottom: 24,
   },

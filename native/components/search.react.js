@@ -6,13 +6,7 @@ import type { ViewStyle, Styles } from '../types/styles';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import {
-  View,
-  ViewPropTypes,
-  TouchableOpacity,
-  TextInput,
-  Platform,
-} from 'react-native';
+import { View, ViewPropTypes, TouchableOpacity, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { connect } from 'lib/utils/redux-utils';
@@ -74,7 +68,6 @@ class Search extends React.PureComponent<Props> {
           name="search"
           size={18}
           color={iconColor}
-          style={this.props.styles.searchIcon}
         />
         <TextInput
           style={this.props.styles.searchInput}
@@ -98,17 +91,13 @@ class Search extends React.PureComponent<Props> {
 }
 
 const styles = {
-  searchIcon: {
-    paddingBottom: Platform.OS === "android" ? 0 : 2,
-  },
   search: {
     backgroundColor: 'listSearchBackground',
     flexDirection: 'row',
     alignItems: 'center',
     paddingLeft: 14,
     paddingRight: 12,
-    paddingTop: Platform.OS === "android" ? 1 : 6,
-    paddingBottom: Platform.OS === "android" ? 2 : 6,
+    paddingVertical: 6,
     borderRadius: 6,
   },
   searchInput: {

@@ -17,7 +17,6 @@ import {
   View,
   TextInput,
   ScrollView,
-  Platform,
   Alert,
   ActivityIndicator,
 } from 'react-native';
@@ -371,10 +370,7 @@ const styles = {
   section: {
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    paddingVertical: Platform.select({
-      ios: 3,
-      default: 2,
-    }),
+    paddingVertical: 3,
     marginBottom: 24,
     backgroundColor: 'panelForeground',
     borderColor: 'panelForegroundBorder',
@@ -382,10 +378,7 @@ const styles = {
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: Platform.select({
-      ios: 9,
-      default: 6,
-    }),
+    paddingVertical: 9,
     paddingHorizontal: 24,
   },
   hr: {
