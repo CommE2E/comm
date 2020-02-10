@@ -5,11 +5,15 @@ import geoip from 'geoip-lite';
 import cluster from 'cluster';
 
 import { handleAsyncPromise } from '../responders/handlers';
+import geoipLicense from '../../secrets/geoip_license';
 
 function updateGeoipDB(): Promise<void> {
   const spawned = childProcess.spawn(
     process.execPath,
-    [ '../node_modules/geoip-lite/scripts/updatedb.js' ],
+    [
+      '../node_modules/geoip-lite/scripts/updatedb.js',
+      `license_key=${geoipLicense.key}`,
+    ],
   );
   return new Promise((resolve, reject) => {
     spawned.on('error', reject);
@@ -47,5 +51,6 @@ if (!cluster.isMaster) {
 }
 
 export {
+  updateGeoipDB,
   updateAndReloadGeoipDB,
 };
