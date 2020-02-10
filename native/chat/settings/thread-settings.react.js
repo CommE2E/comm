@@ -315,10 +315,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   }
 
   get canReset() {
-    return this.props.tabActive &&
-      (this.state.nameEditValue === null ||
-        this.state.nameEditValue === undefined) &&
-      !this.props.somethingIsSaving;
+    return this.props.tabActive && !this.props.somethingIsSaving;
   }
 
   render() {

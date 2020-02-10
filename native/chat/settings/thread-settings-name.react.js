@@ -175,21 +175,23 @@ class ThreadSettingsName extends React.PureComponent<Props> {
       return;
     }
 
+    const editNamePromise = this.editName(name);
     this.props.dispatchActionPromise(
       changeThreadSettingsActionTypes,
-      this.editName(name),
+      editNamePromise,
       { customKeyName: `${changeThreadSettingsActionTypes.started}:name` },
     );
+    editNamePromise.then(() => {
+      this.props.setNameEditValue(null);
+    });
   }
 
   async editName(newName: string) {
     try {
-      const result = await this.props.changeThreadSettings({
+      return await this.props.changeThreadSettings({
         threadID: this.props.threadInfo.id,
         changes: { name: newName },
       });
-      this.props.setNameEditValue(null);
-      return result;
     } catch (e) {
       Alert.alert(
         "Unknown error",

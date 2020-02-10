@@ -209,23 +209,25 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
       return;
     }
 
+    const editDescriptionPromise = this.editDescription(description);
     this.props.dispatchActionPromise(
       changeThreadSettingsActionTypes,
-      this.editDescription(description),
+      editDescriptionPromise,
       {
         customKeyName: `${changeThreadSettingsActionTypes.started}:description`,
       },
     );
+    editDescriptionPromise.then(() => {
+      this.props.setDescriptionEditValue(null);
+    });
   }
 
   async editDescription(newDescription: string) {
     try {
-      const result = await this.props.changeThreadSettings({
+      return await this.props.changeThreadSettings({
         threadID: this.props.threadInfo.id,
         changes: { description: newDescription },
       });
-      this.props.setDescriptionEditValue(null);
-      return result;
     } catch (e) {
       Alert.alert(
         "Unknown error",
