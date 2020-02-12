@@ -181,15 +181,11 @@ async function convertMedia(
   const intArray = dataURIToIntArray(dataURI);
 
   const blobName = blob.data.name;
-  const fileInfo = fileInfoFromData(intArray, blobName);
-  if (!fileInfo) {
+  const { name, mime, mediaType } = fileInfoFromData(intArray, blobName);
+  if (!name || !mime || mediaType !== "photo") {
     return null;
   }
 
-  const { name, mime, mediaType } = fileInfo;
-  if (mediaType !== "photo") {
-    return null;
-  }
   return {
     uploadURI: Platform.OS === "ios" ? dataURI : uri,
     shouldDisposePath: null,

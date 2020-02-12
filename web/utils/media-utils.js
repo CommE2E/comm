@@ -40,12 +40,11 @@ type FileValidationResult = {|
 |};
 async function validateFile(file: File): Promise<?FileValidationResult> {
   const arrayBuffer = await blobToArrayBuffer(file);
-  const fileInfo = fileInfoFromData(new Uint8Array(arrayBuffer), file.name);
-  if (!fileInfo) {
-    return null;
-  }
-  const { name, mime, mediaType } = fileInfo;
-  if (!allowedMimeTypes.has(mime)) {
+  const { name, mime, mediaType } = fileInfoFromData(
+    new Uint8Array(arrayBuffer),
+    file.name,
+  );
+  if (!name || !mime || !mediaType || !allowedMimeTypes.has(mime)) {
     return null;
   }
   let dimensions = null;

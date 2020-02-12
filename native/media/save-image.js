@@ -111,9 +111,8 @@ async function saveToDisk(uri: string, directory: string) {
 
   const intArray = dataURIToIntArray(dataURI);
   const fileName = blob.data.name ? blob.data.name : "";
-  const fileInfo = fileInfoFromData(intArray, fileName);
-  invariant(fileInfo, 'unsupported media type');
-  const { name, mime } = fileInfo;
+  const { name } = fileInfoFromData(intArray, fileName);
+  invariant(name, 'unsupported media type');
   const filePath = `${directory}/${name}`;
 
   await filesystem.writeFile(filePath, base64, 'base64');

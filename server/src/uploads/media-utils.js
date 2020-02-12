@@ -19,18 +19,26 @@ async function validateAndConvert(
   initialName: string,
   size: number, // in bytes
 ): Promise<?UploadInput> {
-  const fileInfo = fileInfoFromData(initialBuffer, initialName);
-  if (!fileInfo) {
+  const {
+    mime,
+    mediaType,
+    name,
+  } = fileInfoFromData(initialBuffer, initialName);
+  if (!mime || !mediaType || !name) {
     return null;
   }
 
-  const { mime } = fileInfo;
   if (!allowedMimeTypes.has(mime)) {
     // This should've gotten converted on the client
     return null;
   }
   if (size < fiveMegabytes && (mime === "image/png" || mime === "image/jpeg")) {
-    return { ...fileInfo, buffer: initialBuffer };
+    return {
+      mime,
+      mediaType,
+      name,
+      buffer: initialBuffer,
+    };
   }
 
   let sharpImage;
@@ -52,11 +60,20 @@ async function validateAndConvert(
   }
 
   const convertedBuffer = await sharpImage.toBuffer();
-  const convertedFileInfo = fileInfoFromData(convertedBuffer, initialName);
-  if (!convertedFileInfo) {
+  const {
+    mime: convertedMIME,
+    mediaType: convertedMediaType,
+    name: convertedName,
+  } = fileInfoFromData(convertedBuffer, initialName);
+  if (!convertedMIME || !convertedMediaType || !convertedName) {
     return null;
   }
-  return { ...convertedFileInfo, buffer: convertedBuffer };
+  return {
+    mime: convertedMIME,
+    mediaType: convertedMediaType,
+    name: convertedName,
+    buffer: convertedBuffer,
+  };
 }
 
 export {
