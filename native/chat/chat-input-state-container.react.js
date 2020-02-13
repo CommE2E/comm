@@ -357,8 +357,8 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     mediaInfoWithID: MediaInfoWithID,
   ): Promise<?string> {
     const { localID, mediaInfo } = mediaInfoWithID;
-    const validationResult = await validateMedia(mediaInfo);
-    if (!validationResult) {
+    const { result: validationResult } = await validateMedia(mediaInfo);
+    if (!validationResult.success) {
       const message = "validation failed";
       this.handleUploadFailure(localMessageID, localID, message);
       return message;

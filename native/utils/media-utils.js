@@ -1,6 +1,11 @@
 // @flow
 
-import type { Dimensions, MediaType } from 'lib/types/media-types';
+import type {
+  Dimensions,
+  MediaType,
+  MediaMissionStep,
+  MediaMissionFailure,
+} from 'lib/types/media-types';
 import type {
   ClientPhotoInfo,
   ClientVideoInfo,
@@ -41,29 +46,76 @@ type ReactNativeBlob =
   & { data: { type: string, name: string, size: number } };
 export type MediaValidationResult =
   | {|
+      success: true,
       ...ClientPhotoInfo,
       blob: ReactNativeBlob,
     |}
-  | ClientVideoInfo;
+  | {|
+      success: true,
+      ...ClientVideoInfo,
+      blob: ?ReactNativeBlob,
+    |};
 async function validateMedia(
   mediaInfo: ClientMediaInfo,
-): Promise<?MediaValidationResult> {
+): Promise<{|
+  steps: $ReadOnlyArray<MediaMissionStep>,
+  result: MediaMissionFailure | MediaValidationResult,
+|}> {
   const { dimensions, uri, type, filename } = mediaInfo;
-  if (mediaInfo.type === "video") {
-    return { type: "video", uri, dimensions, filename };
+  const blobFetchStart = Date.now();
+
+  let blob, reportedMIME, reportedMediaType;
+  try {
+    blob = await getBlobFromURI(uri, type);
+    reportedMIME =
+      (uri.startsWith('ph://') && blob.type === "application/octet-stream")
+        ? "video/quicktime"
+        : blob.type;
+    reportedMediaType = mimeTypesToMediaTypes[reportedMIME];
+  } catch { }
+  
+  const validationStep = {
+    step: "validation",
+    type,
+    success: type === reportedMediaType,
+    time: Date.now() - blobFetchStart,
+    blobFetched: !!blob,
+    blobMIME: blob ? blob.type : null,
+    reportedMIME,
+    blobName: (blob && blob.data) ? blob.data.name : null,
+    size: blob ? blob.size : null,
+  };
+
+  let result;
+  if (type === "photo") {
+    if (blob && reportedMediaType === "photo") {
+      result = {
+        success: true,
+        type: "photo",
+        uri,
+        dimensions,
+        filename,
+        blob,
+      };
+    } else {
+      result = {
+        success: false,
+        reason: "blob_reported_mime_issue",
+        mime: reportedMIME,
+      };
+    }
+  } else {
+    result = {
+      success: true,
+      type: "video",
+      uri,
+      dimensions,
+      filename,
+      blob,
+    };
   }
 
-  const blob = await getBlobFromURI(uri, type);
-  const reportedMIME =
-    (uri.startsWith('ph://') && blob.type === "application/octet-stream")
-      ? "video/quicktime"
-      : blob.type;
-
-  const mediaType = mimeTypesToMediaTypes[reportedMIME];
-  if (mediaType !== "photo") {
-    return null;
-  }
-  return { type: "photo", uri, dimensions, filename, blob };
+  return { steps: [ validationStep ], result };
 }
 
 function blobToDataURI(blob: Blob): Promise<string> {
