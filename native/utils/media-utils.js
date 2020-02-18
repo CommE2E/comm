@@ -182,11 +182,11 @@ async function convertMedia(
 ): Promise<?MediaConversionResult> {
   const { uri, dimensions } = validationResult;
   if (validationResult.type === "video") {
-    const result = await transcodeVideo(validationResult);
-    if (!result) {
+    const { result } = await transcodeVideo(validationResult);
+    if (!result.success) {
       return null;
     }
-    const { uri: uploadURI, filename } = result.videoInfo;
+    const { uri: uploadURI, filename } = result;
     const shouldDisposePath = uri !== uploadURI ? uploadURI : null;
     return {
       uploadURI,

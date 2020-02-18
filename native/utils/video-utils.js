@@ -1,5 +1,11 @@
 // @flow
 
+import type {
+  MediaMissionStep,
+  MediaMissionFailure,
+  VideoProbeMediaMissionStep,
+} from 'lib/types/media-types';
+
 import filesystem from 'react-native-fs';
 import { RNFFmpeg } from 'react-native-ffmpeg';
 import { NativeModules, Platform } from 'react-native';
@@ -23,29 +29,35 @@ type TranscodeVideoInfo = {
   filename: string,
   ...
 };
-type TranscodeResult = $Shape<{|
-  iosCopy: {| time: number |},
-  initialProbe: {| time: number |},
-  iosNativeTranscode: {| time: number, success: bool |},
-  ffmpegTranscode: {| time: number, success: bool |},
-|}>;
 async function transcodeVideo<InputInfo: TranscodeVideoInfo>(
   input: InputInfo,
-): Promise<?{| videoInfo: InputInfo, transcodeResult: TranscodeResult |}> {
-  const transcodeResult: TranscodeResult = {}, createdPaths = [];
+): Promise<{|
+  steps: $ReadOnlyArray<MediaMissionStep>,
+  result: MediaMissionFailure | (InputInfo & { success: true, ... }),
+|}> {
+  const steps = [], createdPaths = [];
   let path = pathFromURI(input.uri), filename = input.filename;
-  const finish = () => {
+  const finish = (failure?: MediaMissionFailure) => {
     for (let createdPath of createdPaths) {
-      if (createdPath !== path) {
+      if (failure || createdPath !== path) {
         filesystem.unlink(createdPath);
       }
     }
-    if (!path) {
-      return null;
+    if (failure) {
+      return { steps, result: failure };
     }
+    invariant(
+      path,
+      "if we're finishing successfully we should have a final path",
+    );
     return {
-      videoInfo: { ...input, uri: `file://${path}`, filename },
-      transcodeResult,
+      steps,
+      result: {
+        ...input,
+        uri: `file://${path}`,
+        filename,
+        success: true,
+      },
     };
   };
 
@@ -65,20 +77,32 @@ async function transcodeVideo<InputInfo: TranscodeVideoInfo>(
       createdPaths.push(iosCopyPath);
       path = iosCopyPath;
     } catch (e) { }
-    transcodeResult.iosCopy = { time: Date.now() - copyStart };
-  }
-  if (!path) {
-    console.log(`could not extract path from ${input.uri}`);
-    return finish();
+    steps.push({
+      step: "video_copy",
+      success: !!path,
+      time: Date.now() - copyStart,
+      newPath: path,
+    });
+    if (!path) {
+      return finish({
+        success: false,
+        reason: "video_ios_asset_copy_failed",
+        inputURI: input.uri,
+        destinationPath: iosCopyPath,
+      });
+    }
+  } else if (!path) {
+    return finish({
+      success: false,
+      reason: "video_path_extraction_failed",
+      uri: input.uri,
+    });
   }
 
   // Let's decide if we even need to do a transcoding step
-  const {
-    success: initialCheck,
-    timing: initialCheckTiming,
-  } = await checkVideoCodec(path);
-  transcodeResult.initialProbe = { time: initialCheckTiming };
-  if (initialCheck) {
+  const initialCheckStep = await checkVideoCodec(path);
+  steps.push(initialCheckStep);
+  if (initialCheckStep.success) {
     return finish();
   }
 
@@ -87,7 +111,6 @@ async function transcodeVideo<InputInfo: TranscodeVideoInfo>(
   // iOS defaults to HEVC since iOS 11
   if (Platform.OS === "ios") {
     const iosNativeTranscodeStart = Date.now();
-    let iosNativeTranscodeSuccess = false;
     try {
       const [ iosNativeTranscodedURI ] = await MovToMp4.convertMovToMp4(
         path,
@@ -100,20 +123,35 @@ async function transcodeVideo<InputInfo: TranscodeVideoInfo>(
           iosNativeTranscodedURI,
       );
       createdPaths.push(iosNativeTranscodedPath);
-      const { success: iosCheck } = await checkVideoCodec(
+      const iosTranscodeProbeStep = await checkVideoCodec(
         iosNativeTranscodedPath,
       );
-      if (iosCheck) {
+      if (iosTranscodeProbeStep.success) {
         path = iosNativeTranscodedPath;
-        iosNativeTranscodeSuccess = true;
+        steps.push({
+          step: "video_ios_native_transcode",
+          success: true,
+          time: Date.now() - iosNativeTranscodeStart,
+          newPath: path,
+        });
+        steps.push(iosTranscodeProbeStep);
+        return finish();
+      } else {
+        steps.push({
+          step: "video_ios_native_transcode",
+          success: false,
+          time: Date.now() - iosNativeTranscodeStart,
+          newPath: iosNativeTranscodedPath,
+        });
+        steps.push(iosTranscodeProbeStep);
       }
-    } catch (e) { }
-    transcodeResult.iosNativeTranscode = {
-      time: Date.now() - iosNativeTranscodeStart,
-      success: iosNativeTranscodeSuccess,
-    };
-    if (iosNativeTranscodeSuccess) {
-      return finish();
+    } catch (e) {
+      steps.push({
+        step: "video_ios_native_transcode",
+        success: false,
+        time: Date.now() - iosNativeTranscodeStart,
+        newPath: null,
+      });
     }
   }
 
@@ -127,7 +165,6 @@ async function transcodeVideo<InputInfo: TranscodeVideoInfo>(
     default: 'h264',
   });
   const ffmpegTranscodeStart = Date.now();
-  let ffmpegTranscodeSuccess = false;
   const ffmpegTranscodedPath =
     `${filesystem.TemporaryDirectoryPath}transcode.${Date.now()}.${filename}`;
   try {
@@ -136,44 +173,75 @@ async function transcodeVideo<InputInfo: TranscodeVideoInfo>(
     );
     if (rc === 0) {
       createdPaths.push(ffmpegTranscodedPath);
-      const { success: transcodeCheck } = await checkVideoCodec(
+      const transcodeProbeStep = await checkVideoCodec(
         ffmpegTranscodedPath,
       );
-      if (transcodeCheck) {
+      steps.push({
+        step: "video_ffmpeg_transcode",
+        success: transcodeProbeStep.success,
+        time: Date.now() - ffmpegTranscodeStart,
+        returnCode: rc,
+        newPath: ffmpegTranscodedPath,
+      });
+      steps.push(transcodeProbeStep);
+      if (transcodeProbeStep.success) {
         path = ffmpegTranscodedPath;
-        ffmpegTranscodeSuccess = true;
+      } else {
+        return finish({
+          success: false,
+          reason: "video_transcode_failed",
+        });
       }
+    } else {
+      steps.push({
+        step: "video_ffmpeg_transcode",
+        success: false,
+        time: Date.now() - ffmpegTranscodeStart,
+        returnCode: rc,
+        newPath: null,
+      });
+      return finish({
+        success: false,
+        reason: "video_transcode_failed",
+      });
     }
-  } catch (e) { }
-  transcodeResult.ffmpegTranscode = {
-    time: Date.now() - ffmpegTranscodeStart,
-    success: ffmpegTranscodeSuccess,
-  };
-
-  if (!ffmpegTranscodeSuccess) {
-    console.log(
-      `failed to transcode ${input.uri}, ` +
-        `result: ${JSON.stringify(transcodeResult)}`,
-    );
-    path = null;
+  } catch (e) {
+    steps.push({
+      step: "video_ffmpeg_transcode",
+      success: false,
+      time: Date.now() - ffmpegTranscodeStart,
+      returnCode: null,
+      newPath: null,
+    });
+    return finish({
+      success: false,
+      reason: "video_transcode_failed",
+    });
   }
 
   return finish();
 }
 
-type CheckCodecResult = {|
-  success: bool,
-  timing: number,
-|};
-async function checkVideoCodec(path: string) {
+async function checkVideoCodec(
+  path: string,
+): Promise<VideoProbeMediaMissionStep> {
   const probeStart = Date.now();
   const ext = extensionFromFilename(path);
   let success = ext === "mp4" || ext === "mov";
+  let codec;
   if (success) {
     const videoInfo = await RNFFmpeg.getMediaInformation(path);
-    success = getVideoCodec(videoInfo) === "h264";
+    codec = getVideoCodec(videoInfo);
+    success = codec === "h264";
   }
-  return { success, timing: Date.now() - probeStart };
+  return {
+    step: "video_probe",
+    success,
+    time: Date.now() - probeStart,
+    path,
+    ext,
+    codec,
+  };
 }
 
 function getVideoCodec(info): ?string {
