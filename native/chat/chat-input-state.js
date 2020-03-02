@@ -15,7 +15,7 @@ export type ClientPhotoInfo = {|
   uri: string,
   dimensions: Dimensions,
   filename: string,
-  unlinkURIAfterRemoving?: bool,
+  unlinkURIAfterRemoving?: ?bool,
 |};
 
 export type ClientVideoInfo = {|
@@ -23,14 +23,14 @@ export type ClientVideoInfo = {|
   uri: string,
   dimensions: Dimensions,
   filename: string,
-  unlinkURIAfterRemoving?: bool,
+  unlinkURIAfterRemoving?: ?bool,
 |};
 
 export type ClientMediaInfo =
   | ClientPhotoInfo
   | ClientVideoInfo;
 
-export const clientMediaInfoPropType = PropTypes.oneOf([
+export const clientMediaInfoPropType = PropTypes.oneOfType([
   PropTypes.shape({
     type: PropTypes.oneOf([ "photo" ]).isRequired,
     uri: PropTypes.string.isRequired,

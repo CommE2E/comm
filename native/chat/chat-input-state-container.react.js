@@ -363,8 +363,8 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       this.handleUploadFailure(localMessageID, localID, message);
       return message;
     }
-    const conversionResult = await convertMedia(validationResult);
-    if (!conversionResult) {
+    const { result: conversionResult } = await convertMedia(validationResult);
+    if (!conversionResult.success) {
       const message = "conversion failed";
       this.handleUploadFailure(localMessageID, localID, message);
       return message;

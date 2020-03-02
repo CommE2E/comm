@@ -170,6 +170,7 @@ function getDimensions(uri: string): Promise<Dimensions> {
 }
 
 export type MediaConversionResult = {|
+  success: true,
   uploadURI: string,
   shouldDisposePath: ?string,
   name: string,
@@ -179,73 +180,179 @@ export type MediaConversionResult = {|
 |};
 async function convertMedia(
   validationResult: MediaValidationResult,
-): Promise<?MediaConversionResult> {
-  const { uri, dimensions } = validationResult;
-  if (validationResult.type === "video") {
-    const { result } = await transcodeVideo(validationResult);
-    if (!result.success) {
-      return null;
+): Promise<{|
+  steps: $ReadOnlyArray<MediaMissionStep>,
+  result: MediaMissionFailure | MediaConversionResult,
+|}> {
+  let steps = [];
+  let uploadURI = validationResult.uri,
+    dimensions = validationResult.dimensions,
+    shouldDisposePath = null,
+    name = validationResult.filename,
+    mime = null,
+    mediaType = validationResult.type;
+  const finish = (failure?: MediaMissionFailure) => {
+    if (failure) {
+      return { steps, result: failure };
     }
-    const { uri: uploadURI, filename } = result;
-    const shouldDisposePath = uri !== uploadURI ? uploadURI : null;
+    invariant(
+      mime,
+      "if we're finishing successfully we should have a MIME type",
+    );
     return {
-      uploadURI,
-      shouldDisposePath,
-      name: filename,
-      mime: "video/mp4",
-      mediaType: "video",
-      dimensions,
+      steps,
+      result: {
+        success: true,
+        uploadURI,
+        shouldDisposePath,
+        name,
+        mime,
+        mediaType,
+        dimensions,
+      },
     };
+  };
+
+  if (validationResult.type === "video") {
+    const {
+      steps: transcodeSteps,
+      result: transcodeResult,
+    } = await transcodeVideo(validationResult);
+    steps = [ ...steps, ...transcodeSteps ];
+    if (!transcodeResult.success) {
+      return finish(transcodeResult);
+    }
+    uploadURI = transcodeResult.uri;
+    name = transcodeResult.filename;
+    shouldDisposePath = validationResult.uri !== uploadURI ? uploadURI : null;
+    mime = "video/mp4";
+  } else if (validationResult.type === "photo") {
+    const { type: reportedMIME, size } = validationResult.blob;
+    if (
+      reportedMIME === "image/heic" ||
+      size > 5e6 ||
+      (size > 5e5 && (dimensions.width > 3000 || dimensions.height > 2000))
+    ) {
+      const photoResizeStart = Date.now();
+      try {
+        const compressFormat = reportedMIME === "image/png" ? "PNG" : "JPEG";
+        const compressQuality = size > 5e6 ? 92 : 100;
+        const { uri: resizedURI, path, name: resizedName } =
+          await ImageResizer.createResizedImage(
+            uploadURI,
+            3000,
+            2000,
+            compressFormat,
+            compressQuality,
+          );
+        uploadURI = resizedURI;
+        name = resizedName;
+        shouldDisposePath = path;
+        mime = reportedMIME === "image/png" ? "image/png" : "image/jpeg";
+        dimensions = await getDimensions(resizedURI);
+      } catch (e) { }
+      const success = uploadURI !== validationResult.uri;
+      steps.push({
+        step: "photo_resize_transcode",
+        success,
+        time: Date.now() - photoResizeStart,
+        newMIME: success ? mime : null,
+        newDimensions: success ? dimensions : null,
+        newURI: success ? uploadURI : null,
+        newPath: success ? shouldDisposePath : null,
+        newName: success ? name : null,
+      });
+      if (!success) {
+        return finish({
+          success: false,
+          reason: "too_large_cant_downscale",
+          size,
+        });
+      }
+    }
   }
 
   let { blob } = validationResult;
+  if (uploadURI !== validationResult.uri) {
+    const newMediaInfo = validationResult.type === "video"
+      ? {
+          type: "video",
+          uri: uploadURI,
+          dimensions,
+          filename: name,
+          unlinkURIAfterRemoving: validationResult.unlinkURIAfterRemoving,
+        }
+      : {
+          type: "photo",
+          uri: uploadURI,
+          dimensions,
+          filename: name,
+          unlinkURIAfterRemoving: validationResult.unlinkURIAfterRemoving,
+        };
+    const {
+      steps: newValidationSteps,
+      result: newValidationResult,
+    } = await validateMedia(newMediaInfo);
+    steps = [ ...steps, ...newValidationSteps ];
+    if (!newValidationResult.success) {
+      return finish(newValidationResult);
+    }
+    blob = newValidationResult.blob;
+  }
 
-  const { type: reportedMIME, size } = blob;
+  let fileDataDetectionStep, dataURI;
+  if (blob) {
+    const fileDataDetectionStart = Date.now();
+    dataURI = await blobToDataURI(blob);
+    const intArray = dataURIToIntArray(dataURI);
+
+    const blobName = blob.data.name;
+    const fileDetectionResult = fileInfoFromData(intArray, blobName);
+    fileDataDetectionStep = {
+      step: "final_file_data_analysis",
+      success: !!fileDetectionResult.name &&
+        !!fileDetectionResult.mime &&
+        fileDetectionResult.mediaType === validationResult.type,
+      time: Date.now() - fileDataDetectionStart,
+      uri: uploadURI,
+      detectedMIME: fileDetectionResult.mime,
+      detectedMediaType: fileDetectionResult.mediaType,
+      newName: fileDetectionResult.name,
+    };
+    steps.push(fileDataDetectionStep);
+    if (fileDetectionResult.name) {
+      name = fileDetectionResult.name;
+    }
+    if (fileDetectionResult.mime) {
+      mime = fileDetectionResult.mime;
+    }
+  }
+
   if (
-    reportedMIME === "image/heic" ||
-    size > 5e6 ||
-    (size > 5e5 && (dimensions.width > 3000 || dimensions.height > 2000))
+    validationResult.type === "photo" &&
+    uploadURI === validationResult.uri &&
+    (!fileDataDetectionStep || !fileDataDetectionStep.success)
   ) {
-    try {
-      const compressFormat = reportedMIME === "image/png" ? "PNG" : "JPEG";
-      const compressQuality = size > 5e6 ? 92 : 100;
-      const { uri: resizedURI, path, name } =
-        await ImageResizer.createResizedImage(
-          uri,
-          3000,
-          2000,
-          compressFormat,
-          compressQuality,
-        );
-      const resizedDimensions = await getDimensions(resizedURI);
-      return {
-        uploadURI: resizedURI,
-        shouldDisposePath: path,
-        name,
-        mime: reportedMIME === "image/png" ? "image/png" : "image/jpeg",
-        mediaType: "photo",
-        dimensions: resizedDimensions,
-      };
-    } catch (e) { }
+    const reportedMIME = validationResult.blob.type;
+    return finish({
+      success: false,
+      reason: "file_data_detected_mime_issue",
+      reportedMIME,
+      reportedMediaType: validationResult.type,
+      detectedMIME: mime,
+      detectedMediaType: mediaType,
+    });
   }
 
-  const dataURI = await blobToDataURI(blob);
-  const intArray = dataURIToIntArray(dataURI);
-
-  const blobName = blob.data.name;
-  const { name, mime, mediaType } = fileInfoFromData(intArray, blobName);
-  if (!name || !mime || mediaType !== "photo") {
-    return null;
+  if (Platform.OS === "ios" && mediaType === "photo" && dataURI) {
+    // TODO do we even need this? compare how long upload takes once that step
+    // is recorded
+    // TODO should this depend on uploadURI protocol instead of dataURI
+    // existing?
+    //console.log(`iOS ${uploadURI} -> ${dataURI}`);
+    uploadURI = dataURI;
   }
-
-  return {
-    uploadURI: Platform.OS === "ios" ? dataURI : uri,
-    shouldDisposePath: null,
-    name,
-    mime,
-    mediaType: "photo",
-    dimensions,
-  };
+  return finish();
 }
 
 function getCompatibleMediaURI(uri: string, ext: string): string {
