@@ -371,10 +371,30 @@ function getCompatibleMediaURI(uri: string, ext: string): string {
     `?id=${photoKitLocalIdentifier}&ext=${ext}`;
 }
 
+async function processMedia(
+  mediaInfo: ClientMediaInfo,
+): Promise<{|
+  steps: $ReadOnlyArray<MediaMissionStep>,
+  result: MediaMissionFailure | MediaConversionResult,
+|}> {
+  const {
+    result: validationResult,
+    steps: validationSteps,
+  } = await validateMedia(mediaInfo);
+  if (!validationResult.success) {
+    return { result: validationResult, steps: validationSteps };
+  }
+  const {
+    result: conversionResult,
+    steps: conversionSteps,
+  } = await convertMedia(validationResult);
+  const steps = [ ...validationSteps, ...conversionSteps ];
+  return { steps, result: conversionResult };
+}
+
 export {
-  validateMedia,
   blobToDataURI,
   dataURIToIntArray,
-  convertMedia,
+  processMedia,
   getCompatibleMediaURI,
 };

@@ -39,7 +39,7 @@ import {
 import { createMediaMessageInfo } from 'lib/shared/message-utils';
 
 import { ChatInputStateContext } from './chat-input-state';
-import { validateMedia, convertMedia } from '../utils/media-utils';
+import { processMedia } from '../utils/media-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
 
 let nextLocalUploadID = 0;
@@ -357,15 +357,9 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     mediaInfoWithID: MediaInfoWithID,
   ): Promise<?string> {
     const { localID, mediaInfo } = mediaInfoWithID;
-    const { result: validationResult } = await validateMedia(mediaInfo);
-    if (!validationResult.success) {
-      const message = "validation failed";
-      this.handleUploadFailure(localMessageID, localID, message);
-      return message;
-    }
-    const { result: conversionResult } = await convertMedia(validationResult);
-    if (!conversionResult.success) {
-      const message = "conversion failed";
+    const { result: processResult, steps } = await processMedia(mediaInfo);
+    if (!processResult.success) {
+      const message = "processing failed";
       this.handleUploadFailure(localMessageID, localID, message);
       return message;
     }
@@ -375,7 +369,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       name,
       mime,
       mediaType,
-    } = conversionResult;
+    } = processResult;
 
     let result, message;
     try {
@@ -401,7 +395,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
             id: result.id,
             uri: result.uri,
             type: mediaType,
-            dimensions: conversionResult.dimensions,
+            dimensions: processResult.dimensions,
             filename: undefined,
             unlinkURIAfterRemoving: undefined,
           },
