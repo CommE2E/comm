@@ -1,15 +1,16 @@
 // @flow
 
-import type {
-  PendingMultimediaUploads,
-  ClientMediaInfo,
-} from './chat-input-state';
+import type { PendingMultimediaUploads } from './chat-input-state';
 import type { AppState } from '../redux/redux-setup';
 import type {
   DispatchActionPayload,
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
-import type { UploadMultimediaResult, Media } from 'lib/types/media-types';
+import type {
+  UploadMultimediaResult,
+  Media,
+  MediaSelection,
+} from 'lib/types/media-types';
 import {
   messageTypes,
   type RawMessageInfo,
@@ -43,8 +44,8 @@ import { processMedia } from '../utils/media-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
 
 let nextLocalUploadID = 0;
-type MediaInfoWithID = {|
-  mediaInfo: ClientMediaInfo,
+type SelectionWithID = {|
+  selection: MediaSelection,
   localID: string,
 |};
 type CompletedUploads = { [localMessageID: string]: ?Set<string> };
@@ -262,16 +263,16 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
 
   sendMultimediaMessage = async (
     threadID: string,
-    mediaInfos: $ReadOnlyArray<ClientMediaInfo>,
+    selections: $ReadOnlyArray<MediaSelection>,
   ) => {
     const localMessageID = `local${this.props.nextLocalID}`;
-    const mediaInfosWithIDs = mediaInfos.map(mediaInfo => ({
-      mediaInfo,
+    const selectionsWithIDs = selections.map(selection => ({
+      selection,
       localID: `localUpload${nextLocalUploadID++}`,
     }));
 
     const pendingUploads = {};
-    for (let { localID, mediaInfo: { uri } } of mediaInfosWithIDs) {
+    for (let { localID } of selectionsWithIDs) {
       pendingUploads[localID] = {
         failed: null,
         progressPercent: 0,
@@ -290,38 +291,37 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       () => {
         const creatorID = this.props.viewerID;
         invariant(creatorID, "need viewer ID in order to send a message");
-        const media = mediaInfosWithIDs.map(
-          ({ localID, mediaInfo }) => {
-            const {
-              uri,
-              dimensions,
-              filename,
-              unlinkURIAfterRemoving,
-            } = mediaInfo;
-            // This conditional is for Flow
-            if (mediaInfo.type === "photo") {
+        const media = selectionsWithIDs.map(
+          ({ localID, selection }) => {
+            if (selection.step === "photo_library") {
               return {
                 id: localID,
-                uri,
+                uri: selection.uri,
                 type: "photo",
-                dimensions,
-                localMediaCreationInfo: {
-                  filename,
-                  unlinkURIAfterRemoving,
-                },
+                dimensions: selection.dimensions,
+                localMediaSelection: selection,
               };
-            } else {
+            } else if (selection.step === "photo_capture") {
               return {
                 id: localID,
-                uri,
+                uri: selection.uri,
+                type: "photo",
+                dimensions: selection.dimensions,
+                localMediaSelection: selection,
+              };
+            } else if (selection.step === "video_library") {
+              return {
+                id: localID,
+                uri: selection.uri,
                 type: "video",
-                dimensions,
-                localMediaCreationInfo: {
-                  filename,
-                  unlinkURIAfterRemoving,
-                },
+                dimensions: selection.dimensions,
+                localMediaSelection: selection,
               };
             }
+            invariant(
+              false,
+              `invalid selection ${JSON.stringify(selection)}`,
+            );
           },
         );
         const messageInfo = createMediaMessageInfo({
@@ -337,17 +337,17 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       },
     );
 
-    await this.uploadFiles(localMessageID, mediaInfosWithIDs);
+    await this.uploadFiles(localMessageID, selectionsWithIDs);
   }
 
   async uploadFiles(
     localMessageID: string,
-    mediaInfosWithIDs: $ReadOnlyArray<MediaInfoWithID>,
+    selectionsWithIDs: $ReadOnlyArray<SelectionWithID>,
   ) {
     const results = await Promise.all(
-      mediaInfosWithIDs.map(mediaInfo => this.uploadFile(
+      selectionsWithIDs.map(selectionWithID => this.uploadFile(
         localMessageID,
-        mediaInfo,
+        selectionWithID,
       )),
     );
     const errors = [ ...new Set(results.filter(Boolean)) ];
@@ -358,9 +358,38 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
 
   async uploadFile(
     localMessageID: string,
-    mediaInfoWithID: MediaInfoWithID,
+    selectionWithID: SelectionWithID,
   ): Promise<?string> {
-    const { localID, mediaInfo } = mediaInfoWithID;
+    const { localID, selection } = selectionWithID;
+    let mediaInfo;
+    if (selection.step === "photo_library") {
+      mediaInfo = {
+        type: "photo",
+        uri: selection.uri,
+        dimensions: selection.dimensions,
+        filename: selection.filename,
+      };
+    } else if (selection.step === "photo_capture") {
+      mediaInfo = {
+        type: "photo",
+        uri: selection.uri,
+        dimensions: selection.dimensions,
+        filename: selection.filename,
+      };
+    } else if (selection.step === "video_library") {
+      mediaInfo = {
+        type: "video",
+        uri: selection.uri,
+        dimensions: selection.dimensions,
+        filename: selection.filename,
+      };
+    } else {
+      invariant(
+        false,
+        `invalid selection ${JSON.stringify(selection)}`,
+      );
+    }
+
     const { result: processResult, steps } = await processMedia(mediaInfo);
     if (!processResult.success) {
       const message = "processing failed";
@@ -568,44 +597,16 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       },
     }));
 
-    const mediaInfos: MediaInfoWithID[] =
-      retryMedia.map(singleMedia => {
-        const {
-          id,
-          dimensions,
-          uri,
-          localMediaCreationInfo,
-        } = singleMedia;
-        invariant(
-          localMediaCreationInfo,
-          "localMediaCreationInfo should be set on locally created Media",
-        );
-        const { filename, unlinkURIAfterRemoving } = localMediaCreationInfo;
-        if (singleMedia.type === "photo") {
-          return {
-            localID: id,
-            mediaInfo: {
-              type: "photo",
-              dimensions,
-              uri,
-              filename,
-              unlinkURIAfterRemoving,
-            },
-          };
-        } else {
-          return {
-            localID: id,
-            mediaInfo: {
-              type: "video",
-              dimensions,
-              uri,
-              filename,
-              unlinkURIAfterRemoving,
-            },
-          };
-        }
-      });
-    await this.uploadFiles(localMessageID, mediaInfos);
+    const selectionsWithIDs = retryMedia.map(singleMedia => {
+      const { id, localMediaSelection } = singleMedia;
+      invariant(
+        localMediaSelection,
+        "localMediaSelection should be set on locally created Media",
+      );
+      return { selection: localMediaSelection, localID: id };
+    });
+
+    await this.uploadFiles(localMessageID, selectionsWithIDs);
   }
 
   render() {

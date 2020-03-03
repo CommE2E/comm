@@ -3,9 +3,9 @@
 import type { ViewStyle, ImageStyle } from '../types/styles';
 import { type Colors, colorsPropType } from '../themes/colors';
 import {
-  type ClientMediaInfo,
-  clientMediaInfoPropType,
-} from '../chat/chat-input-state';
+  type MediaLibrarySelection,
+  mediaLibrarySelectionPropType,
+} from 'lib/types/media-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -43,21 +43,21 @@ const reanimatedSpec = {
 };
 
 type Props = {|
-  mediaInfo: ClientMediaInfo,
+  selection: MediaLibrarySelection,
   containerHeight: number,
   queueModeActive: bool,
   isQueued: bool,
-  setMediaQueued: (media: ClientMediaInfo, isQueued: bool) => void,
-  sendMedia: (media: ClientMediaInfo) => void,
+  setMediaQueued: (media: MediaLibrarySelection, isQueued: bool) => void,
+  sendMedia: (media: MediaLibrarySelection) => void,
   isFocused: bool,
-  setFocus: (media: ClientMediaInfo, isFocused: bool) => void,
+  setFocus: (media: MediaLibrarySelection, isFocused: bool) => void,
   screenWidth: number,
   colors: Colors,
 |};
 class MediaGalleryMedia extends React.PureComponent<Props> {
 
   static propTypes = {
-    mediaInfo: clientMediaInfoPropType.isRequired,
+    selection: mediaLibrarySelectionPropType.isRequired,
     containerHeight: PropTypes.number.isRequired,
     queueModeActive: PropTypes.bool.isRequired,
     isQueued: PropTypes.bool.isRequired,
@@ -189,8 +189,8 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
   }
 
   render() {
-    const { mediaInfo, containerHeight } = this.props;
-    const { uri, dimensions: { width, height }, type } = mediaInfo;
+    const { selection, containerHeight } = this.props;
+    const { uri, dimensions: { width, height }, step } = selection;
     const active = MediaGalleryMedia.isActive(this.props);
     const dimensionsStyle = {
       height: containerHeight,
@@ -236,7 +236,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
 
     let media;
     const source = { uri };
-    if (type === "video") {
+    if (step === "video_library") {
       media = (
         <Reanimated.View style={this.videoContainerStyle}>
           <Video
@@ -287,11 +287,11 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
 
   onPressBackdrop = () => {
     if (this.props.isQueued) {
-      this.props.setMediaQueued(this.props.mediaInfo, false);
+      this.props.setMediaQueued(this.props.selection, false);
     } else if (this.props.queueModeActive) {
-      this.props.setMediaQueued(this.props.mediaInfo, true);
+      this.props.setMediaQueued(this.props.selection, true);
     } else {
-      this.props.setFocus(this.props.mediaInfo, !this.props.isFocused);
+      this.props.setFocus(this.props.selection, !this.props.isFocused);
     }
   }
 
@@ -317,11 +317,11 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
   }
 
   onPressSend = () => {
-    this.props.sendMedia(this.props.mediaInfo);
+    this.props.sendMedia(this.props.selection);
   }
 
   onPressEnqueue = () => {
-    this.props.setMediaQueued(this.props.mediaInfo, true);
+    this.props.setMediaQueued(this.props.selection, true);
   }
 
   onAnimatingBackdropToZeroCompletion = ({ finished }: { finished: bool }) => {

@@ -6,13 +6,13 @@ import {
   type ChatInputState,
   chatInputStatePropType,
   withChatInputState,
-  type ClientMediaInfo,
 } from '../chat/chat-input-state';
 import {
   type KeyboardState,
   keyboardStatePropType,
   withKeyboardState,
 } from '../keyboard/keyboard-state';
+import type { MediaLibrarySelection } from 'lib/types/media-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -80,7 +80,7 @@ class KeyboardInputHost extends React.PureComponent<Props> {
 
   onMediaGalleryItemSelected = (
     keyboardName: string,
-    mediaInfos: $ReadOnlyArray<ClientMediaInfo>,
+    selections: $ReadOnlyArray<MediaLibrarySelection>,
   ) => {
     const { keyboardState } = this.props;
     invariant(
@@ -98,20 +98,9 @@ class KeyboardInputHost extends React.PureComponent<Props> {
       chatInputState,
       "chatInputState should be set in onMediaGalleryItemSelected",
     );
-
-    // We do this for Flow
-    const mappedMediaInfos = [];
-    for (let mediaInfo of mediaInfos) {
-      if (mediaInfo.type === "photo") {
-        mappedMediaInfos.push({ type: "photo", ...mediaInfo });
-      } else {
-        mappedMediaInfos.push({ type: "video", ...mediaInfo });
-      }
-    }
-
     chatInputState.sendMultimediaMessage(
       mediaGalleryThreadID,
-      mappedMediaInfos,
+      selections,
     );
   }
 

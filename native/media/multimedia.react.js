@@ -6,6 +6,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { View, Image, StyleSheet } from 'react-native';
 import filesystem from 'react-native-fs';
+import invariant from 'invariant';
 
 import { pathFromURI } from 'lib/utils/file-utils';
 
@@ -39,14 +40,29 @@ class Multimedia extends React.PureComponent<Props, State> {
     };
   }
 
+  static shouldUnlinkDepartingURI(props: Props): bool {
+    const { localMediaSelection } = props.mediaInfo;
+    if (!localMediaSelection) {
+      return false;
+    }
+    if (
+      localMediaSelection.step === "photo_library" ||
+      localMediaSelection.step === "video_library"
+    ) {
+      return false;
+    }
+    invariant(
+      localMediaSelection.step === "photo_capture",
+      "selection should be photo_capture if not from library",
+    );
+    return true;
+  }
+
   componentDidUpdate(prevProps: Props) {
     const newURI = this.props.mediaInfo.uri;
     const oldURI = prevProps.mediaInfo.uri;
     if (newURI !== oldURI && !this.state.departingURI) {
-      const unlinkDepartingURI = !!(
-        prevProps.mediaInfo.localMediaCreationInfo &&
-        prevProps.mediaInfo.localMediaCreationInfo.unlinkURIAfterRemoving
-      );
+      const unlinkDepartingURI = Multimedia.shouldUnlinkDepartingURI(prevProps);
       this.setState({
         currentURI: newURI,
         departingURI: oldURI,

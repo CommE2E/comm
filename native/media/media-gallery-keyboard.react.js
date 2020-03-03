@@ -1,11 +1,14 @@
 // @flow
 
 import type { AppState } from '../redux/redux-setup';
-import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
+import {
+  type Dimensions,
+  dimensionsPropType,
+  type MediaLibrarySelection,
+} from 'lib/types/media-types';
 import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
 import type { ViewStyle, Styles } from '../types/styles';
 import { type Colors, colorsPropType } from '../themes/colors';
-import type { ClientMediaInfo } from '../chat/chat-input-state';
 
 import * as React from 'react';
 import {
@@ -53,7 +56,7 @@ type Props = {|
   styles: Styles,
 |};
 type State = {|
-  mediaInfos: ?$ReadOnlyArray<ClientMediaInfo>,
+  selections: ?$ReadOnlyArray<MediaLibrarySelection>,
   error: ?string,
   containerHeight: ?number,
   // null means end reached; undefined means no fetch yet
@@ -94,7 +97,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
       ],
     };
     this.state = {
-      mediaInfos: null,
+      selections: null,
       error: null,
       containerHeight: null,
       cursor: undefined,
@@ -136,9 +139,9 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     }
 
     const { flatList, viewableIndices } = this;
-    const { mediaInfos, focusedMediaURI } = this.state;
+    const { selections, focusedMediaURI } = this.state;
     let scrollingSomewhere = false;
-    if (flatList && mediaInfos) {
+    if (flatList && selections) {
       let newURI;
       if (focusedMediaURI && focusedMediaURI !== prevState.focusedMediaURI) {
         newURI = focusedMediaURI;
@@ -157,7 +160,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
       }
       let index;
       if (newURI !== null && newURI !== undefined) {
-        index = mediaInfos.findIndex(({ uri }) => uri === newURI);
+        index = selections.findIndex(({ uri }) => uri === newURI);
       }
       if (index !== null && index !== undefined) {
         if (index === viewableIndices[0]) {
@@ -177,11 +180,11 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     if (
       !scrollingSomewhere &&
       this.flatList &&
-      this.state.mediaInfos &&
-      prevState.mediaInfos &&
-      this.state.mediaInfos.length > 0 &&
-      prevState.mediaInfos.length > 0 &&
-      this.state.mediaInfos[0].uri !== prevState.mediaInfos[0].uri
+      this.state.selections &&
+      prevState.selections &&
+      this.state.selections.length > 0 &&
+      prevState.selections.length > 0 &&
+      this.state.selections[0].uri !== prevState.selections[0].uri
     ) {
       this.flatList.scrollToIndex({ index: 0 });
     }
@@ -233,12 +236,12 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
 
       let firstRemoved = false, lastRemoved = false;
 
-      const mediaURIs = this.state.mediaInfos
-        ? this.state.mediaInfos.map(({ uri }) => uri)
+      const mediaURIs = this.state.selections
+        ? this.state.selections.map(({ uri }) => uri)
         : [];
       const existingURIs = new Set(mediaURIs);
       let first = true;
-      const mediaInfos = edges.map(
+      const selections = edges.map(
         ({ node }) => {
           const { height, width, filename, playableDuration } = node.image;
           const isVideo =
@@ -263,14 +266,15 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
 
           if (isVideo) {
             return {
-              type: "video",
+              step: "video_library",
               dimensions: { height, width },
               uri,
               filename,
+              playableDuration,
             };
           } else {
             return {
-              type: "photo",
+              step: "photo_library",
               dimensions: { height, width },
               uri,
               filename,
@@ -286,17 +290,17 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
         appendOrPrepend = "prepend";
       }
 
-      let newMediaInfos = mediaInfos;
-      if (this.state.mediaInfos) {
+      let newSelections = selections;
+      if (this.state.selections) {
         if (appendOrPrepend === "prepend") {
-          newMediaInfos = [ ...newMediaInfos, ...this.state.mediaInfos ];
+          newSelections = [ ...newSelections, ...this.state.selections ];
         } else {
-          newMediaInfos = [ ...this.state.mediaInfos, ...newMediaInfos ];
+          newSelections = [ ...this.state.selections, ...newSelections ];
         }
       }
 
       this.guardedSetState({
-        mediaInfos: newMediaInfos,
+        selections: newSelections,
         error: null,
         cursor: page_info.has_next_page
           ? page_info.end_cursor
@@ -304,7 +308,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
       });
     } catch (e) {
       this.guardedSetState({
-        mediaInfos: null,
+        selections: null,
         error: "something went wrong :(",
       });
     }
@@ -329,7 +333,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     return !!this.state.queuedMediaURIs;
   }
 
-  renderItem = (row: { item: ClientMediaInfo }) => {
+  renderItem = (row: { item: MediaLibrarySelection }) => {
     const { containerHeight, queuedMediaURIs } = this.state;
     invariant(containerHeight, "should be set");
     const { uri } = row.item;
@@ -337,7 +341,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     const { queueModeActive } = this;
     return (
       <MediaGalleryMedia
-        mediaInfo={row.item}
+        selection={row.item}
         containerHeight={containerHeight}
         queueModeActive={queueModeActive}
         isQueued={isQueued}
@@ -355,18 +359,18 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     return <View style={this.props.styles.separator} />;
   }
 
-  static keyExtractor(item: ClientMediaInfo) {
+  static keyExtractor(item: MediaLibrarySelection) {
     return item.uri;
   }
 
   render() {
     let content;
-    const { mediaInfos, error, containerHeight } = this.state;
-    if (mediaInfos && mediaInfos.length > 0 && containerHeight) {
+    const { selections, error, containerHeight } = this.state;
+    if (selections && selections.length > 0 && containerHeight) {
       content = (
         <FlatList
           horizontal={true}
-          data={mediaInfos}
+          data={selections}
           renderItem={this.renderItem}
           ItemSeparatorComponent={this.ItemSeparator}
           keyExtractor={MediaGalleryKeyboard.keyExtractor}
@@ -379,7 +383,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
           ref={this.flatListRef}
         />
       );
-    } else if (mediaInfos && containerHeight) {
+    } else if (selections && containerHeight) {
       content = (
         <Text style={this.props.styles.error}>
           no media was found!
@@ -446,7 +450,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     this.viewableIndices = viewableIndices;
   }
 
-  setMediaQueued = (mediaInfo: ClientMediaInfo, isQueued: bool) => {
+  setMediaQueued = (selection: MediaLibrarySelection, isQueued: bool) => {
     this.setState((prevState: State) => {
       const prevQueuedMediaURIs = prevState.queuedMediaURIs
         ? [ ...prevState.queuedMediaURIs ]
@@ -455,13 +459,13 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
         return {
           queuedMediaURIs: new Set([
             ...prevQueuedMediaURIs,
-            mediaInfo.uri,
+            selection.uri,
           ]),
           focusedMediaURI: null,
         };
       }
       const queuedMediaURIs = prevQueuedMediaURIs.filter(
-        uri => uri !== mediaInfo.uri,
+        uri => uri !== selection.uri,
       );
       if (queuedMediaURIs.length < prevQueuedMediaURIs.length) {
         return {
@@ -473,8 +477,8 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     });
   }
 
-  setFocus = (mediaInfo: ClientMediaInfo, isFocused: bool) => {
-    const { uri } = mediaInfo;
+  setFocus = (selection: MediaLibrarySelection, isFocused: bool) => {
+    const { uri } = selection;
     if (isFocused) {
       this.setState({ focusedMediaURI: uri });
     } else if (this.state.focusedMediaURI === uri) {
@@ -482,33 +486,33 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     }
   }
 
-  sendSingleMedia = (mediaInfo: ClientMediaInfo) => {
-    this.sendMedia([ mediaInfo ]);
+  sendSingleMedia = (selection: MediaLibrarySelection) => {
+    this.sendMedia([ selection ]);
   }
 
   sendQueuedMedia = () => {
-    const { mediaInfos, queuedMediaURIs } = this.state;
-    if (!mediaInfos || !queuedMediaURIs) {
+    const { selections, queuedMediaURIs } = this.state;
+    if (!selections || !queuedMediaURIs) {
       return;
     }
-    const queuedMediaInfos = [];
+    const queuedSelections = [];
     for (let uri of queuedMediaURIs) {
-      for (let mediaInfo of mediaInfos) {
-        if (mediaInfo.uri === uri) {
-          queuedMediaInfos.push(mediaInfo);
+      for (let selection of selections) {
+        if (selection.uri === uri) {
+          queuedSelections.push(selection);
           break;
         }
       }
     }
-    this.sendMedia(queuedMediaInfos);
+    this.sendMedia(queuedSelections);
   }
 
-  sendMedia(mediaInfos: $ReadOnlyArray<ClientMediaInfo>) {
+  sendMedia(selections: $ReadOnlyArray<MediaLibrarySelection>) {
     if (this.mediaSelected) {
       return;
     }
     this.mediaSelected = true;
-    KeyboardRegistry.onItemSelected(mediaGalleryKeyboardName, mediaInfos);
+    KeyboardRegistry.onItemSelected(mediaGalleryKeyboardName, selections);
   }
 
 }

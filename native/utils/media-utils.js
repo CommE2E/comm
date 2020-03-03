@@ -6,11 +6,6 @@ import type {
   MediaMissionStep,
   MediaMissionFailure,
 } from 'lib/types/media-types';
-import type {
-  ClientPhotoInfo,
-  ClientVideoInfo,
-  ClientMediaInfo,
-} from '../chat/chat-input-state';
 
 import { Platform, Image } from 'react-native';
 import base64 from 'base-64';
@@ -40,6 +35,22 @@ async function getBlobFromURI(
   const response = await fetch(fixedURI);
   return await response.blob();
 }
+
+type ClientPhotoInfo = {|
+  type: "photo",
+  uri: string,
+  dimensions: Dimensions,
+  filename: string,
+|};
+type ClientVideoInfo = {|
+  type: "video",
+  uri: string,
+  dimensions: Dimensions,
+  filename: string,
+|};
+type ClientMediaInfo =
+  | ClientPhotoInfo
+  | ClientVideoInfo;
 
 type ReactNativeBlob = 
   & Blob
@@ -280,14 +291,12 @@ async function convertMedia(
           uri: uploadURI,
           dimensions,
           filename: name,
-          unlinkURIAfterRemoving: validationResult.unlinkURIAfterRemoving,
         }
       : {
           type: "photo",
           uri: uploadURI,
           dimensions,
           filename: name,
-          unlinkURIAfterRemoving: validationResult.unlinkURIAfterRemoving,
         };
     const {
       steps: newValidationSteps,

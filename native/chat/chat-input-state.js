@@ -1,6 +1,6 @@
 // @flow
 
-import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
+import type { Dimensions, MediaSelection } from 'lib/types/media-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -9,43 +9,6 @@ export type PendingMultimediaUpload = {|
   failed: ?string,
   progressPercent: number,
 |};
-
-export type ClientPhotoInfo = {|
-  type: "photo",
-  uri: string,
-  dimensions: Dimensions,
-  filename: string,
-  unlinkURIAfterRemoving?: ?bool,
-|};
-
-export type ClientVideoInfo = {|
-  type: "video",
-  uri: string,
-  dimensions: Dimensions,
-  filename: string,
-  unlinkURIAfterRemoving?: ?bool,
-|};
-
-export type ClientMediaInfo =
-  | ClientPhotoInfo
-  | ClientVideoInfo;
-
-export const clientMediaInfoPropType = PropTypes.oneOfType([
-  PropTypes.shape({
-    type: PropTypes.oneOf([ "photo" ]).isRequired,
-    uri: PropTypes.string.isRequired,
-    dimensions: dimensionsPropType.isRequired,
-    filename: PropTypes.string.isRequired,
-    unlinkURIAfterRemoving: PropTypes.bool,
-  }),
-  PropTypes.shape({
-    type: PropTypes.oneOf([ "video" ]).isRequired,
-    uri: PropTypes.string.isRequired,
-    dimensions: dimensionsPropType.isRequired,
-    filename: PropTypes.string.isRequired,
-    unlinkURIAfterRemoving: PropTypes.bool,
-  }),
-]);
 
 const pendingMultimediaUploadPropType = PropTypes.shape({
   failed: PropTypes.string,
@@ -72,7 +35,7 @@ export type ChatInputState = {|
   pendingUploads: PendingMultimediaUploads,
   sendMultimediaMessage: (
     threadID: string,
-    mediaInfos: $ReadOnlyArray<ClientMediaInfo>,
+    selections: $ReadOnlyArray<MediaSelection>,
   ) => Promise<void>,
   messageHasUploadFailure: (localMessageID: string) => bool,
   retryMultimediaMessage: (localMessageID: string) => Promise<void>,
