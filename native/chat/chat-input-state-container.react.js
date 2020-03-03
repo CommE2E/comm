@@ -305,8 +305,10 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
                 uri,
                 type: "photo",
                 dimensions,
-                filename,
-                unlinkURIAfterRemoving,
+                localMediaCreationInfo: {
+                  filename,
+                  unlinkURIAfterRemoving,
+                },
               };
             } else {
               return {
@@ -314,8 +316,10 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
                 uri,
                 type: "video",
                 dimensions,
-                filename,
-                unlinkURIAfterRemoving,
+                localMediaCreationInfo: {
+                  filename,
+                  unlinkURIAfterRemoving,
+                },
               };
             }
           },
@@ -396,8 +400,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
             uri: result.uri,
             type: mediaType,
             dimensions: processResult.dimensions,
-            filename: undefined,
-            unlinkURIAfterRemoving: undefined,
+            localMediaCreationInfo: undefined,
           },
         },
       );
@@ -571,13 +574,13 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
           id,
           dimensions,
           uri,
-          filename,
-          unlinkURIAfterRemoving,
+          localMediaCreationInfo,
         } = singleMedia;
         invariant(
-          filename,
-          "filename should be set on locally created Media",
+          localMediaCreationInfo,
+          "localMediaCreationInfo should be set on locally created Media",
         );
+        const { filename, unlinkURIAfterRemoving } = localMediaCreationInfo;
         if (singleMedia.type === "photo") {
           return {
             localID: id,

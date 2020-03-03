@@ -43,7 +43,10 @@ class Multimedia extends React.PureComponent<Props, State> {
     const newURI = this.props.mediaInfo.uri;
     const oldURI = prevProps.mediaInfo.uri;
     if (newURI !== oldURI && !this.state.departingURI) {
-      const unlinkDepartingURI = !!prevProps.mediaInfo.unlinkURIAfterRemoving;
+      const unlinkDepartingURI = !!(
+        prevProps.mediaInfo.localMediaCreationInfo &&
+        prevProps.mediaInfo.localMediaCreationInfo.unlinkURIAfterRemoving
+      );
       this.setState({
         currentURI: newURI,
         departingURI: oldURI,
