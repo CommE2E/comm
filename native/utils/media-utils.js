@@ -309,10 +309,10 @@ async function convertMedia(
     blob = newValidationResult.blob;
   }
 
-  let fileDataDetectionStep, dataURI;
+  let fileDataDetectionStep;
   if (blob) {
     const fileDataDetectionStart = Date.now();
-    dataURI = await blobToDataURI(blob);
+    const dataURI = await blobToDataURI(blob);
     const intArray = dataURIToIntArray(dataURI);
 
     const blobName = blob.data.name;
@@ -353,14 +353,6 @@ async function convertMedia(
     });
   }
 
-  if (Platform.OS === "ios" && mediaType === "photo" && dataURI) {
-    // TODO do we even need this? compare how long upload takes once that step
-    // is recorded
-    // TODO should this depend on uploadURI protocol instead of dataURI
-    // existing?
-    //console.log(`iOS ${uploadURI} -> ${dataURI}`);
-    uploadURI = dataURI;
-  }
   return finish();
 }
 
