@@ -10,6 +10,8 @@ import type {
   UploadMultimediaResult,
   Media,
   MediaSelection,
+  MediaMissionResult,
+  MediaMission,
 } from 'lib/types/media-types';
 import {
   messageTypes,
@@ -360,7 +362,21 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     localMessageID: string,
     selectionWithID: SelectionWithID,
   ): Promise<?string> {
+    const start = Date.now();
+
     const { localID, selection } = selectionWithID;
+    let steps = [ selection ], serverID;
+    const finish = (result: MediaMissionResult, errorMessage: ?string) => {
+      if (errorMessage) {
+        this.handleUploadFailure(localMessageID, localID, errorMessage);
+      }
+      this.queueMediaMissionReport(
+        { localID, localMessageID, serverID },
+        { steps, result },
+      );
+      return errorMessage;
+    };
+
     let mediaInfo;
     if (selection.step === "photo_library") {
       mediaInfo = {
@@ -390,23 +406,40 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       );
     }
 
-    const { result: processResult, steps } = await processMedia(mediaInfo);
-    if (!processResult.success) {
-      const message = "processing failed";
-      this.handleUploadFailure(localMessageID, localID, message);
-      return message;
+    let processedMedia;
+    const processingStart = Date.now();
+    try {
+      const {
+        result: processResult,
+        steps: processSteps,
+      } = await processMedia(mediaInfo);
+      steps = [ ...steps, ...processSteps ];
+      if (!processResult.success) {
+        return finish(processResult, "processing failed");
+      }
+      processedMedia = processResult;
+    } catch (e) {
+      const message = (e && e.message) ? e.message : "processing threw";
+      const time = Date.now() - processingStart;
+      steps.push({ step: "processing_exception", time, message });
+      return finish(
+        { success: false, reason: "processing_exception", time, message },
+        message,
+      );
     }
+
     const {
       uploadURI,
       shouldDisposePath,
       name,
       mime,
       mediaType,
-    } = processResult;
+    } = processedMedia;
 
-    let result, message;
+    const uploadStart = Date.now();
+    let uploadResult, message;
     try {
-      result = await this.props.uploadMultimedia(
+      uploadResult = await this.props.uploadMultimedia(
         { uri: uploadURI, name, type: mime },
         (percent: number) => this.setProgress(
           localMessageID,
@@ -416,31 +449,49 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       );
     } catch (e) {
       message = "upload failed";
-      this.handleUploadFailure(localMessageID, localID, message);
     }
-    if (result) {
+    if (uploadResult) {
+      serverID = uploadResult.id;
       this.props.dispatchActionPayload(
         updateMultimediaMessageMediaActionType,
         {
           messageID: localMessageID,
           currentMediaID: localID,
           mediaUpdate: {
-            id: result.id,
-            uri: result.uri,
+            id: serverID,
+            uri: uploadResult.uri,
             type: mediaType,
-            dimensions: processResult.dimensions,
+            dimensions: processedMedia.dimensions,
             localMediaCreationInfo: undefined,
           },
         },
       );
     }
+    steps.push({
+      step: "upload",
+      success: !!uploadResult,
+      time: Date.now() - uploadStart,
+    });
+    const mediaMissionResult = uploadResult
+      ? { success: true, totalTime: Date.now() - start }
+      : { success: false, reason: "http_upload_failed" };
+
     if (!shouldDisposePath) {
-      return message;
+      return finish(mediaMissionResult, message);
     }
+    let disposeSuccess = false;
+    const disposeStart = Date.now();
     try {
       await filesystem.unlink(shouldDisposePath);
+      disposeSuccess = true;
     } catch (e) { }
-    return message;
+    steps.push({
+      step: "dispose_uploaded_local_file",
+      success: disposeSuccess,
+      time: disposeStart - Date.now(),
+      path: shouldDisposePath,
+    });
+    return finish(mediaMissionResult, message);
   }
 
   setProgress(
@@ -504,6 +555,12 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         },
       };
     });
+  }
+
+  queueMediaMissionReport(
+    ids: {| localID: string, localMessageID: string, serverID: ?string |},
+    mediaMission: MediaMission,
+  ) {
   }
 
   messageHasUploadFailure = (localMessageID: string) => {
