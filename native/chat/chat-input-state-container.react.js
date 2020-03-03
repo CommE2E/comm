@@ -561,6 +561,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     ids: {| localID: string, localMessageID: string, serverID: ?string |},
     mediaMission: MediaMission,
   ) {
+    console.log(mediaMission);
   }
 
   messageHasUploadFailure = (localMessageID: string) => {

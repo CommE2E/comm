@@ -15,6 +15,7 @@ import Orientation from 'react-native-orientation-locker';
 
 import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors';
 import { unshimMessageStore } from 'lib/shared/unshim-utils';
+import { inconsistencyResponsesToReports } from 'lib/shared/report-utils';
 
 import { nativeCalendarQuery } from '../selectors/nav-selectors';
 import { defaultNotifPermissionAlertInfo } from '../push/alerts';
@@ -152,6 +153,24 @@ const migrations = {
       [ messageTypes.MULTIMEDIA ],
     ),
   }),
+  [15]: (state) => ({
+    ...state,
+    threadStore: {
+      ...state.threadStore,
+      inconsistencyReports: inconsistencyResponsesToReports(
+        state.threadStore.inconsistencyResponses,
+      ),
+      inconsistencyResponses: undefined,
+    },
+    entryStore: {
+      ...state.entryStore,
+      inconsistencyReports: inconsistencyResponsesToReports(
+        state.entryStore.inconsistencyResponses,
+      ),
+      inconsistencyResponses: undefined,
+    },
+
+  }),
 };
 
 const persistConfig = {
@@ -159,7 +178,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist,
   debug: __DEV__,
-  version: 14,
+  version: 15,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
   timeout: __DEV__ ? 0 : undefined,
 };

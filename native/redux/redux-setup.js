@@ -148,11 +148,11 @@ const defaultState = ({
     entryInfos: {},
     daysToEntries: {},
     lastUserInteractionCalendar: 0,
-    inconsistencyResponses: [],
+    inconsistencyReports: [],
   },
   threadStore: {
     threadInfos: {},
-    inconsistencyResponses: [],
+    inconsistencyReports: [],
   },
   userInfos: {},
   messageStore: {
