@@ -15,6 +15,7 @@ import invariant from 'invariant';
 import {
   fileInfoFromData,
   mimeTypesToMediaTypes,
+  stripExtension,
 } from 'lib/utils/file-utils';
 
 import { transcodeVideo } from './video-utils';
@@ -257,7 +258,11 @@ async function convertMedia(
             compressQuality,
           );
         uploadURI = resizedURI;
-        name = resizedName;
+        if (reportedMIME === "image/png" && !name.endsWith('.png')) {
+          name = `${stripExtension(name)}.png`;
+        } else if (reportedMIME !== "image/png" && !name.endsWith('.jpg')) {
+          name = `${stripExtension(name)}.jpg`;
+        }
         shouldDisposePath = path;
         mime = reportedMIME === "image/png" ? "image/png" : "image/jpeg";
         dimensions = await getDimensions(resizedURI);
@@ -315,8 +320,7 @@ async function convertMedia(
     const dataURI = await blobToDataURI(blob);
     const intArray = dataURIToIntArray(dataURI);
 
-    const blobName = blob.data.name;
-    const fileDetectionResult = fileInfoFromData(intArray, blobName);
+    const fileDetectionResult = fileInfoFromData(intArray, name);
     fileDataDetectionStep = {
       step: "final_file_data_analysis",
       success: !!fileDetectionResult.name &&
