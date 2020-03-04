@@ -87,6 +87,18 @@ const reportCreationRequestInputValidator = t.union([
       x => x === reportTypes.ENTRY_INCONSISTENCY,
     ),
   }),
+  tShape({
+    type: t.irreducible(
+      'reportTypes.MEDIA_MISSION',
+      x => x === reportTypes.MEDIA_MISSION,
+    ),
+    platformDetails: tPlatformDetails,
+    time: t.Number,
+    mediaMission: t.Object,
+    uploadServerID: t.maybe(t.String),
+    uploadLocalID: t.String,
+    mediaLocalID: t.String,
+  }),
 ]);
 
 async function reportCreationResponder(

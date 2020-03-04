@@ -169,7 +169,7 @@ const migrations = {
       ),
       inconsistencyResponses: undefined,
     },
-
+    queuedReports: [],
   }),
 };
 

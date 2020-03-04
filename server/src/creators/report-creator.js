@@ -46,6 +46,8 @@ async function createReport(
     time = time ? time : Date.now();
   } else if (request.type === reportTypes.ENTRY_INCONSISTENCY) {
     ({ type, time, ...report } = request);
+  } else if (request.type === reportTypes.MEDIA_MISSION) {
+    ({ type, time, ...report } = request);
   } else {
     ({ type, ...report } = request);
     time = Date.now();
@@ -154,6 +156,12 @@ function getSquadbotMessage(
       `using ${platformString}\n` +
       `occurred during ${request.action.type}\n` +
       `entry IDs that are inconsistent: ${nonMatchingString}`;
+  } else if (request.type === reportTypes.MEDIA_MISSION) {
+    const mediaMissionJSON = JSON.stringify(request.mediaMission);
+    const success = request.mediaMission.result.success
+      ? "uploaded media successfully"
+      : "failed to upload media :(";
+    return `${name} ${success}\n` + mediaMissionJSON;
   } else {
     return null;
   }

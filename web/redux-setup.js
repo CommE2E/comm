@@ -11,6 +11,7 @@ import type { MessageStore } from 'lib/types/message-types';
 import type { CalendarFilter } from 'lib/types/filter-types';
 import { setNewSessionActionType } from 'lib/utils/action-utils';
 import type { ConnectionInfo } from 'lib/types/socket-types';
+import type { ClientReportCreationRequest } from 'lib/types/report-types';
 
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
@@ -67,6 +68,7 @@ export type AppState = {|
   watchedThreadIDs: $ReadOnlyArray<string>,
   foreground: bool,
   nextLocalID: number,
+  queuedReports: $ReadOnlyArray<ClientReportCreationRequest>,
   timeZone: ?string,
   userAgent: ?string,
 |};

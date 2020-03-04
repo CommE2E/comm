@@ -39,6 +39,7 @@ import {
   defaultDeviceCameraInfo,
 } from '../types/camera';
 import type { Orientations } from 'react-native-orientation-locker';
+import type { ClientReportCreationRequest } from 'lib/types/report-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -130,6 +131,7 @@ export type AppState = {|
   watchedThreadIDs: $ReadOnlyArray<string>,
   foreground: bool,
   nextLocalID: number,
+  queuedReports: $ReadOnlyArray<ClientReportCreationRequest>,
   _persist: ?PersistState,
   sessionID?: void,
   dimensions: Dimensions,
@@ -176,6 +178,7 @@ const defaultState = ({
   watchedThreadIDs: [],
   foreground: true,
   nextLocalID: 0,
+  queuedReports: [],
   _persist: null,
   dimensions: { height, width },
   connectivity: defaultConnectivityInfo,

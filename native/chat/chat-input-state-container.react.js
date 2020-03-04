@@ -22,6 +22,10 @@ import {
   type RawImagesMessageInfo,
   type RawMediaMessageInfo,
 } from 'lib/types/message-types';
+import {
+  type MediaMissionReportCreationRequest,
+  reportTypes,
+} from 'lib/types/report-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -40,6 +44,8 @@ import {
   sendMultimediaMessage,
 } from 'lib/actions/message-actions';
 import { createMediaMessageInfo } from 'lib/shared/message-utils';
+import { queueReportsActionType } from 'lib/actions/report-actions';
+import { getConfig } from 'lib/utils/config';
 
 import { ChatInputStateContext } from './chat-input-state';
 import { processMedia } from '../utils/media-utils';
@@ -437,7 +443,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     } = processedMedia;
 
     const uploadStart = Date.now();
-    let uploadResult, message;
+    let uploadResult, message, mediaMissionResult;
     try {
       uploadResult = await this.props.uploadMultimedia(
         { uri: uploadURI, name, type: mime },
@@ -447,8 +453,14 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
           percent,
         ),
       );
+      mediaMissionResult = { success: true, totalTime: Date.now() - start };
     } catch (e) {
       message = "upload failed";
+      mediaMissionResult = {
+        success: false,
+        reason: "http_upload_failed",
+        message: (e && e.message) ? e.message : undefined,
+      };
     }
     if (uploadResult) {
       serverID = uploadResult.id;
@@ -472,9 +484,6 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       success: !!uploadResult,
       time: Date.now() - uploadStart,
     });
-    const mediaMissionResult = uploadResult
-      ? { success: true, totalTime: Date.now() - start }
-      : { success: false, reason: "http_upload_failed" };
 
     if (!shouldDisposePath) {
       return finish(mediaMissionResult, message);
@@ -561,7 +570,19 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     ids: {| localID: string, localMessageID: string, serverID: ?string |},
     mediaMission: MediaMission,
   ) {
-    console.log(mediaMission);
+    const report: MediaMissionReportCreationRequest = {
+      type: reportTypes.MEDIA_MISSION,
+      time: Date.now(),
+      platformDetails: getConfig().platformDetails,
+      mediaMission,
+      uploadServerID: ids.serverID,
+      uploadLocalID: ids.localID,
+      mediaLocalID: ids.localMessageID,
+    };
+    this.props.dispatchActionPayload(
+      queueReportsActionType,
+      { reports: [ report ] },
+    );
   }
 
   messageHasUploadFailure = (localMessageID: string) => {

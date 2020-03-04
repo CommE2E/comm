@@ -273,6 +273,7 @@ async function websiteResponder(
     watchedThreadIDs: [],
     foreground: true,
     nextLocalID: 0,
+    queuedReports: [],
     timeZone: viewer.timeZone,
     userAgent: viewer.userAgent,
     cookie: undefined,
