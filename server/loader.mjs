@@ -1,16 +1,14 @@
-import { pathToFileURL } from 'url';
 import fs from 'fs';
 import { promisify } from 'util';
 
 const readFile = promisify(fs.readFile);
-const baseURL = pathToFileURL(process.cwd()).href;
 
-export async function resolve(
+async function resolve(
   specifier,
-  parentModuleURL = baseURL,
+  context,
   defaultResolve,
 ) {
-  const defaultResult = defaultResolve(specifier, parentModuleURL);
+  const defaultResult = defaultResolve(specifier, context, defaultResolve);
 
   // Special hack to use Babel-transpiled lib and web
   if (specifier.startsWith('lib/') || specifier.startsWith('web/')) {
@@ -18,7 +16,7 @@ export async function resolve(
       specifier,
       `server/dist/${specifier}`,
     );
-    return { url, format: defaultResult.format };
+    return { url };
   }
 
   // We prefer to resolve packages as modules so that Node allows us to do
@@ -34,10 +32,28 @@ export async function resolve(
     if (packageJSON.module) {
       return {
         url: `file://${moduleFolder}/${packageJSON.module}`,
-        format: 'module',
       };
     }
   }
 
   return defaultResult;
 }
+
+async function getFormat(
+  url,
+  context,
+  defaultGetFormat,
+) {
+  if (
+    url.indexOf("node_modules/reselect") >= 0 ||
+    url.indexOf("node_modules/redux") >= 0
+  ) {
+    return { format: 'module' };
+  }
+  return defaultGetFormat(url, context, defaultGetFormat);
+}
+
+export {
+  resolve,
+  getFormat,
+};
