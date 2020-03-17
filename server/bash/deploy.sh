@@ -31,7 +31,7 @@ su $DAEMON_USER -c "server/bash/setup.sh"
 
 # STEP 2: test if the binary crashes within 60 seconds
 set +e
-su $DAEMON_USER -c "cd server && PORT=3001 timeout 60 bash/run-nvm.sh"
+su $DAEMON_USER -c "cd server && PORT=3001 timeout 60 bash/run-prod.sh"
 [[ $? -eq 124 ]] || exit 1
 set -e
 
