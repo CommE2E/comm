@@ -6,15 +6,34 @@ import zlib from 'zlib';
 import dateFormat from 'dateformat';
 import StreamCache from 'stream-cache';
 import { promisify } from 'util';
+import invariant from 'invariant';
 
 import dbConfig from '../../secrets/db_config';
-import backupConfig from '../../facts/backups';
 
 const readdir = promisify(fs.readdir);
 const lstat = promisify(fs.lstat);
 const unlink = promisify(fs.unlink);
 
+let importedBackupConfig = undefined;
+async function importBackupConfig() {
+  if (importedBackupConfig !== undefined) {
+    return importedBackupConfig;
+  }
+  try {
+    const backupExports = await import('../../facts/backups');
+    if (importedBackupConfig === undefined) {
+      importedBackupConfig = backupExports.default;
+    }
+  } catch {
+    if (importedBackupConfig === undefined) {
+      importedBackupConfig = null;
+    }
+  }
+  return importedBackupConfig;
+}
+
 async function backupDB() {
+  const backupConfig = await importBackupConfig();
   if (!backupConfig || !backupConfig.enabled) {
     return;
   }
@@ -73,6 +92,8 @@ function trySaveBackup(filePath: string, cache: StreamCache): Promise<void> {
 }
 
 async function deleteOldestBackup() {
+  const backupConfig = await importBackupConfig();
+  invariant(backupConfig, "backupConfig should be non-null");
   const files = await readdir(backupConfig.directory);
   let oldestFile;
   for (let file of files) {
