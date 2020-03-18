@@ -11,7 +11,7 @@ import {
 import redis from 'redis';
 import uuidv4 from 'uuid/v4';
 
-import { isDryRun } from '../scripts/dry-run';
+import { getScriptContext } from '../scripts/script-context';
 
 function channelNameForUpdateTarget(updateTarget: UpdateTarget): string {
   if (updateTarget.sessionID) {
@@ -32,7 +32,8 @@ class RedisPublisher {
   sendMessage(target: UpdateTarget, message: RedisMessage) {
     const channelName = channelNameForUpdateTarget(target);
     const stringifiedMessage = JSON.stringify(message);
-    if (isDryRun()) {
+    const scriptContext = getScriptContext();
+    if (scriptContext && scriptContext.dryRun) {
       console.log(`Redis publish to ${channelName}: ${stringifiedMessage}`);
       return;
     }

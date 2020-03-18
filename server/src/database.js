@@ -5,7 +5,7 @@ import mysql from 'mysql2';
 import SQL from 'sql-template-strings';
 
 import dbConfig from '../secrets/db_config';
-import { isDryRun } from './scripts/dry-run';
+import { getScriptContext } from './scripts/script-context';
 
 const SQLStatement = SQL.SQLStatement;
 
@@ -66,10 +66,12 @@ FakeSQLResult.prototype = Array.prototype;
 const fakeResult: any = new FakeSQLResult();
 
 async function dbQuery(statement: SQLStatement, triesLeft?: number = 2) {
+  const scriptContext = getScriptContext();
   try {
     const sql = statement.sql.trim();
     if (
-      isDryRun() &&
+      scriptContext &&
+      scriptContext.dryRun &&
       (sql.startsWith("INSERT") ||
         sql.startsWith("DELETE") ||
         sql.startsWith("UPDATE"))
