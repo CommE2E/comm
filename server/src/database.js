@@ -14,10 +14,21 @@ export type QueryResult = [
   any[],
 ];
 
-const pool = mysqlPromise.createPool({
-  ...dbConfig,
-  connectionLimit: 10,
-});
+let pool;
+function getPool() {
+  if (pool) {
+    return pool;
+  }
+  const scriptContext = getScriptContext();
+  pool = mysqlPromise.createPool({
+    ...dbConfig,
+    connectionLimit: 10,
+    multipleStatements: !!(
+      scriptContext && scriptContext.allowMultiStatementSQLQueries
+    ),
+  });
+  return pool;
+}
 
 type SQLOrString = SQLStatement | string;
 function appendSQLArray(
@@ -79,7 +90,7 @@ async function dbQuery(statement: SQLStatement, triesLeft?: number = 2) {
       console.log(rawSQL(statement));
       return [ fakeResult ];
     }
-    return await pool.query(statement);
+    return await getPool().query(statement);
   } catch (e) {
     if (e.errno === 1213 && triesLeft > 0) {
       console.log('deadlock occurred, trying again', e);
@@ -95,7 +106,7 @@ function rawSQL(statement: SQLStatement) {
 }
 
 export {
-  pool,
+  getPool,
   SQL,
   SQLStatement,
   appendSQLArray,

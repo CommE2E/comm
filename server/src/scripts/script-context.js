@@ -4,6 +4,8 @@ type ScriptContext = {|
   // Prevents all mutations from occuring,
   // eg. MySQL INSERT/DELETE/UPDATE, Redis publish, etc.
   dryRun?: bool,
+  // Multiple statements in a single SQL query
+  allowMultiStatementSQLQueries?: bool,
 |};
 
 let scriptContext: ?ScriptContext = null;

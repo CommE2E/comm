@@ -1,10 +1,10 @@
 // @flow
 
-import { pool } from '../database';
+import { getPool } from '../database';
 import { publisher } from '../socket/redis';
 
 function endScript() {
-  pool.end();
+  getPool().end();
   publisher.end();
 }
 
