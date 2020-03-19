@@ -54,10 +54,9 @@ type Props = {|
 type State = {|
   email: string,
   password: string,
-  onePasswordSupported: bool,
+  onePasswordSupported: boolean,
 |};
 class EditEmail extends React.PureComponent<Props, State> {
-
   static propTypes = {
     navigation: PropTypes.shape({
       navigate: PropTypes.func.isRequired,
@@ -71,7 +70,7 @@ class EditEmail extends React.PureComponent<Props, State> {
     changeUserSettings: PropTypes.func.isRequired,
   };
   static navigationOptions = ({ navigation }) => ({
-    headerTitle: "Change email",
+    headerTitle: 'Change email',
   });
   mounted = false;
   passwordInput: ?TextInput;
@@ -80,8 +79,8 @@ class EditEmail extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      email: props.email ? props.email : "",
-      password: "",
+      email: props.email ? props.email : '',
+      password: '',
       onePasswordSupported: false,
     };
     this.determineOnePasswordSupport();
@@ -119,9 +118,12 @@ class EditEmail extends React.PureComponent<Props, State> {
         />
       );
     }
-    const buttonContent = this.props.loadingStatus === "loading"
-      ? <ActivityIndicator size="small" color="white" />
-      : <Text style={this.props.styles.saveText}>Save</Text>;
+    const buttonContent =
+      this.props.loadingStatus === 'loading' ? (
+        <ActivityIndicator size="small" color="white" />
+      ) : (
+        <Text style={this.props.styles.saveText}>Save</Text>
+      );
     const { panelForegroundTertiaryLabel } = this.props.colors;
     return (
       <ScrollView
@@ -160,10 +162,7 @@ class EditEmail extends React.PureComponent<Props, State> {
           />
           {onePasswordButton}
         </View>
-        <Button
-          onPress={this.submitEmail}
-          style={this.props.styles.saveButton}
-        >
+        <Button onPress={this.submitEmail} style={this.props.styles.saveButton}>
           {buttonContent}
         </Button>
       </ScrollView>
@@ -172,61 +171,54 @@ class EditEmail extends React.PureComponent<Props, State> {
 
   onChangeEmailText = (newEmail: string) => {
     this.setState({ email: newEmail });
-  }
+  };
 
   emailInputRef = (emailInput: ?TextInput) => {
     this.emailInput = emailInput;
-  }
+  };
 
   focusEmailInput = () => {
-    invariant(this.emailInput, "emailInput should be set");
+    invariant(this.emailInput, 'emailInput should be set');
     this.emailInput.focus();
-  }
+  };
 
   onChangePasswordText = (newPassword: string) => {
     this.setState({ password: newPassword });
-  }
+  };
 
   passwordInputRef = (passwordInput: ?TextInput) => {
     this.passwordInput = passwordInput;
-  }
+  };
 
   focusPasswordInput = () => {
-    invariant(this.passwordInput, "passwordInput should be set");
+    invariant(this.passwordInput, 'passwordInput should be set');
     this.passwordInput.focus();
-  }
+  };
 
   onPressOnePassword = async () => {
     try {
-      const credentials = await OnePassword.findLogin("https://squadcal.org");
-      this.setState(
-        { password: credentials.password },
-        () => {
-          if (this.state.email && this.state.email !== this.props.email) {
-            this.submitEmail();
-          }
-        },
-      );
-    } catch (e) { }
-  }
+      const credentials = await OnePassword.findLogin('https://squadcal.org');
+      this.setState({ password: credentials.password }, () => {
+        if (this.state.email && this.state.email !== this.props.email) {
+          this.submitEmail();
+        }
+      });
+    } catch (e) {}
+  };
 
   submitEmail = () => {
     if (this.state.email.search(validEmailRegex) === -1) {
       Alert.alert(
-        "Invalid email address",
-        "Valid email addresses only",
-        [
-          { text: 'OK', onPress: this.onEmailAlertAcknowledged },
-        ],
+        'Invalid email address',
+        'Valid email addresses only',
+        [{ text: 'OK', onPress: this.onEmailAlertAcknowledged }],
         { cancelable: false },
       );
-    } else if (this.state.password === "") {
+    } else if (this.state.password === '') {
       Alert.alert(
-        "Empty password",
-        "Password cannot be empty",
-        [
-          { text: 'OK', onPress: this.onPasswordAlertAcknowledged },
-        ],
+        'Empty password',
+        'Password cannot be empty',
+        [{ text: 'OK', onPress: this.onPasswordAlertAcknowledged }],
         { cancelable: false },
       );
     } else if (this.state.email === this.props.email) {
@@ -237,7 +229,7 @@ class EditEmail extends React.PureComponent<Props, State> {
         this.saveEmail(),
       );
     }
-  }
+  };
 
   async saveEmail() {
     try {
@@ -249,28 +241,24 @@ class EditEmail extends React.PureComponent<Props, State> {
       });
       this.props.navigation.goBack();
       Alert.alert(
-        "Verify email",
+        'Verify email',
         "We've sent you an email to verify your email address. Just click on " +
-          "the link in the email to complete the verification process.",
+          'the link in the email to complete the verification process.',
       );
       return result;
     } catch (e) {
       if (e.message === 'invalid_credentials') {
         Alert.alert(
-          "Incorrect password",
-          "The password you entered is incorrect",
-          [
-            { text: 'OK', onPress: this.onPasswordAlertAcknowledged },
-          ],
+          'Incorrect password',
+          'The password you entered is incorrect',
+          [{ text: 'OK', onPress: this.onPasswordAlertAcknowledged }],
           { cancelable: false },
         );
       } else {
         Alert.alert(
-          "Unknown error",
-          "Uhh... try again?",
-          [
-            { text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged },
-          ],
+          'Unknown error',
+          'Uhh... try again?',
+          [{ text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged }],
           { cancelable: false },
         );
       }
@@ -278,28 +266,18 @@ class EditEmail extends React.PureComponent<Props, State> {
   }
 
   onEmailAlertAcknowledged = () => {
-    const resetEmail = this.props.email ? this.props.email : "";
-    this.setState(
-      { email: resetEmail },
-      this.focusEmailInput,
-    );
-  }
+    const resetEmail = this.props.email ? this.props.email : '';
+    this.setState({ email: resetEmail }, this.focusEmailInput);
+  };
 
   onPasswordAlertAcknowledged = () => {
-    this.setState(
-      { password: "" },
-      this.focusPasswordInput,
-    );
-  }
+    this.setState({ password: '' }, this.focusPasswordInput);
+  };
 
   onUnknownErrorAlertAcknowledged = () => {
-    const resetEmail = this.props.email ? this.props.email : "";
-    this.setState(
-      { email: resetEmail, password: "" },
-      this.focusEmailInput,
-    );
-  }
-
+    const resetEmail = this.props.email ? this.props.email : '';
+    this.setState({ email: resetEmail, password: '' }, this.focusEmailInput);
+  };
 }
 
 const styles = {
@@ -313,7 +291,7 @@ const styles = {
     paddingHorizontal: 24,
     paddingBottom: 3,
     fontSize: 12,
-    fontWeight: "400",
+    fontWeight: '400',
     color: 'panelBackgroundLabel',
   },
   section: {
@@ -359,9 +337,10 @@ const loadingStatusSelector = createLoadingStatusSelector(
 
 export default connect(
   (state: AppState) => ({
-    email: state.currentUserInfo && !state.currentUserInfo.anonymous
-      ? state.currentUserInfo.email
-      : undefined,
+    email:
+      state.currentUserInfo && !state.currentUserInfo.anonymous
+        ? state.currentUserInfo.email
+        : undefined,
     loadingStatus: loadingStatusSelector(state),
     activeTheme: state.globalThemeInfo.activeTheme,
     colors: colorsSelector(state),

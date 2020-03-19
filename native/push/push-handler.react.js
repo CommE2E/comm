@@ -18,10 +18,7 @@ import {
   type ConnectionInfo,
   connectionInfoPropType,
 } from 'lib/types/socket-types';
-import type {
-  RemoteMessage,
-  NotificationOpen,
-} from 'react-native-firebase';
+import type { RemoteMessage, NotificationOpen } from 'react-native-firebase';
 import { type GlobalTheme, globalThemePropType } from '../types/themes';
 
 import * as React from 'react';
@@ -73,21 +70,21 @@ import { saveMessageInfos } from './utils';
 import InAppNotif from './in-app-notif.react';
 
 YellowBox.ignoreWarnings([
-  "Require cycle: ../node_modules/react-native-firebase",
+  'Require cycle: ../node_modules/react-native-firebase',
 ]);
 
 const msInDay = 24 * 60 * 60 * 1000;
-const supportsTapticFeedback = Platform.OS === "ios" &&
-  parseInt(Platform.Version, 10) >= 10;
+const supportsTapticFeedback =
+  Platform.OS === 'ios' && parseInt(Platform.Version, 10) >= 10;
 
 type Props = {
-  detectUnsupervisedBackground: ?((alreadyClosed: bool) => bool),
+  detectUnsupervisedBackground: ?(alreadyClosed: boolean) => boolean,
   // Redux state
   unreadCount: number,
   activeThread: ?string,
-  appLoggedIn: bool,
+  appLoggedIn: boolean,
   deviceToken: ?string,
-  rawThreadInfos: {[id: string]: RawThreadInfo},
+  rawThreadInfos: { [id: string]: RawThreadInfo },
   notifPermissionAlertInfo: NotifPermissionAlertInfo,
   connection: ConnectionInfo,
   updatesCurrentAsOf: number,
@@ -106,10 +103,9 @@ type State = {|
     customComponent: React.Node,
     blurType: ?('xlight' | 'dark'),
     onPress: () => void,
-  |};
+  |},
 |};
 class PushHandler extends React.PureComponent<Props, State> {
-
   static propTypes = {
     detectUnsupervisedBackground: PropTypes.func,
     unreadCount: PropTypes.number.isRequired,
@@ -130,9 +126,9 @@ class PushHandler extends React.PureComponent<Props, State> {
   };
   currentState: ?string = NativeAppState.currentState;
   appStarted = 0;
-  androidTokenListener: ?(() => void) = null;
-  androidMessageListener: ?(() => void) = null;
-  androidNotifOpenListener: ?(() => void) = null;
+  androidTokenListener: ?() => void = null;
+  androidMessageListener: ?() => void = null;
+  androidNotifOpenListener: ?() => void = null;
   initialAndroidNotifHandled = false;
   openThreadOnceReceived: Set<string> = new Set();
 
@@ -140,62 +136,63 @@ class PushHandler extends React.PureComponent<Props, State> {
     this.appStarted = Date.now();
     NativeAppState.addEventListener('change', this.handleAppStateChange);
     this.onForeground();
-    if (Platform.OS === "ios") {
+    if (Platform.OS === 'ios') {
       NotificationsIOS.addEventListener(
-        "remoteNotificationsRegistered",
+        'remoteNotificationsRegistered',
         this.registerPushPermissions,
       );
       NotificationsIOS.addEventListener(
-        "remoteNotificationsRegistrationFailed",
+        'remoteNotificationsRegistrationFailed',
         this.failedToRegisterPushPermissions,
       );
       NotificationsIOS.addEventListener(
-        "notificationReceivedForeground",
+        'notificationReceivedForeground',
         this.iosForegroundNotificationReceived,
       );
       NotificationsIOS.addEventListener(
-        "notificationOpened",
+        'notificationOpened',
         this.iosNotificationOpened,
       );
-    } else if (Platform.OS === "android") {
+    } else if (Platform.OS === 'android') {
       const firebase = getFirebase();
       const channel = new firebase.notifications.Android.Channel(
         androidNotificationChannelID,
         'Default',
         firebase.notifications.Android.Importance.Max,
-      ).setDescription("SquadCal notifications channel");
+      ).setDescription('SquadCal notifications channel');
       firebase.notifications().android.createChannel(channel);
-      this.androidTokenListener =
-        firebase.messaging().onTokenRefresh(this.handleAndroidDeviceToken);
-      this.androidMessageListener =
-        firebase.messaging().onMessage(this.androidMessageReceived);
-      this.androidNotifOpenListener =
-        firebase.notifications().onNotificationOpened(
-          this.androidNotificationOpened,
-        );
+      this.androidTokenListener = firebase
+        .messaging()
+        .onTokenRefresh(this.handleAndroidDeviceToken);
+      this.androidMessageListener = firebase
+        .messaging()
+        .onMessage(this.androidMessageReceived);
+      this.androidNotifOpenListener = firebase
+        .notifications()
+        .onNotificationOpened(this.androidNotificationOpened);
     }
   }
 
   componentWillUnmount() {
     NativeAppState.removeEventListener('change', this.handleAppStateChange);
-    if (Platform.OS === "ios") {
+    if (Platform.OS === 'ios') {
       NotificationsIOS.removeEventListener(
-        "remoteNotificationsRegistered",
+        'remoteNotificationsRegistered',
         this.registerPushPermissions,
       );
       NotificationsIOS.removeEventListener(
-        "remoteNotificationsRegistrationFailed",
+        'remoteNotificationsRegistrationFailed',
         this.failedToRegisterPushPermissions,
       );
       NotificationsIOS.removeEventListener(
-        "notificationReceivedForeground",
+        'notificationReceivedForeground',
         this.iosForegroundNotificationReceived,
       );
       NotificationsIOS.removeEventListener(
-        "notificationOpened",
+        'notificationOpened',
         this.iosNotificationOpened,
       );
-    } else if (Platform.OS === "android") {
+    } else if (Platform.OS === 'android') {
       if (this.androidTokenListener) {
         this.androidTokenListener();
         this.androidTokenListener = null;
@@ -212,16 +209,16 @@ class PushHandler extends React.PureComponent<Props, State> {
   }
 
   handleAppStateChange = (nextState: ?string) => {
-    if (!nextState || nextState === "unknown") {
+    if (!nextState || nextState === 'unknown') {
       return;
     }
     const lastState = this.currentState;
     this.currentState = nextState;
-    if (lastState === "background" && nextState === "active") {
+    if (lastState === 'background' && nextState === 'active') {
       this.onForeground();
       this.clearNotifsOfThread();
     }
-  }
+  };
 
   onForeground() {
     if (this.props.appLoggedIn) {
@@ -239,8 +236,8 @@ class PushHandler extends React.PureComponent<Props, State> {
     }
 
     if (
-      this.props.connection.status === "connected" &&
-      (prevProps.connection.status !== "connected" ||
+      this.props.connection.status === 'connected' &&
+      (prevProps.connection.status !== 'connected' ||
         this.props.unreadCount !== prevProps.unreadCount)
     ) {
       this.updateBadgeCount();
@@ -277,10 +274,12 @@ class PushHandler extends React.PureComponent<Props, State> {
 
   updateBadgeCount() {
     const { unreadCount } = this.props;
-    if (Platform.OS === "ios") {
+    if (Platform.OS === 'ios') {
       NotificationsIOS.setBadgesCount(unreadCount);
-    } else if (Platform.OS === "android") {
-      getFirebase().notifications().setBadge(unreadCount);
+    } else if (Platform.OS === 'android') {
+      getFirebase()
+        .notifications()
+        .setBadge(unreadCount);
     }
   }
 
@@ -289,19 +288,17 @@ class PushHandler extends React.PureComponent<Props, State> {
     if (!activeThread) {
       return;
     }
-    if (Platform.OS === "ios") {
-      NotificationsIOS.getDeliveredNotifications(
-        (notifications) =>
-          PushHandler.clearDeliveredIOSNotificationsForThread(
-            activeThread,
-            notifications,
-          ),
+    if (Platform.OS === 'ios') {
+      NotificationsIOS.getDeliveredNotifications(notifications =>
+        PushHandler.clearDeliveredIOSNotificationsForThread(
+          activeThread,
+          notifications,
+        ),
       );
-    } else if (Platform.OS === "android") {
-      this.props.dispatchActionPayload(
-        clearAndroidNotificationsActionType,
-        { threadID: activeThread },
-      );
+    } else if (Platform.OS === 'android') {
+      this.props.dispatchActionPayload(clearAndroidNotificationsActionType, {
+        threadID: activeThread,
+      });
     }
   }
 
@@ -311,7 +308,7 @@ class PushHandler extends React.PureComponent<Props, State> {
   ) {
     const identifiersToClear = [];
     for (let notification of notifications) {
-      if (notification["thread-id"] === threadID) {
+      if (notification['thread-id'] === threadID) {
         identifiersToClear.push(notification.identifier);
       }
     }
@@ -324,11 +321,11 @@ class PushHandler extends React.PureComponent<Props, State> {
     if (!this.props.appLoggedIn) {
       return;
     }
-    if (Platform.OS === "ios") {
-      const missingDeviceToken = this.props.deviceToken === null
-        || this.props.deviceToken === undefined;
+    if (Platform.OS === 'ios') {
+      const missingDeviceToken =
+        this.props.deviceToken === null || this.props.deviceToken === undefined;
       await requestIOSPushPermissions(missingDeviceToken);
-    } else if (Platform.OS === "android") {
+    } else if (Platform.OS === 'android') {
       await this.ensureAndroidPushNotifsEnabled();
     }
   }
@@ -356,15 +353,16 @@ class PushHandler extends React.PureComponent<Props, State> {
   handleAndroidDeviceToken = async (deviceToken: string) => {
     this.registerPushPermissions(deviceToken);
     await this.handleInitialAndroidNotification();
-  }
+  };
 
   async handleInitialAndroidNotification() {
     if (this.initialAndroidNotifHandled) {
       return;
     }
     this.initialAndroidNotifHandled = true;
-    const initialNotif =
-      await getFirebase().notifications().getInitialNotification();
+    const initialNotif = await getFirebase()
+      .notifications()
+      .getInitialNotification();
     if (initialNotif) {
       await this.androidNotificationOpened(initialNotif);
     }
@@ -372,16 +370,16 @@ class PushHandler extends React.PureComponent<Props, State> {
 
   registerPushPermissions = (deviceToken: string) => {
     const deviceType = Platform.OS;
-    if (deviceType !== "android" && deviceType !== "ios") {
+    if (deviceType !== 'android' && deviceType !== 'ios') {
       return;
     }
-    if (deviceType === "ios") {
+    if (deviceType === 'ios') {
       iosPushPermissionResponseReceived();
     }
     if (deviceToken !== this.props.deviceToken) {
       this.setDeviceToken(deviceToken);
     }
-  }
+  };
 
   setDeviceToken(deviceToken: string) {
     this.props.dispatchActionPromise(
@@ -392,12 +390,12 @@ class PushHandler extends React.PureComponent<Props, State> {
     );
   }
 
-  failedToRegisterPushPermissions = (error) => {
+  failedToRegisterPushPermissions = error => {
     if (!this.props.appLoggedIn) {
       return;
     }
     const deviceType = Platform.OS;
-    if (deviceType === "ios") {
+    if (deviceType === 'ios') {
       iosPushPermissionResponseReceived();
       if (__DEV__) {
         // iOS simulator can't handle notifs
@@ -408,47 +406,43 @@ class PushHandler extends React.PureComponent<Props, State> {
     const alertInfo = this.props.notifPermissionAlertInfo;
     if (
       (alertInfo.totalAlerts > 3 &&
-        alertInfo.lastAlertTime > (Date.now() - msInDay)) ||
+        alertInfo.lastAlertTime > Date.now() - msInDay) ||
       (alertInfo.totalAlerts > 6 &&
-        alertInfo.lastAlertTime > (Date.now() - msInDay * 3)) ||
+        alertInfo.lastAlertTime > Date.now() - msInDay * 3) ||
       (alertInfo.totalAlerts > 9 &&
-        alertInfo.lastAlertTime > (Date.now() - msInDay * 7))
+        alertInfo.lastAlertTime > Date.now() - msInDay * 7)
     ) {
       return;
     }
-    this.props.dispatchActionPayload(
-      recordNotifPermissionAlertActionType,
-      { time: Date.now() },
-    );
+    this.props.dispatchActionPayload(recordNotifPermissionAlertActionType, {
+      time: Date.now(),
+    });
 
-    if (deviceType === "ios") {
+    if (deviceType === 'ios') {
       Alert.alert(
-        "Need notif permissions",
-        "SquadCal needs notification permissions to keep you in the loop! " +
-          "Please enable in Settings App -> Notifications -> SquadCal.",
-        [ { text: 'OK' } ],
+        'Need notif permissions',
+        'SquadCal needs notification permissions to keep you in the loop! ' +
+          'Please enable in Settings App -> Notifications -> SquadCal.',
+        [{ text: 'OK' }],
       );
-    } else if (deviceType === "android") {
+    } else if (deviceType === 'android') {
       Alert.alert(
-        "Unable to initialize notifs!",
-        "Please check your network connection, make sure Google Play " +
-          "services are installed and enabled, and confirm that your Google " +
-          "Play credentials are valid in the Google Play Store.",
+        'Unable to initialize notifs!',
+        'Please check your network connection, make sure Google Play ' +
+          'services are installed and enabled, and confirm that your Google ' +
+          'Play credentials are valid in the Google Play Store.',
       );
     }
+  };
+
+  navigateToThread(rawThreadInfo: RawThreadInfo, clearChatRoutes: boolean) {
+    this.props.dispatchActionPayload(notificationPressActionType, {
+      rawThreadInfo,
+      clearChatRoutes,
+    });
   }
 
-  navigateToThread(rawThreadInfo: RawThreadInfo, clearChatRoutes: bool) {
-    this.props.dispatchActionPayload(
-      notificationPressActionType,
-      {
-        rawThreadInfo,
-        clearChatRoutes,
-      },
-    );
-  }
-
-  onPressNotificationForThread(threadID: string, clearChatRoutes: bool) {
+  onPressNotificationForThread(threadID: string, clearChatRoutes: boolean) {
     const rawThreadInfo = this.props.rawThreadInfos[threadID];
     if (rawThreadInfo) {
       this.navigateToThread(rawThreadInfo, clearChatRoutes);
@@ -458,17 +452,14 @@ class PushHandler extends React.PureComponent<Props, State> {
   }
 
   saveMessageInfos(messageInfosString: string) {
-    saveMessageInfos(
-      messageInfosString,
-      this.props.updatesCurrentAsOf,
-    );
+    saveMessageInfos(messageInfosString, this.props.updatesCurrentAsOf);
   }
 
-  iosForegroundNotificationReceived = (notification) => {
+  iosForegroundNotificationReceived = notification => {
     if (
       notification.getData() &&
       notification.getData().managedAps &&
-      notification.getData().managedAps.action === "CLEAR"
+      notification.getData().managedAps.action === 'CLEAR'
     ) {
       notification.finish(NotificationsIOS.FetchResult.NoData);
       return;
@@ -484,7 +475,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     }
     const threadID = notification.getData().threadID;
     if (!threadID) {
-      console.log("Notification with missing threadID received!");
+      console.log('Notification with missing threadID received!');
       notification.finish(NotificationsIOS.FetchResult.NoData);
       return;
     }
@@ -499,15 +490,15 @@ class PushHandler extends React.PureComponent<Props, State> {
     }
     this.showInAppNotification(threadID, body, title);
     notification.finish(NotificationsIOS.FetchResult.NewData);
-  }
+  };
 
-  iosNotificationOpened = (notification) => {
+  iosNotificationOpened = notification => {
     if (this.props.detectUnsupervisedBackground) {
       this.props.detectUnsupervisedBackground(false);
     }
     const threadID = notification.getData().threadID;
     if (!threadID) {
-      console.log("Notification with missing threadID received!");
+      console.log('Notification with missing threadID received!');
       notification.finish(NotificationsIOS.FetchResult.NoData);
       return;
     }
@@ -516,8 +507,8 @@ class PushHandler extends React.PureComponent<Props, State> {
       this.saveMessageInfos(messageInfos);
     }
     this.onPressNotificationForThread(threadID, true),
-    notification.finish(NotificationsIOS.FetchResult.NewData);
-  }
+      notification.finish(NotificationsIOS.FetchResult.NewData);
+  };
 
   showInAppNotification(threadID: string, message: string, title?: ?string) {
     if (threadID === this.props.activeThread) {
@@ -547,7 +538,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     }
     const { threadID } = notificationOpen.notification.data;
     this.onPressNotificationForThread(threadID, true);
-  }
+  };
 
   androidMessageReceived = async (message: RemoteMessage) => {
     if (this.props.detectUnsupervisedBackground) {
@@ -558,23 +549,22 @@ class PushHandler extends React.PureComponent<Props, State> {
       this.props.updatesCurrentAsOf,
       this.handleAndroidNotificationIfActive,
     );
-  }
+  };
 
   handleAndroidNotificationIfActive = (
     threadID: string,
     texts: {| body: string, title: ?string |},
   ) => {
-    if (this.currentState !== "active") {
+    if (this.currentState !== 'active') {
       return false;
     }
     this.showInAppNotification(threadID, texts.body, texts.title);
     return true;
-  }
+  };
 
   render() {
     return <InAppNotification {...this.state.inAppNotifProps} />;
   }
-
 }
 
 AppRegistry.registerHeadlessTask(

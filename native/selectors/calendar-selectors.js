@@ -16,15 +16,15 @@ import {
 import { dateString } from 'lib/utils/date-utils';
 
 export type SectionHeaderItem = {|
-  itemType: "header",
+  itemType: 'header',
   dateString: string,
 |};
 export type SectionFooterItem = {|
-  itemType: "footer",
+  itemType: 'footer',
   dateString: string,
 |};
 export type LoaderItem = {|
-  itemType: "loader",
+  itemType: 'loader',
   key: string,
 |};
 export type CalendarItem =
@@ -32,40 +32,38 @@ export type CalendarItem =
   | SectionHeaderItem
   | SectionFooterItem
   | {|
-      itemType: "entryInfo",
+      itemType: 'entryInfo',
       entryInfo: EntryInfo,
       threadInfo: ThreadInfo,
     |};
 
-const calendarListData: (state: AppState) => ?CalendarItem[] = createSelector(
-  (state: AppState) => !!(state.currentUserInfo &&
-    !state.currentUserInfo.anonymous && true),
+const calendarListData: (state: AppState) => ?(CalendarItem[]) = createSelector(
+  (state: AppState) =>
+    !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
   currentDaysToEntries,
   threadInfoSelector,
   (
-    loggedIn: bool,
+    loggedIn: boolean,
     daysToEntries: { [dayString: string]: EntryInfo[] },
     threadInfos: { [id: string]: ThreadInfo },
   ) => {
     if (!loggedIn || daysToEntries[dateString(new Date())] === undefined) {
       return null;
     }
-    const items: CalendarItem[] = [{ itemType: "loader", key: "TopLoader" }];
+    const items: CalendarItem[] = [{ itemType: 'loader', key: 'TopLoader' }];
     for (let dayString in daysToEntries) {
-      items.push({ itemType: "header", dateString: dayString });
+      items.push({ itemType: 'header', dateString: dayString });
       for (let entryInfo of daysToEntries[dayString]) {
         const threadInfo = threadInfos[entryInfo.threadID];
         if (threadInfo) {
-          items.push({ itemType: "entryInfo", entryInfo, threadInfo });
+          items.push({ itemType: 'entryInfo', entryInfo, threadInfo });
         }
       }
-      items.push({ itemType: "footer", dateString: dayString });
+      items.push({ itemType: 'footer', dateString: dayString });
     }
-    items.push({ itemType: "loader", key: "BottomLoader" });
+    items.push({ itemType: 'loader', key: 'BottomLoader' });
     return items;
   },
 );
 
-export {
-  calendarListData,
-};
+export { calendarListData };

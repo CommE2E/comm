@@ -19,15 +19,14 @@ import { connect } from 'lib/utils/redux-utils';
 
 type Props = {|
   // Redux state
-  showDisconnectedBar: bool,
+  showDisconnectedBar: boolean,
   connectionStatus: ConnectionStatus,
-  someRequestIsLate: bool,
+  someRequestIsLate: boolean,
   connectivity: ConnectivityInfo,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 |};
 class DisconnectedBarVisibilityHandler extends React.PureComponent<Props> {
-
   static propTypes = {
     showDisconnectedBar: PropTypes.bool.isRequired,
     connectionStatus: connectionStatusPropType.isRequired,
@@ -41,14 +40,13 @@ class DisconnectedBarVisibilityHandler extends React.PureComponent<Props> {
     return this.props.showDisconnectedBar;
   }
 
-  setDisconnected(disconnected: bool) {
+  setDisconnected(disconnected: boolean) {
     if (this.disconnected === disconnected) {
       return;
     }
-    this.props.dispatchActionPayload(
-      updateDisconnectedBarActionType,
-      { visible: disconnected },
-    );
+    this.props.dispatchActionPayload(updateDisconnectedBarActionType, {
+      visible: disconnected,
+    });
   }
 
   componentDidMount() {
@@ -69,16 +67,16 @@ class DisconnectedBarVisibilityHandler extends React.PureComponent<Props> {
     }
 
     const { connectionStatus: status, someRequestIsLate } = this.props;
-    if (status === "connected" && prevProps.connectionStatus !== "connected") {
+    if (status === 'connected' && prevProps.connectionStatus !== 'connected') {
       // Sometimes NetInfo misses the network coming back online for some
       // reason. But if the socket reconnects, the network must be up
       this.networkActive = true;
       this.setDisconnected(false);
     } else if (!this.networkActive || someRequestIsLate) {
       this.setDisconnected(true);
-    } else if (status === "reconnecting" || status === "forcedDisconnecting") {
+    } else if (status === 'reconnecting' || status === 'forcedDisconnecting') {
       this.setDisconnected(true);
-    } else if (status === "connected") {
+    } else if (status === 'connected') {
       this.setDisconnected(false);
     }
   }
@@ -86,7 +84,6 @@ class DisconnectedBarVisibilityHandler extends React.PureComponent<Props> {
   render() {
     return null;
   }
-
 }
 
 export default connect(

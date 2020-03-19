@@ -10,9 +10,8 @@ type Props = {|
   colors: Colors,
 |};
 function ContentLoading(props: Props) {
-  const viewStyle = props.fillType === 'flex'
-    ? styles.fullFlex
-    : styles.absoluteContainer;
+  const viewStyle =
+    props.fillType === 'flex' ? styles.fullFlex : styles.absoluteContainer;
   return (
     <View style={viewStyle}>
       <ActivityIndicator

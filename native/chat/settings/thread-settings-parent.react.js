@@ -25,7 +25,6 @@ type Props = {|
   styles: Styles,
 |};
 class ThreadSettingsParent extends React.PureComponent<Props> {
-
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     navigate: PropTypes.func.isRequired,
@@ -54,30 +53,32 @@ class ThreadSettingsParent extends React.PureComponent<Props> {
       );
     } else if (this.props.threadInfo.parentThreadID) {
       parent = (
-        <Text style={[
-          this.props.styles.currentValue,
-          this.props.styles.currentValueText,
-          this.props.styles.noParent,
-        ]}>
+        <Text
+          style={[
+            this.props.styles.currentValue,
+            this.props.styles.currentValueText,
+            this.props.styles.noParent,
+          ]}
+        >
           Secret parent
         </Text>
       );
     } else {
       parent = (
-        <Text style={[
-          this.props.styles.currentValue,
-          this.props.styles.currentValueText,
-          this.props.styles.noParent,
-        ]}>
+        <Text
+          style={[
+            this.props.styles.currentValue,
+            this.props.styles.currentValueText,
+            this.props.styles.noParent,
+          ]}
+        >
           No parent
         </Text>
       );
     }
     return (
       <View style={this.props.styles.row}>
-        <Text style={this.props.styles.label}>
-          Parent
-        </Text>
+        <Text style={this.props.styles.label}>Parent</Text>
         {parent}
       </View>
     );
@@ -85,14 +86,13 @@ class ThreadSettingsParent extends React.PureComponent<Props> {
 
   onPressParentThread = () => {
     const threadInfo = this.props.parentThreadInfo;
-    invariant(threadInfo, "should be set");
+    invariant(threadInfo, 'should be set');
     this.props.navigate({
       routeName: MessageListRouteName,
       params: { threadInfo },
       key: `${MessageListRouteName}${threadInfo.id}`,
     });
-  }
-
+  };
 }
 
 const styles = {
@@ -110,7 +110,7 @@ const styles = {
   currentValue: {
     flex: 1,
     paddingLeft: 4,
-    paddingTop: Platform.OS === "ios" ? 5 : 4,
+    paddingTop: Platform.OS === 'ios' ? 5 : 4,
   },
   currentValueText: {
     paddingRight: 0,

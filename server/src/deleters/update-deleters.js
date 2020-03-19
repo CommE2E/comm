@@ -9,7 +9,7 @@ import { dbQuery, SQL, SQLStatement, mergeOrConditions } from '../database';
 async function deleteUpdatesByConditions(
   conditions: $ReadOnlyArray<SQLStatement>,
 ) {
-  invariant(conditions.length > 0, "no conditions specified");
+  invariant(conditions.length > 0, 'no conditions specified');
   const conditionClause = mergeOrConditions(conditions);
   const query = SQL`
     DELETE u, i
@@ -41,8 +41,7 @@ async function deleteUpdatesBeforeTimeTargettingSession(
   viewer: Viewer,
   beforeTime: number,
 ): Promise<void> {
-  const condition =
-    SQL`u.target = ${viewer.session} AND u.time <= ${beforeTime}`;
+  const condition = SQL`u.target = ${viewer.session} AND u.time <= ${beforeTime}`;
   await deleteUpdatesByConditions([condition]);
 }
 

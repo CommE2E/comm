@@ -5,10 +5,7 @@ import type { Viewer } from '../session/viewer';
 import { dbQuery, SQL } from '../database';
 import { ServerError } from 'lib/utils/errors';
 
-async function deleteUpload(
-  viewer: Viewer,
-  id: string,
-): Promise<void> {
+async function deleteUpload(viewer: Viewer, id: string): Promise<void> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
@@ -18,12 +15,12 @@ async function deleteUpload(
     FROM uploads
     WHERE id = ${id}
   `;
-  const [ result ] = await dbQuery(fetchQuery);
+  const [result] = await dbQuery(fetchQuery);
 
   if (result.length === 0) {
     throw new ServerError('invalid_parameters');
   }
-  const [ row ] = result;
+  const [row] = result;
   const { uploader, container } = row;
 
   if (uploader.toString() !== viewer.userID || container !== null) {
@@ -39,6 +36,4 @@ async function deleteUpload(
   await dbQuery(deleteQuery);
 }
 
-export {
-  deleteUpload,
-};
+export { deleteUpload };

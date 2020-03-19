@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 
 import css from '../style.css';
 
-export type ModalSize = "small" | "large";
+export type ModalSize = 'small' | 'large';
 type Props = {
   name: string,
   onClose: () => void,
@@ -16,25 +16,23 @@ type Props = {
 };
 
 class Modal extends React.PureComponent<Props> {
-
-  static defaultProps = { size: "small" };
+  static defaultProps = { size: 'small' };
   overlay: ?HTMLDivElement;
 
   componentDidMount() {
-    invariant(this.overlay, "overlay ref unset");
+    invariant(this.overlay, 'overlay ref unset');
     this.overlay.focus();
   }
 
   render() {
     const overlayClasses = classNames(
       css['modal-overlay'],
-      { [css['small-modal-overlay']]: this.props.size === "small" },
-      { [css['large-modal-overlay']]: this.props.size === "large" },
+      { [css['small-modal-overlay']]: this.props.size === 'small' },
+      { [css['large-modal-overlay']]: this.props.size === 'large' },
     );
-    const modalContainerClasses = classNames(
-      css['modal-container'],
-      { [css['large-modal-container']]: this.props.size === "large" },
-    );
+    const modalContainerClasses = classNames(css['modal-container'], {
+      [css['large-modal-container']]: this.props.size === 'large',
+    });
     return (
       <div
         className={overlayClasses}
@@ -46,10 +44,9 @@ class Modal extends React.PureComponent<Props> {
         <div className={modalContainerClasses}>
           <div className={css['modal']}>
             <div className={css['modal-header']}>
-              <span
-                className={css['modal-close']}
-                onClick={this.props.onClose}
-              >×</span>
+              <span className={css['modal-close']} onClick={this.props.onClose}>
+                ×
+              </span>
               <h2>{this.props.name}</h2>
             </div>
             {this.props.children}
@@ -61,26 +58,25 @@ class Modal extends React.PureComponent<Props> {
 
   overlayRef = (overlay: ?HTMLDivElement) => {
     this.overlay = overlay;
-  }
+  };
 
   onBackgroundClick = (event: SyntheticEvent<HTMLDivElement>) => {
     if (event.target === this.overlay) {
       this.props.onClose();
     }
-  }
+  };
 
   onKeyDown = (event: SyntheticKeyboardEvent<HTMLDivElement>) => {
     if (event.keyCode === 27) {
       this.props.onClose();
     }
-  }
-
+  };
 }
 
 Modal.propTypes = {
   name: PropTypes.string.isRequired,
   onClose: PropTypes.func.isRequired,
-  size: PropTypes.oneOf(["small", "large"]),
-}
+  size: PropTypes.oneOf(['small', 'large']),
+};
 
 export default Modal;

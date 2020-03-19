@@ -48,19 +48,19 @@ async function initializeFCMApp() {
 }
 
 const fcmTokenInvalidationErrors = new Set([
-  "messaging/registration-token-not-registered",
-  "messaging/invalid-registration-token",
+  'messaging/registration-token-not-registered',
+  'messaging/invalid-registration-token',
 ]);
 const apnTokenInvalidationErrorCode = 410;
 const apnBadRequestErrorCode = 400;
-const apnBadTokenErrorString = "BadDeviceToken";
+const apnBadTokenErrorString = 'BadDeviceToken';
 
 async function apnPush(
   notification: apn.Notification,
   deviceTokens: $ReadOnlyArray<string>,
 ) {
   const apnProvider = await getAPNProvider();
-  if (!apnProvider && process.env.NODE_ENV === "dev") {
+  if (!apnProvider && process.env.NODE_ENV === 'dev') {
     console.log('no server/secrets/apn_config.json so ignoring notifs');
     return { success: true };
   }
@@ -93,7 +93,7 @@ async function fcmPush(
   collapseKey: ?string,
 ) {
   const initialized = await initializeFCMApp();
-  if (!initialized && process.env.NODE_ENV === "dev") {
+  if (!initialized && process.env.NODE_ENV === 'dev') {
     console.log('no server/secrets/fcm_config.json so ignoring notifs');
     return { success: true };
   }
@@ -111,11 +111,7 @@ async function fcmPush(
   // avoid the multicast functionality and call it once per deviceToken.
   const promises = [];
   for (let deviceToken of deviceTokens) {
-    promises.push(fcmSinglePush(
-      notification,
-      deviceToken,
-      options,
-    ));
+    promises.push(fcmSinglePush(notification, deviceToken, options));
   }
   const pushResults = await Promise.all(promises);
 
@@ -156,11 +152,9 @@ async function fcmSinglePush(
   options: Object,
 ) {
   try {
-    const deliveryResult = await fcmAdmin.messaging().sendToDevice(
-      deviceToken,
-      notification,
-      options,
-    );
+    const deliveryResult = await fcmAdmin
+      .messaging()
+      .sendToDevice(deviceToken, notification, options);
     const errors = [];
     const ids = [];
     for (let fcmResult of deliveryResult.results) {
@@ -172,7 +166,7 @@ async function fcmSinglePush(
     }
     return { fcmIDs: ids, errors };
   } catch (e) {
-    return { fcmIDs: [], errors: [ e ] };
+    return { fcmIDs: [], errors: [e] };
   }
 }
 
@@ -187,7 +181,7 @@ async function getUnreadCounts(
       AND JSON_EXTRACT(permissions, ${visPermissionExtractString})
     GROUP BY user
   `;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
   const usersToUnreadCounts = {};
   for (let row of result) {
     usersToUnreadCounts[row.user.toString()] = row.unread_count;
@@ -200,8 +194,4 @@ async function getUnreadCounts(
   return usersToUnreadCounts;
 }
 
-export {
-  apnPush,
-  fcmPush,
-  getUnreadCounts,
-}
+export { apnPush, fcmPush, getUnreadCounts };

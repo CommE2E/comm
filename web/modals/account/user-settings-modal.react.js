@@ -39,20 +39,19 @@ import css from '../../style.css';
 import Modal from '../modal.react';
 import VerifyEmailModal from './verify-email-modal.react';
 
-type TabType = "general" | "delete";
+type TabType = 'general' | 'delete';
 type TabProps = {
   name: string,
   tabType: TabType,
-  selected: bool,
+  selected: boolean,
   onClick: (tabType: TabType) => void,
 };
 class Tab extends React.PureComponent<TabProps> {
-
   render() {
     const classNamesForTab = classNames({
       [css['current-tab']]: this.props.selected,
-      [css['delete-tab']]: this.props.selected &&
-        this.props.tabType === "delete",
+      [css['delete-tab']]:
+        this.props.selected && this.props.tabType === 'delete',
     });
     return (
       <li className={classNamesForTab} onClick={this.onClick}>
@@ -63,8 +62,7 @@ class Tab extends React.PureComponent<TabProps> {
 
   onClick = () => {
     return this.props.onClick(this.props.tabType);
-  }
-
+  };
 }
 
 type Props = {
@@ -72,7 +70,7 @@ type Props = {
   // Redux state
   currentUserInfo: ?CurrentUserInfo,
   preRequestUserState: PreRequestUserState,
-  inputDisabled: bool,
+  inputDisabled: boolean,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -87,7 +85,7 @@ type Props = {
 };
 type State = {
   email: ?string,
-  emailVerified: ?bool,
+  emailVerified: ?boolean,
   newPassword: string,
   confirmNewPassword: string,
   currentPassword: string,
@@ -96,7 +94,6 @@ type State = {
 };
 
 class UserSettingsModal extends React.PureComponent<Props, State> {
-
   static propTypes = {
     setModal: PropTypes.func.isRequired,
     currentUserInfo: currentUserPropType,
@@ -116,16 +113,16 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
     this.state = {
       email: this.email,
       emailVerified: this.emailVerified,
-      newPassword: "",
-      confirmNewPassword: "",
-      currentPassword: "",
-      errorMessage: "",
-      currentTabType: "general",
+      newPassword: '',
+      confirmNewPassword: '',
+      currentPassword: '',
+      errorMessage: '',
+      currentTabType: 'general',
     };
   }
 
   componentDidMount() {
-    invariant(this.emailInput, "email ref unset");
+    invariant(this.emailInput, 'email ref unset');
     this.emailInput.focus();
   }
 
@@ -149,19 +146,21 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
 
   render() {
     let mainContent = null;
-    if (this.state.currentTabType === "general") {
+    if (this.state.currentTabType === 'general') {
       let verificationStatus = null;
       if (this.state.emailVerified === true) {
         verificationStatus = (
           <div
             className={`${css['form-subtitle']} ${css['verified-status-true']}`}
-          >Verified</div>
+          >
+            Verified
+          </div>
         );
       } else if (this.state.emailVerified === false) {
         verificationStatus = (
           <div className={css['form-subtitle']}>
             <span className={css['verified-status-false']}>Not verified</span>
-            {" - "}
+            {' - '}
             <a href="#" onClick={this.onClickResendVerificationEmail}>
               resend verification email
             </a>
@@ -214,7 +213,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
           </div>
         </div>
       );
-    } else if (this.state.currentTabType === "delete") {
+    } else if (this.state.currentTabType === 'delete') {
       mainContent = (
         <p className={css['italic']}>
           Your account will be permanently deleted. There is no way to reverse
@@ -224,7 +223,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
     }
 
     let buttons = null;
-    if (this.state.currentTabType === "delete") {
+    if (this.state.currentTabType === 'delete') {
       buttons = (
         <span className={css['form-submit']}>
           <input
@@ -255,14 +254,14 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
             name="General"
             tabType="general"
             onClick={this.setTab}
-            selected={this.state.currentTabType === "general"}
+            selected={this.state.currentTabType === 'general'}
             key="general"
           />
           <Tab
             name="Delete"
             tabType="delete"
             onClick={this.setTab}
-            selected={this.state.currentTabType === "delete"}
+            selected={this.state.currentTabType === 'delete'}
             key="delete"
           />
         </ul>
@@ -299,15 +298,15 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
 
   emailInputRef = (emailInput: ?HTMLInputElement) => {
     this.emailInput = emailInput;
-  }
+  };
 
   newPasswordInputRef = (newPasswordInput: ?HTMLInputElement) => {
     this.newPasswordInput = newPasswordInput;
-  }
+  };
 
   currentPasswordInputRef = (currentPasswordInput: ?HTMLInputElement) => {
     this.currentPasswordInput = currentPasswordInput;
-  }
+  };
 
   setTab = (tabType: TabType) => {
     this.setState({ currentTabType: tabType });
@@ -315,32 +314,30 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
 
   onChangeEmail = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
-    invariant(target instanceof HTMLInputElement, "target not input");
+    invariant(target instanceof HTMLInputElement, 'target not input');
     this.setState({
       email: target.value,
-      emailVerified: target.value === this.email
-        ? this.emailVerified
-        : null,
+      emailVerified: target.value === this.email ? this.emailVerified : null,
     });
-  }
+  };
 
   onChangeNewPassword = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
-    invariant(target instanceof HTMLInputElement, "target not input");
+    invariant(target instanceof HTMLInputElement, 'target not input');
     this.setState({ newPassword: target.value });
-  }
+  };
 
   onChangeConfirmNewPassword = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
-    invariant(target instanceof HTMLInputElement, "target not input");
+    invariant(target instanceof HTMLInputElement, 'target not input');
     this.setState({ confirmNewPassword: target.value });
-  }
+  };
 
   onChangeCurrentPassword = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
-    invariant(target instanceof HTMLInputElement, "target not input");
+    invariant(target instanceof HTMLInputElement, 'target not input');
     this.setState({ currentPassword: target.value });
-  }
+  };
 
   onClickResendVerificationEmail = (
     event: SyntheticEvent<HTMLAnchorElement>,
@@ -350,7 +347,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
       resendVerificationEmailActionTypes,
       this.resendVerificationEmailAction(),
     );
-  }
+  };
 
   async resendVerificationEmailAction() {
     await this.props.resendVerificationEmail();
@@ -363,13 +360,13 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
     if (this.state.newPassword !== this.state.confirmNewPassword) {
       this.setState(
         {
-          newPassword: "",
-          confirmNewPassword: "",
+          newPassword: '',
+          confirmNewPassword: '',
           errorMessage: "passwords don't match",
-          currentTabType: "general",
+          currentTabType: 'general',
         },
         () => {
-          invariant(this.newPasswordInput, "newPasswordInput ref unset");
+          invariant(this.newPasswordInput, 'newPasswordInput ref unset');
           this.newPasswordInput.focus();
         },
       );
@@ -380,12 +377,12 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
     if (!email || email.search(validEmailRegex) === -1) {
       this.setState(
         {
-          email: "",
-          errorMessage: "invalid email address",
-          currentTabType: "general",
+          email: '',
+          errorMessage: 'invalid email address',
+          currentTabType: 'general',
         },
         () => {
-          invariant(this.emailInput, "emailInput ref unset");
+          invariant(this.emailInput, 'emailInput ref unset');
           this.emailInput.focus();
         },
       );
@@ -396,7 +393,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
       changeUserSettingsActionTypes,
       this.changeUserSettingsAction(email),
     );
-  }
+  };
 
   async changeUserSettingsAction(email: string) {
     try {
@@ -417,13 +414,13 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
       if (e.message === 'invalid_credentials') {
         this.setState(
           {
-            currentPassword: "",
-            errorMessage: "wrong current password",
+            currentPassword: '',
+            errorMessage: 'wrong current password',
           },
           () => {
             invariant(
               this.currentPasswordInput,
-              "currentPasswordInput ref unset",
+              'currentPasswordInput ref unset',
             );
             this.currentPasswordInput.focus();
           },
@@ -433,11 +430,11 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
           {
             email: this.email,
             emailVerified: this.emailVerified,
-            errorMessage: "email already taken",
-            currentTabType: "general",
+            errorMessage: 'email already taken',
+            currentTabType: 'general',
           },
           () => {
-            invariant(this.emailInput, "emailInput ref unset");
+            invariant(this.emailInput, 'emailInput ref unset');
             this.emailInput.focus();
           },
         );
@@ -446,14 +443,14 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
           {
             email: this.email,
             emailVerified: this.emailVerified,
-            newPassword: "",
-            confirmNewPassword: "",
-            currentPassword: "",
-            errorMessage: "unknown error",
-            currentTabType: "general",
+            newPassword: '',
+            confirmNewPassword: '',
+            currentPassword: '',
+            errorMessage: 'unknown error',
+            currentTabType: 'general',
           },
           () => {
-            invariant(this.emailInput, "emailInput ref unset");
+            invariant(this.emailInput, 'emailInput ref unset');
             this.emailInput.focus();
           },
         );
@@ -468,7 +465,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
       deleteAccountActionTypes,
       this.deleteAction(),
     );
-  }
+  };
 
   async deleteAction() {
     try {
@@ -478,19 +475,20 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
       );
       this.clearModal();
       return response;
-    } catch(e) {
-      const errorMessage = e.message === "invalid_credentials"
-        ? "wrong password"
-        : "unknown error";
+    } catch (e) {
+      const errorMessage =
+        e.message === 'invalid_credentials'
+          ? 'wrong password'
+          : 'unknown error';
       this.setState(
         {
-          currentPassword: "",
+          currentPassword: '',
           errorMessage: errorMessage,
         },
         () => {
           invariant(
             this.currentPasswordInput,
-            "currentPasswordInput ref unset",
+            'currentPasswordInput ref unset',
           );
           this.currentPasswordInput.focus();
         },
@@ -501,24 +499,27 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
 
   clearModal = () => {
     this.props.setModal(null);
-  }
-
+  };
 }
 
-const deleteAccountLoadingStatusSelector
-  = createLoadingStatusSelector(deleteAccountActionTypes);
-const changeUserSettingsLoadingStatusSelector
-  = createLoadingStatusSelector(changeUserSettingsActionTypes);
-const resendVerificationEmailLoadingStatusSelector
-  = createLoadingStatusSelector(resendVerificationEmailActionTypes);
+const deleteAccountLoadingStatusSelector = createLoadingStatusSelector(
+  deleteAccountActionTypes,
+);
+const changeUserSettingsLoadingStatusSelector = createLoadingStatusSelector(
+  changeUserSettingsActionTypes,
+);
+const resendVerificationEmailLoadingStatusSelector = createLoadingStatusSelector(
+  resendVerificationEmailActionTypes,
+);
 
 export default connect(
   (state: AppState) => ({
     currentUserInfo: state.currentUserInfo,
     preRequestUserState: preRequestUserStateSelector(state),
-    inputDisabled: deleteAccountLoadingStatusSelector(state) === "loading" ||
-      changeUserSettingsLoadingStatusSelector(state) === "loading" ||
-      resendVerificationEmailLoadingStatusSelector(state) === "loading",
+    inputDisabled:
+      deleteAccountLoadingStatusSelector(state) === 'loading' ||
+      changeUserSettingsLoadingStatusSelector(state) === 'loading' ||
+      resendVerificationEmailLoadingStatusSelector(state) === 'loading',
   }),
   {
     deleteAccount,

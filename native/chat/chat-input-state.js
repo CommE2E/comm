@@ -37,7 +37,7 @@ export type ChatInputState = {|
     threadID: string,
     selections: $ReadOnlyArray<MediaSelection>,
   ) => Promise<void>,
-  messageHasUploadFailure: (localMessageID: string) => bool,
+  messageHasUploadFailure: (localMessageID: string) => boolean,
   retryMultimediaMessage: (localMessageID: string) => Promise<void>,
 |};
 
@@ -53,18 +53,24 @@ const ChatInputStateContext = React.createContext<?ChatInputState>(null);
 function withChatInputState<
   AllProps: {},
   ComponentType: React.ComponentType<AllProps>,
->(Component: ComponentType): React.ComponentType<$Diff<
-  React.ElementConfig<ComponentType>,
-  { chatInputState: ?ChatInputState },
->> {
-  class ChatInputStateHOC extends React.PureComponent<$Diff<
+>(
+  Component: ComponentType,
+): React.ComponentType<
+  $Diff<
     React.ElementConfig<ComponentType>,
     { chatInputState: ?ChatInputState },
-  >> {
+  >,
+> {
+  class ChatInputStateHOC extends React.PureComponent<
+    $Diff<
+      React.ElementConfig<ComponentType>,
+      { chatInputState: ?ChatInputState },
+    >,
+  > {
     render() {
       return (
         <ChatInputStateContext.Consumer>
-          {value => (<Component {...this.props} chatInputState={value} />)}
+          {value => <Component {...this.props} chatInputState={value} />}
         </ChatInputStateContext.Consumer>
       );
     }

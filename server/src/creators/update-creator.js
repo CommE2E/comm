@@ -34,9 +34,7 @@ import { promiseAll } from 'lib/utils/promises';
 import { usersInRawEntryInfos } from 'lib/shared/entry-utils';
 import { usersInThreadInfo } from 'lib/shared/thread-utils';
 import { usersInMessageInfos } from 'lib/shared/message-utils';
-import {
-  nonThreadCalendarFilters,
-} from 'lib/selectors/calendar-filter-selectors';
+import { nonThreadCalendarFilters } from 'lib/selectors/calendar-filter-selectors';
 import {
   keyForUpdateData,
   keyForUpdateInfo,
@@ -70,15 +68,15 @@ type UpdatesForCurrentSession =
   // passed in. We will broadcast to all valid sessions via Redis and return
   // nothing to the caller, relying on the current session's Redis listener to
   // pick up the updates and deliver them asynchronously.
-  | "broadcast"
+  | 'broadcast'
   // This is the default if a non-isSocket Viewer is passed in. We avoid
   // broadcasting the update to the current session, and instead return the
   // update to the caller, who will handle delivering it to the client.
-  | "return"
+  | 'return'
   // This means we ignore any updates destined for the current session.
   // Presumably the caller knows what they are doing and has a different way of
   // communicating the relevant information to the client.
-  | "ignore";
+  | 'ignore';
 
 export type ViewerInfo =
   | {|
@@ -90,15 +88,13 @@ export type ViewerInfo =
       viewer: Viewer,
       calendarQuery: ?CalendarQuery,
       updatesForCurrentSession?: UpdatesForCurrentSession,
-      threadInfos: {[id: string]: RawThreadInfo},
-      userInfos: {[id: string]: AccountUserInfo},
+      threadInfos: { [id: string]: RawThreadInfo },
+      userInfos: { [id: string]: AccountUserInfo },
     |};
 const emptyArray = [];
 const defaultUpdateCreationResult = { viewerUpdates: [], userInfos: {} };
-const sortFunction = (
-  a: UpdateData | UpdateInfo,
-  b: UpdateData | UpdateInfo,
-) => a.time - b.time;
+const sortFunction = (a: UpdateData | UpdateInfo, b: UpdateData | UpdateInfo) =>
+  a.time - b.time;
 
 // Creates rows in the updates table based on the inputed updateDatas. Returns
 // UpdateInfos pertaining to the provided viewerInfo, as well as related
@@ -131,17 +127,14 @@ async function createUpdates(
     // update types we should delete for the corresponding key
     let types;
     if (updateData.type === updateTypes.DELETE_ACCOUNT) {
-      types = [
-        updateTypes.DELETE_ACCOUNT,
-        updateTypes.UPDATE_USER,
-      ];
+      types = [updateTypes.DELETE_ACCOUNT, updateTypes.UPDATE_USER];
     } else if (updateData.type === updateTypes.UPDATE_THREAD) {
       types = [
         updateTypes.UPDATE_THREAD,
         updateTypes.UPDATE_THREAD_READ_STATUS,
       ];
     } else if (updateData.type === updateTypes.UPDATE_THREAD_READ_STATUS) {
-      types = [ updateTypes.UPDATE_THREAD_READ_STATUS ];
+      types = [updateTypes.UPDATE_THREAD_READ_STATUS];
     } else if (
       updateData.type === updateTypes.DELETE_THREAD ||
       updateData.type === updateTypes.JOIN_THREAD
@@ -150,15 +143,15 @@ async function createUpdates(
     } else if (updateData.type === updateTypes.UPDATE_ENTRY) {
       types = [];
     } else if (updateData.type === updateTypes.UPDATE_CURRENT_USER) {
-      types = [ updateTypes.UPDATE_CURRENT_USER ];
+      types = [updateTypes.UPDATE_CURRENT_USER];
     } else if (updateData.type === updateTypes.UPDATE_USER) {
-      types = [ updateTypes.UPDATE_USER ];
+      types = [updateTypes.UPDATE_USER];
     } else {
       filteredUpdateDatas.push(updateData);
       continue;
     }
     const conditionKey = conditionKeyForUpdateData(updateData);
-    invariant(conditionKey && types, "should be set");
+    invariant(conditionKey && types, 'should be set');
 
     // Possibly filter any UpdateDatas in the current batch based on this one
     let keyUpdateDatas = keyedUpdateDatas.get(conditionKey);
@@ -224,22 +217,22 @@ async function createUpdates(
     }
   }
 
-  for (let [ conditionKey, updateDatas ] of keyedUpdateDatas) {
+  for (let [conditionKey, updateDatas] of keyedUpdateDatas) {
     filteredUpdateDatas.push(...updateDatas);
   }
-  const ids = await createIDs("updates", filteredUpdateDatas.length);
+  const ids = await createIDs('updates', filteredUpdateDatas.length);
 
   let updatesForCurrentSession =
     viewerInfo && viewerInfo.updatesForCurrentSession;
   if (!updatesForCurrentSession && viewerInfo) {
     updatesForCurrentSession = viewerInfo.viewer.isSocket
-      ? "broadcast"
-      : "return";
+      ? 'broadcast'
+      : 'return';
   } else if (!updatesForCurrentSession) {
-    updatesForCurrentSession = "broadcast";
+    updatesForCurrentSession = 'broadcast';
   }
   const dontBroadcastSession =
-    updatesForCurrentSession !== "broadcast" && viewerInfo
+    updatesForCurrentSession !== 'broadcast' && viewerInfo
       ? viewerInfo.viewer.session
       : null;
 
@@ -249,7 +242,8 @@ async function createUpdates(
   const earliestTime: Map<string, number> = new Map();
   for (let i = 0; i < filteredUpdateDatas.length; i++) {
     const updateData = filteredUpdateDatas[i];
-    let content, target = null;
+    let content,
+      target = null;
     if (updateData.type === updateTypes.DELETE_ACCOUNT) {
       content = JSON.stringify({ deletedUserID: updateData.deletedUserID });
     } else if (updateData.type === updateTypes.UPDATE_THREAD) {
@@ -297,7 +291,7 @@ async function createUpdates(
     }
 
     if (
-      updatesForCurrentSession === "return" &&
+      updatesForCurrentSession === 'return' &&
       viewerInfo &&
       updateData.userID === viewerInfo.viewer.id &&
       (!target || target === viewerInfo.viewer.session)
@@ -334,9 +328,9 @@ async function createUpdates(
   }
 
   const deleteSQLConditions: SQLStatement[] = [...deleteConditions].map(
-    ([ conditionKey: string, types: number[] ]) => {
-      const [ userID, key, target ] = conditionKey.split('|');
-      const conditions = [ SQL`u.user = ${userID}`, SQL`u.key = ${key}` ];
+    ([conditionKey: string, types: number[]]) => {
+      const [userID, key, target] = conditionKey.split('|');
+      const conditions = [SQL`u.user = ${userID}`, SQL`u.key = ${key}`];
       if (target) {
         conditions.push(SQL`u.target = ${target}`);
       }
@@ -363,10 +357,9 @@ async function createUpdates(
   }
 
   if (publishInfos.size > 0) {
-    handleAsyncPromise(redisPublish(
-      publishInfos.values(),
-      dontBroadcastSession,
-    ));
+    handleAsyncPromise(
+      redisPublish(publishInfos.values(), dontBroadcastSession),
+    );
   }
 
   if (deleteSQLConditions.length > 0) {
@@ -374,7 +367,7 @@ async function createUpdates(
   }
 
   if (viewerRawUpdateInfos.length > 0) {
-    invariant(viewerInfo, "should be set");
+    invariant(viewerInfo, 'should be set');
     promises.updatesResult = fetchUpdateInfosWithRawUpdateInfos(
       viewerRawUpdateInfos,
       viewerInfo,
@@ -391,7 +384,7 @@ async function createUpdates(
 
 export type FetchUpdatesResult = {|
   updateInfos: $ReadOnlyArray<UpdateInfo>,
-  userInfos: {[id: string]: AccountUserInfo},
+  userInfos: { [id: string]: AccountUserInfo },
 |};
 async function fetchUpdateInfosWithRawUpdateInfos(
   rawUpdateInfos: $ReadOnlyArray<RawUpdateInfo>,
@@ -454,26 +447,22 @@ async function fetchUpdateInfosWithRawUpdateInfos(
       ...calendarQuery,
       filters: [
         ...nonThreadCalendarFilters(calendarQuery.filters),
-        { type: "threads", threadIDs: [...threadIDsNeedingDetailedFetch] },
+        { type: 'threads', threadIDs: [...threadIDsNeedingDetailedFetch] },
       ],
     };
-    promises.calendarResult = fetchEntryInfos(
-      viewer,
-      [ threadCalendarQuery ],
-    );
+    promises.calendarResult = fetchEntryInfos(viewer, [threadCalendarQuery]);
   }
 
   if (entryIDsNeedingFetch.size > 0) {
-    promises.entryInfosResult = fetchEntryInfosByID(
-      viewer,
-      [...entryIDsNeedingFetch],
-    );
+    promises.entryInfosResult = fetchEntryInfosByID(viewer, [
+      ...entryIDsNeedingFetch,
+    ]);
   }
 
   if (currentUserIDsNeedingFetch.size > 0) {
-    promises.currentUserInfosResult = fetchLoggedInUserInfos(
-      [...currentUserIDsNeedingFetch],
-    );
+    promises.currentUserInfosResult = fetchLoggedInUserInfos([
+      ...currentUserIDsNeedingFetch,
+    ]);
   }
 
   const {
@@ -494,17 +483,13 @@ async function fetchUpdateInfosWithRawUpdateInfos(
     threadInfosResult = { threadInfos: {}, userInfos: {} };
   }
 
-  return await updateInfosFromRawUpdateInfos(
-    viewer,
-    rawUpdateInfos,
-    {
-      threadInfosResult,
-      messageInfosResult,
-      calendarResult,
-      entryInfosResult,
-      currentUserInfosResult,
-    },
-  );
+  return await updateInfosFromRawUpdateInfos(viewer, rawUpdateInfos, {
+    threadInfosResult,
+    messageInfosResult,
+    calendarResult,
+    entryInfosResult,
+    currentUserInfosResult,
+  });
 }
 
 export type UpdateInfosRawData = {|
@@ -538,11 +523,8 @@ async function updateInfosFromRawUpdateInfos(
       });
     } else if (rawUpdateInfo.type === updateTypes.UPDATE_THREAD) {
       const threadInfo = threadInfosResult.threadInfos[rawUpdateInfo.threadID];
-      invariant(threadInfo, "should be set");
-      userIDs = new Set([
-        ...userIDs,
-        ...usersInThreadInfo(threadInfo),
-      ]);
+      invariant(threadInfo, 'should be set');
+      userIDs = new Set([...userIDs, ...usersInThreadInfo(threadInfo)]);
       updateInfos.push({
         type: updateTypes.UPDATE_THREAD,
         id: rawUpdateInfo.id,
@@ -566,16 +548,16 @@ async function updateInfosFromRawUpdateInfos(
       });
     } else if (rawUpdateInfo.type === updateTypes.JOIN_THREAD) {
       const threadInfo = threadInfosResult.threadInfos[rawUpdateInfo.threadID];
-      invariant(threadInfo, "should be set");
+      invariant(threadInfo, 'should be set');
       const rawEntryInfos = [];
-      invariant(calendarResult, "should be set");
+      invariant(calendarResult, 'should be set');
       for (let entryInfo of calendarResult.rawEntryInfos) {
         if (entryInfo.threadID === rawUpdateInfo.threadID) {
           rawEntryInfos.push(entryInfo);
         }
       }
       const rawMessageInfos = [];
-      invariant(messageInfosResult, "should be set");
+      invariant(messageInfosResult, 'should be set');
       for (let messageInfo of messageInfosResult.rawMessageInfos) {
         if (messageInfo.threadID === rawUpdateInfo.threadID) {
           rawMessageInfos.push(messageInfo);
@@ -605,15 +587,12 @@ async function updateInfosFromRawUpdateInfos(
         deviceToken: rawUpdateInfo.deviceToken,
       });
     } else if (rawUpdateInfo.type === updateTypes.UPDATE_ENTRY) {
-      invariant(entryInfosResult, "should be set");
+      invariant(entryInfosResult, 'should be set');
       const entryInfo = entryInfosResult.find(
         candidate => candidate.id === rawUpdateInfo.entryID,
       );
-      invariant(entryInfo, "should be set");
-      userIDs = new Set([
-        ...userIDs,
-        ...usersInRawEntryInfos([entryInfo]),
-      ]);
+      invariant(entryInfo, 'should be set');
+      userIDs = new Set([...userIDs, ...usersInRawEntryInfos([entryInfo])]);
       updateInfos.push({
         type: updateTypes.UPDATE_ENTRY,
         id: rawUpdateInfo.id,
@@ -621,11 +600,11 @@ async function updateInfosFromRawUpdateInfos(
         entryInfo,
       });
     } else if (rawUpdateInfo.type === updateTypes.UPDATE_CURRENT_USER) {
-      invariant(currentUserInfosResult, "should be set");
+      invariant(currentUserInfosResult, 'should be set');
       const currentUserInfo = currentUserInfosResult.find(
         candidate => candidate.id === viewer.userID,
       );
-      invariant(currentUserInfo, "should be set");
+      invariant(currentUserInfo, 'should be set');
       updateInfos.push({
         type: updateTypes.UPDATE_CURRENT_USER,
         id: rawUpdateInfo.id,
@@ -639,10 +618,7 @@ async function updateInfosFromRawUpdateInfos(
         time: rawUpdateInfo.time,
         updatedUserID: rawUpdateInfo.updatedUserID,
       });
-      userIDs = new Set([
-        ...userIDs,
-        rawUpdateInfo.updatedUserID,
-      ]);
+      userIDs = new Set([...userIDs, rawUpdateInfo.updatedUserID]);
     } else {
       invariant(false, `unrecognized updateType ${rawUpdateInfo.type}`);
     }
@@ -738,7 +714,4 @@ async function redisPublish(
   }
 }
 
-export {
-  createUpdates,
-  fetchUpdateInfosWithRawUpdateInfos,
-};
+export { createUpdates, fetchUpdateInfosWithRawUpdateInfos };

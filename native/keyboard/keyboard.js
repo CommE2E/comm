@@ -18,18 +18,18 @@ export type KeyboardEvent = $ReadOnly<{|
 type ShowKeyboardCallback = (event: KeyboardEvent) => void;
 type HideKeyboardCallback = (event: ?KeyboardEvent) => void;
 type IgnoredKeyboardEvent =
- | {|
-     type: "show",
-     callback: ShowKeyboardCallback,
-     event: KeyboardEvent,
-     time: number,
-   |}
- | {|
-     type: "hide",
-     callback: HideKeyboardCallback,
-     event: ?KeyboardEvent,
-     time: number,
-   |};
+  | {|
+      type: 'show',
+      callback: ShowKeyboardCallback,
+      event: KeyboardEvent,
+      time: number,
+    |}
+  | {|
+      type: 'hide',
+      callback: HideKeyboardCallback,
+      event: ?KeyboardEvent,
+      time: number,
+    |};
 
 export type EmitterSubscription = {
   +remove: () => void,
@@ -39,7 +39,7 @@ export type EmitterSubscription = {
 // we will call the relevant keyboard callbacks.
 const appStateChangeDelay = 500;
 
-const isIPhoneX = Platform.OS === "ios" && DeviceInfo.isIPhoneX_deprecated;
+const isIPhoneX = Platform.OS === 'ios' && DeviceInfo.isIPhoneX_deprecated;
 const defaultKeyboardHeight = Platform.select({
   ios: isIPhoneX ? 335 : 216,
   android: 282.28,
@@ -61,7 +61,7 @@ function handleAppStateChange(nextAppState: ?string) {
   const ignoredEvents = recentIgnoredKeyboardEvents;
   recentIgnoredKeyboardEvents = [];
 
-  if (currentState !== "active") {
+  if (currentState !== 'active') {
     return;
   }
   for (let ignoredEvent of ignoredEvents) {
@@ -69,7 +69,7 @@ function handleAppStateChange(nextAppState: ?string) {
       continue;
     }
     // Conditional necessary for Flow :(
-    if (ignoredEvent.type === "show") {
+    if (ignoredEvent.type === 'show') {
       ignoredEvent.callback(ignoredEvent.event);
     } else {
       ignoredEvent.callback(ignoredEvent.event);
@@ -103,26 +103,26 @@ function callShowCallbackIfAppActive(
       const { height } = event.endCoordinates;
       // On iOS simulator, when the keyboard is disabled we still trigger here,
       // but with small values. This condition should filter that out
-      if (Platform.OS !== "ios" || height > 100) {
+      if (Platform.OS !== 'ios' || height > 100) {
         keyboardHeight = height;
       }
     }
-    if (currentState === "active") {
+    if (currentState === 'active') {
       callback(event);
     } else {
       recentIgnoredKeyboardEvents.push({
-        type: "show",
+        type: 'show',
         callback,
         event,
         time: Date.now(),
       });
     }
-  }
+  };
 }
 function addKeyboardShowListener(callback: ShowKeyboardCallback) {
   incrementAppStateListeners();
   return Keyboard.addListener(
-    Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+    Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
     callShowCallbackIfAppActive(callback),
   );
 }
@@ -137,29 +137,29 @@ function callHideCallbackIfAppActive(
         keyboardHeight = height;
       }
     }
-    if (currentState === "active") {
+    if (currentState === 'active') {
       callback(event);
     } else {
       recentIgnoredKeyboardEvents.push({
-        type: "hide",
+        type: 'hide',
         callback,
         event,
         time: Date.now(),
       });
     }
-  }
+  };
 }
 function addKeyboardDismissListener(callback: HideKeyboardCallback) {
   incrementAppStateListeners();
   return Keyboard.addListener(
-    Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
+    Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
     callHideCallbackIfAppActive(callback),
   );
 }
 function addKeyboardDidDismissListener(callback: HideKeyboardCallback) {
   incrementAppStateListeners();
   return Keyboard.addListener(
-    "keyboardDidHide",
+    'keyboardDidHide',
     callHideCallbackIfAppActive(callback),
   );
 }

@@ -36,24 +36,15 @@ import _sortBy from 'lodash/fp/sortBy';
 import { createSelector } from 'reselect';
 
 import { connect } from 'lib/utils/redux-utils';
-import {
-  newThreadActionTypes,
-  newThread,
-} from 'lib/actions/thread-actions';
-import {
-  searchUsersActionTypes,
-  searchUsers,
-} from 'lib/actions/user-actions';
+import { newThreadActionTypes, newThread } from 'lib/actions/thread-actions';
+import { searchUsersActionTypes, searchUsers } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   userInfoSelectorForOtherMembersOfThread,
   userSearchIndexForOtherMembersOfThread,
 } from 'lib/selectors/user-selectors';
 import SearchIndex from 'lib/shared/search-index';
-import {
-  threadInChatList,
-  userIsMember,
-} from 'lib/shared/thread-utils';
+import { threadInChatList, userIsMember } from 'lib/shared/thread-utils';
 import { getUserSearchResults } from 'lib/shared/search-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
@@ -68,9 +59,9 @@ import ThreadVisibility from '../components/thread-visibility.react';
 import { colorsSelector, styleSelector } from '../themes/colors';
 
 const tagInputProps = {
-  placeholder: "username",
+  placeholder: 'username',
   autoFocus: true,
-  returnKeyType: "go",
+  returnKeyType: 'go',
 };
 
 type NavProp = NavigationScreenProp<{|
@@ -78,7 +69,7 @@ type NavProp = NavigationScreenProp<{|
   params: {|
     threadType?: ThreadType,
     parentThreadID?: string,
-    createButtonDisabled?: bool,
+    createButtonDisabled?: boolean,
   |},
 |}>;
 
@@ -107,9 +98,9 @@ type Props = {|
   // Redux state
   parentThreadInfo: ?ThreadInfo,
   loadingStatus: LoadingStatus,
-  otherUserInfos: {[id: string]: AccountUserInfo},
+  otherUserInfos: { [id: string]: AccountUserInfo },
   userSearchIndex: SearchIndex,
-  threadInfos: {[id: string]: ThreadInfo},
+  threadInfos: { [id: string]: ThreadInfo },
   colors: Colors,
   styles: Styles,
   // Redux dispatch functions
@@ -124,7 +115,6 @@ type State = {|
 |};
 type PropsAndState = {| ...Props, ...State |};
 class ComposeThread extends React.PureComponent<Props, State> {
-
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
@@ -158,10 +148,10 @@ class ComposeThread extends React.PureComponent<Props, State> {
         disabled={!!navigation.getParam('createButtonDisabled')}
       />
     ),
-    headerBackTitle: "Back",
+    headerBackTitle: 'Back',
   });
   state = {
-    usernameInputText: "",
+    usernameInputText: '',
     userInfoInputArray: [],
   };
   tagInput: ?TagInput<AccountUserInfo>;
@@ -170,7 +160,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
   componentDidMount() {
     registerChatScreen(this.props.navigation.state.key, this);
     setOnPressCreateThread(this.onPressCreateThread);
-    this.searchUsers("");
+    this.searchUsers('');
   }
 
   componentWillUnmount() {
@@ -190,17 +180,18 @@ class ComposeThread extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.parentThreadInfo,
     (
       text: string,
-      userInfos: {[id: string]: AccountUserInfo},
+      userInfos: { [id: string]: AccountUserInfo },
       searchIndex: SearchIndex,
       userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
       parentThreadInfo: ?ThreadInfo,
-    ) => getUserSearchResults(
-      text,
-      userInfos,
-      searchIndex,
-      userInfoInputArray.map(userInfo => userInfo.id),
-      parentThreadInfo,
-    ),
+    ) =>
+      getUserSearchResults(
+        text,
+        userInfos,
+        searchIndex,
+        userInfoInputArray.map(userInfo => userInfo.id),
+        parentThreadInfo,
+      ),
   );
 
   get userSearchResults() {
@@ -213,7 +204,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.userInfoInputArray,
     (
       parentThreadInfo: ?ThreadInfo,
-      threadInfos: {[id: string]: ThreadInfo},
+      threadInfos: { [id: string]: ThreadInfo },
       userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
     ) => {
       const userIDs = userInfoInputArray.map(userInfo => userInfo.id);
@@ -228,10 +219,12 @@ class ComposeThread extends React.PureComponent<Props, State> {
               threadInfo.parentThreadID === parentThreadInfo.id) &&
             userIDs.every(userID => userIsMember(threadInfo, userID)),
         ),
-        _sortBy(([
-          'members.length',
-          (threadInfo: ThreadInfo) => threadInfo.name ? 1 : 0,
-        ]: $ReadOnlyArray<string | (threadInfo: ThreadInfo) => mixed>)),
+        _sortBy(
+          ([
+            'members.length',
+            (threadInfo: ThreadInfo) => (threadInfo.name ? 1 : 0),
+          ]: $ReadOnlyArray<string | ((threadInfo: ThreadInfo) => mixed)>),
+        ),
       )(threadInfos);
     },
   );
@@ -323,18 +316,18 @@ class ComposeThread extends React.PureComponent<Props, State> {
 
   tagInputRef = (tagInput: ?TagInput<AccountUserInfo>) => {
     this.tagInput = tagInput;
-  }
+  };
 
   onChangeTagInput = (userInfoInputArray: $ReadOnlyArray<AccountUserInfo>) => {
     this.setState({ userInfoInputArray });
-  }
+  };
 
   tagDataLabelExtractor = (userInfo: AccountUserInfo) => userInfo.username;
 
   setUsernameInputText = (text: string) => {
     this.searchUsers(text);
     this.setState({ usernameInputText: text });
-  }
+  };
 
   searchUsers(usernamePrefix: string) {
     this.props.dispatchActionPromise(
@@ -355,9 +348,9 @@ class ComposeThread extends React.PureComponent<Props, State> {
     ];
     this.setState({
       userInfoInputArray,
-      usernameInputText: "",
+      usernameInputText: '',
     });
-  }
+  };
 
   onPressCreateThread = () => {
     if (this.createThreadPressed) {
@@ -366,8 +359,8 @@ class ComposeThread extends React.PureComponent<Props, State> {
     this.createThreadPressed = true;
     if (this.state.userInfoInputArray.length === 0) {
       Alert.alert(
-        "Chatting to yourself?",
-        "Are you sure you want to create a thread containing only yourself?",
+        'Chatting to yourself?',
+        'Are you sure you want to create a thread containing only yourself?',
         [
           { text: 'Cancel', style: 'cancel' },
           { text: 'Confirm', onPress: this.dispatchNewChatThreadAction },
@@ -376,20 +369,22 @@ class ComposeThread extends React.PureComponent<Props, State> {
     } else {
       this.dispatchNewChatThreadAction();
     }
-  }
+  };
 
   dispatchNewChatThreadAction = () => {
     this.props.dispatchActionPromise(
       newThreadActionTypes,
       this.newChatThreadAction(),
     );
-  }
+  };
 
   async newChatThreadAction() {
     this.props.navigation.setParams({ createButtonDisabled: true });
     try {
       const threadTypeParam = this.props.navigation.getParam('threadType');
-      const threadType = threadTypeParam ? threadTypeParam : threadTypes.CHAT_SECRET;
+      const threadType = threadTypeParam
+        ? threadTypeParam
+        : threadTypes.CHAT_SECRET;
       const initialMemberIDs = this.state.userInfoInputArray.map(
         (userInfo: AccountUserInfo) => userInfo.id,
       );
@@ -407,11 +402,9 @@ class ComposeThread extends React.PureComponent<Props, State> {
       this.createThreadPressed = false;
       this.props.navigation.setParams({ createButtonDisabled: false });
       Alert.alert(
-        "Unknown error",
-        "Uhh... try again?",
-        [
-          { text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged },
-        ],
+        'Unknown error',
+        'Uhh... try again?',
+        [{ text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged }],
         { cancelable: false },
       );
       throw e;
@@ -419,16 +412,13 @@ class ComposeThread extends React.PureComponent<Props, State> {
   }
 
   onErrorAcknowledged = () => {
-    invariant(this.tagInput, "tagInput should be set");
+    invariant(this.tagInput, 'tagInput should be set');
     this.tagInput.focus();
-  }
+  };
 
   onUnknownErrorAlertAcknowledged = () => {
-    this.setState(
-      { usernameInputText: "" },
-      this.onErrorAcknowledged,
-    );
-  }
+    this.setState({ usernameInputText: '' }, this.onErrorAcknowledged);
+  };
 
   onSelectExistingThread = (threadID: string) => {
     const threadInfo = this.props.threadInfos[threadID];
@@ -437,8 +427,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
       params: { threadInfo },
       key: `${MessageListRouteName}${threadInfo.id}`,
     });
-  }
-
+  };
 }
 
 const styles = {
@@ -513,8 +502,7 @@ const styles = {
 };
 const stylesSelector = styleSelector(styles);
 
-const loadingStatusSelector
-  = createLoadingStatusSelector(newThreadActionTypes);
+const loadingStatusSelector = createLoadingStatusSelector(newThreadActionTypes);
 registerFetchKey(searchUsersActionTypes);
 
 export default connect(
@@ -523,13 +511,14 @@ export default connect(
     const parentThreadID = ownProps.navigation.getParam('parentThreadID');
     if (parentThreadID) {
       parentThreadInfo = threadInfoSelector(state)[parentThreadID];
-      invariant(parentThreadInfo, "parent thread should exist");
+      invariant(parentThreadInfo, 'parent thread should exist');
     }
     return {
       parentThreadInfo,
       loadingStatus: loadingStatusSelector(state),
-      otherUserInfos:
-        userInfoSelectorForOtherMembersOfThread((null: ?string))(state),
+      otherUserInfos: userInfoSelectorForOtherMembersOfThread((null: ?string))(
+        state,
+      ),
       userSearchIndex: userSearchIndexForOtherMembersOfThread(null)(state),
       threadInfos: threadInfoSelector(state),
       colors: colorsSelector(state),

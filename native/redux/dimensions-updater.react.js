@@ -19,7 +19,6 @@ type Props = {
   dispatchActionPayload: DispatchActionPayload,
 };
 class DimensionsUpdater extends React.PureComponent<Props> {
-
   static propTypes = {
     dimensions: dimensionsPropType.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
@@ -50,17 +49,16 @@ class DimensionsUpdater extends React.PureComponent<Props> {
     const { height: newHeight, width: newWidth } = allDimensions.window;
     const { height: oldHeight, width: oldWidth } = this.props.dimensions;
     if (newHeight !== oldHeight || newWidth !== oldWidth) {
-      this.props.dispatchActionPayload(
-        updateDimensionsActiveType,
-        { height: newHeight, width: newWidth },
-      );
+      this.props.dispatchActionPayload(updateDimensionsActiveType, {
+        height: newHeight,
+        width: newWidth,
+      });
     }
-  }
+  };
 
   render() {
     return null;
   }
-
 }
 
 export default connect(

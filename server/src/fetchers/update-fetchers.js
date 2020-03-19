@@ -26,7 +26,7 @@ async function fetchUpdateInfosWithQuery(
   if (!viewerInfo.viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
   const rawUpdateInfos = [];
   for (let row of result) {
     rawUpdateInfos.push(rawUpdateInfoFromRow(row));
@@ -47,10 +47,7 @@ function fetchUpdateInfos(
       AND (target IS NULL OR target = ${viewer.session})
     ORDER BY time ASC
   `;
-  return fetchUpdateInfosWithQuery(
-    { viewer, calendarQuery },
-    query,
-  );
+  return fetchUpdateInfosWithQuery({ viewer, calendarQuery }, query);
 }
 
 function rawUpdateInfoFromRow(row: Object): RawUpdateInfo {
@@ -130,7 +127,7 @@ function rawUpdateInfoFromRow(row: Object): RawUpdateInfo {
   invariant(false, `unrecognized updateType ${type}`);
 }
 
-const entryIDExtractString = "$.entryID";
+const entryIDExtractString = '$.entryID';
 function fetchUpdateInfoForEntryUpdate(
   viewer: Viewer,
   entryID: string,
@@ -147,7 +144,7 @@ function fetchUpdateInfoForEntryUpdate(
   return fetchUpdateInfosWithQuery({ viewer }, query);
 }
 
-const threadIDExtractString = "$.threadID";
+const threadIDExtractString = '$.threadID';
 function fetchUpdateInfoForThreadDeletion(
   viewer: Viewer,
   threadID: string,

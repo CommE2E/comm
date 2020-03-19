@@ -32,7 +32,4 @@ async function deleteOldWebSessions(): Promise<void> {
   `);
 }
 
-export {
-  deleteOrphanedSessions,
-  deleteOldWebSessions,
-};
+export { deleteOrphanedSessions, deleteOldWebSessions };

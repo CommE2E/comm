@@ -21,6 +21,4 @@ function createScriptViewer(userID: string): Viewer {
   });
 }
 
-export {
-  createScriptViewer,
-};
+export { createScriptViewer };

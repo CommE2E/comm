@@ -14,9 +14,7 @@ import PropTypes from 'prop-types';
 import { StyleSheet } from 'react-native';
 import invariant from 'invariant';
 
-import {
-  onScreenEntryEditableThreadInfos,
-} from 'lib/selectors/thread-selectors';
+import { onScreenEntryEditableThreadInfos } from 'lib/selectors/thread-selectors';
 import {
   createLocalEntry,
   createLocalEntryActionType,
@@ -48,7 +46,6 @@ type Props = {
   dispatchActionPayload: DispatchActionPayload,
 };
 class ThreadPickerModal extends React.PureComponent<Props> {
-
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
@@ -80,13 +77,12 @@ class ThreadPickerModal extends React.PureComponent<Props> {
   threadPicked = (threadID: string) => {
     const { viewerID, nextLocalID } = this.props;
     const { dateString } = this.props.navigation.state.params;
-    invariant(dateString && viewerID, "should be set");
+    invariant(dateString && viewerID, 'should be set');
     this.props.dispatchActionPayload(
       createLocalEntryActionType,
       createLocalEntry(threadID, nextLocalID, dateString, viewerID),
     );
-  }
-
+  };
 }
 
 const styles = StyleSheet.create({

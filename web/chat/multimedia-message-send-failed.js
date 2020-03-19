@@ -22,7 +22,7 @@ export default function multimediaMessageSendFailed(
   if (id !== null && id !== undefined) {
     return false;
   }
-  invariant(localID, "localID should be set if serverID is not");
+  invariant(localID, 'localID should be set if serverID is not');
   return !!(
     chatInputState.messageHasUploadFailure(localID) ||
     (item.localMessageInfo && item.localMessageInfo.sendFailed)

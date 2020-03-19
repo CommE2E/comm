@@ -12,17 +12,17 @@ export type GlobalThemeInfo = {|
   preference: GlobalThemePreference,
 |};
 
-export const globalThemePropType = PropTypes.oneOf([ 'light', 'dark' ]);
+export const globalThemePropType = PropTypes.oneOf(['light', 'dark']);
 
 export const globalThemeInfoPropType = PropTypes.shape({
   activeTheme: globalThemePropType,
   systemTheme: globalThemePropType,
-  preference: PropTypes.oneOf([ 'light', 'dark', 'system' ]).isRequired,
+  preference: PropTypes.oneOf(['light', 'dark', 'system']).isRequired,
 });
 
 export const osCanTheme =
-  (Platform.OS === "ios" && parseInt(Platform.Version, 10) >= 13) ||
-  (Platform.OS === "android" && Platform.Version >= 29);
+  (Platform.OS === 'ios' && parseInt(Platform.Version, 10) >= 13) ||
+  (Platform.OS === 'android' && Platform.Version >= 29);
 
 export const defaultGlobalThemeInfo = {
   activeTheme: osCanTheme ? null : 'light',

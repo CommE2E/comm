@@ -35,9 +35,7 @@ import {
 import { entryKey } from 'lib/shared/entry-utils';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { connect } from 'lib/utils/redux-utils';
-import {
-  nonExcludeDeletedCalendarFiltersSelector,
-} from 'lib/selectors/calendar-filter-selectors';
+import { nonExcludeDeletedCalendarFiltersSelector } from 'lib/selectors/calendar-filter-selectors';
 
 import css from './history.css';
 import Modal from '../modal.react';
@@ -52,7 +50,7 @@ type Props = {
   onClose: () => void,
   currentEntryID?: ?string,
   // Redux state
-  entryInfos: ?EntryInfo[],
+  entryInfos: ?(EntryInfo[]),
   dayLoadingStatus: LoadingStatus,
   entryLoadingStatus: LoadingStatus,
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
@@ -66,13 +64,12 @@ type Props = {
 };
 type State = {
   mode: HistoryMode,
-  animateModeChange: bool,
+  animateModeChange: boolean,
   currentEntryID: ?string,
   revisions: HistoryRevisionInfo[],
 };
 
 class HistoryModal extends React.PureComponent<Props, State> {
-
   static defaultProps = { currentEntryID: null };
 
   constructor(props: Props) {
@@ -87,8 +84,8 @@ class HistoryModal extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.loadDay();
-    if (this.state.mode === "entry") {
-      invariant(this.state.currentEntryID, "entry ID should be set");
+    if (this.state.mode === 'entry') {
+      invariant(this.state.currentEntryID, 'entry ID should be set');
       this.loadEntry(this.state.currentEntryID);
     }
   }
@@ -107,10 +104,11 @@ class HistoryModal extends React.PureComponent<Props, State> {
       );
     }
     const historyDate = dateFromString(this.props.dayString);
-    const prettyDate = dateFormat(historyDate, "mmmm dS, yyyy");
-    const loadingStatus = this.state.mode === "day"
-      ? this.props.dayLoadingStatus
-      : this.props.entryLoadingStatus;
+    const prettyDate = dateFormat(historyDate, 'mmmm dS, yyyy');
+    const loadingStatus =
+      this.state.mode === 'day'
+        ? this.props.dayLoadingStatus
+        : this.props.entryLoadingStatus;
 
     let entries;
     const entryInfos = this.props.entryInfos;
@@ -119,7 +117,7 @@ class HistoryModal extends React.PureComponent<Props, State> {
         _filter((entryInfo: EntryInfo) => entryInfo.id),
         _map((entryInfo: EntryInfo) => {
           const serverID = entryInfo.id;
-          invariant(serverID, "serverID should be set");
+          invariant(serverID, 'serverID should be set');
           return (
             <HistoryEntry
               entryInfo={entryInfo}
@@ -135,25 +133,26 @@ class HistoryModal extends React.PureComponent<Props, State> {
     }
 
     const revisionInfos = this.state.revisions.filter(
-      (revisionInfo) => revisionInfo.entryID === this.state.currentEntryID
+      revisionInfo => revisionInfo.entryID === this.state.currentEntryID,
     );
     const revisions = [];
     for (let i = 0; i < revisionInfos.length; i++) {
       const revisionInfo = revisionInfos[i];
       const nextRevisionInfo = revisionInfos[i + 1];
-      const isDeletionOrRestoration = nextRevisionInfo !== undefined &&
+      const isDeletionOrRestoration =
+        nextRevisionInfo !== undefined &&
         revisionInfo.deleted !== nextRevisionInfo.deleted;
       revisions.push(
         <HistoryRevision
           revisionInfo={revisionInfo}
           isDeletionOrRestoration={isDeletionOrRestoration}
           key={revisionInfo.id}
-        />
+        />,
       );
     }
 
     const animate = this.state.animateModeChange;
-    const dayMode = this.state.mode === "day";
+    const dayMode = this.state.mode === 'day';
     const dayClasses = classNames({
       [css.dayHistory]: true,
       [css.dayHistoryVisible]: dayMode && !animate,
@@ -161,7 +160,7 @@ class HistoryModal extends React.PureComponent<Props, State> {
       [css.dayHistoryVisibleAnimate]: dayMode && animate,
       [css.dayHistoryInvisibleAnimate]: !dayMode && animate,
     });
-    const entryMode = this.state.mode === "entry";
+    const entryMode = this.state.mode === 'entry';
     const entryClasses = classNames({
       [css.entryHistory]: true,
       [css.entryHistoryVisible]: entryMode && !animate,
@@ -183,8 +182,12 @@ class HistoryModal extends React.PureComponent<Props, State> {
               errorClassName={css.error}
             />
           </div>
-          <div className={dayClasses}><ul>{entries}</ul></div>
-          <div className={entryClasses}><ul>{revisions}</ul></div>
+          <div className={dayClasses}>
+            <ul>{entries}</ul>
+          </div>
+          <div className={entryClasses}>
+            <ul>{revisions}</ul>
+          </div>
         </div>
       </Modal>
     );
@@ -202,7 +205,7 @@ class HistoryModal extends React.PureComponent<Props, State> {
   }
 
   loadEntry(entryID: string) {
-    this.setState({ mode: "entry", currentEntryID: entryID });
+    this.setState({ mode: 'entry', currentEntryID: entryID });
     this.props.dispatchActionPromise(
       fetchRevisionsForEntryActionTypes,
       this.fetchRevisionsForEntryAction(entryID),
@@ -213,7 +216,7 @@ class HistoryModal extends React.PureComponent<Props, State> {
     const result = await this.props.fetchRevisionsForEntry(entryID);
     this.setState((prevState, props) => {
       // This merge here will preserve time ordering correctly
-      const revisions = _unionBy("id")(result)(prevState.revisions);
+      const revisions = _unionBy('id')(result)(prevState.revisions);
       return { ...prevState, revisions };
     });
     return {
@@ -226,21 +229,20 @@ class HistoryModal extends React.PureComponent<Props, State> {
   onClickEntry = (entryID: string) => {
     this.setState({ animateModeChange: true });
     this.loadEntry(entryID);
-  }
+  };
 
   onClickAllEntries = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.setState({
-      mode: "day",
+      mode: 'day',
       animateModeChange: true,
     });
-  }
+  };
 
   animateAndLoadEntry = (entryID: string) => {
     this.setState({ animateModeChange: true });
     this.loadEntry(entryID);
-  }
-
+  };
 }
 
 HistoryModal.propTypes = {
@@ -257,10 +259,12 @@ HistoryModal.propTypes = {
   fetchRevisionsForEntry: PropTypes.func.isRequired,
 };
 
-const dayLoadingStatusSelector
-  = createLoadingStatusSelector(fetchEntriesActionTypes);
-const entryLoadingStatusSelector
-  = createLoadingStatusSelector(fetchRevisionsForEntryActionTypes);
+const dayLoadingStatusSelector = createLoadingStatusSelector(
+  fetchEntriesActionTypes,
+);
+const entryLoadingStatusSelector = createLoadingStatusSelector(
+  fetchRevisionsForEntryActionTypes,
+);
 
 type OwnProps = { dayString: string };
 export default connect(

@@ -61,7 +61,7 @@ async function fetchCollapsableNotifs(
         const collapsableNotifInfo = {
           collapseKey,
           existingMessageInfos: [],
-          newMessageInfos: [ rawMessageInfo ],
+          newMessageInfos: [rawMessageInfo],
         };
         usersToCollapsableNotifInfo[userID].push(collapsableNotifInfo);
         continue;
@@ -103,7 +103,7 @@ async function fetchCollapsableNotifs(
     FROM notifications n
     LEFT JOIN messages m ON m.id = n.message
     LEFT JOIN uploads up
-      ON m.type IN (${[ messageTypes.IMAGES, messageTypes.MULTIMEDIA ]})
+      ON m.type IN (${[messageTypes.IMAGES, messageTypes.MULTIMEDIA]})
         AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = n.user
     LEFT JOIN memberships stm
@@ -115,13 +115,13 @@ async function fetchCollapsableNotifs(
   `;
   collapseQuery.append(mergeOrConditions(sqlTuples));
   collapseQuery.append(SQL`ORDER BY m.time DESC`);
-  const [ collapseResult ] = await dbQuery(collapseQuery);
+  const [collapseResult] = await dbQuery(collapseQuery);
 
   const { userInfos, messages } = parseMessageSQLResult(collapseResult);
 
   for (let message of messages) {
     const { rawMessageInfo, rows } = message;
-    const [ row ] = rows;
+    const [row] = rows;
     const info = usersToCollapseKeysToInfo[row.user][row.collapse_key];
     info.existingMessageInfos.push(rawMessageInfo);
   }
@@ -152,7 +152,8 @@ function parseMessageSQLResult(
   rows: $ReadOnlyArray<Object>,
   viewer?: Viewer,
 ): MessageSQLResult {
-  const userInfos = {}, rowsByID = new Map();
+  const userInfos = {},
+    rowsByID = new Map();
   for (let row of rows) {
     const creatorID = row.creatorID.toString();
     userInfos[creatorID] = {
@@ -164,7 +165,7 @@ function parseMessageSQLResult(
     if (currentRowsForID) {
       currentRowsForID.push(row);
     } else {
-      rowsByID.set(id, [ row ]);
+      rowsByID.set(id, [row]);
     }
   }
 
@@ -179,25 +180,21 @@ function parseMessageSQLResult(
   return { messages, userInfos };
 }
 
-function assertSingleRow(
-  rows: $ReadOnlyArray<Object>,
-): Object {
+function assertSingleRow(rows: $ReadOnlyArray<Object>): Object {
   if (rows.length === 0) {
-    throw new Error("expected single row, but none present!");
+    throw new Error('expected single row, but none present!');
   } else if (rows.length !== 1) {
     const messageIDs = rows.map(row => row.id.toString());
     console.log(
-      `expected single row, but there are multiple! ${messageIDs.join(", ")}`,
+      `expected single row, but there are multiple! ${messageIDs.join(', ')}`,
     );
   }
   return rows[0];
 }
 
-function mostRecentRowType(
-  rows: $ReadOnlyArray<Object>,
-): MessageType {
+function mostRecentRowType(rows: $ReadOnlyArray<Object>): MessageType {
   if (rows.length === 0) {
-    throw new Error("expected row, but none present!");
+    throw new Error('expected row, but none present!');
   }
   return assertMessageType(rows[0].type);
 }
@@ -367,33 +364,30 @@ function rawMessageInfoFromRows(
       date: content.date,
       text: content.text,
     };
-  } else if (
-    type === messageTypes.IMAGES ||
-    type === messageTypes.MULTIMEDIA
-  ) {
+  } else if (type === messageTypes.IMAGES || type === messageTypes.MULTIMEDIA) {
     const media = [];
     for (let row of rows) {
       if (!row.uploadID) {
         continue;
       }
       const uploadID = row.uploadID.toString();
-      if (row.uploadType === "photo") {
+      if (row.uploadType === 'photo') {
         media.push({
           id: uploadID,
           uri: getUploadURL(uploadID, row.uploadSecret),
-          type: "photo",
+          type: 'photo',
           dimensions: row.uploadExtra,
         });
       } else {
         media.push({
           id: uploadID,
           uri: getUploadURL(uploadID, row.uploadSecret),
-          type: "video",
+          type: 'video',
           dimensions: row.uploadExtra,
         });
       }
     }
-    const [ row ] = rows;
+    const [row] = rows;
     return createMediaMessageInfo({
       threadID: row.threadID.toString(),
       creatorID: row.creatorID.toString(),
@@ -438,7 +432,7 @@ async function fetchMessageInfos(
           up.extra AS uploadExtra
         FROM messages m
         LEFT JOIN uploads up
-          ON m.type IN (${[ messageTypes.IMAGES, messageTypes.MULTIMEDIA ]})
+          ON m.type IN (${[messageTypes.IMAGES, messageTypes.MULTIMEDIA]})
             AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
         LEFT JOIN memberships mm
           ON mm.thread = m.thread AND mm.user = ${viewerID}
@@ -454,7 +448,7 @@ async function fetchMessageInfos(
     ) y
     WHERE y.number <= ${numberPerThread}
   `);
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
 
   const { userInfos, messages } = parseMessageSQLResult(result, viewer);
 
@@ -469,13 +463,14 @@ async function fetchMessageInfos(
     threadToMessageCount.set(threadID, currentCount + 1);
   }
 
-  for (let [ threadID, messageCount ] of threadToMessageCount) {
+  for (let [threadID, messageCount] of threadToMessageCount) {
     // If there are fewer messages returned than the max for a given thread,
     // then our result set includes all messages in the query range for that
     // thread
-    truncationStatuses[threadID] = messageCount < numberPerThread
-      ? messageTruncationStatus.EXHAUSTIVE
-      : messageTruncationStatus.TRUNCATED;
+    truncationStatuses[threadID] =
+      messageCount < numberPerThread
+        ? messageTruncationStatus.EXHAUSTIVE
+        : messageTruncationStatus.TRUNCATED;
   }
 
   for (let rawMessageInfo of rawMessageInfos) {
@@ -601,7 +596,7 @@ async function fetchMessageInfosSince(
       up.extra AS uploadExtra
     FROM messages m
     LEFT JOIN uploads up
-      ON m.type IN (${[ messageTypes.IMAGES, messageTypes.MULTIMEDIA ]})
+      ON m.type IN (${[messageTypes.IMAGES, messageTypes.MULTIMEDIA]})
         AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
     LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
@@ -614,12 +609,12 @@ async function fetchMessageInfosSince(
   query.append(SQL`
     ORDER BY m.thread, m.time DESC
   `);
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
 
-  const {
-    userInfos: allCreatorUserInfos,
-    messages,
-  } = parseMessageSQLResult(result, viewer);
+  const { userInfos: allCreatorUserInfos, messages } = parseMessageSQLResult(
+    result,
+    viewer,
+  );
 
   const rawMessageInfos = [];
   const userInfos = {};
@@ -701,7 +696,7 @@ async function fetchMessageInfoForLocalID(
       up.extra AS uploadExtra
     FROM messages m
     LEFT JOIN uploads up
-      ON m.type IN (${[ messageTypes.IMAGES, messageTypes.MULTIMEDIA ]})
+      ON m.type IN (${[messageTypes.IMAGES, messageTypes.MULTIMEDIA]})
         AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
     LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
@@ -710,14 +705,14 @@ async function fetchMessageInfoForLocalID(
       JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE
   `;
 
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
   if (result.length === 0) {
     return null;
   }
   return rawMessageInfoFromRows(result, viewer);
 }
 
-const entryIDExtractString = "$.entryID";
+const entryIDExtractString = '$.entryID';
 async function fetchMessageInfoForEntryAction(
   viewer: Viewer,
   messageType: MessageType,
@@ -731,7 +726,7 @@ async function fetchMessageInfoForEntryAction(
       up.secret AS uploadSecret, up.extra AS uploadExtra
     FROM messages m
     LEFT JOIN uploads up
-      ON m.type IN (${[ messageTypes.IMAGES, messageTypes.MULTIMEDIA ]})
+      ON m.type IN (${[messageTypes.IMAGES, messageTypes.MULTIMEDIA]})
         AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
     WHERE m.user = ${viewerID} AND m.thread = ${threadID} AND
@@ -740,7 +735,7 @@ async function fetchMessageInfoForEntryAction(
       JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE
   `;
 
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
   if (result.length === 0) {
     return null;
   }

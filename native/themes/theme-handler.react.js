@@ -26,7 +26,6 @@ type Props = {|
   dispatchActionPayload: DispatchActionPayload,
 |};
 class ThemeHandler extends React.PureComponent<Props> {
-
   static propTypes = {
     globalThemeInfo: globalThemeInfoPropType.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
@@ -64,12 +63,11 @@ class ThemeHandler extends React.PureComponent<Props> {
     }
 
     this.props.dispatchActionPayload(updateThemeInfoActionType, updateObject);
-  }
+  };
 
   render() {
     return null;
   }
-
 }
 
 export default connect(

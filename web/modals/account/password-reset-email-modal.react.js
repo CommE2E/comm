@@ -15,7 +15,7 @@ export default function PasswordResetEmailModal(props: Props) {
       <div className={css['modal-body']}>
         <p>
           {"We've sent you an email with instructions on how to reset "}
-          {"your password. Note that the email will expire in a day."}
+          {'your password. Note that the email will expire in a day.'}
         </p>
       </div>
     </Modal>

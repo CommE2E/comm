@@ -12,28 +12,27 @@ import { globalLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { connect } from 'lib/utils/redux-utils';
 
 type Props = {|
-  barStyle?: "default" | "light-content" | "dark-content",
-  animated?: bool,
+  barStyle?: 'default' | 'light-content' | 'dark-content',
+  animated?: boolean,
   // Redux state
   globalLoadingStatus: LoadingStatus,
   activeTheme: ?GlobalTheme,
 |};
 class ConnectedStatusBar extends React.PureComponent<Props> {
-
   static propTypes = {
-    barStyle: PropTypes.oneOf([ "default", "light-content", "dark-content" ]),
+    barStyle: PropTypes.oneOf(['default', 'light-content', 'dark-content']),
     animated: PropTypes.bool,
     globalLoadingStatus: PropTypes.string.isRequired,
     activeTheme: globalThemePropType,
   };
 
   render() {
-    const fetchingSomething = this.props.globalLoadingStatus === "loading";
+    const fetchingSomething = this.props.globalLoadingStatus === 'loading';
     let { barStyle } = this.props;
-    if (!barStyle && this.props.activeTheme === "light") {
-      barStyle = Platform.OS === "android" ? "light-content" : "dark-content";
-    } else if (!barStyle && this.props.activeTheme === "dark") {
-      barStyle = "light-content";
+    if (!barStyle && this.props.activeTheme === 'light') {
+      barStyle = Platform.OS === 'android' ? 'light-content' : 'dark-content';
+    } else if (!barStyle && this.props.activeTheme === 'dark') {
+      barStyle = 'light-content';
     }
     return (
       <StatusBar
@@ -43,7 +42,6 @@ class ConnectedStatusBar extends React.PureComponent<Props> {
       />
     );
   }
-
 }
 
 export default connect((state: AppState) => ({

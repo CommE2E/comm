@@ -30,13 +30,13 @@ import { Timestamp } from './timestamp.react';
 import { styleSelector } from '../themes/colors';
 
 export type ChatRobotextMessageInfoItemWithHeight = {|
-  itemType: "message",
-  messageShapeType: "robotext",
+  itemType: 'message',
+  messageShapeType: 'robotext',
   messageInfo: RobotextMessageInfo,
   threadInfo: ThreadInfo,
-  startsConversation: bool,
-  startsCluster: bool,
-  endsCluster: bool,
+  startsConversation: boolean,
+  startsCluster: boolean,
+  endsCluster: boolean,
   robotext: string,
   contentHeight: number,
 |};
@@ -50,7 +50,7 @@ function robotextMessageItemHeight(
 
 type Props = {|
   item: ChatRobotextMessageInfoItemWithHeight,
-  focused: bool,
+  focused: boolean,
   toggleFocus: (messageKey: string) => void,
   // withKeyboardState
   keyboardState: ?KeyboardState,
@@ -59,7 +59,6 @@ type Props = {|
   ...React.ElementProps<typeof View>,
 |};
 class RobotextMessage extends React.PureComponent<Props> {
-
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     focused: PropTypes.bool.isRequired,
@@ -98,19 +97,19 @@ class RobotextMessage extends React.PureComponent<Props> {
     const robotextParts = splitRobotext(robotext);
     const textParts = [];
     for (let splitPart of robotextParts) {
-      if (splitPart === "") {
+      if (splitPart === '') {
         continue;
       }
-      if (splitPart.charAt(0) !== "<") {
+      if (splitPart.charAt(0) !== '<') {
         textParts.push(decodeURI(splitPart));
         continue;
       }
 
       const { rawText, entityType, id } = parseRobotextEntity(splitPart);
 
-      if (entityType === "t" && id !== this.props.item.messageInfo.threadID) {
+      if (entityType === 't' && id !== this.props.item.messageInfo.threadID) {
         textParts.push(<ThreadEntity key={id} id={id} name={rawText} />);
-      } else if (entityType === "c") {
+      } else if (entityType === 'c') {
         textParts.push(<ColorEntity key={id} color={rawText} />);
       } else {
         textParts.push(rawText);
@@ -125,20 +124,17 @@ class RobotextMessage extends React.PureComponent<Props> {
 
   onPress = () => {
     const { keyboardState } = this.props;
-    const didDismiss = keyboardState &&
-      keyboardState.dismissKeyboardIfShowing();
+    const didDismiss =
+      keyboardState && keyboardState.dismissKeyboardIfShowing();
     if (!didDismiss) {
       this.props.toggleFocus(messageKey(this.props.item.messageInfo));
     }
-  }
-
+  };
 }
 
-const WrappedRobotextMessage = connect(
-  (state: AppState) => ({
-    styles: stylesSelector(state),
-  }),
-)(withKeyboardState(RobotextMessage));
+const WrappedRobotextMessage = connect((state: AppState) => ({
+  styles: stylesSelector(state),
+}))(withKeyboardState(RobotextMessage));
 
 type InnerThreadEntityProps = {
   id: string,
@@ -150,7 +146,6 @@ type InnerThreadEntityProps = {
   dispatch: Dispatch,
 };
 class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
-
   static propTypes = {
     id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
@@ -170,13 +165,12 @@ class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
   onPressThread = () => {
     const { id, threadInfo, dispatch } = this.props;
     dispatch({
-      type: "Navigation/NAVIGATE",
+      type: 'Navigation/NAVIGATE',
       routeName: MessageListRouteName,
       params: { threadInfo },
       key: `${MessageListRouteName}${threadInfo.id}`,
     });
-  }
-
+  };
 }
 const ThreadEntity = connect(
   (state: AppState, ownProps: { id: string }) => ({
@@ -208,7 +202,4 @@ const styles = {
 };
 const stylesSelector = styleSelector(styles);
 
-export {
-  WrappedRobotextMessage as RobotextMessage,
-  robotextMessageItemHeight,
-};
+export { WrappedRobotextMessage as RobotextMessage, robotextMessageItemHeight };

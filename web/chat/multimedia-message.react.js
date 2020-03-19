@@ -30,7 +30,6 @@ type Props = {|
   setModal: (modal: ?React.Node) => void,
 |};
 class MultimediaMessage extends React.PureComponent<Props> {
-
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
@@ -44,7 +43,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
     invariant(
       item.messageInfo.type === messageTypes.IMAGES ||
         item.messageInfo.type === messageTypes.MULTIMEDIA,
-      "MultimediaMessage should only be used for multimedia messages",
+      'MultimediaMessage should only be used for multimedia messages',
     );
     const { id, localID, media } = item.messageInfo;
     const { isViewer } = item.messageInfo.creator;
@@ -63,17 +62,17 @@ class MultimediaMessage extends React.PureComponent<Props> {
           pendingUpload={pendingUpload}
           setModal={setModal}
           key={singleMedia.id}
-        />
+        />,
       );
     }
 
-    invariant(
-      multimedia.length > 0,
-      "should be at least one multimedia...",
-    );
-    const content = multimedia.length > 1
-      ? <div className={css.imageGrid}>{multimedia}</div>
-      : multimedia;
+    invariant(multimedia.length > 0, 'should be at least one multimedia...');
+    const content =
+      multimedia.length > 1 ? (
+        <div className={css.imageGrid}>{multimedia}</div>
+      ) : (
+        multimedia
+      );
     const className = multimedia.length > 1 ? css.fixedWidthMessageBox : null;
 
     return (
@@ -90,7 +89,6 @@ class MultimediaMessage extends React.PureComponent<Props> {
       </ComposedMessage>
     );
   }
-
 }
 
 export default MultimediaMessage;

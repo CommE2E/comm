@@ -17,4 +17,4 @@ const MoreHeader = connect((state: AppState) => ({
   activeTab: activeTabSelector(state),
 }))(Header);
 
-export default (props: $Exact<HeaderProps>) => (<MoreHeader {...props} />);
+export default (props: $Exact<HeaderProps>) => <MoreHeader {...props} />;

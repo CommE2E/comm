@@ -51,10 +51,9 @@ async function createMessages(
   const messageInfos: RawMessageInfo[] = [];
   const newMessageDatas: MessageData[] = [];
   const existingMessages = await Promise.all(
-    messageDatas.map(messageData => fetchMessageInfoForLocalID(
-      viewer,
-      messageDataLocalID(messageData),
-    ))
+    messageDatas.map(messageData =>
+      fetchMessageInfoForLocalID(viewer, messageDataLocalID(messageData)),
+    ),
   );
   for (let i = 0; i < existingMessages.length; i++) {
     const existingMessage = existingMessages[i];
@@ -65,13 +64,10 @@ async function createMessages(
     }
   }
   if (newMessageDatas.length === 0) {
-    return shimUnsupportedRawMessageInfos(
-      messageInfos,
-      viewer.platformDetails,
-    );
+    return shimUnsupportedRawMessageInfos(messageInfos, viewer.platformDetails);
   }
 
-  const ids = await createIDs("messages", newMessageDatas.length);
+  const ids = await createIDs('messages', newMessageDatas.length);
 
   const subthreadPermissionsToCheck: Set<string> = new Set();
   const threadsToMessageIndices: Map<string, number[]> = new Map();
@@ -134,9 +130,10 @@ async function createMessages(
       content = JSON.stringify(mediaIDs);
     }
 
-    const creation = messageData.localID && viewer.hasSessionInfo
-      ? creationString(viewer, messageData.localID)
-      : null;
+    const creation =
+      messageData.localID && viewer.hasSessionInfo
+        ? creationString(viewer, messageData.localID)
+        : null;
 
     messageInsertRows.push([
       ids[i],
@@ -150,12 +147,14 @@ async function createMessages(
     messageInfos.push(rawMessageInfoFromMessageData(messageData, ids[i]));
   }
 
-  handleAsyncPromise(postMessageSend(
-    viewer,
-    threadsToMessageIndices,
-    subthreadPermissionsToCheck,
-    stripLocalIDs(messageInfos),
-  ));
+  handleAsyncPromise(
+    postMessageSend(
+      viewer,
+      threadsToMessageIndices,
+      subthreadPermissionsToCheck,
+      stripLocalIDs(messageInfos),
+    ),
+  );
 
   const messageInsertQuery = SQL`
     INSERT INTO messages(id, thread, user, type, content, time, creation)
@@ -163,10 +162,7 @@ async function createMessages(
   `;
   await dbQuery(messageInsertQuery);
 
-  return shimUnsupportedRawMessageInfos(
-    messageInfos,
-    viewer.platformDetails,
-  );
+  return shimUnsupportedRawMessageInfos(messageInfos, viewer.platformDetails);
 }
 
 // Handles:
@@ -180,7 +176,7 @@ async function postMessageSend(
   messageInfos: RawMessageInfo[],
 ) {
   let joinIndex = 0;
-  let subthreadSelects = "";
+  let subthreadSelects = '';
   const subthreadJoins = [];
   for (let subthread of subthreadPermissionsToCheck) {
     const index = joinIndex++;
@@ -217,7 +213,7 @@ async function postMessageSend(
   `);
 
   const perUserInfo = new Map();
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
   for (let row of result) {
     const userID = row.user.toString();
     const threadID = row.thread.toString();
@@ -239,8 +235,10 @@ async function postMessageSend(
       for (let subthread of subthreadPermissionsToCheck) {
         const isSubthreadMember = !!row[`subthread${subthread}_role`];
         const permissions = row[`subthread${subthread}_permissions`];
-        const canSeeSubthread =
-          permissionLookup(permissions, threadPermissions.KNOW_OF);
+        const canSeeSubthread = permissionLookup(
+          permissions,
+          threadPermissions.KNOW_OF,
+        );
         if (!canSeeSubthread) {
           continue;
         }
@@ -268,9 +266,11 @@ async function postMessageSend(
     }
   }
 
-  const pushInfo = {}, setUnreadPairs = [], messageInfosPerUser = {};
+  const pushInfo = {},
+    setUnreadPairs = [],
+    messageInfosPerUser = {};
   for (let pair of perUserInfo) {
-    const [ userID, preUserPushInfo ] = pair;
+    const [userID, preUserPushInfo] = pair;
     const { subthreadsCanSetToUnread, subthreadsCanNotify } = preUserPushInfo;
     const userPushInfo = {
       devices: [...preUserPushInfo.devices.values()],
@@ -352,19 +352,21 @@ async function updateUnreadStatus(
   const now = Date.now();
   await Promise.all([
     dbQuery(updateQuery),
-    createUpdates(setUnreadPairs.map(pair => ({
-      type: updateTypes.UPDATE_THREAD_READ_STATUS,
-      userID: pair.userID,
-      time: now,
-      threadID: pair.threadID,
-      unread: true,
-    }))),
+    createUpdates(
+      setUnreadPairs.map(pair => ({
+        type: updateTypes.UPDATE_THREAD_READ_STATUS,
+        userID: pair.userID,
+        time: now,
+        threadID: pair.threadID,
+        unread: true,
+      })),
+    ),
   ]);
 }
 
 async function redisPublish(
   viewer: Viewer,
-  messageInfosPerUser: {[userID: string]: $ReadOnlyArray<RawMessageInfo>},
+  messageInfosPerUser: { [userID: string]: $ReadOnlyArray<RawMessageInfo> },
 ) {
   for (let userID in messageInfosPerUser) {
     if (userID === viewer.userID && viewer.hasSessionInfo) {

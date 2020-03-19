@@ -30,10 +30,7 @@ import {
   defaultConnectivityInfo,
 } from '../types/connectivity';
 import type { Dispatch } from 'lib/types/redux-types';
-import {
-  type GlobalThemeInfo,
-  defaultGlobalThemeInfo,
-} from '../types/themes';
+import { type GlobalThemeInfo, defaultGlobalThemeInfo } from '../types/themes';
 import {
   type DeviceCameraInfo,
   defaultDeviceCameraInfo,
@@ -44,17 +41,10 @@ import type { ClientReportCreationRequest } from 'lib/types/report-types';
 import * as React from 'react';
 import invariant from 'invariant';
 import thunk from 'redux-thunk';
-import {
-  createStore,
-  applyMiddleware,
-  type Store,
-  compose,
-} from 'redux';
+import { createStore, applyMiddleware, type Store, compose } from 'redux';
 import { persistStore, persistReducer, REHYDRATE } from 'redux-persist';
 import PropTypes from 'prop-types';
-import {
-  createReactNavigationReduxMiddleware,
-} from 'react-navigation-redux-helpers';
+import { createReactNavigationReduxMiddleware } from 'react-navigation-redux-helpers';
 import {
   AppState as NativeAppState,
   Platform,
@@ -114,22 +104,22 @@ export type AppState = {|
   currentUserInfo: ?CurrentUserInfo,
   entryStore: EntryStore,
   threadStore: ThreadStore,
-  userInfos: {[id: string]: UserInfo},
+  userInfos: { [id: string]: UserInfo },
   messageStore: MessageStore,
-  drafts: {[key: string]: string},
+  drafts: { [key: string]: string },
   updatesCurrentAsOf: number,
-  loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
+  loadingStatuses: { [key: string]: { [idx: number]: LoadingStatus } },
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
   cookie: ?string,
   deviceToken: ?string,
   urlPrefix: string,
   customServer: ?string,
-  threadIDsToNotifIDs: {[threadID: string]: string[]},
+  threadIDsToNotifIDs: { [threadID: string]: string[] },
   notifPermissionAlertInfo: NotifPermissionAlertInfo,
   messageSentFromRoute: $ReadOnlyArray<string>,
   connection: ConnectionInfo,
   watchedThreadIDs: $ReadOnlyArray<string>,
-  foreground: bool,
+  foreground: boolean,
   nextLocalID: number,
   queuedReports: $ReadOnlyArray<ClientReportCreationRequest>,
   _persist: ?PersistState,
@@ -139,7 +129,7 @@ export type AppState = {|
   globalThemeInfo: GlobalThemeInfo,
   deviceCameraInfo: DeviceCameraInfo,
   deviceOrientation: Orientations,
-  frozen: bool,
+  frozen: boolean,
 |};
 
 const { height, width } = NativeDimensions.get('window');
@@ -202,22 +192,19 @@ function reducer(state: AppState = defaultState, action: *) {
         state,
         action.payload.sessionChange.currentUserInfo,
         action.payload.preRequestUserState,
-      )
-    ) ||
+      )) ||
     (action.type === logOutActionTypes.success &&
       invalidSessionDowngrade(
         state,
         action.payload.currentUserInfo,
         action.payload.preRequestUserState,
-      )
-    ) ||
+      )) ||
     (action.type === deleteAccountActionTypes.success &&
       invalidSessionDowngrade(
         state,
         action.payload.currentUserInfo,
         action.payload.preRequestUserState,
-      )
-    )
+      ))
   ) {
     return state;
   }
@@ -247,9 +234,10 @@ function reducer(state: AppState = defaultState, action: *) {
       },
     };
   } else if (action.type === resetUserStateActionType) {
-    const cookie = state.cookie && state.cookie.startsWith("anonymous=")
-      ? state.cookie
-      : null;
+    const cookie =
+      state.cookie && state.cookie.startsWith('anonymous=')
+        ? state.cookie
+        : null;
     const currentUserInfo =
       state.currentUserInfo && state.currentUserInfo.anonymous
         ? state.currentUserInfo
@@ -297,10 +285,11 @@ function reducer(state: AppState = defaultState, action: *) {
   if (action.type === sendTextMessageActionTypes.started) {
     const chatRoute = chatRouteFromNavInfo(state.navInfo);
     const currentChatSubroute = currentLeafRoute(chatRoute);
-    const messageSentFromRoute =
-      state.messageSentFromRoute.includes(currentChatSubroute.key)
-        ? state.messageSentFromRoute
-        : [ ...state.messageSentFromRoute, currentChatSubroute.key];
+    const messageSentFromRoute = state.messageSentFromRoute.includes(
+      currentChatSubroute.key,
+    )
+      ? state.messageSentFromRoute
+      : [...state.messageSentFromRoute, currentChatSubroute.key];
     state = {
       ...state,
       messageSentFromRoute,
@@ -362,12 +351,9 @@ function reducer(state: AppState = defaultState, action: *) {
         // navigate back to that compose thread screen, but instead, since the
         // user's intent has ostensibly already been satisfied, we will pop up
         // to the screen right before that one.
-        const replaceFunc =
-          (chatRoute: NavigationStateRoute) => removeScreensFromStack(
-            chatRoute,
-            (route: NavigationRoute) => route.key === currentChatSubroute.key
-              ? "remove"
-              : "keep",
+        const replaceFunc = (chatRoute: NavigationStateRoute) =>
+          removeScreensFromStack(chatRoute, (route: NavigationRoute) =>
+            route.key === currentChatSubroute.key ? 'remove' : 'keep',
           );
         navInfo = {
           startDate: navInfo.startDate,
@@ -394,9 +380,9 @@ function validateState(
   const activeThread = activeThreadSelector(state);
   if (
     activeThread &&
-    (NativeAppState.currentState === "active" ||
+    (NativeAppState.currentState === 'active' ||
       (appLastBecameInactive + 10000 < Date.now() &&
-      !backgroundActionTypes.has(action.type))) &&
+        !backgroundActionTypes.has(action.type))) &&
     state.threadStore.threadInfos[activeThread].currentUser.unread
   ) {
     // Makes sure a currently focused thread is never unread. Note that we
@@ -448,8 +434,8 @@ function validateState(
 
   const chatRoute = chatRouteFromNavInfo(state.navInfo);
   const chatSubrouteKeys = new Set(chatRoute.routes.map(route => route.key));
-  const messageSentFromRoute = state.messageSentFromRoute.filter(
-    key => chatSubrouteKeys.has(key),
+  const messageSentFromRoute = state.messageSentFromRoute.filter(key =>
+    chatSubrouteKeys.has(key),
   );
   if (messageSentFromRoute.length !== state.messageSentFromRoute.length) {
     state = {
@@ -504,8 +490,4 @@ setPersistor(persistor);
 const unsafeDispatch: any = store.dispatch;
 const dispatch: Dispatch = unsafeDispatch;
 
-export {
-  store,
-  dispatch,
-  appBecameInactive,
-};
+export { store, dispatch, appBecameInactive };

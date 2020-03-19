@@ -12,7 +12,7 @@ import { dimensionsSelector } from './selectors/dimension-selectors';
 const splashStyleSelector: (state: AppState) => ImageStyle = createSelector(
   dimensionsSelector,
   (dimensions: Dimensions): ImageStyle => {
-    if (Platform.OS !== "android") {
+    if (Platform.OS !== 'android') {
       return null;
     }
     const { width: windowWidth, height: windowHeight } = dimensions;
@@ -39,21 +39,17 @@ const splashStyleSelector: (state: AppState) => ImageStyle = createSelector(
     } else {
       splashWidth = 320;
     }
-    const splashHeight = windowWidth <= 480
-      ? splashWidth * 2.5
-      : splashWidth * 2;
+    const splashHeight =
+      windowWidth <= 480 ? splashWidth * 2.5 : splashWidth * 2;
     return {
       width: splashWidth,
       height: splashHeight,
       transform: [
-        { translateX: -1 * (splashWidth - windowWidth) / 2 },
-        { translateY: -1 * (splashHeight - windowHeight) / 2 },
+        { translateX: (-1 * (splashWidth - windowWidth)) / 2 },
+        { translateY: (-1 * (splashHeight - windowHeight)) / 2 },
       ],
     };
   },
 );
 
-
-export {
-  splashStyleSelector,
-};
+export { splashStyleSelector };

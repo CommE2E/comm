@@ -40,23 +40,15 @@ async function backupDB() {
 
   const mysqlDump = childProcess.spawn(
     'mysqldump',
-    [
-      '-u',
-      dbConfig.user,
-      `-p${dbConfig.password}`,
-      dbConfig.database,
-    ],
+    ['-u', dbConfig.user, `-p${dbConfig.password}`, dbConfig.database],
     {
       stdio: ['ignore', 'pipe', 'ignore'],
     },
   );
   const cache = new StreamCache();
-  mysqlDump
-    .stdout
-    .pipe(zlib.createGzip())
-    .pipe(cache);
+  mysqlDump.stdout.pipe(zlib.createGzip()).pipe(cache);
 
-  const dateString = dateFormat("yyyy-mm-dd-HH:MM");
+  const dateString = dateFormat('yyyy-mm-dd-HH:MM');
   const filename = `${backupConfig.directory}/squadcal.${dateString}.sql.gz`;
 
   await saveBackup(filename, cache);
@@ -70,7 +62,7 @@ async function saveBackup(
   try {
     await trySaveBackup(filePath, cache);
   } catch (e) {
-    if (e.code !== "ENOSPC") {
+    if (e.code !== 'ENOSPC') {
       throw e;
     }
     if (!retries) {
@@ -93,11 +85,11 @@ function trySaveBackup(filePath: string, cache: StreamCache): Promise<void> {
 
 async function deleteOldestBackup() {
   const backupConfig = await importBackupConfig();
-  invariant(backupConfig, "backupConfig should be non-null");
+  invariant(backupConfig, 'backupConfig should be non-null');
   const files = await readdir(backupConfig.directory);
   let oldestFile;
   for (let file of files) {
-    if (!file.endsWith(".sql.gz")) {
+    if (!file.endsWith('.sql.gz')) {
       continue;
     }
     const stat = await lstat(`${backupConfig.directory}/${file}`);
@@ -115,12 +107,10 @@ async function deleteOldestBackup() {
     await unlink(`${backupConfig.directory}/${oldestFile.file}`);
   } catch (e) {
     // Check if it's already been deleted
-    if (e.code !== "ENOENT") {
+    if (e.code !== 'ENOENT') {
       throw e;
     }
   }
 }
 
-export {
-  backupDB,
-};
+export { backupDB };

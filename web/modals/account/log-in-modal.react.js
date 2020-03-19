@@ -13,10 +13,7 @@ import * as React from 'react';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 
-import {
-  validUsernameRegex,
-  validEmailRegex,
-} from 'lib/shared/account-utils';
+import { validUsernameRegex, validEmailRegex } from 'lib/shared/account-utils';
 import { connect } from 'lib/utils/redux-utils';
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -29,7 +26,7 @@ import { webLogInExtraInfoSelector } from '../../selectors/account-selectors';
 type Props = {
   setModal: (modal: ?React.Node) => void,
   // Redux state
-  inputDisabled: bool,
+  inputDisabled: boolean,
   logInExtraInfo: () => LogInExtraInfo,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
@@ -43,21 +40,20 @@ type State = {
 };
 
 class LogInModal extends React.PureComponent<Props, State> {
-
   usernameOrEmailInput: ?HTMLInputElement;
   passwordInput: ?HTMLInputElement;
 
   constructor(props: Props) {
     super(props);
     this.state = {
-      usernameOrEmail: "",
-      password: "",
-      errorMessage: "",
+      usernameOrEmail: '',
+      password: '',
+      errorMessage: '',
     };
   }
 
   componentDidMount() {
-    invariant(this.usernameOrEmailInput, "usernameOrEmail ref unset");
+    invariant(this.usernameOrEmailInput, 'usernameOrEmail ref unset');
     this.usernameOrEmailInput.focus();
   }
 
@@ -118,28 +114,28 @@ class LogInModal extends React.PureComponent<Props, State> {
 
   usernameOrEmailInputRef = (usernameOrEmailInput: ?HTMLInputElement) => {
     this.usernameOrEmailInput = usernameOrEmailInput;
-  }
+  };
 
   passwordInputRef = (passwordInput: ?HTMLInputElement) => {
     this.passwordInput = passwordInput;
-  }
+  };
 
   onChangeUsernameOrEmail = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
-    invariant(target instanceof HTMLInputElement, "target not input");
+    invariant(target instanceof HTMLInputElement, 'target not input');
     this.setState({ usernameOrEmail: target.value });
-  }
+  };
 
   onChangePassword = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
-    invariant(target instanceof HTMLInputElement, "target not input");
+    invariant(target instanceof HTMLInputElement, 'target not input');
     this.setState({ password: target.value });
-  }
+  };
 
   onClickForgotPassword = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.setModal(<ForgotPasswordModal setModal={this.props.setModal} />);
-  }
+  };
 
   onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
@@ -150,13 +146,13 @@ class LogInModal extends React.PureComponent<Props, State> {
     ) {
       this.setState(
         {
-          usernameOrEmail: "",
-          errorMessage: "alphanumeric usernames or emails only",
+          usernameOrEmail: '',
+          errorMessage: 'alphanumeric usernames or emails only',
         },
         () => {
           invariant(
             this.usernameOrEmailInput,
-            "usernameOrEmailInput ref unset",
+            'usernameOrEmailInput ref unset',
           );
           this.usernameOrEmailInput.focus();
         },
@@ -171,7 +167,7 @@ class LogInModal extends React.PureComponent<Props, State> {
       undefined,
       ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
     );
-  }
+  };
 
   async logInAction(extraInfo: LogInExtraInfo) {
     try {
@@ -186,13 +182,13 @@ class LogInModal extends React.PureComponent<Props, State> {
       if (e.message === 'invalid_parameters') {
         this.setState(
           {
-            usernameOrEmail: "",
+            usernameOrEmail: '',
             errorMessage: "user doesn't exist",
           },
           () => {
             invariant(
               this.usernameOrEmailInput,
-              "usernameOrEmailInput ref unset",
+              'usernameOrEmailInput ref unset',
             );
             this.usernameOrEmailInput.focus();
           },
@@ -200,25 +196,25 @@ class LogInModal extends React.PureComponent<Props, State> {
       } else if (e.message === 'invalid_credentials') {
         this.setState(
           {
-            password: "",
-            errorMessage: "wrong password",
+            password: '',
+            errorMessage: 'wrong password',
           },
           () => {
-            invariant(this.passwordInput, "passwordInput ref unset");
+            invariant(this.passwordInput, 'passwordInput ref unset');
             this.passwordInput.focus();
           },
         );
       } else {
         this.setState(
           {
-            usernameOrEmail: "",
-            password: "",
-            errorMessage: "unknown error",
+            usernameOrEmail: '',
+            password: '',
+            errorMessage: 'unknown error',
           },
           () => {
             invariant(
               this.usernameOrEmailInput,
-              "usernameOrEmailInput ref unset",
+              'usernameOrEmailInput ref unset',
             );
             this.usernameOrEmailInput.focus();
           },
@@ -230,8 +226,7 @@ class LogInModal extends React.PureComponent<Props, State> {
 
   clearModal = () => {
     this.props.setModal(null);
-  }
-
+  };
 }
 
 LogInModal.propTypes = {
@@ -246,7 +241,7 @@ const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 
 export default connect(
   (state: AppState) => ({
-    inputDisabled: loadingStatusSelector(state) === "loading",
+    inputDisabled: loadingStatusSelector(state) === 'loading',
     logInExtraInfo: webLogInExtraInfoSelector(state),
   }),
   { logIn },

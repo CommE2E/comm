@@ -29,7 +29,6 @@ type Props = {
   styles: Styles,
 };
 class ChatThreadListItem extends React.PureComponent<Props> {
-
   static propTypes = {
     data: chatThreadItemPropType.isRequired,
     onPressItem: PropTypes.func.isRequired,
@@ -69,10 +68,10 @@ class ChatThreadListItem extends React.PureComponent<Props> {
       >
         <View style={this.props.styles.container}>
           <View style={this.props.styles.row}>
-            <Text style={[
-              this.props.styles.threadName,
-              unreadStyle,
-            ]} numberOfLines={1}>
+            <Text
+              style={[this.props.styles.threadName, unreadStyle]}
+              numberOfLines={1}
+            >
               {this.props.data.threadInfo.uiName}
             </Text>
             <View style={this.props.styles.colorSplotch}>
@@ -84,7 +83,7 @@ class ChatThreadListItem extends React.PureComponent<Props> {
           </View>
           <View style={this.props.styles.row}>
             {this.lastMessage()}
-            <Text style={[ this.props.styles.lastActivity, unreadStyle ]}>
+            <Text style={[this.props.styles.lastActivity, unreadStyle]}>
               {lastActivity}
             </Text>
           </View>
@@ -95,8 +94,7 @@ class ChatThreadListItem extends React.PureComponent<Props> {
 
   onPress = () => {
     this.props.onPressItem(this.props.data.threadInfo);
-  }
-
+  };
 }
 
 const styles = {

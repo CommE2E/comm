@@ -8,9 +8,7 @@ import { createSelector } from 'reselect';
 import invariant from 'invariant';
 
 import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
-import {
-  nonThreadCalendarFiltersSelector,
-} from 'lib/selectors/calendar-filter-selectors';
+import { nonThreadCalendarFiltersSelector } from 'lib/selectors/calendar-filter-selectors';
 
 const dateExtractionRegex = /^([0-9]{4})-([0-9]{2})-[0-9]{2}$/;
 
@@ -18,8 +16,10 @@ function yearExtractor(startDate: string, endDate: string): ?number {
   const startDateResults = dateExtractionRegex.exec(startDate);
   const endDateResults = dateExtractionRegex.exec(endDate);
   if (
-    !startDateResults || !startDateResults[1] ||
-    !endDateResults || !endDateResults[1] ||
+    !startDateResults ||
+    !startDateResults[1] ||
+    !endDateResults ||
+    !endDateResults[1] ||
     startDateResults[1] !== endDateResults[1]
   ) {
     return null;
@@ -47,8 +47,12 @@ function monthExtractor(startDate: string, endDate: string): ?number {
   const startDateResults = dateExtractionRegex.exec(startDate);
   const endDateResults = dateExtractionRegex.exec(endDate);
   if (
-    !startDateResults || !startDateResults[1] || !startDateResults[2] ||
-    !endDateResults || !endDateResults[1] || !endDateResults[2] ||
+    !startDateResults ||
+    !startDateResults[1] ||
+    !startDateResults[2] ||
+    !endDateResults ||
+    !endDateResults[1] ||
+    !endDateResults[2] ||
     startDateResults[1] !== endDateResults[1] ||
     startDateResults[2] !== endDateResults[2]
   ) {
@@ -75,7 +79,7 @@ const monthAssertingSelector: (state: AppState) => number = createSelector(
 );
 
 function activeThreadFromNavInfo(navInfo: NavInfo): ?string {
-  return navInfo.tab === "chat" ? navInfo.activeChatThreadID : null;
+  return navInfo.tab === 'chat' ? navInfo.activeChatThreadID : null;
 }
 
 function activeThreadSelector(state: AppState): ?string {
@@ -86,10 +90,10 @@ const webCalendarQuery: (
   state: AppState,
 ) => () => CalendarQuery = createSelector(
   currentCalendarQuery,
-  (state: AppState) => state.navInfo.tab === "calendar",
+  (state: AppState) => state.navInfo.tab === 'calendar',
   (
-    calendarQuery: (calendarActive: bool) => CalendarQuery,
-    calendarActive: bool,
+    calendarQuery: (calendarActive: boolean) => CalendarQuery,
+    calendarActive: boolean,
   ) => () => calendarQuery(calendarActive),
 );
 

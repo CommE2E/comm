@@ -9,12 +9,11 @@ import PropTypes from 'prop-types';
 import { connect } from 'lib/utils/redux-utils';
 
 type Props = {|
-  visible: bool,
+  visible: boolean,
   // Redux state
-  showDisconnectedBar: bool,
+  showDisconnectedBar: boolean,
 |};
 class DisconnectedBar extends React.PureComponent<Props> {
-
   static propTypes = {
     visible: PropTypes.bool.isRequired,
     showDisconnectedBar: PropTypes.bool.isRequired,
@@ -28,7 +27,7 @@ class DisconnectedBar extends React.PureComponent<Props> {
   }
 
   render() {
-    const disconnectedBarStyles = [ styles.disconnectedBar ];
+    const disconnectedBarStyles = [styles.disconnectedBar];
     let text;
     if (this.props.showDisconnectedBar) {
       text = <Text style={styles.disconnectedText}>DISCONNECTED</Text>;
@@ -37,7 +36,6 @@ class DisconnectedBar extends React.PureComponent<Props> {
     }
     return <View style={disconnectedBarStyles}>{text}</View>;
   }
-
 }
 
 const styles = StyleSheet.create({

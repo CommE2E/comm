@@ -26,9 +26,7 @@ import Animated from 'react-native-reanimated';
 
 import { ComposedMessage, clusterEndHeight } from './composed-message.react';
 import MultimediaMessageMultimedia from './multimedia-message-multimedia.react';
-import {
-  withLightboxPositionContext,
-} from '../navigation/lightbox-navigator.react';
+import { withLightboxPositionContext } from '../navigation/lightbox-navigator.react';
 import {
   allCorners,
   filterCorners,
@@ -44,14 +42,14 @@ type ContentHeights = {|
 |};
 export type ChatMultimediaMessageInfoItem = {|
   ...ContentHeights,
-  itemType: "message",
-  messageShapeType: "multimedia",
+  itemType: 'message',
+  messageShapeType: 'multimedia',
   messageInfo: MultimediaMessageInfo,
   localMessageInfo: ?LocalMessageInfo,
   threadInfo: ThreadInfo,
-  startsConversation: bool,
-  startsCluster: bool,
-  endsCluster: bool,
+  startsConversation: boolean,
+  startsCluster: boolean,
+  endsCluster: boolean,
   pendingUploads: ?MessagePendingUploads,
 |};
 
@@ -77,13 +75,14 @@ function multimediaMessageContentHeights(
   messageInfo: MultimediaMessageInfo,
   composedMessageMaxWidth: number,
 ): ContentHeights {
-  invariant(messageInfo.media.length > 0, "should have media");
+  invariant(messageInfo.media.length > 0, 'should have media');
   if (messageInfo.media.length === 1) {
-    const [ media ] = messageInfo.media;
+    const [media] = messageInfo.media;
     const { height, width } = media.dimensions;
-    let imageHeight = composedMessageMaxWidth >= width
-      ? height
-      : height * composedMessageMaxWidth / width;
+    let imageHeight =
+      composedMessageMaxWidth >= width
+        ? height
+        : (height * composedMessageMaxWidth) / width;
     if (imageHeight < 50) {
       imageHeight = 50;
     }
@@ -95,8 +94,8 @@ function multimediaMessageContentHeights(
   const imageHeight = (composedMessageMaxWidth - marginSpace) / mediaPerRow;
 
   const numRows = Math.ceil(messageInfo.media.length / mediaPerRow);
-  const contentHeight = numRows * imageHeight
-    + (numRows - 1) * spaceBetweenImages;
+  const contentHeight =
+    numRows * imageHeight + (numRows - 1) * spaceBetweenImages;
 
   return { imageHeight, contentHeight };
 }
@@ -128,7 +127,7 @@ const borderRadius = 16;
 type Props = {|
   item: ChatMultimediaMessageInfoItem,
   navigation: MessageListNavProp,
-  focused: bool,
+  focused: boolean,
   toggleFocus: (messageKey: string) => void,
   verticalBounds: ?VerticalBounds,
   // withLightboxPositionContext
@@ -136,7 +135,6 @@ type Props = {|
   ...React.ElementProps<typeof View>,
 |};
 class MultimediaMessage extends React.PureComponent<Props> {
-
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     navigation: messageListNavPropType.isRequired,
@@ -173,14 +171,9 @@ class MultimediaMessage extends React.PureComponent<Props> {
 
   renderContent(): React.Node {
     const { messageInfo, imageHeight } = this.props.item;
-    invariant(messageInfo.media.length > 0, "should have media");
+    invariant(messageInfo.media.length > 0, 'should have media');
     if (messageInfo.media.length === 1) {
-      return this.renderImage(
-        messageInfo.media[0],
-        0,
-        0,
-        allCorners,
-      );
+      return this.renderImage(messageInfo.media[0], 0, 0, allCorners);
     }
 
     const mediaPerRow = getMediaPerRow(messageInfo.media.length);
@@ -212,29 +205,24 @@ class MultimediaMessage extends React.PureComponent<Props> {
           bottomRight: lastRow && inLastColumn,
         };
         const style = lastInRow ? null : styles.imageBeforeImage;
-        row.push(this.renderImage(
-          media,
-          i + j,
-          verticalOffset,
-          corners,
-          style,
-        ));
+        row.push(
+          this.renderImage(media, i + j, verticalOffset, corners, style),
+        );
       }
       for (; j < mediaPerRow; j++) {
         const key = `filler${j}`;
-        const style = j + 1 < mediaPerRow
-          ? [ styles.filler, styles.imageBeforeImage ]
-          : styles.filler;
-        row.push(<View style={[ style, styles.filler ]} key={key} />);
+        const style =
+          j + 1 < mediaPerRow
+            ? [styles.filler, styles.imageBeforeImage]
+            : styles.filler;
+        row.push(<View style={[style, styles.filler]} key={key} />);
       }
 
-      const rowStyle = lastRow
-        ? styles.row
-        : [ styles.row, styles.rowAboveRow ];
+      const rowStyle = lastRow ? styles.row : [styles.row, styles.rowAboveRow];
       rows.push(
         <View style={rowStyle} key={i}>
           {row}
-        </View>
+        </View>,
       );
     }
     return <View style={styles.grid}>{rows}</View>;
@@ -265,7 +253,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
         navigation={this.props.navigation}
         verticalBounds={this.props.verticalBounds}
         verticalOffset={verticalOffset}
-        style={[ style, roundedStyle ]}
+        style={[style, roundedStyle]}
         lightboxPosition={this.props.lightboxPosition}
         postInProgress={!!pendingUploads}
         pendingUpload={pendingUpload}
@@ -276,7 +264,6 @@ class MultimediaMessage extends React.PureComponent<Props> {
       />
     );
   }
-
 }
 
 const spaceBetweenImages = 4;

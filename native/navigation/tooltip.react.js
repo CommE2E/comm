@@ -47,13 +47,7 @@ import {
 } from '../selectors/dimension-selectors';
 import TooltipItem from './tooltip-item.react';
 
-const {
-  Value,
-  Extrapolate,
-  add,
-  multiply,
-  interpolate,
-} = Animated;
+const { Value, Extrapolate, add, multiply, interpolate } = Animated;
 
 type TooltipSpec<CustomProps> = {|
   entries: $ReadOnlyArray<TooltipEntry<CustomProps>>,
@@ -95,19 +89,15 @@ function createTooltip<
   Navigation: NavProp<CustomProps>,
   TooltipPropsType: TooltipProps<Navigation>,
   ButtonComponentType: React.ComponentType<ButtonProps<Navigation>>,
->(
-  ButtonComponent: ButtonComponentType,
-  tooltipSpec: TooltipSpec<CustomProps>,
-) {
+>(ButtonComponent: ButtonComponentType, tooltipSpec: TooltipSpec<CustomProps>) {
   class Tooltip extends React.PureComponent<TooltipPropsType> {
-
     static propTypes = {
       navigation: PropTypes.shape({
         state: PropTypes.shape({
           params: PropTypes.shape({
             initialCoordinates: layoutCoordinatesPropType.isRequired,
             verticalBounds: verticalBoundsPropType.isRequired,
-            location: PropTypes.oneOf([ "above", "below" ]),
+            location: PropTypes.oneOf(['above', 'below']),
             margin: PropTypes.number,
             visibleEntryIDs: PropTypes.arrayOf(PropTypes.string),
           }).isRequired,
@@ -136,50 +126,35 @@ function createTooltip<
 
       const { position } = props;
       const { index } = props.scene;
-      this.progress = interpolate(
-        position,
-        {
-          inputRange: [ index - 1, index ],
-          outputRange: [ 0, 1 ],
-          extrapolate: Extrapolate.CLAMP,
-        },
-      );
-      this.backdropOpacity = interpolate(
-        this.progress,
-        {
-          inputRange: [ 0, 1 ],
-          outputRange: [ 0, 0.7 ],
-          extrapolate: Extrapolate.CLAMP,
-        },
-      );
-      this.tooltipContainerOpacity = interpolate(
-        this.progress,
-        {
-          inputRange: [ 0, 0.1 ],
-          outputRange: [ 0, 1 ],
-          extrapolate: Extrapolate.CLAMP,
-        },
-      );
+      this.progress = interpolate(position, {
+        inputRange: [index - 1, index],
+        outputRange: [0, 1],
+        extrapolate: Extrapolate.CLAMP,
+      });
+      this.backdropOpacity = interpolate(this.progress, {
+        inputRange: [0, 1],
+        outputRange: [0, 0.7],
+        extrapolate: Extrapolate.CLAMP,
+      });
+      this.tooltipContainerOpacity = interpolate(this.progress, {
+        inputRange: [0, 0.1],
+        outputRange: [0, 1],
+        extrapolate: Extrapolate.CLAMP,
+      });
 
       const { initialCoordinates } = props.navigation.state.params;
       const { y, height } = initialCoordinates;
       const { margin } = this;
-      this.tooltipVerticalAbove = interpolate(
-        this.progress,
-        {
-          inputRange: [ 0, 1 ],
-          outputRange: [ margin + this.tooltipHeight / 2, 0 ],
-          extrapolate: Extrapolate.CLAMP,
-        },
-      );
-      this.tooltipVerticalBelow = interpolate(
-        this.progress,
-        {
-          inputRange: [ 0, 1 ],
-          outputRange: [ -margin - this.tooltipHeight / 2, 0 ],
-          extrapolate: Extrapolate.CLAMP,
-        },
-      );
+      this.tooltipVerticalAbove = interpolate(this.progress, {
+        inputRange: [0, 1],
+        outputRange: [margin + this.tooltipHeight / 2, 0],
+        extrapolate: Extrapolate.CLAMP,
+      });
+      this.tooltipVerticalBelow = interpolate(this.progress, {
+        inputRange: [0, 1],
+        outputRange: [-margin - this.tooltipHeight / 2, 0],
+        extrapolate: Extrapolate.CLAMP,
+      });
 
       this.tooltipHorizontal = multiply(
         add(1, multiply(-1, this.progress)),
@@ -201,7 +176,7 @@ function createTooltip<
       return tooltipHeight(this.entries.length);
     }
 
-    get location(): ('above' | 'below') {
+    get location(): 'above' | 'below' {
       const { params } = this.props.navigation.state;
       const { location } = params;
       if (location) {
@@ -236,10 +211,11 @@ function createTooltip<
 
     get contentContainerStyle() {
       const { verticalBounds } = this.props.navigation.state.params;
-      const fullScreenHeight = this.props.screenDimensions.height
-        + contentBottomOffset;
+      const fullScreenHeight =
+        this.props.screenDimensions.height + contentBottomOffset;
       const top = verticalBounds.y;
-      const bottom = fullScreenHeight - verticalBounds.y - verticalBounds.height;
+      const bottom =
+        fullScreenHeight - verticalBounds.y - verticalBounds.height;
       return {
         ...styles.contentContainer,
         marginTop: top,
@@ -276,9 +252,7 @@ function createTooltip<
         position: 'absolute',
         alignItems: 'center',
         opacity: this.tooltipContainerOpacity,
-        transform: [
-          { translateX: this.tooltipHorizontal },
-        ],
+        transform: [{ translateX: this.tooltipHorizontal }],
       };
 
       const extraLeftSpace = x;
@@ -293,15 +267,13 @@ function createTooltip<
 
       if (location === 'above') {
         const fullScreenHeight = screenDimensions.height + contentBottomOffset;
-        style.bottom = fullScreenHeight -
-          Math.max(y, verticalBounds.y) +
-          margin;
+        style.bottom =
+          fullScreenHeight - Math.max(y, verticalBounds.y) + margin;
         style.transform.push({ translateY: this.tooltipVerticalAbove });
       } else {
-        style.top = Math.min(
-          y + height,
-          verticalBounds.y + verticalBounds.height,
-        ) + margin;
+        style.top =
+          Math.min(y + height, verticalBounds.y + verticalBounds.height) +
+          margin;
         style.transform.push({ translateY: this.tooltipVerticalBelow });
       }
       style.transform.push({ scale: this.progress });
@@ -313,9 +285,7 @@ function createTooltip<
 
       const { entries } = this;
       const items = entries.map((entry, index) => {
-        const style = index !== entries.length - 1
-          ? styles.itemMargin
-          : null;
+        const style = index !== entries.length - 1 ? styles.itemMargin : null;
         return (
           <TooltipItem
             key={index}
@@ -348,13 +318,9 @@ function createTooltip<
       let triangleUp = null;
       const { location } = this;
       if (location === 'above') {
-        triangleDown = (
-          <View style={[ styles.triangleDown, triangleStyle ]} />
-        );
+        triangleDown = <View style={[styles.triangleDown, triangleStyle]} />;
       } else {
-        triangleUp = (
-          <View style={[ styles.triangleUp, triangleStyle ]} />
-        );
+        triangleUp = <View style={[styles.triangleUp, triangleStyle]} />;
       }
 
       return (
@@ -374,9 +340,7 @@ function createTooltip<
               onLayout={this.onTooltipContainerLayout}
             >
               {triangleUp}
-              <View style={styles.items}>
-                {items}
-              </View>
+              <View style={styles.items}>{items}</View>
               {triangleDown}
             </Animated.View>
           </View>
@@ -386,7 +350,7 @@ function createTooltip<
 
     onPressBackdrop = () => {
       this.props.navigation.goBack();
-    }
+    };
 
     onPressEntry = (entry: TooltipEntry<CustomProps>) => {
       const {
@@ -403,12 +367,8 @@ function createTooltip<
         dispatchActionPayload: this.props.dispatchActionPayload,
         dispatchActionPromise: this.props.dispatchActionPromise,
       };
-      entry.onPress(
-        customProps,
-        dispatchFunctions,
-        this.bindServerCall,
-      );
-    }
+      entry.onPress(customProps, dispatchFunctions, this.bindServerCall);
+    };
 
     bindServerCall = (serverCall: ActionFunc) => {
       const {
@@ -426,11 +386,11 @@ function createTooltip<
         currentUserInfo,
         connectionStatus,
       });
-    }
+    };
 
-    onTooltipContainerLayout = (
-      event: { nativeEvent: { layout: { x: number, width: number } } },
-    ) => {
+    onTooltipContainerLayout = (event: {
+      nativeEvent: { layout: { x: number, width: number } },
+    }) => {
       const { navigation, screenDimensions } = this.props;
       const { x, width } = navigation.state.params.initialCoordinates;
 
@@ -445,8 +405,7 @@ function createTooltip<
         const minWidth = width + 2 * extraRightSpace;
         this.tooltipHorizontalOffset.setValue((actualWidth - minWidth) / 2);
       }
-    }
-
+    };
   }
   return connect(
     (state: AppState) => ({
@@ -463,16 +422,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   backdrop: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "black",
+    backgroundColor: 'black',
   },
   contentContainer: {
     flex: 1,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   items: {
     borderRadius: 5,
@@ -481,7 +440,7 @@ const styles = StyleSheet.create({
   },
   itemMargin: {
     borderBottomWidth: 1,
-    borderBottomColor: "#E1E1E1",
+    borderBottomColor: '#E1E1E1',
   },
   triangleDown: {
     width: 10,
@@ -495,7 +454,7 @@ const styles = StyleSheet.create({
     borderRightColor: 'transparent',
     borderBottomColor: 'transparent',
     borderLeftColor: 'transparent',
-    top: Platform.OS === "android" ? -1 : 0,
+    top: Platform.OS === 'android' ? -1 : 0,
   },
   triangleUp: {
     width: 10,
@@ -509,7 +468,7 @@ const styles = StyleSheet.create({
     borderTopColor: 'transparent',
     borderRightColor: 'transparent',
     borderLeftColor: 'transparent',
-    bottom: Platform.OS === "android" ? -1 : 0,
+    bottom: Platform.OS === 'android' ? -1 : 0,
   },
 });
 
@@ -518,7 +477,4 @@ function tooltipHeight(numEntries: number) {
   return 9 + 38 * numEntries;
 }
 
-export {
-  createTooltip,
-  tooltipHeight,
-};
+export { createTooltip, tooltipHeight };

@@ -16,13 +16,7 @@ type Props = {|
   styles: Styles,
 |};
 function PencilIcon(props: Props) {
-  return (
-    <Icon
-      name="pencil"
-      size={16}
-      style={props.styles.editIcon}
-    />
-  );
+  return <Icon name="pencil" size={16} style={props.styles.editIcon} />;
 }
 
 const styles = {

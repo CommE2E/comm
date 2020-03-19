@@ -22,12 +22,11 @@ type Props = {|
   dispatchActionPayload: DispatchActionPayload,
 |};
 class ConnectivityUpdater extends React.PureComponent<Props> {
-
   static propTypes = {
     connectivity: connectivityInfoPropType.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
-  netInfoUnsubscribe: ?(() => void);
+  netInfoUnsubscribe: ?() => void;
 
   componentDidMount() {
     this.netInfoUnsubscribe = NetInfo.addEventListener(this.onConnectionChange);
@@ -40,23 +39,22 @@ class ConnectivityUpdater extends React.PureComponent<Props> {
 
   onConnectionChange = ({ type }) => {
     const connected = type !== 'none' && type !== 'unknown';
-    const hasWiFi = type === "wifi";
+    const hasWiFi = type === 'wifi';
     if (
       connected === this.props.connectivity.connected &&
       hasWiFi === this.props.connectivity.hasWiFi
     ) {
       return;
     }
-    this.props.dispatchActionPayload(
-      updateConnectivityActiveType,
-      { connected, hasWiFi },
-    );
-  }
+    this.props.dispatchActionPayload(updateConnectivityActiveType, {
+      connected,
+      hasWiFi,
+    });
+  };
 
   render() {
     return null;
   }
-
 }
 
 export default connect(

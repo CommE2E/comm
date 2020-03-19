@@ -19,16 +19,15 @@ type Props = {|
   onLoad: (uri: string) => void,
   spinnerColor: string,
   style: ImageStyle,
-  invisibleLoad: bool,
+  invisibleLoad: boolean,
   // Redux state
   connectionStatus: ConnectionStatus,
 |};
 type State = {|
   attempt: number,
-  loaded: bool,
+  loaded: boolean,
 |};
 class RemoteImage extends React.PureComponent<Props, State> {
-
   static propTypes = {
     uri: PropTypes.string.isRequired,
     onLoad: PropTypes.func.isRequired,
@@ -44,8 +43,8 @@ class RemoteImage extends React.PureComponent<Props, State> {
   componentDidUpdate(prevProps: Props, prevState: State) {
     if (
       !this.state.loaded &&
-      this.props.connectionStatus === "connected" &&
-      prevProps.connectionStatus !== "connected"
+      this.props.connectionStatus === 'connected' &&
+      prevProps.connectionStatus !== 'connected'
     ) {
       this.setState(prevState => ({ attempt: prevState.attempt + 1 }));
     }
@@ -59,18 +58,16 @@ class RemoteImage extends React.PureComponent<Props, State> {
     if (!this.state.loaded && !this.props.invisibleLoad) {
       spinner = (
         <View style={styles.spinnerContainer}>
-          <ActivityIndicator
-            color={this.props.spinnerColor}
-            size="large"
-          />
+          <ActivityIndicator color={this.props.spinnerColor} size="large" />
         </View>
       );
     }
 
     const source = { uri: this.props.uri };
-    const containerStyle = !this.state.loaded && this.props.invisibleLoad
-      ? styles.invisibleContainer
-      : styles.container;
+    const containerStyle =
+      !this.state.loaded && this.props.invisibleLoad
+        ? styles.invisibleContainer
+        : styles.container;
     return (
       <View style={containerStyle}>
         {spinner}
@@ -86,8 +83,7 @@ class RemoteImage extends React.PureComponent<Props, State> {
 
   onLoad = () => {
     this.setState({ loaded: true });
-  }
-
+  };
 }
 
 const styles = StyleSheet.create({
@@ -109,8 +105,6 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect(
-  (state: AppState) => ({
-    connectionStatus: state.connection.status,
-  }),
-)(RemoteImage);
+export default connect((state: AppState) => ({
+  connectionStatus: state.connection.status,
+}))(RemoteImage);

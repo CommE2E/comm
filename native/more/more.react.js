@@ -46,10 +46,7 @@ const More = createStackNavigator(
 More.navigationOptions = ({ navigation }) => ({
   tabBarLabel: 'More',
   tabBarIcon: ({ tintColor }) => (
-    <Icon
-      name="bars"
-      style={[styles.icon, { color: tintColor }]}
-    />
+    <Icon name="bars" style={[styles.icon, { color: tintColor }]} />
   ),
 });
 

@@ -12,7 +12,6 @@ type Props = {|
   setModal: (modal: ?React.Node) => void,
 |};
 class MultimediaModal extends React.PureComponent<Props> {
-
   static propTypes = {
     uri: PropTypes.string.isRequired,
     setModal: PropTypes.func.isRequired,
@@ -20,7 +19,7 @@ class MultimediaModal extends React.PureComponent<Props> {
   overlay: ?HTMLDivElement;
 
   componentDidMount() {
-    invariant(this.overlay, "overlay ref unset");
+    invariant(this.overlay, 'overlay ref unset');
     this.overlay.focus();
   }
 
@@ -44,24 +43,23 @@ class MultimediaModal extends React.PureComponent<Props> {
 
   overlayRef = (overlay: ?HTMLDivElement) => {
     this.overlay = overlay;
-  }
+  };
 
   onBackgroundClick = (event: SyntheticEvent<HTMLDivElement>) => {
     if (event.target === this.overlay) {
       this.close();
     }
-  }
+  };
 
   onKeyDown = (event: SyntheticKeyboardEvent<HTMLDivElement>) => {
     if (event.keyCode === 27) {
       this.close();
     }
-  }
+  };
 
   close = () => {
     this.props.setModal(null);
-  }
-
+  };
 }
 
 export default MultimediaModal;

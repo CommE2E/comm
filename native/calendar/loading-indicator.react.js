@@ -9,20 +9,15 @@ import Icon from 'react-native-vector-icons/Feather';
 type Props = {|
   loadingStatus: LoadingStatus,
   color: string,
-  canUseRed: bool,
+  canUseRed: boolean,
 |};
 function LoadingIndicator(props: Props) {
-  if (props.loadingStatus === "error") {
+  if (props.loadingStatus === 'error') {
     const colorStyle = props.canUseRed
       ? { color: 'red' }
       : { color: props.color };
-    return (
-      <Icon
-        name="x-circle"
-        style={[ styles.errorIcon, colorStyle ]}
-      />
-    );
-  } else if (props.loadingStatus === "loading") {
+    return <Icon name="x-circle" style={[styles.errorIcon, colorStyle]} />;
+  } else if (props.loadingStatus === 'loading') {
     return <ActivityIndicator size="small" color={props.color} />;
   } else {
     return null;
@@ -31,7 +26,7 @@ function LoadingIndicator(props: Props) {
 
 const styles = StyleSheet.create({
   errorIcon: {
-    paddingTop: Platform.OS === "android" ? 6 : 4,
+    paddingTop: Platform.OS === 'android' ? 6 : 4,
     fontSize: 16,
   },
 });

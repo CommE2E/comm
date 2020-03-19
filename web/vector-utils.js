@@ -11,13 +11,11 @@ function htmlTargetFromEvent(event: SyntheticEvent<*>): HTMLElement {
   while (!(target instanceof HTMLElement)) {
     invariant(
       target instanceof SVGElement,
-      "non-HTMLElements in typeahead should be SVGElements",
+      'non-HTMLElements in typeahead should be SVGElements',
     );
     target = target.parentNode;
   }
   return target;
 }
 
-export {
-  htmlTargetFromEvent,
-};
+export { htmlTargetFromEvent };

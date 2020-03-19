@@ -34,6 +34,4 @@ function createBotViewer(userID: string): Viewer {
   });
 }
 
-export {
-  createBotViewer,
-};
+export { createBotViewer };

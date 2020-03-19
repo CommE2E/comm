@@ -10,7 +10,6 @@ type Props = {|
   setModal: (modal: ?React.Node) => void,
 |};
 class Chat extends React.PureComponent<Props> {
-
   static propTypes = {
     setModal: PropTypes.func.isRequired,
   };
@@ -23,7 +22,6 @@ class Chat extends React.PureComponent<Props> {
       </React.Fragment>
     );
   }
-
 }
 
 export default Chat;

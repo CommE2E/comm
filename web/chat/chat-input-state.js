@@ -23,11 +23,11 @@ export type PendingMultimediaUpload = {|
   uri: string,
   // URLs created with createObjectURL aren't considered "real". The distinction
   // is required because those "fake" URLs must be disposed properly
-  uriIsReal: bool,
+  uriIsReal: boolean,
   progressPercent: number,
   // This is set once the network request begins and used if the upload is
   // cancelled
-  abort: ?(() => void),
+  abort: ?() => void,
 |};
 export const pendingMultimediaUploadPropType = PropTypes.shape({
   localID: PropTypes.string.isRequired,
@@ -46,18 +46,20 @@ export const pendingMultimediaUploadPropType = PropTypes.shape({
 // This type represents the input state for a particular thread
 export type ChatInputState = {|
   pendingUploads: $ReadOnlyArray<PendingMultimediaUpload>,
-  assignedUploads:
-    {[messageID: string]: $ReadOnlyArray<PendingMultimediaUpload>},
+  assignedUploads: {
+    [messageID: string]: $ReadOnlyArray<PendingMultimediaUpload>,
+  },
   draft: string,
   appendFiles: (files: $ReadOnlyArray<File>) => Promise<void>,
   cancelPendingUpload: (localUploadID: string) => void,
   createMultimediaMessage: (localID?: number) => void,
   setDraft: (draft: string) => void,
-  messageHasUploadFailure: (localMessageID: string) => bool,
+  messageHasUploadFailure: (localMessageID: string) => boolean,
   retryMultimediaMessage: (localMessageID: string) => void,
 |};
-const arrayOfUploadsPropType =
-  PropTypes.arrayOf(pendingMultimediaUploadPropType);
+const arrayOfUploadsPropType = PropTypes.arrayOf(
+  pendingMultimediaUploadPropType,
+);
 export const chatInputStatePropType = PropTypes.shape({
   pendingUploads: arrayOfUploadsPropType.isRequired,
   assignedUploads: PropTypes.objectOf(arrayOfUploadsPropType).isRequired,

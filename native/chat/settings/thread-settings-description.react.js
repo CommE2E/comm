@@ -15,13 +15,7 @@ import { type Colors, colorsPropType } from '../../themes/colors';
 import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
-import {
-  Text,
-  Alert,
-  ActivityIndicator,
-  TextInput,
-  View,
-} from 'react-native';
+import { Text, Alert, ActivityIndicator, TextInput, View } from 'react-native';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -49,7 +43,7 @@ type Props = {|
   setDescriptionEditValue: (value: ?string, callback?: () => void) => void,
   descriptionTextHeight: ?number,
   setDescriptionTextHeight: (number: number) => void,
-  canChangeSettings: bool,
+  canChangeSettings: boolean,
   // Redux state
   loadingStatus: LoadingStatus,
   colors: Colors,
@@ -62,7 +56,6 @@ type Props = {|
   ) => Promise<ChangeThreadSettingsResult>,
 |};
 class ThreadSettingsDescription extends React.PureComponent<Props> {
-
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     descriptionEditValue: PropTypes.string,
@@ -84,7 +77,7 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
       this.props.descriptionEditValue !== undefined
     ) {
       let button;
-      if (this.props.loadingStatus !== "loading") {
+      if (this.props.loadingStatus !== 'loading') {
         button = <SaveSettingButton onPress={this.onSubmit} />;
       } else {
         button = (
@@ -106,7 +99,7 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
           <ThreadSettingsCategoryHeader type="full" title="Description" />
           <View style={this.props.styles.row}>
             <TextInput
-              style={[ this.props.styles.text, textInputStyle ]}
+              style={[this.props.styles.text, textInputStyle]}
               underlineColorAndroid="transparent"
               value={this.props.descriptionEditValue}
               onChangeText={this.props.setDescriptionEditValue}
@@ -114,7 +107,7 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
               autoFocus={true}
               selectTextOnFocus={true}
               onBlur={this.onSubmit}
-              editable={this.props.loadingStatus !== "loading"}
+              editable={this.props.loadingStatus !== 'loading'}
               onContentSizeChange={this.onTextInputContentSizeChange}
               ref={this.textInputRef}
             />
@@ -180,27 +173,27 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
 
   textInputRef = (textInput: ?TextInput) => {
     this.textInput = textInput;
-  }
+  };
 
   onLayoutText = (event: { nativeEvent: { layout: { height: number } } }) => {
     this.props.setDescriptionTextHeight(event.nativeEvent.layout.height);
-  }
+  };
 
-  onTextInputContentSizeChange = (
-    event: { nativeEvent: { contentSize: { height: number } } },
-  ) => {
+  onTextInputContentSizeChange = (event: {
+    nativeEvent: { contentSize: { height: number } },
+  }) => {
     this.props.setDescriptionTextHeight(event.nativeEvent.contentSize.height);
-  }
+  };
 
   onPressEdit = () => {
     this.props.setDescriptionEditValue(this.props.threadInfo.description);
-  }
+  };
 
   onSubmit = () => {
     invariant(
       this.props.descriptionEditValue !== null &&
         this.props.descriptionEditValue !== undefined,
-      "should be set",
+      'should be set',
     );
     const description = this.props.descriptionEditValue.trim();
 
@@ -220,7 +213,7 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
     editDescriptionPromise.then(() => {
       this.props.setDescriptionEditValue(null);
     });
-  }
+  };
 
   async editDescription(newDescription: string) {
     try {
@@ -230,11 +223,9 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
       });
     } catch (e) {
       Alert.alert(
-        "Unknown error",
-        "Uhh... try again?",
-        [
-          { text: 'OK', onPress: this.onErrorAcknowledged },
-        ],
+        'Unknown error',
+        'Uhh... try again?',
+        [{ text: 'OK', onPress: this.onErrorAcknowledged }],
         { cancelable: false },
       );
       throw e;
@@ -245,12 +236,11 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
     this.props.setDescriptionEditValue(
       this.props.threadInfo.description,
       () => {
-        invariant(this.textInput, "textInput should be set");
+        invariant(this.textInput, 'textInput should be set');
         this.textInput.focus();
       },
     );
-  }
-
+  };
 }
 
 const styles = {

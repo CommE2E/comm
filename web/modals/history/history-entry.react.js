@@ -38,7 +38,7 @@ type Props = {
   animateAndLoadEntry: (entryID: string) => void,
   // Redux state
   threadInfo: ThreadInfo,
-  loggedIn: bool,
+  loggedIn: boolean,
   restoreLoadingStatus: LoadingStatus,
   calendarQuery: () => CalendarQuery,
   // Redux dispatch functions
@@ -48,7 +48,6 @@ type Props = {
 };
 
 class HistoryEntry extends React.PureComponent<Props> {
-
   render() {
     let deleted = null;
     if (this.props.entryInfo.deleted) {
@@ -57,10 +56,11 @@ class HistoryEntry extends React.PureComponent<Props> {
         restore = (
           <span>
             <span className={css.restoreEntryLabel}>
-              (<a
-                href="#"
-                onClick={this.onRestore}
-              >restore</a>)
+              (
+              <a href="#" onClick={this.onRestore}>
+                restore
+              </a>
+              )
             </span>
             <LoadingIndicator
               status={this.props.restoreLoadingStatus}
@@ -83,12 +83,15 @@ class HistoryEntry extends React.PureComponent<Props> {
       [css.entry]: true,
       [css.darkEntry]: colorIsDark(this.props.threadInfo.color),
     });
-    const textStyle = { backgroundColor: "#" + this.props.threadInfo.color };
-    const creator = this.props.entryInfo.creator === null
-      ? "Anonymous"
-      : <span className={css.entryUsername}>
+    const textStyle = { backgroundColor: '#' + this.props.threadInfo.color };
+    const creator =
+      this.props.entryInfo.creator === null ? (
+        'Anonymous'
+      ) : (
+        <span className={css.entryUsername}>
           {this.props.entryInfo.creator}
-        </span>;
+        </span>
+      );
 
     return (
       <li>
@@ -96,19 +99,19 @@ class HistoryEntry extends React.PureComponent<Props> {
           {this.props.entryInfo.text}
         </div>
         <span className={css.entryAuthor}>
-          {"created by "}
+          {'created by '}
           {creator}
         </span>
-        <span className={css.entryThread}>
-          {this.props.threadInfo.uiName}
-        </span>
+        <span className={css.entryThread}>{this.props.threadInfo.uiName}</span>
         <div className={css.clear} />
         {deleted}
         <a
           href="#"
           className={css.revisionHistoryButton}
           onClick={this.onClick}
-        >revision history &gt;</a>
+        >
+          revision history &gt;
+        </a>
         <div className={css.clear} />
       </li>
     );
@@ -117,24 +120,24 @@ class HistoryEntry extends React.PureComponent<Props> {
   onRestore = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     const entryID = this.props.entryInfo.id;
-    invariant(entryID, "entryInfo.id (serverID) should be set");
+    invariant(entryID, 'entryInfo.id (serverID) should be set');
     this.props.dispatchActionPromise(
       restoreEntryActionTypes,
       this.restoreEntryAction(),
       { customKeyName: `${restoreEntryActionTypes.started}:${entryID}` },
     );
-  }
+  };
 
   onClick = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     const entryID = this.props.entryInfo.id;
-    invariant(entryID, "entryInfo.id (serverID) should be set");
+    invariant(entryID, 'entryInfo.id (serverID) should be set');
     this.props.onClick(entryID);
-  }
+  };
 
   async restoreEntryAction() {
     const entryID = this.props.entryInfo.id;
-    invariant(entryID, "entry should have ID");
+    invariant(entryID, 'entry should have ID');
     const result = await this.props.restoreEntry({
       entryID,
       calendarQuery: this.props.calendarQuery(),
@@ -142,7 +145,6 @@ class HistoryEntry extends React.PureComponent<Props> {
     this.props.animateAndLoadEntry(entryID);
     return result;
   }
-
 }
 
 HistoryEntry.propTypes = {
@@ -155,16 +157,19 @@ HistoryEntry.propTypes = {
   calendarQuery: PropTypes.func.isRequired,
   dispatchActionPromise: PropTypes.func.isRequired,
   restoreEntry: PropTypes.func.isRequired,
-}
+};
 
 export default connect(
   (state: AppState, ownProps: { entryInfo: EntryInfo }) => {
     const entryID = ownProps.entryInfo.id;
-    invariant(entryID, "entryInfo.id (serverID) should be set");
+    invariant(entryID, 'entryInfo.id (serverID) should be set');
     return {
       threadInfo: threadInfoSelector(state)[ownProps.entryInfo.threadID],
-      loggedIn: !!(state.currentUserInfo &&
-        !state.currentUserInfo.anonymous && true),
+      loggedIn: !!(
+        state.currentUserInfo &&
+        !state.currentUserInfo.anonymous &&
+        true
+      ),
       restoreLoadingStatus: createLoadingStatusSelector(
         restoreEntryActionTypes,
         `${restoreEntryActionTypes.started}:${entryID}`,

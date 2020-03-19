@@ -49,9 +49,7 @@ import {
   type ChatMessageInfoItemWithHeight,
 } from './message.react';
 import ListLoadingIndicator from '../components/list-loading-indicator.react';
-import {
-  scrollBlockingChatModalsClosedSelector,
-} from '../selectors/nav-selectors';
+import { scrollBlockingChatModalsClosedSelector } from '../selectors/nav-selectors';
 import { styleSelector } from '../themes/colors';
 
 type Props = {|
@@ -60,8 +58,8 @@ type Props = {|
   navigation: MessageListNavProp,
   // Redux state
   viewerID: ?string,
-  startReached: bool,
-  scrollBlockingModalsClosed: bool,
+  startReached: boolean,
+  scrollBlockingModalsClosed: boolean,
   styles: Styles,
   // withOverlayableScrollViewState
   overlayableScrollViewState: ?OverlayableScrollViewState,
@@ -92,7 +90,6 @@ type FlatListExtraData = {|
   navigation: MessageListNavProp,
 |};
 class MessageList extends React.PureComponent<Props, State> {
-
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
@@ -153,8 +150,9 @@ class MessageList extends React.PureComponent<Props, State> {
 
   static scrollDisabled(props: Props) {
     const { overlayableScrollViewState } = props;
-    return !!(overlayableScrollViewState &&
-      overlayableScrollViewState.scrollDisabled);
+    return !!(
+      overlayableScrollViewState && overlayableScrollViewState.scrollDisabled
+    );
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
@@ -197,10 +195,10 @@ class MessageList extends React.PureComponent<Props, State> {
   dismissKeyboard = () => {
     const { keyboardState } = this.props;
     keyboardState && keyboardState.dismissKeyboard();
-  }
+  };
 
   renderItem = (row: { item: ChatMessageItemWithHeight }) => {
-    if (row.item.itemType === "loader") {
+    if (row.item.itemType === 'loader') {
       return (
         <TouchableWithoutFeedback onPress={this.dismissKeyboard}>
           <View style={this.props.styles.listLoadingIndicator}>
@@ -226,7 +224,7 @@ class MessageList extends React.PureComponent<Props, State> {
         verticalBounds={messageListVerticalBounds}
       />
     );
-  }
+  };
 
   toggleMessageFocus = (messageKey: string) => {
     if (this.state.focusedMessageKey === messageKey) {
@@ -234,11 +232,11 @@ class MessageList extends React.PureComponent<Props, State> {
     } else {
       this.setState({ focusedMessageKey: messageKey });
     }
-  }
+  };
 
   static keyExtractor(item: ChatMessageItemWithHeight) {
-    if (item.itemType === "loader") {
-      return "loader";
+    if (item.itemType === 'loader') {
+      return 'loader';
     }
     return messageKey(item.messageInfo);
   }
@@ -254,22 +252,23 @@ class MessageList extends React.PureComponent<Props, State> {
     const item = data[index];
     const length = item ? this.itemHeight(item) : 0;
     return { length, offset, index };
-  }
+  };
 
   itemHeight = (item: ChatMessageItemWithHeight): number => {
-    if (item.itemType === "loader") {
+    if (item.itemType === 'loader') {
       return 56;
     }
     return messageItemHeight(item, this.props.viewerID);
-  }
+  };
 
   heightOfItems(data: $ReadOnlyArray<ChatMessageItemWithHeight>): number {
     return _sum(data.map(this.itemHeight));
   }
 
   // Actually header, it's just that our FlatList is inverted
-  ListFooterComponent =
-    (props: {}) => <View style={this.props.styles.header} />;
+  ListFooterComponent = (props: {}) => (
+    <View style={this.props.styles.header} />
+  );
 
   render() {
     const { messageListData, startReached } = this.props;
@@ -298,7 +297,7 @@ class MessageList extends React.PureComponent<Props, State> {
 
   flatListContainerRef = (flatListContainer: ?View) => {
     this.flatListContainer = flatListContainer;
-  }
+  };
 
   onFlatListContainerLayout = () => {
     const { flatListContainer } = this;
@@ -307,14 +306,16 @@ class MessageList extends React.PureComponent<Props, State> {
     }
     flatListContainer.measure((x, y, width, height, pageX, pageY) => {
       if (
-        height === null || height === undefined ||
-        pageY === null || pageY === undefined
+        height === null ||
+        height === undefined ||
+        pageY === null ||
+        pageY === undefined
       ) {
         return;
       }
       this.setState({ messageListVerticalBounds: { height, y: pageY } });
     });
-  }
+  };
 
   onViewableItemsChanged = (info: {
     viewableItems: ViewToken[],
@@ -324,7 +325,7 @@ class MessageList extends React.PureComponent<Props, State> {
       let focusedMessageVisible = false;
       for (let token of info.viewableItems) {
         if (
-          token.item.itemType === "message" &&
+          token.item.itemType === 'message' &&
           messageKey(token.item.messageInfo) === this.state.focusedMessageKey
         ) {
           focusedMessageVisible = true;
@@ -336,7 +337,7 @@ class MessageList extends React.PureComponent<Props, State> {
       }
     }
 
-    const loader = _find({ key: "loader" })(info.viewableItems);
+    const loader = _find({ key: 'loader' })(info.viewableItems);
     if (!loader || this.loadingFromScroll) {
       return;
     }
@@ -347,24 +348,20 @@ class MessageList extends React.PureComponent<Props, State> {
       const threadID = this.props.threadInfo.id;
       this.props.dispatchActionPromise(
         fetchMessagesBeforeCursorActionTypes,
-        this.props.fetchMessagesBeforeCursor(
-          threadID,
-          oldestMessageServerID,
-        ),
+        this.props.fetchMessagesBeforeCursor(threadID, oldestMessageServerID),
       );
     }
-  }
+  };
 
   oldestMessageServerID(): ?string {
     const data = this.props.messageListData;
     for (let i = data.length - 1; i >= 0; i--) {
-      if (data[i].itemType === "message" && data[i].messageInfo.id) {
+      if (data[i].itemType === 'message' && data[i].messageInfo.id) {
         return data[i].messageInfo.id;
       }
     }
     return null;
   }
-
 }
 
 const styles = {
@@ -389,8 +386,10 @@ export default connect(
     const threadID = ownProps.threadInfo.id;
     return {
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
-      startReached: !!(state.messageStore.threads[threadID] &&
-        state.messageStore.threads[threadID].startReached),
+      startReached: !!(
+        state.messageStore.threads[threadID] &&
+        state.messageStore.threads[threadID].startReached
+      ),
       scrollBlockingModalsClosed: scrollBlockingChatModalsClosedSelector(state),
       styles: stylesSelector(state),
     };

@@ -29,9 +29,7 @@ const baseBlacklist = [
   'deviceOrientation',
   'frozen',
 ];
-const blacklist = __DEV__
-  ? baseBlacklist
-  : [ ...baseBlacklist, 'navInfo' ];
+const blacklist = __DEV__ ? baseBlacklist : [...baseBlacklist, 'navInfo'];
 
 const migrations = {
   [1]: (state: AppState) => ({
@@ -42,7 +40,7 @@ const migrations = {
     ...state,
     messageSentFromRoute: [],
   }),
-  [3]: (state) => ({
+  [3]: state => ({
     currentUserInfo: state.currentUserInfo,
     entryStore: state.entryStore,
     threadInfos: state.threadInfos,
@@ -71,7 +69,7 @@ const migrations = {
     ...state,
     calendarFilters: defaultCalendarFilters,
   }),
-  [6]: (state) => ({
+  [6]: state => ({
     ...state,
     threadInfos: undefined,
     threadStore: {
@@ -79,7 +77,7 @@ const migrations = {
       inconsistencyResponses: [],
     },
   }),
-  [7]: (state) => ({
+  [7]: state => ({
     ...state,
     lastUserInteraction: undefined,
     sessionID: undefined,
@@ -132,10 +130,7 @@ const migrations = {
   }),
   [11]: (state: AppState) => ({
     ...state,
-    messageStore: unshimMessageStore(
-      state.messageStore,
-      [ messageTypes.IMAGES ],
-    ),
+    messageStore: unshimMessageStore(state.messageStore, [messageTypes.IMAGES]),
   }),
   [12]: (state: AppState) => ({
     ...state,
@@ -148,12 +143,11 @@ const migrations = {
   }),
   [14]: (state: AppState) => ({
     ...state,
-    messageStore: unshimMessageStore(
-      state.messageStore,
-      [ messageTypes.MULTIMEDIA ],
-    ),
+    messageStore: unshimMessageStore(state.messageStore, [
+      messageTypes.MULTIMEDIA,
+    ]),
   }),
-  [15]: (state) => ({
+  [15]: state => ({
     ...state,
     threadStore: {
       ...state.threadStore,
@@ -193,13 +187,8 @@ function setPersistor(persistor: *) {
   storedPersistor = persistor;
 }
 function getPersistor() {
-  invariant(storedPersistor, "should be set");
+  invariant(storedPersistor, 'should be set');
   return storedPersistor;
 }
 
-export {
-  persistConfig,
-  codeVersion,
-  setPersistor,
-  getPersistor,
-};
+export { persistConfig, codeVersion, setPersistor, getPersistor };

@@ -24,7 +24,6 @@ type Props = {|
   ...$Shape<React.ElementProps<typeof TextInput>>,
 |};
 class Search extends React.PureComponent<Props> {
-
   static propTypes = {
     searchText: PropTypes.string.isRequired,
     onChangeText: PropTypes.func.isRequired,
@@ -49,26 +48,15 @@ class Search extends React.PureComponent<Props> {
     let clearSearchInputIcon = null;
     if (searchText) {
       clearSearchInputIcon = (
-        <TouchableOpacity
-          onPress={this.clearSearch}
-          activeOpacity={0.5}
-        >
-          <Icon
-            name="times-circle"
-            size={18}
-            color={iconColor}
-          />
+        <TouchableOpacity onPress={this.clearSearch} activeOpacity={0.5}>
+          <Icon name="times-circle" size={18} color={iconColor} />
         </TouchableOpacity>
       );
     }
 
     return (
-      <View style={[ this.props.styles.search, style ]}>
-        <Icon
-          name="search"
-          size={18}
-          color={iconColor}
-        />
+      <View style={[this.props.styles.search, style]}>
+        <Icon name="search" size={18} color={iconColor} />
         <TextInput
           style={this.props.styles.searchInput}
           underlineColorAndroid="transparent"
@@ -85,9 +73,8 @@ class Search extends React.PureComponent<Props> {
   }
 
   clearSearch = () => {
-    this.props.onChangeText("");
-  }
-
+    this.props.onChangeText('');
+  };
 }
 
 const styles = {
@@ -118,6 +105,7 @@ const ConnectedSearch = connect((state: AppState) => ({
 
 type ConnectedProps = $Diff<Props, {| colors: Colors, styles: Styles |}>;
 export default React.forwardRef<Props, TextInput>(
-  (props: ConnectedProps, ref: ?TextInput) =>
-    <ConnectedSearch {...props} textInputRef={ref} />,
+  (props: ConnectedProps, ref: ?TextInput) => (
+    <ConnectedSearch {...props} textInputRef={ref} />
+  ),
 );

@@ -29,9 +29,7 @@ import _isEqual from 'lodash/fp/isEqual';
 import invariant from 'invariant';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 
-import {
-  relativeMemberInfoSelectorForMembersOfThread,
-} from 'lib/selectors/user-selectors';
+import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
 import {
   threadInfoSelector,
   childThreadInfos,
@@ -85,104 +83,104 @@ type NavProp = NavigationScreenProp<{|
   ...NavigationLeafRoute,
   params: {|
     threadInfo: ThreadInfo,
-    gesturesDisabled?: bool,
+    gesturesDisabled?: boolean,
   |},
 |}>;
 
 type ChatSettingsItem =
   | {|
-      itemType: "header",
+      itemType: 'header',
       key: string,
       title: string,
       categoryType: CategoryType,
     |}
   | {|
-      itemType: "footer",
+      itemType: 'footer',
       key: string,
       categoryType: CategoryType,
     |}
   | {|
-      itemType: "name",
+      itemType: 'name',
       key: string,
       threadInfo: ThreadInfo,
       nameEditValue: ?string,
       nameTextHeight: ?number,
-      canChangeSettings: bool,
+      canChangeSettings: boolean,
     |}
   | {|
-      itemType: "color",
+      itemType: 'color',
       key: string,
       threadInfo: ThreadInfo,
       colorEditValue: string,
-      canChangeSettings: bool,
+      canChangeSettings: boolean,
       navigate: Navigate,
     |}
   | {|
-      itemType: "description",
+      itemType: 'description',
       key: string,
       threadInfo: ThreadInfo,
       descriptionEditValue: ?string,
       descriptionTextHeight: ?number,
-      canChangeSettings: bool,
+      canChangeSettings: boolean,
     |}
   | {|
-      itemType: "parent",
+      itemType: 'parent',
       key: string,
       threadInfo: ThreadInfo,
       navigate: Navigate,
     |}
   | {|
-      itemType: "visibility",
+      itemType: 'visibility',
       key: string,
       threadInfo: ThreadInfo,
     |}
   | {|
-      itemType: "pushNotifs",
+      itemType: 'pushNotifs',
       key: string,
       threadInfo: ThreadInfo,
     |}
   | {|
-      itemType: "seeMore",
+      itemType: 'seeMore',
       key: string,
       onPress: () => void,
     |}
   | {|
-      itemType: "childThread",
+      itemType: 'childThread',
       key: string,
       threadInfo: ThreadInfo,
       navigate: Navigate,
-      lastListItem: bool,
+      lastListItem: boolean,
     |}
   | {|
-      itemType: "addChildThread",
+      itemType: 'addChildThread',
       key: string,
     |}
   | {|
-      itemType: "member",
+      itemType: 'member',
       key: string,
       memberInfo: RelativeMemberInfo,
       threadInfo: ThreadInfo,
-      canEdit: bool,
+      canEdit: boolean,
       navigate: Navigate,
-      lastListItem: bool,
+      lastListItem: boolean,
       verticalBounds: ?VerticalBounds,
     |}
   | {|
-      itemType: "addMember",
+      itemType: 'addMember',
       key: string,
     |}
   | {|
-      itemType: "leaveThread",
+      itemType: 'leaveThread',
       key: string,
       threadInfo: ThreadInfo,
-      canDeleteThread: bool,
+      canDeleteThread: boolean,
     |}
   | {|
-      itemType: "deleteThread",
+      itemType: 'deleteThread',
       key: string,
       threadInfo: ThreadInfo,
       navigate: Navigate,
-      canLeaveThread: bool,
+      canLeaveThread: boolean,
     |};
 
 type Props = {|
@@ -190,9 +188,9 @@ type Props = {|
   // Redux state
   threadInfo: ?ThreadInfo,
   threadMembers: RelativeMemberInfo[],
-  childThreadInfos: ?ThreadInfo[],
-  somethingIsSaving: bool,
-  tabActive: bool,
+  childThreadInfos: ?(ThreadInfo[]),
+  somethingIsSaving: boolean,
+  tabActive: boolean,
   styles: Styles,
   // withOverlayableScrollViewState
   overlayableScrollViewState: ?OverlayableScrollViewState,
@@ -208,7 +206,6 @@ type State = {|
   verticalBounds: ?VerticalBounds,
 |};
 class ThreadSettings extends React.PureComponent<Props, State> {
-
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
@@ -231,7 +228,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   };
   static navigationOptions = ({ navigation }) => ({
     title: navigation.state.params.threadInfo.uiName,
-    headerBackTitle: "Back",
+    headerBackTitle: 'Back',
     gesturesEnabled: !navigation.state.params.gesturesDisabled,
   });
   flatListContainer: ?View;
@@ -239,10 +236,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     const threadInfo = props.threadInfo;
-    invariant(
-      threadInfo,
-      "ThreadInfo should exist when ThreadSettings opened",
-    );
+    invariant(threadInfo, 'ThreadInfo should exist when ThreadSettings opened');
     this.state = {
       showMaxMembers: itemPageLength,
       showMaxChildThreads: itemPageLength,
@@ -261,8 +255,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
 
   static scrollDisabled(props: Props) {
     const { overlayableScrollViewState } = props;
-    return !!(overlayableScrollViewState &&
-      overlayableScrollViewState.scrollDisabled);
+    return !!(
+      overlayableScrollViewState && overlayableScrollViewState.scrollDisabled
+    );
   }
 
   componentDidMount() {
@@ -330,31 +325,31 @@ class ThreadSettings extends React.PureComponent<Props, State> {
 
     let listData: ChatSettingsItem[] = [];
     listData.push({
-      itemType: "header",
-      key: "basicsHeader",
-      title: "Basics",
-      categoryType: "full",
+      itemType: 'header',
+      key: 'basicsHeader',
+      title: 'Basics',
+      categoryType: 'full',
     });
     listData.push({
-      itemType: "name",
-      key: "name",
+      itemType: 'name',
+      key: 'name',
       threadInfo,
       nameEditValue: this.state.nameEditValue,
       nameTextHeight: this.state.nameTextHeight,
       canChangeSettings,
     });
     listData.push({
-      itemType: "color",
-      key: "color",
+      itemType: 'color',
+      key: 'color',
       threadInfo,
       colorEditValue: this.state.colorEditValue,
       canChangeSettings,
       navigate: this.props.navigation.navigate,
     });
     listData.push({
-      itemType: "footer",
-      key: "basicsFooter",
-      categoryType: "full",
+      itemType: 'footer',
+      key: 'basicsFooter',
+      categoryType: 'full',
     });
 
     if (
@@ -364,8 +359,8 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       canEditThread
     ) {
       listData.push({
-        itemType: "description",
-        key: "description",
+        itemType: 'description',
+        key: 'description',
         threadInfo,
         descriptionEditValue: this.state.descriptionEditValue,
         descriptionTextHeight: this.state.descriptionTextHeight,
@@ -374,43 +369,43 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     }
 
     listData.push({
-      itemType: "header",
-      key: "subscriptionHeader",
-      title: "Subscription",
-      categoryType: "full",
+      itemType: 'header',
+      key: 'subscriptionHeader',
+      title: 'Subscription',
+      categoryType: 'full',
     });
     listData.push({
-      itemType: "pushNotifs",
-      key: "pushNotifs",
+      itemType: 'pushNotifs',
+      key: 'pushNotifs',
       threadInfo,
     });
     listData.push({
-      itemType: "footer",
-      key: "subscriptionFooter",
-      categoryType: "full",
+      itemType: 'footer',
+      key: 'subscriptionFooter',
+      categoryType: 'full',
     });
 
     listData.push({
-      itemType: "header",
-      key: "privacyHeader",
-      title: "Privacy",
-      categoryType: "full",
+      itemType: 'header',
+      key: 'privacyHeader',
+      title: 'Privacy',
+      categoryType: 'full',
     });
     listData.push({
-      itemType: "parent",
-      key: "parent",
+      itemType: 'parent',
+      key: 'parent',
       threadInfo,
       navigate: this.props.navigation.navigate,
     });
     listData.push({
-      itemType: "visibility",
-      key: "visibility",
+      itemType: 'visibility',
+      key: 'visibility',
       threadInfo,
     });
     listData.push({
-      itemType: "footer",
-      key: "privacyFooter",
-      categoryType: "full",
+      itemType: 'footer',
+      key: 'privacyFooter',
+      categoryType: 'full',
     });
 
     let childThreadItems = null;
@@ -418,25 +413,27 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       let childThreadInfos;
       let seeMoreChildThreads = null;
       if (this.props.childThreadInfos.length > this.state.showMaxChildThreads) {
-        childThreadInfos =
-          this.props.childThreadInfos.slice(0, this.state.showMaxChildThreads);
+        childThreadInfos = this.props.childThreadInfos.slice(
+          0,
+          this.state.showMaxChildThreads,
+        );
         seeMoreChildThreads = {
-          itemType: "seeMore",
-          key: "seeMoreChildThreads",
+          itemType: 'seeMore',
+          key: 'seeMoreChildThreads',
           onPress: this.onPressSeeMoreChildThreads,
         };
       } else {
         childThreadInfos = this.props.childThreadInfos;
       }
       const childThreads = childThreadInfos.map(childThreadInfo => ({
-        itemType: "childThread",
+        itemType: 'childThread',
         key: `childThread${childThreadInfo.id}`,
         threadInfo: childThreadInfo,
         navigate: this.props.navigation.navigate,
         lastListItem: false,
       }));
       if (seeMoreChildThreads) {
-        childThreadItems = [ ...childThreads, seeMoreChildThreads ];
+        childThreadItems = [...childThreads, seeMoreChildThreads];
       } else {
         childThreads[childThreads.length - 1].lastListItem = true;
         childThreadItems = childThreads;
@@ -450,17 +447,17 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     );
     if (canCreateSubthreads) {
       addChildThread = {
-        itemType: "addChildThread",
-        key: "addChildThread",
+        itemType: 'addChildThread',
+        key: 'addChildThread',
       };
     }
 
     if (addChildThread || childThreadItems) {
       listData.push({
-        itemType: "header",
-        key: "childThreadHeader",
-        title: "Child threads",
-        categoryType: "unpadded",
+        itemType: 'header',
+        key: 'childThreadHeader',
+        title: 'Child threads',
+        categoryType: 'unpadded',
       });
     }
     if (addChildThread) {
@@ -471,20 +468,22 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     }
     if (addChildThread || childThreadItems) {
       listData.push({
-        itemType: "footer",
-        key: "childThreadFooter",
-        categoryType: "unpadded",
+        itemType: 'footer',
+        key: 'childThreadFooter',
+        categoryType: 'unpadded',
       });
     }
 
     let threadMembers;
     let seeMoreMembers = null;
     if (this.props.threadMembers.length > this.state.showMaxMembers) {
-      threadMembers =
-        this.props.threadMembers.slice(0, this.state.showMaxMembers);
+      threadMembers = this.props.threadMembers.slice(
+        0,
+        this.state.showMaxMembers,
+      );
       seeMoreMembers = {
-        itemType: "seeMore",
-        key: "seeMoreMembers",
+        itemType: 'seeMore',
+        key: 'seeMoreMembers',
         onPress: this.onPressSeeMoreMembers,
       };
     } else {
@@ -492,7 +491,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     }
     const { verticalBounds } = this.state;
     const members = threadMembers.map(memberInfo => ({
-      itemType: "member",
+      itemType: 'member',
       key: `member${memberInfo.id}`,
       memberInfo,
       threadInfo,
@@ -503,7 +502,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     }));
     let memberItems;
     if (seeMoreMembers) {
-      memberItems = [ ...members, seeMoreMembers ];
+      memberItems = [...members, seeMoreMembers];
     } else if (members.length > 0) {
       members[members.length - 1].lastListItem = true;
       memberItems = members;
@@ -516,17 +515,17 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     );
     if (canAddMembers) {
       addMembers = {
-        itemType: "addMember",
-        key: "addMember",
+        itemType: 'addMember',
+        key: 'addMember',
       };
     }
 
     if (addMembers || memberItems) {
       listData.push({
-        itemType: "header",
-        key: "memberHeader",
-        title: "Members",
-        categoryType: "unpadded",
+        itemType: 'header',
+        key: 'memberHeader',
+        title: 'Members',
+        categoryType: 'unpadded',
       });
     }
     if (addMembers) {
@@ -537,9 +536,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     }
     if (addMembers || memberItems) {
       listData.push({
-        itemType: "footer",
-        key: "memberFooter",
-        categoryType: "unpadded",
+        itemType: 'footer',
+        key: 'memberFooter',
+        categoryType: 'unpadded',
       });
     }
 
@@ -550,24 +549,24 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     );
     if (canLeaveThread || canDeleteThread) {
       listData.push({
-        itemType: "header",
-        key: "actionsHeader",
-        title: "Actions",
-        categoryType: "unpadded",
+        itemType: 'header',
+        key: 'actionsHeader',
+        title: 'Actions',
+        categoryType: 'unpadded',
       });
     }
     if (canLeaveThread) {
       listData.push({
-        itemType: "leaveThread",
-        key: "leaveThread",
+        itemType: 'leaveThread',
+        key: 'leaveThread',
         threadInfo,
         canDeleteThread: !!canDeleteThread,
       });
     }
     if (canDeleteThread) {
       listData.push({
-        itemType: "deleteThread",
-        key: "deleteThread",
+        itemType: 'deleteThread',
+        key: 'deleteThread',
         threadInfo,
         navigate: this.props.navigation.navigate,
         canLeaveThread: !!canLeaveThread,
@@ -575,9 +574,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     }
     if (canLeaveThread || canDeleteThread) {
       listData.push({
-        itemType: "footer",
-        key: "actionsFooter",
-        categoryType: "unpadded",
+        itemType: 'footer',
+        key: 'actionsFooter',
+        categoryType: 'unpadded',
       });
     }
 
@@ -599,7 +598,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
 
   flatListContainerRef = (flatListContainer: ?View) => {
     this.flatListContainer = flatListContainer;
-  }
+  };
 
   onFlatListContainerLayout = () => {
     const { flatListContainer } = this;
@@ -608,27 +607,29 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     }
     flatListContainer.measure((x, y, width, height, pageX, pageY) => {
       if (
-        height === null || height === undefined ||
-        pageY === null || pageY === undefined
+        height === null ||
+        height === undefined ||
+        pageY === null ||
+        pageY === undefined
       ) {
         return;
       }
       this.setState({ verticalBounds: { height, y: pageY } });
     });
-  }
+  };
 
   renderItem = (row: { item: ChatSettingsItem }) => {
     const item = row.item;
-    if (item.itemType === "header") {
+    if (item.itemType === 'header') {
       return (
         <ThreadSettingsCategoryHeader
           type={item.categoryType}
           title={item.title}
         />
       );
-    } else if (item.itemType === "footer") {
+    } else if (item.itemType === 'footer') {
       return <ThreadSettingsCategoryFooter type={item.categoryType} />;
-    } else if (item.itemType === "name") {
+    } else if (item.itemType === 'name') {
       return (
         <ThreadSettingsName
           threadInfo={item.threadInfo}
@@ -639,7 +640,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           canChangeSettings={item.canChangeSettings}
         />
       );
-    } else if (item.itemType === "color") {
+    } else if (item.itemType === 'color') {
       return (
         <ThreadSettingsColor
           threadInfo={item.threadInfo}
@@ -649,7 +650,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           navigate={item.navigate}
         />
       );
-    } else if (item.itemType === "description") {
+    } else if (item.itemType === 'description') {
       return (
         <ThreadSettingsDescription
           threadInfo={item.threadInfo}
@@ -660,20 +661,20 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           canChangeSettings={item.canChangeSettings}
         />
       );
-    } else if (item.itemType === "parent") {
+    } else if (item.itemType === 'parent') {
       return (
         <ThreadSettingsParent
           threadInfo={item.threadInfo}
           navigate={item.navigate}
         />
       );
-    } else if (item.itemType === "visibility") {
+    } else if (item.itemType === 'visibility') {
       return <ThreadSettingsVisibility threadInfo={item.threadInfo} />;
-    } else if (item.itemType === "pushNotifs") {
+    } else if (item.itemType === 'pushNotifs') {
       return <ThreadSettingsPushNotifs threadInfo={item.threadInfo} />;
-    } else if (item.itemType === "seeMore") {
+    } else if (item.itemType === 'seeMore') {
       return <ThreadSettingsSeeMore onPress={item.onPress} />;
-    } else if (item.itemType === "childThread") {
+    } else if (item.itemType === 'childThread') {
       return (
         <ThreadSettingsChildThread
           threadInfo={item.threadInfo}
@@ -681,11 +682,11 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           lastListItem={item.lastListItem}
         />
       );
-    } else if (item.itemType === "addChildThread") {
+    } else if (item.itemType === 'addChildThread') {
       return (
         <ThreadSettingsAddChildThread onPress={this.onPressComposeSubthread} />
       );
-    } else if (item.itemType === "member") {
+    } else if (item.itemType === 'member') {
       return (
         <ThreadSettingsMember
           memberInfo={item.memberInfo}
@@ -696,16 +697,16 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           verticalBounds={item.verticalBounds}
         />
       );
-    } else if (item.itemType === "addMember") {
+    } else if (item.itemType === 'addMember') {
       return <ThreadSettingsAddMember onPress={this.onPressAddMember} />;
-    } else if (item.itemType === "leaveThread") {
+    } else if (item.itemType === 'leaveThread') {
       return (
         <ThreadSettingsLeaveThread
           threadInfo={item.threadInfo}
           canDeleteThread={item.canDeleteThread}
         />
       );
-    } else if (item.itemType === "deleteThread") {
+    } else if (item.itemType === 'deleteThread') {
       return (
         <ThreadSettingsDeleteThread
           threadInfo={item.threadInfo}
@@ -714,56 +715,51 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         />
       );
     }
-  }
+  };
 
   setNameEditValue = (value: ?string, callback?: () => void) => {
     this.setState({ nameEditValue: value }, callback);
-  }
+  };
 
   setNameTextHeight = (height: number) => {
     this.setState({ nameTextHeight: height });
-  }
+  };
 
   setColorEditValue = (color: string) => {
     this.setState({ colorEditValue: color });
-  }
+  };
 
   setDescriptionEditValue = (value: ?string, callback?: () => void) => {
     this.setState({ descriptionEditValue: value }, callback);
-  }
+  };
 
   setDescriptionTextHeight = (height: number) => {
     this.setState({ descriptionTextHeight: height });
-  }
+  };
 
   onPressComposeSubthread = () => {
     const threadInfo = ThreadSettings.getThreadInfo(this.props);
-    this.props.navigation.navigate(
-      ComposeSubthreadModalRouteName,
-      { threadInfo },
-    );
-  }
+    this.props.navigation.navigate(ComposeSubthreadModalRouteName, {
+      threadInfo,
+    });
+  };
 
   onPressAddMember = () => {
     const threadInfo = ThreadSettings.getThreadInfo(this.props);
-    this.props.navigation.navigate(
-      AddUsersModalRouteName,
-      { threadInfo },
-    );
-  }
+    this.props.navigation.navigate(AddUsersModalRouteName, { threadInfo });
+  };
 
   onPressSeeMoreMembers = () => {
     this.setState(prevState => ({
       showMaxMembers: prevState.showMaxMembers + itemPageLength,
     }));
-  }
+  };
 
   onPressSeeMoreChildThreads = () => {
     this.setState(prevState => ({
       showMaxChildThreads: prevState.showMaxChildThreads + itemPageLength,
     }));
-  }
-
+  };
 }
 
 const styles = {
@@ -789,18 +785,19 @@ const editDescriptionLoadingStatusSelector = createLoadingStatusSelector(
   changeThreadSettingsActionTypes,
   `${changeThreadSettingsActionTypes.started}:description`,
 );
-const leaveThreadLoadingStatusSelector
-  = createLoadingStatusSelector(leaveThreadActionTypes);
+const leaveThreadLoadingStatusSelector = createLoadingStatusSelector(
+  leaveThreadActionTypes,
+);
 
 const somethingIsSaving = (
   state: AppState,
   threadMembers: RelativeMemberInfo[],
 ) => {
   if (
-    editNameLoadingStatusSelector(state) === "loading" ||
-    editColorLoadingStatusSelector(state) === "loading" ||
-    editDescriptionLoadingStatusSelector(state) === "loading" ||
-    leaveThreadLoadingStatusSelector(state) === "loading"
+    editNameLoadingStatusSelector(state) === 'loading' ||
+    editColorLoadingStatusSelector(state) === 'loading' ||
+    editDescriptionLoadingStatusSelector(state) === 'loading' ||
+    leaveThreadLoadingStatusSelector(state) === 'loading'
   ) {
     return true;
   }
@@ -809,14 +806,14 @@ const somethingIsSaving = (
       removeUsersFromThreadActionTypes,
       `${removeUsersFromThreadActionTypes.started}:${threadMember.id}`,
     )(state);
-    if (removeUserLoadingStatus === "loading") {
+    if (removeUserLoadingStatus === 'loading') {
       return true;
     }
     const changeRoleLoadingStatus = createLoadingStatusSelector(
       changeThreadMemberRolesActionTypes,
       `${changeThreadMemberRolesActionTypes.started}:${threadMember.id}`,
     )(state);
-    if (changeRoleLoadingStatus === "loading") {
+    if (changeRoleLoadingStatus === 'loading') {
       return true;
     }
   }
@@ -827,8 +824,9 @@ const activeTabSelector = createActiveTabSelector(ChatRouteName);
 const WrappedThreadSettings = connect(
   (state: AppState, ownProps: { navigation: NavProp }) => {
     const threadID = ownProps.navigation.state.params.threadInfo.id;
-    const threadMembers =
-      relativeMemberInfoSelectorForMembersOfThread(threadID)(state);
+    const threadMembers = relativeMemberInfoSelectorForMembersOfThread(
+      threadID,
+    )(state);
     return {
       threadInfo: threadInfoSelector(state)[threadID],
       threadMembers,

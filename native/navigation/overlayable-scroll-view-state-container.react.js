@@ -16,17 +16,16 @@ import { OverlayableScrollViewContext } from './overlayable-scroll-view-state';
 type Props = {|
   children: React.Node,
   // Redux state
-  scrollBlockingModalsClosed: bool,
-  scrollBlockingModalsGone: bool,
+  scrollBlockingModalsClosed: boolean,
+  scrollBlockingModalsGone: boolean,
 |};
 type State = {|
-  scrollDisabled: bool,
+  scrollDisabled: boolean,
 |};
 class OverlayableScrollViewStateContainer extends React.PureComponent<
   Props,
   State,
 > {
-
   static propTypes = {
     children: PropTypes.node.isRequired,
     scrollBlockingModalsClosed: PropTypes.bool.isRequired,
@@ -56,9 +55,9 @@ class OverlayableScrollViewStateContainer extends React.PureComponent<
     }
   }
 
-  setScrollDisabled = (scrollDisabled: bool) => {
+  setScrollDisabled = (scrollDisabled: boolean) => {
     this.setState({ scrollDisabled });
-  }
+  };
 
   render() {
     const overlayableScrollViewState = {
@@ -71,17 +70,15 @@ class OverlayableScrollViewStateContainer extends React.PureComponent<
       </OverlayableScrollViewContext.Provider>
     );
   }
-
 }
 
-export default connect(
-  (state: AppState) => {
-    const scrollBlockingModalsClosed =
-      scrollBlockingChatModalsClosedSelector(state);
-    return {
-      scrollBlockingModalsClosed,
-      scrollBlockingModalsGone: scrollBlockingModalsClosed &&
-        !lightboxTransitioningSelector(state),
-    };
-  },
-)(OverlayableScrollViewStateContainer);
+export default connect((state: AppState) => {
+  const scrollBlockingModalsClosed = scrollBlockingChatModalsClosedSelector(
+    state,
+  );
+  return {
+    scrollBlockingModalsClosed,
+    scrollBlockingModalsGone:
+      scrollBlockingModalsClosed && !lightboxTransitioningSelector(state),
+  };
+})(OverlayableScrollViewStateContainer);

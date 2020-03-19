@@ -34,7 +34,6 @@ type Props<CustomProps: {}> = {
   labelStyle?: TextStyle,
 };
 class TooltipItem<CP: {}> extends React.PureComponent<Props<CP>> {
-
   static propTypes = {
     spec: PropTypes.shape({
       text: PropTypes.string.isRequired,
@@ -49,10 +48,7 @@ class TooltipItem<CP: {}> extends React.PureComponent<Props<CP>> {
     return (
       <View style={[styles.itemContainer, this.props.containerStyle]}>
         <TouchableOpacity onPress={this.onPress}>
-          <Text
-            style={[ styles.label, this.props.labelStyle ]}
-            numberOfLines={1}
-          >
+          <Text style={[styles.label, this.props.labelStyle]} numberOfLines={1}>
             {this.props.spec.text}
           </Text>
         </TouchableOpacity>
@@ -62,8 +58,7 @@ class TooltipItem<CP: {}> extends React.PureComponent<Props<CP>> {
 
   onPress = () => {
     this.props.onPress(this.props.spec);
-  }
-
+  };
 }
 
 const styles = StyleSheet.create({

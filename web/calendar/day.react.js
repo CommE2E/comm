@@ -4,7 +4,7 @@ import type { EntryInfo } from 'lib/types/entry-types';
 import { entryInfoPropType } from 'lib/types/entry-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
-import type { AppState } from '../redux-setup'
+import type { AppState } from '../redux-setup';
 import type { InnerEntry } from './entry.react';
 
 import * as React from 'react';
@@ -23,7 +23,7 @@ import {
   dateString,
   dateFromString,
   currentDateInTimeZone,
-} from 'lib/utils/date-utils'
+} from 'lib/utils/date-utils';
 import { connect } from 'lib/utils/redux-utils';
 
 import css from './calendar.css';
@@ -42,18 +42,17 @@ type Props = {
   // Redux state
   onScreenThreadInfos: ThreadInfo[],
   viewerID: ?string,
-  loggedIn: bool,
+  loggedIn: boolean,
   nextLocalID: number,
   timeZone: ?string,
   // Redux dispatch functions
   dispatchActionPayload: (actionType: string, payload: *) => void,
 };
 type State = {
-  pickerOpen: bool,
-  hovered: bool,
+  pickerOpen: boolean,
+  hovered: boolean,
 };
 class Day extends React.PureComponent<Props, State> {
-
   static propTypes = {
     dayString: PropTypes.string.isRequired,
     entryInfos: PropTypes.arrayOf(entryInfoPropType).isRequired,
@@ -84,7 +83,7 @@ class Day extends React.PureComponent<Props, State> {
 
   componentDidUpdate(prevProps: Props, prevState: State) {
     if (this.props.entryInfos.length > prevProps.entryInfos.length) {
-      invariant(this.entryContainer, "entryContainer ref not set");
+      invariant(this.entryContainer, 'entryContainer ref not set');
       this.entryContainer.scrollTop = this.entryContainer.scrollHeight;
     }
   }
@@ -97,8 +96,7 @@ class Day extends React.PureComponent<Props, State> {
     let actionLinks = null;
     const hovered = this.state.hovered;
     if (hovered) {
-      const actionLinksClassName =
-        `${css.actionLinks} ${css.dayActionLinks}`;
+      const actionLinksClassName = `${css.actionLinks} ${css.dayActionLinks}`;
       actionLinks = (
         <div className={actionLinksClassName} ref={this.actionLinksRef}>
           <a href="#" onClick={this.onAddEntry}>
@@ -113,25 +111,29 @@ class Day extends React.PureComponent<Props, State> {
       );
     }
 
-    const entries = this.props.entryInfos.filter((entryInfo) =>
-      _some(['id', entryInfo.threadID])(this.props.onScreenThreadInfos),
-    ).map((entryInfo, i) => {
-      const key = entryKey(entryInfo);
-      return <Entry
-        entryInfo={entryInfo}
-        focusOnFirstEntryNewerThan={this.focusOnFirstEntryNewerThan}
-        setModal={this.props.setModal}
-        tabIndex={this.props.startingTabIndex + i}
-        key={key}
-        innerRef={this.entryRef}
-      />;
-    });
+    const entries = this.props.entryInfos
+      .filter(entryInfo =>
+        _some(['id', entryInfo.threadID])(this.props.onScreenThreadInfos),
+      )
+      .map((entryInfo, i) => {
+        const key = entryKey(entryInfo);
+        return (
+          <Entry
+            entryInfo={entryInfo}
+            focusOnFirstEntryNewerThan={this.focusOnFirstEntryNewerThan}
+            setModal={this.props.setModal}
+            tabIndex={this.props.startingTabIndex + i}
+            key={key}
+            innerRef={this.entryRef}
+          />
+        );
+      });
 
     let threadPicker = null;
     if (this.state.pickerOpen) {
       invariant(
         this.props.onScreenThreadInfos.length > 0,
-        "onScreenThreadInfos should exist if pickerOpen",
+        'onScreenThreadInfos should exist if pickerOpen',
       );
       threadPicker = (
         <ThreadPicker
@@ -141,10 +143,9 @@ class Day extends React.PureComponent<Props, State> {
       );
     }
 
-    const entryContainerClasses = classNames(
-      css.entryContainer,
-      { [css.focusedEntryContainer]: hovered },
-    );
+    const entryContainerClasses = classNames(css.entryContainer, {
+      [css.focusedEntryContainer]: hovered,
+    });
     const date = dateFromString(this.props.dayString);
     return (
       <td
@@ -169,31 +170,31 @@ class Day extends React.PureComponent<Props, State> {
 
   actionLinksRef = (actionLinks: ?HTMLDivElement) => {
     this.actionLinks = actionLinks;
-  }
+  };
 
   entryContainerRef = (entryContainer: ?HTMLDivElement) => {
     this.entryContainer = entryContainer;
-  }
+  };
 
   entryContainerSpacerRef = (entryContainerSpacer: ?HTMLDivElement) => {
     this.entryContainerSpacer = entryContainerSpacer;
-  }
+  };
 
   entryRef = (key: string, entry: InnerEntry) => {
     this.entries.set(key, entry);
-  }
+  };
 
   closePicker = () => {
     this.setState({ pickerOpen: false });
-  }
+  };
 
   onMouseEnter = () => {
     this.setState({ hovered: true });
-  }
+  };
 
   onMouseLeave = () => {
     this.setState({ hovered: false });
-  }
+  };
 
   onClick = (event: SyntheticEvent<HTMLTableCellElement>) => {
     const target = htmlTargetFromEvent(event);
@@ -212,7 +213,7 @@ class Day extends React.PureComponent<Props, State> {
     ) {
       this.onAddEntry(event);
     }
-  }
+  };
 
   onAddEntry = (event: SyntheticEvent<*>) => {
     event.preventDefault();
@@ -225,7 +226,7 @@ class Day extends React.PureComponent<Props, State> {
     } else if (this.props.onScreenThreadInfos.length > 1) {
       this.setState({ pickerOpen: true });
     }
-  }
+  };
 
   createNewEntry = (threadID: string) => {
     if (!this.props.loggedIn) {
@@ -233,12 +234,12 @@ class Day extends React.PureComponent<Props, State> {
         <LogInFirstModal
           inOrderTo="edit this calendar"
           setModal={this.props.setModal}
-        />
+        />,
       );
       return;
     }
     const viewerID = this.props.viewerID;
-    invariant(viewerID, "should have viewerID in order to create thread");
+    invariant(viewerID, 'should have viewerID in order to create thread');
     this.props.dispatchActionPayload(
       createLocalEntryActionType,
       createLocalEntry(
@@ -248,7 +249,7 @@ class Day extends React.PureComponent<Props, State> {
         viewerID,
       ),
     );
-  }
+  };
 
   onHistory = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
@@ -257,33 +258,35 @@ class Day extends React.PureComponent<Props, State> {
         mode="day"
         dayString={this.props.dayString}
         onClose={this.clearModal}
-      />
+      />,
     );
-  }
+  };
 
   focusOnFirstEntryNewerThan = (time: number) => {
     const entryInfo = this.props.entryInfos.find(
-      (entryInfo) => entryInfo.creationTime > time,
+      entryInfo => entryInfo.creationTime > time,
     );
     if (entryInfo) {
       const entry = this.entries.get(entryKey(entryInfo));
-      invariant(entry, "entry for entryinfo should be defined");
+      invariant(entry, 'entry for entryinfo should be defined');
       entry.focus();
     }
-  }
+  };
 
   clearModal = () => {
     this.props.setModal(null);
-  }
-
+  };
 }
 
 export default connect(
   (state: AppState) => ({
     onScreenThreadInfos: onScreenThreadInfos(state),
     viewerID: state.currentUserInfo && state.currentUserInfo.id,
-    loggedIn: !!(state.currentUserInfo &&
-      !state.currentUserInfo.anonymous && true),
+    loggedIn: !!(
+      state.currentUserInfo &&
+      !state.currentUserInfo.anonymous &&
+      true
+    ),
     nextLocalID: state.nextLocalID,
     timeZone: state.timeZone,
   }),

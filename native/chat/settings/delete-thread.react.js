@@ -40,9 +40,9 @@ import Button from '../../components/button.react';
 import OnePasswordButton from '../../components/one-password-button.react';
 import { colorsSelector, styleSelector } from '../../themes/colors';
 
-type NavProp =
-  & { state: { params: { threadInfo: ThreadInfo } } }
-  & NavigationScreenProp<NavigationRoute>;
+type NavProp = {
+  state: { params: { threadInfo: ThreadInfo } },
+} & NavigationScreenProp<NavigationRoute>;
 
 type Props = {|
   navigation: NavProp,
@@ -62,10 +62,9 @@ type Props = {|
 |};
 type State = {|
   password: string,
-  onePasswordSupported: bool,
+  onePasswordSupported: boolean,
 |};
 class InnerDeleteThread extends React.PureComponent<Props, State> {
-
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
@@ -85,11 +84,11 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
     deleteThread: PropTypes.func.isRequired,
   };
   static navigationOptions = {
-    headerTitle: "Delete thread",
-    headerBackTitle: "Back",
+    headerTitle: 'Delete thread',
+    headerBackTitle: 'Back',
   };
   state = {
-    password: "",
+    password: '',
     onePasswordSupported: false,
   };
   mounted = false;
@@ -148,9 +147,12 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
         />
       );
     }
-    const buttonContent = this.props.loadingStatus === "loading"
-      ? <ActivityIndicator size="small" color="white" />
-      : <Text style={this.props.styles.deleteText}>Delete thread</Text>;
+    const buttonContent =
+      this.props.loadingStatus === 'loading' ? (
+        <ActivityIndicator size="small" color="white" />
+      ) : (
+        <Text style={this.props.styles.deleteText}>Delete thread</Text>
+      );
     const threadInfo = InnerDeleteThread.getThreadInfo(this.props);
     const { panelForegroundTertiaryLabel } = this.props.colors;
     return (
@@ -192,30 +194,30 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
 
   onChangePasswordText = (newPassword: string) => {
     this.guardedSetState({ password: newPassword });
-  }
+  };
 
   passwordInputRef = (passwordInput: ?TextInput) => {
     this.passwordInput = passwordInput;
-  }
+  };
 
   focusPasswordInput = () => {
-    invariant(this.passwordInput, "passwordInput should be set");
+    invariant(this.passwordInput, 'passwordInput should be set');
     this.passwordInput.focus();
-  }
+  };
 
   onPressOnePassword = async () => {
     try {
-      const credentials = await OnePassword.findLogin("https://squadcal.org");
+      const credentials = await OnePassword.findLogin('https://squadcal.org');
       this.guardedSetState({ password: credentials.password });
-    } catch (e) { }
-  }
+    } catch (e) {}
+  };
 
   submitDeletion = () => {
     this.props.dispatchActionPromise(
       deleteThreadActionTypes,
       this.deleteThread(),
     );
-  }
+  };
 
   async deleteThread() {
     const threadInfo = InnerDeleteThread.getThreadInfo(this.props);
@@ -227,20 +229,16 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
         e.message === 'invalid_parameters'
       ) {
         Alert.alert(
-          "Incorrect password",
-          "The password you entered is incorrect",
-          [
-            { text: 'OK', onPress: this.onErrorAlertAcknowledged },
-          ],
+          'Incorrect password',
+          'The password you entered is incorrect',
+          [{ text: 'OK', onPress: this.onErrorAlertAcknowledged }],
           { cancelable: false },
         );
       } else {
         Alert.alert(
-          "Unknown error",
-          "Uhh... try again?",
-          [
-            { text: 'OK', onPress: this.onErrorAlertAcknowledged },
-          ],
+          'Unknown error',
+          'Uhh... try again?',
+          [{ text: 'OK', onPress: this.onErrorAlertAcknowledged }],
           { cancelable: false },
         );
       }
@@ -248,12 +246,8 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
   }
 
   onErrorAlertAcknowledged = () => {
-    this.guardedSetState(
-      { password: "" },
-      this.focusPasswordInput,
-    );
-  }
-
+    this.guardedSetState({ password: '' }, this.focusPasswordInput);
+  };
 }
 
 const styles = {
@@ -267,7 +261,7 @@ const styles = {
     paddingHorizontal: 24,
     paddingBottom: 3,
     fontSize: 12,
-    fontWeight: "400",
+    fontWeight: '400',
     color: 'panelBackgroundLabel',
   },
   section: {

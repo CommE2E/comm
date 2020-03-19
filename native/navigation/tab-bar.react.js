@@ -17,7 +17,7 @@ type Props = {|
 function TabBar(props: Props) {
   const { keyboardState, ...rest } = props;
   if (
-    Platform.OS === "android" &&
+    Platform.OS === 'android' &&
     keyboardState &&
     keyboardState.keyboardShowing
   ) {

@@ -26,7 +26,6 @@ type Props = {|
   setModal?: (modal: ?React.Node) => void,
 |};
 class Multimedia extends React.PureComponent<Props> {
-
   static propTypes = {
     uri: PropTypes.string.isRequired,
     pendingUpload: pendingMultimediaUploadPropType,
@@ -70,10 +69,7 @@ class Multimedia extends React.PureComponent<Props> {
 
       if (failed) {
         errorIndicator = (
-          <AlertCircleIcon
-            className={css.uploadError}
-            size={36}
-          />
+          <AlertCircleIcon className={css.uploadError} size={36} />
         );
       }
 
@@ -84,7 +80,7 @@ class Multimedia extends React.PureComponent<Props> {
       }
     }
 
-    const imageContainerClasses = [ css.multimediaImage ];
+    const imageContainerClasses = [css.multimediaImage];
     let onClick;
     if (setModal) {
       imageContainerClasses.push(css.clickable);
@@ -107,20 +103,19 @@ class Multimedia extends React.PureComponent<Props> {
     const { remove, pendingUpload } = this.props;
     invariant(
       remove && pendingUpload,
-      "Multimedia cannot be removed as either remove or pendingUpload " +
-        "are unspecified",
+      'Multimedia cannot be removed as either remove or pendingUpload ' +
+        'are unspecified',
     );
     remove(pendingUpload.localID);
-  }
+  };
 
   onClick = (event: SyntheticEvent<HTMLSpanElement>) => {
     event.stopPropagation();
 
     const { setModal, uri } = this.props;
-    invariant(setModal, "should be set");
+    invariant(setModal, 'should be set');
     setModal(<MultimediaModal uri={uri} setModal={setModal} />);
-  }
-
+  };
 }
 
 export default Multimedia;

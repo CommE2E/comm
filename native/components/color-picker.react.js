@@ -4,9 +4,7 @@ import type { AppState } from '../redux/redux-setup';
 import { type Colors, colorsPropType } from '../themes/colors';
 
 import type { ViewStyle } from '../types/styles';
-import type {
-  NativeMethodsMixinType,
-} from 'react-native/Libraries/Renderer/shims/ReactNativeTypes';
+import type { NativeMethodsMixinType } from 'react-native/Libraries/Renderer/shims/ReactNativeTypes';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -55,7 +53,6 @@ type State = {|
   pickerSize: ?number,
 |};
 class ColorPicker extends React.PureComponent<Props, State> {
-
   static propTypes = {
     color: PropTypes.oneOfType([
       PropTypes.string,
@@ -76,8 +73,8 @@ class ColorPicker extends React.PureComponent<Props, State> {
     colors: colorsPropType.isRequired,
   };
   static defaultProps = {
-    buttonText: "Select",
-    oldButtonText: "Reset",
+    buttonText: 'Select',
+    oldButtonText: 'Reset',
   };
   _layout = { width: 0, height: 0 };
   _pageX = 0;
@@ -117,10 +114,11 @@ class ColorPicker extends React.PureComponent<Props, State> {
         this._changingHColor = s > 1 || s < 0 || v > 1 || v < 0;
         handleColorChange({ x, y });
       },
-      onPanResponderMove: (evt: PanEvent) => handleColorChange({
-        x: evt.nativeEvent.pageX,
-        y: evt.nativeEvent.pageY,
-      }),
+      onPanResponderMove: (evt: PanEvent) =>
+        handleColorChange({
+          x: evt.nativeEvent.pageX,
+          y: evt.nativeEvent.pageY,
+        }),
       onPanResponderRelease: () => true,
     });
   }
@@ -130,9 +128,10 @@ class ColorPicker extends React.PureComponent<Props, State> {
   }
 
   _getColor(): HSVColor {
-    const passedColor = typeof this.props.color === 'string'
-      ? tinycolor(this.props.color).toHsv()
-      : this.props.color;
+    const passedColor =
+      typeof this.props.color === 'string'
+        ? tinycolor(this.props.color).toHsv()
+        : this.props.color;
     return passedColor || this.state.color;
   }
 
@@ -140,24 +139,24 @@ class ColorPicker extends React.PureComponent<Props, State> {
     const { onColorSelected } = this.props;
     const color = tinycolor(this._getColor()).toHexString();
     onColorSelected && onColorSelected(color);
-  }
+  };
 
   _onOldColorSelected = () => {
     const { oldColor, onOldColorSelected } = this.props;
     const color = tinycolor(oldColor);
     this.setState({ color: color.toHsv() });
     onOldColorSelected && onOldColorSelected(color.toHexString());
-  }
+  };
 
   _onSValueChange = (s: number) => {
     const { h, v } = this._getColor();
     this._onColorChange({ h, s, v });
-  }
+  };
 
   _onVValueChange = (v: number) => {
     const { h, s } = this._getColor();
     this._onColorChange({ h, s, v });
-  }
+  };
 
   _onColorChange(color: HSVColor) {
     this.setState({ color });
@@ -166,10 +165,14 @@ class ColorPicker extends React.PureComponent<Props, State> {
     }
   }
 
-  _onLayout = (l: { nativeEvent: { layout: {
-    width: number,
-    height: number,
-  }}}) => {
+  _onLayout = (l: {
+    nativeEvent: {
+      layout: {
+        width: number,
+        height: number,
+      },
+    },
+  }) => {
     this._layout = l.nativeEvent.layout;
     const { width, height } = this._layout;
     const pickerSize = Math.round(Math.min(width, height));
@@ -186,35 +189,32 @@ class ColorPicker extends React.PureComponent<Props, State> {
     // absolute positioning for a View is via measure() after onLayout (#10556).
     // The setTimeout is necessary to make sure that the ColorPickerModal
     // completes its slide-in animation before we measure.
-    setTimeout(
-      () => {
-        if (!this._pickerContainer) {
-          return;
-        }
-        this._pickerContainer.measure((x, y, width, height, pageX, pageY) => {
-          const { pickerPadding } = getPickerProperties(pickerSize);
-          this._pageX = pageX;
-          this._pageY = pageY - pickerPadding - 3;
-        });
-      },
-      500,
-    );
-  }
+    setTimeout(() => {
+      if (!this._pickerContainer) {
+        return;
+      }
+      this._pickerContainer.measure((x, y, width, height, pageX, pageY) => {
+        const { pickerPadding } = getPickerProperties(pickerSize);
+        this._pageX = pageX;
+        this._pageY = pageY - pickerPadding - 3;
+      });
+    }, 500);
+  };
 
   _computeHValue(x: number, y: number) {
     const pickerSize = this.state.pickerSize;
     invariant(
       pickerSize !== null && pickerSize !== undefined,
-      "pickerSize should be set",
+      'pickerSize should be set',
     );
     const dx = x - pickerSize / 2;
     const dy = y - pickerSize / 2;
     const rad = Math.atan2(dx, dy) + Math.PI + Math.PI / 2;
-    return rad * 180 / Math.PI % 360;
+    return ((rad * 180) / Math.PI) % 360;
   }
 
   _hValueToRad(deg: number) {
-    const rad = deg * Math.PI / 180;
+    const rad = (deg * Math.PI) / 180;
     return rad - Math.PI - Math.PI / 2;
   }
 
@@ -227,7 +227,7 @@ class ColorPicker extends React.PureComponent<Props, State> {
     const { pickerSize } = this.state;
     invariant(
       pickerSize !== null && pickerSize !== undefined,
-      "pickerSize should be set",
+      'pickerSize should be set',
     );
     const marginLeft = (this._layout.width - pickerSize) / 2;
     const marginTop = (this._layout.height - pickerSize) / 2;
@@ -252,7 +252,7 @@ class ColorPicker extends React.PureComponent<Props, State> {
     // relative size to be considered as corner zone
     const CORNER_ZONE_SIZE = 0.12;
     // relative triangle margin to be considered as touch in triangle
-    const NORMAL_MARGIN = 0.10;
+    const NORMAL_MARGIN = 0.1;
     // relative triangle margin to be considered as touch in triangle
     // in corner zone
     const CORNER_MARGIN = 0.05;
@@ -288,12 +288,12 @@ class ColorPicker extends React.PureComponent<Props, State> {
     const { pickerSize } = this.state;
     invariant(
       pickerSize !== null && pickerSize !== undefined,
-      "pickerSize should be set",
+      'pickerSize should be set',
     );
     const { triangleHeight, triangleWidth } = getPickerProperties(pickerSize);
 
     const left = pickerSize / 2 - triangleWidth / 2;
-    const top = pickerSize / 2 - 2 * triangleHeight / 3;
+    const top = pickerSize / 2 - (2 * triangleHeight) / 3;
 
     // triangle relative coordinates
     const marginLeft = (this._layout.width - pickerSize) / 2;
@@ -305,22 +305,25 @@ class ColorPicker extends React.PureComponent<Props, State> {
     const { h } = this._getColor();
     // starting angle is 330 due to comfortable calculation
     const deg = (h - 330 + 360) % 360;
-    const rad = deg * Math.PI / 180;
+    const rad = (deg * Math.PI) / 180;
     const center = {
       x: triangleWidth / 2,
-      y: 2 * triangleHeight / 3,
+      y: (2 * triangleHeight) / 3,
     };
     const rotated = rotatePoint({ x: relativeX, y: relativeY }, rad, center);
 
-    const line = triangleWidth * rotated.y / triangleHeight;
-    const margin = triangleWidth / 2 -
-      ((triangleWidth / 2) * rotated.y / triangleHeight);
+    const line = (triangleWidth * rotated.y) / triangleHeight;
+    const margin =
+      triangleWidth / 2 - ((triangleWidth / 2) * rotated.y) / triangleHeight;
     const s = (rotated.x - margin) / line;
     const v = rotated.y / triangleHeight;
 
     // normalize
-    const normalized =
-      this._normalizeTriangleTouch(s, v, line / triangleHeight);
+    const normalized = this._normalizeTriangleTouch(
+      s,
+      v,
+      line / triangleHeight,
+    );
 
     return { h, s: normalized.s, v: normalized.v };
   }
@@ -331,13 +334,13 @@ class ColorPicker extends React.PureComponent<Props, State> {
     const color = this._getColor();
     const tc = tinycolor(color);
     const selectedColor: string = tc.toHexString();
-    const isDark: bool = tc.isDark();
+    const isDark: boolean = tc.isDark();
     const { modalIosHighlightUnderlay: underlayColor } = this.props.colors;
 
     let picker = null;
     if (pickerSize) {
       const pickerResponder = this._pickerResponder;
-      invariant(pickerResponder, "should be set");
+      invariant(pickerResponder, 'should be set');
       const { h } = color;
       const indicatorColor = tinycolor({ h, s: 1, v: 1 }).toHexString();
       const angle = this._hValueToRad(h);
@@ -353,11 +356,15 @@ class ColorPicker extends React.PureComponent<Props, State> {
       picker = (
         <View style={styles.pickerContainer}>
           <View>
-            <View style={[styles.triangleContainer, computed.triangleContainer]}>
-              <View style={[
-                styles.triangleUnderlayingColor,
-                computed.triangleUnderlayingColor,
-              ]} />
+            <View
+              style={[styles.triangleContainer, computed.triangleContainer]}
+            >
+              <View
+                style={[
+                  styles.triangleUnderlayingColor,
+                  computed.triangleUnderlayingColor,
+                ]}
+              />
               <Image
                 style={computed.triangleImage}
                 source={require('../img/hsv_triangle_mask.png')}
@@ -370,14 +377,16 @@ class ColorPicker extends React.PureComponent<Props, State> {
             >
               <Image
                 source={require('../img/color-circle.png')}
-                resizeMode='contain'
+                resizeMode="contain"
                 style={[styles.pickerImage]}
               />
               <View style={[styles.pickerIndicator, computed.pickerIndicator]}>
-                <View style={[
-                  styles.pickerIndicatorTick,
-                  computed.pickerIndicatorTick,
-                ]} />
+                <View
+                  style={[
+                    styles.pickerIndicatorTick,
+                    computed.pickerIndicatorTick,
+                  ]}
+                />
               </View>
               <View style={[styles.svIndicator, computed.svIndicator]} />
             </View>
@@ -428,7 +437,7 @@ class ColorPicker extends React.PureComponent<Props, State> {
         style={style}
       >
         {picker}
-        <View style={[ styles.colorPreviews, colorPreviewsStyle ]}>
+        <View style={[styles.colorPreviews, colorPreviewsStyle]}>
           {oldColorButton}
           <Button
             style={[styles.buttonContents, buttonContentsStyle]}
@@ -444,13 +453,12 @@ class ColorPicker extends React.PureComponent<Props, State> {
           </Button>
         </View>
       </View>
-    )
+    );
   }
 
   pickerContainerRef = (pickerContainer: ?PickerContainer) => {
     this._pickerContainer = pickerContainer;
-  }
-
+  };
 }
 
 function getPickerProperties(pickerSize) {
@@ -461,7 +469,7 @@ function getPickerProperties(pickerSize) {
 
   const triangleSize = pickerSize - 6 * pickerPadding;
   const triangleRadius = triangleSize / 2;
-  const triangleHeight = triangleRadius * 3 / 2;
+  const triangleHeight = (triangleRadius * 3) / 2;
   // pythagorean theorem
   const triangleWidth = 2 * triangleRadius * Math.sqrt(3 / 4);
 
@@ -511,11 +519,11 @@ const makeComputedStyles = ({
   const margin = triangleWidth / 2 - v * (triangleWidth / 2);
   const svX = s * (triangleWidth - 2 * margin) + margin;
   const svIndicatorMarginLeft = (pickerSize - triangleWidth) / 2;
-  const svIndicatorMarginTop = (pickerSize - 4 * triangleHeight / 3) / 2;
+  const svIndicatorMarginTop = (pickerSize - (4 * triangleHeight) / 3) / 2;
 
   // starting angle is 330 due to comfortable calculation
   const deg = (h - 330 + 360) % 360;
-  const rad = deg * Math.PI / 180;
+  const rad = (deg * Math.PI) / 180;
   const center = { x: pickerSize / 2, y: pickerSize / 2 };
   const notRotatedPoint = {
     x: svIndicatorMarginTop + svY,
@@ -534,9 +542,11 @@ const makeComputedStyles = ({
       [isRTL ? 'right' : 'left']: my + dy - indicatorSize / 2,
       width: indicatorSize,
       height: indicatorSize,
-      transform: [{
-        rotate: -angle + 'rad',
-      }],
+      transform: [
+        {
+          rotate: -angle + 'rad',
+        },
+      ],
     },
     pickerIndicatorTick: {
       height: indicatorSize / 2,
@@ -553,9 +563,11 @@ const makeComputedStyles = ({
     triangleContainer: {
       width: triangleSize,
       height: triangleSize,
-      transform: [{
-        rotate: triangleAngle + 'rad',
-      }],
+      transform: [
+        {
+          rotate: triangleAngle + 'rad',
+        },
+      ],
       top: triangleTop,
       left: triangleLeft,
     },
@@ -571,7 +583,7 @@ const makeComputedStyles = ({
       borderBottomColor: indicatorColor,
     },
   };
-}
+};
 
 type Point = { x: number, y: number };
 function rotatePoint(
@@ -580,20 +592,22 @@ function rotatePoint(
   center: Point = { x: 0, y: 0 },
 ) {
   // translation to origin
-  const transOriginX = point.x - center.x
-  const transOriginY = point.y - center.y
+  const transOriginX = point.x - center.x;
+  const transOriginY = point.y - center.y;
 
   // rotation around origin
-  const rotatedX = transOriginX * Math.cos(angle) - transOriginY * Math.sin(angle)
-  const rotatedY = transOriginY * Math.cos(angle) + transOriginX * Math.sin(angle)
+  const rotatedX =
+    transOriginX * Math.cos(angle) - transOriginY * Math.sin(angle);
+  const rotatedY =
+    transOriginY * Math.cos(angle) + transOriginX * Math.sin(angle);
 
   // translate back from origin
-  const normalizedX = rotatedX + center.x
-  const normalizedY = rotatedY + center.y
+  const normalizedX = rotatedX + center.x;
+  const normalizedY = rotatedY + center.y;
   return {
     x: normalizedX,
     y: normalizedY,
-  }
+  };
 }
 
 const styles = StyleSheet.create({

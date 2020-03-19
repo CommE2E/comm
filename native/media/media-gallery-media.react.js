@@ -21,14 +21,12 @@ import {
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import LottieView from 'lottie-react-native';
-import
-  GenericTouchable,
-  { TOUCHABLE_STATE }
-from 'react-native-gesture-handler/touchables/GenericTouchable';
-import
-  Reanimated,
-  { Easing as ReanimatedEasing }
-from 'react-native-reanimated';
+import GenericTouchable, {
+  TOUCHABLE_STATE,
+} from 'react-native-gesture-handler/touchables/GenericTouchable';
+import Reanimated, {
+  Easing as ReanimatedEasing,
+} from 'react-native-reanimated';
 import invariant from 'invariant';
 import Video from 'react-native-video';
 
@@ -45,17 +43,16 @@ const reanimatedSpec = {
 type Props = {|
   selection: MediaLibrarySelection,
   containerHeight: number,
-  queueModeActive: bool,
-  isQueued: bool,
-  setMediaQueued: (media: MediaLibrarySelection, isQueued: bool) => void,
+  queueModeActive: boolean,
+  isQueued: boolean,
+  setMediaQueued: (media: MediaLibrarySelection, isQueued: boolean) => void,
   sendMedia: (media: MediaLibrarySelection) => void,
-  isFocused: bool,
-  setFocus: (media: MediaLibrarySelection, isFocused: bool) => void,
+  isFocused: boolean,
+  setFocus: (media: MediaLibrarySelection, isFocused: boolean) => void,
   screenWidth: number,
   colors: Colors,
 |};
 class MediaGalleryMedia extends React.PureComponent<Props> {
-
   static propTypes = {
     selection: mediaLibrarySelectionPropType.isRequired,
     containerHeight: PropTypes.number.isRequired,
@@ -80,55 +77,37 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
   constructor(props: Props) {
     super(props);
 
-    const buttonsScale = Reanimated.interpolate(
-      this.focusProgress,
-      {
-        inputRange: [ 0, 1 ],
-        outputRange: [ 1.3, 1 ],
-      },
-    );
+    const buttonsScale = Reanimated.interpolate(this.focusProgress, {
+      inputRange: [0, 1],
+      outputRange: [1.3, 1],
+    });
     this.buttonsStyle = {
       ...styles.buttons,
       opacity: this.focusProgress,
-      transform: [
-        { scale: buttonsScale },
-      ],
+      transform: [{ scale: buttonsScale }],
     };
 
-    const mediaScale = Reanimated.interpolate(
-      this.focusProgress,
-      {
-        inputRange: [ 0, 1 ],
-        outputRange: [ 1, 1.3 ],
-      },
-    );
+    const mediaScale = Reanimated.interpolate(this.focusProgress, {
+      inputRange: [0, 1],
+      outputRange: [1, 1.3],
+    });
     this.videoContainerStyle = {
-      transform: [
-        { scale: mediaScale },
-      ],
+      transform: [{ scale: mediaScale }],
     };
 
-    const backdropOpacity = Reanimated.interpolate(
-      this.backdropProgress,
-      {
-        inputRange: [ 0, 1 ],
-        outputRange: [ 1, 0.2 ],
-      },
-    );
+    const backdropOpacity = Reanimated.interpolate(this.backdropProgress, {
+      inputRange: [0, 1],
+      outputRange: [1, 0.2],
+    });
     this.imageStyle = {
       opacity: backdropOpacity,
-      transform: [
-        { scale: mediaScale },
-      ],
+      transform: [{ scale: mediaScale }],
     };
 
-    const overlayOpacity = Reanimated.interpolate(
-      this.backdropProgress,
-      {
-        inputRange: [ 0, 1 ],
-        outputRange: [ 0, 0.8 ],
-      },
-    );
+    const overlayOpacity = Reanimated.interpolate(this.backdropProgress, {
+      inputRange: [0, 1],
+      outputRange: [0, 0.8],
+    });
     this.videoOverlayStyle = {
       ...styles.videoOverlay,
       opacity: overlayOpacity,
@@ -148,57 +127,58 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     const { backdropProgress } = this;
     if (isActive && !wasActive) {
       if (backdropProgress) {
-        Reanimated.timing(
-          backdropProgress,
-          { ...reanimatedSpec, toValue: 1 },
-        ).start();
+        Reanimated.timing(backdropProgress, {
+          ...reanimatedSpec,
+          toValue: 1,
+        }).start();
       }
-      Reanimated.timing(
-        this.focusProgress,
-        { ...reanimatedSpec, toValue: 1 },
-      ).start();
+      Reanimated.timing(this.focusProgress, {
+        ...reanimatedSpec,
+        toValue: 1,
+      }).start();
     } else if (!isActive && wasActive) {
       if (backdropProgress && !this.animatingBackdropToZero) {
         this.animatingBackdropToZero = true;
-        Reanimated.timing(
-          backdropProgress,
-          { ...reanimatedSpec, toValue: 0 },
-        ).start(this.onAnimatingBackdropToZeroCompletion);
+        Reanimated.timing(backdropProgress, {
+          ...reanimatedSpec,
+          toValue: 0,
+        }).start(this.onAnimatingBackdropToZeroCompletion);
       }
-      Reanimated.timing(
-        this.focusProgress,
-        { ...reanimatedSpec, toValue: 0 },
-      ).start();
+      Reanimated.timing(this.focusProgress, {
+        ...reanimatedSpec,
+        toValue: 0,
+      }).start();
     }
 
     if (this.props.isQueued && !prevProps.isQueued) {
       // When I updated to React Native 0.60, I also updated Lottie. At that
       // time, on iOS the last frame of the animation drops the circle outlining
       // the checkmark. This is a hack to get around that
-      const maxValue = Platform.OS === "ios" ? 0.99 : 1;
-      Animated.timing(
-        this.checkProgress,
-        { ...animatedSpec, toValue: 0.99 },
-      ).start();
+      const maxValue = Platform.OS === 'ios' ? 0.99 : 1;
+      Animated.timing(this.checkProgress, {
+        ...animatedSpec,
+        toValue: 0.99,
+      }).start();
     } else if (!this.props.isQueued && prevProps.isQueued) {
-      Animated.timing(
-        this.checkProgress,
-        { ...animatedSpec, toValue: 0 },
-      ).start();
+      Animated.timing(this.checkProgress, {
+        ...animatedSpec,
+        toValue: 0,
+      }).start();
     }
   }
 
   render() {
     const { selection, containerHeight } = this.props;
-    const { uri, dimensions: { width, height }, step } = selection;
+    const {
+      uri,
+      dimensions: { width, height },
+      step,
+    } = selection;
     const active = MediaGalleryMedia.isActive(this.props);
     const dimensionsStyle = {
       height: containerHeight,
       width: Math.max(
-        Math.min(
-          width / height * containerHeight,
-          this.props.screenWidth,
-        ),
+        Math.min((width / height) * containerHeight, this.props.screenWidth),
         150,
       ),
     };
@@ -215,9 +195,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
             disabled={!active}
           >
             <Icon name="send" style={styles.buttonIcon} />
-            <Text style={styles.buttonText}>
-              Send
-            </Text>
+            <Text style={styles.buttonText}>Send</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={this.onPressEnqueue}
@@ -226,9 +204,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
             disabled={!active}
           >
             <MaterialIcon name="add-to-photos" style={styles.buttonIcon} />
-            <Text style={styles.buttonText}>
-              Queue
-            </Text>
+            <Text style={styles.buttonText}>Queue</Text>
           </TouchableOpacity>
         </React.Fragment>
       );
@@ -236,7 +212,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
 
     let media;
     const source = { uri };
-    if (step === "video_library") {
+    if (step === 'video_library') {
       media = (
         <Reanimated.View style={this.videoContainerStyle}>
           <Video
@@ -253,13 +229,13 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
       media = (
         <Reanimated.Image
           source={source}
-          style={[ this.imageStyle, dimensionsStyle ]}
+          style={[this.imageStyle, dimensionsStyle]}
         />
       );
     }
 
     return (
-      <View style={[ styles.container, dimensionsStyle ]}>
+      <View style={[styles.container, dimensionsStyle]}>
         <GenericTouchable
           onPress={this.onPressBackdrop}
           onStateChange={this.onBackdropStateChange}
@@ -277,7 +253,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
         </GenericTouchable>
         <Reanimated.View
           style={this.buttonsStyle}
-          pointerEvents={active ? "box-none" : "none"}
+          pointerEvents={active ? 'box-none' : 'none'}
         >
           {buttons}
         </Reanimated.View>
@@ -293,14 +269,14 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     } else {
       this.props.setFocus(this.props.selection, !this.props.isFocused);
     }
-  }
+  };
 
   onBackdropStateChange = (from: number, to: number) => {
     if (MediaGalleryMedia.isActive(this.props)) {
       return;
     }
     const { backdropProgress } = this;
-    invariant(backdropProgress, "should be set");
+    invariant(backdropProgress, 'should be set');
     if (to === TOUCHABLE_STATE.BEGAN) {
       backdropProgress.setValue(1);
     } else if (
@@ -309,25 +285,29 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
         to === TOUCHABLE_STATE.MOVED_OUTSIDE)
     ) {
       this.animatingBackdropToZero = true;
-      Reanimated.timing(
-        backdropProgress,
-        { ...reanimatedSpec, duration: 150, toValue: 0 },
-      ).start(this.onAnimatingBackdropToZeroCompletion);
+      Reanimated.timing(backdropProgress, {
+        ...reanimatedSpec,
+        duration: 150,
+        toValue: 0,
+      }).start(this.onAnimatingBackdropToZeroCompletion);
     }
-  }
+  };
 
   onPressSend = () => {
     this.props.sendMedia(this.props.selection);
-  }
+  };
 
   onPressEnqueue = () => {
     this.props.setMediaQueued(this.props.selection, true);
-  }
+  };
 
-  onAnimatingBackdropToZeroCompletion = ({ finished }: { finished: bool }) => {
+  onAnimatingBackdropToZeroCompletion = ({
+    finished,
+  }: {
+    finished: boolean,
+  }) => {
     this.animatingBackdropToZero = false;
-  }
-
+  };
 }
 
 const buttonStyle = {
@@ -364,7 +344,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#2A78E5',
   },
   buttonIcon: {
-    alignSelf: Platform.OS === "android" ? 'center' : 'flex-end',
+    alignSelf: Platform.OS === 'android' ? 'center' : 'flex-end',
     marginRight: 6,
     color: 'white',
     fontSize: 18,

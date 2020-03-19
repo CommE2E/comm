@@ -19,13 +19,12 @@ import { colorsSelector, styleSelector } from '../../themes/colors';
 type Props = {|
   threadInfo: ThreadInfo,
   navigate: Navigate,
-  canLeaveThread: bool,
+  canLeaveThread: boolean,
   // Redux state
   colors: Colors,
   styles: Styles,
 |};
 class ThreadSettingsDeleteThread extends React.PureComponent<Props> {
-
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     navigate: PropTypes.func.isRequired,
@@ -43,7 +42,7 @@ class ThreadSettingsDeleteThread extends React.PureComponent<Props> {
       <View style={this.props.styles.container}>
         <Button
           onPress={this.onPress}
-          style={[ this.props.styles.button, borderStyle ]}
+          style={[this.props.styles.button, borderStyle]}
           iosFormat="highlight"
           iosHighlightUnderlayColor={panelIosHighlightUnderlay}
         >
@@ -60,8 +59,7 @@ class ThreadSettingsDeleteThread extends React.PureComponent<Props> {
       params: { threadInfo },
       key: `${DeleteThreadRouteName}${threadInfo.id}`,
     });
-  }
-
+  };
 }
 
 const styles = {
@@ -73,7 +71,7 @@ const styles = {
     flexDirection: 'row',
     paddingHorizontal: 12,
     paddingTop: 10,
-    paddingBottom: Platform.OS === "ios" ? 14 : 12,
+    paddingBottom: Platform.OS === 'ios' ? 14 : 12,
   },
   text: {
     fontSize: 16,

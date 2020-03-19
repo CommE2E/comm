@@ -11,6 +11,4 @@ async function deleteOrphanedMemberships(): Promise<void> {
   `);
 }
 
-export {
-  deleteOrphanedMemberships,
-};
+export { deleteOrphanedMemberships };

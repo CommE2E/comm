@@ -17,7 +17,4 @@ const defaultNotifPermissionAlertInfo: NotifPermissionAlertInfo = {
   lastAlertTime: 0,
 };
 
-export {
-  defaultNotifPermissionAlertInfo,
-  notifPermissionAlertInfoPropType,
-};
+export { defaultNotifPermissionAlertInfo, notifPermissionAlertInfoPropType };

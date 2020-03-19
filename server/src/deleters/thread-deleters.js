@@ -34,7 +34,7 @@ async function deleteThread(
 
   const [
     permissionsBlob,
-    [ hashResult ],
+    [hashResult],
     { threadInfos: serverThreadInfos },
   ] = await Promise.all([
     fetchThreadPermissionsBlob(viewer, threadID),
@@ -45,10 +45,7 @@ async function deleteThread(
   if (!permissionsBlob) {
     // This should only occur if the first request goes through but the client
     // never receives the response
-    const [
-      { threadInfos },
-      { updateInfos },
-    ] = await Promise.all([
+    const [{ threadInfos }, { updateInfos }] = await Promise.all([
       fetchThreadInfos(viewer),
       fetchUpdateInfoForThreadDeletion(viewer, threadID),
     ]);
@@ -116,7 +113,7 @@ async function deleteThread(
     });
   }
 
-  const [ { viewerUpdates } ] = await Promise.all([
+  const [{ viewerUpdates }] = await Promise.all([
     createUpdates(updateDatas, { viewer }),
     dbQuery(query),
   ]);
@@ -153,7 +150,4 @@ async function deleteInaccessibleThreads(): Promise<void> {
   `);
 }
 
-export {
-  deleteThread,
-  deleteInaccessibleThreads,
-};
+export { deleteThread, deleteInaccessibleThreads };

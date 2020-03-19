@@ -23,7 +23,7 @@ function canonicalURLFromReduxState(navInfo: NavInfo, currentURL: string) {
   const today = new Date();
   let newURL = `/${navInfo.tab}/`;
 
-  if (navInfo.tab === "calendar") {
+  if (navInfo.tab === 'calendar') {
     const year = yearExtractor(navInfo.startDate, navInfo.endDate);
     if (urlInfo.year !== undefined) {
       invariant(
@@ -32,7 +32,9 @@ function canonicalURLFromReduxState(navInfo: NavInfo, currentURL: string) {
       );
       newURL += `year/${year}/`;
     } else if (
-      year !== null && year !== undefined && year !== today.getFullYear()
+      year !== null &&
+      year !== undefined &&
+      year !== today.getFullYear()
     ) {
       newURL += `year/${year}/`;
     }
@@ -45,11 +47,13 @@ function canonicalURLFromReduxState(navInfo: NavInfo, currentURL: string) {
       );
       newURL += `month/${month}/`;
     } else if (
-      month !== null && month !== undefined && month !== (today.getMonth() + 1)
+      month !== null &&
+      month !== undefined &&
+      month !== today.getMonth() + 1
     ) {
       newURL += `month/${month}/`;
     }
-  } else if (navInfo.tab === "chat") {
+  } else if (navInfo.tab === 'chat') {
     const activeChatThreadID = navInfo.activeChatThreadID;
     if (activeChatThreadID) {
       newURL += `thread/${activeChatThreadID}/`;
@@ -64,7 +68,7 @@ function canonicalURLFromReduxState(navInfo: NavInfo, currentURL: string) {
 }
 
 // Given a URL, this function parses out a navInfo object, leaving values as
-// default if they are unspecified. 
+// default if they are unspecified.
 function navInfoFromURL(
   url: string,
   backupInfo: {| now?: Date, navInfo?: NavInfo |},
@@ -97,7 +101,7 @@ function navInfoFromURL(
   }
 
   return {
-    tab: urlInfo.chat ? "chat" : "calendar",
+    tab: urlInfo.chat ? 'chat' : 'calendar',
     startDate: startDateForYearAndMonth(year, month),
     endDate: endDateForYearAndMonth(year, month),
     activeChatThreadID,
@@ -105,7 +109,4 @@ function navInfoFromURL(
   };
 }
 
-export {
-  canonicalURLFromReduxState,
-  navInfoFromURL,
-};
+export { canonicalURLFromReduxState, navInfoFromURL };

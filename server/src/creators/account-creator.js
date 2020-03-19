@@ -10,10 +10,7 @@ import { messageTypes } from 'lib/types/message-types';
 
 import bcrypt from 'twin-bcrypt';
 
-import {
-  validUsernameRegex,
-  validEmailRegex,
-} from 'lib/shared/account-utils';
+import { validUsernameRegex, validEmailRegex } from 'lib/shared/account-utils';
 import { ServerError } from 'lib/utils/errors';
 import { values } from 'lib/utils/objects';
 import ashoat from 'lib/facts/ashoat';
@@ -30,16 +27,16 @@ import { setNewSession } from '../session/cookies';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 
 const ashoatMessages = [
-  "welcome to SquadCal! thanks for helping to test the alpha.",
-  "as you inevitably discover bugs, have feature requests, or design " +
-    "suggestions, feel free to message them to me in the app.",
+  'welcome to SquadCal! thanks for helping to test the alpha.',
+  'as you inevitably discover bugs, have feature requests, or design ' +
+    'suggestions, feel free to message them to me in the app.',
 ];
 
 async function createAccount(
   viewer: Viewer,
   request: RegisterRequest,
 ): Promise<RegisterResponse> {
-  if (request.password.trim() === "") {
+  if (request.password.trim() === '') {
     throw new ServerError('empty_password');
   }
   if (request.username.search(validUsernameRegex) === -1) {
@@ -59,15 +56,12 @@ async function createAccount(
     FROM users
     WHERE LCASE(email) = LCASE(${request.email})
   `;
-  const promises = [
-    dbQuery(usernameQuery),
-    dbQuery(emailQuery),
-  ];
+  const promises = [dbQuery(usernameQuery), dbQuery(emailQuery)];
   const { calendarQuery } = request;
   if (calendarQuery) {
     promises.push(verifyCalendarQueryThreadIDs(calendarQuery));
   }
-  const [ [ usernameResult ], [ emailResult ] ] = await Promise.all(promises);
+  const [[usernameResult], [emailResult]] = await Promise.all(promises);
   if (usernameResult[0].count !== 0) {
     throw new ServerError('username_taken');
   }
@@ -80,20 +74,17 @@ async function createAccount(
   const deviceToken = request.deviceTokenUpdateRequest
     ? request.deviceTokenUpdateRequest.deviceToken
     : viewer.deviceToken;
-  const [ id ] = await createIDs("users", 1);
+  const [id] = await createIDs('users', 1);
   const newUserRow = [id, request.username, hash, request.email, time];
   const newUserQuery = SQL`
     INSERT INTO users(id, username, hash, email, creation_time)
     VALUES ${[newUserRow]}
   `;
-  const [ userViewerData ] = await Promise.all([
-    createNewUserCookie(
-      id,
-      {
-        platformDetails: request.platformDetails,
-        deviceToken,
-      },
-    ),
+  const [userViewerData] = await Promise.all([
+    createNewUserCookie(id, {
+      platformDetails: request.platformDetails,
+      deviceToken,
+    }),
     deleteCookie(viewer.cookieID),
     dbQuery(newUserQuery),
     sendEmailAddressVerificationEmail(
@@ -108,25 +99,16 @@ async function createAccount(
     await setNewSession(viewer, calendarQuery, 0);
   }
 
-  const [
-    personalThreadResult,
-    ashoatThreadResult,
-  ] = await Promise.all([
-    createThread(
-      viewer,
-      {
-        type: threadTypes.CHAT_SECRET,
-        name: request.username,
-        description: "your personal calendar",
-      },
-    ),
-    createThread(
-      viewer,
-      {
-        type: threadTypes.CHAT_SECRET,
-        initialMemberIDs: [ashoat.id],
-      },
-    ),
+  const [personalThreadResult, ashoatThreadResult] = await Promise.all([
+    createThread(viewer, {
+      type: threadTypes.CHAT_SECRET,
+      name: request.username,
+      description: 'your personal calendar',
+    }),
+    createThread(viewer, {
+      type: threadTypes.CHAT_SECRET,
+      initialMemberIDs: [ashoat.id],
+    }),
   ]);
   let messageTime = Date.now();
   const ashoatMessageDatas = ashoatMessages.map(message => ({

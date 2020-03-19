@@ -56,8 +56,8 @@ import { colorsSelector, styleSelector } from '../themes/colors';
 import ContentLoading from '../components/content-loading.react';
 
 export type ChatMessageItemWithHeight =
-  {| itemType: "loader" |} |
-  ChatMessageInfoItemWithHeight;
+  | {| itemType: 'loader' |}
+  | ChatMessageInfoItemWithHeight;
 
 type Props = {|
   navigation: MessageListNavProp,
@@ -76,7 +76,6 @@ type State = {|
   listDataWithHeights: ?$ReadOnlyArray<ChatMessageItemWithHeight>,
 |};
 class MessageListContainer extends React.PureComponent<Props, State> {
-
   static propTypes = {
     navigation: messageListNavPropType.isRequired,
     threadInfo: threadInfoPropType,
@@ -95,15 +94,13 @@ class MessageListContainer extends React.PureComponent<Props, State> {
       />
     ),
     headerRight:
-      Platform.OS === "android"
-        ? (
-            <ThreadSettingsButton
-              threadInfo={navigation.state.params.threadInfo}
-              navigate={navigation.navigate}
-            />
-          )
-        : null,
-    headerBackTitle: "Back",
+      Platform.OS === 'android' ? (
+        <ThreadSettingsButton
+          threadInfo={navigation.state.params.threadInfo}
+          navigate={navigation.navigate}
+        />
+      ) : null,
+    headerBackTitle: 'Back',
     gesturesEnabled: !navigation.state.params.gesturesDisabled,
   });
 
@@ -125,7 +122,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
   textToMeasureFromListData(listData: $ReadOnlyArray<ChatMessageItem>) {
     const textToMeasure = [];
     for (let item of listData) {
-      if (item.itemType !== "message") {
+      if (item.itemType !== 'message') {
         continue;
       }
       const { messageInfo } = item;
@@ -141,7 +138,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           text: messageInfo.text,
           style,
         });
-      } else if (item.robotext && typeof item.robotext === "string") {
+      } else if (item.robotext && typeof item.robotext === 'string') {
         textToMeasure.push({
           id: messageKey(messageInfo),
           text: robotextToRawString(item.robotext),
@@ -218,10 +215,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
       );
     } else {
       messageList = (
-        <ContentLoading
-          fillType="flex"
-          colors={this.props.colors}
-        />
+        <ContentLoading fillType="flex" colors={this.props.colors} />
       );
     }
 
@@ -252,13 +246,13 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     }
     const listDataWithHeights = this.mergeHeightsIntoListData(newTextHeights);
     this.setState({ listDataWithHeights });
-  }
+  };
 
   mergeHeightsIntoListData(textHeights?: Map<string, number>) {
     const { messageListData: listData, chatInputState } = this.props;
     const threadInfo = MessageListContainer.getThreadInfo(this.props);
     const listDataWithHeights = listData.map((item: ChatMessageItem) => {
-      if (item.itemType !== "message") {
+      if (item.itemType !== 'message') {
         return item;
       }
       const { messageInfo } = item;
@@ -272,16 +266,17 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           ? item.localMessageInfo
           : null;
         const id = messageID(messageInfo);
-        const pendingUploads = chatInputState
-          && chatInputState.pendingUploads
-          && chatInputState.pendingUploads[id];
+        const pendingUploads =
+          chatInputState &&
+          chatInputState.pendingUploads &&
+          chatInputState.pendingUploads[id];
         const heights = multimediaMessageContentHeights(
           messageInfo,
           this.props.composedMessageMaxWidth,
         );
         return {
-          itemType: "message",
-          messageShapeType: "multimedia",
+          itemType: 'message',
+          messageShapeType: 'multimedia',
           messageInfo,
           localMessageInfo,
           threadInfo,
@@ -292,7 +287,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           ...heights,
         };
       }
-      invariant(textHeights, "textHeights not set");
+      invariant(textHeights, 'textHeights not set');
       const textHeight = textHeights.get(key);
       invariant(
         textHeight !== null && textHeight !== undefined,
@@ -304,8 +299,8 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           ? item.localMessageInfo
           : null;
         return {
-          itemType: "message",
-          messageShapeType: "text",
+          itemType: 'message',
+          messageShapeType: 'text',
           messageInfo,
           localMessageInfo,
           threadInfo,
@@ -316,12 +311,12 @@ class MessageListContainer extends React.PureComponent<Props, State> {
         };
       } else {
         invariant(
-          typeof item.robotext === "string",
+          typeof item.robotext === 'string',
           "Flow can't handle our fancy types :(",
         );
         return {
-          itemType: "message",
-          messageShapeType: "robotext",
+          itemType: 'message',
+          messageShapeType: 'robotext',
           messageInfo,
           threadInfo,
           startsConversation: item.startsConversation,
@@ -334,7 +329,6 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     });
     return listDataWithHeights;
   }
-
 }
 
 const styles = {

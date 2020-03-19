@@ -30,7 +30,7 @@ async function fetchErrorReportInfos(
     query.append(SQL`WHERE r.id < ${request.cursor} `);
   }
   query.append(SQL`ORDER BY r.id DESC`);
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
 
   const reports = [];
   const userInfos = {};
@@ -74,7 +74,7 @@ async function fetchReduxToolsImport(
     FROM reports
     WHERE id = ${id}
   `;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
   if (result.length === 0) {
     throw new ServerError('invalid_parameters');
   }
@@ -97,7 +97,4 @@ async function fetchReduxToolsImport(
   };
 }
 
-export {
-  fetchErrorReportInfos,
-  fetchReduxToolsImport,
-};
+export { fetchErrorReportInfos, fetchReduxToolsImport };

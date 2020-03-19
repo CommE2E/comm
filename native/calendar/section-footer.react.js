@@ -23,7 +23,6 @@ type Props = {|
   styles: Styles,
 |};
 class SectionFooter extends React.PureComponent<Props> {
-
   static propTypes = {
     dateString: PropTypes.string.isRequired,
     onAdd: PropTypes.func.isRequired,
@@ -56,8 +55,7 @@ class SectionFooter extends React.PureComponent<Props> {
 
   onSubmit = () => {
     this.props.onAdd(this.props.dateString);
-  }
-
+  };
 }
 
 const styles = {

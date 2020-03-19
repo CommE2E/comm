@@ -8,7 +8,10 @@ import {
   defaultCalendarQuery,
 } from 'lib/types/entry-types';
 import type { Viewer } from '../session/viewer';
-import { updateTypes, type CreateUpdatesResponse } from 'lib/types/update-types';
+import {
+  updateTypes,
+  type CreateUpdatesResponse,
+} from 'lib/types/update-types';
 import type { SessionUpdate } from './session-updaters';
 
 import invariant from 'invariant';
@@ -52,11 +55,7 @@ async function updateEntry(
     ORDER BY r.last_update DESC
     LIMIT 1
   `;
-  const [
-    hasPermission,
-    entryInfo,
-    [ lastRevisionResult ],
-  ] = await Promise.all([
+  const [hasPermission, entryInfo, [lastRevisionResult]] = await Promise.all([
     checkThreadPermissionForEntry(
       viewer,
       request.entryID,
@@ -105,11 +104,13 @@ async function updateEntry(
     }
     updateEntry = true;
     if (lastRevisionRow.last_update + 120000 > request.timestamp) {
-      dbPromises.push(dbQuery(SQL`
+      dbPromises.push(
+        dbQuery(SQL`
         UPDATE revisions
         SET last_update = ${request.timestamp}, text = ${request.text}
         WHERE id = ${lastRevisionRow.id}
-      `));
+      `),
+      );
     } else {
       insertNewRevision = true;
     }
@@ -117,28 +118,30 @@ async function updateEntry(
     viewer.session !== lastRevisionRow.session &&
     request.prevText !== lastRevisionRow.text
   ) {
-    throw new ServerError(
-      'concurrent_modification',
-      { db: lastRevisionRow.text, ui: request.prevText },
-    );
+    throw new ServerError('concurrent_modification', {
+      db: lastRevisionRow.text,
+      ui: request.prevText,
+    });
   } else if (lastRevisionRow.last_update >= request.timestamp) {
-    throw new ServerError(
-      'old_timestamp',
-      { oldTime: lastRevisionRow.last_update, newTime: request.timestamp },
-    );
+    throw new ServerError('old_timestamp', {
+      oldTime: lastRevisionRow.last_update,
+      newTime: request.timestamp,
+    });
   } else {
     updateEntry = true;
     insertNewRevision = true;
   }
   if (updateEntry) {
-    dbPromises.push(dbQuery(SQL`
+    dbPromises.push(
+      dbQuery(SQL`
       UPDATE entries
       SET last_update = ${request.timestamp}, text = ${request.text}
       WHERE id = ${request.entryID}
-    `));
+    `),
+    );
   }
   if (insertNewRevision) {
-    const [ revisionID ] = await createIDs("revisions", 1);
+    const [revisionID] = await createIDs('revisions', 1);
     const revisionRow = [
       revisionID,
       request.entryID,
@@ -149,21 +152,22 @@ async function updateEntry(
       request.timestamp,
       0,
     ];
-    dbPromises.push(dbQuery(SQL`
+    dbPromises.push(
+      dbQuery(SQL`
       INSERT INTO revisions(id, entry, author, text, creation_time,
         session, last_update, deleted)
       VALUES ${[revisionRow]}
-    `));
+    `),
+    );
   }
   const updatedEntryInfo = {
     ...entryInfo,
     text: request.text,
   };
 
-  const [ newMessageInfos, updatesResult ] = await Promise.all([
-    createMessages(
-      viewer,
-      [{
+  const [newMessageInfos, updatesResult] = await Promise.all([
+    createMessages(viewer, [
+      {
         type: messageTypes.EDIT_ENTRY,
         threadID: entryInfo.threadID,
         creatorID: viewerID,
@@ -171,8 +175,8 @@ async function updateEntry(
         entryID: request.entryID,
         date: dateString(entryInfo.year, entryInfo.month, entryInfo.day),
         text: request.text,
-      }],
-    ),
+      },
+    ]),
     createUpdateDatasForChangedEntryInfo(
       viewer,
       entryInfo,
@@ -194,7 +198,7 @@ async function createUpdateDatasForChangedEntryInfo(
     throw new ServerError('not_logged_in');
   }
   const entryID = newEntryInfo.id;
-  invariant(entryID, "should be set");
+  invariant(entryID, 'should be set');
 
   // If we ever make it possible to move entries from one thread to another,
   // we should update this code rto look at oldEntryInfo.threadID as well
@@ -216,8 +220,8 @@ async function createUpdateDatasForChangedEntryInfo(
 
   let replaced = null;
   const { userID } = viewer;
-  const filters = fetchedFilters.map(
-    filter => filter.session === viewer.session && filter.userID === userID
+  const filters = fetchedFilters.map(filter =>
+    filter.session === viewer.session && filter.userID === userID
       ? (replaced = { ...filter, calendarQuery })
       : filter,
   );
@@ -227,22 +231,25 @@ async function createUpdateDatasForChangedEntryInfo(
   }
 
   const time = Date.now();
-  const updateDatas = filters.filter(
-    filter =>
-      rawEntryInfoWithinCalendarQuery(newEntryInfo, filter.calendarQuery) ||
-      (oldEntryInfo &&
-        rawEntryInfoWithinCalendarQuery(oldEntryInfo, filter.calendarQuery)),
-  ).map(filter => ({
-    type: updateTypes.UPDATE_ENTRY,
-    userID: filter.userID,
-    time,
-    entryID,
-    targetSession: filter.session,
-  }));
-  const { userInfos, ...updatesResult } = await createUpdates(
-    updateDatas,
-    { viewer, calendarQuery, updatesForCurrentSession: "return" },
-  );
+  const updateDatas = filters
+    .filter(
+      filter =>
+        rawEntryInfoWithinCalendarQuery(newEntryInfo, filter.calendarQuery) ||
+        (oldEntryInfo &&
+          rawEntryInfoWithinCalendarQuery(oldEntryInfo, filter.calendarQuery)),
+    )
+    .map(filter => ({
+      type: updateTypes.UPDATE_ENTRY,
+      userID: filter.userID,
+      time,
+      entryID,
+      targetSession: filter.session,
+    }));
+  const { userInfos, ...updatesResult } = await createUpdates(updateDatas, {
+    viewer,
+    calendarQuery,
+    updatesForCurrentSession: 'return',
+  });
   return {
     ...updatesResult,
     userInfos: values(userInfos),

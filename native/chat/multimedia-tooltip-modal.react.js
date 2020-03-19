@@ -1,9 +1,7 @@
 // @flow
 
 import type { MediaInfo } from 'lib/types/media-types';
-import type {
-  ChatMultimediaMessageInfoItem,
-} from './multimedia-message.react';
+import type { ChatMultimediaMessageInfoItem } from './multimedia-message.react';
 
 import { createTooltip, tooltipHeight } from '../navigation/tooltip.react';
 import MultimediaTooltipButton from './multimedia-tooltip-button.react';
@@ -20,16 +18,11 @@ function onPressSave(props: CustomProps) {
 }
 
 const spec = {
-  entries: [
-    { id: "save", text: "Save", onPress: onPressSave },
-  ],
+  entries: [{ id: 'save', text: 'Save', onPress: onPressSave }],
 };
 
 const MultimediaTooltipModal = createTooltip(MultimediaTooltipButton, spec);
 
 const multimediaTooltipHeight = tooltipHeight(spec.entries.length);
 
-export {
-  MultimediaTooltipModal,
-  multimediaTooltipHeight,
-};
+export { MultimediaTooltipModal, multimediaTooltipHeight };

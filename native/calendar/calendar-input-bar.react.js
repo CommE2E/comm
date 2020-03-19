@@ -19,15 +19,14 @@ import { styleSelector } from '../themes/colors';
 
 type Props = {|
   onSave: () => void,
-  disabled: bool,
+  disabled: boolean,
   // Redux state
   styles: Styles,
 |};
 type State = {|
-  keyboardActive: bool,
+  keyboardActive: boolean,
 |};
 class CalendarInputBar extends React.PureComponent<Props, State> {
-
   static propTypes = {
     onSave: PropTypes.func.isRequired,
     disabled: PropTypes.bool.isRequired,
@@ -59,30 +58,25 @@ class CalendarInputBar extends React.PureComponent<Props, State> {
 
   keyboardShow = () => {
     this.setState({ keyboardActive: true });
-  }
+  };
 
   keyboardDismiss = () => {
     this.setState({ keyboardActive: false });
-  }
+  };
 
   render() {
-    const inactiveStyle = this.state.keyboardActive && !this.props.disabled
-      ? undefined
-      : this.props.styles.inactiveContainer;
+    const inactiveStyle =
+      this.state.keyboardActive && !this.props.disabled
+        ? undefined
+        : this.props.styles.inactiveContainer;
     return (
-      <View style={[ this.props.styles.container, inactiveStyle ]}>
-        <Button
-          onPress={this.props.onSave}
-          iosActiveOpacity={0.5}
-        >
-          <Text style={this.props.styles.saveButtonText}>
-            Save
-          </Text>
+      <View style={[this.props.styles.container, inactiveStyle]}>
+        <Button onPress={this.props.onSave} iosActiveOpacity={0.5}>
+          <Text style={this.props.styles.saveButtonText}>Save</Text>
         </Button>
       </View>
     );
   }
-
 }
 
 const styles = {

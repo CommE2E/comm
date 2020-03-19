@@ -38,7 +38,6 @@ type ButtonProps = {|
   onSubmit: () => void,
 |};
 class PanelButton extends React.PureComponent<ButtonProps> {
-
   static propTypes = {
     text: PropTypes.string.isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
@@ -47,7 +46,7 @@ class PanelButton extends React.PureComponent<ButtonProps> {
 
   render() {
     let buttonIcon;
-    if (this.props.loadingStatus === "loading") {
+    if (this.props.loadingStatus === 'loading') {
       buttonIcon = (
         <View style={styles.loadingIndicatorContainer}>
           <ActivityIndicator color="#555" />
@@ -63,7 +62,7 @@ class PanelButton extends React.PureComponent<ButtonProps> {
     return (
       <Button
         onPress={this.props.onSubmit}
-        disabled={this.props.loadingStatus === "loading"}
+        disabled={this.props.loadingStatus === 'loading'}
         topStyle={styles.submitButton}
         style={styles.submitContentContainer}
         iosFormat="highlight"
@@ -75,7 +74,6 @@ class PanelButton extends React.PureComponent<ButtonProps> {
       </Button>
     );
   }
-
 }
 
 function PanelOnePasswordButton(props: {| onPress: () => Promise<void> |}) {
@@ -98,7 +96,6 @@ type PanelState = {|
   keyboardHeight: number,
 |};
 class InnerPanel extends React.PureComponent<PanelProps, PanelState> {
-
   static propTypes = {
     opacityValue: PropTypes.instanceOf(Animated.Value).isRequired,
     children: PropTypes.node.isRequired,
@@ -113,8 +110,9 @@ class InnerPanel extends React.PureComponent<PanelProps, PanelState> {
 
   componentDidMount() {
     this.keyboardShowListener = addKeyboardShowListener(this.keyboardHandler);
-    this.keyboardHideListener =
-      addKeyboardDismissListener(this.keyboardHandler);
+    this.keyboardHideListener = addKeyboardDismissListener(
+      this.keyboardHandler,
+    );
   }
 
   componentWillUnmount() {
@@ -150,7 +148,7 @@ class InnerPanel extends React.PureComponent<PanelProps, PanelState> {
       });
     }
     this.setState({ keyboardHeight });
-  }
+  };
 
   render() {
     const windowHeight = this.props.dimensions.height;
@@ -159,11 +157,9 @@ class InnerPanel extends React.PureComponent<PanelProps, PanelState> {
       marginTop: windowHeight < 600 ? 15 : 40,
     };
     const content = (
-      <Animated.View style={[
-        styles.container,
-        containerStyle,
-        this.props.style,
-      ]}>
+      <Animated.View
+        style={[styles.container, containerStyle, this.props.style]}
+      >
         {this.props.children}
       </Animated.View>
     );
@@ -181,14 +177,11 @@ class InnerPanel extends React.PureComponent<PanelProps, PanelState> {
       </View>
     );
   }
-
 }
 
-const Panel = connect(
-  (state: AppState) => ({
-    dimensions: dimensionsSelector(state),
-  }),
-)(InnerPanel);
+const Panel = connect((state: AppState) => ({
+  dimensions: dimensionsSelector(state),
+}))(InnerPanel);
 
 const styles = StyleSheet.create({
   loadingIndicatorContainer: {
@@ -214,7 +207,7 @@ const styles = StyleSheet.create({
   submitContentText: {
     fontSize: 18,
     fontFamily: 'OpenSans-Semibold',
-    color: "#555",
+    color: '#555',
     paddingRight: 7,
   },
   onePasswordImage: {
@@ -234,8 +227,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export {
-  PanelButton,
-  PanelOnePasswordButton,
-  Panel,
-};
+export { PanelButton, PanelOnePasswordButton, Panel };

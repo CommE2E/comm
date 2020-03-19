@@ -31,7 +31,6 @@ type Props = {|
   chatInputState: ChatInputState,
 |};
 class TextMessage extends React.PureComponent<Props> {
-
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
@@ -43,21 +42,21 @@ class TextMessage extends React.PureComponent<Props> {
     super(props);
     invariant(
       props.item.messageInfo.type === messageTypes.TEXT,
-      "TextMessage should only be used for messageTypes.TEXT",
+      'TextMessage should only be used for messageTypes.TEXT',
     );
   }
 
   componentDidUpdate(prevProps: Props) {
     invariant(
       this.props.item.messageInfo.type === messageTypes.TEXT,
-      "TextMessage should only be used for messageTypes.TEXT",
+      'TextMessage should only be used for messageTypes.TEXT',
     );
   }
 
   render() {
     invariant(
       this.props.item.messageInfo.type === messageTypes.TEXT,
-      "TextMessage should only be used for messageTypes.TEXT",
+      'TextMessage should only be used for messageTypes.TEXT',
     );
     const { text, id, creator } = this.props.item.messageInfo;
 
@@ -76,7 +75,7 @@ class TextMessage extends React.PureComponent<Props> {
       messageStyle.backgroundColor = `#${threadColor}`;
       messageStyle.color = darkColor ? 'white' : 'black';
     } else {
-      messageStyle.backgroundColor = "rgba(221,221,221,0.73)";
+      messageStyle.backgroundColor = 'rgba(221,221,221,0.73)';
       messageStyle.color = 'black';
     }
 
@@ -100,7 +99,6 @@ class TextMessage extends React.PureComponent<Props> {
       </ComposedMessage>
     );
   }
-
 }
 
 export default TextMessage;

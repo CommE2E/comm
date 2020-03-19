@@ -12,6 +12,4 @@ async function deleteOrphanedRevisions(): Promise<void> {
   `);
 }
 
-export {
-  deleteOrphanedRevisions,
-};
+export { deleteOrphanedRevisions };

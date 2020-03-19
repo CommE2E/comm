@@ -39,20 +39,19 @@ import css from '../../style.css';
 import Modal from '../modal.react';
 import ColorPicker from './color-picker.react';
 
-type TabType = "general" | "privacy" | "delete";
+type TabType = 'general' | 'privacy' | 'delete';
 type TabProps = {
   name: string,
   tabType: TabType,
-  selected: bool,
+  selected: boolean,
   onClick: (tabType: TabType) => void,
 };
 class Tab extends React.PureComponent<TabProps> {
-
   render() {
     const classNamesForTab = classNames({
       [css['current-tab']]: this.props.selected,
-      [css['delete-tab']]: this.props.selected &&
-        this.props.tabType === "delete",
+      [css['delete-tab']]:
+        this.props.selected && this.props.tabType === 'delete',
     });
     return (
       <li className={classNamesForTab} onClick={this.onClick}>
@@ -63,17 +62,16 @@ class Tab extends React.PureComponent<TabProps> {
 
   onClick = () => {
     return this.props.onClick(this.props.tabType);
-  }
-
+  };
 }
 
 type Props = {
   threadInfo: ThreadInfo,
   onClose: () => void,
   // Redux state
-  inputDisabled: bool,
+  inputDisabled: boolean,
   viewerID: ?string,
-  userInfos: {[id: string]: UserInfo},
+  userInfos: { [id: string]: UserInfo },
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -92,7 +90,6 @@ type State = {|
   currentTabType: TabType,
 |};
 class ThreadSettingsModal extends React.PureComponent<Props, State> {
-
   nameInput: ?HTMLInputElement;
   newThreadPasswordInput: ?HTMLInputElement;
   accountPasswordInput: ?HTMLInputElement;
@@ -101,20 +98,21 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     super(props);
     this.state = {
       queuedChanges: {},
-      errorMessage: "",
-      accountPassword: "",
-      currentTabType: "general",
+      errorMessage: '',
+      accountPassword: '',
+      currentTabType: 'general',
     };
   }
 
   componentDidMount() {
-    invariant(this.nameInput, "nameInput ref unset");
+    invariant(this.nameInput, 'nameInput ref unset');
     this.nameInput.focus();
   }
 
   possiblyChangedValue(key: string) {
-    const valueChanged = this.state.queuedChanges[key] !== null
-      && this.state.queuedChanges[key] !== undefined;
+    const valueChanged =
+      this.state.queuedChanges[key] !== null &&
+      this.state.queuedChanges[key] !== undefined;
     return valueChanged
       ? this.state.queuedChanges[key]
       : this.props.threadInfo[key];
@@ -129,18 +127,20 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
   }
 
   changeQueued() {
-    return Object.keys(
-      _pickBy(
-        value => value !== null && value !== undefined
-      // the lodash/fp libdef coerces the returned object's properties to the
-      // same type, which means it only works for object-as-maps $FlowFixMe
-      )(this.state.queuedChanges),
-    ).length > 0;
+    return (
+      Object.keys(
+        _pickBy(
+          value => value !== null && value !== undefined,
+          // the lodash/fp libdef coerces the returned object's properties to the
+          // same type, which means it only works for object-as-maps $FlowFixMe
+        )(this.state.queuedChanges),
+      ).length > 0
+    );
   }
 
   render() {
     let mainContent = null;
-    if (this.state.currentTabType === "general") {
+    if (this.state.currentTabType === 'general') {
       mainContent = (
         <div>
           <div>
@@ -148,7 +148,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
             <div className={css['form-content']}>
               <input
                 type="text"
-                value={this.possiblyChangedValue("name")}
+                value={this.possiblyChangedValue('name')}
                 placeholder={this.namePlaceholder()}
                 onChange={this.onChangeName}
                 disabled={this.props.inputDisabled}
@@ -160,7 +160,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
             <div className={css['form-title']}>Description</div>
             <div className={css['form-content']}>
               <textarea
-                value={this.possiblyChangedValue("description")}
+                value={this.possiblyChangedValue('description')}
                 placeholder="Thread description"
                 onChange={this.onChangeDescription}
                 disabled={this.props.inputDisabled}
@@ -174,7 +174,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
             <div className={css['form-content']}>
               <ColorPicker
                 id="edit-thread-color"
-                value={this.possiblyChangedValue("color")}
+                value={this.possiblyChangedValue('color')}
                 disabled={this.props.inputDisabled}
                 onChange={this.onChangeColor}
               />
@@ -182,9 +182,9 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
           </div>
         </div>
       );
-    } else if (this.state.currentTabType === "privacy") {
+    } else if (this.state.currentTabType === 'privacy') {
       let threadTypeSection = null;
-      if (this.possiblyChangedValue("parentThreadID")) {
+      if (this.possiblyChangedValue('parentThreadID')) {
         threadTypeSection = (
           <div className={css['modal-radio-selector']}>
             <div className={css['form-title']}>Thread type</div>
@@ -196,8 +196,8 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
                   id="edit-thread-open"
                   value={threadTypes.CHAT_NESTED_OPEN}
                   checked={
-                    this.possiblyChangedValue("type") ===
-                      threadTypes.CHAT_NESTED_OPEN
+                    this.possiblyChangedValue('type') ===
+                    threadTypes.CHAT_NESTED_OPEN
                   }
                   onChange={this.onChangeThreadType}
                   disabled={this.props.inputDisabled}
@@ -218,8 +218,8 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
                   id="edit-thread-closed"
                   value={threadTypes.CHAT_SECRET}
                   checked={
-                    this.possiblyChangedValue("type") ===
-                      threadTypes.CHAT_SECRET
+                    this.possiblyChangedValue('type') ===
+                    threadTypes.CHAT_SECRET
                   }
                   onChange={this.onChangeThreadType}
                   disabled={this.props.inputDisabled}
@@ -242,19 +242,19 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
           {threadTypeSection}
         </div>
       );
-    } else if (this.state.currentTabType === "delete") {
+    } else if (this.state.currentTabType === 'delete') {
       mainContent = (
         <div>
           <p className={css['italic']}>
-            Your thread will be permanently deleted. There is no way to
-            reverse this.
+            Your thread will be permanently deleted. There is no way to reverse
+            this.
           </p>
         </div>
       );
     }
 
     let buttons = null;
-    if (this.state.currentTabType === "delete") {
+    if (this.state.currentTabType === 'delete') {
       buttons = (
         <span className={css['form-submit']}>
           <input
@@ -289,7 +289,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
           name="Delete"
           tabType="delete"
           onClick={this.setTab}
-          selected={this.state.currentTabType === "delete"}
+          selected={this.state.currentTabType === 'delete'}
           key="delete"
         />
       );
@@ -302,14 +302,14 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
             name="General"
             tabType="general"
             onClick={this.setTab}
-            selected={this.state.currentTabType === "general"}
+            selected={this.state.currentTabType === 'general'}
             key="general"
           />
           <Tab
             name="Privacy"
             tabType="privacy"
             onClick={this.setTab}
-            selected={this.state.currentTabType === "privacy"}
+            selected={this.state.currentTabType === 'privacy'}
             key="privacy"
           />
           {deleteTab}
@@ -351,23 +351,20 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
 
   nameInputRef = (nameInput: ?HTMLInputElement) => {
     this.nameInput = nameInput;
-  }
+  };
 
-  newThreadPasswordInputRef = (
-    newThreadPasswordInput: ?HTMLInputElement,
-  ) => {
+  newThreadPasswordInputRef = (newThreadPasswordInput: ?HTMLInputElement) => {
     this.newThreadPasswordInput = newThreadPasswordInput;
-  }
+  };
 
   accountPasswordInputRef = (accountPasswordInput: ?HTMLInputElement) => {
     this.accountPasswordInput = accountPasswordInput;
-  }
+  };
 
   onChangeName = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.currentTarget;
-    const newValue = target.value !== this.props.threadInfo.name
-      ? target.value
-      : null;
+    const newValue =
+      target.value !== this.props.threadInfo.name ? target.value : null;
     this.setState((prevState: State, props) => ({
       ...prevState,
       queuedChanges: {
@@ -375,13 +372,12 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
         name: newValue,
       },
     }));
-  }
+  };
 
   onChangeDescription = (event: SyntheticEvent<HTMLTextAreaElement>) => {
     const target = event.currentTarget;
-    const newValue = target.value !== this.props.threadInfo.description
-      ? target.value
-      : null;
+    const newValue =
+      target.value !== this.props.threadInfo.description ? target.value : null;
     this.setState((prevState: State, props) => ({
       ...prevState,
       queuedChanges: {
@@ -389,12 +385,10 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
         description: newValue,
       },
     }));
-  }
+  };
 
   onChangeColor = (color: string) => {
-    const newValue = color !== this.props.threadInfo.color
-      ? color
-      : null;
+    const newValue = color !== this.props.threadInfo.color ? color : null;
     this.setState((prevState: State, props) => ({
       ...prevState,
       queuedChanges: {
@@ -402,13 +396,11 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
         color: newValue,
       },
     }));
-  }
+  };
 
   onChangeThreadType = (event: SyntheticEvent<HTMLInputElement>) => {
     const uiValue = assertThreadType(parseInt(event.currentTarget.value, 10));
-    const newValue = uiValue !== this.props.threadInfo.type
-      ? uiValue
-      : null;
+    const newValue = uiValue !== this.props.threadInfo.type ? uiValue : null;
     this.setState((prevState: State, props) => ({
       ...prevState,
       queuedChanges: {
@@ -416,12 +408,12 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
         type: newValue,
       },
     }));
-  }
+  };
 
   onChangeAccountPassword = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.currentTarget;
     this.setState({ accountPassword: target.value });
-  }
+  };
 
   onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
@@ -429,7 +421,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       changeThreadSettingsActionTypes,
       this.changeThreadSettingsAction(),
     );
-  }
+  };
 
   async changeThreadSettingsAction() {
     try {
@@ -446,13 +438,13 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       if (e.message === 'invalid_credentials') {
         this.setState(
           {
-            accountPassword: "",
-            errorMessage: "wrong password",
+            accountPassword: '',
+            errorMessage: 'wrong password',
           },
           () => {
             invariant(
               this.accountPasswordInput,
-              "accountPasswordInput ref unset",
+              'accountPasswordInput ref unset',
             );
             this.accountPasswordInput.focus();
           },
@@ -462,12 +454,12 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
           (prevState, props) => ({
             ...prevState,
             queuedChanges: {},
-            accountPassword: "",
-            errorMessage: "unknown error",
-            currentTabType: "general",
+            accountPassword: '',
+            errorMessage: 'unknown error',
+            currentTabType: 'general',
           }),
           () => {
-            invariant(this.nameInput, "nameInput ref unset");
+            invariant(this.nameInput, 'nameInput ref unset');
             this.nameInput.focus();
           },
         );
@@ -482,7 +474,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       deleteThreadActionTypes,
       this.deleteThreadAction(),
     );
-  }
+  };
 
   async deleteThreadAction() {
     try {
@@ -493,18 +485,19 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       this.props.onClose();
       return response;
     } catch (e) {
-      const errorMessage = e.message === "invalid_credentials"
-        ? "wrong password"
-        : "unknown error";
+      const errorMessage =
+        e.message === 'invalid_credentials'
+          ? 'wrong password'
+          : 'unknown error';
       this.setState(
         {
-          accountPassword: "",
+          accountPassword: '',
           errorMessage: errorMessage,
         },
         () => {
           invariant(
             this.accountPasswordInput,
-            "accountPasswordInput ref unset",
+            'accountPasswordInput ref unset',
           );
           this.accountPasswordInput.focus();
         },
@@ -512,7 +505,6 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       throw e;
     }
   }
-
 }
 
 ThreadSettingsModal.propTypes = {
@@ -524,17 +516,20 @@ ThreadSettingsModal.propTypes = {
   dispatchActionPromise: PropTypes.func.isRequired,
   deleteThread: PropTypes.func.isRequired,
   changeThreadSettings: PropTypes.func.isRequired,
-}
+};
 
-const deleteThreadLoadingStatusSelector
-  = createLoadingStatusSelector(deleteThreadActionTypes);
-const changeThreadSettingsLoadingStatusSelector
-  = createLoadingStatusSelector(changeThreadSettingsActionTypes);
+const deleteThreadLoadingStatusSelector = createLoadingStatusSelector(
+  deleteThreadActionTypes,
+);
+const changeThreadSettingsLoadingStatusSelector = createLoadingStatusSelector(
+  changeThreadSettingsActionTypes,
+);
 
 export default connect(
   (state: AppState) => ({
-    inputDisabled: deleteThreadLoadingStatusSelector(state) === "loading" ||
-      changeThreadSettingsLoadingStatusSelector(state) === "loading",
+    inputDisabled:
+      deleteThreadLoadingStatusSelector(state) === 'loading' ||
+      changeThreadSettingsLoadingStatusSelector(state) === 'loading',
     viewerID: state.currentUserInfo && state.currentUserInfo.id,
     userInfos: state.userInfos,
   }),

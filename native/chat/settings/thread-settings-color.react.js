@@ -1,9 +1,6 @@
 // @flow
 
-import {
-  type ThreadInfo,
-  threadInfoPropType,
-} from 'lib/types/thread-types';
+import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { AppState } from '../../redux/redux-setup';
@@ -28,7 +25,7 @@ type Props = {|
   threadInfo: ThreadInfo,
   colorEditValue: string,
   setColorEditValue: (color: string) => void,
-  canChangeSettings: bool,
+  canChangeSettings: boolean,
   navigate: Navigate,
   // Redux state
   loadingStatus: LoadingStatus,
@@ -36,7 +33,6 @@ type Props = {|
   styles: Styles,
 |};
 class ThreadSettingsColor extends React.PureComponent<Props> {
-
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     colorEditValue: PropTypes.string.isRequired,
@@ -50,7 +46,7 @@ class ThreadSettingsColor extends React.PureComponent<Props> {
 
   render() {
     let colorButton;
-    if (this.props.loadingStatus !== "loading") {
+    if (this.props.loadingStatus !== 'loading') {
       colorButton = (
         <EditSettingButton
           onPress={this.onPressEditColor}
@@ -70,10 +66,9 @@ class ThreadSettingsColor extends React.PureComponent<Props> {
 
     return (
       <View style={this.props.styles.colorRow}>
-        <Text style={[
-          this.props.styles.label,
-          this.props.styles.colorLine,
-        ]}>Color</Text>
+        <Text style={[this.props.styles.label, this.props.styles.colorLine]}>
+          Color
+        </Text>
         <View style={this.props.styles.currentValue}>
           <ColorSplotch color={this.props.threadInfo.color} />
         </View>
@@ -91,8 +86,7 @@ class ThreadSettingsColor extends React.PureComponent<Props> {
         setColor: this.props.setColorEditValue,
       },
     });
-  }
-
+  };
 }
 
 const styles = {

@@ -72,12 +72,12 @@ type Props = {|
   ) => Promise<SendMessageResult>,
 |};
 type State = {|
-  pendingUploads:
-    {[threadID: string]: {[localUploadID: string]: PendingMultimediaUpload}},
-  drafts: {[threadID: string]: string},
+  pendingUploads: {
+    [threadID: string]: { [localUploadID: string]: PendingMultimediaUpload },
+  },
+  drafts: { [threadID: string]: string },
 |};
 class ChatInputStateContainer extends React.PureComponent<Props, State> {
-
   static propTypes = {
     setModal: PropTypes.func.isRequired,
     activeChatThreadID: PropTypes.string,
@@ -102,7 +102,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       for (let localUploadID in pendingUploads) {
         const upload = pendingUploads[localUploadID];
         const { messageID, serverID, failed } = upload;
-        if (!messageID || !messageID.startsWith("local")) {
+        if (!messageID || !messageID.startsWith('local')) {
           continue;
         }
         if (!serverID || failed) {
@@ -115,7 +115,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       }
     }
     const messageIDs = new Set();
-    for (let [ messageID, isCompleted ] of completed) {
+    for (let [messageID, isCompleted] of completed) {
       if (isCompleted) {
         messageIDs.add(messageID);
       }
@@ -148,7 +148,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         const { messageID } = upload;
         if (
           !messageID ||
-          !messageID.startsWith("local") ||
+          !messageID.startsWith('local') ||
           previouslyAssignedMessageIDs.has(messageID)
         ) {
           continue;
@@ -163,25 +163,25 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     }
 
     const newMessageInfos = new Map();
-    for (let [ messageID, assignedUploads ] of newlyAssignedUploads) {
+    for (let [messageID, assignedUploads] of newlyAssignedUploads) {
       const { uploads, threadID } = assignedUploads;
       const creatorID = this.props.viewerID;
-      invariant(creatorID, "need viewer ID in order to send a message");
+      invariant(creatorID, 'need viewer ID in order to send a message');
       const media = uploads.map(
         ({ localID, serverID, uri, mediaType, dimensions }) => {
           // This conditional is for Flow
-          if (mediaType === "photo") {
+          if (mediaType === 'photo') {
             return {
               id: serverID ? serverID : localID,
               uri,
-              type: "photo",
+              type: 'photo',
               dimensions,
             };
           } else {
             return {
               id: serverID ? serverID : localID,
               uri,
-              type: "video",
+              type: 'video',
               dimensions,
             };
           }
@@ -196,10 +196,12 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       newMessageInfos.set(messageID, messageInfo);
     }
 
-    const currentlyCompleted =
-      ChatInputStateContainer.completedMessageIDs(this.state);
-    const previouslyCompleted =
-      ChatInputStateContainer.completedMessageIDs(prevState);
+    const currentlyCompleted = ChatInputStateContainer.completedMessageIDs(
+      this.state,
+    );
+    const previouslyCompleted = ChatInputStateContainer.completedMessageIDs(
+      prevState,
+    );
     for (let messageID of currentlyCompleted) {
       if (previouslyCompleted.has(messageID)) {
         continue;
@@ -213,7 +215,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       this.sendMultimediaMessage(rawMessageInfo);
     }
 
-    for (let [ messageID, messageInfo ] of newMessageInfos) {
+    for (let [messageID, messageInfo] of newMessageInfos) {
       this.props.dispatchActionPayload(
         createLocalMessageActionType,
         messageInfo,
@@ -225,10 +227,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     localMessageID: string,
   ): RawMultimediaMessageInfo {
     const rawMessageInfo = this.props.messageStoreMessages[localMessageID];
-    invariant(
-      rawMessageInfo,
-      `rawMessageInfo ${localMessageID} should exist`,
-    );
+    invariant(rawMessageInfo, `rawMessageInfo ${localMessageID} should exist`);
     invariant(
       rawMessageInfo.type === messageTypes.IMAGES ||
         rawMessageInfo.type === messageTypes.MULTIMEDIA,
@@ -252,7 +251,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     const { localID, threadID } = messageInfo;
     invariant(
       localID !== null && localID !== undefined,
-      "localID should be set",
+      'localID should be set',
     );
     const mediaIDs = [];
     for (let { id } of messageInfo.media) {
@@ -298,47 +297,48 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     }
   }
 
-  chatInputStateSelector = _memoize((threadID: string) => createSelector(
-    (state: State) => state.pendingUploads[threadID],
-    (state: State) => state.drafts[threadID],
-    (
-      pendingUploads: ?{[localUploadID: string]: PendingMultimediaUpload},
-      draft: ?string,
-    ) => {
-      let threadPendingUploads, threadAssignedUploads;
-      if (!pendingUploads) {
-        threadPendingUploads = [];
-        threadAssignedUploads = {};
-      } else {
-        const [
-          uploadsWithMessageIDs,
-          uploadsWithoutMessageIDs,
-        ] = _partition('messageID')(pendingUploads);
-        threadPendingUploads = uploadsWithoutMessageIDs;
-        threadAssignedUploads = _groupBy('messageID')(uploadsWithMessageIDs);
-      }
-      return {
-        pendingUploads: threadPendingUploads,
-        assignedUploads: threadAssignedUploads,
-        draft: draft ? draft : "",
-        appendFiles: (files: $ReadOnlyArray<File>) =>
-          this.appendFiles(threadID, files),
-        cancelPendingUpload: (localUploadID: string) =>
-          this.cancelPendingUpload(threadID, localUploadID),
-        createMultimediaMessage: (localID?: number) =>
-          this.createMultimediaMessage(threadID, localID),
-        setDraft: (draft: string) => this.setDraft(threadID, draft),
-        messageHasUploadFailure: (localMessageID: string) =>
-          this.messageHasUploadFailure(threadAssignedUploads[localMessageID]),
-        retryMultimediaMessage: (localMessageID: string) =>
-          this.retryMultimediaMessage(
-            threadID,
-            localMessageID,
-            threadAssignedUploads[localMessageID],
-          ),
-      };
-    },
-  ));
+  chatInputStateSelector = _memoize((threadID: string) =>
+    createSelector(
+      (state: State) => state.pendingUploads[threadID],
+      (state: State) => state.drafts[threadID],
+      (
+        pendingUploads: ?{ [localUploadID: string]: PendingMultimediaUpload },
+        draft: ?string,
+      ) => {
+        let threadPendingUploads, threadAssignedUploads;
+        if (!pendingUploads) {
+          threadPendingUploads = [];
+          threadAssignedUploads = {};
+        } else {
+          const [uploadsWithMessageIDs, uploadsWithoutMessageIDs] = _partition(
+            'messageID',
+          )(pendingUploads);
+          threadPendingUploads = uploadsWithoutMessageIDs;
+          threadAssignedUploads = _groupBy('messageID')(uploadsWithMessageIDs);
+        }
+        return {
+          pendingUploads: threadPendingUploads,
+          assignedUploads: threadAssignedUploads,
+          draft: draft ? draft : '',
+          appendFiles: (files: $ReadOnlyArray<File>) =>
+            this.appendFiles(threadID, files),
+          cancelPendingUpload: (localUploadID: string) =>
+            this.cancelPendingUpload(threadID, localUploadID),
+          createMultimediaMessage: (localID?: number) =>
+            this.createMultimediaMessage(threadID, localID),
+          setDraft: (draft: string) => this.setDraft(threadID, draft),
+          messageHasUploadFailure: (localMessageID: string) =>
+            this.messageHasUploadFailure(threadAssignedUploads[localMessageID]),
+          retryMultimediaMessage: (localMessageID: string) =>
+            this.retryMultimediaMessage(
+              threadID,
+              localMessageID,
+              threadAssignedUploads[localMessageID],
+            ),
+        };
+      },
+    ),
+  );
 
   async appendFiles(threadID: string, files: $ReadOnlyArray<File>) {
     const validationResults = await Promise.all(files.map(validateFile));
@@ -386,10 +386,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
           },
         };
       },
-      () => this.uploadFiles(
-        threadID,
-        newUploads,
-      ),
+      () => this.uploadFiles(threadID, newUploads),
     );
   }
 
@@ -407,45 +404,33 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     try {
       result = await this.props.uploadMultimedia(
         upload.file,
-        (percent: number) => this.setProgress(
-          threadID,
-          upload.localID,
-          percent,
-        ),
-        (abort: () => void) => this.handleAbortCallback(
-          threadID,
-          upload.localID,
-          abort,
-        ),
+        (percent: number) =>
+          this.setProgress(threadID, upload.localID, percent),
+        (abort: () => void) =>
+          this.handleAbortCallback(threadID, upload.localID, abort),
       );
     } catch (e) {
-      this.handleUploadFailure(
-        threadID,
-        upload.localID,
-        e,
-      );
+      this.handleUploadFailure(threadID, upload.localID, e);
       return;
     }
 
-    const uploadAfterSuccess =
-      this.state.pendingUploads[threadID][upload.localID];
+    const uploadAfterSuccess = this.state.pendingUploads[threadID][
+      upload.localID
+    ];
     invariant(
       uploadAfterSuccess,
       `pendingUpload ${upload.localID}/${result.id} for ${threadID} missing ` +
         `after upload`,
     );
     if (uploadAfterSuccess.messageID) {
-      this.props.dispatchActionPayload(
-        updateMultimediaMessageMediaActionType,
-        {
-          messageID: uploadAfterSuccess.messageID,
-          currentMediaID: upload.localID,
-          mediaUpdate: {
-            id: result.id,
-            filename: undefined,
-          },
+      this.props.dispatchActionPayload(updateMultimediaMessageMediaActionType, {
+        messageID: uploadAfterSuccess.messageID,
+        currentMediaID: upload.localID,
+        mediaUpdate: {
+          id: result.id,
+          filename: undefined,
         },
-      );
+      });
     }
 
     this.setState(prevState => {
@@ -473,26 +458,24 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
 
     await preloadImage(result.uri);
 
-    const uploadAfterPreload =
-      this.state.pendingUploads[threadID][upload.localID];
+    const uploadAfterPreload = this.state.pendingUploads[threadID][
+      upload.localID
+    ];
     invariant(
       uploadAfterPreload,
       `pendingUpload ${upload.localID}/${result.id} for ${threadID} missing ` +
         `after preload`,
     );
     if (uploadAfterPreload.messageID) {
-      this.props.dispatchActionPayload(
-        updateMultimediaMessageMediaActionType,
-        {
-          messageID: uploadAfterPreload.messageID,
-          currentMediaID: uploadAfterPreload.serverID
-            ? uploadAfterPreload.serverID
-            : uploadAfterPreload.localID,
-          mediaUpdate: {
-            uri: result.uri,
-          },
+      this.props.dispatchActionPayload(updateMultimediaMessageMediaActionType, {
+        messageID: uploadAfterPreload.messageID,
+        currentMediaID: uploadAfterPreload.serverID
+          ? uploadAfterPreload.serverID
+          : uploadAfterPreload.localID,
+        mediaUpdate: {
+          uri: result.uri,
         },
-      );
+      });
     }
 
     this.setState(prevState => {
@@ -504,8 +487,8 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
           `missing while assigning URI`,
       );
       const { messageID } = currentUpload;
-      if (messageID && !messageID.startsWith("local")) {
-        const newPendingUploads = _omit([ upload.localID ])(uploads);
+      if (messageID && !messageID.startsWith('local')) {
+        const newPendingUploads = _omit([upload.localID])(uploads);
         return {
           pendingUploads: {
             ...prevState.pendingUploads,
@@ -557,11 +540,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     });
   }
 
-  handleUploadFailure(
-    threadID: string,
-    localUploadID: string,
-    e: any,
-  ) {
+  handleUploadFailure(threadID: string, localUploadID: string, e: any) {
     this.setState(prevState => {
       const uploads = prevState.pendingUploads[threadID];
       const upload = uploads[localUploadID];
@@ -569,9 +548,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         // The upload has been cancelled or completed before it failed
         return {};
       }
-      const failed = (e instanceof Error && e.message)
-        ? e.message
-        : "failed";
+      const failed = e instanceof Error && e.message ? e.message : 'failed';
       return {
         pendingUploads: {
           ...prevState.pendingUploads,
@@ -610,7 +587,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         if (pendingUpload.serverID) {
           this.props.deleteUpload(pendingUpload.serverID);
         }
-        const newPendingUploads = _omit([ localUploadID ])(currentPendingUploads);
+        const newPendingUploads = _omit([localUploadID])(currentPendingUploads);
         return {
           pendingUploads: {
             ...prevState.pendingUploads,
@@ -632,9 +609,10 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
   // Creates a MultimediaMessage from the unassigned pending uploads,
   // if there are any
   createMultimediaMessage(threadID: string, localID: ?number) {
-    const nextLocalID = (localID !== null && localID !== undefined)
-      ? localID
-      : this.props.nextLocalID;
+    const nextLocalID =
+      localID !== null && localID !== undefined
+        ? localID
+        : this.props.nextLocalID;
     const localMessageID = `local${nextLocalID}`;
     this.setState(prevState => {
       const currentPendingUploads = prevState.pendingUploads[threadID];
@@ -815,7 +793,6 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       />
     );
   }
-
 }
 
 export default connect(

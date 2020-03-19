@@ -46,7 +46,7 @@ function cookieIsExpired(lastUsed: number) {
 }
 
 type SessionParameterInfo = {|
-  isSocket: bool,
+  isSocket: boolean,
   sessionID: ?string,
   sessionIdentifierType: SessionIdentifierType,
   ipAddress: string,
@@ -54,18 +54,18 @@ type SessionParameterInfo = {|
 |};
 
 type FetchViewerResult =
-  | {| type: "valid", viewer: Viewer |}
+  | {| type: 'valid', viewer: Viewer |}
   | InvalidFetchViewerResult;
 
 type InvalidFetchViewerResult =
   | {|
-      type: "nonexistant",
+      type: 'nonexistant',
       cookieName: ?string,
       cookieSource: ?CookieSource,
       sessionParameterInfo: SessionParameterInfo,
     |}
   | {|
-      type: "invalidated",
+      type: 'invalidated',
       cookieName: string,
       cookieID: string,
       cookieSource: CookieSource,
@@ -79,10 +79,10 @@ async function fetchUserViewer(
   cookieSource: CookieSource,
   sessionParameterInfo: SessionParameterInfo,
 ): Promise<FetchViewerResult> {
-  const [ cookieID, cookiePassword ] = cookie.split(':');
+  const [cookieID, cookiePassword] = cookie.split(':');
   if (!cookieID || !cookiePassword) {
     return {
-      type: "nonexistant",
+      type: 'nonexistant',
       cookieName: cookieTypes.USER,
       cookieSource,
       sessionParameterInfo,
@@ -94,20 +94,21 @@ async function fetchUserViewer(
     FROM cookies
     WHERE id = ${cookieID} AND user IS NOT NULL
   `;
-  const [ [ result ], allSessionInfo ] = await Promise.all([
+  const [[result], allSessionInfo] = await Promise.all([
     dbQuery(query),
     fetchSessionInfo(sessionParameterInfo, cookieID),
   ]);
   if (result.length === 0) {
     return {
-      type: "nonexistant",
+      type: 'nonexistant',
       cookieName: cookieTypes.USER,
       cookieSource,
       sessionParameterInfo,
     };
   }
 
-  let sessionID = null, sessionInfo = null;
+  let sessionID = null,
+    sessionInfo = null;
   if (allSessionInfo) {
     ({ sessionID, ...sessionInfo } = allSessionInfo);
   }
@@ -130,7 +131,7 @@ async function fetchUserViewer(
     cookieIsExpired(cookieRow.last_used)
   ) {
     return {
-      type: "invalidated",
+      type: 'invalidated',
       cookieName: cookieTypes.USER,
       cookieID,
       cookieSource,
@@ -157,7 +158,7 @@ async function fetchUserViewer(
     ipAddress: sessionParameterInfo.ipAddress,
     userAgent: sessionParameterInfo.userAgent,
   });
-  return { type: "valid", viewer };
+  return { type: 'valid', viewer };
 }
 
 async function fetchAnonymousViewer(
@@ -165,10 +166,10 @@ async function fetchAnonymousViewer(
   cookieSource: CookieSource,
   sessionParameterInfo: SessionParameterInfo,
 ): Promise<FetchViewerResult> {
-  const [ cookieID, cookiePassword ] = cookie.split(':');
+  const [cookieID, cookiePassword] = cookie.split(':');
   if (!cookieID || !cookiePassword) {
     return {
-      type: "nonexistant",
+      type: 'nonexistant',
       cookieName: cookieTypes.ANONYMOUS,
       cookieSource,
       sessionParameterInfo,
@@ -180,20 +181,21 @@ async function fetchAnonymousViewer(
     FROM cookies
     WHERE id = ${cookieID} AND user IS NULL
   `;
-  const [ [ result ], allSessionInfo ] = await Promise.all([
+  const [[result], allSessionInfo] = await Promise.all([
     dbQuery(query),
     fetchSessionInfo(sessionParameterInfo, cookieID),
   ]);
   if (result.length === 0) {
     return {
-      type: "nonexistant",
+      type: 'nonexistant',
       cookieName: cookieTypes.ANONYMOUS,
       cookieSource,
       sessionParameterInfo,
     };
   }
 
-  let sessionID = null, sessionInfo = null;
+  let sessionID = null,
+    sessionInfo = null;
   if (allSessionInfo) {
     ({ sessionID, ...sessionInfo } = allSessionInfo);
   }
@@ -216,7 +218,7 @@ async function fetchAnonymousViewer(
     cookieIsExpired(cookieRow.last_used)
   ) {
     return {
-      type: "invalidated",
+      type: 'invalidated',
       cookieName: cookieTypes.ANONYMOUS,
       cookieID,
       cookieSource,
@@ -241,7 +243,7 @@ async function fetchAnonymousViewer(
     ipAddress: sessionParameterInfo.ipAddress,
     userAgent: sessionParameterInfo.userAgent,
   });
-  return { type: "valid", viewer };
+  return { type: 'valid', viewer };
 }
 
 type SessionInfo = {|
@@ -263,7 +265,7 @@ async function fetchSessionInfo(
     FROM sessions
     WHERE id = ${session} AND cookie = ${cookieID}
   `;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
   if (result.length === 0) {
     return null;
   }
@@ -297,7 +299,7 @@ async function fetchViewerFromCookieData(
     );
   } else {
     return {
-      type: "nonexistant",
+      type: 'nonexistant',
       cookieName: null,
       cookieSource: null,
       sessionParameterInfo,
@@ -306,13 +308,13 @@ async function fetchViewerFromCookieData(
 
   // We protect against CSRF attacks by making sure that on web,
   // non-GET requests cannot use a bare cookie for session identification
-  if (viewerResult.type === "valid") {
+  if (viewerResult.type === 'valid') {
     const { viewer } = viewerResult;
     invariant(
-      req.method === "GET" ||
+      req.method === 'GET' ||
         viewer.sessionIdentifierType !== sessionIdentifierTypes.COOKIE_ID ||
-        viewer.platform !== "web",
-      "non-GET request from web using sessionIdentifierTypes.COOKIE_ID",
+        viewer.platform !== 'web',
+      'non-GET request from web using sessionIdentifierTypes.COOKIE_ID',
     );
   }
 
@@ -323,32 +325,32 @@ async function fetchViewerFromRequestBody(
   body: mixed,
   sessionParameterInfo: SessionParameterInfo,
 ): Promise<FetchViewerResult> {
-  if (!body || typeof body !== "object") {
+  if (!body || typeof body !== 'object') {
     return {
-      type: "nonexistant",
+      type: 'nonexistant',
       cookieName: null,
       cookieSource: null,
       sessionParameterInfo,
     };
   }
   const cookiePair = body.cookie;
-  if (cookiePair === null || cookiePair === "") {
+  if (cookiePair === null || cookiePair === '') {
     return {
-      type: "nonexistant",
+      type: 'nonexistant',
       cookieName: null,
       cookieSource: cookieSources.BODY,
       sessionParameterInfo,
     };
   }
-  if (!cookiePair || typeof cookiePair !== "string") {
+  if (!cookiePair || typeof cookiePair !== 'string') {
     return {
-      type: "nonexistant",
+      type: 'nonexistant',
       cookieName: null,
       cookieSource: null,
       sessionParameterInfo,
     };
   }
-  const [ type, cookie ] = cookiePair.split("=");
+  const [type, cookie] = cookiePair.split('=');
   if (type === cookieTypes.USER && cookie) {
     return await fetchUserViewer(
       cookie,
@@ -363,7 +365,7 @@ async function fetchViewerFromRequestBody(
     );
   }
   return {
-    type: "nonexistant",
+    type: 'nonexistant',
     cookieName: null,
     cookieSource: null,
     sessionParameterInfo,
@@ -374,17 +376,19 @@ function getSessionParameterInfoFromRequestBody(
   req: $Request,
 ): SessionParameterInfo {
   const body = (req.body: any);
-  let sessionID = body.sessionID !== undefined || req.method !== "GET"
-    ? body.sessionID
-    : null;
-  if (sessionID === "") {
+  let sessionID =
+    body.sessionID !== undefined || req.method !== 'GET'
+      ? body.sessionID
+      : null;
+  if (sessionID === '') {
     sessionID = null;
   }
-  const sessionIdentifierType = req.method === "GET" || sessionID !== undefined
-    ? sessionIdentifierTypes.BODY_SESSION_ID
-    : sessionIdentifierTypes.COOKIE_ID;
-  const ipAddress = req.get("X-Forwarded-For");
-  invariant(ipAddress, "X-Forwarded-For header missing");
+  const sessionIdentifierType =
+    req.method === 'GET' || sessionID !== undefined
+      ? sessionIdentifierTypes.BODY_SESSION_ID
+      : sessionIdentifierTypes.COOKIE_ID;
+  const ipAddress = req.get('X-Forwarded-For');
+  invariant(ipAddress, 'X-Forwarded-For header missing');
   return {
     isSocket: false,
     sessionID,
@@ -399,7 +403,7 @@ async function fetchViewerForJSONRequest(req: $Request): Promise<Viewer> {
   const sessionParameterInfo = getSessionParameterInfoFromRequestBody(req);
   let result = await fetchViewerFromRequestBody(req.body, sessionParameterInfo);
   if (
-    result.type === "nonexistant" &&
+    result.type === 'nonexistant' &&
     (result.cookieSource === null || result.cookieSource === undefined)
   ) {
     result = await fetchViewerFromCookieData(req, sessionParameterInfo);
@@ -407,7 +411,7 @@ async function fetchViewerForJSONRequest(req: $Request): Promise<Viewer> {
   return await handleFetchViewerResult(result);
 }
 
-const webPlatformDetails = { platform: "web" };
+const webPlatformDetails = { platform: 'web' };
 async function fetchViewerForHomeRequest(req: $Request): Promise<Viewer> {
   assertSecureRequest(req);
   const sessionParameterInfo = getSessionParameterInfoFromRequestBody(req);
@@ -422,14 +426,15 @@ async function fetchViewerForSocket(
   assertSecureRequest(req);
   const { sessionIdentification } = clientMessage.payload;
   const { sessionID } = sessionIdentification;
-  const ipAddress = req.get("X-Forwarded-For");
-  invariant(ipAddress, "X-Forwarded-For header missing");
+  const ipAddress = req.get('X-Forwarded-For');
+  invariant(ipAddress, 'X-Forwarded-For header missing');
   const sessionParameterInfo = {
     isSocket: true,
     sessionID,
-    sessionIdentifierType: sessionID !== undefined
-      ? sessionIdentifierTypes.BODY_SESSION_ID
-      : sessionIdentifierTypes.COOKIE_ID,
+    sessionIdentifierType:
+      sessionID !== undefined
+        ? sessionIdentifierTypes.BODY_SESSION_ID
+        : sessionIdentifierTypes.COOKIE_ID,
     ipAddress,
     userAgent: req.get('User-Agent'),
   };
@@ -439,12 +444,12 @@ async function fetchViewerForSocket(
     sessionParameterInfo,
   );
   if (
-    result.type === "nonexistant" &&
+    result.type === 'nonexistant' &&
     (result.cookieSource === null || result.cookieSource === undefined)
   ) {
     result = await fetchViewerFromCookieData(req, sessionParameterInfo);
   }
-  if (result.type === "valid") {
+  if (result.type === 'valid') {
     return result.viewer;
   }
 
@@ -455,18 +460,16 @@ async function fetchViewerForSocket(
     // can't be sent until after the handshake. Consequently, by the time we
     // know that a cookie may be invalid, we are no longer communicating via
     // HTTP, and have no way to set a new cookie for HEADER (web) clients.
-    const platformDetails = result.type === "invalidated"
-      ? result.platformDetails
-      : null;
-    const deviceToken = result.type === "invalidated"
-      ? result.deviceToken
-      : null;
+    const platformDetails =
+      result.type === 'invalidated' ? result.platformDetails : null;
+    const deviceToken =
+      result.type === 'invalidated' ? result.deviceToken : null;
     promises.anonymousViewerData = createNewAnonymousCookie({
       platformDetails,
       deviceToken,
     });
   }
-  if (result.type === "invalidated") {
+  if (result.type === 'invalidated') {
     promises.deleteCookie = deleteCookie(result.cookieID);
   }
   const { anonymousViewerData } = await promiseAll(promises);
@@ -482,21 +485,19 @@ async function handleFetchViewerResult(
   result: FetchViewerResult,
   inputPlatformDetails?: PlatformDetails,
 ) {
-  if (result.type === "valid") {
+  if (result.type === 'valid') {
     return result.viewer;
   }
 
   let platformDetails = inputPlatformDetails;
-  if (!platformDetails && result.type === "invalidated") {
+  if (!platformDetails && result.type === 'invalidated') {
     platformDetails = result.platformDetails;
   }
-  const deviceToken = result.type === "invalidated" ? result.deviceToken : null;
+  const deviceToken = result.type === 'invalidated' ? result.deviceToken : null;
 
-  const [ anonymousViewerData ] = await Promise.all([
+  const [anonymousViewerData] = await Promise.all([
     createNewAnonymousCookie({ platformDetails, deviceToken }),
-    result.type === "invalidated"
-      ? deleteCookie(result.cookieID)
-      : null,
+    result.type === 'invalidated' ? deleteCookie(result.cookieID) : null,
   ]);
 
   return createViewerForInvalidFetchViewerResult(result, anonymousViewerData);
@@ -540,7 +541,8 @@ function addSessionChangeInfoToResult(
   res: $Response,
   result: Object,
 ) {
-  let threadInfos = {}, userInfos = {};
+  let threadInfos = {},
+    userInfos = {};
   if (result.cookieChange) {
     ({ threadInfos, userInfos } = result.cookieChange);
   }
@@ -590,16 +592,15 @@ async function createNewAnonymousCookie(
   params: CookieCreationParams,
 ): Promise<AnonymousViewerData> {
   const { platformDetails, deviceToken } = params;
-  const { platform, ...versions } = (platformDetails || defaultPlatformDetails);
-  const versionsString = Object.keys(versions).length > 0
-    ? JSON.stringify(versions)
-    : null;
+  const { platform, ...versions } = platformDetails || defaultPlatformDetails;
+  const versionsString =
+    Object.keys(versions).length > 0 ? JSON.stringify(versions) : null;
 
   const time = Date.now();
   const cookiePassword = crypto.randomBytes(32).toString('hex');
   const cookieHash = bcrypt.hashSync(cookiePassword);
-  const [ [ id ] ] = await Promise.all([
-    createIDs("cookies", 1),
+  const [[id]] = await Promise.all([
+    createIDs('cookies', 1),
     deviceToken ? clearDeviceToken(deviceToken) : undefined,
   ]);
 
@@ -645,16 +646,15 @@ async function createNewUserCookie(
   params: CookieCreationParams,
 ): Promise<UserViewerData> {
   const { platformDetails, deviceToken } = params;
-  const { platform, ...versions } = (platformDetails || defaultPlatformDetails);
-  const versionsString = Object.keys(versions).length > 0
-    ? JSON.stringify(versions)
-    : null;
+  const { platform, ...versions } = platformDetails || defaultPlatformDetails;
+  const versionsString =
+    Object.keys(versions).length > 0 ? JSON.stringify(versions) : null;
 
   const time = Date.now();
   const cookiePassword = crypto.randomBytes(32).toString('hex');
   const cookieHash = bcrypt.hashSync(cookiePassword);
-  const [ [ cookieID ] ] = await Promise.all([
-    createIDs("cookies", 1),
+  const [[cookieID]] = await Promise.all([
+    createIDs('cookies', 1),
     deviceToken ? clearDeviceToken(deviceToken) : undefined,
   ]);
 
@@ -698,7 +698,7 @@ async function setNewSession(
   initialLastUpdate: number,
 ): Promise<void> {
   if (viewer.sessionIdentifierType !== sessionIdentifierTypes.COOKIE_ID) {
-    const [ sessionID ] = await createIDs("sessions", 1);
+    const [sessionID] = await createIDs('sessions', 1);
     viewer.setSessionID(sessionID);
   }
   await createSession(viewer, calendarQuery, initialLastUpdate);
@@ -742,11 +742,7 @@ const cookieOptions = {
   maxAge: cookieLifetime,
 };
 function addActualHTTPCookie(viewer: Viewer, res: $Response) {
-  res.cookie(
-    viewer.cookieName,
-    viewer.cookieString,
-    cookieOptions,
-  );
+  res.cookie(viewer.cookieName, viewer.cookieString, cookieOptions);
   if (viewer.cookieName !== viewer.initialCookieName) {
     res.clearCookie(viewer.initialCookieName, cookieOptions);
   }
@@ -772,9 +768,8 @@ async function setCookiePlatformDetails(
 ): Promise<void> {
   viewer.setPlatformDetails(platformDetails);
   const { platform, ...versions } = platformDetails;
-  const versionsString = Object.keys(versions).length > 0
-    ? JSON.stringify(versions)
-    : null;
+  const versionsString =
+    Object.keys(versions).length > 0 ? JSON.stringify(versions) : null;
   const query = SQL`
     UPDATE cookies
     SET platform = ${platform}, versions = ${versionsString}

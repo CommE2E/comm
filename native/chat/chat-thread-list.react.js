@@ -10,12 +10,7 @@ import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
 import type { Styles } from '../types/styles';
 
 import * as React from 'react';
-import {
-  View,
-  FlatList,
-  Platform,
-  TextInput,
-} from 'react-native';
+import { View, FlatList, Platform, TextInput } from 'react-native';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
 import _sum from 'lodash/fp/sum';
@@ -38,14 +33,16 @@ import {
 import { styleSelector } from '../themes/colors';
 import Search from '../components/search.react';
 
-const floatingActions = [{
-  text: 'Compose',
-  icon: (<IonIcon name="md-create" size={24} color="#FFFFFF" />),
-  name: 'compose',
-  position: 1,
-}];
+const floatingActions = [
+  {
+    text: 'Compose',
+    icon: <IonIcon name="md-create" size={24} color="#FFFFFF" />,
+    name: 'compose',
+    position: 1,
+  },
+];
 
-type Item = ChatThreadItem | {| type: "search", searchText: string |};
+type Item = ChatThreadItem | {| type: 'search', searchText: string |};
 
 type Props = {|
   navigation: NavigationScreenProp<NavigationRoute>,
@@ -61,7 +58,6 @@ type State = {|
 |};
 type PropsAndState = {| ...Props, ...State |};
 class ChatThreadList extends React.PureComponent<Props, State> {
-
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
@@ -76,13 +72,14 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   };
   static navigationOptions = ({ navigation }) => ({
     title: 'Threads',
-    headerRight: Platform.OS === "ios"
-      ? (<ComposeThreadButton navigate={navigation.navigate} />)
-      : null,
-    headerBackTitle: "Back",
+    headerRight:
+      Platform.OS === 'ios' ? (
+        <ComposeThreadButton navigate={navigation.navigate} />
+      ) : null,
+    headerBackTitle: 'Back',
   });
   state = {
-    searchText: "",
+    searchText: '',
     searchResults: new Set(),
   };
   searchInput: ?TextInput;
@@ -105,7 +102,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
 
   renderItem = (row: { item: Item }) => {
     const item = row.item;
-    if (item.type === "search") {
+    if (item.type === 'search') {
       return (
         <Search
           searchText={this.state.searchText}
@@ -116,40 +113,36 @@ class ChatThreadList extends React.PureComponent<Props, State> {
         />
       );
     }
-    return (
-      <ChatThreadListItem data={item} onPressItem={this.onPressItem} />
-    );
-  }
+    return <ChatThreadListItem data={item} onPressItem={this.onPressItem} />;
+  };
 
   searchInputRef = (searchInput: ?TextInput) => {
     this.searchInput = searchInput;
-  }
+  };
 
   static keyExtractor(item: Item) {
     if (item.threadInfo) {
       return item.threadInfo.id;
     } else {
-      return "search";
+      return 'search';
     }
   }
 
-  static getItemLayout(
-    data: ?$ReadOnlyArray<Item>,
-    index: number,
-  ) {
+  static getItemLayout(data: ?$ReadOnlyArray<Item>, index: number) {
     if (!data) {
       return { length: 0, offset: 0, index };
     }
-    const offset =
-      ChatThreadList.heightOfItems(data.filter((_, i) => i < index));
+    const offset = ChatThreadList.heightOfItems(
+      data.filter((_, i) => i < index),
+    );
     const item = data[index];
     const length = item ? ChatThreadList.itemHeight(item) : 0;
     return { length, offset, index };
   }
 
   static itemHeight(item: Item): number {
-    if (item.type === "search") {
-      return Platform.OS === "ios" ? 54.5 : 55;
+    if (item.type === 'search') {
+      return Platform.OS === 'ios' ? 54.5 : 55;
     }
     return 60;
   }
@@ -169,18 +162,15 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     ): Item[] => {
       let chatItems;
       if (!searchText) {
-        chatItems = chatListData.filter(
-          item => viewerIsMember(item.threadInfo),
+        chatItems = chatListData.filter(item =>
+          viewerIsMember(item.threadInfo),
         );
       } else {
-        chatItems = chatListData.filter(
-          item => searchResults.has(item.threadInfo.id),
+        chatItems = chatListData.filter(item =>
+          searchResults.has(item.threadInfo.id),
         );
       }
-      return [
-        { type: "search", searchText },
-        ...chatItems,
-      ];
+      return [{ type: 'search', searchText }, ...chatItems];
     },
   );
 
@@ -192,7 +182,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     // this.props.viewerID is in extraData since it's used by MessagePreview
     // within ChatThreadListItem
     let floatingAction = null;
-    if (Platform.OS === "android") {
+    if (Platform.OS === 'android') {
       floatingAction = (
         <FloatingAction
           actions={floatingActions}
@@ -222,15 +212,15 @@ class ChatThreadList extends React.PureComponent<Props, State> {
 
   flatListRef = (flatList: ?FlatList) => {
     this.flatList = flatList;
-  }
+  };
 
   onChangeSearchText = (searchText: string) => {
     const results = this.props.threadSearchIndex.getSearchResults(searchText);
     this.setState({ searchText, searchResults: new Set(results) });
-  }
+  };
 
   onPressItem = (threadInfo: ThreadInfo) => {
-    this.onChangeSearchText("");
+    this.onChangeSearchText('');
     if (this.searchInput) {
       this.searchInput.blur();
     }
@@ -239,15 +229,14 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       params: { threadInfo },
       key: `${MessageListRouteName}${threadInfo.id}`,
     });
-  }
+  };
 
   composeThread = () => {
     this.props.navigation.navigate({
       routeName: ComposeThreadRouteName,
       params: {},
     });
-  }
-
+  };
 }
 
 const styles = {
@@ -260,7 +249,7 @@ const styles = {
   search: {
     marginBottom: 8,
     marginHorizontal: 12,
-    marginTop: Platform.OS === "android" ? 10 : 8,
+    marginTop: Platform.OS === 'android' ? 10 : 8,
   },
   flatList: {
     flex: 1,

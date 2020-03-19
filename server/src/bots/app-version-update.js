@@ -5,7 +5,7 @@ import { messageTypes } from 'lib/types/message-types';
 import invariant from 'invariant';
 
 import bots from 'lib/facts/bots';
-import { promiseAll } from 'lib/utils/promises'
+import { promiseAll } from 'lib/utils/promises';
 
 import { dbQuery, SQL } from '../database';
 import { createSquadbotThread } from './squadbot';
@@ -50,7 +50,7 @@ async function botherMonthlyActivesToUpdateAppVersion(): Promise<void> {
     WHERE v.id IS NOT NULL AND x.max_code_version < v.code_version
     GROUP BY x.user
   `;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
 
   const codeVersions = new Map();
   const squadbotThreads = new Map();
@@ -74,15 +74,16 @@ async function botherMonthlyActivesToUpdateAppVersion(): Promise<void> {
 
   const time = Date.now();
   const newMessageDatas = [];
-  for (let [ userID, threadID ] of squadbotThreads) {
+  for (let [userID, threadID] of squadbotThreads) {
     const codeVersion = codeVersions.get(userID);
-    invariant(codeVersion, "should be set");
+    invariant(codeVersion, 'should be set');
     newMessageDatas.push({
       type: messageTypes.TEXT,
       threadID,
       creatorID: squadbot.userID,
       time,
-      text: `beep boop, I'm a bot! one or more of your devices is on an old ` +
+      text:
+        `beep boop, I'm a bot! one or more of your devices is on an old ` +
         `version (v${codeVersion}). any chance you could update it? on ` +
         `Android you do this using the Play Store, same as any other app. on ` +
         `iOS, you need to open up the Testflight app and update from there. ` +
@@ -94,6 +95,4 @@ async function botherMonthlyActivesToUpdateAppVersion(): Promise<void> {
   await createMessages(squadbotViewer, newMessageDatas);
 }
 
-export {
-  botherMonthlyActivesToUpdateAppVersion,
-};
+export { botherMonthlyActivesToUpdateAppVersion };

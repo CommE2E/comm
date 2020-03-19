@@ -43,7 +43,7 @@ async function accountUpdater(
   const newPassword = update.updatedFields.password;
 
   const fetchPromises = {};
-  fetchPromises.currentUserInfos = fetchLoggedInUserInfos([ viewer.userID ]);
+  fetchPromises.currentUserInfos = fetchLoggedInUserInfos([viewer.userID]);
   if (email) {
     if (email.search(validEmailRegex) === -1) {
       throw new ServerError('invalid_email');
@@ -59,7 +59,7 @@ async function accountUpdater(
     fetchPromises,
   );
 
-  const [ verifyResult ] = verifyQuery;
+  const [verifyResult] = verifyQuery;
   if (verifyResult.length === 0) {
     throw new ServerError('internal_error');
   }
@@ -76,7 +76,7 @@ async function accountUpdater(
   const changedFields = {};
   let currentUserInfoChanged = false;
   if (email && email !== verifyRow.email) {
-    const [ emailResult ] = emailQuery;
+    const [emailResult] = emailQuery;
     const emailRow = emailResult[0];
     if (emailRow.count !== 0) {
       throw new ServerError('email_taken');
@@ -102,29 +102,31 @@ async function accountUpdater(
   }
 
   if (Object.keys(changedFields).length > 0) {
-    savePromises.push(dbQuery(SQL`
+    savePromises.push(
+      dbQuery(SQL`
       UPDATE users SET ${changedFields} WHERE id = ${viewer.userID}
-    `));
+    `),
+    );
   }
 
   await Promise.all(savePromises);
 
   if (currentUserInfoChanged) {
-    const updateDatas = [{
-      type: updateTypes.UPDATE_CURRENT_USER,
-      userID: viewer.userID,
-      time: Date.now(),
-    }];
-    await createUpdates(
-      updateDatas,
-      { viewer, updatesForCurrentSession: "broadcast" },
-    );
+    const updateDatas = [
+      {
+        type: updateTypes.UPDATE_CURRENT_USER,
+        userID: viewer.userID,
+        time: Date.now(),
+      },
+    ];
+    await createUpdates(updateDatas, {
+      viewer,
+      updatesForCurrentSession: 'broadcast',
+    });
   }
 }
 
-async function checkAndSendVerificationEmail(
-  viewer: Viewer,
-): Promise<void> {
+async function checkAndSendVerificationEmail(viewer: Viewer): Promise<void> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
@@ -134,7 +136,7 @@ async function checkAndSendVerificationEmail(
     FROM users
     WHERE id = ${viewer.userID}
   `;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
   if (result.length === 0) {
     throw new ServerError('internal_error');
   }
@@ -157,32 +159,29 @@ async function checkAndSendPasswordResetEmail(request: ResetPasswordRequest) {
     WHERE LCASE(username) = LCASE(${request.usernameOrEmail})
       OR LCASE(email) = LCASE(${request.usernameOrEmail})
   `;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
   if (result.length === 0) {
     throw new ServerError('invalid_user');
   }
   const row = result[0];
 
-  await sendPasswordResetEmail(
-    row.id.toString(),
-    row.username,
-    row.email,
-  );
+  await sendPasswordResetEmail(row.id.toString(), row.username, row.email);
 }
 
 async function updatePassword(
   viewer: Viewer,
   request: UpdatePasswordRequest,
 ): Promise<LogInResponse> {
-  if (request.password.trim() === "") {
+  if (request.password.trim() === '') {
     throw new ServerError('empty_password');
   }
 
   const calendarQuery = request.calendarQuery;
   const promises = {};
   if (calendarQuery) {
-    promises.verifyCalendarQueryThreadIDs =
-      verifyCalendarQueryThreadIDs(calendarQuery);
+    promises.verifyCalendarQueryThreadIDs = verifyCalendarQueryThreadIDs(
+      calendarQuery,
+    );
   }
   promises.verificationResult = verifyCode(request.code);
   const { verificationResult } = await promiseAll(promises);
@@ -197,7 +196,7 @@ async function updatePassword(
   `;
   const hash = bcrypt.hashSync(request.password);
   const updateQuery = SQL`UPDATE users SET hash = ${hash} WHERE id = ${userID}`;
-  const [ [ userResult ] ] = await Promise.all([
+  const [[userResult]] = await Promise.all([
     dbQuery(userQuery),
     dbQuery(updateQuery),
   ]);
@@ -210,11 +209,11 @@ async function updatePassword(
   const deviceToken = request.deviceTokenUpdateRequest
     ? request.deviceTokenUpdateRequest.deviceToken
     : viewer.deviceToken;
-  const [ userViewerData ] = await Promise.all([
-    createNewUserCookie(
-      userID,
-      { platformDetails: request.platformDetails, deviceToken },
-    ),
+  const [userViewerData] = await Promise.all([
+    createNewUserCookie(userID, {
+      platformDetails: request.platformDetails,
+      deviceToken,
+    }),
     clearVerifyCodes(verificationResult),
   ]);
   viewer.setNewCookie(userViewerData);
@@ -228,14 +227,10 @@ async function updatePassword(
   }
   const threadSelectionCriteria = { threadCursors, joinedThreads: true };
 
-  const [ threadsResult, messagesResult, entriesResult ] = await Promise.all([
+  const [threadsResult, messagesResult, entriesResult] = await Promise.all([
     fetchThreadInfos(viewer),
-    fetchMessageInfos(
-      viewer,
-      threadSelectionCriteria,
-      defaultNumberPerThread,
-    ),
-    calendarQuery ? fetchEntryInfos(viewer, [ calendarQuery ]) : undefined,
+    fetchMessageInfos(viewer, threadSelectionCriteria, defaultNumberPerThread),
+    calendarQuery ? fetchEntryInfos(viewer, [calendarQuery]) : undefined,
   ]);
 
   const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;

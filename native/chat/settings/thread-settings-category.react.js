@@ -11,7 +11,7 @@ import { connect } from 'lib/utils/redux-utils';
 
 import { styleSelector } from '../../themes/colors';
 
-export type CategoryType = "full" | "outline" | "unpadded";
+export type CategoryType = 'full' | 'outline' | 'unpadded';
 type HeaderProps = {|
   type: CategoryType,
   title: string,
@@ -20,21 +20,19 @@ type HeaderProps = {|
 |};
 function ThreadSettingsCategoryHeader(props: HeaderProps) {
   let contentStyle, paddingStyle;
-  if (props.type === "full") {
+  if (props.type === 'full') {
     contentStyle = props.styles.fullHeader;
     paddingStyle = props.styles.fullHeaderPadding;
-  } else if (props.type === "outline") {
-  } else if (props.type === "unpadded") {
+  } else if (props.type === 'outline') {
+  } else if (props.type === 'unpadded') {
     contentStyle = props.styles.fullHeader;
   } else {
-    invariant(false, "invalid ThreadSettingsCategory type");
+    invariant(false, 'invalid ThreadSettingsCategory type');
   }
   return (
     <View>
-      <View style={[ props.styles.header, contentStyle ]}>
-        <Text style={props.styles.title}>
-          {props.title.toUpperCase()}
-        </Text>
+      <View style={[props.styles.header, contentStyle]}>
+        <Text style={props.styles.title}>{props.title.toUpperCase()}</Text>
       </View>
       <View style={paddingStyle} />
     </View>
@@ -48,19 +46,19 @@ type FooterProps = {|
 |};
 function ThreadSettingsCategoryFooter(props: FooterProps) {
   let contentStyle, paddingStyle;
-  if (props.type === "full") {
+  if (props.type === 'full') {
     contentStyle = props.styles.fullFooter;
     paddingStyle = props.styles.fullFooterPadding;
-  } else if (props.type === "outline") {
-  } else if (props.type === "unpadded") {
+  } else if (props.type === 'outline') {
+  } else if (props.type === 'unpadded') {
     contentStyle = props.styles.fullFooter;
   } else {
-    invariant(false, "invalid ThreadSettingsCategory type");
+    invariant(false, 'invalid ThreadSettingsCategory type');
   }
   return (
     <View>
       <View style={paddingStyle} />
-      <View style={[ props.styles.footer, contentStyle ]} />
+      <View style={[props.styles.footer, contentStyle]} />
     </View>
   );
 }
@@ -80,7 +78,7 @@ const styles = {
     paddingLeft: 24,
     paddingBottom: 3,
     fontSize: 12,
-    fontWeight: "400",
+    fontWeight: '400',
     color: 'panelBackgroundLabel',
   },
   fullHeader: {
@@ -103,17 +101,13 @@ const styles = {
 };
 const stylesSelector = styleSelector(styles);
 
-const WrappedThreadSettingsCategoryHeader = connect(
-  (state: AppState) => ({
-    styles: stylesSelector(state),
-  }),
-)(ThreadSettingsCategoryHeader);
+const WrappedThreadSettingsCategoryHeader = connect((state: AppState) => ({
+  styles: stylesSelector(state),
+}))(ThreadSettingsCategoryHeader);
 
-const WrappedThreadSettingsCategoryFooter = connect(
-  (state: AppState) => ({
-    styles: stylesSelector(state),
-  }),
-)(ThreadSettingsCategoryFooter);
+const WrappedThreadSettingsCategoryFooter = connect((state: AppState) => ({
+  styles: stylesSelector(state),
+}))(ThreadSettingsCategoryFooter);
 
 export {
   WrappedThreadSettingsCategoryHeader as ThreadSettingsCategoryHeader,

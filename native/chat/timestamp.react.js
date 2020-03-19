@@ -20,7 +20,7 @@ type Props = {|
   styles: Styles,
 |};
 function Timestamp(props: Props) {
-  const style = [ props.styles.timestamp ];
+  const style = [props.styles.timestamp];
   if (props.display === 'modal') {
     style.push(props.styles.modal);
   }
@@ -53,7 +53,4 @@ const WrappedTimestamp = connect((state: AppState) => ({
   styles: stylesSelector(state),
 }))(Timestamp);
 
-export {
-  WrappedTimestamp as Timestamp,
-  timestampHeight,
-};
+export { WrappedTimestamp as Timestamp, timestampHeight };

@@ -3,9 +3,9 @@
 type ScriptContext = {|
   // Prevents all mutations from occuring,
   // eg. MySQL INSERT/DELETE/UPDATE, Redis publish, etc.
-  dryRun?: bool,
+  dryRun?: boolean,
   // Multiple statements in a single SQL query
-  allowMultiStatementSQLQueries?: bool,
+  allowMultiStatementSQLQueries?: boolean,
 |};
 
 let scriptContext: ?ScriptContext = null;
@@ -18,7 +18,4 @@ function setScriptContext(newScriptContext: ?ScriptContext) {
   scriptContext = newScriptContext;
 }
 
-export {
-  getScriptContext,
-  setScriptContext,
-};
+export { getScriptContext, setScriptContext };

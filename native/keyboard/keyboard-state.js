@@ -4,11 +4,11 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 
 export type KeyboardState = {|
-  keyboardShowing: bool,
+  keyboardShowing: boolean,
   dismissKeyboard: () => void,
-  dismissKeyboardIfShowing: () => bool,
-  systemKeyboardShowing: bool,
-  mediaGalleryOpen: bool,
+  dismissKeyboardIfShowing: () => boolean,
+  systemKeyboardShowing: boolean,
+  mediaGalleryOpen: boolean,
   showMediaGallery: (threadID: string) => void,
   hideMediaGallery: () => void,
   getMediaGalleryThreadID: () => ?string,
@@ -30,23 +30,21 @@ const KeyboardContext = React.createContext<?KeyboardState>(null);
 function withKeyboardState<
   AllProps: {},
   ComponentType: React.ComponentType<AllProps>,
->(Component: ComponentType): React.ComponentType<$Diff<
-  React.ElementConfig<ComponentType>,
-  { keyboardState: ?KeyboardState },
->> {
-  class KeyboardStateHOC extends React.PureComponent<$Diff<
-    React.ElementConfig<ComponentType>,
-    { keyboardState: ?KeyboardState },
-  >> {
+>(
+  Component: ComponentType,
+): React.ComponentType<
+  $Diff<React.ElementConfig<ComponentType>, { keyboardState: ?KeyboardState }>,
+> {
+  class KeyboardStateHOC extends React.PureComponent<
+    $Diff<
+      React.ElementConfig<ComponentType>,
+      { keyboardState: ?KeyboardState },
+    >,
+  > {
     render() {
       return (
         <KeyboardContext.Consumer>
-          {value => (
-            <Component
-              {...this.props}
-              keyboardState={value}
-            />
-          )}
+          {value => <Component {...this.props} keyboardState={value} />}
         </KeyboardContext.Consumer>
       );
     }
@@ -54,8 +52,4 @@ function withKeyboardState<
   return KeyboardStateHOC;
 }
 
-export {
-  keyboardStatePropType,
-  KeyboardContext,
-  withKeyboardState,
-};
+export { keyboardStatePropType, KeyboardContext, withKeyboardState };

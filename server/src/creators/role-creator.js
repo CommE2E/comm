@@ -17,10 +17,12 @@ type InitialRoles = {|
 async function createInitialRolesForNewThread(
   threadID: string,
 ): Promise<InitialRoles> {
-  const { defaultPermissions, creatorPermissions }
-    = getRolePermissionBlobsForChat();
-  const [ defaultRoleID, creatorRoleID ] = await createIDs(
-    "roles",
+  const {
+    defaultPermissions,
+    creatorPermissions,
+  } = getRolePermissionBlobsForChat();
+  const [defaultRoleID, creatorRoleID] = await createIDs(
+    'roles',
     creatorPermissions ? 2 : 1,
   );
 
@@ -29,7 +31,7 @@ async function createInitialRolesForNewThread(
     [
       defaultRoleID,
       threadID,
-      "Members",
+      'Members',
       JSON.stringify(defaultPermissions),
       time,
     ],
@@ -38,7 +40,7 @@ async function createInitialRolesForNewThread(
     newRows.push([
       creatorRoleID,
       threadID,
-      "Admins",
+      'Admins',
       JSON.stringify(creatorPermissions),
       time,
     ]);
@@ -51,7 +53,7 @@ async function createInitialRolesForNewThread(
 
   const defaultRoleInfo = {
     id: defaultRoleID,
-    name: "Members",
+    name: 'Members',
     permissions: defaultPermissions,
     isDefault: true,
   };
@@ -60,7 +62,7 @@ async function createInitialRolesForNewThread(
       default: defaultRoleInfo,
       creator: {
         id: creatorRoleID,
-        name: "Admins",
+        name: 'Admins',
         permissions: creatorPermissions,
         isDefault: false,
       },

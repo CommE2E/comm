@@ -17,12 +17,11 @@ type Props = {|
   children: React.Node,
 |};
 type State = {|
-  systemKeyboardShowing: bool,
-  mediaGalleryOpen: bool,
+  systemKeyboardShowing: boolean,
+  mediaGalleryOpen: boolean,
   mediaGalleryThreadID: ?string,
 |};
 class KeyboardStateContainer extends React.PureComponent<Props, State> {
-
   static propTypes = {
     children: PropTypes.node.isRequired,
   };
@@ -36,11 +35,11 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
 
   keyboardShow = () => {
     this.setState({ systemKeyboardShowing: true });
-  }
+  };
 
   keyboardDismiss = () => {
     this.setState({ systemKeyboardShowing: false });
-  }
+  };
 
   componentDidMount() {
     this.keyboardShowListener = addKeyboardShowListener(this.keyboardShow);
@@ -63,7 +62,7 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
   dismissKeyboard = () => {
     KeyboardUtils.dismiss();
     this.hideMediaGallery();
-  }
+  };
 
   dismissKeyboardIfShowing = () => {
     if (!this.keyboardShowing) {
@@ -71,7 +70,7 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
     }
     this.dismissKeyboard();
     return true;
-  }
+  };
 
   get keyboardShowing() {
     const { systemKeyboardShowing, mediaGalleryOpen } = this.state;
@@ -80,11 +79,11 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
 
   showMediaGallery = (threadID: string) => {
     this.setState({ mediaGalleryOpen: true, mediaGalleryThreadID: threadID });
-  }
+  };
 
   hideMediaGallery = () => {
     this.setState({ mediaGalleryOpen: false, mediaGalleryThreadID: null });
-  }
+  };
 
   getMediaGalleryThreadID = () => this.state.mediaGalleryThreadID;
 
@@ -108,9 +107,10 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
       hideMediaGallery,
       getMediaGalleryThreadID,
     };
-    const keyboardInputHost = (Platform.OS === "android" && mediaGalleryOpen)
-      ? <KeyboardInputHost />
-      : null;
+    const keyboardInputHost =
+      Platform.OS === 'android' && mediaGalleryOpen ? (
+        <KeyboardInputHost />
+      ) : null;
     return (
       <KeyboardContext.Provider value={keyboardState}>
         {this.props.children}
@@ -118,7 +118,6 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
       </KeyboardContext.Provider>
     );
   }
-
 }
 
 export default KeyboardStateContainer;

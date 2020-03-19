@@ -22,7 +22,6 @@ function channelNameForUpdateTarget(updateTarget: UpdateTarget): string {
 }
 
 class RedisPublisher {
-
   pub: RedisClient;
 
   constructor() {
@@ -43,13 +42,11 @@ class RedisPublisher {
   end() {
     this.pub.unref();
   }
-
 }
 const publisher = new RedisPublisher();
 
-type OnMessage = (message: RedisMessage) => (void | Promise<void>);
+type OnMessage = (message: RedisMessage) => void | Promise<void>;
 class RedisSubscriber {
-
   sub: RedisClient;
   instanceID: string;
   onMessageCallback: OnMessage;
@@ -63,15 +60,12 @@ class RedisSubscriber {
     this.sub.subscribe(channelNameForUpdateTarget({ userID }));
     this.sub.subscribe(channelNameForUpdateTarget(sessionIdentifier));
 
-    publisher.sendMessage(
-      sessionIdentifier,
-      {
-        type: redisMessageTypes.START_SUBSCRIPTION,
-        instanceID: this.instanceID,
-      },
-    );
+    publisher.sendMessage(sessionIdentifier, {
+      type: redisMessageTypes.START_SUBSCRIPTION,
+      instanceID: this.instanceID,
+    });
 
-    this.sub.on("message", this.onMessage);
+    this.sub.on('message', this.onMessage);
   }
 
   static messageFromString(messageString: string): ?RedisMessage {
@@ -96,16 +90,11 @@ class RedisSubscriber {
       }
     }
     this.onMessageCallback(message);
-  }
+  };
 
   quit() {
     this.sub.quit();
   }
-
 }
 
-export {
-  channelNameForUpdateTarget,
-  publisher,
-  RedisSubscriber,
-};
+export { channelNameForUpdateTarget, publisher, RedisSubscriber };

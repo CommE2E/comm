@@ -17,7 +17,7 @@ async function main() {
 
 async function addImageSizeToUploadsTable() {
   await dbQuery(SQL`ALTER TABLE uploads ADD extra JSON NULL AFTER secret;`);
-  const [ result ] = await dbQuery(SQL`
+  const [result] = await dbQuery(SQL`
     SELECT id, content
     FROM uploads
     WHERE type = "photo" AND extra IS NULL

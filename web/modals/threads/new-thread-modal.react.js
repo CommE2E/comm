@@ -17,10 +17,7 @@ import invariant from 'invariant';
 import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
-import {
-  newThreadActionTypes,
-  newThread,
-} from 'lib/actions/thread-actions';
+import { newThreadActionTypes, newThread } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   generateRandomColor,
@@ -36,7 +33,7 @@ type Props = {
   onClose: () => void,
   parentThreadID?: ?string,
   // Redux state
-  inputDisabled: bool,
+  inputDisabled: boolean,
   parentThreadInfo: ?ThreadInfo,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
@@ -52,7 +49,6 @@ type State = {
 };
 
 class NewThreadModal extends React.PureComponent<Props, State> {
-
   static propTypes = {
     onClose: PropTypes.func.isRequired,
     parentThreadID: PropTypes.string,
@@ -68,20 +64,18 @@ class NewThreadModal extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      threadType: props.parentThreadID
-        ? undefined
-        : threadTypes.CHAT_SECRET,
-      name: "",
-      description: "",
+      threadType: props.parentThreadID ? undefined : threadTypes.CHAT_SECRET,
+      name: '',
+      description: '',
       color: props.parentThreadInfo
         ? props.parentThreadInfo.color
         : generateRandomColor(),
-      errorMessage: "",
+      errorMessage: '',
     };
   }
 
   componentDidMount() {
-    invariant(this.nameInput, "nameInput ref unset");
+    invariant(this.nameInput, 'nameInput ref unset');
     this.nameInput.focus();
   }
 
@@ -202,35 +196,35 @@ class NewThreadModal extends React.PureComponent<Props, State> {
 
   nameInputRef = (nameInput: ?HTMLInputElement) => {
     this.nameInput = nameInput;
-  }
+  };
 
   openPrivacyInputRef = (openPrivacyInput: ?HTMLInputElement) => {
     this.openPrivacyInput = openPrivacyInput;
-  }
+  };
 
   onChangeName = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
-    invariant(target instanceof HTMLInputElement, "target not input");
+    invariant(target instanceof HTMLInputElement, 'target not input');
     this.setState({ name: target.value });
-  }
+  };
 
   onChangeDescription = (event: SyntheticEvent<HTMLTextAreaElement>) => {
     const target = event.target;
-    invariant(target instanceof HTMLTextAreaElement, "target not textarea");
+    invariant(target instanceof HTMLTextAreaElement, 'target not textarea');
     this.setState({ description: target.value });
-  }
+  };
 
   onChangeColor = (color: string) => {
     this.setState({ color: color });
-  }
+  };
 
   onChangeThreadType = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
-    invariant(target instanceof HTMLInputElement, "target not input");
+    invariant(target instanceof HTMLInputElement, 'target not input');
     this.setState({
       threadType: assertThreadType(parseInt(target.value, 10)),
     });
-  }
+  };
 
   onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
@@ -238,15 +232,15 @@ class NewThreadModal extends React.PureComponent<Props, State> {
     const threadType = this.state.threadType;
     invariant(
       threadType !== null,
-      "threadType state should never be set to null",
+      'threadType state should never be set to null',
     );
     if (threadType === undefined) {
       this.setState(
         {
-          errorMessage: "thread type unspecified",
+          errorMessage: 'thread type unspecified',
         },
         () => {
-          invariant(this.openPrivacyInput, "openPrivacyInput ref unset");
+          invariant(this.openPrivacyInput, 'openPrivacyInput ref unset');
           this.openPrivacyInput.focus();
         },
       );
@@ -257,7 +251,7 @@ class NewThreadModal extends React.PureComponent<Props, State> {
       newThreadActionTypes,
       this.newThreadAction(threadType),
     );
-  }
+  };
 
   async newThreadAction(threadType: ThreadType) {
     const name = this.state.name.trim();
@@ -274,24 +268,22 @@ class NewThreadModal extends React.PureComponent<Props, State> {
       this.setState(
         {
           threadType: undefined,
-          name: "",
-          description: "",
-          color: "",
-          errorMessage: "unknown error",
+          name: '',
+          description: '',
+          color: '',
+          errorMessage: 'unknown error',
         },
         () => {
-          invariant(this.nameInput, "nameInput ref unset");
+          invariant(this.nameInput, 'nameInput ref unset');
           this.nameInput.focus();
         },
       );
       throw e;
     }
   }
-
 }
 
-const loadingStatusSelector
-  = createLoadingStatusSelector(newThreadActionTypes);
+const loadingStatusSelector = createLoadingStatusSelector(newThreadActionTypes);
 
 export default connect(
   (state: AppState, ownProps: { parentThreadID?: ?string }) => {
@@ -299,11 +291,11 @@ export default connect(
     const parentThreadID = ownProps.parentThreadID;
     if (parentThreadID) {
       parentThreadInfo = threadInfoSelector(state)[parentThreadID];
-      invariant(parentThreadInfo, "parent thread should exist");
+      invariant(parentThreadInfo, 'parent thread should exist');
     }
     return {
       parentThreadInfo,
-      inputDisabled: loadingStatusSelector(state) === "loading",
+      inputDisabled: loadingStatusSelector(state) === 'loading',
     };
   },
   { newThread },

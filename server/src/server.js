@@ -35,7 +35,7 @@ if (cluster.isMaster) {
 } else {
   const server = express();
   expressWs(server);
-  server.use(express.json({ limit: "50mb" }));
+  server.use(express.json({ limit: '50mb' }));
   server.use(cookieParser());
 
   const router = express.Router();
@@ -47,12 +47,13 @@ if (cluster.isMaster) {
     express.static(
       '.well-known',
       // Necessary for apple-app-site-association file
-      { setHeaders: res => res.setHeader("Content-Type", "application/json") },
+      { setHeaders: res => res.setHeader('Content-Type', 'application/json') },
     ),
   );
-  const compiledFolderOptions = process.env.NODE_ENV === "dev"
-    ? undefined
-    : { maxAge: "1y", immutable: true };
+  const compiledFolderOptions =
+    process.env.NODE_ENV === 'dev'
+      ? undefined
+      : { maxAge: '1y', immutable: true };
   router.use('/compiled', express.static('compiled', compiledFolderOptions));
   router.use('/', express.static('icons'));
 

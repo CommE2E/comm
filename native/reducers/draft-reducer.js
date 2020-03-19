@@ -8,9 +8,9 @@ import { setNewSessionActionType } from 'lib/utils/action-utils';
 import { saveDraftActionType } from 'lib/actions/miscellaneous-action-types';
 
 export default function reduceDrafts(
-  state: ?{[key: string]: string},
+  state: ?{ [key: string]: string },
   action: *,
-): {[key: string]: string} {
+): { [key: string]: string } {
   if (!state) {
     state = {};
   }

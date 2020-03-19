@@ -47,7 +47,7 @@ type Props = {
   // Redux state
   year: number,
   month: number, // 1-indexed
-  daysToEntries: {[dayString: string]: EntryInfo[]},
+  daysToEntries: { [dayString: string]: EntryInfo[] },
   navInfo: NavInfo,
   currentCalendarQuery: () => CalendarQuery,
   // Redux dispatch functions
@@ -55,22 +55,20 @@ type Props = {
   // async functions that hit server APIs
   updateCalendarQuery: (
     calendarQuery: CalendarQuery,
-    reduxAlreadyUpdated?: bool,
+    reduxAlreadyUpdated?: boolean,
   ) => Promise<CalendarQueryUpdateResult>,
 };
 type State = {|
-  filterPanelOpen: bool,
+  filterPanelOpen: boolean,
 |};
 class Calendar extends React.PureComponent<Props, State> {
-
   static propTypes = {
     setModal: PropTypes.func.isRequired,
     url: PropTypes.string.isRequired,
     year: PropTypes.number.isRequired,
     month: PropTypes.number.isRequired,
-    daysToEntries: PropTypes.objectOf(
-      PropTypes.arrayOf(entryInfoPropType),
-    ).isRequired,
+    daysToEntries: PropTypes.objectOf(PropTypes.arrayOf(entryInfoPropType))
+      .isRequired,
     navInfo: navInfoPropType.isRequired,
     currentCalendarQuery: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -116,7 +114,7 @@ class Calendar extends React.PureComponent<Props, State> {
 
   render() {
     const { year, month } = this.props;
-    const monthName = dateFormat(getDate(year, month, 1), "mmmm");
+    const monthName = dateFormat(getDate(year, month, 1), 'mmmm');
     const prevURL = canonicalURLFromReduxState(
       { ...this.props.navInfo, ...this.prevMonthDates() },
       this.props.url,
@@ -143,12 +141,15 @@ class Calendar extends React.PureComponent<Props, State> {
       if (curDayOfMonth < 1 || curDayOfMonth > totalDaysInMonth) {
         columns.push(<td key={curDayOfMonth} />);
       } else {
-        const dayString =
-          dateString(this.props.year, this.props.month, curDayOfMonth);
+        const dayString = dateString(
+          this.props.year,
+          this.props.month,
+          curDayOfMonth,
+        );
         const entries = this.props.daysToEntries[dayString];
         invariant(
           entries,
-          "the currentDaysToEntries selector should make sure all dayStrings " +
+          'the currentDaysToEntries selector should make sure all dayStrings ' +
             `in the current range have entries, but ${dayString} did not`,
         );
         columns.push(
@@ -158,7 +159,7 @@ class Calendar extends React.PureComponent<Props, State> {
             setModal={this.props.setModal}
             key={curDayOfMonth}
             startingTabIndex={tabIndex}
-          />
+          />,
         );
         tabIndex += entries.length;
       }
@@ -173,8 +174,8 @@ class Calendar extends React.PureComponent<Props, State> {
     let filterButtonStyle = null;
     if (this.state.filterPanelOpen) {
       filterPanel = <FilterPanel setModal={this.props.setModal} />;
-      calendarContentStyle = { marginLeft: "300px" };
-      filterButtonStyle = { backgroundColor: "rgba(0,0,0,0.67)" };
+      calendarContentStyle = { marginLeft: '300px' };
+      filterButtonStyle = { backgroundColor: 'rgba(0,0,0,0.67)' };
     }
 
     return (
@@ -199,11 +200,8 @@ class Calendar extends React.PureComponent<Props, State> {
                 &lt;
               </a>
               <div className={css.monthName}>
-                {" "}
-                {monthName}
-                {" "}
-                {year}
-                {" "}
+                {' '}
+                {monthName} {year}{' '}
               </div>
               <a
                 className={css.monthLink}
@@ -236,7 +234,7 @@ class Calendar extends React.PureComponent<Props, State> {
   toggleFilters = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.setState({ filterPanelOpen: !this.state.filterPanelOpen });
-  }
+  };
 
   onClickPrevURL = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
@@ -251,7 +249,7 @@ class Calendar extends React.PureComponent<Props, State> {
       undefined,
       ({ calendarQuery: newCalendarQuery }: CalendarQueryUpdateStartingPayload),
     );
-  }
+  };
 
   onClickNextURL = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
@@ -266,8 +264,7 @@ class Calendar extends React.PureComponent<Props, State> {
       undefined,
       ({ calendarQuery: newCalendarQuery }: CalendarQueryUpdateStartingPayload),
     );
-  }
-
+  };
 }
 
 export default connect(

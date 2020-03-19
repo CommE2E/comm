@@ -16,7 +16,6 @@ type Props = {
   unreadCount: number,
 };
 class ChatIcon extends React.PureComponent<Props> {
-
   static propTypes = {
     color: PropTypes.string.isRequired,
     unreadCount: PropTypes.number.isRequired,
@@ -36,14 +35,11 @@ class ChatIcon extends React.PureComponent<Props> {
       <View>
         {icon}
         <View style={styles.badge}>
-          <Text style={styles.badgeText}>
-            {this.props.unreadCount}
-          </Text>
+          <Text style={styles.badgeText}>{this.props.unreadCount}</Text>
         </View>
       </View>
     );
   }
-
 }
 
 const styles = StyleSheet.create({

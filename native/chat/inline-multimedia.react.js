@@ -19,12 +19,11 @@ type Props = {|
   mediaInfo: MediaInfo,
   onPress: () => void,
   onLongPress: () => void,
-  postInProgress: bool,
+  postInProgress: boolean,
   pendingUpload: ?PendingMultimediaUpload,
   spinnerColor: string,
 |};
 class InlineMultimedia extends React.PureComponent<Props> {
-
   static propTypes = {
     mediaInfo: mediaInfoPropType.isRequired,
     onPress: PropTypes.func.isRequired,
@@ -47,11 +46,7 @@ class InlineMultimedia extends React.PureComponent<Props> {
     if (failed) {
       progressIndicator = (
         <View style={styles.centerContainer}>
-          <Icon
-            name="alert-circle"
-            style={styles.uploadError}
-            size={64}
-          />
+          <Icon name="alert-circle" style={styles.uploadError} size={64} />
         </View>
       );
     } else if (progressPercent !== 1) {
@@ -74,7 +69,6 @@ class InlineMultimedia extends React.PureComponent<Props> {
       );
     }
 
-
     return (
       <TouchableOpacity
         onPress={this.props.onPress}
@@ -92,8 +86,7 @@ class InlineMultimedia extends React.PureComponent<Props> {
     );
   }
 
-  formatProgressText = (progress: number) => `${Math.floor(progress * 100)}%`
-
+  formatProgressText = (progress: number) => `${Math.floor(progress * 100)}%`;
 }
 
 const styles = StyleSheet.create({
@@ -114,8 +107,8 @@ const styles = StyleSheet.create({
     fontSize: 21,
   },
   uploadError: {
-    color: "white",
-    textShadowColor: "#000",
+    color: 'white',
+    textShadowColor: '#000',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,
   },

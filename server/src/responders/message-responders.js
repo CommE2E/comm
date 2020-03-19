@@ -128,12 +128,12 @@ async function multimediaMessageCreationResponder(
     creatorID: viewer.id,
     media,
   });
-  const [ newMessageInfo ] = await createMessages(viewer, [messageData]);
+  const [newMessageInfo] = await createMessages(viewer, [messageData]);
 
   const { id } = newMessageInfo;
   invariant(
     id !== null && id !== undefined,
-    "serverID should be set in createMessages result",
+    'serverID should be set in createMessages result',
   );
   await assignMedia(viewer, mediaIDs, id);
 

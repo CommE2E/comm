@@ -57,9 +57,9 @@ type PassedProps = {|
   // Redux state
   threadInfo: ?ThreadInfo,
   messageListData: ?$ReadOnlyArray<ChatMessageItem>,
-  startReached: bool,
+  startReached: boolean,
   timeZone: ?string,
-  usingFlexDirectionColumnReverse: bool,
+  usingFlexDirectionColumnReverse: boolean,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -72,7 +72,7 @@ type PassedProps = {|
   ) => Promise<FetchMessageInfosPayload>,
 |};
 type ReactDnDProps = {|
-  isActive: bool,
+  isActive: boolean,
   connectDropTarget: ConnectDropTarget,
 |};
 type Props = {|
@@ -83,7 +83,6 @@ type State = {|
   messageMouseover: ?OnMessagePositionInfo,
 |};
 class ChatMessageList extends React.PureComponent<Props, State> {
-
   static propTypes = {
     activeChatThreadID: PropTypes.string,
     chatInputState: chatInputStatePropType,
@@ -153,7 +152,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       ChatMessageList.keyExtractor(messageListData[0]) !==
         ChatMessageList.keyExtractor(prevMessageListData[0]) &&
       messageContainer.scrollTop !==
-        (messageContainer.scrollHeight - messageContainer.offsetHeight)
+        messageContainer.scrollHeight - messageContainer.offsetHeight
     ) {
       return null;
     }
@@ -168,11 +167,9 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     if (
       this.loadingFromScroll &&
       messageListData &&
-      (
-        !prevMessageListData ||
+      (!prevMessageListData ||
         messageListData.length > prevMessageListData.length ||
-        this.props.startReached
-      )
+        this.props.startReached)
     ) {
       this.loadingFromScroll = false;
     }
@@ -187,18 +184,16 @@ class ChatMessageList extends React.PureComponent<Props, State> {
 
     if (
       this.props.activeChatThreadID !== prevProps.activeChatThreadID ||
-      (
-        // This conditional evaluates to true when this client is the case of
-        // a new message being prepended to the messageListData
-        messageListData &&
+      // This conditional evaluates to true when this client is the case of
+      // a new message being prepended to the messageListData
+      (messageListData &&
         messageListData.length > 0 &&
         (!prevMessageListData ||
           prevMessageListData.length === 0 ||
           ChatMessageList.keyExtractor(prevMessageListData[0]) !==
             ChatMessageList.keyExtractor(messageListData[0])) &&
-        messageListData[0].itemType === "message" &&
-        messageListData[0].messageInfo.localID
-      )
+        messageListData[0].itemType === 'message' &&
+        messageListData[0].messageInfo.localID)
     ) {
       this.scrollToBottom();
     } else if (
@@ -217,14 +212,14 @@ class ChatMessageList extends React.PureComponent<Props, State> {
   }
 
   static keyExtractor(item: ChatMessageItem) {
-    if (item.itemType === "loader") {
-      return "loader";
+    if (item.itemType === 'loader') {
+      return 'loader';
     }
     return messageKey(item.messageInfo);
   }
 
-  renderItem = (item) => {
-    if (item.itemType === "loader") {
+  renderItem = item => {
+    if (item.itemType === 'loader') {
       return (
         <div key="loader" className={css.loading}>
           <LoadingIndicator status="loading" size="large" color="black" />
@@ -232,8 +227,8 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       );
     }
     const { threadInfo, chatInputState, setModal } = this.props;
-    invariant(chatInputState, "ChatInputState should be set");
-    invariant(threadInfo, "ThreadInfo should be set if messageListData is");
+    invariant(chatInputState, 'ChatInputState should be set');
+    invariant(threadInfo, 'ThreadInfo should be set if messageListData is');
     return (
       <Message
         item={item}
@@ -245,13 +240,13 @@ class ChatMessageList extends React.PureComponent<Props, State> {
         key={ChatMessageList.keyExtractor(item)}
       />
     );
-  }
+  };
 
   setTimestampTooltip = (messagePositionInfo: MessagePositionInfo) => {
     if (!this.messageContainer) {
       return;
     }
-    if (messagePositionInfo.type === "off") {
+    if (messagePositionInfo.type === 'off') {
       if (
         this.state.messageMouseover &&
         ChatMessageList.keyExtractor(this.state.messageMouseover.item) ===
@@ -271,7 +266,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       },
     };
     this.setState({ messageMouseover });
-  }
+  };
 
   render() {
     const {
@@ -284,8 +279,8 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     if (!messageListData) {
       return <div className={css.container} />;
     }
-    invariant(threadInfo, "ThreadInfo should be set if messageListData is");
-    invariant(chatInputState, "ChatInputState should be set");
+    invariant(threadInfo, 'ThreadInfo should be set if messageListData is');
+    invariant(chatInputState, 'ChatInputState should be set');
     const messages = messageListData.map(this.renderItem);
     const containerStyle = classNames({
       [css.container]: true,
@@ -322,10 +317,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     return connectDropTarget(
       <div className={containerStyle} ref={this.containerRef}>
         {content}
-        <ChatInputBar
-          threadInfo={threadInfo}
-          chatInputState={chatInputState}
-        />
+        <ChatInputBar threadInfo={threadInfo} chatInputState={chatInputState} />
       </div>,
     );
   }
@@ -335,7 +327,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       container.addEventListener('paste', this.onPaste);
     }
     this.container = container;
-  }
+  };
 
   onPaste = (e: ClipboardEvent) => {
     const { chatInputState } = this.props;
@@ -352,7 +344,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     }
     e.preventDefault();
     chatInputState.appendFiles([...files]);
-  }
+  };
 
   messageContainerRef = (messageContainer: ?HTMLDivElement) => {
     this.messageContainer = messageContainer;
@@ -360,9 +352,9 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     // but they're not enough
     this.possiblyLoadMoreMessages();
     if (messageContainer) {
-      messageContainer.addEventListener("scroll", this.onScroll);
+      messageContainer.addEventListener('scroll', this.onScroll);
     }
-  }
+  };
 
   onScroll = () => {
     if (!this.messageContainer) {
@@ -372,7 +364,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       this.setState({ messageMouseover: null });
     }
     this.possiblyLoadMoreMessages();
-  }
+  };
 
   possiblyLoadMoreMessages() {
     if (!this.messageContainer) {
@@ -386,28 +378,24 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       return;
     }
     const threadID = this.props.activeChatThreadID;
-    invariant(threadID, "should be set");
+    invariant(threadID, 'should be set');
     this.loadingFromScroll = true;
     this.props.dispatchActionPromise(
       fetchMessagesBeforeCursorActionTypes,
-      this.props.fetchMessagesBeforeCursor(
-        threadID,
-        oldestMessageServerID,
-      ),
+      this.props.fetchMessagesBeforeCursor(threadID, oldestMessageServerID),
     );
   }
 
   oldestMessageServerID(): ?string {
     const data = this.props.messageListData;
-    invariant(data, "should be set");
+    invariant(data, 'should be set');
     for (let i = data.length - 1; i >= 0; i--) {
-      if (data[i].itemType === "message" && data[i].messageInfo.id) {
+      if (data[i].itemType === 'message' && data[i].messageInfo.id) {
         return data[i].messageInfo.id;
       }
     }
     return null;
   }
-
 }
 
 registerFetchKey(fetchMessagesBeforeCursorActionTypes);
@@ -418,14 +406,16 @@ const ReduxConnectedChatMessageList = connect(
     const { activeChatThreadID } = ownProps;
     const browser = detectBrowser(state.userAgent);
     const usingFlexDirectionColumnReverse =
-      browser && browser.name === "chrome";
+      browser && browser.name === 'chrome';
     return {
       threadInfo: activeChatThreadID
         ? threadInfoSelector(state)[activeChatThreadID]
         : null,
       messageListData: webMessageListData(state),
-      startReached: !!(activeChatThreadID &&
-        state.messageStore.threads[activeChatThreadID].startReached),
+      startReached: !!(
+        activeChatThreadID &&
+        state.messageStore.threads[activeChatThreadID].startReached
+      ),
       timeZone: state.timeZone,
       usingFlexDirectionColumnReverse,
     };
@@ -444,7 +434,7 @@ export default DropTarget(
     },
   },
   (connect: DropTargetConnector, monitor: DropTargetMonitor) => ({
-		connectDropTarget: connect.dropTarget(),
-		isActive: monitor.isOver() && monitor.canDrop(),
-	}),
+    connectDropTarget: connect.dropTarget(),
+    isActive: monitor.isOver() && monitor.canDrop(),
+  }),
 )(ReduxConnectedChatMessageList);

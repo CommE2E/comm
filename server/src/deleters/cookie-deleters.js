@@ -9,7 +9,7 @@ import { dbQuery, SQL, SQLStatement, mergeOrConditions } from '../database';
 async function deleteCookiesByConditions(
   conditions: $ReadOnlyArray<SQLStatement>,
 ) {
-  invariant(conditions.length > 0, "no conditions specified");
+  invariant(conditions.length > 0, 'no conditions specified');
   const conditionClause = mergeOrConditions(conditions);
   const query = SQL`
     DELETE c, i, s, si, u, iu, fo
@@ -28,16 +28,13 @@ async function deleteCookiesByConditions(
 
 async function deleteCookie(cookieID: string): Promise<void> {
   const condition = SQL`c.id = ${cookieID}`;
-  await deleteCookiesByConditions([ condition ]);
+  await deleteCookiesByConditions([condition]);
 }
 
 async function deleteExpiredCookies(): Promise<void> {
   const earliestInvalidLastUpdate = Date.now() - cookieLifetime;
   const condition = SQL`c.last_used <= ${earliestInvalidLastUpdate}`;
-  await deleteCookiesByConditions([ condition ]);
+  await deleteCookiesByConditions([condition]);
 }
 
-export {
-  deleteCookie,
-  deleteExpiredCookies,
-};
+export { deleteCookie, deleteExpiredCookies };

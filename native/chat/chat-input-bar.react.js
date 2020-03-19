@@ -60,10 +60,7 @@ import {
 } from 'lib/actions/message-actions';
 import { saveDraftActionType } from 'lib/actions/miscellaneous-action-types';
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
-import {
-  joinThreadActionTypes,
-  joinThread,
-} from 'lib/actions/thread-actions';
+import { joinThreadActionTypes, joinThread } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import Button from '../components/button.react';
@@ -73,8 +70,8 @@ import { colorsSelector, styleSelector } from '../themes/colors';
 import { CameraModalRouteName } from '../navigation/route-names';
 import KeyboardInputHost from '../keyboard/keyboard-input-host.react';
 
-const draftKeyFromThreadID =
-  (threadID: string) => `${threadID}/message_composer`;
+const draftKeyFromThreadID = (threadID: string) =>
+  `${threadID}/message_composer`;
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -103,10 +100,9 @@ type Props = {|
 type State = {|
   text: string,
   height: number,
-  buttonsExpanded: bool,
+  buttonsExpanded: boolean,
 |};
 class ChatInputBar extends React.PureComponent<Props, State> {
-
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     navigation: messageListNavPropType.isRequired,
@@ -140,8 +136,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     this.expandoButtonsWidth = Animated.interpolate(
       this.expandoButtonsOpacity,
       {
-        inputRange: [ 0, 1 ],
-        outputRange: [ 22, 60 ],
+        inputRange: [0, 1],
+        outputRange: [22, 60],
       },
     );
   }
@@ -164,16 +160,18 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     const currentText = this.state.text.trim();
     const prevText = prevState.text.trim();
     if (
-      currentText === "" && prevText !== "" ||
-      currentText !== "" && prevText === ""
+      (currentText === '' && prevText !== '') ||
+      (currentText !== '' && prevText === '')
     ) {
       LayoutAnimation.easeInEaseOut();
     }
 
-    const systemKeyboardIsShowing =
-      ChatInputBar.systemKeyboardShowing(this.props);
-    const systemKeyboardWasShowing =
-      ChatInputBar.systemKeyboardShowing(prevProps);
+    const systemKeyboardIsShowing = ChatInputBar.systemKeyboardShowing(
+      this.props,
+    );
+    const systemKeyboardWasShowing = ChatInputBar.systemKeyboardShowing(
+      prevProps,
+    );
     if (systemKeyboardIsShowing && !systemKeyboardWasShowing) {
       this.hideButtons();
     } else if (!systemKeyboardIsShowing && systemKeyboardWasShowing) {
@@ -191,7 +189,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   }
 
   setIOSKeyboardHeight() {
-    if (Platform.OS !== "ios" || this.systemKeyboardShowing) {
+    if (Platform.OS !== 'ios' || this.systemKeyboardShowing) {
       return;
     }
     const { textInput } = this;
@@ -245,7 +243,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       threadHasPermission(this.props.threadInfo, threadPermissions.JOIN_THREAD)
     ) {
       let buttonContent;
-      if (this.props.joinThreadLoadingStatus === "loading") {
+      if (this.props.joinThreadLoadingStatus === 'loading') {
         buttonContent = (
           <ActivityIndicator
             size="small"
@@ -364,15 +362,17 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         </Text>
       );
     } else {
-      const defaultRoleID = Object.keys(this.props.threadInfo.roles)
-        .find(roleID => this.props.threadInfo.roles[roleID].isDefault);
+      const defaultRoleID = Object.keys(this.props.threadInfo.roles).find(
+        roleID => this.props.threadInfo.roles[roleID].isDefault,
+      );
       invariant(
         defaultRoleID !== undefined,
-        "all threads should have a default role",
+        'all threads should have a default role',
       );
       const defaultRole = this.props.threadInfo.roles[defaultRoleID];
-      const membersAreVoiced =
-        !!defaultRole.permissions[threadPermissions.VOICED];
+      const membersAreVoiced = !!defaultRole.permissions[
+        threadPermissions.VOICED
+      ];
       if (membersAreVoiced) {
         content = (
           <Text style={this.props.styles.explanation}>
@@ -388,9 +388,10 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       }
     }
 
-    const keyboardInputHost = Platform.OS === "android"
-      ? null
-      : <KeyboardInputHost textInputRef={this.textInput} />;
+    const keyboardInputHost =
+      Platform.OS === 'android' ? null : (
+        <KeyboardInputHost textInputRef={this.textInput} />
+      );
 
     return (
       <View style={this.props.styles.container}>
@@ -403,39 +404,36 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   textInputRef = (textInput: ?TextInput) => {
     this.textInput = textInput;
-  }
+  };
 
   updateText = (text: string) => {
     this.setState({ text });
     this.saveDraft(text);
-  }
+  };
 
-  saveDraft = _throttle(
-    (text: string) => {
-      this.props.dispatchActionPayload(
-        saveDraftActionType,
-        { key: draftKeyFromThreadID(this.props.threadInfo.id), draft: text },
-      );
-    },
-    400,
-  );
+  saveDraft = _throttle((text: string) => {
+    this.props.dispatchActionPayload(saveDraftActionType, {
+      key: draftKeyFromThreadID(this.props.threadInfo.id),
+      draft: text,
+    });
+  }, 400);
 
-  onContentSizeChange = (event) => {
+  onContentSizeChange = event => {
     let height = event.nativeEvent.contentSize.height;
     // iOS doesn't include the margin on this callback
-    height = Platform.OS === "ios" ? height + 10 : height;
+    height = Platform.OS === 'ios' ? height + 10 : height;
     this.setState({ height });
-  }
+  };
 
   onSend = () => {
     const text = this.state.text.trim();
     if (!text) {
       return;
     }
-    this.updateText("");
+    this.updateText('');
     const localID = `local${this.props.nextLocalID}`;
     const creatorID = this.props.viewerID;
-    invariant(creatorID, "should have viewer ID in order to send a message");
+    invariant(creatorID, 'should have viewer ID in order to send a message');
     const messageInfo = ({
       type: messageTypes.TEXT,
       localID,
@@ -450,7 +448,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       undefined,
       messageInfo,
     );
-  }
+  };
 
   async sendTextMessageAction(
     messageInfo: RawTextMessageInfo,
@@ -459,7 +457,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       const { localID } = messageInfo;
       invariant(
         localID !== null && localID !== undefined,
-        "localID should be set",
+        'localID should be set',
       );
       const result = await this.props.sendTextMessage(
         messageInfo.threadID,
@@ -480,11 +478,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   }
 
   onPressJoin = () => {
-    this.props.dispatchActionPromise(
-      joinThreadActionTypes,
-      this.joinAction(),
-    );
-  }
+    this.props.dispatchActionPromise(joinThreadActionTypes, this.joinAction());
+  };
 
   async joinAction() {
     const query = this.props.calendarQuery();
@@ -495,7 +490,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         endDate: query.endDate,
         filters: [
           ...query.filters,
-          { type: "threads", threadIDs: [this.props.threadInfo.id] },
+          { type: 'threads', threadIDs: [this.props.threadInfo.id] },
         ],
       },
     });
@@ -505,12 +500,13 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     if (this.state.buttonsExpanded) {
       return;
     }
-    Animated.timing(
-      this.expandoButtonsOpacity,
-      { duration: 500, toValue: 1, easing: Easing.inOut(Easing.ease) },
-    ).start();
+    Animated.timing(this.expandoButtonsOpacity, {
+      duration: 500,
+      toValue: 1,
+      easing: Easing.inOut(Easing.ease),
+    }).start();
     this.setState({ buttonsExpanded: true });
-  }
+  };
 
   hideButtons() {
     if (
@@ -520,10 +516,11 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     ) {
       return;
     }
-    Animated.timing(
-      this.expandoButtonsOpacity,
-      { duration: 500, toValue: 0, easing: Easing.inOut(Easing.ease) },
-    ).start();
+    Animated.timing(this.expandoButtonsOpacity, {
+      duration: 500,
+      toValue: 0,
+      easing: Easing.inOut(Easing.ease),
+    }).start();
     this.setState({ buttonsExpanded: false });
   }
 
@@ -533,19 +530,18 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       routeName: CameraModalRouteName,
       params: { threadID: this.props.threadInfo.id },
     });
-  }
+  };
 
   showMediaGallery = () => {
     const { keyboardState } = this.props;
-    invariant(keyboardState, "keyboardState should be initialized");
+    invariant(keyboardState, 'keyboardState should be initialized');
     keyboardState.showMediaGallery(this.props.threadInfo.id);
-  }
+  };
 
   dismissKeyboard = () => {
     const { keyboardState } = this.props;
     keyboardState && keyboardState.dismissKeyboard();
-  }
-
+  };
 }
 
 const styles = {
@@ -570,7 +566,7 @@ const styles = {
   },
   bottomAligned: {
     alignSelf: 'flex-end',
-    paddingBottom: Platform.OS === "ios" ? 7 : 9,
+    paddingBottom: Platform.OS === 'ios' ? 7 : 9,
   },
   expandoButtons: {
     alignSelf: 'flex-end',
@@ -590,11 +586,11 @@ const styles = {
     bottom: 0,
   },
   expandIcon: {
-    paddingBottom: Platform.OS === "ios" ? 10 : 12,
+    paddingBottom: Platform.OS === 'ios' ? 10 : 12,
   },
   cameraRollIcon: {
     paddingRight: 8,
-    paddingBottom: Platform.OS === "ios" ? 5 : 8,
+    paddingBottom: Platform.OS === 'ios' ? 5 : 8,
   },
   cameraIcon: {
     paddingRight: 3,
@@ -631,15 +627,16 @@ const styles = {
 };
 const stylesSelector = styleSelector(styles);
 
-const joinThreadLoadingStatusSelector
-  = createLoadingStatusSelector(joinThreadActionTypes);
+const joinThreadLoadingStatusSelector = createLoadingStatusSelector(
+  joinThreadActionTypes,
+);
 
 export default connect(
   (state: AppState, ownProps: { threadInfo: ThreadInfo }) => {
     const draft = state.drafts[draftKeyFromThreadID(ownProps.threadInfo.id)];
     return {
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
-      draft: draft ? draft : "",
+      draft: draft ? draft : '',
       joinThreadLoadingStatus: joinThreadLoadingStatusSelector(state),
       calendarQuery: nonThreadCalendarQuery(state),
       nextLocalID: state.nextLocalID,

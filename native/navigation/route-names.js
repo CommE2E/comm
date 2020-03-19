@@ -10,7 +10,7 @@ export type Navigate = ({
   params?: NavigationParams,
   action?: NavigationNavigateAction,
   key?: string,
-}) => bool;
+}) => boolean;
 
 export const AppRouteName = 'App';
 export const TabNavigatorRouteName = 'TabNavigator';
@@ -22,7 +22,7 @@ export const VerificationModalRouteName = 'VerificationModal';
 export const LoggedOutModalRouteName = 'LoggedOutModal';
 export const MoreRouteName = 'More';
 export const MoreScreenRouteName = 'MoreScreen';
-export const ChatRouteName = "Chat";
+export const ChatRouteName = 'Chat';
 export const ChatThreadListRouteName = 'ChatThreadList';
 export const CalendarRouteName = 'Calendar';
 export const BuildInfoRouteName = 'BuildInfo';

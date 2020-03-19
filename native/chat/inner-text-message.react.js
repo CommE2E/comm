@@ -27,7 +27,6 @@ type Props = {|
   colors: Colors,
 |};
 class InnerTextMessage extends React.PureComponent<Props> {
-
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     onPress: PropTypes.func.isRequired,
@@ -41,7 +40,9 @@ class InnerTextMessage extends React.PureComponent<Props> {
     const { text, id, creator } = item.messageInfo;
     const { isViewer } = creator;
 
-    let messageStyle = {}, textCustomStyle = {}, darkColor;
+    let messageStyle = {},
+      textCustomStyle = {},
+      darkColor;
     if (isViewer) {
       const threadColor = item.threadInfo.color;
       messageStyle.backgroundColor = `#${threadColor}`;
@@ -69,14 +70,16 @@ class InnerTextMessage extends React.PureComponent<Props> {
         <RoundedMessageContainer item={item}>
           <Hyperlink
             linkDefault={true}
-            style={[ styles.message, messageStyle ]}
+            style={[styles.message, messageStyle]}
             linkStyle={linkStyle}
           >
             <Text
               onPress={this.props.onPress}
               onLongPress={this.props.onPress}
               style={[textStyle, textCustomStyle]}
-            >{text}</Text>
+            >
+              {text}
+            </Text>
           </Hyperlink>
         </RoundedMessageContainer>
       </TouchableOpacity>
@@ -94,8 +97,7 @@ class InnerTextMessage extends React.PureComponent<Props> {
     );
   }
 
-  onLayout = () => {}
-
+  onLayout = () => {};
 }
 
 const styles = StyleSheet.create({
@@ -113,11 +115,11 @@ const styles = StyleSheet.create({
   },
   darkLinkText: {
     color: colors.light.link,
-    textDecorationLine: "underline",
+    textDecorationLine: 'underline',
   },
   lightLinkText: {
     color: colors.dark.link,
-    textDecorationLine: "underline",
+    textDecorationLine: 'underline',
   },
 });
 

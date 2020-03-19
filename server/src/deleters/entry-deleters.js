@@ -19,14 +19,11 @@ import { dbQuery, SQL } from '../database';
 import { checkThreadPermissionForEntry } from '../fetchers/entry-fetchers';
 import createIDs from '../creators/id-creator';
 import createMessages from '../creators/message-creator';
-import {
-  createUpdateDatasForChangedEntryInfo,
-} from '../updaters/entry-updaters';
+import { createUpdateDatasForChangedEntryInfo } from '../updaters/entry-updaters';
 import { fetchMessageInfoForEntryAction } from '../fetchers/message-fetchers';
 import { fetchUpdateInfoForEntryUpdate } from '../fetchers/update-fetchers';
 
-const lastRevisionQuery = (entryID: string) =>
-  (SQL`
+const lastRevisionQuery = (entryID: string) => SQL`
     SELECT r.id, r.author, r.text, r.session, r.last_update, r.deleted,
       DAY(d.date) AS day, MONTH(d.date) AS month, YEAR(d.date) AS year,
       d.thread, d.date, e.creation_time, e.creator
@@ -36,7 +33,7 @@ const lastRevisionQuery = (entryID: string) =>
     WHERE r.entry = ${entryID}
     ORDER BY r.last_update DESC
     LIMIT 1
-  `);
+  `;
 
 async function deleteEntry(
   viewer: Viewer,
@@ -45,7 +42,7 @@ async function deleteEntry(
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
-  const [ hasPermission, [ lastRevisionResult ] ] = await Promise.all([
+  const [hasPermission, [lastRevisionResult]] = await Promise.all([
     checkThreadPermissionForEntry(
       viewer,
       request.entryID,
@@ -62,7 +59,7 @@ async function deleteEntry(
   const lastRevisionRow = lastRevisionResult[0];
   const threadID = lastRevisionRow.thread.toString();
   if (lastRevisionRow.deleted) {
-    const [ rawMessageInfo, fetchUpdatesResult ] = await Promise.all([
+    const [rawMessageInfo, fetchUpdatesResult] = await Promise.all([
       fetchMessageInfoForEntryAction(
         viewer,
         messageTypes.DELETE_ENTRY,
@@ -73,7 +70,7 @@ async function deleteEntry(
     ]);
     return {
       threadID,
-      newMessageInfos: rawMessageInfo ? [ rawMessageInfo ] : [],
+      newMessageInfos: rawMessageInfo ? [rawMessageInfo] : [],
       updatesResult: {
         viewerUpdates: fetchUpdatesResult.updateInfos,
         userInfos: values(fetchUpdatesResult.userInfos),
@@ -84,22 +81,24 @@ async function deleteEntry(
   const text = lastRevisionRow.text;
   const viewerID = viewer.userID;
   if (viewer.session !== lastRevisionRow.session && request.prevText !== text) {
-    throw new ServerError(
-      'concurrent_modification',
-      { db: text, ui: request.prevText },
-    );
+    throw new ServerError('concurrent_modification', {
+      db: text,
+      ui: request.prevText,
+    });
   } else if (lastRevisionRow.last_update >= request.timestamp) {
-    throw new ServerError(
-      'old_timestamp',
-      { oldTime: lastRevisionRow.last_update, newTime: request.timestamp },
-    );
+    throw new ServerError('old_timestamp', {
+      oldTime: lastRevisionRow.last_update,
+      newTime: request.timestamp,
+    });
   }
 
   const dbPromises = [];
-  dbPromises.push(dbQuery(SQL`
+  dbPromises.push(
+    dbQuery(SQL`
     UPDATE entries SET deleted = 1 WHERE id = ${request.entryID}
-  `));
-  const [ revisionID ] = await createIDs("revisions", 1);
+  `),
+  );
+  const [revisionID] = await createIDs('revisions', 1);
   const revisionRow = [
     revisionID,
     request.entryID,
@@ -110,11 +109,13 @@ async function deleteEntry(
     request.timestamp,
     1,
   ];
-  dbPromises.push(dbQuery(SQL`
+  dbPromises.push(
+    dbQuery(SQL`
     INSERT INTO revisions(id, entry, author, text, creation_time, session,
       last_update, deleted)
     VALUES ${[revisionRow]}
-  `));
+  `),
+  );
 
   const messageData = {
     type: messageTypes.DELETE_ENTRY,
@@ -142,7 +143,7 @@ async function deleteEntry(
     deleted: true,
   };
 
-  const [ newMessageInfos, updatesResult ] = await Promise.all([
+  const [newMessageInfos, updatesResult] = await Promise.all([
     createMessages(viewer, [messageData]),
     createUpdateDatasForChangedEntryInfo(
       viewer,
@@ -163,7 +164,7 @@ async function restoreEntry(
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
-  const [ hasPermission, [ lastRevisionResult ] ] = await Promise.all([
+  const [hasPermission, [lastRevisionResult]] = await Promise.all([
     checkThreadPermissionForEntry(
       viewer,
       request.entryID,
@@ -191,7 +192,7 @@ async function restoreEntry(
   };
 
   if (!oldEntryInfo.deleted) {
-    const [ rawMessageInfo, fetchUpdatesResult ] = await Promise.all([
+    const [rawMessageInfo, fetchUpdatesResult] = await Promise.all([
       fetchMessageInfoForEntryAction(
         viewer,
         messageTypes.RESTORE_ENTRY,
@@ -202,7 +203,7 @@ async function restoreEntry(
     ]);
     return {
       entryInfo: oldEntryInfo,
-      newMessageInfos: rawMessageInfo ? [ rawMessageInfo ] : [],
+      newMessageInfos: rawMessageInfo ? [rawMessageInfo] : [],
       updatesResult: {
         viewerUpdates: fetchUpdatesResult.updateInfos,
         userInfos: values(fetchUpdatesResult.userInfos),
@@ -212,10 +213,12 @@ async function restoreEntry(
 
   const viewerID = viewer.userID;
   const dbPromises = [];
-  dbPromises.push(dbQuery(SQL`
+  dbPromises.push(
+    dbQuery(SQL`
     UPDATE entries SET deleted = 0 WHERE id = ${request.entryID}
-  `));
-  const [ revisionID ] = await createIDs("revisions", 1);
+  `),
+  );
+  const [revisionID] = await createIDs('revisions', 1);
   const revisionRow = [
     revisionID,
     request.entryID,
@@ -226,11 +229,13 @@ async function restoreEntry(
     request.timestamp,
     0,
   ];
-  dbPromises.push(dbQuery(SQL`
+  dbPromises.push(
+    dbQuery(SQL`
     INSERT INTO revisions(id, entry, author, text, creation_time, session,
       last_update, deleted)
     VALUES ${[revisionRow]}
-  `));
+  `),
+  );
 
   const messageData = {
     type: messageTypes.RESTORE_ENTRY,
@@ -246,7 +251,7 @@ async function restoreEntry(
     deleted: false,
   };
 
-  const [ newMessageInfos, updatesResult ] = await Promise.all([
+  const [newMessageInfos, updatesResult] = await Promise.all([
     createMessages(viewer, [messageData]),
     createUpdateDatasForChangedEntryInfo(
       viewer,
@@ -270,8 +275,4 @@ async function deleteOrphanedEntries(): Promise<void> {
   `);
 }
 
-export {
-  deleteEntry,
-  restoreEntry,
-  deleteOrphanedEntries,
-};
+export { deleteEntry, restoreEntry, deleteOrphanedEntries };

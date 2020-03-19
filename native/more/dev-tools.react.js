@@ -26,12 +26,7 @@ import { CustomServerModalRouteName } from '../navigation/route-names';
 import { colorsSelector, styleSelector } from '../themes/colors';
 
 const ServerIcon = (props: {||}) => (
-  <Icon
-    name="md-checkmark"
-    size={20}
-    color="#008800"
-    style={styles.icon}
-  />
+  <Icon name="md-checkmark" size={20} color="#008800" style={styles.icon} />
 );
 
 type Props = {|
@@ -45,7 +40,6 @@ type Props = {|
   dispatchActionPayload: DispatchActionPayload,
 |};
 class DevTools extends React.PureComponent<Props> {
-
   static propTypes = {
     navigation: PropTypes.shape({
       navigate: PropTypes.func.isRequired,
@@ -57,7 +51,7 @@ class DevTools extends React.PureComponent<Props> {
     dispatchActionPayload: PropTypes.func.isRequired,
   };
   static navigationOptions = {
-    headerTitle: "Developer tools",
+    headerTitle: 'Developer tools',
   };
 
   render() {
@@ -65,9 +59,7 @@ class DevTools extends React.PureComponent<Props> {
 
     const serverButtons = [];
     for (let server of serverOptions) {
-      const icon = server === this.props.urlPrefix
-        ? <ServerIcon />
-        : null;
+      const icon = server === this.props.urlPrefix ? <ServerIcon /> : null;
       serverButtons.push(
         <Button
           onPress={() => this.onSelectServer(server)}
@@ -78,32 +70,31 @@ class DevTools extends React.PureComponent<Props> {
         >
           <Text style={this.props.styles.serverText}>{server}</Text>
           {icon}
-        </Button>
+        </Button>,
       );
       serverButtons.push(
-        <View style={this.props.styles.hr} key={`hr${server}`} />
+        <View style={this.props.styles.hr} key={`hr${server}`} />,
       );
     }
-    const customServerLabel = this.props.customServer
-      ? (
-          <Text>
-            <Text style={this.props.styles.customServerLabel}>
-              {"custom: "}
-            </Text>
-            <Text style={this.props.styles.serverText}>
-              {this.props.customServer}
-            </Text>
-          </Text>
-        )
-      : (
-          <Text style={[
-            this.props.styles.customServerLabel,
-            this.props.styles.serverContainer,
-          ]}>custom</Text>
-        );
-    const customServerIcon = this.props.customServer === this.props.urlPrefix
-      ? <ServerIcon />
-      : null;
+    const customServerLabel = this.props.customServer ? (
+      <Text>
+        <Text style={this.props.styles.customServerLabel}>{'custom: '}</Text>
+        <Text style={this.props.styles.serverText}>
+          {this.props.customServer}
+        </Text>
+      </Text>
+    ) : (
+      <Text
+        style={[
+          this.props.styles.customServerLabel,
+          this.props.styles.serverContainer,
+        ]}
+      >
+        custom
+      </Text>
+    );
+    const customServerIcon =
+      this.props.customServer === this.props.urlPrefix ? <ServerIcon /> : null;
     serverButtons.push(
       <Button
         onPress={this.onSelectCustomServer}
@@ -114,7 +105,7 @@ class DevTools extends React.PureComponent<Props> {
       >
         {customServerLabel}
         {customServerIcon}
-      </Button>
+      </Button>,
     );
 
     return (
@@ -163,29 +154,28 @@ class DevTools extends React.PureComponent<Props> {
   }
 
   onPressCrash = () => {
-    throw new Error("User triggered crash through dev menu!");
-  }
+    throw new Error('User triggered crash through dev menu!');
+  };
 
   onPressKill = () => {
     ExitApp.exitApp();
-  }
+  };
 
   onPressWipe = async () => {
     getPersistor().purge();
     await sleep(50);
     ExitApp.exitApp();
-  }
+  };
 
   onSelectServer = (server: string) => {
     if (server !== this.props.urlPrefix) {
       this.props.dispatchActionPayload(setURLPrefix, server);
     }
-  }
+  };
 
   onSelectCustomServer = () => {
     this.props.navigation.navigate(CustomServerModalRouteName);
-  }
-
+  };
 }
 
 const styles = {
@@ -226,7 +216,7 @@ const styles = {
     paddingHorizontal: 24,
     paddingBottom: 3,
     fontSize: 12,
-    fontWeight: "400",
+    fontWeight: '400',
     color: 'panelBackgroundLabel',
   },
   customServerLabel: {
@@ -241,7 +231,7 @@ const styles = {
     flex: 1,
   },
   icon: {
-    lineHeight: Platform.OS === "ios" ? 18 : 20,
+    lineHeight: Platform.OS === 'ios' ? 18 : 20,
   },
 };
 const stylesSelector = styleSelector(styles);

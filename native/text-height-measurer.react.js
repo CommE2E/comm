@@ -32,16 +32,17 @@ type State = {|
   currentlyMeasuring: ?Set<TextToMeasure>,
 |};
 class TextHeightMeasurer extends React.PureComponent<Props, State> {
-
   state = {
     currentlyMeasuring: null,
   };
   static propTypes = {
-    textToMeasure: PropTypes.arrayOf(PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      text: PropTypes.string.isRequired,
-      style: Text.propTypes.style,
-    })).isRequired,
+    textToMeasure: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        text: PropTypes.string.isRequired,
+        style: Text.propTypes.style,
+      }),
+    ).isRequired,
     allHeightsMeasuredCallback: PropTypes.func.isRequired,
     minHeight: PropTypes.number,
     style: Text.propTypes.style,
@@ -68,8 +69,9 @@ class TextHeightMeasurer extends React.PureComponent<Props, State> {
     const nextNextTextToHeight = new Map();
     const nextTextToMeasure = this.props.textToMeasure;
 
-    const newTextToMeasure =
-      _differenceWith(_isEqual)(nextTextToMeasure)(prevTextToMeasure);
+    const newTextToMeasure = _differenceWith(_isEqual)(nextTextToMeasure)(
+      prevTextToMeasure,
+    );
     for (let textToMeasure of newTextToMeasure) {
       this.leftToMeasure.add(textToMeasure);
     }
@@ -77,8 +79,9 @@ class TextHeightMeasurer extends React.PureComponent<Props, State> {
     const existingTextToHeight = this.nextTextToHeight
       ? this.nextTextToHeight
       : this.currentTextToHeight;
-    const existingTextToMeasure =
-      _intersectionWith(_isEqual)(nextTextToMeasure)(prevTextToMeasure);
+    const existingTextToMeasure = _intersectionWith(_isEqual)(
+      nextTextToMeasure,
+    )(prevTextToMeasure);
     for (let textToMeasure of existingTextToMeasure) {
       const { id } = textToMeasure;
       const measuredHeight = existingTextToHeight.get(id);
@@ -99,9 +102,9 @@ class TextHeightMeasurer extends React.PureComponent<Props, State> {
 
   onTextLayout(
     textToMeasure: TextToMeasure,
-    event: { nativeEvent: { layout: { height: number }}},
+    event: { nativeEvent: { layout: { height: number } } },
   ) {
-    invariant(this.nextTextToHeight, "nextTextToHeight should be set");
+    invariant(this.nextTextToHeight, 'nextTextToHeight should be set');
     this.nextTextToHeight.set(
       textToMeasure.id,
       this.props.minHeight !== undefined && this.props.minHeight !== null
@@ -118,8 +121,8 @@ class TextHeightMeasurer extends React.PureComponent<Props, State> {
   }
 
   done(textToMeasure: TextToMeasure[]) {
-    invariant(this.leftToMeasure.size === 0, "should be 0 left to measure");
-    invariant(this.nextTextToHeight, "nextTextToHeight should be set");
+    invariant(this.leftToMeasure.size === 0, 'should be 0 left to measure');
+    invariant(this.nextTextToHeight, 'nextTextToHeight should be set');
     this.currentTextToHeight = this.nextTextToHeight;
     this.nextTextToHeight = null;
     this.props.allHeightsMeasuredCallback(
@@ -136,7 +139,7 @@ class TextHeightMeasurer extends React.PureComponent<Props, State> {
     const leftToMeasureIter = this.leftToMeasure.values();
     for (; newBatchSize > 0; newBatchSize--) {
       const value = leftToMeasureIter.next().value;
-      invariant(value !== undefined && value !== null, "item should exist");
+      invariant(value !== undefined && value !== null, 'item should exist');
       newCurrentlyMeasuring.add(value);
     }
     this.setState({ currentlyMeasuring: newCurrentlyMeasuring });
@@ -147,18 +150,20 @@ class TextHeightMeasurer extends React.PureComponent<Props, State> {
     if (_isEmpty(set)) {
       return null;
     }
-    invariant(set, "should be set");
+    invariant(set, 'should be set');
     const dummies = Array.from(set).map((textToMeasure: TextToMeasure) => {
-      const style = textToMeasure.style ? textToMeasure.style : this.props.style;
-      invariant(style, "style should exist for every text being measured!");
+      const style = textToMeasure.style
+        ? textToMeasure.style
+        : this.props.style;
+      invariant(style, 'style should exist for every text being measured!');
       let text = textToMeasure.text;
-      if (text === "" || text.slice(-1) === "\n") {
-        text += " ";
+      if (text === '' || text.slice(-1) === '\n') {
+        text += ' ';
       }
       return (
         <Text
           style={[styles.text, style]}
-          onLayout={(event) => this.onTextLayout(textToMeasure, event)}
+          onLayout={event => this.onTextLayout(textToMeasure, event)}
           key={textToMeasure.id}
         >
           {text}
@@ -167,7 +172,6 @@ class TextHeightMeasurer extends React.PureComponent<Props, State> {
     });
     return <View>{dummies}</View>;
   }
-
 }
 
 const styles = StyleSheet.create({

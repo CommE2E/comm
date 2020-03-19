@@ -56,19 +56,20 @@ const entryInconsistencyReportValidatorShape = {
 
 const reportCreationRequestInputValidator = t.union([
   tShape({
-    type: t.maybe(t.irreducible(
-      'reportTypes.ERROR',
-      x => x === reportTypes.ERROR,
-    )),
+    type: t.maybe(
+      t.irreducible('reportTypes.ERROR', x => x === reportTypes.ERROR),
+    ),
     platformDetails: t.maybe(tPlatformDetails),
     deviceType: t.maybe(tPlatform),
     codeVersion: t.maybe(t.Number),
     stateVersion: t.maybe(t.Number),
-    errors: t.list(tShape({
-      errorMessage: t.String,
-      stack: t.maybe(t.String),
-      componentStack: t.maybe(t.String),
-    })),
+    errors: t.list(
+      tShape({
+        errorMessage: t.String,
+        stack: t.maybe(t.String),
+        componentStack: t.maybe(t.String),
+      }),
+    ),
     preloadedState: t.Object,
     currentState: t.Object,
     actions: t.list(t.Object),
@@ -151,7 +152,7 @@ async function errorReportDownloadResponder(
     throw new ServerError('invalid_parameters');
   }
   const result = await fetchReduxToolsImport(viewer, id);
-  res.set("Content-Disposition", `attachment; filename=report-${id}.json`);
+  res.set('Content-Disposition', `attachment; filename=report-${id}.json`);
   res.json({
     preloadedState: JSON.stringify(result.preloadedState),
     payload: JSON.stringify(result.payload),

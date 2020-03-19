@@ -13,10 +13,7 @@ import * as React from 'react';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 
-import {
-  validUsernameRegex,
-  validEmailRegex,
-} from 'lib/shared/account-utils';
+import { validUsernameRegex, validEmailRegex } from 'lib/shared/account-utils';
 import { connect } from 'lib/utils/redux-utils';
 import { registerActionTypes, register } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -29,7 +26,7 @@ import { webLogInExtraInfoSelector } from '../../selectors/account-selectors';
 type Props = {
   setModal: (modal: ?React.Node) => void,
   // Redux state
-  inputDisabled: bool,
+  inputDisabled: boolean,
   logInExtraInfo: () => LogInExtraInfo,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
@@ -45,7 +42,6 @@ type State = {
 };
 
 class RegisterModal extends React.PureComponent<Props, State> {
-
   usernameInput: ?HTMLInputElement;
   emailInput: ?HTMLInputElement;
   passwordInput: ?HTMLInputElement;
@@ -53,16 +49,16 @@ class RegisterModal extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      username: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-      errorMessage: "",
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      errorMessage: '',
     };
   }
 
   componentDidMount() {
-    invariant(this.usernameInput, "username ref unset");
+    invariant(this.usernameInput, 'username ref unset');
     this.usernameInput.focus();
   }
 
@@ -142,39 +138,39 @@ class RegisterModal extends React.PureComponent<Props, State> {
 
   usernameInputRef = (usernameInput: ?HTMLInputElement) => {
     this.usernameInput = usernameInput;
-  }
+  };
 
   emailInputRef = (emailInput: ?HTMLInputElement) => {
     this.emailInput = emailInput;
-  }
+  };
 
   passwordInputRef = (passwordInput: ?HTMLInputElement) => {
     this.passwordInput = passwordInput;
-  }
+  };
 
   onChangeUsername = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
-    invariant(target instanceof HTMLInputElement, "target not input");
+    invariant(target instanceof HTMLInputElement, 'target not input');
     this.setState({ username: target.value });
-  }
+  };
 
   onChangeEmail = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
-    invariant(target instanceof HTMLInputElement, "target not input");
+    invariant(target instanceof HTMLInputElement, 'target not input');
     this.setState({ email: target.value });
-  }
+  };
 
   onChangePassword = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
-    invariant(target instanceof HTMLInputElement, "target not input");
+    invariant(target instanceof HTMLInputElement, 'target not input');
     this.setState({ password: target.value });
-  }
+  };
 
   onChangeConfirmPassword = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
-    invariant(target instanceof HTMLInputElement, "target not input");
+    invariant(target instanceof HTMLInputElement, 'target not input');
     this.setState({ confirmPassword: target.value });
-  }
+  };
 
   onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
@@ -182,46 +178,46 @@ class RegisterModal extends React.PureComponent<Props, State> {
     if (this.state.password === '') {
       this.setState(
         {
-          password: "",
-          confirmPassword: "",
-          errorMessage: "empty password",
+          password: '',
+          confirmPassword: '',
+          errorMessage: 'empty password',
         },
         () => {
-          invariant(this.passwordInput, "passwordInput ref unset");
+          invariant(this.passwordInput, 'passwordInput ref unset');
           this.passwordInput.focus();
         },
       );
     } else if (this.state.password !== this.state.confirmPassword) {
       this.setState(
         {
-          password: "",
-          confirmPassword: "",
+          password: '',
+          confirmPassword: '',
           errorMessage: "passwords don't match",
         },
         () => {
-          invariant(this.passwordInput, "passwordInput ref unset");
+          invariant(this.passwordInput, 'passwordInput ref unset');
           this.passwordInput.focus();
         },
       );
     } else if (this.state.username.search(validUsernameRegex) === -1) {
       this.setState(
         {
-          username: "",
-          errorMessage: "alphanumeric usernames only",
+          username: '',
+          errorMessage: 'alphanumeric usernames only',
         },
         () => {
-          invariant(this.usernameInput, "usernameInput ref unset");
+          invariant(this.usernameInput, 'usernameInput ref unset');
           this.usernameInput.focus();
         },
       );
     } else if (this.state.email.search(validEmailRegex) === -1) {
       this.setState(
         {
-          email: "",
-          errorMessage: "invalid email address",
+          email: '',
+          errorMessage: 'invalid email address',
         },
         () => {
-          invariant(this.emailInput, "emailInput ref unset");
+          invariant(this.emailInput, 'emailInput ref unset');
           this.emailInput.focus();
         },
       );
@@ -234,7 +230,7 @@ class RegisterModal extends React.PureComponent<Props, State> {
         ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
       );
     }
-  }
+  };
 
   async registerAction(extraInfo: LogInExtraInfo) {
     try {
@@ -250,36 +246,36 @@ class RegisterModal extends React.PureComponent<Props, State> {
       if (e.message === 'username_taken') {
         this.setState(
           {
-            username: "",
-            errorMessage: "username already taken",
+            username: '',
+            errorMessage: 'username already taken',
           },
           () => {
-            invariant(this.usernameInput, "usernameInput ref unset");
+            invariant(this.usernameInput, 'usernameInput ref unset');
             this.usernameInput.focus();
           },
         );
       } else if (e.message === 'email_taken') {
         this.setState(
           {
-            email: "",
-            errorMessage: "email already taken",
+            email: '',
+            errorMessage: 'email already taken',
           },
           () => {
-            invariant(this.emailInput, "emailInput ref unset");
+            invariant(this.emailInput, 'emailInput ref unset');
             this.emailInput.focus();
           },
         );
       } else {
         this.setState(
           {
-            username: "",
-            email: "",
-            password: "",
-            confirmPassword: "",
-            errorMessage: "unknown error",
+            username: '',
+            email: '',
+            password: '',
+            confirmPassword: '',
+            errorMessage: 'unknown error',
           },
           () => {
-            invariant(this.usernameInput, "usernameInput ref unset");
+            invariant(this.usernameInput, 'usernameInput ref unset');
             this.usernameInput.focus();
           },
         );
@@ -290,8 +286,7 @@ class RegisterModal extends React.PureComponent<Props, State> {
 
   clearModal = () => {
     this.props.setModal(null);
-  }
-
+  };
 }
 
 RegisterModal.propTypes = {
@@ -306,7 +301,7 @@ const loadingStatusSelector = createLoadingStatusSelector(registerActionTypes);
 
 export default connect(
   (state: AppState) => ({
-    inputDisabled: loadingStatusSelector(state) === "loading",
+    inputDisabled: loadingStatusSelector(state) === 'loading',
     logInExtraInfo: webLogInExtraInfoSelector(state),
   }),
   { register },

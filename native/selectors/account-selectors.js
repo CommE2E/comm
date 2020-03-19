@@ -15,11 +15,9 @@ const nativeLogInExtraInfoSelector: (
   logInExtraInfoSelector,
   calendarActiveSelector,
   (
-    logInExtraInfoFunc: (calendarActive: bool) => LogInExtraInfo,
-    calendarActive: bool,
+    logInExtraInfoFunc: (calendarActive: boolean) => LogInExtraInfo,
+    calendarActive: boolean,
   ) => () => logInExtraInfoFunc(calendarActive),
 );
 
-export {
-  nativeLogInExtraInfoSelector,
-};
+export { nativeLogInExtraInfoSelector };

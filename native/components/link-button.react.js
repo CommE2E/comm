@@ -15,13 +15,12 @@ import { styleSelector } from '../themes/colors';
 type Props = {
   text: string,
   onPress: () => void,
-  disabled?: bool,
+  disabled?: boolean,
   style?: ViewStyle,
   // Redux state
   styles: Styles,
 };
 class LinkButton extends React.PureComponent<Props> {
-
   static propTypes = {
     text: PropTypes.string.isRequired,
     onPress: PropTypes.func.isRequired,
@@ -42,13 +41,12 @@ class LinkButton extends React.PureComponent<Props> {
         disabled={!!this.props.disabled}
         style={this.props.style}
       >
-        <Text style={[ this.props.styles.text, disabledStyle ]}>
+        <Text style={[this.props.styles.text, disabledStyle]}>
           {this.props.text}
         </Text>
       </Button>
     );
   }
-
 }
 
 const styles = {

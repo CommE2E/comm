@@ -20,21 +20,19 @@ const allDaysToEntries: (
   (state: AppState) => state.userInfos,
   (state: AppState) => state.currentUserInfo && state.currentUserInfo.id,
   (
-    entryInfos: {[id: string]: RawEntryInfo},
-    daysToEntries: {[day: string]: string[]},
-    userInfos: {[id: string]: UserInfo},
+    entryInfos: { [id: string]: RawEntryInfo },
+    daysToEntries: { [day: string]: string[] },
+    userInfos: { [id: string]: UserInfo },
     viewerID: ?string,
-  ) => _mapValues((entryIDs: string[]) =>
-    _flow(
-      _map(
-        (entryID: string) =>
+  ) =>
+    _mapValues((entryIDs: string[]) =>
+      _flow(
+        _map((entryID: string) =>
           createEntryInfo(entryInfos[entryID], viewerID, userInfos),
-      ),
-      _compact,
-    )(entryIDs),
-  )(daysToEntries),
+        ),
+        _compact,
+      )(entryIDs),
+    )(daysToEntries),
 );
 
-export {
-  allDaysToEntries,
-};
+export { allDaysToEntries };

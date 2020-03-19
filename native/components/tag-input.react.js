@@ -103,7 +103,6 @@ type State = {|
   spaceLeft: number,
 |};
 class TagInput<T> extends React.PureComponent<Props<T>, State> {
-
   static propTypes = {
     value: PropTypes.array.isRequired,
     onChange: PropTypes.func.isRequired,
@@ -163,10 +162,7 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
 
   static getDerivedStateFromProps(props: Props<T>, state: State) {
     const wrapperHeight = Math.max(
-      Math.min(
-        props.maxHeight,
-        state.contentHeight,
-      ),
+      Math.min(props.maxHeight, state.contentHeight),
       props.minHeight,
     );
     return { wrapperHeight };
@@ -186,23 +182,23 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
     if (wrapperWidth !== this.state.wrapperWidth) {
       this.setState({ wrapperWidth });
     }
-  }
+  };
 
   onChangeText = (text: string) => {
     this.lastChange = { time: Date.now(), prevText: this.props.text };
     this.props.onChangeText(text);
-  }
+  };
 
   onBlur = (event: { nativeEvent: { text: string } }) => {
-    invariant(Platform.OS === "ios", "only iOS gets text on TextInput.onBlur");
+    invariant(Platform.OS === 'ios', 'only iOS gets text on TextInput.onBlur');
     this.onChangeText(event.nativeEvent.text);
-  }
+  };
 
   onKeyPress = (event: { nativeEvent: { key: string } }) => {
     const { lastChange } = this;
     let { text } = this.props;
     if (
-      Platform.OS === "android" &&
+      Platform.OS === 'android' &&
       lastChange !== null &&
       lastChange !== undefined &&
       Date.now() - lastChange.time < 150
@@ -216,35 +212,34 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
     tags.pop();
     this.props.onChange(tags);
     this.focus();
-  }
+  };
 
   focus = () => {
-    invariant(this.tagInput, "should be set");
+    invariant(this.tagInput, 'should be set');
     this.tagInput.focus();
-  }
+  };
 
   removeIndex = (index: number) => {
     const tags = [...this.props.value];
     tags.splice(index, 1);
     this.props.onChange(tags);
-  }
+  };
 
   scrollToBottom = () => {
     const scrollView = this.scrollView;
     invariant(
       scrollView,
-      "this.scrollView ref should exist before scrollToBottom called",
+      'this.scrollView ref should exist before scrollToBottom called',
     );
     scrollView.scrollToEnd();
-  }
+  };
 
   render() {
-    const tagColor = this.props.tagColor ||
-      this.props.colors.modalSubtext;
-    const tagTextColor = this.props.tagTextColor ||
-      this.props.colors.modalForegroundLabel;
-    const inputColor = this.props.inputColor ||
-      this.props.colors.modalForegroundLabel;
+    const tagColor = this.props.tagColor || this.props.colors.modalSubtext;
+    const tagTextColor =
+      this.props.tagTextColor || this.props.colors.modalForegroundLabel;
+    const inputColor =
+      this.props.inputColor || this.props.colors.modalForegroundLabel;
     const placeholderColor = this.props.colors.modalForegroundTertiaryLabel;
     const tags = this.props.value.map((tag, index) => (
       <Tag
@@ -262,7 +257,7 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
     ));
 
     let inputWidth;
-    if (this.props.text === "") {
+    if (this.props.text === '') {
       inputWidth = this.props.defaultInputWidth;
     } else if (this.state.spaceLeft >= 100) {
       inputWidth = this.state.spaceLeft - 10;
@@ -286,20 +281,20 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
           >
             <View style={styles.tagInputContainer}>
               {tags}
-              <View style={[
-                styles.textInputContainer,
-                { width: inputWidth },
-              ]}>
+              <View style={[styles.textInputContainer, { width: inputWidth }]}>
                 <TextInput
                   ref={this.tagInputRef}
                   blurOnSubmit={false}
                   onKeyPress={this.onKeyPress}
                   value={this.props.text}
-                  style={[styles.textInput, {
-                    width: inputWidth,
-                    color: inputColor,
-                  }]}
-                  onBlur={Platform.OS === "ios" ? this.onBlur : undefined}
+                  style={[
+                    styles.textInput,
+                    {
+                      width: inputWidth,
+                      color: inputColor,
+                    },
+                  ]}
+                  onBlur={Platform.OS === 'ios' ? this.onBlur : undefined}
                   onChangeText={this.onChangeText}
                   autoCapitalize="none"
                   autoCorrect={false}
@@ -315,16 +310,16 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
           </ScrollView>
         </View>
       </TouchableWithoutFeedback>
-    )
+    );
   }
 
   tagInputRef = (tagInput: ?React.ElementRef<typeof TextInput>) => {
     this.tagInput = tagInput;
-  }
+  };
 
   scrollViewRef = (scrollView: ?React.ElementRef<typeof ScrollView>) => {
     this.scrollView = scrollView;
-  }
+  };
 
   onScrollViewContentSizeChange = (w: number, h: number) => {
     const oldContentHeight = this.state.contentHeight;
@@ -344,17 +339,17 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
     }
 
     this.setState({ contentHeight: h }, callback);
-  }
+  };
 
-  onScrollViewLayout = (
-    event: { nativeEvent: { layout: { height: number } } },
-  ) => {
+  onScrollViewLayout = (event: {
+    nativeEvent: { layout: { height: number } },
+  }) => {
     this.scrollViewHeight = event.nativeEvent.layout.height;
     if (this.scrollToBottomAfterNextScrollViewLayout) {
       this.scrollToBottom();
       this.scrollToBottomAfterNextScrollViewLayout = false;
     }
-  }
+  };
 
   onLayoutLastTag = (endPosOfTag: number) => {
     const margin = 3;
@@ -362,14 +357,13 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
     if (spaceLeft !== this.state.spaceLeft) {
       this.setState({ spaceLeft });
     }
-  }
-
+  };
 }
 
 type TagProps = {|
   index: number,
   label: string,
-  isLastTag: bool,
+  isLastTag: boolean,
   onLayoutLastTag: (endPosOfTag: number) => void,
   removeIndex: (index: number) => void,
   tagColor: string,
@@ -378,7 +372,6 @@ type TagProps = {|
   tagTextStyle?: TextStyle,
 |};
 class Tag extends React.PureComponent<TagProps> {
-
   static propTypes = {
     index: PropTypes.number.isRequired,
     label: PropTypes.string.isRequired,
@@ -414,11 +407,13 @@ class Tag extends React.PureComponent<TagProps> {
           this.props.tagContainerStyle,
         ]}
       >
-        <Text style={[
-          styles.tagText,
-          { color: this.props.tagTextColor },
-          this.props.tagTextStyle,
-        ]}>
+        <Text
+          style={[
+            styles.tagText,
+            { color: this.props.tagTextColor },
+            this.props.tagTextStyle,
+          ]}
+        >
           {this.props.label}
           &nbsp;&times;
         </Text>
@@ -428,26 +423,24 @@ class Tag extends React.PureComponent<TagProps> {
 
   onPress = () => {
     this.props.removeIndex(this.props.index);
-  }
+  };
 
-  onLayoutLastTag = (
-    event: { nativeEvent: { layout: { x: number, width: number } } },
-  ) => {
+  onLayoutLastTag = (event: {
+    nativeEvent: { layout: { x: number, width: number } },
+  }) => {
     const layout = event.nativeEvent.layout;
     this.curPos = layout.width + layout.x;
     if (this.props.isLastTag) {
       this.props.onLayoutLastTag(this.curPos);
     }
-  }
-
+  };
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  wrapper: {
-  },
+  wrapper: {},
   tagInputContainerScroll: {
     flex: 1,
   },
@@ -459,14 +452,13 @@ const styles = StyleSheet.create({
   textInput: {
     fontSize: 16,
     height: 24,
-    flex: .6,
+    flex: 0.6,
     padding: 0,
     marginTop: 3,
     marginBottom: 3,
     marginHorizontal: 0,
   },
-  textInputContainer: {
-  },
+  textInputContainer: {},
   tag: {
     justifyContent: 'center',
     marginBottom: 3,
@@ -482,9 +474,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect(
-  (state: AppState) => ({
-    dimensions: dimensionsSelector(state),
-    colors: colorsSelector(state),
-  }),
-)(TagInput);
+export default connect((state: AppState) => ({
+  dimensions: dimensionsSelector(state),
+  colors: colorsSelector(state),
+}))(TagInput);

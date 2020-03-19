@@ -8,6 +8,4 @@ function endScript() {
   publisher.end();
 }
 
-export {
-  endScript,
-};
+export { endScript };

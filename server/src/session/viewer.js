@@ -23,12 +23,12 @@ export type UserViewerData = {|
   +cookieID: ?string,
   +cookieSource?: CookieSource,
   +cookiePassword: ?string,
-  +cookieInsertedThisRequest?: bool,
+  +cookieInsertedThisRequest?: boolean,
   +sessionIdentifierType?: SessionIdentifierType,
   +sessionID: ?string,
   +sessionInfo: ?SessionInfo,
-  +isScriptViewer: bool,
-  +isSocket?: bool,
+  +isScriptViewer: boolean,
+  +isSocket?: boolean,
   +ipAddress?: string,
   +userAgent?: ?string,
 |};
@@ -41,12 +41,12 @@ export type AnonymousViewerData = {|
   +cookieSource?: CookieSource,
   +cookieID: string,
   +cookiePassword: ?string,
-  +cookieInsertedThisRequest?: bool,
+  +cookieInsertedThisRequest?: boolean,
   +sessionIdentifierType?: SessionIdentifierType,
   +sessionID: ?string,
   +sessionInfo: ?SessionInfo,
-  +isScriptViewer: bool,
-  +isSocket?: bool,
+  +isScriptViewer: boolean,
+  +isSocket?: boolean,
   +ipAddress?: string,
   +userAgent?: ?string,
 |};
@@ -59,7 +59,6 @@ type SessionInfo = {|
 export type ViewerData = UserViewerData | AnonymousViewerData;
 
 class Viewer {
-
   data: ViewerData;
   sessionChanged = false;
   cookieInvalidated = false;
@@ -72,9 +71,7 @@ class Viewer {
   }
 
   static cookieNameFromViewerData(data: ViewerData) {
-    return data.loggedIn
-      ? cookieTypes.USER
-      : cookieTypes.ANONYMOUS;
+    return data.loggedIn ? cookieTypes.USER : cookieTypes.ANONYMOUS;
   }
 
   getData() {
@@ -180,7 +177,7 @@ class Viewer {
     return this.data.id;
   }
 
-  get loggedIn(): bool {
+  get loggedIn(): boolean {
     return this.data.loggedIn;
   }
 
@@ -188,7 +185,7 @@ class Viewer {
     const { cookieSource } = this.data;
     invariant(
       cookieSource !== null && cookieSource !== undefined,
-      "Viewer.cookieSource should be set",
+      'Viewer.cookieSource should be set',
     );
     return cookieSource;
   }
@@ -197,7 +194,7 @@ class Viewer {
     const { cookieID } = this.data;
     invariant(
       cookieID !== null && cookieID !== undefined,
-      "Viewer.cookieID should be set",
+      'Viewer.cookieID should be set',
     );
     return cookieID;
   }
@@ -206,7 +203,7 @@ class Viewer {
     const { cookiePassword } = this.data;
     invariant(
       cookiePassword !== null && cookiePassword !== undefined,
-      "Viewer.cookieID should be set",
+      'Viewer.cookieID should be set',
     );
     return cookiePassword;
   }
@@ -215,7 +212,7 @@ class Viewer {
     const { sessionIdentifierType } = this.data;
     invariant(
       sessionIdentifierType !== null && sessionIdentifierType !== undefined,
-      "Viewer.sessionIdentifierType should be set",
+      'Viewer.sessionIdentifierType should be set',
     );
     return sessionIdentifierType;
   }
@@ -241,7 +238,7 @@ class Viewer {
     }
   }
 
-  get hasSessionInfo(): bool {
+  get hasSessionInfo(): boolean {
     const { sessionInfo } = this.data;
     return !!sessionInfo;
   }
@@ -250,7 +247,7 @@ class Viewer {
     const { sessionInfo } = this.data;
     invariant(
       sessionInfo !== null && sessionInfo !== undefined,
-      "Viewer.sessionInfo should be set",
+      'Viewer.sessionInfo should be set',
     );
     return sessionInfo.lastValidated;
   }
@@ -259,7 +256,7 @@ class Viewer {
     const { sessionInfo } = this.data;
     invariant(
       sessionInfo !== null && sessionInfo !== undefined,
-      "Viewer.sessionInfo should be set",
+      'Viewer.sessionInfo should be set',
     );
     return sessionInfo.calendarQuery;
   }
@@ -297,14 +294,14 @@ class Viewer {
     return this.data.deviceToken;
   }
 
-  get isScriptViewer(): bool {
+  get isScriptViewer(): boolean {
     return this.data.isScriptViewer;
   }
 
-  get isSocket(): bool {
+  get isSocket(): boolean {
     invariant(
       this.data.isSocket !== null && this.data.isSocket !== undefined,
-      "isSocket should be set",
+      'isSocket should be set',
     );
     return this.data.isSocket;
   }
@@ -312,7 +309,7 @@ class Viewer {
   get ipAddress(): string {
     invariant(
       this.data.ipAddress !== null && this.data.ipAddress !== undefined,
-      "ipAddress should be set",
+      'ipAddress should be set',
     );
     return this.data.ipAddress;
   }
@@ -328,9 +325,6 @@ class Viewer {
     }
     return this.cachedTimeZone;
   }
-
 }
 
-export {
-  Viewer,
-};
+export { Viewer };

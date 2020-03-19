@@ -19,10 +19,7 @@ import type {
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type {
-  NavigationScreenProp,
-  NavigationRoute,
-} from 'react-navigation';
+import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
 import type { Styles } from '../types/styles';
 
 import * as React from 'react';
@@ -88,17 +85,17 @@ type Props = {|
   navigation: NavigationScreenProp<NavigationRoute>,
   entryInfo: EntryInfoWithHeight,
   threadInfo: ThreadInfo,
-  visible: bool,
-  active: bool,
-  makeActive: (entryKey: string, active: bool) => void,
+  visible: boolean,
+  active: boolean,
+  makeActive: (entryKey: string, active: boolean) => void,
   onEnterEditMode: (entryInfo: EntryInfoWithHeight) => void,
   onPressWhitespace: () => void,
   entryRef: (entryKey: string, entry: ?InternalEntry) => void,
   // Redux state
   calendarQuery: () => CalendarQuery,
-  threadPickerActive: bool,
+  threadPickerActive: boolean,
   foregroundKey: string,
-  online: bool,
+  online: boolean,
   styles: Styles,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
@@ -109,13 +106,12 @@ type Props = {|
   deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryPayload>,
 |};
 type State = {|
-  editing: bool,
+  editing: boolean,
   text: string,
   loadingStatus: LoadingStatus,
   height: number,
 |};
 class InternalEntry extends React.Component<Props, State> {
-  
   static propTypes = {
     navigation: PropTypes.shape({
       navigate: PropTypes.func.isRequired,
@@ -154,7 +150,7 @@ class InternalEntry extends React.Component<Props, State> {
     this.state = {
       editing: false,
       text: props.entryInfo.text,
-      loadingStatus: "inactive",
+      loadingStatus: 'inactive',
       height: props.entryInfo.textHeight,
     };
     this.state.editing = InternalEntry.isActive(props, this.state);
@@ -167,10 +163,12 @@ class InternalEntry extends React.Component<Props, State> {
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
-    const omitEntryInfo = _omit(["entryInfo"]);
-    return !shallowequal(nextState, this.state) ||
+    const omitEntryInfo = _omit(['entryInfo']);
+    return (
+      !shallowequal(nextState, this.state) ||
       !shallowequal(omitEntryInfo(nextProps), omitEntryInfo(this.props)) ||
-      !_isEqual(nextProps.entryInfo)(this.props.entryInfo);
+      !_isEqual(nextProps.entryInfo)(this.props.entryInfo)
+    );
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
@@ -205,14 +203,15 @@ class InternalEntry extends React.Component<Props, State> {
     if (
       this.props.online &&
       !prevProps.online &&
-      this.state.loadingStatus === "error"
+      this.state.loadingStatus === 'error'
     ) {
       this.save();
     }
 
     if (
-      this.state.editing && prevState.editing &&
-      (this.state.text.trim() === "") !== (prevState.text.trim() === "")
+      this.state.editing &&
+      prevState.editing &&
+      (this.state.text.trim() === '') !== (prevState.text.trim() === '')
     ) {
       LayoutAnimation.easeInEaseOut();
     }
@@ -229,10 +228,12 @@ class InternalEntry extends React.Component<Props, State> {
   }
 
   static isActive(props: Props, state: State) {
-    return props.active ||
+    return (
+      props.active ||
       state.editing ||
       !props.entryInfo.id ||
-      state.loadingStatus !== "inactive";
+      state.loadingStatus !== 'inactive'
+    );
   }
 
   render() {
@@ -250,19 +251,14 @@ class InternalEntry extends React.Component<Props, State> {
         : colors.light;
       const loadingIndicatorCanUseRed = hueDistance('red', threadColor) > 50;
       let editButtonContent = null;
-      if (editing && this.state.text.trim() === "") {
+      if (editing && this.state.text.trim() === '') {
       } else if (editing) {
         editButtonContent = (
           <React.Fragment>
-            <Icon
-              name="check"
-              size={14}
-              color={actionLinksColor}
-            />
-            <Text style={[
-              this.props.styles.leftLinksText,
-              actionLinksTextStyle,
-            ]}>
+            <Icon name="check" size={14} color={actionLinksColor} />
+            <Text
+              style={[this.props.styles.leftLinksText, actionLinksTextStyle]}
+            >
               SAVE
             </Text>
           </React.Fragment>
@@ -276,10 +272,9 @@ class InternalEntry extends React.Component<Props, State> {
               color={actionLinksColor}
               style={this.props.styles.pencilIcon}
             />
-            <Text style={[
-              this.props.styles.leftLinksText,
-              actionLinksTextStyle,
-            ]}>
+            <Text
+              style={[this.props.styles.leftLinksText, actionLinksTextStyle]}
+            >
               EDIT
             </Text>
           </React.Fragment>
@@ -296,15 +291,13 @@ class InternalEntry extends React.Component<Props, State> {
               style={this.props.styles.button}
             >
               <View style={this.props.styles.buttonContents}>
-                <Icon
-                  name="close"
-                  size={14}
-                  color={actionLinksColor}
-                />
-                <Text style={[
-                  this.props.styles.leftLinksText,
-                  actionLinksTextStyle,
-                ]}>
+                <Icon name="close" size={14} color={actionLinksColor} />
+                <Text
+                  style={[
+                    this.props.styles.leftLinksText,
+                    actionLinksTextStyle,
+                  ]}
+                >
                   DELETE
                 </Text>
               </View>
@@ -335,10 +328,7 @@ class InternalEntry extends React.Component<Props, State> {
               style={this.props.styles.button}
             >
               <Text
-                style={[
-                  this.props.styles.rightLinksText,
-                  actionLinksTextStyle,
-                ]}
+                style={[this.props.styles.rightLinksText, actionLinksTextStyle]}
                 numberOfLines={1}
               >
                 {this.props.threadInfo.uiName}
@@ -359,7 +349,7 @@ class InternalEntry extends React.Component<Props, State> {
       const selectionColor = darkColor ? '#129AFF' : '#036AFF';
       textInput = (
         <TextInput
-          style={[ this.props.styles.textInput, textInputStyle ]}
+          style={[this.props.styles.textInput, textInputStyle]}
           underlineColorAndroid="transparent"
           value={this.state.text}
           onChangeText={this.onChangeText}
@@ -372,8 +362,8 @@ class InternalEntry extends React.Component<Props, State> {
     }
 
     let rawText = this.state.text;
-    if (rawText === "" || rawText.slice(-1) === "\n") {
-      rawText += " ";
+    if (rawText === '' || rawText.slice(-1) === '\n') {
+      rawText += ' ';
     }
     const textStyle = {};
     textStyle.color = textColor;
@@ -392,7 +382,7 @@ class InternalEntry extends React.Component<Props, State> {
         <View style={this.props.styles.container}>
           <Button
             onPress={this.setActive}
-            style={[ this.props.styles.entry, entryStyle ]}
+            style={[this.props.styles.entry, entryStyle]}
             androidFormat="opacity"
             iosActiveOpacity={opacity}
           >
@@ -404,7 +394,7 @@ class InternalEntry extends React.Component<Props, State> {
                 style={this.props.styles.textContainer}
               >
                 <Text
-                  style={[ this.props.styles.text, textStyle ]}
+                  style={[this.props.styles.text, textStyle]}
                   onLayout={this.onTextLayout}
                 >
                   {rawText}
@@ -424,18 +414,18 @@ class InternalEntry extends React.Component<Props, State> {
     if (textInput && this.state.editing) {
       this.enterEditMode();
     }
-  }
+  };
 
   enterEditMode = () => {
     this.setActive();
     this.props.onEnterEditMode(this.props.entryInfo);
-    if (Platform.OS !== "android") {
+    if (Platform.OS !== 'android') {
       this.focus();
     } else {
       // For some reason if we don't do this the scroll stops halfway through
       InteractionManager.runAfterInteractions(() => setTimeout(this.focus));
     }
-  }
+  };
 
   focus = () => {
     const { textInput } = this;
@@ -446,7 +436,7 @@ class InternalEntry extends React.Component<Props, State> {
     if (this.props.threadPickerActive) {
       this.props.navigation.goBack(this.props.foregroundKey);
     }
-  }
+  };
 
   setActive = () => this.props.makeActive(entryKey(this.props.entryInfo), true);
 
@@ -462,33 +452,31 @@ class InternalEntry extends React.Component<Props, State> {
       this.textInput.blur();
     }
     this.onBlur();
-  }
+  };
 
   onBlur = () => {
-    if (this.state.text.trim() === "") {
+    if (this.state.text.trim() === '') {
       this.delete();
     } else if (this.props.entryInfo.text !== this.state.text) {
       this.save();
     }
     this.guardedSetState({ editing: false });
     this.props.makeActive(entryKey(this.props.entryInfo), false);
-  }
+  };
 
   save = () => {
     this.dispatchSave(this.props.entryInfo.id, this.state.text);
-  }
+  };
 
-  onTextLayout = (
-    event: { nativeEvent: { layout: { height: number }}},
-  ) => {
+  onTextLayout = (event: { nativeEvent: { layout: { height: number } } }) => {
     this.guardedSetState({
       height: Math.ceil(event.nativeEvent.layout.height),
     });
-  }
+  };
 
   onChangeText = (newText: string) => {
     this.guardedSetState({ text: newText });
-  }
+  };
 
   dispatchSave(serverID: ?string, newText: string) {
     if (this.currentlySaving === newText) {
@@ -496,7 +484,7 @@ class InternalEntry extends React.Component<Props, State> {
     }
     this.currentlySaving = newText;
 
-    if (newText.trim() === "") {
+    if (newText.trim() === '') {
       // We don't save the empty string, since as soon as the element becomes
       // inactive it'll get deleted
       return;
@@ -513,7 +501,7 @@ class InternalEntry extends React.Component<Props, State> {
       }
     }
 
-    this.guardedSetState({ loadingStatus: "loading" });
+    this.guardedSetState({ loadingStatus: 'loading' });
     if (!serverID) {
       this.props.dispatchActionPromise(
         createEntryActionTypes,
@@ -545,7 +533,7 @@ class InternalEntry extends React.Component<Props, State> {
         calendarQuery: this.props.calendarQuery(),
       });
       if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
-        this.guardedSetState({ loadingStatus: "inactive" });
+        this.guardedSetState({ loadingStatus: 'inactive' });
       }
       this.creating = false;
       if (this.needsUpdateAfterCreation) {
@@ -557,9 +545,9 @@ class InternalEntry extends React.Component<Props, State> {
         this.dispatchDelete(response.entryID);
       }
       return response;
-    } catch(e) {
+    } catch (e) {
       if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
-        this.guardedSetState({ loadingStatus: "error" });
+        this.guardedSetState({ loadingStatus: 'error' });
       }
       this.currentlySaving = null;
       this.creating = false;
@@ -578,19 +566,19 @@ class InternalEntry extends React.Component<Props, State> {
         calendarQuery: this.props.calendarQuery(),
       });
       if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
-        this.guardedSetState({ loadingStatus: "inactive" });
+        this.guardedSetState({ loadingStatus: 'inactive' });
       }
       return { ...response, threadID: this.props.entryInfo.threadID };
-    } catch(e) {
+    } catch (e) {
       if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
-        this.guardedSetState({ loadingStatus: "error" });
+        this.guardedSetState({ loadingStatus: 'error' });
       }
       this.currentlySaving = null;
       if (e instanceof ServerError && e.message === 'concurrent_modification') {
         const revertedText = e.payload.db;
         const onRefresh = () => {
           this.guardedSetState({
-            loadingStatus: "inactive",
+            loadingStatus: 'inactive',
             text: revertedText,
           });
           this.props.dispatchActionPayload(
@@ -599,12 +587,10 @@ class InternalEntry extends React.Component<Props, State> {
           );
         };
         Alert.alert(
-          "Concurrent modification",
-          "It looks like somebody is attempting to modify that field at the " +
-            "same time as you! Please try again.",
-          [
-            { text: 'OK', onPress: onRefresh },
-          ],
+          'Concurrent modification',
+          'It looks like somebody is attempting to modify that field at the ' +
+            'same time as you! Please try again.',
+          [{ text: 'OK', onPress: onRefresh }],
           { cancelable: false },
         );
       }
@@ -614,7 +600,7 @@ class InternalEntry extends React.Component<Props, State> {
 
   delete = () => {
     this.dispatchDelete(this.props.entryInfo.id);
-  }
+  };
 
   onPressEdit = () => {
     if (this.state.editing) {
@@ -622,7 +608,7 @@ class InternalEntry extends React.Component<Props, State> {
     } else {
       this.guardedSetState({ editing: true });
     }
-  }
+  };
 
   dispatchDelete(serverID: ?string) {
     if (this.deleted) {
@@ -664,8 +650,7 @@ class InternalEntry extends React.Component<Props, State> {
         key: `${MessageListRouteName}${threadInfo.id}`,
       }),
     });
-  }
-
+  };
 }
 
 const styles = {
@@ -693,8 +678,8 @@ const styles = {
   },
   textInput: {
     position: 'absolute',
-    top: Platform.OS === "android" ? 4.8 : 0.5,
-    left: Platform.OS === "android" ? 9.8 : 10,
+    top: Platform.OS === 'android' ? 4.8 : 0.5,
+    left: Platform.OS === 'android' ? 9.8 : 10,
     right: 10,
     padding: 0,
     margin: 0,
@@ -737,11 +722,11 @@ const styles = {
   },
   lightLinkText: {
     color: colors.dark.link,
-    textDecorationLine: "underline",
+    textDecorationLine: 'underline',
   },
   darkLinkText: {
     color: colors.light.link,
-    textDecorationLine: "underline",
+    textDecorationLine: 'underline',
   },
   pencilIcon: {
     paddingTop: 1,
@@ -752,22 +737,19 @@ const stylesSelector = styleSelector(styles);
 
 registerFetchKey(saveEntryActionTypes);
 registerFetchKey(deleteEntryActionTypes);
-const activeThreadPickerSelector =
-  createIsForegroundSelector(ThreadPickerModalRouteName);
+const activeThreadPickerSelector = createIsForegroundSelector(
+  ThreadPickerModalRouteName,
+);
 
 const Entry = connect(
   (state: AppState) => ({
     calendarQuery: nonThreadCalendarQuery(state),
     threadPickerActive: activeThreadPickerSelector(state),
     foregroundKey: foregroundKeySelector(state),
-    online: state.connection.status === "connected",
+    online: state.connection.status === 'connected',
     styles: stylesSelector(state),
   }),
   { createEntry, saveEntry, deleteEntry },
 )(InternalEntry);
 
-export {
-  InternalEntry,
-  Entry,
-  styles as entryStyles,
-};
+export { InternalEntry, Entry, styles as entryStyles };

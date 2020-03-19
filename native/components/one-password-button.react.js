@@ -20,10 +20,7 @@ function OnePasswordButton(props: Props) {
   }
   return (
     <TouchableWithoutFeedback onPress={props.onPress}>
-      <Image
-        source={source}
-        style={[ styles.image, props.style ]}
-      />
+      <Image source={source} style={[styles.image, props.style]} />
     </TouchableWithoutFeedback>
   );
 }

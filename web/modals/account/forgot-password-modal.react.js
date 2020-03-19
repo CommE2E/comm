@@ -7,10 +7,7 @@ import * as React from 'react';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 
-import {
-  validUsernameRegex,
-  validEmailRegex,
-} from 'lib/shared/account-utils';
+import { validUsernameRegex, validEmailRegex } from 'lib/shared/account-utils';
 import { connect } from 'lib/utils/redux-utils';
 import {
   forgotPasswordActionTypes,
@@ -25,7 +22,7 @@ import PasswordResetEmailModal from './password-reset-email-modal.react';
 type Props = {
   setModal: (modal: ?React.Node) => void,
   // Redux state
-  inputDisabled: bool,
+  inputDisabled: boolean,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -37,7 +34,6 @@ type State = {
 };
 
 class ForgotPasswordModal extends React.PureComponent<Props, State> {
-
   props: Props;
   state: State;
   usernameOrEmailInput: ?HTMLInputElement;
@@ -45,13 +41,13 @@ class ForgotPasswordModal extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      usernameOrEmail: "",
-      errorMessage: "",
+      usernameOrEmail: '',
+      errorMessage: '',
     };
   }
 
   componentDidMount() {
-    invariant(this.usernameOrEmailInput, "usernameOrEmail ref unset");
+    invariant(this.usernameOrEmailInput, 'usernameOrEmail ref unset');
     this.usernameOrEmailInput.focus();
   }
 
@@ -94,13 +90,13 @@ class ForgotPasswordModal extends React.PureComponent<Props, State> {
 
   usernameOrEmailInputRef = (usernameOrEmailInput: ?HTMLInputElement) => {
     this.usernameOrEmailInput = usernameOrEmailInput;
-  }
+  };
 
   onChangeUsernameOrEmail = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
-    invariant(target instanceof HTMLInputElement, "target not input");
+    invariant(target instanceof HTMLInputElement, 'target not input');
     this.setState({ usernameOrEmail: target.value });
-  }
+  };
 
   onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
@@ -111,13 +107,13 @@ class ForgotPasswordModal extends React.PureComponent<Props, State> {
     ) {
       this.setState(
         {
-          usernameOrEmail: "",
-          errorMessage: "alphanumeric usernames or emails only",
+          usernameOrEmail: '',
+          errorMessage: 'alphanumeric usernames or emails only',
         },
         () => {
           invariant(
             this.usernameOrEmailInput,
-            "usernameOrEmailInput ref unset",
+            'usernameOrEmailInput ref unset',
           );
           this.usernameOrEmailInput.focus();
         },
@@ -129,26 +125,27 @@ class ForgotPasswordModal extends React.PureComponent<Props, State> {
       forgotPasswordActionTypes,
       this.forgotPasswordAction(),
     );
-  }
+  };
 
   async forgotPasswordAction() {
     try {
       await this.props.forgotPassword(this.state.usernameOrEmail);
       this.props.setModal(
-        <PasswordResetEmailModal onClose={this.clearModal} />
+        <PasswordResetEmailModal onClose={this.clearModal} />,
       );
     } catch (e) {
       this.setState(
         {
-          usernameOrEmail: "",
-          errorMessage: e.message === 'invalid_user'
-            ? "user doesn't exist"
-            : "unknown error",
+          usernameOrEmail: '',
+          errorMessage:
+            e.message === 'invalid_user'
+              ? "user doesn't exist"
+              : 'unknown error',
         },
         () => {
           invariant(
             this.usernameOrEmailInput,
-            "usernameOrEmailInput ref unset",
+            'usernameOrEmailInput ref unset',
           );
           this.usernameOrEmailInput.focus();
         },
@@ -159,8 +156,7 @@ class ForgotPasswordModal extends React.PureComponent<Props, State> {
 
   clearModal = () => {
     this.props.setModal(null);
-  }
-
+  };
 }
 
 ForgotPasswordModal.propTypes = {
@@ -170,12 +166,13 @@ ForgotPasswordModal.propTypes = {
   forgotPassword: PropTypes.func.isRequired,
 };
 
-const loadingStatusSelector
-  = createLoadingStatusSelector(forgotPasswordActionTypes);
+const loadingStatusSelector = createLoadingStatusSelector(
+  forgotPasswordActionTypes,
+);
 
 export default connect(
   (state: AppState) => ({
-    inputDisabled: loadingStatusSelector(state) === "loading",
+    inputDisabled: loadingStatusSelector(state) === 'loading',
   }),
   { forgotPassword },
 )(ForgotPasswordModal);

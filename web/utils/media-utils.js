@@ -48,20 +48,17 @@ async function validateFile(file: File): Promise<?FileValidationResult> {
     return null;
   }
   let dimensions = null;
-  if (mediaType === "photo") {
+  if (mediaType === 'photo') {
     dimensions = await getPhotoDimensions(file);
   }
-  const fixedFile = name !== file.name || mime !== file.type
-    ? new File([ file ], name, { type: mime })
-    : file;
+  const fixedFile =
+    name !== file.name || mime !== file.type
+      ? new File([file], name, { type: mime })
+      : file;
   return { file: fixedFile, mediaType, dimensions };
 }
 
-const allowedMimeTypeArray = [
-  "image/png",
-  "image/jpeg",
-  "image/gif",
-];
+const allowedMimeTypeArray = ['image/png', 'image/jpeg', 'image/gif'];
 const allowedMimeTypes = new Set(allowedMimeTypeArray);
 const allowedMimeTypeString = allowedMimeTypeArray.join(',');
 
@@ -77,8 +74,4 @@ function preloadImage(uri: string): Promise<Dimensions> {
   });
 }
 
-export {
-  validateFile,
-  allowedMimeTypeString,
-  preloadImage,
-};
+export { validateFile, allowedMimeTypeString, preloadImage };

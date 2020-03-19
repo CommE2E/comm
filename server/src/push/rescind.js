@@ -21,14 +21,14 @@ async function rescindPushNotifs(
   `);
   fetchQuery.append(notifCondition);
   fetchQuery.append(SQL` GROUP BY n.id, m.user`);
-  const [ fetchResult ] = await dbQuery(fetchQuery);
+  const [fetchResult] = await dbQuery(fetchQuery);
 
   const promises = [];
   const rescindedIDs = [];
   for (let row of fetchResult) {
     const deliveries = Array.isArray(row.delivery)
       ? row.delivery
-      : [ row.delivery ];
+      : [row.delivery];
     for (let delivery of deliveries) {
       if (delivery.iosID && delivery.iosDeviceTokens) {
         // Old iOS
@@ -36,10 +36,7 @@ async function rescindPushNotifs(
           delivery.iosID,
           row.unread_count,
         );
-        promises.push(apnPush(
-          notification,
-          delivery.iosDeviceTokens,
-        ));
+        promises.push(apnPush(notification, delivery.iosDeviceTokens));
       } else if (delivery.androidID) {
         // Old Android
         const notification = prepareAndroidNotification(
@@ -48,23 +45,15 @@ async function rescindPushNotifs(
           row.thread.toString(),
           null,
         );
-        promises.push(fcmPush(
-          notification,
-          delivery.androidDeviceTokens,
-          null,
-        ));
-      } else if (delivery.deviceType === "ios") {
+        promises.push(
+          fcmPush(notification, delivery.androidDeviceTokens, null),
+        );
+      } else if (delivery.deviceType === 'ios') {
         // New iOS
         const { iosID, deviceTokens } = delivery;
-        const notification = prepareIOSNotification(
-          iosID,
-          row.unread_count,
-        );
-        promises.push(apnPush(
-          notification,
-          deviceTokens,
-        ));
-      } else if (delivery.deviceType === "android") {
+        const notification = prepareIOSNotification(iosID, row.unread_count);
+        promises.push(apnPush(notification, deviceTokens));
+      } else if (delivery.deviceType === 'android') {
         // New Android
         const { deviceTokens, codeVersion } = delivery;
         const notification = prepareAndroidNotification(
@@ -73,11 +62,7 @@ async function rescindPushNotifs(
           row.thread.toString(),
           codeVersion,
         );
-        promises.push(fcmPush(
-          notification,
-          deviceTokens,
-          null,
-        ));
+        promises.push(fcmPush(notification, deviceTokens, null));
       }
     }
     rescindedIDs.push(row.id);
@@ -99,10 +84,10 @@ function prepareIOSNotification(
   const notification = new apn.Notification();
   notification.contentAvailable = true;
   notification.badge = unreadCount;
-  notification.topic = "org.squadcal.app";
+  notification.topic = 'org.squadcal.app';
   notification.payload = {
     managedAps: {
-      action: "CLEAR",
+      action: 'CLEAR',
       notificationId: iosID,
     },
   };
@@ -120,7 +105,7 @@ function prepareAndroidNotification(
       data: {
         badge: unreadCount.toString(),
         custom_notification: JSON.stringify({
-          rescind: "true",
+          rescind: 'true',
           notifID,
         }),
       },
@@ -129,13 +114,11 @@ function prepareAndroidNotification(
   return {
     data: {
       badge: unreadCount.toString(),
-      rescind: "true",
+      rescind: 'true',
       rescindID: notifID,
       threadID,
     },
   };
 }
 
-export {
-  rescindPushNotifs,
-};
+export { rescindPushNotifs };

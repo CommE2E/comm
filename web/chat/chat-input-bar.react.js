@@ -40,10 +40,7 @@ import {
   sendTextMessageActionTypes,
   sendTextMessage,
 } from 'lib/actions/message-actions';
-import {
-  joinThreadActionTypes,
-  joinThread,
-} from 'lib/actions/thread-actions';
+import { joinThreadActionTypes, joinThread } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
 
@@ -73,7 +70,6 @@ type Props = {|
   joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
 |};
 class ChatInputBar extends React.PureComponent<Props> {
-
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     chatInputState: chatInputStatePropType.isRequired,
@@ -112,7 +108,7 @@ class ChatInputBar extends React.PureComponent<Props> {
       // Whenever a pending upload is removed, we reset the file
       // HTMLInputElement's value field, so that if the same upload occurs again
       // the onChange call doesn't get filtered
-      this.multimediaInput.value = "";
+      this.multimediaInput.value = '';
     } else if (
       this.textarea &&
       _difference(curUploadIDs)(prevUploadIDs).length > 0
@@ -125,11 +121,11 @@ class ChatInputBar extends React.PureComponent<Props> {
   static unassignedUploadIDs(
     pendingUploads: $ReadOnlyArray<PendingMultimediaUpload>,
   ) {
-    return pendingUploads.filter(
-      (pendingUpload: PendingMultimediaUpload) => !pendingUpload.messageID,
-    ).map(
-      (pendingUpload: PendingMultimediaUpload) => pendingUpload.localID,
-    );
+    return pendingUploads
+      .filter(
+        (pendingUpload: PendingMultimediaUpload) => !pendingUpload.messageID,
+      )
+      .map((pendingUpload: PendingMultimediaUpload) => pendingUpload.localID);
   }
 
   updateHeight() {
@@ -149,7 +145,7 @@ class ChatInputBar extends React.PureComponent<Props> {
       threadHasPermission(this.props.threadInfo, threadPermissions.JOIN_THREAD)
     ) {
       let buttonContent;
-      if (this.props.joinThreadLoadingStatus === "loading") {
+      if (this.props.joinThreadLoadingStatus === 'loading') {
         buttonContent = (
           <LoadingIndicator
             status={this.props.joinThreadLoadingStatus}
@@ -158,15 +154,11 @@ class ChatInputBar extends React.PureComponent<Props> {
           />
         );
       } else {
-        buttonContent = (
-          <span className={css.joinButtonText}>Join Thread</span>
-        );
+        buttonContent = <span className={css.joinButtonText}>Join Thread</span>;
       }
       joinButton = (
         <div className={css.joinButtonContainer}>
-          <a onClick={this.onClickJoin}>
-            {buttonContent}
-          </a>
+          <a onClick={this.onClickJoin}>{buttonContent}</a>
         </div>
       );
     }
@@ -180,9 +172,10 @@ class ChatInputBar extends React.PureComponent<Props> {
         key={pendingUpload.localID}
       />
     ));
-    const previews = multimediaPreviews.length > 0
-      ? <div className={css.previews}>{multimediaPreviews}</div>
-      : null;
+    const previews =
+      multimediaPreviews.length > 0 ? (
+        <div className={css.previews}>{multimediaPreviews}</div>
+      ) : null;
 
     let content;
     if (threadHasPermission(this.props.threadInfo, threadPermissions.VOICED)) {
@@ -204,15 +197,10 @@ class ChatInputBar extends React.PureComponent<Props> {
               accept={allowedMimeTypeString}
               multiple
             />
-            <FontAwesomeIcon
-              icon={faFileImage}
-            />
+            <FontAwesomeIcon icon={faFileImage} />
           </a>
           <a className={css.send} onClick={this.onSend}>
-            <FontAwesomeIcon
-              icon={faChevronRight}
-              className={css.sendButton}
-            />
+            <FontAwesomeIcon icon={faChevronRight} className={css.sendButton} />
             Send
           </a>
         </div>
@@ -224,15 +212,17 @@ class ChatInputBar extends React.PureComponent<Props> {
         </span>
       );
     } else {
-      const defaultRoleID = Object.keys(this.props.threadInfo.roles)
-        .find(roleID => this.props.threadInfo.roles[roleID].isDefault);
+      const defaultRoleID = Object.keys(this.props.threadInfo.roles).find(
+        roleID => this.props.threadInfo.roles[roleID].isDefault,
+      );
       invariant(
         defaultRoleID !== undefined,
-        "all threads should have a default role",
+        'all threads should have a default role',
       );
       const defaultRole = this.props.threadInfo.roles[defaultRoleID];
-      const membersAreVoiced =
-        !!defaultRole.permissions[threadPermissions.VOICED];
+      const membersAreVoiced = !!defaultRole.permissions[
+        threadPermissions.VOICED
+      ];
       if (membersAreVoiced) {
         content = (
           <span className={css.explanation}>
@@ -259,23 +249,23 @@ class ChatInputBar extends React.PureComponent<Props> {
 
   textareaRef = (textarea: ?HTMLTextAreaElement) => {
     this.textarea = textarea;
-  }
+  };
 
   onChangeMessageText = (event: SyntheticEvent<HTMLTextAreaElement>) => {
     this.props.chatInputState.setDraft(event.currentTarget.value);
-  }
+  };
 
   onKeyDown = (event: SyntheticKeyboardEvent<HTMLTextAreaElement>) => {
     if (event.keyCode === 13 && !event.shiftKey) {
       event.preventDefault();
       this.send();
     }
-  }
+  };
 
   onSend = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.send();
-  }
+  };
 
   send() {
     let { nextLocalID } = this.props;
@@ -292,11 +282,11 @@ class ChatInputBar extends React.PureComponent<Props> {
   }
 
   dispatchTextMessageAction(text: string, nextLocalID: number) {
-    this.props.chatInputState.setDraft("");
+    this.props.chatInputState.setDraft('');
 
     const localID = `local${nextLocalID}`;
     const creatorID = this.props.viewerID;
-    invariant(creatorID, "should have viewer ID in order to send a message");
+    invariant(creatorID, 'should have viewer ID in order to send a message');
     const messageInfo = ({
       type: messageTypes.TEXT,
       localID,
@@ -320,7 +310,7 @@ class ChatInputBar extends React.PureComponent<Props> {
       const { localID } = messageInfo;
       invariant(
         localID !== null && localID !== undefined,
-        "localID should be set",
+        'localID should be set',
       );
       const result = await this.props.sendTextMessage(
         messageInfo.threadID,
@@ -342,25 +332,22 @@ class ChatInputBar extends React.PureComponent<Props> {
 
   multimediaInputRef = (multimediaInput: ?HTMLInputElement) => {
     this.multimediaInput = multimediaInput;
-  }
+  };
 
   onMultimediaClick = (event: SyntheticEvent<HTMLInputElement>) => {
     if (this.multimediaInput) {
       this.multimediaInput.click();
     }
-  }
+  };
 
   onMultimediaFileChange = (event: SyntheticInputEvent<HTMLInputElement>) => {
     this.props.chatInputState.appendFiles([...event.target.files]);
-  }
+  };
 
   onClickJoin = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.props.dispatchActionPromise(
-      joinThreadActionTypes,
-      this.joinAction(),
-    );
-  }
+    this.props.dispatchActionPromise(joinThreadActionTypes, this.joinAction());
+  };
 
   async joinAction() {
     const query = this.props.calendarQuery();
@@ -371,16 +358,16 @@ class ChatInputBar extends React.PureComponent<Props> {
         endDate: query.endDate,
         filters: [
           ...query.filters,
-          { type: "threads", threadIDs: [this.props.threadInfo.id] },
+          { type: 'threads', threadIDs: [this.props.threadInfo.id] },
         ],
       },
     });
   }
-
 }
 
-const joinThreadLoadingStatusSelector
-  = createLoadingStatusSelector(joinThreadActionTypes);
+const joinThreadLoadingStatusSelector = createLoadingStatusSelector(
+  joinThreadActionTypes,
+);
 
 export default connect(
   (state: AppState) => ({

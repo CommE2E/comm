@@ -48,17 +48,16 @@ type Props = {|
   filterThreadInfos: () => $ReadOnlyArray<FilterThreadInfo>,
   filterThreadSearchIndex: () => SearchIndex,
   filteredThreadIDs: ?Set<string>,
-  includeDeleted: bool,
+  includeDeleted: boolean,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 |};
 type State = {|
   query: string,
   searchResults: $ReadOnlyArray<FilterThreadInfo>,
-  collapsed: bool,
+  collapsed: boolean,
 |};
 class FilterPanel extends React.PureComponent<Props, State> {
-
   static propTypes = {
     setModal: PropTypes.func.isRequired,
     filterThreadInfos: PropTypes.func.isRequired,
@@ -68,12 +67,12 @@ class FilterPanel extends React.PureComponent<Props, State> {
     dispatchActionPayload: PropTypes.func.isRequired,
   };
   state = {
-    query: "",
+    query: '',
     searchResults: [],
     collapsed: false,
   };
 
-  currentlySelected(threadID: string): bool {
+  currentlySelected(threadID: string): boolean {
     if (!this.props.filteredThreadIDs) {
       return true;
     }
@@ -95,28 +94,26 @@ class FilterPanel extends React.PureComponent<Props, State> {
           onCollapse={this.onCollapse}
           selected={!this.props.filteredThreadIDs}
           key="all"
-        />
+        />,
       );
     } else {
       filters.push(
         <div className={css.noResults} key="noResults">
           No results
-        </div>
+        </div>,
       );
     }
     if (!this.state.collapsed) {
-      const options = filterThreadInfos.map(
-        filterThreadInfo => (
-          <Item
-            filterThreadInfo={filterThreadInfo}
-            onToggle={this.onToggle}
-            onClickOnly={this.onClickOnly}
-            onClickSettings={this.onClickSettings}
-            selected={this.currentlySelected(filterThreadInfo.threadInfo.id)}
-            key={filterThreadInfo.threadInfo.id}
-          />
-        ),
-      );
+      const options = filterThreadInfos.map(filterThreadInfo => (
+        <Item
+          filterThreadInfo={filterThreadInfo}
+          onToggle={this.onToggle}
+          onClickOnly={this.onClickOnly}
+          onClickSettings={this.onClickSettings}
+          selected={this.currentlySelected(filterThreadInfo.threadInfo.id)}
+          key={filterThreadInfo.threadInfo.id}
+        />
+      ));
       filters = [...filters, ...options];
     }
 
@@ -124,10 +121,7 @@ class FilterPanel extends React.PureComponent<Props, State> {
     if (this.state.query) {
       clearQueryButton = (
         <a href="#" onClick={this.clearQuery}>
-          <FontAwesomeIcon
-            icon={faTimesCircle}
-            className={css.clearQuery}
-          />
+          <FontAwesomeIcon icon={faTimesCircle} className={css.clearQuery} />
         </a>
       );
     }
@@ -136,9 +130,7 @@ class FilterPanel extends React.PureComponent<Props, State> {
       <div className={css.container}>
         <div className={css.searchContainer}>
           <div className={css.search}>
-            <MagnifyingGlass
-              className={css.searchVector}
-            />
+            <MagnifyingGlass className={css.searchVector} />
             <input
               type="text"
               placeholder="Search"
@@ -148,9 +140,7 @@ class FilterPanel extends React.PureComponent<Props, State> {
             {clearQueryButton}
           </div>
         </div>
-        <div className={css.filters}>
-          {filters}
-        </div>
+        <div className={css.filters}>{filters}</div>
         <div className={css.extras}>
           <label htmlFor="include-deleted-switch">
             <Switch
@@ -169,7 +159,7 @@ class FilterPanel extends React.PureComponent<Props, State> {
     );
   }
 
-  onToggle = (threadID: string, value: bool) => {
+  onToggle = (threadID: string, value: boolean) => {
     let newThreadIDs;
     const selectedThreadIDs = this.props.filteredThreadIDs;
     if (!selectedThreadIDs && value) {
@@ -177,7 +167,8 @@ class FilterPanel extends React.PureComponent<Props, State> {
       return;
     } else if (!selectedThreadIDs) {
       // No thread filter exists and thread is being removed
-      newThreadIDs = this.props.filterThreadInfos()
+      newThreadIDs = this.props
+        .filterThreadInfos()
         .map(filterThreadInfo => filterThreadInfo.threadInfo.id)
         .filter(id => id !== threadID);
     } else if (selectedThreadIDs.has(threadID) && value) {
@@ -190,7 +181,8 @@ class FilterPanel extends React.PureComponent<Props, State> {
       // Thread filter doesn't include thread being removed
       return;
     } else if (
-      selectedThreadIDs.size + 1 === this.props.filterThreadInfos().length
+      selectedThreadIDs.size + 1 ===
+      this.props.filterThreadInfos().length
     ) {
       // Thread filter exists and thread being added is the only one missing
       newThreadIDs = null;
@@ -199,80 +191,73 @@ class FilterPanel extends React.PureComponent<Props, State> {
       newThreadIDs = [...selectedThreadIDs, threadID];
     }
     this.setFilterThreads(newThreadIDs);
-  }
+  };
 
-  onToggleAll = (value: bool) => {
+  onToggleAll = (value: boolean) => {
     this.setFilterThreads(value ? null : []);
-  }
+  };
 
   onClickOnly = (threadID: string) => {
     this.setFilterThreads([threadID]);
-  }
+  };
 
   setFilterThreads(threadIDs: ?$ReadOnlyArray<string>) {
     if (!threadIDs) {
       this.props.dispatchActionPayload(clearCalendarThreadFilter);
     } else {
-      this.props.dispatchActionPayload(
-        updateCalendarThreadFilter,
-        {
-          type: calendarThreadFilterTypes.THREAD_LIST,
-          threadIDs,
-        },
-      );
+      this.props.dispatchActionPayload(updateCalendarThreadFilter, {
+        type: calendarThreadFilterTypes.THREAD_LIST,
+        threadIDs,
+      });
     }
   }
 
   onClickSettings = (threadInfo: ThreadInfo) => {
     this.props.setModal(
-      <ThreadSettingsModal
-        threadInfo={threadInfo}
-        onClose={this.clearModal}
-      />
+      <ThreadSettingsModal threadInfo={threadInfo} onClose={this.clearModal} />,
     );
-  }
+  };
 
   onChangeQuery = (event: SyntheticEvent<HTMLInputElement>) => {
     const query = event.currentTarget.value;
     const searchIndex = this.props.filterThreadSearchIndex();
     const resultIDs = new Set(searchIndex.getSearchResults(query));
-    const results = this.props.filterThreadInfos().filter(
-      filterThreadInfo => resultIDs.has(filterThreadInfo.threadInfo.id),
-    );
+    const results = this.props
+      .filterThreadInfos()
+      .filter(filterThreadInfo =>
+        resultIDs.has(filterThreadInfo.threadInfo.id),
+      );
     this.setState({ query, searchResults: results, collapsed: false });
-  }
+  };
 
   clearQuery = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.setState({ query: "", searchResults: [], collapsed: false });
-  }
+    this.setState({ query: '', searchResults: [], collapsed: false });
+  };
 
-  onCollapse = (value: bool) => {
+  onCollapse = (value: boolean) => {
     this.setState({ collapsed: value });
-  }
+  };
 
-  onChangeIncludeDeleted = (includeDeleted: bool) => {
-    this.props.dispatchActionPayload(
-      setCalendarDeletedFilter,
-      { includeDeleted },
-    );
-  }
+  onChangeIncludeDeleted = (includeDeleted: boolean) => {
+    this.props.dispatchActionPayload(setCalendarDeletedFilter, {
+      includeDeleted,
+    });
+  };
 
   clearModal = () => {
     this.props.setModal(null);
-  }
-
+  };
 }
 
 type ItemProps = {|
   filterThreadInfo: FilterThreadInfo,
-  onToggle: (threadID: string, value: bool) => void,
+  onToggle: (threadID: string, value: boolean) => void,
   onClickOnly: (threadID: string) => void,
   onClickSettings: (threadInfo: ThreadInfo) => void,
-  selected: bool,
+  selected: boolean,
 |};
 class Item extends React.PureComponent<ItemProps> {
-
   static propTypes = {
     filterThreadInfo: filterThreadInfoPropType.isRequired,
     onToggle: PropTypes.func.isRequired,
@@ -294,9 +279,10 @@ class Item extends React.PureComponent<ItemProps> {
         />
       );
     }
-    const details = this.props.filterThreadInfo.numVisibleEntries === 1
-      ? "1 entry"
-      : `${this.props.filterThreadInfo.numVisibleEntries} entries`;
+    const details =
+      this.props.filterThreadInfo.numVisibleEntries === 1
+        ? '1 entry'
+        : `${this.props.filterThreadInfo.numVisibleEntries} entries`;
     return (
       <div className={css.option}>
         <div className={css.optionThread}>
@@ -306,26 +292,18 @@ class Item extends React.PureComponent<ItemProps> {
             onChange={this.onChange}
           />
           <label>
-            <div
-              className={css.optionCheckbox}
-              style={beforeCheckStyles}
-            />
+            <div className={css.optionCheckbox} style={beforeCheckStyles} />
             {threadInfo.uiName}
             {afterCheck}
           </label>
           <a onClick={this.onClickOnly} className={css.only}>
             only
           </a>
-          <a
-            onClick={this.onClickSettings}
-            className={css.settingsCog}
-          >
+          <a onClick={this.onClickSettings} className={css.settingsCog}>
             <FontAwesomeIcon icon={faCog} />
           </a>
         </div>
-        <div className={css.optionDetails}>
-          {details}
-        </div>
+        <div className={css.optionDetails}>{details}</div>
       </div>
     );
   }
@@ -335,29 +313,27 @@ class Item extends React.PureComponent<ItemProps> {
       this.props.filterThreadInfo.threadInfo.id,
       event.currentTarget.checked,
     );
-  }
+  };
 
   onClickOnly = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.onClickOnly(this.props.filterThreadInfo.threadInfo.id);
-  }
+  };
 
   onClickSettings = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.onClickSettings(this.props.filterThreadInfo.threadInfo);
-  }
-
+  };
 }
 
 type CategoryProps = {|
   numThreads: number,
-  onToggle: (value: bool) => void,
-  collapsed: bool,
-  onCollapse: (value: bool) => void,
-  selected: bool,
+  onToggle: (value: boolean) => void,
+  collapsed: boolean,
+  onCollapse: (value: boolean) => void,
+  selected: boolean,
 |};
 class Category extends React.PureComponent<CategoryProps> {
-
   static propTypes = {
     numThreads: PropTypes.number.isRequired,
     onToggle: PropTypes.func.isRequired,
@@ -367,10 +343,10 @@ class Category extends React.PureComponent<CategoryProps> {
   };
 
   render() {
-    const beforeCheckStyles = { borderColor: "white" };
+    const beforeCheckStyles = { borderColor: 'white' };
     let afterCheck = null;
     if (this.props.selected) {
-      const afterCheckStyles = { backgroundColor: "white" };
+      const afterCheckStyles = { backgroundColor: 'white' };
       afterCheck = (
         <div
           className={classNames(css.optionCheckbox, css.checkboxAfterOption)}
@@ -379,9 +355,10 @@ class Category extends React.PureComponent<CategoryProps> {
       );
     }
     const icon = this.props.collapsed ? faChevronUp : faChevronDown;
-    const details = this.props.numThreads === 1
-      ? "1 thread"
-      : `${this.props.numThreads} threads`;
+    const details =
+      this.props.numThreads === 1
+        ? '1 thread'
+        : `${this.props.numThreads} threads`;
     return (
       <div className={css.category}>
         <div className={css.optionThread}>
@@ -391,10 +368,7 @@ class Category extends React.PureComponent<CategoryProps> {
             onChange={this.onChange}
           />
           <label>
-            <div
-              className={css.optionCheckbox}
-              style={beforeCheckStyles}
-            />
+            <div className={css.optionCheckbox} style={beforeCheckStyles} />
             Your threads
             {afterCheck}
           </label>
@@ -402,22 +376,19 @@ class Category extends React.PureComponent<CategoryProps> {
             <FontAwesomeIcon icon={icon} />
           </a>
         </div>
-        <div className={css.optionDetails}>
-          {details}
-        </div>
+        <div className={css.optionDetails}>{details}</div>
       </div>
     );
   }
 
   onChange = (event: SyntheticEvent<HTMLInputElement>) => {
     this.props.onToggle(event.currentTarget.checked);
-  }
+  };
 
   onCollapse = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.onCollapse(!this.props.collapsed);
-  }
-
+  };
 }
 
 export default connect(

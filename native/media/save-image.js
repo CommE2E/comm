@@ -15,28 +15,28 @@ import { getAndroidPermission } from '../utils/android-permissions';
 
 type SaveImageInfo =
   | {
-      type: "photo",
+      type: 'photo',
       uri: string,
       ...
     }
   | {
-      type: "video",
+      type: 'video',
       uri: string,
       ...
     };
 
 async function intentionalSaveImage(mediaInfo: SaveImageInfo) {
   let result, message;
-  if (Platform.OS === "android") {
-    result = await saveImageAndroid(mediaInfo, "request");
-  } else if (Platform.OS === "ios") {
+  if (Platform.OS === 'android') {
+    result = await saveImageAndroid(mediaInfo, 'request');
+  } else if (Platform.OS === 'ios') {
     result = await saveImageIOS(mediaInfo);
   } else {
     message = `saving images is unsupported on ${Platform.OS}`;
   }
 
   if (result) {
-    message = "saved!";
+    message = 'saved!';
   } else if (!message) {
     message = "don't have permission :(";
   }
@@ -45,9 +45,9 @@ async function intentionalSaveImage(mediaInfo: SaveImageInfo) {
 }
 
 async function saveImage(mediaInfo: SaveImageInfo) {
-  if (Platform.OS === "android") {
-    await saveImageAndroid(mediaInfo, "check");
-  } else if (Platform.OS === "ios") {
+  if (Platform.OS === 'android') {
+    await saveImageAndroid(mediaInfo, 'check');
+  } else if (Platform.OS === 'ios') {
     await saveImageIOS(mediaInfo);
   }
 }
@@ -56,10 +56,10 @@ async function saveImage(mediaInfo: SaveImageInfo) {
 // Pictures directory, and then trigger the media scanner to pick it up
 async function saveImageAndroid(
   mediaInfo: SaveImageInfo,
-  permissions: "check" | "request",
+  permissions: 'check' | 'request',
 ) {
   let hasPermission;
-  if (permissions === "check") {
+  if (permissions === 'check') {
     hasPermission = await PermissionsAndroid.check(
       PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
     );
@@ -67,8 +67,8 @@ async function saveImageAndroid(
     hasPermission = await getAndroidPermission(
       PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
       {
-        title: "Save Photo",
-        message: "Requesting access to your external storage",
+        title: 'Save Photo',
+        message: 'Requesting access to your external storage',
       },
     );
   }
@@ -88,7 +88,7 @@ async function saveImageIOS(mediaInfo: SaveImageInfo) {
   const { uri, type } = mediaInfo;
 
   let tempFile;
-  if (uri.startsWith("http")) {
+  if (uri.startsWith('http')) {
     tempFile = await saveToDisk(uri, filesystem.TemporaryDirectoryPath);
   }
 
@@ -110,7 +110,7 @@ async function saveToDisk(uri: string, directory: string) {
   const base64 = dataURI.substring(firstComma + 1);
 
   const intArray = dataURIToIntArray(dataURI);
-  const fileName = blob.data.name ? blob.data.name : "";
+  const fileName = blob.data.name ? blob.data.name : '';
   const { name } = fileInfoFromData(intArray, fileName);
   invariant(name, 'unsupported media type');
   const filePath = `${directory}/${name}`;
@@ -119,7 +119,4 @@ async function saveToDisk(uri: string, directory: string) {
   return filePath;
 }
 
-export {
-  intentionalSaveImage,
-  saveImage,
-};
+export { intentionalSaveImage, saveImage };

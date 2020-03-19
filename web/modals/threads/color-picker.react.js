@@ -9,18 +9,17 @@ import css from '../../style.css';
 type Props = {
   id: string,
   value: string,
-  disabled: bool,
+  disabled: boolean,
   onChange: (hex: string) => void,
 };
 type State = {
-  pickerOpen: bool,
-}
+  pickerOpen: boolean,
+};
 type Color = {
   hex: string,
-}
+};
 
 class ColorPicker extends React.PureComponent<Props, State> {
-
   props: Props;
   state: State;
 
@@ -28,7 +27,7 @@ class ColorPicker extends React.PureComponent<Props, State> {
     super(props);
     this.state = {
       pickerOpen: false,
-    }
+    };
   }
 
   render() {
@@ -63,23 +62,23 @@ class ColorPicker extends React.PureComponent<Props, State> {
   }
 
   onPickerKeyDown = (event: SyntheticKeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.keyCode === 27) { // Esc
+    if (event.keyCode === 27) {
+      // Esc
       this.setState({ pickerOpen: false });
     }
-  }
+  };
 
   onChangeColor = (color: Color) => {
     this.props.onChange(color.hex.substring(1, 7));
-  }
+  };
 
   onClick = () => {
     this.setState({ pickerOpen: true });
-  }
+  };
 
   onBlur = () => {
     this.setState({ pickerOpen: false });
-  }
-
+  };
 }
 
 ColorPicker.propTypes = {
@@ -87,6 +86,6 @@ ColorPicker.propTypes = {
   value: PropTypes.string.isRequired,
   disabled: PropTypes.bool.isRequired,
   onChange: PropTypes.func.isRequired,
-}
+};
 
 export default ColorPicker;

@@ -12,17 +12,15 @@ async function verifyClientSupported(
   if (clientSupported(platformDetails)) {
     return;
   }
-  const error = new ServerError("client_version_unsupported");
+  const error = new ServerError('client_version_unsupported');
   error.platformDetails = platformDetails;
   throw error;
 }
 
-function clientSupported(platformDetails: ?PlatformDetails): bool {
+function clientSupported(platformDetails: ?PlatformDetails): boolean {
   // In the future when we decide to deprecate server support for an old client
   // version, we should update this function to return false for those clients
   return true;
 }
 
-export {
-  verifyClientSupported,
-};
+export { verifyClientSupported };

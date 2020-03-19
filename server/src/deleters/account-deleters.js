@@ -28,7 +28,7 @@ async function deleteAccount(
 
   if (request) {
     const hashQuery = SQL`SELECT hash FROM users WHERE id = ${viewer.userID}`;
-    const [ result ] = await dbQuery(hashQuery);
+    const [result] = await dbQuery(hashQuery);
     if (result.length === 0) {
       throw new ServerError('internal_error');
     }
@@ -104,6 +104,4 @@ async function createAccountDeletionUpdates(
   await createUpdates(updateDatas);
 }
 
-export {
-  deleteAccount,
-};
+export { deleteAccount };

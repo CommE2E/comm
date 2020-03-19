@@ -5,7 +5,7 @@ import replaceStream from 'replacestream';
 import Combine from 'stream-combiner';
 
 type Promisable<T> = Promise<T> | T;
-function streamJSON<T: {[key: string]: Promisable<*>}>(
+function streamJSON<T: { [key: string]: Promisable<*> }>(
   res: $Response,
   input: T,
 ): stream$Readable {
@@ -18,7 +18,7 @@ function streamJSON<T: {[key: string]: Promisable<*>}>(
   return jsonStream;
 }
 
-function resolvePromisesToStream<T: {[key: string]: Promisable<*>}>(
+function resolvePromisesToStream<T: { [key: string]: Promisable<*> }>(
   stream: JSONStream,
   input: T,
 ) {
@@ -26,12 +26,14 @@ function resolvePromisesToStream<T: {[key: string]: Promisable<*>}>(
   for (let key in input) {
     const value = input[key];
     if (value instanceof Promise) {
-      blocking.push((async () => {
-        const result = await value;
-        stream.write([ key, result ]);
-      })());
+      blocking.push(
+        (async () => {
+          const result = await value;
+          stream.write([key, result]);
+        })(),
+      );
     } else {
-      stream.write([ key, value ]);
+      stream.write([key, value]);
     }
   }
   Promise.all(blocking).then(() => {
@@ -39,15 +41,10 @@ function resolvePromisesToStream<T: {[key: string]: Promisable<*>}>(
   });
 }
 
-function waitForStream(
-  readable: stream$Readable,
-): Promise<void> {
+function waitForStream(readable: stream$Readable): Promise<void> {
   return new Promise(r => {
     readable.on('end', r);
   });
 }
 
-export {
-  streamJSON,
-  waitForStream,
-};
+export { streamJSON, waitForStream };

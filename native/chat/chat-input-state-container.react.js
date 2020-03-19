@@ -83,7 +83,6 @@ type State = {|
   pendingUploads: PendingMultimediaUploads,
 |};
 class ChatInputStateContainer extends React.PureComponent<Props, State> {
-
   static propTypes = {
     children: PropTypes.node.isRequired,
     viewerID: PropTypes.string,
@@ -234,7 +233,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     const { localID, threadID } = messageInfo;
     invariant(
       localID !== null && localID !== undefined,
-      "localID should be set",
+      'localID should be set',
     );
     const mediaIDs = [];
     for (let { id } of messageInfo.media) {
@@ -298,40 +297,35 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       },
       () => {
         const creatorID = this.props.viewerID;
-        invariant(creatorID, "need viewer ID in order to send a message");
-        const media = selectionsWithIDs.map(
-          ({ localID, selection }) => {
-            if (selection.step === "photo_library") {
-              return {
-                id: localID,
-                uri: selection.uri,
-                type: "photo",
-                dimensions: selection.dimensions,
-                localMediaSelection: selection,
-              };
-            } else if (selection.step === "photo_capture") {
-              return {
-                id: localID,
-                uri: selection.uri,
-                type: "photo",
-                dimensions: selection.dimensions,
-                localMediaSelection: selection,
-              };
-            } else if (selection.step === "video_library") {
-              return {
-                id: localID,
-                uri: selection.uri,
-                type: "video",
-                dimensions: selection.dimensions,
-                localMediaSelection: selection,
-              };
-            }
-            invariant(
-              false,
-              `invalid selection ${JSON.stringify(selection)}`,
-            );
-          },
-        );
+        invariant(creatorID, 'need viewer ID in order to send a message');
+        const media = selectionsWithIDs.map(({ localID, selection }) => {
+          if (selection.step === 'photo_library') {
+            return {
+              id: localID,
+              uri: selection.uri,
+              type: 'photo',
+              dimensions: selection.dimensions,
+              localMediaSelection: selection,
+            };
+          } else if (selection.step === 'photo_capture') {
+            return {
+              id: localID,
+              uri: selection.uri,
+              type: 'photo',
+              dimensions: selection.dimensions,
+              localMediaSelection: selection,
+            };
+          } else if (selection.step === 'video_library') {
+            return {
+              id: localID,
+              uri: selection.uri,
+              type: 'video',
+              dimensions: selection.dimensions,
+              localMediaSelection: selection,
+            };
+          }
+          invariant(false, `invalid selection ${JSON.stringify(selection)}`);
+        });
         const messageInfo = createMediaMessageInfo({
           localID: localMessageID,
           threadID,
@@ -346,21 +340,20 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     );
 
     await this.uploadFiles(localMessageID, selectionsWithIDs);
-  }
+  };
 
   async uploadFiles(
     localMessageID: string,
     selectionsWithIDs: $ReadOnlyArray<SelectionWithID>,
   ) {
     const results = await Promise.all(
-      selectionsWithIDs.map(selectionWithID => this.uploadFile(
-        localMessageID,
-        selectionWithID,
-      )),
+      selectionsWithIDs.map(selectionWithID =>
+        this.uploadFile(localMessageID, selectionWithID),
+      ),
     );
-    const errors = [ ...new Set(results.filter(Boolean)) ];
+    const errors = [...new Set(results.filter(Boolean))];
     if (errors.length > 0) {
-      displayActionResultModal(errors.join(", ") + " :(");
+      displayActionResultModal(errors.join(', ') + ' :(');
     }
   }
 
@@ -371,7 +364,8 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     const start = Date.now();
 
     const { localID, selection } = selectionWithID;
-    let steps = [ selection ], serverID;
+    let steps = [selection],
+      serverID;
     const finish = (result: MediaMissionResult, errorMessage: ?string) => {
       if (errorMessage) {
         this.handleUploadFailure(localMessageID, localID, errorMessage);
@@ -384,52 +378,48 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     };
 
     let mediaInfo;
-    if (selection.step === "photo_library") {
+    if (selection.step === 'photo_library') {
       mediaInfo = {
-        type: "photo",
+        type: 'photo',
         uri: selection.uri,
         dimensions: selection.dimensions,
         filename: selection.filename,
       };
-    } else if (selection.step === "photo_capture") {
+    } else if (selection.step === 'photo_capture') {
       mediaInfo = {
-        type: "photo",
+        type: 'photo',
         uri: selection.uri,
         dimensions: selection.dimensions,
         filename: selection.filename,
       };
-    } else if (selection.step === "video_library") {
+    } else if (selection.step === 'video_library') {
       mediaInfo = {
-        type: "video",
+        type: 'video',
         uri: selection.uri,
         dimensions: selection.dimensions,
         filename: selection.filename,
       };
     } else {
-      invariant(
-        false,
-        `invalid selection ${JSON.stringify(selection)}`,
-      );
+      invariant(false, `invalid selection ${JSON.stringify(selection)}`);
     }
 
     let processedMedia;
     const processingStart = Date.now();
     try {
-      const {
-        result: processResult,
-        steps: processSteps,
-      } = await processMedia(mediaInfo);
-      steps = [ ...steps, ...processSteps ];
+      const { result: processResult, steps: processSteps } = await processMedia(
+        mediaInfo,
+      );
+      steps = [...steps, ...processSteps];
       if (!processResult.success) {
-        return finish(processResult, "processing failed");
+        return finish(processResult, 'processing failed');
       }
       processedMedia = processResult;
     } catch (e) {
-      const message = (e && e.message) ? e.message : "processing threw";
+      const message = e && e.message ? e.message : 'processing threw';
       const time = Date.now() - processingStart;
-      steps.push({ step: "processing_exception", time, message });
+      steps.push({ step: 'processing_exception', time, message });
       return finish(
-        { success: false, reason: "processing_exception", time, message },
+        { success: false, reason: 'processing_exception', time, message },
         message,
       );
     }
@@ -447,40 +437,33 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     try {
       uploadResult = await this.props.uploadMultimedia(
         { uri: uploadURI, name, type: mime },
-        (percent: number) => this.setProgress(
-          localMessageID,
-          localID,
-          percent,
-        ),
+        (percent: number) => this.setProgress(localMessageID, localID, percent),
       );
       mediaMissionResult = { success: true, totalTime: Date.now() - start };
     } catch (e) {
-      message = "upload failed";
+      message = 'upload failed';
       mediaMissionResult = {
         success: false,
-        reason: "http_upload_failed",
-        message: (e && e.message) ? e.message : undefined,
+        reason: 'http_upload_failed',
+        message: e && e.message ? e.message : undefined,
       };
     }
     if (uploadResult) {
       serverID = uploadResult.id;
-      this.props.dispatchActionPayload(
-        updateMultimediaMessageMediaActionType,
-        {
-          messageID: localMessageID,
-          currentMediaID: localID,
-          mediaUpdate: {
-            id: serverID,
-            uri: uploadResult.uri,
-            type: mediaType,
-            dimensions: processedMedia.dimensions,
-            localMediaCreationInfo: undefined,
-          },
+      this.props.dispatchActionPayload(updateMultimediaMessageMediaActionType, {
+        messageID: localMessageID,
+        currentMediaID: localID,
+        mediaUpdate: {
+          id: serverID,
+          uri: uploadResult.uri,
+          type: mediaType,
+          dimensions: processedMedia.dimensions,
+          localMediaCreationInfo: undefined,
         },
-      );
+      });
     }
     steps.push({
-      step: "upload",
+      step: 'upload',
       success: !!uploadResult,
       time: Date.now() - uploadStart,
     });
@@ -493,9 +476,9 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     try {
       await filesystem.unlink(shouldDisposePath);
       disposeSuccess = true;
-    } catch (e) { }
+    } catch (e) {}
     steps.push({
-      step: "dispose_uploaded_local_file",
+      step: 'dispose_uploaded_local_file',
       success: disposeSuccess,
       time: disposeStart - Date.now(),
       path: shouldDisposePath,
@@ -579,10 +562,9 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       uploadLocalID: ids.localID,
       mediaLocalID: ids.localMessageID,
     };
-    this.props.dispatchActionPayload(
-      queueReportsActionType,
-      { reports: [ report ] },
-    );
+    this.props.dispatchActionPayload(queueReportsActionType, {
+      reports: [report],
+    });
   }
 
   messageHasUploadFailure = (localMessageID: string) => {
@@ -597,14 +579,11 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       }
     }
     return false;
-  }
+  };
 
   retryMultimediaMessage = async (localMessageID: string) => {
     const rawMessageInfo = this.props.messageStoreMessages[localMessageID];
-    invariant(
-      rawMessageInfo,
-      `rawMessageInfo ${localMessageID} should exist`,
-    );
+    invariant(rawMessageInfo, `rawMessageInfo ${localMessageID} should exist`);
     let newRawMessageInfo;
     // This conditional is for Flow
     if (rawMessageInfo.type === messageTypes.MULTIMEDIA) {
@@ -618,10 +597,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         time: Date.now(),
       }: RawImagesMessageInfo);
     } else {
-      invariant(
-        false,
-        `rawMessageInfo ${localMessageID} should be multimedia`,
-      );
+      invariant(false, `rawMessageInfo ${localMessageID} should be multimedia`);
     }
 
     const incompleteMedia: Media[] = [];
@@ -647,7 +623,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     }
 
     const retryMedia = incompleteMedia.filter(
-      ({ id }) => (!pendingUploads[id] || pendingUploads[id].failed),
+      ({ id }) => !pendingUploads[id] || pendingUploads[id].failed,
     );
     if (retryMedia.length === 0) {
       // All media are already in the process of being uploaded
@@ -680,13 +656,13 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       const { id, localMediaSelection } = singleMedia;
       invariant(
         localMediaSelection,
-        "localMediaSelection should be set on locally created Media",
+        'localMediaSelection should be set on locally created Media',
       );
       return { selection: localMediaSelection, localID: id };
     });
 
     await this.uploadFiles(localMessageID, selectionsWithIDs);
-  }
+  };
 
   render() {
     const chatInputState = this.chatInputStateSelector(this.state);
@@ -696,7 +672,6 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       </ChatInputStateContext.Provider>
     );
   }
-
 }
 
 export default connect(

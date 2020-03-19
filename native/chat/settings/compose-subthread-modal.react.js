@@ -45,7 +45,6 @@ type Props = {|
   styles: Styles,
 |};
 class ComposeSubthreadModal extends React.PureComponent<Props> {
-
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
@@ -110,10 +109,9 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
         threadType: threadTypes.CHAT_NESTED_OPEN,
         parentThreadID: threadID,
       },
-      key:
-        `${ComposeThreadRouteName}|${threadID}|${threadTypes.CHAT_NESTED_OPEN}`,
+      key: `${ComposeThreadRouteName}|${threadID}|${threadTypes.CHAT_NESTED_OPEN}`,
     });
-  }
+  };
 
   onPressSecret = () => {
     const threadID = this.props.navigation.state.params.threadInfo.id;
@@ -125,8 +123,7 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
       },
       key: `${ComposeThreadRouteName}|${threadID}|${threadTypes.CHAT_SECRET}`,
     });
-  }
-
+  };
 }
 
 const styles = {

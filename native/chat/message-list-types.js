@@ -12,7 +12,7 @@ export type MessageListNavProp = NavigationScreenProp<{|
   ...NavigationLeafRoute,
   params: {|
     threadInfo: ThreadInfo,
-    gesturesDisabled?: bool,
+    gesturesDisabled?: boolean,
   |},
 |}>;
 

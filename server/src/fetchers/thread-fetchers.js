@@ -19,14 +19,14 @@ import { rawThreadInfoFromServerThreadInfo } from 'lib/shared/thread-utils';
 import { dbQuery, SQL, SQLStatement } from '../database';
 
 type FetchServerThreadInfosResult = {|
-  threadInfos: {[id: string]: ServerThreadInfo},
-  userInfos: {[id: string]: AccountUserInfo},
+  threadInfos: { [id: string]: ServerThreadInfo },
+  userInfos: { [id: string]: AccountUserInfo },
 |};
 
 async function fetchServerThreadInfos(
   condition?: SQLStatement,
 ): Promise<FetchServerThreadInfosResult> {
-  const whereClause = condition ? SQL`WHERE `.append(condition) : "";
+  const whereClause = condition ? SQL`WHERE `.append(condition) : '';
 
   const query = SQL`
     SELECT t.id, t.name, t.parent_thread_id, t.color, t.description,
@@ -42,8 +42,10 @@ async function fetchServerThreadInfos(
       ) r ON r.thread = t.id
     LEFT JOIN memberships m ON m.role = r.id AND m.thread = t.id
     LEFT JOIN users u ON u.id = m.user
-  `.append(whereClause).append(SQL`ORDER BY m.user ASC`);
-  const [ result ] = await dbQuery(query);
+  `
+    .append(whereClause)
+    .append(SQL`ORDER BY m.user ASC`);
+  const [result] = await dbQuery(query);
 
   const threadInfos = {};
   const userInfos = {};
@@ -54,8 +56,8 @@ async function fetchServerThreadInfos(
         id: threadID,
         type: row.type,
         visibilityRules: row.type,
-        name: row.name ? row.name : "",
-        description: row.description ? row.description : "",
+        name: row.name ? row.name : '',
+        description: row.description ? row.description : '',
         color: row.color,
         creationTime: row.creation_time,
         parentThreadID: row.parent_thread_id
@@ -96,8 +98,8 @@ async function fetchServerThreadInfos(
 }
 
 export type FetchThreadInfosResult = {|
-  threadInfos: {[id: string]: RawThreadInfo},
-  userInfos: {[id: string]: AccountUserInfo},
+  threadInfos: { [id: string]: RawThreadInfo },
+  userInfos: { [id: string]: AccountUserInfo },
 |};
 
 async function fetchThreadInfos(
@@ -142,7 +144,7 @@ async function verifyThreadIDs(
   }
 
   const query = SQL`SELECT id FROM threads WHERE id IN (${threadIDs})`;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
 
   const verified = [];
   for (let row of result) {
@@ -151,7 +153,7 @@ async function verifyThreadIDs(
   return verified;
 }
 
-async function verifyThreadID(threadID: string): Promise<bool> {
+async function verifyThreadID(threadID: string): Promise<boolean> {
   const result = await verifyThreadIDs([threadID]);
   return result.length !== 0;
 }
@@ -166,7 +168,7 @@ async function fetchThreadPermissionsBlob(
     FROM memberships
     WHERE thread = ${threadID} AND user = ${viewerID}
   `;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
 
   if (result.length === 0) {
     return null;
@@ -179,7 +181,7 @@ async function checkThreadPermission(
   viewer: Viewer,
   threadID: string,
   permission: ThreadPermission,
-): Promise<bool> {
+): Promise<boolean> {
   const permissionsBlob = await fetchThreadPermissionsBlob(viewer, threadID);
   return permissionLookup(permissionsBlob, permission);
 }
@@ -188,14 +190,14 @@ async function checkThreadPermissions(
   viewer: Viewer,
   threadIDs: $ReadOnlyArray<string>,
   permission: ThreadPermission,
-): Promise<{[threadID: string]: bool}> {
+): Promise<{ [threadID: string]: boolean }> {
   const viewerID = viewer.id;
   const query = SQL`
     SELECT thread, permissions
     FROM memberships
     WHERE thread IN (${threadIDs}) AND user = ${viewerID}
   `;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
 
   const permissionsBlobs = new Map();
   for (let row of result) {
@@ -206,8 +208,10 @@ async function checkThreadPermissions(
   const permissionByThread = {};
   for (let threadID of threadIDs) {
     const permissionsBlob = permissionsBlobs.get(threadID);
-    permissionByThread[threadID] =
-      permissionLookup(permissionsBlob, permission);
+    permissionByThread[threadID] = permissionLookup(
+      permissionsBlob,
+      permission,
+    );
   }
   return permissionByThread;
 }
@@ -215,14 +219,14 @@ async function checkThreadPermissions(
 async function viewerIsMember(
   viewer: Viewer,
   threadID: string,
-): Promise<bool> {
+): Promise<boolean> {
   const viewerID = viewer.id;
   const query = SQL`
     SELECT role
     FROM memberships
     WHERE user = ${viewerID} AND thread = ${threadID}
   `;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
   if (result.length === 0) {
     return false;
   }

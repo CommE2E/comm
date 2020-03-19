@@ -11,9 +11,7 @@ import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from '../database';
 
-async function fetchUserInfos(
-  userIDs: string[],
-): Promise<UserInfos> {
+async function fetchUserInfos(userIDs: string[]): Promise<UserInfos> {
   if (userIDs.length <= 0) {
     return {};
   }
@@ -21,7 +19,7 @@ async function fetchUserInfos(
   const query = SQL`
     SELECT id, username FROM users WHERE id IN (${userIDs})
   `;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
 
   const userInfos = {};
   for (let row of result) {
@@ -50,7 +48,7 @@ async function verifyUserIDs(
     return [];
   }
   const query = SQL`SELECT id FROM users WHERE id IN (${userIDs})`;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
   return result.map(row => row.id.toString());
 }
 
@@ -64,17 +62,15 @@ async function verifyUserOrCookieIDs(
     SELECT id FROM users WHERE id IN (${ids})
     UNION SELECT id FROM cookies WHERE id IN (${ids})
   `;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
   return result.map(row => row.id.toString());
 }
 
-async function fetchCurrentUserInfo(
-  viewer: Viewer,
-): Promise<CurrentUserInfo> {
+async function fetchCurrentUserInfo(viewer: Viewer): Promise<CurrentUserInfo> {
   if (!viewer.loggedIn) {
     return { id: viewer.cookieID, anonymous: true };
   }
-  const currentUserInfos = await fetchLoggedInUserInfos([ viewer.userID ]);
+  const currentUserInfos = await fetchLoggedInUserInfos([viewer.userID]);
   if (currentUserInfos.length === 0) {
     throw new ServerError('unknown_error');
   }
@@ -89,7 +85,7 @@ async function fetchLoggedInUserInfos(
     FROM users
     WHERE id IN (${userIDs})
   `;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
   return result.map(row => ({
     id: row.id.toString(),
     username: row.username,
@@ -100,13 +96,13 @@ async function fetchLoggedInUserInfos(
 
 async function fetchAllUserIDs(): Promise<string[]> {
   const query = SQL`SELECT id FROM users`;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
   return result.map(row => row.id.toString());
 }
 
 async function fetchUsername(id: string): Promise<?string> {
   const query = SQL`SELECT username FROM users WHERE id = ${id}`;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
   if (result.length === 0) {
     return null;
   }

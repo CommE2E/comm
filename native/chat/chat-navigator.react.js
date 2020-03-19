@@ -45,7 +45,10 @@ const ChatNavigator = createStackNavigator(
 );
 ChatNavigator.navigationOptions = ({ navigation }) => ({
   tabBarIcon: ({ tintColor }) => <ChatIcon color={tintColor} />,
-  tabBarOnPress: ({ navigation, defaultHandler }: {
+  tabBarOnPress: ({
+    navigation,
+    defaultHandler,
+  }: {
     navigation: NavigationScreenProp<NavigationStateRoute>,
     defaultHandler: () => void,
   }) => {

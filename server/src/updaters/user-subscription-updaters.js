@@ -45,21 +45,20 @@ async function userSubscriptionUpdater(
   promises.push(dbQuery(saveQuery));
 
   const time = Date.now();
-  const updateDatas = [{
-    type: updateTypes.UPDATE_THREAD,
-    userID: viewer.userID,
-    time,
-    threadID: update.threadID,
-  }];
-  promises.push(createUpdates(
-    updateDatas,
-    { viewer, updatesForCurrentSession: "ignore" },
-  ));
+  const updateDatas = [
+    {
+      type: updateTypes.UPDATE_THREAD,
+      userID: viewer.userID,
+      time,
+      threadID: update.threadID,
+    },
+  ];
+  promises.push(
+    createUpdates(updateDatas, { viewer, updatesForCurrentSession: 'ignore' }),
+  );
 
   await Promise.all(promises);
   return newSubscription;
 }
 
-export {
-  userSubscriptionUpdater,
-};
+export { userSubscriptionUpdater };

@@ -15,8 +15,11 @@ import { createNewAnonymousCookie } from '../session/cookies';
 import { deleteCookie } from '../deleters/cookie-deleters';
 
 export type JSONResponder = (viewer: Viewer, input: any) => Promise<*>;
-export type DownloadResponder
-  = (viewer: Viewer, req: $Request, res: $Response) => Promise<void>;
+export type DownloadResponder = (
+  viewer: Viewer,
+  req: $Request,
+  res: $Response,
+) => Promise<void>;
 export type HTMLResponder = DownloadResponder;
 export type UploadResponder = (viewer: Viewer, req: $Request) => Promise<*>;
 
@@ -24,7 +27,7 @@ function jsonHandler(responder: JSONResponder) {
   return async (req: $Request, res: $Response) => {
     let viewer;
     try {
-      if (!req.body || typeof req.body !== "object") {
+      if (!req.body || typeof req.body !== 'object') {
         throw new ServerError('invalid_parameters');
       }
       const { input } = req.body;
@@ -57,15 +60,11 @@ function downloadHandler(responder: DownloadResponder) {
 
 function getMessageForException(error: Error & { sqlMessage?: string }) {
   return error.sqlMessage !== null && error.sqlMessage !== undefined
-    ? "database error"
+    ? 'database error'
     : error.message;
 }
 
-async function handleException(
-  error: Error,
-  res: $Response,
-  viewer: ?Viewer,
-) {
+async function handleException(error: Error, res: $Response, viewer: ?Viewer) {
   console.warn(error);
   if (res.headersSent) {
     return;
@@ -78,10 +77,10 @@ async function handleException(
     ? { error: error.message, payload: error.payload }
     : { error: error.message };
   if (viewer) {
-    if (error.message === "client_version_unsupported" && viewer.loggedIn) {
+    if (error.message === 'client_version_unsupported' && viewer.loggedIn) {
       // If the client version is unsupported, log the user out
       const { platformDetails } = error;
-      const [ data ] = await Promise.all([
+      const [data] = await Promise.all([
         createNewAnonymousCookie({
           platformDetails,
           deviceToken: viewer.deviceToken,
@@ -117,7 +116,7 @@ function uploadHandler(responder: UploadResponder) {
   return async (req: $Request, res: $Response) => {
     let viewer;
     try {
-      if (!req.body || typeof req.body !== "object") {
+      if (!req.body || typeof req.body !== 'object') {
         throw new ServerError('invalid_parameters');
       }
       viewer = await fetchViewerForJSONRequest(req);

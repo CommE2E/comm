@@ -8,7 +8,7 @@ import Crash from './crash.react';
 
 let instance = null;
 const defaultHandler = global.ErrorUtils.getGlobalHandler();
-global.ErrorUtils.setGlobalHandler((error) => {
+global.ErrorUtils.setGlobalHandler(error => {
   defaultHandler(error);
   if (instance) {
     instance.reportError(error);
@@ -22,7 +22,6 @@ type State = {|
   errorData: $ReadOnlyArray<ErrorData>,
 |};
 class ErrorBoundary extends React.PureComponent<Props, State> {
-
   state = {
     errorData: [],
   };
@@ -37,31 +36,22 @@ class ErrorBoundary extends React.PureComponent<Props, State> {
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     this.setState((prevState, props) => ({
-      errorData: [
-        ...prevState.errorData,
-        { error, info },
-      ],
+      errorData: [...prevState.errorData, { error, info }],
     }));
   }
 
   reportError(error: Error) {
     this.setState((prevState, props) => ({
-      errorData: [
-        ...prevState.errorData,
-        { error },
-      ],
+      errorData: [...prevState.errorData, { error }],
     }));
   }
 
   render() {
     if (this.state.errorData.length > 0) {
-      return (
-        <Crash errorData={this.state.errorData} />
-      );
+      return <Crash errorData={this.state.errorData} />;
     }
     return this.props.children;
   }
-
 }
 
 export default ErrorBoundary;

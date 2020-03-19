@@ -10,13 +10,11 @@ function getFirebase() {
     return cachedFirebase;
   }
   invariant(
-    Platform.OS === "android",
-    "react-native-firebase only used on Android at the moment",
+    Platform.OS === 'android',
+    'react-native-firebase only used on Android at the moment',
   );
   cachedFirebase = require('react-native-firebase');
   return cachedFirebase;
 }
 
-export {
-  getFirebase,
-};
+export { getFirebase };

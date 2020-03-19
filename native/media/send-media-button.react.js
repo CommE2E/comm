@@ -33,9 +33,7 @@ function SendMediaButton(props: Props) {
   if (queueCount !== undefined && queueCount !== null) {
     queueCountText = (
       <View style={styles.queueCountBubble}>
-        <Text style={styles.queueCountText}>
-          {queueCount}
-        </Text>
+        <Text style={styles.queueCountText}>{queueCount}</Text>
       </View>
     );
   }
@@ -43,7 +41,7 @@ function SendMediaButton(props: Props) {
   return (
     <View {...containerProps} style={containerStyle}>
       <TouchableOpacity onPress={onPress} activeOpacity={0.6}>
-        <Animated.View style={[ styles.sendButton, style ]}>
+        <Animated.View style={[styles.sendButton, style]}>
           <Icon name="send" style={styles.sendIcon} />
           {queueCountText}
         </Animated.View>
@@ -75,7 +73,7 @@ const styles = StyleSheet.create({
     width: 25,
     height: 25,
     paddingLeft: 1,
-    paddingBottom: Platform.OS === "android" ? 2 : 0,
+    paddingBottom: Platform.OS === 'android' ? 2 : 0,
     borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',

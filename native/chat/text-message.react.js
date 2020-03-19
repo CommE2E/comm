@@ -39,14 +39,14 @@ import { authorNameHeight } from './message-header.react';
 import { failedSendHeight } from './failed-send.react';
 
 export type ChatTextMessageInfoItemWithHeight = {|
-  itemType: "message",
-  messageShapeType: "text",
+  itemType: 'message',
+  messageShapeType: 'text',
   messageInfo: TextMessageInfo,
   localMessageInfo: ?LocalMessageInfo,
   threadInfo: ThreadInfo,
-  startsConversation: bool,
-  startsCluster: bool,
-  endsCluster: bool,
+  startsConversation: boolean,
+  startsCluster: boolean,
+  endsCluster: boolean,
   contentHeight: number,
 |};
 
@@ -66,7 +66,8 @@ function textMessageItemHeight(
   }
   if (
     isViewer &&
-    id !== null && id !== undefined &&
+    id !== null &&
+    id !== undefined &&
     item.localMessageInfo &&
     item.localMessageInfo.sendFailed
   ) {
@@ -78,7 +79,7 @@ function textMessageItemHeight(
 type Props = {|
   item: ChatTextMessageInfoItemWithHeight,
   navigation: MessageListNavProp,
-  focused: bool,
+  focused: boolean,
   toggleFocus: (messageKey: string) => void,
   verticalBounds: ?VerticalBounds,
   // withOverlayableScrollViewState
@@ -88,7 +89,6 @@ type Props = {|
   ...React.ElementProps<typeof View>,
 |};
 class TextMessage extends React.PureComponent<Props> {
-
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     navigation: messageListNavPropType.isRequired,
@@ -137,14 +137,17 @@ class TextMessage extends React.PureComponent<Props> {
 
   messageRef = (message: ?View) => {
     this.message = message;
-  }
+  };
 
   onPress = () => {
     if (this.dismissKeyboardIfShowing()) {
       return;
     }
 
-    const { message, props: { verticalBounds } } = this;
+    const {
+      message,
+      props: { verticalBounds },
+    } = this;
     if (!message || !verticalBounds) {
       return;
     }
@@ -173,7 +176,8 @@ class TextMessage extends React.PureComponent<Props> {
       const aboveMargin = isViewer ? 30 : 50;
       const aboveSpace = textMessageTooltipHeight + aboveMargin;
 
-      let location = 'below', margin = belowMargin;
+      let location = 'below',
+        margin = belowMargin;
       if (
         messageBottom + belowSpace > boundsBottom &&
         messageTop - aboveSpace > boundsTop
@@ -193,20 +197,16 @@ class TextMessage extends React.PureComponent<Props> {
         },
       });
     });
-  }
+  };
 
   dismissKeyboardIfShowing = () => {
     const { keyboardState } = this.props;
     return !!(keyboardState && keyboardState.dismissKeyboardIfShowing());
-  }
-
+  };
 }
 
 const WrappedTextMessage = withKeyboardState(
   withOverlayableScrollViewState(TextMessage),
 );
 
-export {
-  WrappedTextMessage as TextMessage,
-  textMessageItemHeight,
-};
+export { WrappedTextMessage as TextMessage, textMessageItemHeight };

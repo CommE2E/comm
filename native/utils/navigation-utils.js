@@ -19,19 +19,20 @@ function assertNavigationRouteNotLeafNode(
   invariant(
     route.routes &&
       Array.isArray(route.routes) &&
-      route.index !== null && route.index !== undefined &&
-      typeof route.index === "number",
-    "route should be a NavigationStateRoute",
+      route.index !== null &&
+      route.index !== undefined &&
+      typeof route.index === 'number',
+    'route should be a NavigationStateRoute',
   );
   const index = route.index;
   const routes = [];
   for (let subroute of route.routes) {
     invariant(
       subroute &&
-        typeof subroute === "object" &&
-        typeof subroute.key === "string" &&
-        typeof subroute.routeName === "string",
-      "subroute should be a NavigationRoute!",
+        typeof subroute === 'object' &&
+        typeof subroute.key === 'string' &&
+        typeof subroute.routeName === 'string',
+      'subroute should be a NavigationRoute!',
     );
     let subrouteCopy: NavigationRoute = {
       key: subroute.key,
@@ -39,15 +40,14 @@ function assertNavigationRouteNotLeafNode(
     };
     if (subroute.path) {
       invariant(
-        typeof subroute.path === "string",
+        typeof subroute.path === 'string',
         "navigation's path should be a string!",
       );
       subrouteCopy.path = subroute.path;
     }
     if (subroute.params) {
       invariant(
-        subroute.params &&
-          typeof subroute.params === "object",
+        subroute.params && typeof subroute.params === 'object',
         "navigation's params should be an object!",
       );
       subrouteCopy.params = subroute.params;
@@ -71,9 +71,9 @@ function getThreadIDFromParams(object: { params?: NavigationParams }): string {
   invariant(
     object.params &&
       object.params.threadInfo &&
-      typeof object.params.threadInfo === "object" &&
+      typeof object.params.threadInfo === 'object' &&
       object.params.threadInfo.id &&
-      typeof object.params.threadInfo.id === "string",
+      typeof object.params.threadInfo.id === 'string',
     "there's no way in react-navigation/Flow to type this",
   );
   return object.params.threadInfo.id;
@@ -92,10 +92,7 @@ function currentLeafRoute(state: NavigationState): NavigationLeafRoute {
   return currentRouteRecurse(state.routes[state.index]);
 }
 
-function findRouteIndexWithKey(
-  state: NavigationState,
-  key: string,
-): ?number {
+function findRouteIndexWithKey(state: NavigationState, key: string): ?number {
   for (let i = 0; i < state.routes.length; i++) {
     const route = state.routes[i];
     if (route.key === key) {

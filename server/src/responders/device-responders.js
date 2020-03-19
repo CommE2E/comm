@@ -22,7 +22,4 @@ async function deviceTokenUpdateResponder(
   await deviceTokenUpdater(viewer, request);
 }
 
-export {
-  deviceTokenUpdateRequestInputValidator,
-  deviceTokenUpdateResponder,
-};
+export { deviceTokenUpdateRequestInputValidator, deviceTokenUpdateResponder };

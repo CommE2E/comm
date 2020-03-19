@@ -42,10 +42,7 @@ import Button from './components/button.react';
 import { store } from './redux/redux-setup';
 import { persistConfig, codeVersion, getPersistor } from './redux/persist';
 
-const errorTitles = [
-  "Oh no!!",
-  "Womp womp womp...",
-];
+const errorTitles = ['Oh no!!', 'Womp womp womp...'];
 
 type Props = {
   errorData: $ReadOnlyArray<ErrorData>,
@@ -61,17 +58,18 @@ type Props = {
 };
 type State = {|
   errorReportID: ?string,
-  doneWaiting: bool,
+  doneWaiting: boolean,
 |};
 class Crash extends React.PureComponent<Props, State> {
-
   static propTypes = {
-    errorData: PropTypes.arrayOf(PropTypes.shape({
-      error: PropTypes.object.isRequired,
-      info: PropTypes.shape({
-        componentStack: PropTypes.string.isRequired,
+    errorData: PropTypes.arrayOf(
+      PropTypes.shape({
+        error: PropTypes.object.isRequired,
+        info: PropTypes.shape({
+          componentStack: PropTypes.string.isRequired,
+        }),
       }),
-    })).isRequired,
+    ).isRequired,
     preRequestUserState: preRequestUserStatePropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     sendReport: PropTypes.func.isRequired,
@@ -84,10 +82,7 @@ class Crash extends React.PureComponent<Props, State> {
   };
 
   componentDidMount() {
-    this.props.dispatchActionPromise(
-      sendReportActionTypes,
-      this.sendReport(),
-    );
+    this.props.dispatchActionPromise(sendReportActionTypes, this.sendReport());
     this.timeOut();
   }
 
@@ -101,7 +96,7 @@ class Crash extends React.PureComponent<Props, State> {
     const errorText = [...this.props.errorData]
       .reverse()
       .map(errorData => errorData.error.message)
-      .join("\n");
+      .join('\n');
 
     let crashID;
     if (this.state.errorReportID) {
@@ -111,9 +106,7 @@ class Crash extends React.PureComponent<Props, State> {
             {this.state.errorReportID}
           </Text>
           <Button onPress={this.onCopyCrashReportID}>
-            <Text style={styles.copyCrashReportIDButtonText}>
-              (Copy)
-            </Text>
+            <Text style={styles.copyCrashReportIDButtonText}>(Copy)</Text>
           </Button>
         </React.Fragment>
       );
@@ -130,17 +123,13 @@ class Crash extends React.PureComponent<Props, State> {
         <Text style={styles.text}>I'm sorry, but the app crashed.</Text>
         <View style={styles.crashID}>
           <Text style={styles.crashIDText}>Crash report ID:</Text>
-          <View style={styles.errorReportID}>
-            {crashID}
-          </View>
+          <View style={styles.errorReportID}>{crashID}</View>
         </View>
         <Text style={styles.text}>
           Here's some text that's probably not helpful:
         </Text>
         <ScrollView style={styles.scrollView}>
-          <Text style={styles.errorText}>
-            {errorText}
-          </Text>
+          <Text style={styles.errorText}>{errorText}</Text>
         </ScrollView>
         <View style={[styles.buttons, buttonStyle]}>
           <Button onPress={this.onPressKill} style={styles.button}>
@@ -182,37 +171,33 @@ class Crash extends React.PureComponent<Props, State> {
       return;
     }
     ExitApp.exitApp();
-  }
+  };
 
   onPressWipe = async () => {
     if (!this.state.doneWaiting) {
       return;
     }
-    this.props.dispatchActionPromise(
-      logOutActionTypes,
-      this.logOutAndExit(),
-    );
-  }
+    this.props.dispatchActionPromise(logOutActionTypes, this.logOutAndExit());
+  };
 
   async logOutAndExit() {
     try {
       await this.props.logOut(this.props.preRequestUserState);
-    } catch (e) { }
+    } catch (e) {}
     getPersistor().purge();
     ExitApp.exitApp();
   }
 
   onCopyCrashReportID = () => {
-    invariant(this.state.errorReportID, "should be set");
+    invariant(this.state.errorReportID, 'should be set');
     Clipboard.setString(this.state.errorReportID);
-  }
-
+  };
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',
   },
@@ -228,8 +213,8 @@ const styles = StyleSheet.create({
   errorText: {
     color: 'black',
     fontFamily: Platform.select({
-      ios: "Menlo",
-      default: "monospace",
+      ios: 'Menlo',
+      default: 'monospace',
     }),
   },
   scrollView: {
@@ -240,17 +225,17 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   buttons: {
-    flexDirection: "row",
+    flexDirection: 'row',
   },
   button: {
-    backgroundColor: "#FF0000",
+    backgroundColor: '#FF0000',
     borderRadius: 5,
     paddingVertical: 5,
     paddingHorizontal: 10,
     marginHorizontal: 10,
   },
   buttonText: {
-    color: "white",
+    color: 'white',
     fontSize: 16,
   },
   crashID: {

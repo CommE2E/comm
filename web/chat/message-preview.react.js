@@ -24,7 +24,6 @@ type Props = {|
   threadInfo: ThreadInfo,
 |};
 class MessagePreview extends React.PureComponent<Props> {
-
   static propTypes = {
     messageInfo: messageInfoPropType,
     threadInfo: threadInfoPropType.isRequired,
@@ -62,15 +61,12 @@ class MessagePreview extends React.PureComponent<Props> {
       const preview = messagePreviewText(messageInfo, this.props.threadInfo);
       const colorStyle = unread ? css.black : css.light;
       return (
-        <div
-          className={classNames([css.lastMessage, colorStyle])}
-        >
+        <div className={classNames([css.lastMessage, colorStyle])}>
           {preview}
         </div>
       );
     }
   }
-
 }
 
 export default MessagePreview;

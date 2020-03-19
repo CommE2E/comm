@@ -22,7 +22,6 @@ type Props = {|
   styles: Styles,
 |};
 class ThreadSettingsButton extends React.PureComponent<Props> {
-
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     navigate: PropTypes.func.isRequired,
@@ -32,11 +31,7 @@ class ThreadSettingsButton extends React.PureComponent<Props> {
   render() {
     return (
       <Button onPress={this.onPress} androidBorderlessRipple={true}>
-        <Icon
-          name="md-settings"
-          size={30}
-          style={this.props.styles.button}
-        />
+        <Icon name="md-settings" size={30} style={this.props.styles.button} />
       </Button>
     );
   }
@@ -48,8 +43,7 @@ class ThreadSettingsButton extends React.PureComponent<Props> {
       params: { threadInfo },
       key: `${ThreadSettingsRouteName}${threadInfo.id}`,
     });
-  }
-
+  };
 }
 
 const styles = {

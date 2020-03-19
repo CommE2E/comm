@@ -19,9 +19,7 @@ async function deviceTokenUpdater(
   await dbQuery(query);
 }
 
-async function clearDeviceToken(
-  deviceToken: string,
-): Promise<void> {
+async function clearDeviceToken(deviceToken: string): Promise<void> {
   const query = SQL`
     UPDATE cookies
     SET device_token = NULL
@@ -30,7 +28,4 @@ async function clearDeviceToken(
   await dbQuery(query);
 }
 
-export {
-  deviceTokenUpdater,
-  clearDeviceToken,
-};
+export { deviceTokenUpdater, clearDeviceToken };

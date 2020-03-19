@@ -3,8 +3,8 @@
 import PropTypes from 'prop-types';
 
 export type DeviceCameraInfo = {|
-  hasCamerasOnBothSides: bool,
-  defaultUseFrontCamera: bool,
+  hasCamerasOnBothSides: boolean,
+  defaultUseFrontCamera: boolean,
 |};
 
 export const deviceCameraInfoPropType = PropTypes.shape({

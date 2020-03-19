@@ -1,8 +1,6 @@
 // @flow
 
-import type {
-  ____Styles_Internal,
-} from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
+import type { ____Styles_Internal } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
 import * as React from 'react';
 import { View, Text, Image } from 'react-native';
@@ -18,9 +16,4 @@ type ImageStyle = $PropertyType<ImageProps, 'style'>;
 
 type Styles = ____Styles_Internal;
 
-export type {
-  ViewStyle,
-  TextStyle,
-  ImageStyle,
-  Styles,
-};
+export type { ViewStyle, TextStyle, ImageStyle, Styles };

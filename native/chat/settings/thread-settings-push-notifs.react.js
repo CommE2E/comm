@@ -33,10 +33,9 @@ type Props = {|
   ) => Promise<SubscriptionUpdateResult>,
 |};
 type State = {|
-  currentValue: bool,
+  currentValue: boolean,
 |};
 class ThreadSettingsPushNotifs extends React.PureComponent<Props, State> {
-
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
@@ -65,7 +64,7 @@ class ThreadSettingsPushNotifs extends React.PureComponent<Props, State> {
     );
   }
 
-  onValueChange = (value: bool) => {
+  onValueChange = (value: boolean) => {
     this.setState({ currentValue: value });
     this.props.dispatchActionPromise(
       updateSubscriptionActionTypes,
@@ -76,8 +75,7 @@ class ThreadSettingsPushNotifs extends React.PureComponent<Props, State> {
         },
       }),
     );
-  }
-
+  };
 }
 
 const styles = {

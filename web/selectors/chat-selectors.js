@@ -25,10 +25,10 @@ const activeChatThreadItem: (
   (state: AppState) => state.userInfos,
   (state: AppState) => state.navInfo.activeChatThreadID,
   (
-    threadInfos: {[id: string]: ThreadInfo},
+    threadInfos: { [id: string]: ThreadInfo },
     messageStore: MessageStore,
     viewerID: ?string,
-    userInfos: {[id: string]: UserInfo},
+    userInfos: { [id: string]: UserInfo },
     activeChatThreadID: ?string,
   ): ?ChatThreadItem => {
     if (!activeChatThreadID) {
@@ -48,15 +48,10 @@ const activeChatThreadItem: (
   },
 );
 
-const webChatListData: (
-  state: AppState,
-) => ChatThreadItem[] = createSelector(
+const webChatListData: (state: AppState) => ChatThreadItem[] = createSelector(
   chatListData,
   activeChatThreadItem,
-  (
-    data: ChatThreadItem[],
-    activeItem: ?ChatThreadItem,
-  ): ChatThreadItem[] => {
+  (data: ChatThreadItem[], activeItem: ?ChatThreadItem): ChatThreadItem[] => {
     if (!activeItem) {
       return data;
     }
@@ -71,7 +66,7 @@ const webChatListData: (
 
 const webMessageListData: (
   state: AppState,
-) => ?ChatMessageItem[] = createSelector(
+) => ?(ChatMessageItem[]) = createSelector(
   (state: AppState) => state.navInfo.activeChatThreadID,
   (state: AppState) => state.messageStore,
   (state: AppState) => state.currentUserInfo && state.currentUserInfo.id,
@@ -81,9 +76,9 @@ const webMessageListData: (
     threadID: ?string,
     messageStore: MessageStore,
     viewerID: ?string,
-    userInfos: {[id: string]: UserInfo},
-    threadInfos: {[id: string]: ThreadInfo},
-  ): ?ChatMessageItem[] => {
+    userInfos: { [id: string]: UserInfo },
+    threadInfos: { [id: string]: ThreadInfo },
+  ): ?(ChatMessageItem[]) => {
     if (!threadID) {
       return null;
     }
@@ -97,7 +92,4 @@ const webMessageListData: (
   },
 );
 
-export {
-  webChatListData,
-  webMessageListData,
-};
+export { webChatListData, webMessageListData };

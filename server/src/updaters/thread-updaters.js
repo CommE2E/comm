@@ -53,7 +53,7 @@ async function updateRole(
     throw new ServerError('not_logged_in');
   }
 
-  const [ memberIDs, hasPermission ] = await Promise.all([
+  const [memberIDs, hasPermission] = await Promise.all([
     verifyUserIDs(request.memberIDs),
     checkThreadPermission(
       viewer,
@@ -73,7 +73,7 @@ async function updateRole(
     FROM memberships
     WHERE user IN (${memberIDs}) AND thread = ${request.threadID}
   `;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
 
   let nonMemberUser = false;
   let numResults = 0;
@@ -88,11 +88,7 @@ async function updateRole(
     throw new ServerError('invalid_parameters');
   }
 
-  const changeset = await changeRole(
-    request.threadID,
-    memberIDs,
-    request.role,
-  );
+  const changeset = await changeRole(request.threadID, memberIDs, request.role);
   if (!changeset) {
     throw new ServerError('unknown_error');
   }
@@ -105,10 +101,7 @@ async function updateRole(
     userIDs: memberIDs,
     newRole: request.role,
   };
-  const [
-    newMessageInfos,
-    { threadInfos, viewerUpdates },
-  ] = await Promise.all([
+  const [newMessageInfos, { threadInfos, viewerUpdates }] = await Promise.all([
     createMessages(viewer, [messageData]),
     commitMembershipChangeset(viewer, changeset),
   ]);
@@ -132,7 +125,7 @@ async function removeMembers(
     throw new ServerError('invalid_parameters');
   }
 
-  const [ memberIDs, hasPermission ] = await Promise.all([
+  const [memberIDs, hasPermission] = await Promise.all([
     verifyUserOrCookieIDs(request.memberIDs),
     checkThreadPermission(
       viewer,
@@ -153,7 +146,7 @@ async function removeMembers(
     LEFT JOIN threads t ON t.id = m.thread
     WHERE m.user IN (${memberIDs}) AND m.thread = ${request.threadID}
   `;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
 
   let nonDefaultRoleUser = false;
   const actualMemberIDs = [];
@@ -178,11 +171,7 @@ async function removeMembers(
     }
   }
 
-  const changeset = await changeRole(
-    request.threadID,
-    actualMemberIDs,
-    0,
-  );
+  const changeset = await changeRole(request.threadID, actualMemberIDs, 0);
   if (!changeset) {
     throw new ServerError('unknown_error');
   }
@@ -194,10 +183,7 @@ async function removeMembers(
     time: Date.now(),
     removedUserIDs: actualMemberIDs,
   };
-  const [
-    newMessageInfos,
-    { threadInfos, viewerUpdates },
-  ] = await Promise.all([
+  const [newMessageInfos, { threadInfos, viewerUpdates }] = await Promise.all([
     createMessages(viewer, [messageData]),
     commitMembershipChangeset(viewer, changeset),
   ]);
@@ -220,7 +206,7 @@ async function leaveThread(
     throw new ServerError('not_logged_in');
   }
 
-  const [ isMember, { threadInfos: serverThreadInfos } ] = await Promise.all([
+  const [isMember, { threadInfos: serverThreadInfos }] = await Promise.all([
     viewerIsMember(viewer, request.threadID),
     fetchServerThreadInfos(SQL`t.id = ${request.threadID}`),
   ]);
@@ -230,7 +216,7 @@ async function leaveThread(
   const serverThreadInfo = serverThreadInfos[request.threadID];
 
   const viewerID = viewer.userID;
-  if (_find({ name: "Admins" })(serverThreadInfo.roles)) {
+  if (_find({ name: 'Admins' })(serverThreadInfo.roles)) {
     let otherUsersExist = false;
     let otherAdminsExist = false;
     for (let member of serverThreadInfo.members) {
@@ -239,7 +225,7 @@ async function leaveThread(
         continue;
       }
       otherUsersExist = true;
-      if (serverThreadInfo.roles[role].name === "Admins") {
+      if (serverThreadInfo.roles[role].name === 'Admins') {
         otherAdminsExist = true;
         break;
       }
@@ -249,11 +235,7 @@ async function leaveThread(
     }
   }
 
-  const changeset = await changeRole(
-    request.threadID,
-    [viewerID],
-    0,
-  );
+  const changeset = await changeRole(request.threadID, [viewerID], 0);
   if (!changeset) {
     throw new ServerError('unknown_error');
   }
@@ -264,7 +246,7 @@ async function leaveThread(
     creatorID: viewerID,
     time: Date.now(),
   };
-  const [ { threadInfos, viewerUpdates } ] = await Promise.all([
+  const [{ threadInfos, viewerUpdates }] = await Promise.all([
     commitMembershipChangeset(viewer, changeset),
     createMessages(viewer, [messageData]),
   ]);
@@ -327,8 +309,9 @@ async function updateThread(
 
   const unverifiedNewMemberIDs = request.changes.newMemberIDs;
   if (unverifiedNewMemberIDs) {
-    validationPromises.verifiedNewMemberIDs
-      = verifyUserIDs(unverifiedNewMemberIDs);
+    validationPromises.verifiedNewMemberIDs = verifyUserIDs(
+      unverifiedNewMemberIDs,
+    );
   }
 
   validationPromises.threadPermissionsBlob = fetchThreadPermissionsBlob(
@@ -351,32 +334,26 @@ async function updateThread(
     canMoveThread,
     threadPermissionsBlob,
     verifiedNewMemberIDs,
-    validationQuery: [ validationResult ],
+    validationQuery: [validationResult],
   } = await promiseAll(validationPromises);
   if (canMoveThread === false) {
     throw new ServerError('invalid_credentials');
   }
 
-  const newMemberIDs = verifiedNewMemberIDs && verifiedNewMemberIDs.length > 0
-    ? verifiedNewMemberIDs
-    : null;
+  const newMemberIDs =
+    verifiedNewMemberIDs && verifiedNewMemberIDs.length > 0
+      ? verifiedNewMemberIDs
+      : null;
   if (Object.keys(sqlUpdate).length === 0 && !newMemberIDs) {
     throw new ServerError('invalid_parameters');
   }
 
-  if (
-    validationResult.length === 0 ||
-    validationResult[0].type === null
-  ) {
+  if (validationResult.length === 0 || validationResult[0].type === null) {
     throw new ServerError('internal_error');
   }
   const validationRow = validationResult[0];
 
-  if (
-    sqlUpdate.name ||
-    sqlUpdate.description ||
-    sqlUpdate.color
-  ) {
+  if (sqlUpdate.name || sqlUpdate.description || sqlUpdate.color) {
     const canEditThread = permissionLookup(
       threadPermissionsBlob,
       threadPermissions.EDIT_THREAD,
@@ -385,10 +362,7 @@ async function updateThread(
       throw new ServerError('invalid_credentials');
     }
   }
-  if (
-    sqlUpdate.parent_thread_id ||
-    sqlUpdate.type
-  ) {
+  if (sqlUpdate.parent_thread_id || sqlUpdate.type) {
     const canEditPermissions = permissionLookup(
       threadPermissionsBlob,
       threadPermissions.EDIT_PERMISSIONS,
@@ -428,9 +402,10 @@ async function updateThread(
     throw new ServerError('no_parent_thread_specified');
   }
 
-  const nextThreadType = threadType !== null && threadType !== undefined
-    ? threadType
-    : oldThreadType;
+  const nextThreadType =
+    threadType !== null && threadType !== undefined
+      ? threadType
+      : oldThreadType;
   const nextParentThreadID = parentThreadID
     ? parentThreadID
     : oldParentThreadID;
@@ -465,20 +440,22 @@ async function updateThread(
 
   const changeset = [];
   if (recalculatePermissionsChangeset && newMemberIDs) {
-    changeset.push(...recalculatePermissionsChangeset.filter(
-      rowToSave => !newMemberIDs.includes(rowToSave.userID),
-    ));
+    changeset.push(
+      ...recalculatePermissionsChangeset.filter(
+        rowToSave => !newMemberIDs.includes(rowToSave.userID),
+      ),
+    );
   } else if (recalculatePermissionsChangeset) {
     changeset.push(...recalculatePermissionsChangeset);
   }
   if (addMembersChangeset) {
     for (let rowToSave of addMembersChangeset) {
-      if (rowToSave.operation === "delete") {
+      if (rowToSave.operation === 'delete') {
         changeset.push(rowToSave);
         continue;
       }
       if (
-        rowToSave.operation === "join" &&
+        rowToSave.operation === 'join' &&
         (rowToSave.userID !== viewer.userID ||
           rowToSave.threadID !== request.threadID)
       ) {
@@ -511,10 +488,7 @@ async function updateThread(
     });
   }
 
-  const [
-    newMessageInfos,
-    { threadInfos, viewerUpdates },
-  ] = await Promise.all([
+  const [newMessageInfos, { threadInfos, viewerUpdates }] = await Promise.all([
     createMessages(viewer, messageDatas),
     commitMembershipChangeset(
       viewer,
@@ -522,7 +496,7 @@ async function updateThread(
       // This forces an update for this thread,
       // regardless of whether any membership rows are changed
       Object.keys(sqlUpdate).length > 0
-        ? new Set([ request.threadID ])
+        ? new Set([request.threadID])
         : new Set(),
     ),
   ]);
@@ -545,7 +519,7 @@ async function joinThread(
     throw new ServerError('not_logged_in');
   }
 
-  const [ isMember, hasPermission ] = await Promise.all([
+  const [isMember, hasPermission] = await Promise.all([
     viewerIsMember(viewer, request.threadID),
     checkThreadPermission(
       viewer,
@@ -569,20 +543,16 @@ async function joinThread(
     }
   }
 
-  const changeset = await changeRole(
-    request.threadID,
-    [viewer.userID],
-    null,
-  );
+  const changeset = await changeRole(request.threadID, [viewer.userID], null);
   if (!changeset) {
     throw new ServerError('unknown_error');
   }
   for (let rowToSave of changeset) {
-    if (rowToSave.operation === "delete") {
+    if (rowToSave.operation === 'delete') {
       continue;
     }
     if (
-      rowToSave.operation === "join" &&
+      rowToSave.operation === 'join' &&
       (rowToSave.userID !== viewer.userID ||
         rowToSave.threadID !== request.threadID)
     ) {
@@ -596,24 +566,17 @@ async function joinThread(
     creatorID: viewer.userID,
     time: Date.now(),
   };
-  const [ membershipResult ] = await Promise.all([
+  const [membershipResult] = await Promise.all([
     commitMembershipChangeset(viewer, changeset, new Set(), calendarQuery),
     createMessages(viewer, [messageData]),
   ]);
 
   const threadSelectionCriteria = {
-    threadCursors: {[request.threadID]: false},
+    threadCursors: { [request.threadID]: false },
   };
-  const [
-    fetchMessagesResult,
-    fetchEntriesResult,
-  ] = await Promise.all([
-    fetchMessageInfos(
-      viewer,
-      threadSelectionCriteria,
-      defaultNumberPerThread,
-    ),
-    calendarQuery ? fetchEntryInfos(viewer, [ calendarQuery ]) : undefined,
+  const [fetchMessagesResult, fetchEntriesResult] = await Promise.all([
+    fetchMessageInfos(viewer, threadSelectionCriteria, defaultNumberPerThread),
+    calendarQuery ? fetchEntryInfos(viewer, [calendarQuery]) : undefined,
   ]);
 
   let userInfos = {
@@ -644,10 +607,4 @@ async function joinThread(
   return response;
 }
 
-export {
-  updateRole,
-  removeMembers,
-  leaveThread,
-  updateThread,
-  joinThread,
-};
+export { updateRole, removeMembers, leaveThread, updateThread, joinThread };

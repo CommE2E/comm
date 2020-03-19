@@ -57,7 +57,6 @@ type Props = {|
   ) => Promise<ChangeThreadSettingsResult>,
 |};
 class ColorPickerModal extends React.PureComponent<Props> {
-
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
@@ -84,7 +83,7 @@ class ColorPickerModal extends React.PureComponent<Props> {
     return (
       <Modal
         navigation={this.props.navigation}
-        modalStyle={[ this.props.styles.colorPickerContainer, modalStyle ]}
+        modalStyle={[this.props.styles.colorPickerContainer, modalStyle]}
       >
         <ColorPicker
           defaultColor={color}
@@ -109,7 +108,7 @@ class ColorPickerModal extends React.PureComponent<Props> {
 
   close = () => {
     this.props.navigation.goBack();
-  }
+  };
 
   onColorSelected = (color: string) => {
     const colorEditValue = color.substr(1);
@@ -120,7 +119,7 @@ class ColorPickerModal extends React.PureComponent<Props> {
       this.editColor(colorEditValue),
       { customKeyName: `${changeThreadSettingsActionTypes.started}:color` },
     );
-  }
+  };
 
   async editColor(newColor: string) {
     const threadID = this.props.navigation.state.params.threadInfo.id;
@@ -131,11 +130,9 @@ class ColorPickerModal extends React.PureComponent<Props> {
       });
     } catch (e) {
       Alert.alert(
-        "Unknown error",
-        "Uhh... try again?",
-        [
-          { text: 'OK', onPress: this.onErrorAcknowledged },
-        ],
+        'Unknown error',
+        'Uhh... try again?',
+        [{ text: 'OK', onPress: this.onErrorAcknowledged }],
         { cancelable: false },
       );
       throw e;
@@ -145,8 +142,7 @@ class ColorPickerModal extends React.PureComponent<Props> {
   onErrorAcknowledged = () => {
     const { threadInfo, setColor } = this.props.navigation.state.params;
     setColor(threadInfo.color);
-  }
-
+  };
 }
 
 const styles = {

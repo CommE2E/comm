@@ -17,9 +17,8 @@ type Props = {|
   styles: Styles,
 |};
 class BuildInfo extends React.PureComponent<Props> {
-
   static navigationOptions = {
-    headerTitle: "Build info",
+    headerTitle: 'Build info',
   };
   static propTypes = {
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
@@ -55,7 +54,6 @@ class BuildInfo extends React.PureComponent<Props> {
       </ScrollView>
     );
   }
-
 }
 
 const styles = {

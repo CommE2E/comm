@@ -18,13 +18,12 @@ type Props = {|
   // Redux state
   nextMessagePruneTime: ?number,
   pruneThreadIDs: () => $ReadOnlyArray<string>,
-  foreground: bool,
-  frozen: bool,
+  foreground: boolean,
+  frozen: boolean,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 |};
 class MessageStorePruner extends React.PureComponent<Props> {
-
   static propTypes = {
     nextMessagePruneTime: PropTypes.number,
     pruneThreadIDs: PropTypes.func.isRequired,
@@ -49,16 +48,14 @@ class MessageStorePruner extends React.PureComponent<Props> {
     if (threadIDs.length === 0) {
       return;
     }
-    this.props.dispatchActionPayload(
-      messageStorePruneActionType,
-      { threadIDs },
-    );
+    this.props.dispatchActionPayload(messageStorePruneActionType, {
+      threadIDs,
+    });
   }
 
   render() {
     return null;
   }
-
 }
 
 export default connect(

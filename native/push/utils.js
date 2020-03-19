@@ -11,14 +11,13 @@ function saveMessageInfos(
   messageInfosString: string,
   updatesCurrentAsOf: number,
 ) {
-  const messageInfos: $ReadOnlyArray<RawMessageInfo> =
-    JSON.parse(messageInfosString);
+  const messageInfos: $ReadOnlyArray<RawMessageInfo> = JSON.parse(
+    messageInfosString,
+  );
   dispatch({
     type: saveMessagesActionType,
     payload: { rawMessageInfos: messageInfos, updatesCurrentAsOf },
   });
 }
 
-export {
-  saveMessageInfos,
-};
+export { saveMessageInfos };

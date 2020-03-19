@@ -18,11 +18,7 @@ import { connect } from 'lib/utils/redux-utils';
 import { contentBottomOffset } from '../selectors/dimension-selectors';
 import { overlayStyleSelector } from '../themes/colors';
 
-const {
-  Value,
-  Extrapolate,
-  interpolate,
-} = Animated;
+const { Value, Extrapolate, interpolate } = Animated;
 
 type NavProp = NavigationStackProp<{|
   ...NavigationLeafRoute,
@@ -39,7 +35,6 @@ type Props = {|
   styles: Styles,
 |};
 class ActionResultModal extends React.PureComponent<Props> {
-
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
@@ -60,14 +55,11 @@ class ActionResultModal extends React.PureComponent<Props> {
 
     const { position } = props;
     const { index } = props.scene;
-    this.progress = interpolate(
-      position,
-      {
-        inputRange: [ index - 1, index ],
-        outputRange: [ 0, 1 ],
-        extrapolate: Extrapolate.CLAMP,
-      },
-    );
+    this.progress = interpolate(position, {
+      inputRange: [index - 1, index],
+      outputRange: [0, 1],
+      extrapolate: Extrapolate.CLAMP,
+    });
   }
 
   componentDidMount() {
@@ -76,7 +68,7 @@ class ActionResultModal extends React.PureComponent<Props> {
 
   goBack = () => {
     this.props.navigation.goBack();
-  }
+  };
 
   get containerStyle() {
     return {
@@ -96,7 +88,6 @@ class ActionResultModal extends React.PureComponent<Props> {
       </Animated.View>
     );
   }
-
 }
 
 const styles = {

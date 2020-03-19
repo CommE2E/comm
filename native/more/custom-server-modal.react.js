@@ -36,7 +36,6 @@ type State = {|
   customServer: string,
 |};
 class CustomServerModal extends React.PureComponent<Props, State> {
-
   static propTypes = {
     navigation: PropTypes.shape({
       goBack: PropTypes.func.isRequired,
@@ -51,7 +50,7 @@ class CustomServerModal extends React.PureComponent<Props, State> {
     super(props);
     const { customServer } = props;
     this.state = {
-      customServer: customServer ? customServer : "",
+      customServer: customServer ? customServer : '',
     };
   }
 
@@ -69,10 +68,7 @@ class CustomServerModal extends React.PureComponent<Props, State> {
           onChangeText={this.onChangeCustomServer}
           autoFocus={true}
         />
-        <Button
-          onPress={this.onPressGo}
-          style={this.props.styles.button}
-        >
+        <Button onPress={this.onPressGo} style={this.props.styles.button}>
           <Text style={this.props.styles.buttonText}>Go</Text>
         </Button>
       </Modal>
@@ -81,7 +77,7 @@ class CustomServerModal extends React.PureComponent<Props, State> {
 
   onChangeCustomServer = (newCustomServer: string) => {
     this.setState({ customServer: newCustomServer });
-  }
+  };
 
   onPressGo = () => {
     const { customServer } = this.state;
@@ -92,8 +88,7 @@ class CustomServerModal extends React.PureComponent<Props, State> {
       this.props.dispatchActionPayload(setCustomServer, customServer);
     }
     this.props.navigation.goBack();
-  }
-
+  };
 }
 
 const styles = {

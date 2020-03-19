@@ -63,11 +63,11 @@ async function getAssetInfo() {
   if (assetInfo) {
     return assetInfo;
   }
-  if (process.env.NODE_ENV === "dev") {
+  if (process.env.NODE_ENV === 'dev') {
     assetInfo = {
-      jsURL: "http://localhost:8080/dev.build.js",
-      fontsURL: "fonts/local-fonts.css",
-      cssInclude: "",
+      jsURL: 'http://localhost:8080/dev.build.js',
+      fontsURL: 'fonts/local-fonts.css',
+      cssInclude: '',
     };
     return assetInfo;
   }
@@ -75,12 +75,15 @@ async function getAssetInfo() {
   const { default: assets } = await import('../../compiled/assets');
   assetInfo = {
     jsURL: `compiled/${assets.browser.js}`,
-    fontsURL: "https://fonts.googleapis.com/css?family=Open+Sans:300,600%7CAnaheim",
-    cssInclude: html`<link
-      rel="stylesheet"
-      type="text/css"
-      href="compiled/${assets.browser.css}"
-    />`,
+    fontsURL:
+      'https://fonts.googleapis.com/css?family=Open+Sans:300,600%7CAnaheim',
+    cssInclude: html`
+      <link
+        rel="stylesheet"
+        type="text/css"
+        href="compiled/${assets.browser.css}"
+      />
+    `,
   };
   return assetInfo;
 }
@@ -92,10 +95,9 @@ async function websiteResponder(
 ): Promise<void> {
   let initialNavInfo;
   try {
-    initialNavInfo = navInfoFromURL(
-      req.url,
-      { now: currentDateInTimeZone(viewer.timeZone) },
-    );
+    initialNavInfo = navInfoFromURL(req.url, {
+      now: currentDateInTimeZone(viewer.timeZone),
+    });
   } catch (e) {
     throw new ServerError(e.message);
   }
@@ -115,7 +117,7 @@ async function websiteResponder(
     threadSelectionCriteria,
     defaultNumberPerThread,
   );
-  const entryInfoPromise = fetchEntryInfos(viewer, [ calendarQuery ]);
+  const entryInfoPromise = fetchEntryInfos(viewer, [calendarQuery]);
   const currentUserInfoPromise = fetchCurrentUserInfo(viewer);
   const serverVerificationResultPromise = handleVerificationRequest(
     viewer,
@@ -137,7 +139,7 @@ async function websiteResponder(
     const [
       { threadInfos },
       { rawMessageInfos, truncationStatuses },
-    ] = await Promise.all([ threadInfoPromise, messageInfoPromise ] );
+    ] = await Promise.all([threadInfoPromise, messageInfoPromise]);
     return freshMessageStore(
       rawMessageInfos,
       truncationStatuses,
@@ -172,7 +174,7 @@ async function websiteResponder(
   })();
 
   const navInfoPromise = (async () => {
-    const [ { threadInfos }, messageStore ] = await Promise.all([
+    const [{ threadInfos }, messageStore] = await Promise.all([
       threadInfoPromise,
       messageStorePromise,
     ]);
@@ -199,15 +201,13 @@ async function websiteResponder(
     return finalNavInfo;
   })();
 
-
   const updateActivityPromise = (async () => {
-    const [ navInfo ] = await Promise.all([ navInfoPromise, sessionIDPromise ]);
+    const [navInfo] = await Promise.all([navInfoPromise, sessionIDPromise]);
     const activeThread = activeThreadFromNavInfo(navInfo);
     if (activeThread) {
-      await activityUpdater(
-        viewer,
-        { updates: [ { focus: true, threadID: activeThread } ] },
-      );
+      await activityUpdater(viewer, {
+        updates: [{ focus: true, threadID: activeThread }],
+      });
     }
   })();
 
@@ -247,7 +247,9 @@ async function websiteResponder(
         <meta name="theme-color" content="#b91d47" />
       </head>
       <body>
-        <div id="react-root">
+        <div id="react-root"></div>
+      </body>
+    </html>
   `);
 
   const statePromises = {
@@ -263,11 +265,11 @@ async function websiteResponder(
     loadingStatuses: {},
     calendarFilters: defaultCalendarFilters,
     // We can use paths local to the <base href> on web
-    urlPrefix: "",
+    urlPrefix: '',
     windowDimensions: { width: 0, height: 0 },
     baseHref,
     connection: {
-      ...defaultConnectionInfo("web", viewer.timeZone),
+      ...defaultConnectionInfo('web', viewer.timeZone),
       actualizedCalendarQuery: calendarQuery,
     },
     watchedThreadIDs: [],
@@ -295,7 +297,7 @@ async function websiteResponder(
     </Provider>,
   );
   if (routerContext.url) {
-    throw new ServerError("URL modified during server render!");
+    throw new ServerError('URL modified during server render!');
   }
   reactStream.pipe(res, { end: false });
   await waitForStream(reactStream);
@@ -341,6 +343,4 @@ async function handleVerificationRequest(
   }
 }
 
-export {
-  websiteResponder,
-};
+export { websiteResponder };

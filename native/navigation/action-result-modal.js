@@ -15,6 +15,4 @@ function displayActionResultModal(message: string) {
   });
 }
 
-export {
-  displayActionResultModal,
-};
+export { displayActionResultModal };

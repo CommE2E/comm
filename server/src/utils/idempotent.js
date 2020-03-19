@@ -10,11 +10,8 @@ function localIDFromCreationString(viewer: ?Viewer, creationString: ?string) {
   if (!creationString || !viewer || !viewer.hasSessionInfo) {
     return null;
   }
-  const [ session, localID ] = creationString.split('|');
+  const [session, localID] = creationString.split('|');
   return session === viewer.session ? localID : null;
 }
 
-export {
-  creationString,
-  localIDFromCreationString,
-};
+export { creationString, localIDFromCreationString };

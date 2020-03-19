@@ -31,7 +31,4 @@ async function deleteOrphanedActivity(): Promise<void> {
   `);
 }
 
-export {
-  deleteActivityForViewerSession,
-  deleteOrphanedActivity,
-};
+export { deleteActivityForViewerSession, deleteOrphanedActivity };

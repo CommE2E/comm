@@ -29,33 +29,30 @@ async function getBlobFromURI(
   // fetch() to return a blob of the video, we need to use the ph-upload://
   // scheme. https://git.io/Jerlh
   const fbMediaKitURL = uri.startsWith('ph://');
-  const fixedURI = (fbMediaKitURL && type === "video")
-    ? uri.replace(/^ph:/, 'ph-upload:')
-    : uri;
+  const fixedURI =
+    fbMediaKitURL && type === 'video' ? uri.replace(/^ph:/, 'ph-upload:') : uri;
   const start = Date.now();
   const response = await fetch(fixedURI);
   return await response.blob();
 }
 
 type ClientPhotoInfo = {|
-  type: "photo",
+  type: 'photo',
   uri: string,
   dimensions: Dimensions,
   filename: string,
 |};
 type ClientVideoInfo = {|
-  type: "video",
+  type: 'video',
   uri: string,
   dimensions: Dimensions,
   filename: string,
 |};
-type ClientMediaInfo =
-  | ClientPhotoInfo
-  | ClientVideoInfo;
+type ClientMediaInfo = ClientPhotoInfo | ClientVideoInfo;
 
-type ReactNativeBlob = 
-  & Blob
-  & { data: { type: string, name: string, size: number } };
+type ReactNativeBlob = Blob & {
+  data: { type: string, name: string, size: number },
+};
 export type MediaValidationResult =
   | {|
       success: true,
@@ -80,30 +77,30 @@ async function validateMedia(
   try {
     blob = await getBlobFromURI(uri, type);
     reportedMIME =
-      (uri.startsWith('ph://') && blob.type === "application/octet-stream")
-        ? "video/quicktime"
+      uri.startsWith('ph://') && blob.type === 'application/octet-stream'
+        ? 'video/quicktime'
         : blob.type;
     reportedMediaType = mimeTypesToMediaTypes[reportedMIME];
-  } catch { }
-  
+  } catch {}
+
   const validationStep = {
-    step: "validation",
+    step: 'validation',
     type,
     success: type === reportedMediaType,
     time: Date.now() - blobFetchStart,
     blobFetched: !!blob,
     blobMIME: blob ? blob.type : null,
     reportedMIME,
-    blobName: (blob && blob.data) ? blob.data.name : null,
+    blobName: blob && blob.data ? blob.data.name : null,
     size: blob ? blob.size : null,
   };
 
   let result;
-  if (type === "photo") {
-    if (blob && reportedMediaType === "photo") {
+  if (type === 'photo') {
+    if (blob && reportedMediaType === 'photo') {
       result = {
         success: true,
-        type: "photo",
+        type: 'photo',
         uri,
         dimensions,
         filename,
@@ -112,14 +109,14 @@ async function validateMedia(
     } else {
       result = {
         success: false,
-        reason: "blob_reported_mime_issue",
+        reason: 'blob_reported_mime_issue',
         mime: reportedMIME,
       };
     }
   } else {
     result = {
       success: true,
-      type: "video",
+      type: 'video',
       uri,
       dimensions,
       filename,
@@ -127,7 +124,7 @@ async function validateMedia(
     };
   }
 
-  return { steps: [ validationStep ], result };
+  return { steps: [validationStep], result };
 }
 
 function blobToDataURI(blob: Blob): Promise<string> {
@@ -225,51 +222,54 @@ async function convertMedia(
     };
   };
 
-  if (validationResult.type === "video") {
+  if (validationResult.type === 'video') {
     const {
       steps: transcodeSteps,
       result: transcodeResult,
     } = await transcodeVideo(validationResult);
-    steps = [ ...steps, ...transcodeSteps ];
+    steps = [...steps, ...transcodeSteps];
     if (!transcodeResult.success) {
       return finish(transcodeResult);
     }
     uploadURI = transcodeResult.uri;
     name = transcodeResult.filename;
     shouldDisposePath = validationResult.uri !== uploadURI ? uploadURI : null;
-    mime = "video/mp4";
-  } else if (validationResult.type === "photo") {
+    mime = 'video/mp4';
+  } else if (validationResult.type === 'photo') {
     const { type: reportedMIME, size } = validationResult.blob;
     if (
-      reportedMIME === "image/heic" ||
+      reportedMIME === 'image/heic' ||
       size > 5e6 ||
       (size > 5e5 && (dimensions.width > 3000 || dimensions.height > 2000))
     ) {
       const photoResizeStart = Date.now();
       try {
-        const compressFormat = reportedMIME === "image/png" ? "PNG" : "JPEG";
+        const compressFormat = reportedMIME === 'image/png' ? 'PNG' : 'JPEG';
         const compressQuality = size > 5e6 ? 92 : 100;
-        const { uri: resizedURI, path, name: resizedName } =
-          await ImageResizer.createResizedImage(
-            uploadURI,
-            3000,
-            2000,
-            compressFormat,
-            compressQuality,
-          );
+        const {
+          uri: resizedURI,
+          path,
+          name: resizedName,
+        } = await ImageResizer.createResizedImage(
+          uploadURI,
+          3000,
+          2000,
+          compressFormat,
+          compressQuality,
+        );
         uploadURI = resizedURI;
-        if (reportedMIME === "image/png" && !name.endsWith('.png')) {
+        if (reportedMIME === 'image/png' && !name.endsWith('.png')) {
           name = `${stripExtension(name)}.png`;
-        } else if (reportedMIME !== "image/png" && !name.endsWith('.jpg')) {
+        } else if (reportedMIME !== 'image/png' && !name.endsWith('.jpg')) {
           name = `${stripExtension(name)}.jpg`;
         }
         shouldDisposePath = path;
-        mime = reportedMIME === "image/png" ? "image/png" : "image/jpeg";
+        mime = reportedMIME === 'image/png' ? 'image/png' : 'image/jpeg';
         dimensions = await getDimensions(resizedURI);
-      } catch (e) { }
+      } catch (e) {}
       const success = uploadURI !== validationResult.uri;
       steps.push({
-        step: "photo_resize_transcode",
+        step: 'photo_resize_transcode',
         success,
         time: Date.now() - photoResizeStart,
         newMIME: success ? mime : null,
@@ -281,7 +281,7 @@ async function convertMedia(
       if (!success) {
         return finish({
           success: false,
-          reason: "too_large_cant_downscale",
+          reason: 'too_large_cant_downscale',
           size,
         });
       }
@@ -290,24 +290,25 @@ async function convertMedia(
 
   let { blob } = validationResult;
   if (uploadURI !== validationResult.uri) {
-    const newMediaInfo = validationResult.type === "video"
-      ? {
-          type: "video",
-          uri: uploadURI,
-          dimensions,
-          filename: name,
-        }
-      : {
-          type: "photo",
-          uri: uploadURI,
-          dimensions,
-          filename: name,
-        };
+    const newMediaInfo =
+      validationResult.type === 'video'
+        ? {
+            type: 'video',
+            uri: uploadURI,
+            dimensions,
+            filename: name,
+          }
+        : {
+            type: 'photo',
+            uri: uploadURI,
+            dimensions,
+            filename: name,
+          };
     const {
       steps: newValidationSteps,
       result: newValidationResult,
     } = await validateMedia(newMediaInfo);
-    steps = [ ...steps, ...newValidationSteps ];
+    steps = [...steps, ...newValidationSteps];
     if (!newValidationResult.success) {
       return finish(newValidationResult);
     }
@@ -322,8 +323,9 @@ async function convertMedia(
 
     const fileDetectionResult = fileInfoFromData(intArray, name);
     fileDataDetectionStep = {
-      step: "final_file_data_analysis",
-      success: !!fileDetectionResult.name &&
+      step: 'final_file_data_analysis',
+      success:
+        !!fileDetectionResult.name &&
         !!fileDetectionResult.mime &&
         fileDetectionResult.mediaType === validationResult.type,
       time: Date.now() - fileDataDetectionStart,
@@ -342,14 +344,14 @@ async function convertMedia(
   }
 
   if (
-    validationResult.type === "photo" &&
+    validationResult.type === 'photo' &&
     uploadURI === validationResult.uri &&
     (!fileDataDetectionStep || !fileDataDetectionStep.success)
   ) {
     const reportedMIME = validationResult.blob.type;
     return finish({
       success: false,
-      reason: "file_data_detected_mime_issue",
+      reason: 'file_data_detected_mime_issue',
       reportedMIME,
       reportedMediaType: validationResult.type,
       detectedMIME: mime,
@@ -372,8 +374,10 @@ function getCompatibleMediaURI(uri: string, ext: string): string {
   // assets-library:// scheme is a legacy Apple identifier. Certain components
   // and libraries (namely react-native-video) don't know how to handle the
   // ph:// scheme yet, so we have to map to the legacy assets-library:// scheme
-  return `assets-library://asset/asset.${ext}` +
-    `?id=${photoKitLocalIdentifier}&ext=${ext}`;
+  return (
+    `assets-library://asset/asset.${ext}` +
+    `?id=${photoKitLocalIdentifier}&ext=${ext}`
+  );
 }
 
 async function processMedia(
@@ -393,7 +397,7 @@ async function processMedia(
     result: conversionResult,
     steps: conversionSteps,
   } = await convertMedia(validationResult);
-  const steps = [ ...validationSteps, ...conversionSteps ];
+  const steps = [...validationSteps, ...conversionSteps];
   return { steps, result: conversionResult };
 }
 

@@ -58,13 +58,10 @@ async function threadDeletionResponder(
 const roleChangeRequestInputValidator = tShape({
   threadID: t.String,
   memberIDs: t.list(t.String),
-  role: t.refinement(
-    t.String,
-    str => {
-      const int = parseInt(str, 10);
-      return int == str && int > 0;
-    },
-  ),
+  role: t.refinement(t.String, str => {
+    const int = parseInt(str, 10);
+    return int == str && int > 0;
+  }),
 });
 
 async function roleUpdateResponder(
@@ -126,8 +123,7 @@ async function threadUpdateResponder(
   if (
     input.changes.visibilityRules !== null &&
     input.changes.visibilityRules !== undefined &&
-    (input.changes.type === null ||
-      input.changes.type === undefined)
+    (input.changes.type === null || input.changes.type === undefined)
   ) {
     request = ({
       ...input,
@@ -177,8 +173,7 @@ async function threadCreationResponder(
   await validateInput(viewer, newThreadRequestInputValidator, input);
   let request;
   if (
-    (input.visibilityRules === null ||
-      input.visibilityRules === undefined) &&
+    (input.visibilityRules === null || input.visibilityRules === undefined) &&
     (input.type === null || input.type === undefined)
   ) {
     throw new ServerError('invalid_parameters');

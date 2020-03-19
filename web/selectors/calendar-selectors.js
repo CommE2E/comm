@@ -15,10 +15,12 @@ const webFilterThreadInfos: (
   state: AppState,
 ) => () => $ReadOnlyArray<FilterThreadInfo> = createSelector(
   filterThreadInfos,
-  (state: AppState) => state.navInfo.tab === "calendar",
+  (state: AppState) => state.navInfo.tab === 'calendar',
   (
-    threadInfoFunc: (calendarActive: bool) => $ReadOnlyArray<FilterThreadInfo>,
-    calendarActive: bool,
+    threadInfoFunc: (
+      calendarActive: boolean,
+    ) => $ReadOnlyArray<FilterThreadInfo>,
+    calendarActive: boolean,
   ) => () => threadInfoFunc(calendarActive),
 );
 
@@ -26,14 +28,11 @@ const webFilterThreadSearchIndex: (
   state: AppState,
 ) => () => SearchIndex = createSelector(
   filterThreadSearchIndex,
-  (state: AppState) => state.navInfo.tab === "calendar",
+  (state: AppState) => state.navInfo.tab === 'calendar',
   (
-    threadSearchIndexFunc: (calendarActive: bool) => SearchIndex,
-    calendarActive: bool,
+    threadSearchIndexFunc: (calendarActive: boolean) => SearchIndex,
+    calendarActive: boolean,
   ) => () => threadSearchIndexFunc(calendarActive),
 );
 
-export {
-  webFilterThreadInfos,
-  webFilterThreadSearchIndex,
-};
+export { webFilterThreadInfos, webFilterThreadSearchIndex };

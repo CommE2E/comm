@@ -14,7 +14,6 @@ type Props = {
 };
 
 class LogInFirstModal extends React.PureComponent<Props> {
-
   render() {
     return (
       <Modal name="Log in or register" onClose={this.clearModal}>
@@ -25,14 +24,18 @@ class LogInFirstModal extends React.PureComponent<Props> {
               href="#"
               className={css['show-login-modal']}
               onClick={this.onClickLogIn}
-            >log in</a>
-            {" or "}
+            >
+              log in
+            </a>
+            {' or '}
             <a
               href="#"
               className={css['show-register-modal']}
               onClick={this.onClickRegister}
-            >register</a>
-            {" a new account."}
+            >
+              register
+            </a>
+            {' a new account.'}
           </p>
         </div>
       </Modal>
@@ -41,18 +44,17 @@ class LogInFirstModal extends React.PureComponent<Props> {
 
   clearModal = () => {
     this.props.setModal(null);
-  }
+  };
 
   onClickLogIn = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.setModal(<LogInModal setModal={this.props.setModal} />);
-  }
+  };
 
   onClickRegister = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.setModal(<RegisterModal setModal={this.props.setModal} />);
-  }
-
+  };
 }
 
 LogInFirstModal.propTypes = {

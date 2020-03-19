@@ -44,7 +44,6 @@ type State = {|
   success: ?string,
 |};
 class Splash extends React.PureComponent<Props, State> {
-
   static propTypes = {
     setModal: PropTypes.func.isRequired,
     currentModal: PropTypes.node,
@@ -55,8 +54,8 @@ class Splash extends React.PureComponent<Props, State> {
   emailInput: ?HTMLInputElement;
   bottomContainer: ?HTMLDivElement;
   state = {
-    platform: "ios",
-    email: "",
+    platform: 'ios',
+    email: '',
     error: null,
     success: null,
   };
@@ -69,7 +68,7 @@ class Splash extends React.PureComponent<Props, State> {
 
   render() {
     let androidWarning = null;
-    if (this.state.platform === "android") {
+    if (this.state.platform === 'android') {
       androidWarning = (
         <p className={css.androidWarning}>
           Make sure this is the email you use to log in to the Google Play
@@ -77,24 +76,18 @@ class Splash extends React.PureComponent<Props, State> {
         </p>
       );
     }
-    let error = null
+    let error = null;
     if (this.state.error) {
-      error = (
-        <p className={css.requestAccessError}>
-          {this.state.error}
-        </p>
-      );
+      error = <p className={css.requestAccessError}>{this.state.error}</p>;
     }
-    let success = null
+    let success = null;
     if (this.state.success) {
       success = (
-        <p className={css.requestAccessSuccess}>
-          {this.state.success}
-        </p>
+        <p className={css.requestAccessSuccess}>{this.state.success}</p>
       );
     }
-    let submitButtonContent = "Submit";
-    if (this.props.loadingStatus === "loading") {
+    let submitButtonContent = 'Submit';
+    if (this.props.loadingStatus === 'loading') {
       submitButtonContent = (
         <LoadingIndicator status={this.props.loadingStatus} />
       );
@@ -108,14 +101,10 @@ class Splash extends React.PureComponent<Props, State> {
                 <h1>SquadCal</h1>
                 <div className={css.actionLinks}>
                   <a href="#" onClick={this.onClickRequestAccess}>
-                    <span className={css.requestAccess}>
-                      Request access
-                    </span>
+                    <span className={css.requestAccess}>Request access</span>
                   </a>
                   <a href="#" onClick={this.onClickLogIn}>
-                    <span>
-                      Log in
-                    </span>
+                    <span>Log in</span>
                   </a>
                 </div>
               </div>
@@ -204,29 +193,29 @@ class Splash extends React.PureComponent<Props, State> {
 
   bottomContainerRef = (bottomContainer: ?HTMLDivElement) => {
     this.bottomContainer = bottomContainer;
-  }
+  };
 
   emailInputRef = (emailInput: ?HTMLInputElement) => {
     this.emailInput = emailInput;
-  }
+  };
 
   onChangeEmail = (event: SyntheticEvent<HTMLInputElement>) => {
     this.setState({ email: event.currentTarget.value });
-  }
+  };
 
   onChangePlatform = (event: SyntheticEvent<HTMLSelectElement>) => {
     this.setState({ platform: assertDeviceType(event.currentTarget.value) });
-  }
+  };
 
   onClickLogIn = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.setModal(<LogInModal setModal={this.props.setModal} />);
-  }
+  };
 
   onClickRequestAccess = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     const { bottomContainer } = this;
-    invariant(bottomContainer, "bottomContainer should exist");
+    invariant(bottomContainer, 'bottomContainer should exist');
     const formHeight = 180;
     const contentHeight = 790;
     const guaranteesSpace = contentHeight - window.innerHeight + formHeight;
@@ -239,14 +228,14 @@ class Splash extends React.PureComponent<Props, State> {
     if (this.emailInput) {
       this.emailInput.focus();
     }
-  }
+  };
 
   onSubmitRequestAccess = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
 
     if (this.state.email.search(validEmailRegex) === -1) {
-      this.setState({ success: null, error: "Please enter a valid email!" });
-      invariant(this.emailInput, "should be set");
+      this.setState({ success: null, error: 'Please enter a valid email!' });
+      invariant(this.emailInput, 'should be set');
       this.emailInput.focus();
       return;
     }
@@ -255,7 +244,7 @@ class Splash extends React.PureComponent<Props, State> {
       requestAccessActionTypes,
       this.requestAccessAction(),
     );
-  }
+  };
 
   async requestAccessAction() {
     try {
@@ -264,20 +253,21 @@ class Splash extends React.PureComponent<Props, State> {
         platform: this.state.platform,
       });
       this.setState({
-        success: "Thanks for your interest! We'll let you know as soon as " +
+        success:
+          "Thanks for your interest! We'll let you know as soon as " +
           "we're able to extend an invite.",
         error: null,
       });
     } catch (e) {
-      this.setState({ success: null, error: "Unknown error..." });
+      this.setState({ success: null, error: 'Unknown error...' });
       throw e;
     }
   }
-
 }
 
-const loadingStatusSelector =
-  createLoadingStatusSelector(requestAccessActionTypes);
+const loadingStatusSelector = createLoadingStatusSelector(
+  requestAccessActionTypes,
+);
 export default connect(
   (state: AppState) => ({
     loadingStatus: loadingStatusSelector(state),

@@ -15,7 +15,7 @@ import Button from './button.react';
 import { colorsSelector, styleSelector } from '../themes/colors';
 
 const getUserListItemHeight = (item: UserListItem) => {
-  return Platform.OS === "ios" ? 31.5 : 33.5;
+  return Platform.OS === 'ios' ? 31.5 : 33.5;
 };
 
 type Props = {|
@@ -27,7 +27,6 @@ type Props = {|
   styles: Styles,
 |};
 class UserListUser extends React.PureComponent<Props> {
-
   static propTypes = {
     userInfo: userListItemPropType.isRequired,
     onSelect: PropTypes.func.isRequired,
@@ -54,10 +53,10 @@ class UserListUser extends React.PureComponent<Props> {
         iosActiveOpacity={0.85}
         style={this.props.styles.button}
       >
-        <Text style={[
-          this.props.styles.text,
-          this.props.textStyle,
-        ]} numberOfLines={1}>
+        <Text
+          style={[this.props.styles.text, this.props.textStyle]}
+          numberOfLines={1}
+        >
           {this.props.userInfo.username}
         </Text>
         {parentThreadNotice}
@@ -67,8 +66,7 @@ class UserListUser extends React.PureComponent<Props> {
 
   onSelect = () => {
     this.props.onSelect(this.props.userInfo.id);
-  }
-
+  };
 }
 
 const styles = {
@@ -96,7 +94,4 @@ const WrappedUserListUser = connect((state: AppState) => ({
   styles: stylesSelector(state),
 }))(UserListUser);
 
-export {
-  WrappedUserListUser as UserListUser,
-  getUserListItemHeight,
-};
+export { WrappedUserListUser as UserListUser, getUserListItemHeight };

@@ -30,7 +30,7 @@ async function createVerificationCode(
 ): Promise<string> {
   const code = crypto.randomBytes(4).toString('hex');
   const hash = bcrypt.hashSync(code);
-  const [ id ] = await createIDs("verifications", 1);
+  const [id] = await createIDs('verifications', 1);
   const time = Date.now();
   const row = [id, userID, field, hash, time];
   const query = SQL`
@@ -53,7 +53,7 @@ async function verifyCode(hex: string): Promise<CodeVerification> {
     SELECT hash, user, field, creation_time
     FROM verifications WHERE id = ${id}
   `;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
   if (result.length === 0) {
     throw new ServerError('invalid_code');
   }
@@ -106,19 +106,21 @@ async function handleCodeVerificationRequest(
   if (field === verifyField.EMAIL) {
     const query = SQL`UPDATE users SET email_verified = 1 WHERE id = ${userID}`;
     await dbQuery(query);
-    const updateDatas = [{
-      type: updateTypes.UPDATE_CURRENT_USER,
-      userID,
-      time: Date.now(),
-    }];
-    await createUpdates(
-      updateDatas,
-      { viewer, updatesForCurrentSession: "broadcast" },
-    );
+    const updateDatas = [
+      {
+        type: updateTypes.UPDATE_CURRENT_USER,
+        userID,
+        time: Date.now(),
+      },
+    ];
+    await createUpdates(updateDatas, {
+      viewer,
+      updatesForCurrentSession: 'broadcast',
+    });
     return { success: true, field: verifyField.EMAIL };
   } else if (field === verifyField.RESET_PASSWORD) {
     const usernameQuery = SQL`SELECT username FROM users WHERE id = ${userID}`;
-    const [ usernameResult ] = await dbQuery(usernameQuery);
+    const [usernameResult] = await dbQuery(usernameQuery);
     if (usernameResult.length === 0) {
       throw new ServerError('invalid_code');
     }
@@ -151,7 +153,6 @@ async function deleteExpiredVerifications(): Promise<void> {
   query.append(creationTimeClause);
   await dbQuery(query);
 }
-
 
 export {
   createVerificationCode,

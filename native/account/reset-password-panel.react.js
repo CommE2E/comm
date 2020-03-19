@@ -43,9 +43,9 @@ import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
 type Props = {
   verifyCode: string,
   username: string,
-  onePasswordSupported: bool,
+  onePasswordSupported: boolean,
   onSuccess: () => void,
-  setActiveAlert: (activeAlert: bool) => void,
+  setActiveAlert: (activeAlert: boolean) => void,
   opacityValue: Animated.Value,
   // Redux state
   loadingStatus: LoadingStatus,
@@ -60,7 +60,6 @@ type State = {
   confirmPasswordInputText: string,
 };
 class ResetPasswordPanel extends React.PureComponent<Props, State> {
-
   static propTypes = {
     verifyCode: PropTypes.string.isRequired,
     username: PropTypes.string.isRequired,
@@ -74,8 +73,8 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
     resetPassword: PropTypes.func.isRequired,
   };
   state = {
-    passwordInputText: "",
-    confirmPasswordInputText: "",
+    passwordInputText: '',
+    confirmPasswordInputText: '',
   };
   passwordInput: ?TextInput;
   confirmPasswordInput: ?TextInput;
@@ -106,10 +105,10 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
             placeholder="New password"
             autoFocus={true}
             secureTextEntry={true}
-            returnKeyType='next'
+            returnKeyType="next"
             blurOnSubmit={false}
             onSubmitEditing={this.focusConfirmPasswordInput}
-            editable={this.props.loadingStatus !== "loading"}
+            editable={this.props.loadingStatus !== 'loading'}
             ref={this.passwordInputRef}
           />
           {onePassword}
@@ -121,10 +120,10 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
             onChangeText={this.onChangeConfirmPasswordInputText}
             placeholder="Confirm password"
             secureTextEntry={true}
-            returnKeyType='go'
+            returnKeyType="go"
             blurOnSubmit={false}
             onSubmitEditing={this.onSubmit}
-            editable={this.props.loadingStatus !== "loading"}
+            editable={this.props.loadingStatus !== 'loading'}
             ref={this.confirmPasswordInputRef}
           />
         </View>
@@ -139,34 +138,32 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
 
   passwordInputRef = (passwordInput: ?TextInput) => {
     this.passwordInput = passwordInput;
-  }
+  };
 
   confirmPasswordInputRef = (confirmPasswordInput: ?TextInput) => {
     this.confirmPasswordInput = confirmPasswordInput;
-  }
+  };
 
   focusConfirmPasswordInput = () => {
-    invariant(this.confirmPasswordInput, "ref should be set");
+    invariant(this.confirmPasswordInput, 'ref should be set');
     this.confirmPasswordInput.focus();
-  }
+  };
 
   onChangePasswordInputText = (text: string) => {
     this.setState({ passwordInputText: text });
-  }
+  };
 
   onChangeConfirmPasswordInputText = (text: string) => {
     this.setState({ confirmPasswordInputText: text });
-  }
+  };
 
   onSubmit = () => {
     this.props.setActiveAlert(true);
     if (this.state.passwordInputText === '') {
       Alert.alert(
-        "Empty password",
-        "Password cannot be empty",
-        [
-          { text: 'OK', onPress: this.onPasswordAlertAcknowledged },
-        ],
+        'Empty password',
+        'Password cannot be empty',
+        [{ text: 'OK', onPress: this.onPasswordAlertAcknowledged }],
         { cancelable: false },
       );
       return;
@@ -175,10 +172,8 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
     ) {
       Alert.alert(
         "Passwords don't match",
-        "Password fields must contain the same password",
-        [
-          { text: 'OK', onPress: this.onPasswordAlertAcknowledged },
-        ],
+        'Password fields must contain the same password',
+        [{ text: 'OK', onPress: this.onPasswordAlertAcknowledged }],
         { cancelable: false },
       );
       return;
@@ -191,21 +186,21 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
       undefined,
       ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
     );
-  }
+  };
 
   onPasswordAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
     this.setState(
       {
-        passwordInputText: "",
-        confirmPasswordInputText: "",
+        passwordInputText: '',
+        confirmPasswordInputText: '',
       },
       () => {
-        invariant(this.passwordInput, "ref should exist");
+        invariant(this.passwordInput, 'ref should exist');
         this.passwordInput.focus();
       },
     );
-  }
+  };
 
   async resetPasswordAction(extraInfo: LogInExtraInfo) {
     try {
@@ -220,25 +215,21 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
     } catch (e) {
       if (e.message === 'client_version_unsupported') {
         const app = Platform.select({
-          ios: "Testflight",
-          android: "Play Store",
+          ios: 'Testflight',
+          android: 'Play Store',
         });
         Alert.alert(
-          "App out of date",
+          'App out of date',
           "Your app version is pretty old, and the server doesn't know how " +
             `to speak to it anymore. Please use the ${app} app to update!`,
-          [
-            { text: 'OK', onPress: this.onAppOutOfDateAlertAcknowledged },
-          ],
+          [{ text: 'OK', onPress: this.onAppOutOfDateAlertAcknowledged }],
           { cancelable: false },
         );
       } else {
         Alert.alert(
-          "Unknown error",
-          "Uhh... try again?",
-          [
-            { text: 'OK', onPress: this.onPasswordAlertAcknowledged },
-          ],
+          'Unknown error',
+          'Uhh... try again?',
+          [{ text: 'OK', onPress: this.onPasswordAlertAcknowledged }],
           { cancelable: false },
         );
         throw e;
@@ -248,19 +239,18 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
 
   onAppOutOfDateAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
-  }
+  };
 
   onPressOnePassword = async () => {
     try {
-      const credentials = await OnePassword.findLogin("https://squadcal.org");
+      const credentials = await OnePassword.findLogin('https://squadcal.org');
       this.setState({
         passwordInputText: credentials.password,
         confirmPasswordInputText: credentials.password,
       });
       this.onSubmit();
-    } catch (e) { }
-  }
-
+    } catch (e) {}
+  };
 }
 
 const styles = StyleSheet.create({
@@ -288,8 +278,9 @@ const styles = StyleSheet.create({
   },
 });
 
-const loadingStatusSelector
-  = createLoadingStatusSelector(resetPasswordActionTypes);
+const loadingStatusSelector = createLoadingStatusSelector(
+  resetPasswordActionTypes,
+);
 
 export default connect(
   (state: AppState) => ({

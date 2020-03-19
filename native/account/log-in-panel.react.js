@@ -28,15 +28,9 @@ import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
 import PropTypes from 'prop-types';
 
-import {
-  validUsernameRegex,
-  validEmailRegex,
-} from 'lib/shared/account-utils';
+import { validUsernameRegex, validEmailRegex } from 'lib/shared/account-utils';
 import { connect } from 'lib/utils/redux-utils';
-import {
-  logInActionTypes,
-  logIn,
-} from 'lib/actions/user-actions';
+import { logInActionTypes, logIn } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import {
@@ -59,9 +53,9 @@ export type LogInState = {
   passwordInputText: string,
 };
 type Props = {
-  setActiveAlert: (activeAlert: bool) => void,
+  setActiveAlert: (activeAlert: boolean) => void,
   opacityValue: Animated.Value,
-  onePasswordSupported: bool,
+  onePasswordSupported: boolean,
   innerRef: (logInPanel: ?LogInPanel) => void,
   state: StateContainer<LogInState>,
   // Redux state
@@ -74,7 +68,6 @@ type Props = {
   logIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
 };
 class LogInPanel extends React.PureComponent<Props> {
-
   static propTypes = {
     setActiveAlert: PropTypes.func.isRequired,
     opacityValue: PropTypes.object.isRequired,
@@ -131,10 +124,10 @@ class LogInPanel extends React.PureComponent<Props> {
             autoCorrect={false}
             autoCapitalize="none"
             keyboardType="ascii-capable"
-            returnKeyType='next'
+            returnKeyType="next"
             blurOnSubmit={false}
             onSubmitEditing={this.focusPasswordInput}
-            editable={this.props.loadingStatus !== "loading"}
+            editable={this.props.loadingStatus !== 'loading'}
             ref={this.usernameOrEmailInputRef}
           />
         </View>
@@ -146,10 +139,10 @@ class LogInPanel extends React.PureComponent<Props> {
             onChangeText={this.onChangePasswordInputText}
             placeholder="Password"
             secureTextEntry={true}
-            returnKeyType='go'
+            returnKeyType="go"
             blurOnSubmit={false}
             onSubmitEditing={this.onSubmit}
-            editable={this.props.loadingStatus !== "loading"}
+            editable={this.props.loadingStatus !== 'loading'}
             ref={this.passwordInputRef}
           />
           {onePassword}
@@ -165,29 +158,29 @@ class LogInPanel extends React.PureComponent<Props> {
 
   usernameOrEmailInputRef = (usernameOrEmailInput: ?TextInput) => {
     this.usernameOrEmailInput = usernameOrEmailInput;
-  }
+  };
 
   focusUsernameOrEmailInput = () => {
-    invariant(this.usernameOrEmailInput, "ref should be set");
+    invariant(this.usernameOrEmailInput, 'ref should be set');
     this.usernameOrEmailInput.focus();
-  }
+  };
 
   passwordInputRef = (passwordInput: ?TextInput) => {
     this.passwordInput = passwordInput;
-  }
+  };
 
   focusPasswordInput = () => {
-    invariant(this.passwordInput, "ref should be set");
+    invariant(this.passwordInput, 'ref should be set');
     this.passwordInput.focus();
-  }
+  };
 
   onChangeUsernameOrEmailInputText = (text: string) => {
     this.props.state.setState({ usernameOrEmailInputText: text });
-  }
+  };
 
   onChangePasswordInputText = (text: string) => {
     this.props.state.setState({ passwordInputText: text });
-  }
+  };
 
   onSubmit = () => {
     this.props.setActiveAlert(true);
@@ -200,21 +193,17 @@ class LogInPanel extends React.PureComponent<Props> {
       ) === -1
     ) {
       Alert.alert(
-        "Invalid username",
-        "Alphanumeric usernames or emails only",
-        [
-          { text: 'OK', onPress: this.onUsernameOrEmailAlertAcknowledged },
-        ],
+        'Invalid username',
+        'Alphanumeric usernames or emails only',
+        [{ text: 'OK', onPress: this.onUsernameOrEmailAlertAcknowledged }],
         { cancelable: false },
       );
       return;
-    } else if (this.props.state.state.passwordInputText === "") {
+    } else if (this.props.state.state.passwordInputText === '') {
       Alert.alert(
-        "Empty password",
-        "Password cannot be empty",
-        [
-          { text: 'OK', onPress: this.onPasswordAlertAcknowledged },
-        ],
+        'Empty password',
+        'Password cannot be empty',
+        [{ text: 'OK', onPress: this.onPasswordAlertAcknowledged }],
         { cancelable: false },
       );
       return;
@@ -228,20 +217,20 @@ class LogInPanel extends React.PureComponent<Props> {
       undefined,
       ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
     );
-  }
+  };
 
   onUsernameOrEmailAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
     this.props.state.setState(
       {
-        usernameOrEmailInputText: "",
+        usernameOrEmailInputText: '',
       },
       () => {
-        invariant(this.usernameOrEmailInput, "ref should exist");
+        invariant(this.usernameOrEmailInput, 'ref should exist');
         this.usernameOrEmailInput.focus();
       },
     );
-  }
+  };
 
   async logInAction(extraInfo: LogInExtraInfo) {
     try {
@@ -259,43 +248,35 @@ class LogInPanel extends React.PureComponent<Props> {
     } catch (e) {
       if (e.message === 'invalid_parameters') {
         Alert.alert(
-          "Invalid username",
+          'Invalid username',
           "User doesn't exist",
-          [
-            { text: 'OK', onPress: this.onUsernameOrEmailAlertAcknowledged },
-          ],
+          [{ text: 'OK', onPress: this.onUsernameOrEmailAlertAcknowledged }],
           { cancelable: false },
         );
       } else if (e.message === 'invalid_credentials') {
         Alert.alert(
-          "Incorrect password",
-          "The password you entered is incorrect",
-          [
-            { text: 'OK', onPress: this.onPasswordAlertAcknowledged },
-          ],
+          'Incorrect password',
+          'The password you entered is incorrect',
+          [{ text: 'OK', onPress: this.onPasswordAlertAcknowledged }],
           { cancelable: false },
         );
       } else if (e.message === 'client_version_unsupported') {
         const app = Platform.select({
-          ios: "Testflight",
-          android: "Play Store",
+          ios: 'Testflight',
+          android: 'Play Store',
         });
         Alert.alert(
-          "App out of date",
+          'App out of date',
           "Your app version is pretty old, and the server doesn't know how " +
             `to speak to it anymore. Please use the ${app} app to update!`,
-          [
-            { text: 'OK', onPress: this.onAppOutOfDateAlertAcknowledged },
-          ],
+          [{ text: 'OK', onPress: this.onAppOutOfDateAlertAcknowledged }],
           { cancelable: false },
         );
       } else {
         Alert.alert(
-          "Unknown error",
-          "Uhh... try again?",
-          [
-            { text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged },
-          ],
+          'Unknown error',
+          'Uhh... try again?',
+          [{ text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged }],
           { cancelable: false },
         );
       }
@@ -307,44 +288,43 @@ class LogInPanel extends React.PureComponent<Props> {
     this.props.setActiveAlert(false);
     this.props.state.setState(
       {
-        passwordInputText: "",
+        passwordInputText: '',
       },
       () => {
-        invariant(this.passwordInput, "passwordInput ref unset");
+        invariant(this.passwordInput, 'passwordInput ref unset');
         this.passwordInput.focus();
       },
     );
-  }
+  };
 
   onUnknownErrorAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
     this.props.state.setState(
       {
-        usernameOrEmailInputText: "",
-        passwordInputText: "",
+        usernameOrEmailInputText: '',
+        passwordInputText: '',
       },
       () => {
-        invariant(this.usernameOrEmailInput, "ref should exist");
+        invariant(this.usernameOrEmailInput, 'ref should exist');
         this.usernameOrEmailInput.focus();
       },
     );
-  }
+  };
 
   onAppOutOfDateAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
-  }
+  };
 
   onPressOnePassword = async () => {
     try {
-      const credentials = await OnePassword.findLogin("https://squadcal.org");
+      const credentials = await OnePassword.findLogin('https://squadcal.org');
       this.props.state.setState({
         usernameOrEmailInputText: credentials.username,
         passwordInputText: credentials.password,
       });
       this.onSubmit();
-    } catch (e) { }
-  }
-
+    } catch (e) {}
+  };
 }
 
 export type InnerLogInPanel = LogInPanel;

@@ -22,8 +22,9 @@ import { StackRouter, createNavigator, StackActions } from 'react-navigation';
 import { Transitioner } from 'react-navigation-stack';
 import Animated, { Easing } from 'react-native-reanimated';
 
-const LightboxPositionContext: React.Context<Animated.Value>
-  = React.createContext(null);
+const LightboxPositionContext: React.Context<Animated.Value> = React.createContext(
+  null,
+);
 
 function createLightboxNavigator(
   routeConfigMap: NavigationRouteConfigMap,
@@ -48,11 +49,7 @@ function createLightboxNavigator(
     NavigationState,
     StackNavigatorConfig,
     NavigationStackProp<NavigationState>,
-  >(
-    Lightbox,
-    StackRouter(routeConfigMap, stackRouterConfig),
-    stackConfig,
-  );
+  >(Lightbox, StackRouter(routeConfigMap, stackRouterConfig), stackConfig);
 }
 
 type Props = $ReadOnly<{
@@ -61,7 +58,6 @@ type Props = $ReadOnly<{
   navigationConfig: StackNavigatorConfig,
 }>;
 class Lightbox extends React.PureComponent<Props> {
-
   position: Animated.Value;
 
   constructor(props: Props) {
@@ -87,19 +83,16 @@ class Lightbox extends React.PureComponent<Props> {
     easing: BaseEasing.inOut(BaseEasing.ease),
     timing: BaseAnimated.timing,
     useNativeDriver: true,
-  })
+  });
 
   onTransitionStart = (transitionProps: NavigationStackTransitionProps) => {
     const { index } = transitionProps.navigation.state;
-    Animated.timing(
-      this.position,
-      {
-        duration: 250,
-        easing: Easing.inOut(Easing.ease),
-        toValue: index,
-      },
-    ).start();
-  }
+    Animated.timing(this.position, {
+      duration: 250,
+      easing: Easing.inOut(Easing.ease),
+      toValue: index,
+    }).start();
+  };
 
   onTransitionEnd = (transitionProps: NavigationStackTransitionProps) => {
     if (!transitionProps.navigation.state.isTransitioning) {
@@ -115,21 +108,18 @@ class Lightbox extends React.PureComponent<Props> {
     navigation.dispatch(
       StackActions.completeTransition({ toChildKey: transitionDestKey }),
     );
-  }
+  };
 
   renderScenes = (transitionProps: NavigationStackTransitionProps) => {
     const { scenes } = transitionProps;
-    const renderScene =
-      (scene: NavigationStackScene) => this.renderScene(
-        scene,
-        transitionProps,
-      );
+    const renderScene = (scene: NavigationStackScene) =>
+      this.renderScene(scene, transitionProps);
     return (
       <LightboxPositionContext.Provider value={this.position}>
         {scenes.map(renderScene)}
       </LightboxPositionContext.Provider>
     );
-  }
+  };
 
   renderScene(
     scene: NavigationStackScene,
@@ -140,7 +130,7 @@ class Lightbox extends React.PureComponent<Props> {
     }
     const { navigation, getComponent } = scene.descriptor;
     const SceneComponent = getComponent();
-    const pointerEvents = scene.isActive ? "auto" : "none";
+    const pointerEvents = scene.isActive ? 'auto' : 'none';
     return (
       <View style={styles.scene} key={scene.key} pointerEvents={pointerEvents}>
         <SceneComponent
@@ -152,7 +142,6 @@ class Lightbox extends React.PureComponent<Props> {
       </View>
     );
   }
-
 }
 
 const styles = StyleSheet.create({
@@ -168,18 +157,24 @@ const styles = StyleSheet.create({
 function withLightboxPositionContext<
   AllProps: {},
   ComponentType: React.ComponentType<AllProps>,
->(Component: ComponentType): React.ComponentType<$Diff<
-  React.ElementConfig<ComponentType>,
-  { lightboxPosition: ?Animated.Value },
->> {
-  class LightboxPositionHOC extends React.PureComponent<$Diff<
+>(
+  Component: ComponentType,
+): React.ComponentType<
+  $Diff<
     React.ElementConfig<ComponentType>,
     { lightboxPosition: ?Animated.Value },
-  >> {
+  >,
+> {
+  class LightboxPositionHOC extends React.PureComponent<
+    $Diff<
+      React.ElementConfig<ComponentType>,
+      { lightboxPosition: ?Animated.Value },
+    >,
+  > {
     render() {
       return (
         <LightboxPositionContext.Consumer>
-          {value => (<Component {...this.props} lightboxPosition={value} />)}
+          {value => <Component {...this.props} lightboxPosition={value} />}
         </LightboxPositionContext.Consumer>
       );
     }
@@ -187,7 +182,4 @@ function withLightboxPositionContext<
   return LightboxPositionHOC;
 }
 
-export {
-  createLightboxNavigator,
-  withLightboxPositionContext,
-};
+export { createLightboxNavigator, withLightboxPositionContext };

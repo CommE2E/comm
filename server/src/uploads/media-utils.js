@@ -8,22 +8,17 @@ import { fileInfoFromData } from 'lib/utils/file-utils';
 
 const fiveMegabytes = 5 * 1024 * 1024;
 
-const allowedMimeTypes = new Set([
-  "image/png",
-  "image/jpeg",
-  "image/gif",
-]);
+const allowedMimeTypes = new Set(['image/png', 'image/jpeg', 'image/gif']);
 
 async function validateAndConvert(
   initialBuffer: Buffer,
   initialName: string,
   size: number, // in bytes
 ): Promise<?UploadInput> {
-  const {
-    mime,
-    mediaType,
-    name,
-  } = fileInfoFromData(initialBuffer, initialName);
+  const { mime, mediaType, name } = fileInfoFromData(
+    initialBuffer,
+    initialName,
+  );
   if (!mime || !mediaType || !name) {
     return null;
   }
@@ -32,7 +27,7 @@ async function validateAndConvert(
     // This should've gotten converted on the client
     return null;
   }
-  if (size < fiveMegabytes && (mime === "image/png" || mime === "image/jpeg")) {
+  if (size < fiveMegabytes && (mime === 'image/png' || mime === 'image/jpeg')) {
     return {
       mime,
       mediaType,
@@ -47,13 +42,12 @@ async function validateAndConvert(
   } catch (e) {
     return null;
   }
-  sharpImage = sharpImage.resize(
-    3000,
-    2000,
-    { fit: 'inside', withoutEnlargement: true },
-  );
+  sharpImage = sharpImage.resize(3000, 2000, {
+    fit: 'inside',
+    withoutEnlargement: true,
+  });
 
-  if (mime === "image/png" || mime === "image/gif") {
+  if (mime === 'image/png' || mime === 'image/gif') {
     sharpImage = sharpImage.png();
   } else {
     sharpImage = sharpImage.jpeg({ quality: 92 });
@@ -76,6 +70,4 @@ async function validateAndConvert(
   };
 }
 
-export {
-  validateAndConvert,
-};
+export { validateAndConvert };

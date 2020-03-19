@@ -48,14 +48,13 @@ type Props = {
   screenDimensions: Dimensions,
 };
 class TextMessageTooltipButton extends React.PureComponent<Props> {
-
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
         params: PropTypes.shape({
           initialCoordinates: layoutCoordinatesPropType.isRequired,
           verticalBounds: verticalBoundsPropType.isRequired,
-          location: PropTypes.oneOf([ 'above', 'below' ]),
+          location: PropTypes.oneOf(['above', 'below']),
           margin: PropTypes.number,
           item: chatMessageItemPropType.isRequired,
         }).isRequired,
@@ -96,18 +95,14 @@ class TextMessageTooltipButton extends React.PureComponent<Props> {
         <Animated.View style={this.headerStyle}>
           <MessageHeader item={item} focused={true} display="modal" />
         </Animated.View>
-        <InnerTextMessage 
-          item={item}
-          onPress={this.onPress}
-        />
+        <InnerTextMessage item={item} onPress={this.onPress} />
       </React.Fragment>
     );
   }
 
   onPress = () => {
     this.props.navigation.goBack();
-  }
-
+  };
 }
 
 export default connect((state: AppState) => ({

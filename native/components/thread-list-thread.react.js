@@ -26,7 +26,6 @@ type Props = {|
   styles: Styles,
 |};
 class ThreadListThread extends React.PureComponent<Props> {
-
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     onSelect: PropTypes.func.isRequired,
@@ -44,13 +43,13 @@ class ThreadListThread extends React.PureComponent<Props> {
         iosFormat="highlight"
         iosHighlightUnderlayColor={underlayColor}
         iosActiveOpacity={0.85}
-        style={[ this.props.styles.button, this.props.style ]}
+        style={[this.props.styles.button, this.props.style]}
       >
         <ColorSplotch color={this.props.threadInfo.color} />
-        <Text style={[
-          this.props.styles.text,
-          this.props.textStyle,
-        ]} numberOfLines={1}>
+        <Text
+          style={[this.props.styles.text, this.props.textStyle]}
+          numberOfLines={1}
+        >
           {this.props.threadInfo.uiName}
         </Text>
       </Button>
@@ -59,8 +58,7 @@ class ThreadListThread extends React.PureComponent<Props> {
 
   onSelect = () => {
     this.props.onSelect(this.props.threadInfo.id);
-  }
-
+  };
 }
 
 const styles = {

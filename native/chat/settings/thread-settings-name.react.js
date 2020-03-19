@@ -14,13 +14,7 @@ import { type Colors, colorsPropType } from '../../themes/colors';
 import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
-import {
-  Text,
-  Alert,
-  ActivityIndicator,
-  TextInput,
-  View,
-} from 'react-native';
+import { Text, Alert, ActivityIndicator, TextInput, View } from 'react-native';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 
@@ -41,7 +35,7 @@ type Props = {|
   setNameEditValue: (value: ?string, callback?: () => void) => void,
   nameTextHeight: ?number,
   setNameTextHeight: (number: number) => void,
-  canChangeSettings: bool,
+  canChangeSettings: boolean,
   // Redux state
   loadingStatus: LoadingStatus,
   colors: Colors,
@@ -54,7 +48,6 @@ type Props = {|
   ) => Promise<ChangeThreadSettingsResult>,
 |};
 class ThreadSettingsName extends React.PureComponent<Props> {
-
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     nameEditValue: PropTypes.string,
@@ -101,7 +94,7 @@ class ThreadSettingsName extends React.PureComponent<Props> {
     }
 
     let button;
-    if (this.props.loadingStatus !== "loading") {
+    if (this.props.loadingStatus !== 'loading') {
       button = <SaveSettingButton onPress={this.onSubmit} />;
     } else {
       button = (
@@ -123,7 +116,7 @@ class ThreadSettingsName extends React.PureComponent<Props> {
     return (
       <React.Fragment>
         <TextInput
-          style={[ this.props.styles.currentValue, textInputStyle ]}
+          style={[this.props.styles.currentValue, textInputStyle]}
           underlineColorAndroid="transparent"
           value={this.props.nameEditValue}
           onChangeText={this.props.setNameEditValue}
@@ -131,7 +124,7 @@ class ThreadSettingsName extends React.PureComponent<Props> {
           autoFocus={true}
           selectTextOnFocus={true}
           onBlur={this.onSubmit}
-          editable={this.props.loadingStatus !== "loading"}
+          editable={this.props.loadingStatus !== 'loading'}
           onContentSizeChange={this.onTextInputContentSizeChange}
           ref={this.textInputRef}
         />
@@ -142,31 +135,31 @@ class ThreadSettingsName extends React.PureComponent<Props> {
 
   textInputRef = (textInput: ?TextInput) => {
     this.textInput = textInput;
-  }
+  };
 
   onLayoutText = (event: { nativeEvent: { layout: { height: number } } }) => {
     this.props.setNameTextHeight(event.nativeEvent.layout.height);
-  }
+  };
 
-  onTextInputContentSizeChange = (
-    event: { nativeEvent: { contentSize: { height: number } } },
-  ) => {
+  onTextInputContentSizeChange = (event: {
+    nativeEvent: { contentSize: { height: number } },
+  }) => {
     this.props.setNameTextHeight(event.nativeEvent.contentSize.height);
-  }
+  };
 
   threadEditName() {
-    return this.props.threadInfo.name ? this.props.threadInfo.name : "";
+    return this.props.threadInfo.name ? this.props.threadInfo.name : '';
   }
 
   onPressEdit = () => {
     this.props.setNameEditValue(this.threadEditName());
-  }
+  };
 
   onSubmit = () => {
     invariant(
       this.props.nameEditValue !== null &&
         this.props.nameEditValue !== undefined,
-      "should be set",
+      'should be set',
     );
     const name = this.props.nameEditValue.trim();
 
@@ -184,7 +177,7 @@ class ThreadSettingsName extends React.PureComponent<Props> {
     editNamePromise.then(() => {
       this.props.setNameEditValue(null);
     });
-  }
+  };
 
   async editName(newName: string) {
     try {
@@ -194,11 +187,9 @@ class ThreadSettingsName extends React.PureComponent<Props> {
       });
     } catch (e) {
       Alert.alert(
-        "Unknown error",
-        "Uhh... try again?",
-        [
-          { text: 'OK', onPress: this.onErrorAcknowledged },
-        ],
+        'Unknown error',
+        'Uhh... try again?',
+        [{ text: 'OK', onPress: this.onErrorAcknowledged }],
         { cancelable: false },
       );
       throw e;
@@ -206,15 +197,11 @@ class ThreadSettingsName extends React.PureComponent<Props> {
   }
 
   onErrorAcknowledged = () => {
-    this.props.setNameEditValue(
-      this.threadEditName(),
-      () => {
-        invariant(this.textInput, "textInput should be set");
-        this.textInput.focus();
-      },
-    );
-  }
-
+    this.props.setNameEditValue(this.threadEditName(), () => {
+      invariant(this.textInput, 'textInput should be set');
+      this.textInput.focus();
+    });
+  };
 }
 
 const styles = {

@@ -15,10 +15,7 @@ import { connect } from 'lib/utils/redux-utils';
 
 import { styleSelector } from '../themes/colors';
 
-function filterCorners(
-  corners: Corners,
-  item: ChatMessageInfoItemWithHeight,
-) {
+function filterCorners(corners: Corners, item: ChatMessageInfoItemWithHeight) {
   const { startsCluster, endsCluster } = item;
   const { isViewer } = item.messageInfo.creator;
   const { topLeft, topRight, bottomLeft, bottomRight } = corners;
@@ -36,10 +33,7 @@ const allCorners = {
   bottomLeft: true,
   bottomRight: true,
 };
-function getRoundedContainerStyle(
-  corners: Corners,
-  borderRadius?: number = 8,
-) {
+function getRoundedContainerStyle(corners: Corners, borderRadius?: number = 8) {
   const { topLeft, topRight, bottomLeft, bottomRight } = corners;
   return {
     borderTopLeftRadius: topLeft ? borderRadius : 0,
@@ -58,7 +52,6 @@ type Props = {|
   styles: Styles,
 |};
 class RoundedMessageContainer extends React.PureComponent<Props> {
-
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     borderRadius: PropTypes.number.isRequired,
@@ -77,12 +70,11 @@ class RoundedMessageContainer extends React.PureComponent<Props> {
       borderRadius,
     );
     return (
-      <View style={[ this.props.styles.message, cornerStyle, style ]}>
+      <View style={[this.props.styles.message, cornerStyle, style]}>
         {this.props.children}
       </View>
     );
   }
-
 }
 
 const styles = {
@@ -93,11 +85,9 @@ const styles = {
 };
 const stylesSelector = styleSelector(styles);
 
-const WrappedRoundedMessageContainer = connect(
-  (state: AppState) => ({
-    styles: stylesSelector(state),
-  }),
-)(RoundedMessageContainer);
+const WrappedRoundedMessageContainer = connect((state: AppState) => ({
+  styles: stylesSelector(state),
+}))(RoundedMessageContainer);
 
 export {
   allCorners,

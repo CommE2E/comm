@@ -41,7 +41,7 @@ async function fetchEntryInfo(
   viewer: Viewer,
   entryID: string,
 ): Promise<?RawEntryInfo> {
-  const results = await fetchEntryInfosByID(viewer, [ entryID ]);
+  const results = await fetchEntryInfosByID(viewer, [entryID]);
   if (results.length === 0) {
     return null;
   }
@@ -81,7 +81,7 @@ async function fetchEntryInfosByID(
     WHERE e.id IN (${entryIDs}) AND
       JSON_EXTRACT(m.permissions, ${visPermissionExtractString}) IS TRUE
   `;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
   return result.map(rawEntryInfoFromRow);
 }
 
@@ -135,7 +135,7 @@ async function fetchEntryInfos(
   `;
   query.append(queryCondition);
   query.append(SQL`ORDER BY e.creation_time DESC`);
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
 
   const rawEntryInfos = [];
   const userInfos = {};
@@ -156,7 +156,7 @@ async function checkThreadPermissionForEntry(
   viewer: Viewer,
   entryID: string,
   permission: ThreadPermission,
-): Promise<bool> {
+): Promise<boolean> {
   const viewerID = viewer.id;
   const query = SQL`
     SELECT m.permissions, t.id
@@ -166,7 +166,7 @@ async function checkThreadPermissionForEntry(
     LEFT JOIN memberships m ON m.thread = t.id AND m.user = ${viewerID}
     WHERE e.id = ${entryID}
   `;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
 
   if (result.length === 0) {
     return false;
@@ -201,7 +201,7 @@ async function fetchEntryRevisionInfo(
     WHERE r.entry = ${entryID}
     ORDER BY r.last_update DESC
   `;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
 
   const revisions = [];
   for (let row of result) {
@@ -265,10 +265,8 @@ async function fetchEntriesForSession(
     calendarQueriesForFetch,
   );
   const entryInfosNotInOldQuery = rawEntryInfos.filter(
-    rawEntryInfo => !rawEntryInfoWithinCalendarQuery(
-      rawEntryInfo,
-      oldCalendarQuery,
-    ),
+    rawEntryInfo =>
+      !rawEntryInfoWithinCalendarQuery(rawEntryInfo, oldCalendarQuery),
   );
   let filteredRawEntryInfos = entryInfosNotInOldQuery;
   let deletedEntryIDs = [];
@@ -276,16 +274,16 @@ async function fetchEntriesForSession(
     filteredRawEntryInfos = entryInfosNotInOldQuery.filter(
       rawEntryInfo => !rawEntryInfo.deleted,
     );
-    deletedEntryIDs = entryInfosNotInOldQuery.filter(
-      rawEntryInfo => rawEntryInfo.deleted,
-    ).map(rawEntryInfo => {
-      const { id } = rawEntryInfo;
-      invariant(
-        id !== null && id !== undefined,
-        "serverID should be set in fetchEntryInfos result",
-      );
-      return id;
-    });
+    deletedEntryIDs = entryInfosNotInOldQuery
+      .filter(rawEntryInfo => rawEntryInfo.deleted)
+      .map(rawEntryInfo => {
+        const { id } = rawEntryInfo;
+        invariant(
+          id !== null && id !== undefined,
+          'serverID should be set in fetchEntryInfos result',
+        );
+        return id;
+      });
   }
 
   const userIDs = new Set(usersInRawEntryInfos(filteredRawEntryInfos));
@@ -323,7 +321,7 @@ async function fetchEntryInfoForLocalID(
       JSON_EXTRACT(m.permissions, ${visPermissionExtractString}) IS TRUE
   `;
 
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
   if (result.length === 0) {
     return null;
   }

@@ -16,7 +16,7 @@ import { saveMessageInfos } from './utils';
 import { store, dispatch } from '../redux/redux-setup';
 
 const androidNotificationChannelID = 'default';
-const vibrationSpec = [ 500, 500 ];
+const vibrationSpec = [500, 500];
 
 function handleAndroidMessage(
   message: RemoteMessage,
@@ -24,7 +24,7 @@ function handleAndroidMessage(
   handleIfActive?: (
     threadID: string,
     texts: {| body: string, title: ?string |},
-  ) => bool,
+  ) => boolean,
 ) {
   const firebase = getFirebase();
   const { data } = message;
@@ -53,10 +53,10 @@ function handleAndroidMessage(
     rescindActionPayload = { notifID: rescindID };
   }
   if (rescind) {
-    invariant(rescindID, "rescind message without notifID");
-    firebase.notifications().android.removeDeliveredNotificationsByTag(
-      rescindID,
-    );
+    invariant(rescindID, 'rescind message without notifID');
+    firebase
+      .notifications()
+      .android.removeDeliveredNotificationsByTag(rescindID);
     dispatch({
       type: rescindAndroidNotificationActionType,
       payload: rescindActionPayload,
@@ -84,11 +84,11 @@ function handleAndroidMessage(
     .setData({ threadID })
     .android.setTag(id)
     .android.setChannelId(androidNotificationChannelID)
-    .android.setDefaults([ firebase.notifications.Android.Defaults.All ])
+    .android.setDefaults([firebase.notifications.Android.Defaults.All])
     .android.setVibrate(vibrationSpec)
     .android.setAutoCancel(true)
-    .android.setLargeIcon("@mipmap/ic_launcher")
-    .android.setSmallIcon("@drawable/notif_icon");
+    .android.setLargeIcon('@mipmap/ic_launcher')
+    .android.setSmallIcon('@drawable/notif_icon');
   if (title) {
     notification.setTitle(title);
   }

@@ -11,49 +11,49 @@ import {
 } from 'react-native-keychain';
 
 type StoredCredentials = {|
-  state: "undetermined" | "determined" | "unsupported",
+  state: 'undetermined' | 'determined' | 'unsupported',
   credentials: ?UserCredentials,
 |};
 let storedNativeKeychainCredentials = {
-  state: "undetermined",
+  state: 'undetermined',
   credentials: null,
 };
 let storedSharedWebCredentials = {
-  state: Platform.OS === "ios" ? "undetermined" : "unsupported",
+  state: Platform.OS === 'ios' ? 'undetermined' : 'unsupported',
   credentials: null,
 };
 
 async function fetchNativeKeychainCredentials(): Promise<?UserCredentials> {
-  if (storedNativeKeychainCredentials.state === "determined") {
+  if (storedNativeKeychainCredentials.state === 'determined') {
     return storedNativeKeychainCredentials.credentials;
   }
   try {
-    let credentials = await getInternetCredentials("squadcal.org");
+    let credentials = await getInternetCredentials('squadcal.org');
     credentials = credentials ? credentials : undefined;
-    storedNativeKeychainCredentials = { state: "determined", credentials };
+    storedNativeKeychainCredentials = { state: 'determined', credentials };
     return credentials;
   } catch (e) {
     const credentials = null;
-    storedNativeKeychainCredentials = { state: "unsupported", credentials };
+    storedNativeKeychainCredentials = { state: 'unsupported', credentials };
     return credentials;
   }
 }
 
 function getNativeSharedWebCredentials(): ?UserCredentials {
-  if (Platform.OS !== "ios") {
+  if (Platform.OS !== 'ios') {
     return null;
   }
-  if (storedSharedWebCredentials.state !== "determined") {
+  if (storedSharedWebCredentials.state !== 'determined') {
     return null;
   }
   return storedSharedWebCredentials.credentials;
 }
 
 async function fetchNativeSharedWebCredentials(): Promise<?UserCredentials> {
-  if (Platform.OS !== "ios") {
+  if (Platform.OS !== 'ios') {
     return null;
   }
-  if (storedSharedWebCredentials.state === "determined") {
+  if (storedSharedWebCredentials.state === 'determined') {
     return storedSharedWebCredentials.credentials;
   }
   try {
@@ -61,11 +61,11 @@ async function fetchNativeSharedWebCredentials(): Promise<?UserCredentials> {
     const credentials = result
       ? { username: result.username, password: result.password }
       : undefined;
-    storedSharedWebCredentials = { state: "determined", credentials };
+    storedSharedWebCredentials = { state: 'determined', credentials };
     return credentials;
   } catch (e) {
     const credentials = null;
-    storedSharedWebCredentials = { state: "unsupported", credentials };
+    storedSharedWebCredentials = { state: 'unsupported', credentials };
     return credentials;
   }
 }
@@ -82,28 +82,28 @@ async function setNativeKeychainCredentials(credentials: UserCredentials) {
   const current = await fetchNativeKeychainCredentials();
   if (
     current &&
-      credentials.username === current.username &&
-      credentials.password === current.password
+    credentials.username === current.username &&
+    credentials.password === current.password
   ) {
     return;
   }
   try {
     await setInternetCredentials(
-      "squadcal.org",
+      'squadcal.org',
       credentials.username,
       credentials.password,
     );
-    storedNativeKeychainCredentials = { state: "determined", credentials };
+    storedNativeKeychainCredentials = { state: 'determined', credentials };
   } catch (e) {
     storedNativeKeychainCredentials = {
-      state: "unsupported",
+      state: 'unsupported',
       credentials: null,
     };
   }
 }
 
 async function setNativeSharedWebCredentials(credentials: UserCredentials) {
-  if (Platform.OS !== "ios") {
+  if (Platform.OS !== 'ios') {
     return;
   }
   const currentKeychainCredentials = await fetchNativeKeychainCredentials();
@@ -128,20 +128,20 @@ async function setNativeSharedWebCredentials(credentials: UserCredentials) {
   const cachedSharedWebCredentials = getNativeSharedWebCredentials();
   if (
     cachedSharedWebCredentials &&
-      credentials.username === cachedSharedWebCredentials.username &&
-      credentials.password === cachedSharedWebCredentials.password
+    credentials.username === cachedSharedWebCredentials.username &&
+    credentials.password === cachedSharedWebCredentials.password
   ) {
     return;
   }
   try {
     await setSharedWebCredentials(
-      "squadcal.org",
+      'squadcal.org',
       credentials.username,
       credentials.password,
     );
-    storedSharedWebCredentials = { state: "determined", credentials };
+    storedSharedWebCredentials = { state: 'determined', credentials };
   } catch (e) {
-    storedSharedWebCredentials = { state: "unsupported", credentials: null };
+    storedSharedWebCredentials = { state: 'unsupported', credentials: null };
   }
 }
 
@@ -167,34 +167,34 @@ async function setNativeCredentials(credentials: $Shape<UserCredentials>) {
 
 async function deleteNativeKeychainCredentials() {
   try {
-    await resetInternetCredentials("squadcal.org");
+    await resetInternetCredentials('squadcal.org');
     storedNativeKeychainCredentials = {
-      state: "determined",
+      state: 'determined',
       credentials: undefined,
     };
-  } catch(e) {
+  } catch (e) {
     storedNativeKeychainCredentials = {
-      state: "unsupported",
+      state: 'unsupported',
       credentials: null,
     };
   }
 }
 
 async function deleteNativeSharedWebCredentialsFor(username: string) {
-  if (Platform.OS !== "ios") {
+  if (Platform.OS !== 'ios') {
     return;
   }
   try {
     // This native call will display a modal iff credentials are non-null,
     // so we don't need to worry about checking our current state
-    await setSharedWebCredentials("squadcal.org", username, null);
+    await setSharedWebCredentials('squadcal.org', username, null);
     storedSharedWebCredentials = {
-      state: "determined",
+      state: 'determined',
       credentials: undefined,
     };
-  } catch(e) {
+  } catch (e) {
     storedSharedWebCredentials = {
-      state: "unsupported",
+      state: 'unsupported',
       credentials: null,
     };
   }

@@ -5,14 +5,12 @@ import { View, StyleSheet } from 'react-native';
 
 type Props = {
   color: string,
-  size?: "large" | "small",
+  size?: 'large' | 'small',
 };
 function ColorSplotch(props: Props) {
   const style = [
     styles.splotch,
-    props.size === "small"
-      ? styles.small
-      : styles.large,
+    props.size === 'small' ? styles.small : styles.large,
     { backgroundColor: `#${props.color}` },
   ];
   return <View style={style} />;

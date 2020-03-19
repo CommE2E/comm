@@ -39,10 +39,9 @@ type Props = {|
   logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
 |};
 type State = {|
-  expanded: bool,
+  expanded: boolean,
 |};
 class AccountBar extends React.PureComponent<Props, State> {
-
   static propTypes = {
     setModal: PropTypes.func.isRequired,
     currentUserInfo: currentUserPropType,
@@ -57,14 +56,17 @@ class AccountBar extends React.PureComponent<Props, State> {
 
   componentDidUpdate(prevProps: Props, prevState: State) {
     if (this.state.expanded && !prevState.expanded) {
-      invariant(this.menu, "menu ref should be set");
+      invariant(this.menu, 'menu ref should be set');
       this.menu.focus();
     }
   }
 
   get loggedIn() {
-    return !!(this.props.currentUserInfo &&
-      !this.props.currentUserInfo.anonymous && true);
+    return !!(
+      this.props.currentUserInfo &&
+      !this.props.currentUserInfo.anonymous &&
+      true
+    );
   }
 
   get username() {
@@ -79,9 +81,13 @@ class AccountBar extends React.PureComponent<Props, State> {
         <div className={css['account-bar']}>
           <div className={css['account-button']}>
             <span>
-              <a href="#" onClick={this.onLogIn}>Log in</a>
-              {" · "}
-              <a href="#" onClick={this.onRegister}>Register</a>
+              <a href="#" onClick={this.onLogIn}>
+                Log in
+              </a>
+              {' · '}
+              <a href="#" onClick={this.onRegister}>
+                Register
+              </a>
             </span>
           </div>
         </div>
@@ -99,28 +105,28 @@ class AccountBar extends React.PureComponent<Props, State> {
           ref={this.menuRef}
         >
           <div>
-            <a
-              href="#"
-              onClick={this.onLogOut}
-            >Log out</a>
+            <a href="#" onClick={this.onLogOut}>
+              Log out
+            </a>
           </div>
           <div>
-            <a
-              href="#"
-              onClick={this.onEditAccount}
-            >Edit account</a>
+            <a href="#" onClick={this.onEditAccount}>
+              Edit account
+            </a>
           </div>
         </div>
       );
     }
 
-    const caret = this.state.expanded
-      ? <UpCaret className={css['account-caret']} />
-      : <DownCaret className={css['account-caret']} />;
+    const caret = this.state.expanded ? (
+      <UpCaret className={css['account-caret']} />
+    ) : (
+      <DownCaret className={css['account-caret']} />
+    );
     return (
       <div className={css['account-bar']} onMouseDown={this.onMouseDown}>
         <div className={css['account-button']}>
-          <span>{"logged in as "}</span>
+          <span>{'logged in as '}</span>
           <span className={css['username']}>{this.username}</span>
           {caret}
         </div>
@@ -131,18 +137,19 @@ class AccountBar extends React.PureComponent<Props, State> {
 
   menuRef = (menu: ?HTMLDivElement) => {
     this.menu = menu;
-  }
+  };
 
   onBlur = () => {
     this.setState({ expanded: false });
-  }
+  };
 
   // Throw away typechecking here because SyntheticEvent isn't typed
   onMenuKeyDown = (event: any) => {
-    if (event.keyCode === 27) { // Esc
+    if (event.keyCode === 27) {
+      // Esc
       this.setState({ expanded: false });
     }
-  }
+  };
 
   onMouseDown = (event: SyntheticEvent<HTMLDivElement>) => {
     if (!this.state.expanded) {
@@ -152,14 +159,14 @@ class AccountBar extends React.PureComponent<Props, State> {
       return;
     }
     const target = htmlTargetFromEvent(event);
-    invariant(this.menu, "menu ref not set");
+    invariant(this.menu, 'menu ref not set');
     if (this.menu.contains(target)) {
       // This prevents onBlur from firing on div.account-menu
       event.preventDefault();
     } else {
       this.setState({ expanded: false });
     }
-  }
+  };
 
   onLogOut = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
@@ -168,24 +175,23 @@ class AccountBar extends React.PureComponent<Props, State> {
       this.props.logOut(this.props.preRequestUserState),
     );
     this.setState({ expanded: false });
-  }
+  };
 
   onEditAccount = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     // This will blur the focus off the menu which will set expanded to false
     this.props.setModal(<UserSettingsModal setModal={this.props.setModal} />);
-  }
+  };
 
   onLogIn = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.setModal(<LogInModal setModal={this.props.setModal} />);
-  }
+  };
 
   onRegister = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.setModal(<RegisterModal setModal={this.props.setModal} />);
-  }
-
+  };
 }
 
 export default connect(

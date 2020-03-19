@@ -23,9 +23,7 @@ import invariant from 'invariant';
 import { connect } from 'lib/utils/redux-utils';
 
 import { styleSelector } from '../themes/colors';
-import {
-  mediaGalleryKeyboardName,
-} from '../media/media-gallery-keyboard.react';
+import { mediaGalleryKeyboardName } from '../media/media-gallery-keyboard.react';
 import { activeMessageListSelector } from '../selectors/nav-selectors';
 
 type Props = {|
@@ -39,7 +37,6 @@ type Props = {|
   chatInputState: ?ChatInputState,
 |};
 class KeyboardInputHost extends React.PureComponent<Props> {
-
   static propTypes = {
     textInputRef: PropTypes.instanceOf(TextInput),
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
@@ -85,7 +82,7 @@ class KeyboardInputHost extends React.PureComponent<Props> {
     const { keyboardState } = this.props;
     invariant(
       keyboardState,
-      "keyboardState should be set in onMediaGalleryItemSelected",
+      'keyboardState should be set in onMediaGalleryItemSelected',
     );
     keyboardState.dismissKeyboard();
     const mediaGalleryThreadID = keyboardState.getMediaGalleryThreadID();
@@ -96,20 +93,16 @@ class KeyboardInputHost extends React.PureComponent<Props> {
     const { chatInputState } = this.props;
     invariant(
       chatInputState,
-      "chatInputState should be set in onMediaGalleryItemSelected",
+      'chatInputState should be set in onMediaGalleryItemSelected',
     );
-    chatInputState.sendMultimediaMessage(
-      mediaGalleryThreadID,
-      selections,
-    );
-  }
+    chatInputState.sendMultimediaMessage(mediaGalleryThreadID, selections);
+  };
 
   hideMediaGallery = () => {
     const { keyboardState } = this.props;
-    invariant(keyboardState, "keyboardState should be initialized");
+    invariant(keyboardState, 'keyboardState should be initialized');
     keyboardState.hideMediaGallery();
-  }
-
+  };
 }
 
 const styles = {

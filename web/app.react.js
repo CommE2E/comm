@@ -70,7 +70,7 @@ registerConfig({
   setSessionIDOnRequest: true,
   // Never reset the calendar range
   calendarRangeInactivityLimit: null,
-  platformDetails: { platform: "web" },
+  platformDetails: { platform: 'web' },
 });
 
 type Props = {
@@ -81,9 +81,9 @@ type Props = {
   navInfo: NavInfo,
   serverVerificationResult: ?ServerVerificationResult,
   entriesLoadingStatus: LoadingStatus,
-  loggedIn: bool,
+  loggedIn: boolean,
   mostRecentReadThread: ?string,
-  activeThreadCurrentlyUnread: bool,
+  activeThreadCurrentlyUnread: boolean,
   viewerID: ?string,
   unreadCount: number,
   // Redux dispatch functions
@@ -93,7 +93,6 @@ type State = {|
   currentModal: ?React.Node,
 |};
 class App extends React.PureComponent<Props, State> {
-
   static propTypes = {
     location: PropTypes.shape({
       pathname: PropTypes.string.isRequired,
@@ -123,9 +122,7 @@ class App extends React.PureComponent<Props, State> {
           this.props.location.pathname,
         );
         history.replace(newURL);
-        this.setModal(
-          <VerificationModal onClose={this.clearModal} />
-        );
+        this.setModal(<VerificationModal onClose={this.clearModal} />);
       }
     }
 
@@ -145,20 +142,19 @@ class App extends React.PureComponent<Props, State> {
   }
 
   onVisibilityChange = (e, state: string) => {
-    if (state === "visible") {
+    if (state === 'visible') {
       this.props.dispatchActionPayload(foregroundActionType, null);
     } else {
       this.props.dispatchActionPayload(backgroundActionType, null);
     }
-  }
+  };
 
   componentDidUpdate(prevProps: Props) {
     if (this.props.loggedIn) {
       if (this.props.location.pathname !== prevProps.location.pathname) {
-        const newNavInfo = navInfoFromURL(
-          this.props.location.pathname,
-          { navInfo: this.props.navInfo },
-        );
+        const newNavInfo = navInfoFromURL(this.props.location.pathname, {
+          navInfo: this.props.navInfo,
+        });
         if (!_isEqual(newNavInfo)(this.props.navInfo)) {
           this.props.dispatchActionPayload(updateNavInfoActionType, newNavInfo);
         }
@@ -213,7 +209,7 @@ class App extends React.PureComponent<Props, State> {
     const onClose = () => history.push(newURL);
     const onSuccess = () => history.replace(newURL);
     this.setModal(
-      <ResetPasswordModal onClose={onClose} onSuccess={onSuccess} />
+      <ResetPasswordModal onClose={onClose} onSuccess={onSuccess} />,
     );
   }
 
@@ -239,35 +235,26 @@ class App extends React.PureComponent<Props, State> {
 
   renderMainContent() {
     const calendarNavClasses = classNames({
-      [css['current-tab']]: this.props.navInfo.tab === "calendar",
+      [css['current-tab']]: this.props.navInfo.tab === 'calendar',
     });
     const chatNavClasses = classNames({
-      [css['current-tab']]: this.props.navInfo.tab === "chat",
+      [css['current-tab']]: this.props.navInfo.tab === 'chat',
     });
 
     let mainContent;
-    if (this.props.navInfo.tab === "calendar") {
+    if (this.props.navInfo.tab === 'calendar') {
       mainContent = (
-        <Calendar
-          setModal={this.setModal}
-          url={this.props.location.pathname}
-        />
+        <Calendar setModal={this.setModal} url={this.props.location.pathname} />
       );
-    } else if (this.props.navInfo.tab === "chat") {
-      mainContent = (
-        <Chat setModal={this.setModal} />
-      );
+    } else if (this.props.navInfo.tab === 'chat') {
+      mainContent = <Chat setModal={this.setModal} />;
     }
 
     const { viewerID, unreadCount } = this.props;
-    invariant(viewerID, "should be set");
+    invariant(viewerID, 'should be set');
     let chatBadge = null;
     if (unreadCount > 0) {
-      chatBadge = (
-        <div className={css.chatBadge}>
-          {unreadCount}
-        </div>
-      );
+      chatBadge = <div className={css.chatBadge}>{unreadCount}</div>;
     }
 
     return (
@@ -277,23 +264,27 @@ class App extends React.PureComponent<Props, State> {
             <h1>SquadCal</h1>
             <ul className={css['nav-bar']}>
               <li className={calendarNavClasses}>
-                <div><a onClick={this.onClickCalendar}>
-                  <FontAwesomeIcon
-                    icon={faCalendar}
-                    className={css['nav-bar-icon']}
-                  />
-                  Calendar
-                </a></div>
+                <div>
+                  <a onClick={this.onClickCalendar}>
+                    <FontAwesomeIcon
+                      icon={faCalendar}
+                      className={css['nav-bar-icon']}
+                    />
+                    Calendar
+                  </a>
+                </div>
               </li>
               <li className={chatNavClasses}>
-                <div><a onClick={this.onClickChat}>
-                  <FontAwesomeIcon
-                    icon={faComments}
-                    className={css['nav-bar-icon']}
-                  />
-                  Chat
-                  {chatBadge}
-                </a></div>
+                <div>
+                  <a onClick={this.onClickChat}>
+                    <FontAwesomeIcon
+                      icon={faComments}
+                      className={css['nav-bar-icon']}
+                    />
+                    Chat
+                    {chatBadge}
+                  </a>
+                </div>
               </li>
             </ul>
             <div className={css['upper-right']}>
@@ -308,9 +299,7 @@ class App extends React.PureComponent<Props, State> {
           </div>
         </header>
         <div className={css['main-content-container']}>
-          <div className={css['main-content']}>
-            {mainContent}
-          </div>
+          <div className={css['main-content']}>{mainContent}</div>
         </div>
       </React.Fragment>
     );
@@ -318,43 +307,38 @@ class App extends React.PureComponent<Props, State> {
 
   setModal = (modal: ?React.Node) => {
     this.setState({ currentModal: modal });
-  }
+  };
 
   clearModal = () => {
     this.setModal(null);
-  }
+  };
 
   onClickCalendar = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.props.dispatchActionPayload(
-      updateNavInfoActionType,
-      {
-        ...this.props.navInfo,
-        tab: "calendar",
-      },
-    );
-  }
+    this.props.dispatchActionPayload(updateNavInfoActionType, {
+      ...this.props.navInfo,
+      tab: 'calendar',
+    });
+  };
 
   onClickChat = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.props.dispatchActionPayload(
-      updateNavInfoActionType,
-      {
-        ...this.props.navInfo,
-        tab: "chat",
-        activeChatThreadID: this.props.activeThreadCurrentlyUnread
-          ? this.props.mostRecentReadThread
-          : this.props.navInfo.activeChatThreadID,
-      },
-    );
-  }
-
+    this.props.dispatchActionPayload(updateNavInfoActionType, {
+      ...this.props.navInfo,
+      tab: 'chat',
+      activeChatThreadID: this.props.activeThreadCurrentlyUnread
+        ? this.props.mostRecentReadThread
+        : this.props.navInfo.activeChatThreadID,
+    });
+  };
 }
 
-const fetchEntriesLoadingStatusSelector
-  = createLoadingStatusSelector(fetchEntriesActionTypes);
-const updateCalendarQueryLoadingStatusSelector
-  = createLoadingStatusSelector(updateCalendarQueryActionTypes);
+const fetchEntriesLoadingStatusSelector = createLoadingStatusSelector(
+  fetchEntriesActionTypes,
+);
+const updateCalendarQueryLoadingStatusSelector = createLoadingStatusSelector(
+  updateCalendarQueryActionTypes,
+);
 
 export default connect(
   (state: AppState) => {
@@ -366,10 +350,14 @@ export default connect(
         fetchEntriesLoadingStatusSelector(state),
         updateCalendarQueryLoadingStatusSelector(state),
       ),
-      loggedIn: !!(state.currentUserInfo &&
-        !state.currentUserInfo.anonymous && true),
+      loggedIn: !!(
+        state.currentUserInfo &&
+        !state.currentUserInfo.anonymous &&
+        true
+      ),
       mostRecentReadThread: mostRecentReadThreadSelector(state),
-      activeThreadCurrentlyUnread: !activeChatThreadID ||
+      activeThreadCurrentlyUnread:
+        !activeChatThreadID ||
         state.threadStore.threadInfos[activeChatThreadID].currentUser.unread,
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
       unreadCount: unreadCount(state),

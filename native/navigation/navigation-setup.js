@@ -2,10 +2,7 @@
 
 import type { BaseAction } from 'lib/types/redux-types';
 import type { BaseNavInfo } from 'lib/types/nav-types';
-import type {
-  RawThreadInfo,
-  LeaveThreadPayload,
-} from 'lib/types/thread-types';
+import type { RawThreadInfo, LeaveThreadPayload } from 'lib/types/thread-types';
 import type {
   NavigationState,
   NavigationAction,
@@ -102,21 +99,16 @@ import ThreadPickerModal from '../calendar/thread-picker-modal.react';
 import AddUsersModal from '../chat/settings/add-users-modal.react';
 import CustomServerModal from '../more/custom-server-modal.react';
 import ColorPickerModal from '../chat/settings/color-picker-modal.react';
-import ComposeSubthreadModal
-  from '../chat/settings/compose-subthread-modal.react';
+import ComposeSubthreadModal from '../chat/settings/compose-subthread-modal.react';
 import { createLightboxNavigator } from './lightbox-navigator.react';
 import MultimediaModal from '../media/multimedia-modal.react';
 import { MultimediaTooltipModal } from '../chat/multimedia-tooltip-modal.react';
 import ChatInputStateContainer from '../chat/chat-input-state-container.react';
-import OverlayableScrollViewStateContainer
-  from './overlayable-scroll-view-state-container.react';
+import OverlayableScrollViewStateContainer from './overlayable-scroll-view-state-container.react';
 import KeyboardStateContainer from '../keyboard/keyboard-state-container.react';
 import ActionResultModal from './action-result-modal.react';
-import {
-  TextMessageTooltipModal,
-} from '../chat/text-message-tooltip-modal.react';
-import ThreadSettingsMemberTooltipModal
-  from '../chat/settings/thread-settings-member-tooltip-modal.react';
+import { TextMessageTooltipModal } from '../chat/text-message-tooltip-modal.react';
+import ThreadSettingsMemberTooltipModal from '../chat/settings/thread-settings-member-tooltip-modal.react';
 import CameraModal from '../media/camera-modal.react';
 import TabBar from './tab-bar.react';
 
@@ -136,16 +128,16 @@ function _getUuid() {
 export type Action =
   | BaseAction
   | NavigationAction
-  | {| type: "HANDLE_URL", payload: string |}
-  | {| type: "NAVIGATE_TO_APP", payload: null |}
+  | {| type: 'HANDLE_URL', payload: string |}
+  | {| type: 'NAVIGATE_TO_APP', payload: null |}
   | {|
-      type: "NOTIFICATION_PRESS",
+      type: 'NOTIFICATION_PRESS',
       payload: NotificationPressPayload,
     |}
   | AndroidNotificationActions
-  | {| type: "RECORD_NOTIF_PERMISSION_ALERT", time: number |}
-  | {| type: "BACKGROUND" |}
-  | {| type: "FOREGROUND" |};
+  | {| type: 'RECORD_NOTIF_PERMISSION_ALERT', time: number |}
+  | {| type: 'BACKGROUND' |}
+  | {| type: 'FOREGROUND' |};
 
 const TabNavigator = createBottomTabNavigator(
   {
@@ -163,26 +155,22 @@ const TabNavigator = createBottomTabNavigator(
   },
 );
 
-const AppNavigator = createLightboxNavigator(
-  {
-    [TabNavigatorRouteName]: TabNavigator,
-    [MultimediaModalRouteName]: MultimediaModal,
-    [MultimediaTooltipModalRouteName]: MultimediaTooltipModal,
-    [ActionResultModalRouteName]: ActionResultModal,
-    [TextMessageTooltipModalRouteName]: TextMessageTooltipModal,
-    [ThreadSettingsMemberTooltipModalRouteName]: ThreadSettingsMemberTooltipModal,
-    [CameraModalRouteName]: CameraModal,
-  },
-);
+const AppNavigator = createLightboxNavigator({
+  [TabNavigatorRouteName]: TabNavigator,
+  [MultimediaModalRouteName]: MultimediaModal,
+  [MultimediaTooltipModalRouteName]: MultimediaTooltipModal,
+  [ActionResultModalRouteName]: ActionResultModal,
+  [TextMessageTooltipModalRouteName]: TextMessageTooltipModal,
+  [ThreadSettingsMemberTooltipModalRouteName]: ThreadSettingsMemberTooltipModal,
+  [CameraModalRouteName]: CameraModal,
+});
 
 type WrappedAppNavigatorProps = {|
   navigation: NavigationStackProp<NavigationStateRoute>,
-  isForeground: bool,
-  appCanRespondToBackButton: bool,
+  isForeground: boolean,
+  appCanRespondToBackButton: boolean,
 |};
-class WrappedAppNavigator
-  extends React.PureComponent<WrappedAppNavigatorProps> {
-
+class WrappedAppNavigator extends React.PureComponent<WrappedAppNavigatorProps> {
   static propTypes = {
     navigation: PropTypes.shape({
       goBack: PropTypes.func.isRequired,
@@ -225,7 +213,7 @@ class WrappedAppNavigator
     }
     this.props.navigation.goBack(null);
     return true;
-  }
+  };
 
   render() {
     return (
@@ -238,7 +226,6 @@ class WrappedAppNavigator
       </ChatInputStateContainer>
     );
   }
-
 }
 
 const ReduxWrappedAppNavigator = connect((state: AppState) => ({
@@ -287,7 +274,7 @@ const RootNavigator = createStackNavigator(
     transitionConfig: (
       transitionProps: NavigationStackTransitionProps,
       prevTransitionProps: ?NavigationStackTransitionProps,
-      isModal: bool,
+      isModal: boolean,
     ) => {
       const defaultConfig = StackViewTransitionConfigs.defaultTransitionConfig(
         transitionProps,
@@ -297,8 +284,10 @@ const RootNavigator = createStackNavigator(
       return {
         ...defaultConfig,
         screenInterpolator: sceneProps => {
-          const { opacity: defaultOpacity, ...defaultInterpolation } =
-            defaultConfig.screenInterpolator(sceneProps);
+          const {
+            opacity: defaultOpacity,
+            ...defaultInterpolation
+          } = defaultConfig.screenInterpolator(sceneProps);
           const { position, scene } = sceneProps;
           const { index, route } = scene;
           if (
@@ -344,9 +333,7 @@ const defaultNavigationState = {
               key: 'More',
               routeName: MoreRouteName,
               index: 0,
-              routes: [
-                { key: 'MoreScreen', routeName: MoreScreenRouteName },
-              ],
+              routes: [{ key: 'MoreScreen', routeName: MoreScreenRouteName }],
             },
           ],
         },
@@ -365,14 +352,14 @@ const defaultNavInfo: NavInfo = {
 function reduceNavInfo(
   state: AppState,
   action: *,
-  newThreadInfos: {[id: string]: RawThreadInfo},
+  newThreadInfos: { [id: string]: RawThreadInfo },
 ): NavInfo {
   let navInfoState = state.navInfo;
   // React Navigation actions
   const navigationState = RootNavigator.router.getStateForAction(
     action,
     navInfoState.navigationState,
-  )
+  );
   if (navigationState && navigationState !== navInfoState.navigationState) {
     return {
       startDate: navInfoState.startDate,
@@ -403,8 +390,8 @@ function reduceNavInfo(
     };
   } else if (
     action.type === logInActionTypes.success ||
-      action.type === registerActionTypes.success ||
-      action.type === navigateToAppActionType
+    action.type === registerActionTypes.success ||
+    action.type === navigateToAppActionType
   ) {
     return {
       startDate: navInfoState.startDate,
@@ -420,10 +407,7 @@ function reduceNavInfo(
   ) {
     return resetNavInfoAndEnsureLoggedOutModalPresence(navInfoState);
   } else if (action.type === setNewSessionActionType) {
-    return logOutIfCookieInvalidated(
-      navInfoState,
-      action.payload,
-    );
+    return logOutIfCookieInvalidated(navInfoState, action.payload);
   } else if (
     action.type === leaveThreadActionTypes.success ||
     action.type === deleteThreadActionTypes.success
@@ -462,10 +446,7 @@ function reduceNavInfo(
   return navInfoState;
 }
 
-function handleURL(
-  state: NavigationState,
-  url: string,
-): NavigationState {
+function handleURL(state: NavigationState, url: string): NavigationState {
   const urlInfo = infoFromURL(url);
   if (!urlInfo.verify) {
     // TODO correctly handle non-verify URLs
@@ -510,7 +491,7 @@ function handleURL(
 // will be removed if and only if filterFunc returns "remove" (not "break").
 function removeScreensFromStack<S: NavigationState>(
   state: S,
-  filterFunc: (route: NavigationRoute) => "keep" | "remove" | "break",
+  filterFunc: (route: NavigationRoute) => 'keep' | 'remove' | 'break',
 ): S {
   const newRoutes = [];
   let newIndex = state.index;
@@ -523,10 +504,10 @@ function removeScreensFromStack<S: NavigationState>(
       continue;
     }
     const result = filterFunc(route);
-    if (result === "break") {
+    if (result === 'break') {
       breakActivated = true;
     }
-    if (breakActivated || result === "keep") {
+    if (breakActivated || result === 'keep') {
       newRoutes.unshift(route);
       continue;
     }
@@ -553,11 +534,8 @@ function removeRootModals(
   state: NavigationState,
   modalRouteNames: string[],
 ): NavigationState {
-  const newState = removeScreensFromStack(
-    state,
-    (route: NavigationRoute) => modalRouteNames.includes(route.routeName)
-      ? "remove"
-      : "keep",
+  const newState = removeScreensFromStack(state, (route: NavigationRoute) =>
+    modalRouteNames.includes(route.routeName) ? 'remove' : 'keep',
   );
   if (newState === state) {
     return state;
@@ -581,13 +559,13 @@ function resetNavInfoAndEnsureLoggedOutModalPresence(state: NavInfo): NavInfo {
         loggedOutModalFound = true;
       }
       return routeName === AppRouteName || accountModals.includes(routeName)
-        ? "keep"
-        : "remove";
+        ? 'keep'
+        : 'remove';
     },
   );
 
   if (!loggedOutModalFound) {
-    const [ appRoute, ...restRoutes ] = navigationState.routes;
+    const [appRoute, ...restRoutes] = navigationState.routes;
     navigationState = {
       ...navigationState,
       index: navigationState.index + 1,
@@ -623,23 +601,23 @@ function logOutIfCookieInvalidated(
   if (state.navigationState === newState.navigationState) {
     return newState;
   }
-  if (payload.error === "client_version_unsupported") {
+  if (payload.error === 'client_version_unsupported') {
     const app = Platform.select({
-      ios: "Testflight",
-      android: "Play Store",
+      ios: 'Testflight',
+      android: 'Play Store',
     });
     Alert.alert(
-      "App out of date",
+      'App out of date',
       "Your app version is pretty old, and the server doesn't know how to " +
         `speak to it anymore. Please use the ${app} app to update!`,
-      [ { text: 'OK' } ],
+      [{ text: 'OK' }],
     );
   } else {
     Alert.alert(
-      "Session invalidated",
+      'Session invalidated',
       "We're sorry, but your session was invalidated by the server. " +
-        "Please log in again.",
-      [ { text: 'OK' } ],
+        'Please log in again.',
+      [{ text: 'OK' }],
     );
   }
   return newState;
@@ -658,15 +636,15 @@ function replaceChatRoute(
     return state;
   }
 
-  const newTabRoutes = [ ...tabRoute.routes ];
+  const newTabRoutes = [...tabRoute.routes];
   newTabRoutes[1] = newChatRoute;
   const newTabRoute = { ...tabRoute, routes: newTabRoutes };
 
-  const newAppRoutes = [ ...appRoute.routes ];
+  const newAppRoutes = [...appRoute.routes];
   newAppRoutes[0] = newTabRoute;
   const newAppRoute = { ...appRoute, routes: newAppRoutes };
 
-  const newRootRoutes = [ ...state.routes ];
+  const newRootRoutes = [...state.routes];
   newRootRoutes[0] = newAppRoute;
   return {
     ...state,
@@ -679,50 +657,44 @@ function popChatScreensForThreadID(
   state: NavigationState,
   actionPayload: LeaveThreadPayload,
 ): NavigationState {
-  const replaceFunc =
-    (chatRoute: NavigationStateRoute) => removeScreensFromStack(
-      chatRoute,
-      (route: NavigationRoute) => {
-        if (
-          (route.routeName !== MessageListRouteName &&
-            route.routeName !== ThreadSettingsRouteName) ||
-          (route.routeName === MessageListRouteName &&
-            !!actionPayload.threadInfos[actionPayload.threadID])
-        ) {
-          return "break";
-        }
-        const threadID = getThreadIDFromParams(route);
-        if (threadID !== actionPayload.threadID) {
-          return "break";
-        }
-        return "remove";
-      },
-    );
+  const replaceFunc = (chatRoute: NavigationStateRoute) =>
+    removeScreensFromStack(chatRoute, (route: NavigationRoute) => {
+      if (
+        (route.routeName !== MessageListRouteName &&
+          route.routeName !== ThreadSettingsRouteName) ||
+        (route.routeName === MessageListRouteName &&
+          !!actionPayload.threadInfos[actionPayload.threadID])
+      ) {
+        return 'break';
+      }
+      const threadID = getThreadIDFromParams(route);
+      if (threadID !== actionPayload.threadID) {
+        return 'break';
+      }
+      return 'remove';
+    });
   return replaceChatRoute(state, replaceFunc);
 }
 
 function filterChatScreensForThreadInfos(
   state: NavigationState,
-  threadInfos: {[id: string]: RawThreadInfo},
+  threadInfos: { [id: string]: RawThreadInfo },
 ): NavigationState {
-  const replaceFunc =
-    (chatRoute: NavigationStateRoute) => removeScreensFromStack(
-      chatRoute,
-      (route: NavigationRoute) => {
-        if (
-          route.routeName !== MessageListRouteName &&
-          route.routeName !== ThreadSettingsRouteName &&
-          route.routeName !== DeleteThreadRouteName
-        ) {
-          return "keep";
-        }
-        const threadID = getThreadIDFromParams(route);
-        if (threadID in threadInfos) {
-          return "keep";
-        }
-        return "remove";
-      },
-    );
+  const replaceFunc = (chatRoute: NavigationStateRoute) =>
+    removeScreensFromStack(chatRoute, (route: NavigationRoute) => {
+      if (
+        route.routeName !== MessageListRouteName &&
+        route.routeName !== ThreadSettingsRouteName &&
+        route.routeName !== DeleteThreadRouteName
+      ) {
+        return 'keep';
+      }
+      const threadID = getThreadIDFromParams(route);
+      if (threadID in threadInfos) {
+        return 'keep';
+      }
+      return 'remove';
+    });
   return replaceChatRoute(state, replaceFunc);
 }
 
@@ -730,7 +702,7 @@ function handleNewThread(
   state: NavigationState,
   rawThreadInfo: RawThreadInfo,
   viewerID: ?string,
-  userInfos: {[id: string]: UserInfo},
+  userInfos: { [id: string]: UserInfo },
 ): NavigationState {
   const threadInfo = threadInfoFromRawThreadInfo(
     rawThreadInfo,
@@ -740,9 +712,8 @@ function handleNewThread(
   const replaceFunc = (chatRoute: NavigationStateRoute) => {
     const newChatRoute = removeScreensFromStack(
       chatRoute,
-      (route: NavigationRoute) => route.routeName === ComposeThreadRouteName
-        ? "remove"
-        : "break",
+      (route: NavigationRoute) =>
+        route.routeName === ComposeThreadRouteName ? 'remove' : 'break',
     );
     return {
       ...newChatRoute,
@@ -764,7 +735,7 @@ function replaceChatStackWithThread(
   state: NavigationState,
   rawThreadInfo: RawThreadInfo,
   viewerID: ?string,
-  userInfos: {[id: string]: UserInfo},
+  userInfos: { [id: string]: UserInfo },
 ): NavigationState {
   const threadInfo = threadInfoFromRawThreadInfo(
     rawThreadInfo,
@@ -774,9 +745,8 @@ function replaceChatStackWithThread(
   const replaceFunc = (chatRoute: NavigationStateRoute) => {
     const newChatRoute = removeScreensFromStack(
       chatRoute,
-      (route: NavigationRoute) => route.routeName === ChatThreadListRouteName
-        ? "break"
-        : "remove",
+      (route: NavigationRoute) =>
+        route.routeName === ChatThreadListRouteName ? 'break' : 'remove',
     );
     return {
       ...newChatRoute,
@@ -798,7 +768,7 @@ function handleNotificationPress(
   state: NavigationState,
   payload: NotificationPressPayload,
   viewerID: ?string,
-  userInfos: {[id: string]: UserInfo},
+  userInfos: { [id: string]: UserInfo },
 ): NavigationState {
   const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
   const tabRoute = assertNavigationRouteNotLeafNode(appRoute.routes[0]);
@@ -822,8 +792,9 @@ function handleNotificationPress(
       viewerID,
       userInfos,
     );
-    const replacedAppRoute =
-      assertNavigationRouteNotLeafNode(replacedState.routes[0]);
+    const replacedAppRoute = assertNavigationRouteNotLeafNode(
+      replacedState.routes[0],
+    );
     return {
       ...replacedState,
       index: 0,
@@ -861,7 +832,7 @@ function handleNotificationPress(
     index: chatRoute.routes.length,
   };
 
-  const newTabRoutes = [ ...tabRoute.routes ];
+  const newTabRoutes = [...tabRoute.routes];
   newTabRoutes[1] = newChatRoute;
   return {
     ...state,

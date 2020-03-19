@@ -65,18 +65,14 @@ import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { fetchCurrentUserInfo } from '../fetchers/user-fetchers';
 import { updateActivityTime } from '../updaters/activity-updaters';
-import {
-  deleteUpdatesBeforeTimeTargettingSession,
-} from '../deleters/update-deleters';
+import { deleteUpdatesBeforeTimeTargettingSession } from '../deleters/update-deleters';
 import { fetchUpdateInfos } from '../fetchers/update-fetchers';
 import { commitSessionUpdate } from '../updaters/session-updaters';
 import { handleAsyncPromise } from '../responders/handlers';
 import { deleteCookie } from '../deleters/cookie-deleters';
 import { createNewAnonymousCookie } from '../session/cookies';
 import { deleteActivityForViewerSession } from '../deleters/activity-deleters';
-import {
-  activityUpdatesInputValidator,
-} from '../responders/activity-responders';
+import { activityUpdatesInputValidator } from '../responders/activity-responders';
 import { focusedTableRefreshFrequency } from '../shared/focused-times';
 import { RedisSubscriber } from './redis';
 import { fetchUpdateInfosWithRawUpdateInfos } from '../creators/update-creator';
@@ -149,12 +145,11 @@ function onConnection(ws: WebSocket, req: $Request) {
 }
 
 type StateCheckConditions = {|
-  activityRecentlyOccurred: bool,
-  stateCheckOngoing: bool,
+  activityRecentlyOccurred: boolean,
+  stateCheckOngoing: boolean,
 |};
 
 class Socket {
-
   ws: WebSocket;
   httpRequest: $Request;
   viewer: ?Viewer;
@@ -256,14 +251,14 @@ class Socket {
         this.sendMessage(errorMessage);
         return;
       }
-      invariant(clientSocketMessage, "should be set");
+      invariant(clientSocketMessage, 'should be set');
       const responseTo = clientSocketMessage.id;
-      if (error.message === "socket_deauthorized") {
+      if (error.message === 'socket_deauthorized') {
         const authErrorMessage: AuthErrorServerSocketMessage = {
           type: serverSocketMessageTypes.AUTH_ERROR,
           responseTo,
           message: error.message,
-        }
+        };
         if (this.viewer) {
           // viewer should only be falsey for cookieSources.HEADER (web)
           // clients. Usually if the cookie is invalid we construct a new
@@ -280,9 +275,9 @@ class Socket {
         this.sendMessage(authErrorMessage);
         this.ws.close(4100, error.message);
         return;
-      } else if (error.message === "client_version_unsupported") {
+      } else if (error.message === 'client_version_unsupported') {
         const { viewer } = this;
-        invariant(viewer, "should be set");
+        invariant(viewer, 'should be set');
         const promises = {};
         promises.deleteCookie = deleteCookie(viewer.cookieID);
         if (viewer.cookieSource !== cookieSources.BODY) {
@@ -296,7 +291,7 @@ class Socket {
           type: serverSocketMessageTypes.AUTH_ERROR,
           responseTo,
           message: error.message,
-        }
+        };
         if (anonymousViewerData) {
           // It is normally not safe to pass the result of
           // createNewAnonymousCookie to the Viewer constructor. That is because
@@ -332,15 +327,15 @@ class Socket {
           message: error.message,
         });
       }
-      if (error.message === "not_logged_in") {
+      if (error.message === 'not_logged_in') {
         this.ws.close(4102, error.message);
-      } else if (error.message === "session_mutated_from_socket") {
+      } else if (error.message === 'session_mutated_from_socket') {
         this.ws.close(4103, error.message);
       } else {
         this.markActivityOccurred();
       }
     }
-  }
+  };
 
   onClose = async () => {
     if (this.updateActivityTimeIntervalID) {
@@ -357,7 +352,7 @@ class Socket {
       this.redis.quit();
       this.redis = null;
     }
-  }
+  };
 
   sendMessage(message: ServerSocketMessage) {
     invariant(
@@ -394,7 +389,7 @@ class Socket {
     message: InitialClientSocketMessage,
   ): Promise<ServerSocketMessage[]> {
     const { viewer } = this;
-    invariant(viewer, "should be set");
+    invariant(viewer, 'should be set');
 
     const responses = [];
 
@@ -428,10 +423,7 @@ class Socket {
         oldMessagesCurrentAsOf,
         defaultNumberPerThread,
       ),
-      processClientResponses(
-        viewer,
-        clientResponses,
-      ),
+      processClientResponses(viewer, clientResponses),
     ]);
     const messagesResult = {
       rawMessageInfos: fetchMessagesResult.rawMessageInfos,
@@ -449,7 +441,7 @@ class Socket {
         currentUserInfo,
       ] = await Promise.all([
         fetchThreadInfos(viewer),
-        fetchEntryInfos(viewer, [ calendarQuery ]),
+        fetchEntryInfos(viewer, [calendarQuery]),
         fetchCurrentUserInfo(viewer),
       ]);
       const payload: StateSyncFullSocketPayload = {
@@ -470,7 +462,10 @@ class Socket {
         // but the session is unspecified or expired, it will set a new sessionID
         // and specify viewer.sessionChanged
         const { sessionID } = viewer;
-        invariant(sessionID !== null && sessionID !== undefined, "should be set");
+        invariant(
+          sessionID !== null && sessionID !== undefined,
+          'should be set',
+        );
         payload.sessionID = sessionID;
         viewer.sessionChanged = false;
       }
@@ -531,7 +526,8 @@ class Socket {
     // Clients that support sockets always keep their server aware of their
     // device token, without needing any requests
     const filteredServerRequests = serverRequests.filter(
-      request => request.type !== serverRequestTypes.DEVICE_TOKEN &&
+      request =>
+        request.type !== serverRequestTypes.DEVICE_TOKEN &&
         request.type !== serverRequestTypes.INITIAL_ACTIVITY_UPDATES,
     );
     if (filteredServerRequests.length > 0 || clientResponses.length > 0) {
@@ -561,7 +557,7 @@ class Socket {
     message: ResponsesClientSocketMessage,
   ): Promise<ServerSocketMessage[]> {
     const { viewer } = this;
-    invariant(viewer, "should be set");
+    invariant(viewer, 'should be set');
 
     const { clientResponses } = message.payload;
     const { stateCheckStatus } = await processClientResponses(
@@ -570,7 +566,7 @@ class Socket {
     );
 
     const serverRequests = [];
-    if (stateCheckStatus && stateCheckStatus.status !== "state_check") {
+    if (stateCheckStatus && stateCheckStatus.status !== 'state_check') {
       const { sessionUpdate, checkStateRequest } = await checkState(
         viewer,
         stateCheckStatus,
@@ -587,27 +583,31 @@ class Socket {
 
     // We send a response message regardless of whether we have any requests,
     // since we need to ack the client's responses
-    return [{
-      type: serverSocketMessageTypes.REQUESTS,
-      responseTo: message.id,
-      payload: { serverRequests },
-    }];
+    return [
+      {
+        type: serverSocketMessageTypes.REQUESTS,
+        responseTo: message.id,
+        payload: { serverRequests },
+      },
+    ];
   }
 
   async handlePingClientSocketMessage(
     message: PingClientSocketMessage,
   ): Promise<ServerSocketMessage[]> {
-    return [{
-      type: serverSocketMessageTypes.PONG,
-      responseTo: message.id,
-    }];
+    return [
+      {
+        type: serverSocketMessageTypes.PONG,
+        responseTo: message.id,
+      },
+    ];
   }
 
   async handleAckUpdatesClientSocketMessage(
     message: AckUpdatesClientSocketMessage,
   ): Promise<ServerSocketMessage[]> {
     const { viewer } = this;
-    invariant(viewer, "should be set");
+    invariant(viewer, 'should be set');
     const { currentAsOf } = message.payload;
     await Promise.all([
       deleteUpdatesBeforeTimeTargettingSession(viewer, currentAsOf),
@@ -623,14 +623,16 @@ class Socket {
       throw new ServerError('endpoint_unsafe_for_socket');
     }
     const { viewer } = this;
-    invariant(viewer, "should be set");
+    invariant(viewer, 'should be set');
     const responder = jsonEndpoints[message.payload.endpoint];
     const response = await responder(viewer, message.payload.input);
-    return [{
-      type: serverSocketMessageTypes.API_RESPONSE,
-      responseTo: message.id,
-      payload: response,
-    }];
+    return [
+      {
+        type: serverSocketMessageTypes.API_RESPONSE,
+        responseTo: message.id,
+        payload: response,
+      },
+    ];
   }
 
   onRedisMessage = async (message: RedisMessage) => {
@@ -639,14 +641,14 @@ class Socket {
     } catch (e) {
       console.warn(e);
     }
-  }
+  };
 
   async processRedisMessage(message: RedisMessage) {
     if (message.type === redisMessageTypes.START_SUBSCRIPTION) {
       this.ws.terminate();
     } else if (message.type === redisMessageTypes.NEW_UPDATES) {
       const { viewer } = this;
-      invariant(viewer, "should be set");
+      invariant(viewer, 'should be set');
       if (message.ignoreSession && message.ignoreSession === viewer.session) {
         return;
       }
@@ -654,13 +656,10 @@ class Socket {
       const {
         updateInfos,
         userInfos,
-      } = await fetchUpdateInfosWithRawUpdateInfos(
-        rawUpdateInfos,
-        { viewer },
-      );
+      } = await fetchUpdateInfosWithRawUpdateInfos(rawUpdateInfos, { viewer });
       if (updateInfos.length === 0) {
         console.warn(
-          "could not get any UpdateInfos from redisMessageTypes.NEW_UPDATES",
+          'could not get any UpdateInfos from redisMessageTypes.NEW_UPDATES',
         );
         return;
       }
@@ -677,7 +676,7 @@ class Socket {
       });
     } else if (message.type === redisMessageTypes.NEW_MESSAGES) {
       const { viewer } = this;
-      invariant(viewer, "should be set");
+      invariant(viewer, 'should be set');
       const rawMessageInfos = message.messages;
       const messageFetchResult = await getMessageFetchResultFromRedisMessages(
         viewer,
@@ -685,8 +684,8 @@ class Socket {
       );
       if (messageFetchResult.rawMessageInfos.length === 0) {
         console.warn(
-          "could not get any rawMessageInfos from " +
-            "redisMessageTypes.NEW_MESSAGES",
+          'could not get any rawMessageInfos from ' +
+            'redisMessageTypes.NEW_MESSAGES',
         );
         return;
       }
@@ -718,9 +717,9 @@ class Socket {
 
   updateActivityTime = () => {
     const { viewer } = this;
-    invariant(viewer, "should be set");
+    invariant(viewer, 'should be set');
     handleAsyncPromise(updateActivityTime(viewer));
-  }
+  };
 
   // The Socket will timeout by calling this.ws.terminate()
   // serverRequestSocketTimeout milliseconds after the last
@@ -728,17 +727,17 @@ class Socket {
   resetTimeout = _debounce(
     () => this.ws.terminate(),
     serverRequestSocketTimeout,
-  )
+  );
 
   debouncedAfterActivity = _debounce(
     () => this.setStateCheckConditions({ activityRecentlyOccurred: false }),
     stateCheckInactivityActivationInterval,
-  )
+  );
 
   markActivityOccurred = () => {
     this.setStateCheckConditions({ activityRecentlyOccurred: true });
     this.debouncedAfterActivity();
-  }
+  };
 
   clearStateCheckTimeout() {
     if (this.stateCheckTimeoutID) {
@@ -787,23 +786,20 @@ class Socket {
     this.setStateCheckConditions({ stateCheckOngoing: true });
 
     const { viewer } = this;
-    invariant(viewer, "should be set");
+    invariant(viewer, 'should be set');
 
     const { checkStateRequest } = await checkState(
       viewer,
-      { status: "state_check" },
+      { status: 'state_check' },
       viewer.calendarQuery,
     );
-    invariant(checkStateRequest, "should be set");
+    invariant(checkStateRequest, 'should be set');
 
     this.sendMessage({
       type: serverSocketMessageTypes.REQUESTS,
-      payload: { serverRequests: [ checkStateRequest ] },
+      payload: { serverRequests: [checkStateRequest] },
     });
-  }
-
+  };
 }
 
-export {
-  onConnection,
-};
+export { onConnection };

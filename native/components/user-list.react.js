@@ -16,7 +16,6 @@ type Props = {
   itemTextStyle?: TextStyle,
 };
 class UserList extends React.PureComponent<Props> {
-
   static propTypes = {
     userInfos: PropTypes.arrayOf(userListItemPropType).isRequired,
     onSelect: PropTypes.func.isRequired,
@@ -49,18 +48,19 @@ class UserList extends React.PureComponent<Props> {
         textStyle={this.props.itemTextStyle}
       />
     );
-  }
+  };
 
   static getItemLayout(data: ?$ReadOnlyArray<UserListItem>, index: number) {
     if (!data) {
       return { length: 0, offset: 0, index };
     }
-    const offset = _sum(data.filter((_, i) => i < index).map(getUserListItemHeight));
+    const offset = _sum(
+      data.filter((_, i) => i < index).map(getUserListItemHeight),
+    );
     const item = data[index];
     const length = item ? getUserListItemHeight(item) : 0;
     return { length, offset, index };
   }
-
 }
 
 export default UserList;

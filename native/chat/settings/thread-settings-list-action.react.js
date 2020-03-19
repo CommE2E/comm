@@ -31,7 +31,7 @@ function ThreadSettingsListAction(props: ListActionProps) {
         <Icon
           name={props.iconName}
           size={props.iconSize}
-          style={[ props.styles.icon, props.iconStyle ]}
+          style={[props.styles.icon, props.iconStyle]}
         />
       </View>
     </Button>
@@ -131,7 +131,7 @@ const styles = {
   seeMoreIcon: {
     position: 'absolute',
     right: 10,
-    top: Platform.OS === "android" ? 17 : 15,
+    top: Platform.OS === 'android' ? 17 : 15,
     color: 'link',
   },
   addIcon: {
@@ -142,35 +142,29 @@ const styles = {
     backgroundColor: 'panelForeground',
   },
   addMemberButton: {
-    paddingTop: Platform.OS === "ios" ? 4 : 1,
+    paddingTop: Platform.OS === 'ios' ? 4 : 1,
   },
   addChildThreadButton: {
-    paddingTop: Platform.OS === "ios" ? 4 : 1,
+    paddingTop: Platform.OS === 'ios' ? 4 : 1,
   },
   seeMoreButton: {
-    paddingTop: Platform.OS === "ios" ? 2 : 0,
-    paddingBottom: Platform.OS === "ios" ? 4 : 2,
+    paddingTop: Platform.OS === 'ios' ? 2 : 0,
+    paddingBottom: Platform.OS === 'ios' ? 4 : 2,
   },
 };
 const stylesSelector = styleSelector(styles);
 
-const WrappedThreadSettingsSeeMore = connect(
-  (state: AppState) => ({
-    styles: stylesSelector(state),
-  }),
-)(ThreadSettingsSeeMore);
+const WrappedThreadSettingsSeeMore = connect((state: AppState) => ({
+  styles: stylesSelector(state),
+}))(ThreadSettingsSeeMore);
 
-const WrappedThreadSettingsAddMember = connect(
-  (state: AppState) => ({
-    styles: stylesSelector(state),
-  }),
-)(ThreadSettingsAddMember);
+const WrappedThreadSettingsAddMember = connect((state: AppState) => ({
+  styles: stylesSelector(state),
+}))(ThreadSettingsAddMember);
 
-const WrappedThreadSettingsAddChildThread = connect(
-  (state: AppState) => ({
-    styles: stylesSelector(state),
-  }),
-)(ThreadSettingsAddChildThread);
+const WrappedThreadSettingsAddChildThread = connect((state: AppState) => ({
+  styles: stylesSelector(state),
+}))(ThreadSettingsAddChildThread);
 
 export {
   WrappedThreadSettingsSeeMore as ThreadSettingsSeeMore,

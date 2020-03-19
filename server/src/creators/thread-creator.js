@@ -50,7 +50,7 @@ async function createThread(
     }
   }
 
-  const [ id ] = await createIDs("threads", 1);
+  const [id] = await createIDs('threads', 1);
   const newRoles = await createInitialRolesForNewThread(id);
 
   const name = request.name ? request.name : null;
@@ -76,7 +76,7 @@ async function createThread(
       creation_time, color, parent_thread_id, default_role)
     VALUES ${[row]}
   `;
-  const [ initialMemberIDs, [ result ] ] = await Promise.all([
+  const [initialMemberIDs, [result]] = await Promise.all([
     request.initialMemberIDs && request.initialMemberIDs.length > 0
       ? verifyUserIDs(request.initialMemberIDs)
       : undefined,
@@ -113,31 +113,32 @@ async function createThread(
     changeset.push(...initialMembersChangeset);
   }
   for (let rowToSave of changeset) {
-    if (rowToSave.operation === "delete") {
+    if (rowToSave.operation === 'delete') {
       continue;
     }
     if (
-      rowToSave.operation === "join" &&
-      (rowToSave.userID !== viewer.userID ||
-        rowToSave.threadID !== id)
+      rowToSave.operation === 'join' &&
+      (rowToSave.userID !== viewer.userID || rowToSave.threadID !== id)
     ) {
       rowToSave.unread = true;
     }
   }
 
-  const messageDatas = [{
-    type: messageTypes.CREATE_THREAD,
-    threadID: id,
-    creatorID: viewer.userID,
-    time,
-    initialThreadState: {
-      type: threadType,
-      name,
-      parentThreadID,
-      color,
-      memberIDs: initialMemberAndCreatorIDs,
+  const messageDatas = [
+    {
+      type: messageTypes.CREATE_THREAD,
+      threadID: id,
+      creatorID: viewer.userID,
+      time,
+      initialThreadState: {
+        type: threadType,
+        name,
+        parentThreadID,
+        color,
+        memberIDs: initialMemberAndCreatorIDs,
+      },
     },
-  }];
+  ];
   if (parentThreadID) {
     messageDatas.push({
       type: messageTypes.CREATE_SUB_THREAD,
@@ -148,7 +149,7 @@ async function createThread(
     });
   }
 
-  const [ newMessageInfos, commitResult ] = await Promise.all([
+  const [newMessageInfos, commitResult] = await Promise.all([
     createMessages(viewer, messageDatas),
     commitMembershipChangeset(viewer, changeset),
   ]);

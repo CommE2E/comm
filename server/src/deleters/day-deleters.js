@@ -13,6 +13,4 @@ async function deleteOrphanedDays(): Promise<void> {
   `);
 }
 
-export {
-  deleteOrphanedDays,
-};
+export { deleteOrphanedDays };

@@ -16,15 +16,15 @@ async function fetchOrCreateDayID(
   const existingQuery = SQL`
     SELECT id FROM days WHERE date = ${date} AND thread = ${threadID}
   `;
-  const [ existingResult ] = await dbQuery(existingQuery);
+  const [existingResult] = await dbQuery(existingQuery);
   if (existingResult.length > 0) {
     const existingRow = existingResult[0];
     return existingRow.id.toString();
   }
 
-  const [ id ] = await createIDs("days", 1);
+  const [id] = await createIDs('days', 1);
   const insertQuery = SQL`
-    INSERT INTO days(id, date, thread) VALUES ${[[ id, date, threadID ]]}
+    INSERT INTO days(id, date, thread) VALUES ${[[id, date, threadID]]}
   `;
   try {
     await dbQuery(insertQuery);
@@ -40,7 +40,7 @@ async function fetchOrCreateDayID(
     // query will have failed. We will recover by re-querying for the ID here,
     // and deleting the extra ID we created from the `ids` table.
     const deleteIDQuery = SQL`DELETE FROM ids WHERE id = ${id}`;
-    const [ [ raceResult ] ] = await Promise.all([
+    const [[raceResult]] = await Promise.all([
       dbQuery(existingQuery),
       dbQuery(deleteIDQuery),
     ]);

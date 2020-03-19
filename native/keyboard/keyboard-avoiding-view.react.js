@@ -42,7 +42,6 @@ type State = {|
   bottom: number,
 |};
 class KeyboardAvoidingView extends React.PureComponent<Props, State> {
-
   static propTypes = {
     children: PropTypes.node,
     style: ViewPropTypes.style,
@@ -65,7 +64,7 @@ class KeyboardAvoidingView extends React.PureComponent<Props, State> {
   }
 
   onKeyboardChange = (event: ?KeyboardChangeEvent) => {
-    if (this.currentState !== "active") {
+    if (this.currentState !== 'active') {
       return;
     }
 
@@ -95,15 +94,15 @@ class KeyboardAvoidingView extends React.PureComponent<Props, State> {
       });
     }
     this.setState({ bottom: height });
-  }
+  };
 
   onLayout = (event: ViewLayoutEvent) => {
     this.frame = event.nativeEvent.layout;
-  }
+  };
 
   handleAppStateChange = (nextAppState: ?string) => {
     this.currentState = nextAppState;
-  }
+  };
 
   componentDidMount() {
     if (Platform.OS !== 'ios') {
@@ -129,22 +128,21 @@ class KeyboardAvoidingView extends React.PureComponent<Props, State> {
   render() {
     const { children, style, ...props } = this.props;
 
-    if (Platform.OS !== "ios") {
-      return <View style={style} {...props}>{children}</View>;
+    if (Platform.OS !== 'ios') {
+      return (
+        <View style={style} {...props}>
+          {children}
+        </View>
+      );
     }
 
     const paddingStyle = { paddingBottom: this.state.bottom };
     return (
-      <View
-        style={[style, paddingStyle]}
-        onLayout={this.onLayout}
-        {...props}
-      >
+      <View style={[style, paddingStyle]} onLayout={this.onLayout} {...props}>
         {children}
       </View>
     );
   }
-
 }
 
 export default KeyboardAvoidingView;

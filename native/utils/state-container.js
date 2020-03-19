@@ -7,7 +7,7 @@ export type SimpleStateSetter<S: {}> = (
   callback?: () => mixed,
 ) => void;
 
-export type StateChange<S: {}> = $Shape<S> | S => $Shape<S>;
+export type StateChange<S: {}> = $Shape<S> | (S => $Shape<S>);
 type StateSetter<S: {}> = (
   newState: StateChange<S>,
   callback?: () => mixed,
@@ -27,13 +27,8 @@ function setStateForContainer<FullState: {}, OurContainer: {}>(
   setState: StateSetter<FullState>,
   reverseSelector: (ourChange: $Shape<OurContainer>) => StateChange<FullState>,
 ): SimpleStateSetter<OurContainer> {
-  return (
-    ourChange: $Shape<OurContainer>,
-    callback?: () => mixed,
-  ) => setState(reverseSelector(ourChange), callback);
+  return (ourChange: $Shape<OurContainer>, callback?: () => mixed) =>
+    setState(reverseSelector(ourChange), callback);
 }
 
-export {
-  setStateForContainer,
-  stateContainerPropType,
-};
+export { setStateForContainer, stateContainerPropType };

@@ -25,7 +25,6 @@ type Props = {|
   styles: Styles,
 |};
 class MessageListHeaderTitle extends React.PureComponent<Props> {
-
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     navigate: PropTypes.func.isRequired,
@@ -34,7 +33,7 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
 
   render() {
     let icon, fakeIcon;
-    if (Platform.OS === "ios") {
+    if (Platform.OS === 'ios') {
       icon = (
         <Icon
           name="ios-arrow-forward"
@@ -59,9 +58,7 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
       >
         <View style={this.props.styles.container}>
           {fakeIcon}
-          <HeaderTitle>
-            {this.props.threadInfo.uiName}
-          </HeaderTitle>
+          <HeaderTitle>{this.props.threadInfo.uiName}</HeaderTitle>
           {icon}
         </View>
       </Button>
@@ -75,8 +72,7 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
       params: { threadInfo },
       key: `${ThreadSettingsRouteName}${threadInfo.id}`,
     });
-  }
-
+  };
 }
 
 const styles = {
@@ -89,9 +85,9 @@ const styles = {
   },
   container: {
     flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: Platform.OS === "android" ? "flex-start" : "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: Platform.OS === 'android' ? 'flex-start' : 'center',
   },
   forwardIcon: {
     flex: 1,

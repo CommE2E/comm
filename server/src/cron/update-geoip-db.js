@@ -34,13 +34,10 @@ async function updateGeoipDB(): Promise<void> {
 }
 
 function spawnUpdater(geoipLicense: { key: string }): Promise<void> {
-  const spawned = childProcess.spawn(
-    process.execPath,
-    [
-      '../node_modules/geoip-lite/scripts/updatedb.js',
-      `license_key=${geoipLicense.key}`,
-    ],
-  );
+  const spawned = childProcess.spawn(process.execPath, [
+    '../node_modules/geoip-lite/scripts/updatedb.js',
+    `license_key=${geoipLicense.key}`,
+  ]);
   return new Promise((resolve, reject) => {
     spawned.on('error', reject);
     spawned.on('exit', () => resolve());
@@ -76,7 +73,4 @@ if (!cluster.isMaster) {
   });
 }
 
-export {
-  updateGeoipDB,
-  updateAndReloadGeoipDB,
-};
+export { updateGeoipDB, updateAndReloadGeoipDB };

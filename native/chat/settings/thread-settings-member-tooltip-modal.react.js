@@ -20,8 +20,7 @@ import {
 import { memberIsAdmin } from 'lib/shared/thread-utils';
 
 import { createTooltip } from '../../navigation/tooltip.react';
-import ThreadSettingsMemberTooltipButton
-  from './thread-settings-member-tooltip-button.react';
+import ThreadSettingsMemberTooltipButton from './thread-settings-member-tooltip-button.react';
 
 type CustomProps = {
   memberInfo: RelativeMemberInfo,
@@ -35,21 +34,18 @@ function onRemoveUser(
 ) {
   const boundRemoveUsersFromThread = bindServerCall(removeUsersFromThread);
   const onConfirmRemoveUser = () => {
-    const customKeyName = removeUsersFromThreadActionTypes.started +
-      `:${props.memberInfo.id}`;
+    const customKeyName =
+      removeUsersFromThreadActionTypes.started + `:${props.memberInfo.id}`;
     dispatchFunctions.dispatchActionPromise(
       removeUsersFromThreadActionTypes,
-      boundRemoveUsersFromThread(
-        props.threadInfo.id,
-        [ props.memberInfo.id ],
-      ),
+      boundRemoveUsersFromThread(props.threadInfo.id, [props.memberInfo.id]),
       { customKeyName },
     );
-  }
+  };
 
   const userText = stringForUser(props.memberInfo);
   Alert.alert(
-    "Confirm removal",
+    'Confirm removal',
     `Are you sure you want to remove ${userText} from this thread?`,
     [
       { text: 'Cancel', style: 'cancel' },
@@ -72,32 +68,32 @@ function onToggleAdmin(
       if (isCurrentlyAdmin && role.isDefault) {
         newRole = role.id;
         break;
-      } else if (!isCurrentlyAdmin && role.name === "Admins") {
+      } else if (!isCurrentlyAdmin && role.name === 'Admins') {
         newRole = role.id;
         break;
       }
     }
-    invariant(newRole !== null, "Could not find new role");
+    invariant(newRole !== null, 'Could not find new role');
 
-    const customKeyName = changeThreadMemberRolesActionTypes.started +
-      `:${props.memberInfo.id}`;
+    const customKeyName =
+      changeThreadMemberRolesActionTypes.started + `:${props.memberInfo.id}`;
     dispatchFunctions.dispatchActionPromise(
       changeThreadMemberRolesActionTypes,
       boundChangeThreadMemberRoles(
         props.threadInfo.id,
-        [ props.memberInfo.id ],
+        [props.memberInfo.id],
         newRole,
       ),
       { customKeyName },
     );
-  }
+  };
 
   const userText = stringForUser(props.memberInfo);
   const actionClause = isCurrentlyAdmin
     ? `remove ${userText} as an admin`
     : `make ${userText} an admin`;
   Alert.alert(
-    "Confirm action",
+    'Confirm action',
     `Are you sure you want to ${actionClause} of this thread?`,
     [
       { text: 'Cancel', style: 'cancel' },
@@ -108,9 +104,9 @@ function onToggleAdmin(
 
 const spec = {
   entries: [
-    { id: "remove_user", text: "Remove user", onPress: onRemoveUser },
-    { id: "remove_admin", text: "Remove admin", onPress: onToggleAdmin },
-    { id: "make_admin", text: "Make admin", onPress: onToggleAdmin },
+    { id: 'remove_user', text: 'Remove user', onPress: onRemoveUser },
+    { id: 'remove_admin', text: 'Remove admin', onPress: onToggleAdmin },
+    { id: 'make_admin', text: 'Make admin', onPress: onToggleAdmin },
   ],
 };
 

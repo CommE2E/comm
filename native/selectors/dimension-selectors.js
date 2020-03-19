@@ -7,14 +7,14 @@ import { Platform, DeviceInfo } from 'react-native';
 
 import { createSelector } from 'reselect';
 
-const isIPhoneX = Platform.OS === "ios" && DeviceInfo.isIPhoneX_deprecated;
+const isIPhoneX = Platform.OS === 'ios' && DeviceInfo.isIPhoneX_deprecated;
 
 let statusBarHeight = 0;
-if (Platform.OS === "android") {
+if (Platform.OS === 'android') {
   statusBarHeight = 24;
 } else if (isIPhoneX) {
   statusBarHeight = 44;
-} else if (Platform.OS === "ios") {
+} else if (Platform.OS === 'ios') {
   statusBarHeight = 20;
 }
 
@@ -26,7 +26,7 @@ const dimensionsSelector: (state: AppState) => Dimensions = createSelector(
   (dimensions: Dimensions): Dimensions => {
     let { height, width } = dimensions;
     height -= contentBottomOffset;
-    if (Platform.OS === "android") {
+    if (Platform.OS === 'android') {
       // Android starts the 0 pixel below the status bar height,
       // but doesn't subtract it out of the dimensions
       height -= statusBarHeight;
@@ -42,7 +42,7 @@ const contentVerticalOffsetSelector: (
 ) => number = createSelector(
   (state: AppState) => state.dimensions,
   (dimensions: Dimensions): number => {
-    if (Platform.OS !== "ios") {
+    if (Platform.OS !== 'ios') {
       return 0;
     }
     const { height, width } = dimensions;
@@ -55,7 +55,7 @@ const contentVerticalOffsetSelector: (
   },
 );
 
-const tabBarSize = Platform.OS === "android" ? 50 : 49;
+const tabBarSize = Platform.OS === 'android' ? 50 : 49;
 
 export {
   contentBottomOffset,

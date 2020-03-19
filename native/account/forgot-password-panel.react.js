@@ -6,13 +6,7 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
 import React from 'react';
-import {
-  StyleSheet,
-  View,
-  Animated,
-  Alert,
-  Keyboard,
-} from 'react-native';
+import { StyleSheet, View, Animated, Alert, Keyboard } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
@@ -23,10 +17,7 @@ import {
   forgotPassword,
 } from 'lib/actions/user-actions';
 import { connect } from 'lib/utils/redux-utils';
-import {
-  validUsernameRegex,
-  validEmailRegex,
-} from 'lib/shared/account-utils';
+import { validUsernameRegex, validEmailRegex } from 'lib/shared/account-utils';
 
 import {
   TextInput,
@@ -35,7 +26,7 @@ import {
 import { PanelButton, Panel } from './panel-components.react';
 
 type Props = {
-  setActiveAlert: (activeAlert: bool) => void,
+  setActiveAlert: (activeAlert: boolean) => void,
   opacityValue: Animated.Value,
   onSuccess: () => void,
   // Redux state
@@ -50,7 +41,6 @@ type State = {
   usernameOrEmailInputText: string,
 };
 class ForgotPasswordPanel extends React.PureComponent<Props, State> {
-
   static propTypes = {
     setActiveAlert: PropTypes.func.isRequired,
     opacityValue: PropTypes.object.isRequired,
@@ -61,7 +51,7 @@ class ForgotPasswordPanel extends React.PureComponent<Props, State> {
     forgotPassword: PropTypes.func.isRequired,
   };
   state = {
-    usernameOrEmailInputText: "",
+    usernameOrEmailInputText: '',
   };
   usernameOrEmailInput: ?TextInput;
 
@@ -82,7 +72,7 @@ class ForgotPasswordPanel extends React.PureComponent<Props, State> {
             returnKeyType="go"
             blurOnSubmit={false}
             onSubmitEditing={this.onSubmit}
-            editable={this.props.loadingStatus !== "loading"}
+            editable={this.props.loadingStatus !== 'loading'}
             ref={this.usernameOrEmailInputRef}
           />
         </View>
@@ -97,11 +87,11 @@ class ForgotPasswordPanel extends React.PureComponent<Props, State> {
 
   usernameOrEmailInputRef = (usernameOrEmailInput: ?TextInput) => {
     this.usernameOrEmailInput = usernameOrEmailInput;
-  }
+  };
 
   onChangeUsernameOrEmailInputText = (text: string) => {
     this.setState({ usernameOrEmailInputText: text });
-  }
+  };
 
   onSubmit = () => {
     this.props.setActiveAlert(true);
@@ -110,11 +100,9 @@ class ForgotPasswordPanel extends React.PureComponent<Props, State> {
       this.state.usernameOrEmailInputText.search(validEmailRegex) === -1
     ) {
       Alert.alert(
-        "Invalid username",
-        "Alphanumeric usernames or emails only",
-        [
-          { text: 'OK', onPress: this.onUsernameOrEmailAlertAcknowledged },
-        ],
+        'Invalid username',
+        'Alphanumeric usernames or emails only',
+        [{ text: 'OK', onPress: this.onUsernameOrEmailAlertAcknowledged }],
         { cancelable: false },
       );
       return;
@@ -125,21 +113,21 @@ class ForgotPasswordPanel extends React.PureComponent<Props, State> {
       forgotPasswordActionTypes,
       this.forgotPasswordAction(),
     );
-  }
+  };
 
   onUsernameOrEmailAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
     this.setState(
       {
-        usernameOrEmailInputText: "",
+        usernameOrEmailInputText: '',
       },
       () => {
-        invariant(this.usernameOrEmailInput, "ref should exist");
+        invariant(this.usernameOrEmailInput, 'ref should exist');
         this.usernameOrEmailInput.focus();
       },
     );
-  }
-  
+  };
+
   async forgotPasswordAction() {
     try {
       await this.props.forgotPassword(this.state.usernameOrEmailInputText);
@@ -149,26 +137,21 @@ class ForgotPasswordPanel extends React.PureComponent<Props, State> {
       if (e.message === 'invalid_user') {
         Alert.alert(
           "User doesn't exist",
-          "No user with that username or email exists",
-          [
-            { text: 'OK', onPress: this.onUsernameOrEmailAlertAcknowledged },
-          ],
+          'No user with that username or email exists',
+          [{ text: 'OK', onPress: this.onUsernameOrEmailAlertAcknowledged }],
           { cancelable: false },
         );
       } else {
         Alert.alert(
-          "Unknown error",
-          "Uhh... try again?",
-          [
-            { text: 'OK', onPress: this.onUsernameOrEmailAlertAcknowledged },
-          ],
+          'Unknown error',
+          'Uhh... try again?',
+          [{ text: 'OK', onPress: this.onUsernameOrEmailAlertAcknowledged }],
           { cancelable: false },
         );
       }
       throw e;
     }
   }
-
 }
 
 const styles = StyleSheet.create({
@@ -182,8 +165,9 @@ const styles = StyleSheet.create({
   },
 });
 
-const loadingStatusSelector
-  = createLoadingStatusSelector(forgotPasswordActionTypes);
+const loadingStatusSelector = createLoadingStatusSelector(
+  forgotPasswordActionTypes,
+);
 
 export default connect(
   (state: AppState) => ({

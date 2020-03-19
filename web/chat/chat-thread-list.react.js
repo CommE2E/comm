@@ -25,7 +25,6 @@ type Props = {|
   dispatchActionPayload: DispatchActionPayload,
 |};
 class ChatThreadList extends React.PureComponent<Props> {
-
   static propTypes = {
     chatListData: PropTypes.arrayOf(chatThreadItemPropType).isRequired,
     navInfo: navInfoPropType.isRequired,
@@ -44,13 +43,8 @@ class ChatThreadList extends React.PureComponent<Props> {
         key={item.threadInfo.id}
       />
     ));
-    return (
-      <div className={css.container}>
-        {threads}
-      </div>
-    );
+    return <div className={css.container}>{threads}</div>;
   }
-
 }
 
 export default connect(

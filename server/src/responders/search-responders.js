@@ -25,6 +25,4 @@ async function userSearchResponder(
   return { userInfos: searchResults };
 }
 
-export {
-  userSearchResponder,
-};
+export { userSearchResponder };

@@ -15,8 +15,8 @@ export default function ConcurrentModificationModal(props: Props) {
     <Modal name="Concurrent modification" onClose={props.onClose}>
       <div className={css['modal-body']}>
         <p>
-          It looks like somebody is attempting to modify that field at the
-          same time as you! Please refresh the entry and try again.
+          It looks like somebody is attempting to modify that field at the same
+          time as you! Please refresh the entry and try again.
         </p>
         <div className={css['form-footer']}>
           <span className={css['form-submit']}>

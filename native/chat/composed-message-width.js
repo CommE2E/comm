@@ -12,7 +12,7 @@ const composedMessageMaxWidthSelector: (
   state: AppState,
 ) => number = createSelector(
   dimensionsSelector,
-  (dimensions: Dimensions): number => (dimensions.width - 24) * 0.80,
+  (dimensions: Dimensions): number => (dimensions.width - 24) * 0.8,
 );
 
 // Keep strictly synced with styles.message in TextMessage
@@ -21,7 +21,4 @@ const textMessageMaxWidthSelector: (state: AppState) => number = createSelector(
   (composedMessageMaxWidth: number): number => composedMessageMaxWidth - 24,
 );
 
-export {
-  composedMessageMaxWidthSelector,
-  textMessageMaxWidthSelector,
-};
+export { composedMessageMaxWidthSelector, textMessageMaxWidthSelector };

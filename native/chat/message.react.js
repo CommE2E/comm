@@ -1,14 +1,8 @@
 // @flow
 
-import type {
-  ChatRobotextMessageInfoItemWithHeight,
-} from './robotext-message.react';
-import type {
-  ChatTextMessageInfoItemWithHeight,
-} from './text-message.react';
-import type {
-  ChatMultimediaMessageInfoItem,
-} from './multimedia-message.react';
+import type { ChatRobotextMessageInfoItemWithHeight } from './robotext-message.react';
+import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
+import type { ChatMultimediaMessageInfoItem } from './multimedia-message.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import {
   type VerticalBounds,
@@ -49,9 +43,9 @@ function messageItemHeight(
   viewerID: ?string,
 ) {
   let height = 0;
-  if (item.messageShapeType === "text") {
+  if (item.messageShapeType === 'text') {
     height += textMessageItemHeight(item, viewerID);
-  } else if (item.messageShapeType === "multimedia") {
+  } else if (item.messageShapeType === 'multimedia') {
     height += multimediaMessageItemHeight(item, viewerID);
   } else {
     height += robotextMessageItemHeight(item, viewerID);
@@ -64,7 +58,7 @@ function messageItemHeight(
 
 type Props = {|
   item: ChatMessageInfoItemWithHeight,
-  focused: bool,
+  focused: boolean,
   navigation: MessageListNavProp,
   toggleFocus: (messageKey: string) => void,
   verticalBounds: ?VerticalBounds,
@@ -72,7 +66,6 @@ type Props = {|
   keyboardState: ?KeyboardState,
 |};
 class Message extends React.PureComponent<Props> {
-
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     focused: PropTypes.bool.isRequired,
@@ -85,7 +78,7 @@ class Message extends React.PureComponent<Props> {
   componentDidUpdate(prevProps: Props) {
     if (
       (prevProps.focused || prevProps.item.startsConversation) !==
-        (this.props.focused || this.props.item.startsConversation)
+      (this.props.focused || this.props.item.startsConversation)
     ) {
       LayoutAnimation.easeInEaseOut();
     }
@@ -93,7 +86,7 @@ class Message extends React.PureComponent<Props> {
 
   render() {
     let message;
-    if (this.props.item.messageShapeType === "text") {
+    if (this.props.item.messageShapeType === 'text') {
       message = (
         <TextMessage
           item={this.props.item}
@@ -103,7 +96,7 @@ class Message extends React.PureComponent<Props> {
           verticalBounds={this.props.verticalBounds}
         />
       );
-    } else if (this.props.item.messageShapeType === "multimedia") {
+    } else if (this.props.item.messageShapeType === 'multimedia') {
       message = (
         <MultimediaMessage
           item={this.props.item}
@@ -132,13 +125,9 @@ class Message extends React.PureComponent<Props> {
   dismissKeyboard = () => {
     const { keyboardState } = this.props;
     keyboardState && keyboardState.dismissKeyboard();
-  }
-
+  };
 }
 
 const WrappedMessage = withKeyboardState(Message);
 
-export {
-  WrappedMessage as Message,
-  messageItemHeight,
-};
+export { WrappedMessage as Message, messageItemHeight };

@@ -74,15 +74,15 @@ import SafeAreaView from '../components/safe-area-view.react';
 
 let initialAppLoad = true;
 
-type LoggedOutMode = "loading" | "prompt" | "log-in" | "register";
+type LoggedOutMode = 'loading' | 'prompt' | 'log-in' | 'register';
 type Props = {
   navigation: NavigationScreenProp<NavigationRoute>,
   // Redux state
-  rehydrateConcluded: bool,
+  rehydrateConcluded: boolean,
   cookie: ?string,
   urlPrefix: string,
-  loggedIn: bool,
-  isForeground: bool,
+  loggedIn: boolean,
+  isForeground: boolean,
   dimensions: Dimensions,
   contentVerticalOffset: number,
   splashStyle: ImageStyle,
@@ -98,13 +98,12 @@ type State = {
   panelOpacity: Animated.Value,
   forgotPasswordLinkOpacity: Animated.Value,
   buttonOpacity: Animated.Value,
-  onePasswordSupported: bool,
-  logInState: StateContainer<LogInState>;
-  registerState: StateContainer<RegisterState>;
+  onePasswordSupported: boolean,
+  logInState: StateContainer<LogInState>,
+  registerState: StateContainer<RegisterState>,
 };
 
 class LoggedOutModal extends React.PureComponent<Props, State> {
-
   static propTypes = {
     navigation: PropTypes.shape({
       navigate: PropTypes.func.isRequired,
@@ -131,7 +130,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   expectingKeyboardToAppear = false;
 
   mounted = false;
-  nextMode: LoggedOutMode = "loading";
+  nextMode: LoggedOutMode = 'loading';
   activeAlert = false;
   activeKeyboard = false;
   opacityChangeQueued = false;
@@ -164,47 +163,45 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       }),
     );
     const initialLogInState = {
-      usernameOrEmailInputText: "",
-      passwordInputText: "",
+      usernameOrEmailInputText: '',
+      passwordInputText: '',
     };
     const initialRegisterState = {
-      usernameInputText: "",
-      emailInputText: "",
-      passwordInputText: "",
-      confirmPasswordInputText: "",
+      usernameInputText: '',
+      emailInputText: '',
+      passwordInputText: '',
+      confirmPasswordInputText: '',
     };
 
     this.state = {
-      mode: props.rehydrateConcluded ? "prompt" : "loading",
+      mode: props.rehydrateConcluded ? 'prompt' : 'loading',
       panelPaddingTop: new Animated.Value(
-        this.calculatePanelPaddingTop("prompt", 0),
+        this.calculatePanelPaddingTop('prompt', 0),
       ),
-      footerPaddingTop: new Animated.Value(
-        this.calculateFooterPaddingTop(0),
-      ),
+      footerPaddingTop: new Animated.Value(this.calculateFooterPaddingTop(0)),
       panelOpacity: new Animated.Value(0),
       forgotPasswordLinkOpacity: new Animated.Value(0),
       buttonOpacity: new Animated.Value(props.rehydrateConcluded ? 1 : 0),
       onePasswordSupported: false,
       logInState: {
         state: {
-          usernameOrEmailInputText: "",
-          passwordInputText: "",
+          usernameOrEmailInputText: '',
+          passwordInputText: '',
         },
         setState: setLogInState,
       },
       registerState: {
         state: {
-          usernameInputText: "",
-          emailInputText: "",
-          passwordInputText: "",
-          confirmPasswordInputText: "",
+          usernameInputText: '',
+          emailInputText: '',
+          passwordInputText: '',
+          confirmPasswordInputText: '',
         },
         setState: setRegisterState,
       },
     };
     if (props.rehydrateConcluded) {
-      this.nextMode = "prompt";
+      this.nextMode = 'prompt';
     }
   }
 
@@ -212,7 +209,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     if (this.mounted) {
       this.setState(change);
     }
-  }
+  };
 
   async determineOnePasswordSupport() {
     let onePasswordSupported;
@@ -278,20 +275,17 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     let { cookie } = this.props;
     const { urlPrefix } = this.props;
     const showPrompt = () => {
-      this.nextMode = "prompt";
-      this.guardedSetState({ mode: "prompt" });
-      Animated.timing(
-        this.state.buttonOpacity,
-        {
-          duration: 250,
-          easing: Easing.out(Easing.ease),
-          toValue: 1.0,
-        },
-      ).start();
+      this.nextMode = 'prompt';
+      this.guardedSetState({ mode: 'prompt' });
+      Animated.timing(this.state.buttonOpacity, {
+        duration: 250,
+        easing: Easing.out(Easing.ease),
+        toValue: 1.0,
+      }).start();
     };
 
     // If we're not logged in, try native credentials
-    if (!this.props.loggedIn && (!cookie || !cookie.startsWith("user="))) {
+    if (!this.props.loggedIn && (!cookie || !cookie.startsWith('user='))) {
       // If this succeeds it will dispatch LOG_IN_SUCCESS
       const sessionChange = await fetchNewCookieFromNativeCredentials(
         this.props.dispatch,
@@ -304,7 +298,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
         return;
       }
       const newCookie = sessionChange.cookie;
-      if (!newCookie || !newCookie.startsWith("user=")) {
+      if (!newCookie || !newCookie.startsWith('user=')) {
         showPrompt();
       }
       return;
@@ -312,7 +306,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
     // Are we possibly already logged in?
     if (this.props.loggedIn) {
-      if (cookie && cookie.startsWith("user=")) {
+      if (cookie && cookie.startsWith('user=')) {
         this.props.dispatchActionPayload(navigateToAppActionType, null);
         return;
       }
@@ -324,7 +318,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
         appStartReduxLoggedInButInvalidCookie,
       );
       const newCookie = sessionChange ? sessionChange.cookie : null;
-      if (newCookie && newCookie.startsWith("user=")) {
+      if (newCookie && newCookie.startsWith('user=')) {
         // If this happens we know that LOG_IN_SUCCESS has been dispatched
         return;
       }
@@ -342,33 +336,30 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   }
 
   hardwareBack = () => {
-    if (this.nextMode === "log-in") {
-      invariant(this.logInPanelContainer, "ref should be set");
+    if (this.nextMode === 'log-in') {
+      invariant(this.logInPanelContainer, 'ref should be set');
       const returnValue = this.logInPanelContainer.backFromLogInMode();
       if (returnValue) {
         return true;
       }
     }
-    if (this.nextMode !== "prompt") {
+    if (this.nextMode !== 'prompt') {
       this.goBackToPrompt();
       return true;
     }
     return false;
-  }
+  };
 
-  calculatePanelPaddingTop(
-    mode: LoggedOutMode,
-    keyboardHeight: number,
-  ) {
+  calculatePanelPaddingTop(mode: LoggedOutMode, keyboardHeight: number) {
     const {
       dimensions: { height: windowHeight },
       contentVerticalOffset,
     } = this.props;
-    let containerSize = Platform.OS === "ios" ? 62 : 59; // header height
-    if (mode === "log-in") {
+    let containerSize = Platform.OS === 'ios' ? 62 : 59; // header height
+    if (mode === 'log-in') {
       // We need to make space for the reset password button on smaller devices
       containerSize += windowHeight < 600 ? 195 : 165;
-    } else if (mode === "register") {
+    } else if (mode === 'register') {
       // We need to make space for the password manager on smaller devices
       containerSize += windowHeight < 600 ? 261 : 246;
     } else {
@@ -384,7 +375,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   calculateFooterPaddingTop(keyboardHeight: number) {
     const windowHeight = this.props.dimensions.height;
-    const textHeight = Platform.OS === "ios" ? 17 : 19;
+    const textHeight = Platform.OS === 'ios' ? 17 : 19;
     if (DeviceInfo.isIPhoneX_deprecated) {
       keyboardHeight -= 34;
     }
@@ -400,56 +391,41 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       realKeyboardHeight = this.keyboardHeight;
     }
     const animations = [];
-    const newPanelPaddingTopValue =
-      this.calculatePanelPaddingTop(
-        this.state.mode,
-        this.keyboardHeight,
-      );
+    const newPanelPaddingTopValue = this.calculatePanelPaddingTop(
+      this.state.mode,
+      this.keyboardHeight,
+    );
     if (newPanelPaddingTopValue !== this.lastPanelPaddingTopValue) {
       this.lastPanelPaddingTopValue = newPanelPaddingTopValue;
       animations.push(
-        Animated.timing(
-          this.state.panelPaddingTop,
-          {
-            duration,
-            easing: Easing.out(Easing.ease),
-            toValue: newPanelPaddingTopValue,
-          },
-        ),
+        Animated.timing(this.state.panelPaddingTop, {
+          duration,
+          easing: Easing.out(Easing.ease),
+          toValue: newPanelPaddingTopValue,
+        }),
       );
     }
     animations.push(
-      Animated.timing(
-        this.state.footerPaddingTop,
-        {
-          duration,
-          easing: Easing.out(Easing.ease),
-          toValue: this.calculateFooterPaddingTop(
-            realKeyboardHeight,
-          ),
-        },
-      ),
+      Animated.timing(this.state.footerPaddingTop, {
+        duration,
+        easing: Easing.out(Easing.ease),
+        toValue: this.calculateFooterPaddingTop(realKeyboardHeight),
+      }),
     );
     if (this.opacityChangeQueued) {
       animations.push(
-        Animated.timing(
-          this.state.panelOpacity,
-          {
-            duration,
-            easing: Easing.out(Easing.ease),
-            toValue: 1,
-          },
-        ),
+        Animated.timing(this.state.panelOpacity, {
+          duration,
+          easing: Easing.out(Easing.ease),
+          toValue: 1,
+        }),
       );
       animations.push(
-        Animated.timing(
-          this.state.forgotPasswordLinkOpacity,
-          {
-            duration,
-            easing: Easing.out(Easing.ease),
-            toValue: 1,
-          },
-        ),
+        Animated.timing(this.state.forgotPasswordLinkOpacity, {
+          duration,
+          easing: Easing.out(Easing.ease),
+          toValue: 1,
+        }),
       );
     }
     Animated.parallel(animations).start();
@@ -472,56 +448,41 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       this.opacityChangeQueued = false;
     }
     this.activeKeyboard = true;
-  }
+  };
 
   animateKeyboardDownOrBackToPrompt(inputDuration: ?number) {
     const duration = inputDuration ? inputDuration : 250;
-    const newLastPanelPaddingTopValue =
-      this.calculatePanelPaddingTop(
-        this.nextMode,
-        0,
-      );
+    const newLastPanelPaddingTopValue = this.calculatePanelPaddingTop(
+      this.nextMode,
+      0,
+    );
     this.lastPanelPaddingTopValue = newLastPanelPaddingTopValue;
     const animations = [
-      Animated.timing(
-        this.state.panelPaddingTop,
-        {
-          duration,
-          easing: Easing.out(Easing.ease),
-          toValue: newLastPanelPaddingTopValue,
-        },
-      ),
-      Animated.timing(
-        this.state.footerPaddingTop,
-        {
-          duration,
-          easing: Easing.out(Easing.ease),
-          toValue: this.calculateFooterPaddingTop(
-            this.keyboardHeight,
-          ),
-        },
-      ),
+      Animated.timing(this.state.panelPaddingTop, {
+        duration,
+        easing: Easing.out(Easing.ease),
+        toValue: newLastPanelPaddingTopValue,
+      }),
+      Animated.timing(this.state.footerPaddingTop, {
+        duration,
+        easing: Easing.out(Easing.ease),
+        toValue: this.calculateFooterPaddingTop(this.keyboardHeight),
+      }),
     ];
     if (this.opacityChangeQueued) {
       animations.push(
-        Animated.timing(
-          this.state.panelOpacity,
-          {
-            duration,
-            easing: Easing.out(Easing.ease),
-            toValue: 0,
-          },
-        ),
+        Animated.timing(this.state.panelOpacity, {
+          duration,
+          easing: Easing.out(Easing.ease),
+          toValue: 0,
+        }),
       );
       animations.push(
-        Animated.timing(
-          this.state.forgotPasswordLinkOpacity,
-          {
-            duration,
-            easing: Easing.out(Easing.ease),
-            toValue: 0,
-          },
-        ),
+        Animated.timing(this.state.forgotPasswordLinkOpacity, {
+          duration,
+          easing: Easing.out(Easing.ease),
+          toValue: 0,
+        }),
       );
     }
     Animated.parallel(animations).start();
@@ -547,25 +508,25 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     }
     this.animateKeyboardDownOrBackToPrompt(event && event.duration);
     this.opacityChangeQueued = false;
-  }
+  };
 
-  setActiveAlert = (activeAlert: bool) => {
+  setActiveAlert = (activeAlert: boolean) => {
     this.activeAlert = activeAlert;
-  }
+  };
 
   goBackToPrompt = () => {
     let opacityListenerID: ?string = null;
     const opacityListener = (animatedUpdate: { value: number }) => {
       if (animatedUpdate.value === 0) {
         this.guardedSetState({ mode: this.nextMode });
-        invariant(opacityListenerID, "should be set");
+        invariant(opacityListenerID, 'should be set');
         this.state.panelOpacity.removeListener(opacityListenerID);
       }
-    }
+    };
     opacityListenerID = this.state.panelOpacity.addListener(opacityListener);
 
     this.opacityChangeQueued = true;
-    this.nextMode = "prompt";
+    this.nextMode = 'prompt';
 
     if (this.activeKeyboard) {
       // If keyboard is currently active, keyboardHide will handle the
@@ -574,20 +535,20 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     } else {
       this.animateKeyboardDownOrBackToPrompt(null);
     }
-  }
+  };
 
   render() {
     const statusBar = <ConnectedStatusBar barStyle="light-content" />;
     const background = (
       <Image
         source={{ uri: splashBackgroundURI }}
-        style={[ styles.modalBackground, this.props.splashStyle ]}
+        style={[styles.modalBackground, this.props.splashStyle]}
       />
     );
 
     let panel = null;
     let buttons = null;
-    if (this.state.mode === "log-in") {
+    if (this.state.mode === 'log-in') {
       panel = (
         <LogInPanelContainer
           onePasswordSupported={this.state.onePasswordSupported}
@@ -598,7 +559,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
           innerRef={this.logInPanelContainerRef}
         />
       );
-    } else if (this.state.mode === "register") {
+    } else if (this.state.mode === 'register') {
       panel = (
         <RegisterPanel
           setActiveAlert={this.setActiveAlert}
@@ -607,7 +568,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
           state={this.state.registerState}
         />
       );
-    } else if (this.state.mode === "prompt") {
+    } else if (this.state.mode === 'prompt') {
       const opacityStyle = { opacity: this.state.buttonOpacity };
       buttons = (
         <Animated.View style={[styles.buttonContainer, opacityStyle]}>
@@ -616,22 +577,18 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
             style={styles.button}
             activeOpacity={0.6}
           >
-            <Text style={styles.buttonText}>
-              LOG IN
-            </Text>
+            <Text style={styles.buttonText}>LOG IN</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={this.onPressRegister}
             style={styles.button}
             activeOpacity={0.6}
           >
-            <Text style={styles.buttonText}>
-              SIGN UP
-            </Text>
+            <Text style={styles.buttonText}>SIGN UP</Text>
           </TouchableOpacity>
         </Animated.View>
       );
-    } else if (this.state.mode === "loading") {
+    } else if (this.state.mode === 'loading') {
       panel = (
         <ActivityIndicator
           color="white"
@@ -642,7 +599,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     }
 
     let forgotPasswordLink = null;
-    if (this.state.mode === "log-in") {
+    if (this.state.mode === 'log-in') {
       const dynamicStyle = {
         opacity: this.state.forgotPasswordLinkOpacity,
         top: this.state.footerPaddingTop,
@@ -672,13 +629,9 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       <Animated.View style={[styles.animationContainer, padding]}>
         <View>
           <Text style={styles.header}>SquadCal</Text>
-          <Animated.View style={[ styles.backButton, buttonStyle ]}>
+          <Animated.View style={[styles.backButton, buttonStyle]}>
             <TouchableOpacity activeOpacity={0.6} onPress={this.hardwareBack}>
-              <Icon
-                name="arrow-circle-o-left"
-                size={36}
-                color="#FFFFFFAA"
-              />
+              <Icon name="arrow-circle-o-left" size={36} color="#FFFFFFAA" />
             </TouchableOpacity>
           </Animated.View>
         </View>
@@ -690,7 +643,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     // The iOS order causes some extremely strange layout bugs on Android.
     // The Android order makes the buttons in prompt mode not clickable.
     let content;
-    if (Platform.OS === "ios") {
+    if (Platform.OS === 'ios') {
       return (
         <React.Fragment>
           {background}
@@ -706,14 +659,14 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       // https://github.com/facebook/react-native/issues/6785
       const topContainerStyle = { height: this.props.dimensions.height };
       return (
-        <View style={[ styles.androidTopContainer, topContainerStyle ]}>
+        <View style={[styles.androidTopContainer, topContainerStyle]}>
           {background}
-					<View style={styles.container}>
-						{statusBar}
-						{buttons}
-						{animatedContent}
-						{forgotPasswordLink}
-					</View>
+          <View style={styles.container}>
+            {statusBar}
+            {buttons}
+            {animatedContent}
+            {forgotPasswordLink}
+          </View>
         </View>
       );
     }
@@ -721,12 +674,12 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   logInPanelContainerRef = (logInPanelContainer: ?LogInPanelContainer) => {
     this.logInPanelContainer = logInPanelContainer;
-  }
+  };
 
   onPressLogIn = () => {
     this.opacityChangeQueued = true;
-    this.nextMode = "log-in";
-    this.guardedSetState({ mode: "log-in" });
+    this.nextMode = 'log-in';
+    this.guardedSetState({ mode: 'log-in' });
     if (this.activeKeyboard) {
       // If keyboard isn't currently active, keyboardShow will handle the
       // animation. This is so we can run all animations in parallel
@@ -735,12 +688,12 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     }
     this.expectingKeyboardToAppear = true;
     setTimeout(this.animateToSecondIfKeyboardStillHidden, 500);
-  }
+  };
 
   onPressRegister = () => {
     this.opacityChangeQueued = true;
-    this.nextMode = "register";
-    this.guardedSetState({ mode: "register" });
+    this.nextMode = 'register';
+    this.guardedSetState({ mode: 'register' });
     if (this.activeKeyboard) {
       // If keyboard isn't currently active, keyboardShow will handle the
       // animation. This is so we can run all animations in parallel
@@ -749,7 +702,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     }
     this.expectingKeyboardToAppear = true;
     setTimeout(this.animateToSecondIfKeyboardStillHidden, 500);
-  }
+  };
 
   animateToSecondIfKeyboardStillHidden = () => {
     if (!this.expectingKeyboardToAppear || !this.mounted) {
@@ -757,13 +710,12 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     }
     this.expectingKeyboardToAppear = false;
     this.animateToSecondMode();
-  }
+  };
 
   onPressForgotPassword = () => {
-    invariant(this.logInPanelContainer, "ref should be set");
+    invariant(this.logInPanelContainer, 'ref should be set');
     this.logInPanelContainer.onPressForgotPassword();
-  }
-
+  };
 }
 
 const styles = StyleSheet.create({
@@ -832,15 +784,19 @@ const styles = StyleSheet.create({
   },
 });
 
-const isForegroundSelector =
-  createIsForegroundSelector(LoggedOutModalRouteName);
+const isForegroundSelector = createIsForegroundSelector(
+  LoggedOutModalRouteName,
+);
 export default connect(
   (state: AppState) => ({
     rehydrateConcluded: !!(state._persist && state._persist.rehydrated),
     cookie: state.cookie,
     urlPrefix: state.urlPrefix,
-    loggedIn: !!(state.currentUserInfo &&
-      !state.currentUserInfo.anonymous && true),
+    loggedIn: !!(
+      state.currentUserInfo &&
+      !state.currentUserInfo.anonymous &&
+      true
+    ),
     isForeground: isForegroundSelector(state),
     dimensions: dimensionsSelector(state),
     contentVerticalOffset: contentVerticalOffsetSelector(state),

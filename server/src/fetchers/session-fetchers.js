@@ -19,7 +19,7 @@ async function fetchActiveSessionsForThread(
     LEFT JOIN sessions s ON s.user = m.user
     WHERE m.thread = ${threadID} AND s.query IS NOT NULL
   `;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
   const filters = [];
   for (let row of result) {
     filters.push({
@@ -31,19 +31,14 @@ async function fetchActiveSessionsForThread(
   return filters;
 }
 
-async function fetchOtherSessionsForViewer(
-  viewer: Viewer,
-): Promise<string[]> {
+async function fetchOtherSessionsForViewer(viewer: Viewer): Promise<string[]> {
   const query = SQL`
     SELECT id
     FROM sessions
     WHERE user = ${viewer.userID} AND id != ${viewer.session}
   `;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
   return result.map(row => row.id.toString());
 }
 
-export {
-  fetchActiveSessionsForThread,
-  fetchOtherSessionsForViewer,
-};
+export { fetchActiveSessionsForThread, fetchOtherSessionsForViewer };

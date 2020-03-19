@@ -36,23 +36,23 @@ function MessageTimestampTooltip(props: Props) {
 
   const { isViewer } = item.messageInfo.creator;
   const isComposed = isComposableMessageType(item.messageInfo.type);
-  let align = isComposed && isViewer ? "right" : "left";
-  if (align === "right") {
+  let align = isComposed && isViewer ? 'right' : 'left';
+  if (align === 'right') {
     if (messagePosition.top < 0) {
-      align = "bottom-right";
+      align = 'bottom-right';
     } else if (messagePosition.right + width > window.innerWidth) {
-      align = "top-right";
+      align = 'top-right';
     }
-  } else if (align === "left") {
+  } else if (align === 'left') {
     if (messagePosition.top < 0) {
-      align = "bottom-left";
+      align = 'bottom-left';
     } else if (messagePosition.left - width < 0) {
-      align = "top-left";
+      align = 'top-left';
     }
   }
 
   let style, className;
-  if (align === "left") {
+  if (align === 'left') {
     const centerOfMessage = messagePosition.top + messagePosition.height / 2;
     const topOfTooltip = centerOfMessage - height / 2;
     style = {
@@ -60,7 +60,7 @@ function MessageTimestampTooltip(props: Props) {
       top: topOfTooltip,
     };
     className = css.messageTimestampLeftTooltip;
-  } else if (align === "right") {
+  } else if (align === 'right') {
     const centerOfMessage = messagePosition.top + messagePosition.height / 2;
     const topOfTooltip = centerOfMessage - height / 2;
     style = {
@@ -69,32 +69,32 @@ function MessageTimestampTooltip(props: Props) {
       top: topOfTooltip,
     };
     className = css.messageTimestampRightTooltip;
-  } else if (align === "top-left") {
+  } else if (align === 'top-left') {
     style = {
       left: messagePosition.left,
       top: messagePosition.top - heightWithArrow,
     };
     className = css.messageTimestampTopLeftTooltip;
-  } else if (align === "top-right") {
+  } else if (align === 'top-right') {
     style = {
       left: messagePosition.right - width,
       top: messagePosition.top - heightWithArrow,
     };
     className = css.messageTimestampTopRightTooltip;
-  } else if (align === "bottom-left") {
+  } else if (align === 'bottom-left') {
     style = {
       left: messagePosition.left,
       top: messagePosition.top + messagePosition.height + sizeOfArrow,
     };
     className = css.messageTimestampBottomLeftTooltip;
-  } else if (align === "bottom-right") {
+  } else if (align === 'bottom-right') {
     style = {
       left: messagePosition.right - width,
       top: messagePosition.top + messagePosition.height + sizeOfArrow,
     };
     className = css.messageTimestampBottomRightTooltip;
   }
-  invariant(style, "should be set");
+  invariant(style, 'should be set');
 
   return (
     <div

@@ -86,9 +86,7 @@ import { deviceTokenUpdater } from '../updaters/device-token-updaters';
 import createReport from '../creators/report-creator';
 import { commitSessionUpdate } from '../updaters/session-updaters';
 import { compareNewCalendarQuery } from '../updaters/entry-updaters';
-import {
-  deleteUpdatesBeforeTimeTargettingSession,
-} from '../deleters/update-deleters';
+import { deleteUpdatesBeforeTimeTargettingSession } from '../deleters/update-deleters';
 import { activityUpdatesInputValidator } from './activity-responders';
 import { SQL } from '../database';
 import {
@@ -213,13 +211,11 @@ async function pingResponder(
       clientMessagesCurrentAsOf,
       defaultNumberPerThread,
     ),
-    processClientResponses(
-      viewer,
-      request.clientResponses,
-    ),
+    processClientResponses(viewer, request.clientResponses),
   ]);
-  const incrementalUpdate = request.type === pingResponseTypes.INCREMENTAL
-    && sessionInitializationResult.sessionContinued;
+  const incrementalUpdate =
+    request.type === pingResponseTypes.INCREMENTAL &&
+    sessionInitializationResult.sessionContinued;
   const messagesCurrentAsOf = mostRecentMessageTimestamp(
     messagesResult.rawMessageInfos,
     clientMessagesCurrentAsOf,
@@ -247,11 +243,12 @@ async function pingResponder(
   }
   const { fetchUpdateResult, stateCheck } = await promiseAll(promises);
 
-  let updateUserInfos = {}, updatesResult = null;
+  let updateUserInfos = {},
+    updatesResult = null;
   if (fetchUpdateResult) {
     invariant(
       oldUpdatesCurrentAsOf !== null && oldUpdatesCurrentAsOf !== undefined,
-      "should be set",
+      'should be set',
     );
     updateUserInfos = fetchUpdateResult.userInfos;
     const { updateInfos } = fetchUpdateResult;
@@ -266,7 +263,7 @@ async function pingResponder(
   }
 
   if (incrementalUpdate) {
-    invariant(sessionInitializationResult.sessionContinued, "should be set");
+    invariant(sessionInitializationResult.sessionContinued, 'should be set');
 
     let sessionUpdate = sessionInitializationResult.sessionUpdate;
     if (stateCheck && stateCheck.sessionUpdate) {
@@ -300,13 +297,9 @@ async function pingResponder(
     return response;
   }
 
-  const [
-    threadsResult,
-    entriesResult,
-    currentUserInfo,
-  ] = await Promise.all([
+  const [threadsResult, entriesResult, currentUserInfo] = await Promise.all([
     fetchThreadInfos(viewer),
-    fetchEntryInfos(viewer, [ calendarQuery ]),
+    fetchEntryInfos(viewer, [calendarQuery]),
     fetchCurrentUserInfo(viewer),
   ]);
 
@@ -348,9 +341,9 @@ async function pingResponder(
 }
 
 type StateCheckStatus =
-  | {| status: "state_validated" |}
-  | {| status: "state_invalid", invalidKeys: $ReadOnlyArray<string> |}
-  | {| status: "state_check" |};
+  | {| status: 'state_validated' |}
+  | {| status: 'state_invalid', invalidKeys: $ReadOnlyArray<string> |}
+  | {| status: 'state_check' |};
 type ProcessClientResponsesResult = {|
   serverRequests: ServerRequest[],
   stateCheckStatus: ?StateCheckStatus,
@@ -362,7 +355,8 @@ async function processClientResponses(
 ): Promise<ProcessClientResponsesResult> {
   let viewerMissingPlatform = !viewer.platform;
   const { platformDetails } = viewer;
-  let viewerMissingPlatformDetails = !platformDetails ||
+  let viewerMissingPlatformDetails =
+    !platformDetails ||
     (isDeviceType(viewer.platform) &&
       (platformDetails.codeVersion === null ||
         platformDetails.codeVersion === undefined ||
@@ -383,55 +377,48 @@ async function processClientResponses(
         clientResponse.type === serverRequestTypes.PLATFORM &&
         !clientSentPlatformDetails
       ) {
-        promises.push(setCookiePlatform(
-          viewer,
-          clientResponse.platform,
-        ));
+        promises.push(setCookiePlatform(viewer, clientResponse.platform));
         viewerMissingPlatform = false;
         if (!isDeviceType(clientResponse.platform)) {
           viewerMissingPlatformDetails = false;
         }
       } else if (clientResponse.type === serverRequestTypes.DEVICE_TOKEN) {
-        promises.push(deviceTokenUpdater(
-          viewer,
-          {
+        promises.push(
+          deviceTokenUpdater(viewer, {
             deviceToken: clientResponse.deviceToken,
             deviceType: assertDeviceType(viewer.platform),
-          },
-        ));
+          }),
+        );
         viewerMissingDeviceToken = false;
       } else if (
         clientResponse.type === serverRequestTypes.THREAD_INCONSISTENCY
       ) {
-        promises.push(recordThreadInconsistency(
-          viewer,
-          clientResponse,
-        ));
+        promises.push(recordThreadInconsistency(viewer, clientResponse));
       } else if (
         clientResponse.type === serverRequestTypes.ENTRY_INCONSISTENCY
       ) {
-        promises.push(recordEntryInconsistency(
-          viewer,
-          clientResponse,
-        ));
+        promises.push(recordEntryInconsistency(viewer, clientResponse));
       } else if (clientResponse.type === serverRequestTypes.PLATFORM_DETAILS) {
-        promises.push(setCookiePlatformDetails(
-          viewer,
-          clientResponse.platformDetails,
-        ));
+        promises.push(
+          setCookiePlatformDetails(viewer, clientResponse.platformDetails),
+        );
         viewerMissingPlatform = false;
         viewerMissingPlatformDetails = false;
       } else if (
         clientResponse.type === serverRequestTypes.INITIAL_ACTIVITY_UPDATE
       ) {
-        promises.push(activityUpdater(
-          viewer,
-          { updates: [ { focus: true, threadID: clientResponse.threadID } ] },
-        ));
+        promises.push(
+          activityUpdater(viewer, {
+            updates: [{ focus: true, threadID: clientResponse.threadID }],
+          }),
+        );
       } else if (
         clientResponse.type === serverRequestTypes.INITIAL_ACTIVITY_UPDATES
       ) {
-        activityUpdates = [...activityUpdates, ...clientResponse.activityUpdates];
+        activityUpdates = [
+          ...activityUpdates,
+          ...clientResponse.activityUpdates,
+        ];
       } else if (clientResponse.type === serverRequestTypes.CHECK_STATE) {
         const invalidKeys = [];
         for (let key in clientResponse.hashResults) {
@@ -440,16 +427,17 @@ async function processClientResponses(
             invalidKeys.push(key);
           }
         }
-        stateCheckStatus = invalidKeys.length > 0
-          ? { status: "state_invalid", invalidKeys }
-          : { status: "state_validated" };
+        stateCheckStatus =
+          invalidKeys.length > 0
+            ? { status: 'state_invalid', invalidKeys }
+            : { status: 'state_validated' };
       }
     }
   }
 
   let activityUpdateResult;
   if (activityUpdates.length > 0 || promises.length > 0) {
-    [ activityUpdateResult ] = await Promise.all([
+    [activityUpdateResult] = await Promise.all([
       activityUpdates.length > 0
         ? activityUpdater(viewer, { updates: activityUpdates })
         : undefined,
@@ -462,7 +450,7 @@ async function processClientResponses(
     viewer.loggedIn &&
     viewer.sessionLastValidated + sessionCheckFrequency < Date.now()
   ) {
-    stateCheckStatus = { status: "state_check" };
+    stateCheckStatus = { status: 'state_check' };
   }
 
   const serverRequests = [];
@@ -522,7 +510,7 @@ async function initializeSession(
   try {
     comparisonResult = compareNewCalendarQuery(viewer, calendarQuery);
   } catch (e) {
-    if (e.message !== "unknown_error") {
+    if (e.message !== 'unknown_error') {
       throw e;
     }
   }
@@ -558,12 +546,12 @@ async function checkState(
   status: StateCheckStatus,
   calendarQuery: CalendarQuery,
 ): Promise<StateCheckResult> {
-  if (status.status === "state_validated") {
+  if (status.status === 'state_validated') {
     return { sessionUpdate: { lastValidated: Date.now() } };
-  } else if (status.status === "state_check") {
+  } else if (status.status === 'state_check') {
     const fetchedData = await promiseAll({
       threadsResult: fetchThreadInfos(viewer),
-      entriesResult: fetchEntryInfos(viewer, [ calendarQuery ]),
+      entriesResult: fetchEntryInfos(viewer, [calendarQuery]),
       currentUserInfo: fetchCurrentUserInfo(viewer),
     });
     const hashesToCheck = {
@@ -582,20 +570,23 @@ async function checkState(
 
   const { invalidKeys } = status;
 
-  let fetchAllThreads = false, fetchAllEntries = false, fetchUserInfo = false;
-  const threadIDsToFetch = [], entryIDsToFetch = [];
+  let fetchAllThreads = false,
+    fetchAllEntries = false,
+    fetchUserInfo = false;
+  const threadIDsToFetch = [],
+    entryIDsToFetch = [];
   for (let key of invalidKeys) {
-    if (key === "threadInfos") {
+    if (key === 'threadInfos') {
       fetchAllThreads = true;
-    } else if (key === "entryInfos") {
+    } else if (key === 'entryInfos') {
       fetchAllEntries = true;
-    } else if (key === "currentUserInfo") {
+    } else if (key === 'currentUserInfo') {
       fetchUserInfo = true;
-    } else if (key.startsWith("threadInfo|")) {
-      const [ ignore, threadID ] = key.split('|');
+    } else if (key.startsWith('threadInfo|')) {
+      const [ignore, threadID] = key.split('|');
       threadIDsToFetch.push(threadID);
-    } else if (key.startsWith("entryInfo|")) {
-      const [ ignore, entryID ] = key.split('|');
+    } else if (key.startsWith('entryInfo|')) {
+      const [ignore, entryID] = key.split('|');
       entryIDsToFetch.push(entryID);
     }
   }
@@ -610,7 +601,7 @@ async function checkState(
     );
   }
   if (fetchAllEntries) {
-    fetchPromises.entriesResult = fetchEntryInfos(viewer, [ calendarQuery ]);
+    fetchPromises.entriesResult = fetchEntryInfos(viewer, [calendarQuery]);
   } else if (entryIDsToFetch.length > 0) {
     fetchPromises.entryInfos = fetchEntryInfosByID(viewer, entryIDsToFetch);
   }
@@ -619,9 +610,11 @@ async function checkState(
   }
   const fetchedData = await promiseAll(fetchPromises);
 
-  const hashesToCheck = {}, failUnmentioned = {}, stateChanges = {};
+  const hashesToCheck = {},
+    failUnmentioned = {},
+    stateChanges = {};
   for (let key of invalidKeys) {
-    if (key === "threadInfos") {
+    if (key === 'threadInfos') {
       // Instead of returning all threadInfos, we want to narrow down and figure
       // out which threadInfos don't match first
       const { threadInfos } = fetchedData.threadsResult;
@@ -629,22 +622,22 @@ async function checkState(
         hashesToCheck[`threadInfo|${threadID}`] = hash(threadInfos[threadID]);
       }
       failUnmentioned.threadInfos = true;
-    } else if (key === "entryInfos") {
+    } else if (key === 'entryInfos') {
       // Instead of returning all entryInfos, we want to narrow down and figure
       // out which entryInfos don't match first
       const { rawEntryInfos } = fetchedData.entriesResult;
       for (let rawEntryInfo of rawEntryInfos) {
         const entryInfo = serverEntryInfo(rawEntryInfo);
-        invariant(entryInfo, "should be set");
+        invariant(entryInfo, 'should be set');
         const { id: entryID } = entryInfo;
-        invariant(entryID, "should be set");
+        invariant(entryID, 'should be set');
         hashesToCheck[`entryInfo|${entryID}`] = hash(entryInfo);
       }
       failUnmentioned.entryInfos = true;
-    } else if (key === "currentUserInfo") {
+    } else if (key === 'currentUserInfo') {
       stateChanges.currentUserInfo = fetchedData.currentUserInfo;
-    } else if (key.startsWith("threadInfo|")) {
-      const [ ignore, threadID ] = key.split('|');
+    } else if (key.startsWith('threadInfo|')) {
+      const [ignore, threadID] = key.split('|');
       const { threadInfos } = fetchedData.threadsResult;
       const threadInfo = threadInfos[threadID];
       if (!threadInfo) {
@@ -658,8 +651,8 @@ async function checkState(
         stateChanges.rawThreadInfos = [];
       }
       stateChanges.rawThreadInfos.push(threadInfo);
-    } else if (key.startsWith("entryInfo|")) {
-      const [ ignore, entryID ] = key.split('|');
+    } else if (key.startsWith('entryInfo|')) {
+      const [ignore, entryID] = key.split('|');
       const rawEntryInfos = fetchedData.entriesResult
         ? fetchedData.entriesResult.rawEntryInfos
         : fetchedData.entryInfos;
@@ -680,7 +673,7 @@ async function checkState(
     }
   }
 
-  const userIDs = new Set()
+  const userIDs = new Set();
   if (stateChanges.rawThreadInfos) {
     for (let threadInfo of stateChanges.rawThreadInfos) {
       for (let userID of usersInThreadInfo(threadInfo)) {

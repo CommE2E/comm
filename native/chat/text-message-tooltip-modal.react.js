@@ -12,7 +12,7 @@ type CustomProps = {
   item: ChatTextMessageInfoItemWithHeight,
 };
 
-const confirmCopy = () => displayActionResultModal("copied!");
+const confirmCopy = () => displayActionResultModal('copied!');
 
 function onPressCopy(props: CustomProps) {
   Clipboard.setString(props.item.messageInfo.text);
@@ -20,16 +20,11 @@ function onPressCopy(props: CustomProps) {
 }
 
 const spec = {
-  entries: [
-    { id: "copy", text: "Copy", onPress: onPressCopy },
-  ],
+  entries: [{ id: 'copy', text: 'Copy', onPress: onPressCopy }],
 };
 
 const TextMessageTooltipModal = createTooltip(TextMessageTooltipButton, spec);
 
 const textMessageTooltipHeight = tooltipHeight(spec.entries.length);
 
-export {
-  TextMessageTooltipModal,
-  textMessageTooltipHeight,
-};
+export { TextMessageTooltipModal, textMessageTooltipHeight };

@@ -14,7 +14,7 @@ import { colorsSelector } from '../themes/colors';
 
 type Props = {|
   onPress: () => void,
-  canChangeSettings: bool,
+  canChangeSettings: boolean,
   style?: TextStyle,
   // Redux state
   colors: Colors,
@@ -30,12 +30,7 @@ function EditSettingButton(props: Props) {
   const { link: linkColor } = props.colors;
   return (
     <TouchableOpacity onPress={props.onPress}>
-      <Icon
-        name="pencil"
-        size={16}
-        style={appliedStyles}
-        color={linkColor}
-      />
+      <Icon name="pencil" size={16} style={appliedStyles} color={linkColor} />
     </TouchableOpacity>
   );
 }

@@ -21,7 +21,6 @@ type Props = {|
   colors: Colors,
 |};
 class ComposeThreadButton extends React.PureComponent<Props> {
-
   static propTypes = {
     navigate: PropTypes.func.isRequired,
     colors: colorsPropType.isRequired,
@@ -46,8 +45,7 @@ class ComposeThreadButton extends React.PureComponent<Props> {
       routeName: ComposeThreadRouteName,
       params: {},
     });
-  }
-
+  };
 }
 
 const styles = StyleSheet.create({

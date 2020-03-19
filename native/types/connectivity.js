@@ -3,8 +3,8 @@
 import PropTypes from 'prop-types';
 
 export type ConnectivityInfo = {|
-  connected: bool,
-  hasWiFi: bool,
+  connected: boolean,
+  hasWiFi: boolean,
 |};
 
 export const connectivityInfoPropType = PropTypes.shape({

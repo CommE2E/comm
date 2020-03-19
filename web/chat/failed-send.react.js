@@ -50,7 +50,6 @@ type Props = {|
   ) => Promise<SendMessageResult>,
 |};
 class FailedSend extends React.PureComponent<Props> {
-
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
@@ -73,9 +72,11 @@ class FailedSend extends React.PureComponent<Props> {
       prevProps.item,
       prevProps.chatInputState,
     );
-    const isDone = this.props.item.messageInfo.id !== null &&
+    const isDone =
+      this.props.item.messageInfo.id !== null &&
       this.props.item.messageInfo.id !== undefined;
-    const wasDone = prevProps.item.messageInfo.id !== null &&
+    const wasDone =
+      prevProps.item.messageInfo.id !== null &&
       prevProps.item.messageInfo.id !== undefined;
     if ((isFailed && !wasFailed) || (isDone && !wasDone)) {
       this.retryingMedia = false;
@@ -85,11 +86,9 @@ class FailedSend extends React.PureComponent<Props> {
   render() {
     return (
       <div className={css.failedSend}>
-        <span>
-          Delivery failed.
-        </span>
+        <span>Delivery failed.</span>
         <a onClick={this.retrySend} className={css.retrySend}>
-          {"Retry?"}
+          {'Retry?'}
         </a>
       </div>
     );
@@ -115,14 +114,14 @@ class FailedSend extends React.PureComponent<Props> {
       rawMessageInfo.type === messageTypes.MULTIMEDIA
     ) {
       const { localID } = rawMessageInfo;
-      invariant(localID, "failed RawMessageInfo should have localID");
+      invariant(localID, 'failed RawMessageInfo should have localID');
       if (this.retryingMedia) {
         return;
       }
       this.retryingMedia = true;
       this.props.chatInputState.retryMultimediaMessage(localID);
     }
-  }
+  };
 
   async sendTextMessageAction(
     messageInfo: RawTextMessageInfo,
@@ -132,7 +131,7 @@ class FailedSend extends React.PureComponent<Props> {
       const { localID } = messageInfo;
       invariant(
         localID !== null && localID !== undefined,
-        "localID should be set",
+        'localID should be set',
       );
       const result = await this.props.sendTextMessage(
         messageInfo.threadID,
@@ -153,7 +152,6 @@ class FailedSend extends React.PureComponent<Props> {
       this.retryingText = false;
     }
   }
-
 }
 
 export default connect(
@@ -167,7 +165,7 @@ export default connect(
       rawMessageInfo.type === messageTypes.TEXT ||
         rawMessageInfo.type === messageTypes.IMAGES ||
         rawMessageInfo.type === messageTypes.MULTIMEDIA,
-      "FailedSend should only be used for composable message types",
+      'FailedSend should only be used for composable message types',
     );
     return { rawMessageInfo };
   },

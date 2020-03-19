@@ -11,7 +11,7 @@ type Props = {|
   activeTheme: ?GlobalTheme,
 |};
 function InAppNotif(props: Props) {
-  const useLightStyle = Platform.OS === "ios" && props.activeTheme !== 'dark';
+  const useLightStyle = Platform.OS === 'ios' && props.activeTheme !== 'dark';
 
   let title = null;
   if (props.title) {
@@ -22,15 +22,12 @@ function InAppNotif(props: Props) {
     title = (
       <Text style={titleStyles} numberOfLines={1}>
         {props.title}
-        {"\n"}
+        {'\n'}
       </Text>
     );
   }
 
-  const textStyles = [
-    styles.text,
-    useLightStyle ? styles.lightText : null,
-  ];
+  const textStyles = [styles.text, useLightStyle ? styles.lightText : null];
   return (
     <View style={styles.notif}>
       <Text style={textStyles}>

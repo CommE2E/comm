@@ -17,4 +17,4 @@ const ChatHeader = connect((state: AppState) => ({
   activeTab: activeTabSelector(state),
 }))(Header);
 
-export default (props: $Exact<HeaderProps>) => (<ChatHeader {...props} />);
+export default (props: $Exact<HeaderProps>) => <ChatHeader {...props} />;

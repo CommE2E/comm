@@ -34,7 +34,6 @@ type Props = {|
   setMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
 |};
 class RobotextMessage extends React.PureComponent<Props> {
-
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     setMouseOver: PropTypes.func.isRequired,
@@ -56,30 +55,26 @@ class RobotextMessage extends React.PureComponent<Props> {
     const robotextParts = splitRobotext(robotext);
     const textParts = [];
     for (let splitPart of robotextParts) {
-      if (splitPart === "") {
+      if (splitPart === '') {
         continue;
       }
-      if (splitPart.charAt(0) !== "<") {
+      if (splitPart.charAt(0) !== '<') {
         textParts.push(decodeURI(splitPart));
         continue;
       }
 
       const { rawText, entityType, id } = parseRobotextEntity(splitPart);
 
-      if (entityType === "t" && id !== item.messageInfo.threadID) {
+      if (entityType === 't' && id !== item.messageInfo.threadID) {
         textParts.push(<ThreadEntity key={id} id={id} name={rawText} />);
-      } else if (entityType === "c") {
+      } else if (entityType === 'c') {
         textParts.push(<ColorEntity key={id} color={rawText} />);
       } else {
         textParts.push(rawText);
       }
     }
 
-    return (
-      <Linkify>
-        {textParts}
-      </Linkify>
-    );
+    return <Linkify>{textParts}</Linkify>;
   }
 
   onMouseOver = (event: SyntheticEvent<HTMLDivElement>) => {
@@ -87,14 +82,13 @@ class RobotextMessage extends React.PureComponent<Props> {
     const rect = event.currentTarget.getBoundingClientRect();
     const { top, bottom, left, right, height, width } = rect;
     const messagePosition = { top, bottom, left, right, height, width };
-    this.props.setMouseOver({ type: "on", item, messagePosition });
-  }
+    this.props.setMouseOver({ type: 'on', item, messagePosition });
+  };
 
   onMouseOut = () => {
     const { item } = this.props;
-    this.props.setMouseOver({ type: "off", item });
-  }
-
+    this.props.setMouseOver({ type: 'off', item });
+  };
 }
 
 type InnerThreadEntityProps = {
@@ -107,7 +101,6 @@ type InnerThreadEntityProps = {
   dispatchActionPayload: DispatchActionPayload,
 };
 class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
-
   static propTypes = {
     id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
@@ -117,25 +110,17 @@ class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
   };
 
   render() {
-    return (
-      <a onClick={this.onClickThread}>
-        {this.props.name}
-      </a>
-    );
+    return <a onClick={this.onClickThread}>{this.props.name}</a>;
   }
 
   onClickThread = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     const id = this.props.id;
-    this.props.dispatchActionPayload(
-      updateNavInfoActionType,
-      {
-        ...this.props.navInfo,
-        activeChatThreadID: id,
-      },
-    );
-  }
-
+    this.props.dispatchActionPayload(updateNavInfoActionType, {
+      ...this.props.navInfo,
+      activeChatThreadID: id,
+    });
+  };
 }
 const ThreadEntity = connect(
   (state: AppState, ownProps: { id: string }) => ({

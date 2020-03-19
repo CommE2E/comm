@@ -119,7 +119,7 @@ function runTiming(
   clock: Clock,
   initialValue: Value | number,
   finalValue: Value | number,
-  startStopClock: bool = true,
+  startStopClock: boolean = true,
 ): Value {
   const state = {
     finished: new Value(0),
@@ -133,22 +133,16 @@ function runTiming(
     easing: Easing.out(Easing.ease),
   };
   return [
-    cond(
-      not(clockRunning(clock)),
-      [
-        set(state.finished, 0),
-        set(state.frameTime, 0),
-        set(state.time, 0),
-        set(state.position, initialValue),
-        set(config.toValue, finalValue),
-        startStopClock && startClock(clock),
-      ],
-    ),
+    cond(not(clockRunning(clock)), [
+      set(state.finished, 0),
+      set(state.frameTime, 0),
+      set(state.time, 0),
+      set(state.position, initialValue),
+      set(config.toValue, finalValue),
+      startStopClock && startClock(clock),
+    ]),
     timing(clock, state, config),
-    cond(
-      state.finished,
-      startStopClock && stopClock(clock),
-    ),
+    cond(state.finished, startStopClock && stopClock(clock)),
     state.position,
   ];
 }
@@ -157,7 +151,7 @@ function runDecay(
   clock: Clock,
   velocity: Value,
   initialPosition: Value,
-  startStopClock: bool = true,
+  startStopClock: boolean = true,
 ): Value {
   const state = {
     finished: new Value(0),
@@ -167,21 +161,15 @@ function runDecay(
   };
   const config = { deceleration: 0.99 };
   return [
-    cond(
-      not(clockRunning(clock)),
-      [
-        set(state.finished, 0),
-        set(state.velocity, velocity),
-        set(state.position, initialPosition),
-        set(state.time, 0),
-        startStopClock && startClock(clock),
-      ],
-    ),
+    cond(not(clockRunning(clock)), [
+      set(state.finished, 0),
+      set(state.velocity, velocity),
+      set(state.position, initialPosition),
+      set(state.time, 0),
+      startStopClock && startClock(clock),
+    ]),
     decay(clock, state, config),
-    cond(
-      state.finished,
-      startStopClock && stopClock(clock),
-    ),
+    cond(state.finished, startStopClock && stopClock(clock)),
     state.position,
   ];
 }
@@ -205,11 +193,10 @@ type Props = {|
   contentVerticalOffset: number,
 |};
 type State = {|
-  closeButtonEnabled: bool,
-  actionLinksEnabled: bool,
+  closeButtonEnabled: boolean,
+  actionLinksEnabled: boolean,
 |};
 class MultimediaModal extends React.PureComponent<Props, State> {
-
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
@@ -262,10 +249,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     this.singleTapHandler,
     this.doubleTapHandler,
   ];
-  beforeDoubleTapRefs = [
-    this.pinchHandler,
-    this.panHandler,
-  ];
+  beforeDoubleTapRefs = [this.pinchHandler, this.panHandler];
   beforeSingleTapRefs = [
     this.pinchHandler,
     this.panHandler,
@@ -294,10 +278,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     const top = sub(this.centerY, divide(imageHeight, 2));
 
     const { initialCoordinates } = props.navigation.state.params;
-    const initialScale = divide(
-      initialCoordinates.width,
-      imageWidth,
-    );
+    const initialScale = divide(initialCoordinates.width, imageWidth);
     const initialTranslateX = sub(
       initialCoordinates.x + initialCoordinates.width / 2,
       add(left, divide(imageWidth, 2)),
@@ -309,14 +290,11 @@ class MultimediaModal extends React.PureComponent<Props, State> {
 
     const { position } = props;
     const { index } = props.scene;
-    const navigationProgress = interpolate(
-      position,
-      {
-        inputRange: [ index - 1, index ],
-        outputRange: [ 0, 1 ],
-        extrapolate: Extrapolate.CLAMP,
-      },
-    );
+    const navigationProgress = interpolate(position, {
+      inputRange: [index - 1, index],
+      outputRange: [0, 1],
+      extrapolate: Extrapolate.CLAMP,
+    });
 
     // The inputs we receive from PanGestureHandler
     const panState = new Value(-1);
@@ -326,17 +304,19 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     const panVelocityY = new Value(0);
     const panAbsoluteX = new Value(0);
     const panAbsoluteY = new Value(0);
-    this.panEvent = event([{
-      nativeEvent: {
-        state: panState,
-        translationX: panTranslationX,
-        translationY: panTranslationY,
-        velocityX: panVelocityX,
-        velocityY: panVelocityY,
-        absoluteX: panAbsoluteX,
-        absoluteY: panAbsoluteY,
+    this.panEvent = event([
+      {
+        nativeEvent: {
+          state: panState,
+          translationX: panTranslationX,
+          translationY: panTranslationY,
+          velocityX: panVelocityX,
+          velocityY: panVelocityY,
+          absoluteX: panAbsoluteX,
+          absoluteY: panAbsoluteY,
+        },
       },
-    }]);
+    ]);
     const curPanActive = new Value(0);
     const panActive = [
       cond(
@@ -349,60 +329,59 @@ class MultimediaModal extends React.PureComponent<Props, State> {
         ),
         set(curPanActive, 1),
       ),
-      cond(
-        gestureJustEnded(panState),
-        set(curPanActive, 0),
-      ),
+      cond(gestureJustEnded(panState), set(curPanActive, 0)),
       curPanActive,
     ];
     const lastPanActive = new Value(0);
-    const panJustEnded = cond(
-      eq(lastPanActive, panActive),
-      0,
-      [
-        set(lastPanActive, panActive),
-        eq(panActive, 0),
-      ],
-    );
+    const panJustEnded = cond(eq(lastPanActive, panActive), 0, [
+      set(lastPanActive, panActive),
+      eq(panActive, 0),
+    ]);
 
     // The inputs we receive from PinchGestureHandler
     const pinchState = new Value(-1);
     const pinchScale = new Value(1);
     const pinchFocalX = new Value(0);
     const pinchFocalY = new Value(0);
-    this.pinchEvent = event([{
-      nativeEvent: {
-        state: pinchState,
-        scale: pinchScale,
-        focalX: pinchFocalX,
-        focalY: pinchFocalY,
+    this.pinchEvent = event([
+      {
+        nativeEvent: {
+          state: pinchState,
+          scale: pinchScale,
+          focalX: pinchFocalX,
+          focalY: pinchFocalY,
+        },
       },
-    }]);
+    ]);
     const pinchActive = eq(pinchState, GestureState.ACTIVE);
 
     // The inputs we receive from single TapGestureHandler
     const singleTapState = new Value(-1);
     const singleTapX = new Value(0);
     const singleTapY = new Value(0);
-    this.singleTapEvent = event([{
-      nativeEvent: {
-        state: singleTapState,
-        x: singleTapX,
-        y: singleTapY,
+    this.singleTapEvent = event([
+      {
+        nativeEvent: {
+          state: singleTapState,
+          x: singleTapX,
+          y: singleTapY,
+        },
       },
-    }]);
+    ]);
 
     // The inputs we receive from double TapGestureHandler
     const doubleTapState = new Value(-1);
     const doubleTapX = new Value(0);
     const doubleTapY = new Value(0);
-    this.doubleTapEvent = event([{
-      nativeEvent: {
-        state: doubleTapState,
-        x: doubleTapX,
-        y: doubleTapY,
+    this.doubleTapEvent = event([
+      {
+        nativeEvent: {
+          state: doubleTapState,
+          x: doubleTapX,
+          y: doubleTapY,
+        },
       },
-    }]);
+    ]);
 
     // The all-important outputs
     const curScale = new Value(1);
@@ -441,13 +420,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
         curX,
         curY,
       ),
-      this.panUpdate(
-        panActive,
-        panTranslationX,
-        panTranslationY,
-        curX,
-        curY,
-      ),
+      this.panUpdate(panActive, panTranslationX, panTranslationY, curX, curY),
       this.singleTapUpdate(
         singleTapState,
         singleTapX,
@@ -502,12 +475,12 @@ class MultimediaModal extends React.PureComponent<Props, State> {
         curY,
       ),
     ];
-    const updatedScale = [ updates, curScale ];
-    const updatedCurX = [ updates, curX ];
-    const updatedCurY = [ updates, curY ];
-    const updatedBackdropOpacity = [ updates, curBackdropOpacity ];
-    const updatedCloseButtonOpacity = [ updates, curCloseButtonOpacity ];
-    const updatedActionLinksOpacity = [ updates, curActionLinksOpacity ];
+    const updatedScale = [updates, curScale];
+    const updatedCurX = [updates, curX];
+    const updatedCurY = [updates, curY];
+    const updatedBackdropOpacity = [updates, curBackdropOpacity];
+    const updatedCloseButtonOpacity = [updates, curCloseButtonOpacity];
+    const updatedActionLinksOpacity = [updates, curActionLinksOpacity];
 
     const reverseNavigationProgress = sub(1, navigationProgress);
     this.scale = add(
@@ -523,22 +496,16 @@ class MultimediaModal extends React.PureComponent<Props, State> {
       multiply(navigationProgress, updatedCurY),
     );
     this.backdropOpacity = multiply(navigationProgress, updatedBackdropOpacity);
-    this.imageContainerOpacity = interpolate(
-      navigationProgress,
-      {
-        inputRange: [ 0, 0.1 ],
-        outputRange: [ 0, 1 ],
-        extrapolate: Extrapolate.CLAMP,
-      },
-    );
-    const buttonOpacity = interpolate(
-      updatedBackdropOpacity,
-      {
-        inputRange: [ 0.95, 1 ],
-        outputRange: [ 0, 1 ],
-        extrapolate: Extrapolate.CLAMP,
-      },
-    )
+    this.imageContainerOpacity = interpolate(navigationProgress, {
+      inputRange: [0, 0.1],
+      outputRange: [0, 1],
+      extrapolate: Extrapolate.CLAMP,
+    });
+    const buttonOpacity = interpolate(updatedBackdropOpacity, {
+      inputRange: [0.95, 1],
+      outputRange: [0, 1],
+      extrapolate: Extrapolate.CLAMP,
+    });
     this.closeButtonOpacity = multiply(
       navigationProgress,
       buttonOpacity,
@@ -554,20 +521,14 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   // How much space do we have to pan the image horizontally?
   horizontalPanSpace(scale: Value) {
     const apparentWidth = multiply(this.imageWidth, scale);
-    const horizPop = divide(
-      sub(apparentWidth, this.screenWidth),
-      2,
-    );
+    const horizPop = divide(sub(apparentWidth, this.screenWidth), 2);
     return max(horizPop, 0);
   }
 
   // How much space do we have to pan the image vertically?
   verticalPanSpace(scale: Value) {
     const apparentHeight = multiply(this.imageHeight, scale);
-    const vertPop = divide(
-      sub(apparentHeight, this.screenHeight),
-      2,
-    );
+    const vertPop = divide(sub(apparentHeight, this.screenHeight), 2);
     return max(vertPop, 0);
   }
 
@@ -585,23 +546,15 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     const deltaScale = scaleDelta(pinchScale, pinchActive);
     const deltaPinchX = multiply(
       sub(1, deltaScale),
-      sub(
-        pinchFocalX,
-        curX,
-        this.centerX,
-      ),
+      sub(pinchFocalX, curX, this.centerX),
     );
     const deltaPinchY = multiply(
       sub(1, deltaScale),
-      sub(
-        pinchFocalY,
-        curY,
-        this.centerY,
-      ),
+      sub(pinchFocalY, curY, this.centerY),
     );
 
     return cond(
-      [ deltaScale, pinchActive ],
+      [deltaScale, pinchActive],
       [
         set(curX, add(curX, deltaPinchX)),
         set(curY, add(curY, deltaPinchY)),
@@ -653,11 +606,8 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     const deltaX = panDelta(panTranslationX, panActive);
     const deltaY = panDelta(panTranslationY, panActive);
     return cond(
-      [ deltaX, deltaY, panActive ],
-      [
-        set(curX, add(curX, deltaX)),
-        set(curY, add(curY, deltaY)),
-      ],
+      [deltaX, deltaY, panActive],
+      [set(curX, add(curX, deltaX)), set(curY, add(curY, deltaY))],
     );
   }
 
@@ -740,14 +690,8 @@ class MultimediaModal extends React.PureComponent<Props, State> {
       set(wasZoomed, isZoomed),
       set(lastTapX, singleTapX),
       set(lastTapY, singleTapY),
-      call(
-        [ eq(curCloseButtonOpacity, 1) ],
-        this.setCloseButtonEnabled,
-      ),
-      call(
-        [ eq(curActionLinksOpacity, 1) ],
-        this.setActionLinksEnabled,
-      ),
+      call([eq(curCloseButtonOpacity, 1)], this.setCloseButtonEnabled),
+      call([eq(curActionLinksOpacity, 1)], this.setActionLinksEnabled),
     ];
   }
 
@@ -809,19 +753,16 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     );
 
     return cond(
-      [ fingerJustReleased, deltaX, deltaY, deltaScale, gestureActive ],
+      [fingerJustReleased, deltaX, deltaY, deltaScale, gestureActive],
       stopClock(zoomClock),
-      cond(
-        or(zoomClockRunning, fingerJustReleased ),
-        [
-          zoomX,
-          zoomY,
-          zoomScale,
-          set(curX, add(curX, deltaX)),
-          set(curY, add(curY, deltaY)),
-          set(curScale, multiply(curScale, deltaScale)),
-        ],
-      ),
+      cond(or(zoomClockRunning, fingerJustReleased), [
+        zoomX,
+        zoomY,
+        zoomScale,
+        set(curX, add(curX, deltaX)),
+        set(curY, add(curY, deltaY)),
+        set(curScale, multiply(curScale, deltaScale)),
+      ]),
     );
   }
 
@@ -851,10 +792,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     const velocity = pow(add(pow(panVelocityX, 2), pow(panVelocityY, 2)), 0.5);
     const shouldGoBack = and(
       panJustEnded,
-      or(
-        greaterThan(velocity, 50),
-        greaterThan(0.7, progressiveOpacity),
-      ),
+      or(greaterThan(velocity, 50), greaterThan(0.7, progressiveOpacity)),
     );
 
     const decayClock = new Clock();
@@ -864,25 +802,16 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     ];
 
     return cond(
-      [ panJustEnded, dismissingFromPan ],
+      [panJustEnded, dismissingFromPan],
       decay,
       cond(
         or(pinchActive, greaterThan(roundedCurScale, 1)),
-        set(
-          curBackdropOpacity,
-          runTiming(resetClock, curBackdropOpacity, 1),
-        ),
+        set(curBackdropOpacity, runTiming(resetClock, curBackdropOpacity, 1)),
         [
           stopClock(resetClock),
           set(curBackdropOpacity, progressiveOpacity),
           set(dismissingFromPan, shouldGoBack),
-          cond(
-            shouldGoBack,
-            [
-              decay,
-              call([], this.close),
-            ],
-          ),
+          cond(shouldGoBack, [decay, call([], this.close)]),
         ],
       ),
     );
@@ -923,24 +852,15 @@ class MultimediaModal extends React.PureComponent<Props, State> {
       ],
       [
         cond(
-          or(
-            clockRunning(resetScaleClock),
-            neq(recenteredScale, curScale),
-          ),
+          or(clockRunning(resetScaleClock), neq(recenteredScale, curScale)),
           set(curScale, runTiming(resetScaleClock, curScale, recenteredScale)),
         ),
         cond(
-          or(
-            clockRunning(resetXClock),
-            neq(recenteredX, curX),
-          ),
+          or(clockRunning(resetXClock), neq(recenteredX, curX)),
           set(curX, runTiming(resetXClock, curX, recenteredX)),
         ),
         cond(
-          or(
-            clockRunning(resetYClock),
-            neq(recenteredY, curY),
-          ),
+          or(clockRunning(resetYClock), neq(recenteredY, curY)),
           set(curY, runTiming(resetYClock, curY, recenteredY)),
         ),
       ],
@@ -979,38 +899,23 @@ class MultimediaModal extends React.PureComponent<Props, State> {
 
     return cond(
       activeInteraction,
-      [
-        stopClock(flingXClock),
-        stopClock(flingYClock),
-      ],
+      [stopClock(flingXClock), stopClock(flingYClock)],
       [
         cond(
           clockRunning(resetXClock),
           stopClock(flingXClock),
-          cond(
-            or(panJustEnded, clockRunning(flingXClock)),
-            [
-              set(curX, recenteredX),
-              cond(
-                neq(decayX, recenteredX),
-                stopClock(flingXClock),
-              ),
-            ],
-          ),
+          cond(or(panJustEnded, clockRunning(flingXClock)), [
+            set(curX, recenteredX),
+            cond(neq(decayX, recenteredX), stopClock(flingXClock)),
+          ]),
         ),
         cond(
           clockRunning(resetYClock),
           stopClock(flingYClock),
-          cond(
-            or(panJustEnded, clockRunning(flingYClock)),
-            [
-              set(curY, recenteredY),
-              cond(
-                neq(decayY, recenteredY),
-                stopClock(flingYClock),
-              ),
-            ],
-          ),
+          cond(or(panJustEnded, clockRunning(flingYClock)), [
+            set(curY, recenteredY),
+            cond(neq(decayY, recenteredY), stopClock(flingYClock)),
+          ]),
         ),
       ],
     );
@@ -1124,9 +1029,10 @@ class MultimediaModal extends React.PureComponent<Props, State> {
 
   get contentContainerStyle() {
     const { verticalBounds } = this.props.navigation.state.params;
-    const fullScreenHeight = this.screenDimensions.height
-      + contentBottomOffset
-      + this.props.contentVerticalOffset;
+    const fullScreenHeight =
+      this.screenDimensions.height +
+      contentBottomOffset +
+      this.props.contentVerticalOffset;
     const top = verticalBounds.y;
     const bottom = fullScreenHeight - verticalBounds.y - verticalBounds.height;
 
@@ -1134,14 +1040,14 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     const verticalStyle = MultimediaModal.isActive(this.props)
       ? { paddingTop: top, paddingBottom: bottom }
       : { marginTop: top, marginBottom: bottom };
-    return [ styles.contentContainer, verticalStyle ];
+    return [styles.contentContainer, verticalStyle];
   }
 
   render() {
     const { mediaInfo } = this.props.navigation.state.params;
-    const statusBar = MultimediaModal.isActive(this.props)
-      ? <ConnectedStatusBar hidden />
-      : null;
+    const statusBar = MultimediaModal.isActive(this.props) ? (
+      <ConnectedStatusBar hidden />
+    ) : null;
     const backdropStyle = { opacity: this.backdropOpacity };
     const closeButtonStyle = {
       opacity: this.closeButtonOpacity,
@@ -1151,31 +1057,23 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     const view = (
       <Animated.View style={styles.container}>
         {statusBar}
-        <Animated.View style={[ styles.backdrop, backdropStyle ]} />
+        <Animated.View style={[styles.backdrop, backdropStyle]} />
         <View style={this.contentContainerStyle}>
           <Animated.View style={this.imageContainerStyle}>
             <Multimedia mediaInfo={mediaInfo} spinnerColor="white" />
           </Animated.View>
         </View>
-        <Animated.View style={[
-          styles.closeButtonContainer,
-          closeButtonStyle,
-        ]}>
+        <Animated.View style={[styles.closeButtonContainer, closeButtonStyle]}>
           <TouchableOpacity
             onPress={this.close}
             disabled={!this.state.closeButtonEnabled}
             onLayout={this.onCloseButtonLayout}
             ref={this.closeButtonRef}
           >
-            <Text style={styles.closeButton}>
-              ×
-            </Text>
+            <Text style={styles.closeButton}>×</Text>
           </TouchableOpacity>
         </Animated.View>
-        <Animated.View style={[
-          styles.saveButtonContainer,
-          saveButtonStyle,
-        ]}>
+        <Animated.View style={[styles.saveButtonContainer, saveButtonStyle]}>
           <TouchableOpacity
             onPress={this.save}
             disabled={!this.state.actionLinksEnabled}
@@ -1236,33 +1134,33 @@ class MultimediaModal extends React.PureComponent<Props, State> {
 
   close = () => {
     this.props.navigation.goBack();
-  }
+  };
 
   save = async () => {
     await intentionalSaveImage(this.props.navigation.state.params.mediaInfo);
-  }
+  };
 
-  setCloseButtonEnabled = ([ enabledNum ]: [ number ]) => {
+  setCloseButtonEnabled = ([enabledNum]: [number]) => {
     const enabled = !!enabledNum;
     if (this.state.closeButtonEnabled !== enabled) {
       this.setState({ closeButtonEnabled: enabled });
     }
-  }
+  };
 
-  setActionLinksEnabled = ([ enabledNum ]: [ number ]) => {
+  setActionLinksEnabled = ([enabledNum]: [number]) => {
     const enabled = !!enabledNum;
     if (this.state.actionLinksEnabled !== enabled) {
       this.setState({ actionLinksEnabled: enabled });
     }
-  }
+  };
 
   closeButtonRef = (closeButton: ?TouchableOpacity) => {
     this.closeButton = closeButton;
-  }
+  };
 
   saveButtonRef = (saveButton: ?TouchableOpacity) => {
     this.saveButton = saveButton;
-  }
+  };
 
   onCloseButtonLayout = () => {
     const { closeButton } = this;
@@ -1275,7 +1173,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
       this.closeButtonWidth.setValue(width);
       this.closeButtonHeight.setValue(height);
     });
-  }
+  };
 
   onSaveButtonLayout = () => {
     const { saveButton } = this;
@@ -1288,8 +1186,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
       this.saveButtonWidth.setValue(width);
       this.saveButtonHeight.setValue(height);
     });
-  }
-
+  };
 }
 
 const styles = StyleSheet.create({
@@ -1297,32 +1194,32 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   backdrop: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "black",
+    backgroundColor: 'black',
   },
   contentContainer: {
     flex: 1,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   closeButtonContainer: {
-    position: "absolute",
+    position: 'absolute',
     right: 4,
   },
   closeButton: {
     paddingVertical: 2,
     paddingHorizontal: 8,
     fontSize: 36,
-    color: "white",
-    textShadowColor: "#000",
+    color: 'white',
+    textShadowColor: '#000',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,
   },
   saveButtonContainer: {
-    position: "absolute",
+    position: 'absolute',
     left: 16,
     bottom: contentBottomOffset + 8,
   },
@@ -1335,23 +1232,21 @@ const styles = StyleSheet.create({
   },
   saveButtonIcon: {
     fontSize: 36,
-    color: "#D7D7DC",
-    textShadowColor: "#1C1C1E",
+    color: '#D7D7DC',
+    textShadowColor: '#1C1C1E',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,
   },
   saveButtonText: {
     fontSize: 14,
-    color: "#D7D7DC",
-    textShadowColor: "#1C1C1E",
+    color: '#D7D7DC',
+    textShadowColor: '#1C1C1E',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,
   },
 });
 
-export default connect(
-  (state: AppState) => ({
-    screenDimensions: dimensionsSelector(state),
-    contentVerticalOffset: contentVerticalOffsetSelector(state),
-  }),
-)(MultimediaModal);
+export default connect((state: AppState) => ({
+  screenDimensions: dimensionsSelector(state),
+  contentVerticalOffset: contentVerticalOffsetSelector(state),
+}))(MultimediaModal);

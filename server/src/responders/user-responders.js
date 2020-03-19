@@ -27,9 +27,7 @@ import { promiseAll } from 'lib/utils/promises';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 import { values } from 'lib/utils/objects';
 
-import {
-  userSubscriptionUpdater,
-} from '../updaters/user-subscription-updaters';
+import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters';
 import {
   accountUpdater,
   checkAndSendVerificationEmail,
@@ -68,7 +66,7 @@ const subscriptionUpdateRequestInputValidator = tShape({
   threadID: t.String,
   updatedFields: tShape({
     pushNotifs: t.maybe(t.Boolean),
-    home: t.maybe(t.Boolean)
+    home: t.maybe(t.Boolean),
   }),
 });
 
@@ -126,7 +124,7 @@ async function logOutResponder(
 ): Promise<LogOutResponse> {
   await validateInput(viewer, null, null);
   if (viewer.loggedIn) {
-    const [ anonymousViewerData ] = await Promise.all([
+    const [anonymousViewerData] = await Promise.all([
       createNewAnonymousCookie({
         platformDetails: viewer.platformDetails,
         deviceToken: viewer.deviceToken,
@@ -154,7 +152,7 @@ async function accountDeletionResponder(
   const request: DeleteAccountRequest = input;
   await validateInput(viewer, deleteAccountRequestInputValidator, request);
   const result = await deleteAccount(viewer, request);
-  invariant(result, "deleteAccount should return result if handed request");
+  invariant(result, 'deleteAccount should return result if handed request');
   return result;
 }
 
@@ -218,8 +216,9 @@ async function logInResponder(
     : null;
   const promises = {};
   if (calendarQuery) {
-    promises.verifyCalendarQueryThreadIDs =
-      verifyCalendarQueryThreadIDs(calendarQuery);
+    promises.verifyCalendarQueryThreadIDs = verifyCalendarQueryThreadIDs(
+      calendarQuery,
+    );
   }
   const userQuery = SQL`
     SELECT id, hash, username, email, email_verified
@@ -228,7 +227,9 @@ async function logInResponder(
       OR LCASE(email) = LCASE(${request.usernameOrEmail})
   `;
   promises.userQuery = dbQuery(userQuery);
-  const { userQuery: [ userResult ] } = await promiseAll(promises);
+  const {
+    userQuery: [userResult],
+  } = await promiseAll(promises);
 
   if (userResult.length === 0) {
     throw new ServerError('invalid_parameters');
@@ -243,11 +244,11 @@ async function logInResponder(
   const deviceToken = request.deviceTokenUpdateRequest
     ? request.deviceTokenUpdateRequest.deviceToken
     : viewer.deviceToken;
-  const [ userViewerData ] = await Promise.all([
-    createNewUserCookie(
-      id,
-      { platformDetails: request.platformDetails, deviceToken },
-    ),
+  const [userViewerData] = await Promise.all([
+    createNewUserCookie(id, {
+      platformDetails: request.platformDetails,
+      deviceToken,
+    }),
     deleteCookie(viewer.cookieID),
   ]);
   viewer.setNewCookie(userViewerData);
@@ -261,14 +262,10 @@ async function logInResponder(
   }
   const threadSelectionCriteria = { threadCursors, joinedThreads: true };
 
-  const [ threadsResult, messagesResult, entriesResult ] = await Promise.all([
+  const [threadsResult, messagesResult, entriesResult] = await Promise.all([
     fetchThreadInfos(viewer),
-    fetchMessageInfos(
-      viewer,
-      threadSelectionCriteria,
-      defaultNumberPerThread,
-    ),
-    calendarQuery ? fetchEntryInfos(viewer, [ calendarQuery ]) : undefined,
+    fetchMessageInfos(viewer, threadSelectionCriteria, defaultNumberPerThread),
+    calendarQuery ? fetchEntryInfos(viewer, [calendarQuery]) : undefined,
   ]);
 
   const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;

@@ -14,7 +14,7 @@ import createIDs from './id-creator';
 import { getUploadURL } from '../fetchers/upload-fetchers';
 
 function uploadExtras(upload: UploadInput) {
-  if (upload.mediaType !== "photo") {
+  if (upload.mediaType !== 'photo') {
     return null;
   }
   const { height, width } = sizeOf(upload.buffer);
@@ -35,7 +35,7 @@ async function createUploads(
     throw new ServerError('not_logged_in');
   }
 
-  const ids = await createIDs("uploads", uploadInfos.length);
+  const ids = await createIDs('uploads', uploadInfos.length);
   const secret = crypto.randomBytes(8).toString('hex');
   const uploadRows = uploadInfos.map(uploadInfo => [
     ids.shift(),
@@ -58,10 +58,7 @@ async function createUploads(
 
   return uploadRows.map(row => ({
     id: row[0],
-    uri: shimUploadURI(
-      getUploadURL(row[0], row[6]),
-      viewer.platformDetails,
-    ),
+    uri: shimUploadURI(getUploadURL(row[0], row[6]), viewer.platformDetails),
   }));
 }
 

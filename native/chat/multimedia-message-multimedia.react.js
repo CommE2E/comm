@@ -1,9 +1,7 @@
 // @flow
 
 import { type MediaInfo, mediaInfoPropType } from 'lib/types/media-types';
-import type {
-  ChatMultimediaMessageInfoItem,
-} from './multimedia-message.react';
+import type { ChatMultimediaMessageInfoItem } from './multimedia-message.react';
 import type { ImageStyle } from '../types/styles';
 import {
   MultimediaModalRouteName,
@@ -56,9 +54,9 @@ type Props = {|
   verticalOffset: number,
   style: ImageStyle,
   lightboxPosition: ?Animated.Value,
-  postInProgress: bool,
+  postInProgress: boolean,
   pendingUpload: ?PendingMultimediaUpload,
-  messageFocused: bool,
+  messageFocused: boolean,
   toggleMessageFocus: (messageKey: string) => void,
   // Redux state
   colors: Colors,
@@ -68,11 +66,10 @@ type Props = {|
   keyboardState: ?KeyboardState,
 |};
 type State = {|
-  hidden: bool,
+  hidden: boolean,
   opacity: ?Animated.Value,
 |};
 class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
-
   static propTypes = {
     mediaInfo: mediaInfoPropType.isRequired,
     item: chatMessageItemPropType.isRequired,
@@ -112,20 +109,18 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     if (!lightboxPosition) {
       return null;
     }
-    return Animated.interpolate(
-      this.props.lightboxPosition,
-      {
-        inputRange: [ 0.1, 0.11 ],
-        outputRange: [ 1, 0 ],
-        extrapolate: Animated.Extrapolate.CLAMP,
-      },
-    );
+    return Animated.interpolate(this.props.lightboxPosition, {
+      inputRange: [0.1, 0.11],
+      outputRange: [1, 0],
+      extrapolate: Animated.Extrapolate.CLAMP,
+    });
   }
 
   static scrollDisabled(props: Props) {
     const { overlayableScrollViewState } = props;
-    return !!(overlayableScrollViewState &&
-      overlayableScrollViewState.scrollDisabled);
+    return !!(
+      overlayableScrollViewState && overlayableScrollViewState.scrollDisabled
+    );
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -133,17 +128,19 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
       this.setState({ opacity: this.getOpacity() });
     }
 
-    const scrollIsDisabled =
-      MultimediaMessageMultimedia.scrollDisabled(this.props);
-    const scrollWasDisabled =
-      MultimediaMessageMultimedia.scrollDisabled(prevProps);
+    const scrollIsDisabled = MultimediaMessageMultimedia.scrollDisabled(
+      this.props,
+    );
+    const scrollWasDisabled = MultimediaMessageMultimedia.scrollDisabled(
+      prevProps,
+    );
     if (!scrollIsDisabled && scrollWasDisabled) {
       this.clickable = true;
     }
   }
 
   render() {
-    const wrapperStyles = [ styles.container ];
+    const wrapperStyles = [styles.container];
     if (this.state.hidden && this.state.opacity) {
       wrapperStyles.push({ opacity: this.state.opacity });
     }
@@ -166,18 +163,21 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     );
   }
 
-  onLayout = () => {}
+  onLayout = () => {};
 
   viewRef = (view: ?View) => {
     this.view = view;
-  }
+  };
 
   onPress = () => {
     if (this.dismissKeyboardIfShowing()) {
       return;
     }
 
-    const { view, props: { verticalBounds } } = this;
+    const {
+      view,
+      props: { verticalBounds },
+    } = this;
     if (!view || !verticalBounds) {
       return;
     }
@@ -200,14 +200,17 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
       });
       this.setState({ hidden: true });
     });
-  }
+  };
 
   onLongPress = () => {
     if (this.dismissKeyboardIfShowing()) {
       return;
     }
 
-    const { view, props: { verticalBounds } } = this;
+    const {
+      view,
+      props: { verticalBounds },
+    } = this;
     if (!view || !verticalBounds) {
       return;
     }
@@ -248,7 +251,8 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
       const aboveMargin = verticalOffset === 0 ? directlyAboveMargin : 20;
       const aboveSpace = multimediaTooltipHeight + aboveMargin;
 
-      let location = 'below', margin = belowMargin;
+      let location = 'below',
+        margin = belowMargin;
       if (
         multimediaBottom + belowSpace > boundsBottom &&
         multimediaTop - aboveSpace > boundsTop
@@ -270,13 +274,12 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
         },
       });
     });
-  }
+  };
 
   dismissKeyboardIfShowing = () => {
     const { keyboardState } = this.props;
     return !!(keyboardState && keyboardState.dismissKeyboardIfShowing());
-  }
-
+  };
 }
 
 const styles = StyleSheet.create({
@@ -293,8 +296,6 @@ export default connect((state: AppState) => ({
   colors: colorsSelector(state),
 }))(
   withKeyboardState(
-    withOverlayableScrollViewState(
-      MultimediaMessageMultimedia,
-    ),
+    withOverlayableScrollViewState(MultimediaMessageMultimedia),
   ),
 );

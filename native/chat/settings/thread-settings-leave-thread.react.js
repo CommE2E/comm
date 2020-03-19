@@ -13,13 +13,7 @@ import { type Colors, colorsPropType } from '../../themes/colors';
 import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
-import {
-  Text,
-  Alert,
-  ActivityIndicator,
-  View,
-  Platform,
-} from 'react-native';
+import { Text, Alert, ActivityIndicator, View, Platform } from 'react-native';
 import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
@@ -35,10 +29,10 @@ import { colorsSelector, styleSelector } from '../../themes/colors';
 
 type Props = {|
   threadInfo: ThreadInfo,
-  canDeleteThread: bool,
+  canDeleteThread: boolean,
   // Redux state
   loadingStatus: LoadingStatus,
-  otherUsersButNoOtherAdmins: bool,
+  otherUsersButNoOtherAdmins: boolean,
   colors: Colors,
   styles: Styles,
   // Redux dispatch functions
@@ -47,7 +41,6 @@ type Props = {|
   leaveThread: (threadID: string) => Promise<LeaveThreadPayload>,
 |};
 class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
-
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     canDeleteThread: PropTypes.bool.isRequired,
@@ -64,9 +57,10 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
       panelIosHighlightUnderlay,
       panelForegroundSecondaryLabel,
     } = this.props.colors;
-    const loadingIndicator = this.props.loadingStatus === "loading"
-      ? <ActivityIndicator size="small" color={panelForegroundSecondaryLabel} />
-      : null;
+    const loadingIndicator =
+      this.props.loadingStatus === 'loading' ? (
+        <ActivityIndicator size="small" color={panelForegroundSecondaryLabel} />
+      ) : null;
     const lastButtonStyle = this.props.canDeleteThread
       ? null
       : this.props.styles.lastButton;
@@ -74,7 +68,7 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
       <View style={this.props.styles.container}>
         <Button
           onPress={this.onPress}
-          style={[ this.props.styles.button, lastButtonStyle ]}
+          style={[this.props.styles.button, lastButtonStyle]}
           iosFormat="highlight"
           iosHighlightUnderlayColor={panelIosHighlightUnderlay}
         >
@@ -88,38 +82,37 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
   onPress = () => {
     if (this.props.otherUsersButNoOtherAdmins) {
       Alert.alert(
-        "Need another admin",
-        "Make somebody else an admin before you leave!",
+        'Need another admin',
+        'Make somebody else an admin before you leave!',
       );
       return;
     }
 
     Alert.alert(
-      "Confirm action",
-      "Are you sure you want to leave this thread?",
+      'Confirm action',
+      'Are you sure you want to leave this thread?',
       [
         { text: 'Cancel', style: 'cancel' },
         { text: 'OK', onPress: this.onConfirmLeaveThread },
       ],
     );
-  }
+  };
 
   onConfirmLeaveThread = () => {
     this.props.dispatchActionPromise(
       leaveThreadActionTypes,
       this.leaveThread(),
     );
-  }
+  };
 
   async leaveThread() {
     try {
       return await this.props.leaveThread(this.props.threadInfo.id);
     } catch (e) {
-      Alert.alert("Unknown error", "Uhh... try again?");
+      Alert.alert('Unknown error', 'Uhh... try again?');
       throw e;
     }
   }
-
 }
 
 const styles = {
@@ -134,7 +127,7 @@ const styles = {
   },
   lastButton: {
     paddingTop: 10,
-    paddingBottom: Platform.OS === "ios" ? 14 : 12,
+    paddingBottom: Platform.OS === 'ios' ? 14 : 12,
   },
   text: {
     fontSize: 16,
@@ -144,14 +137,16 @@ const styles = {
 };
 const stylesSelector = styleSelector(styles);
 
-const loadingStatusSelector
-  = createLoadingStatusSelector(leaveThreadActionTypes);
+const loadingStatusSelector = createLoadingStatusSelector(
+  leaveThreadActionTypes,
+);
 
 export default connect(
   (state: AppState, ownProps: { threadInfo: ThreadInfo }) => ({
     loadingStatus: loadingStatusSelector(state),
-    otherUsersButNoOtherAdmins:
-      otherUsersButNoOtherAdmins(ownProps.threadInfo.id)(state),
+    otherUsersButNoOtherAdmins: otherUsersButNoOtherAdmins(
+      ownProps.threadInfo.id,
+    )(state),
     colors: colorsSelector(state),
     styles: stylesSelector(state),
   }),

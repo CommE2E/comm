@@ -18,7 +18,6 @@ type Props = {
   dispatchActionPayload: DispatchActionPayload,
 };
 class OrientationHandler extends React.PureComponent<Props> {
-
   static propTypes = {
     deviceOrientation: PropTypes.string.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
@@ -49,12 +48,11 @@ class OrientationHandler extends React.PureComponent<Props> {
         orientation,
       );
     }
-  }
+  };
 
   render() {
     return null;
   }
-
 }
 
 export default connect(

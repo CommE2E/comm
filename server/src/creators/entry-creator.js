@@ -11,7 +11,7 @@ import { threadPermissions } from 'lib/types/thread-types';
 import invariant from 'invariant';
 
 import { ServerError } from 'lib/utils/errors';
-import { dateFromString } from 'lib/utils/date-utils'
+import { dateFromString } from 'lib/utils/date-utils';
 import { values } from 'lib/utils/objects';
 
 import { dbQuery, SQL } from '../database';
@@ -19,9 +19,7 @@ import fetchOrCreateDayID from '../creators/day-creator';
 import createIDs from '../creators/id-creator';
 import createMessages from '../creators/message-creator';
 import { checkThreadPermission } from '../fetchers/thread-fetchers';
-import {
-  createUpdateDatasForChangedEntryInfo,
-} from '../updaters/entry-updaters';
+import { createUpdateDatasForChangedEntryInfo } from '../updaters/entry-updaters';
 import { fetchEntryInfoForLocalID } from '../fetchers/entry-fetchers';
 import { fetchMessageInfoForEntryAction } from '../fetchers/message-fetchers';
 import { fetchUpdateInfoForEntryUpdate } from '../fetchers/update-fetchers';
@@ -49,8 +47,8 @@ async function createEntry(
   );
   if (existingEntryInfo) {
     const { id: entryID, threadID } = existingEntryInfo;
-    invariant(entryID, "should be set");
-    const [ rawMessageInfo, fetchUpdatesResult ] = await Promise.all([
+    invariant(entryID, 'should be set');
+    const [rawMessageInfo, fetchUpdatesResult] = await Promise.all([
       fetchMessageInfoForEntryAction(
         viewer,
         messageTypes.CREATE_ENTRY,
@@ -61,7 +59,7 @@ async function createEntry(
     ]);
     return {
       entryID,
-      newMessageInfos: rawMessageInfo ? [ rawMessageInfo ] : [],
+      newMessageInfos: rawMessageInfo ? [rawMessageInfo] : [],
       updatesResult: {
         viewerUpdates: fetchUpdatesResult.updateInfos,
         userInfos: values(fetchUpdatesResult.userInfos),
@@ -69,22 +67,16 @@ async function createEntry(
     };
   }
 
-  const [
-    dayID,
-    [ entryID ],
-    [ revisionID ],
-  ] = await Promise.all([
-    fetchOrCreateDayID(
-      request.threadID,
-      request.date,
-    ),
-    createIDs("entries", 1),
-    createIDs("revisions", 1),
+  const [dayID, [entryID], [revisionID]] = await Promise.all([
+    fetchOrCreateDayID(request.threadID, request.date),
+    createIDs('entries', 1),
+    createIDs('revisions', 1),
   ]);
 
-  const creation = request.localID && viewer.hasSessionInfo
-    ? creationString(viewer, request.localID)
-    : null;
+  const creation =
+    request.localID && viewer.hasSessionInfo
+      ? creationString(viewer, request.localID)
+      : null;
   const viewerID = viewer.userID;
   const entryRow = [
     entryID,
@@ -140,7 +132,7 @@ async function createEntry(
     deleted: false,
   };
 
-  const [ newMessageInfos, updatesResult ] = await Promise.all([
+  const [newMessageInfos, updatesResult] = await Promise.all([
     createMessages(viewer, [messageData]),
     createUpdateDatasForChangedEntryInfo(
       viewer,

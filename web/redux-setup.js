@@ -33,7 +33,7 @@ import { activeThreadSelector } from './selectors/nav-selectors';
 
 export type NavInfo = {|
   ...$Exact<BaseNavInfo>,
-  tab: "calendar" | "chat",
+  tab: 'calendar' | 'chat',
   verify: ?string,
   activeChatThreadID: ?string,
 |};
@@ -41,7 +41,7 @@ export type NavInfo = {|
 export const navInfoPropType = PropTypes.shape({
   startDate: PropTypes.string.isRequired,
   endDate: PropTypes.string.isRequired,
-  tab: PropTypes.oneOf(["calendar", "chat"]).isRequired,
+  tab: PropTypes.oneOf(['calendar', 'chat']).isRequired,
   verify: PropTypes.string,
   activeChatThreadID: PropTypes.string,
 });
@@ -54,10 +54,10 @@ export type AppState = {|
   serverVerificationResult: ?ServerVerificationResult,
   entryStore: EntryStore,
   threadStore: ThreadStore,
-  userInfos: {[id: string]: UserInfo},
+  userInfos: { [id: string]: UserInfo },
   messageStore: MessageStore,
   updatesCurrentAsOf: number,
-  loadingStatuses: {[key: string]: {[idx: number]: LoadingStatus}},
+  loadingStatuses: { [key: string]: { [idx: number]: LoadingStatus } },
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
   urlPrefix: string,
   windowDimensions: WindowDimensions,
@@ -66,50 +66,46 @@ export type AppState = {|
   baseHref: string,
   connection: ConnectionInfo,
   watchedThreadIDs: $ReadOnlyArray<string>,
-  foreground: bool,
+  foreground: boolean,
   nextLocalID: number,
   queuedReports: $ReadOnlyArray<ClientReportCreationRequest>,
   timeZone: ?string,
   userAgent: ?string,
 |};
 
-export const updateNavInfoActionType = "UPDATE_NAV_INFO";
-export const updateWindowDimensions = "UPDATE_WINDOW_DIMENSIONS";
+export const updateNavInfoActionType = 'UPDATE_NAV_INFO';
+export const updateWindowDimensions = 'UPDATE_WINDOW_DIMENSIONS';
 
 export type Action =
   | BaseAction
-  | {| type: "UPDATE_NAV_INFO", payload: NavInfo |}
+  | {| type: 'UPDATE_NAV_INFO', payload: NavInfo |}
   | {|
-      type: "UPDATE_WINDOW_DIMENSIONS",
+      type: 'UPDATE_WINDOW_DIMENSIONS',
       payload: WindowDimensions,
     |};
 
 export function reducer(oldState: AppState | void, action: Action) {
-  invariant(oldState, "should be set");
+  invariant(oldState, 'should be set');
   let state = oldState;
 
   if (action.type === updateNavInfoActionType) {
-    return validateState(
-      oldState,
-      {
-        ...state,
-        navInfo: action.payload,
-      },
-    );
+    return validateState(oldState, {
+      ...state,
+      navInfo: action.payload,
+    });
   } else if (action.type === updateWindowDimensions) {
-    return validateState(
-      oldState,
-      {
-        ...state,
-        windowDimensions: action.payload,
-      },
-    );
+    return validateState(oldState, {
+      ...state,
+      windowDimensions: action.payload,
+    });
   } else if (action.type === setNewSessionActionType) {
-    if (invalidSessionDowngrade(
-      oldState,
-      action.payload.sessionChange.currentUserInfo,
-      action.payload.preRequestUserState,
-    )) {
+    if (
+      invalidSessionDowngrade(
+        oldState,
+        action.payload.sessionChange.currentUserInfo,
+        action.payload.preRequestUserState,
+      )
+    ) {
       return oldState;
     }
     state = {
@@ -122,15 +118,13 @@ export function reducer(oldState: AppState | void, action: Action) {
         oldState,
         action.payload.currentUserInfo,
         action.payload.preRequestUserState,
-      )
-    ) ||
+      )) ||
     (action.type === deleteAccountActionTypes.success &&
       invalidSessionDowngrade(
         oldState,
         action.payload.currentUserInfo,
         action.payload.preRequestUserState,
-      )
-    )
+      ))
   ) {
     return oldState;
   }

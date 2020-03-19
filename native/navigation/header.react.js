@@ -9,7 +9,7 @@ import { View } from 'react-native';
 import DisconnectedBar from './disconnected-bar.react';
 
 type Props = {|
-  activeTab: bool,
+  activeTab: boolean,
   ...$Exact<HeaderProps>,
 |};
 export default function CustomHeader(props: Props) {

@@ -22,13 +22,12 @@ import MessagePreview from './message-preview.react';
 
 type Props = {|
   item: ChatThreadItem,
-  active: bool,
+  active: boolean,
   navInfo: NavInfo,
   timeZone: ?string,
   dispatchActionPayload: DispatchActionPayload,
 |};
 class ChatThreadListItem extends React.PureComponent<Props> {
-
   static propTypes = {
     item: chatThreadItemPropType.isRequired,
     active: PropTypes.bool.isRequired,
@@ -46,9 +45,7 @@ class ChatThreadListItem extends React.PureComponent<Props> {
     return (
       <a className={classNames(css.thread, activeStyle)} onClick={this.onClick}>
         <div className={css.threadRow}>
-          <div className={css.title}>
-            {item.threadInfo.uiName}
-          </div>
+          <div className={css.title}>{item.threadInfo.uiName}</div>
           <div className={css.colorSplotch} style={colorSplotchStyle} />
         </div>
         <div className={css.threadRow}>
@@ -56,10 +53,12 @@ class ChatThreadListItem extends React.PureComponent<Props> {
             messageInfo={item.mostRecentMessageInfo}
             threadInfo={item.threadInfo}
           />
-          <div className={classNames([
-            css.lastActivity,
-            unread ? css.black : css.dark,
-          ])}>
+          <div
+            className={classNames([
+              css.lastActivity,
+              unread ? css.black : css.dark,
+            ])}
+          >
             {lastActivity}
           </div>
         </div>
@@ -69,15 +68,11 @@ class ChatThreadListItem extends React.PureComponent<Props> {
 
   onClick = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.props.dispatchActionPayload(
-      updateNavInfoActionType,
-      {
-        ...this.props.navInfo,
-        activeChatThreadID: this.props.item.threadInfo.id,
-      },
-    );
-  }
-
+    this.props.dispatchActionPayload(updateNavInfoActionType, {
+      ...this.props.navInfo,
+      activeChatThreadID: this.props.item.threadInfo.id,
+    });
+  };
 }
 
 export default ChatThreadListItem;

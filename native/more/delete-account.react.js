@@ -59,10 +59,9 @@ type Props = {|
 |};
 type State = {|
   password: string,
-  onePasswordSupported: bool,
+  onePasswordSupported: boolean,
 |};
 class DeleteAccount extends React.PureComponent<Props, State> {
-
   static propTypes = {
     navigation: PropTypes.shape({
       navigate: PropTypes.func.isRequired,
@@ -77,7 +76,7 @@ class DeleteAccount extends React.PureComponent<Props, State> {
     deleteAccount: PropTypes.func.isRequired,
   };
   static navigationOptions = {
-    headerTitle: "Delete account",
+    headerTitle: 'Delete account',
   };
   mounted = false;
   passwordInput: ?TextInput;
@@ -85,7 +84,7 @@ class DeleteAccount extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      password: "",
+      password: '',
       onePasswordSupported: false,
     };
     this.determineOnePasswordSupport();
@@ -123,9 +122,12 @@ class DeleteAccount extends React.PureComponent<Props, State> {
         />
       );
     }
-    const buttonContent = this.props.loadingStatus === "loading"
-      ? <ActivityIndicator size="small" color="white" />
-      : <Text style={this.props.styles.saveText}>Delete account</Text>;
+    const buttonContent =
+      this.props.loadingStatus === 'loading' ? (
+        <ActivityIndicator size="small" color="white" />
+      ) : (
+        <Text style={this.props.styles.saveText}>Delete account</Text>
+      );
     const { panelForegroundTertiaryLabel } = this.props.colors;
     return (
       <ScrollView
@@ -138,10 +140,12 @@ class DeleteAccount extends React.PureComponent<Props, State> {
           </Text>
         </View>
         <View>
-          <Text style={[
-            this.props.styles.warningText,
-            this.props.styles.lastWarningText,
-          ]}>
+          <Text
+            style={[
+              this.props.styles.warningText,
+              this.props.styles.lastWarningText,
+            ]}
+          >
             There is no way to reverse this.
           </Text>
         </View>
@@ -173,30 +177,30 @@ class DeleteAccount extends React.PureComponent<Props, State> {
 
   onChangePasswordText = (newPassword: string) => {
     this.setState({ password: newPassword });
-  }
+  };
 
   passwordInputRef = (passwordInput: ?TextInput) => {
     this.passwordInput = passwordInput;
-  }
+  };
 
   focusPasswordInput = () => {
-    invariant(this.passwordInput, "passwordInput should be set");
+    invariant(this.passwordInput, 'passwordInput should be set');
     this.passwordInput.focus();
-  }
+  };
 
   onPressOnePassword = async () => {
     try {
-      const credentials = await OnePassword.findLogin("https://squadcal.org");
+      const credentials = await OnePassword.findLogin('https://squadcal.org');
       this.setState({ password: credentials.password });
-    } catch (e) { }
-  }
+    } catch (e) {}
+  };
 
   submitDeletion = () => {
     this.props.dispatchActionPromise(
       deleteAccountActionTypes,
       this.deleteAccount(),
     );
-  }
+  };
 
   async deleteAccount() {
     try {
@@ -211,20 +215,16 @@ class DeleteAccount extends React.PureComponent<Props, State> {
     } catch (e) {
       if (e.message === 'invalid_credentials') {
         Alert.alert(
-          "Incorrect password",
-          "The password you entered is incorrect",
-          [
-            { text: 'OK', onPress: this.onErrorAlertAcknowledged },
-          ],
+          'Incorrect password',
+          'The password you entered is incorrect',
+          [{ text: 'OK', onPress: this.onErrorAlertAcknowledged }],
           { cancelable: false },
         );
       } else {
         Alert.alert(
-          "Unknown error",
-          "Uhh... try again?",
-          [
-            { text: 'OK', onPress: this.onErrorAlertAcknowledged },
-          ],
+          'Unknown error',
+          'Uhh... try again?',
+          [{ text: 'OK', onPress: this.onErrorAlertAcknowledged }],
           { cancelable: false },
         );
       }
@@ -232,12 +232,8 @@ class DeleteAccount extends React.PureComponent<Props, State> {
   }
 
   onErrorAlertAcknowledged = () => {
-    this.setState(
-      { password: "" },
-      this.focusPasswordInput,
-    );
-  }
-
+    this.setState({ password: '' }, this.focusPasswordInput);
+  };
 }
 
 const styles = {
@@ -251,7 +247,7 @@ const styles = {
     paddingHorizontal: 24,
     paddingBottom: 3,
     fontSize: 12,
-    fontWeight: "400",
+    fontWeight: '400',
     color: 'panelBackgroundLabel',
   },
   section: {
@@ -307,9 +303,10 @@ const loadingStatusSelector = createLoadingStatusSelector(
 export default connect(
   (state: AppState) => ({
     loadingStatus: loadingStatusSelector(state),
-    username: state.currentUserInfo && !state.currentUserInfo.anonymous
-      ? state.currentUserInfo.username
-      : undefined,
+    username:
+      state.currentUserInfo && !state.currentUserInfo.anonymous
+        ? state.currentUserInfo.username
+        : undefined,
     preRequestUserState: preRequestUserStateSelector(state),
     activeTheme: state.globalThemeInfo.activeTheme,
     colors: colorsSelector(state),

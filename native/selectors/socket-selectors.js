@@ -47,10 +47,10 @@ const nativeGetClientResponsesSelector: (
   calendarActiveSelector,
   (
     getClientResponsesFunc: (
-      calendarActive: bool,
+      calendarActive: boolean,
       serverRequests: $ReadOnlyArray<ServerRequest>,
     ) => $ReadOnlyArray<ClientClientResponse>,
-    calendarActive: bool,
+    calendarActive: boolean,
   ) => (serverRequests: $ReadOnlyArray<ServerRequest>) =>
     getClientResponsesFunc(calendarActive, serverRequests),
 );
@@ -61,8 +61,8 @@ const nativeSessionStateFuncSelector: (
   sessionStateFuncSelector,
   calendarActiveSelector,
   (
-    sessionStateFunc: (calendarActive: bool) => SessionState,
-    calendarActive: bool,
+    sessionStateFunc: (calendarActive: boolean) => SessionState,
+    calendarActive: boolean,
   ) => () => sessionStateFunc(calendarActive),
 );
 

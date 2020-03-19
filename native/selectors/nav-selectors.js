@@ -11,9 +11,7 @@ import invariant from 'invariant';
 import _memoize from 'lodash/memoize';
 
 import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
-import {
-  nonThreadCalendarFiltersSelector,
-} from 'lib/selectors/calendar-filter-selectors';
+import { nonThreadCalendarFiltersSelector } from 'lib/selectors/calendar-filter-selectors';
 
 import {
   AppRouteName,
@@ -33,20 +31,22 @@ import {
   getThreadIDFromParams,
 } from '../utils/navigation-utils';
 
-const baseCreateIsForegroundSelector = (routeName: string) => createSelector(
-  (state: AppState) => state.navInfo.navigationState,
-  (navigationState: NavigationState) =>
-    navigationState.routes[navigationState.index].routeName === routeName,
-);
+const baseCreateIsForegroundSelector = (routeName: string) =>
+  createSelector(
+    (state: AppState) => state.navInfo.navigationState,
+    (navigationState: NavigationState) =>
+      navigationState.routes[navigationState.index].routeName === routeName,
+  );
 const createIsForegroundSelector: (
   routeName: string,
-) => (state: AppState) => bool = _memoize(baseCreateIsForegroundSelector);
+) => (state: AppState) => boolean = _memoize(baseCreateIsForegroundSelector);
 
-const appLoggedInSelector: (state: AppState) => bool = createSelector(
+const appLoggedInSelector: (state: AppState) => boolean = createSelector(
   (state: AppState) => state.navInfo.navigationState,
-  (navigationState: NavigationState) => !accountModals.includes(
-    navigationState.routes[navigationState.index].routeName,
-  ),
+  (navigationState: NavigationState) =>
+    !accountModals.includes(
+      navigationState.routes[navigationState.index].routeName,
+    ),
 );
 
 const foregroundKeySelector: (state: AppState) => string = createSelector(
@@ -55,29 +55,30 @@ const foregroundKeySelector: (state: AppState) => string = createSelector(
     navigationState.routes[navigationState.index].key,
 );
 
-const baseCreateActiveTabSelector = (routeName: string) => createSelector(
-  (state: AppState) => state.navInfo.navigationState,
-  (navigationState: NavigationState) => {
-    const currentRootSubroute = navigationState.routes[navigationState.index];
-    if (currentRootSubroute.routeName !== AppRouteName) {
-      return false;
-    }
-    const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
-    const [ firstAppSubroute ] = appRoute.routes;
-    if (firstAppSubroute.routeName !== TabNavigatorRouteName) {
-      return false;
-    }
-    const tabRoute = assertNavigationRouteNotLeafNode(firstAppSubroute);
-    return tabRoute.routes[tabRoute.index].routeName === routeName;
-  },
-);
+const baseCreateActiveTabSelector = (routeName: string) =>
+  createSelector(
+    (state: AppState) => state.navInfo.navigationState,
+    (navigationState: NavigationState) => {
+      const currentRootSubroute = navigationState.routes[navigationState.index];
+      if (currentRootSubroute.routeName !== AppRouteName) {
+        return false;
+      }
+      const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
+      const [firstAppSubroute] = appRoute.routes;
+      if (firstAppSubroute.routeName !== TabNavigatorRouteName) {
+        return false;
+      }
+      const tabRoute = assertNavigationRouteNotLeafNode(firstAppSubroute);
+      return tabRoute.routes[tabRoute.index].routeName === routeName;
+    },
+  );
 const createActiveTabSelector: (
   routeName: string,
-) => (state: AppState) => bool = _memoize(baseCreateActiveTabSelector);
+) => (state: AppState) => boolean = _memoize(baseCreateActiveTabSelector);
 
 const scrollBlockingChatModalsClosedSelector: (
   state: AppState,
-) => bool = createSelector(
+) => boolean = createSelector(
   (state: AppState) => state.navInfo.navigationState,
   (navigationState: NavigationState) => {
     const currentRootSubroute = navigationState.routes[navigationState.index];
@@ -90,7 +91,7 @@ const scrollBlockingChatModalsClosedSelector: (
   },
 );
 
-const backgroundIsDarkSelector: (state: AppState) => bool = createSelector(
+const backgroundIsDarkSelector: (state: AppState) => boolean = createSelector(
   (state: AppState) => state.navInfo.navigationState,
   (state: AppState) => state.globalThemeInfo.activeTheme,
   (navigationState: NavigationState, theme: ?GlobalTheme) => {
@@ -113,7 +114,9 @@ const backgroundIsDarkSelector: (state: AppState) => bool = createSelector(
   },
 );
 
-const lightboxTransitioningSelector: (state: AppState) => bool = createSelector(
+const lightboxTransitioningSelector: (
+  state: AppState,
+) => boolean = createSelector(
   (state: AppState) => state.navInfo.navigationState,
   (navigationState: NavigationState) => {
     const currentRootSubroute = navigationState.routes[navigationState.index];
@@ -141,7 +144,7 @@ function activeThread(
     currentRootSubroute = navigationState.routes[--rootIndex];
   }
   const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
-  const [ firstAppSubroute ] = appRoute.routes;
+  const [firstAppSubroute] = appRoute.routes;
   if (firstAppSubroute.routeName !== TabNavigatorRouteName) {
     return null;
   }
@@ -160,25 +163,24 @@ function activeThread(
 
 const activeThreadSelector: (state: AppState) => ?string = createSelector(
   (state: AppState) => state.navInfo.navigationState,
-  (navigationState: NavigationState): ?string => activeThread(
-    navigationState,
-    [ MessageListRouteName, ThreadSettingsRouteName ],
-  ),
+  (navigationState: NavigationState): ?string =>
+    activeThread(navigationState, [
+      MessageListRouteName,
+      ThreadSettingsRouteName,
+    ]),
 );
 
 const activeMessageListSelector: (state: AppState) => ?string = createSelector(
   (state: AppState) => state.navInfo.navigationState,
-  (navigationState: NavigationState): ?string => activeThread(
-    navigationState,
-    [ MessageListRouteName ],
-  ),
+  (navigationState: NavigationState): ?string =>
+    activeThread(navigationState, [MessageListRouteName]),
 );
 
 const appCanRespondToBackButtonSelector: (
   state: AppState,
-) => bool = createSelector(
+) => boolean = createSelector(
   (state: AppState) => state.navInfo.navigationState,
-  (navigationState: NavigationState): bool => {
+  (navigationState: NavigationState): boolean => {
     const currentRootSubroute = navigationState.routes[navigationState.index];
     if (currentRootSubroute.routeName !== AppRouteName) {
       return false;
@@ -190,19 +192,22 @@ const appCanRespondToBackButtonSelector: (
     }
     const tabRoute = assertNavigationRouteNotLeafNode(currentAppSubroute);
     const currentTabSubroute = tabRoute.routes[tabRoute.index];
-    return currentTabSubroute.index !== null
-      && currentTabSubroute.index !== undefined
-      && currentTabSubroute.index > 0;
+    return (
+      currentTabSubroute.index !== null &&
+      currentTabSubroute.index !== undefined &&
+      currentTabSubroute.index > 0
+    );
   },
 );
 
 const calendarTabActiveSelector = createActiveTabSelector(CalendarRouteName);
-const threadPickerActiveSelector =
-  createIsForegroundSelector(ThreadPickerModalRouteName);
-const calendarActiveSelector: (state: AppState) => bool = createSelector(
+const threadPickerActiveSelector = createIsForegroundSelector(
+  ThreadPickerModalRouteName,
+);
+const calendarActiveSelector: (state: AppState) => boolean = createSelector(
   calendarTabActiveSelector,
   threadPickerActiveSelector,
-  (calendarTabActive: bool, threadPickerActive: bool) =>
+  (calendarTabActive: boolean, threadPickerActive: boolean) =>
     calendarTabActive || threadPickerActive,
 );
 
@@ -212,8 +217,8 @@ const nativeCalendarQuery: (
   currentCalendarQuery,
   calendarActiveSelector,
   (
-    calendarQuery: (calendarActive: bool) => CalendarQuery,
-    calendarActive: bool,
+    calendarQuery: (calendarActive: boolean) => CalendarQuery,
+    calendarActive: boolean,
   ) => () => calendarQuery(calendarActive),
 );
 

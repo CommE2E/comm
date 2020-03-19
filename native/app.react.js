@@ -1,9 +1,6 @@
 // @flow
 
-import type {
-  NavigationState,
-  NavigationAction,
-} from 'react-navigation';
+import type { NavigationState, NavigationAction } from 'react-navigation';
 import { type GlobalTheme, globalThemePropType } from './types/themes';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from './redux/redux-setup';
@@ -37,8 +34,7 @@ import { handleURLActionType } from './redux/action-types';
 import { store, appBecameInactive } from './redux/redux-setup';
 import ConnectedStatusBar from './connected-status-bar.react';
 import ErrorBoundary from './error-boundary.react';
-import DisconnectedBarVisibilityHandler
-  from './navigation/disconnected-bar-visibility-handler.react';
+import DisconnectedBarVisibilityHandler from './navigation/disconnected-bar-visibility-handler.react';
 import DimensionsUpdater from './redux/dimensions-updater.react';
 import ConnectivityUpdater from './redux/connectivity-updater.react';
 import PushHandler from './push/push-handler.react';
@@ -47,7 +43,7 @@ import OrientationHandler from './navigation/orientation-handler.react';
 import Socket from './socket.react';
 import { getPersistor } from './redux/persist';
 
-if (Platform.OS === "android") {
+if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental &&
     UIManager.setLayoutAnimationEnabledExperimental(true);
 }
@@ -65,10 +61,9 @@ type Props = {
   dispatchActionPayload: DispatchActionPayload,
 };
 type State = {|
-  detectUnsupervisedBackground: ?((alreadyClosed: bool) => bool),
+  detectUnsupervisedBackground: ?(alreadyClosed: boolean) => boolean,
 |};
 class AppWithNavigationState extends React.PureComponent<Props, State> {
-
   static propTypes = {
     navigationState: PropTypes.object.isRequired,
     activeTheme: globalThemePropType,
@@ -81,7 +76,7 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
   currentState: ?string = NativeAppState.currentState;
 
   componentDidMount() {
-    if (Platform.OS === "android") {
+    if (Platform.OS === 'android') {
       setTimeout(SplashScreen.hide, 350);
     } else {
       SplashScreen.hide();
@@ -106,28 +101,28 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
 
   handleURLChange = (event: { url: string }) => {
     this.dispatchActionForURL(event.url);
-  }
+  };
 
   dispatchActionForURL(url: string) {
-    if (!url.startsWith("http")) {
+    if (!url.startsWith('http')) {
       return;
     }
     this.props.dispatchActionPayload(handleURLActionType, url);
   }
 
   handleAppStateChange = (nextState: ?string) => {
-    if (!nextState || nextState === "unknown") {
+    if (!nextState || nextState === 'unknown') {
       return;
     }
     const lastState = this.currentState;
     this.currentState = nextState;
-    if (lastState === "background" && nextState === "active") {
+    if (lastState === 'background' && nextState === 'active') {
       this.props.dispatchActionPayload(foregroundActionType, null);
-    } else if (lastState !== "background" && nextState === "background") {
+    } else if (lastState !== 'background' && nextState === 'background') {
       this.props.dispatchActionPayload(backgroundActionType, null);
       appBecameInactive();
     }
-  }
+  };
 
   render() {
     const { detectUnsupervisedBackground } = this.state;
@@ -153,9 +148,7 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
     return (
       <View style={styles.app}>
         <ConnectedStatusBar />
-        <PersistGate persistor={getPersistor()}>
-          {gated}
-        </PersistGate>
+        <PersistGate persistor={getPersistor()}>{gated}</PersistGate>
         <ReduxifiedRootNavigator
           state={this.props.navigationState}
           dispatch={this.props.dispatch}
@@ -166,11 +159,10 @@ class AppWithNavigationState extends React.PureComponent<Props, State> {
   }
 
   detectUnsupervisedBackgroundRef = (
-    detectUnsupervisedBackground: ?((alreadyClosed: bool) => bool),
+    detectUnsupervisedBackground: ?(alreadyClosed: boolean) => boolean,
   ) => {
     this.setState({ detectUnsupervisedBackground });
-  }
-
+  };
 }
 
 const styles = StyleSheet.create({
@@ -188,10 +180,11 @@ const ConnectedAppWithNavigationState = connect(
   true,
 )(AppWithNavigationState);
 
-const App = (props: {}) =>
+const App = (props: {}) => (
   <Provider store={store}>
     <ErrorBoundary>
       <ConnectedAppWithNavigationState />
     </ErrorBoundary>
-  </Provider>;
+  </Provider>
+);
 AppRegistry.registerComponent('SquadCal', () => App);

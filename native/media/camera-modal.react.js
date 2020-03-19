@@ -93,20 +93,20 @@ const {
 } = Animated;
 const maxZoom = 16;
 const zoomUpdateFactor = (() => {
-  if (Platform.OS === "ios") {
+  if (Platform.OS === 'ios') {
     return 0.002;
   }
-  if (Platform.OS === "android" && Platform.Version > 26) {
+  if (Platform.OS === 'android' && Platform.Version > 26) {
     return 0.005;
   }
-  if (Platform.OS === "android" && Platform.Version > 23) {
+  if (Platform.OS === 'android' && Platform.Version > 23) {
     return 0.01;
   }
   return 0.03;
 })();
 const permissionRationale = {
-  title: "Access Your Camera",
-  message: "Requesting access to your device camera",
+  title: 'Access Your Camera',
+  message: 'Requesting access to your device camera',
 };
 
 const stagingModeAnimationConfig = {
@@ -144,11 +144,7 @@ function runIndicatorAnimation(
   const animatedScale = cond(
     clockRunning(springClock),
     springScale,
-    cond(
-      clockRunning(delayClock),
-      delayScale,
-      timingScale,
-    ),
+    cond(clockRunning(delayClock), delayScale, timingScale),
   );
   const lastAnimatedScale = new Value(0.75);
   const numScaleLoops = new Value(0);
@@ -167,19 +163,16 @@ function runIndicatorAnimation(
   };
 
   return block([
-    cond(
-      not(animationRunning),
-      [
-        set(springState.finished, 0),
-        set(springState.velocity, 0),
-        set(springState.time, 0),
-        set(springScale, 0.75),
-        set(lastAnimatedScale, 0.75),
-        set(numScaleLoops, 0),
-        set(opacity, 1),
-        startClock(springClock),
-      ],
-    ),
+    cond(not(animationRunning), [
+      set(springState.finished, 0),
+      set(springState.velocity, 0),
+      set(springState.time, 0),
+      set(springScale, 0.75),
+      set(lastAnimatedScale, 0.75),
+      set(numScaleLoops, 0),
+      set(opacity, 1),
+      startClock(springClock),
+    ]),
     [
       cond(
         clockRunning(springClock),
@@ -195,16 +188,13 @@ function runIndicatorAnimation(
         ),
         [
           set(numScaleLoops, add(numScaleLoops, 1)),
-          cond(
-            greaterThan(numScaleLoops, 1),
-            [
-              set(springState.finished, 1),
-              stopClock(springClock),
-              set(delayScale, springScale),
-              set(delayStart, delayClock),
-              startClock(delayClock),
-            ],
-          ),
+          cond(greaterThan(numScaleLoops, 1), [
+            set(springState.finished, 1),
+            stopClock(springClock),
+            set(delayScale, springScale),
+            set(delayStart, delayClock),
+            startClock(delayClock),
+          ]),
         ],
       ),
       set(lastAnimatedScale, animatedScale),
@@ -228,13 +218,7 @@ function runIndicatorAnimation(
       stopClock(timingClock),
     ),
     set(scale, animatedScale),
-    cond(
-      clockRunning(timingClock),
-      set(
-        opacity,
-        clamp(animatedScale, 0, 1),
-      ),
-    ),
+    cond(clockRunning(timingClock), set(opacity, clamp(animatedScale, 0, 1))),
   ]);
 }
 
@@ -255,7 +239,7 @@ type Props = {
   contentVerticalOffset: number,
   deviceCameraInfo: DeviceCameraInfo,
   deviceOrientation: Orientations,
-  foreground: bool,
+  foreground: boolean,
   // withChatInputState
   chatInputState: ?ChatInputState,
   // Redux dispatch functions
@@ -263,15 +247,14 @@ type Props = {
 };
 type State = {|
   zoom: number,
-  useFrontCamera: bool,
-  hasCamerasOnBothSides: bool,
+  useFrontCamera: boolean,
+  hasCamerasOnBothSides: boolean,
   flashMode: number,
-  autoFocusPointOfInterest: ?{| x: number, y: number, autoExposure?: bool |},
-  stagingMode: bool,
+  autoFocusPointOfInterest: ?{| x: number, y: number, autoExposure?: boolean |},
+  stagingMode: boolean,
   pendingPhotoCapture: ?PhotoCapture,
 |};
 class CameraModal extends React.PureComponent<Props, State> {
-
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
@@ -354,37 +337,26 @@ class CameraModal extends React.PureComponent<Props, State> {
 
     const { position } = props;
     const { index } = props.scene;
-    this.navigationProgress = interpolate(
-      position,
-      {
-        inputRange: [ index - 1, index ],
-        outputRange: [ 0, 1 ],
-        extrapolate: Extrapolate.CLAMP,
-      },
-    );
+    this.navigationProgress = interpolate(position, {
+      inputRange: [index - 1, index],
+      outputRange: [0, 1],
+      extrapolate: Extrapolate.CLAMP,
+    });
 
-    const sendButtonScale = interpolate(
-      this.sendButtonProgress,
-      {
-        inputRange: [ 0, 1 ],
-        outputRange: [ 1.1, 1 ],
-      },
-    );
+    const sendButtonScale = interpolate(this.sendButtonProgress, {
+      inputRange: [0, 1],
+      outputRange: [1.1, 1],
+    });
     this.sendButtonStyle = {
       opacity: this.sendButtonProgress,
-      transform: [
-        { scale: sendButtonScale },
-      ],
+      transform: [{ scale: sendButtonScale }],
     };
 
-    const overlayOpacity = interpolate(
-      this.stagingModeProgress,
-      {
-        inputRange: [ 0, 0.01, 1 ],
-        outputRange: [ 0, 0.5, 0 ],
-        extrapolate: Extrapolate.CLAMP,
-      },
-    );
+    const overlayOpacity = interpolate(this.stagingModeProgress, {
+      inputRange: [0, 0.01, 1],
+      outputRange: [0, 0.5, 0],
+      extrapolate: Extrapolate.CLAMP,
+    });
     this.overlayStyle = {
       ...styles.overlay,
       opacity: overlayOpacity,
@@ -392,23 +364,27 @@ class CameraModal extends React.PureComponent<Props, State> {
 
     const pinchState = new Value(-1);
     const pinchScale = new Value(1);
-    this.pinchEvent = event([{
-      nativeEvent: {
-        state: pinchState,
-        scale: pinchScale,
+    this.pinchEvent = event([
+      {
+        nativeEvent: {
+          state: pinchState,
+          scale: pinchScale,
+        },
       },
-    }]);
+    ]);
 
     const tapState = new Value(-1);
     const tapX = new Value(0);
     const tapY = new Value(0);
-    this.tapEvent = event([{
-      nativeEvent: {
-        state: tapState,
-        x: tapX,
-        y: tapY,
+    this.tapEvent = event([
+      {
+        nativeEvent: {
+          state: tapState,
+          x: tapX,
+          y: tapY,
+        },
       },
-    }]);
+    ]);
 
     this.animationCode = block([
       this.zoomAnimationCode(pinchState, pinchScale),
@@ -422,22 +398,16 @@ class CameraModal extends React.PureComponent<Props, State> {
     const zoomBase = new Value(1);
     const zoomReported = new Value(1);
 
-    const currentZoom = interpolate(
-      multiply(zoomBase, pinchScale),
-      {
-        inputRange: [ 1, 8 ],
-        outputRange: [ 1, 8 ],
-        extrapolate: Extrapolate.CLAMP,
-      },
-    );
-    const cameraZoomFactor = interpolate(
-      zoomReported,
-      {
-        inputRange: [ 1, 8 ],
-        outputRange: [ 0, 1 ],
-        extrapolate: Extrapolate.CLAMP,
-      },
-    );
+    const currentZoom = interpolate(multiply(zoomBase, pinchScale), {
+      inputRange: [1, 8],
+      outputRange: [1, 8],
+      extrapolate: Extrapolate.CLAMP,
+    });
+    const cameraZoomFactor = interpolate(zoomReported, {
+      inputRange: [1, 8],
+      outputRange: [0, 1],
+      extrapolate: Extrapolate.CLAMP,
+    });
     const resolvedZoom = cond(
       eq(pinchState, GestureState.ACTIVE),
       currentZoom,
@@ -445,10 +415,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     );
 
     return [
-      cond(
-        pinchJustEnded,
-        set(zoomBase, currentZoom),
-      ),
+      cond(pinchJustEnded, set(zoomBase, currentZoom)),
       cond(
         or(
           pinchJustEnded,
@@ -459,10 +426,7 @@ class CameraModal extends React.PureComponent<Props, State> {
         ),
         [
           set(zoomReported, resolvedZoom),
-          call(
-            [ cameraZoomFactor ],
-            this.updateZoom,
-          ),
+          call([cameraZoomFactor], this.updateZoom),
         ],
       ),
     ];
@@ -486,30 +450,21 @@ class CameraModal extends React.PureComponent<Props, State> {
     );
 
     return [
-      cond(
-        fingerJustReleased,
-        [
-          call(
-            [ tapX, tapY ],
-            this.focusOnPoint,
-          ),
-          set(this.focusIndicatorX, tapX),
-          set(this.focusIndicatorY, tapY),
-          stopClock(indicatorSpringClock),
-          stopClock(indicatorDelayClock),
-          stopClock(indicatorTimingClock),
-        ],
-      ),
-      cond(
-        this.cancelIndicatorAnimation,
-        [
-          set(this.cancelIndicatorAnimation, 0),
-          stopClock(indicatorSpringClock),
-          stopClock(indicatorDelayClock),
-          stopClock(indicatorTimingClock),
-          set(this.focusIndicatorOpacity, 0),
-        ],
-      ),
+      cond(fingerJustReleased, [
+        call([tapX, tapY], this.focusOnPoint),
+        set(this.focusIndicatorX, tapX),
+        set(this.focusIndicatorY, tapY),
+        stopClock(indicatorSpringClock),
+        stopClock(indicatorDelayClock),
+        stopClock(indicatorTimingClock),
+      ]),
+      cond(this.cancelIndicatorAnimation, [
+        set(this.cancelIndicatorAnimation, 0),
+        stopClock(indicatorSpringClock),
+        stopClock(indicatorDelayClock),
+        stopClock(indicatorTimingClock),
+        set(this.focusIndicatorOpacity, 0),
+      ]),
       cond(
         or(fingerJustReleased, indicatorAnimationRunning),
         runIndicatorAnimation(
@@ -618,20 +573,23 @@ class CameraModal extends React.PureComponent<Props, State> {
     if (this.state.stagingMode && !prevState.stagingMode) {
       this.cancelIndicatorAnimation.setValue(1);
       this.focusIndicatorOpacity.setValue(0);
-      timing(
-        this.stagingModeProgress,
-        { ...stagingModeAnimationConfig, toValue: 1 },
-      ).start();
+      timing(this.stagingModeProgress, {
+        ...stagingModeAnimationConfig,
+        toValue: 1,
+      }).start();
     } else if (!this.state.stagingMode && prevState.stagingMode) {
       this.stagingModeProgress.setValue(0);
     }
 
     if (this.state.pendingPhotoCapture && !prevState.pendingPhotoCapture) {
-      timing(
-        this.sendButtonProgress,
-        { ...stagingModeAnimationConfig, toValue: 1 },
-      ).start();
-    } else if (!this.state.pendingPhotoCapture && prevState.pendingPhotoCapture) {
+      timing(this.sendButtonProgress, {
+        ...stagingModeAnimationConfig,
+        toValue: 1,
+      }).start();
+    } else if (
+      !this.state.pendingPhotoCapture &&
+      prevState.pendingPhotoCapture
+    ) {
       CameraModal.cleanUpPendingPhotoCapture(prevState.pendingPhotoCapture);
       this.sendButtonProgress.setValue(0);
     }
@@ -644,7 +602,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     }
     try {
       await filesystem.unlink(path);
-    } catch (e) { }
+    } catch (e) {}
   }
 
   get containerStyle() {
@@ -682,14 +640,14 @@ class CameraModal extends React.PureComponent<Props, State> {
         <TouchableOpacity
           onPress={this.close}
           onLayout={this.onCloseButtonLayout}
-          style={[ styles.closeButton, topButtonStyle ]}
+          style={[styles.closeButton, topButtonStyle]}
           ref={this.closeButtonRef}
         >
           <Text style={styles.closeIcon}>×</Text>
         </TouchableOpacity>
       </>
     );
-  }
+  };
 
   renderStagingView() {
     let image = null;
@@ -709,7 +667,7 @@ class CameraModal extends React.PureComponent<Props, State> {
         {image}
         <TouchableOpacity
           onPress={this.clearPendingImage}
-          style={[ styles.retakeButton, topButtonStyle ]}
+          style={[styles.retakeButton, topButtonStyle]}
         >
           <Icon name="ios-arrow-back" style={styles.retakeIcon} />
         </TouchableOpacity>
@@ -745,10 +703,7 @@ class CameraModal extends React.PureComponent<Props, State> {
           style={styles.switchCameraButton}
           ref={this.switchCameraButtonRef}
         >
-          <Icon
-            name="ios-reverse-camera"
-            style={styles.switchCameraIcon}
-          />
+          <Icon name="ios-reverse-camera" style={styles.switchCameraIcon} />
         </TouchableOpacity>
       );
     }
@@ -789,7 +744,7 @@ class CameraModal extends React.PureComponent<Props, State> {
               <TouchableOpacity
                 onPress={this.changeFlashMode}
                 onLayout={this.onFlashButtonLayout}
-                style={[ styles.flashButton, topButtonStyle ]}
+                style={[styles.flashButton, topButtonStyle]}
                 ref={this.flashButtonRef}
               >
                 {flashIcon}
@@ -813,9 +768,9 @@ class CameraModal extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const statusBar = CameraModal.isActive(this.props)
-      ? <ConnectedStatusBar hidden />
-      : null;
+    const statusBar = CameraModal.isActive(this.props) ? (
+      <ConnectedStatusBar hidden />
+    ) : null;
     const type = this.state.useFrontCamera
       ? RNCamera.Constants.Type.front
       : RNCamera.Constants.Type.back;
@@ -836,21 +791,18 @@ class CameraModal extends React.PureComponent<Props, State> {
         >
           {this.renderCamera}
         </RNCamera>
-        <Animated.View
-          style={this.overlayStyle}
-          pointerEvents="none"
-        />
+        <Animated.View style={this.overlayStyle} pointerEvents="none" />
       </Animated.View>
     );
   }
 
   cameraRef = (camera: ?RNCamera) => {
     this.camera = camera;
-  }
+  };
 
   closeButtonRef = (closeButton: ?TouchableOpacity) => {
     this.closeButton = closeButton;
-  }
+  };
 
   onCloseButtonLayout = () => {
     const { closeButton } = this;
@@ -863,11 +815,11 @@ class CameraModal extends React.PureComponent<Props, State> {
       this.closeButtonWidth.setValue(width);
       this.closeButtonHeight.setValue(height);
     });
-  }
+  };
 
   photoButtonRef = (photoButton: ?TouchableOpacity) => {
     this.photoButton = photoButton;
-  }
+  };
 
   onPhotoButtonLayout = () => {
     const { photoButton } = this;
@@ -880,11 +832,11 @@ class CameraModal extends React.PureComponent<Props, State> {
       this.photoButtonWidth.setValue(width);
       this.photoButtonHeight.setValue(height);
     });
-  }
+  };
 
   switchCameraButtonRef = (switchCameraButton: ?TouchableOpacity) => {
     this.switchCameraButton = switchCameraButton;
-  }
+  };
 
   onSwitchCameraButtonLayout = () => {
     const { switchCameraButton } = this;
@@ -897,11 +849,11 @@ class CameraModal extends React.PureComponent<Props, State> {
       this.switchCameraButtonWidth.setValue(width);
       this.switchCameraButtonHeight.setValue(height);
     });
-  }
+  };
 
   flashButtonRef = (flashButton: ?TouchableOpacity) => {
     this.flashButton = flashButton;
-  }
+  };
 
   onFlashButtonLayout = () => {
     const { flashButton } = this;
@@ -914,15 +866,15 @@ class CameraModal extends React.PureComponent<Props, State> {
       this.flashButtonWidth.setValue(width);
       this.flashButtonHeight.setValue(height);
     });
-  }
+  };
 
   close = () => {
     this.props.navigation.goBack();
-  }
+  };
 
   takePhoto = async () => {
     const { camera } = this;
-    invariant(camera, "camera ref should be set");
+    invariant(camera, 'camera ref should be set');
     this.setState({ stagingMode: true });
 
     // We avoid flipping this.state.useFrontCamera if we discover we don't
@@ -933,17 +885,18 @@ class CameraModal extends React.PureComponent<Props, State> {
       hasCamerasOnBothSides,
       defaultUseFrontCamera,
     } = this.props.deviceCameraInfo;
-    const usingFrontCamera = this.state.useFrontCamera ||
+    const usingFrontCamera =
+      this.state.useFrontCamera ||
       (!hasCamerasOnBothSides && defaultUseFrontCamera);
 
     const startTime = Date.now();
     const photoPromise = camera.takePictureAsync({
-      pauseAfterCapture: Platform.OS === "android",
+      pauseAfterCapture: Platform.OS === 'android',
       mirrorImage: usingFrontCamera,
       fixOrientation: true,
     });
 
-    if (Platform.OS === "ios") {
+    if (Platform.OS === 'ios') {
       camera.pausePreview();
     }
     const { uri, width, height } = await photoPromise;
@@ -954,7 +907,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     );
 
     const pendingPhotoCapture = {
-      step: "photo_capture",
+      step: 'photo_capture',
       uri,
       dimensions: { width, height },
       filename,
@@ -966,7 +919,7 @@ class CameraModal extends React.PureComponent<Props, State> {
       zoom: 0,
       autoFocusPointOfInterest: undefined,
     });
-  }
+  };
 
   sendPhoto = async () => {
     const { pendingPhotoCapture } = this.state;
@@ -974,33 +927,33 @@ class CameraModal extends React.PureComponent<Props, State> {
       return;
     }
     const { chatInputState } = this.props;
-    invariant(chatInputState, "chatInputState should be set");
+    invariant(chatInputState, 'chatInputState should be set');
     this.close();
     chatInputState.sendMultimediaMessage(
       this.props.navigation.state.params.threadID,
-      [ pendingPhotoCapture ],
+      [pendingPhotoCapture],
     );
-    saveImage({ uri: pendingPhotoCapture.uri, type: "photo" });
-  }
+    saveImage({ uri: pendingPhotoCapture.uri, type: 'photo' });
+  };
 
   clearPendingImage = () => {
-    invariant(this.camera, "camera ref should be set");
+    invariant(this.camera, 'camera ref should be set');
     this.camera.resumePreview();
     this.setState({
       stagingMode: false,
       pendingPhotoCapture: undefined,
     });
-  }
+  };
 
   switchCamera = () => {
     this.setState((prevState: State) => ({
       useFrontCamera: !prevState.useFrontCamera,
     }));
-  }
+  };
 
-  updateZoom = ([ zoom ]: [ number ]) => {
+  updateZoom = ([zoom]: [number]) => {
     this.setState({ zoom });
-  }
+  };
 
   changeFlashMode = () => {
     if (this.state.flashMode === RNCamera.Constants.FlashMode.on) {
@@ -1010,9 +963,9 @@ class CameraModal extends React.PureComponent<Props, State> {
     } else {
       this.setState({ flashMode: RNCamera.Constants.FlashMode.on });
     }
-  }
+  };
 
-  focusOnPoint = ([ inputX, inputY ]: [ number, number ]) => {
+  focusOnPoint = ([inputX, inputY]: [number, number]) => {
     const screenWidth = this.props.screenDimensions.width;
     const screenHeight =
       this.props.screenDimensions.height + contentBottomOffset;
@@ -1036,11 +989,10 @@ class CameraModal extends React.PureComponent<Props, State> {
       y = 1 - relativeX;
     }
 
-    const autoFocusPointOfInterest = Platform.OS === "ios"
-      ? { x, y, autoExposure: true }
-      : { x, y };
+    const autoFocusPointOfInterest =
+      Platform.OS === 'ios' ? { x, y, autoExposure: true } : { x, y };
     this.setState({ autoFocusPointOfInterest });
-  }
+  };
 
   fetchCameraIDs = async (camera: RNCamera) => {
     if (this.cameraIDsFetched) {
@@ -1050,7 +1002,9 @@ class CameraModal extends React.PureComponent<Props, State> {
 
     const deviceCameras = await camera.getCameraIdsAsync();
 
-    let hasFront = false, hasBack = false, i = 0;
+    let hasFront = false,
+      hasBack = false,
+      i = 0;
     while ((!hasFront || !hasBack) && i < deviceCameras.length) {
       const deviceCamera = deviceCameras[i];
       if (deviceCamera.type === RNCamera.Constants.Type.front) {
@@ -1074,13 +1028,12 @@ class CameraModal extends React.PureComponent<Props, State> {
       hasCamerasOnBothSides !== oldHasCamerasOnBothSides ||
       defaultUseFrontCamera !== oldDefaultUseFrontCamera
     ) {
-      this.props.dispatchActionPayload(
-        updateDeviceCameraInfoActionType,
-        { hasCamerasOnBothSides, defaultUseFrontCamera },
-      );
+      this.props.dispatchActionPayload(updateDeviceCameraInfoActionType, {
+        hasCamerasOnBothSides,
+        defaultUseFrontCamera,
+      });
     }
-  }
-
+  };
 }
 
 const styles = StyleSheet.create({
@@ -1162,7 +1115,7 @@ const styles = StyleSheet.create({
     right: 5,
     fontSize: 10,
     fontWeight: 'bold',
-    color: "white",
+    color: 'white',
     textShadowColor: 'black',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,
@@ -1217,7 +1170,7 @@ const styles = StyleSheet.create({
   stagingImage: {
     flex: 1,
     backgroundColor: 'black',
-    resizeMode: "contain",
+    resizeMode: 'contain',
   },
 });
 

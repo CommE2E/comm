@@ -23,12 +23,7 @@ import type {
 import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
-import {
-  View,
-  Text,
-  ActivityIndicator,
-  Alert,
-} from 'react-native';
+import { View, Text, ActivityIndicator, Alert } from 'react-native';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import { createSelector } from 'reselect';
@@ -44,10 +39,7 @@ import {
   changeThreadSettingsActionTypes,
   changeThreadSettings,
 } from 'lib/actions/thread-actions';
-import {
-  searchUsersActionTypes,
-  searchUsers,
-} from 'lib/actions/user-actions';
+import { searchUsersActionTypes, searchUsers } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { threadActualMembers } from 'lib/shared/thread-utils';
@@ -61,9 +53,9 @@ import { AddUsersModalRouteName } from '../../navigation/route-names';
 import { styleSelector } from '../../themes/colors';
 
 const tagInputProps = {
-  placeholder: "Select users to add",
+  placeholder: 'Select users to add',
   autoFocus: true,
-  returnKeyType: "go",
+  returnKeyType: 'go',
 };
 
 const Modal = createModal(AddUsersModalRouteName);
@@ -78,7 +70,7 @@ type Props = {|
   navigation: NavProp,
   // Redux state
   parentThreadInfo: ?ThreadInfo,
-  otherUserInfos: {[id: string]: AccountUserInfo},
+  otherUserInfos: { [id: string]: AccountUserInfo },
   userSearchIndex: SearchIndex,
   changeThreadSettingsLoadingStatus: LoadingStatus,
   styles: Styles,
@@ -96,7 +88,6 @@ type State = {|
 |};
 type PropsAndState = {| ...Props, ...State |};
 class AddUsersModal extends React.PureComponent<Props, State> {
-
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
@@ -116,13 +107,13 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     searchUsers: PropTypes.func.isRequired,
   };
   state = {
-    usernameInputText: "",
+    usernameInputText: '',
     userInfoInputArray: [],
   };
   tagInput: ?TagInput<AccountUserInfo> = null;
 
   componentDidMount() {
-    this.searchUsers("");
+    this.searchUsers('');
   }
 
   searchUsers(usernamePrefix: string) {
@@ -142,7 +133,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.parentThreadInfo,
     (
       text: string,
-      userInfos: {[id: string]: AccountUserInfo},
+      userInfos: { [id: string]: AccountUserInfo },
       searchIndex: SearchIndex,
       userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
       threadInfo: ThreadInfo,
@@ -170,7 +161,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     const inputLength = this.state.userInfoInputArray.length;
     if (inputLength > 0) {
       let activityIndicator = null;
-      if (this.props.changeThreadSettingsLoadingStatus === "loading") {
+      if (this.props.changeThreadSettingsLoadingStatus === 'loading') {
         activityIndicator = (
           <View style={this.props.styles.activityIndicator}>
             <ActivityIndicator color="white" />
@@ -182,7 +173,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
         <Button
           onPress={this.onPressAdd}
           style={this.props.styles.addButton}
-          disabled={this.props.changeThreadSettingsLoadingStatus === "loading"}
+          disabled={this.props.changeThreadSettingsLoadingStatus === 'loading'}
         >
           {activityIndicator}
           <Text style={this.props.styles.addText}>{addButtonText}</Text>
@@ -191,19 +182,14 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     }
 
     let cancelButton;
-    if (this.props.changeThreadSettingsLoadingStatus !== "loading") {
+    if (this.props.changeThreadSettingsLoadingStatus !== 'loading') {
       cancelButton = (
-        <Button
-          onPress={this.close}
-          style={this.props.styles.cancelButton}
-        >
+        <Button onPress={this.close} style={this.props.styles.cancelButton}>
           <Text style={this.props.styles.cancelText}>Cancel</Text>
         </Button>
       );
     } else {
-      cancelButton = (
-        <View />
-      );
+      cancelButton = <View />;
     }
 
     const inputProps = {
@@ -237,31 +223,31 @@ class AddUsersModal extends React.PureComponent<Props, State> {
 
   close = () => {
     this.props.navigation.goBack();
-  }
+  };
 
   tagInputRef = (tagInput: ?TagInput<AccountUserInfo>) => {
     this.tagInput = tagInput;
-  }
+  };
 
   onChangeTagInput = (userInfoInputArray: $ReadOnlyArray<AccountUserInfo>) => {
-    if (this.props.changeThreadSettingsLoadingStatus === "loading") {
+    if (this.props.changeThreadSettingsLoadingStatus === 'loading') {
       return;
     }
     this.setState({ userInfoInputArray });
-  }
+  };
 
   tagDataLabelExtractor = (userInfo: AccountUserInfo) => userInfo.username;
 
   setUsernameInputText = (text: string) => {
-    if (this.props.changeThreadSettingsLoadingStatus === "loading") {
+    if (this.props.changeThreadSettingsLoadingStatus === 'loading') {
       return;
     }
     this.searchUsers(text);
     this.setState({ usernameInputText: text });
-  }
+  };
 
   onUserSelect = (userID: string) => {
-    if (this.props.changeThreadSettingsLoadingStatus === "loading") {
+    if (this.props.changeThreadSettingsLoadingStatus === 'loading') {
       return;
     }
     for (let existingUserInfo of this.state.userInfoInputArray) {
@@ -275,9 +261,9 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     ];
     this.setState({
       userInfoInputArray,
-      usernameInputText: "",
+      usernameInputText: '',
     });
-  }
+  };
 
   onPressAdd = () => {
     if (this.state.userInfoInputArray.length === 0) {
@@ -287,12 +273,13 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       changeThreadSettingsActionTypes,
       this.addUsersToThread(),
     );
-  }
+  };
 
   async addUsersToThread() {
     try {
-      const newMemberIDs =
-        this.state.userInfoInputArray.map((userInfo) => userInfo.id);
+      const newMemberIDs = this.state.userInfoInputArray.map(
+        userInfo => userInfo.id,
+      );
       const result = await this.props.changeThreadSettings({
         threadID: this.props.navigation.state.params.threadInfo.id,
         changes: { newMemberIDs },
@@ -301,11 +288,9 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       return result;
     } catch (e) {
       Alert.alert(
-        "Unknown error",
-        "Uhh... try again?",
-        [
-          { text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged },
-        ],
+        'Unknown error',
+        'Uhh... try again?',
+        [{ text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged }],
         { cancelable: false },
       );
       throw e;
@@ -313,20 +298,19 @@ class AddUsersModal extends React.PureComponent<Props, State> {
   }
 
   onErrorAcknowledged = () => {
-    invariant(this.tagInput, "nameInput should be set");
+    invariant(this.tagInput, 'nameInput should be set');
     this.tagInput.focus();
-  }
+  };
 
   onUnknownErrorAlertAcknowledged = () => {
     this.setState(
       {
         userInfoInputArray: [],
-        usernameInputText: "",
+        usernameInputText: '',
       },
       this.onErrorAcknowledged,
     );
-  }
-
+  };
 }
 
 const styles = {
@@ -362,8 +346,9 @@ const styles = {
 };
 const stylesSelector = styleSelector(styles);
 
-const changeThreadSettingsLoadingStatusSelector
-  = createLoadingStatusSelector(changeThreadSettingsActionTypes);
+const changeThreadSettingsLoadingStatusSelector = createLoadingStatusSelector(
+  changeThreadSettingsActionTypes,
+);
 registerFetchKey(searchUsersActionTypes);
 
 export default connect(
@@ -375,11 +360,13 @@ export default connect(
     }
     return {
       parentThreadInfo,
-      otherUserInfos:
-        userInfoSelectorForOtherMembersOfThread((null: ?string))(state),
+      otherUserInfos: userInfoSelectorForOtherMembersOfThread((null: ?string))(
+        state,
+      ),
       userSearchIndex: userSearchIndexForOtherMembersOfThread(null)(state),
-      changeThreadSettingsLoadingStatus:
-        changeThreadSettingsLoadingStatusSelector(state),
+      changeThreadSettingsLoadingStatus: changeThreadSettingsLoadingStatusSelector(
+        state,
+      ),
       styles: stylesSelector(state),
     };
   },

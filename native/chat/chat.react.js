@@ -9,7 +9,6 @@ import KeyboardAvoidingView from '../keyboard/keyboard-avoiding-view.react';
 import MessageStorePruner from './message-store-pruner.react';
 
 class Chat extends React.PureComponent<{ ... }> {
-
   render() {
     return (
       <KeyboardAvoidingView style={styles.keyboardAvoidingView}>
@@ -18,7 +17,6 @@ class Chat extends React.PureComponent<{ ... }> {
       </KeyboardAvoidingView>
     );
   }
-
 }
 
 const styles = StyleSheet.create({

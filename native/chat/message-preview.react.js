@@ -30,7 +30,6 @@ type Props = {|
   styles: Styles,
 |};
 class MessagePreview extends React.PureComponent<Props> {
-
   static propTypes = {
     messageInfo: messageInfoPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
@@ -51,17 +50,16 @@ class MessagePreview extends React.PureComponent<Props> {
         const userString = stringForUser(messageInfo.creator);
         const username = `${userString}: `;
         usernameText = (
-          <Text style={[
-            this.props.styles.username,
-            unreadStyle,
-          ]}>{username}</Text>
+          <Text style={[this.props.styles.username, unreadStyle]}>
+            {username}
+          </Text>
         );
       }
       return (
-        <Text style={[
-          this.props.styles.lastMessage,
-          unreadStyle,
-        ]} numberOfLines={1}>
+        <Text
+          style={[this.props.styles.lastMessage, unreadStyle]}
+          numberOfLines={1}
+        >
           {usernameText}
           {messageInfo.text}
         </Text>
@@ -82,7 +80,6 @@ class MessagePreview extends React.PureComponent<Props> {
       );
     }
   }
-
 }
 
 const styles = {

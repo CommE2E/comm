@@ -16,7 +16,7 @@ import { endScript } from './utils';
 
 async function main() {
   try {
-    await mergeUsers("7147", "15972", { username: true, password: true });
+    await mergeUsers('7147', '15972', { username: true, password: true });
     endScript();
   } catch (e) {
     endScript();
@@ -25,9 +25,9 @@ async function main() {
 }
 
 type ReplaceUserInfo = $Shape<{|
-  username: bool,
-  email: bool,
-  password: bool,
+  username: boolean,
+  email: boolean,
+  password: boolean,
 |}>;
 async function mergeUsers(
   fromUserID: string,
@@ -42,10 +42,7 @@ async function mergeUsers(
       toUserID,
       replaceUserInfo,
     );
-    ({
-      sql: updateUserRowQuery,
-      updateDatas,
-    } = replaceUserResult);
+    ({ sql: updateUserRowQuery, updateDatas } = replaceUserResult);
   }
 
   const usersGettingUpdate = new Set();
@@ -93,7 +90,7 @@ async function mergeUsers(
     );
     if (!toUserExistingMember || !toUserExistingMember.role) {
       setGettingUpdate(threadInfo);
-      newThreadRolePairs.push([ threadID, role ]);
+      newThreadRolePairs.push([threadID, role]);
     } else {
       setNeedingUpdate(threadInfo);
     }
@@ -117,15 +114,17 @@ async function mergeUsers(
   }
   await createUpdates(updateDatas);
 
-  const changesets = await Promise.all(newThreadRolePairs.map(
-    ([ threadID, role ]) => changeRole(threadID, [ toUserID ], role),
-  ));
+  const changesets = await Promise.all(
+    newThreadRolePairs.map(([threadID, role]) =>
+      changeRole(threadID, [toUserID], role),
+    ),
+  );
   let changeset = [];
   for (let currentChangeset of changesets) {
     if (!currentChangeset) {
-      throw new Error("changeRole returned null");
+      throw new Error('changeRole returned null');
     }
-    changeset = [ ...changeset, ...currentChangeset ];
+    changeset = [...changeset, ...currentChangeset];
   }
   if (changeset.length > 0) {
     const toViewer = createScriptViewer(toUserID);
@@ -148,14 +147,14 @@ async function replaceUser(
       updateDatas: [],
     };
   }
-  
+
   const fromUserQuery = SQL`
     SELECT username, hash, email, email_verified
     FROM users
     WHERE id = ${fromUserID}
   `;
-  const [ fromUserResult ] = await dbQuery(fromUserQuery);
-  const [ firstResult ] = fromUserResult;
+  const [fromUserResult] = await dbQuery(fromUserQuery);
+  const [firstResult] = fromUserResult;
   if (!firstResult) {
     throw new Error(`couldn't fetch fromUserID ${fromUserID}`);
   }

@@ -74,7 +74,6 @@ type Props = {
   resendVerificationEmail: () => Promise<void>,
 };
 class MoreScreen extends React.PureComponent<Props> {
-
   static propTypes = {
     navigation: PropTypes.shape({
       navigate: PropTypes.func.isRequired,
@@ -89,7 +88,7 @@ class MoreScreen extends React.PureComponent<Props> {
     resendVerificationEmail: PropTypes.func.isRequired,
   };
   static navigationOptions = {
-    headerTitle: "More",
+    headerTitle: 'More',
   };
 
   get username() {
@@ -115,17 +114,19 @@ class MoreScreen extends React.PureComponent<Props> {
     let emailVerifiedNode = null;
     if (emailVerified === true) {
       emailVerifiedNode = (
-        <Text style={[
-          this.props.styles.verification,
-          this.props.styles.verificationText,
-          this.props.styles.emailVerified,
-        ]}>
+        <Text
+          style={[
+            this.props.styles.verification,
+            this.props.styles.verificationText,
+            this.props.styles.emailVerified,
+          ]}
+        >
           Verified
         </Text>
       );
     } else if (emailVerified === false) {
       let resendVerificationEmailSpinner;
-      if (this.props.resendVerificationLoadingStatus === "loading") {
+      if (this.props.resendVerificationLoadingStatus === 'loading') {
         resendVerificationEmailSpinner = (
           <ActivityIndicator
             size="small"
@@ -135,22 +136,26 @@ class MoreScreen extends React.PureComponent<Props> {
       }
       emailVerifiedNode = (
         <View style={this.props.styles.verification}>
-          <Text style={[
-            this.props.styles.verificationText,
-            this.props.styles.emailNotVerified,
-          ]}>
+          <Text
+            style={[
+              this.props.styles.verificationText,
+              this.props.styles.emailNotVerified,
+            ]}
+          >
             Not verified
           </Text>
-          <Text style={this.props.styles.verificationText}>{" - "}</Text>
+          <Text style={this.props.styles.verificationText}>{' - '}</Text>
           <Button
             onPress={this.onPressResendVerificationEmail}
             style={this.props.styles.resendVerificationEmailButton}
           >
             {resendVerificationEmailSpinner}
-            <Text style={[
-              this.props.styles.verificationText,
-              this.props.styles.resendVerificationEmailText,
-            ]}>
+            <Text
+              style={[
+                this.props.styles.verificationText,
+                this.props.styles.resendVerificationEmailText,
+              ]}
+            >
               resend verification email
             </Text>
           </Button>
@@ -171,10 +176,8 @@ class MoreScreen extends React.PureComponent<Props> {
           <View style={this.props.styles.section}>
             <View style={this.props.styles.row}>
               <Text style={this.props.styles.label} numberOfLines={1}>
-                {"Logged in as "}
-                <Text style={this.props.styles.username}>
-                  {this.username}
-                </Text>
+                {'Logged in as '}
+                <Text style={this.props.styles.username}>{this.username}</Text>
               </Text>
               <Button onPress={this.onPressLogOut}>
                 <Text style={this.props.styles.logOutText}>Log out</Text>
@@ -199,10 +202,10 @@ class MoreScreen extends React.PureComponent<Props> {
             </View>
             <View style={this.props.styles.row}>
               <Text style={this.props.styles.label}>Password</Text>
-              <Text style={[
-                this.props.styles.content,
-                this.props.styles.value,
-              ]} numberOfLines={1}>
+              <Text
+                style={[this.props.styles.content, this.props.styles.value]}
+                numberOfLines={1}
+              >
                 ••••••••••••••••
               </Text>
               <EditSettingButton
@@ -221,11 +224,7 @@ class MoreScreen extends React.PureComponent<Props> {
               iosHighlightUnderlayColor={underlay}
             >
               <Text style={this.props.styles.submenuText}>Appearance</Text>
-              <Icon
-                name="ios-arrow-forward"
-                size={20}
-                color={linkColor}
-              />
+              <Icon name="ios-arrow-forward" size={20} color={linkColor} />
             </Button>
           </View>
           <View style={this.props.styles.slightlyPaddedSection}>
@@ -236,11 +235,7 @@ class MoreScreen extends React.PureComponent<Props> {
               iosHighlightUnderlayColor={underlay}
             >
               <Text style={this.props.styles.submenuText}>Build info</Text>
-              <Icon
-                name="ios-arrow-forward"
-                size={20}
-                color={linkColor}
-              />
+              <Icon name="ios-arrow-forward" size={20} color={linkColor} />
             </Button>
             <Button
               onPress={this.onPressDevTools}
@@ -249,11 +244,7 @@ class MoreScreen extends React.PureComponent<Props> {
               iosHighlightUnderlayColor={underlay}
             >
               <Text style={this.props.styles.submenuText}>Developer tools</Text>
-              <Icon
-                name="ios-arrow-forward"
-                size={20}
-                color={linkColor}
-              />
+              <Icon name="ios-arrow-forward" size={20} color={linkColor} />
             </Button>
           </View>
           <View style={this.props.styles.unpaddedSection}>
@@ -274,43 +265,35 @@ class MoreScreen extends React.PureComponent<Props> {
   }
 
   onPressLogOut = () => {
-    const alertTitle = Platform.OS === "ios"
-      ? "Keep Login Info in Keychain"
-      : "Keep Login Info";
+    const alertTitle =
+      Platform.OS === 'ios' ? 'Keep Login Info in Keychain' : 'Keep Login Info';
     const sharedWebCredentials = getNativeSharedWebCredentials();
     const alertDescription = sharedWebCredentials
-      ? "We will automatically fill out log-in forms with your credentials " +
-        "in the app and keep them available on squadcal.org in Safari."
-      : "We will automatically fill out log-in forms with your credentials " +
-        "in the app.";
-    Alert.alert(
-      alertTitle,
-      alertDescription,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Keep', onPress: this.logOutButKeepNativeCredentialsWrapper },
-        {
-          text: 'Remove',
-          onPress: this.logOutAndDeleteNativeCredentialsWrapper,
-          style: 'destructive',
-        },
-      ],
-    );
-  }
+      ? 'We will automatically fill out log-in forms with your credentials ' +
+        'in the app and keep them available on squadcal.org in Safari.'
+      : 'We will automatically fill out log-in forms with your credentials ' +
+        'in the app.';
+    Alert.alert(alertTitle, alertDescription, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Keep', onPress: this.logOutButKeepNativeCredentialsWrapper },
+      {
+        text: 'Remove',
+        onPress: this.logOutAndDeleteNativeCredentialsWrapper,
+        style: 'destructive',
+      },
+    ]);
+  };
 
   logOutButKeepNativeCredentialsWrapper = () => {
-    this.props.dispatchActionPromise(
-      logOutActionTypes,
-      this.logOut(),
-    );
-  }
+    this.props.dispatchActionPromise(logOutActionTypes, this.logOut());
+  };
 
   logOutAndDeleteNativeCredentialsWrapper = () => {
     this.props.dispatchActionPromise(
       logOutActionTypes,
       this.logOutAndDeleteNativeCredentials(),
     );
-  }
+  };
 
   logOut() {
     return this.props.logOut(this.props.preRequestUserState);
@@ -328,14 +311,14 @@ class MoreScreen extends React.PureComponent<Props> {
       resendVerificationEmailActionTypes,
       this.resendVerificationEmailAction(),
     );
-  }
+  };
 
   async resendVerificationEmailAction() {
     await this.props.resendVerificationEmail();
     Alert.alert(
-      "Verify email",
+      'Verify email',
       "We've sent you an email to verify your email address. Just click on " +
-        "the link in the email to complete the verification process.",
+        'the link in the email to complete the verification process.',
     );
   }
 
@@ -345,28 +328,27 @@ class MoreScreen extends React.PureComponent<Props> {
 
   onPressEditEmail = () => {
     this.navigateIfActive(EditEmailRouteName);
-  }
+  };
 
   onPressEditPassword = () => {
     this.navigateIfActive(EditPasswordRouteName);
-  }
+  };
 
   onPressDeleteAccount = () => {
     this.navigateIfActive(DeleteAccountRouteName);
-  }
+  };
 
   onPressBuildInfo = () => {
     this.navigateIfActive(BuildInfoRouteName);
-  }
+  };
 
   onPressDevTools = () => {
     this.navigateIfActive(DevToolsRouteName);
-  }
+  };
 
   onPressAppearance = () => {
     this.navigateIfActive(AppearancePreferencesRouteName);
-  }
-
+  };
 }
 
 const styles = {
@@ -433,7 +415,7 @@ const styles = {
     paddingHorizontal: 24,
     paddingBottom: 3,
     fontSize: 12,
-    fontWeight: "400",
+    fontWeight: '400',
     color: 'panelBackgroundLabel',
   },
   verification: {
@@ -462,13 +444,13 @@ const styles = {
   },
   resendVerificationEmailSpinner: {
     paddingHorizontal: 4,
-    marginTop: Platform.OS === "ios" ? -4 : 0,
+    marginTop: Platform.OS === 'ios' ? -4 : 0,
   },
   editEmailButton: {
-    paddingTop: Platform.OS === "android" ? 9 : 7,
+    paddingTop: Platform.OS === 'android' ? 9 : 7,
   },
   editPasswordButton: {
-    paddingTop: Platform.OS === "android" ? 3 : 2,
+    paddingTop: Platform.OS === 'android' ? 3 : 2,
   },
   deleteAccountButton: {
     paddingHorizontal: 24,
@@ -501,8 +483,9 @@ export default connect(
   (state: AppState) => ({
     currentUserInfo: state.currentUserInfo,
     preRequestUserState: preRequestUserStateSelector(state),
-    resendVerificationLoadingStatus:
-      resendVerificationLoadingStatusSelector(state),
+    resendVerificationLoadingStatus: resendVerificationLoadingStatusSelector(
+      state,
+    ),
     colors: colorsSelector(state),
     styles: stylesSelector(state),
   }),

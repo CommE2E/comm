@@ -36,6 +36,4 @@ async function createSession(
   });
 }
 
-export {
-  createSession,
-};
+export { createSession };

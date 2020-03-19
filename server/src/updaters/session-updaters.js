@@ -46,6 +46,4 @@ async function commitSessionUpdate(
   await dbQuery(query);
 }
 
-export {
-  commitSessionUpdate,
-};
+export { commitSessionUpdate };

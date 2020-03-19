@@ -8,7 +8,7 @@ import { ServerError } from 'lib/utils/errors';
 
 import { verifyClientSupported } from '../session/version';
 
-function tBool(value: bool) {
+function tBool(value: boolean) {
   return t.irreducible('literal bool', x => x === value);
 }
 
@@ -16,7 +16,7 @@ function tString(value: string) {
   return t.irreducible('literal string', x => x === value);
 }
 
-function tShape(spec: {[key: string]: *}) {
+function tShape(spec: { [key: string]: * }) {
   return t.interface(spec, { strict: true });
 }
 
@@ -25,17 +25,14 @@ function tRegex(regex: RegExp) {
 }
 
 function tNumEnum(assertFunc: (input: number) => *) {
-  return t.refinement(
-    t.Number,
-    (input: number) => {
-      try {
-        assertFunc(input);
-        return true;
-      } catch (e) {
-        return false;
-      }
-    },
-  );
+  return t.refinement(t.Number, (input: number) => {
+    try {
+      assertFunc(input);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  });
 }
 
 const tDate = tRegex(/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/);
@@ -66,7 +63,11 @@ function checkInputValidator(inputValidator: *, input: *) {
   throw error;
 }
 
-async function checkClientSupported(viewer: Viewer, inputValidator: *, input: *) {
+async function checkClientSupported(
+  viewer: Viewer,
+  inputValidator: *,
+  input: *,
+) {
   let platformDetails;
   if (inputValidator) {
     platformDetails = findFirstInputMatchingValidator(
@@ -91,25 +92,25 @@ async function checkClientSupported(viewer: Viewer, inputValidator: *, input: *)
   await verifyClientSupported(viewer, platformDetails);
 }
 
-const redactedString = "********";
-const redactedTypes = [ tPassword, tCookie ];
+const redactedString = '********';
+const redactedTypes = [tPassword, tCookie];
 function sanitizeInput(inputValidator: *, input: *) {
   if (!inputValidator) {
     return input;
   }
-  if (redactedTypes.includes(inputValidator) && typeof input === "string") {
+  if (redactedTypes.includes(inputValidator) && typeof input === 'string') {
     return redactedString;
   }
   if (
-    inputValidator.meta.kind === "maybe" &&
+    inputValidator.meta.kind === 'maybe' &&
     redactedTypes.includes(inputValidator.meta.type) &&
-    typeof input === "string"
+    typeof input === 'string'
   ) {
     return redactedString;
   }
   if (
-    inputValidator.meta.kind !== "interface" ||
-    typeof input !== "object" ||
+    inputValidator.meta.kind !== 'interface' ||
+    typeof input !== 'object' ||
     !input
   ) {
     return input;
@@ -137,7 +138,7 @@ function findFirstInputMatchingValidator(
   ) {
     return input;
   }
-  if (wholeInputValidator.meta.kind === "maybe") {
+  if (wholeInputValidator.meta.kind === 'maybe') {
     return findFirstInputMatchingValidator(
       wholeInputValidator.meta.type,
       inputValidatorToMatch,
@@ -145,8 +146,8 @@ function findFirstInputMatchingValidator(
     );
   }
   if (
-    wholeInputValidator.meta.kind === "interface" &&
-    typeof input === "object"
+    wholeInputValidator.meta.kind === 'interface' &&
+    typeof input === 'object'
   ) {
     for (let key in input) {
       const value = input[key];
@@ -161,7 +162,7 @@ function findFirstInputMatchingValidator(
       }
     }
   }
-  if (wholeInputValidator.meta.kind === "union") {
+  if (wholeInputValidator.meta.kind === 'union') {
     for (let validator of wholeInputValidator.meta.types) {
       if (validator.is(input)) {
         return findFirstInputMatchingValidator(
@@ -172,10 +173,7 @@ function findFirstInputMatchingValidator(
       }
     }
   }
-  if (
-    wholeInputValidator.meta.kind === "list" &&
-    Array.isArray(input)
-  ) {
+  if (wholeInputValidator.meta.kind === 'list' && Array.isArray(input)) {
     const validator = wholeInputValidator.meta.type;
     for (let value of input) {
       const innerResult = findFirstInputMatchingValidator(

@@ -54,10 +54,9 @@ type State = {|
   currentPassword: string,
   newPassword: string,
   confirmPassword: string,
-  onePasswordSupported: bool,
+  onePasswordSupported: boolean,
 |};
 class EditPassword extends React.PureComponent<Props, State> {
-
   static propTypes = {
     navigation: PropTypes.shape({
       navigate: PropTypes.func.isRequired,
@@ -70,7 +69,7 @@ class EditPassword extends React.PureComponent<Props, State> {
     changeUserSettings: PropTypes.func.isRequired,
   };
   static navigationOptions = {
-    headerTitle: "Change password",
+    headerTitle: 'Change password',
   };
   mounted = false;
   currentPasswordInput: ?TextInput;
@@ -80,9 +79,9 @@ class EditPassword extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
       onePasswordSupported: false,
     };
     this.determineOnePasswordSupport();
@@ -128,9 +127,12 @@ class EditPassword extends React.PureComponent<Props, State> {
         />
       );
     }
-    const buttonContent = this.props.loadingStatus === "loading"
-      ? <ActivityIndicator size="small" color="white" />
-      : <Text style={this.props.styles.saveText}>Save</Text>;
+    const buttonContent =
+      this.props.loadingStatus === 'loading' ? (
+        <ActivityIndicator size="small" color="white" />
+      ) : (
+        <Text style={this.props.styles.saveText}>Save</Text>
+      );
     const { panelForegroundTertiaryLabel } = this.props.colors;
     return (
       <ScrollView
@@ -201,63 +203,60 @@ class EditPassword extends React.PureComponent<Props, State> {
 
   onChangeCurrentPassword = (currentPassword: string) => {
     this.setState({ currentPassword });
-  }
+  };
 
   currentPasswordRef = (currentPasswordInput: ?TextInput) => {
     this.currentPasswordInput = currentPasswordInput;
-  }
+  };
 
   focusCurrentPassword = () => {
-    invariant(this.currentPasswordInput, "currentPasswordInput should be set");
+    invariant(this.currentPasswordInput, 'currentPasswordInput should be set');
     this.currentPasswordInput.focus();
-  }
+  };
 
   onChangeNewPassword = (newPassword: string) => {
     this.setState({ newPassword });
-  }
+  };
 
   newPasswordRef = (newPasswordInput: ?TextInput) => {
     this.newPasswordInput = newPasswordInput;
-  }
+  };
 
   focusNewPassword = () => {
-    invariant(this.newPasswordInput, "newPasswordInput should be set");
+    invariant(this.newPasswordInput, 'newPasswordInput should be set');
     this.newPasswordInput.focus();
-  }
+  };
 
   onChangeConfirmPassword = (confirmPassword: string) => {
     this.setState({ confirmPassword });
-  }
+  };
 
   confirmPasswordRef = (confirmPasswordInput: ?TextInput) => {
     this.confirmPasswordInput = confirmPasswordInput;
-  }
+  };
 
   focusConfirmPassword = () => {
-    invariant(this.confirmPasswordInput, "confirmPasswordInput should be set");
+    invariant(this.confirmPasswordInput, 'confirmPasswordInput should be set');
     this.confirmPasswordInput.focus();
-  }
+  };
 
   onPressOnePasswordCurrentPassword = async () => {
     try {
-      const credentials = await OnePassword.findLogin("https://squadcal.org");
-      this.setState(
-        { currentPassword: credentials.password },
-        () => {
-          if (
-            this.state.newPassword &&
-            this.state.newPassword === this.state.confirmPassword
-          ) {
-            this.submitPassword();
-          }
-        },
-      );
-    } catch (e) { }
-  }
+      const credentials = await OnePassword.findLogin('https://squadcal.org');
+      this.setState({ currentPassword: credentials.password }, () => {
+        if (
+          this.state.newPassword &&
+          this.state.newPassword === this.state.confirmPassword
+        ) {
+          this.submitPassword();
+        }
+      });
+    } catch (e) {}
+  };
 
   onPressOnePasswordNewPassword = async () => {
     try {
-      const credentials = await OnePassword.findLogin("https://squadcal.org");
+      const credentials = await OnePassword.findLogin('https://squadcal.org');
       this.setState(
         {
           newPassword: credentials.password,
@@ -269,26 +268,22 @@ class EditPassword extends React.PureComponent<Props, State> {
           }
         },
       );
-    } catch (e) { }
-  }
+    } catch (e) {}
+  };
 
   submitPassword = () => {
     if (this.state.newPassword === '') {
       Alert.alert(
-        "Empty password",
-        "New password cannot be empty",
-        [
-          { text: 'OK', onPress: this.onNewPasswordAlertAcknowledged },
-        ],
+        'Empty password',
+        'New password cannot be empty',
+        [{ text: 'OK', onPress: this.onNewPasswordAlertAcknowledged }],
         { cancelable: false },
       );
     } else if (this.state.newPassword !== this.state.confirmPassword) {
       Alert.alert(
         "Passwords don't match",
-        "New password fields must contain the same password",
-        [
-          { text: 'OK', onPress: this.onNewPasswordAlertAcknowledged },
-        ],
+        'New password fields must contain the same password',
+        [{ text: 'OK', onPress: this.onNewPasswordAlertAcknowledged }],
         { cancelable: false },
       );
     } else if (this.state.newPassword === this.state.currentPassword) {
@@ -299,7 +294,7 @@ class EditPassword extends React.PureComponent<Props, State> {
         this.savePassword(),
       );
     }
-  }
+  };
 
   async savePassword() {
     try {
@@ -317,20 +312,16 @@ class EditPassword extends React.PureComponent<Props, State> {
     } catch (e) {
       if (e.message === 'invalid_credentials') {
         Alert.alert(
-          "Incorrect password",
-          "The current password you entered is incorrect",
-          [
-            { text: 'OK', onPress: this.onCurrentPasswordAlertAcknowledged },
-          ],
+          'Incorrect password',
+          'The current password you entered is incorrect',
+          [{ text: 'OK', onPress: this.onCurrentPasswordAlertAcknowledged }],
           { cancelable: false },
         );
       } else {
         Alert.alert(
-          "Unknown error",
-          "Uhh... try again?",
-          [
-            { text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged },
-          ],
+          'Unknown error',
+          'Uhh... try again?',
+          [{ text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged }],
           { cancelable: false },
         );
       }
@@ -339,25 +330,21 @@ class EditPassword extends React.PureComponent<Props, State> {
 
   onNewPasswordAlertAcknowledged = () => {
     this.setState(
-      { newPassword: "", confirmPassword: "" },
+      { newPassword: '', confirmPassword: '' },
       this.focusNewPassword,
     );
-  }
+  };
 
   onCurrentPasswordAlertAcknowledged = () => {
-    this.setState(
-      { currentPassword: "" },
-      this.focusCurrentPassword,
-    );
-  }
+    this.setState({ currentPassword: '' }, this.focusCurrentPassword);
+  };
 
   onUnknownErrorAlertAcknowledged = () => {
     this.setState(
-      { currentPassword: "", newPassword: "", confirmPassword: "" },
+      { currentPassword: '', newPassword: '', confirmPassword: '' },
       this.focusCurrentPassword,
     );
-  }
-
+  };
 }
 
 const styles = {
@@ -371,7 +358,7 @@ const styles = {
     paddingHorizontal: 24,
     paddingBottom: 3,
     fontSize: 12,
-    fontWeight: "400",
+    fontWeight: '400',
     color: 'panelBackgroundLabel',
   },
   section: {

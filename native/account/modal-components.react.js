@@ -16,7 +16,6 @@ import { createSelector } from 'reselect';
 import { dimensionsSelector } from '../selectors/dimension-selectors';
 
 class TextInput extends React.PureComponent<*> {
-  
   innerTextInput: ?BaseTextInput;
 
   render() {
@@ -36,13 +35,12 @@ class TextInput extends React.PureComponent<*> {
 
   innerTextInputRef = (innerTextInput: ?BaseTextInput) => {
     this.innerTextInput = innerTextInput;
-  }
+  };
 
   focus() {
-    invariant(this.innerTextInput, "ref should exist");
+    invariant(this.innerTextInput, 'ref should exist');
     this.innerTextInput.focus();
   }
-
 }
 
 const styles = StyleSheet.create({
@@ -59,14 +57,12 @@ const styles = StyleSheet.create({
   },
 });
 
-const usernamePlaceholderSelector: (state: AppState) => string = createSelector(
+const usernamePlaceholderSelector: (
+  state: AppState,
+) => string = createSelector(
   dimensionsSelector,
-  (dimensions: Dimensions): string => dimensions.width < 360
-    ? "Username or email"
-    : "Username or email address",
+  (dimensions: Dimensions): string =>
+    dimensions.width < 360 ? 'Username or email' : 'Username or email address',
 );
 
-export {
-  TextInput,
-  usernamePlaceholderSelector,
-};
+export { TextInput, usernamePlaceholderSelector };

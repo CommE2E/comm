@@ -11,11 +11,11 @@ async function searchForUsers(
   const sqlQuery = SQL`SELECT id, username FROM users `;
   const prefix = query.prefix;
   if (prefix) {
-    sqlQuery.append(SQL`WHERE username LIKE ${prefix + "%"} `);
+    sqlQuery.append(SQL`WHERE username LIKE ${prefix + '%'} `);
   }
   sqlQuery.append(SQL`LIMIT 20`);
 
-  const [ result ] = await dbQuery(sqlQuery);
+  const [result] = await dbQuery(sqlQuery);
 
   const userInfos = [];
   for (let row of result) {
@@ -27,6 +27,4 @@ async function searchForUsers(
   return userInfos;
 }
 
-export {
-  searchForUsers,
-};
+export { searchForUsers };

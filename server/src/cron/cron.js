@@ -20,9 +20,7 @@ import {
   deleteOldWebSessions,
 } from '../deleters/session-deleters';
 import { backupDB } from './backups';
-import {
-  botherMonthlyActivesToUpdateAppVersion,
-} from '../bots/app-version-update';
+import { botherMonthlyActivesToUpdateAppVersion } from '../bots/app-version-update';
 import { updateAndReloadGeoipDB } from './update-geoip-db';
 
 if (cluster.isMaster) {
@@ -47,10 +45,7 @@ if (cluster.isMaster) {
         await deleteOldWebSessions();
         await deleteExpiredUpdates();
       } catch (e) {
-        console.warn(
-          "encountered error while trying to clean database",
-          e,
-        );
+        console.warn('encountered error while trying to clean database', e);
       }
     },
   );
@@ -60,10 +55,7 @@ if (cluster.isMaster) {
       try {
         await backupDB();
       } catch (e) {
-        console.warn(
-          "encountered error while trying to backup database",
-          e,
-        );
+        console.warn('encountered error while trying to backup database', e);
       }
     },
   );
@@ -74,7 +66,7 @@ if (cluster.isMaster) {
         await botherMonthlyActivesToUpdateAppVersion();
       } catch (e) {
         console.warn(
-          "encountered error while trying to bother monthly actives to update",
+          'encountered error while trying to bother monthly actives to update',
           e,
         );
       }
@@ -87,7 +79,7 @@ if (cluster.isMaster) {
         await updateAndReloadGeoipDB();
       } catch (e) {
         console.warn(
-          "encountered error while trying to update GeoIP database",
+          'encountered error while trying to update GeoIP database',
           e,
         );
       }

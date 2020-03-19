@@ -36,13 +36,13 @@ const webGetClientResponsesSelector: (
   serverRequests: $ReadOnlyArray<ServerRequest>,
 ) => $ReadOnlyArray<ClientClientResponse> = createSelector(
   getClientResponsesSelector,
-  (state: AppState) => state.navInfo.tab === "calendar",
+  (state: AppState) => state.navInfo.tab === 'calendar',
   (
     getClientResponsesFunc: (
-      calendarActive: bool,
+      calendarActive: boolean,
       serverRequests: $ReadOnlyArray<ServerRequest>,
     ) => $ReadOnlyArray<ClientClientResponse>,
-    calendarActive: bool,
+    calendarActive: boolean,
   ) => (serverRequests: $ReadOnlyArray<ServerRequest>) =>
     getClientResponsesFunc(calendarActive, serverRequests),
 );
@@ -51,10 +51,10 @@ const webSessionStateFuncSelector: (
   state: AppState,
 ) => () => SessionState = createSelector(
   sessionStateFuncSelector,
-  (state: AppState) => state.navInfo.tab === "calendar",
+  (state: AppState) => state.navInfo.tab === 'calendar',
   (
-    sessionStateFunc: (calendarActive: bool) => SessionState,
-    calendarActive: bool,
+    sessionStateFunc: (calendarActive: boolean) => SessionState,
+    calendarActive: boolean,
   ) => () => sessionStateFunc(calendarActive),
 );
 

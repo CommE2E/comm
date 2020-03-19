@@ -59,9 +59,9 @@ import { colorsSelector, styleSelector } from '../../themes/colors';
 type Props = {|
   memberInfo: RelativeMemberInfo,
   threadInfo: ThreadInfo,
-  canEdit: bool,
+  canEdit: boolean,
   navigate: Navigate,
-  lastListItem: bool,
+  lastListItem: boolean,
   verticalBounds: ?VerticalBounds,
   // Redux state
   removeUserLoadingStatus: LoadingStatus,
@@ -74,7 +74,6 @@ type Props = {|
   keyboardState: ?KeyboardState,
 |};
 class ThreadSettingsMember extends React.PureComponent<Props> {
-
   static propTypes = {
     memberInfo: relativeMemberInfoPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
@@ -110,22 +109,18 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
     if (
       canRemoveMembers &&
       !this.props.memberInfo.isViewer &&
-      (
-        canChangeRoles ||
-        (
-          this.props.threadInfo.roles[role] &&
-          this.props.threadInfo.roles[role].isDefault
-        )
-      )
+      (canChangeRoles ||
+        (this.props.threadInfo.roles[role] &&
+          this.props.threadInfo.roles[role].isDefault))
     ) {
-      result.push("remove_user");
+      result.push('remove_user');
     }
 
     if (canChangeRoles && this.props.memberInfo.username) {
       result.push(
         memberIsAdmin(this.props.memberInfo, this.props.threadInfo)
-          ? "remove_admin"
-          : "make_admin"
+          ? 'remove_admin'
+          : 'make_admin',
       );
     }
 
@@ -143,10 +138,10 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
       );
     } else {
       userInfo = (
-        <Text style={[
-          this.props.styles.username,
-          this.props.styles.anonymous,
-        ]} numberOfLines={1}>
+        <Text
+          style={[this.props.styles.username, this.props.styles.anonymous]}
+          numberOfLines={1}
+        >
           {userText}
         </Text>
       );
@@ -154,8 +149,8 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
 
     let editButton = null;
     if (
-      this.props.removeUserLoadingStatus === "loading" ||
-      this.props.changeRoleLoadingStatus === "loading"
+      this.props.removeUserLoadingStatus === 'loading' ||
+      this.props.changeRoleLoadingStatus === 'loading'
     ) {
       editButton = (
         <ActivityIndicator
@@ -205,7 +200,7 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
       : null;
     return (
       <View style={this.props.styles.container}>
-        <View style={[ this.props.styles.innerContainer, lastInnerContainer ]}>
+        <View style={[this.props.styles.innerContainer, lastInnerContainer]}>
           <View style={this.props.styles.row}>
             {userInfo}
             {editButton}
@@ -218,16 +213,19 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
 
   editButtonRef = (editButton: ?View) => {
     this.editButton = editButton;
-  }
+  };
 
-  onEditButtonLayout = () => {}
+  onEditButtonLayout = () => {};
 
   onPressEdit = () => {
     if (this.dismissKeyboardIfShowing()) {
       return;
     }
 
-    const { editButton, props: { verticalBounds } } = this;
+    const {
+      editButton,
+      props: { verticalBounds },
+    } = this;
     if (!editButton || !verticalBounds) {
       return;
     }
@@ -250,13 +248,12 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
         },
       });
     });
-  }
+  };
 
   dismissKeyboardIfShowing = () => {
     const { keyboardState } = this.props;
     return !!(keyboardState && keyboardState.dismissKeyboardIfShowing());
-  }
-
+  };
 }
 
 const styles = {
@@ -294,7 +291,7 @@ const styles = {
   },
   lastInnerContainer: {
     paddingTop: 8,
-    paddingBottom: Platform.OS === "ios" ? 12 : 10,
+    paddingBottom: Platform.OS === 'ios' ? 12 : 10,
   },
   editButton: {
     paddingLeft: 10,

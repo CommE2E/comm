@@ -27,11 +27,10 @@ type Props = $ReadOnly<{|
   containerStyle?: ViewStyle,
   modalStyle?: ViewStyle,
   // Redux state
-  isForeground: bool,
+  isForeground: boolean,
   styles: Styles,
 |}>;
 class Modal extends React.PureComponent<Props> {
-
   static propTypes = {
     children: PropTypes.node,
     navigation: PropTypes.shape({
@@ -74,50 +73,46 @@ class Modal extends React.PureComponent<Props> {
   hardwareBack = () => {
     this.close();
     return true;
-  }
+  };
 
   close = () => {
     this.props.navigation.goBack();
-  }
+  };
 
   render() {
     const { containerStyle, modalStyle, children } = this.props;
     return (
-      <KeyboardAvoidingView style={[
-        this.props.styles.container,
-        containerStyle,
-      ]}>
+      <KeyboardAvoidingView
+        style={[this.props.styles.container, containerStyle]}
+      >
         <TouchableWithoutFeedback onPress={this.close}>
           <View style={this.props.styles.backdrop} />
         </TouchableWithoutFeedback>
-        <View style={[ this.props.styles.modal, modalStyle ]}>
-          {children}
-        </View>
+        <View style={[this.props.styles.modal, modalStyle]}>{children}</View>
       </KeyboardAvoidingView>
     );
   }
-
 }
 
 const styles = {
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: 'center',
     overflow: 'visible',
   },
   backdrop: {
-    position: "absolute",
+    position: 'absolute',
     top: -1000,
     bottom: 0,
     left: 0,
     right: 0,
     opacity: 0.7,
-    backgroundColor: "black",
+    backgroundColor: 'black',
     overflow: 'visible',
   },
   modal: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: 'center',
     padding: 12,
     borderRadius: 5,
     backgroundColor: 'modalBackground',
@@ -136,6 +131,4 @@ function createModal(routeName: string) {
   }))(Modal);
 }
 
-export {
-  createModal,
-};
+export { createModal };

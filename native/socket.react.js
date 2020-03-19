@@ -21,7 +21,8 @@ import {
 
 export default connect(
   (state: AppState) => {
-    const active = appLoggedInSelector(state) &&
+    const active =
+      appLoggedInSelector(state) &&
       state.currentUserInfo &&
       !state.currentUserInfo.anonymous &&
       state.foreground;

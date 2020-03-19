@@ -23,12 +23,12 @@ async function fetchUpload(
     FROM uploads
     WHERE id = ${id} AND secret = ${secret}
   `;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
 
   if (result.length === 0) {
     throw new ServerError('invalid_parameters');
   }
-  const [ row ] = result;
+  const [row] = result;
   const { content, mime } = row;
   return { content, mime };
 }
@@ -46,7 +46,7 @@ async function fetchMedia(
     FROM uploads
     WHERE id IN (${mediaIDs}) AND uploader = ${viewer.id} AND container IS NULL
   `;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
   return result.map(row => {
     const id = row.id.toString();
     return {
@@ -58,8 +58,4 @@ async function fetchMedia(
   });
 }
 
-export {
-  fetchUpload,
-  getUploadURL,
-  fetchMedia,
-};
+export { fetchUpload, getUploadURL, fetchMedia };

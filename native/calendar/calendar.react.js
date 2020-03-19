@@ -109,13 +109,13 @@ type CalendarItemWithHeight =
   | SectionHeaderItem
   | SectionFooterItem
   | {|
-      itemType: "entryInfo",
+      itemType: 'entryInfo',
       entryInfo: EntryInfoWithHeight,
       threadInfo: ThreadInfo,
     |};
 type ExtraData = $ReadOnly<{|
-  activeEntries: {[key: string]: bool},
-  visibleEntries: {[key: string]: bool},
+  activeEntries: { [key: string]: boolean },
+  visibleEntries: { [key: string]: boolean },
 |}>;
 
 // This is v sad :(
@@ -131,8 +131,8 @@ type Props = {
   navigation: NavigationScreenProp<NavigationRoute>,
   // Redux state
   listData: ?$ReadOnlyArray<CalendarItem>,
-  calendarActive: bool,
-  threadPickerOpen: bool,
+  calendarActive: boolean,
+  threadPickerOpen: boolean,
   startDate: string,
   endDate: string,
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
@@ -147,41 +147,42 @@ type Props = {
   // async functions that hit server APIs
   updateCalendarQuery: (
     calendarQuery: CalendarQuery,
-    reduxAlreadyUpdated?: bool,
+    reduxAlreadyUpdated?: boolean,
   ) => Promise<CalendarQueryUpdateResult>,
 };
 type State = {|
   textToMeasure: TextToMeasure[],
   listDataWithHeights: ?$ReadOnlyArray<CalendarItemWithHeight>,
-  readyToShowList: bool,
+  readyToShowList: boolean,
   extraData: ExtraData,
-  disableInputBar: bool,
+  disableInputBar: boolean,
 |};
 class Calendar extends React.PureComponent<Props, State> {
-
   static propTypes = {
     navigation: PropTypes.shape({
       navigate: PropTypes.func.isRequired,
     }).isRequired,
-    listData: PropTypes.arrayOf(PropTypes.oneOfType([
-      PropTypes.shape({
-        itemType: PropTypes.oneOf(["loader"]),
-        key: PropTypes.string.isRequired,
-      }),
-      PropTypes.shape({
-        itemType: PropTypes.oneOf(["header"]),
-        dateString: PropTypes.string.isRequired,
-      }),
-      PropTypes.shape({
-        itemType: PropTypes.oneOf(["entryInfo"]),
-        entryInfo: entryInfoPropType.isRequired,
-        threadInfo: threadInfoPropType.isRequired,
-      }),
-      PropTypes.shape({
-        itemType: PropTypes.oneOf(["footer"]),
-        dateString: PropTypes.string.isRequired,
-      }),
-    ])),
+    listData: PropTypes.arrayOf(
+      PropTypes.oneOfType([
+        PropTypes.shape({
+          itemType: PropTypes.oneOf(['loader']),
+          key: PropTypes.string.isRequired,
+        }),
+        PropTypes.shape({
+          itemType: PropTypes.oneOf(['header']),
+          dateString: PropTypes.string.isRequired,
+        }),
+        PropTypes.shape({
+          itemType: PropTypes.oneOf(['entryInfo']),
+          entryInfo: entryInfoPropType.isRequired,
+          threadInfo: threadInfoPropType.isRequired,
+        }),
+        PropTypes.shape({
+          itemType: PropTypes.oneOf(['footer']),
+          dateString: PropTypes.string.isRequired,
+        }),
+      ]),
+    ),
     calendarActive: PropTypes.bool.isRequired,
     threadPickerOpen: PropTypes.bool.isRequired,
     startDate: PropTypes.string.isRequired,
@@ -199,12 +200,12 @@ class Calendar extends React.PureComponent<Props, State> {
   static navigationOptions = {
     tabBarLabel: 'Calendar',
     tabBarIcon: ({ tintColor }) => (
-      <Icon
-        name="calendar"
-        style={[ styles.icon, { color: tintColor } ]}
-      />
+      <Icon name="calendar" style={[styles.icon, { color: tintColor }]} />
     ),
-    tabBarOnPress: ({ navigation, defaultHandler }: {
+    tabBarOnPress: ({
+      navigation,
+      defaultHandler,
+    }: {
       navigation: NavigationScreenProp<NavigationRoute>,
       defaultHandler: () => void,
     }) => {
@@ -266,7 +267,7 @@ class Calendar extends React.PureComponent<Props, State> {
   static textToMeasureFromListData(listData: $ReadOnlyArray<CalendarItem>) {
     const textToMeasure = [];
     for (let item of listData) {
-      if (item.itemType !== "entryInfo") {
+      if (item.itemType !== 'entryInfo') {
         continue;
       }
       textToMeasure.push({
@@ -310,7 +311,7 @@ class Calendar extends React.PureComponent<Props, State> {
     if (
       !lastState ||
       !lastState.match(/inactive|background/) ||
-      this.currentState !== "active"
+      this.currentState !== 'active'
     ) {
       // We're only handling foregrounding here
       return;
@@ -325,7 +326,7 @@ class Calendar extends React.PureComponent<Props, State> {
       // record a timestamp here so we can scrollToToday there.
       this.lastForegrounded = Date.now();
     }
-  }
+  };
 
   componentDidUpdate(prevProps: Props, prevState: State) {
     if (this.props.listData !== prevProps.listData) {
@@ -338,8 +339,8 @@ class Calendar extends React.PureComponent<Props, State> {
       connectionStatus: prevConnectionStatus,
     } = prevProps;
     if (
-      (loadingStatus === "error" && prevLoadingStatus === "loading") ||
-      (connectionStatus === "connected" && prevConnectionStatus !== "connected")
+      (loadingStatus === 'error' && prevLoadingStatus === 'loading') ||
+      (connectionStatus === 'connected' && prevConnectionStatus !== 'connected')
     ) {
       this.loadMoreAbove();
       this.loadMoreBelow();
@@ -367,8 +368,12 @@ class Calendar extends React.PureComponent<Props, State> {
       }
     }
 
-    const { lastStartDate, newStartDate, lastEndDate, newEndDate }
-      = Calendar.datesFromListData(lastLDWH, newLDWH);
+    const {
+      lastStartDate,
+      newStartDate,
+      lastEndDate,
+      newEndDate,
+    } = Calendar.datesFromListData(lastLDWH, newLDWH);
 
     if (newStartDate > lastStartDate || newEndDate < lastEndDate) {
       // If there are fewer items in our new data, which happens when the
@@ -434,8 +439,9 @@ class Calendar extends React.PureComponent<Props, State> {
     }
 
     const newTextToMeasure = Calendar.textToMeasureFromListData(listData);
-    const newText =
-      _differenceWith(_isEqual)(newTextToMeasure)(this.state.textToMeasure);
+    const newText = _differenceWith(_isEqual)(newTextToMeasure)(
+      this.state.textToMeasure,
+    );
     if (newText.length !== 0) {
       // We set textHeights to null here since if a future set of text
       // came in before we completed text measurement that was a subset
@@ -473,9 +479,9 @@ class Calendar extends React.PureComponent<Props, State> {
     const lastSecondItem = lastLDWH[1];
     const newSecondItem = newLDWH[1];
     invariant(
-      newSecondItem.itemType === "header" &&
-        lastSecondItem.itemType === "header",
-      "second item in listData should be a header",
+      newSecondItem.itemType === 'header' &&
+        lastSecondItem.itemType === 'header',
+      'second item in listData should be a header',
     );
     const lastStartDate = dateFromString(lastSecondItem.dateString);
     const newStartDate = dateFromString(newSecondItem.dateString);
@@ -483,9 +489,9 @@ class Calendar extends React.PureComponent<Props, State> {
     const lastPenultimateItem = lastLDWH[lastLDWH.length - 2];
     const newPenultimateItem = newLDWH[newLDWH.length - 2];
     invariant(
-      newPenultimateItem.itemType === "footer" &&
-        lastPenultimateItem.itemType === "footer",
-      "penultimate item in listData should be a footer",
+      newPenultimateItem.itemType === 'footer' &&
+        lastPenultimateItem.itemType === 'footer',
+      'penultimate item in listData should be a footer',
     );
     const lastEndDate = dateFromString(lastPenultimateItem.dateString);
     const newEndDate = dateFromString(newPenultimateItem.dateString);
@@ -512,22 +518,21 @@ class Calendar extends React.PureComponent<Props, State> {
     )(newLDWH);
     const heightOfNewItems = Calendar.heightOfItems(newItems);
     const flatList = this.flatList;
-    invariant(flatList, "flatList should be set");
+    invariant(flatList, 'flatList should be set');
     const scrollAction = () => {
       invariant(
         this.currentScrollPosition !== undefined &&
           this.currentScrollPosition !== null,
-        "currentScrollPosition should be set",
+        'currentScrollPosition should be set',
       );
-      const currentScrollPosition =
-        Math.max(this.currentScrollPosition, 0);
+      const currentScrollPosition = Math.max(this.currentScrollPosition, 0);
       let offset = currentScrollPosition + heightOfNewItems;
       flatList.scrollToOffset({
         offset,
         animated: false,
       });
     };
-    if (Platform.OS === "android" && !this.firstScrollUpOnAndroidComplete) {
+    if (Platform.OS === 'android' && !this.firstScrollUpOnAndroidComplete) {
       setTimeout(scrollAction, 0);
       this.firstScrollUpOnAndroidComplete = true;
     } else {
@@ -590,23 +595,17 @@ class Calendar extends React.PureComponent<Props, State> {
     }
 
     const textHeights = this.textHeights;
-    invariant(textHeights, "textHeights should be set");
+    invariant(textHeights, 'textHeights should be set');
     const listDataWithHeights = _map((item: CalendarItem) => {
-      if (item.itemType !== "entryInfo") {
+      if (item.itemType !== 'entryInfo') {
         return item;
       }
       const entryInfo = item.entryInfo;
       const textHeight = textHeights.get(entryKey(entryInfo));
-      invariant(
-        textHeight,
-        `height for ${entryKey(entryInfo)} should be set`,
-      );
+      invariant(textHeight, `height for ${entryKey(entryInfo)} should be set`);
       return {
-        itemType: "entryInfo",
-        entryInfo: Calendar.entryInfoWithHeight(
-          item.entryInfo,
-          textHeight,
-        ),
+        itemType: 'entryInfo',
+        entryInfo: Calendar.entryInfoWithHeight(item.entryInfo, textHeight),
         threadInfo: item.threadInfo,
       };
     })(listData);
@@ -624,7 +623,7 @@ class Calendar extends React.PureComponent<Props, State> {
     this.setState({ listDataWithHeights });
   }
 
-  scrollToToday(animated: ?bool = undefined) {
+  scrollToToday(animated: ?boolean = undefined) {
     if (animated === undefined) {
       animated = this.props.calendarActive;
     }
@@ -643,11 +642,11 @@ class Calendar extends React.PureComponent<Props, State> {
 
   renderItem = (row: { item: CalendarItemWithHeight }) => {
     const item = row.item;
-    if (item.itemType === "loader") {
+    if (item.itemType === 'loader') {
       return <ListLoadingIndicator />;
-    } else if (item.itemType === "header") {
+    } else if (item.itemType === 'header') {
       return this.renderSectionHeader(item);
-    } else if (item.itemType === "entryInfo") {
+    } else if (item.itemType === 'entryInfo') {
       const key = entryKey(item.entryInfo);
       return (
         <Entry
@@ -662,31 +661,30 @@ class Calendar extends React.PureComponent<Props, State> {
           entryRef={this.entryRef}
         />
       );
-    } else if (item.itemType === "footer") {
+    } else if (item.itemType === 'footer') {
       return this.renderSectionFooter(item);
     }
-    invariant(false, "renderItem conditions should be exhaustive");
-  }
+    invariant(false, 'renderItem conditions should be exhaustive');
+  };
 
   renderSectionHeader = (item: SectionHeaderItem) => {
     let date = prettyDate(item.dateString);
     if (dateString(new Date()) === item.dateString) {
-      date += " (today)";
+      date += ' (today)';
     }
     const dateObj = dateFromString(item.dateString).getDay();
-    const weekendStyle = dateObj === 0 || dateObj === 6
-      ? this.props.styles.weekendSectionHeader
-      : null;
+    const weekendStyle =
+      dateObj === 0 || dateObj === 6
+        ? this.props.styles.weekendSectionHeader
+        : null;
     return (
       <TouchableWithoutFeedback onPress={this.makeAllEntriesInactive}>
-        <View style={[ this.props.styles.sectionHeader, weekendStyle ]}>
-          <Text style={this.props.styles.sectionHeaderText}>
-            {date}
-          </Text>
+        <View style={[this.props.styles.sectionHeader, weekendStyle]}>
+          <Text style={this.props.styles.sectionHeaderText}>{date}</Text>
         </View>
       </TouchableWithoutFeedback>
     );
-  }
+  };
 
   renderSectionFooter = (item: SectionFooterItem) => {
     return (
@@ -696,27 +694,26 @@ class Calendar extends React.PureComponent<Props, State> {
         onPressWhitespace={this.makeAllEntriesInactive}
       />
     );
-  }
+  };
 
   onAdd = (dayString: string) => {
-    this.props.navigation.navigate(
-      ThreadPickerModalRouteName,
-      { dateString: dayString },
-    );
-  }
+    this.props.navigation.navigate(ThreadPickerModalRouteName, {
+      dateString: dayString,
+    });
+  };
 
   static keyExtractor = (item: CalendarItemWithHeight) => {
-    if (item.itemType === "loader") {
+    if (item.itemType === 'loader') {
       return item.key;
-    } else if (item.itemType === "header") {
-      return item.dateString + "/header";
-    } else if (item.itemType === "entryInfo") {
+    } else if (item.itemType === 'header') {
+      return item.dateString + '/header';
+    } else if (item.itemType === 'entryInfo') {
       return entryKey(item.entryInfo);
-    } else if (item.itemType === "footer") {
-      return item.dateString + "/footer";
+    } else if (item.itemType === 'footer') {
+      return item.dateString + '/footer';
     }
-    invariant(false, "keyExtractor conditions should be exhaustive");
-  }
+    invariant(false, 'keyExtractor conditions should be exhaustive');
+  };
 
   static getItemLayout(
     data: ?$ReadOnlyArray<CalendarItemWithHeight>,
@@ -732,17 +729,17 @@ class Calendar extends React.PureComponent<Props, State> {
   }
 
   static itemHeight(item: CalendarItemWithHeight): number {
-    if (item.itemType === "loader") {
+    if (item.itemType === 'loader') {
       return 56;
-    } else if (item.itemType === "header") {
+    } else if (item.itemType === 'header') {
       return 31;
-    } else if (item.itemType === "entryInfo") {
+    } else if (item.itemType === 'entryInfo') {
       const verticalPadding = 10;
       return verticalPadding + item.entryInfo.textHeight;
-    } else if (item.itemType === "footer") {
+    } else if (item.itemType === 'footer') {
       return 40;
     }
-    invariant(false, "itemHeight conditions should be exhaustive");
+    invariant(false, 'itemHeight conditions should be exhaustive');
   }
 
   static heightOfItems(data: $ReadOnlyArray<CalendarItemWithHeight>): number {
@@ -770,7 +767,7 @@ class Calendar extends React.PureComponent<Props, State> {
           onScrollEndDrag={this.onScrollEndDrag}
           scrollsToTop={false}
           extraData={this.state.extraData}
-          style={[ this.props.styles.flatList, flatListStyle ]}
+          style={[this.props.styles.flatList, flatListStyle]}
           ref={this.flatListRef}
         />
       );
@@ -778,17 +775,12 @@ class Calendar extends React.PureComponent<Props, State> {
     let loadingIndicator = null;
     if (!listDataWithHeights || !this.state.readyToShowList) {
       loadingIndicator = (
-        <ContentLoading
-          fillType="absolute"
-          colors={this.props.colors}
-        />
+        <ContentLoading fillType="absolute" colors={this.props.colors} />
       );
     }
     return (
       <SafeAreaView style={this.props.styles.container}>
-        <DisconnectedBar
-          visible={this.props.calendarActive}
-        />
+        <DisconnectedBar visible={this.props.calendarActive} />
         <TextHeightMeasurer
           textToMeasure={this.state.textToMeasure}
           allHeightsMeasuredCallback={this.allHeightsMeasured}
@@ -828,11 +820,11 @@ class Calendar extends React.PureComponent<Props, State> {
 
   flatListRef = (flatList: ?FlatList<CalendarItemWithHeight>) => {
     this.flatList = flatList;
-  }
+  };
 
   entryRef = (entryKey: string, entry: ?InternalEntry) => {
     this.entryRefs.set(entryKey, entry);
-  }
+  };
 
   makeAllEntriesInactive = () => {
     if (_size(this.state.extraData.activeEntries) === 0) {
@@ -849,9 +841,9 @@ class Calendar extends React.PureComponent<Props, State> {
       activeEntries: {},
     };
     this.setState({ extraData: this.latestExtraData });
-  }
+  };
 
-  makeActive = (key: string, active: bool) => {
+  makeActive = (key: string, active: boolean) => {
     if (!active) {
       const activeKeys = Object.keys(this.latestExtraData.activeEntries);
       if (activeKeys.length === 0) {
@@ -891,7 +883,7 @@ class Calendar extends React.PureComponent<Props, State> {
       activeEntries: { [key]: true },
     };
     this.setState({ extraData: this.latestExtraData });
-  }
+  };
 
   onEnterEntryEditMode = (entryInfo: EntryInfoWithHeight) => {
     const key = entryKey(entryInfo);
@@ -901,11 +893,11 @@ class Calendar extends React.PureComponent<Props, State> {
     } else {
       this.lastEntryKeyActive = key;
     }
-    this.setState({ disableInputBar: false })
-  }
+    this.setState({ disableInputBar: false });
+  };
 
   keyboardShow = (event: KeyboardEvent) => {
-    const inputBarHeight = Platform.OS === "android" ? 37.7 : 35.5;
+    const inputBarHeight = Platform.OS === 'android' ? 37.7 : 35.5;
     const keyboardShownHeight = event.endCoordinates.height + inputBarHeight;
     this.keyboardShownHeight = keyboardShownHeight;
     const lastEntryKeyActive = this.lastEntryKeyActive;
@@ -914,22 +906,22 @@ class Calendar extends React.PureComponent<Props, State> {
       this.lastEntryKeyActive = null;
     }
     this.keyboardPartiallyVisible = true;
-  }
+  };
 
   keyboardDismiss = (event: ?KeyboardEvent) => {
     this.keyboardShownHeight = null;
-  }
+  };
 
   keyboardDidDismiss = (event: ?KeyboardEvent) => {
     this.keyboardPartiallyVisible = false;
     if (!this.props.threadPickerOpen) {
       this.setState({ disableInputBar: false });
     }
-  }
+  };
 
   scrollToKey(lastEntryKeyActive: string, keyboardHeight: number) {
     const data = this.state.listDataWithHeights;
-    invariant(data, "should be set");
+    invariant(data, 'should be set');
     const index = _findIndex(
       (item: CalendarItemWithHeight) =>
         Calendar.keyExtractor(item) === lastEntryKeyActive,
@@ -937,11 +929,9 @@ class Calendar extends React.PureComponent<Props, State> {
     if (index === null || index === undefined) {
       return;
     }
-    const itemStart = Calendar.heightOfItems(
-      data.filter((_, i) => i < index),
-    );
+    const itemStart = Calendar.heightOfItems(data.filter((_, i) => i < index));
     const itemHeight = Calendar.itemHeight(data[index]);
-    const entryAdditionalActiveHeight = Platform.OS === "android" ? 21 : 20;
+    const entryAdditionalActiveHeight = Platform.OS === 'android' ? 21 : 20;
     const itemEnd = itemStart + itemHeight + entryAdditionalActiveHeight;
     // flatListHeight() factors in the size of the tab bar,
     // but it is hidden by the keyboard since it is at the bottom
@@ -955,7 +945,7 @@ class Calendar extends React.PureComponent<Props, State> {
       return;
     }
     const offset = itemStart - (visibleHeight - itemHeight) / 2;
-    invariant(this.flatList, "flatList should be set");
+    invariant(this.flatList, 'flatList should be set');
     this.flatList.scrollToOffset({ offset, animated: true });
   }
 
@@ -968,7 +958,7 @@ class Calendar extends React.PureComponent<Props, State> {
     }
     this.textHeights = newTextHeights;
     this.mergeHeightsIntoListData();
-  }
+  };
 
   onViewableItemsChanged = (info: {
     viewableItems: ViewToken[],
@@ -984,39 +974,37 @@ class Calendar extends React.PureComponent<Props, State> {
 
     const visibleEntries = {};
     for (let token of info.viewableItems) {
-      if (token.item.itemType === "entryInfo") {
+      if (token.item.itemType === 'entryInfo') {
         visibleEntries[entryKey(token.item.entryInfo)] = true;
       }
     }
     this.latestExtraData = {
-      activeEntries: _pickBy(
-        (_, key: string) => {
-          if (visibleEntries[key]) {
-            return true;
-          }
-          // We don't automatically set scrolled-away entries to be inactive
-          // because entries can be out-of-view at creation time if they need to
-          // be scrolled into view (see onEnterEntryEditMode). If Entry could
-          // distinguish the reasons its active prop gets set to false, it could
-          // differentiate the out-of-view case from the something-pressed case,
-          // and then we could set scrolled-away entries to be inactive without
-          // worrying about this edge case. Until then...
-          const item = _find
-            (item => item.entryInfo && entryKey(item.entryInfo) === key)
-            (ldwh);
-          return !!item;
-        },
-      )(this.latestExtraData.activeEntries),
+      activeEntries: _pickBy((_, key: string) => {
+        if (visibleEntries[key]) {
+          return true;
+        }
+        // We don't automatically set scrolled-away entries to be inactive
+        // because entries can be out-of-view at creation time if they need to
+        // be scrolled into view (see onEnterEntryEditMode). If Entry could
+        // distinguish the reasons its active prop gets set to false, it could
+        // differentiate the out-of-view case from the something-pressed case,
+        // and then we could set scrolled-away entries to be inactive without
+        // worrying about this edge case. Until then...
+        const item = _find(
+          item => item.entryInfo && entryKey(item.entryInfo) === key,
+        )(ldwh);
+        return !!item;
+      })(this.latestExtraData.activeEntries),
       visibleEntries,
     };
 
-    const topLoader = _find({ key: "TopLoader" })(info.viewableItems);
+    const topLoader = _find({ key: 'TopLoader' })(info.viewableItems);
     if (this.topLoaderWaitingToLeaveView && !topLoader) {
       this.topLoaderWaitingToLeaveView = false;
       this.topLoadingFromScroll = null;
     }
 
-    const bottomLoader = _find({ key: "BottomLoader" })(info.viewableItems);
+    const bottomLoader = _find({ key: 'BottomLoader' })(info.viewableItems);
     if (this.bottomLoaderWaitingToLeaveView && !bottomLoader) {
       this.bottomLoaderWaitingToLeaveView = false;
       this.bottomLoadingFromScroll = null;
@@ -1067,7 +1055,7 @@ class Calendar extends React.PureComponent<Props, State> {
       };
       this.loadMoreBelow();
     }
-  }
+  };
 
   dispatchCalendarQueryUpdate(calendarQuery: CalendarQuery) {
     this.props.dispatchActionPromise(
@@ -1076,41 +1064,35 @@ class Calendar extends React.PureComponent<Props, State> {
     );
   }
 
-  loadMoreAbove = _throttle(
-    () => {
-      if (
-        this.topLoadingFromScroll &&
-        this.topLoaderWaitingToLeaveView &&
-        this.props.connectionStatus === "connected"
-      ) {
-        this.dispatchCalendarQueryUpdate(this.topLoadingFromScroll);
-      }
-    },
-    1000,
-  )
+  loadMoreAbove = _throttle(() => {
+    if (
+      this.topLoadingFromScroll &&
+      this.topLoaderWaitingToLeaveView &&
+      this.props.connectionStatus === 'connected'
+    ) {
+      this.dispatchCalendarQueryUpdate(this.topLoadingFromScroll);
+    }
+  }, 1000);
 
-  loadMoreBelow = _throttle(
-    () => {
-      if (
-        this.bottomLoadingFromScroll &&
-        this.bottomLoaderWaitingToLeaveView &&
-        this.props.connectionStatus === "connected"
-      ) {
-        this.dispatchCalendarQueryUpdate(this.bottomLoadingFromScroll);
-      }
-    },
-    1000,
-  )
+  loadMoreBelow = _throttle(() => {
+    if (
+      this.bottomLoadingFromScroll &&
+      this.bottomLoaderWaitingToLeaveView &&
+      this.props.connectionStatus === 'connected'
+    ) {
+      this.dispatchCalendarQueryUpdate(this.bottomLoadingFromScroll);
+    }
+  }, 1000);
 
   onScroll = (event: { nativeEvent: { contentOffset: { y: number } } }) => {
     this.currentScrollPosition = event.nativeEvent.contentOffset.y;
-  }
+  };
 
   // When the user "flicks" the scroll view, this callback gets triggered after
   // the scrolling ends
   onMomentumScrollEnd = () => {
     this.setState({ extraData: this.latestExtraData });
-  }
+  };
 
   // This callback gets triggered when the user lets go of scrolling the scroll
   // view, regardless of whether it was a "flick" or a pan
@@ -1118,15 +1100,12 @@ class Calendar extends React.PureComponent<Props, State> {
     // We need to figure out if this was a flick or not. If it's a flick, we'll
     // let onMomentumScrollEnd handle it once scroll position stabilizes
     const currentScrollPosition = this.currentScrollPosition;
-    setTimeout(
-      () => {
-        if (this.currentScrollPosition === currentScrollPosition) {
-          this.setState({ extraData: this.latestExtraData });
-        }
-      },
-      50,
-    );
-  }
+    setTimeout(() => {
+      if (this.currentScrollPosition === currentScrollPosition) {
+        this.setState({ extraData: this.latestExtraData });
+      }
+    }, 50);
+  };
 
   onSaveEntry = () => {
     const entryKeys = Object.keys(this.latestExtraData.activeEntries);
@@ -1138,8 +1117,7 @@ class Calendar extends React.PureComponent<Props, State> {
     if (entryRef) {
       entryRef.completeEdit();
     }
-  }
-
+  };
 }
 
 const styles = {
@@ -1160,8 +1138,7 @@ const styles = {
     borderBottomWidth: 2,
     borderColor: 'listBackground',
   },
-  weekendSectionHeader: {
-  },
+  weekendSectionHeader: {},
   sectionHeaderText: {
     padding: 5,
     fontWeight: 'bold',
@@ -1177,14 +1154,17 @@ const loadingStatusSelector = createLoadingStatusSelector(
   updateCalendarQueryActionTypes,
 );
 const activeTabSelector = createActiveTabSelector(CalendarRouteName);
-const activeThreadPickerSelector =
-  createIsForegroundSelector(ThreadPickerModalRouteName);
+const activeThreadPickerSelector = createIsForegroundSelector(
+  ThreadPickerModalRouteName,
+);
 export default connect(
   (state: AppState) => ({
     listData: calendarListData(state),
-    calendarActive: activeTabSelector(state) || activeThreadPickerSelector(state),
-    threadPickerOpen: activeThreadPickerSelector(state)
-      || !!state.navInfo.navigationState.isTransitioning,
+    calendarActive:
+      activeTabSelector(state) || activeThreadPickerSelector(state),
+    threadPickerOpen:
+      activeThreadPickerSelector(state) ||
+      !!state.navInfo.navigationState.isTransitioning,
     startDate: state.navInfo.startDate,
     endDate: state.navInfo.endDate,
     calendarFilters: state.calendarFilters,

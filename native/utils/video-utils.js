@@ -35,8 +35,10 @@ async function transcodeVideo<InputInfo: TranscodeVideoInfo>(
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: MediaMissionFailure | (InputInfo & { success: true, ... }),
 |}> {
-  const steps = [], createdPaths = [];
-  let path = pathFromURI(input.uri), filename = input.filename;
+  const steps = [],
+    createdPaths = [];
+  let path = pathFromURI(input.uri),
+    filename = input.filename;
   const finish = (failure?: MediaMissionFailure) => {
     for (let createdPath of createdPaths) {
       if (failure || createdPath !== path) {
@@ -66,19 +68,20 @@ async function transcodeVideo<InputInfo: TranscodeVideoInfo>(
     // which is generally compatible with .mp4
     filename = `${stripExtension(filename)}.mp4`;
   }
-  if (Platform.OS === "ios" && !path) {
+  if (Platform.OS === 'ios' && !path) {
     // iOS uses custom URI schemes like ph, assets-library, and ph-upload
     // We need a filesystem path before we can continue
-    const iosCopyPath =
-      `${filesystem.TemporaryDirectoryPath}copy.${Date.now()}.${filename}`;
+    const iosCopyPath = `${
+      filesystem.TemporaryDirectoryPath
+    }copy.${Date.now()}.${filename}`;
     const copyStart = Date.now();
     try {
       await filesystem.copyAssetsVideoIOS(input.uri, iosCopyPath);
       createdPaths.push(iosCopyPath);
       path = iosCopyPath;
-    } catch (e) { }
+    } catch (e) {}
     steps.push({
-      step: "video_copy",
+      step: 'video_copy',
       success: !!path,
       time: Date.now() - copyStart,
       newPath: path,
@@ -86,7 +89,7 @@ async function transcodeVideo<InputInfo: TranscodeVideoInfo>(
     if (!path) {
       return finish({
         success: false,
-        reason: "video_ios_asset_copy_failed",
+        reason: 'video_ios_asset_copy_failed',
         inputURI: input.uri,
         destinationPath: iosCopyPath,
       });
@@ -94,7 +97,7 @@ async function transcodeVideo<InputInfo: TranscodeVideoInfo>(
   } else if (!path) {
     return finish({
       success: false,
-      reason: "video_path_extraction_failed",
+      reason: 'video_path_extraction_failed',
       uri: input.uri,
     });
   }
@@ -109,17 +112,17 @@ async function transcodeVideo<InputInfo: TranscodeVideoInfo>(
   // Next, if we're on iOS we'll try using native libraries to transcode
   // We special-case iOS because Android doesn't usually need to transcode
   // iOS defaults to HEVC since iOS 11
-  if (Platform.OS === "ios") {
+  if (Platform.OS === 'ios') {
     const iosNativeTranscodeStart = Date.now();
     try {
-      const [ iosNativeTranscodedURI ] = await MovToMp4.convertMovToMp4(
+      const [iosNativeTranscodedURI] = await MovToMp4.convertMovToMp4(
         path,
         `iostranscode.${Date.now()}.${filename}`,
       );
       const iosNativeTranscodedPath = pathFromURI(iosNativeTranscodedURI);
       invariant(
         iosNativeTranscodedPath,
-        "react-native-mov-to-mp4 should return a file:/// uri, not " +
+        'react-native-mov-to-mp4 should return a file:/// uri, not ' +
           iosNativeTranscodedURI,
       );
       createdPaths.push(iosNativeTranscodedPath);
@@ -129,7 +132,7 @@ async function transcodeVideo<InputInfo: TranscodeVideoInfo>(
       if (iosTranscodeProbeStep.success) {
         path = iosNativeTranscodedPath;
         steps.push({
-          step: "video_ios_native_transcode",
+          step: 'video_ios_native_transcode',
           success: true,
           time: Date.now() - iosNativeTranscodeStart,
           newPath: path,
@@ -138,7 +141,7 @@ async function transcodeVideo<InputInfo: TranscodeVideoInfo>(
         return finish();
       } else {
         steps.push({
-          step: "video_ios_native_transcode",
+          step: 'video_ios_native_transcode',
           success: false,
           time: Date.now() - iosNativeTranscodeStart,
           newPath: iosNativeTranscodedPath,
@@ -147,7 +150,7 @@ async function transcodeVideo<InputInfo: TranscodeVideoInfo>(
       }
     } catch (e) {
       steps.push({
-        step: "video_ios_native_transcode",
+        step: 'video_ios_native_transcode',
         success: false,
         time: Date.now() - iosNativeTranscodeStart,
         newPath: null,
@@ -165,19 +168,18 @@ async function transcodeVideo<InputInfo: TranscodeVideoInfo>(
     default: 'h264',
   });
   const ffmpegTranscodeStart = Date.now();
-  const ffmpegTranscodedPath =
-    `${filesystem.TemporaryDirectoryPath}transcode.${Date.now()}.${filename}`;
+  const ffmpegTranscodedPath = `${
+    filesystem.TemporaryDirectoryPath
+  }transcode.${Date.now()}.${filename}`;
   try {
     const { rc } = await RNFFmpeg.execute(
       `-i ${path} -c:v ${codec} ${ffmpegTranscodedPath}`,
     );
     if (rc === 0) {
       createdPaths.push(ffmpegTranscodedPath);
-      const transcodeProbeStep = await checkVideoCodec(
-        ffmpegTranscodedPath,
-      );
+      const transcodeProbeStep = await checkVideoCodec(ffmpegTranscodedPath);
       steps.push({
-        step: "video_ffmpeg_transcode",
+        step: 'video_ffmpeg_transcode',
         success: transcodeProbeStep.success,
         time: Date.now() - ffmpegTranscodeStart,
         returnCode: rc,
@@ -189,12 +191,12 @@ async function transcodeVideo<InputInfo: TranscodeVideoInfo>(
       } else {
         return finish({
           success: false,
-          reason: "video_transcode_failed",
+          reason: 'video_transcode_failed',
         });
       }
     } else {
       steps.push({
-        step: "video_ffmpeg_transcode",
+        step: 'video_ffmpeg_transcode',
         success: false,
         time: Date.now() - ffmpegTranscodeStart,
         returnCode: rc,
@@ -202,12 +204,12 @@ async function transcodeVideo<InputInfo: TranscodeVideoInfo>(
       });
       return finish({
         success: false,
-        reason: "video_transcode_failed",
+        reason: 'video_transcode_failed',
       });
     }
   } catch (e) {
     steps.push({
-      step: "video_ffmpeg_transcode",
+      step: 'video_ffmpeg_transcode',
       success: false,
       time: Date.now() - ffmpegTranscodeStart,
       returnCode: null,
@@ -215,7 +217,7 @@ async function transcodeVideo<InputInfo: TranscodeVideoInfo>(
     });
     return finish({
       success: false,
-      reason: "video_transcode_failed",
+      reason: 'video_transcode_failed',
     });
   }
 
@@ -227,15 +229,15 @@ async function checkVideoCodec(
 ): Promise<VideoProbeMediaMissionStep> {
   const probeStart = Date.now();
   const ext = extensionFromFilename(path);
-  let success = ext === "mp4" || ext === "mov";
+  let success = ext === 'mp4' || ext === 'mov';
   let codec;
   if (success) {
     const videoInfo = await RNFFmpeg.getMediaInformation(path);
     codec = getVideoCodec(videoInfo);
-    success = codec === "h264";
+    success = codec === 'h264';
   }
   return {
-    step: "video_probe",
+    step: 'video_probe',
     success,
     time: Date.now() - probeStart,
     path,
@@ -249,13 +251,11 @@ function getVideoCodec(info): ?string {
     return null;
   }
   for (let stream of info.streams) {
-    if (stream.type === "video") {
+    if (stream.type === 'video') {
       return stream.codec;
     }
   }
   return null;
 }
 
-export {
-  transcodeVideo,
-};
+export { transcodeVideo };

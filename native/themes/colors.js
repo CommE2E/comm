@@ -65,7 +65,7 @@ const light = Object.freeze({
 export type Colors = $Exact<typeof light>;
 
 const colorsPropType = PropTypes.objectOf(
-  PropTypes.oneOfType([ PropTypes.string, PropTypes.number ]),
+  PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 );
 
 const dark: Colors = Object.freeze({
@@ -132,7 +132,7 @@ const colorsSelector: (state: AppState) => Colors = createSelector(
 
 const overlayColorsSelector: (state: AppState) => Colors = createSelector(
   backgroundIsDarkSelector,
-  (backgroundIsDark: bool) => {
+  (backgroundIsDark: boolean) => {
     const syntheticTheme = backgroundIsDark ? 'dark' : 'light';
     return colors[syntheticTheme];
   },
@@ -148,10 +148,10 @@ for (let theme in colors) {
 // Distinct type needed here because we replace type of some fields with strings
 type InStyles = { [name: string]: { [field: string]: number | string } };
 
-function stylesFromColors<
-  IS: InStyles,
-  +OS: Styles,
->(obj: IS, themeColors: Colors): OS {
+function stylesFromColors<IS: InStyles, +OS: Styles>(
+  obj: IS,
+  themeColors: Colors,
+): OS {
   const result = {};
   for (let key in obj) {
     const style = obj[key];
@@ -170,23 +170,19 @@ function stylesFromColors<
   return StyleSheet.create(result);
 }
 
-function styleSelector<
-  IS: InStyles,
-  +OS: Styles,
->(obj: IS): (state: AppState) => OS {
-  return createSelector(
-    colorsSelector,
-    (themeColors: Colors) => stylesFromColors(obj, themeColors),
+function styleSelector<IS: InStyles, +OS: Styles>(
+  obj: IS,
+): (state: AppState) => OS {
+  return createSelector(colorsSelector, (themeColors: Colors) =>
+    stylesFromColors(obj, themeColors),
   );
 }
 
-function overlayStyleSelector<
-  IS: InStyles,
-  +OS: Styles,
->(obj: IS): (state: AppState) => OS {
-  return createSelector(
-    overlayColorsSelector,
-    (themeColors: Colors) => stylesFromColors(obj, themeColors),
+function overlayStyleSelector<IS: InStyles, +OS: Styles>(
+  obj: IS,
+): (state: AppState) => OS {
+  return createSelector(overlayColorsSelector, (themeColors: Colors) =>
+    stylesFromColors(obj, themeColors),
   );
 }
 

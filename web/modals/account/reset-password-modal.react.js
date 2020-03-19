@@ -31,7 +31,7 @@ type Props = {
   // Redux state
   resetPasswordUsername: string,
   verifyCode: string,
-  inputDisabled: bool,
+  inputDisabled: boolean,
   logInExtraInfo: () => LogInExtraInfo,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
@@ -45,20 +45,19 @@ type State = {
 };
 
 class ResetPasswordModal extends React.PureComponent<Props, State> {
-
   passwordInput: ?HTMLInputElement;
 
   constructor(props: Props) {
     super(props);
     this.state = {
-      password: "",
-      confirmPassword: "",
-      errorMessage: "",
+      password: '',
+      confirmPassword: '',
+      errorMessage: '',
     };
   }
 
   componentDidMount() {
-    invariant(this.passwordInput, "usernameOrEmail ref unset");
+    invariant(this.passwordInput, 'usernameOrEmail ref unset');
     this.passwordInput.focus();
   }
 
@@ -118,19 +117,19 @@ class ResetPasswordModal extends React.PureComponent<Props, State> {
 
   passwordInputRef = (passwordInput: ?HTMLInputElement) => {
     this.passwordInput = passwordInput;
-  }
+  };
 
   onChangePassword = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
-    invariant(target instanceof HTMLInputElement, "target not input");
+    invariant(target instanceof HTMLInputElement, 'target not input');
     this.setState({ password: target.value });
-  }
+  };
 
   onChangeConfirmPassword = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
-    invariant(target instanceof HTMLInputElement, "target not input");
+    invariant(target instanceof HTMLInputElement, 'target not input');
     this.setState({ confirmPassword: target.value });
-  }
+  };
 
   onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
@@ -138,12 +137,12 @@ class ResetPasswordModal extends React.PureComponent<Props, State> {
     if (this.state.password === '') {
       this.setState(
         {
-          password: "",
-          confirmPassword: "",
-          errorMessage: "empty password",
+          password: '',
+          confirmPassword: '',
+          errorMessage: 'empty password',
         },
         () => {
-          invariant(this.passwordInput, "passwordInput ref unset");
+          invariant(this.passwordInput, 'passwordInput ref unset');
           this.passwordInput.focus();
         },
       );
@@ -152,12 +151,12 @@ class ResetPasswordModal extends React.PureComponent<Props, State> {
     if (this.state.password !== this.state.confirmPassword) {
       this.setState(
         {
-          password: "",
-          confirmPassword: "",
+          password: '',
+          confirmPassword: '',
           errorMessage: "passwords don't match",
         },
         () => {
-          invariant(this.passwordInput, "passwordInput ref unset");
+          invariant(this.passwordInput, 'passwordInput ref unset');
           this.passwordInput.focus();
         },
       );
@@ -171,7 +170,7 @@ class ResetPasswordModal extends React.PureComponent<Props, State> {
       undefined,
       ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
     );
-  }
+  };
 
   async resetPasswordAction(extraInfo: LogInExtraInfo) {
     try {
@@ -185,19 +184,18 @@ class ResetPasswordModal extends React.PureComponent<Props, State> {
     } catch (e) {
       this.setState(
         {
-          password: "",
-          confirmPassword: "",
-          errorMessage: "unknown error",
+          password: '',
+          confirmPassword: '',
+          errorMessage: 'unknown error',
         },
         () => {
-          invariant(this.passwordInput, "passwordInput ref unset");
+          invariant(this.passwordInput, 'passwordInput ref unset');
           this.passwordInput.focus();
         },
       );
       throw e;
     }
   }
-
 }
 
 ResetPasswordModal.propTypes = {
@@ -211,17 +209,19 @@ ResetPasswordModal.propTypes = {
   resetPassword: PropTypes.func.isRequired,
 };
 
-const loadingStatusSelector
-  = createLoadingStatusSelector(resetPasswordActionTypes);
+const loadingStatusSelector = createLoadingStatusSelector(
+  resetPasswordActionTypes,
+);
 
 export default connect(
   (state: AppState) => ({
-    resetPasswordUsername: state.serverVerificationResult &&
+    resetPasswordUsername:
+      state.serverVerificationResult &&
       state.serverVerificationResult.success &&
       state.serverVerificationResult.field === verifyField.RESET_PASSWORD &&
       state.serverVerificationResult.username,
     verifyCode: state.navInfo.verify,
-    inputDisabled: loadingStatusSelector(state) === "loading",
+    inputDisabled: loadingStatusSelector(state) === 'loading',
     logInExtraInfo: webLogInExtraInfoSelector(state),
   }),
   { resetPassword },

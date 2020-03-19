@@ -22,11 +22,10 @@ import css from './history.css';
 type Props = {
   revisionInfo: HistoryRevisionInfo,
   threadInfo: ThreadInfo,
-  isDeletionOrRestoration: bool,
-}
+  isDeletionOrRestoration: boolean,
+};
 
 class HistoryRevision extends React.PureComponent<Props> {
-
   render() {
     let change;
     if (this.props.isDeletionOrRestoration && this.props.revisionInfo.deleted) {
@@ -38,7 +37,7 @@ class HistoryRevision extends React.PureComponent<Props> {
         [css.entry]: true,
         [css.darkEntry]: colorIsDark(this.props.threadInfo.color),
       });
-      const textStyle = { backgroundColor: "#" + this.props.threadInfo.color };
+      const textStyle = { backgroundColor: '#' + this.props.threadInfo.color };
       change = (
         <div className={textClasses} style={textStyle}>
           {this.props.revisionInfo.text}
@@ -46,11 +45,14 @@ class HistoryRevision extends React.PureComponent<Props> {
       );
     }
 
-    const author = this.props.revisionInfo.author === null
-      ? "Anonymous"
-      : <span className={css.entryUsername}>
+    const author =
+      this.props.revisionInfo.author === null ? (
+        'Anonymous'
+      ) : (
+        <span className={css.entryUsername}>
           {this.props.revisionInfo.author}
-        </span>;
+        </span>
+      );
 
     const date = new Date(this.props.revisionInfo.lastUpdate);
     const hovertext = dateFormat(date, "dddd, mmmm dS, yyyy 'at' h:MM TT");
@@ -58,7 +60,7 @@ class HistoryRevision extends React.PureComponent<Props> {
       <li>
         {change}
         <span className={css.entryAuthor}>
-          {"updated by "}
+          {'updated by '}
           {author}
         </span>
         <TimeAgo
@@ -70,7 +72,6 @@ class HistoryRevision extends React.PureComponent<Props> {
       </li>
     );
   }
-
 }
 
 HistoryRevision.propTypes = {

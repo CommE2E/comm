@@ -9,21 +9,14 @@ import createThread from '../creators/thread-creator';
 
 const { squadbot } = bots;
 
-async function createSquadbotThread(
-  userID: string,
-): Promise<string> {
+async function createSquadbotThread(userID: string): Promise<string> {
   const squadbotViewer = createBotViewer(squadbot.userID);
   const newThreadRequest = {
     type: threadTypes.CHAT_SECRET,
-    initialMemberIDs: [ userID ],
+    initialMemberIDs: [userID],
   };
-  const result = await createThread(
-    squadbotViewer,
-    newThreadRequest,
-  );
+  const result = await createThread(squadbotViewer, newThreadRequest);
   return result.newThreadInfo.id;
 }
 
-export {
-  createSquadbotThread,
-};
+export { createSquadbotThread };

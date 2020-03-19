@@ -22,8 +22,8 @@ const clusterEndHeight = 7;
 
 type Props = {|
   item: ChatMessageInfoItemWithHeight,
-  sendFailed: bool,
-  focused: bool,
+  sendFailed: boolean,
+  focused: boolean,
   children: React.Node,
   // Redux state
   composedMessageMaxWidth: number,
@@ -31,7 +31,6 @@ type Props = {|
   ...React.ElementProps<typeof View>,
 |};
 class ComposedMessage extends React.PureComponent<Props> {
-
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     sendFailed: PropTypes.bool.isRequired,
@@ -64,19 +63,19 @@ class ComposedMessage extends React.PureComponent<Props> {
       let deliveryIconName;
       let deliveryIconColor = `#${item.threadInfo.color}`;
       if (id !== null && id !== undefined) {
-        deliveryIconName = "check-circle";
+        deliveryIconName = 'check-circle';
       } else if (sendFailed) {
-        deliveryIconName = "x-circle";
+        deliveryIconName = 'x-circle';
         deliveryIconColor = this.props.colors.redText;
         failedSendInfo = <FailedSend item={item} />;
       } else {
-        deliveryIconName = "circle";
+        deliveryIconName = 'circle';
       }
       deliveryIcon = (
         <View style={styles.iconContainer}>
           <Icon
             name={deliveryIconName}
-            style={[ styles.icon, { color: deliveryIconColor } ]}
+            style={[styles.icon, { color: deliveryIconColor }]}
           />
         </View>
       );
@@ -86,8 +85,8 @@ class ComposedMessage extends React.PureComponent<Props> {
       <View {...viewProps}>
         <MessageHeader item={item} focused={focused} display="lowContrast" />
         <View style={containerStyle}>
-          <View style={[ styles.content, alignStyle ]}>
-            <View style={[ styles.messageBox, messageBoxStyle, alignStyle ]}>
+          <View style={[styles.content, alignStyle]}>
+            <View style={[styles.messageBox, messageBoxStyle, alignStyle]}>
               {children}
             </View>
             {deliveryIcon}
@@ -97,7 +96,6 @@ class ComposedMessage extends React.PureComponent<Props> {
       </View>
     );
   }
-
 }
 
 const styles = StyleSheet.create({
@@ -131,14 +129,9 @@ const styles = StyleSheet.create({
   },
 });
 
-const ConnectedComposedMessage = connect(
-  (state: AppState) => ({
-    composedMessageMaxWidth: composedMessageMaxWidthSelector(state),
-    colors: colorsSelector(state),
-  }),
-)(ComposedMessage);
+const ConnectedComposedMessage = connect((state: AppState) => ({
+  composedMessageMaxWidth: composedMessageMaxWidthSelector(state),
+  colors: colorsSelector(state),
+}))(ComposedMessage);
 
-export {
-  ConnectedComposedMessage as ComposedMessage,
-  clusterEndHeight,
-};
+export { ConnectedComposedMessage as ComposedMessage, clusterEndHeight };

@@ -61,21 +61,22 @@ import {
 import { VerificationModalRouteName } from '../navigation/route-names';
 import SafeAreaView from '../components/safe-area-view.react';
 
-type VerificationModalMode = "simple-text" | "reset-password";
+type VerificationModalMode = 'simple-text' | 'reset-password';
 type Props = {
-  navigation:
-    & { state: { params: { verifyCode: string } } }
-    & NavigationScreenProp<NavigationLeafRoute>,
+  navigation: {
+    state: { params: { verifyCode: string } },
+  } & NavigationScreenProp<NavigationLeafRoute>,
   // Redux state
-  isForeground: bool,
+  isForeground: boolean,
   dimensions: Dimensions,
   splashStyle: ImageStyle,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  handleVerificationCode:
-    (code: string) => Promise<HandleVerificationCodeResult>,
+  handleVerificationCode: (
+    code: string,
+  ) => Promise<HandleVerificationCodeResult>,
 };
 type State = {
   mode: VerificationModalMode,
@@ -84,10 +85,9 @@ type State = {
   errorMessage: ?string,
   resetPasswordUsername: ?string,
   resetPasswordPanelOpacityValue: Animated.Value,
-  onePasswordSupported: bool,
+  onePasswordSupported: boolean,
 };
 class InnerVerificationModal extends React.PureComponent<Props, State> {
-
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
@@ -105,10 +105,8 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
   };
 
   state = {
-    mode: "simple-text",
-    paddingTop: new Animated.Value(
-      this.currentPaddingTop("simple-text", 0),
-    ),
+    mode: 'simple-text',
+    paddingTop: new Animated.Value(this.currentPaddingTop('simple-text', 0)),
     verifyField: null,
     errorMessage: null,
     resetPasswordUsername: null,
@@ -124,7 +122,7 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
   activeKeyboard = false;
   opacityChangeQueued = false;
   keyboardHeight = 0;
-  nextMode: VerificationModalMode = "simple-text";
+  nextMode: VerificationModalMode = 'simple-text';
 
   async determineOnePasswordSupport() {
     let onePasswordSupported;
@@ -164,9 +162,9 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
     if (code !== prevCode) {
       Keyboard.dismiss();
       this.setState({
-        mode: "simple-text",
+        mode: 'simple-text',
         paddingTop: new Animated.Value(
-          this.currentPaddingTop("simple-text", 0),
+          this.currentPaddingTop('simple-text', 0),
         ),
         verifyField: null,
         errorMessage: null,
@@ -206,25 +204,25 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
   hardwareBack = () => {
     this.props.navigation.goBack();
     return true;
-  }
+  };
 
   onResetPasswordSuccess = () => {
     let opacityListenerID: ?string = null;
     const opacityListener = (animatedUpdate: { value: number }) => {
       if (animatedUpdate.value === 0) {
         this.setState({ mode: this.nextMode });
-        invariant(opacityListenerID, "should be set");
+        invariant(opacityListenerID, 'should be set');
         this.state.resetPasswordPanelOpacityValue.removeListener(
           opacityListenerID,
         );
       }
-    }
+    };
     opacityListenerID = this.state.resetPasswordPanelOpacityValue.addListener(
       opacityListener,
     );
 
     this.opacityChangeQueued = true;
-    this.nextMode = "simple-text";
+    this.nextMode = 'simple-text';
 
     if (this.activeKeyboard) {
       // If keyboard is currently active, keyboardHide will handle the
@@ -235,7 +233,7 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
     }
 
     this.inCoupleSecondsNavigateToApp();
-  }
+  };
 
   async inCoupleSecondsNavigateToApp() {
     await sleep(1750);
@@ -250,39 +248,36 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
         this.setState({ verifyField: result.verifyField });
       } else if (result.verifyField === verifyField.RESET_PASSWORD) {
         this.opacityChangeQueued = true;
-        this.nextMode = "reset-password";
+        this.nextMode = 'reset-password';
         this.setState({
           verifyField: result.verifyField,
-          mode: "reset-password",
+          mode: 'reset-password',
           resetPasswordUsername: result.resetPasswordUsername,
         });
         if (this.activeKeyboard) {
           // If keyboard isn't currently active, keyboardShow will handle the
           // animation. This is so we can run all animations in parallel
           this.animateToResetPassword();
-        } else if (Platform.OS === "ios") {
+        } else if (Platform.OS === 'ios') {
           this.expectingKeyboardToAppear = true;
         }
       }
     } catch (e) {
       if (e.message === 'invalid_code') {
-        this.setState({ errorMessage: "Invalid verification code" });
+        this.setState({ errorMessage: 'Invalid verification code' });
       } else {
-        this.setState({ errorMessage: "Unknown error occurred" });
+        this.setState({ errorMessage: 'Unknown error occurred' });
       }
       throw e;
     }
   }
 
-  currentPaddingTop(
-    mode: VerificationModalMode,
-    keyboardHeight: number,
-  ) {
+  currentPaddingTop(mode: VerificationModalMode, keyboardHeight: number) {
     const windowHeight = this.props.dimensions.height;
     let containerSize = 0;
-    if (mode === "simple-text") {
+    if (mode === 'simple-text') {
       containerSize = 90;
-    } else if (mode === "reset-password") {
+    } else if (mode === 'reset-password') {
       containerSize = 165;
     }
     return (windowHeight - containerSize - keyboardHeight) / 2;
@@ -291,28 +286,19 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
   animateToResetPassword(inputDuration: ?number = null) {
     const duration = inputDuration ? inputDuration : 150;
     const animations = [
-      Animated.timing(
-        this.state.paddingTop,
-        {
-          duration,
-          easing: Easing.out(Easing.ease),
-          toValue: this.currentPaddingTop(
-            this.state.mode,
-            this.keyboardHeight,
-          ),
-        },
-      ),
+      Animated.timing(this.state.paddingTop, {
+        duration,
+        easing: Easing.out(Easing.ease),
+        toValue: this.currentPaddingTop(this.state.mode, this.keyboardHeight),
+      }),
     ];
     if (this.opacityChangeQueued) {
       animations.push(
-        Animated.timing(
-          this.state.resetPasswordPanelOpacityValue,
-          {
-            duration,
-            easing: Easing.out(Easing.ease),
-            toValue: 1,
-          },
-        ),
+        Animated.timing(this.state.resetPasswordPanelOpacityValue, {
+          duration,
+          easing: Easing.out(Easing.ease),
+          toValue: 1,
+        }),
       );
     }
     Animated.parallel(animations).start();
@@ -331,30 +317,24 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
     this.activeKeyboard = true;
     this.animateToResetPassword(event.duration);
     this.opacityChangeQueued = false;
-  }
+  };
 
   animateKeyboardDownOrBackToSimpleText(inputDuration: ?number) {
     const duration = inputDuration ? inputDuration : 250;
     const animations = [
-      Animated.timing(
-        this.state.paddingTop,
-        {
-          duration,
-          easing: Easing.out(Easing.ease),
-          toValue: this.currentPaddingTop(this.nextMode, 0),
-        },
-      ),
+      Animated.timing(this.state.paddingTop, {
+        duration,
+        easing: Easing.out(Easing.ease),
+        toValue: this.currentPaddingTop(this.nextMode, 0),
+      }),
     ];
     if (this.opacityChangeQueued) {
       animations.push(
-        Animated.timing(
-          this.state.resetPasswordPanelOpacityValue,
-          {
-            duration,
-            easing: Easing.out(Easing.ease),
-            toValue: 0,
-          },
-        ),
+        Animated.timing(this.state.resetPasswordPanelOpacityValue, {
+          duration,
+          easing: Easing.out(Easing.ease),
+          toValue: 0,
+        }),
       );
     }
     Animated.parallel(animations).start();
@@ -377,18 +357,18 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
     }
     this.animateKeyboardDownOrBackToSimpleText(event && event.duration);
     this.opacityChangeQueued = false;
-  }
+  };
 
-  setActiveAlert = (activeAlert: bool) => {
+  setActiveAlert = (activeAlert: boolean) => {
     this.activeAlert = activeAlert;
-  }
+  };
 
   render() {
     const statusBar = <ConnectedStatusBar barStyle="light-content" />;
     const background = (
       <Image
         source={{ uri: splashBackgroundURI }}
-        style={[ styles.modalBackground, this.props.splashStyle ]}
+        style={[styles.modalBackground, this.props.splashStyle]}
       />
     );
     const closeButton = (
@@ -406,9 +386,9 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
       </TouchableHighlight>
     );
     let content;
-    if (this.state.mode === "reset-password") {
+    if (this.state.mode === 'reset-password') {
       const code = this.props.navigation.state.params.verifyCode;
-      invariant(this.state.resetPasswordUsername, "should be set");
+      invariant(this.state.resetPasswordUsername, 'should be set');
       content = (
         <ResetPasswordPanel
           verifyCode={code}
@@ -434,9 +414,9 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
     } else if (this.state.verifyField !== null) {
       let message;
       if (this.state.verifyField === verifyField.EMAIL) {
-        message = "Thanks for verifying your email!";
+        message = 'Thanks for verifying your email!';
       } else {
-        message = "Your password has been reset.";
+        message = 'Your password has been reset.';
       }
       content = (
         <View style={styles.contentContainer}>
@@ -474,12 +454,10 @@ class InnerVerificationModal extends React.PureComponent<Props, State> {
       </React.Fragment>
     );
   }
-
 }
 
-const closeButtonTop = Platform.OS === "ios"
-  ? (DeviceInfo.isIPhoneX_deprecated ? 49 : 25)
-  : 15;
+const closeButtonTop =
+  Platform.OS === 'ios' ? (DeviceInfo.isIPhoneX_deprecated ? 49 : 25) : 15;
 
 const styles = StyleSheet.create({
   modalBackground: {
@@ -494,8 +472,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     height: 90,
   },
-  animationContainer: {
-  },
+  animationContainer: {},
   loadingText: {
     position: 'absolute',
     bottom: 0,
@@ -510,7 +487,7 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     position: 'absolute',
-    backgroundColor: "#D0D0D055",
+    backgroundColor: '#D0D0D055',
     top: closeButtonTop,
     right: 15,
     width: 36,
@@ -526,8 +503,9 @@ const styles = StyleSheet.create({
 
 registerFetchKey(handleVerificationCodeActionTypes);
 
-const isForegroundSelector =
-  createIsForegroundSelector(VerificationModalRouteName);
+const isForegroundSelector = createIsForegroundSelector(
+  VerificationModalRouteName,
+);
 const VerificationModal = connect(
   (state: AppState) => ({
     isForeground: isForegroundSelector(state),

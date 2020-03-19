@@ -23,12 +23,7 @@ import Button from '../components/button.react';
 import { colorsSelector, styleSelector } from '../themes/colors';
 
 const CheckIcon = (props: {||}) => (
-  <Icon
-    name="md-checkmark"
-    size={20}
-    color="#008800"
-    style={styles.icon}
-  />
+  <Icon name="md-checkmark" size={20} color="#008800" style={styles.icon} />
 );
 
 type OptionText = {|
@@ -55,7 +50,6 @@ type Props = {|
   dispatchActionPayload: DispatchActionPayload,
 |};
 class AppearancePreferences extends React.PureComponent<Props> {
-
   static propTypes = {
     globalThemeInfo: globalThemeInfoPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
@@ -63,7 +57,7 @@ class AppearancePreferences extends React.PureComponent<Props> {
     dispatchActionPayload: PropTypes.func.isRequired,
   };
   static navigationOptions = {
-    headerTitle: "Appearance",
+    headerTitle: 'Appearance',
   };
 
   render() {
@@ -72,9 +66,10 @@ class AppearancePreferences extends React.PureComponent<Props> {
     const options = [];
     for (let i = 0; i < optionTexts.length; i++) {
       const { themePreference, text } = optionTexts[i];
-      const icon = themePreference === this.props.globalThemeInfo.preference
-        ? <CheckIcon />
-        : null;
+      const icon =
+        themePreference === this.props.globalThemeInfo.preference ? (
+          <CheckIcon />
+        ) : null;
       options.push(
         <Button
           onPress={() => this.onSelectThemePreference(themePreference)}
@@ -85,14 +80,11 @@ class AppearancePreferences extends React.PureComponent<Props> {
         >
           <Text style={this.props.styles.option}>{text}</Text>
           {icon}
-        </Button>
+        </Button>,
       );
       if (i + 1 < optionTexts.length) {
         options.push(
-          <View
-            style={this.props.styles.hr}
-            key={`hr_${themePreference}`}
-          />
+          <View style={this.props.styles.hr} key={`hr_${themePreference}`} />,
         );
       }
     }
@@ -112,15 +104,15 @@ class AppearancePreferences extends React.PureComponent<Props> {
     if (themePreference === this.props.globalThemeInfo.preference) {
       return;
     }
-    const theme = themePreference === 'system'
-      ? this.props.globalThemeInfo.systemTheme
-      : themePreference;
-    this.props.dispatchActionPayload(
-      updateThemeInfoActionType,
-      { preference: themePreference, activeTheme: theme },
-    );
-  }
-
+    const theme =
+      themePreference === 'system'
+        ? this.props.globalThemeInfo.systemTheme
+        : themePreference;
+    this.props.dispatchActionPayload(updateThemeInfoActionType, {
+      preference: themePreference,
+      activeTheme: theme,
+    });
+  };
 }
 
 const styles = {
@@ -134,7 +126,7 @@ const styles = {
     paddingHorizontal: 24,
     paddingBottom: 3,
     fontSize: 12,
-    fontWeight: "400",
+    fontWeight: '400',
     color: 'panelBackgroundLabel',
   },
   section: {
@@ -156,7 +148,7 @@ const styles = {
     color: 'panelForegroundLabel',
   },
   icon: {
-    lineHeight: Platform.OS === "ios" ? 18 : 20,
+    lineHeight: Platform.OS === 'ios' ? 18 : 20,
   },
   hr: {
     height: 1,

@@ -39,7 +39,7 @@ async function createReport(
   if (shouldIgnore) {
     return null;
   }
-  const [ id ] = await createIDs("reports", 1);
+  const [id] = await createIDs('reports', 1);
   let type, report, time;
   if (request.type === reportTypes.THREAD_INCONSISTENCY) {
     ({ type, time, ...report } = request);
@@ -90,22 +90,21 @@ async function sendSquadbotMessage(
     return;
   }
   const time = Date.now();
-  await createMessages(
-    createBotViewer(squadbot.userID),
-    [{
+  await createMessages(createBotViewer(squadbot.userID), [
+    {
       type: messageTypes.TEXT,
       threadID: squadbot.ashoatThreadID,
       creatorID: squadbot.userID,
       time,
       text: message,
-    }],
-  );
+    },
+  ]);
 }
 
 async function ignoreReport(
   viewer: Viewer,
   request: ReportCreationRequest,
-): Promise<bool> {
+): Promise<boolean> {
   // The below logic is to avoid duplicate inconsistency reports
   if (
     request.type !== reportTypes.THREAD_INCONSISTENCY &&
@@ -124,7 +123,7 @@ async function ignoreReport(
     WHERE user = ${viewer.id} AND type = ${type}
       AND platform = ${platform} AND creation_time = ${time}
   `;
-  const [ result ] = await dbQuery(query);
+  const [result] = await dbQuery(query);
   return result.length !== 0;
 }
 
@@ -133,34 +132,40 @@ function getSquadbotMessage(
   reportID: string,
   username: ?string,
 ): ?string {
-  const name = username ? username : "[null]";
+  const name = username ? username : '[null]';
   const { platformDetails } = request;
   const { platform, codeVersion } = platformDetails;
   const platformString = codeVersion ? `${platform} v${codeVersion}` : platform;
   if (request.type === reportTypes.ERROR) {
-    const protocol = https ? "https" : "http";
-    return `${name} got an error :(\n` +
+    const protocol = https ? 'https' : 'http';
+    return (
+      `${name} got an error :(\n` +
       `using ${platformString}\n` +
-      `${baseDomain}${basePath}download_error_report/${reportID}`;
+      `${baseDomain}${basePath}download_error_report/${reportID}`
+    );
   } else if (request.type === reportTypes.THREAD_INCONSISTENCY) {
     const nonMatchingThreadIDs = getInconsistentThreadIDsFromReport(request);
-    const nonMatchingString = [...nonMatchingThreadIDs].join(", ");
-    return `system detected inconsistency for ${name}!\n` +
+    const nonMatchingString = [...nonMatchingThreadIDs].join(', ');
+    return (
+      `system detected inconsistency for ${name}!\n` +
       `using ${platformString}\n` +
       `occurred during ${request.action.type}\n` +
-      `thread IDs that are inconsistent: ${nonMatchingString}`;
+      `thread IDs that are inconsistent: ${nonMatchingString}`
+    );
   } else if (request.type === reportTypes.ENTRY_INCONSISTENCY) {
     const nonMatchingEntryIDs = getInconsistentEntryIDsFromReport(request);
-    const nonMatchingString = [...nonMatchingEntryIDs].join(", ");
-    return `system detected inconsistency for ${name}!\n` +
+    const nonMatchingString = [...nonMatchingEntryIDs].join(', ');
+    return (
+      `system detected inconsistency for ${name}!\n` +
       `using ${platformString}\n` +
       `occurred during ${request.action.type}\n` +
-      `entry IDs that are inconsistent: ${nonMatchingString}`;
+      `entry IDs that are inconsistent: ${nonMatchingString}`
+    );
   } else if (request.type === reportTypes.MEDIA_MISSION) {
     const mediaMissionJSON = JSON.stringify(request.mediaMission);
     const success = request.mediaMission.result.success
-      ? "uploaded media successfully"
-      : "failed to upload media :(";
+      ? 'uploaded media successfully'
+      : 'failed to upload media :(';
     return `${name} ${success}\n` + mediaMissionJSON;
   } else {
     return null;
@@ -168,8 +173,8 @@ function getSquadbotMessage(
 }
 
 function findInconsistentObjectKeys(
-  first: {[id: string]: Object},
-  second: {[id: string]: Object},
+  first: { [id: string]: Object },
+  second: { [id: string]: Object },
 ): Set<string> {
   const nonMatchingIDs = new Set();
   for (let id in first) {

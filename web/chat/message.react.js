@@ -23,7 +23,7 @@ import MultimediaMessage from './multimedia-message.react';
 import css from './chat-message-list.css';
 
 export type OnMessagePositionInfo = {|
-  type: "on",
+  type: 'on',
   item: ChatMessageInfoItem,
   messagePosition: {|
     top: number,
@@ -37,7 +37,7 @@ export type OnMessagePositionInfo = {|
 export type MessagePositionInfo =
   | OnMessagePositionInfo
   | {|
-      type: "off",
+      type: 'off',
       item: ChatMessageInfoItem,
     |};
 type Props = {|
@@ -49,7 +49,6 @@ type Props = {|
   timeZone: ?string,
 |};
 class Message extends React.PureComponent<Props> {
-
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
@@ -96,10 +95,7 @@ class Message extends React.PureComponent<Props> {
     } else {
       invariant(item.robotext, "Flow can't handle our fancy types :(");
       message = (
-        <RobotextMessage
-          item={item}
-          setMouseOver={this.props.setMouseOver}
-        />
+        <RobotextMessage item={item} setMouseOver={this.props.setMouseOver} />
       );
     }
     return (
@@ -109,7 +105,6 @@ class Message extends React.PureComponent<Props> {
       </div>
     );
   }
-
 }
 
 export default Message;

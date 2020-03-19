@@ -6,11 +6,7 @@ import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import {
-  FlatList,
-  ViewPropTypes,
-  Text,
-} from 'react-native';
+import { FlatList, ViewPropTypes, Text } from 'react-native';
 import invariant from 'invariant';
 import { createSelector } from 'reselect';
 
@@ -36,7 +32,6 @@ type State = {|
 |};
 type PropsAndState = {| ...Props, ...State |};
 class ThreadList extends React.PureComponent<Props, State> {
-
   static propTypes = {
     threadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
     onSelect: PropTypes.func.isRequired,
@@ -46,7 +41,7 @@ class ThreadList extends React.PureComponent<Props, State> {
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
   state = {
-    searchText: "",
+    searchText: '',
     searchResults: new Set(),
   };
 
@@ -62,11 +57,12 @@ class ThreadList extends React.PureComponent<Props, State> {
       searchResults: Set<string>,
       itemStyle: ?ViewStyle,
       itemTextStyle: ?TextStyle,
-    ) => text
-      ? threadInfos.filter(threadInfo => searchResults.has(threadInfo.id))
-      // We spread to make sure the result of this selector updates when
-      // any input param (namely itemStyle or itemTextStyle) changes
-      : [ ...threadInfos ],
+    ) =>
+      text
+        ? threadInfos.filter(threadInfo => searchResults.has(threadInfo.id))
+        : // We spread to make sure the result of this selector updates when
+          // any input param (namely itemStyle or itemTextStyle) changes
+          [...threadInfos],
   );
 
   get listData() {
@@ -114,18 +110,17 @@ class ThreadList extends React.PureComponent<Props, State> {
         textStyle={this.props.itemTextStyle}
       />
     );
-  }
+  };
 
   static getItemLayout(data: ?$ReadOnlyArray<ThreadInfo>, index: number) {
     return { length: 24, offset: 24 * index, index };
   }
 
   onChangeSearchText = (searchText: string) => {
-    invariant(this.props.searchIndex, "should be set");
+    invariant(this.props.searchIndex, 'should be set');
     const results = this.props.searchIndex.getSearchResults(searchText);
     this.setState({ searchText, searchResults: new Set(results) });
-  }
-
+  };
 }
 
 const styles = {

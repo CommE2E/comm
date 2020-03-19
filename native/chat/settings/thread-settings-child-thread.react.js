@@ -21,13 +21,12 @@ import { colorsSelector, styleSelector } from '../../themes/colors';
 type Props = {|
   threadInfo: ThreadInfo,
   navigate: Navigate,
-  lastListItem: bool,
+  lastListItem: boolean,
   // Redux state
   colors: Colors,
   styles: Styles,
 |};
 class ThreadSettingsChildThread extends React.PureComponent<Props> {
-
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     navigate: PropTypes.func.isRequired,
@@ -44,7 +43,7 @@ class ThreadSettingsChildThread extends React.PureComponent<Props> {
       <View style={this.props.styles.container}>
         <Button
           onPress={this.onPress}
-          style={[ this.props.styles.button, lastButtonStyle ]}
+          style={[this.props.styles.button, lastButtonStyle]}
         >
           <View style={this.props.styles.leftSide}>
             <ColorSplotch color={this.props.threadInfo.color} />
@@ -69,8 +68,7 @@ class ThreadSettingsChildThread extends React.PureComponent<Props> {
       params: { threadInfo },
       key: `${MessageListRouteName}${threadInfo.id}`,
     });
-  }
-
+  };
 }
 
 const styles = {
@@ -101,7 +99,7 @@ const styles = {
   },
   lastButton: {
     paddingTop: 8,
-    paddingBottom: Platform.OS === "ios" ? 12 : 10,
+    paddingBottom: Platform.OS === 'ios' ? 12 : 10,
   },
 };
 const stylesSelector = styleSelector(styles);

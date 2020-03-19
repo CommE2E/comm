@@ -11,7 +11,6 @@ type Props = {
 };
 
 class CantLeaveThreadModal extends React.PureComponent<Props> {
-
   render() {
     return (
       <Modal name="Cannot leave thread" onClose={this.props.onClose}>
@@ -24,7 +23,6 @@ class CantLeaveThreadModal extends React.PureComponent<Props> {
       </Modal>
     );
   }
-
 }
 
 CantLeaveThreadModal.propTypes = {

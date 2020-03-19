@@ -17,7 +17,7 @@ import { clusterEndHeight } from './composed-message.react';
 
 type Props = {|
   item: ChatMessageInfoItemWithHeight,
-  focused: bool,
+  focused: boolean,
   display: DisplayType,
   // Redux state
   styles: Styles,
@@ -30,7 +30,7 @@ function MessageHeader(props: Props) {
 
   let authorName = null;
   if (!isViewer && (modalDisplay || item.startsCluster)) {
-    const style = [ props.styles.authorName ];
+    const style = [props.styles.authorName];
     if (modalDisplay) {
       style.push(props.styles.modal);
     }
@@ -41,9 +41,10 @@ function MessageHeader(props: Props) {
     );
   }
 
-  const timestamp = modalDisplay || item.startsConversation
-    ? <Timestamp time={time} display={display} />
-    : null;
+  const timestamp =
+    modalDisplay || item.startsConversation ? (
+      <Timestamp time={time} display={display} />
+    ) : null;
 
   let style = null;
   if (focused && !modalDisplay) {
@@ -89,7 +90,4 @@ const ConnectedMessageHeader = connect((state: AppState) => ({
   styles: stylesSelector(state),
 }))(MessageHeader);
 
-export {
-  ConnectedMessageHeader as MessageHeader,
-  authorNameHeight,
-};
+export { ConnectedMessageHeader as MessageHeader, authorNameHeight };

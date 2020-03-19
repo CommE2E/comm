@@ -19,16 +19,15 @@ type Props = {|
 type State = {|
   currentURI: string,
   departingURI: ?string,
-  unlinkDepartingURI: bool,
+  unlinkDepartingURI: boolean,
 |};
 class Multimedia extends React.PureComponent<Props, State> {
-
   static propTypes = {
     mediaInfo: mediaInfoPropType.isRequired,
     spinnerColor: PropTypes.string.isRequired,
   };
   static defaultProps = {
-    spinnerColor: "black",
+    spinnerColor: 'black',
   };
 
   constructor(props: Props) {
@@ -40,20 +39,20 @@ class Multimedia extends React.PureComponent<Props, State> {
     };
   }
 
-  static shouldUnlinkDepartingURI(props: Props): bool {
+  static shouldUnlinkDepartingURI(props: Props): boolean {
     const { localMediaSelection } = props.mediaInfo;
     if (!localMediaSelection) {
       return false;
     }
     if (
-      localMediaSelection.step === "photo_library" ||
-      localMediaSelection.step === "video_library"
+      localMediaSelection.step === 'photo_library' ||
+      localMediaSelection.step === 'video_library'
     ) {
       return false;
     }
     invariant(
-      localMediaSelection.step === "photo_capture",
-      "selection should be photo_capture if not from library",
+      localMediaSelection.step === 'photo_capture',
+      'selection should be photo_capture if not from library',
     );
     return true;
   }
@@ -82,15 +81,11 @@ class Multimedia extends React.PureComponent<Props, State> {
     } else {
       images.push(this.renderURI(currentURI));
     }
-    return (
-      <View style={styles.container}>
-        {images}
-      </View>
-    );
+    return <View style={styles.container}>{images}</View>;
   }
 
-  renderURI(uri: string, invisibleLoad?: bool = false) {
-    if (uri.startsWith("http")) {
+  renderURI(uri: string, invisibleLoad?: boolean = false) {
+    if (uri.startsWith('http')) {
       return (
         <RemoteImage
           uri={uri}
@@ -132,9 +127,8 @@ class Multimedia extends React.PureComponent<Props, State> {
 
     try {
       await filesystem.unlink(path);
-    } catch (e) { }
-  }
-
+    } catch (e) {}
+  };
 }
 
 const styles = StyleSheet.create({

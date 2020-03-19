@@ -31,10 +31,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'lib/utils/redux-utils';
 import { registerActionTypes, register } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import {
-  validUsernameRegex,
-  validEmailRegex,
-} from 'lib/shared/account-utils';
+import { validUsernameRegex, validEmailRegex } from 'lib/shared/account-utils';
 
 import { TextInput } from './modal-components.react';
 import {
@@ -52,9 +49,9 @@ export type RegisterState = {
   confirmPasswordInputText: string,
 };
 type Props = {
-  setActiveAlert: (activeAlert: bool) => void,
+  setActiveAlert: (activeAlert: boolean) => void,
   opacityValue: Animated.Value,
-  onePasswordSupported: bool,
+  onePasswordSupported: boolean,
   state: StateContainer<RegisterState>,
   // Redux state
   loadingStatus: LoadingStatus,
@@ -65,7 +62,6 @@ type Props = {
   register: (registerInfo: RegisterInfo) => Promise<RegisterResult>,
 };
 class RegisterPanel extends React.PureComponent<Props> {
-
   static propTypes = {
     setActiveAlert: PropTypes.func.isRequired,
     opacityValue: PropTypes.object.isRequired,
@@ -103,10 +99,10 @@ class RegisterPanel extends React.PureComponent<Props> {
             autoCorrect={false}
             autoCapitalize="none"
             keyboardType="ascii-capable"
-            returnKeyType='next'
+            returnKeyType="next"
             blurOnSubmit={false}
             onSubmitEditing={this.focusEmailInput}
-            editable={this.props.loadingStatus !== "loading"}
+            editable={this.props.loadingStatus !== 'loading'}
             ref={this.usernameInputRef}
           />
         </View>
@@ -125,10 +121,10 @@ class RegisterPanel extends React.PureComponent<Props> {
             autoCorrect={false}
             autoCapitalize="none"
             keyboardType="email-address"
-            returnKeyType='next'
+            returnKeyType="next"
             blurOnSubmit={false}
             onSubmitEditing={this.focusPasswordInput}
-            editable={this.props.loadingStatus !== "loading"}
+            editable={this.props.loadingStatus !== 'loading'}
             ref={this.emailInputRef}
           />
         </View>
@@ -140,10 +136,10 @@ class RegisterPanel extends React.PureComponent<Props> {
             onChangeText={this.onChangePasswordInputText}
             placeholder="Password"
             secureTextEntry={true}
-            returnKeyType='next'
+            returnKeyType="next"
             blurOnSubmit={false}
             onSubmitEditing={this.focusConfirmPasswordInput}
-            editable={this.props.loadingStatus !== "loading"}
+            editable={this.props.loadingStatus !== 'loading'}
             ref={this.passwordInputRef}
           />
           {onePassword}
@@ -155,10 +151,10 @@ class RegisterPanel extends React.PureComponent<Props> {
             onChangeText={this.onChangeConfirmPasswordInputText}
             placeholder="Confirm password"
             secureTextEntry={true}
-            returnKeyType='go'
+            returnKeyType="go"
             blurOnSubmit={false}
             onSubmitEditing={this.onSubmit}
-            editable={this.props.loadingStatus !== "loading"}
+            editable={this.props.loadingStatus !== 'loading'}
             ref={this.confirmPasswordInputRef}
           />
         </View>
@@ -173,94 +169,86 @@ class RegisterPanel extends React.PureComponent<Props> {
 
   usernameInputRef = (usernameInput: ?TextInput) => {
     this.usernameInput = usernameInput;
-  }
+  };
 
   emailInputRef = (emailInput: ?TextInput) => {
     this.emailInput = emailInput;
-  }
+  };
 
   passwordInputRef = (passwordInput: ?TextInput) => {
     this.passwordInput = passwordInput;
-  }
+  };
 
   confirmPasswordInputRef = (confirmPasswordInput: ?TextInput) => {
     this.confirmPasswordInput = confirmPasswordInput;
-  }
+  };
 
   focusEmailInput = () => {
-    invariant(this.emailInput, "ref should be set");
+    invariant(this.emailInput, 'ref should be set');
     this.emailInput.focus();
-  }
+  };
 
   focusPasswordInput = () => {
-    invariant(this.passwordInput, "ref should be set");
+    invariant(this.passwordInput, 'ref should be set');
     this.passwordInput.focus();
-  }
+  };
 
   focusConfirmPasswordInput = () => {
-    invariant(this.confirmPasswordInput, "ref should be set");
+    invariant(this.confirmPasswordInput, 'ref should be set');
     this.confirmPasswordInput.focus();
-  }
+  };
 
   onChangeUsernameInputText = (text: string) => {
     this.props.state.setState({ usernameInputText: text });
-  }
+  };
 
   onChangeEmailInputText = (text: string) => {
     this.props.state.setState({ emailInputText: text });
-  }
+  };
 
   onChangePasswordInputText = (text: string) => {
     this.props.state.setState({ passwordInputText: text });
-  }
+  };
 
   onChangeConfirmPasswordInputText = (text: string) => {
     this.props.state.setState({ confirmPasswordInputText: text });
-  }
+  };
 
   onSubmit = () => {
     this.props.setActiveAlert(true);
     if (this.props.state.state.passwordInputText === '') {
       Alert.alert(
-        "Empty password",
-        "Password cannot be empty",
-        [
-          { text: 'OK', onPress: this.onPasswordAlertAcknowledged },
-        ],
+        'Empty password',
+        'Password cannot be empty',
+        [{ text: 'OK', onPress: this.onPasswordAlertAcknowledged }],
         { cancelable: false },
       );
     } else if (
       this.props.state.state.passwordInputText !==
-        this.props.state.state.confirmPasswordInputText
+      this.props.state.state.confirmPasswordInputText
     ) {
       Alert.alert(
         "Passwords don't match",
-        "Password fields must contain the same password",
-        [
-          { text: 'OK', onPress: this.onPasswordAlertAcknowledged },
-        ],
+        'Password fields must contain the same password',
+        [{ text: 'OK', onPress: this.onPasswordAlertAcknowledged }],
         { cancelable: false },
       );
     } else if (
       this.props.state.state.usernameInputText.search(validUsernameRegex) === -1
     ) {
       Alert.alert(
-        "Invalid username",
-        "Alphanumeric usernames only",
-        [
-          { text: 'OK', onPress: this.onUsernameAlertAcknowledged },
-        ],
+        'Invalid username',
+        'Alphanumeric usernames only',
+        [{ text: 'OK', onPress: this.onUsernameAlertAcknowledged }],
         { cancelable: false },
       );
     } else if (
       this.props.state.state.emailInputText.search(validEmailRegex) === -1
     ) {
       Alert.alert(
-        "Invalid email address",
-        "Valid email addresses only",
-        [
-          { text: 'OK', onPress: this.onEmailAlertAcknowledged },
-        ],
+        'Invalid email address',
+        'Valid email addresses only',
+        [{ text: 'OK', onPress: this.onEmailAlertAcknowledged }],
         { cancelable: false },
       );
     } else {
@@ -273,47 +261,47 @@ class RegisterPanel extends React.PureComponent<Props> {
         ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
       );
     }
-  }
+  };
 
   onPasswordAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
     this.props.state.setState(
       {
-        passwordInputText: "",
-        confirmPasswordInputText: "",
+        passwordInputText: '',
+        confirmPasswordInputText: '',
       },
       () => {
-        invariant(this.passwordInput, "ref should exist");
+        invariant(this.passwordInput, 'ref should exist');
         this.passwordInput.focus();
       },
     );
-  }
+  };
 
   onUsernameAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
     this.props.state.setState(
       {
-        usernameInputText: "",
+        usernameInputText: '',
       },
       () => {
-        invariant(this.usernameInput, "ref should exist");
+        invariant(this.usernameInput, 'ref should exist');
         this.usernameInput.focus();
       },
     );
-  }
+  };
 
   onEmailAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
     this.props.state.setState(
       {
-        emailInputText: "",
+        emailInputText: '',
       },
       () => {
-        invariant(this.emailInput, "ref should exist");
+        invariant(this.emailInput, 'ref should exist');
         this.emailInput.focus();
       },
     );
-  }
+  };
 
   async registerAction(extraInfo: LogInExtraInfo) {
     try {
@@ -332,43 +320,35 @@ class RegisterPanel extends React.PureComponent<Props> {
     } catch (e) {
       if (e.message === 'username_taken') {
         Alert.alert(
-          "Username taken",
-          "An account with that username already exists",
-          [
-            { text: 'OK', onPress: this.onUsernameAlertAcknowledged },
-          ],
+          'Username taken',
+          'An account with that username already exists',
+          [{ text: 'OK', onPress: this.onUsernameAlertAcknowledged }],
           { cancelable: false },
         );
       } else if (e.message === 'email_taken') {
         Alert.alert(
-          "Email taken",
-          "An account with that email already exists",
-          [
-            { text: 'OK', onPress: this.onEmailAlertAcknowledged },
-          ],
+          'Email taken',
+          'An account with that email already exists',
+          [{ text: 'OK', onPress: this.onEmailAlertAcknowledged }],
           { cancelable: false },
         );
       } else if (e.message === 'client_version_unsupported') {
         const app = Platform.select({
-          ios: "Testflight",
-          android: "Play Store",
+          ios: 'Testflight',
+          android: 'Play Store',
         });
         Alert.alert(
-          "App out of date",
+          'App out of date',
           "Your app version is pretty old, and the server doesn't know how " +
             `to speak to it anymore. Please use the ${app} app to update!`,
-          [
-            { text: 'OK', onPress: this.onAppOutOfDateAlertAcknowledged },
-          ],
+          [{ text: 'OK', onPress: this.onAppOutOfDateAlertAcknowledged }],
           { cancelable: false },
         );
       } else {
         Alert.alert(
-          "Unknown error",
-          "Uhh... try again?",
-          [
-            { text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged },
-          ],
+          'Unknown error',
+          'Uhh... try again?',
+          [{ text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged }],
           { cancelable: false },
         );
       }
@@ -380,25 +360,25 @@ class RegisterPanel extends React.PureComponent<Props> {
     this.props.setActiveAlert(false);
     this.props.state.setState(
       {
-        usernameInputText: "",
-        emailInputText: "",
-        passwordInputText: "",
-        confirmPasswordInputText: "",
+        usernameInputText: '',
+        emailInputText: '',
+        passwordInputText: '',
+        confirmPasswordInputText: '',
       },
       () => {
-        invariant(this.usernameInput, "ref should exist");
+        invariant(this.usernameInput, 'ref should exist');
         this.usernameInput.focus();
       },
     );
-  }
+  };
 
   onAppOutOfDateAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
-  }
+  };
 
   onPressOnePassword = async () => {
     try {
-      const credentials = await OnePassword.findLogin("https://squadcal.org");
+      const credentials = await OnePassword.findLogin('https://squadcal.org');
       this.props.state.setState({
         usernameInputText: credentials.username,
         passwordInputText: credentials.password,
@@ -407,12 +387,11 @@ class RegisterPanel extends React.PureComponent<Props> {
       if (this.props.state.state.emailInputText) {
         this.onSubmit();
       } else {
-        invariant(this.emailInput, "ref should exist");
+        invariant(this.emailInput, 'ref should exist');
         this.emailInput.focus();
       }
-    } catch (e) { }
-  }
-
+    } catch (e) {}
+  };
 }
 
 const styles = StyleSheet.create({

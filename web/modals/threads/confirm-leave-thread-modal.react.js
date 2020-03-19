@@ -15,7 +15,6 @@ type Props = {
 };
 
 class ConfirmLeaveThreadModal extends React.PureComponent<Props> {
-
   render() {
     return (
       <Modal name="Confirm leave thread" onClose={this.props.onClose}>
@@ -40,7 +39,6 @@ class ConfirmLeaveThreadModal extends React.PureComponent<Props> {
       </Modal>
     );
   }
-
 }
 
 ConfirmLeaveThreadModal.propTypes = {

@@ -12,6 +12,4 @@ async function deleteOrphanedRoles(): Promise<void> {
   `);
 }
 
-export {
-  deleteOrphanedRoles,
-};
+export { deleteOrphanedRoles };

@@ -14,10 +14,9 @@ import PropTypes from 'prop-types';
 type Props = {|
   threadType: ThreadType,
   color: string,
-  includeLabel: bool,
+  includeLabel: boolean,
 |};
 class ThreadVisibility extends React.PureComponent<Props> {
-
   static propTypes = {
     threadType: threadTypePropType.isRequired,
     color: PropTypes.string.isRequired,
@@ -29,11 +28,11 @@ class ThreadVisibility extends React.PureComponent<Props> {
 
   render() {
     const { threadType, color, includeLabel } = this.props;
-    const visLabelStyle = [ styles.visibilityLabel, { color } ];
+    const visLabelStyle = [styles.visibilityLabel, { color }];
     if (threadType === threadTypes.CHAT_NESTED_OPEN) {
-      const label = includeLabel
-        ? <Text style={visLabelStyle}>Open</Text>
-        : null;
+      const label = includeLabel ? (
+        <Text style={visLabelStyle}>Open</Text>
+      ) : null;
       return (
         <View style={styles.container}>
           <Icon name="public" size={18} color={color} />
@@ -41,9 +40,9 @@ class ThreadVisibility extends React.PureComponent<Props> {
         </View>
       );
     } else {
-      const label = includeLabel
-        ? <Text style={visLabelStyle}>Secret</Text>
-        : null;
+      const label = includeLabel ? (
+        <Text style={visLabelStyle}>Secret</Text>
+      ) : null;
       return (
         <View style={styles.container}>
           <Icon name="lock-outline" size={18} color={color} />
@@ -52,7 +51,6 @@ class ThreadVisibility extends React.PureComponent<Props> {
       );
     }
   }
-
 }
 
 const styles = StyleSheet.create({
@@ -62,7 +60,7 @@ const styles = StyleSheet.create({
   },
   visibilityLabel: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     paddingLeft: 4,
   },
 });

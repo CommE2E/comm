@@ -12,6 +12,4 @@ async function deleteOrphanedNotifs(): Promise<void> {
   `);
 }
 
-export {
-  deleteOrphanedNotifs,
-};
+export { deleteOrphanedNotifs };

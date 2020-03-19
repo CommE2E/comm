@@ -17,6 +17,4 @@ async function assignMedia(
   await dbQuery(query);
 }
 
-export {
-  assignMedia,
-};
+export { assignMedia };

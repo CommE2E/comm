@@ -20,7 +20,8 @@ import {
 
 export default connect(
   (state: AppState) => {
-    const active = state.currentUserInfo &&
+    const active =
+      state.currentUserInfo &&
       !state.currentUserInfo.anonymous &&
       state.foreground;
     const activeThread = active ? activeThreadSelector(state) : null;

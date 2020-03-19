@@ -1,7 +1,10 @@
 // @flow
 
 import type { AppState } from '../../redux-setup';
-import { type ServerVerificationResult, verifyField } from 'lib/types/verify-types';
+import {
+  type ServerVerificationResult,
+  verifyField,
+} from 'lib/types/verify-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -20,22 +23,22 @@ function VerificationModal(props: Props) {
   const { onClose, serverVerificationResult } = props;
   invariant(
     serverVerificationResult,
-    "VerificationModal needs a serverVerificationResult",
+    'VerificationModal needs a serverVerificationResult',
   );
 
   const { success } = serverVerificationResult;
   let message, title;
   if (!success) {
-    title = "Invalid code";
-    message = "Sorry, but that code has expired or is invalid.";
+    title = 'Invalid code';
+    message = 'Sorry, but that code has expired or is invalid.';
   } else if (success && serverVerificationResult.field === verifyField.EMAIL) {
-    title = "Verified email";
-    message = "Thanks for verifying your email address!";
+    title = 'Verified email';
+    message = 'Thanks for verifying your email address!';
   }
   invariant(
     title && message,
-    "VerificationModal can't handle serverVerificationResult "
-      + JSON.stringify(serverVerificationResult)
+    "VerificationModal can't handle serverVerificationResult " +
+      JSON.stringify(serverVerificationResult),
   );
 
   return (
@@ -47,8 +50,6 @@ function VerificationModal(props: Props) {
   );
 }
 
-export default connect(
-  (state: AppState) => ({
-    serverVerificationResult: state.serverVerificationResult,
-  }),
-)(VerificationModal);
+export default connect((state: AppState) => ({
+  serverVerificationResult: state.serverVerificationResult,
+}))(VerificationModal);

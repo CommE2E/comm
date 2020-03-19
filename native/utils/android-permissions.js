@@ -4,10 +4,7 @@ import { PermissionsAndroid, type Rationale } from 'react-native';
 
 const granted = new Set();
 
-async function getAndroidPermission(
-  permission: string,
-  rationale?: Rationale,
-) {
+async function getAndroidPermission(permission: string, rationale?: Rationale) {
   if (granted.has(permission)) {
     return true;
   }
@@ -23,6 +20,4 @@ async function getAndroidPermission(
   }
 }
 
-export {
-  getAndroidPermission,
-};
+export { getAndroidPermission };

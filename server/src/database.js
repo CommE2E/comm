@@ -9,10 +9,7 @@ import { getScriptContext } from './scripts/script-context';
 
 const SQLStatement = SQL.SQLStatement;
 
-export type QueryResult = [
-  any[] & { insertId?: number },
-  any[],
-];
+export type QueryResult = [any[] & { insertId?: number }, any[]];
 
 let pool;
 function getPool() {
@@ -39,7 +36,7 @@ function appendSQLArray(
   if (sqlArray.length === 0) {
     return sql;
   }
-  const [ first, ...rest ] = sqlArray;
+  const [first, ...rest] = sqlArray;
   sql.append(first);
   if (rest.length === 0) {
     return sql;
@@ -83,12 +80,12 @@ async function dbQuery(statement: SQLStatement, triesLeft?: number = 2) {
     if (
       scriptContext &&
       scriptContext.dryRun &&
-      (sql.startsWith("INSERT") ||
-        sql.startsWith("DELETE") ||
-        sql.startsWith("UPDATE"))
+      (sql.startsWith('INSERT') ||
+        sql.startsWith('DELETE') ||
+        sql.startsWith('UPDATE'))
     ) {
       console.log(rawSQL(statement));
-      return [ fakeResult ];
+      return [fakeResult];
     }
     return await getPool().query(statement);
   } catch (e) {

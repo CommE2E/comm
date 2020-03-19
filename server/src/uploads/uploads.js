@@ -40,12 +40,8 @@ async function multimediaUploadResponder(
     throw new ServerError('invalid_parameters');
   }
   const validationResults = await Promise.all(
-    files.map(
-      ({ buffer, size, originalname }) => validateAndConvert(
-        buffer,
-        originalname,
-        size,
-      ),
+    files.map(({ buffer, size, originalname }) =>
+      validateAndConvert(buffer, originalname, size),
     ),
   );
   const uploadInfos = validationResults.filter(Boolean);

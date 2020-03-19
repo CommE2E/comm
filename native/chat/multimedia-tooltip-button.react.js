@@ -17,9 +17,7 @@ import type {
   NavigationLeafRoute,
 } from 'react-navigation';
 import type { AppState } from '../redux/redux-setup';
-import type {
-  ChatMultimediaMessageInfoItem,
-} from './multimedia-message.react';
+import type { ChatMultimediaMessageInfoItem } from './multimedia-message.react';
 
 import * as React from 'react';
 import Animated from 'react-native-reanimated';
@@ -67,14 +65,13 @@ type Props = {
   chatInputState: ?ChatInputState,
 };
 class MultimediaTooltipButton extends React.PureComponent<Props> {
-
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
         params: PropTypes.shape({
           initialCoordinates: layoutCoordinatesPropType.isRequired,
           verticalBounds: verticalBoundsPropType.isRequired,
-          location: PropTypes.oneOf([ 'above', 'below' ]),
+          location: PropTypes.oneOf(['above', 'below']),
           margin: PropTypes.number,
           item: chatMessageItemPropType.isRequired,
           mediaInfo: mediaInfoPropType.isRequired,
@@ -109,9 +106,10 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
 
     const { id: mediaID } = mediaInfo;
     const ourMessageID = messageID(item.messageInfo);
-    const pendingUploads = chatInputState
-      && chatInputState.pendingUploads
-      && chatInputState.pendingUploads[ourMessageID];
+    const pendingUploads =
+      chatInputState &&
+      chatInputState.pendingUploads &&
+      chatInputState.pendingUploads[ourMessageID];
     const pendingUpload = pendingUploads && pendingUploads[mediaID];
     const postInProgress = !!pendingUploads;
 
@@ -125,7 +123,7 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
         <Animated.View style={this.headerStyle}>
           <MessageHeader item={item} focused={true} display="modal" />
         </Animated.View>
-        <View style={[ styles.media, roundedStyle ]}>
+        <View style={[styles.media, roundedStyle]}>
           <InlineMultimedia
             mediaInfo={mediaInfo}
             onPress={this.onPress}
@@ -141,8 +139,7 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
 
   onPress = () => {
     this.props.navigation.goBack();
-  }
-
+  };
 }
 
 const styles = StyleSheet.create({
@@ -152,8 +149,6 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect(
-  (state: AppState) => ({
-    screenDimensions: dimensionsSelector(state),
-  }),
-)(withChatInputState(MultimediaTooltipButton));
+export default connect((state: AppState) => ({
+  screenDimensions: dimensionsSelector(state),
+}))(withChatInputState(MultimediaTooltipButton));

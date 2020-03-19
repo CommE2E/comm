@@ -6,9 +6,7 @@ import * as React from 'react';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware, type Store } from 'redux';
 import thunk from 'redux-thunk';
-import {
-  composeWithDevTools,
-} from 'redux-devtools-extension/logOnlyInProduction';
+import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction';
 
 import { reduxLoggerMiddleware } from 'lib/utils/redux-logger';
 
@@ -19,9 +17,7 @@ declare var preloadedState: AppState;
 const store: Store<AppState, Action> = createStore(
   reducer,
   preloadedState,
-  composeWithDevTools({})(
-    applyMiddleware(thunk, reduxLoggerMiddleware),
-  ),
+  composeWithDevTools({})(applyMiddleware(thunk, reduxLoggerMiddleware)),
 );
 
 const RootProvider = () => (

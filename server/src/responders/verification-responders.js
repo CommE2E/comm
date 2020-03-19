@@ -38,6 +38,4 @@ async function codeVerificationResponder(
   throw new ServerError('invalid_code');
 }
 
-export {
-  codeVerificationResponder,
-};
+export { codeVerificationResponder };
