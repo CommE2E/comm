@@ -5,9 +5,35 @@ import geoip from 'geoip-lite';
 import cluster from 'cluster';
 
 import { handleAsyncPromise } from '../responders/handlers';
-import geoipLicense from '../../secrets/geoip_license';
 
-function updateGeoipDB(): Promise<void> {
+let cachedGeoipLicense = undefined;
+async function getGeoipLicense() {
+  if (cachedGeoipLicense !== undefined) {
+    return cachedGeoipLicense;
+  }
+  try {
+    const geoipLicenseImport = await import('../../secrets/geoip_license');
+    if (cachedGeoipLicense !== undefined) {
+      cachedGeoipLicense = geoipLicenseImport.default;
+    }
+  } catch {
+    if (cachedGeoipLicense !== undefined) {
+      cachedGeoipLicense = null;
+    }
+  }
+  return cachedGeoipLicense;
+}
+
+async function updateGeoipDB(): Promise<void> {
+  const geoipLicense = await getGeoipLicense();
+  if (!geoipLicense) {
+    console.log('no server/secrets/geoip_license.json so skipping update');
+    return;
+  }
+  await spawnUpdater(geoipLicense);
+}
+
+function spawnUpdater(geoipLicense: { key: string }): Promise<void> {
   const spawned = childProcess.spawn(
     process.execPath,
     [
