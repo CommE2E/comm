@@ -361,6 +361,7 @@ git clone git@github.com:Ashoat/squadcal.git
 Once you have the repo cloned, you can run this command to pull in dependencies.
 
 ```
+cd squadcal
 yarn cleaninstall
 ```
 
@@ -369,7 +370,7 @@ yarn cleaninstall
 The server side needs to see some config files before things can work. The first is a config file with MySQL details.
 
 ```
-cd squadcal/server
+cd server
 mkdir secrets
 vim secrets/db_config.json
 ```
@@ -387,7 +388,7 @@ The DB config file should look like this:
 
 Make sure to replace the password with the one you set up for your `squadcal` MySQL user earlier.
 
-New let’s run a script to create the tables. Before we can run the script, we’ll have to use Babel to transpile our source files into something Node can interpret. Babel will transpile the files in src into a new directory called dist. We also use `rsync` to copy over files that don’t need transpilation.
+New let’s run a script to create the tables. Before we can run the script, we’ll have to use Babel to transpile our source files into something Node can interpret. Babel will transpile the files in `src` into a new directory called `dist`. We also use `rsync` to copy over files that don’t need transpilation.
 
 ```
 yarn babel-build
