@@ -59,7 +59,7 @@ Node Version Manager is a tool that helps us make sure we use the same version o
 brew install nvm
 ```
 
-After installing, Homebrew will print out some instructions under the Caveats section of its output. It will ask you to do two things: `mkdir ~/.nvm`, and to add some lines to your `~/.bash_profile` (or desired shell configuration file). We recommend that you append `—no-use` to the line that loads nvm, so that you continue to use your Homebrew-sourced Node distribution by default:
+After installing, Homebrew will print out some instructions under the Caveats section of its output. It will ask you to do two things: `mkdir ~/.nvm`, and to add some lines to your `~/.bash_profile` (or desired shell configuration file). We recommend that you append `--no-use` to the line that loads nvm, so that you continue to use your Homebrew-sourced Node distribution by default:
 
 ```
 export NVM_DIR="$HOME/.nvm"

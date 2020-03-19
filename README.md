@@ -1,3 +1,5 @@
+## SquadCal
+
 SquadCal is the working name of this open source messaging project. The goal is to create a chat app that:
 1. Is oriented around helping people spend time together,
 2. Can scale chat threads to dozens or even hundreds of users,
