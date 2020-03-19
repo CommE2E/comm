@@ -4,15 +4,48 @@ import { threadPermissions } from 'lib/types/thread-types';
 
 import apn from 'apn';
 import fcmAdmin from 'firebase-admin';
+import invariant from 'invariant';
 
 import { dbQuery, SQL } from '../database';
-import apnConfig from '../../secrets/apn_config';
-import fcmConfig from '../../secrets/fcm_config';
 
-const apnProvider = new apn.Provider(apnConfig);
-fcmAdmin.initializeApp({
-  credential: fcmAdmin.credential.cert(fcmConfig),
-});
+let cachedAPNProvider = undefined;
+async function getAPNProvider() {
+  if (cachedAPNProvider !== undefined) {
+    return cachedAPNProvider;
+  }
+  try {
+    const apnConfig = await import('../../secrets/apn_config');
+    if (cachedAPNProvider === undefined) {
+      cachedAPNProvider = new apn.Provider(apnConfig.default);
+    }
+  } catch {
+    if (cachedAPNProvider === undefined) {
+      cachedAPNProvider = null;
+    }
+  }
+  return cachedAPNProvider;
+}
+
+let fcmAppInitialized = undefined;
+async function initializeFCMApp() {
+  if (fcmAppInitialized !== undefined) {
+    return fcmAppInitialized;
+  }
+  try {
+    const fcmConfig = await import('../../secrets/fcm_config');
+    if (fcmAppInitialized === undefined) {
+      fcmAppInitialized = true;
+      fcmAdmin.initializeApp({
+        credential: fcmAdmin.credential.cert(fcmConfig.default),
+      });
+    }
+  } catch {
+    if (cachedAPNProvider === undefined) {
+      fcmAppInitialized = false;
+    }
+  }
+  return fcmAppInitialized;
+}
 
 const fcmTokenInvalidationErrors = new Set([
   "messaging/registration-token-not-registered",
@@ -26,6 +59,12 @@ async function apnPush(
   notification: apn.Notification,
   deviceTokens: $ReadOnlyArray<string>,
 ) {
+  const apnProvider = await getAPNProvider();
+  if (!apnProvider && process.env.NODE_ENV === "dev") {
+    console.log('no server/secrets/apn_config.json so ignoring notifs');
+    return { success: true };
+  }
+  invariant(apnProvider, 'server/secrets/apn_config.json should exist');
   const result = await apnProvider.send(notification, deviceTokens);
   const errors = [];
   const invalidTokens = [];
@@ -53,6 +92,12 @@ async function fcmPush(
   deviceTokens: $ReadOnlyArray<string>,
   collapseKey: ?string,
 ) {
+  const initialized = await initializeFCMApp();
+  if (!initialized && process.env.NODE_ENV === "dev") {
+    console.log('no server/secrets/fcm_config.json so ignoring notifs');
+    return { success: true };
+  }
+  invariant(initialized, 'server/secrets/fcm_config.json should exist');
   const options: Object = {
     priority: 'high',
   };
