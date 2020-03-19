@@ -369,8 +369,7 @@ yarn cleaninstall
 The server side needs to see some config files before things can work. The first is a config file with MySQL details.
 
 ```
-cd squadcal
-cd secrets
+cd squadcal/server
 mkdir secrets
 vim secrets/db_config.json
 ```
