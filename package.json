@@ -1,6 +1,6 @@
 {
   "private": true,
-  "license" : "BSD-3-Clause",
+  "license": "BSD-3-Clause",
   "workspaces": [
     "lib",
     "web",
@@ -10,5 +10,15 @@
   "scripts": {
     "clean": "yarn workspace lib clean && yarn workspace web clean && yarn workspace native clean && yarn workspace server clean && rm -rf node_modules/",
     "cleaninstall": "yarn clean && yarn"
+  },
+  "devDependencies": {
+    "husky": "^4.2.3",
+    "prettier": "^1.19.1",
+    "pretty-quick": "^2.0.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
   }
 }
