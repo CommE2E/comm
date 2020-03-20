@@ -9,7 +9,6 @@ import type { DispatchActionPayload } from 'lib/utils/action-utils';
 import * as React from 'react';
 import { Provider } from 'react-redux';
 import {
-  AppRegistry,
   Platform,
   UIManager,
   AppState as NativeAppState,
@@ -180,11 +179,12 @@ const ConnectedAppWithNavigationState = connect(
   true,
 )(AppWithNavigationState);
 
-const App = (props: {}) => (
+const App = () => (
   <Provider store={store}>
     <ErrorBoundary>
       <ConnectedAppWithNavigationState />
     </ErrorBoundary>
   </Provider>
 );
-AppRegistry.registerComponent('SquadCal', () => App);
+
+export default App;
