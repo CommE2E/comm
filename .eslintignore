@@ -1,10 +1,16 @@
 lib/flow-typed
+lib/node_modules
 web/dist
 web/flow-typed
+web/node_modules
 server/compiled
 server/dist
 server/secrets
 server/facts
 server/fonts
 server/flow-typed
+server/node_modules
+server/src/lib
+server/src/web
 native/flow-typed
+native/node_modules

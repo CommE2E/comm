@@ -8,17 +8,14 @@
     "postinstall": "cd ../ && yarn patch-package && yarn flow-mono create-symlinks native && cd native && yarn jetify && cd ios && (pod install || true)",
     "dev": "yarn react-native start",
     "test": "yarn jest",
-    "lint": "yarn eslint .",
     "logfirebase": "adb shell logcat | grep -E -i 'FIRMessagingModule|firebase'"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
     "@babel/runtime": "^7.9.2",
-    "@react-native-community/eslint-config": "^0.0.5",
     "babel-jest": "^24.9.0",
     "babel-plugin-transform-remove-console": "^6.8.5",
     "babel-plugin-transform-remove-strict-mode": "0.0.2",
-    "eslint": "^6.4.0",
     "flow-bin": "^0.98.0",
     "flow-mono-cli": "^1.5.0",
     "fs-extra": "^8.1.0",
