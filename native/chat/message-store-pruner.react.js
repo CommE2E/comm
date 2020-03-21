@@ -31,9 +31,16 @@ class MessageStorePruner extends React.PureComponent<Props> {
     frozen: PropTypes.bool.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
+  pruned = false;
 
   componentDidUpdate(prevProps: Props) {
-    if (this.props.frozen) {
+    if (
+      this.pruned &&
+      this.props.nextMessagePruneTime !== prevProps.nextMessagePruneTime
+    ) {
+      this.pruned = false;
+    }
+    if (this.props.frozen || this.pruned) {
       return;
     }
     const { nextMessagePruneTime } = this.props;
@@ -48,6 +55,7 @@ class MessageStorePruner extends React.PureComponent<Props> {
     if (threadIDs.length === 0) {
       return;
     }
+    this.pruned = true;
     this.props.dispatchActionPayload(messageStorePruneActionType, {
       threadIDs,
     });
