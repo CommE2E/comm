@@ -7,7 +7,6 @@ import type {
   NavigationLeafRoute,
 } from 'react-navigation';
 import type { Styles } from '../types/styles';
-import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import { View, Text, ScrollView, Platform } from 'react-native';
@@ -23,9 +22,14 @@ import Button from '../components/button.react';
 import { getPersistor } from '../redux/persist';
 import { serverOptions } from '../utils/url-utils';
 import { CustomServerModalRouteName } from '../navigation/route-names';
-import { colorsSelector, styleSelector } from '../themes/colors';
+import {
+  type Colors,
+  colorsPropType,
+  colorsSelector,
+  styleSelector,
+} from '../themes/colors';
 
-const ServerIcon = (props: {||}) => (
+const ServerIcon = () => (
   <Icon name="md-checkmark" size={20} color="#008800" style={styles.icon} />
 );
 

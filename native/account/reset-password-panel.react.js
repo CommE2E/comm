@@ -257,24 +257,24 @@ const styles = StyleSheet.create({
   container: {
     marginTop: 0,
   },
+  icon: {
+    bottom: 8,
+    left: 4,
+    position: 'absolute',
+  },
   input: {
     paddingLeft: 35,
   },
-  icon: {
-    position: 'absolute',
-    bottom: 8,
-    left: 4,
-  },
   usernameContainer: {
-    borderBottomWidth: 1,
     borderBottomColor: '#BBBBBB',
+    borderBottomWidth: 1,
     paddingLeft: 35,
   },
   usernameText: {
-    paddingTop: 8,
-    height: 40,
-    fontSize: 20,
     color: '#444',
+    fontSize: 20,
+    height: 40,
+    paddingTop: 8,
   },
 });
 

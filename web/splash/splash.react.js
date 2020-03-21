@@ -145,10 +145,11 @@ class Splash extends React.PureComponent<Props, State> {
               <div className={css.headerRest}>
                 <div className={css.prompt}>
                   <p className={css.promptHeader}>
-                    We're currently alpha testing the first version of our app.
+                    We&apos;re currently alpha testing the first version of our
+                    app.
                   </p>
                   <p className={css.promptDescription}>
-                    If you'd like to try it out, please let us know!
+                    If you&apos;d like to try it out, please let us know!
                   </p>
                   <div className={css.requestAccessContainer}>
                     <div>
@@ -248,7 +249,7 @@ class Splash extends React.PureComponent<Props, State> {
 
   async requestAccessAction() {
     try {
-      const result = await this.props.requestAccess({
+      await this.props.requestAccess({
         email: this.state.email,
         platform: this.state.platform,
       });

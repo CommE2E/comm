@@ -1,7 +1,6 @@
 // @flow
 
 import type { AppState } from '../redux/redux-setup';
-import type { Action } from '../navigation/navigation-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
@@ -155,13 +154,13 @@ class ForgotPasswordPanel extends React.PureComponent<Props, State> {
 }
 
 const styles = StyleSheet.create({
-  input: {
-    paddingLeft: 35,
-  },
   icon: {
-    position: 'absolute',
     bottom: 8,
     left: 4,
+    position: 'absolute',
+  },
+  input: {
+    paddingLeft: 35,
   },
 });
 

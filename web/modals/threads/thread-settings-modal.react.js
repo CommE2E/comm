@@ -365,7 +365,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     const target = event.currentTarget;
     const newValue =
       target.value !== this.props.threadInfo.name ? target.value : null;
-    this.setState((prevState: State, props) => ({
+    this.setState((prevState: State) => ({
       ...prevState,
       queuedChanges: {
         ...prevState.queuedChanges,
@@ -378,7 +378,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     const target = event.currentTarget;
     const newValue =
       target.value !== this.props.threadInfo.description ? target.value : null;
-    this.setState((prevState: State, props) => ({
+    this.setState((prevState: State) => ({
       ...prevState,
       queuedChanges: {
         ...prevState.queuedChanges,
@@ -389,7 +389,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
 
   onChangeColor = (color: string) => {
     const newValue = color !== this.props.threadInfo.color ? color : null;
-    this.setState((prevState: State, props) => ({
+    this.setState((prevState: State) => ({
       ...prevState,
       queuedChanges: {
         ...prevState.queuedChanges,
@@ -401,7 +401,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
   onChangeThreadType = (event: SyntheticEvent<HTMLInputElement>) => {
     const uiValue = assertThreadType(parseInt(event.currentTarget.value, 10));
     const newValue = uiValue !== this.props.threadInfo.type ? uiValue : null;
-    this.setState((prevState: State, props) => ({
+    this.setState((prevState: State) => ({
       ...prevState,
       queuedChanges: {
         ...prevState.queuedChanges,
@@ -451,7 +451,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
         );
       } else {
         this.setState(
-          (prevState, props) => ({
+          prevState => ({
             ...prevState,
             queuedChanges: {},
             accountPassword: '',

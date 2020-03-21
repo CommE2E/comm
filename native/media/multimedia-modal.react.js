@@ -273,7 +273,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     super(props);
     this.updateDimensions();
 
-    const { screenWidth, screenHeight, imageWidth, imageHeight } = this;
+    const { imageWidth, imageHeight } = this;
     const left = sub(this.centerX, divide(imageWidth, 2));
     const top = sub(this.centerY, divide(imageHeight, 2));
 
@@ -796,14 +796,14 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     );
 
     const decayClock = new Clock();
-    const decay = [
+    const decayItems = [
       set(curX, runDecay(decayClock, panVelocityX, curX, false)),
       set(curY, runDecay(decayClock, panVelocityY, curY)),
     ];
 
     return cond(
       [panJustEnded, dismissingFromPan],
-      decay,
+      decayItems,
       cond(
         or(pinchActive, greaterThan(roundedCurScale, 1)),
         set(curBackdropOpacity, runTiming(resetClock, curBackdropOpacity, 1)),
@@ -811,7 +811,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
           stopClock(resetClock),
           set(curBackdropOpacity, progressiveOpacity),
           set(dismissingFromPan, shouldGoBack),
-          cond(shouldGoBack, [decay, call([], this.close)]),
+          cond(shouldGoBack, [decayItems, call([], this.close)]),
         ],
       ),
     );
@@ -1190,56 +1190,56 @@ class MultimediaModal extends React.PureComponent<Props, State> {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   backdrop: {
-    position: 'absolute',
-    top: 0,
+    backgroundColor: 'black',
     bottom: 0,
     left: 0,
+    position: 'absolute',
     right: 0,
-    backgroundColor: 'black',
+    top: 0,
   },
-  contentContainer: {
-    flex: 1,
-    overflow: 'hidden',
+  closeButton: {
+    color: 'white',
+    fontSize: 36,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    textShadowColor: '#000',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
   },
   closeButtonContainer: {
     position: 'absolute',
     right: 4,
   },
-  closeButton: {
-    paddingVertical: 2,
-    paddingHorizontal: 8,
-    fontSize: 36,
-    color: 'white',
-    textShadowColor: '#000',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 1,
+  container: {
+    flex: 1,
   },
-  saveButtonContainer: {
-    position: 'absolute',
-    left: 16,
-    bottom: contentBottomOffset + 8,
+  contentContainer: {
+    flex: 1,
+    overflow: 'hidden',
   },
   saveButton: {
     alignItems: 'center',
-    paddingTop: 2,
     paddingBottom: 2,
     paddingLeft: 8,
     paddingRight: 8,
+    paddingTop: 2,
+  },
+  saveButtonContainer: {
+    bottom: contentBottomOffset + 8,
+    left: 16,
+    position: 'absolute',
   },
   saveButtonIcon: {
-    fontSize: 36,
     color: '#D7D7DC',
+    fontSize: 36,
     textShadowColor: '#1C1C1E',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,
   },
   saveButtonText: {
-    fontSize: 14,
     color: '#D7D7DC',
+    fontSize: 14,
     textShadowColor: '#1C1C1E',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,

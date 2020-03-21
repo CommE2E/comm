@@ -38,12 +38,9 @@ import {
 import type { Orientations } from 'react-native-orientation-locker';
 import type { ClientReportCreationRequest } from 'lib/types/report-types';
 
-import * as React from 'react';
-import invariant from 'invariant';
 import thunk from 'redux-thunk';
 import { createStore, applyMiddleware, type Store, compose } from 'redux';
 import { persistStore, persistReducer, REHYDRATE } from 'redux-persist';
-import PropTypes from 'prop-types';
 import { createReactNavigationReduxMiddleware } from 'react-navigation-redux-helpers';
 import {
   AppState as NativeAppState,
@@ -55,7 +52,6 @@ import Orientation from 'react-native-orientation-locker';
 import baseReducer from 'lib/reducers/master-reducer';
 import { sendTextMessageActionTypes } from 'lib/actions/message-actions';
 import { reduxLoggerMiddleware } from 'lib/utils/redux-logger';
-import { getConfig } from 'lib/utils/config';
 import { invalidSessionDowngrade } from 'lib/shared/account-utils';
 import {
   logOutActionTypes,
@@ -351,8 +347,8 @@ function reducer(state: AppState = defaultState, action: *) {
         // navigate back to that compose thread screen, but instead, since the
         // user's intent has ostensibly already been satisfied, we will pop up
         // to the screen right before that one.
-        const replaceFunc = (chatRoute: NavigationStateRoute) =>
-          removeScreensFromStack(chatRoute, (route: NavigationRoute) =>
+        const replaceFunc = (inChatRoute: NavigationStateRoute) =>
+          removeScreensFromStack(inChatRoute, (route: NavigationRoute) =>
             route.key === currentChatSubroute.key ? 'remove' : 'keep',
           );
         navInfo = {

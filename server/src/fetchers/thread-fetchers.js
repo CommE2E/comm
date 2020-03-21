@@ -1,11 +1,10 @@
 // @flow
 
-import {
-  type RawThreadInfo,
-  type ServerThreadInfo,
-  type ThreadPermission,
-  threadPermissions,
-  type ThreadPermissionsBlob,
+import type {
+  RawThreadInfo,
+  ServerThreadInfo,
+  ThreadPermission,
+  ThreadPermissionsBlob,
 } from 'lib/types/thread-types';
 import type { AccountUserInfo } from 'lib/types/user-types';
 import type { Viewer } from '../session/viewer';

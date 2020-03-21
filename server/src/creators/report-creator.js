@@ -28,7 +28,7 @@ import createMessages from './message-creator';
 import { handleAsyncPromise } from '../responders/handlers';
 import { createBotViewer } from '../session/bots';
 
-const { baseDomain, basePath, https } = urlFacts;
+const { baseDomain, basePath } = urlFacts;
 const { squadbot } = bots;
 
 async function createReport(
@@ -137,7 +137,6 @@ function getSquadbotMessage(
   const { platform, codeVersion } = platformDetails;
   const platformString = codeVersion ? `${platform} v${codeVersion}` : platform;
   if (request.type === reportTypes.ERROR) {
-    const protocol = https ? 'https' : 'http';
     return (
       `${name} got an error :(\n` +
       `using ${platformString}\n` +
@@ -193,14 +192,14 @@ function findInconsistentObjectKeys(
 function getInconsistentThreadIDsFromReport(
   request: ThreadInconsistencyReportCreationRequest,
 ): Set<string> {
-  const { pushResult, pollResult, action } = request;
+  const { pushResult, pollResult } = request;
   return findInconsistentObjectKeys(pollResult, pushResult);
 }
 
 function getInconsistentEntryIDsFromReport(
   request: EntryInconsistencyReportCreationRequest,
 ): Set<string> {
-  const { pushResult, pollResult, action, calendarQuery } = request;
+  const { pushResult, pollResult, calendarQuery } = request;
   const filteredPollResult = filterRawEntryInfosByCalendarQuery(
     serverEntryInfosObject(values(pollResult)),
     calendarQuery,

@@ -13,7 +13,6 @@ import invariant from 'invariant';
 import _difference from 'lodash/fp/difference';
 
 import { ServerError } from 'lib/utils/errors';
-import { promiseFilter } from 'lib/utils/promises';
 
 import { dbQuery, SQL, mergeOrConditions } from '../database';
 import { rescindPushNotifs } from '../push/rescind';

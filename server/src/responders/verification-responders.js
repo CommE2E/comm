@@ -13,7 +13,6 @@ import { verifyField } from 'lib/types/verify-types';
 
 import { validateInput, tShape } from '../utils/validation-utils';
 import { handleCodeVerificationRequest } from '../models/verification';
-import { dbQuery, SQL } from '../database';
 
 const codeVerificationRequestInputValidator = tShape({
   code: t.String,

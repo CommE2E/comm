@@ -460,44 +460,44 @@ const closeButtonTop =
   Platform.OS === 'ios' ? (DeviceInfo.isIPhoneX_deprecated ? 49 : 25) : 15;
 
 const styles = StyleSheet.create({
-  modalBackground: {
+  animationContainer: {},
+  closeButton: {
+    backgroundColor: '#D0D0D055',
+    borderRadius: 3,
+    height: 36,
     position: 'absolute',
-    width: ('100%': number | string),
-    height: ('100%': number | string),
+    right: 15,
+    top: closeButtonTop,
+    width: 36,
+  },
+  closeButtonIcon: {
+    left: 10,
+    position: 'absolute',
+    top: 8,
   },
   container: {
-    flex: 1,
     backgroundColor: 'transparent',
+    flex: 1,
   },
   contentContainer: {
     height: 90,
   },
-  animationContainer: {},
-  loadingText: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    textAlign: 'center',
-    color: 'white',
-    fontSize: 20,
-  },
   icon: {
     textAlign: 'center',
   },
-  closeButton: {
+  loadingText: {
+    bottom: 0,
+    color: 'white',
+    fontSize: 20,
+    left: 0,
     position: 'absolute',
-    backgroundColor: '#D0D0D055',
-    top: closeButtonTop,
-    right: 15,
-    width: 36,
-    height: 36,
-    borderRadius: 3,
+    right: 0,
+    textAlign: 'center',
   },
-  closeButtonIcon: {
+  modalBackground: {
+    height: ('100%': number | string),
     position: 'absolute',
-    left: 10,
-    top: 8,
+    width: ('100%': number | string),
   },
 });
 

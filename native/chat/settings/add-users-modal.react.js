@@ -10,7 +10,6 @@ import {
 import {
   type AccountUserInfo,
   accountUserInfoPropType,
-  type UserListItem,
 } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { UserSearchResult } from 'lib/types/search-types';

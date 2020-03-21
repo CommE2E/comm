@@ -4,7 +4,6 @@ import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
 import { type GlobalTheme, globalThemePropType } from '../types/themes';
 import type { AppState } from '../redux/redux-setup';
-import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
@@ -16,7 +15,12 @@ import { onlyEmojiRegex } from 'lib/shared/emojis';
 import { connect } from 'lib/utils/redux-utils';
 
 import { RoundedMessageContainer } from './rounded-message-container.react';
-import { colorsSelector, colors } from '../themes/colors';
+import {
+  type Colors,
+  colorsPropType,
+  colorsSelector,
+  colors,
+} from '../themes/colors';
 
 type Props = {|
   item: ChatTextMessageInfoItemWithHeight,
@@ -37,7 +41,7 @@ class InnerTextMessage extends React.PureComponent<Props> {
 
   render() {
     const { item } = this.props;
-    const { text, id, creator } = item.messageInfo;
+    const { text, creator } = item.messageInfo;
     const { isViewer } = creator;
 
     let messageStyle = {},
@@ -101,25 +105,25 @@ class InnerTextMessage extends React.PureComponent<Props> {
 }
 
 const styles = StyleSheet.create({
-  text: {
-    fontSize: 18,
-    fontFamily: 'Arial',
-  },
-  emojiOnlyText: {
-    fontSize: 36,
-    fontFamily: 'Arial',
-  },
-  message: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-  },
   darkLinkText: {
     color: colors.light.link,
     textDecorationLine: 'underline',
   },
+  emojiOnlyText: {
+    fontFamily: 'Arial',
+    fontSize: 36,
+  },
   lightLinkText: {
     color: colors.dark.link,
     textDecorationLine: 'underline',
+  },
+  message: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  text: {
+    fontFamily: 'Arial',
+    fontSize: 18,
   },
 });
 

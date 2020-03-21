@@ -330,13 +330,13 @@ class LogInPanel extends React.PureComponent<Props> {
 export type InnerLogInPanel = LogInPanel;
 
 const styles = StyleSheet.create({
-  input: {
-    paddingLeft: 35,
-  },
   icon: {
-    position: 'absolute',
     bottom: 8,
     left: 4,
+    position: 'absolute',
+  },
+  input: {
+    paddingLeft: 35,
   },
 });
 

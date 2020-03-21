@@ -7,7 +7,6 @@ import type { CalendarQuery } from 'lib/types/entry-types';
 import type { GlobalTheme } from '../types/themes';
 
 import { createSelector } from 'reselect';
-import invariant from 'invariant';
 import _memoize from 'lodash/memoize';
 
 import { currentCalendarQuery } from 'lib/selectors/nav-selectors';

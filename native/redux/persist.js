@@ -101,14 +101,6 @@ const migrations = {
   }),
   [9]: (state: AppState) => ({
     ...state,
-    nextLocalID: highestLocalIDSelector(state) + 1,
-    connection: {
-      ...state.connection,
-      lateResponses: [],
-    },
-  }),
-  [9]: (state: AppState) => ({
-    ...state,
     connection: {
       ...state.connection,
       lateResponses: [],
@@ -116,8 +108,6 @@ const migrations = {
   }),
   [10]: (state: AppState) => ({
     ...state,
-    // Doing this again because in earlier codeVersions I accidentally forgot
-    // to add 1
     nextLocalID: highestLocalIDSelector(state) + 1,
     connection: {
       ...state.connection,

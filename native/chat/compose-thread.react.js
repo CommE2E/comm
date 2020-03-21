@@ -19,12 +19,10 @@ import {
 import {
   type AccountUserInfo,
   accountUserInfoPropType,
-  type UserListItem,
 } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { UserSearchResult } from 'lib/types/search-types';
 import type { Styles } from '../types/styles';
-import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -56,7 +54,12 @@ import LinkButton from '../components/link-button.react';
 import { MessageListRouteName } from '../navigation/route-names';
 import { registerChatScreen } from './chat-screen-registry';
 import ThreadVisibility from '../components/thread-visibility.react';
-import { colorsSelector, styleSelector } from '../themes/colors';
+import {
+  type Colors,
+  colorsPropType,
+  colorsSelector,
+  styleSelector,
+} from '../themes/colors';
 
 const tagInputProps = {
   placeholder: 'username',
@@ -127,6 +130,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
       setParams: PropTypes.func.isRequired,
       goBack: PropTypes.func.isRequired,
       navigate: PropTypes.func.isRequired,
+      getParam: PropTypes.func.isRequired,
     }).isRequired,
     parentThreadInfo: threadInfoPropType,
     loadingStatus: loadingStatusPropType.isRequired,

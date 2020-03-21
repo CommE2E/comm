@@ -66,10 +66,10 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   label: {
-    textAlign: 'center',
     color: '#444',
     fontSize: 14,
     lineHeight: 17,
+    textAlign: 'center',
   },
 });
 

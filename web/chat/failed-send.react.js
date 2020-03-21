@@ -62,8 +62,6 @@ class FailedSend extends React.PureComponent<Props> {
   retryingMedia = false;
 
   componentDidUpdate(prevProps: Props) {
-    const newItem = this.props.item;
-    const prevItem = prevProps.item;
     const isFailed = multimediaMessageSendFailed(
       this.props.item,
       this.props.chatInputState,

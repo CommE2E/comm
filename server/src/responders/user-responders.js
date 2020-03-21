@@ -45,6 +45,7 @@ import {
 import {
   createNewAnonymousCookie,
   createNewUserCookie,
+  setNewSession,
 } from '../session/cookies';
 import { deleteCookie } from '../deleters/cookie-deleters';
 import { deleteAccount } from '../deleters/account-deleters';
@@ -59,7 +60,6 @@ import { dbQuery, SQL } from '../database';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { sendAccessRequestEmailToAshoat } from '../emails/access-request';
-import { setNewSession } from '../session/cookies';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 
 const subscriptionUpdateRequestInputValidator = tShape({
@@ -97,10 +97,7 @@ async function accountUpdateResponder(
   await accountUpdater(viewer, request);
 }
 
-async function sendVerificationEmailResponder(
-  viewer: Viewer,
-  input: any,
-): Promise<void> {
+async function sendVerificationEmailResponder(viewer: Viewer): Promise<void> {
   await validateInput(viewer, null, null);
   await checkAndSendVerificationEmail(viewer);
 }
@@ -118,10 +115,7 @@ async function sendPasswordResetEmailResponder(
   await checkAndSendPasswordResetEmail(request);
 }
 
-async function logOutResponder(
-  viewer: Viewer,
-  input: any,
-): Promise<LogOutResponse> {
+async function logOutResponder(viewer: Viewer): Promise<LogOutResponse> {
   await validateInput(viewer, null, null);
   if (viewer.loggedIn) {
     const [anonymousViewerData] = await Promise.all([

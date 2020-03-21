@@ -28,7 +28,6 @@ import {
   type Navigate,
   ThreadSettingsMemberTooltipModalRouteName,
 } from '../../navigation/route-names';
-import { type Colors, colorsPropType } from '../../themes/colors';
 import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
@@ -40,7 +39,6 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import PropTypes from 'prop-types';
-import invariant from 'invariant';
 
 import { threadHasPermission, memberIsAdmin } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
@@ -51,10 +49,13 @@ import {
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
-import EditSettingButton from '../../components/edit-setting-button.react';
-import Button from '../../components/button.react';
 import PencilIcon from './pencil-icon.react';
-import { colorsSelector, styleSelector } from '../../themes/colors';
+import {
+  type Colors,
+  colorsPropType,
+  colorsSelector,
+  styleSelector,
+} from '../../themes/colors';
 
 type Props = {|
   memberInfo: RelativeMemberInfo,

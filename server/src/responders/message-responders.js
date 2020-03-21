@@ -3,7 +3,6 @@
 import type { Viewer } from '../session/viewer';
 import {
   messageTypes,
-  type MessageData,
   type SendTextMessageRequest,
   type SendMultimediaMessageRequest,
   type FetchMessageInfosResult,

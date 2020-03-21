@@ -3,7 +3,6 @@
 import type { ViewStyle, TextStyle } from '../types/styles';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 import type { AppState } from '../redux/redux-setup';
-import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -23,7 +22,7 @@ import invariant from 'invariant';
 import { connect } from 'lib/utils/redux-utils';
 
 import { dimensionsSelector } from '../selectors/dimension-selectors';
-import { colorsSelector } from '../themes/colors';
+import { type Colors, colorsPropType, colorsSelector } from '../themes/colors';
 
 type Props<T> = {|
   /**
@@ -440,38 +439,38 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  wrapper: {},
-  tagInputContainerScroll: {
-    flex: 1,
+  tag: {
+    borderRadius: 2,
+    justifyContent: 'center',
+    marginBottom: 3,
+    marginRight: 3,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
   },
   tagInputContainer: {
     flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
-  textInput: {
-    fontSize: 16,
-    height: 24,
-    flex: 0.6,
-    padding: 0,
-    marginTop: 3,
-    marginBottom: 3,
-    marginHorizontal: 0,
-  },
-  textInputContainer: {},
-  tag: {
-    justifyContent: 'center',
-    marginBottom: 3,
-    marginRight: 3,
-    paddingVertical: 2,
-    paddingHorizontal: 6,
-    borderRadius: 2,
+  tagInputContainerScroll: {
+    flex: 1,
   },
   tagText: {
-    padding: 0,
-    margin: 0,
     fontSize: 16,
+    margin: 0,
+    padding: 0,
   },
+  textInput: {
+    flex: 0.6,
+    fontSize: 16,
+    height: 24,
+    marginBottom: 3,
+    marginHorizontal: 0,
+    marginTop: 3,
+    padding: 0,
+  },
+  textInputContainer: {},
+  wrapper: {},
 });
 
 export default connect((state: AppState) => ({

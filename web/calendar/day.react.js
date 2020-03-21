@@ -81,7 +81,7 @@ class Day extends React.PureComponent<Props, State> {
     return null;
   }
 
-  componentDidUpdate(prevProps: Props, prevState: State) {
+  componentDidUpdate(prevProps: Props) {
     if (this.props.entryInfos.length > prevProps.entryInfos.length) {
       invariant(this.entryContainer, 'entryContainer ref not set');
       this.entryContainer.scrollTop = this.entryContainer.scrollHeight;
@@ -264,7 +264,7 @@ class Day extends React.PureComponent<Props, State> {
 
   focusOnFirstEntryNewerThan = (time: number) => {
     const entryInfo = this.props.entryInfos.find(
-      entryInfo => entryInfo.creationTime > time,
+      candidate => candidate.creationTime > time,
     );
     if (entryInfo) {
       const entry = this.entries.get(entryKey(entryInfo));

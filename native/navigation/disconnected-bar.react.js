@@ -43,14 +43,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#CC0000',
     padding: 5,
   },
+  disconnectedText: {
+    color: 'white',
+    fontSize: 14,
+    textAlign: 'center',
+  },
   hiddenDisconnectedBar: {
     height: 0,
     padding: 0,
-  },
-  disconnectedText: {
-    fontSize: 14,
-    textAlign: 'center',
-    color: 'white',
   },
 });
 

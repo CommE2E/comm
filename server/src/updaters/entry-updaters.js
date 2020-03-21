@@ -88,7 +88,7 @@ async function updateEntry(
   const viewerID = viewer.userID;
   const dbPromises = [];
   let insertNewRevision = false;
-  let updateEntry = false;
+  let shouldUpdateEntry = false;
   if (
     viewerID === lastRevisionRow.author &&
     viewer.session === lastRevisionRow.session
@@ -102,7 +102,7 @@ async function updateEntry(
         updatesResult: defaultUpdateCreationResponse,
       };
     }
-    updateEntry = true;
+    shouldUpdateEntry = true;
     if (lastRevisionRow.last_update + 120000 > request.timestamp) {
       dbPromises.push(
         dbQuery(SQL`
@@ -128,10 +128,10 @@ async function updateEntry(
       newTime: request.timestamp,
     });
   } else {
-    updateEntry = true;
+    shouldUpdateEntry = true;
     insertNewRevision = true;
   }
-  if (updateEntry) {
+  if (shouldUpdateEntry) {
     dbPromises.push(
       dbQuery(SQL`
       UPDATE entries

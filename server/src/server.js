@@ -31,7 +31,7 @@ if (cluster.isMaster) {
   for (let i = 0; i < cpuCount; i++) {
     cluster.fork();
   }
-  cluster.on('exit', worker => cluster.fork());
+  cluster.on('exit', () => cluster.fork());
 } else {
   const server = express();
   expressWs(server);

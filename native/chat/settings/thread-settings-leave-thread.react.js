@@ -9,7 +9,6 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { AppState } from '../../redux/redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import { type Colors, colorsPropType } from '../../themes/colors';
 import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
@@ -25,7 +24,12 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors';
 
 import Button from '../../components/button.react';
-import { colorsSelector, styleSelector } from '../../themes/colors';
+import {
+  type Colors,
+  colorsPropType,
+  colorsSelector,
+  styleSelector,
+} from '../../themes/colors';
 
 type Props = {|
   threadInfo: ThreadInfo,

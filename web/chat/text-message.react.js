@@ -46,7 +46,7 @@ class TextMessage extends React.PureComponent<Props> {
     );
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate() {
     invariant(
       this.props.item.messageInfo.type === messageTypes.TEXT,
       'TextMessage should only be used for messageTypes.TEXT',

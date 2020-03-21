@@ -50,10 +50,7 @@ export type ChatTextMessageInfoItemWithHeight = {|
   contentHeight: number,
 |};
 
-function textMessageItemHeight(
-  item: ChatTextMessageInfoItemWithHeight,
-  viewerID: ?string,
-) {
+function textMessageItemHeight(item: ChatTextMessageInfoItemWithHeight) {
   const { messageInfo, contentHeight, startsCluster, endsCluster } = item;
   const { id, creator } = messageInfo;
   const { isViewer } = creator;

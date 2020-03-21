@@ -3,7 +3,7 @@
 import Animated from 'react-native-reanimated';
 import { State as GestureState } from 'react-native-gesture-handler';
 
-const { Value, Clock, cond, greaterThan, eq, sub, set } = Animated;
+const { Value, cond, greaterThan, eq, sub, set } = Animated;
 
 function clamp(value: Value, minValue: Value, maxValue: Value): Value {
   return cond(

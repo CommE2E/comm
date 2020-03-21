@@ -11,7 +11,6 @@ import type { Viewer } from '../session/viewer';
 
 import { generateRandomColor } from 'lib/shared/thread-utils';
 import { ServerError } from 'lib/utils/errors';
-import { getAllThreadPermissions } from 'lib/permissions/thread-permissions';
 
 import { dbQuery, SQL } from '../database';
 import { checkThreadPermission } from '../fetchers/thread-fetchers';
@@ -76,7 +75,7 @@ async function createThread(
       creation_time, color, parent_thread_id, default_role)
     VALUES ${[row]}
   `;
-  const [initialMemberIDs, [result]] = await Promise.all([
+  const [initialMemberIDs] = await Promise.all([
     request.initialMemberIDs && request.initialMemberIDs.length > 0
       ? verifyUserIDs(request.initialMemberIDs)
       : undefined,

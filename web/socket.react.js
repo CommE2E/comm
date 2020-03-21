@@ -24,7 +24,6 @@ export default connect(
       state.currentUserInfo &&
       !state.currentUserInfo.anonymous &&
       state.foreground;
-    const activeThread = active ? activeThreadSelector(state) : null;
     return {
       active,
       openSocket: openSocketSelector(state),

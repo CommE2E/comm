@@ -35,13 +35,13 @@ class ErrorBoundary extends React.PureComponent<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    this.setState((prevState, props) => ({
+    this.setState(prevState => ({
       errorData: [...prevState.errorData, { error, info }],
     }));
   }
 
   reportError(error: Error) {
-    this.setState((prevState, props) => ({
+    this.setState(prevState => ({
       errorData: [...prevState.errorData, { error }],
     }));
   }

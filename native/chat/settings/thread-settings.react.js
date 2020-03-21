@@ -25,7 +25,6 @@ import type { Styles } from '../../types/styles';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { View, FlatList } from 'react-native';
-import _isEqual from 'lodash/fp/isEqual';
 import invariant from 'invariant';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 
@@ -276,7 +275,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     }
   }
 
-  componentDidUpdate(prevProps: Props, prevState: State) {
+  componentDidUpdate(prevProps: Props) {
     const oldReduxThreadInfo = prevProps.threadInfo;
     const newReduxThreadInfo = this.props.threadInfo;
     if (newReduxThreadInfo && newReduxThreadInfo !== oldReduxThreadInfo) {
@@ -410,10 +409,10 @@ class ThreadSettings extends React.PureComponent<Props, State> {
 
     let childThreadItems = null;
     if (this.props.childThreadInfos) {
-      let childThreadInfos;
+      let childThreadInfosSlice;
       let seeMoreChildThreads = null;
       if (this.props.childThreadInfos.length > this.state.showMaxChildThreads) {
-        childThreadInfos = this.props.childThreadInfos.slice(
+        childThreadInfosSlice = this.props.childThreadInfos.slice(
           0,
           this.state.showMaxChildThreads,
         );
@@ -423,9 +422,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           onPress: this.onPressSeeMoreChildThreads,
         };
       } else {
-        childThreadInfos = this.props.childThreadInfos;
+        childThreadInfosSlice = this.props.childThreadInfos;
       }
-      const childThreads = childThreadInfos.map(childThreadInfo => ({
+      const childThreads = childThreadInfosSlice.map(childThreadInfo => ({
         itemType: 'childThread',
         key: `childThread${childThreadInfo.id}`,
         threadInfo: childThreadInfo,

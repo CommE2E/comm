@@ -8,7 +8,6 @@ import type { AppState } from '../../redux-setup';
 
 import * as React from 'react';
 import classNames from 'classnames';
-import invariant from 'invariant';
 import dateFormat from 'dateformat';
 import PropTypes from 'prop-types';
 import TimeAgo from 'react-timeago';

@@ -8,7 +8,6 @@ import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { LogOutResult } from 'lib/types/account-types';
 import { type GlobalTheme, globalThemePropType } from '../types/themes';
 import type { Styles } from '../types/styles';
-import { type Colors, colorsPropType } from '../themes/colors';
 import {
   type PreRequestUserState,
   preRequestUserStatePropType,
@@ -38,7 +37,12 @@ import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import Button from '../components/button.react';
 import OnePasswordButton from '../components/one-password-button.react';
 import { deleteNativeCredentialsFor } from '../account/native-credentials';
-import { colorsSelector, styleSelector } from '../themes/colors';
+import {
+  type Colors,
+  colorsPropType,
+  colorsSelector,
+  styleSelector,
+} from '../themes/colors';
 
 type Props = {|
   navigation: NavigationScreenProp<*>,

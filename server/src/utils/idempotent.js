@@ -6,11 +6,14 @@ function creationString(viewer: Viewer, localID: string) {
   return `${viewer.session}|${localID}`;
 }
 
-function localIDFromCreationString(viewer: ?Viewer, creationString: ?string) {
-  if (!creationString || !viewer || !viewer.hasSessionInfo) {
+function localIDFromCreationString(
+  viewer: ?Viewer,
+  ourCreationString: ?string,
+) {
+  if (!ourCreationString || !viewer || !viewer.hasSessionInfo) {
     return null;
   }
-  const [session, localID] = creationString.split('|');
+  const [session, localID] = ourCreationString.split('|');
   return session === viewer.session ? localID : null;
 }
 

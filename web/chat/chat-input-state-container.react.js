@@ -23,8 +23,6 @@ import { createSelector } from 'reselect';
 import _memoize from 'lodash/memoize';
 import _keyBy from 'lodash/fp/keyBy';
 import _omit from 'lodash/fp/omit';
-import _flow from 'lodash/fp/flow';
-import _map from 'lodash/fp/map';
 import _groupBy from 'lodash/fp/groupBy';
 import _partition from 'lodash/fp/partition';
 import invariant from 'invariant';
@@ -215,7 +213,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       this.sendMultimediaMessage(rawMessageInfo);
     }
 
-    for (let [messageID, messageInfo] of newMessageInfos) {
+    for (let [, messageInfo] of newMessageInfos) {
       this.props.dispatchActionPayload(
         createLocalMessageActionType,
         messageInfo,
@@ -326,7 +324,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
             this.cancelPendingUpload(threadID, localUploadID),
           createMultimediaMessage: (localID?: number) =>
             this.createMultimediaMessage(threadID, localID),
-          setDraft: (draft: string) => this.setDraft(threadID, draft),
+          setDraft: (newDraft: string) => this.setDraft(threadID, newDraft),
           messageHasUploadFailure: (localMessageID: string) =>
             this.messageHasUploadFailure(threadAssignedUploads[localMessageID]),
           retryMultimediaMessage: (localMessageID: string) =>
@@ -746,14 +744,14 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     }
 
     this.setState(prevState => {
-      const pendingUploads = prevState.pendingUploads[threadID];
-      if (!pendingUploads) {
+      const prevPendingUploads = prevState.pendingUploads[threadID];
+      if (!prevPendingUploads) {
         return {};
       }
       const newPendingUploads = {};
       let pendingUploadChanged = false;
-      for (let localID in pendingUploads) {
-        const pendingUpload = pendingUploads[localID];
+      for (let localID in prevPendingUploads) {
+        const pendingUpload = prevPendingUploads[localID];
         if (uploadIDsToRetry.has(localID) && !pendingUpload.serverID) {
           newPendingUploads[localID] = {
             ...pendingUpload,

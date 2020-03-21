@@ -1,7 +1,6 @@
 // @flow
 
 import type { LoadingStatus } from 'lib/types/loading-types';
-import { type AppState, type NavInfo, navInfoPropType } from './redux-setup';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
 import {
   verifyField,
@@ -21,7 +20,6 @@ import classNames from 'classnames';
 import HTML5Backend from 'react-dnd-html5-backend';
 import { DndProvider } from 'react-dnd';
 
-import { getDate } from 'lib/utils/date-utils';
 import {
   fetchEntriesActionTypes,
   updateCalendarQueryActionTypes,
@@ -41,7 +39,6 @@ import {
   foregroundActionType,
 } from 'lib/reducers/foreground-reducer';
 
-import { activeThreadSelector } from './selectors/nav-selectors';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
 import css from './style.css';
 import AccountBar from './account-bar.react';
@@ -50,7 +47,12 @@ import ResetPasswordModal from './modals/account/reset-password-modal.react';
 import VerificationModal from './modals/account/verification-modal.react';
 import LoadingIndicator from './loading-indicator.react';
 import history from './router-history';
-import { updateNavInfoActionType } from './redux-setup';
+import {
+  type AppState,
+  type NavInfo,
+  navInfoPropType,
+  updateNavInfoActionType,
+} from './redux-setup';
 import Splash from './splash/splash.react';
 import Chat from './chat/chat.react';
 
@@ -190,9 +192,9 @@ class App extends React.PureComponent<Props, State> {
       serverVerificationResult &&
       serverVerificationResult.field === verifyField.RESET_PASSWORD
     ) {
-      if (this.props.navInfo.verify && !prevProps.navInfo.verify) {
+      if (navInfo.verify && !prevProps.navInfo.verify) {
         this.showResetPasswordModal();
-      } else if (!this.props.navInfo.verify && prevProps.navInfo.verify) {
+      } else if (!navInfo.verify && prevProps.navInfo.verify) {
         this.clearModal();
       }
     }
@@ -250,11 +252,11 @@ class App extends React.PureComponent<Props, State> {
       mainContent = <Chat setModal={this.setModal} />;
     }
 
-    const { viewerID, unreadCount } = this.props;
+    const { viewerID, unreadCount: curUnreadCount } = this.props;
     invariant(viewerID, 'should be set');
     let chatBadge = null;
-    if (unreadCount > 0) {
-      chatBadge = <div className={css.chatBadge}>{unreadCount}</div>;
+    if (curUnreadCount > 0) {
+      chatBadge = <div className={css.chatBadge}>{curUnreadCount}</div>;
     }
 
     return (

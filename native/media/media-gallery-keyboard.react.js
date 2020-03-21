@@ -8,7 +8,6 @@ import {
 } from 'lib/types/media-types';
 import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
 import type { ViewStyle, Styles } from '../types/styles';
-import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import {
@@ -22,6 +21,7 @@ import {
 import { KeyboardRegistry } from 'react-native-keyboard-input';
 import invariant from 'invariant';
 import { Provider } from 'react-redux';
+// eslint-disable-next-line import/default
 import CameraRoll from '@react-native-community/cameraroll';
 import PropTypes from 'prop-types';
 
@@ -38,7 +38,12 @@ import {
 } from '../selectors/dimension-selectors';
 import MediaGalleryMedia from './media-gallery-media.react';
 import Animated, { Easing } from 'react-native-reanimated';
-import { colorsSelector, styleSelector } from '../themes/colors';
+import {
+  type Colors,
+  colorsPropType,
+  colorsSelector,
+  styleSelector,
+} from '../themes/colors';
 import { getAndroidPermission } from '../utils/android-permissions';
 import SendMediaButton from './send-media-button.react';
 import { getCompatibleMediaURI } from '../utils/media-utils';
@@ -547,7 +552,7 @@ const ReduxConnectedMediaGalleryKeyboard = connect((state: AppState) => ({
   styles: stylesSelector(state),
 }))(MediaGalleryKeyboard);
 
-function ReduxMediaGalleryKeyboard(props: {||}) {
+function ReduxMediaGalleryKeyboard() {
   return (
     <Provider store={store}>
       <ReduxConnectedMediaGalleryKeyboard />

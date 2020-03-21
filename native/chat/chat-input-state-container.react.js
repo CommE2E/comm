@@ -192,7 +192,6 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         }
       }
 
-      const numNewUploads = Object.keys(newUploads).length;
       if (uploadsChanged) {
         pendingUploadsChanged = true;
         newPendingUploads[localMessageID] = newUploads;

@@ -1,9 +1,8 @@
 // @flow
 
-import type { ViewStyle, TextStyle } from '../../types/styles';
+import type { ViewStyle, TextStyle, Styles } from '../../types/styles';
 import type { IoniconsGlyphs } from 'react-native-vector-icons/Ionicons';
 import type { AppState } from '../../redux/redux-setup';
-import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
 import { View, Text, Platform } from 'react-native';

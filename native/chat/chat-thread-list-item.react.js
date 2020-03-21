@@ -6,7 +6,6 @@ import {
 } from 'lib/selectors/chat-selectors';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { AppState } from '../redux/redux-setup';
-import { type Colors, colorsPropType } from '../themes/colors';
 import type { Styles } from '../types/styles';
 
 import * as React from 'react';
@@ -19,7 +18,12 @@ import { connect } from 'lib/utils/redux-utils';
 import Button from '../components/button.react';
 import MessagePreview from './message-preview.react';
 import ColorSplotch from '../components/color-splotch.react';
-import { colorsSelector, styleSelector } from '../themes/colors';
+import {
+  type Colors,
+  colorsPropType,
+  colorsSelector,
+  styleSelector,
+} from '../themes/colors';
 
 type Props = {
   data: ChatThreadItem,

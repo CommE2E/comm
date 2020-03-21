@@ -1,7 +1,6 @@
 // @flow
 
 import { type MediaInfo, mediaInfoPropType } from 'lib/types/media-types';
-import type { ImageStyle } from '../types/styles';
 import {
   type PendingMultimediaUpload,
   pendingMultimediaUploadPropType,
@@ -90,17 +89,17 @@ class InlineMultimedia extends React.PureComponent<Props> {
 }
 
 const styles = StyleSheet.create({
+  centerContainer: {
+    alignItems: 'center',
+    bottom: 0,
+    justifyContent: 'center',
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+  },
   expand: {
     flex: 1,
-  },
-  centerContainer: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   progressIndicatorText: {
     color: 'black',

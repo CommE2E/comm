@@ -13,7 +13,6 @@ import {
   type UpdateThreadRequest,
 } from 'lib/types/thread-types';
 import type { Styles } from '../../types/styles';
-import { type Colors, colorsPropType } from '../../themes/colors';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 
 import * as React from 'react';
@@ -30,7 +29,12 @@ import {
 import { createModal } from '../../components/modal.react';
 import { AddUsersModalRouteName } from '../../navigation/route-names';
 import ColorPicker from '../../components/color-picker.react';
-import { colorsSelector, styleSelector } from '../../themes/colors';
+import {
+  type Colors,
+  colorsPropType,
+  colorsSelector,
+  styleSelector,
+} from '../../themes/colors';
 import { dimensionsSelector } from '../../selectors/dimension-selectors';
 
 const Modal = createModal(AddUsersModalRouteName);

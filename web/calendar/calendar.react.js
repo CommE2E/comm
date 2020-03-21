@@ -11,7 +11,6 @@ import { type AppState, type NavInfo, navInfoPropType } from '../redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
 import * as React from 'react';
-import _filter from 'lodash/fp/filter';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import dateFormat from 'dateformat';
@@ -35,11 +34,11 @@ import Day from './day.react';
 import {
   yearAssertingSelector,
   monthAssertingSelector,
+  webCalendarQuery,
 } from '../selectors/nav-selectors';
 import css from './calendar.css';
 import { canonicalURLFromReduxState } from '../url-utils';
 import FilterPanel from './filter-panel.react';
-import { webCalendarQuery } from '../selectors/nav-selectors';
 
 type Props = {
   setModal: (modal: ?React.Node) => void,

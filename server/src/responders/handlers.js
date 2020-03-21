@@ -10,8 +10,8 @@ import {
   addCookieToJSONResponse,
   fetchViewerForHomeRequest,
   addCookieToHomeResponse,
+  createNewAnonymousCookie,
 } from '../session/cookies';
-import { createNewAnonymousCookie } from '../session/cookies';
 import { deleteCookie } from '../deleters/cookie-deleters';
 
 export type JSONResponder = (viewer: Viewer, input: any) => Promise<*>;

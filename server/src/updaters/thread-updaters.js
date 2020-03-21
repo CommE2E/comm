@@ -9,7 +9,6 @@ import {
   type UpdateThreadRequest,
   type ServerThreadJoinRequest,
   type ThreadJoinResult,
-  type ServerThreadInfo,
   threadPermissions,
   threadTypes,
   assertThreadType,

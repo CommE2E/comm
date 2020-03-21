@@ -56,7 +56,11 @@ import {
   checkState,
 } from '../responders/ping-responders';
 import { assertSecureRequest } from '../utils/security-utils';
-import { fetchViewerForSocket, extendCookieLifespan } from '../session/cookies';
+import {
+  fetchViewerForSocket,
+  extendCookieLifespan,
+  createNewAnonymousCookie,
+} from '../session/cookies';
 import {
   fetchMessageInfosSince,
   getMessageFetchResultFromRedisMessages,
@@ -70,9 +74,7 @@ import { fetchUpdateInfos } from '../fetchers/update-fetchers';
 import { commitSessionUpdate } from '../updaters/session-updaters';
 import { handleAsyncPromise } from '../responders/handlers';
 import { deleteCookie } from '../deleters/cookie-deleters';
-import { createNewAnonymousCookie } from '../session/cookies';
 import { deleteActivityForViewerSession } from '../deleters/activity-deleters';
-import { activityUpdatesInputValidator } from '../responders/activity-responders';
 import { focusedTableRefreshFrequency } from '../shared/focused-times';
 import { RedisSubscriber } from './redis';
 import { fetchUpdateInfosWithRawUpdateInfos } from '../creators/update-creator';

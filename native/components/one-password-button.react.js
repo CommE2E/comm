@@ -27,9 +27,9 @@ function OnePasswordButton(props: Props) {
 
 const styles = StyleSheet.create({
   image: {
-    width: 24,
     height: 24,
     opacity: 0.6,
+    width: 24,
   },
 });
 

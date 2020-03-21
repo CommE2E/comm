@@ -5,9 +5,6 @@ import type { AppState } from '../redux/redux-setup';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import { createSelector } from 'reselect';
-import _map from 'lodash/fp/map';
-const _mapWithKeys = _map.convert({ cap: false });
-import invariant from 'invariant';
 
 import {
   currentDaysToEntries,

@@ -4,12 +4,7 @@ import type { Dimensions } from 'lib/types/media-types';
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
-import {
-  TextInput as BaseTextInput,
-  View,
-  StyleSheet,
-  Platform,
-} from 'react-native';
+import { TextInput as BaseTextInput, View, StyleSheet } from 'react-native';
 import invariant from 'invariant';
 import { createSelector } from 'reselect';
 
@@ -44,16 +39,16 @@ class TextInput extends React.PureComponent<*> {
 }
 
 const styles = StyleSheet.create({
-  textInputWrapperView: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#BBBBBB',
-  },
   textInput: {
-    height: 40,
-    fontSize: 20,
-    padding: 0,
-    margin: 0,
     color: 'black',
+    fontSize: 20,
+    height: 40,
+    margin: 0,
+    padding: 0,
+  },
+  textInputWrapperView: {
+    borderBottomColor: '#BBBBBB',
+    borderBottomWidth: 1,
   },
 });
 

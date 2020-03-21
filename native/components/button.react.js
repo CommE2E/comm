@@ -89,7 +89,6 @@ class Button extends React.PureComponent<Props> {
         'iosHighlightUnderlayColor should be specified to Button in ' +
           "format='highlight'",
       );
-      const child = this.props.children ? this.props.children : <View />;
       return (
         <TouchableHighlight
           onPress={this.props.onPress}

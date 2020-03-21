@@ -2,7 +2,6 @@
 
 import type { ViewStyle, TextStyle, Styles } from '../types/styles';
 import type { AppState } from '../redux/redux-setup';
-import { type Colors, colorsPropType } from '../themes/colors';
 
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 
@@ -14,7 +13,12 @@ import { connect } from 'lib/utils/redux-utils';
 
 import Button from './button.react';
 import ColorSplotch from './color-splotch.react';
-import { colorsSelector, styleSelector } from '../themes/colors';
+import {
+  type Colors,
+  colorsPropType,
+  colorsSelector,
+  styleSelector,
+} from '../themes/colors';
 
 type Props = {|
   threadInfo: ThreadInfo,

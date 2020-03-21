@@ -1,7 +1,7 @@
 // @flow
 
 import type { $Response, $Request } from 'express';
-import type { ViewerData, AnonymousViewerData, UserViewerData } from './viewer';
+import type { AnonymousViewerData, UserViewerData } from './viewer';
 import {
   type ServerSessionChange,
   cookieLifetime,
@@ -11,11 +11,7 @@ import {
   sessionIdentifierTypes,
   type SessionIdentifierType,
 } from 'lib/types/session-types';
-import {
-  type Platform,
-  type PlatformDetails,
-  isDeviceType,
-} from 'lib/types/device-types';
+import type { Platform, PlatformDetails } from 'lib/types/device-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { UserInfo } from 'lib/types/user-types';
 import type { InitialClientSocketMessage } from 'lib/types/socket-types';
@@ -25,7 +21,6 @@ import url from 'url';
 import crypto from 'crypto';
 import invariant from 'invariant';
 
-import { ServerError } from 'lib/utils/errors';
 import { values } from 'lib/utils/objects';
 import { promiseAll } from 'lib/utils/promises';
 

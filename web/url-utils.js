@@ -1,7 +1,6 @@
 // @flow
 
-import type { Store } from 'redux';
-import type { NavInfo, AppState, Action } from './redux-setup';
+import type { NavInfo } from './redux-setup';
 
 import invariant from 'invariant';
 
@@ -11,12 +10,7 @@ import {
   endDateForYearAndMonth,
 } from 'lib/utils/date-utils';
 
-import {
-  yearExtractor,
-  yearAssertingSelector,
-  monthExtractor,
-  monthAssertingSelector,
-} from './selectors/nav-selectors';
+import { yearExtractor, monthExtractor } from './selectors/nav-selectors';
 
 function canonicalURLFromReduxState(navInfo: NavInfo, currentURL: string) {
   const urlInfo = infoFromURL(currentURL);

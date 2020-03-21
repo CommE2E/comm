@@ -130,7 +130,7 @@ class FailedSend extends React.PureComponent<Props> {
       const { chatInputState } = this.props;
       invariant(
         chatInputState,
-        `chatInputState should be initialized before user can hit retry`,
+        'chatInputState should be initialized before user can hit retry',
       );
       if (this.retryingMedia) {
         return;

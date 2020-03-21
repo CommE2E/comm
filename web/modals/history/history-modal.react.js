@@ -32,7 +32,6 @@ import {
   fetchRevisionsForEntryActionTypes,
   fetchRevisionsForEntry,
 } from 'lib/actions/entry-actions';
-import { entryKey } from 'lib/shared/entry-utils';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { connect } from 'lib/utils/redux-utils';
 import { nonExcludeDeletedCalendarFiltersSelector } from 'lib/selectors/calendar-filter-selectors';
@@ -214,7 +213,7 @@ class HistoryModal extends React.PureComponent<Props, State> {
 
   async fetchRevisionsForEntryAction(entryID: string) {
     const result = await this.props.fetchRevisionsForEntry(entryID);
-    this.setState((prevState, props) => {
+    this.setState(prevState => {
       // This merge here will preserve time ordering correctly
       const revisions = _unionBy('id')(result)(prevState.revisions);
       return { ...prevState, revisions };

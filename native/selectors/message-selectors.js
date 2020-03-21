@@ -14,7 +14,6 @@ const nextMessagePruneTimeSelector: (
 ) => ?number = createSelector(
   (state: AppState) => state.messageStore.threads,
   (threadMessageInfos: { [id: string]: ThreadMessageInfo }): ?number => {
-    const now = Date.now();
     let nextTime;
     for (let threadID in threadMessageInfos) {
       const threadMessageInfo = threadMessageInfos[threadID];

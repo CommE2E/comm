@@ -10,7 +10,6 @@ import {
 } from '../types/themes';
 import { updateThemeInfoActionType } from '../redux/action-types';
 import type { Styles } from '../types/styles';
-import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import { View, Text, ScrollView, Platform } from 'react-native';
@@ -20,9 +19,14 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../components/button.react';
-import { colorsSelector, styleSelector } from '../themes/colors';
+import {
+  type Colors,
+  colorsPropType,
+  colorsSelector,
+  styleSelector,
+} from '../themes/colors';
 
-const CheckIcon = (props: {||}) => (
+const CheckIcon = () => (
   <Icon name="md-checkmark" size={20} color="#008800" style={styles.icon} />
 );
 

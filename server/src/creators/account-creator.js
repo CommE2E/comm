@@ -17,13 +17,12 @@ import ashoat from 'lib/facts/ashoat';
 
 import { dbQuery, SQL } from '../database';
 import createIDs from './id-creator';
-import { createNewUserCookie } from '../session/cookies';
+import { createNewUserCookie, setNewSession } from '../session/cookies';
 import { deleteCookie } from '../deleters/cookie-deleters';
 import { sendEmailAddressVerificationEmail } from '../emails/verification';
 import createMessages from './message-creator';
 import createThread from './thread-creator';
 import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
-import { setNewSession } from '../session/cookies';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 
 const ashoatMessages = [

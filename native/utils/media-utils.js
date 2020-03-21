@@ -7,7 +7,7 @@ import type {
   MediaMissionFailure,
 } from 'lib/types/media-types';
 
-import { Platform, Image } from 'react-native';
+import { Image } from 'react-native';
 import base64 from 'base-64';
 import ImageResizer from 'react-native-image-resizer';
 import invariant from 'invariant';
@@ -31,7 +31,6 @@ async function getBlobFromURI(
   const fbMediaKitURL = uri.startsWith('ph://');
   const fixedURI =
     fbMediaKitURL && type === 'video' ? uri.replace(/^ph:/, 'ph-upload:') : uri;
-  const start = Date.now();
   const response = await fetch(fixedURI);
   return await response.blob();
 }
@@ -246,11 +245,7 @@ async function convertMedia(
       try {
         const compressFormat = reportedMIME === 'image/png' ? 'PNG' : 'JPEG';
         const compressQuality = size > 5e6 ? 92 : 100;
-        const {
-          uri: resizedURI,
-          path,
-          name: resizedName,
-        } = await ImageResizer.createResizedImage(
+        const { uri: resizedURI, path } = await ImageResizer.createResizedImage(
           uploadURI,
           3000,
           2000,

@@ -55,8 +55,8 @@ class ThreadVisibility extends React.PureComponent<Props> {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
     alignItems: 'center',
+    flexDirection: 'row',
   },
   visibilityLabel: {
     fontSize: 16,

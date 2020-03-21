@@ -26,8 +26,8 @@ function LoadingIndicator(props: Props) {
 
 const styles = StyleSheet.create({
   errorIcon: {
-    paddingTop: Platform.OS === 'android' ? 6 : 4,
     fontSize: 16,
+    paddingTop: Platform.OS === 'android' ? 6 : 4,
   },
 });
 

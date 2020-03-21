@@ -19,7 +19,7 @@ import {
 } from '../keyboard/keyboard-state';
 
 import * as React from 'react';
-import { View, LayoutAnimation, TouchableWithoutFeedback } from 'react-native';
+import { LayoutAnimation, TouchableWithoutFeedback } from 'react-native';
 import PropTypes from 'prop-types';
 
 import { TextMessage, textMessageItemHeight } from './text-message.react';
@@ -38,17 +38,14 @@ export type ChatMessageInfoItemWithHeight =
   | ChatTextMessageInfoItemWithHeight
   | ChatMultimediaMessageInfoItem;
 
-function messageItemHeight(
-  item: ChatMessageInfoItemWithHeight,
-  viewerID: ?string,
-) {
+function messageItemHeight(item: ChatMessageInfoItemWithHeight) {
   let height = 0;
   if (item.messageShapeType === 'text') {
-    height += textMessageItemHeight(item, viewerID);
+    height += textMessageItemHeight(item);
   } else if (item.messageShapeType === 'multimedia') {
-    height += multimediaMessageItemHeight(item, viewerID);
+    height += multimediaMessageItemHeight(item);
   } else {
-    height += robotextMessageItemHeight(item, viewerID);
+    height += robotextMessageItemHeight(item);
   }
   if (item.startsConversation) {
     height += timestampHeight;

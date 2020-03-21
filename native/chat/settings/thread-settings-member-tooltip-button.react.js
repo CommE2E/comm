@@ -1,6 +1,5 @@
 // @flow
 
-import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types';
 import type {
   NavigationScreenProp,
   NavigationLeafRoute,

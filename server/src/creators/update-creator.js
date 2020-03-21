@@ -163,7 +163,7 @@ async function createUpdates(
       keyUpdateDatasChanged = true;
     } else {
       const filteredKeyUpdateDatas = keyUpdateDatas.filter(
-        updateData => types.indexOf(updateData.type) === -1,
+        keyUpdateData => types.indexOf(keyUpdateData.type) === -1,
       );
       if (filteredKeyUpdateDatas.length === 0) {
         keyUpdateDatas = [];
@@ -217,8 +217,8 @@ async function createUpdates(
     }
   }
 
-  for (let [conditionKey, updateDatas] of keyedUpdateDatas) {
-    filteredUpdateDatas.push(...updateDatas);
+  for (let [, singleUpdateDatas] of keyedUpdateDatas) {
+    filteredUpdateDatas.push(...singleUpdateDatas);
   }
   const ids = await createIDs('updates', filteredUpdateDatas.length);
 
@@ -685,7 +685,7 @@ async function updateInfosFromRawUpdateInfos(
       updateForKey.set(key, updateInfo);
     }
   }
-  for (let [key, updateInfo] of updateForKey) {
+  for (let [, updateInfo] of updateForKey) {
     mergedUpdates.push(updateInfo);
   }
   mergedUpdates.sort(sortFunction);

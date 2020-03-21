@@ -57,7 +57,6 @@ type Props = {|
   messageListData: $ReadOnlyArray<ChatMessageItemWithHeight>,
   navigation: MessageListNavProp,
   // Redux state
-  viewerID: ?string,
   startReached: boolean,
   scrollBlockingModalsClosed: boolean,
   styles: Styles,
@@ -94,7 +93,6 @@ class MessageList extends React.PureComponent<Props, State> {
     threadInfo: threadInfoPropType.isRequired,
     messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
     navigation: messageListNavPropType.isRequired,
-    viewerID: PropTypes.string,
     startReached: PropTypes.bool.isRequired,
     scrollBlockingModalsClosed: PropTypes.bool.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
@@ -126,7 +124,7 @@ class MessageList extends React.PureComponent<Props, State> {
     }),
   );
 
-  get flatListExtraData() {
+  get flatListExtraData(): FlatListExtraData {
     return this.flatListExtraDataSelector({ ...this.props, ...this.state });
   }
 
@@ -155,7 +153,7 @@ class MessageList extends React.PureComponent<Props, State> {
     );
   }
 
-  componentDidUpdate(prevProps: Props, prevState: State) {
+  componentDidUpdate(prevProps: Props) {
     const oldThreadInfo = prevProps.threadInfo;
     const newThreadInfo = this.props.threadInfo;
     if (oldThreadInfo.id !== newThreadInfo.id) {
@@ -226,11 +224,11 @@ class MessageList extends React.PureComponent<Props, State> {
     );
   };
 
-  toggleMessageFocus = (messageKey: string) => {
-    if (this.state.focusedMessageKey === messageKey) {
+  toggleMessageFocus = (inMessageKey: string) => {
+    if (this.state.focusedMessageKey === inMessageKey) {
       this.setState({ focusedMessageKey: null });
     } else {
-      this.setState({ focusedMessageKey: messageKey });
+      this.setState({ focusedMessageKey: inMessageKey });
     }
   };
 
@@ -258,7 +256,7 @@ class MessageList extends React.PureComponent<Props, State> {
     if (item.itemType === 'loader') {
       return 56;
     }
-    return messageItemHeight(item, this.props.viewerID);
+    return messageItemHeight(item);
   };
 
   heightOfItems(data: $ReadOnlyArray<ChatMessageItemWithHeight>): number {
@@ -266,9 +264,7 @@ class MessageList extends React.PureComponent<Props, State> {
   }
 
   // Actually header, it's just that our FlatList is inverted
-  ListFooterComponent = (props: {}) => (
-    <View style={this.props.styles.header} />
-  );
+  ListFooterComponent = () => <View style={this.props.styles.header} />;
 
   render() {
     const { messageListData, startReached } = this.props;
@@ -385,7 +381,6 @@ export default connect(
   (state: AppState, ownProps: { threadInfo: ThreadInfo }) => {
     const threadID = ownProps.threadInfo.id;
     return {
-      viewerID: state.currentUserInfo && state.currentUserInfo.id,
       startReached: !!(
         state.messageStore.threads[threadID] &&
         state.messageStore.threads[threadID].startReached

@@ -22,18 +22,15 @@ import {
   type EntryInconsistencyReportCreationRequest,
 } from 'lib/types/report-types';
 import type {
-  RawEntryInfo,
   CalendarQuery,
   DeltaEntryInfosResponse,
 } from 'lib/types/entry-types';
 import { sessionCheckFrequency } from 'lib/types/session-types';
-import type { CurrentUserInfo } from 'lib/types/user-types';
 import type { UpdateActivityResult } from 'lib/types/activity-types';
 import type { SessionUpdate } from '../updaters/session-updaters';
 
 import t from 'tcomb';
 import invariant from 'invariant';
-import _isEqual from 'lodash/fp/isEqual';
 
 import { ServerError } from 'lib/utils/errors';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
@@ -59,10 +56,7 @@ import {
   verifyCalendarQueryThreadIDs,
 } from './entry-responders';
 import { fetchMessageInfosSince } from '../fetchers/message-fetchers';
-import {
-  fetchThreadInfos,
-  type FetchThreadInfosResult,
-} from '../fetchers/thread-fetchers';
+import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import {
   fetchEntryInfos,
   fetchEntryInfosByID,
@@ -583,10 +577,10 @@ async function checkState(
     } else if (key === 'currentUserInfo') {
       fetchUserInfo = true;
     } else if (key.startsWith('threadInfo|')) {
-      const [ignore, threadID] = key.split('|');
+      const [, threadID] = key.split('|');
       threadIDsToFetch.push(threadID);
     } else if (key.startsWith('entryInfo|')) {
-      const [ignore, entryID] = key.split('|');
+      const [, entryID] = key.split('|');
       entryIDsToFetch.push(entryID);
     }
   }
@@ -637,7 +631,7 @@ async function checkState(
     } else if (key === 'currentUserInfo') {
       stateChanges.currentUserInfo = fetchedData.currentUserInfo;
     } else if (key.startsWith('threadInfo|')) {
-      const [ignore, threadID] = key.split('|');
+      const [, threadID] = key.split('|');
       const { threadInfos } = fetchedData.threadsResult;
       const threadInfo = threadInfos[threadID];
       if (!threadInfo) {
@@ -652,7 +646,7 @@ async function checkState(
       }
       stateChanges.rawThreadInfos.push(threadInfo);
     } else if (key.startsWith('entryInfo|')) {
-      const [ignore, entryID] = key.split('|');
+      const [, entryID] = key.split('|');
       const rawEntryInfos = fetchedData.entriesResult
         ? fetchedData.entriesResult.rawEntryInfos
         : fetchedData.entryInfos;

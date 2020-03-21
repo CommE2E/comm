@@ -12,7 +12,6 @@ import {
 } from 'lib/types/thread-types';
 import { type GlobalTheme, globalThemePropType } from '../../types/themes';
 import type { Styles } from '../../types/styles';
-import { type Colors, colorsPropType } from '../../themes/colors';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -26,7 +25,6 @@ import {
 } from 'react-native';
 import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
-import _isEqual from 'lodash/fp/isEqual';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
@@ -38,7 +36,12 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 
 import Button from '../../components/button.react';
 import OnePasswordButton from '../../components/one-password-button.react';
-import { colorsSelector, styleSelector } from '../../themes/colors';
+import {
+  type Colors,
+  colorsPropType,
+  colorsSelector,
+  styleSelector,
+} from '../../themes/colors';
 
 type NavProp = {
   state: { params: { threadInfo: ThreadInfo } },

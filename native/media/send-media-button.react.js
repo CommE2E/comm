@@ -51,36 +51,36 @@ function SendMediaButton(props: Props) {
 }
 
 const styles = StyleSheet.create({
+  queueCountBubble: {
+    alignItems: 'center',
+    backgroundColor: '#222222',
+    borderRadius: 25,
+    height: 25,
+    justifyContent: 'center',
+    paddingBottom: Platform.OS === 'android' ? 2 : 0,
+    paddingLeft: 1,
+    position: 'absolute',
+    right: -8,
+    top: -8,
+    width: 25,
+  },
+  queueCountText: {
+    color: 'white',
+    textAlign: 'center',
+  },
   sendButton: {
     backgroundColor: '#7ED321',
+    borderColor: 'white',
     borderRadius: 30,
+    borderWidth: 4,
+    paddingBottom: 16,
     paddingLeft: 14,
     paddingRight: 16,
     paddingTop: 14,
-    paddingBottom: 16,
-    borderWidth: 4,
-    borderColor: 'white',
   },
   sendIcon: {
     color: 'white',
     fontSize: 22,
-  },
-  queueCountBubble: {
-    backgroundColor: '#222222',
-    position: 'absolute',
-    top: -8,
-    right: -8,
-    width: 25,
-    height: 25,
-    paddingLeft: 1,
-    paddingBottom: Platform.OS === 'android' ? 2 : 0,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  queueCountText: {
-    textAlign: 'center',
-    color: 'white',
   },
 });
 

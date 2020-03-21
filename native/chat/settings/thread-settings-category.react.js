@@ -24,6 +24,7 @@ function ThreadSettingsCategoryHeader(props: HeaderProps) {
     contentStyle = props.styles.fullHeader;
     paddingStyle = props.styles.fullHeaderPadding;
   } else if (props.type === 'outline') {
+    // nothing
   } else if (props.type === 'unpadded') {
     contentStyle = props.styles.fullHeader;
   } else {
@@ -50,6 +51,7 @@ function ThreadSettingsCategoryFooter(props: FooterProps) {
     contentStyle = props.styles.fullFooter;
     paddingStyle = props.styles.fullFooterPadding;
   } else if (props.type === 'outline') {
+    // nothing
   } else if (props.type === 'unpadded') {
     contentStyle = props.styles.fullFooter;
   } else {

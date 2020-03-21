@@ -7,11 +7,9 @@ import type {
 } from 'lib/utils/action-utils';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from '../redux/redux-setup';
-import type { Action } from '../navigation/navigation-setup';
 import type { KeyboardEvent, EmitterSubscription } from '../keyboard/keyboard';
 import type { LogInState } from './log-in-panel.react';
 import type { RegisterState } from './register-panel.react';
-import type { LogInExtraInfo } from 'lib/types/account-types';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 import type { ImageStyle } from '../types/styles';
 
@@ -41,7 +39,6 @@ import {
   appStartNativeCredentialsAutoLogIn,
   appStartReduxLoggedInButInvalidCookie,
 } from 'lib/actions/user-actions';
-import sleep from 'lib/utils/sleep';
 import { connect } from 'lib/utils/redux-utils';
 
 import {
@@ -64,7 +61,6 @@ import {
   removeKeyboardListener,
 } from '../keyboard/keyboard';
 import {
-  type SimpleStateSetter,
   type StateContainer,
   type StateChange,
   setStateForContainer,
@@ -162,16 +158,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
         },
       }),
     );
-    const initialLogInState = {
-      usernameOrEmailInputText: '',
-      passwordInputText: '',
-    };
-    const initialRegisterState = {
-      usernameInputText: '',
-      emailInputText: '',
-      passwordInputText: '',
-      confirmPasswordInputText: '',
-    };
 
     this.state = {
       mode: props.rehydrateConcluded ? 'prompt' : 'loading',
@@ -642,7 +628,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     // Man, you gotta wonder sometimes if React Native is really worth it.
     // The iOS order causes some extremely strange layout bugs on Android.
     // The Android order makes the buttons in prompt mode not clickable.
-    let content;
     if (Platform.OS === 'ios') {
       return (
         <React.Fragment>
@@ -719,68 +704,68 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 }
 
 const styles = StyleSheet.create({
-  modalBackground: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
   androidTopContainer: {
-    backgroundColor: 'transparent',
-  },
-  container: {
-    flex: 1,
     backgroundColor: 'transparent',
   },
   animationContainer: {
     flex: 1,
   },
-  header: {
-    fontFamily: 'Anaheim-Regular',
-    color: 'white',
-    fontSize: 48,
-    textAlign: 'center',
-  },
   backButton: {
     position: 'absolute',
     top: 13,
   },
-  buttonContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingBottom: 20,
-  },
   button: {
-    paddingBottom: 6,
-    paddingTop: 6,
-    paddingLeft: 18,
-    paddingRight: 18,
+    backgroundColor: '#FFFFFFAA',
+    borderRadius: 6,
+    marginBottom: 10,
     marginLeft: 40,
     marginRight: 40,
     marginTop: 10,
-    marginBottom: 10,
-    borderRadius: 6,
-    backgroundColor: '#FFFFFFAA',
+    paddingBottom: 6,
+    paddingLeft: 18,
+    paddingRight: 18,
+    paddingTop: 6,
+  },
+  buttonContainer: {
+    bottom: 0,
+    left: 0,
+    paddingBottom: 20,
+    position: 'absolute',
+    right: 0,
   },
   buttonText: {
-    fontSize: 22,
-    fontFamily: 'OpenSans-Semibold',
-    textAlign: 'center',
     color: '#000000FF',
+    fontFamily: 'OpenSans-Semibold',
+    fontSize: 22,
+    textAlign: 'center',
   },
-  forgotPasswordTextContainer: {
-    position: 'absolute',
-    alignSelf: 'flex-end',
-    right: 20,
+  container: {
+    backgroundColor: 'transparent',
+    flex: 1,
   },
   forgotPasswordText: {
     color: '#8899FF',
   },
+  forgotPasswordTextContainer: {
+    alignSelf: 'flex-end',
+    position: 'absolute',
+    right: 20,
+  },
+  header: {
+    color: 'white',
+    fontFamily: 'Anaheim-Regular',
+    fontSize: 48,
+    textAlign: 'center',
+  },
   loadingIndicator: {
     paddingTop: 15,
+  },
+  modalBackground: {
+    bottom: 0,
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
   },
 });
 

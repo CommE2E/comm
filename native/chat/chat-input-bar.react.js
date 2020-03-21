@@ -21,14 +21,12 @@ import {
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
-import type { KeyboardEvent } from '../keyboard/keyboard';
 import {
   type KeyboardState,
   keyboardStatePropType,
   withKeyboardState,
 } from '../keyboard/keyboard-state';
 import type { Styles } from '../types/styles';
-import { type Colors, colorsPropType } from '../themes/colors';
 import {
   type MessageListNavProp,
   messageListNavPropType,
@@ -66,7 +64,12 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import Button from '../components/button.react';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import { getKeyboardHeight } from '../keyboard/keyboard';
-import { colorsSelector, styleSelector } from '../themes/colors';
+import {
+  type Colors,
+  colorsPropType,
+  colorsSelector,
+  styleSelector,
+} from '../themes/colors';
 import { CameraModalRouteName } from '../navigation/route-names';
 import KeyboardInputHost from '../keyboard/keyboard-input-host.react';
 
@@ -358,7 +361,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     } else if (isMember) {
       content = (
         <Text style={this.props.styles.explanation}>
-          You don't have permission to send messages.
+          You don&apos;t have permission to send messages.
         </Text>
       );
     } else {
@@ -382,7 +385,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       } else {
         content = (
           <Text style={this.props.styles.explanation}>
-            You don't have permission to send messages.
+            You don&apos;t have permission to send messages.
           </Text>
         );
       }

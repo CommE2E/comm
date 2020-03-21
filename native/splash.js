@@ -18,6 +18,7 @@ const splashStyleSelector: (state: AppState) => ImageStyle = createSelector(
     const { width: windowWidth, height: windowHeight } = dimensions;
     let splashWidth = windowWidth;
     if (windowWidth > 960) {
+      // nothing
     } else if (windowWidth > 800) {
       if (PixelRatio.get() === 1.5) {
         splashWidth = 960;

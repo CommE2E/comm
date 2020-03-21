@@ -1,7 +1,6 @@
 // @flow
 
 import type { AppState } from '../redux/redux-setup';
-import { type Colors, colorsPropType } from '../themes/colors';
 
 import type { ViewStyle } from '../types/styles';
 import type { NativeMethodsMixinType } from 'react-native/Libraries/Renderer/shims/ReactNativeTypes';
@@ -12,7 +11,6 @@ import {
   View,
   Image,
   StyleSheet,
-  InteractionManager,
   I18nManager,
   PanResponder,
   ViewPropTypes,
@@ -25,7 +23,7 @@ import invariant from 'invariant';
 import { connect } from 'lib/utils/redux-utils';
 
 import Button from './button.react';
-import { colorsSelector } from '../themes/colors';
+import { type Colors, colorsPropType, colorsSelector } from '../themes/colors';
 
 type PanEvent = {
   nativeEvent: {
@@ -193,7 +191,7 @@ class ColorPicker extends React.PureComponent<Props, State> {
       if (!this._pickerContainer) {
         return;
       }
-      this._pickerContainer.measure((x, y, width, height, pageX, pageY) => {
+      this._pickerContainer.measure((x, y, cWidth, cHeight, pageX, pageY) => {
         const { pickerPadding } = getPickerProperties(pickerSize);
         this._pageX = pageX;
         this._pageY = pageY - pickerPadding - 3;
@@ -378,7 +376,7 @@ class ColorPicker extends React.PureComponent<Props, State> {
               <Image
                 source={require('../img/color-circle.png')}
                 resizeMode="contain"
-                style={[styles.pickerImage]}
+                style={styles.pickerImage}
               />
               <View style={[styles.pickerIndicator, computed.pickerIndicator]}>
                 <View
@@ -611,61 +609,58 @@ function rotatePoint(
 }
 
 const styles = StyleSheet.create({
-  pickerContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pickerImage: {
-    flex: 1,
-    width: null,
-    height: null,
-  },
-  pickerIndicator: {
-    position: 'absolute',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  triangleContainer: {
-    position: 'absolute',
-    alignItems: 'center',
-  },
-  triangleUnderlayingColor: {
-    position: 'absolute',
-    top: 0,
-    width: 0,
-    height: 0,
-    backgroundColor: 'transparent',
-    borderStyle: 'solid',
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-  },
-  pickerAlignment: {
-    alignItems: 'center',
-  },
-  svIndicator: {
-    position: 'absolute',
-    borderWidth: 4,
-  },
-  pickerIndicatorTick: {
-    width: 5,
-  },
-  colorPreviews: {
-    flexDirection: 'row',
-  },
-  colorPreview: {
-    flex: 1,
-    marginHorizontal: 5,
-  },
   buttonContents: {
-    flex: 1,
     borderRadius: 3,
+    flex: 1,
     padding: 3,
   },
   buttonText: {
     flex: 1,
     fontSize: 20,
     textAlign: 'center',
+  },
+  colorPreview: {
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  colorPreviews: {
+    flexDirection: 'row',
+  },
+  pickerContainer: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+  },
+  pickerImage: {
+    flex: 1,
+    height: null,
+    width: null,
+  },
+  pickerIndicator: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+  },
+  pickerIndicatorTick: {
+    width: 5,
+  },
+  svIndicator: {
+    borderWidth: 4,
+    position: 'absolute',
+  },
+  triangleContainer: {
+    alignItems: 'center',
+    position: 'absolute',
+  },
+  triangleUnderlayingColor: {
+    backgroundColor: 'transparent',
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderStyle: 'solid',
+    height: 0,
+    position: 'absolute',
+    top: 0,
+    width: 0,
   },
 });
 

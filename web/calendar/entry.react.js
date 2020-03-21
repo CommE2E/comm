@@ -248,7 +248,7 @@ class Entry extends React.PureComponent<Props, State> {
     }
   };
 
-  onBlur = (event: SyntheticEvent<HTMLTextAreaElement>) => {
+  onBlur = () => {
     this.setState({ focused: false });
     if (this.state.text.trim() === '') {
       this.delete();

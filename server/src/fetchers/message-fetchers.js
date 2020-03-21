@@ -10,7 +10,6 @@ import {
   type ThreadSelectionCriteria,
   type MessageTruncationStatus,
   messageTruncationStatus,
-  type MessageTruncationStatuses,
   type FetchMessageInfosResult,
   type RawTextMessageInfo,
 } from 'lib/types/message-types';
@@ -484,7 +483,6 @@ async function fetchMessageInfos(
   }
 
   for (let threadID in criteria.threadCursors) {
-    const cursor = criteria.threadCursors[threadID];
     const truncationStatus = truncationStatuses[threadID];
     if (truncationStatus === null || truncationStatus === undefined) {
       // If nothing was returned for a thread that was explicitly queried for,

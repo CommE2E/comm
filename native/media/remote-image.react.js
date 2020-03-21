@@ -46,7 +46,9 @@ class RemoteImage extends React.PureComponent<Props, State> {
       this.props.connectionStatus === 'connected' &&
       prevProps.connectionStatus !== 'connected'
     ) {
-      this.setState(prevState => ({ attempt: prevState.attempt + 1 }));
+      this.setState(otherPrevState => ({
+        attempt: otherPrevState.attempt + 1,
+      }));
     }
     if (this.state.loaded && !prevState.loaded) {
       this.props.onLoad && this.props.onLoad(this.props.uri);
@@ -95,13 +97,13 @@ const styles = StyleSheet.create({
     opacity: 0,
   },
   spinnerContainer: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    justifyContent: 'center',
     alignItems: 'center',
+    bottom: 0,
+    justifyContent: 'center',
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
   },
 });
 

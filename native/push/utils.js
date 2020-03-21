@@ -1,6 +1,5 @@
 // @flow
 
-import type { Dispatch } from 'lib/types/redux-types';
 import type { RawMessageInfo } from 'lib/types/message-types';
 
 import { saveMessagesActionType } from 'lib/actions/message-actions';

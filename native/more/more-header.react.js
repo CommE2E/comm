@@ -17,4 +17,5 @@ const MoreHeader = connect((state: AppState) => ({
   activeTab: activeTabSelector(state),
 }))(Header);
 
+// eslint-disable-next-line react/display-name
 export default (props: $Exact<HeaderProps>) => <MoreHeader {...props} />;

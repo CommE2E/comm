@@ -9,7 +9,6 @@ import type { AccountUpdate } from 'lib/types/user-types';
 import type { ChangeUserSettingsResult } from 'lib/types/account-types';
 import { type GlobalTheme, globalThemePropType } from '../types/themes';
 import type { Styles } from '../types/styles';
-import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -34,7 +33,12 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import Button from '../components/button.react';
 import OnePasswordButton from '../components/one-password-button.react';
-import { colorsSelector, styleSelector } from '../themes/colors';
+import {
+  type Colors,
+  colorsPropType,
+  colorsSelector,
+  styleSelector,
+} from '../themes/colors';
 
 type Props = {|
   navigation: NavigationScreenProp<*>,
@@ -60,6 +64,7 @@ class EditEmail extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
       navigate: PropTypes.func.isRequired,
+      goBack: PropTypes.func.isRequired,
     }).isRequired,
     email: PropTypes.string,
     loadingStatus: loadingStatusPropType.isRequired,
@@ -69,9 +74,9 @@ class EditEmail extends React.PureComponent<Props, State> {
     dispatchActionPromise: PropTypes.func.isRequired,
     changeUserSettings: PropTypes.func.isRequired,
   };
-  static navigationOptions = ({ navigation }) => ({
+  static navigationOptions = {
     headerTitle: 'Change email',
-  });
+  };
   mounted = false;
   passwordInput: ?TextInput;
   emailInput: ?TextInput;

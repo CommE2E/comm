@@ -184,46 +184,46 @@ const Panel = connect((state: AppState) => ({
 }))(InnerPanel);
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#FFFFFFAA',
+    borderRadius: 6,
+    marginLeft: 20,
+    marginRight: 20,
+    paddingBottom: 37,
+    paddingLeft: 18,
+    paddingRight: 18,
+    paddingTop: 6,
+  },
   loadingIndicatorContainer: {
-    width: 14,
     paddingBottom: 2,
-  },
-  submitContentIconContainer: {
     width: 14,
-    paddingBottom: 5,
-  },
-  submitButton: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    borderBottomRightRadius: 6,
-  },
-  submitContentContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    paddingHorizontal: 18,
-    paddingVertical: 6,
-  },
-  submitContentText: {
-    fontSize: 18,
-    fontFamily: 'OpenSans-Semibold',
-    color: '#555',
-    paddingRight: 7,
   },
   onePasswordImage: {
     position: 'absolute',
-    top: 8,
     right: 5,
+    top: 8,
   },
-  container: {
-    paddingBottom: 37,
-    paddingTop: 6,
-    paddingLeft: 18,
-    paddingRight: 18,
-    marginLeft: 20,
-    marginRight: 20,
-    borderRadius: 6,
-    backgroundColor: '#FFFFFFAA',
+  submitButton: {
+    borderBottomRightRadius: 6,
+    bottom: 0,
+    position: 'absolute',
+    right: 0,
+  },
+  submitContentContainer: {
+    alignItems: 'flex-end',
+    flexDirection: 'row',
+    paddingHorizontal: 18,
+    paddingVertical: 6,
+  },
+  submitContentIconContainer: {
+    paddingBottom: 5,
+    width: 14,
+  },
+  submitContentText: {
+    color: '#555',
+    fontFamily: 'OpenSans-Semibold',
+    fontSize: 18,
+    paddingRight: 7,
   },
 });
 

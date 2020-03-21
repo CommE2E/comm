@@ -18,10 +18,6 @@ import invariant from 'invariant';
 import Visibility from 'visibilityjs';
 
 import baseReducer from 'lib/reducers/master-reducer';
-import {
-  newThreadActionTypes,
-  deleteThreadActionTypes,
-} from 'lib/actions/thread-actions';
 import { mostRecentReadThreadSelector } from 'lib/selectors/thread-selectors';
 import { invalidSessionDowngrade } from 'lib/shared/account-utils';
 import {

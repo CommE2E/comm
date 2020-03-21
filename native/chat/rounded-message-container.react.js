@@ -2,10 +2,9 @@
 
 import type { ChatMessageInfoItemWithHeight } from './message.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
-import type { ViewStyle } from '../types/styles';
+import type { ViewStyle, Styles } from '../types/styles';
 import type { Corners } from 'lib/types/media-types';
 import type { AppState } from '../redux/redux-setup';
-import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';

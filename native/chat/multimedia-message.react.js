@@ -19,7 +19,7 @@ import {
 } from './message-list-types';
 
 import * as React from 'react';
-import { Text, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import Animated from 'react-native-reanimated';
@@ -102,12 +102,9 @@ function multimediaMessageContentHeights(
 
 // Called by Message
 // Given a ChatMultimediaMessageInfoItem, determines exact height of row
-function multimediaMessageItemHeight(
-  item: ChatMultimediaMessageInfoItem,
-  viewerID: ?string,
-) {
+function multimediaMessageItemHeight(item: ChatMultimediaMessageInfoItem) {
   const { messageInfo, contentHeight, startsCluster, endsCluster } = item;
-  const { id, creator } = messageInfo;
+  const { creator } = messageInfo;
   const { isViewer } = creator;
   let height = 5 + contentHeight; // for margin and images
   if (!isViewer && startsCluster) {
@@ -177,11 +174,9 @@ class MultimediaMessage extends React.PureComponent<Props> {
     }
 
     const mediaPerRow = getMediaPerRow(messageInfo.media.length);
-    const numRows = Math.ceil(messageInfo.media.length / mediaPerRow);
     const rowHeight = imageHeight + spaceBetweenImages;
 
     const rows = [];
-    let verticalOffset = 0;
     for (
       let i = 0, verticalOffset = 0;
       i < messageInfo.media.length;
@@ -273,12 +268,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
   },
+  filler: {
+    flex: 1,
+  },
   grid: {
     flex: 1,
     justifyContent: 'space-between',
   },
-  filler: {
-    flex: 1,
+  imageBeforeImage: {
+    marginRight: spaceBetweenImages,
   },
   row: {
     flex: 1,
@@ -287,9 +285,6 @@ const styles = StyleSheet.create({
   },
   rowAboveRow: {
     marginBottom: spaceBetweenImages,
-  },
-  imageBeforeImage: {
-    marginRight: spaceBetweenImages,
   },
 });
 

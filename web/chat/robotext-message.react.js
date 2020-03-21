@@ -17,13 +17,8 @@ import type { MessagePositionInfo } from './message.react';
 import * as React from 'react';
 import Linkify from 'react-linkify';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 
-import {
-  messageKey,
-  splitRobotext,
-  parseRobotextEntity,
-} from 'lib/shared/message-utils';
+import { splitRobotext, parseRobotextEntity } from 'lib/shared/message-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { connect } from 'lib/utils/redux-utils';
 

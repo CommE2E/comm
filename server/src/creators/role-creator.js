@@ -82,6 +82,7 @@ type RolePermissionBlobs = {|
 
 // Originally all chat threads were orgs, but for the alpha launch I decided
 // it's better to keep it simple. I'll probably reintroduce orgs at some point.
+// eslint-disable-next-line no-unused-vars
 function getRolePermissionBlobsForOrg(): RolePermissionBlobs {
   const openDescendantKnowOf =
     threadPermissionPrefixes.OPEN_DESCENDANT + threadPermissions.KNOW_OF;

@@ -43,22 +43,22 @@ class ChatIcon extends React.PureComponent<Props> {
 }
 
 const styles = StyleSheet.create({
-  icon: {
-    fontSize: 28,
-  },
   badge: {
+    alignItems: 'center',
+    backgroundColor: 'red',
+    borderRadius: 9,
+    height: 18,
+    justifyContent: 'center',
     position: 'absolute',
     right: -8,
     top: 2,
-    backgroundColor: 'red',
-    borderRadius: 9,
     width: 18,
-    height: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   badgeText: {
     color: 'white',
+  },
+  icon: {
+    fontSize: 28,
   },
 });
 

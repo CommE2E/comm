@@ -120,8 +120,6 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const animations = [];
-
     const isActive = MediaGalleryMedia.isActive(this.props);
     const wasActive = MediaGalleryMedia.isActive(prevProps);
     const { backdropProgress } = this;
@@ -157,7 +155,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
       const maxValue = Platform.OS === 'ios' ? 0.99 : 1;
       Animated.timing(this.checkProgress, {
         ...animatedSpec,
-        toValue: 0.99,
+        toValue: maxValue,
       }).start();
     } else if (!this.props.isQueued && prevProps.isQueued) {
       Animated.timing(this.checkProgress, {
@@ -184,7 +182,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     };
 
     let buttons = null;
-    const { queueModeActive, isQueued } = this.props;
+    const { queueModeActive } = this.props;
     if (!queueModeActive) {
       buttons = (
         <React.Fragment>
@@ -301,11 +299,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     this.props.setMediaQueued(this.props.selection, true);
   };
 
-  onAnimatingBackdropToZeroCompletion = ({
-    finished,
-  }: {
-    finished: boolean,
-  }) => {
+  onAnimatingBackdropToZeroCompletion = () => {
     this.animatingBackdropToZero = false;
   };
 }
@@ -321,49 +315,49 @@ const buttonStyle = {
   paddingBottom: 10,
 };
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    overflow: 'hidden',
-  },
-  buttons: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sendButton: {
-    ...buttonStyle,
-    backgroundColor: '#7ED321',
-    paddingLeft: 18,
-  },
-  enqueueButton: {
-    ...buttonStyle,
-    backgroundColor: '#2A78E5',
-  },
   buttonIcon: {
     alignSelf: Platform.OS === 'android' ? 'center' : 'flex-end',
-    marginRight: 6,
     color: 'white',
     fontSize: 18,
+    marginRight: 6,
     paddingRight: 5,
   },
   buttonText: {
     color: 'white',
     fontSize: 16,
   },
+  buttons: {
+    alignItems: 'center',
+    bottom: 0,
+    justifyContent: 'center',
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+  },
   checkAnimation: {
     position: 'absolute',
     width: 128,
   },
+  container: {
+    flex: 1,
+    overflow: 'hidden',
+  },
+  enqueueButton: {
+    ...buttonStyle,
+    backgroundColor: '#2A78E5',
+  },
+  sendButton: {
+    ...buttonStyle,
+    backgroundColor: '#7ED321',
+    paddingLeft: 18,
+  },
   videoOverlay: {
-    position: 'absolute',
-    top: 0,
     bottom: 0,
     left: 0,
+    position: 'absolute',
     right: 0,
+    top: 0,
   },
 });
 

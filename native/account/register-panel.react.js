@@ -399,17 +399,17 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.OS === 'ios' ? 37 : 36,
     zIndex: 2,
   },
-  input: {
-    paddingLeft: 35,
+  envelopeIcon: {
+    bottom: 10,
+    left: 3,
   },
   icon: {
-    position: 'absolute',
     bottom: 8,
     left: 4,
+    position: 'absolute',
   },
-  envelopeIcon: {
-    left: 3,
-    bottom: 10,
+  input: {
+    paddingLeft: 35,
   },
 });
 

@@ -17,16 +17,16 @@ function ColorSplotch(props: Props) {
 }
 
 const styles = StyleSheet.create({
-  splotch: {
-    borderRadius: 5,
+  large: {
+    height: 25,
+    width: 25,
   },
   small: {
     height: 18,
     width: 18,
   },
-  large: {
-    height: 25,
-    width: 25,
+  splotch: {
+    borderRadius: 5,
   },
 });
 

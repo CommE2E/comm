@@ -1,11 +1,10 @@
 // @flow
 
-import type { InnerLogInPanel } from './log-in-panel.react';
+import type { InnerLogInPanel, LogInState } from './log-in-panel.react';
 import {
   type StateContainer,
   stateContainerPropType,
 } from '../utils/state-container';
-import type { LogInState } from './log-in-panel.react';
 import type { AppState } from '../redux/redux-setup';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 
@@ -127,6 +126,9 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
           outputRange: [windowWidth * -2, 0],
         }),
       };
+      const successText =
+        "Okay, we've sent that account an email. Check your inbox to " +
+        'complete the process.';
       forgotPasswordSuccess = (
         <Animated.View
           style={[styles.panel, forgotPasswordSuccessDynamicStyle]}
@@ -137,10 +139,7 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
             color="#88FF88DD"
             style={styles.forgotPasswordSuccessIcon}
           />
-          <Text style={styles.forgotPasswordSuccessText}>
-            Okay, we've sent that account an email. Check your inbox to complete
-            the process.
-          </Text>
+          <Text style={styles.forgotPasswordSuccessText}>{successText}</Text>
         </Animated.View>
       );
     }
@@ -259,22 +258,22 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
 }
 
 const styles = StyleSheet.create({
-  panel: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-  },
   forgotPasswordSuccessIcon: {
     marginTop: 40,
     textAlign: 'center',
   },
   forgotPasswordSuccessText: {
-    marginTop: 10,
-    marginLeft: 20,
-    marginRight: 20,
-    textAlign: 'center',
     color: 'white',
     fontSize: 18,
+    marginLeft: 20,
+    marginRight: 20,
+    marginTop: 10,
+    textAlign: 'center',
+  },
+  panel: {
+    left: 0,
+    position: 'absolute',
+    right: 0,
   },
 });
 

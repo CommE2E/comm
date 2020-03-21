@@ -14,11 +14,11 @@ type StoredCredentials = {|
   state: 'undetermined' | 'determined' | 'unsupported',
   credentials: ?UserCredentials,
 |};
-let storedNativeKeychainCredentials = {
+let storedNativeKeychainCredentials: StoredCredentials = {
   state: 'undetermined',
   credentials: null,
 };
-let storedSharedWebCredentials = {
+let storedSharedWebCredentials: StoredCredentials = {
   state: Platform.OS === 'ios' ? 'undetermined' : 'unsupported',
   credentials: null,
 };

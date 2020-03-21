@@ -4,8 +4,6 @@ import type { AppState } from '../redux-setup';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import {
   calendarThreadFilterTypes,
-  type CalendarFilter,
-  calendarFilterPropType,
   type FilterThreadInfo,
   filterThreadInfoPropType,
   updateCalendarThreadFilter,
@@ -17,7 +15,6 @@ import type { DispatchActionPayload } from 'lib/utils/action-utils';
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import _pickBy from 'lodash/fp/pickBy';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCog,

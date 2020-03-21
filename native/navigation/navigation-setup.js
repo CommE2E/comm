@@ -6,7 +6,6 @@ import type { RawThreadInfo, LeaveThreadPayload } from 'lib/types/thread-types';
 import type {
   NavigationState,
   NavigationAction,
-  NavigationRouter,
   NavigationRoute,
   NavigationStateRoute,
 } from 'react-navigation';
@@ -20,15 +19,15 @@ import type { NotificationPressPayload } from 'lib/shared/notif-utils';
 import type { AndroidNotificationActions } from '../push/reducer';
 import type { UserInfo } from 'lib/types/user-types';
 
-import { NavigationActions } from 'react-navigation';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
-import { createStackNavigator } from 'react-navigation-stack';
+import {
+  createStackNavigator,
+  StackViewTransitionConfigs,
+} from 'react-navigation-stack';
 import invariant from 'invariant';
-import _findIndex from 'lodash/fp/findIndex';
 import { Alert, BackHandler, Platform, Keyboard } from 'react-native';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { StackViewTransitionConfigs } from 'react-navigation-stack';
 import { useScreens } from 'react-native-screens';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 
@@ -40,7 +39,6 @@ import {
   deleteAccountActionTypes,
   logInActionTypes,
   registerActionTypes,
-  resetPasswordActionTypes,
 } from 'lib/actions/user-actions';
 import {
   leaveThreadActionTypes,
@@ -112,6 +110,7 @@ import ThreadSettingsMemberTooltipModal from '../chat/settings/thread-settings-m
 import CameraModal from '../media/camera-modal.react';
 import TabBar from './tab-bar.react';
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 useScreens();
 
 export type NavInfo = {|

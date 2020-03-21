@@ -3,7 +3,6 @@
 import type { TextStyle, Styles } from '../types/styles';
 import { type UserListItem, userListItemPropType } from 'lib/types/user-types';
 import type { AppState } from '../redux/redux-setup';
-import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -12,9 +11,16 @@ import { Text, Platform } from 'react-native';
 import { connect } from 'lib/utils/redux-utils';
 
 import Button from './button.react';
-import { colorsSelector, styleSelector } from '../themes/colors';
+import {
+  type Colors,
+  colorsPropType,
+  colorsSelector,
+  styleSelector,
+} from '../themes/colors';
 
+// eslint-disable-next-line no-unused-vars
 const getUserListItemHeight = (item: UserListItem) => {
+  // TODO consider parent thread notice
   return Platform.OS === 'ios' ? 31.5 : 33.5;
 };
 

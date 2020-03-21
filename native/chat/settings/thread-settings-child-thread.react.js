@@ -3,7 +3,6 @@
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { Navigate } from '../../navigation/route-names';
 import type { AppState } from '../../redux/redux-setup';
-import { type Colors, colorsPropType } from '../../themes/colors';
 import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
@@ -16,7 +15,12 @@ import { MessageListRouteName } from '../../navigation/route-names';
 import Button from '../../components/button.react';
 import ColorSplotch from '../../components/color-splotch.react';
 import ThreadVisibility from '../../components/thread-visibility.react';
-import { colorsSelector, styleSelector } from '../../themes/colors';
+import {
+  type Colors,
+  colorsPropType,
+  colorsSelector,
+  styleSelector,
+} from '../../themes/colors';
 
 type Props = {|
   threadInfo: ThreadInfo,

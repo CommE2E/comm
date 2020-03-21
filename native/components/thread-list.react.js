@@ -55,8 +55,6 @@ class ThreadList extends React.PureComponent<Props, State> {
       threadInfos: $ReadOnlyArray<ThreadInfo>,
       text: string,
       searchResults: Set<string>,
-      itemStyle: ?ViewStyle,
-      itemTextStyle: ?TextStyle,
     ) =>
       text
         ? threadInfos.filter(threadInfo => searchResults.has(threadInfo.id))

@@ -1,7 +1,6 @@
 // @flow
 
 import type { AppState } from '../redux/redux-setup';
-import { type Colors, colorsPropType } from '../themes/colors';
 import type { ViewStyle, Styles } from '../types/styles';
 
 import * as React from 'react';
@@ -11,7 +10,12 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { connect } from 'lib/utils/redux-utils';
 
-import { colorsSelector, styleSelector } from '../themes/colors';
+import {
+  type Colors,
+  colorsPropType,
+  colorsSelector,
+  styleSelector,
+} from '../themes/colors';
 
 type Props = {|
   searchText: string,
@@ -105,7 +109,7 @@ const ConnectedSearch = connect((state: AppState) => ({
 
 type ConnectedProps = $Diff<Props, {| colors: Colors, styles: Styles |}>;
 export default React.forwardRef<Props, TextInput>(
-  (props: ConnectedProps, ref: ?TextInput) => (
-    <ConnectedSearch {...props} textInputRef={ref} />
-  ),
+  function ForwardedConnectedSearch(props: ConnectedProps, ref: ?TextInput) {
+    return <ConnectedSearch {...props} textInputRef={ref} />;
+  },
 );

@@ -4,7 +4,6 @@ import type { ChatMessageInfoItemWithHeight } from './message.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import { assertComposableMessageType } from 'lib/types/message-types';
 import type { AppState } from '../redux/redux-setup';
-import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -16,7 +15,7 @@ import { connect } from 'lib/utils/redux-utils';
 import { FailedSend } from './failed-send.react';
 import { composedMessageMaxWidthSelector } from './composed-message-width';
 import { MessageHeader } from './message-header.react';
-import { colorsSelector } from '../themes/colors';
+import { type Colors, colorsPropType, colorsSelector } from '../themes/colors';
 
 const clusterEndHeight = 7;
 
@@ -108,24 +107,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  messageBox: {
-    flex: 1,
-    flexDirection: 'row',
-    marginRight: 5,
-  },
-  leftChatBubble: {
-    justifyContent: 'flex-start',
-  },
-  rightChatBubble: {
-    justifyContent: 'flex-end',
+  icon: {
+    fontSize: 16,
+    textAlign: 'center',
   },
   iconContainer: {
     marginLeft: 2,
     width: 16,
   },
-  icon: {
-    fontSize: 16,
-    textAlign: 'center',
+  leftChatBubble: {
+    justifyContent: 'flex-start',
+  },
+  messageBox: {
+    flex: 1,
+    flexDirection: 'row',
+    marginRight: 5,
+  },
+  rightChatBubble: {
+    justifyContent: 'flex-end',
   },
 });
 

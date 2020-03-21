@@ -15,7 +15,6 @@ import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import * as React from 'react';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 
 import css from './chat-message-list.css';
 import Multimedia from './multimedia.react';
@@ -45,8 +44,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
         item.messageInfo.type === messageTypes.MULTIMEDIA,
       'MultimediaMessage should only be used for multimedia messages',
     );
-    const { id, localID, media } = item.messageInfo;
-    const { isViewer } = item.messageInfo.creator;
+    const { localID, media } = item.messageInfo;
 
     const pendingUploads = localID
       ? this.props.chatInputState.assignedUploads[localID]

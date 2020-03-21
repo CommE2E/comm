@@ -3,13 +3,10 @@
 import type { NavigationScreenProp } from 'react-navigation';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux/redux-setup';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import type { CalendarQuery } from 'lib/types/entry-types';
 import type { LogOutResult } from 'lib/types/account-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { Styles } from '../types/styles';
-import { type Colors, colorsPropType } from '../themes/colors';
 import {
   type CurrentUserInfo,
   currentUserPropType,
@@ -57,7 +54,12 @@ import {
   DevToolsRouteName,
   AppearancePreferencesRouteName,
 } from '../navigation/route-names';
-import { colorsSelector, styleSelector } from '../themes/colors';
+import {
+  type Colors,
+  colorsPropType,
+  colorsSelector,
+  styleSelector,
+} from '../themes/colors';
 
 type Props = {
   navigation: NavigationScreenProp<*>,

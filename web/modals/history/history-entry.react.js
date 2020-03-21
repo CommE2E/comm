@@ -12,7 +12,6 @@ import {
 import type { AppState } from '../../redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { CurrentUserInfo } from 'lib/types/user-types';
 
 import * as React from 'react';
 import classNames from 'classnames';

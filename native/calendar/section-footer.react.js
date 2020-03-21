@@ -2,7 +2,6 @@
 
 import type { AppState } from '../redux/redux-setup';
 import type { Styles } from '../types/styles';
-import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import { View, Text, TouchableWithoutFeedback } from 'react-native';
@@ -12,7 +11,12 @@ import PropTypes from 'prop-types';
 import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../components/button.react';
-import { colorsSelector, styleSelector } from '../themes/colors';
+import {
+  type Colors,
+  colorsPropType,
+  colorsSelector,
+  styleSelector,
+} from '../themes/colors';
 
 type Props = {|
   dateString: string,

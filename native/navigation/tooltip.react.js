@@ -142,8 +142,6 @@ function createTooltip<
         extrapolate: Extrapolate.CLAMP,
       });
 
-      const { initialCoordinates } = props.navigation.state.params;
-      const { y, height } = initialCoordinates;
       const { margin } = this;
       this.tooltipVerticalAbove = interpolate(this.progress, {
         inputRange: [0, 1],
@@ -190,8 +188,8 @@ function createTooltip<
       const boundsTop = verticalBounds.y;
       const boundsBottom = verticalBounds.y + verticalBounds.height;
 
-      const { margin, tooltipHeight } = this;
-      const fullHeight = tooltipHeight + margin;
+      const { margin, tooltipHeight: curTooltipHeight } = this;
+      const fullHeight = curTooltipHeight + margin;
       if (
         contentBottom + fullHeight > boundsBottom &&
         contentTop - fullHeight > boundsTop
@@ -418,57 +416,57 @@ function createTooltip<
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   backdrop: {
-    position: 'absolute',
-    top: 0,
+    backgroundColor: 'black',
     bottom: 0,
     left: 0,
+    position: 'absolute',
     right: 0,
-    backgroundColor: 'black',
+    top: 0,
+  },
+  container: {
+    flex: 1,
   },
   contentContainer: {
     flex: 1,
     overflow: 'hidden',
   },
+  itemMargin: {
+    borderBottomColor: '#E1E1E1',
+    borderBottomWidth: 1,
+  },
   items: {
-    borderRadius: 5,
     backgroundColor: 'white',
+    borderRadius: 5,
     overflow: 'hidden',
   },
-  itemMargin: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#E1E1E1',
-  },
   triangleDown: {
-    width: 10,
-    height: 10,
-    borderStyle: 'solid',
-    borderTopWidth: 10,
-    borderRightWidth: 10,
-    borderBottomWidth: 0,
-    borderLeftWidth: 10,
-    borderTopColor: 'white',
-    borderRightColor: 'transparent',
     borderBottomColor: 'transparent',
+    borderBottomWidth: 0,
     borderLeftColor: 'transparent',
+    borderLeftWidth: 10,
+    borderRightColor: 'transparent',
+    borderRightWidth: 10,
+    borderStyle: 'solid',
+    borderTopColor: 'white',
+    borderTopWidth: 10,
+    height: 10,
     top: Platform.OS === 'android' ? -1 : 0,
+    width: 10,
   },
   triangleUp: {
-    width: 10,
-    height: 10,
-    borderStyle: 'solid',
-    borderTopWidth: 0,
-    borderRightWidth: 10,
-    borderBottomWidth: 10,
-    borderLeftWidth: 10,
     borderBottomColor: 'white',
-    borderTopColor: 'transparent',
-    borderRightColor: 'transparent',
+    borderBottomWidth: 10,
     borderLeftColor: 'transparent',
+    borderLeftWidth: 10,
+    borderRightColor: 'transparent',
+    borderRightWidth: 10,
+    borderStyle: 'solid',
+    borderTopColor: 'transparent',
+    borderTopWidth: 0,
     bottom: Platform.OS === 'android' ? -1 : 0,
+    height: 10,
+    width: 10,
   },
 });
 

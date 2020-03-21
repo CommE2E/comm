@@ -6,7 +6,6 @@ import type {
 } from 'react-navigation';
 
 import * as React from 'react';
-import { Platform } from 'react-native';
 import { createStackNavigator } from 'react-navigation-stack';
 
 import ChatThreadList from './chat-thread-list.react';
@@ -43,7 +42,8 @@ const ChatNavigator = createStackNavigator(
     }),
   },
 );
-ChatNavigator.navigationOptions = ({ navigation }) => ({
+ChatNavigator.navigationOptions = {
+  // eslint-disable-next-line react/display-name
   tabBarIcon: ({ tintColor }) => <ChatIcon color={tintColor} />,
   tabBarOnPress: ({
     navigation,
@@ -66,6 +66,6 @@ ChatNavigator.navigationOptions = ({ navigation }) => ({
       navigation.goBack(state.routes[1].key);
     }
   },
-});
+};
 
 export default ChatNavigator;

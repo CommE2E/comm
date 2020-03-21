@@ -43,7 +43,6 @@ export type ChatRobotextMessageInfoItemWithHeight = {|
 
 function robotextMessageItemHeight(
   item: ChatRobotextMessageInfoItemWithHeight,
-  viewerID: ?string,
 ) {
   return 17 + item.contentHeight; // for padding, margin, and text
 }
@@ -163,7 +162,7 @@ class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
   }
 
   onPressThread = () => {
-    const { id, threadInfo, dispatch } = this.props;
+    const { threadInfo, dispatch } = this.props;
     dispatch({
       type: 'Navigation/NAVIGATE',
       routeName: MessageListRouteName,

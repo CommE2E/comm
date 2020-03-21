@@ -252,6 +252,7 @@ class InternalEntry extends React.Component<Props, State> {
       const loadingIndicatorCanUseRed = hueDistance('red', threadColor) > 50;
       let editButtonContent = null;
       if (editing && this.state.text.trim() === '') {
+        // nothing
       } else if (editing) {
         editButtonContent = (
           <React.Fragment>

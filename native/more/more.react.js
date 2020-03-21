@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { createStackNavigator } from 'react-navigation-stack';
 
@@ -43,12 +43,13 @@ const More = createStackNavigator(
     }),
   },
 );
-More.navigationOptions = ({ navigation }) => ({
+More.navigationOptions = {
   tabBarLabel: 'More',
+  // eslint-disable-next-line react/display-name
   tabBarIcon: ({ tintColor }) => (
     <Icon name="bars" style={[styles.icon, { color: tintColor }]} />
   ),
-});
+};
 
 const styles = StyleSheet.create({
   icon: {

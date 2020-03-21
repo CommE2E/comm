@@ -6,6 +6,8 @@ import invariant from 'invariant';
 const { createBrowserHistory } = historyModule;
 
 declare var baseURL: string;
+
+// eslint-disable-next-line no-undef
 const history = process.env.BROWSER
   ? createBrowserHistory({ basename: baseURL })
   : null;

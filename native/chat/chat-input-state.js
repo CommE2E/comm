@@ -1,6 +1,6 @@
 // @flow
 
-import type { Dimensions, MediaSelection } from 'lib/types/media-types';
+import type { MediaSelection } from 'lib/types/media-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';

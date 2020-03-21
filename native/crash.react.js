@@ -120,13 +120,13 @@ class Crash extends React.PureComponent<Props, State> {
       <View style={styles.container}>
         <Icon name="bug" size={32} color="red" />
         <Text style={styles.header}>{this.errorTitle}</Text>
-        <Text style={styles.text}>I'm sorry, but the app crashed.</Text>
+        <Text style={styles.text}>I&apos;m sorry, but the app crashed.</Text>
         <View style={styles.crashID}>
           <Text style={styles.crashIDText}>Crash report ID:</Text>
           <View style={styles.errorReportID}>{crashID}</View>
         </View>
         <Text style={styles.text}>
-          Here's some text that's probably not helpful:
+          Here&apos;s some text that&apos;s probably not helpful:
         </Text>
         <ScrollView style={styles.scrollView}>
           <Text style={styles.errorText}>{errorText}</Text>
@@ -195,61 +195,37 @@ class Crash extends React.PureComponent<Props, State> {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'white',
-  },
-  header: {
-    color: 'black',
-    fontSize: 24,
-    paddingBottom: 24,
-  },
-  text: {
-    color: 'black',
-    paddingBottom: 12,
-  },
-  errorText: {
-    color: 'black',
-    fontFamily: Platform.select({
-      ios: 'Menlo',
-      default: 'monospace',
-    }),
-  },
-  scrollView: {
-    flex: 1,
-    maxHeight: 200,
-    paddingHorizontal: 50,
-    marginBottom: 24,
-    marginTop: 12,
-  },
-  buttons: {
-    flexDirection: 'row',
-  },
   button: {
     backgroundColor: '#FF0000',
     borderRadius: 5,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
     marginHorizontal: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
   },
   buttonText: {
     color: 'white',
     fontSize: 16,
   },
-  crashID: {
-    paddingTop: 2,
-    paddingBottom: 12,
+  buttons: {
     flexDirection: 'row',
+  },
+  container: {
+    alignItems: 'center',
+    backgroundColor: 'white',
+    flex: 1,
+    justifyContent: 'center',
+  },
+  copyCrashReportIDButtonText: {
+    color: '#036AFF',
+  },
+  crashID: {
+    flexDirection: 'row',
+    paddingBottom: 12,
+    paddingTop: 2,
   },
   crashIDText: {
     color: 'black',
     paddingRight: 8,
-  },
-  copyCrashReportIDButtonText: {
-    color: 'black',
-    color: '#036AFF',
   },
   errorReportID: {
     flexDirection: 'row',
@@ -258,6 +234,29 @@ const styles = StyleSheet.create({
   errorReportIDText: {
     color: 'black',
     paddingRight: 8,
+  },
+  errorText: {
+    color: 'black',
+    fontFamily: Platform.select({
+      ios: 'Menlo',
+      default: 'monospace',
+    }),
+  },
+  header: {
+    color: 'black',
+    fontSize: 24,
+    paddingBottom: 24,
+  },
+  scrollView: {
+    flex: 1,
+    marginBottom: 24,
+    marginTop: 12,
+    maxHeight: 200,
+    paddingHorizontal: 50,
+  },
+  text: {
+    color: 'black',
+    paddingBottom: 12,
   },
 });
 

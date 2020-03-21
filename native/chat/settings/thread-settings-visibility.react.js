@@ -1,12 +1,12 @@
 // @flow
 
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import type { AppState } from '../../redux/redux-setup';
 import type { Colors } from '../../themes/colors';
 import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
-import { Text, View, Platform } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { connect } from 'lib/utils/redux-utils';
 

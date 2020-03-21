@@ -17,7 +17,6 @@ import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
 import Animated from 'react-native-reanimated';
-import { View } from 'react-native';
 import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';

@@ -8,10 +8,7 @@ import {
 import type { UserInfos } from 'lib/types/user-types';
 import type { ServerThreadInfo, ThreadInfo } from 'lib/types/thread-types';
 import type { DeviceType } from 'lib/types/device-types';
-import type {
-  CollapsableNotifInfo,
-  FetchCollapsableNotifsResult,
-} from '../fetchers/message-fetchers';
+import type { CollapsableNotifInfo } from '../fetchers/message-fetchers';
 import { updateTypes } from 'lib/types/update-types';
 
 import apn from 'apn';

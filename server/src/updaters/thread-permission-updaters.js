@@ -4,7 +4,6 @@ import {
   type ThreadPermissionsBlob,
   type ThreadRolePermissionsBlob,
   type ThreadType,
-  type ThreadPermissionInfo,
   assertThreadType,
 } from 'lib/types/thread-types';
 import type { ThreadSubscription } from 'lib/types/subscription-types';
@@ -19,7 +18,6 @@ import {
   makePermissionsBlob,
   makePermissionsForChildrenBlob,
 } from 'lib/permissions/thread-permissions';
-import { rawThreadInfoFromServerThreadInfo } from 'lib/shared/thread-utils';
 import { ServerError } from 'lib/utils/errors';
 
 import {

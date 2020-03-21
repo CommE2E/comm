@@ -16,15 +16,10 @@ import React from 'react';
 import _keyBy from 'lodash/fp/keyBy';
 
 import { ServerError } from 'lib/utils/errors';
-import {
-  startDateForYearAndMonth,
-  endDateForYearAndMonth,
-  currentDateInTimeZone,
-} from 'lib/utils/date-utils';
+import { currentDateInTimeZone } from 'lib/utils/date-utils';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
 import { freshMessageStore } from 'lib/reducers/message-reducer';
-import { verifyField } from 'lib/types/verify-types';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 import { mostRecentReadThread } from 'lib/selectors/thread-selectors';
 import { threadHasPermission } from 'lib/shared/thread-utils';

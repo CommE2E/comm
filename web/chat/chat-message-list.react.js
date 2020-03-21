@@ -3,7 +3,6 @@
 import type { AppState } from '../redux-setup';
 import {
   type ChatMessageItem,
-  type ChatMessageInfoItem,
   chatMessageItemPropType,
 } from 'lib/selectors/chat-selectors';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
@@ -17,12 +16,7 @@ import {
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
-import {
-  DropTarget,
-  DropTargetMonitor,
-  ConnectDropTarget,
-  DropTargetConnector,
-} from 'react-dnd';
+import { DropTarget } from 'react-dnd';
 import { NativeTypes } from 'react-dnd-html5-backend';
 import classNames from 'classnames';
 import { detect as detectBrowser } from 'detect-browser';
@@ -73,7 +67,7 @@ type PassedProps = {|
 |};
 type ReactDnDProps = {|
   isActive: boolean,
-  connectDropTarget: ConnectDropTarget,
+  connectDropTarget: (node: React.Node) => React.Node,
 |};
 type Props = {|
   ...PassedProps,
@@ -426,15 +420,15 @@ const ReduxConnectedChatMessageList = connect(
 export default DropTarget(
   NativeTypes.FILE,
   {
-    drop: (props: PassedProps, monitor: DropTargetMonitor) => {
+    drop: (props: PassedProps, monitor) => {
       const { files } = monitor.getItem();
       if (props.chatInputState && files.length > 0) {
         props.chatInputState.appendFiles(files);
       }
     },
   },
-  (connect: DropTargetConnector, monitor: DropTargetMonitor) => ({
-    connectDropTarget: connect.dropTarget(),
+  (connector, monitor) => ({
+    connectDropTarget: connector.dropTarget(),
     isActive: monitor.isOver() && monitor.canDrop(),
   }),
 )(ReduxConnectedChatMessageList);

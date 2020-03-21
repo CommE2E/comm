@@ -22,12 +22,11 @@ import { dbQuery, SQL } from '../database';
 import { sendEmailAddressVerificationEmail } from '../emails/verification';
 import { sendPasswordResetEmail } from '../emails/reset-password';
 import { verifyCode, clearVerifyCodes } from '../models/verification';
-import { createNewUserCookie } from '../session/cookies';
+import { createNewUserCookie, setNewSession } from '../session/cookies';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { fetchLoggedInUserInfos } from '../fetchers/user-fetchers';
 import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
-import { setNewSession } from '../session/cookies';
 import { createUpdates } from '../creators/update-creator';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 

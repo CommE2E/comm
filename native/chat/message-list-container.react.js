@@ -1,14 +1,7 @@
 // @flow
 
 import type { AppState } from '../redux/redux-setup';
-import {
-  type FetchMessageInfosPayload,
-  messageTypes,
-} from 'lib/types/message-types';
-import {
-  type ChatMessageItem,
-  chatMessageItemPropType,
-} from 'lib/selectors/chat-selectors';
+import { messageTypes } from 'lib/types/message-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { TextToMeasure } from '../text-height-measurer.react';
 import type { ChatMessageInfoItemWithHeight } from './message.react';
@@ -16,19 +9,21 @@ import {
   type MessageListNavProp,
   messageListNavPropType,
 } from './message-list-types';
-import { type Colors, colorsPropType } from '../themes/colors';
 import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { View, Platform } from 'react-native';
-import _differenceWith from 'lodash/fp/differenceWith';
 import invariant from 'invariant';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 
 import { connect } from 'lib/utils/redux-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
-import { messageListData } from 'lib/selectors/chat-selectors';
+import {
+  type ChatMessageItem,
+  chatMessageItemPropType,
+  messageListData,
+} from 'lib/selectors/chat-selectors';
 import {
   messageKey,
   messageID,
@@ -52,7 +47,12 @@ import {
   chatInputStatePropType,
   withChatInputState,
 } from './chat-input-state';
-import { colorsSelector, styleSelector } from '../themes/colors';
+import {
+  type Colors,
+  colorsPropType,
+  colorsSelector,
+  styleSelector,
+} from '../themes/colors';
 import ContentLoading from '../components/content-loading.react';
 
 export type ChatMessageItemWithHeight =

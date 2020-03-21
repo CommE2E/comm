@@ -2,10 +2,6 @@
 
 import type { AppState } from '../redux/redux-setup';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import {
-  type ChatThreadItem,
-  chatThreadItemPropType,
-} from 'lib/selectors/chat-selectors';
 import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
 import type { Styles } from '../types/styles';
 
@@ -21,7 +17,11 @@ import { viewerIsMember } from 'lib/shared/thread-utils';
 import { threadSearchIndex } from 'lib/selectors/nav-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import { connect } from 'lib/utils/redux-utils';
-import { chatListData } from 'lib/selectors/chat-selectors';
+import {
+  type ChatThreadItem,
+  chatThreadItemPropType,
+  chatListData,
+} from 'lib/selectors/chat-selectors';
 
 import ChatThreadListItem from './chat-thread-list-item.react';
 import ComposeThreadButton from './compose-thread-button.react';
@@ -156,17 +156,17 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.searchText,
     (propsAndState: PropsAndState) => propsAndState.searchResults,
     (
-      chatListData: $ReadOnlyArray<ChatThreadItem>,
+      reduxChatListData: $ReadOnlyArray<ChatThreadItem>,
       searchText: string,
       searchResults: Set<string>,
     ): Item[] => {
       let chatItems;
       if (!searchText) {
-        chatItems = chatListData.filter(item =>
+        chatItems = reduxChatListData.filter(item =>
           viewerIsMember(item.threadInfo),
         );
       } else {
-        chatItems = chatListData.filter(item =>
+        chatItems = reduxChatListData.filter(item =>
           searchResults.has(item.threadInfo.id),
         );
       }

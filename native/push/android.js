@@ -1,6 +1,5 @@
 // @flow
 
-import type { Dispatch } from 'lib/types/redux-types';
 import type { RemoteMessage } from 'react-native-firebase';
 
 import invariant from 'invariant';

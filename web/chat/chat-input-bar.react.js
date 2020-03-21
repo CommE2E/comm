@@ -208,7 +208,7 @@ class ChatInputBar extends React.PureComponent<Props> {
     } else if (isMember) {
       content = (
         <span className={css.explanation}>
-          You don't have permission to send messages.
+          You don&apos;t have permission to send messages.
         </span>
       );
     } else {
@@ -232,7 +232,7 @@ class ChatInputBar extends React.PureComponent<Props> {
       } else {
         content = (
           <span className={css.explanation}>
-            You don't have permission to send messages.
+            You don&apos;t have permission to send messages.
           </span>
         );
       }
@@ -334,7 +334,7 @@ class ChatInputBar extends React.PureComponent<Props> {
     this.multimediaInput = multimediaInput;
   };
 
-  onMultimediaClick = (event: SyntheticEvent<HTMLInputElement>) => {
+  onMultimediaClick = () => {
     if (this.multimediaInput) {
       this.multimediaInput.click();
     }

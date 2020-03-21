@@ -273,13 +273,13 @@ class PushHandler extends React.PureComponent<Props, State> {
   }
 
   updateBadgeCount() {
-    const { unreadCount } = this.props;
+    const curUnreadCount = this.props.unreadCount;
     if (Platform.OS === 'ios') {
-      NotificationsIOS.setBadgesCount(unreadCount);
+      NotificationsIOS.setBadgesCount(curUnreadCount);
     } else if (Platform.OS === 'android') {
       getFirebase()
         .notifications()
-        .setBadge(unreadCount);
+        .setBadge(curUnreadCount);
     }
   }
 
@@ -336,7 +336,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     if (!hasPermission) {
       try {
         await firebase.messaging().requestPermission();
-      } catch (error) {
+      } catch {
         this.failedToRegisterPushPermissions();
         return;
       }
@@ -390,7 +390,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     );
   }
 
-  failedToRegisterPushPermissions = error => {
+  failedToRegisterPushPermissions = () => {
     if (!this.props.appLoggedIn) {
       return;
     }
@@ -506,8 +506,8 @@ class PushHandler extends React.PureComponent<Props, State> {
     if (messageInfos) {
       this.saveMessageInfos(messageInfos);
     }
-    this.onPressNotificationForThread(threadID, true),
-      notification.finish(NotificationsIOS.FetchResult.NewData);
+    this.onPressNotificationForThread(threadID, true);
+    notification.finish(NotificationsIOS.FetchResult.NewData);
   };
 
   showInAppNotification(threadID: string, message: string, title?: ?string) {

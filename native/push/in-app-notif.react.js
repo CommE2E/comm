@@ -39,11 +39,17 @@ function InAppNotif(props: Props) {
 }
 
 const styles = StyleSheet.create({
+  lightText: {
+    color: 'white',
+  },
+  lightTitle: {
+    color: 'white',
+  },
   notif: {
-    textAlign: 'left',
     alignItems: 'flex-start',
     alignSelf: 'flex-start',
     justifyContent: 'flex-start',
+    textAlign: 'left',
     width: '100%',
   },
   text: {
@@ -61,15 +67,9 @@ const styles = StyleSheet.create({
     }),
     marginHorizontal: 10,
   },
-  lightText: {
-    color: 'white',
-  },
   title: {
     color: 'black',
     fontWeight: 'bold',
-  },
-  lightTitle: {
-    color: 'white',
   },
 });
 

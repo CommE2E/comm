@@ -32,7 +32,6 @@ import {
   connectionStatusPropType,
 } from 'lib/types/socket-types';
 import type { Styles } from '../types/styles';
-import { type Colors, colorsPropType } from '../themes/colors';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 
 import * as React from 'react';
@@ -42,7 +41,6 @@ import {
   FlatList,
   AppState as NativeAppState,
   Platform,
-  Keyboard,
   LayoutAnimation,
   TouchableWithoutFeedback,
 } from 'react-native';
@@ -97,7 +95,12 @@ import {
 } from '../navigation/route-names';
 import DisconnectedBar from '../navigation/disconnected-bar.react';
 import SafeAreaView from '../components/safe-area-view.react';
-import { colorsSelector, styleSelector } from '../themes/colors';
+import {
+  type Colors,
+  colorsPropType,
+  colorsSelector,
+  styleSelector,
+} from '../themes/colors';
 import ContentLoading from '../components/content-loading.react';
 
 export type EntryInfoWithHeight = {|
@@ -822,8 +825,8 @@ class Calendar extends React.PureComponent<Props, State> {
     this.flatList = flatList;
   };
 
-  entryRef = (entryKey: string, entry: ?InternalEntry) => {
-    this.entryRefs.set(entryKey, entry);
+  entryRef = (inEntryKey: string, entry: ?InternalEntry) => {
+    this.entryRefs.set(inEntryKey, entry);
   };
 
   makeAllEntriesInactive = () => {
@@ -908,11 +911,11 @@ class Calendar extends React.PureComponent<Props, State> {
     this.keyboardPartiallyVisible = true;
   };
 
-  keyboardDismiss = (event: ?KeyboardEvent) => {
+  keyboardDismiss = () => {
     this.keyboardShownHeight = null;
   };
 
-  keyboardDidDismiss = (event: ?KeyboardEvent) => {
+  keyboardDidDismiss = () => {
     this.keyboardPartiallyVisible = false;
     if (!this.props.threadPickerOpen) {
       this.setState({ disableInputBar: false });
@@ -990,10 +993,10 @@ class Calendar extends React.PureComponent<Props, State> {
         // differentiate the out-of-view case from the something-pressed case,
         // and then we could set scrolled-away entries to be inactive without
         // worrying about this edge case. Until then...
-        const item = _find(
+        const foundItem = _find(
           item => item.entryInfo && entryKey(item.entryInfo) === key,
         )(ldwh);
-        return !!item;
+        return !!foundItem;
       })(this.latestExtraData.activeEntries),
       visibleEntries,
     };
@@ -1112,8 +1115,7 @@ class Calendar extends React.PureComponent<Props, State> {
     if (entryKeys.length === 0) {
       return;
     }
-    const entryKey = entryKeys[0];
-    const entryRef = this.entryRefs.get(entryKey);
+    const entryRef = this.entryRefs.get(entryKeys[0]);
     if (entryRef) {
       entryRef.completeEdit();
     }

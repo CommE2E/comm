@@ -18,7 +18,7 @@ class InvalidUploadModal extends React.PureComponent<Props> {
     return (
       <Modal name="Invalid upload" onClose={this.clearModal}>
         <div className={css['modal-body']}>
-          <p>We don't support that file type yet :(</p>
+          <p>We don&apos;t support that file type yet :(</p>
         </div>
       </Modal>
     );

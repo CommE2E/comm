@@ -17,7 +17,6 @@ import type {
   FetchEntryRevisionInfosResult,
   FetchEntryRevisionInfosRequest,
 } from 'lib/types/history-types';
-import { threadPermissions } from 'lib/types/thread-types';
 import { calendarThreadFilterTypes } from 'lib/types/filter-types';
 
 import t from 'tcomb';
@@ -39,10 +38,12 @@ import {
   fetchEntriesForSession,
 } from '../fetchers/entry-fetchers';
 import createEntry from '../creators/entry-creator';
-import { updateEntry } from '../updaters/entry-updaters';
+import {
+  updateEntry,
+  compareNewCalendarQuery,
+} from '../updaters/entry-updaters';
 import { deleteEntry, restoreEntry } from '../deleters/entry-deleters';
 import { commitSessionUpdate } from '../updaters/session-updaters';
-import { compareNewCalendarQuery } from '../updaters/entry-updaters';
 
 const entryQueryInputValidator = tShape({
   navID: t.maybe(t.String),

@@ -2,7 +2,6 @@
 
 import type { Navigate } from '../navigation/route-names';
 import type { AppState } from '../redux/redux-setup';
-import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
@@ -13,7 +12,7 @@ import { connect } from 'lib/utils/redux-utils';
 
 import { ComposeThreadRouteName } from '../navigation/route-names';
 import Button from '../components/button.react';
-import { colorsSelector } from '../themes/colors';
+import { type Colors, colorsPropType, colorsSelector } from '../themes/colors';
 
 type Props = {|
   navigate: Navigate,

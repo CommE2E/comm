@@ -10,7 +10,6 @@ import type {
   NavigationLeafRoute,
 } from 'react-navigation';
 import type { AppState } from '../../redux/redux-setup';
-import { type Colors, colorsPropType } from '../../themes/colors';
 import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
@@ -28,7 +27,12 @@ import {
   ComposeThreadRouteName,
 } from '../../navigation/route-names';
 import { createModal } from '../../components/modal.react';
-import { colorsSelector, styleSelector } from '../../themes/colors';
+import {
+  type Colors,
+  colorsPropType,
+  colorsSelector,
+  styleSelector,
+} from '../../themes/colors';
 
 const Modal = createModal(ComposeSubthreadModalRouteName);
 type NavProp = NavigationScreenProp<{|

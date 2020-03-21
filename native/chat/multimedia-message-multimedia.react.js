@@ -30,13 +30,11 @@ import {
   withKeyboardState,
 } from '../keyboard/keyboard-state';
 import type { AppState } from '../redux/redux-setup';
-import { type Colors, colorsPropType } from '../themes/colors';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { View, StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
-import invariant from 'invariant';
 
 import { messageKey } from 'lib/shared/message-utils';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
@@ -44,7 +42,7 @@ import { connect } from 'lib/utils/redux-utils';
 
 import InlineMultimedia from './inline-multimedia.react';
 import { multimediaTooltipHeight } from './multimedia-tooltip-modal.react';
-import { colorsSelector } from '../themes/colors';
+import { type Colors, colorsPropType, colorsSelector } from '../themes/colors';
 
 type Props = {|
   mediaInfo: MediaInfo,
@@ -146,16 +144,16 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     }
     wrapperStyles.push(this.props.style);
 
-    const { mediaInfo, pendingUpload, style, postInProgress } = this.props;
+    const { mediaInfo, pendingUpload, postInProgress } = this.props;
     return (
       <Animated.View style={wrapperStyles}>
         <View style={styles.expand} onLayout={this.onLayout} ref={this.viewRef}>
           <InlineMultimedia
-            mediaInfo={this.props.mediaInfo}
+            mediaInfo={mediaInfo}
             onPress={this.onPress}
             onLongPress={this.onLongPress}
-            postInProgress={this.props.postInProgress}
-            pendingUpload={this.props.pendingUpload}
+            postInProgress={postInProgress}
+            pendingUpload={pendingUpload}
             spinnerColor={this.props.colors.listSeparatorLabel}
           />
         </View>

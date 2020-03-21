@@ -1,9 +1,8 @@
 // @flow
 
-import type { MediaType } from 'lib/types/media-types';
-
 import { Platform, PermissionsAndroid } from 'react-native';
 import filesystem from 'react-native-fs';
+// eslint-disable-next-line import/default
 import CameraRoll from '@react-native-community/cameraroll';
 import invariant from 'invariant';
 
@@ -93,7 +92,7 @@ async function saveImageIOS(mediaInfo: SaveImageInfo) {
   }
 
   const saveURI = tempFile ? `file://${tempFile}` : uri;
-  const result = await CameraRoll.saveToCameraRoll(saveURI, type);
+  await CameraRoll.saveToCameraRoll(saveURI, type);
 
   if (tempFile) {
     await filesystem.unlink(tempFile);
