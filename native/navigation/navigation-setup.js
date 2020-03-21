@@ -119,10 +119,10 @@ export type NavInfo = {|
   navigationState: NavigationState,
 |};
 
-const uniqueBaseId = `id-${Date.now()}`;
-let uuidCount = 0;
-function _getUuid() {
-  return `${uniqueBaseId}-${uuidCount++}`;
+const messageListRouteBase = Date.now();
+let messageListRouteIndex = 0;
+function getUniqueMessageListRouteKey() {
+  return `${messageListRouteBase}-${messageListRouteIndex++}`;
 }
 
 export type Action =
@@ -715,12 +715,15 @@ function handleNewThread(
       (route: NavigationRoute) =>
         route.routeName === ComposeThreadRouteName ? 'remove' : 'break',
     );
+    const key =
+      `${MessageListRouteName}${threadInfo.id}:` +
+      getUniqueMessageListRouteKey();
     return {
       ...newChatRoute,
       routes: [
         ...newChatRoute.routes,
         {
-          key: `${MessageListRouteName}${threadInfo.id}`,
+          key,
           routeName: MessageListRouteName,
           params: { threadInfo },
         },
@@ -748,12 +751,15 @@ function replaceChatStackWithThread(
       (route: NavigationRoute) =>
         route.routeName === ChatThreadListRouteName ? 'break' : 'remove',
     );
+    const key =
+      `${MessageListRouteName}${threadInfo.id}:` +
+      getUniqueMessageListRouteKey();
     return {
       ...newChatRoute,
       routes: [
         ...newChatRoute.routes,
         {
-          key: `${MessageListRouteName}${threadInfo.id}`,
+          key,
           routeName: MessageListRouteName,
           params: { threadInfo },
         },
@@ -819,12 +825,14 @@ function handleNotificationPress(
     viewerID,
     userInfos,
   );
+  const key =
+    `${MessageListRouteName}${threadInfo.id}:` + getUniqueMessageListRouteKey();
   const newChatRoute = {
     ...chatRoute,
     routes: [
       ...chatRoute.routes,
       {
-        key: `${MessageListRouteName}${threadInfo.id}`,
+        key,
         routeName: MessageListRouteName,
         params: { threadInfo },
       },
