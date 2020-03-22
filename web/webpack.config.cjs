@@ -6,6 +6,8 @@ const TerserPlugin = require('terser-webpack-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
+const babelConfig = require('./babel.config.cjs');
+
 const cssLoader = {
   loader: 'css-loader',
   options: {
@@ -20,13 +22,7 @@ const babelRule = {
   test: /\.js$/,
   exclude: /node_modules\/(?!lib)/,
   loader: 'babel-loader',
-  options: {
-    presets: [ '@babel/preset-react', '@babel/preset-flow' ],
-    plugins: [
-      '@babel/plugin-proposal-class-properties',
-      '@babel/plugin-proposal-object-rest-spread',
-    ],
-  },
+  options: babelConfig,
 };
 const browserBabelRule = {
   ...babelRule,
