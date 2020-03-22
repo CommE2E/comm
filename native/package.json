@@ -12,8 +12,8 @@
     "logfirebase": "adb shell logcat | grep -E -i 'FIRMessagingModule|firebase'"
   },
   "devDependencies": {
-    "@babel/core": "^7.6.2",
-    "@babel/runtime": "^7.6.2",
+    "@babel/core": "^7.9.0",
+    "@babel/runtime": "^7.9.2",
     "@react-native-community/eslint-config": "^0.0.5",
     "babel-jest": "^24.9.0",
     "babel-plugin-transform-remove-console": "^6.8.5",
