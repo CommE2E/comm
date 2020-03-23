@@ -14,6 +14,8 @@ import ReactRedux from 'react-redux';
 import ReactRouter from 'react-router';
 import React from 'react';
 import _keyBy from 'lodash/fp/keyBy';
+import fs from 'fs';
+import { promisify } from 'util';
 
 import { ServerError } from 'lib/utils/errors';
 import { currentDateInTimeZone } from 'lib/utils/date-utils';
@@ -52,6 +54,19 @@ const { Route, StaticRouter } = ReactRouter;
 const baseURL = basePath.replace(/\/$/, '');
 const baseHref = baseDomain + baseURL;
 
+const access = promisify(fs.access);
+const googleFontsURL =
+  'https://fonts.googleapis.com/css?family=Open+Sans:300,600%7CAnaheim';
+const localFontsURL = 'fonts/local-fonts.css';
+async function getFontsURL() {
+  try {
+    await access(localFontsURL);
+    return localFontsURL;
+  } catch {
+    return googleFontsURL;
+  }
+}
+
 type AssetInfo = {| jsURL: string, fontsURL: string, cssInclude: string |};
 let assetInfo: ?AssetInfo = null;
 async function getAssetInfo() {
@@ -59,9 +74,10 @@ async function getAssetInfo() {
     return assetInfo;
   }
   if (process.env.NODE_ENV === 'dev') {
+    const fontsURL = await getFontsURL();
     assetInfo = {
       jsURL: 'http://localhost:8080/dev.build.js',
-      fontsURL: 'fonts/local-fonts.css',
+      fontsURL,
       cssInclude: '',
     };
     return assetInfo;
@@ -70,8 +86,7 @@ async function getAssetInfo() {
   const { default: assets } = await import('../../compiled/assets');
   assetInfo = {
     jsURL: `compiled/${assets.browser.js}`,
-    fontsURL:
-      'https://fonts.googleapis.com/css?family=Open+Sans:300,600%7CAnaheim',
+    fontsURL: googleFontsURL,
     cssInclude: html`
       <link
         rel="stylesheet"
