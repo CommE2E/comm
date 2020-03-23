@@ -5,8 +5,7 @@
   "private": true,
   "license": "BSD-3-Clause",
   "scripts": {
-    "clean": "rm -rf node_modules/",
-    "flow": "yarn flow; test $? -eq 0 -o $? -eq 2"
+    "clean": "rm -rf node_modules/"
   },
   "devDependencies": {
     "flow-bin": "^0.98.0"
