@@ -209,6 +209,15 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
+    if (this.props.rehydrateConcluded && !__DEV__) {
+      // If rehydrate concludes before the first time LoggedOutModal is mounted
+      // on dev mode, it's probably because the dev started with logged-in nav
+      // state and then logged out. In this case we don't want to call
+      // onInitialAppLoad. However, if the same thing happens in release mode,
+      // it's probably because Android rehydrated as a result of a notification.
+      // In this case, we still want to call onInitialAppLoad.
+      this.onInitialAppLoad();
+    }
     if (this.props.isForeground) {
       this.onForeground();
     }
