@@ -98,7 +98,7 @@ import AddUsersModal from '../chat/settings/add-users-modal.react';
 import CustomServerModal from '../more/custom-server-modal.react';
 import ColorPickerModal from '../chat/settings/color-picker-modal.react';
 import ComposeSubthreadModal from '../chat/settings/compose-subthread-modal.react';
-import { createLightboxNavigator } from './lightbox-navigator.react';
+import { createOverlayNavigator } from './overlay-navigator.react';
 import MultimediaModal from '../media/multimedia-modal.react';
 import { MultimediaTooltipModal } from '../chat/multimedia-tooltip-modal.react';
 import ChatInputStateContainer from '../chat/chat-input-state-container.react';
@@ -154,7 +154,7 @@ const TabNavigator = createBottomTabNavigator(
   },
 );
 
-const AppNavigator = createLightboxNavigator({
+const AppNavigator = createOverlayNavigator({
   [TabNavigatorRouteName]: TabNavigator,
   [MultimediaModalRouteName]: MultimediaModal,
   [MultimediaTooltipModalRouteName]: MultimediaTooltipModal,

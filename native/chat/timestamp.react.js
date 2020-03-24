@@ -43,7 +43,7 @@ const styles = {
     bottom: 0,
   },
   modal: {
-    // high contrast framed against LightboxNavigator-dimmed background
+    // high contrast framed against OverlayNavigator-dimmed background
     color: 'white',
   },
 };

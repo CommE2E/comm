@@ -6,7 +6,7 @@ import {
   verticalBoundsPropType,
   type LayoutCoordinates,
   layoutCoordinatesPropType,
-} from '../types/lightbox-types';
+} from '../types/layout-types';
 import type {
   NavigationScreenProp,
   NavigationLeafRoute,

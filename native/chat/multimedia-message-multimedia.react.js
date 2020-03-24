@@ -10,7 +10,7 @@ import {
 import {
   type VerticalBounds,
   verticalBoundsPropType,
-} from '../types/lightbox-types';
+} from '../types/layout-types';
 import {
   type PendingMultimediaUpload,
   pendingMultimediaUploadPropType,
@@ -51,7 +51,7 @@ type Props = {|
   verticalBounds: ?VerticalBounds,
   verticalOffset: number,
   style: ImageStyle,
-  lightboxPosition: ?Animated.Value,
+  overlayPosition: ?Animated.Value,
   postInProgress: boolean,
   pendingUpload: ?PendingMultimediaUpload,
   messageFocused: boolean,
@@ -74,7 +74,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     navigation: messageListNavPropType.isRequired,
     verticalBounds: verticalBoundsPropType,
     verticalOffset: PropTypes.number.isRequired,
-    lightboxPosition: PropTypes.instanceOf(Animated.Value),
+    overlayPosition: PropTypes.instanceOf(Animated.Value),
     postInProgress: PropTypes.bool.isRequired,
     pendingUpload: pendingMultimediaUploadPropType,
     messageFocused: PropTypes.bool.isRequired,
@@ -103,11 +103,11 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   }
 
   getOpacity() {
-    const { lightboxPosition } = this.props;
-    if (!lightboxPosition) {
+    const { overlayPosition } = this.props;
+    if (!overlayPosition) {
       return null;
     }
-    return Animated.interpolate(this.props.lightboxPosition, {
+    return Animated.interpolate(this.props.overlayPosition, {
       inputRange: [0.1, 0.11],
       outputRange: [1, 0],
       extrapolate: Animated.Extrapolate.CLAMP,
@@ -122,7 +122,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (this.props.lightboxPosition !== prevProps.lightboxPosition) {
+    if (this.props.overlayPosition !== prevProps.overlayPosition) {
       this.setState({ opacity: this.getOpacity() });
     }
 

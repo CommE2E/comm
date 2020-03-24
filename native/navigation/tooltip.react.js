@@ -11,7 +11,7 @@ import {
   verticalBoundsPropType,
   type LayoutCoordinates,
   layoutCoordinatesPropType,
-} from '../types/lightbox-types';
+} from '../types/layout-types';
 import type { AppState } from '../redux/redux-setup';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 import type { ViewStyle } from '../types/styles';

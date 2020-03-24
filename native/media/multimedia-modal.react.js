@@ -18,7 +18,7 @@ import {
   verticalBoundsPropType,
   type LayoutCoordinates,
   layoutCoordinatesPropType,
-} from '../types/lightbox-types';
+} from '../types/layout-types';
 
 import * as React from 'react';
 import {

@@ -9,7 +9,7 @@ import { connect } from 'lib/utils/redux-utils';
 
 import {
   scrollBlockingChatModalsClosedSelector,
-  lightboxTransitioningSelector,
+  overlayTransitioningSelector,
 } from '../selectors/nav-selectors';
 import { OverlayableScrollViewContext } from './overlayable-scroll-view-state';
 
@@ -79,6 +79,6 @@ export default connect((state: AppState) => {
   return {
     scrollBlockingModalsClosed,
     scrollBlockingModalsGone:
-      scrollBlockingModalsClosed && !lightboxTransitioningSelector(state),
+      scrollBlockingModalsClosed && !overlayTransitioningSelector(state),
   };
 })(OverlayableScrollViewStateContainer);

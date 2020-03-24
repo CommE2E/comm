@@ -7,7 +7,7 @@ import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import {
   type VerticalBounds,
   verticalBoundsPropType,
-} from '../types/lightbox-types';
+} from '../types/layout-types';
 import {
   type MessageListNavProp,
   messageListNavPropType,
