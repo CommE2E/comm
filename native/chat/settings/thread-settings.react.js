@@ -14,7 +14,7 @@ import {
 import type { AppState } from '../../redux/redux-setup';
 import type { CategoryType } from './thread-settings-category.react';
 import type { Navigate } from '../../navigation/route-names';
-import type { VerticalBounds } from '../../types/lightbox-types';
+import type { VerticalBounds } from '../../types/layout-types';
 import {
   type OverlayableScrollViewState,
   overlayableScrollViewStatePropType,

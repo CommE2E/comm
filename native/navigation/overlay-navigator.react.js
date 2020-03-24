@@ -22,11 +22,11 @@ import { StackRouter, createNavigator, StackActions } from 'react-navigation';
 import { Transitioner } from 'react-navigation-stack';
 import Animated, { Easing } from 'react-native-reanimated';
 
-const LightboxPositionContext: React.Context<Animated.Value> = React.createContext(
+const OverlayPositionContext: React.Context<Animated.Value> = React.createContext(
   null,
 );
 
-function createLightboxNavigator(
+function createOverlayNavigator(
   routeConfigMap: NavigationRouteConfigMap,
   stackConfig: StackNavigatorConfig = {},
 ) {
@@ -49,7 +49,11 @@ function createLightboxNavigator(
     NavigationState,
     StackNavigatorConfig,
     NavigationStackProp<NavigationState>,
-  >(Lightbox, StackRouter(routeConfigMap, stackRouterConfig), stackConfig);
+  >(
+    OverlayNavigator,
+    StackRouter(routeConfigMap, stackRouterConfig),
+    stackConfig,
+  );
 }
 
 type Props = $ReadOnly<{
@@ -57,7 +61,7 @@ type Props = $ReadOnly<{
   descriptors: { [key: string]: NavigationDescriptor },
   navigationConfig: StackNavigatorConfig,
 }>;
-class Lightbox extends React.PureComponent<Props> {
+class OverlayNavigator extends React.PureComponent<Props> {
   position: Animated.Value;
 
   constructor(props: Props) {
@@ -115,9 +119,9 @@ class Lightbox extends React.PureComponent<Props> {
     const renderScene = (scene: NavigationStackScene) =>
       this.renderScene(scene, transitionProps);
     return (
-      <LightboxPositionContext.Provider value={this.position}>
+      <OverlayPositionContext.Provider value={this.position}>
         {scenes.map(renderScene)}
-      </LightboxPositionContext.Provider>
+      </OverlayPositionContext.Provider>
     );
   };
 
@@ -154,7 +158,7 @@ const styles = StyleSheet.create({
   },
 });
 
-function withLightboxPositionContext<
+function withOverlayPositionContext<
   AllProps: {},
   ComponentType: React.ComponentType<AllProps>,
 >(
@@ -162,24 +166,24 @@ function withLightboxPositionContext<
 ): React.ComponentType<
   $Diff<
     React.ElementConfig<ComponentType>,
-    { lightboxPosition: ?Animated.Value },
+    { overlayPosition: ?Animated.Value },
   >,
 > {
-  class LightboxPositionHOC extends React.PureComponent<
+  class OverlayPositionHOC extends React.PureComponent<
     $Diff<
       React.ElementConfig<ComponentType>,
-      { lightboxPosition: ?Animated.Value },
+      { overlayPosition: ?Animated.Value },
     >,
   > {
     render() {
       return (
-        <LightboxPositionContext.Consumer>
-          {value => <Component {...this.props} lightboxPosition={value} />}
-        </LightboxPositionContext.Consumer>
+        <OverlayPositionContext.Consumer>
+          {value => <Component {...this.props} overlayPosition={value} />}
+        </OverlayPositionContext.Consumer>
       );
     }
   }
-  return LightboxPositionHOC;
+  return OverlayPositionHOC;
 }
 
-export { createLightboxNavigator, withLightboxPositionContext };
+export { createOverlayNavigator, withOverlayPositionContext };

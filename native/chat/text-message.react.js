@@ -9,7 +9,7 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import {
   type VerticalBounds,
   verticalBoundsPropType,
-} from '../types/lightbox-types';
+} from '../types/layout-types';
 import {
   type MessageListNavProp,
   messageListNavPropType,

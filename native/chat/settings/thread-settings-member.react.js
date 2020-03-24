@@ -18,7 +18,7 @@ import {
 import {
   type VerticalBounds,
   verticalBoundsPropType,
-} from '../../types/lightbox-types';
+} from '../../types/layout-types';
 import {
   type KeyboardState,
   keyboardStatePropType,

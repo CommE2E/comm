@@ -113,7 +113,7 @@ const backgroundIsDarkSelector: (state: AppState) => boolean = createSelector(
   },
 );
 
-const lightboxTransitioningSelector: (
+const overlayTransitioningSelector: (
   state: AppState,
 ) => boolean = createSelector(
   (state: AppState) => state.navInfo.navigationState,
@@ -248,7 +248,7 @@ export {
   createActiveTabSelector,
   scrollBlockingChatModalsClosedSelector,
   backgroundIsDarkSelector,
-  lightboxTransitioningSelector,
+  overlayTransitioningSelector,
   activeThreadSelector,
   activeMessageListSelector,
   appCanRespondToBackButtonSelector,

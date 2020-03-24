@@ -7,7 +7,7 @@ import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { ChatMessageItemWithHeight } from './message-list-container.react';
-import type { VerticalBounds } from '../types/lightbox-types';
+import type { VerticalBounds } from '../types/layout-types';
 import {
   type MessageListNavProp,
   messageListNavPropType,

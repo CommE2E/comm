@@ -11,7 +11,7 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import {
   type VerticalBounds,
   verticalBoundsPropType,
-} from '../types/lightbox-types';
+} from '../types/layout-types';
 import type { MessagePendingUploads } from './chat-input-state';
 import {
   type MessageListNavProp,
@@ -26,7 +26,7 @@ import Animated from 'react-native-reanimated';
 
 import { ComposedMessage, clusterEndHeight } from './composed-message.react';
 import MultimediaMessageMultimedia from './multimedia-message-multimedia.react';
-import { withLightboxPositionContext } from '../navigation/lightbox-navigator.react';
+import { withOverlayPositionContext } from '../navigation/overlay-navigator.react';
 import {
   allCorners,
   filterCorners,
@@ -127,8 +127,8 @@ type Props = {|
   focused: boolean,
   toggleFocus: (messageKey: string) => void,
   verticalBounds: ?VerticalBounds,
-  // withLightboxPositionContext
-  lightboxPosition: ?Animated.Value,
+  // withOverlayPositionContext
+  overlayPosition: ?Animated.Value,
   ...React.ElementProps<typeof View>,
 |};
 class MultimediaMessage extends React.PureComponent<Props> {
@@ -138,7 +138,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
-    lightboxPosition: PropTypes.instanceOf(Animated.Value),
+    overlayPosition: PropTypes.instanceOf(Animated.Value),
   };
 
   render() {
@@ -148,7 +148,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
       focused,
       toggleFocus,
       verticalBounds,
-      lightboxPosition,
+      overlayPosition,
       ...viewProps
     } = this.props;
     const heightStyle = { height: item.contentHeight };
@@ -249,7 +249,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
         verticalBounds={this.props.verticalBounds}
         verticalOffset={verticalOffset}
         style={[style, roundedStyle]}
-        lightboxPosition={this.props.lightboxPosition}
+        overlayPosition={this.props.overlayPosition}
         postInProgress={!!pendingUploads}
         pendingUpload={pendingUpload}
         messageFocused={this.props.focused}
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const WrappedMultimediaMessage = withLightboxPositionContext(MultimediaMessage);
+const WrappedMultimediaMessage = withOverlayPositionContext(MultimediaMessage);
 
 export {
   borderRadius as multimediaMessageBorderRadius,
