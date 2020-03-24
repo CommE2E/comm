@@ -13,11 +13,11 @@ async function getGeoipLicense() {
   }
   try {
     const geoipLicenseImport = await import('../../secrets/geoip_license');
-    if (cachedGeoipLicense !== undefined) {
+    if (cachedGeoipLicense === undefined) {
       cachedGeoipLicense = geoipLicenseImport.default;
     }
   } catch {
-    if (cachedGeoipLicense !== undefined) {
+    if (cachedGeoipLicense === undefined) {
       cachedGeoipLicense = null;
     }
   }
