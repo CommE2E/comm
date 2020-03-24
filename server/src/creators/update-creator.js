@@ -42,7 +42,6 @@ import {
   conditionKeyForUpdateDataFromKey,
   rawUpdateInfoFromUpdateData,
 } from 'lib/shared/update-utils';
-import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL, SQLStatement, mergeAndConditions } from '../database';
 import createIDs from './id-creator';
@@ -108,12 +107,13 @@ async function createUpdates(
   if (updateDatas.length === 0) {
     return defaultUpdateCreationResult;
   }
-  if (passedViewerInfo && !passedViewerInfo.viewer.loggedIn) {
-    throw new ServerError('not_logged_in');
-  }
+
+  // viewer.session will throw for a script Viewer
   let viewerInfo = passedViewerInfo;
-  if (viewerInfo && viewerInfo.viewer.isScriptViewer) {
-    // viewer.session will throw for a script Viewer
+  if (
+    viewerInfo &&
+    (viewerInfo.viewer.isScriptViewer || !viewerInfo.viewer.loggedIn)
+  ) {
     viewerInfo = null;
   }
 
