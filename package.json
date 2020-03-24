@@ -31,12 +31,5 @@
     "hooks": {
       "pre-commit": "lint-staged"
     }
-  },
-  "lint-staged": {
-    "*.js": "eslint --cache --fix",
-    "lib/**/*.js": "yarn workspace lib flow --quiet",
-    "web/**/*.js": "yarn workspace web flow --quiet",
-    "native/**/*.js": "yarn workspace native flow --quiet",
-    "server/**/*.js": "yarn workspace server flow --quiet"
   }
 }
