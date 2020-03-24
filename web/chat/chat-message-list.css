@@ -172,6 +172,8 @@ div.textMessage {
   padding: 6px 12px;
   white-space: pre-wrap;
   word-wrap: break-word;
+  width: 100%;
+  box-sizing: border-box;
 }
 div.normalTextMessage {
   font-size: 16px;
