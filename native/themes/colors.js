@@ -9,7 +9,7 @@ import { StyleSheet } from 'react-native';
 import { createSelector } from 'reselect';
 import PropTypes from 'prop-types';
 
-import { backgroundIsDarkSelector } from '../selectors/nav-selectors';
+import { backgroundIsDarkSelector } from '../navigation/nav-selectors';
 
 const light = Object.freeze({
   redButton: '#BB8888',

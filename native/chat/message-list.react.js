@@ -49,7 +49,7 @@ import {
   type ChatMessageInfoItemWithHeight,
 } from './message.react';
 import ListLoadingIndicator from '../components/list-loading-indicator.react';
-import { scrollBlockingChatModalsClosedSelector } from '../selectors/nav-selectors';
+import { scrollBlockingChatModalsClosedSelector } from '../navigation/nav-selectors';
 import { styleSelector } from '../themes/colors';
 
 type Props = {|

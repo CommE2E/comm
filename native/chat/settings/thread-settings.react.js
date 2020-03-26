@@ -73,7 +73,7 @@ import {
   ComposeSubthreadModalRouteName,
   ChatRouteName,
 } from '../../navigation/route-names';
-import { createActiveTabSelector } from '../../selectors/nav-selectors';
+import { createActiveTabSelector } from '../../navigation/nav-selectors';
 import { styleSelector } from '../../themes/colors';
 
 const itemPageLength = 5;

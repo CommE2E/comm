@@ -57,7 +57,7 @@ import VerificationModal from '../account/verification-modal.react';
 import {
   appLoggedInSelector,
   appCanRespondToBackButtonSelector,
-} from '../selectors/nav-selectors';
+} from './nav-selectors';
 import {
   assertNavigationRouteNotLeafNode,
   getThreadIDFromParams,

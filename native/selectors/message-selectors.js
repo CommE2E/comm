@@ -5,7 +5,7 @@ import type { ThreadMessageInfo } from 'lib/types/message-types';
 
 import { createSelector } from 'reselect';
 
-import { activeThreadSelector } from './nav-selectors';
+import { activeThreadSelector } from '../navigation/nav-selectors';
 
 const msInHour = 60 * 60 * 1000;
 

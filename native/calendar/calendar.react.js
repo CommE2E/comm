@@ -77,7 +77,7 @@ import { calendarListData } from '../selectors/calendar-selectors';
 import {
   createIsForegroundSelector,
   createActiveTabSelector,
-} from '../selectors/nav-selectors';
+} from '../navigation/nav-selectors';
 import TextHeightMeasurer from '../text-height-measurer.react';
 import ListLoadingIndicator from '../components/list-loading-indicator.react';
 import SectionFooter from './section-footer.react';

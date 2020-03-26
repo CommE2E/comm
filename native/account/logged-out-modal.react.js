@@ -48,7 +48,7 @@ import {
 import LogInPanelContainer from './log-in-panel-container.react';
 import RegisterPanel from './register-panel.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
-import { createIsForegroundSelector } from '../selectors/nav-selectors';
+import { createIsForegroundSelector } from '../navigation/nav-selectors';
 import {
   navigateToAppActionType,
   resetUserStateActionType,

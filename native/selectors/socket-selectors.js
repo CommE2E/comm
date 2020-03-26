@@ -18,7 +18,7 @@ import {
   sessionStateFuncSelector,
 } from 'lib/selectors/socket-selectors';
 
-import { calendarActiveSelector } from './nav-selectors';
+import { calendarActiveSelector } from '../navigation/nav-selectors';
 
 const openSocketSelector: (state: AppState) => () => WebSocket = createSelector(
   (state: AppState) => state.urlPrefix,

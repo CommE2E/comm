@@ -17,7 +17,7 @@ import {
   activeThreadSelector,
   appLoggedInSelector,
   nativeCalendarQuery,
-} from './selectors/nav-selectors';
+} from './navigation/nav-selectors';
 
 export default connect(
   (state: AppState) => {

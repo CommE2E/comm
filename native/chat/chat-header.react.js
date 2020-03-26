@@ -8,7 +8,7 @@ import * as React from 'react';
 import { connect } from 'lib/utils/redux-utils';
 
 import Header from '../navigation/header.react';
-import { createActiveTabSelector } from '../selectors/nav-selectors';
+import { createActiveTabSelector } from '../navigation/nav-selectors';
 import { ChatRouteName } from '../navigation/route-names';
 
 const activeTabSelector = createActiveTabSelector(ChatRouteName);

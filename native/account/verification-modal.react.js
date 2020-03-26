@@ -49,7 +49,7 @@ import sleep from 'lib/utils/sleep';
 import { dimensionsSelector } from '../selectors/dimension-selectors';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import ResetPasswordPanel from './reset-password-panel.react';
-import { createIsForegroundSelector } from '../selectors/nav-selectors';
+import { createIsForegroundSelector } from '../navigation/nav-selectors';
 import { navigateToAppActionType } from '../redux/action-types';
 import { splashBackgroundURI } from './background-info';
 import { splashStyleSelector } from '../splash';
