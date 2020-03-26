@@ -115,6 +115,11 @@ class ChatInputBar extends React.PureComponent<Props> {
     ) {
       // Whenever a pending upload is added, we focus the textarea
       this.textarea.focus();
+      return;
+    }
+
+    if (this.props.threadInfo.id !== prevProps.threadInfo.id && this.textarea) {
+      this.textarea.focus();
     }
   }
 
@@ -188,6 +193,7 @@ class ChatInputBar extends React.PureComponent<Props> {
             onChange={this.onChangeMessageText}
             onKeyDown={this.onKeyDown}
             ref={this.textareaRef}
+            autoFocus
           />
           <a className={css.multimediaUpload} onClick={this.onMultimediaClick}>
             <input
@@ -249,6 +255,9 @@ class ChatInputBar extends React.PureComponent<Props> {
 
   textareaRef = (textarea: ?HTMLTextAreaElement) => {
     this.textarea = textarea;
+    if (textarea) {
+      textarea.focus();
+    }
   };
 
   onChangeMessageText = (event: SyntheticEvent<HTMLTextAreaElement>) => {
