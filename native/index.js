@@ -5,7 +5,7 @@ import './config';
 
 import { AppRegistry } from 'react-native';
 
-import App from './app.react';
+import Root from './root.react';
 import { name as appName } from './app.json';
 
-AppRegistry.registerComponent(appName, () => App);
+AppRegistry.registerComponent(appName, () => Root);

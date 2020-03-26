@@ -62,7 +62,7 @@ type Props = {
 type State = {|
   detectUnsupervisedBackground: ?(alreadyClosed: boolean) => boolean,
 |};
-class AppWithNavigationState extends React.PureComponent<Props, State> {
+class Root extends React.PureComponent<Props, State> {
   static propTypes = {
     navigationState: PropTypes.object.isRequired,
     activeTheme: globalThemePropType,
@@ -170,21 +170,20 @@ const styles = StyleSheet.create({
   },
 });
 
-const ConnectedAppWithNavigationState = connect(
+const ConnectedRoot = connect(
   (state: AppState) => ({
     navigationState: state.navInfo.navigationState,
     activeTheme: state.globalThemeInfo.activeTheme,
   }),
   null,
   true,
-)(AppWithNavigationState);
+)(Root);
 
-const App = () => (
+const AppRoot = () => (
   <Provider store={store}>
     <ErrorBoundary>
-      <ConnectedAppWithNavigationState />
+      <ConnectedRoot />
     </ErrorBoundary>
   </Provider>
 );
-
-export default App;
+export default AppRoot;
