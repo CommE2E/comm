@@ -5,6 +5,7 @@ import type { NavigationState } from 'react-navigation';
 import type { CalendarFilter } from 'lib/types/filter-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { GlobalTheme } from '../types/themes';
+import type { NavPlusRedux } from '../types/selector-types';
 
 import { createSelector } from 'reselect';
 import _memoize from 'lodash/memoize';
@@ -90,9 +91,11 @@ const scrollBlockingChatModalsClosedSelector: (
   },
 );
 
-const backgroundIsDarkSelector: (state: AppState) => boolean = createSelector(
-  (state: AppState) => state.navInfo.navigationState,
-  (state: AppState) => state.globalThemeInfo.activeTheme,
+const backgroundIsDarkSelector: (
+  input: NavPlusRedux,
+) => boolean = createSelector(
+  (input: NavPlusRedux) => input.nav,
+  (input: NavPlusRedux) => input.redux.globalThemeInfo.activeTheme,
   (navigationState: NavigationState, theme: ?GlobalTheme) => {
     const currentRootSubroute = navigationState.routes[navigationState.index];
     if (currentRootSubroute.routeName !== AppRouteName) {
