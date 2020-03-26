@@ -70,7 +70,7 @@ import {
   createIsForegroundSelector,
   foregroundKeySelector,
   nonThreadCalendarQuery,
-} from '../selectors/nav-selectors';
+} from '../navigation/nav-selectors';
 import LoadingIndicator from './loading-indicator.react';
 import { colors, styleSelector } from '../themes/colors';
 

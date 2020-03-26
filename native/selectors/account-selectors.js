@@ -7,7 +7,7 @@ import { createSelector } from 'reselect';
 
 import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
 
-import { calendarActiveSelector } from './nav-selectors';
+import { calendarActiveSelector } from '../navigation/nav-selectors';
 
 const nativeLogInExtraInfoSelector: (
   state: AppState,

@@ -58,7 +58,7 @@ import {
   deleteAccountActionTypes,
 } from 'lib/actions/user-actions';
 
-import { activeThreadSelector } from '../selectors/nav-selectors';
+import { activeThreadSelector } from '../navigation/nav-selectors';
 import {
   resetUserStateActionType,
   recordNotifPermissionAlertActionType,

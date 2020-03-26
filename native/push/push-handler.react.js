@@ -55,7 +55,7 @@ import {
 import {
   activeThreadSelector,
   appLoggedInSelector,
-} from '../selectors/nav-selectors';
+} from '../navigation/nav-selectors';
 import {
   requestIOSPushPermissions,
   iosPushPermissionResponseReceived,

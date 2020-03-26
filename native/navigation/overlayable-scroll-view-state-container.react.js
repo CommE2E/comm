@@ -10,7 +10,7 @@ import { connect } from 'lib/utils/redux-utils';
 import {
   scrollBlockingChatModalsClosedSelector,
   overlayTransitioningSelector,
-} from '../selectors/nav-selectors';
+} from './nav-selectors';
 import { OverlayableScrollViewContext } from './overlayable-scroll-view-state';
 
 type Props = {|

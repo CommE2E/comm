@@ -62,7 +62,7 @@ import { joinThreadActionTypes, joinThread } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import Button from '../components/button.react';
-import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
+import { nonThreadCalendarQuery } from '../navigation/nav-selectors';
 import { getKeyboardHeight } from '../keyboard/keyboard';
 import {
   type Colors,

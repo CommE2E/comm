@@ -24,7 +24,7 @@ import { connect } from 'lib/utils/redux-utils';
 
 import { styleSelector } from '../themes/colors';
 import { mediaGalleryKeyboardName } from '../media/media-gallery-keyboard.react';
-import { activeMessageListSelector } from '../selectors/nav-selectors';
+import { activeMessageListSelector } from '../navigation/nav-selectors';
 
 type Props = {|
   textInputRef: ?TextInput,
