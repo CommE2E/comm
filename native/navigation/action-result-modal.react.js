@@ -119,5 +119,5 @@ const styles = {
 const stylesSelector = overlayStyleSelector(styles);
 
 export default connect((state: AppState) => ({
-  styles: stylesSelector(state),
+  styles: stylesSelector({ redux: state, nav: state.navInfo.navigationState }),
 }))(ActionResultModal);

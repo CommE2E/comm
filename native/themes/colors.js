@@ -3,6 +3,7 @@
 import type { GlobalTheme } from '../types/themes';
 import type { Styles } from '../types/styles';
 import type { AppState } from '../redux/redux-setup';
+import type { NavPlusRedux } from '../types/selector-types';
 
 import { StyleSheet } from 'react-native';
 import { createSelector } from 'reselect';
@@ -130,7 +131,7 @@ const colorsSelector: (state: AppState) => Colors = createSelector(
   },
 );
 
-const overlayColorsSelector: (state: AppState) => Colors = createSelector(
+const overlayColorsSelector: (input: NavPlusRedux) => Colors = createSelector(
   backgroundIsDarkSelector,
   (backgroundIsDark: boolean) => {
     const syntheticTheme = backgroundIsDark ? 'dark' : 'light';
@@ -180,7 +181,7 @@ function styleSelector<IS: InStyles, +OS: Styles>(
 
 function overlayStyleSelector<IS: InStyles, +OS: Styles>(
   obj: IS,
-): (state: AppState) => OS {
+): (input: NavPlusRedux) => OS {
   return createSelector(overlayColorsSelector, (themeColors: Colors) =>
     stylesFromColors(obj, themeColors),
   );
