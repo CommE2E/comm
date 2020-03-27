@@ -13,6 +13,10 @@ import {
   nextMessagePruneTimeSelector,
   pruneThreadIDsSelector,
 } from '../selectors/message-selectors';
+import {
+  connectNav,
+  type NavContextType,
+} from '../navigation/navigation-context';
 
 type Props = {|
   // Redux state
@@ -66,14 +70,21 @@ class MessageStorePruner extends React.PureComponent<Props> {
   }
 }
 
-export default connect(
-  (state: AppState) => ({
-    nextMessagePruneTime: nextMessagePruneTimeSelector(state),
-    pruneThreadIDs: pruneThreadIDsSelector(state),
-    // We include this so that componentDidUpdate will be called on foreground
-    foreground: state.foreground,
-    frozen: state.frozen,
-  }),
-  null,
-  true,
-)(MessageStorePruner);
+export default connectNav((context: ?NavContextType) => ({
+  navContext: context,
+}))(
+  connect(
+    (state: AppState, ownProps: { navContext: ?NavContextType }) => ({
+      nextMessagePruneTime: nextMessagePruneTimeSelector(state),
+      pruneThreadIDs: pruneThreadIDsSelector({
+        redux: state,
+        navContext: ownProps.navContext,
+      }),
+      // We include this so that componentDidUpdate will be called on foreground
+      foreground: state.foreground,
+      frozen: state.frozen,
+    }),
+    null,
+    true,
+  )(MessageStorePruner),
+);

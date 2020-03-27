@@ -102,6 +102,10 @@ import {
   styleSelector,
 } from '../themes/colors';
 import ContentLoading from '../components/content-loading.react';
+import {
+  connectNav,
+  type NavContextType,
+} from '../navigation/navigation-context';
 
 export type EntryInfoWithHeight = {|
   ...EntryInfo,
@@ -1159,23 +1163,26 @@ const activeTabSelector = createActiveTabSelector(CalendarRouteName);
 const activeThreadPickerSelector = createIsForegroundSelector(
   ThreadPickerModalRouteName,
 );
-export default connect(
-  (state: AppState) => ({
-    listData: calendarListData(state),
-    calendarActive:
-      activeTabSelector(state) || activeThreadPickerSelector(state),
-    threadPickerOpen:
-      activeThreadPickerSelector(state) ||
-      !!state.navInfo.navigationState.isTransitioning,
-    startDate: state.navInfo.startDate,
-    endDate: state.navInfo.endDate,
-    calendarFilters: state.calendarFilters,
-    dimensions: dimensionsSelector(state),
-    contentVerticalOffset: contentVerticalOffsetSelector(state),
-    loadingStatus: loadingStatusSelector(state),
-    connectionStatus: state.connection.status,
-    colors: colorsSelector(state),
-    styles: stylesSelector(state),
-  }),
-  { updateCalendarQuery },
-)(Calendar);
+export default connectNav((context: ?NavContextType) => ({
+  calendarActive:
+    activeTabSelector(context) || activeThreadPickerSelector(context),
+  threadPickerOpen:
+    activeThreadPickerSelector(context) ||
+    (context && !!context.state.isTransitioning),
+}))(
+  connect(
+    (state: AppState) => ({
+      listData: calendarListData(state),
+      startDate: state.navInfo.startDate,
+      endDate: state.navInfo.endDate,
+      calendarFilters: state.calendarFilters,
+      dimensions: dimensionsSelector(state),
+      contentVerticalOffset: contentVerticalOffsetSelector(state),
+      loadingStatus: loadingStatusSelector(state),
+      connectionStatus: state.connection.status,
+      colors: colorsSelector(state),
+      styles: stylesSelector(state),
+    }),
+    { updateCalendarQuery },
+  )(Calendar),
+);

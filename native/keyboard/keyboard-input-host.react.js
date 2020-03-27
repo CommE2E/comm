@@ -25,6 +25,10 @@ import { connect } from 'lib/utils/redux-utils';
 import { styleSelector } from '../themes/colors';
 import { mediaGalleryKeyboardName } from '../media/media-gallery-keyboard.react';
 import { activeMessageListSelector } from '../navigation/nav-selectors';
+import {
+  connectNav,
+  type NavContextType,
+} from '../navigation/navigation-context';
 
 type Props = {|
   textInputRef: ?TextInput,
@@ -114,5 +118,8 @@ const stylesSelector = styleSelector(styles);
 
 export default connect((state: AppState) => ({
   styles: stylesSelector(state),
-  activeMessageList: activeMessageListSelector(state),
-}))(withKeyboardState(withChatInputState(KeyboardInputHost)));
+}))(
+  connectNav((context: ?NavContextType) => ({
+    activeMessageList: activeMessageListSelector(context),
+  }))(withKeyboardState(withChatInputState(KeyboardInputHost))),
+);

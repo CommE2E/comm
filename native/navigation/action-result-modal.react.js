@@ -17,6 +17,7 @@ import { connect } from 'lib/utils/redux-utils';
 
 import { contentBottomOffset } from '../selectors/dimension-selectors';
 import { overlayStyleSelector } from '../themes/colors';
+import { connectNav, type NavContextType } from './navigation-context';
 
 const { Value, Extrapolate, interpolate } = Animated;
 
@@ -118,6 +119,13 @@ const styles = {
 };
 const stylesSelector = overlayStyleSelector(styles);
 
-export default connect((state: AppState) => ({
-  styles: stylesSelector({ redux: state, nav: state.navInfo.navigationState }),
-}))(ActionResultModal);
+export default connectNav((context: ?NavContextType) => ({
+  navContext: context,
+}))(
+  connect((state: AppState, ownProps: { navContext: ?NavContextType }) => ({
+    styles: stylesSelector({
+      redux: state,
+      navContext: ownProps.navContext,
+    }),
+  }))(ActionResultModal),
+);

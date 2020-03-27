@@ -41,6 +41,11 @@ import ThemeHandler from './themes/theme-handler.react';
 import OrientationHandler from './navigation/orientation-handler.react';
 import Socket from './socket.react';
 import { getPersistor } from './redux/persist';
+import {
+  NavContext,
+  type NavContextType,
+} from './navigation/navigation-context';
+import { setGlobalNavContext } from './navigation/icky-global';
 
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental &&
@@ -61,6 +66,7 @@ type Props = {
 };
 type State = {|
   detectUnsupervisedBackground: ?(alreadyClosed: boolean) => boolean,
+  navContext: ?NavContextType,
 |};
 class Root extends React.PureComponent<Props, State> {
   static propTypes = {
@@ -69,10 +75,17 @@ class Root extends React.PureComponent<Props, State> {
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
-  state = {
-    detectUnsupervisedBackground: null,
-  };
   currentState: ?string = NativeAppState.currentState;
+
+  constructor(props: Props) {
+    super(props);
+    const navContext = { state: props.navigationState };
+    this.state = {
+      detectUnsupervisedBackground: null,
+      navContext,
+    };
+    setGlobalNavContext(navContext);
+  }
 
   componentDidMount() {
     if (Platform.OS === 'android') {
@@ -96,6 +109,14 @@ class Root extends React.PureComponent<Props, State> {
   componentWillUnmount() {
     NativeAppState.removeEventListener('change', this.handleAppStateChange);
     Linking.removeEventListener('url', this.handleURLChange);
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.navigationState !== prevProps.navigationState) {
+      const navContext = { state: this.props.navigationState };
+      this.setState({ navContext });
+      setGlobalNavContext(navContext);
+    }
   }
 
   handleURLChange = (event: { url: string }) => {
@@ -146,13 +167,15 @@ class Root extends React.PureComponent<Props, State> {
     );
     return (
       <View style={styles.app}>
-        <ConnectedStatusBar />
-        <PersistGate persistor={getPersistor()}>{gated}</PersistGate>
-        <ReduxifiedRootNavigator
-          state={this.props.navigationState}
-          dispatch={this.props.dispatch}
-          theme={reactNavigationTheme}
-        />
+        <NavContext.Provider value={this.state.navContext}>
+          <ConnectedStatusBar />
+          <PersistGate persistor={getPersistor()}>{gated}</PersistGate>
+          <ReduxifiedRootNavigator
+            state={this.props.navigationState}
+            dispatch={this.props.dispatch}
+            theme={reactNavigationTheme}
+          />
+        </NavContext.Provider>
       </View>
     );
   }

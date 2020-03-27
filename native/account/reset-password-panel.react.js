@@ -39,6 +39,10 @@ import {
   Panel,
 } from './panel-components.react';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
+import {
+  connectNav,
+  type NavContextType,
+} from '../navigation/navigation-context';
 
 type Props = {
   verifyCode: string,
@@ -282,10 +286,17 @@ const loadingStatusSelector = createLoadingStatusSelector(
   resetPasswordActionTypes,
 );
 
-export default connect(
-  (state: AppState) => ({
-    loadingStatus: loadingStatusSelector(state),
-    logInExtraInfo: nativeLogInExtraInfoSelector(state),
-  }),
-  { resetPassword },
-)(ResetPasswordPanel);
+export default connectNav((context: ?NavContextType) => ({
+  navContext: context,
+}))(
+  connect(
+    (state: AppState, ownProps: { navContext: ?NavContextType }) => ({
+      loadingStatus: loadingStatusSelector(state),
+      logInExtraInfo: nativeLogInExtraInfoSelector({
+        redux: state,
+        navContext: ownProps.navContext,
+      }),
+    }),
+    { resetPassword },
+  )(ResetPasswordPanel),
+);

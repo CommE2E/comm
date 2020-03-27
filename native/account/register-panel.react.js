@@ -41,6 +41,10 @@ import {
 } from './panel-components.react';
 import { setNativeCredentials } from './native-credentials';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
+import {
+  connectNav,
+  type NavContextType,
+} from '../navigation/navigation-context';
 
 export type RegisterState = {
   usernameInputText: string,
@@ -415,10 +419,17 @@ const styles = StyleSheet.create({
 
 const loadingStatusSelector = createLoadingStatusSelector(registerActionTypes);
 
-export default connect(
-  (state: AppState) => ({
-    loadingStatus: loadingStatusSelector(state),
-    logInExtraInfo: nativeLogInExtraInfoSelector(state),
-  }),
-  { register },
-)(RegisterPanel);
+export default connectNav((context: ?NavContextType) => ({
+  navContext: context,
+}))(
+  connect(
+    (state: AppState, ownProps: { navContext: ?NavContextType }) => ({
+      loadingStatus: loadingStatusSelector(state),
+      logInExtraInfo: nativeLogInExtraInfoSelector({
+        redux: state,
+        navContext: ownProps.navContext,
+      }),
+    }),
+    { register },
+  )(RegisterPanel),
+);

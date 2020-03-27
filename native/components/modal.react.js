@@ -20,6 +20,10 @@ import { connect } from 'lib/utils/redux-utils';
 import KeyboardAvoidingView from '../keyboard/keyboard-avoiding-view.react';
 import { createIsForegroundSelector } from '../navigation/nav-selectors';
 import { styleSelector } from '../themes/colors';
+import {
+  connectNav,
+  type NavContextType,
+} from '../navigation/navigation-context';
 
 type Props = $ReadOnly<{|
   navigation: NavigationScreenProp<NavigationLeafRoute>,
@@ -126,9 +130,12 @@ const stylesSelector = styleSelector(styles);
 function createModal(routeName: string) {
   const isForegroundSelector = createIsForegroundSelector(routeName);
   return connect((state: AppState) => ({
-    isForeground: isForegroundSelector(state),
     styles: stylesSelector(state),
-  }))(Modal);
+  }))(
+    connectNav((context: ?NavContextType) => ({
+      isForeground: isForegroundSelector(context),
+    }))(Modal),
+  );
 }
 
 export { createModal };

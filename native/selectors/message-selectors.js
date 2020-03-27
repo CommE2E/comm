@@ -2,6 +2,7 @@
 
 import type { AppState } from '../redux/redux-setup';
 import type { ThreadMessageInfo } from 'lib/types/message-types';
+import type { NavPlusRedux } from '../types/selector-types';
 
 import { createSelector } from 'reselect';
 
@@ -30,10 +31,10 @@ const nextMessagePruneTimeSelector: (
 );
 
 const pruneThreadIDsSelector: (
-  state: AppState,
+  input: NavPlusRedux,
 ) => () => $ReadOnlyArray<string> = createSelector(
-  (state: AppState) => state.messageStore.threads,
-  activeThreadSelector,
+  (input: NavPlusRedux) => input.redux.messageStore.threads,
+  (input: NavPlusRedux) => activeThreadSelector(input.navContext),
   (
     threadMessageInfos: { [id: string]: ThreadMessageInfo },
     activeThread: ?string,

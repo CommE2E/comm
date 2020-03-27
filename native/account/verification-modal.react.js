@@ -60,6 +60,10 @@ import {
 } from '../keyboard/keyboard';
 import { VerificationModalRouteName } from '../navigation/route-names';
 import SafeAreaView from '../components/safe-area-view.react';
+import {
+  connectNav,
+  type NavContextType,
+} from '../navigation/navigation-context';
 
 type VerificationModalMode = 'simple-text' | 'reset-password';
 type Props = {
@@ -87,7 +91,7 @@ type State = {
   resetPasswordPanelOpacityValue: Animated.Value,
   onePasswordSupported: boolean,
 };
-class InnerVerificationModal extends React.PureComponent<Props, State> {
+class VerificationModal extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
@@ -506,13 +510,14 @@ registerFetchKey(handleVerificationCodeActionTypes);
 const isForegroundSelector = createIsForegroundSelector(
   VerificationModalRouteName,
 );
-const VerificationModal = connect(
-  (state: AppState) => ({
-    isForeground: isForegroundSelector(state),
-    dimensions: dimensionsSelector(state),
-    splashStyle: splashStyleSelector(state),
-  }),
-  { handleVerificationCode },
-)(InnerVerificationModal);
-
-export default VerificationModal;
+export default connectNav((context: ?NavContextType) => ({
+  isForeground: isForegroundSelector(context),
+}))(
+  connect(
+    (state: AppState) => ({
+      dimensions: dimensionsSelector(state),
+      splashStyle: splashStyleSelector(state),
+    }),
+    { handleVerificationCode },
+  )(VerificationModal),
+);

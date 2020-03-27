@@ -67,6 +67,10 @@ import {
 } from '../utils/state-container';
 import { LoggedOutModalRouteName } from '../navigation/route-names';
 import SafeAreaView from '../components/safe-area-view.react';
+import {
+  connectNav,
+  type NavContextType,
+} from '../navigation/navigation-context';
 
 let initialAppLoad = true;
 
@@ -781,21 +785,24 @@ const styles = StyleSheet.create({
 const isForegroundSelector = createIsForegroundSelector(
   LoggedOutModalRouteName,
 );
-export default connect(
-  (state: AppState) => ({
-    rehydrateConcluded: !!(state._persist && state._persist.rehydrated),
-    cookie: state.cookie,
-    urlPrefix: state.urlPrefix,
-    loggedIn: !!(
-      state.currentUserInfo &&
-      !state.currentUserInfo.anonymous &&
-      true
-    ),
-    isForeground: isForegroundSelector(state),
-    dimensions: dimensionsSelector(state),
-    contentVerticalOffset: contentVerticalOffsetSelector(state),
-    splashStyle: splashStyleSelector(state),
-  }),
-  null,
-  true,
-)(LoggedOutModal);
+export default connectNav((context: ?NavContextType) => ({
+  isForeground: isForegroundSelector(context),
+}))(
+  connect(
+    (state: AppState) => ({
+      rehydrateConcluded: !!(state._persist && state._persist.rehydrated),
+      cookie: state.cookie,
+      urlPrefix: state.urlPrefix,
+      loggedIn: !!(
+        state.currentUserInfo &&
+        !state.currentUserInfo.anonymous &&
+        true
+      ),
+      dimensions: dimensionsSelector(state),
+      contentVerticalOffset: contentVerticalOffsetSelector(state),
+      splashStyle: splashStyleSelector(state),
+    }),
+    null,
+    true,
+  )(LoggedOutModal),
+);
