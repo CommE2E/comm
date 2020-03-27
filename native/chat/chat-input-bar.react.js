@@ -641,7 +641,10 @@ export default connect(
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
       draft: draft ? draft : '',
       joinThreadLoadingStatus: joinThreadLoadingStatusSelector(state),
-      calendarQuery: nonThreadCalendarQuery(state),
+      calendarQuery: nonThreadCalendarQuery({
+        redux: state,
+        nav: state.navInfo.navigationState,
+      }),
       nextLocalID: state.nextLocalID,
       colors: colorsSelector(state),
       styles: stylesSelector(state),

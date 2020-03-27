@@ -744,7 +744,10 @@ const activeThreadPickerSelector = createIsForegroundSelector(
 
 const Entry = connect(
   (state: AppState) => ({
-    calendarQuery: nonThreadCalendarQuery(state),
+    calendarQuery: nonThreadCalendarQuery({
+      redux: state,
+      nav: state.navInfo.navigationState,
+    }),
     threadPickerActive: activeThreadPickerSelector(state),
     foregroundKey: foregroundKeySelector(state),
     online: state.connection.status === 'connected',

@@ -36,7 +36,10 @@ export default connect(
       cookie: state.cookie,
       urlPrefix: state.urlPrefix,
       connection: state.connection,
-      currentCalendarQuery: nativeCalendarQuery(state),
+      currentCalendarQuery: nativeCalendarQuery({
+        redux: state,
+        nav: state.navInfo.navigationState,
+      }),
       hasWiFi: state.connectivity.hasWiFi,
       frozen: state.frozen,
       preRequestUserState: preRequestUserStateSelector(state),
