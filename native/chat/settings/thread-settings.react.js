@@ -75,6 +75,10 @@ import {
 } from '../../navigation/route-names';
 import { createActiveTabSelector } from '../../navigation/nav-selectors';
 import { styleSelector } from '../../themes/colors';
+import {
+  connectNav,
+  type NavContextType,
+} from '../../navigation/navigation-context';
 
 const itemPageLength = 5;
 
@@ -831,11 +835,14 @@ const WrappedThreadSettings = connect(
       threadMembers,
       childThreadInfos: childThreadInfos(state)[threadID],
       somethingIsSaving: somethingIsSaving(state, threadMembers),
-      tabActive: activeTabSelector(state),
       styles: stylesSelector(state),
     };
   },
-)(withOverlayableScrollViewState(ThreadSettings));
+)(
+  connectNav((context: ?NavContextType) => ({
+    tabActive: activeTabSelector(context),
+  }))(withOverlayableScrollViewState(ThreadSettings)),
+);
 
 hoistNonReactStatics(WrappedThreadSettings, ThreadSettings);
 

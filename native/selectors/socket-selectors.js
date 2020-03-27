@@ -9,6 +9,7 @@ import type {
   ServerRequest,
   ClientClientResponse,
 } from 'lib/types/request-types';
+import type { NavPlusRedux } from '../types/selector-types';
 
 import { createSelector } from 'reselect';
 
@@ -39,12 +40,12 @@ const sessionIdentificationSelector: (
 );
 
 const nativeGetClientResponsesSelector: (
-  state: AppState,
+  input: NavPlusRedux,
 ) => (
   serverRequests: $ReadOnlyArray<ServerRequest>,
 ) => $ReadOnlyArray<ClientClientResponse> = createSelector(
-  getClientResponsesSelector,
-  calendarActiveSelector,
+  (input: NavPlusRedux) => getClientResponsesSelector(input.redux),
+  (input: NavPlusRedux) => calendarActiveSelector(input.navContext),
   (
     getClientResponsesFunc: (
       calendarActive: boolean,
@@ -56,10 +57,10 @@ const nativeGetClientResponsesSelector: (
 );
 
 const nativeSessionStateFuncSelector: (
-  state: AppState,
+  input: NavPlusRedux,
 ) => () => SessionState = createSelector(
-  sessionStateFuncSelector,
-  calendarActiveSelector,
+  (input: NavPlusRedux) => sessionStateFuncSelector(input.redux),
+  (input: NavPlusRedux) => calendarActiveSelector(input.navContext),
   (
     sessionStateFunc: (calendarActive: boolean) => SessionState,
     calendarActive: boolean,

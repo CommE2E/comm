@@ -11,6 +11,7 @@ import {
 } from './native-credentials';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
 import { store } from '../redux/redux-setup';
+import { getGlobalNavContext } from '../navigation/icky-global';
 
 async function resolveInvalidatedCookie(
   fetchJSON: FetchJSON,
@@ -18,7 +19,10 @@ async function resolveInvalidatedCookie(
 ) {
   const keychainCredentials = await fetchNativeKeychainCredentials();
   if (keychainCredentials) {
-    const extraInfo = nativeLogInExtraInfoSelector(store.getState())();
+    const extraInfo = nativeLogInExtraInfoSelector({
+      redux: store.getState(),
+      navContext: getGlobalNavContext(),
+    })();
     const { calendarQuery } = extraInfo;
     const newCookie = await dispatchRecoveryAttempt(
       logInActionTypes,
@@ -35,7 +39,10 @@ async function resolveInvalidatedCookie(
   }
   const sharedWebCredentials = getNativeSharedWebCredentials();
   if (sharedWebCredentials) {
-    const extraInfo = nativeLogInExtraInfoSelector(store.getState())();
+    const extraInfo = nativeLogInExtraInfoSelector({
+      redux: store.getState(),
+      navContext: getGlobalNavContext(),
+    })();
     const { calendarQuery } = extraInfo;
     await dispatchRecoveryAttempt(
       logInActionTypes,

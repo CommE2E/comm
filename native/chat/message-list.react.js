@@ -51,6 +51,10 @@ import {
 import ListLoadingIndicator from '../components/list-loading-indicator.react';
 import { scrollBlockingChatModalsClosedSelector } from '../navigation/nav-selectors';
 import { styleSelector } from '../themes/colors';
+import {
+  connectNav,
+  type NavContextType,
+} from '../navigation/navigation-context';
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -385,9 +389,12 @@ export default connect(
         state.messageStore.threads[threadID] &&
         state.messageStore.threads[threadID].startReached
       ),
-      scrollBlockingModalsClosed: scrollBlockingChatModalsClosedSelector(state),
       styles: stylesSelector(state),
     };
   },
   { fetchMessagesBeforeCursor, fetchMostRecentMessages },
-)(withKeyboardState(withOverlayableScrollViewState(MessageList)));
+)(
+  connectNav((context: ?NavContextType) => ({
+    scrollBlockingModalsClosed: scrollBlockingChatModalsClosedSelector(context),
+  }))(withKeyboardState(withOverlayableScrollViewState(MessageList))),
+);

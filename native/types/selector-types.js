@@ -1,9 +1,9 @@
 // @flow
 
 import type { AppState } from '../redux/redux-setup';
-import type { NavigationState } from 'react-navigation';
+import type { NavContextType } from '../navigation/navigation-context';
 
 export type NavPlusRedux = {|
   redux: AppState,
-  nav: NavigationState,
+  navContext: ?NavContextType,
 |};

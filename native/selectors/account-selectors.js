@@ -1,7 +1,7 @@
 // @flow
 
 import type { LogInExtraInfo } from 'lib/types/account-types';
-import type { AppState } from '../redux/redux-setup';
+import type { NavPlusRedux } from '../types/selector-types';
 
 import { createSelector } from 'reselect';
 
@@ -10,10 +10,10 @@ import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
 import { calendarActiveSelector } from '../navigation/nav-selectors';
 
 const nativeLogInExtraInfoSelector: (
-  state: AppState,
+  input: NavPlusRedux,
 ) => () => LogInExtraInfo = createSelector(
-  logInExtraInfoSelector,
-  calendarActiveSelector,
+  (input: NavPlusRedux) => logInExtraInfoSelector(input.redux),
+  (input: NavPlusRedux) => calendarActiveSelector(input.navContext),
   (
     logInExtraInfoFunc: (calendarActive: boolean) => LogInExtraInfo,
     calendarActive: boolean,

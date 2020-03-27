@@ -1,6 +1,6 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
+import type { NavContextType } from './navigation-context';
 import type { NavigationState } from 'react-navigation';
 import type { CalendarFilter } from 'lib/types/filter-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
@@ -33,32 +33,48 @@ import {
 
 const baseCreateIsForegroundSelector = (routeName: string) =>
   createSelector(
-    (state: AppState) => state.navInfo.navigationState,
-    (navigationState: NavigationState) =>
-      navigationState.routes[navigationState.index].routeName === routeName,
+    (context: ?NavContextType) => context && context.state,
+    (navigationState: ?NavigationState) => {
+      if (!navigationState) {
+        return false;
+      }
+      return (
+        navigationState.routes[navigationState.index].routeName === routeName
+      );
+    },
   );
 const createIsForegroundSelector: (
   routeName: string,
-) => (state: AppState) => boolean = _memoize(baseCreateIsForegroundSelector);
+) => (context: ?NavContextType) => boolean = _memoize(
+  baseCreateIsForegroundSelector,
+);
 
-const appLoggedInSelector: (state: AppState) => boolean = createSelector(
-  (state: AppState) => state.navInfo.navigationState,
-  (navigationState: NavigationState) =>
+const appLoggedInSelector: (
+  context: ?NavContextType,
+) => boolean = createSelector(
+  (context: ?NavContextType) => context && context.state,
+  (navigationState: ?NavigationState) =>
+    !!navigationState &&
     !accountModals.includes(
       navigationState.routes[navigationState.index].routeName,
     ),
 );
 
-const foregroundKeySelector: (state: AppState) => string = createSelector(
-  (state: AppState) => state.navInfo.navigationState,
-  (navigationState: NavigationState) =>
-    navigationState.routes[navigationState.index].key,
+const foregroundKeySelector: (
+  context: ?NavContextType,
+) => ?string = createSelector(
+  (context: ?NavContextType) => context && context.state,
+  (navigationState: ?NavigationState) =>
+    navigationState && navigationState.routes[navigationState.index].key,
 );
 
 const baseCreateActiveTabSelector = (routeName: string) =>
   createSelector(
-    (state: AppState) => state.navInfo.navigationState,
-    (navigationState: NavigationState) => {
+    (context: ?NavContextType) => context && context.state,
+    (navigationState: ?NavigationState) => {
+      if (!navigationState) {
+        return false;
+      }
       const currentRootSubroute = navigationState.routes[navigationState.index];
       if (currentRootSubroute.routeName !== AppRouteName) {
         return false;
@@ -74,13 +90,18 @@ const baseCreateActiveTabSelector = (routeName: string) =>
   );
 const createActiveTabSelector: (
   routeName: string,
-) => (state: AppState) => boolean = _memoize(baseCreateActiveTabSelector);
+) => (context: ?NavContextType) => boolean = _memoize(
+  baseCreateActiveTabSelector,
+);
 
 const scrollBlockingChatModalsClosedSelector: (
-  state: AppState,
+  context: ?NavContextType,
 ) => boolean = createSelector(
-  (state: AppState) => state.navInfo.navigationState,
-  (navigationState: NavigationState) => {
+  (context: ?NavContextType) => context && context.state,
+  (navigationState: ?NavigationState) => {
+    if (!navigationState) {
+      return false;
+    }
     const currentRootSubroute = navigationState.routes[navigationState.index];
     if (currentRootSubroute.routeName !== AppRouteName) {
       return true;
@@ -94,9 +115,12 @@ const scrollBlockingChatModalsClosedSelector: (
 const backgroundIsDarkSelector: (
   input: NavPlusRedux,
 ) => boolean = createSelector(
-  (input: NavPlusRedux) => input.nav,
+  (input: NavPlusRedux) => input.navContext && input.navContext.state,
   (input: NavPlusRedux) => input.redux.globalThemeInfo.activeTheme,
-  (navigationState: NavigationState, theme: ?GlobalTheme) => {
+  (navigationState: ?NavigationState, theme: ?GlobalTheme) => {
+    if (!navigationState) {
+      return false;
+    }
     const currentRootSubroute = navigationState.routes[navigationState.index];
     if (currentRootSubroute.routeName !== AppRouteName) {
       // Very bright... we'll call it non-dark. Doesn't matter right now since
@@ -117,10 +141,13 @@ const backgroundIsDarkSelector: (
 );
 
 const overlayTransitioningSelector: (
-  state: AppState,
+  context: ?NavContextType,
 ) => boolean = createSelector(
-  (state: AppState) => state.navInfo.navigationState,
-  (navigationState: NavigationState) => {
+  (context: ?NavContextType) => context && context.state,
+  (navigationState: ?NavigationState) => {
+    if (!navigationState) {
+      return false;
+    }
     const currentRootSubroute = navigationState.routes[navigationState.index];
     if (currentRootSubroute.routeName !== AppRouteName) {
       return false;
@@ -131,9 +158,12 @@ const overlayTransitioningSelector: (
 );
 
 function activeThread(
-  navigationState: NavigationState,
+  navigationState: ?NavigationState,
   validRouteNames: $ReadOnlyArray<string>,
 ): ?string {
+  if (!navigationState) {
+    return null;
+  }
   let rootIndex = navigationState.index;
   let currentRootSubroute = navigationState.routes[rootIndex];
   while (currentRootSubroute.routeName !== AppRouteName) {
@@ -163,26 +193,33 @@ function activeThread(
   return getThreadIDFromParams(currentChatSubroute);
 }
 
-const activeThreadSelector: (state: AppState) => ?string = createSelector(
-  (state: AppState) => state.navInfo.navigationState,
-  (navigationState: NavigationState): ?string =>
+const activeThreadSelector: (
+  context: ?NavContextType,
+) => ?string = createSelector(
+  (context: ?NavContextType) => context && context.state,
+  (navigationState: ?NavigationState): ?string =>
     activeThread(navigationState, [
       MessageListRouteName,
       ThreadSettingsRouteName,
     ]),
 );
 
-const activeMessageListSelector: (state: AppState) => ?string = createSelector(
-  (state: AppState) => state.navInfo.navigationState,
-  (navigationState: NavigationState): ?string =>
+const activeMessageListSelector: (
+  context: ?NavContextType,
+) => ?string = createSelector(
+  (context: ?NavContextType) => context && context.state,
+  (navigationState: ?NavigationState): ?string =>
     activeThread(navigationState, [MessageListRouteName]),
 );
 
 const appCanRespondToBackButtonSelector: (
-  state: AppState,
+  context: ?NavContextType,
 ) => boolean = createSelector(
-  (state: AppState) => state.navInfo.navigationState,
-  (navigationState: NavigationState): boolean => {
+  (context: ?NavContextType) => context && context.state,
+  (navigationState: ?NavigationState): boolean => {
+    if (!navigationState) {
+      return false;
+    }
     const currentRootSubroute = navigationState.routes[navigationState.index];
     if (currentRootSubroute.routeName !== AppRouteName) {
       return false;
@@ -206,7 +243,9 @@ const calendarTabActiveSelector = createActiveTabSelector(CalendarRouteName);
 const threadPickerActiveSelector = createIsForegroundSelector(
   ThreadPickerModalRouteName,
 );
-const calendarActiveSelector: (state: AppState) => boolean = createSelector(
+const calendarActiveSelector: (
+  context: ?NavContextType,
+) => boolean = createSelector(
   calendarTabActiveSelector,
   threadPickerActiveSelector,
   (calendarTabActive: boolean, threadPickerActive: boolean) =>
@@ -217,7 +256,7 @@ const nativeCalendarQuery: (
   input: NavPlusRedux,
 ) => () => CalendarQuery = createSelector(
   (input: NavPlusRedux) => currentCalendarQuery(input.redux),
-  (input: NavPlusRedux) => calendarActiveSelector(input.redux),
+  (input: NavPlusRedux) => calendarActiveSelector(input.navContext),
   (
     calendarQuery: (calendarActive: boolean) => CalendarQuery,
     calendarActive: boolean,

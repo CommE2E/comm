@@ -72,6 +72,10 @@ import {
 } from '../themes/colors';
 import { CameraModalRouteName } from '../navigation/route-names';
 import KeyboardInputHost from '../keyboard/keyboard-input-host.react';
+import {
+  connectNav,
+  type NavContextType,
+} from '../navigation/navigation-context';
 
 const draftKeyFromThreadID = (threadID: string) =>
   `${threadID}/message_composer`;
@@ -634,21 +638,28 @@ const joinThreadLoadingStatusSelector = createLoadingStatusSelector(
   joinThreadActionTypes,
 );
 
-export default connect(
-  (state: AppState, ownProps: { threadInfo: ThreadInfo }) => {
-    const draft = state.drafts[draftKeyFromThreadID(ownProps.threadInfo.id)];
-    return {
-      viewerID: state.currentUserInfo && state.currentUserInfo.id,
-      draft: draft ? draft : '',
-      joinThreadLoadingStatus: joinThreadLoadingStatusSelector(state),
-      calendarQuery: nonThreadCalendarQuery({
-        redux: state,
-        nav: state.navInfo.navigationState,
-      }),
-      nextLocalID: state.nextLocalID,
-      colors: colorsSelector(state),
-      styles: stylesSelector(state),
-    };
-  },
-  { sendTextMessage, joinThread },
-)(withKeyboardState(ChatInputBar));
+export default connectNav((context: ?NavContextType) => ({
+  navContext: context,
+}))(
+  connect(
+    (
+      state: AppState,
+      ownProps: { threadInfo: ThreadInfo, navContext: ?NavContextType },
+    ) => {
+      const draft = state.drafts[draftKeyFromThreadID(ownProps.threadInfo.id)];
+      return {
+        viewerID: state.currentUserInfo && state.currentUserInfo.id,
+        draft: draft ? draft : '',
+        joinThreadLoadingStatus: joinThreadLoadingStatusSelector(state),
+        calendarQuery: nonThreadCalendarQuery({
+          redux: state,
+          navContext: ownProps.navContext,
+        }),
+        nextLocalID: state.nextLocalID,
+        colors: colorsSelector(state),
+        styles: stylesSelector(state),
+      };
+    },
+    { sendTextMessage, joinThread },
+  )(withKeyboardState(ChatInputBar)),
+);

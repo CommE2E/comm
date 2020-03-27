@@ -18,32 +18,47 @@ import {
   appLoggedInSelector,
   nativeCalendarQuery,
 } from './navigation/nav-selectors';
+import {
+  connectNav,
+  type NavContextType,
+} from './navigation/navigation-context';
 
-export default connect(
-  (state: AppState) => {
-    const active =
-      appLoggedInSelector(state) &&
-      state.currentUserInfo &&
-      !state.currentUserInfo.anonymous &&
-      state.foreground;
-    return {
-      active,
-      openSocket: openSocketSelector(state),
-      getClientResponses: nativeGetClientResponsesSelector(state),
-      activeThread: active ? activeThreadSelector(state) : null,
-      sessionStateFunc: nativeSessionStateFuncSelector(state),
-      sessionIdentification: sessionIdentificationSelector(state),
-      cookie: state.cookie,
-      urlPrefix: state.urlPrefix,
-      connection: state.connection,
-      currentCalendarQuery: nativeCalendarQuery({
-        redux: state,
-        nav: state.navInfo.navigationState,
-      }),
-      hasWiFi: state.connectivity.hasWiFi,
-      frozen: state.frozen,
-      preRequestUserState: preRequestUserStateSelector(state),
-    };
-  },
-  { logOut },
-)(Socket);
+export default connectNav((context: ?NavContextType) => ({
+  appLoggedIn: appLoggedInSelector(context),
+  rawActiveThread: activeThreadSelector(context),
+  navContext: context,
+}))(
+  connect(
+    (
+      state: AppState,
+      ownProps: {
+        appLoggedIn: boolean,
+        rawActiveThread: boolean,
+        navContext: ?NavContextType,
+      },
+    ) => {
+      const active =
+        ownProps.appLoggedIn &&
+        !!state.currentUserInfo &&
+        !state.currentUserInfo.anonymous &&
+        state.foreground;
+      const navPlusRedux = { redux: state, navContext: ownProps.navContext };
+      return {
+        active,
+        openSocket: openSocketSelector(state),
+        getClientResponses: nativeGetClientResponsesSelector(navPlusRedux),
+        activeThread: active ? ownProps.rawActiveThread : null,
+        sessionStateFunc: nativeSessionStateFuncSelector(navPlusRedux),
+        sessionIdentification: sessionIdentificationSelector(state),
+        cookie: state.cookie,
+        urlPrefix: state.urlPrefix,
+        connection: state.connection,
+        currentCalendarQuery: nativeCalendarQuery(navPlusRedux),
+        hasWiFi: state.connectivity.hasWiFi,
+        frozen: state.frozen,
+        preRequestUserState: preRequestUserStateSelector(state),
+      };
+    },
+    { logOut },
+  )(Socket),
+);

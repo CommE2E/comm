@@ -1,17 +1,14 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
-
 import * as React from 'react';
 import PropTypes from 'prop-types';
-
-import { connect } from 'lib/utils/redux-utils';
 
 import {
   scrollBlockingChatModalsClosedSelector,
   overlayTransitioningSelector,
 } from './nav-selectors';
 import { OverlayableScrollViewContext } from './overlayable-scroll-view-state';
+import { connectNav, type NavContextType } from './navigation-context';
 
 type Props = {|
   children: React.Node,
@@ -72,13 +69,13 @@ class OverlayableScrollViewStateContainer extends React.PureComponent<
   }
 }
 
-export default connect((state: AppState) => {
+export default connectNav((context: ?NavContextType) => {
   const scrollBlockingModalsClosed = scrollBlockingChatModalsClosedSelector(
-    state,
+    context,
   );
   return {
     scrollBlockingModalsClosed,
     scrollBlockingModalsGone:
-      scrollBlockingModalsClosed && !overlayTransitioningSelector(state),
+      scrollBlockingModalsClosed && !overlayTransitioningSelector(context),
   };
 })(OverlayableScrollViewStateContainer);

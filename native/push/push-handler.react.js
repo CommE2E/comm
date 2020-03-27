@@ -68,6 +68,10 @@ import {
 import { getFirebase } from './firebase';
 import { saveMessageInfos } from './utils';
 import InAppNotif from './in-app-notif.react';
+import {
+  connectNav,
+  type NavContextType,
+} from '../navigation/navigation-context';
 
 YellowBox.ignoreWarnings([
   'Require cycle: ../node_modules/react-native-firebase',
@@ -572,17 +576,20 @@ AppRegistry.registerHeadlessTask(
   () => androidBackgroundMessageTask,
 );
 
-export default connect(
-  (state: AppState) => ({
-    unreadCount: unreadCount(state),
-    activeThread: activeThreadSelector(state),
-    appLoggedIn: appLoggedInSelector(state),
-    deviceToken: state.deviceToken,
-    rawThreadInfos: state.threadStore.threadInfos,
-    notifPermissionAlertInfo: state.notifPermissionAlertInfo,
-    connection: state.connection,
-    updatesCurrentAsOf: state.updatesCurrentAsOf,
-    activeTheme: state.globalThemeInfo.activeTheme,
-  }),
-  { setDeviceToken },
-)(PushHandler);
+export default connectNav((context: ?NavContextType) => ({
+  activeThread: activeThreadSelector(context),
+  appLoggedIn: appLoggedInSelector(context),
+}))(
+  connect(
+    (state: AppState) => ({
+      unreadCount: unreadCount(state),
+      deviceToken: state.deviceToken,
+      rawThreadInfos: state.threadStore.threadInfos,
+      notifPermissionAlertInfo: state.notifPermissionAlertInfo,
+      connection: state.connection,
+      updatesCurrentAsOf: state.updatesCurrentAsOf,
+      activeTheme: state.globalThemeInfo.activeTheme,
+    }),
+    { setDeviceToken },
+  )(PushHandler),
+);

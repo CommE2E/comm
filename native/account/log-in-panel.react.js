@@ -47,6 +47,10 @@ import {
   setNativeCredentials,
 } from './native-credentials';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
+import {
+  connectNav,
+  type NavContextType,
+} from '../navigation/navigation-context';
 
 export type LogInState = {
   usernameOrEmailInputText: string,
@@ -342,11 +346,18 @@ const styles = StyleSheet.create({
 
 const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 
-export default connect(
-  (state: AppState) => ({
-    loadingStatus: loadingStatusSelector(state),
-    logInExtraInfo: nativeLogInExtraInfoSelector(state),
-    usernamePlaceholder: usernamePlaceholderSelector(state),
-  }),
-  { logIn },
-)(LogInPanel);
+export default connectNav((context: ?NavContextType) => ({
+  navContext: context,
+}))(
+  connect(
+    (state: AppState, ownProps: { navContext: ?NavContextType }) => ({
+      loadingStatus: loadingStatusSelector(state),
+      logInExtraInfo: nativeLogInExtraInfoSelector({
+        redux: state,
+        navContext: ownProps.navContext,
+      }),
+      usernamePlaceholder: usernamePlaceholderSelector(state),
+    }),
+    { logIn },
+  )(LogInPanel),
+);

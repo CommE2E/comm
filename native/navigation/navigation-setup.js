@@ -47,7 +47,6 @@ import {
 } from 'lib/actions/thread-actions';
 import { notificationPressActionType } from 'lib/shared/notif-utils';
 import { threadInfoFromRawThreadInfo } from 'lib/shared/thread-utils';
-import { connect } from 'lib/utils/redux-utils';
 
 import Calendar from '../calendar/calendar.react';
 import Chat from '../chat/chat.react';
@@ -109,6 +108,7 @@ import { TextMessageTooltipModal } from '../chat/text-message-tooltip-modal.reac
 import ThreadSettingsMemberTooltipModal from '../chat/settings/thread-settings-member-tooltip-modal.react';
 import CameraModal from '../media/camera-modal.react';
 import TabBar from './tab-bar.react';
+import { connectNav, type NavContextType } from './navigation-context';
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 useScreens();
@@ -227,9 +227,9 @@ class WrappedAppNavigator extends React.PureComponent<WrappedAppNavigatorProps> 
   }
 }
 
-const ReduxWrappedAppNavigator = connect((state: AppState) => ({
-  appCanRespondToBackButton: appCanRespondToBackButtonSelector(state),
-  isForeground: appLoggedInSelector(state),
+const ReduxWrappedAppNavigator = connectNav((context: ?NavContextType) => ({
+  appCanRespondToBackButton: appCanRespondToBackButtonSelector(context),
+  isForeground: appLoggedInSelector(context),
 }))(WrappedAppNavigator);
 hoistNonReactStatics(ReduxWrappedAppNavigator, AppNavigator);
 

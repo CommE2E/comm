@@ -73,6 +73,10 @@ import {
 } from '../navigation/nav-selectors';
 import LoadingIndicator from './loading-indicator.react';
 import { colors, styleSelector } from '../themes/colors';
+import {
+  connectNav,
+  type NavContextType,
+} from '../navigation/navigation-context';
 
 function hueDistance(firstColor: string, secondColor: string): number {
   const firstHue = tinycolor(firstColor).toHsv().h;
@@ -94,7 +98,7 @@ type Props = {|
   // Redux state
   calendarQuery: () => CalendarQuery,
   threadPickerActive: boolean,
-  foregroundKey: string,
+  foregroundKey: ?string,
   online: boolean,
   styles: Styles,
   // Redux dispatch functions
@@ -127,7 +131,7 @@ class InternalEntry extends React.Component<Props, State> {
     entryRef: PropTypes.func.isRequired,
     calendarQuery: PropTypes.func.isRequired,
     threadPickerActive: PropTypes.bool.isRequired,
-    foregroundKey: PropTypes.string.isRequired,
+    foregroundKey: PropTypes.string,
     online: PropTypes.bool.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
@@ -434,7 +438,7 @@ class InternalEntry extends React.Component<Props, State> {
       return;
     }
     textInput.focus();
-    if (this.props.threadPickerActive) {
+    if (this.props.threadPickerActive && this.props.foregroundKey) {
       this.props.navigation.goBack(this.props.foregroundKey);
     }
   };
@@ -742,18 +746,22 @@ const activeThreadPickerSelector = createIsForegroundSelector(
   ThreadPickerModalRouteName,
 );
 
-const Entry = connect(
-  (state: AppState) => ({
-    calendarQuery: nonThreadCalendarQuery({
-      redux: state,
-      nav: state.navInfo.navigationState,
+const Entry = connectNav((context: ?NavContextType) => ({
+  navContext: context,
+  foregroundKey: foregroundKeySelector(context),
+  threadPickerActive: activeThreadPickerSelector(context),
+}))(
+  connect(
+    (state: AppState, ownProps: { navContext: ?NavContextType }) => ({
+      calendarQuery: nonThreadCalendarQuery({
+        redux: state,
+        navContext: ownProps.navContext,
+      }),
+      online: state.connection.status === 'connected',
+      styles: stylesSelector(state),
     }),
-    threadPickerActive: activeThreadPickerSelector(state),
-    foregroundKey: foregroundKeySelector(state),
-    online: state.connection.status === 'connected',
-    styles: stylesSelector(state),
-  }),
-  { createEntry, saveEntry, deleteEntry },
-)(InternalEntry);
+    { createEntry, saveEntry, deleteEntry },
+  )(InternalEntry),
+);
 
 export { InternalEntry, Entry, styles as entryStyles };

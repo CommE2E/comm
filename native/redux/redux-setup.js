@@ -373,7 +373,12 @@ function validateState(
   state: AppState,
   action: *,
 ): AppState {
-  const activeThread = activeThreadSelector(state);
+  const oldActiveThread = activeThreadSelector({
+    state: oldState.navInfo.navigationState,
+  });
+  const activeThread = activeThreadSelector({
+    state: state.navInfo.navigationState,
+  });
   if (
     activeThread &&
     (NativeAppState.currentState === 'active' ||
@@ -406,7 +411,6 @@ function validateState(
     };
   }
 
-  const oldActiveThread = activeThreadSelector(oldState);
   if (
     activeThread &&
     oldActiveThread !== activeThread &&
