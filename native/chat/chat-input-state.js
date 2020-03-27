@@ -1,6 +1,7 @@
 // @flow
 
 import type { MediaSelection } from 'lib/types/media-types';
+import type { RawTextMessageInfo } from 'lib/types/message-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -33,6 +34,7 @@ const pendingMultimediaUploadsPropType = PropTypes.objectOf(
 
 export type ChatInputState = {|
   pendingUploads: PendingMultimediaUploads,
+  sendTextMessage: (messageInfo: RawTextMessageInfo) => void,
   sendMultimediaMessage: (
     threadID: string,
     selections: $ReadOnlyArray<MediaSelection>,
@@ -43,6 +45,7 @@ export type ChatInputState = {|
 
 const chatInputStatePropType = PropTypes.shape({
   pendingUploads: pendingMultimediaUploadsPropType.isRequired,
+  sendTextMessage: PropTypes.func.isRequired,
   sendMultimediaMessage: PropTypes.func.isRequired,
   messageHasUploadFailure: PropTypes.func.isRequired,
   retryMultimediaMessage: PropTypes.func.isRequired,

@@ -37,7 +37,7 @@ type Props = {|
   activeMessageList: ?string,
   // withKeyboardState
   keyboardState: ?KeyboardState,
-  // withChatInput
+  // withChatInputState
   chatInputState: ?ChatInputState,
 |};
 class KeyboardInputHost extends React.PureComponent<Props> {
