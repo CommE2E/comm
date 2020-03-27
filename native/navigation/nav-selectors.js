@@ -214,10 +214,10 @@ const calendarActiveSelector: (state: AppState) => boolean = createSelector(
 );
 
 const nativeCalendarQuery: (
-  state: AppState,
+  input: NavPlusRedux,
 ) => () => CalendarQuery = createSelector(
-  currentCalendarQuery,
-  calendarActiveSelector,
+  (input: NavPlusRedux) => currentCalendarQuery(input.redux),
+  (input: NavPlusRedux) => calendarActiveSelector(input.redux),
   (
     calendarQuery: (calendarActive: boolean) => CalendarQuery,
     calendarActive: boolean,
@@ -225,10 +225,10 @@ const nativeCalendarQuery: (
 );
 
 const nonThreadCalendarQuery: (
-  state: AppState,
+  input: NavPlusRedux,
 ) => () => CalendarQuery = createSelector(
   nativeCalendarQuery,
-  nonThreadCalendarFiltersSelector,
+  (input: NavPlusRedux) => nonThreadCalendarFiltersSelector(input.redux),
   (
     calendarQuery: () => CalendarQuery,
     filters: $ReadOnlyArray<CalendarFilter>,

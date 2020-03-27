@@ -17,7 +17,6 @@ import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors';
 import { unshimMessageStore } from 'lib/shared/unshim-utils';
 import { inconsistencyResponsesToReports } from 'lib/shared/report-utils';
 
-import { nativeCalendarQuery } from '../navigation/nav-selectors';
 import { defaultNotifPermissionAlertInfo } from '../push/alerts';
 
 const baseBlacklist = [
@@ -84,7 +83,6 @@ const migrations = {
     entryStore: {
       ...state.entryStore,
       inconsistencyResponses: [],
-      actualizedCalendarQuery: nativeCalendarQuery(state)(),
     },
   }),
   [8]: (state: AppState) => ({
