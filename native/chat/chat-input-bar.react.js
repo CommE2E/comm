@@ -5,12 +5,7 @@ import type {
   DispatchActionPayload,
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
-import {
-  type RawTextMessageInfo,
-  type SendMessageResult,
-  type SendMessagePayload,
-  messageTypes,
-} from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types';
 import {
   type ThreadInfo,
   threadInfoPropType,
@@ -31,6 +26,11 @@ import {
   type MessageListNavProp,
   messageListNavPropType,
 } from './message-list-types';
+import {
+  type ChatInputState,
+  chatInputStatePropType,
+  withChatInputState,
+} from './chat-input-state';
 
 import * as React from 'react';
 import {
@@ -52,10 +52,6 @@ import { TextInputKeyboardMangerIOS } from 'react-native-keyboard-input';
 import _throttle from 'lodash/throttle';
 
 import { connect } from 'lib/utils/redux-utils';
-import {
-  sendTextMessageActionTypes,
-  sendTextMessage,
-} from 'lib/actions/message-actions';
 import { saveDraftActionType } from 'lib/actions/miscellaneous-action-types';
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
 import { joinThreadActionTypes, joinThread } from 'lib/actions/thread-actions';
@@ -97,12 +93,9 @@ type Props = {|
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  sendTextMessage: (
-    threadID: string,
-    localID: string,
-    text: string,
-  ) => Promise<SendMessageResult>,
   joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
+  // withChatInputState
+  chatInputState: ?ChatInputState,
 |};
 type State = {|
   text: string,
@@ -123,8 +116,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     keyboardState: keyboardStatePropType,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
-    sendTextMessage: PropTypes.func.isRequired,
     joinThread: PropTypes.func.isRequired,
+    chatInputState: chatInputStatePropType,
   };
   textInput: ?TextInput;
   expandOpacity: Animated.Value;
@@ -441,48 +434,19 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     const localID = `local${this.props.nextLocalID}`;
     const creatorID = this.props.viewerID;
     invariant(creatorID, 'should have viewer ID in order to send a message');
-    const messageInfo = ({
+    invariant(
+      this.props.chatInputState,
+      'chatInputState should be set in ChatInputBar.onSend',
+    );
+    this.props.chatInputState.sendTextMessage({
       type: messageTypes.TEXT,
       localID,
       threadID: this.props.threadInfo.id,
       text,
       creatorID,
       time: Date.now(),
-    }: RawTextMessageInfo);
-    this.props.dispatchActionPromise(
-      sendTextMessageActionTypes,
-      this.sendTextMessageAction(messageInfo),
-      undefined,
-      messageInfo,
-    );
+    });
   };
-
-  async sendTextMessageAction(
-    messageInfo: RawTextMessageInfo,
-  ): Promise<SendMessagePayload> {
-    try {
-      const { localID } = messageInfo;
-      invariant(
-        localID !== null && localID !== undefined,
-        'localID should be set',
-      );
-      const result = await this.props.sendTextMessage(
-        messageInfo.threadID,
-        localID,
-        messageInfo.text,
-      );
-      return {
-        localID,
-        serverID: result.id,
-        threadID: messageInfo.threadID,
-        time: result.time,
-      };
-    } catch (e) {
-      e.localID = messageInfo.localID;
-      e.threadID = messageInfo.threadID;
-      throw e;
-    }
-  }
 
   onPressJoin = () => {
     this.props.dispatchActionPromise(joinThreadActionTypes, this.joinAction());
@@ -660,6 +624,6 @@ export default connectNav((context: ?NavContextType) => ({
         styles: stylesSelector(state),
       };
     },
-    { sendTextMessage, joinThread },
-  )(withKeyboardState(ChatInputBar)),
+    { joinThread },
+  )(withKeyboardState(withChatInputState(ChatInputBar))),
 );
