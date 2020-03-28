@@ -6,9 +6,10 @@ import { type GlobalTheme, globalThemePropType } from '../types/themes';
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
 import Hyperlink from 'react-native-hyperlink';
+import { MarkdownView } from 'react-native-markdown-view';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
 import { onlyEmojiRegex } from 'lib/shared/emojis';
@@ -77,13 +78,18 @@ class InnerTextMessage extends React.PureComponent<Props> {
             style={[styles.message, messageStyle]}
             linkStyle={linkStyle}
           >
-            <Text
+            <MarkdownView
               onPress={this.props.onPress}
               onLongPress={this.props.onPress}
-              style={[textStyle, textCustomStyle]}
+              styles={{
+                paragraph: {
+                  ...textStyle,
+                  ...textCustomStyle,
+                },
+              }}
             >
               {text}
-            </Text>
+            </MarkdownView>
           </Hyperlink>
         </RoundedMessageContainer>
       </TouchableOpacity>

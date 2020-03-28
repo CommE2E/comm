@@ -56,6 +56,7 @@
     "react-native-in-app-message": "^1.0.2",
     "react-native-keyboard-input": "^6.0.0",
     "react-native-keychain": "^4.0.0",
+    "react-native-markdown-view": "^1.1.4",
     "react-native-mov-to-mp4": "git+https://git@github.com/taltultc/react-native-mov-to-mp4.git#d040c5aad736dd7a4bf1836836a1d62d6ab0d030",
     "react-native-notifications": "git+https://git@github.com/ashoat/react-native-notifications.git",
     "react-native-onepassword": "git+https://git@github.com/DriveWealth/react-native-onepassword.git#aed794d8c6f0f2560b62a0012449abf6f1b3576c",
