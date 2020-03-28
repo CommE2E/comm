@@ -4,7 +4,7 @@ import type { ChatMultimediaMessageInfoItem } from './multimedia-message.react';
 
 export default function multimediaMessageSendFailed(
   item: ChatMultimediaMessageInfoItem,
-) {
+): boolean {
   const { messageInfo, localMessageInfo, pendingUploads } = item;
   const { id: serverID } = messageInfo;
   if (serverID !== null && serverID !== undefined) {
