@@ -15,12 +15,7 @@ import {
   type ClientThreadJoinRequest,
   type ThreadJoinPayload,
 } from 'lib/types/thread-types';
-import {
-  type RawTextMessageInfo,
-  type SendMessageResult,
-  type SendMessagePayload,
-  messageTypes,
-} from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types';
 import {
   chatInputStatePropType,
   type ChatInputState,
@@ -36,10 +31,6 @@ import PropTypes from 'prop-types';
 import _difference from 'lodash/fp/difference';
 
 import { connect } from 'lib/utils/redux-utils';
-import {
-  sendTextMessageActionTypes,
-  sendTextMessage,
-} from 'lib/actions/message-actions';
 import { joinThreadActionTypes, joinThread } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
@@ -62,11 +53,6 @@ type Props = {|
   dispatchActionPromise: DispatchActionPromise,
   dispatchActionPayload: DispatchActionPayload,
   // async functions that hit server APIs
-  sendTextMessage: (
-    threadID: string,
-    localID: string,
-    text: string,
-  ) => Promise<SendMessageResult>,
   joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
 |};
 class ChatInputBar extends React.PureComponent<Props> {
@@ -79,7 +65,6 @@ class ChatInputBar extends React.PureComponent<Props> {
     nextLocalID: PropTypes.number.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
-    sendTextMessage: PropTypes.func.isRequired,
     joinThread: PropTypes.func.isRequired,
   };
   textarea: ?HTMLTextAreaElement;
@@ -296,47 +281,14 @@ class ChatInputBar extends React.PureComponent<Props> {
     const localID = `local${nextLocalID}`;
     const creatorID = this.props.viewerID;
     invariant(creatorID, 'should have viewer ID in order to send a message');
-    const messageInfo = ({
+    this.props.chatInputState.sendTextMessage({
       type: messageTypes.TEXT,
       localID,
       threadID: this.props.threadInfo.id,
       text,
       creatorID,
       time: Date.now(),
-    }: RawTextMessageInfo);
-    this.props.dispatchActionPromise(
-      sendTextMessageActionTypes,
-      this.sendTextMessageAction(messageInfo),
-      undefined,
-      messageInfo,
-    );
-  }
-
-  async sendTextMessageAction(
-    messageInfo: RawTextMessageInfo,
-  ): Promise<SendMessagePayload> {
-    try {
-      const { localID } = messageInfo;
-      invariant(
-        localID !== null && localID !== undefined,
-        'localID should be set',
-      );
-      const result = await this.props.sendTextMessage(
-        messageInfo.threadID,
-        localID,
-        messageInfo.text,
-      );
-      return {
-        localID,
-        serverID: result.id,
-        threadID: messageInfo.threadID,
-        time: result.time,
-      };
-    } catch (e) {
-      e.localID = messageInfo.localID;
-      e.threadID = messageInfo.threadID;
-      throw e;
-    }
+    });
   }
 
   multimediaInputRef = (multimediaInput: ?HTMLInputElement) => {
@@ -385,5 +337,5 @@ export default connect(
     calendarQuery: nonThreadCalendarQuery(state),
     nextLocalID: state.nextLocalID,
   }),
-  { sendTextMessage, joinThread },
+  { joinThread },
 )(ChatInputBar);

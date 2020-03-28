@@ -23,6 +23,7 @@ import { onlyEmojiRegex } from 'lib/shared/emojis';
 
 import css from './chat-message-list.css';
 import ComposedMessage from './composed-message.react';
+import textMessageSendFailed from './text-message-send-failed';
 
 type Props = {|
   item: ChatMessageInfoItem,
@@ -58,9 +59,11 @@ class TextMessage extends React.PureComponent<Props> {
       this.props.item.messageInfo.type === messageTypes.TEXT,
       'TextMessage should only be used for messageTypes.TEXT',
     );
-    const { text, id, creator } = this.props.item.messageInfo;
+    const {
+      text,
+      creator: { isViewer },
+    } = this.props.item.messageInfo;
 
-    const { isViewer } = creator;
     const onlyEmoji = onlyEmojiRegex.test(text);
     const messageClassName = classNames({
       [css.textMessage]: true,
@@ -79,17 +82,11 @@ class TextMessage extends React.PureComponent<Props> {
       messageStyle.color = 'black';
     }
 
-    const sendFailed =
-      isViewer &&
-      (id === null || id === undefined) &&
-      this.props.item.localMessageInfo &&
-      this.props.item.localMessageInfo.sendFailed;
-
     return (
       <ComposedMessage
         item={this.props.item}
         threadInfo={this.props.threadInfo}
-        sendFailed={!!sendFailed}
+        sendFailed={textMessageSendFailed(this.props.item)}
         setMouseOver={this.props.setMouseOver}
         chatInputState={this.props.chatInputState}
       >

@@ -15,6 +15,7 @@ import {
   type RawMultimediaMessageInfo,
   type SendMessageResult,
   type SendMessagePayload,
+  type RawTextMessageInfo,
 } from 'lib/types/message-types';
 
 import * as React from 'react';
@@ -37,6 +38,8 @@ import {
   createLocalMessageActionType,
   sendMultimediaMessageActionTypes,
   sendMultimediaMessage,
+  sendTextMessageActionTypes,
+  sendTextMessage,
 } from 'lib/actions/message-actions';
 import { createMediaMessageInfo } from 'lib/shared/message-utils';
 
@@ -68,6 +71,11 @@ type Props = {|
     localID: string,
     mediaIDs: $ReadOnlyArray<string>,
   ) => Promise<SendMessageResult>,
+  sendTextMessage: (
+    threadID: string,
+    localID: string,
+    text: string,
+  ) => Promise<SendMessageResult>,
 |};
 type State = {|
   pendingUploads: {
@@ -87,6 +95,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     uploadMultimedia: PropTypes.func.isRequired,
     deleteUpload: PropTypes.func.isRequired,
     sendMultimediaMessage: PropTypes.func.isRequired,
+    sendTextMessage: PropTypes.func.isRequired,
   };
   state = {
     pendingUploads: {},
@@ -322,6 +331,8 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
             this.appendFiles(threadID, files),
           cancelPendingUpload: (localUploadID: string) =>
             this.cancelPendingUpload(threadID, localUploadID),
+          sendTextMessage: (messageInfo: RawTextMessageInfo) =>
+            this.sendTextMessage(messageInfo),
           createMultimediaMessage: (localID?: number) =>
             this.createMultimediaMessage(threadID, localID),
           setDraft: (newDraft: string) => this.setDraft(threadID, newDraft),
@@ -604,6 +615,42 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     );
   }
 
+  sendTextMessage(messageInfo: RawTextMessageInfo) {
+    this.props.dispatchActionPromise(
+      sendTextMessageActionTypes,
+      this.sendTextMessageAction(messageInfo),
+      undefined,
+      messageInfo,
+    );
+  }
+
+  async sendTextMessageAction(
+    messageInfo: RawTextMessageInfo,
+  ): Promise<SendMessagePayload> {
+    try {
+      const { localID } = messageInfo;
+      invariant(
+        localID !== null && localID !== undefined,
+        'localID should be set',
+      );
+      const result = await this.props.sendTextMessage(
+        messageInfo.threadID,
+        localID,
+        messageInfo.text,
+      );
+      return {
+        localID,
+        serverID: result.id,
+        threadID: messageInfo.threadID,
+        time: result.time,
+      };
+    } catch (e) {
+      e.localID = messageInfo.localID;
+      e.threadID = messageInfo.threadID;
+      throw e;
+    }
+  }
+
   // Creates a MultimediaMessage from the unassigned pending uploads,
   // if there are any
   createMultimediaMessage(threadID: string, localID: ?number) {
@@ -800,5 +847,5 @@ export default connect(
     nextLocalID: state.nextLocalID,
     messageStoreMessages: state.messageStore.messages,
   }),
-  { uploadMultimedia, deleteUpload, sendMultimediaMessage },
+  { uploadMultimedia, deleteUpload, sendMultimediaMessage, sendTextMessage },
 )(ChatInputStateContainer);
