@@ -6,6 +6,7 @@ import {
   type Dimensions,
   dimensionsPropType,
 } from 'lib/types/media-types';
+import type { RawTextMessageInfo } from 'lib/types/message-types';
 
 import PropTypes from 'prop-types';
 
@@ -52,6 +53,7 @@ export type ChatInputState = {|
   draft: string,
   appendFiles: (files: $ReadOnlyArray<File>) => Promise<void>,
   cancelPendingUpload: (localUploadID: string) => void,
+  sendTextMessage: (messageInfo: RawTextMessageInfo) => void,
   createMultimediaMessage: (localID?: number) => void,
   setDraft: (draft: string) => void,
   messageHasUploadFailure: (localMessageID: string) => boolean,
@@ -66,6 +68,7 @@ export const chatInputStatePropType = PropTypes.shape({
   draft: PropTypes.string.isRequired,
   appendFiles: PropTypes.func.isRequired,
   cancelPendingUpload: PropTypes.func.isRequired,
+  sendTextMessage: PropTypes.func.isRequired,
   createMultimediaMessage: PropTypes.func.isRequired,
   setDraft: PropTypes.func.isRequired,
   messageHasUploadFailure: PropTypes.func.isRequired,
