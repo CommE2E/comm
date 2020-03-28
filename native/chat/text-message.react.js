@@ -37,6 +37,7 @@ import { TextMessageTooltipModalRouteName } from '../navigation/route-names';
 import { ComposedMessage, clusterEndHeight } from './composed-message.react';
 import { authorNameHeight } from './message-header.react';
 import { failedSendHeight } from './failed-send.react';
+import textMessageSendFailed from './text-message-send-failed';
 
 export type ChatTextMessageInfoItemWithHeight = {|
   itemType: 'message',
@@ -52,8 +53,7 @@ export type ChatTextMessageInfoItemWithHeight = {|
 
 function textMessageItemHeight(item: ChatTextMessageInfoItemWithHeight) {
   const { messageInfo, contentHeight, startsCluster, endsCluster } = item;
-  const { id, creator } = messageInfo;
-  const { isViewer } = creator;
+  const { isViewer } = messageInfo.creator;
   let height = 17 + contentHeight; // for padding, margin, and text
   if (!isViewer && startsCluster) {
     height += authorNameHeight;
@@ -61,13 +61,7 @@ function textMessageItemHeight(item: ChatTextMessageInfoItemWithHeight) {
   if (endsCluster) {
     height += clusterEndHeight;
   }
-  if (
-    isViewer &&
-    id !== null &&
-    id !== undefined &&
-    item.localMessageInfo &&
-    item.localMessageInfo.sendFailed
-  ) {
+  if (textMessageSendFailed(item)) {
     height += failedSendHeight;
   }
   return height;
@@ -108,18 +102,10 @@ class TextMessage extends React.PureComponent<Props> {
       keyboardState,
       ...viewProps
     } = this.props;
-    const { id, creator } = item.messageInfo;
-    const { isViewer } = creator;
-    const sendFailed =
-      isViewer &&
-      (id === null || id === undefined) &&
-      item.localMessageInfo &&
-      item.localMessageInfo.sendFailed;
-
     return (
       <ComposedMessage
         item={item}
-        sendFailed={!!sendFailed}
+        sendFailed={textMessageSendFailed(item)}
         focused={focused}
         {...viewProps}
       >
