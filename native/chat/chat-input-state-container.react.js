@@ -105,6 +105,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
   state = {
     pendingUploads: {},
   };
+  sendCallbacks: Array<() => void> = [];
 
   static getCompletedUploads(props: Props, state: State): CompletedUploads {
     const completedUploads = {};
@@ -274,10 +275,12 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       sendMultimediaMessage: this.sendMultimediaMessage,
       messageHasUploadFailure: this.messageHasUploadFailure,
       retryMultimediaMessage: this.retryMultimediaMessage,
+      registerSendCallback: this.registerSendCallback,
     }),
   );
 
   sendTextMessage = (messageInfo: RawTextMessageInfo) => {
+    this.sendCallbacks.forEach(callback => callback());
     this.props.dispatchActionPromise(
       sendTextMessageActionTypes,
       this.sendTextMessageAction(messageInfo),
@@ -317,6 +320,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     threadID: string,
     selections: $ReadOnlyArray<MediaSelection>,
   ) => {
+    this.sendCallbacks.forEach(callback => callback());
     const localMessageID = `local${this.props.nextLocalID}`;
     const selectionsWithIDs = selections.map(selection => ({
       selection,
@@ -707,6 +711,10 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     });
 
     await this.uploadFiles(localMessageID, selectionsWithIDs);
+  };
+
+  registerSendCallback = (callback: () => void) => {
+    this.sendCallbacks.push(callback);
   };
 
   render() {

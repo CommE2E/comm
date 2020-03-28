@@ -133,7 +133,7 @@ declare module 'react-navigation' {
   |};
 
   declare export type NavigationJumpToAction = {|
-    +type: 'Navigation/JUMP_TO';
+    +type: 'Navigation/JUMP_TO',
     +preserveFocus: boolean,
     +routeName: string,
     +key?: string,
@@ -260,6 +260,11 @@ declare module 'react-navigation' {
      *  {routeName: 'Foo', key: '123'}
      */
     getScreenOptions: NavigationScreenOptionsGetter<Options>,
+
+    getActionCreators: (
+      route: NavigationRoute,
+      navStateKey: ?string,
+    ) => { [name: string]: (...args: Array<any>) => any },
   };
 
   declare export type NavigationScreenOptions = {
@@ -401,7 +406,7 @@ declare module 'react-navigation' {
   };
 
   declare export type NavigationNavigatorProps<O: {}, S: {}> = $Shape<{
-    navigation: NavigationScreenProp<S>,
+    +navigation: NavigationScreenProp<S>,
     screenProps?: NavigationScreenProps,
     navigationOptions?: O,
     theme?: SupportedThemes | 'no-preference',
@@ -778,13 +783,19 @@ declare module 'react-navigation' {
     getCurrentNavigation: () => ?NavigationScreenProp<State>
   ): NavigationScreenProp<State>;
 
-  declare type _NavigationView<O, S, N: NavigationScreenProp<S>> = React$ComponentType<{
+  declare type _NavigationViewProps<S, N: NavigationScreenProp<S>> = {
     descriptors: { [key: string]: NavigationDescriptor },
-    navigation: N,
+    +navigation: N,
     navigationConfig: *,
-  }>;
-  declare export function createNavigator<O: *, S: *, NavigatorConfig: *, N: NavigationScreenProp<S>>(
-    view: _NavigationView<O, S, N>,
+  };
+  declare export function createNavigator<
+    O: *,
+    S: *,
+    NavigatorConfig: *,
+    N: NavigationScreenProp<S>,
+    ViewProps: _NavigationViewProps<S, N>,
+  >(
+    view: React$ComponentType<ViewProps>,
     router: NavigationRouter<S, O>,
     navigatorConfig?: NavigatorConfig
   ): NavigationNavigator<S, O, *>;
@@ -940,7 +951,7 @@ declare module 'react-navigation' {
   declare export function createKeyboardAwareNavigator<Props: {}>(
     Comp: React$ComponentType<Props>,
     stackConfig: {}
-  ): React$ComponentType<Props>;
+  ): NavigationNavigator<NavigationState, *, Props>;
 
   declare type _InjectedOrientationProps = { isLandscape: boolean };
   declare export function withOrientation<P: _InjectedOrientationProps>(

@@ -133,7 +133,7 @@ declare module 'react-navigation-tabs' {
   |};
 
   declare export type NavigationJumpToAction = {|
-    +type: 'Navigation/JUMP_TO';
+    +type: 'Navigation/JUMP_TO',
     +preserveFocus: boolean,
     +routeName: string,
     +key?: string,
@@ -260,6 +260,11 @@ declare module 'react-navigation-tabs' {
      *  {routeName: 'Foo', key: '123'}
      */
     getScreenOptions: NavigationScreenOptionsGetter<Options>,
+
+    getActionCreators: (
+      route: NavigationRoute,
+      navStateKey: ?string,
+    ) => { [name: string]: (...args: Array<any>) => any },
   };
 
   declare export type NavigationScreenOptions = {
@@ -401,7 +406,7 @@ declare module 'react-navigation-tabs' {
   };
 
   declare export type NavigationNavigatorProps<O: {}, S: {}> = $Shape<{
-    navigation: NavigationScreenProp<S>,
+    +navigation: NavigationScreenProp<S>,
     screenProps?: NavigationScreenProps,
     navigationOptions?: O,
     theme?: SupportedThemes | 'no-preference',
