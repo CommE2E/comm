@@ -21,6 +21,7 @@ import {
 import { StackRouter, createNavigator, StackActions } from 'react-navigation';
 import { Transitioner } from 'react-navigation-stack';
 import Animated, { Easing } from 'react-native-reanimated';
+import PropTypes from 'prop-types';
 
 const OverlayPositionContext: React.Context<Animated.Value> = React.createContext(
   null,
@@ -49,6 +50,7 @@ function createOverlayNavigator(
     NavigationState,
     StackNavigatorConfig,
     NavigationStackProp<NavigationState>,
+    OverlayNavigatorProps,
   >(
     OverlayNavigator,
     StackRouter(routeConfigMap, stackRouterConfig),
@@ -56,12 +58,18 @@ function createOverlayNavigator(
   );
 }
 
-type Props = $ReadOnly<{
+type OverlayNavigatorProps = {
   navigation: NavigationStackProp<NavigationState>,
   descriptors: { [key: string]: NavigationDescriptor },
   navigationConfig: StackNavigatorConfig,
-}>;
+};
+type Props = $ReadOnly<OverlayNavigatorProps>;
 class OverlayNavigator extends React.PureComponent<Props> {
+  static propTypes = {
+    navigation: PropTypes.object.isRequired,
+    descriptors: PropTypes.object.isRequired,
+    navigationConfig: PropTypes.object.isRequired,
+  };
   position: Animated.Value;
 
   constructor(props: Props) {
