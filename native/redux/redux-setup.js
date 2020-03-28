@@ -11,7 +11,6 @@ import {
   type NotifPermissionAlertInfo,
   defaultNotifPermissionAlertInfo,
 } from '../push/alerts';
-import type { NavigationStateRoute, NavigationRoute } from 'react-navigation';
 import {
   type CalendarFilter,
   defaultCalendarFilters,
@@ -50,7 +49,6 @@ import {
 import Orientation from 'react-native-orientation-locker';
 
 import baseReducer from 'lib/reducers/master-reducer';
-import { sendTextMessageActionTypes } from 'lib/actions/message-actions';
 import { reduxLoggerMiddleware } from 'lib/utils/redux-logger';
 import { invalidSessionDowngrade } from 'lib/shared/account-utils';
 import {
@@ -75,8 +73,6 @@ import {
 import {
   defaultNavInfo,
   reduceNavInfo,
-  removeScreensFromStack,
-  replaceChatRoute,
   resetNavInfoAndEnsureLoggedOutModalPresence,
 } from '../navigation/navigation-setup';
 import { reduceThreadIDsToNotifIDs } from '../push/reducer';
@@ -86,12 +82,6 @@ import {
   natServer,
   setCustomServer,
 } from '../utils/url-utils';
-import {
-  assertNavigationRouteNotLeafNode,
-  currentLeafRoute,
-  findRouteIndexWithKey,
-} from '../utils/navigation-utils';
-import { ComposeThreadRouteName } from '../navigation/route-names';
 import reactotron from '../reactotron';
 import reduceDrafts from '../reducers/draft-reducer';
 
@@ -112,7 +102,6 @@ export type AppState = {|
   customServer: ?string,
   threadIDsToNotifIDs: { [threadID: string]: string[] },
   notifPermissionAlertInfo: NotifPermissionAlertInfo,
-  messageSentFromRoute: $ReadOnlyArray<string>,
   connection: ConnectionInfo,
   watchedThreadIDs: $ReadOnlyArray<string>,
   foreground: boolean,
@@ -159,7 +148,6 @@ const defaultState = ({
   customServer: natServer,
   threadIDsToNotifIDs: {},
   notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
-  messageSentFromRoute: [],
   connection: defaultConnectionInfo(Platform.OS),
   watchedThreadIDs: [],
   foreground: true,
@@ -173,13 +161,6 @@ const defaultState = ({
   deviceOrientation: Orientation.getInitialOrientation(),
   frozen: false,
 }: AppState);
-
-function chatRouteFromNavInfo(navInfo: NavInfo): NavigationStateRoute {
-  const navState = navInfo.navigationState;
-  const appRoute = assertNavigationRouteNotLeafNode(navState.routes[0]);
-  const tabRoute = assertNavigationRouteNotLeafNode(appRoute.routes[0]);
-  return assertNavigationRouteNotLeafNode(tabRoute.routes[1]);
-}
 
 function reducer(state: AppState = defaultState, action: *) {
   if (
@@ -278,20 +259,6 @@ function reducer(state: AppState = defaultState, action: *) {
 
   const oldState = state;
 
-  if (action.type === sendTextMessageActionTypes.started) {
-    const chatRoute = chatRouteFromNavInfo(state.navInfo);
-    const currentChatSubroute = currentLeafRoute(chatRoute);
-    const messageSentFromRoute = state.messageSentFromRoute.includes(
-      currentChatSubroute.key,
-    )
-      ? state.messageSentFromRoute
-      : [...state.messageSentFromRoute, currentChatSubroute.key];
-    state = {
-      ...state,
-      messageSentFromRoute,
-    };
-  }
-
   if (action.type === setNewSessionActionType) {
     state = {
       ...state,
@@ -326,42 +293,8 @@ function reducer(state: AppState = defaultState, action: *) {
     drafts: reduceDrafts(state.drafts, action),
   };
 
-  let navInfo = reduceNavInfo(state, action, state.threadStore.threadInfos);
+  const navInfo = reduceNavInfo(state, action, state.threadStore.threadInfos);
   if (navInfo && navInfo !== state.navInfo) {
-    const chatRoute = chatRouteFromNavInfo(navInfo);
-    const currentChatSubroute = currentLeafRoute(chatRoute);
-    if (currentChatSubroute.routeName === ComposeThreadRouteName) {
-      const oldChatRoute = chatRouteFromNavInfo(state.navInfo);
-      const oldRouteIndex = findRouteIndexWithKey(
-        oldChatRoute,
-        currentChatSubroute.key,
-      );
-      const oldNextRoute = oldChatRoute.routes[oldRouteIndex + 1];
-      if (
-        oldNextRoute &&
-        state.messageSentFromRoute.includes(oldNextRoute.key)
-      ) {
-        // This indicates that the user went to the compose thread screen, then
-        // saw that a thread already existed for the people they wanted to
-        // contact, and sent a message to that thread. We are now about to
-        // navigate back to that compose thread screen, but instead, since the
-        // user's intent has ostensibly already been satisfied, we will pop up
-        // to the screen right before that one.
-        const replaceFunc = (inChatRoute: NavigationStateRoute) =>
-          removeScreensFromStack(inChatRoute, (route: NavigationRoute) =>
-            route.key === currentChatSubroute.key ? 'remove' : 'keep',
-          );
-        navInfo = {
-          startDate: navInfo.startDate,
-          endDate: navInfo.endDate,
-          navigationState: replaceChatRoute(
-            navInfo.navigationState,
-            replaceFunc,
-          ),
-        };
-      }
-    }
-
     state = { ...state, navInfo };
   }
 
@@ -429,18 +362,6 @@ function validateState(
           },
         },
       },
-    };
-  }
-
-  const chatRoute = chatRouteFromNavInfo(state.navInfo);
-  const chatSubrouteKeys = new Set(chatRoute.routes.map(route => route.key));
-  const messageSentFromRoute = state.messageSentFromRoute.filter(key =>
-    chatSubrouteKeys.has(key),
-  );
-  if (messageSentFromRoute.length !== state.messageSentFromRoute.length) {
-    state = {
-      ...state,
-      messageSentFromRoute,
     };
   }
 

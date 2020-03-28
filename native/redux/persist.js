@@ -22,7 +22,6 @@ import { defaultNotifPermissionAlertInfo } from '../push/alerts';
 const baseBlacklist = [
   'loadingStatuses',
   'foreground',
-  'messageSentFromRoute',
   'dimensions',
   'connectivity',
   'deviceOrientation',
@@ -152,6 +151,10 @@ const migrations = {
       inconsistencyResponses: undefined,
     },
     queuedReports: [],
+  }),
+  [16]: state => ({
+    ...state,
+    messageSentFromRoute: undefined,
   }),
 };
 
