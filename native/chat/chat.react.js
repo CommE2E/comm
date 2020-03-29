@@ -2,8 +2,6 @@
 
 import * as React from 'react';
 import {
-  type NavigationScreenProp,
-  type NavigationStateRoute,
   type NavigationRouteConfigMap,
   type NavigationState,
   createKeyboardAwareNavigator,
@@ -108,7 +106,7 @@ ChatNavigator.navigationOptions = {
     navigation,
     defaultHandler,
   }: {
-    navigation: NavigationScreenProp<NavigationStateRoute>,
+    navigation: NavigationProp,
     defaultHandler: () => void,
   }) => {
     if (!navigation.isFocused()) {
@@ -122,7 +120,7 @@ ChatNavigator.navigationOptions = {
       return;
     }
     if (chatScreen.canReset) {
-      navigation.goBack(state.routes[1].key);
+      navigation.popToTop();
     }
   },
 };
