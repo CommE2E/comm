@@ -36,7 +36,6 @@ import ErrorBoundary from './error-boundary.react';
 import DisconnectedBarVisibilityHandler from './navigation/disconnected-bar-visibility-handler.react';
 import DimensionsUpdater from './redux/dimensions-updater.react';
 import ConnectivityUpdater from './redux/connectivity-updater.react';
-import PushHandler from './push/push-handler.react';
 import ThemeHandler from './themes/theme-handler.react';
 import OrientationHandler from './navigation/orientation-handler.react';
 import Socket from './socket.react';
@@ -46,6 +45,7 @@ import {
   type NavContextType,
 } from './navigation/navigation-context';
 import { setGlobalNavContext } from './navigation/icky-global';
+import { RootContext, type RootContextType } from './root-context';
 
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental &&
@@ -65,8 +65,8 @@ type Props = {
   dispatchActionPayload: DispatchActionPayload,
 };
 type State = {|
-  detectUnsupervisedBackground: ?(alreadyClosed: boolean) => boolean,
   navContext: ?NavContextType,
+  rootContext: ?RootContextType,
 |};
 class Root extends React.PureComponent<Props, State> {
   static propTypes = {
@@ -81,8 +81,8 @@ class Root extends React.PureComponent<Props, State> {
     super(props);
     const navContext = { state: props.navigationState };
     this.state = {
-      detectUnsupervisedBackground: null,
       navContext,
+      rootContext: null,
     };
     setGlobalNavContext(navContext);
   }
@@ -145,7 +145,6 @@ class Root extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { detectUnsupervisedBackground } = this.state;
     const { detectUnsupervisedBackgroundRef } = this;
     const reactNavigationTheme = this.props.activeTheme
       ? this.props.activeTheme
@@ -158,9 +157,6 @@ class Root extends React.PureComponent<Props, State> {
         <DisconnectedBarVisibilityHandler />
         <DimensionsUpdater />
         <ConnectivityUpdater />
-        <PushHandler
-          detectUnsupervisedBackground={detectUnsupervisedBackground}
-        />
         <ThemeHandler />
         <OrientationHandler />
       </>
@@ -168,13 +164,15 @@ class Root extends React.PureComponent<Props, State> {
     return (
       <View style={styles.app}>
         <NavContext.Provider value={this.state.navContext}>
-          <ConnectedStatusBar />
-          <PersistGate persistor={getPersistor()}>{gated}</PersistGate>
-          <ReduxifiedRootNavigator
-            state={this.props.navigationState}
-            dispatch={this.props.dispatch}
-            theme={reactNavigationTheme}
-          />
+          <RootContext.Provider value={this.state.rootContext}>
+            <ConnectedStatusBar />
+            <PersistGate persistor={getPersistor()}>{gated}</PersistGate>
+            <ReduxifiedRootNavigator
+              state={this.props.navigationState}
+              dispatch={this.props.dispatch}
+              theme={reactNavigationTheme}
+            />
+          </RootContext.Provider>
         </NavContext.Provider>
       </View>
     );
@@ -183,7 +181,10 @@ class Root extends React.PureComponent<Props, State> {
   detectUnsupervisedBackgroundRef = (
     detectUnsupervisedBackground: ?(alreadyClosed: boolean) => boolean,
   ) => {
-    this.setState({ detectUnsupervisedBackground });
+    const rootContext = detectUnsupervisedBackground
+      ? { detectUnsupervisedBackground }
+      : null;
+    this.setState({ rootContext });
   };
 }
 
