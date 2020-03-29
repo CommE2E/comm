@@ -15,7 +15,6 @@ import type {
 } from 'react-navigation-stack';
 import type { AppState } from '../redux/redux-setup';
 import type { SetSessionPayload } from 'lib/types/session-types';
-import type { NotificationPressPayload } from 'lib/shared/notif-utils';
 import type { AndroidNotificationActions } from '../push/reducer';
 import type { UserInfo } from 'lib/types/user-types';
 
@@ -30,6 +29,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useScreens } from 'react-native-screens';
 import hoistNonReactStatics from 'hoist-non-react-statics';
+import { PersistGate } from 'redux-persist/integration/react';
 
 import { infoFromURL } from 'lib/utils/url-utils';
 import { fifteenDaysEarlier, fifteenDaysLater } from 'lib/utils/date-utils';
@@ -45,7 +45,6 @@ import {
   deleteThreadActionTypes,
   newThreadActionTypes,
 } from 'lib/actions/thread-actions';
-import { notificationPressActionType } from 'lib/shared/notif-utils';
 import { threadInfoFromRawThreadInfo } from 'lib/shared/thread-utils';
 
 import Calendar from '../calendar/calendar.react';
@@ -109,6 +108,8 @@ import ThreadSettingsMemberTooltipModal from '../chat/settings/thread-settings-m
 import CameraModal from '../media/camera-modal.react';
 import TabBar from './tab-bar.react';
 import { connectNav, type NavContextType } from './navigation-context';
+import PushHandler from '../push/push-handler.react';
+import { getPersistor } from '../redux/persist';
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 useScreens();
@@ -129,10 +130,6 @@ export type Action =
   | NavigationAction
   | {| type: 'HANDLE_URL', payload: string |}
   | {| type: 'NAVIGATE_TO_APP', payload: null |}
-  | {|
-      type: 'NOTIFICATION_PRESS',
-      payload: NotificationPressPayload,
-    |}
   | AndroidNotificationActions
   | {| type: 'RECORD_NOTIF_PERMISSION_ALERT', time: number |}
   | {| type: 'BACKGROUND' |}
@@ -220,6 +217,9 @@ class WrappedAppNavigator extends React.PureComponent<WrappedAppNavigatorProps> 
         <OverlayableScrollViewStateContainer>
           <KeyboardStateContainer>
             <AppNavigator navigation={this.props.navigation} />
+            <PersistGate persistor={getPersistor()}>
+              <PushHandler navigation={this.props.navigation} />
+            </PersistGate>
           </KeyboardStateContainer>
         </OverlayableScrollViewStateContainer>
       </ChatInputStateContainer>
@@ -426,17 +426,6 @@ function reduceNavInfo(
       navigationState: handleNewThread(
         navInfoState.navigationState,
         action.payload.newThreadInfo,
-        state.currentUserInfo && state.currentUserInfo.id,
-        state.userInfos,
-      ),
-    };
-  } else if (action.type === notificationPressActionType) {
-    return {
-      startDate: navInfoState.startDate,
-      endDate: navInfoState.endDate,
-      navigationState: handleNotificationPress(
-        navInfoState.navigationState,
-        action.payload,
         state.currentUserInfo && state.currentUserInfo.id,
         state.userInfos,
       ),
@@ -731,134 +720,6 @@ function handleNewThread(
     };
   };
   return replaceChatRoute(state, replaceFunc);
-}
-
-function replaceChatStackWithThread(
-  state: NavigationState,
-  rawThreadInfo: RawThreadInfo,
-  viewerID: ?string,
-  userInfos: { [id: string]: UserInfo },
-): NavigationState {
-  const threadInfo = threadInfoFromRawThreadInfo(
-    rawThreadInfo,
-    viewerID,
-    userInfos,
-  );
-  const replaceFunc = (chatRoute: NavigationStateRoute) => {
-    const newChatRoute = removeScreensFromStack(
-      chatRoute,
-      (route: NavigationRoute) =>
-        route.routeName === ChatThreadListRouteName ? 'break' : 'remove',
-    );
-    const key =
-      `${MessageListRouteName}${threadInfo.id}:` +
-      getUniqueMessageListRouteKey();
-    return {
-      ...newChatRoute,
-      routes: [
-        ...newChatRoute.routes,
-        {
-          key,
-          routeName: MessageListRouteName,
-          params: { threadInfo },
-        },
-      ],
-      index: newChatRoute.routes.length,
-    };
-  };
-  return replaceChatRoute(state, replaceFunc);
-}
-
-function handleNotificationPress(
-  state: NavigationState,
-  payload: NotificationPressPayload,
-  viewerID: ?string,
-  userInfos: { [id: string]: UserInfo },
-): NavigationState {
-  const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
-  const tabRoute = assertNavigationRouteNotLeafNode(appRoute.routes[0]);
-  const chatRoute = assertNavigationRouteNotLeafNode(tabRoute.routes[1]);
-
-  const currentChatRoute = chatRoute.routes[chatRoute.index];
-  if (
-    state.index === 0 &&
-    appRoute.index === 0 &&
-    tabRoute.index === 1 &&
-    currentChatRoute.routeName === MessageListRouteName &&
-    getThreadIDFromParams(currentChatRoute) === payload.rawThreadInfo.id
-  ) {
-    return state;
-  }
-
-  if (payload.clearChatRoutes) {
-    const replacedState = replaceChatStackWithThread(
-      state,
-      payload.rawThreadInfo,
-      viewerID,
-      userInfos,
-    );
-    const replacedAppRoute = assertNavigationRouteNotLeafNode(
-      replacedState.routes[0],
-    );
-    return {
-      ...replacedState,
-      index: 0,
-      routes: [
-        {
-          ...replacedState.routes[0],
-          index: 0,
-          routes: [
-            {
-              ...replacedAppRoute.routes[0],
-              index: 1,
-            },
-          ],
-        },
-      ],
-      isTransitioning: true,
-    };
-  }
-
-  const threadInfo = threadInfoFromRawThreadInfo(
-    payload.rawThreadInfo,
-    viewerID,
-    userInfos,
-  );
-  const key =
-    `${MessageListRouteName}${threadInfo.id}:` + getUniqueMessageListRouteKey();
-  const newChatRoute = {
-    ...chatRoute,
-    routes: [
-      ...chatRoute.routes,
-      {
-        key,
-        routeName: MessageListRouteName,
-        params: { threadInfo },
-      },
-    ],
-    index: chatRoute.routes.length,
-  };
-
-  const newTabRoutes = [...tabRoute.routes];
-  newTabRoutes[1] = newChatRoute;
-  return {
-    ...state,
-    index: 0,
-    routes: [
-      {
-        ...appRoute,
-        index: 0,
-        routes: [
-          {
-            ...tabRoute,
-            index: 1,
-            routes: newTabRoutes,
-          },
-        ],
-      },
-    ],
-    isTransitioning: true,
-  };
 }
 
 export {

@@ -6,10 +6,7 @@ import type {
   DispatchActionPayload,
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
-import {
-  type RawThreadInfo,
-  rawThreadInfoPropType,
-} from 'lib/types/thread-types';
+import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import {
   type NotifPermissionAlertInfo,
   notifPermissionAlertInfoPropType,
@@ -20,6 +17,12 @@ import {
 } from 'lib/types/socket-types';
 import type { RemoteMessage, NotificationOpen } from 'react-native-firebase';
 import { type GlobalTheme, globalThemePropType } from '../types/themes';
+import {
+  type NavigationScreenProp,
+  type NavigationState,
+  type NavigationNavigateAction,
+  NavigationActions,
+} from 'react-navigation';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -38,15 +41,15 @@ import {
 } from 'react-native-in-app-message';
 
 import { connect } from 'lib/utils/redux-utils';
-import { unreadCount } from 'lib/selectors/thread-selectors';
+import {
+  unreadCount,
+  threadInfoSelector,
+} from 'lib/selectors/thread-selectors';
 import {
   setDeviceTokenActionTypes,
   setDeviceToken,
 } from 'lib/actions/device-actions';
-import {
-  notificationPressActionType,
-  mergePrefixIntoBody,
-} from 'lib/shared/notif-utils';
+import { mergePrefixIntoBody } from 'lib/shared/notif-utils';
 
 import {
   recordNotifPermissionAlertActionType,
@@ -72,6 +75,12 @@ import {
   connectNav,
   type NavContextType,
 } from '../navigation/navigation-context';
+import {
+  withRootContext,
+  type RootContextType,
+  rootContextPropType,
+} from '../root-context';
+import { ChatRouteName, MessageListRouteName } from '../navigation/route-names';
 
 YellowBox.ignoreWarnings([
   'Require cycle: ../node_modules/react-native-firebase',
@@ -82,13 +91,13 @@ const supportsTapticFeedback =
   Platform.OS === 'ios' && parseInt(Platform.Version, 10) >= 10;
 
 type Props = {
-  detectUnsupervisedBackground: ?(alreadyClosed: boolean) => boolean,
+  navigation: NavigationScreenProp<NavigationState>,
   // Redux state
   unreadCount: number,
   activeThread: ?string,
   appLoggedIn: boolean,
   deviceToken: ?string,
-  rawThreadInfos: { [id: string]: RawThreadInfo },
+  threadInfos: { [id: string]: ThreadInfo },
   notifPermissionAlertInfo: NotifPermissionAlertInfo,
   connection: ConnectionInfo,
   updatesCurrentAsOf: number,
@@ -101,6 +110,8 @@ type Props = {
     deviceToken: string,
     deviceType: DeviceType,
   ) => Promise<string>,
+  // withRootContext
+  rootContext: ?RootContextType,
 };
 type State = {|
   inAppNotifProps: ?{|
@@ -111,12 +122,14 @@ type State = {|
 |};
 class PushHandler extends React.PureComponent<Props, State> {
   static propTypes = {
-    detectUnsupervisedBackground: PropTypes.func,
+    navigation: PropTypes.shape({
+      navigate: PropTypes.func.isRequired,
+    }).isRequired,
     unreadCount: PropTypes.number.isRequired,
     activeThread: PropTypes.string,
     appLoggedIn: PropTypes.bool.isRequired,
     deviceToken: PropTypes.string,
-    rawThreadInfos: PropTypes.objectOf(rawThreadInfoPropType).isRequired,
+    threadInfos: PropTypes.objectOf(threadInfoPropType).isRequired,
     notifPermissionAlertInfo: notifPermissionAlertInfoPropType.isRequired,
     connection: connectionInfoPropType.isRequired,
     updatesCurrentAsOf: PropTypes.number.isRequired,
@@ -124,6 +137,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     setDeviceToken: PropTypes.func.isRequired,
+    rootContext: rootContextPropType,
   };
   state = {
     inAppNotifProps: null,
@@ -248,9 +262,9 @@ class PushHandler extends React.PureComponent<Props, State> {
     }
 
     for (let threadID of this.openThreadOnceReceived) {
-      const rawThreadInfo = this.props.rawThreadInfos[threadID];
-      if (rawThreadInfo) {
-        this.navigateToThread(rawThreadInfo, false);
+      const threadInfo = this.props.threadInfos[threadID];
+      if (threadInfo) {
+        this.navigateToThread(threadInfo, false);
         this.openThreadOnceReceived.clear();
         break;
       }
@@ -439,17 +453,32 @@ class PushHandler extends React.PureComponent<Props, State> {
     }
   };
 
-  navigateToThread(rawThreadInfo: RawThreadInfo, clearChatRoutes: boolean) {
-    this.props.dispatchActionPayload(notificationPressActionType, {
-      rawThreadInfo,
-      clearChatRoutes,
-    });
+  navigateToThread(threadInfo: ThreadInfo, clearChatRoutes: boolean) {
+    if (clearChatRoutes) {
+      const replaceAction: NavigationNavigateAction = ({
+        type: 'REPLACE_WITH_THREAD',
+        threadInfo,
+      }: any);
+      this.props.navigation.navigate({
+        routeName: ChatRouteName,
+        action: replaceAction,
+      });
+    } else {
+      this.props.navigation.navigate({
+        routeName: ChatRouteName,
+        action: NavigationActions.navigate({
+          routeName: MessageListRouteName,
+          key: `${MessageListRouteName}${threadInfo.id}`,
+          params: { threadInfo },
+        }),
+      });
+    }
   }
 
   onPressNotificationForThread(threadID: string, clearChatRoutes: boolean) {
-    const rawThreadInfo = this.props.rawThreadInfos[threadID];
-    if (rawThreadInfo) {
-      this.navigateToThread(rawThreadInfo, clearChatRoutes);
+    const threadInfo = this.props.threadInfos[threadID];
+    if (threadInfo) {
+      this.navigateToThread(threadInfo, clearChatRoutes);
     } else {
       this.openThreadOnceReceived.add(threadID);
     }
@@ -497,8 +526,8 @@ class PushHandler extends React.PureComponent<Props, State> {
   };
 
   iosNotificationOpened = notification => {
-    if (this.props.detectUnsupervisedBackground) {
-      this.props.detectUnsupervisedBackground(false);
+    if (this.props.rootContext) {
+      this.props.rootContext.detectUnsupervisedBackground(false);
     }
     const threadID = notification.getData().threadID;
     if (!threadID) {
@@ -537,16 +566,16 @@ class PushHandler extends React.PureComponent<Props, State> {
   }
 
   androidNotificationOpened = async (notificationOpen: NotificationOpen) => {
-    if (this.props.detectUnsupervisedBackground) {
-      this.props.detectUnsupervisedBackground(false);
+    if (this.props.rootContext) {
+      this.props.rootContext.detectUnsupervisedBackground(false);
     }
     const { threadID } = notificationOpen.notification.data;
     this.onPressNotificationForThread(threadID, true);
   };
 
   androidMessageReceived = async (message: RemoteMessage) => {
-    if (this.props.detectUnsupervisedBackground) {
-      this.props.detectUnsupervisedBackground(false);
+    if (this.props.rootContext) {
+      this.props.rootContext.detectUnsupervisedBackground(false);
     }
     handleAndroidMessage(
       message,
@@ -584,12 +613,12 @@ export default connectNav((context: ?NavContextType) => ({
     (state: AppState) => ({
       unreadCount: unreadCount(state),
       deviceToken: state.deviceToken,
-      rawThreadInfos: state.threadStore.threadInfos,
+      threadInfos: threadInfoSelector(state),
       notifPermissionAlertInfo: state.notifPermissionAlertInfo,
       connection: state.connection,
       updatesCurrentAsOf: state.updatesCurrentAsOf,
       activeTheme: state.globalThemeInfo.activeTheme,
     }),
     { setDeviceToken },
-  )(PushHandler),
+  )(withRootContext(PushHandler)),
 );
