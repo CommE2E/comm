@@ -28,7 +28,7 @@ import {
   foregroundActionType,
 } from 'lib/reducers/foreground-reducer';
 
-import { RootNavigator } from './navigation/navigation-setup';
+import RootNavigator from './navigation/root-navigator.react';
 import { handleURLActionType } from './redux/action-types';
 import { store, appBecameInactive } from './redux/redux-setup';
 import ConnectedStatusBar from './connected-status-bar.react';
