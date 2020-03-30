@@ -79,7 +79,10 @@ class Root extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    const navContext = { state: props.navigationState };
+    const navContext = {
+      state: props.navigationState,
+      dispatch: props.dispatch,
+    };
     this.state = {
       navContext,
       rootContext: null,
@@ -112,8 +115,14 @@ class Root extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (this.props.navigationState !== prevProps.navigationState) {
-      const navContext = { state: this.props.navigationState };
+    if (
+      this.props.navigationState !== prevProps.navigationState ||
+      this.props.dispatch !== prevProps.dispatch
+    ) {
+      const navContext = {
+        state: this.props.navigationState,
+        dispatch: this.props.dispatch,
+      };
       this.setState({ navContext });
       setGlobalNavContext(navContext);
     }
