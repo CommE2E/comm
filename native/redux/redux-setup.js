@@ -308,9 +308,11 @@ function validateState(
 ): AppState {
   const oldActiveThread = activeThreadSelector({
     state: oldState.navInfo.navigationState,
+    dispatch: () => true,
   });
   const activeThread = activeThreadSelector({
     state: state.navInfo.navigationState,
+    dispatch: () => true,
   });
   if (
     activeThread &&

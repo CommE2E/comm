@@ -1,12 +1,13 @@
 // @flow
 
-import type { NavigationState } from 'react-navigation';
+import type { NavigationState, NavigationDispatch } from 'react-navigation';
 
 import * as React from 'react';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 
 export type NavContextType = {|
   state: NavigationState,
+  dispatch: NavigationDispatch,
 |};
 
 const NavContext = React.createContext<?NavContextType>(null);
