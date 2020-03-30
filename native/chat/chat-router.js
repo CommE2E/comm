@@ -26,7 +26,10 @@ type ReplaceWithThreadAction = {|
   +type: 'REPLACE_WITH_THREAD',
   +threadInfo: ThreadInfo,
 |};
-type CustomNavigationAction = ClearScreensAction | ReplaceWithThreadAction;
+export type ChatRouterNavigationAction =
+  | NavigationAction
+  | ClearScreensAction
+  | ReplaceWithThreadAction;
 
 const defaultConfig = Object.freeze({});
 function ChatRouter(
@@ -37,7 +40,7 @@ function ChatRouter(
   return {
     ...stackRouter,
     getStateForAction: (
-      action: NavigationAction | CustomNavigationAction,
+      action: ChatRouterNavigationAction,
       lastState: ?NavigationState,
     ) => {
       if (action.type === 'CLEAR_SCREENS') {

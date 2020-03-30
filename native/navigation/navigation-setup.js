@@ -9,27 +9,14 @@ import type {
   NavigationRoute,
   NavigationStateRoute,
 } from 'react-navigation';
-import type {
-  NavigationStackProp,
-  NavigationStackTransitionProps,
-} from 'react-navigation-stack';
 import type { AppState } from '../redux/redux-setup';
 import type { SetSessionPayload } from 'lib/types/session-types';
 import type { AndroidNotificationActions } from '../push/reducer';
 import type { UserInfo } from 'lib/types/user-types';
 
-import { createBottomTabNavigator } from 'react-navigation-tabs';
-import {
-  createStackNavigator,
-  StackViewTransitionConfigs,
-} from 'react-navigation-stack';
 import invariant from 'invariant';
-import { Alert, BackHandler, Platform, Keyboard } from 'react-native';
-import React from 'react';
-import PropTypes from 'prop-types';
+import { Alert, Platform } from 'react-native';
 import { useScreens } from 'react-native-screens';
-import hoistNonReactStatics from 'hoist-non-react-statics';
-import { PersistGate } from 'redux-persist/integration/react';
 
 import { infoFromURL } from 'lib/utils/url-utils';
 import { fifteenDaysEarlier, fifteenDaysLater } from 'lib/utils/date-utils';
@@ -47,15 +34,6 @@ import {
 } from 'lib/actions/thread-actions';
 import { threadInfoFromRawThreadInfo } from 'lib/shared/thread-utils';
 
-import Calendar from '../calendar/calendar.react';
-import Chat from '../chat/chat.react';
-import More from '../more/more.react';
-import LoggedOutModal from '../account/logged-out-modal.react';
-import VerificationModal from '../account/verification-modal.react';
-import {
-  appLoggedInSelector,
-  appCanRespondToBackButtonSelector,
-} from './nav-selectors';
 import {
   assertNavigationRouteNotLeafNode,
   getThreadIDFromParams,
@@ -74,42 +52,13 @@ import {
   ChatRouteName,
   ChatThreadListRouteName,
   CalendarRouteName,
-  ThreadPickerModalRouteName,
-  AddUsersModalRouteName,
-  CustomServerModalRouteName,
-  ColorPickerModalRouteName,
-  ComposeSubthreadModalRouteName,
-  MultimediaModalRouteName,
-  MultimediaTooltipModalRouteName,
-  ActionResultModalRouteName,
-  TextMessageTooltipModalRouteName,
-  ThreadSettingsMemberTooltipModalRouteName,
-  CameraModalRouteName,
   accountModals,
 } from './route-names';
 import {
   handleURLActionType,
   navigateToAppActionType,
 } from '../redux/action-types';
-import ThreadPickerModal from '../calendar/thread-picker-modal.react';
-import AddUsersModal from '../chat/settings/add-users-modal.react';
-import CustomServerModal from '../more/custom-server-modal.react';
-import ColorPickerModal from '../chat/settings/color-picker-modal.react';
-import ComposeSubthreadModal from '../chat/settings/compose-subthread-modal.react';
-import { createOverlayNavigator } from './overlay-navigator.react';
-import MultimediaModal from '../media/multimedia-modal.react';
-import { MultimediaTooltipModal } from '../chat/multimedia-tooltip-modal.react';
-import ChatInputStateContainer from '../chat/chat-input-state-container.react';
-import OverlayableScrollViewStateContainer from './overlayable-scroll-view-state-container.react';
-import KeyboardStateContainer from '../keyboard/keyboard-state-container.react';
-import ActionResultModal from './action-result-modal.react';
-import { TextMessageTooltipModal } from '../chat/text-message-tooltip-modal.react';
-import ThreadSettingsMemberTooltipModal from '../chat/settings/thread-settings-member-tooltip-modal.react';
-import CameraModal from '../media/camera-modal.react';
-import TabBar from './tab-bar.react';
-import { connectNav, type NavContextType } from './navigation-context';
-import PushHandler from '../push/push-handler.react';
-import { getPersistor } from '../redux/persist';
+import RootNavigator from './root-navigator.react';
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 useScreens();
@@ -134,177 +83,6 @@ export type Action =
   | {| type: 'RECORD_NOTIF_PERMISSION_ALERT', time: number |}
   | {| type: 'BACKGROUND' |}
   | {| type: 'FOREGROUND' |};
-
-const TabNavigator = createBottomTabNavigator(
-  {
-    [CalendarRouteName]: { screen: Calendar },
-    [ChatRouteName]: { screen: Chat },
-    [MoreRouteName]: { screen: More },
-  },
-  {
-    initialRouteName: CalendarRouteName,
-    lazy: false,
-    tabBarComponent: TabBar,
-    tabBarOptions: {
-      keyboardHidesTabBar: false,
-    },
-  },
-);
-
-const AppNavigator = createOverlayNavigator({
-  [TabNavigatorRouteName]: TabNavigator,
-  [MultimediaModalRouteName]: MultimediaModal,
-  [MultimediaTooltipModalRouteName]: MultimediaTooltipModal,
-  [ActionResultModalRouteName]: ActionResultModal,
-  [TextMessageTooltipModalRouteName]: TextMessageTooltipModal,
-  [ThreadSettingsMemberTooltipModalRouteName]: ThreadSettingsMemberTooltipModal,
-  [CameraModalRouteName]: CameraModal,
-});
-
-type WrappedAppNavigatorProps = {|
-  navigation: NavigationStackProp<NavigationStateRoute>,
-  isForeground: boolean,
-  appCanRespondToBackButton: boolean,
-|};
-class WrappedAppNavigator extends React.PureComponent<WrappedAppNavigatorProps> {
-  static propTypes = {
-    navigation: PropTypes.shape({
-      goBack: PropTypes.func.isRequired,
-    }).isRequired,
-    isForeground: PropTypes.bool.isRequired,
-    appCanRespondToBackButton: PropTypes.bool.isRequired,
-  };
-
-  componentDidMount() {
-    if (this.props.isForeground) {
-      this.onForeground();
-    }
-  }
-
-  componentWillUnmount() {
-    if (this.props.isForeground) {
-      this.onBackground();
-    }
-  }
-
-  componentDidUpdate(prevProps: WrappedAppNavigatorProps) {
-    if (this.props.isForeground && !prevProps.isForeground) {
-      this.onForeground();
-    } else if (!this.props.isForeground && prevProps.isForeground) {
-      this.onBackground();
-    }
-  }
-
-  onForeground() {
-    BackHandler.addEventListener('hardwareBackPress', this.hardwareBack);
-  }
-
-  onBackground() {
-    BackHandler.removeEventListener('hardwareBackPress', this.hardwareBack);
-  }
-
-  hardwareBack = () => {
-    if (!this.props.appCanRespondToBackButton) {
-      return false;
-    }
-    this.props.navigation.goBack(null);
-    return true;
-  };
-
-  render() {
-    return (
-      <ChatInputStateContainer>
-        <OverlayableScrollViewStateContainer>
-          <KeyboardStateContainer>
-            <AppNavigator navigation={this.props.navigation} />
-            <PersistGate persistor={getPersistor()}>
-              <PushHandler navigation={this.props.navigation} />
-            </PersistGate>
-          </KeyboardStateContainer>
-        </OverlayableScrollViewStateContainer>
-      </ChatInputStateContainer>
-    );
-  }
-}
-
-const ReduxWrappedAppNavigator = connectNav((context: ?NavContextType) => ({
-  appCanRespondToBackButton: appCanRespondToBackButtonSelector(context),
-  isForeground: appLoggedInSelector(context),
-}))(WrappedAppNavigator);
-hoistNonReactStatics(ReduxWrappedAppNavigator, AppNavigator);
-
-const RootNavigator = createStackNavigator(
-  {
-    [LoggedOutModalRouteName]: LoggedOutModal,
-    [VerificationModalRouteName]: VerificationModal,
-    [AppRouteName]: ReduxWrappedAppNavigator,
-    [ThreadPickerModalRouteName]: ThreadPickerModal,
-    [AddUsersModalRouteName]: AddUsersModal,
-    [CustomServerModalRouteName]: CustomServerModal,
-    [ColorPickerModalRouteName]: ColorPickerModal,
-    [ComposeSubthreadModalRouteName]: ComposeSubthreadModal,
-  },
-  {
-    headerMode: 'none',
-    mode: 'modal',
-    transparentCard: true,
-    disableKeyboardHandling: true,
-    onTransitionStart: (
-      transitionProps: NavigationStackTransitionProps,
-      prevTransitionProps: ?NavigationStackTransitionProps,
-    ) => {
-      if (!prevTransitionProps) {
-        return;
-      }
-      const { scene } = transitionProps;
-      const { route } = scene;
-      const { scene: prevScene } = prevTransitionProps;
-      const { route: prevRoute } = prevScene;
-      if (route.key === prevRoute.key) {
-        return;
-      }
-      if (
-        route.routeName !== AppRouteName ||
-        prevRoute.routeName !== ThreadPickerModalRouteName
-      ) {
-        Keyboard.dismiss();
-      }
-    },
-    transitionConfig: (
-      transitionProps: NavigationStackTransitionProps,
-      prevTransitionProps: ?NavigationStackTransitionProps,
-      isModal: boolean,
-    ) => {
-      const defaultConfig = StackViewTransitionConfigs.defaultTransitionConfig(
-        transitionProps,
-        prevTransitionProps,
-        isModal,
-      );
-      return {
-        ...defaultConfig,
-        screenInterpolator: sceneProps => {
-          const {
-            opacity: defaultOpacity,
-            ...defaultInterpolation
-          } = defaultConfig.screenInterpolator(sceneProps);
-          const { position, scene } = sceneProps;
-          const { index, route } = scene;
-          if (
-            accountModals.includes(route.routeName) ||
-            route.routeName === AppRouteName
-          ) {
-            return defaultInterpolation;
-          }
-          const opacity = position.interpolate({
-            inputRange: [index - 1, index],
-            outputRange: ([0, 1]: number[]),
-          });
-          return { ...defaultInterpolation, opacity };
-        },
-      };
-    },
-  },
-);
 
 const defaultNavigationState = {
   index: 1,
@@ -723,7 +501,6 @@ function handleNewThread(
 }
 
 export {
-  RootNavigator,
   defaultNavInfo,
   reduceNavInfo,
   removeScreensFromStack,
