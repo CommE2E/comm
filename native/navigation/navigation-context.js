@@ -1,13 +1,19 @@
 // @flow
 
-import type { NavigationState, NavigationDispatch } from 'react-navigation';
+import type { NavigationState, NavigationAction } from 'react-navigation';
+import type { RootRouterNavigationAction } from './root-router';
+import type { ChatRouterNavigationAction } from '../chat/chat-router';
 
 import * as React from 'react';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 
+export type NavAction =
+  | NavigationAction
+  | RootRouterNavigationAction
+  | ChatRouterNavigationAction;
 export type NavContextType = {|
   state: NavigationState,
-  dispatch: NavigationDispatch,
+  dispatch: (action: NavAction) => boolean,
 |};
 
 const NavContext = React.createContext<?NavContextType>(null);
