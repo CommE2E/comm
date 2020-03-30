@@ -15,7 +15,6 @@ import {
 } from './selectors/socket-selectors';
 import {
   activeThreadSelector,
-  appLoggedInSelector,
   nativeCalendarQuery,
 } from './navigation/nav-selectors';
 import {
@@ -24,7 +23,6 @@ import {
 } from './navigation/navigation-context';
 
 export default connectNav((context: ?NavContextType) => ({
-  appLoggedIn: appLoggedInSelector(context),
   rawActiveThread: activeThreadSelector(context),
   navContext: context,
 }))(
@@ -32,13 +30,11 @@ export default connectNav((context: ?NavContextType) => ({
     (
       state: AppState,
       ownProps: {
-        appLoggedIn: boolean,
         rawActiveThread: boolean,
         navContext: ?NavContextType,
       },
     ) => {
       const active =
-        ownProps.appLoggedIn &&
         !!state.currentUserInfo &&
         !state.currentUserInfo.anonymous &&
         state.foreground;
