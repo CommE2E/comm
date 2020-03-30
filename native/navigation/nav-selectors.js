@@ -7,6 +7,7 @@ import type { CalendarQuery } from 'lib/types/entry-types';
 import type { GlobalTheme } from '../types/themes';
 import type { NavPlusRedux } from '../types/selector-types';
 
+import * as React from 'react';
 import { createSelector } from 'reselect';
 import _memoize from 'lodash/memoize';
 
@@ -25,11 +26,12 @@ import {
   accountModals,
   scrollBlockingChatModals,
   chatRootModals,
-} from '../navigation/route-names';
+} from './route-names';
 import {
   assertNavigationRouteNotLeafNode,
   getThreadIDFromParams,
 } from '../utils/navigation-utils';
+import { NavContext } from './navigation-context';
 
 const baseCreateIsForegroundSelector = (routeName: string) =>
   createSelector(
@@ -59,6 +61,17 @@ const appLoggedInSelector: (
       navigationState.routes[navigationState.index].routeName,
     ),
 );
+
+function useIsAppLoggedIn() {
+  const navContext = React.useContext(NavContext);
+  return React.useMemo(() => {
+    if (!navContext) {
+      return false;
+    }
+    const { state } = navContext;
+    return !accountModals.includes(state.routes[state.index].routeName);
+  }, [navContext]);
+}
 
 const foregroundKeySelector: (
   context: ?NavContextType,
@@ -286,6 +299,7 @@ const nonThreadCalendarQuery: (
 export {
   createIsForegroundSelector,
   appLoggedInSelector,
+  useIsAppLoggedIn,
   foregroundKeySelector,
   createActiveTabSelector,
   scrollBlockingChatModalsClosedSelector,
