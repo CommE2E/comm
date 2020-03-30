@@ -6,12 +6,8 @@ import * as React from 'react';
 
 import { connect } from 'lib/utils/redux-utils';
 
-import {
-  NavContext,
-  connectNav,
-  type NavContextType,
-} from './navigation-context';
-import { appLoggedInSelector } from './nav-selectors';
+import { NavContext } from './navigation-context';
+import { useIsAppLoggedIn } from './nav-selectors';
 
 type Props = {|
   // Navigation state
@@ -20,9 +16,10 @@ type Props = {|
   loggedIn: boolean,
 |};
 function NavigationHandler(props: Props) {
-  const { navLoggedIn, loggedIn } = props;
+  const { loggedIn } = props;
 
   const navContext = React.useContext(NavContext);
+  const navLoggedIn = useIsAppLoggedIn();
 
   const prevLoggedIn = React.useRef();
 
@@ -44,14 +41,10 @@ function NavigationHandler(props: Props) {
   return null;
 }
 
-export default connectNav((context: ?NavContextType) => ({
-  navLoggedIn: appLoggedInSelector(context),
-}))(
-  connect((state: AppState) => ({
-    loggedIn: !!(
-      state.currentUserInfo &&
-      !state.currentUserInfo.anonymous &&
-      true
-    ),
-  }))(NavigationHandler),
-);
+export default connect((state: AppState) => ({
+  loggedIn: !!(
+    state.currentUserInfo &&
+    !state.currentUserInfo.anonymous &&
+    true
+  ),
+}))(NavigationHandler);
