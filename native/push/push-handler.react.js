@@ -55,10 +55,7 @@ import {
   recordNotifPermissionAlertActionType,
   clearAndroidNotificationsActionType,
 } from '../redux/action-types';
-import {
-  activeThreadSelector,
-  appLoggedInSelector,
-} from '../navigation/nav-selectors';
+import { activeThreadSelector } from '../navigation/nav-selectors';
 import {
   requestIOSPushPermissions,
   iosPushPermissionResponseReceived,
@@ -92,16 +89,17 @@ const supportsTapticFeedback =
 
 type Props = {
   navigation: NavigationScreenProp<NavigationState>,
+  // Navigation state
+  activeThread: ?string,
   // Redux state
   unreadCount: number,
-  activeThread: ?string,
-  appLoggedIn: boolean,
   deviceToken: ?string,
   threadInfos: { [id: string]: ThreadInfo },
   notifPermissionAlertInfo: NotifPermissionAlertInfo,
   connection: ConnectionInfo,
   updatesCurrentAsOf: number,
   activeTheme: ?GlobalTheme,
+  loggedIn: boolean,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
@@ -125,15 +123,15 @@ class PushHandler extends React.PureComponent<Props, State> {
     navigation: PropTypes.shape({
       navigate: PropTypes.func.isRequired,
     }).isRequired,
-    unreadCount: PropTypes.number.isRequired,
     activeThread: PropTypes.string,
-    appLoggedIn: PropTypes.bool.isRequired,
+    unreadCount: PropTypes.number.isRequired,
     deviceToken: PropTypes.string,
     threadInfos: PropTypes.objectOf(threadInfoPropType).isRequired,
     notifPermissionAlertInfo: notifPermissionAlertInfoPropType.isRequired,
     connection: connectionInfoPropType.isRequired,
     updatesCurrentAsOf: PropTypes.number.isRequired,
     activeTheme: globalThemePropType,
+    loggedIn: PropTypes.bool.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     setDeviceToken: PropTypes.func.isRequired,
@@ -239,7 +237,7 @@ class PushHandler extends React.PureComponent<Props, State> {
   };
 
   onForeground() {
-    if (this.props.appLoggedIn) {
+    if (this.props.loggedIn) {
       this.ensurePushNotifsEnabled();
     } else if (this.props.deviceToken) {
       // We do this in case there was a crash, so we can clear deviceToken from
@@ -271,7 +269,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     }
 
     if (
-      (this.props.appLoggedIn && !prevProps.appLoggedIn) ||
+      (this.props.loggedIn && !prevProps.loggedIn) ||
       (!this.props.deviceToken && prevProps.deviceToken)
     ) {
       this.ensurePushNotifsEnabled();
@@ -336,7 +334,7 @@ class PushHandler extends React.PureComponent<Props, State> {
   }
 
   async ensurePushNotifsEnabled() {
-    if (!this.props.appLoggedIn) {
+    if (!this.props.loggedIn) {
       return;
     }
     if (Platform.OS === 'ios') {
@@ -409,7 +407,7 @@ class PushHandler extends React.PureComponent<Props, State> {
   }
 
   failedToRegisterPushPermissions = () => {
-    if (!this.props.appLoggedIn) {
+    if (!this.props.loggedIn) {
       return;
     }
     const deviceType = Platform.OS;
@@ -607,7 +605,6 @@ AppRegistry.registerHeadlessTask(
 
 export default connectNav((context: ?NavContextType) => ({
   activeThread: activeThreadSelector(context),
-  appLoggedIn: appLoggedInSelector(context),
 }))(
   connect(
     (state: AppState) => ({
@@ -618,6 +615,11 @@ export default connectNav((context: ?NavContextType) => ({
       connection: state.connection,
       updatesCurrentAsOf: state.updatesCurrentAsOf,
       activeTheme: state.globalThemeInfo.activeTheme,
+      loggedIn: !!(
+        state.currentUserInfo &&
+        !state.currentUserInfo.anonymous &&
+        true
+      ),
     }),
     { setDeviceToken },
   )(withRootContext(PushHandler)),
