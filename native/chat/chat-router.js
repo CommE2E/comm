@@ -12,11 +12,11 @@ import {
   type NavigationStackRouterConfig,
 } from 'react-navigation';
 
-import { removeScreensFromStack } from '../navigation/navigation-setup';
 import {
   ChatThreadListRouteName,
   MessageListRouteName,
 } from '../navigation/route-names';
+import { removeScreensFromStack } from '../utils/navigation-utils';
 
 type ClearScreensAction = {|
   +type: 'CLEAR_SCREENS',
