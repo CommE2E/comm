@@ -14,7 +14,6 @@ import type { SetSessionPayload } from 'lib/types/session-types';
 import type { AndroidNotificationActions } from '../push/reducer';
 import type { UserInfo } from 'lib/types/user-types';
 
-import invariant from 'invariant';
 import { Alert, Platform } from 'react-native';
 import { useScreens } from 'react-native-screens';
 
@@ -37,6 +36,7 @@ import { threadInfoFromRawThreadInfo } from 'lib/shared/thread-utils';
 import {
   assertNavigationRouteNotLeafNode,
   getThreadIDFromParams,
+  removeScreensFromStack,
 } from '../utils/navigation-utils';
 import {
   AppRouteName,
@@ -252,50 +252,6 @@ function handleURL(state: NavigationState, url: string): NavigationState {
   };
 }
 
-// This function walks from the back of the stack and calls filterFunc on each
-// screen until the stack is exhausted or filterFunc returns "break". A screen
-// will be removed if and only if filterFunc returns "remove" (not "break").
-function removeScreensFromStack<S: NavigationState>(
-  state: S,
-  filterFunc: (route: NavigationRoute) => 'keep' | 'remove' | 'break',
-): S {
-  const newRoutes = [];
-  let newIndex = state.index;
-  let screenRemoved = false;
-  let breakActivated = false;
-  for (let i = state.routes.length - 1; i >= 0; i--) {
-    const route = state.routes[i];
-    if (breakActivated) {
-      newRoutes.unshift(route);
-      continue;
-    }
-    const result = filterFunc(route);
-    if (result === 'break') {
-      breakActivated = true;
-    }
-    if (breakActivated || result === 'keep') {
-      newRoutes.unshift(route);
-      continue;
-    }
-    screenRemoved = true;
-    if (newIndex >= i) {
-      invariant(
-        newIndex !== 0,
-        'Attempting to remove current route and all before it',
-      );
-      newIndex--;
-    }
-  }
-  if (!screenRemoved) {
-    return state;
-  }
-  return {
-    ...state,
-    index: newIndex,
-    routes: newRoutes,
-  };
-}
-
 function removeRootModals(
   state: NavigationState,
   modalRouteNames: string[],
@@ -503,7 +459,6 @@ function handleNewThread(
 export {
   defaultNavInfo,
   reduceNavInfo,
-  removeScreensFromStack,
   replaceChatRoute,
   resetNavInfoAndEnsureLoggedOutModalPresence,
 };
