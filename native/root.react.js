@@ -1,10 +1,11 @@
 // @flow
 
-import type { NavigationState, NavigationAction } from 'react-navigation';
+import type { NavigationState } from 'react-navigation';
 import { type GlobalTheme, globalThemePropType } from './types/themes';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from './redux/redux-setup';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
+import type { NavAction } from './navigation/navigation-context';
 
 import * as React from 'react';
 import { Provider } from 'react-redux';
@@ -46,6 +47,7 @@ import {
 } from './navigation/navigation-context';
 import { setGlobalNavContext } from './navigation/icky-global';
 import { RootContext, type RootContextType } from './root-context';
+import NavigationHandler from './navigation/navigation-handler.react';
 
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental &&
@@ -54,7 +56,7 @@ if (Platform.OS === 'android') {
 
 const ReduxifiedRootNavigator = createReduxContainer(RootNavigator);
 
-type NativeDispatch = Dispatch & ((action: NavigationAction) => boolean);
+type NativeDispatch = Dispatch & ((action: NavAction) => boolean);
 
 type Props = {
   // Redux state
@@ -181,6 +183,7 @@ class Root extends React.PureComponent<Props, State> {
               dispatch={this.props.dispatch}
               theme={reactNavigationTheme}
             />
+            <NavigationHandler />
           </RootContext.Provider>
         </NavContext.Provider>
       </View>
