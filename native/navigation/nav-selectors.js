@@ -51,17 +51,6 @@ const createIsForegroundSelector: (
   baseCreateIsForegroundSelector,
 );
 
-const appLoggedInSelector: (
-  context: ?NavContextType,
-) => boolean = createSelector(
-  (context: ?NavContextType) => context && context.state,
-  (navigationState: ?NavigationState) =>
-    !!navigationState &&
-    !accountModals.includes(
-      navigationState.routes[navigationState.index].routeName,
-    ),
-);
-
 function useIsAppLoggedIn() {
   const navContext = React.useContext(NavContext);
   return React.useMemo(() => {
@@ -225,33 +214,6 @@ const activeMessageListSelector: (
     activeThread(navigationState, [MessageListRouteName]),
 );
 
-const appCanRespondToBackButtonSelector: (
-  context: ?NavContextType,
-) => boolean = createSelector(
-  (context: ?NavContextType) => context && context.state,
-  (navigationState: ?NavigationState): boolean => {
-    if (!navigationState) {
-      return false;
-    }
-    const currentRootSubroute = navigationState.routes[navigationState.index];
-    if (currentRootSubroute.routeName !== AppRouteName) {
-      return false;
-    }
-    const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
-    const currentAppSubroute = appRoute.routes[appRoute.index];
-    if (currentAppSubroute.routeName !== TabNavigatorRouteName) {
-      return true;
-    }
-    const tabRoute = assertNavigationRouteNotLeafNode(currentAppSubroute);
-    const currentTabSubroute = tabRoute.routes[tabRoute.index];
-    return (
-      currentTabSubroute.index !== null &&
-      currentTabSubroute.index !== undefined &&
-      currentTabSubroute.index > 0
-    );
-  },
-);
-
 const calendarTabActiveSelector = createActiveTabSelector(CalendarRouteName);
 const threadPickerActiveSelector = createIsForegroundSelector(
   ThreadPickerModalRouteName,
@@ -298,7 +260,6 @@ const nonThreadCalendarQuery: (
 
 export {
   createIsForegroundSelector,
-  appLoggedInSelector,
   useIsAppLoggedIn,
   foregroundKeySelector,
   createActiveTabSelector,
@@ -307,7 +268,6 @@ export {
   overlayTransitioningSelector,
   activeThreadSelector,
   activeMessageListSelector,
-  appCanRespondToBackButtonSelector,
   calendarActiveSelector,
   nativeCalendarQuery,
   nonThreadCalendarQuery,
