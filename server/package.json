@@ -57,7 +57,7 @@
     "redis": "^2.8.0",
     "redux": "^4.0.4",
     "replacestream": "^4.0.3",
-    "sharp": "^0.23.1",
+    "sharp": "^0.25.2",
     "sql-template-strings": "^2.2.2",
     "stream-cache": "^0.0.2",
     "stream-combiner": "^0.2.2",
