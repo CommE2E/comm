@@ -26,11 +26,11 @@ import { threadInfoFromRawThreadInfo } from 'lib/shared/thread-utils';
 import {
   assertNavigationRouteNotLeafNode,
   getThreadIDFromParams,
+  getThreadIDFromRoute,
   removeScreensFromStack,
 } from '../utils/navigation-utils';
 import {
   ComposeThreadRouteName,
-  DeleteThreadRouteName,
   ThreadSettingsRouteName,
   MessageListRouteName,
   VerificationModalRouteName,
@@ -224,7 +224,7 @@ function popChatScreensForThreadID(
       ) {
         return 'break';
       }
-      const threadID = getThreadIDFromParams(route);
+      const threadID = getThreadIDFromParams(route.params);
       if (threadID !== actionPayload.threadID) {
         return 'break';
       }
@@ -239,14 +239,10 @@ function filterChatScreensForThreadInfos(
 ): NavigationState {
   const replaceFunc = (chatRoute: NavigationStateRoute) =>
     removeScreensFromStack(chatRoute, (route: NavigationRoute) => {
-      if (
-        route.routeName !== MessageListRouteName &&
-        route.routeName !== ThreadSettingsRouteName &&
-        route.routeName !== DeleteThreadRouteName
-      ) {
+      const threadID = getThreadIDFromRoute(route);
+      if (!threadID) {
         return 'keep';
       }
-      const threadID = getThreadIDFromParams(route);
       if (threadID in threadInfos) {
         return 'keep';
       }

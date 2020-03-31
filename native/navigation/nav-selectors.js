@@ -29,7 +29,7 @@ import {
 } from './route-names';
 import {
   assertNavigationRouteNotLeafNode,
-  getThreadIDFromParams,
+  getThreadIDFromRoute,
 } from '../utils/navigation-utils';
 import { NavContext } from './navigation-context';
 
@@ -189,10 +189,7 @@ function activeThread(
   }
   const chatRoute = assertNavigationRouteNotLeafNode(currentTabSubroute);
   const currentChatSubroute = chatRoute.routes[chatRoute.index];
-  if (!validRouteNames.includes(currentChatSubroute.routeName)) {
-    return null;
-  }
-  return getThreadIDFromParams(currentChatSubroute);
+  return getThreadIDFromRoute(currentChatSubroute, validRouteNames);
 }
 
 const activeThreadSelector: (
