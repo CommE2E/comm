@@ -48,7 +48,7 @@ type Props = {
   verifyCode: string,
   username: string,
   onePasswordSupported: boolean,
-  onSuccess: () => void,
+  onSuccess: () => Promise<void>,
   setActiveAlert: (activeAlert: boolean) => void,
   opacityValue: Animated.Value,
   // Redux state
@@ -214,7 +214,7 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
         password: this.state.passwordInputText,
       });
       this.props.setActiveAlert(false);
-      this.props.onSuccess();
+      await this.props.onSuccess();
       return result;
     } catch (e) {
       if (e.message === 'client_version_unsupported') {

@@ -59,7 +59,6 @@ import SafeAreaView from '../components/safe-area-view.react';
 import {
   connectNav,
   type NavContextType,
-  navContextPropType,
 } from '../navigation/navigation-context';
 
 type VerificationModalMode = 'simple-text' | 'reset-password';
@@ -69,7 +68,6 @@ type Props = {
   } & NavigationScreenProp<NavigationLeafRoute>,
   // Navigation state
   isForeground: boolean,
-  navContext: ?NavContextType,
   // Redux state
   dimensions: Dimensions,
   splashStyle: ImageStyle,
@@ -100,7 +98,6 @@ class VerificationModal extends React.PureComponent<Props, State> {
       goBack: PropTypes.func.isRequired,
     }).isRequired,
     isForeground: PropTypes.bool.isRequired,
-    navContext: navContextPropType,
     dimensions: dimensionsPropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     handleVerificationCode: PropTypes.func.isRequired,
@@ -208,7 +205,7 @@ class VerificationModal extends React.PureComponent<Props, State> {
     return true;
   };
 
-  onResetPasswordSuccess = () => {
+  onResetPasswordSuccess = async () => {
     let opacityListenerID: ?string = null;
     const opacityListener = (animatedUpdate: { value: number }) => {
       if (animatedUpdate.value === 0) {
@@ -234,14 +231,10 @@ class VerificationModal extends React.PureComponent<Props, State> {
       this.animateKeyboardDownOrBackToSimpleText(null);
     }
 
-    this.inCoupleSecondsNavigateToApp();
-  };
-
-  async inCoupleSecondsNavigateToApp() {
+    // Wait a couple seconds before letting the SUCCESS action propagate and
+    // clear VerificationModal
     await sleep(1750);
-    invariant(this.props.navContext, 'navContext should be non-null');
-    this.props.navContext.dispatch({ type: 'LOG_IN' });
-  }
+  };
 
   async handleVerificationCodeAction() {
     const code = this.props.navigation.state.params.verifyCode;
@@ -511,7 +504,6 @@ const isForegroundSelector = createIsForegroundSelector(
 );
 export default connectNav((context: ?NavContextType) => ({
   isForeground: isForegroundSelector(context),
-  navContext: context,
 }))(
   connect(
     (state: AppState) => ({
