@@ -1,29 +1,21 @@
 // @flow
 
-import type { BaseAction } from 'lib/types/redux-types';
-import type { BaseNavInfo } from 'lib/types/nav-types';
 import type { RawThreadInfo, LeaveThreadPayload } from 'lib/types/thread-types';
 import type {
   NavigationState,
-  NavigationAction,
   NavigationRoute,
   NavigationStateRoute,
 } from 'react-navigation';
 import type { AppState } from '../redux/redux-setup';
 import type { SetSessionPayload } from 'lib/types/session-types';
-import type { AndroidNotificationActions } from '../push/reducer';
 import type { UserInfo } from 'lib/types/user-types';
+import type { NavInfo } from './default-state';
 
 import { Alert, Platform } from 'react-native';
 import { useScreens } from 'react-native-screens';
 
 import { infoFromURL } from 'lib/utils/url-utils';
-import { fifteenDaysEarlier, fifteenDaysLater } from 'lib/utils/date-utils';
 import { setNewSessionActionType } from 'lib/utils/action-utils';
-import {
-  logOutActionTypes,
-  deleteAccountActionTypes,
-} from 'lib/actions/user-actions';
 import {
   leaveThreadActionTypes,
   deleteThreadActionTypes,
@@ -37,20 +29,11 @@ import {
   removeScreensFromStack,
 } from '../utils/navigation-utils';
 import {
-  AppRouteName,
-  TabNavigatorRouteName,
   ComposeThreadRouteName,
   DeleteThreadRouteName,
   ThreadSettingsRouteName,
   MessageListRouteName,
   VerificationModalRouteName,
-  LoggedOutModalRouteName,
-  MoreRouteName,
-  MoreScreenRouteName,
-  ChatRouteName,
-  ChatThreadListRouteName,
-  CalendarRouteName,
-  accountModals,
 } from './route-names';
 import { handleURLActionType } from '../redux/action-types';
 import RootNavigator from './root-navigator.react';
@@ -58,67 +41,11 @@ import RootNavigator from './root-navigator.react';
 // eslint-disable-next-line react-hooks/rules-of-hooks
 useScreens();
 
-export type NavInfo = {|
-  ...$Exact<BaseNavInfo>,
-  navigationState: NavigationState,
-|};
-
 const messageListRouteBase = Date.now();
 let messageListRouteIndex = 0;
 function getUniqueMessageListRouteKey() {
   return `${messageListRouteBase}-${messageListRouteIndex++}`;
 }
-
-export type Action =
-  | BaseAction
-  | NavigationAction
-  | {| type: 'HANDLE_URL', payload: string |}
-  | AndroidNotificationActions
-  | {| type: 'RECORD_NOTIF_PERMISSION_ALERT', time: number |}
-  | {| type: 'BACKGROUND' |}
-  | {| type: 'FOREGROUND' |};
-
-const defaultNavigationState = {
-  index: 1,
-  routes: [
-    {
-      key: 'App',
-      routeName: AppRouteName,
-      index: 0,
-      routes: [
-        {
-          key: 'TabNavigator',
-          routeName: TabNavigatorRouteName,
-          index: 1,
-          routes: [
-            { key: 'Calendar', routeName: CalendarRouteName },
-            {
-              key: 'Chat',
-              routeName: ChatRouteName,
-              index: 0,
-              routes: [
-                { key: 'ChatThreadList', routeName: ChatThreadListRouteName },
-              ],
-            },
-            {
-              key: 'More',
-              routeName: MoreRouteName,
-              index: 0,
-              routes: [{ key: 'MoreScreen', routeName: MoreScreenRouteName }],
-            },
-          ],
-        },
-      ],
-    },
-    { key: 'LoggedOutModal', routeName: LoggedOutModalRouteName },
-  ],
-};
-
-const defaultNavInfo: NavInfo = {
-  startDate: fifteenDaysEarlier().valueOf(),
-  endDate: fifteenDaysLater().valueOf(),
-  navigationState: defaultNavigationState,
-};
 
 function reduceNavInfo(
   state: AppState,
@@ -159,13 +86,8 @@ function reduceNavInfo(
       endDate: navInfoState.endDate,
       navigationState: handleURL(navInfoState.navigationState, action.payload),
     };
-  } else if (
-    action.type === logOutActionTypes.started ||
-    action.type === deleteAccountActionTypes.success
-  ) {
-    return resetNavInfoAndEnsureLoggedOutModalPresence(navInfoState);
   } else if (action.type === setNewSessionActionType) {
-    return logOutIfCookieInvalidated(navInfoState, action.payload);
+    sessionInvalidationAlert(action.payload);
   } else if (
     action.type === leaveThreadActionTypes.success ||
     action.type === deleteThreadActionTypes.success
@@ -233,60 +155,9 @@ function handleURL(state: NavigationState, url: string): NavigationState {
   };
 }
 
-function resetNavInfoAndEnsureLoggedOutModalPresence(state: NavInfo): NavInfo {
-  let navigationState = { ...state.navigationState };
-  navigationState.routes[0] = defaultNavInfo.navigationState.routes[0];
-
-  let loggedOutModalFound = false;
-  navigationState = removeScreensFromStack(
-    navigationState,
-    (route: NavigationRoute) => {
-      const { routeName } = route;
-      if (routeName === LoggedOutModalRouteName) {
-        loggedOutModalFound = true;
-      }
-      return routeName === AppRouteName || accountModals.includes(routeName)
-        ? 'keep'
-        : 'remove';
-    },
-  );
-
-  if (!loggedOutModalFound) {
-    const [appRoute, ...restRoutes] = navigationState.routes;
-    navigationState = {
-      ...navigationState,
-      index: navigationState.index + 1,
-      routes: [
-        appRoute,
-        { key: 'LoggedOutModal', routeName: LoggedOutModalRouteName },
-        ...restRoutes,
-      ],
-    };
-    if (navigationState.index === 1) {
-      navigationState = {
-        ...navigationState,
-        isTransitioning: true,
-      };
-    }
-  }
-
-  return {
-    startDate: defaultNavInfo.startDate,
-    endDate: defaultNavInfo.endDate,
-    navigationState,
-  };
-}
-
-function logOutIfCookieInvalidated(
-  state: NavInfo,
-  payload: SetSessionPayload,
-): NavInfo {
+function sessionInvalidationAlert(payload: SetSessionPayload) {
   if (!payload.sessionChange.cookieInvalidated) {
-    return state;
-  }
-  const newState = resetNavInfoAndEnsureLoggedOutModalPresence(state);
-  if (state.navigationState === newState.navigationState) {
-    return newState;
+    return;
   }
   if (payload.error === 'client_version_unsupported') {
     const app = Platform.select({
@@ -307,7 +178,6 @@ function logOutIfCookieInvalidated(
       [{ text: 'OK' }],
     );
   }
-  return newState;
 }
 
 function replaceChatRoute(
@@ -421,9 +291,4 @@ function handleNewThread(
   return replaceChatRoute(state, replaceFunc);
 }
 
-export {
-  defaultNavInfo,
-  reduceNavInfo,
-  replaceChatRoute,
-  resetNavInfoAndEnsureLoggedOutModalPresence,
-};
+export default reduceNavInfo;
