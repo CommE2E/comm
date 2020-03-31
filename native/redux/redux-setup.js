@@ -5,7 +5,6 @@ import { type EntryStore } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { CurrentUserInfo, UserInfo } from 'lib/types/user-types';
 import type { MessageStore } from 'lib/types/message-types';
-import type { NavInfo } from '../navigation/navigation-setup';
 import type { PersistState } from 'redux-persist/src/types';
 import {
   type NotifPermissionAlertInfo,
@@ -39,7 +38,7 @@ import type { ClientReportCreationRequest } from 'lib/types/report-types';
 
 import thunk from 'redux-thunk';
 import { createStore, applyMiddleware, type Store, compose } from 'redux';
-import { persistStore, persistReducer, REHYDRATE } from 'redux-persist';
+import { persistStore, persistReducer } from 'redux-persist';
 import { createReactNavigationReduxMiddleware } from 'react-navigation-redux-helpers';
 import {
   AppState as NativeAppState,
@@ -70,11 +69,8 @@ import {
   updateDeviceOrientationActionType,
   backgroundActionTypes,
 } from './action-types';
-import {
-  defaultNavInfo,
-  reduceNavInfo,
-  resetNavInfoAndEnsureLoggedOutModalPresence,
-} from '../navigation/navigation-setup';
+import reduceNavInfo from '../navigation/nav-reducer';
+import { type NavInfo, defaultNavInfo } from '../navigation/default-state';
 import { reduceThreadIDsToNotifIDs } from '../push/reducer';
 import { persistConfig, setPersistor } from './persist';
 import {
@@ -365,16 +361,6 @@ function validateState(
         },
       },
     };
-  }
-
-  if (
-    action.type !== REHYDRATE &&
-    (!state.currentUserInfo || state.currentUserInfo.anonymous)
-  ) {
-    const navInfo = resetNavInfoAndEnsureLoggedOutModalPresence(state.navInfo);
-    if (navInfo.navigationState !== state.navInfo.navigationState) {
-      state = { ...state, navInfo };
-    }
   }
 
   return state;
