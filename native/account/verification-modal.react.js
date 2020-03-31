@@ -5,10 +5,7 @@ import type {
   NavigationLeafRoute,
 } from 'react-navigation';
 import type { AppState } from '../redux/redux-setup';
-import type {
-  DispatchActionPayload,
-  DispatchActionPromise,
-} from 'lib/utils/action-utils';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import {
   type VerifyField,
   verifyField,
@@ -50,7 +47,6 @@ import { dimensionsSelector } from '../selectors/dimension-selectors';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import ResetPasswordPanel from './reset-password-panel.react';
 import { createIsForegroundSelector } from '../navigation/nav-selectors';
-import { navigateToAppActionType } from '../redux/action-types';
 import { splashBackgroundURI } from './background-info';
 import { splashStyleSelector } from '../splash';
 import {
@@ -63,6 +59,7 @@ import SafeAreaView from '../components/safe-area-view.react';
 import {
   connectNav,
   type NavContextType,
+  navContextPropType,
 } from '../navigation/navigation-context';
 
 type VerificationModalMode = 'simple-text' | 'reset-password';
@@ -70,12 +67,13 @@ type Props = {
   navigation: {
     state: { params: { verifyCode: string } },
   } & NavigationScreenProp<NavigationLeafRoute>,
-  // Redux state
+  // Navigation state
   isForeground: boolean,
+  navContext: ?NavContextType,
+  // Redux state
   dimensions: Dimensions,
   splashStyle: ImageStyle,
   // Redux dispatch functions
-  dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   handleVerificationCode: (
@@ -102,8 +100,8 @@ class VerificationModal extends React.PureComponent<Props, State> {
       goBack: PropTypes.func.isRequired,
     }).isRequired,
     isForeground: PropTypes.bool.isRequired,
+    navContext: navContextPropType,
     dimensions: dimensionsPropType.isRequired,
-    dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     handleVerificationCode: PropTypes.func.isRequired,
   };
@@ -241,7 +239,8 @@ class VerificationModal extends React.PureComponent<Props, State> {
 
   async inCoupleSecondsNavigateToApp() {
     await sleep(1750);
-    this.props.dispatchActionPayload(navigateToAppActionType, null);
+    invariant(this.props.navContext, 'navContext should be non-null');
+    this.props.navContext.dispatch({ type: 'LOG_IN' });
   }
 
   async handleVerificationCodeAction() {
@@ -512,6 +511,7 @@ const isForegroundSelector = createIsForegroundSelector(
 );
 export default connectNav((context: ?NavContextType) => ({
   isForeground: isForegroundSelector(context),
+  navContext: context,
 }))(
   connect(
     (state: AppState) => ({

@@ -23,8 +23,6 @@ import { setNewSessionActionType } from 'lib/utils/action-utils';
 import {
   logOutActionTypes,
   deleteAccountActionTypes,
-  logInActionTypes,
-  registerActionTypes,
 } from 'lib/actions/user-actions';
 import {
   leaveThreadActionTypes,
@@ -54,10 +52,7 @@ import {
   CalendarRouteName,
   accountModals,
 } from './route-names';
-import {
-  handleURLActionType,
-  navigateToAppActionType,
-} from '../redux/action-types';
+import { handleURLActionType } from '../redux/action-types';
 import RootNavigator from './root-navigator.react';
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -78,7 +73,6 @@ export type Action =
   | BaseAction
   | NavigationAction
   | {| type: 'HANDLE_URL', payload: string |}
-  | {| type: 'NAVIGATE_TO_APP', payload: null |}
   | AndroidNotificationActions
   | {| type: 'RECORD_NOTIF_PERMISSION_ALERT', time: number |}
   | {| type: 'BACKGROUND' |}
@@ -166,19 +160,6 @@ function reduceNavInfo(
       navigationState: handleURL(navInfoState.navigationState, action.payload),
     };
   } else if (
-    action.type === logInActionTypes.success ||
-    action.type === registerActionTypes.success ||
-    action.type === navigateToAppActionType
-  ) {
-    return {
-      startDate: navInfoState.startDate,
-      endDate: navInfoState.endDate,
-      navigationState: removeRootModals(
-        navInfoState.navigationState,
-        accountModals,
-      ),
-    };
-  } else if (
     action.type === logOutActionTypes.started ||
     action.type === deleteAccountActionTypes.success
   ) {
@@ -248,22 +229,6 @@ function handleURL(state: NavigationState, url: string): NavigationState {
         },
       },
     ],
-    isTransitioning: true,
-  };
-}
-
-function removeRootModals(
-  state: NavigationState,
-  modalRouteNames: string[],
-): NavigationState {
-  const newState = removeScreensFromStack(state, (route: NavigationRoute) =>
-    modalRouteNames.includes(route.routeName) ? 'remove' : 'keep',
-  );
-  if (newState === state) {
-    return state;
-  }
-  return {
-    ...newState,
     isTransitioning: true,
   };
 }

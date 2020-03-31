@@ -6,6 +6,7 @@ import type { ChatRouterNavigationAction } from '../chat/chat-router';
 
 import * as React from 'react';
 import hoistNonReactStatics from 'hoist-non-react-statics';
+import PropTypes from 'prop-types';
 
 export type NavAction =
   | NavigationAction
@@ -15,6 +16,11 @@ export type NavContextType = {|
   state: NavigationState,
   dispatch: (action: NavAction) => boolean,
 |};
+
+const navContextPropType = PropTypes.shape({
+  state: PropTypes.object.isRequired,
+  dispatch: PropTypes.func.isRequired,
+});
 
 const NavContext = React.createContext<?NavContextType>(null);
 
@@ -77,4 +83,4 @@ function connectNav<
   };
 }
 
-export { NavContext, withNavContext, connectNav };
+export { NavContext, withNavContext, connectNav, navContextPropType };
