@@ -10,6 +10,12 @@ import type {
 
 import invariant from 'invariant';
 
+import {
+  MessageListRouteName,
+  ThreadSettingsRouteName,
+  DeleteThreadRouteName,
+} from '../navigation/route-names';
+
 function assertNavigationRouteNotLeafNode(
   route: NavigationRoute,
 ): NavigationStateRoute {
@@ -67,16 +73,31 @@ function assertNavigationRouteNotLeafNode(
   };
 }
 
-function getThreadIDFromParams(object: { params?: NavigationParams }): string {
+function getThreadIDFromParams(params: ?NavigationParams): string {
   invariant(
-    object.params &&
-      object.params.threadInfo &&
-      typeof object.params.threadInfo === 'object' &&
-      object.params.threadInfo.id &&
-      typeof object.params.threadInfo.id === 'string',
+    params &&
+      params.threadInfo &&
+      typeof params.threadInfo === 'object' &&
+      params.threadInfo.id &&
+      typeof params.threadInfo.id === 'string',
     "there's no way in react-navigation/Flow to type this",
   );
-  return object.params.threadInfo.id;
+  return params.threadInfo.id;
+}
+
+const defaultThreadIDRoutes = [
+  MessageListRouteName,
+  ThreadSettingsRouteName,
+  DeleteThreadRouteName,
+];
+function getThreadIDFromRoute(
+  route: NavigationRoute,
+  routes?: $ReadOnlyArray<string> = defaultThreadIDRoutes,
+) {
+  if (!routes.includes(route.routeName)) {
+    return null;
+  }
+  return getThreadIDFromParams(route.params);
 }
 
 function currentRouteRecurse(state: NavigationRoute): NavigationLeafRoute {
@@ -149,6 +170,7 @@ function removeScreensFromStack<S: NavigationState>(
 export {
   assertNavigationRouteNotLeafNode,
   getThreadIDFromParams,
+  getThreadIDFromRoute,
   currentLeafRoute,
   findRouteIndexWithKey,
   removeScreensFromStack,
