@@ -1,10 +1,7 @@
 // @flow
 
 import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
-import type {
-  DispatchActionPayload,
-  DispatchActionPromise,
-} from 'lib/utils/action-utils';
+import type { DispatchActionPayload } from 'lib/utils/action-utils';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from '../redux/redux-setup';
 import type { KeyboardEvent, EmitterSubscription } from '../keyboard/keyboard';
@@ -49,10 +46,7 @@ import LogInPanelContainer from './log-in-panel-container.react';
 import RegisterPanel from './register-panel.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import { createIsForegroundSelector } from '../navigation/nav-selectors';
-import {
-  navigateToAppActionType,
-  resetUserStateActionType,
-} from '../redux/action-types';
+import { resetUserStateActionType } from '../redux/action-types';
 import { splashBackgroundURI } from './background-info';
 import { splashStyleSelector } from '../splash';
 import {
@@ -70,6 +64,7 @@ import SafeAreaView from '../components/safe-area-view.react';
 import {
   connectNav,
   type NavContextType,
+  navContextPropType,
 } from '../navigation/navigation-context';
 
 let initialAppLoad = true;
@@ -77,19 +72,20 @@ let initialAppLoad = true;
 type LoggedOutMode = 'loading' | 'prompt' | 'log-in' | 'register';
 type Props = {
   navigation: NavigationScreenProp<NavigationRoute>,
+  // Navigation state
+  isForeground: boolean,
+  navContext: ?NavContextType,
   // Redux state
   rehydrateConcluded: boolean,
   cookie: ?string,
   urlPrefix: string,
   loggedIn: boolean,
-  isForeground: boolean,
   dimensions: Dimensions,
   contentVerticalOffset: number,
   splashStyle: ImageStyle,
   // Redux dispatch functions
   dispatch: Dispatch,
   dispatchActionPayload: DispatchActionPayload,
-  dispatchActionPromise: DispatchActionPromise,
 };
 type State = {
   mode: LoggedOutMode,
@@ -109,16 +105,16 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       navigate: PropTypes.func.isRequired,
       goBack: PropTypes.func.isRequired,
     }).isRequired,
+    isForeground: PropTypes.bool.isRequired,
+    navContext: navContextPropType,
     rehydrateConcluded: PropTypes.bool.isRequired,
     cookie: PropTypes.string,
     urlPrefix: PropTypes.string.isRequired,
     loggedIn: PropTypes.bool.isRequired,
-    isForeground: PropTypes.bool.isRequired,
     dimensions: dimensionsPropType.isRequired,
     contentVerticalOffset: PropTypes.number.isRequired,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
   };
 
   static navigationOptions = {
@@ -213,14 +209,8 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-    if (this.props.rehydrateConcluded && !__DEV__) {
-      // If rehydrate concludes before the first time LoggedOutModal is mounted
-      // on dev mode, it's probably because the dev started with logged-in nav
-      // state and then logged out. In this case we don't want to call
-      // onInitialAppLoad. However, if the same thing happens in release mode,
-      // it's probably because Android rehydrated as a result of a notification.
-      // In this case, we still want to call onInitialAppLoad.
-      this.onInitialAppLoad();
+    if (this.props.rehydrateConcluded) {
+      this.onInitialAppLoad(true);
     }
     if (this.props.isForeground) {
       this.onForeground();
@@ -236,7 +226,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   componentDidUpdate(prevProps: Props) {
     if (!prevProps.rehydrateConcluded && this.props.rehydrateConcluded) {
-      this.onInitialAppLoad();
+      this.onInitialAppLoad(false);
     }
     if (!prevProps.isForeground && this.props.isForeground) {
       this.onForeground();
@@ -265,74 +255,56 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   // This gets triggered when an app is killed and restarted
   // Not when it is returned from being backgrounded
-  async onInitialAppLoad() {
+  async onInitialAppLoad(startedWithPrompt: boolean) {
     if (!initialAppLoad) {
       return;
     }
     initialAppLoad = false;
 
-    let { cookie } = this.props;
-    const { urlPrefix } = this.props;
-    const showPrompt = () => {
-      this.nextMode = 'prompt';
-      this.guardedSetState({ mode: 'prompt' });
-      Animated.timing(this.state.buttonOpacity, {
-        duration: 250,
-        easing: Easing.out(Easing.ease),
-        toValue: 1.0,
-      }).start();
-    };
-
-    // If we're not logged in, try native credentials
-    if (!this.props.loggedIn && (!cookie || !cookie.startsWith('user='))) {
-      // If this succeeds it will dispatch LOG_IN_SUCCESS
-      const sessionChange = await fetchNewCookieFromNativeCredentials(
-        this.props.dispatch,
-        cookie,
-        urlPrefix,
-        appStartNativeCredentialsAutoLogIn,
-      );
-      if (!sessionChange) {
-        showPrompt();
-        return;
-      }
-      const newCookie = sessionChange.cookie;
-      if (!newCookie || !newCookie.startsWith('user=')) {
-        showPrompt();
-      }
+    const { loggedIn, cookie, urlPrefix, dispatch } = this.props;
+    const hasUserCookie = cookie && cookie.startsWith('user=');
+    if (loggedIn && hasUserCookie) {
       return;
     }
 
-    // Are we possibly already logged in?
-    if (this.props.loggedIn) {
-      if (cookie && cookie.startsWith('user=')) {
-        this.props.dispatchActionPayload(navigateToAppActionType, null);
-        return;
-      }
-      // This is an unusual error state that should never happen
+    if (!__DEV__) {
+      const actionSource = loggedIn
+        ? appStartReduxLoggedInButInvalidCookie
+        : appStartNativeCredentialsAutoLogIn;
       const sessionChange = await fetchNewCookieFromNativeCredentials(
-        this.props.dispatch,
+        dispatch,
         cookie,
         urlPrefix,
-        appStartReduxLoggedInButInvalidCookie,
+        actionSource,
       );
-      const newCookie = sessionChange ? sessionChange.cookie : null;
-      if (newCookie && newCookie.startsWith('user=')) {
-        // If this happens we know that LOG_IN_SUCCESS has been dispatched
+      if (
+        sessionChange &&
+        sessionChange.cookie &&
+        sessionChange.cookie.startsWith('user=')
+      ) {
+        // success! we can expect subsequent actions to fix up the state
         return;
-      }
-      // Looks like we failed to recover. We'll handle resetting Redux state to
-      // match our cookie in the reset call below
-      if (newCookie) {
-        cookie = newCookie;
       }
     }
 
-    // We are here either because the user cookie exists but Redux says we're
-    // not logged in, or because Redux says we're logged in but we don't have
-    // a user cookie and we failed to acquire one above
-    this.props.dispatchActionPayload(resetUserStateActionType, null);
+    if (loggedIn || hasUserCookie) {
+      this.props.dispatchActionPayload(resetUserStateActionType, null);
+    }
+
+    if (!startedWithPrompt) {
+      this.showPrompt();
+    }
   }
+
+  showPrompt = () => {
+    this.nextMode = 'prompt';
+    this.guardedSetState({ mode: 'prompt' });
+    Animated.timing(this.state.buttonOpacity, {
+      duration: 250,
+      easing: Easing.out(Easing.ease),
+      toValue: 1.0,
+    }).start();
+  };
 
   hardwareBack = () => {
     if (this.nextMode === 'log-in') {
@@ -787,10 +759,15 @@ const isForegroundSelector = createIsForegroundSelector(
 );
 export default connectNav((context: ?NavContextType) => ({
   isForeground: isForegroundSelector(context),
+  navContext: context,
 }))(
   connect(
-    (state: AppState) => ({
-      rehydrateConcluded: !!(state._persist && state._persist.rehydrated),
+    (state: AppState, ownProps: { navContext: ?NavContextType }) => ({
+      rehydrateConcluded: !!(
+        state._persist &&
+        state._persist.rehydrated &&
+        ownProps.navContext
+      ),
       cookie: state.cookie,
       urlPrefix: state.urlPrefix,
       loggedIn: !!(

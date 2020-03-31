@@ -3,48 +3,71 @@
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
+import { useSelector } from 'react-redux';
 
-import { connect } from 'lib/utils/redux-utils';
-
-import { NavContext } from './navigation-context';
+import { NavContext, type NavAction } from './navigation-context';
 import { useIsAppLoggedIn } from './nav-selectors';
 
-type Props = {|
-  // Navigation state
-  navLoggedIn: boolean,
-  // Redux state
-  loggedIn: boolean,
-|};
-function NavigationHandler(props: Props) {
-  const { loggedIn } = props;
-
+function NavigationHandler() {
   const navContext = React.useContext(NavContext);
+
+  const reduxRehydrated = useSelector(
+    (state: AppState) => !!(state._persist && state._persist.rehydrated),
+  );
+  const loggedIn = useSelector(
+    (state: AppState) =>
+      !!(
+        state.currentUserInfo &&
+        !state.currentUserInfo.anonymous &&
+        state.cookie &&
+        state.cookie.startsWith('user=')
+      ),
+  );
+
   const navLoggedIn = useIsAppLoggedIn();
 
-  const prevLoggedIn = React.useRef();
-
-  React.useEffect(() => {
-    if (!navContext) {
-      return;
-    }
-    if (loggedIn && !prevLoggedIn.current && !navLoggedIn) {
-      navContext.dispatch({ type: 'LOG_IN' });
-    } else if (!loggedIn && prevLoggedIn.current && navLoggedIn) {
-      navContext.dispatch({ type: 'LOG_OUT' });
-    }
-  }, [navLoggedIn, loggedIn, navContext]);
-
-  React.useEffect(() => {
-    prevLoggedIn.current = loggedIn;
-  });
+  if (navContext && reduxRehydrated) {
+    return (
+      <LogInHandler
+        navLoggedIn={navLoggedIn}
+        loggedIn={loggedIn}
+        dispatch={navContext.dispatch}
+      />
+    );
+  }
 
   return null;
 }
 
-export default connect((state: AppState) => ({
-  loggedIn: !!(
-    state.currentUserInfo &&
-    !state.currentUserInfo.anonymous &&
-    true
-  ),
-}))(NavigationHandler);
+type LogInHandlerProps = {|
+  navLoggedIn: boolean,
+  loggedIn: boolean,
+  dispatch: (action: NavAction) => boolean,
+|};
+const LogInHandler = React.memo<LogInHandlerProps>(
+  (props: LogInHandlerProps) => {
+    const { navLoggedIn, loggedIn, dispatch } = props;
+
+    const prevLoggedInRef = React.useRef();
+    React.useEffect(() => {
+      prevLoggedInRef.current = loggedIn;
+    });
+    const prevLoggedIn = prevLoggedInRef.current;
+
+    React.useEffect(() => {
+      if (loggedIn === prevLoggedIn) {
+        return;
+      }
+      if (loggedIn && !navLoggedIn) {
+        dispatch({ type: 'LOG_IN' });
+      } else if (!loggedIn && navLoggedIn) {
+        dispatch({ type: 'LOG_OUT' });
+      }
+    }, [navLoggedIn, prevLoggedIn, loggedIn, dispatch]);
+
+    return null;
+  },
+);
+LogInHandler.displayName = 'LogInHandler';
+
+export default NavigationHandler;
