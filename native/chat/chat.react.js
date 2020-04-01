@@ -1,5 +1,7 @@
 // @flow
 
+import type { ThreadInfo } from 'lib/types/thread-types';
+
 import * as React from 'react';
 import {
   type NavigationRouteConfigMap,
@@ -33,17 +35,15 @@ import {
 import HeaderBackButton from '../navigation/header-back-button.react';
 import ChatHeader from './chat-header.react';
 import ChatRouter from './chat-router';
-import {
-  type ChatInputState,
-  chatInputStatePropType,
-  withChatInputState,
-} from './chat-input-state';
+import { ChatInputStateContext } from './chat-input-state';
 import KeyboardAvoidingView from '../keyboard/keyboard-avoiding-view.react';
 import MessageStorePruner from './message-store-pruner.react';
 import ThreadScreenPruner from './thread-screen-pruner.react';
 
 type NavigationProp = NavigationStackProp<NavigationState> & {
   clearScreens: (routeNames: $ReadOnlyArray<string>) => void,
+  replaceWithThread: (threadInfo: ThreadInfo) => void,
+  clearInvalidatedThreads: (threadIDs: $ReadOnlyArray<string>) => void,
 };
 type Props = {| navigation: NavigationProp |};
 type StackViewProps = React.ElementConfig<typeof StackView> & {
@@ -126,36 +126,32 @@ ChatNavigator.navigationOptions = {
   },
 };
 
-type WrappedProps = {
-  ...Props,
-  // withChatInputState
-  chatInputState: ?ChatInputState,
-};
-class WrappedChatNavigator extends React.PureComponent<WrappedProps> {
-  static propTypes = {
-    chatInputState: chatInputStatePropType,
-  };
+function WrappedChatNavigator(props: Props) {
+  const { navigation } = props;
+  const chatInputState = React.useContext(ChatInputStateContext);
 
-  componentDidUpdate(prevProps: WrappedProps) {
-    const { navigation, chatInputState } = this.props;
-    if (chatInputState && prevProps.navigation !== navigation) {
-      chatInputState.registerSendCallback(() =>
-        navigation.clearScreens([ComposeThreadRouteName]),
-      );
+  const clearScreens = React.useCallback(
+    () => navigation.clearScreens([ComposeThreadRouteName]),
+    [navigation],
+  );
+
+  React.useEffect(() => {
+    if (!chatInputState) {
+      return undefined;
     }
-  }
+    chatInputState.registerSendCallback(clearScreens);
+    return () => chatInputState.unregisterSendCallback(clearScreens);
+  }, [chatInputState, clearScreens]);
 
-  render() {
-    const { chatInputState, ...props } = this.props;
-    return (
-      <KeyboardAvoidingView style={styles.keyboardAvoidingView}>
-        <ChatNavigator {...props} />
-        <MessageStorePruner />
-        <ThreadScreenPruner />
-      </KeyboardAvoidingView>
-    );
-  }
+  return (
+    <KeyboardAvoidingView style={styles.keyboardAvoidingView}>
+      <ChatNavigator {...props} />
+      <MessageStorePruner />
+      <ThreadScreenPruner />
+    </KeyboardAvoidingView>
+  );
 }
+hoistNonReactStatics(WrappedChatNavigator, ChatNavigator);
 
 const styles = StyleSheet.create({
   keyboardAvoidingView: {
@@ -163,11 +159,4 @@ const styles = StyleSheet.create({
   },
 });
 
-const ConnectedWrappedChatNavigator = withChatInputState(WrappedChatNavigator);
-
-function FinalChatNavigator(props: Props) {
-  return <ConnectedWrappedChatNavigator {...props} />;
-}
-hoistNonReactStatics(FinalChatNavigator, ChatNavigator);
-
-export default FinalChatNavigator;
+export default WrappedChatNavigator;

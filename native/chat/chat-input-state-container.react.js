@@ -276,6 +276,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       messageHasUploadFailure: this.messageHasUploadFailure,
       retryMultimediaMessage: this.retryMultimediaMessage,
       registerSendCallback: this.registerSendCallback,
+      unregisterSendCallback: this.unregisterSendCallback,
     }),
   );
 
@@ -715,6 +716,12 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
 
   registerSendCallback = (callback: () => void) => {
     this.sendCallbacks.push(callback);
+  };
+
+  unregisterSendCallback = (callback: () => void) => {
+    this.sendCallbacks = this.sendCallbacks.filter(
+      candidate => candidate !== callback,
+    );
   };
 
   render() {
