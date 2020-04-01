@@ -7,15 +7,12 @@ import type {
   NavigationStateRoute,
 } from 'react-navigation';
 import type { AppState } from '../redux/redux-setup';
-import type { SetSessionPayload } from 'lib/types/session-types';
 import type { UserInfo } from 'lib/types/user-types';
 import type { NavInfo } from './default-state';
 
-import { Alert, Platform } from 'react-native';
 import { useScreens } from 'react-native-screens';
 
 import { infoFromURL } from 'lib/utils/url-utils';
-import { setNewSessionActionType } from 'lib/utils/action-utils';
 import { newThreadActionTypes } from 'lib/actions/thread-actions';
 import { threadInfoFromRawThreadInfo } from 'lib/shared/thread-utils';
 
@@ -62,8 +59,6 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
       endDate: navInfoState.endDate,
       navigationState: handleURL(navInfoState.navigationState, action.payload),
     };
-  } else if (action.type === setNewSessionActionType) {
-    sessionInvalidationAlert(action.payload);
   } else if (action.type === newThreadActionTypes.success) {
     return {
       startDate: navInfoState.startDate,
@@ -117,31 +112,6 @@ function handleURL(state: NavigationState, url: string): NavigationState {
     ],
     isTransitioning: true,
   };
-}
-
-function sessionInvalidationAlert(payload: SetSessionPayload) {
-  if (!payload.sessionChange.cookieInvalidated) {
-    return;
-  }
-  if (payload.error === 'client_version_unsupported') {
-    const app = Platform.select({
-      ios: 'Testflight',
-      android: 'Play Store',
-    });
-    Alert.alert(
-      'App out of date',
-      "Your app version is pretty old, and the server doesn't know how to " +
-        `speak to it anymore. Please use the ${app} app to update!`,
-      [{ text: 'OK' }],
-    );
-  } else {
-    Alert.alert(
-      'Session invalidated',
-      "We're sorry, but your session was invalidated by the server. " +
-        'Please log in again.',
-      [{ text: 'OK' }],
-    );
-  }
 }
 
 function replaceChatRoute(
