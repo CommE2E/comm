@@ -364,7 +364,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
   onChangeName = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.currentTarget;
     const newValue =
-      target.value !== this.props.threadInfo.name ? target.value : null;
+      target.value !== this.props.threadInfo.name ? target.value : undefined;
     this.setState((prevState: State) => ({
       ...prevState,
       queuedChanges: {
@@ -377,7 +377,9 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
   onChangeDescription = (event: SyntheticEvent<HTMLTextAreaElement>) => {
     const target = event.currentTarget;
     const newValue =
-      target.value !== this.props.threadInfo.description ? target.value : null;
+      target.value !== this.props.threadInfo.description
+        ? target.value
+        : undefined;
     this.setState((prevState: State) => ({
       ...prevState,
       queuedChanges: {
@@ -388,7 +390,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
   };
 
   onChangeColor = (color: string) => {
-    const newValue = color !== this.props.threadInfo.color ? color : null;
+    const newValue = color !== this.props.threadInfo.color ? color : undefined;
     this.setState((prevState: State) => ({
       ...prevState,
       queuedChanges: {
@@ -400,7 +402,8 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
 
   onChangeThreadType = (event: SyntheticEvent<HTMLInputElement>) => {
     const uiValue = assertThreadType(parseInt(event.currentTarget.value, 10));
-    const newValue = uiValue !== this.props.threadInfo.type ? uiValue : null;
+    const newValue =
+      uiValue !== this.props.threadInfo.type ? uiValue : undefined;
     this.setState((prevState: State) => ({
       ...prevState,
       queuedChanges: {
