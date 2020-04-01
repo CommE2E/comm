@@ -14,7 +14,7 @@ import {
   nativeSessionStateFuncSelector,
 } from './selectors/socket-selectors';
 import {
-  activeThreadSelector,
+  activeMessageListSelector,
   nativeCalendarQuery,
 } from './navigation/nav-selectors';
 import {
@@ -23,7 +23,7 @@ import {
 } from './navigation/navigation-context';
 
 export default connectNav((context: ?NavContextType) => ({
-  rawActiveThread: activeThreadSelector(context),
+  rawActiveThread: activeMessageListSelector(context),
   navContext: context,
 }))(
   connect(

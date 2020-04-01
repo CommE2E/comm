@@ -55,7 +55,7 @@ import {
   deleteAccountActionTypes,
 } from 'lib/actions/user-actions';
 
-import { activeThreadSelector } from '../navigation/nav-selectors';
+import { activeMessageListSelector } from '../navigation/nav-selectors';
 import {
   resetUserStateActionType,
   recordNotifPermissionAlertActionType,
@@ -302,11 +302,11 @@ function validateState(
   state: AppState,
   action: *,
 ): AppState {
-  const oldActiveThread = activeThreadSelector({
+  const oldActiveThread = activeMessageListSelector({
     state: oldState.navInfo.navigationState,
     dispatch: () => true,
   });
-  const activeThread = activeThreadSelector({
+  const activeThread = activeMessageListSelector({
     state: state.navInfo.navigationState,
     dispatch: () => true,
   });

@@ -17,7 +17,6 @@ import { nonThreadCalendarFiltersSelector } from 'lib/selectors/calendar-filter-
 import {
   AppRouteName,
   TabNavigatorRouteName,
-  ThreadSettingsRouteName,
   MessageListRouteName,
   ChatRouteName,
   CalendarRouteName,
@@ -26,6 +25,7 @@ import {
   accountModals,
   scrollBlockingChatModals,
   chatRootModals,
+  threadRoutes,
 } from './route-names';
 import {
   assertNavigationRouteNotLeafNode,
@@ -197,10 +197,7 @@ const activeThreadSelector: (
 ) => ?string = createSelector(
   (context: ?NavContextType) => context && context.state,
   (navigationState: ?NavigationState): ?string =>
-    activeThread(navigationState, [
-      MessageListRouteName,
-      ThreadSettingsRouteName,
-    ]),
+    activeThread(navigationState, threadRoutes),
 );
 
 const activeMessageListSelector: (

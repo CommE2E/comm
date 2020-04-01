@@ -55,7 +55,7 @@ import {
   recordNotifPermissionAlertActionType,
   clearAndroidNotificationsActionType,
 } from '../redux/action-types';
-import { activeThreadSelector } from '../navigation/nav-selectors';
+import { activeMessageListSelector } from '../navigation/nav-selectors';
 import {
   requestIOSPushPermissions,
   iosPushPermissionResponseReceived,
@@ -604,7 +604,7 @@ AppRegistry.registerHeadlessTask(
 );
 
 export default connectNav((context: ?NavContextType) => ({
-  activeThread: activeThreadSelector(context),
+  activeThread: activeMessageListSelector(context),
 }))(
   connect(
     (state: AppState) => ({

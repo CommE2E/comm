@@ -10,11 +10,7 @@ import type {
 
 import invariant from 'invariant';
 
-import {
-  MessageListRouteName,
-  ThreadSettingsRouteName,
-  DeleteThreadRouteName,
-} from '../navigation/route-names';
+import { threadRoutes } from '../navigation/route-names';
 
 function assertNavigationRouteNotLeafNode(
   route: NavigationRoute,
@@ -85,14 +81,9 @@ function getThreadIDFromParams(params: ?NavigationParams): string {
   return params.threadInfo.id;
 }
 
-const defaultThreadIDRoutes = [
-  MessageListRouteName,
-  ThreadSettingsRouteName,
-  DeleteThreadRouteName,
-];
 function getThreadIDFromRoute(
   route: NavigationRoute,
-  routes?: $ReadOnlyArray<string> = defaultThreadIDRoutes,
+  routes?: $ReadOnlyArray<string> = threadRoutes,
 ) {
   if (!routes.includes(route.routeName)) {
     return null;
