@@ -106,26 +106,26 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
   }
 
   onPressOpen = () => {
-    const threadID = this.props.navigation.state.params.threadInfo.id;
+    const threadInfo = this.props.navigation.state.params.threadInfo;
     this.props.navigation.navigate({
       routeName: ComposeThreadRouteName,
       params: {
         threadType: threadTypes.CHAT_NESTED_OPEN,
-        parentThreadID: threadID,
+        parentThreadInfo: threadInfo,
       },
-      key: `${ComposeThreadRouteName}|${threadID}|${threadTypes.CHAT_NESTED_OPEN}`,
+      key: `${ComposeThreadRouteName}|${threadInfo.id}|${threadTypes.CHAT_NESTED_OPEN}`,
     });
   };
 
   onPressSecret = () => {
-    const threadID = this.props.navigation.state.params.threadInfo.id;
+    const threadInfo = this.props.navigation.state.params.threadInfo;
     this.props.navigation.navigate({
       routeName: ComposeThreadRouteName,
       params: {
         threadType: threadTypes.CHAT_SECRET,
-        parentThreadID: threadID,
+        parentThreadInfo: threadInfo,
       },
-      key: `${ComposeThreadRouteName}|${threadID}|${threadTypes.CHAT_SECRET}`,
+      key: `${ComposeThreadRouteName}|${threadInfo.id}|${threadTypes.CHAT_SECRET}`,
     });
   };
 }
