@@ -35,6 +35,7 @@ import {
 } from '../types/camera';
 import type { Orientations } from 'react-native-orientation-locker';
 import type { ClientReportCreationRequest } from 'lib/types/report-types';
+import type { SetSessionPayload } from 'lib/types/session-types';
 
 import thunk from 'redux-thunk';
 import { createStore, applyMiddleware, type Store, compose } from 'redux';
@@ -44,6 +45,7 @@ import {
   AppState as NativeAppState,
   Platform,
   Dimensions as NativeDimensions,
+  Alert,
 } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 
@@ -256,6 +258,7 @@ function reducer(state: AppState = defaultState, action: *) {
   const oldState = state;
 
   if (action.type === setNewSessionActionType) {
+    sessionInvalidationAlert(action.payload);
     state = {
       ...state,
       cookie: action.payload.sessionChange.cookie,
@@ -295,6 +298,31 @@ function reducer(state: AppState = defaultState, action: *) {
   }
 
   return validateState(oldState, state, action);
+}
+
+function sessionInvalidationAlert(payload: SetSessionPayload) {
+  if (!payload.sessionChange.cookieInvalidated) {
+    return;
+  }
+  if (payload.error === 'client_version_unsupported') {
+    const app = Platform.select({
+      ios: 'Testflight',
+      android: 'Play Store',
+    });
+    Alert.alert(
+      'App out of date',
+      "Your app version is pretty old, and the server doesn't know how to " +
+        `speak to it anymore. Please use the ${app} app to update!`,
+      [{ text: 'OK' }],
+    );
+  } else {
+    Alert.alert(
+      'Session invalidated',
+      "We're sorry, but your session was invalidated by the server. " +
+        'Please log in again.',
+      [{ text: 'OK' }],
+    );
+  }
 }
 
 function validateState(
