@@ -16,6 +16,7 @@ import * as React from 'react';
 import { Text, TouchableWithoutFeedback, View } from 'react-native';
 import PropTypes from 'prop-types';
 import Hyperlink from 'react-native-hyperlink';
+import invariant from 'invariant';
 
 import {
   messageKey,
@@ -139,7 +140,7 @@ type InnerThreadEntityProps = {
   id: string,
   name: string,
   // Redux state
-  threadInfo: ThreadInfo,
+  threadInfo: ?ThreadInfo,
   styles: Styles,
   // Redux dispatch functions
   dispatch: Dispatch,
@@ -148,12 +149,15 @@ class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
   static propTypes = {
     id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
-    threadInfo: threadInfoPropType.isRequired,
+    threadInfo: threadInfoPropType,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatch: PropTypes.func.isRequired,
   };
 
   render() {
+    if (!this.props.threadInfo) {
+      return <Text>{this.props.name}</Text>;
+    }
     return (
       <Text style={this.props.styles.link} onPress={this.onPressThread}>
         {this.props.name}
@@ -163,6 +167,7 @@ class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
 
   onPressThread = () => {
     const { threadInfo, dispatch } = this.props;
+    invariant(threadInfo, 'onPressThread should have threadInfo');
     dispatch({
       type: 'Navigation/NAVIGATE',
       routeName: MessageListRouteName,
