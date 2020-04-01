@@ -52,7 +52,6 @@ import UserList from '../components/user-list.react';
 import ThreadList from '../components/thread-list.react';
 import LinkButton from '../components/link-button.react';
 import { MessageListRouteName } from '../navigation/route-names';
-import { registerChatScreen } from './chat-screen-registry';
 import ThreadVisibility from '../components/thread-visibility.react';
 import {
   type Colors,
@@ -162,18 +161,12 @@ class ComposeThread extends React.PureComponent<Props, State> {
   createThreadPressed = false;
 
   componentDidMount() {
-    registerChatScreen(this.props.navigation.state.key, this);
     setOnPressCreateThread(this.onPressCreateThread);
     this.searchUsers('');
   }
 
   componentWillUnmount() {
-    registerChatScreen(this.props.navigation.state.key, null);
     setOnPressCreateThread(null);
-  }
-
-  get canReset() {
-    return false;
   }
 
   userSearchResultsSelector = createSelector(
