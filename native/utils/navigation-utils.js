@@ -10,7 +10,10 @@ import type {
 
 import invariant from 'invariant';
 
-import { threadRoutes } from '../navigation/route-names';
+import {
+  ComposeThreadRouteName,
+  threadRoutes,
+} from '../navigation/route-names';
 
 function assertNavigationRouteNotLeafNode(
   route: NavigationRoute,
@@ -81,12 +84,25 @@ function getThreadIDFromParams(params: ?NavigationParams): string {
   return params.threadInfo.id;
 }
 
+function getParentThreadIDFromParams(params: ?NavigationParams): ?string {
+  invariant(
+    params &&
+      (typeof params.parentThreadID === 'string' ||
+        (typeof params.parentThreadID === 'object' && !params.parentThreadID)),
+    "there's no way in react-navigation/Flow to type this",
+  );
+  return params.parentThreadID;
+}
+
 function getThreadIDFromRoute(
   route: NavigationRoute,
   routes?: $ReadOnlyArray<string> = threadRoutes,
 ) {
   if (!routes.includes(route.routeName)) {
     return null;
+  }
+  if (route.routeName === ComposeThreadRouteName) {
+    return getParentThreadIDFromParams(route.params);
   }
   return getThreadIDFromParams(route.params);
 }
