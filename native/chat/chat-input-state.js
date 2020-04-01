@@ -42,6 +42,7 @@ export type ChatInputState = {|
   messageHasUploadFailure: (localMessageID: string) => boolean,
   retryMultimediaMessage: (localMessageID: string) => Promise<void>,
   registerSendCallback: (() => void) => void,
+  unregisterSendCallback: (() => void) => void,
 |};
 
 const chatInputStatePropType = PropTypes.shape({
