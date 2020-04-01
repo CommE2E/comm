@@ -114,7 +114,7 @@ async function deleteThread(
   }
 
   const [{ viewerUpdates }] = await Promise.all([
-    createUpdates(updateDatas, { viewer }),
+    createUpdates(updateDatas, { viewer, updatesForCurrentSession: 'return' }),
     dbQuery(query),
   ]);
 

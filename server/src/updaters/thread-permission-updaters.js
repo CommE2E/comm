@@ -577,6 +577,7 @@ async function commitMembershipChangeset(
     viewer,
     calendarQuery,
     ...threadInfoFetchResult,
+    updatesForCurrentSession: 'return',
   });
 
   return {
