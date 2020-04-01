@@ -16,7 +16,10 @@ import {
   ChatThreadListRouteName,
   MessageListRouteName,
 } from '../navigation/route-names';
-import { removeScreensFromStack } from '../utils/navigation-utils';
+import {
+  removeScreensFromStack,
+  getThreadIDFromRoute,
+} from '../utils/navigation-utils';
 
 type ClearScreensAction = {|
   +type: 'CLEAR_SCREENS',
@@ -26,10 +29,15 @@ type ReplaceWithThreadAction = {|
   +type: 'REPLACE_WITH_THREAD',
   +threadInfo: ThreadInfo,
 |};
+type ClearInvalidatedThreadsAction = {|
+  +type: 'CLEAR_INVALIDATED_THREADS',
+  +threadIDs: $ReadOnlyArray<string>,
+|};
 export type ChatRouterNavigationAction =
   | NavigationAction
   | ClearScreensAction
-  | ReplaceWithThreadAction;
+  | ReplaceWithThreadAction
+  | ClearInvalidatedThreadsAction;
 
 const defaultConfig = Object.freeze({});
 function ChatRouter(
@@ -48,9 +56,17 @@ function ChatRouter(
         if (!lastState) {
           return lastState;
         }
-        return removeScreensFromStack(lastState, (route: NavigationRoute) =>
-          routeNames.includes(route.routeName) ? 'remove' : 'keep',
+        const lastActiveKey = lastState.routes[lastState.index].key;
+        const newState = removeScreensFromStack(
+          lastState,
+          (route: NavigationRoute) =>
+            routeNames.includes(route.routeName) ? 'remove' : 'keep',
         );
+        const newActiveKey = newState.routes[newState.index].key;
+        if (lastActiveKey === newActiveKey) {
+          return newState;
+        }
+        return { ...newState, isTransitioning: true };
       } else if (action.type === 'REPLACE_WITH_THREAD') {
         const { threadInfo } = action;
         if (!lastState) {
@@ -67,6 +83,22 @@ function ChatRouter(
           params: { threadInfo },
         });
         return stackRouter.getStateForAction(navigateAction, clearedState);
+      } else if (action.type === 'CLEAR_INVALIDATED_THREADS') {
+        const threadIDs = new Set(action.threadIDs);
+        if (!lastState) {
+          return lastState;
+        }
+        const lastActiveKey = lastState.routes[lastState.index].key;
+        const newState = removeScreensFromStack(
+          lastState,
+          (route: NavigationRoute) =>
+            threadIDs.has(getThreadIDFromRoute(route)) ? 'remove' : 'keep',
+        );
+        const newActiveKey = newState.routes[newState.index].key;
+        if (lastActiveKey === newActiveKey) {
+          return newState;
+        }
+        return { ...newState, isTransitioning: true };
       } else {
         return stackRouter.getStateForAction(action, lastState);
       }
@@ -80,6 +112,10 @@ function ChatRouter(
       replaceWithThread: (threadInfo: ThreadInfo) => ({
         type: 'REPLACE_WITH_THREAD',
         threadInfo,
+      }),
+      clearInvalidatedThreads: (threadIDs: $ReadOnlyArray<string>) => ({
+        type: 'CLEAR_INVALIDATED_THREADS',
+        threadIDs,
       }),
     }),
   };

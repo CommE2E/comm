@@ -40,6 +40,7 @@ import {
 } from './chat-input-state';
 import KeyboardAvoidingView from '../keyboard/keyboard-avoiding-view.react';
 import MessageStorePruner from './message-store-pruner.react';
+import ThreadScreenPruner from './thread-screen-pruner.react';
 
 type NavigationProp = NavigationStackProp<NavigationState> & {
   clearScreens: (routeNames: $ReadOnlyArray<string>) => void,
@@ -150,6 +151,7 @@ class WrappedChatNavigator extends React.PureComponent<WrappedProps> {
       <KeyboardAvoidingView style={styles.keyboardAvoidingView}>
         <ChatNavigator {...props} />
         <MessageStorePruner />
+        <ThreadScreenPruner />
       </KeyboardAvoidingView>
     );
   }

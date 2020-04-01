@@ -208,6 +208,17 @@ const activeMessageListSelector: (
     activeThread(navigationState, [MessageListRouteName]),
 );
 
+function useActiveThread() {
+  const navContext = React.useContext(NavContext);
+  return React.useMemo(() => {
+    if (!navContext) {
+      return null;
+    }
+    const { state } = navContext;
+    return activeThread(state, threadRoutes);
+  }, [navContext]);
+}
+
 const calendarTabActiveSelector = createActiveTabSelector(CalendarRouteName);
 const threadPickerActiveSelector = createIsForegroundSelector(
   ThreadPickerModalRouteName,
@@ -262,6 +273,7 @@ export {
   overlayTransitioningSelector,
   activeThreadSelector,
   activeMessageListSelector,
+  useActiveThread,
   calendarActiveSelector,
   nativeCalendarQuery,
   nonThreadCalendarQuery,
