@@ -70,7 +70,7 @@ type NavProp = NavigationScreenProp<{|
   ...NavigationLeafRoute,
   params: {|
     threadType?: ThreadType,
-    parentThreadID?: string,
+    parentThreadInfo?: ThreadInfo,
     createButtonDisabled?: boolean,
   |},
 |}>;
@@ -122,8 +122,9 @@ class ComposeThread extends React.PureComponent<Props, State> {
       state: PropTypes.shape({
         key: PropTypes.string.isRequired,
         params: PropTypes.shape({
-          parentThreadID: PropTypes.string,
           threadType: threadTypePropType,
+          parentThreadInfo: threadInfoPropType,
+          createButtonDisabled: PropTypes.bool,
         }).isRequired,
       }).isRequired,
       setParams: PropTypes.func.isRequired,
@@ -169,12 +170,30 @@ class ComposeThread extends React.PureComponent<Props, State> {
     setOnPressCreateThread(null);
   }
 
+  componentDidUpdate(prevProps: Props) {
+    const oldReduxParentThreadInfo = prevProps.parentThreadInfo;
+    const newReduxParentThreadInfo = this.props.parentThreadInfo;
+    if (
+      newReduxParentThreadInfo &&
+      newReduxParentThreadInfo !== oldReduxParentThreadInfo
+    ) {
+      this.props.navigation.setParams({
+        parentThreadInfo: newReduxParentThreadInfo,
+      });
+    }
+  }
+
+  static getParentThreadInfo(props: { navigation: NavProp }): ?ThreadInfo {
+    return props.navigation.state.params.parentThreadInfo;
+  }
+
   userSearchResultsSelector = createSelector(
     (propsAndState: PropsAndState) => propsAndState.usernameInputText,
     (propsAndState: PropsAndState) => propsAndState.otherUserInfos,
     (propsAndState: PropsAndState) => propsAndState.userSearchIndex,
     (propsAndState: PropsAndState) => propsAndState.userInfoInputArray,
-    (propsAndState: PropsAndState) => propsAndState.parentThreadInfo,
+    (propsAndState: PropsAndState) =>
+      ComposeThread.getParentThreadInfo(propsAndState),
     (
       text: string,
       userInfos: { [id: string]: AccountUserInfo },
@@ -196,7 +215,8 @@ class ComposeThread extends React.PureComponent<Props, State> {
   }
 
   existingThreadsSelector = createSelector(
-    (propsAndState: PropsAndState) => propsAndState.parentThreadInfo,
+    (propsAndState: PropsAndState) =>
+      ComposeThread.getParentThreadInfo(propsAndState),
     (propsAndState: PropsAndState) => propsAndState.threadInfos,
     (propsAndState: PropsAndState) => propsAndState.userInfoInputArray,
     (
@@ -252,17 +272,12 @@ class ComposeThread extends React.PureComponent<Props, State> {
       );
     }
     let parentThreadRow = null;
-    const parentThreadID = this.props.navigation.getParam('parentThreadID');
-    if (parentThreadID) {
-      const parentThreadInfo = this.props.parentThreadInfo;
-      invariant(
-        parentThreadInfo,
-        `can't find ThreadInfo for parent ${parentThreadID}`,
-      );
+    const parentThreadInfo = ComposeThread.getParentThreadInfo(this.props);
+    if (parentThreadInfo) {
       const threadType = this.props.navigation.getParam('threadType');
       invariant(
         threadType !== undefined && threadType !== null,
-        `no threadType provided for ${parentThreadID}`,
+        `no threadType provided for ${parentThreadInfo.id}`,
       );
       const threadVisibilityColor = this.props.colors.modalForegroundLabel;
       parentThreadRow = (
@@ -385,15 +400,12 @@ class ComposeThread extends React.PureComponent<Props, State> {
       const initialMemberIDs = this.state.userInfoInputArray.map(
         (userInfo: AccountUserInfo) => userInfo.id,
       );
+      const parentThreadInfo = ComposeThread.getParentThreadInfo(this.props);
       return await this.props.newThread({
         type: threadType,
-        parentThreadID: this.props.parentThreadInfo
-          ? this.props.parentThreadInfo.id
-          : null,
+        parentThreadID: parentThreadInfo ? parentThreadInfo.id : null,
         initialMemberIDs,
-        color: this.props.parentThreadInfo
-          ? this.props.parentThreadInfo.color
-          : null,
+        color: parentThreadInfo ? parentThreadInfo.color : null,
       });
     } catch (e) {
       this.createThreadPressed = false;
@@ -504,14 +516,13 @@ registerFetchKey(searchUsersActionTypes);
 
 export default connect(
   (state: AppState, ownProps: { navigation: NavProp }) => {
-    let parentThreadInfo = null;
-    const parentThreadID = ownProps.navigation.getParam('parentThreadID');
-    if (parentThreadID) {
-      parentThreadInfo = threadInfoSelector(state)[parentThreadID];
-      invariant(parentThreadInfo, 'parent thread should exist');
+    let reduxParentThreadInfo = null;
+    const parentThreadInfo = ownProps.navigation.state.params.parentThreadInfo;
+    if (parentThreadInfo) {
+      reduxParentThreadInfo = threadInfoSelector(state)[parentThreadInfo.id];
     }
     return {
-      parentThreadInfo,
+      parentThreadInfo: reduxParentThreadInfo,
       loadingStatus: loadingStatusSelector(state),
       otherUserInfos: userInfoSelectorForOtherMembersOfThread((null: ?string))(
         state,

@@ -85,13 +85,20 @@ function getThreadIDFromParams(params: ?NavigationParams): string {
 }
 
 function getParentThreadIDFromParams(params: ?NavigationParams): ?string {
+  if (!params) {
+    return undefined;
+  }
+  const { parentThreadInfo } = params;
+  if (!parentThreadInfo) {
+    return undefined;
+  }
   invariant(
-    params &&
-      (typeof params.parentThreadID === 'string' ||
-        (typeof params.parentThreadID === 'object' && !params.parentThreadID)),
+    typeof parentThreadInfo === 'object' &&
+      parentThreadInfo.id &&
+      typeof parentThreadInfo.id === 'string',
     "there's no way in react-navigation/Flow to type this",
   );
-  return params.parentThreadID;
+  return parentThreadInfo.id;
 }
 
 function getThreadIDFromRoute(
