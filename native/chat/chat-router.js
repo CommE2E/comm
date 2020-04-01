@@ -29,15 +29,15 @@ type ReplaceWithThreadAction = {|
   +type: 'REPLACE_WITH_THREAD',
   +threadInfo: ThreadInfo,
 |};
-type ClearInvalidatedThreadsAction = {|
-  +type: 'CLEAR_INVALIDATED_THREADS',
+type ClearThreadsAction = {|
+  +type: 'CLEAR_THREADS',
   +threadIDs: $ReadOnlyArray<string>,
 |};
 export type ChatRouterNavigationAction =
   | NavigationAction
   | ClearScreensAction
   | ReplaceWithThreadAction
-  | ClearInvalidatedThreadsAction;
+  | ClearThreadsAction;
 
 const defaultConfig = Object.freeze({});
 function ChatRouter(
@@ -83,7 +83,7 @@ function ChatRouter(
           params: { threadInfo },
         });
         return stackRouter.getStateForAction(navigateAction, clearedState);
-      } else if (action.type === 'CLEAR_INVALIDATED_THREADS') {
+      } else if (action.type === 'CLEAR_THREADS') {
         const threadIDs = new Set(action.threadIDs);
         if (!lastState) {
           return lastState;
@@ -113,8 +113,8 @@ function ChatRouter(
         type: 'REPLACE_WITH_THREAD',
         threadInfo,
       }),
-      clearInvalidatedThreads: (threadIDs: $ReadOnlyArray<string>) => ({
-        type: 'CLEAR_INVALIDATED_THREADS',
+      clearThreads: (threadIDs: $ReadOnlyArray<string>) => ({
+        type: 'CLEAR_THREADS',
         threadIDs,
       }),
     }),
