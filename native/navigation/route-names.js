@@ -61,3 +61,9 @@ export const chatRootModals = [
   ColorPickerModalRouteName,
   ComposeSubthreadModalRouteName,
 ];
+
+export const threadRoutes = [
+  MessageListRouteName,
+  ThreadSettingsRouteName,
+  DeleteThreadRouteName,
+];
