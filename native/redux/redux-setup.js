@@ -289,7 +289,7 @@ function reducer(state: AppState = defaultState, action: *) {
     drafts: reduceDrafts(state.drafts, action),
   };
 
-  const navInfo = reduceNavInfo(state, action, state.threadStore.threadInfos);
+  const navInfo = reduceNavInfo(state, action);
   if (navInfo && navInfo !== state.navInfo) {
     state = { ...state, navInfo };
   }
@@ -315,6 +315,7 @@ function validateState(
     (NativeAppState.currentState === 'active' ||
       (appLastBecameInactive + 10000 < Date.now() &&
         !backgroundActionTypes.has(action.type))) &&
+    state.threadStore.threadInfos[activeThread] &&
     state.threadStore.threadInfos[activeThread].currentUser.unread
   ) {
     // Makes sure a currently focused thread is never unread. Note that we

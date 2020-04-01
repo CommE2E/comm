@@ -26,7 +26,6 @@ import { threadInfoFromRawThreadInfo } from 'lib/shared/thread-utils';
 import {
   assertNavigationRouteNotLeafNode,
   getThreadIDFromParams,
-  getThreadIDFromRoute,
   removeScreensFromStack,
 } from '../utils/navigation-utils';
 import {
@@ -47,11 +46,7 @@ function getUniqueMessageListRouteKey() {
   return `${messageListRouteBase}-${messageListRouteIndex++}`;
 }
 
-function reduceNavInfo(
-  state: AppState,
-  action: *,
-  newThreadInfos: { [id: string]: RawThreadInfo },
-): NavInfo {
+function reduceNavInfo(state: AppState, action: *): NavInfo {
   let navInfoState = state.navInfo;
   // React Navigation actions
   const navigationState = RootNavigator.router.getStateForAction(
@@ -63,19 +58,6 @@ function reduceNavInfo(
       startDate: navInfoState.startDate,
       endDate: navInfoState.endDate,
       navigationState,
-    };
-  }
-
-  // Filtering out screens corresponding to deauthorized threads
-  const filteredNavigationState = filterChatScreensForThreadInfos(
-    navInfoState.navigationState,
-    newThreadInfos,
-  );
-  if (navInfoState.navigationState !== filteredNavigationState) {
-    navInfoState = {
-      startDate: navInfoState.startDate,
-      endDate: navInfoState.endDate,
-      navigationState: filteredNavigationState,
     };
   }
 
@@ -227,24 +209,6 @@ function popChatScreensForThreadID(
       const threadID = getThreadIDFromParams(route.params);
       if (threadID !== actionPayload.threadID) {
         return 'break';
-      }
-      return 'remove';
-    });
-  return replaceChatRoute(state, replaceFunc);
-}
-
-function filterChatScreensForThreadInfos(
-  state: NavigationState,
-  threadInfos: { [id: string]: RawThreadInfo },
-): NavigationState {
-  const replaceFunc = (chatRoute: NavigationStateRoute) =>
-    removeScreensFromStack(chatRoute, (route: NavigationRoute) => {
-      const threadID = getThreadIDFromRoute(route);
-      if (!threadID) {
-        return 'keep';
-      }
-      if (threadID in threadInfos) {
-        return 'keep';
       }
       return 'remove';
     });
