@@ -4,6 +4,8 @@ import {
   type ThreadInfo,
   threadInfoPropType,
   type LeaveThreadPayload,
+  type RawThreadInfo,
+  rawThreadInfoPropType,
 } from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
@@ -14,6 +16,7 @@ import type { Styles } from '../../types/styles';
 import * as React from 'react';
 import { Text, Alert, ActivityIndicator, View, Platform } from 'react-native';
 import PropTypes from 'prop-types';
+import invariant from 'invariant';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
@@ -22,6 +25,7 @@ import {
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors';
+import { identifyInvalidatedThreads } from 'lib/shared/thread-utils';
 
 import Button from '../../components/button.react';
 import {
@@ -30,6 +34,11 @@ import {
   colorsSelector,
   styleSelector,
 } from '../../themes/colors';
+import {
+  withNavContext,
+  type NavContextType,
+  navContextPropType,
+} from '../../navigation/navigation-context';
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -39,10 +48,13 @@ type Props = {|
   otherUsersButNoOtherAdmins: boolean,
   colors: Colors,
   styles: Styles,
+  rawThreadInfos: { [id: string]: RawThreadInfo },
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   leaveThread: (threadID: string) => Promise<LeaveThreadPayload>,
+  // withNavContext
+  navContext: ?NavContextType,
 |};
 class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
   static propTypes = {
@@ -52,8 +64,10 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
     otherUsersButNoOtherAdmins: PropTypes.bool.isRequired,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
+    rawThreadInfos: PropTypes.objectOf(rawThreadInfoPropType).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     leaveThread: PropTypes.func.isRequired,
+    navContext: navContextPropType,
   };
 
   render() {
@@ -110,8 +124,20 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
   };
 
   async leaveThread() {
+    const { navContext } = this.props;
+    invariant(navContext, 'navContext should exist in leaveThread');
+    const threadID = this.props.threadInfo.id;
     try {
-      return await this.props.leaveThread(this.props.threadInfo.id);
+      const result = await this.props.leaveThread(threadID);
+      const invalidated = identifyInvalidatedThreads(
+        this.props.rawThreadInfos,
+        result.threadInfos,
+      );
+      navContext.dispatch({
+        type: 'CLEAR_THREADS',
+        threadIDs: [...invalidated],
+      });
+      return result;
     } catch (e) {
       Alert.alert('Unknown error', 'Uhh... try again?');
       throw e;
@@ -153,6 +179,7 @@ export default connect(
     )(state),
     colors: colorsSelector(state),
     styles: stylesSelector(state),
+    rawThreadInfos: state.threadStore.threadInfos,
   }),
   { leaveThread },
-)(ThreadSettingsLeaveThread);
+)(withNavContext(ThreadSettingsLeaveThread));
