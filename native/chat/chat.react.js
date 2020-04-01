@@ -43,7 +43,7 @@ import ThreadScreenPruner from './thread-screen-pruner.react';
 type NavigationProp = NavigationStackProp<NavigationState> & {
   clearScreens: (routeNames: $ReadOnlyArray<string>) => void,
   replaceWithThread: (threadInfo: ThreadInfo) => void,
-  clearInvalidatedThreads: (threadIDs: $ReadOnlyArray<string>) => void,
+  clearThreads: (threadIDs: $ReadOnlyArray<string>) => void,
 };
 type Props = {| navigation: NavigationProp |};
 type StackViewProps = React.ElementConfig<typeof StackView> & {

@@ -68,7 +68,7 @@ function ThreadScreenPruner() {
       );
     }
     navContext.dispatch({
-      type: 'CLEAR_INVALIDATED_THREADS',
+      type: 'CLEAR_THREADS',
       threadIDs: pruneThreadIDs,
     });
   }, [pruneThreadIDs, navContext, activeThreadID]);
