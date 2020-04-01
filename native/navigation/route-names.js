@@ -66,4 +66,5 @@ export const threadRoutes = [
   MessageListRouteName,
   ThreadSettingsRouteName,
   DeleteThreadRouteName,
+  ComposeThreadRouteName,
 ];
