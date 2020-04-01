@@ -9,6 +9,8 @@ import {
   type ThreadInfo,
   threadInfoPropType,
   type LeaveThreadPayload,
+  type RawThreadInfo,
+  rawThreadInfoPropType,
 } from 'lib/types/thread-types';
 import { type GlobalTheme, globalThemePropType } from '../../types/themes';
 import type { Styles } from '../../types/styles';
@@ -33,6 +35,7 @@ import {
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import { identifyInvalidatedThreads } from 'lib/shared/thread-utils';
 
 import Button from '../../components/button.react';
 import OnePasswordButton from '../../components/one-password-button.react';
@@ -42,6 +45,11 @@ import {
   colorsSelector,
   styleSelector,
 } from '../../themes/colors';
+import {
+  withNavContext,
+  type NavContextType,
+  navContextPropType,
+} from '../../navigation/navigation-context';
 
 type NavProp = {
   state: { params: { threadInfo: ThreadInfo } },
@@ -55,6 +63,7 @@ type Props = {|
   activeTheme: ?GlobalTheme,
   colors: Colors,
   styles: Styles,
+  rawThreadInfos: { [id: string]: RawThreadInfo },
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -62,12 +71,14 @@ type Props = {|
     threadID: string,
     currentAccountPassword: string,
   ) => Promise<LeaveThreadPayload>,
+  // withNavContext
+  navContext: ?NavContextType,
 |};
 type State = {|
   password: string,
   onePasswordSupported: boolean,
 |};
-class InnerDeleteThread extends React.PureComponent<Props, State> {
+class DeleteThread extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
@@ -83,8 +94,10 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
     activeTheme: globalThemePropType,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
+    rawThreadInfos: PropTypes.objectOf(rawThreadInfoPropType).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     deleteThread: PropTypes.func.isRequired,
+    navContext: navContextPropType,
   };
   static navigationOptions = {
     headerTitle: 'Delete thread',
@@ -156,7 +169,7 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
       ) : (
         <Text style={this.props.styles.deleteText}>Delete thread</Text>
       );
-    const threadInfo = InnerDeleteThread.getThreadInfo(this.props);
+    const threadInfo = DeleteThread.getThreadInfo(this.props);
     const { panelForegroundTertiaryLabel } = this.props.colors;
     return (
       <ScrollView
@@ -223,9 +236,23 @@ class InnerDeleteThread extends React.PureComponent<Props, State> {
   };
 
   async deleteThread() {
-    const threadInfo = InnerDeleteThread.getThreadInfo(this.props);
+    const { navContext } = this.props;
+    invariant(navContext, 'navContext should exist in deleteThread');
+    const threadInfo = DeleteThread.getThreadInfo(this.props);
     try {
-      return await this.props.deleteThread(threadInfo.id, this.state.password);
+      const result = await this.props.deleteThread(
+        threadInfo.id,
+        this.state.password,
+      );
+      const invalidated = identifyInvalidatedThreads(
+        this.props.rawThreadInfos,
+        result.threadInfos,
+      );
+      navContext.dispatch({
+        type: 'CLEAR_THREADS',
+        threadIDs: [...invalidated],
+      });
+      return result;
     } catch (e) {
       if (
         e.message === 'invalid_credentials' ||
@@ -315,7 +342,7 @@ const loadingStatusSelector = createLoadingStatusSelector(
   deleteThreadActionTypes,
 );
 
-const DeleteThread = connect(
+export default connect(
   (state: AppState, ownProps: { navigation: NavProp }): * => {
     const threadID = ownProps.navigation.state.params.threadInfo.id;
     return {
@@ -324,9 +351,8 @@ const DeleteThread = connect(
       activeTheme: state.globalThemeInfo.activeTheme,
       colors: colorsSelector(state),
       styles: stylesSelector(state),
+      rawThreadInfos: state.threadStore.threadInfos,
     };
   },
   { deleteThread },
-)(InnerDeleteThread);
-
-export default DeleteThread;
+)(withNavContext(DeleteThread));
