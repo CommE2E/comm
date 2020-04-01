@@ -1,6 +1,6 @@
 // @flow
 
-import type { RawThreadInfo, LeaveThreadPayload } from 'lib/types/thread-types';
+import type { RawThreadInfo } from 'lib/types/thread-types';
 import type {
   NavigationState,
   NavigationRoute,
@@ -16,21 +16,15 @@ import { useScreens } from 'react-native-screens';
 
 import { infoFromURL } from 'lib/utils/url-utils';
 import { setNewSessionActionType } from 'lib/utils/action-utils';
-import {
-  leaveThreadActionTypes,
-  deleteThreadActionTypes,
-  newThreadActionTypes,
-} from 'lib/actions/thread-actions';
+import { newThreadActionTypes } from 'lib/actions/thread-actions';
 import { threadInfoFromRawThreadInfo } from 'lib/shared/thread-utils';
 
 import {
   assertNavigationRouteNotLeafNode,
-  getThreadIDFromParams,
   removeScreensFromStack,
 } from '../utils/navigation-utils';
 import {
   ComposeThreadRouteName,
-  ThreadSettingsRouteName,
   MessageListRouteName,
   VerificationModalRouteName,
 } from './route-names';
@@ -70,18 +64,6 @@ function reduceNavInfo(state: AppState, action: *): NavInfo {
     };
   } else if (action.type === setNewSessionActionType) {
     sessionInvalidationAlert(action.payload);
-  } else if (
-    action.type === leaveThreadActionTypes.success ||
-    action.type === deleteThreadActionTypes.success
-  ) {
-    return {
-      startDate: navInfoState.startDate,
-      endDate: navInfoState.endDate,
-      navigationState: popChatScreensForThreadID(
-        navInfoState.navigationState,
-        action.payload,
-      ),
-    };
   } else if (action.type === newThreadActionTypes.success) {
     return {
       startDate: navInfoState.startDate,
@@ -190,29 +172,6 @@ function replaceChatRoute(
     routes: newRootRoutes,
     isTransitioning: true,
   };
-}
-
-function popChatScreensForThreadID(
-  state: NavigationState,
-  actionPayload: LeaveThreadPayload,
-): NavigationState {
-  const replaceFunc = (chatRoute: NavigationStateRoute) =>
-    removeScreensFromStack(chatRoute, (route: NavigationRoute) => {
-      if (
-        (route.routeName !== MessageListRouteName &&
-          route.routeName !== ThreadSettingsRouteName) ||
-        (route.routeName === MessageListRouteName &&
-          !!actionPayload.threadInfos[actionPayload.threadID])
-      ) {
-        return 'break';
-      }
-      const threadID = getThreadIDFromParams(route.params);
-      if (threadID !== actionPayload.threadID) {
-        return 'break';
-      }
-      return 'remove';
-    });
-  return replaceChatRoute(state, replaceFunc);
 }
 
 function handleNewThread(
