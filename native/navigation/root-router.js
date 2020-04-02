@@ -109,6 +109,11 @@ function RootRouter(
         return stackRouter.getStateForAction(action, lastState);
       }
     },
+    getActionCreators: (route: NavigationRoute, navStateKey: ?string) => ({
+      ...stackRouter.getActionCreators(route, navStateKey),
+      logIn: () => ({ type: 'LOG_IN' }),
+      logOut: () => ({ type: 'LOG_OUT' }),
+    }),
   };
 }
 
