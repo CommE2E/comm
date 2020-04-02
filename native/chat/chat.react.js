@@ -40,14 +40,15 @@ import KeyboardAvoidingView from '../keyboard/keyboard-avoiding-view.react';
 import MessageStorePruner from './message-store-pruner.react';
 import ThreadScreenPruner from './thread-screen-pruner.react';
 
-type NavigationProp = NavigationStackProp<NavigationState> & {
+export type ChatNavProp<State> = NavigationStackProp<State> & {
   clearScreens: (routeNames: $ReadOnlyArray<string>) => void,
   replaceWithThread: (threadInfo: ThreadInfo) => void,
   clearThreads: (threadIDs: $ReadOnlyArray<string>) => void,
+  pushNewThread: (threadInfo: ThreadInfo) => void,
 };
-type Props = {| navigation: NavigationProp |};
+type Props = {| navigation: ChatNavProp<NavigationState> |};
 type StackViewProps = React.ElementConfig<typeof StackView> & {
-  +navigation: NavigationProp,
+  +navigation: ChatNavProp<NavigationState>,
 };
 
 function createChatNavigator(
@@ -76,7 +77,7 @@ function createChatNavigator(
       NavigationStackScreenOptions,
       NavigationState,
       StackNavigatorConfig,
-      NavigationProp,
+      ChatNavProp<NavigationState>,
       StackViewProps,
     >(StackView, ChatRouter(routeConfigMap, routerConfig), navigatorConfig),
     navigatorConfig,
@@ -107,7 +108,7 @@ ChatNavigator.navigationOptions = {
     navigation,
     defaultHandler,
   }: {
-    navigation: NavigationProp,
+    navigation: ChatNavProp<NavigationState>,
     defaultHandler: () => void,
   }) => {
     if (!navigation.isFocused()) {

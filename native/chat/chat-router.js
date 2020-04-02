@@ -15,6 +15,7 @@ import {
 import {
   ChatThreadListRouteName,
   MessageListRouteName,
+  ComposeThreadRouteName,
 } from '../navigation/route-names';
 import {
   removeScreensFromStack,
@@ -33,11 +34,16 @@ type ClearThreadsAction = {|
   +type: 'CLEAR_THREADS',
   +threadIDs: $ReadOnlyArray<string>,
 |};
+type PushNewThreadAction = {|
+  +type: 'PUSH_NEW_THREAD',
+  +threadInfo: ThreadInfo,
+|};
 export type ChatRouterNavigationAction =
   | NavigationAction
   | ClearScreensAction
   | ReplaceWithThreadAction
-  | ClearThreadsAction;
+  | ClearThreadsAction
+  | PushNewThreadAction;
 
 const defaultConfig = Object.freeze({});
 function ChatRouter(
@@ -99,6 +105,22 @@ function ChatRouter(
           return newState;
         }
         return { ...newState, isTransitioning: true };
+      } else if (action.type === 'PUSH_NEW_THREAD') {
+        const { threadInfo } = action;
+        if (!lastState) {
+          return lastState;
+        }
+        const clearedState = removeScreensFromStack(
+          lastState,
+          (route: NavigationRoute) =>
+            route.routeName === ComposeThreadRouteName ? 'remove' : 'break',
+        );
+        const navigateAction = NavigationActions.navigate({
+          routeName: MessageListRouteName,
+          key: `${MessageListRouteName}${threadInfo.id}`,
+          params: { threadInfo },
+        });
+        return stackRouter.getStateForAction(navigateAction, clearedState);
       } else {
         return stackRouter.getStateForAction(action, lastState);
       }
@@ -116,6 +138,10 @@ function ChatRouter(
       clearThreads: (threadIDs: $ReadOnlyArray<string>) => ({
         type: 'CLEAR_THREADS',
         threadIDs,
+      }),
+      pushNewThread: (threadInfo: ThreadInfo) => ({
+        type: 'PUSH_NEW_THREAD',
+        threadInfo,
       }),
     }),
   };
