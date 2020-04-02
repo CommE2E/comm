@@ -71,7 +71,7 @@ import {
   updateDeviceOrientationActionType,
   backgroundActionTypes,
 } from './action-types';
-import reduceNavInfo from '../navigation/nav-reducer';
+import RootNavigator from '../navigation/root-navigator.react';
 import { type NavInfo, defaultNavInfo } from '../navigation/default-state';
 import { reduceThreadIDsToNotifIDs } from '../push/reducer';
 import { persistConfig, setPersistor } from './persist';
@@ -292,9 +292,18 @@ function reducer(state: AppState = defaultState, action: *) {
     drafts: reduceDrafts(state.drafts, action),
   };
 
-  const navInfo = reduceNavInfo(state, action);
-  if (navInfo && navInfo !== state.navInfo) {
-    state = { ...state, navInfo };
+  const navigationState = RootNavigator.router.getStateForAction(
+    action,
+    state.navInfo.navigationState,
+  );
+  if (navigationState && navigationState !== state.navInfo.navigationState) {
+    state = {
+      ...state,
+      navInfo: {
+        ...state.navInfo,
+        navigationState,
+      },
+    };
   }
 
   return validateState(oldState, state, action);
