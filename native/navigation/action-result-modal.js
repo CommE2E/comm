@@ -1,18 +1,20 @@
 // @flow
 
 import { NavigationActions } from 'react-navigation';
+import invariant from 'invariant';
 
-import { dispatch } from '../redux/redux-setup';
 import { ActionResultModalRouteName } from './route-names';
+import { getGlobalNavContext } from './icky-global';
 
 function displayActionResultModal(message: string) {
-  dispatch({
-    // We do this for Flow
-    ...NavigationActions.navigate({
+  const navContext = getGlobalNavContext();
+  invariant(navContext, 'navContext should be set in displayActionResultModal');
+  navContext.dispatch(
+    NavigationActions.navigate({
       routeName: ActionResultModalRouteName,
       params: { message },
     }),
-  });
+  );
 }
 
 export { displayActionResultModal };
