@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux';
 import { useActiveMessageList } from './nav-selectors';
 import { updateThreadLastNavigatedActionType } from '../redux/action-types';
 
-function ThreadScreenTracker() {
+const ThreadScreenTracker = React.memo<{||}>(() => {
   const activeThread = useActiveMessageList();
   const reduxDispatch = useDispatch();
 
@@ -23,6 +23,7 @@ function ThreadScreenTracker() {
   }, [activeThread, reduxDispatch]);
 
   return null;
-}
+});
+ThreadScreenTracker.displayName = 'ThreadScreenTracker';
 
 export default ThreadScreenTracker;
