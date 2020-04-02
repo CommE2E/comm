@@ -10,7 +10,7 @@ import { useIsAppLoggedIn } from './nav-selectors';
 import LinkingHandler from './linking-handler.react';
 import ThreadScreenTracker from './thread-screen-tracker.react';
 
-function NavigationHandler() {
+const NavigationHandler = React.memo<{||}>(() => {
   const navContext = React.useContext(NavContext);
   const reduxRehydrated = useSelector(
     (state: AppState) => !!(state._persist && state._persist.rehydrated),
@@ -26,7 +26,8 @@ function NavigationHandler() {
       <ThreadScreenTracker />
     </>
   );
-}
+});
+NavigationHandler.displayName = 'NavigationHandler';
 
 type LogInHandlerProps = {|
   dispatch: (action: NavAction) => boolean,
