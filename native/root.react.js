@@ -13,7 +13,6 @@ import {
   Platform,
   UIManager,
   AppState as NativeAppState,
-  Linking,
   View,
   StyleSheet,
 } from 'react-native';
@@ -30,7 +29,6 @@ import {
 } from 'lib/reducers/foreground-reducer';
 
 import RootNavigator from './navigation/root-navigator.react';
-import { handleURLActionType } from './redux/action-types';
 import { store, appBecameInactive } from './redux/redux-setup';
 import ConnectedStatusBar from './connected-status-bar.react';
 import ErrorBoundary from './error-boundary.react';
@@ -99,21 +97,11 @@ class Root extends React.PureComponent<Props, State> {
       SplashScreen.hide();
     }
     NativeAppState.addEventListener('change', this.handleAppStateChange);
-    this.handleInitialURL();
-    Linking.addEventListener('url', this.handleURLChange);
     Orientation.lockToPortrait();
-  }
-
-  async handleInitialURL() {
-    const url = await Linking.getInitialURL();
-    if (url) {
-      this.dispatchActionForURL(url);
-    }
   }
 
   componentWillUnmount() {
     NativeAppState.removeEventListener('change', this.handleAppStateChange);
-    Linking.removeEventListener('url', this.handleURLChange);
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -128,17 +116,6 @@ class Root extends React.PureComponent<Props, State> {
       this.setState({ navContext });
       setGlobalNavContext(navContext);
     }
-  }
-
-  handleURLChange = (event: { url: string }) => {
-    this.dispatchActionForURL(event.url);
-  };
-
-  dispatchActionForURL(url: string) {
-    if (!url.startsWith('http')) {
-      return;
-    }
-    this.props.dispatchActionPayload(handleURLActionType, url);
   }
 
   handleAppStateChange = (nextState: ?string) => {

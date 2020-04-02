@@ -7,46 +7,43 @@ import { useSelector } from 'react-redux';
 
 import { NavContext, type NavAction } from './navigation-context';
 import { useIsAppLoggedIn } from './nav-selectors';
+import LinkingHandler from './linking-handler.react';
 
 function NavigationHandler() {
   const navContext = React.useContext(NavContext);
-
   const reduxRehydrated = useSelector(
     (state: AppState) => !!(state._persist && state._persist.rehydrated),
   );
-  const loggedIn = useSelector(
-    (state: AppState) =>
-      !!(
-        state.currentUserInfo &&
-        !state.currentUserInfo.anonymous &&
-        state.cookie &&
-        state.cookie.startsWith('user=')
-      ),
-  );
-
-  const navLoggedIn = useIsAppLoggedIn();
-
-  if (navContext && reduxRehydrated) {
-    return (
-      <LogInHandler
-        navLoggedIn={navLoggedIn}
-        loggedIn={loggedIn}
-        dispatch={navContext.dispatch}
-      />
-    );
+  if (!navContext || !reduxRehydrated) {
+    return null;
   }
-
-  return null;
+  const { dispatch } = navContext;
+  return (
+    <>
+      <LogInHandler dispatch={dispatch} />
+      <LinkingHandler dispatch={dispatch} />
+    </>
+  );
 }
 
 type LogInHandlerProps = {|
-  navLoggedIn: boolean,
-  loggedIn: boolean,
   dispatch: (action: NavAction) => boolean,
 |};
 const LogInHandler = React.memo<LogInHandlerProps>(
   (props: LogInHandlerProps) => {
-    const { navLoggedIn, loggedIn, dispatch } = props;
+    const { dispatch } = props;
+
+    const loggedIn = useSelector(
+      (state: AppState) =>
+        !!(
+          state.currentUserInfo &&
+          !state.currentUserInfo.anonymous &&
+          state.cookie &&
+          state.cookie.startsWith('user=')
+        ),
+    );
+
+    const navLoggedIn = useIsAppLoggedIn();
 
     const prevLoggedInRef = React.useRef();
     React.useEffect(() => {
