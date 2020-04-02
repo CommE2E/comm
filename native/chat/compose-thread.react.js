@@ -1,9 +1,6 @@
 // @flow
 
-import type {
-  NavigationScreenProp,
-  NavigationLeafRoute,
-} from 'react-navigation';
+import type { NavigationLeafRoute } from 'react-navigation';
 import type { AppState } from '../redux/redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
@@ -19,10 +16,13 @@ import {
 import {
   type AccountUserInfo,
   accountUserInfoPropType,
+  type UserInfo,
+  userInfoPropType,
 } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { UserSearchResult } from 'lib/types/search-types';
 import type { Styles } from '../types/styles';
+import type { ChatNavProp } from './chat.react';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -42,7 +42,11 @@ import {
   userSearchIndexForOtherMembersOfThread,
 } from 'lib/selectors/user-selectors';
 import SearchIndex from 'lib/shared/search-index';
-import { threadInChatList, userIsMember } from 'lib/shared/thread-utils';
+import {
+  threadInChatList,
+  userIsMember,
+  threadInfoFromRawThreadInfo,
+} from 'lib/shared/thread-utils';
 import { getUserSearchResults } from 'lib/shared/search-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
@@ -66,7 +70,7 @@ const tagInputProps = {
   returnKeyType: 'go',
 };
 
-type NavProp = NavigationScreenProp<{|
+type NavProp = ChatNavProp<{|
   ...NavigationLeafRoute,
   params: {|
     threadType?: ThreadType,
@@ -105,6 +109,8 @@ type Props = {|
   threadInfos: { [id: string]: ThreadInfo },
   colors: Colors,
   styles: Styles,
+  viewerID: ?string,
+  userInfos: { [id: string]: UserInfo },
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -131,6 +137,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
       goBack: PropTypes.func.isRequired,
       navigate: PropTypes.func.isRequired,
       getParam: PropTypes.func.isRequired,
+      pushNewThread: PropTypes.func.isRequired,
     }).isRequired,
     parentThreadInfo: threadInfoPropType,
     loadingStatus: loadingStatusPropType.isRequired,
@@ -139,6 +146,8 @@ class ComposeThread extends React.PureComponent<Props, State> {
     threadInfos: PropTypes.objectOf(threadInfoPropType).isRequired,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
+    viewerID: PropTypes.string,
+    userInfos: PropTypes.objectOf(userInfoPropType).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     newThread: PropTypes.func.isRequired,
     searchUsers: PropTypes.func.isRequired,
@@ -383,11 +392,16 @@ class ComposeThread extends React.PureComponent<Props, State> {
     }
   };
 
-  dispatchNewChatThreadAction = () => {
-    this.props.dispatchActionPromise(
-      newThreadActionTypes,
-      this.newChatThreadAction(),
+  dispatchNewChatThreadAction = async () => {
+    const promise = this.newChatThreadAction();
+    this.props.dispatchActionPromise(newThreadActionTypes, promise);
+    const { newThreadInfo: rawThreadInfo } = await promise;
+    const threadInfo = threadInfoFromRawThreadInfo(
+      rawThreadInfo,
+      this.props.viewerID,
+      this.props.userInfos,
     );
+    this.props.navigation.pushNewThread(threadInfo);
   };
 
   async newChatThreadAction() {
@@ -531,6 +545,8 @@ export default connect(
       threadInfos: threadInfoSelector(state),
       colors: colorsSelector(state),
       styles: stylesSelector(state),
+      viewerID: state.currentUserInfo && state.currentUserInfo.id,
+      userInfos: state.userInfos,
     };
   },
   { newThread, searchUsers },
