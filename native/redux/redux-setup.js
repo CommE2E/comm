@@ -69,6 +69,7 @@ import {
   updateThemeInfoActionType,
   updateDeviceCameraInfoActionType,
   updateDeviceOrientationActionType,
+  updateThreadLastNavigatedActionType,
   backgroundActionTypes,
 } from './action-types';
 import RootNavigator from '../navigation/root-navigator.react';
@@ -253,20 +254,35 @@ function reducer(state: AppState = defaultState, action: *) {
       ...state,
       deviceOrientation: action.payload,
     };
+  } else if (action.type === setDeviceTokenActionTypes.started) {
+    return {
+      ...state,
+      deviceToken: action.payload,
+    };
+  } else if (action.type === updateThreadLastNavigatedActionType) {
+    const { threadID, time } = action.payload;
+    if (state.messageStore.threads[threadID]) {
+      state = {
+        ...state,
+        messageStore: {
+          ...state.messageStore,
+          threads: {
+            ...state.messageStore.threads,
+            [threadID]: {
+              ...state.messageStore.threads[threadID],
+              lastNavigatedTo: time,
+            },
+          },
+        },
+      };
+    }
   }
-
-  const oldState = state;
 
   if (action.type === setNewSessionActionType) {
     sessionInvalidationAlert(action.payload);
     state = {
       ...state,
       cookie: action.payload.sessionChange.cookie,
-    };
-  } else if (action.type === setDeviceTokenActionTypes.started) {
-    state = {
-      ...state,
-      deviceToken: action.payload,
     };
   } else if (action.type === incrementalStateSyncActionType) {
     let wipeDeviceToken = false;
@@ -306,7 +322,7 @@ function reducer(state: AppState = defaultState, action: *) {
     };
   }
 
-  return validateState(oldState, state, action);
+  return validateState(state, action);
 }
 
 function sessionInvalidationAlert(payload: SetSessionPayload) {
@@ -334,15 +350,7 @@ function sessionInvalidationAlert(payload: SetSessionPayload) {
   }
 }
 
-function validateState(
-  oldState: AppState,
-  state: AppState,
-  action: *,
-): AppState {
-  const oldActiveThread = activeMessageListSelector({
-    state: oldState.navInfo.navigationState,
-    dispatch: () => true,
-  });
+function validateState(state: AppState, action: *): AppState {
   const activeThread = activeMessageListSelector({
     state: state.navInfo.navigationState,
     dispatch: () => true,
@@ -379,28 +387,6 @@ function validateState(
       },
     };
   }
-
-  if (
-    activeThread &&
-    oldActiveThread !== activeThread &&
-    state.messageStore.threads[activeThread]
-  ) {
-    // Update messageStore.threads[activeThread].lastNavigatedTo
-    state = {
-      ...state,
-      messageStore: {
-        ...state.messageStore,
-        threads: {
-          ...state.messageStore.threads,
-          [activeThread]: {
-            ...state.messageStore.threads[activeThread],
-            lastNavigatedTo: Date.now(),
-          },
-        },
-      },
-    };
-  }
-
   return state;
 }
 

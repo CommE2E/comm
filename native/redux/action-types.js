@@ -16,6 +16,8 @@ export const updateConnectivityActiveType = 'UPDATE_CONNECTIVITY';
 export const updateThemeInfoActionType = 'UPDATE_THEME_INFO';
 export const updateDeviceCameraInfoActionType = 'UPDATE_DEVICE_CAMERA_INFO';
 export const updateDeviceOrientationActionType = 'UPDATE_DEVICE_ORIENTATION';
+export const updateThreadLastNavigatedActionType =
+  'UPDATE_THREAD_LAST_NAVIGATED';
 
 export const backgroundActionTypes: Set<string> = new Set([
   saveMessagesActionType,
