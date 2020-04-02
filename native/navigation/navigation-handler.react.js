@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import { NavContext, type NavAction } from './navigation-context';
 import { useIsAppLoggedIn } from './nav-selectors';
 import LinkingHandler from './linking-handler.react';
+import ThreadScreenTracker from './thread-screen-tracker.react';
 
 function NavigationHandler() {
   const navContext = React.useContext(NavContext);
@@ -22,6 +23,7 @@ function NavigationHandler() {
     <>
       <LogInHandler dispatch={dispatch} />
       <LinkingHandler dispatch={dispatch} />
+      <ThreadScreenTracker />
     </>
   );
 }

@@ -200,12 +200,13 @@ const activeThreadSelector: (
     activeThread(navigationState, threadRoutes),
 );
 
+const messageListRouteNames = [MessageListRouteName];
 const activeMessageListSelector: (
   context: ?NavContextType,
 ) => ?string = createSelector(
   (context: ?NavContextType) => context && context.state,
   (navigationState: ?NavigationState): ?string =>
-    activeThread(navigationState, [MessageListRouteName]),
+    activeThread(navigationState, messageListRouteNames),
 );
 
 function useActiveThread() {
@@ -216,6 +217,17 @@ function useActiveThread() {
     }
     const { state } = navContext;
     return activeThread(state, threadRoutes);
+  }, [navContext]);
+}
+
+function useActiveMessageList() {
+  const navContext = React.useContext(NavContext);
+  return React.useMemo(() => {
+    if (!navContext) {
+      return null;
+    }
+    const { state } = navContext;
+    return activeThread(state, messageListRouteNames);
   }, [navContext]);
 }
 
@@ -274,6 +286,7 @@ export {
   activeThreadSelector,
   activeMessageListSelector,
   useActiveThread,
+  useActiveMessageList,
   calendarActiveSelector,
   nativeCalendarQuery,
   nonThreadCalendarQuery,
