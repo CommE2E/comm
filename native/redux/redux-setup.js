@@ -83,6 +83,7 @@ import {
 } from '../utils/url-utils';
 import reactotron from '../reactotron';
 import reduceDrafts from '../reducers/draft-reducer';
+import { getGlobalNavContext } from '../navigation/icky-global';
 
 export type AppState = {|
   navInfo: NavInfo,
@@ -322,7 +323,7 @@ function reducer(state: AppState = defaultState, action: *) {
     };
   }
 
-  return validateState(state, action);
+  return fixUnreadActiveThread(state, action);
 }
 
 function sessionInvalidationAlert(payload: SetSessionPayload) {
@@ -350,11 +351,16 @@ function sessionInvalidationAlert(payload: SetSessionPayload) {
   }
 }
 
-function validateState(state: AppState, action: *): AppState {
-  const activeThread = activeMessageListSelector({
-    state: state.navInfo.navigationState,
-    dispatch: () => true,
-  });
+// Makes sure a currently focused thread is never unread. Note that we consider
+// a backgrounded NativeAppState to actually be active if it last changed to
+// inactive more than 10 seconds ago. This is because there is a delay when
+// NativeAppState is updating in response to a foreground, and actions don't get
+// processed more than 10 seconds after a backgrounding anyways. However we
+// don't consider this for action types that can be expected to happen while the
+// app is backgrounded.
+function fixUnreadActiveThread(state: AppState, action: *): AppState {
+  const navContext = getGlobalNavContext();
+  const activeThread = activeMessageListSelector(navContext);
   if (
     activeThread &&
     (NativeAppState.currentState === 'active' ||
@@ -363,13 +369,6 @@ function validateState(state: AppState, action: *): AppState {
     state.threadStore.threadInfos[activeThread] &&
     state.threadStore.threadInfos[activeThread].currentUser.unread
   ) {
-    // Makes sure a currently focused thread is never unread. Note that we
-    // consider a backgrounded NativeAppState to actually be active if it last
-    // changed to inactive more than 10 seconds ago. This is because there is a
-    // delay when NativeAppState is updating in response to a foreground, and
-    // actions don't get processed more than 10 seconds after a backgrounding
-    // anyways. However we don't consider this for action types that can be
-    // expected to happen while the app is backgrounded.
     state = {
       ...state,
       threadStore: {
