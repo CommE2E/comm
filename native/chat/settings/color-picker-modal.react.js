@@ -27,7 +27,7 @@ import {
 } from 'lib/actions/thread-actions';
 
 import { createModal } from '../../components/modal.react';
-import { AddUsersModalRouteName } from '../../navigation/route-names';
+import { ColorPickerModalRouteName } from '../../navigation/route-names';
 import ColorPicker from '../../components/color-picker.react';
 import {
   type Colors,
@@ -37,10 +37,11 @@ import {
 } from '../../themes/colors';
 import { dimensionsSelector } from '../../selectors/dimension-selectors';
 
-const Modal = createModal(AddUsersModalRouteName);
+const Modal = createModal(ColorPickerModalRouteName);
 type NavProp = NavigationScreenProp<{|
   ...NavigationLeafRoute,
   params: {|
+    presentedFrom: string,
     color: string,
     threadInfo: ThreadInfo,
     setColor: (color: string) => void,

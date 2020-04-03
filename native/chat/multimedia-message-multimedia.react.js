@@ -194,7 +194,12 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
       const coordinates = { x: pageX, y: pageY, width, height };
       this.props.navigation.navigate({
         routeName: MultimediaModalRouteName,
-        params: { mediaInfo, initialCoordinates: coordinates, verticalBounds },
+        params: {
+          presentedFrom: this.props.navigation.state.key,
+          mediaInfo,
+          initialCoordinates: coordinates,
+          verticalBounds,
+        },
       });
       this.setState({ hidden: true });
     });
@@ -262,6 +267,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
       this.props.navigation.navigate({
         routeName: MultimediaTooltipModalRouteName,
         params: {
+          presentedFrom: this.props.navigation.state.key,
           mediaInfo,
           item,
           initialCoordinates: coordinates,

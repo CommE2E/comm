@@ -168,6 +168,9 @@ class Calendar extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
       navigate: PropTypes.func.isRequired,
+      state: PropTypes.shape({
+        key: PropTypes.string.isRequired,
+      }),
     }).isRequired,
     listData: PropTypes.arrayOf(
       PropTypes.oneOfType([
@@ -705,6 +708,7 @@ class Calendar extends React.PureComponent<Props, State> {
 
   onAdd = (dayString: string) => {
     this.props.navigation.navigate(ThreadPickerModalRouteName, {
+      presentedFrom: this.props.navigation.state.key,
       dateString: dayString,
     });
   };

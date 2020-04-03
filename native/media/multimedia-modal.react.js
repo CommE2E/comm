@@ -177,6 +177,7 @@ function runDecay(
 type NavProp = NavigationStackProp<{|
   ...NavigationLeafRoute,
   params: {|
+    presentedFrom: string,
     mediaInfo: MediaInfo,
     initialCoordinates: LayoutCoordinates,
     verticalBounds: VerticalBounds,

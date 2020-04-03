@@ -31,6 +31,7 @@ type Props = {|
   setColorEditValue: (color: string) => void,
   canChangeSettings: boolean,
   navigate: Navigate,
+  threadSettingsRouteKey: string,
   // Redux state
   loadingStatus: LoadingStatus,
   colors: Colors,
@@ -43,6 +44,7 @@ class ThreadSettingsColor extends React.PureComponent<Props> {
     setColorEditValue: PropTypes.func.isRequired,
     canChangeSettings: PropTypes.bool.isRequired,
     navigate: PropTypes.func.isRequired,
+    threadSettingsRouteKey: PropTypes.string.isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
@@ -85,6 +87,7 @@ class ThreadSettingsColor extends React.PureComponent<Props> {
     this.props.navigate({
       routeName: ColorPickerModalRouteName,
       params: {
+        presentedFrom: this.props.threadSettingsRouteKey,
         color: this.props.colorEditValue,
         threadInfo: this.props.threadInfo,
         setColor: this.props.setColorEditValue,

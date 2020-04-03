@@ -225,6 +225,7 @@ function runIndicatorAnimation(
 type NavProp = NavigationStackProp<{|
   ...NavigationLeafRoute,
   params: {|
+    presentedFrom: string,
     threadID: string,
   |},
 |}>;

@@ -38,6 +38,7 @@ const Modal = createModal(ComposeSubthreadModalRouteName);
 type NavProp = NavigationScreenProp<{|
   ...NavigationLeafRoute,
   params: {|
+    presentedFrom: string,
     threadInfo: ThreadInfo,
   |},
 |}>;

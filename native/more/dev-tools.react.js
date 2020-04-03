@@ -47,6 +47,9 @@ class DevTools extends React.PureComponent<Props> {
   static propTypes = {
     navigation: PropTypes.shape({
       navigate: PropTypes.func.isRequired,
+      state: PropTypes.shape({
+        key: PropTypes.string.isRequired,
+      }),
     }).isRequired,
     urlPrefix: PropTypes.string.isRequired,
     customServer: PropTypes.string,
@@ -178,7 +181,9 @@ class DevTools extends React.PureComponent<Props> {
   };
 
   onSelectCustomServer = () => {
-    this.props.navigation.navigate(CustomServerModalRouteName);
+    this.props.navigation.navigate(CustomServerModalRouteName, {
+      presentedFrom: this.props.navigation.state.key,
+    });
   };
 }
 

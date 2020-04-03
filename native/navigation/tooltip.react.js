@@ -58,6 +58,7 @@ type NavProp<CustomProps> = NavigationStackProp<{|
   ...NavigationLeafRoute,
   params: {
     ...$Exact<CustomProps>,
+    presentedFrom: string,
     initialCoordinates: LayoutCoordinates,
     verticalBounds: VerticalBounds,
     location?: 'above' | 'below',

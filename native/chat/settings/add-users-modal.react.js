@@ -61,6 +61,7 @@ const Modal = createModal(AddUsersModalRouteName);
 type NavProp = NavigationScreenProp<{|
   ...NavigationLeafRoute,
   params: {|
+    presentedFrom: string,
     threadInfo: ThreadInfo,
   |},
 |}>;

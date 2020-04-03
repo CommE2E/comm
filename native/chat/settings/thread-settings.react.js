@@ -117,6 +117,7 @@ type ChatSettingsItem =
       colorEditValue: string,
       canChangeSettings: boolean,
       navigate: Navigate,
+      threadSettingsRouteKey: string,
     |}
   | {|
       itemType: 'description',
@@ -167,6 +168,7 @@ type ChatSettingsItem =
       navigate: Navigate,
       lastListItem: boolean,
       verticalBounds: ?VerticalBounds,
+      threadSettingsRouteKey: string,
     |}
   | {|
       itemType: 'addMember',
@@ -348,6 +350,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       colorEditValue: this.state.colorEditValue,
       canChangeSettings,
       navigate: this.props.navigation.navigate,
+      threadSettingsRouteKey: this.props.navigation.state.key,
     });
     listData.push({
       itemType: 'footer',
@@ -502,6 +505,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       navigate: this.props.navigation.navigate,
       lastListItem: false,
       verticalBounds,
+      threadSettingsRouteKey: this.props.navigation.state.key,
     }));
     let memberItems;
     if (seeMoreMembers) {
@@ -651,6 +655,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           setColorEditValue={this.setColorEditValue}
           canChangeSettings={item.canChangeSettings}
           navigate={item.navigate}
+          threadSettingsRouteKey={item.threadSettingsRouteKey}
         />
       );
     } else if (item.itemType === 'description') {
@@ -698,6 +703,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           navigate={item.navigate}
           lastListItem={item.lastListItem}
           verticalBounds={item.verticalBounds}
+          threadSettingsRouteKey={item.threadSettingsRouteKey}
         />
       );
     } else if (item.itemType === 'addMember') {
@@ -743,13 +749,17 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   onPressComposeSubthread = () => {
     const threadInfo = ThreadSettings.getThreadInfo(this.props);
     this.props.navigation.navigate(ComposeSubthreadModalRouteName, {
+      presentedFrom: this.props.navigation.state.key,
       threadInfo,
     });
   };
 
   onPressAddMember = () => {
     const threadInfo = ThreadSettings.getThreadInfo(this.props);
-    this.props.navigation.navigate(AddUsersModalRouteName, { threadInfo });
+    this.props.navigation.navigate(AddUsersModalRouteName, {
+      presentedFrom: this.props.navigation.state.key,
+      threadInfo,
+    });
   };
 
   onPressSeeMoreMembers = () => {

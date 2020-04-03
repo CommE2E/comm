@@ -64,6 +64,7 @@ type Props = {|
   navigate: Navigate,
   lastListItem: boolean,
   verticalBounds: ?VerticalBounds,
+  threadSettingsRouteKey: string,
   // Redux state
   removeUserLoadingStatus: LoadingStatus,
   changeRoleLoadingStatus: LoadingStatus,
@@ -82,6 +83,7 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
     navigate: PropTypes.func.isRequired,
     lastListItem: PropTypes.bool.isRequired,
     verticalBounds: verticalBoundsPropType,
+    threadSettingsRouteKey: PropTypes.string.isRequired,
     removeUserLoadingStatus: loadingStatusPropType.isRequired,
     changeRoleLoadingStatus: loadingStatusPropType.isRequired,
     colors: colorsPropType.isRequired,
@@ -241,6 +243,7 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
       this.props.navigate({
         routeName: ThreadSettingsMemberTooltipModalRouteName,
         params: {
+          presentedFrom: this.props.threadSettingsRouteKey,
           initialCoordinates: coordinates,
           verticalBounds,
           visibleEntryIDs: this.visibleEntryIDs(),
