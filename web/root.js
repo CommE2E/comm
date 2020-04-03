@@ -8,7 +8,7 @@ import { createStore, applyMiddleware, type Store } from 'redux';
 import thunk from 'redux-thunk';
 import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction';
 
-import { reduxLoggerMiddleware } from 'lib/utils/redux-logger';
+import { reduxLoggerMiddleware } from 'lib/utils/action-logger';
 
 import { reducer } from './redux-setup';
 import HotRoot from './hot';
