@@ -1,8 +1,6 @@
 // @flow
 
-import type { NavigationState } from 'react-navigation';
 import { type GlobalTheme, globalThemePropType } from './types/themes';
-import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from './redux/redux-setup';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
 import type { NavAction } from './navigation/navigation-context';
@@ -16,17 +14,23 @@ import {
   View,
   StyleSheet,
 } from 'react-native';
-import { createReduxContainer } from 'react-navigation-redux-helpers';
 import PropTypes from 'prop-types';
 import SplashScreen from 'react-native-splash-screen';
 import Orientation from 'react-native-orientation-locker';
 import { PersistGate } from 'redux-persist/integration/react';
+import {
+  type SupportedThemes,
+  type NavigationState,
+  createAppContainer,
+  NavigationActions,
+} from 'react-navigation';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
   backgroundActionType,
   foregroundActionType,
 } from 'lib/reducers/foreground-reducer';
+import { actionLogger } from 'lib/utils/action-logger';
 
 import RootNavigator from './navigation/root-navigator.react';
 import { store, appBecameInactive } from './redux/redux-setup';
@@ -46,22 +50,33 @@ import {
 import { setGlobalNavContext } from './navigation/icky-global';
 import { RootContext, type RootContextType } from './root-context';
 import NavigationHandler from './navigation/navigation-handler.react';
+import { defaultNavigationState } from './navigation/default-state';
 
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental &&
     UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-const ReduxifiedRootNavigator = createReduxContainer(RootNavigator);
-
-type NativeDispatch = Dispatch & ((action: NavAction) => boolean);
+type NavContainer = React.AbstractComponent<
+  {|
+    theme?: SupportedThemes | 'no-preference',
+    loadNavigationState?: () => Promise<NavigationState>,
+    onNavigationStateChange?: (
+      prevState: NavigationState,
+      state: NavigationState,
+      action: NavAction,
+    ) => void,
+  |},
+  {
+    dispatch: (action: NavAction) => boolean,
+  },
+>;
+const NavAppContainer: NavContainer = (createAppContainer(RootNavigator): any);
 
 type Props = {
   // Redux state
-  navigationState: NavigationState,
   activeTheme: ?GlobalTheme,
   // Redux dispatch functions
-  dispatch: NativeDispatch,
   dispatchActionPayload: DispatchActionPayload,
 };
 type State = {|
@@ -70,25 +85,16 @@ type State = {|
 |};
 class Root extends React.PureComponent<Props, State> {
   static propTypes = {
-    navigationState: PropTypes.object.isRequired,
     activeTheme: globalThemePropType,
-    dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
+  state = {
+    navContext: null,
+    rootContext: null,
+  };
   currentState: ?string = NativeAppState.currentState;
-
-  constructor(props: Props) {
-    super(props);
-    const navContext = {
-      state: props.navigationState,
-      dispatch: props.dispatch,
-    };
-    this.state = {
-      navContext,
-      rootContext: null,
-    };
-    setGlobalNavContext(navContext);
-  }
+  navDispatch: ?(action: NavAction) => boolean;
+  navState: ?NavigationState;
 
   componentDidMount() {
     if (Platform.OS === 'android') {
@@ -102,20 +108,6 @@ class Root extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     NativeAppState.removeEventListener('change', this.handleAppStateChange);
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (
-      this.props.navigationState !== prevProps.navigationState ||
-      this.props.dispatch !== prevProps.dispatch
-    ) {
-      const navContext = {
-        state: this.props.navigationState,
-        dispatch: this.props.dispatch,
-      };
-      this.setState({ navContext });
-      setGlobalNavContext(navContext);
-    }
   }
 
   handleAppStateChange = (nextState: ?string) => {
@@ -155,10 +147,11 @@ class Root extends React.PureComponent<Props, State> {
           <RootContext.Provider value={this.state.rootContext}>
             <ConnectedStatusBar />
             <PersistGate persistor={getPersistor()}>{gated}</PersistGate>
-            <ReduxifiedRootNavigator
-              state={this.props.navigationState}
-              dispatch={this.props.dispatch}
+            <NavAppContainer
               theme={reactNavigationTheme}
+              loadNavigationState={this.loadNavigationState}
+              onNavigationStateChange={this.onNavigationStateChange}
+              ref={this.appContainerRef}
             />
             <NavigationHandler />
           </RootContext.Provider>
@@ -175,6 +168,48 @@ class Root extends React.PureComponent<Props, State> {
       : null;
     this.setState({ rootContext });
   };
+
+  loadNavigationState = async () => {
+    this.navState = defaultNavigationState;
+    this.setNavContext();
+    actionLogger.addOtherAction(
+      'navState',
+      NavigationActions.init(),
+      null,
+      this.navState,
+    );
+    return defaultNavigationState;
+  };
+
+  onNavigationStateChange = (
+    prevState: NavigationState,
+    state: NavigationState,
+    action: NavAction,
+  ) => {
+    this.navState = state;
+    actionLogger.addOtherAction('navState', action, prevState, state);
+    this.setNavContext();
+  };
+
+  appContainerRef = (appContainer: ?React.ElementRef<NavContainer>) => {
+    if (!appContainer) {
+      return;
+    }
+    this.navDispatch = appContainer.dispatch;
+    this.setNavContext();
+  };
+
+  setNavContext() {
+    if (!this.navState || !this.navDispatch) {
+      return;
+    }
+    const navContext = {
+      state: this.navState,
+      dispatch: this.navDispatch,
+    };
+    this.setState({ navContext });
+    setGlobalNavContext(navContext);
+  }
 }
 
 const styles = StyleSheet.create({
@@ -185,7 +220,6 @@ const styles = StyleSheet.create({
 
 const ConnectedRoot = connect(
   (state: AppState) => ({
-    navigationState: state.navInfo.navigationState,
     activeTheme: state.globalThemeInfo.activeTheme,
   }),
   null,

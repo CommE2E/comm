@@ -40,7 +40,6 @@ import type { SetSessionPayload } from 'lib/types/session-types';
 import thunk from 'redux-thunk';
 import { createStore, applyMiddleware, type Store, compose } from 'redux';
 import { persistStore, persistReducer } from 'redux-persist';
-import { createReactNavigationReduxMiddleware } from 'react-navigation-redux-helpers';
 import {
   AppState as NativeAppState,
   Platform,
@@ -72,7 +71,6 @@ import {
   updateThreadLastNavigatedActionType,
   backgroundActionTypes,
 } from './action-types';
-import RootNavigator from '../navigation/root-navigator.react';
 import { type NavInfo, defaultNavInfo } from '../navigation/default-state';
 import { reduceThreadIDsToNotifIDs } from '../push/reducer';
 import { persistConfig, setPersistor } from './persist';
@@ -309,20 +307,6 @@ function reducer(state: AppState = defaultState, action: *) {
     drafts: reduceDrafts(state.drafts, action),
   };
 
-  const navigationState = RootNavigator.router.getStateForAction(
-    action,
-    state.navInfo.navigationState,
-  );
-  if (navigationState && navigationState !== state.navInfo.navigationState) {
-    state = {
-      ...state,
-      navInfo: {
-        ...state.navInfo,
-        navigationState,
-      },
-    };
-  }
-
   return fixUnreadActiveThread(state, action);
 }
 
@@ -394,13 +378,7 @@ function appBecameInactive() {
   appLastBecameInactive = Date.now();
 }
 
-const middleware = applyMiddleware(
-  thunk,
-  createReactNavigationReduxMiddleware(
-    (state: AppState) => state.navInfo.navigationState,
-  ),
-  reduxLoggerMiddleware,
-);
+const middleware = applyMiddleware(thunk, reduxLoggerMiddleware);
 const composeFunc = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
   ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
   : compose;

@@ -16,12 +16,9 @@ import {
   CalendarRouteName,
 } from './route-names';
 
-export type NavInfo = {|
-  ...$Exact<BaseNavInfo>,
-  navigationState: NavigationState,
-|};
+export type NavInfo = $Exact<BaseNavInfo>;
 
-const defaultNavigationState = {
+const defaultNavigationState: NavigationState = {
   index: 1,
   routes: [
     {
@@ -60,7 +57,6 @@ const defaultNavigationState = {
 const defaultNavInfo: NavInfo = {
   startDate: fifteenDaysEarlier().valueOf(),
   endDate: fifteenDaysLater().valueOf(),
-  navigationState: defaultNavigationState,
 };
 
-export { defaultNavInfo };
+export { defaultNavigationState, defaultNavInfo };

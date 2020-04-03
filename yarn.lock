@@ -11683,13 +11683,6 @@ react-native@0.60.6:
     stacktrace-parser "^0.1.3"
     whatwg-fetch "^3.0.0"
 
-react-navigation-redux-helpers@^4.0.0:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/react-navigation-redux-helpers/-/react-navigation-redux-helpers-4.0.1.tgz#a2da4e403114ddf6438071bba6c2e81dd9ffa269"
-  integrity sha512-hzReLzBbfVQGyh+FUQvWXhaK8vg2kwcIPM8vztQ21+8VL5JvijCBVRbXox22EfYTKh+AWHNiY8TCQtHbXlqNsA==
-  dependencies:
-    invariant "^2.2.2"
-
 react-navigation-stack@^1.10.2:
   version "1.10.2"
   resolved "https://registry.yarnpkg.com/react-navigation-stack/-/react-navigation-stack-1.10.2.tgz#86521ec876ce030b54073b89d31d3a1d82e6675b"
