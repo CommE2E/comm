@@ -3,6 +3,7 @@
 import type { NavigationState, NavigationAction } from 'react-navigation';
 import type { RootRouterNavigationAction } from './root-router';
 import type { ChatRouterNavigationAction } from '../chat/chat-router';
+import type { OverlayRouterNavigationAction } from './overlay-router';
 
 import * as React from 'react';
 import hoistNonReactStatics from 'hoist-non-react-statics';
@@ -11,7 +12,8 @@ import PropTypes from 'prop-types';
 export type NavAction =
   | NavigationAction
   | RootRouterNavigationAction
-  | ChatRouterNavigationAction;
+  | ChatRouterNavigationAction
+  | OverlayRouterNavigationAction;
 export type NavContextType = {|
   state: NavigationState,
   dispatch: (action: NavAction) => boolean,

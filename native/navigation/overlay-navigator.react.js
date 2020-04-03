@@ -18,10 +18,12 @@ import {
   Animated as BaseAnimated,
   Easing as BaseEasing,
 } from 'react-native';
-import { StackRouter, createNavigator, StackActions } from 'react-navigation';
+import { createNavigator, StackActions } from 'react-navigation';
 import { Transitioner } from 'react-navigation-stack';
 import Animated, { Easing } from 'react-native-reanimated';
 import PropTypes from 'prop-types';
+
+import OverlayRouter from './overlay-router';
 
 const OverlayPositionContext: React.Context<Animated.Value> = React.createContext(
   null,
@@ -53,7 +55,7 @@ function createOverlayNavigator(
     OverlayNavigatorProps,
   >(
     OverlayNavigator,
-    StackRouter(routeConfigMap, stackRouterConfig),
+    OverlayRouter(routeConfigMap, stackRouterConfig),
     stackConfig,
   );
 }

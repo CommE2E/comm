@@ -23,10 +23,16 @@ type LogInAction = {|
 type LogOutAction = {|
   +type: 'LOG_OUT',
 |};
+type ClearRootModalsAction = {|
+  +type: 'CLEAR_ROOT_MODALS',
+  +keys: $ReadOnlyArray<string>,
+  +preserveFocus?: boolean,
+|};
 export type RootRouterNavigationAction =
   | NavigationAction
   | LogInAction
-  | LogOutAction;
+  | LogOutAction
+  | ClearRootModalsAction;
 
 const defaultConfig = Object.freeze({});
 function RootRouter(
@@ -101,6 +107,26 @@ function RootRouter(
           ...newState,
           isTransitioning,
         };
+      } else if (action.type === 'CLEAR_ROOT_MODALS') {
+        const { keys } = action;
+        if (!lastState) {
+          return lastState;
+        }
+        const newState = removeScreensFromStack(
+          lastState,
+          (route: NavigationRoute) =>
+            keys.includes(route.key) ? 'remove' : 'keep',
+        );
+        if (newState === lastState) {
+          return lastState;
+        }
+        const isTransitioning =
+          lastState.routes[lastState.index].key ===
+          newState.routes[newState.index].key;
+        return {
+          ...newState,
+          isTransitioning,
+        };
       } else {
         return stackRouter.getStateForAction(action, lastState);
       }
@@ -109,6 +135,14 @@ function RootRouter(
       ...stackRouter.getActionCreators(route, navStateKey),
       logIn: () => ({ type: 'LOG_IN' }),
       logOut: () => ({ type: 'LOG_OUT' }),
+      clearRootModals: (
+        keys: $ReadOnlyArray<string>,
+        preserveFocus: boolean,
+      ) => ({
+        type: 'CLEAR_ROOT_MODALS',
+        keys,
+        preserveFocus,
+      }),
     }),
   };
 }
