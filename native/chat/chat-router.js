@@ -62,17 +62,18 @@ function ChatRouter(
         if (!lastState) {
           return lastState;
         }
-        const lastActiveKey = lastState.routes[lastState.index].key;
         const newState = removeScreensFromStack(
           lastState,
           (route: NavigationRoute) =>
             routeNames.includes(route.routeName) ? 'remove' : 'keep',
         );
-        const newActiveKey = newState.routes[newState.index].key;
-        if (lastActiveKey === newActiveKey) {
-          return newState;
-        }
-        return { ...newState, isTransitioning: true };
+        const isTransitioning =
+          lastState.routes[lastState.index].key !==
+          newState.routes[newState.index].key;
+        return {
+          ...newState,
+          isTransitioning,
+        };
       } else if (action.type === 'REPLACE_WITH_THREAD') {
         const { threadInfo } = action;
         if (!lastState) {
@@ -88,23 +89,37 @@ function ChatRouter(
           key: `${MessageListRouteName}${threadInfo.id}`,
           params: { threadInfo },
         });
-        return stackRouter.getStateForAction(navigateAction, clearedState);
+        const newState = stackRouter.getStateForAction(
+          navigateAction,
+          clearedState,
+        );
+        if (!newState) {
+          return newState;
+        }
+        const isTransitioning =
+          lastState.routes[lastState.index].key !==
+          newState.routes[newState.index].key;
+        return {
+          ...newState,
+          isTransitioning,
+        };
       } else if (action.type === 'CLEAR_THREADS') {
         const threadIDs = new Set(action.threadIDs);
         if (!lastState) {
           return lastState;
         }
-        const lastActiveKey = lastState.routes[lastState.index].key;
         const newState = removeScreensFromStack(
           lastState,
           (route: NavigationRoute) =>
             threadIDs.has(getThreadIDFromRoute(route)) ? 'remove' : 'keep',
         );
-        const newActiveKey = newState.routes[newState.index].key;
-        if (lastActiveKey === newActiveKey) {
-          return newState;
-        }
-        return { ...newState, isTransitioning: true };
+        const isTransitioning =
+          lastState.routes[lastState.index].key !==
+          newState.routes[newState.index].key;
+        return {
+          ...newState,
+          isTransitioning,
+        };
       } else if (action.type === 'PUSH_NEW_THREAD') {
         const { threadInfo } = action;
         if (!lastState) {
@@ -120,7 +135,20 @@ function ChatRouter(
           key: `${MessageListRouteName}${threadInfo.id}`,
           params: { threadInfo },
         });
-        return stackRouter.getStateForAction(navigateAction, clearedState);
+        const newState = stackRouter.getStateForAction(
+          navigateAction,
+          clearedState,
+        );
+        if (!newState) {
+          return newState;
+        }
+        const isTransitioning =
+          lastState.routes[lastState.index].key !==
+          newState.routes[newState.index].key;
+        return {
+          ...newState,
+          isTransitioning,
+        };
       } else {
         return stackRouter.getStateForAction(action, lastState);
       }

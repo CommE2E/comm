@@ -52,9 +52,12 @@ function RootRouter(
         if (newState === lastState) {
           return lastState;
         }
+        const isTransitioning =
+          lastState.routes[lastState.index].key !==
+          newState.routes[newState.index].key;
         return {
           ...newState,
-          isTransitioning: true,
+          isTransitioning,
         };
       } else if (action.type === 'LOG_OUT') {
         if (!lastState) {
@@ -63,7 +66,6 @@ function RootRouter(
         let newState = { ...lastState };
         newState.routes[0] = defaultNavInfo.navigationState.routes[0];
 
-        const initialKey = newState.routes[newState.index].key;
         let loggedOutModalFound = false;
         newState = removeScreensFromStack(
           newState,
@@ -79,8 +81,6 @@ function RootRouter(
           },
         );
 
-        let isTransitioning =
-          newState.routes[newState.index].key === initialKey;
         if (!loggedOutModalFound) {
           const [appRoute, ...restRoutes] = newState.routes;
           newState = {
@@ -92,19 +92,15 @@ function RootRouter(
               ...restRoutes,
             ],
           };
-          if (newState.index === 1) {
-            isTransitioning = true;
-          }
         }
 
-        if (isTransitioning) {
-          newState = {
-            ...newState,
-            isTransitioning,
-          };
-        }
-
-        return newState;
+        const isTransitioning =
+          lastState.routes[lastState.index].key !==
+          newState.routes[newState.index].key;
+        return {
+          ...newState,
+          isTransitioning,
+        };
       } else {
         return stackRouter.getStateForAction(action, lastState);
       }
