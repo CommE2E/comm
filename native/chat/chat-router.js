@@ -25,6 +25,7 @@ import {
 type ClearScreensAction = {|
   +type: 'CLEAR_SCREENS',
   +routeNames: $ReadOnlyArray<string>,
+  +preserveFocus?: boolean,
 |};
 type ReplaceWithThreadAction = {|
   +type: 'REPLACE_WITH_THREAD',
@@ -33,6 +34,7 @@ type ReplaceWithThreadAction = {|
 type ClearThreadsAction = {|
   +type: 'CLEAR_THREADS',
   +threadIDs: $ReadOnlyArray<string>,
+  +preserveFocus?: boolean,
 |};
 type PushNewThreadAction = {|
   +type: 'PUSH_NEW_THREAD',
@@ -155,17 +157,25 @@ function ChatRouter(
     },
     getActionCreators: (route: NavigationRoute, navStateKey: ?string) => ({
       ...stackRouter.getActionCreators(route, navStateKey),
-      clearScreens: (routeNames: $ReadOnlyArray<string>) => ({
+      clearScreens: (
+        routeNames: $ReadOnlyArray<string>,
+        preserveFocus: boolean,
+      ) => ({
         type: 'CLEAR_SCREENS',
         routeNames,
+        preserveFocus,
       }),
       replaceWithThread: (threadInfo: ThreadInfo) => ({
         type: 'REPLACE_WITH_THREAD',
         threadInfo,
       }),
-      clearThreads: (threadIDs: $ReadOnlyArray<string>) => ({
+      clearThreads: (
+        threadIDs: $ReadOnlyArray<string>,
+        preserveFocus: boolean,
+      ) => ({
         type: 'CLEAR_THREADS',
         threadIDs,
+        preserveFocus,
       }),
       pushNewThread: (threadInfo: ThreadInfo) => ({
         type: 'PUSH_NEW_THREAD',

@@ -13,7 +13,7 @@ import {
 } from '../utils/navigation-utils';
 import { useActiveThread } from '../navigation/nav-selectors';
 
-function ThreadScreenPruner() {
+const ThreadScreenPruner = React.memo<{||}>(() => {
   const rawThreadInfos = useSelector(
     (state: AppState) => state.threadStore.threadInfos,
   );
@@ -70,10 +70,12 @@ function ThreadScreenPruner() {
     navContext.dispatch({
       type: 'CLEAR_THREADS',
       threadIDs: pruneThreadIDs,
+      preserveFocus: true,
     });
   }, [pruneThreadIDs, navContext, activeThreadID]);
 
   return null;
-}
+});
+ThreadScreenPruner.displayName = 'ThreadScreenPruner';
 
 export default ThreadScreenPruner;
