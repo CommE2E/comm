@@ -10,15 +10,22 @@ import { useIsAppLoggedIn } from './nav-selectors';
 import LinkingHandler from './linking-handler.react';
 import ThreadScreenTracker from './thread-screen-tracker.react';
 import ModalPruner from './modal-pruner.react';
+import NavFromReduxHandler from './nav-from-redux-handler.react';
 
 const NavigationHandler = React.memo<{||}>(() => {
   const navContext = React.useContext(NavContext);
   const reduxRehydrated = useSelector(
     (state: AppState) => !!(state._persist && state._persist.rehydrated),
   );
+
   if (!navContext || !reduxRehydrated) {
-    return null;
+    if (__DEV__) {
+      return <NavFromReduxHandler />;
+    } else {
+      return null;
+    }
   }
+
   const { dispatch } = navContext;
   return (
     <>

@@ -44,6 +44,11 @@ useScreens();
 type NavigationProp = NavigationStackProp<NavigationState> & {
   logIn: () => void,
   logOut: () => void,
+  clearRootModals: (
+    keys: $ReadOnlyArray<string>,
+    preserveFocus: boolean,
+  ) => void,
+  setNavState: (state: NavigationState) => void,
 };
 type StackViewProps = React.ElementConfig<typeof StackView> & {
   +navigation: NavigationProp,

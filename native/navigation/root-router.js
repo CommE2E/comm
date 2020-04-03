@@ -28,11 +28,16 @@ type ClearRootModalsAction = {|
   +keys: $ReadOnlyArray<string>,
   +preserveFocus?: boolean,
 |};
+type SetNavStateAction = {|
+  +type: 'SET_NAV_STATE',
+  +state: NavigationState,
+|};
 export type RootRouterNavigationAction =
   | NavigationAction
   | LogInAction
   | LogOutAction
-  | ClearRootModalsAction;
+  | ClearRootModalsAction
+  | SetNavStateAction;
 
 const defaultConfig = Object.freeze({});
 function RootRouter(
@@ -127,6 +132,8 @@ function RootRouter(
           ...newState,
           isTransitioning,
         };
+      } else if (action.type === 'SET_NAV_STATE') {
+        return action.state;
       } else {
         return stackRouter.getStateForAction(action, lastState);
       }
@@ -142,6 +149,10 @@ function RootRouter(
         type: 'CLEAR_ROOT_MODALS',
         keys,
         preserveFocus,
+      }),
+      setNavState: (state: NavigationState) => ({
+        type: 'SET_NAV_STATE',
+        state,
       }),
     }),
   };
