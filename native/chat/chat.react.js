@@ -41,9 +41,15 @@ import MessageStorePruner from './message-store-pruner.react';
 import ThreadScreenPruner from './thread-screen-pruner.react';
 
 export type ChatNavProp<State> = NavigationStackProp<State> & {
-  clearScreens: (routeNames: $ReadOnlyArray<string>) => void,
+  clearScreens: (
+    routeNames: $ReadOnlyArray<string>,
+    preserveFocus: boolean,
+  ) => void,
   replaceWithThread: (threadInfo: ThreadInfo) => void,
-  clearThreads: (threadIDs: $ReadOnlyArray<string>) => void,
+  clearThreads: (
+    threadIDs: $ReadOnlyArray<string>,
+    preserveFocus: boolean,
+  ) => void,
   pushNewThread: (threadInfo: ThreadInfo) => void,
 };
 type Props = {| navigation: ChatNavProp<NavigationState> |};
@@ -132,7 +138,7 @@ function WrappedChatNavigator(props: Props) {
   const chatInputState = React.useContext(ChatInputStateContext);
 
   const clearScreens = React.useCallback(
-    () => navigation.clearScreens([ComposeThreadRouteName]),
+    () => navigation.clearScreens([ComposeThreadRouteName], true),
     [navigation],
   );
 
