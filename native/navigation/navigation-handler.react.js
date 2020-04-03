@@ -9,6 +9,7 @@ import { NavContext, type NavAction } from './navigation-context';
 import { useIsAppLoggedIn } from './nav-selectors';
 import LinkingHandler from './linking-handler.react';
 import ThreadScreenTracker from './thread-screen-tracker.react';
+import ModalPruner from './modal-pruner.react';
 
 const NavigationHandler = React.memo<{||}>(() => {
   const navContext = React.useContext(NavContext);
@@ -24,6 +25,7 @@ const NavigationHandler = React.memo<{||}>(() => {
       <LogInHandler dispatch={dispatch} />
       <LinkingHandler dispatch={dispatch} />
       <ThreadScreenTracker />
+      <ModalPruner navContext={navContext} />
     </>
   );
 });
