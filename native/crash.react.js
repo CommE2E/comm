@@ -33,13 +33,12 @@ import invariant from 'invariant';
 import { connect } from 'lib/utils/redux-utils';
 import { sendReportActionTypes, sendReport } from 'lib/actions/report-actions';
 import sleep from 'lib/utils/sleep';
-import { reduxLogger } from 'lib/utils/redux-logger';
+import { actionLogger } from 'lib/utils/action-logger';
 import { logOutActionTypes, logOut } from 'lib/actions/user-actions';
 import { sanitizeAction, sanitizeState } from 'lib/utils/sanitization';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 
 import Button from './components/button.react';
-import { store } from './redux/redux-setup';
 import { persistConfig, codeVersion, getPersistor } from './redux/persist';
 
 const errorTitles = ['Oh no!!', 'Womp womp womp...'];
@@ -156,9 +155,9 @@ class Crash extends React.PureComponent<Props, State> {
         stack: data.error.stack,
         componentStack: data.info && data.info.componentStack,
       })),
-      preloadedState: sanitizeState(reduxLogger.preloadedState),
-      currentState: sanitizeState(store.getState()),
-      actions: reduxLogger.actions.map(sanitizeAction),
+      preloadedState: sanitizeState(actionLogger.preloadedState),
+      currentState: sanitizeState(actionLogger.currentState),
+      actions: actionLogger.actions.map(sanitizeAction),
     });
     this.setState({
       errorReportID: result.id,

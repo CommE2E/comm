@@ -50,7 +50,7 @@ import {
 import Orientation from 'react-native-orientation-locker';
 
 import baseReducer from 'lib/reducers/master-reducer';
-import { reduxLoggerMiddleware } from 'lib/utils/redux-logger';
+import { reduxLoggerMiddleware } from 'lib/utils/action-logger';
 import { invalidSessionDowngrade } from 'lib/shared/account-utils';
 import {
   logOutActionTypes,
