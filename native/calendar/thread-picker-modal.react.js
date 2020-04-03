@@ -31,6 +31,7 @@ const Modal = createModal(ThreadPickerModalRouteName);
 type NavProp = NavigationScreenProp<{|
   ...NavigationLeafRoute,
   params: {|
+    presentedFrom: string,
     dateString: string,
   |},
 |}>;

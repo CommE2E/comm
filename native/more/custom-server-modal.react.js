@@ -22,9 +22,15 @@ import { setCustomServer } from '../utils/url-utils';
 import { styleSelector } from '../themes/colors';
 
 const Modal = createModal(CustomServerModalRouteName);
+type NavProp = NavigationScreenProp<{|
+  ...NavigationLeafRoute,
+  params: {|
+    presentedFrom: string,
+  |},
+|}>;
 
 type Props = {|
-  navigation: NavigationScreenProp<NavigationLeafRoute>,
+  navigation: NavProp,
   // Redux state
   urlPrefix: string,
   customServer: ?string,

@@ -172,6 +172,7 @@ class TextMessage extends React.PureComponent<Props> {
       this.props.navigation.navigate({
         routeName: TextMessageTooltipModalRouteName,
         params: {
+          presentedFrom: this.props.navigation.state.key,
           initialCoordinates: coordinates,
           verticalBounds,
           location,
