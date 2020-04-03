@@ -152,10 +152,19 @@ const migrations = {
     },
     queuedReports: [],
   }),
-  [16]: state => ({
-    ...state,
-    messageSentFromRoute: undefined,
-  }),
+  [16]: state => {
+    const result = {
+      ...state,
+      messageSentFromRoute: undefined,
+    };
+    if (state.navInfo) {
+      result.navInfo = {
+        ...state.navInfo,
+        navigationState: undefined,
+      };
+    }
+    return result;
+  },
 };
 
 const persistConfig = {
@@ -163,7 +172,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist,
   debug: __DEV__,
-  version: 15,
+  version: 16,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
   timeout: __DEV__ ? 0 : undefined,
 };
