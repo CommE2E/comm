@@ -1,10 +1,11 @@
 // @flow
 
 import type { Viewer } from '../session/viewer';
-import type {
-  FetchErrorReportInfosResponse,
-  FetchErrorReportInfosRequest,
-  ReduxToolsImport,
+import {
+  type FetchErrorReportInfosResponse,
+  type FetchErrorReportInfosRequest,
+  type ReduxToolsImport,
+  reportTypes,
 } from 'lib/types/report-types';
 
 import { ServerError } from 'lib/utils/errors';
@@ -72,7 +73,7 @@ async function fetchReduxToolsImport(
   const query = SQL`
     SELECT user, report, creation_time
     FROM reports
-    WHERE id = ${id}
+    WHERE id = ${id} AND type = ${reportTypes.ERROR}
   `;
   const [result] = await dbQuery(query);
   if (result.length === 0) {
@@ -83,6 +84,10 @@ async function fetchReduxToolsImport(
   const _persist = row.report.preloadedState._persist
     ? row.report.preloadedState._persist
     : {};
+  const navState =
+    row.report.currentState && row.report.currentState.navState
+      ? row.report.currentState.navState
+      : undefined;
   return {
     preloadedState: {
       ...row.report.preloadedState,
@@ -91,6 +96,7 @@ async function fetchReduxToolsImport(
         // Setting this to false disables redux-persist
         rehydrated: false,
       },
+      navState,
       frozen: true,
     },
     payload: row.report.actions,
