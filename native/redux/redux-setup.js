@@ -70,6 +70,7 @@ import {
   updateDeviceOrientationActionType,
   updateThreadLastNavigatedActionType,
   backgroundActionTypes,
+  setReduxStateActionType,
 } from './action-types';
 import { type NavInfo, defaultNavInfo } from '../navigation/default-state';
 import { reduceThreadIDsToNotifIDs } from '../push/reducer';
@@ -161,6 +162,9 @@ const defaultState = ({
 }: AppState);
 
 function reducer(state: AppState = defaultState, action: *) {
+  if (action.type === setReduxStateActionType) {
+    return action.state;
+  }
   if (
     (action.type === setNewSessionActionType &&
       invalidSessionDowngrade(
@@ -380,7 +384,7 @@ function appBecameInactive() {
 
 const middleware = applyMiddleware(thunk, reduxLoggerMiddleware);
 const composeFunc = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-  ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+  ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({ name: 'Redux' })
   : compose;
 let enhancers;
 if (reactotron) {

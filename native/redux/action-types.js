@@ -18,6 +18,7 @@ export const updateDeviceCameraInfoActionType = 'UPDATE_DEVICE_CAMERA_INFO';
 export const updateDeviceOrientationActionType = 'UPDATE_DEVICE_ORIENTATION';
 export const updateThreadLastNavigatedActionType =
   'UPDATE_THREAD_LAST_NAVIGATED';
+export const setReduxStateActionType = 'SET_REDUX_STATE';
 
 export const backgroundActionTypes: Set<string> = new Set([
   saveMessagesActionType,
