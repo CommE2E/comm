@@ -125,9 +125,13 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
   };
 
   async leaveThread() {
+    const threadID = this.props.threadInfo.id;
     const { navContext } = this.props;
     invariant(navContext, 'navContext should exist in leaveThread');
-    const threadID = this.props.threadInfo.id;
+    navContext.dispatch({
+      type: clearThreadsActionType,
+      threadIDs: [threadID],
+    });
     try {
       const result = await this.props.leaveThread(threadID);
       const invalidated = identifyInvalidatedThreads(
