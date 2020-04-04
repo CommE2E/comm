@@ -23,6 +23,7 @@ import {
   createAppContainer,
   NavigationActions,
 } from 'react-navigation';
+import AsyncStorage from '@react-native-community/async-storage';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
@@ -65,12 +66,15 @@ type NavContainer = React.AbstractComponent<
       state: NavigationState,
       action: NavAction,
     ) => void,
+    persistNavigationState?: (state: NavigationState) => Promise<void>,
   |},
   {
     dispatch: (action: NavAction) => boolean,
   },
 >;
 const NavAppContainer: NavContainer = (createAppContainer(RootNavigator): any);
+
+const navStateAsyncStorageKey = 'navState';
 
 type Props = {
   // Redux state
@@ -142,6 +146,9 @@ class Root extends React.PureComponent<Props, State> {
         <OrientationHandler />
       </>
     );
+    const persistNavigationState = __DEV__
+      ? this.persistNavigationState
+      : undefined;
     return (
       <View style={styles.app}>
         <NavContext.Provider value={this.state.navContext}>
@@ -152,6 +159,7 @@ class Root extends React.PureComponent<Props, State> {
               theme={reactNavigationTheme}
               loadNavigationState={this.loadNavigationState}
               onNavigationStateChange={this.onNavigationStateChange}
+              persistNavigationState={persistNavigationState}
               ref={this.appContainerRef}
             />
             <NavigationHandler />
@@ -173,15 +181,31 @@ class Root extends React.PureComponent<Props, State> {
   };
 
   loadNavigationState = async () => {
-    this.navState = defaultNavigationState;
+    let navState;
+    if (__DEV__) {
+      const navStateString = await AsyncStorage.getItem(
+        navStateAsyncStorageKey,
+      );
+      if (navStateString) {
+        try {
+          navState = JSON.parse(navStateString);
+        } catch (e) {
+          console.log('JSON.parse threw while trying to dehydrate navState', e);
+        }
+      }
+    }
+    if (!navState) {
+      navState = defaultNavigationState;
+    }
+    this.navState = navState;
     this.setNavContext();
     actionLogger.addOtherAction(
       'navState',
       NavigationActions.init(),
       null,
-      this.navState,
+      navState,
     );
-    return defaultNavigationState;
+    return navState;
   };
 
   onNavigationStateChange = (
@@ -217,6 +241,17 @@ class Root extends React.PureComponent<Props, State> {
   setNavStateInitialized = () => {
     this.navStateInitialized = true;
     this.setNavContext();
+  };
+
+  persistNavigationState = async (state: NavigationState) => {
+    try {
+      await AsyncStorage.setItem(
+        navStateAsyncStorageKey,
+        JSON.stringify(state),
+      );
+    } catch (e) {
+      console.log('AsyncStorage threw while trying to persist navState', e);
+    }
   };
 }
 
