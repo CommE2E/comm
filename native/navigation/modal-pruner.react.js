@@ -7,6 +7,10 @@ import * as React from 'react';
 import invariant from 'invariant';
 
 import { AppRouteName } from './route-names';
+import {
+  clearRootModalsActionType,
+  clearOverlayModalsActionType,
+} from './action-types';
 
 type DependencyInfo = {|
   status: 'missing' | 'resolved' | 'unresolved',
@@ -102,14 +106,14 @@ function ModalPruner(props: Props) {
   React.useEffect(() => {
     if (pruneRootModals.length > 0) {
       dispatch({
-        type: 'CLEAR_ROOT_MODALS',
+        type: (clearRootModalsActionType: 'CLEAR_ROOT_MODALS'),
         keys: pruneRootModals,
         preserveFocus: true,
       });
     }
     if (pruneOverlayModals.length > 0) {
       dispatch({
-        type: 'CLEAR_OVERLAY_MODALS',
+        type: (clearOverlayModalsActionType: 'CLEAR_OVERLAY_MODALS'),
         keys: pruneOverlayModals,
         preserveFocus: true,
       });

@@ -16,6 +16,12 @@ import {
   AppRouteName,
 } from './route-names';
 import { defaultNavigationState } from './default-state';
+import {
+  logInActionType,
+  logOutActionType,
+  clearRootModalsActionType,
+  setNavStateActionType,
+} from './action-types';
 
 type LogInAction = {|
   +type: 'LOG_IN',
@@ -51,7 +57,7 @@ function RootRouter(
       action: RootRouterNavigationAction,
       lastState: ?NavigationState,
     ) => {
-      if (action.type === 'LOG_IN') {
+      if (action.type === logInActionType) {
         if (!lastState) {
           return lastState;
         }
@@ -70,7 +76,7 @@ function RootRouter(
           ...newState,
           isTransitioning,
         };
-      } else if (action.type === 'LOG_OUT') {
+      } else if (action.type === logOutActionType) {
         if (!lastState) {
           return lastState;
         }
@@ -112,7 +118,7 @@ function RootRouter(
           ...newState,
           isTransitioning,
         };
-      } else if (action.type === 'CLEAR_ROOT_MODALS') {
+      } else if (action.type === clearRootModalsActionType) {
         const { keys } = action;
         if (!lastState) {
           return lastState;
@@ -132,7 +138,7 @@ function RootRouter(
           ...newState,
           isTransitioning,
         };
-      } else if (action.type === 'SET_NAV_STATE') {
+      } else if (action.type === setNavStateActionType) {
         return action.state;
       } else {
         return stackRouter.getStateForAction(action, lastState);
@@ -140,18 +146,18 @@ function RootRouter(
     },
     getActionCreators: (route: NavigationRoute, navStateKey: ?string) => ({
       ...stackRouter.getActionCreators(route, navStateKey),
-      logIn: () => ({ type: 'LOG_IN' }),
-      logOut: () => ({ type: 'LOG_OUT' }),
+      logIn: () => ({ type: logInActionType }),
+      logOut: () => ({ type: logOutActionType }),
       clearRootModals: (
         keys: $ReadOnlyArray<string>,
         preserveFocus: boolean,
       ) => ({
-        type: 'CLEAR_ROOT_MODALS',
+        type: clearRootModalsActionType,
         keys,
         preserveFocus,
       }),
       setNavState: (state: NavigationState) => ({
-        type: 'SET_NAV_STATE',
+        type: setNavStateActionType,
         state,
       }),
     }),

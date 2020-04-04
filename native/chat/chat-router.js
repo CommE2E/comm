@@ -21,6 +21,12 @@ import {
   removeScreensFromStack,
   getThreadIDFromRoute,
 } from '../utils/navigation-utils';
+import {
+  clearScreensActionType,
+  replaceWithThreadActionType,
+  clearThreadsActionType,
+  pushNewThreadActionType,
+} from '../navigation/action-types';
 
 type ClearScreensAction = {|
   +type: 'CLEAR_SCREENS',
@@ -59,7 +65,7 @@ function ChatRouter(
       action: ChatRouterNavigationAction,
       lastState: ?NavigationState,
     ) => {
-      if (action.type === 'CLEAR_SCREENS') {
+      if (action.type === clearScreensActionType) {
         const { routeNames } = action;
         if (!lastState) {
           return lastState;
@@ -76,7 +82,7 @@ function ChatRouter(
           ...newState,
           isTransitioning,
         };
-      } else if (action.type === 'REPLACE_WITH_THREAD') {
+      } else if (action.type === replaceWithThreadActionType) {
         const { threadInfo } = action;
         if (!lastState) {
           return lastState;
@@ -105,7 +111,7 @@ function ChatRouter(
           ...newState,
           isTransitioning,
         };
-      } else if (action.type === 'CLEAR_THREADS') {
+      } else if (action.type === clearThreadsActionType) {
         const threadIDs = new Set(action.threadIDs);
         if (!lastState) {
           return lastState;
@@ -122,7 +128,7 @@ function ChatRouter(
           ...newState,
           isTransitioning,
         };
-      } else if (action.type === 'PUSH_NEW_THREAD') {
+      } else if (action.type === pushNewThreadActionType) {
         const { threadInfo } = action;
         if (!lastState) {
           return lastState;
@@ -161,24 +167,24 @@ function ChatRouter(
         routeNames: $ReadOnlyArray<string>,
         preserveFocus: boolean,
       ) => ({
-        type: 'CLEAR_SCREENS',
+        type: clearScreensActionType,
         routeNames,
         preserveFocus,
       }),
       replaceWithThread: (threadInfo: ThreadInfo) => ({
-        type: 'REPLACE_WITH_THREAD',
+        type: replaceWithThreadActionType,
         threadInfo,
       }),
       clearThreads: (
         threadIDs: $ReadOnlyArray<string>,
         preserveFocus: boolean,
       ) => ({
-        type: 'CLEAR_THREADS',
+        type: clearThreadsActionType,
         threadIDs,
         preserveFocus,
       }),
       pushNewThread: (threadInfo: ThreadInfo) => ({
-        type: 'PUSH_NEW_THREAD',
+        type: pushNewThreadActionType,
         threadInfo,
       }),
     }),

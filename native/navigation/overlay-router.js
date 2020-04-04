@@ -10,6 +10,7 @@ import {
 } from 'react-navigation';
 
 import { removeScreensFromStack } from '../utils/navigation-utils';
+import { clearOverlayModalsActionType } from './action-types';
 
 type ClearOverlayModalsAction = {|
   +type: 'CLEAR_OVERLAY_MODALS',
@@ -32,7 +33,7 @@ function OverlayRouter(
       action: OverlayRouterNavigationAction,
       lastState: ?NavigationState,
     ) => {
-      if (action.type === 'CLEAR_OVERLAY_MODALS') {
+      if (action.type === clearOverlayModalsActionType) {
         const { keys } = action;
         if (!lastState) {
           return lastState;
@@ -62,7 +63,7 @@ function OverlayRouter(
         keys: $ReadOnlyArray<string>,
         preserveFocus: boolean,
       ) => ({
-        type: 'CLEAR_OVERLAY_MODALS',
+        type: clearOverlayModalsActionType,
         keys,
         preserveFocus,
       }),

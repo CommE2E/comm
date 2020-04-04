@@ -12,6 +12,7 @@ import {
   getThreadIDFromRoute,
 } from '../utils/navigation-utils';
 import { useActiveThread } from '../navigation/nav-selectors';
+import { clearThreadsActionType } from '../navigation/action-types';
 
 const ThreadScreenPruner = React.memo<{||}>(() => {
   const rawThreadInfos = useSelector(
@@ -68,7 +69,7 @@ const ThreadScreenPruner = React.memo<{||}>(() => {
       );
     }
     navContext.dispatch({
-      type: 'CLEAR_THREADS',
+      type: clearThreadsActionType,
       threadIDs: pruneThreadIDs,
       preserveFocus: true,
     });
