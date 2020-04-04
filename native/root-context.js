@@ -5,7 +5,8 @@ import hoistNonReactStatics from 'hoist-non-react-statics';
 import PropTypes from 'prop-types';
 
 export type RootContextType = {|
-  detectUnsupervisedBackground: (alreadyClosed: boolean) => boolean,
+  detectUnsupervisedBackground?: ?(alreadyClosed: boolean) => boolean,
+  setNavStateInitialized: () => void,
 |};
 
 const RootContext = React.createContext<?RootContextType>(null);

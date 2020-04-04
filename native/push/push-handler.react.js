@@ -524,10 +524,17 @@ class PushHandler extends React.PureComponent<Props, State> {
     notification.finish(NotificationsIOS.FetchResult.NewData);
   };
 
-  iosNotificationOpened = notification => {
-    if (this.props.rootContext) {
+  onPushNotifBootsApp() {
+    if (
+      this.props.rootContext &&
+      this.props.rootContext.detectUnsupervisedBackground
+    ) {
       this.props.rootContext.detectUnsupervisedBackground(false);
     }
+  }
+
+  iosNotificationOpened = notification => {
+    this.onPushNotifBootsApp();
     const threadID = notification.getData().threadID;
     if (!threadID) {
       console.log('Notification with missing threadID received!');
@@ -565,17 +572,13 @@ class PushHandler extends React.PureComponent<Props, State> {
   }
 
   androidNotificationOpened = async (notificationOpen: NotificationOpen) => {
-    if (this.props.rootContext) {
-      this.props.rootContext.detectUnsupervisedBackground(false);
-    }
+    this.onPushNotifBootsApp();
     const { threadID } = notificationOpen.notification.data;
     this.onPressNotificationForThread(threadID, true);
   };
 
   androidMessageReceived = async (message: RemoteMessage) => {
-    if (this.props.rootContext) {
-      this.props.rootContext.detectUnsupervisedBackground(false);
-    }
+    this.onPushNotifBootsApp();
     handleAndroidMessage(
       message,
       this.props.updatesCurrentAsOf,

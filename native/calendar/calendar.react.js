@@ -1172,7 +1172,7 @@ export default connectNav((context: ?NavContextType) => ({
     activeTabSelector(context) || activeThreadPickerSelector(context),
   threadPickerOpen:
     activeThreadPickerSelector(context) ||
-    (context && !!context.state.isTransitioning),
+    !!(context && context.state.isTransitioning),
 }))(
   connect(
     (state: AppState) => ({
