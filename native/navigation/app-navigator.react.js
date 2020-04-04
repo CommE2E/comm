@@ -7,6 +7,8 @@ import * as React from 'react';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import { PersistGate } from 'redux-persist/integration/react';
+import SplashScreen from 'react-native-splash-screen';
+import { Platform } from 'react-native';
 
 import {
   CalendarRouteName,
@@ -74,6 +76,14 @@ function WrappedAppNavigator(props: Props) {
   React.useEffect(() => {
     setNavStateInitialized && setNavStateInitialized();
   }, [setNavStateInitialized]);
+
+  React.useEffect(() => {
+    if (Platform.OS === 'android') {
+      setTimeout(SplashScreen.hide, 350);
+    } else {
+      SplashScreen.hide();
+    }
+  }, []);
 
   const { navigation } = props;
   return (
