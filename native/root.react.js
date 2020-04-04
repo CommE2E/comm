@@ -81,20 +81,27 @@ type Props = {
 };
 type State = {|
   navContext: ?NavContextType,
-  rootContext: ?RootContextType,
+  rootContext: RootContextType,
 |};
 class Root extends React.PureComponent<Props, State> {
   static propTypes = {
     activeTheme: globalThemePropType,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
-  state = {
-    navContext: null,
-    rootContext: null,
-  };
-  currentState: ?string = NativeAppState.currentState;
+
+  currentAppState: ?string = NativeAppState.currentState;
+
   navDispatch: ?(action: NavAction) => boolean;
   navState: ?NavigationState;
+  navStateInitialized = false;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      navContext: null,
+      rootContext: { setNavStateInitialized: this.setNavStateInitialized },
+    };
+  }
 
   componentDidMount() {
     if (Platform.OS === 'android') {
@@ -114,8 +121,8 @@ class Root extends React.PureComponent<Props, State> {
     if (!nextState || nextState === 'unknown') {
       return;
     }
-    const lastState = this.currentState;
-    this.currentState = nextState;
+    const lastState = this.currentAppState;
+    this.currentAppState = nextState;
     if (lastState === 'background' && nextState === 'active') {
       this.props.dispatchActionPayload(foregroundActionType, null);
     } else if (lastState !== 'background' && nextState === 'background') {
@@ -163,10 +170,12 @@ class Root extends React.PureComponent<Props, State> {
   detectUnsupervisedBackgroundRef = (
     detectUnsupervisedBackground: ?(alreadyClosed: boolean) => boolean,
   ) => {
-    const rootContext = detectUnsupervisedBackground
-      ? { detectUnsupervisedBackground }
-      : null;
-    this.setState({ rootContext });
+    this.setState(prevState => ({
+      rootContext: {
+        ...prevState.rootContext,
+        detectUnsupervisedBackground,
+      },
+    }));
   };
 
   loadNavigationState = async () => {
@@ -187,8 +196,8 @@ class Root extends React.PureComponent<Props, State> {
     action: NavAction,
   ) => {
     this.navState = state;
-    actionLogger.addOtherAction('navState', action, prevState, state);
     this.setNavContext();
+    actionLogger.addOtherAction('navState', action, prevState, state);
   };
 
   appContainerRef = (appContainer: ?React.ElementRef<NavContainer>) => {
@@ -200,7 +209,7 @@ class Root extends React.PureComponent<Props, State> {
   };
 
   setNavContext() {
-    if (!this.navState || !this.navDispatch) {
+    if (!this.navState || !this.navDispatch || !this.navStateInitialized) {
       return;
     }
     const navContext = {
@@ -210,6 +219,11 @@ class Root extends React.PureComponent<Props, State> {
     this.setState({ navContext });
     setGlobalNavContext(navContext);
   }
+
+  setNavStateInitialized = () => {
+    this.navStateInitialized = true;
+    this.setNavContext();
+  };
 }
 
 const styles = StyleSheet.create({

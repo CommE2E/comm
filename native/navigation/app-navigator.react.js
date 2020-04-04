@@ -41,6 +41,7 @@ import { getPersistor } from '../redux/persist';
 import { NavContext } from './navigation-context';
 import { useIsAppLoggedIn } from './nav-selectors';
 import { assertNavigationRouteNotLeafNode } from '../utils/navigation-utils';
+import { RootContext } from '../root-context';
 
 const TabNavigator = createBottomTabNavigator(
   {
@@ -72,6 +73,13 @@ type Props = {|
   navigation: NavigationStackProp<NavigationStateRoute>,
 |};
 function WrappedAppNavigator(props: Props) {
+  const rootContext = React.useContext(RootContext);
+  const setNavStateInitialized =
+    rootContext && rootContext.setNavStateInitialized;
+  React.useEffect(() => {
+    setNavStateInitialized && setNavStateInitialized();
+  }, [setNavStateInitialized]);
+
   const { navigation } = props;
   const isForeground = useIsAppLoggedIn();
   const backButtonHandler = isForeground ? (
