@@ -37,6 +37,7 @@ import {
   appStartReduxLoggedInButInvalidCookie,
 } from 'lib/actions/user-actions';
 import { connect } from 'lib/utils/redux-utils';
+import { isLoggedIn } from 'lib/selectors/user-selectors';
 
 import {
   dimensionsSelector,
@@ -767,11 +768,7 @@ export default connectNav((context: ?NavContextType) => ({
       ),
       cookie: state.cookie,
       urlPrefix: state.urlPrefix,
-      loggedIn: !!(
-        state.currentUserInfo &&
-        !state.currentUserInfo.anonymous &&
-        true
-      ),
+      loggedIn: isLoggedIn(state),
       dimensions: dimensionsSelector(state),
       contentVerticalOffset: contentVerticalOffsetSelector(state),
       splashStyle: splashStyleSelector(state),

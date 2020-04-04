@@ -67,6 +67,7 @@ export type AppState = {|
   queuedReports: $ReadOnlyArray<ClientReportCreationRequest>,
   timeZone: ?string,
   userAgent: ?string,
+  dataLoaded: boolean,
 |};
 
 export const updateNavInfoActionType = 'UPDATE_NAV_INFO';
