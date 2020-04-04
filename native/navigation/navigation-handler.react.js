@@ -11,6 +11,7 @@ import LinkingHandler from './linking-handler.react';
 import ThreadScreenTracker from './thread-screen-tracker.react';
 import ModalPruner from './modal-pruner.react';
 import NavFromReduxHandler from './nav-from-redux-handler.react';
+import { logInActionType, logOutActionType } from './action-types';
 
 const NavigationHandler = React.memo<{||}>(() => {
   const navContext = React.useContext(NavContext);
@@ -68,9 +69,9 @@ const LogInHandler = React.memo<LogInHandlerProps>(
         return;
       }
       if (loggedIn && !navLoggedIn) {
-        dispatch({ type: 'LOG_IN' });
+        dispatch({ type: (logInActionType: 'LOG_IN') });
       } else if (!loggedIn && navLoggedIn) {
-        dispatch({ type: 'LOG_OUT' });
+        dispatch({ type: (logOutActionType: 'LOG_OUT') });
       }
     }, [navLoggedIn, prevLoggedIn, loggedIn, dispatch]);
 

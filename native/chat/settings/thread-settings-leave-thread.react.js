@@ -39,6 +39,7 @@ import {
   type NavContextType,
   navContextPropType,
 } from '../../navigation/navigation-context';
+import { clearThreadsActionType } from '../../navigation/action-types';
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -134,7 +135,7 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
         result.threadInfos,
       );
       navContext.dispatch({
-        type: 'CLEAR_THREADS',
+        type: clearThreadsActionType,
         threadIDs: [...invalidated],
       });
       return result;

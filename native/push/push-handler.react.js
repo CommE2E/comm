@@ -78,6 +78,7 @@ import {
   rootContextPropType,
 } from '../root-context';
 import { ChatRouteName, MessageListRouteName } from '../navigation/route-names';
+import { replaceWithThreadActionType } from '../navigation/action-types';
 
 YellowBox.ignoreWarnings([
   'Require cycle: ../node_modules/react-native-firebase',
@@ -454,7 +455,7 @@ class PushHandler extends React.PureComponent<Props, State> {
   navigateToThread(threadInfo: ThreadInfo, clearChatRoutes: boolean) {
     if (clearChatRoutes) {
       const replaceAction: NavigationNavigateAction = ({
-        type: 'REPLACE_WITH_THREAD',
+        type: replaceWithThreadActionType,
         threadInfo,
       }: any);
       this.props.navigation.navigate({

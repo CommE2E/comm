@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 
 import { NavContext } from './navigation-context';
+import { setNavStateActionType } from './action-types';
 
 const NavFromReduxHandler = React.memo<{||}>(() => {
   const navContext = React.useContext(NavContext);
@@ -23,7 +24,7 @@ const NavFromReduxHandler = React.memo<{||}>(() => {
     }
     if (navStateInRedux) {
       dispatch({
-        type: 'SET_NAV_STATE',
+        type: setNavStateActionType,
         state: navStateInRedux,
       });
     }
