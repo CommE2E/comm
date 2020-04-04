@@ -12,6 +12,7 @@ import ThreadScreenTracker from './thread-screen-tracker.react';
 import ModalPruner from './modal-pruner.react';
 import NavFromReduxHandler from './nav-from-redux-handler.react';
 import { logInActionType, logOutActionType } from './action-types';
+import DevTools from '../redux/dev-tools.react';
 
 const NavigationHandler = React.memo<{||}>(() => {
   const navContext = React.useContext(NavContext);
@@ -19,9 +20,16 @@ const NavigationHandler = React.memo<{||}>(() => {
     (state: AppState) => !!(state._persist && state._persist.rehydrated),
   );
 
+  const devTools = __DEV__ ? <DevTools key="devTools" /> : null;
+
   if (!navContext || !reduxRehydrated) {
     if (__DEV__) {
-      return <NavFromReduxHandler />;
+      return (
+        <>
+          <NavFromReduxHandler />
+          {devTools}
+        </>
+      );
     } else {
       return null;
     }
@@ -34,6 +42,7 @@ const NavigationHandler = React.memo<{||}>(() => {
       <LinkingHandler dispatch={dispatch} />
       <ThreadScreenTracker />
       <ModalPruner navContext={navContext} />
+      {devTools}
     </>
   );
 });

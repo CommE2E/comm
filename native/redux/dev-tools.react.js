@@ -1,0 +1,127 @@
+// @flow
+
+import * as React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+
+import { actionLogger } from 'lib/utils/action-logger';
+
+import { NavContext } from '../navigation/navigation-context';
+import { setReduxStateActionType } from './action-types';
+import { setNavStateActionType } from '../navigation/action-types';
+
+const DevTools = React.memo<{||}>(() => {
+  const devToolsRef = React.useRef();
+  if (
+    global.__REDUX_DEVTOOLS_EXTENSION__ &&
+    devToolsRef.current === undefined
+  ) {
+    devToolsRef.current = global.__REDUX_DEVTOOLS_EXTENSION__.connect({
+      name: 'SquadCal',
+      features: {
+        pause: false,
+        lock: false,
+        persist: false,
+        export: false,
+        import: false,
+        jump: true,
+        skip: false,
+        reorder: false,
+        dispatch: false,
+        test: false,
+      },
+    });
+  }
+  const devTools = devToolsRef.current;
+
+  const navContext = React.useContext(NavContext);
+  const initialReduxState = useSelector(state => state);
+
+  React.useEffect(() => {
+    if (devTools && navContext) {
+      devTools.init({ ...initialReduxState, navState: navContext.state });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [devTools, !navContext]);
+
+  const postActionToMonitor = React.useCallback(
+    (action: Object, state: Object) => {
+      if (!devTools) {
+        return;
+      } else if (
+        (action.type === setNavStateActionType ||
+          action.type === setReduxStateActionType) &&
+        action.hideFromMonitor
+      ) {
+        // Triggered by handleActionFromMonitor below when somebody is stepping
+        // through actions in the SquadCal monitor in Redux dev tools
+        return;
+      } else if (action.type === setNavStateActionType) {
+        // Triggered by NavFromReduxHandler when somebody imports state into the
+        // Redux monitor in Redux dev tools
+        devTools.init(state);
+      } else {
+        devTools.send(action, state);
+      }
+    },
+    [devTools],
+  );
+
+  React.useEffect(() => {
+    actionLogger.subscribe(postActionToMonitor);
+    return () => actionLogger.unsubscribe(postActionToMonitor);
+  }, [postActionToMonitor]);
+
+  const reduxDispatch = useDispatch();
+  const navDispatch = React.useMemo(
+    () => (navContext ? navContext.dispatch : null),
+    [navContext],
+  );
+
+  const setInternalState = React.useCallback(
+    state => {
+      const { navState, ...reduxState } = state;
+      if (navDispatch) {
+        navDispatch({
+          type: setNavStateActionType,
+          state: navState,
+          hideFromMonitor: true,
+        });
+      } else {
+        console.log('could not set state in ReactNav');
+      }
+      reduxDispatch({
+        type: setReduxStateActionType,
+        state: reduxState,
+        hideFromMonitor: true,
+      });
+    },
+    [reduxDispatch, navDispatch],
+  );
+
+  const handleActionFromMonitor = React.useCallback(
+    monitorAction => {
+      if (!devTools) {
+        return;
+      }
+      if (monitorAction.type === 'DISPATCH') {
+        const state = JSON.parse(monitorAction.state);
+        setInternalState(state);
+      } else if (monitorAction.type === 'IMPORT') {
+        console.log('you should import using the Redux monitor!');
+      }
+    },
+    [devTools, setInternalState],
+  );
+
+  React.useEffect(() => {
+    if (!devTools) {
+      return;
+    }
+    const unsubscribe = devTools.subscribe(handleActionFromMonitor);
+    return unsubscribe;
+  }, [devTools, handleActionFromMonitor]);
+
+  return null;
+});
+
+export default DevTools;

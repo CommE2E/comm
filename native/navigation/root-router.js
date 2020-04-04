@@ -37,6 +37,7 @@ type ClearRootModalsAction = {|
 type SetNavStateAction = {|
   +type: 'SET_NAV_STATE',
   +state: NavigationState,
+  +hideFromMonitor?: boolean,
 |};
 export type RootRouterNavigationAction =
   | NavigationAction
@@ -156,9 +157,13 @@ function RootRouter(
         keys,
         preserveFocus,
       }),
-      setNavState: (state: NavigationState) => ({
+      setNavState: (
+        state: NavigationState,
+        hideFromMonitor?: boolean = false,
+      ) => ({
         type: setNavStateActionType,
         state,
+        hideFromMonitor,
       }),
     }),
   };
