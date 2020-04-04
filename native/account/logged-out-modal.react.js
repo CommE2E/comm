@@ -210,7 +210,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
     if (this.props.rehydrateConcluded) {
-      this.onInitialAppLoad(true);
+      this.onInitialAppLoad();
     }
     if (this.props.isForeground) {
       this.onForeground();
@@ -226,7 +226,8 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   componentDidUpdate(prevProps: Props) {
     if (!prevProps.rehydrateConcluded && this.props.rehydrateConcluded) {
-      this.onInitialAppLoad(false);
+      this.showPrompt();
+      this.onInitialAppLoad();
     }
     if (!prevProps.isForeground && this.props.isForeground) {
       this.onForeground();
@@ -255,7 +256,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   // This gets triggered when an app is killed and restarted
   // Not when it is returned from being backgrounded
-  async onInitialAppLoad(startedWithPrompt: boolean) {
+  async onInitialAppLoad() {
     if (!initialAppLoad) {
       return;
     }
@@ -289,10 +290,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
     if (loggedIn || hasUserCookie) {
       this.props.dispatchActionPayload(resetUserStateActionType, null);
-    }
-
-    if (!startedWithPrompt) {
-      this.showPrompt();
     }
   }
 
