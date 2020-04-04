@@ -15,7 +15,6 @@ import {
   StyleSheet,
 } from 'react-native';
 import PropTypes from 'prop-types';
-import SplashScreen from 'react-native-splash-screen';
 import Orientation from 'react-native-orientation-locker';
 import { PersistGate } from 'redux-persist/integration/react';
 import {
@@ -104,11 +103,6 @@ class Root extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
-    if (Platform.OS === 'android') {
-      setTimeout(SplashScreen.hide, 350);
-    } else {
-      SplashScreen.hide();
-    }
     NativeAppState.addEventListener('change', this.handleAppStateChange);
     Orientation.lockToPortrait();
   }
