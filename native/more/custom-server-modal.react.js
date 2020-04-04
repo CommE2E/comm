@@ -16,12 +16,10 @@ import { connect } from 'lib/utils/redux-utils';
 import { setURLPrefix } from 'lib/utils/url-utils';
 
 import Button from '../components/button.react';
-import { createModal } from '../components/modal.react';
-import { CustomServerModalRouteName } from '../navigation/route-names';
+import Modal from '../components/modal.react';
 import { setCustomServer } from '../utils/url-utils';
 import { styleSelector } from '../themes/colors';
 
-const Modal = createModal(CustomServerModalRouteName);
 type NavProp = NavigationScreenProp<{|
   ...NavigationLeafRoute,
   params: {|

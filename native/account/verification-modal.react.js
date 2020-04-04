@@ -21,7 +21,6 @@ import {
   Text,
   View,
   StyleSheet,
-  BackHandler,
   ActivityIndicator,
   Animated,
   Platform,
@@ -64,7 +63,11 @@ import {
 type VerificationModalMode = 'simple-text' | 'reset-password';
 type Props = {
   navigation: {
-    state: { params: { verifyCode: string } },
+    state: { key: string, params: { verifyCode: string } },
+    clearRootModals: (
+      keys: $ReadOnlyArray<string>,
+      preserveFocus: boolean,
+    ) => void,
   } & NavigationScreenProp<NavigationLeafRoute>,
   // Navigation state
   isForeground: boolean,
@@ -91,11 +94,13 @@ class VerificationModal extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
+        key: PropTypes.string.isRequired,
         params: PropTypes.shape({
           verifyCode: PropTypes.string.isRequired,
         }).isRequired,
       }).isRequired,
       goBack: PropTypes.func.isRequired,
+      clearRootModals: PropTypes.func.isRequired,
     }).isRequired,
     isForeground: PropTypes.bool.isRequired,
     dimensions: dimensionsPropType.isRequired,
@@ -153,7 +158,7 @@ class VerificationModal extends React.PureComponent<Props, State> {
       this.state.verifyField === verifyField.EMAIL &&
       prevState.verifyField !== verifyField.EMAIL
     ) {
-      sleep(1500).then(this.hardwareBack);
+      sleep(1500).then(this.dismiss);
     }
 
     const prevCode = prevProps.navigation.state.params.verifyCode;
@@ -185,7 +190,6 @@ class VerificationModal extends React.PureComponent<Props, State> {
   onForeground() {
     this.keyboardShowListener = addKeyboardShowListener(this.keyboardShow);
     this.keyboardHideListener = addKeyboardDismissListener(this.keyboardHide);
-    BackHandler.addEventListener('hardwareBackPress', this.hardwareBack);
   }
 
   onBackground() {
@@ -197,12 +201,13 @@ class VerificationModal extends React.PureComponent<Props, State> {
       removeKeyboardListener(this.keyboardHideListener);
       this.keyboardHideListener = null;
     }
-    BackHandler.removeEventListener('hardwareBackPress', this.hardwareBack);
   }
 
-  hardwareBack = () => {
-    this.props.navigation.goBack();
-    return true;
+  dismiss = () => {
+    this.props.navigation.clearRootModals(
+      [this.props.navigation.state.key],
+      false,
+    );
   };
 
   onResetPasswordSuccess = async () => {
@@ -369,7 +374,7 @@ class VerificationModal extends React.PureComponent<Props, State> {
     );
     const closeButton = (
       <TouchableHighlight
-        onPress={this.hardwareBack}
+        onPress={this.dismiss}
         style={styles.closeButton}
         underlayColor="#A0A0A0DD"
       >

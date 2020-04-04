@@ -23,11 +23,9 @@ import { threadSearchIndex } from 'lib/selectors/nav-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import { connect } from 'lib/utils/redux-utils';
 
-import { createModal } from '../components/modal.react';
+import Modal from '../components/modal.react';
 import ThreadList from '../components/thread-list.react';
-import { ThreadPickerModalRouteName } from '../navigation/route-names';
 
-const Modal = createModal(ThreadPickerModalRouteName);
 type NavProp = NavigationScreenProp<{|
   ...NavigationLeafRoute,
   params: {|

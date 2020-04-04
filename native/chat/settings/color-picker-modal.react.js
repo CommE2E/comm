@@ -26,8 +26,7 @@ import {
   changeThreadSettings,
 } from 'lib/actions/thread-actions';
 
-import { createModal } from '../../components/modal.react';
-import { ColorPickerModalRouteName } from '../../navigation/route-names';
+import Modal from '../../components/modal.react';
 import ColorPicker from '../../components/color-picker.react';
 import {
   type Colors,
@@ -37,7 +36,6 @@ import {
 } from '../../themes/colors';
 import { dimensionsSelector } from '../../selectors/dimension-selectors';
 
-const Modal = createModal(ColorPickerModalRouteName);
 type NavProp = NavigationScreenProp<{|
   ...NavigationLeafRoute,
   params: {|
