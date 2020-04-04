@@ -142,7 +142,22 @@ function RootRouter(
       } else if (action.type === setNavStateActionType) {
         return action.state;
       } else {
-        return stackRouter.getStateForAction(action, lastState);
+        if (!lastState) {
+          return lastState;
+        }
+        const lastRouteName = lastState.routes[lastState.index].routeName;
+        const newState = stackRouter.getStateForAction(action, lastState);
+        if (!newState) {
+          return newState;
+        }
+        const newRouteName = newState.routes[newState.index].routeName;
+        if (
+          accountModals.includes(lastRouteName) &&
+          lastRouteName !== newRouteName
+        ) {
+          return lastState;
+        }
+        return newState;
       }
     },
     getActionCreators: (route: NavigationRoute, navStateKey: ?string) => ({

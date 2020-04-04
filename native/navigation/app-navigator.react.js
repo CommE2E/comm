@@ -7,7 +7,6 @@ import * as React from 'react';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import { PersistGate } from 'redux-persist/integration/react';
-import { BackHandler } from 'react-native';
 
 import {
   CalendarRouteName,
@@ -20,7 +19,6 @@ import {
   TextMessageTooltipModalRouteName,
   ThreadSettingsMemberTooltipModalRouteName,
   CameraModalRouteName,
-  AppRouteName,
 } from './route-names';
 import Calendar from '../calendar/calendar.react';
 import Chat from '../chat/chat.react';
@@ -38,9 +36,6 @@ import OverlayableScrollViewStateContainer from './overlayable-scroll-view-state
 import KeyboardStateContainer from '../keyboard/keyboard-state-container.react';
 import PushHandler from '../push/push-handler.react';
 import { getPersistor } from '../redux/persist';
-import { NavContext } from './navigation-context';
-import { useIsAppLoggedIn } from './nav-selectors';
-import { assertNavigationRouteNotLeafNode } from '../utils/navigation-utils';
 import { RootContext } from '../root-context';
 
 const TabNavigator = createBottomTabNavigator(
@@ -81,10 +76,6 @@ function WrappedAppNavigator(props: Props) {
   }, [setNavStateInitialized]);
 
   const { navigation } = props;
-  const isForeground = useIsAppLoggedIn();
-  const backButtonHandler = isForeground ? (
-    <BackButtonHandler navigation={navigation} />
-  ) : null;
   return (
     <ChatInputStateContainer>
       <OverlayableScrollViewStateContainer>
@@ -93,57 +84,11 @@ function WrappedAppNavigator(props: Props) {
           <PersistGate persistor={getPersistor()}>
             <PushHandler navigation={navigation} />
           </PersistGate>
-          {backButtonHandler}
         </KeyboardStateContainer>
       </OverlayableScrollViewStateContainer>
     </ChatInputStateContainer>
   );
 }
 hoistNonReactStatics(WrappedAppNavigator, AppNavigator);
-
-function BackButtonHandler(props: Props) {
-  const { navigation } = props;
-  const appCanRespondToBackButton = useAppCanRespondToBackButton();
-  const hardwareBack = React.useCallback(() => {
-    if (!appCanRespondToBackButton) {
-      return false;
-    }
-    navigation.goBack(null);
-    return true;
-  }, [appCanRespondToBackButton, navigation]);
-  React.useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', hardwareBack);
-    return () => {
-      BackHandler.removeEventListener('hardwareBackPress', hardwareBack);
-    };
-  }, [hardwareBack]);
-  return null;
-}
-
-function useAppCanRespondToBackButton() {
-  const navContext = React.useContext(NavContext);
-  return React.useMemo(() => {
-    if (!navContext) {
-      return false;
-    }
-    const { state } = navContext;
-    const currentRootSubroute = state.routes[state.index];
-    if (currentRootSubroute.routeName !== AppRouteName) {
-      return false;
-    }
-    const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
-    const currentAppSubroute = appRoute.routes[appRoute.index];
-    if (currentAppSubroute.routeName !== TabNavigatorRouteName) {
-      return true;
-    }
-    const tabRoute = assertNavigationRouteNotLeafNode(currentAppSubroute);
-    const currentTabSubroute = tabRoute.routes[tabRoute.index];
-    return (
-      currentTabSubroute.index !== null &&
-      currentTabSubroute.index !== undefined &&
-      currentTabSubroute.index > 0
-    );
-  }, [navContext]);
-}
 
 export default WrappedAppNavigator;

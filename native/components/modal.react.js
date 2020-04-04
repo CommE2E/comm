@@ -8,22 +8,12 @@ import type { AppState } from '../redux/redux-setup';
 import type { ViewStyle, Styles } from '../types/styles';
 
 import * as React from 'react';
-import {
-  View,
-  TouchableWithoutFeedback,
-  BackHandler,
-  ViewPropTypes,
-} from 'react-native';
+import { View, TouchableWithoutFeedback, ViewPropTypes } from 'react-native';
 import PropTypes from 'prop-types';
 import { connect } from 'lib/utils/redux-utils';
 
 import KeyboardAvoidingView from '../keyboard/keyboard-avoiding-view.react';
-import { createIsForegroundSelector } from '../navigation/nav-selectors';
 import { styleSelector } from '../themes/colors';
-import {
-  connectNav,
-  type NavContextType,
-} from '../navigation/navigation-context';
 
 type Props = $ReadOnly<{|
   navigation: NavigationScreenProp<NavigationLeafRoute>,
@@ -31,7 +21,6 @@ type Props = $ReadOnly<{|
   containerStyle?: ViewStyle,
   modalStyle?: ViewStyle,
   // Redux state
-  isForeground: boolean,
   styles: Styles,
 |}>;
 class Modal extends React.PureComponent<Props> {
@@ -40,43 +29,9 @@ class Modal extends React.PureComponent<Props> {
     navigation: PropTypes.shape({
       goBack: PropTypes.func.isRequired,
     }).isRequired,
-    isForeground: PropTypes.bool.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     containerStyle: ViewPropTypes.style,
     modalStyle: ViewPropTypes.style,
-  };
-
-  componentDidMount() {
-    if (this.props.isForeground) {
-      this.onForeground();
-    }
-  }
-
-  componentWillUnmount() {
-    if (this.props.isForeground) {
-      this.onBackground();
-    }
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (this.props.isForeground && !prevProps.isForeground) {
-      this.onForeground();
-    } else if (!this.props.isForeground && prevProps.isForeground) {
-      this.onBackground();
-    }
-  }
-
-  onForeground() {
-    BackHandler.addEventListener('hardwareBackPress', this.hardwareBack);
-  }
-
-  onBackground() {
-    BackHandler.removeEventListener('hardwareBackPress', this.hardwareBack);
-  }
-
-  hardwareBack = () => {
-    this.close();
-    return true;
   };
 
   close = () => {
@@ -127,15 +82,6 @@ const styles = {
 };
 const stylesSelector = styleSelector(styles);
 
-function createModal(routeName: string) {
-  const isForegroundSelector = createIsForegroundSelector(routeName);
-  return connect((state: AppState) => ({
-    styles: stylesSelector(state),
-  }))(
-    connectNav((context: ?NavContextType) => ({
-      isForeground: isForegroundSelector(context),
-    }))(Modal),
-  );
-}
-
-export { createModal };
+export default connect((state: AppState) => ({
+  styles: stylesSelector(state),
+}))(Modal);

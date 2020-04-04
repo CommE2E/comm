@@ -47,8 +47,7 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import UserList from '../../components/user-list.react';
 import TagInput from '../../components/tag-input.react';
 import Button from '../../components/button.react';
-import { createModal } from '../../components/modal.react';
-import { AddUsersModalRouteName } from '../../navigation/route-names';
+import Modal from '../../components/modal.react';
 import { styleSelector } from '../../themes/colors';
 
 const tagInputProps = {
@@ -57,7 +56,6 @@ const tagInputProps = {
   returnKeyType: 'go',
 };
 
-const Modal = createModal(AddUsersModalRouteName);
 type NavProp = NavigationScreenProp<{|
   ...NavigationLeafRoute,
   params: {|

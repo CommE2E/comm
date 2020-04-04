@@ -22,11 +22,8 @@ import { threadTypeDescriptions } from 'lib/shared/thread-utils';
 import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../../components/button.react';
-import {
-  ComposeSubthreadModalRouteName,
-  ComposeThreadRouteName,
-} from '../../navigation/route-names';
-import { createModal } from '../../components/modal.react';
+import { ComposeThreadRouteName } from '../../navigation/route-names';
+import Modal from '../../components/modal.react';
 import {
   type Colors,
   colorsPropType,
@@ -34,7 +31,6 @@ import {
   styleSelector,
 } from '../../themes/colors';
 
-const Modal = createModal(ComposeSubthreadModalRouteName);
 type NavProp = NavigationScreenProp<{|
   ...NavigationLeafRoute,
   params: {|
