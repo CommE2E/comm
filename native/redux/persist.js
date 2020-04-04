@@ -156,6 +156,7 @@ const migrations = {
     const result = {
       ...state,
       messageSentFromRoute: undefined,
+      dataLoaded: !!state.currentUserInfo && !state.currentUserInfo.anonymous,
     };
     if (state.navInfo) {
       result.navInfo = {

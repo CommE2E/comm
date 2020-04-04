@@ -290,6 +290,7 @@ async function websiteResponder(
     userAgent: viewer.userAgent,
     cookie: undefined,
     deviceToken: undefined,
+    dataLoaded: viewer.loggedIn,
   };
 
   const state = await promiseAll(statePromises);

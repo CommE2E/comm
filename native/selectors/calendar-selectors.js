@@ -11,6 +11,7 @@ import {
   threadInfoSelector,
 } from 'lib/selectors/thread-selectors';
 import { dateString } from 'lib/utils/date-utils';
+import { isLoggedIn } from 'lib/selectors/user-selectors';
 
 export type SectionHeaderItem = {|
   itemType: 'header',
@@ -35,8 +36,7 @@ export type CalendarItem =
     |};
 
 const calendarListData: (state: AppState) => ?(CalendarItem[]) = createSelector(
-  (state: AppState) =>
-    !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
+  isLoggedIn,
   currentDaysToEntries,
   threadInfoSelector,
   (

@@ -38,6 +38,7 @@ import {
   backgroundActionType,
   foregroundActionType,
 } from 'lib/reducers/foreground-reducer';
+import { isLoggedIn } from 'lib/selectors/user-selectors';
 
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
 import css from './style.css';
@@ -352,11 +353,7 @@ export default connect(
         fetchEntriesLoadingStatusSelector(state),
         updateCalendarQueryLoadingStatusSelector(state),
       ),
-      loggedIn: !!(
-        state.currentUserInfo &&
-        !state.currentUserInfo.anonymous &&
-        true
-      ),
+      loggedIn: isLoggedIn(state),
       mostRecentReadThread: mostRecentReadThreadSelector(state),
       activeThreadCurrentlyUnread:
         !activeChatThreadID ||

@@ -50,6 +50,7 @@ import {
   setDeviceToken,
 } from 'lib/actions/device-actions';
 import { mergePrefixIntoBody } from 'lib/shared/notif-utils';
+import { isLoggedIn } from 'lib/selectors/user-selectors';
 
 import {
   recordNotifPermissionAlertActionType,
@@ -619,11 +620,7 @@ export default connectNav((context: ?NavContextType) => ({
       connection: state.connection,
       updatesCurrentAsOf: state.updatesCurrentAsOf,
       activeTheme: state.globalThemeInfo.activeTheme,
-      loggedIn: !!(
-        state.currentUserInfo &&
-        !state.currentUserInfo.anonymous &&
-        true
-      ),
+      loggedIn: isLoggedIn(state),
     }),
     { setDeviceToken },
   )(withRootContext(PushHandler)),

@@ -5,6 +5,8 @@ import type { AppState } from '../redux/redux-setup';
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 
+import { isLoggedIn } from 'lib/selectors/user-selectors';
+
 import { NavContext, type NavAction } from './navigation-context';
 import { useIsAppLoggedIn } from './nav-selectors';
 import LinkingHandler from './linking-handler.react';
@@ -55,15 +57,11 @@ const LogInHandler = React.memo<LogInHandlerProps>(
   (props: LogInHandlerProps) => {
     const { dispatch } = props;
 
-    const loggedIn = useSelector(
-      (state: AppState) =>
-        !!(
-          state.currentUserInfo &&
-          !state.currentUserInfo.anonymous &&
-          state.cookie &&
-          state.cookie.startsWith('user=')
-        ),
+    const hasCurrentUserInfo = useSelector(isLoggedIn);
+    const hasUserCookie = useSelector(
+      (state: AppState) => !!(state.cookie && state.cookie.startsWith('user=')),
     );
+    const loggedIn = hasCurrentUserInfo && hasUserCookie;
 
     const navLoggedIn = useIsAppLoggedIn();
 
