@@ -239,6 +239,8 @@ class VerificationModal extends React.PureComponent<Props, State> {
     // Wait a couple seconds before letting the SUCCESS action propagate and
     // clear VerificationModal
     await sleep(1750);
+
+    this.dismiss();
   };
 
   async handleVerificationCodeAction() {

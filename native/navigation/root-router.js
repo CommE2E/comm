@@ -153,7 +153,7 @@ function RootRouter(
         const newRouteName = newState.routes[newState.index].routeName;
         if (
           accountModals.includes(lastRouteName) &&
-          lastRouteName !== newRouteName
+          !accountModals.includes(newRouteName)
         ) {
           return lastState;
         }
