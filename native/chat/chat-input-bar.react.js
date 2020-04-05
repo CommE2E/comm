@@ -99,7 +99,6 @@ type Props = {|
 |};
 type State = {|
   text: string,
-  height: number,
   buttonsExpanded: boolean,
 |};
 class ChatInputBar extends React.PureComponent<Props, State> {
@@ -128,7 +127,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     super(props);
     this.state = {
       text: props.draft,
-      height: 0,
       buttonsExpanded: true,
     };
     this.expandoButtonsOpacity = new Animated.Value(1);
@@ -201,10 +199,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       return;
     }
     TextInputKeyboardMangerIOS.setKeyboardHeight(textInput, keyboardHeight);
-  }
-
-  get textInputStyle() {
-    return { height: Math.max(this.state.height, 30) };
   }
 
   get expandoButtonsStyle() {
@@ -346,8 +340,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
                 placeholder="Send a message..."
                 placeholderTextColor={this.props.colors.listInputButton}
                 multiline={true}
-                onContentSizeChange={this.onContentSizeChange}
-                style={[this.props.styles.textInput, this.textInputStyle]}
+                style={this.props.styles.textInput}
                 ref={this.textInputRef}
               />
             </View>
@@ -417,13 +410,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       draft: text,
     });
   }, 400);
-
-  onContentSizeChange = event => {
-    let height = event.nativeEvent.contentSize.height;
-    // iOS doesn't include the margin on this callback
-    height = Platform.OS === 'ios' ? height + 10 : height;
-    this.setState({ height });
-  };
 
   onSend = () => {
     const text = this.state.text.trim();
@@ -537,6 +523,7 @@ const styles = {
     borderRadius: 10,
     fontSize: 16,
     color: 'listForegroundLabel',
+    maxHeight: 250,
   },
   bottomAligned: {
     alignSelf: 'flex-end',
