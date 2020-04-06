@@ -223,6 +223,7 @@ async function websiteResponder(
 
   const { jsURL, fontsURL, cssInclude } = await assetInfoPromise;
 
+  // prettier-ignore
   res.write(html`
     <!DOCTYPE html>
     <html lang="en">
@@ -257,9 +258,7 @@ async function websiteResponder(
         <meta name="theme-color" content="#b91d47" />
       </head>
       <body>
-        <div id="react-root"></div>
-      </body>
-    </html>
+        <div id="react-root">
   `);
 
   const statePromises = {
