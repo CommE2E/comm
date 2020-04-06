@@ -1,0 +1,13 @@
+{
+  "Simulator Target Bundle": "org.squadcal.app",
+  "body": "asdasd",
+  "title": "test",
+  "threadID": "82251",
+  "messageInfos": "[{\"type\":0,\"threadID\":\"82251\",\"creatorID\":\"1402\",\"time\":1586135605476,\"text\":\"asdasd\",\"id\":\"166127\"}]",
+  "aps": {
+    "alert": "test: asdasd",
+    "sound": "default",
+    "badge": 12,
+    "thread-id": "82251"
+  }
+}
