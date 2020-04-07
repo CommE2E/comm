@@ -11456,6 +11456,11 @@ react-linkify@^1.0.0-alpha:
     linkify-it "^2.0.3"
     tlds "^1.199.0"
 
+react-native-background-upload@^5.6.0:
+  version "5.6.0"
+  resolved "https://registry.yarnpkg.com/react-native-background-upload/-/react-native-background-upload-5.6.0.tgz#77953c78571c5c7d7a4885207743c6c462f22066"
+  integrity sha512-JWtRVs3LIP41BFIEd01wit/O/hsGcGPDBYASZFal+0wPYJHjZZCVFOj2sEQ/NSOb4ow7RXtkYYJEKnQt+RiMPw==
+
 react-native-camera@^3.8.0:
   version "3.8.0"
   resolved "https://registry.yarnpkg.com/react-native-camera/-/react-native-camera-3.8.0.tgz#c2e6aaa62dc84e07180c3ea29a5bfc4d24b188a7"

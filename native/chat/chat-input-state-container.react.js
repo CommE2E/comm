@@ -27,12 +27,17 @@ import {
   type MediaMissionReportCreationRequest,
   reportTypes,
 } from 'lib/types/report-types';
+import type {
+  FetchJSONOptions,
+  FetchJSONServerResponse,
+} from 'lib/utils/fetch-json';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import { createSelector } from 'reselect';
 import filesystem from 'react-native-fs';
+import * as Upload from 'react-native-background-upload';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
@@ -490,6 +495,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         {
           onProgress: (percent: number) =>
             this.setProgress(localMessageID, localID, percent),
+          uploadBlob: this.uploadBlob,
         },
       );
       mediaMissionResult = { success: true, totalTime: Date.now() - start };
@@ -573,6 +579,66 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       };
     });
   }
+
+  uploadBlob = async (
+    url: string,
+    cookie: ?string,
+    sessionID: ?string,
+    input: { [key: string]: mixed },
+    options?: ?FetchJSONOptions,
+  ): Promise<FetchJSONServerResponse> => {
+    invariant(
+      cookie &&
+        input.multimedia &&
+        Array.isArray(input.multimedia) &&
+        input.multimedia.length === 1 &&
+        input.multimedia[0] &&
+        typeof input.multimedia[0] === 'object',
+      'ChatInputStateContainer.uploadBlob sent incorrect input',
+    );
+    const { uri, name, type } = input.multimedia[0];
+    invariant(
+      typeof uri === 'string' &&
+        typeof name === 'string' &&
+        typeof type === 'string',
+      'ChatInputStateContainer.uploadBlob sent incorrect input',
+    );
+    const uploadID = await Upload.startUpload({
+      url,
+      path: uri,
+      type: 'multipart',
+      headers: {
+        Accept: 'application/json',
+      },
+      field: 'multimedia',
+      parameters: {
+        cookie,
+        filename: name,
+      },
+    });
+    if (options && options.abortHandler) {
+      options.abortHandler(() => {
+        Upload.cancelUpload(uploadID);
+      });
+    }
+    return await new Promise((resolve, reject) => {
+      Upload.addListener('error', uploadID, data => {
+        reject(data.error);
+      });
+      Upload.addListener('cancelled', uploadID, () => {
+        reject(new Error('request aborted'));
+      });
+      Upload.addListener('completed', uploadID, data => {
+        resolve(JSON.parse(data.responseBody));
+      });
+      if (options && options.onProgress) {
+        const { onProgress } = options;
+        Upload.addListener('progress', uploadID, data =>
+          onProgress(data.progress / 100),
+        );
+      }
+    });
+  };
 
   handleUploadFailure(
     localMessageID: string,

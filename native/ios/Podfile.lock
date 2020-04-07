@@ -74,6 +74,8 @@ PODS:
     - React-cxxreact (= 0.60.6)
     - React-jsi (= 0.60.6)
   - React-jsinspector (0.60.6)
+  - react-native-background-upload (5.6.0):
+    - React
   - react-native-camera (3.8.0):
     - React
     - react-native-camera/RCT (= 3.8.0)
@@ -184,6 +186,7 @@ DEPENDENCIES:
   - React-jsi (from `../../node_modules/react-native/ReactCommon/jsi`)
   - React-jsiexecutor (from `../../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../../node_modules/react-native/ReactCommon/jsinspector`)
+  - react-native-background-upload (from `../../node_modules/react-native-background-upload`)
   - react-native-camera (from `../../node_modules/react-native-camera`)
   - "react-native-cameraroll (from `../../node_modules/@react-native-community/cameraroll`)"
   - react-native-ffmpeg/min-lts (from `../../node_modules/react-native-ffmpeg/ios/react-native-ffmpeg.podspec`)
@@ -260,6 +263,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native/ReactCommon/jsiexecutor"
   React-jsinspector:
     :path: "../../node_modules/react-native/ReactCommon/jsinspector"
+  react-native-background-upload:
+    :path: "../../node_modules/react-native-background-upload"
   react-native-camera:
     :path: "../../node_modules/react-native-camera"
   react-native-cameraroll:
@@ -355,6 +360,7 @@ SPEC CHECKSUMS:
   React-jsi: 1a4248256b96fa453536a8dafe11b784e24e789d
   React-jsiexecutor: 2279e559b921d02dfc6253ebef3dcb3a9dc6c07e
   React-jsinspector: a58b86545a0185f69768e78ac96ca9fe43fa3694
+  react-native-background-upload: 6e8ba7f41a6308231306bddc88f11da3b74c9de4
   react-native-camera: 21cf4ed26cf432ceb1fae959aa6924943fd6f714
   react-native-cameraroll: 463aff54e37cff27ea76eb792e6f1fa43b876320
   react-native-ffmpeg: 35e303059e3c958cb74e271a45f9391d044f915a

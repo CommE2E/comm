@@ -35,13 +35,22 @@ async function multimediaUploadResponder(
   viewer: Viewer,
   req: $Request & { files?: $ReadOnlyArray<MulterFile> },
 ): Promise<MultimediaUploadResult> {
-  const { files } = req;
-  if (!files) {
+  const { files, body } = req;
+  if (!files || !body || typeof body !== 'object') {
+    throw new ServerError('invalid_parameters');
+  }
+  const overrideFilename =
+    files.length === 1 && body.filename ? body.filename : null;
+  if (overrideFilename && typeof overrideFilename !== 'string') {
     throw new ServerError('invalid_parameters');
   }
   const validationResults = await Promise.all(
     files.map(({ buffer, size, originalname }) =>
-      validateAndConvert(buffer, originalname, size),
+      validateAndConvert(
+        buffer,
+        overrideFilename ? overrideFilename : originalname,
+        size,
+      ),
     ),
   );
   const uploadInfos = validationResults.filter(Boolean);
