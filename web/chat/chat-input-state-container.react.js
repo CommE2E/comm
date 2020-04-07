@@ -33,6 +33,7 @@ import {
   uploadMultimedia,
   updateMultimediaMessageMediaActionType,
   deleteUpload,
+  type MultimediaUploadCallbacks,
 } from 'lib/actions/upload-actions';
 import {
   createLocalMessageActionType,
@@ -62,8 +63,7 @@ type Props = {|
   // async functions that hit server APIs
   uploadMultimedia: (
     multimedia: Object,
-    onProgress: (percent: number) => void,
-    abortHandler?: (abort: () => void) => void,
+    callbacks: MultimediaUploadCallbacks,
   ) => Promise<UploadMultimediaResult>,
   deleteUpload: (id: string) => Promise<void>,
   sendMultimediaMessage: (
@@ -411,13 +411,12 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
   async uploadFile(threadID: string, upload: PendingMultimediaUpload) {
     let result;
     try {
-      result = await this.props.uploadMultimedia(
-        upload.file,
-        (percent: number) =>
+      result = await this.props.uploadMultimedia(upload.file, {
+        onProgress: (percent: number) =>
           this.setProgress(threadID, upload.localID, percent),
-        (abort: () => void) =>
+        abortHandler: (abort: () => void) =>
           this.handleAbortCallback(threadID, upload.localID, abort),
-      );
+      });
     } catch (e) {
       this.handleUploadFailure(threadID, upload.localID, e);
       return;

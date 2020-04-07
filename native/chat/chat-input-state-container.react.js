@@ -38,6 +38,7 @@ import { connect } from 'lib/utils/redux-utils';
 import {
   uploadMultimedia,
   updateMultimediaMessageMediaActionType,
+  type MultimediaUploadCallbacks,
 } from 'lib/actions/upload-actions';
 import {
   createLocalMessageActionType,
@@ -73,8 +74,7 @@ type Props = {|
   // async functions that hit server APIs
   uploadMultimedia: (
     multimedia: Object,
-    onProgress: (percent: number) => void,
-    abortHandler?: (abort: () => void) => void,
+    callbacks: MultimediaUploadCallbacks,
   ) => Promise<UploadMultimediaResult>,
   sendMultimediaMessage: (
     threadID: string,
@@ -487,7 +487,10 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     try {
       uploadResult = await this.props.uploadMultimedia(
         { uri: uploadURI, name, type: mime },
-        (percent: number) => this.setProgress(localMessageID, localID, percent),
+        {
+          onProgress: (percent: number) =>
+            this.setProgress(localMessageID, localID, percent),
+        },
       );
       mediaMissionResult = { success: true, totalTime: Date.now() - start };
     } catch (e) {
