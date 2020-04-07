@@ -32,6 +32,7 @@
     "@react-native-community/cameraroll": "^1.5.2",
     "@react-native-community/netinfo": "^4.4.0",
     "base-64": "^0.1.0",
+    "expo-media-library": "^8.1.0",
     "find-root": "^1.1.0",
     "hoist-non-react-statics": "^3.1.0",
     "invariant": "^2.2.4",
