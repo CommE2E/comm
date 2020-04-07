@@ -366,9 +366,16 @@ function getCompatibleMediaURI(uri: string, ext: string): string {
     return uri;
   }
   // While the ph:// scheme is a Facebook hack used by FBMediaKit, the
-  // assets-library:// scheme is a legacy Apple identifier. Certain components
-  // and libraries (namely react-native-video) don't know how to handle the
-  // ph:// scheme yet, so we have to map to the legacy assets-library:// scheme
+  // assets-library:// scheme is a legacy Apple identifier. We map to the former
+  // because:
+  // (1) Some libraries (namely react-native-video) don't know how to handle the
+  //     ph:// scheme yet
+  // (2) In RN0.60, uploading ph:// JPEGs leads to recompression and often
+  //     increases file size! It has the nice side effect of rotating image data
+  //     based on EXIF orientation, but this isn't worth it for us
+  // https://github.com/facebook/react-native/issues/27099#issuecomment-602016225
+  // https://github.com/expo/expo/issues/3177
+  // https://github.com/react-native-community/react-native-video/issues/1572
   return (
     `assets-library://asset/asset.${ext}` +
     `?id=${photoKitLocalIdentifier}&ext=${ext}`

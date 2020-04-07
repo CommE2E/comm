@@ -249,9 +249,10 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
               playableDuration !== null &&
               playableDuration !== undefined) ||
             (Platform.OS === 'ios' && node.type === 'video');
-          const uri = isVideo
-            ? MediaGalleryKeyboard.compatibleURI(node.image.uri, filename)
-            : node.image.uri;
+          const uri = MediaGalleryKeyboard.compatibleURI(
+            node.image.uri,
+            filename,
+          );
 
           if (existingURIs.has(uri)) {
             if (first) {
