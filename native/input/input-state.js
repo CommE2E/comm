@@ -43,6 +43,7 @@ export type InputState = {|
   retryMultimediaMessage: (localMessageID: string) => Promise<void>,
   registerSendCallback: (() => void) => void,
   unregisterSendCallback: (() => void) => void,
+  uploadInProgress: boolean,
 |};
 
 const inputStatePropType = PropTypes.shape({
@@ -51,6 +52,7 @@ const inputStatePropType = PropTypes.shape({
   sendMultimediaMessage: PropTypes.func.isRequired,
   messageHasUploadFailure: PropTypes.func.isRequired,
   retryMultimediaMessage: PropTypes.func.isRequired,
+  uploadInProgress: PropTypes.bool.isRequired,
 });
 
 const InputStateContext = React.createContext<?InputState>(null);

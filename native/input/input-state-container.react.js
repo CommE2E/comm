@@ -284,8 +284,22 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       retryMultimediaMessage: this.retryMultimediaMessage,
       registerSendCallback: this.registerSendCallback,
       unregisterSendCallback: this.unregisterSendCallback,
+      uploadInProgress: InputStateContainer.uploadInProgress(pendingUploads),
     }),
   );
+
+  static uploadInProgress(pendingUploads: PendingMultimediaUploads) {
+    for (let localMessageID in pendingUploads) {
+      const messagePendingUploads = pendingUploads[localMessageID];
+      for (let localUploadID in messagePendingUploads) {
+        const { failed } = messagePendingUploads[localUploadID];
+        if (!failed) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
 
   sendTextMessage = (messageInfo: RawTextMessageInfo) => {
     this.sendCallbacks.forEach(callback => callback());
