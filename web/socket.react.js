@@ -35,7 +35,7 @@ export default connect(
       urlPrefix: state.urlPrefix,
       connection: state.connection,
       currentCalendarQuery: webCalendarQuery(state),
-      hasWiFi: true,
+      canSendReports: true,
       frozen: false,
       preRequestUserState: preRequestUserStateSelector(state),
     };

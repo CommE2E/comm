@@ -50,7 +50,7 @@ export default connectNav((context: ?NavContextType) => ({
         urlPrefix: state.urlPrefix,
         connection: state.connection,
         currentCalendarQuery: nativeCalendarQuery(navPlusRedux),
-        hasWiFi: state.connectivity.hasWiFi,
+        canSendReports: !state.frozen && state.connectivity.hasWiFi,
         frozen: state.frozen,
         preRequestUserState: preRequestUserStateSelector(state),
       };
