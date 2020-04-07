@@ -54,6 +54,10 @@ import {
 import { createMediaMessageInfo } from 'lib/shared/message-utils';
 import { queueReportsActionType } from 'lib/actions/report-actions';
 import { getConfig } from 'lib/utils/config';
+import {
+  createLoadingStatusSelector,
+  combineLoadingStatuses,
+} from 'lib/selectors/loading-selectors';
 
 import {
   InputStateContext,
@@ -75,6 +79,7 @@ type Props = {|
   viewerID: ?string,
   nextLocalID: number,
   messageStoreMessages: { [id: string]: RawMessageInfo },
+  ongoingMessageCreation: boolean,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
@@ -103,6 +108,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     viewerID: PropTypes.string,
     nextLocalID: PropTypes.number.isRequired,
     messageStoreMessages: PropTypes.object.isRequired,
+    ongoingMessageCreation: PropTypes.bool.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     uploadMultimedia: PropTypes.func.isRequired,
@@ -284,13 +290,16 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       retryMultimediaMessage: this.retryMultimediaMessage,
       registerSendCallback: this.registerSendCallback,
       unregisterSendCallback: this.unregisterSendCallback,
-      uploadInProgress: InputStateContainer.uploadInProgress(pendingUploads),
+      uploadInProgress: this.uploadInProgress,
     }),
   );
 
-  static uploadInProgress(pendingUploads: PendingMultimediaUploads) {
-    for (let localMessageID in pendingUploads) {
-      const messagePendingUploads = pendingUploads[localMessageID];
+  uploadInProgress = () => {
+    if (this.props.ongoingMessageCreation) {
+      return true;
+    }
+    for (let localMessageID in this.state.pendingUploads) {
+      const messagePendingUploads = this.state.pendingUploads[localMessageID];
       for (let localUploadID in messagePendingUploads) {
         const { failed } = messagePendingUploads[localUploadID];
         if (!failed) {
@@ -299,7 +308,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       }
     }
     return false;
-  }
+  };
 
   sendTextMessage = (messageInfo: RawTextMessageInfo) => {
     this.sendCallbacks.forEach(callback => callback());
@@ -819,11 +828,23 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 }
 
+const mediaCreationLoadingStatusSelector = createLoadingStatusSelector(
+  sendMultimediaMessageActionTypes,
+);
+const textCreationLoadingStatusSelector = createLoadingStatusSelector(
+  sendTextMessageActionTypes,
+);
+
 export default connect(
   (state: AppState) => ({
     viewerID: state.currentUserInfo && state.currentUserInfo.id,
     nextLocalID: state.nextLocalID,
     messageStoreMessages: state.messageStore.messages,
+    ongoingMessageCreation:
+      combineLoadingStatuses(
+        mediaCreationLoadingStatusSelector(state),
+        textCreationLoadingStatusSelector(state),
+      ) === 'loading',
   }),
   { uploadMultimedia, sendMultimediaMessage, sendTextMessage },
 )(InputStateContainer);

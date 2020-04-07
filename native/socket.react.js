@@ -56,7 +56,7 @@ export default connectNav((context: ?NavContextType) => ({
           canSendReports:
             !state.frozen &&
             state.connectivity.hasWiFi &&
-            (!ownProps.inputState || !ownProps.inputState.uploadInProgress),
+            (!ownProps.inputState || !ownProps.inputState.uploadInProgress()),
           frozen: state.frozen,
           preRequestUserState: preRequestUserStateSelector(state),
         };
