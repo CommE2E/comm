@@ -54,6 +54,35 @@ const entryInconsistencyReportValidatorShape = {
   time: t.Number,
 };
 
+const threadInconsistencyReportCreationRequest = tShape({
+  ...threadInconsistencyReportValidatorShape,
+  type: t.irreducible(
+    'reportTypes.THREAD_INCONSISTENCY',
+    x => x === reportTypes.THREAD_INCONSISTENCY,
+  ),
+});
+
+const entryInconsistencyReportCreationRquest = tShape({
+  ...entryInconsistencyReportValidatorShape,
+  type: t.irreducible(
+    'reportTypes.ENTRY_INCONSISTENCY',
+    x => x === reportTypes.ENTRY_INCONSISTENCY,
+  ),
+});
+
+const mediaMissionReportCreationRequest = tShape({
+  type: t.irreducible(
+    'reportTypes.MEDIA_MISSION',
+    x => x === reportTypes.MEDIA_MISSION,
+  ),
+  platformDetails: tPlatformDetails,
+  time: t.Number,
+  mediaMission: t.Object,
+  uploadServerID: t.maybe(t.String),
+  uploadLocalID: t.String,
+  mediaLocalID: t.String,
+});
+
 const reportCreationRequestInputValidator = t.union([
   tShape({
     type: t.maybe(
@@ -74,32 +103,9 @@ const reportCreationRequestInputValidator = t.union([
     currentState: t.Object,
     actions: t.list(t.Object),
   }),
-  tShape({
-    ...threadInconsistencyReportValidatorShape,
-    type: t.irreducible(
-      'reportTypes.THREAD_INCONSISTENCY',
-      x => x === reportTypes.THREAD_INCONSISTENCY,
-    ),
-  }),
-  tShape({
-    ...entryInconsistencyReportValidatorShape,
-    type: t.irreducible(
-      'reportTypes.ENTRY_INCONSISTENCY',
-      x => x === reportTypes.ENTRY_INCONSISTENCY,
-    ),
-  }),
-  tShape({
-    type: t.irreducible(
-      'reportTypes.MEDIA_MISSION',
-      x => x === reportTypes.MEDIA_MISSION,
-    ),
-    platformDetails: tPlatformDetails,
-    time: t.Number,
-    mediaMission: t.Object,
-    uploadServerID: t.maybe(t.String),
-    uploadLocalID: t.String,
-    mediaLocalID: t.String,
-  }),
+  threadInconsistencyReportCreationRequest,
+  entryInconsistencyReportCreationRquest,
+  mediaMissionReportCreationRequest,
 ]);
 
 async function reportCreationResponder(
@@ -123,6 +129,50 @@ async function reportCreationResponder(
     throw new ServerError('ignored_report');
   }
   return response;
+}
+
+const reportMultiCreationRequestInputValidator = tShape({
+  reports: t.list(
+    t.union([
+      tShape({
+        type: t.irreducible('reportTypes.ERROR', x => x === reportTypes.ERROR),
+        platformDetails: tPlatformDetails,
+        errors: t.list(
+          tShape({
+            errorMessage: t.String,
+            stack: t.maybe(t.String),
+            componentStack: t.maybe(t.String),
+          }),
+        ),
+        preloadedState: t.Object,
+        currentState: t.Object,
+        actions: t.list(t.Object),
+      }),
+      threadInconsistencyReportCreationRequest,
+      entryInconsistencyReportCreationRquest,
+      mediaMissionReportCreationRequest,
+    ]),
+  ),
+});
+
+type ReportMultiCreationRequest = {|
+  reports: $ReadOnlyArray<ReportCreationRequest>,
+|};
+async function reportMultiCreationResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<void> {
+  const request: ReportMultiCreationRequest = input;
+  await validateInput(
+    viewer,
+    reportMultiCreationRequestInputValidator,
+    request,
+  );
+  await Promise.all(
+    request.reports.map(reportCreationRequest =>
+      createReport(viewer, reportCreationRequest),
+    ),
+  );
 }
 
 const fetchErrorReportInfosRequestInputValidator = tShape({
@@ -163,6 +213,7 @@ export {
   threadInconsistencyReportValidatorShape,
   entryInconsistencyReportValidatorShape,
   reportCreationResponder,
+  reportMultiCreationResponder,
   errorReportFetchInfosResponder,
   errorReportDownloadResponder,
 };

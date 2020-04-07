@@ -45,6 +45,7 @@ import {
 import { pingResponder } from './responders/ping-responders';
 import {
   reportCreationResponder,
+  reportMultiCreationResponder,
   errorReportFetchInfosResponder,
 } from './responders/report-responders';
 import { uploadDeletionResponder } from './uploads/uploads';
@@ -81,6 +82,7 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   update_password: passwordUpdateResponder,
   create_error_report: reportCreationResponder,
   create_report: reportCreationResponder,
+  create_reports: reportMultiCreationResponder,
   fetch_error_report_infos: errorReportFetchInfosResponder,
   request_access: requestAccessResponder,
   update_calendar_query: calendarQueryUpdateResponder,
