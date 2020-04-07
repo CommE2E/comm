@@ -1,7 +1,13 @@
 package org.squadcal;
 
+import org.squadcal.generated.BasePackageList;
+
 import androidx.multidex.MultiDexApplication;
 import android.content.Context;
+
+import org.unimodules.adapters.react.ModuleRegistryAdapter;
+import org.unimodules.adapters.react.ReactModuleRegistryProvider;
+import org.unimodules.core.interfaces.SingletonModule;
 
 import com.facebook.react.PackageList;
 import com.facebook.hermes.reactexecutor.HermesExecutorFactory;
@@ -20,6 +26,7 @@ import java.util.List;
 import java.lang.reflect.InvocationTargetException;
 
 public class MainApplication extends MultiDexApplication implements ReactApplication {
+  private final ReactModuleRegistryProvider mModuleRegistryProvider = new ReactModuleRegistryProvider(new BasePackageList().getPackageList(), null);
 
   private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
     @Override
@@ -33,6 +40,12 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
       packages.add(new RNFirebaseMessagingPackage());
       packages.add(new RNFirebaseNotificationsPackage());
       packages.add(new KeyboardInputPackage(this.getApplication()));
+
+      // Add unimodules
+      List<ReactPackage> unimodules = Arrays.<ReactPackage>asList(
+        new ModuleRegistryAdapter(mModuleRegistryProvider)
+      );
+      packages.addAll(unimodules);
       return packages;
     }
 

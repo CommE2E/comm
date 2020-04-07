@@ -51,3 +51,6 @@ yarn-error.log
 
 # CocoaPods
 /ios/Pods/
+
+# unimodules
+**/generated/BasePackageList.java
