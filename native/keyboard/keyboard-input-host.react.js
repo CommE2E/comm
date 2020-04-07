@@ -3,10 +3,10 @@
 import type { AppState } from '../redux/redux-setup';
 import type { Styles } from '../types/styles';
 import {
-  type ChatInputState,
-  chatInputStatePropType,
-  withChatInputState,
-} from '../chat/chat-input-state';
+  type InputState,
+  inputStatePropType,
+  withInputState,
+} from '../input/input-state';
 import {
   type KeyboardState,
   keyboardStatePropType,
@@ -37,8 +37,8 @@ type Props = {|
   activeMessageList: ?string,
   // withKeyboardState
   keyboardState: ?KeyboardState,
-  // withChatInputState
-  chatInputState: ?ChatInputState,
+  // withInputState
+  inputState: ?InputState,
 |};
 class KeyboardInputHost extends React.PureComponent<Props> {
   static propTypes = {
@@ -46,7 +46,7 @@ class KeyboardInputHost extends React.PureComponent<Props> {
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     activeMessageList: PropTypes.string,
     keyboardState: keyboardStatePropType,
-    chatInputState: chatInputStatePropType,
+    inputState: inputStatePropType,
   };
 
   componentDidUpdate(prevProps: Props) {
@@ -94,12 +94,12 @@ class KeyboardInputHost extends React.PureComponent<Props> {
       return;
     }
 
-    const { chatInputState } = this.props;
+    const { inputState } = this.props;
     invariant(
-      chatInputState,
-      'chatInputState should be set in onMediaGalleryItemSelected',
+      inputState,
+      'inputState should be set in onMediaGalleryItemSelected',
     );
-    chatInputState.sendMultimediaMessage(mediaGalleryThreadID, selections);
+    inputState.sendMultimediaMessage(mediaGalleryThreadID, selections);
   };
 
   hideMediaGallery = () => {
@@ -121,5 +121,5 @@ export default connect((state: AppState) => ({
 }))(
   connectNav((context: ?NavContextType) => ({
     activeMessageList: activeMessageListSelector(context),
-  }))(withKeyboardState(withChatInputState(KeyboardInputHost))),
+  }))(withKeyboardState(withInputState(KeyboardInputHost))),
 );

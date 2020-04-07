@@ -35,7 +35,7 @@ import {
 import HeaderBackButton from '../navigation/header-back-button.react';
 import ChatHeader from './chat-header.react';
 import ChatRouter from './chat-router';
-import { ChatInputStateContext } from './chat-input-state';
+import { InputStateContext } from '../input/input-state';
 import KeyboardAvoidingView from '../keyboard/keyboard-avoiding-view.react';
 import MessageStorePruner from './message-store-pruner.react';
 import ThreadScreenPruner from './thread-screen-pruner.react';
@@ -135,7 +135,7 @@ ChatNavigator.navigationOptions = {
 
 function WrappedChatNavigator(props: Props) {
   const { navigation } = props;
-  const chatInputState = React.useContext(ChatInputStateContext);
+  const inputState = React.useContext(InputStateContext);
 
   const clearScreens = React.useCallback(
     () => navigation.clearScreens([ComposeThreadRouteName], true),
@@ -143,12 +143,12 @@ function WrappedChatNavigator(props: Props) {
   );
 
   React.useEffect(() => {
-    if (!chatInputState) {
+    if (!inputState) {
       return undefined;
     }
-    chatInputState.registerSendCallback(clearScreens);
-    return () => chatInputState.unregisterSendCallback(clearScreens);
-  }, [chatInputState, clearScreens]);
+    inputState.registerSendCallback(clearScreens);
+    return () => inputState.unregisterSendCallback(clearScreens);
+  }, [inputState, clearScreens]);
 
   return (
     <KeyboardAvoidingView style={styles.keyboardAvoidingView}>

@@ -32,7 +32,7 @@ const pendingMultimediaUploadsPropType = PropTypes.objectOf(
   messagePendingUploadsPropType,
 );
 
-export type ChatInputState = {|
+export type InputState = {|
   pendingUploads: PendingMultimediaUploads,
   sendTextMessage: (messageInfo: RawTextMessageInfo) => void,
   sendMultimediaMessage: (
@@ -45,7 +45,7 @@ export type ChatInputState = {|
   unregisterSendCallback: (() => void) => void,
 |};
 
-const chatInputStatePropType = PropTypes.shape({
+const inputStatePropType = PropTypes.shape({
   pendingUploads: pendingMultimediaUploadsPropType.isRequired,
   sendTextMessage: PropTypes.func.isRequired,
   sendMultimediaMessage: PropTypes.func.isRequired,
@@ -53,40 +53,34 @@ const chatInputStatePropType = PropTypes.shape({
   retryMultimediaMessage: PropTypes.func.isRequired,
 });
 
-const ChatInputStateContext = React.createContext<?ChatInputState>(null);
+const InputStateContext = React.createContext<?InputState>(null);
 
-function withChatInputState<
+function withInputState<
   AllProps: {},
   ComponentType: React.ComponentType<AllProps>,
 >(
   Component: ComponentType,
 ): React.ComponentType<
-  $Diff<
-    React.ElementConfig<ComponentType>,
-    { chatInputState: ?ChatInputState },
-  >,
+  $Diff<React.ElementConfig<ComponentType>, { inputState: ?InputState }>,
 > {
-  class ChatInputStateHOC extends React.PureComponent<
-    $Diff<
-      React.ElementConfig<ComponentType>,
-      { chatInputState: ?ChatInputState },
-    >,
+  class InputStateHOC extends React.PureComponent<
+    $Diff<React.ElementConfig<ComponentType>, { inputState: ?InputState }>,
   > {
     render() {
       return (
-        <ChatInputStateContext.Consumer>
-          {value => <Component {...this.props} chatInputState={value} />}
-        </ChatInputStateContext.Consumer>
+        <InputStateContext.Consumer>
+          {value => <Component {...this.props} inputState={value} />}
+        </InputStateContext.Consumer>
       );
     }
   }
-  return ChatInputStateHOC;
+  return InputStateHOC;
 }
 
 export {
   messagePendingUploadsPropType,
   pendingMultimediaUploadPropType,
-  chatInputStatePropType,
-  ChatInputStateContext,
-  withChatInputState,
+  inputStatePropType,
+  InputStateContext,
+  withInputState,
 };

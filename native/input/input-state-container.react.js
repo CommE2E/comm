@@ -1,6 +1,5 @@
 // @flow
 
-import type { PendingMultimediaUploads } from './chat-input-state';
 import type { AppState } from '../redux/redux-setup';
 import type {
   DispatchActionPayload,
@@ -56,7 +55,10 @@ import { createMediaMessageInfo } from 'lib/shared/message-utils';
 import { queueReportsActionType } from 'lib/actions/report-actions';
 import { getConfig } from 'lib/utils/config';
 
-import { ChatInputStateContext } from './chat-input-state';
+import {
+  InputStateContext,
+  type PendingMultimediaUploads,
+} from './input-state';
 import { processMedia } from '../utils/media-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
 
@@ -95,7 +97,7 @@ type Props = {|
 type State = {|
   pendingUploads: PendingMultimediaUploads,
 |};
-class ChatInputStateContainer extends React.PureComponent<Props, State> {
+class InputStateContainer extends React.PureComponent<Props, State> {
   static propTypes = {
     children: PropTypes.node.isRequired,
     viewerID: PropTypes.string,
@@ -158,11 +160,11 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       return;
     }
 
-    const currentlyComplete = ChatInputStateContainer.getCompletedUploads(
+    const currentlyComplete = InputStateContainer.getCompletedUploads(
       this.props,
       this.state,
     );
-    const previouslyComplete = ChatInputStateContainer.getCompletedUploads(
+    const previouslyComplete = InputStateContainer.getCompletedUploads(
       prevProps,
       prevState,
     );
@@ -272,7 +274,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     }
   }
 
-  chatInputStateSelector = createSelector(
+  inputStateSelector = createSelector(
     (state: State) => state.pendingUploads,
     (pendingUploads: PendingMultimediaUploads) => ({
       pendingUploads,
@@ -594,14 +596,14 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         input.multimedia.length === 1 &&
         input.multimedia[0] &&
         typeof input.multimedia[0] === 'object',
-      'ChatInputStateContainer.uploadBlob sent incorrect input',
+      'InputStateContainer.uploadBlob sent incorrect input',
     );
     const { uri, name, type } = input.multimedia[0];
     invariant(
       typeof uri === 'string' &&
         typeof name === 'string' &&
         typeof type === 'string',
-      'ChatInputStateContainer.uploadBlob sent incorrect input',
+      'InputStateContainer.uploadBlob sent incorrect input',
     );
     const uploadID = await Upload.startUpload({
       url,
@@ -794,11 +796,11 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const chatInputState = this.chatInputStateSelector(this.state);
+    const inputState = this.inputStateSelector(this.state);
     return (
-      <ChatInputStateContext.Provider value={chatInputState}>
+      <InputStateContext.Provider value={inputState}>
         {this.props.children}
-      </ChatInputStateContext.Provider>
+      </InputStateContext.Provider>
     );
   }
 }
@@ -810,4 +812,4 @@ export default connect(
     messageStoreMessages: state.messageStore.messages,
   }),
   { uploadMultimedia, sendMultimediaMessage, sendTextMessage },
-)(ChatInputStateContainer);
+)(InputStateContainer);

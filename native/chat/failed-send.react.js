@@ -6,10 +6,10 @@ import { messageTypes, type RawMessageInfo } from 'lib/types/message-types';
 import type { AppState } from '../redux/redux-setup';
 import type { Styles } from '../types/styles';
 import {
-  type ChatInputState,
-  chatInputStatePropType,
-  withChatInputState,
-} from './chat-input-state';
+  type InputState,
+  inputStatePropType,
+  withInputState,
+} from '../input/input-state';
 
 import * as React from 'react';
 import { Text, View } from 'react-native';
@@ -31,15 +31,15 @@ type Props = {|
   // Redux state
   rawMessageInfo: ?RawMessageInfo,
   styles: Styles,
-  // withChatInputState
-  chatInputState: ?ChatInputState,
+  // withInputState
+  inputState: ?InputState,
 |};
 class FailedSend extends React.PureComponent<Props> {
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     rawMessageInfo: PropTypes.object,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    chatInputState: chatInputStatePropType,
+    inputState: inputStatePropType,
   };
   retryingText = false;
   retryingMedia = false;
@@ -101,17 +101,17 @@ class FailedSend extends React.PureComponent<Props> {
     if (!rawMessageInfo) {
       return;
     }
-    const { chatInputState } = this.props;
+    const { inputState } = this.props;
     invariant(
-      chatInputState,
-      'chatInputState should be initialized before user can hit retry',
+      inputState,
+      'inputState should be initialized before user can hit retry',
     );
     if (rawMessageInfo.type === messageTypes.TEXT) {
       if (this.retryingText) {
         return;
       }
       this.retryingText = true;
-      chatInputState.sendTextMessage({
+      inputState.sendTextMessage({
         ...rawMessageInfo,
         time: Date.now(),
       });
@@ -125,7 +125,7 @@ class FailedSend extends React.PureComponent<Props> {
         return;
       }
       this.retryingMedia = true;
-      chatInputState.retryMultimediaMessage(localID);
+      inputState.retryMultimediaMessage(localID);
     }
   };
 }
@@ -157,6 +157,6 @@ const ConnectedFailedSend = connect(
       styles: stylesSelector(state),
     };
   },
-)(withChatInputState(FailedSend));
+)(withInputState(FailedSend));
 
 export { ConnectedFailedSend as FailedSend, failedSendHeight };

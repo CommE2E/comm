@@ -27,10 +27,10 @@ import {
   messageListNavPropType,
 } from './message-list-types';
 import {
-  type ChatInputState,
-  chatInputStatePropType,
-  withChatInputState,
-} from './chat-input-state';
+  type InputState,
+  inputStatePropType,
+  withInputState,
+} from '../input/input-state';
 
 import * as React from 'react';
 import {
@@ -94,8 +94,8 @@ type Props = {|
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
-  // withChatInputState
-  chatInputState: ?ChatInputState,
+  // withInputState
+  inputState: ?InputState,
 |};
 type State = {|
   text: string,
@@ -116,7 +116,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     joinThread: PropTypes.func.isRequired,
-    chatInputState: chatInputStatePropType,
+    inputState: inputStatePropType,
   };
   textInput: ?TextInput;
   expandOpacity: Animated.Value;
@@ -421,10 +421,10 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     const creatorID = this.props.viewerID;
     invariant(creatorID, 'should have viewer ID in order to send a message');
     invariant(
-      this.props.chatInputState,
-      'chatInputState should be set in ChatInputBar.onSend',
+      this.props.inputState,
+      'inputState should be set in ChatInputBar.onSend',
     );
-    this.props.chatInputState.sendTextMessage({
+    this.props.inputState.sendTextMessage({
       type: messageTypes.TEXT,
       localID,
       threadID: this.props.threadInfo.id,
@@ -615,5 +615,5 @@ export default connectNav((context: ?NavContextType) => ({
       };
     },
     { joinThread },
-  )(withKeyboardState(withChatInputState(ChatInputBar))),
+  )(withKeyboardState(withInputState(ChatInputBar))),
 );

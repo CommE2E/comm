@@ -12,7 +12,7 @@ import {
   type VerticalBounds,
   verticalBoundsPropType,
 } from '../types/layout-types';
-import type { MessagePendingUploads } from './chat-input-state';
+import type { MessagePendingUploads } from '../input/input-state';
 import {
   type MessageListNavProp,
   messageListNavPropType,

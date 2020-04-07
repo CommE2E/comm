@@ -51,6 +51,7 @@ import { setGlobalNavContext } from './navigation/icky-global';
 import { RootContext, type RootContextType } from './root-context';
 import NavigationHandler from './navigation/navigation-handler.react';
 import { defaultNavigationState } from './navigation/default-state';
+import InputStateContainer from './input/input-state-container.react';
 
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental &&
@@ -153,16 +154,18 @@ class Root extends React.PureComponent<Props, State> {
       <View style={styles.app}>
         <NavContext.Provider value={this.state.navContext}>
           <RootContext.Provider value={this.state.rootContext}>
-            <ConnectedStatusBar />
-            <PersistGate persistor={getPersistor()}>{gated}</PersistGate>
-            <NavAppContainer
-              theme={reactNavigationTheme}
-              loadNavigationState={this.loadNavigationState}
-              onNavigationStateChange={this.onNavigationStateChange}
-              persistNavigationState={persistNavigationState}
-              ref={this.appContainerRef}
-            />
-            <NavigationHandler />
+            <InputStateContainer>
+              <ConnectedStatusBar />
+              <PersistGate persistor={getPersistor()}>{gated}</PersistGate>
+              <NavAppContainer
+                theme={reactNavigationTheme}
+                loadNavigationState={this.loadNavigationState}
+                onNavigationStateChange={this.onNavigationStateChange}
+                persistNavigationState={persistNavigationState}
+                ref={this.appContainerRef}
+              />
+              <NavigationHandler />
+            </InputStateContainer>
           </RootContext.Provider>
         </NavContext.Provider>
       </View>

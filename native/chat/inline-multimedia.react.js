@@ -4,7 +4,7 @@ import { type MediaInfo, mediaInfoPropType } from 'lib/types/media-types';
 import {
   type PendingMultimediaUpload,
   pendingMultimediaUploadPropType,
-} from './chat-input-state';
+} from '../input/input-state';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';

@@ -14,7 +14,7 @@ import {
 import {
   type PendingMultimediaUpload,
   pendingMultimediaUploadPropType,
-} from './chat-input-state';
+} from '../input/input-state';
 import {
   type MessageListNavProp,
   messageListNavPropType,

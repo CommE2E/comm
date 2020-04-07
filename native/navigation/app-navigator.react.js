@@ -33,7 +33,6 @@ import ActionResultModal from './action-result-modal.react';
 import { TextMessageTooltipModal } from '../chat/text-message-tooltip-modal.react';
 import ThreadSettingsMemberTooltipModal from '../chat/settings/thread-settings-member-tooltip-modal.react';
 import CameraModal from '../media/camera-modal.react';
-import ChatInputStateContainer from '../chat/chat-input-state-container.react';
 import OverlayableScrollViewStateContainer from './overlayable-scroll-view-state-container.react';
 import KeyboardStateContainer from '../keyboard/keyboard-state-container.react';
 import PushHandler from '../push/push-handler.react';
@@ -87,16 +86,14 @@ function WrappedAppNavigator(props: Props) {
 
   const { navigation } = props;
   return (
-    <ChatInputStateContainer>
-      <OverlayableScrollViewStateContainer>
-        <KeyboardStateContainer>
-          <AppNavigator navigation={navigation} />
-          <PersistGate persistor={getPersistor()}>
-            <PushHandler navigation={navigation} />
-          </PersistGate>
-        </KeyboardStateContainer>
-      </OverlayableScrollViewStateContainer>
-    </ChatInputStateContainer>
+    <OverlayableScrollViewStateContainer>
+      <KeyboardStateContainer>
+        <AppNavigator navigation={navigation} />
+        <PersistGate persistor={getPersistor()}>
+          <PushHandler navigation={navigation} />
+        </PersistGate>
+      </KeyboardStateContainer>
+    </OverlayableScrollViewStateContainer>
   );
 }
 hoistNonReactStatics(WrappedAppNavigator, AppNavigator);

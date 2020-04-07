@@ -43,10 +43,10 @@ import {
   composedMessageMaxWidthSelector,
 } from './composed-message-width';
 import {
-  type ChatInputState,
-  chatInputStatePropType,
-  withChatInputState,
-} from './chat-input-state';
+  type InputState,
+  inputStatePropType,
+  withInputState,
+} from '../input/input-state';
 import {
   type Colors,
   colorsPropType,
@@ -68,8 +68,8 @@ type Props = {|
   composedMessageMaxWidth: number,
   colors: Colors,
   styles: Styles,
-  // withChatInputState
-  chatInputState: ?ChatInputState,
+  // withInputState
+  inputState: ?InputState,
 |};
 type State = {|
   textToMeasure: TextToMeasure[],
@@ -84,7 +84,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     composedMessageMaxWidth: PropTypes.number.isRequired,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    chatInputState: chatInputStatePropType,
+    inputState: inputStatePropType,
   };
   static navigationOptions = ({ navigation }) => ({
     headerTitle: (
@@ -186,12 +186,12 @@ class MessageListContainer extends React.PureComponent<Props, State> {
 
     const oldNavThreadInfo = MessageListContainer.getThreadInfo(prevProps);
     const newNavThreadInfo = MessageListContainer.getThreadInfo(this.props);
-    const oldChatInputState = prevProps.chatInputState;
-    const newChatInputState = this.props.chatInputState;
+    const oldInputState = prevProps.inputState;
+    const newInputState = this.props.inputState;
     if (
       newListData === oldListData &&
       newNavThreadInfo === oldNavThreadInfo &&
-      newChatInputState === oldChatInputState
+      newInputState === oldInputState
     ) {
       return;
     }
@@ -249,7 +249,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
   };
 
   mergeHeightsIntoListData(textHeights?: Map<string, number>) {
-    const { messageListData: listData, chatInputState } = this.props;
+    const { messageListData: listData, inputState } = this.props;
     const threadInfo = MessageListContainer.getThreadInfo(this.props);
     const listDataWithHeights = listData.map((item: ChatMessageItem) => {
       if (item.itemType !== 'message') {
@@ -267,9 +267,9 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           : null;
         const id = messageID(messageInfo);
         const pendingUploads =
-          chatInputState &&
-          chatInputState.pendingUploads &&
-          chatInputState.pendingUploads[id];
+          inputState &&
+          inputState.pendingUploads &&
+          inputState.pendingUploads[id];
         const heights = multimediaMessageContentHeights(
           messageInfo,
           this.props.composedMessageMaxWidth,
@@ -365,7 +365,7 @@ const ConnectedMessageListContainer = connect(
       styles: stylesSelector(state),
     };
   },
-)(withChatInputState(MessageListContainer));
+)(withInputState(MessageListContainer));
 
 hoistNonReactStatics(ConnectedMessageListContainer, MessageListContainer);
 

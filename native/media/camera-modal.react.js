@@ -20,10 +20,10 @@ import {
 } from '../types/camera';
 import type { Orientations } from 'react-native-orientation-locker';
 import {
-  type ChatInputState,
-  chatInputStatePropType,
-  withChatInputState,
-} from '../chat/chat-input-state';
+  type InputState,
+  inputStatePropType,
+  withInputState,
+} from '../input/input-state';
 import type { ViewStyle } from '../types/styles';
 
 import * as React from 'react';
@@ -241,8 +241,8 @@ type Props = {
   deviceCameraInfo: DeviceCameraInfo,
   deviceOrientation: Orientations,
   foreground: boolean,
-  // withChatInputState
-  chatInputState: ?ChatInputState,
+  // withInputState
+  inputState: ?InputState,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 };
@@ -273,7 +273,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     deviceCameraInfo: deviceCameraInfoPropType.isRequired,
     deviceOrientation: PropTypes.string.isRequired,
     foreground: PropTypes.bool.isRequired,
-    chatInputState: chatInputStatePropType,
+    inputState: inputStatePropType,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
   camera: ?RNCamera;
@@ -927,10 +927,10 @@ class CameraModal extends React.PureComponent<Props, State> {
     if (!pendingPhotoCapture) {
       return;
     }
-    const { chatInputState } = this.props;
-    invariant(chatInputState, 'chatInputState should be set');
+    const { inputState } = this.props;
+    invariant(inputState, 'inputState should be set');
     this.close();
-    chatInputState.sendMultimediaMessage(
+    inputState.sendMultimediaMessage(
       this.props.navigation.state.params.threadID,
       [pendingPhotoCapture],
     );
@@ -1185,4 +1185,4 @@ export default connect(
   }),
   null,
   true,
-)(withChatInputState(CameraModal));
+)(withInputState(CameraModal));

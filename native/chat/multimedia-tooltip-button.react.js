@@ -29,10 +29,10 @@ import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import { messageID } from 'lib/shared/message-utils';
 
 import {
-  type ChatInputState,
-  chatInputStatePropType,
-  withChatInputState,
-} from './chat-input-state';
+  type InputState,
+  inputStatePropType,
+  withInputState,
+} from '../input/input-state';
 import InlineMultimedia from './inline-multimedia.react';
 import { multimediaMessageBorderRadius } from './multimedia-message.react';
 import { getRoundedContainerStyle } from './rounded-message-container.react';
@@ -61,8 +61,8 @@ type Props = {
   progress: Value,
   // Redux state
   screenDimensions: Dimensions,
-  // withChatInputState
-  chatInputState: ?ChatInputState,
+  // withInputState
+  inputState: ?InputState,
 };
 class MultimediaTooltipButton extends React.PureComponent<Props> {
   static propTypes = {
@@ -82,7 +82,7 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
     }).isRequired,
     progress: PropTypes.object.isRequired,
     screenDimensions: dimensionsPropType.isRequired,
-    chatInputState: chatInputStatePropType,
+    inputState: inputStatePropType,
   };
 
   get headerStyle() {
@@ -101,15 +101,15 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
   }
 
   render() {
-    const { chatInputState } = this.props;
+    const { inputState } = this.props;
     const { mediaInfo, item } = this.props.navigation.state.params;
 
     const { id: mediaID } = mediaInfo;
     const ourMessageID = messageID(item.messageInfo);
     const pendingUploads =
-      chatInputState &&
-      chatInputState.pendingUploads &&
-      chatInputState.pendingUploads[ourMessageID];
+      inputState &&
+      inputState.pendingUploads &&
+      inputState.pendingUploads[ourMessageID];
     const pendingUpload = pendingUploads && pendingUploads[mediaID];
     const postInProgress = !!pendingUploads;
 
@@ -151,4 +151,4 @@ const styles = StyleSheet.create({
 
 export default connect((state: AppState) => ({
   screenDimensions: dimensionsSelector(state),
-}))(withChatInputState(MultimediaTooltipButton));
+}))(withInputState(MultimediaTooltipButton));
