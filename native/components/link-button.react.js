@@ -1,6 +1,6 @@
 // @flow
 
-import type { ViewStyle, Styles } from '../types/styles';
+import type { ViewStyle } from '../types/styles';
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
@@ -18,7 +18,7 @@ type Props = {
   disabled?: boolean,
   style?: ViewStyle,
   // Redux state
-  styles: Styles,
+  styles: typeof styles,
 };
 class LinkButton extends React.PureComponent<Props> {
   static propTypes = {
@@ -50,13 +50,13 @@ class LinkButton extends React.PureComponent<Props> {
 }
 
 const styles = {
-  text: {
-    fontSize: 17,
-    paddingHorizontal: 10,
-    color: 'link',
-  },
   disabled: {
     color: 'modalBackgroundSecondaryLabel',
+  },
+  text: {
+    color: 'link',
+    fontSize: 17,
+    paddingHorizontal: 10,
   },
 };
 const stylesSelector = styleSelector(styles);

@@ -12,7 +12,6 @@ import {
   type ChangeThreadSettingsResult,
   type UpdateThreadRequest,
 } from 'lib/types/thread-types';
-import type { Styles } from '../../types/styles';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 
 import * as React from 'react';
@@ -50,7 +49,7 @@ type Props = {|
   navigation: NavProp,
   // Redux state
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
   screenDimensions: Dimensions,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
@@ -149,32 +148,32 @@ class ColorPickerModal extends React.PureComponent<Props> {
 }
 
 const styles = {
-  colorPickerContainer: {
-    flex: 0,
-    backgroundColor: 'modalBackground',
-    marginVertical: 20,
-    marginHorizontal: 15,
-    borderRadius: 5,
-  },
-  colorPicker: {
-    top: 10,
-    bottom: 10,
-    left: 10,
-    right: 10,
-    position: 'absolute',
-  },
   closeButton: {
-    position: 'absolute',
-    top: 5,
-    right: 5,
-    width: 18,
-    height: 18,
     borderRadius: 3,
+    height: 18,
+    position: 'absolute',
+    right: 5,
+    top: 5,
+    width: 18,
   },
   closeButtonIcon: {
-    position: 'absolute',
     color: 'modalBackgroundSecondaryLabel',
     left: 3,
+    position: 'absolute',
+  },
+  colorPicker: {
+    bottom: 10,
+    left: 10,
+    position: 'absolute',
+    right: 10,
+    top: 10,
+  },
+  colorPickerContainer: {
+    backgroundColor: 'modalBackground',
+    borderRadius: 5,
+    flex: 0,
+    marginHorizontal: 15,
+    marginVertical: 20,
   },
 };
 const stylesSelector = styleSelector(styles);

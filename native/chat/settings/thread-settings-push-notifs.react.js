@@ -7,7 +7,6 @@ import type {
   SubscriptionUpdateRequest,
   SubscriptionUpdateResult,
 } from 'lib/types/subscription-types';
-import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
 import { Text, View, Switch } from 'react-native';
@@ -24,7 +23,7 @@ import { styleSelector } from '../../themes/colors';
 type Props = {|
   threadInfo: ThreadInfo,
   // Redux state
-  styles: Styles,
+  styles: typeof styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -79,25 +78,25 @@ class ThreadSettingsPushNotifs extends React.PureComponent<Props, State> {
 }
 
 const styles = {
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    backgroundColor: 'panelForeground',
-    paddingVertical: 3,
-  },
-  label: {
-    fontSize: 16,
-    width: 96,
-    color: 'panelForegroundTertiaryLabel',
-  },
   currentValue: {
+    alignItems: 'flex-end',
     flex: 1,
+    margin: 0,
     paddingLeft: 4,
     paddingRight: 0,
     paddingVertical: 0,
-    margin: 0,
-    alignItems: 'flex-end',
+  },
+  label: {
+    color: 'panelForegroundTertiaryLabel',
+    fontSize: 16,
+    width: 96,
+  },
+  row: {
+    alignItems: 'center',
+    backgroundColor: 'panelForeground',
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+    paddingVertical: 3,
   },
 };
 const stylesSelector = styleSelector(styles);

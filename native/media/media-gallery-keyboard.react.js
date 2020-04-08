@@ -7,7 +7,7 @@ import {
   type MediaLibrarySelection,
 } from 'lib/types/media-types';
 import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
-import type { ViewStyle, Styles } from '../types/styles';
+import type { ViewStyle } from '../types/styles';
 
 import * as React from 'react';
 import {
@@ -58,7 +58,7 @@ type Props = {|
   screenDimensions: Dimensions,
   foreground: boolean,
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
 |};
 type State = {|
   selections: ?$ReadOnlyArray<MediaLibrarySelection>,
@@ -515,33 +515,33 @@ const mediaGalleryKeyboardName = 'MediaGalleryKeyboard';
 
 const styles = {
   container: {
-    position: 'absolute',
-    top: 0,
-    bottom: -contentBottomOffset,
-    left: 0,
-    right: 0,
-    backgroundColor: 'listBackground',
-    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: 'listBackground',
+    bottom: -contentBottomOffset,
+    flexDirection: 'row',
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
   },
   error: {
+    color: 'listBackgroundLabel',
     flex: 1,
     fontSize: 28,
-    textAlign: 'center',
     marginBottom: contentBottomOffset,
-    color: 'listBackgroundLabel',
-  },
-  separator: {
-    width: 2,
+    textAlign: 'center',
   },
   loadingIndicator: {
     flex: 1,
     marginBottom: contentBottomOffset,
   },
   sendButtonContainer: {
-    position: 'absolute',
     bottom: 30,
+    position: 'absolute',
     right: 30,
+  },
+  separator: {
+    width: 2,
   },
 };
 const stylesSelector = styleSelector(styles);

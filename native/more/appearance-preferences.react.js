@@ -9,7 +9,6 @@ import {
   osCanTheme,
 } from '../types/themes';
 import { updateThemeInfoActionType } from '../redux/action-types';
-import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import { View, Text, ScrollView, Platform } from 'react-native';
@@ -48,7 +47,7 @@ if (osCanTheme) {
 type Props = {|
   // Redux state
   globalThemeInfo: GlobalThemeInfo,
-  styles: Styles,
+  styles: typeof styles,
   colors: Colors,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
@@ -120,26 +119,24 @@ class AppearancePreferences extends React.PureComponent<Props> {
 }
 
 const styles = {
-  scrollViewContentContainer: {
-    paddingTop: 24,
-  },
-  scrollView: {
-    backgroundColor: 'panelBackground',
-  },
   header: {
-    paddingHorizontal: 24,
-    paddingBottom: 3,
+    color: 'panelBackgroundLabel',
     fontSize: 12,
     fontWeight: '400',
-    color: 'panelBackgroundLabel',
+    paddingBottom: 3,
+    paddingHorizontal: 24,
   },
-  section: {
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    marginBottom: 24,
-    paddingVertical: 2,
-    backgroundColor: 'panelForeground',
-    borderColor: 'panelForegroundBorder',
+  hr: {
+    backgroundColor: 'panelForegroundBorder',
+    height: 1,
+    marginHorizontal: 15,
+  },
+  icon: {
+    lineHeight: Platform.OS === 'ios' ? 18 : 20,
+  },
+  option: {
+    color: 'panelForegroundLabel',
+    fontSize: 16,
   },
   row: {
     flexDirection: 'row',
@@ -147,17 +144,19 @@ const styles = {
     paddingHorizontal: 24,
     paddingVertical: 10,
   },
-  option: {
-    fontSize: 16,
-    color: 'panelForegroundLabel',
+  scrollView: {
+    backgroundColor: 'panelBackground',
   },
-  icon: {
-    lineHeight: Platform.OS === 'ios' ? 18 : 20,
+  scrollViewContentContainer: {
+    paddingTop: 24,
   },
-  hr: {
-    height: 1,
-    marginHorizontal: 15,
-    backgroundColor: 'panelForegroundBorder',
+  section: {
+    backgroundColor: 'panelForeground',
+    borderBottomWidth: 1,
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
+    marginBottom: 24,
+    paddingVertical: 2,
   },
 };
 const stylesSelector = styleSelector(styles);

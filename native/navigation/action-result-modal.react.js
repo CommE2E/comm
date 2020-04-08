@@ -6,7 +6,6 @@ import type {
   NavigationStackScene,
 } from 'react-navigation';
 import type { AppState } from '../redux/redux-setup';
-import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import { View, Text } from 'react-native';
@@ -33,7 +32,7 @@ type Props = {|
   scene: NavigationStackScene,
   position: Value,
   // Redux state
-  styles: Styles,
+  styles: typeof styles,
 |};
 class ActionResultModal extends React.PureComponent<Props> {
   static propTypes = {
@@ -92,29 +91,29 @@ class ActionResultModal extends React.PureComponent<Props> {
 }
 
 const styles = {
+  backdrop: {
+    backgroundColor: 'modalContrastBackground',
+    bottom: 0,
+    left: 0,
+    opacity: 'modalContrastOpacity',
+    position: 'absolute',
+    right: 0,
+    top: 0,
+  },
   container: {
+    alignItems: 'center',
     flex: 1,
     justifyContent: 'flex-end',
-    alignItems: 'center',
     paddingBottom: contentBottomOffset + 100,
   },
   message: {
     borderRadius: 10,
-    padding: 10,
     overflow: 'hidden',
-  },
-  backdrop: {
-    backgroundColor: 'modalContrastBackground',
-    opacity: 'modalContrastOpacity',
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
+    padding: 10,
   },
   text: {
-    fontSize: 20,
     color: 'modalContrastForegroundLabel',
+    fontSize: 20,
   },
 };
 const stylesSelector = overlayStyleSelector(styles);

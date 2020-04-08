@@ -4,7 +4,6 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
 import type { Navigate } from '../navigation/route-names';
 import type { AppState } from '../redux/redux-setup';
-import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import { View, Platform } from 'react-native';
@@ -22,7 +21,7 @@ type Props = {|
   threadInfo: ThreadInfo,
   navigate: Navigate,
   // Redux state
-  styles: Styles,
+  styles: typeof styles,
 |};
 class MessageListHeaderTitle extends React.PureComponent<Props> {
   static propTypes = {
@@ -77,11 +76,11 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
 
 const styles = {
   button: {
-    position: 'absolute',
+    bottom: 0,
     left: 0,
+    position: 'absolute',
     right: 0,
     top: 0,
-    bottom: 0,
   },
   container: {
     flex: 1,
@@ -89,15 +88,15 @@ const styles = {
     alignItems: 'center',
     justifyContent: Platform.OS === 'android' ? 'flex-start' : 'center',
   },
-  forwardIcon: {
-    flex: 1,
-    minWidth: 25,
-    color: 'link',
-  },
   fakeIcon: {
     flex: 1,
     minWidth: 25,
     opacity: 0,
+  },
+  forwardIcon: {
+    color: 'link',
+    flex: 1,
+    minWidth: 25,
   },
 };
 const stylesSelector = styleSelector(styles);

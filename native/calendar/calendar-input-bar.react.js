@@ -1,7 +1,6 @@
 // @flow
 
 import type { AppState } from '../redux/redux-setup';
-import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import { View, Text } from 'react-native';
@@ -21,7 +20,7 @@ type Props = {|
   onSave: () => void,
   disabled: boolean,
   // Redux state
-  styles: Styles,
+  styles: typeof styles,
 |};
 type State = {|
   keyboardActive: boolean,
@@ -81,8 +80,8 @@ class CalendarInputBar extends React.PureComponent<Props, State> {
 
 const styles = {
   container: {
-    backgroundColor: 'listInputBar',
     alignItems: 'flex-end',
+    backgroundColor: 'listInputBar',
   },
   inactiveContainer: {
     height: 0,
@@ -90,10 +89,10 @@ const styles = {
   },
   saveButtonText: {
     color: 'link',
-    fontWeight: 'bold',
     fontSize: 16,
-    padding: 8,
+    fontWeight: 'bold',
     marginRight: 5,
+    padding: 8,
   },
 };
 const stylesSelector = styleSelector(styles);

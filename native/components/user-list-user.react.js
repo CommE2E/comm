@@ -1,6 +1,6 @@
 // @flow
 
-import type { TextStyle, Styles } from '../types/styles';
+import type { TextStyle } from '../types/styles';
 import { type UserListItem, userListItemPropType } from 'lib/types/user-types';
 import type { AppState } from '../redux/redux-setup';
 
@@ -30,7 +30,7 @@ type Props = {|
   textStyle?: TextStyle,
   // Redux state
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
 |};
 class UserListUser extends React.PureComponent<Props> {
   static propTypes = {
@@ -77,20 +77,20 @@ class UserListUser extends React.PureComponent<Props> {
 
 const styles = {
   button: {
+    alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  text: {
-    flex: 1,
-    color: 'modalForegroundLabel',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    fontSize: 16,
   },
   parentThreadNotice: {
     color: 'modalForegroundSecondaryLabel',
     fontStyle: 'italic',
+  },
+  text: {
+    color: 'modalForegroundLabel',
+    flex: 1,
+    fontSize: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
   },
 };
 const stylesSelector = styleSelector(styles);

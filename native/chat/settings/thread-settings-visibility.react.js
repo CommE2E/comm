@@ -3,7 +3,6 @@
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { AppState } from '../../redux/redux-setup';
 import type { Colors } from '../../themes/colors';
-import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
 import { Text, View } from 'react-native';
@@ -17,7 +16,7 @@ type Props = {|
   threadInfo: ThreadInfo,
   // Redux state
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
 |};
 function ThreadSettingsVisibility(props: Props) {
   return (
@@ -32,16 +31,16 @@ function ThreadSettingsVisibility(props: Props) {
 }
 
 const styles = {
-  row: {
-    flexDirection: 'row',
-    paddingHorizontal: 24,
-    backgroundColor: 'panelForeground',
-    paddingVertical: 8,
-  },
   label: {
+    color: 'panelForegroundTertiaryLabel',
     fontSize: 16,
     width: 96,
-    color: 'panelForegroundTertiaryLabel',
+  },
+  row: {
+    backgroundColor: 'panelForeground',
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+    paddingVertical: 8,
   },
 };
 const stylesSelector = styleSelector(styles);

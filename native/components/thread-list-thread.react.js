@@ -1,6 +1,6 @@
 // @flow
 
-import type { ViewStyle, TextStyle, Styles } from '../types/styles';
+import type { ViewStyle, TextStyle } from '../types/styles';
 import type { AppState } from '../redux/redux-setup';
 
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
@@ -27,7 +27,7 @@ type Props = {|
   textStyle?: TextStyle,
   // Redux state
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
 |};
 class ThreadListThread extends React.PureComponent<Props> {
   static propTypes = {
@@ -67,16 +67,16 @@ class ThreadListThread extends React.PureComponent<Props> {
 
 const styles = {
   button: {
-    flexDirection: 'row',
     alignItems: 'center',
+    flexDirection: 'row',
     paddingLeft: 13,
   },
   text: {
+    color: 'modalForegroundLabel',
+    fontSize: 16,
     paddingLeft: 9,
     paddingRight: 12,
     paddingVertical: 6,
-    fontSize: 16,
-    color: 'modalForegroundLabel',
   },
 };
 const stylesSelector = styleSelector(styles);

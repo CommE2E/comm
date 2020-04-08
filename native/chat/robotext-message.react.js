@@ -10,7 +10,6 @@ import {
   keyboardStatePropType,
   withKeyboardState,
 } from '../keyboard/keyboard-state';
-import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import { Text, TouchableWithoutFeedback, View } from 'react-native';
@@ -55,7 +54,7 @@ type Props = {|
   // withKeyboardState
   keyboardState: ?KeyboardState,
   // Redux state
-  styles: Styles,
+  styles: typeof styles,
   ...React.ElementProps<typeof View>,
 |};
 class RobotextMessage extends React.PureComponent<Props> {
@@ -141,7 +140,7 @@ type InnerThreadEntityProps = {
   name: string,
   // Redux state
   threadInfo: ?ThreadInfo,
-  styles: Styles,
+  styles: typeof styles,
   // Redux dispatch functions
   dispatch: Dispatch,
 };
@@ -191,17 +190,17 @@ function ColorEntity(props: {| color: string |}) {
 }
 
 const styles = {
-  robotext: {
-    textAlign: 'center',
-    color: 'listForegroundSecondaryLabel',
-    paddingVertical: 6,
-    marginBottom: 5,
-    marginHorizontal: 24,
-    fontSize: 15,
-    fontFamily: 'Arial',
-  },
   link: {
     color: 'link',
+  },
+  robotext: {
+    color: 'listForegroundSecondaryLabel',
+    fontFamily: 'Arial',
+    fontSize: 15,
+    marginBottom: 5,
+    marginHorizontal: 24,
+    paddingVertical: 6,
+    textAlign: 'center',
   },
 };
 const stylesSelector = styleSelector(styles);

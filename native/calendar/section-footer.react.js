@@ -1,7 +1,6 @@
 // @flow
 
 import type { AppState } from '../redux/redux-setup';
-import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import { View, Text, TouchableWithoutFeedback } from 'react-native';
@@ -24,7 +23,7 @@ type Props = {|
   onPressWhitespace: () => void,
   // Redux state
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
 |};
 class SectionFooter extends React.PureComponent<Props> {
   static propTypes = {
@@ -63,32 +62,32 @@ class SectionFooter extends React.PureComponent<Props> {
 }
 
 const styles = {
-  sectionFooter: {
-    backgroundColor: 'listBackground',
-    height: 40,
-    alignItems: 'flex-start',
+  actionLinksText: {
+    color: 'listSeparatorLabel',
+    fontWeight: 'bold',
   },
   addButton: {
     backgroundColor: 'listSeparator',
+    borderRadius: 5,
+    margin: 5,
+    paddingBottom: 5,
     paddingLeft: 10,
     paddingRight: 10,
     paddingTop: 5,
-    paddingBottom: 5,
-    borderRadius: 5,
-    margin: 5,
   },
   addButtonContents: {
-    flexDirection: 'row',
     alignItems: 'center',
+    flexDirection: 'row',
   },
   addIcon: {
+    color: 'listSeparatorLabel',
     fontSize: 14,
     paddingRight: 6,
-    color: 'listSeparatorLabel',
   },
-  actionLinksText: {
-    fontWeight: 'bold',
-    color: 'listSeparatorLabel',
+  sectionFooter: {
+    alignItems: 'flex-start',
+    backgroundColor: 'listBackground',
+    height: 40,
   },
 };
 const stylesSelector = styleSelector(styles);

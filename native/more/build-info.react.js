@@ -1,7 +1,6 @@
 // @flow
 
 import type { AppState } from '../redux/redux-setup';
-import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import { View, Text, ScrollView } from 'react-native';
@@ -14,7 +13,7 @@ import { styleSelector } from '../themes/colors';
 
 type Props = {|
   // Redux state
-  styles: Styles,
+  styles: typeof styles,
 |};
 class BuildInfo extends React.PureComponent<Props> {
   static navigationOptions = {
@@ -57,43 +56,43 @@ class BuildInfo extends React.PureComponent<Props> {
 }
 
 const styles = {
-  scrollViewContentContainer: {
-    paddingTop: 24,
+  label: {
+    color: 'panelForegroundTertiaryLabel',
+    fontSize: 16,
+    paddingRight: 12,
   },
-  scrollView: {
-    backgroundColor: 'panelBackground',
-  },
-  section: {
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    paddingVertical: 6,
-    paddingHorizontal: 24,
-    marginBottom: 24,
-    backgroundColor: 'panelForeground',
-    borderColor: 'panelForegroundBorder',
+  releaseText: {
+    color: 'redText',
+    fontSize: 16,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 6,
   },
-  label: {
-    fontSize: 16,
-    color: 'panelForegroundTertiaryLabel',
-    paddingRight: 12,
+  scrollView: {
+    backgroundColor: 'panelBackground',
   },
-  releaseText: {
-    fontSize: 16,
-    color: 'redText',
+  scrollViewContentContainer: {
+    paddingTop: 24,
+  },
+  section: {
+    backgroundColor: 'panelForeground',
+    borderBottomWidth: 1,
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
+    marginBottom: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 6,
   },
   text: {
-    fontSize: 16,
     color: 'panelForegroundLabel',
+    fontSize: 16,
   },
   thanksText: {
+    color: 'panelForegroundLabel',
     flex: 1,
     fontSize: 16,
-    color: 'panelForegroundLabel',
     textAlign: 'center',
   },
 };

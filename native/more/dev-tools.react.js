@@ -6,7 +6,6 @@ import type {
   NavigationScreenProp,
   NavigationLeafRoute,
 } from 'react-navigation';
-import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import { View, Text, ScrollView, Platform } from 'react-native';
@@ -39,7 +38,7 @@ type Props = {|
   urlPrefix: string,
   customServer: ?string,
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 |};
@@ -191,19 +190,29 @@ const styles = {
   container: {
     flex: 1,
   },
-  scrollViewContentContainer: {
-    paddingTop: 24,
+  customServerLabel: {
+    color: 'panelForegroundTertiaryLabel',
+    fontSize: 16,
   },
-  scrollView: {
-    backgroundColor: 'panelBackground',
+  header: {
+    color: 'panelBackgroundLabel',
+    fontSize: 12,
+    fontWeight: '400',
+    paddingBottom: 3,
+    paddingHorizontal: 24,
   },
-  slightlyPaddedSection: {
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    marginBottom: 24,
-    paddingVertical: 2,
-    backgroundColor: 'panelForeground',
-    borderColor: 'panelForegroundBorder',
+  hr: {
+    backgroundColor: 'panelForegroundBorder',
+    height: 1,
+    marginHorizontal: 15,
+  },
+  icon: {
+    lineHeight: Platform.OS === 'ios' ? 18 : 20,
+  },
+  redText: {
+    color: 'redText',
+    flex: 1,
+    fontSize: 16,
   },
   row: {
     flexDirection: 'row',
@@ -211,36 +220,26 @@ const styles = {
     paddingHorizontal: 24,
     paddingVertical: 10,
   },
-  redText: {
-    fontSize: 16,
-    color: 'redText',
+  scrollView: {
+    backgroundColor: 'panelBackground',
+  },
+  scrollViewContentContainer: {
+    paddingTop: 24,
+  },
+  serverContainer: {
     flex: 1,
-  },
-  hr: {
-    height: 1,
-    backgroundColor: 'panelForegroundBorder',
-    marginHorizontal: 15,
-  },
-  header: {
-    paddingHorizontal: 24,
-    paddingBottom: 3,
-    fontSize: 12,
-    fontWeight: '400',
-    color: 'panelBackgroundLabel',
-  },
-  customServerLabel: {
-    color: 'panelForegroundTertiaryLabel',
-    fontSize: 16,
   },
   serverText: {
     color: 'panelForegroundLabel',
     fontSize: 16,
   },
-  serverContainer: {
-    flex: 1,
-  },
-  icon: {
-    lineHeight: Platform.OS === 'ios' ? 18 : 20,
+  slightlyPaddedSection: {
+    backgroundColor: 'panelForeground',
+    borderBottomWidth: 1,
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
+    marginBottom: 24,
+    paddingVertical: 2,
   },
 };
 const stylesSelector = styleSelector(styles);

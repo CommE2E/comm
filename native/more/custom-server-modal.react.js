@@ -6,7 +6,6 @@ import type {
   NavigationScreenProp,
   NavigationLeafRoute,
 } from 'react-navigation';
-import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import { Text, TextInput } from 'react-native';
@@ -32,7 +31,7 @@ type Props = {|
   // Redux state
   urlPrefix: string,
   customServer: ?string,
-  styles: Styles,
+  styles: typeof styles,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 |};
@@ -96,6 +95,19 @@ class CustomServerModal extends React.PureComponent<Props, State> {
 }
 
 const styles = {
+  button: {
+    backgroundColor: 'greenButton',
+    borderRadius: 5,
+    marginHorizontal: 2,
+    marginVertical: 2,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
+    textAlign: 'center',
+  },
   container: {
     justifyContent: 'flex-end',
   },
@@ -104,24 +116,11 @@ const styles = {
     flexDirection: 'row',
   },
   textInput: {
-    padding: 0,
-    margin: 0,
-    fontSize: 16,
     color: 'modalBackgroundLabel',
     flex: 1,
-  },
-  button: {
-    backgroundColor: 'greenButton',
-    marginVertical: 2,
-    marginHorizontal: 2,
-    borderRadius: 5,
-    paddingVertical: 4,
-    paddingHorizontal: 12,
-  },
-  buttonText: {
-    fontSize: 18,
-    textAlign: 'center',
-    color: 'white',
+    fontSize: 16,
+    margin: 0,
+    padding: 0,
   },
 };
 const stylesSelector = styleSelector(styles);

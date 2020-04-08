@@ -1,7 +1,6 @@
 // @flow
 
 import type { GlobalTheme } from '../types/themes';
-import type { Styles } from '../types/styles';
 import type { AppState } from '../redux/redux-setup';
 import type { NavPlusRedux } from '../types/selector-types';
 
@@ -146,13 +145,9 @@ for (let theme in colors) {
   }
 }
 
-// Distinct type needed here because we replace type of some fields with strings
-type InStyles = { [name: string]: { [field: string]: number | string } };
+type Styles = { [name: string]: { [field: string]: number | string } };
 
-function stylesFromColors<IS: InStyles, +OS: Styles>(
-  obj: IS,
-  themeColors: Colors,
-): OS {
+function stylesFromColors<IS: Styles>(obj: IS, themeColors: Colors): IS {
   const result = {};
   for (let key in obj) {
     const style = obj[key];
@@ -171,17 +166,15 @@ function stylesFromColors<IS: InStyles, +OS: Styles>(
   return StyleSheet.create(result);
 }
 
-function styleSelector<IS: InStyles, +OS: Styles>(
-  obj: IS,
-): (state: AppState) => OS {
+function styleSelector<IS: Styles>(obj: IS): (state: AppState) => IS {
   return createSelector(colorsSelector, (themeColors: Colors) =>
     stylesFromColors(obj, themeColors),
   );
 }
 
-function overlayStyleSelector<IS: InStyles, +OS: Styles>(
+function overlayStyleSelector<IS: Styles>(
   obj: IS,
-): (input: NavPlusRedux) => OS {
+): (input: NavPlusRedux) => IS {
   return createSelector(overlayColorsSelector, (themeColors: Colors) =>
     stylesFromColors(obj, themeColors),
   );

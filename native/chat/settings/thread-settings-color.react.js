@@ -5,7 +5,6 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { AppState } from '../../redux/redux-setup';
 import type { Navigate } from '../../navigation/route-names';
-import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
 import { Text, ActivityIndicator, View, Platform } from 'react-native';
@@ -35,7 +34,7 @@ type Props = {|
   // Redux state
   loadingStatus: LoadingStatus,
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
 |};
 class ThreadSettingsColor extends React.PureComponent<Props> {
   static propTypes = {
@@ -97,24 +96,24 @@ class ThreadSettingsColor extends React.PureComponent<Props> {
 }
 
 const styles = {
-  colorRow: {
-    flexDirection: 'row',
-    paddingTop: 4,
-    paddingBottom: 8,
-    paddingHorizontal: 24,
-    backgroundColor: 'panelForeground',
-  },
   colorLine: {
     lineHeight: Platform.select({ android: 22, default: 25 }),
   },
-  label: {
-    fontSize: 16,
-    width: 96,
-    color: 'panelForegroundTertiaryLabel',
+  colorRow: {
+    backgroundColor: 'panelForeground',
+    flexDirection: 'row',
+    paddingBottom: 8,
+    paddingHorizontal: 24,
+    paddingTop: 4,
   },
   currentValue: {
     flex: 1,
     paddingLeft: 4,
+  },
+  label: {
+    color: 'panelForegroundTertiaryLabel',
+    fontSize: 16,
+    width: 96,
   },
 };
 const stylesSelector = styleSelector(styles);

@@ -1,6 +1,6 @@
 // @flow
 
-import type { ViewStyle, TextStyle, Styles } from '../../types/styles';
+import type { ViewStyle, TextStyle } from '../../types/styles';
 import type { IoniconsGlyphs } from 'react-native-vector-icons/Ionicons';
 import type { AppState } from '../../redux/redux-setup';
 
@@ -20,7 +20,7 @@ type ListActionProps = {|
   iconSize: number,
   iconStyle?: TextStyle,
   buttonStyle?: ViewStyle,
-  styles: Styles,
+  styles: typeof styles,
 |};
 function ThreadSettingsListAction(props: ListActionProps) {
   return (
@@ -40,7 +40,7 @@ function ThreadSettingsListAction(props: ListActionProps) {
 type SeeMoreProps = {|
   onPress: () => void,
   // Redux state
-  styles: Styles,
+  styles: typeof styles,
 |};
 function ThreadSettingsSeeMore(props: SeeMoreProps) {
   return (
@@ -63,7 +63,7 @@ function ThreadSettingsSeeMore(props: SeeMoreProps) {
 type AddMemberProps = {|
   onPress: () => void,
   // Redux state
-  styles: Styles,
+  styles: typeof styles,
 |};
 function ThreadSettingsAddMember(props: AddMemberProps) {
   return (
@@ -84,7 +84,7 @@ function ThreadSettingsAddMember(props: AddMemberProps) {
 type AddChildThreadProps = {|
   onPress: () => void,
   // Redux state
-  styles: Styles,
+  styles: typeof styles,
 |};
 function ThreadSettingsAddChildThread(props: AddChildThreadProps) {
   return (
@@ -103,6 +103,19 @@ function ThreadSettingsAddChildThread(props: AddChildThreadProps) {
 }
 
 const styles = {
+  addChildThreadButton: {
+    paddingTop: Platform.OS === 'ios' ? 4 : 1,
+  },
+  addIcon: {
+    color: '#009900',
+  },
+  addItemRow: {
+    backgroundColor: 'panelForeground',
+    paddingHorizontal: 12,
+  },
+  addMemberButton: {
+    paddingTop: Platform.OS === 'ios' ? 4 : 1,
+  },
   container: {
     flex: 1,
     flexDirection: 'row',
@@ -110,45 +123,32 @@ const styles = {
     paddingVertical: 8,
     justifyContent: 'center',
   },
-  text: {
-    flex: 1,
-    fontSize: 16,
-    color: 'link',
-    fontStyle: 'italic',
-  },
   icon: {
     lineHeight: 20,
   },
-  seeMoreRow: {
-    paddingHorizontal: 12,
-    backgroundColor: 'panelForeground',
+  seeMoreButton: {
+    paddingBottom: Platform.OS === 'ios' ? 4 : 2,
+    paddingTop: Platform.OS === 'ios' ? 2 : 0,
   },
   seeMoreContents: {
-    borderTopWidth: 1,
     borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
   },
   seeMoreIcon: {
+    color: 'link',
     position: 'absolute',
     right: 10,
     top: Platform.OS === 'android' ? 17 : 15,
-    color: 'link',
   },
-  addIcon: {
-    color: '#009900',
-  },
-  addItemRow: {
-    paddingHorizontal: 12,
+  seeMoreRow: {
     backgroundColor: 'panelForeground',
+    paddingHorizontal: 12,
   },
-  addMemberButton: {
-    paddingTop: Platform.OS === 'ios' ? 4 : 1,
-  },
-  addChildThreadButton: {
-    paddingTop: Platform.OS === 'ios' ? 4 : 1,
-  },
-  seeMoreButton: {
-    paddingTop: Platform.OS === 'ios' ? 2 : 0,
-    paddingBottom: Platform.OS === 'ios' ? 4 : 2,
+  text: {
+    color: 'link',
+    flex: 1,
+    fontSize: 16,
+    fontStyle: 'italic',
   },
 };
 const stylesSelector = styleSelector(styles);

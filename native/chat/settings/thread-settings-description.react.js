@@ -11,7 +11,6 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { AppState } from '../../redux/redux-setup';
-import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
 import { Text, Alert, ActivityIndicator, TextInput, View } from 'react-native';
@@ -51,7 +50,7 @@ type Props = {|
   // Redux state
   loadingStatus: LoadingStatus,
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -248,43 +247,43 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
 }
 
 const styles = {
-  row: {
-    flexDirection: 'row',
-    paddingHorizontal: 24,
-    backgroundColor: 'panelForeground',
-    paddingVertical: 4,
-  },
-  text: {
-    flex: 1,
-    padding: 0,
-    margin: 0,
-    fontSize: 16,
-    color: 'panelForegroundSecondaryLabel',
-    fontFamily: 'Arial',
-  },
   addDescriptionButton: {
     flexDirection: 'row',
     paddingHorizontal: 24,
     paddingVertical: 10,
   },
   addDescriptionText: {
-    fontSize: 16,
     color: 'panelForegroundTertiaryLabel',
     flex: 1,
+    fontSize: 16,
+  },
+  editIcon: {
+    color: 'panelForegroundTertiaryLabel',
+    paddingLeft: 10,
+    textAlign: 'right',
   },
   outlineCategory: {
     backgroundColor: 'panelSecondaryForeground',
-    borderWidth: 1,
-    borderStyle: 'dashed',
     borderColor: 'panelSecondaryForegroundBorder',
+    borderRadius: 1,
+    borderStyle: 'dashed',
+    borderWidth: 1,
     marginLeft: -1,
     marginRight: -1,
-    borderRadius: 1,
   },
-  editIcon: {
-    textAlign: 'right',
-    paddingLeft: 10,
-    color: 'panelForegroundTertiaryLabel',
+  row: {
+    backgroundColor: 'panelForeground',
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+    paddingVertical: 4,
+  },
+  text: {
+    color: 'panelForegroundSecondaryLabel',
+    flex: 1,
+    fontFamily: 'Arial',
+    fontSize: 16,
+    margin: 0,
+    padding: 0,
   },
 };
 const stylesSelector = styleSelector(styles);

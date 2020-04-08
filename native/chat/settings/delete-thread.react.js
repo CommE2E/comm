@@ -13,7 +13,6 @@ import {
   rawThreadInfoPropType,
 } from 'lib/types/thread-types';
 import { type GlobalTheme, globalThemePropType } from '../../types/themes';
-import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -63,7 +62,7 @@ type Props = {|
   loadingStatus: LoadingStatus,
   activeTheme: ?GlobalTheme,
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
   rawThreadInfos: { [id: string]: RawThreadInfo },
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
@@ -286,59 +285,59 @@ class DeleteThread extends React.PureComponent<Props, State> {
 }
 
 const styles = {
-  scrollViewContentContainer: {
-    paddingTop: 24,
-  },
-  scrollView: {
-    backgroundColor: 'panelBackground',
-  },
-  header: {
-    paddingHorizontal: 24,
-    paddingBottom: 3,
-    fontSize: 12,
-    fontWeight: '400',
-    color: 'panelBackgroundLabel',
-  },
-  section: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: 'panelForeground',
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: 'panelForegroundBorder',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    marginBottom: 24,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: 'panelForegroundLabel',
-    fontFamily: 'Arial',
-    paddingVertical: 0,
-  },
   deleteButton: {
-    flex: 1,
     backgroundColor: 'redButton',
-    marginVertical: 12,
-    marginHorizontal: 24,
     borderRadius: 5,
+    flex: 1,
+    marginHorizontal: 24,
+    marginVertical: 12,
     padding: 12,
   },
   deleteText: {
+    color: 'white',
     fontSize: 18,
     textAlign: 'center',
-    color: 'white',
+  },
+  header: {
+    color: 'panelBackgroundLabel',
+    fontSize: 12,
+    fontWeight: '400',
+    paddingBottom: 3,
+    paddingHorizontal: 24,
+  },
+  input: {
+    color: 'panelForegroundLabel',
+    flex: 1,
+    fontFamily: 'Arial',
+    fontSize: 16,
+    paddingVertical: 0,
   },
   onePasswordButton: {
     marginLeft: 6,
   },
+  scrollView: {
+    backgroundColor: 'panelBackground',
+  },
+  scrollViewContentContainer: {
+    paddingTop: 24,
+  },
+  section: {
+    backgroundColor: 'panelForeground',
+    borderBottomWidth: 1,
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+  },
   warningText: {
-    marginHorizontal: 24,
-    textAlign: 'center',
     color: 'panelForegroundLabel',
     fontSize: 16,
     marginBottom: 24,
+    marginHorizontal: 24,
+    textAlign: 'center',
   },
 };
 const stylesSelector = styleSelector(styles);

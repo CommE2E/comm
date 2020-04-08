@@ -10,7 +10,6 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { AppState } from '../../redux/redux-setup';
-import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
 import { Text, Alert, ActivityIndicator, TextInput, View } from 'react-native';
@@ -43,7 +42,7 @@ type Props = {|
   // Redux state
   loadingStatus: LoadingStatus,
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -209,26 +208,26 @@ class ThreadSettingsName extends React.PureComponent<Props> {
 }
 
 const styles = {
-  row: {
-    flexDirection: 'row',
-    paddingHorizontal: 24,
-    backgroundColor: 'panelForeground',
-    paddingVertical: 8,
-  },
-  label: {
-    fontSize: 16,
-    width: 96,
-    color: 'panelForegroundTertiaryLabel',
-  },
   currentValue: {
+    color: 'panelForegroundSecondaryLabel',
     flex: 1,
+    fontFamily: 'Arial',
+    fontSize: 16,
+    margin: 0,
     paddingLeft: 4,
     paddingRight: 0,
     paddingVertical: 0,
-    margin: 0,
+  },
+  label: {
+    color: 'panelForegroundTertiaryLabel',
     fontSize: 16,
-    color: 'panelForegroundSecondaryLabel',
-    fontFamily: 'Arial',
+    width: 96,
+  },
+  row: {
+    backgroundColor: 'panelForeground',
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+    paddingVertical: 8,
   },
 };
 const stylesSelector = styleSelector(styles);

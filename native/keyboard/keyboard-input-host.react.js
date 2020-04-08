@@ -1,7 +1,6 @@
 // @flow
 
 import type { AppState } from '../redux/redux-setup';
-import type { Styles } from '../types/styles';
 import {
   type InputState,
   inputStatePropType,
@@ -33,7 +32,7 @@ import {
 type Props = {|
   textInputRef: ?TextInput,
   // Redux state
-  styles: Styles,
+  styles: typeof styles,
   activeMessageList: ?string,
   // withKeyboardState
   keyboardState: ?KeyboardState,

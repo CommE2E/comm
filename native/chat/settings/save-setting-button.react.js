@@ -1,7 +1,6 @@
 // @flow
 
 import type { AppState } from '../../redux/redux-setup';
-import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
 import { TouchableOpacity } from 'react-native';
@@ -14,7 +13,7 @@ import { styleSelector } from '../../themes/colors';
 type Props = {|
   onPress: () => void,
   // Redux state
-  styles: Styles,
+  styles: typeof styles,
 |};
 function SaveSettingButton(props: Props) {
   return (
@@ -29,14 +28,14 @@ function SaveSettingButton(props: Props) {
 }
 
 const styles = {
+  container: {
+    width: 26,
+  },
   editIcon: {
+    color: 'greenButton',
     position: 'absolute',
     right: 0,
     top: -3,
-    color: 'greenButton',
-  },
-  container: {
-    width: 26,
   },
 };
 const stylesSelector = styleSelector(styles);

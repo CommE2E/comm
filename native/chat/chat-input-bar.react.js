@@ -21,7 +21,6 @@ import {
   keyboardStatePropType,
   withKeyboardState,
 } from '../keyboard/keyboard-state';
-import type { Styles } from '../types/styles';
 import {
   type MessageListNavProp,
   messageListNavPropType,
@@ -86,7 +85,7 @@ type Props = {|
   calendarQuery: () => CalendarQuery,
   nextLocalID: number,
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
   // withKeyboardState
   keyboardState: ?KeyboardState,
   // Redux dispatch functions
@@ -505,85 +504,85 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 }
 
 const styles = {
-  container: {
-    backgroundColor: 'listBackground',
-  },
-  inputContainer: {
-    flexDirection: 'row',
-  },
-  textInputContainer: {
-    flex: 1,
-  },
-  textInput: {
-    backgroundColor: 'listInputBackground',
-    marginVertical: 5,
-    marginHorizontal: 4,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 10,
-    fontSize: 16,
-    color: 'listForegroundLabel',
-    maxHeight: 250,
-  },
   bottomAligned: {
     alignSelf: 'flex-end',
     paddingBottom: Platform.OS === 'ios' ? 7 : 9,
   },
-  expandoButtons: {
-    alignSelf: 'flex-end',
+  cameraIcon: {
+    paddingBottom: 10,
+    paddingRight: 3,
   },
-  innerExpandoButtons: {
-    alignSelf: 'flex-end',
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-  },
-  sendIcon: {
-    paddingLeft: 5,
+  cameraRollIcon: {
+    paddingBottom: Platform.OS === 'ios' ? 5 : 8,
     paddingRight: 8,
   },
+  container: {
+    backgroundColor: 'listBackground',
+  },
   expandButton: {
+    bottom: 0,
     position: 'absolute',
     right: 0,
-    bottom: 0,
   },
   expandIcon: {
     paddingBottom: Platform.OS === 'ios' ? 10 : 12,
   },
-  cameraRollIcon: {
-    paddingRight: 8,
-    paddingBottom: Platform.OS === 'ios' ? 5 : 8,
-  },
-  cameraIcon: {
-    paddingRight: 3,
-    paddingBottom: 10,
+  expandoButtons: {
+    alignSelf: 'flex-end',
   },
   explanation: {
     color: 'listBackgroundSecondaryLabel',
-    textAlign: 'center',
-    paddingTop: 1,
     paddingBottom: 4,
+    paddingTop: 1,
+    textAlign: 'center',
+  },
+  innerExpandoButtons: {
+    alignItems: 'flex-end',
+    alignSelf: 'flex-end',
+    flexDirection: 'row',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+  },
+  joinButton: {
+    backgroundColor: 'mintButton',
+    borderRadius: 5,
+    flex: 1,
+    justifyContent: 'center',
+    marginHorizontal: 12,
+    marginVertical: 3,
+    paddingBottom: 5,
+    paddingTop: 3,
   },
   joinButtonContainer: {
     flexDirection: 'row',
     height: 36,
   },
-  joinButton: {
-    marginHorizontal: 12,
-    marginVertical: 3,
-    paddingTop: 3,
-    paddingBottom: 5,
-    flex: 1,
-    backgroundColor: 'mintButton',
-    borderRadius: 5,
-    justifyContent: 'center',
-  },
   joinButtonText: {
-    fontSize: 20,
     color: 'listBackground',
+    fontSize: 20,
     textAlign: 'center',
   },
   joinThreadLoadingIndicator: {
     paddingVertical: 2,
+  },
+  sendIcon: {
+    paddingLeft: 5,
+    paddingRight: 8,
+  },
+  textInput: {
+    backgroundColor: 'listInputBackground',
+    borderRadius: 10,
+    color: 'listForegroundLabel',
+    fontSize: 16,
+    marginHorizontal: 4,
+    marginVertical: 5,
+    maxHeight: 250,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  textInputContainer: {
+    flex: 1,
   },
 };
 const stylesSelector = styleSelector(styles);

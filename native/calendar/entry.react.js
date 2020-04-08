@@ -20,7 +20,6 @@ import type {
 } from 'lib/utils/action-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
-import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import {
@@ -100,7 +99,7 @@ type Props = {|
   threadPickerActive: boolean,
   foregroundKey: ?string,
   online: boolean,
-  styles: Styles,
+  styles: typeof styles,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
@@ -659,47 +658,30 @@ class InternalEntry extends React.Component<Props, State> {
 }
 
 const styles = {
-  container: {
-    backgroundColor: 'listBackground',
-  },
-  entry: {
-    borderRadius: 8,
-    margin: 5,
-    overflow: 'hidden',
-  },
-  text: {
-    fontSize: 16,
-    paddingTop: 5,
-    paddingBottom: 6,
-    paddingLeft: 10,
-    paddingRight: 10,
-    fontFamily: 'System',
-  },
-  textContainer: {
-    position: 'absolute',
-    top: 0,
-    padding: 0,
-    margin: 0,
-  },
-  textInput: {
-    position: 'absolute',
-    top: Platform.OS === 'android' ? 4.8 : 0.5,
-    left: Platform.OS === 'android' ? 9.8 : 10,
-    right: 10,
-    padding: 0,
-    margin: 0,
-    fontSize: 16,
-    fontFamily: 'System',
-  },
   actionLinks: {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: -5,
   },
+  button: {
+    padding: 5,
+  },
   buttonContents: {
     flex: 1,
     flexDirection: 'row',
+  },
+  container: {
+    backgroundColor: 'listBackground',
+  },
+  darkLinkText: {
+    color: colors.light.link,
+    textDecorationLine: 'underline',
+  },
+  entry: {
+    borderRadius: 8,
+    margin: 5,
+    overflow: 'hidden',
   },
   leftLinks: {
     flex: 1,
@@ -708,9 +690,17 @@ const styles = {
     paddingHorizontal: 5,
   },
   leftLinksText: {
-    paddingLeft: 5,
-    fontWeight: 'bold',
     fontSize: 12,
+    fontWeight: 'bold',
+    paddingLeft: 5,
+  },
+  lightLinkText: {
+    color: colors.dark.link,
+    textDecorationLine: 'underline',
+  },
+  pencilIcon: {
+    lineHeight: 13,
+    paddingTop: 1,
   },
   rightLinks: {
     flex: 1,
@@ -719,23 +709,32 @@ const styles = {
     paddingHorizontal: 5,
   },
   rightLinksText: {
-    fontWeight: 'bold',
     fontSize: 12,
+    fontWeight: 'bold',
   },
-  button: {
-    padding: 5,
+  text: {
+    fontFamily: 'System',
+    fontSize: 16,
+    paddingBottom: 6,
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 5,
   },
-  lightLinkText: {
-    color: colors.dark.link,
-    textDecorationLine: 'underline',
+  textContainer: {
+    margin: 0,
+    padding: 0,
+    position: 'absolute',
+    top: 0,
   },
-  darkLinkText: {
-    color: colors.light.link,
-    textDecorationLine: 'underline',
-  },
-  pencilIcon: {
-    paddingTop: 1,
-    lineHeight: 13,
+  textInput: {
+    fontFamily: 'System',
+    fontSize: 16,
+    left: Platform.OS === 'android' ? 9.8 : 10,
+    margin: 0,
+    padding: 0,
+    position: 'absolute',
+    right: 10,
+    top: Platform.OS === 'android' ? 4.8 : 0.5,
   },
 };
 const stylesSelector = styleSelector(styles);

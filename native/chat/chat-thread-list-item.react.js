@@ -6,7 +6,6 @@ import {
 } from 'lib/selectors/chat-selectors';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { AppState } from '../redux/redux-setup';
-import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import { View, Text } from 'react-native';
@@ -30,7 +29,7 @@ type Props = {
   onPressItem: (threadInfo: ThreadInfo) => void,
   // Redux state
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
 };
 class ChatThreadListItem extends React.PureComponent<Props> {
   static propTypes = {
@@ -102,11 +101,27 @@ class ChatThreadListItem extends React.PureComponent<Props> {
 }
 
 const styles = {
+  colorSplotch: {
+    marginLeft: 10,
+    marginTop: 2,
+  },
   container: {
     height: 60,
     paddingLeft: 10,
-    paddingTop: 5,
     paddingRight: 10,
+    paddingTop: 5,
+  },
+  lastActivity: {
+    color: 'listForegroundTertiaryLabel',
+    fontSize: 16,
+    marginLeft: 10,
+  },
+  noMessages: {
+    color: 'listForegroundTertiaryLabel',
+    flex: 1,
+    fontSize: 16,
+    fontStyle: 'italic',
+    paddingLeft: 10,
   },
   row: {
     flex: 1,
@@ -114,26 +129,10 @@ const styles = {
     justifyContent: 'space-between',
   },
   threadName: {
-    flex: 1,
-    paddingLeft: 10,
-    fontSize: 20,
     color: 'listForegroundSecondaryLabel',
-  },
-  colorSplotch: {
-    marginTop: 2,
-    marginLeft: 10,
-  },
-  noMessages: {
     flex: 1,
+    fontSize: 20,
     paddingLeft: 10,
-    fontStyle: 'italic',
-    fontSize: 16,
-    color: 'listForegroundTertiaryLabel',
-  },
-  lastActivity: {
-    fontSize: 16,
-    color: 'listForegroundTertiaryLabel',
-    marginLeft: 10,
   },
   unread: {
     color: 'listForegroundLabel',

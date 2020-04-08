@@ -19,7 +19,6 @@ import type {
   NavigationScreenProp,
   NavigationLeafRoute,
 } from 'react-navigation';
-import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
 import { View, Text, ActivityIndicator, Alert } from 'react-native';
@@ -71,7 +70,7 @@ type Props = {|
   otherUserInfos: { [id: string]: AccountUserInfo },
   userSearchIndex: SearchIndex,
   changeThreadSettingsLoadingStatus: LoadingStatus,
-  styles: Styles,
+  styles: typeof styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -312,34 +311,34 @@ class AddUsersModal extends React.PureComponent<Props, State> {
 }
 
 const styles = {
+  activityIndicator: {
+    paddingRight: 6,
+  },
+  addButton: {
+    backgroundColor: 'greenButton',
+    borderRadius: 3,
+    flexDirection: 'row',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  addText: {
+    color: 'white',
+    fontSize: 18,
+  },
   buttons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 12,
   },
   cancelButton: {
+    backgroundColor: 'modalButton',
+    borderRadius: 3,
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 3,
-    backgroundColor: 'modalButton',
   },
   cancelText: {
-    fontSize: 18,
     color: 'modalButtonLabel',
-  },
-  addButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 3,
-    backgroundColor: 'greenButton',
-    flexDirection: 'row',
-  },
-  activityIndicator: {
-    paddingRight: 6,
-  },
-  addText: {
     fontSize: 18,
-    color: 'white',
   },
 };
 const stylesSelector = styleSelector(styles);

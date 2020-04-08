@@ -1,7 +1,6 @@
 // @flow
 
 import type { AppState } from '../redux/redux-setup';
-import type { Styles } from '../types/styles';
 import type { Colors } from '../themes/colors';
 
 import * as React from 'react';
@@ -14,7 +13,7 @@ import { colorsSelector, styleSelector } from '../themes/colors';
 type Props = {|
   // Redux state
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
 |};
 function ListLoadingIndicator(props: Props) {
   const { listBackgroundLabel } = props.colors;
@@ -29,8 +28,8 @@ function ListLoadingIndicator(props: Props) {
 
 const styles = {
   loadingIndicator: {
-    flex: 1,
     backgroundColor: 'listBackground',
+    flex: 1,
     padding: 10,
   },
 };

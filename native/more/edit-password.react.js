@@ -8,7 +8,6 @@ import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { AccountUpdate } from 'lib/types/user-types';
 import type { ChangeUserSettingsResult } from 'lib/types/account-types';
 import { type GlobalTheme, globalThemePropType } from '../types/themes';
-import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -46,7 +45,7 @@ type Props = {
   loadingStatus: LoadingStatus,
   activeTheme: ?GlobalTheme,
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -353,60 +352,60 @@ class EditPassword extends React.PureComponent<Props, State> {
 }
 
 const styles = {
-  scrollViewContentContainer: {
-    paddingTop: 24,
-  },
-  scrollView: {
-    backgroundColor: 'panelBackground',
-  },
   header: {
-    paddingHorizontal: 24,
-    paddingBottom: 3,
+    color: 'panelBackgroundLabel',
     fontSize: 12,
     fontWeight: '400',
-    color: 'panelBackgroundLabel',
+    paddingBottom: 3,
+    paddingHorizontal: 24,
   },
-  section: {
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    paddingVertical: 3,
-    marginBottom: 24,
-    backgroundColor: 'panelForeground',
-    borderColor: 'panelForegroundBorder',
+  hr: {
+    backgroundColor: 'panelForegroundBorder',
+    height: 1,
+    marginHorizontal: 15,
+  },
+  input: {
+    color: 'panelForegroundLabel',
+    flex: 1,
+    fontFamily: 'Arial',
+    fontSize: 16,
+    paddingVertical: 0,
+  },
+  onePasswordButton: {
+    marginLeft: 6,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 9,
     paddingHorizontal: 24,
-  },
-  hr: {
-    height: 1,
-    backgroundColor: 'panelForegroundBorder',
-    marginHorizontal: 15,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: 'panelForegroundLabel',
-    fontFamily: 'Arial',
-    paddingVertical: 0,
+    paddingVertical: 9,
   },
   saveButton: {
-    flex: 1,
     backgroundColor: 'greenButton',
-    marginVertical: 12,
-    marginHorizontal: 24,
     borderRadius: 5,
+    flex: 1,
+    marginHorizontal: 24,
+    marginVertical: 12,
     padding: 12,
   },
   saveText: {
+    color: 'white',
     fontSize: 18,
     textAlign: 'center',
-    color: 'white',
   },
-  onePasswordButton: {
-    marginLeft: 6,
+  scrollView: {
+    backgroundColor: 'panelBackground',
+  },
+  scrollViewContentContainer: {
+    paddingTop: 24,
+  },
+  section: {
+    backgroundColor: 'panelForeground',
+    borderBottomWidth: 1,
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
+    marginBottom: 24,
+    paddingVertical: 3,
   },
 };
 const stylesSelector = styleSelector(styles);

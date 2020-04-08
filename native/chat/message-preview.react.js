@@ -6,7 +6,6 @@ import {
   messageTypes,
 } from 'lib/types/message-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import type { Styles } from '../types/styles';
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
@@ -27,7 +26,7 @@ type Props = {|
   messageInfo: MessageInfo,
   threadInfo: ThreadInfo,
   // Redux state
-  styles: Styles,
+  styles: typeof styles,
 |};
 class MessagePreview extends React.PureComponent<Props> {
   static propTypes = {
@@ -84,19 +83,19 @@ class MessagePreview extends React.PureComponent<Props> {
 
 const styles = {
   lastMessage: {
-    flex: 1,
-    paddingLeft: 10,
-    fontSize: 16,
     color: 'listForegroundTertiaryLabel',
-  },
-  username: {
-    color: 'listForegroundQuaternaryLabel',
+    flex: 1,
+    fontSize: 16,
+    paddingLeft: 10,
   },
   preview: {
     color: 'listForegroundQuaternaryLabel',
   },
   unread: {
     color: 'listForegroundLabel',
+  },
+  username: {
+    color: 'listForegroundQuaternaryLabel',
   },
 };
 const stylesSelector = styleSelector(styles);

@@ -7,7 +7,6 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { LogOutResult } from 'lib/types/account-types';
 import { type GlobalTheme, globalThemePropType } from '../types/themes';
-import type { Styles } from '../types/styles';
 import {
   type PreRequestUserState,
   preRequestUserStatePropType,
@@ -52,7 +51,7 @@ type Props = {|
   preRequestUserState: PreRequestUserState,
   activeTheme: ?GlobalTheme,
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -241,61 +240,61 @@ class DeleteAccount extends React.PureComponent<Props, State> {
 }
 
 const styles = {
-  scrollViewContentContainer: {
-    paddingTop: 24,
-  },
-  scrollView: {
-    backgroundColor: 'panelBackground',
-  },
-  header: {
-    paddingHorizontal: 24,
-    paddingBottom: 3,
-    fontSize: 12,
-    fontWeight: '400',
-    color: 'panelBackgroundLabel',
-  },
-  section: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    marginBottom: 24,
-    backgroundColor: 'panelForeground',
-    borderColor: 'panelForegroundBorder',
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: 'panelForegroundLabel',
-    fontFamily: 'Arial',
-    paddingVertical: 0,
-  },
   deleteButton: {
-    flex: 1,
     backgroundColor: 'redButton',
-    marginVertical: 12,
-    marginHorizontal: 24,
     borderRadius: 5,
+    flex: 1,
+    marginHorizontal: 24,
+    marginVertical: 12,
     padding: 12,
   },
-  saveText: {
-    fontSize: 18,
-    textAlign: 'center',
-    color: 'white',
+  header: {
+    color: 'panelBackgroundLabel',
+    fontSize: 12,
+    fontWeight: '400',
+    paddingBottom: 3,
+    paddingHorizontal: 24,
+  },
+  input: {
+    color: 'panelForegroundLabel',
+    flex: 1,
+    fontFamily: 'Arial',
+    fontSize: 16,
+    paddingVertical: 0,
+  },
+  lastWarningText: {
+    marginBottom: 24,
   },
   onePasswordButton: {
     marginLeft: 6,
   },
-  warningText: {
-    marginHorizontal: 24,
+  saveText: {
+    color: 'white',
+    fontSize: 18,
     textAlign: 'center',
+  },
+  scrollView: {
+    backgroundColor: 'panelBackground',
+  },
+  scrollViewContentContainer: {
+    paddingTop: 24,
+  },
+  section: {
+    backgroundColor: 'panelForeground',
+    borderBottomWidth: 1,
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+  },
+  warningText: {
     color: 'panelForegroundLabel',
     fontSize: 16,
-  },
-  lastWarningText: {
-    marginBottom: 24,
+    marginHorizontal: 24,
+    textAlign: 'center',
   },
 };
 const stylesSelector = styleSelector(styles);

@@ -3,7 +3,6 @@
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { Navigate } from '../../navigation/route-names';
 import type { AppState } from '../../redux/redux-setup';
-import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
 import { Text, View, Platform } from 'react-native';
@@ -26,7 +25,7 @@ type Props = {|
   canLeaveThread: boolean,
   // Redux state
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
 |};
 class ThreadSettingsDeleteThread extends React.PureComponent<Props> {
   static propTypes = {
@@ -67,24 +66,24 @@ class ThreadSettingsDeleteThread extends React.PureComponent<Props> {
 }
 
 const styles = {
+  border: {
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
+  },
+  button: {
+    flexDirection: 'row',
+    paddingBottom: Platform.OS === 'ios' ? 14 : 12,
+    paddingHorizontal: 12,
+    paddingTop: 10,
+  },
   container: {
     backgroundColor: 'panelForeground',
     paddingHorizontal: 12,
   },
-  button: {
-    flexDirection: 'row',
-    paddingHorizontal: 12,
-    paddingTop: 10,
-    paddingBottom: Platform.OS === 'ios' ? 14 : 12,
-  },
   text: {
-    fontSize: 16,
     color: 'redText',
     flex: 1,
-  },
-  border: {
-    borderTopWidth: 1,
-    borderColor: 'panelForegroundBorder',
+    fontSize: 16,
   },
 };
 const stylesSelector = styleSelector(styles);

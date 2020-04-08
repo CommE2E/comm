@@ -3,7 +3,6 @@
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { Navigate } from '../navigation/route-names';
 import type { AppState } from '../redux/redux-setup';
-import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -19,7 +18,7 @@ type Props = {|
   threadInfo: ThreadInfo,
   navigate: Navigate,
   // Redux state
-  styles: Styles,
+  styles: typeof styles,
 |};
 class ThreadSettingsButton extends React.PureComponent<Props> {
   static propTypes = {
@@ -48,8 +47,8 @@ class ThreadSettingsButton extends React.PureComponent<Props> {
 
 const styles = {
   button: {
-    paddingHorizontal: 10,
     color: 'link',
+    paddingHorizontal: 10,
   },
 };
 const stylesSelector = styleSelector(styles);

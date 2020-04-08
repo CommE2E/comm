@@ -31,7 +31,6 @@ import {
   type ConnectionStatus,
   connectionStatusPropType,
 } from 'lib/types/socket-types';
-import type { Styles } from '../types/styles';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 
 import * as React from 'react';
@@ -148,7 +147,7 @@ type Props = {
   loadingStatus: LoadingStatus,
   connectionStatus: ConnectionStatus,
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -1131,32 +1130,32 @@ class Calendar extends React.PureComponent<Props, State> {
 }
 
 const styles = {
-  icon: {
-    fontSize: 28,
-  },
   container: {
-    flex: 1,
     backgroundColor: 'listSeparator',
+    flex: 1,
   },
   flatList: {
+    backgroundColor: 'listSeparator',
     flex: 1,
-    backgroundColor: 'listSeparator',
   },
-  sectionHeader: {
-    height: 31,
-    backgroundColor: 'listSeparator',
-    borderBottomWidth: 2,
-    borderColor: 'listBackground',
-  },
-  weekendSectionHeader: {},
-  sectionHeaderText: {
-    padding: 5,
-    fontWeight: 'bold',
-    color: 'listSeparatorLabel',
+  icon: {
+    fontSize: 28,
   },
   keyboardAvoidingView: {
     flex: 1,
   },
+  sectionHeader: {
+    backgroundColor: 'listSeparator',
+    borderBottomWidth: 2,
+    borderColor: 'listBackground',
+    height: 31,
+  },
+  sectionHeaderText: {
+    color: 'listSeparatorLabel',
+    fontWeight: 'bold',
+    padding: 5,
+  },
+  weekendSectionHeader: {},
 };
 const stylesSelector = styleSelector(styles);
 

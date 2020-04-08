@@ -20,7 +20,6 @@ import {
   overlayableScrollViewStatePropType,
   withOverlayableScrollViewState,
 } from '../../navigation/overlayable-scroll-view-state';
-import type { Styles } from '../../types/styles';
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -196,7 +195,7 @@ type Props = {|
   childThreadInfos: ?(ThreadInfo[]),
   somethingIsSaving: boolean,
   tabActive: boolean,
-  styles: Styles,
+  styles: typeof styles,
   // withOverlayableScrollViewState
   overlayableScrollViewState: ?OverlayableScrollViewState,
 |};
@@ -777,8 +776,8 @@ class ThreadSettings extends React.PureComponent<Props, State> {
 
 const styles = {
   container: {
-    flex: 1,
     backgroundColor: 'panelBackground',
+    flex: 1,
   },
   flatList: {
     paddingVertical: 16,

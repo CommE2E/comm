@@ -10,7 +10,6 @@ import type {
   NavigationLeafRoute,
 } from 'react-navigation';
 import type { AppState } from '../../redux/redux-setup';
-import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -43,7 +42,7 @@ type Props = {|
   navigation: NavProp,
   // Redux state
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
 |};
 class ComposeSubthreadModal extends React.PureComponent<Props> {
   static propTypes = {
@@ -128,35 +127,35 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
 }
 
 const styles = {
+  forwardIcon: {
+    color: 'link',
+    paddingLeft: 10,
+  },
   modal: {
     flex: 0,
   },
-  visibility: {
-    fontSize: 24,
-    textAlign: 'center',
-    color: 'modalBackgroundLabel',
-  },
   option: {
-    flexDirection: 'row',
     alignItems: 'center',
+    flexDirection: 'row',
     paddingHorizontal: 10,
     paddingVertical: 20,
   },
-  optionText: {
-    fontSize: 20,
-    paddingLeft: 5,
-    color: 'modalBackgroundLabel',
-  },
   optionExplanation: {
+    color: 'modalBackgroundLabel',
     flex: 1,
     fontSize: 14,
     paddingLeft: 20,
     textAlign: 'center',
-    color: 'modalBackgroundLabel',
   },
-  forwardIcon: {
-    paddingLeft: 10,
-    color: 'link',
+  optionText: {
+    color: 'modalBackgroundLabel',
+    fontSize: 20,
+    paddingLeft: 5,
+  },
+  visibility: {
+    color: 'modalBackgroundLabel',
+    fontSize: 24,
+    textAlign: 'center',
   },
   visibilityIcon: {
     color: 'modalBackgroundLabel',

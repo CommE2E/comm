@@ -3,7 +3,6 @@
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { AppState } from '../../redux/redux-setup';
 import type { Navigate } from '../../navigation/route-names';
-import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
 import { Text, View, Platform } from 'react-native';
@@ -22,7 +21,7 @@ type Props = {|
   navigate: Navigate,
   // Redux state
   parentThreadInfo?: ?ThreadInfo,
-  styles: Styles,
+  styles: typeof styles,
 |};
 class ThreadSettingsParent extends React.PureComponent<Props> {
   static propTypes = {
@@ -96,28 +95,23 @@ class ThreadSettingsParent extends React.PureComponent<Props> {
 }
 
 const styles = {
-  row: {
-    flexDirection: 'row',
-    paddingHorizontal: 24,
-    backgroundColor: 'panelForeground',
-  },
-  label: {
-    fontSize: 16,
-    width: 96,
-    color: 'panelForegroundTertiaryLabel',
-    paddingVertical: 4,
-  },
   currentValue: {
     flex: 1,
     paddingLeft: 4,
     paddingTop: Platform.OS === 'ios' ? 5 : 4,
   },
   currentValueText: {
-    paddingRight: 0,
-    margin: 0,
-    fontSize: 16,
     color: 'panelForegroundSecondaryLabel',
     fontFamily: 'Arial',
+    fontSize: 16,
+    margin: 0,
+    paddingRight: 0,
+  },
+  label: {
+    color: 'panelForegroundTertiaryLabel',
+    fontSize: 16,
+    paddingVertical: 4,
+    width: 96,
   },
   noParent: {
     fontStyle: 'italic',
@@ -125,6 +119,11 @@ const styles = {
   },
   parentThreadLink: {
     color: 'link',
+  },
+  row: {
+    backgroundColor: 'panelForeground',
+    flexDirection: 'row',
+    paddingHorizontal: 24,
   },
 };
 const stylesSelector = styleSelector(styles);

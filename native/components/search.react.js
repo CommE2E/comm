@@ -1,7 +1,7 @@
 // @flow
 
 import type { AppState } from '../redux/redux-setup';
-import type { ViewStyle, Styles } from '../types/styles';
+import type { ViewStyle } from '../types/styles';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -24,7 +24,7 @@ type Props = {|
   textInputRef?: React.Ref<TextInput>,
   // Redux state
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
   ...$Shape<React.ElementProps<typeof TextInput>>,
 |};
 class Search extends React.PureComponent<Props> {
@@ -83,21 +83,21 @@ class Search extends React.PureComponent<Props> {
 
 const styles = {
   search: {
-    backgroundColor: 'listSearchBackground',
-    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: 'listSearchBackground',
+    borderRadius: 6,
+    flexDirection: 'row',
     paddingLeft: 14,
     paddingRight: 12,
     paddingVertical: 6,
-    borderRadius: 6,
   },
   searchInput: {
-    flex: 1,
-    marginLeft: 8,
-    fontSize: 16,
-    padding: 0,
-    marginVertical: 0,
     color: 'listForegroundLabel',
+    flex: 1,
+    fontSize: 16,
+    marginLeft: 8,
+    marginVertical: 0,
+    padding: 0,
   },
 };
 const stylesSelector = styleSelector(styles);
@@ -107,7 +107,7 @@ const ConnectedSearch = connect((state: AppState) => ({
   styles: stylesSelector(state),
 }))(Search);
 
-type ConnectedProps = $Diff<Props, {| colors: Colors, styles: Styles |}>;
+type ConnectedProps = $Diff<Props, {| colors: Colors, styles: typeof styles |}>;
 export default React.forwardRef<Props, TextInput>(
   function ForwardedConnectedSearch(props: ConnectedProps, ref: ?TextInput) {
     return <ConnectedSearch {...props} textInputRef={ref} />;

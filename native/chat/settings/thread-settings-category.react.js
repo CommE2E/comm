@@ -1,7 +1,6 @@
 // @flow
 
 import type { AppState } from '../../redux/redux-setup';
-import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
 import { View, Text, Platform } from 'react-native';
@@ -16,7 +15,7 @@ type HeaderProps = {|
   type: CategoryType,
   title: string,
   // Redux state
-  styles: Styles,
+  styles: typeof styles,
 |};
 function ThreadSettingsCategoryHeader(props: HeaderProps) {
   let contentStyle, paddingStyle;
@@ -43,7 +42,7 @@ function ThreadSettingsCategoryHeader(props: HeaderProps) {
 type FooterProps = {|
   type: CategoryType,
   // Redux state
-  styles: Styles,
+  styles: typeof styles,
 |};
 function ThreadSettingsCategoryFooter(props: FooterProps) {
   let contentStyle, paddingStyle;
@@ -70,18 +69,16 @@ const paddingHeight = Platform.select({
   default: 6,
 });
 const styles = {
-  header: {
-    marginTop: 16,
-  },
   footer: {
     marginBottom: 16,
   },
-  title: {
-    paddingLeft: 24,
-    paddingBottom: 3,
-    fontSize: 12,
-    fontWeight: '400',
-    color: 'panelBackgroundLabel',
+  fullFooter: {
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
+  },
+  fullFooterPadding: {
+    backgroundColor: 'panelForeground',
+    height: paddingHeight,
   },
   fullHeader: {
     borderBottomWidth: 1,
@@ -92,13 +89,15 @@ const styles = {
     height: paddingHeight,
     margin: 0,
   },
-  fullFooter: {
-    borderTopWidth: 1,
-    borderColor: 'panelForegroundBorder',
+  header: {
+    marginTop: 16,
   },
-  fullFooterPadding: {
-    backgroundColor: 'panelForeground',
-    height: paddingHeight,
+  title: {
+    color: 'panelBackgroundLabel',
+    fontSize: 12,
+    fontWeight: '400',
+    paddingBottom: 3,
+    paddingLeft: 24,
   },
 };
 const stylesSelector = styleSelector(styles);

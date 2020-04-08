@@ -1,7 +1,6 @@
 // @flow
 
 import type { AppState } from '../redux/redux-setup';
-import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import { Text } from 'react-native';
@@ -17,7 +16,7 @@ type Props = {|
   time: number,
   display: DisplayType,
   // Redux state
-  styles: Styles,
+  styles: typeof styles,
 |};
 function Timestamp(props: Props) {
   const style = [props.styles.timestamp];
@@ -34,17 +33,17 @@ function Timestamp(props: Props) {
 const timestampHeight = 26;
 
 const styles = {
-  timestamp: {
-    fontSize: 14,
-    paddingVertical: 3,
-    alignSelf: 'center',
-    height: timestampHeight,
-    color: 'listBackgroundTernaryLabel',
-    bottom: 0,
-  },
   modal: {
     // high contrast framed against OverlayNavigator-dimmed background
     color: 'white',
+  },
+  timestamp: {
+    alignSelf: 'center',
+    bottom: 0,
+    color: 'listBackgroundTernaryLabel',
+    fontSize: 14,
+    height: timestampHeight,
+    paddingVertical: 3,
   },
 };
 const stylesSelector = styleSelector(styles);

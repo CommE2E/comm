@@ -3,7 +3,6 @@
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { Navigate } from '../../navigation/route-names';
 import type { AppState } from '../../redux/redux-setup';
-import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
 import { Text, View, Platform } from 'react-native';
@@ -28,7 +27,7 @@ type Props = {|
   lastListItem: boolean,
   // Redux state
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
 |};
 class ThreadSettingsChildThread extends React.PureComponent<Props> {
   static propTypes = {
@@ -76,11 +75,6 @@ class ThreadSettingsChildThread extends React.PureComponent<Props> {
 }
 
 const styles = {
-  container: {
-    flex: 1,
-    paddingHorizontal: 12,
-    backgroundColor: 'panelForeground',
-  },
   button: {
     flex: 1,
     flexDirection: 'row',
@@ -91,19 +85,24 @@ const styles = {
     borderTopWidth: 1,
     borderColor: 'panelForegroundBorder',
   },
+  container: {
+    backgroundColor: 'panelForeground',
+    flex: 1,
+    paddingHorizontal: 12,
+  },
+  lastButton: {
+    paddingBottom: Platform.OS === 'ios' ? 12 : 10,
+    paddingTop: 8,
+  },
   leftSide: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
   },
   text: {
-    fontSize: 16,
     color: 'link',
+    fontSize: 16,
     paddingLeft: 8,
-  },
-  lastButton: {
-    paddingTop: 8,
-    paddingBottom: Platform.OS === 'ios' ? 12 : 10,
   },
 };
 const stylesSelector = styleSelector(styles);

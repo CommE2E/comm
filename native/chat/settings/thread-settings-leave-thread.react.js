@@ -11,7 +11,6 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { AppState } from '../../redux/redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
 import { Text, Alert, ActivityIndicator, View, Platform } from 'react-native';
@@ -48,7 +47,7 @@ type Props = {|
   loadingStatus: LoadingStatus,
   otherUsersButNoOtherAdmins: boolean,
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
   rawThreadInfos: { [id: string]: RawThreadInfo },
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
@@ -151,23 +150,23 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
 }
 
 const styles = {
-  container: {
-    backgroundColor: 'panelForeground',
-    paddingHorizontal: 12,
-  },
   button: {
     flexDirection: 'row',
     paddingHorizontal: 12,
     paddingVertical: 10,
   },
+  container: {
+    backgroundColor: 'panelForeground',
+    paddingHorizontal: 12,
+  },
   lastButton: {
-    paddingTop: 10,
     paddingBottom: Platform.OS === 'ios' ? 14 : 12,
+    paddingTop: 10,
   },
   text: {
-    fontSize: 16,
     color: 'redText',
     flex: 1,
+    fontSize: 16,
   },
 };
 const stylesSelector = styleSelector(styles);

@@ -4,7 +4,6 @@ import type { ChatMessageInfoItemWithHeight } from './message.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import { messageTypes, type RawMessageInfo } from 'lib/types/message-types';
 import type { AppState } from '../redux/redux-setup';
-import type { Styles } from '../types/styles';
 import {
   type InputState,
   inputStatePropType,
@@ -30,7 +29,7 @@ type Props = {|
   item: ChatMessageInfoItemWithHeight,
   // Redux state
   rawMessageInfo: ?RawMessageInfo,
-  styles: Styles,
+  styles: typeof styles,
   // withInputState
   inputState: ?InputState,
 |};
@@ -131,20 +130,20 @@ class FailedSend extends React.PureComponent<Props> {
 }
 
 const styles = {
+  deliveryFailed: {
+    color: 'listSeparatorLabel',
+    paddingHorizontal: 3,
+  },
   failedSendInfo: {
-    paddingTop: 5,
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'flex-end',
     marginRight: 20,
-  },
-  deliveryFailed: {
-    paddingHorizontal: 3,
-    color: 'listSeparatorLabel',
+    paddingTop: 5,
   },
   retrySend: {
-    paddingHorizontal: 3,
     color: 'link',
+    paddingHorizontal: 3,
   },
 };
 const stylesSelector = styleSelector(styles);

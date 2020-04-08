@@ -5,7 +5,7 @@ import type {
   NavigationLeafRoute,
 } from 'react-navigation';
 import type { AppState } from '../redux/redux-setup';
-import type { ViewStyle, Styles } from '../types/styles';
+import type { ViewStyle } from '../types/styles';
 
 import * as React from 'react';
 import { View, TouchableWithoutFeedback, ViewPropTypes } from 'react-native';
@@ -21,7 +21,7 @@ type Props = $ReadOnly<{|
   containerStyle?: ViewStyle,
   modalStyle?: ViewStyle,
   // Redux state
-  styles: Styles,
+  styles: typeof styles,
 |}>;
 class Modal extends React.PureComponent<Props> {
   static propTypes = {
@@ -54,30 +54,30 @@ class Modal extends React.PureComponent<Props> {
 }
 
 const styles = {
+  backdrop: {
+    backgroundColor: 'black',
+    bottom: 0,
+    left: 0,
+    opacity: 0.7,
+    overflow: 'visible',
+    position: 'absolute',
+    right: 0,
+    top: -1000,
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
     overflow: 'visible',
   },
-  backdrop: {
-    position: 'absolute',
-    top: -1000,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    opacity: 0.7,
-    backgroundColor: 'black',
-    overflow: 'visible',
-  },
   modal: {
+    backgroundColor: 'modalBackground',
+    borderRadius: 5,
     flex: 1,
     justifyContent: 'center',
-    padding: 12,
-    borderRadius: 5,
-    backgroundColor: 'modalBackground',
+    marginBottom: 30,
     marginHorizontal: 15,
     marginTop: 100,
-    marginBottom: 30,
+    padding: 12,
   },
 };
 const stylesSelector = styleSelector(styles);

@@ -28,7 +28,6 @@ import {
   type Navigate,
   ThreadSettingsMemberTooltipModalRouteName,
 } from '../../navigation/route-names';
-import type { Styles } from '../../types/styles';
 
 import * as React from 'react';
 import {
@@ -69,7 +68,7 @@ type Props = {|
   removeUserLoadingStatus: LoadingStatus,
   changeRoleLoadingStatus: LoadingStatus,
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
   // withOverlayableScrollViewState
   overlayableScrollViewState: ?OverlayableScrollViewState,
   // withKeyboardState
@@ -261,44 +260,44 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
 }
 
 const styles = {
+  anonymous: {
+    color: 'panelForegroundTertiaryLabel',
+    fontStyle: 'italic',
+  },
   container: {
+    backgroundColor: 'panelForeground',
     flex: 1,
     paddingHorizontal: 12,
-    backgroundColor: 'panelForeground',
+  },
+  editButton: {
+    paddingLeft: 10,
   },
   innerContainer: {
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
     flex: 1,
     paddingHorizontal: 12,
-    borderTopWidth: 1,
-    borderColor: 'panelForegroundBorder',
     paddingVertical: 8,
+  },
+  lastInnerContainer: {
+    paddingBottom: Platform.OS === 'ios' ? 12 : 10,
+    paddingTop: 8,
+  },
+  role: {
+    color: 'panelForegroundTertiaryLabel',
+    flex: 1,
+    fontSize: 14,
+    paddingTop: 4,
   },
   row: {
     flex: 1,
     flexDirection: 'row',
   },
   username: {
+    color: 'panelForegroundSecondaryLabel',
     flex: 1,
     fontSize: 16,
     lineHeight: 20,
-    color: 'panelForegroundSecondaryLabel',
-  },
-  anonymous: {
-    fontStyle: 'italic',
-    color: 'panelForegroundTertiaryLabel',
-  },
-  role: {
-    flex: 1,
-    fontSize: 14,
-    color: 'panelForegroundTertiaryLabel',
-    paddingTop: 4,
-  },
-  lastInnerContainer: {
-    paddingTop: 8,
-    paddingBottom: Platform.OS === 'ios' ? 12 : 10,
-  },
-  editButton: {
-    paddingLeft: 10,
   },
 };
 const stylesSelector = styleSelector(styles);

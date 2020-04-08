@@ -21,7 +21,6 @@ import {
 } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { UserSearchResult } from 'lib/types/search-types';
-import type { Styles } from '../types/styles';
 import type { ChatNavProp } from './chat.react';
 
 import * as React from 'react';
@@ -108,7 +107,7 @@ type Props = {|
   userSearchIndex: SearchIndex,
   threadInfos: { [id: string]: ThreadInfo },
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
   viewerID: ?string,
   userInfos: { [id: string]: UserInfo },
   // Redux dispatch functions
@@ -457,70 +456,70 @@ const styles = {
   container: {
     flex: 1,
   },
-  parentThreadRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'modalSubtext',
-    paddingVertical: 6,
+  existingThreadList: {
+    backgroundColor: 'modalBackground',
+    flex: 1,
+    paddingRight: 12,
+  },
+  existingThreads: {
+    flex: 1,
+  },
+  existingThreadsLabel: {
+    color: 'modalForegroundSecondaryLabel',
+    fontSize: 16,
     paddingLeft: 12,
+    textAlign: 'center',
+  },
+  existingThreadsRow: {
+    backgroundColor: 'modalForeground',
+    borderBottomWidth: 1,
+    borderColor: 'modalForegroundBorder',
+    borderTopWidth: 1,
+    paddingVertical: 6,
+  },
+  listItem: {
+    color: 'modalForegroundLabel',
   },
   parentThreadLabel: {
-    fontSize: 16,
     color: 'modalSubtextLabel',
+    fontSize: 16,
     paddingLeft: 6,
   },
   parentThreadName: {
+    color: 'modalForegroundLabel',
     fontSize: 16,
     paddingLeft: 6,
-    color: 'modalForegroundLabel',
   },
-  userSelectionRow: {
-    flexDirection: 'row',
+  parentThreadRow: {
     alignItems: 'center',
-    backgroundColor: 'modalForeground',
-    paddingVertical: 6,
-    borderBottomWidth: 1,
-    borderColor: 'modalForegroundBorder',
-  },
-  tagInputLabel: {
+    backgroundColor: 'modalSubtext',
+    flexDirection: 'row',
     paddingLeft: 12,
-    fontSize: 16,
-    color: 'modalForegroundSecondaryLabel',
+    paddingVertical: 6,
   },
   tagInputContainer: {
     flex: 1,
     marginLeft: 8,
     paddingRight: 12,
   },
+  tagInputLabel: {
+    color: 'modalForegroundSecondaryLabel',
+    fontSize: 16,
+    paddingLeft: 12,
+  },
   userList: {
+    backgroundColor: 'modalBackground',
     flex: 1,
     paddingLeft: 35,
     paddingRight: 12,
-    backgroundColor: 'modalBackground',
   },
-  listItem: {
-    color: 'modalForegroundLabel',
-  },
-  existingThreadsRow: {
+  userSelectionRow: {
+    alignItems: 'center',
     backgroundColor: 'modalForeground',
-    paddingVertical: 6,
     borderBottomWidth: 1,
-    borderTopWidth: 1,
     borderColor: 'modalForegroundBorder',
-  },
-  existingThreadsLabel: {
-    textAlign: 'center',
-    paddingLeft: 12,
-    fontSize: 16,
-    color: 'modalForegroundSecondaryLabel',
-  },
-  existingThreadList: {
-    flex: 1,
-    paddingRight: 12,
-    backgroundColor: 'modalBackground',
-  },
-  existingThreads: {
-    flex: 1,
+    flexDirection: 'row',
+    paddingVertical: 6,
   },
 };
 const stylesSelector = styleSelector(styles);

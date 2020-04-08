@@ -9,7 +9,6 @@ import {
   type MessageListNavProp,
   messageListNavPropType,
 } from './message-list-types';
-import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -67,7 +66,7 @@ type Props = {|
   textMessageMaxWidth: number,
   composedMessageMaxWidth: number,
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
   // withInputState
   inputState: ?InputState,
 |};
@@ -333,22 +332,22 @@ class MessageListContainer extends React.PureComponent<Props, State> {
 
 const styles = {
   container: {
-    flex: 1,
     backgroundColor: 'listSeparator',
-  },
-  text: {
-    fontSize: 18,
-    fontFamily: 'Arial',
+    flex: 1,
   },
   emojiOnlyText: {
-    fontSize: 36,
     fontFamily: 'Arial',
+    fontSize: 36,
   },
   robotext: {
+    fontFamily: 'Arial',
+    fontSize: 15,
     left: 24,
     right: 24,
-    fontSize: 15,
+  },
+  text: {
     fontFamily: 'Arial',
+    fontSize: 18,
   },
 };
 const stylesSelector = styleSelector(styles);

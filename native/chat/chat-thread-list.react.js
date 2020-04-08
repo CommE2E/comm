@@ -3,7 +3,6 @@
 import type { AppState } from '../redux/redux-setup';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
-import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import { View, FlatList, Platform, TextInput } from 'react-native';
@@ -50,7 +49,7 @@ type Props = {|
   chatListData: $ReadOnlyArray<ChatThreadItem>,
   viewerID: ?string,
   threadSearchIndex: SearchIndex,
-  styles: Styles,
+  styles: typeof styles,
 |};
 type State = {|
   searchText: string,

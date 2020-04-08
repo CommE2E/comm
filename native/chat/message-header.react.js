@@ -2,7 +2,6 @@
 
 import type { ChatMessageInfoItemWithHeight } from './message.react';
 import type { AppState } from '../redux/redux-setup';
-import type { Styles } from '../types/styles';
 import type { DisplayType } from './timestamp.react';
 
 import * as React from 'react';
@@ -20,7 +19,7 @@ type Props = {|
   focused: boolean,
   display: DisplayType,
   // Redux state
-  styles: Styles,
+  styles: typeof styles,
 |};
 function MessageHeader(props: Props) {
   const { item, focused, display } = props;
@@ -70,14 +69,14 @@ const authorNameHeight = 25;
 
 const styles = {
   authorName: {
+    bottom: 0,
+    color: 'listBackgroundSecondaryLabel',
     fontSize: 14,
+    height: authorNameHeight,
     marginLeft: 12,
     marginRight: 7,
     paddingHorizontal: 12,
     paddingVertical: 4,
-    height: authorNameHeight,
-    color: 'listBackgroundSecondaryLabel',
-    bottom: 0,
   },
   modal: {
     // high contrast framed against OverlayNavigator-dimmed background

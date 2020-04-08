@@ -6,7 +6,6 @@ import type { AppState } from '../redux/redux-setup';
 import type { LogOutResult } from 'lib/types/account-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
-import type { Styles } from '../types/styles';
 import {
   type CurrentUserInfo,
   currentUserPropType,
@@ -68,7 +67,7 @@ type Props = {
   preRequestUserState: PreRequestUserState,
   resendVerificationLoadingStatus: LoadingStatus,
   colors: Colors,
-  styles: Styles,
+  styles: typeof styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -357,45 +356,103 @@ const styles = {
   container: {
     flex: 1,
   },
-  scrollViewContentContainer: {
-    paddingTop: 24,
+  content: {
+    flex: 1,
   },
-  scrollView: {
-    backgroundColor: 'panelBackground',
-  },
-  section: {
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    paddingVertical: 12,
+  deleteAccountButton: {
     paddingHorizontal: 24,
-    marginBottom: 24,
-    backgroundColor: 'panelForeground',
-    borderColor: 'panelForegroundBorder',
+    paddingVertical: 12,
   },
-  unpaddedSection: {
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    marginBottom: 24,
-    backgroundColor: 'panelForeground',
-    borderColor: 'panelForegroundBorder',
+  deleteAccountText: {
+    color: 'redText',
+    flex: 1,
+    fontSize: 16,
   },
-  slightlyPaddedSection: {
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    marginBottom: 24,
-    paddingVertical: 2,
-    backgroundColor: 'panelForeground',
-    borderColor: 'panelForegroundBorder',
+  editEmailButton: {
+    paddingTop: Platform.OS === 'android' ? 9 : 7,
+  },
+  editPasswordButton: {
+    paddingTop: Platform.OS === 'android' ? 3 : 2,
+  },
+  emailNotVerified: {
+    color: 'redText',
+  },
+  emailVerified: {
+    color: 'greenText',
+  },
+  header: {
+    color: 'panelBackgroundLabel',
+    fontSize: 12,
+    fontWeight: '400',
+    paddingBottom: 3,
+    paddingHorizontal: 24,
+  },
+  label: {
+    color: 'panelForegroundTertiaryLabel',
+    fontSize: 16,
+    paddingRight: 12,
+  },
+  logOutText: {
+    color: 'link',
+    fontSize: 16,
+    paddingLeft: 6,
+  },
+  resendVerificationEmailButton: {
+    flexDirection: 'row',
+    paddingRight: 1,
+  },
+  resendVerificationEmailSpinner: {
+    marginTop: Platform.OS === 'ios' ? -4 : 0,
+    paddingHorizontal: 4,
+  },
+  resendVerificationEmailText: {
+    color: 'link',
+    fontStyle: 'italic',
   },
   row: {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  label: {
+  scrollView: {
+    backgroundColor: 'panelBackground',
+  },
+  scrollViewContentContainer: {
+    paddingTop: 24,
+  },
+  section: {
+    backgroundColor: 'panelForeground',
+    borderBottomWidth: 1,
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
+    marginBottom: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+  },
+  slightlyPaddedSection: {
+    backgroundColor: 'panelForeground',
+    borderBottomWidth: 1,
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
+    marginBottom: 24,
+    paddingVertical: 2,
+  },
+  submenuButton: {
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+  },
+  submenuText: {
+    color: 'panelForegroundLabel',
+    flex: 1,
     fontSize: 16,
-    color: 'panelForegroundTertiaryLabel',
-    paddingRight: 12,
+  },
+  unpaddedSection: {
+    backgroundColor: 'panelForeground',
+    borderBottomWidth: 1,
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
+    marginBottom: 24,
   },
   username: {
     color: 'panelForegroundLabel',
@@ -405,73 +462,15 @@ const styles = {
     fontSize: 16,
     textAlign: 'right',
   },
-  content: {
-    flex: 1,
-  },
-  logOutText: {
-    fontSize: 16,
-    color: 'link',
-    paddingLeft: 6,
-  },
-  header: {
-    paddingHorizontal: 24,
-    paddingBottom: 3,
-    fontSize: 12,
-    fontWeight: '400',
-    color: 'panelBackgroundLabel',
-  },
   verification: {
-    flexDirection: 'row',
     alignSelf: 'flex-end',
+    flexDirection: 'row',
     height: 20,
   },
   verificationText: {
     color: 'panelForegroundLabel',
     fontSize: 13,
     fontStyle: 'italic',
-  },
-  emailVerified: {
-    color: 'greenText',
-  },
-  emailNotVerified: {
-    color: 'redText',
-  },
-  resendVerificationEmailButton: {
-    flexDirection: 'row',
-    paddingRight: 1,
-  },
-  resendVerificationEmailText: {
-    fontStyle: 'italic',
-    color: 'link',
-  },
-  resendVerificationEmailSpinner: {
-    paddingHorizontal: 4,
-    marginTop: Platform.OS === 'ios' ? -4 : 0,
-  },
-  editEmailButton: {
-    paddingTop: Platform.OS === 'android' ? 9 : 7,
-  },
-  editPasswordButton: {
-    paddingTop: Platform.OS === 'android' ? 3 : 2,
-  },
-  deleteAccountButton: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-  },
-  deleteAccountText: {
-    fontSize: 16,
-    color: 'redText',
-    flex: 1,
-  },
-  submenuButton: {
-    flexDirection: 'row',
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-  },
-  submenuText: {
-    color: 'panelForegroundLabel',
-    fontSize: 16,
-    flex: 1,
   },
 };
 const stylesSelector = styleSelector(styles);

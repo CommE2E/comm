@@ -22,7 +22,6 @@ import {
   keyboardStatePropType,
   withKeyboardState,
 } from '../keyboard/keyboard-state';
-import type { Styles } from '../types/styles';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -63,7 +62,7 @@ type Props = {|
   // Redux state
   startReached: boolean,
   scrollBlockingModalsClosed: boolean,
-  styles: Styles,
+  styles: typeof styles,
   // withOverlayableScrollViewState
   overlayableScrollViewState: ?OverlayableScrollViewState,
   // withKeyboardState
@@ -366,8 +365,8 @@ class MessageList extends React.PureComponent<Props, State> {
 
 const styles = {
   container: {
-    flex: 1,
     backgroundColor: 'listBackground',
+    flex: 1,
   },
   header: {
     height: 12,

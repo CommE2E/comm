@@ -1,6 +1,6 @@
 // @flow
 
-import type { ViewStyle, TextStyle, Styles } from '../types/styles';
+import type { ViewStyle, TextStyle } from '../types/styles';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { AppState } from '../redux/redux-setup';
 
@@ -24,7 +24,7 @@ type Props = {|
   itemTextStyle?: TextStyle,
   searchIndex?: SearchIndex,
   // Redux state
-  styles: Styles,
+  styles: typeof styles,
 |};
 type State = {|
   searchText: string,
