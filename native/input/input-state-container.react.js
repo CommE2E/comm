@@ -37,6 +37,7 @@ import invariant from 'invariant';
 import { createSelector } from 'reselect';
 import filesystem from 'react-native-fs';
 import * as Upload from 'react-native-background-upload';
+import { Platform } from 'react-native';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
@@ -58,6 +59,7 @@ import {
   createLoadingStatusSelector,
   combineLoadingStatuses,
 } from 'lib/selectors/loading-selectors';
+import { pathFromURI } from 'lib/utils/file-utils';
 
 import {
   InputStateContext,
@@ -628,9 +630,16 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         typeof type === 'string',
       'InputStateContainer.uploadBlob sent incorrect input',
     );
+    let path = uri;
+    if (Platform.OS === 'android') {
+      const resolvedPath = pathFromURI(uri);
+      if (resolvedPath) {
+        path = resolvedPath;
+      }
+    }
     const uploadID = await Upload.startUpload({
       url,
-      path: uri,
+      path,
       type: 'multipart',
       headers: {
         Accept: 'application/json',
