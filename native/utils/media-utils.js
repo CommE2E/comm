@@ -134,7 +134,11 @@ function blobToDataURI(blob: Blob): Promise<string> {
       reject(error);
     };
     fileReader.onload = event => {
-      resolve(event.target.result);
+      invariant(
+        typeof fileReader.result === "string",
+        "FileReader.readAsDataURL should result in string",
+      );
+      resolve(fileReader.result);
     };
     fileReader.readAsDataURL(blob);
   });

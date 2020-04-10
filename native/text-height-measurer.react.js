@@ -1,6 +1,7 @@
 // @flow
 
 import type { TextStyle } from './types/styles';
+import type { LayoutEvent } from './types/react-native';
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -102,7 +103,7 @@ class TextHeightMeasurer extends React.PureComponent<Props, State> {
 
   onTextLayout(
     textToMeasure: TextToMeasure,
-    event: { nativeEvent: { layout: { height: number } } },
+    event: LayoutEvent,
   ) {
     invariant(this.nextTextToHeight, 'nextTextToHeight should be set');
     this.nextTextToHeight.set(

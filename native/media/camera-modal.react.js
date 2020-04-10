@@ -25,6 +25,7 @@ import {
   withInputState,
 } from '../input/input-state';
 import type { ViewStyle } from '../types/styles';
+import type { NativeMethodsMixinType } from '../types/react-native';
 
 import * as React from 'react';
 import {
@@ -230,6 +231,11 @@ type NavProp = NavigationStackProp<{|
   |},
 |}>;
 
+type TouchableOpacityInstance = React.AbstractComponent<
+  React.ElementConfig<typeof TouchableOpacity>,
+  NativeMethodsMixinType,
+>;
+
 type Props = {
   navigation: NavProp,
   scene: NavigationStackScene,
@@ -285,25 +291,25 @@ class CameraModal extends React.PureComponent<Props, State> {
   navigationProgress: Value;
   animationCode: Value;
 
-  closeButton: ?TouchableOpacity;
+  closeButton: ?React.ElementRef<TouchableOpacityInstance>;
   closeButtonX = new Value(-1);
   closeButtonY = new Value(-1);
   closeButtonWidth = new Value(0);
   closeButtonHeight = new Value(0);
 
-  photoButton: ?TouchableOpacity;
+  photoButton: ?React.ElementRef<TouchableOpacityInstance>;
   photoButtonX = new Value(-1);
   photoButtonY = new Value(-1);
   photoButtonWidth = new Value(0);
   photoButtonHeight = new Value(0);
 
-  switchCameraButton: ?TouchableOpacity;
+  switchCameraButton: ?React.ElementRef<TouchableOpacityInstance>;
   switchCameraButtonX = new Value(-1);
   switchCameraButtonY = new Value(-1);
   switchCameraButtonWidth = new Value(0);
   switchCameraButtonHeight = new Value(0);
 
-  flashButton: ?TouchableOpacity;
+  flashButton: ?React.ElementRef<TouchableOpacityInstance>;
   flashButtonX = new Value(-1);
   flashButtonY = new Value(-1);
   flashButtonWidth = new Value(0);
@@ -801,8 +807,8 @@ class CameraModal extends React.PureComponent<Props, State> {
     this.camera = camera;
   };
 
-  closeButtonRef = (closeButton: ?TouchableOpacity) => {
-    this.closeButton = closeButton;
+  closeButtonRef = (closeButton: ?React.ElementRef<typeof TouchableOpacity>) => {
+    this.closeButton = (closeButton: any);
   };
 
   onCloseButtonLayout = () => {
@@ -818,8 +824,8 @@ class CameraModal extends React.PureComponent<Props, State> {
     });
   };
 
-  photoButtonRef = (photoButton: ?TouchableOpacity) => {
-    this.photoButton = photoButton;
+  photoButtonRef = (photoButton: ?React.ElementRef<typeof TouchableOpacity>) => {
+    this.photoButton = (photoButton: any);
   };
 
   onPhotoButtonLayout = () => {
@@ -835,8 +841,8 @@ class CameraModal extends React.PureComponent<Props, State> {
     });
   };
 
-  switchCameraButtonRef = (switchCameraButton: ?TouchableOpacity) => {
-    this.switchCameraButton = switchCameraButton;
+  switchCameraButtonRef = (switchCameraButton: ?React.ElementRef<typeof TouchableOpacity>) => {
+    this.switchCameraButton = (switchCameraButton: any);
   };
 
   onSwitchCameraButtonLayout = () => {
@@ -852,8 +858,8 @@ class CameraModal extends React.PureComponent<Props, State> {
     });
   };
 
-  flashButtonRef = (flashButton: ?TouchableOpacity) => {
-    this.flashButton = flashButton;
+  flashButtonRef = (flashButton: ?React.ElementRef<typeof TouchableOpacity>) => {
+    this.flashButton = (flashButton: any);
   };
 
   onFlashButtonLayout = () => {

@@ -1,9 +1,9 @@
 // @flow
 
 import type { AppState } from '../redux/redux-setup';
+import type { LayoutEvent } from '../types/react-native';
 
 import type { ViewStyle } from '../types/styles';
-import type { NativeMethodsMixinType } from 'react-native/Libraries/Renderer/shims/ReactNativeTypes';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -25,14 +25,14 @@ import { connect } from 'lib/utils/redux-utils';
 import Button from './button.react';
 import { type Colors, colorsPropType, colorsSelector } from '../themes/colors';
 
-type PanEvent = {
-  nativeEvent: {
+type PanEvent = $ReadOnly<{
+  nativeEvent: $ReadOnly<{
     pageX: number,
     pageY: number,
-  },
-};
+  }>,
+}>;
 type HSVColor = {| h: number, s: number, v: number |};
-type PickerContainer = React.ElementRef<typeof View> & NativeMethodsMixinType;
+type PickerContainer = React.ElementRef<typeof View>;
 type Props = {|
   color?: string | HSVColor,
   defaultColor?: string,
@@ -78,7 +78,7 @@ class ColorPicker extends React.PureComponent<Props, State> {
   _pageX = 0;
   _pageY = 0;
   _pickerContainer: ?PickerContainer = null;
-  _pickerResponder: ?PanResponder = null;
+  _pickerResponder = null;
   _changingHColor = false;
 
   constructor(props: Props) {
@@ -163,14 +163,7 @@ class ColorPicker extends React.PureComponent<Props, State> {
     }
   }
 
-  _onLayout = (l: {
-    nativeEvent: {
-      layout: {
-        width: number,
-        height: number,
-      },
-    },
-  }) => {
+  _onLayout = (l: LayoutEvent) => {
     this._layout = l.nativeEvent.layout;
     const { width, height } = this._layout;
     const pickerSize = Math.round(Math.min(width, height));

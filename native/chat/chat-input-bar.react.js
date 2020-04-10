@@ -318,7 +318,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
                   onPress={this.openCamera}
                   activeOpacity={0.4}
                   disabled={!this.state.buttonsExpanded}
-                  pointerEvents={this.state.buttonsExpanded ? 'auto' : 'none'}
                 >
                   <Animated.View style={this.cameraIconStyle}>
                     <FAIcon

@@ -19,6 +19,7 @@ import {
   type LayoutCoordinates,
   layoutCoordinatesPropType,
 } from '../types/layout-types';
+import type { NativeMethodsMixinType } from '../types/react-native';
 
 import * as React from 'react';
 import {
@@ -184,6 +185,11 @@ type NavProp = NavigationStackProp<{|
   |},
 |}>;
 
+type TouchableOpacityInstance = React.AbstractComponent<
+  React.ElementConfig<typeof TouchableOpacity>,
+  NativeMethodsMixinType,
+>;
+
 type Props = {|
   navigation: NavProp,
   scene: NavigationStackScene,
@@ -220,8 +226,8 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     actionLinksEnabled: true,
   };
 
-  closeButton: ?TouchableOpacity;
-  saveButton: ?TouchableOpacity;
+  closeButton: ?React.ElementRef<TouchableOpacityInstance>;
+  saveButton: ?React.ElementRef<TouchableOpacityInstance>;
   closeButtonX = new Value(-1);
   closeButtonY = new Value(-1);
   closeButtonWidth = new Value(0);
@@ -1155,12 +1161,12 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     }
   };
 
-  closeButtonRef = (closeButton: ?TouchableOpacity) => {
-    this.closeButton = closeButton;
+  closeButtonRef = (closeButton: ?React.ElementRef<typeof TouchableOpacity>) => {
+    this.closeButton = (closeButton: any);
   };
 
-  saveButtonRef = (saveButton: ?TouchableOpacity) => {
-    this.saveButton = saveButton;
+  saveButtonRef = (saveButton: ?React.ElementRef<typeof TouchableOpacity>) => {
+    this.saveButton = (saveButton: any);
   };
 
   onCloseButtonLayout = () => {

@@ -147,7 +147,12 @@ for (let theme in colors) {
 
 type Styles = { [name: string]: { [field: string]: number | string } };
 
-function stylesFromColors<IS: Styles>(obj: IS, themeColors: Colors): IS {
+type ReplaceField = (input: any) => any;
+type ReplaceStyleObject = <Obj: {[key: string]: (number | string)}>(Obj) => $ObjMap<Obj, ReplaceField>;
+
+export type StyleSheetOf<S: Styles> = $Call<typeof StyleSheet.create, $ObjMap<S, ReplaceStyleObject>>;
+
+function stylesFromColors<IS: Styles>(obj: IS, themeColors: Colors): StyleSheetOf<IS> {
   const result = {};
   for (let key in obj) {
     const style = obj[key];
@@ -166,7 +171,7 @@ function stylesFromColors<IS: Styles>(obj: IS, themeColors: Colors): IS {
   return StyleSheet.create(result);
 }
 
-function styleSelector<IS: Styles>(obj: IS): (state: AppState) => IS {
+function styleSelector<IS: Styles>(obj: IS): (state: AppState) => StyleSheetOf<IS> {
   return createSelector(colorsSelector, (themeColors: Colors) =>
     stylesFromColors(obj, themeColors),
   );
@@ -174,7 +179,7 @@ function styleSelector<IS: Styles>(obj: IS): (state: AppState) => IS {
 
 function overlayStyleSelector<IS: Styles>(
   obj: IS,
-): (input: NavPlusRedux) => IS {
+): (input: NavPlusRedux) => StyleSheetOf<IS> {
   return createSelector(overlayColorsSelector, (themeColors: Colors) =>
     stylesFromColors(obj, themeColors),
   );

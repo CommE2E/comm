@@ -18,20 +18,20 @@ import {
 } from '../themes/colors';
 
 type Props = {|
+  ...$Shape<React.ElementProps<typeof TextInput>>,
   searchText: string,
   onChangeText: (searchText: string) => void,
-  style?: ViewStyle,
-  textInputRef?: React.Ref<TextInput>,
+  containerStyle?: ViewStyle,
+  textInputRef?: React.Ref<typeof TextInput>,
   // Redux state
   colors: Colors,
   styles: typeof styles,
-  ...$Shape<React.ElementProps<typeof TextInput>>,
 |};
 class Search extends React.PureComponent<Props> {
   static propTypes = {
     searchText: PropTypes.string.isRequired,
     onChangeText: PropTypes.func.isRequired,
-    style: ViewPropTypes.style,
+    containerStyle: ViewPropTypes.style,
     textInputRef: PropTypes.func,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
@@ -41,7 +41,7 @@ class Search extends React.PureComponent<Props> {
     const {
       searchText,
       onChangeText,
-      style,
+      containerStyle,
       textInputRef,
       colors,
       styles,
@@ -58,18 +58,22 @@ class Search extends React.PureComponent<Props> {
       );
     }
 
+    const textInputProps: React.ElementProps<typeof TextInput> = {
+      style: styles.searchInput,
+      underlineColorAndroid: 'transparent',
+      value: searchText,
+      onChangeText: onChangeText,
+      placeholderTextColor: iconColor,
+      returnKeyType: 'go',
+    };
+
     return (
-      <View style={[this.props.styles.search, style]}>
+      <View style={[this.props.styles.search, containerStyle]}>
         <Icon name="search" size={18} color={iconColor} />
         <TextInput
-          style={this.props.styles.searchInput}
-          underlineColorAndroid="transparent"
-          value={searchText}
-          onChangeText={onChangeText}
-          placeholderTextColor={iconColor}
-          returnKeyType="go"
-          ref={textInputRef}
+          {...textInputProps}
           {...rest}
+          ref={textInputRef}
         />
         {clearSearchInputIcon}
       </View>
@@ -108,8 +112,8 @@ const ConnectedSearch = connect((state: AppState) => ({
 }))(Search);
 
 type ConnectedProps = $Diff<Props, {| colors: Colors, styles: typeof styles |}>;
-export default React.forwardRef<Props, TextInput>(
-  function ForwardedConnectedSearch(props: ConnectedProps, ref: ?TextInput) {
+export default React.forwardRef<ConnectedProps, TextInput>(
+  function ForwardedConnectedSearch(props: ConnectedProps, ref: React.Ref<typeof TextInput>) {
     return <ConnectedSearch {...props} textInputRef={ref} />;
   },
 );

@@ -7,7 +7,7 @@ import { Platform, DeviceInfo } from 'react-native';
 
 import { createSelector } from 'reselect';
 
-const isIPhoneX = Platform.OS === 'ios' && DeviceInfo.isIPhoneX_deprecated;
+const isIPhoneX = Platform.OS === 'ios' && DeviceInfo.getConstants().isIPhoneX_deprecated;
 
 let statusBarHeight = 0;
 if (Platform.OS === 'android') {

@@ -3,6 +3,7 @@
 import type { ViewStyle, TextStyle } from '../types/styles';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 import type { AppState } from '../redux/redux-setup';
+import type { LayoutEvent } from '../types/react-native';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -176,7 +177,7 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
     }
   }
 
-  measureWrapper = (event: { nativeEvent: { layout: { width: number } } }) => {
+  measureWrapper = (event: LayoutEvent) => {
     const wrapperWidth = event.nativeEvent.layout.width;
     if (wrapperWidth !== this.state.wrapperWidth) {
       this.setState({ wrapperWidth });
@@ -188,12 +189,13 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
     this.props.onChangeText(text);
   };
 
-  onBlur = (event: { nativeEvent: { text: string } }) => {
+  onBlur = (event: $ReadOnly<{ nativeEvent: $ReadOnly<{ target: number }> }>) => {
     invariant(Platform.OS === 'ios', 'only iOS gets text on TextInput.onBlur');
-    this.onChangeText(event.nativeEvent.text);
+    const nativeEvent: $ReadOnly<{ target: number, text: string }> = (event.nativeEvent: any);
+    this.onChangeText(nativeEvent.text);
   };
 
-  onKeyPress = (event: { nativeEvent: { key: string } }) => {
+  onKeyPress = (event: $ReadOnly<{ nativeEvent: $ReadOnly<{ key: string }> }>) => {
     const { lastChange } = this;
     let { text } = this.props;
     if (
@@ -264,10 +266,31 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
       inputWidth = this.state.wrapperWidth;
     }
 
+    const textInputProps: React.ElementProps<typeof TextInput> = {
+      blurOnSubmit: false,
+      onKeyPress: this.onKeyPress,
+      value: this.props.text,
+      style: [
+        styles.textInput,
+        {
+          width: inputWidth,
+          color: inputColor,
+        },
+      ],
+      onBlur: Platform.OS === 'ios' ? this.onBlur : undefined,
+      onChangeText: this.onChangeText,
+      autoCapitalize: 'none',
+      autoCorrect: false,
+      placeholder: 'Start typing',
+      placeholderTextColor: placeholderColor,
+      returnKeyType: 'done',
+      keyboardType: 'default',
+      underlineColorAndroid: 'rgba(0,0,0,0)',
+    };
+
     return (
       <TouchableWithoutFeedback
         onPress={this.focus}
-        style={styles.container}
         onLayout={this.measureWrapper}
       >
         <View style={[styles.wrapper, { height: this.state.wrapperHeight }]}>
@@ -283,25 +306,7 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
               <View style={[styles.textInputContainer, { width: inputWidth }]}>
                 <TextInput
                   ref={this.tagInputRef}
-                  blurOnSubmit={false}
-                  onKeyPress={this.onKeyPress}
-                  value={this.props.text}
-                  style={[
-                    styles.textInput,
-                    {
-                      width: inputWidth,
-                      color: inputColor,
-                    },
-                  ]}
-                  onBlur={Platform.OS === 'ios' ? this.onBlur : undefined}
-                  onChangeText={this.onChangeText}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  placeholder="Start typing"
-                  placeholderTextColor={placeholderColor}
-                  returnKeyType="done"
-                  keyboardType="default"
-                  underlineColorAndroid="rgba(0,0,0,0)"
+                  {...textInputProps}
                   {...this.props.inputProps}
                 />
               </View>
@@ -340,9 +345,7 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
     this.setState({ contentHeight: h }, callback);
   };
 
-  onScrollViewLayout = (event: {
-    nativeEvent: { layout: { height: number } },
-  }) => {
+  onScrollViewLayout = (event: LayoutEvent) => {
     this.scrollViewHeight = event.nativeEvent.layout.height;
     if (this.scrollToBottomAfterNextScrollViewLayout) {
       this.scrollToBottom();
@@ -424,9 +427,7 @@ class Tag extends React.PureComponent<TagProps> {
     this.props.removeIndex(this.props.index);
   };
 
-  onLayoutLastTag = (event: {
-    nativeEvent: { layout: { x: number, width: number } },
-  }) => {
+  onLayoutLastTag = (event: LayoutEvent) => {
     const layout = event.nativeEvent.layout;
     this.curPos = layout.width + layout.x;
     if (this.props.isLastTag) {
@@ -436,9 +437,6 @@ class Tag extends React.PureComponent<TagProps> {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   tag: {
     borderRadius: 2,
     justifyContent: 'center',

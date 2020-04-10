@@ -20,6 +20,7 @@ import type {
 } from 'lib/utils/action-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
+import type { LayoutEvent } from '../types/react-native';
 
 import * as React from 'react';
 import {
@@ -472,7 +473,7 @@ class InternalEntry extends React.Component<Props, State> {
     this.dispatchSave(this.props.entryInfo.id, this.state.text);
   };
 
-  onTextLayout = (event: { nativeEvent: { layout: { height: number } } }) => {
+  onTextLayout = (event: LayoutEvent) => {
     this.guardedSetState({
       height: Math.ceil(event.nativeEvent.layout.height),
     });

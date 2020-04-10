@@ -82,7 +82,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     searchResults: new Set(),
   };
   searchInput: ?TextInput;
-  flatList: ?FlatList;
+  flatList: ?FlatList<Item>;
 
   componentDidMount() {
     registerChatScreen(this.props.navigation.state.key, this);
@@ -106,7 +106,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
         <Search
           searchText={this.state.searchText}
           onChangeText={this.onChangeSearchText}
-          style={this.props.styles.search}
+          containerStyle={this.props.styles.search}
           placeholder="Search threads"
           ref={this.searchInputRef}
         />
@@ -209,7 +209,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     );
   }
 
-  flatListRef = (flatList: ?FlatList) => {
+  flatListRef = (flatList: ?FlatList<Item>) => {
     this.flatList = flatList;
   };
 

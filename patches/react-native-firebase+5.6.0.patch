@@ -1,0 +1,226 @@
+diff --git a/node_modules/react-native-firebase/dist/modules/firestore/DocumentReference.js.flow b/node_modules/react-native-firebase/dist/modules/firestore/DocumentReference.js.flow
+index b8ef7c2..7ecb834 100644
+--- a/node_modules/react-native-firebase/dist/modules/firestore/DocumentReference.js.flow
++++ b/node_modules/react-native-firebase/dist/modules/firestore/DocumentReference.js.flow
+@@ -8,7 +8,7 @@ import CollectionReference from './CollectionReference';
+ import { parseUpdateArgs } from './utils';
+ import { buildNativeMap } from './utils/serialize';
+ import { getNativeModule } from '../../utils/native';
+-import { firestoreAutoId, isFunction, isObject } from '../../utils';
++import { firestoreAutoId, isObject } from '../../utils';
+ import { getAppEventName, SharedEventEmitter } from '../../utils/events';
+ 
+ import type Firestore from './';
+@@ -137,8 +137,8 @@ export default class DocumentReference {
+     let observer: Observer;
+     let docListenOptions = {};
+     // Called with: onNext, ?onError
+-    if (isFunction(optionsOrObserverOrOnNext)) {
+-      if (observerOrOnNextOrOnError && !isFunction(observerOrOnNextOrOnError)) {
++    if (typeof optionsOrObserverOrOnNext === 'function') {
++      if (observerOrOnNextOrOnError && typeof observerOrOnNextOrOnError !== 'function') {
+         throw new Error(
+           'DocumentReference.onSnapshot failed: Second argument must be a valid function.'
+         );
+@@ -150,14 +150,14 @@ export default class DocumentReference {
+       };
+     } else if (
+       optionsOrObserverOrOnNext &&
+-      isObject(optionsOrObserverOrOnNext)
++      typeof optionsOrObserverOrOnNext === 'object'
+     ) {
+       // Called with: Observer
+       if (optionsOrObserverOrOnNext.next) {
+-        if (isFunction(optionsOrObserverOrOnNext.next)) {
++        if (typeof optionsOrObserverOrOnNext.next === 'function') {
+           if (
+             optionsOrObserverOrOnNext.error &&
+-            !isFunction(optionsOrObserverOrOnNext.error)
++            typeof optionsOrObserverOrOnNext.error !== 'function'
+           ) {
+             throw new Error(
+               'DocumentReference.onSnapshot failed: Observer.error must be a valid function.'
+@@ -181,8 +181,8 @@ export default class DocumentReference {
+       ) {
+         docListenOptions = optionsOrObserverOrOnNext;
+         // Called with: Options, onNext, ?onError
+-        if (isFunction(observerOrOnNextOrOnError)) {
+-          if (onError && !isFunction(onError)) {
++        if (typeof observerOrOnNextOrOnError === 'function') {
++          if (onError && typeof onError !== 'function') {
+             throw new Error(
+               'DocumentReference.onSnapshot failed: Third argument must be a valid function.'
+             );
+@@ -195,13 +195,13 @@ export default class DocumentReference {
+           // Called with Options, Observer
+         } else if (
+           observerOrOnNextOrOnError &&
+-          isObject(observerOrOnNextOrOnError) &&
++          typeof observerOrOnNextOrOnError === 'object' &&
+           observerOrOnNextOrOnError.next
+         ) {
+-          if (isFunction(observerOrOnNextOrOnError.next)) {
++          if (typeof observerOrOnNextOrOnError.next === 'function') {
+             if (
+               observerOrOnNextOrOnError.error &&
+-              !isFunction(observerOrOnNextOrOnError.error)
++              typeof observerOrOnNextOrOnError.error !== 'function'
+             ) {
+               throw new Error(
+                 'DocumentReference.onSnapshot failed: Observer.error must be a valid function.'
+diff --git a/node_modules/react-native-firebase/dist/modules/firestore/Query.js.flow b/node_modules/react-native-firebase/dist/modules/firestore/Query.js.flow
+index 1716dbe..8a52a88 100644
+--- a/node_modules/react-native-firebase/dist/modules/firestore/Query.js.flow
++++ b/node_modules/react-native-firebase/dist/modules/firestore/Query.js.flow
+@@ -8,7 +8,7 @@ import SnapshotError from './SnapshotError';
+ import DocumentSnapshot from './DocumentSnapshot';
+ import { getNativeModule } from '../../utils/native';
+ import { buildNativeArray, buildTypeMap } from './utils/serialize';
+-import { firestoreAutoId, isFunction, isObject } from '../../utils';
++import { firestoreAutoId, isObject } from '../../utils';
+ import { getAppEventName, SharedEventEmitter } from '../../utils/events';
+ 
+ import type Firestore from './';
+@@ -274,8 +274,8 @@ export default class Query {
+     let observer: Observer;
+     let metadataChanges = {};
+     // Called with: onNext, ?onError
+-    if (isFunction(optionsOrObserverOrOnNext)) {
+-      if (observerOrOnNextOrOnError && !isFunction(observerOrOnNextOrOnError)) {
++    if (typeof optionsOrObserverOrOnNext === 'function') {
++      if (observerOrOnNextOrOnError && typeof observerOrOnNextOrOnError !== 'function') {
+         throw new Error(
+           'Query.onSnapshot failed: Second argument must be a valid function.'
+         );
+@@ -287,14 +287,14 @@ export default class Query {
+       };
+     } else if (
+       optionsOrObserverOrOnNext &&
+-      isObject(optionsOrObserverOrOnNext)
++      typeof optionsOrObserverOrOnNext === 'object'
+     ) {
+       // Called with: Observer
+       if (optionsOrObserverOrOnNext.next) {
+-        if (isFunction(optionsOrObserverOrOnNext.next)) {
++        if (typeof optionsOrObserverOrOnNext.next === 'function') {
+           if (
+             optionsOrObserverOrOnNext.error &&
+-            !isFunction(optionsOrObserverOrOnNext.error)
++            typeof optionsOrObserverOrOnNext.error !== 'function'
+           ) {
+             throw new Error(
+               'Query.onSnapshot failed: Observer.error must be a valid function.'
+@@ -318,8 +318,8 @@ export default class Query {
+       ) {
+         metadataChanges = optionsOrObserverOrOnNext;
+         // Called with: Options, onNext, ?onError
+-        if (isFunction(observerOrOnNextOrOnError)) {
+-          if (onError && !isFunction(onError)) {
++        if (typeof observerOrOnNextOrOnError === 'function') {
++          if (onError && typeof onError !== 'function') {
+             throw new Error(
+               'Query.onSnapshot failed: Third argument must be a valid function.'
+             );
+@@ -332,13 +332,13 @@ export default class Query {
+           // Called with Options, Observer
+         } else if (
+           observerOrOnNextOrOnError &&
+-          isObject(observerOrOnNextOrOnError) &&
++          typeof observerOrOnNextOrOnError === 'object' &&
+           observerOrOnNextOrOnError.next
+         ) {
+-          if (isFunction(observerOrOnNextOrOnError.next)) {
++          if (typeof observerOrOnNextOrOnError.next === 'function') {
+             if (
+               observerOrOnNextOrOnError.error &&
+-              !isFunction(observerOrOnNextOrOnError.error)
++              typeof observerOrOnNextOrOnError.error !== 'function'
+             ) {
+               throw new Error(
+                 'Query.onSnapshot failed: Observer.error must be a valid function.'
+diff --git a/node_modules/react-native-firebase/dist/modules/messaging/index.js.flow b/node_modules/react-native-firebase/dist/modules/messaging/index.js.flow
+index 988be94..a030db8 100644
+--- a/node_modules/react-native-firebase/dist/modules/messaging/index.js.flow
++++ b/node_modules/react-native-firebase/dist/modules/messaging/index.js.flow
+@@ -8,7 +8,6 @@ import INTERNALS from '../../utils/internals';
+ import { getLogger } from '../../utils/log';
+ import ModuleBase from '../../utils/ModuleBase';
+ import { getNativeModule } from '../../utils/native';
+-import { isFunction, isObject } from '../../utils';
+ import IOSMessaging from './IOSMessaging';
+ import RemoteMessage from './RemoteMessage';
+ 
+@@ -89,10 +88,10 @@ export default class Messaging extends ModuleBase {
+ 
+   onMessage(nextOrObserver: OnMessage | OnMessageObserver): () => any {
+     let listener: RemoteMessage => any;
+-    if (isFunction(nextOrObserver)) {
++    if (typeof nextOrObserver === "function") {
+       // $FlowExpectedError: Not coping with the overloaded method signature
+       listener = nextOrObserver;
+-    } else if (isObject(nextOrObserver) && isFunction(nextOrObserver.next)) {
++    } else if (typeof nextOrObserver === "object" && typeof nextOrObserver.next === "function") {
+       listener = nextOrObserver.next;
+     } else {
+       throw new Error(
+@@ -114,10 +113,10 @@ export default class Messaging extends ModuleBase {
+     nextOrObserver: OnTokenRefresh | OnTokenRefreshObserver
+   ): () => any {
+     let listener: string => any;
+-    if (isFunction(nextOrObserver)) {
++    if (typeof nextOrObserver === "function") {
+       // $FlowExpectedError: Not coping with the overloaded method signature
+       listener = nextOrObserver;
+-    } else if (isObject(nextOrObserver) && isFunction(nextOrObserver.next)) {
++    } else if (typeof nextOrObserver === "object" && typeof nextOrObserver.next === "function") {
+       listener = nextOrObserver.next;
+     } else {
+       throw new Error(
+diff --git a/node_modules/react-native-firebase/dist/modules/notifications/index.js.flow b/node_modules/react-native-firebase/dist/modules/notifications/index.js.flow
+index 34e4ee3..22d5dbe 100644
+--- a/node_modules/react-native-firebase/dist/modules/notifications/index.js.flow
++++ b/node_modules/react-native-firebase/dist/modules/notifications/index.js.flow
+@@ -7,7 +7,6 @@ import { SharedEventEmitter } from '../../utils/events';
+ import { getLogger } from '../../utils/log';
+ import ModuleBase from '../../utils/ModuleBase';
+ import { getNativeModule } from '../../utils/native';
+-import { isFunction, isObject } from '../../utils';
+ import AndroidAction from './AndroidAction';
+ import AndroidChannel from './AndroidChannel';
+ import AndroidChannelGroup from './AndroidChannelGroup';
+@@ -212,9 +211,9 @@ export default class Notifications extends ModuleBase {
+     nextOrObserver: OnNotification | OnNotificationObserver
+   ): () => any {
+     let listener;
+-    if (isFunction(nextOrObserver)) {
++    if (typeof nextOrObserver === "function") {
+       listener = nextOrObserver;
+-    } else if (isObject(nextOrObserver) && isFunction(nextOrObserver.next)) {
++    } else if (typeof nextOrObserver === "object" && typeof nextOrObserver.next === "function") {
+       listener = nextOrObserver.next;
+     } else {
+       throw new Error(
+@@ -235,9 +234,9 @@ export default class Notifications extends ModuleBase {
+     nextOrObserver: OnNotification | OnNotificationObserver
+   ): () => any {
+     let listener;
+-    if (isFunction(nextOrObserver)) {
++    if (typeof nextOrObserver === "function") {
+       listener = nextOrObserver;
+-    } else if (isObject(nextOrObserver) && isFunction(nextOrObserver.next)) {
++    } else if (typeof nextOrObserver === "object" && typeof nextOrObserver.next === "function") {
+       listener = nextOrObserver.next;
+     } else {
+       throw new Error(
+@@ -258,9 +257,9 @@ export default class Notifications extends ModuleBase {
+     nextOrObserver: OnNotificationOpened | OnNotificationOpenedObserver
+   ): () => any {
+     let listener;
+-    if (isFunction(nextOrObserver)) {
++    if (typeof nextOrObserver === "function") {
+       listener = nextOrObserver;
+-    } else if (isObject(nextOrObserver) && isFunction(nextOrObserver.next)) {
++    } else if (typeof nextOrObserver === "object" && typeof nextOrObserver.next === "function") {
+       listener = nextOrObserver.next;
+     } else {
+       throw new Error(

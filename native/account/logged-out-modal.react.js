@@ -69,6 +69,10 @@ import {
 } from '../navigation/navigation-context';
 
 let initialAppLoad = true;
+const animatedSpec = {
+  useNativeDriver: false,
+  easing: Easing.out(Easing.ease),
+};
 
 type LoggedOutMode = 'loading' | 'prompt' | 'log-in' | 'register';
 type Props = {
@@ -298,8 +302,8 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     this.nextMode = 'prompt';
     this.guardedSetState({ mode: 'prompt' });
     Animated.timing(this.state.buttonOpacity, {
+      ...animatedSpec,
       duration: 250,
-      easing: Easing.out(Easing.ease),
       toValue: 1.0,
     }).start();
   };
@@ -336,7 +340,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       // weird because the buttons are at the bottom. The reason it's different
       // for iPhone X is because that's where LaunchScreen.xib places it and I'm
       // not sure how to get AutoLayout to behave consistently with Yoga.
-      containerSize += DeviceInfo.isIPhoneX_deprecated ? 50 : 61;
+      containerSize += DeviceInfo.getConstants().isIPhoneX_deprecated ? 50 : 61;
     }
     const contentHeight = windowHeight - contentVerticalOffset;
     return (contentHeight - containerSize - keyboardHeight) / 2;
@@ -345,7 +349,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   calculateFooterPaddingTop(keyboardHeight: number) {
     const windowHeight = this.props.dimensions.height;
     const textHeight = Platform.OS === 'ios' ? 17 : 19;
-    if (DeviceInfo.isIPhoneX_deprecated) {
+    if (DeviceInfo.getConstants().isIPhoneX_deprecated) {
       keyboardHeight -= 34;
     }
     return windowHeight - keyboardHeight - textHeight - 15;
@@ -368,31 +372,31 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       this.lastPanelPaddingTopValue = newPanelPaddingTopValue;
       animations.push(
         Animated.timing(this.state.panelPaddingTop, {
+          ...animatedSpec,
           duration,
-          easing: Easing.out(Easing.ease),
           toValue: newPanelPaddingTopValue,
         }),
       );
     }
     animations.push(
       Animated.timing(this.state.footerPaddingTop, {
+        ...animatedSpec,
         duration,
-        easing: Easing.out(Easing.ease),
         toValue: this.calculateFooterPaddingTop(realKeyboardHeight),
       }),
     );
     if (this.opacityChangeQueued) {
       animations.push(
         Animated.timing(this.state.panelOpacity, {
+          ...animatedSpec,
           duration,
-          easing: Easing.out(Easing.ease),
           toValue: 1,
         }),
       );
       animations.push(
         Animated.timing(this.state.forgotPasswordLinkOpacity, {
+          ...animatedSpec,
           duration,
-          easing: Easing.out(Easing.ease),
           toValue: 1,
         }),
       );
@@ -428,28 +432,28 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     this.lastPanelPaddingTopValue = newLastPanelPaddingTopValue;
     const animations = [
       Animated.timing(this.state.panelPaddingTop, {
+        ...animatedSpec,
         duration,
-        easing: Easing.out(Easing.ease),
         toValue: newLastPanelPaddingTopValue,
       }),
       Animated.timing(this.state.footerPaddingTop, {
+        ...animatedSpec,
         duration,
-        easing: Easing.out(Easing.ease),
         toValue: this.calculateFooterPaddingTop(this.keyboardHeight),
       }),
     ];
     if (this.opacityChangeQueued) {
       animations.push(
         Animated.timing(this.state.panelOpacity, {
+          ...animatedSpec,
           duration,
-          easing: Easing.out(Easing.ease),
           toValue: 0,
         }),
       );
       animations.push(
         Animated.timing(this.state.forgotPasswordLinkOpacity, {
+          ...animatedSpec,
           duration,
-          easing: Easing.out(Easing.ease),
           toValue: 0,
         }),
       );

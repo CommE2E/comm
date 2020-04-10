@@ -60,6 +60,11 @@ import {
   type NavContextType,
 } from '../navigation/navigation-context';
 
+const animatedSpec = {
+  useNativeDriver: false,
+  easing: Easing.out(Easing.ease),
+};
+
 type VerificationModalMode = 'simple-text' | 'reset-password';
 type Props = {
   navigation: {
@@ -290,16 +295,16 @@ class VerificationModal extends React.PureComponent<Props, State> {
     const duration = inputDuration ? inputDuration : 150;
     const animations = [
       Animated.timing(this.state.paddingTop, {
+        ...animatedSpec,
         duration,
-        easing: Easing.out(Easing.ease),
         toValue: this.currentPaddingTop(this.state.mode, this.keyboardHeight),
       }),
     ];
     if (this.opacityChangeQueued) {
       animations.push(
         Animated.timing(this.state.resetPasswordPanelOpacityValue, {
+          ...animatedSpec,
           duration,
-          easing: Easing.out(Easing.ease),
           toValue: 1,
         }),
       );
@@ -326,16 +331,16 @@ class VerificationModal extends React.PureComponent<Props, State> {
     const duration = inputDuration ? inputDuration : 250;
     const animations = [
       Animated.timing(this.state.paddingTop, {
+        ...animatedSpec,
         duration,
-        easing: Easing.out(Easing.ease),
         toValue: this.currentPaddingTop(this.nextMode, 0),
       }),
     ];
     if (this.opacityChangeQueued) {
       animations.push(
         Animated.timing(this.state.resetPasswordPanelOpacityValue, {
+          ...animatedSpec,
           duration,
-          easing: Easing.out(Easing.ease),
           toValue: 0,
         }),
       );
@@ -460,7 +465,7 @@ class VerificationModal extends React.PureComponent<Props, State> {
 }
 
 const closeButtonTop =
-  Platform.OS === 'ios' ? (DeviceInfo.isIPhoneX_deprecated ? 49 : 25) : 15;
+  Platform.OS === 'ios' ? (DeviceInfo.getConstants().isIPhoneX_deprecated ? 49 : 25) : 15;
 
 const styles = StyleSheet.create({
   animationContainer: {},

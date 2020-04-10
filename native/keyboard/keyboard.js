@@ -39,7 +39,7 @@ export type EmitterSubscription = {
 // we will call the relevant keyboard callbacks.
 const appStateChangeDelay = 500;
 
-const isIPhoneX = Platform.OS === 'ios' && DeviceInfo.isIPhoneX_deprecated;
+const isIPhoneX = Platform.OS === 'ios' && DeviceInfo.getConstants().isIPhoneX_deprecated;
 const defaultKeyboardHeight = Platform.select({
   ios: isIPhoneX ? 335 : 216,
   android: 282.28,

@@ -21,6 +21,12 @@ import { dimensionsSelector } from '../selectors/dimension-selectors';
 import LogInPanel from './log-in-panel.react';
 import ForgotPasswordPanel from './forgot-password-panel.react';
 
+const animatedSpec = {
+  useNativeDriver: false,
+  duration: 350,
+  easing: Easing.out(Easing.ease),
+};
+
 type LogInMode = 'log-in' | 'forgot-password' | 'forgot-password-success';
 
 type Props = {|
@@ -159,16 +165,13 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
   onPressForgotPassword = () => {
     this.setState({ nextLogInMode: 'forgot-password' });
 
-    const duration = 350;
     const animations = [
       Animated.timing(this.props.forgotPasswordLinkOpacity, {
-        duration,
-        easing: Easing.out(Easing.ease),
+        ...animatedSpec,
         toValue: 0,
       }),
       Animated.timing(this.state.panelTransition, {
-        duration,
-        easing: Easing.out(Easing.ease),
+        ...animatedSpec,
         toValue: 1,
       }),
     ];
@@ -197,16 +200,13 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
     invariant(this.logInPanel, 'ref should be set');
     this.logInPanel.focusUsernameOrEmailInput();
 
-    const duration = 350;
     const animations = [
       Animated.timing(this.props.forgotPasswordLinkOpacity, {
-        duration,
-        easing: Easing.out(Easing.ease),
+        ...animatedSpec,
         toValue: 1,
       }),
       Animated.timing(this.state.panelTransition, {
-        duration,
-        easing: Easing.out(Easing.ease),
+        ...animatedSpec,
         toValue: 0,
       }),
     ];
@@ -231,8 +231,6 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
 
     this.setState({ nextLogInMode: 'forgot-password-success' });
 
-    const duration = 350;
-
     let listenerID = '';
     const listener = (animatedUpdate: { value: number }) => {
       if (animatedUpdate.value === 2) {
@@ -243,8 +241,7 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
     listenerID = this.state.panelTransition.addListener(listener);
 
     Animated.timing(this.state.panelTransition, {
-      duration,
-      easing: Easing.out(Easing.ease),
+      ...animatedSpec,
       toValue: 2,
     }).start();
 

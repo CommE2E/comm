@@ -5,12 +5,12 @@ import {
   type NavigationRouteConfigMap,
   type NavigationState,
   createNavigator,
+  type NavigationStackScreenOptions,
 } from 'react-navigation';
 import {
   StackView,
   StackViewTransitionConfigs,
   type StackNavigatorConfig,
-  type NavigationStackScreenOptions,
   type NavigationStackProp,
   type NavigationStackTransitionProps,
 } from 'react-navigation-stack';

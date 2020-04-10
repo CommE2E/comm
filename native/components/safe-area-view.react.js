@@ -1,14 +1,12 @@
 // @flow
 
-import type { ViewStyle } from '../types/styles';
-
 import * as React from 'react';
 import { SafeAreaView } from 'react-navigation';
 
 const forceInset = { top: 'always', bottom: 'never' };
 
 type Props = {|
-  style?: ViewStyle,
+  style?: $PropertyType<React.ElementConfig<typeof SafeAreaView>, 'style'>,
   children?: React.Node,
 |};
 function InsetSafeAreaView(props: Props) {

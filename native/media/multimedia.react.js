@@ -109,7 +109,11 @@ class Multimedia extends React.PureComponent<Props, State> {
     }
   }
 
-  onLoad = async () => {
+  onLoad = () => {
+    this.onLoadAsync();
+  };
+
+  async onLoadAsync() {
     const { departingURI, unlinkDepartingURI } = this.state;
     if (!departingURI && !unlinkDepartingURI) {
       return;

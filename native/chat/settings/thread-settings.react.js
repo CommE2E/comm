@@ -722,6 +722,8 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           navigate={item.navigate}
         />
       );
+    } else {
+      invariant(false, `unexpected ThreadSettings item type ${item.itemType}`);
     }
   };
 

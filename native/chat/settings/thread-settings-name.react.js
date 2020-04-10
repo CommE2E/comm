@@ -10,6 +10,7 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { AppState } from '../../redux/redux-setup';
+import type { LayoutEvent, ContentSizeChangeEvent } from '../../types/react-native';
 
 import * as React from 'react';
 import { Text, Alert, ActivityIndicator, TextInput, View } from 'react-native';
@@ -140,13 +141,11 @@ class ThreadSettingsName extends React.PureComponent<Props> {
     this.textInput = textInput;
   };
 
-  onLayoutText = (event: { nativeEvent: { layout: { height: number } } }) => {
+  onLayoutText = (event: LayoutEvent) => {
     this.props.setNameTextHeight(event.nativeEvent.layout.height);
   };
 
-  onTextInputContentSizeChange = (event: {
-    nativeEvent: { contentSize: { height: number } },
-  }) => {
+  onTextInputContentSizeChange = (event: ContentSizeChangeEvent) => {
     this.props.setNameTextHeight(event.nativeEvent.contentSize.height);
   };
 

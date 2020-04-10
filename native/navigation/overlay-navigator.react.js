@@ -4,12 +4,13 @@ import type {
   NavigationStackProp,
   NavigationState,
   NavigationDescriptor,
-  NavigationStackScreenOptions,
   NavigationRouteConfigMap,
   NavigationStackTransitionProps,
   NavigationStackScene,
   StackNavigatorConfig,
+  NavigationTransitionSpec,
 } from 'react-navigation-stack';
+import type { NavigationStackScreenOptions } from 'react-navigation';
 
 import * as React from 'react';
 import {
@@ -92,12 +93,15 @@ class OverlayNavigator extends React.PureComponent<Props> {
     );
   }
 
-  configureTransition = () => ({
-    duration: 250,
-    easing: BaseEasing.inOut(BaseEasing.ease),
-    timing: BaseAnimated.timing,
-    useNativeDriver: true,
-  });
+  configureTransition = () => {
+    const spec: NavigationTransitionSpec = ({
+      duration: 250,
+      easing: BaseEasing.inOut(BaseEasing.ease),
+      timing: BaseAnimated.timing,
+      useNativeDriver: true,
+    }: any);
+    return spec;
+  };
 
   onTransitionStart = (transitionProps: NavigationStackTransitionProps) => {
     const { index } = transitionProps.navigation.state;

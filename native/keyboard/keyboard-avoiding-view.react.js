@@ -2,6 +2,7 @@
 
 import type { ViewStyle } from '../types/styles';
 import type { EmitterSubscription } from './keyboard';
+import type { Layout, LayoutEvent } from '../types/react-native';
 
 import * as React from 'react';
 import {
@@ -14,12 +15,6 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 import _isEqual from 'lodash/fp/isEqual';
-
-type ViewLayout = {
-  y: number,
-  height: number,
-};
-type ViewLayoutEvent = { nativeEvent: { layout: ViewLayout } };
 
 type ScreenRect = {
   screenX: number,
@@ -50,7 +45,7 @@ class KeyboardAvoidingView extends React.PureComponent<Props, State> {
     bottom: 0,
   };
   keyboardSubscription: ?EmitterSubscription = null;
-  frame: ?ViewLayout = null;
+  frame: ?Layout = null;
   currentState = AppState.currentState;
 
   relativeKeyboardHeight(keyboardFrame: ScreenRect): number {
@@ -96,7 +91,7 @@ class KeyboardAvoidingView extends React.PureComponent<Props, State> {
     this.setState({ bottom: height });
   };
 
-  onLayout = (event: ViewLayoutEvent) => {
+  onLayout = (event: LayoutEvent) => {
     this.frame = event.nativeEvent.layout;
   };
 

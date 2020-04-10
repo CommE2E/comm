@@ -3,6 +3,7 @@
 import type { MediaType, Dimensions } from 'lib/types/media-types';
 
 import { fileInfoFromData } from 'lib/utils/file-utils';
+import invariant from 'invariant';
 
 function blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
   const fileReader = new FileReader();
@@ -12,7 +13,11 @@ function blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
       reject(error);
     };
     fileReader.onload = event => {
-      resolve(event.target.result);
+      invariant(
+        fileReader.result instanceof ArrayBuffer,
+        "FileReader.readAsArrayBuffer should result in ArrayBuffer",
+      );
+      resolve(fileReader.result);
     };
     fileReader.readAsArrayBuffer(blob);
   });
@@ -26,7 +31,11 @@ function getPhotoDimensions(blob: File): Promise<Dimensions> {
       reject(error);
     };
     fileReader.onload = event => {
-      resolve(event.target.result);
+      invariant(
+        typeof fileReader.result === "string",
+        "FileReader.readAsDataURL should result in string",
+      );
+      resolve(fileReader.result);
     };
     fileReader.readAsDataURL(blob);
   }).then(uri => preloadImage(uri));

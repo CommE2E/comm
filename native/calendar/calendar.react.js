@@ -13,7 +13,7 @@ import type {
   SectionFooterItem,
   LoaderItem,
 } from '../selectors/calendar-selectors';
-import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
+import type { ViewToken } from '../types/react-native';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { KeyboardEvent } from '../keyboard/keyboard';
 import type { TextToMeasure } from '../text-height-measurer.react';

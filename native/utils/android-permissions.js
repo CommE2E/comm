@@ -1,6 +1,7 @@
 // @flow
 
-import { PermissionsAndroid, type Rationale } from 'react-native';
+import { PermissionsAndroid } from 'react-native';
+import type { Rationale } from '../types/react-native';
 
 const granted = new Set();
 

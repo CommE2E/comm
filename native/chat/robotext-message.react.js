@@ -72,6 +72,7 @@ class RobotextMessage extends React.PureComponent<Props> {
       focused,
       toggleFocus,
       keyboardState,
+      styles,
       ...viewProps
     } = this.props;
     let timestamp = null;

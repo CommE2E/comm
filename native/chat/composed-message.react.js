@@ -41,7 +41,7 @@ class ComposedMessage extends React.PureComponent<Props> {
 
   render() {
     assertComposableMessageType(this.props.item.messageInfo.type);
-    const { item, focused, sendFailed, children, ...viewProps } = this.props;
+    const { item, focused, sendFailed, children, colors, composedMessageMaxWidth, ...viewProps } = this.props;
     const { id, creator } = item.messageInfo;
 
     const { isViewer } = creator;
@@ -52,9 +52,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       styles.alignment,
       { marginBottom: 5 + (item.endsCluster ? clusterEndHeight : 0) },
     ];
-    const messageBoxStyle = {
-      maxWidth: this.props.composedMessageMaxWidth,
-    };
+    const messageBoxStyle = { maxWidth: composedMessageMaxWidth };
 
     let deliveryIcon = null;
     let failedSendInfo = null;
@@ -65,7 +63,7 @@ class ComposedMessage extends React.PureComponent<Props> {
         deliveryIconName = 'check-circle';
       } else if (sendFailed) {
         deliveryIconName = 'x-circle';
-        deliveryIconColor = this.props.colors.redText;
+        deliveryIconColor = colors.redText;
         failedSendInfo = <FailedSend item={item} />;
       } else {
         deliveryIconName = 'circle';

@@ -8,11 +8,11 @@ import {
   type NavigationState,
   createKeyboardAwareNavigator,
   createNavigator,
+  type NavigationStackScreenOptions,
 } from 'react-navigation';
 import {
   StackView,
   type StackNavigatorConfig,
-  type NavigationStackScreenOptions,
   type NavigationStackProp,
 } from 'react-navigation-stack';
 import hoistNonReactStatics from 'hoist-non-react-statics';

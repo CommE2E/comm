@@ -22,6 +22,7 @@ import type {
   DispatchActionPromise,
   ActionFunc,
 } from 'lib/utils/action-utils';
+import type { LayoutEvent } from '../types/react-native';
 
 import * as React from 'react';
 import Animated from 'react-native-reanimated';
@@ -247,12 +248,11 @@ function createTooltip<
       const { x, y, width, height } = initialCoordinates;
       const { margin, location } = this;
 
-      const style: ViewStyle = {
-        position: 'absolute',
-        alignItems: 'center',
-        opacity: this.tooltipContainerOpacity,
-        transform: [{ translateX: this.tooltipHorizontal }],
-      };
+      const style = {};
+      style.position = 'absolute';
+      style.alignItems = 'center',
+      style.opacity = this.tooltipContainerOpacity;
+      style.transform = [{ translateX: this.tooltipHorizontal }];
 
       const extraLeftSpace = x;
       const extraRightSpace = screenDimensions.width - width - x;
@@ -387,9 +387,7 @@ function createTooltip<
       });
     };
 
-    onTooltipContainerLayout = (event: {
-      nativeEvent: { layout: { x: number, width: number } },
-    }) => {
+    onTooltipContainerLayout = (event: LayoutEvent) => {
       const { navigation, screenDimensions } = this.props;
       const { x, width } = navigation.state.params.initialCoordinates;
 

@@ -3,7 +3,7 @@
 import type { AppState } from '../redux/redux-setup';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
-import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
+import type { ViewToken } from '../types/react-native';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { ChatMessageItemWithHeight } from './message-list-container.react';

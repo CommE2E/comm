@@ -6,7 +6,7 @@ import {
   dimensionsPropType,
   type MediaLibrarySelection,
 } from 'lib/types/media-types';
-import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
+import type { ViewToken, LayoutEvent } from '../types/react-native';
 import type { ViewStyle } from '../types/styles';
 
 import * as React from 'react';
@@ -79,7 +79,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
   };
   mounted = false;
   fetchingPhotos = false;
-  flatList: ?FlatList;
+  flatList: ?FlatList<MediaLibrarySelection>;
   viewableIndices: number[] = [];
   queueModeProgress = new Animated.Value(0);
   sendButtonStyle: ViewStyle;
@@ -149,7 +149,8 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
         (!prevQueuedMediaURIs ||
           queuedMediaURIs.size > prevQueuedMediaURIs.size)
       ) {
-        for (let queuedMediaURI of queuedMediaURIs) {
+        const flowMadeMeDoThis = queuedMediaURIs;
+        for (let queuedMediaURI of flowMadeMeDoThis) {
           if (prevQueuedMediaURIs && prevQueuedMediaURIs.has(queuedMediaURI)) {
             continue;
           }
@@ -418,13 +419,11 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     );
   }
 
-  flatListRef = (flatList: ?FlatList) => {
+  flatListRef = (flatList: ?FlatList<MediaLibrarySelection>) => {
     this.flatList = flatList;
   };
 
-  onContainerLayout = (event: {
-    nativeEvent: { layout: { height: number } },
-  }) => {
+  onContainerLayout = (event: LayoutEvent) => {
     this.guardedSetState({ containerHeight: event.nativeEvent.layout.height });
   };
 

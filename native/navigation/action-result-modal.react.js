@@ -15,7 +15,7 @@ import Animated from 'react-native-reanimated';
 import { connect } from 'lib/utils/redux-utils';
 
 import { contentBottomOffset } from '../selectors/dimension-selectors';
-import { overlayStyleSelector } from '../themes/colors';
+import { overlayStyleSelector, type StyleSheetOf } from '../themes/colors';
 import { connectNav, type NavContextType } from './navigation-context';
 
 const { Value, Extrapolate, interpolate } = Animated;
@@ -32,7 +32,7 @@ type Props = {|
   scene: NavigationStackScene,
   position: Value,
   // Redux state
-  styles: typeof styles,
+  styles: StyleSheetOf<typeof styles>,
 |};
 class ActionResultModal extends React.PureComponent<Props> {
   static propTypes = {
