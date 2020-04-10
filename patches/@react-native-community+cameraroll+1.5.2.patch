@@ -1,5 +1,5 @@
 diff --git a/node_modules/@react-native-community/cameraroll/android/src/main/java/com/reactnativecommunity/cameraroll/CameraRollModule.java b/node_modules/@react-native-community/cameraroll/android/src/main/java/com/reactnativecommunity/cameraroll/CameraRollModule.java
-index 1e01f7a..831c46b 100644
+index 63896c8..6e96331 100644
 --- a/node_modules/@react-native-community/cameraroll/android/src/main/java/com/reactnativecommunity/cameraroll/CameraRollModule.java
 +++ b/node_modules/@react-native-community/cameraroll/android/src/main/java/com/reactnativecommunity/cameraroll/CameraRollModule.java
 @@ -13,6 +13,7 @@ import android.content.Context;
@@ -10,7 +10,7 @@ index 1e01f7a..831c46b 100644
  import android.media.MediaMetadataRetriever;
  import android.media.MediaScannerConnection;
  import android.net.Uri;
-@@ -439,13 +440,21 @@ public class CameraRollModule extends ReactContextBaseJavaModule {
+@@ -521,13 +522,21 @@ public class CameraRollModule extends ReactContextBaseJavaModule {
          retriever.setDataSource(photoDescriptor.getFileDescriptor());
  
          try {
@@ -39,7 +39,7 @@ index 1e01f7a..831c46b 100644
            }
            int timeInMillisec =
                Integer.parseInt(
-@@ -467,6 +476,24 @@ public class CameraRollModule extends ReactContextBaseJavaModule {
+@@ -549,6 +558,24 @@ public class CameraRollModule extends ReactContextBaseJavaModule {
          FLog.e(ReactConstants.TAG, "Could not get video metadata for " + photoUri.toString(), e);
          return false;
        }
@@ -65,13 +65,13 @@ index 1e01f7a..831c46b 100644
  
      if (width <= 0 || height <= 0) {
 diff --git a/node_modules/@react-native-community/cameraroll/ios/RNCCameraRollManager.m b/node_modules/@react-native-community/cameraroll/ios/RNCCameraRollManager.m
-index 566d8fc..862aa42 100644
+index 7170483..27158c9 100644
 --- a/node_modules/@react-native-community/cameraroll/ios/RNCCameraRollManager.m
 +++ b/node_modules/@react-native-community/cameraroll/ios/RNCCameraRollManager.m
-@@ -236,7 +236,7 @@ static void RCTResolvePromise(RCTPromiseResolveBlock resolve,
+@@ -264,7 +264,7 @@ static void RCTResolvePromise(RCTPromiseResolveBlock resolve,
    
    // Predicate for fetching assets within a collection
-   PHFetchOptions *const assetFetchOptions = [RCTConvert PHFetchOptionsFromMediaType:mediaType];
+   PHFetchOptions *const assetFetchOptions = [RCTConvert PHFetchOptionsFromMediaType:mediaType fromTime:fromTime toTime:toTime];
 -  assetFetchOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
 +  assetFetchOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"modificationDate" ascending:NO]];
    
