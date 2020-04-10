@@ -13,8 +13,6 @@ PODS:
     - DoubleConversion
     - glog
   - glog (0.3.5)
-  - KeyboardTrackingView (5.5.0):
-    - React
   - libwebp (1.1.0):
     - libwebp/demux (= 1.1.0)
     - libwebp/mux (= 1.1.0)
@@ -142,6 +140,8 @@ PODS:
     - React
   - ReactNativeKeyboardInput (6.0.0):
     - React
+  - ReactNativeKeyboardTrackingView (5.6.1):
+    - React
   - RNCAsyncStorage (1.6.2):
     - React
   - RNExitApp (1.1.0):
@@ -176,7 +176,6 @@ DEPENDENCIES:
   - DoubleConversion (from `../../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - Folly (from `../../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../../node_modules/react-native/third-party-podspecs/glog.podspec`)
-  - KeyboardTrackingView (from `../../node_modules/react-native-keyboard-tracking-view`)
   - lottie-ios (from `../../node_modules/lottie-ios`)
   - lottie-react-native (from `../../node_modules/lottie-react-native`)
   - React (from `../../node_modules/react-native/`)
@@ -212,6 +211,7 @@ DEPENDENCIES:
   - "ReactNativeART (from `../../node_modules/@react-native-community/art`)"
   - ReactNativeDarkMode (from `../../node_modules/react-native-dark-mode`)
   - ReactNativeKeyboardInput (from `../../node_modules/react-native-keyboard-input`)
+  - ReactNativeKeyboardTrackingView (from `../../node_modules/react-native-keyboard-tracking-view`)
   - "RNCAsyncStorage (from `../../node_modules/@react-native-community/async-storage`)"
   - RNExitApp (from `../../node_modules/react-native-exit-app`)
   - RNFastImage (from `../../node_modules/react-native-fast-image`)
@@ -243,8 +243,6 @@ EXTERNAL SOURCES:
     :podspec: "../../node_modules/react-native/third-party-podspecs/Folly.podspec"
   glog:
     :podspec: "../../node_modules/react-native/third-party-podspecs/glog.podspec"
-  KeyboardTrackingView:
-    :path: "../../node_modules/react-native-keyboard-tracking-view"
   lottie-ios:
     :path: "../../node_modules/lottie-ios"
   lottie-react-native:
@@ -315,6 +313,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native-dark-mode"
   ReactNativeKeyboardInput:
     :path: "../../node_modules/react-native-keyboard-input"
+  ReactNativeKeyboardTrackingView:
+    :path: "../../node_modules/react-native-keyboard-tracking-view"
   RNCAsyncStorage:
     :path: "../../node_modules/@react-native-community/async-storage"
   RNExitApp:
@@ -348,7 +348,6 @@ SPEC CHECKSUMS:
   DVAssetLoaderDelegate: 0caec20e4e08b8560b691131539e9180024d4bce
   Folly: 30e7936e1c45c08d884aa59369ed951a8e68cf51
   glog: 1f3da668190260b06b429bb211bfbee5cd790c28
-  KeyboardTrackingView: fd40d2a0acc26bcc923f39b8ad65d834ac5af217
   libwebp: 946cb3063cea9236285f7e9a8505d806d30e07f3
   lottie-ios: 496ac5cea1bbf1a7bd1f1f472f3232eb1b8d744b
   lottie-react-native: b123a79529cc732201091f585c62c89bb4747252
@@ -386,6 +385,7 @@ SPEC CHECKSUMS:
   ReactNativeART: c580fba2f7d188d8fa4418ce78db8130654ed10f
   ReactNativeDarkMode: 88317ff05ba95fd063dd347ad32f8c4cefd3166c
   ReactNativeKeyboardInput: c37e26821519869993b3b61844350feb9177ff37
+  ReactNativeKeyboardTrackingView: a240a6a0dba852bb107109a7ec7e98b884055977
   RNCAsyncStorage: 60a80e72d95bf02a01cace55d3697d9724f0d77f
   RNExitApp: c4e052df2568b43bec8a37c7cd61194d4cfee2c3
   RNFastImage: 9b0c22643872bb7494c8d87bbbb66cc4c0d9e7a2
