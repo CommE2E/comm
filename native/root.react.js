@@ -52,6 +52,7 @@ import { RootContext, type RootContextType } from './root-context';
 import NavigationHandler from './navigation/navigation-handler.react';
 import { defaultNavigationState } from './navigation/default-state';
 import InputStateContainer from './input/input-state-container.react';
+import './themes/fonts';
 
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental &&
