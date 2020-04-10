@@ -16,7 +16,7 @@
     "babel-jest": "^24.9.0",
     "babel-plugin-transform-remove-console": "^6.8.5",
     "babel-plugin-transform-remove-strict-mode": "0.0.2",
-    "flow-bin": "^0.98.0",
+    "flow-bin": "^0.105.0",
     "flow-mono-cli": "^1.5.0",
     "fs-extra": "^8.1.0",
     "jest": "^24.9.0",

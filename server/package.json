@@ -27,7 +27,7 @@
     "@babel/preset-react": "^7.0.0",
     "chokidar-cli": "^2.0.0",
     "concurrently": "^5.0.0",
-    "flow-bin": "^0.98.0",
+    "flow-bin": "^0.105.0",
     "flow-typed": "^2.2.3",
     "nodemon": "^1.19.3"
   },
