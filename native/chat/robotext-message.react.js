@@ -55,7 +55,6 @@ type Props = {|
   keyboardState: ?KeyboardState,
   // Redux state
   styles: typeof styles,
-  ...React.ElementProps<typeof View>,
 |};
 class RobotextMessage extends React.PureComponent<Props> {
   static propTypes = {
@@ -67,14 +66,7 @@ class RobotextMessage extends React.PureComponent<Props> {
   };
 
   render() {
-    const {
-      item,
-      focused,
-      toggleFocus,
-      keyboardState,
-      styles,
-      ...viewProps
-    } = this.props;
+    const { item, focused } = this.props;
     let timestamp = null;
     if (focused || item.startsConversation) {
       timestamp = (
@@ -82,7 +74,7 @@ class RobotextMessage extends React.PureComponent<Props> {
       );
     }
     return (
-      <View {...viewProps}>
+      <View>
         {timestamp}
         <TouchableWithoutFeedback onPress={this.onPress}>
           {this.linkedRobotext()}

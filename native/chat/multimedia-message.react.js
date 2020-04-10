@@ -129,7 +129,6 @@ type Props = {|
   verticalBounds: ?VerticalBounds,
   // withOverlayPositionContext
   overlayPosition: ?Animated.Value,
-  ...React.ElementProps<typeof View>,
 |};
 class MultimediaMessage extends React.PureComponent<Props> {
   static propTypes = {
@@ -142,22 +141,13 @@ class MultimediaMessage extends React.PureComponent<Props> {
   };
 
   render() {
-    const {
-      item,
-      navigation,
-      focused,
-      toggleFocus,
-      verticalBounds,
-      overlayPosition,
-      ...viewProps
-    } = this.props;
+    const { item, focused } = this.props;
     const heightStyle = { height: item.contentHeight };
     return (
       <ComposedMessage
         item={item}
         sendFailed={sendFailed(item)}
         focused={focused}
-        {...viewProps}
       >
         <View style={[heightStyle, styles.container]}>
           {this.renderContent()}
