@@ -64,16 +64,3 @@ index 63896c8..6e96331 100644
      }
  
      if (width <= 0 || height <= 0) {
-diff --git a/node_modules/@react-native-community/cameraroll/ios/RNCCameraRollManager.m b/node_modules/@react-native-community/cameraroll/ios/RNCCameraRollManager.m
-index 7170483..27158c9 100644
---- a/node_modules/@react-native-community/cameraroll/ios/RNCCameraRollManager.m
-+++ b/node_modules/@react-native-community/cameraroll/ios/RNCCameraRollManager.m
-@@ -264,7 +264,7 @@ static void RCTResolvePromise(RCTPromiseResolveBlock resolve,
-   
-   // Predicate for fetching assets within a collection
-   PHFetchOptions *const assetFetchOptions = [RCTConvert PHFetchOptionsFromMediaType:mediaType fromTime:fromTime toTime:toTime];
--  assetFetchOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
-+  assetFetchOptions.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"modificationDate" ascending:NO]];
-   
-   BOOL __block foundAfter = NO;
-   BOOL __block hasNextPage = NO;
