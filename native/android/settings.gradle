@@ -1,6 +1,6 @@
 rootProject.name = 'SquadCal'
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle");
-applyNativeModulesSettingsGradle(settings, "..")
+applyNativeModulesSettingsGradle(settings)
 
 include ':reactnativekeyboardinput'
 project(':reactnativekeyboardinput').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-keyboard-input/lib/android')
