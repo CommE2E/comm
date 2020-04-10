@@ -1,7 +1,3 @@
-diff --git a/node_modules/react-native-background-upload/android/.build.gradle.swp b/node_modules/react-native-background-upload/android/.build.gradle.swp
-new file mode 100644
-index 0000000..64c3944
-Binary files /dev/null and b/node_modules/react-native-background-upload/android/.build.gradle.swp differ
 diff --git a/node_modules/react-native-background-upload/android/build.gradle b/node_modules/react-native-background-upload/android/build.gradle
 index 9262df3..ba3e21c 100755
 --- a/node_modules/react-native-background-upload/android/build.gradle
