@@ -1,10 +1,10 @@
 const path = require('path');
-const getWorkspaces = require('get-yarn-workspaces');
-
-const workspaces = getWorkspaces(__dirname);
 
 module.exports = {
-  watchFolders: [path.resolve(__dirname, '../node_modules'), ...workspaces],
+  watchFolders: [
+    path.resolve(__dirname, '../node_modules'),
+    path.resolve(__dirname, '../lib'),
+  ],
 
   transformer: {
     getTransformOptions: async () => ({
