@@ -290,7 +290,7 @@ PODS:
     - SDWebImageWebPCoder (~> 0.2.3)
   - RNFS (2.15.2):
     - React
-  - RNGestureHandler (1.4.1):
+  - RNGestureHandler (1.6.1):
     - React
   - RNKeychain (4.0.1):
     - React
@@ -547,7 +547,7 @@ SPEC CHECKSUMS:
   RNExitApp: c4e052df2568b43bec8a37c7cd61194d4cfee2c3
   RNFastImage: 9b0c22643872bb7494c8d87bbbb66cc4c0d9e7a2
   RNFS: 54da03c2b7d862c42ea3ca8c7f86f892760a535a
-  RNGestureHandler: 4cb47a93019c1a201df2644413a0a1569a51c8aa
+  RNGestureHandler: 8f09cd560f8d533eb36da5a6c5a843af9f056b38
   RNKeychain: 45dbd50d1ac4bd42c3740f76ffb135abf05746d0
   RNReanimated: 6abbbae2e5e72609d85aabd92a982a94566885f1
   RNScreens: 000c9e6e31c9a483688943155107e4ca9394d37a

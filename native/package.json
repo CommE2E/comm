@@ -51,7 +51,7 @@
     "react-native-firebase": "^5.6.0",
     "react-native-floating-action": "^1.19.1",
     "react-native-fs": "2.15.2",
-    "react-native-gesture-handler": "^1.4.1",
+    "react-native-gesture-handler": "^1.6.1",
     "react-native-hyperlink": "git+https://git@github.com/ashoat/react-native-hyperlink.git#both",
     "react-native-image-resizer": "^1.0.1",
     "react-native-in-app-message": "^1.0.2",
