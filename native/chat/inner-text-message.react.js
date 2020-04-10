@@ -14,7 +14,11 @@ import { colorIsDark } from 'lib/shared/thread-utils';
 import { onlyEmojiRegex } from 'lib/shared/emojis';
 import { connect } from 'lib/utils/redux-utils';
 
-import { RoundedMessageContainer } from './rounded-message-container.react';
+import {
+  allCorners,
+  filterCorners,
+  getRoundedContainerStyle,
+} from './rounded-corners';
 import {
   type Colors,
   colorsPropType,
@@ -65,27 +69,29 @@ class InnerTextMessage extends React.PureComponent<Props> {
       ? styles.emojiOnlyText
       : styles.text;
 
+    const cornerStyle = getRoundedContainerStyle(
+      filterCorners(allCorners, item),
+    );
+
     const message = (
       <TouchableOpacity
         onPress={this.props.onPress}
         onLongPress={this.props.onPress}
         activeOpacity={0.6}
       >
-        <RoundedMessageContainer item={item}>
-          <Hyperlink
-            linkDefault={true}
-            style={[styles.message, messageStyle]}
-            linkStyle={linkStyle}
+        <Hyperlink
+          linkDefault={true}
+          style={[styles.message, messageStyle, cornerStyle]}
+          linkStyle={linkStyle}
+        >
+          <Text
+            onPress={this.props.onPress}
+            onLongPress={this.props.onPress}
+            style={[textStyle, textCustomStyle]}
           >
-            <Text
-              onPress={this.props.onPress}
-              onLongPress={this.props.onPress}
-              style={[textStyle, textCustomStyle]}
-            >
-              {text}
-            </Text>
-          </Hyperlink>
-        </RoundedMessageContainer>
+            {text}
+          </Text>
+        </Hyperlink>
       </TouchableOpacity>
     );
 
@@ -118,6 +124,7 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
   },
   message: {
+    overflow: 'hidden',
     paddingHorizontal: 12,
     paddingVertical: 6,
   },

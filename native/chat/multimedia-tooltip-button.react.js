@@ -35,7 +35,7 @@ import {
 } from '../input/input-state';
 import InlineMultimedia from './inline-multimedia.react';
 import { multimediaMessageBorderRadius } from './multimedia-message.react';
-import { getRoundedContainerStyle } from './rounded-message-container.react';
+import { getRoundedContainerStyle } from './rounded-corners';
 import { MessageHeader } from './message-header.react';
 import { dimensionsSelector } from '../selectors/dimension-selectors';
 

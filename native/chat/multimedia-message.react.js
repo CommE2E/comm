@@ -31,7 +31,7 @@ import {
   allCorners,
   filterCorners,
   getRoundedContainerStyle,
-} from './rounded-message-container.react';
+} from './rounded-corners';
 import { authorNameHeight } from './message-header.react';
 import { failedSendHeight } from './failed-send.react';
 import sendFailed from './multimedia-message-send-failed';
