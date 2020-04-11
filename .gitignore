@@ -7,5 +7,4 @@ server/dist
 server/node_modules/*
 server/secrets
 server/facts
-server/fonts
 .eslintcache
