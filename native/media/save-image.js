@@ -2,9 +2,8 @@
 
 import { Platform, PermissionsAndroid } from 'react-native';
 import filesystem from 'react-native-fs';
-// eslint-disable-next-line import/default
-import CameraRoll from '@react-native-community/cameraroll';
 import invariant from 'invariant';
+import * as MediaLibrary from 'expo-media-library';
 
 import { fileInfoFromData } from 'lib/utils/file-utils';
 
@@ -84,7 +83,7 @@ async function saveImageAndroid(
 
 // On iOS, we save the image to the camera roll
 async function saveImageIOS(mediaInfo: SaveImageInfo) {
-  const { uri, type } = mediaInfo;
+  const { uri } = mediaInfo;
 
   let tempFile;
   if (uri.startsWith('http')) {
@@ -92,7 +91,7 @@ async function saveImageIOS(mediaInfo: SaveImageInfo) {
   }
 
   const saveURI = tempFile ? `file://${tempFile}` : uri;
-  await CameraRoll.saveToCameraRoll(saveURI, type);
+  await MediaLibrary.saveToLibraryAsync(saveURI);
 
   if (tempFile) {
     await filesystem.unlink(tempFile);
