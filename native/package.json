@@ -29,7 +29,6 @@
   "dependencies": {
     "@react-native-community/art": "^1.1.2",
     "@react-native-community/async-storage": "^1.6.1",
-    "@react-native-community/cameraroll": "^1.5.2",
     "@react-native-community/netinfo": "^4.4.0",
     "base-64": "^0.1.0",
     "expo-media-library": "^8.1.0",
