@@ -21,15 +21,11 @@ import {
 import { KeyboardRegistry } from 'react-native-keyboard-input';
 import invariant from 'invariant';
 import { Provider } from 'react-redux';
-// eslint-disable-next-line import/default
-import CameraRoll from '@react-native-community/cameraroll';
 import PropTypes from 'prop-types';
+import * as MediaLibrary from 'expo-media-library';
 
 import { connect } from 'lib/utils/redux-utils';
-import {
-  mimeTypesToMediaTypes,
-  extensionFromFilename,
-} from 'lib/utils/file-utils';
+import { extensionFromFilename } from 'lib/utils/file-utils';
 
 import { store } from '../redux/redux-setup';
 import {
@@ -196,20 +192,6 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     }
   }
 
-  static getPhotosQuery(after: ?string) {
-    const base = {};
-    base.first = 20;
-    base.assetType = 'All';
-    if (Platform.OS !== 'android') {
-      base.groupTypes = 'All';
-    }
-    if (after) {
-      base.after = after;
-    }
-    base.mimeTypes = Object.keys(mimeTypesToMediaTypes);
-    return base;
-  }
-
   static compatibleURI(uri: string, filename: string) {
     const extension = extensionFromFilename(filename);
     if (!extension) {
@@ -230,9 +212,16 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
           return;
         }
       }
-      const { edges, page_info } = await CameraRoll.getPhotos(
-        MediaGalleryKeyboard.getPhotosQuery(after),
-      );
+      const {
+        assets,
+        endCursor,
+        hasNextPage,
+      } = await MediaLibrary.getAssetsAsync({
+        first: 20,
+        after,
+        mediaType: [MediaLibrary.MediaType.photo, MediaLibrary.MediaType.video],
+        sortBy: [MediaLibrary.SortBy.modificationTime],
+      });
 
       let firstRemoved = false,
         lastRemoved = false;
@@ -242,18 +231,9 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
         : [];
       const existingURIs = new Set(mediaURIs);
       let first = true;
-      const selections = edges
-        .map(({ node }) => {
-          const { height, width, filename, playableDuration } = node.image;
-          const isVideo =
-            (Platform.OS === 'android' &&
-              playableDuration !== null &&
-              playableDuration !== undefined) ||
-            (Platform.OS === 'ios' && node.type === 'video');
-          const uri = MediaGalleryKeyboard.compatibleURI(
-            node.image.uri,
-            filename,
-          );
+      const selections = assets
+        .map(({ height, width, uri, filename, mediaType, duration }) => {
+          const isVideo = mediaType === MediaLibrary.MediaType.video;
 
           if (existingURIs.has(uri)) {
             if (first) {
@@ -273,7 +253,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
               dimensions: { height, width },
               uri,
               filename,
-              playableDuration,
+              playableDuration: duration,
             };
           } else {
             return {
@@ -305,7 +285,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
       this.guardedSetState({
         selections: newSelections,
         error: null,
-        cursor: page_info.has_next_page ? page_info.end_cursor : null,
+        cursor: hasNextPage ? endCursor : null,
       });
     } catch (e) {
       this.guardedSetState({
