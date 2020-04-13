@@ -225,6 +225,8 @@ PODS:
     - React
   - react-native-camera/RN (3.8.0):
     - React
+  - react-native-cameraroll (1.5.2):
+    - React
   - react-native-ffmpeg/min-lts (0.4.0):
     - mobile-ffmpeg-min (= 4.2.2.LTS)
     - React
@@ -368,6 +370,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../../node_modules/react-native/ReactCommon/jsinspector`)
   - react-native-background-upload (from `../../node_modules/react-native-background-upload`)
   - react-native-camera (from `../../node_modules/react-native-camera`)
+  - "react-native-cameraroll (from `../../node_modules/@react-native-community/cameraroll`)"
   - react-native-ffmpeg/min-lts (from `../../node_modules/react-native-ffmpeg/ios/react-native-ffmpeg.podspec`)
   - react-native-image-resizer (from `../../node_modules/react-native-image-resizer`)
   - react-native-in-app-message (from `../../node_modules/react-native-in-app-message`)
@@ -477,6 +480,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native-background-upload"
   react-native-camera:
     :path: "../../node_modules/react-native-camera"
+  react-native-cameraroll:
+    :path: "../../node_modules/@react-native-community/cameraroll"
   react-native-ffmpeg:
     :podspec: "../../node_modules/react-native-ffmpeg/ios/react-native-ffmpeg.podspec"
   react-native-image-resizer:
@@ -606,6 +611,7 @@ SPEC CHECKSUMS:
   React-jsinspector: fa0ecc501688c3c4c34f28834a76302233e29dc0
   react-native-background-upload: 6e8ba7f41a6308231306bddc88f11da3b74c9de4
   react-native-camera: 21cf4ed26cf432ceb1fae959aa6924943fd6f714
+  react-native-cameraroll: 4360c9faab50dc6844f56d222c2d0c7ef5f1fe92
   react-native-ffmpeg: 35e303059e3c958cb74e271a45f9391d044f915a
   react-native-image-resizer: 48eb06a18a6d0a632ffa162a51ca61a68fb5322f
   react-native-in-app-message: f91de5009620af01456531118264c93e249b83ec
