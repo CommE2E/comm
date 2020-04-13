@@ -13,6 +13,10 @@ PODS:
     - React-Core
     - UMCore
     - UMImageLoaderInterface
+  - EXImageManipulator (8.1.0):
+    - UMCore
+    - UMFileSystemInterface
+    - UMImageLoaderInterface
   - EXMediaLibrary (8.1.0):
     - UMCore
     - UMFileSystemInterface
@@ -349,6 +353,7 @@ DEPENDENCIES:
   - EXConstants (from `../../node_modules/expo-constants/ios`)
   - EXFileSystem (from `../../node_modules/expo-file-system/ios`)
   - EXImageLoader (from `../../node_modules/expo-image-loader/ios`)
+  - EXImageManipulator (from `../../node_modules/expo-image-manipulator/ios`)
   - EXMediaLibrary (from `../../node_modules/expo-media-library/ios`)
   - EXPermissions (from `../../node_modules/expo-permissions/ios`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
@@ -442,6 +447,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/expo-file-system/ios"
   EXImageLoader:
     :path: "../../node_modules/expo-image-loader/ios"
+  EXImageManipulator:
+    :path: "../../node_modules/expo-image-manipulator/ios"
   EXMediaLibrary:
     :path: "../../node_modules/expo-media-library/ios"
   EXPermissions:
@@ -590,6 +597,7 @@ SPEC CHECKSUMS:
   EXConstants: 5304709b1bea70a4828f48ba4c7fc3ec3b2d9b17
   EXFileSystem: cf4232ba7c62dc49b78c2d36005f97b6fddf0b01
   EXImageLoader: 5ad6896fa1ef2ee814b551873cbf7a7baccc694a
+  EXImageManipulator: 97f61d14c292714d66884e83697e794f8cefe0b0
   EXMediaLibrary: 02a13521d05ca381b08f7d745a9602569eade072
   EXPermissions: 24b97f734ce9172d245a5be38ad9ccfcb6135964
   FBLazyVector: aaeaf388755e4f29cd74acbc9e3b8da6d807c37f
