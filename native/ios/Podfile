@@ -44,6 +44,5 @@ target 'SquadCal' do
                             :commit => 'ba96cf1203f6ea749b7c3f4e921b15d577536253'
 
   use_native_modules!
-  use_frameworks!
   use_unimodules!(modules_paths: ['../..'])
 end
