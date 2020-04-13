@@ -94,7 +94,7 @@ index bfe25f3..edde485 100644
      Permissions permissionsManager = mModuleRegistry.getModule(Permissions.class);
      if (permissionsManager == null) {
 diff --git a/node_modules/expo-media-library/android/src/main/java/expo/modules/medialibrary/MediaLibraryUtils.java b/node_modules/expo-media-library/android/src/main/java/expo/modules/medialibrary/MediaLibraryUtils.java
-index da5bd28..a881ed3 100644
+index da5bd28..7d70a64 100644
 --- a/node_modules/expo-media-library/android/src/main/java/expo/modules/medialibrary/MediaLibraryUtils.java
 +++ b/node_modules/expo-media-library/android/src/main/java/expo/modules/medialibrary/MediaLibraryUtils.java
 @@ -1,14 +1,18 @@
@@ -144,21 +144,42 @@ index da5bd28..a881ed3 100644
      final int idIndex = cursor.getColumnIndex(Media._ID);
      final int filenameIndex = cursor.getColumnIndex(Media.DISPLAY_NAME);
      final int mediaTypeIndex = cursor.getColumnIndex(Files.FileColumns.MEDIA_TYPE);
-@@ -144,7 +149,7 @@ final class MediaLibraryUtils {
+@@ -142,9 +147,16 @@ final class MediaLibraryUtils {
+       return;
+     }
      for (int i = 0; i < limit && !cursor.isAfterLast(); i++) {
-       String localUri = "file://" + cursor.getString(localUriIndex);
+-      String localUri = "file://" + cursor.getString(localUriIndex);
++      String path = cursor.getString(localUriIndex);
++      String localUri = "file://" + path;
        int mediaType = cursor.getInt(mediaTypeIndex);
 -      int[] size = getSizeFromCursor(cursor, mediaType, localUriIndex);
-+      int[] size = getSizeFromCursor(contentResolver, cursor, mediaType, localUriIndex);
++
++      ExifInterface exifInterface = null;
++      if (mediaType == Files.FileColumns.MEDIA_TYPE_IMAGE) {
++        exifInterface = new ExifInterface(path);
++      }
++
++      int[] size = getSizeFromCursor(contentResolver, exifInterface, cursor, mediaType, localUriIndex);
  
        Bundle asset = new Bundle();
        asset.putString("id", cursor.getString(idIndex));
-@@ -213,25 +218,68 @@ final class MediaLibraryUtils {
+@@ -159,8 +171,8 @@ final class MediaLibraryUtils {
+       asset.putString("albumId", cursor.getString(albumIdIndex));
+ 
+       if (fullInfo) {
+-        if (mediaType == Files.FileColumns.MEDIA_TYPE_IMAGE) {
+-          getExifFullInfo(cursor, asset);
++        if (exifInterface != null) {
++          getExifFullInfo(exifInterface, asset);
+         }
+ 
+         asset.putString("localUri", localUri);
+@@ -213,25 +225,66 @@ final class MediaLibraryUtils {
      return MEDIA_TYPES.get(mediaType);
    }
  
 -  static int[] getSizeFromCursor(Cursor cursor, int mediaType, int localUriIndex){
-+  static int[] getSizeFromCursor(ContentResolver contentResolver, Cursor cursor, int mediaType, int localUriIndex) {
++  static int[] getSizeFromCursor(ContentResolver contentResolver, ExifInterface exifInterface, Cursor cursor, int mediaType, int localUriIndex) {
 +    final String uri = cursor.getString(localUriIndex);
 +
 +    if (mediaType == Files.FileColumns.MEDIA_TYPE_VIDEO) {
@@ -214,9 +235,8 @@ index da5bd28..a881ed3 100644
 -      size = maybeRotateAssetSize(options.outWidth, options.outHeight, cursor.getInt(orientationIndex));
 -    } else {
 -      size = maybeRotateAssetSize(cursor.getInt(widthIndex), cursor.getInt(heightIndex), cursor.getInt(orientationIndex));
-+    try {
-+      ExifInterface exif = new ExifInterface(uri);
-+      int exifOrientation = exif.getAttributeInt(
++    if (exifInterface != null) {
++      int exifOrientation = exifInterface.getAttributeInt(
 +        ExifInterface.TAG_ORIENTATION,
 +        ExifInterface.ORIENTATION_NORMAL
 +      );
@@ -228,7 +248,6 @@ index da5bd28..a881ed3 100644
 +      ) {
 +        orientation = 90;
 +      }
-+    } catch (IOException e) {
      }
 -    return size;
 +
@@ -236,6 +255,17 @@ index da5bd28..a881ed3 100644
    }
  
    static int[] maybeRotateAssetSize(int width, int height, int orientation) {
+@@ -265,9 +318,7 @@ final class MediaLibraryUtils {
+     return TextUtils.join(",", result);
+   }
+ 
+-  static void getExifFullInfo(Cursor cursor, Bundle response) throws IOException {
+-    File input = new File(cursor.getString(cursor.getColumnIndex(Media.DATA)));
+-    ExifInterface exifInterface = new ExifInterface(input.getPath());
++  static void getExifFullInfo(ExifInterface exifInterface, Bundle response) {
+     Bundle exifMap = new Bundle();
+     for (String[] tagInfo : exifTags) {
+       String name = tagInfo[1];
 diff --git a/node_modules/expo-media-library/ios/EXMediaLibrary.podspec b/node_modules/expo-media-library/ios/EXMediaLibrary.podspec
 index 7cc9e70..a5b5336 100644
 --- a/node_modules/expo-media-library/ios/EXMediaLibrary.podspec
