@@ -83,6 +83,7 @@ import { replaceWithThreadActionType } from '../navigation/action-types';
 
 YellowBox.ignoreWarnings([
   'Require cycle: ../node_modules/react-native-firebase',
+  'ForceTouchGestureHandler is not available', // react-native-in-app-message
 ]);
 
 const msInDay = 24 * 60 * 60 * 1000;
