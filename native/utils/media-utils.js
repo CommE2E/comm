@@ -7,16 +7,16 @@ import type {
   MediaMissionFailure,
 } from 'lib/types/media-types';
 
-import { Image } from 'react-native';
+import { Image, Platform } from 'react-native';
 import base64 from 'base-64';
-import ImageResizer from 'react-native-image-resizer';
 import invariant from 'invariant';
 import * as MediaLibrary from 'expo-media-library';
+import * as ImageManipulator from 'expo-image-manipulator';
 
 import {
   fileInfoFromData,
   mimeTypesToMediaTypes,
-  stripExtension,
+  pathFromURI,
 } from 'lib/utils/file-utils';
 
 import { transcodeVideo } from './video-utils';
@@ -204,7 +204,6 @@ async function convertMedia(
   let steps = [];
   let uploadURI = validationResult.uri,
     dimensions = validationResult.dimensions,
-    shouldDisposePath = null,
     name = validationResult.filename,
     mime = null,
     mediaType = validationResult.type;
@@ -216,6 +215,8 @@ async function convertMedia(
       mime,
       "if we're finishing successfully we should have a MIME type",
     );
+    const shouldDisposePath =
+      validationResult.uri !== uploadURI ? pathFromURI(uploadURI) : null;
     return {
       steps,
       result: {
@@ -240,58 +241,95 @@ async function convertMedia(
       return finish(transcodeResult);
     }
     uploadURI = transcodeResult.uri;
-    name = transcodeResult.filename;
-    shouldDisposePath = validationResult.uri !== uploadURI ? uploadURI : null;
     mime = 'video/mp4';
   } else if (validationResult.type === 'photo') {
+    const { type: reportedMIME, size } = validationResult.blob;
+    const needsCompression = reportedMIME === 'image/heic' || size > 5e6;
+    let needsProcessing = false;
+    const transforms = [];
+
     const { mediaNativeID } = validationResult;
     if (mediaNativeID) {
-      const assetInfo = await MediaLibrary.getAssetInfoAsync(mediaNativeID);
-      console.log(assetInfo.orientation);
+      let orientation = undefined;
+      let exifFetchSuccess = false;
+      const exifFetchStart = Date.now();
+      try {
+        const assetInfo = await MediaLibrary.getAssetInfoAsync(mediaNativeID);
+        if (Platform.OS === 'ios') {
+          orientation = assetInfo.orientation;
+        } else {
+          orientation = assetInfo.exif && assetInfo.exif.Orientation;
+        }
+        exifFetchSuccess = true;
+      } catch {}
+      steps.push({
+        step: 'exif_fetch',
+        success: exifFetchSuccess,
+        time: Date.now() - exifFetchStart,
+        orientation,
+      });
+      if (
+        orientation === 2 ||
+        orientation === 4 ||
+        orientation === 5 ||
+        orientation === 7
+      ) {
+        transforms.push({ flip: ImageManipulator.FlipType.Horizontal });
+      }
+      if (orientation === 3 || orientation === 4) {
+        transforms.push({ rotate: 180 });
+      } else if (orientation === 5 || orientation === 6) {
+        transforms.push({ rotate: -90 });
+      } else if (orientation === 7 || orientation === 8) {
+        transforms.push({ rotate: 90 });
+      }
     }
 
-    const { type: reportedMIME, size } = validationResult.blob;
-    if (
-      reportedMIME === 'image/heic' ||
-      size > 5e6 ||
-      (size > 5e5 && (dimensions.width > 3000 || dimensions.height > 2000))
-    ) {
+    // The dimensions we have are actually the post-rotation dimensions
+    if (size > 5e5 && (dimensions.width > 3000 || dimensions.height > 2000)) {
+      if (dimensions.width / dimensions.height > 1.5) {
+        transforms.push({ width: 3000 });
+      } else {
+        transforms.push({ height: 2000 });
+      }
+    }
+
+    if (needsCompression || needsProcessing || transforms.length > 0) {
+      const format =
+        reportedMIME === 'image/png'
+          ? ImageManipulator.SaveFormat.PNG
+          : ImageManipulator.SaveFormat.JPEG;
+      const compress = needsCompression ? 0.92 : 1;
+      const saveConfig = { format, compress };
+      let photoResizeSuccess = false;
       const photoResizeStart = Date.now();
       try {
-        const compressFormat = reportedMIME === 'image/png' ? 'PNG' : 'JPEG';
-        const compressQuality = size > 5e6 ? 92 : 100;
-        const { uri: resizedURI, path } = await ImageResizer.createResizedImage(
+        const manipulationResult = await ImageManipulator.manipulateAsync(
           uploadURI,
-          3000,
-          2000,
-          compressFormat,
-          compressQuality,
+          transforms,
+          saveConfig,
         );
-        uploadURI = resizedURI;
-        if (reportedMIME === 'image/png' && !name.endsWith('.png')) {
-          name = `${stripExtension(name)}.png`;
-        } else if (reportedMIME !== 'image/png' && !name.endsWith('.jpg')) {
-          name = `${stripExtension(name)}.jpg`;
-        }
-        shouldDisposePath = path;
+        photoResizeSuccess = true;
+        uploadURI = manipulationResult.uri;
+        dimensions = {
+          width: manipulationResult.width,
+          height: manipulationResult.height,
+        };
         mime = reportedMIME === 'image/png' ? 'image/png' : 'image/jpeg';
-        dimensions = await getDimensions(resizedURI);
-      } catch (e) {}
-      const success = uploadURI !== validationResult.uri;
+      } catch {}
       steps.push({
-        step: 'photo_resize_transcode',
-        success,
+        step: 'photo_manipulation',
+        manipulation: { transforms, saveConfig },
+        success: photoResizeSuccess,
         time: Date.now() - photoResizeStart,
-        newMIME: success ? mime : null,
-        newDimensions: success ? dimensions : null,
-        newURI: success ? uploadURI : null,
-        newPath: success ? shouldDisposePath : null,
-        newName: success ? name : null,
+        newMIME: photoResizeSuccess ? mime : null,
+        newDimensions: photoResizeSuccess ? dimensions : null,
+        newURI: photoResizeSuccess ? uploadURI : null,
       });
-      if (!success) {
+      if (!photoResizeSuccess) {
         return finish({
           success: false,
-          reason: 'too_large_cant_downscale',
+          reason: 'photo_manipulation_failed',
           size,
         });
       }
@@ -425,5 +463,6 @@ export {
   blobToDataURI,
   dataURIToIntArray,
   processMedia,
+  getDimensions,
   getCompatibleMediaURI,
 };
