@@ -192,14 +192,6 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     }
   }
 
-  static compatibleURI(uri: string, filename: string) {
-    const extension = extensionFromFilename(filename);
-    if (!extension) {
-      return uri;
-    }
-    return getCompatibleMediaURI(uri, extension);
-  }
-
   async fetchPhotos(after?: ?string) {
     if (this.fetchingPhotos) {
       return;
@@ -232,8 +224,13 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
       const existingURIs = new Set(mediaURIs);
       let first = true;
       const selections = assets
-        .map(({ height, width, uri, filename, mediaType, duration }) => {
+        .map(asset => {
+          const { height, width, filename, mediaType, duration } = asset;
           const isVideo = mediaType === MediaLibrary.MediaType.video;
+          const uri = getCompatibleMediaURI(
+            asset.uri,
+            extensionFromFilename(filename),
+          );
 
           if (existingURIs.has(uri)) {
             if (first) {

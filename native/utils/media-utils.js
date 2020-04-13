@@ -133,10 +133,10 @@ function blobToDataURI(blob: Blob): Promise<string> {
       fileReader.abort();
       reject(error);
     };
-    fileReader.onload = event => {
+    fileReader.onload = () => {
       invariant(
-        typeof fileReader.result === "string",
-        "FileReader.readAsDataURL should result in string",
+        typeof fileReader.result === 'string',
+        'FileReader.readAsDataURL should result in string',
       );
       resolve(fileReader.result);
     };
@@ -361,7 +361,10 @@ async function convertMedia(
   return finish();
 }
 
-function getCompatibleMediaURI(uri: string, ext: string): string {
+function getCompatibleMediaURI(uri: string, ext: ?string): string {
+  if (!ext) {
+    return uri;
+  }
   if (!uri.startsWith('ph://') && !uri.startsWith('ph-upload://')) {
     return uri;
   }
