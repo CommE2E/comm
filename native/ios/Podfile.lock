@@ -234,8 +234,6 @@ PODS:
   - react-native-ffmpeg/min-lts (0.4.0):
     - mobile-ffmpeg-min (= 4.2.2.LTS)
     - React
-  - react-native-image-resizer (1.0.1):
-    - React
   - react-native-in-app-message (1.0.2):
     - React
   - react-native-mov-to-mp4 (0.2.2):
@@ -377,7 +375,6 @@ DEPENDENCIES:
   - react-native-camera (from `../../node_modules/react-native-camera`)
   - "react-native-cameraroll (from `../../node_modules/@react-native-community/cameraroll`)"
   - react-native-ffmpeg/min-lts (from `../../node_modules/react-native-ffmpeg/ios/react-native-ffmpeg.podspec`)
-  - react-native-image-resizer (from `../../node_modules/react-native-image-resizer`)
   - react-native-in-app-message (from `../../node_modules/react-native-in-app-message`)
   - react-native-mov-to-mp4 (from `../../node_modules/react-native-mov-to-mp4`)
   - "react-native-netinfo (from `../../node_modules/@react-native-community/netinfo`)"
@@ -491,8 +488,6 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@react-native-community/cameraroll"
   react-native-ffmpeg:
     :podspec: "../../node_modules/react-native-ffmpeg/ios/react-native-ffmpeg.podspec"
-  react-native-image-resizer:
-    :path: "../../node_modules/react-native-image-resizer"
   react-native-in-app-message:
     :path: "../../node_modules/react-native-in-app-message"
   react-native-mov-to-mp4:
@@ -621,7 +616,6 @@ SPEC CHECKSUMS:
   react-native-camera: 21cf4ed26cf432ceb1fae959aa6924943fd6f714
   react-native-cameraroll: 4360c9faab50dc6844f56d222c2d0c7ef5f1fe92
   react-native-ffmpeg: 35e303059e3c958cb74e271a45f9391d044f915a
-  react-native-image-resizer: 48eb06a18a6d0a632ffa162a51ca61a68fb5322f
   react-native-in-app-message: f91de5009620af01456531118264c93e249b83ec
   react-native-mov-to-mp4: bfdafbd4ec9bd9290c779360810d1edae1f29310
   react-native-netinfo: 6bb847e64f45a2d69c6173741111cfd95c669301
