@@ -466,6 +466,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         uri: selection.uri,
         dimensions: selection.dimensions,
         filename: selection.filename,
+        mediaNativeID: selection.mediaNativeID,
       };
     } else if (selection.step === 'photo_capture') {
       mediaInfo = {
@@ -480,6 +481,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         uri: selection.uri,
         dimensions: selection.dimensions,
         filename: selection.filename,
+        mediaNativeID: selection.mediaNativeID,
       };
     } else {
       invariant(false, `invalid selection ${JSON.stringify(selection)}`);

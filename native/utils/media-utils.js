@@ -11,6 +11,7 @@ import { Image } from 'react-native';
 import base64 from 'base-64';
 import ImageResizer from 'react-native-image-resizer';
 import invariant from 'invariant';
+import * as MediaLibrary from 'expo-media-library';
 
 import {
   fileInfoFromData,
@@ -40,12 +41,14 @@ type ClientPhotoInfo = {|
   uri: string,
   dimensions: Dimensions,
   filename: string,
+  mediaNativeID?: string,
 |};
 type ClientVideoInfo = {|
   type: 'video',
   uri: string,
   dimensions: Dimensions,
   filename: string,
+  mediaNativeID?: string,
 |};
 type ClientMediaInfo = ClientPhotoInfo | ClientVideoInfo;
 
@@ -69,7 +72,7 @@ async function validateMedia(
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: MediaMissionFailure | MediaValidationResult,
 |}> {
-  const { dimensions, uri, type, filename } = mediaInfo;
+  const { dimensions, uri, type, filename, mediaNativeID } = mediaInfo;
   const blobFetchStart = Date.now();
 
   let blob, reportedMIME, reportedMediaType;
@@ -103,6 +106,7 @@ async function validateMedia(
         uri,
         dimensions,
         filename,
+        mediaNativeID,
         blob,
       };
     } else {
@@ -119,6 +123,7 @@ async function validateMedia(
       uri,
       dimensions,
       filename,
+      mediaNativeID,
       blob,
     };
   }
@@ -239,6 +244,12 @@ async function convertMedia(
     shouldDisposePath = validationResult.uri !== uploadURI ? uploadURI : null;
     mime = 'video/mp4';
   } else if (validationResult.type === 'photo') {
+    const { mediaNativeID } = validationResult;
+    if (mediaNativeID) {
+      const assetInfo = await MediaLibrary.getAssetInfoAsync(mediaNativeID);
+      console.log(assetInfo.orientation);
+    }
+
     const { type: reportedMIME, size } = validationResult.blob;
     if (
       reportedMIME === 'image/heic' ||

@@ -225,7 +225,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
       let first = true;
       const selections = assets
         .map(asset => {
-          const { height, width, filename, mediaType, duration } = asset;
+          const { id, height, width, filename, mediaType, duration } = asset;
           const isVideo = mediaType === MediaLibrary.MediaType.video;
           const uri = getCompatibleMediaURI(
             asset.uri,
@@ -250,6 +250,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
               dimensions: { height, width },
               uri,
               filename,
+              mediaNativeID: id,
               playableDuration: duration,
             };
           } else {
@@ -258,6 +259,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
               dimensions: { height, width },
               uri,
               filename,
+              mediaNativeID: id,
             };
           }
         })
