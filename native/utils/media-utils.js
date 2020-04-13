@@ -268,20 +268,8 @@ async function convertMedia(
         time: Date.now() - exifFetchStart,
         orientation,
       });
-      if (
-        orientation === 2 ||
-        orientation === 4 ||
-        orientation === 5 ||
-        orientation === 7
-      ) {
-        transforms.push({ flip: ImageManipulator.FlipType.Horizontal });
-      }
-      if (orientation === 3 || orientation === 4) {
-        transforms.push({ rotate: 180 });
-      } else if (orientation === 5 || orientation === 6) {
-        transforms.push({ rotate: -90 });
-      } else if (orientation === 7 || orientation === 8) {
-        transforms.push({ rotate: 90 });
+      if (orientation && orientation > 1) {
+        needsProcessing = true;
       }
     }
 
