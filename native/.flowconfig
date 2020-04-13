@@ -18,6 +18,7 @@
 
 [include]
 ../node_modules
+../lib
 
 [libs]
 ../node_modules/react-native/Libraries/react-native/react-native-interface.js
