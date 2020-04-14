@@ -1,10 +1,13 @@
 // @flow
 
-import type { MediaType, UploadMultimediaResult } from 'lib/types/media-types';
+import type {
+  MediaType,
+  UploadMultimediaResult,
+  Dimensions,
+} from 'lib/types/media-types';
 import type { Viewer } from '../session/viewer';
 
 import crypto from 'crypto';
-import sizeOf from 'buffer-image-size';
 
 import { ServerError } from 'lib/utils/errors';
 import { shimUploadURI } from 'lib/shared/media-utils';
@@ -13,19 +16,12 @@ import { dbQuery, SQL } from '../database';
 import createIDs from './id-creator';
 import { getUploadURL } from '../fetchers/upload-fetchers';
 
-function uploadExtras(upload: UploadInput) {
-  if (upload.mediaType !== 'photo') {
-    return null;
-  }
-  const { height, width } = sizeOf(upload.buffer);
-  return JSON.stringify({ height, width });
-}
-
 export type UploadInput = {|
   name: string,
   mime: string,
   mediaType: MediaType,
   buffer: Buffer,
+  dimensions: Dimensions,
 |};
 async function createUploads(
   viewer: Viewer,
@@ -46,7 +42,7 @@ async function createUploads(
     uploadInfo.buffer,
     secret,
     Date.now(),
-    uploadExtras(uploadInfo),
+    JSON.stringify(uploadInfo.dimensions),
   ]);
 
   const insertQuery = SQL`

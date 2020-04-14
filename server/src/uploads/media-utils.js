@@ -1,8 +1,10 @@
 // @flow
 
 import type { UploadInput } from '../creators/upload-creator';
+import type { Dimensions } from 'lib/types/media-types';
 
 import sharp from 'sharp';
+import sizeOf from 'buffer-image-size';
 
 import { fileInfoFromData } from 'lib/utils/file-utils';
 
@@ -10,9 +12,15 @@ const fiveMegabytes = 5 * 1024 * 1024;
 
 const allowedMimeTypes = new Set(['image/png', 'image/jpeg', 'image/gif']);
 
+function getDimensions(buffer: Buffer): Dimensions {
+  const { height, width } = sizeOf(buffer);
+  return { height, width };
+}
+
 async function validateAndConvert(
   initialBuffer: Buffer,
   initialName: string,
+  inputDimensions: ?Dimensions,
   size: number, // in bytes
 ): Promise<?UploadInput> {
   const { mime, mediaType, name } = fileInfoFromData(
@@ -28,11 +36,15 @@ async function validateAndConvert(
     return null;
   }
   if (size < fiveMegabytes && (mime === 'image/png' || mime === 'image/jpeg')) {
+    const dimensions = inputDimensions
+      ? inputDimensions
+      : getDimensions(initialBuffer);
     return {
       mime,
       mediaType,
       name,
       buffer: initialBuffer,
+      dimensions,
     };
   }
 
@@ -62,11 +74,16 @@ async function validateAndConvert(
   if (!convertedMIME || !convertedMediaType || !convertedName) {
     return null;
   }
+
+  const dimensions = inputDimensions
+    ? inputDimensions
+    : getDimensions(convertedBuffer);
   return {
     mime: convertedMIME,
     mediaType: convertedMediaType,
     name: convertedName,
     buffer: convertedBuffer,
+    dimensions,
   };
 }
 

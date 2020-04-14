@@ -5,6 +5,7 @@ import type { $Request } from 'express';
 import type {
   UploadMultimediaResult,
   UploadDeletionRequest,
+  Dimensions,
 } from 'lib/types/media-types';
 
 import multer from 'multer';
@@ -44,11 +45,25 @@ async function multimediaUploadResponder(
   if (overrideFilename && typeof overrideFilename !== 'string') {
     throw new ServerError('invalid_parameters');
   }
+
+  const overrideHeight =
+    files.length === 1 && body.height ? parseInt(body.height) : null;
+  const overrideWidth =
+    files.length === 1 && body.width ? parseInt(body.width) : null;
+  if (!!overrideHeight !== !!overrideWidth) {
+    throw new ServerError('invalid_parameters');
+  }
+  const overrideDimensions: ?Dimensions =
+    overrideHeight && overrideWidth
+      ? { height: overrideHeight, width: overrideWidth }
+      : null;
+
   const validationResults = await Promise.all(
     files.map(({ buffer, size, originalname }) =>
       validateAndConvert(
         buffer,
         overrideFilename ? overrideFilename : originalname,
+        overrideDimensions,
         size,
       ),
     ),
