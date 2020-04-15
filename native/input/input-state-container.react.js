@@ -507,15 +507,29 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       }
       processedMedia = processResult;
     } catch (e) {
-      const message = e && e.message ? e.message : 'processing threw';
+      let processExceptionMessage;
+      if (
+        e &&
+        typeof e === 'object' &&
+        e.message &&
+        typeof e.message === 'string'
+      ) {
+        processExceptionMessage = e.message;
+      }
       const time = Date.now() - processingStart;
-      steps.push({ step: 'processing_exception', time, message });
-      fail(message);
+      steps.push({
+        step: 'processing_exception',
+        time,
+        exceptionMessage: processExceptionMessage,
+      });
+      fail(
+        processExceptionMessage ? processExceptionMessage : 'processing threw',
+      );
       return finish({
         success: false,
         reason: 'processing_exception',
         time,
-        message,
+        exceptionMessage: processExceptionMessage,
       });
     }
 
@@ -528,7 +542,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     } = processedMedia;
 
     const uploadStart = Date.now();
-    let uploadResult, mediaMissionResult;
+    let uploadExceptionMessage, uploadResult, mediaMissionResult;
     try {
       uploadResult = await this.props.uploadMultimedia(
         { uri: uploadURI, name, type: mime },
@@ -541,13 +555,22 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       );
       mediaMissionResult = { success: true };
     } catch (e) {
+      if (
+        e &&
+        typeof e === 'object' &&
+        e.message &&
+        typeof e.message === 'string'
+      ) {
+        uploadExceptionMessage = e.message;
+      }
       fail('upload failed');
       mediaMissionResult = {
         success: false,
         reason: 'http_upload_failed',
-        message: e && e.message ? e.message : undefined,
+        exceptionMessage: uploadExceptionMessage,
       };
     }
+
     if (uploadResult) {
       serverID = uploadResult.id;
       this.props.dispatchActionPayload(updateMultimediaMessageMediaActionType, {
@@ -566,24 +589,39 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     steps.push({
       step: 'upload',
       success: !!uploadResult,
+      exceptionMessage: uploadExceptionMessage,
       time: Date.now() - uploadStart,
     });
 
     if (!shouldDisposePath) {
       return finish(mediaMissionResult);
     }
-    let disposeSuccess = false;
+
+    let disposeSuccess = false,
+      disposeExceptionMessage;
     const disposeStart = Date.now();
     try {
       await filesystem.unlink(shouldDisposePath);
       disposeSuccess = true;
-    } catch (e) {}
+    } catch (e) {
+      if (
+        e &&
+        typeof e === 'object' &&
+        e.message &&
+        typeof e.message === 'string'
+      ) {
+        disposeExceptionMessage = e.message;
+      }
+    }
+
     steps.push({
       step: 'dispose_uploaded_local_file',
       success: disposeSuccess,
+      exceptionMessage: disposeExceptionMessage,
       time: disposeStart - Date.now(),
       path: shouldDisposePath,
     });
+
     return finish(mediaMissionResult);
   }
 
