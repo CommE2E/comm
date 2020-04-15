@@ -11,6 +11,7 @@ import type {
   MediaSelection,
   MediaMissionResult,
   MediaMission,
+  Dimensions,
 } from 'lib/types/media-types';
 import {
   messageTypes,
@@ -88,6 +89,7 @@ type Props = {|
   // async functions that hit server APIs
   uploadMultimedia: (
     multimedia: Object,
+    dimensions: Dimensions,
     callbacks: MultimediaUploadCallbacks,
   ) => Promise<UploadMultimediaResult>,
   sendMultimediaMessage: (
@@ -521,6 +523,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     try {
       uploadResult = await this.props.uploadMultimedia(
         { uri: uploadURI, name, type: mime },
+        selection.dimensions,
         {
           onProgress: (percent: number) =>
             this.setProgress(localMessageID, localID, percent),
@@ -632,6 +635,28 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         typeof type === 'string',
       'InputStateContainer.uploadBlob sent incorrect input',
     );
+
+    const parameters = {};
+    parameters.cookie = cookie;
+    parameters.filename = name;
+
+    for (let key in input) {
+      if (
+        key === 'multimedia' ||
+        key === 'cookie' ||
+        key === 'sessionID' ||
+        key === 'filename'
+      ) {
+        continue;
+      }
+      const value = input[key];
+      invariant(
+        typeof value === 'string',
+        'blobUpload calls can only handle string values for non-multimedia keys',
+      );
+      parameters[key] = value;
+    }
+
     let path = uri;
     if (Platform.OS === 'android') {
       const resolvedPath = pathFromURI(uri);
@@ -647,10 +672,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         Accept: 'application/json',
       },
       field: 'multimedia',
-      parameters: {
-        cookie,
-        filename: name,
-      },
+      parameters,
     });
     if (options && options.abortHandler) {
       options.abortHandler(() => {

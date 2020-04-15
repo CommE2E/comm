@@ -1,7 +1,7 @@
 // @flow
 
 import type { AppState } from '../redux-setup';
-import type { UploadMultimediaResult } from 'lib/types/media-types';
+import type { UploadMultimediaResult, Dimensions } from 'lib/types/media-types';
 import type {
   DispatchActionPayload,
   DispatchActionPromise,
@@ -63,6 +63,7 @@ type Props = {|
   // async functions that hit server APIs
   uploadMultimedia: (
     multimedia: Object,
+    dimensions: Dimensions,
     callbacks: MultimediaUploadCallbacks,
   ) => Promise<UploadMultimediaResult>,
   deleteUpload: (id: string) => Promise<void>,
@@ -411,12 +412,16 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
   async uploadFile(threadID: string, upload: PendingMultimediaUpload) {
     let result;
     try {
-      result = await this.props.uploadMultimedia(upload.file, {
-        onProgress: (percent: number) =>
-          this.setProgress(threadID, upload.localID, percent),
-        abortHandler: (abort: () => void) =>
-          this.handleAbortCallback(threadID, upload.localID, abort),
-      });
+      result = await this.props.uploadMultimedia(
+        upload.file,
+        upload.dimensions,
+        {
+          onProgress: (percent: number) =>
+            this.setProgress(threadID, upload.localID, percent),
+          abortHandler: (abort: () => void) =>
+            this.handleAbortCallback(threadID, upload.localID, abort),
+        },
+      );
     } catch (e) {
       this.handleUploadFailure(threadID, upload.localID, e);
       return;
