@@ -11674,10 +11674,6 @@ react-native-keychain@^4.0.0:
   resolved "https://registry.yarnpkg.com/react-native-keychain/-/react-native-keychain-4.0.1.tgz#c332f5d9aaf597255ae6ea4ca7d5c84a24684a1d"
   integrity sha512-AqQp4Hib9y5DP5es5umEAhxKG7L0bA8cHNFhvlqs6oUcbUoKtXmhLDo3wzvnCF+bm8DXpGhvkU6P0LkfO0AgPQ==
 
-"react-native-mov-to-mp4@git+https://git@github.com/taltultc/react-native-mov-to-mp4.git#d040c5aad736dd7a4bf1836836a1d62d6ab0d030":
-  version "0.2.2"
-  resolved "git+https://git@github.com/taltultc/react-native-mov-to-mp4.git#d040c5aad736dd7a4bf1836836a1d62d6ab0d030"
-
 "react-native-notifications@git+https://git@github.com/ashoat/react-native-notifications.git":
   version "1.1.19"
   resolved "git+https://git@github.com/ashoat/react-native-notifications.git#6f741c582bcf19fd4151f2b18d48d55d3da157e9"

@@ -236,8 +236,6 @@ PODS:
     - React
   - react-native-in-app-message (1.0.2):
     - React
-  - react-native-mov-to-mp4 (0.2.2):
-    - React
   - react-native-netinfo (4.4.0):
     - React
   - react-native-notifications (1.1.19):
@@ -376,7 +374,6 @@ DEPENDENCIES:
   - "react-native-cameraroll (from `../../node_modules/@react-native-community/cameraroll`)"
   - react-native-ffmpeg/min-lts (from `../../node_modules/react-native-ffmpeg/ios/react-native-ffmpeg.podspec`)
   - react-native-in-app-message (from `../../node_modules/react-native-in-app-message`)
-  - react-native-mov-to-mp4 (from `../../node_modules/react-native-mov-to-mp4`)
   - "react-native-netinfo (from `../../node_modules/@react-native-community/netinfo`)"
   - react-native-notifications (from `../../node_modules/react-native-notifications`)
   - react-native-onepassword (from `../../node_modules/react-native-onepassword`)
@@ -490,8 +487,6 @@ EXTERNAL SOURCES:
     :podspec: "../../node_modules/react-native-ffmpeg/ios/react-native-ffmpeg.podspec"
   react-native-in-app-message:
     :path: "../../node_modules/react-native-in-app-message"
-  react-native-mov-to-mp4:
-    :path: "../../node_modules/react-native-mov-to-mp4"
   react-native-netinfo:
     :path: "../../node_modules/@react-native-community/netinfo"
   react-native-notifications:
@@ -617,7 +612,6 @@ SPEC CHECKSUMS:
   react-native-cameraroll: 4360c9faab50dc6844f56d222c2d0c7ef5f1fe92
   react-native-ffmpeg: 35e303059e3c958cb74e271a45f9391d044f915a
   react-native-in-app-message: f91de5009620af01456531118264c93e249b83ec
-  react-native-mov-to-mp4: bfdafbd4ec9bd9290c779360810d1edae1f29310
   react-native-netinfo: 6bb847e64f45a2d69c6173741111cfd95c669301
   react-native-notifications: bb042206ac7eab9323d528c780b3d6fe796c1f5e
   react-native-onepassword: 5b2b7f425f9db40932703e65d350b78cbc598047

@@ -8,7 +8,7 @@ import type {
 
 import filesystem from 'react-native-fs';
 import { RNFFmpeg } from 'react-native-ffmpeg';
-import { NativeModules, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import invariant from 'invariant';
 
 import {
@@ -16,8 +16,6 @@ import {
   stripExtension,
   extensionFromFilename,
 } from 'lib/utils/file-utils';
-
-const MovToMp4 = NativeModules.movToMp4;
 
 if (!__DEV__) {
   RNFFmpeg.disableLogs();
@@ -107,55 +105,6 @@ async function transcodeVideo<InputInfo: TranscodeVideoInfo>(
   steps.push(initialCheckStep);
   if (initialCheckStep.success) {
     return finish();
-  }
-
-  // Next, if we're on iOS we'll try using native libraries to transcode
-  // We special-case iOS because Android doesn't usually need to transcode
-  // iOS defaults to HEVC since iOS 11
-  if (Platform.OS === 'ios') {
-    const iosNativeTranscodeStart = Date.now();
-    try {
-      const [iosNativeTranscodedURI] = await MovToMp4.convertMovToMp4(
-        path,
-        `iostranscode.${Date.now()}.${filename}`,
-      );
-      const iosNativeTranscodedPath = pathFromURI(iosNativeTranscodedURI);
-      invariant(
-        iosNativeTranscodedPath,
-        'react-native-mov-to-mp4 should return a file:/// uri, not ' +
-          iosNativeTranscodedURI,
-      );
-      createdPaths.push(iosNativeTranscodedPath);
-      const iosTranscodeProbeStep = await checkVideoCodec(
-        iosNativeTranscodedPath,
-      );
-      if (iosTranscodeProbeStep.success) {
-        path = iosNativeTranscodedPath;
-        steps.push({
-          step: 'video_ios_native_transcode',
-          success: true,
-          time: Date.now() - iosNativeTranscodeStart,
-          newPath: path,
-        });
-        steps.push(iosTranscodeProbeStep);
-        return finish();
-      } else {
-        steps.push({
-          step: 'video_ios_native_transcode',
-          success: false,
-          time: Date.now() - iosNativeTranscodeStart,
-          newPath: iosNativeTranscodedPath,
-        });
-        steps.push(iosTranscodeProbeStep);
-      }
-    } catch (e) {
-      steps.push({
-        step: 'video_ios_native_transcode',
-        success: false,
-        time: Date.now() - iosNativeTranscodeStart,
-        newPath: null,
-      });
-    }
   }
 
   // This tells ffmpeg to use the hardware-accelerated encoders. Since we're
