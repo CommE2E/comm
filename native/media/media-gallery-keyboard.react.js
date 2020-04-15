@@ -252,6 +252,9 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
               filename,
               mediaNativeID: id,
               playableDuration: duration,
+              selectTime: 0,
+              sendTime: 0,
+              retries: 0,
             };
           } else {
             return {
@@ -260,6 +263,9 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
               uri,
               filename,
               mediaNativeID: id,
+              selectTime: 0,
+              sendTime: 0,
+              retries: 0,
             };
           }
         })
@@ -485,7 +491,21 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
       return;
     }
     this.mediaSelected = true;
-    KeyboardRegistry.onItemSelected(mediaGalleryKeyboardName, selections);
+
+    const now = Date.now();
+    const timeProps = {
+      selectTime: now,
+      sendTime: now,
+    };
+    const selectionsWithTime = selections.map(selection => ({
+      ...selection,
+      ...timeProps,
+    }));
+
+    KeyboardRegistry.onItemSelected(
+      mediaGalleryKeyboardName,
+      selectionsWithTime,
+    );
   }
 }
 

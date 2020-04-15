@@ -445,9 +445,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     localMessageID: string,
     selectionWithID: SelectionWithID,
   ): Promise<?string> {
-    const start = Date.now();
-
     const { localID, selection } = selectionWithID;
+    const start = selection.sendTime;
     let steps = [selection],
       serverID;
     const finish = (result: MediaMissionResult, errorMessage: ?string) => {
@@ -829,13 +828,27 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       },
     }));
 
+    const now = Date.now();
     const selectionsWithIDs = retryMedia.map(singleMedia => {
       const { id, localMediaSelection } = singleMedia;
       invariant(
         localMediaSelection,
         'localMediaSelection should be set on locally created Media',
       );
-      return { selection: localMediaSelection, localID: id };
+      const retries = localMediaSelection.retries
+        ? localMediaSelection.retries + 1
+        : 1;
+
+      // We switch for Flow
+      let selection;
+      if (localMediaSelection.step === 'photo_capture') {
+        selection = { ...localMediaSelection, sendTime: now, retries };
+      } else if (localMediaSelection.step === 'photo_library') {
+        selection = { ...localMediaSelection, sendTime: now, retries };
+      } else {
+        selection = { ...localMediaSelection, sendTime: now, retries };
+      }
+      return { selection, localID: id };
     });
 
     await this.uploadFiles(localMessageID, selectionsWithIDs);

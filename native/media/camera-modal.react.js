@@ -807,7 +807,9 @@ class CameraModal extends React.PureComponent<Props, State> {
     this.camera = camera;
   };
 
-  closeButtonRef = (closeButton: ?React.ElementRef<typeof TouchableOpacity>) => {
+  closeButtonRef = (
+    closeButton: ?React.ElementRef<typeof TouchableOpacity>,
+  ) => {
     this.closeButton = (closeButton: any);
   };
 
@@ -824,7 +826,9 @@ class CameraModal extends React.PureComponent<Props, State> {
     });
   };
 
-  photoButtonRef = (photoButton: ?React.ElementRef<typeof TouchableOpacity>) => {
+  photoButtonRef = (
+    photoButton: ?React.ElementRef<typeof TouchableOpacity>,
+  ) => {
     this.photoButton = (photoButton: any);
   };
 
@@ -841,7 +845,9 @@ class CameraModal extends React.PureComponent<Props, State> {
     });
   };
 
-  switchCameraButtonRef = (switchCameraButton: ?React.ElementRef<typeof TouchableOpacity>) => {
+  switchCameraButtonRef = (
+    switchCameraButton: ?React.ElementRef<typeof TouchableOpacity>,
+  ) => {
     this.switchCameraButton = (switchCameraButton: any);
   };
 
@@ -858,7 +864,9 @@ class CameraModal extends React.PureComponent<Props, State> {
     });
   };
 
-  flashButtonRef = (flashButton: ?React.ElementRef<typeof TouchableOpacity>) => {
+  flashButtonRef = (
+    flashButton: ?React.ElementRef<typeof TouchableOpacity>,
+  ) => {
     this.flashButton = (flashButton: any);
   };
 
@@ -913,12 +921,16 @@ class CameraModal extends React.PureComponent<Props, State> {
       `unable to parse filename out of react-native-camera URI ${uri}`,
     );
 
+    const now = Date.now();
     const pendingPhotoCapture = {
       step: 'photo_capture',
       uri,
       dimensions: { width, height },
       filename,
-      time: Date.now() - startTime,
+      time: now - startTime,
+      selectTime: now,
+      sendTime: now,
+      retries: 0,
     };
 
     this.setState({
