@@ -13,8 +13,8 @@ import invariant from 'invariant';
 
 import {
   pathFromURI,
-  stripExtension,
   extensionFromFilename,
+  replaceExtension,
 } from 'lib/utils/file-utils';
 import { getUUID } from 'lib/utils/uuid';
 
@@ -31,7 +31,6 @@ type ProcessVideoResponse = {|
   success: true,
   uri: string,
   mime: string,
-  filename: string,
 |};
 async function processVideo(
   input: ProcessVideoInfo,
@@ -40,13 +39,6 @@ async function processVideo(
   result: MediaMissionFailure | ProcessVideoResponse,
 |}> {
   const steps = [];
-
-  let filename = input.filename;
-  if (extensionFromFilename(filename) === 'mov') {
-    // iOS uses the proprietary QuickTime container format (.mov),
-    // which is generally compatible with .mp4
-    filename = `${stripExtension(filename)}.mp4`;
-  }
 
   const path = pathFromURI(input.uri);
   invariant(path, `could not extract path from ${input.uri}`);
@@ -61,7 +53,6 @@ async function processVideo(
         success: true,
         uri: input.uri,
         mime: 'video/mp4',
-        filename,
       },
     };
   }
@@ -75,9 +66,10 @@ async function processVideo(
     android: 'h264_mediacodec',
     default: 'h264',
   });
-  const ffmpegResultPath = `${
-    filesystem.TemporaryDirectoryPath
-  }transcode.${getUUID()}.${filename}`;
+  const directory = filesystem.TemporaryDirectoryPath;
+  const mp4Name = replaceExtension(input.filename, 'mp4');
+  const uuid = getUUID();
+  const ffmpegResultPath = `${directory}transcode.${uuid}.${mp4Name}`;
 
   let returnCode,
     newPath,
@@ -135,7 +127,6 @@ async function processVideo(
       success: true,
       uri: `file://${ffmpegResultPath}`,
       mime: 'video/mp4',
-      filename,
     },
   };
 }

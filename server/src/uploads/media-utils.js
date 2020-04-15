@@ -5,8 +5,9 @@ import type { Dimensions } from 'lib/types/media-types';
 
 import sharp from 'sharp';
 import sizeOf from 'buffer-image-size';
+import invariant from 'invariant';
 
-import { fileInfoFromData } from 'lib/utils/file-utils';
+import { fileInfoFromData, readableFilename } from 'lib/utils/file-utils';
 
 const fiveMegabytes = 5 * 1024 * 1024;
 
@@ -23,11 +24,8 @@ async function validateAndConvert(
   inputDimensions: ?Dimensions,
   size: number, // in bytes
 ): Promise<?UploadInput> {
-  const { mime, mediaType, name } = fileInfoFromData(
-    initialBuffer,
-    initialName,
-  );
-  if (!mime || !mediaType || !name) {
+  const { mime, mediaType } = fileInfoFromData(initialBuffer);
+  if (!mime || !mediaType) {
     return null;
   }
 
@@ -39,6 +37,8 @@ async function validateAndConvert(
     const dimensions = inputDimensions
       ? inputDimensions
       : getDimensions(initialBuffer);
+    const name = readableFilename(initialName, mime);
+    invariant(name, `should be able to construct filename for ${mime}`);
     return {
       mime,
       mediaType,
@@ -69,9 +69,13 @@ async function validateAndConvert(
   const {
     mime: convertedMIME,
     mediaType: convertedMediaType,
-    name: convertedName,
-  } = fileInfoFromData(convertedBuffer, initialName);
-  if (!convertedMIME || !convertedMediaType || !convertedName) {
+  } = fileInfoFromData(convertedBuffer);
+  if (!convertedMIME || !convertedMediaType) {
+    return null;
+  }
+
+  const convertedName = readableFilename(initialName, convertedMIME);
+  if (!convertedName) {
     return null;
   }
 

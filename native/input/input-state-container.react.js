@@ -536,7 +536,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const {
       uploadURI,
       shouldDisposePath,
-      name,
+      filename,
       mime,
       mediaType,
     } = processedMedia;
@@ -545,7 +545,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     let uploadExceptionMessage, uploadResult, mediaMissionResult;
     try {
       uploadResult = await this.props.uploadMultimedia(
-        { uri: uploadURI, name, type: mime },
+        { uri: uploadURI, name: filename, type: mime },
         selection.dimensions,
         {
           onProgress: (percent: number) =>
@@ -590,6 +590,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       step: 'upload',
       success: !!uploadResult,
       exceptionMessage: uploadExceptionMessage,
+      filename,
       time: Date.now() - uploadStart,
     });
 

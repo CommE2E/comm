@@ -2,7 +2,7 @@
 
 import type { MediaType, Dimensions } from 'lib/types/media-types';
 
-import { fileInfoFromData } from 'lib/utils/file-utils';
+import { fileInfoFromData, readableFilename } from 'lib/utils/file-utils';
 import invariant from 'invariant';
 
 function blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
@@ -12,10 +12,10 @@ function blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
       fileReader.abort();
       reject(error);
     };
-    fileReader.onload = event => {
+    fileReader.onload = () => {
       invariant(
         fileReader.result instanceof ArrayBuffer,
-        "FileReader.readAsArrayBuffer should result in ArrayBuffer",
+        'FileReader.readAsArrayBuffer should result in ArrayBuffer',
       );
       resolve(fileReader.result);
     };
@@ -30,10 +30,10 @@ function getPhotoDimensions(blob: File): Promise<Dimensions> {
       fileReader.abort();
       reject(error);
     };
-    fileReader.onload = event => {
+    fileReader.onload = () => {
       invariant(
-        typeof fileReader.result === "string",
-        "FileReader.readAsDataURL should result in string",
+        typeof fileReader.result === 'string',
+        'FileReader.readAsDataURL should result in string',
       );
       resolve(fileReader.result);
     };
@@ -49,11 +49,12 @@ type FileValidationResult = {|
 |};
 async function validateFile(file: File): Promise<?FileValidationResult> {
   const arrayBuffer = await blobToArrayBuffer(file);
-  const { name, mime, mediaType } = fileInfoFromData(
-    new Uint8Array(arrayBuffer),
-    file.name,
-  );
-  if (!name || !mime || !mediaType || !allowedMimeTypes.has(mime)) {
+  const { mime, mediaType } = fileInfoFromData(new Uint8Array(arrayBuffer));
+  if (!mime || !mediaType || !allowedMimeTypes.has(mime)) {
+    return null;
+  }
+  const name = readableFilename(file.name, mime);
+  if (!name) {
     return null;
   }
   let dimensions = null;

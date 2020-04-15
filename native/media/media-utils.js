@@ -15,6 +15,7 @@ import {
   fileInfoFromData,
   mimeTypesToMediaTypes,
   pathFromURI,
+  readableFilename,
 } from 'lib/utils/file-utils';
 import { promiseAll } from 'lib/utils/promises';
 
@@ -160,7 +161,7 @@ type MediaResult = {|
   success: true,
   uploadURI: string,
   shouldDisposePath: ?string,
-  name: string,
+  filename: string,
   mime: string,
   mediaType: MediaType,
   dimensions: Dimensions,
@@ -176,7 +177,6 @@ async function processMedia(
   let initialURI = null,
     uploadURI = null,
     dimensions = mediaInput.dimensions,
-    filename = mediaInput.filename,
     mime = null,
     mediaType = mediaInput.type;
   const finish = (failure?: MediaMissionFailure) => {
@@ -189,13 +189,15 @@ async function processMedia(
     );
     const shouldDisposePath =
       initialURI !== uploadURI ? pathFromURI(uploadURI) : null;
+    const filename = readableFilename(mediaInput.filename, mime);
+    invariant(filename, `could not construct filename for ${mime}`);
     return {
       steps,
       result: {
         success: true,
         uploadURI,
         shouldDisposePath,
-        name: filename,
+        filename,
         mime,
         mediaType,
         dimensions,
@@ -246,7 +248,7 @@ async function processMedia(
   if (mediaInput.type === 'video') {
     const { steps: videoSteps, result: videoResult } = await processVideo({
       uri: initialURI,
-      filename,
+      filename: mediaInput.filename,
     });
     steps.push(...videoSteps);
     if (!videoResult.success) {
@@ -254,7 +256,6 @@ async function processMedia(
     }
     uploadURI = videoResult.uri;
     mime = videoResult.mime;
-    filename = videoResult.filename;
   } else if (mediaInput.type === 'photo') {
     if (!mime) {
       return finish({
@@ -301,11 +302,9 @@ async function processMedia(
     const dataURI = await blobToDataURI(blobResponse.blob);
     const intArray = dataURIToIntArray(dataURI);
 
-    const fileDetectionResult = fileInfoFromData(intArray, filename);
+    const fileDetectionResult = fileInfoFromData(intArray);
     const fileDetectionSuccess =
-      !!fileDetectionResult.name &&
-      !!fileDetectionResult.mime &&
-      fileDetectionResult.mediaType === mediaType;
+      !!fileDetectionResult.mime && fileDetectionResult.mediaType === mediaType;
 
     steps.push({
       step: 'final_file_data_analysis',
@@ -314,11 +313,7 @@ async function processMedia(
       uri: uploadURI,
       detectedMIME: fileDetectionResult.mime,
       detectedMediaType: fileDetectionResult.mediaType,
-      newName: fileDetectionResult.name,
     });
-    if (fileDetectionResult.name) {
-      filename = fileDetectionResult.name;
-    }
     if (fileDetectionResult.mime) {
       mime = fileDetectionResult.mime;
     }

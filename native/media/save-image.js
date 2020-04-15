@@ -5,7 +5,7 @@ import filesystem from 'react-native-fs';
 import invariant from 'invariant';
 import * as MediaLibrary from 'expo-media-library';
 
-import { fileInfoFromData } from 'lib/utils/file-utils';
+import { fileInfoFromData, readableFilename } from 'lib/utils/file-utils';
 
 import { blobToDataURI, dataURIToIntArray } from './media-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
@@ -109,8 +109,11 @@ async function saveToDisk(uri: string, directory: string) {
 
   const intArray = dataURIToIntArray(dataURI);
   const fileName = blob.data.name ? blob.data.name : '';
-  const { name } = fileInfoFromData(intArray, fileName);
-  invariant(name, 'unsupported media type');
+  const { mime } = fileInfoFromData(intArray);
+  invariant(mime, `unsupported media type in saveToDisk`);
+
+  const name = readableFilename(fileName, mime);
+  invariant(name, `unsupported mime type ${mime} in saveToDisk`);
   const filePath = `${directory}/${name}`;
 
   await filesystem.writeFile(filePath, base64, 'base64');
