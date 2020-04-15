@@ -32,8 +32,10 @@ async function processImage(
 
   const { fileSize, orientation } = input;
 
-  const needsProcessing = orientation && orientation > 1;
-  const needsCompression = mime === 'image/heic' || fileSize > 5e6;
+  const unsupportedMIME = mime !== 'image/png' && mime !== 'image/jpeg';
+  const needsProcessing = unsupportedMIME || (orientation && orientation > 1);
+  const needsCompression =
+    fileSize > 5e6 || (unsupportedMIME && fileSize > 3e6);
   const transforms = [];
 
   // The dimensions we have are actually the post-rotation dimensions
