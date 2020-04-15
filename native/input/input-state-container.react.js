@@ -448,16 +448,22 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const { localID, selection } = selectionWithID;
     const start = selection.sendTime;
     let steps = [selection],
-      serverID;
-    const finish = (result: MediaMissionResult, errorMessage: ?string) => {
-      if (errorMessage) {
-        this.handleUploadFailure(localMessageID, localID, errorMessage);
-      }
+      serverID,
+      userTime,
+      errorMessage;
+    const finish = (result: MediaMissionResult) => {
+      const totalTime = Date.now() - start;
+      userTime = userTime ? userTime : totalTime;
       this.queueMediaMissionReport(
         { localID, localMessageID, serverID },
-        { steps, result },
+        { steps, result, totalTime, userTime },
       );
       return errorMessage;
+    };
+    const fail = (message: string) => {
+      errorMessage = message;
+      this.handleUploadFailure(localMessageID, localID, message);
+      userTime = Date.now() - start;
     };
 
     let mediaInfo;
@@ -496,17 +502,21 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       );
       steps = [...steps, ...processSteps];
       if (!processResult.success) {
-        return finish(processResult, 'processing failed');
+        fail('processing failed');
+        return finish(processResult);
       }
       processedMedia = processResult;
     } catch (e) {
       const message = e && e.message ? e.message : 'processing threw';
       const time = Date.now() - processingStart;
       steps.push({ step: 'processing_exception', time, message });
-      return finish(
-        { success: false, reason: 'processing_exception', time, message },
+      fail(message);
+      return finish({
+        success: false,
+        reason: 'processing_exception',
+        time,
         message,
-      );
+      });
     }
 
     const {
@@ -518,7 +528,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     } = processedMedia;
 
     const uploadStart = Date.now();
-    let uploadResult, message, mediaMissionResult;
+    let uploadResult, mediaMissionResult;
     try {
       uploadResult = await this.props.uploadMultimedia(
         { uri: uploadURI, name, type: mime },
@@ -529,9 +539,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           uploadBlob: this.uploadBlob,
         },
       );
-      mediaMissionResult = { success: true, totalTime: Date.now() - start };
+      mediaMissionResult = { success: true };
     } catch (e) {
-      message = 'upload failed';
+      fail('upload failed');
       mediaMissionResult = {
         success: false,
         reason: 'http_upload_failed',
@@ -551,6 +561,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           localMediaCreationInfo: undefined,
         },
       });
+      userTime = Date.now() - start;
     }
     steps.push({
       step: 'upload',
@@ -559,7 +570,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     });
 
     if (!shouldDisposePath) {
-      return finish(mediaMissionResult, message);
+      return finish(mediaMissionResult);
     }
     let disposeSuccess = false;
     const disposeStart = Date.now();
@@ -573,7 +584,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       time: disposeStart - Date.now(),
       path: shouldDisposePath,
     });
-    return finish(mediaMissionResult, message);
+    return finish(mediaMissionResult);
   }
 
   setProgress(
