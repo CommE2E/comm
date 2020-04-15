@@ -66,7 +66,7 @@ import {
   InputStateContext,
   type PendingMultimediaUploads,
 } from './input-state';
-import { processMedia } from '../utils/media-utils';
+import { processMedia } from '../media/media-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
 
 let nextLocalUploadID = 0;
