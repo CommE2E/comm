@@ -86,7 +86,7 @@ async function processVideo(
   const start = Date.now();
   try {
     const { rc } = await RNFFmpeg.execute(
-      `-i ${path} -c:v ${codec} ${ffmpegResultPath}`,
+      `-i ${path} -c:v ${codec} -c:a copy ${ffmpegResultPath}`,
     );
     success = rc === 0;
     if (success) {
@@ -143,19 +143,34 @@ async function processVideo(
 async function checkVideoCodec(
   path: string,
 ): Promise<VideoProbeMediaMissionStep> {
-  const probeStart = Date.now();
   const ext = extensionFromFilename(path);
-  let success = ext === 'mp4' || ext === 'mov';
-  let codec;
-  if (success) {
-    const videoInfo = await RNFFmpeg.getMediaInformation(path);
-    codec = getVideoCodec(videoInfo);
-    success = codec === 'h264';
+
+  let codec,
+    success = false,
+    exceptionMessage;
+  const start = Date.now();
+  if (ext === 'mp4' || ext === 'mov') {
+    try {
+      const videoInfo = await RNFFmpeg.getMediaInformation(path);
+      codec = getVideoCodec(videoInfo);
+      success = codec === 'h264';
+    } catch (e) {
+      if (
+        e &&
+        typeof e === 'object' &&
+        e.message &&
+        typeof e.message === 'string'
+      ) {
+        exceptionMessage = e.message;
+      }
+    }
   }
+
   return {
     step: 'video_probe',
     success,
-    time: Date.now() - probeStart,
+    exceptionMessage,
+    time: Date.now() - start,
     path,
     ext,
     codec,
