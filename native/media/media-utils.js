@@ -263,17 +263,15 @@ async function processMedia(
     blobResponse = blobResult;
   }
   if (blobResponse) {
-    if (blobResponse.reportedMIME) {
-      mime = blobResponse.reportedMIME;
+    const { reportedMIME, reportedMediaType } = blobResponse;
+    if (reportedMIME) {
+      mime = reportedMIME;
     }
-    if (
-      blobResponse.reportedMediaType &&
-      blobResponse.reportedMediaType !== mediaType
-    ) {
+    if (reportedMediaType && reportedMediaType !== mediaType) {
       return finish({
         success: false,
         reason: 'blob_reported_mime_issue',
-        mime: blobResponse.reportedMIME,
+        mime: reportedMIME,
       });
     }
   }
@@ -325,6 +323,14 @@ async function processMedia(
     );
     steps.push(...blobSteps);
     blobResponse = blobResult;
+    const reportedMIME = blobResponse && blobResponse.reportedMIME;
+    if (config.final_blob_check && reportedMIME && reportedMIME !== mime) {
+      return finish({
+        success: false,
+        reason: 'blob_reported_mime_issue',
+        mime: reportedMIME,
+      });
+    }
   }
 
   if (blobResponse && config.blob_data_analysis) {
