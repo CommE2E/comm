@@ -198,11 +198,9 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     }
     this.fetchingPhotos = true;
     try {
-      if (Platform.OS === 'android') {
-        const hasPermission = await this.getAndroidPermissions();
-        if (!hasPermission) {
-          return;
-        }
+      const hasPermission = await this.getPermissions();
+      if (!hasPermission) {
+        return;
       }
       const {
         assets,
@@ -301,14 +299,19 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     this.fetchingPhotos = false;
   }
 
-  async getAndroidPermissions(): Promise<boolean> {
-    const granted = await getAndroidPermission(
-      PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-      {
-        title: 'Access Your Photos',
-        message: 'Requesting access to your external storage',
-      },
-    );
+  async getPermissions(): Promise<boolean> {
+    let granted;
+    if (Platform.OS === 'android') {
+      granted = await getAndroidPermission(
+        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        {
+          title: 'Access Your Photos',
+          message: 'Requesting access to your external storage',
+        },
+      );
+    } else {
+      ({ granted } = await MediaLibrary.requestPermissionsAsync());
+    }
     if (!granted) {
       this.guardedSetState({ error: "don't have permission :(" });
     }
