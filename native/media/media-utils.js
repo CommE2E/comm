@@ -239,6 +239,7 @@ async function processMedia(
   const promises = {};
   promises.fileInfoResponse = fetchFileInfo(
     mediaInput.uri,
+    mediaInput.type,
     mediaInput.mediaNativeID,
   );
   if (mediaInput.type === 'photo' || config.initialBlobCheck) {

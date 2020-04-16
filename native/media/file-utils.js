@@ -3,6 +3,7 @@
 import type {
   MediaMissionStep,
   MediaMissionFailure,
+  MediaType,
 } from 'lib/types/media-types';
 
 import { Platform } from 'react-native';
@@ -105,6 +106,7 @@ type FetchFileInfoResult = {|
 |};
 async function fetchFileInfo(
   inputURI: string,
+  mediaType: MediaType,
   mediaNativeID: ?string,
 ): Promise<{|
   steps: $ReadOnlyArray<MediaMissionStep>,
@@ -114,7 +116,9 @@ async function fetchFileInfo(
   let uri = inputURI,
     orientation;
 
-  if (mediaNativeID) {
+  const needsLocalURI = !pathFromURI(inputURI);
+  const needsOrientation = mediaType === 'photo';
+  if (mediaNativeID && (needsLocalURI || needsOrientation)) {
     const {
       steps: assetInfoSteps,
       result: assetInfoResult,
