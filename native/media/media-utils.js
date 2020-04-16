@@ -184,7 +184,6 @@ type MediaInput = {|
   mediaNativeID?: string,
 |};
 type MediaProcessConfig = $Shape<{|
-  initialBlobCheck: boolean,
   finalBlobCheck: boolean,
   blobDataAnalysis: boolean,
 |}>;
@@ -242,7 +241,7 @@ async function processMedia(
     mediaInput.type,
     mediaInput.mediaNativeID,
   );
-  if (mediaInput.type === 'photo' || config.initialBlobCheck) {
+  if (mediaInput.type === 'photo') {
     promises.fetchBlobResponse = fetchBlob(mediaInput.uri, mediaType);
   }
   const { fileInfoResponse, fetchBlobResponse } = await promiseAll(promises);
