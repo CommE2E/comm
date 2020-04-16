@@ -137,6 +137,7 @@ async function checkVideoCodec(
   const ext = extensionFromFilename(path);
 
   let codec,
+    format,
     success = false,
     exceptionMessage;
   const start = Date.now();
@@ -144,7 +145,8 @@ async function checkVideoCodec(
     try {
       const videoInfo = await RNFFmpeg.getMediaInformation(path);
       codec = getVideoCodec(videoInfo);
-      success = codec === 'h264';
+      format = videoInfo.format.split(',');
+      success = codec === 'h264' && format.includes('mp4');
     } catch (e) {
       if (
         e &&
@@ -165,6 +167,7 @@ async function checkVideoCodec(
     path,
     ext,
     codec,
+    format,
   };
 }
 
