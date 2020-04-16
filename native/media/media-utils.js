@@ -5,6 +5,7 @@ import type {
   MediaType,
   MediaMissionStep,
   MediaMissionFailure,
+  BlobDataAnalysisMediaMissionStep,
 } from 'lib/types/media-types';
 
 import { Image } from 'react-native';
@@ -98,6 +99,38 @@ async function fetchBlob(
   return { steps: [compareTypesStep], result };
 }
 
+async function checkBlobData(
+  uploadURI: string,
+  blob: ReactNativeBlob,
+  expectedMIME: string,
+): Promise<BlobDataAnalysisMediaMissionStep> {
+  let mime, mediaType, exceptionMessage;
+  const start = Date.now();
+  try {
+    const dataURI = await blobToDataURI(blob);
+    const intArray = dataURIToIntArray(dataURI);
+    ({ mime, mediaType } = fileInfoFromData(intArray));
+  } catch (e) {
+    if (
+      e &&
+      typeof e === 'object' &&
+      e.message &&
+      typeof e.message === 'string'
+    ) {
+      exceptionMessage = e.message;
+    }
+  }
+  return {
+    step: 'blob_data_analysis',
+    success: !!mime && mime === expectedMIME,
+    exceptionMessage,
+    time: Date.now() - start,
+    uri: uploadURI,
+    detectedMIME: mime,
+    detectedMediaType: mediaType,
+  };
+}
+
 function blobToDataURI(blob: Blob): Promise<string> {
   const fileReader = new FileReader();
   return new Promise((resolve, reject) => {
@@ -155,7 +188,7 @@ type MediaInput = {|
 type MediaProcessConfig = $Shape<{|
   initial_blob_check: boolean,
   final_blob_check: boolean,
-  final_file_data_analysis: boolean,
+  blob_data_analysis: boolean,
 |}>;
 type MediaResult = {|
   success: true,
@@ -285,10 +318,7 @@ async function processMedia(
   if (blobResponse && uploadURI !== initialURI) {
     blobResponse = null;
   }
-  if (
-    !blobResponse &&
-    (config.final_blob_check || config.final_file_data_analysis)
-  ) {
+  if (!blobResponse && (config.final_blob_check || config.blob_data_analysis)) {
     const { steps: blobSteps, result: blobResult } = await fetchBlob(
       uploadURI,
       mediaType,
@@ -297,35 +327,22 @@ async function processMedia(
     blobResponse = blobResult;
   }
 
-  if (blobResponse && config.final_file_data_analysis) {
-    const fileDataDetectionStart = Date.now();
-    const dataURI = await blobToDataURI(blobResponse.blob);
-    const intArray = dataURIToIntArray(dataURI);
-
-    const fileDetectionResult = fileInfoFromData(intArray);
-    const fileDetectionSuccess =
-      !!fileDetectionResult.mime && fileDetectionResult.mediaType === mediaType;
-
-    steps.push({
-      step: 'final_file_data_analysis',
-      success: fileDetectionSuccess,
-      time: Date.now() - fileDataDetectionStart,
-      uri: uploadURI,
-      detectedMIME: fileDetectionResult.mime,
-      detectedMediaType: fileDetectionResult.mediaType,
-    });
-    if (fileDetectionResult.mime) {
-      mime = fileDetectionResult.mime;
-    }
-
-    if (mediaType === 'photo' && !fileDetectionSuccess) {
+  if (blobResponse && config.blob_data_analysis) {
+    const blobDataCheckStep = await checkBlobData(
+      uploadURI,
+      blobResponse.blob,
+      mime,
+    );
+    steps.push(blobDataCheckStep);
+    const { detectedMIME, detectedMediaType } = blobDataCheckStep;
+    if (!blobDataCheckStep.success) {
       return finish({
         success: false,
-        reason: 'file_data_detected_mime_issue',
+        reason: 'blob_data_mime_type_mismatch',
         reportedMIME: mime,
         reportedMediaType: mediaType,
-        detectedMIME: fileDetectionResult.mime,
-        detectedMediaType: fileDetectionResult.mediaType,
+        detectedMIME,
+        detectedMediaType,
       });
     }
   }
