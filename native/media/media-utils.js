@@ -266,4 +266,23 @@ function getCompatibleMediaURI(uri: string, ext: ?string): string {
   );
 }
 
-export { processMedia, getDimensions, getCompatibleMediaURI };
+const mediaLibraryIdentifierRegex = new RegExp(
+  '^assets-library:\\/\\/asset\\/asset.[a-z0-9]+\\?id=([a-z0-9-]+)',
+  'i',
+);
+
+function getMediaLibraryIdentifier(inputURI: string): ?string {
+  const uri = getCompatibleMediaURI(inputURI);
+  const matches = uri.match(mediaLibraryIdentifierRegex);
+  if (!matches) {
+    return null;
+  }
+  return matches[1];
+}
+
+export {
+  processMedia,
+  getDimensions,
+  getCompatibleMediaURI,
+  getMediaLibraryIdentifier,
+};

@@ -8,6 +8,7 @@ import * as MediaLibrary from 'expo-media-library';
 import { fileInfoFromData, readableFilename } from 'lib/utils/file-utils';
 
 import { blobToDataURI, dataURIToIntArray } from './blob-utils';
+import { getMediaLibraryIdentifier } from './media-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
 import { getAndroidPermission } from '../utils/android-permissions';
 
@@ -24,21 +25,16 @@ type SaveImageInfo =
     };
 
 async function intentionalSaveImage(mediaInfo: SaveImageInfo) {
-  let result, message;
+  let errorMessage;
   if (Platform.OS === 'android') {
-    result = await saveImageAndroid(mediaInfo, 'request');
+    errorMessage = await saveImageAndroid(mediaInfo, 'request');
   } else if (Platform.OS === 'ios') {
-    result = await saveImageIOS(mediaInfo);
+    errorMessage = await saveImageIOS(mediaInfo);
   } else {
-    message = `saving images is unsupported on ${Platform.OS}`;
+    errorMessage = `saving images is unsupported on ${Platform.OS}`;
   }
 
-  if (result) {
-    message = 'saved!';
-  } else if (!message) {
-    message = "don't have permission :(";
-  }
-
+  const message = errorMessage ? errorMessage : 'saved!';
   displayActionResultModal(message);
 }
 
@@ -71,32 +67,44 @@ async function saveImageAndroid(
     );
   }
   if (!hasPermission) {
-    return false;
+    return "don't have permission :(";
   }
 
   const saveFolder = `${filesystem.PicturesDirectoryPath}/SquadCal`;
   await filesystem.mkdir(saveFolder);
   const filePath = await saveToDisk(mediaInfo.uri, saveFolder);
   await filesystem.scanFile(filePath);
-  return true;
+  return null;
 }
 
 // On iOS, we save the image to the camera roll
 async function saveImageIOS(mediaInfo: SaveImageInfo) {
-  const { uri } = mediaInfo;
-
+  let { uri } = mediaInfo;
   let tempFile;
   if (uri.startsWith('http')) {
     tempFile = await saveToDisk(uri, filesystem.TemporaryDirectoryPath);
+    uri = `file://${tempFile}`;
+  } else if (!uri.startsWith('file://')) {
+    const mediaNativeID = getMediaLibraryIdentifier(uri);
+    if (mediaNativeID) {
+      try {
+        const assetInfo = await MediaLibrary.getAssetInfoAsync(mediaNativeID);
+        uri = assetInfo.localUri;
+      } catch {}
+    }
   }
 
-  const saveURI = tempFile ? `file://${tempFile}` : uri;
-  await MediaLibrary.saveToLibraryAsync(saveURI);
+  if (!uri.startsWith('file://')) {
+    console.log(`could not resolve a path for ${uri}`);
+    return 'failed to resolve :(';
+  }
+
+  await MediaLibrary.saveToLibraryAsync(uri);
 
   if (tempFile) {
     await filesystem.unlink(tempFile);
   }
-  return true;
+  return null;
 }
 
 async function saveToDisk(uri: string, directory: string) {
