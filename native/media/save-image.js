@@ -7,7 +7,7 @@ import * as MediaLibrary from 'expo-media-library';
 
 import { fileInfoFromData, readableFilename } from 'lib/utils/file-utils';
 
-import { blobToDataURI, dataURIToIntArray } from './media-utils';
+import { blobToDataURI, dataURIToIntArray } from './blob-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
 import { getAndroidPermission } from '../utils/android-permissions';
 
