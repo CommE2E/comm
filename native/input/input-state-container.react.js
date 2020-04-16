@@ -61,6 +61,7 @@ import {
   combineLoadingStatuses,
 } from 'lib/selectors/loading-selectors';
 import { pathFromURI } from 'lib/utils/file-utils';
+import { isStaff } from 'lib/shared/user-utils';
 
 import {
   InputStateContext,
@@ -499,6 +500,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     try {
       const { result: processResult, steps: processSteps } = await processMedia(
         mediaInfo,
+        this.mediaProcessConfig(),
       );
       steps = [...steps, ...processSteps];
       if (!processResult.success) {
@@ -624,6 +626,18 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     });
 
     return finish(mediaMissionResult);
+  }
+
+  mediaProcessConfig() {
+    const { viewerID } = this.props;
+    if (__DEV__ || (viewerID && isStaff(viewerID))) {
+      return {
+        initialBlobCheck: true,
+        finalBlobCheck: true,
+        blobDataAnalysis: true,
+      };
+    }
+    return {};
   }
 
   setProgress(

@@ -176,8 +176,6 @@ function dataURIToIntArray(dataURI: string): Uint8Array {
   return stringToIntArray(data);
 }
 
-const defaultConfig = Object.freeze({});
-
 type MediaInput = {|
   type: MediaType,
   uri: string,
@@ -186,9 +184,9 @@ type MediaInput = {|
   mediaNativeID?: string,
 |};
 type MediaProcessConfig = $Shape<{|
-  initial_blob_check: boolean,
-  final_blob_check: boolean,
-  blob_data_analysis: boolean,
+  initialBlobCheck: boolean,
+  finalBlobCheck: boolean,
+  blobDataAnalysis: boolean,
 |}>;
 type MediaResult = {|
   success: true,
@@ -201,7 +199,7 @@ type MediaResult = {|
 |};
 async function processMedia(
   mediaInput: MediaInput,
-  config: MediaProcessConfig = defaultConfig,
+  config: MediaProcessConfig,
 ): Promise<{|
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: MediaMissionFailure | MediaResult,
@@ -243,7 +241,7 @@ async function processMedia(
     mediaInput.uri,
     mediaInput.mediaNativeID,
   );
-  if (mediaInput.type === 'photo' || config.initial_blob_check) {
+  if (mediaInput.type === 'photo' || config.initialBlobCheck) {
     promises.fetchBlobResponse = fetchBlob(mediaInput.uri, mediaType);
   }
   const { fileInfoResponse, fetchBlobResponse } = await promiseAll(promises);
@@ -316,7 +314,7 @@ async function processMedia(
   if (blobResponse && uploadURI !== initialURI) {
     blobResponse = null;
   }
-  if (!blobResponse && (config.final_blob_check || config.blob_data_analysis)) {
+  if (!blobResponse && (config.finalBlobCheck || config.blobDataAnalysis)) {
     const { steps: blobSteps, result: blobResult } = await fetchBlob(
       uploadURI,
       mediaType,
@@ -324,7 +322,7 @@ async function processMedia(
     steps.push(...blobSteps);
     blobResponse = blobResult;
     const reportedMIME = blobResponse && blobResponse.reportedMIME;
-    if (config.final_blob_check && reportedMIME && reportedMIME !== mime) {
+    if (config.finalBlobCheck && reportedMIME && reportedMIME !== mime) {
       return finish({
         success: false,
         reason: 'blob_reported_mime_issue',
@@ -333,7 +331,7 @@ async function processMedia(
     }
   }
 
-  if (blobResponse && config.blob_data_analysis) {
+  if (blobResponse && config.blobDataAnalysis) {
     const blobDataCheckStep = await checkBlobData(
       uploadURI,
       blobResponse.blob,
