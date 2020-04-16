@@ -58,7 +58,7 @@ async function processImage(
     mime === 'image/png'
       ? ImageManipulator.SaveFormat.PNG
       : ImageManipulator.SaveFormat.JPEG;
-  const compress = needsCompression ? 0.92 : 1;
+  const compress = needsCompression ? 0.83 : 0.92;
   const saveConfig = { format, compress };
 
   let success = false,
