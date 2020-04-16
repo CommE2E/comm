@@ -638,6 +638,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const { viewerID } = this.props;
     if (__DEV__ || (viewerID && isStaff(viewerID))) {
       return {
+        initialBlobCheck: true,
         finalBlobCheck: true,
         blobDataAnalysis: true,
       };
