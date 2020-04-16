@@ -160,4 +160,4 @@ async function fetchFileInfo(
   };
 }
 
-export { fetchFileInfo };
+export { fetchFileInfo, fetchFileSize };

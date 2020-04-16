@@ -69,6 +69,7 @@ import {
 } from './input-state';
 import { processMedia } from '../media/media-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
+import { fetchFileSize } from '../media/file-utils';
 
 let nextLocalUploadID = 0;
 type SelectionWithID = {|
@@ -599,6 +600,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     if (!shouldDisposePath) {
       return finish(mediaMissionResult);
     }
+
+    // If shouldDisposePath is set, uploadURI represents a new file whose size
+    // hasn't been checked. Let's add the file size to our MediaMission report
+    const { steps: fileSizeSteps } = await fetchFileSize(uploadURI);
+    steps.push(...fileSizeSteps);
 
     let disposeSuccess = false,
       disposeExceptionMessage;
