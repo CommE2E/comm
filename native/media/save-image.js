@@ -71,7 +71,7 @@ async function saveImageAndroid(
     return "don't have permission :(";
   }
 
-  const saveFolder = `${filesystem.PicturesDirectoryPath}/SquadCal`;
+  const saveFolder = `${filesystem.PicturesDirectoryPath}/SquadCal/`;
   await filesystem.mkdir(saveFolder);
 
   const saveResult = await saveToDisk(mediaInfo.uri, saveFolder);
@@ -117,6 +117,7 @@ async function saveImageIOS(mediaInfo: SaveImageInfo) {
   return null;
 }
 
+// path to directory should end with a /
 type SaveResult =
   | {| success: true, path: string |}
   | {| success: false, error: string |};
@@ -158,7 +159,7 @@ async function saveToDisk(
   if (!name) {
     return { success: false, error: 'failed to save :(' };
   }
-  const path = `${directory}/${name}`;
+  const path = `${directory}${name}`;
 
   try {
     await filesystem.writeFile(path, base64, 'base64');
