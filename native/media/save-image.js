@@ -9,7 +9,7 @@ import md5 from 'md5';
 import { fileInfoFromData, readableFilename } from 'lib/utils/file-utils';
 
 import { blobToDataURI, dataURIToIntArray } from './blob-utils';
-import { getMediaLibraryIdentifier } from './media-utils';
+import { getMediaLibraryIdentifier } from './identifier-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
 import { getAndroidPermission } from '../utils/android-permissions';
 

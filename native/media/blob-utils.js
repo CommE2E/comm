@@ -11,6 +11,8 @@ import {
   type FileDataInfo,
 } from 'lib/utils/file-utils';
 
+import { getFetchableURI } from './identifier-utils';
+
 export type ReactNativeBlob = Blob & {
   data: { type: string, name: string, size: number },
 };
@@ -74,18 +76,20 @@ type FetchBlobResponse = {|
   reportedMediaType: ?string,
 |};
 async function fetchBlob(
-  uri: string,
+  inputURI: string,
   type: MediaType,
 ): Promise<{|
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: ?FetchBlobResponse,
 |}> {
+  const uri = getFetchableURI(inputURI);
   const blobFetchStart = Date.now();
   let blob, reportedMIME, reportedMediaType, exceptionMessage;
   try {
-    blob = await getBlobFromURI(uri, type);
+    const response = await fetch(uri);
+    blob = await response.blob();
     reportedMIME =
-      uri.startsWith('ph://') && blob.type === 'application/octet-stream'
+      uri.startsWith('ph-upload://') && blob.type === 'application/octet-stream'
         ? 'video/quicktime'
         : blob.type;
     reportedMediaType = mimeTypesToMediaTypes[reportedMIME];
@@ -123,21 +127,6 @@ async function fetchBlob(
     reportedMediaType,
   };
   return { steps: [compareTypesStep], result };
-}
-
-async function getBlobFromURI(
-  uri: string,
-  type: MediaType,
-): Promise<ReactNativeBlob> {
-  // React Native always resolves FBMediaKit's ph:// scheme as an image so that
-  // the Image component can render thumbnails of videos. In order to force
-  // fetch() to return a blob of the video, we need to use the ph-upload://
-  // scheme. https://git.io/Jerlh
-  const fbMediaKitURL = uri.startsWith('ph://');
-  const fixedURI =
-    fbMediaKitURL && type === 'video' ? uri.replace(/^ph:/, 'ph-upload:') : uri;
-  const response = await fetch(fixedURI);
-  return await response.blob();
 }
 
 export { getBlobDataInfo, blobToDataURI, dataURIToIntArray, fetchBlob };

@@ -42,7 +42,7 @@ import {
 } from '../themes/colors';
 import { getAndroidPermission } from '../utils/android-permissions';
 import SendMediaButton from './send-media-button.react';
-import { getCompatibleMediaURI } from './media-utils';
+import { getCompatibleMediaURI } from './identifier-utils';
 
 const animationSpec = {
   duration: 400,
