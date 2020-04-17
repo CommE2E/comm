@@ -112,13 +112,17 @@ async function saveImageIOS(mediaInfo: SaveImageInfo) {
 async function saveToDisk(uri: string, directory: string) {
   const response = await fetch(uri);
   const blob = await response.blob();
+
   const dataURI = await blobToDataURI(blob);
   const firstComma = dataURI.indexOf(',');
   invariant(firstComma > 4, 'malformed data-URI');
   const base64 = dataURI.substring(firstComma + 1);
 
-  const intArray = dataURIToIntArray(dataURI);
-  const { mime } = fileInfoFromData(intArray);
+  let mime = blob.type;
+  if (!mime) {
+    const intArray = dataURIToIntArray(dataURI);
+    ({ mime } = fileInfoFromData(intArray));
+  }
   invariant(mime, `unsupported media type in saveToDisk`);
 
   const name = readableFilename(md5(dataURI), mime);
