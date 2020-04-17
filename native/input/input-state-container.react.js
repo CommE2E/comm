@@ -72,6 +72,10 @@ import { displayActionResultModal } from '../navigation/action-result-modal';
 import { fetchFileSize } from '../media/file-utils';
 
 let nextLocalUploadID = 0;
+function getNewLocalID() {
+  return `localUpload${nextLocalUploadID++}`;
+}
+
 type SelectionWithID = {|
   selection: MediaSelection,
   localID: string,
@@ -361,7 +365,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const localMessageID = `local${this.props.nextLocalID}`;
     const selectionsWithIDs = selections.map(selection => ({
       selection,
-      localID: `localUpload${nextLocalUploadID++}`,
+      localID: getNewLocalID(),
     }));
 
     const pendingUploads = {};
@@ -584,7 +588,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           uri: uploadResult.uri,
           type: mediaType,
           dimensions: processedMedia.dimensions,
-          localMediaCreationInfo: undefined,
+          localMediaSelection: undefined,
         },
       });
       userTime = Date.now() - start;
@@ -830,17 +834,79 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   retryMultimediaMessage = async (localMessageID: string) => {
     const rawMessageInfo = this.props.messageStoreMessages[localMessageID];
     invariant(rawMessageInfo, `rawMessageInfo ${localMessageID} should exist`);
+
+    let pendingUploads = this.state.pendingUploads[localMessageID];
+    if (!pendingUploads) {
+      pendingUploads = {};
+    }
+
+    const now = Date.now();
+
+    const updateMedia = <T: Media>(media: $ReadOnlyArray<T>): T[] =>
+      media.map(singleMedia => {
+        const oldID = singleMedia.id;
+        if (!oldID.startsWith('localUpload')) {
+          // already uploaded
+          return singleMedia;
+        }
+        if (pendingUploads[oldID] && !pendingUploads[oldID].failed) {
+          // still being uploaded
+          return singleMedia;
+        }
+
+        // If we have an incomplete upload that isn't in pendingUploads, that
+        // indicates the app has restarted. We'll reassign a new localID to
+        // avoid collisions. Note that this isn't necessary for the message ID
+        // since the localID reducer prevents collisions there
+        const id = pendingUploads[oldID] ? oldID : getNewLocalID();
+
+        const oldSelection = singleMedia.localMediaSelection;
+        invariant(
+          oldSelection,
+          'localMediaSelection should be set on locally created Media',
+        );
+        const retries = oldSelection.retries ? oldSelection.retries + 1 : 1;
+
+        // We switch for Flow
+        let selection;
+        if (oldSelection.step === 'photo_capture') {
+          selection = { ...oldSelection, sendTime: now, retries };
+        } else if (oldSelection.step === 'photo_library') {
+          selection = { ...oldSelection, sendTime: now, retries };
+        } else {
+          selection = { ...oldSelection, sendTime: now, retries };
+        }
+
+        if (singleMedia.type === 'photo') {
+          return {
+            type: 'photo',
+            ...singleMedia,
+            id,
+            localMediaSelection: selection,
+          };
+        } else {
+          return {
+            type: 'video',
+            ...singleMedia,
+            id,
+            localMediaSelection: selection,
+          };
+        }
+      });
+
     let newRawMessageInfo;
     // This conditional is for Flow
     if (rawMessageInfo.type === messageTypes.MULTIMEDIA) {
       newRawMessageInfo = ({
         ...rawMessageInfo,
-        time: Date.now(),
+        time: now,
+        media: updateMedia(rawMessageInfo.media),
       }: RawMediaMessageInfo);
     } else if (rawMessageInfo.type === messageTypes.IMAGES) {
       newRawMessageInfo = ({
         ...rawMessageInfo,
-        time: Date.now(),
+        time: now,
+        media: updateMedia(rawMessageInfo.media),
       }: RawImagesMessageInfo);
     } else {
       invariant(false, `rawMessageInfo ${localMessageID} should be multimedia`);
@@ -863,11 +929,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       return;
     }
 
-    let pendingUploads = this.state.pendingUploads[localMessageID];
-    if (!pendingUploads) {
-      pendingUploads = {};
-    }
-
     const retryMedia = incompleteMedia.filter(
       ({ id }) => !pendingUploads[id] || pendingUploads[id].failed,
     );
@@ -877,7 +938,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     // We're not actually starting the send here,
-    // we just use this action to update the message's timestamp in Redux
+    // we just use this action to update the message in Redux
     this.props.dispatchActionPayload(
       sendMultimediaMessageActionTypes.started,
       newRawMessageInfo,
@@ -898,27 +959,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       },
     }));
 
-    const now = Date.now();
     const selectionsWithIDs = retryMedia.map(singleMedia => {
       const { id, localMediaSelection } = singleMedia;
       invariant(
         localMediaSelection,
         'localMediaSelection should be set on locally created Media',
       );
-      const retries = localMediaSelection.retries
-        ? localMediaSelection.retries + 1
-        : 1;
-
-      // We switch for Flow
-      let selection;
-      if (localMediaSelection.step === 'photo_capture') {
-        selection = { ...localMediaSelection, sendTime: now, retries };
-      } else if (localMediaSelection.step === 'photo_library') {
-        selection = { ...localMediaSelection, sendTime: now, retries };
-      } else {
-        selection = { ...localMediaSelection, sendTime: now, retries };
-      }
-      return { selection, localID: id };
+      return { selection: localMediaSelection, localID: id };
     });
 
     await this.uploadFiles(localMessageID, selectionsWithIDs);
