@@ -4,19 +4,12 @@ import type { UploadInput } from '../creators/upload-creator';
 import type { Dimensions } from 'lib/types/media-types';
 
 import sharp from 'sharp';
-import sizeOf from 'buffer-image-size';
 import invariant from 'invariant';
 
 import { fileInfoFromData, readableFilename } from 'lib/utils/file-utils';
-
-const fiveMegabytes = 5 * 1024 * 1024;
+import { getImageProcessingPlan } from 'lib/utils/image-utils';
 
 const allowedMimeTypes = new Set(['image/png', 'image/jpeg', 'image/gif']);
-
-function getDimensions(buffer: Buffer): Dimensions {
-  const { height, width } = sizeOf(buffer);
-  return { height, width };
-}
 
 async function validateAndConvert(
   initialBuffer: Buffer,
@@ -28,15 +21,35 @@ async function validateAndConvert(
   if (!mime || !mediaType) {
     return null;
   }
-
   if (!allowedMimeTypes.has(mime)) {
     // This should've gotten converted on the client
     return null;
   }
-  if (size < fiveMegabytes && (mime === 'image/png' || mime === 'image/jpeg')) {
-    const dimensions = inputDimensions
-      ? inputDimensions
-      : getDimensions(initialBuffer);
+
+  let sharpImage, metadata;
+  try {
+    sharpImage = sharp(initialBuffer);
+    metadata = await sharpImage.metadata();
+  } catch (e) {
+    return null;
+  }
+
+  let initialDimensions = inputDimensions;
+  if (!initialDimensions) {
+    if (metadata.orientation && metadata.orientation > 4) {
+      initialDimensions = { width: metadata.height, height: metadata.width };
+    } else {
+      initialDimensions = { width: metadata.width, height: metadata.height };
+    }
+  }
+
+  const plan = getImageProcessingPlan(
+    mime,
+    initialDimensions,
+    size,
+    metadata.orientation,
+  );
+  if (!plan) {
     const name = readableFilename(initialName, mime);
     invariant(name, `should be able to construct filename for ${mime}`);
     return {
@@ -44,50 +57,58 @@ async function validateAndConvert(
       mediaType,
       name,
       buffer: initialBuffer,
-      dimensions,
+      dimensions: initialDimensions,
     };
   }
+  console.log(`processing image with ${JSON.stringify(plan)}`);
+  const { targetMIME, compressionRatio, fitInside, shouldRotate } = plan;
 
-  let sharpImage;
-  try {
-    sharpImage = sharp(initialBuffer);
-  } catch (e) {
-    return null;
+  if (shouldRotate) {
+    sharpImage = sharpImage.rotate();
   }
-  sharpImage = sharpImage.resize(3000, 2000, {
-    fit: 'inside',
-    withoutEnlargement: true,
-  });
 
-  if (mime === 'image/png' || mime === 'image/gif') {
+  if (fitInside) {
+    sharpImage = sharpImage.resize(fitInside.width, fitInside.height, {
+      fit: 'inside',
+      withoutEnlargement: true,
+    });
+  }
+
+  if (targetMIME === 'image/png') {
     sharpImage = sharpImage.png();
   } else {
-    sharpImage = sharpImage.jpeg({ quality: 92 });
+    sharpImage = sharpImage.jpeg({ quality: compressionRatio * 100 });
   }
 
-  const convertedBuffer = await sharpImage.toBuffer();
+  const { data: convertedBuffer, info } = await sharpImage.toBuffer({
+    resolveWithObject: true,
+  });
+  const convertedDimensions = { width: info.width, height: info.height };
+
   const {
     mime: convertedMIME,
     mediaType: convertedMediaType,
   } = fileInfoFromData(convertedBuffer);
-  if (!convertedMIME || !convertedMediaType) {
+  if (
+    !convertedMIME ||
+    !convertedMediaType ||
+    convertedMIME !== targetMIME ||
+    convertedMediaType !== mediaType
+  ) {
     return null;
   }
 
-  const convertedName = readableFilename(initialName, convertedMIME);
+  const convertedName = readableFilename(initialName, targetMIME);
   if (!convertedName) {
     return null;
   }
 
-  const dimensions = inputDimensions
-    ? inputDimensions
-    : getDimensions(convertedBuffer);
   return {
-    mime: convertedMIME,
-    mediaType: convertedMediaType,
+    mime: targetMIME,
+    mediaType,
     name: convertedName,
     buffer: convertedBuffer,
-    dimensions,
+    dimensions: convertedDimensions,
   };
 }
 
