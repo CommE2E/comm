@@ -81,7 +81,7 @@ async function deleteThread(
   // TODO: handle descendant thread permission update correctly.
   //       thread-permission-updaters should be used for descendant threads.
   const query = SQL`
-    DELETE t, ic, d, id, e, ie, re, ire, mm, r, ms, im, f, n, ino
+    DELETE t, ic, d, id, e, ie, re, ire, mm, r, ms, im, up, iu, f, n, ino
     FROM threads t
     LEFT JOIN ids ic ON ic.id = t.id
     LEFT JOIN days d ON d.thread = t.id
@@ -95,6 +95,8 @@ async function deleteThread(
     LEFT JOIN ids ir ON ir.id = r.id
     LEFT JOIN messages ms ON ms.thread = t.id
     LEFT JOIN ids im ON im.id = ms.id
+    LEFT JOIN uploads up ON up.container = ms.id
+    LEFT JOIN ids iu ON iu.id = up.id
     LEFT JOIN focused f ON f.thread = t.id
     LEFT JOIN notifications n ON n.thread = t.id
     LEFT JOIN ids ino ON ino.id = n.id
@@ -129,7 +131,7 @@ async function deleteThread(
 
 async function deleteInaccessibleThreads(): Promise<void> {
   await dbQuery(SQL`
-    DELETE t, i, d, id, e, ie, re, ire, r, ir, ms, im, f, n, ino
+    DELETE t, i, d, id, e, ie, re, ire, r, ir, ms, im, up, iu, f, n, ino
     FROM threads t
     LEFT JOIN ids i ON i.id = t.id
     LEFT JOIN memberships m ON m.thread = t.id
@@ -143,6 +145,8 @@ async function deleteInaccessibleThreads(): Promise<void> {
     LEFT JOIN ids ir ON ir.id = r.id
     LEFT JOIN messages ms ON ms.thread = t.id
     LEFT JOIN ids im ON im.id = ms.id
+    LEFT JOIN uploads up ON up.container = ms.id
+    LEFT JOIN ids iu ON iu.id = up.id
     LEFT JOIN focused f ON f.thread = t.id
     LEFT JOIN notifications n ON n.thread = t.id
     LEFT JOIN ids ino ON ino.id = n.id
