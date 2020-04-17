@@ -8,6 +8,8 @@ import type {
 
 import * as ImageManipulator from 'expo-image-manipulator';
 
+import { getImageProcessingPlan } from 'lib/utils/image-utils';
+
 type ProcessImageInfo = {|
   uri: string,
   dimensions: Dimensions,
@@ -31,35 +33,30 @@ async function processImage(
   let { uri, dimensions, mime } = input;
 
   const { fileSize, orientation } = input;
-
-  const unsupportedMIME = mime !== 'image/png' && mime !== 'image/jpeg';
-  const needsProcessing = unsupportedMIME || (orientation && orientation > 1);
-  const needsCompression =
-    fileSize > 5e6 || (unsupportedMIME && fileSize > 3e6);
-  const transforms = [];
-
-  // The dimensions we have are actually the post-rotation dimensions
-  if (fileSize > 5e5 && (dimensions.width > 3000 || dimensions.height > 2000)) {
-    if (dimensions.width / dimensions.height > 1.5) {
-      transforms.push({ width: 3000 });
-    } else {
-      transforms.push({ height: 2000 });
-    }
-  }
-
-  if (!needsCompression && !needsProcessing && transforms.length === 0) {
+  const plan = getImageProcessingPlan(mime, dimensions, fileSize, orientation);
+  if (!plan) {
     return {
       steps,
       result: { success: true, uri, dimensions, mime },
     };
   }
+  const { targetMIME, compressionRatio, fitInside } = plan;
+
+  const transforms = [];
+  if (fitInside) {
+    const fitInsideRatio = fitInside.width / fitInside.height;
+    if (dimensions.width / dimensions.height > fitInsideRatio) {
+      transforms.push({ width: fitInside.width });
+    } else {
+      transforms.push({ height: fitInside.height });
+    }
+  }
 
   const format =
-    mime === 'image/png'
+    targetMIME === 'image/png'
       ? ImageManipulator.SaveFormat.PNG
       : ImageManipulator.SaveFormat.JPEG;
-  const compress = needsCompression ? 0.83 : 0.92;
-  const saveConfig = { format, compress };
+  const saveConfig = { format, compress: compressionRatio };
 
   let success = false,
     exceptionMessage;
@@ -72,7 +69,7 @@ async function processImage(
     );
     success = true;
     uri = result.uri;
-    mime = mime === 'image/png' ? 'image/png' : 'image/jpeg';
+    mime = targetMIME;
     dimensions = { width: result.width, height: result.height };
   } catch (e) {
     if (
