@@ -4,6 +4,7 @@ import { Platform, PermissionsAndroid } from 'react-native';
 import filesystem from 'react-native-fs';
 import invariant from 'invariant';
 import * as MediaLibrary from 'expo-media-library';
+import md5 from 'md5';
 
 import { fileInfoFromData, readableFilename } from 'lib/utils/file-utils';
 
@@ -107,6 +108,7 @@ async function saveImageIOS(mediaInfo: SaveImageInfo) {
   return null;
 }
 
+// only works on file: and http[s]: schemes
 async function saveToDisk(uri: string, directory: string) {
   const response = await fetch(uri);
   const blob = await response.blob();
@@ -116,11 +118,10 @@ async function saveToDisk(uri: string, directory: string) {
   const base64 = dataURI.substring(firstComma + 1);
 
   const intArray = dataURIToIntArray(dataURI);
-  const fileName = blob.data.name ? blob.data.name : '';
   const { mime } = fileInfoFromData(intArray);
   invariant(mime, `unsupported media type in saveToDisk`);
 
-  const name = readableFilename(fileName, mime);
+  const name = readableFilename(md5(dataURI), mime);
   invariant(name, `unsupported mime type ${mime} in saveToDisk`);
   const filePath = `${directory}/${name}`;
 
