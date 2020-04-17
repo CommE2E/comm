@@ -32,29 +32,41 @@ async function createUploads(
   }
 
   const ids = await createIDs('uploads', uploadInfos.length);
-  const secret = crypto.randomBytes(8).toString('hex');
-  const uploadRows = uploadInfos.map(uploadInfo => [
-    ids.shift(),
-    viewer.userID,
-    uploadInfo.mediaType,
-    uploadInfo.name,
-    uploadInfo.mime,
-    uploadInfo.buffer,
-    secret,
-    Date.now(),
-    JSON.stringify(uploadInfo.dimensions),
-  ]);
+  const uploadRows = uploadInfos.map(uploadInfo => {
+    const id = ids.shift();
+    const secret = crypto.randomBytes(8).toString('hex');
+    return {
+      id,
+      secret,
+      dimensions: uploadInfo.dimensions,
+      insert: [
+        id,
+        viewer.userID,
+        uploadInfo.mediaType,
+        uploadInfo.name,
+        uploadInfo.mime,
+        uploadInfo.buffer,
+        secret,
+        Date.now(),
+        JSON.stringify(uploadInfo.dimensions),
+      ],
+    };
+  });
 
   const insertQuery = SQL`
     INSERT INTO uploads(id, uploader, type, filename,
       mime, content, secret, creation_time, extra)
-    VALUES ${uploadRows}
+    VALUES ${uploadRows.map(({ insert }) => insert)}
   `;
   await dbQuery(insertQuery);
 
   return uploadRows.map(row => ({
-    id: row[0],
-    uri: shimUploadURI(getUploadURL(row[0], row[6]), viewer.platformDetails),
+    id: row.id,
+    uri: shimUploadURI(
+      getUploadURL(row.id, row.secret),
+      viewer.platformDetails,
+    ),
+    dimensions: row.dimensions,
   }));
 }
 

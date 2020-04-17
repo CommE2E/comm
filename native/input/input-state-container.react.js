@@ -553,7 +553,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     try {
       uploadResult = await this.props.uploadMultimedia(
         { uri: uploadURI, name: filename, type: mime },
-        selection.dimensions,
+        processedMedia.dimensions,
         {
           onProgress: (percent: number) =>
             this.setProgress(localMessageID, localID, percent),
@@ -587,7 +587,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           id: serverID,
           uri: uploadResult.uri,
           type: mediaType,
-          dimensions: processedMedia.dimensions,
+          dimensions: uploadResult.dimensions,
           localMediaSelection: undefined,
         },
       });

@@ -441,7 +441,6 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         currentMediaID: upload.localID,
         mediaUpdate: {
           id: result.id,
-          filename: undefined,
         },
       });
     }
@@ -487,6 +486,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
           : uploadAfterPreload.localID,
         mediaUpdate: {
           uri: result.uri,
+          dimensions: result.dimensions,
         },
       });
     }
@@ -517,6 +517,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
             [upload.localID]: {
               ...currentUpload,
               uri: result.uri,
+              dimensions: result.dimensions,
               uriIsReal: true,
             },
           },
