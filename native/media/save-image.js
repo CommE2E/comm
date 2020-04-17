@@ -9,7 +9,7 @@ import md5 from 'md5';
 import { fileInfoFromData, readableFilename } from 'lib/utils/file-utils';
 
 import { blobToDataURI, dataURIToIntArray } from './blob-utils';
-import { getMediaLibraryIdentifier } from './identifier-utils';
+import { getMediaLibraryIdentifier, getFetchableURI } from './identifier-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
 import { getAndroidPermission } from '../utils/android-permissions';
 
@@ -73,8 +73,13 @@ async function saveImageAndroid(
 
   const saveFolder = `${filesystem.PicturesDirectoryPath}/SquadCal`;
   await filesystem.mkdir(saveFolder);
-  const filePath = await saveToDisk(mediaInfo.uri, saveFolder);
-  await filesystem.scanFile(filePath);
+
+  const saveResult = await saveToDisk(mediaInfo.uri, saveFolder);
+  if (!saveResult.success) {
+    return saveResult.error;
+  }
+  await filesystem.scanFile(saveResult.path);
+
   return null;
 }
 
@@ -83,7 +88,11 @@ async function saveImageIOS(mediaInfo: SaveImageInfo) {
   let { uri } = mediaInfo;
   let tempFile;
   if (uri.startsWith('http')) {
-    tempFile = await saveToDisk(uri, filesystem.TemporaryDirectoryPath);
+    const saveResult = await saveToDisk(uri, filesystem.TemporaryDirectoryPath);
+    if (!saveResult.success) {
+      return saveResult.error;
+    }
+    tempFile = saveResult.path;
     uri = `file://${tempFile}`;
   } else if (!uri.startsWith('file://')) {
     const mediaNativeID = getMediaLibraryIdentifier(uri);
@@ -108,12 +117,30 @@ async function saveImageIOS(mediaInfo: SaveImageInfo) {
   return null;
 }
 
-// only works on file: and http[s]: schemes
-async function saveToDisk(uri: string, directory: string) {
-  const response = await fetch(uri);
-  const blob = await response.blob();
+type SaveResult =
+  | {| success: true, path: string |}
+  | {| success: false, error: string |};
+async function saveToDisk(
+  inputURI: string,
+  directory: string,
+): Promise<SaveResult> {
+  const uri = getFetchableURI(inputURI);
 
-  const dataURI = await blobToDataURI(blob);
+  let blob;
+  try {
+    const response = await fetch(uri);
+    blob = await response.blob();
+  } catch {
+    return { success: false, error: 'failed to resolve :(' };
+  }
+
+  let dataURI;
+  try {
+    dataURI = await blobToDataURI(blob);
+  } catch {
+    return { success: false, error: 'failed to resolve :(' };
+  }
+
   const firstComma = dataURI.indexOf(',');
   invariant(firstComma > 4, 'malformed data-URI');
   const base64 = dataURI.substring(firstComma + 1);
@@ -123,14 +150,23 @@ async function saveToDisk(uri: string, directory: string) {
     const intArray = dataURIToIntArray(dataURI);
     ({ mime } = fileInfoFromData(intArray));
   }
-  invariant(mime, `unsupported media type in saveToDisk`);
+  if (!mime) {
+    return { success: false, error: 'failed to save :(' };
+  }
 
   const name = readableFilename(md5(dataURI), mime);
-  invariant(name, `unsupported mime type ${mime} in saveToDisk`);
-  const filePath = `${directory}/${name}`;
+  if (!name) {
+    return { success: false, error: 'failed to save :(' };
+  }
+  const path = `${directory}/${name}`;
 
-  await filesystem.writeFile(filePath, base64, 'base64');
-  return filePath;
+  try {
+    await filesystem.writeFile(path, base64, 'base64');
+  } catch {
+    return { success: false, error: 'failed to save :(' };
+  }
+
+  return { success: true, path };
 }
 
 export { intentionalSaveImage, saveImage };
