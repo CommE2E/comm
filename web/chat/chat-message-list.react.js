@@ -53,7 +53,7 @@ type PassedProps = {|
   messageListData: ?$ReadOnlyArray<ChatMessageItem>,
   startReached: boolean,
   timeZone: ?string,
-  usingFlexDirectionColumnReverse: boolean,
+  firefox: boolean,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -85,7 +85,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     messageListData: PropTypes.arrayOf(chatMessageItemPropType),
     startReached: PropTypes.bool.isRequired,
     timeZone: PropTypes.string,
-    usingFlexDirectionColumnReverse: PropTypes.bool.isRequired,
+    firefox: PropTypes.bool.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     fetchMessagesBeforeCursor: PropTypes.func.isRequired,
     fetchMostRecentMessages: PropTypes.func.isRequired,
@@ -118,43 +118,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     threadWatcher.removeID(threadInfo.id);
   }
 
-  getSnapshotBeforeUpdate(prevProps: Props): ?number {
-    if (this.props.usingFlexDirectionColumnReverse) {
-      return null;
-    }
-
-    const { messageListData } = this.props;
-    const prevMessageListData = prevProps.messageListData;
-    const { messageContainer } = this;
-    if (
-      !messageListData ||
-      !prevMessageListData ||
-      !messageContainer ||
-      messageListData.length <= prevMessageListData.length
-    ) {
-      return null;
-    }
-
-    // We only get here if new messages are being added. If they are being
-    // appended, ie. the user scrolled up to load older messages, we should
-    // always increase scroll position to compensate for the new height. On the
-    // other hand, if they are being prepended because they are new messages,
-    // we should only increase the scroll position if we were already scrolled
-    // to the newest message.
-    if (
-      prevMessageListData.length > 0 &&
-      ChatMessageList.keyExtractor(messageListData[0]) !==
-        ChatMessageList.keyExtractor(prevMessageListData[0]) &&
-      messageContainer.scrollTop !==
-        messageContainer.scrollHeight - messageContainer.offsetHeight
-    ) {
-      return null;
-    }
-
-    return messageContainer.scrollHeight;
-  }
-
-  componentDidUpdate(prevProps: Props, prevState: State, snapshot: ?number) {
+  componentDidUpdate(prevProps: Props) {
     const { messageListData } = this.props;
     const prevMessageListData = prevProps.messageListData;
 
@@ -190,12 +154,6 @@ class ChatMessageList extends React.PureComponent<Props, State> {
         messageListData[0].messageInfo.localID)
     ) {
       this.scrollToBottom();
-    } else if (
-      snapshot !== null &&
-      snapshot !== undefined &&
-      messageContainer
-    ) {
-      messageContainer.scrollTop += messageContainer.scrollHeight - snapshot;
     }
   }
 
@@ -289,14 +247,16 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     );
 
     let content;
-    if (!this.props.usingFlexDirectionColumnReverse) {
+    if (this.props.firefox) {
       content = (
         <div
-          className={css.invertedMessageContainer}
+          className={css.firefoxMessageContainer}
           ref={this.messageContainerRef}
         >
-          {[...messages].reverse()}
-          {tooltip}
+          <div className={css.messageContainer}>
+            {messages}
+            {tooltip}
+          </div>
         </div>
       );
     } else {
@@ -399,8 +359,7 @@ const ReduxConnectedChatMessageList = connect(
   (state: AppState, ownProps: { activeChatThreadID: ?string }) => {
     const { activeChatThreadID } = ownProps;
     const browser = detectBrowser(state.userAgent);
-    const usingFlexDirectionColumnReverse =
-      browser && browser.name === 'chrome';
+    const firefox = browser && browser.name === 'firefox';
     return {
       threadInfo: activeChatThreadID
         ? threadInfoSelector(state)[activeChatThreadID]
@@ -411,7 +370,7 @@ const ReduxConnectedChatMessageList = connect(
         state.messageStore.threads[activeChatThreadID].startReached
       ),
       timeZone: state.timeZone,
-      usingFlexDirectionColumnReverse,
+      firefox,
     };
   },
   { fetchMessagesBeforeCursor, fetchMostRecentMessages },
