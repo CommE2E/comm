@@ -5,7 +5,6 @@ import type {
   MediaType,
   MediaMissionStep,
   MediaMissionFailure,
-  BlobDataAnalysisMediaMissionStep,
 } from 'lib/types/media-types';
 
 import { Image } from 'react-native';
@@ -13,40 +12,9 @@ import invariant from 'invariant';
 
 import { pathFromURI, readableFilename } from 'lib/utils/file-utils';
 
-import { fetchFileInfo } from './file-utils';
+import { fetchFileSize, fetchFileInfo, readFileHeader } from './file-utils';
 import { processVideo } from './video-utils';
 import { processImage } from './image-utils';
-import { getBlobDataInfo, fetchBlob, type ReactNativeBlob } from './blob-utils';
-
-async function checkBlobData(
-  uploadURI: string,
-  blob: ReactNativeBlob,
-  expectedMIME: string,
-): Promise<BlobDataAnalysisMediaMissionStep> {
-  let mime, mediaType, exceptionMessage;
-  const start = Date.now();
-  try {
-    ({ mime, mediaType } = await getBlobDataInfo(blob));
-  } catch (e) {
-    if (
-      e &&
-      typeof e === 'object' &&
-      e.message &&
-      typeof e.message === 'string'
-    ) {
-      exceptionMessage = e.message;
-    }
-  }
-  return {
-    step: 'blob_data_analysis',
-    success: !!mime && mime === expectedMIME,
-    exceptionMessage,
-    time: Date.now() - start,
-    uri: uploadURI,
-    detectedMIME: mime,
-    detectedMediaType: mediaType,
-  };
-}
 
 type MediaInput = {|
   type: MediaType,
@@ -56,9 +24,8 @@ type MediaInput = {|
   mediaNativeID?: string,
 |};
 type MediaProcessConfig = $Shape<{|
-  initialBlobCheck: boolean,
-  finalBlobCheck: boolean,
-  blobDataAnalysis: boolean,
+  initialFileHeaderCheck: boolean,
+  finalFileHeaderCheck: boolean,
 |}>;
 type MediaResult = {|
   success: true,
@@ -115,30 +82,24 @@ async function processMedia(
   );
   steps.push(...fileInfoSteps);
   if (!fileInfoResult.success) {
-    return { steps, result: fileInfoResult };
+    return finish(fileInfoResult);
   }
   const { orientation, fileSize } = fileInfoResult;
   initialURI = fileInfoResult.uri;
 
-  let blobResponse;
-  if (mediaInput.type === 'photo' || config.initialBlobCheck) {
-    const { steps: blobSteps, result: blobResult } = await fetchBlob(
-      initialURI,
-      mediaType,
-    );
-    steps.push(...blobSteps);
-    blobResponse = blobResult;
-  }
-  if (blobResponse) {
-    const { reportedMIME, reportedMediaType } = blobResponse;
-    if (reportedMIME) {
-      mime = reportedMIME;
+  if (mediaInput.type === 'photo' || config.initialFileHeaderCheck) {
+    const readFileStep = await readFileHeader(initialURI, fileSize);
+    steps.push(readFileStep);
+    if (readFileStep.mime) {
+      mime = readFileStep.mime;
     }
-    if (reportedMediaType && reportedMediaType !== mediaType) {
+    if (readFileStep.mediaType && readFileStep.mediaType !== mediaType) {
       return finish({
         success: false,
-        reason: 'blob_reported_mime_issue',
-        mime: reportedMIME,
+        reason: 'media_type_mismatch',
+        reportedMediaType: mediaType,
+        detectedMediaType: readFileStep.mediaType,
+        detectedMIME: readFileStep.mime,
       });
     }
   }
@@ -158,8 +119,7 @@ async function processMedia(
     if (!mime) {
       return finish({
         success: false,
-        reason: 'blob_reported_mime_issue',
-        mime,
+        reason: 'mime_fetch_failed',
       });
     }
     const { steps: imageSteps, result: imageResult } = await processImage({
@@ -180,42 +140,29 @@ async function processMedia(
     invariant(false, `unknown mediaType ${mediaInput.type}`);
   }
 
-  if (blobResponse && uploadURI !== initialURI) {
-    blobResponse = null;
-  }
-  if (!blobResponse && (config.finalBlobCheck || config.blobDataAnalysis)) {
-    const { steps: blobSteps, result: blobResult } = await fetchBlob(
+  if (uploadURI !== initialURI && config.finalFileHeaderCheck) {
+    const { steps: fileSizeSteps, result: newFileSize } = await fetchFileSize(
       uploadURI,
-      mediaType,
     );
-    steps.push(...blobSteps);
-    blobResponse = blobResult;
-    const reportedMIME = blobResponse && blobResponse.reportedMIME;
-    if (config.finalBlobCheck && reportedMIME && reportedMIME !== mime) {
+    steps.push(...fileSizeSteps);
+    if (!newFileSize) {
       return finish({
         success: false,
-        reason: 'blob_reported_mime_issue',
-        mime: reportedMIME,
+        reason: 'file_stat_failed',
+        uri: uploadURI,
       });
     }
-  }
 
-  if (blobResponse && config.blobDataAnalysis) {
-    const blobDataCheckStep = await checkBlobData(
-      uploadURI,
-      blobResponse.blob,
-      mime,
-    );
-    steps.push(blobDataCheckStep);
-    const { detectedMIME, detectedMediaType } = blobDataCheckStep;
-    if (!blobDataCheckStep.success) {
+    const readNewFileStep = await readFileHeader(uploadURI, newFileSize);
+    steps.push(readNewFileStep);
+    if (readNewFileStep.mime && readNewFileStep.mime !== mime) {
       return finish({
         success: false,
-        reason: 'blob_data_mime_type_mismatch',
-        reportedMIME: mime,
+        reason: 'mime_type_mismatch',
         reportedMediaType: mediaType,
-        detectedMIME,
-        detectedMediaType,
+        reportedMIME: mime,
+        detectedMediaType: readNewFileStep.mediaType,
+        detectedMIME: readNewFileStep.mime,
       });
     }
   }

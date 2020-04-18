@@ -1,29 +1,7 @@
 // @flow
 
-import type { MediaType, MediaMissionStep } from 'lib/types/media-types';
-
 import base64 from 'base-64';
 import invariant from 'invariant';
-
-import {
-  fileInfoFromData,
-  mimeTypesToMediaTypes,
-  type FileDataInfo,
-} from 'lib/utils/file-utils';
-
-import { getFetchableURI } from './identifier-utils';
-
-export type ReactNativeBlob = Blob & {
-  data: { type: string, name: string, size: number },
-};
-
-// Processes the contents of the blob, looking at "magic numbers" to determine
-// MIME type
-async function getBlobDataInfo(blob: ReactNativeBlob): Promise<FileDataInfo> {
-  const dataURI = await blobToDataURI(blob);
-  const intArray = dataURIToIntArray(dataURI);
-  return fileInfoFromData(intArray);
-}
 
 function blobToDataURI(blob: Blob): Promise<string> {
   const fileReader = new FileReader();
@@ -70,63 +48,4 @@ function stringToIntArray(str: string): Uint8Array {
   return array;
 }
 
-type FetchBlobResponse = {|
-  blob: ReactNativeBlob,
-  reportedMIME: ?string,
-  reportedMediaType: ?string,
-|};
-async function fetchBlob(
-  inputURI: string,
-  type: MediaType,
-): Promise<{|
-  steps: $ReadOnlyArray<MediaMissionStep>,
-  result: ?FetchBlobResponse,
-|}> {
-  const uri = getFetchableURI(inputURI);
-  const blobFetchStart = Date.now();
-  let blob, reportedMIME, reportedMediaType, exceptionMessage;
-  try {
-    const response = await fetch(uri);
-    blob = await response.blob();
-    reportedMIME =
-      uri.startsWith('ph-upload://') && blob.type === 'application/octet-stream'
-        ? 'video/quicktime'
-        : blob.type;
-    reportedMediaType = mimeTypesToMediaTypes[reportedMIME];
-  } catch (e) {
-    if (
-      e &&
-      typeof e === 'object' &&
-      e.message &&
-      typeof e.message === 'string'
-    ) {
-      exceptionMessage = e.message;
-    }
-  }
-
-  const compareTypesStep = {
-    step: 'compare_blob_mime_to_media_type',
-    type,
-    success: type === reportedMediaType,
-    exceptionMessage,
-    time: Date.now() - blobFetchStart,
-    blobFetched: !!blob,
-    blobMIME: blob ? blob.type : null,
-    reportedMIME,
-    blobName: blob && blob.data ? blob.data.name : null,
-    size: blob ? blob.size : null,
-  };
-
-  if (!blob) {
-    return { steps: [compareTypesStep], result: null };
-  }
-
-  const result = {
-    blob,
-    reportedMIME,
-    reportedMediaType,
-  };
-  return { steps: [compareTypesStep], result };
-}
-
-export { getBlobDataInfo, blobToDataURI, dataURIToIntArray, fetchBlob };
+export { blobToDataURI, dataURIToIntArray };
