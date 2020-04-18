@@ -26,6 +26,7 @@ import _keyBy from 'lodash/fp/keyBy';
 import _omit from 'lodash/fp/omit';
 import _groupBy from 'lodash/fp/groupBy';
 import _partition from 'lodash/fp/partition';
+import _sortBy from 'lodash/fp/sortBy';
 import invariant from 'invariant';
 import { detect as detectBrowser } from 'detect-browser';
 
@@ -324,7 +325,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
           const [uploadsWithMessageIDs, uploadsWithoutMessageIDs] = _partition(
             'messageID',
           )(pendingUploads);
-          threadPendingUploads = uploadsWithoutMessageIDs;
+          threadPendingUploads = _sortBy('localID')(uploadsWithoutMessageIDs);
           threadAssignedUploads = _groupBy('messageID')(uploadsWithMessageIDs);
         }
         return {
