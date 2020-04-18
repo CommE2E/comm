@@ -107,6 +107,7 @@ class Message extends React.PureComponent<Props> {
       message = (
         <RobotextMessage
           item={this.props.item}
+          navigation={this.props.navigation}
           focused={this.props.focused}
           toggleFocus={this.props.toggleFocus}
         />

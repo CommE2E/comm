@@ -2,7 +2,6 @@
 
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
-import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from '../redux/redux-setup';
 import type { RobotextMessageInfo } from 'lib/types/message-types';
 import {
@@ -10,6 +9,10 @@ import {
   keyboardStatePropType,
   withKeyboardState,
 } from '../keyboard/keyboard-state';
+import {
+  type MessageListNavProp,
+  messageListNavPropType,
+} from './message-list-types';
 
 import * as React from 'react';
 import { Text, TouchableWithoutFeedback, View } from 'react-native';
@@ -49,6 +52,7 @@ function robotextMessageItemHeight(
 
 type Props = {|
   item: ChatRobotextMessageInfoItemWithHeight,
+  navigation: MessageListNavProp,
   focused: boolean,
   toggleFocus: (messageKey: string) => void,
   // withKeyboardState
@@ -59,6 +63,7 @@ type Props = {|
 class RobotextMessage extends React.PureComponent<Props> {
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
+    navigation: messageListNavPropType.isRequired,
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
     keyboardState: keyboardStatePropType,
@@ -84,7 +89,7 @@ class RobotextMessage extends React.PureComponent<Props> {
   }
 
   linkedRobotext() {
-    const { item } = this.props;
+    const { item, navigation } = this.props;
     const robotext = item.robotext;
     const robotextParts = splitRobotext(robotext);
     const textParts = [];
@@ -100,7 +105,14 @@ class RobotextMessage extends React.PureComponent<Props> {
       const { rawText, entityType, id } = parseRobotextEntity(splitPart);
 
       if (entityType === 't' && id !== this.props.item.messageInfo.threadID) {
-        textParts.push(<ThreadEntity key={id} id={id} name={rawText} />);
+        textParts.push(
+          <ThreadEntity
+            key={id}
+            id={id}
+            name={rawText}
+            navigation={navigation}
+          />,
+        );
       } else if (entityType === 'c') {
         textParts.push(<ColorEntity key={id} color={rawText} />);
       } else {
@@ -131,19 +143,18 @@ const WrappedRobotextMessage = connect((state: AppState) => ({
 type InnerThreadEntityProps = {
   id: string,
   name: string,
+  navigation: MessageListNavProp,
   // Redux state
   threadInfo: ?ThreadInfo,
   styles: typeof styles,
-  // Redux dispatch functions
-  dispatch: Dispatch,
 };
 class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
   static propTypes = {
     id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
+    navigation: messageListNavPropType.isRequired,
     threadInfo: threadInfoPropType,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    dispatch: PropTypes.func.isRequired,
   };
 
   render() {
@@ -158,24 +169,19 @@ class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
   }
 
   onPressThread = () => {
-    const { threadInfo, dispatch } = this.props;
+    const { threadInfo, navigation } = this.props;
     invariant(threadInfo, 'onPressThread should have threadInfo');
-    dispatch({
-      type: 'Navigation/NAVIGATE',
+    navigation.navigate({
       routeName: MessageListRouteName,
       params: { threadInfo },
       key: `${MessageListRouteName}${threadInfo.id}`,
     });
   };
 }
-const ThreadEntity = connect(
-  (state: AppState, ownProps: { id: string }) => ({
-    threadInfo: threadInfoSelector(state)[ownProps.id],
-    styles: stylesSelector(state),
-  }),
-  null,
-  true,
-)(InnerThreadEntity);
+const ThreadEntity = connect((state: AppState, ownProps: { id: string }) => ({
+  threadInfo: threadInfoSelector(state)[ownProps.id],
+  styles: stylesSelector(state),
+}))(InnerThreadEntity);
 
 function ColorEntity(props: {| color: string |}) {
   const colorStyle = { color: props.color };
