@@ -9,7 +9,13 @@ import invariant from 'invariant';
 import { fileInfoFromData, readableFilename } from 'lib/utils/file-utils';
 import { getImageProcessingPlan } from 'lib/utils/image-utils';
 
-const allowedMimeTypes = new Set(['image/png', 'image/jpeg', 'image/gif']);
+const allowedMimeTypes = new Set([
+  'image/png',
+  'image/jpeg',
+  'image/gif',
+  'image/webp',
+  'image/tiff',
+]);
 
 async function validateAndConvert(
   initialBuffer: Buffer,

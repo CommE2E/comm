@@ -124,7 +124,13 @@ async function validateFile(
   return { file: fixedFile, mediaType, uri, dimensions };
 }
 
-const allowedMimeTypeArray = ['image/png', 'image/jpeg', 'image/gif'];
+const allowedMimeTypeArray = [
+  'image/png',
+  'image/jpeg',
+  'image/gif',
+  'image/webp',
+  'image/tiff',
+];
 const allowedMimeTypes = new Set(allowedMimeTypeArray);
 const allowedMimeTypeString = allowedMimeTypeArray.join(',');
 
