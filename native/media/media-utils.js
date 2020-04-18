@@ -12,7 +12,6 @@ import { Image } from 'react-native';
 import invariant from 'invariant';
 
 import { pathFromURI, readableFilename } from 'lib/utils/file-utils';
-import { promiseAll } from 'lib/utils/promises';
 
 import { fetchFileInfo } from './file-utils';
 import { processVideo } from './video-utils';
@@ -109,18 +108,11 @@ async function processMedia(
     };
   };
 
-  const promises = {};
-  promises.fileInfoResponse = fetchFileInfo(
+  const { steps: fileInfoSteps, result: fileInfoResult } = await fetchFileInfo(
     mediaInput.uri,
     mediaInput.type,
     mediaInput.mediaNativeID,
   );
-  if (mediaInput.type === 'photo' || config.initialBlobCheck) {
-    promises.fetchBlobResponse = fetchBlob(mediaInput.uri, mediaType);
-  }
-  const { fileInfoResponse, fetchBlobResponse } = await promiseAll(promises);
-
-  const { steps: fileInfoSteps, result: fileInfoResult } = fileInfoResponse;
   steps.push(...fileInfoSteps);
   if (!fileInfoResult.success) {
     return { steps, result: fileInfoResult };
@@ -129,8 +121,11 @@ async function processMedia(
   initialURI = fileInfoResult.uri;
 
   let blobResponse;
-  if (fetchBlobResponse) {
-    const { steps: blobSteps, result: blobResult } = fetchBlobResponse;
+  if (mediaInput.type === 'photo' || config.initialBlobCheck) {
+    const { steps: blobSteps, result: blobResult } = await fetchBlob(
+      initialURI,
+      mediaType,
+    );
     steps.push(...blobSteps);
     blobResponse = blobResult;
   }
