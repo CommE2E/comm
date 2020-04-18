@@ -36,12 +36,13 @@ import { authorNameHeight } from './message-header.react';
 import { failedSendHeight } from './failed-send.react';
 import sendFailed from './multimedia-message-send-failed';
 
-type ContentHeights = {|
+type ContentSizes = {|
   imageHeight: number,
   contentHeight: number,
+  contentWidth: number,
 |};
 export type ChatMultimediaMessageInfoItem = {|
-  ...ContentHeights,
+  ...ContentSizes,
   itemType: 'message',
   messageShapeType: 'multimedia',
   messageInfo: MultimediaMessageInfo,
@@ -71,14 +72,16 @@ function getMediaPerRow(mediaCount: number) {
 
 // Called by MessageListContainer
 // The results are merged into ChatMultimediaMessageInfoItem
-function multimediaMessageContentHeights(
+function multimediaMessageContentSizes(
   messageInfo: MultimediaMessageInfo,
   composedMessageMaxWidth: number,
-): ContentHeights {
+): ContentSizes {
   invariant(messageInfo.media.length > 0, 'should have media');
+
   if (messageInfo.media.length === 1) {
     const [media] = messageInfo.media;
     const { height, width } = media.dimensions;
+
     let imageHeight =
       composedMessageMaxWidth >= width
         ? height
@@ -86,18 +89,26 @@ function multimediaMessageContentHeights(
     if (imageHeight < 50) {
       imageHeight = 50;
     }
-    return { imageHeight, contentHeight: imageHeight };
+
+    let contentWidth = (width / height) * imageHeight;
+    if (contentWidth > composedMessageMaxWidth) {
+      contentWidth = composedMessageMaxWidth;
+    }
+
+    return { imageHeight, contentHeight: imageHeight, contentWidth };
   }
+
+  const contentWidth = composedMessageMaxWidth;
 
   const mediaPerRow = getMediaPerRow(messageInfo.media.length);
   const marginSpace = spaceBetweenImages * (mediaPerRow - 1);
-  const imageHeight = (composedMessageMaxWidth - marginSpace) / mediaPerRow;
+  const imageHeight = (contentWidth - marginSpace) / mediaPerRow;
 
   const numRows = Math.ceil(messageInfo.media.length / mediaPerRow);
   const contentHeight =
     numRows * imageHeight + (numRows - 1) * spaceBetweenImages;
 
-  return { imageHeight, contentHeight };
+  return { imageHeight, contentHeight, contentWidth };
 }
 
 // Called by Message
@@ -142,14 +153,17 @@ class MultimediaMessage extends React.PureComponent<Props> {
 
   render() {
     const { item, focused } = this.props;
-    const heightStyle = { height: item.contentHeight };
+    const containerStyle = {
+      height: item.contentHeight,
+      width: item.contentWidth,
+    };
     return (
       <ComposedMessage
         item={item}
         sendFailed={sendFailed(item)}
         focused={focused}
       >
-        <View style={[heightStyle, styles.container]}>
+        <View style={[containerStyle, styles.container]}>
           {this.renderContent()}
         </View>
       </ComposedMessage>
@@ -258,7 +272,6 @@ class MultimediaMessage extends React.PureComponent<Props> {
 const spaceBetweenImages = 4;
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
   },
@@ -287,7 +300,7 @@ const WrappedMultimediaMessage = withOverlayPositionContext(MultimediaMessage);
 export {
   borderRadius as multimediaMessageBorderRadius,
   WrappedMultimediaMessage as MultimediaMessage,
-  multimediaMessageContentHeights,
+  multimediaMessageContentSizes,
   multimediaMessageItemHeight,
   sendFailed as multimediaMessageSendFailed,
 };

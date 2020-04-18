@@ -107,9 +107,8 @@ const styles = StyleSheet.create({
     marginRight: 7,
   },
   content: {
-    flex: 1,
-    flexDirection: 'row',
     alignItems: 'center',
+    flexDirection: 'row',
   },
   icon: {
     fontSize: 16,
@@ -123,7 +122,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   messageBox: {
-    flex: 1,
     flexDirection: 'row',
     marginRight: 5,
   },

@@ -36,7 +36,7 @@ import ThreadSettingsButton from './thread-settings-button.react';
 import { registerChatScreen } from './chat-screen-registry';
 import TextHeightMeasurer from '../text-height-measurer.react';
 import ChatInputBar from './chat-input-bar.react';
-import { multimediaMessageContentHeights } from './multimedia-message.react';
+import { multimediaMessageContentSizes } from './multimedia-message.react';
 import {
   textMessageMaxWidthSelector,
   composedMessageMaxWidthSelector,
@@ -269,7 +269,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           inputState &&
           inputState.pendingUploads &&
           inputState.pendingUploads[id];
-        const heights = multimediaMessageContentHeights(
+        const sizes = multimediaMessageContentSizes(
           messageInfo,
           this.props.composedMessageMaxWidth,
         );
@@ -283,7 +283,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           startsCluster: item.startsCluster,
           endsCluster: item.endsCluster,
           pendingUploads,
-          ...heights,
+          ...sizes,
         };
       }
       invariant(textHeights, 'textHeights not set');
