@@ -46,9 +46,9 @@ async function processImage(
   if (fitInside) {
     const fitInsideRatio = fitInside.width / fitInside.height;
     if (dimensions.width / dimensions.height > fitInsideRatio) {
-      transforms.push({ width: fitInside.width });
+      transforms.push({ resize: { width: fitInside.width } });
     } else {
-      transforms.push({ height: fitInside.height });
+      transforms.push({ resize: { height: fitInside.height } });
     }
   }
 
