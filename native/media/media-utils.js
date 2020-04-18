@@ -36,22 +36,46 @@ type MediaResult = {|
   mediaType: MediaType,
   dimensions: Dimensions,
 |};
-async function processMedia(
+function processMedia(
   mediaInput: MediaInput,
   config: MediaProcessConfig,
-): Promise<{|
-  steps: $ReadOnlyArray<MediaMissionStep>,
-  result: MediaMissionFailure | MediaResult,
-|}> {
+): {|
+  resultPromise: Promise<MediaMissionFailure | MediaResult>,
+  reportPromise: Promise<$ReadOnlyArray<MediaMissionStep>>,
+|} {
+  let resolveResult;
+  const sendResult = result => {
+    if (resolveResult) {
+      resolveResult(result);
+    }
+  };
+
+  const reportPromise = processMediaMission(mediaInput, config, sendResult);
+  const resultPromise = new Promise(resolve => {
+    resolveResult = resolve;
+  });
+
+  return { reportPromise, resultPromise };
+}
+
+async function processMediaMission(
+  mediaInput: MediaInput,
+  config: MediaProcessConfig,
+  sendResult: (MediaMissionFailure | MediaResult) => void,
+): Promise<$ReadOnlyArray<MediaMissionStep>> {
   const steps = [];
   let initialURI = null,
     uploadURI = null,
     dimensions = mediaInput.dimensions,
     mime = null,
-    mediaType = mediaInput.type;
+    mediaType = mediaInput.type,
+    finished = false;
   const finish = (failure?: MediaMissionFailure) => {
+    invariant(!finished, 'finish called twice in processMediaMission');
+    finished = true;
     if (failure) {
-      return { steps, result: failure };
+      sendResult(failure);
+      return;
     }
     invariant(
       uploadURI && mime,
@@ -61,18 +85,15 @@ async function processMedia(
       initialURI !== uploadURI ? pathFromURI(uploadURI) : null;
     const filename = readableFilename(mediaInput.filename, mime);
     invariant(filename, `could not construct filename for ${mime}`);
-    return {
-      steps,
-      result: {
-        success: true,
-        uploadURI,
-        shouldDisposePath,
-        filename,
-        mime,
-        mediaType,
-        dimensions,
-      },
-    };
+    sendResult({
+      success: true,
+      uploadURI,
+      shouldDisposePath,
+      filename,
+      mime,
+      mediaType,
+      dimensions,
+    });
   };
 
   const { steps: fileInfoSteps, result: fileInfoResult } = await fetchFileInfo(
@@ -82,7 +103,8 @@ async function processMedia(
   );
   steps.push(...fileInfoSteps);
   if (!fileInfoResult.success) {
-    return finish(fileInfoResult);
+    finish(fileInfoResult);
+    return steps;
   }
   const { orientation, fileSize } = fileInfoResult;
   initialURI = fileInfoResult.uri;
@@ -94,13 +116,14 @@ async function processMedia(
       mime = readFileStep.mime;
     }
     if (readFileStep.mediaType && readFileStep.mediaType !== mediaType) {
-      return finish({
+      finish({
         success: false,
         reason: 'media_type_mismatch',
         reportedMediaType: mediaType,
         detectedMediaType: readFileStep.mediaType,
         detectedMIME: readFileStep.mime,
       });
+      return steps;
     }
   }
 
@@ -111,16 +134,18 @@ async function processMedia(
     });
     steps.push(...videoSteps);
     if (!videoResult.success) {
-      return finish(videoResult);
+      finish(videoResult);
+      return steps;
     }
     uploadURI = videoResult.uri;
     mime = videoResult.mime;
   } else if (mediaInput.type === 'photo') {
     if (!mime) {
-      return finish({
+      finish({
         success: false,
         reason: 'mime_fetch_failed',
       });
+      return steps;
     }
     const { steps: imageSteps, result: imageResult } = await processImage({
       uri: initialURI,
@@ -131,7 +156,8 @@ async function processMedia(
     });
     steps.push(...imageSteps);
     if (!imageResult.success) {
-      return finish(imageResult);
+      finish(imageResult);
+      return steps;
     }
     uploadURI = imageResult.uri;
     dimensions = imageResult.dimensions;
@@ -140,23 +166,35 @@ async function processMedia(
     invariant(false, `unknown mediaType ${mediaInput.type}`);
   }
 
-  if (uploadURI !== initialURI && config.finalFileHeaderCheck) {
-    const { steps: fileSizeSteps, result: newFileSize } = await fetchFileSize(
-      uploadURI,
-    );
-    steps.push(...fileSizeSteps);
-    if (!newFileSize) {
-      return finish({
+  if (uploadURI === initialURI) {
+    finish();
+    return steps;
+  }
+
+  if (!config.finalFileHeaderCheck) {
+    finish();
+  }
+
+  const { steps: fileSizeSteps, result: newFileSize } = await fetchFileSize(
+    uploadURI,
+  );
+  steps.push(...fileSizeSteps);
+  if (!newFileSize) {
+    if (config.finalFileHeaderCheck) {
+      finish({
         success: false,
         reason: 'file_stat_failed',
         uri: uploadURI,
       });
     }
+    return steps;
+  }
 
-    const readNewFileStep = await readFileHeader(uploadURI, newFileSize);
-    steps.push(readNewFileStep);
-    if (readNewFileStep.mime && readNewFileStep.mime !== mime) {
-      return finish({
+  const readNewFileStep = await readFileHeader(uploadURI, newFileSize);
+  steps.push(readNewFileStep);
+  if (readNewFileStep.mime && readNewFileStep.mime !== mime) {
+    if (config.finalFileHeaderCheck) {
+      finish({
         success: false,
         reason: 'mime_type_mismatch',
         reportedMediaType: mediaType,
@@ -165,9 +203,14 @@ async function processMedia(
         detectedMIME: readNewFileStep.mime,
       });
     }
+    return steps;
   }
 
-  return finish();
+  if (config.finalFileHeaderCheck) {
+    finish();
+  }
+
+  return steps;
 }
 
 function getDimensions(uri: string): Promise<Dimensions> {

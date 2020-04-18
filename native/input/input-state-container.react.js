@@ -69,7 +69,6 @@ import {
 } from './input-state';
 import { processMedia } from '../media/media-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
-import { fetchFileSize } from '../media/file-utils';
 
 let nextLocalUploadID = 0;
 function getNewLocalID() {
@@ -457,7 +456,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       serverID,
       userTime,
       errorMessage;
-    const finish = (result: MediaMissionResult) => {
+    let reportPromise;
+
+    const finish = async (result: MediaMissionResult) => {
+      if (reportPromise) {
+        const finalSteps = await reportPromise;
+        steps.push(...finalSteps);
+      }
       const totalTime = Date.now() - start;
       userTime = userTime ? userTime : totalTime;
       this.queueMediaMissionReport(
@@ -503,14 +508,15 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     let processedMedia;
     const processingStart = Date.now();
     try {
-      const { result: processResult, steps: processSteps } = await processMedia(
+      const processMediaReturn = processMedia(
         mediaInfo,
         this.mediaProcessConfig(),
       );
-      steps = [...steps, ...processSteps];
+      reportPromise = processMediaReturn.reportPromise;
+      const processResult = await processMediaReturn.resultPromise;
       if (!processResult.success) {
         fail('processing failed');
-        return finish(processResult);
+        return await finish(processResult);
       }
       processedMedia = processResult;
     } catch (e) {
@@ -532,7 +538,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       fail(
         processExceptionMessage ? processExceptionMessage : 'processing threw',
       );
-      return finish({
+      return await finish({
         success: false,
         reason: 'processing_exception',
         time,
@@ -593,6 +599,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       });
       userTime = Date.now() - start;
     }
+
+    const processSteps = await reportPromise;
+    reportPromise = null;
+    steps.push(...processSteps);
     steps.push({
       step: 'upload',
       success: !!uploadResult,
@@ -602,13 +612,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     });
 
     if (!shouldDisposePath) {
-      return finish(mediaMissionResult);
+      return await finish(mediaMissionResult);
     }
-
-    // If shouldDisposePath is set, uploadURI represents a new file whose size
-    // hasn't been checked. Let's add the file size to our MediaMission report
-    const { steps: fileSizeSteps } = await fetchFileSize(uploadURI);
-    steps.push(...fileSizeSteps);
 
     let disposeSuccess = false,
       disposeExceptionMessage;
@@ -635,7 +640,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       path: shouldDisposePath,
     });
 
-    return finish(mediaMissionResult);
+    return await finish(mediaMissionResult);
   }
 
   mediaProcessConfig() {
