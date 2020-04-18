@@ -354,11 +354,19 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
   );
 
   async appendFiles(threadID: string, files: $ReadOnlyArray<File>) {
-    const validationResults = await Promise.all(
-      files.map(file => validateFile(file, this.props.exifRotate)),
-    );
-    const newUploads = [];
     const { setModal } = this.props;
+
+    let validationResults;
+    try {
+      validationResults = await Promise.all(
+        files.map(file => validateFile(file, this.props.exifRotate)),
+      );
+    } catch (e) {
+      setModal(<InvalidUploadModal setModal={setModal} />);
+      return;
+    }
+
+    const newUploads = [];
     for (let result of validationResults) {
       if (!result) {
         setModal(<InvalidUploadModal setModal={setModal} />);
