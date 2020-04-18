@@ -82,15 +82,15 @@ function multimediaMessageContentSizes(
     const [media] = messageInfo.media;
     const { height, width } = media.dimensions;
 
-    let imageHeight =
-      composedMessageMaxWidth >= width
-        ? height
-        : (height * composedMessageMaxWidth) / width;
+    let imageHeight = height;
+    if (width > composedMessageMaxWidth) {
+      imageHeight = (height * composedMessageMaxWidth) / width;
+    }
     if (imageHeight < 50) {
       imageHeight = 50;
     }
 
-    let contentWidth = (width / height) * imageHeight;
+    let contentWidth = height ? (width * imageHeight) / height : 0;
     if (contentWidth > composedMessageMaxWidth) {
       contentWidth = composedMessageMaxWidth;
     }

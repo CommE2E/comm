@@ -173,12 +173,10 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
       step,
     } = selection;
     const active = MediaGalleryMedia.isActive(this.props);
+    const scaledWidth = height ? (width * containerHeight) / height : 0;
     const dimensionsStyle = {
       height: containerHeight,
-      width: Math.max(
-        Math.min((width / height) * containerHeight, this.props.screenWidth),
-        150,
-      ),
+      width: Math.max(Math.min(scaledWidth, this.props.screenWidth), 150),
     };
 
     let buttons = null;
