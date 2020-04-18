@@ -43,6 +43,7 @@
     "classnames": "^2.2.5",
     "dateformat": "^3.0.3",
     "detect-browser": "^4.0.4",
+    "exif-js": "^2.3.0",
     "history": "^4.6.3",
     "invariant": "^2.2.4",
     "isomorphic-fetch": "^2.2.1",

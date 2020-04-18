@@ -27,6 +27,7 @@ import _omit from 'lodash/fp/omit';
 import _groupBy from 'lodash/fp/groupBy';
 import _partition from 'lodash/fp/partition';
 import invariant from 'invariant';
+import { detect as detectBrowser } from 'detect-browser';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
@@ -57,6 +58,7 @@ type Props = {|
   viewerID: ?string,
   nextLocalID: number,
   messageStoreMessages: { [id: string]: RawMessageInfo },
+  exifRotate: boolean,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
@@ -91,6 +93,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     viewerID: PropTypes.string,
     nextLocalID: PropTypes.number.isRequired,
     messageStoreMessages: PropTypes.object.isRequired,
+    exifRotate: PropTypes.bool.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     uploadMultimedia: PropTypes.func.isRequired,
@@ -351,7 +354,9 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
   );
 
   async appendFiles(threadID: string, files: $ReadOnlyArray<File>) {
-    const validationResults = await Promise.all(files.map(validateFile));
+    const validationResults = await Promise.all(
+      files.map(file => validateFile(file, this.props.exifRotate)),
+    );
     const newUploads = [];
     const { setModal } = this.props;
     for (let result of validationResults) {
@@ -372,7 +377,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         file,
         mediaType,
         dimensions,
-        uri: URL.createObjectURL(file),
+        uri: result.uri,
         uriIsReal: false,
         progressPercent: 0,
         abort: null,
@@ -846,11 +851,16 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
 }
 
 export default connect(
-  (state: AppState) => ({
-    activeChatThreadID: state.navInfo.activeChatThreadID,
-    viewerID: state.currentUserInfo && state.currentUserInfo.id,
-    nextLocalID: state.nextLocalID,
-    messageStoreMessages: state.messageStore.messages,
-  }),
+  (state: AppState) => {
+    const browser = detectBrowser(state.userAgent);
+    const exifRotate = !browser || browser.name !== 'safari';
+    return {
+      activeChatThreadID: state.navInfo.activeChatThreadID,
+      viewerID: state.currentUserInfo && state.currentUserInfo.id,
+      nextLocalID: state.nextLocalID,
+      messageStoreMessages: state.messageStore.messages,
+      exifRotate,
+    };
+  },
   { uploadMultimedia, deleteUpload, sendMultimediaMessage, sendTextMessage },
 )(ChatInputStateContainer);
