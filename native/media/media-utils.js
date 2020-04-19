@@ -12,7 +12,7 @@ import invariant from 'invariant';
 
 import { pathFromURI, readableFilename } from 'lib/utils/file-utils';
 
-import { fetchFileSize, fetchFileInfo, readFileHeader } from './file-utils';
+import { fetchFileInfo } from './file-utils';
 import { processVideo } from './video-utils';
 import { processImage } from './image-utils';
 
@@ -68,7 +68,6 @@ async function processMediaMission(
     uploadURI = null,
     dimensions = mediaInput.dimensions,
     mime = null,
-    mediaType = mediaInput.type,
     finished = false;
   const finish = (failure?: MediaMissionFailure) => {
     invariant(!finished, 'finish called twice in processMediaMission');
@@ -91,15 +90,18 @@ async function processMediaMission(
       shouldDisposePath,
       filename,
       mime,
-      mediaType,
+      mediaType: mediaInput.type,
       dimensions,
     });
   };
 
   const { steps: fileInfoSteps, result: fileInfoResult } = await fetchFileInfo(
     mediaInput.uri,
-    mediaInput.type,
     mediaInput.mediaNativeID,
+    {
+      orientation: mediaInput.type === 'photo',
+      mime: mediaInput.type === 'photo' || config.initialFileHeaderCheck,
+    },
   );
   steps.push(...fileInfoSteps);
   if (!fileInfoResult.success) {
@@ -108,23 +110,20 @@ async function processMediaMission(
   }
   const { orientation, fileSize } = fileInfoResult;
   initialURI = fileInfoResult.uri;
+  mime = fileInfoResult.mime;
 
-  if (mediaInput.type === 'photo' || config.initialFileHeaderCheck) {
-    const readFileStep = await readFileHeader(initialURI, fileSize);
-    steps.push(readFileStep);
-    if (readFileStep.mime) {
-      mime = readFileStep.mime;
-    }
-    if (readFileStep.mediaType && readFileStep.mediaType !== mediaType) {
-      finish({
-        success: false,
-        reason: 'media_type_mismatch',
-        reportedMediaType: mediaType,
-        detectedMediaType: readFileStep.mediaType,
-        detectedMIME: readFileStep.mime,
-      });
-      return steps;
-    }
+  if (
+    fileInfoResult.mediaType &&
+    fileInfoResult.mediaType !== mediaInput.type
+  ) {
+    finish({
+      success: false,
+      reason: 'media_type_mismatch',
+      reportedMediaType: mediaInput.type,
+      detectedMediaType: fileInfoResult.mediaType,
+      detectedMIME: fileInfoResult.mime,
+    });
+    return steps;
   }
 
   if (mediaInput.type === 'video') {
@@ -175,32 +174,29 @@ async function processMediaMission(
     finish();
   }
 
-  const { steps: fileSizeSteps, result: newFileSize } = await fetchFileSize(
-    uploadURI,
-  );
-  steps.push(...fileSizeSteps);
-  if (!newFileSize) {
+  const {
+    steps: finalFileInfoSteps,
+    result: finalFileInfoResult,
+  } = await fetchFileInfo(mediaInput.uri, mediaInput.mediaNativeID, {
+    mime: true,
+  });
+  steps.push(...finalFileInfoSteps);
+  if (!finalFileInfoResult.success) {
     if (config.finalFileHeaderCheck) {
-      finish({
-        success: false,
-        reason: 'file_stat_failed',
-        uri: uploadURI,
-      });
+      finish(finalFileInfoResult);
     }
     return steps;
   }
 
-  const readNewFileStep = await readFileHeader(uploadURI, newFileSize);
-  steps.push(readNewFileStep);
-  if (readNewFileStep.mime && readNewFileStep.mime !== mime) {
+  if (finalFileInfoResult.mime && finalFileInfoResult.mime !== mime) {
     if (config.finalFileHeaderCheck) {
       finish({
         success: false,
         reason: 'mime_type_mismatch',
-        reportedMediaType: mediaType,
+        reportedMediaType: mediaInput.type,
         reportedMIME: mime,
-        detectedMediaType: readNewFileStep.mediaType,
-        detectedMIME: readNewFileStep.mime,
+        detectedMediaType: finalFileInfoResult.mediaType,
+        detectedMIME: finalFileInfoResult.mime,
       });
     }
     return steps;

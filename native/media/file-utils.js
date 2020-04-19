@@ -14,55 +14,18 @@ import base64 from 'base-64';
 
 import { pathFromURI, fileInfoFromData } from 'lib/utils/file-utils';
 
-async function fetchFileSize(
-  uri: string,
-): Promise<{|
-  steps: $ReadOnlyArray<MediaMissionStep>,
-  result: ?number,
-|}> {
-  let fileSize,
-    success = false,
-    exceptionMessage;
-  const statStart = Date.now();
-  try {
-    const result = await filesystem.stat(uri);
-    success = true;
-    fileSize = result.size;
-  } catch (e) {
-    if (
-      e &&
-      typeof e === 'object' &&
-      e.message &&
-      typeof e.message === 'string'
-    ) {
-      exceptionMessage = e.message;
-    }
-  }
-  return {
-    steps: [
-      {
-        step: 'stat_file',
-        success,
-        exceptionMessage,
-        time: Date.now() - statStart,
-        uri,
-        fileSize,
-      },
-    ],
-    result: fileSize,
-  };
-}
-
 type FetchFileInfoResult = {|
   success: true,
   uri: string,
   orientation: ?number,
   fileSize: number,
+  mime: ?string,
+  mediaType: ?MediaType,
 |};
 async function fetchFileInfo(
   inputURI: string,
-  mediaType: MediaType,
   mediaNativeID: ?string,
+  optionalFields: $Shape<{| orientation: boolean, mime: boolean |}>,
 ): Promise<{|
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: MediaMissionFailure | FetchFileInfoResult,
@@ -71,8 +34,7 @@ async function fetchFileInfo(
 
   let assetInfoPromise, newLocalURI;
   const needsLocalURI = !pathFromURI(inputURI);
-  const needsOrientation = mediaType === 'photo';
-  if (mediaNativeID && (needsLocalURI || needsOrientation)) {
+  if (mediaNativeID && (needsLocalURI || optionalFields.orientation)) {
     assetInfoPromise = (async () => {
       const {
         steps: assetInfoSteps,
@@ -99,7 +61,7 @@ async function fetchFileInfo(
   })();
 
   const getOrientationPromise = (async () => {
-    if (!needsOrientation || !assetInfoPromise) {
+    if (!optionalFields.orientation || !assetInfoPromise) {
       return null;
     }
     const { orientation } = await assetInfoPromise;
@@ -118,10 +80,30 @@ async function fetchFileInfo(
     return fileSize;
   })();
 
-  const [uri, orientation, fileSize] = await Promise.all([
+  const getTypesPromise = (async () => {
+    if (!optionalFields.mime) {
+      return { mime: null, mediaType: null };
+    }
+    const [localURI, fileSize] = await Promise.all([
+      getLocalURIPromise,
+      getFileSizePromise,
+    ]);
+    if (!localURI || !fileSize) {
+      return { mime: null, mediaType: null };
+    }
+    const readFileStep = await readFileHeader(localURI, fileSize);
+    steps.push(readFileStep);
+    return {
+      mime: readFileStep.mime,
+      mediaType: readFileStep.mediaType,
+    };
+  })();
+
+  const [uri, orientation, fileSize, types] = await Promise.all([
     getLocalURIPromise,
     getOrientationPromise,
     getFileSizePromise,
+    getTypesPromise,
   ]);
   if (!uri) {
     return { steps, result: { success: false, reason: 'no_file_path' } };
@@ -149,6 +131,8 @@ async function fetchFileInfo(
       uri: finalURI,
       orientation,
       fileSize,
+      mime: types.mime,
+      mediaType: types.mediaType,
     },
   };
 }
@@ -201,6 +185,45 @@ async function fetchAssetInfo(
   };
 }
 
+async function fetchFileSize(
+  uri: string,
+): Promise<{|
+  steps: $ReadOnlyArray<MediaMissionStep>,
+  result: ?number,
+|}> {
+  let fileSize,
+    success = false,
+    exceptionMessage;
+  const statStart = Date.now();
+  try {
+    const result = await filesystem.stat(uri);
+    success = true;
+    fileSize = result.size;
+  } catch (e) {
+    if (
+      e &&
+      typeof e === 'object' &&
+      e.message &&
+      typeof e.message === 'string'
+    ) {
+      exceptionMessage = e.message;
+    }
+  }
+  return {
+    steps: [
+      {
+        step: 'stat_file',
+        success,
+        exceptionMessage,
+        time: Date.now() - statStart,
+        uri,
+        fileSize,
+      },
+    ],
+    result: fileSize,
+  };
+}
+
 async function readFileHeader(
   localURI: string,
   fileSize: number,
@@ -246,4 +269,4 @@ async function readFileHeader(
   };
 }
 
-export { fetchFileSize, fetchFileInfo, readFileHeader };
+export { fetchFileInfo };
