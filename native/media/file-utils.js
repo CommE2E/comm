@@ -68,48 +68,85 @@ async function fetchFileInfo(
   result: MediaMissionFailure | FetchFileInfoResult,
 |}> {
   const steps = [];
-  let uri = inputURI,
-    orientation;
 
+  let assetInfoPromise, newLocalURI;
   const needsLocalURI = !pathFromURI(inputURI);
   const needsOrientation = mediaType === 'photo';
   if (mediaNativeID && (needsLocalURI || needsOrientation)) {
-    const {
-      steps: assetInfoSteps,
-      result: assetInfoResult,
-    } = await fetchAssetInfo(mediaNativeID);
-    steps.push(...assetInfoSteps);
-    if (assetInfoResult.localURI) {
-      uri = assetInfoResult.localURI;
-    }
-    if (assetInfoResult.orientation) {
-      orientation = assetInfoResult.orientation;
-    }
+    assetInfoPromise = (async () => {
+      const {
+        steps: assetInfoSteps,
+        result: assetInfoResult,
+      } = await fetchAssetInfo(mediaNativeID);
+      steps.push(...assetInfoSteps);
+      newLocalURI = assetInfoResult.localURI;
+      return assetInfoResult;
+    })();
   }
 
-  const path = pathFromURI(uri);
-  if (!path) {
+  const getLocalURIPromise = (async () => {
+    if (!needsLocalURI) {
+      return inputURI;
+    }
+    if (!assetInfoPromise) {
+      return null;
+    }
+    const { localURI } = await assetInfoPromise;
+    if (!localURI || !pathFromURI(localURI)) {
+      return null;
+    }
+    return localURI;
+  })();
+
+  const getOrientationPromise = (async () => {
+    if (!needsOrientation || !assetInfoPromise) {
+      return null;
+    }
+    const { orientation } = await assetInfoPromise;
+    return orientation;
+  })();
+
+  const getFileSizePromise = (async () => {
+    const localURI = await getLocalURIPromise;
+    if (!localURI) {
+      return null;
+    }
+    const { steps: fileSizeSteps, result: fileSize } = await fetchFileSize(
+      localURI,
+    );
+    steps.push(...fileSizeSteps);
+    return fileSize;
+  })();
+
+  const [uri, orientation, fileSize] = await Promise.all([
+    getLocalURIPromise,
+    getOrientationPromise,
+    getFileSizePromise,
+  ]);
+  if (!uri) {
     return { steps, result: { success: false, reason: 'no_file_path' } };
   }
-
-  const { steps: fileSizeSteps, result: fileSize } = await fetchFileSize(uri);
-  steps.push(...fileSizeSteps);
   if (!fileSize) {
     return {
       steps,
-      result: {
-        success: false,
-        reason: 'file_stat_failed',
-        uri,
-      },
+      result: { success: false, reason: 'file_stat_failed', uri },
     };
+  }
+
+  let finalURI = uri;
+  if (newLocalURI && newLocalURI !== uri) {
+    console.log(
+      'fetchAssetInfo returned localURI ' +
+        `${newLocalURI} when we already had ${uri}`,
+    );
+    finalURI = newLocalURI;
   }
 
   return {
     steps,
     result: {
       success: true,
-      uri,
+      uri: finalURI,
       orientation,
       fileSize,
     },
