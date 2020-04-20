@@ -3,14 +3,16 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 
+export type ScrollViewModalStatus = 'open' | 'closed' | 'closing';
+
 export type ScrollViewModalState = {|
-  scrollDisabled: boolean,
-  setScrollDisabled: (scrollDisabled: boolean) => void,
+  modalState: ScrollViewModalStatus,
+  setModalState: (modalState: ScrollViewModalStatus) => void,
 |};
 
 const scrollViewModalStatePropType = PropTypes.shape({
-  scrollDisabled: PropTypes.bool.isRequired,
-  setScrollDisabled: PropTypes.func.isRequired,
+  modalState: PropTypes.oneOf(['open', 'closed', 'closing']).isRequired,
+  setModalState: PropTypes.func.isRequired,
 });
 
 const ScrollViewModalContext = React.createContext<?ScrollViewModalState>(null);

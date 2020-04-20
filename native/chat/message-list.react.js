@@ -48,12 +48,7 @@ import {
   type ChatMessageInfoItemWithHeight,
 } from './message.react';
 import ListLoadingIndicator from '../components/list-loading-indicator.react';
-import { scrollBlockingChatModalsClosedSelector } from '../navigation/nav-selectors';
 import { styleSelector } from '../themes/colors';
-import {
-  connectNav,
-  type NavContextType,
-} from '../navigation/navigation-context';
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -61,7 +56,6 @@ type Props = {|
   navigation: MessageListNavProp,
   // Redux state
   startReached: boolean,
-  scrollBlockingModalsClosed: boolean,
   styles: typeof styles,
   // withScrollViewModalState
   scrollViewModalState: ?ScrollViewModalState,
@@ -97,7 +91,6 @@ class MessageList extends React.PureComponent<Props, State> {
     messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
     navigation: messageListNavPropType.isRequired,
     startReached: PropTypes.bool.isRequired,
-    scrollBlockingModalsClosed: PropTypes.bool.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     scrollViewModalState: scrollViewModalStatePropType,
     keyboardState: keyboardStatePropType,
@@ -151,7 +144,14 @@ class MessageList extends React.PureComponent<Props, State> {
 
   static scrollDisabled(props: Props) {
     const { scrollViewModalState } = props;
-    return !!(scrollViewModalState && scrollViewModalState.scrollDisabled);
+    return (
+      !!scrollViewModalState && scrollViewModalState.modalState !== 'closed'
+    );
+  }
+
+  static modalOpen(props: Props) {
+    const { scrollViewModalState } = props;
+    return !!scrollViewModalState && scrollViewModalState.modalState === 'open';
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -175,10 +175,9 @@ class MessageList extends React.PureComponent<Props, State> {
       this.loadingFromScroll = false;
     }
 
-    if (
-      this.props.scrollBlockingModalsClosed &&
-      !prevProps.scrollBlockingModalsClosed
-    ) {
+    const modalIsOpen = MessageList.modalOpen(this.props);
+    const modalWasOpen = MessageList.modalOpen(prevProps);
+    if (!modalIsOpen && modalWasOpen) {
       this.setState({ focusedMessageKey: null });
     }
 
@@ -390,8 +389,4 @@ export default connect(
     };
   },
   { fetchMessagesBeforeCursor, fetchMostRecentMessages },
-)(
-  connectNav((context: ?NavContextType) => ({
-    scrollBlockingModalsClosed: scrollBlockingChatModalsClosedSelector(context),
-  }))(withKeyboardState(withScrollViewModalState(MessageList))),
-);
+)(withKeyboardState(withScrollViewModalState(MessageList)));

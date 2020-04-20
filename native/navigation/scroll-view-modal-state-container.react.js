@@ -7,7 +7,10 @@ import {
   scrollBlockingChatModalsClosedSelector,
   overlayTransitioningSelector,
 } from './nav-selectors';
-import { ScrollViewModalContext } from './scroll-view-modal-state';
+import {
+  ScrollViewModalContext,
+  type ScrollViewModalStatus,
+} from './scroll-view-modal-state';
 import { connectNav, type NavContextType } from './navigation-context';
 
 type Props = {|
@@ -17,7 +20,7 @@ type Props = {|
   scrollBlockingModalsGone: boolean,
 |};
 type State = {|
-  scrollDisabled: boolean,
+  modalState: ScrollViewModalStatus,
 |};
 class ScrollViewModalStateContainer extends React.PureComponent<Props, State> {
   static propTypes = {
@@ -29,34 +32,40 @@ class ScrollViewModalStateContainer extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      scrollDisabled: !props.scrollBlockingModalsClosed,
+      modalState: props.scrollBlockingModalsClosed ? 'closed' : 'open',
     };
   }
 
   componentDidUpdate(prevProps: Props) {
     if (
-      this.state.scrollDisabled &&
+      this.state.modalState !== 'closed' &&
       this.props.scrollBlockingModalsGone &&
       !prevProps.scrollBlockingModalsGone
     ) {
-      this.setScrollDisabled(false);
+      this.setModalState('closed');
     } else if (
-      !this.state.scrollDisabled &&
+      this.state.modalState !== 'open' &&
       !this.props.scrollBlockingModalsClosed &&
       prevProps.scrollBlockingModalsClosed
     ) {
-      this.setScrollDisabled(true);
+      this.setModalState('open');
+    } else if (
+      this.state.modalState === 'open' &&
+      this.props.scrollBlockingModalsClosed &&
+      !prevProps.scrollBlockingModalsClosed
+    ) {
+      this.setModalState('closing');
     }
   }
 
-  setScrollDisabled = (scrollDisabled: boolean) => {
-    this.setState({ scrollDisabled });
+  setModalState = (modalState: ScrollViewModalStatus) => {
+    this.setState({ modalState });
   };
 
   render() {
     const scrollViewModalState = {
-      scrollDisabled: this.state.scrollDisabled,
-      setScrollDisabled: this.setScrollDisabled,
+      modalState: this.state.modalState,
+      setModalState: this.setModalState,
     };
     return (
       <ScrollViewModalContext.Provider value={scrollViewModalState}>

@@ -259,7 +259,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
 
   static scrollDisabled(props: Props) {
     const { scrollViewModalState } = props;
-    return !!(scrollViewModalState && scrollViewModalState.scrollDisabled);
+    return (
+      !!scrollViewModalState && scrollViewModalState.modalState !== 'closed'
+    );
   }
 
   componentDidMount() {

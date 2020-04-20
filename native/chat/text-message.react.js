@@ -131,7 +131,7 @@ class TextMessage extends React.PureComponent<Props> {
 
     const { scrollViewModalState } = this.props;
     if (scrollViewModalState) {
-      scrollViewModalState.setScrollDisabled(true);
+      scrollViewModalState.setModalState('open');
     }
 
     message.measure((x, y, width, height, pageX, pageY) => {

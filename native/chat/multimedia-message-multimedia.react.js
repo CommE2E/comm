@@ -116,7 +116,9 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
 
   static scrollDisabled(props: Props) {
     const { scrollViewModalState } = props;
-    return !!(scrollViewModalState && scrollViewModalState.scrollDisabled);
+    return (
+      !!scrollViewModalState && scrollViewModalState.modalState !== 'closed'
+    );
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -185,7 +187,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
 
     const { scrollViewModalState, mediaInfo } = this.props;
     if (scrollViewModalState) {
-      scrollViewModalState.setScrollDisabled(true);
+      scrollViewModalState.setModalState('open');
     }
 
     view.measure((x, y, width, height, pageX, pageY) => {
@@ -234,7 +236,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
 
     const { scrollViewModalState } = this.props;
     if (scrollViewModalState) {
-      scrollViewModalState.setScrollDisabled(true);
+      scrollViewModalState.setModalState('open');
     }
 
     view.measure((x, y, width, height, pageX, pageY) => {
