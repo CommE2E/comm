@@ -10,10 +10,6 @@ div.activeContainer {
   border: 2px solid #5989D6;
   margin-left: 402px;
 }
-div.firefoxMessageContainer {
-  overflow-y: scroll;
-  height: 100%;
-}
 div.messageContainer {
   flex-grow: 1;
   flex: 1;
@@ -21,8 +17,15 @@ div.messageContainer {
   display: flex;
   flex-direction: column-reverse;
 }
+div.firefoxMessageContainer {
+  flex-direction: column !important;
+  transform: scaleY(-1);
+}
 div.messageContainer > div {
   transform: translateZ(0);
+}
+div.firefoxMessageContainer > div {
+  transform: translateZ(0) scaleY(-1) !important;
 }
 
 div.message {

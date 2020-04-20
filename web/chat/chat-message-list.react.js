@@ -158,8 +158,14 @@ class ChatMessageList extends React.PureComponent<Props, State> {
   }
 
   scrollToBottom() {
-    if (this.messageContainer) {
-      this.messageContainer.scrollTop = this.messageContainer.scrollHeight;
+    const { messageContainer } = this;
+    if (!messageContainer) {
+      return;
+    }
+    if (this.props.firefox) {
+      messageContainer.scrollTop = 0;
+    } else {
+      messageContainer.scrollTop = messageContainer.scrollHeight;
     }
   }
 
@@ -246,31 +252,16 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       />
     );
 
-    let content;
-    if (this.props.firefox) {
-      content = (
-        <div
-          className={css.firefoxMessageContainer}
-          ref={this.messageContainerRef}
-        >
-          <div className={css.messageContainer}>
-            {messages}
-            {tooltip}
-          </div>
-        </div>
-      );
-    } else {
-      content = (
-        <div className={css.messageContainer} ref={this.messageContainerRef}>
+    const messageContainerStyle = classNames({
+      [css.messageContainer]: true,
+      [css.firefoxMessageContainer]: this.props.firefox,
+    });
+    return connectDropTarget(
+      <div className={containerStyle} ref={this.containerRef}>
+        <div className={messageContainerStyle} ref={this.messageContainerRef}>
           {messages}
           {tooltip}
         </div>
-      );
-    }
-
-    return connectDropTarget(
-      <div className={containerStyle} ref={this.containerRef}>
-        {content}
         <ChatInputBar threadInfo={threadInfo} chatInputState={chatInputState} />
       </div>,
     );
