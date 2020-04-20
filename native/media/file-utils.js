@@ -13,6 +13,9 @@ import filesystem from 'react-native-fs';
 import base64 from 'base-64';
 
 import { pathFromURI, fileInfoFromData } from 'lib/utils/file-utils';
+import { stringToIntArray } from './blob-utils';
+
+const defaultOptionalFields = Object.freeze({});
 
 type FetchFileInfoResult = {|
   success: true,
@@ -22,10 +25,11 @@ type FetchFileInfoResult = {|
   mime: ?string,
   mediaType: ?MediaType,
 |};
+type OptionalFields = $Shape<{| orientation: boolean, mime: boolean |}>;
 async function fetchFileInfo(
   inputURI: string,
-  mediaNativeID: ?string,
-  optionalFields: $Shape<{| orientation: boolean, mime: boolean |}>,
+  mediaNativeID?: ?string,
+  optionalFields?: OptionalFields = defaultOptionalFields,
 ): Promise<{|
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: MediaMissionFailure | FetchFileInfoResult,
@@ -251,10 +255,7 @@ async function readFileHeader(
   let mime, mediaType;
   if (fileData) {
     const utf8 = base64.decode(fileData);
-    const intArray = new Uint8Array(utf8.length);
-    for (var i = 0; i < utf8.length; i++) {
-      intArray[i] = utf8.charCodeAt(i);
-    }
+    const intArray = stringToIntArray(utf8);
     ({ mime, mediaType } = fileInfoFromData(intArray));
   }
 

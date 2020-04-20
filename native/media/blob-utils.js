@@ -48,4 +48,4 @@ function stringToIntArray(str: string): Uint8Array {
   return array;
 }
 
-export { blobToDataURI, dataURIToIntArray };
+export { blobToDataURI, dataURIToIntArray, stringToIntArray };

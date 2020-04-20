@@ -4,12 +4,17 @@ import { Platform, PermissionsAndroid } from 'react-native';
 import filesystem from 'react-native-fs';
 import invariant from 'invariant';
 import * as MediaLibrary from 'expo-media-library';
-import md5 from 'md5';
 
-import { fileInfoFromData, readableFilename } from 'lib/utils/file-utils';
+import {
+  fileInfoFromData,
+  readableFilename,
+  pathFromURI,
+} from 'lib/utils/file-utils';
+import { promiseAll } from 'lib/utils/promises';
 
 import { blobToDataURI, dataURIToIntArray } from './blob-utils';
 import { getMediaLibraryIdentifier, getFetchableURI } from './identifier-utils';
+import { fetchFileInfo } from './file-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
 import { getAndroidPermission } from '../utils/android-permissions';
 
@@ -71,15 +76,44 @@ async function saveImageAndroid(
     return "don't have permission :(";
   }
 
+  const promises = [];
   const saveFolder = `${filesystem.PicturesDirectoryPath}/SquadCal/`;
-  await filesystem.mkdir(saveFolder);
+  promises.push(filesystem.mkdir(saveFolder));
 
-  const saveResult = await saveToDisk(mediaInfo.uri, saveFolder);
+  let { uri } = mediaInfo;
+  let tempFile, mime, error;
+  if (uri.startsWith('http')) {
+    promises.push(
+      (async () => {
+        const tempSaveResult = await saveRemoteMediaToDisk(
+          uri,
+          `${filesystem.TemporaryDirectoryPath}/`,
+        );
+        if (!tempSaveResult.success) {
+          error = tempSaveResult.error;
+        } else {
+          tempFile = tempSaveResult.path;
+          uri = `file://${tempFile}`;
+          mime = tempSaveResult.mime;
+        }
+      })(),
+    );
+  }
+
+  await Promise.all(promises);
+  if (error) {
+    return error;
+  }
+
+  const saveResult = await copyToSortedDirectory(uri, saveFolder, mime);
   if (!saveResult.success) {
     return saveResult.error;
   }
-  await filesystem.scanFile(saveResult.path);
+  filesystem.scanFile(saveResult.path);
 
+  if (tempFile) {
+    filesystem.unlink(tempFile);
+  }
   return null;
 }
 
@@ -88,7 +122,10 @@ async function saveImageIOS(mediaInfo: SaveImageInfo) {
   let { uri } = mediaInfo;
   let tempFile;
   if (uri.startsWith('http')) {
-    const saveResult = await saveToDisk(uri, filesystem.TemporaryDirectoryPath);
+    const saveResult = await saveRemoteMediaToDisk(
+      uri,
+      filesystem.TemporaryDirectoryPath,
+    );
     if (!saveResult.success) {
       return saveResult.error;
     }
@@ -112,18 +149,17 @@ async function saveImageIOS(mediaInfo: SaveImageInfo) {
   await MediaLibrary.saveToLibraryAsync(uri);
 
   if (tempFile) {
-    await filesystem.unlink(tempFile);
+    filesystem.unlink(tempFile);
   }
   return null;
 }
 
-// path to directory should end with a /
 type SaveResult =
-  | {| success: true, path: string |}
+  | {| success: true, path: string, mime: string |}
   | {| success: false, error: string |};
-async function saveToDisk(
+async function saveRemoteMediaToDisk(
   inputURI: string,
-  directory: string,
+  directory: string, // should end with a /
 ): Promise<SaveResult> {
   const uri = getFetchableURI(inputURI);
 
@@ -155,19 +191,63 @@ async function saveToDisk(
     return { success: false, error: 'failed to save :(' };
   }
 
-  const name = readableFilename(md5(dataURI), mime);
-  if (!name) {
+  const tempName = readableFilename('', mime);
+  if (!tempName) {
     return { success: false, error: 'failed to save :(' };
   }
-  const path = `${directory}${name}`;
+  const tempPath = `${directory}tempsave.${tempName}`;
 
   try {
-    await filesystem.writeFile(path, base64, 'base64');
+    await filesystem.writeFile(tempPath, base64, 'base64');
   } catch {
     return { success: false, error: 'failed to save :(' };
   }
 
-  return { success: true, path };
+  return { success: true, path: tempPath, mime };
+}
+
+async function copyToSortedDirectory(
+  localURI: string,
+  directory: string, // should end with a /
+  inputMIME: ?string,
+): Promise<SaveResult> {
+  const path = pathFromURI(localURI);
+  if (!path) {
+    return { success: false, error: 'failed to save :(' };
+  }
+  let mime = inputMIME;
+
+  const promises = {};
+  promises.hash = filesystem.hash(path, 'md5');
+  if (!mime) {
+    promises.fileInfoResult = fetchFileInfo(localURI, null, { mime: true });
+  }
+  const { hash, fileInfoResult } = await promiseAll(promises);
+
+  if (
+    fileInfoResult &&
+    fileInfoResult.result.success &&
+    fileInfoResult.result.mime
+  ) {
+    mime = fileInfoResult.result.mime;
+  }
+  if (!mime) {
+    return { success: false, error: 'failed to save :(' };
+  }
+
+  const name = readableFilename(hash, mime);
+  if (!name) {
+    return { success: false, error: 'failed to save :(' };
+  }
+  const newPath = `${directory}${name}`;
+
+  try {
+    await filesystem.copyFile(path, newPath);
+  } catch {
+    return { success: false, error: 'failed to save :(' };
+  }
+
+  return { success: true, path: newPath, mime };
 }
 
 export { intentionalSaveImage, saveImage };
