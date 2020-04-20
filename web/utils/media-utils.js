@@ -41,15 +41,15 @@ async function processFile(
   exifRotate: boolean,
 ): Promise<ProcessFileResult> {
   const initialURI = URL.createObjectURL(file);
+  if (!exifRotate) {
+    const { width, height } = await preloadImage(initialURI);
+    const dimensions = { width, height };
+    return { uri: initialURI, dimensions };
+  }
 
   const [image, orientation] = await Promise.all([
     preloadImage(initialURI),
-    (async () => {
-      if (!exifRotate) {
-        return 1;
-      }
-      return await getOrientation(file);
-    })(),
+    getOrientation(file),
   ]);
 
   const dimensions =
