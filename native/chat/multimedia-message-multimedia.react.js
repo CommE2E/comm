@@ -20,10 +20,10 @@ import {
   messageListNavPropType,
 } from './message-list-types';
 import {
-  type OverlayableScrollViewState,
-  overlayableScrollViewStatePropType,
-  withOverlayableScrollViewState,
-} from '../navigation/overlayable-scroll-view-state';
+  type ScrollViewModalState,
+  scrollViewModalStatePropType,
+  withScrollViewModalState,
+} from '../navigation/scroll-view-modal-state';
 import {
   type KeyboardState,
   keyboardStatePropType,
@@ -58,8 +58,8 @@ type Props = {|
   toggleMessageFocus: (messageKey: string) => void,
   // Redux state
   colors: Colors,
-  // withOverlayableScrollViewState
-  overlayableScrollViewState: ?OverlayableScrollViewState,
+  // withScrollViewModalState
+  scrollViewModalState: ?ScrollViewModalState,
   // withKeyboardState
   keyboardState: ?KeyboardState,
 |};
@@ -80,7 +80,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     messageFocused: PropTypes.bool.isRequired,
     toggleMessageFocus: PropTypes.func.isRequired,
     colors: colorsPropType.isRequired,
-    overlayableScrollViewState: overlayableScrollViewStatePropType,
+    scrollViewModalState: scrollViewModalStatePropType,
     keyboardState: keyboardStatePropType,
   };
   view: ?View;
@@ -115,10 +115,8 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   }
 
   static scrollDisabled(props: Props) {
-    const { overlayableScrollViewState } = props;
-    return !!(
-      overlayableScrollViewState && overlayableScrollViewState.scrollDisabled
-    );
+    const { scrollViewModalState } = props;
+    return !!(scrollViewModalState && scrollViewModalState.scrollDisabled);
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -185,9 +183,9 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     }
     this.clickable = false;
 
-    const { overlayableScrollViewState, mediaInfo } = this.props;
-    if (overlayableScrollViewState) {
-      overlayableScrollViewState.setScrollDisabled(true);
+    const { scrollViewModalState, mediaInfo } = this.props;
+    if (scrollViewModalState) {
+      scrollViewModalState.setScrollDisabled(true);
     }
 
     view.measure((x, y, width, height, pageX, pageY) => {
@@ -234,9 +232,9 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
       toggleMessageFocus(messageKey(item.messageInfo));
     }
 
-    const { overlayableScrollViewState } = this.props;
-    if (overlayableScrollViewState) {
-      overlayableScrollViewState.setScrollDisabled(true);
+    const { scrollViewModalState } = this.props;
+    if (scrollViewModalState) {
+      scrollViewModalState.setScrollDisabled(true);
     }
 
     view.measure((x, y, width, height, pageX, pageY) => {
@@ -298,8 +296,4 @@ const styles = StyleSheet.create({
 
 export default connect((state: AppState) => ({
   colors: colorsSelector(state),
-}))(
-  withKeyboardState(
-    withOverlayableScrollViewState(MultimediaMessageMultimedia),
-  ),
-);
+}))(withKeyboardState(withScrollViewModalState(MultimediaMessageMultimedia)));

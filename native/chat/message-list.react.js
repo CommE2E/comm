@@ -13,10 +13,10 @@ import {
   messageListNavPropType,
 } from './message-list-types';
 import {
-  type OverlayableScrollViewState,
-  overlayableScrollViewStatePropType,
-  withOverlayableScrollViewState,
-} from '../navigation/overlayable-scroll-view-state';
+  type ScrollViewModalState,
+  scrollViewModalStatePropType,
+  withScrollViewModalState,
+} from '../navigation/scroll-view-modal-state';
 import {
   type KeyboardState,
   keyboardStatePropType,
@@ -63,8 +63,8 @@ type Props = {|
   startReached: boolean,
   scrollBlockingModalsClosed: boolean,
   styles: typeof styles,
-  // withOverlayableScrollViewState
-  overlayableScrollViewState: ?OverlayableScrollViewState,
+  // withScrollViewModalState
+  scrollViewModalState: ?ScrollViewModalState,
   // withKeyboardState
   keyboardState: ?KeyboardState,
   // Redux dispatch functions
@@ -99,7 +99,7 @@ class MessageList extends React.PureComponent<Props, State> {
     startReached: PropTypes.bool.isRequired,
     scrollBlockingModalsClosed: PropTypes.bool.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    overlayableScrollViewState: overlayableScrollViewStatePropType,
+    scrollViewModalState: scrollViewModalStatePropType,
     keyboardState: keyboardStatePropType,
     dispatchActionPromise: PropTypes.func.isRequired,
     fetchMessagesBeforeCursor: PropTypes.func.isRequired,
@@ -150,10 +150,8 @@ class MessageList extends React.PureComponent<Props, State> {
   }
 
   static scrollDisabled(props: Props) {
-    const { overlayableScrollViewState } = props;
-    return !!(
-      overlayableScrollViewState && overlayableScrollViewState.scrollDisabled
-    );
+    const { scrollViewModalState } = props;
+    return !!(scrollViewModalState && scrollViewModalState.scrollDisabled);
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -395,5 +393,5 @@ export default connect(
 )(
   connectNav((context: ?NavContextType) => ({
     scrollBlockingModalsClosed: scrollBlockingChatModalsClosedSelector(context),
-  }))(withKeyboardState(withOverlayableScrollViewState(MessageList))),
+  }))(withKeyboardState(withScrollViewModalState(MessageList))),
 );

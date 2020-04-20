@@ -33,7 +33,7 @@ import ActionResultModal from './action-result-modal.react';
 import { TextMessageTooltipModal } from '../chat/text-message-tooltip-modal.react';
 import ThreadSettingsMemberTooltipModal from '../chat/settings/thread-settings-member-tooltip-modal.react';
 import CameraModal from '../media/camera-modal.react';
-import OverlayableScrollViewStateContainer from './overlayable-scroll-view-state-container.react';
+import ScrollViewModalStateContainer from './scroll-view-modal-state-container.react';
 import KeyboardStateContainer from '../keyboard/keyboard-state-container.react';
 import PushHandler from '../push/push-handler.react';
 import { getPersistor } from '../redux/persist';
@@ -86,14 +86,14 @@ function WrappedAppNavigator(props: Props) {
 
   const { navigation } = props;
   return (
-    <OverlayableScrollViewStateContainer>
+    <ScrollViewModalStateContainer>
       <KeyboardStateContainer>
         <AppNavigator navigation={navigation} />
         <PersistGate persistor={getPersistor()}>
           <PushHandler navigation={navigation} />
         </PersistGate>
       </KeyboardStateContainer>
-    </OverlayableScrollViewStateContainer>
+    </ScrollViewModalStateContainer>
   );
 }
 hoistNonReactStatics(WrappedAppNavigator, AppNavigator);

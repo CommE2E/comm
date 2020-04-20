@@ -11,10 +11,10 @@ import type { AppState } from '../../redux/redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import {
-  type OverlayableScrollViewState,
-  overlayableScrollViewStatePropType,
-  withOverlayableScrollViewState,
-} from '../../navigation/overlayable-scroll-view-state';
+  type ScrollViewModalState,
+  scrollViewModalStatePropType,
+  withScrollViewModalState,
+} from '../../navigation/scroll-view-modal-state';
 import {
   type VerticalBounds,
   verticalBoundsPropType,
@@ -69,8 +69,8 @@ type Props = {|
   changeRoleLoadingStatus: LoadingStatus,
   colors: Colors,
   styles: typeof styles,
-  // withOverlayableScrollViewState
-  overlayableScrollViewState: ?OverlayableScrollViewState,
+  // withScrollViewModalState
+  scrollViewModalState: ?ScrollViewModalState,
   // withKeyboardState
   keyboardState: ?KeyboardState,
 |};
@@ -87,7 +87,7 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
     changeRoleLoadingStatus: loadingStatusPropType.isRequired,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    overlayableScrollViewState: overlayableScrollViewStatePropType,
+    scrollViewModalState: scrollViewModalStatePropType,
     keyboardState: keyboardStatePropType,
   };
   editButton: ?View;
@@ -232,9 +232,9 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
       return;
     }
 
-    const { overlayableScrollViewState } = this.props;
-    if (overlayableScrollViewState) {
-      overlayableScrollViewState.setScrollDisabled(true);
+    const { scrollViewModalState } = this.props;
+    if (scrollViewModalState) {
+      scrollViewModalState.setScrollDisabled(true);
     }
 
     editButton.measure((x, y, width, height, pageX, pageY) => {
@@ -315,4 +315,4 @@ export default connect(
     colors: colorsSelector(state),
     styles: stylesSelector(state),
   }),
-)(withKeyboardState(withOverlayableScrollViewState(ThreadSettingsMember)));
+)(withKeyboardState(withScrollViewModalState(ThreadSettingsMember)));

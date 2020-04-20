@@ -16,10 +16,10 @@ import type { CategoryType } from './thread-settings-category.react';
 import type { Navigate } from '../../navigation/route-names';
 import type { VerticalBounds } from '../../types/layout-types';
 import {
-  type OverlayableScrollViewState,
-  overlayableScrollViewStatePropType,
-  withOverlayableScrollViewState,
-} from '../../navigation/overlayable-scroll-view-state';
+  type ScrollViewModalState,
+  scrollViewModalStatePropType,
+  withScrollViewModalState,
+} from '../../navigation/scroll-view-modal-state';
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -196,8 +196,8 @@ type Props = {|
   somethingIsSaving: boolean,
   tabActive: boolean,
   styles: typeof styles,
-  // withOverlayableScrollViewState
-  overlayableScrollViewState: ?OverlayableScrollViewState,
+  // withScrollViewModalState
+  scrollViewModalState: ?ScrollViewModalState,
 |};
 type State = {|
   showMaxMembers: number,
@@ -228,7 +228,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     somethingIsSaving: PropTypes.bool.isRequired,
     tabActive: PropTypes.bool.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    overlayableScrollViewState: overlayableScrollViewStatePropType,
+    scrollViewModalState: scrollViewModalStatePropType,
   };
   static navigationOptions = ({ navigation }) => ({
     title: navigation.state.params.threadInfo.uiName,
@@ -258,10 +258,8 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   }
 
   static scrollDisabled(props: Props) {
-    const { overlayableScrollViewState } = props;
-    return !!(
-      overlayableScrollViewState && overlayableScrollViewState.scrollDisabled
-    );
+    const { scrollViewModalState } = props;
+    return !!(scrollViewModalState && scrollViewModalState.scrollDisabled);
   }
 
   componentDidMount() {
@@ -852,7 +850,7 @@ const WrappedThreadSettings = connect(
 )(
   connectNav((context: ?NavContextType) => ({
     tabActive: activeTabSelector(context),
-  }))(withOverlayableScrollViewState(ThreadSettings)),
+  }))(withScrollViewModalState(ThreadSettings)),
 );
 
 hoistNonReactStatics(WrappedThreadSettings, ThreadSettings);

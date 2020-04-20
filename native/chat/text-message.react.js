@@ -15,10 +15,10 @@ import {
   messageListNavPropType,
 } from './message-list-types';
 import {
-  type OverlayableScrollViewState,
-  overlayableScrollViewStatePropType,
-  withOverlayableScrollViewState,
-} from '../navigation/overlayable-scroll-view-state';
+  type ScrollViewModalState,
+  scrollViewModalStatePropType,
+  withScrollViewModalState,
+} from '../navigation/scroll-view-modal-state';
 import {
   type KeyboardState,
   keyboardStatePropType,
@@ -73,8 +73,8 @@ type Props = {|
   focused: boolean,
   toggleFocus: (messageKey: string) => void,
   verticalBounds: ?VerticalBounds,
-  // withOverlayableScrollViewState
-  overlayableScrollViewState: ?OverlayableScrollViewState,
+  // withScrollViewModalState
+  scrollViewModalState: ?ScrollViewModalState,
   // withKeyboardState
   keyboardState: ?KeyboardState,
 |};
@@ -85,7 +85,7 @@ class TextMessage extends React.PureComponent<Props> {
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
-    overlayableScrollViewState: overlayableScrollViewStatePropType,
+    scrollViewModalState: scrollViewModalStatePropType,
     keyboardState: keyboardStatePropType,
   };
   message: ?View;
@@ -129,9 +129,9 @@ class TextMessage extends React.PureComponent<Props> {
       toggleFocus(messageKey(item.messageInfo));
     }
 
-    const { overlayableScrollViewState } = this.props;
-    if (overlayableScrollViewState) {
-      overlayableScrollViewState.setScrollDisabled(true);
+    const { scrollViewModalState } = this.props;
+    if (scrollViewModalState) {
+      scrollViewModalState.setScrollDisabled(true);
     }
 
     message.measure((x, y, width, height, pageX, pageY) => {
@@ -179,7 +179,7 @@ class TextMessage extends React.PureComponent<Props> {
 }
 
 const WrappedTextMessage = withKeyboardState(
-  withOverlayableScrollViewState(TextMessage),
+  withScrollViewModalState(TextMessage),
 );
 
 export { WrappedTextMessage as TextMessage, textMessageItemHeight };

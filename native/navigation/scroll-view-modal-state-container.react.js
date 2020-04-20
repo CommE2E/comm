@@ -7,7 +7,7 @@ import {
   scrollBlockingChatModalsClosedSelector,
   overlayTransitioningSelector,
 } from './nav-selectors';
-import { OverlayableScrollViewContext } from './overlayable-scroll-view-state';
+import { ScrollViewModalContext } from './scroll-view-modal-state';
 import { connectNav, type NavContextType } from './navigation-context';
 
 type Props = {|
@@ -19,10 +19,7 @@ type Props = {|
 type State = {|
   scrollDisabled: boolean,
 |};
-class OverlayableScrollViewStateContainer extends React.PureComponent<
-  Props,
-  State,
-> {
+class ScrollViewModalStateContainer extends React.PureComponent<Props, State> {
   static propTypes = {
     children: PropTypes.node.isRequired,
     scrollBlockingModalsClosed: PropTypes.bool.isRequired,
@@ -57,14 +54,14 @@ class OverlayableScrollViewStateContainer extends React.PureComponent<
   };
 
   render() {
-    const overlayableScrollViewState = {
+    const scrollViewModalState = {
       scrollDisabled: this.state.scrollDisabled,
       setScrollDisabled: this.setScrollDisabled,
     };
     return (
-      <OverlayableScrollViewContext.Provider value={overlayableScrollViewState}>
+      <ScrollViewModalContext.Provider value={scrollViewModalState}>
         {this.props.children}
-      </OverlayableScrollViewContext.Provider>
+      </ScrollViewModalContext.Provider>
     );
   }
 }
@@ -78,4 +75,4 @@ export default connectNav((context: ?NavContextType) => {
     scrollBlockingModalsGone:
       scrollBlockingModalsClosed && !overlayTransitioningSelector(context),
   };
-})(OverlayableScrollViewStateContainer);
+})(ScrollViewModalStateContainer);
