@@ -106,7 +106,7 @@ async function validateFile(
     processFile(file, exifRotate),
   ]);
 
-  const { mime, mediaType } = fileInfoFromData(new Uint8Array(arrayBuffer));
+  const { mime, mediaType } = fileInfoFromData(arrayBuffer);
   if (!mime || !mediaType || !allowedMimeTypes.has(mime)) {
     return null;
   }
