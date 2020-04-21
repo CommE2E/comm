@@ -77,6 +77,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
   fetchingPhotos = false;
   flatList: ?FlatList<MediaLibrarySelection>;
   viewableIndices: number[] = [];
+  // eslint-disable-next-line import/no-named-as-default-member
   queueModeProgress = new Animated.Value(0);
   sendButtonStyle: ViewStyle;
   mediaSelected = false;
@@ -122,11 +123,13 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     const { queuedMediaURIs } = this.state;
     const prevQueuedMediaURIs = prevState.queuedMediaURIs;
     if (queuedMediaURIs && !prevQueuedMediaURIs) {
+      // eslint-disable-next-line import/no-named-as-default-member
       Animated.timing(this.queueModeProgress, {
         ...animationSpec,
         toValue: 1,
       }).start();
     } else if (!queuedMediaURIs && prevQueuedMediaURIs) {
+      // eslint-disable-next-line import/no-named-as-default-member
       Animated.timing(this.queueModeProgress, {
         ...animationSpec,
         toValue: 0,
