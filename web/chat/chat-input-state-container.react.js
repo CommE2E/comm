@@ -354,7 +354,10 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     ),
   );
 
-  async appendFiles(threadID: string, files: $ReadOnlyArray<File>) {
+  async appendFiles(
+    threadID: string,
+    files: $ReadOnlyArray<File>,
+  ): Promise<boolean> {
     const { setModal } = this.props;
 
     let validationResults;
@@ -364,19 +367,19 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       );
     } catch (e) {
       setModal(<InvalidUploadModal setModal={setModal} />);
-      return;
+      return false;
     }
 
     const newUploads = [];
     for (let result of validationResults) {
       if (!result) {
         setModal(<InvalidUploadModal setModal={setModal} />);
-        return;
+        return false;
       }
       const { file, mediaType, dimensions } = result;
       if (!dimensions) {
         setModal(<InvalidUploadModal setModal={setModal} />);
-        return;
+        return false;
       }
       newUploads.push({
         localID: `localUpload${nextLocalUploadID++}`,
@@ -394,7 +397,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     }
     if (newUploads.length === 0) {
       setModal(<InvalidUploadModal setModal={setModal} />);
-      return;
+      return false;
     }
     const newUploadsObject = _keyBy('localID')(newUploads);
     this.setState(
@@ -412,6 +415,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       },
       () => this.uploadFiles(threadID, newUploads),
     );
+    return true;
   }
 
   uploadFiles(
