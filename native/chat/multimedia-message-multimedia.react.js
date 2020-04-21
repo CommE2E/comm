@@ -44,6 +44,32 @@ import InlineMultimedia from './inline-multimedia.react';
 import { multimediaTooltipHeight } from './multimedia-tooltip-modal.react';
 import { type Colors, colorsPropType, colorsSelector } from '../themes/colors';
 
+/* eslint-disable import/no-named-as-default-member */
+const {
+  Value,
+  set,
+  block,
+  cond,
+  eq,
+  greaterThan,
+  and,
+  sub,
+  multiply,
+  interpolate,
+  Extrapolate,
+} = Animated;
+/* eslint-enable import/no-named-as-default-member */
+
+function overlayJustCleared(overlayPosition: Value) {
+  const justCleared = new Value(0);
+  const prevValue = new Value(0);
+  return [
+    set(justCleared, and(greaterThan(prevValue, 0), eq(overlayPosition, 0))),
+    set(prevValue, overlayPosition),
+    justCleared,
+  ];
+}
+
 type Props = {|
   mediaInfo: MediaInfo,
   item: ChatMultimediaMessageInfoItem,
@@ -51,7 +77,7 @@ type Props = {|
   verticalBounds: ?VerticalBounds,
   verticalOffset: number,
   style: ImageStyle,
-  overlayPosition: ?Animated.Value,
+  overlayPosition: ?Value,
   postInProgress: boolean,
   pendingUpload: ?PendingMultimediaUpload,
   messageFocused: boolean,
@@ -63,18 +89,14 @@ type Props = {|
   // withKeyboardState
   keyboardState: ?KeyboardState,
 |};
-type State = {|
-  hidden: boolean,
-  opacity: ?Animated.Value,
-|};
-class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
+class MultimediaMessageMultimedia extends React.PureComponent<Props> {
   static propTypes = {
     mediaInfo: mediaInfoPropType.isRequired,
     item: chatMessageItemPropType.isRequired,
     navigation: messageListNavPropType.isRequired,
     verticalBounds: verticalBoundsPropType,
     verticalOffset: PropTypes.number.isRequired,
-    overlayPosition: PropTypes.instanceOf(Animated.Value),
+    overlayPosition: PropTypes.instanceOf(Value),
     postInProgress: PropTypes.bool.isRequired,
     pendingUpload: pendingMultimediaUploadPropType,
     messageFocused: PropTypes.bool.isRequired,
@@ -85,21 +107,12 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   };
   view: ?View;
   clickable = true;
+  hidden = new Value(0);
+  opacity: Value;
 
   constructor(props: Props) {
     super(props);
-    this.state = {
-      hidden: false,
-      opacity: this.getOpacity(),
-    };
-  }
-
-  static getDerivedStateFromProps(props: Props, state: State) {
-    const scrollIsDisabled = MultimediaMessageMultimedia.scrollDisabled(props);
-    if (!scrollIsDisabled && state.hidden) {
-      return { hidden: false };
-    }
-    return null;
+    this.getOpacity();
   }
 
   getOpacity() {
@@ -107,11 +120,20 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     if (!overlayPosition) {
       return null;
     }
-    return Animated.interpolate(this.props.overlayPosition, {
-      inputRange: [0.1, 0.11],
-      outputRange: [1, 0],
-      extrapolate: Animated.Extrapolate.CLAMP,
-    });
+    this.opacity = block([
+      cond(overlayJustCleared(overlayPosition), set(this.hidden, 0)),
+      sub(
+        1,
+        multiply(
+          this.hidden,
+          interpolate(overlayPosition, {
+            inputRange: [0.1, 0.11],
+            outputRange: [0, 1],
+            extrapolate: Extrapolate.CLAMP,
+          }),
+        ),
+      ),
+    ]);
   }
 
   static scrollDisabled(props: Props) {
@@ -123,7 +145,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
 
   componentDidUpdate(prevProps: Props) {
     if (this.props.overlayPosition !== prevProps.overlayPosition) {
-      this.setState({ opacity: this.getOpacity() });
+      this.getOpacity();
     }
 
     const scrollIsDisabled = MultimediaMessageMultimedia.scrollDisabled(
@@ -134,15 +156,13 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     );
     if (!scrollIsDisabled && scrollWasDisabled) {
       this.clickable = true;
+      this.hidden.setValue(0);
     }
   }
 
   render() {
-    const wrapperStyles = [styles.container];
-    if (this.state.hidden && this.state.opacity) {
-      wrapperStyles.push({ opacity: this.state.opacity });
-    }
-    wrapperStyles.push(this.props.style);
+    const { opacity } = this;
+    const wrapperStyles = [styles.container, { opacity }, this.props.style];
 
     const { mediaInfo, pendingUpload, postInProgress } = this.props;
     return (
@@ -201,7 +221,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
           verticalBounds,
         },
       });
-      this.setState({ hidden: true });
+      this.hidden.setValue(1);
     });
   };
 
