@@ -177,7 +177,7 @@ async function processMediaMission(
   const {
     steps: finalFileInfoSteps,
     result: finalFileInfoResult,
-  } = await fetchFileInfo(mediaInput.uri, mediaInput.mediaNativeID, {
+  } = await fetchFileInfo(uploadURI, mediaInput.mediaNativeID, {
     mime: true,
   });
   steps.push(...finalFileInfoSteps);
