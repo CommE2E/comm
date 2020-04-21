@@ -109,8 +109,13 @@ const scrollBlockingChatModalsClosedSelector: (
       return true;
     }
     const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
-    const currentAppSubroute = appRoute.routes[appRoute.index];
-    return !scrollBlockingChatModals.includes(currentAppSubroute.routeName);
+    for (let i = appRoute.index; i >= 0; i--) {
+      const route = appRoute.routes[i];
+      if (scrollBlockingChatModals.includes(route.routeName)) {
+        return false;
+      }
+    }
+    return true;
   },
 );
 
@@ -142,7 +147,7 @@ const backgroundIsDarkSelector: (
   },
 );
 
-const overlayTransitioningSelector: (
+const overlayModalClosingSelector: (
   context: ?NavContextType,
 ) => boolean = createSelector(
   (context: ?NavContextType) => context && context.state,
@@ -282,7 +287,7 @@ export {
   createActiveTabSelector,
   scrollBlockingChatModalsClosedSelector,
   backgroundIsDarkSelector,
-  overlayTransitioningSelector,
+  overlayModalClosingSelector,
   activeThreadSelector,
   activeMessageListSelector,
   useActiveThread,

@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 
 import {
   scrollBlockingChatModalsClosedSelector,
-  overlayTransitioningSelector,
+  overlayModalClosingSelector,
 } from './nav-selectors';
 import {
   ScrollViewModalContext,
@@ -82,6 +82,6 @@ export default connectNav((context: ?NavContextType) => {
   return {
     scrollBlockingModalsClosed,
     scrollBlockingModalsGone:
-      scrollBlockingModalsClosed && !overlayTransitioningSelector(context),
+      scrollBlockingModalsClosed && !overlayModalClosingSelector(context),
   };
 })(ScrollViewModalStateContainer);
