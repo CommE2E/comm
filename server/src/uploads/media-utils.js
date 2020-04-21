@@ -5,6 +5,7 @@ import type { Dimensions } from 'lib/types/media-types';
 
 import sharp from 'sharp';
 import invariant from 'invariant';
+import bmp from '@vingle/bmp-js';
 
 import { readableFilename } from 'lib/utils/file-utils';
 import { getImageProcessingPlan } from 'lib/utils/image-utils';
@@ -18,7 +19,22 @@ const allowedMimeTypes = new Set([
   'image/webp',
   'image/tiff',
   'image/svg+xml',
+  'image/bmp',
 ]);
+
+function initializeSharp(buffer: Buffer, mime: string) {
+  if (mime !== 'image/bmp') {
+    return sharp(buffer);
+  }
+  const bitmap = bmp.decode(buffer, true);
+  return sharp(bitmap.data, {
+    raw: {
+      width: bitmap.width,
+      height: bitmap.height,
+      channels: 4,
+    },
+  });
+}
 
 async function validateAndConvert(
   initialBuffer: Buffer,
@@ -37,7 +53,7 @@ async function validateAndConvert(
 
   let sharpImage, metadata;
   try {
-    sharpImage = sharp(initialBuffer);
+    sharpImage = initializeSharp(initialBuffer, mime);
     metadata = await sharpImage.metadata();
   } catch (e) {
     return null;

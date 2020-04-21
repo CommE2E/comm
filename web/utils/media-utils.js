@@ -133,6 +133,7 @@ const allowedMimeTypeArray = [
   'image/webp',
   'image/tiff',
   'image/svg+xml',
+  'image/bmp',
 ];
 const allowedMimeTypes = new Set(allowedMimeTypeArray);
 const allowedMimeTypeString = allowedMimeTypeArray.join(',');
