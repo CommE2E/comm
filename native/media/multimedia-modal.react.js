@@ -56,6 +56,7 @@ import {
 } from '../utils/animation-utils';
 import { intentionalSaveImage } from './save-image';
 
+/* eslint-disable import/no-named-as-default-member */
 const {
   Value,
   Clock,
@@ -87,6 +88,7 @@ const {
   timing,
   decay,
 } = Animated;
+/* eslint-enable import/no-named-as-default-member */
 
 function scaleDelta(value: Value, gestureActive: Value) {
   const diffThisFrame = new Value(1);
@@ -239,12 +241,12 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   saveButtonHeight = new Value(0);
   actionLinksLastState = new Value(1);
 
-  centerX = new Value(0);
-  centerY = new Value(0);
-  screenWidth = new Value(0);
-  screenHeight = new Value(0);
-  imageWidth = new Value(0);
-  imageHeight = new Value(0);
+  centerX: Value;
+  centerY: Value;
+  screenWidth: Value;
+  screenHeight: Value;
+  imageWidth: Value;
+  imageHeight: Value;
 
   pinchHandler = React.createRef();
   panHandler = React.createRef();
@@ -930,15 +932,41 @@ class MultimediaModal extends React.PureComponent<Props, State> {
 
   updateDimensions() {
     const { width: screenWidth, height: screenHeight } = this.screenDimensions;
-    this.screenWidth.setValue(screenWidth);
-    this.screenHeight.setValue(screenHeight);
+    if (this.screenWidth) {
+      this.screenWidth.setValue(screenWidth);
+    } else {
+      this.screenWidth = new Value(screenWidth);
+    }
+    if (this.screenHeight) {
+      this.screenHeight.setValue(screenHeight);
+    } else {
+      this.screenHeight = new Value(screenHeight);
+    }
 
-    this.centerX.setValue(screenWidth / 2);
-    this.centerY.setValue(screenHeight / 2 + this.props.contentVerticalOffset);
+    const centerX = screenWidth / 2;
+    const centerY = screenHeight / 2 + this.props.contentVerticalOffset;
+    if (this.centerX) {
+      this.centerX.setValue(centerX);
+    } else {
+      this.centerX = new Value(centerX);
+    }
+    if (this.centerY) {
+      this.centerY.setValue(centerY);
+    } else {
+      this.centerY = new Value(centerY);
+    }
 
     const { width, height } = this.imageDimensions;
-    this.imageWidth.setValue(width);
-    this.imageHeight.setValue(height);
+    if (this.imageWidth) {
+      this.imageWidth.setValue(width);
+    } else {
+      this.imageWidth = new Value(width);
+    }
+    if (this.imageHeight) {
+      this.imageHeight.setValue(height);
+    } else {
+      this.imageHeight = new Value(height);
+    }
   }
 
   componentDidMount() {
@@ -1161,7 +1189,9 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     }
   };
 
-  closeButtonRef = (closeButton: ?React.ElementRef<typeof TouchableOpacity>) => {
+  closeButtonRef = (
+    closeButton: ?React.ElementRef<typeof TouchableOpacity>,
+  ) => {
     this.closeButton = (closeButton: any);
   };
 
