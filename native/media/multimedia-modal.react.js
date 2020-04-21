@@ -258,12 +258,8 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     this.singleTapHandler,
     this.doubleTapHandler,
   ];
-  beforeDoubleTapRefs = [this.pinchHandler, this.panHandler];
-  beforeSingleTapRefs = [
-    this.pinchHandler,
-    this.panHandler,
-    this.doubleTapHandler,
-  ];
+  beforeDoubleTapRefs;
+  beforeSingleTapRefs;
 
   pinchEvent;
   panEvent;
@@ -525,6 +521,15 @@ class MultimediaModal extends React.PureComponent<Props, State> {
       buttonOpacity,
       updatedActionLinksOpacity,
     );
+
+    this.beforeDoubleTapRefs = Platform.select({
+      android: [],
+      default: [this.pinchHandler, this.panHandler],
+    });
+    this.beforeSingleTapRefs = [
+      ...this.beforeDoubleTapRefs,
+      this.doubleTapHandler,
+    ];
   }
 
   // How much space do we have to pan the image horizontally?
