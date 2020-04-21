@@ -2,9 +2,11 @@
 
 import type { MediaType, Dimensions } from 'lib/types/media-types';
 
-import { fileInfoFromData, readableFilename } from 'lib/utils/file-utils';
+import { readableFilename } from 'lib/utils/file-utils';
 import invariant from 'invariant';
 import EXIF from 'exif-js';
+
+import { deepFileInfoFromData } from './file-utils';
 
 function blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
   const fileReader = new FileReader();
@@ -106,7 +108,7 @@ async function validateFile(
     processFile(file, exifRotate),
   ]);
 
-  const { mime, mediaType } = fileInfoFromData(arrayBuffer);
+  const { mime, mediaType } = deepFileInfoFromData(arrayBuffer);
   if (!mime || !mediaType || !allowedMimeTypes.has(mime)) {
     return null;
   }
@@ -130,6 +132,7 @@ const allowedMimeTypeArray = [
   'image/gif',
   'image/webp',
   'image/tiff',
+  'image/svg+xml',
 ];
 const allowedMimeTypes = new Set(allowedMimeTypeArray);
 const allowedMimeTypeString = allowedMimeTypeArray.join(',');

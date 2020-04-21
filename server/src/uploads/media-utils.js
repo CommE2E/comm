@@ -6,8 +6,10 @@ import type { Dimensions } from 'lib/types/media-types';
 import sharp from 'sharp';
 import invariant from 'invariant';
 
-import { fileInfoFromData, readableFilename } from 'lib/utils/file-utils';
+import { readableFilename } from 'lib/utils/file-utils';
 import { getImageProcessingPlan } from 'lib/utils/image-utils';
+
+import { deepFileInfoFromData } from 'web/utils/file-utils';
 
 const allowedMimeTypes = new Set([
   'image/png',
@@ -15,6 +17,7 @@ const allowedMimeTypes = new Set([
   'image/gif',
   'image/webp',
   'image/tiff',
+  'image/svg+xml',
 ]);
 
 async function validateAndConvert(
@@ -23,7 +26,7 @@ async function validateAndConvert(
   inputDimensions: ?Dimensions,
   size: number, // in bytes
 ): Promise<?UploadInput> {
-  const { mime, mediaType } = fileInfoFromData(initialBuffer);
+  const { mime, mediaType } = deepFileInfoFromData(initialBuffer);
   if (!mime || !mediaType) {
     return null;
   }
@@ -94,7 +97,7 @@ async function validateAndConvert(
   const {
     mime: convertedMIME,
     mediaType: convertedMediaType,
-  } = fileInfoFromData(convertedBuffer);
+  } = deepFileInfoFromData(convertedBuffer);
   if (
     !convertedMIME ||
     !convertedMediaType ||
