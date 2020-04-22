@@ -477,39 +477,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       userTime = Date.now() - start;
     };
 
-    let mediaInfo;
-    if (selection.step === 'photo_library') {
-      mediaInfo = {
-        type: 'photo',
-        uri: selection.uri,
-        dimensions: selection.dimensions,
-        filename: selection.filename,
-        mediaNativeID: selection.mediaNativeID,
-      };
-    } else if (selection.step === 'photo_capture') {
-      mediaInfo = {
-        type: 'photo',
-        uri: selection.uri,
-        dimensions: selection.dimensions,
-        filename: selection.filename,
-      };
-    } else if (selection.step === 'video_library') {
-      mediaInfo = {
-        type: 'video',
-        uri: selection.uri,
-        dimensions: selection.dimensions,
-        filename: selection.filename,
-        mediaNativeID: selection.mediaNativeID,
-      };
-    } else {
-      invariant(false, `invalid selection ${JSON.stringify(selection)}`);
-    }
-
     let processedMedia;
     const processingStart = Date.now();
     try {
       const processMediaReturn = processMedia(
-        mediaInfo,
+        selection,
         this.mediaProcessConfig(),
       );
       reportPromise = processMediaReturn.reportPromise;

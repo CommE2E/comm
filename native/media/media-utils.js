@@ -5,6 +5,7 @@ import type {
   MediaType,
   MediaMissionStep,
   MediaMissionFailure,
+  MediaSelection,
 } from 'lib/types/media-types';
 
 import { Image } from 'react-native';
@@ -16,13 +17,6 @@ import { fetchFileInfo } from './file-utils';
 import { processVideo } from './video-utils';
 import { processImage } from './image-utils';
 
-type MediaInput = {|
-  type: MediaType,
-  uri: string,
-  dimensions: Dimensions,
-  filename: string,
-  mediaNativeID?: string,
-|};
 type MediaProcessConfig = $Shape<{|
   initialFileHeaderCheck: boolean,
   finalFileHeaderCheck: boolean,
@@ -37,7 +31,7 @@ type MediaResult = {|
   dimensions: Dimensions,
 |};
 function processMedia(
-  mediaInput: MediaInput,
+  selection: MediaSelection,
   config: MediaProcessConfig,
 ): {|
   resultPromise: Promise<MediaMissionFailure | MediaResult>,
@@ -50,7 +44,7 @@ function processMedia(
     }
   };
 
-  const reportPromise = processMediaMission(mediaInput, config, sendResult);
+  const reportPromise = processMediaMission(selection, config, sendResult);
   const resultPromise = new Promise(resolve => {
     resolveResult = resolve;
   });
@@ -59,16 +53,17 @@ function processMedia(
 }
 
 async function processMediaMission(
-  mediaInput: MediaInput,
+  selection: MediaSelection,
   config: MediaProcessConfig,
   sendResult: (MediaMissionFailure | MediaResult) => void,
 ): Promise<$ReadOnlyArray<MediaMissionStep>> {
   const steps = [];
   let initialURI = null,
     uploadURI = null,
-    dimensions = mediaInput.dimensions,
+    dimensions = selection.dimensions,
     mime = null,
     finished = false;
+  const mediaType = selection.step.startsWith('photo_') ? 'photo' : 'video';
   const finish = (failure?: MediaMissionFailure) => {
     invariant(!finished, 'finish called twice in processMediaMission');
     finished = true;
@@ -82,7 +77,7 @@ async function processMediaMission(
     );
     const shouldDisposePath =
       initialURI !== uploadURI ? pathFromURI(uploadURI) : null;
-    const filename = readableFilename(mediaInput.filename, mime);
+    const filename = readableFilename(selection.filename, mime);
     invariant(filename, `could not construct filename for ${mime}`);
     sendResult({
       success: true,
@@ -90,17 +85,20 @@ async function processMediaMission(
       shouldDisposePath,
       filename,
       mime,
-      mediaType: mediaInput.type,
+      mediaType,
       dimensions,
     });
   };
 
+  const mediaNativeID = selection.mediaNativeID
+    ? selection.mediaNativeID
+    : null;
   const { steps: fileInfoSteps, result: fileInfoResult } = await fetchFileInfo(
-    mediaInput.uri,
-    mediaInput.mediaNativeID,
+    selection.uri,
+    mediaNativeID,
     {
-      orientation: mediaInput.type === 'photo',
-      mime: mediaInput.type === 'photo' || config.initialFileHeaderCheck,
+      orientation: mediaType === 'photo',
+      mime: mediaType === 'photo' || config.initialFileHeaderCheck,
     },
   );
   steps.push(...fileInfoSteps);
@@ -112,24 +110,21 @@ async function processMediaMission(
   initialURI = fileInfoResult.uri;
   mime = fileInfoResult.mime;
 
-  if (
-    fileInfoResult.mediaType &&
-    fileInfoResult.mediaType !== mediaInput.type
-  ) {
+  if (fileInfoResult.mediaType && fileInfoResult.mediaType !== mediaType) {
     finish({
       success: false,
       reason: 'media_type_mismatch',
-      reportedMediaType: mediaInput.type,
+      reportedMediaType: mediaType,
       detectedMediaType: fileInfoResult.mediaType,
       detectedMIME: fileInfoResult.mime,
     });
     return steps;
   }
 
-  if (mediaInput.type === 'video') {
+  if (selection.step === 'video_library') {
     const { steps: videoSteps, result: videoResult } = await processVideo({
       uri: initialURI,
-      filename: mediaInput.filename,
+      filename: selection.filename,
       fileSize,
     });
     steps.push(...videoSteps);
@@ -139,7 +134,10 @@ async function processMediaMission(
     }
     uploadURI = videoResult.uri;
     mime = videoResult.mime;
-  } else if (mediaInput.type === 'photo') {
+  } else if (
+    selection.step === 'photo_capture' ||
+    selection.step === 'photo_library'
+  ) {
     if (!mime) {
       finish({
         success: false,
@@ -163,7 +161,7 @@ async function processMediaMission(
     dimensions = imageResult.dimensions;
     mime = imageResult.mime;
   } else {
-    invariant(false, `unknown mediaType ${mediaInput.type}`);
+    invariant(false, `unknown mediaType ${mediaType}`);
   }
 
   if (uploadURI === initialURI) {
@@ -178,7 +176,7 @@ async function processMediaMission(
   const {
     steps: finalFileInfoSteps,
     result: finalFileInfoResult,
-  } = await fetchFileInfo(uploadURI, mediaInput.mediaNativeID, {
+  } = await fetchFileInfo(uploadURI, null, {
     mime: true,
   });
   steps.push(...finalFileInfoSteps);
@@ -194,7 +192,7 @@ async function processMediaMission(
       finish({
         success: false,
         reason: 'mime_type_mismatch',
-        reportedMediaType: mediaInput.type,
+        reportedMediaType: mediaType,
         reportedMIME: mime,
         detectedMediaType: finalFileInfoResult.mediaType,
         detectedMIME: finalFileInfoResult.mime,
