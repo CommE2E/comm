@@ -22,7 +22,7 @@ buildscript {
 }
 
 ext {
-  reactNativeFFmpegPackage = "min-lts"
+  reactNativeFFmpegPackage = "min-gpl-lts"
 }
 
 allprojects {

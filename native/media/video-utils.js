@@ -52,13 +52,12 @@ async function processVideo(
       ios: filesystem.TemporaryDirectoryPath,
       default: `${filesystem.TemporaryDirectoryPath}/`,
     }),
-    // This tells ffmpeg to use the hardware-accelerated encoders. Since we're
-    // using the min-lts builds of react-native-ffmpeg we actually don't need
-    // to specify this, but we would if we were using any build that provides
-    // alternate encoders (for instance, min-gpl-lts)
+    // We want ffmpeg to use hardware-accelerated encoders. On iOS we can do
+    // this using VideoToolbox, but ffmpeg on Android is still missing
+    // MediaCodec encoding support: https://trac.ffmpeg.org/ticket/6407
     outputCodec: Platform.select({
       ios: 'h264_videotoolbox',
-      android: 'h264_mediacodec',
+      //android: 'h264_mediacodec',
       default: 'h264',
     }),
   });
