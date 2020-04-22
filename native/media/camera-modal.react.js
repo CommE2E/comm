@@ -64,6 +64,7 @@ import { colors } from '../themes/colors';
 import { saveImage } from './save-image';
 import SendMediaButton from './send-media-button.react';
 
+/* eslint-disable import/no-named-as-default-member */
 const {
   Value,
   Clock,
@@ -92,6 +93,8 @@ const {
   spring,
   SpringUtils,
 } = Animated;
+/* eslint-enable import/no-named-as-default-member */
+
 const maxZoom = 16;
 const zoomUpdateFactor = (() => {
   if (Platform.OS === 'ios') {
@@ -105,6 +108,7 @@ const zoomUpdateFactor = (() => {
   }
   return 0.03;
 })();
+
 const permissionRationale = {
   title: 'Access Your Camera',
   message: 'Requesting access to your device camera',
@@ -928,8 +932,9 @@ class CameraModal extends React.PureComponent<Props, State> {
       dimensions: { width, height },
       filename,
       time: now - startTime,
-      selectTime: now,
-      sendTime: now,
+      captureTime: now,
+      selectTime: 0,
+      sendTime: 0,
       retries: 0,
     };
 
@@ -945,13 +950,23 @@ class CameraModal extends React.PureComponent<Props, State> {
     if (!pendingPhotoCapture) {
       return;
     }
+
+    const now = Date.now();
+    const capture = {
+      ...pendingPhotoCapture,
+      selectTime: now,
+      sendTime: now,
+    };
+
+    this.close();
+
     const { inputState } = this.props;
     invariant(inputState, 'inputState should be set');
-    this.close();
     inputState.sendMultimediaMessage(
       this.props.navigation.state.params.threadID,
-      [pendingPhotoCapture],
+      [capture],
     );
+
     saveImage({ uri: pendingPhotoCapture.uri, type: 'photo' });
   };
 
