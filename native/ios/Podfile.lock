@@ -55,7 +55,7 @@ PODS:
   - lottie-react-native (3.2.1):
     - lottie-ios (~> 3.1.3)
     - React
-  - mobile-ffmpeg-min (4.2.2.LTS)
+  - mobile-ffmpeg-min (4.3.1.LTS)
   - RCTRequired (0.61.5)
   - RCTTypeSafety (0.61.5):
     - FBLazyVector (= 0.61.5)
@@ -231,8 +231,8 @@ PODS:
     - React
   - react-native-cameraroll (1.5.2):
     - React
-  - react-native-ffmpeg/min-lts (0.4.0):
-    - mobile-ffmpeg-min (= 4.2.2.LTS)
+  - react-native-ffmpeg/min-lts (0.4.4):
+    - mobile-ffmpeg-min (= 4.3.1.LTS)
     - React
   - react-native-in-app-message (1.0.2):
     - React
@@ -372,7 +372,7 @@ DEPENDENCIES:
   - react-native-background-upload (from `../../node_modules/react-native-background-upload`)
   - react-native-camera (from `../../node_modules/react-native-camera`)
   - "react-native-cameraroll (from `../../node_modules/@react-native-community/cameraroll`)"
-  - react-native-ffmpeg/min-lts (from `../../node_modules/react-native-ffmpeg/ios/react-native-ffmpeg.podspec`)
+  - react-native-ffmpeg/min-lts (from `../../node_modules/react-native-ffmpeg/react-native-ffmpeg.podspec`)
   - react-native-in-app-message (from `../../node_modules/react-native-in-app-message`)
   - "react-native-netinfo (from `../../node_modules/@react-native-community/netinfo`)"
   - react-native-notifications (from `../../node_modules/react-native-notifications`)
@@ -484,7 +484,7 @@ EXTERNAL SOURCES:
   react-native-cameraroll:
     :path: "../../node_modules/@react-native-community/cameraroll"
   react-native-ffmpeg:
-    :podspec: "../../node_modules/react-native-ffmpeg/ios/react-native-ffmpeg.podspec"
+    :podspec: "../../node_modules/react-native-ffmpeg/react-native-ffmpeg.podspec"
   react-native-in-app-message:
     :path: "../../node_modules/react-native-in-app-message"
   react-native-netinfo:
@@ -597,7 +597,7 @@ SPEC CHECKSUMS:
   libwebp: 946cb3063cea9236285f7e9a8505d806d30e07f3
   lottie-ios: 496ac5cea1bbf1a7bd1f1f472f3232eb1b8d744b
   lottie-react-native: b123a79529cc732201091f585c62c89bb4747252
-  mobile-ffmpeg-min: 05ebe3998721155274ae50466b5223d3637a92ab
+  mobile-ffmpeg-min: d5d22dcef5c8ec56f771258f1f5be245d914f193
   RCTRequired: b153add4da6e7dbc44aebf93f3cf4fcae392ddf1
   RCTTypeSafety: 9aa1b91d7f9310fc6eadc3cf95126ffe818af320
   React: b6a59ef847b2b40bb6e0180a97d0ca716969ac78
@@ -610,7 +610,7 @@ SPEC CHECKSUMS:
   react-native-background-upload: 6e8ba7f41a6308231306bddc88f11da3b74c9de4
   react-native-camera: 21cf4ed26cf432ceb1fae959aa6924943fd6f714
   react-native-cameraroll: 4360c9faab50dc6844f56d222c2d0c7ef5f1fe92
-  react-native-ffmpeg: 35e303059e3c958cb74e271a45f9391d044f915a
+  react-native-ffmpeg: f9a60452aaa5d478aac205b248224994f3bde416
   react-native-in-app-message: f91de5009620af01456531118264c93e249b83ec
   react-native-netinfo: 6bb847e64f45a2d69c6173741111cfd95c669301
   react-native-notifications: bb042206ac7eab9323d528c780b3d6fe796c1f5e
@@ -659,6 +659,6 @@ SPEC CHECKSUMS:
   UMTaskManagerInterface: cb890c79c63885504ddc0efd7a7d01481760aca2
   Yoga: f2a7cd4280bfe2cca5a7aed98ba0eb3d1310f18b
 
-PODFILE CHECKSUM: 2365922fe1d9a86a67ac9f4835b5760ec1bdbcbd
+PODFILE CHECKSUM: 0a506b9da6311d0bbf837ed1c7ca0e7c5574c0cb
 
 COCOAPODS: 1.9.1

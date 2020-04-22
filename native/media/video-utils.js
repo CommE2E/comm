@@ -7,7 +7,7 @@ import type {
 } from 'lib/types/media-types';
 
 import filesystem from 'react-native-fs';
-import { RNFFmpeg } from 'react-native-ffmpeg';
+import { RNFFmpeg, RNFFprobe, RNFFmpegConfig } from 'react-native-ffmpeg';
 import { Platform } from 'react-native';
 import invariant from 'invariant';
 
@@ -15,8 +15,8 @@ import { pathFromURI, extensionFromFilename } from 'lib/utils/file-utils';
 import { getVideoProcessingPlan } from 'lib/utils/video-utils';
 
 if (!__DEV__) {
-  RNFFmpeg.disableLogs();
-  RNFFmpeg.disableStatistics();
+  RNFFmpegConfig.disableLogs();
+  RNFFmpegConfig.disableStatistics();
 }
 
 type ProcessVideoInfo = {|
@@ -143,7 +143,7 @@ async function checkVideoCodec(
   const start = Date.now();
   if (ext === 'mp4' || ext === 'mov') {
     try {
-      const videoInfo = await RNFFmpeg.getMediaInformation(path);
+      const videoInfo = await RNFFprobe.getMediaInformation(path);
       codec = getVideoCodec(videoInfo);
       format = videoInfo.format.split(',');
       success = codec === 'h264' && format.includes('mp4');

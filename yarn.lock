@@ -11620,10 +11620,10 @@ react-native-fast-image@^7.0.2:
   resolved "https://registry.yarnpkg.com/react-native-fast-image/-/react-native-fast-image-7.0.2.tgz#e06b21f42f4a9786eaa86f3db35d919070fb8403"
   integrity sha512-MfuzJbC0RjYobR2gFCdqe1I7jvNOCfDkjQ7VGOHXniqjohhULMkcWNBE9Umovi9Dx93lJ6t5utcE2wf/09zvlg==
 
-react-native-ffmpeg@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/react-native-ffmpeg/-/react-native-ffmpeg-0.4.0.tgz#75bf061a189467c622aacc3b3e0669a2bc373f47"
-  integrity sha512-DRDXI5IkcPr7eZIpxwbCCuWPVmIHsO3k3yHSs9vojqFS1QRWokwRrQrkT49ZGQgo/PuUJOAlcZHhozA3i5D7nQ==
+react-native-ffmpeg@^0.4.4:
+  version "0.4.4"
+  resolved "https://registry.yarnpkg.com/react-native-ffmpeg/-/react-native-ffmpeg-0.4.4.tgz#9f4dbda53c96078cecbbe83a866d4b535b957131"
+  integrity sha512-MUBV3Xvto1Hl049Y9EaOZdjazkK1ixQzCzPEt1o7V2duSOrM2kJ2o/RiC4rSRgapU2uqYRHMZ6X4JJI7y40qXw==
 
 react-native-firebase@^5.6.0:
   version "5.6.0"
