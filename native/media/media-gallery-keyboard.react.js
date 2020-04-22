@@ -252,7 +252,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
               uri,
               filename,
               mediaNativeID: id,
-              playableDuration: duration,
+              duration,
               selectTime: 0,
               sendTime: 0,
               retries: 0,

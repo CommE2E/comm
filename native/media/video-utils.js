@@ -19,6 +19,7 @@ type ProcessVideoInfo = {|
   uri: string,
   filename: string,
   fileSize: number,
+  duration: number,
 |};
 type ProcessVideoResponse = {|
   success: true,
@@ -44,6 +45,7 @@ async function processVideo(
     inputHasCorrectContainerAndCodec: initialCheckStep.success,
     inputFileSize: input.fileSize,
     inputFilename: input.filename,
+    inputDuration: input.duration,
     outputDirectory: Platform.select({
       ios: filesystem.TemporaryDirectoryPath,
       default: `${filesystem.TemporaryDirectoryPath}/`,

@@ -126,6 +126,7 @@ async function processMediaMission(
       uri: initialURI,
       filename: selection.filename,
       fileSize,
+      duration: selection.duration,
     });
     steps.push(...videoSteps);
     if (!videoResult.success) {
