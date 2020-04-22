@@ -130,6 +130,7 @@ async function processMediaMission(
     const { steps: videoSteps, result: videoResult } = await processVideo({
       uri: initialURI,
       filename: mediaInput.filename,
+      fileSize,
     });
     steps.push(...videoSteps);
     if (!videoResult.success) {

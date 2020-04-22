@@ -11,12 +11,8 @@ import { RNFFmpeg } from 'react-native-ffmpeg';
 import { Platform } from 'react-native';
 import invariant from 'invariant';
 
-import {
-  pathFromURI,
-  extensionFromFilename,
-  replaceExtension,
-} from 'lib/utils/file-utils';
-import { getUUID } from 'lib/utils/uuid';
+import { pathFromURI, extensionFromFilename } from 'lib/utils/file-utils';
+import { getVideoProcessingPlan } from 'lib/utils/video-utils';
 
 if (!__DEV__) {
   RNFFmpeg.disableLogs();
@@ -26,6 +22,7 @@ if (!__DEV__) {
 type ProcessVideoInfo = {|
   uri: string,
   filename: string,
+  fileSize: number,
 |};
 type ProcessVideoResponse = {|
   success: true,
@@ -43,10 +40,29 @@ async function processVideo(
   const path = pathFromURI(input.uri);
   invariant(path, `could not extract path from ${input.uri}`);
 
-  // Let's decide if we even need to do a transcoding step
   const initialCheckStep = await checkVideoCodec(path);
   steps.push(initialCheckStep);
-  if (initialCheckStep.success) {
+
+  const plan = getVideoProcessingPlan({
+    inputPath: path,
+    inputHasCorrectContainerAndCodec: initialCheckStep.success,
+    inputFileSize: input.fileSize,
+    inputFilename: input.filename,
+    outputDirectory: Platform.select({
+      ios: filesystem.TemporaryDirectoryPath,
+      default: `${filesystem.TemporaryDirectoryPath}/`,
+    }),
+    // This tells ffmpeg to use the hardware-accelerated encoders. Since we're
+    // using the min-lts builds of react-native-ffmpeg we actually don't need
+    // to specify this, but we would if we were using any build that provides
+    // alternate encoders (for instance, min-gpl-lts)
+    outputCodec: Platform.select({
+      ios: 'h264_videotoolbox',
+      android: 'h264_mediacodec',
+      default: 'h264',
+    }),
+  });
+  if (!plan) {
     return {
       steps,
       result: {
@@ -56,20 +72,7 @@ async function processVideo(
       },
     };
   }
-
-  // This tells ffmpeg to use the hardware-accelerated encoders. Since we're
-  // using the min-lts builds of react-native-ffmpeg we actually don't need
-  // to specify this, but we would if we were using any build that provides
-  // alternate encoders (for instance, min-gpl-lts)
-  const codec = Platform.select({
-    ios: 'h264_videotoolbox',
-    android: 'h264_mediacodec',
-    default: 'h264',
-  });
-  const directory = filesystem.TemporaryDirectoryPath;
-  const mp4Name = replaceExtension(input.filename, 'mp4');
-  const uuid = getUUID();
-  const ffmpegResultPath = `${directory}transcode.${uuid}.${mp4Name}`;
+  const { outputPath, ffmpegCommand } = plan;
 
   let returnCode,
     newPath,
@@ -77,13 +80,11 @@ async function processVideo(
     exceptionMessage;
   const start = Date.now();
   try {
-    const { rc } = await RNFFmpeg.execute(
-      `-i ${path} -c:v ${codec} -c:a copy ${ffmpegResultPath}`,
-    );
+    const { rc } = await RNFFmpeg.execute(ffmpegCommand);
     success = rc === 0;
     if (success) {
       returnCode = rc;
-      newPath = ffmpegResultPath;
+      newPath = outputPath;
     }
   } catch (e) {
     if (
@@ -112,7 +113,7 @@ async function processVideo(
     };
   }
 
-  const transcodeProbeStep = await checkVideoCodec(ffmpegResultPath);
+  const transcodeProbeStep = await checkVideoCodec(outputPath);
   steps.push(transcodeProbeStep);
   if (!transcodeProbeStep.success) {
     return {
@@ -125,7 +126,7 @@ async function processVideo(
     steps,
     result: {
       success: true,
-      uri: `file://${ffmpegResultPath}`,
+      uri: `file://${outputPath}`,
       mime: 'video/mp4',
     },
   };
