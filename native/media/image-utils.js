@@ -33,7 +33,12 @@ async function processImage(
   let { uri, dimensions, mime } = input;
 
   const { fileSize, orientation } = input;
-  const plan = getImageProcessingPlan(mime, dimensions, fileSize, orientation);
+  const plan = getImageProcessingPlan({
+    inputMIME: mime,
+    inputDimensions: dimensions,
+    inputFileSize: fileSize,
+    inputOrientation: orientation,
+  });
   if (!plan) {
     return {
       steps,

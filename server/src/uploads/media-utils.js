@@ -68,12 +68,12 @@ async function validateAndConvert(
     }
   }
 
-  const plan = getImageProcessingPlan(
-    mime,
-    initialDimensions,
-    size,
-    metadata.orientation,
-  );
+  const plan = getImageProcessingPlan({
+    inputMIME: mime,
+    inputDimensions: initialDimensions,
+    inputFileSize: size,
+    inputOrientation: metadata.orientation,
+  });
   if (!plan) {
     const name = readableFilename(initialName, mime);
     invariant(name, `should be able to construct filename for ${mime}`);
