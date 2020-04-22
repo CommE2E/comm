@@ -7,17 +7,13 @@ import type {
 } from 'lib/types/media-types';
 
 import filesystem from 'react-native-fs';
-import { RNFFmpeg, RNFFprobe, RNFFmpegConfig } from 'react-native-ffmpeg';
 import { Platform } from 'react-native';
 import invariant from 'invariant';
 
 import { pathFromURI, extensionFromFilename } from 'lib/utils/file-utils';
 import { getVideoProcessingPlan } from 'lib/utils/video-utils';
 
-if (!__DEV__) {
-  RNFFmpegConfig.disableLogs();
-  RNFFmpegConfig.disableStatistics();
-}
+import { ffmpeg } from './ffmpeg';
 
 type ProcessVideoInfo = {|
   uri: string,
@@ -79,7 +75,7 @@ async function processVideo(
     exceptionMessage;
   const start = Date.now();
   try {
-    const { rc } = await RNFFmpeg.execute(ffmpegCommand);
+    const { rc } = await ffmpeg.process(ffmpegCommand);
     success = rc === 0;
     if (success) {
       returnCode = rc;
@@ -143,9 +139,7 @@ async function checkVideoCodec(
   const start = Date.now();
   if (ext === 'mp4' || ext === 'mov') {
     try {
-      const videoInfo = await RNFFprobe.getMediaInformation(path);
-      codec = getVideoCodec(videoInfo);
-      format = videoInfo.format.split(',');
+      ({ codec, format } = await ffmpeg.getVideoFormat(path));
       success = codec === 'h264' && format.includes('mp4');
     } catch (e) {
       if (
@@ -169,18 +163,6 @@ async function checkVideoCodec(
     codec,
     format,
   };
-}
-
-function getVideoCodec(info): ?string {
-  if (!info.streams) {
-    return null;
-  }
-  for (let stream of info.streams) {
-    if (stream.type === 'video') {
-      return stream.codec;
-    }
-  }
-  return null;
 }
 
 export { processVideo };
