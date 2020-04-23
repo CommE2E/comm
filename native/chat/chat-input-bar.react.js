@@ -170,6 +170,15 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     return ChatInputBar.systemKeyboardShowing(this.props);
   }
 
+  updateSendButton(currentText: string) {
+    // eslint-disable-next-line import/no-named-as-default-member
+    Animated.timing(this.sendButtonContainerOpen, {
+      duration: 150,
+      toValue: currentText === '' ? 0 : 1,
+      easing: Easing.inOut(Easing.ease),
+    }).start();
+  }
+
   componentDidUpdate(prevProps: Props, prevState: State) {
     const currentText = this.state.text.trim();
     const prevText = prevState.text.trim();
@@ -177,12 +186,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       (currentText === '' && prevText !== '') ||
       (currentText !== '' && prevText === '')
     ) {
-      // eslint-disable-next-line import/no-named-as-default-member
-      Animated.timing(this.sendButtonContainerOpen, {
-        duration: 150,
-        toValue: currentText !== '' ? 1 : 0,
-        easing: Easing.inOut(Easing.ease),
-      }).start();
+      this.updateSendButton(currentText);
     }
 
     const systemKeyboardIsShowing = ChatInputBar.systemKeyboardShowing(
@@ -440,6 +444,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     if (!this.state.text.trim()) {
       return;
     }
+    this.updateSendButton('');
 
     const { clearableTextInput } = this;
     invariant(
