@@ -387,7 +387,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
           </Animated.View>
           <ClearableTextInput
             value={this.state.text}
-            sendMessage={this.sendMessage}
             onChangeText={this.updateText}
             underlineColorAndroid="transparent"
             placeholder="Send a message..."
@@ -437,22 +436,21 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     });
   }, 400);
 
-  onSend = () => {
-    const text = this.state.text.trim();
-    if (!text) {
+  onSend = async () => {
+    if (!this.state.text.trim()) {
       return;
     }
-    this.updateText('');
 
     const { clearableTextInput } = this;
     invariant(
       clearableTextInput,
       'clearableTextInput should be sent in onSend',
     );
-    clearableTextInput.clear();
-  };
+    const text = await clearableTextInput.getValueAndReset();
+    if (!text) {
+      return;
+    }
 
-  sendMessage = (text: string) => {
     const localID = `local${this.props.nextLocalID}`;
     const creatorID = this.props.viewerID;
     invariant(creatorID, 'should have viewer ID in order to send a message');

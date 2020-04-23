@@ -10,7 +10,6 @@ import invariant from 'invariant';
 type Props = {|
   ...React.ElementConfig<typeof TextInput>,
   textInputRef: (textInput: ?TextInput) => mixed,
-  sendMessage: (text: string) => mixed,
 |};
 type State = {|
   textInputKey: number,
@@ -19,7 +18,7 @@ class ClearableTextInput extends React.PureComponent<Props, State> {
   state = {
     textInputKey: 0,
   };
-  pendingMessage: ?string;
+  pendingMessage: ?{| value: ?string, resolve: (value: ?string) => void |};
   lastKeyPressed: ?string;
   lastTextInputSent = -1;
 
@@ -28,19 +27,20 @@ class ClearableTextInput extends React.PureComponent<Props, State> {
   };
 
   sendMessage() {
-    if (this.lastMessageSent) {
+    if (this.pendingMessageSent) {
       return;
     }
     const { pendingMessage } = this;
     invariant(pendingMessage, 'cannot send an empty message');
-    this.props.sendMessage(pendingMessage);
+    pendingMessage.resolve(pendingMessage.value);
+
     const textInputSent = this.state.textInputKey - 1;
     if (textInputSent > this.lastTextInputSent) {
       this.lastTextInputSent = textInputSent;
     }
   }
 
-  get lastMessageSent() {
+  get pendingMessageSent() {
     return this.lastTextInputSent >= this.state.textInputKey - 1;
   }
 
@@ -53,12 +53,12 @@ class ClearableTextInput extends React.PureComponent<Props, State> {
 
     if (
       Platform.OS === 'ios' &&
-      !this.lastMessageSent &&
+      !this.pendingMessageSent &&
       lastKeyPressed &&
       lastKeyPressed.length > 1
     ) {
       // This represents an autocorrect event on blur
-      this.pendingMessage = text;
+      pendingMessage.value = text;
     }
     this.lastKeyPressed = null;
 
@@ -72,10 +72,15 @@ class ClearableTextInput extends React.PureComponent<Props, State> {
       pendingMessage,
       'updateTextFromOldInput should have a pendingMessage',
     );
-    // TODO more sophisticated
-    if (text.startsWith(pendingMessage)) {
-      this.onChangeText(text.substring(pendingMessage.length));
+    const pendingValue = pendingMessage.value;
+    if (!pendingValue || !text.startsWith(pendingValue)) {
+      return;
     }
+    const newValue = text.substring(pendingValue.length);
+    if (this.props.value === newValue) {
+      return;
+    }
+    this.onChangeText(newValue);
   }
 
   onOldInputKeyPress = (event: KeyPressEvent) => {
@@ -98,16 +103,24 @@ class ClearableTextInput extends React.PureComponent<Props, State> {
     this.props.textInputRef(textInput);
   };
 
-  clear() {
-    this.pendingMessage = this.props.value;
-    this.setState(prevState => ({ textInputKey: prevState.textInputKey + 1 }));
+  getValueAndReset(): Promise<?string> {
+    this.onChangeText('');
+    return new Promise(resolve => {
+      this.pendingMessage = {
+        value: this.props.value,
+        resolve,
+      };
+      this.setState(prevState => ({
+        textInputKey: prevState.textInputKey + 1,
+      }));
+    });
   }
 
   render() {
-    const { textInputRef, sendMessage, ...props } = this.props;
+    const { textInputRef, ...props } = this.props;
 
     const textInputs = [];
-    if (this.state.textInputKey > 0 && this.pendingMessage) {
+    if (this.state.textInputKey > 0) {
       textInputs.push(
         <TextInput
           {...props}
