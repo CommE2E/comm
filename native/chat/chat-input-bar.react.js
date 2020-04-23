@@ -71,6 +71,7 @@ import {
   connectNav,
   type NavContextType,
 } from '../navigation/navigation-context';
+import ClearableTextInput from '../components/clearable-text-input.react';
 
 const draftKeyFromThreadID = (threadID: string) =>
   `${threadID}/message_composer`;
@@ -118,6 +119,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     inputState: inputStatePropType,
   };
   textInput: ?TextInput;
+  clearableTextInput: ?ClearableTextInput;
   expandOpacity: Animated.Value;
   expandoButtonsOpacity: Animated.Value;
   expandoButtonsWidth: Animated.Value;
@@ -128,6 +130,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       text: props.draft,
       buttonsExpanded: true,
     };
+    // eslint-disable-next-line import/no-named-as-default-member
     this.expandoButtonsOpacity = new Animated.Value(1);
     this.expandOpacity = Animated.sub(1, this.expandoButtonsOpacity);
     this.expandoButtonsWidth = Animated.interpolate(
@@ -330,18 +333,18 @@ class ChatInputBar extends React.PureComponent<Props, State> {
                 {this.state.buttonsExpanded ? null : expandoButton}
               </View>
             </Animated.View>
-            <View style={this.props.styles.textInputContainer}>
-              <TextInput
-                value={this.state.text}
-                onChangeText={this.updateText}
-                underlineColorAndroid="transparent"
-                placeholder="Send a message..."
-                placeholderTextColor={this.props.colors.listInputButton}
-                multiline={true}
-                style={this.props.styles.textInput}
-                ref={this.textInputRef}
-              />
-            </View>
+            <ClearableTextInput
+              value={this.state.text}
+              sendMessage={this.sendMessage}
+              onChangeText={this.updateText}
+              underlineColorAndroid="transparent"
+              placeholder="Send a message..."
+              placeholderTextColor={this.props.colors.listInputButton}
+              multiline={true}
+              style={this.props.styles.textInput}
+              textInputRef={this.textInputRef}
+              ref={this.clearableTextInputRef}
+            />
             {button}
           </View>
         </TouchableWithoutFeedback>
@@ -397,6 +400,10 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     this.textInput = textInput;
   };
 
+  clearableTextInputRef = (clearableTextInput: ?ClearableTextInput) => {
+    this.clearableTextInput = clearableTextInput;
+  };
+
   updateText = (text: string) => {
     this.setState({ text });
     this.saveDraft(text);
@@ -415,6 +422,16 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       return;
     }
     this.updateText('');
+
+    const { clearableTextInput } = this;
+    invariant(
+      clearableTextInput,
+      'clearableTextInput should be sent in onSend',
+    );
+    clearableTextInput.clear();
+  };
+
+  sendMessage = (text: string) => {
     const localID = `local${this.props.nextLocalID}`;
     const creatorID = this.props.viewerID;
     invariant(creatorID, 'should have viewer ID in order to send a message');
@@ -455,6 +472,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     if (this.state.buttonsExpanded) {
       return;
     }
+    // eslint-disable-next-line import/no-named-as-default-member
     Animated.timing(this.expandoButtonsOpacity, {
       duration: 500,
       toValue: 1,
@@ -471,6 +489,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     ) {
       return;
     }
+    // eslint-disable-next-line import/no-named-as-default-member
     Animated.timing(this.expandoButtonsOpacity, {
       duration: 500,
       toValue: 0,
@@ -579,9 +598,6 @@ const styles = {
     maxHeight: 250,
     paddingHorizontal: 10,
     paddingVertical: 5,
-  },
-  textInputContainer: {
-    flex: 1,
   },
 };
 const stylesSelector = styleSelector(styles);
