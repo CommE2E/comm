@@ -36,7 +36,6 @@ import {
   View,
   TextInput,
   TouchableOpacity,
-  LayoutAnimation,
   Platform,
   Text,
   ActivityIndicator,
@@ -123,6 +122,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   expandOpacity: Animated.Value;
   expandoButtonsOpacity: Animated.Value;
   expandoButtonsWidth: Animated.Value;
+  sendButtonContainerOpen: Animated.Value;
+  sendButtonContainerWidth: Animated.Value;
 
   constructor(props: Props) {
     super(props);
@@ -130,6 +131,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       text: props.draft,
       buttonsExpanded: true,
     };
+
     // eslint-disable-next-line import/no-named-as-default-member
     this.expandoButtonsOpacity = new Animated.Value(1);
     this.expandOpacity = Animated.sub(1, this.expandoButtonsOpacity);
@@ -138,6 +140,18 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       {
         inputRange: [0, 1],
         outputRange: [22, 60],
+      },
+    );
+
+    // eslint-disable-next-line import/no-named-as-default-member
+    this.sendButtonContainerOpen = new Animated.Value(
+      props.draft.trim() ? 1 : 0,
+    );
+    this.sendButtonContainerWidth = Animated.interpolate(
+      this.sendButtonContainerOpen,
+      {
+        inputRange: [0, 1],
+        outputRange: [4, 38],
       },
     );
   }
@@ -163,7 +177,12 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       (currentText === '' && prevText !== '') ||
       (currentText !== '' && prevText === '')
     ) {
-      LayoutAnimation.easeInEaseOut();
+      // eslint-disable-next-line import/no-named-as-default-member
+      Animated.timing(this.sendButtonContainerOpen, {
+        duration: 150,
+        toValue: currentText !== '' ? 1 : 0,
+        easing: Easing.inOut(Easing.ease),
+      }).start();
     }
 
     const systemKeyboardIsShowing = ChatInputBar.systemKeyboardShowing(
@@ -267,88 +286,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
     let content;
     if (threadHasPermission(this.props.threadInfo, threadPermissions.VOICED)) {
-      let button = null;
-      if (this.state.text.trim()) {
-        button = (
-          <TouchableOpacity
-            onPress={this.onSend}
-            activeOpacity={0.4}
-            style={this.props.styles.bottomAligned}
-          >
-            <Icon
-              name="md-send"
-              size={25}
-              style={this.props.styles.sendIcon}
-              color={this.props.colors.greenButton}
-            />
-          </TouchableOpacity>
-        );
-      }
-      const expandoButton = (
-        <TouchableOpacity
-          onPress={this.expandButtons}
-          activeOpacity={0.4}
-          style={this.props.styles.expandButton}
-        >
-          <Animated.View style={this.expandIconStyle}>
-            <FAIcon
-              name="chevron-right"
-              size={19}
-              color={this.props.colors.listInputButton}
-            />
-          </Animated.View>
-        </TouchableOpacity>
-      );
-      content = (
-        <TouchableWithoutFeedback onPress={this.dismissKeyboard}>
-          <View style={this.props.styles.inputContainer}>
-            <Animated.View style={this.expandoButtonsStyle}>
-              <View style={this.props.styles.innerExpandoButtons}>
-                {this.state.buttonsExpanded ? expandoButton : null}
-                <TouchableOpacity
-                  onPress={this.showMediaGallery}
-                  activeOpacity={0.4}
-                >
-                  <Animated.View style={this.cameraRollIconStyle}>
-                    <Icon
-                      name="md-image"
-                      size={25}
-                      color={this.props.colors.listInputButton}
-                    />
-                  </Animated.View>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={this.openCamera}
-                  activeOpacity={0.4}
-                  disabled={!this.state.buttonsExpanded}
-                >
-                  <Animated.View style={this.cameraIconStyle}>
-                    <FAIcon
-                      name="camera"
-                      size={20}
-                      color={this.props.colors.listInputButton}
-                    />
-                  </Animated.View>
-                </TouchableOpacity>
-                {this.state.buttonsExpanded ? null : expandoButton}
-              </View>
-            </Animated.View>
-            <ClearableTextInput
-              value={this.state.text}
-              sendMessage={this.sendMessage}
-              onChangeText={this.updateText}
-              underlineColorAndroid="transparent"
-              placeholder="Send a message..."
-              placeholderTextColor={this.props.colors.listInputButton}
-              multiline={true}
-              style={this.props.styles.textInput}
-              textInputRef={this.textInputRef}
-              ref={this.clearableTextInputRef}
-            />
-            {button}
-          </View>
-        </TouchableWithoutFeedback>
-      );
+      content = this.renderInput();
     } else if (isMember) {
       content = (
         <Text style={this.props.styles.explanation}>
@@ -393,6 +331,89 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         {content}
         {keyboardInputHost}
       </View>
+    );
+  }
+
+  renderInput() {
+    const expandoButton = (
+      <TouchableOpacity
+        onPress={this.expandButtons}
+        activeOpacity={0.4}
+        style={this.props.styles.expandButton}
+      >
+        <Animated.View style={this.expandIconStyle}>
+          <FAIcon
+            name="chevron-right"
+            size={19}
+            color={this.props.colors.listInputButton}
+          />
+        </Animated.View>
+      </TouchableOpacity>
+    );
+    const sendButtonContainerStyle = { width: this.sendButtonContainerWidth };
+    return (
+      <TouchableWithoutFeedback onPress={this.dismissKeyboard}>
+        <View style={this.props.styles.inputContainer}>
+          <Animated.View style={this.expandoButtonsStyle}>
+            <View style={this.props.styles.innerExpandoButtons}>
+              {this.state.buttonsExpanded ? expandoButton : null}
+              <TouchableOpacity
+                onPress={this.showMediaGallery}
+                activeOpacity={0.4}
+              >
+                <Animated.View style={this.cameraRollIconStyle}>
+                  <Icon
+                    name="md-image"
+                    size={25}
+                    color={this.props.colors.listInputButton}
+                  />
+                </Animated.View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={this.openCamera}
+                activeOpacity={0.4}
+                disabled={!this.state.buttonsExpanded}
+              >
+                <Animated.View style={this.cameraIconStyle}>
+                  <FAIcon
+                    name="camera"
+                    size={20}
+                    color={this.props.colors.listInputButton}
+                  />
+                </Animated.View>
+              </TouchableOpacity>
+              {this.state.buttonsExpanded ? null : expandoButton}
+            </View>
+          </Animated.View>
+          <ClearableTextInput
+            value={this.state.text}
+            sendMessage={this.sendMessage}
+            onChangeText={this.updateText}
+            underlineColorAndroid="transparent"
+            placeholder="Send a message..."
+            placeholderTextColor={this.props.colors.listInputButton}
+            multiline={true}
+            style={this.props.styles.textInput}
+            textInputRef={this.textInputRef}
+            ref={this.clearableTextInputRef}
+          />
+          <Animated.View style={sendButtonContainerStyle}>
+            <TouchableOpacity
+              onPress={this.onSend}
+              activeOpacity={0.4}
+              style={this.props.styles.sendButton}
+              disabled={this.state.text.trim() === ''}
+            >
+              <Icon
+                name="md-send"
+                size={25}
+                style={this.props.styles.sendIcon}
+                color={this.props.colors.greenButton}
+              />
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
+      </TouchableWithoutFeedback>
     );
   }
 
@@ -522,10 +543,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 }
 
 const styles = {
-  bottomAligned: {
-    alignSelf: 'flex-end',
-    paddingBottom: Platform.OS === 'ios' ? 7 : 9,
-  },
   cameraIcon: {
     paddingBottom: 10,
     paddingRight: 3,
@@ -584,16 +601,22 @@ const styles = {
   joinThreadLoadingIndicator: {
     paddingVertical: 2,
   },
+  sendButton: {
+    position: 'absolute',
+    bottom: Platform.OS === 'android' ? 3 : 0,
+    left: 0,
+  },
   sendIcon: {
-    paddingLeft: 5,
+    paddingLeft: 9,
     paddingRight: 8,
+    paddingVertical: 5,
   },
   textInput: {
     backgroundColor: 'listInputBackground',
     borderRadius: 10,
     color: 'listForegroundLabel',
     fontSize: 16,
-    marginHorizontal: 4,
+    marginLeft: 4,
     marginVertical: 5,
     maxHeight: 250,
     paddingHorizontal: 10,
