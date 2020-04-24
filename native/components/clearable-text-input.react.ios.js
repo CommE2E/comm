@@ -1,5 +1,6 @@
 // @flow
 
+import type { ClearableTextInputProps } from './clearable-text-input';
 import type { KeyPressEvent } from '../types/react-native';
 
 import * as React from 'react';
@@ -7,24 +8,19 @@ import { TextInput, View, StyleSheet } from 'react-native';
 
 import invariant from 'invariant';
 
-type Props = {|
-  ...React.ElementConfig<typeof TextInput>,
-  textInputRef: (textInput: ?TextInput) => mixed,
-|};
 type State = {|
   textInputKey: number,
 |};
-class ClearableTextInput extends React.PureComponent<Props, State> {
+class ClearableTextInput extends React.PureComponent<
+  ClearableTextInputProps,
+  State,
+> {
   state = {
     textInputKey: 0,
   };
-  pendingMessage: ?{| value: ?string, resolve: (value: ?string) => void |};
+  pendingMessage: ?{| value: string, resolve: (value: string) => void |};
   lastKeyPressed: ?string;
   lastTextInputSent = -1;
-
-  onChangeText = (text: string) => {
-    this.props.onChangeText && this.props.onChangeText(text);
-  };
 
   sendMessage() {
     if (this.pendingMessageSent) {
@@ -79,7 +75,7 @@ class ClearableTextInput extends React.PureComponent<Props, State> {
     if (this.props.value === newValue) {
       return;
     }
-    this.onChangeText(newValue);
+    this.props.onChangeText(newValue);
   }
 
   onOldInputKeyPress = (event: KeyPressEvent) => {
@@ -102,13 +98,11 @@ class ClearableTextInput extends React.PureComponent<Props, State> {
     this.props.textInputRef(textInput);
   };
 
-  getValueAndReset(): Promise<?string> {
-    this.onChangeText('');
+  getValueAndReset(): Promise<string> {
+    const { value } = this.props;
+    this.props.onChangeText('');
     return new Promise(resolve => {
-      this.pendingMessage = {
-        value: this.props.value,
-        resolve,
-      };
+      this.pendingMessage = { value, resolve };
       this.setState(prevState => ({
         textInputKey: prevState.textInputKey + 1,
       }));
@@ -134,7 +128,7 @@ class ClearableTextInput extends React.PureComponent<Props, State> {
     textInputs.push(
       <TextInput
         {...props}
-        onChangeText={this.onChangeText}
+        onChangeText={this.props.onChangeText}
         key={this.state.textInputKey}
         ref={this.textInputRef}
       />,

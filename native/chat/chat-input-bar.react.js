@@ -451,7 +451,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       clearableTextInput,
       'clearableTextInput should be sent in onSend',
     );
-    const text = await clearableTextInput.getValueAndReset();
+    let text = await clearableTextInput.getValueAndReset();
+    text = text.trim();
     if (!text) {
       return;
     }

@@ -1,22 +1,20 @@
 // @flow
 
+import type { ClearableTextInputProps } from './clearable-text-input';
+
 import * as React from 'react';
 import { TextInput, View, StyleSheet } from 'react-native';
 
-type Props = {|
-  ...React.ElementConfig<typeof TextInput>,
-  textInputRef: (textInput: ?TextInput) => mixed,
-|};
-class ClearableTextInput extends React.PureComponent<Props> {
+import sleep from 'lib/utils/sleep';
+
+import { waitForInteractions } from '../utils/interactions';
+
+class ClearableTextInput extends React.PureComponent<ClearableTextInputProps> {
   textInput: ?TextInput;
   lastMessageSent: ?string;
+  queuedResolve: ?() => mixed;
 
   onChangeText = (inputText: string) => {
-    const { onChangeText } = this.props;
-    if (!onChangeText) {
-      return;
-    }
-
     let text;
     if (this.lastMessageSent && inputText.startsWith(this.lastMessageSent)) {
       text = inputText.substring(this.lastMessageSent.length);
@@ -24,16 +22,31 @@ class ClearableTextInput extends React.PureComponent<Props> {
       text = inputText;
       this.lastMessageSent = null;
     }
-    onChangeText(text);
+    this.props.onChangeText(text);
   };
 
-  async getValueAndReset(): Promise<?string> {
-    this.lastMessageSent = this.props.value;
-    this.props.onChangeText && this.props.onChangeText('');
+  getValueAndReset(): Promise<string> {
+    const { value } = this.props;
+    this.lastMessageSent = value;
+    this.props.onChangeText('');
     if (this.textInput) {
       this.textInput.clear();
     }
-    return this.props.value;
+    return new Promise(resolve => {
+      this.queuedResolve = async () => {
+        await waitForInteractions();
+        await sleep(5);
+        resolve(value);
+      };
+    });
+  }
+
+  componentDidUpdate(prevProps: ClearableTextInputProps) {
+    if (!this.props.value && prevProps.value && this.queuedResolve) {
+      const resolve = this.queuedResolve;
+      this.queuedResolve = null;
+      resolve();
+    }
   }
 
   render() {
