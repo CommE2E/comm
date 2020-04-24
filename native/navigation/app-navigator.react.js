@@ -49,6 +49,7 @@ const TabNavigator = createBottomTabNavigator(
     initialRouteName: CalendarRouteName,
     lazy: false,
     tabBarComponent: TabBar,
+    backBehavior: 'none',
     tabBarOptions: {
       keyboardHidesTabBar: false,
     },
