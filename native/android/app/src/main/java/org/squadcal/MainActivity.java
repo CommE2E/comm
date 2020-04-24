@@ -51,4 +51,9 @@ public class MainActivity extends ReactFragmentActivity {
     };
   }
 
+  @Override
+  public void onBackPressed() {
+    moveTaskToBack(true);
+  }
+
 }
