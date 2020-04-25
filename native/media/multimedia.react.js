@@ -72,6 +72,13 @@ class Multimedia extends React.PureComponent<Props, State> {
     }
   }
 
+  componentWillUnmount() {
+    const { departingURI, unlinkDepartingURI } = this.state;
+    if (departingURI && unlinkDepartingURI) {
+      Multimedia.unlinkURI(departingURI);
+    }
+  }
+
   render() {
     const images = [];
     const { currentURI, departingURI } = this.state;
@@ -110,10 +117,6 @@ class Multimedia extends React.PureComponent<Props, State> {
   }
 
   onLoad = () => {
-    this.onLoadAsync();
-  };
-
-  async onLoadAsync() {
     const { departingURI, unlinkDepartingURI } = this.state;
     if (!departingURI && !unlinkDepartingURI) {
       return;
@@ -124,15 +127,18 @@ class Multimedia extends React.PureComponent<Props, State> {
       return;
     }
 
-    const path = pathFromURI(departingURI);
+    Multimedia.unlinkURI(departingURI);
+  };
+
+  static unlinkURI(uri: string) {
+    const path = pathFromURI(uri);
     if (!path) {
       return;
     }
-
     try {
-      await filesystem.unlink(path);
+      filesystem.unlink(path);
     } catch (e) {}
-  };
+  }
 }
 
 const styles = StyleSheet.create({
