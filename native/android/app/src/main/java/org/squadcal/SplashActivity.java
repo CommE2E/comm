@@ -24,6 +24,7 @@ public class SplashActivity extends AppCompatActivity {
     mainIntent.putExtras(intent);
     startActivity(mainIntent);
     finish();
+    overridePendingTransition(0, 0);
   }
 
 }
