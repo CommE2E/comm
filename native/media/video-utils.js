@@ -109,6 +109,9 @@ async function processVideo(
       exceptionMessage = e.message;
     }
   }
+  if (!success) {
+    filesystem.unlink(outputPath);
+  }
 
   steps.push({
     step: 'video_ffmpeg_transcode',
@@ -129,6 +132,7 @@ async function processVideo(
   const transcodeProbeStep = await checkVideoInfo(outputPath);
   steps.push(transcodeProbeStep);
   if (!transcodeProbeStep.validFormat) {
+    filesystem.unlink(outputPath);
     return {
       steps,
       result: { success: false, reason: 'video_transcode_failed' },
