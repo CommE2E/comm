@@ -608,7 +608,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       step: 'dispose_uploaded_local_file',
       success: disposeSuccess,
       exceptionMessage: disposeExceptionMessage,
-      time: disposeStart - Date.now(),
+      time: Date.now() - disposeStart,
       path: shouldDisposePath,
     });
 
@@ -619,7 +619,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const { viewerID } = this.props;
     if (__DEV__ || (viewerID && isStaff(viewerID))) {
       return {
-        initialFileHeaderCheck: true,
         finalFileHeaderCheck: true,
       };
     }

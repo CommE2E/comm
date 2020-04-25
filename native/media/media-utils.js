@@ -18,7 +18,6 @@ import { processVideo } from './video-utils';
 import { processImage } from './image-utils';
 
 type MediaProcessConfig = $Shape<{|
-  initialFileHeaderCheck: boolean,
   finalFileHeaderCheck: boolean,
 |}>;
 type MediaResult = {|
@@ -63,7 +62,7 @@ async function processMediaMission(
     dimensions = selection.dimensions,
     mime = null,
     finished = false;
-  const mediaType = selection.step.startsWith('photo_') ? 'photo' : 'video';
+  let mediaType;
   const finish = (failure?: MediaMissionFailure) => {
     invariant(!finished, 'finish called twice in processMediaMission');
     finished = true;
@@ -72,8 +71,8 @@ async function processMediaMission(
       return;
     }
     invariant(
-      uploadURI && mime,
-      "if we're finishing successfully we should have a URI and MIME type",
+      uploadURI && mime && mediaType,
+      'missing required fields to finish',
     );
     const shouldDisposePath =
       initialURI !== uploadURI ? pathFromURI(uploadURI) : null;
@@ -95,10 +94,11 @@ async function processMediaMission(
     : null;
   const { steps: fileInfoSteps, result: fileInfoResult } = await fetchFileInfo(
     selection.uri,
-    mediaNativeID,
+    { mediaNativeID },
     {
       orientation: mediaType === 'photo',
-      mime: mediaType === 'photo' || config.initialFileHeaderCheck,
+      mime: true,
+      mediaType: true,
     },
   );
   steps.push(...fileInfoSteps);
@@ -107,26 +107,21 @@ async function processMediaMission(
     return steps;
   }
   const { orientation, fileSize } = fileInfoResult;
-  initialURI = fileInfoResult.uri;
-  mime = fileInfoResult.mime;
-
-  if (fileInfoResult.mediaType && fileInfoResult.mediaType !== mediaType) {
+  ({ uri: initialURI, mime, mediaType } = fileInfoResult);
+  if (!mime || !mediaType) {
     finish({
       success: false,
-      reason: 'media_type_mismatch',
-      reportedMediaType: mediaType,
-      detectedMediaType: fileInfoResult.mediaType,
-      detectedMIME: fileInfoResult.mime,
+      reason: 'media_type_fetch_failed',
+      detectedMIME: mime,
     });
     return steps;
   }
 
-  if (selection.step === 'video_library') {
+  if (mediaType === 'video') {
     const { steps: videoSteps, result: videoResult } = await processVideo({
       uri: initialURI,
       filename: selection.filename,
       fileSize,
-      duration: selection.duration,
       dimensions,
     });
     steps.push(...videoSteps);
@@ -137,17 +132,7 @@ async function processMediaMission(
     uploadURI = videoResult.uri;
     mime = videoResult.mime;
     dimensions = videoResult.dimensions;
-  } else if (
-    selection.step === 'photo_capture' ||
-    selection.step === 'photo_library'
-  ) {
-    if (!mime) {
-      finish({
-        success: false,
-        reason: 'mime_fetch_failed',
-      });
-      return steps;
-    }
+  } else if (mediaType === 'photo') {
     const { steps: imageSteps, result: imageResult } = await processImage({
       uri: initialURI,
       dimensions,
@@ -179,9 +164,7 @@ async function processMediaMission(
   const {
     steps: finalFileInfoSteps,
     result: finalFileInfoResult,
-  } = await fetchFileInfo(uploadURI, null, {
-    mime: true,
-  });
+  } = await fetchFileInfo(uploadURI, undefined, { mime: true });
   steps.push(...finalFileInfoSteps);
   if (!finalFileInfoResult.success) {
     if (config.finalFileHeaderCheck) {
@@ -197,7 +180,6 @@ async function processMediaMission(
         reason: 'mime_type_mismatch',
         reportedMediaType: mediaType,
         reportedMIME: mime,
-        detectedMediaType: finalFileInfoResult.mediaType,
         detectedMIME: finalFileInfoResult.mime,
       });
     }

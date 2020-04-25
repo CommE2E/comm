@@ -11,7 +11,7 @@ import filesystem from 'react-native-fs';
 import { Platform } from 'react-native';
 import invariant from 'invariant';
 
-import { pathFromURI, extensionFromFilename } from 'lib/utils/file-utils';
+import { pathFromURI } from 'lib/utils/file-utils';
 import { getVideoProcessingPlan } from 'lib/utils/video-utils';
 
 import { ffmpeg } from './ffmpeg';
@@ -20,7 +20,6 @@ type ProcessVideoInfo = {|
   uri: string,
   filename: string,
   fileSize: number,
-  duration: number,
   dimensions: Dimensions,
 |};
 type ProcessVideoResponse = {|
@@ -42,13 +41,16 @@ async function processVideo(
 
   const initialCheckStep = await checkVideoInfo(path);
   steps.push(initialCheckStep);
+  if (!initialCheckStep.success || !initialCheckStep.duration) {
+    return { steps, result: { success: false, reason: 'video_probe_failed' } };
+  }
 
   const plan = getVideoProcessingPlan({
     inputPath: path,
-    inputHasCorrectContainerAndCodec: initialCheckStep.success,
+    inputHasCorrectContainerAndCodec: initialCheckStep.validFormat,
     inputFileSize: input.fileSize,
     inputFilename: input.filename,
-    inputDuration: input.duration,
+    inputDuration: initialCheckStep.duration,
     outputDirectory: Platform.select({
       ios: filesystem.TemporaryDirectoryPath,
       default: `${filesystem.TemporaryDirectoryPath}/`,
@@ -116,7 +118,7 @@ async function processVideo(
 
   const transcodeProbeStep = await checkVideoInfo(outputPath);
   steps.push(transcodeProbeStep);
-  if (!transcodeProbeStep.success) {
+  if (!transcodeProbeStep.validFormat) {
     return {
       steps,
       result: { success: false, reason: 'video_transcode_failed' },
@@ -140,37 +142,36 @@ async function processVideo(
 async function checkVideoInfo(
   path: string,
 ): Promise<VideoProbeMediaMissionStep> {
-  const ext = extensionFromFilename(path);
-
   let codec,
     format,
     dimensions,
+    duration,
     success = false,
+    validFormat = false,
     exceptionMessage;
   const start = Date.now();
-  if (ext === 'mp4' || ext === 'mov') {
-    try {
-      ({ codec, format, dimensions } = await ffmpeg.getVideoInfo(path));
-      success = codec === 'h264' && format.includes('mp4');
-    } catch (e) {
-      if (
-        e &&
-        typeof e === 'object' &&
-        e.message &&
-        typeof e.message === 'string'
-      ) {
-        exceptionMessage = e.message;
-      }
+  try {
+    ({ codec, format, dimensions, duration } = await ffmpeg.getVideoInfo(path));
+    success = true;
+    validFormat = codec === 'h264' && format.includes('mp4');
+  } catch (e) {
+    if (
+      e &&
+      typeof e === 'object' &&
+      e.message &&
+      typeof e.message === 'string'
+    ) {
+      exceptionMessage = e.message;
     }
   }
-
   return {
     step: 'video_probe',
     success,
     exceptionMessage,
     time: Date.now() - start,
     path,
-    ext,
+    validFormat,
+    duration,
     codec,
     format,
     dimensions,

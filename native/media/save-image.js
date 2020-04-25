@@ -220,7 +220,9 @@ async function copyToSortedDirectory(
   const promises = {};
   promises.hash = filesystem.hash(path, 'md5');
   if (!mime) {
-    promises.fileInfoResult = fetchFileInfo(localURI, null, { mime: true });
+    promises.fileInfoResult = fetchFileInfo(localURI, undefined, {
+      mime: true,
+    });
   }
   const { hash, fileInfoResult } = await promiseAll(promises);
 

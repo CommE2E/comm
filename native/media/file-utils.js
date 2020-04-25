@@ -13,9 +13,11 @@ import filesystem from 'react-native-fs';
 import base64 from 'base-64';
 
 import { pathFromURI, fileInfoFromData } from 'lib/utils/file-utils';
-import { stringToIntArray } from './blob-utils';
 
-const defaultOptionalFields = Object.freeze({});
+import { stringToIntArray } from './blob-utils';
+import { ffmpeg } from './ffmpeg';
+
+const defaultOptionals = Object.freeze({});
 
 type FetchFileInfoResult = {|
   success: true,
@@ -25,20 +27,26 @@ type FetchFileInfoResult = {|
   mime: ?string,
   mediaType: ?MediaType,
 |};
-type OptionalFields = $Shape<{| orientation: boolean, mime: boolean |}>;
+type OptionalInputs = $Shape<{| mediaNativeID: ?string |}>;
+type OptionalFields = $Shape<{|
+  orientation: boolean,
+  mediaType: boolean,
+  mime: boolean,
+|}>;
 async function fetchFileInfo(
   inputURI: string,
-  mediaNativeID?: ?string,
-  optionalFields?: OptionalFields = defaultOptionalFields,
+  optionalInputs?: OptionalInputs = defaultOptionals,
+  optionalFields?: OptionalFields = defaultOptionals,
 ): Promise<{|
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: MediaMissionFailure | FetchFileInfoResult,
 |}> {
+  const { mediaNativeID } = optionalInputs;
   const steps = [];
 
   let assetInfoPromise, newLocalURI;
-  const needsLocalURI = !pathFromURI(inputURI);
-  if (mediaNativeID && (needsLocalURI || optionalFields.orientation)) {
+  const inputPath = pathFromURI(inputURI);
+  if (mediaNativeID && (!inputPath || optionalFields.orientation)) {
     assetInfoPromise = (async () => {
       const {
         steps: assetInfoSteps,
@@ -51,17 +59,21 @@ async function fetchFileInfo(
   }
 
   const getLocalURIPromise = (async () => {
-    if (!needsLocalURI) {
-      return inputURI;
+    if (inputPath) {
+      return { localURI: inputURI, path: inputPath };
     }
     if (!assetInfoPromise) {
       return null;
     }
     const { localURI } = await assetInfoPromise;
-    if (!localURI || !pathFromURI(localURI)) {
+    if (!localURI) {
       return null;
     }
-    return localURI;
+    const path = pathFromURI(localURI);
+    if (!path) {
+      return null;
+    }
+    return { localURI, path };
   })();
 
   const getOrientationPromise = (async () => {
@@ -73,10 +85,11 @@ async function fetchFileInfo(
   })();
 
   const getFileSizePromise = (async () => {
-    const localURI = await getLocalURIPromise;
-    if (!localURI) {
+    const localURIResult = await getLocalURIPromise;
+    if (!localURIResult) {
       return null;
     }
+    const { localURI } = localURIResult;
     const { steps: fileSizeSteps, result: fileSize } = await fetchFileSize(
       localURI,
     );
@@ -85,33 +98,41 @@ async function fetchFileInfo(
   })();
 
   const getTypesPromise = (async () => {
-    if (!optionalFields.mime) {
+    if (!optionalFields.mime && !optionalFields.mediaType) {
       return { mime: null, mediaType: null };
     }
-    const [localURI, fileSize] = await Promise.all([
+    const [localURIResult, fileSize] = await Promise.all([
       getLocalURIPromise,
       getFileSizePromise,
     ]);
-    if (!localURI || !fileSize) {
+    if (!localURIResult || !fileSize) {
       return { mime: null, mediaType: null };
     }
+    const { localURI, path } = localURIResult;
     const readFileStep = await readFileHeader(localURI, fileSize);
     steps.push(readFileStep);
-    return {
-      mime: readFileStep.mime,
-      mediaType: readFileStep.mediaType,
-    };
+    const { mime, mediaType: baseMediaType } = readFileStep;
+    if (!optionalFields.mediaType || !mime || !baseMediaType) {
+      return { mime, mediaType: null };
+    }
+    const {
+      steps: getMediaTypeSteps,
+      result: mediaType,
+    } = await getMediaTypeInfo(path, mime, baseMediaType);
+    steps.push(...getMediaTypeSteps);
+    return { mime, mediaType };
   })();
 
-  const [uri, orientation, fileSize, types] = await Promise.all([
+  const [localURIResult, orientation, fileSize, types] = await Promise.all([
     getLocalURIPromise,
     getOrientationPromise,
     getFileSizePromise,
     getTypesPromise,
   ]);
-  if (!uri) {
+  if (!localURIResult) {
     return { steps, result: { success: false, reason: 'no_file_path' } };
   }
+  const uri = localURIResult.localURI;
   if (!fileSize) {
     return {
       steps,
@@ -268,6 +289,50 @@ async function readFileHeader(
     mime,
     mediaType,
   };
+}
+
+async function getMediaTypeInfo(
+  path: string,
+  mime: string,
+  baseMediaType: MediaType,
+): Promise<{|
+  steps: $ReadOnlyArray<MediaMissionStep>,
+  result: ?MediaType,
+|}> {
+  if (mime !== 'image/gif') {
+    return { steps: [], result: baseMediaType };
+  }
+
+  let hasMultipleFrames,
+    frameCountSuccess = false,
+    frameCountExceptionMessage;
+  const frameCountStart = Date.now();
+  try {
+    hasMultipleFrames = await ffmpeg.hasMultipleFrames(path);
+    frameCountSuccess = true;
+  } catch (e) {
+    if (
+      e &&
+      typeof e === 'object' &&
+      e.message &&
+      typeof e.message === 'string'
+    ) {
+      frameCountExceptionMessage = e.message;
+    }
+  }
+  const steps = [
+    {
+      step: 'frame_count',
+      success: frameCountSuccess,
+      exceptionMessage: frameCountExceptionMessage,
+      time: Date.now() - frameCountStart,
+      path,
+      mime,
+      hasMultipleFrames,
+    },
+  ];
+  const result = hasMultipleFrames ? 'video' : 'photo';
+  return { steps, result };
 }
 
 export { fetchFileInfo };

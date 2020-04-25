@@ -2,6 +2,8 @@
 
 import { RNFFmpeg, RNFFprobe, RNFFmpegConfig } from 'react-native-ffmpeg';
 
+import { getHasMultipleFramesProbeCommand } from 'lib/utils/video-utils';
+
 if (!__DEV__) {
   RNFFmpegConfig.disableLogs();
   RNFFmpegConfig.disableStatistics();
@@ -92,7 +94,8 @@ class FFmpeg {
     const codec = videoStreamInfo && videoStreamInfo.codec;
     const dimensions = videoStreamInfo && videoStreamInfo.dimensions;
     const format = info.format.split(',');
-    return { codec, format, dimensions };
+    const duration = info.duration / 1000;
+    return { codec, format, dimensions, duration };
   }
 
   static getVideoStreamInfo(info: Object) {
@@ -106,6 +109,18 @@ class FFmpeg {
       }
     }
     return null;
+  }
+
+  hasMultipleFrames(path: string) {
+    const wrappedCommand = () => FFmpeg.innerHasMultipleFrames(path);
+    return this.queueCommand('probe', wrappedCommand);
+  }
+
+  static async innerHasMultipleFrames(path: string) {
+    await RNFFprobe.execute(getHasMultipleFramesProbeCommand(path));
+    const probeOutput = await RNFFmpegConfig.getLastCommandOutput();
+    const numFrames = parseInt(probeOutput.lastCommandOutput);
+    return numFrames > 1;
   }
 }
 
