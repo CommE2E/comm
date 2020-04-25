@@ -38,6 +38,7 @@ import KeyboardStateContainer from '../keyboard/keyboard-state-container.react';
 import PushHandler from '../push/push-handler.react';
 import { getPersistor } from '../redux/persist';
 import { RootContext } from '../root-context';
+import { waitForInteractions } from '../utils/interactions';
 
 const TabNavigator = createBottomTabNavigator(
   {
@@ -79,7 +80,7 @@ function WrappedAppNavigator(props: Props) {
 
   React.useEffect(() => {
     if (Platform.OS === 'android') {
-      setTimeout(SplashScreen.hide, 350);
+      waitForInteractions().then(() => SplashScreen.hide());
     } else {
       SplashScreen.hide();
     }
