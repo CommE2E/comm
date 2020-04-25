@@ -4,6 +4,7 @@ import type {
   MediaMissionStep,
   MediaMissionFailure,
   VideoProbeMediaMissionStep,
+  Dimensions,
 } from 'lib/types/media-types';
 
 import filesystem from 'react-native-fs';
@@ -20,11 +21,13 @@ type ProcessVideoInfo = {|
   filename: string,
   fileSize: number,
   duration: number,
+  dimensions: Dimensions,
 |};
 type ProcessVideoResponse = {|
   success: true,
   uri: string,
   mime: string,
+  dimensions: Dimensions,
 |};
 async function processVideo(
   input: ProcessVideoInfo,
@@ -37,7 +40,7 @@ async function processVideo(
   const path = pathFromURI(input.uri);
   invariant(path, `could not extract path from ${input.uri}`);
 
-  const initialCheckStep = await checkVideoCodec(path);
+  const initialCheckStep = await checkVideoInfo(path);
   steps.push(initialCheckStep);
 
   const plan = getVideoProcessingPlan({
@@ -66,6 +69,7 @@ async function processVideo(
         success: true,
         uri: input.uri,
         mime: 'video/mp4',
+        dimensions: input.dimensions,
       },
     };
   }
@@ -110,7 +114,7 @@ async function processVideo(
     };
   }
 
-  const transcodeProbeStep = await checkVideoCodec(outputPath);
+  const transcodeProbeStep = await checkVideoInfo(outputPath);
   steps.push(transcodeProbeStep);
   if (!transcodeProbeStep.success) {
     return {
@@ -119,29 +123,34 @@ async function processVideo(
     };
   }
 
+  const dimensions = transcodeProbeStep.dimensions
+    ? transcodeProbeStep.dimensions
+    : input.dimensions;
   return {
     steps,
     result: {
       success: true,
       uri: `file://${outputPath}`,
       mime: 'video/mp4',
+      dimensions,
     },
   };
 }
 
-async function checkVideoCodec(
+async function checkVideoInfo(
   path: string,
 ): Promise<VideoProbeMediaMissionStep> {
   const ext = extensionFromFilename(path);
 
   let codec,
     format,
+    dimensions,
     success = false,
     exceptionMessage;
   const start = Date.now();
   if (ext === 'mp4' || ext === 'mov') {
     try {
-      ({ codec, format } = await ffmpeg.getVideoFormat(path));
+      ({ codec, format, dimensions } = await ffmpeg.getVideoInfo(path));
       success = codec === 'h264' && format.includes('mp4');
     } catch (e) {
       if (
@@ -164,6 +173,7 @@ async function checkVideoCodec(
     ext,
     codec,
     format,
+    dimensions,
   };
 }
 

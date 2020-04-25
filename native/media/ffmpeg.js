@@ -81,25 +81,28 @@ class FFmpeg {
     return this.queueCommand('process', wrappedCommand);
   }
 
-  getVideoFormat(path: string) {
-    const wrappedCommand = () => FFmpeg.innerGetVideoFormat(path);
+  getVideoInfo(path: string) {
+    const wrappedCommand = () => FFmpeg.innerGetVideoInfo(path);
     return this.queueCommand('probe', wrappedCommand);
   }
 
-  static async innerGetVideoFormat(path: string) {
+  static async innerGetVideoInfo(path: string) {
     const info = await RNFFprobe.getMediaInformation(path);
-    const codec = FFmpeg.getVideoCodec(info);
+    const videoStreamInfo = FFmpeg.getVideoStreamInfo(info);
+    const codec = videoStreamInfo && videoStreamInfo.codec;
+    const dimensions = videoStreamInfo && videoStreamInfo.dimensions;
     const format = info.format.split(',');
-    return { codec, format };
+    return { codec, format, dimensions };
   }
 
-  static getVideoCodec(info: Object): ?string {
+  static getVideoStreamInfo(info: Object) {
     if (!info.streams) {
       return null;
     }
     for (let stream of info.streams) {
       if (stream.type === 'video') {
-        return stream.codec;
+        const { codec, width, height } = stream;
+        return { codec, dimensions: { width, height } };
       }
     }
     return null;

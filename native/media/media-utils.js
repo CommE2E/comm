@@ -127,6 +127,7 @@ async function processMediaMission(
       filename: selection.filename,
       fileSize,
       duration: selection.duration,
+      dimensions,
     });
     steps.push(...videoSteps);
     if (!videoResult.success) {
@@ -135,6 +136,7 @@ async function processMediaMission(
     }
     uploadURI = videoResult.uri;
     mime = videoResult.mime;
+    dimensions = videoResult.dimensions;
   } else if (
     selection.step === 'photo_capture' ||
     selection.step === 'photo_library'
