@@ -18,7 +18,9 @@ import { contentBottomOffset } from '../selectors/dimension-selectors';
 import { overlayStyleSelector, type StyleSheetOf } from '../themes/colors';
 import { connectNav, type NavContextType } from './navigation-context';
 
+/* eslint-disable import/no-named-as-default-member */
 const { Value, Extrapolate, interpolate } = Animated;
+/* eslint-enable import/no-named-as-default-member */
 
 type NavProp = NavigationStackProp<{|
   ...NavigationLeafRoute,
@@ -114,6 +116,7 @@ const styles = {
   text: {
     color: 'modalContrastForegroundLabel',
     fontSize: 20,
+    textAlign: 'center',
   },
 };
 const stylesSelector = overlayStyleSelector(styles);

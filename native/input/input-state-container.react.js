@@ -62,6 +62,7 @@ import {
 } from 'lib/selectors/loading-selectors';
 import { pathFromURI } from 'lib/utils/file-utils';
 import { isStaff } from 'lib/shared/user-utils';
+import { videoDurationLimit } from 'lib/utils/video-utils';
 
 import {
   InputStateContext,
@@ -487,7 +488,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       reportPromise = processMediaReturn.reportPromise;
       const processResult = await processMediaReturn.resultPromise;
       if (!processResult.success) {
-        fail('processing failed');
+        const message =
+          processResult.reason === 'video_too_long'
+            ? `can't do vids longer than ${videoDurationLimit}min`
+            : 'processing failed';
+        fail(message);
         return await finish(processResult);
       }
       processedMedia = processResult;
@@ -507,9 +512,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         time,
         exceptionMessage: processExceptionMessage,
       });
-      fail(
-        processExceptionMessage ? processExceptionMessage : 'processing threw',
-      );
+      fail('processing failed');
       return await finish({
         success: false,
         reason: 'processing_exception',

@@ -12,7 +12,10 @@ import { Platform } from 'react-native';
 import invariant from 'invariant';
 
 import { pathFromURI } from 'lib/utils/file-utils';
-import { getVideoProcessingPlan } from 'lib/utils/video-utils';
+import {
+  getVideoProcessingPlan,
+  videoDurationLimit,
+} from 'lib/utils/video-utils';
 
 import { ffmpeg } from './ffmpeg';
 
@@ -44,13 +47,20 @@ async function processVideo(
   if (!initialCheckStep.success || !initialCheckStep.duration) {
     return { steps, result: { success: false, reason: 'video_probe_failed' } };
   }
+  const { validFormat, duration } = initialCheckStep;
+  if (duration > videoDurationLimit * 60) {
+    return {
+      steps,
+      result: { success: false, reason: 'video_too_long', duration },
+    };
+  }
 
   const plan = getVideoProcessingPlan({
     inputPath: path,
-    inputHasCorrectContainerAndCodec: initialCheckStep.validFormat,
+    inputHasCorrectContainerAndCodec: validFormat,
     inputFileSize: input.fileSize,
     inputFilename: input.filename,
-    inputDuration: initialCheckStep.duration,
+    inputDuration: duration,
     outputDirectory: Platform.select({
       ios: filesystem.TemporaryDirectoryPath,
       default: `${filesystem.TemporaryDirectoryPath}/`,
