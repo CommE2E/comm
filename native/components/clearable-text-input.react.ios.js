@@ -121,6 +121,7 @@ class ClearableTextInput extends React.PureComponent<
           onChangeText={this.onOldInputChangeText}
           onKeyPress={this.onOldInputKeyPress}
           onBlur={this.onOldInputBlur}
+          pointerEvents="none"
           key={this.state.textInputKey - 1}
         />,
       );
