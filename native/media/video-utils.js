@@ -61,6 +61,7 @@ async function processVideo(
     inputFileSize: input.fileSize,
     inputFilename: input.filename,
     inputDuration: duration,
+    inputDimensions: input.dimensions,
     outputDirectory: Platform.select({
       ios: filesystem.TemporaryDirectoryPath,
       default: `${filesystem.TemporaryDirectoryPath}/`,
