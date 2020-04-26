@@ -28,6 +28,7 @@ type MediaResult = {|
   mime: string,
   mediaType: MediaType,
   dimensions: Dimensions,
+  loop: boolean,
 |};
 function processMedia(
   selection: MediaSelection,
@@ -61,6 +62,7 @@ async function processMediaMission(
     uploadURI = null,
     dimensions = selection.dimensions,
     mime = null,
+    loop = false,
     finished = false;
   let mediaType;
   const finish = (failure?: MediaMissionFailure) => {
@@ -86,6 +88,7 @@ async function processMediaMission(
       mime,
       mediaType,
       dimensions,
+      loop,
     });
   };
 
@@ -120,6 +123,7 @@ async function processMediaMission(
   if (mediaType === 'video') {
     const { steps: videoSteps, result: videoResult } = await processVideo({
       uri: initialURI,
+      mime,
       filename: selection.filename,
       fileSize,
       dimensions,
@@ -129,9 +133,7 @@ async function processMediaMission(
       finish(videoResult);
       return steps;
     }
-    uploadURI = videoResult.uri;
-    mime = videoResult.mime;
-    dimensions = videoResult.dimensions;
+    ({ uri: uploadURI, mime, dimensions, loop } = videoResult);
   } else if (mediaType === 'photo') {
     const { steps: imageSteps, result: imageResult } = await processImage({
       uri: initialURI,
@@ -145,9 +147,7 @@ async function processMediaMission(
       finish(imageResult);
       return steps;
     }
-    uploadURI = imageResult.uri;
-    dimensions = imageResult.dimensions;
-    mime = imageResult.mime;
+    ({ uri: uploadURI, mime, dimensions } = imageResult);
   } else {
     invariant(false, `unknown mediaType ${mediaType}`);
   }

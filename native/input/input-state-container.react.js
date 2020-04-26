@@ -412,6 +412,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               type: 'video',
               dimensions: selection.dimensions,
               localMediaSelection: selection,
+              loop: false,
             };
           }
           invariant(false, `invalid selection ${JSON.stringify(selection)}`);
@@ -527,6 +528,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       filename,
       mime,
       mediaType,
+      loop,
     } = processedMedia;
 
     const uploadStart = Date.now();
@@ -569,6 +571,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           uri: uploadResult.uri,
           type: mediaType,
           dimensions: uploadResult.dimensions,
+          loop,
           localMediaSelection: undefined,
         },
       });

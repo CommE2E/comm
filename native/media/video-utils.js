@@ -21,6 +21,7 @@ import { ffmpeg } from './ffmpeg';
 
 type ProcessVideoInfo = {|
   uri: string,
+  mime: string,
   filename: string,
   fileSize: number,
   dimensions: Dimensions,
@@ -30,6 +31,7 @@ type ProcessVideoResponse = {|
   uri: string,
   mime: string,
   dimensions: Dimensions,
+  loop: boolean,
 |};
 async function processVideo(
   input: ProcessVideoInfo,
@@ -83,6 +85,7 @@ async function processVideo(
         uri: input.uri,
         mime: 'video/mp4',
         dimensions: input.dimensions,
+        loop: false,
       },
     };
   }
@@ -150,6 +153,7 @@ async function processVideo(
       uri: `file://${outputPath}`,
       mime: 'video/mp4',
       dimensions,
+      loop: input.mime === 'image/gif',
     },
   };
 }
