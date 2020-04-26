@@ -30,7 +30,7 @@ import { ServerError } from 'lib/utils/errors';
 import { dbQuery, SQL, mergeOrConditions } from '../database';
 import { fetchUserInfos } from './user-fetchers';
 import { creationString, localIDFromCreationString } from '../utils/idempotent';
-import { getUploadURL } from './upload-fetchers';
+import { mediaFromRow } from './upload-fetchers';
 
 export type CollapsableNotifInfo = {|
   collapseKey: ?string,
@@ -364,28 +364,7 @@ function rawMessageInfoFromRows(
       text: content.text,
     };
   } else if (type === messageTypes.IMAGES || type === messageTypes.MULTIMEDIA) {
-    const media = [];
-    for (let row of rows) {
-      if (!row.uploadID) {
-        continue;
-      }
-      const uploadID = row.uploadID.toString();
-      if (row.uploadType === 'photo') {
-        media.push({
-          id: uploadID,
-          uri: getUploadURL(uploadID, row.uploadSecret),
-          type: 'photo',
-          dimensions: row.uploadExtra,
-        });
-      } else {
-        media.push({
-          id: uploadID,
-          uri: getUploadURL(uploadID, row.uploadSecret),
-          type: 'video',
-          dimensions: row.uploadExtra,
-        });
-      }
-    }
+    const media = rows.filter(row => row.uploadID).map(mediaFromRow);
     const [row] = rows;
     return createMediaMessageInfo({
       threadID: row.threadID.toString(),

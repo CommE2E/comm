@@ -22,6 +22,7 @@ export type UploadInput = {|
   mediaType: MediaType,
   buffer: Buffer,
   dimensions: Dimensions,
+  loop: boolean,
 |};
 async function createUploads(
   viewer: Viewer,
@@ -35,20 +36,23 @@ async function createUploads(
   const uploadRows = uploadInfos.map(uploadInfo => {
     const id = ids.shift();
     const secret = crypto.randomBytes(8).toString('hex');
+    const { dimensions, mediaType, loop } = uploadInfo;
     return {
       id,
       secret,
-      dimensions: uploadInfo.dimensions,
+      dimensions,
+      mediaType,
+      loop,
       insert: [
         id,
         viewer.userID,
-        uploadInfo.mediaType,
+        mediaType,
         uploadInfo.name,
         uploadInfo.mime,
         uploadInfo.buffer,
         secret,
         Date.now(),
-        JSON.stringify(uploadInfo.dimensions),
+        JSON.stringify({ ...dimensions, loop }),
       ],
     };
   });
@@ -67,6 +71,8 @@ async function createUploads(
       viewer.platformDetails,
     ),
     dimensions: row.dimensions,
+    mediaType: row.mediaType,
+    loop: row.loop,
   }));
 }
 

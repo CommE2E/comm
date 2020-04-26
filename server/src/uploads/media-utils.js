@@ -40,6 +40,7 @@ async function validateAndConvert(
   initialBuffer: Buffer,
   initialName: string,
   inputDimensions: ?Dimensions,
+  inputLoop: boolean,
   size: number, // in bytes
 ): Promise<?UploadInput> {
   const { mime, mediaType } = deepFileInfoFromData(initialBuffer);
@@ -83,6 +84,7 @@ async function validateAndConvert(
       name,
       buffer: initialBuffer,
       dimensions: initialDimensions,
+      loop: inputLoop,
     };
   }
   console.log(`processing image with ${JSON.stringify(plan)}`);
@@ -134,6 +136,7 @@ async function validateAndConvert(
     name: convertedName,
     buffer: convertedBuffer,
     dimensions: convertedDimensions,
+    loop: inputLoop,
   };
 }
 

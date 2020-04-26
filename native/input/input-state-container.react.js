@@ -11,7 +11,6 @@ import type {
   MediaSelection,
   MediaMissionResult,
   MediaMission,
-  Dimensions,
 } from 'lib/types/media-types';
 import {
   messageTypes,
@@ -45,6 +44,7 @@ import {
   uploadMultimedia,
   updateMultimediaMessageMediaActionType,
   type MultimediaUploadCallbacks,
+  type MultimediaUploadExtras,
 } from 'lib/actions/upload-actions';
 import {
   createLocalMessageActionType,
@@ -95,7 +95,7 @@ type Props = {|
   // async functions that hit server APIs
   uploadMultimedia: (
     multimedia: Object,
-    dimensions: Dimensions,
+    extras: MultimediaUploadExtras,
     callbacks: MultimediaUploadCallbacks,
   ) => Promise<UploadMultimediaResult>,
   sendMultimediaMessage: (
@@ -522,21 +522,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       });
     }
 
-    const {
-      uploadURI,
-      shouldDisposePath,
-      filename,
-      mime,
-      mediaType,
-      loop,
-    } = processedMedia;
+    const { uploadURI, shouldDisposePath, filename, mime } = processedMedia;
 
     const uploadStart = Date.now();
     let uploadExceptionMessage, uploadResult, mediaMissionResult;
     try {
       uploadResult = await this.props.uploadMultimedia(
         { uri: uploadURI, name: filename, type: mime },
-        processedMedia.dimensions,
+        { ...processedMedia.dimensions, loop: processedMedia.loop },
         {
           onProgress: (percent: number) =>
             this.setProgress(localMessageID, localID, percent),
@@ -562,17 +555,18 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     if (uploadResult) {
-      serverID = uploadResult.id;
+      const { id, mediaType, uri, dimensions, loop } = uploadResult;
+      serverID = id;
       this.props.dispatchActionPayload(updateMultimediaMessageMediaActionType, {
         messageID: localMessageID,
         currentMediaID: localID,
         mediaUpdate: {
-          id: serverID,
-          uri: uploadResult.uri,
+          id,
           type: mediaType,
-          dimensions: uploadResult.dimensions,
-          loop,
+          uri,
+          dimensions,
           localMediaSelection: undefined,
+          loop,
         },
       });
       userTime = Date.now() - start;

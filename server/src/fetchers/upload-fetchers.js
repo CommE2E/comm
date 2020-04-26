@@ -37,25 +37,33 @@ function getUploadURL(id: string, secret: string) {
   return `${baseDomain}${basePath}upload/${id}/${secret}`;
 }
 
+function mediaFromRow(row: Object): Media {
+  const { uploadType: type, uploadSecret: secret } = row;
+  const { width, height, loop } = row.uploadExtra;
+  const id = row.uploadID.toString();
+  const dimensions = { width, height };
+  const uri = getUploadURL(id, secret);
+  if (type === 'photo') {
+    return { id, type: 'photo', uri, dimensions };
+  } else if (loop) {
+    return { id, type: 'video', uri, dimensions, loop };
+  } else {
+    return { id, type: 'video', uri, dimensions };
+  }
+}
+
 async function fetchMedia(
   viewer: Viewer,
   mediaIDs: $ReadOnlyArray<string>,
 ): Promise<$ReadOnlyArray<Media>> {
   const query = SQL`
-    SELECT id, secret, type, extra
+    SELECT id AS uploadID, secret AS uploadSecret,
+      type AS uploadType, extra AS uploadExtra
     FROM uploads
     WHERE id IN (${mediaIDs}) AND uploader = ${viewer.id} AND container IS NULL
   `;
   const [result] = await dbQuery(query);
-  return result.map(row => {
-    const id = row.id.toString();
-    return {
-      id,
-      uri: getUploadURL(id, row.secret),
-      type: row.type,
-      dimensions: row.extra,
-    };
-  });
+  return result.map(mediaFromRow);
 }
 
-export { fetchUpload, getUploadURL, fetchMedia };
+export { fetchUpload, getUploadURL, mediaFromRow, fetchMedia };

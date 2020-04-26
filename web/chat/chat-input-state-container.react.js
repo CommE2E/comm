@@ -1,7 +1,7 @@
 // @flow
 
 import type { AppState } from '../redux-setup';
-import type { UploadMultimediaResult, Dimensions } from 'lib/types/media-types';
+import type { UploadMultimediaResult } from 'lib/types/media-types';
 import type {
   DispatchActionPayload,
   DispatchActionPromise,
@@ -36,6 +36,7 @@ import {
   updateMultimediaMessageMediaActionType,
   deleteUpload,
   type MultimediaUploadCallbacks,
+  type MultimediaUploadExtras,
 } from 'lib/actions/upload-actions';
 import {
   createLocalMessageActionType,
@@ -66,7 +67,7 @@ type Props = {|
   // async functions that hit server APIs
   uploadMultimedia: (
     multimedia: Object,
-    dimensions: Dimensions,
+    extras: MultimediaUploadExtras,
     callbacks: MultimediaUploadCallbacks,
   ) => Promise<UploadMultimediaResult>,
   deleteUpload: (id: string) => Promise<void>,
@@ -180,8 +181,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       const creatorID = this.props.viewerID;
       invariant(creatorID, 'need viewer ID in order to send a message');
       const media = uploads.map(
-        ({ localID, serverID, uri, mediaType, dimensions }) => {
-          // This conditional is for Flow
+        ({ localID, serverID, uri, mediaType, dimensions, loop }) => {
           if (mediaType === 'photo') {
             return {
               id: serverID ? serverID : localID,
@@ -195,6 +195,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
               uri,
               type: 'video',
               dimensions,
+              loop,
             };
           }
         },
@@ -390,6 +391,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         mediaType,
         dimensions,
         uri: result.uri,
+        loop: false,
         uriIsReal: false,
         progressPercent: 0,
         abort: null,
@@ -432,7 +434,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     try {
       result = await this.props.uploadMultimedia(
         upload.file,
-        upload.dimensions,
+        { ...upload.dimensions, loop: false },
         {
           onProgress: (percent: number) =>
             this.setProgress(threadID, upload.localID, percent),
@@ -497,15 +499,13 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         `after preload`,
     );
     if (uploadAfterPreload.messageID) {
+      const { mediaType, uri, dimensions, loop } = result;
       this.props.dispatchActionPayload(updateMultimediaMessageMediaActionType, {
         messageID: uploadAfterPreload.messageID,
         currentMediaID: uploadAfterPreload.serverID
           ? uploadAfterPreload.serverID
           : uploadAfterPreload.localID,
-        mediaUpdate: {
-          uri: result.uri,
-          dimensions: result.dimensions,
-        },
+        mediaUpdate: { type: mediaType, uri, dimensions, loop },
       });
     }
 
@@ -535,8 +535,10 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
             [upload.localID]: {
               ...currentUpload,
               uri: result.uri,
+              mediaType: result.mediaType,
               dimensions: result.dimensions,
               uriIsReal: true,
+              loop: result.loop,
             },
           },
         },

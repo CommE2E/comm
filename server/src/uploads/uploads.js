@@ -46,24 +46,27 @@ async function multimediaUploadResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  const overrideHeight =
+  const inputHeight =
     files.length === 1 && body.height ? parseInt(body.height) : null;
-  const overrideWidth =
+  const inputWidth =
     files.length === 1 && body.width ? parseInt(body.width) : null;
-  if (!!overrideHeight !== !!overrideWidth) {
+  if (!!inputHeight !== !!inputWidth) {
     throw new ServerError('invalid_parameters');
   }
-  const overrideDimensions: ?Dimensions =
-    overrideHeight && overrideWidth
-      ? { height: overrideHeight, width: overrideWidth }
+  const inputDimensions: ?Dimensions =
+    inputHeight && inputWidth
+      ? { height: inputHeight, width: inputWidth }
       : null;
+
+  const inputLoop = !!(files.length === 1 && body.loop);
 
   const validationResults = await Promise.all(
     files.map(({ buffer, size, originalname }) =>
       validateAndConvert(
         buffer,
         overrideFilename ? overrideFilename : originalname,
-        overrideDimensions,
+        inputDimensions,
+        inputLoop,
         size,
       ),
     ),
