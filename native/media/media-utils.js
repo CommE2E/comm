@@ -92,6 +92,7 @@ async function processMediaMission(
     });
   };
 
+  const possiblyPhoto = selection.step.startsWith('photo_');
   const mediaNativeID = selection.mediaNativeID
     ? selection.mediaNativeID
     : null;
@@ -99,7 +100,7 @@ async function processMediaMission(
     selection.uri,
     { mediaNativeID },
     {
-      orientation: mediaType === 'photo',
+      orientation: possiblyPhoto,
       mime: true,
       mediaType: true,
     },
