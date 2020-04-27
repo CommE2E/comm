@@ -14,7 +14,7 @@ type CustomProps = {
 };
 
 function onPressSave(props: CustomProps) {
-  return intentionalSaveImage(props.mediaInfo);
+  return intentionalSaveImage(props.mediaInfo.uri);
 }
 
 const spec = {

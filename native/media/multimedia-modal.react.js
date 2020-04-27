@@ -1177,7 +1177,8 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   };
 
   save = async () => {
-    await intentionalSaveImage(this.props.navigation.state.params.mediaInfo);
+    const { mediaInfo } = this.props.navigation.state.params;
+    await intentionalSaveImage(mediaInfo.uri);
   };
 
   setCloseButtonEnabled = ([enabledNum]: [number]) => {

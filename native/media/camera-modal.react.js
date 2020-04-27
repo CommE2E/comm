@@ -967,7 +967,7 @@ class CameraModal extends React.PureComponent<Props, State> {
       [capture],
     );
 
-    saveImage({ uri: pendingPhotoCapture.uri, type: 'photo' });
+    saveImage(pendingPhotoCapture.uri);
   };
 
   clearPendingImage = () => {

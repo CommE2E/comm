@@ -18,24 +18,12 @@ import { fetchFileInfo } from './file-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
 import { getAndroidPermission } from '../utils/android-permissions';
 
-type SaveImageInfo =
-  | {
-      type: 'photo',
-      uri: string,
-      ...
-    }
-  | {
-      type: 'video',
-      uri: string,
-      ...
-    };
-
-async function intentionalSaveImage(mediaInfo: SaveImageInfo) {
+async function intentionalSaveImage(uri: string) {
   let errorMessage;
   if (Platform.OS === 'android') {
-    errorMessage = await saveImageAndroid(mediaInfo, 'request');
+    errorMessage = await saveImageAndroid(uri, 'request');
   } else if (Platform.OS === 'ios') {
-    errorMessage = await saveImageIOS(mediaInfo);
+    errorMessage = await saveImageIOS(uri);
   } else {
     errorMessage = `saving images is unsupported on ${Platform.OS}`;
   }
@@ -44,18 +32,18 @@ async function intentionalSaveImage(mediaInfo: SaveImageInfo) {
   displayActionResultModal(message);
 }
 
-async function saveImage(mediaInfo: SaveImageInfo) {
+async function saveImage(uri: string) {
   if (Platform.OS === 'android') {
-    await saveImageAndroid(mediaInfo, 'check');
+    await saveImageAndroid(uri, 'check');
   } else if (Platform.OS === 'ios') {
-    await saveImageIOS(mediaInfo);
+    await saveImageIOS(uri);
   }
 }
 
 // On Android, we save the image to our own SquadCal folder in the
 // Pictures directory, and then trigger the media scanner to pick it up
 async function saveImageAndroid(
-  mediaInfo: SaveImageInfo,
+  inputURI: string,
   permissions: 'check' | 'request',
 ) {
   let hasPermission;
@@ -80,7 +68,7 @@ async function saveImageAndroid(
   const saveFolder = `${filesystem.PicturesDirectoryPath}/SquadCal/`;
   promises.push(filesystem.mkdir(saveFolder));
 
-  let { uri } = mediaInfo;
+  let uri = inputURI;
   let tempFile, mime, error;
   if (uri.startsWith('http')) {
     promises.push(
@@ -118,8 +106,8 @@ async function saveImageAndroid(
 }
 
 // On iOS, we save the image to the camera roll
-async function saveImageIOS(mediaInfo: SaveImageInfo) {
-  let { uri } = mediaInfo;
+async function saveImageIOS(inputURI: string) {
+  let uri = inputURI;
   let tempFile;
   if (uri.startsWith('http')) {
     const saveResult = await saveRemoteMediaToDisk(
