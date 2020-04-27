@@ -18,31 +18,31 @@ import { fetchFileInfo } from './file-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
 import { getAndroidPermission } from '../utils/android-permissions';
 
-async function intentionalSaveImage(uri: string) {
+async function intentionalSaveMedia(uri: string) {
   let errorMessage;
   if (Platform.OS === 'android') {
-    errorMessage = await saveImageAndroid(uri, 'request');
+    errorMessage = await saveMediaAndroid(uri, 'request');
   } else if (Platform.OS === 'ios') {
-    errorMessage = await saveImageIOS(uri);
+    errorMessage = await saveMediaIOS(uri);
   } else {
-    errorMessage = `saving images is unsupported on ${Platform.OS}`;
+    errorMessage = `saving media is unsupported on ${Platform.OS}`;
   }
 
   const message = errorMessage ? errorMessage : 'saved!';
   displayActionResultModal(message);
 }
 
-async function saveImage(uri: string) {
+async function saveMedia(uri: string) {
   if (Platform.OS === 'android') {
-    await saveImageAndroid(uri, 'check');
+    await saveMediaAndroid(uri, 'check');
   } else if (Platform.OS === 'ios') {
-    await saveImageIOS(uri);
+    await saveMediaIOS(uri);
   }
 }
 
-// On Android, we save the image to our own SquadCal folder in the
+// On Android, we save the media to our own SquadCal folder in the
 // Pictures directory, and then trigger the media scanner to pick it up
-async function saveImageAndroid(
+async function saveMediaAndroid(
   inputURI: string,
   permissions: 'check' | 'request',
 ) {
@@ -105,8 +105,8 @@ async function saveImageAndroid(
   return null;
 }
 
-// On iOS, we save the image to the camera roll
-async function saveImageIOS(inputURI: string) {
+// On iOS, we save the media to the camera roll
+async function saveMediaIOS(inputURI: string) {
   let uri = inputURI;
   let tempFile;
   if (uri.startsWith('http')) {
@@ -240,4 +240,4 @@ async function copyToSortedDirectory(
   return { success: true, path: newPath, mime };
 }
 
-export { intentionalSaveImage, saveImage };
+export { intentionalSaveMedia, saveMedia };

@@ -54,7 +54,7 @@ import {
   gestureJustStarted,
   gestureJustEnded,
 } from '../utils/animation-utils';
-import { intentionalSaveImage } from './save-image';
+import { intentionalSaveMedia } from './save-media';
 
 /* eslint-disable import/no-named-as-default-member */
 const {
@@ -1178,7 +1178,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
 
   save = async () => {
     const { mediaInfo } = this.props.navigation.state.params;
-    await intentionalSaveImage(mediaInfo.uri);
+    await intentionalSaveMedia(mediaInfo.uri);
   };
 
   setCloseButtonEnabled = ([enabledNum]: [number]) => {
