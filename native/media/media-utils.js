@@ -16,8 +16,10 @@ import { pathFromURI, readableFilename } from 'lib/utils/file-utils';
 import { fetchFileInfo } from './file-utils';
 import { processVideo } from './video-utils';
 import { processImage } from './image-utils';
+import { saveMedia } from './save-media';
 
 type MediaProcessConfig = $Shape<{|
+  // Blocks return until we can confirm result has the correct MIME
   finalFileHeaderCheck: boolean,
 |}>;
 type MediaResult = {|
@@ -57,24 +59,26 @@ async function processMediaMission(
   config: MediaProcessConfig,
   sendResult: (MediaMissionFailure | MediaResult) => void,
 ): Promise<$ReadOnlyArray<MediaMissionStep>> {
-  const steps = [];
   let initialURI = null,
     uploadURI = null,
     dimensions = selection.dimensions,
+    mediaType = null,
     mime = null,
     loop = false,
-    finished = false;
-  let mediaType;
-  const finish = (failure?: MediaMissionFailure) => {
-    invariant(!finished, 'finish called twice in processMediaMission');
-    finished = true;
+    resultReturned = false;
+  const returnResult = (failure?: MediaMissionFailure) => {
+    invariant(
+      !resultReturned,
+      'returnResult called twice in processMediaMission',
+    );
+    resultReturned = true;
     if (failure) {
       sendResult(failure);
       return;
     }
     invariant(
       uploadURI && mime && mediaType,
-      'missing required fields to finish',
+      'missing required fields in returnResult',
     );
     const shouldDisposePath =
       initialURI !== uploadURI ? pathFromURI(uploadURI) : null;
@@ -92,6 +96,25 @@ async function processMediaMission(
     });
   };
 
+  const steps = [],
+    completeBeforeFinish = [];
+  const finish = async (failure?: MediaMissionFailure) => {
+    if (!resultReturned) {
+      returnResult(failure);
+    }
+    await Promise.all(completeBeforeFinish);
+    return steps;
+  };
+
+  if (selection.captureTime) {
+    const { uri } = selection;
+    invariant(
+      pathFromURI(uri),
+      `captured URI ${uri} should use file:// scheme`,
+    );
+    completeBeforeFinish.push(saveMedia(uri));
+  }
+
   const possiblyPhoto = selection.step.startsWith('photo_');
   const mediaNativeID = selection.mediaNativeID
     ? selection.mediaNativeID
@@ -107,18 +130,16 @@ async function processMediaMission(
   );
   steps.push(...fileInfoSteps);
   if (!fileInfoResult.success) {
-    finish(fileInfoResult);
-    return steps;
+    return await finish(fileInfoResult);
   }
   const { orientation, fileSize } = fileInfoResult;
   ({ uri: initialURI, mime, mediaType } = fileInfoResult);
   if (!mime || !mediaType) {
-    finish({
+    return await finish({
       success: false,
       reason: 'media_type_fetch_failed',
       detectedMIME: mime,
     });
-    return steps;
   }
 
   if (mediaType === 'video') {
@@ -131,8 +152,7 @@ async function processMediaMission(
     });
     steps.push(...videoSteps);
     if (!videoResult.success) {
-      finish(videoResult);
-      return steps;
+      return await finish(videoResult);
     }
     ({ uri: uploadURI, mime, dimensions, loop } = videoResult);
   } else if (mediaType === 'photo') {
@@ -145,8 +165,7 @@ async function processMediaMission(
     });
     steps.push(...imageSteps);
     if (!imageResult.success) {
-      finish(imageResult);
-      return steps;
+      return await finish(imageResult);
     }
     ({ uri: uploadURI, mime, dimensions } = imageResult);
   } else {
@@ -154,12 +173,11 @@ async function processMediaMission(
   }
 
   if (uploadURI === initialURI) {
-    finish();
-    return steps;
+    return await finish();
   }
 
   if (!config.finalFileHeaderCheck) {
-    finish();
+    returnResult();
   }
 
   const {
@@ -168,30 +186,20 @@ async function processMediaMission(
   } = await fetchFileInfo(uploadURI, undefined, { mime: true });
   steps.push(...finalFileInfoSteps);
   if (!finalFileInfoResult.success) {
-    if (config.finalFileHeaderCheck) {
-      finish(finalFileInfoResult);
-    }
-    return steps;
+    return await finish(finalFileInfoResult);
   }
 
   if (finalFileInfoResult.mime && finalFileInfoResult.mime !== mime) {
-    if (config.finalFileHeaderCheck) {
-      finish({
-        success: false,
-        reason: 'mime_type_mismatch',
-        reportedMediaType: mediaType,
-        reportedMIME: mime,
-        detectedMIME: finalFileInfoResult.mime,
-      });
-    }
-    return steps;
+    return await finish({
+      success: false,
+      reason: 'mime_type_mismatch',
+      reportedMediaType: mediaType,
+      reportedMIME: mime,
+      detectedMIME: finalFileInfoResult.mime,
+    });
   }
 
-  if (config.finalFileHeaderCheck) {
-    finish();
-  }
-
-  return steps;
+  return await finish();
 }
 
 function getDimensions(uri: string): Promise<Dimensions> {

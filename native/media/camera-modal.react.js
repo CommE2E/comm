@@ -61,7 +61,6 @@ import ConnectedStatusBar from '../connected-status-bar.react';
 import { clamp, gestureJustEnded } from '../utils/animation-utils';
 import ContentLoading from '../components/content-loading.react';
 import { colors } from '../themes/colors';
-import { saveMedia } from './save-media';
 import SendMediaButton from './send-media-button.react';
 
 /* eslint-disable import/no-named-as-default-member */
@@ -966,8 +965,6 @@ class CameraModal extends React.PureComponent<Props, State> {
       this.props.navigation.state.params.threadID,
       [capture],
     );
-
-    saveMedia(pendingPhotoCapture.uri);
   };
 
   clearPendingImage = () => {
