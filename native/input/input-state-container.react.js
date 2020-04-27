@@ -35,7 +35,6 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import { createSelector } from 'reselect';
-import filesystem from 'react-native-fs';
 import * as Upload from 'react-native-background-upload';
 import { Platform } from 'react-native';
 
@@ -70,6 +69,7 @@ import {
 } from './input-state';
 import { processMedia } from '../media/media-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
+import { disposeTempFile } from '../media/file-utils';
 
 let nextLocalUploadID = 0;
 function getNewLocalID() {
@@ -583,34 +583,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       time: Date.now() - uploadStart,
     });
 
-    if (!shouldDisposePath) {
-      return await finish(mediaMissionResult);
+    if (shouldDisposePath) {
+      const disposeStep = await disposeTempFile(shouldDisposePath);
+      steps.push(disposeStep);
     }
-
-    let disposeSuccess = false,
-      disposeExceptionMessage;
-    const disposeStart = Date.now();
-    try {
-      await filesystem.unlink(shouldDisposePath);
-      disposeSuccess = true;
-    } catch (e) {
-      if (
-        e &&
-        typeof e === 'object' &&
-        e.message &&
-        typeof e.message === 'string'
-      ) {
-        disposeExceptionMessage = e.message;
-      }
-    }
-
-    steps.push({
-      step: 'dispose_uploaded_local_file',
-      success: disposeSuccess,
-      exceptionMessage: disposeExceptionMessage,
-      time: Date.now() - disposeStart,
-      path: shouldDisposePath,
-    });
 
     return await finish(mediaMissionResult);
   }

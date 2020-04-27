@@ -5,6 +5,7 @@ import type {
   MediaMissionFailure,
   MediaType,
   ReadFileHeaderMediaMissionStep,
+  DisposeTemporaryFileMediaMissionStep,
 } from 'lib/types/media-types';
 
 import { Platform } from 'react-native';
@@ -335,4 +336,32 @@ async function getMediaTypeInfo(
   return { steps, result };
 }
 
-export { fetchFileInfo };
+async function disposeTempFile(
+  path: string,
+): Promise<DisposeTemporaryFileMediaMissionStep> {
+  let success = false,
+    exceptionMessage;
+  const start = Date.now();
+  try {
+    await filesystem.unlink(path);
+    success = true;
+  } catch (e) {
+    if (
+      e &&
+      typeof e === 'object' &&
+      e.message &&
+      typeof e.message === 'string'
+    ) {
+      exceptionMessage = e.message;
+    }
+  }
+  return {
+    step: 'dispose_temporary_file',
+    success,
+    exceptionMessage,
+    time: Date.now() - start,
+    path,
+  };
+}
+
+export { fetchFileInfo, disposeTempFile };
