@@ -163,8 +163,8 @@ function getSquadbotMessage(
   } else if (request.type === reportTypes.MEDIA_MISSION) {
     const mediaMissionJSON = JSON.stringify(request.mediaMission);
     const success = request.mediaMission.result.success
-      ? 'uploaded media successfully'
-      : 'failed to upload media :(';
+      ? 'media mission success!'
+      : 'media mission failed :(';
     return `${name} ${success}\n` + mediaMissionJSON;
   } else {
     return null;
