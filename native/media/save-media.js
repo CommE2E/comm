@@ -3,9 +3,12 @@
 import type {
   MediaMissionStep,
   MediaMissionResult,
-  MediaMission,
   MediaMissionFailure,
 } from 'lib/types/media-types';
+import {
+  reportTypes,
+  type MediaMissionReportCreationRequest,
+} from 'lib/types/report-types';
 
 import { Platform, PermissionsAndroid } from 'react-native';
 import filesystem from 'react-native-fs';
@@ -14,6 +17,8 @@ import * as MediaLibrary from 'expo-media-library';
 import { readableFilename, pathFromURI } from 'lib/utils/file-utils';
 import { promiseAll } from 'lib/utils/promises';
 import { getMessageForException } from 'lib/utils/errors';
+import { getConfig } from 'lib/utils/config';
+import { queueReportsActionType } from 'lib/actions/report-actions';
 
 import { fetchBlob } from './blob-utils';
 import { getMediaLibraryIdentifier } from './identifier-utils';
@@ -28,8 +33,16 @@ import {
 } from './file-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
 import { getAndroidPermission } from '../utils/android-permissions';
+import { dispatch } from '../redux/redux-setup';
 
-async function intentionalSaveMedia(uri: string): Promise<MediaMission> {
+async function intentionalSaveMedia(
+  uri: string,
+  ids: {|
+    uploadID: string,
+    messageServerID: ?string,
+    messageLocalID: ?string,
+  |},
+): Promise<void> {
   const start = Date.now();
   const { resultPromise, reportPromise } = saveMedia(uri, 'request');
   const result = await resultPromise;
@@ -61,7 +74,24 @@ async function intentionalSaveMedia(uri: string): Promise<MediaMission> {
 
   const steps = await reportPromise;
   const totalTime = Date.now() - start;
-  return { steps, result, userTime, totalTime };
+  const mediaMission = { steps, result, userTime, totalTime };
+
+  const { uploadID, messageServerID, messageLocalID } = ids;
+  const uploadIDIsLocal = uploadID.startsWith('localUpload');
+  const report: MediaMissionReportCreationRequest = {
+    type: reportTypes.MEDIA_MISSION,
+    time: Date.now(),
+    platformDetails: getConfig().platformDetails,
+    mediaMission,
+    uploadServerID: uploadIDIsLocal ? undefined : uploadID,
+    uploadLocalID: uploadIDIsLocal ? uploadID : undefined,
+    messageServerID,
+    messageLocalID,
+  };
+  dispatch({
+    type: queueReportsActionType,
+    payload: { reports: [report] },
+  });
 }
 
 type Permissions = 'check' | 'request';

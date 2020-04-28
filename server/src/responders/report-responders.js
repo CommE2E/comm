@@ -79,8 +79,10 @@ const mediaMissionReportCreationRequest = tShape({
   time: t.Number,
   mediaMission: t.Object,
   uploadServerID: t.maybe(t.String),
-  uploadLocalID: t.String,
-  mediaLocalID: t.String,
+  uploadLocalID: t.maybe(t.String),
+  mediaLocalID: t.maybe(t.String),
+  messageServerID: t.maybe(t.String),
+  messageLocalID: t.maybe(t.String),
 });
 
 const reportCreationRequestInputValidator = t.union([

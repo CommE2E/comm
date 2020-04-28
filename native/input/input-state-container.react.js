@@ -747,7 +747,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       mediaMission,
       uploadServerID: ids.serverID,
       uploadLocalID: ids.localID,
-      mediaLocalID: ids.localMessageID,
+      messageLocalID: ids.localMessageID,
     };
     this.props.dispatchActionPayload(queueReportsActionType, {
       reports: [report],

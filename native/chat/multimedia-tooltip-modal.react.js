@@ -14,7 +14,11 @@ type CustomProps = {
 };
 
 function onPressSave(props: CustomProps) {
-  return intentionalSaveMedia(props.mediaInfo.uri);
+  const { mediaInfo, item } = props;
+  const { id: uploadID, uri } = mediaInfo;
+  const { id: messageServerID, localID: messageLocalID } = item.messageInfo;
+  const ids = { uploadID, messageServerID, messageLocalID };
+  return intentionalSaveMedia(uri, ids);
 }
 
 const spec = {

@@ -205,7 +205,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props> {
     }
     this.clickable = false;
 
-    const { scrollViewModalState, mediaInfo } = this.props;
+    const { scrollViewModalState, mediaInfo, item } = this.props;
     if (scrollViewModalState) {
       scrollViewModalState.setModalState('open');
     }
@@ -217,6 +217,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props> {
         params: {
           presentedFrom: this.props.navigation.state.key,
           mediaInfo,
+          item,
           initialCoordinates: coordinates,
           verticalBounds,
         },

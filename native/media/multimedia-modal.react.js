@@ -20,6 +20,8 @@ import {
   layoutCoordinatesPropType,
 } from '../types/layout-types';
 import type { NativeMethodsMixinType } from '../types/react-native';
+import type { ChatMultimediaMessageInfoItem } from '../chat/multimedia-message.react';
+import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 
 import * as React from 'react';
 import {
@@ -184,6 +186,7 @@ type NavProp = NavigationStackProp<{|
     mediaInfo: MediaInfo,
     initialCoordinates: LayoutCoordinates,
     verticalBounds: VerticalBounds,
+    item: ChatMultimediaMessageInfoItem,
   |},
 |}>;
 
@@ -213,6 +216,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
           mediaInfo: mediaInfoPropType.isRequired,
           initialCoordinates: layoutCoordinatesPropType.isRequired,
           verticalBounds: verticalBoundsPropType.isRequired,
+          item: chatMessageItemPropType.isRequired,
         }).isRequired,
       }).isRequired,
       goBack: PropTypes.func.isRequired,
@@ -1176,9 +1180,12 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     this.props.navigation.goBack();
   };
 
-  save = async () => {
-    const { mediaInfo } = this.props.navigation.state.params;
-    await intentionalSaveMedia(mediaInfo.uri);
+  save = () => {
+    const { mediaInfo, item } = this.props.navigation.state.params;
+    const { id: uploadID, uri } = mediaInfo;
+    const { id: messageServerID, localID: messageLocalID } = item.messageInfo;
+    const ids = { uploadID, messageServerID, messageLocalID };
+    return intentionalSaveMedia(uri, ids);
   };
 
   setCloseButtonEnabled = ([enabledNum]: [number]) => {
