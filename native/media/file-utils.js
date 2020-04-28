@@ -18,7 +18,11 @@ import filesystem from 'react-native-fs';
 import base64 from 'base-64';
 import invariant from 'invariant';
 
-import { pathFromURI, fileInfoFromData } from 'lib/utils/file-utils';
+import {
+  pathFromURI,
+  fileInfoFromData,
+  bytesNeededForFileTypeCheck,
+} from 'lib/utils/file-utils';
 import { getMessageForException } from 'lib/utils/errors';
 
 import { stringToIntArray } from './blob-utils';
@@ -246,7 +250,7 @@ async function readFileHeader(
   localURI: string,
   fileSize: number,
 ): Promise<ReadFileHeaderMediaMissionStep> {
-  const fetchBytes = Math.min(fileSize, 64);
+  const fetchBytes = Math.min(fileSize, bytesNeededForFileTypeCheck);
 
   const start = Date.now();
   let fileData,

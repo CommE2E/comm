@@ -8,7 +8,10 @@ import type {
 import base64 from 'base-64';
 import invariant from 'invariant';
 
-import { fileInfoFromData } from 'lib/utils/file-utils';
+import {
+  fileInfoFromData,
+  bytesNeededForFileTypeCheck,
+} from 'lib/utils/file-utils';
 import { getMessageForException } from 'lib/utils/errors';
 
 import { getFetchableURI } from './identifier-utils';
@@ -31,6 +34,8 @@ function blobToDataURI(blob: Blob): Promise<string> {
   });
 }
 
+const base64CharsNeeded = 4 * Math.ceil(bytesNeededForFileTypeCheck / 3);
+
 function dataURIToIntArray(dataURI: string): Uint8Array {
   const uri = dataURI.replace(/\r?\n/g, '');
 
@@ -42,7 +47,7 @@ function dataURIToIntArray(dataURI: string): Uint8Array {
   const meta = uri.substring(5, firstComma).split(';');
   const base64Encoded = meta.some(metum => metum === 'base64');
 
-  let data = unescape(uri.substring(firstComma + 1));
+  let data = unescape(uri.substr(firstComma + 1, base64CharsNeeded));
   if (base64Encoded) {
     data = base64.decode(data);
   }
