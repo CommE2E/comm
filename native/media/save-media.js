@@ -44,6 +44,8 @@ async function intentionalSaveMedia(
   |},
 ): Promise<void> {
   const start = Date.now();
+  const steps = [{ step: 'save_media', uri, time: start }];
+
   const { resultPromise, reportPromise } = saveMedia(uri, 'request');
   const result = await resultPromise;
   const userTime = Date.now() - start;
@@ -72,7 +74,8 @@ async function intentionalSaveMedia(
   }
   displayActionResultModal(message);
 
-  const steps = await reportPromise;
+  const reportSteps = await reportPromise;
+  steps.push(...reportSteps);
   const totalTime = Date.now() - start;
   const mediaMission = { steps, result, userTime, totalTime };
 
