@@ -6,12 +6,17 @@ import type {
   MediaType,
   ReadFileHeaderMediaMissionStep,
   DisposeTemporaryFileMediaMissionStep,
+  MakeDirectoryMediaMissionStep,
+  AndroidScanFileMediaMissionStep,
+  FetchFileHashMediaMissionStep,
+  CopyFileMediaMissionStep,
 } from 'lib/types/media-types';
 
 import { Platform } from 'react-native';
 import * as MediaLibrary from 'expo-media-library';
 import filesystem from 'react-native-fs';
 import base64 from 'base-64';
+import invariant from 'invariant';
 
 import { pathFromURI, fileInfoFromData } from 'lib/utils/file-utils';
 
@@ -364,4 +369,124 @@ async function disposeTempFile(
   };
 }
 
-export { fetchFileInfo, disposeTempFile };
+async function mkdir(path: string): Promise<MakeDirectoryMediaMissionStep> {
+  let success = false,
+    exceptionMessage;
+  const start = Date.now();
+  try {
+    await filesystem.mkdir(path);
+    success = true;
+  } catch (e) {
+    if (
+      e &&
+      typeof e === 'object' &&
+      e.message &&
+      typeof e.message === 'string'
+    ) {
+      exceptionMessage = e.message;
+    }
+  }
+  return {
+    step: 'make_directory',
+    success,
+    exceptionMessage,
+    time: Date.now() - start,
+    path,
+  };
+}
+
+async function androidScanFile(
+  path: string,
+): Promise<AndroidScanFileMediaMissionStep> {
+  invariant(Platform.OS === 'android', 'androidScanFile only works on Android');
+  let success = false,
+    exceptionMessage;
+  const start = Date.now();
+  try {
+    await filesystem.scanFile(path);
+    success = true;
+  } catch (e) {
+    if (
+      e &&
+      typeof e === 'object' &&
+      e.message &&
+      typeof e.message === 'string'
+    ) {
+      exceptionMessage = e.message;
+    }
+  }
+  return {
+    step: 'android_scan_file',
+    success,
+    exceptionMessage,
+    time: Date.now() - start,
+    path,
+  };
+}
+
+async function fetchFileHash(
+  path: string,
+): Promise<FetchFileHashMediaMissionStep> {
+  let hash, exceptionMessage;
+  const start = Date.now();
+  try {
+    hash = await filesystem.hash(path, 'md5');
+  } catch (e) {
+    if (
+      e &&
+      typeof e === 'object' &&
+      e.message &&
+      typeof e.message === 'string'
+    ) {
+      exceptionMessage = e.message;
+    }
+  }
+  return {
+    step: 'fetch_file_hash',
+    success: !!hash,
+    exceptionMessage,
+    time: Date.now() - start,
+    path,
+    hash,
+  };
+}
+
+async function copyFile(
+  source: string,
+  destination: string,
+): Promise<CopyFileMediaMissionStep> {
+  let success = false,
+    exceptionMessage;
+  const start = Date.now();
+  try {
+    await filesystem.copyFile(source, destination);
+    success = true;
+  } catch (e) {
+    if (
+      e &&
+      typeof e === 'object' &&
+      e.message &&
+      typeof e.message === 'string'
+    ) {
+      exceptionMessage = e.message;
+    }
+  }
+  return {
+    step: 'copy_file',
+    success,
+    exceptionMessage,
+    time: Date.now() - start,
+    source,
+    destination,
+  };
+}
+
+export {
+  fetchAssetInfo,
+  fetchFileInfo,
+  disposeTempFile,
+  mkdir,
+  androidScanFile,
+  fetchFileHash,
+  copyFile,
+};

@@ -46,7 +46,7 @@ function processMedia(
     }
   };
 
-  const reportPromise = processMediaMission(selection, config, sendResult);
+  const reportPromise = innerProcessMedia(selection, config, sendResult);
   const resultPromise = new Promise(resolve => {
     resolveResult = resolve;
   });
@@ -54,10 +54,10 @@ function processMedia(
   return { reportPromise, resultPromise };
 }
 
-async function processMediaMission(
+async function innerProcessMedia(
   selection: MediaSelection,
   config: MediaProcessConfig,
-  sendResult: (MediaMissionFailure | MediaResult) => void,
+  sendResult: (result: MediaMissionFailure | MediaResult) => void,
 ): Promise<$ReadOnlyArray<MediaMissionStep>> {
   let initialURI = null,
     uploadURI = null,
@@ -69,7 +69,7 @@ async function processMediaMission(
   const returnResult = (failure?: MediaMissionFailure) => {
     invariant(
       !resultReturned,
-      'returnResult called twice in processMediaMission',
+      'returnResult called twice in innerProcessMedia',
     );
     resultReturned = true;
     if (failure) {
@@ -106,13 +106,19 @@ async function processMediaMission(
     return steps;
   };
 
-  if (selection.captureTime) {
+  if (selection.captureTime && selection.retries === 0) {
     const { uri } = selection;
     invariant(
       pathFromURI(uri),
       `captured URI ${uri} should use file:// scheme`,
     );
-    completeBeforeFinish.push(saveMedia(uri));
+    completeBeforeFinish.push(
+      (async () => {
+        const { reportPromise } = saveMedia(uri);
+        const saveMediaSteps = await reportPromise;
+        steps.push(...saveMediaSteps);
+      })(),
+    );
   }
 
   const possiblyPhoto = selection.step.startsWith('photo_');

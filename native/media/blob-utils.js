@@ -1,7 +1,16 @@
 // @flow
 
+import type {
+  MediaMissionStep,
+  MediaMissionFailure,
+} from 'lib/types/media-types';
+
 import base64 from 'base-64';
 import invariant from 'invariant';
+
+import { fileInfoFromData } from 'lib/utils/file-utils';
+
+import { getFetchableURI } from './identifier-utils';
 
 function blobToDataURI(blob: Blob): Promise<string> {
   const fileReader = new FileReader();
@@ -48,4 +57,111 @@ function stringToIntArray(str: string): Uint8Array {
   return array;
 }
 
-export { blobToDataURI, dataURIToIntArray, stringToIntArray };
+type FetchBlobResult = {|
+  success: true,
+  base64: string,
+  mime: string,
+|};
+async function fetchBlob(
+  inputURI: string,
+): Promise<{|
+  steps: $ReadOnlyArray<MediaMissionStep>,
+  result: MediaMissionFailure | FetchBlobResult,
+|}> {
+  const uri = getFetchableURI(inputURI);
+  const steps = [];
+
+  let blob, fetchExceptionMessage;
+  const fetchStart = Date.now();
+  try {
+    const response = await fetch(uri);
+    blob = await response.blob();
+  } catch (e) {
+    if (
+      e &&
+      typeof e === 'object' &&
+      e.message &&
+      typeof e.message === 'string'
+    ) {
+      fetchExceptionMessage = e.message;
+    }
+  }
+  steps.push({
+    step: 'fetch_blob',
+    success: !!blob,
+    exceptionMessage: fetchExceptionMessage,
+    time: Date.now() - fetchStart,
+    inputURI,
+    uri,
+    size: blob && blob.size,
+    mime: blob && blob.type,
+  });
+  if (!blob) {
+    return { result: { success: false, reason: 'fetch_failed' }, steps };
+  }
+
+  let dataURI, dataURIExceptionMessage;
+  const dataURIStart = Date.now();
+  try {
+    dataURI = await blobToDataURI(blob);
+  } catch (e) {
+    if (
+      e &&
+      typeof e === 'object' &&
+      e.message &&
+      typeof e.message === 'string'
+    ) {
+      dataURIExceptionMessage = e.message;
+    }
+  }
+  steps.push({
+    step: 'data_uri_from_blob',
+    success: !!dataURI,
+    exceptionMessage: dataURIExceptionMessage,
+    time: Date.now() - dataURIStart,
+    first255Chars: dataURI && dataURI.substring(0, 255),
+  });
+  if (!dataURI) {
+    return { result: { success: false, reason: 'data_uri_failed' }, steps };
+  }
+
+  const firstComma = dataURI.indexOf(',');
+  invariant(firstComma > 4, 'malformed data-URI');
+  const base64String = dataURI.substring(firstComma + 1);
+
+  let mime = blob.type;
+  if (!mime) {
+    let mimeCheckExceptionMessage;
+    const mimeCheckStart = Date.now();
+    try {
+      const intArray = dataURIToIntArray(dataURI);
+      ({ mime } = fileInfoFromData(intArray));
+    } catch (e) {
+      if (
+        e &&
+        typeof e === 'object' &&
+        e.message &&
+        typeof e.message === 'string'
+      ) {
+        mimeCheckExceptionMessage = e.message;
+      }
+    }
+    steps.push({
+      step: 'mime_check',
+      success: !!mime,
+      exceptionMessage: mimeCheckExceptionMessage,
+      time: Date.now() - mimeCheckStart,
+      mime,
+    });
+  }
+
+  if (!mime) {
+    return {
+      result: { success: false, reason: 'mime_check_failed', mime },
+      steps,
+    };
+  }
+  return { result: { success: true, base64: base64String, mime }, steps };
+}
+
+export { stringToIntArray, fetchBlob };

@@ -1,84 +1,184 @@
 // @flow
 
+import type {
+  MediaMissionStep,
+  MediaMissionResult,
+  MediaMission,
+  MediaMissionFailure,
+} from 'lib/types/media-types';
+
 import { Platform, PermissionsAndroid } from 'react-native';
 import filesystem from 'react-native-fs';
-import invariant from 'invariant';
 import * as MediaLibrary from 'expo-media-library';
 
-import {
-  fileInfoFromData,
-  readableFilename,
-  pathFromURI,
-} from 'lib/utils/file-utils';
+import { readableFilename, pathFromURI } from 'lib/utils/file-utils';
 import { promiseAll } from 'lib/utils/promises';
 
-import { blobToDataURI, dataURIToIntArray } from './blob-utils';
-import { getMediaLibraryIdentifier, getFetchableURI } from './identifier-utils';
-import { fetchFileInfo } from './file-utils';
+import { fetchBlob } from './blob-utils';
+import { getMediaLibraryIdentifier } from './identifier-utils';
+import {
+  fetchAssetInfo,
+  fetchFileInfo,
+  disposeTempFile,
+  mkdir,
+  androidScanFile,
+  fetchFileHash,
+  copyFile,
+} from './file-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
 import { getAndroidPermission } from '../utils/android-permissions';
 
-async function intentionalSaveMedia(uri: string) {
-  let errorMessage;
-  if (Platform.OS === 'android') {
-    errorMessage = await saveMediaAndroid(uri, 'request');
-  } else if (Platform.OS === 'ios') {
-    errorMessage = await saveMediaIOS(uri);
+async function intentionalSaveMedia(uri: string): Promise<MediaMission> {
+  const start = Date.now();
+  const { resultPromise, reportPromise } = saveMedia(uri, 'request');
+  const result = await resultPromise;
+  const userTime = Date.now() - start;
+
+  let message;
+  if (result.success) {
+    message = 'saved!';
+  } else if (result.reason === 'save_unsupported') {
+    const os = Platform.select({
+      ios: 'iOS',
+      android: 'Android',
+      default: Platform.OS,
+    });
+    message = `saving media is unsupported on ${os}`;
+  } else if (result.reason === 'missing_permission') {
+    message = "don't have permission :(";
+  } else if (
+    result.reason === 'resolve_failed' ||
+    result.reason === 'data_uri_failed'
+  ) {
+    message = 'failed to resolve :(';
+  } else if (result.reason === 'fetch_failed') {
+    message = 'failed to download :(';
   } else {
-    errorMessage = `saving media is unsupported on ${Platform.OS}`;
+    message = 'failed to save :(';
   }
-
-  const message = errorMessage ? errorMessage : 'saved!';
   displayActionResultModal(message);
+
+  const steps = await reportPromise;
+  const totalTime = Date.now() - start;
+  return { steps, result, userTime, totalTime };
 }
 
-async function saveMedia(uri: string) {
+type Permissions = 'check' | 'request';
+
+function saveMedia(
+  uri: string,
+  permissions?: Permissions = 'check',
+): {|
+  resultPromise: Promise<MediaMissionResult>,
+  reportPromise: Promise<$ReadOnlyArray<MediaMissionStep>>,
+|} {
+  let resolveResult;
+  const sendResult = result => {
+    if (resolveResult) {
+      resolveResult(result);
+    }
+  };
+
+  const reportPromise = innerSaveMedia(uri, permissions, sendResult);
+  const resultPromise = new Promise(resolve => {
+    resolveResult = resolve;
+  });
+
+  return { reportPromise, resultPromise };
+}
+
+async function innerSaveMedia(
+  uri: string,
+  permissions: Permissions,
+  sendResult: (result: MediaMissionResult) => void,
+): Promise<$ReadOnlyArray<MediaMissionStep>> {
   if (Platform.OS === 'android') {
-    await saveMediaAndroid(uri, 'check');
+    return await saveMediaAndroid(uri, permissions, sendResult);
   } else if (Platform.OS === 'ios') {
-    await saveMediaIOS(uri);
+    return await saveMediaIOS(uri, sendResult);
+  } else {
+    sendResult({ success: false, reason: 'save_unsupported' });
+    return [];
   }
 }
+
+const androidSavePermission =
+  PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
 
 // On Android, we save the media to our own SquadCal folder in the
 // Pictures directory, and then trigger the media scanner to pick it up
 async function saveMediaAndroid(
   inputURI: string,
-  permissions: 'check' | 'request',
-) {
-  let hasPermission;
-  if (permissions === 'check') {
-    hasPermission = await PermissionsAndroid.check(
-      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-    );
-  } else {
-    hasPermission = await getAndroidPermission(
-      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-      {
+  permissions: Permissions,
+  sendResult: (result: MediaMissionResult) => void,
+): Promise<$ReadOnlyArray<MediaMissionStep>> {
+  const steps = [];
+
+  let hasPermission = false,
+    permissionCheckExceptionMessage;
+  const permissionCheckStart = Date.now();
+  try {
+    if (permissions === 'check') {
+      hasPermission = await PermissionsAndroid.check(androidSavePermission);
+    } else {
+      hasPermission = await getAndroidPermission(androidSavePermission, {
         title: 'Save Photo',
         message: 'Requesting access to your external storage',
-      },
-    );
+      });
+    }
+  } catch (e) {
+    if (
+      e &&
+      typeof e === 'object' &&
+      e.message &&
+      typeof e.message === 'string'
+    ) {
+      permissionCheckExceptionMessage = e.message;
+    }
   }
+  steps.push({
+    step: 'permissions_check',
+    success: hasPermission,
+    exceptionMessage: permissionCheckExceptionMessage,
+    time: Date.now() - permissionCheckStart,
+    platform: Platform.OS,
+    permissions: [androidSavePermission],
+  });
   if (!hasPermission) {
-    return "don't have permission :(";
+    sendResult({ success: false, reason: 'missing_permission' });
+    return steps;
   }
 
   const promises = [];
+  let success = true;
   const saveFolder = `${filesystem.PicturesDirectoryPath}/SquadCal/`;
-  promises.push(filesystem.mkdir(saveFolder));
+  promises.push(
+    (async () => {
+      const makeDirectoryStep = await mkdir(saveFolder);
+      if (!makeDirectoryStep.success) {
+        success = false;
+        sendResult({ success, reason: 'make_directory_failed' });
+      }
+      steps.push(makeDirectoryStep);
+    })(),
+  );
 
   let uri = inputURI;
-  let tempFile, mime, error;
+  let tempFile, mime;
   if (uri.startsWith('http')) {
     promises.push(
       (async () => {
-        const tempSaveResult = await saveRemoteMediaToDisk(
+        const {
+          result: tempSaveResult,
+          steps: tempSaveSteps,
+        } = await saveRemoteMediaToDisk(
           uri,
           `${filesystem.TemporaryDirectoryPath}/`,
         );
+        steps.push(...tempSaveSteps);
         if (!tempSaveResult.success) {
-          error = tempSaveResult.error;
+          success = false;
+          sendResult(tempSaveResult);
         } else {
           tempFile = tempSaveResult.path;
           uri = `file://${tempFile}`;
@@ -89,155 +189,250 @@ async function saveMediaAndroid(
   }
 
   await Promise.all(promises);
-  if (error) {
-    return error;
+  if (!success) {
+    return steps;
   }
 
-  const saveResult = await copyToSortedDirectory(uri, saveFolder, mime);
-  if (!saveResult.success) {
-    return saveResult.error;
+  const { result: copyResult, steps: copySteps } = await copyToSortedDirectory(
+    uri,
+    saveFolder,
+    mime,
+  );
+  steps.push(...copySteps);
+  if (!copyResult.success) {
+    sendResult(copyResult);
+    return steps;
   }
-  filesystem.scanFile(saveResult.path);
+  sendResult({ success: true });
+
+  const postResultPromises = [];
+
+  postResultPromises.push(
+    (async () => {
+      const scanFileStep = await androidScanFile(copyResult.path);
+      steps.push(scanFileStep);
+    })(),
+  );
 
   if (tempFile) {
-    filesystem.unlink(tempFile);
+    postResultPromises.push(
+      (async (file: string) => {
+        const disposeStep = await disposeTempFile(file);
+        steps.push(disposeStep);
+      })(tempFile),
+    );
   }
-  return null;
+
+  await Promise.all(postResultPromises);
+  return steps;
 }
 
 // On iOS, we save the media to the camera roll
-async function saveMediaIOS(inputURI: string) {
+async function saveMediaIOS(
+  inputURI: string,
+  sendResult: (result: MediaMissionResult) => void,
+): Promise<$ReadOnlyArray<MediaMissionStep>> {
+  const steps = [];
+
   let uri = inputURI;
   let tempFile;
   if (uri.startsWith('http')) {
-    const saveResult = await saveRemoteMediaToDisk(
-      uri,
-      filesystem.TemporaryDirectoryPath,
-    );
-    if (!saveResult.success) {
-      return saveResult.error;
+    const {
+      result: tempSaveResult,
+      steps: tempSaveSteps,
+    } = await saveRemoteMediaToDisk(uri, filesystem.TemporaryDirectoryPath);
+    steps.push(...tempSaveSteps);
+    if (!tempSaveResult.success) {
+      sendResult(tempSaveResult);
+      return steps;
     }
-    tempFile = saveResult.path;
+    tempFile = tempSaveResult.path;
     uri = `file://${tempFile}`;
   } else if (!uri.startsWith('file://')) {
     const mediaNativeID = getMediaLibraryIdentifier(uri);
     if (mediaNativeID) {
-      try {
-        const assetInfo = await MediaLibrary.getAssetInfoAsync(mediaNativeID);
-        uri = assetInfo.localUri;
-      } catch {}
+      const {
+        result: fetchAssetInfoResult,
+        steps: fetchAssetInfoSteps,
+      } = await fetchAssetInfo(mediaNativeID);
+      steps.push(...fetchAssetInfoSteps);
+      const { localURI } = fetchAssetInfoResult;
+      if (localURI) {
+        uri = localURI;
+      }
     }
   }
 
   if (!uri.startsWith('file://')) {
-    console.log(`could not resolve a path for ${uri}`);
-    return 'failed to resolve :(';
+    sendResult({ success: false, reason: 'resolve_failed', uri });
+    return steps;
   }
 
-  await MediaLibrary.saveToLibraryAsync(uri);
+  let success = false,
+    exceptionMessage;
+  const start = Date.now();
+  try {
+    await MediaLibrary.saveToLibraryAsync(uri);
+    success = true;
+  } catch (e) {
+    if (
+      e &&
+      typeof e === 'object' &&
+      e.message &&
+      typeof e.message === 'string'
+    ) {
+      exceptionMessage = e.message;
+    }
+  }
+  steps.push({
+    step: 'ios_save_to_library',
+    success,
+    exceptionMessage,
+    time: Date.now() - start,
+    uri,
+  });
+
+  if (success) {
+    sendResult({ success: true });
+  } else {
+    sendResult({ success: false, reason: 'save_to_library_failed', uri });
+  }
 
   if (tempFile) {
-    filesystem.unlink(tempFile);
+    const disposeStep = await disposeTempFile(tempFile);
+    steps.push(disposeStep);
   }
-  return null;
+  return steps;
 }
 
-type SaveResult =
-  | {| success: true, path: string, mime: string |}
-  | {| success: false, error: string |};
+type IntermediateSaveResult = {|
+  result: {| success: true, path: string, mime: string |} | MediaMissionFailure,
+  steps: $ReadOnlyArray<MediaMissionStep>,
+|};
+
 async function saveRemoteMediaToDisk(
   inputURI: string,
   directory: string, // should end with a /
-): Promise<SaveResult> {
-  const uri = getFetchableURI(inputURI);
+): Promise<IntermediateSaveResult> {
+  const steps = [];
 
-  let blob;
-  try {
-    const response = await fetch(uri);
-    blob = await response.blob();
-  } catch {
-    return { success: false, error: 'failed to resolve :(' };
+  const { result: fetchBlobResult, steps: fetchBlobSteps } = await fetchBlob(
+    inputURI,
+  );
+  steps.push(...fetchBlobSteps);
+  if (!fetchBlobResult.success) {
+    return { result: fetchBlobResult, steps };
   }
-
-  let dataURI;
-  try {
-    dataURI = await blobToDataURI(blob);
-  } catch {
-    return { success: false, error: 'failed to resolve :(' };
-  }
-
-  const firstComma = dataURI.indexOf(',');
-  invariant(firstComma > 4, 'malformed data-URI');
-  const base64 = dataURI.substring(firstComma + 1);
-
-  let mime = blob.type;
-  if (!mime) {
-    const intArray = dataURIToIntArray(dataURI);
-    ({ mime } = fileInfoFromData(intArray));
-  }
-  if (!mime) {
-    return { success: false, error: 'failed to save :(' };
-  }
+  const { mime, base64 } = fetchBlobResult;
 
   const tempName = readableFilename('', mime);
   if (!tempName) {
-    return { success: false, error: 'failed to save :(' };
+    return {
+      result: { success: false, reason: 'mime_check_failed', mime },
+      steps,
+    };
   }
   const tempPath = `${directory}tempsave.${tempName}`;
 
+  const start = Date.now();
+  let success = false,
+    exceptionMessage;
   try {
     await filesystem.writeFile(tempPath, base64, 'base64');
-  } catch {
-    return { success: false, error: 'failed to save :(' };
+    success = true;
+  } catch (e) {
+    if (
+      e &&
+      typeof e === 'object' &&
+      e.message &&
+      typeof e.message === 'string'
+    ) {
+      exceptionMessage = e.message;
+    }
   }
+  steps.push({
+    step: 'write_file',
+    success,
+    exceptionMessage,
+    time: Date.now() - start,
+    path: tempPath,
+    length: base64.length,
+  });
 
-  return { success: true, path: tempPath, mime };
+  if (!success) {
+    return { result: { success: false, reason: 'write_file_failed' }, steps };
+  }
+  return { result: { success: true, path: tempPath, mime }, steps };
 }
 
 async function copyToSortedDirectory(
   localURI: string,
   directory: string, // should end with a /
   inputMIME: ?string,
-): Promise<SaveResult> {
+): Promise<IntermediateSaveResult> {
+  const steps = [];
+
   const path = pathFromURI(localURI);
   if (!path) {
-    return { success: false, error: 'failed to save :(' };
+    return {
+      result: { success: false, reason: 'resolve_failed', uri: localURI },
+      steps,
+    };
   }
   let mime = inputMIME;
 
   const promises = {};
-  promises.hash = filesystem.hash(path, 'md5');
+  promises.hashStep = fetchFileHash(path);
   if (!mime) {
     promises.fileInfoResult = fetchFileInfo(localURI, undefined, {
       mime: true,
     });
   }
-  const { hash, fileInfoResult } = await promiseAll(promises);
+  const { hashStep, fileInfoResult } = await promiseAll(promises);
 
-  if (
-    fileInfoResult &&
-    fileInfoResult.result.success &&
-    fileInfoResult.result.mime
-  ) {
-    mime = fileInfoResult.result.mime;
+  steps.push(hashStep);
+  if (!hashStep.success) {
+    return {
+      result: { success: false, reason: 'fetch_file_hash_failed' },
+      steps,
+    };
+  }
+
+  if (fileInfoResult) {
+    steps.push(...fileInfoResult.steps);
+    if (fileInfoResult.result.success && fileInfoResult.result.mime) {
+      ({ mime } = fileInfoResult.result);
+    }
   }
   if (!mime) {
-    return { success: false, error: 'failed to save :(' };
+    return {
+      result: { success: false, reason: 'mime_check_failed', mime },
+      steps,
+    };
   }
 
-  const name = readableFilename(hash, mime);
+  const name = readableFilename(hashStep.hash, mime);
   if (!name) {
-    return { success: false, error: 'failed to save :(' };
+    return {
+      result: { success: false, reason: 'mime_check_failed', mime },
+      steps,
+    };
   }
   const newPath = `${directory}${name}`;
 
-  try {
-    await filesystem.copyFile(path, newPath);
-  } catch {
-    return { success: false, error: 'failed to save :(' };
+  const copyStep = await copyFile(path, newPath);
+  steps.push(copyStep);
+  if (!copyStep.success) {
+    return {
+      result: { success: false, reason: 'copy_file_failed' },
+      steps,
+    };
   }
 
-  return { success: true, path: newPath, mime };
+  return {
+    result: { success: true, path: newPath, mime },
+    steps,
+  };
 }
 
 export { intentionalSaveMedia, saveMedia };
