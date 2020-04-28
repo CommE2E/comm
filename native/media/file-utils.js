@@ -19,6 +19,7 @@ import base64 from 'base-64';
 import invariant from 'invariant';
 
 import { pathFromURI, fileInfoFromData } from 'lib/utils/file-utils';
+import { getMessageForException } from 'lib/utils/errors';
 
 import { stringToIntArray } from './blob-utils';
 import { ffmpeg } from './ffmpeg';
@@ -189,14 +190,7 @@ async function fetchAssetInfo(
       orientation = assetInfo.exif && assetInfo.exif.Orientation;
     }
   } catch (e) {
-    if (
-      e &&
-      typeof e === 'object' &&
-      e.message &&
-      typeof e.message === 'string'
-    ) {
-      exceptionMessage = e.message;
-    }
+    exceptionMessage = getMessageForException(e);
   }
   return {
     steps: [
@@ -231,14 +225,7 @@ async function fetchFileSize(
     success = true;
     fileSize = result.size;
   } catch (e) {
-    if (
-      e &&
-      typeof e === 'object' &&
-      e.message &&
-      typeof e.message === 'string'
-    ) {
-      exceptionMessage = e.message;
-    }
+    exceptionMessage = getMessageForException(e);
   }
   return {
     steps: [
@@ -269,14 +256,7 @@ async function readFileHeader(
     fileData = await filesystem.read(localURI, fetchBytes, 0, 'base64');
     success = true;
   } catch (e) {
-    if (
-      e &&
-      typeof e === 'object' &&
-      e.message &&
-      typeof e.message === 'string'
-    ) {
-      exceptionMessage = e.message;
-    }
+    exceptionMessage = getMessageForException(e);
   }
 
   let mime, mediaType;
@@ -310,28 +290,21 @@ async function getMediaTypeInfo(
   }
 
   let hasMultipleFrames,
-    frameCountSuccess = false,
-    frameCountExceptionMessage;
-  const frameCountStart = Date.now();
+    success = false,
+    exceptionMessage;
+  const start = Date.now();
   try {
     hasMultipleFrames = await ffmpeg.hasMultipleFrames(path);
-    frameCountSuccess = true;
+    success = true;
   } catch (e) {
-    if (
-      e &&
-      typeof e === 'object' &&
-      e.message &&
-      typeof e.message === 'string'
-    ) {
-      frameCountExceptionMessage = e.message;
-    }
+    exceptionMessage = getMessageForException(e);
   }
   const steps = [
     {
       step: 'frame_count',
-      success: frameCountSuccess,
-      exceptionMessage: frameCountExceptionMessage,
-      time: Date.now() - frameCountStart,
+      success,
+      exceptionMessage,
+      time: Date.now() - start,
       path,
       mime,
       hasMultipleFrames,
@@ -351,14 +324,7 @@ async function disposeTempFile(
     await filesystem.unlink(path);
     success = true;
   } catch (e) {
-    if (
-      e &&
-      typeof e === 'object' &&
-      e.message &&
-      typeof e.message === 'string'
-    ) {
-      exceptionMessage = e.message;
-    }
+    exceptionMessage = getMessageForException(e);
   }
   return {
     step: 'dispose_temporary_file',
@@ -377,14 +343,7 @@ async function mkdir(path: string): Promise<MakeDirectoryMediaMissionStep> {
     await filesystem.mkdir(path);
     success = true;
   } catch (e) {
-    if (
-      e &&
-      typeof e === 'object' &&
-      e.message &&
-      typeof e.message === 'string'
-    ) {
-      exceptionMessage = e.message;
-    }
+    exceptionMessage = getMessageForException(e);
   }
   return {
     step: 'make_directory',
@@ -406,14 +365,7 @@ async function androidScanFile(
     await filesystem.scanFile(path);
     success = true;
   } catch (e) {
-    if (
-      e &&
-      typeof e === 'object' &&
-      e.message &&
-      typeof e.message === 'string'
-    ) {
-      exceptionMessage = e.message;
-    }
+    exceptionMessage = getMessageForException(e);
   }
   return {
     step: 'android_scan_file',
@@ -432,14 +384,7 @@ async function fetchFileHash(
   try {
     hash = await filesystem.hash(path, 'md5');
   } catch (e) {
-    if (
-      e &&
-      typeof e === 'object' &&
-      e.message &&
-      typeof e.message === 'string'
-    ) {
-      exceptionMessage = e.message;
-    }
+    exceptionMessage = getMessageForException(e);
   }
   return {
     step: 'fetch_file_hash',
@@ -462,14 +407,7 @@ async function copyFile(
     await filesystem.copyFile(source, destination);
     success = true;
   } catch (e) {
-    if (
-      e &&
-      typeof e === 'object' &&
-      e.message &&
-      typeof e.message === 'string'
-    ) {
-      exceptionMessage = e.message;
-    }
+    exceptionMessage = getMessageForException(e);
   }
   return {
     step: 'copy_file',

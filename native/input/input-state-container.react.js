@@ -62,6 +62,7 @@ import {
 import { pathFromURI } from 'lib/utils/file-utils';
 import { isStaff } from 'lib/shared/user-utils';
 import { videoDurationLimit } from 'lib/utils/video-utils';
+import { getMessageForException } from 'lib/utils/errors';
 
 import {
   InputStateContext,
@@ -498,27 +499,19 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       }
       processedMedia = processResult;
     } catch (e) {
-      let processExceptionMessage;
-      if (
-        e &&
-        typeof e === 'object' &&
-        e.message &&
-        typeof e.message === 'string'
-      ) {
-        processExceptionMessage = e.message;
-      }
+      const exceptionMessage = getMessageForException(e);
       const time = Date.now() - processingStart;
       steps.push({
         step: 'processing_exception',
         time,
-        exceptionMessage: processExceptionMessage,
+        exceptionMessage,
       });
       fail('processing failed');
       return await finish({
         success: false,
         reason: 'processing_exception',
         time,
-        exceptionMessage: processExceptionMessage,
+        exceptionMessage,
       });
     }
 
@@ -538,14 +531,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       );
       mediaMissionResult = { success: true };
     } catch (e) {
-      if (
-        e &&
-        typeof e === 'object' &&
-        e.message &&
-        typeof e.message === 'string'
-      ) {
-        uploadExceptionMessage = e.message;
-      }
+      uploadExceptionMessage = getMessageForException(e);
       fail('upload failed');
       mediaMissionResult = {
         success: false,

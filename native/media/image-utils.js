@@ -9,6 +9,7 @@ import type {
 import * as ImageManipulator from 'expo-image-manipulator';
 
 import { getImageProcessingPlan } from 'lib/utils/image-utils';
+import { getMessageForException } from 'lib/utils/errors';
 
 type ProcessImageInfo = {|
   uri: string,
@@ -77,14 +78,7 @@ async function processImage(
     mime = targetMIME;
     dimensions = { width: result.width, height: result.height };
   } catch (e) {
-    if (
-      e &&
-      typeof e === 'object' &&
-      e.message &&
-      typeof e.message === 'string'
-    ) {
-      exceptionMessage = e.message;
-    }
+    exceptionMessage = getMessageForException(e);
   }
   steps.push({
     step: 'photo_manipulation',

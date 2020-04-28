@@ -9,6 +9,7 @@ import base64 from 'base-64';
 import invariant from 'invariant';
 
 import { fileInfoFromData } from 'lib/utils/file-utils';
+import { getMessageForException } from 'lib/utils/errors';
 
 import { getFetchableURI } from './identifier-utils';
 
@@ -77,14 +78,7 @@ async function fetchBlob(
     const response = await fetch(uri);
     blob = await response.blob();
   } catch (e) {
-    if (
-      e &&
-      typeof e === 'object' &&
-      e.message &&
-      typeof e.message === 'string'
-    ) {
-      fetchExceptionMessage = e.message;
-    }
+    fetchExceptionMessage = getMessageForException(e);
   }
   steps.push({
     step: 'fetch_blob',
@@ -105,14 +99,7 @@ async function fetchBlob(
   try {
     dataURI = await blobToDataURI(blob);
   } catch (e) {
-    if (
-      e &&
-      typeof e === 'object' &&
-      e.message &&
-      typeof e.message === 'string'
-    ) {
-      dataURIExceptionMessage = e.message;
-    }
+    dataURIExceptionMessage = getMessageForException(e);
   }
   steps.push({
     step: 'data_uri_from_blob',
@@ -137,14 +124,7 @@ async function fetchBlob(
       const intArray = dataURIToIntArray(dataURI);
       ({ mime } = fileInfoFromData(intArray));
     } catch (e) {
-      if (
-        e &&
-        typeof e === 'object' &&
-        e.message &&
-        typeof e.message === 'string'
-      ) {
-        mimeCheckExceptionMessage = e.message;
-      }
+      mimeCheckExceptionMessage = getMessageForException(e);
     }
     steps.push({
       step: 'mime_check',

@@ -13,6 +13,7 @@ import * as MediaLibrary from 'expo-media-library';
 
 import { readableFilename, pathFromURI } from 'lib/utils/file-utils';
 import { promiseAll } from 'lib/utils/promises';
+import { getMessageForException } from 'lib/utils/errors';
 
 import { fetchBlob } from './blob-utils';
 import { getMediaLibraryIdentifier } from './identifier-utils';
@@ -127,14 +128,7 @@ async function saveMediaAndroid(
       });
     }
   } catch (e) {
-    if (
-      e &&
-      typeof e === 'object' &&
-      e.message &&
-      typeof e.message === 'string'
-    ) {
-      permissionCheckExceptionMessage = e.message;
-    }
+    permissionCheckExceptionMessage = getMessageForException(e);
   }
   steps.push({
     step: 'permissions_check',
@@ -275,14 +269,7 @@ async function saveMediaIOS(
     await MediaLibrary.saveToLibraryAsync(uri);
     success = true;
   } catch (e) {
-    if (
-      e &&
-      typeof e === 'object' &&
-      e.message &&
-      typeof e.message === 'string'
-    ) {
-      exceptionMessage = e.message;
-    }
+    exceptionMessage = getMessageForException(e);
   }
   steps.push({
     step: 'ios_save_to_library',
@@ -341,14 +328,7 @@ async function saveRemoteMediaToDisk(
     await filesystem.writeFile(tempPath, base64, 'base64');
     success = true;
   } catch (e) {
-    if (
-      e &&
-      typeof e === 'object' &&
-      e.message &&
-      typeof e.message === 'string'
-    ) {
-      exceptionMessage = e.message;
-    }
+    exceptionMessage = getMessageForException(e);
   }
   steps.push({
     step: 'write_file',

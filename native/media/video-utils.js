@@ -16,6 +16,7 @@ import {
   getVideoProcessingPlan,
   videoDurationLimit,
 } from 'lib/utils/video-utils';
+import { getMessageForException } from 'lib/utils/errors';
 
 import { ffmpeg } from './ffmpeg';
 
@@ -104,14 +105,7 @@ async function processVideo(
       newPath = outputPath;
     }
   } catch (e) {
-    if (
-      e &&
-      typeof e === 'object' &&
-      e.message &&
-      typeof e.message === 'string'
-    ) {
-      exceptionMessage = e.message;
-    }
+    exceptionMessage = getMessageForException(e);
   }
   if (!success) {
     filesystem.unlink(outputPath);
@@ -174,14 +168,7 @@ async function checkVideoInfo(
     success = true;
     validFormat = codec === 'h264' && format.includes('mp4');
   } catch (e) {
-    if (
-      e &&
-      typeof e === 'object' &&
-      e.message &&
-      typeof e.message === 'string'
-    ) {
-      exceptionMessage = e.message;
-    }
+    exceptionMessage = getMessageForException(e);
   }
   return {
     step: 'video_probe',
