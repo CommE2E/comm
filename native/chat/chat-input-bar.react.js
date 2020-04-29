@@ -40,6 +40,7 @@ import {
   Text,
   ActivityIndicator,
   TouchableWithoutFeedback,
+  PermissionsAndroid,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
@@ -71,6 +72,8 @@ import {
   type NavContextType,
 } from '../navigation/navigation-context';
 import ClearableTextInput from '../components/clearable-text-input.react';
+import { displayActionResultModal } from '../navigation/action-result-modal';
+import { requestAndroidPermissions } from '../utils/android-permissions';
 
 const draftKeyFromThreadID = (threadID: string) =>
   `${threadID}/message_composer`;
@@ -523,8 +526,16 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     this.setState({ buttonsExpanded: false });
   }
 
-  openCamera = () => {
+  openCamera = async () => {
     this.dismissKeyboard();
+    const permissionResult = await requestAndroidPermissions([
+      PermissionsAndroid.PERMISSIONS.CAMERA,
+      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+    ]);
+    if (!permissionResult[PermissionsAndroid.PERMISSIONS.CAMERA]) {
+      displayActionResultModal("don't have permission :(");
+      return;
+    }
     this.props.navigation.navigate({
       routeName: CameraModalRouteName,
       params: {

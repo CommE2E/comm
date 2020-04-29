@@ -108,11 +108,6 @@ const zoomUpdateFactor = (() => {
   return 0.03;
 })();
 
-const permissionRationale = {
-  title: 'Access Your Camera',
-  message: 'Requesting access to your device camera',
-};
-
 const stagingModeAnimationConfig = {
   duration: 150,
   easing: Easing.inOut(Easing.ease),
@@ -796,7 +791,7 @@ class CameraModal extends React.PureComponent<Props, State> {
           flashMode={this.state.flashMode}
           autoFocusPointOfInterest={this.state.autoFocusPointOfInterest}
           style={styles.fill}
-          androidCameraPermissionOptions={permissionRationale}
+          androidCameraPermissionOptions={null}
           ref={this.cameraRef}
         >
           {this.renderCamera}
