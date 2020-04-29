@@ -10,14 +10,7 @@ import type { ViewToken, LayoutEvent } from '../types/react-native';
 import type { ViewStyle } from '../types/styles';
 
 import * as React from 'react';
-import {
-  View,
-  Text,
-  Platform,
-  PermissionsAndroid,
-  FlatList,
-  ActivityIndicator,
-} from 'react-native';
+import { View, Text, FlatList, ActivityIndicator } from 'react-native';
 import { KeyboardRegistry } from 'react-native-keyboard-input';
 import invariant from 'invariant';
 import { Provider } from 'react-redux';
@@ -40,7 +33,6 @@ import {
   colorsSelector,
   styleSelector,
 } from '../themes/colors';
-import { getAndroidPermission } from '../utils/android-permissions';
 import SendMediaButton from './send-media-button.react';
 import { getCompatibleMediaURI } from './identifier-utils';
 
@@ -303,18 +295,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
   }
 
   async getPermissions(): Promise<boolean> {
-    let granted;
-    if (Platform.OS === 'android') {
-      granted = await getAndroidPermission(
-        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-        {
-          title: 'Access Your Photos',
-          message: 'Requesting access to your external storage',
-        },
-      );
-    } else {
-      ({ granted } = await MediaLibrary.requestPermissionsAsync());
-    }
+    const { granted } = await MediaLibrary.requestPermissionsAsync();
     if (!granted) {
       this.guardedSetState({ error: "don't have permission :(" });
     }
