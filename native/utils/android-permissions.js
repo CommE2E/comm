@@ -1,24 +1,119 @@
 // @flow
 
 import { PermissionsAndroid } from 'react-native';
-import type { Rationale } from '../types/react-native';
+
+import { getMessageForException } from 'lib/utils/errors';
+import { promiseAll } from 'lib/utils/promises';
 
 const granted = new Set();
 
-async function getAndroidPermission(permission: string, rationale?: Rationale) {
-  if (granted.has(permission)) {
-    return true;
-  }
-  try {
-    const result = await PermissionsAndroid.request(permission, rationale);
-    const gotPermission = result === PermissionsAndroid.RESULTS.GRANTED;
-    if (gotPermission) {
-      granted.add(permission);
+type CheckOrRequest = 'check' | 'request';
+type ThrowExceptions = 'throw' | typeof undefined;
+
+async function getAndroidPermissions(
+  permissions: $ReadOnlyArray<string>,
+  checkOrRequest: CheckOrRequest,
+  throwExceptions?: ThrowExceptions,
+) {
+  const result = {},
+    missing = [];
+
+  for (let permission of permissions) {
+    if (granted.has(permission)) {
+      result[permission] = true;
+    } else {
+      missing.push(permission);
     }
-    return gotPermission;
-  } catch (err) {
-    return false;
   }
+  if (missing.length === 0) {
+    return result;
+  }
+
+  if (checkOrRequest === 'check') {
+    for (let permission of missing) {
+      result[permission] = (async () => {
+        try {
+          return await PermissionsAndroid.check(permission);
+        } catch (e) {
+          printException(e, 'PermissionsAndroid.check');
+          if (throwExceptions === 'throw') {
+            throw e;
+          }
+          return false;
+        }
+      })();
+    }
+    return await promiseAll(result);
+  }
+
+  let requestResult = {};
+  try {
+    requestResult = await PermissionsAndroid.requestMultiple(missing);
+  } catch (e) {
+    printException(e, 'PermissionsAndroid.requestMultiple');
+    if (throwExceptions === 'throw') {
+      throw e;
+    }
+  }
+  for (let permission of missing) {
+    result[permission] =
+      requestResult[permission] === PermissionsAndroid.RESULTS.GRANTED;
+  }
+  return result;
 }
 
-export { getAndroidPermission };
+function printException(e: mixed, caller: string) {
+  const exceptionMessage = getMessageForException(e);
+  const suffix = exceptionMessage ? `: ${exceptionMessage}` : '';
+  console.log(`${caller} returned exception${suffix}`);
+}
+
+function requestAndroidPermissions(
+  permissions: $ReadOnlyArray<string>,
+  throwExceptions?: ThrowExceptions,
+) {
+  return getAndroidPermissions(permissions, 'request', throwExceptions);
+}
+
+function checkAndroidPermissions(
+  permissions: $ReadOnlyArray<string>,
+  throwExceptions?: ThrowExceptions,
+) {
+  return getAndroidPermissions(permissions, 'check', throwExceptions);
+}
+
+async function getAndroidPermission(
+  permission: string,
+  checkOrRequest: CheckOrRequest,
+  throwExceptions?: ThrowExceptions,
+) {
+  const result = await getAndroidPermissions(
+    [permission],
+    checkOrRequest,
+    throwExceptions,
+  );
+  return result[permission];
+}
+
+function requestAndroidPermission(
+  permission: string,
+  throwExceptions?: ThrowExceptions,
+) {
+  return getAndroidPermission(permission, 'request', throwExceptions);
+}
+
+function checkAndroidPermission(
+  permission: string,
+  throwExceptions?: ThrowExceptions,
+) {
+  return getAndroidPermission(permission, 'check', throwExceptions);
+}
+
+export {
+  getAndroidPermissions,
+  requestAndroidPermissions,
+  checkAndroidPermissions,
+  getAndroidPermission,
+  requestAndroidPermission,
+  checkAndroidPermission,
+};

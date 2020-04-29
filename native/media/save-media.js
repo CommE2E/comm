@@ -32,7 +32,7 @@ import {
   copyFile,
 } from './file-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
-import { getAndroidPermission } from '../utils/android-permissions';
+import { requestAndroidPermission } from '../utils/android-permissions';
 import { dispatch } from '../redux/redux-setup';
 
 async function intentionalSaveMedia(
@@ -152,14 +152,10 @@ async function saveMediaAndroid(
     permissionCheckExceptionMessage;
   const permissionCheckStart = Date.now();
   try {
-    if (permissions === 'check') {
-      hasPermission = await PermissionsAndroid.check(androidSavePermission);
-    } else {
-      hasPermission = await getAndroidPermission(androidSavePermission, {
-        title: 'Save Photo',
-        message: 'Requesting access to your external storage',
-      });
-    }
+    hasPermission = await requestAndroidPermission(
+      androidSavePermission,
+      'throw',
+    );
   } catch (e) {
     permissionCheckExceptionMessage = getMessageForException(e);
   }
