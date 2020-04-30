@@ -1,6 +1,6 @@
 // @flow
 
-import { AppState, Keyboard, Platform, DeviceInfo } from 'react-native';
+import { Keyboard, Platform, DeviceInfo } from 'react-native';
 
 type ScreenRect = $ReadOnly<{|
   screenX: number,
@@ -17,29 +17,13 @@ export type KeyboardEvent = $ReadOnly<{|
 
 type ShowKeyboardCallback = (event: KeyboardEvent) => void;
 type HideKeyboardCallback = (event: ?KeyboardEvent) => void;
-type IgnoredKeyboardEvent =
-  | {|
-      type: 'show',
-      callback: ShowKeyboardCallback,
-      event: KeyboardEvent,
-      time: number,
-    |}
-  | {|
-      type: 'hide',
-      callback: HideKeyboardCallback,
-      event: ?KeyboardEvent,
-      time: number,
-    |};
 
 export type EmitterSubscription = {
   +remove: () => void,
 };
 
-// If the app becomes active within 500ms after a keyboard event is triggered,
-// we will call the relevant keyboard callbacks.
-const appStateChangeDelay = 500;
-
-const isIPhoneX = Platform.OS === 'ios' && DeviceInfo.getConstants().isIPhoneX_deprecated;
+const isIPhoneX =
+  Platform.OS === 'ios' && DeviceInfo.getConstants().isIPhoneX_deprecated;
 const defaultKeyboardHeight = Platform.select({
   ios: isIPhoneX ? 335 : 216,
   android: 282.28,
@@ -52,50 +36,7 @@ function getKeyboardHeight(): ?number {
   return defaultKeyboardHeight;
 }
 
-let currentState = AppState.currentState;
-let recentIgnoredKeyboardEvents: IgnoredKeyboardEvent[] = [];
-function handleAppStateChange(nextAppState: ?string) {
-  currentState = nextAppState;
-
-  const time = Date.now();
-  const ignoredEvents = recentIgnoredKeyboardEvents;
-  recentIgnoredKeyboardEvents = [];
-
-  if (currentState !== 'active') {
-    return;
-  }
-  for (let ignoredEvent of ignoredEvents) {
-    if (ignoredEvent.time + appStateChangeDelay <= time) {
-      continue;
-    }
-    // Conditional necessary for Flow :(
-    if (ignoredEvent.type === 'show') {
-      ignoredEvent.callback(ignoredEvent.event);
-    } else {
-      ignoredEvent.callback(ignoredEvent.event);
-    }
-  }
-}
-
-let listenersEnabled = 0;
-let appStateListener = null;
-function incrementAppStateListeners() {
-  if (!listenersEnabled++) {
-    currentState = AppState.currentState;
-    appStateListener = AppState.addEventListener(
-      'change',
-      handleAppStateChange,
-    );
-  }
-}
-function decrementAppStateListeners() {
-  if (!--listenersEnabled && appStateListener) {
-    AppState.removeEventListener('change', appStateListener);
-    appStateListener = null;
-  }
-}
-
-function callShowCallbackIfAppActive(
+function callShowCallback(
   callback: ShowKeyboardCallback,
 ): ShowKeyboardCallback {
   return (event: KeyboardEvent) => {
@@ -107,27 +48,17 @@ function callShowCallbackIfAppActive(
         keyboardHeight = height;
       }
     }
-    if (currentState === 'active') {
-      callback(event);
-    } else {
-      recentIgnoredKeyboardEvents.push({
-        type: 'show',
-        callback,
-        event,
-        time: Date.now(),
-      });
-    }
+    callback(event);
   };
 }
 function addKeyboardShowListener(callback: ShowKeyboardCallback) {
-  incrementAppStateListeners();
   return Keyboard.addListener(
     Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-    callShowCallbackIfAppActive(callback),
+    callShowCallback(callback),
   );
 }
 
-function callHideCallbackIfAppActive(
+function callHideCallback(
   callback: HideKeyboardCallback,
 ): HideKeyboardCallback {
   return (event: ?KeyboardEvent) => {
@@ -137,35 +68,20 @@ function callHideCallbackIfAppActive(
         keyboardHeight = height;
       }
     }
-    if (currentState === 'active') {
-      callback(event);
-    } else {
-      recentIgnoredKeyboardEvents.push({
-        type: 'hide',
-        callback,
-        event,
-        time: Date.now(),
-      });
-    }
+    callback(event);
   };
 }
 function addKeyboardDismissListener(callback: HideKeyboardCallback) {
-  incrementAppStateListeners();
   return Keyboard.addListener(
     Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-    callHideCallbackIfAppActive(callback),
+    callHideCallback(callback),
   );
 }
 function addKeyboardDidDismissListener(callback: HideKeyboardCallback) {
-  incrementAppStateListeners();
-  return Keyboard.addListener(
-    'keyboardDidHide',
-    callHideCallbackIfAppActive(callback),
-  );
+  return Keyboard.addListener('keyboardDidHide', callHideCallback(callback));
 }
 
 function removeKeyboardListener(listener: EmitterSubscription) {
-  decrementAppStateListeners();
   listener.remove();
 }
 

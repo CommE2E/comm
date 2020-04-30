@@ -11,7 +11,6 @@ import {
   Platform,
   View,
   ViewPropTypes,
-  AppState,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import _isEqual from 'lodash/fp/isEqual';
@@ -46,7 +45,6 @@ class KeyboardAvoidingView extends React.PureComponent<Props, State> {
   };
   keyboardSubscription: ?EmitterSubscription = null;
   frame: ?Layout = null;
-  currentState = AppState.currentState;
 
   relativeKeyboardHeight(keyboardFrame: ScreenRect): number {
     const { frame } = this;
@@ -59,10 +57,6 @@ class KeyboardAvoidingView extends React.PureComponent<Props, State> {
   }
 
   onKeyboardChange = (event: ?KeyboardChangeEvent) => {
-    if (this.currentState !== 'active') {
-      return;
-    }
-
     if (!event) {
       this.setState({ bottom: 0 });
       return;
@@ -95,10 +89,6 @@ class KeyboardAvoidingView extends React.PureComponent<Props, State> {
     this.frame = event.nativeEvent.layout;
   };
 
-  handleAppStateChange = (nextAppState: ?string) => {
-    this.currentState = nextAppState;
-  };
-
   componentDidMount() {
     if (Platform.OS !== 'ios') {
       return;
@@ -107,7 +97,6 @@ class KeyboardAvoidingView extends React.PureComponent<Props, State> {
       'keyboardWillChangeFrame',
       this.onKeyboardChange,
     );
-    AppState.addEventListener('change', this.handleAppStateChange);
   }
 
   componentWillUnmount() {
@@ -117,7 +106,6 @@ class KeyboardAvoidingView extends React.PureComponent<Props, State> {
     if (this.keyboardSubscription) {
       this.keyboardSubscription.remove();
     }
-    AppState.removeEventListener('change', this.handleAppStateChange);
   }
 
   render() {
