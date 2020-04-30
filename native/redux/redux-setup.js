@@ -317,7 +317,12 @@ function reducer(state: AppState = defaultState, action: *) {
 }
 
 function sessionInvalidationAlert(payload: SetSessionPayload) {
-  if (!payload.sessionChange.cookieInvalidated) {
+  if (
+    !payload.sessionChange.cookieInvalidated ||
+    !payload.preRequestUserState ||
+    !payload.preRequestUserState.currentUserInfo ||
+    payload.preRequestUserState.currentUserInfo.anonymous
+  ) {
     return;
   }
   if (payload.error === 'client_version_unsupported') {
