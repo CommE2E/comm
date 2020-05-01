@@ -2,19 +2,11 @@
 
 import { type GlobalTheme, globalThemePropType } from './types/themes';
 import type { AppState } from './redux/redux-setup';
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
 import type { NavAction } from './navigation/navigation-context';
 
 import * as React from 'react';
 import { Provider } from 'react-redux';
-import {
-  Platform,
-  UIManager,
-  AppState as NativeAppState,
-  View,
-  StyleSheet,
-} from 'react-native';
-import PropTypes from 'prop-types';
+import { Platform, UIManager, View, StyleSheet } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 import { PersistGate } from 'redux-persist/integration/react';
 import {
@@ -26,14 +18,10 @@ import {
 import AsyncStorage from '@react-native-community/async-storage';
 
 import { connect } from 'lib/utils/redux-utils';
-import {
-  backgroundActionType,
-  foregroundActionType,
-} from 'lib/reducers/foreground-reducer';
 import { actionLogger } from 'lib/utils/action-logger';
 
 import RootNavigator from './navigation/root-navigator.react';
-import { store, appBecameInactive } from './redux/redux-setup';
+import { store } from './redux/redux-setup';
 import ConnectedStatusBar from './connected-status-bar.react';
 import ErrorBoundary from './error-boundary.react';
 import DisconnectedBarVisibilityHandler from './navigation/disconnected-bar-visibility-handler.react';
@@ -53,6 +41,7 @@ import NavigationHandler from './navigation/navigation-handler.react';
 import { defaultNavigationState } from './navigation/default-state';
 import InputStateContainer from './input/input-state-container.react';
 import './themes/fonts';
+import LifecycleHandler from './lifecycle/lifecycle-handler.react';
 
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental &&
@@ -81,8 +70,6 @@ const navStateAsyncStorageKey = 'navState';
 type Props = {
   // Redux state
   activeTheme: ?GlobalTheme,
-  // Redux dispatch functions
-  dispatchActionPayload: DispatchActionPayload,
 };
 type State = {|
   navContext: ?NavContextType,
@@ -91,10 +78,7 @@ type State = {|
 class Root extends React.PureComponent<Props, State> {
   static propTypes = {
     activeTheme: globalThemePropType,
-    dispatchActionPayload: PropTypes.func.isRequired,
   };
-
-  currentAppState: ?string = NativeAppState.currentState;
 
   navDispatch: ?(action: NavAction) => boolean;
   navState: ?NavigationState;
@@ -109,27 +93,8 @@ class Root extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
-    NativeAppState.addEventListener('change', this.handleAppStateChange);
     Orientation.lockToPortrait();
   }
-
-  componentWillUnmount() {
-    NativeAppState.removeEventListener('change', this.handleAppStateChange);
-  }
-
-  handleAppStateChange = (nextState: ?string) => {
-    if (!nextState || nextState === 'unknown') {
-      return;
-    }
-    const lastState = this.currentAppState;
-    this.currentAppState = nextState;
-    if (lastState === 'background' && nextState === 'active') {
-      this.props.dispatchActionPayload(foregroundActionType, null);
-    } else if (lastState !== 'background' && nextState === 'background') {
-      this.props.dispatchActionPayload(backgroundActionType, null);
-      appBecameInactive();
-    }
-  };
 
   render() {
     const { detectUnsupervisedBackgroundRef } = this;
@@ -138,6 +103,7 @@ class Root extends React.PureComponent<Props, State> {
       : 'no-preference';
     const gated: React.Node = (
       <>
+        <LifecycleHandler />
         <Socket
           detectUnsupervisedBackgroundRef={detectUnsupervisedBackgroundRef}
         />
@@ -265,13 +231,9 @@ const styles = StyleSheet.create({
   },
 });
 
-const ConnectedRoot = connect(
-  (state: AppState) => ({
-    activeTheme: state.globalThemeInfo.activeTheme,
-  }),
-  null,
-  true,
-)(Root);
+const ConnectedRoot = connect((state: AppState) => ({
+  activeTheme: state.globalThemeInfo.activeTheme,
+}))(Root);
 
 const AppRoot = () => (
   <Provider store={store}>

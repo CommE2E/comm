@@ -123,5 +123,6 @@ const DevTools = React.memo<{||}>(() => {
 
   return null;
 });
+DevTools.displayName = 'DevTools';
 
 export default DevTools;
