@@ -1,17 +1,12 @@
 // @flow
 
-import {
-  Platform,
-  AppState as NativeAppState,
-  DeviceEventEmitter,
-  NativeModules,
-} from 'react-native';
+import { Platform, AppState as NativeAppState } from 'react-native';
+
+import { getLifecycleEventEmitter } from './lifecycle-event-emitter';
 
 function addLifecycleListener(listener: (state: ?string) => mixed) {
   if (Platform.OS === 'android') {
-    return DeviceEventEmitter.addListener('LIFECYCLE_CHANGE', event => {
-      listener(event.status);
-    });
+    return getLifecycleEventEmitter().addLifecycleListener(listener);
   }
 
   NativeAppState.addEventListener('change', listener);
@@ -22,18 +17,9 @@ function addLifecycleListener(listener: (state: ?string) => mixed) {
   };
 }
 
-let currentAndroidLifecycle;
-if (Platform.OS === 'android') {
-  currentAndroidLifecycle = NativeModules.AndroidLifecycle.getConstants()
-    .initialStatus;
-  addLifecycleListener(state => {
-    currentAndroidLifecycle = state;
-  });
-}
-
 function getCurrentLifecycleState() {
   return Platform.OS === 'android'
-    ? currentAndroidLifecycle
+    ? getLifecycleEventEmitter().currentLifecycleStatus
     : NativeAppState.currentState;
 }
 
