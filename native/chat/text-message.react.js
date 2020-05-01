@@ -77,6 +77,7 @@ type Props = {|
   scrollViewModalState: ?ScrollViewModalState,
   // withKeyboardState
   keyboardState: ?KeyboardState,
+  ...React.ElementProps<typeof View>,
 |};
 class TextMessage extends React.PureComponent<Props> {
   static propTypes = {
@@ -91,12 +92,22 @@ class TextMessage extends React.PureComponent<Props> {
   message: ?View;
 
   render() {
-    const { item, focused } = this.props;
+    const {
+      item,
+      navigation,
+      focused,
+      toggleFocus,
+      verticalBounds,
+      scrollViewModalState,
+      keyboardState,
+      ...viewProps
+    } = this.props;
     return (
       <ComposedMessage
         item={item}
         sendFailed={textMessageSendFailed(item)}
         focused={focused}
+        {...viewProps}
       >
         <InnerTextMessage
           item={item}

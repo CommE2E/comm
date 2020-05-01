@@ -140,6 +140,7 @@ type Props = {|
   verticalBounds: ?VerticalBounds,
   // withOverlayPositionContext
   overlayPosition: ?Animated.Value,
+  ...React.ElementProps<typeof View>,
 |};
 class MultimediaMessage extends React.PureComponent<Props> {
   static propTypes = {
@@ -148,11 +149,20 @@ class MultimediaMessage extends React.PureComponent<Props> {
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
+    // eslint-disable-next-line import/no-named-as-default-member
     overlayPosition: PropTypes.instanceOf(Animated.Value),
   };
 
   render() {
-    const { item, focused } = this.props;
+    const {
+      item,
+      navigation,
+      focused,
+      toggleFocus,
+      verticalBounds,
+      overlayPosition,
+      ...viewProps
+    } = this.props;
     const containerStyle = {
       height: item.contentHeight,
       width: item.contentWidth,
@@ -162,6 +172,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
         item={item}
         sendFailed={sendFailed(item)}
         focused={focused}
+        {...viewProps}
       >
         <View style={[containerStyle, styles.container]}>
           {this.renderContent()}

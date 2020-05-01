@@ -27,6 +27,7 @@ type Props = {|
   // Redux state
   composedMessageMaxWidth: number,
   colors: Colors,
+  ...React.ElementProps<typeof View>,
 |};
 class ComposedMessage extends React.PureComponent<Props> {
   static propTypes = {
@@ -42,11 +43,12 @@ class ComposedMessage extends React.PureComponent<Props> {
     assertComposableMessageType(this.props.item.messageInfo.type);
     const {
       item,
-      focused,
       sendFailed,
+      focused,
       children,
-      colors,
       composedMessageMaxWidth,
+      colors,
+      ...viewProps
     } = this.props;
     const { id, creator } = item.messageInfo;
 
@@ -85,7 +87,7 @@ class ComposedMessage extends React.PureComponent<Props> {
     }
 
     return (
-      <View>
+      <View {...viewProps}>
         <MessageHeader item={item} focused={focused} display="lowContrast" />
         <View style={containerStyle}>
           <View style={[styles.content, alignStyle]}>
