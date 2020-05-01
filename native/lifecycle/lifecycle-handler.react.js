@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
-import { AppState as NativeAppState } from 'react-native';
 
 import {
   backgroundActionType,
@@ -10,6 +9,7 @@ import {
 } from 'lib/reducers/foreground-reducer';
 
 import { appBecameInactive } from '../redux/redux-setup';
+import { addLifecycleListener } from './lifecycle';
 
 const LifecycleHandler = React.memo<{||}>(() => {
   const dispatch = useDispatch();
@@ -33,10 +33,8 @@ const LifecycleHandler = React.memo<{||}>(() => {
   );
 
   React.useEffect(() => {
-    NativeAppState.addEventListener('change', onLifecycleChange);
-    return () => {
-      NativeAppState.removeEventListener('change', onLifecycleChange);
-    };
+    const { remove } = addLifecycleListener(onLifecycleChange);
+    return remove;
   }, [onLifecycleChange]);
 
   return null;
