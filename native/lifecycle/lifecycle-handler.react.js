@@ -33,8 +33,8 @@ const LifecycleHandler = React.memo<{||}>(() => {
   );
 
   React.useEffect(() => {
-    const { remove } = addLifecycleListener(onLifecycleChange);
-    return remove;
+    const subscription = addLifecycleListener(onLifecycleChange);
+    return () => subscription.remove();
   }, [onLifecycleChange]);
 
   return null;
