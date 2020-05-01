@@ -40,6 +40,7 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
       packages.add(new RNFirebaseMessagingPackage());
       packages.add(new RNFirebaseNotificationsPackage());
       packages.add(new KeyboardInputPackage(this.getApplication()));
+      packages.add(new SquadCalPackage());
 
       // Add unimodules
       List<ReactPackage> unimodules = Arrays.<ReactPackage>asList(

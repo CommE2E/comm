@@ -195,6 +195,9 @@ dependencies {
     implementation "com.facebook.react:react-native:+"  // From node_modules
     implementation "androidx.multidex:multidex:2.0.1"
 
+    implementation "androidx.lifecycle:lifecycle-runtime:2.2.0"
+    implementation "androidx.lifecycle:lifecycle-process:2.2.0"
+
     implementation 'com.facebook.fresco:fresco:2.2.0'
     implementation 'com.facebook.fresco:animated-gif:2.2.0'
     implementation 'com.facebook.fresco:animated-webp:2.2.0'
