@@ -11,4 +11,8 @@ function addLifecycleListener(listener: (state: ?string) => mixed) {
   };
 }
 
-export { addLifecycleListener };
+function getCurrentLifecycleState() {
+  return NativeAppState.currentState;
+}
+
+export { addLifecycleListener, getCurrentLifecycleState };

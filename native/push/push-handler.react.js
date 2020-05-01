@@ -29,7 +29,6 @@ import PropTypes from 'prop-types';
 import {
   AppRegistry,
   Platform,
-  AppState as NativeAppState,
   Alert,
   Vibration,
   YellowBox,
@@ -80,6 +79,10 @@ import {
 } from '../root-context';
 import { ChatRouteName, MessageListRouteName } from '../navigation/route-names';
 import { replaceWithThreadActionType } from '../navigation/action-types';
+import {
+  addLifecycleListener,
+  getCurrentLifecycleState,
+} from '../lifecycle/lifecycle';
 
 YellowBox.ignoreWarnings([
   'Require cycle: ../node_modules/react-native-firebase',
@@ -143,17 +146,20 @@ class PushHandler extends React.PureComponent<Props, State> {
   state = {
     inAppNotifProps: null,
   };
-  currentState: ?string = NativeAppState.currentState;
+  currentState: ?string = getCurrentLifecycleState();
   appStarted = 0;
   androidTokenListener: ?() => void = null;
   androidMessageListener: ?() => void = null;
   androidNotifOpenListener: ?() => void = null;
   initialAndroidNotifHandled = false;
   openThreadOnceReceived: Set<string> = new Set();
+  lifecycleSubscription: ?{ +remove: () => void };
 
   componentDidMount() {
     this.appStarted = Date.now();
-    NativeAppState.addEventListener('change', this.handleAppStateChange);
+    this.lifecycleSubscription = addLifecycleListener(
+      this.handleAppStateChange,
+    );
     this.onForeground();
     if (Platform.OS === 'ios') {
       NotificationsIOS.addEventListener(
@@ -193,7 +199,9 @@ class PushHandler extends React.PureComponent<Props, State> {
   }
 
   componentWillUnmount() {
-    NativeAppState.removeEventListener('change', this.handleAppStateChange);
+    if (this.lifecycleSubscription) {
+      this.lifecycleSubscription.remove();
+    }
     if (Platform.OS === 'ios') {
       NotificationsIOS.removeEventListener(
         'remoteNotificationsRegistered',
