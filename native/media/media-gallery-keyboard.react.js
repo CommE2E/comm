@@ -10,7 +10,13 @@ import type { ViewToken, LayoutEvent } from '../types/react-native';
 import type { ViewStyle } from '../types/styles';
 
 import * as React from 'react';
-import { View, Text, FlatList, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  ActivityIndicator,
+  Platform,
+} from 'react-native';
 import { KeyboardRegistry } from 'react-native-keyboard-input';
 import invariant from 'invariant';
 import { Provider } from 'react-redux';
@@ -19,6 +25,7 @@ import * as MediaLibrary from 'expo-media-library';
 
 import { connect } from 'lib/utils/redux-utils';
 import { extensionFromFilename } from 'lib/utils/file-utils';
+import sleep from 'lib/utils/sleep';
 
 import { store } from '../redux/redux-setup';
 import {
@@ -295,6 +302,14 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
   }
 
   async getPermissions(): Promise<boolean> {
+    // For some reason, react-native-reanimated@1.8.0 on Android renders the
+    // very first frame of SendMediaButton incorrectly. opacity is set to new
+    // Value(0), but on the first frame it appears as 1. On Android requesting
+    // permissions freezes your current activity, so we want to make sure that
+    // we're rendering correctly before the freeze occurs.
+    if (Platform.OS === 'android') {
+      await sleep(5);
+    }
     const { granted } = await MediaLibrary.requestPermissionsAsync();
     if (!granted) {
       this.guardedSetState({ error: "don't have permission :(" });
