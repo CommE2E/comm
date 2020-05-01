@@ -26,6 +26,7 @@ type NavProp = NavigationStackProp<{|
   ...NavigationLeafRoute,
   params: {|
     message: string,
+    preventPresses: true,
   |},
 |}>;
 

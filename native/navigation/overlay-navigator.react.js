@@ -77,6 +77,7 @@ class OverlayNavigator extends React.PureComponent<Props> {
 
   constructor(props: Props) {
     super(props);
+    // eslint-disable-next-line import/no-named-as-default-member
     this.position = new Animated.Value(props.navigation.state.index);
   }
 
@@ -105,6 +106,7 @@ class OverlayNavigator extends React.PureComponent<Props> {
 
   onTransitionStart = (transitionProps: NavigationStackTransitionProps) => {
     const { index } = transitionProps.navigation.state;
+    // eslint-disable-next-line import/no-named-as-default-member
     Animated.timing(this.position, {
       duration: 250,
       easing: Easing.inOut(Easing.ease),
@@ -129,12 +131,36 @@ class OverlayNavigator extends React.PureComponent<Props> {
   };
 
   renderScenes = (transitionProps: NavigationStackTransitionProps) => {
-    const { scenes } = transitionProps;
-    const renderScene = (scene: NavigationStackScene) =>
-      this.renderScene(scene, transitionProps);
+    const views = [];
+    let pressableSceneAssigned = false,
+      activeSceneFound = false;
+    for (let i = transitionProps.scenes.length - 1; i >= 0; i--) {
+      const scene = transitionProps.scenes[i];
+      const {
+        isActive,
+        route: { params },
+      } = scene;
+
+      if (isActive) {
+        activeSceneFound = true;
+      }
+
+      let pressable = false;
+      if (
+        !pressableSceneAssigned &&
+        activeSceneFound &&
+        (!params || !params.preventPresses)
+      ) {
+        pressable = true;
+        pressableSceneAssigned = true;
+      }
+
+      views.unshift(this.renderScene(scene, transitionProps, pressable));
+    }
+
     return (
       <OverlayPositionContext.Provider value={this.position}>
-        {scenes.map(renderScene)}
+        {views}
       </OverlayPositionContext.Provider>
     );
   };
@@ -142,13 +168,14 @@ class OverlayNavigator extends React.PureComponent<Props> {
   renderScene(
     scene: NavigationStackScene,
     transitionProps: NavigationStackTransitionProps,
+    pressable: boolean,
   ) {
     if (!scene.descriptor) {
       return null;
     }
     const { navigation, getComponent } = scene.descriptor;
     const SceneComponent = getComponent();
-    const pointerEvents = scene.isActive ? 'auto' : 'none';
+    const pointerEvents = pressable ? 'auto' : 'none';
     return (
       <View style={styles.scene} key={scene.key} pointerEvents={pointerEvents}>
         <SceneComponent

@@ -12,7 +12,7 @@ function displayActionResultModal(message: string) {
   navContext.dispatch(
     NavigationActions.navigate({
       routeName: ActionResultModalRouteName,
-      params: { message },
+      params: { message, preventPresses: true },
     }),
   );
 }
