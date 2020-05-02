@@ -40,7 +40,6 @@ import {
   Text,
   ActivityIndicator,
   TouchableWithoutFeedback,
-  PermissionsAndroid,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
@@ -55,7 +54,6 @@ import { saveDraftActionType } from 'lib/actions/miscellaneous-action-types';
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
 import { joinThreadActionTypes, joinThread } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import sleep from 'lib/utils/sleep';
 
 import Button from '../components/button.react';
 import { nonThreadCalendarQuery } from '../navigation/nav-selectors';
@@ -73,8 +71,6 @@ import {
   type NavContextType,
 } from '../navigation/navigation-context';
 import ClearableTextInput from '../components/clearable-text-input.react';
-import { displayActionResultModal } from '../navigation/action-result-modal';
-import { requestAndroidPermission } from '../utils/android-permissions';
 
 const draftKeyFromThreadID = (threadID: string) =>
   `${threadID}/message_composer`;
@@ -529,23 +525,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   openCamera = async () => {
     this.dismissKeyboard();
-
-    // This prevents a very strange transient rendering bug where Android
-    // incorrectly draws the ActionResultModal triggered below. Layout Inspector
-    // errors when you try to see what's going on, but the ActionResultModal
-    // variously appears either with no text or with no background.
-    if (Platform.OS === 'android') {
-      await sleep(5);
-    }
-
-    const permissionResult = await requestAndroidPermission(
-      PermissionsAndroid.PERMISSIONS.CAMERA,
-    );
-    if (!permissionResult) {
-      displayActionResultModal("don't have permission :(");
-      return;
-    }
-
     this.props.navigation.navigate({
       routeName: CameraModalRouteName,
       params: {
