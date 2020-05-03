@@ -586,10 +586,15 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       const captureURI = selection.uri;
       promises.push(
         (async () => {
-          await this.onClearURI(captureURI);
-          const capturePath = pathFromURI(captureURI);
-          const removePath = capturePath ? capturePath : captureURI;
-          const disposeStep = await disposeTempFile(removePath);
+          const {
+            steps: clearSteps,
+            result: capturePath,
+          } = await this.waitForCaptureURIUnload(captureURI);
+          steps.push(...clearSteps);
+          if (!capturePath) {
+            return;
+          }
+          const disposeStep = await disposeTempFile(capturePath);
           steps.push(disposeStep);
         })(),
       );
@@ -959,16 +964,45 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
   };
 
-  onClearURI(uri: string) {
+  waitForCaptureURIUnload(uri: string) {
+    const start = Date.now();
+    const path = pathFromURI(uri);
+    if (!path) {
+      return Promise.resolve({
+        result: null,
+        steps: [
+          {
+            step: 'wait_for_capture_uri_unload',
+            success: false,
+            time: Date.now() - start,
+            uri,
+          },
+        ],
+      });
+    }
+
+    const getResult = () => ({
+      result: path,
+      steps: [
+        {
+          step: 'wait_for_capture_uri_unload',
+          success: true,
+          time: Date.now() - start,
+          uri,
+        },
+      ],
+    });
+
     const activeURI = this.activeURIs.get(uri);
+    if (!activeURI) {
+      return Promise.resolve(getResult());
+    }
+
     return new Promise(resolve => {
-      if (!activeURI) {
-        resolve();
-        return;
-      }
+      const finish = () => resolve(getResult());
       const newActiveURI = {
         ...activeURI,
-        onClear: [...activeURI.onClear, resolve],
+        onClear: [...activeURI.onClear, finish],
       };
       this.activeURIs.set(uri, newActiveURI);
     });
