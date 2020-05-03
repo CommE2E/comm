@@ -130,6 +130,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     pendingUploads: {},
   };
   sendCallbacks: Array<() => void> = [];
+  activeURIs = new Map();
 
   static getCompletedUploads(props: Props, state: State): CompletedUploads {
     const completedUploads = {};
@@ -302,6 +303,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       registerSendCallback: this.registerSendCallback,
       unregisterSendCallback: this.unregisterSendCallback,
       uploadInProgress: this.uploadInProgress,
+      reportURIDisplayed: this.reportURIDisplayed,
     }),
   );
 
@@ -569,10 +571,31 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       time: Date.now() - uploadStart,
     });
 
+    const promises = [];
+
     if (shouldDisposePath) {
-      const disposeStep = await disposeTempFile(shouldDisposePath);
-      steps.push(disposeStep);
+      promises.push(
+        (async () => {
+          const disposeStep = await disposeTempFile(shouldDisposePath);
+          steps.push(disposeStep);
+        })(),
+      );
     }
+
+    if (selection.captureTime) {
+      const captureURI = selection.uri;
+      promises.push(
+        (async () => {
+          await this.onClearURI(captureURI);
+          const capturePath = pathFromURI(captureURI);
+          const removePath = capturePath ? capturePath : captureURI;
+          const disposeStep = await disposeTempFile(removePath);
+          steps.push(disposeStep);
+        })(),
+      );
+    }
+
+    await Promise.all(promises);
 
     return await finish(mediaMissionResult);
   }
@@ -917,6 +940,39 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       candidate => candidate !== callback,
     );
   };
+
+  reportURIDisplayed = (uri: string, loaded: boolean) => {
+    const prevActiveURI = this.activeURIs.get(uri);
+    const curCount = prevActiveURI && prevActiveURI.count;
+    const prevCount = curCount ? curCount : 0;
+    const count = loaded ? prevCount + 1 : prevCount - 1;
+    const prevOnClear = prevActiveURI && prevActiveURI.onClear;
+    const onClear = prevOnClear ? prevOnClear : [];
+    const activeURI = { count, onClear };
+    if (count) {
+      this.activeURIs.set(uri, activeURI);
+      return;
+    }
+    this.activeURIs.delete(uri);
+    for (let callback of onClear) {
+      callback();
+    }
+  };
+
+  onClearURI(uri: string) {
+    const activeURI = this.activeURIs.get(uri);
+    return new Promise(resolve => {
+      if (!activeURI) {
+        resolve();
+        return;
+      }
+      const newActiveURI = {
+        ...activeURI,
+        onClear: [...activeURI.onClear, resolve],
+      };
+      this.activeURIs.set(uri, newActiveURI);
+    });
+  }
 
   render() {
     const inputState = this.inputStateSelector(this.state);

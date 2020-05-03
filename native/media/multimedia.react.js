@@ -5,26 +5,30 @@ import { type MediaInfo, mediaInfoPropType } from 'lib/types/media-types';
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { View, Image, StyleSheet } from 'react-native';
-import filesystem from 'react-native-fs';
 import invariant from 'invariant';
 
-import { pathFromURI } from 'lib/utils/file-utils';
-
 import RemoteImage from './remote-image.react';
+import {
+  type InputState,
+  inputStatePropType,
+  withInputState,
+} from '../input/input-state';
 
 type Props = {|
   mediaInfo: MediaInfo,
   spinnerColor: string,
+  // withInputState
+  inputState: ?InputState,
 |};
 type State = {|
   currentURI: string,
   departingURI: ?string,
-  unlinkDepartingURI: boolean,
 |};
 class Multimedia extends React.PureComponent<Props, State> {
   static propTypes = {
     mediaInfo: mediaInfoPropType.isRequired,
     spinnerColor: PropTypes.string.isRequired,
+    inputState: inputStatePropType,
   };
   static defaultProps = {
     spinnerColor: 'black',
@@ -35,47 +39,52 @@ class Multimedia extends React.PureComponent<Props, State> {
     this.state = {
       currentURI: props.mediaInfo.uri,
       departingURI: null,
-      unlinkDepartingURI: false,
     };
   }
 
-  static shouldUnlinkDepartingURI(props: Props): boolean {
-    const { localMediaSelection } = props.mediaInfo;
-    if (!localMediaSelection) {
-      return false;
-    }
-    if (
-      localMediaSelection.step === 'photo_library' ||
-      localMediaSelection.step === 'video_library'
-    ) {
-      return false;
-    }
-    invariant(
-      localMediaSelection.step === 'photo_capture',
-      'selection should be photo_capture if not from library',
-    );
-    return true;
+  get inputState() {
+    const { inputState } = this.props;
+    invariant(inputState, 'inputState should be set in Multimedia');
+    return inputState;
   }
 
-  componentDidUpdate(prevProps: Props) {
-    const newURI = this.props.mediaInfo.uri;
-    const oldURI = prevProps.mediaInfo.uri;
-    if (newURI !== oldURI && !this.state.departingURI) {
-      const unlinkDepartingURI = Multimedia.shouldUnlinkDepartingURI(prevProps);
-      this.setState({
-        currentURI: newURI,
-        departingURI: oldURI,
-        unlinkDepartingURI,
-      });
-    } else if (newURI !== oldURI) {
-      this.setState({ currentURI: newURI });
-    }
+  componentDidMount() {
+    this.inputState.reportURIDisplayed(this.state.currentURI, true);
   }
 
   componentWillUnmount() {
-    const { departingURI, unlinkDepartingURI } = this.state;
-    if (departingURI && unlinkDepartingURI) {
-      Multimedia.unlinkURI(departingURI);
+    const { inputState } = this;
+    const { currentURI, departingURI } = this.state;
+    inputState.reportURIDisplayed(currentURI, false);
+    if (departingURI) {
+      inputState.reportURIDisplayed(departingURI, false);
+    }
+  }
+
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    const { inputState } = this;
+
+    const newURI = this.props.mediaInfo.uri;
+    const oldURI = this.state.currentURI;
+    if (newURI !== oldURI) {
+      inputState.reportURIDisplayed(newURI, true);
+
+      const { departingURI } = this.state;
+      if (departingURI && oldURI !== departingURI) {
+        // If there's currently an existing departingURI, that means that oldURI
+        // hasn't loaded yet. Since it's being replaced anyways we don't need to
+        // display it anymore, so we can unlink it now
+        inputState.reportURIDisplayed(oldURI, false);
+        this.setState({ currentURI: newURI });
+      } else {
+        this.setState({ currentURI: newURI, departingURI: oldURI });
+      }
+    }
+
+    const newDepartingURI = this.state.departingURI;
+    const oldDepartingURI = prevState.departingURI;
+    if (oldDepartingURI && oldDepartingURI !== newDepartingURI) {
+      inputState.reportURIDisplayed(oldDepartingURI, false);
     }
   }
 
@@ -117,28 +126,8 @@ class Multimedia extends React.PureComponent<Props, State> {
   }
 
   onLoad = () => {
-    const { departingURI, unlinkDepartingURI } = this.state;
-    if (!departingURI && !unlinkDepartingURI) {
-      return;
-    }
-    this.setState({ departingURI: null, unlinkDepartingURI: false });
-
-    if (!departingURI || !unlinkDepartingURI) {
-      return;
-    }
-
-    Multimedia.unlinkURI(departingURI);
+    this.setState({ departingURI: null });
   };
-
-  static unlinkURI(uri: string) {
-    const path = pathFromURI(uri);
-    if (!path) {
-      return;
-    }
-    try {
-      filesystem.unlink(path);
-    } catch (e) {}
-  }
 }
 
 const styles = StyleSheet.create({
@@ -154,4 +143,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Multimedia;
+export default withInputState(Multimedia);

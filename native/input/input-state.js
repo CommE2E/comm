@@ -44,6 +44,7 @@ export type InputState = {|
   registerSendCallback: (() => void) => void,
   unregisterSendCallback: (() => void) => void,
   uploadInProgress: () => boolean,
+  reportURIDisplayed: (uri: string, loaded: boolean) => void,
 |};
 
 const inputStatePropType = PropTypes.shape({
@@ -53,6 +54,7 @@ const inputStatePropType = PropTypes.shape({
   messageHasUploadFailure: PropTypes.func.isRequired,
   retryMultimediaMessage: PropTypes.func.isRequired,
   uploadInProgress: PropTypes.func.isRequired,
+  reportURIDisplayed: PropTypes.func.isRequired,
 });
 
 const InputStateContext = React.createContext<?InputState>(null);
