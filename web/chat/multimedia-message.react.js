@@ -5,10 +5,7 @@ import {
   chatMessageItemPropType,
 } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types';
-import {
-  chatInputStatePropType,
-  type ChatInputState,
-} from './chat-input-state';
+import { inputStatePropType, type InputState } from '../input/input-state';
 import type { MessagePositionInfo } from './message.react';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 
@@ -25,7 +22,7 @@ type Props = {|
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
   setMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
-  chatInputState: ChatInputState,
+  inputState: InputState,
   setModal: (modal: ?React.Node) => void,
 |};
 class MultimediaMessage extends React.PureComponent<Props> {
@@ -33,7 +30,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
     item: chatMessageItemPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
     setMouseOver: PropTypes.func.isRequired,
-    chatInputState: chatInputStatePropType.isRequired,
+    inputState: inputStatePropType.isRequired,
     setModal: PropTypes.func.isRequired,
   };
 
@@ -47,7 +44,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
     const { localID, media } = item.messageInfo;
 
     const pendingUploads = localID
-      ? this.props.chatInputState.assignedUploads[localID]
+      ? this.props.inputState.assignedUploads[localID]
       : null;
     const multimedia = [];
     for (let singleMedia of media) {
@@ -77,11 +74,11 @@ class MultimediaMessage extends React.PureComponent<Props> {
       <ComposedMessage
         item={item}
         threadInfo={this.props.threadInfo}
-        sendFailed={sendFailed(this.props.item, this.props.chatInputState)}
+        sendFailed={sendFailed(this.props.item, this.props.inputState)}
         setMouseOver={this.props.setMouseOver}
         className={className}
         borderRadius={16}
-        chatInputState={this.props.chatInputState}
+        inputState={this.props.inputState}
       >
         {content}
       </ComposedMessage>

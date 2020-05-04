@@ -47,7 +47,7 @@ export const pendingMultimediaUploadPropType = PropTypes.shape({
 });
 
 // This type represents the input state for a particular thread
-export type ChatInputState = {|
+export type InputState = {|
   pendingUploads: $ReadOnlyArray<PendingMultimediaUpload>,
   assignedUploads: {
     [messageID: string]: $ReadOnlyArray<PendingMultimediaUpload>,
@@ -64,7 +64,7 @@ export type ChatInputState = {|
 const arrayOfUploadsPropType = PropTypes.arrayOf(
   pendingMultimediaUploadPropType,
 );
-export const chatInputStatePropType = PropTypes.shape({
+export const inputStatePropType = PropTypes.shape({
   pendingUploads: arrayOfUploadsPropType.isRequired,
   assignedUploads: PropTypes.objectOf(arrayOfUploadsPropType).isRequired,
   draft: PropTypes.string.isRequired,

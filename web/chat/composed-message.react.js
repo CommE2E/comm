@@ -7,10 +7,7 @@ import {
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import { assertComposableMessageType } from 'lib/types/message-types';
 import type { MessagePositionInfo } from './message.react';
-import {
-  chatInputStatePropType,
-  type ChatInputState,
-} from './chat-input-state';
+import { inputStatePropType, type InputState } from '../input/input-state';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -34,7 +31,7 @@ type Props = {|
   children: React.Node,
   className?: ?string,
   borderRadius: number,
-  chatInputState: ChatInputState,
+  inputState: InputState,
 |};
 class ComposedMessage extends React.PureComponent<Props> {
   static propTypes = {
@@ -45,7 +42,7 @@ class ComposedMessage extends React.PureComponent<Props> {
     children: PropTypes.node.isRequired,
     className: PropTypes.string,
     borderRadius: PropTypes.number.isRequired,
-    chatInputState: chatInputStatePropType.isRequired,
+    inputState: inputStatePropType.isRequired,
   };
   static defaultProps = {
     borderRadius: 8,
@@ -53,7 +50,7 @@ class ComposedMessage extends React.PureComponent<Props> {
 
   render() {
     assertComposableMessageType(this.props.item.messageInfo.type);
-    const { borderRadius, item, threadInfo, chatInputState } = this.props;
+    const { borderRadius, item, threadInfo, inputState } = this.props;
     const { id, creator } = item.messageInfo;
     const threadColor = threadInfo.color;
 
@@ -91,7 +88,7 @@ class ComposedMessage extends React.PureComponent<Props> {
           <FailedSend
             item={item}
             threadInfo={threadInfo}
-            chatInputState={chatInputState}
+            inputState={inputState}
           />
         );
       } else {

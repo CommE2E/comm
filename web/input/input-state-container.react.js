@@ -6,7 +6,7 @@ import type {
   DispatchActionPayload,
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
-import type { PendingMultimediaUpload } from './chat-input-state';
+import type { PendingMultimediaUpload } from './input-state';
 import {
   messageTypes,
   type RawMessageInfo,
@@ -47,7 +47,7 @@ import {
 } from 'lib/actions/message-actions';
 import { createMediaMessageInfo } from 'lib/shared/message-utils';
 
-import ChatMessageList from './chat-message-list.react';
+import ChatMessageList from '../chat/chat-message-list.react';
 import { validateFile, preloadImage } from '../utils/media-utils';
 import InvalidUploadModal from '../modals/chat/invalid-upload.react';
 
@@ -87,7 +87,7 @@ type State = {|
   },
   drafts: { [threadID: string]: string },
 |};
-class ChatInputStateContainer extends React.PureComponent<Props, State> {
+class InputStateContainer extends React.PureComponent<Props, State> {
   static propTypes = {
     setModal: PropTypes.func.isRequired,
     activeChatThreadID: PropTypes.string,
@@ -207,10 +207,10 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       newMessageInfos.set(messageID, messageInfo);
     }
 
-    const currentlyCompleted = ChatInputStateContainer.completedMessageIDs(
+    const currentlyCompleted = InputStateContainer.completedMessageIDs(
       this.state,
     );
-    const previouslyCompleted = ChatInputStateContainer.completedMessageIDs(
+    const previouslyCompleted = InputStateContainer.completedMessageIDs(
       prevState,
     );
     for (let messageID of currentlyCompleted) {
@@ -308,7 +308,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     }
   }
 
-  chatInputStateSelector = _memoize((threadID: string) =>
+  inputStateSelector = _memoize((threadID: string) =>
     createSelector(
       (state: State) => state.pendingUploads[threadID],
       (state: State) => state.drafts[threadID],
@@ -774,7 +774,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
       }: RawImagesMessageInfo);
     }
 
-    const completed = ChatInputStateContainer.completedMessageIDs(this.state);
+    const completed = InputStateContainer.completedMessageIDs(this.state);
     if (completed.has(localMessageID)) {
       this.sendMultimediaMessage(newRawMessageInfo);
       return;
@@ -842,13 +842,13 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
 
   render() {
     const { activeChatThreadID, setModal } = this.props;
-    const chatInputState = activeChatThreadID
-      ? this.chatInputStateSelector(activeChatThreadID)(this.state)
+    const inputState = activeChatThreadID
+      ? this.inputStateSelector(activeChatThreadID)(this.state)
       : null;
     return (
       <ChatMessageList
         activeChatThreadID={activeChatThreadID}
-        chatInputState={chatInputState}
+        inputState={inputState}
         setModal={setModal}
       />
     );
@@ -867,4 +867,4 @@ export default connect(
     };
   },
   { uploadMultimedia, deleteUpload, sendMultimediaMessage, sendTextMessage },
-)(ChatInputStateContainer);
+)(InputStateContainer);

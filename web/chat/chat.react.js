@@ -4,7 +4,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 
 import ChatThreadList from './chat-thread-list.react';
-import ChatInputStateContainer from './chat-input-state-container.react';
+import InputStateContainer from '../input/input-state-container.react';
 
 type Props = {|
   setModal: (modal: ?React.Node) => void,
@@ -18,7 +18,7 @@ class Chat extends React.PureComponent<Props> {
     return (
       <React.Fragment>
         <ChatThreadList />
-        <ChatInputStateContainer setModal={this.props.setModal} />
+        <InputStateContainer setModal={this.props.setModal} />
       </React.Fragment>
     );
   }

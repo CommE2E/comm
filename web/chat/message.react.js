@@ -6,10 +6,7 @@ import {
 } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import {
-  chatInputStatePropType,
-  type ChatInputState,
-} from './chat-input-state';
+import { inputStatePropType, type InputState } from '../input/input-state';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -44,7 +41,7 @@ type Props = {|
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
   setMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
-  chatInputState: ChatInputState,
+  inputState: InputState,
   setModal: (modal: ?React.Node) => void,
   timeZone: ?string,
 |};
@@ -53,7 +50,7 @@ class Message extends React.PureComponent<Props> {
     item: chatMessageItemPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
     setMouseOver: PropTypes.func.isRequired,
-    chatInputState: chatInputStatePropType.isRequired,
+    inputState: inputStatePropType.isRequired,
     setModal: PropTypes.func.isRequired,
     timeZone: PropTypes.string,
   };
@@ -76,7 +73,7 @@ class Message extends React.PureComponent<Props> {
           item={item}
           threadInfo={this.props.threadInfo}
           setMouseOver={this.props.setMouseOver}
-          chatInputState={this.props.chatInputState}
+          inputState={this.props.inputState}
         />
       );
     } else if (
@@ -88,7 +85,7 @@ class Message extends React.PureComponent<Props> {
           item={item}
           threadInfo={this.props.threadInfo}
           setMouseOver={this.props.setMouseOver}
-          chatInputState={this.props.chatInputState}
+          inputState={this.props.inputState}
           setModal={this.props.setModal}
         />
       );

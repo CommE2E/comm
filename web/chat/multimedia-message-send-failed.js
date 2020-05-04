@@ -2,13 +2,13 @@
 
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types';
-import type { ChatInputState } from './chat-input-state';
+import type { InputState } from '../input/input-state';
 
 import invariant from 'invariant';
 
 export default function multimediaMessageSendFailed(
   item: ChatMessageInfoItem,
-  chatInputState: ChatInputState,
+  inputState: InputState,
 ) {
   const { messageInfo } = item;
   if (
@@ -24,7 +24,7 @@ export default function multimediaMessageSendFailed(
   }
   invariant(localID, 'localID should be set if serverID is not');
   return !!(
-    chatInputState.messageHasUploadFailure(localID) ||
+    inputState.messageHasUploadFailure(localID) ||
     (item.localMessageInfo && item.localMessageInfo.sendFailed)
   );
 }

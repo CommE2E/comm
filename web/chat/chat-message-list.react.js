@@ -8,10 +8,7 @@ import {
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types';
-import {
-  chatInputStatePropType,
-  type ChatInputState,
-} from './chat-input-state';
+import { inputStatePropType, type InputState } from '../input/input-state';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -46,7 +43,7 @@ import css from './chat-message-list.css';
 
 type PassedProps = {|
   activeChatThreadID: ?string,
-  chatInputState: ?ChatInputState,
+  inputState: ?InputState,
   setModal: (modal: ?React.Node) => void,
   // Redux state
   threadInfo: ?ThreadInfo,
@@ -79,7 +76,7 @@ type State = {|
 class ChatMessageList extends React.PureComponent<Props, State> {
   static propTypes = {
     activeChatThreadID: PropTypes.string,
-    chatInputState: chatInputStatePropType,
+    inputState: inputStatePropType,
     setModal: PropTypes.func.isRequired,
     threadInfo: threadInfoPropType,
     messageListData: PropTypes.arrayOf(chatMessageItemPropType),
@@ -184,15 +181,15 @@ class ChatMessageList extends React.PureComponent<Props, State> {
         </div>
       );
     }
-    const { threadInfo, chatInputState, setModal } = this.props;
-    invariant(chatInputState, 'ChatInputState should be set');
+    const { threadInfo, inputState, setModal } = this.props;
+    invariant(inputState, 'InputState should be set');
     invariant(threadInfo, 'ThreadInfo should be set if messageListData is');
     return (
       <Message
         item={item}
         threadInfo={threadInfo}
         setMouseOver={this.setTimestampTooltip}
-        chatInputState={chatInputState}
+        inputState={inputState}
         setModal={setModal}
         timeZone={this.props.timeZone}
         key={ChatMessageList.keyExtractor(item)}
@@ -230,7 +227,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     const {
       messageListData,
       threadInfo,
-      chatInputState,
+      inputState,
       connectDropTarget,
       isActive,
     } = this.props;
@@ -238,7 +235,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       return <div className={css.container} />;
     }
     invariant(threadInfo, 'ThreadInfo should be set if messageListData is');
-    invariant(chatInputState, 'ChatInputState should be set');
+    invariant(inputState, 'InputState should be set');
     const messages = messageListData.map(this.renderItem);
     const containerStyle = classNames({
       [css.container]: true,
@@ -262,7 +259,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
           {messages}
           {tooltip}
         </div>
-        <ChatInputBar threadInfo={threadInfo} chatInputState={chatInputState} />
+        <ChatInputBar threadInfo={threadInfo} inputState={inputState} />
       </div>,
     );
   }
@@ -275,8 +272,8 @@ class ChatMessageList extends React.PureComponent<Props, State> {
   };
 
   onPaste = (e: ClipboardEvent) => {
-    const { chatInputState } = this.props;
-    if (!chatInputState) {
+    const { inputState } = this.props;
+    if (!inputState) {
       return;
     }
     const { clipboardData } = e;
@@ -288,7 +285,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       return;
     }
     e.preventDefault();
-    chatInputState.appendFiles([...files]);
+    inputState.appendFiles([...files]);
   };
 
   messageContainerRef = (messageContainer: ?HTMLDivElement) => {
@@ -372,8 +369,8 @@ export default DropTarget(
   {
     drop: (props: PassedProps, monitor) => {
       const { files } = monitor.getItem();
-      if (props.chatInputState && files.length > 0) {
-        props.chatInputState.appendFiles(files);
+      if (props.inputState && files.length > 0) {
+        props.inputState.appendFiles(files);
       }
     },
   },

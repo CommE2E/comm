@@ -17,10 +17,10 @@ import {
 } from 'lib/types/thread-types';
 import { messageTypes } from 'lib/types/message-types';
 import {
-  chatInputStatePropType,
-  type ChatInputState,
+  inputStatePropType,
+  type InputState,
   type PendingMultimediaUpload,
-} from './chat-input-state';
+} from '../input/input-state';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -43,7 +43,7 @@ import Multimedia from './multimedia.react';
 
 type Props = {|
   threadInfo: ThreadInfo,
-  chatInputState: ChatInputState,
+  inputState: InputState,
   // Redux state
   viewerID: ?string,
   joinThreadLoadingStatus: LoadingStatus,
@@ -58,7 +58,7 @@ type Props = {|
 class ChatInputBar extends React.PureComponent<Props> {
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
-    chatInputState: chatInputStatePropType.isRequired,
+    inputState: inputStatePropType.isRequired,
     viewerID: PropTypes.string,
     joinThreadLoadingStatus: loadingStatusPropType.isRequired,
     calendarQuery: PropTypes.func.isRequired,
@@ -75,16 +75,16 @@ class ChatInputBar extends React.PureComponent<Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { chatInputState } = this.props;
-    const prevChatInputState = prevProps.chatInputState;
-    if (chatInputState.draft !== prevChatInputState.draft) {
+    const { inputState } = this.props;
+    const prevInputState = prevProps.inputState;
+    if (inputState.draft !== prevInputState.draft) {
       this.updateHeight();
     }
     const curUploadIDs = ChatInputBar.unassignedUploadIDs(
-      chatInputState.pendingUploads,
+      inputState.pendingUploads,
     );
     const prevUploadIDs = ChatInputBar.unassignedUploadIDs(
-      prevChatInputState.pendingUploads,
+      prevInputState.pendingUploads,
     );
     if (
       this.multimediaInput &&
@@ -153,7 +153,7 @@ class ChatInputBar extends React.PureComponent<Props> {
       );
     }
 
-    const { pendingUploads, cancelPendingUpload } = this.props.chatInputState;
+    const { pendingUploads, cancelPendingUpload } = this.props.inputState;
     const multimediaPreviews = pendingUploads.map(pendingUpload => (
       <Multimedia
         uri={pendingUpload.uri}
@@ -174,7 +174,7 @@ class ChatInputBar extends React.PureComponent<Props> {
           <textarea
             rows="1"
             placeholder="Send a message..."
-            value={this.props.chatInputState.draft}
+            value={this.props.inputState.draft}
             onChange={this.onChangeMessageText}
             onKeyDown={this.onKeyDown}
             ref={this.textareaRef}
@@ -246,7 +246,7 @@ class ChatInputBar extends React.PureComponent<Props> {
   };
 
   onChangeMessageText = (event: SyntheticEvent<HTMLTextAreaElement>) => {
-    this.props.chatInputState.setDraft(event.currentTarget.value);
+    this.props.inputState.setDraft(event.currentTarget.value);
   };
 
   onKeyDown = (event: SyntheticKeyboardEvent<HTMLTextAreaElement>) => {
@@ -264,7 +264,7 @@ class ChatInputBar extends React.PureComponent<Props> {
   send() {
     let { nextLocalID } = this.props;
 
-    const text = this.props.chatInputState.draft.trim();
+    const text = this.props.inputState.draft.trim();
     if (text) {
       // TODO we should make the send button appear dynamically
       // iff trimmed text is nonempty, just like native
@@ -272,16 +272,16 @@ class ChatInputBar extends React.PureComponent<Props> {
       nextLocalID++;
     }
 
-    this.props.chatInputState.createMultimediaMessage(nextLocalID);
+    this.props.inputState.createMultimediaMessage(nextLocalID);
   }
 
   dispatchTextMessageAction(text: string, nextLocalID: number) {
-    this.props.chatInputState.setDraft('');
+    this.props.inputState.setDraft('');
 
     const localID = `local${nextLocalID}`;
     const creatorID = this.props.viewerID;
     invariant(creatorID, 'should have viewer ID in order to send a message');
-    this.props.chatInputState.sendTextMessage({
+    this.props.inputState.sendTextMessage({
       type: messageTypes.TEXT,
       localID,
       threadID: this.props.threadInfo.id,
@@ -304,7 +304,7 @@ class ChatInputBar extends React.PureComponent<Props> {
   onMultimediaFileChange = async (
     event: SyntheticInputEvent<HTMLInputElement>,
   ) => {
-    const result = await this.props.chatInputState.appendFiles([
+    const result = await this.props.inputState.appendFiles([
       ...event.target.files,
     ]);
     if (!result && this.multimediaInput) {
