@@ -567,13 +567,21 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       step: 'upload',
       success: !!uploadResult,
       exceptionMessage: uploadExceptionMessage,
-      filename,
       time: Date.now() - uploadStart,
+      inputFilename: filename,
+      outputMediaType: uploadResult && uploadResult.mediaType,
+      outputURI: uploadResult && uploadResult.uri,
+      outputDimensions: uploadResult && uploadResult.dimensions,
+      outputLoop: uploadResult && uploadResult.loop,
     });
 
     const promises = [];
 
     if (shouldDisposePath) {
+      // If processMedia needed to do any transcoding before upload, we dispose
+      // of the resultant temporary file here. Since the transcoded temporary
+      // file is only used for upload, we can dispose of it after processMedia
+      // (reportPromise) and the upload are complete
       promises.push(
         (async () => {
           const disposeStep = await disposeTempFile(shouldDisposePath);
@@ -583,6 +591,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     if (selection.captureTime) {
+      // If we are uploading a newly captured photo, we dispose of the original
+      // file here. Note that we try to save photo captures to the camera roll
+      // if we have permission. Even if we fail, this temporary file isn't
+      // visible to the user, so there's no point in keeping it around. Since
+      // the initial URI is used in rendering paths, we have to wait for it to
+      // be replaced with the remote URI before we can dispose
       const captureURI = selection.uri;
       promises.push(
         (async () => {
