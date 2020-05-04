@@ -1,6 +1,6 @@
 // @flow
 
-import type { MediaSelection } from 'lib/types/media-types';
+import type { NativeMediaSelection } from 'lib/types/media-types';
 import type { RawTextMessageInfo } from 'lib/types/message-types';
 
 import * as React from 'react';
@@ -37,7 +37,7 @@ export type InputState = {|
   sendTextMessage: (messageInfo: RawTextMessageInfo) => void,
   sendMultimediaMessage: (
     threadID: string,
-    selections: $ReadOnlyArray<MediaSelection>,
+    selections: $ReadOnlyArray<NativeMediaSelection>,
   ) => Promise<void>,
   messageHasUploadFailure: (localMessageID: string) => boolean,
   retryMultimediaMessage: (localMessageID: string) => Promise<void>,

@@ -5,7 +5,7 @@ import type {
   MediaType,
   MediaMissionStep,
   MediaMissionFailure,
-  MediaSelection,
+  NativeMediaSelection,
 } from 'lib/types/media-types';
 
 import { Image } from 'react-native';
@@ -33,7 +33,7 @@ type MediaResult = {|
   loop: boolean,
 |};
 function processMedia(
-  selection: MediaSelection,
+  selection: NativeMediaSelection,
   config: MediaProcessConfig,
 ): {|
   resultPromise: Promise<MediaMissionFailure | MediaResult>,
@@ -55,7 +55,7 @@ function processMedia(
 }
 
 async function innerProcessMedia(
-  selection: MediaSelection,
+  selection: NativeMediaSelection,
   config: MediaProcessConfig,
   sendResult: (result: MediaMissionFailure | MediaResult) => void,
 ): Promise<$ReadOnlyArray<MediaMissionStep>> {

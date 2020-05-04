@@ -8,7 +8,7 @@ import type {
 import type {
   UploadMultimediaResult,
   Media,
-  MediaSelection,
+  NativeMediaSelection,
   MediaMissionResult,
   MediaMission,
 } from 'lib/types/media-types';
@@ -78,7 +78,7 @@ function getNewLocalID() {
 }
 
 type SelectionWithID = {|
-  selection: MediaSelection,
+  selection: NativeMediaSelection,
   localID: string,
 |};
 type CompletedUploads = { [localMessageID: string]: ?Set<string> };
@@ -362,7 +362,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   sendMultimediaMessage = async (
     threadID: string,
-    selections: $ReadOnlyArray<MediaSelection>,
+    selections: $ReadOnlyArray<NativeMediaSelection>,
   ) => {
     this.sendCallbacks.forEach(callback => callback());
     const localMessageID = `local${this.props.nextLocalID}`;
