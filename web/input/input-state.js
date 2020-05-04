@@ -8,6 +8,7 @@ import {
 } from 'lib/types/media-types';
 import type { RawTextMessageInfo } from 'lib/types/message-types';
 
+import * as React from 'react';
 import PropTypes from 'prop-types';
 
 export type PendingMultimediaUpload = {|
@@ -31,7 +32,7 @@ export type PendingMultimediaUpload = {|
   // cancelled
   abort: ?() => void,
 |};
-export const pendingMultimediaUploadPropType = PropTypes.shape({
+const pendingMultimediaUploadPropType = PropTypes.shape({
   localID: PropTypes.string.isRequired,
   serverID: PropTypes.string,
   messageID: PropTypes.string,
@@ -64,7 +65,7 @@ export type InputState = {|
 const arrayOfUploadsPropType = PropTypes.arrayOf(
   pendingMultimediaUploadPropType,
 );
-export const inputStatePropType = PropTypes.shape({
+const inputStatePropType = PropTypes.shape({
   pendingUploads: arrayOfUploadsPropType.isRequired,
   assignedUploads: PropTypes.objectOf(arrayOfUploadsPropType).isRequired,
   draft: PropTypes.string.isRequired,
@@ -76,3 +77,34 @@ export const inputStatePropType = PropTypes.shape({
   messageHasUploadFailure: PropTypes.func.isRequired,
   retryMultimediaMessage: PropTypes.func.isRequired,
 });
+
+const InputStateContext = React.createContext<?InputState>(null);
+
+function withInputState<
+  AllProps: {},
+  ComponentType: React.ComponentType<AllProps>,
+>(
+  Component: ComponentType,
+): React.ComponentType<
+  $Diff<React.ElementConfig<ComponentType>, { inputState: ?InputState }>,
+> {
+  class InputStateHOC extends React.PureComponent<
+    $Diff<React.ElementConfig<ComponentType>, { inputState: ?InputState }>,
+  > {
+    render() {
+      return (
+        <InputStateContext.Consumer>
+          {value => <Component {...this.props} inputState={value} />}
+        </InputStateContext.Consumer>
+      );
+    }
+  }
+  return InputStateHOC;
+}
+
+export {
+  pendingMultimediaUploadPropType,
+  inputStatePropType,
+  InputStateContext,
+  withInputState,
+};

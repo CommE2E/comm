@@ -7,7 +7,6 @@ import {
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import { assertComposableMessageType } from 'lib/types/message-types';
 import type { MessagePositionInfo } from './message.react';
-import { inputStatePropType, type InputState } from '../input/input-state';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -31,7 +30,6 @@ type Props = {|
   children: React.Node,
   className?: ?string,
   borderRadius: number,
-  inputState: InputState,
 |};
 class ComposedMessage extends React.PureComponent<Props> {
   static propTypes = {
@@ -42,7 +40,6 @@ class ComposedMessage extends React.PureComponent<Props> {
     children: PropTypes.node.isRequired,
     className: PropTypes.string,
     borderRadius: PropTypes.number.isRequired,
-    inputState: inputStatePropType.isRequired,
   };
   static defaultProps = {
     borderRadius: 8,
@@ -50,7 +47,7 @@ class ComposedMessage extends React.PureComponent<Props> {
 
   render() {
     assertComposableMessageType(this.props.item.messageInfo.type);
-    const { borderRadius, item, threadInfo, inputState } = this.props;
+    const { borderRadius, item, threadInfo } = this.props;
     const { id, creator } = item.messageInfo;
     const threadColor = threadInfo.color;
 
@@ -84,13 +81,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       } else if (this.props.sendFailed) {
         deliveryIconSpan = <XCircleIcon />;
         deliveryIconColor = 'FF0000';
-        failedSendInfo = (
-          <FailedSend
-            item={item}
-            threadInfo={threadInfo}
-            inputState={inputState}
-          />
-        );
+        failedSendInfo = <FailedSend item={item} threadInfo={threadInfo} />;
       } else {
         deliveryIconSpan = <CircleIcon />;
       }

@@ -11,7 +11,6 @@ import {
 } from 'lib/types/message-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { AppState } from '../redux-setup';
-import { inputStatePropType, type InputState } from '../input/input-state';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -23,20 +22,26 @@ import { connect } from 'lib/utils/redux-utils';
 import css from './chat-message-list.css';
 import multimediaMessageSendFailed from './multimedia-message-send-failed';
 import textMessageSendFailed from './text-message-send-failed';
+import {
+  inputStatePropType,
+  type InputState,
+  withInputState,
+} from '../input/input-state';
 
 type Props = {|
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
-  inputState: InputState,
   // Redux state
   rawMessageInfo: RawComposableMessageInfo,
+  // withInputState
+  inputState: InputState,
 |};
 class FailedSend extends React.PureComponent<Props> {
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
-    inputState: inputStatePropType.isRequired,
     rawMessageInfo: PropTypes.object.isRequired,
+    inputState: inputStatePropType.isRequired,
   };
   retryingText = false;
   retryingMedia = false;
@@ -137,4 +142,4 @@ export default connect(
     );
     return { rawMessageInfo };
   },
-)(FailedSend);
+)(withInputState(FailedSend));

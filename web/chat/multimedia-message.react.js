@@ -5,7 +5,6 @@ import {
   chatMessageItemPropType,
 } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types';
-import { inputStatePropType, type InputState } from '../input/input-state';
 import type { MessagePositionInfo } from './message.react';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 
@@ -17,21 +16,27 @@ import css from './chat-message-list.css';
 import Multimedia from './multimedia.react';
 import ComposedMessage from './composed-message.react';
 import sendFailed from './multimedia-message-send-failed';
+import {
+  inputStatePropType,
+  type InputState,
+  withInputState,
+} from '../input/input-state';
 
 type Props = {|
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
   setMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
-  inputState: InputState,
   setModal: (modal: ?React.Node) => void,
+  // withInputState
+  inputState: InputState,
 |};
 class MultimediaMessage extends React.PureComponent<Props> {
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
     setMouseOver: PropTypes.func.isRequired,
-    inputState: inputStatePropType.isRequired,
     setModal: PropTypes.func.isRequired,
+    inputState: inputStatePropType.isRequired,
   };
 
   render() {
@@ -78,7 +83,6 @@ class MultimediaMessage extends React.PureComponent<Props> {
         setMouseOver={this.props.setMouseOver}
         className={className}
         borderRadius={16}
-        inputState={this.props.inputState}
       >
         {content}
       </ComposedMessage>
@@ -86,4 +90,4 @@ class MultimediaMessage extends React.PureComponent<Props> {
   }
 }
 
-export default MultimediaMessage;
+export default withInputState(MultimediaMessage);

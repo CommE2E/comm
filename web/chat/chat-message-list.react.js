@@ -8,7 +8,6 @@ import {
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types';
-import { inputStatePropType, type InputState } from '../input/input-state';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -39,13 +38,17 @@ import Message, {
 } from './message.react';
 import LoadingIndicator from '../loading-indicator.react';
 import MessageTimestampTooltip from './message-timestamp-tooltip.react';
+import {
+  inputStatePropType,
+  type InputState,
+  withInputState,
+} from '../input/input-state';
 import css from './chat-message-list.css';
 
 type PassedProps = {|
-  activeChatThreadID: ?string,
-  inputState: ?InputState,
   setModal: (modal: ?React.Node) => void,
   // Redux state
+  activeChatThreadID: ?string,
   threadInfo: ?ThreadInfo,
   messageListData: ?$ReadOnlyArray<ChatMessageItem>,
   startReached: boolean,
@@ -61,6 +64,8 @@ type PassedProps = {|
   fetchMostRecentMessages: (
     threadID: string,
   ) => Promise<FetchMessageInfosPayload>,
+  // withInputState
+  inputState: ?InputState,
 |};
 type ReactDnDProps = {|
   isActive: boolean,
@@ -75,9 +80,8 @@ type State = {|
 |};
 class ChatMessageList extends React.PureComponent<Props, State> {
   static propTypes = {
-    activeChatThreadID: PropTypes.string,
-    inputState: inputStatePropType,
     setModal: PropTypes.func.isRequired,
+    activeChatThreadID: PropTypes.string,
     threadInfo: threadInfoPropType,
     messageListData: PropTypes.arrayOf(chatMessageItemPropType),
     startReached: PropTypes.bool.isRequired,
@@ -86,6 +90,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     dispatchActionPromise: PropTypes.func.isRequired,
     fetchMessagesBeforeCursor: PropTypes.func.isRequired,
     fetchMostRecentMessages: PropTypes.func.isRequired,
+    inputState: inputStatePropType,
   };
   state = {
     messageMouseover: null,
@@ -181,15 +186,13 @@ class ChatMessageList extends React.PureComponent<Props, State> {
         </div>
       );
     }
-    const { threadInfo, inputState, setModal } = this.props;
-    invariant(inputState, 'InputState should be set');
+    const { threadInfo, setModal } = this.props;
     invariant(threadInfo, 'ThreadInfo should be set if messageListData is');
     return (
       <Message
         item={item}
         threadInfo={threadInfo}
         setMouseOver={this.setTimestampTooltip}
-        inputState={inputState}
         setModal={setModal}
         timeZone={this.props.timeZone}
         key={ChatMessageList.keyExtractor(item)}
@@ -344,11 +347,12 @@ registerFetchKey(fetchMessagesBeforeCursorActionTypes);
 registerFetchKey(fetchMostRecentMessagesActionTypes);
 
 const ReduxConnectedChatMessageList = connect(
-  (state: AppState, ownProps: { activeChatThreadID: ?string }) => {
-    const { activeChatThreadID } = ownProps;
+  (state: AppState) => {
+    const { activeChatThreadID } = state.navInfo;
     const browser = detectBrowser(state.userAgent);
     const firefox = browser && browser.name === 'firefox';
     return {
+      activeChatThreadID,
       threadInfo: activeChatThreadID
         ? threadInfoSelector(state)[activeChatThreadID]
         : null,
@@ -364,18 +368,20 @@ const ReduxConnectedChatMessageList = connect(
   { fetchMessagesBeforeCursor, fetchMostRecentMessages },
 )(ChatMessageList);
 
-export default DropTarget(
-  NativeTypes.FILE,
-  {
-    drop: (props: PassedProps, monitor) => {
-      const { files } = monitor.getItem();
-      if (props.inputState && files.length > 0) {
-        props.inputState.appendFiles(files);
-      }
+export default withInputState(
+  DropTarget(
+    NativeTypes.FILE,
+    {
+      drop: (props: PassedProps, monitor) => {
+        const { files } = monitor.getItem();
+        if (props.inputState && files.length > 0) {
+          props.inputState.appendFiles(files);
+        }
+      },
     },
-  },
-  (connector, monitor) => ({
-    connectDropTarget: connector.dropTarget(),
-    isActive: monitor.isOver() && monitor.canDrop(),
-  }),
-)(ReduxConnectedChatMessageList);
+    (connector, monitor) => ({
+      connectDropTarget: connector.dropTarget(),
+      isActive: monitor.isOver() && monitor.canDrop(),
+    }),
+  )(ReduxConnectedChatMessageList),
+);

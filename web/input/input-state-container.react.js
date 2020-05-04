@@ -6,7 +6,7 @@ import type {
   DispatchActionPayload,
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
-import type { PendingMultimediaUpload } from './input-state';
+import { type PendingMultimediaUpload, InputStateContext } from './input-state';
 import {
   messageTypes,
   type RawMessageInfo,
@@ -47,13 +47,13 @@ import {
 } from 'lib/actions/message-actions';
 import { createMediaMessageInfo } from 'lib/shared/message-utils';
 
-import ChatMessageList from '../chat/chat-message-list.react';
 import { validateFile, preloadImage } from '../utils/media-utils';
 import InvalidUploadModal from '../modals/chat/invalid-upload.react';
 
 let nextLocalUploadID = 0;
 
 type Props = {|
+  children: React.Node,
   setModal: (modal: ?React.Node) => void,
   // Redux state
   activeChatThreadID: ?string,
@@ -89,6 +89,7 @@ type State = {|
 |};
 class InputStateContainer extends React.PureComponent<Props, State> {
   static propTypes = {
+    children: PropTypes.node.isRequired,
     setModal: PropTypes.func.isRequired,
     activeChatThreadID: PropTypes.string,
     viewerID: PropTypes.string,
@@ -316,20 +317,24 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         pendingUploads: ?{ [localUploadID: string]: PendingMultimediaUpload },
         draft: ?string,
       ) => {
-        let threadPendingUploads, threadAssignedUploads;
-        if (!pendingUploads) {
-          threadPendingUploads = [];
-          threadAssignedUploads = {};
-        } else {
+        let threadPendingUploads = [];
+        const assignedUploads = {};
+        if (pendingUploads) {
           const [uploadsWithMessageIDs, uploadsWithoutMessageIDs] = _partition(
             'messageID',
           )(pendingUploads);
           threadPendingUploads = _sortBy('localID')(uploadsWithoutMessageIDs);
-          threadAssignedUploads = _groupBy('messageID')(uploadsWithMessageIDs);
+          const threadAssignedUploads = _groupBy('messageID')(
+            uploadsWithMessageIDs,
+          );
+          for (let messageID in threadAssignedUploads) {
+            // lodash libdefs don't return $ReadOnlyArray
+            assignedUploads[messageID] = [...threadAssignedUploads[messageID]];
+          }
         }
         return {
           pendingUploads: threadPendingUploads,
-          assignedUploads: threadAssignedUploads,
+          assignedUploads,
           draft: draft ? draft : '',
           appendFiles: (files: $ReadOnlyArray<File>) =>
             this.appendFiles(threadID, files),
@@ -341,12 +346,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             this.createMultimediaMessage(threadID, localID),
           setDraft: (newDraft: string) => this.setDraft(threadID, newDraft),
           messageHasUploadFailure: (localMessageID: string) =>
-            this.messageHasUploadFailure(threadAssignedUploads[localMessageID]),
+            this.messageHasUploadFailure(assignedUploads[localMessageID]),
           retryMultimediaMessage: (localMessageID: string) =>
             this.retryMultimediaMessage(
               threadID,
               localMessageID,
-              threadAssignedUploads[localMessageID],
+              assignedUploads[localMessageID],
             ),
         };
       },
@@ -841,16 +846,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { activeChatThreadID, setModal } = this.props;
+    const { activeChatThreadID } = this.props;
     const inputState = activeChatThreadID
       ? this.inputStateSelector(activeChatThreadID)(this.state)
       : null;
     return (
-      <ChatMessageList
-        activeChatThreadID={activeChatThreadID}
-        inputState={inputState}
-        setModal={setModal}
-      />
+      <InputStateContext.Provider value={inputState}>
+        {this.props.children}
+      </InputStateContext.Provider>
     );
   }
 }
