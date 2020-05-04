@@ -58,7 +58,6 @@ type Props = {|
   // Redux state
   activeChatThreadID: ?string,
   viewerID: ?string,
-  nextLocalID: number,
   messageStoreMessages: { [id: string]: RawMessageInfo },
   exifRotate: boolean,
   // Redux dispatch functions
@@ -93,7 +92,6 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
     setModal: PropTypes.func.isRequired,
     activeChatThreadID: PropTypes.string,
     viewerID: PropTypes.string,
-    nextLocalID: PropTypes.number.isRequired,
     messageStoreMessages: PropTypes.object.isRequired,
     exifRotate: PropTypes.bool.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
@@ -339,7 +337,7 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
             this.cancelPendingUpload(threadID, localUploadID),
           sendTextMessage: (messageInfo: RawTextMessageInfo) =>
             this.sendTextMessage(messageInfo),
-          createMultimediaMessage: (localID?: number) =>
+          createMultimediaMessage: (localID: number) =>
             this.createMultimediaMessage(threadID, localID),
           setDraft: (newDraft: string) => this.setDraft(threadID, newDraft),
           messageHasUploadFailure: (localMessageID: string) =>
@@ -378,10 +376,6 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
         return false;
       }
       const { file, mediaType, dimensions } = result;
-      if (!dimensions) {
-        setModal(<InvalidUploadModal setModal={setModal} />);
-        return false;
-      }
       newUploads.push({
         localID: `localUpload${nextLocalUploadID++}`,
         serverID: null,
@@ -678,12 +672,8 @@ class ChatInputStateContainer extends React.PureComponent<Props, State> {
 
   // Creates a MultimediaMessage from the unassigned pending uploads,
   // if there are any
-  createMultimediaMessage(threadID: string, localID: ?number) {
-    const nextLocalID =
-      localID !== null && localID !== undefined
-        ? localID
-        : this.props.nextLocalID;
-    const localMessageID = `local${nextLocalID}`;
+  createMultimediaMessage(threadID: string, localID: number) {
+    const localMessageID = `local${localID}`;
     this.setState(prevState => {
       const currentPendingUploads = prevState.pendingUploads[threadID];
       if (!currentPendingUploads) {
@@ -872,7 +862,6 @@ export default connect(
     return {
       activeChatThreadID: state.navInfo.activeChatThreadID,
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
-      nextLocalID: state.nextLocalID,
       messageStoreMessages: state.messageStore.messages,
       exifRotate,
     };

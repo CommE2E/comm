@@ -97,7 +97,7 @@ type FileValidationResult = {|
   file: File,
   mediaType: MediaType,
   uri: string,
-  dimensions: ?Dimensions,
+  dimensions: Dimensions,
 |};
 async function validateFile(
   file: File,
@@ -117,12 +117,12 @@ async function validateFile(
     return null;
   }
 
-  const { dimensions, uri } = processResult;
   const fixedFile =
     name !== file.name || mime !== file.type
       ? new File([file], name, { type: mime })
       : file;
 
+  const { dimensions, uri } = processResult;
   return { file: fixedFile, mediaType, uri, dimensions };
 }
 
