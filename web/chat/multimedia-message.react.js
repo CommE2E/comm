@@ -13,7 +13,7 @@ import invariant from 'invariant';
 import PropTypes from 'prop-types';
 
 import css from './chat-message-list.css';
-import Multimedia from './multimedia.react';
+import Multimedia from '../media/multimedia.react';
 import ComposedMessage from './composed-message.react';
 import sendFailed from './multimedia-message-send-failed';
 import {

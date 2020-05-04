@@ -47,7 +47,7 @@ import {
 } from 'lib/actions/message-actions';
 import { createMediaMessageInfo } from 'lib/shared/message-utils';
 
-import { validateFile, preloadImage } from '../utils/media-utils';
+import { validateFile, preloadImage } from '../media/media-utils';
 import InvalidUploadModal from '../modals/chat/invalid-upload.react';
 
 let nextLocalUploadID = 0;

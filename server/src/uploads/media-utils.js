@@ -10,7 +10,7 @@ import bmp from '@vingle/bmp-js';
 import { readableFilename } from 'lib/utils/file-utils';
 import { getImageProcessingPlan } from 'lib/utils/image-utils';
 
-import { deepFileInfoFromData } from 'web/utils/file-utils';
+import { deepFileInfoFromData } from 'web/media/file-utils';
 
 const allowedMimeTypes = new Set([
   'image/png',

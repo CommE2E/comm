@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import { XCircle as XCircleIcon } from 'react-feather';
 
-import css from './chat-message-list.css';
+import css from './media.css';
 
 type Props = {|
   uri: string,

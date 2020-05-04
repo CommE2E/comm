@@ -1,0 +1,106 @@
+span.clickable {
+  cursor: pointer;
+}
+
+span.multimedia {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  vertical-align: top;
+}
+span.multimedia > span.multimediaImage {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 50px;
+  min-width: 50px;
+}
+span.multimedia > span.multimediaImage > img {
+  max-height: 200px;
+  max-width: 100%;
+}
+span.multimedia > span.multimediaImage > svg.removeUpload {
+  display: none;
+  position: absolute;
+  cursor: pointer;
+  top: 3px;
+  right: 3px;
+  color: white;
+  border-radius: 50%;
+  box-shadow: inset 0px 0px 5px rgba(0,0,0,0.5);
+  background-color: rgba(34,34,34,0.67);
+}
+span.multimedia:hover > span.multimediaImage > svg.removeUpload {
+  display: inherit;
+}
+span.multimedia > svg.uploadError {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto auto;
+  color: white;
+  border-radius: 50%;
+  box-shadow: inset 0px 0px 5px rgba(0,0,0,0.5);
+  background-color: #DD2222;
+}
+span.multimedia > svg.progressIndicator {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto auto;
+  width: 50px;
+  height: 50px;
+}
+
+:global(.CircularProgressbar-background) {
+  fill: #666 !important;
+}
+:global(.CircularProgressbar-text) {
+  fill: #fff !important;
+}
+:global(.CircularProgressbar-path) {
+  stroke: #fff !important;
+}
+:global(.CircularProgressbar-trail) {
+  stroke: transparent !important;
+}
+
+div.multimediaModalOverlay {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 4;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.9);
+  overflow: auto;
+  padding: 10px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+}
+div.multimediaModalOverlay > img {
+  object-fit: scale-down;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+}
+svg.closeMultimediaModal {
+  position: absolute;
+  cursor: pointer;
+  top: 15px;
+  right: 15px;
+  color: white;
+  border-radius: 50%;
+  box-shadow: inset 0px 0px 5px rgba(0,0,0,0.5);
+  background-color: rgba(34,34,34,0.67);
+  height: 36px;
+  width: 36px;
+}

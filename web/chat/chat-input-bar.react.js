@@ -38,8 +38,8 @@ import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
 import css from './chat-message-list.css';
 import LoadingIndicator from '../loading-indicator.react';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
-import { allowedMimeTypeString } from '../utils/media-utils';
-import Multimedia from './multimedia.react';
+import { allowedMimeTypeString } from '../media/media-utils';
+import Multimedia from '../media/multimedia.react';
 
 type Props = {|
   threadInfo: ThreadInfo,

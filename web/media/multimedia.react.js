@@ -16,7 +16,7 @@ import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import classNames from 'classnames';
 
-import css from './chat-message-list.css';
+import css from './media.css';
 import MultimediaModal from './multimedia-modal.react';
 
 type Props = {|
