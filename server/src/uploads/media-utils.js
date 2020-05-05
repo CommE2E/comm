@@ -7,20 +7,13 @@ import sharp from 'sharp';
 import invariant from 'invariant';
 import bmp from '@vingle/bmp-js';
 
-import { readableFilename } from 'lib/utils/file-utils';
+import {
+  serverTranscodableTypes,
+  readableFilename,
+} from 'lib/utils/file-utils';
 import { getImageProcessingPlan } from 'lib/utils/image-utils';
 
 import { deepFileInfoFromData } from 'web/media/file-utils';
-
-const allowedMimeTypes = new Set([
-  'image/png',
-  'image/jpeg',
-  'image/gif',
-  'image/webp',
-  'image/tiff',
-  'image/svg+xml',
-  'image/bmp',
-]);
 
 function initializeSharp(buffer: Buffer, mime: string) {
   if (mime !== 'image/bmp') {
@@ -47,7 +40,7 @@ async function validateAndConvert(
   if (!mime || !mediaType) {
     return null;
   }
-  if (!allowedMimeTypes.has(mime)) {
+  if (!serverTranscodableTypes.has(mime)) {
     // This should've gotten converted on the client
     return null;
   }

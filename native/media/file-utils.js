@@ -19,6 +19,7 @@ import base64 from 'base-64';
 import invariant from 'invariant';
 
 import {
+  mediaConfig,
   pathFromURI,
   fileInfoFromData,
   bytesNeededForFileTypeCheck,
@@ -289,7 +290,7 @@ async function getMediaTypeInfo(
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: ?MediaType,
 |}> {
-  if (mime !== 'image/gif') {
+  if (!mediaConfig[mime] || mediaConfig[mime].mediaType !== 'photo_or_video') {
     return { steps: [], result: baseMediaType };
   }
 

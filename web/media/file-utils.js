@@ -3,11 +3,13 @@
 import type { DetermineFileTypeMediaMissionStep } from 'lib/types/media-types';
 
 import isSvg from 'is-svg';
+import invariant from 'invariant';
 
 import {
+  mediaConfig,
+  serverTranscodableTypes,
   fileInfoFromData,
   type FileDataInfo,
-  mimeTypesToMediaTypes,
   readableFilename,
 } from 'lib/utils/file-utils';
 import { getMessageForException } from 'lib/utils/errors';
@@ -22,7 +24,9 @@ function deepFileInfoFromData(data: Buffer | ArrayBuffer): FileDataInfo {
     return result;
   }
   const mime = 'image/svg+xml';
-  return { mime, mediaType: mimeTypesToMediaTypes[mime] };
+  const mediaType = mediaConfig[mime] && mediaConfig[mime].mediaType;
+  invariant(mediaType !== 'photo_or_video', 'svg should be considered a photo');
+  return { mime, mediaType };
 }
 
 function determineFileType(
@@ -37,7 +41,7 @@ function determineFileType(
     exceptionMessage = getMessageForException(e);
   }
 
-  if (!mime || !mediaType || !allowedMimeTypes.has(mime)) {
+  if (!mime || !mediaType || !serverTranscodableTypes.has(mime)) {
     return {
       step: 'determine_file_type',
       success: false,
@@ -63,16 +67,6 @@ function determineFileType(
   };
 }
 
-const allowedMimeTypeArray = [
-  'image/png',
-  'image/jpeg',
-  'image/gif',
-  'image/webp',
-  'image/tiff',
-  'image/svg+xml',
-  'image/bmp',
-];
-const allowedMimeTypes = new Set(allowedMimeTypeArray);
-const allowedMimeTypeString = allowedMimeTypeArray.join(',');
+const allowedMimeTypeString = [...serverTranscodableTypes].join(',');
 
 export { deepFileInfoFromData, determineFileType, allowedMimeTypeString };

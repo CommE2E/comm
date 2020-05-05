@@ -11,7 +11,7 @@ import filesystem from 'react-native-fs';
 import { Platform } from 'react-native';
 import invariant from 'invariant';
 
-import { pathFromURI } from 'lib/utils/file-utils';
+import { mediaConfig, pathFromURI } from 'lib/utils/file-utils';
 import {
   getVideoProcessingPlan,
   videoDurationLimit,
@@ -140,6 +140,11 @@ async function processVideo(
   const dimensions = transcodeProbeStep.dimensions
     ? transcodeProbeStep.dimensions
     : input.dimensions;
+  const loop = !!(
+    mediaConfig[input.mime] &&
+    mediaConfig[input.mime].videoConfig &&
+    mediaConfig[input.mime].videoConfig.loop
+  );
   return {
     steps,
     result: {
@@ -147,7 +152,7 @@ async function processVideo(
       uri: `file://${outputPath}`,
       mime: 'video/mp4',
       dimensions,
-      loop: input.mime === 'image/gif',
+      loop,
     },
   };
 }
