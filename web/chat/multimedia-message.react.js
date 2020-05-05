@@ -61,6 +61,8 @@ class MultimediaMessage extends React.PureComponent<Props> {
           uri={singleMedia.uri}
           pendingUpload={pendingUpload}
           setModal={setModal}
+          multimediaCSSClass={css.multimedia}
+          multimediaImageCSSClass={css.multimediaImage}
           key={singleMedia.id}
         />,
       );

@@ -24,6 +24,8 @@ type Props = {|
   pendingUpload?: ?PendingMultimediaUpload,
   remove?: (uploadID: string) => void,
   setModal?: (modal: ?React.Node) => void,
+  multimediaCSSClass: string,
+  multimediaImageCSSClass: string,
 |};
 class Multimedia extends React.PureComponent<Props> {
   static propTypes = {
@@ -31,6 +33,8 @@ class Multimedia extends React.PureComponent<Props> {
     pendingUpload: pendingMultimediaUploadPropType,
     remove: PropTypes.func,
     setModal: PropTypes.func,
+    multimediaCSSClass: PropTypes.string.isRequired,
+    multimediaImageCSSClass: PropTypes.string.isRequired,
   };
 
   componentDidUpdate(prevProps: Props) {
@@ -80,15 +84,19 @@ class Multimedia extends React.PureComponent<Props> {
       }
     }
 
-    const imageContainerClasses = [css.multimediaImage];
+    const imageContainerClasses = [
+      css.multimediaImage,
+      this.props.multimediaImageCSSClass,
+    ];
     let onClick;
     if (setModal) {
       imageContainerClasses.push(css.clickable);
       onClick = this.onClick;
     }
 
+    const containerClasses = [css.multimedia, this.props.multimediaCSSClass];
     return (
-      <span className={css.multimedia}>
+      <span className={classNames(containerClasses)}>
         <span className={classNames(imageContainerClasses)} onClick={onClick}>
           <img src={this.props.uri} />
           {removeButton}

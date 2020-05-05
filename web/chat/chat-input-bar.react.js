@@ -159,6 +159,8 @@ class ChatInputBar extends React.PureComponent<Props> {
         uri={pendingUpload.uri}
         pendingUpload={pendingUpload}
         remove={cancelPendingUpload}
+        multimediaCSSClass={css.multimedia}
+        multimediaImageCSSClass={css.multimediaImage}
         key={pendingUpload.localID}
       />
     ));
