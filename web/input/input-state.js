@@ -6,7 +6,7 @@ import {
   type Dimensions,
   dimensionsPropType,
   type MediaMissionStep,
-  mediaMissionPropType,
+  mediaMissionStepPropType,
 } from 'lib/types/media-types';
 import type { RawTextMessageInfo } from 'lib/types/message-types';
 
@@ -49,7 +49,7 @@ const pendingMultimediaUploadPropType = PropTypes.shape({
   uriIsReal: PropTypes.bool.isRequired,
   progressPercent: PropTypes.number.isRequired,
   abort: PropTypes.func,
-  steps: PropTypes.arrayOf(mediaMissionPropType).isRequired,
+  steps: PropTypes.arrayOf(mediaMissionStepPropType).isRequired,
   selectTime: PropTypes.number.isRequired,
 });
 
