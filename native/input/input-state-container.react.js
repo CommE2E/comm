@@ -59,9 +59,9 @@ import {
   createLoadingStatusSelector,
   combineLoadingStatuses,
 } from 'lib/selectors/loading-selectors';
-import { pathFromURI } from 'lib/utils/file-utils';
+import { pathFromURI } from 'lib/media/file-utils';
 import { isStaff } from 'lib/shared/user-utils';
-import { videoDurationLimit } from 'lib/utils/video-utils';
+import { videoDurationLimit } from 'lib/media/video-utils';
 import { getMessageForException } from 'lib/utils/errors';
 
 import {

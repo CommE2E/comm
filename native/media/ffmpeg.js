@@ -2,7 +2,7 @@
 
 import { RNFFmpeg, RNFFprobe, RNFFmpegConfig } from 'react-native-ffmpeg';
 
-import { getHasMultipleFramesProbeCommand } from 'lib/utils/video-utils';
+import { getHasMultipleFramesProbeCommand } from 'lib/media/video-utils';
 
 if (!__DEV__) {
   RNFFmpegConfig.disableLogs();

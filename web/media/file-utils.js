@@ -11,7 +11,7 @@ import {
   fileInfoFromData,
   type FileDataInfo,
   readableFilename,
-} from 'lib/utils/file-utils';
+} from 'lib/media/file-utils';
 import { getMessageForException } from 'lib/utils/errors';
 
 function deepFileInfoFromData(data: Buffer | ArrayBuffer): FileDataInfo {

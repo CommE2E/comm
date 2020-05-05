@@ -11,7 +11,7 @@ import type {
 import { Image } from 'react-native';
 import invariant from 'invariant';
 
-import { pathFromURI, readableFilename } from 'lib/utils/file-utils';
+import { pathFromURI, readableFilename } from 'lib/media/file-utils';
 
 import { fetchFileInfo } from './file-utils';
 import { processVideo } from './video-utils';

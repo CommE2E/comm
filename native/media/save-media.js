@@ -14,7 +14,7 @@ import { Platform, PermissionsAndroid } from 'react-native';
 import filesystem from 'react-native-fs';
 import * as MediaLibrary from 'expo-media-library';
 
-import { readableFilename, pathFromURI } from 'lib/utils/file-utils';
+import { readableFilename, pathFromURI } from 'lib/media/file-utils';
 import { promiseAll } from 'lib/utils/promises';
 import { getMessageForException } from 'lib/utils/errors';
 import { getConfig } from 'lib/utils/config';

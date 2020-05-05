@@ -11,7 +11,7 @@ import invariant from 'invariant';
 import {
   fileInfoFromData,
   bytesNeededForFileTypeCheck,
-} from 'lib/utils/file-utils';
+} from 'lib/media/file-utils';
 import { getMessageForException } from 'lib/utils/errors';
 
 import { getFetchableURI } from './identifier-utils';

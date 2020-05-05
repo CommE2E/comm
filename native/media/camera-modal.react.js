@@ -50,7 +50,7 @@ import invariant from 'invariant';
 import filesystem from 'react-native-fs';
 
 import { connect } from 'lib/utils/redux-utils';
-import { pathFromURI, filenameFromPathOrURI } from 'lib/utils/file-utils';
+import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils';
 
 import {
   contentBottomOffset,

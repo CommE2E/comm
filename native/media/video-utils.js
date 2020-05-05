@@ -11,11 +11,11 @@ import filesystem from 'react-native-fs';
 import { Platform } from 'react-native';
 import invariant from 'invariant';
 
-import { mediaConfig, pathFromURI } from 'lib/utils/file-utils';
+import { mediaConfig, pathFromURI } from 'lib/media/file-utils';
 import {
   getVideoProcessingPlan,
   videoDurationLimit,
-} from 'lib/utils/video-utils';
+} from 'lib/media/video-utils';
 import { getMessageForException } from 'lib/utils/errors';
 
 import { ffmpeg } from './ffmpeg';

@@ -24,7 +24,7 @@ import PropTypes from 'prop-types';
 import * as MediaLibrary from 'expo-media-library';
 
 import { connect } from 'lib/utils/redux-utils';
-import { extensionFromFilename } from 'lib/utils/file-utils';
+import { extensionFromFilename } from 'lib/media/file-utils';
 import sleep from 'lib/utils/sleep';
 
 import { store } from '../redux/redux-setup';

@@ -8,7 +8,7 @@ import type {
 
 import * as ImageManipulator from 'expo-image-manipulator';
 
-import { getImageProcessingPlan } from 'lib/utils/image-utils';
+import { getImageProcessingPlan } from 'lib/media/image-utils';
 import { getMessageForException } from 'lib/utils/errors';
 
 type ProcessImageInfo = {|

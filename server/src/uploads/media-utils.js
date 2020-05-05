@@ -10,8 +10,8 @@ import bmp from '@vingle/bmp-js';
 import {
   serverTranscodableTypes,
   readableFilename,
-} from 'lib/utils/file-utils';
-import { getImageProcessingPlan } from 'lib/utils/image-utils';
+} from 'lib/media/file-utils';
+import { getImageProcessingPlan } from 'lib/media/image-utils';
 
 import { deepFileInfoFromData } from 'web/media/file-utils';
 
