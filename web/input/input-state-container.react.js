@@ -191,19 +191,29 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       invariant(creatorID, 'need viewer ID in order to send a message');
       const media = uploads.map(
         ({ localID, serverID, uri, mediaType, dimensions, loop }) => {
+          // We can get into this state where dimensions are null if the user is
+          // uploading a file type that the browser can't render. In that case
+          // we fake the dimensions here while we wait for the server to tell us
+          // the true dimensions. We actually don't use the dimensions on the
+          // web side currently, but if we ever change that (for instance if we
+          // want to render a properly sized loading overlay like we do on
+          // native), 0,0 is probably a good default.
+          const shimmedDimensions = dimensions
+            ? dimensions
+            : { height: 0, width: 0 };
           if (mediaType === 'photo') {
             return {
               id: serverID ? serverID : localID,
               uri,
               type: 'photo',
-              dimensions,
+              dimensions: shimmedDimensions,
             };
           } else {
             return {
               id: serverID ? serverID : localID,
               uri,
               type: 'video',
-              dimensions,
+              dimensions: shimmedDimensions,
               loop,
             };
           }

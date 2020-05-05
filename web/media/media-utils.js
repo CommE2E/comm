@@ -12,15 +12,11 @@ import { getMessageForException } from 'lib/utils/errors';
 import { probeFile } from './blob-utils';
 import { getOrientation } from './image-utils';
 
-type PreloadImageSuccess = {|
-  success: true,
-  image: Image,
-|};
 async function preloadImage(
   uri: string,
 ): Promise<{|
   steps: $ReadOnlyArray<MediaMissionStep>,
-  result: MediaMissionFailure | PreloadImageSuccess,
+  result: ?Image,
 |}> {
   let image, exceptionMessage;
   const start = Date.now();
@@ -38,9 +34,6 @@ async function preloadImage(
   } catch (e) {
     exceptionMessage = getMessageForException(e);
   }
-  const result = image
-    ? { success: true, image }
-    : { success: false, reason: 'preload_image_failed' };
   const dimensions = image
     ? { height: image.height, width: image.width }
     : null;
@@ -52,13 +45,13 @@ async function preloadImage(
     uri,
     dimensions,
   };
-  return { steps: [step], result };
+  return { steps: [step], result: image };
 }
 
 type ProcessFileSuccess = {|
   success: true,
   uri: string,
-  dimensions: Dimensions,
+  dimensions: ?Dimensions,
 |};
 async function processFile(
   file: File,
@@ -70,11 +63,11 @@ async function processFile(
   const initialURI = URL.createObjectURL(file);
   if (!exifRotate) {
     const { steps, result } = await preloadImage(initialURI);
-    if (!result.success) {
-      return { steps, result };
+    let dimensions;
+    if (result) {
+      const { width, height } = result;
+      dimensions = { width, height };
     }
-    const { width, height } = result.image;
-    const dimensions = { width, height };
     return { steps, result: { success: true, uri: initialURI, dimensions } };
   }
 
@@ -82,14 +75,16 @@ async function processFile(
     preloadImage(initialURI),
     getOrientation(file),
   ]);
-  const { steps: preloadSteps, result: preloadResult } = preloadResponse;
+  const { steps: preloadSteps, result: image } = preloadResponse;
 
   const steps = [...preloadSteps, orientationStep];
 
-  if (!preloadResult.success) {
-    return { steps, result: preloadResult };
+  if (!image) {
+    return {
+      steps,
+      result: { success: true, uri: initialURI, dimensions: undefined },
+    };
   }
-  const { image } = preloadResult;
 
   if (!orientationStep.success) {
     return { steps, result: { success: false, reason: 'exif_fetch_failed' } };
@@ -161,7 +156,7 @@ type FileValidationSuccess = {|
   file: File,
   mediaType: MediaType,
   uri: string,
-  dimensions: Dimensions,
+  dimensions: ?Dimensions,
 |};
 async function validateFile(
   file: File,

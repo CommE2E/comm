@@ -23,7 +23,7 @@ export type PendingMultimediaUpload = {|
   failed: ?string,
   file: File,
   mediaType: MediaType,
-  dimensions: Dimensions,
+  dimensions: ?Dimensions,
   uri: string,
   loop: boolean,
   // URLs created with createObjectURL aren't considered "real". The distinction
@@ -43,7 +43,7 @@ const pendingMultimediaUploadPropType = PropTypes.shape({
   failed: PropTypes.string,
   file: PropTypes.object.isRequired,
   mediaType: mediaTypePropType.isRequired,
-  dimensions: dimensionsPropType.isRequired,
+  dimensions: dimensionsPropType,
   uri: PropTypes.string.isRequired,
   loop: PropTypes.bool.isRequired,
   uriIsReal: PropTypes.bool.isRequired,
