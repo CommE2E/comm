@@ -5,6 +5,8 @@ import {
   mediaTypePropType,
   type Dimensions,
   dimensionsPropType,
+  type MediaMissionStep,
+  mediaMissionPropType,
 } from 'lib/types/media-types';
 import type { RawTextMessageInfo } from 'lib/types/message-types';
 
@@ -31,6 +33,8 @@ export type PendingMultimediaUpload = {|
   // This is set once the network request begins and used if the upload is
   // cancelled
   abort: ?() => void,
+  steps: MediaMissionStep[],
+  selectTime: number,
 |};
 const pendingMultimediaUploadPropType = PropTypes.shape({
   localID: PropTypes.string.isRequired,
@@ -45,6 +49,8 @@ const pendingMultimediaUploadPropType = PropTypes.shape({
   uriIsReal: PropTypes.bool.isRequired,
   progressPercent: PropTypes.number.isRequired,
   abort: PropTypes.func,
+  steps: PropTypes.arrayOf(mediaMissionPropType).isRequired,
+  selectTime: PropTypes.number.isRequired,
 });
 
 // This type represents the input state for a particular thread

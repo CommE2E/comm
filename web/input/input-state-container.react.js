@@ -1,7 +1,13 @@
 // @flow
 
 import type { AppState } from '../redux-setup';
-import type { UploadMultimediaResult } from 'lib/types/media-types';
+import type {
+  UploadMultimediaResult,
+  MediaMissionStep,
+  MediaMissionFailure,
+  MediaMissionResult,
+  MediaMission,
+} from 'lib/types/media-types';
 import type {
   DispatchActionPayload,
   DispatchActionPromise,
@@ -17,6 +23,7 @@ import {
   type SendMessagePayload,
   type RawTextMessageInfo,
 } from 'lib/types/message-types';
+import { reportTypes } from 'lib/types/report-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -46,6 +53,9 @@ import {
   sendTextMessage,
 } from 'lib/actions/message-actions';
 import { createMediaMessageInfo } from 'lib/shared/message-utils';
+import { getMessageForException } from 'lib/utils/errors';
+import { queueReportsActionType } from 'lib/actions/report-actions';
+import { getConfig } from 'lib/utils/config';
 
 import { validateFile, preloadImage } from '../media/media-utils';
 import InvalidUploadModal from '../modals/chat/invalid-upload.react';
@@ -362,44 +372,37 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     threadID: string,
     files: $ReadOnlyArray<File>,
   ): Promise<boolean> {
+    const selectionTime = Date.now();
     const { setModal } = this.props;
 
-    let validationResults;
-    try {
-      validationResults = await Promise.all(
-        files.map(file => validateFile(file, this.props.exifRotate)),
-      );
-    } catch (e) {
+    const appendResults = await Promise.all(
+      files.map(file => this.appendFile(file, selectionTime)),
+    );
+
+    if (appendResults.some(({ result }) => !result.success)) {
       setModal(<InvalidUploadModal setModal={setModal} />);
+
+      const time = Date.now() - selectionTime;
+      const reports = [];
+      for (let { steps, result } of appendResults) {
+        let uploadLocalID;
+        if (result.success) {
+          uploadLocalID = result.pendingUpload.localID;
+          result = { success: false, reason: 'web_sibling_validation_failed' };
+        }
+        const mediaMission = { steps, result, userTime: time, totalTime: time };
+        reports.push({ mediaMission, uploadLocalID });
+      }
+      this.queueMediaMissionReports(reports);
+
       return false;
     }
 
-    const newUploads = [];
-    for (let result of validationResults) {
-      if (!result) {
-        setModal(<InvalidUploadModal setModal={setModal} />);
-        return false;
-      }
-      const { file, mediaType, dimensions } = result;
-      newUploads.push({
-        localID: `localUpload${nextLocalUploadID++}`,
-        serverID: null,
-        messageID: null,
-        failed: null,
-        file,
-        mediaType,
-        dimensions,
-        uri: result.uri,
-        loop: false,
-        uriIsReal: false,
-        progressPercent: 0,
-        abort: null,
-      });
-    }
-    if (newUploads.length === 0) {
-      setModal(<InvalidUploadModal setModal={setModal} />);
-      return false;
-    }
+    const newUploads = appendResults.map(({ result }) => {
+      invariant(result.success, 'any failed validation should be caught above');
+      return result.pendingUpload;
+    });
+
     const newUploadsObject = _keyBy('localID')(newUploads);
     this.setState(
       prevState => {
@@ -419,6 +422,71 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     return true;
   }
 
+  async appendFile(
+    file: File,
+    selectTime: number,
+  ): Promise<{
+    steps: $ReadOnlyArray<MediaMissionStep>,
+    result:
+      | MediaMissionFailure
+      | {| success: true, pendingUpload: PendingMultimediaUpload |},
+  }> {
+    const steps = [
+      {
+        step: 'web_selection',
+        filename: file.name,
+        size: file.size,
+        mime: file.type,
+        selectTime,
+      },
+    ];
+
+    let response;
+    const validationStart = Date.now();
+    try {
+      response = await validateFile(file, this.props.exifRotate);
+    } catch (e) {
+      return {
+        steps,
+        result: {
+          success: false,
+          reason: 'processing_exception',
+          time: Date.now() - validationStart,
+          exceptionMessage: getMessageForException(e),
+        },
+      };
+    }
+    const { steps: validationSteps, result } = response;
+    steps.push(...validationSteps);
+    if (!result.success) {
+      return { steps, result };
+    }
+
+    const { uri, file: fixedFile, mediaType, dimensions } = result;
+    return {
+      steps,
+      result: {
+        success: true,
+        pendingUpload: {
+          localID: `localUpload${nextLocalUploadID++}`,
+          serverID: null,
+          messageID: null,
+          failed: null,
+          file: fixedFile,
+          mediaType,
+          dimensions,
+          uri,
+          loop: false,
+          uriIsReal: false,
+          progressPercent: 0,
+          abort: null,
+          steps,
+          selectTime,
+        },
+      },
+    };
+  }
+
   uploadFiles(
     threadID: string,
     uploads: $ReadOnlyArray<PendingMultimediaUpload>,
@@ -429,35 +497,79 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 
   async uploadFile(threadID: string, upload: PendingMultimediaUpload) {
-    let result;
+    const { selectTime, localID } = upload;
+    const steps = [...upload.steps];
+    let userTime;
+
+    const sendReport = (missionResult: MediaMissionResult) => {
+      const latestUpload = this.state.pendingUploads[threadID][localID];
+      invariant(
+        latestUpload,
+        `pendingUpload ${localID} for ${threadID} missing in sendReport`,
+      );
+      const { serverID, messageID } = latestUpload;
+      const totalTime = Date.now() - selectTime;
+      userTime = userTime ? userTime : totalTime;
+      const mission = { steps, result: missionResult, totalTime, userTime };
+      this.queueMediaMissionReports([
+        {
+          mediaMission: mission,
+          uploadLocalID: localID,
+          uploadServerID: serverID,
+          messageLocalID: messageID,
+        },
+      ]);
+    };
+
+    let uploadResult, uploadExceptionMessage;
+    const uploadStart = Date.now();
     try {
-      result = await this.props.uploadMultimedia(
+      uploadResult = await this.props.uploadMultimedia(
         upload.file,
         { ...upload.dimensions, loop: false },
         {
           onProgress: (percent: number) =>
-            this.setProgress(threadID, upload.localID, percent),
+            this.setProgress(threadID, localID, percent),
           abortHandler: (abort: () => void) =>
-            this.handleAbortCallback(threadID, upload.localID, abort),
+            this.handleAbortCallback(threadID, localID, abort),
         },
       );
     } catch (e) {
-      this.handleUploadFailure(threadID, upload.localID, e);
+      uploadExceptionMessage = getMessageForException(e);
+      this.handleUploadFailure(threadID, localID, e);
+    }
+    userTime = Date.now() - selectTime;
+    steps.push({
+      step: 'upload',
+      success: !!uploadResult,
+      exceptionMessage: uploadExceptionMessage,
+      time: Date.now() - uploadStart,
+      inputFilename: upload.file.name,
+      outputMediaType: uploadResult && uploadResult.mediaType,
+      outputURI: uploadResult && uploadResult.uri,
+      outputDimensions: uploadResult && uploadResult.dimensions,
+      outputLoop: uploadResult && uploadResult.loop,
+    });
+    if (!uploadResult) {
+      sendReport({
+        success: false,
+        reason: 'http_upload_failed',
+        exceptionMessage: uploadExceptionMessage,
+      });
       return;
     }
+    const result = uploadResult;
 
-    const uploadAfterSuccess = this.state.pendingUploads[threadID][
-      upload.localID
-    ];
+    const uploadAfterSuccess = this.state.pendingUploads[threadID][localID];
     invariant(
       uploadAfterSuccess,
-      `pendingUpload ${upload.localID}/${result.id} for ${threadID} missing ` +
+      `pendingUpload ${localID}/${result.id} for ${threadID} missing ` +
         `after upload`,
     );
     if (uploadAfterSuccess.messageID) {
       this.props.dispatchActionPayload(updateMultimediaMessageMediaActionType, {
         messageID: uploadAfterSuccess.messageID,
-        currentMediaID: upload.localID,
+        currentMediaID: localID,
         mediaUpdate: {
           id: result.id,
         },
@@ -466,10 +578,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     this.setState(prevState => {
       const uploads = prevState.pendingUploads[threadID];
-      const currentUpload = uploads[upload.localID];
+      const currentUpload = uploads[localID];
       invariant(
         currentUpload,
-        `pendingUpload ${upload.localID}/${result.id} for ${threadID} ` +
+        `pendingUpload ${localID}/${result.id} for ${threadID} ` +
           `missing while assigning serverID`,
       );
       return {
@@ -477,7 +589,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           ...prevState.pendingUploads,
           [threadID]: {
             ...uploads,
-            [upload.localID]: {
+            [localID]: {
               ...currentUpload,
               serverID: result.id,
               abort: null,
@@ -487,14 +599,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       };
     });
 
-    await preloadImage(result.uri);
+    const { steps: preloadSteps } = await preloadImage(result.uri);
+    steps.push(...preloadSteps);
+    sendReport({ success: true });
 
-    const uploadAfterPreload = this.state.pendingUploads[threadID][
-      upload.localID
-    ];
+    const uploadAfterPreload = this.state.pendingUploads[threadID][localID];
     invariant(
       uploadAfterPreload,
-      `pendingUpload ${upload.localID}/${result.id} for ${threadID} missing ` +
+      `pendingUpload ${localID}/${result.id} for ${threadID} missing ` +
         `after preload`,
     );
     if (uploadAfterPreload.messageID) {
@@ -510,15 +622,15 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     this.setState(prevState => {
       const uploads = prevState.pendingUploads[threadID];
-      const currentUpload = uploads[upload.localID];
+      const currentUpload = uploads[localID];
       invariant(
         currentUpload,
-        `pendingUpload ${upload.localID}/${result.id} for ${threadID} ` +
+        `pendingUpload ${localID}/${result.id} for ${threadID} ` +
           `missing while assigning URI`,
       );
       const { messageID } = currentUpload;
       if (messageID && !messageID.startsWith('local')) {
-        const newPendingUploads = _omit([upload.localID])(uploads);
+        const newPendingUploads = _omit([localID])(uploads);
         return {
           pendingUploads: {
             ...prevState.pendingUploads,
@@ -531,7 +643,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           ...prevState.pendingUploads,
           [threadID]: {
             ...uploads,
-            [upload.localID]: {
+            [localID]: {
               ...currentUpload,
               uri: result.uri,
               mediaType: result.mediaType,
@@ -597,6 +709,28 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         },
       };
     });
+  }
+
+  queueMediaMissionReports(
+    partials: $ReadOnlyArray<{|
+      mediaMission: MediaMission,
+      uploadLocalID?: ?string,
+      uploadServerID?: ?string,
+      messageLocalID?: ?string,
+    |}>,
+  ) {
+    const reports = partials.map(
+      ({ mediaMission, uploadLocalID, uploadServerID, messageLocalID }) => ({
+        type: reportTypes.MEDIA_MISSION,
+        time: Date.now(),
+        platformDetails: getConfig().platformDetails,
+        mediaMission,
+        uploadServerID,
+        uploadLocalID,
+        messageLocalID,
+      }),
+    );
+    this.props.dispatchActionPayload(queueReportsActionType, { reports });
   }
 
   cancelPendingUpload(threadID: string, localUploadID: string) {

@@ -1,99 +1,158 @@
 // @flow
 
-import type { MediaType, Dimensions } from 'lib/types/media-types';
+import type {
+  MediaType,
+  Dimensions,
+  MediaMissionStep,
+  MediaMissionFailure,
+} from 'lib/types/media-types';
 
-import { readableFilename } from 'lib/utils/file-utils';
-import invariant from 'invariant';
-import EXIF from 'exif-js';
+import { getMessageForException } from 'lib/utils/errors';
 
-import { deepFileInfoFromData } from './file-utils';
+import { probeFile } from './blob-utils';
+import { getOrientation } from './image-utils';
 
-function blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
-  const fileReader = new FileReader();
-  return new Promise((resolve, reject) => {
-    fileReader.onerror = error => {
-      fileReader.abort();
-      reject(error);
-    };
-    fileReader.onload = () => {
-      invariant(
-        fileReader.result instanceof ArrayBuffer,
-        'FileReader.readAsArrayBuffer should result in ArrayBuffer',
-      );
-      resolve(fileReader.result);
-    };
-    fileReader.readAsArrayBuffer(blob);
-  });
-}
-
-function getOrientation(file: File): Promise<?number> {
-  return new Promise(resolve => {
-    EXIF.getData(file, function() {
-      resolve(EXIF.getTag(this, 'Orientation'));
+type PreloadImageSuccess = {|
+  success: true,
+  image: Image,
+|};
+async function preloadImage(
+  uri: string,
+): Promise<{|
+  steps: $ReadOnlyArray<MediaMissionStep>,
+  result: MediaMissionFailure | PreloadImageSuccess,
+|}> {
+  let image, exceptionMessage;
+  const start = Date.now();
+  try {
+    image = await new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = uri;
+      img.onload = () => {
+        resolve(img);
+      };
+      img.onerror = reject;
     });
-  });
+  } catch (e) {
+    exceptionMessage = getMessageForException(e);
+  }
+  const result = image
+    ? { success: true, image }
+    : { success: false, reason: 'preload_image_failed' };
+  const dimensions = image
+    ? { height: image.height, width: image.width }
+    : null;
+  const step = {
+    step: 'preload_image',
+    success: !!image,
+    exceptionMessage,
+    time: Date.now() - start,
+    uri,
+    dimensions,
+  };
+  return { steps: [step], result };
 }
 
-type ProcessFileResult = {|
+type ProcessFileSuccess = {|
+  success: true,
   uri: string,
   dimensions: Dimensions,
 |};
 async function processFile(
   file: File,
   exifRotate: boolean,
-): Promise<ProcessFileResult> {
+): Promise<{|
+  steps: $ReadOnlyArray<MediaMissionStep>,
+  result: MediaMissionFailure | ProcessFileSuccess,
+|}> {
   const initialURI = URL.createObjectURL(file);
   if (!exifRotate) {
-    const { width, height } = await preloadImage(initialURI);
+    const { steps, result } = await preloadImage(initialURI);
+    if (!result.success) {
+      return { steps, result };
+    }
+    const { width, height } = result.image;
     const dimensions = { width, height };
-    return { uri: initialURI, dimensions };
+    return { steps, result: { success: true, uri: initialURI, dimensions } };
   }
 
-  const [image, orientation] = await Promise.all([
+  const [preloadResponse, orientationStep] = await Promise.all([
     preloadImage(initialURI),
     getOrientation(file),
   ]);
+  const { steps: preloadSteps, result: preloadResult } = preloadResponse;
+
+  const steps = [...preloadSteps, orientationStep];
+
+  if (!preloadResult.success) {
+    return { steps, result: preloadResult };
+  }
+  const { image } = preloadResult;
+
+  if (!orientationStep.success) {
+    return { steps, result: { success: false, reason: 'exif_fetch_failed' } };
+  }
+  const { orientation } = orientationStep;
 
   const dimensions =
     !!orientation && orientation > 4
       ? { width: image.height, height: image.width }
       : { width: image.width, height: image.height };
 
-  const canvas = document.createElement('canvas');
-  const context = canvas.getContext('2d');
-  canvas.height = dimensions.height;
-  canvas.width = dimensions.width;
+  let reorientedBlob, reorientExceptionMessage;
+  const reorientStart = Date.now();
+  try {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.height = dimensions.height;
+    canvas.width = dimensions.width;
 
-  if (orientation === 2) {
-    context.transform(-1, 0, 0, 1, dimensions.width, 0);
-  } else if (orientation === 3) {
-    context.transform(-1, 0, 0, -1, dimensions.width, dimensions.height);
-  } else if (orientation === 4) {
-    context.transform(1, 0, 0, -1, 0, dimensions.height);
-  } else if (orientation === 5) {
-    context.transform(0, 1, 1, 0, 0, 0);
-  } else if (orientation === 6) {
-    context.transform(0, 1, -1, 0, dimensions.width, 0);
-  } else if (orientation === 7) {
-    context.transform(0, -1, -1, 0, dimensions.width, dimensions.height);
-  } else if (orientation === 8) {
-    context.transform(0, -1, 1, 0, 0, dimensions.height);
-  } else {
-    context.transform(1, 0, 0, 1, 0, 0);
+    if (orientation === 2) {
+      context.transform(-1, 0, 0, 1, dimensions.width, 0);
+    } else if (orientation === 3) {
+      context.transform(-1, 0, 0, -1, dimensions.width, dimensions.height);
+    } else if (orientation === 4) {
+      context.transform(1, 0, 0, -1, 0, dimensions.height);
+    } else if (orientation === 5) {
+      context.transform(0, 1, 1, 0, 0, 0);
+    } else if (orientation === 6) {
+      context.transform(0, 1, -1, 0, dimensions.width, 0);
+    } else if (orientation === 7) {
+      context.transform(0, -1, -1, 0, dimensions.width, dimensions.height);
+    } else if (orientation === 8) {
+      context.transform(0, -1, 1, 0, 0, dimensions.height);
+    } else {
+      context.transform(1, 0, 0, 1, 0, 0);
+    }
+
+    context.drawImage(image, 0, 0);
+    reorientedBlob = await new Promise(resolve =>
+      canvas.toBlob(blobResult => resolve(blobResult)),
+    );
+  } catch (e) {
+    reorientExceptionMessage = getMessageForException(e);
   }
-
-  context.drawImage(image, 0, 0);
-  const blob = await new Promise(resolve =>
-    canvas.toBlob(blobResult => resolve(blobResult)),
-  );
-
   URL.revokeObjectURL(initialURI);
-  const uri = URL.createObjectURL(blob);
-  return { uri, dimensions };
+  const uri = reorientedBlob && URL.createObjectURL(reorientedBlob);
+  steps.push({
+    step: 'reorient_image',
+    success: !!reorientedBlob,
+    exceptionMessage: reorientExceptionMessage,
+    time: Date.now() - reorientStart,
+    uri,
+  });
+
+  if (!uri) {
+    return {
+      steps,
+      result: { success: false, reason: 'reorient_image_failed' },
+    };
+  }
+  return { steps, result: { success: true, uri, dimensions } };
 }
 
-// Returns null if unsupported
-type FileValidationResult = {|
+type FileValidationSuccess = {|
+  success: true,
   file: File,
   mediaType: MediaType,
   uri: string,
@@ -102,51 +161,39 @@ type FileValidationResult = {|
 async function validateFile(
   file: File,
   exifRotate: boolean,
-): Promise<?FileValidationResult> {
-  const [arrayBuffer, processResult] = await Promise.all([
-    blobToArrayBuffer(file),
+): Promise<{|
+  steps: $ReadOnlyArray<MediaMissionStep>,
+  result: MediaMissionFailure | FileValidationSuccess,
+|}> {
+  const [probeResponse, processResponse] = await Promise.all([
+    probeFile(file),
     processFile(file, exifRotate),
   ]);
+  const { steps: probeSteps, result: probeResult } = probeResponse;
+  const { steps: processSteps, result: processResult } = processResponse;
 
-  const { mime, mediaType } = deepFileInfoFromData(arrayBuffer);
-  if (!mime || !mediaType || !allowedMimeTypes.has(mime)) {
-    return null;
+  const steps = [...probeSteps, ...processSteps];
+
+  if (!probeResult.success) {
+    return { steps, result: probeResult };
   }
-  const name = readableFilename(file.name, mime);
-  if (!name) {
-    return null;
+  const { file: fixedFile, mediaType } = probeResult;
+
+  if (!processResult.success) {
+    return { steps, result: processResult };
   }
-
-  const fixedFile =
-    name !== file.name || mime !== file.type
-      ? new File([file], name, { type: mime })
-      : file;
-
   const { dimensions, uri } = processResult;
-  return { file: fixedFile, mediaType, uri, dimensions };
+
+  return {
+    steps,
+    result: {
+      success: true,
+      file: fixedFile,
+      mediaType,
+      uri,
+      dimensions,
+    },
+  };
 }
 
-const allowedMimeTypeArray = [
-  'image/png',
-  'image/jpeg',
-  'image/gif',
-  'image/webp',
-  'image/tiff',
-  'image/svg+xml',
-  'image/bmp',
-];
-const allowedMimeTypes = new Set(allowedMimeTypeArray);
-const allowedMimeTypeString = allowedMimeTypeArray.join(',');
-
-function preloadImage(uri: string): Promise<Image> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.src = uri;
-    img.onload = () => {
-      resolve(img);
-    };
-    img.onerror = reject;
-  });
-}
-
-export { validateFile, allowedMimeTypeString, preloadImage };
+export { preloadImage, validateFile };

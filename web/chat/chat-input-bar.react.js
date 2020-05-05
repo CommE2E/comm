@@ -38,7 +38,7 @@ import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
 import css from './chat-message-list.css';
 import LoadingIndicator from '../loading-indicator.react';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
-import { allowedMimeTypeString } from '../media/media-utils';
+import { allowedMimeTypeString } from '../media/file-utils';
 import Multimedia from '../media/multimedia.react';
 
 type Props = {|
