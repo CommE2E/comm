@@ -995,7 +995,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 export default connect(
   (state: AppState) => {
     const browser = detectBrowser(state.userAgent);
-    const exifRotate = !browser || browser.name !== 'safari';
+    const exifRotate =
+      !browser || (browser.name !== 'safari' && browser.name !== 'chrome');
     return {
       activeChatThreadID: state.navInfo.activeChatThreadID,
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
