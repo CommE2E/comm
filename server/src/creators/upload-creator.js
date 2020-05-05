@@ -10,7 +10,7 @@ import type { Viewer } from '../session/viewer';
 import crypto from 'crypto';
 
 import { ServerError } from 'lib/utils/errors';
-import { shimUploadURI } from 'lib/shared/media-utils';
+import { shimUploadURI } from 'lib/media/media-utils';
 
 import { dbQuery, SQL } from '../database';
 import createIDs from './id-creator';
