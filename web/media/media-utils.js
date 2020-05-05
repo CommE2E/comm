@@ -98,6 +98,9 @@ async function processFile(
     !!orientation && orientation > 4
       ? { width: image.height, height: image.width }
       : { width: image.width, height: image.height };
+  if (!orientation || orientation === 1) {
+    return { steps, result: { success: true, uri: initialURI, dimensions } };
+  }
 
   let reorientedBlob, reorientExceptionMessage;
   const reorientStart = Date.now();
