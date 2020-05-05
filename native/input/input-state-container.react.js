@@ -501,19 +501,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       }
       processedMedia = processResult;
     } catch (e) {
-      const exceptionMessage = getMessageForException(e);
-      const time = Date.now() - processingStart;
-      steps.push({
-        step: 'processing_exception',
-        time,
-        exceptionMessage,
-      });
       fail('processing failed');
       return await finish({
         success: false,
         reason: 'processing_exception',
-        time,
-        exceptionMessage,
+        time: Date.now() - processingStart,
+        exceptionMessage: getMessageForException(e),
       });
     }
 
