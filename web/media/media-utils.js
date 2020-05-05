@@ -31,7 +31,9 @@ async function preloadImage(
       img.onload = () => {
         resolve(img);
       };
-      img.onerror = reject;
+      img.onerror = e => {
+        reject(e);
+      };
     });
   } catch (e) {
     exceptionMessage = getMessageForException(e);
