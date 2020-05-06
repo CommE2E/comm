@@ -56,23 +56,34 @@ class RemoteImage extends React.PureComponent<Props, State> {
   }
 
   render() {
-    let spinner = null;
-    if (!this.state.loaded && !this.props.invisibleLoad) {
-      spinner = (
-        <View style={styles.spinnerContainer}>
-          <ActivityIndicator color={this.props.spinnerColor} size="large" />
-        </View>
+    const source = { uri: this.props.uri };
+    if (this.state.loaded) {
+      return (
+        <FastImage
+          source={source}
+          onLoad={this.onLoad}
+          style={this.props.style}
+          key={this.state.attempt}
+        />
       );
     }
 
-    const source = { uri: this.props.uri };
-    const containerStyle =
-      !this.state.loaded && this.props.invisibleLoad
-        ? styles.invisibleContainer
-        : styles.container;
+    if (this.props.invisibleLoad) {
+      return (
+        <FastImage
+          source={source}
+          onLoad={this.onLoad}
+          style={[this.props.style, styles.invisible]}
+          key={this.state.attempt}
+        />
+      );
+    }
+
     return (
-      <View style={containerStyle}>
-        {spinner}
+      <View style={styles.container}>
+        <View style={styles.spinnerContainer}>
+          <ActivityIndicator color={this.props.spinnerColor} size="large" />
+        </View>
         <FastImage
           source={source}
           onLoad={this.onLoad}
@@ -92,8 +103,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  invisibleContainer: {
-    flex: 1,
+  invisible: {
     opacity: 0,
   },
   spinnerContainer: {
