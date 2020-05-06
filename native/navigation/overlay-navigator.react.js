@@ -22,7 +22,6 @@ import {
 import { createNavigator, StackActions } from 'react-navigation';
 import { Transitioner } from 'react-navigation-stack';
 import Animated, { Easing } from 'react-native-reanimated';
-import PropTypes from 'prop-types';
 
 import OverlayRouter from './overlay-router';
 import { OverlayContext } from './overlay-context';
@@ -58,129 +57,136 @@ function createOverlayNavigator(
   );
 }
 
+function configureTransition() {
+  const spec: NavigationTransitionSpec = ({
+    duration: 250,
+    easing: BaseEasing.inOut(BaseEasing.ease),
+    timing: BaseAnimated.timing,
+    useNativeDriver: true,
+  }: any);
+  return spec;
+}
+
 type OverlayNavigatorProps = {
   navigation: NavigationStackProp<NavigationState>,
   descriptors: { [key: string]: NavigationDescriptor },
   navigationConfig: StackNavigatorConfig,
 };
 type Props = $ReadOnly<OverlayNavigatorProps>;
-class OverlayNavigator extends React.PureComponent<Props> {
-  static propTypes = {
-    navigation: PropTypes.object.isRequired,
-    descriptors: PropTypes.object.isRequired,
-    navigationConfig: PropTypes.object.isRequired,
-  };
-  position: Animated.Value;
+function OverlayNavigator(props: Props) {
+  const { navigation, descriptors } = props;
+  const curIndex = navigation.state.index;
 
-  constructor(props: Props) {
-    super(props);
+  const positionRef = React.useRef();
+  if (!positionRef.current) {
     // eslint-disable-next-line import/no-named-as-default-member
-    this.position = new Animated.Value(props.navigation.state.index);
+    positionRef.current = new Animated.Value(curIndex);
   }
+  const position = positionRef.current;
 
-  render() {
-    return (
-      <Transitioner
-        render={this.renderScenes}
-        configureTransition={this.configureTransition}
-        navigation={this.props.navigation}
-        descriptors={this.props.descriptors}
-        onTransitionStart={this.onTransitionStart}
-        onTransitionEnd={this.onTransitionEnd}
-      />
-    );
-  }
+  const onTransitionStart = React.useCallback(
+    (transitionProps: NavigationStackTransitionProps) => {
+      const { index } = transitionProps.navigation.state;
+      // eslint-disable-next-line import/no-named-as-default-member
+      Animated.timing(position, {
+        duration: 250,
+        easing: Easing.inOut(Easing.ease),
+        toValue: index,
+      }).start();
+    },
+    [position],
+  );
 
-  configureTransition = () => {
-    const spec: NavigationTransitionSpec = ({
-      duration: 250,
-      easing: BaseEasing.inOut(BaseEasing.ease),
-      timing: BaseAnimated.timing,
-      useNativeDriver: true,
-    }: any);
-    return spec;
-  };
-
-  onTransitionStart = (transitionProps: NavigationStackTransitionProps) => {
-    const { index } = transitionProps.navigation.state;
-    // eslint-disable-next-line import/no-named-as-default-member
-    Animated.timing(this.position, {
-      duration: 250,
-      easing: Easing.inOut(Easing.ease),
-      toValue: index,
-    }).start();
-  };
-
-  onTransitionEnd = (transitionProps: NavigationStackTransitionProps) => {
-    if (!transitionProps.navigation.state.isTransitioning) {
-      return;
-    }
-    const { navigation } = this.props;
-    const transitionDestKey = transitionProps.scene.route.key;
-    const isCurrentKey =
-      navigation.state.routes[navigation.state.index].key === transitionDestKey;
-    if (!isCurrentKey) {
-      return;
-    }
-    navigation.dispatch(
-      StackActions.completeTransition({ toChildKey: transitionDestKey }),
-    );
-  };
-
-  renderScenes = (transitionProps: NavigationStackTransitionProps) => {
-    const views = [];
-    let pressableSceneAssigned = false,
-      activeSceneFound = false;
-    for (let i = transitionProps.scenes.length - 1; i >= 0; i--) {
-      const scene = transitionProps.scenes[i];
-      const {
-        isActive,
-        route: { params },
-      } = scene;
-
-      if (isActive) {
-        activeSceneFound = true;
+  const onTransitionEnd = React.useCallback(
+    (transitionProps: NavigationStackTransitionProps) => {
+      if (!transitionProps.navigation.state.isTransitioning) {
+        return;
       }
-
-      let pressable = false;
-      if (
-        !pressableSceneAssigned &&
-        activeSceneFound &&
-        (!params || !params.preventPresses)
-      ) {
-        pressable = true;
-        pressableSceneAssigned = true;
+      const transitionDestKey = transitionProps.scene.route.key;
+      const isCurrentKey =
+        navigation.state.routes[navigation.state.index].key ===
+        transitionDestKey;
+      if (!isCurrentKey) {
+        return;
       }
+      navigation.dispatch(
+        StackActions.completeTransition({ toChildKey: transitionDestKey }),
+      );
+    },
+    [navigation],
+  );
 
-      views.unshift(this.renderScene(scene, transitionProps, pressable));
-    }
-    return views;
-  };
+  const renderScene = React.useCallback(
+    (
+      scene: NavigationStackScene,
+      transitionProps: NavigationStackTransitionProps,
+      pressable: boolean,
+    ) => {
+      if (!scene.descriptor) {
+        return null;
+      }
+      const { navigation: childNavigation, getComponent } = scene.descriptor;
+      const SceneComponent = getComponent();
+      const pointerEvents = pressable ? 'auto' : 'none';
+      const overlayContext = {
+        position,
+        isDismissing: transitionProps.index < scene.index,
+        routeIndex: scene.index,
+      };
+      return (
+        <OverlayContext.Provider value={overlayContext} key={scene.key}>
+          <View style={styles.scene} pointerEvents={pointerEvents}>
+            <SceneComponent navigation={childNavigation} />
+          </View>
+        </OverlayContext.Provider>
+      );
+    },
+    [position],
+  );
 
-  renderScene(
-    scene: NavigationStackScene,
-    transitionProps: NavigationStackTransitionProps,
-    pressable: boolean,
-  ) {
-    if (!scene.descriptor) {
-      return null;
-    }
-    const { navigation, getComponent } = scene.descriptor;
-    const SceneComponent = getComponent();
-    const pointerEvents = pressable ? 'auto' : 'none';
-    const overlayContext = {
-      position: this.position,
-      isDismissing: transitionProps.index < scene.index,
-      routeIndex: scene.index,
-    };
-    return (
-      <OverlayContext.Provider value={overlayContext} key={scene.key}>
-        <View style={styles.scene} pointerEvents={pointerEvents}>
-          <SceneComponent navigation={navigation} />
-        </View>
-      </OverlayContext.Provider>
-    );
-  }
+  const renderScenes = React.useCallback(
+    (transitionProps: NavigationStackTransitionProps) => {
+      const views = [];
+      let pressableSceneAssigned = false,
+        activeSceneFound = false;
+      for (let i = transitionProps.scenes.length - 1; i >= 0; i--) {
+        const scene = transitionProps.scenes[i];
+        const {
+          isActive,
+          route: { params },
+        } = scene;
+
+        if (isActive) {
+          activeSceneFound = true;
+        }
+
+        let pressable = false;
+        if (
+          !pressableSceneAssigned &&
+          activeSceneFound &&
+          (!params || !params.preventPresses)
+        ) {
+          pressable = true;
+          pressableSceneAssigned = true;
+        }
+
+        views.unshift(renderScene(scene, transitionProps, pressable));
+      }
+      return views;
+    },
+    [renderScene],
+  );
+
+  return (
+    <Transitioner
+      render={renderScenes}
+      configureTransition={configureTransition}
+      navigation={navigation}
+      descriptors={descriptors}
+      onTransitionStart={onTransitionStart}
+      onTransitionEnd={onTransitionEnd}
+    />
+  );
 }
 
 const styles = StyleSheet.create({
