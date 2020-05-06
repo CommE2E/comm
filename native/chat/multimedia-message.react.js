@@ -22,11 +22,9 @@ import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
-import Animated from 'react-native-reanimated';
 
 import { ComposedMessage, clusterEndHeight } from './composed-message.react';
 import MultimediaMessageMultimedia from './multimedia-message-multimedia.react';
-import { withOverlayPositionContext } from '../navigation/overlay-navigator.react';
 import {
   allCorners,
   filterCorners,
@@ -138,8 +136,6 @@ type Props = {|
   focused: boolean,
   toggleFocus: (messageKey: string) => void,
   verticalBounds: ?VerticalBounds,
-  // withOverlayPositionContext
-  overlayPosition: ?Animated.Value,
   ...React.ElementProps<typeof View>,
 |};
 class MultimediaMessage extends React.PureComponent<Props> {
@@ -149,8 +145,6 @@ class MultimediaMessage extends React.PureComponent<Props> {
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
-    // eslint-disable-next-line import/no-named-as-default-member
-    overlayPosition: PropTypes.instanceOf(Animated.Value),
   };
 
   render() {
@@ -160,7 +154,6 @@ class MultimediaMessage extends React.PureComponent<Props> {
       focused,
       toggleFocus,
       verticalBounds,
-      overlayPosition,
       ...viewProps
     } = this.props;
     const containerStyle = {
@@ -266,7 +259,6 @@ class MultimediaMessage extends React.PureComponent<Props> {
         verticalBounds={this.props.verticalBounds}
         verticalOffset={verticalOffset}
         style={[style, roundedStyle]}
-        overlayPosition={this.props.overlayPosition}
         postInProgress={!!pendingUploads}
         pendingUpload={pendingUpload}
         messageFocused={this.props.focused}
@@ -300,11 +292,9 @@ const styles = StyleSheet.create({
   },
 });
 
-const WrappedMultimediaMessage = withOverlayPositionContext(MultimediaMessage);
-
 export {
   borderRadius as multimediaMessageBorderRadius,
-  WrappedMultimediaMessage as MultimediaMessage,
+  MultimediaMessage,
   multimediaMessageContentSizes,
   multimediaMessageItemHeight,
   sendFailed as multimediaMessageSendFailed,

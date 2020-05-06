@@ -3,8 +3,6 @@
 import type {
   NavigationStackProp,
   NavigationLeafRoute,
-  NavigationStackScene,
-  NavigationStackTransitionProps,
 } from 'react-navigation-stack';
 import type { AppState } from '../redux/redux-setup';
 import {
@@ -62,6 +60,11 @@ import { clamp, gestureJustEnded } from '../utils/animation-utils';
 import ContentLoading from '../components/content-loading.react';
 import { colors } from '../themes/colors';
 import SendMediaButton from './send-media-button.react';
+import {
+  withOverlayContext,
+  type OverlayContextType,
+  overlayContextPropType,
+} from '../navigation/overlay-navigator.react';
 
 /* eslint-disable import/no-named-as-default-member */
 const {
@@ -236,19 +239,18 @@ type TouchableOpacityInstance = React.AbstractComponent<
 
 type Props = {
   navigation: NavProp,
-  scene: NavigationStackScene,
-  transitionProps: NavigationStackTransitionProps,
-  position: Value,
   // Redux state
   screenDimensions: Dimensions,
   contentVerticalOffset: number,
   deviceCameraInfo: DeviceCameraInfo,
   deviceOrientation: Orientations,
   foreground: boolean,
-  // withInputState
-  inputState: ?InputState,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
+  // withInputState
+  inputState: ?InputState,
+  // withOverlayContext
+  overlayContext: ?OverlayContextType,
 };
 type State = {|
   zoom: number,
@@ -269,16 +271,14 @@ class CameraModal extends React.PureComponent<Props, State> {
       }).isRequired,
       goBack: PropTypes.func.isRequired,
     }).isRequired,
-    scene: PropTypes.object.isRequired,
-    transitionProps: PropTypes.object.isRequired,
-    position: PropTypes.instanceOf(Value).isRequired,
     screenDimensions: dimensionsPropType.isRequired,
     contentVerticalOffset: PropTypes.number.isRequired,
     deviceCameraInfo: deviceCameraInfoPropType.isRequired,
     deviceOrientation: PropTypes.string.isRequired,
     foreground: PropTypes.bool.isRequired,
-    inputState: inputStatePropType,
     dispatchActionPayload: PropTypes.func.isRequired,
+    inputState: inputStatePropType,
+    overlayContext: overlayContextPropType,
   };
   camera: ?RNCamera;
 
@@ -340,10 +340,11 @@ class CameraModal extends React.PureComponent<Props, State> {
       pendingPhotoCapture: undefined,
     };
 
-    const { position } = props;
-    const { index } = props.scene;
+    const { overlayContext } = props;
+    invariant(overlayContext, 'CameraModal should have OverlayContext');
+    const { position, routeIndex } = overlayContext;
     this.navigationProgress = interpolate(position, {
-      inputRange: [index - 1, index],
+      inputRange: [routeIndex - 1, routeIndex],
       outputRange: [0, 1],
       extrapolate: Extrapolate.CLAMP,
     });
@@ -534,8 +535,9 @@ class CameraModal extends React.PureComponent<Props, State> {
   }
 
   static isActive(props) {
-    const { index } = props.scene;
-    return index === props.transitionProps.index;
+    const { overlayContext } = props;
+    invariant(overlayContext, 'CameraModal should have OverlayContext');
+    return !overlayContext.isDismissing;
   }
 
   componentDidMount() {
@@ -1210,4 +1212,4 @@ export default connect(
   }),
   null,
   true,
-)(withInputState(CameraModal));
+)(withOverlayContext(withInputState(CameraModal)));

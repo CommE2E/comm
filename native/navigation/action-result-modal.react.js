@@ -3,22 +3,23 @@
 import type {
   NavigationStackProp,
   NavigationLeafRoute,
-  NavigationStackScene,
 } from 'react-navigation';
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
 import { View, Text } from 'react-native';
 import Animated from 'react-native-reanimated';
+import invariant from 'invariant';
 
 import { connect } from 'lib/utils/redux-utils';
 
 import { contentBottomOffset } from '../selectors/dimension-selectors';
 import { overlayStyleSelector, type StyleSheetOf } from '../themes/colors';
 import { connectNav, type NavContextType } from './navigation-context';
+import { OverlayContext } from './overlay-navigator.react';
 
 /* eslint-disable import/no-named-as-default-member */
-const { Value, Extrapolate, interpolate } = Animated;
+const { Extrapolate, interpolate } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
 type NavProp = NavigationStackProp<{|
@@ -31,22 +32,21 @@ type NavProp = NavigationStackProp<{|
 
 type Props = {|
   navigation: NavProp,
-  scene: NavigationStackScene,
-  position: Value,
   // Redux state
   styles: StyleSheetOf<typeof styles>,
 |};
 function ActionResultModal(props: Props) {
-  const { position, scene } = props;
-  const { index } = scene;
+  const overlayContext = React.useContext(OverlayContext);
+  invariant(overlayContext, 'ActionResultModal should have OverlayContext');
+  const { position, routeIndex } = overlayContext;
   const progress = React.useMemo(
     () =>
       interpolate(position, {
-        inputRange: [index - 1, index],
+        inputRange: [routeIndex - 1, routeIndex],
         outputRange: [0, 1],
         extrapolate: Extrapolate.CLAMP,
       }),
-    [position, index],
+    [position, routeIndex],
   );
 
   // Timer resets whenever message updates

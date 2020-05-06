@@ -3,8 +3,6 @@
 import type {
   NavigationLeafRoute,
   NavigationStackProp,
-  NavigationStackScene,
-  NavigationStackTransitionProps,
 } from 'react-navigation-stack';
 import {
   type MediaInfo,
@@ -41,6 +39,7 @@ import {
 import Orientation from 'react-native-orientation-locker';
 import Animated, { Easing } from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/Ionicons';
+import invariant from 'invariant';
 
 import { connect } from 'lib/utils/redux-utils';
 
@@ -57,6 +56,11 @@ import {
   gestureJustEnded,
 } from '../utils/animation-utils';
 import { intentionalSaveMedia } from './save-media';
+import {
+  withOverlayContext,
+  type OverlayContextType,
+  overlayContextPropType,
+} from '../navigation/overlay-navigator.react';
 
 /* eslint-disable import/no-named-as-default-member */
 const {
@@ -197,12 +201,11 @@ type TouchableOpacityInstance = React.AbstractComponent<
 
 type Props = {|
   navigation: NavProp,
-  scene: NavigationStackScene,
-  transitionProps: NavigationStackTransitionProps,
-  position: Value,
   // Redux state
   screenDimensions: Dimensions,
   contentVerticalOffset: number,
+  // withOverlayContext
+  overlayContext: ?OverlayContextType,
 |};
 type State = {|
   closeButtonEnabled: boolean,
@@ -221,11 +224,9 @@ class MultimediaModal extends React.PureComponent<Props, State> {
       }).isRequired,
       goBack: PropTypes.func.isRequired,
     }).isRequired,
-    transitionProps: PropTypes.object.isRequired,
-    position: PropTypes.instanceOf(Value).isRequired,
-    scene: PropTypes.object.isRequired,
     screenDimensions: dimensionsPropType.isRequired,
     contentVerticalOffset: PropTypes.number.isRequired,
+    overlayContext: overlayContextPropType,
   };
   state = {
     closeButtonEnabled: true,
@@ -297,10 +298,11 @@ class MultimediaModal extends React.PureComponent<Props, State> {
       add(top, divide(imageHeight, 2)),
     );
 
-    const { position } = props;
-    const { index } = props.scene;
+    const { overlayContext } = props;
+    invariant(overlayContext, 'MultimediaModal should have OverlayContext');
+    const { position, routeIndex } = overlayContext;
     const navigationProgress = interpolate(position, {
-      inputRange: [index - 1, index],
+      inputRange: [routeIndex - 1, routeIndex],
       outputRange: [0, 1],
       extrapolate: Extrapolate.CLAMP,
     });
@@ -1066,9 +1068,9 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   }
 
   static isActive(props) {
-    const ourIndex = props.scene.index;
-    const curIndex = props.transitionProps.index;
-    return curIndex >= ourIndex;
+    const { overlayContext } = props;
+    invariant(overlayContext, 'MultimediaModal should have OverlayContext');
+    return !overlayContext.isDismissing;
   }
 
   get contentContainerStyle() {
@@ -1299,4 +1301,4 @@ const styles = StyleSheet.create({
 export default connect((state: AppState) => ({
   screenDimensions: dimensionsSelector(state),
   contentVerticalOffset: contentVerticalOffsetSelector(state),
-}))(MultimediaModal);
+}))(withOverlayContext(MultimediaModal));

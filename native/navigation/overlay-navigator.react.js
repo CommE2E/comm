@@ -26,10 +26,6 @@ import PropTypes from 'prop-types';
 
 import OverlayRouter from './overlay-router';
 
-const OverlayPositionContext: React.Context<Animated.Value> = React.createContext(
-  null,
-);
-
 function createOverlayNavigator(
   routeConfigMap: NavigationRouteConfigMap,
   stackConfig: StackNavigatorConfig = {},
@@ -157,12 +153,7 @@ class OverlayNavigator extends React.PureComponent<Props> {
 
       views.unshift(this.renderScene(scene, transitionProps, pressable));
     }
-
-    return (
-      <OverlayPositionContext.Provider value={this.position}>
-        {views}
-      </OverlayPositionContext.Provider>
-    );
+    return views;
   };
 
   renderScene(
@@ -176,15 +167,17 @@ class OverlayNavigator extends React.PureComponent<Props> {
     const { navigation, getComponent } = scene.descriptor;
     const SceneComponent = getComponent();
     const pointerEvents = pressable ? 'auto' : 'none';
+    const overlayContext = {
+      position: this.position,
+      isDismissing: transitionProps.index < scene.index,
+      routeIndex: scene.index,
+    };
     return (
-      <View style={styles.scene} key={scene.key} pointerEvents={pointerEvents}>
-        <SceneComponent
-          navigation={navigation}
-          scene={scene}
-          transitionProps={transitionProps}
-          position={this.position}
-        />
-      </View>
+      <OverlayContext.Provider value={overlayContext} key={scene.key}>
+        <View style={styles.scene} pointerEvents={pointerEvents}>
+          <SceneComponent navigation={navigation} />
+        </View>
+      </OverlayContext.Provider>
     );
   }
 }
@@ -199,7 +192,23 @@ const styles = StyleSheet.create({
   },
 });
 
-function withOverlayPositionContext<
+export type OverlayContextType = {|
+  position: Animated.Value,
+  isDismissing: boolean,
+  routeIndex: number,
+|};
+const OverlayContext: React.Context<?OverlayContextType> = React.createContext(
+  null,
+);
+
+const overlayContextPropType = PropTypes.shape({
+  // eslint-disable-next-line import/no-named-as-default-member
+  position: PropTypes.instanceOf(Animated.Value).isRequired,
+  isDismissing: PropTypes.bool.isRequired,
+  routeIndex: PropTypes.number.isRequired,
+});
+
+function withOverlayContext<
   AllProps: {},
   ComponentType: React.ComponentType<AllProps>,
 >(
@@ -207,24 +216,29 @@ function withOverlayPositionContext<
 ): React.ComponentType<
   $Diff<
     React.ElementConfig<ComponentType>,
-    { overlayPosition: ?Animated.Value },
+    { overlayContext: ?OverlayContextType },
   >,
 > {
-  class OverlayPositionHOC extends React.PureComponent<
+  class OverlayContextHOC extends React.PureComponent<
     $Diff<
       React.ElementConfig<ComponentType>,
-      { overlayPosition: ?Animated.Value },
+      { overlayContext: ?OverlayContextType },
     >,
   > {
     render() {
       return (
-        <OverlayPositionContext.Consumer>
-          {value => <Component {...this.props} overlayPosition={value} />}
-        </OverlayPositionContext.Consumer>
+        <OverlayContext.Consumer>
+          {value => <Component {...this.props} overlayContext={value} />}
+        </OverlayContext.Consumer>
       );
     }
   }
-  return OverlayPositionHOC;
+  return OverlayContextHOC;
 }
 
-export { createOverlayNavigator, withOverlayPositionContext };
+export {
+  createOverlayNavigator,
+  OverlayContext,
+  overlayContextPropType,
+  withOverlayContext,
+};

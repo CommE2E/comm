@@ -35,6 +35,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { View, StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
+import invariant from 'invariant';
 
 import { messageKey } from 'lib/shared/message-utils';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
@@ -43,6 +44,11 @@ import { connect } from 'lib/utils/redux-utils';
 import InlineMultimedia from './inline-multimedia.react';
 import { multimediaTooltipHeight } from './multimedia-tooltip-modal.react';
 import { type Colors, colorsPropType, colorsSelector } from '../themes/colors';
+import {
+  withOverlayContext,
+  type OverlayContextType,
+  overlayContextPropType,
+} from '../navigation/overlay-navigator.react';
 
 /* eslint-disable import/no-named-as-default-member */
 const {
@@ -77,7 +83,6 @@ type Props = {|
   verticalBounds: ?VerticalBounds,
   verticalOffset: number,
   style: ImageStyle,
-  overlayPosition: ?Value,
   postInProgress: boolean,
   pendingUpload: ?PendingMultimediaUpload,
   messageFocused: boolean,
@@ -88,6 +93,8 @@ type Props = {|
   scrollViewModalState: ?ScrollViewModalState,
   // withKeyboardState
   keyboardState: ?KeyboardState,
+  // withOverlayContext
+  overlayContext: ?OverlayContextType,
 |};
 class MultimediaMessageMultimedia extends React.PureComponent<Props> {
   static propTypes = {
@@ -96,7 +103,6 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props> {
     navigation: messageListNavPropType.isRequired,
     verticalBounds: verticalBoundsPropType,
     verticalOffset: PropTypes.number.isRequired,
-    overlayPosition: PropTypes.instanceOf(Value),
     postInProgress: PropTypes.bool.isRequired,
     pendingUpload: pendingMultimediaUploadPropType,
     messageFocused: PropTypes.bool.isRequired,
@@ -104,6 +110,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props> {
     colors: colorsPropType.isRequired,
     scrollViewModalState: scrollViewModalStatePropType,
     keyboardState: keyboardStatePropType,
+    overlayContext: overlayContextPropType,
   };
   view: ?View;
   clickable = true;
@@ -115,10 +122,21 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props> {
     this.getOpacity();
   }
 
+  static getOverlayPosition(props: Props) {
+    const { overlayContext } = props;
+    invariant(
+      overlayContext,
+      'MultimediaMessageMultimedia should have OverlayContext',
+    );
+    return overlayContext.position;
+  }
+
   getOpacity() {
-    const { overlayPosition } = this.props;
+    const overlayPosition = MultimediaMessageMultimedia.getOverlayPosition(
+      this.props,
+    );
     if (!overlayPosition) {
-      return null;
+      return;
     }
     this.opacity = block([
       cond(overlayJustCleared(overlayPosition), set(this.hidden, 0)),
@@ -144,7 +162,13 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (this.props.overlayPosition !== prevProps.overlayPosition) {
+    const overlayPosition = MultimediaMessageMultimedia.getOverlayPosition(
+      this.props,
+    );
+    const prevOverlayPosition = MultimediaMessageMultimedia.getOverlayPosition(
+      prevProps,
+    );
+    if (overlayPosition !== prevOverlayPosition) {
       this.getOpacity();
     }
 
@@ -319,4 +343,8 @@ const styles = StyleSheet.create({
 
 export default connect((state: AppState) => ({
   colors: colorsSelector(state),
-}))(withKeyboardState(withScrollViewModalState(MultimediaMessageMultimedia)));
+}))(
+  withOverlayContext(
+    withKeyboardState(withScrollViewModalState(MultimediaMessageMultimedia)),
+  ),
+);

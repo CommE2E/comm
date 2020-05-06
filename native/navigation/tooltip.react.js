@@ -3,8 +3,6 @@
 import type {
   NavigationLeafRoute,
   NavigationStackProp,
-  NavigationStackScene,
-  NavigationStackTransitionProps,
 } from 'react-navigation-stack';
 import {
   type VerticalBounds,
@@ -33,6 +31,7 @@ import {
   Platform,
 } from 'react-native';
 import PropTypes from 'prop-types';
+import invariant from 'invariant';
 
 import {
   type ServerCallState,
@@ -47,8 +46,15 @@ import {
   dimensionsSelector,
 } from '../selectors/dimension-selectors';
 import TooltipItem from './tooltip-item.react';
+import {
+  withOverlayContext,
+  type OverlayContextType,
+  overlayContextPropType,
+} from './overlay-navigator.react';
 
+/* eslint-disable import/no-named-as-default-member */
 const { Value, Extrapolate, add, multiply, interpolate } = Animated;
+/* eslint-enable import/no-named-as-default-member */
 
 type TooltipSpec<CustomProps> = {|
   entries: $ReadOnlyArray<TooltipEntry<CustomProps>>,
@@ -75,9 +81,6 @@ type ButtonProps<Navigation> = {
 
 type TooltipProps<Navigation> = {
   navigation: Navigation,
-  scene: NavigationStackScene,
-  transitionProps: NavigationStackTransitionProps,
-  position: Value,
   // Redux state
   screenDimensions: Dimensions,
   serverCallState: ServerCallState,
@@ -85,6 +88,8 @@ type TooltipProps<Navigation> = {
   dispatch: Dispatch,
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
+  // withOverlayContext
+  overlayContext: ?OverlayContextType,
 };
 function createTooltip<
   CustomProps: {},
@@ -106,30 +111,30 @@ function createTooltip<
         }).isRequired,
         goBack: PropTypes.func.isRequired,
       }).isRequired,
-      transitionProps: PropTypes.object.isRequired,
-      scene: PropTypes.object.isRequired,
-      position: PropTypes.instanceOf(Value).isRequired,
       screenDimensions: dimensionsPropType.isRequired,
       serverCallState: serverCallStatePropType.isRequired,
       dispatch: PropTypes.func.isRequired,
       dispatchActionPayload: PropTypes.func.isRequired,
       dispatchActionPromise: PropTypes.func.isRequired,
+      overlayContext: overlayContextPropType,
     };
     progress: Value;
     backdropOpacity: Value;
     tooltipContainerOpacity: Value;
     tooltipVerticalAbove: Value;
     tooltipVerticalBelow: Value;
-    tooltipHorizontalOffset = new Animated.Value(0);
+    tooltipHorizontalOffset = new Value(0);
     tooltipHorizontal: Value;
 
     constructor(props: TooltipPropsType) {
       super(props);
 
-      const { position } = props;
-      const { index } = props.scene;
+      const { overlayContext } = props;
+      invariant(overlayContext, 'Tooltip should have OverlayContext');
+      const { position, routeIndex } = overlayContext;
+
       this.progress = interpolate(position, {
-        inputRange: [index - 1, index],
+        inputRange: [routeIndex - 1, routeIndex],
         outputRange: [0, 1],
         extrapolate: Extrapolate.CLAMP,
       });
@@ -250,8 +255,8 @@ function createTooltip<
 
       const style = {};
       style.position = 'absolute';
-      style.alignItems = 'center',
-      style.opacity = this.tooltipContainerOpacity;
+      (style.alignItems = 'center'),
+        (style.opacity = this.tooltipContainerOpacity);
       style.transform = [{ translateX: this.tooltipHorizontal }];
 
       const extraLeftSpace = x;
@@ -411,7 +416,7 @@ function createTooltip<
     }),
     null,
     true,
-  )(Tooltip);
+  )(withOverlayContext(Tooltip));
 }
 
 const styles = StyleSheet.create({
