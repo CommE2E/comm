@@ -2,13 +2,15 @@
 
 import type { GlobalTheme } from '../types/themes';
 import type { AppState } from '../redux/redux-setup';
-import type { NavPlusRedux } from '../types/selector-types';
 
+import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import { createSelector } from 'reselect';
 import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 
-import { backgroundIsDarkSelector } from '../navigation/nav-selectors';
+import { selectBackgroundIsDark } from '../navigation/nav-selectors';
+import { NavContext } from '../navigation/navigation-context';
 
 const light = Object.freeze({
   redButton: '#BB8888',
@@ -130,14 +132,6 @@ const colorsSelector: (state: AppState) => Colors = createSelector(
   },
 );
 
-const overlayColorsSelector: (input: NavPlusRedux) => Colors = createSelector(
-  backgroundIsDarkSelector,
-  (backgroundIsDark: boolean) => {
-    const syntheticTheme = backgroundIsDark ? 'dark' : 'light';
-    return colors[syntheticTheme];
-  },
-);
-
 const magicStrings = new Set();
 for (let theme in colors) {
   for (let magicString in colors[theme]) {
@@ -148,11 +142,19 @@ for (let theme in colors) {
 type Styles = { [name: string]: { [field: string]: number | string } };
 
 type ReplaceField = (input: any) => any;
-type ReplaceStyleObject = <Obj: {[key: string]: (number | string)}>(Obj) => $ObjMap<Obj, ReplaceField>;
+type ReplaceStyleObject = <Obj: { [key: string]: number | string }>(
+  Obj,
+) => $ObjMap<Obj, ReplaceField>;
 
-export type StyleSheetOf<S: Styles> = $Call<typeof StyleSheet.create, $ObjMap<S, ReplaceStyleObject>>;
+export type StyleSheetOf<S: Styles> = $Call<
+  typeof StyleSheet.create,
+  $ObjMap<S, ReplaceStyleObject>,
+>;
 
-function stylesFromColors<IS: Styles>(obj: IS, themeColors: Colors): StyleSheetOf<IS> {
+function stylesFromColors<IS: Styles>(
+  obj: IS,
+  themeColors: Colors,
+): StyleSheetOf<IS> {
   const result = {};
   for (let key in obj) {
     const style = obj[key];
@@ -171,25 +173,38 @@ function stylesFromColors<IS: Styles>(obj: IS, themeColors: Colors): StyleSheetO
   return StyleSheet.create(result);
 }
 
-function styleSelector<IS: Styles>(obj: IS): (state: AppState) => StyleSheetOf<IS> {
+function styleSelector<IS: Styles>(
+  obj: IS,
+): (state: AppState) => StyleSheetOf<IS> {
   return createSelector(colorsSelector, (themeColors: Colors) =>
     stylesFromColors(obj, themeColors),
   );
 }
 
-function overlayStyleSelector<IS: Styles>(
-  obj: IS,
-): (input: NavPlusRedux) => StyleSheetOf<IS> {
-  return createSelector(overlayColorsSelector, (themeColors: Colors) =>
-    stylesFromColors(obj, themeColors),
+function useOverlayStyles<IS: Styles>(obj: IS): StyleSheetOf<IS> {
+  const navContext = React.useContext(NavContext);
+  const navigationState = navContext && navContext.state;
+
+  const theme = useSelector(
+    (state: AppState) => state.globalThemeInfo.activeTheme,
   );
+
+  const backgroundIsDark = React.useMemo(
+    () => selectBackgroundIsDark(navigationState, theme),
+    [navigationState, theme],
+  );
+  const syntheticTheme = backgroundIsDark ? 'dark' : 'light';
+
+  return React.useMemo(() => stylesFromColors(obj, colors[syntheticTheme]), [
+    obj,
+    syntheticTheme,
+  ]);
 }
 
 export {
   colorsPropType,
   colors,
   colorsSelector,
-  overlayColorsSelector,
   styleSelector,
-  overlayStyleSelector,
+  useOverlayStyles,
 };

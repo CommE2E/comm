@@ -119,33 +119,30 @@ const scrollBlockingChatModalsClosedSelector: (
   },
 );
 
-const backgroundIsDarkSelector: (
-  input: NavPlusRedux,
-) => boolean = createSelector(
-  (input: NavPlusRedux) => input.navContext && input.navContext.state,
-  (input: NavPlusRedux) => input.redux.globalThemeInfo.activeTheme,
-  (navigationState: ?NavigationState, theme: ?GlobalTheme) => {
-    if (!navigationState) {
-      return false;
-    }
-    const currentRootSubroute = navigationState.routes[navigationState.index];
-    if (currentRootSubroute.routeName !== AppRouteName) {
-      // Very bright... we'll call it non-dark. Doesn't matter right now since
-      // we only use this selector for determining ActionResultModal appearance
-      return false;
-    }
-    const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
-    let currentAppSubroute = appRoute.routes[appRoute.index];
-    if (currentAppSubroute.routeName === ActionResultModalRouteName) {
-      currentAppSubroute = appRoute.routes[appRoute.index - 1];
-    }
-    if (scrollBlockingChatModals.includes(currentAppSubroute.routeName)) {
-      // All the scroll-blocking chat modals have a dark background
-      return true;
-    }
-    return theme === 'dark';
-  },
-);
+function selectBackgroundIsDark(
+  navigationState: ?NavigationState,
+  theme: ?GlobalTheme,
+) {
+  if (!navigationState) {
+    return false;
+  }
+  const currentRootSubroute = navigationState.routes[navigationState.index];
+  if (currentRootSubroute.routeName !== AppRouteName) {
+    // Very bright... we'll call it non-dark. Doesn't matter right now since
+    // we only use this selector for determining ActionResultModal appearance
+    return false;
+  }
+  const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
+  let currentAppSubroute = appRoute.routes[appRoute.index];
+  if (currentAppSubroute.routeName === ActionResultModalRouteName) {
+    currentAppSubroute = appRoute.routes[appRoute.index - 1];
+  }
+  if (scrollBlockingChatModals.includes(currentAppSubroute.routeName)) {
+    // All the scroll-blocking chat modals have a dark background
+    return true;
+  }
+  return theme === 'dark';
+}
 
 const overlayModalClosingSelector: (
   context: ?NavContextType,
@@ -286,7 +283,7 @@ export {
   foregroundKeySelector,
   createActiveTabSelector,
   scrollBlockingChatModalsClosedSelector,
-  backgroundIsDarkSelector,
+  selectBackgroundIsDark,
   overlayModalClosingSelector,
   activeThreadSelector,
   activeMessageListSelector,

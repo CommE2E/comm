@@ -4,18 +4,14 @@ import type {
   NavigationStackProp,
   NavigationLeafRoute,
 } from 'react-navigation';
-import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
 import { View, Text } from 'react-native';
 import Animated from 'react-native-reanimated';
 import invariant from 'invariant';
 
-import { connect } from 'lib/utils/redux-utils';
-
 import { contentBottomOffset } from '../selectors/dimension-selectors';
-import { overlayStyleSelector, type StyleSheetOf } from '../themes/colors';
-import { connectNav, type NavContextType } from './navigation-context';
+import { useOverlayStyles } from '../themes/colors';
 import { OverlayContext } from './overlay-navigator.react';
 
 /* eslint-disable import/no-named-as-default-member */
@@ -32,8 +28,6 @@ type NavProp = NavigationStackProp<{|
 
 type Props = {|
   navigation: NavProp,
-  // Redux state
-  styles: StyleSheetOf<typeof styles>,
 |};
 function ActionResultModal(props: Props) {
   const overlayContext = React.useContext(OverlayContext);
@@ -57,21 +51,22 @@ function ActionResultModal(props: Props) {
     return () => clearTimeout(timeoutID);
   }, [message, goBack]);
 
+  const styles = useOverlayStyles(ourStyles);
   const containerStyle = {
-    ...props.styles.container,
+    ...styles.container,
     opacity: progress,
   };
   return (
     <Animated.View style={containerStyle}>
-      <View style={props.styles.message}>
-        <View style={props.styles.backdrop} />
-        <Text style={props.styles.text}>{message}</Text>
+      <View style={styles.message}>
+        <View style={styles.backdrop} />
+        <Text style={styles.text}>{message}</Text>
       </View>
     </Animated.View>
   );
 }
 
-const styles = {
+const ourStyles = {
   backdrop: {
     backgroundColor: 'modalContrastBackground',
     bottom: 0,
@@ -98,15 +93,5 @@ const styles = {
     textAlign: 'center',
   },
 };
-const stylesSelector = overlayStyleSelector(styles);
 
-export default connectNav((context: ?NavContextType) => ({
-  navContext: context,
-}))(
-  connect((state: AppState, ownProps: { navContext: ?NavContextType }) => ({
-    styles: stylesSelector({
-      redux: state,
-      navContext: ownProps.navContext,
-    }),
-  }))(ActionResultModal),
-);
+export default ActionResultModal;
