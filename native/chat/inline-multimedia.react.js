@@ -74,13 +74,11 @@ class InlineMultimedia extends React.PureComponent<Props> {
         onLongPress={this.props.onLongPress}
         style={styles.expand}
       >
-        <View style={styles.expand}>
-          <Multimedia
-            mediaInfo={mediaInfo}
-            spinnerColor={this.props.spinnerColor}
-          />
-          {progressIndicator}
-        </View>
+        <Multimedia
+          mediaInfo={mediaInfo}
+          spinnerColor={this.props.spinnerColor}
+        />
+        {progressIndicator}
       </TouchableOpacity>
     );
   }

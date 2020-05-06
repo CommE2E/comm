@@ -174,9 +174,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
         focused={focused}
         {...viewProps}
       >
-        <View style={[containerStyle, styles.container]}>
-          {this.renderContent()}
-        </View>
+        <View style={containerStyle}>{this.renderContent()}</View>
       </ComposedMessage>
     );
   }
@@ -282,10 +280,6 @@ class MultimediaMessage extends React.PureComponent<Props> {
 
 const spaceBetweenImages = 4;
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
   filler: {
     flex: 1,
   },
