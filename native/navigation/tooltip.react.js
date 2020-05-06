@@ -50,7 +50,7 @@ import {
   withOverlayContext,
   type OverlayContextType,
   overlayContextPropType,
-} from './overlay-navigator.react';
+} from './overlay-context';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Value, Extrapolate, add, multiply, interpolate } = Animated;

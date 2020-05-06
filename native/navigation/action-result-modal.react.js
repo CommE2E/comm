@@ -12,7 +12,7 @@ import invariant from 'invariant';
 
 import { contentBottomOffset } from '../selectors/dimension-selectors';
 import { useOverlayStyles } from '../themes/colors';
-import { OverlayContext } from './overlay-navigator.react';
+import { OverlayContext } from './overlay-context';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Extrapolate, interpolate } = Animated;

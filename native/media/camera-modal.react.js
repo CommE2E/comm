@@ -64,7 +64,7 @@ import {
   withOverlayContext,
   type OverlayContextType,
   overlayContextPropType,
-} from '../navigation/overlay-navigator.react';
+} from '../navigation/overlay-context';
 
 /* eslint-disable import/no-named-as-default-member */
 const {
