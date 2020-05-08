@@ -94,38 +94,57 @@ const OverlayNavigator = React.memo<Props>((props: Props) => {
     [position, routes, descriptors, curIndex],
   );
 
-  const prevScenesRef = React.useRef(null);
+  const prevScenesRef = React.useRef();
   const prevScenes = prevScenesRef.current;
 
-  // This state gets incorporated into the OverlayContext, but it's global to
-  // the navigator rather than local to each screen. We keep it in a ref so we
-  // can easily reference it when adding to sceneData. It doesn't need to be
-  // useState because it's incorporated into sceneData below
-  const scrollBlockingModalStatusRef = React.useRef();
-  const updateScrollBlockingModalStatus = data => {
-    scrollBlockingModalStatusRef.current = 'closed';
+  // The scrollBlockingModalStatus state gets incorporated into the
+  // OverlayContext, but it's global to the navigator rather than local to each
+  // screen. Note that we also include the setter in OverlayContext. We do this
+  // so that screens can freeze ScrollViews as quickly as possible to avoid
+  // drags after onLongPress is triggered
+  const getScrollBlockingModalStatus = data => {
+    let status = 'closed';
     for (let scene of data) {
       if (!scrollBlockingChatModals.includes(scene.route.routeName)) {
         continue;
       }
       if (!scene.context.isDismissing) {
-        scrollBlockingModalStatusRef.current = 'open';
+        status = 'open';
         break;
       }
-      scrollBlockingModalStatusRef.current = 'closing';
+      status = 'closing';
     }
+    return status;
   };
-  if (!scrollBlockingModalStatusRef.current) {
-    updateScrollBlockingModalStatus(scenes);
-  }
+  const [
+    scrollBlockingModalStatus,
+    setScrollBlockingModalStatus,
+  ] = React.useState(() => getScrollBlockingModalStatus(scenes));
   const sceneDataForNewScene = scene => ({
     ...scene,
     context: {
       ...scene.context,
-      scrollBlockingModalStatus: scrollBlockingModalStatusRef.current,
+      scrollBlockingModalStatus,
+      setScrollBlockingModalStatus,
     },
     listeners: [],
   });
+
+  // We track two previous states of scrollBlockingModalStatus via refs. We need
+  // two because we expose setScrollBlockingModalStatus to screens. We track the
+  // previous sceneData-determined value separately so that we only overwrite
+  // the screen-determined value with the sceneData-determined value when the
+  // latter actually changes
+  const prevScrollBlockingModalStatusRef = React.useRef(
+    scrollBlockingModalStatus,
+  );
+  const prevScrollBlockingModalStatus =
+    prevScrollBlockingModalStatusRef.current;
+  const prevScrollBlockingModalStatusFromSceneDataRef = React.useRef(
+    scrollBlockingModalStatus,
+  );
+  const prevScrollBlockingModalStatusFromSceneData =
+    prevScrollBlockingModalStatusFromSceneDataRef.current;
 
   // We need state to continue rendering screens while they are dismissing
   const [sceneData, setSceneData] = React.useState(() => {
@@ -136,14 +155,15 @@ const OverlayNavigator = React.memo<Props>((props: Props) => {
     }
     return newSceneData;
   });
+  const prevSceneDataRef = React.useRef(sceneData);
+  const prevSceneData = prevSceneDataRef.current;
 
   // This block keeps sceneData updated when our props change. It's the
   // hook equivalent of getDerivedStateFromProps
   // https://reactjs.org/docs/hooks-faq.html#how-do-i-implement-getderivedstatefromprops
   const updatedSceneData = { ...sceneData };
+  let sceneDataChanged = false;
   if (prevScenes && scenes !== prevScenes) {
-    let sceneDataChanged = false;
-
     let sceneAdded = false;
     const currentKeys = new Set();
     for (let scene of scenes) {
@@ -186,7 +206,8 @@ const OverlayNavigator = React.memo<Props>((props: Props) => {
 
     let dismissingSceneData;
     if (!sceneAdded) {
-      // Pushing a new route wipes out any dismissals
+      // We only consider a fresh dismissal if no scene has been added because
+      // pushing a new route wipes out any dismissals
       for (let i = 0; i < prevScenes.length; i++) {
         const scene = prevScenes[i];
         const { key } = scene.route;
@@ -200,12 +221,16 @@ const OverlayNavigator = React.memo<Props>((props: Props) => {
         // We'll watch the animation to determine when to clear the screen
         dismissingSceneData = {
           ...data,
+          context: {
+            ...data.context,
+            isDismissing: true,
+          },
           listeners: [
             cond(
               lessOrEq(position, i - 1),
               call([], () =>
-                setSceneData(prevSceneData => {
-                  const newSceneData = { ...prevSceneData };
+                setSceneData(curSceneData => {
+                  const newSceneData = { ...curSceneData };
                   delete newSceneData[key];
                   return newSceneData;
                 }),
@@ -244,36 +269,61 @@ const OverlayNavigator = React.memo<Props>((props: Props) => {
         sceneDataChanged = true;
       }
     }
+  }
 
-    // Now we update scrollBlockingModalStatus. It's global state that depends
-    // on the whole updatedSceneData, but it's set it in each individual context
-    const prevScrollBlockingModalStatus = scrollBlockingModalStatusRef.current;
-    updateScrollBlockingModalStatus(values(updatedSceneData));
+  // If sceneData changes, we update scrollBlockingModalStatus based on it, both
+  // in state and within the individual sceneData contexts. If sceneData doesn't
+  // change, it's still possible for scrollBlockingModalStatus to change via the
+  // setScrollBlockingModalStatus callback we expose via context
+  let newScrollBlockingModalStatus;
+  if (sceneDataChanged || sceneData !== prevSceneData) {
+    const statusFromSceneData = getScrollBlockingModalStatus(
+      values(updatedSceneData),
+    );
     if (
-      prevScrollBlockingModalStatus !== scrollBlockingModalStatusRef.current
+      statusFromSceneData !== scrollBlockingModalStatus &&
+      statusFromSceneData !== prevScrollBlockingModalStatusFromSceneData
     ) {
-      for (let key in updatedSceneData) {
-        const data = updatedSceneData[key];
-        updatedSceneData[key] = {
-          ...data,
-          context: {
-            ...data.context,
-            scrollBlockingModalStatus: scrollBlockingModalStatusRef.current,
-          },
-        };
-      }
-      sceneDataChanged = true;
+      newScrollBlockingModalStatus = statusFromSceneData;
     }
+    prevScrollBlockingModalStatusFromSceneDataRef.current = statusFromSceneData;
+  }
+  if (
+    !newScrollBlockingModalStatus &&
+    scrollBlockingModalStatus !== prevScrollBlockingModalStatus
+  ) {
+    newScrollBlockingModalStatus = scrollBlockingModalStatus;
+  }
+  if (newScrollBlockingModalStatus) {
+    if (newScrollBlockingModalStatus !== scrollBlockingModalStatus) {
+      setScrollBlockingModalStatus(newScrollBlockingModalStatus);
+    }
+    for (let key in updatedSceneData) {
+      const data = updatedSceneData[key];
+      updatedSceneData[key] = {
+        ...data,
+        context: {
+          ...data.context,
+          scrollBlockingModalStatus: newScrollBlockingModalStatus,
+        },
+      };
+    }
+    sceneDataChanged = true;
+  }
 
-    if (sceneDataChanged) {
-      setSceneData(updatedSceneData);
-    }
+  if (sceneDataChanged) {
+    setSceneData(updatedSceneData);
   }
 
   // Usually this would be done in an effect, but calling setState from the body
   // of a hook causes the hook to rerender before triggering effects. To avoid
-  // infinite loops we make sure to set prevScenes after we finish comparing it
+  // infinite loops we make sure to set our prev values after we finish
+  // comparing them
   prevScenesRef.current = scenes;
+  prevSceneDataRef.current = sceneDataChanged ? updatedSceneData : sceneData;
+  prevScrollBlockingModalStatusRef.current = newScrollBlockingModalStatus
+    ? newScrollBlockingModalStatus
+    : scrollBlockingModalStatus;
 
   const sceneList = values(updatedSceneData).sort(
     (a, b) => a.context.routeIndex - b.context.routeIndex,

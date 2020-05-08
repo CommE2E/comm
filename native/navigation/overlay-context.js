@@ -10,6 +10,7 @@ export type OverlayContextType = {|
   isDismissing: boolean,
   routeIndex: number,
   scrollBlockingModalStatus: ScrollBlockingModalStatus,
+  setScrollBlockingModalStatus: ScrollBlockingModalStatus => void,
 |};
 const OverlayContext: React.Context<?OverlayContextType> = React.createContext(
   null,
@@ -22,6 +23,7 @@ const overlayContextPropType = PropTypes.shape({
   routeIndex: PropTypes.number.isRequired,
   scrollBlockingModalStatus: PropTypes.oneOf(['open', 'closed', 'closing'])
     .isRequired,
+  setScrollBlockingModalStatus: PropTypes.func.isRequired,
 });
 
 function withOverlayContext<
