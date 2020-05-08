@@ -11,19 +11,9 @@ import type { AppState } from '../../redux/redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import {
-  type ScrollViewModalState,
-  scrollViewModalStatePropType,
-  withScrollViewModalState,
-} from '../../navigation/scroll-view-modal-state';
-import {
   type VerticalBounds,
   verticalBoundsPropType,
 } from '../../types/layout-types';
-import {
-  type KeyboardState,
-  keyboardStatePropType,
-  withKeyboardState,
-} from '../../keyboard/keyboard-state';
 import {
   type Navigate,
   ThreadSettingsMemberTooltipModalRouteName,
@@ -38,6 +28,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import PropTypes from 'prop-types';
+import invariant from 'invariant';
 
 import { threadHasPermission, memberIsAdmin } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
@@ -55,6 +46,16 @@ import {
   colorsSelector,
   styleSelector,
 } from '../../themes/colors';
+import {
+  type KeyboardState,
+  keyboardStatePropType,
+  withKeyboardState,
+} from '../../keyboard/keyboard-state';
+import {
+  withOverlayContext,
+  type OverlayContextType,
+  overlayContextPropType,
+} from '../../navigation/overlay-context';
 
 type Props = {|
   memberInfo: RelativeMemberInfo,
@@ -69,10 +70,10 @@ type Props = {|
   changeRoleLoadingStatus: LoadingStatus,
   colors: Colors,
   styles: typeof styles,
-  // withScrollViewModalState
-  scrollViewModalState: ?ScrollViewModalState,
   // withKeyboardState
   keyboardState: ?KeyboardState,
+  // withOverlayContext
+  overlayContext: ?OverlayContextType,
 |};
 class ThreadSettingsMember extends React.PureComponent<Props> {
   static propTypes = {
@@ -87,8 +88,8 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
     changeRoleLoadingStatus: loadingStatusPropType.isRequired,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    scrollViewModalState: scrollViewModalStatePropType,
     keyboardState: keyboardStatePropType,
+    overlayContext: overlayContextPropType,
   };
   editButton: ?View;
 
@@ -232,10 +233,12 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
       return;
     }
 
-    const { scrollViewModalState } = this.props;
-    if (scrollViewModalState) {
-      scrollViewModalState.setModalState('open');
-    }
+    const { overlayContext } = this.props;
+    invariant(
+      overlayContext,
+      'ThreadSettingsMember should have OverlayContext',
+    );
+    overlayContext.setScrollBlockingModalStatus('open');
 
     editButton.measure((x, y, width, height, pageX, pageY) => {
       const coordinates = { x: pageX, y: pageY, width, height };
@@ -315,4 +318,4 @@ export default connect(
     colors: colorsSelector(state),
     styles: stylesSelector(state),
   }),
-)(withKeyboardState(withScrollViewModalState(ThreadSettingsMember)));
+)(withKeyboardState(withOverlayContext(ThreadSettingsMember)));

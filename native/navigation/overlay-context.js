@@ -4,7 +4,7 @@ import * as React from 'react';
 import Animated from 'react-native-reanimated';
 import PropTypes from 'prop-types';
 
-export type ScrollBlockingModalStatus = 'open' | 'closed' | 'closing';
+type ScrollBlockingModalStatus = 'open' | 'closed' | 'closing';
 export type OverlayContextType = {|
   position: Animated.Value,
   isDismissing: boolean,

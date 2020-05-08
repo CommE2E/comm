@@ -19,16 +19,6 @@ import {
   type MessageListNavProp,
   messageListNavPropType,
 } from './message-list-types';
-import {
-  type ScrollViewModalState,
-  scrollViewModalStatePropType,
-  withScrollViewModalState,
-} from '../navigation/scroll-view-modal-state';
-import {
-  type KeyboardState,
-  keyboardStatePropType,
-  withKeyboardState,
-} from '../keyboard/keyboard-state';
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
@@ -44,6 +34,11 @@ import { connect } from 'lib/utils/redux-utils';
 import InlineMultimedia from './inline-multimedia.react';
 import { multimediaTooltipHeight } from './multimedia-tooltip-modal.react';
 import { type Colors, colorsPropType, colorsSelector } from '../themes/colors';
+import {
+  type KeyboardState,
+  keyboardStatePropType,
+  withKeyboardState,
+} from '../keyboard/keyboard-state';
 import {
   withOverlayContext,
   type OverlayContextType,
@@ -89,8 +84,6 @@ type Props = {|
   toggleMessageFocus: (messageKey: string) => void,
   // Redux state
   colors: Colors,
-  // withScrollViewModalState
-  scrollViewModalState: ?ScrollViewModalState,
   // withKeyboardState
   keyboardState: ?KeyboardState,
   // withOverlayContext
@@ -108,7 +101,6 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props> {
     messageFocused: PropTypes.bool.isRequired,
     toggleMessageFocus: PropTypes.func.isRequired,
     colors: colorsPropType.isRequired,
-    scrollViewModalState: scrollViewModalStatePropType,
     keyboardState: keyboardStatePropType,
     overlayContext: overlayContextPropType,
   };
@@ -122,22 +114,19 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props> {
     this.getOpacity();
   }
 
-  static getOverlayPosition(props: Props) {
+  static getOverlayContext(props: Props) {
     const { overlayContext } = props;
     invariant(
       overlayContext,
       'MultimediaMessageMultimedia should have OverlayContext',
     );
-    return overlayContext.position;
+    return overlayContext;
   }
 
   getOpacity() {
-    const overlayPosition = MultimediaMessageMultimedia.getOverlayPosition(
+    const overlayPosition = MultimediaMessageMultimedia.getOverlayContext(
       this.props,
-    );
-    if (!overlayPosition) {
-      return;
-    }
+    ).position;
     this.opacity = block([
       cond(overlayJustCleared(overlayPosition), set(this.hidden, 0)),
       sub(
@@ -154,30 +143,22 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props> {
     ]);
   }
 
-  static scrollDisabled(props: Props) {
-    const { scrollViewModalState } = props;
-    return (
-      !!scrollViewModalState && scrollViewModalState.modalState !== 'closed'
-    );
-  }
-
   componentDidUpdate(prevProps: Props) {
-    const overlayPosition = MultimediaMessageMultimedia.getOverlayPosition(
+    const overlayContext = MultimediaMessageMultimedia.getOverlayContext(
       this.props,
     );
-    const prevOverlayPosition = MultimediaMessageMultimedia.getOverlayPosition(
+    const prevOverlayContext = MultimediaMessageMultimedia.getOverlayContext(
       prevProps,
     );
-    if (overlayPosition !== prevOverlayPosition) {
+
+    if (overlayContext.position !== prevOverlayContext.position) {
       this.getOpacity();
     }
 
-    const scrollIsDisabled = MultimediaMessageMultimedia.scrollDisabled(
-      this.props,
-    );
-    const scrollWasDisabled = MultimediaMessageMultimedia.scrollDisabled(
-      prevProps,
-    );
+    const scrollIsDisabled =
+      overlayContext.scrollBlockingModalStatus !== 'closed';
+    const scrollWasDisabled =
+      prevOverlayContext.scrollBlockingModalStatus !== 'closed';
     if (!scrollIsDisabled && scrollWasDisabled) {
       this.clickable = true;
       this.hidden.setValue(0);
@@ -229,11 +210,12 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props> {
     }
     this.clickable = false;
 
-    const { scrollViewModalState, mediaInfo, item } = this.props;
-    if (scrollViewModalState) {
-      scrollViewModalState.setModalState('open');
-    }
+    const overlayContext = MultimediaMessageMultimedia.getOverlayContext(
+      this.props,
+    );
+    overlayContext.setScrollBlockingModalStatus('open');
 
+    const { mediaInfo, item } = this.props;
     view.measure((x, y, width, height, pageX, pageY) => {
       const coordinates = { x: pageX, y: pageY, width, height };
       this.props.navigation.navigate({
@@ -279,10 +261,10 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props> {
       toggleMessageFocus(messageKey(item.messageInfo));
     }
 
-    const { scrollViewModalState } = this.props;
-    if (scrollViewModalState) {
-      scrollViewModalState.setModalState('open');
-    }
+    const overlayContext = MultimediaMessageMultimedia.getOverlayContext(
+      this.props,
+    );
+    overlayContext.setScrollBlockingModalStatus('open');
 
     view.measure((x, y, width, height, pageX, pageY) => {
       const coordinates = { x: pageX, y: pageY, width, height };
@@ -343,8 +325,4 @@ const styles = StyleSheet.create({
 
 export default connect((state: AppState) => ({
   colors: colorsSelector(state),
-}))(
-  withOverlayContext(
-    withKeyboardState(withScrollViewModalState(MultimediaMessageMultimedia)),
-  ),
-);
+}))(withOverlayContext(withKeyboardState(MultimediaMessageMultimedia)));

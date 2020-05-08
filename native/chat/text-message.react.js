@@ -14,20 +14,11 @@ import {
   type MessageListNavProp,
   messageListNavPropType,
 } from './message-list-types';
-import {
-  type ScrollViewModalState,
-  scrollViewModalStatePropType,
-  withScrollViewModalState,
-} from '../navigation/scroll-view-modal-state';
-import {
-  type KeyboardState,
-  keyboardStatePropType,
-  withKeyboardState,
-} from '../keyboard/keyboard-state';
 
 import * as React from 'react';
 import { View } from 'react-native';
 import PropTypes from 'prop-types';
+import invariant from 'invariant';
 
 import { messageKey } from 'lib/shared/message-utils';
 
@@ -38,6 +29,16 @@ import { ComposedMessage, clusterEndHeight } from './composed-message.react';
 import { authorNameHeight } from './message-header.react';
 import { failedSendHeight } from './failed-send.react';
 import textMessageSendFailed from './text-message-send-failed';
+import {
+  type KeyboardState,
+  keyboardStatePropType,
+  withKeyboardState,
+} from '../keyboard/keyboard-state';
+import {
+  withOverlayContext,
+  type OverlayContextType,
+  overlayContextPropType,
+} from '../navigation/overlay-context';
 
 export type ChatTextMessageInfoItemWithHeight = {|
   itemType: 'message',
@@ -73,10 +74,10 @@ type Props = {|
   focused: boolean,
   toggleFocus: (messageKey: string) => void,
   verticalBounds: ?VerticalBounds,
-  // withScrollViewModalState
-  scrollViewModalState: ?ScrollViewModalState,
   // withKeyboardState
   keyboardState: ?KeyboardState,
+  // withOverlayContext
+  overlayContext: ?OverlayContextType,
   ...React.ElementProps<typeof View>,
 |};
 class TextMessage extends React.PureComponent<Props> {
@@ -86,8 +87,8 @@ class TextMessage extends React.PureComponent<Props> {
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
-    scrollViewModalState: scrollViewModalStatePropType,
     keyboardState: keyboardStatePropType,
+    overlayContext: overlayContextPropType,
   };
   message: ?View;
 
@@ -98,8 +99,8 @@ class TextMessage extends React.PureComponent<Props> {
       focused,
       toggleFocus,
       verticalBounds,
-      scrollViewModalState,
       keyboardState,
+      overlayContext,
       ...viewProps
     } = this.props;
     return (
@@ -140,10 +141,9 @@ class TextMessage extends React.PureComponent<Props> {
       toggleFocus(messageKey(item.messageInfo));
     }
 
-    const { scrollViewModalState } = this.props;
-    if (scrollViewModalState) {
-      scrollViewModalState.setModalState('open');
-    }
+    const { overlayContext } = this.props;
+    invariant(overlayContext, 'TextMessage should have OverlayContext');
+    overlayContext.setScrollBlockingModalStatus('open');
 
     message.measure((x, y, width, height, pageX, pageY) => {
       const coordinates = { x: pageX, y: pageY, width, height };
@@ -189,8 +189,6 @@ class TextMessage extends React.PureComponent<Props> {
   };
 }
 
-const WrappedTextMessage = withKeyboardState(
-  withScrollViewModalState(TextMessage),
-);
+const WrappedTextMessage = withKeyboardState(withOverlayContext(TextMessage));
 
 export { WrappedTextMessage as TextMessage, textMessageItemHeight };

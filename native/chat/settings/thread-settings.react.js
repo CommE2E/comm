@@ -15,11 +15,6 @@ import type { AppState } from '../../redux/redux-setup';
 import type { CategoryType } from './thread-settings-category.react';
 import type { Navigate } from '../../navigation/route-names';
 import type { VerticalBounds } from '../../types/layout-types';
-import {
-  type ScrollViewModalState,
-  scrollViewModalStatePropType,
-  withScrollViewModalState,
-} from '../../navigation/scroll-view-modal-state';
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -78,6 +73,11 @@ import {
   connectNav,
   type NavContextType,
 } from '../../navigation/navigation-context';
+import {
+  withOverlayContext,
+  type OverlayContextType,
+  overlayContextPropType,
+} from '../../navigation/overlay-context';
 
 const itemPageLength = 5;
 
@@ -196,8 +196,8 @@ type Props = {|
   somethingIsSaving: boolean,
   tabActive: boolean,
   styles: typeof styles,
-  // withScrollViewModalState
-  scrollViewModalState: ?ScrollViewModalState,
+  // withOverlayContext
+  overlayContext: ?OverlayContextType,
 |};
 type State = {|
   showMaxMembers: number,
@@ -228,7 +228,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     somethingIsSaving: PropTypes.bool.isRequired,
     tabActive: PropTypes.bool.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    scrollViewModalState: scrollViewModalStatePropType,
+    overlayContext: overlayContextPropType,
   };
   static navigationOptions = ({ navigation }) => ({
     title: navigation.state.params.threadInfo.uiName,
@@ -258,10 +258,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   }
 
   static scrollDisabled(props: Props) {
-    const { scrollViewModalState } = props;
-    return (
-      !!scrollViewModalState && scrollViewModalState.modalState !== 'closed'
-    );
+    const { overlayContext } = props;
+    invariant(overlayContext, 'ThreadSettings should have OverlayContext');
+    return overlayContext.scrollBlockingModalStatus !== 'closed';
   }
 
   componentDidMount() {
@@ -852,7 +851,7 @@ const WrappedThreadSettings = connect(
 )(
   connectNav((context: ?NavContextType) => ({
     tabActive: activeTabSelector(context),
-  }))(withScrollViewModalState(ThreadSettings)),
+  }))(withOverlayContext(ThreadSettings)),
 );
 
 hoistNonReactStatics(WrappedThreadSettings, ThreadSettings);

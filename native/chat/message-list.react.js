@@ -12,16 +12,6 @@ import {
   type MessageListNavProp,
   messageListNavPropType,
 } from './message-list-types';
-import {
-  type ScrollViewModalState,
-  scrollViewModalStatePropType,
-  withScrollViewModalState,
-} from '../navigation/scroll-view-modal-state';
-import {
-  type KeyboardState,
-  keyboardStatePropType,
-  withKeyboardState,
-} from '../keyboard/keyboard-state';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -29,6 +19,7 @@ import { View, FlatList, TouchableWithoutFeedback } from 'react-native';
 import _sum from 'lodash/fp/sum';
 import _find from 'lodash/fp/find';
 import { createSelector } from 'reselect';
+import invariant from 'invariant';
 
 import { messageKey } from 'lib/shared/message-utils';
 import { connect } from 'lib/utils/redux-utils';
@@ -49,6 +40,16 @@ import {
 } from './message.react';
 import ListLoadingIndicator from '../components/list-loading-indicator.react';
 import { styleSelector } from '../themes/colors';
+import {
+  withOverlayContext,
+  type OverlayContextType,
+  overlayContextPropType,
+} from '../navigation/overlay-context';
+import {
+  type KeyboardState,
+  keyboardStatePropType,
+  withKeyboardState,
+} from '../keyboard/keyboard-state';
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -57,10 +58,6 @@ type Props = {|
   // Redux state
   startReached: boolean,
   styles: typeof styles,
-  // withScrollViewModalState
-  scrollViewModalState: ?ScrollViewModalState,
-  // withKeyboardState
-  keyboardState: ?KeyboardState,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -71,6 +68,10 @@ type Props = {|
   fetchMostRecentMessages: (
     threadID: string,
   ) => Promise<FetchMessageInfosPayload>,
+  // withOverlayContext
+  overlayContext: ?OverlayContextType,
+  // withKeyboardState
+  keyboardState: ?KeyboardState,
 |};
 type State = {|
   focusedMessageKey: ?string,
@@ -92,11 +93,11 @@ class MessageList extends React.PureComponent<Props, State> {
     navigation: messageListNavPropType.isRequired,
     startReached: PropTypes.bool.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    scrollViewModalState: scrollViewModalStatePropType,
-    keyboardState: keyboardStatePropType,
     dispatchActionPromise: PropTypes.func.isRequired,
     fetchMessagesBeforeCursor: PropTypes.func.isRequired,
     fetchMostRecentMessages: PropTypes.func.isRequired,
+    overlayContext: overlayContextPropType,
+    keyboardState: keyboardStatePropType,
   };
   state = {
     focusedMessageKey: null,
@@ -142,16 +143,20 @@ class MessageList extends React.PureComponent<Props, State> {
     }
   }
 
+  static getOverlayContext(props: Props) {
+    const { overlayContext } = props;
+    invariant(overlayContext, 'MessageList should have OverlayContext');
+    return overlayContext;
+  }
+
   static scrollDisabled(props: Props) {
-    const { scrollViewModalState } = props;
-    return (
-      !!scrollViewModalState && scrollViewModalState.modalState !== 'closed'
-    );
+    const overlayContext = MessageList.getOverlayContext(props);
+    return overlayContext.scrollBlockingModalStatus !== 'closed';
   }
 
   static modalOpen(props: Props) {
-    const { scrollViewModalState } = props;
-    return !!scrollViewModalState && scrollViewModalState.modalState === 'open';
+    const overlayContext = MessageList.getOverlayContext(props);
+    return overlayContext.scrollBlockingModalStatus !== 'open';
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -389,4 +394,4 @@ export default connect(
     };
   },
   { fetchMessagesBeforeCursor, fetchMostRecentMessages },
-)(withKeyboardState(withScrollViewModalState(MessageList)));
+)(withKeyboardState(withOverlayContext(MessageList)));
