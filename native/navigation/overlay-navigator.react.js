@@ -15,8 +15,11 @@ import { createNavigator } from 'react-navigation';
 import Animated, { Easing } from 'react-native-reanimated';
 import invariant from 'invariant';
 
+import { values } from 'lib/utils/objects';
+
 import OverlayRouter from './overlay-router';
 import { OverlayContext } from './overlay-context';
+import { scrollBlockingChatModals } from './route-names';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Value, timing, cond, call, lessOrEq, block } = Animated;
@@ -94,12 +97,42 @@ const OverlayNavigator = React.memo<Props>((props: Props) => {
   const prevScenesRef = React.useRef(null);
   const prevScenes = prevScenesRef.current;
 
+  // This state gets incorporated into the OverlayContext, but it's global to
+  // the navigator rather than local to each screen. We keep it in a ref so we
+  // can easily reference it when adding to sceneData. It doesn't need to be
+  // useState because it's incorporated into sceneData below
+  const scrollBlockingModalStatusRef = React.useRef();
+  const updateScrollBlockingModalStatus = data => {
+    scrollBlockingModalStatusRef.current = 'closed';
+    for (let scene of data) {
+      if (!scrollBlockingChatModals.includes(scene.route.routeName)) {
+        continue;
+      }
+      if (!scene.context.isDismissing) {
+        scrollBlockingModalStatusRef.current = 'open';
+        break;
+      }
+      scrollBlockingModalStatusRef.current = 'closing';
+    }
+  };
+  if (!scrollBlockingModalStatusRef.current) {
+    updateScrollBlockingModalStatus(scenes);
+  }
+  const sceneDataForNewScene = scene => ({
+    ...scene,
+    context: {
+      ...scene.context,
+      scrollBlockingModalStatus: scrollBlockingModalStatusRef.current,
+    },
+    listeners: [],
+  });
+
   // We need state to continue rendering screens while they are dismissing
   const [sceneData, setSceneData] = React.useState(() => {
     const newSceneData = {};
     for (let scene of scenes) {
       const { key } = scene.route;
-      newSceneData[key] = { ...scene, listeners: [] };
+      newSceneData[key] = sceneDataForNewScene(scene);
     }
     return newSceneData;
   });
@@ -120,7 +153,7 @@ const OverlayNavigator = React.memo<Props>((props: Props) => {
       let data = updatedSceneData[key];
       if (!data) {
         // A new route has been pushed
-        updatedSceneData[key] = { ...scene, listeners: [] };
+        updatedSceneData[key] = sceneDataForNewScene(scene);
         sceneDataChanged = true;
         sceneAdded = true;
         continue;
@@ -212,6 +245,26 @@ const OverlayNavigator = React.memo<Props>((props: Props) => {
       }
     }
 
+    // Now we update scrollBlockingModalStatus. It's global state that depends
+    // on the whole updatedSceneData, but it's set it in each individual context
+    const prevScrollBlockingModalStatus = scrollBlockingModalStatusRef.current;
+    updateScrollBlockingModalStatus(values(updatedSceneData));
+    if (
+      prevScrollBlockingModalStatus !== scrollBlockingModalStatusRef.current
+    ) {
+      for (let key in updatedSceneData) {
+        const data = updatedSceneData[key];
+        updatedSceneData[key] = {
+          ...data,
+          context: {
+            ...data.context,
+            scrollBlockingModalStatus: scrollBlockingModalStatusRef.current,
+          },
+        };
+      }
+      sceneDataChanged = true;
+    }
+
     if (sceneDataChanged) {
       setSceneData(updatedSceneData);
     }
@@ -222,12 +275,7 @@ const OverlayNavigator = React.memo<Props>((props: Props) => {
   // infinite loops we make sure to set prevScenes after we finish comparing it
   prevScenesRef.current = scenes;
 
-  // Flow won't let us use Object.values...
-  const unsortedSceneList = [];
-  for (let key in updatedSceneData) {
-    unsortedSceneList.push(updatedSceneData[key]);
-  }
-  const sceneList = unsortedSceneList.sort(
+  const sceneList = values(updatedSceneData).sort(
     (a, b) => a.context.routeIndex - b.context.routeIndex,
   );
 

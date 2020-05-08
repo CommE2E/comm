@@ -4,10 +4,12 @@ import * as React from 'react';
 import Animated from 'react-native-reanimated';
 import PropTypes from 'prop-types';
 
+export type ScrollBlockingModalStatus = 'open' | 'closed' | 'closing';
 export type OverlayContextType = {|
   position: Animated.Value,
   isDismissing: boolean,
   routeIndex: number,
+  scrollBlockingModalStatus: ScrollBlockingModalStatus,
 |};
 const OverlayContext: React.Context<?OverlayContextType> = React.createContext(
   null,
@@ -18,6 +20,8 @@ const overlayContextPropType = PropTypes.shape({
   position: PropTypes.instanceOf(Animated.Value).isRequired,
   isDismissing: PropTypes.bool.isRequired,
   routeIndex: PropTypes.number.isRequired,
+  scrollBlockingModalStatus: PropTypes.oneOf(['open', 'closed', 'closing'])
+    .isRequired,
 });
 
 function withOverlayContext<
