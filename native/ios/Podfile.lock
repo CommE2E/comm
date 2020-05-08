@@ -245,6 +245,8 @@ PODS:
     - React
   - react-native-orientation-locker (1.1.6):
     - React
+  - react-native-safe-area-context (0.7.3):
+    - React
   - react-native-splash-screen (3.2.0):
     - React
   - react-native-video/Video (5.0.2):
@@ -299,6 +301,8 @@ PODS:
     - React
   - RNCAsyncStorage (1.6.2):
     - React
+  - RNCMaskedView (0.1.10):
+    - React
   - RNExitApp (1.1.0):
     - React
   - RNFastImage (7.0.2):
@@ -313,7 +317,7 @@ PODS:
     - React
   - RNReanimated (1.8.0):
     - React
-  - RNScreens (1.0.0-alpha.17):
+  - RNScreens (2.7.0):
     - React
   - RNVectorIcons (6.6.0):
     - React
@@ -378,6 +382,7 @@ DEPENDENCIES:
   - react-native-notifications (from `../../node_modules/react-native-notifications`)
   - react-native-onepassword (from `../../node_modules/react-native-onepassword`)
   - react-native-orientation-locker (from `../../node_modules/react-native-orientation-locker`)
+  - react-native-safe-area-context (from `../../node_modules/react-native-safe-area-context`)
   - react-native-splash-screen (from `../../node_modules/react-native-splash-screen`)
   - react-native-video/VideoCaching (from `../../node_modules/react-native-video/react-native-video.podspec`)
   - React-RCTActionSheet (from `../../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -396,6 +401,7 @@ DEPENDENCIES:
   - ReactNativeKeyboardInput (from `../../node_modules/react-native-keyboard-input`)
   - ReactNativeKeyboardTrackingView (from `../../node_modules/react-native-keyboard-tracking-view`)
   - "RNCAsyncStorage (from `../../node_modules/@react-native-community/async-storage`)"
+  - "RNCMaskedView (from `../../node_modules/@react-native-community/masked-view`)"
   - RNExitApp (from `../../node_modules/react-native-exit-app`)
   - RNFastImage (from `../../node_modules/react-native-fast-image`)
   - RNFS (from `../../node_modules/react-native-fs`)
@@ -495,6 +501,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native-onepassword"
   react-native-orientation-locker:
     :path: "../../node_modules/react-native-orientation-locker"
+  react-native-safe-area-context:
+    :path: "../../node_modules/react-native-safe-area-context"
   react-native-splash-screen:
     :path: "../../node_modules/react-native-splash-screen"
   react-native-video:
@@ -529,6 +537,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native-keyboard-tracking-view"
   RNCAsyncStorage:
     :path: "../../node_modules/@react-native-community/async-storage"
+  RNCMaskedView:
+    :path: "../../node_modules/@react-native-community/masked-view"
   RNExitApp:
     :path: "../../node_modules/react-native-exit-app"
   RNFastImage:
@@ -616,6 +626,7 @@ SPEC CHECKSUMS:
   react-native-notifications: bb042206ac7eab9323d528c780b3d6fe796c1f5e
   react-native-onepassword: 5b2b7f425f9db40932703e65d350b78cbc598047
   react-native-orientation-locker: 23918c400376a7043e752c639c122fcf6bce8f1c
+  react-native-safe-area-context: e200d4433aba6b7e60b52da5f37af11f7a0b0392
   react-native-splash-screen: 200d11d188e2e78cea3ad319964f6142b6384865
   react-native-video: d01ed7ff1e38fa7dcc6c15c94cf505e661b7bfd0
   React-RCTActionSheet: 600b4d10e3aea0913b5a92256d2719c0cdd26d76
@@ -633,13 +644,14 @@ SPEC CHECKSUMS:
   ReactNativeKeyboardInput: c37e26821519869993b3b61844350feb9177ff37
   ReactNativeKeyboardTrackingView: 02137fac3b2ebd330d74fa54ead48b14750a2306
   RNCAsyncStorage: 60a80e72d95bf02a01cace55d3697d9724f0d77f
+  RNCMaskedView: 5a8ec07677aa885546a0d98da336457e2bea557f
   RNExitApp: c4e052df2568b43bec8a37c7cd61194d4cfee2c3
   RNFastImage: 9b0c22643872bb7494c8d87bbbb66cc4c0d9e7a2
   RNFS: 54da03c2b7d862c42ea3ca8c7f86f892760a535a
   RNGestureHandler: 8f09cd560f8d533eb36da5a6c5a843af9f056b38
   RNKeychain: 45dbd50d1ac4bd42c3740f76ffb135abf05746d0
   RNReanimated: 955cf4068714003d2f1a6e2bae3fb1118f359aff
-  RNScreens: 000c9e6e31c9a483688943155107e4ca9394d37a
+  RNScreens: cf198f915f8a2bf163de94ca9f5bfc8d326c3706
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   SDWebImage: d9ea4959d99c52276dfada481987018fcaea3d58
   SDWebImageWebPCoder: 947093edd1349d820c40afbd9f42acb6cdecd987
