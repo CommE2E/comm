@@ -15,7 +15,7 @@ import {
   type NavigationStackTransitionProps,
 } from 'react-navigation-stack';
 import { Keyboard } from 'react-native';
-import { useScreens } from 'react-native-screens';
+import { enableScreens } from 'react-native-screens';
 
 import {
   LoggedOutModalRouteName,
@@ -38,8 +38,7 @@ import ColorPickerModal from '../chat/settings/color-picker-modal.react';
 import ComposeSubthreadModal from '../chat/settings/compose-subthread-modal.react';
 import RootRouter from './root-router';
 
-// eslint-disable-next-line react-hooks/rules-of-hooks
-useScreens();
+enableScreens();
 
 type NavigationProp = NavigationStackProp<NavigationState> & {
   logIn: () => void,
