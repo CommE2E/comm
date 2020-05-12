@@ -1,6 +1,5 @@
 // @flow
 
-import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { AppState } from '../redux/redux-setup';
@@ -76,7 +75,6 @@ const animatedSpec = {
 
 type LoggedOutMode = 'loading' | 'prompt' | 'log-in' | 'register';
 type Props = {
-  navigation: NavigationScreenProp<NavigationRoute>,
   // Navigation state
   isForeground: boolean,
   navContext: ?NavContextType,
@@ -106,10 +104,6 @@ type State = {
 
 class LoggedOutModal extends React.PureComponent<Props, State> {
   static propTypes = {
-    navigation: PropTypes.shape({
-      navigate: PropTypes.func.isRequired,
-      goBack: PropTypes.func.isRequired,
-    }).isRequired,
     isForeground: PropTypes.bool.isRequired,
     navContext: navContextPropType,
     rehydrateConcluded: PropTypes.bool.isRequired,
