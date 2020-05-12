@@ -59,6 +59,7 @@ import { ServerError } from 'lib/utils/errors';
 import { entryKey } from 'lib/shared/entry-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { dateString } from 'lib/utils/date-utils';
+import sleep from 'lib/utils/sleep';
 
 import Button from '../components/button.react';
 import {
@@ -77,6 +78,7 @@ import {
   connectNav,
   type NavContextType,
 } from '../navigation/navigation-context';
+import { waitForInteractions } from '../utils/interactions';
 
 function hueDistance(firstColor: string, secondColor: string): number {
   const firstHue = tinycolor(firstColor).toHsv().h;
@@ -84,6 +86,7 @@ function hueDistance(firstColor: string, secondColor: string): number {
   const distance = Math.abs(firstHue - secondHue);
   return distance > 180 ? 360 - distance : distance;
 }
+const omitEntryInfo = _omit(['entryInfo']);
 
 type Props = {|
   navigation: NavigationScreenProp<NavigationRoute>,
@@ -167,7 +170,6 @@ class InternalEntry extends React.Component<Props, State> {
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
-    const omitEntryInfo = _omit(['entryInfo']);
     return (
       !shallowequal(nextState, this.state) ||
       !shallowequal(omitEntryInfo(nextProps), omitEntryInfo(this.props)) ||
@@ -359,6 +361,7 @@ class InternalEntry extends React.Component<Props, State> {
           value={this.state.text}
           onChangeText={this.onChangeText}
           multiline={true}
+          onFocus={this.onFocus}
           onBlur={this.onBlur}
           selectionColor={selectionColor}
           ref={this.textInputRef}
@@ -421,15 +424,15 @@ class InternalEntry extends React.Component<Props, State> {
     }
   };
 
-  enterEditMode = () => {
+  enterEditMode = async () => {
     this.setActive();
     this.props.onEnterEditMode(this.props.entryInfo);
-    if (Platform.OS !== 'android') {
-      this.focus();
-    } else {
+    if (Platform.OS === 'android') {
       // For some reason if we don't do this the scroll stops halfway through
-      InteractionManager.runAfterInteractions(() => setTimeout(this.focus));
+      await waitForInteractions();
+      await sleep(15);
     }
+    this.focus();
   };
 
   focus = () => {
@@ -438,6 +441,9 @@ class InternalEntry extends React.Component<Props, State> {
       return;
     }
     textInput.focus();
+  };
+
+  onFocus = () => {
     if (this.props.threadPickerActive && this.props.foregroundKey) {
       this.props.navigation.goBack(this.props.foregroundKey);
     }
