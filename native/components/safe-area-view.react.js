@@ -1,20 +1,25 @@
 // @flow
 
-import * as React from 'react';
-import { SafeAreaView } from 'react-navigation';
+import type { ViewStyle } from '../types/styles';
 
-const forceInset = { top: 'always', bottom: 'never' };
+import * as React from 'react';
+import { View } from 'react-native';
+import { useSafeArea } from 'react-native-safe-area-context';
 
 type Props = {|
-  style?: $PropertyType<React.ElementConfig<typeof SafeAreaView>, 'style'>,
+  style?: ViewStyle,
   children?: React.Node,
 |};
 function InsetSafeAreaView(props: Props) {
-  const { style, children } = props;
+  const insets = useSafeArea();
+  const style = [
+    { paddingTop: insets.top },
+    props.style,
+  ];
   return (
-    <SafeAreaView forceInset={forceInset} style={style}>
-      {children}
-    </SafeAreaView>
+    <View style={style}>
+      {props.children}
+    </View>
   );
 }
 
