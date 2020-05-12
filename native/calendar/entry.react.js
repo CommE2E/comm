@@ -96,6 +96,7 @@ type Props = {|
   active: boolean,
   makeActive: (entryKey: string, active: boolean) => void,
   onEnterEditMode: (entryInfo: EntryInfoWithHeight) => void,
+  onConcludeEditMode: (entryInfo: EntryInfoWithHeight) => void,
   onPressWhitespace: () => void,
   entryRef: (entryKey: string, entry: ?InternalEntry) => void,
   // Redux state
@@ -130,6 +131,7 @@ class InternalEntry extends React.Component<Props, State> {
     active: PropTypes.bool.isRequired,
     makeActive: PropTypes.func.isRequired,
     onEnterEditMode: PropTypes.func.isRequired,
+    onConcludeEditMode: PropTypes.func.isRequired,
     onPressWhitespace: PropTypes.func.isRequired,
     entryRef: PropTypes.func.isRequired,
     calendarQuery: PropTypes.func.isRequired,
@@ -473,6 +475,7 @@ class InternalEntry extends React.Component<Props, State> {
     }
     this.guardedSetState({ editing: false });
     this.props.makeActive(entryKey(this.props.entryInfo), false);
+    this.props.onConcludeEditMode(this.props.entryInfo);
   };
 
   save = () => {

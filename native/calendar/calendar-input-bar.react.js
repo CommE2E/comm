@@ -4,16 +4,10 @@ import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
 import { View, Text } from 'react-native';
-import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../components/button.react';
-import {
-  addKeyboardShowListener,
-  addKeyboardDismissListener,
-  removeKeyboardListener,
-} from '../keyboard/keyboard';
 import { styleSelector } from '../themes/colors';
 
 type Props = {|
@@ -22,60 +16,17 @@ type Props = {|
   // Redux state
   styles: typeof styles,
 |};
-type State = {|
-  keyboardActive: boolean,
-|};
-class CalendarInputBar extends React.PureComponent<Props, State> {
-  static propTypes = {
-    onSave: PropTypes.func.isRequired,
-    disabled: PropTypes.bool.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-  };
-  state = {
-    keyboardActive: false,
-  };
-  keyboardShowListener: ?Object;
-  keyboardDismissListener: ?Object;
-
-  componentDidMount() {
-    this.keyboardShowListener = addKeyboardShowListener(this.keyboardShow);
-    this.keyboardDismissListener = addKeyboardDismissListener(
-      this.keyboardDismiss,
-    );
-  }
-
-  componentWillUnmount() {
-    if (this.keyboardShowListener) {
-      removeKeyboardListener(this.keyboardShowListener);
-      this.keyboardShowListener = null;
-    }
-    if (this.keyboardDismissListener) {
-      removeKeyboardListener(this.keyboardDismissListener);
-      this.keyboardDismissListener = null;
-    }
-  }
-
-  keyboardShow = () => {
-    this.setState({ keyboardActive: true });
-  };
-
-  keyboardDismiss = () => {
-    this.setState({ keyboardActive: false });
-  };
-
-  render() {
-    const inactiveStyle =
-      this.state.keyboardActive && !this.props.disabled
-        ? undefined
-        : this.props.styles.inactiveContainer;
-    return (
-      <View style={[this.props.styles.container, inactiveStyle]}>
-        <Button onPress={this.props.onSave} iosActiveOpacity={0.5}>
-          <Text style={this.props.styles.saveButtonText}>Save</Text>
-        </Button>
-      </View>
-    );
-  }
+function CalendarInputBar(props: Props) {
+  const inactiveStyle = props.disabled
+    ? props.styles.inactiveContainer
+    : undefined;
+  return (
+    <View style={[props.styles.container, inactiveStyle]}>
+      <Button onPress={props.onSave} iosActiveOpacity={0.5}>
+        <Text style={props.styles.saveButtonText}>Save</Text>
+      </Button>
+    </View>
+  );
 }
 
 const styles = {

@@ -139,7 +139,6 @@ type Props = {
   // Redux state
   listData: ?$ReadOnlyArray<CalendarItem>,
   calendarActive: boolean,
-  threadPickerOpen: boolean,
   startDate: string,
   endDate: string,
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
@@ -162,7 +161,6 @@ type State = {|
   listDataWithHeights: ?$ReadOnlyArray<CalendarItemWithHeight>,
   readyToShowList: boolean,
   extraData: ExtraData,
-  disableInputBar: boolean,
 |};
 class Calendar extends React.PureComponent<Props, State> {
   static propTypes = {
@@ -194,7 +192,6 @@ class Calendar extends React.PureComponent<Props, State> {
       ]),
     ),
     calendarActive: PropTypes.bool.isRequired,
-    threadPickerOpen: PropTypes.bool.isRequired,
     startDate: PropTypes.string.isRequired,
     endDate: PropTypes.string.isRequired,
     calendarFilters: PropTypes.arrayOf(calendarFilterPropType).isRequired,
@@ -243,9 +240,7 @@ class Calendar extends React.PureComponent<Props, State> {
   lastEntryKeyActive: ?string = null;
   keyboardShowListener: ?{ +remove: () => void };
   keyboardDismissListener: ?{ +remove: () => void };
-  keyboardDidDismissListener: ?{ +remove: () => void };
   keyboardShownHeight: ?number = null;
-  keyboardPartiallyVisible = false;
   // If the query fails, we try it again
   topLoadingFromScroll: ?CalendarQuery = null;
   bottomLoadingFromScroll: ?CalendarQuery = null;
@@ -254,6 +249,7 @@ class Calendar extends React.PureComponent<Props, State> {
   bottomLoaderWaitingToLeaveView = true;
   // We keep refs to the entries so CalendarInputBar can save them
   entryRefs = new Map();
+  currentlyEditing = new Set();
 
   constructor(props: Props) {
     super(props);
@@ -269,7 +265,6 @@ class Calendar extends React.PureComponent<Props, State> {
       listDataWithHeights: null,
       readyToShowList: false,
       extraData: this.latestExtraData,
-      disableInputBar: false,
     };
     currentCalendarRef = this;
   }
@@ -294,9 +289,6 @@ class Calendar extends React.PureComponent<Props, State> {
     this.keyboardDismissListener = addKeyboardDismissListener(
       this.keyboardDismiss,
     );
-    this.keyboardDidDismissListener = addKeyboardDidDismissListener(
-      this.keyboardDidDismiss,
-    );
   }
 
   componentWillUnmount() {
@@ -308,10 +300,6 @@ class Calendar extends React.PureComponent<Props, State> {
     if (this.keyboardDismissListener) {
       removeKeyboardListener(this.keyboardDismissListener);
       this.keyboardDismissListener = null;
-    }
-    if (this.keyboardDidDismissListener) {
-      removeKeyboardListener(this.keyboardDidDismissListener);
-      this.keyboardDidDismissListener = null;
     }
   }
 
@@ -412,21 +400,6 @@ class Calendar extends React.PureComponent<Props, State> {
     if (keyboardShownHeight && lastEntryKeyActive) {
       this.scrollToKey(lastEntryKeyActive, keyboardShownHeight);
       this.lastEntryKeyActive = null;
-    }
-
-    if (
-      this.props.threadPickerOpen &&
-      !prevProps.threadPickerOpen &&
-      !this.state.disableInputBar
-    ) {
-      this.setState({ disableInputBar: true });
-    }
-    if (
-      !this.props.threadPickerOpen &&
-      prevProps.threadPickerOpen &&
-      !this.keyboardPartiallyVisible
-    ) {
-      this.setState({ disableInputBar: false });
     }
   }
 
@@ -667,6 +640,7 @@ class Calendar extends React.PureComponent<Props, State> {
           visible={!!this.state.extraData.visibleEntries[key]}
           makeActive={this.makeActive}
           onEnterEditMode={this.onEnterEntryEditMode}
+          onConcludeEditMode={this.onConcludeEntryEditMode}
           onPressWhitespace={this.makeAllEntriesInactive}
           entryRef={this.entryRef}
         />
@@ -789,6 +763,7 @@ class Calendar extends React.PureComponent<Props, State> {
         <ContentLoading fillType="absolute" colors={this.props.colors} />
       );
     }
+    const disableInputBar = this.currentlyEditing.size === 0;
     return (
       <SafeAreaView style={this.props.styles.container}>
         <DisconnectedBar visible={this.props.calendarActive} />
@@ -802,7 +777,7 @@ class Calendar extends React.PureComponent<Props, State> {
           {flatList}
           <CalendarInputBar
             onSave={this.onSaveEntry}
-            disabled={this.state.disableInputBar}
+            disabled={disableInputBar}
           />
         </KeyboardAvoidingView>
       </SafeAreaView>
@@ -904,7 +879,12 @@ class Calendar extends React.PureComponent<Props, State> {
     } else {
       this.lastEntryKeyActive = key;
     }
-    this.setState({ disableInputBar: false });
+    this.currentlyEditing.add(key);
+  };
+
+  onConcludeEntryEditMode = (entryInfo: EntryInfoWithHeight) => {
+    const key = entryKey(entryInfo);
+    this.currentlyEditing.delete(key);
   };
 
   keyboardShow = (event: KeyboardEvent) => {
@@ -916,18 +896,10 @@ class Calendar extends React.PureComponent<Props, State> {
       this.scrollToKey(lastEntryKeyActive, keyboardShownHeight);
       this.lastEntryKeyActive = null;
     }
-    this.keyboardPartiallyVisible = true;
   };
 
   keyboardDismiss = () => {
     this.keyboardShownHeight = null;
-  };
-
-  keyboardDidDismiss = () => {
-    this.keyboardPartiallyVisible = false;
-    if (!this.props.threadPickerOpen) {
-      this.setState({ disableInputBar: false });
-    }
   };
 
   scrollToKey(lastEntryKeyActive: string, keyboardHeight: number) {
@@ -1170,9 +1142,6 @@ const activeThreadPickerSelector = createIsForegroundSelector(
 export default connectNav((context: ?NavContextType) => ({
   calendarActive:
     activeTabSelector(context) || activeThreadPickerSelector(context),
-  threadPickerOpen:
-    activeThreadPickerSelector(context) ||
-    !!(context && context.state.isTransitioning),
 }))(
   connect(
     (state: AppState) => ({
