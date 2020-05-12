@@ -11,7 +11,9 @@ import {
   verticalBoundsPropType,
 } from '../types/layout-types';
 import {
+  type MessageListRoute,
   type MessageListNavProp,
+  messageListRoutePropType,
   messageListNavPropType,
 } from './message-list-types';
 
@@ -71,6 +73,7 @@ function textMessageItemHeight(item: ChatTextMessageInfoItemWithHeight) {
 type Props = {|
   item: ChatTextMessageInfoItemWithHeight,
   navigation: MessageListNavProp,
+  route: MessageListRoute,
   focused: boolean,
   toggleFocus: (messageKey: string) => void,
   verticalBounds: ?VerticalBounds,
@@ -84,6 +87,7 @@ class TextMessage extends React.PureComponent<Props> {
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     navigation: messageListNavPropType.isRequired,
+    route: messageListRoutePropType.isRequired,
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
@@ -96,6 +100,7 @@ class TextMessage extends React.PureComponent<Props> {
     const {
       item,
       navigation,
+      route,
       focused,
       toggleFocus,
       verticalBounds,
@@ -172,7 +177,7 @@ class TextMessage extends React.PureComponent<Props> {
       this.props.navigation.navigate({
         routeName: TextMessageTooltipModalRouteName,
         params: {
-          presentedFrom: this.props.navigation.state.key,
+          presentedFrom: this.props.route.key,
           initialCoordinates: coordinates,
           verticalBounds,
           location,

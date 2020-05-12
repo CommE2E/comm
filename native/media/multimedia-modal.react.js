@@ -183,7 +183,7 @@ function runDecay(
   ];
 }
 
-type NavProp = NavigationStackProp<{|
+type Route = {|
   ...NavigationLeafRoute,
   params: {|
     presentedFrom: string,
@@ -192,7 +192,8 @@ type NavProp = NavigationStackProp<{|
     verticalBounds: VerticalBounds,
     item: ChatMultimediaMessageInfoItem,
   |},
-|}>;
+|};
+type NavProp = NavigationStackProp<Route>;
 
 type TouchableOpacityInstance = React.AbstractComponent<
   React.ElementConfig<typeof TouchableOpacity>,
@@ -201,6 +202,7 @@ type TouchableOpacityInstance = React.AbstractComponent<
 
 type Props = {|
   navigation: NavProp,
+  route: Route,
   // Redux state
   screenDimensions: Dimensions,
   contentVerticalOffset: number,
@@ -214,15 +216,15 @@ type State = {|
 class MultimediaModal extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
-      state: PropTypes.shape({
-        params: PropTypes.shape({
-          mediaInfo: mediaInfoPropType.isRequired,
-          initialCoordinates: layoutCoordinatesPropType.isRequired,
-          verticalBounds: verticalBoundsPropType.isRequired,
-          item: chatMessageItemPropType.isRequired,
-        }).isRequired,
-      }).isRequired,
       goBack: PropTypes.func.isRequired,
+    }).isRequired,
+    route: PropTypes.shape({
+      params: PropTypes.shape({
+        mediaInfo: mediaInfoPropType.isRequired,
+        initialCoordinates: layoutCoordinatesPropType.isRequired,
+        verticalBounds: verticalBoundsPropType.isRequired,
+        item: chatMessageItemPropType.isRequired,
+      }).isRequired,
     }).isRequired,
     screenDimensions: dimensionsPropType.isRequired,
     contentVerticalOffset: PropTypes.number.isRequired,
@@ -287,7 +289,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     const left = sub(this.centerX, divide(imageWidth, 2));
     const top = sub(this.centerY, divide(imageHeight, 2));
 
-    const { initialCoordinates } = props.navigation.state.params;
+    const { initialCoordinates } = props.route.params;
     const initialScale = divide(initialCoordinates.width, imageWidth);
     const initialTranslateX = sub(
       initialCoordinates.x + initialCoordinates.width / 2,
@@ -1027,7 +1029,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
       maxWidth -= 100;
     }
 
-    const { dimensions } = this.props.navigation.state.params.mediaInfo;
+    const { dimensions } = this.props.route.params.mediaInfo;
     if (dimensions.height < maxHeight && dimensions.width < maxWidth) {
       return dimensions;
     }
@@ -1052,7 +1054,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     const { height: screenHeight, width: screenWidth } = this.screenDimensions;
     const top = (screenHeight - height) / 2 + this.props.contentVerticalOffset;
     const left = (screenWidth - width) / 2;
-    const { verticalBounds } = this.props.navigation.state.params;
+    const { verticalBounds } = this.props.route.params;
     return {
       height,
       width,
@@ -1074,7 +1076,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   }
 
   get contentContainerStyle() {
-    const { verticalBounds } = this.props.navigation.state.params;
+    const { verticalBounds } = this.props.route.params;
     const fullScreenHeight =
       this.screenDimensions.height +
       contentBottomOffset +
@@ -1090,7 +1092,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { mediaInfo } = this.props.navigation.state.params;
+    const { mediaInfo } = this.props.route.params;
     const statusBar = MultimediaModal.isActive(this.props) ? (
       <ConnectedStatusBar hidden />
     ) : null;
@@ -1183,7 +1185,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   };
 
   save = () => {
-    const { mediaInfo, item } = this.props.navigation.state.params;
+    const { mediaInfo, item } = this.props.route.params;
     const { id: uploadID, uri } = mediaInfo;
     const { id: messageServerID, localID: messageLocalID } = item.messageInfo;
     const ids = { uploadID, messageServerID, messageLocalID };

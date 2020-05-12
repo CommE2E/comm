@@ -68,12 +68,12 @@ const animatedSpec = {
 type VerificationModalMode = 'simple-text' | 'reset-password';
 type Props = {
   navigation: {
-    state: { key: string, params: { verifyCode: string } },
     clearRootModals: (
       keys: $ReadOnlyArray<string>,
       preserveFocus: boolean,
     ) => void,
   } & NavigationScreenProp<NavigationLeafRoute>,
+  route: { key: string, params: { verifyCode: string } },
   // Navigation state
   isForeground: boolean,
   // Redux state
@@ -98,14 +98,14 @@ type State = {
 class VerificationModal extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
-      state: PropTypes.shape({
-        key: PropTypes.string.isRequired,
-        params: PropTypes.shape({
-          verifyCode: PropTypes.string.isRequired,
-        }).isRequired,
-      }).isRequired,
       goBack: PropTypes.func.isRequired,
       clearRootModals: PropTypes.func.isRequired,
+    }).isRequired,
+    route: PropTypes.shape({
+      key: PropTypes.string.isRequired,
+      params: PropTypes.shape({
+        verifyCode: PropTypes.string.isRequired,
+      }).isRequired,
     }).isRequired,
     isForeground: PropTypes.bool.isRequired,
     dimensions: dimensionsPropType.isRequired,
@@ -166,8 +166,8 @@ class VerificationModal extends React.PureComponent<Props, State> {
       sleep(1500).then(this.dismiss);
     }
 
-    const prevCode = prevProps.navigation.state.params.verifyCode;
-    const code = this.props.navigation.state.params.verifyCode;
+    const prevCode = prevProps.route.params.verifyCode;
+    const code = this.props.route.params.verifyCode;
     if (code !== prevCode) {
       Keyboard.dismiss();
       this.setState({
@@ -210,7 +210,7 @@ class VerificationModal extends React.PureComponent<Props, State> {
 
   dismiss = () => {
     this.props.navigation.clearRootModals(
-      [this.props.navigation.state.key],
+      [this.props.route.key],
       false,
     );
   };
@@ -249,7 +249,7 @@ class VerificationModal extends React.PureComponent<Props, State> {
   };
 
   async handleVerificationCodeAction() {
-    const code = this.props.navigation.state.params.verifyCode;
+    const code = this.props.route.params.verifyCode;
     try {
       const result = await this.props.handleVerificationCode(code);
       if (result.verifyField === verifyField.EMAIL) {
@@ -395,7 +395,7 @@ class VerificationModal extends React.PureComponent<Props, State> {
     );
     let content;
     if (this.state.mode === 'reset-password') {
-      const code = this.props.navigation.state.params.verifyCode;
+      const code = this.props.route.params.verifyCode;
       invariant(this.state.resetPasswordUsername, 'should be set');
       content = (
         <ResetPasswordPanel

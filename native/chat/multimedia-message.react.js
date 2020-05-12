@@ -14,7 +14,9 @@ import {
 } from '../types/layout-types';
 import type { MessagePendingUploads } from '../input/input-state';
 import {
+  type MessageListRoute,
   type MessageListNavProp,
+  messageListRoutePropType,
   messageListNavPropType,
 } from './message-list-types';
 
@@ -133,6 +135,7 @@ const borderRadius = 16;
 type Props = {|
   item: ChatMultimediaMessageInfoItem,
   navigation: MessageListNavProp,
+  route: MessageListRoute,
   focused: boolean,
   toggleFocus: (messageKey: string) => void,
   verticalBounds: ?VerticalBounds,
@@ -142,6 +145,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     navigation: messageListNavPropType.isRequired,
+    route: messageListRoutePropType.isRequired,
     focused: PropTypes.bool.isRequired,
     toggleFocus: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
@@ -151,6 +155,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
     const {
       item,
       navigation,
+      route,
       focused,
       toggleFocus,
       verticalBounds,
@@ -256,6 +261,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
       <MultimediaMessageMultimedia
         mediaInfo={mediaInfo}
         navigation={this.props.navigation}
+        route={this.props.route}
         verticalBounds={this.props.verticalBounds}
         verticalOffset={verticalOffset}
         style={[style, roundedStyle]}

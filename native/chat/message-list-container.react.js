@@ -6,7 +6,9 @@ import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { TextToMeasure } from '../text-height-measurer.react';
 import type { ChatMessageInfoItemWithHeight } from './message.react';
 import {
+  type MessageListRoute,
   type MessageListNavProp,
+  messageListRoutePropType,
   messageListNavPropType,
 } from './message-list-types';
 
@@ -60,6 +62,7 @@ export type ChatMessageItemWithHeight =
 
 type Props = {|
   navigation: MessageListNavProp,
+  route: MessageListRoute,
   // Redux state
   threadInfo: ?ThreadInfo,
   messageListData: $ReadOnlyArray<ChatMessageItem>,
@@ -77,6 +80,7 @@ type State = {|
 class MessageListContainer extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: messageListNavPropType.isRequired,
+    route: messageListRoutePropType.isRequired,
     threadInfo: threadInfoPropType,
     messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
     textMessageMaxWidth: PropTypes.number.isRequired,
@@ -149,15 +153,15 @@ class MessageListContainer extends React.PureComponent<Props, State> {
   }
 
   static getThreadInfo(props: Props): ThreadInfo {
-    return props.navigation.state.params.threadInfo;
+    return props.route.params.threadInfo;
   }
 
   componentDidMount() {
-    registerChatScreen(this.props.navigation.state.key, this);
+    registerChatScreen(this.props.route.key, this);
   }
 
   componentWillUnmount() {
-    registerChatScreen(this.props.navigation.state.key, null);
+    registerChatScreen(this.props.route.key, null);
   }
 
   get canReset() {
@@ -210,6 +214,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           threadInfo={threadInfo}
           messageListData={listDataWithHeights}
           navigation={this.props.navigation}
+          route={this.props.route}
         />
       );
     } else {
@@ -228,6 +233,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
         <ChatInputBar
           threadInfo={threadInfo}
           navigation={this.props.navigation}
+          route={this.props.route}
         />
       </View>
     );
@@ -353,8 +359,8 @@ const styles = {
 const stylesSelector = styleSelector(styles);
 
 const ConnectedMessageListContainer = connect(
-  (state: AppState, ownProps: { navigation: MessageListNavProp }) => {
-    const threadID = ownProps.navigation.state.params.threadInfo.id;
+  (state: AppState, ownProps: { route: MessageListRoute }) => {
+    const threadID = ownProps.route.params.threadInfo.id;
     return {
       threadInfo: threadInfoSelector(state)[threadID],
       messageListData: messageListData(threadID)(state),

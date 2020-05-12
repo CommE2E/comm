@@ -27,7 +27,7 @@ import { MessageHeader } from './message-header.react';
 
 const { Value } = Animated;
 
-type NavProp = NavigationScreenProp<{|
+type Route = {|
   ...NavigationLeafRoute,
   params: {
     // Tooltip props
@@ -38,10 +38,12 @@ type NavProp = NavigationScreenProp<{|
     // Custom props
     item: ChatTextMessageInfoItemWithHeight,
   },
-|}>;
+|};
+type NavProp = NavigationScreenProp<Route>;
 
 type Props = {
   navigation: NavProp,
+  route: Route,
   progress: Value,
   // Redux state
   screenDimensions: Dimensions,
@@ -49,23 +51,23 @@ type Props = {
 class TextMessageTooltipButton extends React.PureComponent<Props> {
   static propTypes = {
     navigation: PropTypes.shape({
-      state: PropTypes.shape({
-        params: PropTypes.shape({
-          initialCoordinates: layoutCoordinatesPropType.isRequired,
-          verticalBounds: verticalBoundsPropType.isRequired,
-          location: PropTypes.oneOf(['above', 'below']),
-          margin: PropTypes.number,
-          item: chatMessageItemPropType.isRequired,
-        }).isRequired,
-      }).isRequired,
       goBack: PropTypes.func.isRequired,
+    }).isRequired,
+    route: PropTypes.shape({
+      params: PropTypes.shape({
+        initialCoordinates: layoutCoordinatesPropType.isRequired,
+        verticalBounds: verticalBoundsPropType.isRequired,
+        location: PropTypes.oneOf(['above', 'below']),
+        margin: PropTypes.number,
+        item: chatMessageItemPropType.isRequired,
+      }).isRequired,
     }).isRequired,
     progress: PropTypes.object.isRequired,
     screenDimensions: dimensionsPropType.isRequired,
   };
 
   get headerStyle() {
-    const { initialCoordinates } = this.props.navigation.state.params;
+    const { initialCoordinates } = this.props.route.params;
     const bottom = initialCoordinates.height;
     return {
       opacity: this.props.progress,
@@ -77,7 +79,7 @@ class TextMessageTooltipButton extends React.PureComponent<Props> {
   }
 
   get messageStyle() {
-    const { item } = this.props.navigation.state.params;
+    const { item } = this.props.route.params;
     return {
       position: 'absolute',
       height: item.contentHeight,
@@ -88,7 +90,7 @@ class TextMessageTooltipButton extends React.PureComponent<Props> {
   }
 
   render() {
-    const { item } = this.props.navigation.state.params;
+    const { item } = this.props.route.params;
     return (
       <React.Fragment>
         <Animated.View style={this.headerStyle}>

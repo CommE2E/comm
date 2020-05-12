@@ -16,7 +16,9 @@ import {
   pendingMultimediaUploadPropType,
 } from '../input/input-state';
 import {
+  type MessageListRoute,
   type MessageListNavProp,
+  messageListRoutePropType,
   messageListNavPropType,
 } from './message-list-types';
 import type { AppState } from '../redux/redux-setup';
@@ -75,6 +77,7 @@ type Props = {|
   mediaInfo: MediaInfo,
   item: ChatMultimediaMessageInfoItem,
   navigation: MessageListNavProp,
+  route: MessageListRoute,
   verticalBounds: ?VerticalBounds,
   verticalOffset: number,
   style: ImageStyle,
@@ -94,6 +97,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props> {
     mediaInfo: mediaInfoPropType.isRequired,
     item: chatMessageItemPropType.isRequired,
     navigation: messageListNavPropType.isRequired,
+    route: messageListRoutePropType.isRequired,
     verticalBounds: verticalBoundsPropType,
     verticalOffset: PropTypes.number.isRequired,
     postInProgress: PropTypes.bool.isRequired,
@@ -221,7 +225,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props> {
       this.props.navigation.navigate({
         routeName: MultimediaModalRouteName,
         params: {
-          presentedFrom: this.props.navigation.state.key,
+          presentedFrom: this.props.route.key,
           mediaInfo,
           item,
           initialCoordinates: coordinates,
@@ -294,7 +298,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props> {
       this.props.navigation.navigate({
         routeName: MultimediaTooltipModalRouteName,
         params: {
-          presentedFrom: this.props.navigation.state.key,
+          presentedFrom: this.props.route.key,
           mediaInfo,
           item,
           initialCoordinates: coordinates,

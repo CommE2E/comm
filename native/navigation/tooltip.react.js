@@ -61,7 +61,7 @@ type TooltipSpec<CustomProps> = {|
   labelStyle?: ViewStyle,
 |};
 
-type NavProp<CustomProps> = NavigationStackProp<{|
+type Route<CustomProps> = {|
   ...NavigationLeafRoute,
   params: {
     ...$Exact<CustomProps>,
@@ -72,7 +72,8 @@ type NavProp<CustomProps> = NavigationStackProp<{|
     margin?: number,
     visibleEntryIDs?: $ReadOnlyArray<string>,
   },
-|}>;
+|};
+type NavProp<CustomProps> = NavigationStackProp<Route<CustomProps>>;
 
 type ButtonProps<Navigation> = {
   navigation: Navigation,
@@ -81,6 +82,7 @@ type ButtonProps<Navigation> = {
 
 type TooltipProps<Navigation> = {
   navigation: Navigation,
+  route: Route,
   // Redux state
   screenDimensions: Dimensions,
   serverCallState: ServerCallState,
@@ -100,16 +102,16 @@ function createTooltip<
   class Tooltip extends React.PureComponent<TooltipPropsType> {
     static propTypes = {
       navigation: PropTypes.shape({
-        state: PropTypes.shape({
-          params: PropTypes.shape({
-            initialCoordinates: layoutCoordinatesPropType.isRequired,
-            verticalBounds: verticalBoundsPropType.isRequired,
-            location: PropTypes.oneOf(['above', 'below']),
-            margin: PropTypes.number,
-            visibleEntryIDs: PropTypes.arrayOf(PropTypes.string),
-          }).isRequired,
-        }).isRequired,
         goBack: PropTypes.func.isRequired,
+      }).isRequired,
+      route: PropTypes.shape({
+        params: PropTypes.shape({
+          initialCoordinates: layoutCoordinatesPropType.isRequired,
+          verticalBounds: verticalBoundsPropType.isRequired,
+          location: PropTypes.oneOf(['above', 'below']),
+          margin: PropTypes.number,
+          visibleEntryIDs: PropTypes.arrayOf(PropTypes.string),
+        }).isRequired,
       }).isRequired,
       screenDimensions: dimensionsPropType.isRequired,
       serverCallState: serverCallStatePropType.isRequired,
@@ -169,7 +171,7 @@ function createTooltip<
 
     get entries() {
       const { entries } = tooltipSpec;
-      const { visibleEntryIDs } = this.props.navigation.state.params;
+      const { visibleEntryIDs } = this.props.route.params;
       if (!visibleEntryIDs) {
         return entries;
       }
@@ -182,7 +184,7 @@ function createTooltip<
     }
 
     get location(): 'above' | 'below' {
-      const { params } = this.props.navigation.state;
+      const { params } = this.props.route;
       const { location } = params;
       if (location) {
         return location;
@@ -215,7 +217,7 @@ function createTooltip<
     }
 
     get contentContainerStyle() {
-      const { verticalBounds } = this.props.navigation.state.params;
+      const { verticalBounds } = this.props.route.params;
       const fullScreenHeight =
         this.props.screenDimensions.height + contentBottomOffset;
       const top = verticalBounds.y;
@@ -229,7 +231,7 @@ function createTooltip<
     }
 
     get buttonStyle() {
-      const { params } = this.props.navigation.state;
+      const { params } = this.props.route;
       const { initialCoordinates, verticalBounds } = params;
       const { x, y, width, height } = initialCoordinates;
       return {
@@ -241,15 +243,15 @@ function createTooltip<
     }
 
     get margin() {
-      const customMargin = this.props.navigation.state.params.margin;
+      const customMargin = this.props.route.params.margin;
       return customMargin !== null && customMargin !== undefined
         ? customMargin
         : 20;
     }
 
     get tooltipContainerStyle() {
-      const { screenDimensions, navigation } = this.props;
-      const { initialCoordinates, verticalBounds } = navigation.state.params;
+      const { screenDimensions, route } = this.props;
+      const { initialCoordinates, verticalBounds } = route.params;
       const { x, y, width, height } = initialCoordinates;
       const { margin, location } = this;
 
@@ -285,7 +287,7 @@ function createTooltip<
     }
 
     render() {
-      const { navigation, screenDimensions } = this.props;
+      const { navigation, route, screenDimensions } = this.props;
 
       const { entries } = this;
       const items = entries.map((entry, index) => {
@@ -302,7 +304,7 @@ function createTooltip<
       });
 
       let triangleStyle;
-      const { initialCoordinates } = navigation.state.params;
+      const { initialCoordinates } = route.params;
       const { x, width } = initialCoordinates;
       const extraLeftSpace = x;
       const extraRightSpace = screenDimensions.width - width - x;
@@ -335,6 +337,7 @@ function createTooltip<
               <View style={this.buttonStyle}>
                 <ButtonComponent
                   navigation={navigation}
+                  route={route}
                   progress={this.progress}
                 />
               </View>
@@ -364,7 +367,7 @@ function createTooltip<
         margin,
         visibleEntryIDs,
         ...customProps
-      } = this.props.navigation.state.params;
+      } = this.props.route.params;
       this.props.navigation.goBack();
       const dispatchFunctions = {
         dispatch: this.props.dispatch,
@@ -393,8 +396,8 @@ function createTooltip<
     };
 
     onTooltipContainerLayout = (event: LayoutEvent) => {
-      const { navigation, screenDimensions } = this.props;
-      const { x, width } = navigation.state.params.initialCoordinates;
+      const { route, screenDimensions } = this.props;
+      const { x, width } = route.params.initialCoordinates;
 
       const extraLeftSpace = x;
       const extraRightSpace = screenDimensions.width - width - x;

@@ -69,14 +69,14 @@ const tagInputProps = {
   returnKeyType: 'go',
 };
 
-type NavProp = ChatNavProp<{|
+type Route = {|
   ...NavigationLeafRoute,
   params: {|
     threadType?: ThreadType,
     parentThreadInfo?: ThreadInfo,
     createButtonDisabled?: boolean,
   |},
-|}>;
+|};
 
 let queuedPress = false;
 function setQueuedPress() {
@@ -98,8 +98,11 @@ function pressCreateThread() {
   onPressCreateThread();
 }
 
+type NavProp = ChatNavProp<Route>;
+
 type Props = {|
   navigation: NavProp,
+  route: Route,
   // Redux state
   parentThreadInfo: ?ThreadInfo,
   loadingStatus: LoadingStatus,
@@ -124,19 +127,18 @@ type PropsAndState = {| ...Props, ...State |};
 class ComposeThread extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
-      state: PropTypes.shape({
-        key: PropTypes.string.isRequired,
-        params: PropTypes.shape({
-          threadType: threadTypePropType,
-          parentThreadInfo: threadInfoPropType,
-          createButtonDisabled: PropTypes.bool,
-        }).isRequired,
-      }).isRequired,
       setParams: PropTypes.func.isRequired,
       goBack: PropTypes.func.isRequired,
       navigate: PropTypes.func.isRequired,
       getParam: PropTypes.func.isRequired,
       pushNewThread: PropTypes.func.isRequired,
+    }).isRequired,
+    route: PropTypes.shape({
+      key: PropTypes.string.isRequired,
+      params: PropTypes.shape({
+        threadType: threadTypePropType,
+        parentThreadInfo: threadInfoPropType,
+      }).isRequired,
     }).isRequired,
     parentThreadInfo: threadInfoPropType,
     loadingStatus: loadingStatusPropType.isRequired,
@@ -191,8 +193,8 @@ class ComposeThread extends React.PureComponent<Props, State> {
     }
   }
 
-  static getParentThreadInfo(props: { navigation: NavProp }): ?ThreadInfo {
-    return props.navigation.state.params.parentThreadInfo;
+  static getParentThreadInfo(props: { route: Route }): ?ThreadInfo {
+    return props.route.params.parentThreadInfo;
   }
 
   userSearchResultsSelector = createSelector(
@@ -282,7 +284,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
     let parentThreadRow = null;
     const parentThreadInfo = ComposeThread.getParentThreadInfo(this.props);
     if (parentThreadInfo) {
-      const threadType = this.props.navigation.getParam('threadType');
+      const threadType = this.props.route.params.threadType;
       invariant(
         threadType !== undefined && threadType !== null,
         `no threadType provided for ${parentThreadInfo.id}`,
@@ -406,7 +408,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
   async newChatThreadAction() {
     this.props.navigation.setParams({ createButtonDisabled: true });
     try {
-      const threadTypeParam = this.props.navigation.getParam('threadType');
+      const threadTypeParam = this.props.route.params.threadType;
       const threadType = threadTypeParam
         ? threadTypeParam
         : threadTypes.CHAT_SECRET;
@@ -528,9 +530,9 @@ const loadingStatusSelector = createLoadingStatusSelector(newThreadActionTypes);
 registerFetchKey(searchUsersActionTypes);
 
 export default connect(
-  (state: AppState, ownProps: { navigation: NavProp }) => {
+  (state: AppState, ownProps: { route: Route }) => {
     let reduxParentThreadInfo = null;
-    const parentThreadInfo = ownProps.navigation.state.params.parentThreadInfo;
+    const parentThreadInfo = ownProps.route.params.parentThreadInfo;
     if (parentThreadInfo) {
       reduxParentThreadInfo = threadInfoSelector(state)[parentThreadInfo.id];
     }

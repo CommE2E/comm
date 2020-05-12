@@ -2,7 +2,7 @@
 
 import type { AppState } from '../../redux/redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
+import type { NavigationScreenProp, NavigationLeafRoute } from 'react-navigation';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import {
@@ -51,12 +51,17 @@ import {
 } from '../../navigation/navigation-context';
 import { clearThreadsActionType } from '../../navigation/action-types';
 
-type NavProp = {
-  state: { params: { threadInfo: ThreadInfo } },
-} & NavigationScreenProp<NavigationRoute>;
+type Route = {|
+  ...NavigationLeafRoute,
+  params: {|
+    threadInfo: ThreadInfo,
+  |},
+|};
+type NavProp = NavigationScreenProp<Route>;
 
 type Props = {|
   navigation: NavProp,
+  route: Route,
   // Redux state
   threadInfo: ?ThreadInfo,
   loadingStatus: LoadingStatus,
@@ -81,13 +86,13 @@ type State = {|
 class DeleteThread extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
-      state: PropTypes.shape({
-        params: PropTypes.shape({
-          threadInfo: threadInfoPropType.isRequired,
-        }).isRequired,
-      }).isRequired,
       navigate: PropTypes.func.isRequired,
       setParams: PropTypes.func.isRequired,
+    }).isRequired,
+    route: PropTypes.shape({
+      params: PropTypes.shape({
+        threadInfo: threadInfoPropType.isRequired,
+      }).isRequired,
     }).isRequired,
     threadInfo: threadInfoPropType,
     loadingStatus: loadingStatusPropType.isRequired,
@@ -116,7 +121,7 @@ class DeleteThread extends React.PureComponent<Props, State> {
   }
 
   static getThreadInfo(props: Props): ThreadInfo {
-    return props.navigation.state.params.threadInfo;
+    return props.route.params.threadInfo;
   }
 
   componentDidMount() {
@@ -347,8 +352,8 @@ const loadingStatusSelector = createLoadingStatusSelector(
 );
 
 export default connect(
-  (state: AppState, ownProps: { navigation: NavProp }): * => {
-    const threadID = ownProps.navigation.state.params.threadInfo.id;
+  (state: AppState, ownProps: { route: Route }): * => {
+    const threadID = ownProps.route.params.threadInfo.id;
     return {
       threadInfo: threadInfoSelector(state)[threadID],
       loadingStatus: loadingStatusSelector(state),

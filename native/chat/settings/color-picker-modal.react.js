@@ -47,6 +47,15 @@ type NavProp = NavigationScreenProp<{|
 
 type Props = {|
   navigation: NavProp,
+  route: {|
+    ...NavigationLeafRoute,
+    params: {|
+      presentedFrom: string,
+      color: string,
+      threadInfo: ThreadInfo,
+      setColor: (color: string) => void,
+    |},
+  |},
   // Redux state
   colors: Colors,
   styles: typeof styles,
@@ -61,14 +70,14 @@ type Props = {|
 class ColorPickerModal extends React.PureComponent<Props> {
   static propTypes = {
     navigation: PropTypes.shape({
-      state: PropTypes.shape({
-        params: PropTypes.shape({
-          color: PropTypes.string.isRequired,
-          threadInfo: threadInfoPropType.isRequired,
-          setColor: PropTypes.func.isRequired,
-        }).isRequired,
-      }).isRequired,
       goBack: PropTypes.func.isRequired,
+    }).isRequired,
+    route: PropTypes.shape({
+      params: PropTypes.shape({
+        color: PropTypes.string.isRequired,
+        threadInfo: threadInfoPropType.isRequired,
+        setColor: PropTypes.func.isRequired,
+      }).isRequired,
     }).isRequired,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
@@ -78,7 +87,7 @@ class ColorPickerModal extends React.PureComponent<Props> {
   };
 
   render() {
-    const { color, threadInfo } = this.props.navigation.state.params;
+    const { color, threadInfo } = this.props.route.params;
     // Based on the assumption we are always in portrait,
     // and consequently width is the lowest dimensions
     const modalStyle = { height: this.props.screenDimensions.width - 5 };
@@ -114,7 +123,7 @@ class ColorPickerModal extends React.PureComponent<Props> {
 
   onColorSelected = (color: string) => {
     const colorEditValue = color.substr(1);
-    this.props.navigation.state.params.setColor(colorEditValue);
+    this.props.route.params.setColor(colorEditValue);
     this.close();
     this.props.dispatchActionPromise(
       changeThreadSettingsActionTypes,
@@ -124,7 +133,7 @@ class ColorPickerModal extends React.PureComponent<Props> {
   };
 
   async editColor(newColor: string) {
-    const threadID = this.props.navigation.state.params.threadInfo.id;
+    const threadID = this.props.route.params.threadInfo.id;
     try {
       return await this.props.changeThreadSettings({
         threadID,
@@ -142,7 +151,7 @@ class ColorPickerModal extends React.PureComponent<Props> {
   }
 
   onErrorAcknowledged = () => {
-    const { threadInfo, setColor } = this.props.navigation.state.params;
+    const { threadInfo, setColor } = this.props.route.params;
     setColor(threadInfo.color);
   };
 }

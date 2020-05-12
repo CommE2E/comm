@@ -34,6 +34,7 @@ const ServerIcon = () => (
 
 type Props = {|
   navigation: NavigationScreenProp<NavigationLeafRoute>,
+  route: NavigationLeafRoute,
   // Redux state
   urlPrefix: string,
   customServer: ?string,
@@ -46,9 +47,9 @@ class DevTools extends React.PureComponent<Props> {
   static propTypes = {
     navigation: PropTypes.shape({
       navigate: PropTypes.func.isRequired,
-      state: PropTypes.shape({
-        key: PropTypes.string.isRequired,
-      }),
+    }).isRequired,
+    route: PropTypes.shape({
+      key: PropTypes.string.isRequired,
     }).isRequired,
     urlPrefix: PropTypes.string.isRequired,
     customServer: PropTypes.string,
@@ -181,7 +182,7 @@ class DevTools extends React.PureComponent<Props> {
 
   onSelectCustomServer = () => {
     this.props.navigation.navigate(CustomServerModalRouteName, {
-      presentedFrom: this.props.navigation.state.key,
+      presentedFrom: this.props.route.key,
     });
   };
 }

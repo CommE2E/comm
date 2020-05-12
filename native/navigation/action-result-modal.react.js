@@ -28,6 +28,13 @@ type NavProp = NavigationStackProp<{|
 
 type Props = {|
   navigation: NavProp,
+  route: {|
+    ...NavigationLeafRoute,
+    params: {|
+      message: string,
+      preventPresses: true,
+    |},
+  |},
 |};
 function ActionResultModal(props: Props) {
   const overlayContext = React.useContext(OverlayContext);
@@ -44,8 +51,8 @@ function ActionResultModal(props: Props) {
   );
 
   // Timer resets whenever message updates
-  const { state, goBack } = props.navigation;
-  const { message } = state.params;
+  const { goBack } = props.navigation;
+  const { message } = props.route.params;
   React.useEffect(() => {
     const timeoutID = setTimeout(goBack, 2000);
     return () => clearTimeout(timeoutID);

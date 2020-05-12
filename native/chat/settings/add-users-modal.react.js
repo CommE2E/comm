@@ -65,6 +65,13 @@ type NavProp = NavigationScreenProp<{|
 
 type Props = {|
   navigation: NavProp,
+  route: {|
+    ...NavigationLeafRoute,
+    params: {|
+      presentedFrom: string,
+      threadInfo: ThreadInfo,
+    |},
+  |},
   // Redux state
   parentThreadInfo: ?ThreadInfo,
   otherUserInfos: { [id: string]: AccountUserInfo },
@@ -87,12 +94,12 @@ type PropsAndState = {| ...Props, ...State |};
 class AddUsersModal extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
-      state: PropTypes.shape({
-        params: PropTypes.shape({
-          threadInfo: threadInfoPropType.isRequired,
-        }).isRequired,
-      }).isRequired,
       goBack: PropTypes.func.isRequired,
+    }).isRequired,
+    route: PropTypes.shape({
+      params: PropTypes.shape({
+        threadInfo: threadInfoPropType.isRequired,
+      }).isRequired,
     }).isRequired,
     parentThreadInfo: threadInfoPropType,
     otherUserInfos: PropTypes.objectOf(accountUserInfoPropType).isRequired,
@@ -126,7 +133,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.userSearchIndex,
     (propsAndState: PropsAndState) => propsAndState.userInfoInputArray,
     (propsAndState: PropsAndState) =>
-      propsAndState.navigation.state.params.threadInfo,
+      propsAndState.route.params.threadInfo,
     (propsAndState: PropsAndState) => propsAndState.parentThreadInfo,
     (
       text: string,
@@ -278,7 +285,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
         userInfo => userInfo.id,
       );
       const result = await this.props.changeThreadSettings({
-        threadID: this.props.navigation.state.params.threadInfo.id,
+        threadID: this.props.route.params.threadInfo.id,
         changes: { newMemberIDs },
       });
       this.close();
@@ -351,7 +358,7 @@ registerFetchKey(searchUsersActionTypes);
 export default connect(
   (state: AppState, ownProps: { navigation: NavProp }) => {
     let parentThreadInfo = null;
-    const { parentThreadID } = ownProps.navigation.state.params.threadInfo;
+    const { parentThreadID } = ownProps.route.params.threadInfo;
     if (parentThreadID) {
       parentThreadInfo = threadInfoSelector(state)[parentThreadID];
     }

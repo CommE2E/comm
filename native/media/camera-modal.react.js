@@ -239,6 +239,13 @@ type TouchableOpacityInstance = React.AbstractComponent<
 
 type Props = {
   navigation: NavProp,
+  route: {|
+    ...NavigationLeafRoute,
+    params: {|
+      presentedFrom: string,
+      threadID: string,
+    |},
+  |},
   // Redux state
   screenDimensions: Dimensions,
   contentVerticalOffset: number,
@@ -264,12 +271,12 @@ type State = {|
 class CameraModal extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
-      state: PropTypes.shape({
-        params: PropTypes.shape({
-          threadID: PropTypes.string.isRequired,
-        }).isRequired,
-      }).isRequired,
       goBack: PropTypes.func.isRequired,
+    }).isRequired,
+    route: PropTypes.shape({
+      params: PropTypes.shape({
+        threadID: PropTypes.string.isRequired,
+      }).isRequired,
     }).isRequired,
     screenDimensions: dimensionsPropType.isRequired,
     contentVerticalOffset: PropTypes.number.isRequired,
@@ -959,7 +966,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     const { inputState } = this.props;
     invariant(inputState, 'inputState should be set');
     inputState.sendMultimediaMessage(
-      this.props.navigation.state.params.threadID,
+      this.props.route.params.threadID,
       [capture],
     );
   };

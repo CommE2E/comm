@@ -36,6 +36,13 @@ type NavProp = NavigationScreenProp<{|
 
 type Props = {
   navigation: NavProp,
+  route: {|
+    ...NavigationLeafRoute,
+    params: {|
+      presentedFrom: string,
+      dateString: string,
+    |},
+  |},
   // Redux state
   onScreenThreadInfos: $ReadOnlyArray<ThreadInfo>,
   viewerID: ?string,
@@ -46,11 +53,10 @@ type Props = {
 };
 class ThreadPickerModal extends React.PureComponent<Props> {
   static propTypes = {
-    navigation: PropTypes.shape({
-      state: PropTypes.shape({
-        params: PropTypes.shape({
-          dateString: PropTypes.string.isRequired,
-        }).isRequired,
+    navigation: PropTypes.object.isRequired,
+    route: PropTypes.shape({
+      params: PropTypes.shape({
+        dateString: PropTypes.string.isRequired,
       }).isRequired,
     }).isRequired,
     onScreenThreadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
@@ -75,7 +81,7 @@ class ThreadPickerModal extends React.PureComponent<Props> {
 
   threadPicked = (threadID: string) => {
     const { viewerID, nextLocalID } = this.props;
-    const { dateString } = this.props.navigation.state.params;
+    const { dateString } = this.props.route.params;
     invariant(dateString && viewerID, 'should be set');
     this.props.dispatchActionPayload(
       createLocalEntryActionType,

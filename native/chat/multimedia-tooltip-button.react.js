@@ -41,7 +41,7 @@ import { dimensionsSelector } from '../selectors/dimension-selectors';
 
 const { Value } = Animated;
 
-type NavProp = NavigationScreenProp<{|
+type Route = {|
   ...NavigationLeafRoute,
   params: {
     // Tooltip props
@@ -54,10 +54,12 @@ type NavProp = NavigationScreenProp<{|
     mediaInfo: MediaInfo,
     verticalOffset: number,
   },
-|}>;
+|};
+type NavProp = NavigationScreenProp<Route>;
 
 type Props = {
   navigation: NavProp,
+  route: Route,
   progress: Value,
   // Redux state
   screenDimensions: Dimensions,
@@ -67,18 +69,18 @@ type Props = {
 class MultimediaTooltipButton extends React.PureComponent<Props> {
   static propTypes = {
     navigation: PropTypes.shape({
-      state: PropTypes.shape({
-        params: PropTypes.shape({
-          initialCoordinates: layoutCoordinatesPropType.isRequired,
-          verticalBounds: verticalBoundsPropType.isRequired,
-          location: PropTypes.oneOf(['above', 'below']),
-          margin: PropTypes.number,
-          item: chatMessageItemPropType.isRequired,
-          mediaInfo: mediaInfoPropType.isRequired,
-          verticalOffset: PropTypes.number.isRequired,
-        }).isRequired,
-      }).isRequired,
       goBack: PropTypes.func.isRequired,
+    }).isRequired,
+    route: PropTypes.shape({
+      params: PropTypes.shape({
+        initialCoordinates: layoutCoordinatesPropType.isRequired,
+        verticalBounds: verticalBoundsPropType.isRequired,
+        location: PropTypes.oneOf(['above', 'below']),
+        margin: PropTypes.number,
+        item: chatMessageItemPropType.isRequired,
+        mediaInfo: mediaInfoPropType.isRequired,
+        verticalOffset: PropTypes.number.isRequired,
+      }).isRequired,
     }).isRequired,
     progress: PropTypes.object.isRequired,
     screenDimensions: dimensionsPropType.isRequired,
@@ -89,7 +91,7 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
     const {
       initialCoordinates,
       verticalOffset,
-    } = this.props.navigation.state.params;
+    } = this.props.route.params;
     const bottom = initialCoordinates.height + verticalOffset;
     return {
       opacity: this.props.progress,
@@ -102,7 +104,7 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
 
   render() {
     const { inputState } = this.props;
-    const { mediaInfo, item } = this.props.navigation.state.params;
+    const { mediaInfo, item } = this.props.route.params;
 
     const { id: mediaID } = mediaInfo;
     const ourMessageID = messageID(item.messageInfo);

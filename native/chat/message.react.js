@@ -9,7 +9,9 @@ import {
   verticalBoundsPropType,
 } from '../types/layout-types';
 import {
+  type MessageListRoute,
   type MessageListNavProp,
+  messageListRoutePropType,
   messageListNavPropType,
 } from './message-list-types';
 import {
@@ -57,6 +59,7 @@ type Props = {|
   item: ChatMessageInfoItemWithHeight,
   focused: boolean,
   navigation: MessageListNavProp,
+  route: MessageListRoute,
   toggleFocus: (messageKey: string) => void,
   verticalBounds: ?VerticalBounds,
   // withKeyboardState
@@ -67,6 +70,7 @@ class Message extends React.PureComponent<Props> {
     item: chatMessageItemPropType.isRequired,
     focused: PropTypes.bool.isRequired,
     navigation: messageListNavPropType.isRequired,
+    route: messageListRoutePropType.isRequired,
     toggleFocus: PropTypes.func.isRequired,
     verticalBounds: verticalBoundsPropType,
     keyboardState: keyboardStatePropType,
@@ -88,6 +92,7 @@ class Message extends React.PureComponent<Props> {
         <TextMessage
           item={this.props.item}
           navigation={this.props.navigation}
+          route={this.props.route}
           focused={this.props.focused}
           toggleFocus={this.props.toggleFocus}
           verticalBounds={this.props.verticalBounds}
@@ -98,6 +103,7 @@ class Message extends React.PureComponent<Props> {
         <MultimediaMessage
           item={this.props.item}
           navigation={this.props.navigation}
+          route={this.props.route}
           focused={this.props.focused}
           toggleFocus={this.props.toggleFocus}
           verticalBounds={this.props.verticalBounds}

@@ -9,7 +9,9 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { ChatMessageItemWithHeight } from './message-list-container.react';
 import type { VerticalBounds } from '../types/layout-types';
 import {
+  type MessageListRoute,
   type MessageListNavProp,
+  messageListRoutePropType,
   messageListNavPropType,
 } from './message-list-types';
 
@@ -55,6 +57,7 @@ type Props = {|
   threadInfo: ThreadInfo,
   messageListData: $ReadOnlyArray<ChatMessageItemWithHeight>,
   navigation: MessageListNavProp,
+  route: MessageListRoute,
   // Redux state
   startReached: boolean,
   styles: typeof styles,
@@ -85,12 +88,14 @@ type FlatListExtraData = {|
   messageListVerticalBounds: ?VerticalBounds,
   focusedMessageKey: ?string,
   navigation: MessageListNavProp,
+  route: MessageListRoute,
 |};
 class MessageList extends React.PureComponent<Props, State> {
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
     navigation: messageListNavPropType.isRequired,
+    route: messageListRoutePropType.isRequired,
     startReached: PropTypes.bool.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -110,14 +115,17 @@ class MessageList extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.messageListVerticalBounds,
     (propsAndState: PropsAndState) => propsAndState.focusedMessageKey,
     (propsAndState: PropsAndState) => propsAndState.navigation,
+    (propsAndState: PropsAndState) => propsAndState.route,
     (
       messageListVerticalBounds: ?VerticalBounds,
       focusedMessageKey: ?string,
       navigation: MessageListNavProp,
+      route: MessageListRoute,
     ) => ({
       messageListVerticalBounds,
       focusedMessageKey,
       navigation,
+      route,
     }),
   );
 
@@ -215,6 +223,7 @@ class MessageList extends React.PureComponent<Props, State> {
       messageListVerticalBounds,
       focusedMessageKey,
       navigation,
+      route,
     } = this.flatListExtraData;
     const focused =
       messageKey(messageInfoItem.messageInfo) === focusedMessageKey;
@@ -223,6 +232,7 @@ class MessageList extends React.PureComponent<Props, State> {
         item={messageInfoItem}
         focused={focused}
         navigation={navigation}
+        route={route}
         toggleFocus={this.toggleMessageFocus}
         verticalBounds={messageListVerticalBounds}
       />

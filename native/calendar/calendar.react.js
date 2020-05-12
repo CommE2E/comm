@@ -135,6 +135,7 @@ let currentCalendarRef: ?Calendar = null;
 
 type Props = {
   navigation: NavigationScreenProp<NavigationRoute>,
+  route: NavigationRoute,
   // Redux state
   listData: ?$ReadOnlyArray<CalendarItem>,
   calendarActive: boolean,
@@ -167,9 +168,9 @@ class Calendar extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
       navigate: PropTypes.func.isRequired,
-      state: PropTypes.shape({
-        key: PropTypes.string.isRequired,
-      }),
+    }).isRequired,
+    route: PropTypes.shape({
+      key: PropTypes.string.isRequired,
     }).isRequired,
     listData: PropTypes.arrayOf(
       PropTypes.oneOfType([
@@ -707,7 +708,7 @@ class Calendar extends React.PureComponent<Props, State> {
 
   onAdd = (dayString: string) => {
     this.props.navigation.navigate(ThreadPickerModalRouteName, {
-      presentedFrom: this.props.navigation.state.key,
+      presentedFrom: this.props.route.key,
       dateString: dayString,
     });
   };

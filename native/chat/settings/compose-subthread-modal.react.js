@@ -40,6 +40,13 @@ type NavProp = NavigationScreenProp<{|
 
 type Props = {|
   navigation: NavProp,
+  route: {|
+    ...NavigationLeafRoute,
+    params: {|
+      presentedFrom: string,
+      threadInfo: ThreadInfo,
+    |},
+  |},
   // Redux state
   colors: Colors,
   styles: typeof styles,
@@ -47,12 +54,12 @@ type Props = {|
 class ComposeSubthreadModal extends React.PureComponent<Props> {
   static propTypes = {
     navigation: PropTypes.shape({
-      state: PropTypes.shape({
-        params: PropTypes.shape({
-          threadInfo: threadInfoPropType.isRequired,
-        }).isRequired,
-      }).isRequired,
       navigate: PropTypes.func.isRequired,
+    }).isRequired,
+    route: PropTypes.shape({
+      params: PropTypes.shape({
+        threadInfo: threadInfoPropType.isRequired,
+      }).isRequired,
     }).isRequired,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
@@ -102,7 +109,7 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
   }
 
   onPressOpen = () => {
-    const threadInfo = this.props.navigation.state.params.threadInfo;
+    const threadInfo = this.props.route.params.threadInfo;
     this.props.navigation.navigate({
       routeName: ComposeThreadRouteName,
       params: {
@@ -114,7 +121,7 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
   };
 
   onPressSecret = () => {
-    const threadInfo = this.props.navigation.state.params.threadInfo;
+    const threadInfo = this.props.route.params.threadInfo;
     this.props.navigation.navigate({
       routeName: ComposeThreadRouteName,
       params: {

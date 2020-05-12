@@ -45,6 +45,7 @@ type Item = ChatThreadItem | {| type: 'search', searchText: string |};
 
 type Props = {|
   navigation: NavigationScreenProp<NavigationRoute>,
+  route: NavigationRoute,
   // Redux state
   chatListData: $ReadOnlyArray<ChatThreadItem>,
   viewerID: ?string,
@@ -59,10 +60,11 @@ type PropsAndState = {| ...Props, ...State |};
 class ChatThreadList extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
-      state: PropTypes.shape({
-        key: PropTypes.string.isRequired,
-      }).isRequired,
       navigate: PropTypes.func.isRequired,
+      clearScreens: PropTypes.func.isRequired,
+    }).isRequired,
+    route: PropTypes.shape({
+      key: PropTypes.string.isRequired,
     }).isRequired,
     chatListData: PropTypes.arrayOf(chatThreadItemPropType).isRequired,
     viewerID: PropTypes.string,
@@ -85,11 +87,13 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   flatList: ?FlatList<Item>;
 
   componentDidMount() {
-    registerChatScreen(this.props.navigation.state.key, this);
+    const { route } = this.props;
+    registerChatScreen(route.key, this);
   }
 
   componentWillUnmount() {
-    registerChatScreen(this.props.navigation.state.key, null);
+    const { route } = this.props;
+    registerChatScreen(route.key, null);
   }
 
   get canReset() {

@@ -22,7 +22,9 @@ import {
   withKeyboardState,
 } from '../keyboard/keyboard-state';
 import {
+  type MessageListRoute,
   type MessageListNavProp,
+  messageListRoutePropType,
   messageListNavPropType,
 } from './message-list-types';
 import {
@@ -78,6 +80,7 @@ const draftKeyFromThreadID = (threadID: string) =>
 type Props = {|
   threadInfo: ThreadInfo,
   navigation: MessageListNavProp,
+  route: MessageListRoute,
   // Redux state
   viewerID: ?string,
   draft: string,
@@ -104,6 +107,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
     navigation: messageListNavPropType.isRequired,
+    route: messageListRoutePropType.isRequired,
     viewerID: PropTypes.string,
     draft: PropTypes.string.isRequired,
     joinThreadLoadingStatus: loadingStatusPropType.isRequired,
@@ -528,7 +532,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     this.props.navigation.navigate({
       routeName: CameraModalRouteName,
       params: {
-        presentedFrom: this.props.navigation.state.key,
+        presentedFrom: this.props.route.key,
         threadID: this.props.threadInfo.id,
       },
     });

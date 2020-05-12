@@ -81,13 +81,14 @@ import {
 
 const itemPageLength = 5;
 
-type NavProp = NavigationScreenProp<{|
+type Route = {|
   ...NavigationLeafRoute,
   params: {|
     threadInfo: ThreadInfo,
     gesturesDisabled?: boolean,
   |},
-|}>;
+|};
+type NavProp = NavigationScreenProp<Route>;
 
 type ChatSettingsItem =
   | {|
@@ -189,6 +190,7 @@ type ChatSettingsItem =
 
 type Props = {|
   navigation: NavProp,
+  route: Route,
   // Redux state
   threadInfo: ?ThreadInfo,
   threadMembers: RelativeMemberInfo[],
@@ -212,15 +214,14 @@ type State = {|
 class ThreadSettings extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
-      state: PropTypes.shape({
-        key: PropTypes.string.isRequired,
-        params: PropTypes.shape({
-          threadInfo: threadInfoPropType.isRequired,
-          gesturesDisabled: PropTypes.bool,
-        }).isRequired,
-      }).isRequired,
       navigate: PropTypes.func.isRequired,
       setParams: PropTypes.func.isRequired,
+    }).isRequired,
+    route: PropTypes.shape({
+      key: PropTypes.string.isRequired,
+      params: PropTypes.shape({
+        threadInfo: threadInfoPropType.isRequired,
+      }).isRequired,
     }).isRequired,
     threadInfo: threadInfoPropType,
     threadMembers: PropTypes.arrayOf(relativeMemberInfoPropType).isRequired,
@@ -254,7 +255,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   }
 
   static getThreadInfo(props: Props): ThreadInfo {
-    return props.navigation.state.params.threadInfo;
+    return props.route.params.threadInfo;
   }
 
   static scrollDisabled(props: Props) {
@@ -264,7 +265,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
-    registerChatScreen(this.props.navigation.state.key, this);
+    registerChatScreen(this.props.route.key, this);
     const threadInfo = ThreadSettings.getThreadInfo(this.props);
     if (!threadInChatList(threadInfo)) {
       threadWatcher.watchID(threadInfo.id);
@@ -272,7 +273,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   }
 
   componentWillUnmount() {
-    registerChatScreen(this.props.navigation.state.key, null);
+    registerChatScreen(this.props.route.key, null);
     const threadInfo = ThreadSettings.getThreadInfo(this.props);
     if (!threadInChatList(threadInfo)) {
       threadWatcher.removeID(threadInfo.id);
@@ -348,7 +349,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       colorEditValue: this.state.colorEditValue,
       canChangeSettings,
       navigate: this.props.navigation.navigate,
-      threadSettingsRouteKey: this.props.navigation.state.key,
+      threadSettingsRouteKey: this.props.route.key,
     });
     listData.push({
       itemType: 'footer',
@@ -503,7 +504,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       navigate: this.props.navigation.navigate,
       lastListItem: false,
       verticalBounds,
-      threadSettingsRouteKey: this.props.navigation.state.key,
+      threadSettingsRouteKey: this.props.route.key,
     }));
     let memberItems;
     if (seeMoreMembers) {
@@ -749,7 +750,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   onPressComposeSubthread = () => {
     const threadInfo = ThreadSettings.getThreadInfo(this.props);
     this.props.navigation.navigate(ComposeSubthreadModalRouteName, {
-      presentedFrom: this.props.navigation.state.key,
+      presentedFrom: this.props.route.key,
       threadInfo,
     });
   };
@@ -757,7 +758,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   onPressAddMember = () => {
     const threadInfo = ThreadSettings.getThreadInfo(this.props);
     this.props.navigation.navigate(AddUsersModalRouteName, {
-      presentedFrom: this.props.navigation.state.key,
+      presentedFrom: this.props.route.key,
       threadInfo,
     });
   };
@@ -835,8 +836,8 @@ const somethingIsSaving = (
 
 const activeTabSelector = createActiveTabSelector(ChatRouteName);
 const WrappedThreadSettings = connect(
-  (state: AppState, ownProps: { navigation: NavProp }) => {
-    const threadID = ownProps.navigation.state.params.threadInfo.id;
+  (state: AppState, ownProps: { route: Route }) => {
+    const threadID = ownProps.route.params.threadInfo.id;
     const threadMembers = relativeMemberInfoSelectorForMembersOfThread(
       threadID,
     )(state);
