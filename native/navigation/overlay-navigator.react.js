@@ -1,19 +1,15 @@
 // @flow
 
-import type {
-  NavigationStackProp,
-  NavigationState,
-  NavigationDescriptor,
-  NavigationRouteConfigMap,
-  StackNavigatorConfig,
-} from 'react-navigation-stack';
-import type { NavigationStackScreenOptions } from 'react-navigation';
-
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { createNavigator } from 'react-navigation';
 import Animated, { Easing } from 'react-native-reanimated';
 import invariant from 'invariant';
+import {
+  useNavigationBuilder,
+  createNavigatorFactory,
+  NavigationHelpersContext,
+} from '@react-navigation/native';
 
 import { values } from 'lib/utils/objects';
 
@@ -25,46 +21,18 @@ import { scrollBlockingChatModals } from './route-names';
 const { Value, timing, cond, call, lessOrEq, block } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
-function createOverlayNavigator(
-  routeConfigMap: NavigationRouteConfigMap,
-  stackConfig: StackNavigatorConfig = {},
-) {
-  const {
+const OverlayNavigator = React.memo<Props>(({
+  initialRouteName,
+  children,
+  screenOptions,
+  ...rest
+}) => {
+  const { state, descriptors, navigation } = useNavigationBuilder(OverlayRouter, {
+    children,
+    screenOptions,
     initialRouteName,
-    initialRouteParams,
-    paths,
-    defaultNavigationOptions,
-    initialRouteKey,
-  } = stackConfig;
-  const stackRouterConfig = {
-    initialRouteName,
-    initialRouteParams,
-    paths,
-    defaultNavigationOptions,
-    initialRouteKey,
-  };
-  return createNavigator<
-    NavigationStackScreenOptions,
-    NavigationState,
-    StackNavigatorConfig,
-    NavigationStackProp<NavigationState>,
-    OverlayNavigatorProps,
-  >(
-    OverlayNavigator,
-    OverlayRouter(routeConfigMap, stackRouterConfig),
-    stackConfig,
-  );
-}
-
-type OverlayNavigatorProps = {
-  navigation: NavigationStackProp<NavigationState>,
-  descriptors: { [key: string]: NavigationDescriptor },
-  navigationConfig: StackNavigatorConfig,
-};
-type Props = $ReadOnly<OverlayNavigatorProps>;
-const OverlayNavigator = React.memo<Props>((props: Props) => {
-  const { navigation, descriptors } = props;
-  const curIndex = navigation.state.index;
+  });
+  const curIndex = state.index;
 
   const positionRef = React.useRef();
   if (!positionRef.current) {
@@ -72,7 +40,7 @@ const OverlayNavigator = React.memo<Props>((props: Props) => {
   }
   const position = positionRef.current;
 
-  const { routes } = navigation.state;
+  const { routes } = state;
   const scenes = React.useMemo(
     () =>
       routes.map((route, routeIndex) => {
@@ -91,7 +59,7 @@ const OverlayNavigator = React.memo<Props>((props: Props) => {
           },
         };
       }),
-    [position, routes, descriptors, curIndex],
+    [position, routes, curIndex],
   );
 
   const prevScenesRef = React.useRef();
@@ -105,7 +73,7 @@ const OverlayNavigator = React.memo<Props>((props: Props) => {
   const getScrollBlockingModalStatus = data => {
     let status = 'closed';
     for (let scene of data) {
-      if (!scrollBlockingChatModals.includes(scene.route.routeName)) {
+      if (!scrollBlockingChatModals.includes(scene.route.name)) {
         continue;
       }
       if (!scene.context.isDismissing) {
@@ -186,7 +154,11 @@ const OverlayNavigator = React.memo<Props>((props: Props) => {
       }
       if (scene.descriptor !== data.descriptor) {
         data = { ...data, descriptor: scene.descriptor };
-        dataChanged = true;
+        // We don't set dataChanged here because descriptors get recomputed on
+        // every render, which means we could get an infinite loop. However,
+        // we want to update the descriptor whenever anything else changes, so
+        // that if and when our scene is dismissed, the sceneData has the most
+        // recent descriptor
       }
       if (
         scene.context.position !== data.context.position ||
@@ -352,8 +324,7 @@ const OverlayNavigator = React.memo<Props>((props: Props) => {
       pressableSceneAssigned = true;
     }
 
-    const { navigation: childNavigation, getComponent } = descriptor;
-    const SceneComponent = getComponent();
+    const { render } = descriptor;
     const pointerEvents = pressable ? 'auto' : 'none';
 
     // These listeners are used to clear routes after they finish dismissing
@@ -362,16 +333,21 @@ const OverlayNavigator = React.memo<Props>((props: Props) => {
     screens.unshift(
       <OverlayContext.Provider value={context} key={route.key}>
         <View style={styles.scene} pointerEvents={pointerEvents}>
-          <SceneComponent navigation={childNavigation} />
+          {render()}
         </View>
         {listenerCode}
       </OverlayContext.Provider>,
     );
   }
 
-  return screens;
+  return (
+    <NavigationHelpersContext.Provider value={navigation}>
+      {screens}
+    </NavigationHelpersContext.Provider>
+  );
 });
 OverlayNavigator.displayName = 'OverlayNavigator';
+const createOverlayNavigator = createNavigatorFactory(OverlayNavigator);
 
 const styles = StyleSheet.create({
   scene: {
