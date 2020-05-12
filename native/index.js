@@ -1,5 +1,6 @@
 // @flow
 
+import 'react-native-gesture-handler';
 import './reactotron';
 import './config';
 
