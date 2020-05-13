@@ -197,9 +197,9 @@ class MessageList extends React.PureComponent<Props, State> {
     const scrollIsDisabled = MessageList.scrollDisabled(this.props);
     const scrollWasDisabled = MessageList.scrollDisabled(prevProps);
     if (!scrollWasDisabled && scrollIsDisabled) {
-      this.props.navigation.setParams({ gesturesDisabled: true });
+      this.props.navigation.setOptions({ gestureEnabled: false });
     } else if (scrollWasDisabled && !scrollIsDisabled) {
-      this.props.navigation.setParams({ gesturesDisabled: false });
+      this.props.navigation.setOptions({ gestureEnabled: true });
     }
   }
 

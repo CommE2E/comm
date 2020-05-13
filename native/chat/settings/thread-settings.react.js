@@ -85,7 +85,6 @@ type Route = {|
   ...NavigationLeafRoute,
   params: {|
     threadInfo: ThreadInfo,
-    gesturesDisabled?: boolean,
   |},
 |};
 type NavProp = NavigationScreenProp<Route>;
@@ -234,7 +233,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   static navigationOptions = ({ navigation }) => ({
     title: navigation.state.params.threadInfo.uiName,
     headerBackTitle: 'Back',
-    gesturesEnabled: !navigation.state.params.gesturesDisabled,
   });
   flatListContainer: ?View;
 
@@ -307,9 +305,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     const scrollIsDisabled = ThreadSettings.scrollDisabled(this.props);
     const scrollWasDisabled = ThreadSettings.scrollDisabled(prevProps);
     if (!scrollWasDisabled && scrollIsDisabled) {
-      this.props.navigation.setParams({ gesturesDisabled: true });
+      this.props.navigation.setOptions({ gestureEnabled: false });
     } else if (scrollWasDisabled && !scrollIsDisabled) {
-      this.props.navigation.setParams({ gesturesDisabled: false });
+      this.props.navigation.setOptions({ gestureEnabled: true });
     }
   }
 
