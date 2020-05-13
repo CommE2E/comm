@@ -84,7 +84,7 @@ class ThreadSettingsColor extends React.PureComponent<Props> {
 
   onPressEditColor = () => {
     this.props.navigate({
-      routeName: ColorPickerModalRouteName,
+      name: ColorPickerModalRouteName,
       params: {
         presentedFrom: this.props.threadSettingsRouteKey,
         color: this.props.colorEditValue,

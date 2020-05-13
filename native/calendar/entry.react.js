@@ -40,7 +40,6 @@ import shallowequal from 'shallowequal';
 import _omit from 'lodash/fp/omit';
 import _isEqual from 'lodash/fp/isEqual';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { NavigationActions } from 'react-navigation';
 import Hyperlink from 'react-native-hyperlink';
 import tinycolor from 'tinycolor2';
 
@@ -64,7 +63,6 @@ import sleep from 'lib/utils/sleep';
 import Button from '../components/button.react';
 import {
   MessageListRouteName,
-  ChatRouteName,
   ThreadPickerModalRouteName,
 } from '../navigation/route-names';
 import {
@@ -656,13 +654,9 @@ class InternalEntry extends React.Component<Props, State> {
     Keyboard.dismiss();
     const { threadInfo } = this.props;
     this.props.navigation.navigate({
-      routeName: ChatRouteName,
-      params: {},
-      action: NavigationActions.navigate({
-        routeName: MessageListRouteName,
-        params: { threadInfo },
-        key: `${MessageListRouteName}${threadInfo.id}`,
-      }),
+      name: MessageListRouteName,
+      params: { threadInfo },
+      key: `${MessageListRouteName}${threadInfo.id}`,
     });
   };
 }

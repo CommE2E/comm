@@ -41,7 +41,7 @@ class ComposeThreadButton extends React.PureComponent<Props> {
 
   onPress = () => {
     this.props.navigate({
-      routeName: ComposeThreadRouteName,
+      name: ComposeThreadRouteName,
       params: {},
     });
   };

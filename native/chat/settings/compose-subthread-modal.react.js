@@ -111,7 +111,7 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
   onPressOpen = () => {
     const threadInfo = this.props.route.params.threadInfo;
     this.props.navigation.navigate({
-      routeName: ComposeThreadRouteName,
+      name: ComposeThreadRouteName,
       params: {
         threadType: threadTypes.CHAT_NESTED_OPEN,
         parentThreadInfo: threadInfo,
@@ -123,7 +123,7 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
   onPressSecret = () => {
     const threadInfo = this.props.route.params.threadInfo;
     this.props.navigation.navigate({
-      routeName: ComposeThreadRouteName,
+      name: ComposeThreadRouteName,
       params: {
         threadType: threadTypes.CHAT_SECRET,
         parentThreadInfo: threadInfo,

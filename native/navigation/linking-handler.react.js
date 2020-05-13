@@ -4,7 +4,7 @@ import type { NavAction } from './navigation-context';
 
 import * as React from 'react';
 import { Linking } from 'react-native';
-import { NavigationActions } from 'react-navigation';
+import { CommonActions } from '@react-navigation/native';
 
 import { infoFromURL } from 'lib/utils/url-utils';
 
@@ -26,8 +26,8 @@ const LinkingHandler = React.memo<Props>((props: Props) => {
       return;
     }
     dispatch(
-      NavigationActions.navigate({
-        routeName: VerificationModalRouteName,
+      CommonActions.navigate({
+        name: VerificationModalRouteName,
         key: 'VerificationModal',
         params: { verifyCode: verify },
       }),

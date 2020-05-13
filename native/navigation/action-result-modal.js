@@ -1,6 +1,6 @@
 // @flow
 
-import { NavigationActions } from 'react-navigation';
+import { CommonActions } from '@react-navigation/native';
 import invariant from 'invariant';
 
 import { ActionResultModalRouteName } from './route-names';
@@ -10,8 +10,8 @@ function displayActionResultModal(message: string) {
   const navContext = getGlobalNavContext();
   invariant(navContext, 'navContext should be set in displayActionResultModal');
   navContext.dispatch(
-    NavigationActions.navigate({
-      routeName: ActionResultModalRouteName,
+    CommonActions.navigate({
+      name: ActionResultModalRouteName,
       params: { message, preventPresses: true },
     }),
   );

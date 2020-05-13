@@ -6,7 +6,7 @@ import type {
 } from 'react-navigation';
 
 export type Navigate = ({
-  routeName: string,
+  name: string,
   params?: NavigationParams,
   action?: NavigationNavigateAction,
   key?: string,

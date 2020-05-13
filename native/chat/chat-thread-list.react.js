@@ -228,7 +228,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       this.searchInput.blur();
     }
     this.props.navigation.navigate({
-      routeName: MessageListRouteName,
+      name: MessageListRouteName,
       params: { threadInfo },
       key: `${MessageListRouteName}${threadInfo.id}`,
     });
@@ -236,7 +236,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
 
   composeThread = () => {
     this.props.navigation.navigate({
-      routeName: ComposeThreadRouteName,
+      name: ComposeThreadRouteName,
       params: {},
     });
   };

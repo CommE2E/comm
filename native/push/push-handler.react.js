@@ -17,12 +17,10 @@ import {
 } from 'lib/types/socket-types';
 import type { RemoteMessage, NotificationOpen } from 'react-native-firebase';
 import { type GlobalTheme, globalThemePropType } from '../types/themes';
-import {
-  type NavigationScreenProp,
-  type NavigationState,
-  type NavigationNavigateAction,
-  NavigationActions,
-} from 'react-navigation';
+import type {
+  NavigationScreenProp,
+  NavigationState,
+} from '@react-navigation/native';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -77,7 +75,7 @@ import {
   type RootContextType,
   rootContextPropType,
 } from '../root-context';
-import { ChatRouteName, MessageListRouteName } from '../navigation/route-names';
+import { MessageListRouteName } from '../navigation/route-names';
 import { replaceWithThreadActionType } from '../navigation/action-types';
 import {
   addLifecycleListener,
@@ -464,22 +462,15 @@ class PushHandler extends React.PureComponent<Props, State> {
 
   navigateToThread(threadInfo: ThreadInfo, clearChatRoutes: boolean) {
     if (clearChatRoutes) {
-      const replaceAction: NavigationNavigateAction = ({
+      this.props.navigation.dispatch({
         type: replaceWithThreadActionType,
         threadInfo,
-      }: any);
-      this.props.navigation.navigate({
-        routeName: ChatRouteName,
-        action: replaceAction,
       });
     } else {
       this.props.navigation.navigate({
-        routeName: ChatRouteName,
-        action: NavigationActions.navigate({
-          routeName: MessageListRouteName,
-          key: `${MessageListRouteName}${threadInfo.id}`,
-          params: { threadInfo },
-        }),
+        name: MessageListRouteName,
+        key: `${MessageListRouteName}${threadInfo.id}`,
+        params: { threadInfo },
       });
     }
   }

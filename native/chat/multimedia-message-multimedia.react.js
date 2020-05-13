@@ -223,7 +223,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props> {
     view.measure((x, y, width, height, pageX, pageY) => {
       const coordinates = { x: pageX, y: pageY, width, height };
       this.props.navigation.navigate({
-        routeName: MultimediaModalRouteName,
+        name: MultimediaModalRouteName,
         params: {
           presentedFrom: this.props.route.key,
           mediaInfo,
@@ -296,7 +296,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props> {
       }
 
       this.props.navigation.navigate({
-        routeName: MultimediaTooltipModalRouteName,
+        name: MultimediaTooltipModalRouteName,
         params: {
           presentedFrom: this.props.route.key,
           mediaInfo,

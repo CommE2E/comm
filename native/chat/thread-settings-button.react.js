@@ -38,7 +38,7 @@ class ThreadSettingsButton extends React.PureComponent<Props> {
   onPress = () => {
     const threadInfo = this.props.threadInfo;
     this.props.navigate({
-      routeName: ThreadSettingsRouteName,
+      name: ThreadSettingsRouteName,
       params: { threadInfo },
       key: `${ThreadSettingsRouteName}${threadInfo.id}`,
     });

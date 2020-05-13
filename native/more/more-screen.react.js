@@ -323,8 +323,8 @@ class MoreScreen extends React.PureComponent<Props> {
     );
   }
 
-  navigateIfActive(routeName: string) {
-    this.props.navigation.navigate({ routeName });
+  navigateIfActive(name: string) {
+    this.props.navigation.navigate({ name });
   }
 
   onPressEditEmail = () => {

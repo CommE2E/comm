@@ -447,7 +447,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
   onSelectExistingThread = (threadID: string) => {
     const threadInfo = this.props.threadInfos[threadID];
     this.props.navigation.navigate({
-      routeName: MessageListRouteName,
+      name: MessageListRouteName,
       params: { threadInfo },
       key: `${MessageListRouteName}${threadInfo.id}`,
     });

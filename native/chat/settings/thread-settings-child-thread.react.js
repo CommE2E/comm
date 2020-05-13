@@ -67,7 +67,7 @@ class ThreadSettingsChildThread extends React.PureComponent<Props> {
   onPress = () => {
     const { threadInfo, navigate } = this.props;
     navigate({
-      routeName: MessageListRouteName,
+      name: MessageListRouteName,
       params: { threadInfo },
       key: `${MessageListRouteName}${threadInfo.id}`,
     });

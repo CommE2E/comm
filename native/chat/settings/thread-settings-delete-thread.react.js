@@ -58,7 +58,7 @@ class ThreadSettingsDeleteThread extends React.PureComponent<Props> {
   onPress = () => {
     const threadInfo = this.props.threadInfo;
     this.props.navigate({
-      routeName: DeleteThreadRouteName,
+      name: DeleteThreadRouteName,
       params: { threadInfo },
       key: `${DeleteThreadRouteName}${threadInfo.id}`,
     });
