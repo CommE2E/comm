@@ -124,15 +124,6 @@ type ExtraData = $ReadOnly<{|
   visibleEntries: { [key: string]: boolean },
 |}>;
 
-// This is v sad :(
-// Overall, I have to say, this component is probably filled with more sadness
-// than any other component in this project. This owes mostly to its complex
-// infinite-scrolling behavior.
-// But not this particular piece of sadness, actually. We have to cache the
-// current Calendar ref here so we can access it from the statically defined
-// navigationOptions.tabBarOnPress below.
-let currentCalendarRef: ?Calendar = null;
-
 type Props = {
   navigation: NavigationScreenProp<NavigationRoute>,
   route: NavigationRoute,
@@ -166,6 +157,9 @@ class Calendar extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
       navigate: PropTypes.func.isRequired,
+      addListener: PropTypes.func.isRequired,
+      removeListener: PropTypes.func.isRequired,
+      isFocused: PropTypes.func.isRequired,
     }).isRequired,
     route: PropTypes.shape({
       key: PropTypes.string.isRequired,
@@ -209,19 +203,6 @@ class Calendar extends React.PureComponent<Props, State> {
     tabBarIcon: ({ tintColor }) => (
       <Icon name="calendar" style={[styles.icon, { color: tintColor }]} />
     ),
-    tabBarOnPress: ({
-      navigation,
-      defaultHandler,
-    }: {
-      navigation: NavigationScreenProp<NavigationRoute>,
-      defaultHandler: () => void,
-    }) => {
-      if (!navigation.isFocused()) {
-        defaultHandler();
-      } else if (currentCalendarRef) {
-        currentCalendarRef.scrollToToday();
-      }
-    },
   };
   flatList: ?FlatList<CalendarItemWithHeight> = null;
   textHeights: ?Map<string, number> = null;
@@ -266,7 +247,6 @@ class Calendar extends React.PureComponent<Props, State> {
       readyToShowList: false,
       extraData: this.latestExtraData,
     };
-    currentCalendarRef = this;
   }
 
   static textToMeasureFromListData(listData: $ReadOnlyArray<CalendarItem>) {
@@ -289,6 +269,7 @@ class Calendar extends React.PureComponent<Props, State> {
     this.keyboardDismissListener = addKeyboardDismissListener(
       this.keyboardDismiss,
     );
+    this.props.navigation.addListener('tabPress', this.onTabPress);
   }
 
   componentWillUnmount() {
@@ -301,6 +282,7 @@ class Calendar extends React.PureComponent<Props, State> {
       removeKeyboardListener(this.keyboardDismissListener);
       this.keyboardDismissListener = null;
     }
+    this.props.navigation.removeListener('tabPress', this.onTabPress);
   }
 
   handleAppStateChange = (nextAppState: ?string) => {
@@ -323,6 +305,12 @@ class Calendar extends React.PureComponent<Props, State> {
       // Otherwise, it's possible that the calendar is about to get reset. We
       // record a timestamp here so we can scrollToToday there.
       this.lastForegrounded = Date.now();
+    }
+  };
+
+  onTabPress = () => {
+    if (this.props.navigation.isFocused()) {
+      this.scrollToToday();
     }
   };
 
