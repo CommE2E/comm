@@ -27,4 +27,8 @@ export const messageListRoutePropType = PropTypes.shape({
 export const messageListNavPropType = PropTypes.shape({
   navigate: PropTypes.func.isRequired,
   setParams: PropTypes.func.isRequired,
+  setOptions: PropTypes.func.isRequired,
+  dangerouslyGetParent: PropTypes.func.isRequired,
+  isFocused: PropTypes.func.isRequired,
+  popToTop: PropTypes.func.isRequired,
 });

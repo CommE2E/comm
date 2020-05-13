@@ -53,7 +53,6 @@ import {
   ThreadSettingsAddChildThread,
 } from './thread-settings-list-action.react';
 import ThreadSettingsChildThread from './thread-settings-child-thread.react';
-import { registerChatScreen } from '../chat-screen-registry';
 import ThreadSettingsName from './thread-settings-name.react';
 import ThreadSettingsColor from './thread-settings-color.react';
 import ThreadSettingsDescription from './thread-settings-description.react';
@@ -65,14 +64,8 @@ import ThreadSettingsDeleteThread from './thread-settings-delete-thread.react';
 import {
   AddUsersModalRouteName,
   ComposeSubthreadModalRouteName,
-  ChatRouteName,
 } from '../../navigation/route-names';
-import { createActiveTabSelector } from '../../navigation/nav-selectors';
 import { styleSelector } from '../../themes/colors';
-import {
-  connectNav,
-  type NavContextType,
-} from '../../navigation/navigation-context';
 import {
   withOverlayContext,
   type OverlayContextType,
@@ -195,7 +188,6 @@ type Props = {|
   threadMembers: RelativeMemberInfo[],
   childThreadInfos: ?(ThreadInfo[]),
   somethingIsSaving: boolean,
-  tabActive: boolean,
   styles: typeof styles,
   // withOverlayContext
   overlayContext: ?OverlayContextType,
@@ -215,6 +207,10 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     navigation: PropTypes.shape({
       navigate: PropTypes.func.isRequired,
       setParams: PropTypes.func.isRequired,
+      setOptions: PropTypes.func.isRequired,
+      dangerouslyGetParent: PropTypes.func.isRequired,
+      isFocused: PropTypes.func.isRequired,
+      popToTop: PropTypes.func.isRequired,
     }).isRequired,
     route: PropTypes.shape({
       key: PropTypes.string.isRequired,
@@ -226,7 +222,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     threadMembers: PropTypes.arrayOf(relativeMemberInfoPropType).isRequired,
     childThreadInfos: PropTypes.arrayOf(threadInfoPropType),
     somethingIsSaving: PropTypes.bool.isRequired,
-    tabActive: PropTypes.bool.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     overlayContext: overlayContextPropType,
   };
@@ -259,20 +254,28 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
-    registerChatScreen(this.props.route.key, this);
     const threadInfo = ThreadSettings.getThreadInfo(this.props);
     if (!threadInChatList(threadInfo)) {
       threadWatcher.watchID(threadInfo.id);
     }
+    const tabNavigation = this.props.navigation.dangerouslyGetParent();
+    tabNavigation.addListener('tabPress', this.onTabPress);
   }
 
   componentWillUnmount() {
-    registerChatScreen(this.props.route.key, null);
     const threadInfo = ThreadSettings.getThreadInfo(this.props);
     if (!threadInChatList(threadInfo)) {
       threadWatcher.removeID(threadInfo.id);
     }
+    const tabNavigation = this.props.navigation.dangerouslyGetParent();
+    tabNavigation.removeListener('tabPress', this.onTabPress);
   }
+
+  onTabPress = () => {
+    if (this.props.navigation.isFocused() && !this.props.somethingIsSaving) {
+      this.props.navigation.popToTop();
+    }
+  };
 
   componentDidUpdate(prevProps: Props) {
     const oldReduxThreadInfo = prevProps.threadInfo;
@@ -307,14 +310,10 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     }
   }
 
-  get canReset() {
-    return this.props.tabActive && !this.props.somethingIsSaving;
-  }
-
   render() {
     const threadInfo = ThreadSettings.getThreadInfo(this.props);
 
-    const canStartEditing = this.canReset;
+    const canStartEditing = !this.props.somethingIsSaving;
     const canEditThread = threadHasPermission(
       threadInfo,
       threadPermissions.EDIT_THREAD,
@@ -828,7 +827,6 @@ const somethingIsSaving = (
   return false;
 };
 
-const activeTabSelector = createActiveTabSelector(ChatRouteName);
 const WrappedThreadSettings = connect(
   (state: AppState, ownProps: { route: Route }) => {
     const threadID = ownProps.route.params.threadInfo.id;
@@ -844,9 +842,7 @@ const WrappedThreadSettings = connect(
     };
   },
 )(
-  connectNav((context: ?NavContextType) => ({
-    tabActive: activeTabSelector(context),
-  }))(withOverlayContext(ThreadSettings)),
+  withOverlayContext(ThreadSettings),
 );
 
 hoistNonReactStatics(WrappedThreadSettings, ThreadSettings);

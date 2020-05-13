@@ -23,7 +23,6 @@ import {
 } from 'lib/selectors/chat-selectors';
 
 import ChatThreadListItem from './chat-thread-list-item.react';
-import { registerChatScreen } from './chat-screen-registry';
 import {
   ComposeThreadRouteName,
   MessageListRouteName,
@@ -44,7 +43,6 @@ type Item = ChatThreadItem | {| type: 'search', searchText: string |};
 
 type Props = {|
   navigation: NavigationScreenProp<NavigationRoute>,
-  route: NavigationRoute,
   // Redux state
   chatListData: $ReadOnlyArray<ChatThreadItem>,
   viewerID: ?string,
@@ -60,10 +58,6 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
       navigate: PropTypes.func.isRequired,
-      clearScreens: PropTypes.func.isRequired,
-    }).isRequired,
-    route: PropTypes.shape({
-      key: PropTypes.string.isRequired,
     }).isRequired,
     chatListData: PropTypes.arrayOf(chatThreadItemPropType).isRequired,
     viewerID: PropTypes.string,
@@ -76,23 +70,6 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   };
   searchInput: ?TextInput;
   flatList: ?FlatList<Item>;
-
-  componentDidMount() {
-    const { route } = this.props;
-    registerChatScreen(route.key, this);
-  }
-
-  componentWillUnmount() {
-    const { route } = this.props;
-    registerChatScreen(route.key, null);
-  }
-
-  get canReset() {
-    if (this.flatList) {
-      this.flatList.scrollToOffset({ offset: 0, animated: true });
-    }
-    return false;
-  }
 
   renderItem = (row: { item: Item }) => {
     const item = row.item;

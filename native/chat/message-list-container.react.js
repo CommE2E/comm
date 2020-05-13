@@ -33,7 +33,6 @@ import {
 import { onlyEmojiRegex } from 'lib/shared/emojis';
 
 import MessageList from './message-list.react';
-import { registerChatScreen } from './chat-screen-registry';
 import TextHeightMeasurer from '../text-height-measurer.react';
 import ChatInputBar from './chat-input-bar.react';
 import { multimediaMessageContentSizes } from './multimedia-message.react';
@@ -103,6 +102,22 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     };
   }
 
+  componentDidMount() {
+    const tabNavigation = this.props.navigation.dangerouslyGetParent();
+    tabNavigation.addListener('tabPress', this.onTabPress);
+  }
+
+  componentWillUnmount() {
+    const tabNavigation = this.props.navigation.dangerouslyGetParent();
+    tabNavigation.removeListener('tabPress', this.onTabPress);
+  }
+
+  onTabPress = () => {
+    if (this.props.navigation.isFocused()) {
+      this.props.navigation.popToTop();
+    }
+  };
+
   textToMeasureFromListData(listData: $ReadOnlyArray<ChatMessageItem>) {
     const textToMeasure = [];
     for (let item of listData) {
@@ -135,18 +150,6 @@ class MessageListContainer extends React.PureComponent<Props, State> {
 
   static getThreadInfo(props: Props): ThreadInfo {
     return props.route.params.threadInfo;
-  }
-
-  componentDidMount() {
-    registerChatScreen(this.props.route.key, this);
-  }
-
-  componentWillUnmount() {
-    registerChatScreen(this.props.route.key, null);
-  }
-
-  get canReset() {
-    return true;
   }
 
   componentDidUpdate(prevProps: Props) {
