@@ -43,7 +43,6 @@ import {
   LayoutAnimation,
   TouchableWithoutFeedback,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import _findIndex from 'lodash/fp/findIndex';
@@ -197,12 +196,6 @@ class Calendar extends React.PureComponent<Props, State> {
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     updateCalendarQuery: PropTypes.func.isRequired,
-  };
-  static navigationOptions = {
-    tabBarLabel: 'Calendar',
-    tabBarIcon: ({ tintColor }) => (
-      <Icon name="calendar" style={[styles.icon, { color: tintColor }]} />
-    ),
   };
   flatList: ?FlatList<CalendarItemWithHeight> = null;
   textHeights: ?Map<string, number> = null;
@@ -1098,9 +1091,6 @@ const styles = {
   flatList: {
     backgroundColor: 'listSeparator',
     flex: 1,
-  },
-  icon: {
-    fontSize: 28,
   },
   keyboardAvoidingView: {
     flex: 1,

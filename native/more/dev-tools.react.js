@@ -57,9 +57,6 @@ class DevTools extends React.PureComponent<Props> {
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
-  static navigationOptions = {
-    headerTitle: 'Developer tools',
-  };
 
   render() {
     const { panelIosHighlightUnderlay: underlay } = this.props.colors;

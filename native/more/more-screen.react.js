@@ -88,9 +88,6 @@ class MoreScreen extends React.PureComponent<Props> {
     logOut: PropTypes.func.isRequired,
     resendVerificationEmail: PropTypes.func.isRequired,
   };
-  static navigationOptions = {
-    headerTitle: 'More',
-  };
 
   get username() {
     return this.props.currentUserInfo && !this.props.currentUserInfo.anonymous

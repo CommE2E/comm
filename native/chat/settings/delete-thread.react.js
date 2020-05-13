@@ -104,10 +104,6 @@ class DeleteThread extends React.PureComponent<Props, State> {
     deleteThread: PropTypes.func.isRequired,
     navContext: navContextPropType,
   };
-  static navigationOptions = {
-    headerTitle: 'Delete thread',
-    headerBackTitle: 'Back',
-  };
   state = {
     password: '',
     onePasswordSupported: false,

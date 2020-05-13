@@ -130,10 +130,6 @@ class ComposeThread extends React.PureComponent<Props, State> {
     newThread: PropTypes.func.isRequired,
     searchUsers: PropTypes.func.isRequired,
   };
-  static navigationOptions = {
-    title: 'Compose thread',
-    headerBackTitle: 'Back',
-  };
   state = {
     usernameInputText: '',
     userInfoInputArray: [],

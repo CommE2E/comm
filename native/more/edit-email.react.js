@@ -73,9 +73,6 @@ class EditEmail extends React.PureComponent<Props, State> {
     dispatchActionPromise: PropTypes.func.isRequired,
     changeUserSettings: PropTypes.func.isRequired,
   };
-  static navigationOptions = {
-    headerTitle: 'Change email',
-  };
   mounted = false;
   passwordInput: ?TextInput;
   emailInput: ?TextInput;

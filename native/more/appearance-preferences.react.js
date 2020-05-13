@@ -59,9 +59,6 @@ class AppearancePreferences extends React.PureComponent<Props> {
     colors: colorsPropType.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
-  static navigationOptions = {
-    headerTitle: 'Appearance',
-  };
 
   render() {
     const { panelIosHighlightUnderlay: underlay } = this.props.colors;

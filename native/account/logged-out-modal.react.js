@@ -116,10 +116,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     dispatchActionPayload: PropTypes.func.isRequired,
   };
 
-  static navigationOptions = {
-    gesturesEnabled: false,
-  };
-
   keyboardShowListener: ?EmitterSubscription;
   keyboardHideListener: ?EmitterSubscription;
   expectingKeyboardToAppear = false;

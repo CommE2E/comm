@@ -72,9 +72,6 @@ class EditPassword extends React.PureComponent<Props, State> {
     dispatchActionPromise: PropTypes.func.isRequired,
     changeUserSettings: PropTypes.func.isRequired,
   };
-  static navigationOptions = {
-    headerTitle: 'Change password',
-  };
   mounted = false;
   currentPasswordInput: ?TextInput;
   newPasswordInput: ?TextInput;

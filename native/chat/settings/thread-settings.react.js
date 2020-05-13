@@ -230,10 +230,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     overlayContext: overlayContextPropType,
   };
-  static navigationOptions = ({ navigation }) => ({
-    title: navigation.state.params.threadInfo.uiName,
-    headerBackTitle: 'Back',
-  });
   flatListContainer: ?View;
 
   constructor(props: Props) {

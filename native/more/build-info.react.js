@@ -16,9 +16,6 @@ type Props = {|
   styles: typeof styles,
 |};
 class BuildInfo extends React.PureComponent<Props> {
-  static navigationOptions = {
-    headerTitle: 'Build info',
-  };
   static propTypes = {
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };

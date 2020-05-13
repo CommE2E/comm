@@ -23,7 +23,6 @@ import {
 } from 'lib/selectors/chat-selectors';
 
 import ChatThreadListItem from './chat-thread-list-item.react';
-import ComposeThreadButton from './compose-thread-button.react';
 import { registerChatScreen } from './chat-screen-registry';
 import {
   ComposeThreadRouteName,
@@ -71,14 +70,6 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     threadSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
   };
-  static navigationOptions = ({ navigation }) => ({
-    title: 'Threads',
-    headerRight:
-      Platform.OS === 'ios' ? (
-        <ComposeThreadButton navigate={navigation.navigate} />
-      ) : null,
-    headerBackTitle: 'Back',
-  });
   state = {
     searchText: '',
     searchResults: new Set(),

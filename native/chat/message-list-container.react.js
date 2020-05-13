@@ -33,8 +33,6 @@ import {
 import { onlyEmojiRegex } from 'lib/shared/emojis';
 
 import MessageList from './message-list.react';
-import MessageListHeaderTitle from './message-list-header-title.react';
-import ThreadSettingsButton from './thread-settings-button.react';
 import { registerChatScreen } from './chat-screen-registry';
 import TextHeightMeasurer from '../text-height-measurer.react';
 import ChatInputBar from './chat-input-bar.react';
@@ -89,22 +87,6 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     inputState: inputStatePropType,
   };
-  static navigationOptions = ({ navigation }) => ({
-    headerTitle: (
-      <MessageListHeaderTitle
-        threadInfo={navigation.state.params.threadInfo}
-        navigate={navigation.navigate}
-      />
-    ),
-    headerRight:
-      Platform.OS === 'android' ? (
-        <ThreadSettingsButton
-          threadInfo={navigation.state.params.threadInfo}
-          navigate={navigation.navigate}
-        />
-      ) : null,
-    headerBackTitle: 'Back',
-  });
 
   constructor(props: Props) {
     super(props);
