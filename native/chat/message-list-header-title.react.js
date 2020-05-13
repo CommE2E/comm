@@ -9,7 +9,7 @@ import * as React from 'react';
 import { View, Platform } from 'react-native';
 import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { HeaderTitle } from 'react-navigation-stack';
+import { HeaderTitle } from '@react-navigation/stack';
 
 import { connect } from 'lib/utils/redux-utils';
 
@@ -52,7 +52,6 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
       <Button
         onPress={this.onPress}
         style={this.props.styles.button}
-        topStyle={this.props.styles.button}
         androidBorderlessRipple={true}
       >
         <View style={this.props.styles.container}>
@@ -76,11 +75,7 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
 
 const styles = {
   button: {
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-    right: 0,
-    top: 0,
+    flex: 1,
   },
   container: {
     flex: 1,
@@ -89,11 +84,15 @@ const styles = {
     justifyContent: Platform.OS === 'android' ? 'flex-start' : 'center',
   },
   fakeIcon: {
+    paddingRight: 7,
+    paddingTop: 3,
     flex: 1,
     minWidth: 25,
     opacity: 0,
   },
   forwardIcon: {
+    paddingLeft: 7,
+    paddingTop: 3,
     color: 'link',
     flex: 1,
     minWidth: 25,
@@ -102,7 +101,5 @@ const styles = {
 const stylesSelector = styleSelector(styles);
 
 export default connect((state: AppState) => ({
-  urlPrefix: state.urlPrefix,
-  customServer: state.customServer,
   styles: stylesSelector(state),
 }))(MessageListHeaderTitle);
