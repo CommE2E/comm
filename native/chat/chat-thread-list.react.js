@@ -58,6 +58,8 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
       navigate: PropTypes.func.isRequired,
+      dangerouslyGetParent: PropTypes.func.isRequired,
+      isFocused: PropTypes.func.isRequired,
     }).isRequired,
     chatListData: PropTypes.arrayOf(chatThreadItemPropType).isRequired,
     viewerID: PropTypes.string,
@@ -70,6 +72,22 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   };
   searchInput: ?TextInput;
   flatList: ?FlatList<Item>;
+
+  componentDidMount() {
+    const tabNavigation = this.props.navigation.dangerouslyGetParent();
+    tabNavigation.addListener('tabPress', this.onTabPress);
+  }
+
+  componentWillUnmount() {
+    const tabNavigation = this.props.navigation.dangerouslyGetParent();
+    tabNavigation.removeListener('tabPress', this.onTabPress);
+  }
+
+  onTabPress = () => {
+    if (this.props.navigation.isFocused() && this.flatList) {
+      this.flatList.scrollToOffset({ offset: 0, animated: true });
+    }
+  };
 
   renderItem = (row: { item: Item }) => {
     const item = row.item;
