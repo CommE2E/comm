@@ -63,6 +63,7 @@ const light = Object.freeze({
   listSearchBackground: '#DDDDDD',
   listSearchIcon: '#AAAAAA',
   listChatBubble: '#DDDDDDBB',
+  navigationCard: '#FFFFFF',
 });
 export type Colors = $Exact<typeof light>;
 
@@ -121,6 +122,7 @@ const dark: Colors = Object.freeze({
   listSearchBackground: '#555555',
   listSearchIcon: '#AAAAAA',
   listChatBubble: '#444444DD',
+  navigationCard: '#2A2A2A',
 });
 const colors = { light, dark };
 
