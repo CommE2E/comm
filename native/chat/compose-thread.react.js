@@ -74,30 +74,8 @@ type Route = {|
   params: {|
     threadType?: ThreadType,
     parentThreadInfo?: ThreadInfo,
-    createButtonDisabled?: boolean,
   |},
 |};
-
-let queuedPress = false;
-function setQueuedPress() {
-  queuedPress = true;
-}
-let onPressCreateThread = setQueuedPress;
-function setOnPressCreateThread(func: ?() => void) {
-  if (!func) {
-    onPressCreateThread = setQueuedPress;
-    return;
-  }
-  onPressCreateThread = func;
-  if (queuedPress) {
-    onPressCreateThread();
-    queuedPress = false;
-  }
-}
-function pressCreateThread() {
-  onPressCreateThread();
-}
-
 type NavProp = ChatNavProp<Route>;
 
 type Props = {|
@@ -128,9 +106,8 @@ class ComposeThread extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
       setParams: PropTypes.func.isRequired,
-      goBack: PropTypes.func.isRequired,
+      setOptions: PropTypes.func.isRequired,
       navigate: PropTypes.func.isRequired,
-      getParam: PropTypes.func.isRequired,
       pushNewThread: PropTypes.func.isRequired,
     }).isRequired,
     route: PropTypes.shape({
@@ -153,17 +130,10 @@ class ComposeThread extends React.PureComponent<Props, State> {
     newThread: PropTypes.func.isRequired,
     searchUsers: PropTypes.func.isRequired,
   };
-  static navigationOptions = ({ navigation }) => ({
+  static navigationOptions = {
     title: 'Compose thread',
-    headerRight: (
-      <LinkButton
-        text="Create"
-        onPress={pressCreateThread}
-        disabled={!!navigation.getParam('createButtonDisabled')}
-      />
-    ),
     headerBackTitle: 'Back',
-  });
+  };
   state = {
     usernameInputText: '',
     userInfoInputArray: [],
@@ -171,13 +141,25 @@ class ComposeThread extends React.PureComponent<Props, State> {
   tagInput: ?TagInput<AccountUserInfo>;
   createThreadPressed = false;
 
-  componentDidMount() {
-    setOnPressCreateThread(this.onPressCreateThread);
-    this.searchUsers('');
+  constructor(props: Props) {
+    super(props);
+    this.setLinkButton(true);
   }
 
-  componentWillUnmount() {
-    setOnPressCreateThread(null);
+  setLinkButton(enabled: boolean) {
+    this.props.navigation.setOptions({
+      headerRight: () => (
+        <LinkButton
+          text="Create"
+          onPress={this.onPressCreateThread}
+          disabled={enabled}
+        />
+      ),
+    });
+  }
+
+  componentDidMount() {
+    this.searchUsers('');
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -406,7 +388,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
   };
 
   async newChatThreadAction() {
-    this.props.navigation.setParams({ createButtonDisabled: true });
+    this.setLinkButton(false);
     try {
       const threadTypeParam = this.props.route.params.threadType;
       const threadType = threadTypeParam
@@ -424,7 +406,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
       });
     } catch (e) {
       this.createThreadPressed = false;
-      this.props.navigation.setParams({ createButtonDisabled: false });
+      this.setLinkButton(true);
       Alert.alert(
         'Unknown error',
         'Uhh... try again?',
