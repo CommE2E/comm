@@ -62,7 +62,6 @@ type State = {|
 class EditPassword extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
-      navigate: PropTypes.func.isRequired,
       goBack: PropTypes.func.isRequired,
     }).isRequired,
     loadingStatus: loadingStatusPropType.isRequired,

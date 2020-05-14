@@ -62,7 +62,6 @@ type State = {|
 class EditEmail extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
-      navigate: PropTypes.func.isRequired,
       goBack: PropTypes.func.isRequired,
     }).isRequired,
     email: PropTypes.string,

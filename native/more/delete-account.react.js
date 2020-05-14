@@ -2,7 +2,6 @@
 
 import type { AppState } from '../redux/redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { NavigationScreenProp } from 'react-navigation';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { LogOutResult } from 'lib/types/account-types';
@@ -44,7 +43,6 @@ import {
 } from '../themes/colors';
 
 type Props = {|
-  navigation: NavigationScreenProp<*>,
   // Redux state
   loadingStatus: LoadingStatus,
   username: ?string,
@@ -66,9 +64,6 @@ type State = {|
 |};
 class DeleteAccount extends React.PureComponent<Props, State> {
   static propTypes = {
-    navigation: PropTypes.shape({
-      navigate: PropTypes.func.isRequired,
-    }).isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
     username: PropTypes.string,
     preRequestUserState: preRequestUserStatePropType.isRequired,
