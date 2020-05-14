@@ -4,27 +4,18 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 
 import * as React from 'react';
 import {
-  type NavigationRouteConfigMap,
-  type NavigationState,
-  createKeyboardAwareNavigator,
-  createNavigator,
-  type NavigationStackScreenOptions,
-} from 'react-navigation';
-import {
-  StackView,
-  type StackNavigatorConfig,
-  type NavigationStackProp,
-} from 'react-navigation-stack';
-import hoistNonReactStatics from 'hoist-non-react-statics';
-import { StyleSheet } from 'react-native';
+  createNavigatorFactory,
+  useNavigationBuilder,
+} from '@react-navigation/native';
+import { StackView } from '@react-navigation/stack';
+import { Platform, StyleSheet } from 'react-native';
+import invariant from 'invariant';
 
 import ChatThreadList from './chat-thread-list.react';
 import MessageListContainer from './message-list-container.react';
 import ComposeThread from './compose-thread.react';
 import ThreadSettings from './settings/thread-settings.react';
-import { getChatScreen } from './chat-screen-registry';
 import DeleteThread from './settings/delete-thread.react';
-import ChatIcon from './chat-icon.react';
 import {
   ComposeThreadRouteName,
   DeleteThreadRouteName,
@@ -35,130 +26,104 @@ import {
 import HeaderBackButton from '../navigation/header-back-button.react';
 import ChatHeader from './chat-header.react';
 import ChatRouter from './chat-router';
-import { InputStateContext } from '../input/input-state';
 import KeyboardAvoidingView from '../keyboard/keyboard-avoiding-view.react';
 import MessageStorePruner from './message-store-pruner.react';
 import ThreadScreenPruner from './thread-screen-pruner.react';
+import ComposeThreadButton from './compose-thread-button.react';
+import MessageListHeaderTitle from './message-list-header-title.react';
+import ThreadSettingsButton from './thread-settings-button.react';
+import { InputStateContext } from '../input/input-state';
 
-export type ChatNavProp<State> = NavigationStackProp<State> & {
-  clearScreens: (
-    routeNames: $ReadOnlyArray<string>,
-    preserveFocus: boolean,
-  ) => void,
-  replaceWithThread: (threadInfo: ThreadInfo) => void,
-  clearThreads: (
-    threadIDs: $ReadOnlyArray<string>,
-    preserveFocus: boolean,
-  ) => void,
-  pushNewThread: (threadInfo: ThreadInfo) => void,
-};
-type Props = {| navigation: ChatNavProp<NavigationState> |};
-type StackViewProps = React.ElementConfig<typeof StackView> & {
-  +navigation: ChatNavProp<NavigationState>,
-};
-
-function createChatNavigator(
-  routeConfigMap: NavigationRouteConfigMap,
-  stackConfig?: StackNavigatorConfig = {},
-) {
-  const {
-    initialRouteName,
-    initialRouteParams,
-    paths,
-    navigationOptions,
-    defaultNavigationOptions,
-    initialRouteKey,
-    ...navigatorConfig
-  } = stackConfig;
-  const routerConfig = {
-    initialRouteName,
-    initialRouteParams,
-    paths,
-    navigationOptions,
-    defaultNavigationOptions,
-    initialRouteKey,
-  };
-  return createKeyboardAwareNavigator<Props>(
-    createNavigator<
-      NavigationStackScreenOptions,
-      NavigationState,
-      StackNavigatorConfig,
-      ChatNavProp<NavigationState>,
-      StackViewProps,
-    >(StackView, ChatRouter(routeConfigMap, routerConfig), navigatorConfig),
-    navigatorConfig,
+function ChatNavigator({
+  initialRouteName,
+  children,
+  screenOptions,
+  ...rest
+}) {
+  const { state, descriptors, navigation } = useNavigationBuilder(
+    ChatRouter,
+    {
+      initialRouteName,
+      children,
+      screenOptions,
+    },
   );
-}
 
-const ChatNavigator = createChatNavigator(
-  {
-    [ChatThreadListRouteName]: ChatThreadList,
-    [MessageListRouteName]: MessageListContainer,
-    [ComposeThreadRouteName]: ComposeThread,
-    [ThreadSettingsRouteName]: ThreadSettings,
-    [DeleteThreadRouteName]: DeleteThread,
-  },
-  {
-    defaultNavigationOptions: ({ navigation }) => ({
-      header: ChatHeader,
-      headerLeft: navigation.isFirstRouteInParent()
-        ? undefined
-        : HeaderBackButton,
-    }),
-  },
-);
-ChatNavigator.navigationOptions = {
-  // eslint-disable-next-line react/display-name
-  tabBarIcon: ({ tintColor }) => <ChatIcon color={tintColor} />,
-  tabBarOnPress: ({
-    navigation,
-    defaultHandler,
-  }: {
-    navigation: ChatNavProp<NavigationState>,
-    defaultHandler: () => void,
-  }) => {
-    if (!navigation.isFocused()) {
-      defaultHandler();
-      return;
-    }
-    const state = navigation.state;
-    const currentRoute = state.routes[state.index];
-    const chatScreen = getChatScreen(currentRoute.key);
-    if (!chatScreen) {
-      return;
-    }
-    if (chatScreen.canReset) {
-      navigation.popToTop();
-    }
-  },
-};
-
-function WrappedChatNavigator(props: Props) {
-  const { navigation } = props;
+  // Clear ComposeThread screens after each message is sent. If a user goes to
+  // ComposeThread to create a new thread, but finds an existing one and uses it
+  // instead, we can assume the intent behind opening ComposeThread is resolved
   const inputState = React.useContext(InputStateContext);
-
-  const clearScreens = React.useCallback(
-    () => navigation.clearScreens([ComposeThreadRouteName], true),
-    [navigation],
-  );
-
+  invariant(inputState, 'InputState should be set in ChatNavigator');
+  const clearComposeScreensAfterMessageSend = React.useCallback(() => {
+    navigation.clearScreens([ComposeThreadRouteName], true);
+  }, [navigation]);
   React.useEffect(() => {
-    if (!inputState) {
-      return undefined;
-    }
-    inputState.registerSendCallback(clearScreens);
-    return () => inputState.unregisterSendCallback(clearScreens);
-  }, [inputState, clearScreens]);
+    inputState.registerSendCallback(clearComposeScreensAfterMessageSend);
+    return () => {
+      inputState.unregisterSendCallback(clearComposeScreensAfterMessageSend);
+    };
+  }, [inputState, clearComposeScreensAfterMessageSend]);
 
   return (
-    <KeyboardAvoidingView style={styles.keyboardAvoidingView}>
-      <ChatNavigator {...props} />
-      <MessageStorePruner />
-      <ThreadScreenPruner />
-    </KeyboardAvoidingView>
+    <StackView
+      {...rest}
+      state={state}
+      descriptors={descriptors}
+      navigation={navigation}
+    />
   );
 }
-hoistNonReactStatics(WrappedChatNavigator, ChatNavigator);
+const createChatNavigator = createNavigatorFactory(ChatNavigator);
+
+const header = props => <ChatHeader {...props} />;
+const headerBackButton = props => <HeaderBackButton {...props} />;
+const screenOptions = {
+  header,
+  headerLeft: headerBackButton,
+};
+
+const chatThreadListOptions = ({ navigation }) => ({
+  headerTitle: 'Threads',
+  headerRight:
+    Platform.OS === 'ios' ? (
+      () => <ComposeThreadButton navigate={navigation.navigate} />
+    ) : null,
+  headerBackTitle: 'Back',
+});
+const messageListOptions = ({ navigation, route }) => ({
+  headerTitle: () => (
+    <MessageListHeaderTitle
+      threadInfo={route.params.threadInfo}
+      navigate={navigation.navigate}
+    />
+  ),
+  headerTitleContainerStyle: {
+    marginHorizontal: Platform.select({ ios: 80, default: 0 }),
+    flex: 1,
+  },
+  headerRight:
+    Platform.OS === 'android' ? (
+      () => (
+        <ThreadSettingsButton
+          threadInfo={route.params.threadInfo}
+          navigate={navigation.navigate}
+        />
+      )
+    ) : null,
+  headerBackTitle: 'Back',
+});
+const composeThreadOptions = {
+  headerTitle: 'Compose thread',
+  headerBackTitle: 'Back',
+};
+const threadSettingsOptions = ({ route }) => ({
+  headerTitle: route.params.threadInfo.uiName,
+  headerBackTitle: 'Back',
+});
+const deleteThreadOptions = {
+  headerTitle: 'Delete thread',
+  headerBackTitle: 'Back',
+};
 
 const styles = StyleSheet.create({
   keyboardAvoidingView: {
@@ -166,4 +131,37 @@ const styles = StyleSheet.create({
   },
 });
 
-export default WrappedChatNavigator;
+const Chat = createChatNavigator();
+export default () => (
+  <KeyboardAvoidingView style={styles.keyboardAvoidingView}>
+    <Chat.Navigator screenOptions={screenOptions}>
+      <Chat.Screen
+        name={ChatThreadListRouteName}
+        component={ChatThreadList}
+        options={chatThreadListOptions}
+      />
+      <Chat.Screen
+        name={MessageListRouteName}
+        component={MessageListContainer}
+        options={messageListOptions}
+      />
+      <Chat.Screen
+        name={ComposeThreadRouteName}
+        component={ComposeThread}
+        options={composeThreadOptions}
+      />
+      <Chat.Screen
+        name={ThreadSettingsRouteName}
+        component={ThreadSettings}
+        options={threadSettingsOptions}
+      />
+      <Chat.Screen
+        name={DeleteThreadRouteName}
+        component={DeleteThread}
+        options={deleteThreadOptions}
+      />
+    </Chat.Navigator>
+    <MessageStorePruner />
+    <ThreadScreenPruner />
+  </KeyboardAvoidingView>
+);

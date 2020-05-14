@@ -1,9 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import { createStackNavigator } from 'react-navigation-stack';
+import { createStackNavigator } from '@react-navigation/stack';
 
 import MoreScreen from './more-screen.react';
 import EditEmail from './edit-email.react';
@@ -24,37 +22,57 @@ import {
 import MoreHeader from './more-header.react';
 import HeaderBackButton from '../navigation/header-back-button.react';
 
-const More = createStackNavigator(
-  {
-    [MoreScreenRouteName]: MoreScreen,
-    [EditEmailRouteName]: EditEmail,
-    [EditPasswordRouteName]: EditPassword,
-    [DeleteAccountRouteName]: DeleteAccount,
-    [BuildInfoRouteName]: BuildInfo,
-    [DevToolsRouteName]: DevTools,
-    [AppearancePreferencesRouteName]: AppearancePreferences,
-  },
-  {
-    defaultNavigationOptions: ({ navigation }) => ({
-      header: MoreHeader,
-      headerLeft: navigation.isFirstRouteInParent()
-        ? undefined
-        : HeaderBackButton,
-    }),
-  },
-);
-More.navigationOptions = {
-  tabBarLabel: 'More',
-  // eslint-disable-next-line react/display-name
-  tabBarIcon: ({ tintColor }) => (
-    <Icon name="bars" style={[styles.icon, { color: tintColor }]} />
-  ),
+const header = props => <MoreHeader {...props} />;
+const headerBackButton = props => <HeaderBackButton {...props} />;
+const screenOptions = {
+  header,
+  headerLeft: headerBackButton,
 };
+const moreScreenOptions = { headerTitle: 'More' };
+const editEmailOptions = { headerTitle: 'Change email' };
+const editPasswordOptions = { headerTitle: 'Change password' };
+const deleteAccountOptions = { headerTitle: 'Delete account' };
+const buildInfoOptions = { headerTitle: 'Build info' };
+const devToolsOptions = { headerTitle: 'Developer tools' };
+const appearanceOptions = { headerTitle: 'Appearance' };
 
-const styles = StyleSheet.create({
-  icon: {
-    fontSize: 28,
-  },
-});
-
-export default More;
+const More = createStackNavigator();
+export default () => (
+  <More.Navigator screenOptions={screenOptions}>
+    <More.Screen
+      name={MoreScreenRouteName}
+      component={MoreScreen}
+      options={moreScreenOptions}
+    />
+    <More.Screen
+      name={EditEmailRouteName}
+      component={EditEmail}
+      options={editEmailOptions}
+    />
+    <More.Screen
+      name={EditPasswordRouteName}
+      component={EditPassword}
+      options={editPasswordOptions}
+    />
+    <More.Screen
+      name={DeleteAccountRouteName}
+      component={DeleteAccount}
+      options={deleteAccountOptions}
+    />
+    <More.Screen
+      name={BuildInfoRouteName}
+      component={BuildInfo}
+      options={buildInfoOptions}
+    />
+    <More.Screen
+      name={DevToolsRouteName}
+      component={DevTools}
+      options={devToolsOptions}
+    />
+    <More.Screen
+      name={AppearancePreferencesRouteName}
+      component={AppearancePreferences}
+      options={appearanceOptions}
+    />
+  </More.Navigator>
+);

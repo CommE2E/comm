@@ -1,14 +1,11 @@
 // @flow
 
-import type { NavigationStackProp } from 'react-navigation-stack';
-import type { NavigationStateRoute } from 'react-navigation';
-
 import * as React from 'react';
-import { createBottomTabNavigator } from 'react-navigation-tabs';
-import hoistNonReactStatics from 'hoist-non-react-statics';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { PersistGate } from 'redux-persist/integration/react';
 import SplashScreen from 'react-native-splash-screen';
-import { Platform } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 import {
   CalendarRouteName,
@@ -38,38 +35,62 @@ import PushHandler from '../push/push-handler.react';
 import { getPersistor } from '../redux/persist';
 import { RootContext } from '../root-context';
 import { waitForInteractions } from '../utils/interactions';
+import ChatIcon from '../chat/chat-icon.react';
 
-const TabNavigator = createBottomTabNavigator(
-  {
-    [CalendarRouteName]: { screen: Calendar },
-    [ChatRouteName]: { screen: Chat },
-    [MoreRouteName]: { screen: More },
-  },
-  {
-    initialRouteName: CalendarRouteName,
-    lazy: false,
-    tabBarComponent: TabBar,
-    backBehavior: 'none',
-    tabBarOptions: {
-      keyboardHidesTabBar: false,
-    },
-  },
-);
+const calendarTabOptions = {
+  tabBarLabel: 'Calendar',
+  // eslint-disable-next-line react/display-name
+  tabBarIcon: ({ color }) => (
+    <Icon name="calendar" style={[styles.icon, { color }]} />
+  ),
+};
+const chatTabOptions = {
+  tabBarLabel: 'Chat',
+  // eslint-disable-next-line react/display-name
+  tabBarIcon: ({ color }) => <ChatIcon color={color} />,
+};
+const moreTabOptions = {
+  tabBarLabel: 'More',
+  // eslint-disable-next-line react/display-name
+  tabBarIcon: ({ color }) => (
+    <Icon name="bars" style={[styles.icon, { color }]} />
+  ),
+};
 
-const AppNavigator = createOverlayNavigator({
-  [TabNavigatorRouteName]: TabNavigator,
-  [MultimediaModalRouteName]: MultimediaModal,
-  [MultimediaTooltipModalRouteName]: MultimediaTooltipModal,
-  [ActionResultModalRouteName]: ActionResultModal,
-  [TextMessageTooltipModalRouteName]: TextMessageTooltipModal,
-  [ThreadSettingsMemberTooltipModalRouteName]: ThreadSettingsMemberTooltipModal,
-  [CameraModalRouteName]: CameraModal,
-});
+const Tab = createBottomTabNavigator();
+const tabBarOptions = { keyboardHidesTabBar: false };
+function TabNavigator() {
+  return (
+    <Tab.Navigator
+      initialRouteName={ChatRouteName}
+      lazy={false}
+      tabBar={TabBar}
+      backBehavior="none"
+      tabBarOptions={tabBarOptions}
+    >
+      <Tab.Screen
+        name={CalendarRouteName}
+        component={Calendar}
+        options={calendarTabOptions}
+      />
+      <Tab.Screen
+        name={ChatRouteName}
+        component={Chat}
+        options={chatTabOptions}
+      />
+      <Tab.Screen
+        name={MoreRouteName}
+        component={More}
+        options={moreTabOptions}
+      />
+    </Tab.Navigator>
+  );
+}
 
-type Props = {|
-  navigation: NavigationStackProp<NavigationStateRoute>,
-|};
-function WrappedAppNavigator(props: Props) {
+const App = createOverlayNavigator();
+function AppNavigator(props) {
+  const { navigation } = props;
+
   const rootContext = React.useContext(RootContext);
   const setNavStateInitialized =
     rootContext && rootContext.setNavStateInitialized;
@@ -85,16 +106,49 @@ function WrappedAppNavigator(props: Props) {
     }
   }, []);
 
-  const { navigation } = props;
   return (
     <KeyboardStateContainer>
-      <AppNavigator navigation={navigation} />
+      <App.Navigator>
+        <App.Screen
+          name={TabNavigatorRouteName}
+          component={TabNavigator}
+        />
+        <App.Screen
+          name={MultimediaModalRouteName}
+          component={MultimediaModal}
+        />
+        <App.Screen
+          name={MultimediaTooltipModalRouteName}
+          component={MultimediaTooltipModal}
+        />
+        <App.Screen
+          name={ActionResultModalRouteName}
+          component={ActionResultModal}
+        />
+        <App.Screen
+          name={TextMessageTooltipModalRouteName}
+          component={TextMessageTooltipModal}
+        />
+        <App.Screen
+          name={ThreadSettingsMemberTooltipModalRouteName}
+          component={ThreadSettingsMemberTooltipModal}
+        />
+        <App.Screen
+          name={CameraModalRouteName}
+          component={CameraModal}
+        />
+      </App.Navigator>
       <PersistGate persistor={getPersistor()}>
         <PushHandler navigation={navigation} />
       </PersistGate>
     </KeyboardStateContainer>
   );
 }
-hoistNonReactStatics(WrappedAppNavigator, AppNavigator);
 
-export default WrappedAppNavigator;
+const styles = {
+  icon: {
+    fontSize: 28,
+  },
+};
+
+export default AppNavigator;

@@ -1,21 +1,13 @@
 // @flow
 
 import * as React from 'react';
-import {
-  type NavigationRouteConfigMap,
-  type NavigationState,
-  createNavigator,
-  type NavigationStackScreenOptions,
-} from 'react-navigation';
-import {
-  StackView,
-  StackViewTransitionConfigs,
-  type StackNavigatorConfig,
-  type NavigationStackProp,
-  type NavigationStackTransitionProps,
-} from 'react-navigation-stack';
-import { Keyboard } from 'react-native';
+import { Platform } from 'react-native';
 import { enableScreens } from 'react-native-screens';
+import {
+  createNavigatorFactory,
+  useNavigationBuilder,
+} from '@react-navigation/native';
+import { StackView, TransitionPresets } from '@react-navigation/stack';
 
 import {
   LoggedOutModalRouteName,
@@ -37,123 +29,126 @@ import CustomServerModal from '../more/custom-server-modal.react';
 import ColorPickerModal from '../chat/settings/color-picker-modal.react';
 import ComposeSubthreadModal from '../chat/settings/compose-subthread-modal.react';
 import RootRouter from './root-router';
+import { RootNavigatorContext } from './root-navigator-context';
 
 enableScreens();
 
-type NavigationProp = NavigationStackProp<NavigationState> & {
-  logIn: () => void,
-  logOut: () => void,
-  clearRootModals: (
-    keys: $ReadOnlyArray<string>,
-    preserveFocus: boolean,
-  ) => void,
-  setNavState: (state: NavigationState) => void,
-};
-type StackViewProps = React.ElementConfig<typeof StackView> & {
-  +navigation: NavigationProp,
-};
+function RootNavigator({
+  initialRouteName,
+  children,
+  screenOptions,
+  ...rest
+}) {
+  const { state, descriptors, navigation } = useNavigationBuilder(
+    RootRouter,
+    {
+      initialRouteName,
+      children,
+      screenOptions,
+    },
+  );
 
-function createRootNavigator(
-  routeConfigMap: NavigationRouteConfigMap,
-  stackConfig?: StackNavigatorConfig = {},
-) {
-  const {
-    initialRouteName,
-    initialRouteParams,
-    paths,
-    navigationOptions,
-    defaultNavigationOptions,
-    initialRouteKey,
-    ...navigatorConfig
-  } = stackConfig;
-  const routerConfig = {
-    initialRouteName,
-    initialRouteParams,
-    paths,
-    navigationOptions,
-    defaultNavigationOptions,
-    initialRouteKey,
-  };
-  return createNavigator<
-    NavigationStackScreenOptions,
-    NavigationState,
-    StackNavigatorConfig,
-    NavigationProp,
-    StackViewProps,
-  >(StackView, RootRouter(routeConfigMap, routerConfig), navigatorConfig);
+  const [keyboardHandlingEnabled, setKeyboardHandlingEnabled] =
+    React.useState(true);
+  const rootNavigationContext = React.useMemo(
+    () => ({ setKeyboardHandlingEnabled }),
+    [setKeyboardHandlingEnabled],
+  );
+
+  return (
+    <RootNavigatorContext.Provider value={rootNavigationContext}>
+      <StackView
+        {...rest}
+        state={state}
+        descriptors={descriptors}
+        navigation={navigation}
+        keyboardHandlingEnabled={keyboardHandlingEnabled}
+      />
+    </RootNavigatorContext.Provider>
+  );
 }
+const createRootNavigator = createNavigatorFactory(RootNavigator);
 
-const RootNavigator = createRootNavigator(
-  {
-    [LoggedOutModalRouteName]: LoggedOutModal,
-    [VerificationModalRouteName]: VerificationModal,
-    [AppRouteName]: AppNavigator,
-    [ThreadPickerModalRouteName]: ThreadPickerModal,
-    [AddUsersModalRouteName]: AddUsersModal,
-    [CustomServerModalRouteName]: CustomServerModal,
-    [ColorPickerModalRouteName]: ColorPickerModal,
-    [ComposeSubthreadModalRouteName]: ComposeSubthreadModal,
+const baseTransitionPreset = Platform.select({
+  ios: TransitionPresets.ModalSlideFromBottomIOS,
+  default: TransitionPresets.FadeFromBottomAndroid,
+});
+const transitionPreset = {
+  ...baseTransitionPreset,
+  cardStyleInterpolator: interpolatorProps => {
+    const baseCardStyleInterpolator =
+      baseTransitionPreset.cardStyleInterpolator(interpolatorProps);
+    const overlayOpacity = interpolatorProps.current.progress.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 0.7],
+      extrapolate: 'clamp',
+    });
+    return {
+      ...baseCardStyleInterpolator,
+      overlayStyle: {
+        ...baseCardStyleInterpolator.overlayStyle,
+        opacity: overlayOpacity,
+      },
+    };
   },
-  {
-    headerMode: 'none',
-    mode: 'modal',
-    transparentCard: true,
-    disableKeyboardHandling: true,
-    onTransitionStart: (
-      transitionProps: NavigationStackTransitionProps,
-      prevTransitionProps: ?NavigationStackTransitionProps,
-    ) => {
-      if (!prevTransitionProps) {
-        return;
-      }
-      const { scene } = transitionProps;
-      const { route } = scene;
-      const { scene: prevScene } = prevTransitionProps;
-      const { route: prevRoute } = prevScene;
-      if (route.key === prevRoute.key) {
-        return;
-      }
-      if (
-        route.routeName !== AppRouteName ||
-        prevRoute.routeName !== ThreadPickerModalRouteName
-      ) {
-        Keyboard.dismiss();
-      }
-    },
-    transitionConfig: (
-      transitionProps: NavigationStackTransitionProps,
-      prevTransitionProps: ?NavigationStackTransitionProps,
-      isModal: boolean,
-    ) => {
-      const defaultConfig = StackViewTransitionConfigs.defaultTransitionConfig(
-        transitionProps,
-        prevTransitionProps,
-        isModal,
-      );
-      return {
-        ...defaultConfig,
-        screenInterpolator: sceneProps => {
-          const {
-            opacity: defaultOpacity,
-            ...defaultInterpolation
-          } = defaultConfig.screenInterpolator(sceneProps);
-          const { position, scene } = sceneProps;
-          const { index, route } = scene;
-          if (
-            accountModals.includes(route.routeName) ||
-            route.routeName === AppRouteName
-          ) {
-            return defaultInterpolation;
-          }
-          const opacity = position.interpolate({
-            inputRange: [index - 1, index],
-            outputRange: ([0, 1]: number[]),
-          });
-          return { ...defaultInterpolation, opacity };
-        },
-      };
-    },
-  },
+};
+
+const Root = createRootNavigator();
+const defaultScreenOptions = {
+  gestureEnabled: Platform.OS === 'ios',
+  animationEnabled: Platform.OS !== 'web',
+  cardStyle: { backgroundColor: 'transparent' },
+  ...transitionPreset,
+};
+const disableGesturesScreenOptions = {
+  gestureEnabled: false,
+};
+const modalOverlayScreenOptions = {
+  cardOverlayEnabled: true,
+};
+export default () => (
+  <Root.Navigator
+    mode="modal"
+    headerMode="none"
+    screenOptions={defaultScreenOptions}
+  >
+    <Root.Screen
+      name={LoggedOutModalRouteName}
+      component={LoggedOutModal}
+      options={disableGesturesScreenOptions}
+    />
+    <Root.Screen
+      name={VerificationModalRouteName}
+      component={VerificationModal}
+    />
+    <Root.Screen
+      name={AppRouteName}
+      component={AppNavigator}
+    />
+    <Root.Screen
+      name={ThreadPickerModalRouteName}
+      component={ThreadPickerModal}
+      options={modalOverlayScreenOptions}
+    />
+    <Root.Screen
+      name={AddUsersModalRouteName}
+      component={AddUsersModal}
+      options={modalOverlayScreenOptions}
+    />
+    <Root.Screen
+      name={CustomServerModalRouteName}
+      component={CustomServerModal}
+      options={modalOverlayScreenOptions}
+    />
+    <Root.Screen
+      name={ColorPickerModalRouteName}
+      component={ColorPickerModal}
+      options={modalOverlayScreenOptions}
+    />
+    <Root.Screen
+      name={ComposeSubthreadModalRouteName}
+      component={ComposeSubthreadModal}
+      options={modalOverlayScreenOptions}
+    />
+  </Root.Navigator>
 );
-
-export default RootNavigator;

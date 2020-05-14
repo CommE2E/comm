@@ -3,19 +3,20 @@
 import { type GlobalTheme, globalThemePropType } from './types/themes';
 import type { AppState } from './redux/redux-setup';
 import type { NavAction } from './navigation/navigation-context';
+import type { NavigationState } from 'react-navigation';
 
 import * as React from 'react';
 import { Provider } from 'react-redux';
 import { Platform, UIManager, View, StyleSheet } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 import { PersistGate } from 'redux-persist/integration/react';
-import {
-  type SupportedThemes,
-  type NavigationState,
-  createAppContainer,
-  NavigationActions,
-} from 'react-navigation';
 import AsyncStorage from '@react-native-community/async-storage';
+import {
+  NavigationContainer,
+  CommonActions,
+} from '@react-navigation/native';
+import invariant from 'invariant';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { connect } from 'lib/utils/redux-utils';
 import { actionLogger } from 'lib/utils/action-logger';
@@ -42,28 +43,12 @@ import { defaultNavigationState } from './navigation/default-state';
 import InputStateContainer from './input/input-state-container.react';
 import './themes/fonts';
 import LifecycleHandler from './lifecycle/lifecycle-handler.react';
+import { DarkTheme, LightTheme } from './themes/navigation';
 
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental &&
     UIManager.setLayoutAnimationEnabledExperimental(true);
 }
-
-type NavContainer = React.AbstractComponent<
-  {|
-    theme?: SupportedThemes | 'no-preference',
-    loadNavigationState?: () => Promise<NavigationState>,
-    onNavigationStateChange?: (
-      prevState: NavigationState,
-      state: NavigationState,
-      action: NavAction,
-    ) => void,
-    persistNavigationState?: (state: NavigationState) => Promise<void>,
-  |},
-  {
-    dispatch: (action: NavAction) => boolean,
-  },
->;
-const NavAppContainer: NavContainer = (createAppContainer(RootNavigator): any);
 
 const navStateAsyncStorageKey = 'navState';
 
@@ -74,6 +59,7 @@ type Props = {
 type State = {|
   navContext: ?NavContextType,
   rootContext: RootContextType,
+  initialState: ?NavigationState,
 |};
 class Root extends React.PureComponent<Props, State> {
   static propTypes = {
@@ -89,18 +75,47 @@ class Root extends React.PureComponent<Props, State> {
     this.state = {
       navContext: null,
       rootContext: { setNavStateInitialized: this.setNavStateInitialized },
+      initialState: null,
     };
   }
 
   componentDidMount() {
     Orientation.lockToPortrait();
+    this.loadInitialState();
+  }
+
+  async loadInitialState() {
+    let initialState;
+    if (__DEV__) {
+      try {
+        const navStateString = await AsyncStorage.getItem(
+          navStateAsyncStorageKey,
+        );
+        if (navStateString) {
+          initialState = JSON.parse(navStateString);
+        }
+      } catch {}
+    }
+    if (!initialState) {
+      initialState = defaultNavigationState;
+    }
+    this.navState = initialState;
+    this.setNavContext();
+    this.setState({ initialState });
+  };
+
+  get theme() {
+    const { activeTheme } = this.props;
+    if (activeTheme === 'light') {
+      return LightTheme;
+    } else if (activeTheme === 'dark') {
+      return DarkTheme;
+    }
+    return undefined;
   }
 
   render() {
     const { detectUnsupervisedBackgroundRef } = this;
-    const reactNavigationTheme = this.props.activeTheme
-      ? this.props.activeTheme
-      : 'no-preference';
     const gated: React.Node = (
       <>
         <LifecycleHandler />
@@ -114,24 +129,30 @@ class Root extends React.PureComponent<Props, State> {
         <OrientationHandler />
       </>
     );
-    const persistNavigationState = __DEV__
-      ? this.persistNavigationState
-      : undefined;
+    let navContainer;
+    if (this.state.initialState) {
+      navContainer = (
+        <NavigationContainer
+          initialState={this.state.initialState}
+          onStateChange={this.onNavigationStateChange}
+          theme={this.theme}
+          ref={this.navContainerRef}
+        >
+          <RootNavigator />
+        </NavigationContainer>
+      );
+    }
     return (
       <View style={styles.app}>
         <NavContext.Provider value={this.state.navContext}>
           <RootContext.Provider value={this.state.rootContext}>
             <InputStateContainer>
-              <ConnectedStatusBar />
-              <PersistGate persistor={getPersistor()}>{gated}</PersistGate>
-              <NavAppContainer
-                theme={reactNavigationTheme}
-                loadNavigationState={this.loadNavigationState}
-                onNavigationStateChange={this.onNavigationStateChange}
-                persistNavigationState={persistNavigationState}
-                ref={this.appContainerRef}
-              />
-              <NavigationHandler />
+              <SafeAreaProvider>
+                <ConnectedStatusBar />
+                <PersistGate persistor={getPersistor()}>{gated}</PersistGate>
+                {navContainer}
+                <NavigationHandler />
+              </SafeAreaProvider>
             </InputStateContainer>
           </RootContext.Provider>
         </NavContext.Provider>
@@ -150,50 +171,23 @@ class Root extends React.PureComponent<Props, State> {
     }));
   };
 
-  loadNavigationState = async () => {
-    let navState;
-    if (__DEV__) {
-      const navStateString = await AsyncStorage.getItem(
-        navStateAsyncStorageKey,
-      );
-      if (navStateString) {
-        try {
-          navState = JSON.parse(navStateString);
-        } catch (e) {
-          console.log('JSON.parse threw while trying to dehydrate navState', e);
-        }
-      }
-    }
-    if (!navState) {
-      navState = defaultNavigationState;
-    }
-    this.navState = navState;
-    this.setNavContext();
-    actionLogger.addOtherAction(
-      'navState',
-      NavigationActions.init(),
-      null,
-      navState,
-    );
-    return navState;
-  };
-
-  onNavigationStateChange = (
-    prevState: NavigationState,
-    state: NavigationState,
-    action: NavAction,
-  ) => {
+  onNavigationStateChange = (state: ?NavigationState) => {
+    invariant(state, 'nav state should be non-null');
     this.navState = state;
     this.setNavContext();
-    actionLogger.addOtherAction('navState', action, prevState, state);
+    if (__DEV__) {
+      this.persistNavigationState(state);
+    }
   };
 
-  appContainerRef = (appContainer: ?React.ElementRef<NavContainer>) => {
-    if (!appContainer) {
+  navContainerRef = (navContainer: ?React.ElementRef<NavigationContainer>) => {
+    if (!navContainer) {
       return;
     }
-    this.navDispatch = appContainer.dispatch;
-    this.setNavContext();
+    if (!this.navDispatch) {
+      this.navDispatch = navContainer.dispatch;
+      this.setNavContext();
+    }
   };
 
   setNavContext() {
