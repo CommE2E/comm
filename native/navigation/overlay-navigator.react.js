@@ -126,6 +126,11 @@ const OverlayNavigator = React.memo<Props>(({
   const prevSceneDataRef = React.useRef(sceneData);
   const prevSceneData = prevSceneDataRef.current;
 
+  // We need to initiate animations in useEffect blocks, but because we setState
+  // within render we might have multiple renders before the useEffect triggers.
+  // So we cache whether or not a new animation should be started in this ref
+  const pendingAnimationRef = React.useRef(false);
+
   // This block keeps sceneData updated when our props change. It's the
   // hook equivalent of getDerivedStateFromProps
   // https://reactjs.org/docs/hooks-faq.html#how-do-i-implement-getderivedstatefromprops
@@ -218,11 +223,7 @@ const OverlayNavigator = React.memo<Props>(({
 
     if (sceneAdded || dismissingSceneData) {
       // We start an animation whenever a scene is added or dismissed
-      timing(position, {
-        duration: 250,
-        easing: Easing.inOut(Easing.ease),
-        toValue: curIndex,
-      }).start();
+      pendingAnimationRef.current = true;
     }
 
     // We want to keep at most one dismissing scene in the sceneData at a time
@@ -242,6 +243,19 @@ const OverlayNavigator = React.memo<Props>(({
       }
     }
   }
+
+  const startAnimation = pendingAnimationRef.current;
+  React.useEffect(() => {
+    if (!startAnimation) {
+      return;
+    }
+    pendingAnimationRef.current = false;
+    timing(position, {
+      duration: 250,
+      easing: Easing.inOut(Easing.ease),
+      toValue: curIndex,
+    }).start();
+  }, [position, startAnimation, curIndex]);
 
   // If sceneData changes, we update scrollBlockingModalStatus based on it, both
   // in state and within the individual sceneData contexts. If sceneData doesn't
