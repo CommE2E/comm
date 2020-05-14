@@ -3,7 +3,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { KeyboardUtils } from 'react-native-keyboard-input';
-import { Platform, View, StyleSheet } from 'react-native';
+import { Platform } from 'react-native';
 
 import {
   addKeyboardShowListener,
@@ -107,29 +107,17 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
       hideMediaGallery,
       getMediaGalleryThreadID,
     };
-    if (Platform.OS !== 'android') {
-      return (
-        <KeyboardContext.Provider value={keyboardState}>
-          {this.props.children}
-        </KeyboardContext.Provider>
-      );
-    }
-    const keyboardInputHost = mediaGalleryOpen ? <KeyboardInputHost /> : null;
+    const keyboardInputHost =
+      Platform.OS === 'android' && mediaGalleryOpen ? (
+        <KeyboardInputHost />
+      ) : null;
     return (
       <KeyboardContext.Provider value={keyboardState}>
-        <View style={styles.container}>
-          {this.props.children}
-        </View>
+        {this.props.children}
         {keyboardInputHost}
       </KeyboardContext.Provider>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
 
 export default KeyboardStateContainer;
