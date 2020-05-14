@@ -2,15 +2,7 @@
 
 import type { ThreadInfo } from 'lib/types/thread-types';
 
-import {
-  StackRouter,
-  NavigationActions,
-  type NavigationAction,
-  type NavigationState,
-  type NavigationRoute,
-  type NavigationRouteConfigMap,
-  type NavigationStackRouterConfig,
-} from 'react-navigation';
+import { StackRouter, CommonActions } from '@react-navigation/native';
 
 import {
   ChatThreadListRouteName,
@@ -28,60 +20,25 @@ import {
   pushNewThreadActionType,
 } from '../navigation/action-types';
 
-type ClearScreensAction = {|
-  +type: 'CLEAR_SCREENS',
-  +routeNames: $ReadOnlyArray<string>,
-  +preserveFocus?: boolean,
-|};
-type ReplaceWithThreadAction = {|
-  +type: 'REPLACE_WITH_THREAD',
-  +threadInfo: ThreadInfo,
-|};
-type ClearThreadsAction = {|
-  +type: 'CLEAR_THREADS',
-  +threadIDs: $ReadOnlyArray<string>,
-  +preserveFocus?: boolean,
-|};
-type PushNewThreadAction = {|
-  +type: 'PUSH_NEW_THREAD',
-  +threadInfo: ThreadInfo,
-|};
-export type ChatRouterNavigationAction =
-  | NavigationAction
-  | ClearScreensAction
-  | ReplaceWithThreadAction
-  | ClearThreadsAction
-  | PushNewThreadAction;
-
-const defaultConfig = Object.freeze({});
-function ChatRouter(
-  routeConfigMap: NavigationRouteConfigMap,
-  stackConfig?: NavigationStackRouterConfig = defaultConfig,
-) {
-  const stackRouter = StackRouter(routeConfigMap, stackConfig);
+function ChatRouter(options) {
+  const stackRouter = StackRouter(options);
   return {
     ...stackRouter,
     getStateForAction: (
-      action: ChatRouterNavigationAction,
-      lastState: ?NavigationState,
+      lastState,
+      action,
+      options,
     ) => {
       if (action.type === clearScreensActionType) {
         const { routeNames } = action;
         if (!lastState) {
           return lastState;
         }
-        const newState = removeScreensFromStack(
+        return removeScreensFromStack(
           lastState,
           (route: NavigationRoute) =>
-            routeNames.includes(route.routeName) ? 'remove' : 'keep',
+            routeNames.includes(route.name) ? 'remove' : 'keep',
         );
-        const isTransitioning =
-          lastState.routes[lastState.index].key !==
-          newState.routes[newState.index].key;
-        return {
-          ...newState,
-          isTransitioning,
-        };
       } else if (action.type === replaceWithThreadActionType) {
         const { threadInfo } = action;
         if (!lastState) {
@@ -90,44 +47,28 @@ function ChatRouter(
         const clearedState = removeScreensFromStack(
           lastState,
           (route: NavigationRoute) =>
-            route.routeName === ChatThreadListRouteName ? 'keep' : 'remove',
+            route.name === ChatThreadListRouteName ? 'keep' : 'remove',
         );
-        const navigateAction = NavigationActions.navigate({
-          routeName: MessageListRouteName,
+        const navigateAction = CommonActions.navigate({
+          name: MessageListRouteName,
           key: `${MessageListRouteName}${threadInfo.id}`,
           params: { threadInfo },
         });
-        const newState = stackRouter.getStateForAction(
-          navigateAction,
+        return stackRouter.getStateForAction(
           clearedState,
+          navigateAction,
+          options,
         );
-        if (!newState) {
-          return newState;
-        }
-        const isTransitioning =
-          lastState.routes[lastState.index].key !==
-          newState.routes[newState.index].key;
-        return {
-          ...newState,
-          isTransitioning,
-        };
       } else if (action.type === clearThreadsActionType) {
         const threadIDs = new Set(action.threadIDs);
         if (!lastState) {
           return lastState;
         }
-        const newState = removeScreensFromStack(
+        return removeScreensFromStack(
           lastState,
           (route: NavigationRoute) =>
             threadIDs.has(getThreadIDFromRoute(route)) ? 'remove' : 'keep',
         );
-        const isTransitioning =
-          lastState.routes[lastState.index].key !==
-          newState.routes[newState.index].key;
-        return {
-          ...newState,
-          isTransitioning,
-        };
       } else if (action.type === pushNewThreadActionType) {
         const { threadInfo } = action;
         if (!lastState) {
@@ -136,33 +77,28 @@ function ChatRouter(
         const clearedState = removeScreensFromStack(
           lastState,
           (route: NavigationRoute) =>
-            route.routeName === ComposeThreadRouteName ? 'remove' : 'break',
+            route.name === ComposeThreadRouteName ? 'remove' : 'break',
         );
-        const navigateAction = NavigationActions.navigate({
-          routeName: MessageListRouteName,
+        const navigateAction = CommonActions.navigate({
+          name: MessageListRouteName,
           key: `${MessageListRouteName}${threadInfo.id}`,
           params: { threadInfo },
         });
-        const newState = stackRouter.getStateForAction(
-          navigateAction,
+        return stackRouter.getStateForAction(
           clearedState,
+          navigateAction,
+          options,
         );
-        if (!newState) {
-          return newState;
-        }
-        const isTransitioning =
-          lastState.routes[lastState.index].key !==
-          newState.routes[newState.index].key;
-        return {
-          ...newState,
-          isTransitioning,
-        };
       } else {
-        return stackRouter.getStateForAction(action, lastState);
+        return stackRouter.getStateForAction(
+          lastState,
+          action,
+          options,
+        );
       }
     },
-    getActionCreators: (route: NavigationRoute, navStateKey: ?string) => ({
-      ...stackRouter.getActionCreators(route, navStateKey),
+    actionCreators: {
+      ...stackRouter.actionCreators,
       clearScreens: (
         routeNames: $ReadOnlyArray<string>,
         preserveFocus: boolean,
@@ -187,7 +123,15 @@ function ChatRouter(
         type: pushNewThreadActionType,
         threadInfo,
       }),
-    }),
+    },
+    shouldActionChangeFocus: action => {
+      if (action.type === replaceWithThreadActionType) {
+        return true;
+      } else if (action.type === pushNewThreadActionType) {
+        return true;
+      }
+      return stackRouter.shouldActionChangeFocus(action);
+    },
   };
 }
 

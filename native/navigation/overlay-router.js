@@ -1,64 +1,35 @@
 // @flow
 
-import {
-  StackRouter,
-  type NavigationAction,
-  type NavigationState,
-  type NavigationRoute,
-  type NavigationRouteConfigMap,
-  type NavigationStackRouterConfig,
-} from 'react-navigation';
+import { StackRouter } from '@react-navigation/native';
 
 import { removeScreensFromStack } from '../utils/navigation-utils';
 import { clearOverlayModalsActionType } from './action-types';
 
-type ClearOverlayModalsAction = {|
-  +type: 'CLEAR_OVERLAY_MODALS',
-  +keys: $ReadOnlyArray<string>,
-  +preserveFocus?: boolean,
-|};
-export type OverlayRouterNavigationAction =
-  | NavigationAction
-  | ClearOverlayModalsAction;
-
-const defaultConfig = Object.freeze({});
-function OverlayRouter(
-  routeConfigMap: NavigationRouteConfigMap,
-  stackConfig?: NavigationStackRouterConfig = defaultConfig,
-) {
-  const stackRouter = StackRouter(routeConfigMap, stackConfig);
+function OverlayRouter(options) {
+  const stackRouter = StackRouter(options);
   return {
     ...stackRouter,
     getStateForAction: (
-      action: OverlayRouterNavigationAction,
-      lastState: ?NavigationState,
+      lastState,
+      action,
+      options,
     ) => {
       if (action.type === clearOverlayModalsActionType) {
         const { keys } = action;
         if (!lastState) {
           return lastState;
         }
-        const newState = removeScreensFromStack(
+        return removeScreensFromStack(
           lastState,
           (route: NavigationRoute) =>
             keys.includes(route.key) ? 'remove' : 'keep',
         );
-        if (newState === lastState) {
-          return lastState;
-        }
-        const isTransitioning =
-          lastState.routes[lastState.index].key !==
-          newState.routes[newState.index].key;
-        return {
-          ...newState,
-          isTransitioning,
-        };
       } else {
-        return stackRouter.getStateForAction(action, lastState);
+        return stackRouter.getStateForAction(lastState, action, options);
       }
     },
-    getActionCreators: (route: NavigationRoute, navStateKey: ?string) => ({
-      ...stackRouter.getActionCreators(route, navStateKey),
+    actionCreators: {
+      ...stackRouter.actionCreators,
       clearOverlayModals: (
         keys: $ReadOnlyArray<string>,
         preserveFocus: boolean,
@@ -67,7 +38,7 @@ function OverlayRouter(
         keys,
         preserveFocus,
       }),
-    }),
+    },
   };
 }
 
