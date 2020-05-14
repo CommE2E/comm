@@ -69,11 +69,11 @@ function collectDependencyInfo(
     }
   }
   const routeName =
-    route.routeName && typeof route.routeName === 'string'
-      ? route.routeName
+    route.name && typeof route.name === 'string'
+      ? route.name
       : undefined;
-  if (route.routes) {
-    route.routes.forEach(child =>
+  if (route.state && route.state.routes) {
+    route.state.routes.forEach(child =>
       collectDependencyInfo(child, dependencyMap, routeName),
     );
   }

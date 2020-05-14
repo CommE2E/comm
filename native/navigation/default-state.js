@@ -19,38 +19,47 @@ import {
 export type NavInfo = $Exact<BaseNavInfo>;
 
 const defaultNavigationState: NavigationState = {
+  type: 'stack',
   index: 1,
   routes: [
     {
-      key: 'App',
-      routeName: AppRouteName,
-      index: 0,
-      routes: [
-        {
-          key: 'TabNavigator',
-          routeName: TabNavigatorRouteName,
-          index: 1,
-          routes: [
-            { key: 'Calendar', routeName: CalendarRouteName },
-            {
-              key: 'Chat',
-              routeName: ChatRouteName,
-              index: 0,
+      name: AppRouteName,
+      state: {
+        type: 'stack',
+        index: 0,
+        routes: [
+          {
+            name: TabNavigatorRouteName,
+            state: {
+              type: 'tab',
+              index: 1,
               routes: [
-                { key: 'ChatThreadList', routeName: ChatThreadListRouteName },
+                { name: CalendarRouteName },
+                {
+                  name: ChatRouteName,
+                  state: {
+                    type: 'stack',
+                    index: 0,
+                    routes: [
+                      { name: ChatThreadListRouteName },
+                    ],
+                  },
+                },
+                {
+                  name: MoreRouteName,
+                  state: {
+                    type: 'stack',
+                    index: 0,
+                    routes: [{ name: MoreScreenRouteName }],
+                  },
+                },
               ],
             },
-            {
-              key: 'More',
-              routeName: MoreRouteName,
-              index: 0,
-              routes: [{ key: 'MoreScreen', routeName: MoreScreenRouteName }],
-            },
-          ],
-        },
-      ],
+          },
+        ],
+      },
     },
-    { key: 'LoggedOutModal', routeName: LoggedOutModalRouteName },
+    { name: LoggedOutModalRouteName },
   ],
 };
 

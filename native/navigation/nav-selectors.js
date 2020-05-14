@@ -41,7 +41,7 @@ const baseCreateIsForegroundSelector = (routeName: string) =>
         return false;
       }
       return (
-        navigationState.routes[navigationState.index].routeName === routeName
+        navigationState.routes[navigationState.index].name === routeName
       );
     },
   );
@@ -58,7 +58,7 @@ function useIsAppLoggedIn() {
       return false;
     }
     const { state } = navContext;
-    return !accountModals.includes(state.routes[state.index].routeName);
+    return !accountModals.includes(state.routes[state.index].name);
   }, [navContext]);
 }
 
@@ -78,16 +78,16 @@ const baseCreateActiveTabSelector = (routeName: string) =>
         return false;
       }
       const currentRootSubroute = navigationState.routes[navigationState.index];
-      if (currentRootSubroute.routeName !== AppRouteName) {
+      if (currentRootSubroute.name !== AppRouteName) {
         return false;
       }
       const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
-      const [firstAppSubroute] = appRoute.routes;
-      if (firstAppSubroute.routeName !== TabNavigatorRouteName) {
+      const [firstAppSubroute] = appRoute.state.routes;
+      if (firstAppSubroute.name !== TabNavigatorRouteName) {
         return false;
       }
       const tabRoute = assertNavigationRouteNotLeafNode(firstAppSubroute);
-      return tabRoute.routes[tabRoute.index].routeName === routeName;
+      return tabRoute.state.routes[tabRoute.state.index].name === routeName;
     },
   );
 const createActiveTabSelector: (
@@ -105,13 +105,13 @@ const scrollBlockingChatModalsClosedSelector: (
       return false;
     }
     const currentRootSubroute = navigationState.routes[navigationState.index];
-    if (currentRootSubroute.routeName !== AppRouteName) {
+    if (currentRootSubroute.name !== AppRouteName) {
       return true;
     }
     const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
-    for (let i = appRoute.index; i >= 0; i--) {
-      const route = appRoute.routes[i];
-      if (scrollBlockingChatModals.includes(route.routeName)) {
+    for (let i = appRoute.state.index; i >= 0; i--) {
+      const route = appRoute.state.routes[i];
+      if (scrollBlockingChatModals.includes(route.name)) {
         return false;
       }
     }
@@ -127,39 +127,23 @@ function selectBackgroundIsDark(
     return false;
   }
   const currentRootSubroute = navigationState.routes[navigationState.index];
-  if (currentRootSubroute.routeName !== AppRouteName) {
+  if (currentRootSubroute.name !== AppRouteName) {
     // Very bright... we'll call it non-dark. Doesn't matter right now since
     // we only use this selector for determining ActionResultModal appearance
     return false;
   }
   const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
-  let currentAppSubroute = appRoute.routes[appRoute.index];
-  if (currentAppSubroute.routeName === ActionResultModalRouteName) {
-    currentAppSubroute = appRoute.routes[appRoute.index - 1];
+  let appIndex = appRoute.state.index;
+  let currentAppSubroute = appRoute.state.routes[appIndex];
+  while (currentAppSubroute.name === ActionResultModalRouteName) {
+    currentAppSubroute = appRoute.state.routes[--appIndex];
   }
-  if (scrollBlockingChatModals.includes(currentAppSubroute.routeName)) {
+  if (scrollBlockingChatModals.includes(currentAppSubroute.name)) {
     // All the scroll-blocking chat modals have a dark background
     return true;
   }
   return theme === 'dark';
 }
-
-const overlayModalClosingSelector: (
-  context: ?NavContextType,
-) => boolean = createSelector(
-  (context: ?NavContextType) => context && context.state,
-  (navigationState: ?NavigationState) => {
-    if (!navigationState) {
-      return false;
-    }
-    const currentRootSubroute = navigationState.routes[navigationState.index];
-    if (currentRootSubroute.routeName !== AppRouteName) {
-      return false;
-    }
-    const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
-    return !!appRoute.isTransitioning;
-  },
-);
 
 function activeThread(
   navigationState: ?NavigationState,
@@ -170,8 +154,8 @@ function activeThread(
   }
   let rootIndex = navigationState.index;
   let currentRootSubroute = navigationState.routes[rootIndex];
-  while (currentRootSubroute.routeName !== AppRouteName) {
-    if (!chatRootModals.includes(currentRootSubroute.routeName)) {
+  while (currentRootSubroute.name !== AppRouteName) {
+    if (!chatRootModals.includes(currentRootSubroute.name)) {
       return null;
     }
     if (rootIndex === 0) {
@@ -180,17 +164,17 @@ function activeThread(
     currentRootSubroute = navigationState.routes[--rootIndex];
   }
   const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
-  const [firstAppSubroute] = appRoute.routes;
-  if (firstAppSubroute.routeName !== TabNavigatorRouteName) {
+  const [firstAppSubroute] = appRoute.state.routes;
+  if (firstAppSubroute.name !== TabNavigatorRouteName) {
     return null;
   }
   const tabRoute = assertNavigationRouteNotLeafNode(firstAppSubroute);
-  const currentTabSubroute = tabRoute.routes[tabRoute.index];
-  if (currentTabSubroute.routeName !== ChatRouteName) {
+  const currentTabSubroute = tabRoute.state.routes[tabRoute.state.index];
+  if (currentTabSubroute.name !== ChatRouteName) {
     return null;
   }
   const chatRoute = assertNavigationRouteNotLeafNode(currentTabSubroute);
-  const currentChatSubroute = chatRoute.routes[chatRoute.index];
+  const currentChatSubroute = chatRoute.state.routes[chatRoute.state.index];
   return getThreadIDFromRoute(currentChatSubroute, validRouteNames);
 }
 
@@ -284,7 +268,6 @@ export {
   createActiveTabSelector,
   scrollBlockingChatModalsClosedSelector,
   selectBackgroundIsDark,
-  overlayModalClosingSelector,
   activeThreadSelector,
   activeMessageListSelector,
   useActiveThread,

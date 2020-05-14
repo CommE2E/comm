@@ -27,8 +27,8 @@ const ThreadScreenPruner = React.memo<{||}>(() => {
     }
     const { state } = navContext;
     const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
-    const tabRoute = assertNavigationRouteNotLeafNode(appRoute.routes[0]);
-    return assertNavigationRouteNotLeafNode(tabRoute.routes[1]);
+    const tabRoute = assertNavigationRouteNotLeafNode(appRoute.state.routes[0]);
+    return assertNavigationRouteNotLeafNode(tabRoute.state.routes[1]);
   }, [navContext]);
 
   const inStackThreadIDs = React.useMemo(() => {
@@ -36,7 +36,7 @@ const ThreadScreenPruner = React.memo<{||}>(() => {
     if (!chatRoute) {
       return threadIDs;
     }
-    for (let route of chatRoute.routes) {
+    for (let route of chatRoute.state.routes) {
       const threadID = getThreadIDFromRoute(route);
       if (threadID) {
         threadIDs.add(threadID);
