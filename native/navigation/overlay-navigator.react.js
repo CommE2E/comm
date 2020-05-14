@@ -356,7 +356,9 @@ const OverlayNavigator = React.memo<Props>(({
 
   return (
     <NavigationHelpersContext.Provider value={navigation}>
-      {screens}
+      <View style={styles.container}>
+        {screens}
+      </View>
     </NavigationHelpersContext.Provider>
   );
 });
@@ -364,6 +366,9 @@ OverlayNavigator.displayName = 'OverlayNavigator';
 const createOverlayNavigator = createNavigatorFactory(OverlayNavigator);
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   scene: {
     bottom: 0,
     left: 0,
