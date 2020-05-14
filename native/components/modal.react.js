@@ -8,7 +8,12 @@ import type { AppState } from '../redux/redux-setup';
 import type { ViewStyle } from '../types/styles';
 
 import * as React from 'react';
-import { View, TouchableWithoutFeedback, ViewPropTypes } from 'react-native';
+import {
+  View,
+  TouchableWithoutFeedback,
+  ViewPropTypes,
+  StyleSheet,
+} from 'react-native';
 import PropTypes from 'prop-types';
 import { connect } from 'lib/utils/redux-utils';
 
@@ -27,6 +32,7 @@ class Modal extends React.PureComponent<Props> {
   static propTypes = {
     children: PropTypes.node,
     navigation: PropTypes.shape({
+      isFocused: PropTypes.func.isRequired,
       goBack: PropTypes.func.isRequired,
     }).isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
@@ -35,7 +41,9 @@ class Modal extends React.PureComponent<Props> {
   };
 
   close = () => {
-    this.props.navigation.goBack();
+    if (this.props.navigation.isFocused()) {
+      this.props.navigation.goBack();
+    }
   };
 
   render() {
@@ -45,7 +53,7 @@ class Modal extends React.PureComponent<Props> {
         style={[this.props.styles.container, containerStyle]}
       >
         <TouchableWithoutFeedback onPress={this.close}>
-          <View style={this.props.styles.backdrop} />
+          <View style={StyleSheet.absoluteFill} />
         </TouchableWithoutFeedback>
         <View style={[this.props.styles.modal, modalStyle]}>{children}</View>
       </KeyboardAvoidingView>
@@ -54,16 +62,6 @@ class Modal extends React.PureComponent<Props> {
 }
 
 const styles = {
-  backdrop: {
-    backgroundColor: 'black',
-    bottom: 0,
-    left: 0,
-    opacity: 0.7,
-    overflow: 'visible',
-    position: 'absolute',
-    right: 0,
-    top: -1000,
-  },
   container: {
     flex: 1,
     justifyContent: 'center',
