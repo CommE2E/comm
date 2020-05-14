@@ -164,7 +164,7 @@ class MessageList extends React.PureComponent<Props, State> {
 
   static modalOpen(props: Props) {
     const overlayContext = MessageList.getOverlayContext(props);
-    return overlayContext.scrollBlockingModalStatus !== 'open';
+    return overlayContext.scrollBlockingModalStatus === 'open';
   }
 
   componentDidUpdate(prevProps: Props) {
