@@ -1,18 +1,14 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
 import type {
   NavigationScreenProp,
   NavigationLeafRoute,
 } from 'react-navigation';
 
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import invariant from 'invariant';
+import { useSelector, useDispatch } from 'react-redux';
 
 import { onScreenEntryEditableThreadInfos } from 'lib/selectors/thread-selectors';
 import {
@@ -20,74 +16,75 @@ import {
   createLocalEntryActionType,
 } from 'lib/actions/entry-actions';
 import { threadSearchIndex } from 'lib/selectors/nav-selectors';
-import SearchIndex from 'lib/shared/search-index';
-import { connect } from 'lib/utils/redux-utils';
 
 import Modal from '../components/modal.react';
 import ThreadList from '../components/thread-list.react';
+import { RootNavigatorContext } from '../navigation/root-navigator-context';
+import { waitForInteractions } from '../utils/interactions';
 
-type NavProp = NavigationScreenProp<{|
+type Route = {|
   ...NavigationLeafRoute,
   params: {|
     presentedFrom: string,
     dateString: string,
   |},
-|}>;
+|};
 
-type Props = {
-  navigation: NavProp,
-  route: {|
-    ...NavigationLeafRoute,
-    params: {|
-      presentedFrom: string,
-      dateString: string,
-    |},
-  |},
-  // Redux state
-  onScreenThreadInfos: $ReadOnlyArray<ThreadInfo>,
-  viewerID: ?string,
-  threadSearchIndex: SearchIndex,
-  nextLocalID: number,
-  // Redux dispatch functions
-  dispatchActionPayload: DispatchActionPayload,
-};
-class ThreadPickerModal extends React.PureComponent<Props> {
-  static propTypes = {
-    navigation: PropTypes.object.isRequired,
-    route: PropTypes.shape({
-      params: PropTypes.shape({
-        dateString: PropTypes.string.isRequired,
-      }).isRequired,
-    }).isRequired,
-    onScreenThreadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
-    viewerID: PropTypes.string,
-    threadSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
-    nextLocalID: PropTypes.number.isRequired,
-    dispatchActionPayload: PropTypes.func.isRequired,
-  };
+type Props = {|
+  navigation: NavigationScreenProp<Route>,
+  route: Route,
+|};
+function ThreadPickerModal(props: Props) {
+  const {
+    navigation,
+    route: { params: { dateString } },
+  } = props;
 
-  render() {
-    return (
-      <Modal navigation={this.props.navigation}>
-        <ThreadList
-          threadInfos={this.props.onScreenThreadInfos}
-          onSelect={this.threadPicked}
-          itemStyle={styles.threadListItem}
-          searchIndex={this.props.threadSearchIndex}
-        />
-      </Modal>
+  const viewerID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
+  const nextLocalID = useSelector(state => state.nextLocalID);
+  const dispatch = useDispatch();
+
+  const rootNavigatorContext = React.useContext(RootNavigatorContext);
+  const threadPicked = React.useCallback((threadID: string) => {
+    invariant(
+      dateString && viewerID && rootNavigatorContext,
+      'inputs to threadPicked should be set',
     );
-  }
+    rootNavigatorContext.setKeyboardHandlingEnabled(false);
+    dispatch({
+      type: createLocalEntryActionType,
+      payload: createLocalEntry(threadID, nextLocalID, dateString, viewerID),
+    });
+  }, [rootNavigatorContext, dispatch, viewerID, nextLocalID, dateString]);
 
-  threadPicked = (threadID: string) => {
-    const { viewerID, nextLocalID } = this.props;
-    const { dateString } = this.props.route.params;
-    invariant(dateString && viewerID, 'should be set');
-    this.props.dispatchActionPayload(
-      createLocalEntryActionType,
-      createLocalEntry(threadID, nextLocalID, dateString, viewerID),
-    );
-  };
+  React.useEffect(
+    () => navigation.addListener('blur', async () => {
+      await waitForInteractions();
+      invariant(
+        rootNavigatorContext,
+        'RootNavigatorContext should be set in onScreenBlur',
+      );
+      rootNavigatorContext.setKeyboardHandlingEnabled(true);
+    }),
+    [navigation, rootNavigatorContext],
+  );
+
+  const index = useSelector(state => threadSearchIndex(state));
+  const onScreenThreadInfos = useSelector(
+    state => onScreenEntryEditableThreadInfos(state),
+  );
+  return (
+    <Modal navigation={navigation}>
+      <ThreadList
+        threadInfos={onScreenThreadInfos}
+        onSelect={threadPicked}
+        itemStyle={styles.threadListItem}
+        searchIndex={index}
+      />
+    </Modal>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -98,13 +95,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect(
-  (state: AppState) => ({
-    onScreenThreadInfos: onScreenEntryEditableThreadInfos(state),
-    viewerID: state.currentUserInfo && state.currentUserInfo.id,
-    threadSearchIndex: threadSearchIndex(state),
-    nextLocalID: state.nextLocalID,
-  }),
-  null,
-  true,
-)(ThreadPickerModal);
+export default ThreadPickerModal;
