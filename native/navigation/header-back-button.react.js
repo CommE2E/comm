@@ -4,7 +4,9 @@ import type { AppState } from '../redux/redux-setup';
 import type { Colors } from '../themes/colors';
 
 import * as React from 'react';
-import { HeaderBackButton as BaseHeaderBackButton } from 'react-navigation-stack';
+import {
+  HeaderBackButton as BaseHeaderBackButton,
+} from '@react-navigation/stack';
 
 import { connect } from 'lib/utils/redux-utils';
 
@@ -16,7 +18,7 @@ type Props = {
   colors: Colors,
 };
 function HeaderBackButton(props: Props) {
-  if (props.scene && props.scene.index === 0) {
+  if (!props.canGoBack) {
     return null;
   }
   const { colors, ...rest } = props;

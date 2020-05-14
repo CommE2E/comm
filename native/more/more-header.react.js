@@ -14,9 +14,6 @@ import {
 
 const activeTabSelector = createActiveTabSelector(MoreRouteName);
 
-const MoreHeader = connectNav((context: ?NavContextType) => ({
+export default connectNav((context: ?NavContextType) => ({
   activeTab: activeTabSelector(context),
 }))(Header);
-
-// eslint-disable-next-line react/display-name
-export default (props: $Exact<HeaderProps>) => <MoreHeader {...props} />;

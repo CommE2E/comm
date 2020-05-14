@@ -14,9 +14,6 @@ import {
 
 const activeTabSelector = createActiveTabSelector(ChatRouteName);
 
-const ChatHeader = connectNav((context: ?NavContextType) => ({
+export default connectNav((context: ?NavContextType) => ({
   activeTab: activeTabSelector(context),
 }))(Header);
-
-// eslint-disable-next-line react/display-name
-export default (props: $Exact<HeaderProps>) => <ChatHeader {...props} />;
