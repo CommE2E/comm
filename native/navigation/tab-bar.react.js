@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Platform } from 'react-native';
-import { BottomTabBar } from 'react-navigation-tabs';
+import { BottomTabBar } from '@react-navigation/bottom-tabs';
 
 import {
   type KeyboardState,
@@ -26,4 +26,5 @@ function TabBar(props: Props) {
   return <BottomTabBar {...rest} />;
 }
 
-export default withKeyboardState(TabBar);
+const WrappedTabBar = withKeyboardState(TabBar);
+export default props => <WrappedTabBar {...props} />;
