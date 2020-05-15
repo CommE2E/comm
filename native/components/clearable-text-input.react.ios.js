@@ -21,6 +21,7 @@ class ClearableTextInput extends React.PureComponent<
   pendingMessage: ?{| value: string, resolve: (value: string) => void |};
   lastKeyPressed: ?string;
   lastTextInputSent = -1;
+  currentTextInput: ?TextInput;
 
   sendMessage() {
     if (this.pendingMessageSent) {
@@ -91,10 +92,22 @@ class ClearableTextInput extends React.PureComponent<
     this.sendMessage();
   };
 
+  onOldInputFocus = () => {
+    // It's possible for the user to press the old input after the new one
+    // appears. We can prevent that with pointerEvents="none", but that causes a
+    // blur event when we set it, which makes the keyboard briefly pop down
+    // before popping back up again when textInputRef is called below. Instead
+    // we try to catch the focus event here and refocus the currentTextInput
+    if (this.currentTextInput) {
+      this.currentTextInput.focus();
+    }
+  };
+
   textInputRef = (textInput: ?TextInput) => {
     if (this.state.textInputKey > 0 && textInput) {
       textInput.focus();
     }
+    this.currentTextInput = textInput;
     this.props.textInputRef(textInput);
   };
 
@@ -121,7 +134,7 @@ class ClearableTextInput extends React.PureComponent<
           onChangeText={this.onOldInputChangeText}
           onKeyPress={this.onOldInputKeyPress}
           onBlur={this.onOldInputBlur}
-          pointerEvents="none"
+          onFocus={this.onOldInputFocus}
           key={this.state.textInputKey - 1}
         />,
       );
