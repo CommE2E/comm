@@ -39,7 +39,8 @@ function withRootContext<
 }
 
 const rootContextPropType = PropTypes.shape({
-  detectUnsupervisedBackground: PropTypes.func.isRequired,
+  detectUnsupervisedBackground: PropTypes.func,
+  setNavStateInitialized: PropTypes.func.isRequired,
 });
 
 export { RootContext, withRootContext, rootContextPropType };
