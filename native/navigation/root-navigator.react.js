@@ -31,7 +31,15 @@ import ComposeSubthreadModal from '../chat/settings/compose-subthread-modal.reac
 import RootRouter from './root-router';
 import { RootNavigatorContext } from './root-navigator-context';
 
-enableScreens();
+if (Platform.OS !== "android" || Platform.Version >= 21) {
+  // Older Android devices get stack overflows when trying to draw deeply nested
+  // view structures. We've tried to get our draw depth down as much as possible
+  // without going into React Navigation internals or creating a separate render
+  // path for these old Android devices. Because react-native-screens increases
+  // the draw depth enough to cause crashes in some scenarios, we disable it
+  // here for those devices
+  enableScreens();
+}
 
 function RootNavigator({
   initialRouteName,
