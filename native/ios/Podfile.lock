@@ -245,7 +245,7 @@ PODS:
     - React
   - react-native-orientation-locker (1.1.6):
     - React
-  - react-native-safe-area-context (0.7.3):
+  - react-native-safe-area-context (1.0.0):
     - React
   - react-native-splash-screen (3.2.0):
     - React
@@ -626,7 +626,7 @@ SPEC CHECKSUMS:
   react-native-notifications: bb042206ac7eab9323d528c780b3d6fe796c1f5e
   react-native-onepassword: 5b2b7f425f9db40932703e65d350b78cbc598047
   react-native-orientation-locker: 23918c400376a7043e752c639c122fcf6bce8f1c
-  react-native-safe-area-context: e200d4433aba6b7e60b52da5f37af11f7a0b0392
+  react-native-safe-area-context: a346c75f2288147527365ce27b59ca6d38c27805
   react-native-splash-screen: 200d11d188e2e78cea3ad319964f6142b6384865
   react-native-video: d01ed7ff1e38fa7dcc6c15c94cf505e661b7bfd0
   React-RCTActionSheet: 600b4d10e3aea0913b5a92256d2719c0cdd26d76
