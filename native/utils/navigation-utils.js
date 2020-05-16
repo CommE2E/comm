@@ -15,10 +15,14 @@ import {
   threadRoutes,
 } from '../navigation/route-names';
 
-function assertNavigationRouteNotLeafNode(
+function getStateFromNavigatorRoute(
   route: NavigationRoute,
 ): NavigationStateRoute {
-  return route;
+  invariant(
+    route.state,
+    `expecting NavigationRoute for ${route.key} to be NavigationState`,
+  );
+  return route.state;
 }
 
 function getThreadIDFromParams(params: ?NavigationParams): string {
@@ -63,13 +67,12 @@ function getThreadIDFromRoute(
   return getThreadIDFromParams(route.params);
 }
 
-function currentRouteRecurse(state: NavigationRoute): NavigationLeafRoute {
-  if (state.index || state.routes) {
-    const stateRoute = assertNavigationRouteNotLeafNode(state);
-    return currentRouteRecurse(stateRoute.routes[stateRoute.index]);
-  } else {
-    return state;
+function currentRouteRecurse(route: NavigationRoute): NavigationLeafRoute {
+  if (!route.state) {
+    return route;
   }
+  const state = getStateFromNavigatorRoute(route);
+  return currentRouteRecurse(state.routes[state.index]);
 }
 
 function currentLeafRoute(state: NavigationState): NavigationLeafRoute {
@@ -131,7 +134,7 @@ function removeScreensFromStack<S: NavigationState>(
 }
 
 export {
-  assertNavigationRouteNotLeafNode,
+  getStateFromNavigatorRoute,
   getThreadIDFromParams,
   getThreadIDFromRoute,
   currentLeafRoute,

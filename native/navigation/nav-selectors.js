@@ -28,7 +28,7 @@ import {
   threadRoutes,
 } from './route-names';
 import {
-  assertNavigationRouteNotLeafNode,
+  getStateFromNavigatorRoute,
   getThreadIDFromRoute,
 } from '../utils/navigation-utils';
 import { NavContext } from './navigation-context';
@@ -81,13 +81,13 @@ const baseCreateActiveTabSelector = (routeName: string) =>
       if (currentRootSubroute.name !== AppRouteName) {
         return false;
       }
-      const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
-      const [firstAppSubroute] = appRoute.state.routes;
+      const appState = getStateFromNavigatorRoute(currentRootSubroute);
+      const [firstAppSubroute] = appState.routes;
       if (firstAppSubroute.name !== TabNavigatorRouteName) {
         return false;
       }
-      const tabRoute = assertNavigationRouteNotLeafNode(firstAppSubroute);
-      return tabRoute.state.routes[tabRoute.state.index].name === routeName;
+      const tabState = getStateFromNavigatorRoute(firstAppSubroute);
+      return tabState.routes[tabState.index].name === routeName;
     },
   );
 const createActiveTabSelector: (
@@ -108,9 +108,9 @@ const scrollBlockingChatModalsClosedSelector: (
     if (currentRootSubroute.name !== AppRouteName) {
       return true;
     }
-    const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
-    for (let i = appRoute.state.index; i >= 0; i--) {
-      const route = appRoute.state.routes[i];
+    const appState = getStateFromNavigatorRoute(currentRootSubroute);
+    for (let i = appState.index; i >= 0; i--) {
+      const route = appState.routes[i];
       if (scrollBlockingChatModals.includes(route.name)) {
         return false;
       }
@@ -132,11 +132,11 @@ function selectBackgroundIsDark(
     // we only use this selector for determining ActionResultModal appearance
     return false;
   }
-  const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
-  let appIndex = appRoute.state.index;
-  let currentAppSubroute = appRoute.state.routes[appIndex];
+  const appState = getStateFromNavigatorRoute(currentRootSubroute);
+  let appIndex = appState.index;
+  let currentAppSubroute = appState.routes[appIndex];
   while (currentAppSubroute.name === ActionResultModalRouteName) {
-    currentAppSubroute = appRoute.state.routes[--appIndex];
+    currentAppSubroute = appState.routes[--appIndex];
   }
   if (scrollBlockingChatModals.includes(currentAppSubroute.name)) {
     // All the scroll-blocking chat modals have a dark background
@@ -163,18 +163,18 @@ function activeThread(
     }
     currentRootSubroute = navigationState.routes[--rootIndex];
   }
-  const appRoute = assertNavigationRouteNotLeafNode(currentRootSubroute);
-  const [firstAppSubroute] = appRoute.state.routes;
+  const appState = getStateFromNavigatorRoute(currentRootSubroute);
+  const [firstAppSubroute] = appState.routes;
   if (firstAppSubroute.name !== TabNavigatorRouteName) {
     return null;
   }
-  const tabRoute = assertNavigationRouteNotLeafNode(firstAppSubroute);
-  const currentTabSubroute = tabRoute.state.routes[tabRoute.state.index];
+  const tabState = getStateFromNavigatorRoute(firstAppSubroute);
+  const currentTabSubroute = tabState.routes[tabState.index];
   if (currentTabSubroute.name !== ChatRouteName) {
     return null;
   }
-  const chatRoute = assertNavigationRouteNotLeafNode(currentTabSubroute);
-  const currentChatSubroute = chatRoute.state.routes[chatRoute.state.index];
+  const chatState = getStateFromNavigatorRoute(currentTabSubroute);
+  const currentChatSubroute = chatState.routes[chatState.index];
   return getThreadIDFromRoute(currentChatSubroute, validRouteNames);
 }
 

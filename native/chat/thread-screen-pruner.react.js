@@ -8,7 +8,7 @@ import { Alert } from 'react-native';
 
 import { NavContext } from '../navigation/navigation-context';
 import {
-  assertNavigationRouteNotLeafNode,
+  getStateFromNavigatorRoute,
   getThreadIDFromRoute,
 } from '../utils/navigation-utils';
 import { useActiveThread } from '../navigation/nav-selectors';
@@ -26,9 +26,9 @@ const ThreadScreenPruner = React.memo<{||}>(() => {
       return null;
     }
     const { state } = navContext;
-    const appRoute = assertNavigationRouteNotLeafNode(state.routes[0]);
-    const tabRoute = assertNavigationRouteNotLeafNode(appRoute.state.routes[0]);
-    return assertNavigationRouteNotLeafNode(tabRoute.state.routes[1]);
+    const appState = getStateFromNavigatorRoute(state.routes[0]);
+    const tabState = getStateFromNavigatorRoute(appState.routes[0]);
+    return getStateFromNavigatorRoute(tabState.routes[1]);
   }, [navContext]);
 
   const inStackThreadIDs = React.useMemo(() => {
@@ -36,7 +36,7 @@ const ThreadScreenPruner = React.memo<{||}>(() => {
     if (!chatRoute) {
       return threadIDs;
     }
-    for (let route of chatRoute.state.routes) {
+    for (let route of chatRoute.routes) {
       const threadID = getThreadIDFromRoute(route);
       if (threadID) {
         threadIDs.add(threadID);
