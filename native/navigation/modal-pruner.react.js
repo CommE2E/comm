@@ -23,60 +23,65 @@ function collectDependencyInfo(
   dependencyMap?: Map<string, DependencyInfo> = new Map(),
   parentRouteName?: ?string,
 ): Map<string, DependencyInfo> {
-  if (route.key && typeof route.key === 'string') {
-    const key = route.key;
-    const presenter =
-      route.params && route.params.presentedFrom
-        ? route.params.presentedFrom
-        : null;
-    invariant(
-      presenter === null || typeof presenter === 'string',
-      'presentedFrom should be a string',
+  let state, routeName;
+  if (!route.name) {
+    state = route;
+  } else if (route.state) {
+    ({ state, name: routeName } = route);
+  }
+  if (state) {
+    state.routes.forEach(
+      child => collectDependencyInfo(child, dependencyMap, routeName),
     );
-    let status = 'resolved';
-    if (presenter) {
-      const presenterInfo = dependencyMap.get(presenter);
-      if (!presenterInfo) {
-        status = 'unresolved';
-        dependencyMap.set(presenter, {
-          status: 'missing',
-          presenter: undefined,
-          presenting: [key],
-          parentRouteName: undefined,
-        });
-      } else if (presenterInfo) {
-        status = presenterInfo.status;
-        presenterInfo.presenting.push(key);
-      }
-    }
-    const existingInfo = dependencyMap.get(key);
-    const presenting = existingInfo ? existingInfo.presenting : [];
-    dependencyMap.set(key, {
-      status,
-      presenter,
-      presenting,
-      parentRouteName,
-    });
-    if (status === 'resolved') {
-      const toResolve = [...presenting];
-      while (toResolve.length > 0) {
-        const presentee = toResolve.pop();
-        const dependencyInfo = dependencyMap.get(presentee);
-        invariant(dependencyInfo, 'could not find presentee');
-        dependencyInfo.status = 'resolved';
-        toResolve.push(...dependencyInfo.presenting);
-      }
+    return dependencyMap;
+  }
+
+  const { key } = route;
+  const presenter =
+    route.params && route.params.presentedFrom
+      ? route.params.presentedFrom
+      : null;
+  invariant(
+    presenter === null || typeof presenter === 'string',
+    'presentedFrom should be a string',
+  );
+  let status = 'resolved';
+  if (presenter) {
+    const presenterInfo = dependencyMap.get(presenter);
+    if (!presenterInfo) {
+      status = 'unresolved';
+      dependencyMap.set(presenter, {
+        status: 'missing',
+        presenter: undefined,
+        presenting: [key],
+        parentRouteName: undefined,
+      });
+    } else if (presenterInfo) {
+      status = presenterInfo.status;
+      presenterInfo.presenting.push(key);
     }
   }
-  const routeName =
-    route.name && typeof route.name === 'string'
-      ? route.name
-      : undefined;
-  if (route.state && route.state.routes) {
-    route.state.routes.forEach(child =>
-      collectDependencyInfo(child, dependencyMap, routeName),
-    );
+
+  const existingInfo = dependencyMap.get(key);
+  const presenting = existingInfo ? existingInfo.presenting : [];
+  dependencyMap.set(key, {
+    status,
+    presenter,
+    presenting,
+    parentRouteName,
+  });
+
+  if (status === 'resolved') {
+    const toResolve = [...presenting];
+    while (toResolve.length > 0) {
+      const presentee = toResolve.pop();
+      const dependencyInfo = dependencyMap.get(presentee);
+      invariant(dependencyInfo, 'could not find presentee');
+      dependencyInfo.status = 'resolved';
+      toResolve.push(...dependencyInfo.presenting);
+    }
   }
+
   return dependencyMap;
 }
 
