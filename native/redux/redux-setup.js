@@ -83,6 +83,7 @@ import {
 import reactotron from '../reactotron';
 import reduceDrafts from '../reducers/draft-reducer';
 import { getGlobalNavContext } from '../navigation/icky-global';
+import { defaultTabBarHeight } from '../selectors/dimension-selectors';
 
 export type AppState = {|
   navInfo: NavInfo,
@@ -155,7 +156,7 @@ const defaultState = ({
   nextLocalID: 0,
   queuedReports: [],
   _persist: null,
-  dimensions: { height, width },
+  dimensions: { height, width, tabBarHeight: defaultTabBarHeight },
   connectivity: defaultConnectivityInfo,
   globalThemeInfo: defaultGlobalThemeInfo,
   deviceCameraInfo: defaultDeviceCameraInfo,
@@ -231,7 +232,10 @@ function reducer(state: AppState = defaultState, action: *) {
   } else if (action.type === updateDimensionsActiveType) {
     return {
       ...state,
-      dimensions: action.payload,
+      dimensions: {
+        ...state.dimensions,
+        ...action.payload,
+      },
     };
   } else if (action.type === updateConnectivityActiveType) {
     return {

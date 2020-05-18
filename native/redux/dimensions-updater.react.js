@@ -38,7 +38,7 @@ class DimensionsUpdater extends React.PureComponent<Props> {
       this.props.dimensions.width !== prevProps.dimensions.width
     ) {
       // Most of the time, this is triggered as a result of an action dispatched
-      // by the handler attached above, so the onDimensionsChnage call should be
+      // by the handler attached above, so the onDimensionsChange call should be
       // a no-op. This conditional is here to correct Redux state when it is
       // imported from another device context.
       this.onDimensionsChange({ window: NativeDimensions.get('window') });

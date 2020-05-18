@@ -55,11 +55,11 @@ const contentVerticalOffsetSelector: (
   },
 );
 
-const tabBarSize = Platform.OS === 'android' ? 50 : 49;
+const defaultTabBarHeight = 50;
 
 export {
   contentBottomOffset,
   dimensionsSelector,
   contentVerticalOffsetSelector,
-  tabBarSize,
+  defaultTabBarHeight,
 };

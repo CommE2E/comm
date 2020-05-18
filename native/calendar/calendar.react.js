@@ -69,7 +69,6 @@ import { Entry, InternalEntry, entryStyles } from './entry.react';
 import {
   dimensionsSelector,
   contentVerticalOffsetSelector,
-  tabBarSize,
 } from '../selectors/dimension-selectors';
 import { calendarListData } from '../selectors/calendar-selectors';
 import {
@@ -138,6 +137,7 @@ type Props = {
   connectionStatus: ConnectionStatus,
   colors: Colors,
   styles: typeof styles,
+  tabBarHeight: number,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -194,6 +194,7 @@ class Calendar extends React.PureComponent<Props, State> {
     connectionStatus: connectionStatusPropType.isRequired,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
+    tabBarHeight: PropTypes.number.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     updateCalendarQuery: PropTypes.func.isRequired,
   };
@@ -769,8 +770,9 @@ class Calendar extends React.PureComponent<Props, State> {
     const {
       dimensions: { height: windowHeight },
       contentVerticalOffset,
+      tabBarHeight,
     } = this.props;
-    return windowHeight - contentVerticalOffset - tabBarSize;
+    return windowHeight - contentVerticalOffset - tabBarHeight;
   }
 
   initialScrollIndex(data: $ReadOnlyArray<CalendarItemWithHeight>) {
@@ -899,7 +901,8 @@ class Calendar extends React.PureComponent<Props, State> {
     const itemEnd = itemStart + itemHeight + entryAdditionalActiveHeight;
     // flatListHeight() factors in the size of the tab bar,
     // but it is hidden by the keyboard since it is at the bottom
-    const visibleHeight = this.flatListHeight() - keyboardHeight + tabBarSize;
+    const visibleHeight =
+      this.flatListHeight() - keyboardHeight + this.props.tabBarHeight;
     if (
       this.currentScrollPosition !== undefined &&
       this.currentScrollPosition !== null &&
@@ -1133,6 +1136,7 @@ export default connectNav((context: ?NavContextType) => ({
       connectionStatus: state.connection.status,
       colors: colorsSelector(state),
       styles: stylesSelector(state),
+      tabBarHeight: state.dimensions.tabBarHeight,
     }),
     { updateCalendarQuery },
   )(Calendar),

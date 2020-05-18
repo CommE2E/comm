@@ -6,8 +6,11 @@ import * as React from 'react';
 import { Platform, View, StyleSheet } from 'react-native';
 import { BottomTabBar } from '@react-navigation/bottom-tabs';
 import Animated, { Easing } from 'react-native-reanimated';
+import { useDispatch, useSelector } from 'react-redux';
+import { useSafeArea } from 'react-native-safe-area-context';
 
 import { KeyboardContext } from '../keyboard/keyboard-state';
+import { updateDimensionsActiveType } from '../redux/action-types';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Value, timing, interpolate } = Animated;
@@ -44,13 +47,33 @@ function TabBar(props: Props) {
     keyboardWasShowingRef.current = keyboardShowing;
   }, [keyboardShowing, animateTabBar]);
 
-  const [tabBarHeight, setTabBarHeight] = React.useState(0);
-  const handleLayout = React.useCallback((e: LayoutEvent) => {
-    const { height } = e.nativeEvent.layout;
-    if (height) {
-      setTabBarHeight(height);
+  const reduxTabBarHeight = useSelector(state => state.dimensions.tabBarHeight);
+  const dispatch = useDispatch();
+  const setReduxTabBarHeight = React.useCallback(height => {
+    if (height === reduxTabBarHeight) {
+      return;
     }
-  }, [setTabBarHeight]);
+    dispatch({
+      type: updateDimensionsActiveType,
+      payload: { tabBarHeight: height },
+    });
+  }, [reduxTabBarHeight, dispatch]);
+
+  const [tabBarHeight, setTabBarHeight] = React.useState(0);
+  const insets = useSafeArea();
+  const handleLayout = React.useCallback((e: LayoutEvent) => {
+    const rawHeight = Math.round(e.nativeEvent.layout.height);
+    if (rawHeight > 100 || rawHeight <= 0) {
+      return;
+    }
+    if (Platform.OS === 'android') {
+      setTabBarHeight(rawHeight);
+    }
+    const height = rawHeight - insets.bottom;
+    if (height > 0) {
+      setReduxTabBarHeight(height);
+    }
+  }, [setTabBarHeight, setReduxTabBarHeight, insets]);
 
   const containerHeight = React.useMemo(() => interpolate(tabBarVisible, {
     inputRange: [0, 1],
