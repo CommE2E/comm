@@ -12,9 +12,9 @@ type Props = {|
 export default function CustomHeader(props: Props) {
   const { activeTab, ...rest } = props;
   return (
-    <View>
+    <>
       <Header {...rest} />
       <DisconnectedBar visible={activeTab} />
-    </View>
+    </>
   );
 }

@@ -1,0 +1,79 @@
+diff --git a/node_modules/@react-navigation/stack/src/views/Stack/CardContainer.tsx b/node_modules/@react-navigation/stack/src/views/Stack/CardContainer.tsx
+index 2665164..80c0868 100644
+--- a/node_modules/@react-navigation/stack/src/views/Stack/CardContainer.tsx
++++ b/node_modules/@react-navigation/stack/src/views/Stack/CardContainer.tsx
+@@ -189,7 +189,7 @@ function CardContainer({
+       pageOverflowEnabled={headerMode === 'screen' && mode === 'card'}
+       containerStyle={
+         headerMode === 'float' && !headerTransparent && headerShown !== false
+-          ? { marginTop: headerHeight }
++          ? null
+           : null
+       }
+       contentStyle={[{ backgroundColor: colors.background }, cardStyle]}
+diff --git a/node_modules/@react-navigation/stack/src/views/Stack/CardStack.tsx b/node_modules/@react-navigation/stack/src/views/Stack/CardStack.tsx
+index b47a50d..6226379 100755
+--- a/node_modules/@react-navigation/stack/src/views/Stack/CardStack.tsx
++++ b/node_modules/@react-navigation/stack/src/views/Stack/CardStack.tsx
+@@ -385,6 +385,26 @@ export default class CardStack extends React.Component<Props, State> {
+ 
+     return (
+       <React.Fragment>
++        {headerMode === 'float'
++          ? renderHeader({
++              mode: 'float',
++              layout,
++              insets: { top, right, bottom, left },
++              scenes,
++              getPreviousRoute,
++              getFocusedRoute: this.getFocusedRoute,
++              onContentHeightChange: this.handleHeaderLayout,
++              gestureDirection:
++                focusedOptions.gestureDirection !== undefined
++                  ? focusedOptions.gestureDirection
++                  : defaultTransitionPreset.gestureDirection,
++              styleInterpolator:
++                focusedOptions.headerStyleInterpolator !== undefined
++                  ? focusedOptions.headerStyleInterpolator
++                  : defaultTransitionPreset.headerStyleInterpolator,
++              style: styles.floating,
++            })
++          : null}
+         <MaybeScreenContainer
+           enabled={isScreensEnabled}
+           style={styles.container}
+@@ -537,26 +557,6 @@ export default class CardStack extends React.Component<Props, State> {
+             );
+           })}
+         </MaybeScreenContainer>
+-        {headerMode === 'float'
+-          ? renderHeader({
+-              mode: 'float',
+-              layout,
+-              insets: { top, right, bottom, left },
+-              scenes,
+-              getPreviousRoute,
+-              getFocusedRoute: this.getFocusedRoute,
+-              onContentHeightChange: this.handleHeaderLayout,
+-              gestureDirection:
+-                focusedOptions.gestureDirection !== undefined
+-                  ? focusedOptions.gestureDirection
+-                  : defaultTransitionPreset.gestureDirection,
+-              styleInterpolator:
+-                focusedOptions.headerStyleInterpolator !== undefined
+-                  ? focusedOptions.headerStyleInterpolator
+-                  : defaultTransitionPreset.headerStyleInterpolator,
+-              style: styles.floating,
+-            })
+-          : null}
+       </React.Fragment>
+     );
+   }
+@@ -567,7 +567,6 @@ const styles = StyleSheet.create({
+     flex: 1,
+   },
+   floating: {
+-    position: 'absolute',
+     top: 0,
+     left: 0,
+     right: 0,
