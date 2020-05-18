@@ -1,5 +1,7 @@
 // @flow
 
+import type { NavigationAction } from 'react-navigation';
+
 import * as React from 'react';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import PropTypes from 'prop-types';
@@ -7,6 +9,7 @@ import PropTypes from 'prop-types';
 export type RootContextType = {|
   detectUnsupervisedBackground?: ?(alreadyClosed: boolean) => boolean,
   setNavStateInitialized: () => void,
+  onNavAction: (action: NavigationAction | string) => void,
 |};
 
 const RootContext = React.createContext<?RootContextType>(null);
@@ -41,6 +44,7 @@ function withRootContext<
 const rootContextPropType = PropTypes.shape({
   detectUnsupervisedBackground: PropTypes.func,
   setNavStateInitialized: PropTypes.func.isRequired,
+  onNavAction: PropTypes.func.isRequired,
 });
 
 export { RootContext, withRootContext, rootContextPropType };

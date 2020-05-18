@@ -8,6 +8,8 @@ import {
   useNavigationBuilder,
 } from '@react-navigation/native';
 import { StackView, TransitionPresets } from '@react-navigation/stack';
+import NavigationBuilderContext from '@react-navigation/core/src/NavigationBuilderContext';
+import invariant from 'invariant';
 
 import {
   LoggedOutModalRouteName,
@@ -30,6 +32,7 @@ import ColorPickerModal from '../chat/settings/color-picker-modal.react';
 import ComposeSubthreadModal from '../chat/settings/compose-subthread-modal.react';
 import RootRouter from './root-router';
 import { RootNavigatorContext } from './root-navigator-context';
+import { RootContext } from '../root-context';
 
 if (Platform.OS !== "android" || Platform.Version >= 21) {
   // Older Android devices get stack overflows when trying to draw deeply nested
@@ -114,49 +117,79 @@ const disableGesturesScreenOptions = {
 const modalOverlayScreenOptions = {
   cardOverlayEnabled: true,
 };
-export default () => (
-  <Root.Navigator
-    mode="modal"
-    headerMode="none"
-    screenOptions={defaultScreenOptions}
-  >
-    <Root.Screen
-      name={LoggedOutModalRouteName}
-      component={LoggedOutModal}
-      options={disableGesturesScreenOptions}
-    />
-    <Root.Screen
-      name={VerificationModalRouteName}
-      component={VerificationModal}
-    />
-    <Root.Screen
-      name={AppRouteName}
-      component={AppNavigator}
-    />
-    <Root.Screen
-      name={ThreadPickerModalRouteName}
-      component={ThreadPickerModal}
-      options={modalOverlayScreenOptions}
-    />
-    <Root.Screen
-      name={AddUsersModalRouteName}
-      component={AddUsersModal}
-      options={modalOverlayScreenOptions}
-    />
-    <Root.Screen
-      name={CustomServerModalRouteName}
-      component={CustomServerModal}
-      options={modalOverlayScreenOptions}
-    />
-    <Root.Screen
-      name={ColorPickerModalRouteName}
-      component={ColorPickerModal}
-      options={modalOverlayScreenOptions}
-    />
-    <Root.Screen
-      name={ComposeSubthreadModalRouteName}
-      component={ComposeSubthreadModal}
-      options={modalOverlayScreenOptions}
-    />
-  </Root.Navigator>
-);
+export default () => {
+  const builderContext = React.useContext(NavigationBuilderContext);
+  invariant(
+    builderContext && builderContext.trackAction,
+    'trackAction should be set in NavigationBuilderContext',
+  );
+  const baseTrackAction = builderContext.trackAction;
+
+  const rootContext = React.useContext(RootContext);
+  invariant(
+    rootContext && rootContext.onNavAction,
+    'onNavAction should be set in RootContext',
+  );
+  const { onNavAction } = rootContext;
+
+  const replacedTrackAction = React.useCallback(
+    action => {
+      onNavAction(action);
+      return baseTrackAction(action);
+    },
+    [onNavAction, baseTrackAction],
+  );
+  const replacedBuilderContext = React.useMemo(() => ({
+    ...builderContext,
+    trackAction: replacedTrackAction,
+  }), [builderContext, replacedTrackAction]);
+
+  return (
+    <NavigationBuilderContext.Provider value={replacedBuilderContext}>
+      <Root.Navigator
+        mode="modal"
+        headerMode="none"
+        screenOptions={defaultScreenOptions}
+      >
+        <Root.Screen
+          name={LoggedOutModalRouteName}
+          component={LoggedOutModal}
+          options={disableGesturesScreenOptions}
+        />
+        <Root.Screen
+          name={VerificationModalRouteName}
+          component={VerificationModal}
+        />
+        <Root.Screen
+          name={AppRouteName}
+          component={AppNavigator}
+        />
+        <Root.Screen
+          name={ThreadPickerModalRouteName}
+          component={ThreadPickerModal}
+          options={modalOverlayScreenOptions}
+        />
+        <Root.Screen
+          name={AddUsersModalRouteName}
+          component={AddUsersModal}
+          options={modalOverlayScreenOptions}
+        />
+        <Root.Screen
+          name={CustomServerModalRouteName}
+          component={CustomServerModal}
+          options={modalOverlayScreenOptions}
+        />
+        <Root.Screen
+          name={ColorPickerModalRouteName}
+          component={ColorPickerModal}
+          options={modalOverlayScreenOptions}
+        />
+        <Root.Screen
+          name={ComposeSubthreadModalRouteName}
+          component={ComposeSubthreadModal}
+          options={modalOverlayScreenOptions}
+        />
+      </Root.Navigator>
+    </NavigationBuilderContext.Provider>
+  );
+};

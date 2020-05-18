@@ -3,7 +3,7 @@
 import { type GlobalTheme, globalThemePropType } from './types/themes';
 import type { AppState } from './redux/redux-setup';
 import type { NavAction } from './navigation/navigation-context';
-import type { NavigationState } from 'react-navigation';
+import type { NavigationState, NavigationAction } from 'react-navigation';
 
 import * as React from 'react';
 import { Provider } from 'react-redux';
@@ -65,16 +65,19 @@ class Root extends React.PureComponent<Props, State> {
   static propTypes = {
     activeTheme: globalThemePropType,
   };
-
   navDispatch: ?(action: NavAction) => boolean;
   navState: ?NavigationState;
   navStateInitialized = false;
+  queuedActions = [];
 
   constructor(props: Props) {
     super(props);
     this.state = {
       navContext: null,
-      rootContext: { setNavStateInitialized: this.setNavStateInitialized },
+      rootContext: {
+        setNavStateInitialized: this.setNavStateInitialized,
+        onNavAction: this.onNavAction,
+      },
       initialState: null,
     };
   }
@@ -101,6 +104,12 @@ class Root extends React.PureComponent<Props, State> {
     }
     this.navState = initialState;
     this.setNavContext();
+    actionLogger.addOtherAction(
+      'navState',
+      'NAV/@@INIT',
+      null,
+      initialState,
+    );
     this.setState({ initialState });
   };
 
@@ -173,8 +182,19 @@ class Root extends React.PureComponent<Props, State> {
 
   onNavigationStateChange = (state: ?NavigationState) => {
     invariant(state, 'nav state should be non-null');
+    const prevState = this.navState;
     this.navState = state;
     this.setNavContext();
+
+    const { queuedActions } = this;
+    this.queuedActions = [];
+    if (queuedActions.length === 0) {
+      queuedActions.push('NAV/@@UNKNOWN');
+    }
+    for (let action of queuedActions) {
+      actionLogger.addOtherAction('navState', action, prevState, state);
+    }
+
     if (__DEV__) {
       this.persistNavigationState(state);
     }
@@ -205,6 +225,23 @@ class Root extends React.PureComponent<Props, State> {
   setNavStateInitialized = () => {
     this.navStateInitialized = true;
     this.setNavContext();
+  };
+
+  onNavAction = (action: NavigationAction | string) => {
+    if (typeof action === 'string') {
+      this.queuedActions.push(`NAV/${action}`);
+    } else if (
+      action &&
+      typeof action === 'object' &&
+      typeof action.type === 'string'
+    ) {
+      this.queuedActions.push({
+        ...action,
+        type: `NAV/${action.type}`,
+      });
+    } else {
+      this.queuedActions.push(action);
+    }
   };
 
   persistNavigationState = async (state: NavigationState) => {
