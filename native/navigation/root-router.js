@@ -17,12 +17,6 @@ import {
 } from './action-types';
 
 function resetState(newPartialRoute, oldRoute) {
-  if (oldRoute.state && oldRoute.state.stale) {
-    // If React Navigation hasn't rehydrated the state for this navigator yet,
-    // we can assume that it matches the default state. By keeping the old state
-    // we prevent React Navigation from assigning a new key
-    return oldRoute;
-  }
   const newRoute = { ...oldRoute, ...newPartialRoute };
   if (!newRoute.state) {
     return newRoute;

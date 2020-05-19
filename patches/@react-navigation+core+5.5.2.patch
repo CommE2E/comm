@@ -1,0 +1,16 @@
+diff --git a/node_modules/@react-navigation/core/src/useNavigationBuilder.tsx b/node_modules/@react-navigation/core/src/useNavigationBuilder.tsx
+index 0acdc81..7676284 100644
+--- a/node_modules/@react-navigation/core/src/useNavigationBuilder.tsx
++++ b/node_modules/@react-navigation/core/src/useNavigationBuilder.tsx
+@@ -295,10 +295,7 @@ export default function useNavigationBuilder<
+       );
+     }
+   }
+-
+-  React.useEffect(() => {
+-    previousStateRef.current = currentState;
+-  }, [currentState]);
++  previousStateRef.current = currentState;
+ 
+   let state =
+     // If the state isn't initialized, or stale, use the state we initialized instead
