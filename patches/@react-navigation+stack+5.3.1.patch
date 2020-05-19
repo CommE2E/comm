@@ -1,48 +1,152 @@
 diff --git a/node_modules/@react-navigation/stack/src/views/Stack/CardContainer.tsx b/node_modules/@react-navigation/stack/src/views/Stack/CardContainer.tsx
-index 2665164..80c0868 100644
+index 2665164..6fd10f5 100644
 --- a/node_modules/@react-navigation/stack/src/views/Stack/CardContainer.tsx
 +++ b/node_modules/@react-navigation/stack/src/views/Stack/CardContainer.tsx
-@@ -189,7 +189,7 @@ function CardContainer({
+@@ -55,6 +55,7 @@ type Props = TransitionPreset & {
+   headerMode: StackHeaderMode;
+   headerShown?: boolean;
+   headerTransparent?: boolean;
++  absoluteFloatHeader: boolean;
+   headerHeight: number;
+   onHeaderHeightChange: (props: {
+     route: Route<string>;
+@@ -85,6 +86,7 @@ function CardContainer({
+   headerShown,
+   headerStyleInterpolator,
+   headerTransparent,
++  absoluteFloatHeader,
+   headerHeight,
+   onHeaderHeightChange,
+   index,
+@@ -188,7 +190,7 @@ function CardContainer({
+       pointerEvents={active ? 'box-none' : pointerEvents}
        pageOverflowEnabled={headerMode === 'screen' && mode === 'card'}
        containerStyle={
-         headerMode === 'float' && !headerTransparent && headerShown !== false
--          ? { marginTop: headerHeight }
-+          ? null
+-        headerMode === 'float' && !headerTransparent && headerShown !== false
++        absoluteFloatHeader && !headerTransparent && headerShown !== false
+           ? { marginTop: headerHeight }
            : null
        }
-       contentStyle={[{ backgroundColor: colors.background }, cardStyle]}
 diff --git a/node_modules/@react-navigation/stack/src/views/Stack/CardStack.tsx b/node_modules/@react-navigation/stack/src/views/Stack/CardStack.tsx
-index b47a50d..6226379 100755
+index b47a50d..eef1d6c 100755
 --- a/node_modules/@react-navigation/stack/src/views/Stack/CardStack.tsx
 +++ b/node_modules/@react-navigation/stack/src/views/Stack/CardStack.tsx
-@@ -385,6 +385,26 @@ export default class CardStack extends React.Component<Props, State> {
+@@ -42,6 +42,7 @@ type Props = {
+   routes: Route<string>[];
+   openingRouteKeys: string[];
+   closingRouteKeys: string[];
++  replacingRouteKeys: string[];
+   onOpenRoute: (props: { route: Route<string> }) => void;
+   onCloseRoute: (props: { route: Route<string> }) => void;
+   getPreviousRoute: (props: {
+@@ -299,7 +300,7 @@ export default class CardStack extends React.Component<Props, State> {
+           props.insets,
+           state.descriptors,
+           layout,
+-          {}
++          state.headerHeights
+         ),
+       };
+     });
+@@ -334,6 +335,49 @@ export default class CardStack extends React.Component<Props, State> {
+     return state.routes[state.index];
+   };
  
++  private getSomeFloatHeaderNeedsAbsolutePositioning() {
++    if (this.props.headerMode !== 'float') {
++      return false;
++    }
++
++    const {
++      closingRouteKeys,
++      openingRouteKeys,
++      replacingRouteKeys,
++    } = this.props;
++    const focusedRoute = this.getFocusedRoute();
++    const visibleKeys = new Set([
++      ...closingRouteKeys,
++      ...replacingRouteKeys,
++      focusedRoute.key,
++    ]);
++    if (openingRouteKeys.length > 0) {
++      for (let scene of this.state.scenes) {
++        const { route } = scene;
++        if (!openingRouteKeys.includes(route.key)) {
++          continue;
++        }
++        const prevRoute = this.props.getPreviousRoute({ route });
++        if (prevRoute) {
++          visibleKeys.add(prevRoute.key);
++        }
++      }
++    }
++
++    for (let scene of this.state.scenes) {
++      const { route, descriptor } = scene;
++      if (!visibleKeys.has(route.key)) {
++        continue;
++      }
++      const options = descriptor ? descriptor.options : {};
++      const { headerTransparent, headerShown } = options;
++      if (headerTransparent || headerShown === false) {
++        return true;
++      }
++    }
++    return false;
++  }
++
+   render() {
+     const {
+       mode,
+@@ -361,6 +405,7 @@ export default class CardStack extends React.Component<Props, State> {
+     const focusedRoute = state.routes[state.index];
+     const focusedDescriptor = descriptors[focusedRoute.key];
+     const focusedOptions = focusedDescriptor ? focusedDescriptor.options : {};
++    const absoluteFloatHeader = this.getSomeFloatHeaderNeedsAbsolutePositioning();
+ 
+     let defaultTransitionPreset =
+       mode === 'modal' ? ModalTransition : DefaultTransition;
+@@ -383,8 +428,31 @@ export default class CardStack extends React.Component<Props, State> {
+     // For modals, usually we want the screen underneath to be visible, so also disable it there
+     const isScreensEnabled = Platform.OS !== 'ios' && mode !== 'modal';
+ 
++    let floatingHeader;
++    if (headerMode === 'float') {
++      floatingHeader = renderHeader({
++        mode: 'float',
++        layout,
++        insets: { top, right, bottom, left },
++        scenes,
++        getPreviousRoute,
++        getFocusedRoute: this.getFocusedRoute,
++        onContentHeightChange: this.handleHeaderLayout,
++        gestureDirection:
++          focusedOptions.gestureDirection !== undefined
++            ? focusedOptions.gestureDirection
++            : defaultTransitionPreset.gestureDirection,
++        styleInterpolator:
++          focusedOptions.headerStyleInterpolator !== undefined
++            ? focusedOptions.headerStyleInterpolator
++            : defaultTransitionPreset.headerStyleInterpolator,
++        style: absoluteFloatHeader ? styles.floating : undefined,
++      });
++    }
++
      return (
        <React.Fragment>
-+        {headerMode === 'float'
-+          ? renderHeader({
-+              mode: 'float',
-+              layout,
-+              insets: { top, right, bottom, left },
-+              scenes,
-+              getPreviousRoute,
-+              getFocusedRoute: this.getFocusedRoute,
-+              onContentHeightChange: this.handleHeaderLayout,
-+              gestureDirection:
-+                focusedOptions.gestureDirection !== undefined
-+                  ? focusedOptions.gestureDirection
-+                  : defaultTransitionPreset.gestureDirection,
-+              styleInterpolator:
-+                focusedOptions.headerStyleInterpolator !== undefined
-+                  ? focusedOptions.headerStyleInterpolator
-+                  : defaultTransitionPreset.headerStyleInterpolator,
-+              style: styles.floating,
-+            })
-+          : null}
++        {absoluteFloatHeader ? null : floatingHeader}
          <MaybeScreenContainer
            enabled={isScreensEnabled}
            style={styles.container}
-@@ -537,26 +557,6 @@ export default class CardStack extends React.Component<Props, State> {
+@@ -523,6 +591,7 @@ export default class CardStack extends React.Component<Props, State> {
+                   headerMode={headerMode}
+                   headerShown={headerShown}
+                   headerTransparent={headerTransparent}
++                  absoluteFloatHeader={absoluteFloatHeader}
+                   renderHeader={renderHeader}
+                   renderScene={renderScene}
+                   onOpenRoute={onOpenRoute}
+@@ -537,26 +606,7 @@ export default class CardStack extends React.Component<Props, State> {
              );
            })}
          </MaybeScreenContainer>
@@ -66,14 +170,27 @@ index b47a50d..6226379 100755
 -              style: styles.floating,
 -            })
 -          : null}
++        {absoluteFloatHeader ? floatingHeader : null}
        </React.Fragment>
      );
    }
-@@ -567,7 +567,6 @@ const styles = StyleSheet.create({
-     flex: 1,
-   },
-   floating: {
--    position: 'absolute',
-     top: 0,
-     left: 0,
-     right: 0,
+diff --git a/node_modules/@react-navigation/stack/src/views/Stack/StackView.tsx b/node_modules/@react-navigation/stack/src/views/Stack/StackView.tsx
+index 1f73567..300d826 100644
+--- a/node_modules/@react-navigation/stack/src/views/Stack/StackView.tsx
++++ b/node_modules/@react-navigation/stack/src/views/Stack/StackView.tsx
+@@ -417,6 +417,7 @@ export default class StackView extends React.Component<Props, State> {
+       descriptors,
+       openingRouteKeys,
+       closingRouteKeys,
++      replacingRouteKeys,
+     } = this.state;
+ 
+     const headerMode =
+@@ -438,6 +439,7 @@ export default class StackView extends React.Component<Props, State> {
+                       routes={routes}
+                       openingRouteKeys={openingRouteKeys}
+                       closingRouteKeys={closingRouteKeys}
++                      replacingRouteKeys={replacingRouteKeys}
+                       onOpenRoute={this.handleOpenRoute}
+                       onCloseRoute={this.handleCloseRoute}
+                       onTransitionStart={this.handleTransitionStart}
