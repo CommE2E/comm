@@ -7,6 +7,11 @@ import { Platform, DeviceInfo } from 'react-native';
 
 import { createSelector } from 'reselect';
 
+export type DimensionsInfo = {|
+  ...Dimensions,
+  tabBarHeight: number,
+|};
+
 const isIPhoneX = Platform.OS === 'ios' && DeviceInfo.getConstants().isIPhoneX_deprecated;
 
 let statusBarHeight = 0;
@@ -23,7 +28,7 @@ const contentBottomOffset = isIPhoneX ? 34 : 0;
 
 const dimensionsSelector: (state: AppState) => Dimensions = createSelector(
   (state: AppState) => state.dimensions,
-  (dimensions: Dimensions): Dimensions => {
+  (dimensions: DimensionsInfo): Dimensions => {
     let { height, width } = dimensions;
     height -= contentBottomOffset;
     if (Platform.OS === 'android') {
@@ -41,7 +46,7 @@ const contentVerticalOffsetSelector: (
   state: AppState,
 ) => number = createSelector(
   (state: AppState) => state.dimensions,
-  (dimensions: Dimensions): number => {
+  (dimensions: DimensionsInfo): number => {
     if (Platform.OS !== 'ios') {
       return 0;
     }

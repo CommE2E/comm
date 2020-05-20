@@ -83,7 +83,10 @@ import {
 import reactotron from '../reactotron';
 import reduceDrafts from '../reducers/draft-reducer';
 import { getGlobalNavContext } from '../navigation/icky-global';
-import { defaultTabBarHeight } from '../selectors/dimension-selectors';
+import {
+  defaultTabBarHeight,
+  type DimensionsInfo,
+} from '../selectors/dimension-selectors';
 
 export type AppState = {|
   navInfo: NavInfo,
@@ -110,7 +113,7 @@ export type AppState = {|
   queuedReports: $ReadOnlyArray<ClientReportCreationRequest>,
   _persist: ?PersistState,
   sessionID?: void,
-  dimensions: Dimensions,
+  dimensions: DimensionsInfo,
   connectivity: ConnectivityInfo,
   globalThemeInfo: GlobalThemeInfo,
   deviceCameraInfo: DeviceCameraInfo,
