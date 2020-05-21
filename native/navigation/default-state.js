@@ -1,7 +1,7 @@
 // @flow
 
 import type { BaseNavInfo } from 'lib/types/nav-types';
-import type { NavigationState } from 'react-navigation';
+import type { StaleNavigationState } from '@react-navigation/native';
 
 import { fifteenDaysEarlier, fifteenDaysLater } from 'lib/utils/date-utils';
 
@@ -18,7 +18,7 @@ import {
 
 export type NavInfo = $Exact<BaseNavInfo>;
 
-const defaultNavigationState: NavigationState = {
+const defaultNavigationState: StaleNavigationState = {
   type: 'stack',
   index: 1,
   routes: [

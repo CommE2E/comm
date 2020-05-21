@@ -1,7 +1,7 @@
 // @flow
 
 import type { NavContextType } from './navigation-context';
-import type { NavigationState } from 'react-navigation';
+import type { PossiblyStaleNavigationState } from '@react-navigation/native';
 import type { CalendarFilter } from 'lib/types/filter-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { GlobalTheme } from '../types/themes';
@@ -36,7 +36,7 @@ import { NavContext } from './navigation-context';
 const baseCreateIsForegroundSelector = (routeName: string) =>
   createSelector(
     (context: ?NavContextType) => context && context.state,
-    (navigationState: ?NavigationState) => {
+    (navigationState: ?PossiblyStaleNavigationState) => {
       if (!navigationState) {
         return false;
       }
@@ -66,14 +66,14 @@ const foregroundKeySelector: (
   context: ?NavContextType,
 ) => ?string = createSelector(
   (context: ?NavContextType) => context && context.state,
-  (navigationState: ?NavigationState) =>
+  (navigationState: ?PossiblyStaleNavigationState) =>
     navigationState && navigationState.routes[navigationState.index].key,
 );
 
 const baseCreateActiveTabSelector = (routeName: string) =>
   createSelector(
     (context: ?NavContextType) => context && context.state,
-    (navigationState: ?NavigationState) => {
+    (navigationState: ?PossiblyStaleNavigationState) => {
       if (!navigationState) {
         return false;
       }
@@ -100,7 +100,7 @@ const scrollBlockingChatModalsClosedSelector: (
   context: ?NavContextType,
 ) => boolean = createSelector(
   (context: ?NavContextType) => context && context.state,
-  (navigationState: ?NavigationState) => {
+  (navigationState: ?PossiblyStaleNavigationState) => {
     if (!navigationState) {
       return false;
     }
@@ -120,7 +120,7 @@ const scrollBlockingChatModalsClosedSelector: (
 );
 
 function selectBackgroundIsDark(
-  navigationState: ?NavigationState,
+  navigationState: ?PossiblyStaleNavigationState,
   theme: ?GlobalTheme,
 ) {
   if (!navigationState) {
@@ -146,7 +146,7 @@ function selectBackgroundIsDark(
 }
 
 function activeThread(
-  navigationState: ?NavigationState,
+  navigationState: ?PossiblyStaleNavigationState,
   validRouteNames: $ReadOnlyArray<string>,
 ): ?string {
   if (!navigationState) {
@@ -182,7 +182,7 @@ const activeThreadSelector: (
   context: ?NavContextType,
 ) => ?string = createSelector(
   (context: ?NavContextType) => context && context.state,
-  (navigationState: ?NavigationState): ?string =>
+  (navigationState: ?PossiblyStaleNavigationState): ?string =>
     activeThread(navigationState, threadRoutes),
 );
 
@@ -191,7 +191,7 @@ const activeMessageListSelector: (
   context: ?NavContextType,
 ) => ?string = createSelector(
   (context: ?NavContextType) => context && context.state,
-  (navigationState: ?NavigationState): ?string =>
+  (navigationState: ?PossiblyStaleNavigationState): ?string =>
     activeThread(navigationState, messageListRouteNames),
 );
 

@@ -3,7 +3,8 @@
 import { type GlobalTheme, globalThemePropType } from './types/themes';
 import type { AppState } from './redux/redux-setup';
 import type { NavAction } from './navigation/navigation-context';
-import type { NavigationState, NavigationAction } from 'react-navigation';
+import type { NavigationState } from '@react-navigation/native';
+import type { NavigationAction } from 'react-navigation';
 
 import * as React from 'react';
 import { Provider } from 'react-redux';

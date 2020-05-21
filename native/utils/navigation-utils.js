@@ -1,12 +1,11 @@
 // @flow
 
 import type {
-  NavigationLeafRoute,
-  NavigationStateRoute,
-  NavigationRoute,
-  NavigationParams,
-  NavigationState,
-} from 'react-navigation';
+  PossiblyStaleNavigationState,
+  PossiblyStaleRoute,
+  StaleLeafRoute,
+  ScreenParams,
+} from '@react-navigation/native';
 
 import invariant from 'invariant';
 
@@ -16,16 +15,17 @@ import {
 } from '../navigation/route-names';
 
 function getStateFromNavigatorRoute(
-  route: NavigationRoute,
-): NavigationStateRoute {
+  route: PossiblyStaleRoute,
+): PossiblyStaleNavigationState {
+  const key = route.key ? route.key : `unkeyed ${route.name}`;
   invariant(
     route.state,
-    `expecting NavigationRoute for ${route.key} to be NavigationState`,
+    `expecting Route for ${key} to be NavigationState`,
   );
   return route.state;
 }
 
-function getThreadIDFromParams(params: ?NavigationParams): string {
+function getThreadIDFromParams(params: ?ScreenParams): string {
   invariant(
     params &&
       params.threadInfo &&
@@ -37,7 +37,7 @@ function getThreadIDFromParams(params: ?NavigationParams): string {
   return params.threadInfo.id;
 }
 
-function getParentThreadIDFromParams(params: ?NavigationParams): ?string {
+function getParentThreadIDFromParams(params: ?ScreenParams): ?string {
   if (!params) {
     return undefined;
   }
@@ -55,7 +55,7 @@ function getParentThreadIDFromParams(params: ?NavigationParams): ?string {
 }
 
 function getThreadIDFromRoute(
-  route: NavigationRoute,
+  route: PossiblyStaleRoute,
   routes?: $ReadOnlyArray<string> = threadRoutes,
 ) {
   if (!routes.includes(route.name)) {
@@ -67,7 +67,7 @@ function getThreadIDFromRoute(
   return getThreadIDFromParams(route.params);
 }
 
-function currentRouteRecurse(route: NavigationRoute): NavigationLeafRoute {
+function currentRouteRecurse(route: PossiblyStaleRoute): StaleLeafRoute {
   if (!route.state) {
     return route;
   }
@@ -75,11 +75,14 @@ function currentRouteRecurse(route: NavigationRoute): NavigationLeafRoute {
   return currentRouteRecurse(state.routes[state.index]);
 }
 
-function currentLeafRoute(state: NavigationState): NavigationLeafRoute {
+function currentLeafRoute(state: PossiblyStaleNavigationState): StaleLeafRoute {
   return currentRouteRecurse(state.routes[state.index]);
 }
 
-function findRouteIndexWithKey(state: NavigationState, key: string): ?number {
+function findRouteIndexWithKey(
+  state: PossiblyStaleNavigationState,
+  key: string,
+): ?number {
   for (let i = 0; i < state.routes.length; i++) {
     const route = state.routes[i];
     if (route.key === key) {
@@ -92,10 +95,13 @@ function findRouteIndexWithKey(state: NavigationState, key: string): ?number {
 // This function walks from the back of the stack and calls filterFunc on each
 // screen until the stack is exhausted or filterFunc returns "break". A screen
 // will be removed if and only if filterFunc returns "remove" (not "break").
-function removeScreensFromStack<S: NavigationState>(
-  state: S,
-  filterFunc: (route: NavigationRoute) => 'keep' | 'remove' | 'break',
-): S {
+function removeScreensFromStack<
+  Route,
+  State: { +routes: $ReadOnlyArray<Route>, +index: number },
+>(
+  state: State,
+  filterFunc: (route: Route) => 'keep' | 'remove' | 'break',
+): State {
   const newRoutes = [];
   let newIndex = state.index;
   let screenRemoved = false;

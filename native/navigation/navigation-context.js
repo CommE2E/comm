@@ -1,6 +1,7 @@
 // @flow
 
-import type { NavigationState, NavigationAction } from 'react-navigation';
+import type { NavigationAction } from 'react-navigation';
+import type { PossiblyStaleNavigationState } from '@react-navigation/native';
 import type { RootRouterNavigationAction } from './root-router';
 import type { ChatRouterNavigationAction } from '../chat/chat-router';
 import type { OverlayRouterNavigationAction } from './overlay-router';
@@ -15,7 +16,7 @@ export type NavAction =
   | ChatRouterNavigationAction
   | OverlayRouterNavigationAction;
 export type NavContextType = {|
-  state: NavigationState,
+  state: PossiblyStaleNavigationState,
   dispatch: (action: NavAction) => boolean,
 |};
 

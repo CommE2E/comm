@@ -1,7 +1,10 @@
 // @flow
 
 import type { NavContextType } from './navigation-context';
-import type { NavigationState, NavigationRoute } from 'react-navigation';
+import type {
+  PossiblyStaleNavigationState,
+  PossiblyStaleRoute,
+} from '@react-navigation/native';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -19,24 +22,28 @@ type DependencyInfo = {|
   parentRouteName: ?string,
 |};
 function collectDependencyInfo(
-  route: NavigationState | NavigationRoute,
+  route: PossiblyStaleNavigationState | PossiblyStaleRoute,
   dependencyMap?: Map<string, DependencyInfo> = new Map(),
   parentRouteName?: ?string,
 ): Map<string, DependencyInfo> {
   let state, routeName;
-  if (!route.name) {
+  if (route.name === undefined) {
     state = route;
   } else if (route.state) {
     ({ state, name: routeName } = route);
   }
   if (state) {
-    state.routes.forEach(
-      child => collectDependencyInfo(child, dependencyMap, routeName),
-    );
+    for (let child of state.routes) {
+      collectDependencyInfo(child, dependencyMap, routeName);
+    }
     return dependencyMap;
   }
 
+  if (!route.key) {
+    return dependencyMap;
+  }
   const { key } = route;
+
   const presenter =
     route.params && route.params.presentedFrom
       ? route.params.presentedFrom
