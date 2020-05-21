@@ -28,7 +28,7 @@ index 2665164..6fd10f5 100644
            : null
        }
 diff --git a/node_modules/@react-navigation/stack/src/views/Stack/CardStack.tsx b/node_modules/@react-navigation/stack/src/views/Stack/CardStack.tsx
-index b47a50d..eef1d6c 100755
+index b47a50d..f8503c9 100755
 --- a/node_modules/@react-navigation/stack/src/views/Stack/CardStack.tsx
 +++ b/node_modules/@react-navigation/stack/src/views/Stack/CardStack.tsx
 @@ -42,6 +42,7 @@ type Props = {
@@ -48,7 +48,7 @@ index b47a50d..eef1d6c 100755
          ),
        };
      });
-@@ -334,6 +335,49 @@ export default class CardStack extends React.Component<Props, State> {
+@@ -334,6 +335,55 @@ export default class CardStack extends React.Component<Props, State> {
      return state.routes[state.index];
    };
  
@@ -68,6 +68,12 @@ index b47a50d..eef1d6c 100755
 +      ...replacingRouteKeys,
 +      focusedRoute.key,
 +    ]);
++    const prevFocusedRoute = this.props.getPreviousRoute({
++      route: focusedRoute,
++    });
++    if (prevFocusedRoute) {
++      visibleKeys.add(prevFocusedRoute.key);
++    }
 +    if (openingRouteKeys.length > 0) {
 +      for (let scene of this.state.scenes) {
 +        const { route } = scene;
@@ -98,7 +104,7 @@ index b47a50d..eef1d6c 100755
    render() {
      const {
        mode,
-@@ -361,6 +405,7 @@ export default class CardStack extends React.Component<Props, State> {
+@@ -361,6 +411,7 @@ export default class CardStack extends React.Component<Props, State> {
      const focusedRoute = state.routes[state.index];
      const focusedDescriptor = descriptors[focusedRoute.key];
      const focusedOptions = focusedDescriptor ? focusedDescriptor.options : {};
@@ -106,7 +112,7 @@ index b47a50d..eef1d6c 100755
  
      let defaultTransitionPreset =
        mode === 'modal' ? ModalTransition : DefaultTransition;
-@@ -383,8 +428,31 @@ export default class CardStack extends React.Component<Props, State> {
+@@ -383,8 +434,31 @@ export default class CardStack extends React.Component<Props, State> {
      // For modals, usually we want the screen underneath to be visible, so also disable it there
      const isScreensEnabled = Platform.OS !== 'ios' && mode !== 'modal';
  
@@ -138,7 +144,7 @@ index b47a50d..eef1d6c 100755
          <MaybeScreenContainer
            enabled={isScreensEnabled}
            style={styles.container}
-@@ -523,6 +591,7 @@ export default class CardStack extends React.Component<Props, State> {
+@@ -523,6 +597,7 @@ export default class CardStack extends React.Component<Props, State> {
                    headerMode={headerMode}
                    headerShown={headerShown}
                    headerTransparent={headerTransparent}
@@ -146,7 +152,7 @@ index b47a50d..eef1d6c 100755
                    renderHeader={renderHeader}
                    renderScene={renderScene}
                    onOpenRoute={onOpenRoute}
-@@ -537,26 +606,7 @@ export default class CardStack extends React.Component<Props, State> {
+@@ -537,26 +612,7 @@ export default class CardStack extends React.Component<Props, State> {
              );
            })}
          </MaybeScreenContainer>
