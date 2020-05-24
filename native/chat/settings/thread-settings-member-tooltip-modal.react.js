@@ -19,13 +19,18 @@ import {
 } from 'lib/actions/thread-actions';
 import { memberIsAdmin } from 'lib/shared/thread-utils';
 
-import { createTooltip } from '../../navigation/tooltip.react';
+import {
+  createTooltip,
+  type TooltipParams,
+} from '../../navigation/tooltip.react';
 import ThreadSettingsMemberTooltipButton from './thread-settings-member-tooltip-button.react';
 
 type CustomProps = {
   memberInfo: RelativeMemberInfo,
   threadInfo: ThreadInfo,
 };
+
+export type ThreadSettingsMemberTooltipModalParams = TooltipParams<CustomProps>;
 
 function onRemoveUser(
   props: CustomProps,

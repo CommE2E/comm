@@ -3,7 +3,11 @@
 import type { MediaInfo } from 'lib/types/media-types';
 import type { ChatMultimediaMessageInfoItem } from './multimedia-message.react';
 
-import { createTooltip, tooltipHeight } from '../navigation/tooltip.react';
+import {
+  createTooltip,
+  tooltipHeight,
+  type TooltipParams,
+} from '../navigation/tooltip.react';
 import MultimediaTooltipButton from './multimedia-tooltip-button.react';
 import { intentionalSaveMedia } from '../media/save-media';
 
@@ -12,6 +16,8 @@ type CustomProps = {
   mediaInfo: MediaInfo,
   verticalOffset: number,
 };
+
+export type MultimediaTooltipModalParams = TooltipParams<CustomProps>;
 
 function onPressSave(props: CustomProps) {
   const { mediaInfo, item } = props;

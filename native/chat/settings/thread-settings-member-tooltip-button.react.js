@@ -1,9 +1,6 @@
 // @flow
 
-import type {
-  NavigationScreenProp,
-  NavigationLeafRoute,
-} from 'react-navigation';
+import type { AppNavigationProp } from '../../navigation/app-navigator.react';
 
 import * as React from 'react';
 import { TouchableOpacity } from 'react-native';
@@ -12,7 +9,7 @@ import PropTypes from 'prop-types';
 import PencilIcon from './pencil-icon.react';
 
 type Props = {
-  navigation: NavigationScreenProp<NavigationLeafRoute>,
+  navigation: AppNavigationProp<'ThreadSettingsMemberTooltipModal'>,
 };
 class ThreadSettingsMemberTooltipButton extends React.PureComponent<Props> {
   static propTypes = {

@@ -17,23 +17,26 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 
-export type TooltipEntry<CustomProps> = {|
+export type TooltipEntry<Params> = {|
   id: string,
   text: string,
   onPress: (
-    props: CustomProps,
+    props: Params,
     dispatchFunctions: DispatchFunctions,
     bindServerCall: (serverCall: ActionFunc) => BoundServerCall,
   ) => mixed,
 |};
 
-type Props<CustomProps: {}> = {
-  spec: TooltipEntry<CustomProps>,
-  onPress: (entry: TooltipEntry<CustomProps>) => void,
+type Props<Params, Entry: TooltipEntry<Params>> = {
+  spec: Entry,
+  onPress: (entry: Entry) => void,
   containerStyle?: ViewStyle,
   labelStyle?: TextStyle,
 };
-class TooltipItem<CP: {}> extends React.PureComponent<Props<CP>> {
+class TooltipItem<
+  Params,
+  Entry: TooltipEntry<Params>,
+> extends React.PureComponent<Props<Params, Entry>> {
   static propTypes = {
     spec: PropTypes.shape({
       text: PropTypes.string.isRequired,

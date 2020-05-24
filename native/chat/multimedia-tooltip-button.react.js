@@ -1,23 +1,17 @@
 // @flow
 
 import {
-  type MediaInfo,
   mediaInfoPropType,
   type Dimensions,
   dimensionsPropType,
 } from 'lib/types/media-types';
 import {
-  type VerticalBounds,
   verticalBoundsPropType,
-  type LayoutCoordinates,
   layoutCoordinatesPropType,
 } from '../types/layout-types';
-import type {
-  NavigationScreenProp,
-  NavigationLeafRoute,
-} from 'react-navigation';
 import type { AppState } from '../redux/redux-setup';
-import type { ChatMultimediaMessageInfoItem } from './multimedia-message.react';
+import type { AppNavigationProp } from '../navigation/app-navigator.react';
+import type { TooltipRoute } from '../navigation/tooltip.react';
 
 import * as React from 'react';
 import Animated from 'react-native-reanimated';
@@ -41,25 +35,9 @@ import { dimensionsSelector } from '../selectors/dimension-selectors';
 
 const { Value } = Animated;
 
-type Route = {|
-  ...NavigationLeafRoute,
-  params: {
-    // Tooltip props
-    initialCoordinates: LayoutCoordinates,
-    verticalBounds: VerticalBounds,
-    location?: 'above' | 'below',
-    margin?: number,
-    // Custom props
-    item: ChatMultimediaMessageInfoItem,
-    mediaInfo: MediaInfo,
-    verticalOffset: number,
-  },
-|};
-type NavProp = NavigationScreenProp<Route>;
-
 type Props = {
-  navigation: NavProp,
-  route: Route,
+  navigation: AppNavigationProp<'MultimediaTooltipModal'>,
+  route: TooltipRoute<'MultimediaTooltipModal',>,
   progress: Value,
   // Redux state
   screenDimensions: Dimensions,

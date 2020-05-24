@@ -1,9 +1,5 @@
 // @flow
 
-import type {
-  NavigationLeafRoute,
-  NavigationStackProp,
-} from 'react-navigation-stack';
 import {
   type VerticalBounds,
   verticalBoundsPropType,
@@ -21,6 +17,11 @@ import type {
   ActionFunc,
 } from 'lib/utils/action-utils';
 import type { LayoutEvent } from '../types/react-native';
+import type {
+  AppNavigationProp,
+  TooltipModalParamList,
+} from './app-navigator.react';
+import type { LeafRoute } from '@react-navigation/native';
 
 import * as React from 'react';
 import Animated from 'react-native-reanimated';
@@ -56,31 +57,40 @@ import {
 const { Value, Extrapolate, add, multiply, interpolate } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
-type TooltipSpec<CustomProps> = {|
-  entries: $ReadOnlyArray<TooltipEntry<CustomProps>>,
+type TooltipSpec<Entry> = {|
+  entries: $ReadOnlyArray<Entry>,
   labelStyle?: ViewStyle,
 |};
 
-type Route<CustomProps> = {|
-  ...NavigationLeafRoute,
-  params: {
-    ...$Exact<CustomProps>,
-    presentedFrom: string,
-    initialCoordinates: LayoutCoordinates,
-    verticalBounds: VerticalBounds,
-    location?: 'above' | 'below',
-    margin?: number,
-    visibleEntryIDs?: $ReadOnlyArray<string>,
-  },
-|};
-type NavProp<CustomProps> = NavigationStackProp<Route<CustomProps>>;
+type TooltipCommonProps = {
+  presentedFrom: string,
+  initialCoordinates: LayoutCoordinates,
+  verticalBounds: VerticalBounds,
+  location?: 'above' | 'below',
+  margin?: number,
+  visibleEntryIDs?: $ReadOnlyArray<string>,
+};
 
-type ButtonProps<Navigation> = {
+export type TooltipParams<CustomProps> = {|
+  ...$Exact<CustomProps>,
+  ...$Exact<TooltipCommonProps>,
+|};
+
+export type TooltipRoute<
+  RouteName: $Keys<TooltipModalParamList>,
+  Params = $ElementType<TooltipModalParamList, RouteName>,
+> = {|
+  ...LeafRoute<RouteName>,
+  +params: Params,
+|};
+
+type ButtonProps<Navigation, Route> = {
   navigation: Navigation,
+  route: Route,
   progress: Value,
 };
 
-type TooltipProps<Navigation> = {
+type TooltipProps<Navigation, Route> = {
   navigation: Navigation,
   route: Route,
   // Redux state
@@ -94,11 +104,17 @@ type TooltipProps<Navigation> = {
   overlayContext: ?OverlayContextType,
 };
 function createTooltip<
-  CustomProps: {},
-  Navigation: NavProp<CustomProps>,
-  TooltipPropsType: TooltipProps<Navigation>,
-  ButtonComponentType: React.ComponentType<ButtonProps<Navigation>>,
->(ButtonComponent: ButtonComponentType, tooltipSpec: TooltipSpec<CustomProps>) {
+  RouteName: $Keys<TooltipModalParamList>,
+  Navigation: AppNavigationProp<RouteName>,
+  Params: TooltipCommonProps,
+  Route: TooltipRoute<RouteName, Params>,
+  Entry: TooltipEntry<Params>,
+  TooltipPropsType: TooltipProps<Navigation, Route>,
+  ButtonComponentType: React.ComponentType<ButtonProps<Navigation, Route>>,
+>(
+  ButtonComponent: ButtonComponentType,
+  tooltipSpec: TooltipSpec<Entry>,
+) {
   class Tooltip extends React.PureComponent<TooltipPropsType> {
     static propTypes = {
       navigation: PropTypes.shape({
@@ -359,22 +375,18 @@ function createTooltip<
       this.props.navigation.goBack();
     };
 
-    onPressEntry = (entry: TooltipEntry<CustomProps>) => {
-      const {
-        initialCoordinates,
-        verticalBounds,
-        location,
-        margin,
-        visibleEntryIDs,
-        ...customProps
-      } = this.props.route.params;
+    onPressEntry = (entry: Entry) => {
       this.props.navigation.goBack();
       const dispatchFunctions = {
         dispatch: this.props.dispatch,
         dispatchActionPayload: this.props.dispatchActionPayload,
         dispatchActionPromise: this.props.dispatchActionPromise,
       };
-      entry.onPress(customProps, dispatchFunctions, this.bindServerCall);
+      entry.onPress(
+        this.props.route.params,
+        dispatchFunctions,
+        this.bindServerCall,
+      );
     };
 
     bindServerCall = (serverCall: ActionFunc) => {

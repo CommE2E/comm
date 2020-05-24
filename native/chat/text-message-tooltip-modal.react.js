@@ -4,13 +4,19 @@ import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
 
 import { Clipboard } from 'react-native';
 
-import { createTooltip, tooltipHeight } from '../navigation/tooltip.react';
+import {
+  createTooltip,
+  tooltipHeight,
+  type TooltipParams,
+} from '../navigation/tooltip.react';
 import TextMessageTooltipButton from './text-message-tooltip-button.react';
 import { displayActionResultModal } from '../navigation/action-result-modal';
 
 type CustomProps = {
   item: ChatTextMessageInfoItemWithHeight,
 };
+
+export type TextMessageTooltipModalParams = TooltipParams<CustomProps>;
 
 const confirmCopy = () => displayActionResultModal('copied!');
 
