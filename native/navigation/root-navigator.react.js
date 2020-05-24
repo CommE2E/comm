@@ -6,6 +6,7 @@ import { enableScreens } from 'react-native-screens';
 import {
   createNavigatorFactory,
   useNavigationBuilder,
+  type LeafRoute,
 } from '@react-navigation/native';
 import { StackView, TransitionPresets } from '@react-navigation/stack';
 import NavigationBuilderContext from '@react-navigation/core/src/NavigationBuilderContext';
@@ -23,14 +24,26 @@ import {
   accountModals,
 } from './route-names';
 import LoggedOutModal from '../account/logged-out-modal.react';
-import VerificationModal from '../account/verification-modal.react';
+import VerificationModal, {
+  type VerificationModalParams,
+} from '../account/verification-modal.react';
 import AppNavigator from './app-navigator.react';
-import ThreadPickerModal from '../calendar/thread-picker-modal.react';
-import AddUsersModal from '../chat/settings/add-users-modal.react';
-import CustomServerModal from '../more/custom-server-modal.react';
-import ColorPickerModal from '../chat/settings/color-picker-modal.react';
-import ComposeSubthreadModal from '../chat/settings/compose-subthread-modal.react';
-import RootRouter from './root-router';
+import ThreadPickerModal, {
+  type ThreadPickerModalParams,
+} from '../calendar/thread-picker-modal.react';
+import AddUsersModal, {
+  type AddUsersModalParams,
+} from '../chat/settings/add-users-modal.react';
+import CustomServerModal, {
+  type CustomServerModalParams,
+} from '../more/custom-server-modal.react';
+import ColorPickerModal, {
+  type ColorPickerModalParams,
+} from '../chat/settings/color-picker-modal.react';
+import ComposeSubthreadModal, {
+  type ComposeSubthreadModalParams,
+} from '../chat/settings/compose-subthread-modal.react';
+import RootRouter, { type RootRouterNavigationProp } from './root-router';
 import { RootNavigatorContext } from './root-navigator-context';
 import { RootContext } from '../root-context';
 
@@ -43,6 +56,25 @@ if (Platform.OS !== "android" || Platform.Version >= 21) {
   // here for those devices
   enableScreens();
 }
+
+type RootParamList = {
+  LoggedOutModal: void,
+  VerificationModal: VerificationModalParams,
+  App: void,
+  ThreadPickerModal: ThreadPickerModalParams,
+  AddUsersModal: AddUsersModalParams,
+  CustomServerModal: CustomServerModalParams,
+  ColorPickerModal: ColorPickerModalParams,
+  ComposeSubthreadModal: ComposeSubthreadModalParams,
+};
+export type RootNavigationRoute<RouteName: string> = {|
+  ...LeafRoute<RouteName>,
+  +params: $ElementType<RootParamList, RouteName>,
+|};
+export type RootNavigationProp<RouteName: string> = RootRouterNavigationProp<
+  RootParamList,
+  RouteName,
+>;
 
 function RootNavigator({
   initialRouteName,

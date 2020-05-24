@@ -5,11 +5,11 @@ import {
   threadInfoPropType,
   threadTypes,
 } from 'lib/types/thread-types';
-import type {
-  NavigationScreenProp,
-  NavigationLeafRoute,
-} from 'react-navigation';
 import type { AppState } from '../../redux/redux-setup';
+import type {
+  RootNavigationProp,
+  RootNavigationRoute,
+} from '../../navigation/root-navigator.react';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -30,23 +30,14 @@ import {
   styleSelector,
 } from '../../themes/colors';
 
-type NavProp = NavigationScreenProp<{|
-  ...NavigationLeafRoute,
-  params: {|
-    presentedFrom: string,
-    threadInfo: ThreadInfo,
-  |},
-|}>;
+export type ComposeSubthreadModalParams = {|
+  presentedFrom: string,
+  threadInfo: ThreadInfo,
+|};
 
 type Props = {|
-  navigation: NavProp,
-  route: {|
-    ...NavigationLeafRoute,
-    params: {|
-      presentedFrom: string,
-      threadInfo: ThreadInfo,
-    |},
-  |},
+  navigation: RootNavigationProp<'ComposeSubthreadModal'>,
+  route: RootNavigationRoute<'ComposeSubthreadModal'>,
   // Redux state
   colors: Colors,
   styles: typeof styles,
@@ -58,6 +49,7 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
     }).isRequired,
     route: PropTypes.shape({
       params: PropTypes.shape({
+        presentedFrom: PropTypes.string.isRequired,
         threadInfo: threadInfoPropType.isRequired,
       }).isRequired,
     }).isRequired,

@@ -19,8 +19,8 @@ import type {
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
 import type { LayoutEvent } from '../types/react-native';
+import type { TabNavigationProp } from '../navigation/app-navigator.react';
 
 import * as React from 'react';
 import {
@@ -67,7 +67,6 @@ import {
 } from '../navigation/route-names';
 import {
   createIsForegroundSelector,
-  foregroundKeySelector,
   nonThreadCalendarQuery,
 } from '../navigation/nav-selectors';
 import LoadingIndicator from './loading-indicator.react';
@@ -87,7 +86,7 @@ function hueDistance(firstColor: string, secondColor: string): number {
 const omitEntryInfo = _omit(['entryInfo']);
 
 type Props = {|
-  navigation: NavigationScreenProp<NavigationRoute>,
+  navigation: TabNavigationProp<'Calendar'>,
   entryInfo: EntryInfoWithHeight,
   threadInfo: ThreadInfo,
   visible: boolean,
@@ -99,10 +98,10 @@ type Props = {|
   entryRef: (entryKey: string, entry: ?InternalEntry) => void,
   // Redux state
   calendarQuery: () => CalendarQuery,
-  threadPickerActive: boolean,
-  foregroundKey: ?string,
   online: boolean,
   styles: typeof styles,
+  // Nav state
+  threadPickerActive: boolean,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
@@ -133,10 +132,9 @@ class InternalEntry extends React.Component<Props, State> {
     onPressWhitespace: PropTypes.func.isRequired,
     entryRef: PropTypes.func.isRequired,
     calendarQuery: PropTypes.func.isRequired,
-    threadPickerActive: PropTypes.bool.isRequired,
-    foregroundKey: PropTypes.string,
     online: PropTypes.bool.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
+    threadPickerActive: PropTypes.bool.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     createEntry: PropTypes.func.isRequired,
@@ -444,8 +442,8 @@ class InternalEntry extends React.Component<Props, State> {
   };
 
   onFocus = () => {
-    if (this.props.threadPickerActive && this.props.foregroundKey) {
-      this.props.navigation.goBack(this.props.foregroundKey);
+    if (this.props.threadPickerActive) {
+      this.props.navigation.goBack();
     }
   };
 
@@ -751,7 +749,6 @@ const activeThreadPickerSelector = createIsForegroundSelector(
 
 const Entry = connectNav((context: ?NavContextType) => ({
   navContext: context,
-  foregroundKey: foregroundKeySelector(context),
   threadPickerActive: activeThreadPickerSelector(context),
 }))(
   connect(

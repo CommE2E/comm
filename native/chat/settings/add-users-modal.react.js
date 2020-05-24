@@ -16,9 +16,9 @@ import type { UserSearchResult } from 'lib/types/search-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type {
-  NavigationScreenProp,
-  NavigationLeafRoute,
-} from 'react-navigation';
+  RootNavigationProp,
+  RootNavigationRoute,
+} from '../../navigation/root-navigator.react';
 
 import * as React from 'react';
 import { View, Text, ActivityIndicator, Alert } from 'react-native';
@@ -55,23 +55,14 @@ const tagInputProps = {
   returnKeyType: 'go',
 };
 
-type NavProp = NavigationScreenProp<{|
-  ...NavigationLeafRoute,
-  params: {|
-    presentedFrom: string,
-    threadInfo: ThreadInfo,
-  |},
-|}>;
+export type AddUsersModalParams = {|
+  presentedFrom: string,
+  threadInfo: ThreadInfo,
+|};
 
 type Props = {|
-  navigation: NavProp,
-  route: {|
-    ...NavigationLeafRoute,
-    params: {|
-      presentedFrom: string,
-      threadInfo: ThreadInfo,
-    |},
-  |},
+  navigation: RootNavigationProp<'AddUsersModal'>,
+  route: RootNavigationRoute<'AddUsersModal'>,
   // Redux state
   parentThreadInfo: ?ThreadInfo,
   otherUserInfos: { [id: string]: AccountUserInfo },
@@ -356,7 +347,9 @@ const changeThreadSettingsLoadingStatusSelector = createLoadingStatusSelector(
 registerFetchKey(searchUsersActionTypes);
 
 export default connect(
-  (state: AppState, ownProps: { navigation: NavProp }) => {
+  (state: AppState, ownProps: {
+    route: RootNavigationRoute<'AddUsersModal'>,
+  }) => {
     let parentThreadInfo = null;
     const { parentThreadID } = ownProps.route.params.threadInfo;
     if (parentThreadID) {

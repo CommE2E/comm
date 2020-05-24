@@ -62,14 +62,6 @@ function useIsAppLoggedIn() {
   }, [navContext]);
 }
 
-const foregroundKeySelector: (
-  context: ?NavContextType,
-) => ?string = createSelector(
-  (context: ?NavContextType) => context && context.state,
-  (navigationState: ?PossiblyStaleNavigationState) =>
-    navigationState && navigationState.routes[navigationState.index].key,
-);
-
 const baseCreateActiveTabSelector = (routeName: string) =>
   createSelector(
     (context: ?NavContextType) => context && context.state,
@@ -264,7 +256,6 @@ const nonThreadCalendarQuery: (
 export {
   createIsForegroundSelector,
   useIsAppLoggedIn,
-  foregroundKeySelector,
   createActiveTabSelector,
   scrollBlockingChatModalsClosedSelector,
   selectBackgroundIsDark,

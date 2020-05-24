@@ -1,9 +1,5 @@
 // @flow
 
-import type {
-  NavigationScreenProp,
-  NavigationLeafRoute,
-} from 'react-navigation';
 import type { AppState } from '../redux/redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import {
@@ -14,6 +10,10 @@ import {
 import type { KeyboardEvent } from '../keyboard/keyboard';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 import type { ImageStyle } from '../types/styles';
+import type {
+  RootNavigationProp,
+  RootNavigationRoute,
+} from '../navigation/root-navigator.react';
 
 import * as React from 'react';
 import {
@@ -65,15 +65,14 @@ const animatedSpec = {
   easing: Easing.out(Easing.ease),
 };
 
+export type VerificationModalParams = {|
+  verifyCode: string,
+|};
+
 type VerificationModalMode = 'simple-text' | 'reset-password';
 type Props = {
-  navigation: {
-    clearRootModals: (
-      keys: $ReadOnlyArray<string>,
-      preserveFocus: boolean,
-    ) => void,
-  } & NavigationScreenProp<NavigationLeafRoute>,
-  route: { key: string, params: { verifyCode: string } },
+  navigation: RootNavigationProp<'VerificationModal'>,
+  route: RootNavigationRoute<'VerificationModal'>,
   // Navigation state
   isForeground: boolean,
   // Redux state
@@ -209,10 +208,7 @@ class VerificationModal extends React.PureComponent<Props, State> {
   }
 
   dismiss = () => {
-    this.props.navigation.clearRootModals(
-      [this.props.route.key],
-      false,
-    );
+    this.props.navigation.clearRootModals([this.props.route.key]);
   };
 
   onResetPasswordSuccess = async () => {

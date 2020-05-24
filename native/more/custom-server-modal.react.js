@@ -2,10 +2,7 @@
 
 import type { AppState } from '../redux/redux-setup';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import type {
-  NavigationScreenProp,
-  NavigationLeafRoute,
-} from 'react-navigation';
+import type { RootNavigationProp } from '../navigation/root-navigator.react';
 
 import * as React from 'react';
 import { Text, TextInput } from 'react-native';
@@ -19,15 +16,12 @@ import Modal from '../components/modal.react';
 import { setCustomServer } from '../utils/url-utils';
 import { styleSelector } from '../themes/colors';
 
-type NavProp = NavigationScreenProp<{|
-  ...NavigationLeafRoute,
-  params: {|
-    presentedFrom: string,
-  |},
-|}>;
+export type CustomServerModalParams = {|
+  presentedFrom: string,
+|};
 
 type Props = {|
-  navigation: NavProp,
+  navigation: RootNavigationProp<'CustomServerModal'>,
   // Redux state
   urlPrefix: string,
   customServer: ?string,

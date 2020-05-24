@@ -1,9 +1,5 @@
 // @flow
 
-import type {
-  NavigationLeafRoute,
-  NavigationStackProp,
-} from 'react-navigation-stack';
 import {
   type MediaInfo,
   mediaInfoPropType,
@@ -20,6 +16,10 @@ import {
 import type { NativeMethodsMixinType } from '../types/react-native';
 import type { ChatMultimediaMessageInfoItem } from '../chat/multimedia-message.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
+import type {
+  AppNavigationRoute,
+  AppNavigationProp,
+} from '../navigation/app-navigator.react';
 
 import * as React from 'react';
 import {
@@ -183,17 +183,13 @@ function runDecay(
   ];
 }
 
-type Route = {|
-  ...NavigationLeafRoute,
-  params: {|
-    presentedFrom: string,
-    mediaInfo: MediaInfo,
-    initialCoordinates: LayoutCoordinates,
-    verticalBounds: VerticalBounds,
-    item: ChatMultimediaMessageInfoItem,
-  |},
+export type MultimediaModalParams = {|
+  presentedFrom: string,
+  mediaInfo: MediaInfo,
+  initialCoordinates: LayoutCoordinates,
+  verticalBounds: VerticalBounds,
+  item: ChatMultimediaMessageInfoItem,
 |};
-type NavProp = NavigationStackProp<Route>;
 
 type TouchableOpacityInstance = React.AbstractComponent<
   React.ElementConfig<typeof TouchableOpacity>,
@@ -201,8 +197,8 @@ type TouchableOpacityInstance = React.AbstractComponent<
 >;
 
 type Props = {|
-  navigation: NavProp,
-  route: Route,
+  navigation: AppNavigationProp<'MultimediaModal'>,
+  route: AppNavigationRoute<'MultimediaModal'>,
   // Redux state
   screenDimensions: Dimensions,
   contentVerticalOffset: number,

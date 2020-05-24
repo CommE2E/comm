@@ -22,7 +22,7 @@ type DependencyInfo = {|
   parentRouteName: ?string,
 |};
 function collectDependencyInfo(
-  route: PossiblyStaleNavigationState | PossiblyStaleRoute,
+  route: PossiblyStaleNavigationState | PossiblyStaleRoute<>,
   dependencyMap?: Map<string, DependencyInfo> = new Map(),
   parentRouteName?: ?string,
 ): Map<string, DependencyInfo> {
@@ -120,14 +120,12 @@ function ModalPruner(props: Props) {
       dispatch({
         type: (clearRootModalsActionType: 'CLEAR_ROOT_MODALS'),
         keys: pruneRootModals,
-        preserveFocus: true,
       });
     }
     if (pruneOverlayModals.length > 0) {
       dispatch({
         type: (clearOverlayModalsActionType: 'CLEAR_OVERLAY_MODALS'),
         keys: pruneOverlayModals,
-        preserveFocus: true,
       });
     }
   }, [dispatch, pruneRootModals, pruneOverlayModals]);

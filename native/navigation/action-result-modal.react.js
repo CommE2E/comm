@@ -1,9 +1,9 @@
 // @flow
 
 import type {
-  NavigationStackProp,
-  NavigationLeafRoute,
-} from 'react-navigation';
+  AppNavigationRoute,
+  AppNavigationProp,
+} from './app-navigator.react';
 
 import * as React from 'react';
 import { View, Text } from 'react-native';
@@ -18,23 +18,14 @@ import { OverlayContext } from './overlay-context';
 const { Extrapolate, interpolate } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
-type NavProp = NavigationStackProp<{|
-  ...NavigationLeafRoute,
-  params: {|
-    message: string,
-    preventPresses: true,
-  |},
-|}>;
+export type ActionResultModalParams = {|
+  message: string,
+  preventPresses: true,
+|};
 
 type Props = {|
-  navigation: NavProp,
-  route: {|
-    ...NavigationLeafRoute,
-    params: {|
-      message: string,
-      preventPresses: true,
-    |},
-  |},
+  navigation: AppNavigationProp<'ActionResultModal'>,
+  route: AppNavigationRoute<'ActionResultModal'>,
 |};
 function ActionResultModal(props: Props) {
   const overlayContext = React.useContext(OverlayContext);

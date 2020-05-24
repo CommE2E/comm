@@ -2,10 +2,6 @@
 
 import type { AppState } from '../../redux/redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type {
-  NavigationScreenProp,
-  NavigationLeafRoute,
-} from 'react-navigation';
 import {
   type ThreadInfo,
   threadInfoPropType,
@@ -13,6 +9,10 @@ import {
   type UpdateThreadRequest,
 } from 'lib/types/thread-types';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
+import type {
+  RootNavigationProp,
+  RootNavigationRoute,
+} from '../../navigation/root-navigator.react';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -35,27 +35,16 @@ import {
 } from '../../themes/colors';
 import { dimensionsSelector } from '../../selectors/dimension-selectors';
 
-type NavProp = NavigationScreenProp<{|
-  ...NavigationLeafRoute,
-  params: {|
-    presentedFrom: string,
-    color: string,
-    threadInfo: ThreadInfo,
-    setColor: (color: string) => void,
-  |},
-|}>;
+export type ColorPickerModalParams = {|
+  presentedFrom: string,
+  color: string,
+  threadInfo: ThreadInfo,
+  setColor: (color: string) => void,
+|};
 
 type Props = {|
-  navigation: NavProp,
-  route: {|
-    ...NavigationLeafRoute,
-    params: {|
-      presentedFrom: string,
-      color: string,
-      threadInfo: ThreadInfo,
-      setColor: (color: string) => void,
-    |},
-  |},
+  navigation: RootNavigationProp<'ColorPickerModal'>,
+  route: RootNavigationRoute<'ColorPickerModal'>,
   // Redux state
   colors: Colors,
   styles: typeof styles,

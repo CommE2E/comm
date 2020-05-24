@@ -1,6 +1,17 @@
 // @flow
 
+import type {
+  StackNavigationProp,
+  ParamListBase,
+  NavigationState,
+  StackAction,
+  Route,
+  PossiblyStaleRoute,
+  StackOptions,
+} from '@react-navigation/stack';
+
 import { StackRouter, CommonActions } from '@react-navigation/native';
+import invariant from 'invariant';
 
 import { removeScreensFromStack } from '../utils/navigation-utils';
 import {
@@ -16,29 +27,67 @@ import {
   setNavStateActionType,
 } from './action-types';
 
-function resetState(newPartialRoute, oldRoute) {
-  const newRoute = { ...oldRoute, ...newPartialRoute };
-  if (!newRoute.state) {
-    return newRoute;
+type LogInAction = {|
+  +type: 'LOG_IN',
+|};
+type LogOutAction = {|
+  +type: 'LOG_OUT',
+|};
+type ClearRootModalsAction = {|
+  +type: 'CLEAR_ROOT_MODALS',
+  +keys: $ReadOnlyArray<string>,
+|};
+type SetNavStateAction = {|
+  +type: 'SET_NAV_STATE',
+  +state: NavigationState,
+  +hideFromMonitor?: boolean,
+|};
+export type RootRouterNavigationAction =
+  | StackAction
+  | LogInAction
+  | LogOutAction
+  | ClearRootModalsAction
+  | SetNavStateAction;
+
+export type RootRouterNavigationProp<
+  ParamList: ParamListBase,
+  RouteName: string,
+> = {|
+  ...StackNavigationProp<ParamList, RouteName>,
+  +logIn: () => void,
+  +logOut: () => void,
+  +clearRootModals: (keys: $ReadOnlyArray<string>) => void,
+  +setNavState: (state: NavigationState) => void,
+|};
+
+function resetState(
+  newPartialRoute: PossiblyStaleRoute<>,
+  oldRoute: PossiblyStaleRoute<>,
+) {
+  if (!newPartialRoute.state) {
+    invariant(!oldRoute.state, 'resetState found non-matching state');
+    return { ...oldRoute, ...newPartialRoute };
   }
+  invariant(oldRoute.state, 'resetState found non-matching state');
   const routes = [];
-  for (let i = 0; i < newRoute.state.routes.length; i++) {
+  for (let i = 0; i < newPartialRoute.state.routes.length; i++) {
     routes.push(resetState(
       newPartialRoute.state.routes[i],
       oldRoute.state.routes[i],
     ));
   }
   return {
-    ...newRoute,
+    ...oldRoute,
+    ...newPartialRoute,
     state: {
       ...oldRoute.state,
-      ...newRoute.state,
+      ...newPartialRoute.state,
       routes,
     },
   };
 }
 
-function RootRouter(options) {
+function RootRouter(options: StackOptions) {
   const stackRouter = StackRouter(options);
   return {
     ...stackRouter,
@@ -53,7 +102,7 @@ function RootRouter(options) {
         }
         return removeScreensFromStack(
           lastState,
-          (route: NavigationRoute) =>
+          (route: Route<>) =>
             accountModals.includes(route.name) ? 'remove' : 'keep',
         );
       } else if (action.type === logOutActionType) {
@@ -69,7 +118,7 @@ function RootRouter(options) {
         let loggedOutModalFound = false;
         newState = removeScreensFromStack(
           newState,
-          (route: NavigationRoute) => {
+          (route: Route<>) => {
             const { name } = route;
             if (name === LoggedOutModalRouteName) {
               loggedOutModalFound = true;
@@ -106,7 +155,7 @@ function RootRouter(options) {
         }
         return removeScreensFromStack(
           lastState,
-          (route: NavigationRoute) =>
+          (route: Route<>) =>
             keys.includes(route.key) ? 'remove' : 'keep',
         );
       } else if (action.type === setNavStateActionType) {
@@ -134,13 +183,9 @@ function RootRouter(options) {
       ...stackRouter.actionCreators,
       logIn: () => ({ type: logInActionType }),
       logOut: () => ({ type: logOutActionType }),
-      clearRootModals: (
-        keys: $ReadOnlyArray<string>,
-        preserveFocus: boolean,
-      ) => ({
+      clearRootModals: (keys: $ReadOnlyArray<string>) => ({
         type: clearRootModalsActionType,
         keys,
-        preserveFocus,
       }),
       setNavState: (
         state: NavigationState,

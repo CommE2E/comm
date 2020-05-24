@@ -1,9 +1,5 @@
 // @flow
 
-import type {
-  NavigationStackProp,
-  NavigationLeafRoute,
-} from 'react-navigation-stack';
 import type { AppState } from '../redux/redux-setup';
 import {
   type Dimensions,
@@ -24,6 +20,10 @@ import {
 } from '../input/input-state';
 import type { ViewStyle } from '../types/styles';
 import type { NativeMethodsMixinType } from '../types/react-native';
+import type {
+  AppNavigationRoute,
+  AppNavigationProp,
+} from '../navigation/app-navigator.react';
 
 import * as React from 'react';
 import {
@@ -224,13 +224,10 @@ function runIndicatorAnimation(
   ]);
 }
 
-type NavProp = NavigationStackProp<{|
-  ...NavigationLeafRoute,
-  params: {|
-    presentedFrom: string,
-    threadID: string,
-  |},
-|}>;
+export type CameraModalParams = {|
+  presentedFrom: string,
+  threadID: string,
+|};
 
 type TouchableOpacityInstance = React.AbstractComponent<
   React.ElementConfig<typeof TouchableOpacity>,
@@ -238,14 +235,8 @@ type TouchableOpacityInstance = React.AbstractComponent<
 >;
 
 type Props = {
-  navigation: NavProp,
-  route: {|
-    ...NavigationLeafRoute,
-    params: {|
-      presentedFrom: string,
-      threadID: string,
-    |},
-  |},
+  navigation: AppNavigationProp<'CameraModal'>,
+  route: AppNavigationRoute<'CameraModal'>,
   // Redux state
   screenDimensions: Dimensions,
   contentVerticalOffset: number,

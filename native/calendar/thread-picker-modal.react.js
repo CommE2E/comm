@@ -1,9 +1,9 @@
 // @flow
 
 import type {
-  NavigationScreenProp,
-  NavigationLeafRoute,
-} from 'react-navigation';
+  RootNavigationProp,
+  RootNavigationRoute,
+} from '../navigation/root-navigator.react';
 
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
@@ -22,17 +22,14 @@ import ThreadList from '../components/thread-list.react';
 import { RootNavigatorContext } from '../navigation/root-navigator-context';
 import { waitForInteractions } from '../utils/interactions';
 
-type Route = {|
-  ...NavigationLeafRoute,
-  params: {|
-    presentedFrom: string,
-    dateString: string,
-  |},
+export type ThreadPickerModalParams = {|
+  presentedFrom: string,
+  dateString: string,
 |};
 
 type Props = {|
-  navigation: NavigationScreenProp<Route>,
-  route: Route,
+  navigation: RootNavigationProp<'ThreadPickerModal'>,
+  route: RootNavigationRoute<'ThreadPickerModal'>,
 |};
 function ThreadPickerModal(props: Props) {
   const {

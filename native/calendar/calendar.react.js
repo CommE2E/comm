@@ -17,7 +17,6 @@ import type { ViewToken } from '../types/react-native';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { KeyboardEvent } from '../keyboard/keyboard';
 import type { TextToMeasure } from '../text-height-measurer.react';
-import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
 import {
   type CalendarFilter,
   calendarFilterPropType,
@@ -32,6 +31,10 @@ import {
   connectionStatusPropType,
 } from 'lib/types/socket-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import type {
+  TabNavigationProp,
+  TabNavigationRoute,
+} from '../navigation/app-navigator.react';
 
 import * as React from 'react';
 import {
@@ -123,8 +126,8 @@ type ExtraData = $ReadOnly<{|
 |}>;
 
 type Props = {
-  navigation: NavigationScreenProp<NavigationRoute>,
-  route: NavigationRoute,
+  navigation: TabNavigationProp<'Calendar'>,
+  route: TabNavigationRoute<'Calendar'>,
   // Redux state
   listData: ?$ReadOnlyArray<CalendarItem>,
   calendarActive: boolean,

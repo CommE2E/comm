@@ -1,11 +1,35 @@
 // @flow
 
+import type {
+  StackNavigationProp,
+  ParamListBase,
+  StackAction,
+  Route,
+  StackOptions,
+} from '@react-navigation/stack';
+
 import { StackRouter } from '@react-navigation/native';
 
 import { removeScreensFromStack } from '../utils/navigation-utils';
 import { clearOverlayModalsActionType } from './action-types';
 
-function OverlayRouter(options) {
+type ClearOverlayModalsAction = {|
+  +type: 'CLEAR_OVERLAY_MODALS',
+  +keys: $ReadOnlyArray<string>,
+|};
+export type OverlayRouterNavigationAction =
+  | StackAction
+  | ClearOverlayModalsAction;
+
+export type OverlayRouterNavigationProp<
+  ParamList: ParamListBase,
+  RouteName: string,
+> = {|
+  ...StackNavigationProp<ParamList, RouteName>,
+  +clearOverlayModals: (keys: $ReadOnlyArray<string>) => void,
+|};
+
+function OverlayRouter(options: StackOptions) {
   const stackRouter = StackRouter(options);
   return {
     ...stackRouter,
@@ -21,7 +45,7 @@ function OverlayRouter(options) {
         }
         return removeScreensFromStack(
           lastState,
-          (route: NavigationRoute) =>
+          (route: Route<>) =>
             keys.includes(route.key) ? 'remove' : 'keep',
         );
       } else {
@@ -30,13 +54,9 @@ function OverlayRouter(options) {
     },
     actionCreators: {
       ...stackRouter.actionCreators,
-      clearOverlayModals: (
-        keys: $ReadOnlyArray<string>,
-        preserveFocus: boolean,
-      ) => ({
+      clearOverlayModals: (keys: $ReadOnlyArray<string>) => ({
         type: clearOverlayModalsActionType,
         keys,
-        preserveFocus,
       }),
     },
   };

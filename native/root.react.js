@@ -3,7 +3,7 @@
 import { type GlobalTheme, globalThemePropType } from './types/themes';
 import type { AppState } from './redux/redux-setup';
 import type { NavAction } from './navigation/navigation-context';
-import type { NavigationState } from '@react-navigation/native';
+import type { PossiblyStaleNavigationState } from '@react-navigation/native';
 import type { NavigationAction } from 'react-navigation';
 
 import * as React from 'react';
@@ -60,14 +60,14 @@ type Props = {
 type State = {|
   navContext: ?NavContextType,
   rootContext: RootContextType,
-  initialState: ?NavigationState,
+  initialState: ?PossiblyStaleNavigationState,
 |};
 class Root extends React.PureComponent<Props, State> {
   static propTypes = {
     activeTheme: globalThemePropType,
   };
   navDispatch: ?(action: NavAction) => boolean;
-  navState: ?NavigationState;
+  navState: ?PossiblyStaleNavigationState;
   navStateInitialized = false;
   queuedActions = [];
 
@@ -181,7 +181,7 @@ class Root extends React.PureComponent<Props, State> {
     }));
   };
 
-  onNavigationStateChange = (state: ?NavigationState) => {
+  onNavigationStateChange = (state: ?PossiblyStaleNavigationState) => {
     invariant(state, 'nav state should be non-null');
     const prevState = this.navState;
     this.navState = state;
@@ -245,7 +245,7 @@ class Root extends React.PureComponent<Props, State> {
     }
   };
 
-  persistNavigationState = async (state: NavigationState) => {
+  persistNavigationState = async (state: PossiblyStaleNavigationState) => {
     try {
       await AsyncStorage.setItem(
         navStateAsyncStorageKey,

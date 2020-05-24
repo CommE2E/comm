@@ -15,7 +15,7 @@ import {
 } from '../navigation/route-names';
 
 function getStateFromNavigatorRoute(
-  route: PossiblyStaleRoute,
+  route: PossiblyStaleRoute<>,
 ): PossiblyStaleNavigationState {
   const key = route.key ? route.key : `unkeyed ${route.name}`;
   invariant(
@@ -55,7 +55,7 @@ function getParentThreadIDFromParams(params: ?ScreenParams): ?string {
 }
 
 function getThreadIDFromRoute(
-  route: PossiblyStaleRoute,
+  route: PossiblyStaleRoute<>,
   routes?: $ReadOnlyArray<string> = threadRoutes,
 ) {
   if (!routes.includes(route.name)) {
@@ -67,7 +67,7 @@ function getThreadIDFromRoute(
   return getThreadIDFromParams(route.params);
 }
 
-function currentRouteRecurse(route: PossiblyStaleRoute): StaleLeafRoute {
+function currentRouteRecurse(route: PossiblyStaleRoute<>): StaleLeafRoute<> {
   if (!route.state) {
     return route;
   }
@@ -75,7 +75,9 @@ function currentRouteRecurse(route: PossiblyStaleRoute): StaleLeafRoute {
   return currentRouteRecurse(state.routes[state.index]);
 }
 
-function currentLeafRoute(state: PossiblyStaleNavigationState): StaleLeafRoute {
+function currentLeafRoute(
+  state: PossiblyStaleNavigationState,
+): StaleLeafRoute<> {
   return currentRouteRecurse(state.routes[state.index]);
 }
 
