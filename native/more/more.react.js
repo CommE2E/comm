@@ -1,5 +1,7 @@
 // @flow
 
+import type { LeafRoute, StackNavigationProp } from '@react-navigation/stack';
+
 import * as React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
@@ -35,6 +37,24 @@ const deleteAccountOptions = { headerTitle: 'Delete account' };
 const buildInfoOptions = { headerTitle: 'Build info' };
 const devToolsOptions = { headerTitle: 'Developer tools' };
 const appearanceOptions = { headerTitle: 'Appearance' };
+
+type MoreParamList = {
+  MoreScreen: void,
+  EditEmail: void,
+  EditPassword: void,
+  DeleteAccount: void,
+  BuildInfo: void,
+  DevTools: void,
+  AppearancePreferences: void,
+};
+export type MoreNavigationRoute<RouteName: string> = {|
+  ...LeafRoute<RouteName>,
+  +params: $ElementType<MoreParamList, RouteName>,
+|};
+export type MoreNavigationProp<RouteName: string> = StackNavigationProp<
+  MoreParamList,
+  RouteName,
+>;
 
 const More = createStackNavigator();
 export default () => (

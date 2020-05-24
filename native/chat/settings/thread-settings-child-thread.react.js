@@ -1,7 +1,7 @@
 // @flow
 
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import type { Navigate } from '../../navigation/route-names';
+import type { ThreadSettingsNavigate } from './thread-settings.react';
 import type { AppState } from '../../redux/redux-setup';
 
 import * as React from 'react';
@@ -23,7 +23,7 @@ import {
 
 type Props = {|
   threadInfo: ThreadInfo,
-  navigate: Navigate,
+  navigate: ThreadSettingsNavigate,
   lastListItem: boolean,
   // Redux state
   colors: Colors,

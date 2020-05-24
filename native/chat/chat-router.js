@@ -1,6 +1,14 @@
 // @flow
 
 import type { ThreadInfo } from 'lib/types/thread-types';
+import type {
+  StackNavigationProp,
+  ParamListBase,
+  StackAction,
+  Route,
+  PossiblyStaleRoute,
+  StackOptions,
+} from '@react-navigation/stack';
 
 import { StackRouter, CommonActions } from '@react-navigation/native';
 
@@ -20,7 +28,49 @@ import {
   pushNewThreadActionType,
 } from '../navigation/action-types';
 
-function ChatRouter(options) {
+type ClearScreensAction = {|
+  +type: 'CLEAR_SCREENS',
+  +payload: {|
+    +routeNames: $ReadOnlyArray<string>,
+  |},
+|};
+type ReplaceWithThreadAction = {|
+  +type: 'REPLACE_WITH_THREAD',
+  +payload: {|
+    +threadInfo: ThreadInfo,
+  |},
+|};
+type ClearThreadsAction = {|
+  +type: 'CLEAR_THREADS',
+  +payload: {|
+    +threadIDs: $ReadOnlyArray<string>,
+  |},
+|};
+type PushNewThreadAction = {|
+  +type: 'PUSH_NEW_THREAD',
+  +payload: {|
+    +threadInfo: ThreadInfo,
+  |},
+|};
+export type ChatRouterNavigationAction =
+  | StackAction
+  | ClearScreensAction
+  | ReplaceWithThreadAction
+  | ClearThreadsAction
+  | PushNewThreadAction;
+
+export type ChatRouterNavigationProp<
+  ParamList: ParamListBase,
+  RouteName: string,
+> = {|
+  ...StackNavigationProp<ParamList, RouteName>,
+  +clearScreens: (routeNames: $ReadOnlyArray<string>) => void,
+  +replaceWithThread: (threadInfo: ThreadInfo) => void,
+  +clearThreads: (threadIDs: $ReadOnlyArray<string>) => void,
+  +pushNewThread: (threadInfo: ThreadInfo) => void,
+|};
+
+function ChatRouter(options: StackOptions) {
   const stackRouter = StackRouter(options);
   return {
     ...stackRouter,
@@ -30,23 +80,23 @@ function ChatRouter(options) {
       options,
     ) => {
       if (action.type === clearScreensActionType) {
-        const { routeNames } = action;
+        const { routeNames } = action.payload;
         if (!lastState) {
           return lastState;
         }
         return removeScreensFromStack(
           lastState,
-          (route: NavigationRoute) =>
+          (route: Route<>) =>
             routeNames.includes(route.name) ? 'remove' : 'keep',
         );
       } else if (action.type === replaceWithThreadActionType) {
-        const { threadInfo } = action;
+        const { threadInfo } = action.payload;
         if (!lastState) {
           return lastState;
         }
         const clearedState = removeScreensFromStack(
           lastState,
-          (route: NavigationRoute) =>
+          (route: Route<>) =>
             route.name === ChatThreadListRouteName ? 'keep' : 'remove',
         );
         const navigateAction = CommonActions.navigate({
@@ -60,23 +110,23 @@ function ChatRouter(options) {
           options,
         );
       } else if (action.type === clearThreadsActionType) {
-        const threadIDs = new Set(action.threadIDs);
+        const threadIDs = new Set(action.payload.threadIDs);
         if (!lastState) {
           return lastState;
         }
         return removeScreensFromStack(
           lastState,
-          (route: NavigationRoute) =>
+          (route: Route<>) =>
             threadIDs.has(getThreadIDFromRoute(route)) ? 'remove' : 'keep',
         );
       } else if (action.type === pushNewThreadActionType) {
-        const { threadInfo } = action;
+        const { threadInfo } = action.payload;
         if (!lastState) {
           return lastState;
         }
         const clearedState = removeScreensFromStack(
           lastState,
-          (route: NavigationRoute) =>
+          (route: Route<>) =>
             route.name === ComposeThreadRouteName ? 'remove' : 'break',
         );
         const navigateAction = CommonActions.navigate({
@@ -101,27 +151,25 @@ function ChatRouter(options) {
       ...stackRouter.actionCreators,
       clearScreens: (
         routeNames: $ReadOnlyArray<string>,
-        preserveFocus: boolean,
       ) => ({
         type: clearScreensActionType,
-        routeNames,
-        preserveFocus,
+        payload: {
+          routeNames,
+        },
       }),
       replaceWithThread: (threadInfo: ThreadInfo) => ({
         type: replaceWithThreadActionType,
-        threadInfo,
+        payload: { threadInfo },
       }),
       clearThreads: (
         threadIDs: $ReadOnlyArray<string>,
-        preserveFocus: boolean,
       ) => ({
         type: clearThreadsActionType,
-        threadIDs,
-        preserveFocus,
+        payload: { threadIDs },
       }),
       pushNewThread: (threadInfo: ThreadInfo) => ({
         type: pushNewThreadActionType,
-        threadInfo,
+        payload: { threadInfo },
       }),
     },
     shouldActionChangeFocus: action => {

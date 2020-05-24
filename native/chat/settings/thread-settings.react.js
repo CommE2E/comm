@@ -1,9 +1,5 @@
 // @flow
 
-import type {
-  NavigationScreenProp,
-  NavigationLeafRoute,
-} from 'react-navigation';
 import {
   type ThreadInfo,
   threadInfoPropType,
@@ -13,8 +9,9 @@ import {
 } from 'lib/types/thread-types';
 import type { AppState } from '../../redux/redux-setup';
 import type { CategoryType } from './thread-settings-category.react';
-import type { Navigate } from '../../navigation/route-names';
 import type { VerticalBounds } from '../../types/layout-types';
+import type { ChatNavigationProp, ChatNavigationRoute } from '../chat.react';
+import type { TabNavigationProp } from '../../navigation/app-navigator.react';
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -74,13 +71,14 @@ import {
 
 const itemPageLength = 5;
 
-type Route = {|
-  ...NavigationLeafRoute,
-  params: {|
-    threadInfo: ThreadInfo,
-  |},
+export type ThreadSettingsParams = {|
+  threadInfo: ThreadInfo,
 |};
-type NavProp = NavigationScreenProp<Route>;
+
+export type ThreadSettingsNavigate = $PropertyType<
+  ChatNavigationProp<'ThreadSettings'>,
+  'navigate',
+>;
 
 type ChatSettingsItem =
   | {|
@@ -108,7 +106,7 @@ type ChatSettingsItem =
       threadInfo: ThreadInfo,
       colorEditValue: string,
       canChangeSettings: boolean,
-      navigate: Navigate,
+      navigate: ThreadSettingsNavigate,
       threadSettingsRouteKey: string,
     |}
   | {|
@@ -123,7 +121,7 @@ type ChatSettingsItem =
       itemType: 'parent',
       key: string,
       threadInfo: ThreadInfo,
-      navigate: Navigate,
+      navigate: ThreadSettingsNavigate,
     |}
   | {|
       itemType: 'visibility',
@@ -144,7 +142,7 @@ type ChatSettingsItem =
       itemType: 'childThread',
       key: string,
       threadInfo: ThreadInfo,
-      navigate: Navigate,
+      navigate: ThreadSettingsNavigate,
       lastListItem: boolean,
     |}
   | {|
@@ -157,7 +155,7 @@ type ChatSettingsItem =
       memberInfo: RelativeMemberInfo,
       threadInfo: ThreadInfo,
       canEdit: boolean,
-      navigate: Navigate,
+      navigate: ThreadSettingsNavigate,
       lastListItem: boolean,
       verticalBounds: ?VerticalBounds,
       threadSettingsRouteKey: string,
@@ -176,13 +174,13 @@ type ChatSettingsItem =
       itemType: 'deleteThread',
       key: string,
       threadInfo: ThreadInfo,
-      navigate: Navigate,
+      navigate: ThreadSettingsNavigate,
       canLeaveThread: boolean,
     |};
 
 type Props = {|
-  navigation: NavProp,
-  route: Route,
+  navigation: ChatNavigationProp<'ThreadSettings'>,
+  route: ChatNavigationRoute<'ThreadSettings'>,
   // Redux state
   threadInfo: ?ThreadInfo,
   threadMembers: RelativeMemberInfo[],
@@ -258,7 +256,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     if (!threadInChatList(threadInfo)) {
       threadWatcher.watchID(threadInfo.id);
     }
-    const tabNavigation = this.props.navigation.dangerouslyGetParent();
+    const tabNavigation: ?TabNavigationProp<'Chat'> =
+      this.props.navigation.dangerouslyGetParent();
+    invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.addListener('tabPress', this.onTabPress);
   }
 
@@ -267,7 +267,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     if (!threadInChatList(threadInfo)) {
       threadWatcher.removeID(threadInfo.id);
     }
-    const tabNavigation = this.props.navigation.dangerouslyGetParent();
+    const tabNavigation: ?TabNavigationProp<'Chat'> =
+      this.props.navigation.dangerouslyGetParent();
+    invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.removeListener('tabPress', this.onTabPress);
   }
 
@@ -828,7 +830,9 @@ const somethingIsSaving = (
 };
 
 const WrappedThreadSettings = connect(
-  (state: AppState, ownProps: { route: Route }) => {
+  (state: AppState, ownProps: {
+    route: ChatNavigationRoute<'ThreadSettings'>,
+  }) => {
     const threadID = ownProps.route.params.threadInfo.id;
     const threadMembers = relativeMemberInfoSelectorForMembersOfThread(
       threadID,

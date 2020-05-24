@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { createNavigator } from 'react-navigation';
 import Animated, { Easing } from 'react-native-reanimated';
 import invariant from 'invariant';
 import {

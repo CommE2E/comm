@@ -2,7 +2,8 @@
 
 import type { AppState } from '../redux/redux-setup';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import type { NavigationScreenProp, NavigationRoute } from 'react-navigation';
+import type { TabNavigationProp } from '../navigation/app-navigator.react';
+import type { ChatNavigationProp } from './chat.react';
 
 import * as React from 'react';
 import { View, FlatList, Platform, TextInput } from 'react-native';
@@ -11,6 +12,7 @@ import PropTypes from 'prop-types';
 import _sum from 'lodash/fp/sum';
 import { FloatingAction } from 'react-native-floating-action';
 import { createSelector } from 'reselect';
+import invariant from 'invariant';
 
 import { viewerIsMember } from 'lib/shared/thread-utils';
 import { threadSearchIndex } from 'lib/selectors/nav-selectors';
@@ -42,7 +44,7 @@ const floatingActions = [
 type Item = ChatThreadItem | {| type: 'search', searchText: string |};
 
 type Props = {|
-  navigation: NavigationScreenProp<NavigationRoute>,
+  navigation: ChatNavigationProp<'ChatThreadList'>,
   // Redux state
   chatListData: $ReadOnlyArray<ChatThreadItem>,
   viewerID: ?string,
@@ -74,12 +76,16 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   flatList: ?FlatList<Item>;
 
   componentDidMount() {
-    const tabNavigation = this.props.navigation.dangerouslyGetParent();
+    const tabNavigation: ?TabNavigationProp<'Chat'> =
+      this.props.navigation.dangerouslyGetParent();
+    invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.addListener('tabPress', this.onTabPress);
   }
 
   componentWillUnmount() {
-    const tabNavigation = this.props.navigation.dangerouslyGetParent();
+    const tabNavigation: ?TabNavigationProp<'Chat'> =
+      this.props.navigation.dangerouslyGetParent();
+    invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.removeListener('tabPress', this.onTabPress);
   }
 

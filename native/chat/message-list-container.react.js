@@ -11,6 +11,7 @@ import {
   messageListRoutePropType,
   messageListNavPropType,
 } from './message-list-types';
+import type { TabNavigationProp } from '../navigation/app-navigator.react';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -103,12 +104,16 @@ class MessageListContainer extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
-    const tabNavigation = this.props.navigation.dangerouslyGetParent();
+    const tabNavigation: ?TabNavigationProp<'Chat'> =
+      this.props.navigation.dangerouslyGetParent();
+    invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.addListener('tabPress', this.onTabPress);
   }
 
   componentWillUnmount() {
-    const tabNavigation = this.props.navigation.dangerouslyGetParent();
+    const tabNavigation: ?TabNavigationProp<'Chat'> =
+      this.props.navigation.dangerouslyGetParent();
+    invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.removeListener('tabPress', this.onTabPress);
   }
 

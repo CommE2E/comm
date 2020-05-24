@@ -2,8 +2,8 @@
 
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
-import type { Navigate } from '../navigation/route-names';
 import type { AppState } from '../redux/redux-setup';
+import type { ChatNavigationProp } from './chat.react';
 
 import * as React from 'react';
 import { View, Platform } from 'react-native';
@@ -19,7 +19,7 @@ import { styleSelector } from '../themes/colors';
 
 type Props = {|
   threadInfo: ThreadInfo,
-  navigate: Navigate,
+  navigate: $PropertyType<ChatNavigationProp<'MessageList'>, 'navigate'>,
   // Redux state
   styles: typeof styles,
 |};

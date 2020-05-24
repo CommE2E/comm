@@ -71,10 +71,9 @@ export type RootNavigationRoute<RouteName: string> = {|
   ...LeafRoute<RouteName>,
   +params: $ElementType<RootParamList, RouteName>,
 |};
-export type RootNavigationProp<RouteName: string> = RootRouterNavigationProp<
-  RootParamList,
-  RouteName,
->;
+export type RootNavigationProp<
+  RouteName: string = $Keys<RootParamList>,
+> = RootRouterNavigationProp<RootParamList, RouteName>;
 
 function RootNavigator({
   initialRouteName,

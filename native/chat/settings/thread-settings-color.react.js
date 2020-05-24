@@ -4,7 +4,7 @@ import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { AppState } from '../../redux/redux-setup';
-import type { Navigate } from '../../navigation/route-names';
+import type { ThreadSettingsNavigate } from './thread-settings.react';
 
 import * as React from 'react';
 import { Text, ActivityIndicator, View, Platform } from 'react-native';
@@ -29,7 +29,7 @@ type Props = {|
   colorEditValue: string,
   setColorEditValue: (color: string) => void,
   canChangeSettings: boolean,
-  navigate: Navigate,
+  navigate: ThreadSettingsNavigate,
   threadSettingsRouteKey: string,
   // Redux state
   loadingStatus: LoadingStatus,

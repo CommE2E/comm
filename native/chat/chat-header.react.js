@@ -1,7 +1,5 @@
 // @flow
 
-import type { HeaderProps } from 'react-navigation-stack';
-
 import * as React from 'react';
 
 import Header from '../navigation/header.react';

@@ -1,6 +1,6 @@
 // @flow
 
-import type { Navigate } from '../navigation/route-names';
+import type { ChatNavigationProp } from './chat.react';
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
@@ -15,7 +15,7 @@ import Button from '../components/button.react';
 import { type Colors, colorsPropType, colorsSelector } from '../themes/colors';
 
 type Props = {|
-  navigate: Navigate,
+  navigate: $PropertyType<ChatNavigationProp<'ChatThreadList'>, 'navigate'>,
   // Redux state
   colors: Colors,
 |};

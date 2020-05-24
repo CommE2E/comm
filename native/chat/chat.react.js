@@ -1,6 +1,8 @@
 // @flow
 
 import type { ThreadInfo } from 'lib/types/thread-types';
+import type { LeafRoute } from '@react-navigation/native';
+import type { MessageListParams } from './message-list-types';
 
 import * as React from 'react';
 import {
@@ -13,9 +15,15 @@ import invariant from 'invariant';
 
 import ChatThreadList from './chat-thread-list.react';
 import MessageListContainer from './message-list-container.react';
-import ComposeThread from './compose-thread.react';
-import ThreadSettings from './settings/thread-settings.react';
-import DeleteThread from './settings/delete-thread.react';
+import ComposeThread, {
+  type ComposeThreadParams,
+} from './compose-thread.react';
+import ThreadSettings, {
+  type ThreadSettingsParams,
+} from './settings/thread-settings.react';
+import DeleteThread, {
+  type DeleteThreadParams,
+} from './settings/delete-thread.react';
 import {
   ComposeThreadRouteName,
   DeleteThreadRouteName,
@@ -25,7 +33,7 @@ import {
 } from '../navigation/route-names';
 import HeaderBackButton from '../navigation/header-back-button.react';
 import ChatHeader from './chat-header.react';
-import ChatRouter from './chat-router';
+import ChatRouter, { type ChatRouterNavigationProp } from './chat-router';
 import KeyboardAvoidingView from '../keyboard/keyboard-avoiding-view.react';
 import MessageStorePruner from './message-store-pruner.react';
 import ThreadScreenPruner from './thread-screen-pruner.react';
@@ -55,7 +63,7 @@ function ChatNavigator({
   const inputState = React.useContext(InputStateContext);
   invariant(inputState, 'InputState should be set in ChatNavigator');
   const clearComposeScreensAfterMessageSend = React.useCallback(() => {
-    navigation.clearScreens([ComposeThreadRouteName], true);
+    navigation.clearScreens([ComposeThreadRouteName]);
   }, [navigation]);
   React.useEffect(() => {
     inputState.registerSendCallback(clearComposeScreensAfterMessageSend);
@@ -130,6 +138,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
+
+type ChatParamList = {
+  ChatThreadList: void,
+  MessageList: MessageListParams,
+  ComposeThread: ComposeThreadParams,
+  ThreadSettings: ThreadSettingsParams,
+  DeleteThread: DeleteThreadParams,
+};
+export type ChatNavigationRoute<RouteName: string> = {|
+  ...LeafRoute<RouteName>,
+  +params: $ElementType<ChatParamList, RouteName>,
+|};
+export type ChatNavigationProp<RouteName: string> = ChatRouterNavigationProp<
+  ChatParamList,
+  RouteName,
+>;
 
 const Chat = createChatNavigator();
 export default () => (

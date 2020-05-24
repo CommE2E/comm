@@ -1,17 +1,5 @@
 // @flow
 
-import type {
-  NavigationParams,
-  NavigationNavigateAction,
-} from 'react-navigation';
-
-export type Navigate = ({
-  name: string,
-  params?: NavigationParams,
-  action?: NavigationNavigateAction,
-  key?: string,
-}) => boolean;
-
 export const AppRouteName = 'App';
 export const TabNavigatorRouteName = 'TabNavigator';
 export const ComposeThreadRouteName = 'ComposeThread';

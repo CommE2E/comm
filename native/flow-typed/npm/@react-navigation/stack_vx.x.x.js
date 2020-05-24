@@ -602,6 +602,7 @@ declare module '@react-navigation/stack' {
       { ...ParamListBase, ...ParamList },
     >>,
     +pop: (count?: number) => void,
+    +popToTop: () => void,
   |};
 
   declare export type StackHeaderLeftButtonProps = {|

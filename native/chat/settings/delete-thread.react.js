@@ -2,7 +2,6 @@
 
 import type { AppState } from '../../redux/redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { NavigationScreenProp, NavigationLeafRoute } from 'react-navigation';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import {
@@ -13,6 +12,7 @@ import {
   rawThreadInfoPropType,
 } from 'lib/types/thread-types';
 import { type GlobalTheme, globalThemePropType } from '../../types/themes';
+import type { ChatNavigationProp, ChatNavigationRoute } from '../chat.react';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -51,17 +51,13 @@ import {
 } from '../../navigation/navigation-context';
 import { clearThreadsActionType } from '../../navigation/action-types';
 
-type Route = {|
-  ...NavigationLeafRoute,
-  params: {|
-    threadInfo: ThreadInfo,
-  |},
+export type DeleteThreadParams = {|
+  threadInfo: ThreadInfo,
 |};
-type NavProp = NavigationScreenProp<Route>;
 
 type Props = {|
-  navigation: NavProp,
-  route: Route,
+  navigation: ChatNavigationProp<'DeleteThread'>,
+  route: ChatNavigationRoute<'DeleteThread'>,
   // Redux state
   threadInfo: ?ThreadInfo,
   loadingStatus: LoadingStatus,
@@ -348,7 +344,9 @@ const loadingStatusSelector = createLoadingStatusSelector(
 );
 
 export default connect(
-  (state: AppState, ownProps: { route: Route }): * => {
+  (state: AppState, ownProps: {
+    route: ChatNavigationRoute<'DeleteThread'>,
+  }): * => {
     const threadID = ownProps.route.params.threadInfo.id;
     return {
       threadInfo: threadInfoSelector(state)[threadID],

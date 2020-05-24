@@ -2,7 +2,7 @@
 
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { AppState } from '../../redux/redux-setup';
-import type { Navigate } from '../../navigation/route-names';
+import type { ThreadSettingsNavigate } from './thread-settings.react';
 
 import * as React from 'react';
 import { Text, View, Platform } from 'react-native';
@@ -18,7 +18,7 @@ import { styleSelector } from '../../themes/colors';
 
 type Props = {|
   threadInfo: ThreadInfo,
-  navigate: Navigate,
+  navigate: ThreadSettingsNavigate,
   // Redux state
   parentThreadInfo?: ?ThreadInfo,
   styles: typeof styles,

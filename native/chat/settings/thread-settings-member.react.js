@@ -15,9 +15,9 @@ import {
   verticalBoundsPropType,
 } from '../../types/layout-types';
 import {
-  type Navigate,
   ThreadSettingsMemberTooltipModalRouteName,
 } from '../../navigation/route-names';
+import type { ThreadSettingsNavigate } from './thread-settings.react';
 
 import * as React from 'react';
 import {
@@ -61,7 +61,7 @@ type Props = {|
   memberInfo: RelativeMemberInfo,
   threadInfo: ThreadInfo,
   canEdit: boolean,
-  navigate: Navigate,
+  navigate: ThreadSettingsNavigate,
   lastListItem: boolean,
   verticalBounds: ?VerticalBounds,
   threadSettingsRouteKey: string,

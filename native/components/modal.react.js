@@ -1,11 +1,8 @@
 // @flow
 
-import type {
-  NavigationScreenProp,
-  NavigationLeafRoute,
-} from 'react-navigation';
 import type { AppState } from '../redux/redux-setup';
 import type { ViewStyle } from '../types/styles';
+import type { RootNavigationProp } from '../navigation/root-navigator.react';
 
 import * as React from 'react';
 import {
@@ -21,7 +18,7 @@ import KeyboardAvoidingView from '../keyboard/keyboard-avoiding-view.react';
 import { styleSelector } from '../themes/colors';
 
 type Props = $ReadOnly<{|
-  navigation: NavigationScreenProp<NavigationLeafRoute>,
+  navigation: RootNavigationProp<>,
   children: React.Node,
   containerStyle?: ViewStyle,
   modalStyle?: ViewStyle,

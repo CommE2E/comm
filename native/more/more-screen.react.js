@@ -1,6 +1,5 @@
 // @flow
 
-import type { NavigationScreenProp } from 'react-navigation';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux/redux-setup';
 import type { LogOutResult } from 'lib/types/account-types';
@@ -14,6 +13,7 @@ import {
   type PreRequestUserState,
   preRequestUserStatePropType,
 } from 'lib/types/session-types';
+import type { MoreNavigationProp } from './more.react';
 
 import * as React from 'react';
 import {
@@ -61,7 +61,7 @@ import {
 } from '../themes/colors';
 
 type Props = {
-  navigation: NavigationScreenProp<*>,
+  navigation: MoreNavigationProp<'MoreScreen'>,
   // Redux state
   currentUserInfo: ?CurrentUserInfo,
   preRequestUserState: PreRequestUserState,

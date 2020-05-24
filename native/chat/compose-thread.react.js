@@ -1,6 +1,5 @@
 // @flow
 
-import type { NavigationLeafRoute } from 'react-navigation';
 import type { AppState } from '../redux/redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
@@ -21,7 +20,7 @@ import {
 } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { UserSearchResult } from 'lib/types/search-types';
-import type { ChatNavProp } from './chat.react';
+import type { ChatNavigationProp, ChatNavigationRoute } from './chat.react';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -69,18 +68,14 @@ const tagInputProps = {
   returnKeyType: 'go',
 };
 
-type Route = {|
-  ...NavigationLeafRoute,
-  params: {|
-    threadType?: ThreadType,
-    parentThreadInfo?: ThreadInfo,
-  |},
+export type ComposeThreadParams = {|
+  threadType?: ThreadType,
+  parentThreadInfo?: ThreadInfo,
 |};
-type NavProp = ChatNavProp<Route>;
 
 type Props = {|
-  navigation: NavProp,
-  route: Route,
+  navigation: ChatNavigationProp<'ComposeThread'>,
+  route: ChatNavigationRoute<'ComposeThread'>,
   // Redux state
   parentThreadInfo: ?ThreadInfo,
   loadingStatus: LoadingStatus,
@@ -171,7 +166,9 @@ class ComposeThread extends React.PureComponent<Props, State> {
     }
   }
 
-  static getParentThreadInfo(props: { route: Route }): ?ThreadInfo {
+  static getParentThreadInfo(props: {
+    route: ChatNavigationRoute<'ComposeThread'>,
+  }): ?ThreadInfo {
     return props.route.params.parentThreadInfo;
   }
 
@@ -508,7 +505,9 @@ const loadingStatusSelector = createLoadingStatusSelector(newThreadActionTypes);
 registerFetchKey(searchUsersActionTypes);
 
 export default connect(
-  (state: AppState, ownProps: { route: Route }) => {
+  (state: AppState, ownProps: {
+    route: ChatNavigationRoute<'ComposeThread'>,
+  }) => {
     let reduxParentThreadInfo = null;
     const parentThreadInfo = ownProps.route.params.parentThreadInfo;
     if (parentThreadInfo) {

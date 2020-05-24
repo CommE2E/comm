@@ -2,12 +2,12 @@
 
 import type { AppState } from '../redux/redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { NavigationScreenProp } from 'react-navigation';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { AccountUpdate } from 'lib/types/user-types';
 import type { ChangeUserSettingsResult } from 'lib/types/account-types';
 import { type GlobalTheme, globalThemePropType } from '../types/themes';
+import type { MoreNavigationProp } from './more.react';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -40,7 +40,7 @@ import {
 } from '../themes/colors';
 
 type Props = {
-  navigation: NavigationScreenProp<*>,
+  navigation: MoreNavigationProp<'EditPassword'>,
   // Redux state
   loadingStatus: LoadingStatus,
   activeTheme: ?GlobalTheme,

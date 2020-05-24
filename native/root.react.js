@@ -3,8 +3,10 @@
 import { type GlobalTheme, globalThemePropType } from './types/themes';
 import type { AppState } from './redux/redux-setup';
 import type { NavAction } from './navigation/navigation-context';
-import type { PossiblyStaleNavigationState } from '@react-navigation/native';
-import type { NavigationAction } from 'react-navigation';
+import type {
+  PossiblyStaleNavigationState,
+  GenericNavigationAction,
+} from '@react-navigation/native';
 
 import * as React from 'react';
 import { Provider } from 'react-redux';
@@ -228,7 +230,7 @@ class Root extends React.PureComponent<Props, State> {
     this.setNavContext();
   };
 
-  onNavAction = (action: NavigationAction | string) => {
+  onNavAction = (action: GenericNavigationAction | string) => {
     if (typeof action === 'string') {
       this.queuedActions.push(`NAV/${action}`);
     } else if (

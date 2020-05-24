@@ -1,6 +1,6 @@
 // @flow
 
-import type { NavigationAction } from 'react-navigation';
+import type { GenericNavigationAction } from '@react-navigation/native';
 
 import * as React from 'react';
 import hoistNonReactStatics from 'hoist-non-react-statics';
@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 export type RootContextType = {|
   detectUnsupervisedBackground?: ?(alreadyClosed: boolean) => boolean,
   setNavStateInitialized: () => void,
-  onNavAction: (action: NavigationAction | string) => void,
+  onNavAction: (action: GenericNavigationAction | string) => void,
 |};
 
 const RootContext = React.createContext<?RootContextType>(null);

@@ -1,21 +1,16 @@
 // @flow
 
-import type {
-  NavigationScreenProp,
-  NavigationLeafRoute,
-} from 'react-navigation';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import type { ChatNavigationProp, ChatNavigationRoute } from './chat.react';
 
 import PropTypes from 'prop-types';
 
-export type MessageListRoute = {|
-  ...NavigationLeafRoute,
-  params: {|
-    threadInfo: ThreadInfo,
-  |},
+export type MessageListParams = {|
+  threadInfo: ThreadInfo,
 |};
 
-export type MessageListNavProp = NavigationScreenProp<MessageListRoute>;
+export type MessageListNavProp = ChatNavigationProp<'MessageList'>;
+export type MessageListRoute = ChatNavigationRoute<'MessageList'>;
 
 export const messageListRoutePropType = PropTypes.shape({
   key: PropTypes.string.isRequired,
