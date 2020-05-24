@@ -119,13 +119,13 @@ function ModalPruner(props: Props) {
     if (pruneRootModals.length > 0) {
       dispatch({
         type: (clearRootModalsActionType: 'CLEAR_ROOT_MODALS'),
-        keys: pruneRootModals,
+        payload: { keys: pruneRootModals },
       });
     }
     if (pruneOverlayModals.length > 0) {
       dispatch({
         type: (clearOverlayModalsActionType: 'CLEAR_OVERLAY_MODALS'),
-        keys: pruneOverlayModals,
+        payload: { keys: pruneOverlayModals },
       });
     }
   }, [dispatch, pruneRootModals, pruneOverlayModals]);

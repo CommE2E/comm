@@ -17,10 +17,7 @@ import {
 } from 'lib/types/socket-types';
 import type { RemoteMessage, NotificationOpen } from 'react-native-firebase';
 import { type GlobalTheme, globalThemePropType } from '../types/themes';
-import type {
-  NavigationScreenProp,
-  NavigationState,
-} from '@react-navigation/native';
+import type { RootNavigationProp } from '../navigation/root-navigator.react';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -92,7 +89,7 @@ const supportsTapticFeedback =
   Platform.OS === 'ios' && parseInt(Platform.Version, 10) >= 10;
 
 type Props = {
-  navigation: NavigationScreenProp<NavigationState>,
+  navigation: RootNavigationProp<'App'>,
   // Navigation state
   activeThread: ?string,
   // Redux state
@@ -464,7 +461,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     if (clearChatRoutes) {
       this.props.navigation.dispatch({
         type: replaceWithThreadActionType,
-        threadInfo,
+        payload: { threadInfo },
       });
     } else {
       this.props.navigation.navigate({

@@ -15,7 +15,9 @@ import { clearOverlayModalsActionType } from './action-types';
 
 type ClearOverlayModalsAction = {|
   +type: 'CLEAR_OVERLAY_MODALS',
-  +keys: $ReadOnlyArray<string>,
+  +payload: {|
+    +keys: $ReadOnlyArray<string>,
+  |},
 |};
 export type OverlayRouterNavigationAction =
   | StackAction
@@ -39,7 +41,7 @@ function OverlayRouter(options: StackOptions) {
       options,
     ) => {
       if (action.type === clearOverlayModalsActionType) {
-        const { keys } = action;
+        const { keys } = action.payload;
         if (!lastState) {
           return lastState;
         }
@@ -56,7 +58,7 @@ function OverlayRouter(options: StackOptions) {
       ...stackRouter.actionCreators,
       clearOverlayModals: (keys: $ReadOnlyArray<string>) => ({
         type: clearOverlayModalsActionType,
-        keys,
+        payload: { keys },
       }),
     },
   };

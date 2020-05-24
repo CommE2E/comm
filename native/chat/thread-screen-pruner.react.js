@@ -70,8 +70,7 @@ const ThreadScreenPruner = React.memo<{||}>(() => {
     }
     navContext.dispatch({
       type: clearThreadsActionType,
-      threadIDs: pruneThreadIDs,
-      preserveFocus: true,
+      payload: { threadIDs: pruneThreadIDs },
     });
   }, [pruneThreadIDs, navContext, activeThreadID]);
 

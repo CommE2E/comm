@@ -35,12 +35,16 @@ type LogOutAction = {|
 |};
 type ClearRootModalsAction = {|
   +type: 'CLEAR_ROOT_MODALS',
-  +keys: $ReadOnlyArray<string>,
+  +payload: {|
+    +keys: $ReadOnlyArray<string>,
+  |},
 |};
 type SetNavStateAction = {|
   +type: 'SET_NAV_STATE',
-  +state: NavigationState,
-  +hideFromMonitor?: boolean,
+  +payload: {|
+    +state: NavigationState,
+    +hideFromMonitor?: boolean,
+  |},
 |};
 export type RootRouterNavigationAction =
   | StackAction
@@ -149,7 +153,7 @@ function RootRouter(options: StackOptions) {
           options,
         );
       } else if (action.type === clearRootModalsActionType) {
-        const { keys } = action;
+        const { keys } = action.payload;
         if (!lastState) {
           return lastState;
         }
@@ -159,7 +163,7 @@ function RootRouter(options: StackOptions) {
             keys.includes(route.key) ? 'remove' : 'keep',
         );
       } else if (action.type === setNavStateActionType) {
-        return action.state;
+        return action.payload.state;
       } else {
         if (!lastState) {
           return lastState;
@@ -185,15 +189,14 @@ function RootRouter(options: StackOptions) {
       logOut: () => ({ type: logOutActionType }),
       clearRootModals: (keys: $ReadOnlyArray<string>) => ({
         type: clearRootModalsActionType,
-        keys,
+        payload: { keys },
       }),
       setNavState: (
         state: NavigationState,
         hideFromMonitor?: boolean = false,
       ) => ({
         type: setNavStateActionType,
-        state,
-        hideFromMonitor,
+        payload: { state, hideFromMonitor },
       }),
     },
   };

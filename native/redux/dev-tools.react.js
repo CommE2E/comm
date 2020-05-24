@@ -50,7 +50,7 @@ const DevTools = React.memo<{||}>(() => {
       } else if (
         (action.type === setNavStateActionType ||
           action.type === setReduxStateActionType) &&
-        action.hideFromMonitor
+        action.payload.hideFromMonitor
       ) {
         // Triggered by handleActionFromMonitor below when somebody is stepping
         // through actions in the SquadCal monitor in Redux dev tools
@@ -83,8 +83,10 @@ const DevTools = React.memo<{||}>(() => {
       if (navDispatch) {
         navDispatch({
           type: setNavStateActionType,
-          state: navState,
-          hideFromMonitor: true,
+          payload: {
+            state: navState,
+            hideFromMonitor: true,
+          },
         });
       } else {
         console.log('could not set state in ReactNav');

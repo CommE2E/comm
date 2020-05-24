@@ -25,7 +25,7 @@ const NavFromReduxHandler = React.memo<{||}>(() => {
     if (navStateInRedux) {
       dispatch({
         type: setNavStateActionType,
-        state: navStateInRedux,
+        payload: { state: navStateInRedux },
       });
     }
   }, [dispatch, navStateInRedux]);

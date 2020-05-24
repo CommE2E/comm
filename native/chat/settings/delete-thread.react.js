@@ -242,7 +242,7 @@ class DeleteThread extends React.PureComponent<Props, State> {
     invariant(navContext, 'navContext should exist in deleteThread');
     navContext.dispatch({
       type: clearThreadsActionType,
-      threadIDs: [threadInfo.id],
+      payload: { threadIDs: [threadInfo.id] },
     });
     try {
       const result = await this.props.deleteThread(
@@ -255,7 +255,7 @@ class DeleteThread extends React.PureComponent<Props, State> {
       );
       navContext.dispatch({
         type: clearThreadsActionType,
-        threadIDs: [...invalidated],
+        payload: { threadIDs: [...invalidated] },
       });
       return result;
     } catch (e) {
