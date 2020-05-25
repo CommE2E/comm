@@ -9,10 +9,8 @@ import {
   type UpdateThreadRequest,
 } from 'lib/types/thread-types';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
-import type {
-  RootNavigationProp,
-  RootNavigationRoute,
-} from '../../navigation/root-navigator.react';
+import type { RootNavigationProp } from '../../navigation/root-navigator.react';
+import type { NavigationRoute } from '../../navigation/route-names';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -44,7 +42,7 @@ export type ColorPickerModalParams = {|
 
 type Props = {|
   navigation: RootNavigationProp<'ColorPickerModal'>,
-  route: RootNavigationRoute<'ColorPickerModal'>,
+  route: NavigationRoute<'ColorPickerModal'>,
   // Redux state
   colors: Colors,
   styles: typeof styles,

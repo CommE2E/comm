@@ -12,7 +12,8 @@ import {
   rawThreadInfoPropType,
 } from 'lib/types/thread-types';
 import { type GlobalTheme, globalThemePropType } from '../../types/themes';
-import type { ChatNavigationProp, ChatNavigationRoute } from '../chat.react';
+import type { ChatNavigationProp } from '../chat.react';
+import type { NavigationRoute } from '../../navigation/route-names';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -57,7 +58,7 @@ export type DeleteThreadParams = {|
 
 type Props = {|
   navigation: ChatNavigationProp<'DeleteThread'>,
-  route: ChatNavigationRoute<'DeleteThread'>,
+  route: NavigationRoute<'DeleteThread'>,
   // Redux state
   threadInfo: ?ThreadInfo,
   loadingStatus: LoadingStatus,
@@ -345,7 +346,7 @@ const loadingStatusSelector = createLoadingStatusSelector(
 
 export default connect(
   (state: AppState, ownProps: {
-    route: ChatNavigationRoute<'DeleteThread'>,
+    route: NavigationRoute<'DeleteThread'>,
   }): * => {
     const threadID = ownProps.route.params.threadInfo.id;
     return {

@@ -10,10 +10,8 @@ import {
 import type { KeyboardEvent } from '../keyboard/keyboard';
 import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 import type { ImageStyle } from '../types/styles';
-import type {
-  RootNavigationProp,
-  RootNavigationRoute,
-} from '../navigation/root-navigator.react';
+import type { RootNavigationProp } from '../navigation/root-navigator.react';
+import type { NavigationRoute } from '../navigation/route-names';
 
 import * as React from 'react';
 import {
@@ -72,7 +70,7 @@ export type VerificationModalParams = {|
 type VerificationModalMode = 'simple-text' | 'reset-password';
 type Props = {
   navigation: RootNavigationProp<'VerificationModal'>,
-  route: RootNavigationRoute<'VerificationModal'>,
+  route: NavigationRoute<'VerificationModal'>,
   // Navigation state
   isForeground: boolean,
   // Redux state

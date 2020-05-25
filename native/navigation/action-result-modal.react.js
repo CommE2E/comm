@@ -1,9 +1,7 @@
 // @flow
 
-import type {
-  AppNavigationRoute,
-  AppNavigationProp,
-} from './app-navigator.react';
+import type { AppNavigationProp } from './app-navigator.react';
+import type { NavigationRoute } from './route-names';
 
 import * as React from 'react';
 import { View, Text } from 'react-native';
@@ -25,7 +23,7 @@ export type ActionResultModalParams = {|
 
 type Props = {|
   navigation: AppNavigationProp<'ActionResultModal'>,
-  route: AppNavigationRoute<'ActionResultModal'>,
+  route: NavigationRoute<'ActionResultModal'>,
 |};
 function ActionResultModal(props: Props) {
   const overlayContext = React.useContext(OverlayContext);

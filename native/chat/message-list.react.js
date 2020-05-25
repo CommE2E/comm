@@ -9,11 +9,11 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { ChatMessageItemWithHeight } from './message-list-container.react';
 import type { VerticalBounds } from '../types/layout-types';
 import {
-  type MessageListRoute,
-  type MessageListNavProp,
   messageListRoutePropType,
   messageListNavPropType,
 } from './message-list-types';
+import type { ChatNavigationProp } from './chat.react';
+import type { NavigationRoute } from '../navigation/route-names';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -56,8 +56,8 @@ import {
 type Props = {|
   threadInfo: ThreadInfo,
   messageListData: $ReadOnlyArray<ChatMessageItemWithHeight>,
-  navigation: MessageListNavProp,
-  route: MessageListRoute,
+  navigation: ChatNavigationProp<'MessageList'>,
+  route: NavigationRoute<'MessageList'>,
   // Redux state
   startReached: boolean,
   styles: typeof styles,
@@ -87,8 +87,8 @@ type PropsAndState = {|
 type FlatListExtraData = {|
   messageListVerticalBounds: ?VerticalBounds,
   focusedMessageKey: ?string,
-  navigation: MessageListNavProp,
-  route: MessageListRoute,
+  navigation: ChatNavigationProp<'MessageList'>,
+  route: NavigationRoute<'MessageList'>,
 |};
 class MessageList extends React.PureComponent<Props, State> {
   static propTypes = {
@@ -119,8 +119,8 @@ class MessageList extends React.PureComponent<Props, State> {
     (
       messageListVerticalBounds: ?VerticalBounds,
       focusedMessageKey: ?string,
-      navigation: MessageListNavProp,
-      route: MessageListRoute,
+      navigation: ChatNavigationProp<'MessageList'>,
+      route: NavigationRoute<'MessageList'>,
     ) => ({
       messageListVerticalBounds,
       focusedMessageKey,

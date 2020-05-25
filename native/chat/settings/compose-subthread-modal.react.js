@@ -6,10 +6,8 @@ import {
   threadTypes,
 } from 'lib/types/thread-types';
 import type { AppState } from '../../redux/redux-setup';
-import type {
-  RootNavigationProp,
-  RootNavigationRoute,
-} from '../../navigation/root-navigator.react';
+import type { RootNavigationProp } from '../../navigation/root-navigator.react';
+import type { NavigationRoute } from '../../navigation/route-names';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -37,7 +35,7 @@ export type ComposeSubthreadModalParams = {|
 
 type Props = {|
   navigation: RootNavigationProp<'ComposeSubthreadModal'>,
-  route: RootNavigationRoute<'ComposeSubthreadModal'>,
+  route: NavigationRoute<'ComposeSubthreadModal'>,
   // Redux state
   colors: Colors,
   styles: typeof styles,

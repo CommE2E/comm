@@ -14,11 +14,11 @@ import {
 } from '../types/layout-types';
 import type { MessagePendingUploads } from '../input/input-state';
 import {
-  type MessageListRoute,
-  type MessageListNavProp,
   messageListRoutePropType,
   messageListNavPropType,
 } from './message-list-types';
+import type { ChatNavigationProp } from './chat.react';
+import type { NavigationRoute } from '../navigation/route-names';
 
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -134,8 +134,8 @@ const borderRadius = 16;
 
 type Props = {|
   item: ChatMultimediaMessageInfoItem,
-  navigation: MessageListNavProp,
-  route: MessageListRoute,
+  navigation: ChatNavigationProp<'MessageList'>,
+  route: NavigationRoute<'MessageList'>,
   focused: boolean,
   toggleFocus: (messageKey: string) => void,
   verticalBounds: ?VerticalBounds,

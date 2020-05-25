@@ -6,12 +6,12 @@ import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { TextToMeasure } from '../text-height-measurer.react';
 import type { ChatMessageInfoItemWithHeight } from './message.react';
 import {
-  type MessageListRoute,
-  type MessageListNavProp,
   messageListRoutePropType,
   messageListNavPropType,
 } from './message-list-types';
 import type { TabNavigationProp } from '../navigation/app-navigator.react';
+import type { ChatNavigationProp } from './chat.react';
+import type { NavigationRoute } from '../navigation/route-names';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -59,8 +59,8 @@ export type ChatMessageItemWithHeight =
   | ChatMessageInfoItemWithHeight;
 
 type Props = {|
-  navigation: MessageListNavProp,
-  route: MessageListRoute,
+  navigation: ChatNavigationProp<'MessageList'>,
+  route: NavigationRoute<'MessageList'>,
   // Redux state
   threadInfo: ?ThreadInfo,
   messageListData: $ReadOnlyArray<ChatMessageItem>,
@@ -348,7 +348,7 @@ const styles = {
 const stylesSelector = styleSelector(styles);
 
 const ConnectedMessageListContainer = connect(
-  (state: AppState, ownProps: { route: MessageListRoute }) => {
+  (state: AppState, ownProps: { route: NavigationRoute<'MessageList'> }) => {
     const threadID = ownProps.route.params.threadInfo.id;
     return {
       threadInfo: threadInfoSelector(state)[threadID],

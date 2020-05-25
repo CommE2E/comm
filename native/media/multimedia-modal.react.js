@@ -16,10 +16,8 @@ import {
 import type { NativeMethodsMixinType } from '../types/react-native';
 import type { ChatMultimediaMessageInfoItem } from '../chat/multimedia-message.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
-import type {
-  AppNavigationRoute,
-  AppNavigationProp,
-} from '../navigation/app-navigator.react';
+import type { AppNavigationProp } from '../navigation/app-navigator.react';
+import type { NavigationRoute } from '../navigation/route-names';
 
 import * as React from 'react';
 import {
@@ -198,7 +196,7 @@ type TouchableOpacityInstance = React.AbstractComponent<
 
 type Props = {|
   navigation: AppNavigationProp<'MultimediaModal'>,
-  route: AppNavigationRoute<'MultimediaModal'>,
+  route: NavigationRoute<'MultimediaModal'>,
   // Redux state
   screenDimensions: Dimensions,
   contentVerticalOffset: number,

@@ -15,10 +15,8 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { UserSearchResult } from 'lib/types/search-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
-import type {
-  RootNavigationProp,
-  RootNavigationRoute,
-} from '../../navigation/root-navigator.react';
+import type { RootNavigationProp } from '../../navigation/root-navigator.react';
+import type { NavigationRoute } from '../../navigation/route-names';
 
 import * as React from 'react';
 import { View, Text, ActivityIndicator, Alert } from 'react-native';
@@ -62,7 +60,7 @@ export type AddUsersModalParams = {|
 
 type Props = {|
   navigation: RootNavigationProp<'AddUsersModal'>,
-  route: RootNavigationRoute<'AddUsersModal'>,
+  route: NavigationRoute<'AddUsersModal'>,
   // Redux state
   parentThreadInfo: ?ThreadInfo,
   otherUserInfos: { [id: string]: AccountUserInfo },
@@ -348,7 +346,7 @@ registerFetchKey(searchUsersActionTypes);
 
 export default connect(
   (state: AppState, ownProps: {
-    route: RootNavigationRoute<'AddUsersModal'>,
+    route: NavigationRoute<'AddUsersModal'>,
   }) => {
     let parentThreadInfo = null;
     const { parentThreadID } = ownProps.route.params.threadInfo;

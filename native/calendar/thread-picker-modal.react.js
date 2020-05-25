@@ -1,9 +1,7 @@
 // @flow
 
-import type {
-  RootNavigationProp,
-  RootNavigationRoute,
-} from '../navigation/root-navigator.react';
+import type { RootNavigationProp } from '../navigation/root-navigator.react';
+import type { NavigationRoute } from '../navigation/route-names';
 
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
@@ -29,7 +27,7 @@ export type ThreadPickerModalParams = {|
 
 type Props = {|
   navigation: RootNavigationProp<'ThreadPickerModal'>,
-  route: RootNavigationRoute<'ThreadPickerModal'>,
+  route: NavigationRoute<'ThreadPickerModal'>,
 |};
 function ThreadPickerModal(props: Props) {
   const {

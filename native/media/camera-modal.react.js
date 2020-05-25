@@ -20,10 +20,8 @@ import {
 } from '../input/input-state';
 import type { ViewStyle } from '../types/styles';
 import type { NativeMethodsMixinType } from '../types/react-native';
-import type {
-  AppNavigationRoute,
-  AppNavigationProp,
-} from '../navigation/app-navigator.react';
+import type { AppNavigationProp } from '../navigation/app-navigator.react';
+import type { NavigationRoute } from '../navigation/route-names';
 
 import * as React from 'react';
 import {
@@ -236,7 +234,7 @@ type TouchableOpacityInstance = React.AbstractComponent<
 
 type Props = {
   navigation: AppNavigationProp<'CameraModal'>,
-  route: AppNavigationRoute<'CameraModal'>,
+  route: NavigationRoute<'CameraModal'>,
   // Redux state
   screenDimensions: Dimensions,
   contentVerticalOffset: number,

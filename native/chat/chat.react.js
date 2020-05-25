@@ -1,8 +1,6 @@
 // @flow
 
 import type { ThreadInfo } from 'lib/types/thread-types';
-import type { LeafRoute } from '@react-navigation/native';
-import type { MessageListParams } from './message-list-types';
 
 import * as React from 'react';
 import {
@@ -15,21 +13,16 @@ import invariant from 'invariant';
 
 import ChatThreadList from './chat-thread-list.react';
 import MessageListContainer from './message-list-container.react';
-import ComposeThread, {
-  type ComposeThreadParams,
-} from './compose-thread.react';
-import ThreadSettings, {
-  type ThreadSettingsParams,
-} from './settings/thread-settings.react';
-import DeleteThread, {
-  type DeleteThreadParams,
-} from './settings/delete-thread.react';
+import ComposeThread from './compose-thread.react';
+import ThreadSettings from './settings/thread-settings.react';
+import DeleteThread from './settings/delete-thread.react';
 import {
   ComposeThreadRouteName,
   DeleteThreadRouteName,
   ThreadSettingsRouteName,
   MessageListRouteName,
   ChatThreadListRouteName,
+  type ScreenParamList,
 } from '../navigation/route-names';
 import HeaderBackButton from '../navigation/header-back-button.react';
 import ChatHeader from './chat-header.react';
@@ -139,19 +132,8 @@ const styles = StyleSheet.create({
   },
 });
 
-type ChatParamList = {
-  ChatThreadList: void,
-  MessageList: MessageListParams,
-  ComposeThread: ComposeThreadParams,
-  ThreadSettings: ThreadSettingsParams,
-  DeleteThread: DeleteThreadParams,
-};
-export type ChatNavigationRoute<RouteName: string> = {|
-  ...LeafRoute<RouteName>,
-  +params: $ElementType<ChatParamList, RouteName>,
-|};
 export type ChatNavigationProp<RouteName: string> = ChatRouterNavigationProp<
-  ChatParamList,
+  ScreenParamList,
   RouteName,
 >;
 

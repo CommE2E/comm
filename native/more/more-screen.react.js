@@ -320,7 +320,7 @@ class MoreScreen extends React.PureComponent<Props> {
     );
   }
 
-  navigateIfActive(name: string) {
+  navigateIfActive(name) {
     this.props.navigation.navigate({ name });
   }
 

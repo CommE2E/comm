@@ -10,8 +10,9 @@ import {
 import type { AppState } from '../../redux/redux-setup';
 import type { CategoryType } from './thread-settings-category.react';
 import type { VerticalBounds } from '../../types/layout-types';
-import type { ChatNavigationProp, ChatNavigationRoute } from '../chat.react';
+import type { ChatNavigationProp } from '../chat.react';
 import type { TabNavigationProp } from '../../navigation/app-navigator.react';
+import type { NavigationRoute } from '../../navigation/route-names';
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -180,7 +181,7 @@ type ChatSettingsItem =
 
 type Props = {|
   navigation: ChatNavigationProp<'ThreadSettings'>,
-  route: ChatNavigationRoute<'ThreadSettings'>,
+  route: NavigationRoute<'ThreadSettings'>,
   // Redux state
   threadInfo: ?ThreadInfo,
   threadMembers: RelativeMemberInfo[],
@@ -831,7 +832,7 @@ const somethingIsSaving = (
 
 const WrappedThreadSettings = connect(
   (state: AppState, ownProps: {
-    route: ChatNavigationRoute<'ThreadSettings'>,
+    route: NavigationRoute<'ThreadSettings'>,
   }) => {
     const threadID = ownProps.route.params.threadInfo.id;
     const threadMembers = relativeMemberInfoSelectorForMembersOfThread(

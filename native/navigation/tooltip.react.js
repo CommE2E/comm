@@ -17,10 +17,8 @@ import type {
   ActionFunc,
 } from 'lib/utils/action-utils';
 import type { LayoutEvent } from '../types/react-native';
-import type {
-  AppNavigationProp,
-  TooltipModalParamList,
-} from './app-navigator.react';
+import type { AppNavigationProp } from './app-navigator.react';
+import type { TooltipModalParamList } from './route-names';
 import type { LeafRoute } from '@react-navigation/native';
 
 import * as React from 'react';

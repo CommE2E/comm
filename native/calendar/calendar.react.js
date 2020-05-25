@@ -31,10 +31,8 @@ import {
   connectionStatusPropType,
 } from 'lib/types/socket-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import type {
-  TabNavigationProp,
-  TabNavigationRoute,
-} from '../navigation/app-navigator.react';
+import type { TabNavigationProp } from '../navigation/app-navigator.react';
+import type { NavigationRoute } from '../navigation/route-names';
 
 import * as React from 'react';
 import {
@@ -127,7 +125,7 @@ type ExtraData = $ReadOnly<{|
 
 type Props = {
   navigation: TabNavigationProp<'Calendar'>,
-  route: TabNavigationRoute<'Calendar'>,
+  route: NavigationRoute<'Calendar'>,
   // Redux state
   listData: ?$ReadOnlyArray<CalendarItem>,
   calendarActive: boolean,

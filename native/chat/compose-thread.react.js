@@ -20,7 +20,8 @@ import {
 } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { UserSearchResult } from 'lib/types/search-types';
-import type { ChatNavigationProp, ChatNavigationRoute } from './chat.react';
+import type { ChatNavigationProp } from './chat.react';
+import type { NavigationRoute } from '../navigation/route-names';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -75,7 +76,7 @@ export type ComposeThreadParams = {|
 
 type Props = {|
   navigation: ChatNavigationProp<'ComposeThread'>,
-  route: ChatNavigationRoute<'ComposeThread'>,
+  route: NavigationRoute<'ComposeThread'>,
   // Redux state
   parentThreadInfo: ?ThreadInfo,
   loadingStatus: LoadingStatus,
@@ -167,7 +168,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
   }
 
   static getParentThreadInfo(props: {
-    route: ChatNavigationRoute<'ComposeThread'>,
+    route: NavigationRoute<'ComposeThread'>,
   }): ?ThreadInfo {
     return props.route.params.parentThreadInfo;
   }
@@ -506,7 +507,7 @@ registerFetchKey(searchUsersActionTypes);
 
 export default connect(
   (state: AppState, ownProps: {
-    route: ChatNavigationRoute<'ComposeThread'>,
+    route: NavigationRoute<'ComposeThread'>,
   }) => {
     let reduxParentThreadInfo = null;
     const parentThreadInfo = ownProps.route.params.parentThreadInfo;

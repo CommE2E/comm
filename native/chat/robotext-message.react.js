@@ -9,10 +9,8 @@ import {
   keyboardStatePropType,
   withKeyboardState,
 } from '../keyboard/keyboard-state';
-import {
-  type MessageListNavProp,
-  messageListNavPropType,
-} from './message-list-types';
+import { messageListNavPropType } from './message-list-types';
+import type { ChatNavigationProp } from './chat.react';
 
 import * as React from 'react';
 import { Text, TouchableWithoutFeedback, View } from 'react-native';
@@ -52,7 +50,7 @@ function robotextMessageItemHeight(
 
 type Props = {|
   item: ChatRobotextMessageInfoItemWithHeight,
-  navigation: MessageListNavProp,
+  navigation: ChatNavigationProp<'MessageList'>,
   focused: boolean,
   toggleFocus: (messageKey: string) => void,
   // withKeyboardState
@@ -152,7 +150,7 @@ const WrappedRobotextMessage = connect((state: AppState) => ({
 type InnerThreadEntityProps = {
   id: string,
   name: string,
-  navigation: MessageListNavProp,
+  navigation: ChatNavigationProp<'MessageList'>,
   // Redux state
   threadInfo: ?ThreadInfo,
   styles: typeof styles,

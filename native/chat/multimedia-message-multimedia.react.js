@@ -16,12 +16,12 @@ import {
   pendingMultimediaUploadPropType,
 } from '../input/input-state';
 import {
-  type MessageListRoute,
-  type MessageListNavProp,
   messageListRoutePropType,
   messageListNavPropType,
 } from './message-list-types';
 import type { AppState } from '../redux/redux-setup';
+import type { ChatNavigationProp } from './chat.react';
+import type { NavigationRoute } from '../navigation/route-names';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -76,8 +76,8 @@ function overlayJustCleared(overlayPosition: Value) {
 type Props = {|
   mediaInfo: MediaInfo,
   item: ChatMultimediaMessageInfoItem,
-  navigation: MessageListNavProp,
-  route: MessageListRoute,
+  navigation: ChatNavigationProp<'MessageList'>,
+  route: NavigationRoute<'MessageList'>,
   verticalBounds: ?VerticalBounds,
   verticalOffset: number,
   style: ImageStyle,

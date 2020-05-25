@@ -11,11 +11,11 @@ import {
   verticalBoundsPropType,
 } from '../types/layout-types';
 import {
-  type MessageListRoute,
-  type MessageListNavProp,
   messageListRoutePropType,
   messageListNavPropType,
 } from './message-list-types';
+import type { ChatNavigationProp } from './chat.react';
+import type { NavigationRoute } from '../navigation/route-names';
 
 import * as React from 'react';
 import { View } from 'react-native';
@@ -72,8 +72,8 @@ function textMessageItemHeight(item: ChatTextMessageInfoItemWithHeight) {
 
 type Props = {|
   item: ChatTextMessageInfoItemWithHeight,
-  navigation: MessageListNavProp,
-  route: MessageListRoute,
+  navigation: ChatNavigationProp<'MessageList'>,
+  route: NavigationRoute<'MessageList'>,
   focused: boolean,
   toggleFocus: (messageKey: string) => void,
   verticalBounds: ?VerticalBounds,

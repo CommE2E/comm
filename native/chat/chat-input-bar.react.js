@@ -22,8 +22,6 @@ import {
   withKeyboardState,
 } from '../keyboard/keyboard-state';
 import {
-  type MessageListRoute,
-  type MessageListNavProp,
   messageListRoutePropType,
   messageListNavPropType,
 } from './message-list-types';
@@ -32,6 +30,8 @@ import {
   inputStatePropType,
   withInputState,
 } from '../input/input-state';
+import type { ChatNavigationProp } from './chat.react';
+import type { NavigationRoute } from '../navigation/route-names';
 
 import * as React from 'react';
 import {
@@ -79,8 +79,8 @@ const draftKeyFromThreadID = (threadID: string) =>
 
 type Props = {|
   threadInfo: ThreadInfo,
-  navigation: MessageListNavProp,
-  route: MessageListRoute,
+  navigation: ChatNavigationProp<'MessageList'>,
+  route: NavigationRoute<'MessageList'>,
   // Redux state
   viewerID: ?string,
   draft: string,

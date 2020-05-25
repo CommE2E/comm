@@ -2,7 +2,8 @@
 
 import type { AppState } from '../redux/redux-setup';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import type { MoreNavigationProp, MoreNavigationRoute } from './more.react';
+import type { MoreNavigationProp } from './more.react';
+import type { NavigationRoute } from '../navigation/route-names';
 
 import * as React from 'react';
 import { View, Text, ScrollView, Platform } from 'react-native';
@@ -31,7 +32,7 @@ const ServerIcon = () => (
 
 type Props = {|
   navigation: MoreNavigationProp<'DevTools'>,
-  route: MoreNavigationRoute<'DevTools'>,
+  route: NavigationRoute<'DevTools'>,
   // Redux state
   urlPrefix: string,
   customServer: ?string,
