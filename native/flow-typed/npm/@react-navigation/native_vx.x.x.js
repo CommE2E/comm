@@ -35,7 +35,7 @@ declare module '@react-navigation/native' {
   declare type $IsUndefined<X> = $IsA<X, void>;
   declare type $IsExact<X> = $IsA<X, $Exact<X>>;
 
-  declare type ScreenParams = { +[key: string]: mixed };
+  declare export type ScreenParams = { +[key: string]: mixed };
 
   declare export type BackAction = {|
     +type: 'GO_BACK',
@@ -264,5 +264,51 @@ declare module '@react-navigation/native' {
     ) => void,
     ...
   };
+
+  //---------------------------------------------------------------------------
+  // SECTION 2: SHARED TYPE DEFINITIONS
+  // This section too is copy-pasted, but it's not identical across all React
+  // Navigation libdefs. We pick out bits and pieces that we need.
+  //---------------------------------------------------------------------------
+
+  /**
+   * SECTION 2A
+   * We start with definitions we have copy-pasted, either from in-package
+   * types, other Flow libdefs, or from TypeScript types somewhere.
+   */
+
+  /**
+   * SECTION 2B
+   * The following are the actually useful definitions in Section 2, that are
+   * used below in section 3, but also in other libdefs.
+   */
+
+  //---------------------------------------------------------------------------
+  // SECTION 3: UNIQUE TYPE DEFINITIONS
+  // This section normally contains exported types that are not present in any
+  // other React Navigation libdef. But the main react-navigation libdef doesn't
+  // have any, so it's empty here.
+  //---------------------------------------------------------------------------
+
+  //---------------------------------------------------------------------------
+  // SECTION 4: EXPORTED MODULE
+  // This is the only section that types exports. Other sections export types,
+  // but this section types the module's exports.
+  //---------------------------------------------------------------------------
+
+  declare type NavigateActionCreator = {|
+    (routeName: string, params?: ScreenParams): NavigateAction,
+    (
+      | {| key: string, params?: ScreenParams |}
+      | {| name: string, key?: string, params?: ScreenParams |},
+    ): NavigateAction,
+  |};
+
+  declare export var CommonActions: {|
+    navigate: NavigateActionCreator,
+    goBack: () => BackAction,
+    reset: (state: PossiblyStaleNavigationState) => ResetAction,
+    setParams: (params: ScreenParams) => SetParamsAction,
+  |};
 
 }

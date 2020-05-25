@@ -35,7 +35,7 @@ declare module '@react-navigation/stack' {
   declare type $IsUndefined<X> = $IsA<X, void>;
   declare type $IsExact<X> = $IsA<X, $Exact<X>>;
 
-  declare type ScreenParams = { +[key: string]: mixed };
+  declare export type ScreenParams = { +[key: string]: mixed };
 
   declare export type BackAction = {|
     +type: 'GO_BACK',

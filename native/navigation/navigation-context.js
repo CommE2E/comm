@@ -1,6 +1,9 @@
 // @flow
 
-import type { PossiblyStaleNavigationState } from '@react-navigation/native';
+import type {
+  CommonAction,
+  PossiblyStaleNavigationState,
+} from '@react-navigation/native';
 import type { RootRouterNavigationAction } from './root-router';
 import type { ChatRouterNavigationAction } from '../chat/chat-router';
 import type { OverlayRouterNavigationAction } from './overlay-router';
@@ -10,6 +13,7 @@ import hoistNonReactStatics from 'hoist-non-react-statics';
 import PropTypes from 'prop-types';
 
 export type NavAction =
+  | CommonAction
   | RootRouterNavigationAction
   | ChatRouterNavigationAction
   | OverlayRouterNavigationAction;
