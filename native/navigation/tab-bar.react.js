@@ -115,4 +115,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default props => <TabBar {...props} />;
+export default (props: Props) => <TabBar {...props} />;

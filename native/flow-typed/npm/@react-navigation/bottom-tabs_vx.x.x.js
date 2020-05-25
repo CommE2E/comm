@@ -372,7 +372,7 @@ declare module '@react-navigation/bottom-tabs' {
     delay?: number,
   };
 
-  // Copied from react-native/Libraries/Types/CoreEventTypes
+  // Copied from react-native/Libraries/Types/CoreEventTypes.js
   declare type SyntheticEvent<T> = $ReadOnly<{|
     bubbles: ?boolean,
     cancelable: ?boolean,
@@ -404,8 +404,54 @@ declare module '@react-navigation/bottom-tabs' {
       layout: Layout,
     |}>,
   >;
+  declare type BlurEvent = SyntheticEvent<
+    $ReadOnly<{|
+      target: number,
+    |}>,
+  >;
+  declare type FocusEvent = SyntheticEvent<
+    $ReadOnly<{|
+      target: number,
+    |}>,
+  >;
+  declare type ResponderSyntheticEvent<T> = $ReadOnly<{|
+    ...SyntheticEvent<T>,
+    touchHistory: $ReadOnly<{|
+      indexOfSingleActiveTouch: number,
+      mostRecentTimeStamp: number,
+      numberActiveTouches: number,
+      touchBank: $ReadOnlyArray<
+        $ReadOnly<{|
+          touchActive: boolean,
+          startPageX: number,
+          startPageY: number,
+          startTimeStamp: number,
+          currentPageX: number,
+          currentPageY: number,
+          currentTimeStamp: number,
+          previousPageX: number,
+          previousPageY: number,
+          previousTimeStamp: number,
+        |}>,
+      >,
+    |}>,
+  |}>;
+  declare type PressEvent = ResponderSyntheticEvent<
+    $ReadOnly<{|
+      changedTouches: $ReadOnlyArray<$PropertyType<PressEvent, 'nativeEvent'>>,
+      force: number,
+      identifier: number,
+      locationX: number,
+      locationY: number,
+      pageX: number,
+      pageY: number,
+      target: ?number,
+      timestamp: number,
+      touches: $ReadOnlyArray<$PropertyType<PressEvent, 'nativeEvent'>>,
+    |}>,
+  >;
 
-  // This is copied from
+  // Copied from
   // react-native/Libraries/Animated/src/nodes/AnimatedInterpolation.js
   declare type ExtrapolateType = 'extend' | 'identity' | 'clamp';
   declare type InterpolationConfigType = {
@@ -419,6 +465,97 @@ declare module '@react-navigation/bottom-tabs' {
   declare class AnimatedInterpolation {
     interpolate(config: InterpolationConfigType): AnimatedInterpolation;
   }
+
+  // Copied from react-native/Libraries/Components/View/ViewAccessibility.js
+  declare type AccessibilityRole =
+    | 'none'
+    | 'button'
+    | 'link'
+    | 'search'
+    | 'image'
+    | 'keyboardkey'
+    | 'text'
+    | 'adjustable'
+    | 'imagebutton'
+    | 'header'
+    | 'summary'
+    | 'alert'
+    | 'checkbox'
+    | 'combobox'
+    | 'menu'
+    | 'menubar'
+    | 'menuitem'
+    | 'progressbar'
+    | 'radio'
+    | 'radiogroup'
+    | 'scrollbar'
+    | 'spinbutton'
+    | 'switch'
+    | 'tab'
+    | 'tablist'
+    | 'timer'
+    | 'toolbar';
+  declare type AccessibilityActionInfo = $ReadOnly<{
+    name: string,
+    label?: string,
+    ...
+  }>;
+  declare type AccessibilityActionEvent = SyntheticEvent<
+    $ReadOnly<{actionName: string, ...}>,
+  >;
+  declare type AccessibilityState = {
+    disabled?: boolean,
+    selected?: boolean,
+    checked?: ?boolean | 'mixed',
+    busy?: boolean,
+    expanded?: boolean,
+    ...
+  };
+  declare type AccessibilityValue = $ReadOnly<{|
+    min?: number,
+    max?: number,
+    now?: number,
+    text?: string,
+  |}>;
+
+  // Copied from
+  // react-native/Libraries/Components/Touchable/TouchableWithoutFeedback.js
+  declare type Stringish = string;
+  declare type EdgeInsetsProp = $ReadOnly<$Shape<EdgeInsets>>;
+  declare type TouchableWithoutFeedbackProps = $ReadOnly<{|
+    accessibilityActions?: ?$ReadOnlyArray<AccessibilityActionInfo>,
+    accessibilityElementsHidden?: ?boolean,
+    accessibilityHint?: ?Stringish,
+    accessibilityIgnoresInvertColors?: ?boolean,
+    accessibilityLabel?: ?Stringish,
+    accessibilityLiveRegion?: ?('none' | 'polite' | 'assertive'),
+    accessibilityRole?: ?AccessibilityRole,
+    accessibilityState?: ?AccessibilityState,
+    accessibilityValue?: ?AccessibilityValue,
+    accessibilityViewIsModal?: ?boolean,
+    accessible?: ?boolean,
+    children?: ?React$Node,
+    delayLongPress?: ?number,
+    delayPressIn?: ?number,
+    delayPressOut?: ?number,
+    disabled?: ?boolean,
+    focusable?: ?boolean,
+    hitSlop?: ?EdgeInsetsProp,
+    importantForAccessibility?: ?('auto' | 'yes' | 'no' | 'no-hide-descendants'),
+    nativeID?: ?string,
+    onAccessibilityAction?: ?(event: AccessibilityActionEvent) => mixed,
+    onBlur?: ?(event: BlurEvent) => mixed,
+    onFocus?: ?(event: FocusEvent) => mixed,
+    onLayout?: ?(event: LayoutEvent) => mixed,
+    onLongPress?: ?(event: PressEvent) => mixed,
+    onPress?: ?(event: PressEvent) => mixed,
+    onPressIn?: ?(event: PressEvent) => mixed,
+    onPressOut?: ?(event: PressEvent) => mixed,
+    pressRetentionOffset?: ?EdgeInsetsProp,
+    rejectResponderTermination?: ?boolean,
+    testID?: ?string,
+    touchSoundDisabled?: ?boolean,
+  |}>;
 
   /**
    * SECTION 2B
@@ -472,6 +609,53 @@ declare module '@react-navigation/bottom-tabs' {
     +history: $ReadOnlyArray<{| type: 'route', key: string |}>,
   |};
 
+  declare export type BottomTabNavigationOptions = $Shape<{|
+    title: string,
+    tabBarLabel:
+      | string
+      | ({| focused: boolean, color: string |}) => React$Node,
+    tabBarIcon: ({|
+      focused: boolean,
+      color: string,
+      size: number,
+    |}) => React$Node,
+    tabBarAccessibilityLabel: string,
+    tabBarTestID: string,
+    tabBarVisible: boolean,
+    tabBarButton: BottomTabBarButtonProps => React$Node,
+    unmountOnBlur: boolean,
+  |}>;
+
+  declare type BottomTabNavigationEventMap = {|
+    +tabPress: {| +data: void, +canPreventDefault: true |},
+    +tabLongPress: {| +data: void, +canPreventDefault: false |},
+  |};
+
+  declare export type BottomTabNavigationProp<
+    ParamList: ParamListBase = ParamListBase,
+    RouteName: $Keys<ParamList> = string,
+  > = {|
+    ...$Exact<NavigationProp<
+      ParamList,
+      RouteName,
+      TabNavigationState,
+      BottomTabNavigationOptions,
+      BottomTabNavigationEventMap,
+    >>,
+    +jumpTo: SimpleNavigate<$If<
+      $IsExact<ParamList>,
+      ParamList,
+      { ...ParamListBase, ...ParamList },
+    >>,
+  |};
+
+  declare export type BottomTabDescriptor = Descriptor<
+    ParamListBase,
+    string,
+    TabNavigationState,
+    BottomTabNavigationOptions,
+  >;
+
   declare export type BottomTabBarOptions = $Shape<{|
     keyboardHidesTabBar: boolean,
     activeTintColor: string,
@@ -489,27 +673,27 @@ declare module '@react-navigation/bottom-tabs' {
     style: ViewStyleProp,
   |}>;
 
-  declare type BottomTabNavigationEventMap = {|
-    +tabPress: {| +data: void, +canPreventDefault: true |},
-    +tabLongPress: {| +data: void, +canPreventDefault: false |},
+  declare export type BottomTabBarButtonProps = {|
+    ...$Diff<
+      TouchableWithoutFeedbackProps,
+      {| onPress?: ?(event: PressEvent) => mixed |},
+    >,
+    to?: string,
+    children: React$Node,
+    onPress?: (MouseEvent | PressEvent) => void,
   |};
 
-  declare export type BottomTabNavigationProp<
-    ParamList: ParamListBase = ParamListBase,
-    RouteName: $Keys<ParamList> = string,
-  > = {|
-    ...$Exact<NavigationProp<
-      ParamList,
-      RouteName,
-      TabNavigationState,
-      BottomTabBarOptions,
-      BottomTabNavigationEventMap,
-    >>,
-    +jumpTo: SimpleNavigate<$If<
-      $IsExact<ParamList>,
-      ParamList,
-      { ...ParamListBase, ...ParamList },
-    >>,
-  |};
+  //---------------------------------------------------------------------------
+  // SECTION 4: EXPORTED MODULE
+  // This is the only section that types exports. Other sections export types,
+  // but this section types the module's exports.
+  //---------------------------------------------------------------------------
+
+  declare export var BottomTabBar: React.ComponentType<{|
+    state: TabNavigationState,
+    navigation: BottomTabNavigationProp<>,
+    descriptors: {| [key: string]: BottomTabDescriptor |},
+    ...BottomTabBarOptions,
+  |}>;
 
 }
