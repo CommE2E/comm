@@ -162,6 +162,27 @@ declare module '@react-navigation/native' {
     +blur: {| +data: void, +canPreventDefault: false |},
     +state: {| +data: {| state: State |}, +canPreventDefault: false |},
   |};
+  declare type EventListenerCallback<
+    EventName: string,
+    State: NavigationState = NavigationState,
+    EventMap: EventMapBase = EventMapCore<State>,
+  > = (e: EventArg<
+    EventName,
+    $PropertyType<
+      $ElementType<
+        {| ...EventMap, ...EventMapCore<State> |},
+        EventName,
+      >,
+      'canPreventDefault',
+    >,
+    $PropertyType<
+      $ElementType<
+        {| ...EventMap, ...EventMapCore<State> |},
+        EventName,
+      >,
+      'data',
+    >,
+  >) => mixed;
 
   declare export type SimpleNavigate<ParamList> =
     <DestinationRouteName: $Keys<ParamList>>(
@@ -189,7 +210,7 @@ declare module '@react-navigation/native' {
     RouteName: $Keys<ParamList> = string,
     State: NavigationState = NavigationState,
     ScreenOptions: {} = {},
-    EventMap: EventMapBase = {},
+    EventMap: EventMapBase = EventMapCore<State>,
   > = {
     +dispatch: (
       action:
@@ -222,48 +243,179 @@ declare module '@react-navigation/native' {
       {| ...EventMap, ...EventMapCore<State> |},
     >>(
       name: EventName,
-      (e: EventArg<
-        EventName,
-        $PropertyType<
-          $ElementType<
-            {| ...EventMap, ...EventMapCore<State> |},
-            EventName,
-          >,
-          'canPreventDefault',
-        >,
-        $PropertyType<
-          $ElementType<
-            {| ...EventMap, ...EventMapCore<State> |},
-            EventName,
-          >,
-          'data',
-        >,
-      >) => mixed,
+      callback: EventListenerCallback<EventName, State, EventMap>,
     ) => () => void,
     +removeListener: <EventName: $Keys<
       {| ...EventMap, ...EventMapCore<State> |},
     >>(
       name: EventName,
-      (e: EventArg<
-        EventName,
-        $PropertyType<
-          $ElementType<
-            {| ...EventMap, ...EventMapCore<State> |},
-            EventName,
-          >,
-          'canPreventDefault',
-        >,
-        $PropertyType<
-          $ElementType<
-            {| ...EventMap, ...EventMapCore<State> |},
-            EventName,
-          >,
-          'data',
-        >,
-      >) => mixed,
+      callback: EventListenerCallback<EventName, State, EventMap>,
     ) => void,
     ...
   };
+
+  declare export type RouteProp<
+    ParamList: ParamListBase,
+    RouteName: $Keys<ParamList>,
+  > = {|
+    ...LeafRoute<RouteName>,
+    +params: $ElementType<ParamList, RouteName>,
+  |};
+
+  declare export type ScreenListeners<
+    EventMap: EventMapBase = EventMapCore<State>,
+    State: NavigationState = NavigationState,
+  > = $ObjMapi<
+    {| [name: $Keys<EventMap>]: empty |},
+    <K: $Keys<EventMap>>(K, empty) => EventListenerCallback<K, State, EventMap>,
+  >;
+
+  declare type BaseScreenProps<
+    GlobalParamList: ParamListBase,
+    ParamList: ParamListBase = GlobalParamList,
+    RouteName: $Keys<ParamList> = string,
+    State: NavigationState = NavigationState,
+    ScreenOptions: {} = {},
+    EventMap: EventMapBase = EventMapCore<State>,
+  > = {|
+    name: RouteName,
+    options?:
+      | ScreenOptions
+      | ({|
+          route: RouteProp<ParamList, RouteName>,
+          navigation: NavigationProp<
+            GlobalParamList,
+            RouteName,
+            State,
+            ScreenOptions,
+            EventMap,
+          >,
+        |}) => ScreenOptions,
+    listeners?:
+      | ScreenListeners<EventMap, State>
+      | ({|
+          route: RouteProp<ParamList, RouteName>,
+          navigation: NavigationProp<
+            GlobalParamList,
+            RouteName,
+            State,
+            ScreenOptions,
+            EventMap,
+          >,
+        |}) => ScreenListeners<EventMap, State>,
+    initialParams?: $Shape<$ElementType<ParamList, RouteName>>,
+  |};
+
+  declare export type ScreenProps<
+    GlobalParamList: ParamListBase,
+    ParamList: ParamListBase = GlobalParamList,
+    RouteName: $Keys<ParamList> = string,
+    State: NavigationState = NavigationState,
+    ScreenOptions: {} = {},
+    EventMap: EventMapBase = EventMapCore<State>,
+  > =
+    | {|
+        ...BaseScreenProps<
+          GlobalParamList,
+          ParamList,
+          RouteName,
+          State,
+          ScreenOptions,
+          EventMap,
+        >,
+        component: React$ComponentType<{|
+          route: RouteProp<ParamList, RouteName>,
+          navigation: NavigationProp<
+            GlobalParamList,
+            RouteName,
+            State,
+            ScreenOptions,
+            EventMap,
+          >,
+        |}>,
+      |}
+    | {|
+        ...BaseScreenProps<
+          GlobalParamList,
+          ParamList,
+          RouteName,
+          State,
+          ScreenOptions,
+          EventMap,
+        >,
+        children: ({|
+          route: RouteProp<ParamList, RouteName>,
+          navigation: NavigationProp<
+            GlobalParamList,
+            RouteName,
+            State,
+            ScreenOptions,
+            EventMap,
+          >,
+        |}) => React$Node,
+      |};
+
+  declare export type ScreenComponent<
+    GlobalParamList: ParamListBase,
+    ParamList: ParamListBase = GlobalParamList,
+    State: NavigationState = NavigationState,
+    ScreenOptions: {} = {},
+    EventMap: EventMapBase = EventMapCore<State>,
+  > = <RouteName: $Keys<ParamList>>(props: ScreenProps<
+    GlobalParamList,
+    ParamList,
+    RouteName,
+    State,
+    ScreenOptions,
+    EventMap,
+  >) => React$Node;
+
+  declare export type NavigatorComponent<
+    GlobalParamList: ParamListBase,
+    ParamList: ParamListBase = GlobalParamList,
+    State: NavigationState = NavigationState,
+    ScreenOptions: {} = {},
+    EventMap: EventMapBase = EventMapCore<State>,
+  > = React$ComponentType<{
+    initialRouteName?: $Keys<ParamList>,
+    screenOptions?:
+      | ScreenOptions
+      | ({|
+          route: RouteProp<ParamList, $Keys<ParamList>>,
+          navigation: NavigationProp<
+            GlobalParamList,
+            $Keys<ParamList>,
+            State,
+            ScreenOptions,
+            EventMap,
+          >,
+        |}) => ScreenOptions,
+    ...
+  }>;
+
+  declare export type CreateNavigator<
+    State: NavigationState = NavigationState,
+    ScreenOptions: {} = {},
+    EventMap: EventMapBase = EventMapCore<State>,
+  > = <
+    GlobalParamList: ParamListBase,
+    ParamList: ParamListBase = GlobalParamList,
+  >() => {|
+    Screen: ScreenComponent<
+      GlobalParamList,
+      ParamList,
+      State,
+      ScreenOptions,
+      EventMap,
+    >,
+    Navigator: NavigatorComponent<
+      GlobalParamList,
+      ParamList,
+      State,
+      ScreenOptions,
+      EventMap,
+    >,
+  |};
 
   //---------------------------------------------------------------------------
   // SECTION 2: SHARED TYPE DEFINITIONS

@@ -20,7 +20,9 @@ import {
   BuildInfoRouteName,
   DevToolsRouteName,
   AppearancePreferencesRouteName,
+  VerificationModalRouteName,
   type ScreenParamList,
+  type MoreParamList,
 } from '../navigation/route-names';
 import MoreHeader from './more-header.react';
 import HeaderBackButton from '../navigation/header-back-button.react';
@@ -44,7 +46,7 @@ export type MoreNavigationProp<RouteName: string> = StackNavigationProp<
   RouteName,
 >;
 
-const More = createStackNavigator();
+const More = createStackNavigator<ScreenParamList, MoreParamList>();
 export default () => (
   <More.Navigator screenOptions={screenOptions}>
     <More.Screen
