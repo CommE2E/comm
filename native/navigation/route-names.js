@@ -70,14 +70,7 @@ export const ThreadSettingsMemberTooltipModalRouteName =
   'ThreadSettingsMemberTooltipModal';
 export const CameraModalRouteName = 'CameraModal';
 
-export type TooltipModalParamList = {|
-  MultimediaTooltipModal: MultimediaTooltipModalParams,
-  TextMessageTooltipModal: TextMessageTooltipModalParams,
-  ThreadSettingsMemberTooltipModal: ThreadSettingsMemberTooltipModalParams,
-|};
-
-export type ScreenParamList = {|
-  // Root navigator (login and modals)
+export type RootParamList = {|
   LoggedOutModal: void,
   VerificationModal: VerificationModalParams,
   App: void,
@@ -86,23 +79,37 @@ export type ScreenParamList = {|
   CustomServerModal: CustomServerModalParams,
   ColorPickerModal: ColorPickerModalParams,
   ComposeSubthreadModal: ComposeSubthreadModalParams,
-  // Overlay navigator
+|};
+
+export type TooltipModalParamList = {|
+  MultimediaTooltipModal: MultimediaTooltipModalParams,
+  TextMessageTooltipModal: TextMessageTooltipModalParams,
+  ThreadSettingsMemberTooltipModal: ThreadSettingsMemberTooltipModalParams,
+|};
+
+export type OverlayParamList = {|
   TabNavigator: void,
   MultimediaModal: MultimediaModalParams,
   ActionResultModal: ActionResultModalParams,
   CameraModal: CameraModalParams,
   ...TooltipModalParamList,
-  // Tab navigator
+|};
+
+export type TabParamList = {|
   Calendar: void,
   Chat: void,
   More: void,
-  // Chat stack navigator
+|};
+
+export type ChatParamList = {|
   ChatThreadList: void,
   MessageList: MessageListParams,
   ComposeThread: ComposeThreadParams,
   ThreadSettings: ThreadSettingsParams,
   DeleteThread: DeleteThreadParams,
-  // More stack navigator
+|};
+
+export type MoreParamList = {|
   MoreScreen: void,
   EditEmail: void,
   EditPassword: void,
@@ -110,6 +117,14 @@ export type ScreenParamList = {|
   BuildInfo: void,
   DevTools: void,
   AppearancePreferences: void,
+|};
+
+export type ScreenParamList = {|
+  ...RootParamList,
+  ...OverlayParamList,
+  ...TabParamList,
+  ...ChatParamList,
+  ...MoreParamList,
 |};
 
 export type NavigationRoute<RouteName: string> = {|
