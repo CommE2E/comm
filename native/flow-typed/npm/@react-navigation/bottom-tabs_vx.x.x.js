@@ -129,7 +129,7 @@ declare module '@react-navigation/bottom-tabs' {
     | Route<RouteName>
     | StaleRoute<RouteName>;
 
-  declare type ParamListBase = { +[key: string]: ?ScreenParams };
+  declare export type ParamListBase = { +[key: string]: ?ScreenParams };
 
   declare type EventMapBase = {
     +[name: string]: {|

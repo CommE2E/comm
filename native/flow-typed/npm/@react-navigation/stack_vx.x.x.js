@@ -129,7 +129,7 @@ declare module '@react-navigation/stack' {
     | Route<RouteName>
     | StaleRoute<RouteName>;
 
-  declare type ParamListBase = { +[key: string]: ?ScreenParams };
+  declare export type ParamListBase = { +[key: string]: ?ScreenParams };
 
   declare type EventMapBase = {
     +[name: string]: {|
@@ -701,5 +701,20 @@ declare module '@react-navigation/stack' {
   declare export type StackHeaderStyleInterpolator = (
     props: StackHeaderInterpolationProps,
   ) => StackHeaderInterpolatedStyle;
+
+  //---------------------------------------------------------------------------
+  // SECTION 4: EXPORTED MODULE
+  // This is the only section that types exports. Other sections export types,
+  // but this section types the module's exports.
+  //---------------------------------------------------------------------------
+
+  declare export var StackView: React.ComponentType<{|
+    mode?: 'card' | 'modal',
+    headerMode?: 'float' | 'screen' | 'none',
+    keyboardHandlingEnabled?: boolean,
+    state: StackNavigationState,
+    navigation: StackNavigationProp<>,
+    descriptors: {| [key: string]: StackDescriptor |},
+  |}>;
 
 }
