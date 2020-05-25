@@ -841,6 +841,12 @@ declare module '@react-navigation/bottom-tabs' {
   // but this section types the module's exports.
   //---------------------------------------------------------------------------
 
+  declare export var createBottomTabNavigator: CreateNavigator<
+    TabNavigationState,
+    BottomTabNavigationOptions,
+    BottomTabNavigationEventMap,
+  >;
+
   declare export var BottomTabBar: React$ComponentType<{|
     state: TabNavigationState,
     navigation: BottomTabNavigationProp<>,

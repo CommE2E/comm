@@ -23,6 +23,7 @@ import {
   ThreadSettingsMemberTooltipModalRouteName,
   CameraModalRouteName,
   type ScreenParamList,
+  type TabParamList,
 } from './route-names';
 import Calendar from '../calendar/calendar.react';
 import Chat from '../chat/chat.react';
@@ -69,7 +70,7 @@ export type TabNavigationProp<RouteName: string> = BottomTabNavigationProp<
   RouteName,
 >;
 
-const Tab = createBottomTabNavigator();
+const Tab = createBottomTabNavigator<ScreenParamList, TabParamList>();
 const tabBarOptions = { keyboardHidesTabBar: false };
 function TabNavigator() {
   return (
