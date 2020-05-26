@@ -5,7 +5,12 @@ import {
   createNavigatorFactory,
   useNavigationBuilder,
 } from '@react-navigation/native';
-import { StackView } from '@react-navigation/stack';
+import {
+  StackView,
+  type StackNavigationState,
+  type StackOptions,
+  type StackNavigationEventMap,
+} from '@react-navigation/stack';
 import { Platform, StyleSheet } from 'react-native';
 import invariant from 'invariant';
 
@@ -21,6 +26,7 @@ import {
   MessageListRouteName,
   ChatThreadListRouteName,
   type ScreenParamList,
+  type ChatParamList,
 } from '../navigation/route-names';
 import HeaderBackButton from '../navigation/header-back-button.react';
 import ChatHeader from './chat-header.react';
@@ -64,7 +70,11 @@ function ChatNavigator({ initialRouteName, children, screenOptions, ...rest }) {
     />
   );
 }
-const createChatNavigator = createNavigatorFactory(ChatNavigator);
+const createChatNavigator = createNavigatorFactory<
+  StackNavigationState,
+  StackOptions,
+  StackNavigationEventMap,
+>(ChatNavigator);
 
 const header = props => <ChatHeader {...props} />;
 const headerBackButton = props => <HeaderBackButton {...props} />;
@@ -78,7 +88,7 @@ const chatThreadListOptions = ({ navigation }) => ({
   headerRight:
     Platform.OS === 'ios'
       ? () => <ComposeThreadButton navigate={navigation.navigate} />
-      : null,
+      : undefined,
   headerBackTitle: 'Back',
 });
 const messageListOptions = ({ navigation, route }) => ({
@@ -104,7 +114,7 @@ const messageListOptions = ({ navigation, route }) => ({
             navigate={navigation.navigate}
           />
         )
-      : null,
+      : undefined,
   headerBackTitle: 'Back',
 });
 const composeThreadOptions = {
@@ -126,12 +136,11 @@ const styles = StyleSheet.create({
   },
 });
 
-export type ChatNavigationProp<RouteName: string> = ChatRouterNavigationProp<
-  ScreenParamList,
-  RouteName,
->;
+export type ChatNavigationProp<
+  RouteName: $Keys<ChatParamList> = $Keys<ChatParamList>,
+> = ChatRouterNavigationProp<ScreenParamList, RouteName>;
 
-const Chat = createChatNavigator();
+const Chat = createChatNavigator<ChatParamList>();
 const ChatComponent = () => (
   <KeyboardAvoidingView style={styles.keyboardAvoidingView}>
     <Chat.Navigator screenOptions={screenOptions}>

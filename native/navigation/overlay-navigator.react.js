@@ -1,5 +1,7 @@
 // @flow
 
+import type { StackNavigationState } from '@react-navigation/stack';
+
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 import Animated, { Easing } from 'react-native-reanimated';
@@ -364,7 +366,11 @@ const OverlayNavigator = React.memo<any>(
   },
 );
 OverlayNavigator.displayName = 'OverlayNavigator';
-const createOverlayNavigator = createNavigatorFactory(OverlayNavigator);
+const createOverlayNavigator = createNavigatorFactory<
+  StackNavigationState,
+  {||},
+  {||},
+>(OverlayNavigator);
 
 const styles = StyleSheet.create({
   container: {

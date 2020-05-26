@@ -24,6 +24,7 @@ import {
   CameraModalRouteName,
   type ScreenParamList,
   type TabParamList,
+  type OverlayParamList,
 } from './route-names';
 import Calendar from '../calendar/calendar.react';
 import Chat from '../chat/chat.react';
@@ -63,12 +64,11 @@ const moreTabOptions = {
   ),
 };
 
-export type TabNavigationProp<RouteName: string> = BottomTabNavigationProp<
-  ScreenParamList,
-  RouteName,
->;
+export type TabNavigationProp<
+  RouteName: $Keys<TabParamList> = $Keys<TabParamList>,
+> = BottomTabNavigationProp<ScreenParamList, RouteName>;
 
-const Tab = createBottomTabNavigator<ScreenParamList, TabParamList>();
+const Tab = createBottomTabNavigator<TabParamList>();
 const tabBarOptions = { keyboardHidesTabBar: false };
 function TabNavigator() {
   return (
@@ -98,15 +98,14 @@ function TabNavigator() {
   );
 }
 
-export type AppNavigationProp<RouteName: string> = OverlayRouterNavigationProp<
-  ScreenParamList,
-  RouteName,
->;
+export type AppNavigationProp<
+  RouteName: $Keys<OverlayParamList> = $Keys<OverlayParamList>,
+> = OverlayRouterNavigationProp<ScreenParamList, RouteName>;
 
-const App = createOverlayNavigator();
-type AppNavigatorProps = {|
+const App = createOverlayNavigator<OverlayParamList>();
+type AppNavigatorProps = {
   navigation: RootNavigationProp<'App'>,
-|};
+};
 function AppNavigator(props: AppNavigatorProps) {
   const { navigation } = props;
 

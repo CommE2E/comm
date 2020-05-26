@@ -40,12 +40,11 @@ const buildInfoOptions = { headerTitle: 'Build info' };
 const devToolsOptions = { headerTitle: 'Developer tools' };
 const appearanceOptions = { headerTitle: 'Appearance' };
 
-export type MoreNavigationProp<RouteName: string> = StackNavigationProp<
-  ScreenParamList,
-  RouteName,
->;
+export type MoreNavigationProp<
+  RouteName: $Keys<MoreParamList> = $Keys<MoreParamList>,
+> = StackNavigationProp<ScreenParamList, RouteName>;
 
-const More = createStackNavigator<ScreenParamList, MoreParamList>();
+const More = createStackNavigator<MoreParamList>();
 const MoreComponent = () => (
   <More.Navigator screenOptions={screenOptions}>
     <More.Screen

@@ -7,7 +7,13 @@ import {
   createNavigatorFactory,
   useNavigationBuilder,
 } from '@react-navigation/native';
-import { StackView, TransitionPresets } from '@react-navigation/stack';
+import {
+  StackView,
+  TransitionPresets,
+  type StackNavigationState,
+  type StackOptions,
+  type StackNavigationEventMap,
+} from '@react-navigation/stack';
 import NavigationBuilderContext from '@react-navigation/core/src/NavigationBuilderContext';
 import invariant from 'invariant';
 
@@ -21,6 +27,7 @@ import {
   ColorPickerModalRouteName,
   ComposeSubthreadModalRouteName,
   type ScreenParamList,
+  type RootParamList,
 } from './route-names';
 import LoggedOutModal from '../account/logged-out-modal.react';
 import VerificationModal from '../account/verification-modal.react';
@@ -45,7 +52,7 @@ if (Platform.OS !== 'android' || Platform.Version >= 21) {
 }
 
 export type RootNavigationProp<
-  RouteName: string = $Keys<ScreenParamList>,
+  RouteName: $Keys<ScreenParamList> = $Keys<ScreenParamList>,
 > = RootRouterNavigationProp<ScreenParamList, RouteName>;
 
 function RootNavigator({ initialRouteName, children, screenOptions, ...rest }) {
@@ -75,7 +82,11 @@ function RootNavigator({ initialRouteName, children, screenOptions, ...rest }) {
     </RootNavigatorContext.Provider>
   );
 }
-const createRootNavigator = createNavigatorFactory(RootNavigator);
+const createRootNavigator = createNavigatorFactory<
+  StackNavigationState,
+  StackOptions,
+  StackNavigationEventMap,
+>(RootNavigator);
 
 const baseTransitionPreset = Platform.select({
   ios: TransitionPresets.ModalSlideFromBottomIOS,
@@ -102,7 +113,7 @@ const transitionPreset = {
   },
 };
 
-const Root = createRootNavigator();
+const Root = createRootNavigator<RootParamList>();
 const defaultScreenOptions = {
   gestureEnabled: Platform.OS === 'ios',
   animationEnabled: Platform.OS !== 'web',

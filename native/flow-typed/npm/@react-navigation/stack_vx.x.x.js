@@ -271,8 +271,7 @@ declare module '@react-navigation/stack' {
   >;
 
   declare type BaseScreenProps<
-    GlobalParamList: ParamListBase,
-    ParamList: ParamListBase = GlobalParamList,
+    ParamList: ParamListBase,
     RouteName: $Keys<ParamList> = string,
     State: NavigationState = NavigationState,
     ScreenOptions: {} = {},
@@ -283,32 +282,19 @@ declare module '@react-navigation/stack' {
       | ScreenOptions
       | ({|
           route: RouteProp<ParamList, RouteName>,
-          navigation: NavigationProp<
-            GlobalParamList,
-            RouteName,
-            State,
-            ScreenOptions,
-            EventMap,
-          >,
+          navigation: any,
         |}) => ScreenOptions,
     listeners?:
       | ScreenListeners<EventMap, State>
       | ({|
           route: RouteProp<ParamList, RouteName>,
-          navigation: NavigationProp<
-            GlobalParamList,
-            RouteName,
-            State,
-            ScreenOptions,
-            EventMap,
-          >,
+          navigation: any,
         |}) => ScreenListeners<EventMap, State>,
     initialParams?: $Shape<$ElementType<ParamList, RouteName>>,
   |};
 
   declare export type ScreenProps<
-    GlobalParamList: ParamListBase,
-    ParamList: ParamListBase = GlobalParamList,
+    ParamList: ParamListBase,
     RouteName: $Keys<ParamList> = string,
     State: NavigationState = NavigationState,
     ScreenOptions: {} = {},
@@ -316,7 +302,6 @@ declare module '@react-navigation/stack' {
   > =
     | {|
         ...BaseScreenProps<
-          GlobalParamList,
           ParamList,
           RouteName,
           State,
@@ -325,18 +310,11 @@ declare module '@react-navigation/stack' {
         >,
         component: React$ComponentType<{|
           route: RouteProp<ParamList, RouteName>,
-          navigation: NavigationProp<
-            GlobalParamList,
-            RouteName,
-            State,
-            ScreenOptions,
-            EventMap,
-          >,
+          navigation: any,
         |}>,
       |}
     | {|
         ...BaseScreenProps<
-          GlobalParamList,
           ParamList,
           RouteName,
           State,
@@ -345,24 +323,16 @@ declare module '@react-navigation/stack' {
         >,
         children: ({|
           route: RouteProp<ParamList, RouteName>,
-          navigation: NavigationProp<
-            GlobalParamList,
-            RouteName,
-            State,
-            ScreenOptions,
-            EventMap,
-          >,
+          navigation: any,
         |}) => React$Node,
       |};
 
   declare export type ScreenComponent<
-    GlobalParamList: ParamListBase,
-    ParamList: ParamListBase = GlobalParamList,
+    ParamList: ParamListBase,
     State: NavigationState = NavigationState,
     ScreenOptions: {} = {},
     EventMap: EventMapBase = EventMapCore<State>,
   > = <RouteName: $Keys<ParamList>>(props: ScreenProps<
-    GlobalParamList,
     ParamList,
     RouteName,
     State,
@@ -371,8 +341,7 @@ declare module '@react-navigation/stack' {
   >) => React$Node;
 
   declare export type NavigatorComponent<
-    GlobalParamList: ParamListBase,
-    ParamList: ParamListBase = GlobalParamList,
+    ParamList: ParamListBase,
     State: NavigationState = NavigationState,
     ScreenOptions: {} = {},
     EventMap: EventMapBase = EventMapCore<State>,
@@ -383,13 +352,7 @@ declare module '@react-navigation/stack' {
       | ScreenOptions
       | ({|
           route: RouteProp<ParamList, $Keys<ParamList>>,
-          navigation: NavigationProp<
-            GlobalParamList,
-            $Keys<ParamList>,
-            State,
-            ScreenOptions,
-            EventMap,
-          >,
+          navigation: any,
         |}) => ScreenOptions,
     ...
   }>;
@@ -398,19 +361,14 @@ declare module '@react-navigation/stack' {
     State: NavigationState = NavigationState,
     ScreenOptions: {} = {},
     EventMap: EventMapBase = EventMapCore<State>,
-  > = <
-    GlobalParamList: ParamListBase,
-    ParamList: ParamListBase = GlobalParamList,
-  >() => {|
+  > = <ParamList: ParamListBase>() => {|
     Screen: ScreenComponent<
-      GlobalParamList,
       ParamList,
       State,
       ScreenOptions,
       EventMap,
     >,
     Navigator: NavigatorComponent<
-      GlobalParamList,
       ParamList,
       State,
       ScreenOptions,
@@ -876,7 +834,7 @@ declare module '@react-navigation/stack' {
     RouteName: $Keys<ParamList> = string,
     Options: {} = StackOptions,
     EventMap: EventMapBase = StackNavigationEventMap,
-  > = $ReadOnly<{|
+  > = {|
     ...$Exact<NavigationProp<
       ParamList,
       RouteName,
@@ -896,7 +854,7 @@ declare module '@react-navigation/stack' {
     >>,
     +pop: (count?: number) => void,
     +popToTop: () => void,
-  |}>;
+  |};
 
   declare export type StackHeaderLeftButtonProps = {|
     onPress: ?(() => void),

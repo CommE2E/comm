@@ -26,10 +26,10 @@ export type OverlayRouterNavigationAction =
 export type OverlayRouterNavigationProp<
   ParamList: ParamListBase,
   RouteName: string,
-> = $ReadOnly<{|
+> = {|
   ...StackNavigationProp<ParamList, RouteName, {||}, {||}>,
   +clearOverlayModals: (keys: $ReadOnlyArray<string>) => void,
-|}>;
+|};
 
 function OverlayRouter(routerOptions: StackOptions) {
   const stackRouter = StackRouter(routerOptions);

@@ -56,13 +56,13 @@ export type RootRouterNavigationAction =
 export type RootRouterNavigationProp<
   ParamList: ParamListBase,
   RouteName: string,
-> = $ReadOnly<{|
+> = {|
   ...StackNavigationProp<ParamList, RouteName>,
   +logIn: () => void,
   +logOut: () => void,
   +clearRootModals: (keys: $ReadOnlyArray<string>) => void,
   +setNavState: (state: NavigationState) => void,
-|}>;
+|};
 
 function resetState(
   newPartialRoute: PossiblyStaleRoute<>,
