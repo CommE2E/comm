@@ -25,17 +25,20 @@ function DisconnectedBar(props: Props) {
   const showing = showingRef.current;
 
   const { visible } = props;
-  const changeShowing = React.useCallback(toValue => {
-    if (!visible) {
-      showing.setValue(toValue);
-      return;
-    }
-    timing(showing, {
-      toValue,
-      duration: 200,
-      easing: Easing.inOut(Easing.ease),
-    }).start();
-  }, [visible, showing]);
+  const changeShowing = React.useCallback(
+    toValue => {
+      if (!visible) {
+        showing.setValue(toValue);
+        return;
+      }
+      timing(showing, {
+        toValue,
+        duration: 200,
+        easing: Easing.inOut(Easing.ease),
+      }).start();
+    },
+    [visible, showing],
+  );
 
   const shouldShowDisconnectedBar = useSelector(
     state => state.connection.showDisconnectedBar,
@@ -51,18 +54,27 @@ function DisconnectedBar(props: Props) {
     prevShowDisconnectedBar.current = shouldShowDisconnectedBar;
   }, [shouldShowDisconnectedBar, changeShowing]);
 
-  const height = React.useMemo(() => interpolate(showing, {
-    inputRange: [0, 1],
-    outputRange: [0, expandedHeight],
-  }), [showing]);
-  const containerStyle = React.useMemo(() => ({
-    height,
-    ...styles.container,
-  }), [height]);
+  const height = React.useMemo(
+    () =>
+      interpolate(showing, {
+        inputRange: [0, 1],
+        outputRange: [0, expandedHeight],
+      }),
+    [showing],
+  );
+  const containerStyle = React.useMemo(
+    () => ({
+      height,
+      ...styles.container,
+    }),
+    [height],
+  );
 
   return (
     <Animated.View style={containerStyle} pointerEvents="none">
-      <Text style={styles.text} numberOfLines={1}>DISCONNECTED</Text>
+      <Text style={styles.text} numberOfLines={1}>
+        DISCONNECTED
+      </Text>
     </Animated.View>
   );
 }
@@ -75,8 +87,8 @@ const styles = StyleSheet.create({
   text: {
     color: 'white',
     fontSize: 14,
-    textAlign: 'center',
     padding: 5,
+    textAlign: 'center',
   },
 });
 

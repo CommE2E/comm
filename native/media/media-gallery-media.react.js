@@ -65,8 +65,10 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     screenWidth: PropTypes.number.isRequired,
     colors: colorsPropType.isRequired,
   };
+  // eslint-disable-next-line import/no-named-as-default-member
   focusProgress = new Reanimated.Value(0);
   buttonsStyle: ViewStyle;
+  // eslint-disable-next-line import/no-named-as-default-member
   backdropProgress = new Reanimated.Value(0);
   animatingBackdropToZero = false;
   imageStyle: ImageStyle;
@@ -77,6 +79,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
   constructor(props: Props) {
     super(props);
 
+    // eslint-disable-next-line import/no-named-as-default-member
     const buttonsScale = Reanimated.interpolate(this.focusProgress, {
       inputRange: [0, 1],
       outputRange: [1.3, 1],
@@ -87,6 +90,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
       transform: [{ scale: buttonsScale }],
     };
 
+    // eslint-disable-next-line import/no-named-as-default-member
     const mediaScale = Reanimated.interpolate(this.focusProgress, {
       inputRange: [0, 1],
       outputRange: [1, 1.3],
@@ -95,6 +99,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
       transform: [{ scale: mediaScale }],
     };
 
+    // eslint-disable-next-line import/no-named-as-default-member
     const backdropOpacity = Reanimated.interpolate(this.backdropProgress, {
       inputRange: [0, 1],
       outputRange: [1, 0.2],
@@ -104,6 +109,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
       transform: [{ scale: mediaScale }],
     };
 
+    // eslint-disable-next-line import/no-named-as-default-member
     const overlayOpacity = Reanimated.interpolate(this.backdropProgress, {
       inputRange: [0, 1],
       outputRange: [0, 0.8],
@@ -125,11 +131,13 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     const { backdropProgress } = this;
     if (isActive && !wasActive) {
       if (backdropProgress) {
+        // eslint-disable-next-line import/no-named-as-default-member
         Reanimated.timing(backdropProgress, {
           ...reanimatedSpec,
           toValue: 1,
         }).start();
       }
+      // eslint-disable-next-line import/no-named-as-default-member
       Reanimated.timing(this.focusProgress, {
         ...reanimatedSpec,
         toValue: 1,
@@ -137,11 +145,13 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     } else if (!isActive && wasActive) {
       if (backdropProgress && !this.animatingBackdropToZero) {
         this.animatingBackdropToZero = true;
+        // eslint-disable-next-line import/no-named-as-default-member
         Reanimated.timing(backdropProgress, {
           ...reanimatedSpec,
           toValue: 0,
         }).start(this.onAnimatingBackdropToZeroCompletion);
       }
+      // eslint-disable-next-line import/no-named-as-default-member
       Reanimated.timing(this.focusProgress, {
         ...reanimatedSpec,
         toValue: 0,
@@ -281,6 +291,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
         to === TOUCHABLE_STATE.MOVED_OUTSIDE)
     ) {
       this.animatingBackdropToZero = true;
+      // eslint-disable-next-line import/no-named-as-default-member
       Reanimated.timing(backdropProgress, {
         ...reanimatedSpec,
         duration: 150,

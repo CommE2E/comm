@@ -14,10 +14,7 @@ import { Platform, UIManager, View, StyleSheet } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 import { PersistGate } from 'redux-persist/integration/react';
 import AsyncStorage from '@react-native-community/async-storage';
-import {
-  NavigationContainer,
-  CommonActions,
-} from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import invariant from 'invariant';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -107,14 +104,9 @@ class Root extends React.PureComponent<Props, State> {
     }
     this.navState = initialState;
     this.setNavContext();
-    actionLogger.addOtherAction(
-      'navState',
-      'NAV/@@INIT',
-      null,
-      initialState,
-    );
+    actionLogger.addOtherAction('navState', 'NAV/@@INIT', null, initialState);
     this.setState({ initialState });
-  };
+  }
 
   get theme() {
     const { activeTheme } = this.props;

@@ -1,7 +1,5 @@
 // @flow
 
-import * as React from 'react';
-
 import Header from '../navigation/header.react';
 import { createActiveTabSelector } from '../navigation/nav-selectors';
 import { MoreRouteName } from '../navigation/route-names';

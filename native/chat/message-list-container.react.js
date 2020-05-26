@@ -15,7 +15,7 @@ import type { NavigationRoute } from '../navigation/route-names';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { View, Platform } from 'react-native';
+import { View } from 'react-native';
 import invariant from 'invariant';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 
@@ -104,15 +104,17 @@ class MessageListContainer extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
-    const tabNavigation: ?TabNavigationProp<'Chat'> =
-      this.props.navigation.dangerouslyGetParent();
+    const tabNavigation: ?TabNavigationProp<
+      'Chat',
+    > = this.props.navigation.dangerouslyGetParent();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.addListener('tabPress', this.onTabPress);
   }
 
   componentWillUnmount() {
-    const tabNavigation: ?TabNavigationProp<'Chat'> =
-      this.props.navigation.dangerouslyGetParent();
+    const tabNavigation: ?TabNavigationProp<
+      'Chat',
+    > = this.props.navigation.dangerouslyGetParent();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.removeListener('tabPress', this.onTabPress);
   }

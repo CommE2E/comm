@@ -76,15 +76,17 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   flatList: ?FlatList<Item>;
 
   componentDidMount() {
-    const tabNavigation: ?TabNavigationProp<'Chat'> =
-      this.props.navigation.dangerouslyGetParent();
+    const tabNavigation: ?TabNavigationProp<
+      'Chat',
+    > = this.props.navigation.dangerouslyGetParent();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.addListener('tabPress', this.onTabPress);
   }
 
   componentWillUnmount() {
-    const tabNavigation: ?TabNavigationProp<'Chat'> =
-      this.props.navigation.dangerouslyGetParent();
+    const tabNavigation: ?TabNavigationProp<
+      'Chat',
+    > = this.props.navigation.dangerouslyGetParent();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.removeListener('tabPress', this.onTabPress);
   }

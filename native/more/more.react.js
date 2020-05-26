@@ -20,7 +20,6 @@ import {
   BuildInfoRouteName,
   DevToolsRouteName,
   AppearancePreferencesRouteName,
-  VerificationModalRouteName,
   type ScreenParamList,
   type MoreParamList,
 } from '../navigation/route-names';
@@ -47,7 +46,7 @@ export type MoreNavigationProp<RouteName: string> = StackNavigationProp<
 >;
 
 const More = createStackNavigator<ScreenParamList, MoreParamList>();
-export default () => (
+const MoreComponent = () => (
   <More.Navigator screenOptions={screenOptions}>
     <More.Screen
       name={MoreScreenRouteName}
@@ -86,3 +85,4 @@ export default () => (
     />
   </More.Navigator>
 );
+export default MoreComponent;

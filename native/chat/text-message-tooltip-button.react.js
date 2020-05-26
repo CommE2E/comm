@@ -20,11 +20,13 @@ import { dimensionsSelector } from '../selectors/dimension-selectors';
 import InnerTextMessage from './inner-text-message.react';
 import { MessageHeader } from './message-header.react';
 
+/* eslint-disable import/no-named-as-default-member */
 const { Value } = Animated;
+/* eslint-enable import/no-named-as-default-member */
 
 type Props = {
   navigation: AppNavigationProp<'TextMessageTooltipModal'>,
-  route: TooltipRoute<'TextMessageTooltipModal',>,
+  route: TooltipRoute<'TextMessageTooltipModal'>,
   progress: Value,
   // Redux state
   screenDimensions: Dimensions,

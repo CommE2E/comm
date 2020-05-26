@@ -1,7 +1,5 @@
 // @flow
 
-import type { ThreadInfo } from 'lib/types/thread-types';
-
 import * as React from 'react';
 import {
   createNavigatorFactory,
@@ -35,20 +33,12 @@ import MessageListHeaderTitle from './message-list-header-title.react';
 import ThreadSettingsButton from './thread-settings-button.react';
 import { InputStateContext } from '../input/input-state';
 
-function ChatNavigator({
-  initialRouteName,
-  children,
-  screenOptions,
-  ...rest
-}) {
-  const { state, descriptors, navigation } = useNavigationBuilder(
-    ChatRouter,
-    {
-      initialRouteName,
-      children,
-      screenOptions,
-    },
-  );
+function ChatNavigator({ initialRouteName, children, screenOptions, ...rest }) {
+  const { state, descriptors, navigation } = useNavigationBuilder(ChatRouter, {
+    initialRouteName,
+    children,
+    screenOptions,
+  });
 
   // Clear ComposeThread screens after each message is sent. If a user goes to
   // ComposeThread to create a new thread, but finds an existing one and uses it
@@ -86,12 +76,14 @@ const screenOptions = {
 const chatThreadListOptions = ({ navigation }) => ({
   headerTitle: 'Threads',
   headerRight:
-    Platform.OS === 'ios' ? (
-      () => <ComposeThreadButton navigate={navigation.navigate} />
-    ) : null,
+    Platform.OS === 'ios'
+      ? () => <ComposeThreadButton navigate={navigation.navigate} />
+      : null,
   headerBackTitle: 'Back',
 });
 const messageListOptions = ({ navigation, route }) => ({
+  // This is a render prop, not a component
+  // eslint-disable-next-line react/display-name
   headerTitle: () => (
     <MessageListHeaderTitle
       threadInfo={route.params.threadInfo}
@@ -103,14 +95,16 @@ const messageListOptions = ({ navigation, route }) => ({
     flex: 1,
   },
   headerRight:
-    Platform.OS === 'android' ? (
-      () => (
-        <ThreadSettingsButton
-          threadInfo={route.params.threadInfo}
-          navigate={navigation.navigate}
-        />
-      )
-    ) : null,
+    Platform.OS === 'android'
+      ? // This is a render prop, not a component
+        // eslint-disable-next-line react/display-name
+        () => (
+          <ThreadSettingsButton
+            threadInfo={route.params.threadInfo}
+            navigate={navigation.navigate}
+          />
+        )
+      : null,
   headerBackTitle: 'Back',
 });
 const composeThreadOptions = {
@@ -138,7 +132,7 @@ export type ChatNavigationProp<RouteName: string> = ChatRouterNavigationProp<
 >;
 
 const Chat = createChatNavigator();
-export default () => (
+const ChatComponent = () => (
   <KeyboardAvoidingView style={styles.keyboardAvoidingView}>
     <Chat.Navigator screenOptions={screenOptions}>
       <Chat.Screen
@@ -171,3 +165,4 @@ export default () => (
     <ThreadScreenPruner />
   </KeyboardAvoidingView>
 );
+export default ChatComponent;

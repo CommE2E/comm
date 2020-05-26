@@ -20,7 +20,6 @@ import {
   CustomServerModalRouteName,
   ColorPickerModalRouteName,
   ComposeSubthreadModalRouteName,
-  accountModals,
   type ScreenParamList,
 } from './route-names';
 import LoggedOutModal from '../account/logged-out-modal.react';
@@ -35,7 +34,7 @@ import RootRouter, { type RootRouterNavigationProp } from './root-router';
 import { RootNavigatorContext } from './root-navigator-context';
 import { RootContext } from '../root-context';
 
-if (Platform.OS !== "android" || Platform.Version >= 21) {
+if (Platform.OS !== 'android' || Platform.Version >= 21) {
   // Older Android devices get stack overflows when trying to draw deeply nested
   // view structures. We've tried to get our draw depth down as much as possible
   // without going into React Navigation internals or creating a separate render
@@ -49,23 +48,16 @@ export type RootNavigationProp<
   RouteName: string = $Keys<ScreenParamList>,
 > = RootRouterNavigationProp<ScreenParamList, RouteName>;
 
-function RootNavigator({
-  initialRouteName,
-  children,
-  screenOptions,
-  ...rest
-}) {
-  const { state, descriptors, navigation } = useNavigationBuilder(
-    RootRouter,
-    {
-      initialRouteName,
-      children,
-      screenOptions,
-    },
-  );
+function RootNavigator({ initialRouteName, children, screenOptions, ...rest }) {
+  const { state, descriptors, navigation } = useNavigationBuilder(RootRouter, {
+    initialRouteName,
+    children,
+    screenOptions,
+  });
 
-  const [keyboardHandlingEnabled, setKeyboardHandlingEnabled] =
-    React.useState(true);
+  const [keyboardHandlingEnabled, setKeyboardHandlingEnabled] = React.useState(
+    true,
+  );
   const rootNavigationContext = React.useMemo(
     () => ({ setKeyboardHandlingEnabled }),
     [setKeyboardHandlingEnabled],
@@ -92,8 +84,9 @@ const baseTransitionPreset = Platform.select({
 const transitionPreset = {
   ...baseTransitionPreset,
   cardStyleInterpolator: interpolatorProps => {
-    const baseCardStyleInterpolator =
-      baseTransitionPreset.cardStyleInterpolator(interpolatorProps);
+    const baseCardStyleInterpolator = baseTransitionPreset.cardStyleInterpolator(
+      interpolatorProps,
+    );
     const overlayOpacity = interpolatorProps.current.progress.interpolate({
       inputRange: [0, 1],
       outputRange: [0, 0.7],
@@ -122,7 +115,7 @@ const disableGesturesScreenOptions = {
 const modalOverlayScreenOptions = {
   cardOverlayEnabled: true,
 };
-export default () => {
+const RootComponent = () => {
   const builderContext = React.useContext(NavigationBuilderContext);
   invariant(
     builderContext && builderContext.trackAction,
@@ -144,10 +137,13 @@ export default () => {
     },
     [onNavAction, baseTrackAction],
   );
-  const replacedBuilderContext = React.useMemo(() => ({
-    ...builderContext,
-    trackAction: replacedTrackAction,
-  }), [builderContext, replacedTrackAction]);
+  const replacedBuilderContext = React.useMemo(
+    () => ({
+      ...builderContext,
+      trackAction: replacedTrackAction,
+    }),
+    [builderContext, replacedTrackAction],
+  );
 
   return (
     <NavigationBuilderContext.Provider value={replacedBuilderContext}>
@@ -165,10 +161,7 @@ export default () => {
           name={VerificationModalRouteName}
           component={VerificationModal}
         />
-        <Root.Screen
-          name={AppRouteName}
-          component={AppNavigator}
-        />
+        <Root.Screen name={AppRouteName} component={AppNavigator} />
         <Root.Screen
           name={ThreadPickerModalRouteName}
           component={ThreadPickerModal}
@@ -198,3 +191,4 @@ export default () => {
     </NavigationBuilderContext.Provider>
   );
 };
+export default RootComponent;

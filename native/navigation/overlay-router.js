@@ -31,24 +31,18 @@ export type OverlayRouterNavigationProp<
   +clearOverlayModals: (keys: $ReadOnlyArray<string>) => void,
 |}>;
 
-function OverlayRouter(options: StackOptions) {
-  const stackRouter = StackRouter(options);
+function OverlayRouter(routerOptions: StackOptions) {
+  const stackRouter = StackRouter(routerOptions);
   return {
     ...stackRouter,
-    getStateForAction: (
-      lastState,
-      action,
-      options,
-    ) => {
+    getStateForAction: (lastState, action, options) => {
       if (action.type === clearOverlayModalsActionType) {
         const { keys } = action.payload;
         if (!lastState) {
           return lastState;
         }
-        return removeScreensFromStack(
-          lastState,
-          (route: Route<>) =>
-            keys.includes(route.key) ? 'remove' : 'keep',
+        return removeScreensFromStack(lastState, (route: Route<>) =>
+          keys.includes(route.key) ? 'remove' : 'keep',
         );
       } else {
         return stackRouter.getStateForAction(lastState, action, options);

@@ -12,15 +12,8 @@ type Props = {|
 |};
 function InsetSafeAreaView(props: Props) {
   const insets = useSafeArea();
-  const style = [
-    { paddingTop: insets.top },
-    props.style,
-  ];
-  return (
-    <View style={style}>
-      {props.children}
-    </View>
-  );
+  const style = [{ paddingTop: insets.top }, props.style];
+  return <View style={style}>{props.children}</View>;
 }
 
 export default InsetSafeAreaView;

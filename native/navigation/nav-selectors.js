@@ -40,9 +40,7 @@ const baseCreateIsForegroundSelector = (routeName: string) =>
       if (!navigationState) {
         return false;
       }
-      return (
-        navigationState.routes[navigationState.index].name === routeName
-      );
+      return navigationState.routes[navigationState.index].name === routeName;
     },
   );
 const createIsForegroundSelector: (

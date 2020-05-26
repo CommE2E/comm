@@ -459,7 +459,11 @@ class VerificationModal extends React.PureComponent<Props, State> {
 }
 
 const closeButtonTop =
-  Platform.OS === 'ios' ? (DeviceInfo.getConstants().isIPhoneX_deprecated ? 49 : 25) : 15;
+  Platform.OS === 'ios'
+    ? DeviceInfo.getConstants().isIPhoneX_deprecated
+      ? 49
+      : 25
+    : 15;
 
 const styles = StyleSheet.create({
   animationContainer: {},

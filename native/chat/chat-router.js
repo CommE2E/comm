@@ -6,7 +6,6 @@ import type {
   ParamListBase,
   StackAction,
   Route,
-  PossiblyStaleRoute,
   StackOptions,
 } from '@react-navigation/stack';
 
@@ -70,24 +69,18 @@ export type ChatRouterNavigationProp<
   +pushNewThread: (threadInfo: ThreadInfo) => void,
 |}>;
 
-function ChatRouter(options: StackOptions) {
-  const stackRouter = StackRouter(options);
+function ChatRouter(routerOptions: StackOptions) {
+  const stackRouter = StackRouter(routerOptions);
   return {
     ...stackRouter,
-    getStateForAction: (
-      lastState,
-      action,
-      options,
-    ) => {
+    getStateForAction: (lastState, action, options) => {
       if (action.type === clearScreensActionType) {
         const { routeNames } = action.payload;
         if (!lastState) {
           return lastState;
         }
-        return removeScreensFromStack(
-          lastState,
-          (route: Route<>) =>
-            routeNames.includes(route.name) ? 'remove' : 'keep',
+        return removeScreensFromStack(lastState, (route: Route<>) =>
+          routeNames.includes(route.name) ? 'remove' : 'keep',
         );
       } else if (action.type === replaceWithThreadActionType) {
         const { threadInfo } = action.payload;
@@ -114,10 +107,8 @@ function ChatRouter(options: StackOptions) {
         if (!lastState) {
           return lastState;
         }
-        return removeScreensFromStack(
-          lastState,
-          (route: Route<>) =>
-            threadIDs.has(getThreadIDFromRoute(route)) ? 'remove' : 'keep',
+        return removeScreensFromStack(lastState, (route: Route<>) =>
+          threadIDs.has(getThreadIDFromRoute(route)) ? 'remove' : 'keep',
         );
       } else if (action.type === pushNewThreadActionType) {
         const { threadInfo } = action.payload;
@@ -140,18 +131,12 @@ function ChatRouter(options: StackOptions) {
           options,
         );
       } else {
-        return stackRouter.getStateForAction(
-          lastState,
-          action,
-          options,
-        );
+        return stackRouter.getStateForAction(lastState, action, options);
       }
     },
     actionCreators: {
       ...stackRouter.actionCreators,
-      clearScreens: (
-        routeNames: $ReadOnlyArray<string>,
-      ) => ({
+      clearScreens: (routeNames: $ReadOnlyArray<string>) => ({
         type: clearScreensActionType,
         payload: {
           routeNames,
@@ -161,9 +146,7 @@ function ChatRouter(options: StackOptions) {
         type: replaceWithThreadActionType,
         payload: { threadInfo },
       }),
-      clearThreads: (
-        threadIDs: $ReadOnlyArray<string>,
-      ) => ({
+      clearThreads: (threadIDs: $ReadOnlyArray<string>) => ({
         type: clearThreadsActionType,
         payload: { threadIDs },
       }),

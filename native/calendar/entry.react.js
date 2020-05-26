@@ -32,7 +32,6 @@ import {
   Alert,
   LayoutAnimation,
   Keyboard,
-  InteractionManager,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';

@@ -345,9 +345,12 @@ const loadingStatusSelector = createLoadingStatusSelector(
 );
 
 export default connect(
-  (state: AppState, ownProps: {
-    route: NavigationRoute<'DeleteThread'>,
-  }): * => {
+  (
+    state: AppState,
+    ownProps: {
+      route: NavigationRoute<'DeleteThread'>,
+    },
+  ): * => {
     const threadID = ownProps.route.params.threadInfo.id;
     return {
       threadInfo: threadInfoSelector(state)[threadID],

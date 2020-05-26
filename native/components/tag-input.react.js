@@ -189,13 +189,20 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
     this.props.onChangeText(text);
   };
 
-  onBlur = (event: $ReadOnly<{ nativeEvent: $ReadOnly<{ target: number }> }>) => {
+  onBlur = (
+    event: $ReadOnly<{ nativeEvent: $ReadOnly<{ target: number }> }>,
+  ) => {
     invariant(Platform.OS === 'ios', 'only iOS gets text on TextInput.onBlur');
-    const nativeEvent: $ReadOnly<{ target: number, text: string }> = (event.nativeEvent: any);
+    const nativeEvent: $ReadOnly<{
+      target: number,
+      text: string,
+    }> = (event.nativeEvent: any);
     this.onChangeText(nativeEvent.text);
   };
 
-  onKeyPress = (event: $ReadOnly<{ nativeEvent: $ReadOnly<{ key: string }> }>) => {
+  onKeyPress = (
+    event: $ReadOnly<{ nativeEvent: $ReadOnly<{ key: string }> }>,
+  ) => {
     const { lastChange } = this;
     let { text } = this.props;
     if (

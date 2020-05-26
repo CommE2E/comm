@@ -75,10 +75,9 @@ function resetState(
   invariant(oldRoute.state, 'resetState found non-matching state');
   const routes = [];
   for (let i = 0; i < newPartialRoute.state.routes.length; i++) {
-    routes.push(resetState(
-      newPartialRoute.state.routes[i],
-      oldRoute.state.routes[i],
-    ));
+    routes.push(
+      resetState(newPartialRoute.state.routes[i], oldRoute.state.routes[i]),
+    );
   }
   return {
     ...oldRoute,
@@ -91,23 +90,17 @@ function resetState(
   };
 }
 
-function RootRouter(options: StackOptions) {
-  const stackRouter = StackRouter(options);
+function RootRouter(routerOptions: StackOptions) {
+  const stackRouter = StackRouter(routerOptions);
   return {
     ...stackRouter,
-    getStateForAction: (
-      lastState,
-      action,
-      options,
-    ) => {
+    getStateForAction: (lastState, action, options) => {
       if (action.type === logInActionType) {
         if (!lastState) {
           return lastState;
         }
-        return removeScreensFromStack(
-          lastState,
-          (route: Route<>) =>
-            accountModals.includes(route.name) ? 'remove' : 'keep',
+        return removeScreensFromStack(lastState, (route: Route<>) =>
+          accountModals.includes(route.name) ? 'remove' : 'keep',
         );
       } else if (action.type === logOutActionType) {
         if (!lastState) {
@@ -120,19 +113,15 @@ function RootRouter(options: StackOptions) {
         );
 
         let loggedOutModalFound = false;
-        newState = removeScreensFromStack(
-          newState,
-          (route: Route<>) => {
-            const { name } = route;
-            if (name === LoggedOutModalRouteName) {
-              loggedOutModalFound = true;
-            }
-            return name === AppRouteName ||
-              accountModals.includes(name)
-              ? 'keep'
-              : 'remove';
-          },
-        );
+        newState = removeScreensFromStack(newState, (route: Route<>) => {
+          const { name } = route;
+          if (name === LoggedOutModalRouteName) {
+            loggedOutModalFound = true;
+          }
+          return name === AppRouteName || accountModals.includes(name)
+            ? 'keep'
+            : 'remove';
+        });
 
         if (!loggedOutModalFound) {
           const [appRoute, ...restRoutes] = newState.routes;
@@ -157,10 +146,8 @@ function RootRouter(options: StackOptions) {
         if (!lastState) {
           return lastState;
         }
-        return removeScreensFromStack(
-          lastState,
-          (route: Route<>) =>
-            keys.includes(route.key) ? 'remove' : 'keep',
+        return removeScreensFromStack(lastState, (route: Route<>) =>
+          keys.includes(route.key) ? 'remove' : 'keep',
         );
       } else if (action.type === setNavStateActionType) {
         return action.payload.state;
@@ -168,7 +155,11 @@ function RootRouter(options: StackOptions) {
         if (!lastState) {
           return lastState;
         }
-        const newState = stackRouter.getStateForAction(lastState, action, options);
+        const newState = stackRouter.getStateForAction(
+          lastState,
+          action,
+          options,
+        );
         if (!newState) {
           return newState;
         }

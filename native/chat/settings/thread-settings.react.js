@@ -257,8 +257,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     if (!threadInChatList(threadInfo)) {
       threadWatcher.watchID(threadInfo.id);
     }
-    const tabNavigation: ?TabNavigationProp<'Chat'> =
-      this.props.navigation.dangerouslyGetParent();
+    const tabNavigation: ?TabNavigationProp<
+      'Chat',
+    > = this.props.navigation.dangerouslyGetParent();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.addListener('tabPress', this.onTabPress);
   }
@@ -268,8 +269,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     if (!threadInChatList(threadInfo)) {
       threadWatcher.removeID(threadInfo.id);
     }
-    const tabNavigation: ?TabNavigationProp<'Chat'> =
-      this.props.navigation.dangerouslyGetParent();
+    const tabNavigation: ?TabNavigationProp<
+      'Chat',
+    > = this.props.navigation.dangerouslyGetParent();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.removeListener('tabPress', this.onTabPress);
   }
@@ -831,9 +833,12 @@ const somethingIsSaving = (
 };
 
 const WrappedThreadSettings = connect(
-  (state: AppState, ownProps: {
-    route: NavigationRoute<'ThreadSettings'>,
-  }) => {
+  (
+    state: AppState,
+    ownProps: {
+      route: NavigationRoute<'ThreadSettings'>,
+    },
+  ) => {
     const threadID = ownProps.route.params.threadInfo.id;
     const threadMembers = relativeMemberInfoSelectorForMembersOfThread(
       threadID,
@@ -846,9 +851,7 @@ const WrappedThreadSettings = connect(
       styles: stylesSelector(state),
     };
   },
-)(
-  withOverlayContext(ThreadSettings),
-);
+)(withOverlayContext(ThreadSettings));
 
 hoistNonReactStatics(WrappedThreadSettings, ThreadSettings);
 

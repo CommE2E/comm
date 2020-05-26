@@ -101,10 +101,7 @@ class TextHeightMeasurer extends React.PureComponent<Props, State> {
     }
   }
 
-  onTextLayout(
-    textToMeasure: TextToMeasure,
-    event: LayoutEvent,
-  ) {
+  onTextLayout(textToMeasure: TextToMeasure, event: LayoutEvent) {
     invariant(this.nextTextToHeight, 'nextTextToHeight should be set');
     this.nextTextToHeight.set(
       textToMeasure.id,

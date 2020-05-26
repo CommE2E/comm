@@ -954,10 +954,9 @@ class CameraModal extends React.PureComponent<Props, State> {
 
     const { inputState } = this.props;
     invariant(inputState, 'inputState should be set');
-    inputState.sendMultimediaMessage(
-      this.props.route.params.threadID,
-      [capture],
-    );
+    inputState.sendMultimediaMessage(this.props.route.params.threadID, [
+      capture,
+    ]);
   };
 
   clearPendingImage = () => {

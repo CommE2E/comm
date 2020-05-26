@@ -40,9 +40,7 @@ const defaultNavigationState: StaleNavigationState = {
                   state: {
                     type: 'stack',
                     index: 0,
-                    routes: [
-                      { name: ChatThreadListRouteName },
-                    ],
+                    routes: [{ name: ChatThreadListRouteName }],
                   },
                 },
                 {

@@ -18,10 +18,7 @@ function getStateFromNavigatorRoute(
   route: PossiblyStaleRoute<>,
 ): PossiblyStaleNavigationState {
   const key = route.key ? route.key : `unkeyed ${route.name}`;
-  invariant(
-    route.state,
-    `expecting Route for ${key} to be NavigationState`,
-  );
+  invariant(route.state, `expecting Route for ${key} to be NavigationState`);
   return route.state;
 }
 

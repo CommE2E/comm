@@ -8,7 +8,7 @@ import * as React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { PersistGate } from 'redux-persist/integration/react';
 import SplashScreen from 'react-native-splash-screen';
-import { Platform, StyleSheet } from 'react-native';
+import { Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 import {
@@ -33,9 +33,7 @@ import { createOverlayNavigator } from './overlay-navigator.react';
 import MultimediaModal from '../media/multimedia-modal.react';
 import { MultimediaTooltipModal } from '../chat/multimedia-tooltip-modal.react';
 import ActionResultModal from './action-result-modal.react';
-import {
-  TextMessageTooltipModal,
-} from '../chat/text-message-tooltip-modal.react';
+import { TextMessageTooltipModal } from '../chat/text-message-tooltip-modal.react';
 import ThreadSettingsMemberTooltipModal from '../chat/settings/thread-settings-member-tooltip-modal.react';
 import CameraModal from '../media/camera-modal.react';
 import KeyboardStateContainer from '../keyboard/keyboard-state-container.react';
@@ -130,10 +128,7 @@ function AppNavigator(props: AppNavigatorProps) {
   return (
     <KeyboardStateContainer>
       <App.Navigator>
-        <App.Screen
-          name={TabNavigatorRouteName}
-          component={TabNavigator}
-        />
+        <App.Screen name={TabNavigatorRouteName} component={TabNavigator} />
         <App.Screen
           name={MultimediaModalRouteName}
           component={MultimediaModal}
@@ -154,10 +149,7 @@ function AppNavigator(props: AppNavigatorProps) {
           name={ThreadSettingsMemberTooltipModalRouteName}
           component={ThreadSettingsMemberTooltipModal}
         />
-        <App.Screen
-          name={CameraModalRouteName}
-          component={CameraModal}
-        />
+        <App.Screen name={CameraModalRouteName} component={CameraModal} />
       </App.Navigator>
       <PersistGate persistor={getPersistor()}>
         <PushHandler navigation={navigation} />

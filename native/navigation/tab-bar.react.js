@@ -28,11 +28,12 @@ function TabBar(props: Props) {
   const keyboardShowing = keyboardState && keyboardState.keyboardShowing;
 
   const animateTabBar = React.useCallback(
-    toValue => timing(tabBarVisible, {
-      toValue,
-      duration: 200,
-      easing: Easing.inOut(Easing.ease),
-    }).start(),
+    toValue =>
+      timing(tabBarVisible, {
+        toValue,
+        duration: 200,
+        easing: Easing.inOut(Easing.ease),
+      }).start(),
     [tabBarVisible],
   );
 
@@ -49,40 +50,53 @@ function TabBar(props: Props) {
 
   const reduxTabBarHeight = useSelector(state => state.dimensions.tabBarHeight);
   const dispatch = useDispatch();
-  const setReduxTabBarHeight = React.useCallback(height => {
-    if (height === reduxTabBarHeight) {
-      return;
-    }
-    dispatch({
-      type: updateDimensionsActiveType,
-      payload: { tabBarHeight: height },
-    });
-  }, [reduxTabBarHeight, dispatch]);
+  const setReduxTabBarHeight = React.useCallback(
+    height => {
+      if (height === reduxTabBarHeight) {
+        return;
+      }
+      dispatch({
+        type: updateDimensionsActiveType,
+        payload: { tabBarHeight: height },
+      });
+    },
+    [reduxTabBarHeight, dispatch],
+  );
 
   const [tabBarHeight, setTabBarHeight] = React.useState(0);
   const insets = useSafeArea();
-  const handleLayout = React.useCallback((e: LayoutEvent) => {
-    const rawHeight = Math.round(e.nativeEvent.layout.height);
-    if (rawHeight > 100 || rawHeight <= 0) {
-      return;
-    }
-    if (Platform.OS === 'android') {
-      setTabBarHeight(rawHeight);
-    }
-    const height = rawHeight - insets.bottom;
-    if (height > 0) {
-      setReduxTabBarHeight(height);
-    }
-  }, [setTabBarHeight, setReduxTabBarHeight, insets]);
+  const handleLayout = React.useCallback(
+    (e: LayoutEvent) => {
+      const rawHeight = Math.round(e.nativeEvent.layout.height);
+      if (rawHeight > 100 || rawHeight <= 0) {
+        return;
+      }
+      if (Platform.OS === 'android') {
+        setTabBarHeight(rawHeight);
+      }
+      const height = rawHeight - insets.bottom;
+      if (height > 0) {
+        setReduxTabBarHeight(height);
+      }
+    },
+    [setTabBarHeight, setReduxTabBarHeight, insets],
+  );
 
-  const containerHeight = React.useMemo(() => interpolate(tabBarVisible, {
-    inputRange: [0, 1],
-    outputRange: [0, tabBarHeight],
-  }), [tabBarVisible, tabBarHeight]);
-  const containerStyle = React.useMemo(() => ({
-    height: tabBarHeight ? containerHeight : undefined,
-    ...styles.container,
-  }), [tabBarHeight, containerHeight]);
+  const containerHeight = React.useMemo(
+    () =>
+      interpolate(tabBarVisible, {
+        inputRange: [0, 1],
+        outputRange: [0, tabBarHeight],
+      }),
+    [tabBarVisible, tabBarHeight],
+  );
+  const containerStyle = React.useMemo(
+    () => ({
+      height: tabBarHeight ? containerHeight : undefined,
+      ...styles.container,
+    }),
+    [tabBarHeight, containerHeight],
+  );
 
   if (Platform.OS !== 'android') {
     return (
@@ -103,16 +117,18 @@ function TabBar(props: Props) {
 
 const styles = StyleSheet.create({
   container: {
+    bottom: 0,
     left: 0,
     right: 0,
-    bottom: 0,
   },
   tabBar: {
-    position: 'absolute',
     left: 0,
+    position: 'absolute',
     right: 0,
     top: 0,
   },
 });
 
+// This is a render prop, not a component
+// eslint-disable-next-line react/display-name
 export default (props: Props) => <TabBar {...props} />;

@@ -121,8 +121,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.otherUserInfos,
     (propsAndState: PropsAndState) => propsAndState.userSearchIndex,
     (propsAndState: PropsAndState) => propsAndState.userInfoInputArray,
-    (propsAndState: PropsAndState) =>
-      propsAndState.route.params.threadInfo,
+    (propsAndState: PropsAndState) => propsAndState.route.params.threadInfo,
     (propsAndState: PropsAndState) => propsAndState.parentThreadInfo,
     (
       text: string,
@@ -345,9 +344,12 @@ const changeThreadSettingsLoadingStatusSelector = createLoadingStatusSelector(
 registerFetchKey(searchUsersActionTypes);
 
 export default connect(
-  (state: AppState, ownProps: {
-    route: NavigationRoute<'AddUsersModal'>,
-  }) => {
+  (
+    state: AppState,
+    ownProps: {
+      route: NavigationRoute<'AddUsersModal'>,
+    },
+  ) => {
     let parentThreadInfo = null;
     const { parentThreadID } = ownProps.route.params.threadInfo;
     if (parentThreadID) {

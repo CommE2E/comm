@@ -3,7 +3,9 @@
 import Animated from 'react-native-reanimated';
 import { State as GestureState } from 'react-native-gesture-handler';
 
+/* eslint-disable import/no-named-as-default-member */
 const { Value, cond, greaterThan, eq, sub, set } = Animated;
+/* eslint-enable import/no-named-as-default-member */
 
 function clamp(value: Value, minValue: Value, maxValue: Value): Value {
   return cond(

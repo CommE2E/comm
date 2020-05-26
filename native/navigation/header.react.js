@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { Header } from '@react-navigation/stack';
-import { View } from 'react-native';
 
 import DisconnectedBar from './disconnected-bar.react';
 

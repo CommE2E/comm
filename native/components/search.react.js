@@ -70,11 +70,7 @@ class Search extends React.PureComponent<Props> {
     return (
       <View style={[this.props.styles.search, containerStyle]}>
         <Icon name="search" size={18} color={iconColor} />
-        <TextInput
-          {...textInputProps}
-          {...rest}
-          ref={textInputRef}
-        />
+        <TextInput {...textInputProps} {...rest} ref={textInputRef} />
         {clearSearchInputIcon}
       </View>
     );
@@ -113,7 +109,10 @@ const ConnectedSearch = connect((state: AppState) => ({
 
 type ConnectedProps = $Diff<Props, {| colors: Colors, styles: typeof styles |}>;
 export default React.forwardRef<ConnectedProps, TextInput>(
-  function ForwardedConnectedSearch(props: ConnectedProps, ref: React.Ref<typeof TextInput>) {
+  function ForwardedConnectedSearch(
+    props: ConnectedProps,
+    ref: React.Ref<typeof TextInput>,
+  ) {
     return <ConnectedSearch {...props} textInputRef={ref} />;
   },
 );

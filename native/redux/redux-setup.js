@@ -22,7 +22,6 @@ import {
   defaultConnectionInfo,
   incrementalStateSyncActionType,
 } from 'lib/types/socket-types';
-import type { Dimensions } from 'lib/types/media-types';
 import {
   type ConnectivityInfo,
   defaultConnectivityInfo,

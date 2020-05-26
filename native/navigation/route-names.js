@@ -1,40 +1,20 @@
 // @flow
 
 import type { LeafRoute } from '@react-navigation/native';
-import type {
-  VerificationModalParams,
-} from '../account/verification-modal.react';
-import type {
-  ThreadPickerModalParams,
-} from '../calendar/thread-picker-modal.react';
-import type {
-  AddUsersModalParams,
-} from '../chat/settings/add-users-modal.react';
-import type {
-  CustomServerModalParams,
-} from '../more/custom-server-modal.react';
-import type {
-  ColorPickerModalParams,
-} from '../chat/settings/color-picker-modal.react';
-import type {
-  ComposeSubthreadModalParams,
-} from '../chat/settings/compose-subthread-modal.react';
+import type { VerificationModalParams } from '../account/verification-modal.react';
+import type { ThreadPickerModalParams } from '../calendar/thread-picker-modal.react';
+import type { AddUsersModalParams } from '../chat/settings/add-users-modal.react';
+import type { CustomServerModalParams } from '../more/custom-server-modal.react';
+import type { ColorPickerModalParams } from '../chat/settings/color-picker-modal.react';
+import type { ComposeSubthreadModalParams } from '../chat/settings/compose-subthread-modal.react';
 import type { MultimediaModalParams } from '../media/multimedia-modal.react';
-import type {
-  MultimediaTooltipModalParams,
-} from '../chat/multimedia-tooltip-modal.react';
+import type { MultimediaTooltipModalParams } from '../chat/multimedia-tooltip-modal.react';
 import type { ActionResultModalParams } from './action-result-modal.react';
-import type {
-  TextMessageTooltipModalParams,
-} from '../chat/text-message-tooltip-modal.react';
-import type {
-  ThreadSettingsMemberTooltipModalParams,
-} from '../chat/settings/thread-settings-member-tooltip-modal.react';
+import type { TextMessageTooltipModalParams } from '../chat/text-message-tooltip-modal.react';
+import type { ThreadSettingsMemberTooltipModalParams } from '../chat/settings/thread-settings-member-tooltip-modal.react';
 import type { CameraModalParams } from '../media/camera-modal.react';
 import type { ComposeThreadParams } from '../chat/compose-thread.react';
-import type {
-  ThreadSettingsParams,
-} from '../chat/settings/thread-settings.react';
+import type { ThreadSettingsParams } from '../chat/settings/thread-settings.react';
 import type { DeleteThreadParams } from '../chat/settings/delete-thread.react';
 import type { MessageListParams } from '../chat/message-list-types';
 

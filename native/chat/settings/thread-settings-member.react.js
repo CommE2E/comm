@@ -14,9 +14,7 @@ import {
   type VerticalBounds,
   verticalBoundsPropType,
 } from '../../types/layout-types';
-import {
-  ThreadSettingsMemberTooltipModalRouteName,
-} from '../../navigation/route-names';
+import { ThreadSettingsMemberTooltipModalRouteName } from '../../navigation/route-names';
 import type { ThreadSettingsNavigate } from './thread-settings.react';
 
 import * as React from 'react';

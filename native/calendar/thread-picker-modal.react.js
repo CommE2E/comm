@@ -32,7 +32,9 @@ type Props = {|
 function ThreadPickerModal(props: Props) {
   const {
     navigation,
-    route: { params: { dateString } },
+    route: {
+      params: { dateString },
+    },
   } = props;
 
   const viewerID = useSelector(
@@ -42,33 +44,37 @@ function ThreadPickerModal(props: Props) {
   const dispatch = useDispatch();
 
   const rootNavigatorContext = React.useContext(RootNavigatorContext);
-  const threadPicked = React.useCallback((threadID: string) => {
-    invariant(
-      dateString && viewerID && rootNavigatorContext,
-      'inputs to threadPicked should be set',
-    );
-    rootNavigatorContext.setKeyboardHandlingEnabled(false);
-    dispatch({
-      type: createLocalEntryActionType,
-      payload: createLocalEntry(threadID, nextLocalID, dateString, viewerID),
-    });
-  }, [rootNavigatorContext, dispatch, viewerID, nextLocalID, dateString]);
+  const threadPicked = React.useCallback(
+    (threadID: string) => {
+      invariant(
+        dateString && viewerID && rootNavigatorContext,
+        'inputs to threadPicked should be set',
+      );
+      rootNavigatorContext.setKeyboardHandlingEnabled(false);
+      dispatch({
+        type: createLocalEntryActionType,
+        payload: createLocalEntry(threadID, nextLocalID, dateString, viewerID),
+      });
+    },
+    [rootNavigatorContext, dispatch, viewerID, nextLocalID, dateString],
+  );
 
   React.useEffect(
-    () => navigation.addListener('blur', async () => {
-      await waitForInteractions();
-      invariant(
-        rootNavigatorContext,
-        'RootNavigatorContext should be set in onScreenBlur',
-      );
-      rootNavigatorContext.setKeyboardHandlingEnabled(true);
-    }),
+    () =>
+      navigation.addListener('blur', async () => {
+        await waitForInteractions();
+        invariant(
+          rootNavigatorContext,
+          'RootNavigatorContext should be set in onScreenBlur',
+        );
+        rootNavigatorContext.setKeyboardHandlingEnabled(true);
+      }),
     [navigation, rootNavigatorContext],
   );
 
   const index = useSelector(state => threadSearchIndex(state));
-  const onScreenThreadInfos = useSelector(
-    state => onScreenEntryEditableThreadInfos(state),
+  const onScreenThreadInfos = useSelector(state =>
+    onScreenEntryEditableThreadInfos(state),
   );
   return (
     <Modal navigation={navigation}>

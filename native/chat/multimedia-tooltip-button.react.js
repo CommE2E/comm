@@ -33,11 +33,13 @@ import { getRoundedContainerStyle } from './rounded-corners';
 import { MessageHeader } from './message-header.react';
 import { dimensionsSelector } from '../selectors/dimension-selectors';
 
+/* eslint-disable import/no-named-as-default-member */
 const { Value } = Animated;
+/* eslint-enable import/no-named-as-default-member */
 
 type Props = {
   navigation: AppNavigationProp<'MultimediaTooltipModal'>,
-  route: TooltipRoute<'MultimediaTooltipModal',>,
+  route: TooltipRoute<'MultimediaTooltipModal'>,
   progress: Value,
   // Redux state
   screenDimensions: Dimensions,
@@ -66,10 +68,7 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
   };
 
   get headerStyle() {
-    const {
-      initialCoordinates,
-      verticalOffset,
-    } = this.props.route.params;
+    const { initialCoordinates, verticalOffset } = this.props.route.params;
     const bottom = initialCoordinates.height + verticalOffset;
     return {
       opacity: this.props.progress,

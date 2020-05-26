@@ -12,7 +12,8 @@ export type DimensionsInfo = {|
   tabBarHeight: number,
 |};
 
-const isIPhoneX = Platform.OS === 'ios' && DeviceInfo.getConstants().isIPhoneX_deprecated;
+const isIPhoneX =
+  Platform.OS === 'ios' && DeviceInfo.getConstants().isIPhoneX_deprecated;
 
 let statusBarHeight = 0;
 if (Platform.OS === 'android') {

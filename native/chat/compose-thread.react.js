@@ -506,9 +506,12 @@ const loadingStatusSelector = createLoadingStatusSelector(newThreadActionTypes);
 registerFetchKey(searchUsersActionTypes);
 
 export default connect(
-  (state: AppState, ownProps: {
-    route: NavigationRoute<'ComposeThread'>,
-  }) => {
+  (
+    state: AppState,
+    ownProps: {
+      route: NavigationRoute<'ComposeThread'>,
+    },
+  ) => {
     let reduxParentThreadInfo = null;
     const parentThreadInfo = ownProps.route.params.parentThreadInfo;
     if (parentThreadInfo) {

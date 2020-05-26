@@ -109,10 +109,7 @@ function createTooltip<
   Entry: TooltipEntry<Params>,
   TooltipPropsType: TooltipProps<Navigation, Route>,
   ButtonComponentType: React.ComponentType<ButtonProps<Navigation, Route>>,
->(
-  ButtonComponent: ButtonComponentType,
-  tooltipSpec: TooltipSpec<Entry>,
-) {
+>(ButtonComponent: ButtonComponentType, tooltipSpec: TooltipSpec<Entry>) {
   class Tooltip extends React.PureComponent<TooltipPropsType> {
     static propTypes = {
       navigation: PropTypes.shape({

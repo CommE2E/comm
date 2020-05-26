@@ -83,7 +83,6 @@ import CalendarInputBar from './calendar-input-bar.react';
 import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
-  addKeyboardDidDismissListener,
   removeKeyboardListener,
 } from '../keyboard/keyboard';
 import KeyboardAvoidingView from '../keyboard/keyboard-avoiding-view.react';
