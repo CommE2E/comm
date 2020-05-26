@@ -20,7 +20,7 @@ import { scrollBlockingChatModals } from './route-names';
 const { Value, timing, cond, call, lessOrEq, block } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
-const OverlayNavigator = React.memo<Props>(({
+const OverlayNavigator = React.memo<any>(({
   initialRouteName,
   children,
   screenOptions,

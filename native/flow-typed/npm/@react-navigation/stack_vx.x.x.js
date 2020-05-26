@@ -1010,10 +1010,14 @@ declare module '@react-navigation/stack' {
     descriptors: {| [key: string]: StackDescriptor |},
   |}>;
 
+  declare export var HeaderTitle: any;
   declare export var createStackNavigator: CreateNavigator<
     StackNavigationState,
     StackOptions,
     StackNavigationEventMap,
   >;
+  declare export var HeaderBackButton: any;
+  declare export var Header: any;
+  declare export var TransitionPresets: any;
 
 }
