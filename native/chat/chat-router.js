@@ -62,13 +62,13 @@ export type ChatRouterNavigationAction =
 export type ChatRouterNavigationProp<
   ParamList: ParamListBase,
   RouteName: string,
-> = {|
+> = $ReadOnly<{|
   ...StackNavigationProp<ParamList, RouteName>,
   +clearScreens: (routeNames: $ReadOnlyArray<string>) => void,
   +replaceWithThread: (threadInfo: ThreadInfo) => void,
   +clearThreads: (threadIDs: $ReadOnlyArray<string>) => void,
   +pushNewThread: (threadInfo: ThreadInfo) => void,
-|};
+|}>;
 
 function ChatRouter(options: StackOptions) {
   const stackRouter = StackRouter(options);

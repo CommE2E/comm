@@ -377,6 +377,7 @@ declare module '@react-navigation/native' {
     ScreenOptions: {} = {},
     EventMap: EventMapBase = EventMapCore<State>,
   > = React$ComponentType<{
+    children?: React.Node,
     initialRouteName?: $Keys<ParamList>,
     screenOptions?:
       | ScreenOptions

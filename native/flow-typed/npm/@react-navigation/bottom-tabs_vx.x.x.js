@@ -377,6 +377,7 @@ declare module '@react-navigation/bottom-tabs' {
     ScreenOptions: {} = {},
     EventMap: EventMapBase = EventMapCore<State>,
   > = React$ComponentType<{
+    children?: React.Node,
     initialRouteName?: $Keys<ParamList>,
     screenOptions?:
       | ScreenOptions
@@ -778,7 +779,8 @@ declare module '@react-navigation/bottom-tabs' {
     unmountOnBlur: boolean,
   |}>;
 
-  declare type BottomTabNavigationEventMap = {|
+  declare export type BottomTabNavigationEventMap = {|
+    ...EventMapCore<TabNavigationState>,
     +tabPress: {| +data: void, +canPreventDefault: true |},
     +tabLongPress: {| +data: void, +canPreventDefault: false |},
   |};
@@ -786,20 +788,22 @@ declare module '@react-navigation/bottom-tabs' {
   declare export type BottomTabNavigationProp<
     ParamList: ParamListBase = ParamListBase,
     RouteName: $Keys<ParamList> = string,
-  > = {|
+    Options: {} = BottomTabNavigationOptions,
+    EventMap: EventMapBase = BottomTabNavigationEventMap,
+  > = $ReadOnly<{|
     ...$Exact<NavigationProp<
       ParamList,
       RouteName,
       TabNavigationState,
-      BottomTabNavigationOptions,
-      BottomTabNavigationEventMap,
+      Options,
+      EventMap,
     >>,
     +jumpTo: SimpleNavigate<$If<
       $IsExact<ParamList>,
       ParamList,
       { ...ParamListBase, ...ParamList },
     >>,
-  |};
+  |}>;
 
   declare export type BottomTabDescriptor = Descriptor<
     ParamListBase,

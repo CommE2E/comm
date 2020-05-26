@@ -377,6 +377,7 @@ declare module '@react-navigation/stack' {
     ScreenOptions: {} = {},
     EventMap: EventMapBase = EventMapCore<State>,
   > = React$ComponentType<{
+    children?: React.Node,
     initialRouteName?: $Keys<ParamList>,
     screenOptions?:
       | ScreenOptions
@@ -858,7 +859,8 @@ declare module '@react-navigation/stack' {
     headerStatusBarHeight: number,
   |}>;
 
-  declare type StackNavigationEventMap = {|
+  declare export type StackNavigationEventMap = {|
+    ...EventMapCore<StackNavigationState>,
     +transitionStart: {|
       +data: {| closing: boolean |},
       +canPreventDefault: false,
@@ -872,13 +874,15 @@ declare module '@react-navigation/stack' {
   declare export type StackNavigationProp<
     ParamList: ParamListBase = ParamListBase,
     RouteName: $Keys<ParamList> = string,
-  > = {|
+    Options: {} = StackOptions,
+    EventMap: EventMapBase = StackNavigationEventMap,
+  > = $ReadOnly<{|
     ...$Exact<NavigationProp<
       ParamList,
       RouteName,
       StackNavigationState,
-      StackOptions,
-      StackNavigationEventMap,
+      Options,
+      EventMap,
     >>,
     +replace: SimpleNavigate<$If<
       $IsExact<ParamList>,
@@ -892,7 +896,7 @@ declare module '@react-navigation/stack' {
     >>,
     +pop: (count?: number) => void,
     +popToTop: () => void,
-  |};
+  |}>;
 
   declare export type StackHeaderLeftButtonProps = {|
     onPress: ?(() => void),
