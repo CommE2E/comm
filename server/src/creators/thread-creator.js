@@ -15,7 +15,7 @@ import { ServerError } from 'lib/utils/errors';
 import { dbQuery, SQL } from '../database';
 import { checkThreadPermission } from '../fetchers/thread-fetchers';
 import createIDs from './id-creator';
-import createInitialRolesForNewThread from './role-creator';
+import { createInitialRolesForNewThread } from './role-creator';
 import { verifyUserIDs } from '../fetchers/user-fetchers';
 import {
   changeRole,

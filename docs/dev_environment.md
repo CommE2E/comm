@@ -388,12 +388,12 @@ The DB config file should look like this:
 
 Make sure to replace the password with the one you set up for your `squadcal` MySQL user earlier.
 
-New let’s run a script to create the tables. Before we can run the script, we’ll have to use Babel to transpile our source files into something Node can interpret. Babel will transpile the files in `src` into a new directory called `dist`. We also use `rsync` to copy over files that don’t need transpilation.
+New let’s run a script to setup the database. Before we can run the script, we’ll have to use Babel to transpile our source files into something Node can interpret. Babel will transpile the files in `src` into a new directory called `dist`. We also use `rsync` to copy over files that don’t need transpilation.
 
 ```
 yarn babel-build
 yarn rsync
-yarn script dist/scripts/create-tables.js
+yarn script dist/scripts/create-db.js
 ```
 
 ## URLs
@@ -463,7 +463,7 @@ yarn dev
 
 You should now be able to load the website in your web browser at http://localhost/squadcal/.
 
-This will run three processes. The first two are to keep the `dist` folder updated whenever the `src` folder changes. They are “watch” versions of the same Babel and `rsync` commands we used to initially create the `dist` folder (before running the `create-tables.js` script above). The final process is `nodemon`, which is similar to `node` except that it restarts whenever any of its source files (in the `dist` directory) changes.
+This will run three processes. The first two are to keep the `dist` folder updated whenever the `src` folder changes. They are “watch” versions of the same Babel and `rsync` commands we used to initially create the `dist` folder (before running the `create-db.js` script above). The final process is `nodemon`, which is similar to `node` except that it restarts whenever any of its source files (in the `dist` directory) changes.
 
 Note that if you run `yarn dev` in `server` right after `yarn cleaninstall`, before Webpack is given a chance to build an `app.build.cjs` file, then Node will crash when it attempts to import that file. Just run `yarn dev` (or `yarn prod`) in `web` before attempting to run `yarn dev` in `server`.
 

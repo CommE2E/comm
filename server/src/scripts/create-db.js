@@ -3,6 +3,7 @@
 import { setScriptContext } from './script-context';
 import { endScript } from './utils';
 import { dbQuery, SQL } from '../database';
+import { getRolePermissionBlobsForChat } from '../creators/role-creator';
 
 setScriptContext({
   allowMultiStatementSQLQueries: true,
@@ -11,6 +12,8 @@ setScriptContext({
 async function main() {
   try {
     await createTables();
+    await createUsers();
+    await createThreads();
     endScript();
   } catch (e) {
     endScript();
@@ -272,6 +275,34 @@ async function createTables() {
 
     ALTER TABLE ids
       MODIFY id bigint(20) NOT NULL AUTO_INCREMENT;
+  `);
+}
+
+async function createUsers() {
+  await dbQuery(SQL`
+    INSERT INTO ids (id, table_name)
+      VALUES (5, 'users'), (256, 'users');
+    INSERT INTO users (id, username, hash, email, email_verified, avatar,
+        creation_time)
+      VALUES
+        (5, 'squadbot', '', 'squadbot@squadcal.org', 1, NULL, 1530049900980),
+        (256, 'ashoat', '', 'ashoat@gmail.com', 1, NULL, 1463588881886);
+  `);
+}
+
+async function createThreads() {
+  const ashoatSquadbotThreadDefaultRolePermissions = JSON.stringify(
+    getRolePermissionBlobsForChat().defaultPermissions,
+  );
+  await dbQuery(SQL`
+    INSERT INTO ids (id, table_name)
+      VALUES (83794, 'threads'), (118821, 'roles');
+    INSERT INTO roles (id, thread, name, permissions, creation_time)
+      VALUES (118821, 83794, 'Members',
+        ${ashoatSquadbotThreadDefaultRolePermissions}, 1530049901882);
+    INSERT INTO threads (id, type, name, description, parent_thread_id,
+        default_role, creator, creation_time, color)
+      VALUES (83794, 4, NULL, NULL, NULL, 118821, 5, 1530049901942, 'ef1a63');
   `);
 }
 

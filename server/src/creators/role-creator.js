@@ -186,4 +186,4 @@ function getRolePermissionBlobsForChat(): RolePermissionBlobs {
   };
 }
 
-export default createInitialRolesForNewThread;
+export { createInitialRolesForNewThread, getRolePermissionBlobsForChat };
