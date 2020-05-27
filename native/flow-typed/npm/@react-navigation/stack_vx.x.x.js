@@ -437,27 +437,20 @@ declare module '@react-navigation/stack' {
     EventMap,
   >) => React$Node;
 
-  declare export type NavigatorComponent<
-    ParamList: ParamListBase,
-    State: NavigationState = NavigationState,
-    ScreenOptions: {} = {},
-    EventMap: EventMapBase = EventMapCore<State>,
-  > = React$ComponentType<{
+  declare export type BaseNavigatorProps<ScreenOptions: {}> = {
     ...DefaultRouterOptions,
     children?: React.Node,
     screenOptions?:
       | ScreenOptions
-      | ({|
-          route: RouteProp<ParamList, $Keys<ParamList>>,
-          navigation: any,
-        |}) => ScreenOptions,
+      | ({| route: LeafRoute<>, navigation: any |}) => ScreenOptions,
     ...
-  }>;
+  };
 
   declare export type CreateNavigator<
-    State: NavigationState = NavigationState,
-    ScreenOptions: {} = {},
-    EventMap: EventMapBase = EventMapCore<State>,
+    State: NavigationState,
+    ScreenOptions: {},
+    EventMap: EventMapBase,
+    NavigatorProps: BaseNavigatorProps<ScreenOptions>,
   > = <ParamList: ParamListBase>() => {|
     Screen: ScreenComponent<
       ParamList,
@@ -465,12 +458,7 @@ declare module '@react-navigation/stack' {
       ScreenOptions,
       EventMap,
     >,
-    Navigator: NavigatorComponent<
-      ParamList,
-      State,
-      ScreenOptions,
-      EventMap,
-    >,
+    Navigator: React$ComponentType<NavigatorProps>,
   |};
 
   //---------------------------------------------------------------------------
@@ -1016,6 +1004,18 @@ declare module '@react-navigation/stack' {
     props: StackHeaderInterpolationProps,
   ) => StackHeaderInterpolatedStyle;
 
+  declare type StackNavigationProps = {|
+    mode?: 'card' | 'modal',
+    headerMode?: 'float' | 'screen' | 'none',
+    keyboardHandlingEnabled?: boolean,
+  |};
+
+  declare export type StackNavigatorProps = {|
+    ...$Exact<BaseNavigatorProps<StackOptions>>,
+    ...StackRouterOptions,
+    ...StackNavigationProps,
+  |};
+
   //---------------------------------------------------------------------------
   // SECTION 4: EXPORTED MODULE
   // This is the only section that types exports. Other sections export types,
@@ -1023,9 +1023,7 @@ declare module '@react-navigation/stack' {
   //---------------------------------------------------------------------------
 
   declare export var StackView: React$ComponentType<{|
-    mode?: 'card' | 'modal',
-    headerMode?: 'float' | 'screen' | 'none',
-    keyboardHandlingEnabled?: boolean,
+    ...StackNavigationProps,
     state: StackNavigationState,
     navigation: StackNavigationProp<>,
     descriptors: {| [key: string]: StackDescriptor |},
@@ -1036,6 +1034,7 @@ declare module '@react-navigation/stack' {
     StackNavigationState,
     StackOptions,
     StackNavigationEventMap,
+    StackNavigatorProps,
   >;
   declare export var HeaderBackButton: any;
   declare export var Header: any;

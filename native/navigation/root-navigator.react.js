@@ -13,6 +13,7 @@ import {
   type StackNavigationState,
   type StackOptions,
   type StackNavigationEventMap,
+  type StackNavigatorProps,
 } from '@react-navigation/stack';
 import NavigationBuilderContext from '@react-navigation/core/src/NavigationBuilderContext';
 import invariant from 'invariant';
@@ -55,7 +56,12 @@ export type RootNavigationProp<
   RouteName: $Keys<ScreenParamList> = $Keys<ScreenParamList>,
 > = RootRouterNavigationProp<ScreenParamList, RouteName>;
 
-function RootNavigator({ initialRouteName, children, screenOptions, ...rest }) {
+function RootNavigator({
+  initialRouteName,
+  children,
+  screenOptions,
+  ...rest
+}: StackNavigatorProps) {
   const { state, descriptors, navigation } = useNavigationBuilder(RootRouter, {
     initialRouteName,
     children,
@@ -86,6 +92,7 @@ const createRootNavigator = createNavigatorFactory<
   StackNavigationState,
   StackOptions,
   StackNavigationEventMap,
+  StackNavigatorProps,
 >(RootNavigator);
 
 const baseTransitionPreset = Platform.select({

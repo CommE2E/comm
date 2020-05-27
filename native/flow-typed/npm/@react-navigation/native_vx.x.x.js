@@ -437,27 +437,20 @@ declare module '@react-navigation/native' {
     EventMap,
   >) => React$Node;
 
-  declare export type NavigatorComponent<
-    ParamList: ParamListBase,
-    State: NavigationState = NavigationState,
-    ScreenOptions: {} = {},
-    EventMap: EventMapBase = EventMapCore<State>,
-  > = React$ComponentType<{
+  declare export type BaseNavigatorProps<ScreenOptions: {}> = {
     ...DefaultRouterOptions,
     children?: React.Node,
     screenOptions?:
       | ScreenOptions
-      | ({|
-          route: RouteProp<ParamList, $Keys<ParamList>>,
-          navigation: any,
-        |}) => ScreenOptions,
+      | ({| route: LeafRoute<>, navigation: any |}) => ScreenOptions,
     ...
-  }>;
+  };
 
   declare export type CreateNavigator<
-    State: NavigationState = NavigationState,
-    ScreenOptions: {} = {},
-    EventMap: EventMapBase = EventMapCore<State>,
+    State: NavigationState,
+    ScreenOptions: {},
+    EventMap: EventMapBase,
+    NavigatorProps: BaseNavigatorProps<ScreenOptions>,
   > = <ParamList: ParamListBase>() => {|
     Screen: ScreenComponent<
       ParamList,
@@ -465,12 +458,7 @@ declare module '@react-navigation/native' {
       ScreenOptions,
       EventMap,
     >,
-    Navigator: NavigatorComponent<
-      ParamList,
-      State,
-      ScreenOptions,
-      EventMap,
-    >,
+    Navigator: React$ComponentType<NavigatorProps>,
   |};
 
   //---------------------------------------------------------------------------
@@ -522,8 +510,11 @@ declare module '@react-navigation/native' {
   declare export var createNavigatorFactory: <
     State: NavigationState,
     ScreenOptions: {},
-    EventMap: EventMapBase = EventMapCore<State>,
-  >(navigator: any) => CreateNavigator<State, ScreenOptions, EventMap>;
+    EventMap: EventMapBase,
+    NavigatorProps: BaseNavigatorProps<ScreenOptions>,
+  >(
+    navigator: React$ComponentType<NavigatorProps>,
+  ) => CreateNavigator<State, ScreenOptions, EventMap, NavigatorProps>;
 
   declare export var StackRouter: RouterFactory<
     StackNavigationState,

@@ -437,27 +437,20 @@ declare module '@react-navigation/bottom-tabs' {
     EventMap,
   >) => React$Node;
 
-  declare export type NavigatorComponent<
-    ParamList: ParamListBase,
-    State: NavigationState = NavigationState,
-    ScreenOptions: {} = {},
-    EventMap: EventMapBase = EventMapCore<State>,
-  > = React$ComponentType<{
+  declare export type BaseNavigatorProps<ScreenOptions: {}> = {
     ...DefaultRouterOptions,
     children?: React.Node,
     screenOptions?:
       | ScreenOptions
-      | ({|
-          route: RouteProp<ParamList, $Keys<ParamList>>,
-          navigation: any,
-        |}) => ScreenOptions,
+      | ({| route: LeafRoute<>, navigation: any |}) => ScreenOptions,
     ...
-  }>;
+  };
 
   declare export type CreateNavigator<
-    State: NavigationState = NavigationState,
-    ScreenOptions: {} = {},
-    EventMap: EventMapBase = EventMapCore<State>,
+    State: NavigationState,
+    ScreenOptions: {},
+    EventMap: EventMapBase,
+    NavigatorProps: BaseNavigatorProps<ScreenOptions>,
   > = <ParamList: ParamListBase>() => {|
     Screen: ScreenComponent<
       ParamList,
@@ -465,12 +458,7 @@ declare module '@react-navigation/bottom-tabs' {
       ScreenOptions,
       EventMap,
     >,
-    Navigator: NavigatorComponent<
-      ParamList,
-      State,
-      ScreenOptions,
-      EventMap,
-    >,
+    Navigator: React$ComponentType<NavigatorProps>,
   |};
 
   //---------------------------------------------------------------------------
@@ -802,7 +790,7 @@ declare module '@react-navigation/bottom-tabs' {
   // React Navigation libdef.
   //---------------------------------------------------------------------------
 
-  declare export type BottomTabNavigationOptions = $Shape<{|
+  declare export type BottomTabOptions = $Shape<{|
     title: string,
     tabBarLabel:
       | string
@@ -828,7 +816,7 @@ declare module '@react-navigation/bottom-tabs' {
   declare export type BottomTabNavigationProp<
     ParamList: ParamListBase = ParamListBase,
     RouteName: $Keys<ParamList> = string,
-    Options: {} = BottomTabNavigationOptions,
+    Options: {} = BottomTabOptions,
     EventMap: EventMapBase = BottomTabNavigationEventMap,
   > = {|
     ...$Exact<NavigationProp<
@@ -849,7 +837,7 @@ declare module '@react-navigation/bottom-tabs' {
     ParamListBase,
     string,
     TabNavigationState,
-    BottomTabNavigationOptions,
+    BottomTabOptions,
   >;
 
   declare export type BottomTabBarOptions = $Shape<{|
@@ -879,6 +867,21 @@ declare module '@react-navigation/bottom-tabs' {
     onPress?: (MouseEvent | PressEvent) => void,
   |};
 
+  declare export type BottomTabBarProps = {|
+    state: TabNavigationState,
+    navigation: BottomTabNavigationProp<>,
+    descriptors: {| [key: string]: BottomTabDescriptor |},
+    ...BottomTabBarOptions,
+  |}
+
+  declare export type TabNavigatorProps = {|
+    ...$Exact<BaseNavigatorProps<BottomTabOptions>>,
+    ...TabRouterOptions,
+    lazy?: boolean,
+    tabBar?: BottomTabBarProps => React$Node,
+    tabBarOptions?: BottomTabBarOptions,
+  |};
+
   //---------------------------------------------------------------------------
   // SECTION 4: EXPORTED MODULE
   // This is the only section that types exports. Other sections export types,
@@ -887,15 +890,11 @@ declare module '@react-navigation/bottom-tabs' {
 
   declare export var createBottomTabNavigator: CreateNavigator<
     TabNavigationState,
-    BottomTabNavigationOptions,
+    BottomTabOptions,
     BottomTabNavigationEventMap,
+    TabNavigatorProps,
   >;
 
-  declare export var BottomTabBar: React$ComponentType<{|
-    state: TabNavigationState,
-    navigation: BottomTabNavigationProp<>,
-    descriptors: {| [key: string]: BottomTabDescriptor |},
-    ...BottomTabBarOptions,
-  |}>;
+  declare export var BottomTabBar: React$ComponentType<BottomTabBarProps>;
 
 }
