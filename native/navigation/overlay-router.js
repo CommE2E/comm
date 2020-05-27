@@ -5,7 +5,10 @@ import type {
   ParamListBase,
   StackAction,
   Route,
-  StackOptions,
+  Router,
+  StackRouterOptions,
+  StackNavigationState,
+  RouterConfigOptions,
 } from '@react-navigation/stack';
 
 import { StackRouter } from '@react-navigation/native';
@@ -31,11 +34,21 @@ export type OverlayRouterNavigationProp<
   +clearOverlayModals: (keys: $ReadOnlyArray<string>) => void,
 |};
 
-function OverlayRouter(routerOptions: StackOptions) {
-  const stackRouter = StackRouter(routerOptions);
+function OverlayRouter(
+  routerOptions: StackRouterOptions,
+): Router<StackNavigationState, OverlayRouterNavigationAction> {
+  const {
+    getStateForAction: baseGetStateForAction,
+    actionCreators: baseActionCreators,
+    ...rest
+  } = StackRouter(routerOptions);
   return {
-    ...stackRouter,
-    getStateForAction: (lastState, action, options) => {
+    ...rest,
+    getStateForAction: (
+      lastState: StackNavigationState,
+      action: OverlayRouterNavigationAction,
+      options: RouterConfigOptions,
+    ) => {
       if (action.type === clearOverlayModalsActionType) {
         const { keys } = action.payload;
         if (!lastState) {
@@ -45,11 +58,11 @@ function OverlayRouter(routerOptions: StackOptions) {
           keys.includes(route.key) ? 'remove' : 'keep',
         );
       } else {
-        return stackRouter.getStateForAction(lastState, action, options);
+        return baseGetStateForAction(lastState, action, options);
       }
     },
     actionCreators: {
-      ...stackRouter.actionCreators,
+      ...baseActionCreators,
       clearOverlayModals: (keys: $ReadOnlyArray<string>) => ({
         type: clearOverlayModalsActionType,
         payload: { keys },

@@ -69,10 +69,10 @@ declare module '@react-navigation/stack' {
     | SetParamsAction;
 
   declare export type GenericNavigationAction = {|
-    type: string,
-    payload?: { [key: string]: mixed },
-    source?: string,
-    target?: string,
+    +type: string,
+    +payload?: { +[key: string]: mixed },
+    +source?: string,
+    +target?: string,
   |};
 
   declare export type LeafRoute<RouteName: string = string> = {|
@@ -128,6 +128,103 @@ declare module '@react-navigation/stack' {
   declare export type PossiblyStaleRoute<RouteName: string = string> =
     | Route<RouteName>
     | StaleRoute<RouteName>;
+
+  declare type ActionCreators<+Action: GenericNavigationAction> = {
+    +[key: string]: (...args: any) => Action,
+  };
+
+  declare type DefaultRouterOptions = {
+    initialRouteName?: string,
+  };
+
+  declare export type RouterFactory<
+    State: NavigationState,
+    Action: GenericNavigationAction,
+    RouterOptions: DefaultRouterOptions,
+  > = (options: RouterOptions) => Router<State, Action>;
+
+  declare export type RouterConfigOptions = {|
+    +routeNames: $ReadOnlyArray<string>,
+    +routeParamList: ParamListBase,
+  |};
+
+  declare export type Router<
+    State: NavigationState,
+    Action: GenericNavigationAction,
+  > = {|
+    type: $PropertyType<State, 'type'>,
+    getInitialState: (options: RouterConfigOptions) => State,
+    getRehydratedState: (
+      partialState: PossibleStaleNavigationState,
+      options: RouterConfigOptions,
+    ) => State,
+    getStateForRouteNamesChange: (
+      state: State,
+      options: RouterConfigOptions,
+    ) => State,
+    getStateForRouteFocus: (state: State, key: string) => State,
+    getStateForAction: (
+      state: State,
+      action: Action,
+      options: RouterConfigOptions,
+    ) => ?PossiblyStaleNavigationState;
+    shouldActionChangeFocus: (action: GenericNavigationAction) => boolean,
+    actionCreators?: ActionCreators<Action>,
+  |};
+
+  declare export type StackNavigationState = {|
+    ...NavigationState,
+    +type: 'stack',
+  |};
+  declare export type ReplaceAction = {|
+    +type: 'REPLACE',
+    +payload: {| name: string, key?: ?string, params?: ScreenParams |},
+    +source?: string,
+    +target?: string,
+  |};
+  declare export type PushAction = {|
+    +type: 'PUSH',
+    +payload: {| name: string, key?: ?string, params?: ScreenParams |},
+    +source?: string,
+    +target?: string,
+  |};
+  declare export type PopAction = {|
+    +type: 'POP',
+    +payload: {| count: number |},
+    +source?: string,
+    +target?: string,
+  |};
+  declare export type PopToTopAction = {|
+    +type: 'POP_TO_TOP',
+    +source?: string,
+    +target?: string,
+  |};
+  declare export type StackAction =
+    | CommonAction
+    | ReplaceAction
+    | PushAction
+    | PopAction
+    | PopToTopAction;
+  declare export type StackRouterOptions = $Exact<DefaultRouterOptions>;
+
+  declare export type TabNavigationState = {|
+    ...NavigationState,
+    +type: 'tab',
+    +history: $ReadOnlyArray<{| type: 'route', key: string |}>,
+  |};
+  declare export type JumpToAction = {|
+    +type: 'JUMP_TO',
+    +payload: {| name: string, params?: ScreenParams |},
+    +source?: string,
+    +target?: string,
+  |};
+  declare export type TabAction =
+    | CommonAction
+    | JumpToAction;
+  declare export type TabRouterOptions = {|
+    ...$Exact<DefaultRouterOptions>,
+    backBehavior?: 'initialRoute' | 'order' | 'history' | 'none',
+  |};
 
   declare export type ParamListBase = { +[key: string]: ?ScreenParams };
 
@@ -346,8 +443,8 @@ declare module '@react-navigation/stack' {
     ScreenOptions: {} = {},
     EventMap: EventMapBase = EventMapCore<State>,
   > = React$ComponentType<{
+    ...DefaultRouterOptions,
     children?: React.Node,
-    initialRouteName?: $Keys<ParamList>,
     screenOptions?:
       | ScreenOptions
       | ({|
@@ -704,40 +801,6 @@ declare module '@react-navigation/stack' {
   // This section contains exported types that are not present in any other
   // React Navigation libdef.
   //---------------------------------------------------------------------------
-
-  declare export type ReplaceAction = {|
-    +type: 'REPLACE',
-    +payload: {| name: string, key?: ?string, params?: ScreenParams |},
-    +source?: string,
-    +target?: string,
-  |};
-  declare export type PushAction = {|
-    +type: 'PUSH',
-    +payload: {| name: string, key?: ?string, params?: ScreenParams |},
-    +source?: string,
-    +target?: string,
-  |};
-  declare export type PopAction = {|
-    +type: 'POP',
-    +payload: {| count: number |},
-    +source?: string,
-    +target?: string,
-  |};
-  declare export type PopToTopAction = {|
-    +type: 'POP_TO_TOP',
-    +source?: string,
-    +target?: string,
-  |};
-  declare export type StackAction =
-    | ReplaceAction
-    | PushAction
-    | PopAction
-    | PopToTopAction;
-
-  declare export type StackNavigationState = {|
-    ...NavigationState,
-    +type: 'stack',
-  |};
 
   declare export type StackDescriptor = Descriptor<
     ParamListBase,

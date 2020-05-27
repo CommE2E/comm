@@ -6,7 +6,11 @@ import type {
   ParamListBase,
   StackAction,
   Route,
-  StackOptions,
+  Router,
+  StackRouterOptions,
+  StackNavigationState,
+  RouterConfigOptions,
+  GenericNavigationAction,
 } from '@react-navigation/stack';
 
 import { StackRouter, CommonActions } from '@react-navigation/native';
@@ -69,11 +73,22 @@ export type ChatRouterNavigationProp<
   +pushNewThread: (threadInfo: ThreadInfo) => void,
 |};
 
-function ChatRouter(routerOptions: StackOptions) {
-  const stackRouter = StackRouter(routerOptions);
+function ChatRouter(
+  routerOptions: StackRouterOptions,
+): Router<StackNavigationState, ChatRouterNavigationAction> {
+  const {
+    getStateForAction: baseGetStateForAction,
+    actionCreators: baseActionCreators,
+    shouldActionChangeFocus: baseShouldActionChangeFocus,
+    ...rest
+  } = StackRouter(routerOptions);
   return {
-    ...stackRouter,
-    getStateForAction: (lastState, action, options) => {
+    ...rest,
+    getStateForAction: (
+      lastState: StackNavigationState,
+      action: ChatRouterNavigationAction,
+      options: RouterConfigOptions,
+    ) => {
       if (action.type === clearScreensActionType) {
         const { routeNames } = action.payload;
         if (!lastState) {
@@ -97,11 +112,7 @@ function ChatRouter(routerOptions: StackOptions) {
           key: `${MessageListRouteName}${threadInfo.id}`,
           params: { threadInfo },
         });
-        return stackRouter.getStateForAction(
-          clearedState,
-          navigateAction,
-          options,
-        );
+        return baseGetStateForAction(clearedState, navigateAction, options);
       } else if (action.type === clearThreadsActionType) {
         const threadIDs = new Set(action.payload.threadIDs);
         if (!lastState) {
@@ -125,17 +136,13 @@ function ChatRouter(routerOptions: StackOptions) {
           key: `${MessageListRouteName}${threadInfo.id}`,
           params: { threadInfo },
         });
-        return stackRouter.getStateForAction(
-          clearedState,
-          navigateAction,
-          options,
-        );
+        return baseGetStateForAction(clearedState, navigateAction, options);
       } else {
-        return stackRouter.getStateForAction(lastState, action, options);
+        return baseGetStateForAction(lastState, action, options);
       }
     },
     actionCreators: {
-      ...stackRouter.actionCreators,
+      ...baseActionCreators,
       clearScreens: (routeNames: $ReadOnlyArray<string>) => ({
         type: clearScreensActionType,
         payload: {
@@ -155,13 +162,14 @@ function ChatRouter(routerOptions: StackOptions) {
         payload: { threadInfo },
       }),
     },
-    shouldActionChangeFocus: action => {
+    shouldActionChangeFocus: (action: GenericNavigationAction) => {
       if (action.type === replaceWithThreadActionType) {
         return true;
       } else if (action.type === pushNewThreadActionType) {
         return true;
+      } else {
+        return baseShouldActionChangeFocus(action);
       }
-      return stackRouter.shouldActionChangeFocus(action);
     },
   };
 }

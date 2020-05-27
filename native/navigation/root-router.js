@@ -5,9 +5,12 @@ import type {
   ParamListBase,
   NavigationState,
   StackAction,
-  Route,
   PossiblyStaleRoute,
-  StackOptions,
+  Router,
+  StackRouterOptions,
+  StackNavigationState,
+  RouterConfigOptions,
+  PossiblyStaleNavigationState,
 } from '@react-navigation/stack';
 
 import { StackRouter, CommonActions } from '@react-navigation/native';
@@ -64,10 +67,13 @@ export type RootRouterNavigationProp<
   +setNavState: (state: NavigationState) => void,
 |};
 
-function resetState(
-  newPartialRoute: PossiblyStaleRoute<>,
-  oldRoute: PossiblyStaleRoute<>,
-) {
+type ResetStateRoute = {
+  +state?: { +routes: $ReadOnlyArray<ResetStateRoute> },
+};
+function resetState<Route: ResetStateRoute>(
+  newPartialRoute: Route,
+  oldRoute: Route,
+): Route {
   if (!newPartialRoute.state) {
     invariant(!oldRoute.state, 'resetState found non-matching state');
     return { ...oldRoute, ...newPartialRoute };
@@ -90,53 +96,72 @@ function resetState(
   };
 }
 
-function RootRouter(routerOptions: StackOptions) {
-  const stackRouter = StackRouter(routerOptions);
+function RootRouter(
+  routerOptions: StackRouterOptions,
+): Router<StackNavigationState, RootRouterNavigationAction> {
+  const {
+    getStateForAction: baseGetStateForAction,
+    actionCreators: baseActionCreators,
+    ...rest
+  } = StackRouter(routerOptions);
   return {
-    ...stackRouter,
-    getStateForAction: (lastState, action, options) => {
+    ...rest,
+    getStateForAction: (
+      lastState: StackNavigationState,
+      action: RootRouterNavigationAction,
+      options: RouterConfigOptions,
+    ) => {
       if (action.type === logInActionType) {
         if (!lastState) {
           return lastState;
         }
-        return removeScreensFromStack(lastState, (route: Route<>) =>
-          accountModals.includes(route.name) ? 'remove' : 'keep',
+        return removeScreensFromStack(
+          lastState,
+          (route: PossiblyStaleRoute<>) =>
+            accountModals.includes(route.name) ? 'remove' : 'keep',
         );
       } else if (action.type === logOutActionType) {
         if (!lastState) {
           return lastState;
         }
-        let newState = { ...lastState };
-        newState.routes[0] = resetState(
+        const [firstRoute, ...restRoutes] = lastState.routes;
+        const newFirstRoute = resetState(
           defaultNavigationState.routes[0],
-          newState.routes[0],
+          firstRoute,
         );
+        let newState: PossiblyStaleNavigationState = ({
+          ...lastState,
+          routes: [newFirstRoute, ...restRoutes],
+        }: any);
 
         let loggedOutModalFound = false;
-        newState = removeScreensFromStack(newState, (route: Route<>) => {
-          const { name } = route;
-          if (name === LoggedOutModalRouteName) {
-            loggedOutModalFound = true;
-          }
-          return name === AppRouteName || accountModals.includes(name)
-            ? 'keep'
-            : 'remove';
-        });
+        newState = removeScreensFromStack(
+          newState,
+          (route: PossiblyStaleRoute<>) => {
+            const { name } = route;
+            if (name === LoggedOutModalRouteName) {
+              loggedOutModalFound = true;
+            }
+            return name === AppRouteName || accountModals.includes(name)
+              ? 'keep'
+              : 'remove';
+          },
+        );
 
         if (!loggedOutModalFound) {
-          const [appRoute, ...restRoutes] = newState.routes;
-          newState = {
+          const [appRoute, ...restNewRoutes] = newState.routes;
+          newState = ({
             ...newState,
             index: newState.index + 1,
             routes: [
               appRoute,
               { name: LoggedOutModalRouteName },
-              ...restRoutes,
+              ...restNewRoutes,
             ],
-          };
+          }: any);
         }
 
-        return stackRouter.getStateForAction(
+        return baseGetStateForAction(
           lastState,
           CommonActions.reset(newState),
           options,
@@ -146,8 +171,10 @@ function RootRouter(routerOptions: StackOptions) {
         if (!lastState) {
           return lastState;
         }
-        return removeScreensFromStack(lastState, (route: Route<>) =>
-          keys.includes(route.key) ? 'remove' : 'keep',
+        return removeScreensFromStack(
+          lastState,
+          (route: PossiblyStaleRoute<>) =>
+            keys.includes(route.key) ? 'remove' : 'keep',
         );
       } else if (action.type === setNavStateActionType) {
         return action.payload.state;
@@ -155,11 +182,7 @@ function RootRouter(routerOptions: StackOptions) {
         if (!lastState) {
           return lastState;
         }
-        const newState = stackRouter.getStateForAction(
-          lastState,
-          action,
-          options,
-        );
+        const newState = baseGetStateForAction(lastState, action, options);
         if (!newState) {
           return newState;
         }
@@ -175,7 +198,7 @@ function RootRouter(routerOptions: StackOptions) {
       }
     },
     actionCreators: {
-      ...stackRouter.actionCreators,
+      ...baseActionCreators,
       logIn: () => ({ type: logInActionType }),
       logOut: () => ({ type: logOutActionType }),
       clearRootModals: (keys: $ReadOnlyArray<string>) => ({
