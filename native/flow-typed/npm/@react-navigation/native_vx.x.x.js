@@ -228,7 +228,7 @@ declare module '@react-navigation/native' {
 
   declare export type ParamListBase = { +[key: string]: ?ScreenParams };
 
-  declare type EventMapBase = {
+  declare export type EventMapBase = {
     +[name: string]: {|
       +data?: mixed,
       +canPreventDefault?: boolean,
@@ -254,10 +254,13 @@ declare module '@react-navigation/native' {
     +type: EventName,
     +target?: string,
   |};
+  declare type GlobalEventMap<State: PossiblyStaleNavigationState> = {|
+    +state: {| +data: {| +state: State |}, +canPreventDefault: false |},
+  |};
   declare type EventMapCore<State: PossiblyStaleNavigationState> = {|
+    ...GlobalEventMap<State>,
     +focus: {| +data: void, +canPreventDefault: false |},
     +blur: {| +data: void, +canPreventDefault: false |},
-    +state: {| +data: {| state: State |}, +canPreventDefault: false |},
   |};
   declare type EventListenerCallback<
     EventName: string,
@@ -302,11 +305,10 @@ declare module '@react-navigation/native' {
             |},
       ) => void;
 
-  declare export type NavigationProp<
+  declare type NavigationHelpers<
     ParamList: ParamListBase,
     RouteName: $Keys<ParamList> = string,
-    State: NavigationState = NavigationState,
-    ScreenOptions: {} = {},
+    State: PossiblyStaleNavigationState = PossiblyStaleNavigationState,
     EventMap: EventMapBase = EventMapCore<State>,
   > = {
     +dispatch: (
@@ -335,7 +337,6 @@ declare module '@react-navigation/native' {
         RouteName,
       >>>,
     ) => void,
-    +setOptions: (options: $Shape<ScreenOptions>) => void,
     +addListener: <EventName: $Keys<
       {| ...EventMap, ...EventMapCore<State> |},
     >>(
@@ -348,6 +349,23 @@ declare module '@react-navigation/native' {
       name: EventName,
       callback: EventListenerCallback<EventName, State, EventMap>,
     ) => void,
+    ...
+  };
+
+  declare export type NavigationProp<
+    ParamList: ParamListBase,
+    RouteName: $Keys<ParamList> = string,
+    State: PossiblyStaleNavigationState = PossiblyStaleNavigationState,
+    ScreenOptions: {} = {},
+    EventMap: EventMapBase = EventMapCore<State>,
+  > = {
+    ...$Exact<NavigationHelpers<
+      ParamList,
+      RouteName,
+      State,
+      EventMap,
+    >>,
+    +setOptions: (options: $Shape<ScreenOptions>) => void,
     ...
   };
 
@@ -491,10 +509,46 @@ declare module '@react-navigation/native' {
 
   //---------------------------------------------------------------------------
   // SECTION 3: UNIQUE TYPE DEFINITIONS
-  // This section normally contains exported types that are not present in any
-  // other React Navigation libdef. But the main react-navigation libdef doesn't
-  // have any, so it's empty here.
+  // This section contains exported types that are not present in any other
+  // React Navigation libdef.
   //---------------------------------------------------------------------------
+
+  declare export type Theme = {|
+    +dark: boolean,
+    +colors: {|
+      +primary: string,
+      +background: string,
+      +card: string,
+      +text: string,
+      +border: string,
+    |},
+  |};
+
+  declare export type LinkingConfig = {|
+    +[routeName: string]:
+      | string
+      | {|
+          +path?: string,
+          +parse?: {| +[param: string]: string => mixed |},
+          +screens?: LinkingConfig,
+          +initialRouteName?: string,
+          +stringify?: {| +[param: string]: mixed => string |},
+        |},
+  |};
+
+  declare export type LinkingOptions = {|
+    +enabled?: boolean,
+    +prefixes: $ReadOnlyArray<string>,
+    +config?: LinkingConfig,
+    +getStateFromPath?: (
+      path: string,
+      config?: LinkingConfig,
+    ) => PossiblyStaleNavigationState,
+    +getPathFromState?: (
+      state?: ?PossiblyStaleNavigationState,
+      config?: LinkingConfig,
+    ) => string,
+  |};
 
   //---------------------------------------------------------------------------
   // SECTION 4: EXPORTED MODULE
@@ -559,9 +613,33 @@ declare module '@react-navigation/native' {
     +navigation: NavProp,
   |};
 
-  declare export var NavigationHelpersContext: any;
-  declare export var NavigationContainer: any;
-  declare export var DefaultTheme: any;
-  declare export var DarkTheme: any;
+  declare export var NavigationHelpersContext: React$Context<?NavigationProp<
+    ParamListBase,
+  >>;
+
+  declare export var NavigationContainer: React$AbstractComponent<
+    {|
+      theme?: Theme,
+      linking?: LinkingOptions,
+      fallback?: React$Node,
+      children: React$Node,
+      initialState?: PossiblyStaleNavigationState,
+      onStateChange?: (state: ?PossiblyStaleNavigationState) => void,
+      independent?: boolean,
+    |},
+    {|
+      ...$Exact<NavigationHelpers<
+        ParamListBase,
+        string,
+        PossiblyStaleNavigationState,
+        GlobalEventMap<PossiblyStaleNavigationState>,
+      >>,
+      +resetRoot: (state?: ?PossiblyStaleNavigationState) => void,
+      +getRootState: () => PossiblyStaleNavigationState,
+    |},
+  >;
+
+  declare export var DefaultTheme: Theme & { +dark: false };
+  declare export var DarkTheme: Theme & { +dark: true };
 
 }

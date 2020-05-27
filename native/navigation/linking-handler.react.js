@@ -11,7 +11,7 @@ import { infoFromURL } from 'lib/utils/url-utils';
 import { VerificationModalRouteName } from './route-names';
 
 type Props = {|
-  dispatch: (action: NavAction) => boolean,
+  dispatch: (action: NavAction) => void,
 |};
 const LinkingHandler = React.memo<Props>((props: Props) => {
   const { dispatch } = props;

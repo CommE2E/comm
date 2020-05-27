@@ -19,7 +19,7 @@ export type NavAction =
   | OverlayRouterNavigationAction;
 export type NavContextType = {|
   state: PossiblyStaleNavigationState,
-  dispatch: (action: NavAction) => boolean,
+  dispatch: (action: NavAction) => void,
 |};
 
 const navContextPropType = PropTypes.shape({

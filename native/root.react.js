@@ -65,7 +65,7 @@ class Root extends React.PureComponent<Props, State> {
   static propTypes = {
     activeTheme: globalThemePropType,
   };
-  navDispatch: ?(action: NavAction) => boolean;
+  navDispatch: ?(action: NavAction) => void;
   navState: ?PossiblyStaleNavigationState;
   navStateInitialized = false;
   queuedActions = [];
@@ -195,7 +195,9 @@ class Root extends React.PureComponent<Props, State> {
     }
   };
 
-  navContainerRef = (navContainer: ?React.ElementRef<NavigationContainer>) => {
+  navContainerRef = (
+    navContainer: ?React.ElementRef<typeof NavigationContainer>,
+  ) => {
     if (!navContainer) {
       return;
     }

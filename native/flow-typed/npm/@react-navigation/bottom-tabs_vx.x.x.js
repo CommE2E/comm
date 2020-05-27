@@ -228,7 +228,7 @@ declare module '@react-navigation/bottom-tabs' {
 
   declare export type ParamListBase = { +[key: string]: ?ScreenParams };
 
-  declare type EventMapBase = {
+  declare export type EventMapBase = {
     +[name: string]: {|
       +data?: mixed,
       +canPreventDefault?: boolean,
@@ -254,10 +254,13 @@ declare module '@react-navigation/bottom-tabs' {
     +type: EventName,
     +target?: string,
   |};
+  declare type GlobalEventMap<State: PossiblyStaleNavigationState> = {|
+    +state: {| +data: {| +state: State |}, +canPreventDefault: false |},
+  |};
   declare type EventMapCore<State: PossiblyStaleNavigationState> = {|
+    ...GlobalEventMap<State>,
     +focus: {| +data: void, +canPreventDefault: false |},
     +blur: {| +data: void, +canPreventDefault: false |},
-    +state: {| +data: {| state: State |}, +canPreventDefault: false |},
   |};
   declare type EventListenerCallback<
     EventName: string,
@@ -302,11 +305,10 @@ declare module '@react-navigation/bottom-tabs' {
             |},
       ) => void;
 
-  declare export type NavigationProp<
+  declare type NavigationHelpers<
     ParamList: ParamListBase,
     RouteName: $Keys<ParamList> = string,
-    State: NavigationState = NavigationState,
-    ScreenOptions: {} = {},
+    State: PossiblyStaleNavigationState = PossiblyStaleNavigationState,
     EventMap: EventMapBase = EventMapCore<State>,
   > = {
     +dispatch: (
@@ -335,7 +337,6 @@ declare module '@react-navigation/bottom-tabs' {
         RouteName,
       >>>,
     ) => void,
-    +setOptions: (options: $Shape<ScreenOptions>) => void,
     +addListener: <EventName: $Keys<
       {| ...EventMap, ...EventMapCore<State> |},
     >>(
@@ -348,6 +349,23 @@ declare module '@react-navigation/bottom-tabs' {
       name: EventName,
       callback: EventListenerCallback<EventName, State, EventMap>,
     ) => void,
+    ...
+  };
+
+  declare export type NavigationProp<
+    ParamList: ParamListBase,
+    RouteName: $Keys<ParamList> = string,
+    State: PossiblyStaleNavigationState = PossiblyStaleNavigationState,
+    ScreenOptions: {} = {},
+    EventMap: EventMapBase = EventMapCore<State>,
+  > = {
+    ...$Exact<NavigationHelpers<
+      ParamList,
+      RouteName,
+      State,
+      EventMap,
+    >>,
+    +setOptions: (options: $Shape<ScreenOptions>) => void,
     ...
   };
 
@@ -446,7 +464,7 @@ declare module '@react-navigation/bottom-tabs' {
     children?: React.Node,
     screenOptions?:
       | ScreenOptions
-      | ({| route: LeafRoute<>, navigation: any |}) => ScreenOptions,
+      | ({| route: LeafRoute<>, navigation: NavProp |}) => ScreenOptions,
     ...
   };
   declare export type BaseNavigatorProps<ScreenOptions: {}, NavProp> = {

@@ -53,7 +53,7 @@ const NavigationHandler = React.memo<{||}>(() => {
 NavigationHandler.displayName = 'NavigationHandler';
 
 type LogInHandlerProps = {|
-  dispatch: (action: NavAction) => boolean,
+  dispatch: (action: NavAction) => void,
 |};
 const LogInHandler = React.memo<LogInHandlerProps>(
   (props: LogInHandlerProps) => {
