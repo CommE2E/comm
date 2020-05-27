@@ -430,7 +430,6 @@ declare module '@react-navigation/native' {
 
   declare export var StackRouter: any;
   declare export var useNavigationBuilder: any;
-  declare export var createNavigatorFactory: any;
   declare export var NavigationHelpersContext: any;
   declare export var NavigationContainer: any;
   declare export var DefaultTheme: any;
