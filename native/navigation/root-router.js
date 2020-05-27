@@ -57,8 +57,8 @@ export type RootRouterNavigationAction =
   | SetNavStateAction;
 
 export type RootRouterNavigationProp<
-  ParamList: ParamListBase,
-  RouteName: string,
+  ParamList: ParamListBase = ParamListBase,
+  RouteName: string = string,
 > = {|
   ...StackNavigationProp<ParamList, RouteName>,
   +logIn: () => void,

@@ -63,8 +63,8 @@ export type ChatRouterNavigationAction =
   | PushNewThreadAction;
 
 export type ChatRouterNavigationProp<
-  ParamList: ParamListBase,
-  RouteName: string,
+  ParamList: ParamListBase = ParamListBase,
+  RouteName: string = string,
 > = {|
   ...StackNavigationProp<ParamList, RouteName>,
   +clearScreens: (routeNames: $ReadOnlyArray<string>) => void,

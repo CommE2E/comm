@@ -369,6 +369,7 @@ declare module '@react-navigation/stack' {
 
   declare type BaseScreenProps<
     ParamList: ParamListBase,
+    NavProp,
     RouteName: $Keys<ParamList> = string,
     State: NavigationState = NavigationState,
     ScreenOptions: {} = {},
@@ -379,19 +380,20 @@ declare module '@react-navigation/stack' {
       | ScreenOptions
       | ({|
           route: RouteProp<ParamList, RouteName>,
-          navigation: any,
+          navigation: NavProp,
         |}) => ScreenOptions,
     listeners?:
       | ScreenListeners<EventMap, State>
       | ({|
           route: RouteProp<ParamList, RouteName>,
-          navigation: any,
+          navigation: NavProp,
         |}) => ScreenListeners<EventMap, State>,
     initialParams?: $Shape<$ElementType<ParamList, RouteName>>,
   |};
 
   declare export type ScreenProps<
     ParamList: ParamListBase,
+    NavProp,
     RouteName: $Keys<ParamList> = string,
     State: NavigationState = NavigationState,
     ScreenOptions: {} = {},
@@ -400,6 +402,7 @@ declare module '@react-navigation/stack' {
     | {|
         ...BaseScreenProps<
           ParamList,
+          NavProp,
           RouteName,
           State,
           ScreenOptions,
@@ -407,12 +410,13 @@ declare module '@react-navigation/stack' {
         >,
         component: React$ComponentType<{|
           route: RouteProp<ParamList, RouteName>,
-          navigation: any,
+          navigation: NavProp,
         |}>,
       |}
     | {|
         ...BaseScreenProps<
           ParamList,
+          NavProp,
           RouteName,
           State,
           ScreenOptions,
@@ -420,7 +424,7 @@ declare module '@react-navigation/stack' {
         >,
         children: ({|
           route: RouteProp<ParamList, RouteName>,
-          navigation: any,
+          navigation: NavProp,
         |}) => React$Node,
       |};
 
@@ -429,20 +433,25 @@ declare module '@react-navigation/stack' {
     State: NavigationState = NavigationState,
     ScreenOptions: {} = {},
     EventMap: EventMapBase = EventMapCore<State>,
-  > = <RouteName: $Keys<ParamList>>(props: ScreenProps<
+  > = <RouteName: $Keys<ParamList>, NavProp>(props: ScreenProps<
     ParamList,
+    NavProp,
     RouteName,
     State,
     ScreenOptions,
     EventMap,
   >) => React$Node;
 
-  declare export type BaseNavigatorProps<ScreenOptions: {}> = {
-    ...DefaultRouterOptions,
+  declare type BaseNonRouterNavigatorProps<ScreenOptions: {}, NavProp> = {
     children?: React.Node,
     screenOptions?:
       | ScreenOptions
-      | ({| route: LeafRoute<>, navigation: any |}) => ScreenOptions,
+      | ({| route: LeafRoute<>, navigation: NavProp |}) => ScreenOptions,
+    ...
+  };
+  declare export type BaseNavigatorProps<ScreenOptions: {}, NavProp> = {
+    ...DefaultRouterOptions,
+    ...BaseNonRouterNavigatorProps<ScreenOptions, NavProp>,
     ...
   };
 
@@ -450,7 +459,8 @@ declare module '@react-navigation/stack' {
     State: NavigationState,
     ScreenOptions: {},
     EventMap: EventMapBase,
-    NavigatorProps: BaseNavigatorProps<ScreenOptions>,
+    NavProp,
+    NavigatorProps: BaseNavigatorProps<ScreenOptions, NavProp>,
   > = <ParamList: ParamListBase>() => {|
     Screen: ScreenComponent<
       ParamList,
@@ -1010,8 +1020,8 @@ declare module '@react-navigation/stack' {
     keyboardHandlingEnabled?: boolean,
   |};
 
-  declare export type StackNavigatorProps = {|
-    ...$Exact<BaseNavigatorProps<StackOptions>>,
+  declare export type StackNavigatorProps<NavProp> = {|
+    ...$Exact<BaseNavigatorProps<StackOptions, NavProp>>,
     ...StackRouterOptions,
     ...StackNavigationProps,
   |};
@@ -1029,13 +1039,15 @@ declare module '@react-navigation/stack' {
     descriptors: {| [key: string]: StackDescriptor |},
   |}>;
 
-  declare export var HeaderTitle: any;
   declare export var createStackNavigator: CreateNavigator<
     StackNavigationState,
     StackOptions,
     StackNavigationEventMap,
-    StackNavigatorProps,
+    StackNavigationProp<>,
+    StackNavigatorProps<StackNavigationProp<>>,
   >;
+
+  declare export var HeaderTitle: any;
   declare export var HeaderBackButton: any;
   declare export var Header: any;
   declare export var TransitionPresets: any;

@@ -27,8 +27,8 @@ export type OverlayRouterNavigationAction =
   | ClearOverlayModalsAction;
 
 export type OverlayRouterNavigationProp<
-  ParamList: ParamListBase,
-  RouteName: string,
+  ParamList: ParamListBase = ParamListBase,
+  RouteName: string = string,
 > = {|
   ...StackNavigationProp<ParamList, RouteName, {||}, {||}>,
   +clearOverlayModals: (keys: $ReadOnlyArray<string>) => void,

@@ -52,16 +52,14 @@ if (Platform.OS !== 'android' || Platform.Version >= 21) {
   enableScreens();
 }
 
-export type RootNavigationProp<
-  RouteName: $Keys<ScreenParamList> = $Keys<ScreenParamList>,
-> = RootRouterNavigationProp<ScreenParamList, RouteName>;
+type RootNavigatorProps = StackNavigatorProps<RootRouterNavigationProp<>>;
 
 function RootNavigator({
   initialRouteName,
   children,
   screenOptions,
   ...rest
-}: StackNavigatorProps) {
+}: RootNavigatorProps) {
   const { state, descriptors, navigation } = useNavigationBuilder(RootRouter, {
     initialRouteName,
     children,
@@ -92,7 +90,8 @@ const createRootNavigator = createNavigatorFactory<
   StackNavigationState,
   StackOptions,
   StackNavigationEventMap,
-  StackNavigatorProps,
+  RootRouterNavigationProp<>,
+  RootNavigatorProps,
 >(RootNavigator);
 
 const baseTransitionPreset = Platform.select({
@@ -120,7 +119,6 @@ const transitionPreset = {
   },
 };
 
-const Root = createRootNavigator<RootParamList>();
 const defaultScreenOptions = {
   gestureEnabled: Platform.OS === 'ios',
   animationEnabled: Platform.OS !== 'web',
@@ -133,6 +131,12 @@ const disableGesturesScreenOptions = {
 const modalOverlayScreenOptions = {
   cardOverlayEnabled: true,
 };
+
+export type RootNavigationProp<
+  RouteName: $Keys<ScreenParamList> = $Keys<ScreenParamList>,
+> = RootRouterNavigationProp<ScreenParamList, RouteName>;
+
+const Root = createRootNavigator<RootParamList>();
 const RootComponent = () => {
   const builderContext = React.useContext(NavigationBuilderContext);
   invariant(

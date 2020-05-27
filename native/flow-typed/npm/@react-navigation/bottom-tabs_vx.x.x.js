@@ -369,6 +369,7 @@ declare module '@react-navigation/bottom-tabs' {
 
   declare type BaseScreenProps<
     ParamList: ParamListBase,
+    NavProp,
     RouteName: $Keys<ParamList> = string,
     State: NavigationState = NavigationState,
     ScreenOptions: {} = {},
@@ -379,19 +380,20 @@ declare module '@react-navigation/bottom-tabs' {
       | ScreenOptions
       | ({|
           route: RouteProp<ParamList, RouteName>,
-          navigation: any,
+          navigation: NavProp,
         |}) => ScreenOptions,
     listeners?:
       | ScreenListeners<EventMap, State>
       | ({|
           route: RouteProp<ParamList, RouteName>,
-          navigation: any,
+          navigation: NavProp,
         |}) => ScreenListeners<EventMap, State>,
     initialParams?: $Shape<$ElementType<ParamList, RouteName>>,
   |};
 
   declare export type ScreenProps<
     ParamList: ParamListBase,
+    NavProp,
     RouteName: $Keys<ParamList> = string,
     State: NavigationState = NavigationState,
     ScreenOptions: {} = {},
@@ -400,6 +402,7 @@ declare module '@react-navigation/bottom-tabs' {
     | {|
         ...BaseScreenProps<
           ParamList,
+          NavProp,
           RouteName,
           State,
           ScreenOptions,
@@ -407,12 +410,13 @@ declare module '@react-navigation/bottom-tabs' {
         >,
         component: React$ComponentType<{|
           route: RouteProp<ParamList, RouteName>,
-          navigation: any,
+          navigation: NavProp,
         |}>,
       |}
     | {|
         ...BaseScreenProps<
           ParamList,
+          NavProp,
           RouteName,
           State,
           ScreenOptions,
@@ -420,7 +424,7 @@ declare module '@react-navigation/bottom-tabs' {
         >,
         children: ({|
           route: RouteProp<ParamList, RouteName>,
-          navigation: any,
+          navigation: NavProp,
         |}) => React$Node,
       |};
 
@@ -429,20 +433,25 @@ declare module '@react-navigation/bottom-tabs' {
     State: NavigationState = NavigationState,
     ScreenOptions: {} = {},
     EventMap: EventMapBase = EventMapCore<State>,
-  > = <RouteName: $Keys<ParamList>>(props: ScreenProps<
+  > = <RouteName: $Keys<ParamList>, NavProp>(props: ScreenProps<
     ParamList,
+    NavProp,
     RouteName,
     State,
     ScreenOptions,
     EventMap,
   >) => React$Node;
 
-  declare export type BaseNavigatorProps<ScreenOptions: {}> = {
-    ...DefaultRouterOptions,
+  declare type BaseNonRouterNavigatorProps<ScreenOptions: {}, NavProp> = {
     children?: React.Node,
     screenOptions?:
       | ScreenOptions
       | ({| route: LeafRoute<>, navigation: any |}) => ScreenOptions,
+    ...
+  };
+  declare export type BaseNavigatorProps<ScreenOptions: {}, NavProp> = {
+    ...DefaultRouterOptions,
+    ...BaseNonRouterNavigatorProps<ScreenOptions, NavProp>,
     ...
   };
 
@@ -450,7 +459,8 @@ declare module '@react-navigation/bottom-tabs' {
     State: NavigationState,
     ScreenOptions: {},
     EventMap: EventMapBase,
-    NavigatorProps: BaseNavigatorProps<ScreenOptions>,
+    NavProp,
+    NavigatorProps: BaseNavigatorProps<ScreenOptions, NavProp>,
   > = <ParamList: ParamListBase>() => {|
     Screen: ScreenComponent<
       ParamList,
@@ -874,8 +884,8 @@ declare module '@react-navigation/bottom-tabs' {
     ...BottomTabBarOptions,
   |}
 
-  declare export type TabNavigatorProps = {|
-    ...$Exact<BaseNavigatorProps<BottomTabOptions>>,
+  declare export type TabNavigatorProps<NavProp> = {|
+    ...$Exact<BaseNavigatorProps<BottomTabOptions, NavProp>>,
     ...TabRouterOptions,
     lazy?: boolean,
     tabBar?: BottomTabBarProps => React$Node,
@@ -892,7 +902,8 @@ declare module '@react-navigation/bottom-tabs' {
     TabNavigationState,
     BottomTabOptions,
     BottomTabNavigationEventMap,
-    TabNavigatorProps,
+    BottomTabNavigationProp<>,
+    TabNavigatorProps<BottomTabNavigationProp<>>,
   >;
 
   declare export var BottomTabBar: React$ComponentType<BottomTabBarProps>;

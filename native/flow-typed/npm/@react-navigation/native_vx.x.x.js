@@ -369,6 +369,7 @@ declare module '@react-navigation/native' {
 
   declare type BaseScreenProps<
     ParamList: ParamListBase,
+    NavProp,
     RouteName: $Keys<ParamList> = string,
     State: NavigationState = NavigationState,
     ScreenOptions: {} = {},
@@ -379,19 +380,20 @@ declare module '@react-navigation/native' {
       | ScreenOptions
       | ({|
           route: RouteProp<ParamList, RouteName>,
-          navigation: any,
+          navigation: NavProp,
         |}) => ScreenOptions,
     listeners?:
       | ScreenListeners<EventMap, State>
       | ({|
           route: RouteProp<ParamList, RouteName>,
-          navigation: any,
+          navigation: NavProp,
         |}) => ScreenListeners<EventMap, State>,
     initialParams?: $Shape<$ElementType<ParamList, RouteName>>,
   |};
 
   declare export type ScreenProps<
     ParamList: ParamListBase,
+    NavProp,
     RouteName: $Keys<ParamList> = string,
     State: NavigationState = NavigationState,
     ScreenOptions: {} = {},
@@ -400,6 +402,7 @@ declare module '@react-navigation/native' {
     | {|
         ...BaseScreenProps<
           ParamList,
+          NavProp,
           RouteName,
           State,
           ScreenOptions,
@@ -407,12 +410,13 @@ declare module '@react-navigation/native' {
         >,
         component: React$ComponentType<{|
           route: RouteProp<ParamList, RouteName>,
-          navigation: any,
+          navigation: NavProp,
         |}>,
       |}
     | {|
         ...BaseScreenProps<
           ParamList,
+          NavProp,
           RouteName,
           State,
           ScreenOptions,
@@ -420,7 +424,7 @@ declare module '@react-navigation/native' {
         >,
         children: ({|
           route: RouteProp<ParamList, RouteName>,
-          navigation: any,
+          navigation: NavProp,
         |}) => React$Node,
       |};
 
@@ -429,20 +433,25 @@ declare module '@react-navigation/native' {
     State: NavigationState = NavigationState,
     ScreenOptions: {} = {},
     EventMap: EventMapBase = EventMapCore<State>,
-  > = <RouteName: $Keys<ParamList>>(props: ScreenProps<
+  > = <RouteName: $Keys<ParamList>, NavProp>(props: ScreenProps<
     ParamList,
+    NavProp,
     RouteName,
     State,
     ScreenOptions,
     EventMap,
   >) => React$Node;
 
-  declare export type BaseNavigatorProps<ScreenOptions: {}> = {
-    ...DefaultRouterOptions,
+  declare type BaseNonRouterNavigatorProps<ScreenOptions: {}, NavProp> = {
     children?: React.Node,
     screenOptions?:
       | ScreenOptions
-      | ({| route: LeafRoute<>, navigation: any |}) => ScreenOptions,
+      | ({| route: LeafRoute<>, navigation: NavProp |}) => ScreenOptions,
+    ...
+  };
+  declare export type BaseNavigatorProps<ScreenOptions: {}, NavProp> = {
+    ...DefaultRouterOptions,
+    ...BaseNonRouterNavigatorProps<ScreenOptions, NavProp>,
     ...
   };
 
@@ -450,7 +459,8 @@ declare module '@react-navigation/native' {
     State: NavigationState,
     ScreenOptions: {},
     EventMap: EventMapBase,
-    NavigatorProps: BaseNavigatorProps<ScreenOptions>,
+    NavProp,
+    NavigatorProps: BaseNavigatorProps<ScreenOptions, NavProp>,
   > = <ParamList: ParamListBase>() => {|
     Screen: ScreenComponent<
       ParamList,
@@ -511,10 +521,11 @@ declare module '@react-navigation/native' {
     State: NavigationState,
     ScreenOptions: {},
     EventMap: EventMapBase,
-    NavigatorProps: BaseNavigatorProps<ScreenOptions>,
+    NavProp,
+    NavigatorProps: BaseNavigatorProps<ScreenOptions, NavProp>,
   >(
     navigator: React$ComponentType<NavigatorProps>,
-  ) => CreateNavigator<State, ScreenOptions, EventMap, NavigatorProps>;
+  ) => CreateNavigator<State, ScreenOptions, EventMap, NavProp, NavigatorProps>;
 
   declare export var StackRouter: RouterFactory<
     StackNavigationState,
@@ -528,7 +539,26 @@ declare module '@react-navigation/native' {
     TabRouterOptions,
   >;
 
-  declare export var useNavigationBuilder: any;
+  declare export var useNavigationBuilder: <
+    State: NavigationState,
+    Action: GenericNavigationAction,
+    ScreenOptions: {},
+    RouterOptions: DefaultRouterOptions,
+    NavProp,
+  >(
+    routerFactory: RouterFactory<State, Action, RouterOptions>,
+    options: {|
+      ...$Exact<RouterOptions>,
+      ...$Exact<BaseNonRouterNavigatorProps<ScreenOptions, NavProp>>,
+    |},
+  ) => {|
+    +state: State,
+    +descriptors: {|
+      [key: string]: Descriptor<ParamListBase, string, State, ScreenOptions>
+    |},
+    +navigation: NavProp,
+  |};
+
   declare export var NavigationHelpersContext: any;
   declare export var NavigationContainer: any;
   declare export var DefaultTheme: any;

@@ -40,12 +40,14 @@ import MessageListHeaderTitle from './message-list-header-title.react';
 import ThreadSettingsButton from './thread-settings-button.react';
 import { InputStateContext } from '../input/input-state';
 
+type ChatNavigatorProps = StackNavigatorProps<ChatRouterNavigationProp<>>;
+
 function ChatNavigator({
   initialRouteName,
   children,
   screenOptions,
   ...rest
-}: StackNavigatorProps) {
+}: ChatNavigatorProps) {
   const { state, descriptors, navigation } = useNavigationBuilder(ChatRouter, {
     initialRouteName,
     children,
@@ -80,7 +82,8 @@ const createChatNavigator = createNavigatorFactory<
   StackNavigationState,
   StackOptions,
   StackNavigationEventMap,
-  StackNavigatorProps,
+  ChatRouterNavigationProp<>,
+  ChatNavigatorProps,
 >(ChatNavigator);
 
 const header = props => <ChatHeader {...props} />;
