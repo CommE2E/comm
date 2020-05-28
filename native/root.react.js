@@ -52,6 +52,8 @@ if (Platform.OS === 'android') {
 }
 
 const navStateAsyncStorageKey = 'navState';
+const navInitAction = Object.freeze({ type: 'NAV/@@INIT' });
+const navUnknownAction = Object.freeze({ type: 'NAV/@@UNKNOWN' });
 
 type Props = {
   // Redux state
@@ -108,7 +110,7 @@ class Root extends React.PureComponent<Props, State> {
     }
     this.navState = initialState;
     this.setNavContext();
-    actionLogger.addOtherAction('navState', 'NAV/@@INIT', null, initialState);
+    actionLogger.addOtherAction('navState', navInitAction, null, initialState);
     this.setState({ initialState });
   }
 
@@ -188,7 +190,7 @@ class Root extends React.PureComponent<Props, State> {
     const { queuedActions } = this;
     this.queuedActions = [];
     if (queuedActions.length === 0) {
-      queuedActions.push('NAV/@@UNKNOWN');
+      queuedActions.push(navUnknownAction);
     }
     for (let action of queuedActions) {
       actionLogger.addOtherAction('navState', action, prevState, state);
@@ -230,7 +232,7 @@ class Root extends React.PureComponent<Props, State> {
 
   onNavAction = (action: GenericNavigationAction | string) => {
     if (typeof action === 'string') {
-      this.queuedActions.push(`NAV/${action}`);
+      this.queuedActions.push({ type: `NAV/${action}` });
     } else if (
       action &&
       typeof action === 'object' &&
