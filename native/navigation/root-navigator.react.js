@@ -103,15 +103,15 @@ const transitionPreset = {
     );
     const overlayOpacity = interpolatorProps.current.progress.interpolate({
       inputRange: [0, 1],
-      outputRange: [0, 0.7],
+      outputRange: ([0, 0.7]: number[]), // Flow...
       extrapolate: 'clamp',
     });
     return {
       ...baseCardStyleInterpolator,
-      overlayStyle: {
-        ...baseCardStyleInterpolator.overlayStyle,
-        opacity: overlayOpacity,
-      },
+      overlayStyle: [
+        baseCardStyleInterpolator.overlayStyle,
+        { opacity: overlayOpacity },
+      ],
     };
   },
 };

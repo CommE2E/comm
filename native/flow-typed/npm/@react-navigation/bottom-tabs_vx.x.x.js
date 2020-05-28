@@ -32,10 +32,11 @@ declare module '@react-navigation/bottom-tabs' {
   declare type AnimatedViewStyleProp = StyleObj;
   declare type AnimatedTextStyleProp = StyleObj;
 
-  // Copied from react-native/Libraries/Animated/src/animations/Animation.js
+  // Vaguely copied from
+  // react-native/Libraries/Animated/src/animations/Animation.js
   declare type EndResult = { finished: boolean };
   declare type EndCallback = (result: EndResult) => void;
-  declare class Animation {
+  declare interface Animation {
     start(
       fromValue: number,
       onUpdate: (value: number) => void,
@@ -54,7 +55,7 @@ declare module '@react-navigation/bottom-tabs' {
 
   // Vaguely copied from
   // react-native/Libraries/Animated/src/nodes/AnimatedTracking.js
-  declare class AnimatedTracking {
+  declare interface AnimatedTracking {
     constructor(
       value: AnimatedValue,
       parent: any,
@@ -68,7 +69,7 @@ declare module '@react-navigation/bottom-tabs' {
   // Vaguely copied from
   // react-native/Libraries/Animated/src/nodes/AnimatedValue.js
   declare type ValueListenerCallback = (state: { value: number }) => void;
-  declare class AnimatedValue {
+  declare interface AnimatedValue {
     constructor(value: number): void;
     setValue(value: number): void;
     setOffset(offset: number): void;
@@ -191,7 +192,7 @@ declare module '@react-navigation/bottom-tabs' {
     |}>,
   >;
 
-  // Copied from
+  // Vaguely copied from
   // react-native/Libraries/Animated/src/nodes/AnimatedInterpolation.js
   declare type ExtrapolateType = 'extend' | 'identity' | 'clamp';
   declare type InterpolationConfigType = {
@@ -202,7 +203,7 @@ declare module '@react-navigation/bottom-tabs' {
     extrapolateLeft?: ExtrapolateType,
     extrapolateRight?: ExtrapolateType,
   };
-  declare class AnimatedInterpolation {
+  declare interface AnimatedInterpolation {
     interpolate(config: InterpolationConfigType): AnimatedInterpolation;
   }
 
@@ -842,108 +843,8 @@ declare module '@react-navigation/bottom-tabs' {
   |};
 
   /**
-   * Stack options
+   * TransitionPreset
    */
-
-  declare export type StackDescriptor = Descriptor<
-    StackNavigationProp<ParamListBase, string>,
-    StackOptions,
-  >;
-
-  declare type Scene<T> = {|
-    +route: T,
-    +descriptor: StackDescriptor,
-    +progress: {|
-      current: AnimatedInterpolation,
-      next?: AnimatedInterpolation,
-      previous?: AnimatedInterpolation,
-    |},
-  |};
-
-  declare export type StackHeaderProps = {|
-    +mode: 'float' | 'screen',
-    +layout: {| width: number, height: number |},
-    +insets: EdgeInsets,
-    +scene: Scene<Route<>>,
-    +previous?: Scene<Route<>>,
-    +navigation: StackNavigationProp<ParamListBase>,
-    +styleInterpolator: StackHeaderStyleInterpolator,
-  |};
-
-  declare type GestureDirection =
-    | 'horizontal'
-    | 'horizontal-inverted'
-    | 'vertical'
-    | 'vertical-inverted';
-  declare export type StackOptions = $Shape<{|
-    +title: string,
-    +header: StackHeaderProps => React$Node,
-    +headerShown: boolean,
-    +cardShadowEnabled: boolean,
-    +cardOverlayEnabled: boolean,
-    +cardOverlay: {| style: ViewStyleProp |} => React$Node,
-    +cardStyle: ViewStyleProp,
-    +animationEnabled: boolean,
-    +animationTypeForReplace: 'push' | 'pop',
-    +gestureEnabled: boolean,
-    +gestureResponseDistance: {| vertical?: number, horizontal?: number |},
-    +gestureVelocityImpact: number,
-    +safeAreaInsets: $Shape<EdgeInsets>,
-    // Transition
-    +gestureDirection: GestureDirection,
-    +transitionSpec: {|
-      open: TransitionSpec,
-      close: TransitionSpec,
-    |},
-    +cardStyleInterpolator: StackCardStyleInterpolator,
-    +headerStyleInterpolator: StackHeaderStyleInterpolator,
-    // Header
-    +headerTitle: string | (StackHeaderTitleProps => React$Node),
-    +headerTitleAlign: 'left' | 'center',
-    +headerTitleStyle: AnimatedTextStyleProp,
-    +headerTitleContainerStyle: ViewStyleProp,
-    +headerTintColor: string,
-    +headerTitleAllowFontScaling: boolean,
-    +headerBackAllowFontScaling: boolean,
-    +headerBackTitle: string,
-    +headerBackTitleStyle: TextStyleProp,
-    +headerBackTitleVisible: boolean,
-    +headerTruncatedBackTitle: string,
-    +headerLeft: StackHeaderLeftButtonProps => React$Node,
-    +headerLeftContainerStyle: ViewStyleProp,
-    +headerRight: {| tintColor?: string |} => React$Node,
-    +headerRightContainerStyle: ViewStyleProp,
-    +headerBackImage: $PropertyType<StackHeaderLeftButtonProps, 'backImage'>,
-    +headerPressColorAndroid: string,
-    +headerBackground: ({| style: ViewStyleProp |}) => React$Node,
-    +headerStyle: ViewStyleProp,
-    +headerTransparent: boolean,
-    +headerStatusBarHeight: number,
-  |}>;
-
-  declare export type StackHeaderLeftButtonProps = {|
-    +onPress: ?(() => void),
-    +pressColorAndroid: ?string;
-    +backImage: ?((props: {| tintColor: string |}) => React$Node),
-    +tintColor: ?string,
-    +label: ?string,
-    +truncatedLabel: ?string,
-    +labelVisible: ?boolean,
-    +labelStyle: ?AnimatedTextStyleProp,
-    +allowFontScaling: ?boolean,
-    +onLabelLayout: ?(LayoutEvent => void),
-    +screenLayout: ?{| width: number, height: number |},
-    +titleLayout: ?{| width: number, height: number |},
-    +canGoBack: ?boolean,
-  |};
-
-  declare export type StackHeaderTitleProps = {|
-    +onLayout: LayoutEvent => void,
-    +children: string,
-    +allowFontScaling: ?boolean,
-    +tintColor: ?string,
-    +style: ?AnimatedTextStyleProp,
-  |};
 
   declare export type TransitionSpec =
     | {|
@@ -1012,6 +913,119 @@ declare module '@react-navigation/bottom-tabs' {
     props: StackHeaderInterpolationProps,
   ) => StackHeaderInterpolatedStyle;
 
+  declare type GestureDirection =
+    | 'horizontal'
+    | 'horizontal-inverted'
+    | 'vertical'
+    | 'vertical-inverted';
+
+  declare export type TransitionPreset = {|
+    +gestureDirection: GestureDirection,
+    +transitionSpec: {|
+      +open: TransitionSpec,
+      +close: TransitionSpec,
+    |},
+    +cardStyleInterpolator: StackCardStyleInterpolator,
+    +headerStyleInterpolator: StackHeaderStyleInterpolator,
+  |};
+
+  /**
+   * Stack options
+   */
+
+  declare export type StackDescriptor = Descriptor<
+    StackNavigationProp<ParamListBase, string>,
+    StackOptions,
+  >;
+
+  declare type Scene<T> = {|
+    +route: T,
+    +descriptor: StackDescriptor,
+    +progress: {|
+      +current: AnimatedInterpolation,
+      +next?: AnimatedInterpolation,
+      +previous?: AnimatedInterpolation,
+    |},
+  |};
+
+  declare export type StackHeaderProps = {|
+    +mode: 'float' | 'screen',
+    +layout: {| +width: number, +height: number |},
+    +insets: EdgeInsets,
+    +scene: Scene<Route<>>,
+    +previous?: Scene<Route<>>,
+    +navigation: StackNavigationProp<ParamListBase>,
+    +styleInterpolator: StackHeaderStyleInterpolator,
+  |};
+
+  declare export type StackHeaderLeftButtonProps = $Shape<{|
+    +onPress: (() => void),
+    +pressColorAndroid: string;
+    +backImage: (props: {| tintColor: string |}) => React$Node,
+    +tintColor: string,
+    +label: string,
+    +truncatedLabel: string,
+    +labelVisible: boolean,
+    +labelStyle: AnimatedTextStyleProp,
+    +allowFontScaling: boolean,
+    +onLabelLayout: LayoutEvent => void,
+    +screenLayout: {| +width: number, +height: number |},
+    +titleLayout: {| +width: number, +height: number |},
+    +canGoBack: boolean,
+  |}>;
+
+  declare type StackHeaderTitleInputBase = {
+    +onLayout: LayoutEvent => void,
+    +children: string,
+    +allowFontScaling: ?boolean,
+    +tintColor: ?string,
+    +style: ?AnimatedTextStyleProp,
+    ...
+  };
+
+  declare export type StackHeaderTitleInputProps =
+    $Exact<StackHeaderTitleInputBase>;
+
+  declare export type StackOptions = $Shape<{|
+    +title: string,
+    +header: StackHeaderProps => React$Node,
+    +headerShown: boolean,
+    +cardShadowEnabled: boolean,
+    +cardOverlayEnabled: boolean,
+    +cardOverlay: {| style: ViewStyleProp |} => React$Node,
+    +cardStyle: ViewStyleProp,
+    +animationEnabled: boolean,
+    +animationTypeForReplace: 'push' | 'pop',
+    +gestureEnabled: boolean,
+    +gestureResponseDistance: {| vertical?: number, horizontal?: number |},
+    +gestureVelocityImpact: number,
+    +safeAreaInsets: $Shape<EdgeInsets>,
+    // Transition
+    ...TransitionPreset,
+    // Header
+    +headerTitle: string | (StackHeaderTitleInputProps => React$Node),
+    +headerTitleAlign: 'left' | 'center',
+    +headerTitleStyle: AnimatedTextStyleProp,
+    +headerTitleContainerStyle: ViewStyleProp,
+    +headerTintColor: string,
+    +headerTitleAllowFontScaling: boolean,
+    +headerBackAllowFontScaling: boolean,
+    +headerBackTitle: string,
+    +headerBackTitleStyle: TextStyleProp,
+    +headerBackTitleVisible: boolean,
+    +headerTruncatedBackTitle: string,
+    +headerLeft: StackHeaderLeftButtonProps => React$Node,
+    +headerLeftContainerStyle: ViewStyleProp,
+    +headerRight: {| tintColor?: string |} => React$Node,
+    +headerRightContainerStyle: ViewStyleProp,
+    +headerBackImage: $PropertyType<StackHeaderLeftButtonProps, 'backImage'>,
+    +headerPressColorAndroid: string,
+    +headerBackground: ({| style: ViewStyleProp |}) => React$Node,
+    +headerStyle: ViewStyleProp,
+    +headerTransparent: boolean,
+    +headerStatusBarHeight: number,
+  |}>;
+
   /**
    * Stack navigation prop
    */
@@ -1071,12 +1085,6 @@ declare module '@react-navigation/bottom-tabs' {
   /**
    * Miscellaneous stack exports
    */
-
-  declare export type StackBackButtonProps = {|
-    ...StackHeaderLeftButtonProps,
-    +disabled: ?boolean,
-    +accessibilityLabel: ?string,
-  |};
 
   declare type StackNavigationProps = {|
     +mode?: 'card' | 'modal',
