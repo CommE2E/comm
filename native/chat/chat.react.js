@@ -4,14 +4,13 @@ import * as React from 'react';
 import {
   createNavigatorFactory,
   useNavigationBuilder,
-} from '@react-navigation/native';
-import {
-  StackView,
   type StackNavigationState,
   type StackOptions,
   type StackNavigationEventMap,
   type StackNavigatorProps,
-} from '@react-navigation/stack';
+  type ExtraStackNavigatorProps,
+} from '@react-navigation/native';
+import { StackView } from '@react-navigation/stack';
 import { Platform, StyleSheet } from 'react-native';
 import invariant from 'invariant';
 
@@ -41,7 +40,6 @@ import ThreadSettingsButton from './thread-settings-button.react';
 import { InputStateContext } from '../input/input-state';
 
 type ChatNavigatorProps = StackNavigatorProps<ChatRouterNavigationProp<>>;
-
 function ChatNavigator({
   initialRouteName,
   children,
@@ -83,7 +81,7 @@ const createChatNavigator = createNavigatorFactory<
   StackOptions,
   StackNavigationEventMap,
   ChatRouterNavigationProp<>,
-  ChatNavigatorProps,
+  ExtraStackNavigatorProps,
 >(ChatNavigator);
 
 const header = props => <ChatHeader {...props} />;
@@ -150,7 +148,11 @@ export type ChatNavigationProp<
   RouteName: $Keys<ChatParamList> = $Keys<ChatParamList>,
 > = ChatRouterNavigationProp<ScreenParamList, RouteName>;
 
-const Chat = createChatNavigator<ChatParamList>();
+const Chat = createChatNavigator<
+  ScreenParamList,
+  ChatParamList,
+  ChatNavigationProp<>,
+>();
 const ChatComponent = () => (
   <KeyboardAvoidingView style={styles.keyboardAvoidingView}>
     <Chat.Navigator screenOptions={screenOptions}>

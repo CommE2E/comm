@@ -11,7 +11,7 @@ import type {
   StackNavigationState,
   RouterConfigOptions,
   PossiblyStaleNavigationState,
-} from '@react-navigation/stack';
+} from '@react-navigation/native';
 
 import { StackRouter, CommonActions } from '@react-navigation/native';
 import invariant from 'invariant';

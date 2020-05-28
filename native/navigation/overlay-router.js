@@ -9,7 +9,7 @@ import type {
   StackRouterOptions,
   StackNavigationState,
   RouterConfigOptions,
-} from '@react-navigation/stack';
+} from '@react-navigation/native';
 
 import { StackRouter } from '@react-navigation/native';
 

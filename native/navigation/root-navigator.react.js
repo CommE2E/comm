@@ -6,15 +6,13 @@ import { enableScreens } from 'react-native-screens';
 import {
   createNavigatorFactory,
   useNavigationBuilder,
-} from '@react-navigation/native';
-import {
-  StackView,
-  TransitionPresets,
   type StackNavigationState,
   type StackOptions,
   type StackNavigationEventMap,
   type StackNavigatorProps,
-} from '@react-navigation/stack';
+  type ExtraStackNavigatorProps,
+} from '@react-navigation/native';
+import { StackView, TransitionPresets } from '@react-navigation/stack';
 import NavigationBuilderContext from '@react-navigation/core/src/NavigationBuilderContext';
 import invariant from 'invariant';
 
@@ -53,7 +51,6 @@ if (Platform.OS !== 'android' || Platform.Version >= 21) {
 }
 
 type RootNavigatorProps = StackNavigatorProps<RootRouterNavigationProp<>>;
-
 function RootNavigator({
   initialRouteName,
   children,
@@ -91,7 +88,7 @@ const createRootNavigator = createNavigatorFactory<
   StackOptions,
   StackNavigationEventMap,
   RootRouterNavigationProp<>,
-  RootNavigatorProps,
+  ExtraStackNavigatorProps,
 >(RootNavigator);
 
 const baseTransitionPreset = Platform.select({
@@ -136,7 +133,11 @@ export type RootNavigationProp<
   RouteName: $Keys<ScreenParamList> = $Keys<ScreenParamList>,
 > = RootRouterNavigationProp<ScreenParamList, RouteName>;
 
-const Root = createRootNavigator<RootParamList>();
+const Root = createRootNavigator<
+  ScreenParamList,
+  RootParamList,
+  RootNavigationProp<>,
+>();
 const RootComponent = () => {
   const builderContext = React.useContext(NavigationBuilderContext);
   invariant(

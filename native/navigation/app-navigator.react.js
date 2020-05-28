@@ -68,7 +68,11 @@ export type TabNavigationProp<
   RouteName: $Keys<TabParamList> = $Keys<TabParamList>,
 > = BottomTabNavigationProp<ScreenParamList, RouteName>;
 
-const Tab = createBottomTabNavigator<TabParamList>();
+const Tab = createBottomTabNavigator<
+  ScreenParamList,
+  TabParamList,
+  TabNavigationProp<>,
+>();
 const tabBarOptions = { keyboardHidesTabBar: false };
 function TabNavigator() {
   return (
@@ -102,7 +106,11 @@ export type AppNavigationProp<
   RouteName: $Keys<OverlayParamList> = $Keys<OverlayParamList>,
 > = OverlayRouterNavigationProp<ScreenParamList, RouteName>;
 
-const App = createOverlayNavigator<OverlayParamList>();
+const App = createOverlayNavigator<
+  ScreenParamList,
+  OverlayParamList,
+  AppNavigationProp<>,
+>();
 type AppNavigatorProps = {
   navigation: RootNavigationProp<'App'>,
 };

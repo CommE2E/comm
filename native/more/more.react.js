@@ -44,7 +44,11 @@ export type MoreNavigationProp<
   RouteName: $Keys<MoreParamList> = $Keys<MoreParamList>,
 > = StackNavigationProp<ScreenParamList, RouteName>;
 
-const More = createStackNavigator<MoreParamList>();
+const More = createStackNavigator<
+  ScreenParamList,
+  MoreParamList,
+  MoreNavigationProp<>,
+>();
 const MoreComponent = () => (
   <More.Navigator screenOptions={screenOptions}>
     <More.Screen

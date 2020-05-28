@@ -2,8 +2,9 @@
 
 import type {
   StackNavigationState,
-  BaseNavigatorProps,
-} from '@react-navigation/stack';
+  NavigatorPropsBase,
+  ExtraNavigatorPropsBase,
+} from '@react-navigation/native';
 import type { OverlayRouterNavigationProp } from './overlay-router';
 
 import * as React from 'react';
@@ -26,7 +27,7 @@ import { scrollBlockingChatModals } from './route-names';
 const { Value, timing, cond, call, lessOrEq, block } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
-type Props = $Exact<BaseNavigatorProps<{||}, OverlayRouterNavigationProp<>>>;
+type Props = $Exact<NavigatorPropsBase<{||}, OverlayRouterNavigationProp<>>>;
 const OverlayNavigator = React.memo<Props>(
   ({ initialRouteName, children, screenOptions }: Props) => {
     const { state, descriptors, navigation } = useNavigationBuilder(
@@ -376,7 +377,7 @@ const createOverlayNavigator = createNavigatorFactory<
   {||},
   {||},
   OverlayRouterNavigationProp<>,
-  Props,
+  ExtraNavigatorPropsBase,
 >(OverlayNavigator);
 
 const styles = StyleSheet.create({
