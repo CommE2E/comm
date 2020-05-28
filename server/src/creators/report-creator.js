@@ -93,7 +93,7 @@ async function sendSquadbotMessage(
   await createMessages(createBotViewer(squadbot.userID), [
     {
       type: messageTypes.TEXT,
-      threadID: squadbot.ashoatThreadID,
+      threadID: squadbot.staffThreadID,
       creatorID: squadbot.userID,
       time,
       text: message,

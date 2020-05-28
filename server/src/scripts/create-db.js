@@ -1,5 +1,13 @@
 // @flow
 
+import ashoat from 'lib/facts/ashoat';
+import bots from 'lib/facts/bots';
+import {
+  makePermissionsBlob,
+  makePermissionsForChildrenBlob,
+} from 'lib/permissions/thread-permissions';
+import { threadTypes } from 'lib/types/thread-types';
+
 import { setScriptContext } from './script-context';
 import { endScript } from './utils';
 import { dbQuery, SQL } from '../database';
@@ -281,28 +289,60 @@ async function createTables() {
 async function createUsers() {
   await dbQuery(SQL`
     INSERT INTO ids (id, table_name)
-      VALUES (5, 'users'), (256, 'users');
+      VALUES
+        (${bots.squadbot.userID}, 'users'),
+        (${ashoat.id}, 'users');
     INSERT INTO users (id, username, hash, email, email_verified, avatar,
         creation_time)
       VALUES
-        (5, 'squadbot', '', 'squadbot@squadcal.org', 1, NULL, 1530049900980),
-        (256, 'ashoat', '', 'ashoat@gmail.com', 1, NULL, 1463588881886);
+        (${bots.squadbot.userID}, 'squadbot', '', 'squadbot@squadcal.org', 1,
+          NULL, 1530049900980),
+        (${ashoat.id}, 'ashoat', '', ${ashoat.email}, 1,
+          NULL, 1463588881886);
   `);
 }
 
 async function createThreads() {
-  const ashoatSquadbotThreadDefaultRolePermissions = JSON.stringify(
-    getRolePermissionBlobsForChat().defaultPermissions,
+  const staffSquadbotThreadRoleID = 118821;
+  const defaultRolePermissions = getRolePermissionBlobsForChat()
+    .defaultPermissions;
+  const membershipPermissions = makePermissionsBlob(
+    defaultRolePermissions,
+    null,
+    bots.squadbot.staffThreadID,
+    threadTypes.CHAT_SECRET,
   );
+  const membershipPermissionsString = JSON.stringify(membershipPermissions);
+  const membershipChildPermissionsString = JSON.stringify(
+    makePermissionsForChildrenBlob(membershipPermissions),
+  );
+  const subscriptionString = JSON.stringify({ home: true, pushNotifs: true });
   await dbQuery(SQL`
     INSERT INTO ids (id, table_name)
-      VALUES (83794, 'threads'), (118821, 'roles');
+      VALUES
+        (${bots.squadbot.staffThreadID}, 'threads'),
+        (${staffSquadbotThreadRoleID}, 'roles');
     INSERT INTO roles (id, thread, name, permissions, creation_time)
-      VALUES (118821, 83794, 'Members',
-        ${ashoatSquadbotThreadDefaultRolePermissions}, 1530049901882);
+      VALUES
+        (${staffSquadbotThreadRoleID}, ${bots.squadbot.staffThreadID},
+          'Members', ${JSON.stringify(defaultRolePermissions)}, 1530049901882);
     INSERT INTO threads (id, type, name, description, parent_thread_id,
         default_role, creator, creation_time, color)
-      VALUES (83794, 4, NULL, NULL, NULL, 118821, 5, 1530049901942, 'ef1a63');
+      VALUES
+        (${bots.squadbot.staffThreadID}, ${threadTypes.CHAT_SECRET}, NULL, NULL,
+          NULL, ${staffSquadbotThreadRoleID}, ${bots.squadbot.userID},
+          1530049901942, 'ef1a63');
+    INSERT INTO memberships (thread, user, role, permissions,
+        permissions_for_children, creation_time, subscription, unread)
+      VALUES
+        (${bots.squadbot.staffThreadID}, ${bots.squadbot.userID},
+          ${staffSquadbotThreadRoleID}, ${membershipPermissionsString},
+          ${membershipChildPermissionsString}, 1530049902080,
+          ${subscriptionString}, 0),
+        (${bots.squadbot.staffThreadID}, ${ashoat.id},
+          ${staffSquadbotThreadRoleID}, ${membershipPermissionsString},
+          ${membershipChildPermissionsString}, 1530049902080,
+          ${subscriptionString}, 0);
   `);
 }
 
