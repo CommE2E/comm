@@ -11,6 +11,7 @@ import invariant from 'invariant';
 
 import {
   ComposeThreadRouteName,
+  AppRouteName,
   threadRoutes,
 } from '../navigation/route-names';
 
@@ -138,6 +139,17 @@ function removeScreensFromStack<
   };
 }
 
+function validNavState(state: PossiblyStaleNavigationState) {
+  if (state.routes.length === 0) {
+    return false;
+  }
+  const [firstRoute] = state.routes;
+  if (firstRoute.name !== AppRouteName) {
+    return false;
+  }
+  return true;
+}
+
 export {
   getStateFromNavigatorRoute,
   getThreadIDFromParams,
@@ -145,4 +157,5 @@ export {
   currentLeafRoute,
   findRouteIndexWithKey,
   removeScreensFromStack,
+  validNavState,
 };

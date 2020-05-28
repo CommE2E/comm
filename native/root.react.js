@@ -44,6 +44,7 @@ import InputStateContainer from './input/input-state-container.react';
 import './themes/fonts';
 import LifecycleHandler from './lifecycle/lifecycle-handler.react';
 import { DarkTheme, LightTheme } from './themes/navigation';
+import { validNavState } from './navigation/navigation-utils';
 
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental &&
@@ -95,7 +96,10 @@ class Root extends React.PureComponent<Props, State> {
           navStateAsyncStorageKey,
         );
         if (navStateString) {
-          initialState = JSON.parse(navStateString);
+          const savedState = JSON.parse(navStateString);
+          if (validNavState(savedState)) {
+            initialState = savedState;
+          }
         }
       } catch {}
     }
