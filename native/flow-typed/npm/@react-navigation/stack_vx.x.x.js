@@ -489,6 +489,15 @@ declare module '@react-navigation/stack' {
     Navigator: React$ComponentType<NavigatorProps>,
   |};
 
+  declare export type Descriptor<
+    NavProp,
+    ScreenOptions: {} = {},
+  > = {|
+    +render: () => React$Node,
+    +options: $ReadOnly<ScreenOptions>,
+    +navigation: NavProp,
+  |};
+
   //---------------------------------------------------------------------------
   // SECTION 2: SHARED TYPE DEFINITIONS
   // This section too is copy-pasted, but it's not identical across all React
@@ -787,24 +796,6 @@ declare module '@react-navigation/stack' {
    * used below in section 3, but also in other libdefs.
    */
 
-  declare export type Descriptor<
-    ParamList: ParamListBase,
-    RouteName: $Keys<ParamList> = string,
-    State: NavigationState = NavigationState,
-    ScreenOptions: {} = {},
-    EventMap: EventMapBase = EventMapCore<State>,
-  > = {|
-    +render: () => React$Node,
-    +options: $ReadOnly<ScreenOptions>,
-    +navigation: NavigationProp<
-      ParamList,
-      RouteName,
-      State,
-      ScreenOptions,
-      EventMap,
-    >,
-  |};
-
   declare type EdgeInsets = {|
     top: number,
     right: number,
@@ -819,9 +810,7 @@ declare module '@react-navigation/stack' {
   //---------------------------------------------------------------------------
 
   declare export type StackDescriptor = Descriptor<
-    ParamListBase,
-    string,
-    StackNavigationState,
+    StackNavigationProp<ParamListBase, string>,
     StackOptions,
   >;
 
@@ -1054,7 +1043,7 @@ declare module '@react-navigation/stack' {
     ...StackNavigationProps,
     state: StackNavigationState,
     navigation: StackNavigationProp<>,
-    descriptors: {| [key: string]: StackDescriptor |},
+    descriptors: {| +[key: string]: StackDescriptor |},
   |}>;
 
   declare export var createStackNavigator: CreateNavigator<

@@ -489,6 +489,15 @@ declare module '@react-navigation/bottom-tabs' {
     Navigator: React$ComponentType<NavigatorProps>,
   |};
 
+  declare export type Descriptor<
+    NavProp,
+    ScreenOptions: {} = {},
+  > = {|
+    +render: () => React$Node,
+    +options: $ReadOnly<ScreenOptions>,
+    +navigation: NavProp,
+  |};
+
   //---------------------------------------------------------------------------
   // SECTION 2: SHARED TYPE DEFINITIONS
   // This section too is copy-pasted, but it's not identical across all React
@@ -787,24 +796,6 @@ declare module '@react-navigation/bottom-tabs' {
    * used below in section 3, but also in other libdefs.
    */
 
-  declare export type Descriptor<
-    ParamList: ParamListBase,
-    RouteName: $Keys<ParamList> = string,
-    State: NavigationState = NavigationState,
-    ScreenOptions: {} = {},
-    EventMap: EventMapBase = EventMapCore<State>,
-  > = {|
-    +render: () => React$Node,
-    +options: $ReadOnly<ScreenOptions>,
-    +navigation: NavigationProp<
-      ParamList,
-      RouteName,
-      State,
-      ScreenOptions,
-      EventMap,
-    >,
-  |};
-
   declare type EdgeInsets = {|
     top: number,
     right: number,
@@ -862,9 +853,7 @@ declare module '@react-navigation/bottom-tabs' {
   |};
 
   declare export type BottomTabDescriptor = Descriptor<
-    ParamListBase,
-    string,
-    TabNavigationState,
+    BottomTabNavigationProp<ParamListBase, string>,
     BottomTabOptions,
   >;
 
@@ -898,7 +887,7 @@ declare module '@react-navigation/bottom-tabs' {
   declare export type BottomTabBarProps = {|
     state: TabNavigationState,
     navigation: BottomTabNavigationProp<>,
-    descriptors: {| [key: string]: BottomTabDescriptor |},
+    descriptors: {| +[key: string]: BottomTabDescriptor |},
     ...BottomTabBarOptions,
   |}
 

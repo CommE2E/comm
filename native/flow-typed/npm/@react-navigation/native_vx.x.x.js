@@ -489,6 +489,15 @@ declare module '@react-navigation/native' {
     Navigator: React$ComponentType<NavigatorProps>,
   |};
 
+  declare export type Descriptor<
+    NavProp,
+    ScreenOptions: {} = {},
+  > = {|
+    +render: () => React$Node,
+    +options: $ReadOnly<ScreenOptions>,
+    +navigation: NavProp,
+  |};
+
   //---------------------------------------------------------------------------
   // SECTION 2: SHARED TYPE DEFINITIONS
   // This section too is copy-pasted, but it's not identical across all React
@@ -607,9 +616,7 @@ declare module '@react-navigation/native' {
     |},
   ) => {|
     +state: State,
-    +descriptors: {|
-      [key: string]: Descriptor<ParamListBase, string, State, ScreenOptions>
-    |},
+    +descriptors: {| +[key: string]: Descriptor<NavProp, ScreenOptions> |},
     +navigation: NavProp,
   |};
 
