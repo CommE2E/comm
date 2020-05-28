@@ -10,7 +10,7 @@ import { NavContext } from '../navigation/navigation-context';
 import {
   getStateFromNavigatorRoute,
   getThreadIDFromRoute,
-} from '../utils/navigation-utils';
+} from '../navigation/navigation-utils';
 import { useActiveThread } from '../navigation/nav-selectors';
 import { clearThreadsActionType } from '../navigation/action-types';
 

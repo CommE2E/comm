@@ -16,7 +16,7 @@ import type {
 import { StackRouter, CommonActions } from '@react-navigation/native';
 import invariant from 'invariant';
 
-import { removeScreensFromStack } from '../utils/navigation-utils';
+import { removeScreensFromStack } from './navigation-utils';
 import {
   accountModals,
   LoggedOutModalRouteName,

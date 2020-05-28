@@ -23,7 +23,7 @@ import {
 import {
   removeScreensFromStack,
   getThreadIDFromRoute,
-} from '../utils/navigation-utils';
+} from '../navigation/navigation-utils';
 import {
   clearScreensActionType,
   replaceWithThreadActionType,

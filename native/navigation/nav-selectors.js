@@ -30,7 +30,7 @@ import {
 import {
   getStateFromNavigatorRoute,
   getThreadIDFromRoute,
-} from '../utils/navigation-utils';
+} from './navigation-utils';
 import { NavContext } from './navigation-context';
 
 const baseCreateIsForegroundSelector = (routeName: string) =>

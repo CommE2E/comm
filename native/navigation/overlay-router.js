@@ -13,7 +13,7 @@ import type {
 
 import { StackRouter } from '@react-navigation/native';
 
-import { removeScreensFromStack } from '../utils/navigation-utils';
+import { removeScreensFromStack } from './navigation-utils';
 import { clearOverlayModalsActionType } from './action-types';
 
 type ClearOverlayModalsAction = {|
