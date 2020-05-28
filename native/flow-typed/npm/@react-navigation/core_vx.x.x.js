@@ -19,5 +19,17 @@
  * needed.
  */
 declare module '@react-navigation/core/src/NavigationBuilderContext' {
-  declare module.exports: any;
+
+  declare type GenericNavigationAction = {|
+    +type: string,
+    +payload?: { +[key: string]: mixed },
+    +source?: string,
+    +target?: string,
+  |};
+
+  declare export default React$Context<{
+    trackAction: (action: GenericNavigationAction) => void,
+    ...
+  }>;
+
 }
