@@ -14,7 +14,7 @@ type Props = {
 class ThreadSettingsMemberTooltipButton extends React.PureComponent<Props> {
   static propTypes = {
     navigation: PropTypes.shape({
-      goBack: PropTypes.func.isRequired,
+      goBackOnce: PropTypes.func.isRequired,
     }).isRequired,
   };
 
@@ -27,7 +27,7 @@ class ThreadSettingsMemberTooltipButton extends React.PureComponent<Props> {
   }
 
   onPress = () => {
-    this.props.navigation.goBack();
+    this.props.navigation.goBackOnce();
   };
 }
 

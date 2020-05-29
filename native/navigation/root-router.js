@@ -65,6 +65,7 @@ export type RootRouterNavigationProp<
   +logOut: () => void,
   +clearRootModals: (keys: $ReadOnlyArray<string>) => void,
   +setNavState: (state: NavigationState) => void,
+  +goBackOnce: () => void,
 |};
 
 type ResetStateRoute = {
@@ -211,6 +212,10 @@ function RootRouter(
       ) => ({
         type: setNavStateActionType,
         payload: { state, hideFromMonitor },
+      }),
+      goBackOnce: () => state => ({
+        ...CommonActions.goBack(),
+        target: state.key,
       }),
     },
   };

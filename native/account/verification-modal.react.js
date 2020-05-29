@@ -95,7 +95,6 @@ type State = {
 class VerificationModal extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
-      goBack: PropTypes.func.isRequired,
       clearRootModals: PropTypes.func.isRequired,
     }).isRequired,
     route: PropTypes.shape({

@@ -30,7 +30,7 @@ class Modal extends React.PureComponent<Props> {
     children: PropTypes.node,
     navigation: PropTypes.shape({
       isFocused: PropTypes.func.isRequired,
-      goBack: PropTypes.func.isRequired,
+      goBackOnce: PropTypes.func.isRequired,
     }).isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     containerStyle: ViewPropTypes.style,
@@ -39,7 +39,7 @@ class Modal extends React.PureComponent<Props> {
 
   close = () => {
     if (this.props.navigation.isFocused()) {
-      this.props.navigation.goBack();
+      this.props.navigation.goBackOnce();
     }
   };
 

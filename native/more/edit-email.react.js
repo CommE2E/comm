@@ -21,6 +21,7 @@ import {
 } from 'react-native';
 import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
+import { CommonActions } from '@react-navigation/native';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
@@ -62,7 +63,7 @@ type State = {|
 class EditEmail extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
-      goBack: PropTypes.func.isRequired,
+      dispatch: PropTypes.func.isRequired,
     }).isRequired,
     email: PropTypes.string,
     loadingStatus: loadingStatusPropType.isRequired,
@@ -206,6 +207,13 @@ class EditEmail extends React.PureComponent<Props, State> {
     } catch (e) {}
   };
 
+  goBackOnce() {
+    this.props.navigation.dispatch(state => ({
+      ...CommonActions.goBack(),
+      target: state.key,
+    }));
+  }
+
   submitEmail = () => {
     if (this.state.email.search(validEmailRegex) === -1) {
       Alert.alert(
@@ -222,7 +230,7 @@ class EditEmail extends React.PureComponent<Props, State> {
         { cancelable: false },
       );
     } else if (this.state.email === this.props.email) {
-      this.props.navigation.goBack();
+      this.goBackOnce();
     } else {
       this.props.dispatchActionPromise(
         changeUserSettingsActionTypes,
@@ -239,7 +247,7 @@ class EditEmail extends React.PureComponent<Props, State> {
         },
         currentPassword: this.state.password,
       });
-      this.props.navigation.goBack();
+      this.goBackOnce();
       Alert.alert(
         'Verify email',
         "We've sent you an email to verify your email address. Just click on " +

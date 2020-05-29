@@ -11,7 +11,7 @@ import type {
   RouterConfigOptions,
 } from '@react-navigation/native';
 
-import { StackRouter } from '@react-navigation/native';
+import { StackRouter, CommonActions } from '@react-navigation/native';
 
 import { removeScreensFromStack } from './navigation-utils';
 import { clearOverlayModalsActionType } from './action-types';
@@ -32,6 +32,7 @@ export type OverlayRouterNavigationProp<
 > = {|
   ...StackNavigationProp<ParamList, RouteName, {||}, {||}>,
   +clearOverlayModals: (keys: $ReadOnlyArray<string>) => void,
+  +goBackOnce: () => void,
 |};
 
 function OverlayRouter(
@@ -66,6 +67,10 @@ function OverlayRouter(
       clearOverlayModals: (keys: $ReadOnlyArray<string>) => ({
         type: clearOverlayModalsActionType,
         payload: { keys },
+      }),
+      goBackOnce: () => state => ({
+        ...CommonActions.goBack(),
+        target: state.key,
       }),
     },
   };

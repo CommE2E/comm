@@ -417,8 +417,11 @@ declare module '@react-navigation/stack' {
    * Routers
    */
 
-  declare type ActionCreators<+Action: GenericNavigationAction> = {
-    +[key: string]: (...args: any) => Action,
+  declare type ActionCreators<
+    State: NavigationState,
+    Action: GenericNavigationAction,
+  > = {
+    +[key: string]: (...args: any) => (Action | State => Action),
   };
 
   declare type DefaultRouterOptions = {
@@ -459,7 +462,7 @@ declare module '@react-navigation/stack' {
       options: RouterConfigOptions,
     ) => ?PossiblyStaleNavigationState;
     +shouldActionChangeFocus: (action: GenericNavigationAction) => boolean,
-    +actionCreators?: ActionCreators<Action>,
+    +actionCreators?: ActionCreators<State, Action>,
   |};
 
   /**

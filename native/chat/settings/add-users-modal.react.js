@@ -83,7 +83,7 @@ type PropsAndState = {| ...Props, ...State |};
 class AddUsersModal extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
-      goBack: PropTypes.func.isRequired,
+      goBackOnce: PropTypes.func.isRequired,
     }).isRequired,
     route: PropTypes.shape({
       params: PropTypes.shape({
@@ -214,7 +214,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
   }
 
   close = () => {
-    this.props.navigation.goBack();
+    this.props.navigation.goBackOnce();
   };
 
   tagInputRef = (tagInput: ?TagInput<AccountUserInfo>) => {

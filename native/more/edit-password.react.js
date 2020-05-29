@@ -21,6 +21,7 @@ import {
 } from 'react-native';
 import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
+import { CommonActions } from '@react-navigation/native';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
@@ -62,7 +63,7 @@ type State = {|
 class EditPassword extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
-      goBack: PropTypes.func.isRequired,
+      dispatch: PropTypes.func.isRequired,
     }).isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
     activeTheme: globalThemePropType,
@@ -271,6 +272,13 @@ class EditPassword extends React.PureComponent<Props, State> {
     } catch (e) {}
   };
 
+  goBackOnce() {
+    this.props.navigation.dispatch(state => ({
+      ...CommonActions.goBack(),
+      target: state.key,
+    }));
+  }
+
   submitPassword = () => {
     if (this.state.newPassword === '') {
       Alert.alert(
@@ -287,7 +295,7 @@ class EditPassword extends React.PureComponent<Props, State> {
         { cancelable: false },
       );
     } else if (this.state.newPassword === this.state.currentPassword) {
-      this.props.navigation.goBack();
+      this.goBackOnce();
     } else {
       this.props.dispatchActionPromise(
         changeUserSettingsActionTypes,
@@ -307,7 +315,7 @@ class EditPassword extends React.PureComponent<Props, State> {
       await setNativeCredentials({
         password: this.state.newPassword,
       });
-      this.props.navigation.goBack();
+      this.goBackOnce();
       return result;
     } catch (e) {
       if (e.message === 'invalid_credentials') {

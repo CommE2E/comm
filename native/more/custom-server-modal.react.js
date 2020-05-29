@@ -35,7 +35,7 @@ type State = {|
 class CustomServerModal extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
-      goBack: PropTypes.func.isRequired,
+      goBackOnce: PropTypes.func.isRequired,
     }).isRequired,
     urlPrefix: PropTypes.string.isRequired,
     customServer: PropTypes.string,
@@ -84,7 +84,7 @@ class CustomServerModal extends React.PureComponent<Props, State> {
     if (customServer && customServer !== this.props.customServer) {
       this.props.dispatchActionPayload(setCustomServer, customServer);
     }
-    this.props.navigation.goBack();
+    this.props.navigation.goBackOnce();
   };
 }
 

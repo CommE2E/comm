@@ -40,12 +40,12 @@ function ActionResultModal(props: Props) {
   );
 
   // Timer resets whenever message updates
-  const { goBack } = props.navigation;
+  const { goBackOnce } = props.navigation;
   const { message } = props.route.params;
   React.useEffect(() => {
-    const timeoutID = setTimeout(goBack, 2000);
+    const timeoutID = setTimeout(goBackOnce, 2000);
     return () => clearTimeout(timeoutID);
-  }, [message, goBack]);
+  }, [message, goBackOnce]);
 
   const styles = useOverlayStyles(ourStyles);
   const containerStyle = {

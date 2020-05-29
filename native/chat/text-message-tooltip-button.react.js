@@ -34,7 +34,7 @@ type Props = {
 class TextMessageTooltipButton extends React.PureComponent<Props> {
   static propTypes = {
     navigation: PropTypes.shape({
-      goBack: PropTypes.func.isRequired,
+      goBackOnce: PropTypes.func.isRequired,
     }).isRequired,
     route: PropTypes.shape({
       params: PropTypes.shape({
@@ -85,7 +85,7 @@ class TextMessageTooltipButton extends React.PureComponent<Props> {
   }
 
   onPress = () => {
-    this.props.navigation.goBack();
+    this.props.navigation.goBackOnce();
   };
 }
 

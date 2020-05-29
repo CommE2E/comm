@@ -113,7 +113,7 @@ function createTooltip<
   class Tooltip extends React.PureComponent<TooltipPropsType> {
     static propTypes = {
       navigation: PropTypes.shape({
-        goBack: PropTypes.func.isRequired,
+        goBackOnce: PropTypes.func.isRequired,
       }).isRequired,
       route: PropTypes.shape({
         params: PropTypes.shape({
@@ -367,11 +367,11 @@ function createTooltip<
     }
 
     onPressBackdrop = () => {
-      this.props.navigation.goBack();
+      this.props.navigation.goBackOnce();
     };
 
     onPressEntry = (entry: Entry) => {
-      this.props.navigation.goBack();
+      this.props.navigation.goBackOnce();
       const dispatchFunctions = {
         dispatch: this.props.dispatch,
         dispatchActionPayload: this.props.dispatchActionPayload,
