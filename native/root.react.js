@@ -45,13 +45,13 @@ import './themes/fonts';
 import LifecycleHandler from './lifecycle/lifecycle-handler.react';
 import { DarkTheme, LightTheme } from './themes/navigation';
 import { validNavState } from './navigation/navigation-utils';
+import { navStateAsyncStorageKey } from './navigation/persistance';
 
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental &&
     UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-const navStateAsyncStorageKey = 'navState';
 const navInitAction = Object.freeze({ type: 'NAV/@@INIT' });
 const navUnknownAction = Object.freeze({ type: 'NAV/@@UNKNOWN' });
 
