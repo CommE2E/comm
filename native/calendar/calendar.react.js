@@ -151,6 +151,7 @@ type State = {|
   listDataWithHeights: ?$ReadOnlyArray<CalendarItemWithHeight>,
   readyToShowList: boolean,
   extraData: ExtraData,
+  currentlyEditing: $ReadOnlyArray<string>,
 |};
 class Calendar extends React.PureComponent<Props, State> {
   static propTypes = {
@@ -224,7 +225,6 @@ class Calendar extends React.PureComponent<Props, State> {
   bottomLoaderWaitingToLeaveView = true;
   // We keep refs to the entries so CalendarInputBar can save them
   entryRefs = new Map();
-  currentlyEditing = new Set();
 
   constructor(props: Props) {
     super(props);
@@ -240,6 +240,7 @@ class Calendar extends React.PureComponent<Props, State> {
       listDataWithHeights: null,
       readyToShowList: false,
       extraData: this.latestExtraData,
+      currentlyEditing: [],
     };
   }
 
@@ -745,7 +746,7 @@ class Calendar extends React.PureComponent<Props, State> {
         <ContentLoading fillType="absolute" colors={this.props.colors} />
       );
     }
-    const disableInputBar = this.currentlyEditing.size === 0;
+    const disableInputBar = this.state.currentlyEditing.length === 0;
     return (
       <SafeAreaView style={this.props.styles.container}>
         <DisconnectedBar visible={this.props.calendarActive} />
@@ -862,12 +863,22 @@ class Calendar extends React.PureComponent<Props, State> {
     } else {
       this.lastEntryKeyActive = key;
     }
-    this.currentlyEditing.add(key);
+    const newCurrentlyEditing = [
+      ...new Set([...this.state.currentlyEditing, key]),
+    ];
+    if (newCurrentlyEditing.length > this.state.currentlyEditing.length) {
+      this.setState({ currentlyEditing: newCurrentlyEditing });
+    }
   };
 
   onConcludeEntryEditMode = (entryInfo: EntryInfoWithHeight) => {
     const key = entryKey(entryInfo);
-    this.currentlyEditing.delete(key);
+    const newCurrentlyEditing = this.state.currentlyEditing.filter(
+      k => k !== key,
+    );
+    if (newCurrentlyEditing.length < this.state.currentlyEditing.length) {
+      this.setState({ currentlyEditing: newCurrentlyEditing });
+    }
   };
 
   keyboardShow = (event: KeyboardEvent) => {
