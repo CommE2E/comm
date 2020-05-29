@@ -144,7 +144,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
         <LinkButton
           text="Create"
           onPress={this.onPressCreateThread}
-          disabled={enabled}
+          disabled={!enabled}
         />
       ),
     });
