@@ -1,7 +1,7 @@
-// flow-typed signature: a69faaac78959be3028019885b5fd6ab
-// flow-typed version: <<STUB>>/@react-navigation/native_v5.2.6/flow_v0.105.0
+// flow-typed signature: 78209a41671760f5318e734a04c2ae1c
+// flow-typed version: <<STUB>>/@react-navigation/bottom-tabs_v5.4.1/flow_v0.105.0
 
-declare module '@react-navigation/native' {
+declare module '@react-navigation/material-bottom-tabs' {
 
   //---------------------------------------------------------------------------
   // SECTION 1: IDENTICAL TYPE DEFINITIONS
@@ -1657,41 +1657,16 @@ declare module '@react-navigation/native' {
   // React Navigation libdef.
   //---------------------------------------------------------------------------
 
-  declare export type Theme = {|
-    +dark: boolean,
-    +colors: {|
-      +primary: string,
-      +background: string,
-      +card: string,
-      +text: string,
-      +border: string,
-    |},
-  |};
+  declare export type MaterialBottomTabDescriptor = Descriptor<
+    MaterialBottomTabNavigationProp<>,
+    MaterialBottomTabOptions,
+  >;
 
-  declare export type LinkingConfig = {|
-    +[routeName: string]:
-      | string
-      | {|
-          +path?: string,
-          +parse?: {| +[param: string]: string => mixed |},
-          +screens?: LinkingConfig,
-          +initialRouteName?: string,
-          +stringify?: {| +[param: string]: mixed => string |},
-        |},
-  |};
-
-  declare export type LinkingOptions = {|
-    +enabled?: boolean,
-    +prefixes: $ReadOnlyArray<string>,
-    +config?: LinkingConfig,
-    +getStateFromPath?: (
-      path: string,
-      config?: LinkingConfig,
-    ) => PossiblyStaleNavigationState,
-    +getPathFromState?: (
-      state?: ?PossiblyStaleNavigationState,
-      config?: LinkingConfig,
-    ) => string,
+  declare export type MaterialBottomTabViewProps = {|
+    ...MaterialBottomTabNavigationConfig,
+    +state: TabNavigationState,
+    +navigation: MaterialBottomTabNavigationProp<>,
+    +descriptors: {| +[key: string]: MaterialBottomTabDescriptor |},
   |};
 
   //---------------------------------------------------------------------------
@@ -1700,96 +1675,15 @@ declare module '@react-navigation/native' {
   // but this section types the module's exports.
   //---------------------------------------------------------------------------
 
-  declare type NavigateActionCreator = {|
-    (routeName: string, params?: ScreenParams): NavigateAction,
-    (
-      | {| +key: string, +params?: ScreenParams |}
-      | {| +name: string, +key?: string, +params?: ScreenParams |},
-    ): NavigateAction,
-  |};
-
-  declare export var CommonActions: {|
-    +navigate: NavigateActionCreator,
-    +goBack: () => BackAction,
-    +reset: (state: PossiblyStaleNavigationState) => ResetAction,
-    +setParams: (params: ScreenParams) => SetParamsAction,
-  |};
-
-  declare export var createNavigatorFactory: <
-    State: NavigationState,
-    ScreenOptions: {},
-    EventMap: EventMapBase,
-    NavProp: NavigationHelpers<
-      ParamListBase,
-      State,
-      EventMap,
-    >,
-    ExtraNavigatorProps: ExtraNavigatorPropsBase,
-  >(
-    navigator: React$ComponentType<{|
-      ...$Exact<ExtraNavigatorPropsBase>,
-      ...ScreenOptionsProp<ScreenOptions, NavProp>,
-    |}>,
-  ) => CreateNavigator<State, ScreenOptions, EventMap, ExtraNavigatorProps>;
-
-  declare export var StackRouter: RouterFactory<
-    StackNavigationState,
-    StackAction,
-    StackRouterOptions,
-  >;
-
-  declare export var TabRouter: RouterFactory<
+  declare export var createMaterialBottomTabNavigator: CreateNavigator<
     TabNavigationState,
-    TabAction,
-    TabRouterOptions,
+    MaterialBottomTabOptions,
+    MaterialBottomTabNavigationEventMap,
+    ExtraMaterialBottomTabNavigatorProps,
   >;
 
-  declare export var useNavigationBuilder: <
-    State: NavigationState,
-    Action: GenericNavigationAction,
-    ScreenOptions: {},
-    RouterOptions: DefaultRouterOptions,
-    NavProp,
-  >(
-    routerFactory: RouterFactory<State, Action, RouterOptions>,
-    options: {|
-      ...$Exact<RouterOptions>,
-      ...ScreenOptionsProp<ScreenOptions, NavProp>,
-      children?: React.Node,
-    |},
-  ) => {|
-    +state: State,
-    +descriptors: {| +[key: string]: Descriptor<NavProp, ScreenOptions> |},
-    +navigation: NavProp,
-  |};
-
-  declare export var NavigationHelpersContext: React$Context<
-    ?NavigationHelpers<ParamListBase>,
+  declare export var MaterialBottomTabView: React$ComponentType<
+    MaterialBottomTabViewProps,
   >;
-
-  declare export var NavigationContainer: React$AbstractComponent<
-    {|
-      +theme?: Theme,
-      +linking?: LinkingOptions,
-      +fallback?: React$Node,
-      +children: React$Node,
-      +initialState?: PossiblyStaleNavigationState,
-      +onStateChange?: (state: ?PossiblyStaleNavigationState) => void,
-      +independent?: boolean,
-    |},
-    {|
-      ...$Exact<NavigationHelpers<
-        ParamListBase,
-        PossiblyStaleNavigationState,
-        GlobalEventMap<PossiblyStaleNavigationState>,
-      >>,
-      +setParams: (params: ScreenParams) => void,
-      +resetRoot: (state?: ?PossiblyStaleNavigationState) => void,
-      +getRootState: () => PossiblyStaleNavigationState,
-    |},
-  >;
-
-  declare export var DefaultTheme: Theme & { +dark: false };
-  declare export var DarkTheme: Theme & { +dark: true };
 
 }

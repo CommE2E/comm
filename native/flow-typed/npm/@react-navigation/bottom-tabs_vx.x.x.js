@@ -299,6 +299,91 @@ declare module '@react-navigation/bottom-tabs' {
   |}>;
 
   /**
+   * The following is copied from react-native-gesture-handler's libdef
+   */
+
+  declare type $EventHandlers<ExtraProps: {}> = {|
+    onGestureEvent?: ($Event<ExtraProps>) => mixed,
+    onHandlerStateChange?: ($Event<ExtraProps>) => mixed,
+    onBegan?: ($Event<ExtraProps>) => mixed,
+    onFailed?: ($Event<ExtraProps>) => mixed,
+    onCancelled?: ($Event<ExtraProps>) => mixed,
+    onActivated?: ($Event<ExtraProps>) => mixed,
+    onEnded?: ($Event<ExtraProps>) => mixed,
+  |};
+
+  declare type HitSlop =
+    | number
+    | {|
+        left?: number,
+        top?: number,
+        right?: number,
+        bottom?: number,
+        vertical?: number,
+        horizontal?: number,
+        width?: number,
+        height?: number,
+      |}
+    | {|
+        width: number,
+        left: number,
+      |}
+    | {|
+        width: number,
+        right: number,
+      |}
+    | {|
+        height: number,
+        top: number,
+      |}
+    | {|
+        height: number,
+        bottom: number,
+      |};
+
+  declare type $GestureHandlerProps<
+    AdditionalProps: {},
+    ExtraEventsProps: {}
+  > = $ReadOnly<{|
+    ...$Exact<AdditionalProps>,
+    ...$EventHandlers<ExtraEventsProps>,
+    id?: string,
+    enabled?: boolean,
+    waitFor?: React$Ref<any> | Array<React$Ref<any>>,
+    simultaneousHandlers?: React$Ref<any> | Array<React$Ref<any>>,
+    shouldCancelWhenOutside?: boolean,
+    minPointers?: number,
+    hitSlop?: HitSlop,
+    children?: React$Node,
+  |}>;
+
+  declare type PanGestureHandlerProps = $GestureHandlerProps<
+    {
+      activeOffsetY?: number | [number, number],
+      activeOffsetX?: number | [number, number],
+      failOffsetY?: number | [number, number],
+      failOffsetX?: number | [number, number],
+      minDist?: number,
+      minVelocity?: number,
+      minVelocityX?: number,
+      minVelocityY?: number,
+      minPointers?: number,
+      maxPointers?: number,
+      avgTouches?: boolean,
+    },
+    {
+      x: number,
+      y: number,
+      absoluteX: number,
+      absoluteY: number,
+      translationX: number,
+      translationY: number,
+      velocityX: number,
+      velocityY: number,
+    }
+  >;
+
+  /**
    * MAGIC
    */
 
@@ -937,7 +1022,7 @@ declare module '@react-navigation/bottom-tabs' {
    */
 
   declare export type StackDescriptor = Descriptor<
-    StackNavigationProp<ParamListBase, string>,
+    StackNavigationProp<>,
     StackOptions,
   >;
 
@@ -1109,7 +1194,7 @@ declare module '@react-navigation/bottom-tabs' {
   |};
 
   /**
-   * Tab options
+   * Bottom tab options
    */
 
   declare export type BottomTabBarButtonProps = {|
@@ -1140,7 +1225,7 @@ declare module '@react-navigation/bottom-tabs' {
   |}>;
 
   /**
-   * Tab navigation prop
+   * Bottom tab navigation prop
    */
 
   declare export type BottomTabNavigationEventMap = {|
@@ -1149,11 +1234,11 @@ declare module '@react-navigation/bottom-tabs' {
     +tabLongPress: {| +data: void, +canPreventDefault: false |},
   |};
 
-  declare export type InexactBottomTabNavigationProp<
-    ParamList: ParamListBase = ParamListBase,
-    RouteName: $Keys<ParamList> = string,
-    Options: {} = BottomTabOptions,
-    EventMap: EventMapBase = BottomTabNavigationEventMap,
+  declare type InexactTabNavigationProp<
+    ParamList: ParamListBase,
+    RouteName: $Keys<ParamList>,
+    Options: {},
+    EventMap: EventMapBase,
   > = {
     ...$Exact<NavigationProp<
       ParamList,
@@ -1170,6 +1255,18 @@ declare module '@react-navigation/bottom-tabs' {
     ...
   };
 
+  declare export type InexactBottomTabNavigationProp<
+    ParamList: ParamListBase = ParamListBase,
+    RouteName: $Keys<ParamList> = string,
+    Options: {} = BottomTabOptions,
+    EventMap: EventMapBase = BottomTabNavigationEventMap,
+  > = InexactTabNavigationProp<
+    ParamList,
+    RouteName,
+    Options,
+    EventMap,
+  >;
+
   declare export type BottomTabNavigationProp<
     ParamList: ParamListBase = ParamListBase,
     RouteName: $Keys<ParamList> = string,
@@ -1183,11 +1280,11 @@ declare module '@react-navigation/bottom-tabs' {
   >>;
 
   /**
-   * Miscellaneous tab exports
+   * Miscellaneous bottom tab exports
    */
 
   declare export type BottomTabDescriptor = Descriptor<
-    BottomTabNavigationProp<ParamListBase, string>,
+    BottomTabNavigationProp<>,
     BottomTabOptions,
   >;
 
@@ -1208,19 +1305,27 @@ declare module '@react-navigation/bottom-tabs' {
     +style: ViewStyleProp,
   |}>;
 
-  declare export type BottomTabBarProps = {|
+  declare type BottomTabNavigationBuilderResult = {|
     +state: TabNavigationState,
     +navigation: BottomTabNavigationProp<>,
     +descriptors: {| +[key: string]: BottomTabDescriptor |},
+  |};
+
+  declare export type BottomTabBarProps = {|
     ...BottomTabBarOptions,
+    ...BottomTabNavigationBuilderResult,
   |}
+
+  declare type BottomTabNavigationConfig = {|
+    +lazy?: boolean,
+    +tabBar?: BottomTabBarProps => React$Node,
+    +tabBarOptions?: BottomTabBarOptions,
+  |};
 
   declare export type ExtraBottomTabNavigatorProps = {|
     ...$Exact<ExtraNavigatorPropsBase>,
     ...TabRouterOptions,
-    +lazy?: boolean,
-    +tabBar?: BottomTabBarProps => React$Node,
-    +tabBarOptions?: BottomTabBarOptions,
+    ...BottomTabNavigationConfig,
   |};
 
   declare export type BottomTabNavigatorProps<
@@ -1230,11 +1335,332 @@ declare module '@react-navigation/bottom-tabs' {
     ...ScreenOptionsProp<BottomTabOptions, NavProp>,
   |};
 
+  /**
+   * Material bottom tab options
+   */
+
+  declare export type MaterialBottomTabOptions = $Shape<{|
+    +title: string,
+    +tabBarColor: string,
+    +tabBarLabel: string,
+    +tabBarIcon:
+      | string
+      | ({| +focused: boolean, +color: string |}) => React$Node,
+    +tabBarBadge: boolean | number | string,
+    +tabBarAccessibilityLabel: string,
+    +tabBarTestID: string,
+  |}>;
+
+  /**
+   * Material bottom tab navigation prop
+   */
+
+  declare export type MaterialBottomTabNavigationEventMap = {|
+    ...EventMapCore<TabNavigationState>,
+    +tabPress: {| +data: void, +canPreventDefault: true |},
+  |};
+
+  declare export type InexactMaterialBottomTabNavigationProp<
+    ParamList: ParamListBase = ParamListBase,
+    RouteName: $Keys<ParamList> = string,
+    Options: {} = MaterialBottomTabOptions,
+    EventMap: EventMapBase = MaterialBottomTabNavigationEventMap,
+  > = InexactTabNavigationProp<
+    ParamList,
+    RouteName,
+    Options,
+    EventMap,
+  >;
+
+  declare export type MaterialBottomTabNavigationProp<
+    ParamList: ParamListBase = ParamListBase,
+    RouteName: $Keys<ParamList> = string,
+    Options: {} = MaterialBottomTabOptions,
+    EventMap: EventMapBase = MaterialBottomTabNavigationEventMap,
+  > = $Exact<InexactMaterialBottomTabNavigationProp<
+    ParamList,
+    RouteName,
+    Options,
+    EventMap,
+  >>;
+
+  /**
+   * Miscellaneous material bottom tab exports
+   */
+
+  declare export type PaperFont = {|
+    +fontFamily: string,
+    +fontWeight?:
+      | 'normal'
+      | 'bold'
+      | '100'
+      | '200'
+      | '300'
+      | '400'
+      | '500'
+      | '600'
+      | '700'
+      | '800'
+      | '900',
+  |};
+
+  declare export type PaperFonts = {|
+    +regular: Font,
+    +medium: Font,
+    +light: Font,
+    +thin: Font,
+  |};
+
+  declare export type PaperTheme = {|
+    +dark: boolean,
+    +mode?: 'adaptive' | 'exact',
+    +roundness: number,
+    +colors: {|
+      +primary: string,
+      +background: string,
+      +surface: string,
+      +accent: string,
+      +error: string,
+      +text: string,
+      +onSurface: string,
+      +onBackground: string,
+      +disabled: string,
+      +placeholder: string,
+      +backdrop: string,
+      +notification: string,
+    |},
+    +fonts: PaperFonts,
+    +animation: {|
+      +scale: number,
+    |},
+  |};
+
+  declare export type PaperRoute = {|
+    +key: string,
+    +title?: string,
+    +icon?: any,
+    +badge?: string | number | boolean,
+    +color?: string,
+    +accessibilityLabel?: string,
+    +testID?: string,
+  |};
+
+  declare export type PaperTouchableProps = {|
+    ...TouchableWithoutFeedbackProps,
+    +key: string,
+    +route: PaperRoute,
+    +children: React$Node,
+    +borderless?: boolean,
+    +centered?: boolean,
+    +rippleColor?: string,
+  |};
+
+  declare export type MaterialBottomTabNavigationConfig = $Shape<{|
+    +shifting: boolean,
+    +labeled: boolean,
+    +renderTouchable: PaperTouchableProps => React$Node,
+    +activeColor: string,
+    +inactiveColor: string,
+    +sceneAnimationEnabled: boolean,
+    +keyboardHidesNavigationBar: boolean,
+    +barStyle: ViewStyleProp,
+    +style: ViewStyleProp,
+    +theme: PaperTheme,
+  |}>;
+
+  declare export type ExtraMaterialBottomTabNavigatorProps = {|
+    ...$Exact<ExtraNavigatorPropsBase>,
+    ...TabRouterOptions,
+    ...MaterialBottomTabNavigationConfig,
+  |};
+
+  declare export type MaterialBottomTabNavigatorProps<
+    NavProp: InexactMaterialBottomTabNavigationProp<> =
+      MaterialBottomTabNavigationProp<>,
+  > = {|
+    ...ExtraMaterialBottomTabNavigatorProps,
+    ...ScreenOptionsProp<MaterialBottomTabOptions, NavProp>,
+  |};
+
+  /**
+   * Material top tab options
+   */
+
+  declare export type MaterialTopTabOptions = $Shape<{|
+    +title: string,
+    +tabBarLabel:
+      | string
+      | ({| +focused: boolean, +color: string |}) => React$Node,
+    +tabBarIcon: ({| +focused: boolean, +color: string |}) => React$Node,
+    +tabBarAccessibilityLabel: string,
+    +tabBarTestID: string,
+  |}>;
+
+  /**
+   * Material top tab navigation prop
+   */
+
+  declare export type MaterialTopTabNavigationEventMap = {|
+    ...EventMapCore<TabNavigationState>,
+    +tabPress: {| +data: void, +canPreventDefault: true |},
+    +tabLongPress: {| +data: void, +canPreventDefault: false |},
+    +swipeStart: {| +data: void, +canPreventDefault: false |},
+    +swipeEnd: {| +data: void, +canPreventDefault: false |},
+  |};
+
+  declare export type InexactMaterialTopTabNavigationProp<
+    ParamList: ParamListBase = ParamListBase,
+    RouteName: $Keys<ParamList> = string,
+    Options: {} = MaterialTopTabOptions,
+    EventMap: EventMapBase = MaterialTopTabNavigationEventMap,
+  > = InexactTabNavigationProp<
+    ParamList,
+    RouteName,
+    Options,
+    EventMap,
+  >;
+
+  declare export type MaterialTopTabNavigationProp<
+    ParamList: ParamListBase = ParamListBase,
+    RouteName: $Keys<ParamList> = string,
+    Options: {} = MaterialTopTabOptions,
+    EventMap: EventMapBase = MaterialTopTabNavigationEventMap,
+  > = $Exact<InexactMaterialTopTabNavigationProp<
+    ParamList,
+    RouteName,
+    Options,
+    EventMap,
+  >>;
+
+  /**
+   * Miscellaneous material top tab exports
+   */
+
+  declare type MaterialTopTabPagerCommonProps = {|
+    +keyboardDismissMode: 'none' | 'on-drag' | 'auto',
+    +swipeEnabled: boolean,
+    +swipeVelocityImpact?: number,
+    +springVelocityScale?: number,
+    +springConfig: $Shape<{|
+      +damping: number,
+      +mass: number,
+      +stiffness: number,
+      +restSpeedThreshold: number,
+      +restDisplacementThreshold: number,
+    |}>,
+    +timingConfig: $Shape<{|
+      +duration: number,
+    |}>,
+  |};
+
+  declare export type MaterialTopTabPagerProps = {|
+    ...MaterialTopTabPagerCommonProps,
+    +onSwipeStart?: () => void,
+    +onSwipeEnd?: () => void,
+    +onIndexChange: (index: number) => void,
+    +navigationState: TabNavigationState,
+    +layout: {| +width: number, +height: number |},
+    +removeClippedSubviews: boolean,
+    +children: ({|
+      +addListener: (type: 'enter', listener: number => void) => void,
+      +removeListener: (type: 'enter', listener: number => void) => void,
+      +position: any, // Reanimated.Node<number>
+      +render: React$Node => React$Node,
+      +jumpTo: string => void,
+    |}) => React$Node,
+    +gestureHandlerProps: PanGestureHandlerProps,
+  |};
+
+  declare export type MaterialTopTabBarIndicatorProps = {|
+    +navigationState: TabNavigationState,
+    +width: string,
+    +style?: ViewStyleProp,
+    +getTabWidth: number => number,
+  |};
+
+  declare export type MaterialTopTabBarOptions = $Shape<{|
+    +scrollEnabled: boolean,
+    +bounces: boolean,
+    +pressColor: string,
+    +pressOpacity: number,
+    +getAccessible: ({| +route: Route<> |}) => boolean,
+    +renderBadge: ({| +route: Route<> |}) => React$Node,
+    +renderIndicator: MaterialTopTabBarIndicatorProps => React$Node,
+    +tabStyle: ViewStyleProp,
+    +indicatorStyle: ViewStyleProp,
+    +indicatorContainerStyle: ViewStyleProp,
+    +labelStyle: TextStyleProp,
+    +contentContainerStyle: ViewStyleProp,
+    +style: ViewStyleProp,
+    +activeTintColor: string,
+    +inactiveTintColor: string,
+    +iconStyle: ViewStyleProp,
+    +labelStyle: TextStyleProp,
+    +showLabel: boolean,
+    +showIcon: boolean,
+    +allowFontScaling: boolean,
+  |}>;
+
+  declare export type MaterialTopTabDescriptor = Descriptor<
+    MaterialBottomTabNavigationProp<>,
+    MaterialBottomTabOptions,
+  >;
+
+  declare type MaterialTopTabNavigationBuilderResult = {|
+    +state: TabNavigationState,
+    +navigation: MaterialTopTabNavigationProp<>,
+    +descriptors: {| +[key: string]: MaterialTopTabDescriptor |},
+  |};
+
+  declare export type MaterialTopTabBarProps = {|
+    ...MaterialTopTabBarOptions,
+    ...MaterialTopTabNavigationBuilderResult,
+    +layout: {| +width: number, +height: number |},
+    +position: any, // Reanimated.Node<number>
+    +jumpTo: string => void,
+  |};
+
+  declare export type MaterialTopTabNavigationConfig = $Shape<{|
+    ...MaterialTopTabPagerCommonProps,
+    +position: any, // Reanimated.Value<number>
+    +tabBarPosition: 'top' | 'bottom',
+    +initialLayout: $Shape<{| +width: number, +height: number |}>,
+    +lazy: boolean,
+    +lazyPreloadDistance: number,
+    +removeClippedSubviews: boolean,
+    +sceneContainerStyle: ViewStyleProp,
+    +style: ViewStyleProp,
+    +gestureHandlerProps: PanGestureHandlerProps,
+    +pager: MaterialTopTabPagerProps => React$Node,
+    +lazyPlaceholder: ({| +route: Route<> |}) => React$Node,
+    +tabBar: MaterialTopTabBarProps => React$Node,
+    +tabBarOptions: MaterialTopTabBarOptions,
+  |}>;
+
+  declare export type ExtraMaterialTopTabNavigatorProps = {|
+    ...$Exact<ExtraNavigatorPropsBase>,
+    ...TabRouterOptions,
+    ...MaterialTopTabNavigationConfig,
+  |};
+
+  declare export type MaterialTopTabNavigatorProps<
+    NavProp: InexactMaterialTopTabNavigationProp<> =
+      MaterialTopTabNavigationProp<>,
+  > = {|
+    ...ExtraMaterialTopTabNavigatorProps,
+    ...ScreenOptionsProp<MaterialTopTabOptions, NavProp>,
+  |};
+
   //---------------------------------------------------------------------------
   // SECTION 2: UNIQUE TYPE DEFINITIONS
   // This section contains exported types that are not present in any other
   // React Navigation libdef.
   //---------------------------------------------------------------------------
+
+  declare export type BottomTabViewProps = {|
+    ...BottomTabNavigationConfig,
+    ...BottomTabNavigationBuilderResult,
+  |};
 
   //---------------------------------------------------------------------------
   // SECTION 3: EXPORTED MODULE
@@ -1250,5 +1676,7 @@ declare module '@react-navigation/bottom-tabs' {
   >;
 
   declare export var BottomTabBar: React$ComponentType<BottomTabBarProps>;
+
+  declare export var BottomTabView: React$ComponentType<BottomTabViewProps>;
 
 }
