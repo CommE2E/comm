@@ -450,6 +450,20 @@ declare module '@react-navigation/material-top-tabs' {
     | ResetAction
     | SetParamsAction;
 
+  declare type NavigateActionCreator = {|
+    (routeName: string, params?: ScreenParams): NavigateAction,
+    (
+      | {| +key: string, +params?: ScreenParams |}
+      | {| +name: string, +key?: string, +params?: ScreenParams |},
+    ): NavigateAction,
+  |};
+  declare export type CommonActionsType = {|
+    +navigate: NavigateActionCreator,
+    +goBack: () => BackAction,
+    +reset: (state: PossiblyStaleNavigationState) => ResetAction,
+    +setParams: (params: ScreenParams) => SetParamsAction,
+  |};
+
   declare export type GenericNavigationAction = {|
     +type: string,
     +payload?: { +[key: string]: mixed },
@@ -602,6 +616,13 @@ declare module '@react-navigation/material-top-tabs' {
     | PopAction
     | PopToTopAction;
 
+  declare export type StackActionsType = {|
+    +replace: (routeName: string, params?: ScreenParams) => ReplaceAction,
+    +push: (routeName: string, params?: ScreenParams) => PushAction,
+    +pop: (count?: number) => PopAction,
+    +popToTop: () => PopToTopAction,
+  |};
+
   declare export type StackRouterOptions = $Exact<DefaultRouterOptions>;
 
   /**
@@ -623,6 +644,10 @@ declare module '@react-navigation/material-top-tabs' {
   declare export type TabAction =
     | CommonAction
     | JumpToAction;
+
+  declare export type TabActionsType = {|
+    +jumpTo: string => JumpToAction,
+  |};
 
   declare export type TabRouterOptions = {|
     ...$Exact<DefaultRouterOptions>,
@@ -662,6 +687,13 @@ declare module '@react-navigation/material-top-tabs' {
     | OpenDrawerAction
     | CloseDrawerAction
     | ToggleDrawerAction;
+
+  declare export type DrawerActionsType = {|
+    ...TabActionsType,
+    +openDrawer: () => OpenDrawerAction,
+    +closeDrawer: () => CloseDrawerAction,
+    +toggleDrawer: () => ToggleDrawerAction,
+  |};
 
   declare export type DrawerRouterOptions = {|
     ...TabRouterOptions,
@@ -962,12 +994,52 @@ declare module '@react-navigation/material-top-tabs' {
     |}>,
   |};
 
+  declare export type CreateNavigatorFactory = <
+    State: NavigationState,
+    ScreenOptions: {},
+    EventMap: EventMapBase,
+    NavProp: NavigationHelpers<
+      ParamListBase,
+      State,
+      EventMap,
+    >,
+    ExtraNavigatorProps: ExtraNavigatorPropsBase,
+  >(
+    navigator: React$ComponentType<{|
+      ...$Exact<ExtraNavigatorPropsBase>,
+      ...ScreenOptionsProp<ScreenOptions, NavProp>,
+    |}>,
+  ) => CreateNavigator<State, ScreenOptions, EventMap, ExtraNavigatorProps>;
+
+  /**
+   * useNavigationBuilder
+   */
+
   declare export type Descriptor<
     NavProp,
     ScreenOptions: {} = {},
   > = {|
     +render: () => React$Node,
     +options: $ReadOnly<ScreenOptions>,
+    +navigation: NavProp,
+  |};
+
+  declare export type UseNavigationBuilder = <
+    State: NavigationState,
+    Action: GenericNavigationAction,
+    ScreenOptions: {},
+    RouterOptions: DefaultRouterOptions,
+    NavProp,
+  >(
+    routerFactory: RouterFactory<State, Action, RouterOptions>,
+    options: {|
+      ...$Exact<RouterOptions>,
+      ...ScreenOptionsProp<ScreenOptions, NavProp>,
+      +children?: React$Node,
+    |},
+  ) => {|
+    +state: State,
+    +descriptors: {| +[key: string]: Descriptor<NavProp, ScreenOptions> |},
     +navigation: NavProp,
   |};
 
@@ -1701,6 +1773,53 @@ declare module '@react-navigation/material-top-tabs' {
   > = {|
     ...ExtraMaterialTopTabNavigatorProps,
     ...ScreenOptionsProp<MaterialTopTabOptions, NavProp>,
+  |};
+
+  /**
+   * BaseNavigationContainer
+   */
+
+  declare export type BaseNavigationContainerProps = {|
+    +children: React$Node,
+    +initialState?: PossiblyStaleNavigationState,
+    +onStateChange?: (state: ?PossiblyStaleNavigationState) => void,
+    +independent?: boolean,
+  |};
+
+  declare export type BaseNavigationContainerInterface = {|
+    ...$Exact<NavigationHelpers<
+      ParamListBase,
+      PossiblyStaleNavigationState,
+      GlobalEventMap<PossiblyStaleNavigationState>,
+    >>,
+    +setParams: (params: ScreenParams) => void,
+    +resetRoot: (state?: ?PossiblyStaleNavigationState) => void,
+    +getRootState: () => PossiblyStaleNavigationState,
+  |};
+
+  /**
+   * State / path conversion
+   */
+
+  declare export type LinkingConfig = {|
+    +[routeName: string]:
+      | string
+      | {|
+          +path?: string,
+          +parse?: {| +[param: string]: string => mixed |},
+          +screens?: LinkingConfig,
+          +initialRouteName?: string,
+        |},
+  |};
+
+  declare export type GetPathFromStateOptions = {|
+    +[routeName: string]:
+      | string
+      | {|
+          +path?: string,
+          +stringify?: {| +[param: string]: mixed => string |},
+          +screens?: GetPathFromStateOptions,
+        |},
   |};
 
   //---------------------------------------------------------------------------

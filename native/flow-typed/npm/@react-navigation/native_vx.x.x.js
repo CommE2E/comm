@@ -450,6 +450,20 @@ declare module '@react-navigation/native' {
     | ResetAction
     | SetParamsAction;
 
+  declare type NavigateActionCreator = {|
+    (routeName: string, params?: ScreenParams): NavigateAction,
+    (
+      | {| +key: string, +params?: ScreenParams |}
+      | {| +name: string, +key?: string, +params?: ScreenParams |},
+    ): NavigateAction,
+  |};
+  declare export type CommonActionsType = {|
+    +navigate: NavigateActionCreator,
+    +goBack: () => BackAction,
+    +reset: (state: PossiblyStaleNavigationState) => ResetAction,
+    +setParams: (params: ScreenParams) => SetParamsAction,
+  |};
+
   declare export type GenericNavigationAction = {|
     +type: string,
     +payload?: { +[key: string]: mixed },
@@ -602,6 +616,13 @@ declare module '@react-navigation/native' {
     | PopAction
     | PopToTopAction;
 
+  declare export type StackActionsType = {|
+    +replace: (routeName: string, params?: ScreenParams) => ReplaceAction,
+    +push: (routeName: string, params?: ScreenParams) => PushAction,
+    +pop: (count?: number) => PopAction,
+    +popToTop: () => PopToTopAction,
+  |};
+
   declare export type StackRouterOptions = $Exact<DefaultRouterOptions>;
 
   /**
@@ -623,6 +644,10 @@ declare module '@react-navigation/native' {
   declare export type TabAction =
     | CommonAction
     | JumpToAction;
+
+  declare export type TabActionsType = {|
+    +jumpTo: string => JumpToAction,
+  |};
 
   declare export type TabRouterOptions = {|
     ...$Exact<DefaultRouterOptions>,
@@ -662,6 +687,13 @@ declare module '@react-navigation/native' {
     | OpenDrawerAction
     | CloseDrawerAction
     | ToggleDrawerAction;
+
+  declare export type DrawerActionsType = {|
+    ...TabActionsType,
+    +openDrawer: () => OpenDrawerAction,
+    +closeDrawer: () => CloseDrawerAction,
+    +toggleDrawer: () => ToggleDrawerAction,
+  |};
 
   declare export type DrawerRouterOptions = {|
     ...TabRouterOptions,
@@ -962,12 +994,52 @@ declare module '@react-navigation/native' {
     |}>,
   |};
 
+  declare export type CreateNavigatorFactory = <
+    State: NavigationState,
+    ScreenOptions: {},
+    EventMap: EventMapBase,
+    NavProp: NavigationHelpers<
+      ParamListBase,
+      State,
+      EventMap,
+    >,
+    ExtraNavigatorProps: ExtraNavigatorPropsBase,
+  >(
+    navigator: React$ComponentType<{|
+      ...$Exact<ExtraNavigatorPropsBase>,
+      ...ScreenOptionsProp<ScreenOptions, NavProp>,
+    |}>,
+  ) => CreateNavigator<State, ScreenOptions, EventMap, ExtraNavigatorProps>;
+
+  /**
+   * useNavigationBuilder
+   */
+
   declare export type Descriptor<
     NavProp,
     ScreenOptions: {} = {},
   > = {|
     +render: () => React$Node,
     +options: $ReadOnly<ScreenOptions>,
+    +navigation: NavProp,
+  |};
+
+  declare export type UseNavigationBuilder = <
+    State: NavigationState,
+    Action: GenericNavigationAction,
+    ScreenOptions: {},
+    RouterOptions: DefaultRouterOptions,
+    NavProp,
+  >(
+    routerFactory: RouterFactory<State, Action, RouterOptions>,
+    options: {|
+      ...$Exact<RouterOptions>,
+      ...ScreenOptionsProp<ScreenOptions, NavProp>,
+      +children?: React$Node,
+    |},
+  ) => {|
+    +state: State,
+    +descriptors: {| +[key: string]: Descriptor<NavProp, ScreenOptions> |},
     +navigation: NavProp,
   |};
 
@@ -1703,40 +1775,63 @@ declare module '@react-navigation/native' {
     ...ScreenOptionsProp<MaterialTopTabOptions, NavProp>,
   |};
 
+  /**
+   * BaseNavigationContainer
+   */
+
+  declare export type BaseNavigationContainerProps = {|
+    +children: React$Node,
+    +initialState?: PossiblyStaleNavigationState,
+    +onStateChange?: (state: ?PossiblyStaleNavigationState) => void,
+    +independent?: boolean,
+  |};
+
+  declare export type BaseNavigationContainerInterface = {|
+    ...$Exact<NavigationHelpers<
+      ParamListBase,
+      PossiblyStaleNavigationState,
+      GlobalEventMap<PossiblyStaleNavigationState>,
+    >>,
+    +setParams: (params: ScreenParams) => void,
+    +resetRoot: (state?: ?PossiblyStaleNavigationState) => void,
+    +getRootState: () => PossiblyStaleNavigationState,
+  |};
+
+  /**
+   * State / path conversion
+   */
+
+  declare export type LinkingConfig = {|
+    +[routeName: string]:
+      | string
+      | {|
+          +path?: string,
+          +parse?: {| +[param: string]: string => mixed |},
+          +screens?: LinkingConfig,
+          +initialRouteName?: string,
+        |},
+  |};
+
+  declare export type GetPathFromStateOptions = {|
+    +[routeName: string]:
+      | string
+      | {|
+          +path?: string,
+          +stringify?: {| +[param: string]: mixed => string |},
+          +screens?: GetPathFromStateOptions,
+        |},
+  |};
+
   //---------------------------------------------------------------------------
   // SECTION 2: EXPORTED MODULE
   // This section defines the module exports and contains exported types that
   // are not present in any other React Navigation libdef.
   //---------------------------------------------------------------------------
 
-  declare type NavigateActionCreator = {|
-    (routeName: string, params?: ScreenParams): NavigateAction,
-    (
-      | {| +key: string, +params?: ScreenParams |}
-      | {| +name: string, +key?: string, +params?: ScreenParams |},
-    ): NavigateAction,
-  |};
-  declare export var CommonActions: {|
-    +navigate: NavigateActionCreator,
-    +goBack: () => BackAction,
-    +reset: (state: PossiblyStaleNavigationState) => ResetAction,
-    +setParams: (params: ScreenParams) => SetParamsAction,
-  |};
-  declare export var StackActions: {|
-    +replace: (routeName: string, params?: ScreenParams) => ReplaceAction,
-    +push: (routeName: string, params?: ScreenParams) => PushAction,
-    +pop: (count?: number) => PopAction,
-    +popToTop: () => PopToTopAction,
-  |};
-  declare export var TabActions: {|
-    +jumpTo: string => JumpToAction,
-  |};
-  declare export var DrawerActions: {|
-    ...typeof TabActions,
-    +openDrawer: () => OpenDrawerAction,
-    +closeDrawer: () => CloseDrawerAction,
-    +toggleDrawer: () => ToggleDrawerAction,
-  |};
+  declare export var CommonActions: CommonActionsType;
+  declare export var StackActions: StackActionsType;
+  declare export var TabActions: TabActionsType;
+  declare export var DrawerActions: DrawerActionsType;
 
   declare export var BaseRouter: RouterFactory<
     NavigationState,
@@ -1759,45 +1854,49 @@ declare module '@react-navigation/native' {
     DrawerRouterOptions,
   >;
 
-  declare export var createNavigatorFactory: <
-    State: NavigationState,
-    ScreenOptions: {},
-    EventMap: EventMapBase,
-    NavProp: NavigationHelpers<
-      ParamListBase,
-      State,
-      EventMap,
-    >,
-    ExtraNavigatorProps: ExtraNavigatorPropsBase,
-  >(
-    navigator: React$ComponentType<{|
-      ...$Exact<ExtraNavigatorPropsBase>,
-      ...ScreenOptionsProp<ScreenOptions, NavProp>,
-    |}>,
-  ) => CreateNavigator<State, ScreenOptions, EventMap, ExtraNavigatorProps>;
+  declare export var BaseNavigationContainer: React$AbstractComponent<
+    BaseNavigationContainerProps,
+    BaseNavigationContainerInterface,
+  >;
 
-  declare export var useNavigationBuilder: <
-    State: NavigationState,
-    Action: GenericNavigationAction,
-    ScreenOptions: {},
-    RouterOptions: DefaultRouterOptions,
-    NavProp,
-  >(
-    routerFactory: RouterFactory<State, Action, RouterOptions>,
-    options: {|
-      ...$Exact<RouterOptions>,
-      ...ScreenOptionsProp<ScreenOptions, NavProp>,
-      +children?: React$Node,
-    |},
-  ) => {|
-    +state: State,
-    +descriptors: {| +[key: string]: Descriptor<NavProp, ScreenOptions> |},
-    +navigation: NavProp,
-  |};
+  declare export var createNavigatorFactory: CreateNavigatorFactory;
+
+  declare export var useNavigationBuilder: UseNavigationBuilder;
 
   declare export var NavigationHelpersContext: React$Context<
     ?NavigationHelpers<ParamListBase>,
   >;
+
+  declare export var NavigationContext: React$Context<
+    ?NavigationProp<ParamListBase>,
+  >;
+  declare export function useNavigation(): NavigationProp<ParamListBase>;
+
+  declare export var NavigationRouteContext: React$Context<?LeafRoute<>>;
+  declare export function useRoute(): LeafRoute<>;
+
+  declare export function useFocusEffect(
+    effect: () => ?(() => mixed),
+  ): void;
+  declare export function useIsFocused(): boolean;
+
+  declare export function useNavigationState<T>(
+    selector: NavigationState => T,
+  ): T;
+
+  declare export function getStateFromPath(
+    path: string,
+    options?: LinkingConfig,
+  ): PossiblyStaleNavigationState;
+
+  declare export function getPathFromState(
+    state?: ?PossiblyStaleNavigationState,
+    options?: GetPathFromStateOptions,
+  ): string;
+
+  declare export function getActionFromState(
+    state: PossiblyStaleNavigationState,
+  ): ?NavigateAction;
 
   declare export type Theme = {|
     +dark: boolean,
@@ -1812,51 +1911,22 @@ declare module '@react-navigation/native' {
   declare export var DefaultTheme: Theme & { +dark: false };
   declare export var DarkTheme: Theme & { +dark: true };
 
-  declare export type LinkingConfig = {|
-    +[routeName: string]:
-      | string
-      | {|
-          +path?: string,
-          +parse?: {| +[param: string]: string => mixed |},
-          +screens?: LinkingConfig,
-          +initialRouteName?: string,
-          +stringify?: {| +[param: string]: mixed => string |},
-        |},
-  |};
   declare export type LinkingOptions = {|
     +enabled?: boolean,
     +prefixes: $ReadOnlyArray<string>,
     +config?: LinkingConfig,
-    +getStateFromPath?: (
-      path: string,
-      config?: LinkingConfig,
-    ) => PossiblyStaleNavigationState,
-    +getPathFromState?: (
-      state?: ?PossiblyStaleNavigationState,
-      config?: LinkingConfig,
-    ) => string,
+    +getStateFromPath?: typeof getStateFromPath,
+    +getPathFromState?: typeof getPathFromState,
   |};
 
   declare export var NavigationContainer: React$AbstractComponent<
     {|
+      ...BaseNavigationContainerProps,
       +theme?: Theme,
       +linking?: LinkingOptions,
       +fallback?: React$Node,
-      +children: React$Node,
-      +initialState?: PossiblyStaleNavigationState,
-      +onStateChange?: (state: ?PossiblyStaleNavigationState) => void,
-      +independent?: boolean,
     |},
-    {|
-      ...$Exact<NavigationHelpers<
-        ParamListBase,
-        PossiblyStaleNavigationState,
-        GlobalEventMap<PossiblyStaleNavigationState>,
-      >>,
-      +setParams: (params: ScreenParams) => void,
-      +resetRoot: (state?: ?PossiblyStaleNavigationState) => void,
-      +getRootState: () => PossiblyStaleNavigationState,
-    |},
+    BaseNavigationContainerInterface,
   >;
 
 }
