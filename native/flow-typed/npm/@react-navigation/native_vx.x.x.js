@@ -1828,6 +1828,10 @@ declare module '@react-navigation/native' {
   // are not present in any other React Navigation libdef.
   //---------------------------------------------------------------------------
 
+  /**
+   * Actions and routers
+   */
+
   declare export var CommonActions: CommonActionsType;
   declare export var StackActions: StackActionsType;
   declare export var TabActions: TabActionsType;
@@ -1854,6 +1858,10 @@ declare module '@react-navigation/native' {
     DrawerRouterOptions,
   >;
 
+  /**
+   * Navigator utils
+   */
+
   declare export var BaseNavigationContainer: React$AbstractComponent<
     BaseNavigationContainerProps,
     BaseNavigationContainerInterface,
@@ -1867,6 +1875,10 @@ declare module '@react-navigation/native' {
     ?NavigationHelpers<ParamListBase>,
   >;
 
+  /**
+   * Navigation prop / route accessors
+   */
+
   declare export var NavigationContext: React$Context<
     ?NavigationProp<ParamListBase>,
   >;
@@ -1875,14 +1887,22 @@ declare module '@react-navigation/native' {
   declare export var NavigationRouteContext: React$Context<?LeafRoute<>>;
   declare export function useRoute(): LeafRoute<>;
 
+  declare export function useNavigationState<T>(
+    selector: NavigationState => T,
+  ): T;
+
+  /**
+   * Focus utils
+   */
+
   declare export function useFocusEffect(
     effect: () => ?(() => mixed),
   ): void;
   declare export function useIsFocused(): boolean;
 
-  declare export function useNavigationState<T>(
-    selector: NavigationState => T,
-  ): T;
+  /**
+   * State utils
+   */
 
   declare export function getStateFromPath(
     path: string,
@@ -1898,6 +1918,33 @@ declare module '@react-navigation/native' {
     state: PossiblyStaleNavigationState,
   ): ?NavigateAction;
 
+  /**
+   * useScrollToTop
+   */
+
+  declare type ScrollToOptions = { y?: number, animated?: boolean, ... };
+  declare type ScrollToOffsetOptions = {
+    offset: number,
+    animated?: boolean,
+    ...
+  };
+  declare type ScrollableView =
+    | { scrollToTop(): void }
+    | { scrollTo(options: ScrollToOptions): void }
+    | { scrollToOffset(options: ScrollToOffsetOptions): void }
+    | { scrollResponderScrollTo(options: ScrollToOptions): void };
+  declare type ScrollableWrapper =
+    | { getScrollResponder(): React$Node }
+    | { getNode(): ScrollableView }
+    | ScrollableView;
+  declare export function useScrollToTop(
+    ref: { +current: ?ScrollableWrapper, ... },
+  ): void;
+
+  /**
+   * Themes
+   */
+
   declare export type Theme = {|
     +dark: boolean,
     +colors: {|
@@ -1910,6 +1957,15 @@ declare module '@react-navigation/native' {
   |};
   declare export var DefaultTheme: Theme & { +dark: false };
   declare export var DarkTheme: Theme & { +dark: true };
+  declare export function useTheme(): Theme;
+  declare export var ThemeProvider: React$ComponentType<{|
+    +value: Theme,
+    +children: React$Node,
+  |}>;
+
+  /**
+   * Linking
+   */
 
   declare export type LinkingOptions = {|
     +enabled?: boolean,
@@ -1918,6 +1974,10 @@ declare module '@react-navigation/native' {
     +getStateFromPath?: typeof getStateFromPath,
     +getPathFromState?: typeof getPathFromState,
   |};
+
+  /**
+   * NavigationContainer
+   */
 
   declare export var NavigationContainer: React$AbstractComponent<
     {|
@@ -1928,5 +1988,13 @@ declare module '@react-navigation/native' {
     |},
     BaseNavigationContainerInterface,
   >;
+
+  /**
+   * useBackButton
+   */
+
+  declare export function useBackButton(
+    container: { +current: ?React$ElementRef<typeof NavigationContainer>, ... },
+  ): void;
 
 }

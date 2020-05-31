@@ -1828,6 +1828,10 @@ declare module '@react-navigation/stack' {
   // are not present in any other React Navigation libdef.
   //---------------------------------------------------------------------------
 
+  /**
+   * StackView
+   */
+
   declare export var StackView: React$ComponentType<{|
     ...StackNavigationProps,
     +state: StackNavigationState,
@@ -1835,12 +1839,20 @@ declare module '@react-navigation/stack' {
     +descriptors: {| +[key: string]: StackDescriptor |},
   |}>;
 
+  /**
+   * createStackNavigator
+   */
+
   declare export var createStackNavigator: CreateNavigator<
     StackNavigationState,
     StackOptions,
     StackNavigationEventMap,
     ExtraStackNavigatorProps,
   >;
+
+  /**
+   * Header components
+   */
 
   declare export var Header: React$ComponentType<StackHeaderProps>;
 
@@ -1863,6 +1875,10 @@ declare module '@react-navigation/stack' {
   declare export var HeaderBackground: React$ComponentType<
     HeaderBackgroundProps,
   >;
+
+  /**
+   * Style/animation options
+   */
 
   declare export var CardStyleInterpolators: {|
     +forHorizontalIOS: StackCardStyleInterpolator,
@@ -1899,15 +1915,31 @@ declare module '@react-navigation/stack' {
     +ModalTransition: TransitionPreset,
   |};
 
+  /**
+   * Image assets
+   */
+
   declare export var Assets: $ReadOnlyArray<ImageURISource>;
+
+  /**
+   * CardAnimation accessors
+   */
 
   declare export var CardAnimationContext: React$Context<
     ?StackCardInterpolationProps,
   >;
   declare export function useCardAnimation(): StackCardInterpolationProps
 
+  /**
+   * HeaderHeight accessors
+   */
+
   declare export var HeaderHeightContext: React$Context<?number>;
   declare export function useHeaderHeight(): number;
+
+  /**
+   * GestureHandler accessors
+   */
 
   declare type GestureHandlerRef = React$ElementRef<
     React$ComponentType<GestureHandlerProps>,

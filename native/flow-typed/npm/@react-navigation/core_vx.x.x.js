@@ -1828,6 +1828,10 @@ declare module '@react-navigation/core' {
   // are not present in any other React Navigation libdef.
   //---------------------------------------------------------------------------
 
+  /**
+   * Actions and routers
+   */
+
   declare export var CommonActions: CommonActionsType;
   declare export var StackActions: StackActionsType;
   declare export var TabActions: TabActionsType;
@@ -1854,6 +1858,10 @@ declare module '@react-navigation/core' {
     DrawerRouterOptions,
   >;
 
+  /**
+   * Navigator utils
+   */
+
   declare export var BaseNavigationContainer: React$AbstractComponent<
     BaseNavigationContainerProps,
     BaseNavigationContainerInterface,
@@ -1867,6 +1875,10 @@ declare module '@react-navigation/core' {
     ?NavigationHelpers<ParamListBase>,
   >;
 
+  /**
+   * Navigation prop / route accessors
+   */
+
   declare export var NavigationContext: React$Context<
     ?NavigationProp<ParamListBase>,
   >;
@@ -1875,14 +1887,22 @@ declare module '@react-navigation/core' {
   declare export var NavigationRouteContext: React$Context<?LeafRoute<>>;
   declare export function useRoute(): LeafRoute<>;
 
+  declare export function useNavigationState<T>(
+    selector: NavigationState => T,
+  ): T;
+
+  /**
+   * Focus utils
+   */
+
   declare export function useFocusEffect(
     effect: () => ?(() => mixed),
   ): void;
   declare export function useIsFocused(): boolean;
 
-  declare export function useNavigationState<T>(
-    selector: NavigationState => T,
-  ): T;
+  /**
+   * State utils
+   */
 
   declare export function getStateFromPath(
     path: string,

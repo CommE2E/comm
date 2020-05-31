@@ -1828,6 +1828,10 @@ declare module '@react-navigation/bottom-tabs' {
   // are not present in any other React Navigation libdef.
   //---------------------------------------------------------------------------
 
+  /**
+   * createBottomTabNavigator
+   */
+
   declare export var createBottomTabNavigator: CreateNavigator<
     TabNavigationState,
     BottomTabOptions,
@@ -1835,7 +1839,15 @@ declare module '@react-navigation/bottom-tabs' {
     ExtraBottomTabNavigatorProps,
   >;
 
+  /**
+   * BottomTabBar
+   */
+
   declare export var BottomTabBar: React$ComponentType<BottomTabBarProps>;
+
+  /**
+   * BottomTabView
+   */
 
   declare export type BottomTabViewProps = {|
     ...BottomTabNavigationConfig,

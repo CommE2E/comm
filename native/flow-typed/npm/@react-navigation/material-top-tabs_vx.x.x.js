@@ -1828,12 +1828,20 @@ declare module '@react-navigation/material-top-tabs' {
   // are not present in any other React Navigation libdef.
   //---------------------------------------------------------------------------
 
+  /**
+   * createMaterialTopTabNavigator
+   */
+
   declare export var createMaterialTopTabNavigator: CreateNavigator<
     TabNavigationState,
     MaterialTopTabOptions,
     MaterialTopTabNavigationEventMap,
     ExtraMaterialTopTabNavigatorProps,
   >;
+
+  /**
+   * MaterialTopTabView
+   */
 
   declare export type MaterialTopTabViewProps = {|
     ...MaterialTopTabNavigationConfig,
@@ -1842,6 +1850,10 @@ declare module '@react-navigation/material-top-tabs' {
   declare export var MaterialTopTabView: React$ComponentType<
     MaterialTopTabViewProps,
   >;
+
+  /**
+   * MaterialTopTabBar
+   */
 
   declare export var MaterialTopTabBar: React$ComponentType<
     MaterialTopTabBarProps,

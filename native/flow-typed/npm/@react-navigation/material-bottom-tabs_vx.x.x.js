@@ -1828,12 +1828,20 @@ declare module '@react-navigation/material-bottom-tabs' {
   // are not present in any other React Navigation libdef.
   //---------------------------------------------------------------------------
 
+  /**
+   * createMaterialBottomTabNavigator
+   */
+
   declare export var createMaterialBottomTabNavigator: CreateNavigator<
     TabNavigationState,
     MaterialBottomTabOptions,
     MaterialBottomTabNavigationEventMap,
     ExtraMaterialBottomTabNavigatorProps,
   >;
+
+  /**
+   * MaterialBottomTabView
+   */
 
   declare export type MaterialBottomTabDescriptor = Descriptor<
     MaterialBottomTabNavigationProp<>,
