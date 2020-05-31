@@ -9,7 +9,6 @@ import type {
 
 import * as React from 'react';
 import {
-  View,
   TouchableOpacity,
   StyleSheet,
   Text,
@@ -49,13 +48,14 @@ class TooltipItem<
 
   render() {
     return (
-      <View style={[styles.itemContainer, this.props.containerStyle]}>
-        <TouchableOpacity onPress={this.onPress}>
-          <Text style={[styles.label, this.props.labelStyle]} numberOfLines={1}>
-            {this.props.spec.text}
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity
+        onPress={this.onPress}
+        style={[styles.itemContainer, this.props.containerStyle]}
+      >
+        <Text style={[styles.label, this.props.labelStyle]} numberOfLines={1}>
+          {this.props.spec.text}
+        </Text>
+      </TouchableOpacity>
     );
   }
 
