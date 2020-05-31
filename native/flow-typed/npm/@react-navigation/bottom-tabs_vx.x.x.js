@@ -1652,20 +1652,9 @@ declare module '@react-navigation/bottom-tabs' {
   |};
 
   //---------------------------------------------------------------------------
-  // SECTION 2: UNIQUE TYPE DEFINITIONS
-  // This section contains exported types that are not present in any other
-  // React Navigation libdef.
-  //---------------------------------------------------------------------------
-
-  declare export type BottomTabViewProps = {|
-    ...BottomTabNavigationConfig,
-    ...BottomTabNavigationBuilderResult,
-  |};
-
-  //---------------------------------------------------------------------------
-  // SECTION 3: EXPORTED MODULE
-  // This is the only section that types exports. Other sections export types,
-  // but this section types the module's exports.
+  // SECTION 2: EXPORTED MODULE
+  // This section defines the module exports and contains exported types that
+  // are not present in any other React Navigation libdef.
   //---------------------------------------------------------------------------
 
   declare export var createBottomTabNavigator: CreateNavigator<
@@ -1677,6 +1666,10 @@ declare module '@react-navigation/bottom-tabs' {
 
   declare export var BottomTabBar: React$ComponentType<BottomTabBarProps>;
 
+  declare export type BottomTabViewProps = {|
+    ...BottomTabNavigationConfig,
+    ...BottomTabNavigationBuilderResult,
+  |};
   declare export var BottomTabView: React$ComponentType<BottomTabViewProps>;
 
 }

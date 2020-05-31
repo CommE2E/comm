@@ -1652,52 +1652,9 @@ declare module '@react-navigation/native' {
   |};
 
   //---------------------------------------------------------------------------
-  // SECTION 2: UNIQUE TYPE DEFINITIONS
-  // This section contains exported types that are not present in any other
-  // React Navigation libdef.
-  //---------------------------------------------------------------------------
-
-  declare export type Theme = {|
-    +dark: boolean,
-    +colors: {|
-      +primary: string,
-      +background: string,
-      +card: string,
-      +text: string,
-      +border: string,
-    |},
-  |};
-
-  declare export type LinkingConfig = {|
-    +[routeName: string]:
-      | string
-      | {|
-          +path?: string,
-          +parse?: {| +[param: string]: string => mixed |},
-          +screens?: LinkingConfig,
-          +initialRouteName?: string,
-          +stringify?: {| +[param: string]: mixed => string |},
-        |},
-  |};
-
-  declare export type LinkingOptions = {|
-    +enabled?: boolean,
-    +prefixes: $ReadOnlyArray<string>,
-    +config?: LinkingConfig,
-    +getStateFromPath?: (
-      path: string,
-      config?: LinkingConfig,
-    ) => PossiblyStaleNavigationState,
-    +getPathFromState?: (
-      state?: ?PossiblyStaleNavigationState,
-      config?: LinkingConfig,
-    ) => string,
-  |};
-
-  //---------------------------------------------------------------------------
-  // SECTION 3: EXPORTED MODULE
-  // This is the only section that types exports. Other sections export types,
-  // but this section types the module's exports.
+  // SECTION 2: EXPORTED MODULE
+  // This section defines the module exports and contains exported types that
+  // are not present in any other React Navigation libdef.
   //---------------------------------------------------------------------------
 
   declare type NavigateActionCreator = {|
@@ -1707,13 +1664,23 @@ declare module '@react-navigation/native' {
       | {| +name: string, +key?: string, +params?: ScreenParams |},
     ): NavigateAction,
   |};
-
   declare export var CommonActions: {|
     +navigate: NavigateActionCreator,
     +goBack: () => BackAction,
     +reset: (state: PossiblyStaleNavigationState) => ResetAction,
     +setParams: (params: ScreenParams) => SetParamsAction,
   |};
+
+  declare export var StackRouter: RouterFactory<
+    StackNavigationState,
+    StackAction,
+    StackRouterOptions,
+  >;
+  declare export var TabRouter: RouterFactory<
+    TabNavigationState,
+    TabAction,
+    TabRouterOptions,
+  >;
 
   declare export var createNavigatorFactory: <
     State: NavigationState,
@@ -1731,18 +1698,6 @@ declare module '@react-navigation/native' {
       ...ScreenOptionsProp<ScreenOptions, NavProp>,
     |}>,
   ) => CreateNavigator<State, ScreenOptions, EventMap, ExtraNavigatorProps>;
-
-  declare export var StackRouter: RouterFactory<
-    StackNavigationState,
-    StackAction,
-    StackRouterOptions,
-  >;
-
-  declare export var TabRouter: RouterFactory<
-    TabNavigationState,
-    TabAction,
-    TabRouterOptions,
-  >;
 
   declare export var useNavigationBuilder: <
     State: NavigationState,
@@ -1767,6 +1722,44 @@ declare module '@react-navigation/native' {
     ?NavigationHelpers<ParamListBase>,
   >;
 
+  declare export type Theme = {|
+    +dark: boolean,
+    +colors: {|
+      +primary: string,
+      +background: string,
+      +card: string,
+      +text: string,
+      +border: string,
+    |},
+  |};
+  declare export var DefaultTheme: Theme & { +dark: false };
+  declare export var DarkTheme: Theme & { +dark: true };
+
+  declare export type LinkingConfig = {|
+    +[routeName: string]:
+      | string
+      | {|
+          +path?: string,
+          +parse?: {| +[param: string]: string => mixed |},
+          +screens?: LinkingConfig,
+          +initialRouteName?: string,
+          +stringify?: {| +[param: string]: mixed => string |},
+        |},
+  |};
+  declare export type LinkingOptions = {|
+    +enabled?: boolean,
+    +prefixes: $ReadOnlyArray<string>,
+    +config?: LinkingConfig,
+    +getStateFromPath?: (
+      path: string,
+      config?: LinkingConfig,
+    ) => PossiblyStaleNavigationState,
+    +getPathFromState?: (
+      state?: ?PossiblyStaleNavigationState,
+      config?: LinkingConfig,
+    ) => string,
+  |};
+
   declare export var NavigationContainer: React$AbstractComponent<
     {|
       +theme?: Theme,
@@ -1788,8 +1781,5 @@ declare module '@react-navigation/native' {
       +getRootState: () => PossiblyStaleNavigationState,
     |},
   >;
-
-  declare export var DefaultTheme: Theme & { +dark: false };
-  declare export var DarkTheme: Theme & { +dark: true };
 
 }

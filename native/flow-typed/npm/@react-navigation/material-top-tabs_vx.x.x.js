@@ -1652,20 +1652,9 @@ declare module '@react-navigation/material-top-tabs' {
   |};
 
   //---------------------------------------------------------------------------
-  // SECTION 2: UNIQUE TYPE DEFINITIONS
-  // This section contains exported types that are not present in any other
-  // React Navigation libdef.
-  //---------------------------------------------------------------------------
-
-  declare export type MaterialTopTabViewProps = {|
-    ...MaterialTopTabNavigationConfig,
-    ...MaterialTopTabNavigationBuilderResult,
-  |};
-
-  //---------------------------------------------------------------------------
-  // SECTION 3: EXPORTED MODULE
-  // This is the only section that types exports. Other sections export types,
-  // but this section types the module's exports.
+  // SECTION 2: EXPORTED MODULE
+  // This section defines the module exports and contains exported types that
+  // are not present in any other React Navigation libdef.
   //---------------------------------------------------------------------------
 
   declare export var createMaterialTopTabNavigator: CreateNavigator<
@@ -1675,6 +1664,10 @@ declare module '@react-navigation/material-top-tabs' {
     ExtraMaterialTopTabNavigatorProps,
   >;
 
+  declare export type MaterialTopTabViewProps = {|
+    ...MaterialTopTabNavigationConfig,
+    ...MaterialTopTabNavigationBuilderResult,
+  |};
   declare export var MaterialTopTabView: React$ComponentType<
     MaterialTopTabViewProps,
   >;

@@ -1652,23 +1652,9 @@ declare module '@react-navigation/stack' {
   |};
 
   //---------------------------------------------------------------------------
-  // SECTION 2: UNIQUE TYPE DEFINITIONS
-  // This section contains exported types that are not present in any other
-  // React Navigation libdef.
-  //---------------------------------------------------------------------------
-
-  declare export type StackBackButtonProps = $Shape<{|
-    ...StackHeaderLeftButtonProps,
-    +disabled: boolean,
-    +accessibilityLabel: string,
-  |}>;
-
-  declare export type StackHeaderTitleProps = $Shape<StackHeaderTitleInputBase>;
-
-  //---------------------------------------------------------------------------
-  // SECTION 3: EXPORTED MODULE
-  // This is the only section that types exports. Other sections export types,
-  // but this section types the module's exports.
+  // SECTION 2: EXPORTED MODULE
+  // This section defines the module exports and contains exported types that
+  // are not present in any other React Navigation libdef.
   //---------------------------------------------------------------------------
 
   declare export var StackView: React$ComponentType<{|
@@ -1686,7 +1672,15 @@ declare module '@react-navigation/stack' {
   >;
 
   declare export var Header: React$ComponentType<StackHeaderProps>;
+
+  declare export type StackHeaderTitleProps = $Shape<StackHeaderTitleInputBase>;
   declare export var HeaderTitle: React$ComponentType<StackHeaderTitleProps>;
+
+  declare export type StackBackButtonProps = $Shape<{|
+    ...StackHeaderLeftButtonProps,
+    +disabled: boolean,
+    +accessibilityLabel: string,
+  |}>;
   declare export var HeaderBackButton: React$ComponentType<
     StackBackButtonProps,
   >;
