@@ -298,6 +298,19 @@ declare module '@react-navigation/material-bottom-tabs' {
     touchSoundDisabled?: ?boolean,
   |}>;
 
+  // Copied from react-native/Libraries/Image/ImageSource.js
+  declare type ImageURISource = $ReadOnly<{
+    uri?: ?string,
+    bundle?: ?string,
+    method?: ?string,
+    headers?: ?Object,
+    body?: ?string,
+    cache?: ?('default' | 'reload' | 'force-cache' | 'only-if-cached'),
+    width?: ?number,
+    height?: ?number,
+    scale?: ?number,
+  }>;
+
   /**
    * The following is copied from react-native-gesture-handler's libdef
    */
@@ -875,7 +888,7 @@ declare module '@react-navigation/material-bottom-tabs' {
   |};
   declare export type ExtraNavigatorPropsBase = {
     ...$Exact<DefaultRouterOptions>,
-    +children?: React.Node,
+    +children?: React$Node,
     ...
   };
   declare export type NavigatorPropsBase<ScreenOptions: {}, NavProp> = {

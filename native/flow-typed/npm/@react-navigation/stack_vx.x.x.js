@@ -298,6 +298,19 @@ declare module '@react-navigation/stack' {
     touchSoundDisabled?: ?boolean,
   |}>;
 
+  // Copied from react-native/Libraries/Image/ImageSource.js
+  declare type ImageURISource = $ReadOnly<{
+    uri?: ?string,
+    bundle?: ?string,
+    method?: ?string,
+    headers?: ?Object,
+    body?: ?string,
+    cache?: ?('default' | 'reload' | 'force-cache' | 'only-if-cached'),
+    width?: ?number,
+    height?: ?number,
+    scale?: ?number,
+  }>;
+
   /**
    * The following is copied from react-native-gesture-handler's libdef
    */
@@ -875,7 +888,7 @@ declare module '@react-navigation/stack' {
   |};
   declare export type ExtraNavigatorPropsBase = {
     ...$Exact<DefaultRouterOptions>,
-    +children?: React.Node,
+    +children?: React$Node,
     ...
   };
   declare export type NavigatorPropsBase<ScreenOptions: {}, NavProp> = {
@@ -1676,15 +1689,47 @@ declare module '@react-navigation/stack' {
   declare export type StackHeaderTitleProps = $Shape<StackHeaderTitleInputBase>;
   declare export var HeaderTitle: React$ComponentType<StackHeaderTitleProps>;
 
-  declare export type StackBackButtonProps = $Shape<{|
+  declare export type HeaderBackButtonProps = $Shape<{|
     ...StackHeaderLeftButtonProps,
     +disabled: boolean,
     +accessibilityLabel: string,
   |}>;
   declare export var HeaderBackButton: React$ComponentType<
-    StackBackButtonProps,
+    HeaderBackButtonProps,
   >;
 
+  declare export type HeaderBackgroundProps = $Shape<{
+    +children: React$Node,
+    +style: AnimatedViewStyleProp,
+  }>;
+  declare export var HeaderBackground: React$ComponentType<
+    HeaderBackgroundProps,
+  >;
+
+  declare export var CardStyleInterpolators: {|
+    +forHorizontalIOS: StackCardStyleInterpolator,
+    +forVerticalIOS: StackCardStyleInterpolator,
+    +forModalPresentationIOS: StackCardStyleInterpolator,
+    +forFadeFromBottomAndroid: StackCardStyleInterpolator,
+    +forRevealFromBottomAndroid: StackCardStyleInterpolator,
+    +forScaleFromCenterAndroid: StackCardStyleInterpolator,
+    +forNoAnimation: StackCardStyleInterpolator,
+  |};
+  declare export var HeaderStyleInterpolators: {|
+    +forUIKit: StackHeaderStyleInterpolator,
+    +forFade: StackHeaderStyleInterpolator,
+    +forSlideLeft: StackHeaderStyleInterpolator,
+    +forSlideRight: StackHeaderStyleInterpolator,
+    +forSlideUp: StackHeaderStyleInterpolator,
+    +forNoAnimation: StackHeaderStyleInterpolator,
+  |};
+  declare export var TransitionSpecs: {|
+    +TransitionIOSSpec: TransitionSpec,
+    +FadeInFromBottomAndroidSpec: TransitionSpec,
+    +FadeOutToBottomAndroidSpec: TransitionSpec,
+    +RevealFromBottomAndroidSpec: TransitionSpec,
+    +ScaleFromCenterAndroidSpec: TransitionSpec,
+  |};
   declare export var TransitionPresets: {|
     +SlideFromRightIOS: TransitionPreset,
     +ModalSlideFromBottomIOS: TransitionPreset,
@@ -1695,5 +1740,23 @@ declare module '@react-navigation/stack' {
     +DefaultTransition: TransitionPreset,
     +ModalTransition: TransitionPreset,
   |};
+
+  declare export var Assets: $ReadOnlyArray<ImageURISource>;
+
+  declare export var CardAnimationContext: React$Context<
+    ?StackCardInterpolationProps,
+  >;
+  declare export function useCardAnimation(): StackCardInterpolationProps
+
+  declare export var HeaderHeightContext: React$Context<?number>;
+  declare export function useHeaderHeight(): number;
+
+  declare type GestureHandlerRef = React$ElementRef<
+    React$ComponentType<GestureHandlerProps>,
+  >;
+  declare export var GestureHandlerRefContext: React$Context<
+    ?GestureHandlerRef,
+  >;
+  declare export function useGestureHandlerRef(): GestureHandlerRef;
 
 }

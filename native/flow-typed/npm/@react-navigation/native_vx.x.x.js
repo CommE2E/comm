@@ -298,6 +298,19 @@ declare module '@react-navigation/native' {
     touchSoundDisabled?: ?boolean,
   |}>;
 
+  // Copied from react-native/Libraries/Image/ImageSource.js
+  declare type ImageURISource = $ReadOnly<{
+    uri?: ?string,
+    bundle?: ?string,
+    method?: ?string,
+    headers?: ?Object,
+    body?: ?string,
+    cache?: ?('default' | 'reload' | 'force-cache' | 'only-if-cached'),
+    width?: ?number,
+    height?: ?number,
+    scale?: ?number,
+  }>;
+
   /**
    * The following is copied from react-native-gesture-handler's libdef
    */
@@ -875,7 +888,7 @@ declare module '@react-navigation/native' {
   |};
   declare export type ExtraNavigatorPropsBase = {
     ...$Exact<DefaultRouterOptions>,
-    +children?: React.Node,
+    +children?: React$Node,
     ...
   };
   declare export type NavigatorPropsBase<ScreenOptions: {}, NavProp> = {
@@ -1710,7 +1723,7 @@ declare module '@react-navigation/native' {
     options: {|
       ...$Exact<RouterOptions>,
       ...ScreenOptionsProp<ScreenOptions, NavProp>,
-      children?: React.Node,
+      children?: React$Node,
     |},
   ) => {|
     +state: State,
