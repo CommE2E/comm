@@ -523,7 +523,7 @@ declare module '@react-navigation/stack' {
   };
 
   declare type DefaultRouterOptions = {
-    initialRouteName?: string,
+    +initialRouteName?: string,
   };
 
   declare export type RouterFactory<
@@ -626,7 +626,46 @@ declare module '@react-navigation/stack' {
 
   declare export type TabRouterOptions = {|
     ...$Exact<DefaultRouterOptions>,
-    backBehavior?: 'initialRoute' | 'order' | 'history' | 'none',
+    +backBehavior?: 'initialRoute' | 'order' | 'history' | 'none',
+  |};
+
+  /**
+   * Drawer actions and router
+   */
+
+  declare type DrawerHistoryEntry =
+    | {| +type: 'route', +key: string |}
+    | {| +type: 'drawer' |};
+  declare export type DrawerNavigationState = {|
+    ...NavigationState,
+    +type: 'drawer',
+    +history: $ReadOnlyArray<DrawerHistoryEntry>,
+  |};
+
+  declare export type OpenDrawerAction = {|
+    +type: 'OPEN_DRAWER',
+    +source?: string,
+    +target?: string,
+  |};
+  declare export type CloseDrawerAction = {|
+    +type: 'CLOSE_DRAWER',
+    +source?: string,
+    +target?: string,
+  |};
+  declare export type ToggleDrawerAction = {|
+    +type: 'TOGGLE_DRAWER',
+    +source?: string,
+    +target?: string,
+  |};
+  declare export type DrawerAction =
+    | TabAction
+    | OpenDrawerAction
+    | CloseDrawerAction
+    | ToggleDrawerAction;
+
+  declare export type DrawerRouterOptions = {|
+    ...TabRouterOptions,
+    +openByDefault?: boolean,
   |};
 
   /**

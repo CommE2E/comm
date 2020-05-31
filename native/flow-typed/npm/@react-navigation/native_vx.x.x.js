@@ -523,7 +523,7 @@ declare module '@react-navigation/native' {
   };
 
   declare type DefaultRouterOptions = {
-    initialRouteName?: string,
+    +initialRouteName?: string,
   };
 
   declare export type RouterFactory<
@@ -626,7 +626,46 @@ declare module '@react-navigation/native' {
 
   declare export type TabRouterOptions = {|
     ...$Exact<DefaultRouterOptions>,
-    backBehavior?: 'initialRoute' | 'order' | 'history' | 'none',
+    +backBehavior?: 'initialRoute' | 'order' | 'history' | 'none',
+  |};
+
+  /**
+   * Drawer actions and router
+   */
+
+  declare type DrawerHistoryEntry =
+    | {| +type: 'route', +key: string |}
+    | {| +type: 'drawer' |};
+  declare export type DrawerNavigationState = {|
+    ...NavigationState,
+    +type: 'drawer',
+    +history: $ReadOnlyArray<DrawerHistoryEntry>,
+  |};
+
+  declare export type OpenDrawerAction = {|
+    +type: 'OPEN_DRAWER',
+    +source?: string,
+    +target?: string,
+  |};
+  declare export type CloseDrawerAction = {|
+    +type: 'CLOSE_DRAWER',
+    +source?: string,
+    +target?: string,
+  |};
+  declare export type ToggleDrawerAction = {|
+    +type: 'TOGGLE_DRAWER',
+    +source?: string,
+    +target?: string,
+  |};
+  declare export type DrawerAction =
+    | TabAction
+    | OpenDrawerAction
+    | CloseDrawerAction
+    | ToggleDrawerAction;
+
+  declare export type DrawerRouterOptions = {|
+    ...TabRouterOptions,
+    +openByDefault?: boolean,
   |};
 
   /**
@@ -1683,7 +1722,27 @@ declare module '@react-navigation/native' {
     +reset: (state: PossiblyStaleNavigationState) => ResetAction,
     +setParams: (params: ScreenParams) => SetParamsAction,
   |};
+  declare export var StackActions: {|
+    +replace: (routeName: string, params?: ScreenParams) => ReplaceAction,
+    +push: (routeName: string, params?: ScreenParams) => PushAction,
+    +pop: (count?: number) => PopAction,
+    +popToTop: () => PopToTopAction,
+  |};
+  declare export var TabActions: {|
+    +jumpTo: string => JumpToAction,
+  |};
+  declare export var DrawerActions: {|
+    ...typeof TabActions,
+    +openDrawer: () => OpenDrawerAction,
+    +closeDrawer: () => CloseDrawerAction,
+    +toggleDrawer: () => ToggleDrawerAction,
+  |};
 
+  declare export var BaseRouter: RouterFactory<
+    NavigationState,
+    CommonAction,
+    DefaultRouterOptions,
+  >;
   declare export var StackRouter: RouterFactory<
     StackNavigationState,
     StackAction,
@@ -1693,6 +1752,11 @@ declare module '@react-navigation/native' {
     TabNavigationState,
     TabAction,
     TabRouterOptions,
+  >;
+  declare export var DrawerRouter: RouterFactory<
+    DrawerNavigationState,
+    DrawerAction,
+    DrawerRouterOptions,
   >;
 
   declare export var createNavigatorFactory: <
@@ -1723,7 +1787,7 @@ declare module '@react-navigation/native' {
     options: {|
       ...$Exact<RouterOptions>,
       ...ScreenOptionsProp<ScreenOptions, NavProp>,
-      children?: React$Node,
+      +children?: React$Node,
     |},
   ) => {|
     +state: State,
