@@ -12,6 +12,7 @@ import DeleteAccount from './delete-account.react';
 import BuildInfo from './build-info.react';
 import DevTools from './dev-tools.react';
 import AppearancePreferences from './appearance-preferences.react';
+import FriendList from './friend-list.react';
 import {
   MoreScreenRouteName,
   EditEmailRouteName,
@@ -20,6 +21,7 @@ import {
   BuildInfoRouteName,
   DevToolsRouteName,
   AppearancePreferencesRouteName,
+  FriendListRouteName,
   type ScreenParamList,
   type MoreParamList,
 } from '../navigation/route-names';
@@ -39,6 +41,7 @@ const deleteAccountOptions = { headerTitle: 'Delete account' };
 const buildInfoOptions = { headerTitle: 'Build info' };
 const devToolsOptions = { headerTitle: 'Developer tools' };
 const appearanceOptions = { headerTitle: 'Appearance' };
+const friendListOptions = { headerTitle: 'Friends' };
 
 export type MoreNavigationProp<
   RouteName: $Keys<MoreParamList> = $Keys<MoreParamList>,
@@ -85,6 +88,11 @@ const MoreComponent = () => (
       name={AppearancePreferencesRouteName}
       component={AppearancePreferences}
       options={appearanceOptions}
+    />
+    <More.Screen
+      name={FriendListRouteName}
+      component={FriendList}
+      options={friendListOptions}
     />
   </More.Navigator>
 );

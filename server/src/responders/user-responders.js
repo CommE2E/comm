@@ -15,6 +15,7 @@ import type {
   LogInRequest,
   UpdatePasswordRequest,
   AccessRequest,
+  AddFriendsRequest,
 } from 'lib/types/account-types';
 import type { Viewer } from '../session/viewer';
 
@@ -335,6 +336,24 @@ async function requestAccessResponder(
   await sendAccessRequestEmailToAshoat(request);
 }
 
+const friendRequestInputValidator = tShape({
+  userIDs: t.list(t.String),
+});
+
+async function friendRequestCreationResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<void> {
+  const request: AddFriendsRequest = input;
+  await validateInput(viewer, friendRequestInputValidator, request);
+
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve();
+    }, 1000);
+  });
+}
+
 export {
   userSubscriptionUpdateResponder,
   accountUpdateResponder,
@@ -346,4 +365,5 @@ export {
   logInResponder,
   passwordUpdateResponder,
   requestAccessResponder,
+  friendRequestCreationResponder,
 };

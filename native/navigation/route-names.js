@@ -49,6 +49,8 @@ export const TextMessageTooltipModalRouteName = 'TextMessageTooltipModal';
 export const ThreadSettingsMemberTooltipModalRouteName =
   'ThreadSettingsMemberTooltipModal';
 export const CameraModalRouteName = 'CameraModal';
+export const FriendListRouteName = 'FriendList';
+export const AddFriendsModalRouteName = 'AddFriendsModal';
 
 export type RootParamList = {|
   LoggedOutModal: void,
@@ -59,6 +61,7 @@ export type RootParamList = {|
   CustomServerModal: CustomServerModalParams,
   ColorPickerModal: ColorPickerModalParams,
   ComposeSubthreadModal: ComposeSubthreadModalParams,
+  AddFriendsModal: void,
 |};
 
 export type TooltipModalParamList = {|
@@ -97,6 +100,7 @@ export type MoreParamList = {|
   BuildInfo: void,
   DevTools: void,
   AppearancePreferences: void,
+  FriendList: void,
 |};
 
 export type ScreenParamList = {|

@@ -52,6 +52,7 @@ import {
   BuildInfoRouteName,
   DevToolsRouteName,
   AppearancePreferencesRouteName,
+  FriendListRouteName,
 } from '../navigation/route-names';
 import {
   type Colors,
@@ -213,6 +214,26 @@ class MoreScreen extends React.PureComponent<Props> {
               />
             </View>
           </View>
+          <View style={this.props.styles.slightlyPaddedSection}>
+            <Button
+              onPress={this.onPressFriendList}
+              style={this.props.styles.submenuButton}
+              iosFormat="highlight"
+              iosHighlightUnderlayColor={underlay}
+            >
+              <Text style={this.props.styles.submenuText}>Friend list</Text>
+              <Icon name="ios-arrow-forward" size={20} color={linkColor} />
+            </Button>
+            <Button
+              onPress={this.onPressFriendList}
+              style={this.props.styles.submenuButton}
+              iosFormat="highlight"
+              iosHighlightUnderlayColor={underlay}
+            >
+              <Text style={this.props.styles.submenuText}>Block list</Text>
+              <Icon name="ios-arrow-forward" size={20} color={linkColor} />
+            </Button>
+          </View>
           <Text style={this.props.styles.header}>PREFERENCES</Text>
           <View style={this.props.styles.slightlyPaddedSection}>
             <Button
@@ -346,6 +367,10 @@ class MoreScreen extends React.PureComponent<Props> {
 
   onPressAppearance = () => {
     this.navigateIfActive(AppearancePreferencesRouteName);
+  };
+
+  onPressFriendList = () => {
+    this.navigateIfActive(FriendListRouteName);
   };
 }
 
