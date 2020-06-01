@@ -1,7 +1,7 @@
 // flow-typed signature: 78209a41671760f5318e734a04c2ae1c
 // flow-typed version: <<STUB>>/@react-navigation/bottom-tabs_v5.4.1/flow_v0.105.0
 
-declare module '@react-navigation/material-top-tabs' {
+declare module '@react-navigation/drawer' {
 
   //---------------------------------------------------------------------------
   // SECTION 1: IDENTICAL TYPE DEFINITIONS
@@ -1949,34 +1949,89 @@ declare module '@react-navigation/material-top-tabs' {
   //---------------------------------------------------------------------------
 
   /**
-   * createMaterialTopTabNavigator
+   * createDrawerNavigator
    */
 
-  declare export var createMaterialTopTabNavigator: CreateNavigator<
-    TabNavigationState,
-    MaterialTopTabOptions,
-    MaterialTopTabNavigationEventMap,
-    ExtraMaterialTopTabNavigatorProps,
+  declare export var createDrawerNavigator: CreateNavigator<
+    DrawerNavigationState,
+    DrawerOptions,
+    DrawerNavigationEventMap,
+    ExtraDrawerNavigatorProps,
   >;
 
   /**
-   * MaterialTopTabView
+   * DrawerView
    */
 
-  declare export type MaterialTopTabViewProps = {|
-    ...MaterialTopTabNavigationConfig,
-    ...MaterialTopTabNavigationBuilderResult,
+  declare export type DrawerViewProps = {|
+    ...DrawerNavigationConfig,
+    ...DrawerNavigationBuilderResult,
   |};
-  declare export var MaterialTopTabView: React$ComponentType<
-    MaterialTopTabViewProps,
-  >;
+  declare export var DrawerView: React$ComponentType<DrawerViewProps>;
 
   /**
-   * MaterialTopTabBar
+   * DrawerItem
    */
 
-  declare export var MaterialTopTabBar: React$ComponentType<
-    MaterialTopTabBarProps,
+  declare export type DrawerItemProps = {|
+    +label:
+      | string
+      | ({| +color: string, +focused: boolean |}) => React$Node,
+    +onPress: () => mixed,
+    +icon?: ({|
+      +color: string,
+      +size: number,
+      +focused: boolean,
+    |}) => React$Node,
+    +to?: string,
+    +focused?: boolean,
+    +activeTintColor?: string,
+    +inactiveTintColor?: string,
+    +activeBackgroundColor?: string,
+    +inactiveBackgroundColor?: string,
+    +labelStyle?: TextStyleProp,
+    +style?: ViewStyleProp,
+  |};
+  declare export var DrawerItem: React$ComponentType<DrawerItemProps>;
+
+  /**
+   * DrawerItemList
+   */
+
+  declare export type DrawerItemListProps = {|
+    ...DrawerItemListBaseOptions,
+    ...DrawerNavigationBuilderResult,
+  |};
+  declare export var DrawerItemList: React$ComponentType<DrawerItemListProps>;
+
+  /**
+   * DrawerContent
+   */
+
+  declare export var DrawerContent: React$ComponentType<DrawerContentProps>;
+
+  /**
+   * DrawerContentScrollView
+   */
+
+  declare export var DrawerContentScrollView: React$ComponentType<{
+    +children: React$Node,
+    ...
+  }>;
+
+  /**
+   * DrawerGestureContext
+   */
+
+  declare type GestureHandlerRef = React$Ref<
+    React$ComponentType<GestureHandlerProps>,
   >;
+  declare export var DrawerGestureContext: React$Context<?GestureHandlerRef>;
+
+  /**
+   * useIsDrawerOpen
+   */
+
+  declare export function useIsDrawerOpen(): boolean;
 
 }

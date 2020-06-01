@@ -1440,11 +1440,11 @@ declare module '@react-navigation/bottom-tabs' {
     ...BottomTabNavigationBuilderResult,
   |}
 
-  declare type BottomTabNavigationConfig = {|
-    +lazy?: boolean,
-    +tabBar?: BottomTabBarProps => React$Node,
-    +tabBarOptions?: BottomTabBarOptions,
-  |};
+  declare type BottomTabNavigationConfig = $Shape<{|
+    +lazy: boolean,
+    +tabBar: BottomTabBarProps => React$Node,
+    +tabBarOptions: BottomTabBarOptions,
+  |}>;
 
   declare export type ExtraBottomTabNavigatorProps = {|
     ...$Exact<ExtraNavigatorPropsBase>,
@@ -1773,6 +1773,126 @@ declare module '@react-navigation/bottom-tabs' {
   > = {|
     ...ExtraMaterialTopTabNavigatorProps,
     ...ScreenOptionsProp<MaterialTopTabOptions, NavProp>,
+  |};
+
+  /**
+   * Drawer options
+   */
+
+  declare export type DrawerOptions = $Shape<{|
+    title: string,
+    drawerLabel:
+      | string
+      | ({| +color: string, +focused: boolean |}) => React$Node,
+    drawerIcon: ({|
+      +color: string,
+      +size: number,
+      +focused: boolean,
+    |}) => React$Node,
+    gestureEnabled: boolean,
+    swipeEnabled: boolean,
+    unmountOnBlur: boolean,
+  |}>;
+
+  /**
+   * Drawer navigation prop
+   */
+
+  declare export type DrawerNavigationEventMap = {|
+    ...EventMapCore<DrawerNavigationState>,
+    +drawerOpen: {| +data: void, +canPreventDefault: false |},
+    +drawerClose: {| +data: void, +canPreventDefault: false |},
+  |};
+
+  declare export type InexactDrawerNavigationProp<
+    ParamList: ParamListBase = ParamListBase,
+    RouteName: $Keys<ParamList> = string,
+    Options: {} = DrawerOptions,
+    EventMap: EventMapBase = DrawerNavigationEventMap,
+  > = {
+    ...BottomTabNavigationProp<ParamList, RouteName, Options, EventMap>,
+    +openDrawer: () => void,
+    +closeDrawer: () => void,
+    +toggleDrawer: () => void,
+    ...
+  };
+
+  declare export type DrawerNavigationProp<
+    ParamList: ParamListBase = ParamListBase,
+    RouteName: $Keys<ParamList> = string,
+    Options: {} = DrawerOptions,
+    EventMap: EventMapBase = DrawerNavigationEventMap,
+  > = $Exact<InexactDrawerNavigationProp<
+    ParamList,
+    RouteName,
+    Options,
+    EventMap,
+  >>;
+
+  /**
+   * Miscellaneous drawer exports
+   */
+
+  declare export type DrawerDescriptor = Descriptor<
+    DrawerNavigationProp<>,
+    DrawerOptions,
+  >;
+
+  declare export type DrawerItemListBaseOptions = $Shape<{|
+    +activeTintColor: string,
+    +activeBackgroundColor: string,
+    +inactiveTintColor: string,
+    +inactiveBackgroundColor: string,
+    +itemStyle: ViewStyleProp,
+    +labelStyle: TextStyleProp,
+  |}>;
+
+  declare export type DrawerContentOptions = $Shape<{|
+    ...DrawerItemListBaseOptions,
+    +contentContainerStyle: ViewStyleProp,
+    +style: ViewStyleProp,
+  |}>;
+
+  declare type DrawerNavigationBuilderResult = {|
+    +state: DrawerNavigationState,
+    +navigation: DrawerNavigationProp<>,
+    +descriptors: {| +[key: string]: DrawerDescriptor |},
+  |};
+
+  declare export type DrawerContentProps = {|
+    ...DrawerContentOptions,
+    ...DrawerNavigationBuilderResult,
+    +progress: any, // Reanimated.Node<number>
+  |};
+
+  declare export type DrawerNavigationConfig = $Shape<{|
+    +drawerPosition: 'left' | 'right',
+    +drawerType: 'front' | 'back' | 'slide' | 'permanent',
+    +edgeWidth: number,
+    +hideStatusBar: boolean,
+    +keyboardDismissMode: 'on-drag' | 'none',
+    +minSwipeDistance: number,
+    +overlayColor: string,
+    +statusBarAnimation: 'slide' | 'none' | 'fade',
+    +gestureHandlerProps: PanGestureHandlerProps,
+    +lazy: boolean,
+    +drawerContent: DrawerContentProps => React$Node,
+    +drawerContentOptions: DrawerContentOptions,
+    +sceneContainerStyle: ViewStyleProp,
+    +drawerStyle: ViewStyleProp,
+  |}>;
+
+  declare export type ExtraDrawerNavigatorProps = {|
+    ...$Exact<ExtraNavigatorPropsBase>,
+    ...DrawerRouterOptions,
+    ...DrawerNavigationConfig,
+  |};
+
+  declare export type DrawerNavigatorProps<
+    NavProp: InexactDrawerNavigationProp<> = DrawerNavigationProp<>,
+  > = {|
+    ...ExtraDrawerNavigatorProps,
+    ...ScreenOptionsProp<DrawerOptions, NavProp>,
   |};
 
   /**
