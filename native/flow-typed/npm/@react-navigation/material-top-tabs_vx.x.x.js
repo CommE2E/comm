@@ -427,8 +427,8 @@ declare module '@react-navigation/material-top-tabs' {
   declare export type NavigateAction = {|
     +type: 'NAVIGATE',
     +payload:
-      | {| key: string, params?: ScreenParams |}
-      | {| name: string, key?: string, params?: ScreenParams |},
+      | {| +key: string, +params?: ScreenParams |}
+      | {| +name: string, +key?: string, +params?: ScreenParams |},
     +source?: string,
     +target?: string,
   |};
@@ -440,7 +440,7 @@ declare module '@react-navigation/material-top-tabs' {
   |};
   declare export type SetParamsAction = {|
     +type: 'SET_PARAMS',
-    +payload: {| params?: ScreenParams |},
+    +payload: {| +params?: ScreenParams |},
     +source?: string,
     +target?: string,
   |};
@@ -588,19 +588,19 @@ declare module '@react-navigation/material-top-tabs' {
 
   declare export type ReplaceAction = {|
     +type: 'REPLACE',
-    +payload: {| name: string, key?: ?string, params?: ScreenParams |},
+    +payload: {| +name: string, +key?: ?string, +params?: ScreenParams |},
     +source?: string,
     +target?: string,
   |};
   declare export type PushAction = {|
     +type: 'PUSH',
-    +payload: {| name: string, key?: ?string, params?: ScreenParams |},
+    +payload: {| +name: string, +key?: ?string, +params?: ScreenParams |},
     +source?: string,
     +target?: string,
   |};
   declare export type PopAction = {|
     +type: 'POP',
-    +payload: {| count: number |},
+    +payload: {| +count: number |},
     +source?: string,
     +target?: string,
   |};
@@ -637,7 +637,7 @@ declare module '@react-navigation/material-top-tabs' {
 
   declare export type JumpToAction = {|
     +type: 'JUMP_TO',
-    +payload: {| name: string, params?: ScreenParams |},
+    +payload: {| +name: string, +params?: ScreenParams |},
     +source?: string,
     +target?: string,
   |};

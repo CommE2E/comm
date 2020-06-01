@@ -427,8 +427,8 @@ declare module '@react-navigation/native' {
   declare export type NavigateAction = {|
     +type: 'NAVIGATE',
     +payload:
-      | {| key: string, params?: ScreenParams |}
-      | {| name: string, key?: string, params?: ScreenParams |},
+      | {| +key: string, +params?: ScreenParams |}
+      | {| +name: string, +key?: string, +params?: ScreenParams |},
     +source?: string,
     +target?: string,
   |};
@@ -440,7 +440,7 @@ declare module '@react-navigation/native' {
   |};
   declare export type SetParamsAction = {|
     +type: 'SET_PARAMS',
-    +payload: {| params?: ScreenParams |},
+    +payload: {| +params?: ScreenParams |},
     +source?: string,
     +target?: string,
   |};
@@ -588,19 +588,19 @@ declare module '@react-navigation/native' {
 
   declare export type ReplaceAction = {|
     +type: 'REPLACE',
-    +payload: {| name: string, key?: ?string, params?: ScreenParams |},
+    +payload: {| +name: string, +key?: ?string, +params?: ScreenParams |},
     +source?: string,
     +target?: string,
   |};
   declare export type PushAction = {|
     +type: 'PUSH',
-    +payload: {| name: string, key?: ?string, params?: ScreenParams |},
+    +payload: {| +name: string, +key?: ?string, +params?: ScreenParams |},
     +source?: string,
     +target?: string,
   |};
   declare export type PopAction = {|
     +type: 'POP',
-    +payload: {| count: number |},
+    +payload: {| +count: number |},
     +source?: string,
     +target?: string,
   |};
@@ -637,7 +637,7 @@ declare module '@react-navigation/native' {
 
   declare export type JumpToAction = {|
     +type: 'JUMP_TO',
-    +payload: {| name: string, params?: ScreenParams |},
+    +payload: {| +name: string, +params?: ScreenParams |},
     +source?: string,
     +target?: string,
   |};
@@ -1974,6 +1974,35 @@ declare module '@react-navigation/native' {
     +getStateFromPath?: typeof getStateFromPath,
     +getPathFromState?: typeof getPathFromState,
   |};
+
+  declare export var Link: React$ComponentType<{
+    +to: string,
+    +action?: GenericNavigationAction,
+    +target?: string,
+    +children: React$Node,
+    ...
+  }>;
+
+  declare export function useLinking(
+    container: { +current: ?React$ElementRef<typeof NavigationContainer>, ... },
+    options: LinkingOptions,
+  ): {| +getInitialState: () => Promise<?PossiblyStaleNavigationState> |};
+
+  declare export function useLinkTo(): (path: string) => void;
+
+  declare export function useLinkProps<To: string>(props: {|
+    +to: Top,
+    +action?: GenericNavigationAction,
+  |}): {|
+    +href: To,
+    +accessibilityRole: 'link',
+    +onPress: (MouseEvent | PressEvent) => void,
+  |};
+
+  declare export function useLinkBuilder(): (
+    name: string,
+    params?: ScreenParams,
+  ) => ?string;
 
   /**
    * NavigationContainer
