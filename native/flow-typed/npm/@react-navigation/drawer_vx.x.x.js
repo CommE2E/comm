@@ -1,6 +1,3 @@
-// flow-typed signature: 78209a41671760f5318e734a04c2ae1c
-// flow-typed version: <<STUB>>/@react-navigation/bottom-tabs_v5.4.1/flow_v0.105.0
-
 declare module '@react-navigation/drawer' {
 
   //---------------------------------------------------------------------------
@@ -26,7 +23,7 @@ declare module '@react-navigation/drawer' {
     | false
     | ''
     | $ReadOnlyArray<StyleObj>
-    | { [name: string]: any };
+    | { [name: string]: any, ... };
   declare type ViewStyleProp = StyleObj;
   declare type TextStyleProp = StyleObj;
   declare type AnimatedViewStyleProp = StyleObj;
@@ -34,7 +31,7 @@ declare module '@react-navigation/drawer' {
 
   // Vaguely copied from
   // react-native/Libraries/Animated/src/animations/Animation.js
-  declare type EndResult = { finished: boolean };
+  declare type EndResult = { finished: boolean, ... };
   declare type EndCallback = (result: EndResult) => void;
   declare interface Animation {
     start(
@@ -51,6 +48,7 @@ declare module '@react-navigation/drawer' {
     useNativeDriver: boolean,
     onComplete?: ?EndCallback,
     iterations?: number,
+    ...
   };
 
   // Vaguely copied from
@@ -68,7 +66,7 @@ declare module '@react-navigation/drawer' {
 
   // Vaguely copied from
   // react-native/Libraries/Animated/src/nodes/AnimatedValue.js
-  declare type ValueListenerCallback = (state: { value: number }) => void;
+  declare type ValueListenerCallback = (state: { value: number, ... }) => void;
   declare interface AnimatedValue {
     constructor(value: number): void;
     setValue(value: number): void;
@@ -93,6 +91,7 @@ declare module '@react-navigation/drawer' {
     easing?: (value: number) => number,
     duration?: number,
     delay?: number,
+    ...
   };
 
   // Copied from
@@ -111,6 +110,7 @@ declare module '@react-navigation/drawer' {
     damping?: number,
     mass?: number,
     delay?: number,
+    ...
   };
 
   // Copied from react-native/Libraries/Types/CoreEventTypes.js
@@ -202,6 +202,7 @@ declare module '@react-navigation/drawer' {
     extrapolate?: ExtrapolateType,
     extrapolateLeft?: ExtrapolateType,
     extrapolateRight?: ExtrapolateType,
+    ...
   };
   declare interface AnimatedInterpolation {
     interpolate(config: InterpolationConfigType): AnimatedInterpolation;
@@ -309,13 +310,14 @@ declare module '@react-navigation/drawer' {
     width?: ?number,
     height?: ?number,
     scale?: ?number,
+    ...
   }>;
 
   /**
    * The following is copied from react-native-gesture-handler's libdef
    */
 
-  declare type $EventHandlers<ExtraProps: {}> = {|
+  declare type $EventHandlers<ExtraProps: {...}> = {|
     onGestureEvent?: ($Event<ExtraProps>) => mixed,
     onHandlerStateChange?: ($Event<ExtraProps>) => mixed,
     onBegan?: ($Event<ExtraProps>) => mixed,
@@ -355,8 +357,8 @@ declare module '@react-navigation/drawer' {
       |};
 
   declare type $GestureHandlerProps<
-    AdditionalProps: {},
-    ExtraEventsProps: {}
+    AdditionalProps: {...},
+    ExtraEventsProps: {...}
   > = $ReadOnly<{|
     ...$Exact<AdditionalProps>,
     ...$EventHandlers<ExtraEventsProps>,
@@ -383,6 +385,7 @@ declare module '@react-navigation/drawer' {
       minPointers?: number,
       maxPointers?: number,
       avgTouches?: boolean,
+      ...
     },
     {
       x: number,
@@ -393,6 +396,7 @@ declare module '@react-navigation/drawer' {
       translationY: number,
       velocityX: number,
       velocityY: number,
+      ...
     }
   >;
 
@@ -411,13 +415,14 @@ declare module '@react-navigation/drawer' {
     X,
   >;
   declare type $IsUndefined<X> = $IsA<X, void>;
-  declare type $IsExact<X> = $IsA<X, $Exact<X>>;
+
+  declare type $Partial<T> = $Rest<T, {...}>;
 
   /**
    * Actions, state, etc.
    */
 
-  declare export type ScreenParams = { +[key: string]: mixed };
+  declare export type ScreenParams = { +[key: string]: mixed, ... };
 
   declare export type BackAction = {|
     +type: 'GO_BACK',
@@ -466,7 +471,7 @@ declare module '@react-navigation/drawer' {
 
   declare export type GenericNavigationAction = {|
     +type: string,
-    +payload?: { +[key: string]: mixed },
+    +payload?: { +[key: string]: mixed, ... },
     +source?: string,
     +target?: string,
   |};
@@ -534,10 +539,12 @@ declare module '@react-navigation/drawer' {
     Action: GenericNavigationAction,
   > = {
     +[key: string]: (...args: any) => (Action | State => Action),
+    ...
   };
 
-  declare type DefaultRouterOptions = {
+  declare export type DefaultRouterOptions = {
     +initialRouteName?: string,
+    ...
   };
 
   declare export type RouterFactory<
@@ -546,7 +553,7 @@ declare module '@react-navigation/drawer' {
     RouterOptions: DefaultRouterOptions,
   > = (options: RouterOptions) => Router<State, Action>;
 
-  declare export type ParamListBase = { +[key: string]: ?ScreenParams };
+  declare export type ParamListBase = { +[key: string]: ?ScreenParams, ... };
 
   declare export type RouterConfigOptions = {|
     +routeNames: $ReadOnlyArray<string>,
@@ -709,6 +716,7 @@ declare module '@react-navigation/drawer' {
       +data?: mixed,
       +canPreventDefault?: boolean,
     |},
+    ...
   };
   declare type EventPreventDefaultProperties<Test: boolean> = $If<
     Test,
@@ -790,16 +798,12 @@ declare module '@react-navigation/drawer' {
     State: PossiblyStaleNavigationState = PossiblyStaleNavigationState,
     EventMap: EventMapBase = EventMapCore<State>,
   > = {
+    +navigate: Navigate<ParamList>,
     +dispatch: (
       action:
         | GenericNavigationAction
         | (State => GenericNavigationAction),
     ) => void,
-    +navigate: Navigate<$If<
-      $IsExact<ParamList>,
-      ParamList,
-      { ...ParamListBase, ...ParamList },
-    >>,
     +reset: PossiblyStaleNavigationState => void,
     +goBack: () => void,
     +isFocused: () => boolean,
@@ -823,9 +827,9 @@ declare module '@react-navigation/drawer' {
 
   declare export type NavigationProp<
     ParamList: ParamListBase,
-    RouteName: $Keys<ParamList> = string,
+    RouteName: $Keys<ParamList> = $Keys<ParamList>,
     State: PossiblyStaleNavigationState = PossiblyStaleNavigationState,
-    ScreenOptions: {} = {},
+    ScreenOptions: {...} = {...},
     EventMap: EventMapBase = EventMapCore<State>,
   > = {
     ...$Exact<NavigationHelpers<
@@ -835,14 +839,11 @@ declare module '@react-navigation/drawer' {
     >>,
     +setOptions: (options: $Shape<ScreenOptions>) => void,
     +setParams: (
-      params: $Shape<$NonMaybeType<$ElementType<
-        $If<
-          $IsExact<ParamList>,
-          ParamList,
-          { ...ParamListBase, ...ParamList },
-        >,
-        RouteName,
-      >>>,
+      params: $If<
+        $IsUndefined<$ElementType<ParamList, RouteName>>,
+        empty,
+        $Shape<$NonMaybeType<$ElementType<ParamList, RouteName>>>,
+      >,
     ) => void,
     ...
   };
@@ -870,9 +871,9 @@ declare module '@react-navigation/drawer' {
   declare type BaseScreenProps<
     ParamList: ParamListBase,
     NavProp,
-    RouteName: $Keys<ParamList> = string,
+    RouteName: $Keys<ParamList> = $Keys<ParamList>,
     State: NavigationState = NavigationState,
-    ScreenOptions: {} = {},
+    ScreenOptions: {...} = {...},
     EventMap: EventMapBase = EventMapCore<State>,
   > = {|
     +name: RouteName,
@@ -894,9 +895,9 @@ declare module '@react-navigation/drawer' {
   declare export type ScreenProps<
     ParamList: ParamListBase,
     NavProp,
-    RouteName: $Keys<ParamList> = string,
+    RouteName: $Keys<ParamList> = $Keys<ParamList>,
     State: NavigationState = NavigationState,
-    ScreenOptions: {} = {},
+    ScreenOptions: {...} = {...},
     EventMap: EventMapBase = EventMapCore<State>,
   > =
     | {|
@@ -932,7 +933,7 @@ declare module '@react-navigation/drawer' {
     GlobalParamList: ParamListBase,
     ParamList: ParamListBase,
     State: NavigationState = NavigationState,
-    ScreenOptions: {} = {},
+    ScreenOptions: {...} = {...},
     EventMap: EventMapBase = EventMapCore<State>,
   > = <
     RouteName: $Keys<ParamList>,
@@ -952,7 +953,7 @@ declare module '@react-navigation/drawer' {
     EventMap,
   >) => React$Node;
 
-  declare type ScreenOptionsProp<ScreenOptions: {}, NavProp> = {|
+  declare type ScreenOptionsProp<ScreenOptions: {...}, NavProp> = {|
     +screenOptions?:
       | ScreenOptions
       | ({| route: LeafRoute<>, navigation: NavProp |}) => ScreenOptions,
@@ -962,14 +963,15 @@ declare module '@react-navigation/drawer' {
     +children?: React$Node,
     ...
   };
-  declare export type NavigatorPropsBase<ScreenOptions: {}, NavProp> = {
+  declare export type NavigatorPropsBase<ScreenOptions: {...}, NavProp> = {
     ...$Exact<ExtraNavigatorPropsBase>,
     ...ScreenOptionsProp<ScreenOptions, NavProp>,
+    ...
   };
 
   declare export type CreateNavigator<
     State: NavigationState,
-    ScreenOptions: {},
+    ScreenOptions: {...},
     EventMap: EventMapBase,
     ExtraNavigatorProps: ExtraNavigatorPropsBase,
   > = <
@@ -996,7 +998,7 @@ declare module '@react-navigation/drawer' {
 
   declare export type CreateNavigatorFactory = <
     State: NavigationState,
-    ScreenOptions: {},
+    ScreenOptions: {...},
     EventMap: EventMapBase,
     NavProp: NavigationHelpers<
       ParamListBase,
@@ -1017,7 +1019,7 @@ declare module '@react-navigation/drawer' {
 
   declare export type Descriptor<
     NavProp,
-    ScreenOptions: {} = {},
+    ScreenOptions: {...} = {...},
   > = {|
     +render: () => React$Node,
     +options: $ReadOnly<ScreenOptions>,
@@ -1027,7 +1029,7 @@ declare module '@react-navigation/drawer' {
   declare export type UseNavigationBuilder = <
     State: NavigationState,
     Action: GenericNavigationAction,
-    ScreenOptions: {},
+    ScreenOptions: {...},
     RouterOptions: DefaultRouterOptions,
     NavProp,
   >(
@@ -1063,14 +1065,14 @@ declare module '@react-navigation/drawer' {
         animation: 'spring',
         config: $Diff<
           SpringAnimationConfigSingle,
-          { toValue: number | AnimatedValue },
+          { toValue: number | AnimatedValue, ... },
         >,
       |}
     | {|
         animation: 'timing',
         config: $Diff<
           TimingAnimationConfigSingle,
-          { toValue: number | AnimatedValue },
+          { toValue: number | AnimatedValue, ... },
         >,
       |};
 
@@ -1256,8 +1258,8 @@ declare module '@react-navigation/drawer' {
 
   declare type InexactStackNavigationProp<
     ParamList: ParamListBase = ParamListBase,
-    RouteName: $Keys<ParamList> = string,
-    Options: {} = StackOptions,
+    RouteName: $Keys<ParamList> = $Keys<ParamList>,
+    Options: {...} = StackOptions,
     EventMap: EventMapBase = StackNavigationEventMap,
   > = {
     ...$Exact<NavigationProp<
@@ -1267,16 +1269,8 @@ declare module '@react-navigation/drawer' {
       Options,
       EventMap,
     >>,
-    +replace: SimpleNavigate<$If<
-      $IsExact<ParamList>,
-      ParamList,
-      { ...ParamListBase, ...ParamList },
-    >>,
-    +push: SimpleNavigate<$If<
-      $IsExact<ParamList>,
-      ParamList,
-      { ...ParamListBase, ...ParamList },
-    >>,
+    +replace: SimpleNavigate<ParamList>,
+    +push: SimpleNavigate<ParamList>,
     +pop: (count?: number) => void,
     +popToTop: () => void,
     ...
@@ -1284,8 +1278,8 @@ declare module '@react-navigation/drawer' {
 
   declare export type StackNavigationProp<
     ParamList: ParamListBase = ParamListBase,
-    RouteName: $Keys<ParamList> = string,
-    Options: {} = StackOptions,
+    RouteName: $Keys<ParamList> = $Keys<ParamList>,
+    Options: {...} = StackOptions,
     EventMap: EventMapBase = StackNavigationEventMap,
   > = $Exact<InexactStackNavigationProp<
     ParamList,
@@ -1298,7 +1292,7 @@ declare module '@react-navigation/drawer' {
    * Miscellaneous stack exports
    */
 
-  declare type StackNavigationProps = {|
+  declare type StackNavigationConfig = {|
     +mode?: 'card' | 'modal',
     +headerMode?: 'float' | 'screen' | 'none',
     +keyboardHandlingEnabled?: boolean,
@@ -1307,7 +1301,7 @@ declare module '@react-navigation/drawer' {
   declare export type ExtraStackNavigatorProps = {|
     ...$Exact<ExtraNavigatorPropsBase>,
     ...StackRouterOptions,
-    ...StackNavigationProps,
+    ...StackNavigationConfig,
   |};
 
   declare export type StackNavigatorProps<
@@ -1361,7 +1355,7 @@ declare module '@react-navigation/drawer' {
   declare type InexactTabNavigationProp<
     ParamList: ParamListBase,
     RouteName: $Keys<ParamList>,
-    Options: {},
+    Options: {...},
     EventMap: EventMapBase,
   > = {
     ...$Exact<NavigationProp<
@@ -1371,18 +1365,14 @@ declare module '@react-navigation/drawer' {
       Options,
       EventMap,
     >>,
-    +jumpTo: SimpleNavigate<$If<
-      $IsExact<ParamList>,
-      ParamList,
-      { ...ParamListBase, ...ParamList },
-    >>,
+    +jumpTo: SimpleNavigate<ParamList>,
     ...
   };
 
   declare export type InexactBottomTabNavigationProp<
     ParamList: ParamListBase = ParamListBase,
-    RouteName: $Keys<ParamList> = string,
-    Options: {} = BottomTabOptions,
+    RouteName: $Keys<ParamList> = $Keys<ParamList>,
+    Options: {...} = BottomTabOptions,
     EventMap: EventMapBase = BottomTabNavigationEventMap,
   > = InexactTabNavigationProp<
     ParamList,
@@ -1393,8 +1383,8 @@ declare module '@react-navigation/drawer' {
 
   declare export type BottomTabNavigationProp<
     ParamList: ParamListBase = ParamListBase,
-    RouteName: $Keys<ParamList> = string,
-    Options: {} = BottomTabOptions,
+    RouteName: $Keys<ParamList> = $Keys<ParamList>,
+    Options: {...} = BottomTabOptions,
     EventMap: EventMapBase = BottomTabNavigationEventMap,
   > = $Exact<InexactBottomTabNavigationProp<
     ParamList,
@@ -1440,11 +1430,11 @@ declare module '@react-navigation/drawer' {
     ...BottomTabNavigationBuilderResult,
   |}
 
-  declare type BottomTabNavigationConfig = $Shape<{|
-    +lazy: boolean,
-    +tabBar: BottomTabBarProps => React$Node,
-    +tabBarOptions: BottomTabBarOptions,
-  |}>;
+  declare type BottomTabNavigationConfig = {|
+    +lazy?: boolean,
+    +tabBar?: BottomTabBarProps => React$Node,
+    +tabBarOptions?: BottomTabBarOptions,
+  |};
 
   declare export type ExtraBottomTabNavigatorProps = {|
     ...$Exact<ExtraNavigatorPropsBase>,
@@ -1486,8 +1476,8 @@ declare module '@react-navigation/drawer' {
 
   declare export type InexactMaterialBottomTabNavigationProp<
     ParamList: ParamListBase = ParamListBase,
-    RouteName: $Keys<ParamList> = string,
-    Options: {} = MaterialBottomTabOptions,
+    RouteName: $Keys<ParamList> = $Keys<ParamList>,
+    Options: {...} = MaterialBottomTabOptions,
     EventMap: EventMapBase = MaterialBottomTabNavigationEventMap,
   > = InexactTabNavigationProp<
     ParamList,
@@ -1498,8 +1488,8 @@ declare module '@react-navigation/drawer' {
 
   declare export type MaterialBottomTabNavigationProp<
     ParamList: ParamListBase = ParamListBase,
-    RouteName: $Keys<ParamList> = string,
-    Options: {} = MaterialBottomTabOptions,
+    RouteName: $Keys<ParamList> = $Keys<ParamList>,
+    Options: {...} = MaterialBottomTabOptions,
     EventMap: EventMapBase = MaterialBottomTabNavigationEventMap,
   > = $Exact<InexactMaterialBottomTabNavigationProp<
     ParamList,
@@ -1579,18 +1569,18 @@ declare module '@react-navigation/drawer' {
     +rippleColor?: string,
   |};
 
-  declare export type MaterialBottomTabNavigationConfig = $Shape<{|
-    +shifting: boolean,
-    +labeled: boolean,
-    +renderTouchable: PaperTouchableProps => React$Node,
-    +activeColor: string,
-    +inactiveColor: string,
-    +sceneAnimationEnabled: boolean,
-    +keyboardHidesNavigationBar: boolean,
-    +barStyle: ViewStyleProp,
-    +style: ViewStyleProp,
-    +theme: PaperTheme,
-  |}>;
+  declare export type MaterialBottomTabNavigationConfig = {|
+    +shifting?: boolean,
+    +labeled?: boolean,
+    +renderTouchable?: PaperTouchableProps => React$Node,
+    +activeColor?: string,
+    +inactiveColor?: string,
+    +sceneAnimationEnabled?: boolean,
+    +keyboardHidesNavigationBar?: boolean,
+    +barStyle?: ViewStyleProp,
+    +style?: ViewStyleProp,
+    +theme?: PaperTheme,
+  |};
 
   declare export type ExtraMaterialBottomTabNavigatorProps = {|
     ...$Exact<ExtraNavigatorPropsBase>,
@@ -1634,8 +1624,8 @@ declare module '@react-navigation/drawer' {
 
   declare export type InexactMaterialTopTabNavigationProp<
     ParamList: ParamListBase = ParamListBase,
-    RouteName: $Keys<ParamList> = string,
-    Options: {} = MaterialTopTabOptions,
+    RouteName: $Keys<ParamList> = $Keys<ParamList>,
+    Options: {...} = MaterialTopTabOptions,
     EventMap: EventMapBase = MaterialTopTabNavigationEventMap,
   > = InexactTabNavigationProp<
     ParamList,
@@ -1646,8 +1636,8 @@ declare module '@react-navigation/drawer' {
 
   declare export type MaterialTopTabNavigationProp<
     ParamList: ParamListBase = ParamListBase,
-    RouteName: $Keys<ParamList> = string,
-    Options: {} = MaterialTopTabOptions,
+    RouteName: $Keys<ParamList> = $Keys<ParamList>,
+    Options: {...} = MaterialTopTabOptions,
     EventMap: EventMapBase = MaterialTopTabNavigationEventMap,
   > = $Exact<InexactMaterialTopTabNavigationProp<
     ParamList,
@@ -1744,22 +1734,22 @@ declare module '@react-navigation/drawer' {
     +jumpTo: string => void,
   |};
 
-  declare export type MaterialTopTabNavigationConfig = $Shape<{|
-    ...MaterialTopTabPagerCommonProps,
-    +position: any, // Reanimated.Value<number>
-    +tabBarPosition: 'top' | 'bottom',
-    +initialLayout: $Shape<{| +width: number, +height: number |}>,
-    +lazy: boolean,
-    +lazyPreloadDistance: number,
-    +removeClippedSubviews: boolean,
-    +sceneContainerStyle: ViewStyleProp,
-    +style: ViewStyleProp,
-    +gestureHandlerProps: PanGestureHandlerProps,
-    +pager: MaterialTopTabPagerProps => React$Node,
-    +lazyPlaceholder: ({| +route: Route<> |}) => React$Node,
-    +tabBar: MaterialTopTabBarProps => React$Node,
-    +tabBarOptions: MaterialTopTabBarOptions,
-  |}>;
+  declare export type MaterialTopTabNavigationConfig = {|
+    ...$Partial<MaterialTopTabPagerCommonProps>,
+    +position?: any, // Reanimated.Value<number>
+    +tabBarPosition?: 'top' | 'bottom',
+    +initialLayout?: $Shape<{| +width: number, +height: number |}>,
+    +lazy?: boolean,
+    +lazyPreloadDistance?: number,
+    +removeClippedSubviews?: boolean,
+    +sceneContainerStyle?: ViewStyleProp,
+    +style?: ViewStyleProp,
+    +gestureHandlerProps?: PanGestureHandlerProps,
+    +pager?: MaterialTopTabPagerProps => React$Node,
+    +lazyPlaceholder?: ({| +route: Route<> |}) => React$Node,
+    +tabBar?: MaterialTopTabBarProps => React$Node,
+    +tabBarOptions?: MaterialTopTabBarOptions,
+  |};
 
   declare export type ExtraMaterialTopTabNavigatorProps = {|
     ...$Exact<ExtraNavigatorPropsBase>,
@@ -1806,11 +1796,18 @@ declare module '@react-navigation/drawer' {
 
   declare export type InexactDrawerNavigationProp<
     ParamList: ParamListBase = ParamListBase,
-    RouteName: $Keys<ParamList> = string,
-    Options: {} = DrawerOptions,
+    RouteName: $Keys<ParamList> = $Keys<ParamList>,
+    Options: {...} = DrawerOptions,
     EventMap: EventMapBase = DrawerNavigationEventMap,
   > = {
-    ...BottomTabNavigationProp<ParamList, RouteName, Options, EventMap>,
+    ...$Exact<NavigationProp<
+      ParamList,
+      RouteName,
+      DrawerNavigationState,
+      Options,
+      EventMap,
+    >>,
+    +jumpTo: SimpleNavigate<ParamList>,
     +openDrawer: () => void,
     +closeDrawer: () => void,
     +toggleDrawer: () => void,
@@ -1819,8 +1816,8 @@ declare module '@react-navigation/drawer' {
 
   declare export type DrawerNavigationProp<
     ParamList: ParamListBase = ParamListBase,
-    RouteName: $Keys<ParamList> = string,
-    Options: {} = DrawerOptions,
+    RouteName: $Keys<ParamList> = $Keys<ParamList>,
+    Options: {...} = DrawerOptions,
     EventMap: EventMapBase = DrawerNavigationEventMap,
   > = $Exact<InexactDrawerNavigationProp<
     ParamList,
@@ -1865,22 +1862,22 @@ declare module '@react-navigation/drawer' {
     +progress: any, // Reanimated.Node<number>
   |};
 
-  declare export type DrawerNavigationConfig = $Shape<{|
-    +drawerPosition: 'left' | 'right',
-    +drawerType: 'front' | 'back' | 'slide' | 'permanent',
-    +edgeWidth: number,
-    +hideStatusBar: boolean,
-    +keyboardDismissMode: 'on-drag' | 'none',
-    +minSwipeDistance: number,
-    +overlayColor: string,
-    +statusBarAnimation: 'slide' | 'none' | 'fade',
-    +gestureHandlerProps: PanGestureHandlerProps,
-    +lazy: boolean,
-    +drawerContent: DrawerContentProps => React$Node,
-    +drawerContentOptions: DrawerContentOptions,
-    +sceneContainerStyle: ViewStyleProp,
-    +drawerStyle: ViewStyleProp,
-  |}>;
+  declare export type DrawerNavigationConfig = {|
+    +drawerPosition?: 'left' | 'right',
+    +drawerType?: 'front' | 'back' | 'slide' | 'permanent',
+    +edgeWidth?: number,
+    +hideStatusBar?: boolean,
+    +keyboardDismissMode?: 'on-drag' | 'none',
+    +minSwipeDistance?: number,
+    +overlayColor?: string,
+    +statusBarAnimation?: 'slide' | 'none' | 'fade',
+    +gestureHandlerProps?: PanGestureHandlerProps,
+    +lazy?: boolean,
+    +drawerContent?: DrawerContentProps => React$Node,
+    +drawerContentOptions?: DrawerContentOptions,
+    +sceneContainerStyle?: ViewStyleProp,
+    +drawerStyle?: ViewStyleProp,
+  |};
 
   declare export type ExtraDrawerNavigatorProps = {|
     ...$Exact<ExtraNavigatorPropsBase>,
