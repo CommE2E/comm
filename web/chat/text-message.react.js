@@ -21,6 +21,16 @@ import css from './chat-message-list.css';
 import ComposedMessage from './composed-message.react';
 import textMessageSendFailed from './text-message-send-failed';
 
+const linkifyComponentDecorator = (
+  href: string,
+  text: React.Node,
+  key: string,
+) => (
+  <a href={href} key={key} target="_blank" rel="noopener noreferrer">
+    {text}
+  </a>
+);
+
 type Props = {|
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
@@ -84,7 +94,9 @@ class TextMessage extends React.PureComponent<Props> {
         setMouseOver={this.props.setMouseOver}
       >
         <div className={messageClassName} style={messageStyle}>
-          <Linkify>{text}</Linkify>
+          <Linkify componentDecorator={linkifyComponentDecorator}>
+            {text}
+          </Linkify>
         </div>
       </ComposedMessage>
     );
