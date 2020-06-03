@@ -68,7 +68,7 @@ async function validateAndConvert(
     inputFileSize: size,
     inputOrientation: metadata.orientation,
   });
-  if (!plan) {
+  if (plan.action === 'none') {
     const name = readableFilename(initialName, mime);
     invariant(name, `should be able to construct filename for ${mime}`);
     return {

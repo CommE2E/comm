@@ -40,7 +40,7 @@ async function processImage(
     inputFileSize: fileSize,
     inputOrientation: orientation,
   });
-  if (!plan) {
+  if (plan.action === 'none') {
     return {
       steps,
       result: { success: true, uri, dimensions, mime },
