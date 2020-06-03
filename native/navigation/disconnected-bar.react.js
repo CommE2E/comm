@@ -1,26 +1,30 @@
 // @flow
 
 import * as React from 'react';
-import { Text, StyleSheet, Platform } from 'react-native';
+import { Text, StyleSheet, Platform, Animated, Easing } from 'react-native';
 import { useSelector } from 'react-redux';
-import Animated, { Easing } from 'react-native-reanimated';
-
-/* eslint-disable import/no-named-as-default-member */
-const { Value, timing, interpolate } = Animated;
-/* eslint-enable import/no-named-as-default-member */
 
 const expandedHeight = Platform.select({
   android: 29.5,
   default: 27,
 });
+const timingConfig = {
+  useNativeDriver: true,
+  duration: 200,
+  easing: Easing.inOut(Easing.ease),
+};
 
 type Props = {|
   visible: boolean,
 |};
 function DisconnectedBar(props: Props) {
+  const shouldShowDisconnectedBar = useSelector(
+    state => state.connection.showDisconnectedBar,
+  );
+
   const showingRef = new React.useRef();
   if (!showingRef.current) {
-    showingRef.current = new Value(0);
+    showingRef.current = new Animated.Value(shouldShowDisconnectedBar ? 1 : 0);
   }
   const showing = showingRef.current;
 
@@ -31,22 +35,18 @@ function DisconnectedBar(props: Props) {
         showing.setValue(toValue);
         return;
       }
-      timing(showing, {
+      Animated.timing(showing, {
+        ...timingConfig,
         toValue,
-        duration: 200,
-        easing: Easing.inOut(Easing.ease),
       }).start();
     },
     [visible, showing],
   );
 
-  const shouldShowDisconnectedBar = useSelector(
-    state => state.connection.showDisconnectedBar,
-  );
   const prevShowDisconnectedBar = React.useRef();
   React.useEffect(() => {
     const wasShowing = prevShowDisconnectedBar.current;
-    if (shouldShowDisconnectedBar && !wasShowing) {
+    if (shouldShowDisconnectedBar && wasShowing === false) {
       changeShowing(1);
     } else if (!shouldShowDisconnectedBar && wasShowing) {
       changeShowing(0);
@@ -54,24 +54,18 @@ function DisconnectedBar(props: Props) {
     prevShowDisconnectedBar.current = shouldShowDisconnectedBar;
   }, [shouldShowDisconnectedBar, changeShowing]);
 
-  const height = React.useMemo(
-    () =>
-      interpolate(showing, {
+  const heightStyle = React.useMemo(
+    () => ({
+      height: showing.interpolate({
         inputRange: [0, 1],
         outputRange: [0, expandedHeight],
       }),
-    [showing],
-  );
-  const containerStyle = React.useMemo(
-    () => ({
-      height,
-      ...styles.container,
     }),
-    [height],
+    [showing],
   );
 
   return (
-    <Animated.View style={containerStyle} pointerEvents="none">
+    <Animated.View style={[styles.container, heightStyle]} pointerEvents="none">
       <Text style={styles.text} numberOfLines={1}>
         DISCONNECTED
       </Text>
