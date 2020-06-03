@@ -12,10 +12,7 @@ import { Platform } from 'react-native';
 import invariant from 'invariant';
 
 import { mediaConfig, pathFromURI } from 'lib/media/file-utils';
-import {
-  getVideoProcessingPlan,
-  videoDurationLimit,
-} from 'lib/media/video-utils';
+import { getVideoProcessingPlan } from 'lib/media/video-utils';
 import { getMessageForException } from 'lib/utils/errors';
 
 import { ffmpeg } from './ffmpeg';
@@ -51,12 +48,6 @@ async function processVideo(
     return { steps, result: { success: false, reason: 'video_probe_failed' } };
   }
   const { validFormat, duration } = initialCheckStep;
-  if (duration > videoDurationLimit * 60) {
-    return {
-      steps,
-      result: { success: false, reason: 'video_too_long', duration },
-    };
-  }
 
   const plan = getVideoProcessingPlan({
     inputPath: path,
@@ -78,7 +69,10 @@ async function processVideo(
       default: 'h264',
     }),
   });
-  if (!plan) {
+  if (plan.action === 'reject') {
+    return { steps, result: plan.failure };
+  }
+  if (plan.action === 'none') {
     return {
       steps,
       result: {
