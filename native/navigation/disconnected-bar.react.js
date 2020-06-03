@@ -9,7 +9,7 @@ const expandedHeight = Platform.select({
   default: 27,
 });
 const timingConfig = {
-  useNativeDriver: true,
+  useNativeDriver: false,
   duration: 200,
   easing: Easing.inOut(Easing.ease),
 };
