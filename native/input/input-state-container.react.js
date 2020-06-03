@@ -90,6 +90,7 @@ type Props = {|
   nextLocalID: number,
   messageStoreMessages: { [id: string]: RawMessageInfo },
   ongoingMessageCreation: boolean,
+  hasWiFi: boolean,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
   dispatchActionPromise: DispatchActionPromise,
@@ -120,6 +121,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     nextLocalID: PropTypes.number.isRequired,
     messageStoreMessages: PropTypes.object.isRequired,
     ongoingMessageCreation: PropTypes.bool.isRequired,
+    hasWiFi: PropTypes.bool.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     uploadMultimedia: PropTypes.func.isRequired,
@@ -613,13 +615,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 
   mediaProcessConfig() {
-    const { viewerID } = this.props;
+    const { hasWiFi, viewerID } = this.props;
     if (__DEV__ || (viewerID && isStaff(viewerID))) {
       return {
+        hasWiFi,
         finalFileHeaderCheck: true,
       };
     }
-    return {};
+    return { hasWiFi };
   }
 
   setProgress(
@@ -1042,6 +1045,7 @@ export default connect(
         mediaCreationLoadingStatusSelector(state),
         textCreationLoadingStatusSelector(state),
       ) === 'loading',
+    hasWiFi: state.connectivity.hasWiFi,
   }),
   { uploadMultimedia, sendMultimediaMessage, sendTextMessage },
 )(InputStateContainer);

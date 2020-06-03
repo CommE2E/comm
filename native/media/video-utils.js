@@ -17,12 +17,21 @@ import { getMessageForException } from 'lib/utils/errors';
 
 import { ffmpeg } from './ffmpeg';
 
+// These are some numbers I sorta kinda made up
+// We should try to calculate them on a per-device basis
+const uploadSpeeds = Object.freeze({
+  wifi: 4096, // in KiB/s
+  cellular: 512, // in KiB/s
+});
+const clientTranscodeSpeed = 1.15; // in seconds of video transcoded per second
+
 type ProcessVideoInfo = {|
   uri: string,
   mime: string,
   filename: string,
   fileSize: number,
   dimensions: Dimensions,
+  hasWiFi: boolean,
 |};
 type ProcessVideoResponse = {|
   success: true,
@@ -68,6 +77,11 @@ async function processVideo(
       //android: 'h264_mediacodec',
       default: 'h264',
     }),
+    clientConnectionInfo: {
+      hasWiFi: input.hasWiFi,
+      speed: input.hasWiFi ? uploadSpeeds.wifi : uploadSpeeds.cellular,
+    },
+    clientTranscodeSpeed,
   });
   if (plan.action === 'reject') {
     return { steps, result: plan.failure };

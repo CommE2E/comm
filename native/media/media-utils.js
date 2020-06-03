@@ -18,10 +18,11 @@ import { processVideo } from './video-utils';
 import { processImage } from './image-utils';
 import { saveMedia } from './save-media';
 
-type MediaProcessConfig = $Shape<{|
+type MediaProcessConfig = {|
+  hasWiFi: boolean,
   // Blocks return until we can confirm result has the correct MIME
-  finalFileHeaderCheck: boolean,
-|}>;
+  finalFileHeaderCheck?: boolean,
+|};
 type MediaResult = {|
   success: true,
   uploadURI: string,
@@ -155,6 +156,7 @@ async function innerProcessMedia(
       filename: selection.filename,
       fileSize,
       dimensions,
+      hasWiFi: config.hasWiFi,
     });
     steps.push(...videoSteps);
     if (!videoResult.success) {
