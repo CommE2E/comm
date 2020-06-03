@@ -514,6 +514,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     const { uploadURI, shouldDisposePath, filename, mime } = processedMedia;
 
+    const { hasWiFi } = this.props;
+
     const uploadStart = Date.now();
     let uploadExceptionMessage, uploadResult, mediaMissionResult;
     try {
@@ -568,6 +570,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       outputURI: uploadResult && uploadResult.uri,
       outputDimensions: uploadResult && uploadResult.dimensions,
       outputLoop: uploadResult && uploadResult.loop,
+      hasWiFi,
     });
 
     const promises = [];
