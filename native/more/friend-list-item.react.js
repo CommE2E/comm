@@ -1,5 +1,8 @@
 // @flow
 
+import type { LoadingStatus } from 'lib/types/loading-types';
+import type { AppState } from '../redux/redux-setup';
+
 import React from 'react';
 import {
   View,
@@ -10,10 +13,9 @@ import {
 } from 'react-native';
 
 import { connect } from 'lib/utils/redux-utils';
-import type { LoadingStatus } from 'lib/types/loading-types';
 import { type UserInfo } from 'lib/types/user-types';
 
-import type { AppState } from '../redux/redux-setup';
+import PencilIcon from '../components/pencil-icon.react';
 import {
   type KeyboardState,
   withKeyboardState,
@@ -23,9 +25,6 @@ import {
   type OverlayContextType,
 } from '../navigation/overlay-context';
 import { type Colors, colorsSelector, styleSelector } from '../themes/colors';
-
-// TODO: move pencil icon up to components?
-import PencilIcon from '../chat/settings/pencil-icon.react';
 
 type Props = {|
   userInfo: UserInfo,

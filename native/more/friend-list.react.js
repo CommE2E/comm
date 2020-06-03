@@ -1,17 +1,18 @@
 // @flow
 
+import type { NavigationRoute } from '../navigation/route-names';
+import type { AppState } from '../redux/redux-setup';
+import type { MoreNavigationProp } from './more.react';
+
 import React from 'react';
 import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 
 import { connect } from 'lib/utils/redux-utils';
 import { type UserInfo } from 'lib/types/user-types';
 
-import type { NavigationRoute } from '../navigation/route-names';
-import type { AppState } from '../redux/redux-setup';
 import { AddFriendsModalRouteName } from '../navigation/route-names';
 import { styleSelector } from '../themes/colors';
 
-import type { MoreNavigationProp } from './more.react';
 import FriendListItem from './friend-list-item.react';
 
 type Props = {|

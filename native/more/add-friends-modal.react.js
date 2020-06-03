@@ -1,34 +1,33 @@
 // @flow
 
+import type { AccountUserInfo } from 'lib/types/user-types';
+import type { LoadingStatus } from 'lib/types/loading-types';
+import type { UserSearchResult } from 'lib/types/search-types';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import type { RootNavigationProp } from '../navigation/root-navigator.react';
+import type { NavigationRoute } from '../navigation/route-names';
+import type { AppState } from '../redux/redux-setup';
+
 import React from 'react';
 import { Text, View, ActivityIndicator, Alert } from 'react-native';
 import { createSelector } from 'reselect';
 import invariant from 'invariant';
 
-import type { RootNavigationProp } from '../navigation/root-navigator.react';
-import type { NavigationRoute } from '../navigation/route-names';
-
 import {
   userInfoSelectorForOtherMembersOfThread,
   userSearchIndexForOtherMembersOfThread,
 } from 'lib/selectors/user-selectors';
-import { type AccountUserInfo } from 'lib/types/user-types';
-import { registerFetchKey } from 'lib/reducers/loading-reducer';
-import type { LoadingStatus } from 'lib/types/loading-types';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import type { UserSearchResult } from 'lib/types/search-types';
+import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { getUserSearchResults } from 'lib/shared/search-utils';
+import SearchIndex from 'lib/shared/search-index';
 import { connect } from 'lib/utils/redux-utils';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import {
   searchUsersActionTypes,
   searchUsers,
   sendFriendRequest,
   sendFriendRequestActionTypes,
 } from 'lib/actions/user-actions';
-import SearchIndex from 'lib/shared/search-index';
-
-import type { AppState } from '../redux/redux-setup';
 
 import UserList from '../components/user-list.react';
 import Modal from '../components/modal.react';
