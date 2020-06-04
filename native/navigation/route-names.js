@@ -50,6 +50,7 @@ export const ThreadSettingsMemberTooltipModalRouteName =
   'ThreadSettingsMemberTooltipModal';
 export const CameraModalRouteName = 'CameraModal';
 export const FriendListRouteName = 'FriendList';
+export const BlockListRouteName = 'BlockList';
 export const AddFriendsModalRouteName = 'AddFriendsModal';
 
 export type RootParamList = {|
@@ -101,6 +102,7 @@ export type MoreParamList = {|
   DevTools: void,
   AppearancePreferences: void,
   FriendList: void,
+  BlockList: void,
 |};
 
 export type ScreenParamList = {|

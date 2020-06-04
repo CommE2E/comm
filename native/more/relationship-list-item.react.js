@@ -4,13 +4,7 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import type { AppState } from '../redux/redux-setup';
 
 import React from 'react';
-import {
-  View,
-  Text,
-  Platform,
-  ActivityIndicator,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
 
 import { connect } from 'lib/utils/redux-utils';
 import { type UserInfo } from 'lib/types/user-types';
@@ -40,7 +34,7 @@ type Props = {|
 
 type State = {};
 
-class FriendListItem extends React.PureComponent<Props, State> {
+class RelationshipListItem extends React.PureComponent<Props, State> {
   state = {};
   editButton = React.createRef<View>();
 
@@ -87,21 +81,15 @@ const styles = {
   container: {
     backgroundColor: 'panelForeground',
     flex: 1,
-    paddingHorizontal: 12,
   },
   editButton: {
     paddingLeft: 10,
   },
   innerContainer: {
-    borderColor: 'panelForegroundBorder',
-    borderTopWidth: 1,
     flex: 1,
     paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  lastInnerContainer: {
-    paddingBottom: Platform.OS === 'ios' ? 12 : 10,
-    paddingTop: 8,
+    paddingVertical: 10,
+    marginHorizontal: 12,
   },
   row: {
     flex: 1,
@@ -120,4 +108,4 @@ export default connect((state: AppState) => ({
   // TODO: removeUserLoadingStatus
   colors: colorsSelector(state),
   styles: stylesSelector(state),
-}))(withKeyboardState(withOverlayContext(FriendListItem)));
+}))(withKeyboardState(withOverlayContext(RelationshipListItem)));

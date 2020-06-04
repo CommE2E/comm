@@ -53,6 +53,7 @@ import {
   DevToolsRouteName,
   AppearancePreferencesRouteName,
   FriendListRouteName,
+  BlockListRouteName,
 } from '../navigation/route-names';
 import {
   type Colors,
@@ -214,7 +215,7 @@ class MoreScreen extends React.PureComponent<Props> {
               />
             </View>
           </View>
-          <View style={this.props.styles.slightlyPaddedSection}>
+          {/* <View style={this.props.styles.slightlyPaddedSection}>
             <Button
               onPress={this.onPressFriendList}
               style={this.props.styles.submenuButton}
@@ -225,7 +226,7 @@ class MoreScreen extends React.PureComponent<Props> {
               <Icon name="ios-arrow-forward" size={20} color={linkColor} />
             </Button>
             <Button
-              onPress={this.onPressFriendList}
+              onPress={this.onPressBlockList}
               style={this.props.styles.submenuButton}
               iosFormat="highlight"
               iosHighlightUnderlayColor={underlay}
@@ -233,7 +234,7 @@ class MoreScreen extends React.PureComponent<Props> {
               <Text style={this.props.styles.submenuText}>Block list</Text>
               <Icon name="ios-arrow-forward" size={20} color={linkColor} />
             </Button>
-          </View>
+          </View> */}
           <Text style={this.props.styles.header}>PREFERENCES</Text>
           <View style={this.props.styles.slightlyPaddedSection}>
             <Button
@@ -371,6 +372,10 @@ class MoreScreen extends React.PureComponent<Props> {
 
   onPressFriendList = () => {
     this.navigateIfActive(FriendListRouteName);
+  };
+
+  onPressBlockList = () => {
+    this.navigateIfActive(BlockListRouteName);
   };
 }
 
