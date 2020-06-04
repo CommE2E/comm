@@ -106,7 +106,7 @@ async function processVideo(
     exceptionMessage;
   const start = Date.now();
   try {
-    const { rc } = await ffmpeg.process(ffmpegCommand);
+    const { rc } = await ffmpeg.process(ffmpegCommand, duration);
     success = rc === 0;
     if (success) {
       returnCode = rc;
@@ -116,7 +116,11 @@ async function processVideo(
     exceptionMessage = getMessageForException(e);
   }
   if (!success) {
-    filesystem.unlink(outputPath);
+    (async () => {
+      try {
+        await filesystem.unlink(outputPath);
+      } catch {}
+    })();
   }
 
   steps.push({
