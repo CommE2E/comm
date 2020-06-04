@@ -22,6 +22,7 @@ import {
   type ChatThreadItem,
   chatThreadItemPropType,
   chatListData,
+  chatBackgroundListData,
 } from 'lib/selectors/chat-selectors';
 
 import ChatThreadListItem from './chat-thread-list-item.react';
@@ -47,6 +48,7 @@ type Props = {|
   navigation: ChatNavigationProp<'ChatThreadList'>,
   // Redux state
   chatListData: $ReadOnlyArray<ChatThreadItem>,
+  searchChatListData: $ReadOnlyArray<ChatThreadItem>,
   viewerID: ?string,
   threadSearchIndex: SearchIndex,
   styles: typeof styles,
@@ -150,10 +152,12 @@ class ChatThreadList extends React.PureComponent<Props, State> {
 
   listDataSelector = createSelector(
     (propsAndState: PropsAndState) => propsAndState.chatListData,
+    (propsAndState: PropsAndState) => propsAndState.searchChatListData,
     (propsAndState: PropsAndState) => propsAndState.searchText,
     (propsAndState: PropsAndState) => propsAndState.searchResults,
     (
       reduxChatListData: $ReadOnlyArray<ChatThreadItem>,
+      allReduxChatListData: $ReadOnlyArray<ChatThreadItem>,
       searchText: string,
       searchResults: Set<string>,
     ): Item[] => {
@@ -163,7 +167,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
           viewerIsMember(item.threadInfo),
         );
       } else {
-        chatItems = reduxChatListData.filter(item =>
+        chatItems = allReduxChatListData.filter(item =>
           searchResults.has(item.threadInfo.id),
         );
       }
@@ -255,8 +259,17 @@ const styles = {
 };
 const stylesSelector = styleSelector(styles);
 
-export default connect((state: AppState) => ({
+export const HomeChatThreadList = connect((state: AppState) => ({
   chatListData: chatListData(state),
+  searchChatListData: chatBackgroundListData(state).concat(chatListData(state)),
+  viewerID: state.currentUserInfo && state.currentUserInfo.id,
+  threadSearchIndex: threadSearchIndex(state),
+  styles: stylesSelector(state),
+}))(ChatThreadList);
+
+export const BackgroundChatThreadList = connect((state: AppState) => ({
+  chatListData: chatBackgroundListData(state),
+  searchChatListData: chatBackgroundListData(state).concat(chatListData(state)),
   viewerID: state.currentUserInfo && state.currentUserInfo.id,
   threadSearchIndex: threadSearchIndex(state),
   styles: stylesSelector(state),

@@ -35,6 +35,7 @@
     "@react-navigation/bottom-tabs": "^5.5.2",
     "@react-navigation/native": "^5.5.1",
     "@react-navigation/stack": "^5.4.2",
+    "@react-navigation/material-top-tabs": "^5.2.9",
     "base-64": "^0.1.0",
     "expo-image-manipulator": "^8.1.0",
     "expo-media-library": "^8.2.1",

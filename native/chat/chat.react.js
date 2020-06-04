@@ -14,7 +14,10 @@ import { StackView } from '@react-navigation/stack';
 import { Platform, StyleSheet } from 'react-native';
 import invariant from 'invariant';
 
-import ChatThreadList from './chat-thread-list.react';
+import {
+  HomeChatThreadList,
+  BackgroundChatThreadList,
+} from './chat-thread-list.react';
 import MessageListContainer from './message-list-container.react';
 import ComposeThread from './compose-thread.react';
 import ThreadSettings from './settings/thread-settings.react';
@@ -25,6 +28,8 @@ import {
   ThreadSettingsRouteName,
   MessageListRouteName,
   ChatThreadListRouteName,
+  HomeChatThreadListRouteName,
+  BackgroundChatThreadListRouteName,
   type ScreenParamList,
   type ChatParamList,
 } from '../navigation/route-names';
@@ -38,6 +43,7 @@ import ComposeThreadButton from './compose-thread-button.react';
 import MessageListHeaderTitle from './message-list-header-title.react';
 import ThreadSettingsButton from './thread-settings-button.react';
 import { InputStateContext } from '../input/input-state';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 type ChatNavigatorProps = StackNavigatorProps<ChatRouterNavigationProp<>>;
 function ChatNavigator({
@@ -153,12 +159,28 @@ const Chat = createChatNavigator<
   ChatParamList,
   ChatNavigationProp<>,
 >();
+
+const ChatThreadsTopTab = createMaterialTopTabNavigator();
+const ChatThreadsComponent = () => {
+  return (
+    <ChatThreadsTopTab.Navigator>
+      <ChatThreadsTopTab.Screen
+        name={HomeChatThreadListRouteName}
+        component={HomeChatThreadList}
+      />
+      <ChatThreadsTopTab.Screen
+        name={BackgroundChatThreadListRouteName}
+        component={BackgroundChatThreadList}
+      />
+    </ChatThreadsTopTab.Navigator>
+  );
+};
 const ChatComponent = () => (
   <KeyboardAvoidingView style={styles.keyboardAvoidingView}>
     <Chat.Navigator screenOptions={screenOptions}>
       <Chat.Screen
         name={ChatThreadListRouteName}
-        component={ChatThreadList}
+        component={ChatThreadsComponent}
         options={chatThreadListOptions}
       />
       <Chat.Screen
