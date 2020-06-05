@@ -3,21 +3,13 @@
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { AppState } from '../redux/redux-setup';
 
-import React from 'react';
+import * as React from 'react';
 import { View, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
 
 import { connect } from 'lib/utils/redux-utils';
 import { type UserInfo } from 'lib/types/user-types';
 
 import PencilIcon from '../components/pencil-icon.react';
-import {
-  type KeyboardState,
-  withKeyboardState,
-} from '../keyboard/keyboard-state';
-import {
-  withOverlayContext,
-  type OverlayContextType,
-} from '../navigation/overlay-context';
 import { type Colors, colorsSelector, styleSelector } from '../themes/colors';
 
 type Props = {|
@@ -26,16 +18,9 @@ type Props = {|
   removeUserLoadingStatus: LoadingStatus,
   colors: Colors,
   styles: typeof styles,
-  // withKeyboardState
-  keyboardState: ?KeyboardState,
-  // withOverlayContext
-  overlayContext: ?OverlayContextType,
 |};
 
-type State = {};
-
-class RelationshipListItem extends React.PureComponent<Props, State> {
-  state = {};
+class RelationshipListItem extends React.PureComponent<Props> {
   editButton = React.createRef<View>();
 
   render() {
@@ -105,7 +90,6 @@ const styles = {
 const stylesSelector = styleSelector(styles);
 
 export default connect((state: AppState) => ({
-  // TODO: removeUserLoadingStatus
   colors: colorsSelector(state),
   styles: stylesSelector(state),
-}))(withKeyboardState(withOverlayContext(RelationshipListItem)));
+}))(RelationshipListItem);

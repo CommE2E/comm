@@ -8,7 +8,7 @@ import type { RootNavigationProp } from '../navigation/root-navigator.react';
 import type { NavigationRoute } from '../navigation/route-names';
 import type { AppState } from '../redux/redux-setup';
 
-import React from 'react';
+import * as React from 'react';
 import { Text, View, ActivityIndicator, Alert } from 'react-native';
 import { createSelector } from 'reselect';
 import invariant from 'invariant';

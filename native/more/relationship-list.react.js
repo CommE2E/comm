@@ -4,7 +4,7 @@ import type { NavigationRoute } from '../navigation/route-names';
 import type { AppState } from '../redux/redux-setup';
 import type { MoreNavigationProp } from './more.react';
 
-import React from 'react';
+import * as React from 'react';
 import { View, Text, FlatList } from 'react-native';
 
 import { connect } from 'lib/utils/redux-utils';
@@ -23,14 +23,12 @@ type Props = {|
   styles: typeof styles,
 |};
 
-type State = {||};
-
 const DATA = [
   { id: '1', username: 'John' },
   { id: '2', username: 'Emma' },
 ];
 
-class RelationshipList extends React.PureComponent<Props, State> {
+class RelationshipList extends React.PureComponent<Props> {
   render() {
     return (
       <View style={this.props.styles.container}>
