@@ -14,7 +14,6 @@ import { AddFriendsModalRouteName } from '../navigation/route-names';
 import { styleSelector } from '../themes/colors';
 
 import RelationshipListItem from './relationship-list-item.react';
-import RelationshipListAddButton from './relationship-list-add-button.react';
 
 type Props = {|
   navigation: MoreNavigationProp<>,
@@ -34,24 +33,14 @@ class RelationshipList extends React.PureComponent<Props> {
       <View style={this.props.styles.container}>
         <FlatList
           contentContainerStyle={this.props.styles.contentContainer}
-          ListHeaderComponent={
-            <View style={this.props.styles.header}>
-              <Text style={this.props.styles.headerText}>FRIENDS</Text>
-              <View style={this.props.styles.buttonWrapper}>
-                <View
-                  style={[
-                    this.props.styles.buttonInner,
-                    DATA.length !== 0 && styles.buttonInnerBorder,
-                  ]}
-                >
-                  <RelationshipListAddButton
-                    text="Add"
-                    onPress={this.onPressAddFriends}
-                  />
-                </View>
-              </View>
+          ListEmptyComponent={
+            <View style={this.props.styles.empty}>
+              <Text
+                style={this.props.styles.emptyText}
+              >{`You haven't added any users yet`}</Text>
             </View>
           }
+          ListHeaderComponent={<View style={this.props.styles.separator} />}
           ListFooterComponent={<View style={this.props.styles.separator} />}
           ItemSeparatorComponent={() => (
             <View style={[this.props.styles.separator, styles.indentation]} />
@@ -83,17 +72,6 @@ const styles = {
     marginTop: 24,
     backgroundColor: 'panelForeground',
   },
-  header: {
-    backgroundColor: 'panelBackground',
-    borderColor: 'panelForegroundBorder',
-  },
-  headerText: {
-    color: 'panelBackgroundLabel',
-    fontSize: 12,
-    fontWeight: '400',
-    paddingBottom: 3,
-    paddingHorizontal: 24,
-  },
   separator: {
     backgroundColor: 'panelForegroundBorder',
     height: 1,
@@ -101,19 +79,20 @@ const styles = {
   indentation: {
     marginHorizontal: 12,
   },
-  buttonWrapper: {
-    borderColor: 'panelForegroundBorder',
-    borderTopWidth: 1,
-    backgroundColor: 'panelForeground',
-  },
-  buttonInner: {
+  empty: {
+    flex: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
     marginHorizontal: 12,
-    borderColor: 'panelForegroundBorder',
   },
-  buttonInnerBorder: {
-    borderBottomWidth: 1,
+  emptyText: {
+    color: 'panelForegroundSecondaryLabel',
+    flex: 1,
+    fontSize: 16,
+    lineHeight: 20,
   },
 };
+
 const stylesSelector = styleSelector(styles);
 
 export default connect((state: AppState) => ({
