@@ -76,7 +76,7 @@ type Props<T> = {|
   /**
    * Any misc. TextInput props (autoFocus, placeholder, returnKeyType, etc.)
    */
-  inputProps: $PropertyType<TextInput, 'props'>,
+  inputProps?: $PropertyType<TextInput, 'props'>,
   /**
    * Min height of the tag input on screen
    */
