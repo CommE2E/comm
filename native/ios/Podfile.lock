@@ -24,6 +24,8 @@ PODS:
   - EXPermissions (8.1.0):
     - UMCore
     - UMPermissionsInterface
+  - EXSplashScreen (0.2.3):
+    - UMCore
   - FBLazyVector (0.61.5)
   - FBReactNativeSpec (0.61.5):
     - Folly (= 2018.10.22.00)
@@ -247,8 +249,6 @@ PODS:
     - React
   - react-native-safe-area-context (3.0.2):
     - React
-  - react-native-splash-screen (3.2.0):
-    - React
   - react-native-video/Video (5.0.2):
     - React
   - react-native-video/VideoCaching (5.0.2):
@@ -356,6 +356,7 @@ DEPENDENCIES:
   - EXImageManipulator (from `../../node_modules/expo-image-manipulator/ios`)
   - EXMediaLibrary (from `../../node_modules/expo-media-library/ios`)
   - EXPermissions (from `../../node_modules/expo-permissions/ios`)
+  - EXSplashScreen (from `../../node_modules/expo-splash-screen/ios`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../node_modules/react-native/Libraries/FBReactNativeSpec`)
   - Folly (from `../../node_modules/react-native/third-party-podspecs/Folly.podspec`)
@@ -383,7 +384,6 @@ DEPENDENCIES:
   - react-native-onepassword (from `../../node_modules/react-native-onepassword`)
   - react-native-orientation-locker (from `../../node_modules/react-native-orientation-locker`)
   - react-native-safe-area-context (from `../../node_modules/react-native-safe-area-context`)
-  - react-native-splash-screen (from `../../node_modules/react-native-splash-screen`)
   - react-native-video/VideoCaching (from `../../node_modules/react-native-video/react-native-video.podspec`)
   - React-RCTActionSheet (from `../../node_modules/react-native/Libraries/ActionSheetIOS`)
   - React-RCTAnimation (from `../../node_modules/react-native/Libraries/NativeAnimation`)
@@ -453,6 +453,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/expo-media-library/ios"
   EXPermissions:
     :path: "../../node_modules/expo-permissions/ios"
+  EXSplashScreen:
+    :path: "../../node_modules/expo-splash-screen/ios"
   FBLazyVector:
     :path: "../node_modules/react-native/Libraries/FBLazyVector"
   FBReactNativeSpec:
@@ -503,8 +505,6 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native-orientation-locker"
   react-native-safe-area-context:
     :path: "../../node_modules/react-native-safe-area-context"
-  react-native-splash-screen:
-    :path: "../../node_modules/react-native-splash-screen"
   react-native-video:
     :podspec: "../../node_modules/react-native-video/react-native-video.podspec"
   React-RCTActionSheet:
@@ -600,6 +600,7 @@ SPEC CHECKSUMS:
   EXImageManipulator: 97f61d14c292714d66884e83697e794f8cefe0b0
   EXMediaLibrary: 02a13521d05ca381b08f7d745a9602569eade072
   EXPermissions: 24b97f734ce9172d245a5be38ad9ccfcb6135964
+  EXSplashScreen: 6568daa178c8e17f2197d29cea858f0e0b61b695
   FBLazyVector: aaeaf388755e4f29cd74acbc9e3b8da6d807c37f
   FBReactNativeSpec: 118d0d177724c2d67f08a59136eb29ef5943ec75
   Folly: 30e7936e1c45c08d884aa59369ed951a8e68cf51
@@ -627,7 +628,6 @@ SPEC CHECKSUMS:
   react-native-onepassword: 5b2b7f425f9db40932703e65d350b78cbc598047
   react-native-orientation-locker: 23918c400376a7043e752c639c122fcf6bce8f1c
   react-native-safe-area-context: b11a34881faac509cad5578726c98161ad4d275c
-  react-native-splash-screen: 200d11d188e2e78cea3ad319964f6142b6384865
   react-native-video: d01ed7ff1e38fa7dcc6c15c94cf505e661b7bfd0
   React-RCTActionSheet: 600b4d10e3aea0913b5a92256d2719c0cdd26d76
   React-RCTAnimation: 791a87558389c80908ed06cc5dfc5e7920dfa360

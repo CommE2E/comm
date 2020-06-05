@@ -7,9 +7,10 @@ import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import * as React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { PersistGate } from 'redux-persist/integration/react';
-import SplashScreen from 'react-native-splash-screen';
-import { Platform } from 'react-native';
+import * as SplashScreen from 'expo-splash-screen';
 import Icon from 'react-native-vector-icons/FontAwesome';
+
+SplashScreen.preventAutoHideAsync();
 
 import {
   CalendarRouteName,
@@ -125,11 +126,10 @@ function AppNavigator(props: AppNavigatorProps) {
   }, [setNavStateInitialized]);
 
   React.useEffect(() => {
-    if (Platform.OS === 'android') {
-      waitForInteractions().then(() => SplashScreen.hide());
-    } else {
-      SplashScreen.hide();
-    }
+    (async () => {
+      await waitForInteractions();
+      await SplashScreen.hideAsync();
+    })();
   }, []);
 
   return (
