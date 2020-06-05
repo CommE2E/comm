@@ -157,6 +157,7 @@ class AddFriendsModal extends React.PureComponent<Props, State> {
           maxHeight={36}
           inputProps={inputProps}
           innerRef={this.tagInputRef}
+          disabled={loading}
         />
         <UserList
           userInfos={this.userSearchResults}
