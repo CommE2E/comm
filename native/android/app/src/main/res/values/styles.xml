@@ -5,7 +5,7 @@
   <style name="SplashTheme" parent="Theme.AppCompat.Light.NoActionBar">
     <item name="android:textColor">#000000</item>
     <item name="android:windowNoTitle">true</item>
-    <item name="android:background">@drawable/splash</item>
+    <item name="android:background">@drawable/splashscreen_image</item>
     <item name="android:windowDrawsSystemBarBackgrounds">false</item>
   </style>
 </resources>

@@ -1,7 +1,6 @@
 package org.squadcal;
 
 import com.facebook.react.ReactFragmentActivity;
-import org.devio.rn.splashscreen.SplashScreen;
 import android.os.Bundle;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -9,6 +8,9 @@ import android.content.res.Configuration;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactRootView;
 import com.swmansion.gesturehandler.react.RNGestureHandlerEnabledRootView;
+
+import expo.modules.splashscreen.SplashScreen;
+import expo.modules.splashscreen.SplashScreenImageResizeMode;
 
 public class MainActivity extends ReactFragmentActivity {
 
@@ -23,8 +25,8 @@ public class MainActivity extends ReactFragmentActivity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    SplashScreen.show(this);
-    super.onCreate(null);
+    super.onCreate(savedInstanceState);
+    SplashScreen.show(this, SplashScreenImageResizeMode.NATIVE, ReactRootView.class);
   }
 
   @Override
