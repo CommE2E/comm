@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController storyboardIdentifier="SplashScreenViewController" automaticallyAdjustsScrollViewInsets="NO" id="01J-lp-oVM" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nvi-kw-ZOr">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" insetsLayoutMarginsFromSafeArea="NO" image="SplashBackground" translatesAutoresizingMaskIntoConstraints="NO" id="XDd-ht-ntp">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                                <color key="backgroundColor" red="1" green="0.0" blue="0.092869963400000005" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="tintColor" red="1" green="0.0" blue="0.092869963400000005" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+                            </imageView>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Header" translatesAutoresizingMaskIntoConstraints="NO" id="v97-50-knt">
+                                <rect key="frame" x="118.5" y="397" width="177" height="62"/>
+                                <color key="tintColor" red="1" green="0.0" blue="0.092869963400000005" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstItem="XDd-ht-ntp" firstAttribute="top" secondItem="nvi-kw-ZOr" secondAttribute="top" id="Bbo-3e-cbK"/>
+                            <constraint firstAttribute="bottom" secondItem="XDd-ht-ntp" secondAttribute="bottom" id="HZJ-YU-cSh"/>
+                            <constraint firstItem="v97-50-knt" firstAttribute="centerX" secondItem="nvi-kw-ZOr" secondAttribute="centerX" id="Jdl-tM-S74"/>
+                            <constraint firstAttribute="trailing" secondItem="XDd-ht-ntp" secondAttribute="trailing" id="YBi-9m-s01"/>
+                            <constraint firstItem="XDd-ht-ntp" firstAttribute="leading" secondItem="nvi-kw-ZOr" secondAttribute="leading" id="ZTe-QG-Nli"/>
+                            <constraint firstItem="XDd-ht-ntp" firstAttribute="centerX" secondItem="nvi-kw-ZOr" secondAttribute="centerX" id="fVU-PV-N6U"/>
+                            <constraint firstItem="XDd-ht-ntp" firstAttribute="centerY" secondItem="nvi-kw-ZOr" secondAttribute="centerY" id="tbV-Um-ZE2"/>
+                            <constraint firstItem="v97-50-knt" firstAttribute="centerY" secondItem="nvi-kw-ZOr" secondAttribute="centerY" constant="-20" id="y4g-id-F9J"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="LGf-cj-VRq"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="52.173913043478265" y="375"/>
+        </scene>
+    </scenes>
+    <color key="tintColor" red="1" green="0.0" blue="0.092869963400000005" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+    <resources>
+        <image name="Header" width="177" height="62"/>
+        <image name="SplashBackground" width="414" height="812"/>
+    </resources>
+</document>

@@ -12,12 +12,12 @@
 #import <React/RCTRootView.h>
 #import <React/RCTLinkingManager.h>
 #import "RNNotifications.h"
-#import "RNSplashScreen.h"
 #import "Orientation.h"
 
 #import <UMCore/UMModuleRegistry.h>
 #import <UMReactNativeAdapter/UMNativeModulesProxy.h>
 #import <UMReactNativeAdapter/UMModuleRegistryAdapter.h>
+#import <EXSplashScreen/EXSplashScreenService.h>
 
 @implementation AppDelegate
 
@@ -35,7 +35,18 @@
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
-  [RNSplashScreen showSplash:@"LaunchScreen" inRootView:rootView];
+
+  // This prevents a very small flicker from occurring before expo-splash-screen is able to display
+  UIView* launchScreenView = [[UIStoryboard storyboardWithName:@"SplashScreen" bundle:nil] instantiateInitialViewController].view;
+  launchScreenView.frame = self.window.bounds;
+  rootView.loadingView = launchScreenView;
+  rootView.loadingViewFadeDelay = 0;
+  rootView.loadingViewFadeDuration = 0.001;
+
+  // This sets up the splash screen to display until the JS side is ready for it to clear
+  EXSplashScreenService *splashScreenService = (EXSplashScreenService *)[UMModuleRegistryProvider getSingletonModuleForClass:[EXSplashScreenService class]];
+  [splashScreenService showSplashScreenFor:rootViewController];
+
   return YES;
 }
 
@@ -47,8 +58,7 @@
   return extraModules;
 }
 
-- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity
- restorationHandler:(void (^)(NSArray * _Nullable))restorationHandler
+- (BOOL)application:(UIApplication *)application continueUserActivity:(nonnull NSUserActivity *)userActivity restorationHandler:(nonnull void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler
 {
   return [RCTLinkingManager application:application
                    continueUserActivity:userActivity
