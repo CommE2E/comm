@@ -101,7 +101,7 @@ export type MoreParamList = {|
   BuildInfo: void,
   DevTools: void,
   AppearancePreferences: void,
-  FriendList: void,
+  FriendList: { a: boolean },
   BlockList: void,
 |};
 
