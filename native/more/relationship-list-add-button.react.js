@@ -11,48 +11,6 @@ import { connect } from 'lib/utils/redux-utils';
 import Button from '../components/button.react';
 import { styleSelector, colorsSelector, type Colors } from '../themes/colors';
 
-// Condider moving to components and creating SectionList/SettingsList UI kit
-// for consistency, reusability and to avoid styling everytime list is used
-// but with keeping it highly customizable for special use cases
-//
-// Declarative API proposal:
-//
-// <List.Container>
-//   <List.Section
-//     title="Settings"
-//     separation="hairline | none"
-//     description="I take care about spearators between items"
-//   >
-//     <List.Item
-//       middle={<ColorPicker />}
-//       right={<Icon name="edit" />}
-//       onPress={() => {}}
-//     >
-//       <List.Label
-//         type="default | inactive | link | destructive"
-//         italic="boolean"
-//       >
-//         Color
-//       </List.Label>
-//     </List.Item>
-//
-//     <ConnectHOC
-//       description="Allow wrapping individual elements with HOC's or React.Elements"
-//       description2="I hold switch state and some business logic"
-//     >
-//       <List.Item right={<Switch />}>
-//         <List.Label type="secondary">Push notifs</List.Label>
-//       </List.Item>
-//     </ConnectHOC>
-//   </List.Section>
-//
-//   <List.Section title="Other title" separation="none">
-//     <List.Item {...props}>
-//       <List.Label {...props}>Something</List.Label>
-//     </List.Item>
-//   </List.Section>
-// </List.Container>;
-
 type ListActionProps = {|
   onPress: () => void,
   text: string,
