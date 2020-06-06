@@ -17,7 +17,12 @@ import type { NavigationRoute } from '../navigation/route-names';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { View, FlatList, TouchableWithoutFeedback } from 'react-native';
+import {
+  View,
+  FlatList,
+  TouchableWithoutFeedback,
+  LayoutAnimation,
+} from 'react-native';
 import _sum from 'lodash/fp/sum';
 import _find from 'lodash/fp/find';
 import { createSelector } from 'reselect';
@@ -186,6 +191,8 @@ class MessageList extends React.PureComponent<Props, State> {
       (newListData.length > oldListData.length || this.props.startReached)
     ) {
       this.loadingFromScroll = false;
+    } else if (newListData.length > oldListData.length) {
+      LayoutAnimation.easeInEaseOut();
     }
 
     const modalIsOpen = MessageList.modalOpen(this.props);
