@@ -11,6 +11,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 SplashScreen.preventAutoHideAsync();
+let splashScreenHasHidden = false;
 
 import {
   CalendarRouteName,
@@ -126,6 +127,10 @@ function AppNavigator(props: AppNavigatorProps) {
   }, [setNavStateInitialized]);
 
   React.useEffect(() => {
+    if (splashScreenHasHidden) {
+      return;
+    }
+    splashScreenHasHidden = true;
     (async () => {
       await waitForInteractions();
       await SplashScreen.hideAsync();
