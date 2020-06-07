@@ -9,7 +9,6 @@ import {
   messageListRoutePropType,
   messageListNavPropType,
 } from './message-list-types';
-import type { TabNavigationProp } from '../navigation/app-navigator.react';
 import type { ChatNavigationProp } from './chat.react';
 import type { NavigationRoute } from '../navigation/route-names';
 
@@ -102,28 +101,6 @@ class MessageListContainer extends React.PureComponent<Props, State> {
       listDataWithHeights,
     };
   }
-
-  componentDidMount() {
-    const tabNavigation: ?TabNavigationProp<
-      'Chat',
-    > = this.props.navigation.dangerouslyGetParent();
-    invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
-    tabNavigation.addListener('tabPress', this.onTabPress);
-  }
-
-  componentWillUnmount() {
-    const tabNavigation: ?TabNavigationProp<
-      'Chat',
-    > = this.props.navigation.dangerouslyGetParent();
-    invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
-    tabNavigation.removeListener('tabPress', this.onTabPress);
-  }
-
-  onTabPress = () => {
-    if (this.props.navigation.isFocused()) {
-      this.props.navigation.popToTop();
-    }
-  };
 
   textToMeasureFromListData(listData: $ReadOnlyArray<ChatMessageItem>) {
     const textToMeasure = [];

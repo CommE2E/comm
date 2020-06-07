@@ -294,6 +294,7 @@ class MessageList extends React.PureComponent<Props, State> {
       >
         <ChatList
           loadingFromScroll={this.state.loadingFromScroll}
+          navigation={this.props.navigation}
           inverted={true}
           data={messageListData}
           renderItem={this.renderItem}

@@ -4,6 +4,8 @@ import type {
   Props as FlatListProps,
   DefaultProps as FlatListDefaultProps,
 } from 'react-native/Libraries/Lists/FlatList';
+import type { ChatNavigationProp } from '../chat/chat.react';
+import type { TabNavigationProp } from '../navigation/app-navigator.react';
 
 import * as React from 'react';
 import { FlatList, LayoutAnimation } from 'react-native';
@@ -11,6 +13,7 @@ import invariant from 'invariant';
 
 type Props<T> = {
   ...React.Config<FlatListProps<T>, FlatListDefaultProps>,
+  navigation: ChatNavigationProp<'MessageList'>,
   loadingFromScroll: boolean,
 };
 type State = {|
@@ -27,6 +30,34 @@ class ChatList<T> extends React.PureComponent<Props<T>, State> {
       pendingScrollAppend: props.loadingFromScroll,
     };
   }
+
+  componentDidMount() {
+    const tabNavigation: ?TabNavigationProp<
+      'Chat',
+    > = this.props.navigation.dangerouslyGetParent();
+    invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
+    tabNavigation.addListener('tabPress', this.onTabPress);
+  }
+
+  componentWillUnmount() {
+    const tabNavigation: ?TabNavigationProp<
+      'Chat',
+    > = this.props.navigation.dangerouslyGetParent();
+    invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
+    tabNavigation.removeListener('tabPress', this.onTabPress);
+  }
+
+  onTabPress = () => {
+    const { flatList } = this;
+    if (!this.props.navigation.isFocused() || !flatList) {
+      return;
+    }
+    if (this.scrollPos > 0) {
+      flatList.scrollToOffset({ offset: 0 });
+    } else {
+      this.props.navigation.popToTop();
+    }
+  };
 
   componentDidUpdate(prevProps: Props<T>) {
     if (this.props.loadingFromScroll && !prevProps.loadingFromScroll) {
