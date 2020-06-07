@@ -17,12 +17,7 @@ import type { NavigationRoute } from '../navigation/route-names';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import {
-  View,
-  FlatList,
-  TouchableWithoutFeedback,
-  LayoutAnimation,
-} from 'react-native';
+import { View, TouchableWithoutFeedback } from 'react-native';
 import _sum from 'lodash/fp/sum';
 import _find from 'lodash/fp/find';
 import { createSelector } from 'reselect';
@@ -39,6 +34,7 @@ import {
 import threadWatcher from 'lib/shared/thread-watcher';
 import { threadInChatList } from 'lib/shared/thread-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
+import ChatList from '../components/chat-list.react';
 
 import {
   Message,
@@ -84,6 +80,7 @@ type Props = {|
 type State = {|
   focusedMessageKey: ?string,
   messageListVerticalBounds: ?VerticalBounds,
+  loadingFromScroll: boolean,
 |};
 type PropsAndState = {|
   ...Props,
@@ -112,8 +109,8 @@ class MessageList extends React.PureComponent<Props, State> {
   state = {
     focusedMessageKey: null,
     messageListVerticalBounds: null,
+    loadingFromScroll: false,
   };
-  loadingFromScroll = false;
   flatListContainer: ?View;
 
   flatListExtraDataSelector = createSelector(
@@ -187,12 +184,10 @@ class MessageList extends React.PureComponent<Props, State> {
     const newListData = this.props.messageListData;
     const oldListData = prevProps.messageListData;
     if (
-      this.loadingFromScroll &&
+      this.state.loadingFromScroll &&
       (newListData.length > oldListData.length || this.props.startReached)
     ) {
-      this.loadingFromScroll = false;
-    } else if (newListData.length > oldListData.length) {
-      LayoutAnimation.easeInEaseOut();
+      this.setState({ loadingFromScroll: false });
     }
 
     const modalIsOpen = MessageList.modalOpen(this.props);
@@ -297,7 +292,8 @@ class MessageList extends React.PureComponent<Props, State> {
         ref={this.flatListContainerRef}
         onLayout={this.onFlatListContainerLayout}
       >
-        <FlatList
+        <ChatList
+          loadingFromScroll={this.state.loadingFromScroll}
           inverted={true}
           data={messageListData}
           renderItem={this.renderItem}
@@ -356,13 +352,13 @@ class MessageList extends React.PureComponent<Props, State> {
     }
 
     const loader = _find({ key: 'loader' })(info.viewableItems);
-    if (!loader || this.loadingFromScroll) {
+    if (!loader || this.state.loadingFromScroll) {
       return;
     }
 
     const oldestMessageServerID = this.oldestMessageServerID();
     if (oldestMessageServerID) {
-      this.loadingFromScroll = true;
+      this.setState({ loadingFromScroll: true });
       const threadID = this.props.threadInfo.id;
       this.props.dispatchActionPromise(
         fetchMessagesBeforeCursorActionTypes,
