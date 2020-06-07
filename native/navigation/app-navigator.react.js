@@ -10,8 +10,12 @@ import { PersistGate } from 'redux-persist/integration/react';
 import * as SplashScreen from 'expo-splash-screen';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-SplashScreen.preventAutoHideAsync();
 let splashScreenHasHidden = false;
+(async () => {
+  try {
+    await SplashScreen.preventAutoHideAsync();
+  } catch {}
+})();
 
 import {
   CalendarRouteName,
