@@ -17,7 +17,7 @@ import RelationshipListItem from './relationship-list-item.react';
 
 type Props = {|
   navigation: MoreNavigationProp<>,
-  route: NavigationRoute<>,
+  route: NavigationRoute<'FriendList' | 'BlockList'>,
   // Redux state
   styles: typeof styles,
 |};

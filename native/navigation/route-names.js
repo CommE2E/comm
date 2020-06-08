@@ -101,7 +101,7 @@ export type MoreParamList = {|
   BuildInfo: void,
   DevTools: void,
   AppearancePreferences: void,
-  FriendList: { a: boolean },
+  FriendList: void,
   BlockList: void,
 |};
 
@@ -113,7 +113,7 @@ export type ScreenParamList = {|
   ...MoreParamList,
 |};
 
-export type NavigationRoute<RouteName: string> = {|
+export type NavigationRoute<RouteName: string = $Keys<ScreenParamList>> = {|
   ...LeafRoute<RouteName>,
   +params: $ElementType<ScreenParamList, RouteName>,
 |};

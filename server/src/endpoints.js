@@ -21,7 +21,6 @@ import {
   logInResponder,
   passwordUpdateResponder,
   requestAccessResponder,
-  friendRequestCreationResponder,
 } from './responders/user-responders';
 import { userSearchResponder } from './responders/search-responders';
 import {
@@ -89,7 +88,6 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   update_calendar_query: calendarQueryUpdateResponder,
   delete_upload: uploadDeletionResponder,
   create_multimedia_message: multimediaMessageCreationResponder,
-  send_friend_request: friendRequestCreationResponder,
 };
 
 export { jsonEndpoints };

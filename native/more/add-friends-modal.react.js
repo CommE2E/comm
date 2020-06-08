@@ -10,6 +10,7 @@ import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
 import { Text, View, ActivityIndicator, Alert } from 'react-native';
+import { CommonActions } from '@react-navigation/native';
 import { createSelector } from 'reselect';
 import invariant from 'invariant';
 
@@ -17,17 +18,11 @@ import {
   userInfoSelectorForOtherMembersOfThread,
   userSearchIndexForOtherMembersOfThread,
 } from 'lib/selectors/user-selectors';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { getUserSearchResults } from 'lib/shared/search-utils';
 import SearchIndex from 'lib/shared/search-index';
 import { connect } from 'lib/utils/redux-utils';
-import {
-  searchUsersActionTypes,
-  searchUsers,
-  sendFriendRequest,
-  sendFriendRequestActionTypes,
-} from 'lib/actions/user-actions';
+import { searchUsersActionTypes, searchUsers } from 'lib/actions/user-actions';
 
 import UserList from '../components/user-list.react';
 import Modal from '../components/modal.react';
@@ -213,10 +208,8 @@ class AddFriendsModal extends React.PureComponent<Props, State> {
     if (this.state.userInfoInputArray.length === 0) {
       return;
     }
-    this.props.dispatchActionPromise(
-      sendFriendRequestActionTypes,
-      this.sendFriendInvitations(),
-    );
+
+    this.props.navigation.goBack();
   };
 
   async sendFriendInvitations() {
@@ -253,8 +246,15 @@ class AddFriendsModal extends React.PureComponent<Props, State> {
     );
   };
 
+  goBackOnce() {
+    this.props.navigation.dispatch(state => ({
+      ...CommonActions.goBack(),
+      target: state.key,
+    }));
+  }
+
   close = () => {
-    this.props.navigation.goBack();
+    this.goBackOnce();
   };
 }
 
@@ -291,9 +291,6 @@ const styles = {
 };
 const stylesSelector = styleSelector(styles);
 
-const addFriendsLoadingStatusSelector = createLoadingStatusSelector(
-  sendFriendRequestActionTypes,
-);
 registerFetchKey(searchUsersActionTypes);
 
 export default connect(
@@ -301,9 +298,8 @@ export default connect(
     return {
       otherUserInfos: userInfoSelectorForOtherMembersOfThread(null)(state),
       userSearchIndex: userSearchIndexForOtherMembersOfThread(null)(state),
-      addFriendsLoadingStatus: addFriendsLoadingStatusSelector(state),
       styles: stylesSelector(state),
     };
   },
-  { searchUsers, sendFriendRequest },
+  { searchUsers },
 )(AddFriendsModal);
