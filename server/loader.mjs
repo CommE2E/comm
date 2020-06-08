@@ -11,6 +11,7 @@ const readFile = promisify(fs.readFile);
 const forceResolveAsModule = {
   'reselect': 'module',
   'redux': 'module',
+  'reselect-map': 'jsnext:main',
 };
 
 async function resolve(

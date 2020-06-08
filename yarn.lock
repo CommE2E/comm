@@ -12461,6 +12461,11 @@ requires-port@^1.0.0:
   resolved "https://registry.yarnpkg.com/requires-port/-/requires-port-1.0.0.tgz#925d2601d39ac485e091cf0da5c6e694dc3dcaff"
   integrity sha1-kl0mAdOaxIXgkc8NpcbmlNw9yv8=
 
+reselect-map@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/reselect-map/-/reselect-map-1.0.5.tgz#d7792208d888afd0a6e2da8e6933b7f0a7635295"
+  integrity sha512-+2sIc2ebte8JV61I7b3KdmgxcrtUxhpMP5VQtaPVzM/Lajer91i+vIKPgOqy7kCkcsUPV0yaa8BWE2GrDXwmBw==
+
 reselect@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/reselect/-/reselect-4.0.0.tgz#f2529830e5d3d0e021408b246a206ef4ea4437f7"

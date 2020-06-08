@@ -2,13 +2,13 @@
 
 import type { AppState } from '../redux-setup';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import type { MessageStore } from 'lib/types/message-types';
-import type { UserInfo } from 'lib/types/user-types';
+import type { MessageStore, MessageInfo } from 'lib/types/message-types';
 
 import { createSelector } from 'reselect';
 
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import {
+  messageInfoSelector,
   type ChatThreadItem,
   createChatThreadItem,
   chatListData,
@@ -21,14 +21,12 @@ const activeChatThreadItem: (
 ) => ?ChatThreadItem = createSelector(
   threadInfoSelector,
   (state: AppState) => state.messageStore,
-  (state: AppState) => state.currentUserInfo && state.currentUserInfo.id,
-  (state: AppState) => state.userInfos,
+  messageInfoSelector,
   (state: AppState) => state.navInfo.activeChatThreadID,
   (
     threadInfos: { [id: string]: ThreadInfo },
     messageStore: MessageStore,
-    viewerID: ?string,
-    userInfos: { [id: string]: UserInfo },
+    messageInfos: { [id: string]: MessageInfo },
     activeChatThreadID: ?string,
   ): ?ChatThreadItem => {
     if (!activeChatThreadID) {
@@ -38,13 +36,7 @@ const activeChatThreadItem: (
     if (!threadInfo) {
       return null;
     }
-    return createChatThreadItem(
-      threadInfo,
-      threadInfos,
-      messageStore,
-      viewerID,
-      userInfos,
-    );
+    return createChatThreadItem(threadInfo, messageStore, messageInfos);
   },
 );
 
@@ -69,14 +61,12 @@ const webMessageListData: (
 ) => ?(ChatMessageItem[]) = createSelector(
   (state: AppState) => state.navInfo.activeChatThreadID,
   (state: AppState) => state.messageStore,
-  (state: AppState) => state.currentUserInfo && state.currentUserInfo.id,
-  (state: AppState) => state.userInfos,
+  messageInfoSelector,
   threadInfoSelector,
   (
     threadID: ?string,
     messageStore: MessageStore,
-    viewerID: ?string,
-    userInfos: { [id: string]: UserInfo },
+    messageInfos: { [id: string]: MessageInfo },
     threadInfos: { [id: string]: ThreadInfo },
   ): ?(ChatMessageItem[]) => {
     if (!threadID) {
@@ -85,8 +75,7 @@ const webMessageListData: (
     return createChatMessageItems(
       threadID,
       messageStore,
-      viewerID,
-      userInfos,
+      messageInfos,
       threadInfos,
     );
   },
