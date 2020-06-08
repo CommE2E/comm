@@ -15,45 +15,70 @@ import { styleSelector } from '../themes/colors';
 
 import RelationshipListItem from './relationship-list-item.react';
 
+const DATA: UserInfo[] = [
+  { id: '1', username: 'John' },
+  { id: '2', username: 'Emma' },
+];
+
+type ListItem =
+  | {| type: 'header' |}
+  | {| type: 'footer' |}
+  | {| type: 'user', userInfo: UserInfo, lastListItem: boolean |};
+
 type Props = {|
   navigation: MoreNavigationProp<>,
   route: NavigationRoute<'FriendList' | 'BlockList'>,
   // Redux state
   styles: typeof styles,
 |};
-
-const DATA = [
-  { id: '1', username: 'John' },
-  { id: '2', username: 'Emma' },
-];
-
 class RelationshipList extends React.PureComponent<Props> {
   render() {
+    const listData = this.mapListData();
+
+    const empty = (
+      <Text
+        style={this.props.styles.emptyText}
+      >{`You haven't added any users yet`}</Text>
+    );
+
     return (
       <View style={this.props.styles.container}>
         <FlatList
           contentContainerStyle={this.props.styles.contentContainer}
-          ListEmptyComponent={
-            <View style={this.props.styles.empty}>
-              <Text
-                style={this.props.styles.emptyText}
-              >{`You haven't added any users yet`}</Text>
-            </View>
-          }
-          ListHeaderComponent={<View style={this.props.styles.separator} />}
-          ListFooterComponent={<View style={this.props.styles.separator} />}
-          ItemSeparatorComponent={() => (
-            <View style={[this.props.styles.separator, styles.indentation]} />
-          )}
-          data={DATA}
+          ListEmptyComponent={empty}
+          data={listData}
           renderItem={this.renderItem}
         />
       </View>
     );
   }
 
-  renderItem = ({ item }: { item: UserInfo }) => {
-    return <RelationshipListItem userInfo={item} />;
+  mapListData = (): ListItem[] => {
+    const users = DATA;
+
+    const usersData = users.map((userInfo, index) => ({
+      type: 'user',
+      userInfo,
+      lastListItem: users.length - 1 === index,
+    }));
+
+    return []
+      .concat(users.length ? { type: 'header' } : [])
+      .concat(usersData)
+      .concat(users.length ? { type: 'footer' } : []);
+  };
+
+  renderItem = ({ item }: { item: ListItem }) => {
+    if (item.type === 'header' || item.type === 'footer') {
+      return <View style={this.props.styles.separator} />;
+    }
+
+    return (
+      <RelationshipListItem
+        userInfo={item.userInfo}
+        lastListItem={item.lastListItem}
+      />
+    );
   };
 
   onPressAddFriends = () => {
@@ -70,26 +95,20 @@ const styles = {
   },
   contentContainer: {
     marginTop: 24,
-    backgroundColor: 'panelForeground',
   },
   separator: {
     backgroundColor: 'panelForegroundBorder',
     height: 1,
-  },
-  indentation: {
-    marginHorizontal: 12,
-  },
-  empty: {
-    flex: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginHorizontal: 12,
   },
   emptyText: {
     color: 'panelForegroundSecondaryLabel',
     flex: 1,
     fontSize: 16,
     lineHeight: 20,
+    textAlign: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginHorizontal: 12,
   },
 };
 

@@ -14,6 +14,7 @@ import { type Colors, colorsSelector, styleSelector } from '../themes/colors';
 
 type Props = {|
   userInfo: UserInfo,
+  lastListItem: boolean,
   // Redux state
   removeUserLoadingStatus: LoadingStatus,
   colors: Colors,
@@ -34,10 +35,7 @@ class RelationshipListItem extends React.PureComponent<Props> {
       );
     } else {
       editButton = (
-        <TouchableOpacity
-          onPress={this.onPressEdit}
-          style={this.props.styles.editButton}
-        >
+        <TouchableOpacity onPress={this.onPressEdit} style={styles.editButton}>
           <View ref={this.editButton}>
             <PencilIcon />
           </View>
@@ -45,15 +43,15 @@ class RelationshipListItem extends React.PureComponent<Props> {
       );
     }
 
+    const borderBottom = this.props.lastListItem ? null : styles.borderBottom;
+
     return (
       <View style={this.props.styles.container}>
-        <View style={this.props.styles.innerContainer}>
-          <View style={this.props.styles.row}>
-            <Text style={this.props.styles.username} numberOfLines={1}>
-              {this.props.userInfo.username}
-            </Text>
-            {editButton}
-          </View>
+        <View style={[this.props.styles.innerContainer, borderBottom]}>
+          <Text style={this.props.styles.username} numberOfLines={1}>
+            {this.props.userInfo.username}
+          </Text>
+          {editButton}
         </View>
       </View>
     );
@@ -63,22 +61,22 @@ class RelationshipListItem extends React.PureComponent<Props> {
 }
 
 const styles = {
-  container: {
-    backgroundColor: 'panelForeground',
-    flex: 1,
-  },
   editButton: {
     paddingLeft: 10,
   },
-  innerContainer: {
+  container: {
     flex: 1,
     paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginHorizontal: 12,
+    backgroundColor: 'panelForeground',
   },
-  row: {
-    flex: 1,
+  innerContainer: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderColor: 'panelForegroundBorder',
     flexDirection: 'row',
+  },
+  borderBottom: {
+    borderBottomWidth: 1,
   },
   username: {
     color: 'panelForegroundSecondaryLabel',
