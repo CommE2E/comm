@@ -34,7 +34,7 @@ import {
 import threadWatcher from 'lib/shared/thread-watcher';
 import { threadInChatList } from 'lib/shared/thread-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
-import ChatList from '../components/chat-list.react';
+import ChatList from './chat-list.react';
 
 import {
   Message,

@@ -4,7 +4,7 @@ import type {
   Props as FlatListProps,
   DefaultProps as FlatListDefaultProps,
 } from 'react-native/Libraries/Lists/FlatList';
-import type { ChatNavigationProp } from '../chat/chat.react';
+import type { ChatNavigationProp } from './chat.react';
 import type { TabNavigationProp } from '../navigation/app-navigator.react';
 
 import * as React from 'react';
