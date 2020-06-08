@@ -106,12 +106,6 @@ class AddFriendsModal extends React.PureComponent<Props, State> {
       );
     }
 
-    let cancelButton = (
-      <Button onPress={this.close} style={this.props.styles.cancelButton}>
-        <Text style={this.props.styles.cancelText}>Cancel</Text>
-      </Button>
-    );
-
     const inputProps = {
       ...tagInputProps,
       onSubmitEditing: this.onPressAdd,
@@ -135,7 +129,9 @@ class AddFriendsModal extends React.PureComponent<Props, State> {
           onSelect={this.onUserSelect}
         />
         <View style={this.props.styles.buttons}>
-          {cancelButton}
+          <Button onPress={this.close} style={this.props.styles.cancelButton}>
+            <Text style={this.props.styles.cancelText}>Cancel</Text>
+          </Button>
           {addButton}
         </View>
       </Modal>

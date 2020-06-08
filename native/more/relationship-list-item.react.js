@@ -1,10 +1,9 @@
 // @flow
 
-import type { LoadingStatus } from 'lib/types/loading-types';
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
-import { View, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 
 import { connect } from 'lib/utils/redux-utils';
 import { type UserInfo } from 'lib/types/user-types';
@@ -16,7 +15,6 @@ type Props = {|
   userInfo: UserInfo,
   lastListItem: boolean,
   // Redux state
-  removeUserLoadingStatus: LoadingStatus,
   colors: Colors,
   styles: typeof styles,
 |};
@@ -25,24 +23,6 @@ class RelationshipListItem extends React.PureComponent<Props> {
   editButton = React.createRef<View>();
 
   render() {
-    let editButton = null;
-    if (this.props.removeUserLoadingStatus === 'loading') {
-      editButton = (
-        <ActivityIndicator
-          size="small"
-          color={this.props.colors.panelForegroundSecondaryLabel}
-        />
-      );
-    } else {
-      editButton = (
-        <TouchableOpacity onPress={this.onPressEdit} style={styles.editButton}>
-          <View ref={this.editButton}>
-            <PencilIcon />
-          </View>
-        </TouchableOpacity>
-      );
-    }
-
     const borderBottom = this.props.lastListItem ? null : styles.borderBottom;
 
     return (
@@ -51,7 +31,14 @@ class RelationshipListItem extends React.PureComponent<Props> {
           <Text style={this.props.styles.username} numberOfLines={1}>
             {this.props.userInfo.username}
           </Text>
-          {editButton}
+          <TouchableOpacity
+            onPress={this.onPressEdit}
+            style={styles.editButton}
+          >
+            <View ref={this.editButton}>
+              <PencilIcon />
+            </View>
+          </TouchableOpacity>
         </View>
       </View>
     );
