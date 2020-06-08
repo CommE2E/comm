@@ -282,7 +282,6 @@ class CameraModal extends React.PureComponent<Props, State> {
   pinchHandler = React.createRef();
   tapEvent;
   tapHandler = React.createRef();
-  navigationProgress: Value;
   animationCode: Value;
 
   closeButton: ?React.ElementRef<TouchableOpacityInstance>;
@@ -335,15 +334,6 @@ class CameraModal extends React.PureComponent<Props, State> {
       stagingMode: false,
       pendingPhotoCapture: undefined,
     };
-
-    const { overlayContext } = props;
-    invariant(overlayContext, 'CameraModal should have OverlayContext');
-    const { position, routeIndex } = overlayContext;
-    this.navigationProgress = interpolate(position, {
-      inputRange: [routeIndex - 1, routeIndex],
-      outputRange: [0, 1],
-      extrapolate: Extrapolate.CLAMP,
-    });
 
     const sendButtonScale = interpolate(this.sendButtonProgress, {
       inputRange: [0, 1],
@@ -609,9 +599,11 @@ class CameraModal extends React.PureComponent<Props, State> {
   }
 
   get containerStyle() {
+    const { overlayContext } = this.props;
+    invariant(overlayContext, 'CameraModal should have OverlayContext');
     return {
       ...styles.container,
-      opacity: this.navigationProgress,
+      opacity: overlayContext.position,
     };
   }
 

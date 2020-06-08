@@ -12,10 +12,6 @@ import { contentBottomOffset } from '../selectors/dimension-selectors';
 import { useOverlayStyles } from '../themes/colors';
 import { OverlayContext } from './overlay-context';
 
-/* eslint-disable import/no-named-as-default-member */
-const { Extrapolate, interpolate } = Animated;
-/* eslint-enable import/no-named-as-default-member */
-
 export type ActionResultModalParams = {|
   message: string,
   preventPresses: true,
@@ -28,16 +24,7 @@ type Props = {|
 function ActionResultModal(props: Props) {
   const overlayContext = React.useContext(OverlayContext);
   invariant(overlayContext, 'ActionResultModal should have OverlayContext');
-  const { position, routeIndex } = overlayContext;
-  const progress = React.useMemo(
-    () =>
-      interpolate(position, {
-        inputRange: [routeIndex - 1, routeIndex],
-        outputRange: [0, 1],
-        extrapolate: Extrapolate.CLAMP,
-      }),
-    [position, routeIndex],
-  );
+  const { position } = overlayContext;
 
   // Timer resets whenever message updates
   const { goBackOnce } = props.navigation;
@@ -50,7 +37,7 @@ function ActionResultModal(props: Props) {
   const styles = useOverlayStyles(ourStyles);
   const containerStyle = {
     ...styles.container,
-    opacity: progress,
+    opacity: position,
   };
   return (
     <Animated.View style={containerStyle}>

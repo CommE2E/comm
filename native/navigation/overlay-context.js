@@ -8,7 +8,6 @@ type ScrollBlockingModalStatus = 'open' | 'closed' | 'closing';
 export type OverlayContextType = {|
   position: Animated.Value,
   isDismissing: boolean,
-  routeIndex: number,
   scrollBlockingModalStatus: ScrollBlockingModalStatus,
   setScrollBlockingModalStatus: ScrollBlockingModalStatus => void,
 |};
@@ -20,7 +19,6 @@ const overlayContextPropType = PropTypes.shape({
   // eslint-disable-next-line import/no-named-as-default-member
   position: PropTypes.instanceOf(Animated.Value).isRequired,
   isDismissing: PropTypes.bool.isRequired,
-  routeIndex: PropTypes.number.isRequired,
   scrollBlockingModalStatus: PropTypes.oneOf(['open', 'closed', 'closing'])
     .isRequired,
   setScrollBlockingModalStatus: PropTypes.func.isRequired,

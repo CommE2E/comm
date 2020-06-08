@@ -131,7 +131,6 @@ function createTooltip<
       dispatchActionPromise: PropTypes.func.isRequired,
       overlayContext: overlayContextPropType,
     };
-    progress: Value;
     backdropOpacity: Value;
     tooltipContainerOpacity: Value;
     tooltipVerticalAbove: Value;
@@ -144,38 +143,33 @@ function createTooltip<
 
       const { overlayContext } = props;
       invariant(overlayContext, 'Tooltip should have OverlayContext');
-      const { position, routeIndex } = overlayContext;
+      const { position } = overlayContext;
 
-      this.progress = interpolate(position, {
-        inputRange: [routeIndex - 1, routeIndex],
-        outputRange: [0, 1],
-        extrapolate: Extrapolate.CLAMP,
-      });
-      this.backdropOpacity = interpolate(this.progress, {
+      this.backdropOpacity = interpolate(position, {
         inputRange: [0, 1],
         outputRange: [0, 0.7],
         extrapolate: Extrapolate.CLAMP,
       });
-      this.tooltipContainerOpacity = interpolate(this.progress, {
+      this.tooltipContainerOpacity = interpolate(position, {
         inputRange: [0, 0.1],
         outputRange: [0, 1],
         extrapolate: Extrapolate.CLAMP,
       });
 
       const { margin } = this;
-      this.tooltipVerticalAbove = interpolate(this.progress, {
+      this.tooltipVerticalAbove = interpolate(position, {
         inputRange: [0, 1],
         outputRange: [margin + this.tooltipHeight / 2, 0],
         extrapolate: Extrapolate.CLAMP,
       });
-      this.tooltipVerticalBelow = interpolate(this.progress, {
+      this.tooltipVerticalBelow = interpolate(position, {
         inputRange: [0, 1],
         outputRange: [-margin - this.tooltipHeight / 2, 0],
         extrapolate: Extrapolate.CLAMP,
       });
 
       this.tooltipHorizontal = multiply(
-        add(1, multiply(-1, this.progress)),
+        add(1, multiply(-1, position)),
         this.tooltipHorizontalOffset,
       );
     }
@@ -293,7 +287,12 @@ function createTooltip<
           margin;
         style.transform.push({ translateY: this.tooltipVerticalBelow });
       }
-      style.transform.push({ scale: this.progress });
+
+      const { overlayContext } = this.props;
+      invariant(overlayContext, 'Tooltip should have OverlayContext');
+      const { position } = overlayContext;
+      style.transform.push({ scale: position });
+
       return style;
     }
 
@@ -340,6 +339,10 @@ function createTooltip<
         triangleUp = <View style={[styles.triangleUp, triangleStyle]} />;
       }
 
+      const { overlayContext } = this.props;
+      invariant(overlayContext, 'Tooltip should have OverlayContext');
+      const { position } = overlayContext;
+
       return (
         <TouchableWithoutFeedback onPress={this.onPressBackdrop}>
           <View style={styles.container}>
@@ -349,7 +352,7 @@ function createTooltip<
                 <ButtonComponent
                   navigation={navigation}
                   route={route}
-                  progress={this.progress}
+                  progress={position}
                 />
               </View>
             </View>

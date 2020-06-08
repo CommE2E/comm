@@ -296,12 +296,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
 
     const { overlayContext } = props;
     invariant(overlayContext, 'MultimediaModal should have OverlayContext');
-    const { position, routeIndex } = overlayContext;
-    const navigationProgress = interpolate(position, {
-      inputRange: [routeIndex - 1, routeIndex],
-      outputRange: [0, 1],
-      extrapolate: Extrapolate.CLAMP,
-    });
+    const navigationProgress = overlayContext.position;
 
     // The inputs we receive from PanGestureHandler
     const panState = new Value(-1);

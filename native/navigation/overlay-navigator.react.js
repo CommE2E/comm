@@ -40,11 +40,14 @@ const OverlayNavigator = React.memo<Props>(
     );
     const curIndex = state.index;
 
-    const positionRef = React.useRef();
-    if (!positionRef.current) {
-      positionRef.current = new Value(curIndex);
-    }
-    const position = positionRef.current;
+    const positionRefs = React.useRef({});
+    const positions = positionRefs.current;
+
+    const firstRenderRef = React.useRef(true);
+    React.useEffect(() => {
+      firstRenderRef.current = false;
+    }, [firstRenderRef]);
+    const firstRender = firstRenderRef.current;
 
     const { routes } = state;
     const scenes = React.useMemo(
@@ -55,12 +58,17 @@ const OverlayNavigator = React.memo<Props>(
             descriptor,
             `OverlayNavigator could not find descriptor for ${route.key}`,
           );
+          if (!positions[route.key]) {
+            positions[route.key] = new Value(firstRender ? 1 : 0);
+          }
           return {
             route,
             descriptor,
             context: {
-              position,
+              position: positions[route.key],
               isDismissing: curIndex < routeIndex,
+            },
+            ordering: {
               routeIndex,
             },
           };
@@ -69,17 +77,17 @@ const OverlayNavigator = React.memo<Props>(
       // render. We know that they should only substantially change if something
       // about the underlying route has changed
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [position, routes, curIndex],
+      [positions, routes, curIndex],
     );
 
     const prevScenesRef = React.useRef();
     const prevScenes = prevScenesRef.current;
 
     // The scrollBlockingModalStatus state gets incorporated into the
-    // OverlayContext, but it's global to the navigator rather than local to each
-    // screen. Note that we also include the setter in OverlayContext. We do this
-    // so that screens can freeze ScrollViews as quickly as possible to avoid
-    // drags after onLongPress is triggered
+    // OverlayContext, but it's global to the navigator rather than local to
+    // each screen. Note that we also include the setter in OverlayContext. We
+    // do this so that screens can freeze ScrollViews as quickly as possible to
+    // avoid drags after onLongPress is triggered
     const getScrollBlockingModalStatus = data => {
       let status = 'closed';
       for (let scene of data) {
@@ -105,14 +113,18 @@ const OverlayNavigator = React.memo<Props>(
         scrollBlockingModalStatus,
         setScrollBlockingModalStatus,
       },
+      ordering: {
+        ...scene.ordering,
+        creationTime: Date.now(),
+      },
       listeners: [],
     });
 
-    // We track two previous states of scrollBlockingModalStatus via refs. We need
-    // two because we expose setScrollBlockingModalStatus to screens. We track the
-    // previous sceneData-determined value separately so that we only overwrite
-    // the screen-determined value with the sceneData-determined value when the
-    // latter actually changes
+    // We track two previous states of scrollBlockingModalStatus via refs. We
+    // need two because we expose setScrollBlockingModalStatus to screens. We
+    // track the previous sceneData-determined value separately so that we only
+    // overwrite the screen-determined value with the sceneData-determined value
+    // when the latter actually changes
     const prevScrollBlockingModalStatusRef = React.useRef(
       scrollBlockingModalStatus,
     );
@@ -136,10 +148,17 @@ const OverlayNavigator = React.memo<Props>(
     const prevSceneDataRef = React.useRef(sceneData);
     const prevSceneData = prevSceneDataRef.current;
 
-    // We need to initiate animations in useEffect blocks, but because we setState
-    // within render we might have multiple renders before the useEffect triggers.
-    // So we cache whether or not a new animation should be started in this ref
-    const pendingAnimationRef = React.useRef(false);
+    // We need to initiate animations in useEffect blocks, but because we
+    // setState within render we might have multiple renders before the
+    // useEffect triggers. So we cache whether or not new animations should be
+    // started in this ref
+    const pendingAnimationsRef = React.useRef<{ [key: string]: number }>({});
+    const queueAnimation = (key: string, toValue: number) => {
+      pendingAnimationsRef.current = {
+        ...pendingAnimationsRef.current,
+        [key]: toValue,
+      };
+    };
 
     // This block keeps sceneData updated when our props change. It's the
     // hook equivalent of getDerivedStateFromProps
@@ -147,7 +166,6 @@ const OverlayNavigator = React.memo<Props>(
     const updatedSceneData = { ...sceneData };
     let sceneDataChanged = false;
     if (prevScenes && scenes !== prevScenes) {
-      let sceneAdded = false;
       const currentKeys = new Set();
       for (let scene of scenes) {
         const { key } = scene.route;
@@ -158,7 +176,7 @@ const OverlayNavigator = React.memo<Props>(
           // A new route has been pushed
           updatedSceneData[key] = sceneDataForNewScene(scene);
           sceneDataChanged = true;
-          sceneAdded = true;
+          queueAnimation(key, 1);
           continue;
         }
 
@@ -177,10 +195,13 @@ const OverlayNavigator = React.memo<Props>(
         }
         if (
           scene.context.position !== data.context.position ||
-          scene.context.isDismissing !== data.context.isDismissing ||
-          scene.context.routeIndex !== data.context.routeIndex
+          scene.context.isDismissing !== data.context.isDismissing
         ) {
-          data = { ...data, context: scene.context };
+          data = { ...data, context: { ...data.context, ...scene.context } };
+          dataChanged = true;
+        }
+        if (scene.ordering.routeIndex !== data.ordering.routeIndex) {
+          data = { ...data, ordering: { ...data.ordering, ...scene.ordering } };
           dataChanged = true;
         }
 
@@ -191,81 +212,61 @@ const OverlayNavigator = React.memo<Props>(
         }
       }
 
-      let dismissingSceneData;
-      if (!sceneAdded) {
-        // We only consider a fresh dismissal if no scene has been added because
-        // pushing a new route wipes out any dismissals
-        for (let i = 0; i < prevScenes.length; i++) {
-          const scene = prevScenes[i];
-          const { key } = scene.route;
-          if (currentKeys.has(key)) {
-            continue;
-          }
-          currentKeys.add(key);
-          const data = updatedSceneData[key];
-          invariant(data, `should have sceneData for dismissed key ${key}`);
-          // A route just got dismissed
-          // We'll watch the animation to determine when to clear the screen
-          dismissingSceneData = {
-            ...data,
-            context: {
-              ...data.context,
-              isDismissing: true,
-            },
-            listeners: [
-              cond(
-                lessOrEq(position, i - 1),
-                call([], () =>
-                  setSceneData(curSceneData => {
-                    const newSceneData = { ...curSceneData };
-                    delete newSceneData[key];
-                    return newSceneData;
-                  }),
-                ),
-              ),
-            ],
-          };
-          updatedSceneData[key] = dismissingSceneData;
-          sceneDataChanged = true;
-          break;
-        }
-      }
-
-      if (sceneAdded || dismissingSceneData) {
-        // We start an animation whenever a scene is added or dismissed
-        pendingAnimationRef.current = true;
-      }
-
-      // We want to keep at most one dismissing scene in the sceneData at a time
-      for (let key in updatedSceneData) {
+      for (let i = 0; i < prevScenes.length; i++) {
+        const scene = prevScenes[i];
+        const { key } = scene.route;
         if (currentKeys.has(key)) {
           continue;
         }
+        currentKeys.add(key);
         const data = updatedSceneData[key];
-        if (!sceneAdded && !dismissingSceneData && data.listeners.length > 0) {
-          dismissingSceneData = data;
-        } else {
-          // A route has just gotten cleared. This can occur if multiple routes
-          // are popped off at once, or if the user pops two routes in rapid
-          // succession
-          delete updatedSceneData[key];
-          sceneDataChanged = true;
-        }
+        invariant(data, `should have sceneData for dismissed key ${key}`);
+
+        // A route just got dismissed
+        // We'll watch the animation to determine when to clear the screen
+        const { position } = data.context;
+        invariant(position, `should have position for dismissed key ${key}`);
+        updatedSceneData[key] = {
+          ...data,
+          context: {
+            ...data.context,
+            isDismissing: true,
+          },
+          listeners: [
+            cond(
+              lessOrEq(position, 0),
+              call([], () =>
+                setSceneData(curSceneData => {
+                  const newSceneData = { ...curSceneData };
+                  delete newSceneData[key];
+                  return newSceneData;
+                }),
+              ),
+            ),
+          ],
+        };
+        sceneDataChanged = true;
+        queueAnimation(key, 0);
       }
     }
 
-    const startAnimation = pendingAnimationRef.current;
+    const pendingAnimations = pendingAnimationsRef.current;
     React.useEffect(() => {
-      if (!startAnimation) {
+      if (Object.keys(pendingAnimations).length === 0) {
         return;
       }
-      pendingAnimationRef.current = false;
-      timing(position, {
-        duration: 250,
-        easing: Easing.inOut(Easing.ease),
-        toValue: curIndex,
-      }).start();
-    }, [position, startAnimation, curIndex]);
+      for (let key in pendingAnimations) {
+        const toValue = pendingAnimations[key];
+        const position = positions[key];
+        invariant(position, `should have position for animating key ${key}`);
+        timing(position, {
+          duration: 250,
+          easing: Easing.inOut(Easing.ease),
+          toValue,
+        }).start();
+      }
+      pendingAnimationsRef.current = {};
+    }, [positions, pendingAnimations]);
 
     // If sceneData changes, we update scrollBlockingModalStatus based on it, both
     // in state and within the individual sceneData contexts. If sceneData doesn't
@@ -321,9 +322,14 @@ const OverlayNavigator = React.memo<Props>(
       ? newScrollBlockingModalStatus
       : scrollBlockingModalStatus;
 
-    const sceneList = values(updatedSceneData).sort(
-      (a, b) => a.context.routeIndex - b.context.routeIndex,
-    );
+    const sceneList = values(updatedSceneData).sort((a, b) => {
+      const routeIndexDifference =
+        a.ordering.routeIndex - b.ordering.routeIndex;
+      if (routeIndexDifference) {
+        return routeIndexDifference;
+      }
+      return a.ordering.creationTime - b.ordering.creationTime;
+    });
 
     const screens = [];
     let pressableSceneAssigned = false,
