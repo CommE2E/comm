@@ -3,6 +3,16 @@ import { promisify } from 'util';
 
 const readFile = promisify(fs.readFile);
 
+// We prefer to resolve packages as modules.
+// (1) It allows us to do destructuring imports in Node
+// (2) Sometimes a CJS module won't specify a default export, in which case
+//     Node won't allow a default import either. This prevents all imports
+// (3) Sometimes Flow libdefs don't specify a default export
+const forceResolveAsModule = {
+  'reselect': 'module',
+  'redux': 'module',
+};
+
 async function resolve(
   specifier,
   context,
@@ -19,19 +29,17 @@ async function resolve(
     return { url };
   }
 
-  // We prefer to resolve packages as modules so that Node allows us to do
-  // destructuring imports, as sometimes Flow libdefs don't specify a default
-  // export. defaultResolve doesn't look at the module property in package.json,
-  // so we do it manually here
-  if (specifier === 'reselect' || specifier === 'redux') {
+  const forceModuleKey = forceResolveAsModule[specifier];
+  if (forceModuleKey) {
     const moduleFolder = defaultResult.url.match(
       new RegExp(`file://(.*node_modules\/${specifier})`),
     )[1];
     const packageConfig = await readFile(`${moduleFolder}/package.json`);
     const packageJSON = JSON.parse(packageConfig);
-    if (packageJSON.module) {
+    const pathToModule = packageJSON[forceModuleKey];
+    if (pathToModule) {
       return {
-        url: `file://${moduleFolder}/${packageJSON.module}`,
+        url: `file://${moduleFolder}/${pathToModule}`,
       };
     }
   }
@@ -44,11 +52,10 @@ async function getFormat(
   context,
   defaultGetFormat,
 ) {
-  if (
-    url.indexOf("node_modules/reselect") >= 0 ||
-    url.indexOf("node_modules/redux") >= 0
-  ) {
-    return { format: 'module' };
+  for (let packageName in forceResolveAsModule) {
+    if (url.indexOf(`node_modules/${packageName}`) >= 0) {
+      return { format: 'module' };
+    }
   }
   return defaultGetFormat(url, context, defaultGetFormat);
 }
