@@ -1,7 +1,6 @@
 // @flow
 
 import type { AccountUserInfo } from 'lib/types/user-types';
-import type { LoadingStatus } from 'lib/types/loading-types';
 import type { UserSearchResult } from 'lib/types/search-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { RootNavigationProp } from '../navigation/root-navigator.react';
@@ -9,7 +8,7 @@ import type { NavigationRoute } from '../navigation/route-names';
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
-import { Text, View, ActivityIndicator } from 'react-native';
+import { Text, View } from 'react-native';
 import { CommonActions } from '@react-navigation/native';
 import { createSelector } from 'reselect';
 
@@ -41,7 +40,6 @@ type Props = {|
   // Redux state
   otherUserInfos: { [id: string]: AccountUserInfo },
   userSearchIndex: SearchIndex,
-  addFriendsLoadingStatus: LoadingStatus,
   styles: typeof styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
@@ -97,42 +95,22 @@ class AddFriendsModal extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const loading = this.props.addFriendsLoadingStatus === 'loading';
-
     let addButton = null;
     const inputLength = this.state.userInfoInputArray.length;
     if (inputLength > 0) {
-      let activityIndicator = null;
-      if (loading) {
-        activityIndicator = (
-          <View style={this.props.styles.activityIndicator}>
-            <ActivityIndicator color="white" />
-          </View>
-        );
-      }
       const addButtonText = `Add (${inputLength})`;
       addButton = (
-        <Button
-          onPress={this.onPressAdd}
-          style={this.props.styles.addButton}
-          disabled={loading}
-        >
-          {activityIndicator}
+        <Button onPress={this.onPressAdd} style={this.props.styles.addButton}>
           <Text style={this.props.styles.addText}>{addButtonText}</Text>
         </Button>
       );
     }
 
-    let cancelButton;
-    if (!loading) {
-      cancelButton = (
-        <Button onPress={this.close} style={this.props.styles.cancelButton}>
-          <Text style={this.props.styles.cancelText}>Cancel</Text>
-        </Button>
-      );
-    } else {
-      cancelButton = <View />;
-    }
+    let cancelButton = (
+      <Button onPress={this.close} style={this.props.styles.cancelButton}>
+        <Text style={this.props.styles.cancelText}>Cancel</Text>
+      </Button>
+    );
 
     const inputProps = {
       ...tagInputProps,
@@ -151,7 +129,6 @@ class AddFriendsModal extends React.PureComponent<Props, State> {
           maxHeight={36}
           inputProps={inputProps}
           innerRef={this.tagInputRef}
-          disabled={loading}
         />
         <UserList
           userInfos={this.userSearchResults}
@@ -172,25 +149,15 @@ class AddFriendsModal extends React.PureComponent<Props, State> {
   tagDataLabelExtractor = (userInfo: AccountUserInfo) => userInfo.username;
 
   setUsernameInputText = (text: string) => {
-    if (this.props.addFriendsLoadingStatus === 'loading') {
-      return;
-    }
     this.searchUsers(text);
     this.setState({ usernameInputText: text });
   };
 
   onChangeTagInput = (userInfoInputArray: $ReadOnlyArray<AccountUserInfo>) => {
-    if (this.props.addFriendsLoadingStatus === 'loading') {
-      return;
-    }
     this.setState({ userInfoInputArray });
   };
 
   onUserSelect = (userID: string) => {
-    if (this.props.addFriendsLoadingStatus === 'loading') {
-      return;
-    }
-
     if (this.state.userInfoInputArray.find(o => o.id === userID)) {
       return;
     }
