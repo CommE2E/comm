@@ -9,10 +9,9 @@ import type { NavigationRoute } from '../navigation/route-names';
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
-import { Text, View, ActivityIndicator, Alert } from 'react-native';
+import { Text, View, ActivityIndicator } from 'react-native';
 import { CommonActions } from '@react-navigation/native';
 import { createSelector } from 'reselect';
-import invariant from 'invariant';
 
 import {
   userInfoSelectorForOtherMembersOfThread,
@@ -210,40 +209,6 @@ class AddFriendsModal extends React.PureComponent<Props, State> {
     }
 
     this.props.navigation.goBack();
-  };
-
-  async sendFriendInvitations() {
-    try {
-      const friendsIDs = this.state.userInfoInputArray.map(
-        userInfo => userInfo.id,
-      );
-      const result = await this.props.sendFriendRequest(friendsIDs);
-      this.close();
-      return result;
-    } catch (e) {
-      Alert.alert(
-        'Unknown error',
-        'Uhh... try again?',
-        [{ text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged }],
-        { cancelable: false },
-      );
-      throw e;
-    }
-  }
-
-  onErrorAcknowledged = () => {
-    invariant(this.tagInput, 'nameInput should be set');
-    this.tagInput.focus();
-  };
-
-  onUnknownErrorAlertAcknowledged = () => {
-    this.setState(
-      {
-        userInfoInputArray: [],
-        usernameInputText: '',
-      },
-      this.onErrorAcknowledged,
-    );
   };
 
   goBackOnce() {
