@@ -71,19 +71,18 @@ class RelationshipList extends React.PureComponent<Props> {
           style={this.props.styles.emptyText}
         >{`You haven't added any users yet`}</Text>
       );
-    }
-    if (item.type === 'header' || item.type === 'footer') {
+    } else if (item.type === 'header' || item.type === 'footer') {
       return <View style={this.props.styles.separator} />;
-    }
-    if (item.type === 'user') {
+    } else if (item.type === 'user') {
       return (
         <RelationshipListItem
           userInfo={item.userInfo}
           lastListItem={item.lastListItem}
         />
       );
+    } else {
+      invariant(false, `unexpected RelationshipList item type ${item.type}`);
     }
-    invariant(false, `unexpected RelationshipList item type ${item.type}`);
   };
 
   onPressAddFriends = () => {
