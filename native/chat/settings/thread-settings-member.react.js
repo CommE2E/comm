@@ -37,7 +37,7 @@ import {
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
-import PencilIcon from './pencil-icon.react';
+import PencilIcon from '../../components/pencil-icon.react';
 import {
   type Colors,
   colorsPropType,

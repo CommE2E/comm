@@ -49,6 +49,9 @@ export const TextMessageTooltipModalRouteName = 'TextMessageTooltipModal';
 export const ThreadSettingsMemberTooltipModalRouteName =
   'ThreadSettingsMemberTooltipModal';
 export const CameraModalRouteName = 'CameraModal';
+export const FriendListRouteName = 'FriendList';
+export const BlockListRouteName = 'BlockList';
+export const AddFriendsModalRouteName = 'AddFriendsModal';
 
 export type RootParamList = {|
   LoggedOutModal: void,
@@ -59,6 +62,7 @@ export type RootParamList = {|
   CustomServerModal: CustomServerModalParams,
   ColorPickerModal: ColorPickerModalParams,
   ComposeSubthreadModal: ComposeSubthreadModalParams,
+  AddFriendsModal: void,
 |};
 
 export type TooltipModalParamList = {|
@@ -97,6 +101,8 @@ export type MoreParamList = {|
   BuildInfo: void,
   DevTools: void,
   AppearancePreferences: void,
+  FriendList: void,
+  BlockList: void,
 |};
 
 export type ScreenParamList = {|
@@ -107,7 +113,7 @@ export type ScreenParamList = {|
   ...MoreParamList,
 |};
 
-export type NavigationRoute<RouteName: string> = {|
+export type NavigationRoute<RouteName: string = $Keys<ScreenParamList>> = {|
   ...LeafRoute<RouteName>,
   +params: $ElementType<ScreenParamList, RouteName>,
 |};

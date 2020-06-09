@@ -50,6 +50,10 @@ type Props<T> = {|
    */
   onChangeText: (text: string) => void,
   /**
+   * If `true`, text and tags are not editable. The default value is `false`.
+   */
+  disabled?: boolean,
+  /**
    * Background color of tags
    */
   tagColor?: string,
@@ -249,9 +253,11 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
     const inputColor =
       this.props.inputColor || this.props.colors.modalForegroundLabel;
     const placeholderColor = this.props.colors.modalForegroundTertiaryLabel;
+
     const tags = this.props.value.map((tag, index) => (
       <Tag
         index={index}
+        disabled={this.props.disabled}
         label={this.props.labelExtractor(tag)}
         isLastTag={this.props.value.length === index + 1}
         onLayoutLastTag={this.onLayoutLastTag}
@@ -273,10 +279,8 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
       inputWidth = this.state.wrapperWidth;
     }
 
-    const textInputProps: React.ElementProps<typeof TextInput> = {
+    const defaultTextInputProps: React.ElementProps<typeof TextInput> = {
       blurOnSubmit: false,
-      onKeyPress: this.onKeyPress,
-      value: this.props.text,
       style: [
         styles.textInput,
         {
@@ -284,8 +288,6 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
           color: inputColor,
         },
       ],
-      onBlur: Platform.OS === 'ios' ? this.onBlur : undefined,
-      onChangeText: this.onChangeText,
       autoCapitalize: 'none',
       autoCorrect: false,
       placeholder: 'Start typing',
@@ -293,6 +295,17 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
       returnKeyType: 'done',
       keyboardType: 'default',
       underlineColorAndroid: 'rgba(0,0,0,0)',
+    };
+
+    const textInputProps: React.ElementProps<typeof TextInput> = {
+      ...defaultTextInputProps,
+      ...this.props.inputProps,
+      // should not be overridden
+      onKeyPress: this.onKeyPress,
+      value: this.props.text,
+      onBlur: Platform.OS === 'ios' ? this.onBlur : undefined,
+      onChangeText: this.onChangeText,
+      editable: !this.props.disabled,
     };
 
     return (
@@ -311,11 +324,7 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
             <View style={styles.tagInputContainer}>
               {tags}
               <View style={[styles.textInputContainer, { width: inputWidth }]}>
-                <TextInput
-                  ref={this.tagInputRef}
-                  {...textInputProps}
-                  {...this.props.inputProps}
-                />
+                <TextInput ref={this.tagInputRef} {...textInputProps} />
               </View>
             </View>
           </ScrollView>
@@ -379,6 +388,7 @@ type TagProps = {|
   tagTextColor: string,
   tagContainerStyle?: ViewStyle,
   tagTextStyle?: TextStyle,
+  disabled?: boolean,
 |};
 class Tag extends React.PureComponent<TagProps> {
   static propTypes = {
@@ -410,6 +420,7 @@ class Tag extends React.PureComponent<TagProps> {
       <TouchableOpacity
         onPress={this.onPress}
         onLayout={this.onLayoutLastTag}
+        disabled={this.props.disabled}
         style={[
           styles.tag,
           { backgroundColor: this.props.tagColor },

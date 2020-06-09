@@ -6,7 +6,7 @@ import * as React from 'react';
 import { TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
 
-import PencilIcon from './pencil-icon.react';
+import PencilIcon from '../../components/pencil-icon.react';
 
 type Props = {
   navigation: AppNavigationProp<'ThreadSettingsMemberTooltipModal'>,

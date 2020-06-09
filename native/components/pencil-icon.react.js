@@ -1,6 +1,6 @@
 // @flow
 
-import type { AppState } from '../../redux/redux-setup';
+import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
 import { Platform } from 'react-native';
@@ -8,7 +8,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { connect } from 'lib/utils/redux-utils';
 
-import { styleSelector } from '../../themes/colors';
+import { styleSelector } from '../themes/colors';
 
 type Props = {|
   // Redux state
