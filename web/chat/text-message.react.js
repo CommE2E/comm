@@ -68,23 +68,24 @@ class TextMessage extends React.PureComponent<Props> {
       creator: { isViewer },
     } = this.props.item.messageInfo;
 
+    const messageStyle = {};
+    let darkColor = false;
+    if (isViewer) {
+      const threadColor = this.props.threadInfo.color;
+      darkColor = colorIsDark(threadColor);
+      messageStyle.backgroundColor = `#${threadColor}`;
+    } else {
+      messageStyle.backgroundColor = 'rgba(221,221,221,0.73)';
+    }
+
     const onlyEmoji = onlyEmojiRegex.test(text);
     const messageClassName = classNames({
       [css.textMessage]: true,
       [css.normalTextMessage]: !onlyEmoji,
       [css.emojiOnlyTextMessage]: onlyEmoji,
+      [css.darkTextMessage]: darkColor,
+      [css.lightTextMessage]: !darkColor,
     });
-
-    const messageStyle = {};
-    if (isViewer) {
-      const threadColor = this.props.threadInfo.color;
-      const darkColor = colorIsDark(threadColor);
-      messageStyle.backgroundColor = `#${threadColor}`;
-      messageStyle.color = darkColor ? 'white' : 'black';
-    } else {
-      messageStyle.backgroundColor = 'rgba(221,221,221,0.73)';
-      messageStyle.color = 'black';
-    }
 
     return (
       <ComposedMessage

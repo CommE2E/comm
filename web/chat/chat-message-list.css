@@ -187,6 +187,18 @@ span.authorName {
   font-size: 14px;
   padding: 4px 24px;
 }
+div.darkTextMessage {
+  color: 'white';
+}
+div.lightTextMessage {
+  color: 'black';
+}
+div.darkTextMessage a {
+  color: #129AFF;
+}
+div.lightTextMessage a {
+  color: #2A5DB0;
+}
 
 div.content {
   display: flex;
