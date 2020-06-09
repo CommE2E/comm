@@ -39,7 +39,6 @@ import shallowequal from 'shallowequal';
 import _omit from 'lodash/fp/omit';
 import _isEqual from 'lodash/fp/isEqual';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import Hyperlink from 'react-native-hyperlink';
 import tinycolor from 'tinycolor2';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
@@ -75,6 +74,7 @@ import {
   type NavContextType,
 } from '../navigation/navigation-context';
 import { waitForInteractions } from '../utils/interactions';
+import Markdown from '../markdown/markdown.react';
 
 function hueDistance(firstColor: string, secondColor: string): number {
   const firstHue = tinycolor(firstColor).toHsv().h;
@@ -375,7 +375,6 @@ class InternalEntry extends React.Component<Props, State> {
     if (textInput) {
       textStyle.opacity = 0;
     }
-    const linkStyle = darkColor ? styles.lightLinkText : styles.darkLinkText;
     // We use an empty View to set the height of the entry, and then position
     // the Text and TextInput absolutely. This allows to measure height changes
     // to the Text while controlling the actual height of the entry.
@@ -392,19 +391,13 @@ class InternalEntry extends React.Component<Props, State> {
             iosActiveOpacity={opacity}
           >
             <View>
-              <View style={heightStyle} />
-              <Hyperlink
-                linkDefault={true}
-                linkStyle={linkStyle}
-                style={this.props.styles.textContainer}
+              <View style={[heightStyle, this.props.styles.textContainer]} />
+              <Text
+                style={[this.props.styles.text, textStyle]}
+                onLayout={this.onTextLayout}
               >
-                <Text
-                  style={[this.props.styles.text, textStyle]}
-                  onLayout={this.onTextLayout}
-                >
-                  {rawText}
-                </Text>
-              </Hyperlink>
+                <Markdown darkStyle={darkColor}>{rawText}</Markdown>
+              </Text>
               {textInput}
             </View>
             {actionLinks}
@@ -675,10 +668,6 @@ const styles = {
   container: {
     backgroundColor: 'listBackground',
   },
-  darkLinkText: {
-    color: colors.light.link,
-    textDecorationLine: 'underline',
-  },
   entry: {
     borderRadius: 8,
     margin: 5,
@@ -694,10 +683,6 @@ const styles = {
     fontSize: 12,
     fontWeight: 'bold',
     paddingLeft: 5,
-  },
-  lightLinkText: {
-    color: colors.dark.link,
-    textDecorationLine: 'underline',
   },
   pencilIcon: {
     lineHeight: 13,

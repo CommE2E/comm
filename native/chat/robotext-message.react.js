@@ -15,7 +15,6 @@ import type { ChatNavigationProp } from './chat.react';
 import * as React from 'react';
 import { Text, TouchableWithoutFeedback, View } from 'react-native';
 import PropTypes from 'prop-types';
-import Hyperlink from 'react-native-hyperlink';
 import invariant from 'invariant';
 
 import {
@@ -29,6 +28,7 @@ import { connect } from 'lib/utils/redux-utils';
 import { MessageListRouteName } from '../navigation/route-names';
 import { Timestamp } from './timestamp.react';
 import { styleSelector } from '../themes/colors';
+import Markdown from '../markdown/markdown.react';
 
 export type ChatRobotextMessageInfoItemWithHeight = {|
   itemType: 'message',
@@ -105,7 +105,15 @@ class RobotextMessage extends React.PureComponent<Props> {
         continue;
       }
       if (splitPart.charAt(0) !== '<') {
-        textParts.push(decodeURI(splitPart));
+        textParts.push(
+          <Markdown
+            key={robotextParts.indexOf(splitPart)}
+            darkStyle={true}
+            onlyBasicRules={true}
+          >
+            {decodeURI(splitPart)}
+          </Markdown>,
+        );
         continue;
       }
 
@@ -131,13 +139,9 @@ class RobotextMessage extends React.PureComponent<Props> {
       { height: item.contentHeight },
     ];
     return (
-      <Hyperlink
-        linkDefault={true}
-        linkStyle={this.props.styles.link}
-        style={this.props.styles.robotextContainer}
-      >
+      <View style={this.props.styles.robotextContainer}>
         <Text style={textStyle}>{textParts}</Text>
-      </Hyperlink>
+      </View>
     );
   }
 
