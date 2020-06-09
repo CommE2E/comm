@@ -6,12 +6,10 @@ import { type GlobalTheme, globalThemePropType } from '../types/themes';
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
-import Hyperlink from 'react-native-hyperlink';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
-import { onlyEmojiRegex } from 'lib/shared/emojis';
 import { connect } from 'lib/utils/redux-utils';
 
 import {
@@ -19,12 +17,8 @@ import {
   filterCorners,
   getRoundedContainerStyle,
 } from './rounded-corners';
-import {
-  type Colors,
-  colorsPropType,
-  colorsSelector,
-  colors,
-} from '../themes/colors';
+import { type Colors, colorsPropType, colorsSelector } from '../themes/colors';
+import Markdown from '../components/markdown.react';
 
 type Props = {|
   item: ChatTextMessageInfoItemWithHeight,
@@ -61,14 +55,6 @@ class InnerTextMessage extends React.PureComponent<Props> {
     }
     textCustomStyle.height = item.contentHeight;
 
-    const linkStyle = darkColor ? styles.lightLinkText : styles.darkLinkText;
-    textCustomStyle.color = darkColor
-      ? colors.dark.listForegroundLabel
-      : colors.light.listForegroundLabel;
-    const textStyle = onlyEmojiRegex.test(text)
-      ? styles.emojiOnlyText
-      : styles.text;
-
     const cornerStyle = getRoundedContainerStyle(
       filterCorners(allCorners, item),
     );
@@ -78,20 +64,9 @@ class InnerTextMessage extends React.PureComponent<Props> {
         onPress={this.props.onPress}
         onLongPress={this.props.onPress}
         activeOpacity={0.6}
+        style={[styles.message, messageStyle, cornerStyle]}
       >
-        <Hyperlink
-          linkDefault={true}
-          style={[styles.message, messageStyle, cornerStyle]}
-          linkStyle={linkStyle}
-        >
-          <Text
-            onPress={this.props.onPress}
-            onLongPress={this.props.onPress}
-            style={[textStyle, textCustomStyle]}
-          >
-            {text}
-          </Text>
-        </Hyperlink>
+        <Markdown darkStyle={darkColor}>{text}</Markdown>
       </TouchableOpacity>
     );
 
@@ -111,26 +86,10 @@ class InnerTextMessage extends React.PureComponent<Props> {
 }
 
 const styles = StyleSheet.create({
-  darkLinkText: {
-    color: colors.light.link,
-    textDecorationLine: 'underline',
-  },
-  emojiOnlyText: {
-    fontFamily: 'Arial',
-    fontSize: 36,
-  },
-  lightLinkText: {
-    color: colors.dark.link,
-    textDecorationLine: 'underline',
-  },
   message: {
     overflow: 'hidden',
     paddingHorizontal: 12,
     paddingVertical: 6,
-  },
-  text: {
-    fontFamily: 'Arial',
-    fontSize: 18,
   },
 });
 

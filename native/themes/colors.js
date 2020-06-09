@@ -218,6 +218,13 @@ function useOverlayStyles<IS: Styles>(obj: IS): StyleSheetOf<IS> {
   ]);
 }
 
+function getStylesForTheme<IS: Styles>(
+  obj: IS,
+  theme: GlobalTheme,
+): StyleSheetOf<IS> {
+  return stylesFromColors(obj, colors[theme]);
+}
+
 export {
   colorsPropType,
   colors,
@@ -225,4 +232,5 @@ export {
   styleSelector,
   useStyles,
   useOverlayStyles,
+  getStylesForTheme,
 };
