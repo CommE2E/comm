@@ -14,11 +14,12 @@ import type { ChatNavigationProp } from '../chat.react';
 import type { TabNavigationProp } from '../../navigation/app-navigator.react';
 import type { NavigationRoute } from '../../navigation/route-names';
 
-import React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import { View, FlatList } from 'react-native';
 import invariant from 'invariant';
 import hoistNonReactStatics from 'hoist-non-react-statics';
+import { createSelector } from 'reselect';
 
 import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
 import {
@@ -201,6 +202,7 @@ type State = {|
   colorEditValue: string,
   verticalBounds: ?VerticalBounds,
 |};
+type PropsAndState = {| ...Props, ...State |};
 class ThreadSettings extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
@@ -242,7 +244,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     };
   }
 
-  static getThreadInfo(props: Props): ThreadInfo {
+  static getThreadInfo(props: {
+    route: NavigationRoute<'ThreadSettings'>,
+  }): ThreadInfo {
     return props.route.params.threadInfo;
   }
 
@@ -315,275 +319,305 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     }
   }
 
-  render() {
-    const threadInfo = ThreadSettings.getThreadInfo(this.props);
-
-    const canStartEditing = !this.props.somethingIsSaving;
-    const canEditThread = threadHasPermission(
-      threadInfo,
-      threadPermissions.EDIT_THREAD,
-    );
-    const canChangeSettings = canEditThread && canStartEditing;
-
-    let listData: ChatSettingsItem[] = [];
-    listData.push({
-      itemType: 'header',
-      key: 'basicsHeader',
-      title: 'Basics',
-      categoryType: 'full',
-    });
-    listData.push({
-      itemType: 'name',
-      key: 'name',
-      threadInfo,
-      nameEditValue: this.state.nameEditValue,
-      nameTextHeight: this.state.nameTextHeight,
-      canChangeSettings,
-    });
-    listData.push({
-      itemType: 'color',
-      key: 'color',
-      threadInfo,
-      colorEditValue: this.state.colorEditValue,
-      canChangeSettings,
-      navigate: this.props.navigation.navigate,
-      threadSettingsRouteKey: this.props.route.key,
-    });
-    listData.push({
-      itemType: 'footer',
-      key: 'basicsFooter',
-      categoryType: 'full',
-    });
-
-    if (
-      (this.state.descriptionEditValue !== null &&
-        this.state.descriptionEditValue !== undefined) ||
-      threadInfo.description ||
-      canEditThread
-    ) {
-      listData.push({
-        itemType: 'description',
-        key: 'description',
+  listDataSelector = createSelector(
+    (propsAndState: PropsAndState) =>
+      ThreadSettings.getThreadInfo(propsAndState),
+    (propsAndState: PropsAndState) => propsAndState.nameEditValue,
+    (propsAndState: PropsAndState) => propsAndState.nameTextHeight,
+    (propsAndState: PropsAndState) => propsAndState.colorEditValue,
+    (propsAndState: PropsAndState) => propsAndState.descriptionEditValue,
+    (propsAndState: PropsAndState) => propsAndState.descriptionTextHeight,
+    (propsAndState: PropsAndState) => !propsAndState.somethingIsSaving,
+    (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
+    (propsAndState: PropsAndState) => propsAndState.route.key,
+    (propsAndState: PropsAndState) => propsAndState.childThreadInfos,
+    (propsAndState: PropsAndState) => propsAndState.showMaxChildThreads,
+    (propsAndState: PropsAndState) => propsAndState.threadMembers,
+    (propsAndState: PropsAndState) => propsAndState.showMaxMembers,
+    (propsAndState: PropsAndState) => propsAndState.verticalBounds,
+    (
+      threadInfo: ThreadInfo,
+      nameEditValue: ?string,
+      nameTextHeight: ?number,
+      colorEditValue: string,
+      descriptionEditValue: ?string,
+      descriptionTextHeight: ?number,
+      canStartEditing: boolean,
+      navigate: ThreadSettingsNavigate,
+      routeKey: string,
+      childThreads: ?(ThreadInfo[]),
+      showMaxChildThreads: number,
+      threadMembers: RelativeMemberInfo[],
+      showMaxMembers: number,
+      verticalBounds: ?VerticalBounds,
+    ) => {
+      const canEditThread = threadHasPermission(
         threadInfo,
-        descriptionEditValue: this.state.descriptionEditValue,
-        descriptionTextHeight: this.state.descriptionTextHeight,
+        threadPermissions.EDIT_THREAD,
+      );
+      const canChangeSettings = canEditThread && canStartEditing;
+
+      const listData: ChatSettingsItem[] = [];
+      listData.push({
+        itemType: 'header',
+        key: 'basicsHeader',
+        title: 'Basics',
+        categoryType: 'full',
+      });
+      listData.push({
+        itemType: 'name',
+        key: 'name',
+        threadInfo,
+        nameEditValue,
+        nameTextHeight,
         canChangeSettings,
       });
-    }
+      listData.push({
+        itemType: 'color',
+        key: 'color',
+        threadInfo,
+        colorEditValue,
+        canChangeSettings,
+        navigate,
+        threadSettingsRouteKey: routeKey,
+      });
+      listData.push({
+        itemType: 'footer',
+        key: 'basicsFooter',
+        categoryType: 'full',
+      });
 
-    listData.push({
-      itemType: 'header',
-      key: 'subscriptionHeader',
-      title: 'Subscription',
-      categoryType: 'full',
-    });
-    listData.push({
-      itemType: 'pushNotifs',
-      key: 'pushNotifs',
-      threadInfo,
-    });
-    listData.push({
-      itemType: 'footer',
-      key: 'subscriptionFooter',
-      categoryType: 'full',
-    });
+      if (
+        (descriptionEditValue !== null && descriptionEditValue !== undefined) ||
+        threadInfo.description ||
+        canEditThread
+      ) {
+        listData.push({
+          itemType: 'description',
+          key: 'description',
+          threadInfo,
+          descriptionEditValue,
+          descriptionTextHeight,
+          canChangeSettings,
+        });
+      }
 
-    listData.push({
-      itemType: 'header',
-      key: 'privacyHeader',
-      title: 'Privacy',
-      categoryType: 'full',
-    });
-    listData.push({
-      itemType: 'parent',
-      key: 'parent',
-      threadInfo,
-      navigate: this.props.navigation.navigate,
-    });
-    listData.push({
-      itemType: 'visibility',
-      key: 'visibility',
-      threadInfo,
-    });
-    listData.push({
-      itemType: 'footer',
-      key: 'privacyFooter',
-      categoryType: 'full',
-    });
+      listData.push({
+        itemType: 'header',
+        key: 'subscriptionHeader',
+        title: 'Subscription',
+        categoryType: 'full',
+      });
+      listData.push({
+        itemType: 'pushNotifs',
+        key: 'pushNotifs',
+        threadInfo,
+      });
+      listData.push({
+        itemType: 'footer',
+        key: 'subscriptionFooter',
+        categoryType: 'full',
+      });
 
-    let childThreadItems = null;
-    if (this.props.childThreadInfos) {
-      let childThreadInfosSlice;
-      let seeMoreChildThreads = null;
-      if (this.props.childThreadInfos.length > this.state.showMaxChildThreads) {
-        childThreadInfosSlice = this.props.childThreadInfos.slice(
-          0,
-          this.state.showMaxChildThreads,
-        );
-        seeMoreChildThreads = {
+      listData.push({
+        itemType: 'header',
+        key: 'privacyHeader',
+        title: 'Privacy',
+        categoryType: 'full',
+      });
+      listData.push({
+        itemType: 'parent',
+        key: 'parent',
+        threadInfo,
+        navigate,
+      });
+      listData.push({
+        itemType: 'visibility',
+        key: 'visibility',
+        threadInfo,
+      });
+      listData.push({
+        itemType: 'footer',
+        key: 'privacyFooter',
+        categoryType: 'full',
+      });
+
+      let childThreadItems = null;
+      if (childThreads) {
+        let childThreadInfosSlice;
+        let seeMoreChildThreads = null;
+        if (childThreads.length > showMaxChildThreads) {
+          childThreadInfosSlice = childThreads.slice(0, showMaxChildThreads);
+          seeMoreChildThreads = {
+            itemType: 'seeMore',
+            key: 'seeMoreChildThreads',
+            onPress: this.onPressSeeMoreChildThreads,
+          };
+        } else {
+          childThreadInfosSlice = childThreads;
+        }
+        const childThreadSlice = childThreadInfosSlice.map(childThreadInfo => ({
+          itemType: 'childThread',
+          key: `childThread${childThreadInfo.id}`,
+          threadInfo: childThreadInfo,
+          navigate,
+          lastListItem: false,
+        }));
+        if (seeMoreChildThreads) {
+          childThreadItems = [...childThreadSlice, seeMoreChildThreads];
+        } else {
+          childThreadSlice[childThreadSlice.length - 1].lastListItem = true;
+          childThreadItems = childThreadSlice;
+        }
+      }
+
+      let addChildThread = null;
+      const canCreateSubthreads = threadHasPermission(
+        threadInfo,
+        threadPermissions.CREATE_SUBTHREADS,
+      );
+      if (canCreateSubthreads) {
+        addChildThread = {
+          itemType: 'addChildThread',
+          key: 'addChildThread',
+        };
+      }
+
+      if (addChildThread || childThreadItems) {
+        listData.push({
+          itemType: 'header',
+          key: 'childThreadHeader',
+          title: 'Child threads',
+          categoryType: 'unpadded',
+        });
+      }
+      if (addChildThread) {
+        listData.push(addChildThread);
+      }
+      if (childThreadItems) {
+        listData.push(...childThreadItems);
+      }
+      if (addChildThread || childThreadItems) {
+        listData.push({
+          itemType: 'footer',
+          key: 'childThreadFooter',
+          categoryType: 'unpadded',
+        });
+      }
+
+      let threadMemberItems;
+      let seeMoreMembers = null;
+      if (threadMembers.length > showMaxMembers) {
+        threadMemberItems = threadMembers.slice(0, showMaxMembers);
+        seeMoreMembers = {
           itemType: 'seeMore',
-          key: 'seeMoreChildThreads',
-          onPress: this.onPressSeeMoreChildThreads,
+          key: 'seeMoreMembers',
+          onPress: this.onPressSeeMoreMembers,
         };
       } else {
-        childThreadInfosSlice = this.props.childThreadInfos;
+        threadMemberItems = threadMembers;
       }
-      const childThreads = childThreadInfosSlice.map(childThreadInfo => ({
-        itemType: 'childThread',
-        key: `childThread${childThreadInfo.id}`,
-        threadInfo: childThreadInfo,
-        navigate: this.props.navigation.navigate,
+      const members = threadMemberItems.map(memberInfo => ({
+        itemType: 'member',
+        key: `member${memberInfo.id}`,
+        memberInfo,
+        threadInfo,
+        canEdit: canStartEditing,
+        navigate,
         lastListItem: false,
+        verticalBounds,
+        threadSettingsRouteKey: routeKey,
       }));
-      if (seeMoreChildThreads) {
-        childThreadItems = [...childThreads, seeMoreChildThreads];
-      } else {
-        childThreads[childThreads.length - 1].lastListItem = true;
-        childThreadItems = childThreads;
+
+      let membershipItems;
+      if (seeMoreMembers) {
+        membershipItems = [...members, seeMoreMembers];
+      } else if (members.length > 0) {
+        members[members.length - 1].lastListItem = true;
+        membershipItems = members;
       }
-    }
 
-    let addChildThread = null;
-    const canCreateSubthreads = threadHasPermission(
-      threadInfo,
-      threadPermissions.CREATE_SUBTHREADS,
-    );
-    if (canCreateSubthreads) {
-      addChildThread = {
-        itemType: 'addChildThread',
-        key: 'addChildThread',
-      };
-    }
-
-    if (addChildThread || childThreadItems) {
-      listData.push({
-        itemType: 'header',
-        key: 'childThreadHeader',
-        title: 'Child threads',
-        categoryType: 'unpadded',
-      });
-    }
-    if (addChildThread) {
-      listData.push(addChildThread);
-    }
-    if (childThreadItems) {
-      listData = [...listData, ...childThreadItems];
-    }
-    if (addChildThread || childThreadItems) {
-      listData.push({
-        itemType: 'footer',
-        key: 'childThreadFooter',
-        categoryType: 'unpadded',
-      });
-    }
-
-    let threadMembers;
-    let seeMoreMembers = null;
-    if (this.props.threadMembers.length > this.state.showMaxMembers) {
-      threadMembers = this.props.threadMembers.slice(
-        0,
-        this.state.showMaxMembers,
+      let addMembers = null;
+      const canAddMembers = threadHasPermission(
+        threadInfo,
+        threadPermissions.ADD_MEMBERS,
       );
-      seeMoreMembers = {
-        itemType: 'seeMore',
-        key: 'seeMoreMembers',
-        onPress: this.onPressSeeMoreMembers,
-      };
-    } else {
-      threadMembers = this.props.threadMembers;
-    }
-    const { verticalBounds } = this.state;
-    const members = threadMembers.map(memberInfo => ({
-      itemType: 'member',
-      key: `member${memberInfo.id}`,
-      memberInfo,
-      threadInfo,
-      canEdit: canStartEditing,
-      navigate: this.props.navigation.navigate,
-      lastListItem: false,
-      verticalBounds,
-      threadSettingsRouteKey: this.props.route.key,
-    }));
-    let memberItems;
-    if (seeMoreMembers) {
-      memberItems = [...members, seeMoreMembers];
-    } else if (members.length > 0) {
-      members[members.length - 1].lastListItem = true;
-      memberItems = members;
-    }
+      if (canAddMembers) {
+        addMembers = {
+          itemType: 'addMember',
+          key: 'addMember',
+        };
+      }
 
-    let addMembers = null;
-    const canAddMembers = threadHasPermission(
-      threadInfo,
-      threadPermissions.ADD_MEMBERS,
-    );
-    if (canAddMembers) {
-      addMembers = {
-        itemType: 'addMember',
-        key: 'addMember',
-      };
-    }
+      if (addMembers || membershipItems) {
+        listData.push({
+          itemType: 'header',
+          key: 'memberHeader',
+          title: 'Members',
+          categoryType: 'unpadded',
+        });
+      }
+      if (addMembers) {
+        listData.push(addMembers);
+      }
+      if (membershipItems) {
+        listData.push(...membershipItems);
+      }
+      if (addMembers || membershipItems) {
+        listData.push({
+          itemType: 'footer',
+          key: 'memberFooter',
+          categoryType: 'unpadded',
+        });
+      }
 
-    if (addMembers || memberItems) {
-      listData.push({
-        itemType: 'header',
-        key: 'memberHeader',
-        title: 'Members',
-        categoryType: 'unpadded',
-      });
-    }
-    if (addMembers) {
-      listData.push(addMembers);
-    }
-    if (memberItems) {
-      listData = [...listData, ...memberItems];
-    }
-    if (addMembers || memberItems) {
-      listData.push({
-        itemType: 'footer',
-        key: 'memberFooter',
-        categoryType: 'unpadded',
-      });
-    }
-
-    const canLeaveThread = viewerIsMember(threadInfo);
-    const canDeleteThread = threadHasPermission(
-      threadInfo,
-      threadPermissions.DELETE_THREAD,
-    );
-    if (canLeaveThread || canDeleteThread) {
-      listData.push({
-        itemType: 'header',
-        key: 'actionsHeader',
-        title: 'Actions',
-        categoryType: 'unpadded',
-      });
-    }
-    if (canLeaveThread) {
-      listData.push({
-        itemType: 'leaveThread',
-        key: 'leaveThread',
+      const canLeaveThread = viewerIsMember(threadInfo);
+      const canDeleteThread = threadHasPermission(
         threadInfo,
-        canDeleteThread: !!canDeleteThread,
-      });
-    }
-    if (canDeleteThread) {
-      listData.push({
-        itemType: 'deleteThread',
-        key: 'deleteThread',
-        threadInfo,
-        navigate: this.props.navigation.navigate,
-        canLeaveThread: !!canLeaveThread,
-      });
-    }
-    if (canLeaveThread || canDeleteThread) {
-      listData.push({
-        itemType: 'footer',
-        key: 'actionsFooter',
-        categoryType: 'unpadded',
-      });
-    }
+        threadPermissions.DELETE_THREAD,
+      );
+      if (canLeaveThread || canDeleteThread) {
+        listData.push({
+          itemType: 'header',
+          key: 'actionsHeader',
+          title: 'Actions',
+          categoryType: 'unpadded',
+        });
+      }
+      if (canLeaveThread) {
+        listData.push({
+          itemType: 'leaveThread',
+          key: 'leaveThread',
+          threadInfo,
+          canDeleteThread: !!canDeleteThread,
+        });
+      }
+      if (canDeleteThread) {
+        listData.push({
+          itemType: 'deleteThread',
+          key: 'deleteThread',
+          threadInfo,
+          navigate,
+          canLeaveThread: !!canLeaveThread,
+        });
+      }
+      if (canLeaveThread || canDeleteThread) {
+        listData.push({
+          itemType: 'footer',
+          key: 'actionsFooter',
+          categoryType: 'unpadded',
+        });
+      }
 
+      return listData;
+    },
+  );
+
+  get listData() {
+    return this.listDataSelector({ ...this.props, ...this.state });
+  }
+
+  render() {
     return (
       <View
         style={this.props.styles.container}
@@ -591,7 +625,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         onLayout={this.onFlatListContainerLayout}
       >
         <FlatList
-          data={listData}
+          data={this.listData}
           contentContainerStyle={this.props.styles.flatList}
           renderItem={this.renderItem}
           scrollEnabled={!ThreadSettings.scrollDisabled(this.props)}
