@@ -126,9 +126,17 @@ class RobotextMessage extends React.PureComponent<Props> {
         textParts.push(rawText);
       }
     }
+    const textStyle = [
+      this.props.styles.robotext,
+      { height: item.contentHeight },
+    ];
     return (
-      <Hyperlink linkDefault={true} linkStyle={this.props.styles.link}>
-        <Text style={this.props.styles.robotext}>{textParts}</Text>
+      <Hyperlink
+        linkDefault={true}
+        linkStyle={this.props.styles.link}
+        style={this.props.styles.robotextContainer}
+      >
+        <Text style={textStyle}>{textParts}</Text>
       </Hyperlink>
     );
   }
@@ -199,13 +207,15 @@ const styles = {
   link: {
     color: 'link',
   },
+  robotextContainer: {
+    marginBottom: 5,
+    marginHorizontal: 24,
+    paddingVertical: 6,
+  },
   robotext: {
     color: 'listForegroundSecondaryLabel',
     fontFamily: 'Arial',
     fontSize: 15,
-    marginBottom: 5,
-    marginHorizontal: 24,
-    paddingVertical: 6,
     textAlign: 'center',
   },
 };
