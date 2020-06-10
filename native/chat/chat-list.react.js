@@ -6,30 +6,42 @@ import type {
 } from 'react-native/Libraries/Lists/FlatList';
 import type { ChatNavigationProp } from './chat.react';
 import type { TabNavigationProp } from '../navigation/app-navigator.react';
+import type { ChatMessageItemWithHeight } from './message-list-container.react';
 
 import * as React from 'react';
 import { FlatList, LayoutAnimation } from 'react-native';
 import invariant from 'invariant';
+import _sum from 'lodash/fp/sum';
 
-type Props<T> = {
-  ...React.Config<FlatListProps<T>, FlatListDefaultProps>,
-  navigation: ChatNavigationProp<'MessageList'>,
-  loadingFromScroll: boolean,
-};
-type State = {|
-  pendingScrollAppend: boolean,
-|};
-class ChatList<T> extends React.PureComponent<Props<T>, State> {
-  scrollPos = 0;
-  scrollHeight: ?number;
-  flatList: ?React.ElementRef<typeof FlatList>;
+import { messageKey } from 'lib/shared/message-utils';
 
-  constructor(props: Props<T>) {
-    super(props);
-    this.state = {
-      pendingScrollAppend: props.loadingFromScroll,
-    };
+import { messageItemHeight } from './message.react';
+
+function chatMessageItemKey(item: ChatMessageItemWithHeight) {
+  if (item.itemType === 'loader') {
+    return 'loader';
   }
+  return messageKey(item.messageInfo);
+}
+
+function chatMessageItemHeight(item: ChatMessageItemWithHeight) {
+  if (item.itemType === 'loader') {
+    return 56;
+  }
+  return messageItemHeight(item);
+}
+
+type Props = {
+  ...React.Config<
+    FlatListProps<ChatMessageItemWithHeight>,
+    FlatListDefaultProps,
+  >,
+  navigation: ChatNavigationProp<'MessageList'>,
+  data: $ReadOnlyArray<ChatMessageItemWithHeight>,
+};
+class ChatList extends React.PureComponent<Props> {
+  scrollPos = 0;
+  flatList: ?React.ElementRef<typeof FlatList>;
 
   componentDidMount() {
     const tabNavigation: ?TabNavigationProp<
@@ -59,27 +71,79 @@ class ChatList<T> extends React.PureComponent<Props<T>, State> {
     }
   };
 
-  componentDidUpdate(prevProps: Props<T>) {
-    if (this.props.loadingFromScroll && !prevProps.loadingFromScroll) {
-      this.setState({ pendingScrollAppend: true });
+  get scrolledToBottom() {
+    const { scrollPos } = this;
+    return scrollPos === null || scrollPos === undefined || scrollPos <= 0;
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    const { flatList } = this;
+    if (!flatList || this.props.data.length === prevProps.data.length) {
+      return;
     }
 
-    const itemsAdded =
-      this.props.data &&
-      (!prevProps.data || this.props.data.length > prevProps.data.length);
-    if (itemsAdded && !this.state.pendingScrollAppend && this.scrollPos <= 0) {
-      LayoutAnimation.easeInEaseOut();
+    if (this.props.data.length < prevProps.data.length) {
+      // This should only happen due to MessageStorePruner,
+      // which will only prune a thread when it is off-screen
+      flatList.scrollToOffset({ offset: 0, animated: false });
+      return;
     }
+
+    const scrollPos = this.scrollPos ? this.scrollPos : 0;
+
+    let curDataIndex = 0,
+      prevDataIndex = 0,
+      heightSoFar = 0;
+    let adjustScrollPos = 0;
+    while (prevDataIndex < prevProps.data.length && heightSoFar <= scrollPos) {
+      const prevItem = prevProps.data[prevDataIndex];
+      invariant(prevItem, 'prevDatum should exist');
+      const prevItemKey = chatMessageItemKey(prevItem);
+      const prevItemHeight = chatMessageItemHeight(prevItem);
+
+      let curItem = this.props.data[curDataIndex];
+      while (curItem && chatMessageItemKey(curItem) !== prevItemKey) {
+        adjustScrollPos += chatMessageItemHeight(curItem);
+        curDataIndex++;
+        curItem = this.props.data[curDataIndex];
+      }
+      if (!curItem) {
+        // Should never happen...
+        console.log(`items added to ChatList, but ${prevItemKey} now missing`);
+        return;
+      }
+
+      const curItemHeight = chatMessageItemHeight(curItem);
+      adjustScrollPos += curItemHeight - prevItemHeight;
+
+      heightSoFar += prevItemHeight;
+      prevDataIndex++;
+      curDataIndex++;
+    }
+
+    if (scrollPos <= 0 && adjustScrollPos > 0) {
+      // This indicates we're scrolled to the bottom and something just got
+      // prepended to the front (bottom) of the chat list. We'll animate it in
+      // and we won't adjust scroll position
+      LayoutAnimation.easeInEaseOut();
+      return;
+    }
+
+    flatList.scrollToOffset({
+      offset: scrollPos + adjustScrollPos,
+      animated: false,
+    });
   }
 
   render() {
-    const { loadingFromScroll, ...rest } = this.props;
+    const { navigation, ...rest } = this.props;
     return (
       <FlatList
         {...rest}
-        ref={this.flatListRef}
+        keyExtractor={chatMessageItemKey}
+        getItemLayout={ChatList.getItemLayout}
         onScroll={this.onScroll}
-        onContentSizeChange={this.onContentSizeChange}
+        ref={this.flatListRef}
       />
     );
   }
@@ -88,6 +152,25 @@ class ChatList<T> extends React.PureComponent<Props<T>, State> {
     this.flatList = flatList;
   };
 
+  static getItemLayout(
+    data: ?$ReadOnlyArray<ChatMessageItemWithHeight>,
+    index: number,
+  ) {
+    if (!data) {
+      return { length: 0, offset: 0, index };
+    }
+    const offset = ChatList.heightOfItems(data.filter((_, i) => i < index));
+    const item = data[index];
+    const length = item ? chatMessageItemHeight(item) : 0;
+    return { length, offset, index };
+  }
+
+  static heightOfItems(
+    data: $ReadOnlyArray<ChatMessageItemWithHeight>,
+  ): number {
+    return _sum(data.map(chatMessageItemHeight));
+  }
+
   onScroll = (event: {
     nativeEvent: {
       contentOffset: { y: number },
@@ -95,47 +178,9 @@ class ChatList<T> extends React.PureComponent<Props<T>, State> {
     },
   }) => {
     this.scrollPos = event.nativeEvent.contentOffset.y;
-    this.adjustScrollPos(event.nativeEvent.contentSize.height);
     // $FlowFixMe FlatList doesn't type ScrollView props
     this.props.onScroll && this.props.onScroll(event);
   };
-
-  onContentSizeChange = (contentWidth: number, contentHeight: number) => {
-    this.adjustScrollPos(contentHeight);
-    // $FlowFixMe FlatList doesn't type ScrollView props
-    this.props.onContentSizeChange &&
-      this.props.onContentSizeChange(contentWidth, contentHeight);
-  };
-
-  adjustScrollPos(scrollHeight: number) {
-    const oldScrollHeight = this.scrollHeight;
-    this.scrollHeight = scrollHeight;
-    if (
-      oldScrollHeight === null ||
-      oldScrollHeight === undefined ||
-      scrollHeight === oldScrollHeight ||
-      this.scrollPos <= 0
-    ) {
-      return;
-    }
-
-    if (this.state.pendingScrollAppend) {
-      this.setState({ pendingScrollAppend: false });
-      return;
-    }
-
-    const { flatList } = this;
-    invariant(flatList, 'should be set');
-
-    const change = scrollHeight - oldScrollHeight;
-    const newPos = this.scrollPos + change;
-    flatList.scrollToOffset({ offset: newPos, animated: false });
-  }
-
-  get scrolledToBottom() {
-    const { scrollPos } = this;
-    return scrollPos === null || scrollPos === undefined || scrollPos <= 0;
-  }
 }
 
 export default ChatList;

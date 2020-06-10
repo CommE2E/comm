@@ -18,7 +18,6 @@ import type { NavigationRoute } from '../navigation/route-names';
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { View, TouchableWithoutFeedback } from 'react-native';
-import _sum from 'lodash/fp/sum';
 import _find from 'lodash/fp/find';
 import { createSelector } from 'reselect';
 import invariant from 'invariant';
@@ -34,13 +33,8 @@ import {
 import threadWatcher from 'lib/shared/thread-watcher';
 import { threadInChatList } from 'lib/shared/thread-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
-import ChatList from './chat-list.react';
 
-import {
-  Message,
-  messageItemHeight,
-  type ChatMessageInfoItemWithHeight,
-} from './message.react';
+import { Message, type ChatMessageInfoItemWithHeight } from './message.react';
 import ListLoadingIndicator from '../components/list-loading-indicator.react';
 import { styleSelector } from '../themes/colors';
 import {
@@ -53,6 +47,7 @@ import {
   keyboardStatePropType,
   withKeyboardState,
 } from '../keyboard/keyboard-state';
+import ChatList from './chat-list.react';
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -249,37 +244,6 @@ class MessageList extends React.PureComponent<Props, State> {
     }
   };
 
-  static keyExtractor(item: ChatMessageItemWithHeight) {
-    if (item.itemType === 'loader') {
-      return 'loader';
-    }
-    return messageKey(item.messageInfo);
-  }
-
-  getItemLayout = (
-    data: ?$ReadOnlyArray<ChatMessageItemWithHeight>,
-    index: number,
-  ) => {
-    if (!data) {
-      return { length: 0, offset: 0, index };
-    }
-    const offset = this.heightOfItems(data.filter((_, i) => i < index));
-    const item = data[index];
-    const length = item ? this.itemHeight(item) : 0;
-    return { length, offset, index };
-  };
-
-  itemHeight = (item: ChatMessageItemWithHeight): number => {
-    if (item.itemType === 'loader') {
-      return 56;
-    }
-    return messageItemHeight(item);
-  };
-
-  heightOfItems(data: $ReadOnlyArray<ChatMessageItemWithHeight>): number {
-    return _sum(data.map(this.itemHeight));
-  }
-
   // Actually header, it's just that our FlatList is inverted
   ListFooterComponent = () => <View style={this.props.styles.header} />;
 
@@ -293,13 +257,10 @@ class MessageList extends React.PureComponent<Props, State> {
         onLayout={this.onFlatListContainerLayout}
       >
         <ChatList
-          loadingFromScroll={this.state.loadingFromScroll}
           navigation={this.props.navigation}
           inverted={true}
           data={messageListData}
           renderItem={this.renderItem}
-          keyExtractor={MessageList.keyExtractor}
-          getItemLayout={this.getItemLayout}
           onViewableItemsChanged={this.onViewableItemsChanged}
           ListFooterComponent={footer}
           scrollsToTop={false}
