@@ -148,10 +148,7 @@ type ReplaceStyleObject = <Obj: { [key: string]: number | string }>(
   Obj,
 ) => $ObjMap<Obj, ReplaceField>;
 
-export type StyleSheetOf<S: Styles> = $Call<
-  typeof StyleSheet.create,
-  $ObjMap<S, ReplaceStyleObject>,
->;
+export type StyleSheetOf<S: Styles> = $ObjMap<S, ReplaceStyleObject>;
 
 function stylesFromColors<IS: Styles>(
   obj: IS,
@@ -183,6 +180,17 @@ function styleSelector<IS: Styles>(
   );
 }
 
+function useStyles<IS: Styles>(obj: IS): StyleSheetOf<IS> {
+  const theme = useSelector(
+    (state: AppState) => state.globalThemeInfo.activeTheme,
+  );
+  const explicitTheme = theme ? theme : 'light';
+  return React.useMemo(() => stylesFromColors(obj, colors[explicitTheme]), [
+    obj,
+    explicitTheme,
+  ]);
+}
+
 function useOverlayStyles<IS: Styles>(obj: IS): StyleSheetOf<IS> {
   const navContext = React.useContext(NavContext);
   const navigationState = navContext && navContext.state;
@@ -208,5 +216,6 @@ export {
   colors,
   colorsSelector,
   styleSelector,
+  useStyles,
   useOverlayStyles,
 };
