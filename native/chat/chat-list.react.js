@@ -7,15 +7,25 @@ import type {
 import type { ChatNavigationProp } from './chat.react';
 import type { TabNavigationProp } from '../navigation/app-navigator.react';
 import type { ChatMessageItemWithHeight } from './message-list-container.react';
+import type { ViewStyle } from '../types/styles';
+import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
-import { FlatList, LayoutAnimation } from 'react-native';
+import {
+  FlatList,
+  LayoutAnimation,
+  Animated,
+  Easing,
+  StyleSheet,
+} from 'react-native';
 import invariant from 'invariant';
 import _sum from 'lodash/fp/sum';
 
 import { messageKey } from 'lib/shared/message-utils';
+import { connect } from 'lib/utils/redux-utils';
 
 import { messageItemHeight } from './message.react';
+import NewMessagesPill from './new-messages-pill.react';
 
 function chatMessageItemKey(item: ChatMessageItemWithHeight) {
   if (item.itemType === 'loader') {
@@ -31,6 +41,11 @@ function chatMessageItemHeight(item: ChatMessageItemWithHeight) {
   return messageItemHeight(item);
 }
 
+const animationSpec = {
+  duration: 150,
+  useNativeDriver: true,
+};
+
 type Props = {
   ...React.Config<
     FlatListProps<ChatMessageItemWithHeight>,
@@ -38,10 +53,34 @@ type Props = {
   >,
   navigation: ChatNavigationProp<'MessageList'>,
   data: $ReadOnlyArray<ChatMessageItemWithHeight>,
+  // Redux state
+  viewerID: ?string,
 };
-class ChatList extends React.PureComponent<Props> {
-  scrollPos = 0;
+type State = {|
+  newMessageCount: number,
+|};
+class ChatList extends React.PureComponent<Props, State> {
+  state = {
+    newMessageCount: 0,
+  };
+
   flatList: ?React.ElementRef<typeof FlatList>;
+  scrollPos = 0;
+
+  newMessagesPillProgress = new Animated.Value(0);
+  newMessagesPillStyle: ViewStyle;
+
+  constructor(props: Props) {
+    super(props);
+    const sendButtonTranslateY = this.newMessagesPillProgress.interpolate({
+      inputRange: [0, 1],
+      outputRange: [10, 0],
+    });
+    this.newMessagesPillStyle = {
+      opacity: this.newMessagesPillProgress,
+      transform: [{ translateY: sendButtonTranslateY }],
+    };
+  }
 
   componentDidMount() {
     const tabNavigation: ?TabNavigationProp<
@@ -95,7 +134,8 @@ class ChatList extends React.PureComponent<Props> {
       prevDataIndex = 0,
       heightSoFar = 0;
     let adjustScrollPos = 0,
-      newLocalMessage = false;
+      newLocalMessage = false,
+      newRemoteMessageCount = 0;
     while (prevDataIndex < prevProps.data.length && heightSoFar <= scrollPos) {
       const prevItem = prevProps.data[prevDataIndex];
       invariant(prevItem, 'prevDatum should exist');
@@ -111,6 +151,11 @@ class ChatList extends React.PureComponent<Props> {
 
         if (curItemKey.startsWith('local')) {
           newLocalMessage = true;
+        } else if (
+          curItem.itemType === 'message' &&
+          curItem.messageInfo.creator.id !== this.props.viewerID
+        ) {
+          newRemoteMessageCount++;
         }
         adjustScrollPos += chatMessageItemHeight(curItem);
 
@@ -151,19 +196,35 @@ class ChatList extends React.PureComponent<Props> {
         offset: scrollPos + adjustScrollPos,
         animated: false,
       });
+      if (newRemoteMessageCount > 0) {
+        this.setState(prevState => ({
+          newMessageCount: prevState.newMessageCount + newRemoteMessageCount,
+        }));
+        this.toggleNewMessagesPill(true);
+      }
     }
   }
 
   render() {
-    const { navigation, ...rest } = this.props;
+    const { navigation, viewerID, ...rest } = this.props;
+    const { newMessageCount } = this.state;
     return (
-      <FlatList
-        {...rest}
-        keyExtractor={chatMessageItemKey}
-        getItemLayout={ChatList.getItemLayout}
-        onScroll={this.onScroll}
-        ref={this.flatListRef}
-      />
+      <>
+        <FlatList
+          {...rest}
+          keyExtractor={chatMessageItemKey}
+          getItemLayout={ChatList.getItemLayout}
+          onScroll={this.onScroll}
+          ref={this.flatListRef}
+        />
+        <NewMessagesPill
+          onPress={this.onPressNewMessagesPill}
+          newMessageCount={newMessageCount}
+          pointerEvents={newMessageCount > 0 ? 'auto' : 'none'}
+          containerStyle={styles.newMessagesPillContainer}
+          style={this.newMessagesPillStyle}
+        />
+      </>
     );
   }
 
@@ -190,6 +251,18 @@ class ChatList extends React.PureComponent<Props> {
     return _sum(data.map(chatMessageItemHeight));
   }
 
+  toggleNewMessagesPill(show: boolean) {
+    Animated.timing(this.newMessagesPillProgress, {
+      ...animationSpec,
+      easing: show ? Easing.ease : Easing.out(Easing.ease),
+      toValue: show ? 1 : 0,
+    }).start(({ finished }) => {
+      if (finished && !show) {
+        this.setState({ newMessageCount: 0 });
+      }
+    });
+  }
+
   onScroll = (event: {
     nativeEvent: {
       contentOffset: { y: number },
@@ -197,9 +270,31 @@ class ChatList extends React.PureComponent<Props> {
     },
   }) => {
     this.scrollPos = event.nativeEvent.contentOffset.y;
+    if (this.scrollPos <= 0) {
+      this.toggleNewMessagesPill(false);
+    }
     // $FlowFixMe FlatList doesn't type ScrollView props
     this.props.onScroll && this.props.onScroll(event);
   };
+
+  onPressNewMessagesPill = () => {
+    const { flatList } = this;
+    if (!flatList) {
+      return;
+    }
+    flatList.scrollToOffset({ offset: 0 });
+    this.toggleNewMessagesPill(false);
+  };
 }
 
-export default ChatList;
+const styles = StyleSheet.create({
+  newMessagesPillContainer: {
+    bottom: 30,
+    position: 'absolute',
+    right: 30,
+  },
+});
+
+export default connect((state: AppState) => ({
+  viewerID: state.currentUserInfo && state.currentUserInfo.id,
+}))(ChatList);
