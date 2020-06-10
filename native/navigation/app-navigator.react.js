@@ -137,7 +137,9 @@ function AppNavigator(props: AppNavigatorProps) {
     splashScreenHasHidden = true;
     (async () => {
       await waitForInteractions();
-      await SplashScreen.hideAsync();
+      try {
+        await SplashScreen.hideAsync();
+      } catch {}
     })();
   }, []);
 
