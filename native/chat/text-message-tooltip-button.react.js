@@ -61,17 +61,6 @@ class TextMessageTooltipButton extends React.PureComponent<Props> {
     };
   }
 
-  get messageStyle() {
-    const { item } = this.props.route.params;
-    return {
-      position: 'absolute',
-      height: item.contentHeight,
-      width: this.props.screenDimensions.width,
-      left: 0,
-      top: 0,
-    };
-  }
-
   render() {
     const { item } = this.props.route.params;
     return (

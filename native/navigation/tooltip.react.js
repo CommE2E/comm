@@ -240,8 +240,8 @@ function createTooltip<
       const { initialCoordinates, verticalBounds } = params;
       const { x, y, width, height } = initialCoordinates;
       return {
-        width,
-        height,
+        width: Math.ceil(width),
+        height: Math.ceil(height),
         marginTop: y - verticalBounds.y,
         marginLeft: x,
       };
