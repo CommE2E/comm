@@ -94,7 +94,8 @@ class ChatList extends React.PureComponent<Props> {
     let curDataIndex = 0,
       prevDataIndex = 0,
       heightSoFar = 0;
-    let adjustScrollPos = 0;
+    let adjustScrollPos = 0,
+      newLocalMessage = false;
     while (prevDataIndex < prevProps.data.length && heightSoFar <= scrollPos) {
       const prevItem = prevProps.data[prevDataIndex];
       invariant(prevItem, 'prevDatum should exist');
@@ -102,8 +103,17 @@ class ChatList extends React.PureComponent<Props> {
       const prevItemHeight = chatMessageItemHeight(prevItem);
 
       let curItem = this.props.data[curDataIndex];
-      while (curItem && chatMessageItemKey(curItem) !== prevItemKey) {
+      while (curItem) {
+        const curItemKey = chatMessageItemKey(curItem);
+        if (curItemKey === prevItemKey) {
+          break;
+        }
+
+        if (curItemKey.startsWith('local')) {
+          newLocalMessage = true;
+        }
         adjustScrollPos += chatMessageItemHeight(curItem);
+
         curDataIndex++;
         curItem = this.props.data[curDataIndex];
       }
@@ -121,18 +131,27 @@ class ChatList extends React.PureComponent<Props> {
       curDataIndex++;
     }
 
+    if (adjustScrollPos === 0) {
+      return;
+    }
+
     if (scrollPos <= 0 && adjustScrollPos > 0) {
       // This indicates we're scrolled to the bottom and something just got
       // prepended to the front (bottom) of the chat list. We'll animate it in
       // and we won't adjust scroll position
       LayoutAnimation.easeInEaseOut();
-      return;
+    } else if (newLocalMessage) {
+      // This indicates the current client just sent a new message, but we are
+      // scrolled up in the ChatList. We'll scroll back down to show the new
+      // message
+      flatList.scrollToOffset({ offset: 0 });
+      LayoutAnimation.easeInEaseOut();
+    } else {
+      flatList.scrollToOffset({
+        offset: scrollPos + adjustScrollPos,
+        animated: false,
+      });
     }
-
-    flatList.scrollToOffset({
-      offset: scrollPos + adjustScrollPos,
-      animated: false,
-    });
   }
 
   render() {
