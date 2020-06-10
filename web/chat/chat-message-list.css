@@ -188,10 +188,10 @@ span.authorName {
   padding: 4px 24px;
 }
 div.darkTextMessage {
-  color: 'white';
+  color: white;
 }
 div.lightTextMessage {
-  color: 'black';
+  color: black;
 }
 div.darkTextMessage a {
   color: #129AFF;
