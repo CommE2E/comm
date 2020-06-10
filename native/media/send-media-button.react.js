@@ -9,9 +9,9 @@ import {
   Text,
   StyleSheet,
   Platform,
+  Animated,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import Animated from 'react-native-reanimated';
 
 type Props = {|
   onPress: () => mixed,

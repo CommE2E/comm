@@ -15,7 +15,8 @@ import {
   Text,
   FlatList,
   ActivityIndicator,
-  Platform,
+  Animated,
+  Easing,
 } from 'react-native';
 import { KeyboardRegistry } from 'react-native-keyboard-input';
 import invariant from 'invariant';
@@ -25,7 +26,6 @@ import * as MediaLibrary from 'expo-media-library';
 
 import { connect } from 'lib/utils/redux-utils';
 import { extensionFromFilename } from 'lib/media/file-utils';
-import sleep from 'lib/utils/sleep';
 
 import { store } from '../redux/redux-setup';
 import {
@@ -33,7 +33,6 @@ import {
   contentBottomOffset,
 } from '../selectors/dimension-selectors';
 import MediaGalleryMedia from './media-gallery-media.react';
-import Animated, { Easing } from 'react-native-reanimated';
 import {
   type Colors,
   colorsPropType,
@@ -46,6 +45,7 @@ import { getCompatibleMediaURI } from './identifier-utils';
 const animationSpec = {
   duration: 400,
   easing: Easing.inOut(Easing.ease),
+  useNativeDriver: true,
 };
 
 type Props = {|
@@ -76,14 +76,13 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
   fetchingPhotos = false;
   flatList: ?FlatList<MediaLibrarySelection>;
   viewableIndices: number[] = [];
-  // eslint-disable-next-line import/no-named-as-default-member
   queueModeProgress = new Animated.Value(0);
   sendButtonStyle: ViewStyle;
   mediaSelected = false;
 
   constructor(props: Props) {
     super(props);
-    const sendButtonScale = Animated.interpolate(this.queueModeProgress, {
+    const sendButtonScale = this.queueModeProgress.interpolate({
       inputRange: [0, 1],
       outputRange: [1.3, 1],
     });
@@ -122,13 +121,11 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     const { queuedMediaURIs } = this.state;
     const prevQueuedMediaURIs = prevState.queuedMediaURIs;
     if (queuedMediaURIs && !prevQueuedMediaURIs) {
-      // eslint-disable-next-line import/no-named-as-default-member
       Animated.timing(this.queueModeProgress, {
         ...animationSpec,
         toValue: 1,
       }).start();
     } else if (!queuedMediaURIs && prevQueuedMediaURIs) {
-      // eslint-disable-next-line import/no-named-as-default-member
       Animated.timing(this.queueModeProgress, {
         ...animationSpec,
         toValue: 0,
@@ -302,14 +299,6 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
   }
 
   async getPermissions(): Promise<boolean> {
-    // For some reason, react-native-reanimated@1.8.0 on Android renders the
-    // very first frame of SendMediaButton incorrectly. opacity is set to new
-    // Value(0), but on the first frame it appears as 1. On Android requesting
-    // permissions freezes your current activity, so we want to make sure that
-    // we're rendering correctly before the freeze occurs.
-    if (Platform.OS === 'android') {
-      await sleep(5);
-    }
     const { granted } = await MediaLibrary.requestPermissionsAsync();
     if (!granted) {
       this.guardedSetState({ error: "don't have permission :(" });
