@@ -1,3 +1,6 @@
+// flow-typed signature: cda2e1070bd5c208e1fcf2ea5754e687
+// flow-typed version: ecee683170/@react-navigation/bottom-tabs_v5.x.x/flow_>=v0.104.x
+
 declare module '@react-navigation/bottom-tabs' {
 
   //---------------------------------------------------------------------------

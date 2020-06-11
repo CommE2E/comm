@@ -1,3 +1,6 @@
+// flow-typed signature: adaa100b411117a447158bc40021cd46
+// flow-typed version: ecee683170/@react-navigation/stack_v5.x.x/flow_>=v0.104.x
+
 declare module '@react-navigation/stack' {
 
   //---------------------------------------------------------------------------

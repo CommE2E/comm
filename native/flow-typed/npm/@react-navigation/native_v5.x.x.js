@@ -1,3 +1,6 @@
+// flow-typed signature: 29924eb8e26fde756f5fb3e95110620f
+// flow-typed version: ecee683170/@react-navigation/native_v5.x.x/flow_>=v0.104.x
+
 declare module '@react-navigation/native' {
 
   //---------------------------------------------------------------------------

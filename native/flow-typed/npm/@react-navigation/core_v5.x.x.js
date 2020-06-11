@@ -1,3 +1,6 @@
+// flow-typed signature: c6b613396e54f513d277ef7bfe8c82da
+// flow-typed version: ecee683170/@react-navigation/core_v5.x.x/flow_>=v0.104.x
+
 declare module '@react-navigation/core' {
 
   //---------------------------------------------------------------------------
