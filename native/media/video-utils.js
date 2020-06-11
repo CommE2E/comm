@@ -102,25 +102,23 @@ async function processVideo(
 
   let returnCode,
     newPath,
+    stats,
     success = false,
     exceptionMessage;
   const start = Date.now();
   try {
-    const { rc } = await ffmpeg.process(ffmpegCommand, duration);
+    const { rc, lastStats } = await ffmpeg.process(ffmpegCommand, duration);
     success = rc === 0;
     if (success) {
       returnCode = rc;
       newPath = outputPath;
+      stats = lastStats;
     }
   } catch (e) {
     exceptionMessage = getMessageForException(e);
   }
   if (!success) {
-    (async () => {
-      try {
-        await filesystem.unlink(outputPath);
-      } catch {}
-    })();
+    unlink(outputPath);
   }
 
   steps.push({
@@ -130,6 +128,7 @@ async function processVideo(
     time: Date.now() - start,
     returnCode,
     newPath,
+    stats,
   });
 
   if (!success) {
@@ -142,7 +141,7 @@ async function processVideo(
   const transcodeProbeStep = await checkVideoInfo(outputPath);
   steps.push(transcodeProbeStep);
   if (!transcodeProbeStep.validFormat) {
-    filesystem.unlink(outputPath);
+    unlink(outputPath);
     return {
       steps,
       result: { success: false, reason: 'video_transcode_failed' },
@@ -199,6 +198,12 @@ async function checkVideoInfo(
     format,
     dimensions,
   };
+}
+
+async function unlink(path: string) {
+  try {
+    await filesystem.unlink(path);
+  } catch {}
 }
 
 export { processVideo };

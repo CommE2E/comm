@@ -1,5 +1,7 @@
 // @flow
 
+import type { FFmpegStatistics } from 'lib/types/media-types';
+
 import { RNFFmpeg, RNFFprobe, RNFFmpegConfig } from 'react-native-ffmpeg';
 import invariant from 'invariant';
 
@@ -17,25 +19,13 @@ type QueuedCommand = {|
   runCommand: () => Promise<void>,
 |};
 
-type StatisticsData = {|
-  // seconds of video being processed per second
-  +speed: number,
-  // total milliseconds of video processed so far
-  +time: number,
-  // total result file size in bytes so far
-  +size: number,
-  +videoQuality: number,
-  +videoFrameNumber: number,
-  +videoFps: number,
-  +bitrate: number,
-|};
-
 class FFmpeg {
   queue: QueuedCommand[] = [];
   currentCalls: CallCounter = { process: 0, probe: 0 };
 
   // The length of the video that's currently being transcoded in seconds
   activeCommandInputVideoDuration: ?number;
+  lastStats: ?FFmpegStatistics;
 
   constructor() {
     RNFFmpegConfig.enableStatisticsCallback(this.statisticsCallback);
@@ -96,10 +86,11 @@ class FFmpeg {
 
   process(ffmpegCommand: string, inputVideoDuration: number) {
     const duration = inputVideoDuration > 0 ? inputVideoDuration : 0.001;
-    const wrappedCommand = () => {
+    const wrappedCommand = async () => {
       RNFFmpegConfig.resetStatistics();
       this.activeCommandInputVideoDuration = duration;
-      return RNFFmpeg.execute(ffmpegCommand);
+      const ffmpegResult = await RNFFmpeg.execute(ffmpegCommand);
+      return { ...ffmpegResult, lastStats: this.lastStats };
     };
     return this.queueCommand('process', wrappedCommand);
   }
@@ -144,7 +135,8 @@ class FFmpeg {
     return numFrames > 1;
   }
 
-  statisticsCallback = (statisticsData: StatisticsData) => {
+  statisticsCallback = (statisticsData: FFmpegStatistics) => {
+    this.lastStats = statisticsData;
     const { time } = statisticsData;
     const videoDuration = this.activeCommandInputVideoDuration;
     invariant(videoDuration, 'should be set');
