@@ -11,6 +11,10 @@ import {
 } from 'lib/types/relationship-types';
 import { ServerError } from 'lib/utils/errors';
 
+import { fetchUserInfos } from '../fetchers/user-fetchers';
+import { fetchRelationship } from '../fetchers/relationship-fetchers';
+import { createRelationship } from '../creators/relationship-creator';
+import { deleteRelationship } from '../deleters/relationship-deleters';
 import { dbQuery, SQL } from '../database';
 
 async function updateRelationship(
@@ -19,27 +23,27 @@ async function updateRelationship(
 ) {
   const { userID, status } = request;
 
-  if (viewer.id === userID) {
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
+  if (viewer.userID === userID) {
     throw new ServerError('invalid_user');
   }
 
-  const userQuery = SQL`SELECT 1 FROM users WHERE id = ${userID} LIMIT 1`;
-  const [users] = await dbQuery(userQuery);
-
-  if (!users.length) {
+  const users = await fetchUserInfos([userID]);
+  if (!users[userID].username) {
     throw new ServerError('user_does_not_exist');
   }
 
-  // friend request
   if (status === relationshipStatuses.PENDING_FRIEND) {
-    const [relationships] = await fetchRelationshipQuery(viewer.id, userID);
+    const [relationships] = await fetchRelationship(viewer.userID, userID);
 
     if (!relationships.length) {
-      await createRelationshipQuery(viewer.id, userID, status);
+      await createRelationship(viewer.userID, userID, status);
     } else {
       const [actorRelationship] = getRelationshipsForActorUser(
         relationships,
-        viewer.id,
+        viewer.userID,
       );
       if (actorRelationship) {
         const message = actorFriendshipErrorMap[actorRelationship.status];
@@ -48,63 +52,64 @@ async function updateRelationship(
 
       const [receiverRelationship] = getRelationshipsForReceiverUser(
         relationships,
-        viewer.id,
+        viewer.userID,
       );
       if (receiverRelationship) {
         const message = receiverFriendshipErrorMap[receiverRelationship.status];
         throw new ServerError(message);
       }
     }
-    // block action
   } else if (status === relationshipStatuses.BLOCKED) {
-    const [relationships] = await fetchRelationshipQuery(viewer.id, userID);
+    const [relationships] = await fetchRelationship(viewer.userID, userID);
 
     if (!relationships.length) {
-      await createRelationshipQuery(viewer.id, userID, status);
+      await createRelationship(viewer.userID, userID, status);
     } else {
       const [actorRelationship] = getRelationshipsForActorUser(
         relationships,
-        viewer.id,
+        viewer.userID,
       );
       if (actorRelationship) {
-        if (isPendingFriendOrFriend(actorRelationship.status)) {
+        if (
+          actorRelationship.status === relationshipStatuses.PENDING_FRIEND ||
+          actorRelationship.status === relationshipStatuses.FRIEND
+        ) {
           const { user1, user2 } = actorRelationship;
-          // cancels already sent friend request or removes friendship then blocks the user
           await updateRelationshipQuery(user1, user2, status);
         }
 
         if (actorRelationship.status === relationshipStatuses.BLOCKED) {
-          throw new ServerError('user_already_blocked');
+          return;
         }
       }
 
       const [receiverRelationship] = getRelationshipsForReceiverUser(
         relationships,
-        viewer.id,
+        viewer.userID,
       );
       if (receiverRelationship) {
-        if (isPendingFriendOrFriend(receiverRelationship.status)) {
+        if (
+          receiverRelationship.status === relationshipStatuses.PENDING_FRIEND ||
+          receiverRelationship.status === relationshipStatuses.FRIEND
+        ) {
           const { user1, user2 } = receiverRelationship;
-          // cancels already received friend request or removes frienship then blocks user
-          await deleteRelationshipQuery(user1, user2);
-          await createRelationshipQuery(viewer.id, userID, status);
+          await deleteRelationship(user1, user2);
+          await createRelationship(viewer.userID, userID, status);
         }
 
         if (receiverRelationship.status === relationshipStatuses.BLOCKED) {
-          // users blocked each other
-          await createRelationshipQuery(viewer.id, userID, status);
+          await createRelationship(viewer.userID, userID, status);
         }
       }
     }
-    // friend request acceptance
   } else if (status === relationshipStatuses.FRIEND) {
-    const query = SQL`
-      SELECT user1, user2, status
-      FROM relationships
-      WHERE user1 = ${userID} AND user2 = ${viewer.id} AND status = ${relationshipStatuses.PENDING_FRIEND}
-    `;
-    const [relationships] = await dbQuery(query);
-    const [relationship] = relationships;
+    const [relationships] = await fetchRelationship(viewer.userID, userID);
+    const [relationship] = relationships.filter(
+      r =>
+        r.user1 === userID &&
+        r.user2 === viewer.userID &&
+        r.status === relationshipStatuses.PENDING_FRIEND,
+    );
 
     if (relationship) {
       const { user1, user2 } = relationship;
@@ -119,42 +124,6 @@ async function updateRelationship(
   }
 }
 
-async function fetchRelationshipQuery(
-  firstUserID: string,
-  secondUserID: string,
-) {
-  const query = SQL`
-    SELECT user1, user2, status
-    FROM relationships
-    WHERE (user1 = ${firstUserID} AND user2 = ${secondUserID}) OR (user1 = ${secondUserID} AND user2 = ${firstUserID})
-  `;
-  return await dbQuery(query);
-}
-
-async function createRelationshipQuery(
-  firstUserID: string,
-  secondUserID: string,
-  status: RelationshipStatus,
-) {
-  const row = [firstUserID, secondUserID, status];
-  const query = SQL`
-    INSERT INTO relationships(user1, user2, status)
-    VALUES ${[row]}
-  `;
-  return await dbQuery(query);
-}
-
-async function deleteRelationshipQuery(
-  firstUserID: string,
-  secondUserID: string,
-) {
-  const query = SQL`
-    DELETE FROM relationships
-    WHERE user1 = ${firstUserID} and user2 = ${secondUserID}
-`;
-  return await dbQuery(query);
-}
-
 async function updateRelationshipQuery(
   firstUserID: string,
   secondUserID: string,
@@ -163,9 +132,9 @@ async function updateRelationshipQuery(
   const query = SQL`
     UPDATE relationships
     SET status = ${status}
-    WHERE user1 = ${firstUserID} and user2 = ${secondUserID}
+    WHERE user1 = ${firstUserID} AND user2 = ${secondUserID}
   `;
-  return await dbQuery(query);
+  await dbQuery(query);
 }
 
 function getRelationshipsForActorUser(relationships, userID) {
@@ -178,13 +147,6 @@ function getRelationshipsForReceiverUser(relationships, userID) {
   return relationships.filter(({ user2 }) => {
     return user2.toString() === userID;
   });
-}
-
-function isPendingFriendOrFriend(status) {
-  return (
-    status === relationshipStatuses.PENDING_FRIEND ||
-    status === relationshipStatuses.FRIEND
-  );
 }
 
 const actorFriendshipErrorMap = {

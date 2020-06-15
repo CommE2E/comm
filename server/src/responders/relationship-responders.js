@@ -20,7 +20,7 @@ async function updateRelationshipResponder(
 ): Promise<void> {
   const request: RelationshipRequest = input;
   await validateInput(viewer, updateRelationshipInputValidator, request);
-  return await updateRelationship(viewer, request);
+  await updateRelationship(viewer, request);
 }
 
 export { updateRelationshipResponder };
