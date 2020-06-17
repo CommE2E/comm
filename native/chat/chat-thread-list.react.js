@@ -3,7 +3,7 @@
 import type { AppState } from '../redux/redux-setup';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { TabNavigationProp } from '../navigation/app-navigator.react';
-import type { ChatNavigationProp } from './chat.react';
+import type { ChatTopTabsNavigationProp } from './chat.react';
 
 import * as React from 'react';
 import { View, FlatList, Platform, TextInput } from 'react-native';
@@ -14,7 +14,6 @@ import { FloatingAction } from 'react-native-floating-action';
 import { createSelector } from 'reselect';
 import invariant from 'invariant';
 
-import { viewerIsMember } from 'lib/shared/thread-utils';
 import { threadSearchIndex } from 'lib/selectors/nav-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import { connect } from 'lib/utils/redux-utils';
@@ -22,7 +21,6 @@ import {
   type ChatThreadItem,
   chatThreadItemPropType,
   chatListData,
-  chatBackgroundListData,
 } from 'lib/selectors/chat-selectors';
 
 import ChatThreadListItem from './chat-thread-list-item.react';
@@ -45,7 +43,10 @@ const floatingActions = [
 type Item = ChatThreadItem | {| type: 'search', searchText: string |};
 
 type Props = {|
-  navigation: ChatNavigationProp<'ChatThreadList'>,
+  navigation: ChatTopTabsNavigationProp<
+    'HomeChatThreadList' | 'BackgroundChatThreadList',
+  >,
+  filterChats: (threadItem: ThreadInfo) => boolean,
   // Redux state
   chatListData: $ReadOnlyArray<ChatThreadItem>,
   searchChatListData: $ReadOnlyArray<ChatThreadItem>,
@@ -69,6 +70,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     viewerID: PropTypes.string,
     threadSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
+    filterChats: PropTypes.func.isRequired,
   };
   state = {
     searchText: '',
@@ -152,22 +154,20 @@ class ChatThreadList extends React.PureComponent<Props, State> {
 
   listDataSelector = createSelector(
     (propsAndState: PropsAndState) => propsAndState.chatListData,
-    (propsAndState: PropsAndState) => propsAndState.searchChatListData,
     (propsAndState: PropsAndState) => propsAndState.searchText,
     (propsAndState: PropsAndState) => propsAndState.searchResults,
     (
       reduxChatListData: $ReadOnlyArray<ChatThreadItem>,
-      allReduxChatListData: $ReadOnlyArray<ChatThreadItem>,
       searchText: string,
       searchResults: Set<string>,
     ): Item[] => {
       let chatItems;
       if (!searchText) {
         chatItems = reduxChatListData.filter(item =>
-          viewerIsMember(item.threadInfo),
+          this.props.filterChats(item.threadInfo),
         );
       } else {
-        chatItems = allReduxChatListData.filter(item =>
+        chatItems = reduxChatListData.filter(item =>
           searchResults.has(item.threadInfo.id),
         );
       }
@@ -259,17 +259,8 @@ const styles = {
 };
 const stylesSelector = styleSelector(styles);
 
-export const HomeChatThreadList = connect((state: AppState) => ({
+export default connect((state: AppState) => ({
   chatListData: chatListData(state),
-  searchChatListData: chatBackgroundListData(state).concat(chatListData(state)),
-  viewerID: state.currentUserInfo && state.currentUserInfo.id,
-  threadSearchIndex: threadSearchIndex(state),
-  styles: stylesSelector(state),
-}))(ChatThreadList);
-
-export const BackgroundChatThreadList = connect((state: AppState) => ({
-  chatListData: chatBackgroundListData(state),
-  searchChatListData: chatBackgroundListData(state).concat(chatListData(state)),
   viewerID: state.currentUserInfo && state.currentUserInfo.id,
   threadSearchIndex: threadSearchIndex(state),
   styles: stylesSelector(state),

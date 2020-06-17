@@ -14,10 +14,8 @@ import { StackView } from '@react-navigation/stack';
 import { Platform, StyleSheet } from 'react-native';
 import invariant from 'invariant';
 
-import {
-  HomeChatThreadList,
-  BackgroundChatThreadList,
-} from './chat-thread-list.react';
+import HomeChatThreadList from './chat-thread-home.react';
+import BackgroundChatThreadList from './chat-thread-background.react';
 import MessageListContainer from './message-list-container.react';
 import ComposeThread from './compose-thread.react';
 import ThreadSettings from './settings/thread-settings.react';
@@ -32,6 +30,7 @@ import {
   BackgroundChatThreadListRouteName,
   type ScreenParamList,
   type ChatParamList,
+  type ChatTopTabsParamList,
 } from '../navigation/route-names';
 import HeaderBackButton from '../navigation/header-back-button.react';
 import ChatHeader from './chat-header.react';
@@ -152,6 +151,10 @@ const styles = StyleSheet.create({
 
 export type ChatNavigationProp<
   RouteName: $Keys<ChatParamList> = $Keys<ChatParamList>,
+> = ChatRouterNavigationProp<ScreenParamList, RouteName>;
+
+export type ChatTopTabsNavigationProp<
+  RouteName: $Keys<ChatTopTabsParamList> = $Keys<ChatTopTabsParamList>,
 > = ChatRouterNavigationProp<ScreenParamList, RouteName>;
 
 const Chat = createChatNavigator<

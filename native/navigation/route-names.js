@@ -30,6 +30,7 @@ export const MoreRouteName = 'More';
 export const MoreScreenRouteName = 'MoreScreen';
 export const ChatRouteName = 'Chat';
 export const ChatThreadListRouteName = 'ChatThreadList';
+export const ChatTopTabsThreadListRouteName = 'ChatTopTabsThreadList';
 export const HomeChatThreadListRouteName = 'Home';
 export const BackgroundChatThreadListRouteName = 'Background';
 export const CalendarRouteName = 'Calendar';
@@ -95,6 +96,12 @@ export type ChatParamList = {|
   DeleteThread: DeleteThreadParams,
 |};
 
+export type ChatTopTabsParamList = {|
+  ChatTopTabsThreadList: void,
+  HomeChatThreadList: void,
+  BackgroundChatThreadList: void,
+|};
+
 export type MoreParamList = {|
   MoreScreen: void,
   EditEmail: void,
@@ -112,6 +119,7 @@ export type ScreenParamList = {|
   ...OverlayParamList,
   ...TabParamList,
   ...ChatParamList,
+  ...ChatTopTabsParamList,
   ...MoreParamList,
 |};
 
