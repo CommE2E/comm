@@ -46,7 +46,7 @@ type Props = {|
   navigation: ChatTopTabsNavigationProp<
     'HomeChatThreadList' | 'BackgroundChatThreadList',
   >,
-  filterChats: (threadItem: ThreadInfo) => boolean,
+  filterThreads: (threadItem: ThreadInfo) => boolean,
   // Redux state
   chatListData: $ReadOnlyArray<ChatThreadItem>,
   searchChatListData: $ReadOnlyArray<ChatThreadItem>,
@@ -70,7 +70,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     viewerID: PropTypes.string,
     threadSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    filterChats: PropTypes.func.isRequired,
+    filterThreads: PropTypes.func.isRequired,
   };
   state = {
     searchText: '',
@@ -80,17 +80,21 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   flatList: ?FlatList<Item>;
 
   componentDidMount() {
-    const tabNavigation: ?TabNavigationProp<
+    let tabNavigation: ?TabNavigationProp<
       'Chat',
     > = this.props.navigation.dangerouslyGetParent();
+    invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
+    tabNavigation = tabNavigation.dangerouslyGetParent();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.addListener('tabPress', this.onTabPress);
   }
 
   componentWillUnmount() {
-    const tabNavigation: ?TabNavigationProp<
+    let tabNavigation: ?TabNavigationProp<
       'Chat',
     > = this.props.navigation.dangerouslyGetParent();
+    invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
+    tabNavigation = tabNavigation.dangerouslyGetParent();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.removeListener('tabPress', this.onTabPress);
   }
@@ -164,7 +168,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       let chatItems;
       if (!searchText) {
         chatItems = reduxChatListData.filter(item =>
-          this.props.filterChats(item.threadInfo),
+          this.props.filterThreads(item.threadInfo),
         );
       } else {
         chatItems = reduxChatListData.filter(item =>

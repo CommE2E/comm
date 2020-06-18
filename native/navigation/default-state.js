@@ -12,7 +12,8 @@ import {
   MoreRouteName,
   MoreScreenRouteName,
   ChatRouteName,
-  ChatThreadListRouteName,
+  HomeChatThreadListRouteName,
+  BackgroundChatThreadListRouteName,
   CalendarRouteName,
 } from './route-names';
 
@@ -38,9 +39,12 @@ const defaultNavigationState: StaleNavigationState = {
                 {
                   name: ChatRouteName,
                   state: {
-                    type: 'stack',
+                    type: 'tab',
                     index: 0,
-                    routes: [{ name: ChatThreadListRouteName }],
+                    routes: [
+                      { name: HomeChatThreadListRouteName },
+                      { name: BackgroundChatThreadListRouteName },
+                    ],
                   },
                 },
                 {

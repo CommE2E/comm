@@ -30,7 +30,6 @@ export const MoreRouteName = 'More';
 export const MoreScreenRouteName = 'MoreScreen';
 export const ChatRouteName = 'Chat';
 export const ChatThreadListRouteName = 'ChatThreadList';
-export const ChatTopTabsThreadListRouteName = 'ChatTopTabsThreadList';
 export const HomeChatThreadListRouteName = 'Home';
 export const BackgroundChatThreadListRouteName = 'Background';
 export const CalendarRouteName = 'Calendar';
@@ -97,7 +96,6 @@ export type ChatParamList = {|
 |};
 
 export type ChatTopTabsParamList = {|
-  ChatTopTabsThreadList: void,
   HomeChatThreadList: void,
   BackgroundChatThreadList: void,
 |};
