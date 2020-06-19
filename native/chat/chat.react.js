@@ -2,6 +2,10 @@
 
 import * as React from 'react';
 import {
+  createMaterialTopTabNavigator,
+  type MaterialTopTabNavigationProp,
+} from '@react-navigation/material-top-tabs';
+import {
   createNavigatorFactory,
   useNavigationBuilder,
   type StackNavigationState,
@@ -14,7 +18,8 @@ import { StackView } from '@react-navigation/stack';
 import { Platform, StyleSheet } from 'react-native';
 import invariant from 'invariant';
 
-import ChatThreadList from './chat-thread-list.react';
+import HomeChatThreadList from './chat-thread-home.react';
+import BackgroundChatThreadList from './chat-thread-background.react';
 import MessageListContainer from './message-list-container.react';
 import ComposeThread from './compose-thread.react';
 import ThreadSettings from './settings/thread-settings.react';
@@ -25,8 +30,11 @@ import {
   ThreadSettingsRouteName,
   MessageListRouteName,
   ChatThreadListRouteName,
+  HomeChatThreadListRouteName,
+  BackgroundChatThreadListRouteName,
   type ScreenParamList,
   type ChatParamList,
+  type ChatTopTabsParamList,
 } from '../navigation/route-names';
 import HeaderBackButton from '../navigation/header-back-button.react';
 import ChatHeader from './chat-header.react';
@@ -38,6 +46,35 @@ import ComposeThreadButton from './compose-thread-button.react';
 import MessageListHeaderTitle from './message-list-header-title.react';
 import ThreadSettingsButton from './thread-settings-button.react';
 import { InputStateContext } from '../input/input-state';
+
+export type ChatTopTabsNavigationProp<
+  RouteName: $Keys<ChatTopTabsParamList> = $Keys<ChatTopTabsParamList>,
+> = MaterialTopTabNavigationProp<ScreenParamList, RouteName>;
+
+const homeChatThreadListOptions = {
+  title: 'Home',
+};
+const backgroundChatThreadListOptions = {
+  title: 'Background',
+};
+
+const ChatThreadsTopTab = createMaterialTopTabNavigator();
+const ChatThreadsComponent = () => {
+  return (
+    <ChatThreadsTopTab.Navigator>
+      <ChatThreadsTopTab.Screen
+        name={HomeChatThreadListRouteName}
+        component={HomeChatThreadList}
+        options={homeChatThreadListOptions}
+      />
+      <ChatThreadsTopTab.Screen
+        name={BackgroundChatThreadListRouteName}
+        component={BackgroundChatThreadList}
+        options={backgroundChatThreadListOptions}
+      />
+    </ChatThreadsTopTab.Navigator>
+  );
+};
 
 type ChatNavigatorProps = StackNavigatorProps<ChatRouterNavigationProp<>>;
 function ChatNavigator({
@@ -158,7 +195,7 @@ const ChatComponent = () => (
     <Chat.Navigator screenOptions={screenOptions}>
       <Chat.Screen
         name={ChatThreadListRouteName}
-        component={ChatThreadList}
+        component={ChatThreadsComponent}
         options={chatThreadListOptions}
       />
       <Chat.Screen

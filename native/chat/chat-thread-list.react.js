@@ -3,7 +3,10 @@
 import type { AppState } from '../redux/redux-setup';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { TabNavigationProp } from '../navigation/app-navigator.react';
-import type { ChatNavigationProp } from './chat.react';
+import type {
+  ChatTopTabsNavigationProp,
+  ChatNavigationProp,
+} from './chat.react';
 
 import * as React from 'react';
 import { View, FlatList, Platform, TextInput } from 'react-native';
@@ -14,7 +17,6 @@ import { FloatingAction } from 'react-native-floating-action';
 import { createSelector } from 'reselect';
 import invariant from 'invariant';
 
-import { viewerIsMember } from 'lib/shared/thread-utils';
 import { threadSearchIndex } from 'lib/selectors/nav-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import { connect } from 'lib/utils/redux-utils';
@@ -44,7 +46,10 @@ const floatingActions = [
 type Item = ChatThreadItem | {| type: 'search', searchText: string |};
 
 type Props = {|
-  navigation: ChatNavigationProp<'ChatThreadList'>,
+  navigation: ChatTopTabsNavigationProp<
+    'HomeChatThreadList' | 'BackgroundChatThreadList',
+  >,
+  filterThreads: (threadItem: ThreadInfo) => boolean,
   // Redux state
   chatListData: $ReadOnlyArray<ChatThreadItem>,
   viewerID: ?string,
@@ -63,6 +68,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       dangerouslyGetParent: PropTypes.func.isRequired,
       isFocused: PropTypes.func.isRequired,
     }).isRequired,
+    filterThreads: PropTypes.func.isRequired,
     chatListData: PropTypes.arrayOf(chatThreadItemPropType).isRequired,
     viewerID: PropTypes.string,
     threadSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
@@ -76,17 +82,25 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   flatList: ?FlatList<Item>;
 
   componentDidMount() {
+    const chatNavigation: ?ChatNavigationProp<
+      'ChatThreadList',
+    > = this.props.navigation.dangerouslyGetParent();
+    invariant(chatNavigation, 'ChatNavigator should be within TabNavigator');
     const tabNavigation: ?TabNavigationProp<
       'Chat',
-    > = this.props.navigation.dangerouslyGetParent();
+    > = chatNavigation.dangerouslyGetParent();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.addListener('tabPress', this.onTabPress);
   }
 
   componentWillUnmount() {
+    const chatNavigation: ?ChatNavigationProp<
+      'ChatThreadList',
+    > = this.props.navigation.dangerouslyGetParent();
+    invariant(chatNavigation, 'ChatNavigator should be within TabNavigator');
     const tabNavigation: ?TabNavigationProp<
       'Chat',
-    > = this.props.navigation.dangerouslyGetParent();
+    > = chatNavigation.dangerouslyGetParent();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.removeListener('tabPress', this.onTabPress);
   }
@@ -160,7 +174,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       let chatItems;
       if (!searchText) {
         chatItems = reduxChatListData.filter(item =>
-          viewerIsMember(item.threadInfo),
+          this.props.filterThreads(item.threadInfo),
         );
       } else {
         chatItems = reduxChatListData.filter(item =>
