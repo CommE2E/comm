@@ -3,7 +3,10 @@
 import type { AppState } from '../redux/redux-setup';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { TabNavigationProp } from '../navigation/app-navigator.react';
-import type { ChatTopTabsNavigationProp } from './chat.react';
+import type {
+  ChatTopTabsNavigationProp,
+  ChatNavigationProp,
+} from './chat.react';
 
 import * as React from 'react';
 import { View, FlatList, Platform, TextInput } from 'react-native';
@@ -49,7 +52,6 @@ type Props = {|
   filterThreads: (threadItem: ThreadInfo) => boolean,
   // Redux state
   chatListData: $ReadOnlyArray<ChatThreadItem>,
-  searchChatListData: $ReadOnlyArray<ChatThreadItem>,
   viewerID: ?string,
   threadSearchIndex: SearchIndex,
   styles: typeof styles,
@@ -66,11 +68,11 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       dangerouslyGetParent: PropTypes.func.isRequired,
       isFocused: PropTypes.func.isRequired,
     }).isRequired,
+    filterThreads: PropTypes.func.isRequired,
     chatListData: PropTypes.arrayOf(chatThreadItemPropType).isRequired,
     viewerID: PropTypes.string,
     threadSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    filterThreads: PropTypes.func.isRequired,
   };
   state = {
     searchText: '',
@@ -80,21 +82,25 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   flatList: ?FlatList<Item>;
 
   componentDidMount() {
-    let tabNavigation: ?TabNavigationProp<
-      'Chat',
+    const chatNavigation: ?ChatNavigationProp<
+      'ChatThreadList',
     > = this.props.navigation.dangerouslyGetParent();
-    invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
-    tabNavigation = tabNavigation.dangerouslyGetParent();
+    invariant(chatNavigation, 'ChatNavigator should be within TabNavigator');
+    const tabNavigation: ?TabNavigationProp<
+      'Chat',
+    > = chatNavigation.dangerouslyGetParent();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.addListener('tabPress', this.onTabPress);
   }
 
   componentWillUnmount() {
-    let tabNavigation: ?TabNavigationProp<
-      'Chat',
+    const chatNavigation: ?ChatNavigationProp<
+      'ChatThreadList',
     > = this.props.navigation.dangerouslyGetParent();
-    invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
-    tabNavigation = tabNavigation.dangerouslyGetParent();
+    invariant(chatNavigation, 'ChatNavigator should be within TabNavigator');
+    const tabNavigation: ?TabNavigationProp<
+      'Chat',
+    > = chatNavigation.dangerouslyGetParent();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.removeListener('tabPress', this.onTabPress);
   }

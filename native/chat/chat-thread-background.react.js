@@ -1,9 +1,12 @@
 // @flow
 
-import * as React from 'react';
-import ChatThreadList from './chat-thread-list.react';
 import type { ChatTopTabsNavigationProp } from './chat.react';
+
+import * as React from 'react';
+
 import { threadInBackgroundChatList } from 'lib/shared/thread-utils';
+
+import ChatThreadList from './chat-thread-list.react';
 
 type BackgroundChatThreadListProps = {
   navigation: ChatTopTabsNavigationProp<'BackgroundChatThreadList'>,
