@@ -58,7 +58,6 @@ import ThreadSettingsDescription from './thread-settings-description.react';
 import ThreadSettingsParent from './thread-settings-parent.react';
 import ThreadSettingsVisibility from './thread-settings-visibility.react';
 import ThreadSettingsPushNotifs from './thread-settings-push-notifs.react';
-import ThreadSettingsHomeNotifs from './thread-settings-home-notifs.react';
 import ThreadSettingsLeaveThread from './thread-settings-leave-thread.react';
 import ThreadSettingsDeleteThread from './thread-settings-delete-thread.react';
 import {
@@ -133,11 +132,6 @@ type ChatSettingsItem =
     |}
   | {|
       itemType: 'pushNotifs',
-      key: string,
-      threadInfo: ThreadInfo,
-    |}
-  | {|
-      itemType: 'homeNotifs',
       key: string,
       threadInfo: ThreadInfo,
     |}
@@ -417,11 +411,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       listData.push({
         itemType: 'pushNotifs',
         key: 'pushNotifs',
-        threadInfo,
-      });
-      listData.push({
-        itemType: 'homeNotifs',
-        key: 'homeNotifs',
         threadInfo,
       });
       listData.push({
@@ -722,8 +711,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       return <ThreadSettingsVisibility threadInfo={item.threadInfo} />;
     } else if (item.itemType === 'pushNotifs') {
       return <ThreadSettingsPushNotifs threadInfo={item.threadInfo} />;
-    } else if (item.itemType === 'homeNotifs') {
-      return <ThreadSettingsHomeNotifs threadInfo={item.threadInfo} />;
     } else if (item.itemType === 'seeMore') {
       return <ThreadSettingsSeeMore onPress={item.onPress} />;
     } else if (item.itemType === 'childThread') {
