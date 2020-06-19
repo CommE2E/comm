@@ -51,11 +51,10 @@ export type ChatTopTabsNavigationProp<
   RouteName: $Keys<ChatTopTabsParamList> = $Keys<ChatTopTabsParamList>,
 > = MaterialTopTabNavigationProp<ScreenParamList, RouteName>;
 
-const HomeChatThreadListOptions = {
+const homeChatThreadListOptions = {
   title: 'Home',
 };
-
-const BackgroundChatThreadListOptions = {
+const backgroundChatThreadListOptions = {
   title: 'Background',
 };
 
@@ -66,12 +65,12 @@ const ChatThreadsComponent = () => {
       <ChatThreadsTopTab.Screen
         name={HomeChatThreadListRouteName}
         component={HomeChatThreadList}
-        options={HomeChatThreadListOptions}
+        options={homeChatThreadListOptions}
       />
       <ChatThreadsTopTab.Screen
         name={BackgroundChatThreadListRouteName}
         component={BackgroundChatThreadList}
-        options={BackgroundChatThreadListOptions}
+        options={backgroundChatThreadListOptions}
       />
     </ChatThreadsTopTab.Navigator>
   );
@@ -191,7 +190,6 @@ const Chat = createChatNavigator<
   ChatParamList,
   ChatNavigationProp<>,
 >();
-
 const ChatComponent = () => (
   <KeyboardAvoidingView style={styles.keyboardAvoidingView}>
     <Chat.Navigator screenOptions={screenOptions}>
