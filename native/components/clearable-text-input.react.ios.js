@@ -22,6 +22,7 @@ class ClearableTextInput extends React.PureComponent<
   lastKeyPressed: ?string;
   lastTextInputSent = -1;
   currentTextInput: ?TextInput;
+  focused = false;
 
   sendMessage() {
     if (this.pendingMessageSent) {
@@ -104,23 +105,34 @@ class ClearableTextInput extends React.PureComponent<
   };
 
   textInputRef = (textInput: ?TextInput) => {
-    if (this.state.textInputKey > 0 && textInput) {
+    if (this.focused && textInput) {
       textInput.focus();
     }
     this.currentTextInput = textInput;
     this.props.textInputRef(textInput);
   };
 
-  getValueAndReset(): Promise<string> {
+  async getValueAndReset(): Promise<string> {
     const { value } = this.props;
     this.props.onChangeText('');
-    return new Promise(resolve => {
+    if (!this.focused) {
+      return value;
+    }
+    return await new Promise(resolve => {
       this.pendingMessage = { value, resolve };
       this.setState(prevState => ({
         textInputKey: prevState.textInputKey + 1,
       }));
     });
   }
+
+  onFocus = () => {
+    this.focused = true;
+  };
+
+  onBlur = () => {
+    this.focused = false;
+  };
 
   render() {
     const { textInputRef, ...props } = this.props;
@@ -142,6 +154,8 @@ class ClearableTextInput extends React.PureComponent<
     textInputs.push(
       <TextInput
         {...props}
+        onFocus={this.onFocus}
+        onBlur={this.onBlur}
         onChangeText={this.props.onChangeText}
         key={this.state.textInputKey}
         ref={this.textInputRef}
