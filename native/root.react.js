@@ -17,6 +17,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 import invariant from 'invariant';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
 import { actionLogger } from 'lib/utils/action-logger';
@@ -58,6 +59,7 @@ const navUnknownAction = Object.freeze({ type: 'NAV/@@UNKNOWN' });
 type Props = {
   // Redux state
   activeTheme: ?GlobalTheme,
+  frozen: boolean,
 };
 type State = {|
   navContext: ?NavContextType,
@@ -67,6 +69,7 @@ type State = {|
 class Root extends React.PureComponent<Props, State> {
   static propTypes = {
     activeTheme: globalThemePropType,
+    frozen: PropTypes.bool.isRequired,
   };
   navDispatch: ?(action: NavAction) => void;
   navState: ?PossiblyStaleNavigationState;
@@ -196,7 +199,7 @@ class Root extends React.PureComponent<Props, State> {
       actionLogger.addOtherAction('navState', action, prevState, state);
     }
 
-    if (__DEV__) {
+    if (__DEV__ && !this.props.frozen) {
       this.persistNavigationState(state);
     }
   };
@@ -267,6 +270,7 @@ const styles = StyleSheet.create({
 
 const ConnectedRoot = connect((state: AppState) => ({
   activeTheme: state.globalThemeInfo.activeTheme,
+  frozen: state.frozen,
 }))(Root);
 
 const AppRoot = () => (
