@@ -56,7 +56,8 @@ async function deleteAccount(
     LEFT JOIN ids iup ON iup.id = up.id
     LEFT JOIN sessions s ON u.id = s.user
     LEFT JOIN ids si ON si.id = s.id
-    LEFT JOIN relationships r ON (r.user1 = u.id OR r.user2 = u.id)
+    LEFT JOIN know_of_friends r ON (r.user1 = u.id OR r.user2 = u.id)
+    LEFT JOIN friend_requests_blocks r ON (r.user1 = u.id OR r.user2 = u.id)
     WHERE u.id = ${deletedUserID}
   `;
 
