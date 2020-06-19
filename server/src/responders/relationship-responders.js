@@ -5,13 +5,13 @@ import type { Viewer } from '../session/viewer';
 
 import t from 'tcomb';
 
-import { assertRelationshipStatus } from 'lib/types/relationship-types';
+import { relationshipActions } from 'lib/types/relationship-types';
 import { updateRelationship } from '../updaters/relationship-updaters';
-import { validateInput, tShape, tNumEnum } from '../utils/validation-utils';
+import { validateInput, tShape } from '../utils/validation-utils';
 
 const updateRelationshipInputValidator = tShape({
-  userID: t.String,
-  status: tNumEnum(assertRelationshipStatus),
+  action: t.enums.of(relationshipActions, 'relationship action'),
+  userIDs: t.list(t.String),
 });
 
 async function updateRelationshipResponder(
@@ -20,7 +20,7 @@ async function updateRelationshipResponder(
 ): Promise<void> {
   const request: RelationshipRequest = input;
   await validateInput(viewer, updateRelationshipInputValidator, request);
-  await updateRelationship(viewer, request);
+  return await updateRelationship(viewer, request);
 }
 
 export { updateRelationshipResponder };

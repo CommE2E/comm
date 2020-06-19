@@ -3,162 +3,156 @@
 import type { Viewer } from '../session/viewer';
 
 import invariant from 'invariant';
+import _groupBy from 'lodash/fp/groupBy';
+import _keyBy from 'lodash/fp/keyBy';
 
 import {
-  type RelationshipStatus,
-  relationshipStatuses,
   type RelationshipRequest,
+  knowOfFriendsStatus,
+  requestsBlocksStatus,
 } from 'lib/types/relationship-types';
 import { ServerError } from 'lib/utils/errors';
 
 import { fetchUserInfos } from '../fetchers/user-fetchers';
-import { fetchRelationship } from '../fetchers/relationship-fetchers';
-import { createRelationship } from '../creators/relationship-creator';
-import { deleteRelationship } from '../deleters/relationship-deleters';
+
 import { dbQuery, SQL } from '../database';
+
+type Errors = {
+  invalid_user?: string[],
+};
 
 async function updateRelationship(
   viewer: Viewer,
   request: RelationshipRequest,
 ) {
-  const { userID, status } = request;
+  const { action } = request;
 
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
-  if (viewer.userID === userID) {
-    throw new ServerError('invalid_user');
+
+  const uniqueUserIDs = [...new Set(request.userIDs)];
+  const users = await fetchUserInfos(uniqueUserIDs);
+
+  const errors: Errors = {};
+  const userIDs: string[] = [];
+  for (let userID of uniqueUserIDs) {
+    if (userID === viewer.userID || !users[userID].username) {
+      const acc = errors.invalid_user || [];
+      errors.invalid_user = [...acc, userID];
+    } else {
+      userIDs.push(userID);
+    }
   }
 
-  const users = await fetchUserInfos([userID]);
-  if (!users[userID].username) {
-    throw new ServerError('user_does_not_exist');
-  }
+  if (action === 'friend_request') {
+    const requestsOrBlockedSelectQuery = SQL`
+      SELECT user1, user2, status from friend_requests_blocks 
+      WHERE (
+        (user1 = ${viewer.userID} AND user2 IN (${userIDs}))
+        OR (user1 IN (${userIDs}) AND user2 = ${viewer.userID}) 
+        AND status = ${requestsBlocksStatus.PENDING_FRIEND}
+      ) 
+      OR user1 = ${viewer.userID} AND status = ${requestsBlocksStatus.BLOCKED}
+    `;
 
-  if (status === relationshipStatuses.PENDING_FRIEND) {
-    const [relationships] = await fetchRelationship(viewer.userID, userID);
+    const friendsOrBlockedMeSelectQuery = SQL`
+      SELECT user1, user2, status from know_of_friends 
+      WHERE (user1 = ${viewer.userID} OR user2 = ${viewer.userID}) AND status = ${knowOfFriendsStatus.FRIEND}
+      UNION SELECT user1, user2, status from friend_requests_blocks 
+      WHERE user2 = ${viewer.userID} AND status = ${requestsBlocksStatus.BLOCKED}
+    `;
 
-    if (!relationships.length) {
-      await createRelationship(viewer.userID, userID, status);
-    } else {
-      const [actorRelationship] = getRelationshipsForActorUser(
-        relationships,
-        viewer.userID,
-      );
-      if (actorRelationship) {
-        const message = actorFriendshipErrorMap[actorRelationship.status];
-        throw new ServerError(message);
-      }
+    const [
+      [requestsOrBlockedResults],
+      [friendsOrBlockedMeResult],
+    ] = await Promise.all([
+      dbQuery(requestsOrBlockedSelectQuery),
+      dbQuery(friendsOrBlockedMeSelectQuery),
+    ]);
 
-      const [receiverRelationship] = getRelationshipsForReceiverUser(
-        relationships,
-        viewer.userID,
-      );
-      if (receiverRelationship) {
-        const message = receiverFriendshipErrorMap[receiverRelationship.status];
-        throw new ServerError(message);
-      }
-    }
-  } else if (status === relationshipStatuses.BLOCKED) {
-    const [relationships] = await fetchRelationship(viewer.userID, userID);
-
-    if (!relationships.length) {
-      await createRelationship(viewer.userID, userID, status);
-    } else {
-      const [actorRelationship] = getRelationshipsForActorUser(
-        relationships,
-        viewer.userID,
-      );
-      if (actorRelationship) {
-        if (
-          actorRelationship.status === relationshipStatuses.PENDING_FRIEND ||
-          actorRelationship.status === relationshipStatuses.FRIEND
-        ) {
-          const { user1, user2 } = actorRelationship;
-          await updateRelationshipQuery(user1, user2, status);
-        }
-
-        if (actorRelationship.status === relationshipStatuses.BLOCKED) {
-          return;
-        }
-      }
-
-      const [receiverRelationship] = getRelationshipsForReceiverUser(
-        relationships,
-        viewer.userID,
-      );
-      if (receiverRelationship) {
-        if (
-          receiverRelationship.status === relationshipStatuses.PENDING_FRIEND ||
-          receiverRelationship.status === relationshipStatuses.FRIEND
-        ) {
-          const { user1, user2 } = receiverRelationship;
-          await deleteRelationship(user1, user2);
-          await createRelationship(viewer.userID, userID, status);
-        }
-
-        if (receiverRelationship.status === relationshipStatuses.BLOCKED) {
-          await createRelationship(viewer.userID, userID, status);
-        }
-      }
-    }
-  } else if (status === relationshipStatuses.FRIEND) {
-    const [relationships] = await fetchRelationship(viewer.userID, userID);
-    const [relationship] = relationships.filter(
-      r =>
-        r.user1 === userID &&
-        r.user2 === viewer.userID &&
-        r.status === relationshipStatuses.PENDING_FRIEND,
-    );
-
-    if (relationship) {
+    const knowOfFriendInsertRows = [];
+    const requestBlockInsertRows = [];
+    const requestBlockDeleteIDs = [];
+    const restUserIds = _keyBy(id => id, userIDs);
+    for (const relationship of requestsOrBlockedResults) {
       const { user1, user2 } = relationship;
-      await updateRelationshipQuery(user1, user2, relationshipStatuses.FRIEND);
-    } else {
-      throw new ServerError('friend_request_does_not_exist');
+      const bidirectionalIDs = [user1, user2].sort((a, b) => a - b);
+
+      if (relationship.user1.toString() === viewer.userID) {
+        knowOfFriendInsertRows.push([
+          ...bidirectionalIDs,
+          knowOfFriendsStatus.KNOW_OF,
+        ]);
+        requestBlockInsertRows.push([
+          user1,
+          user2,
+          requestsBlocksStatus.PENDING_FRIEND,
+        ]);
+        delete restUserIds[user2];
+      } else {
+        knowOfFriendInsertRows.push([
+          ...bidirectionalIDs,
+          knowOfFriendsStatus.FRIEND,
+        ]);
+        requestBlockDeleteIDs.push(user1);
+        delete restUserIds[user1];
+      }
     }
-  } else if (status === relationshipStatuses.KNOW_OF) {
-    invariant(false, `${status} is not currently supported`);
+
+    const rowsToIgnore = _groupBy(({ user1, user2 }) => {
+      return user1.toString() === viewer.userID ? user2 : user1;
+    }, friendsOrBlockedMeResult);
+    const newRelationshipUserIDs = Object.keys(restUserIds).filter(
+      userID => !(userID in rowsToIgnore),
+    );
+    for (const userID of newRelationshipUserIDs) {
+      const bidirectionalIDs = [viewer.userID, userID]
+        .map(Number)
+        .sort((a, b) => a - b);
+
+      knowOfFriendInsertRows.push([
+        viewer.userID,
+        userID,
+        knowOfFriendsStatus.KNOW_OF,
+      ]);
+      requestBlockInsertRows.push([
+        ...bidirectionalIDs,
+        requestsBlocksStatus.PENDING_FRIEND,
+      ]);
+    }
+
+    const knowOfFriendsInsertQuery = SQL`
+      INSERT INTO know_of_friends (user1, user2, status) 
+      VALUES ${knowOfFriendInsertRows} 
+      ON DUPLICATE KEY UPDATE status = VALUES(status)
+    `;
+
+    const requestBlockInsertQuery = SQL`
+      INSERT INTO friend_requests_blocks (user1, user2, status)
+      VALUES ${requestBlockInsertRows} 
+      ON DUPLICATE KEY UPDATE status = VALUES(status)
+    `;
+
+    const requestBlockDeleteQuery = SQL`
+      DELETE FROM friend_requests_blocks WHERE user1 IN (${requestBlockDeleteIDs}) and user2 = ${viewer.userID}
+    `;
+
+    const promises = [
+      dbQuery(knowOfFriendsInsertQuery),
+      dbQuery(requestBlockInsertQuery),
+    ];
+
+    if (requestBlockDeleteIDs.length) {
+      promises.push(dbQuery(requestBlockDeleteQuery));
+    }
+
+    await Promise.all(promises);
   } else {
-    invariant(false, `invalid relationship status: ${status}`);
+    invariant(false, `action ${action} is invalid or not supported currently`);
   }
+
+  return errors;
 }
-
-async function updateRelationshipQuery(
-  firstUserID: string,
-  secondUserID: string,
-  status: RelationshipStatus,
-) {
-  const query = SQL`
-    UPDATE relationships
-    SET status = ${status}
-    WHERE user1 = ${firstUserID} AND user2 = ${secondUserID}
-  `;
-  await dbQuery(query);
-}
-
-function getRelationshipsForActorUser(relationships, userID) {
-  return relationships.filter(({ user1 }) => {
-    return user1.toString() === userID;
-  });
-}
-
-function getRelationshipsForReceiverUser(relationships, userID) {
-  return relationships.filter(({ user2 }) => {
-    return user2.toString() === userID;
-  });
-}
-
-const actorFriendshipErrorMap = {
-  [relationshipStatuses.PENDING_FRIEND]: 'invitation_already_sent_by_requester',
-  [relationshipStatuses.FRIEND]: 'friendship_already_exists',
-  [relationshipStatuses.BLOCKED]: 'user_blocked_by_requester',
-};
-
-const receiverFriendshipErrorMap = {
-  [relationshipStatuses.PENDING_FRIEND]: 'invitation_already_sent_to_requester',
-  [relationshipStatuses.FRIEND]: 'friendship_already_exists',
-  [relationshipStatuses.BLOCKED]: 'requester_blocked_by_user',
-};
 
 export { updateRelationship };

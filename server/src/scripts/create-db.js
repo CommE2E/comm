@@ -186,7 +186,13 @@ async function createTables() {
       creation_time bigint(20) NOT NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
-    CREATE TABLE relationships (
+    CREATE TABLE know_of_friends (
+      user1 bigint(20) NOT NULL,
+      user2 bigint(20) NOT NULL,
+      status tinyint(1) UNSIGNED NOT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+    CREATE TABLE friend_requests_blocks (
       user1 bigint(20) NOT NULL,
       user2 bigint(20) NOT NULL,
       status tinyint(1) UNSIGNED NOT NULL
@@ -278,8 +284,14 @@ async function createTables() {
       ADD UNIQUE KEY username (username),
       ADD UNIQUE KEY email (email);
 
-    ALTER TABLE relationships
-      ADD UNIQUE KEY user1_user2 (user1,user2);
+    ALTER TABLE know_of_friends
+      ADD UNIQUE KEY user1_user2 (user1,user2),
+      ADD UNIQUE KEY user2_user1 (user2,user1),
+      ADD CONSTRAINT user1_user2_check CHECK (user1 < user2);
+
+    ALTER TABLE friend_requests_blocks
+      ADD UNIQUE KEY user1_user2 (user1,user2),
+      ADD UNIQUE KEY user2_user1 (user2,user1);
 
     ALTER TABLE verifications
       ADD PRIMARY KEY (id),
