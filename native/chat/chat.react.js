@@ -2,6 +2,10 @@
 
 import * as React from 'react';
 import {
+  createMaterialTopTabNavigator,
+  type MaterialTopTabNavigationProp,
+} from '@react-navigation/material-top-tabs';
+import {
   createNavigatorFactory,
   useNavigationBuilder,
   type StackNavigationState,
@@ -42,14 +46,18 @@ import ComposeThreadButton from './compose-thread-button.react';
 import MessageListHeaderTitle from './message-list-header-title.react';
 import ThreadSettingsButton from './thread-settings-button.react';
 import { InputStateContext } from '../input/input-state';
-import {
-  createMaterialTopTabNavigator,
-  type MaterialTopTabNavigationProp,
-} from '@react-navigation/material-top-tabs';
 
 export type ChatTopTabsNavigationProp<
   RouteName: $Keys<ChatTopTabsParamList> = $Keys<ChatTopTabsParamList>,
 > = MaterialTopTabNavigationProp<ScreenParamList, RouteName>;
+
+const HomeChatThreadListOptions = {
+  title: 'Home',
+};
+
+const BackgroundChatThreadListOptions = {
+  title: 'Background',
+};
 
 const ChatThreadsTopTab = createMaterialTopTabNavigator();
 const ChatThreadsComponent = () => {
@@ -58,10 +66,12 @@ const ChatThreadsComponent = () => {
       <ChatThreadsTopTab.Screen
         name={HomeChatThreadListRouteName}
         component={HomeChatThreadList}
+        options={HomeChatThreadListOptions}
       />
       <ChatThreadsTopTab.Screen
         name={BackgroundChatThreadListRouteName}
         component={BackgroundChatThreadList}
+        options={BackgroundChatThreadListOptions}
       />
     </ChatThreadsTopTab.Navigator>
   );
