@@ -14,6 +14,7 @@ async function getAPNProvider() {
     return cachedAPNProvider;
   }
   try {
+    // $FlowFixMe
     const apnConfig = await import('../../secrets/apn_config');
     if (cachedAPNProvider === undefined) {
       cachedAPNProvider = new apn.Provider(apnConfig.default);
@@ -32,6 +33,7 @@ async function initializeFCMApp() {
     return fcmAppInitialized;
   }
   try {
+    // $FlowFixMe
     const fcmConfig = await import('../../secrets/fcm_config');
     if (fcmAppInitialized === undefined) {
       fcmAppInitialized = true;
