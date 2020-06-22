@@ -6,7 +6,7 @@ import type { Viewer } from '../session/viewer';
 import t from 'tcomb';
 
 import { relationshipActions } from 'lib/types/relationship-types';
-import { updateRelationship } from '../updaters/relationship-updaters';
+import { updateRelationships } from '../updaters/relationship-updaters';
 import { validateInput, tShape } from '../utils/validation-utils';
 
 const updateRelationshipInputValidator = tShape({
@@ -14,13 +14,13 @@ const updateRelationshipInputValidator = tShape({
   userIDs: t.list(t.String),
 });
 
-async function updateRelationshipResponder(
+async function updateRelationshipsResponder(
   viewer: Viewer,
   input: any,
 ): Promise<void> {
   const request: RelationshipRequest = input;
   await validateInput(viewer, updateRelationshipInputValidator, request);
-  return await updateRelationship(viewer, request);
+  return await updateRelationships(viewer, request);
 }
 
-export { updateRelationshipResponder };
+export { updateRelationshipsResponder };

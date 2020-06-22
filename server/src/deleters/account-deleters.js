@@ -41,7 +41,7 @@ async function deleteAccount(
   // TODO: if this results in any orphaned orgs, convert them to chats
   const deletedUserID = viewer.userID;
   const deletionQuery = SQL`
-    DELETE u, iu, v, iv, c, ic, m, f, n, ino, up, iup, s, si, r
+    DELETE u, iu, v, iv, c, ic, m, f, n, ino, up, iup, s, si, ru, rd
     FROM users u
     LEFT JOIN ids iu ON iu.id = u.id
     LEFT JOIN verifications v ON v.user = u.id
@@ -56,8 +56,8 @@ async function deleteAccount(
     LEFT JOIN ids iup ON iup.id = up.id
     LEFT JOIN sessions s ON u.id = s.user
     LEFT JOIN ids si ON si.id = s.id
-    LEFT JOIN know_of_friends r ON (r.user1 = u.id OR r.user2 = u.id)
-    LEFT JOIN friend_requests_blocks r ON (r.user1 = u.id OR r.user2 = u.id)
+    LEFT JOIN relationships_undirected ru ON (ru.user1 = u.id OR ru.user2 = u.id)
+    LEFT JOIN relationships_directed rd ON (rd.user1 = u.id OR rd.user2 = u.id)
     WHERE u.id = ${deletedUserID}
   `;
 

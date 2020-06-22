@@ -22,7 +22,7 @@ import {
   passwordUpdateResponder,
   requestAccessResponder,
 } from './responders/user-responders';
-import { updateRelationshipResponder } from './responders/relationship-responders';
+import { updateRelationshipsResponder } from './responders/relationship-responders';
 import { userSearchResponder } from './responders/search-responders';
 import {
   entryFetchResponder,
@@ -89,7 +89,7 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   update_calendar_query: calendarQueryUpdateResponder,
   delete_upload: uploadDeletionResponder,
   create_multimedia_message: multimediaMessageCreationResponder,
-  update_relationship: updateRelationshipResponder,
+  update_relationships: updateRelationshipsResponder,
 };
 
 export { jsonEndpoints };
