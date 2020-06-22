@@ -287,7 +287,6 @@ async function createTables() {
     ALTER TABLE relationships_undirected
       ADD UNIQUE KEY user1_user2 (user1,user2),
       ADD UNIQUE KEY user2_user1 (user2,user1),
-      ADD CONSTRAINT user1_less_than_user2 CHECK (user1 < user2);
 
     ALTER TABLE relationships_directed
       ADD UNIQUE KEY user1_user2 (user1,user2);
