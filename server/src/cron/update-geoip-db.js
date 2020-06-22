@@ -12,6 +12,7 @@ async function getGeoipLicense() {
     return cachedGeoipLicense;
   }
   try {
+    // $FlowFixMe
     const geoipLicenseImport = await import('../../secrets/geoip_license');
     if (cachedGeoipLicense === undefined) {
       cachedGeoipLicense = geoipLicenseImport.default;

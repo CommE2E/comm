@@ -20,6 +20,7 @@ async function importBackupConfig() {
     return importedBackupConfig;
   }
   try {
+    // $FlowFixMe
     const backupExports = await import('../../facts/backups');
     if (importedBackupConfig === undefined) {
       importedBackupConfig = backupExports.default;
