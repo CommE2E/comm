@@ -17,23 +17,20 @@ type BackgroundChatThreadListProps = {
 export default function BackgroundChatThreadList(
   props: BackgroundChatThreadListProps,
 ) {
-  const unreadBackgroundThreadsCount = useSelector(state =>
+  const unreadBackgroundThreadsNumber = useSelector(state =>
     unreadBackgroundCount(state),
   );
 
   const prevUnreadNumber = React.useRef(0);
-  const unreadBackgroundThreadsNumber = React.useMemo(() => {
-    return unreadBackgroundThreadsCount;
-  }, [unreadBackgroundThreadsCount]);
-
   React.useEffect(() => {
     if (unreadBackgroundThreadsNumber === prevUnreadNumber.current) {
       return;
     }
     prevUnreadNumber.current = unreadBackgroundThreadsNumber;
     let title = 'Background';
-    if (unreadBackgroundThreadsNumber !== 0)
+    if (unreadBackgroundThreadsNumber !== 0) {
       title += ` (${unreadBackgroundThreadsNumber})`;
+    }
     props.navigation.setOptions({ title });
   }, [props.navigation, unreadBackgroundThreadsNumber]);
 
