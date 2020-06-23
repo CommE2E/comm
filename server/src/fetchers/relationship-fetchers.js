@@ -52,6 +52,8 @@ async function fetchFriendRequestRelationshipOperations(
 
     if (relationships.length === 3) {
       userRelationshipOperations[userID] = ['delete_directed'];
+      const user_blocked = errors.user_blocked || [];
+      errors.user_blocked = [...user_blocked, userID];
       continue;
     }
 
@@ -60,7 +62,7 @@ async function fetchFriendRequestRelationshipOperations(
       continue;
     }
 
-    const [relationship] = relationshipsByUserId[userID].filter(
+    const [relationship] = relationships.filter(
       r => r.status !== undirectedStatus.KNOW_OF,
     );
 

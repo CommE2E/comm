@@ -79,7 +79,11 @@ async function updateRelationships(
       ON DUPLICATE KEY UPDATE status = VALUES(status)
     `;
     const directedDeleteQuery = SQL`
-      DELETE FROM relationships_directed WHERE user1 IN (${directedDeleteIDs}) and user2 = ${viewer.userID}
+      DELETE FROM relationships_directed
+      WHERE 
+        (user1 = ${viewer.userID} AND user2 IN (${directedDeleteIDs})) OR
+        (status = ${directedStatus.PENDING_FRIEND} AND 
+          user1 IN (${directedDeleteIDs}) AND user2 = ${viewer.userID})
     `;
 
     const promises = [
