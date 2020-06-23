@@ -38,6 +38,7 @@ export default function BackgroundChatThreadList(
     <ChatThreadList
       navigation={props.navigation}
       filterThreads={threadInBackgroundChatList}
+      emptyItem={true}
     />
   );
 }
