@@ -8,13 +8,20 @@ import {
 } from 'lib/types/relationship-types';
 
 import _groupBy from 'lodash/fp/groupBy';
+import invariant from 'invariant';
 
 import { dbQuery, SQL } from '../database';
 
-type Action = 'pending_friend' | 'friend' | void;
-type UserActions = { [string]: Action };
+type RelationshipOperation =
+  | 'delete_directed'
+  | 'friend'
+  | 'pending_friend'
+  | 'know_of';
+type UserRelationshipOperations = {
+  [string]: $ReadOnlyArray<RelationshipOperation>,
+};
 
-async function fetchFriendRequestRelationshipActions(
+async function fetchFriendRequestRelationshipOperations(
   viewer: Viewer,
   userIDs: string[],
 ) {
@@ -23,8 +30,7 @@ async function fetchFriendRequestRelationshipActions(
     FROM relationships_directed
     WHERE
       (user1 IN (${userIDs}) AND user2 = ${viewer.userID}) OR
-      (status = ${directedStatus.PENDING_FRIEND} AND
-        user1 = ${viewer.userID} AND user2 IN (${userIDs}))
+      (user1 = ${viewer.userID} AND user2 IN (${userIDs}))
     UNION SELECT user1, user2, status
     FROM relationships_undirected
     WHERE
@@ -40,40 +46,55 @@ async function fetchFriendRequestRelationshipActions(
   );
 
   const errors: RelationshipErrors = {};
-  const relationshipActions: UserActions = {};
+  const userRelationshipOperations: UserRelationshipOperations = {};
   for (const userID in relationshipsByUserId) {
+    const relationships = relationshipsByUserId[userID];
+
+    if (relationships.length === 3) {
+      userRelationshipOperations[userID] = ['delete_directed'];
+      continue;
+    }
+
+    if (relationships.length === 1) {
+      userRelationshipOperations[userID] = ['pending_friend'];
+      continue;
+    }
+
     const [relationship] = relationshipsByUserId[userID].filter(
       r => r.status !== undirectedStatus.KNOW_OF,
     );
 
-    if (!relationship) {
-      relationshipActions[userID] = 'pending_friend';
-    } else if (relationship.status === directedStatus.PENDING_FRIEND) {
+    if (relationship.status === directedStatus.PENDING_FRIEND) {
       if (relationship.user2.toString() === viewer.userID) {
-        relationshipActions[userID] = 'friend';
+        userRelationshipOperations[userID] = ['friend', 'delete_directed'];
       } else {
-        relationshipActions[userID] = 'pending_friend';
+        userRelationshipOperations[userID] = [];
       }
     } else if (relationship.status === directedStatus.BLOCKED) {
-      const user_blocked = errors.user_blocked || [];
-      errors.user_blocked = [...user_blocked, userID];
-      relationshipActions[userID] = undefined;
+      if (relationship.user1.toString() === viewer.userID) {
+        userRelationshipOperations[userID] = ['pending_friend'];
+      } else {
+        const user_blocked = errors.user_blocked || [];
+        errors.user_blocked = [...user_blocked, userID];
+        userRelationshipOperations[userID] = [];
+      }
     } else if (relationship.status === undirectedStatus.FRIEND) {
       const already_friends = errors.already_friends || [];
       errors.already_friends = [...already_friends, userID];
-      relationshipActions[userID] = undefined;
+      userRelationshipOperations[userID] = [];
     } else {
-      relationshipActions[userID] = undefined;
+      userRelationshipOperations[userID] = [];
+      invariant(false, `unexpected relationship status ${relationship.status}`);
     }
   }
 
   for (let userID of userIDs) {
-    if (!(userID in relationshipActions)) {
-      relationshipActions[userID] = 'pending_friend';
+    if (!(userID in userRelationshipOperations)) {
+      userRelationshipOperations[userID] = ['know_of', 'pending_friend'];
     }
   }
 
-  return { errors, relationshipActions };
+  return { errors, userRelationshipOperations };
 }
 
-export { fetchFriendRequestRelationshipActions };
+export { fetchFriendRequestRelationshipOperations };

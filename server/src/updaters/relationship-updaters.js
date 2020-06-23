@@ -13,7 +13,7 @@ import invariant from 'invariant';
 import { ServerError } from 'lib/utils/errors';
 
 import { fetchUserInfos } from '../fetchers/user-fetchers';
-import { fetchFriendRequestRelationshipActions } from '../fetchers/relationship-fetchers';
+import { fetchFriendRequestRelationshipOperations } from '../fetchers/relationship-fetchers';
 import { dbQuery, SQL } from '../database';
 
 async function updateRelationships(
@@ -29,12 +29,11 @@ async function updateRelationships(
   const uniqueUserIDs = [...new Set(request.userIDs)];
   const users = await fetchUserInfos(uniqueUserIDs);
 
-  const errors: RelationshipErrors = {};
+  const invalid_user: string[] = [];
   const userIDs: string[] = [];
   for (let userID of uniqueUserIDs) {
     if (userID === viewer.userID || !users[userID].username) {
-      const acc = errors.invalid_user || [];
-      errors.invalid_user = [...acc, userID];
+      invalid_user.push(userID);
     } else {
       userIDs.push(userID);
     }
@@ -42,41 +41,45 @@ async function updateRelationships(
 
   if (action === 'send_friend_request') {
     const {
-      relationshipActions,
+      userRelationshipOperations,
       errors: friendRequestErrors,
-    } = await fetchFriendRequestRelationshipActions(viewer, userIDs);
+    } = await fetchFriendRequestRelationshipOperations(viewer, userIDs);
 
     const undirectedInsertRows = [];
     const directedInsertRows = [];
     const directedDeleteIDs = [];
-    for (const userID in relationshipActions) {
-      const relationshipAction = relationshipActions[userID];
-      const IDs = [userID, viewer.userID].map(Number).sort((a, b) => a - b);
+    for (const userID in userRelationshipOperations) {
+      const operations = userRelationshipOperations[userID];
+      const ids = [userID, viewer.userID].map(Number).sort((a, b) => a - b);
 
-      if (relationshipAction === 'pending_friend') {
-        undirectedInsertRows.push([...IDs, undirectedStatus.KNOW_OF]);
-        const status = directedStatus.PENDING_FRIEND;
-        directedInsertRows.push([viewer.userID, userID, status]);
-      } else if (relationshipAction === 'friend') {
-        undirectedInsertRows.push([...IDs, undirectedStatus.FRIEND]);
-        directedDeleteIDs.push(userID);
-      } else {
-        // do nothing for this user
+      for (const operation of operations) {
+        if (operation === 'delete_directed') {
+          directedDeleteIDs.push(userID);
+        } else if (operation === 'friend') {
+          undirectedInsertRows.push([...ids, undirectedStatus.FRIEND]);
+        } else if (operation === 'pending_friend') {
+          const status = directedStatus.PENDING_FRIEND;
+          directedInsertRows.push([viewer.userID, userID, status]);
+        } else if (operation === 'know_of') {
+          undirectedInsertRows.push([...ids, undirectedStatus.KNOW_OF]);
+        } else {
+          invariant(false, `unexpected relationship operation ${operation}`);
+        }
       }
     }
 
     const undirectedInsertQuery = SQL`
-      INSERT INTO know_of_friends (user1, user2, status)
+      INSERT INTO relationships_undirected (user1, user2, status)
       VALUES ${undirectedInsertRows}
-      ON DUPLICATE KEY UPDATE status = VALUES(status)
+      ON DUPLICATE KEY UPDATE status = MAX(status, VALUES(status))
     `;
     const directedInsertQuery = SQL`
-      INSERT INTO friend_requests_blocks (user1, user2, status)
+      INSERT INTO relationships_directed (user1, user2, status)
       VALUES ${directedInsertRows}
       ON DUPLICATE KEY UPDATE status = VALUES(status)
     `;
     const directedDeleteQuery = SQL`
-      DELETE FROM friend_requests_blocks WHERE user1 IN (${directedDeleteIDs}) and user2 = ${viewer.userID}
+      DELETE FROM relationships_directed WHERE user1 IN (${directedDeleteIDs}) and user2 = ${viewer.userID}
     `;
 
     const promises = [
@@ -90,7 +93,7 @@ async function updateRelationships(
 
     await Promise.all(promises);
 
-    return { ...errors, friendRequestErrors };
+    return { ...friendRequestErrors, invalid_user };
   } else {
     invariant(false, `action ${action} is invalid or not supported currently`);
   }

@@ -1,11 +1,11 @@
 // @flow
 
 import type { RelationshipRequest } from 'lib/types/relationship-types';
+import { relationshipActions } from 'lib/types/relationship-types';
 import type { Viewer } from '../session/viewer';
 
 import t from 'tcomb';
 
-import { relationshipActions } from 'lib/types/relationship-types';
 import { updateRelationships } from '../updaters/relationship-updaters';
 import { validateInput, tShape } from '../utils/validation-utils';
 
