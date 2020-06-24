@@ -4,6 +4,7 @@ import type { Viewer } from '../session/viewer';
 import {
   type RelationshipRequest,
   type RelationshipErrors,
+  relationshipActions,
   undirectedStatus,
   directedStatus,
 } from 'lib/types/relationship-types';
@@ -40,7 +41,11 @@ async function updateRelationships(
     }
   }
 
-  if (action === 'send_friend_request') {
+  if (!userIDs.length) {
+    return errors;
+  }
+
+  if (relationshipActions.FRIEND) {
     const {
       userRelationshipOperations,
       errors: friendRequestErrors,
@@ -91,7 +96,6 @@ async function updateRelationships(
       dbQuery(undirectedInsertQuery),
       dbQuery(directedInsertQuery),
     ];
-
     if (directedDeleteQuery.length) {
       promises.push(dbQuery(directedDeleteQuery));
     }
@@ -99,6 +103,57 @@ async function updateRelationships(
     await Promise.all(promises);
 
     return { ...errors, ...friendRequestErrors };
+  } else if (action === relationshipActions.UNFRIEND) {
+    const updateRows = userIDs.map(userID => {
+      const ids = [userID, viewer.userID].map(Number).sort((a, b) => a - b);
+      return [...ids, undirectedStatus.KNOW_OF];
+    });
+    const insertQuery = SQL`
+      INSERT INTO relationships_undirected (user1, user2, status)
+      VALUES ${updateRows}
+      ON DUPLICATE KEY UPDATE status = VALUES(status)
+    `;
+    const deleteQuery = SQL`
+      DELETE FROM relationships_directed
+      WHERE status = ${directedStatus.PENDING_FRIEND} AND 
+        user1 = ${viewer.userID} AND user2 IN (${userIDs})
+    `;
+
+    await Promise.all([dbQuery(insertQuery), dbQuery(deleteQuery)]);
+
+    return errors;
+  } else if (action === relationshipActions.BLOCK) {
+    const directedRows = [];
+    const undirectedRows = [];
+    for (const userID of userIDs) {
+      const ids = [userID, viewer.userID].map(Number).sort((a, b) => a - b);
+      directedRows.push([viewer.userID, userID, directedStatus.BLOCKED]);
+      undirectedRows.push([...ids, undirectedStatus.KNOW_OF]);
+    }
+
+    const directedQuery = SQL`
+      INSERT INTO relationships_directed (user1, user2, status)
+      VALUES ${directedRows}
+      ON DUPLICATE KEY UPDATE status = VALUES(status)
+    `;
+    const undirectedQuery = SQL`
+      INSERT INTO relationships_undirected (user1, user2, status)
+      VALUES ${undirectedRows}
+      ON DUPLICATE KEY UPDATE status = VALUES(status)
+    `;
+
+    await Promise.all([dbQuery(directedQuery), dbQuery(undirectedQuery)]);
+
+    return errors;
+  } else if (action === relationshipActions.UNBLOCK) {
+    const query = SQL`
+      DELETE FROM relationships_directed
+      WHERE status = ${directedStatus.BLOCKED} AND 
+        user1 = ${viewer.userID} AND user2 IN (${userIDs})
+    `;
+    await dbQuery(query);
+
+    return errors;
   } else {
     invariant(false, `action ${action} is invalid or not supported currently`);
   }
