@@ -190,8 +190,6 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   }
 
   render() {
-    // this.props.viewerID is in extraData since it's used by MessagePreview
-    // within ChatThreadListItem
     let floatingAction = null;
     if (Platform.OS === 'android') {
       floatingAction = (
@@ -203,6 +201,8 @@ class ChatThreadList extends React.PureComponent<Props, State> {
         />
       );
     }
+    // this.props.viewerID is in extraData since it's used by MessagePreview
+    // within ChatThreadListItem
     return (
       <View style={this.props.styles.container}>
         <FlatList

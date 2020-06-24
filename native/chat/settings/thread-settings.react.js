@@ -408,27 +408,30 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         });
       }
 
-      listData.push({
-        itemType: 'header',
-        key: 'subscriptionHeader',
-        title: 'Subscription',
-        categoryType: 'full',
-      });
-      listData.push({
-        itemType: 'pushNotifs',
-        key: 'pushNotifs',
-        threadInfo,
-      });
-      listData.push({
-        itemType: 'homeNotifs',
-        key: 'homeNotifs',
-        threadInfo,
-      });
-      listData.push({
-        itemType: 'footer',
-        key: 'subscriptionFooter',
-        categoryType: 'full',
-      });
+      const isMember = viewerIsMember(threadInfo);
+      if (isMember) {
+        listData.push({
+          itemType: 'header',
+          key: 'subscriptionHeader',
+          title: 'Subscription',
+          categoryType: 'full',
+        });
+        listData.push({
+          itemType: 'pushNotifs',
+          key: 'pushNotifs',
+          threadInfo,
+        });
+        listData.push({
+          itemType: 'homeNotifs',
+          key: 'homeNotifs',
+          threadInfo,
+        });
+        listData.push({
+          itemType: 'footer',
+          key: 'subscriptionFooter',
+          categoryType: 'full',
+        });
+      }
 
       listData.push({
         itemType: 'header',
@@ -582,12 +585,11 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         });
       }
 
-      const canLeaveThread = viewerIsMember(threadInfo);
       const canDeleteThread = threadHasPermission(
         threadInfo,
         threadPermissions.DELETE_THREAD,
       );
-      if (canLeaveThread || canDeleteThread) {
+      if (isMember || canDeleteThread) {
         listData.push({
           itemType: 'header',
           key: 'actionsHeader',
@@ -595,12 +597,12 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           categoryType: 'unpadded',
         });
       }
-      if (canLeaveThread) {
+      if (isMember) {
         listData.push({
           itemType: 'leaveThread',
           key: 'leaveThread',
           threadInfo,
-          canDeleteThread: !!canDeleteThread,
+          canDeleteThread,
         });
       }
       if (canDeleteThread) {
@@ -609,10 +611,10 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           key: 'deleteThread',
           threadInfo,
           navigate,
-          canLeaveThread: !!canLeaveThread,
+          canLeaveThread: isMember,
         });
       }
-      if (canLeaveThread || canDeleteThread) {
+      if (isMember || canDeleteThread) {
         listData.push({
           itemType: 'footer',
           key: 'actionsFooter',
