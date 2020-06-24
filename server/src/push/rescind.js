@@ -1,5 +1,7 @@
 // @flow
 
+import { threadSubscriptions } from 'lib/types/subscription-types';
+
 import apn from 'apn';
 
 import { dbQuery, SQL, SQLStatement } from '../database';
@@ -9,6 +11,7 @@ async function rescindPushNotifs(
   notifCondition: SQLStatement,
   inputCountCondition?: SQLStatement,
 ) {
+  const notificationExtractString = `$.${threadSubscriptions.HOME}`;
   const fetchQuery = SQL`
     SELECT n.id, n.delivery, n.collapse_key, n.thread, COUNT(
   `;
@@ -16,7 +19,8 @@ async function rescindPushNotifs(
   fetchQuery.append(SQL`
       ) AS unread_count
     FROM notifications n
-    LEFT JOIN memberships m ON m.user = n.user AND m.unread = 1 AND m.role != 0
+    LEFT JOIN memberships m ON m.user = n.user AND m.unread = 1 AND m.role != 0 
+      AND JSON_EXTRACT(subscription, ${notificationExtractString})
     WHERE n.rescinded = 0 AND
   `);
   fetchQuery.append(notifCondition);
