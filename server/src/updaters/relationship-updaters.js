@@ -29,11 +29,12 @@ async function updateRelationships(
   const uniqueUserIDs = [...new Set(request.userIDs)];
   const users = await fetchUserInfos(uniqueUserIDs);
 
-  const invalid_user: string[] = [];
+  const errors: RelationshipErrors = {};
   const userIDs: string[] = [];
   for (let userID of uniqueUserIDs) {
     if (userID === viewer.userID || !users[userID].username) {
-      invalid_user.push(userID);
+      const acc = errors.invalid_user || [];
+      errors.invalid_user = [...acc, userID];
     } else {
       userIDs.push(userID);
     }
@@ -97,7 +98,7 @@ async function updateRelationships(
 
     await Promise.all(promises);
 
-    return { ...friendRequestErrors, invalid_user };
+    return Object.assign({}, errors, friendRequestErrors);
   } else {
     invariant(false, `action ${action} is invalid or not supported currently`);
   }

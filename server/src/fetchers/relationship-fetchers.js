@@ -8,7 +8,6 @@ import {
 } from 'lib/types/relationship-types';
 
 import _groupBy from 'lodash/fp/groupBy';
-import invariant from 'invariant';
 
 import { dbQuery, SQL } from '../database';
 
@@ -50,43 +49,44 @@ async function fetchFriendRequestRelationshipOperations(
   for (const userID in relationshipsByUserId) {
     const relationships = relationshipsByUserId[userID];
 
-    if (relationships.length === 3) {
-      userRelationshipOperations[userID] = ['delete_directed'];
-      const user_blocked = errors.user_blocked || [];
-      errors.user_blocked = [...user_blocked, userID];
-      continue;
-    }
-
-    if (relationships.length === 1) {
-      userRelationshipOperations[userID] = ['pending_friend'];
-      continue;
-    }
-
-    const [relationship] = relationships.filter(
-      r => r.status !== undirectedStatus.KNOW_OF,
+    const viewerBlockedTarget = relationships.some(
+      relationship =>
+        relationship.status === directedStatus.BLOCKED &&
+        relationship.user1 === viewer.userID,
+    );
+    const targetBlockedViewer = relationships.some(
+      relationship =>
+        relationship.status === directedStatus.BLOCKED &&
+        relationship.user2 === viewer.userID,
+    );
+    const friendshipExists = relationships.some(
+      relationship => relationship.status === undirectedStatus.FRIEND,
+    );
+    const viewerRequestedTargetFriendship = relationships.some(
+      relationship =>
+        relationship.status === directedStatus.PENDING_FRIEND &&
+        relationship.user1 === viewer.userID,
+    );
+    const targetRequestedViewerFriendship = relationships.some(
+      relationship =>
+        relationship.status === directedStatus.PENDING_FRIEND &&
+        relationship.user2 === viewer.userID,
     );
 
-    if (relationship.status === directedStatus.PENDING_FRIEND) {
-      if (relationship.user2.toString() === viewer.userID) {
-        userRelationshipOperations[userID] = ['friend', 'delete_directed'];
-      } else {
-        userRelationshipOperations[userID] = [];
+    const operations = [];
+    if (targetBlockedViewer) {
+      if (viewerBlockedTarget) {
+        operations.push('delete_directed');
       }
-    } else if (relationship.status === directedStatus.BLOCKED) {
-      if (relationship.user1.toString() === viewer.userID) {
-        userRelationshipOperations[userID] = ['pending_friend'];
-      } else {
-        const user_blocked = errors.user_blocked || [];
-        errors.user_blocked = [...user_blocked, userID];
-        userRelationshipOperations[userID] = [];
-      }
-    } else if (relationship.status === undirectedStatus.FRIEND) {
+      const user_blocked = errors.user_blocked || [];
+      errors.user_blocked = [...user_blocked, userID];
+    } else if (friendshipExists) {
       const already_friends = errors.already_friends || [];
       errors.already_friends = [...already_friends, userID];
-      userRelationshipOperations[userID] = [];
-    } else {
-      userRelationshipOperations[userID] = [];
-      invariant(false, `unexpected relationship status ${relationship.status}`);
+    } else if (targetRequestedViewerFriendship) {
+      operations.push('friend', 'delete_directed');
+    } else if (!viewerRequestedTargetFriendship) {
+      operations.push('pending_friend');
     }
   }
 
