@@ -75,7 +75,7 @@ async function deleteThread(
 
   await rescindPushNotifs(
     SQL`n.thread = ${threadID}`,
-    SQL`IF(m.thread = ${threadID}, NULL, 1)`,
+    SQL`IF(m.thread = ${threadID}, NULL, m.thread)`,
   );
 
   // TODO: if org, delete all descendant threads as well. make sure to warn user
