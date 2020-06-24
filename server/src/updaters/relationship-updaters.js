@@ -98,7 +98,7 @@ async function updateRelationships(
 
     await Promise.all(promises);
 
-    return Object.assign({}, errors, friendRequestErrors);
+    return { ...errors, ...friendRequestErrors };
   } else {
     invariant(false, `action ${action} is invalid or not supported currently`);
   }
