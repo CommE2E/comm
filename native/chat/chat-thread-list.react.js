@@ -9,7 +9,7 @@ import type {
 } from './chat.react';
 
 import * as React from 'react';
-import { View, FlatList, Platform, TextInput, Text } from 'react-native';
+import { View, FlatList, Platform, TextInput } from 'react-native';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
 import _sum from 'lodash/fp/sum';
@@ -46,14 +46,14 @@ const floatingActions = [
 type Item =
   | ChatThreadItem
   | {| type: 'search', searchText: string |}
-  | {| type: 'empty', emptyItem: boolean |};
+  | {| type: 'empty', emptyItem: React.Node |};
 
 type Props = {|
   navigation: ChatTopTabsNavigationProp<
     'HomeChatThreadList' | 'BackgroundChatThreadList',
   >,
   filterThreads: (threadItem: ThreadInfo) => boolean,
-  emptyItem: ?boolean,
+  emptyItem: React.Node,
   // Redux state
   chatListData: $ReadOnlyArray<ChatThreadItem>,
   viewerID: ?string,
@@ -73,7 +73,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       isFocused: PropTypes.func.isRequired,
     }).isRequired,
     filterThreads: PropTypes.func.isRequired,
-    emptyItem: PropTypes.bool,
+    emptyItem: PropTypes.node,
     chatListData: PropTypes.arrayOf(chatThreadItemPropType).isRequired,
     viewerID: PropTypes.string,
     threadSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
@@ -130,16 +130,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       );
     }
     if (item.type === 'empty') {
-      return (
-        <Text style={styles.emptyList}>
-          {' '}
-          Background threads are just like normal threads, except they appear in
-          this tab instead of Home, and they don&apos;t contribute to your
-          unread count. {'\n'}
-          To move a thread over here, switch the Background option in its
-          settings.
-        </Text>
-      );
+      return this.props.emptyItem;
     }
     return <ChatThreadListItem data={item} onPressItem={this.onPressItem} />;
   };
@@ -291,11 +282,6 @@ const styles = {
   flatList: {
     flex: 1,
     backgroundColor: 'listBackground',
-  },
-  emptyList: {
-    margin: 10,
-    fontSize: 18,
-    textAlign: 'center',
   },
 };
 const stylesSelector = styleSelector(styles);
