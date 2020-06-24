@@ -3,7 +3,6 @@
 import {
   type ThreadDeletionRequest,
   type LeaveThreadResult,
-  threadTypes,
   threadPermissions,
 } from 'lib/types/thread-types';
 import type { Viewer } from '../session/viewer';
@@ -131,10 +130,9 @@ async function deleteThread(
 }
 
 async function deleteInaccessibleThreads(): Promise<void> {
-  // A thread is considered "inaccessible" if it has no members and either has
-  // no parent or is a "secret" thread. In orgs where admins can see "secret"
-  // threads, an "inaccessible" thread may technically be accessible by an
-  // admin, but we will delete it anyways
+  // A thread is considered "inaccessible" if it has no membership rows. Note
+  // that membership rows exist whenever a user can see a thread, even if they
+  // are not technically a member (in which case role=0)
   await dbQuery(SQL`
     DELETE t, i, d, id, e, ie, re, ire, r, ir, ms, im, up, iu, f, n, ino
     FROM threads t
@@ -155,8 +153,7 @@ async function deleteInaccessibleThreads(): Promise<void> {
     LEFT JOIN focused f ON f.thread = t.id
     LEFT JOIN notifications n ON n.thread = t.id
     LEFT JOIN ids ino ON ino.id = n.id
-    WHERE m.thread IS NULL AND
-      (t.parent_thread_id IS NULL OR t.type = ${threadTypes.CHAT_SECRET})
+    WHERE m.thread IS NULL
   `);
 }
 
