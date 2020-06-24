@@ -52,7 +52,7 @@ class ThreadSettingsHomeNotifs extends React.PureComponent<Props, State> {
   render() {
     return (
       <View style={this.props.styles.row}>
-        <Text style={this.props.styles.label}>Background notifs</Text>
+        <Text style={this.props.styles.label}>Background</Text>
         <View style={this.props.styles.currentValue}>
           <Switch
             value={this.state.currentValue}
@@ -89,6 +89,7 @@ const styles = {
   label: {
     color: 'panelForegroundTertiaryLabel',
     fontSize: 16,
+    width: 96,
   },
   row: {
     alignItems: 'center',
