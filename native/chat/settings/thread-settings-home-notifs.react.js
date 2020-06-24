@@ -45,14 +45,14 @@ class ThreadSettingsHomeNotifs extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      currentValue: props.threadInfo.currentUser.subscription.home,
+      currentValue: !props.threadInfo.currentUser.subscription.home,
     };
   }
 
   render() {
     return (
       <View style={this.props.styles.row}>
-        <Text style={this.props.styles.label}>Home notifs</Text>
+        <Text style={this.props.styles.label}>Background notifs</Text>
         <View style={this.props.styles.currentValue}>
           <Switch
             value={this.state.currentValue}
@@ -70,7 +70,7 @@ class ThreadSettingsHomeNotifs extends React.PureComponent<Props, State> {
       this.props.updateSubscription({
         threadID: this.props.threadInfo.id,
         updatedFields: {
-          home: value,
+          home: !value,
         },
       }),
     );
@@ -89,7 +89,6 @@ const styles = {
   label: {
     color: 'panelForegroundTertiaryLabel',
     fontSize: 16,
-    width: 96,
   },
   row: {
     alignItems: 'center',
