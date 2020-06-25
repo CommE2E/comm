@@ -1,5 +1,6 @@
 // @flow
 
+import { threadPermissions } from 'lib/types/thread-types';
 import { threadSubscriptions } from 'lib/types/subscription-types';
 
 import apn from 'apn';
@@ -11,7 +12,8 @@ async function rescindPushNotifs(
   notifCondition: SQLStatement,
   inputCountCondition?: SQLStatement,
 ) {
-  const notificationExtractString = `$.${threadSubscriptions.HOME}`;
+  const notificationExtractString = `$.${threadSubscriptions.home}`;
+  const visPermissionExtractString = `$.${threadPermissions.VISIBLE}.value`;
   const fetchQuery = SQL`
     SELECT n.id, n.delivery, n.collapse_key, n.thread, COUNT(
   `;
@@ -21,6 +23,7 @@ async function rescindPushNotifs(
     FROM notifications n
     LEFT JOIN memberships m ON m.user = n.user AND m.unread = 1 AND m.role != 0 
       AND JSON_EXTRACT(subscription, ${notificationExtractString})
+      AND JSON_EXTRACT(permissions, ${visPermissionExtractString})
     WHERE n.rescinded = 0 AND
   `);
   fetchQuery.append(notifCondition);

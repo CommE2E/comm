@@ -177,7 +177,7 @@ async function getUnreadCounts(
   userIDs: string[],
 ): Promise<{ [userID: string]: number }> {
   const visPermissionExtractString = `$.${threadPermissions.VISIBLE}.value`;
-  const notificationExtractString = `$.${threadSubscriptions.HOME}`;
+  const notificationExtractString = `$.${threadSubscriptions.home}`;
   const query = SQL`
     SELECT user, COUNT(thread) AS unread_count
     FROM memberships
