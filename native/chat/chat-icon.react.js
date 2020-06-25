@@ -8,7 +8,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
-import { unreadCount } from 'lib/selectors/thread-selectors';
+import { unreadHomeCount } from 'lib/selectors/thread-selectors';
 
 type Props = {
   color: string,
@@ -63,5 +63,5 @@ const styles = StyleSheet.create({
 });
 
 export default connect((state: AppState) => ({
-  unreadCount: unreadCount(state),
+  unreadCount: unreadHomeCount(state),
 }))(ChatIcon);
