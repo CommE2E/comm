@@ -354,7 +354,6 @@ class ComposeThread extends React.PureComponent<Props, State> {
     if (this.createThreadPressed) {
       return;
     }
-    this.createThreadPressed = true;
     if (this.state.userInfoInputArray.length === 0) {
       Alert.alert(
         'Chatting to yourself?',
@@ -370,6 +369,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
   };
 
   dispatchNewChatThreadAction = async () => {
+    this.createThreadPressed = true;
     const promise = this.newChatThreadAction();
     this.props.dispatchActionPromise(newThreadActionTypes, promise);
     const { newThreadInfo: rawThreadInfo } = await promise;
