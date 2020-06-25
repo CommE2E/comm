@@ -53,7 +53,7 @@ type Props = {|
     'HomeChatThreadList' | 'BackgroundChatThreadList',
   >,
   filterThreads: (threadItem: ThreadInfo) => boolean,
-  emptyItem: React.Node,
+  emptyItem?: React.Node,
   // Redux state
   chatListData: $ReadOnlyArray<ChatThreadItem>,
   viewerID: ?string,
@@ -130,7 +130,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       );
     }
     if (item.type === 'empty') {
-      return this.props.emptyItem;
+      return item.emptyItem;
     }
     return <ChatThreadListItem data={item} onPressItem={this.onPressItem} />;
   };
@@ -165,6 +165,12 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     if (item.type === 'search') {
       return Platform.OS === 'ios' ? 54.5 : 55;
     }
+    // itemHeight for emptyItem might be wrong because of line wrapping
+    // but we don't care because we'll only ever be rendering this item by itself
+    // and it should always be on-screen
+    if (item.type === 'empty') {
+      return 129.5;
+    }
     return 60;
   }
 
@@ -192,7 +198,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
         );
       }
       if (this.props.emptyItem && chatItems.length === 0) {
-        const emptyItem = this.props.emptyItem;
+        const { emptyItem } = this.props;
         return [
           { type: 'search', searchText },
           { type: 'empty', emptyItem },
