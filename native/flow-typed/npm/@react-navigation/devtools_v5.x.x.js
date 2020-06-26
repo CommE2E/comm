@@ -1,7 +1,4 @@
-// flow-typed signature: 5db79e4115d62b6c8a81decff8bfe4d5
-// flow-typed version: bfbf5a5401/@react-navigation/bottom-tabs_v5.x.x/flow_>=v0.104.x
-
-declare module '@react-navigation/bottom-tabs' {
+declare module '@react-navigation/devtools' {
 
   //---------------------------------------------------------------------------
   // SECTION 1: IDENTICAL TYPE DEFINITIONS
@@ -2012,31 +2009,8 @@ declare module '@react-navigation/bottom-tabs' {
   // are not present in any other React Navigation libdef.
   //---------------------------------------------------------------------------
 
-  /**
-   * createBottomTabNavigator
-   */
-
-  declare export var createBottomTabNavigator: CreateNavigator<
-    TabNavigationState,
-    BottomTabOptions,
-    BottomTabNavigationEventMap,
-    ExtraBottomTabNavigatorProps,
-  >;
-
-  /**
-   * BottomTabBar
-   */
-
-  declare export var BottomTabBar: React$ComponentType<BottomTabBarProps>;
-
-  /**
-   * BottomTabView
-   */
-
-  declare export type BottomTabViewProps = {|
-    ...BottomTabNavigationConfig,
-    ...BottomTabNavigationBuilderResult,
-  |};
-  declare export var BottomTabView: React$ComponentType<BottomTabViewProps>;
+  declare export function useReduxDevToolsExtension(
+    container: { +current: ?React$ElementRef<any>, ... },
+  ): void;
 
 }
