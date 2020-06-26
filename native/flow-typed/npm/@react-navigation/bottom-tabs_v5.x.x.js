@@ -1,5 +1,5 @@
-// flow-typed signature: cda2e1070bd5c208e1fcf2ea5754e687
-// flow-typed version: ecee683170/@react-navigation/bottom-tabs_v5.x.x/flow_>=v0.104.x
+// flow-typed signature: 5db79e4115d62b6c8a81decff8bfe4d5
+// flow-typed version: bfbf5a5401/@react-navigation/bottom-tabs_v5.x.x/flow_>=v0.104.x
 
 declare module '@react-navigation/bottom-tabs' {
 
@@ -1227,7 +1227,7 @@ declare module '@react-navigation/bottom-tabs' {
     +headerTintColor: string,
     +headerTitleAllowFontScaling: boolean,
     +headerBackAllowFontScaling: boolean,
-    +headerBackTitle: string,
+    +headerBackTitle: string | null,
     +headerBackTitleStyle: TextStyleProp,
     +headerBackTitleVisible: boolean,
     +headerTruncatedBackTitle: string,

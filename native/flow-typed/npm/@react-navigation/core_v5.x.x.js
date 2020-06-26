@@ -1,5 +1,5 @@
-// flow-typed signature: c6b613396e54f513d277ef7bfe8c82da
-// flow-typed version: ecee683170/@react-navigation/core_v5.x.x/flow_>=v0.104.x
+// flow-typed signature: 317b5e100e4c74e04a4dfe2a1951c0bd
+// flow-typed version: bfbf5a5401/@react-navigation/core_v5.x.x/flow_>=v0.104.x
 
 declare module '@react-navigation/core' {
 
@@ -1227,7 +1227,7 @@ declare module '@react-navigation/core' {
     +headerTintColor: string,
     +headerTitleAllowFontScaling: boolean,
     +headerBackAllowFontScaling: boolean,
-    +headerBackTitle: string,
+    +headerBackTitle: string | null,
     +headerBackTitleStyle: TextStyleProp,
     +headerBackTitleVisible: boolean,
     +headerTruncatedBackTitle: string,

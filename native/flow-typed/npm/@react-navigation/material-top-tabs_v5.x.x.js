@@ -1,5 +1,5 @@
-// flow-typed signature: 810b43b04ec962bd02054f1b6ff4946b
-// flow-typed version: ecee683170/@react-navigation/material-top-tabs_v5.x.x/flow_>=v0.104.x
+// flow-typed signature: 25d9e2c3ba02a654f1abcd4aedbc8013
+// flow-typed version: bfbf5a5401/@react-navigation/material-top-tabs_v5.x.x/flow_>=v0.104.x
 
 declare module '@react-navigation/material-top-tabs' {
 
@@ -1227,7 +1227,7 @@ declare module '@react-navigation/material-top-tabs' {
     +headerTintColor: string,
     +headerTitleAllowFontScaling: boolean,
     +headerBackAllowFontScaling: boolean,
-    +headerBackTitle: string,
+    +headerBackTitle: string | null,
     +headerBackTitleStyle: TextStyleProp,
     +headerBackTitleVisible: boolean,
     +headerTruncatedBackTitle: string,

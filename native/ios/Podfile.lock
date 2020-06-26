@@ -248,7 +248,7 @@ PODS:
     - React
   - react-native-orientation-locker (1.1.6):
     - React
-  - react-native-safe-area-context (3.0.2):
+  - react-native-safe-area-context (3.0.6):
     - React
   - react-native-video/Video (5.0.2):
     - React
@@ -318,7 +318,7 @@ PODS:
     - React
   - RNReanimated (1.9.0):
     - React
-  - RNScreens (2.7.0):
+  - RNScreens (2.9.0):
     - React
   - RNVectorIcons (6.6.0):
     - React
@@ -628,7 +628,7 @@ SPEC CHECKSUMS:
   react-native-notifications: bb042206ac7eab9323d528c780b3d6fe796c1f5e
   react-native-onepassword: 5b2b7f425f9db40932703e65d350b78cbc598047
   react-native-orientation-locker: 23918c400376a7043e752c639c122fcf6bce8f1c
-  react-native-safe-area-context: b11a34881faac509cad5578726c98161ad4d275c
+  react-native-safe-area-context: e22a8ca00f758273d2408953965cb8db67da7925
   react-native-video: d01ed7ff1e38fa7dcc6c15c94cf505e661b7bfd0
   React-RCTActionSheet: 600b4d10e3aea0913b5a92256d2719c0cdd26d76
   React-RCTAnimation: 791a87558389c80908ed06cc5dfc5e7920dfa360
@@ -652,7 +652,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: 8f09cd560f8d533eb36da5a6c5a843af9f056b38
   RNKeychain: 45dbd50d1ac4bd42c3740f76ffb135abf05746d0
   RNReanimated: b5ccb50650ba06f6e749c7c329a1bc3ae0c88b43
-  RNScreens: cf198f915f8a2bf163de94ca9f5bfc8d326c3706
+  RNScreens: c526239bbe0e957b988dacc8d75ac94ec9cb19da
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   SDWebImage: d9ea4959d99c52276dfada481987018fcaea3d58
   SDWebImageWebPCoder: 947093edd1349d820c40afbd9f42acb6cdecd987

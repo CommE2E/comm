@@ -1,5 +1,5 @@
-// flow-typed signature: 29924eb8e26fde756f5fb3e95110620f
-// flow-typed version: ecee683170/@react-navigation/native_v5.x.x/flow_>=v0.104.x
+// flow-typed signature: 4cba30a0852c70be641985ded940055f
+// flow-typed version: bfbf5a5401/@react-navigation/native_v5.x.x/flow_>=v0.104.x
 
 declare module '@react-navigation/native' {
 
@@ -1227,7 +1227,7 @@ declare module '@react-navigation/native' {
     +headerTintColor: string,
     +headerTitleAllowFontScaling: boolean,
     +headerBackAllowFontScaling: boolean,
-    +headerBackTitle: string,
+    +headerBackTitle: string | null,
     +headerBackTitleStyle: TextStyleProp,
     +headerBackTitleVisible: boolean,
     +headerTruncatedBackTitle: string,

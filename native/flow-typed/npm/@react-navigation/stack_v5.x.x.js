@@ -1,5 +1,5 @@
-// flow-typed signature: adaa100b411117a447158bc40021cd46
-// flow-typed version: ecee683170/@react-navigation/stack_v5.x.x/flow_>=v0.104.x
+// flow-typed signature: ccb7ea984772b11e89185bbfecd7656d
+// flow-typed version: bfbf5a5401/@react-navigation/stack_v5.x.x/flow_>=v0.104.x
 
 declare module '@react-navigation/stack' {
 
@@ -1227,7 +1227,7 @@ declare module '@react-navigation/stack' {
     +headerTintColor: string,
     +headerTitleAllowFontScaling: boolean,
     +headerBackAllowFontScaling: boolean,
-    +headerBackTitle: string,
+    +headerBackTitle: string | null,
     +headerBackTitleStyle: TextStyleProp,
     +headerBackTitleVisible: boolean,
     +headerTruncatedBackTitle: string,
