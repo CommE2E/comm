@@ -36,17 +36,7 @@ export default function BackgroundChatThreadList(
     props.navigation.setOptions({ title });
   }, [props.navigation, unreadBackgroundThreadsNumber]);
 
-  const styles = useStyles(style);
-  const emptyItem: React.Node = (
-    <Text style={styles.emptyList}>
-      {' '}
-      Background threads are just like normal threads, except they appear in
-      this tab instead of Home, and they don&apos;t contribute to your unread
-      count. {'\n'}
-      To move a thread over here, switch the Background option in its settings.
-    </Text>
-  );
-
+  const emptyItem = <EmptyItem />;
   return (
     <ChatThreadList
       navigation={props.navigation}
@@ -56,7 +46,20 @@ export default function BackgroundChatThreadList(
   );
 }
 
-const style = {
+function EmptyItem() {
+  const styles = useStyles(unboundStyles);
+  return (
+    <Text style={styles.emptyList}>
+      {' '}
+      Background threads are just like normal threads, except they appear in
+      this tab instead of Home, and they don&apos;t contribute to your unread
+      count. {'\n'}
+      To move a thread over here, switch the Background option in its settings.
+    </Text>
+  );
+}
+
+const unboundStyles = {
   emptyList: {
     color: 'listBackgroundLabel',
     fontSize: 18,
