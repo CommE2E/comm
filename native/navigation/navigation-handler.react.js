@@ -16,8 +16,6 @@ import NavFromReduxHandler from './nav-from-redux-handler.react';
 import { logInActionType, logOutActionType } from './action-types';
 import DevTools from '../redux/dev-tools.react';
 
-global.REACT_NAVIGATION_REDUX_DEVTOOLS_EXTENSION_INTEGRATION_ENABLED = true;
-
 const NavigationHandler = React.memo<{||}>(() => {
   const navContext = React.useContext(NavContext);
   const reduxRehydrated = useSelector(

@@ -1,15 +1,9 @@
 // @flow
 
-import { type GlobalTheme, globalThemePropType } from './types/themes';
-import type { AppState } from './redux/redux-setup';
-import type { NavAction } from './navigation/navigation-context';
-import type {
-  PossiblyStaleNavigationState,
-  GenericNavigationAction,
-} from '@react-navigation/native';
+import type { PossiblyStaleNavigationState } from '@react-navigation/native';
 
 import * as React from 'react';
-import { Provider } from 'react-redux';
+import { Provider, useSelector } from 'react-redux';
 import { Platform, UIManager, View, StyleSheet } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -17,9 +11,8 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 import invariant from 'invariant';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import PropTypes from 'prop-types';
+import { useReduxDevToolsExtension } from '@react-navigation/devtools';
 
-import { connect } from 'lib/utils/redux-utils';
 import { actionLogger } from 'lib/utils/action-logger';
 
 import RootNavigator from './navigation/root-navigator.react';
@@ -33,12 +26,9 @@ import ThemeHandler from './themes/theme-handler.react';
 import OrientationHandler from './navigation/orientation-handler.react';
 import Socket from './socket.react';
 import { getPersistor } from './redux/persist';
-import {
-  NavContext,
-  type NavContextType,
-} from './navigation/navigation-context';
+import { NavContext } from './navigation/navigation-context';
 import { setGlobalNavContext } from './navigation/icky-global';
-import { RootContext, type RootContextType } from './root-context';
+import { RootContext } from './root-context';
 import NavigationHandler from './navigation/navigation-handler.react';
 import { defaultNavigationState } from './navigation/default-state';
 import InputStateContainer from './input/input-state-container.react';
@@ -56,210 +46,195 @@ if (Platform.OS === 'android') {
 const navInitAction = Object.freeze({ type: 'NAV/@@INIT' });
 const navUnknownAction = Object.freeze({ type: 'NAV/@@UNKNOWN' });
 
-type Props = {
-  // Redux state
-  activeTheme: ?GlobalTheme,
-  frozen: boolean,
-};
-type State = {|
-  navContext: ?NavContextType,
-  rootContext: RootContextType,
-  initialState: ?PossiblyStaleNavigationState,
-|};
-class Root extends React.PureComponent<Props, State> {
-  static propTypes = {
-    activeTheme: globalThemePropType,
-    frozen: PropTypes.bool.isRequired,
-  };
-  navDispatch: ?(action: NavAction) => void;
-  navState: ?PossiblyStaleNavigationState;
-  navStateInitialized = false;
-  queuedActions = [];
+function Root() {
+  const navStateRef = React.useRef();
+  const navDispatchRef = React.useRef();
+  const navStateInitializedRef = React.useRef(false);
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      navContext: null,
-      rootContext: {
-        setNavStateInitialized: this.setNavStateInitialized,
-        onNavAction: this.onNavAction,
-      },
-      initialState: null,
+  const [navContext, setNavContext] = React.useState(null);
+  const updateNavContext = React.useCallback(() => {
+    if (
+      !navStateRef.current ||
+      !navDispatchRef.current ||
+      !navStateInitializedRef.current
+    ) {
+      return;
+    }
+    const updatedNavContext = {
+      state: navStateRef.current,
+      dispatch: navDispatchRef.current,
     };
-  }
+    setNavContext(updatedNavContext);
+    setGlobalNavContext(updatedNavContext);
+  }, [navStateRef, navDispatchRef, navStateInitializedRef, setNavContext]);
 
-  componentDidMount() {
+  const [initialState, setInitialState] = React.useState(null);
+  React.useEffect(() => {
     Orientation.lockToPortrait();
-    this.loadInitialState();
-  }
-
-  async loadInitialState() {
-    let initialState;
-    if (__DEV__) {
-      try {
-        const navStateString = await AsyncStorage.getItem(
-          navStateAsyncStorageKey,
-        );
-        if (navStateString) {
-          const savedState = JSON.parse(navStateString);
-          if (validNavState(savedState)) {
-            initialState = savedState;
+    (async () => {
+      let loadedState;
+      if (__DEV__) {
+        try {
+          const navStateString = await AsyncStorage.getItem(
+            navStateAsyncStorageKey,
+          );
+          if (navStateString) {
+            const savedState = JSON.parse(navStateString);
+            if (validNavState(savedState)) {
+              loadedState = savedState;
+            }
           }
-        }
-      } catch {}
-    }
-    if (!initialState) {
-      initialState = defaultNavigationState;
-    }
-    this.navState = initialState;
-    this.setNavContext();
-    actionLogger.addOtherAction('navState', navInitAction, null, initialState);
-    this.setState({ initialState });
-  }
+        } catch {}
+      }
+      if (!loadedState) {
+        loadedState = defaultNavigationState;
+      }
+      navStateRef.current = loadedState;
+      updateNavContext();
+      actionLogger.addOtherAction('navState', navInitAction, null, loadedState);
+      setInitialState(loadedState);
+    })();
+  }, [navStateRef, updateNavContext, setInitialState]);
 
-  get theme() {
-    const { activeTheme } = this.props;
+  const setNavStateInitialized = React.useCallback(() => {
+    navStateInitializedRef.current = true;
+    updateNavContext();
+  }, [navStateInitializedRef, updateNavContext]);
+
+  const [rootContext, setRootContext] = React.useState(() => ({
+    setNavStateInitialized,
+  }));
+
+  const detectUnsupervisedBackgroundRef = React.useCallback(
+    (detectUnsupervisedBackground: ?(alreadyClosed: boolean) => boolean) => {
+      setRootContext(prevRootContext => ({
+        ...prevRootContext,
+        detectUnsupervisedBackground,
+      }));
+    },
+    [setRootContext],
+  );
+
+  const frozen = useSelector(state => state.frozen);
+  const queuedActionsRef = React.useRef([]);
+  const onNavigationStateChange = React.useCallback(
+    (state: ?PossiblyStaleNavigationState) => {
+      invariant(state, 'nav state should be non-null');
+      const prevState = navStateRef.current;
+      navStateRef.current = state;
+      updateNavContext();
+
+      const queuedActions = queuedActionsRef.current;
+      queuedActionsRef.current = [];
+      if (queuedActions.length === 0) {
+        queuedActions.push(navUnknownAction);
+      }
+      for (let action of queuedActions) {
+        actionLogger.addOtherAction('navState', action, prevState, state);
+      }
+
+      if (!__DEV__ || frozen) {
+        return;
+      }
+
+      (async () => {
+        try {
+          await AsyncStorage.setItem(
+            navStateAsyncStorageKey,
+            JSON.stringify(state),
+          );
+        } catch (e) {
+          console.log('AsyncStorage threw while trying to persist navState', e);
+        }
+      })();
+    },
+    [navStateRef, updateNavContext, queuedActionsRef, frozen],
+  );
+
+  const navContainerRef = React.useRef();
+  const containerRef = React.useCallback(
+    (navContainer: ?React.ElementRef<typeof NavigationContainer>) => {
+      navContainerRef.current = navContainer;
+      if (navContainer && !navDispatchRef.current) {
+        navDispatchRef.current = navContainer.dispatch;
+        updateNavContext();
+      }
+    },
+    [navContainerRef, navDispatchRef, updateNavContext],
+  );
+  useReduxDevToolsExtension(navContainerRef);
+
+  const navContainer = navContainerRef.current;
+  React.useEffect(() => {
+    if (!navContainer) {
+      return;
+    }
+    return navContainer.addListener('__unsafe_action__', event => {
+      const { action, noop } = event.data;
+      const navState = navStateRef.current;
+      if (noop) {
+        actionLogger.addOtherAction('navState', action, navState, navState);
+        return;
+      }
+      queuedActionsRef.current.push({
+        ...action,
+        type: `NAV/${action.type}`,
+      });
+    });
+  }, [navContainer, navStateRef, queuedActionsRef]);
+
+  const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
+  const theme = (() => {
     if (activeTheme === 'light') {
       return LightTheme;
     } else if (activeTheme === 'dark') {
       return DarkTheme;
     }
     return undefined;
-  }
+  })();
 
-  render() {
-    const { detectUnsupervisedBackgroundRef } = this;
-    const gated: React.Node = (
-      <>
-        <LifecycleHandler />
-        <Socket
-          detectUnsupervisedBackgroundRef={detectUnsupervisedBackgroundRef}
-        />
-        <DisconnectedBarVisibilityHandler />
-        <DimensionsUpdater />
-        <ConnectivityUpdater />
-        <ThemeHandler />
-        <OrientationHandler />
-      </>
-    );
-    let navContainer;
-    if (this.state.initialState) {
-      navContainer = (
-        <NavigationContainer
-          initialState={this.state.initialState}
-          onStateChange={this.onNavigationStateChange}
-          theme={this.theme}
-          ref={this.navContainerRef}
-        >
-          <RootNavigator />
-        </NavigationContainer>
-      );
-    }
-    return (
-      <View style={styles.app}>
-        <NavContext.Provider value={this.state.navContext}>
-          <RootContext.Provider value={this.state.rootContext}>
-            <InputStateContainer>
-              <SafeAreaProvider>
-                <ConnectedStatusBar />
-                <PersistGate persistor={getPersistor()}>{gated}</PersistGate>
-                {navContainer}
-                <NavigationHandler />
-              </SafeAreaProvider>
-            </InputStateContainer>
-          </RootContext.Provider>
-        </NavContext.Provider>
-      </View>
+  const gated: React.Node = (
+    <>
+      <LifecycleHandler />
+      <Socket
+        detectUnsupervisedBackgroundRef={detectUnsupervisedBackgroundRef}
+      />
+      <DisconnectedBarVisibilityHandler />
+      <DimensionsUpdater />
+      <ConnectivityUpdater />
+      <ThemeHandler />
+      <OrientationHandler />
+    </>
+  );
+  let navigation;
+  if (initialState) {
+    navigation = (
+      <NavigationContainer
+        initialState={initialState}
+        onStateChange={onNavigationStateChange}
+        theme={theme}
+        ref={containerRef}
+      >
+        <RootNavigator />
+      </NavigationContainer>
     );
   }
-
-  detectUnsupervisedBackgroundRef = (
-    detectUnsupervisedBackground: ?(alreadyClosed: boolean) => boolean,
-  ) => {
-    this.setState(prevState => ({
-      rootContext: {
-        ...prevState.rootContext,
-        detectUnsupervisedBackground,
-      },
-    }));
-  };
-
-  onNavigationStateChange = (state: ?PossiblyStaleNavigationState) => {
-    invariant(state, 'nav state should be non-null');
-    const prevState = this.navState;
-    this.navState = state;
-    this.setNavContext();
-
-    const { queuedActions } = this;
-    this.queuedActions = [];
-    if (queuedActions.length === 0) {
-      queuedActions.push(navUnknownAction);
-    }
-    for (let action of queuedActions) {
-      actionLogger.addOtherAction('navState', action, prevState, state);
-    }
-
-    if (__DEV__ && !this.props.frozen) {
-      this.persistNavigationState(state);
-    }
-  };
-
-  navContainerRef = (
-    navContainer: ?React.ElementRef<typeof NavigationContainer>,
-  ) => {
-    if (!navContainer) {
-      return;
-    }
-    if (!this.navDispatch) {
-      this.navDispatch = navContainer.dispatch;
-      this.setNavContext();
-    }
-  };
-
-  setNavContext() {
-    if (!this.navState || !this.navDispatch || !this.navStateInitialized) {
-      return;
-    }
-    const navContext = {
-      state: this.navState,
-      dispatch: this.navDispatch,
-    };
-    this.setState({ navContext });
-    setGlobalNavContext(navContext);
-  }
-
-  setNavStateInitialized = () => {
-    this.navStateInitialized = true;
-    this.setNavContext();
-  };
-
-  onNavAction = (action: GenericNavigationAction | string) => {
-    if (typeof action === 'string') {
-      this.queuedActions.push({ type: `NAV/${action}` });
-    } else if (
-      action &&
-      typeof action === 'object' &&
-      typeof action.type === 'string'
-    ) {
-      this.queuedActions.push({
-        ...action,
-        type: `NAV/${action.type}`,
-      });
-    } else {
-      this.queuedActions.push(action);
-    }
-  };
-
-  persistNavigationState = async (state: PossiblyStaleNavigationState) => {
-    try {
-      await AsyncStorage.setItem(
-        navStateAsyncStorageKey,
-        JSON.stringify(state),
-      );
-    } catch (e) {
-      console.log('AsyncStorage threw while trying to persist navState', e);
-    }
-  };
+  return (
+    <View style={styles.app}>
+      <NavContext.Provider value={navContext}>
+        <RootContext.Provider value={rootContext}>
+          <InputStateContainer>
+            <SafeAreaProvider>
+              <ConnectedStatusBar />
+              <PersistGate persistor={getPersistor()}>{gated}</PersistGate>
+              {navigation}
+              <NavigationHandler />
+            </SafeAreaProvider>
+          </InputStateContainer>
+        </RootContext.Provider>
+      </NavContext.Provider>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -268,15 +243,10 @@ const styles = StyleSheet.create({
   },
 });
 
-const ConnectedRoot = connect((state: AppState) => ({
-  activeTheme: state.globalThemeInfo.activeTheme,
-  frozen: state.frozen,
-}))(Root);
-
 const AppRoot = () => (
   <Provider store={store}>
     <ErrorBoundary>
-      <ConnectedRoot />
+      <Root />
     </ErrorBoundary>
   </Provider>
 );
