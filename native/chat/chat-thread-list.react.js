@@ -130,7 +130,8 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       );
     }
     if (item.type === 'empty') {
-      return <item.emptyItem />;
+      const EmptyItem = item.emptyItem;
+      return <EmptyItem />;
     }
     return <ChatThreadListItem data={item} onPressItem={this.onPressItem} />;
   };
@@ -187,23 +188,24 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       reduxChatListData: $ReadOnlyArray<ChatThreadItem>,
       searchText: string,
       searchResults: Set<string>,
-      emptyItem?: any,
+      emptyItem?: React.ComponentType<{||}>,
     ): Item[] => {
-      let chatItems;
+      const chatItems = [];
       if (!searchText) {
-        chatItems = reduxChatListData.filter(item =>
-          this.props.filterThreads(item.threadInfo),
+        chatItems.push(
+          ...reduxChatListData.filter(item =>
+            this.props.filterThreads(item.threadInfo),
+          ),
         );
       } else {
-        chatItems = reduxChatListData.filter(item =>
-          searchResults.has(item.threadInfo.id),
+        chatItems.push(
+          ...reduxChatListData.filter(item =>
+            searchResults.has(item.threadInfo.id),
+          ),
         );
       }
       if (emptyItem && chatItems.length === 0) {
-        return [
-          { type: 'search', searchText },
-          { type: 'empty', emptyItem },
-        ];
+        chatItems.push({ type: 'empty', emptyItem });
       }
       return [{ type: 'search', searchText }, ...chatItems];
     },

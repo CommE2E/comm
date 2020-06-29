@@ -45,7 +45,7 @@ export default function BackgroundChatThreadList(
   );
 }
 
-const EmptyItem: React.ComponentType<{||}> = () => {
+function EmptyItem() {
   const styles = useStyles(unboundStyles);
   return (
     <Text style={styles.emptyList}>
@@ -56,7 +56,7 @@ const EmptyItem: React.ComponentType<{||}> = () => {
       To move a thread over here, switch the Background option in its settings.
     </Text>
   );
-};
+}
 
 const unboundStyles = {
   emptyList: {
