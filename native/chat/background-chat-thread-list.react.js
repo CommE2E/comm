@@ -49,11 +49,11 @@ function EmptyItem() {
   const styles = useStyles(unboundStyles);
   return (
     <Text style={styles.emptyList}>
-      {' '}
       Background threads are just like normal threads, except they appear in
       this tab instead of Home, and they don&apos;t contribute to your unread
-      count. {'\n'}
-      To move a thread over here, switch the Background option in its settings.
+      count.{'\n\n'}
+      To move a thread over here, switch the “Background” option in its
+      settings.
     </Text>
   );
 }
@@ -61,8 +61,9 @@ function EmptyItem() {
 const unboundStyles = {
   emptyList: {
     color: 'listBackgroundLabel',
-    fontSize: 18,
-    margin: 10,
+    fontSize: 17,
+    marginHorizontal: 15,
+    marginVertical: 10,
     textAlign: 'center',
   },
 };

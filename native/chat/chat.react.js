@@ -18,8 +18,8 @@ import { StackView } from '@react-navigation/stack';
 import { Platform, StyleSheet } from 'react-native';
 import invariant from 'invariant';
 
-import HomeChatThreadList from './chat-thread-home.react';
-import BackgroundChatThreadList from './chat-thread-background.react';
+import HomeChatThreadList from './home-chat-thread-list.react';
+import BackgroundChatThreadList from './background-chat-thread-list.react';
 import MessageListContainer from './message-list-container.react';
 import ComposeThread from './compose-thread.react';
 import ThreadSettings from './settings/thread-settings.react';
