@@ -43,13 +43,17 @@ const floatingActions = [
   },
 ];
 
-type Item = ChatThreadItem | {| type: 'search', searchText: string |};
+type Item =
+  | ChatThreadItem
+  | {| type: 'search', searchText: string |}
+  | {| type: 'empty', emptyItem: React.ComponentType<{||}> |};
 
 type Props = {|
   navigation: ChatTopTabsNavigationProp<
     'HomeChatThreadList' | 'BackgroundChatThreadList',
   >,
   filterThreads: (threadItem: ThreadInfo) => boolean,
+  emptyItem?: React.ComponentType<{||}>,
   // Redux state
   chatListData: $ReadOnlyArray<ChatThreadItem>,
   viewerID: ?string,
@@ -69,6 +73,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       isFocused: PropTypes.func.isRequired,
     }).isRequired,
     filterThreads: PropTypes.func.isRequired,
+    emptyItem: PropTypes.elementType,
     chatListData: PropTypes.arrayOf(chatThreadItemPropType).isRequired,
     viewerID: PropTypes.string,
     threadSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
@@ -124,6 +129,10 @@ class ChatThreadList extends React.PureComponent<Props, State> {
         />
       );
     }
+    if (item.type === 'empty') {
+      const EmptyItem = item.emptyItem;
+      return <EmptyItem />;
+    }
     return <ChatThreadListItem data={item} onPressItem={this.onPressItem} />;
   };
 
@@ -134,6 +143,8 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   static keyExtractor(item: Item) {
     if (item.threadInfo) {
       return item.threadInfo.id;
+    } else if (item.emptyItem) {
+      return 'empty';
     } else {
       return 'search';
     }
@@ -155,6 +166,12 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     if (item.type === 'search') {
       return Platform.OS === 'ios' ? 54.5 : 55;
     }
+    // itemHeight for emptyItem might be wrong because of line wrapping
+    // but we don't care because we'll only ever be rendering this item by itself
+    // and it should always be on-screen
+    if (item.type === 'empty') {
+      return 129.5;
+    }
     return 60;
   }
 
@@ -166,20 +183,29 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.chatListData,
     (propsAndState: PropsAndState) => propsAndState.searchText,
     (propsAndState: PropsAndState) => propsAndState.searchResults,
+    (propsAndState: PropsAndState) => propsAndState.emptyItem,
     (
       reduxChatListData: $ReadOnlyArray<ChatThreadItem>,
       searchText: string,
       searchResults: Set<string>,
+      emptyItem?: React.ComponentType<{||}>,
     ): Item[] => {
-      let chatItems;
+      const chatItems = [];
       if (!searchText) {
-        chatItems = reduxChatListData.filter(item =>
-          this.props.filterThreads(item.threadInfo),
+        chatItems.push(
+          ...reduxChatListData.filter(item =>
+            this.props.filterThreads(item.threadInfo),
+          ),
         );
       } else {
-        chatItems = reduxChatListData.filter(item =>
-          searchResults.has(item.threadInfo.id),
+        chatItems.push(
+          ...reduxChatListData.filter(item =>
+            searchResults.has(item.threadInfo.id),
+          ),
         );
+      }
+      if (emptyItem && chatItems.length === 0) {
+        chatItems.push({ type: 'empty', emptyItem });
       }
       return [{ type: 'search', searchText }, ...chatItems];
     },
