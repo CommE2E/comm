@@ -46,14 +46,14 @@ const floatingActions = [
 type Item =
   | ChatThreadItem
   | {| type: 'search', searchText: string |}
-  | {| type: 'empty', emptyItem: React.Node |};
+  | {| type: 'empty', emptyItem: React.ComponentType<{||}> |};
 
 type Props = {|
   navigation: ChatTopTabsNavigationProp<
     'HomeChatThreadList' | 'BackgroundChatThreadList',
   >,
   filterThreads: (threadItem: ThreadInfo) => boolean,
-  emptyItem?: React.Node,
+  emptyItem?: React.ComponentType<{||}>,
   // Redux state
   chatListData: $ReadOnlyArray<ChatThreadItem>,
   viewerID: ?string,
@@ -73,7 +73,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       isFocused: PropTypes.func.isRequired,
     }).isRequired,
     filterThreads: PropTypes.func.isRequired,
-    emptyItem: PropTypes.node,
+    emptyItem: PropTypes.elementType,
     chatListData: PropTypes.arrayOf(chatThreadItemPropType).isRequired,
     viewerID: PropTypes.string,
     threadSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
@@ -130,7 +130,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       );
     }
     if (item.type === 'empty') {
-      return item.emptyItem;
+      return <item.emptyItem />;
     }
     return <ChatThreadListItem data={item} onPressItem={this.onPressItem} />;
   };
@@ -182,10 +182,12 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.chatListData,
     (propsAndState: PropsAndState) => propsAndState.searchText,
     (propsAndState: PropsAndState) => propsAndState.searchResults,
+    (propsAndState: PropsAndState) => propsAndState.emptyItem,
     (
       reduxChatListData: $ReadOnlyArray<ChatThreadItem>,
       searchText: string,
       searchResults: Set<string>,
+      emptyItem?: any,
     ): Item[] => {
       let chatItems;
       if (!searchText) {
@@ -197,8 +199,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
           searchResults.has(item.threadInfo.id),
         );
       }
-      if (this.props.emptyItem && chatItems.length === 0) {
-        const { emptyItem } = this.props;
+      if (emptyItem && chatItems.length === 0) {
         return [
           { type: 'search', searchText },
           { type: 'empty', emptyItem },

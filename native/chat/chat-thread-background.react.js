@@ -36,17 +36,16 @@ export default function BackgroundChatThreadList(
     props.navigation.setOptions({ title });
   }, [props.navigation, unreadBackgroundThreadsNumber]);
 
-  const emptyItem = <EmptyItem />;
   return (
     <ChatThreadList
       navigation={props.navigation}
       filterThreads={threadInBackgroundChatList}
-      emptyItem={emptyItem}
+      emptyItem={EmptyItem}
     />
   );
 }
 
-function EmptyItem() {
+const EmptyItem: React.ComponentType<{||}> = () => {
   const styles = useStyles(unboundStyles);
   return (
     <Text style={styles.emptyList}>
@@ -57,7 +56,7 @@ function EmptyItem() {
       To move a thread over here, switch the Background option in its settings.
     </Text>
   );
-}
+};
 
 const unboundStyles = {
   emptyList: {
