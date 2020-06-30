@@ -52,6 +52,7 @@ async function updateRelationships(
       userRelationshipOperations,
       errors: friendRequestErrors,
     } = await fetchFriendRequestRelationshipOperations(viewer, userIDs);
+    errors = { ...errors, ...friendRequestErrors };
 
     const undirectedInsertRows = [];
     const directedInsertRows = [];
@@ -107,8 +108,6 @@ async function updateRelationships(
     }
 
     await Promise.all(promises);
-
-    errors = { ...errors, ...friendRequestErrors };
   } else if (action === relationshipActions.UNFRIEND) {
     updateIDs.push(...userIDs);
 
