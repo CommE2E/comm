@@ -81,29 +81,31 @@ async function updateRelationships(
       }
     }
 
-    const undirectedInsertQuery = SQL`
-      INSERT INTO relationships_undirected (user1, user2, status)
-      VALUES ${undirectedInsertRows}
-      ON DUPLICATE KEY UPDATE status = GREATEST(status, VALUES(status))
-    `;
-    const directedInsertQuery = SQL`
-      INSERT INTO relationships_directed (user1, user2, status)
-      VALUES ${directedInsertRows}
-      ON DUPLICATE KEY UPDATE status = VALUES(status)
-    `;
-    const directedDeleteQuery = SQL`
-      DELETE FROM relationships_directed
-      WHERE 
-        (user1 = ${viewer.userID} AND user2 IN (${directedDeleteIDs})) OR
-        (status = ${directedStatus.PENDING_FRIEND} AND 
-          user1 IN (${directedDeleteIDs}) AND user2 = ${viewer.userID})
-    `;
-
-    const promises = [
-      dbQuery(undirectedInsertQuery),
-      dbQuery(directedInsertQuery),
-    ];
-    if (directedDeleteQuery.length) {
+    const promises = [];
+    if (undirectedInsertRows.length) {
+      const undirectedInsertQuery = SQL`
+        INSERT INTO relationships_undirected (user1, user2, status)
+        VALUES ${undirectedInsertRows}
+        ON DUPLICATE KEY UPDATE status = GREATEST(status, VALUES(status))
+      `;
+      promises.push(dbQuery(undirectedInsertQuery));
+    }
+    if (directedInsertRows.length) {
+      const directedInsertQuery = SQL`
+        INSERT INTO relationships_directed (user1, user2, status)
+        VALUES ${directedInsertRows}
+        ON DUPLICATE KEY UPDATE status = VALUES(status)
+      `;
+      promises.push(dbQuery(directedInsertQuery));
+    }
+    if (directedDeleteIDs.length) {
+      const directedDeleteQuery = SQL`
+        DELETE FROM relationships_directed
+        WHERE 
+          (user1 = ${viewer.userID} AND user2 IN (${directedDeleteIDs})) OR
+          (status = ${directedStatus.PENDING_FRIEND} AND 
+            user1 IN (${directedDeleteIDs}) AND user2 = ${viewer.userID})
+      `;
       promises.push(dbQuery(directedDeleteQuery));
     }
 
