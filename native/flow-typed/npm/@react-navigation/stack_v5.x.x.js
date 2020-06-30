@@ -1,5 +1,5 @@
-// flow-typed signature: ccb7ea984772b11e89185bbfecd7656d
-// flow-typed version: bfbf5a5401/@react-navigation/stack_v5.x.x/flow_>=v0.104.x
+// flow-typed signature: 84942f76d5ef0432db67cd351ba8ce7a
+// flow-typed version: 3c17c8ecd5/@react-navigation/stack_v5.x.x/flow_>=v0.104.x
 
 declare module '@react-navigation/stack' {
 

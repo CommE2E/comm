@@ -1,3 +1,6 @@
+// flow-typed signature: 2d5fb7aa0e1b68c58a787ae7dba96b43
+// flow-typed version: 3c17c8ecd5/@react-navigation/devtools_v5.x.x/flow_>=v0.104.x
+
 declare module '@react-navigation/devtools' {
 
   //---------------------------------------------------------------------------

@@ -1,5 +1,5 @@
-// flow-typed signature: 4cba30a0852c70be641985ded940055f
-// flow-typed version: bfbf5a5401/@react-navigation/native_v5.x.x/flow_>=v0.104.x
+// flow-typed signature: 2c957c911a30440cb9ce08a7862e8731
+// flow-typed version: 3c17c8ecd5/@react-navigation/native_v5.x.x/flow_>=v0.104.x
 
 declare module '@react-navigation/native' {
 

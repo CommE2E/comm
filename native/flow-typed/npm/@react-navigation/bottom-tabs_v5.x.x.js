@@ -1,5 +1,5 @@
-// flow-typed signature: 5db79e4115d62b6c8a81decff8bfe4d5
-// flow-typed version: bfbf5a5401/@react-navigation/bottom-tabs_v5.x.x/flow_>=v0.104.x
+// flow-typed signature: e37ac5b72f5fe9ae743fbc011032560b
+// flow-typed version: 3c17c8ecd5/@react-navigation/bottom-tabs_v5.x.x/flow_>=v0.104.x
 
 declare module '@react-navigation/bottom-tabs' {
 

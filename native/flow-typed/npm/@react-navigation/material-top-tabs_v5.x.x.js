@@ -1,5 +1,5 @@
-// flow-typed signature: 25d9e2c3ba02a654f1abcd4aedbc8013
-// flow-typed version: bfbf5a5401/@react-navigation/material-top-tabs_v5.x.x/flow_>=v0.104.x
+// flow-typed signature: 941c2a283a18085d92480b12a9e4c28d
+// flow-typed version: 3c17c8ecd5/@react-navigation/material-top-tabs_v5.x.x/flow_>=v0.104.x
 
 declare module '@react-navigation/material-top-tabs' {
 
