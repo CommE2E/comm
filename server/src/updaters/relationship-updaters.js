@@ -8,6 +8,7 @@ import {
   undirectedStatus,
   directedStatus,
 } from 'lib/types/relationship-types';
+import { updateTypes } from 'lib/types/update-types';
 
 import invariant from 'invariant';
 
@@ -15,6 +16,7 @@ import { ServerError } from 'lib/utils/errors';
 
 import { fetchUserInfos } from '../fetchers/user-fetchers';
 import { fetchFriendRequestRelationshipOperations } from '../fetchers/relationship-fetchers';
+import { createUpdates } from '../creators/update-creator';
 import { dbQuery, SQL } from '../database';
 
 async function updateRelationships(
@@ -30,7 +32,7 @@ async function updateRelationships(
   const uniqueUserIDs = [...new Set(request.userIDs)];
   const users = await fetchUserInfos(uniqueUserIDs);
 
-  const errors: RelationshipErrors = {};
+  let errors: RelationshipErrors = {};
   const userIDs: string[] = [];
   for (let userID of uniqueUserIDs) {
     if (userID === viewer.userID || !users[userID].username) {
@@ -40,11 +42,11 @@ async function updateRelationships(
       userIDs.push(userID);
     }
   }
-
   if (!userIDs.length) {
     return errors;
   }
 
+  const updateIDs = [];
   if (action === relationshipActions.FRIEND) {
     const {
       userRelationshipOperations,
@@ -57,6 +59,10 @@ async function updateRelationships(
     for (const userID in userRelationshipOperations) {
       const operations = userRelationshipOperations[userID];
       const ids = sortIDs(viewer.userID, userID);
+
+      if (operations.length) {
+        updateIDs.push(userID);
+      }
 
       for (const operation of operations) {
         if (operation === 'delete_directed') {
@@ -102,8 +108,10 @@ async function updateRelationships(
 
     await Promise.all(promises);
 
-    return { ...errors, ...friendRequestErrors };
+    errors = { ...errors, ...friendRequestErrors };
   } else if (action === relationshipActions.UNFRIEND) {
+    updateIDs.push(...userIDs);
+
     const updateRows = userIDs.map(userID => {
       const ids = sortIDs(viewer.userID, userID);
       return [...ids, undirectedStatus.KNOW_OF];
@@ -122,9 +130,9 @@ async function updateRelationships(
     `;
 
     await Promise.all([dbQuery(insertQuery), dbQuery(deleteQuery)]);
-
-    return errors;
   } else if (action === relationshipActions.BLOCK) {
+    updateIDs.push(...userIDs);
+
     const directedRows = [];
     const undirectedRows = [];
     for (const userID of userIDs) {
@@ -154,20 +162,39 @@ async function updateRelationships(
       dbQuery(directedDeleteQuery),
       dbQuery(undirectedInsertQuery),
     ]);
-
-    return errors;
   } else if (action === relationshipActions.UNBLOCK) {
+    updateIDs.push(...userIDs);
+
     const query = SQL`
       DELETE FROM relationships_directed
       WHERE status = ${directedStatus.BLOCKED} AND 
         user1 = ${viewer.userID} AND user2 IN (${userIDs})
     `;
     await dbQuery(query);
-
-    return errors;
   } else {
     invariant(false, `action ${action} is invalid or not supported currently`);
   }
+
+  const time = Date.now();
+  const updateDatas = [];
+  for (const userID of updateIDs) {
+    updateDatas.push({
+      type: updateTypes.UPDATE_USER,
+      userID,
+      time,
+      updatedUserID: viewer.userID,
+    });
+    updateDatas.push({
+      type: updateTypes.UPDATE_USER,
+      userID: viewer.userID,
+      time,
+      updatedUserID: userID,
+    });
+  }
+
+  await createUpdates(updateDatas);
+
+  return errors;
 }
 
 function sortIDs(firstId: string, secondId: string) {
