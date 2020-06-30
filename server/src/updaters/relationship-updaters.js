@@ -77,7 +77,7 @@ async function updateRelationships(
     const undirectedInsertQuery = SQL`
       INSERT INTO relationships_undirected (user1, user2, status)
       VALUES ${undirectedInsertRows}
-      ON DUPLICATE KEY UPDATE status = MAX(status, VALUES(status))
+      ON DUPLICATE KEY UPDATE status = GREATEST(status, VALUES(status))
     `;
     const directedInsertQuery = SQL`
       INSERT INTO relationships_directed (user1, user2, status)
