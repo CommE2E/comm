@@ -88,6 +88,7 @@ async function fetchFriendRequestRelationshipOperations(
     } else if (!viewerRequestedTargetFriendship) {
       operations.push('pending_friend');
     }
+    userRelationshipOperations[userID] = operations;
   }
 
   for (let userID of userIDs) {
