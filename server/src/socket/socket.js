@@ -340,8 +340,12 @@ class Socket {
   };
 
   onClose = async () => {
-    if (this.updateActivityTimeIntervalID) {
-      clearInterval(this.updateActivityTimeIntervalID);
+    const { updateActivityTimeIntervalID } = this;
+    if (
+      updateActivityTimeIntervalID !== null &&
+      updateActivityTimeIntervalID !== undefined
+    ) {
+      clearInterval(updateActivityTimeIntervalID);
       this.updateActivityTimeIntervalID = null;
     }
     this.clearStateCheckTimeout();
@@ -483,7 +487,6 @@ class Socket {
       } = sessionInitializationResult;
 
       const promises = {};
-      promises.activityUpdate = updateActivityTime(viewer);
       promises.deleteExpiredUpdates = deleteUpdatesBeforeTimeTargettingSession(
         viewer,
         oldUpdatesCurrentAsOf,
@@ -710,6 +713,9 @@ class Socket {
   }
 
   onSuccessfulConnection() {
+    if (this.ws.readyState !== 1) {
+      return;
+    }
     this.updateActivityTimeIntervalID = setInterval(
       this.updateActivityTime,
       focusedTableRefreshFrequency,
@@ -737,13 +743,17 @@ class Socket {
   );
 
   markActivityOccurred = () => {
+    if (this.ws.readyState !== 1) {
+      return;
+    }
     this.setStateCheckConditions({ activityRecentlyOccurred: true });
     this.debouncedAfterActivity();
   };
 
   clearStateCheckTimeout() {
-    if (this.stateCheckTimeoutID) {
-      clearTimeout(this.stateCheckTimeoutID);
+    const { stateCheckTimeoutID } = this;
+    if (stateCheckTimeoutID) {
+      clearTimeout(stateCheckTimeoutID);
       this.stateCheckTimeoutID = null;
     }
   }
