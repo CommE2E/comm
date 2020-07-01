@@ -1,0 +1,43 @@
+div.container {
+  position: absolute;
+  width: 400px;
+  top: 0;
+  bottom: 0;
+  overflow-y: auto;
+  background-color: white;
+  border-right: 2px solid #E4E4E4;
+}
+
+.tabList {
+  border-bottom: 1px solid #ccc;
+  padding-left: 0;
+  align-items: center;
+  justify-content: space-between;
+  background-color: white;
+  }
+  
+.tabItem {
+  color: grey;
+  width: 200px;
+  display: inline-block;
+  list-style: none;
+  margin-bottom: -1px;
+  padding: 0.5rem 0.75rem;
+}
+  
+.tabItemActive {
+  display: inline-block;
+  width: 200px;
+  list-style: none;
+  padding: 0.5rem 0.75rem;
+  background-color: lightgrey;
+  border: outset lightskyblue;
+  border-width: 0 0 2px 0;
+}
+
+.emptyItem {
+  padding: 10px;
+  font-size: 16px;
+  text-align: center;
+  white-space: pre-wrap;
+}
