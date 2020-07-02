@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 
 import css from './chat-tabs.css';
 
@@ -23,15 +24,16 @@ class ChatThreadTab extends React.PureComponent<Props> {
   };
 
   render() {
-    const itemStyle =
-      this.props.activeTab === this.props.title
-        ? css.tabItemActive
-        : css.tabItem;
-
+    const isActive = this.props.activeTab === this.props.title;
+    const className = classNames({
+      [css.tabItem]: true,
+      [css.tabItemActive]: isActive,
+      [css.tabItemInactive]: !isActive,
+    });
     return (
-      <button className={itemStyle} onClick={this.onClick}>
+      <div className={className} onClick={this.onClick}>
         {this.props.title}
-      </button>
+      </div>
     );
   }
 }
