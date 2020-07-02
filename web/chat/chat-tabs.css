@@ -8,11 +8,6 @@ div.container {
   border-right: 2px solid #E4E4E4;
 }
 
-ol.tabs {
-  display: flex;  
-  list-style: none;
-}
-
 button.tabItem {
   color: grey;
   width: 200px;
