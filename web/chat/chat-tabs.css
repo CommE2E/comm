@@ -1,0 +1,38 @@
+div.container {
+  position: absolute;
+  width: 400px;
+  top: 0;
+  bottom: 0;
+  overflow-y: auto;
+  background-color: white;
+  border-right: 2px solid #E4E4E4;
+}
+
+div.tabs {
+  display: flex;
+  flex-direction: row;
+}
+
+div.tabItem {
+  flex: 1;
+  display: inline-block;
+  padding: 0.5rem 0.75rem;
+  text-align: center;
+  cursor: pointer;
+}
+div.tabItemActive {
+  border: outset lightskyblue;
+  border-width: 0 0 2px 0;
+}
+div.tabItemInactive {
+  background-color: lightgrey;
+  color: grey;
+  margin-bottom: -1px;
+}
+
+div.emptyItem {
+  padding: 10px;
+  font-size: 16px;
+  text-align: center;
+  white-space: pre-wrap;
+}
