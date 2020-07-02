@@ -28,22 +28,16 @@ class ChatTabs extends React.PureComponent<Props, State> {
 
     return (
       <div className={css.container}>
-        <ol className={css.tabs}>
-          <li>
-            <ChatThreadTab
-              activeTab={this.state.activeTab}
-              title="HOME"
-              onClick={this.onClickTabItem}
-            />
-          </li>
-          <li>
-            <ChatThreadTab
-              activeTab={this.state.activeTab}
-              title="BACKGROUND"
-              onClick={this.onClickTabItem}
-            />
-          </li>
-        </ol>
+        <ChatThreadTab
+          activeTab={this.state.activeTab}
+          title="HOME"
+          onClick={this.onClickTabItem}
+        />
+        <ChatThreadTab
+          activeTab={this.state.activeTab}
+          title="BACKGROUND"
+          onClick={this.onClickTabItem}
+        />
         <div>{threadList}</div>
       </div>
     );
