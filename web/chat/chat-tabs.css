@@ -3,9 +3,10 @@ div.container {
   width: 400px;
   top: 0;
   bottom: 0;
-  overflow-y: auto;
   background-color: white;
   border-right: 2px solid #E4E4E4;
+  display: flex;
+  flex-direction: column;
 }
 
 div.tabs {
@@ -28,6 +29,11 @@ div.tabItemInactive {
   background-color: lightgrey;
   color: grey;
   margin-bottom: -1px;
+}
+
+div.threadList {
+  flex: 1;
+  overflow-y: auto;
 }
 
 div.emptyItem {

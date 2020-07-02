@@ -40,7 +40,7 @@ class ChatTabs extends React.PureComponent<Props, State> {
             onClick={this.onClickTabItem}
           />
         </div>
-        <div>{threadList}</div>
+        <div className={css.threadList}>{threadList}</div>
       </div>
     );
   }
