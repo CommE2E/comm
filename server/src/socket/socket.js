@@ -75,7 +75,6 @@ import { commitSessionUpdate } from '../updaters/session-updaters';
 import { handleAsyncPromise } from '../responders/handlers';
 import { deleteCookie } from '../deleters/cookie-deleters';
 import { deleteActivityForViewerSession } from '../deleters/activity-deleters';
-import { focusedTableRefreshFrequency } from '../shared/focused-times';
 import { RedisSubscriber } from './redis';
 import { fetchUpdateInfosWithRawUpdateInfos } from '../creators/update-creator';
 import { jsonEndpoints } from '../endpoints';
@@ -156,8 +155,6 @@ class Socket {
   httpRequest: $Request;
   viewer: ?Viewer;
   redis: ?RedisSubscriber;
-
-  updateActivityTimeIntervalID: ?IntervalID;
 
   stateCheckConditions: StateCheckConditions = {
     activityRecentlyOccurred: true,
@@ -340,14 +337,6 @@ class Socket {
   };
 
   onClose = async () => {
-    const { updateActivityTimeIntervalID } = this;
-    if (
-      updateActivityTimeIntervalID !== null &&
-      updateActivityTimeIntervalID !== undefined
-    ) {
-      clearInterval(updateActivityTimeIntervalID);
-      this.updateActivityTimeIntervalID = null;
-    }
     this.clearStateCheckTimeout();
     this.resetTimeout.cancel();
     this.debouncedAfterActivity.cancel();
@@ -600,6 +589,7 @@ class Socket {
   async handlePingClientSocketMessage(
     message: PingClientSocketMessage,
   ): Promise<ServerSocketMessage[]> {
+    this.updateActivityTime();
     return [
       {
         type: serverSocketMessageTypes.PONG,
@@ -716,18 +706,14 @@ class Socket {
     if (this.ws.readyState !== 1) {
       return;
     }
-    this.updateActivityTimeIntervalID = setInterval(
-      this.updateActivityTime,
-      focusedTableRefreshFrequency,
-    );
     this.handleStateCheckConditionsUpdate();
   }
 
-  updateActivityTime = () => {
+  updateActivityTime() {
     const { viewer } = this;
     invariant(viewer, 'should be set');
     handleAsyncPromise(updateActivityTime(viewer));
-  };
+  }
 
   // The Socket will timeout by calling this.ws.terminate()
   // serverRequestSocketTimeout milliseconds after the last
