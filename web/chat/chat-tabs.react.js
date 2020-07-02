@@ -20,33 +20,30 @@ class ChatTabs extends React.PureComponent<Props, State> {
   onClickTabItem = (tab: string) => {
     this.setState({ activeTab: tab });
   };
-  homeTab = (
-    <ChatThreadTab
-      activeTab={this.state.activeTab}
-      key="HOME"
-      title="HOME"
-      onClick={this.onClickTabItem}
-    />
-  );
-  backgroundTab = (
-    <ChatThreadTab
-      activeTab={this.state.activeTab}
-      key="BACKGROUND"
-      title="BACKGROUND"
-      onClick={this.onClickTabItem}
-    />
-  );
+
   render() {
-    const threadTabs = [this.homeTab, this.backgroundTab];
+    const { activeTab } = this.state;
     const threadList =
-      this.state.activeTab === 'HOME' ? (
-        <ChatThreadHome />
-      ) : (
-        <ChatThreadBackground />
-      );
+      activeTab === 'HOME' ? <ChatThreadHome /> : <ChatThreadBackground />;
+
     return (
       <div className={css.container}>
-        <ol>{threadTabs}</ol>
+        <ol className={css.tabs}>
+          <li>
+            <ChatThreadTab
+              activeTab={this.state.activeTab}
+              title="HOME"
+              onClick={this.onClickTabItem}
+            />
+          </li>
+          <li>
+            <ChatThreadTab
+              activeTab={this.state.activeTab}
+              title="BACKGROUND"
+              onClick={this.onClickTabItem}
+            />
+          </li>
+        </ol>
         <div>{threadList}</div>
       </div>
     );

@@ -8,15 +8,12 @@ div.container {
   border-right: 2px solid #E4E4E4;
 }
 
-.tabList {
-  border-bottom: 1px solid #ccc;
-  padding-left: 0;
-  align-items: center;
-  justify-content: space-between;
-  background-color: white;
+ol.tabs {
+  display: flex;  
+  list-style: none;
 }
-  
-.tabItem {
+
+button.tabItem {
   color: grey;
   width: 200px;
   display: inline-block;
@@ -25,7 +22,7 @@ div.container {
   padding: 0.5rem 0.75rem;
 }
   
-.tabItemActive {
+button.tabItemActive {
   display: inline-block;
   width: 200px;
   list-style: none;
@@ -35,7 +32,7 @@ div.container {
   border-width: 0 0 2px 0;
 }
 
-.emptyItem {
+div.emptyItem {
   padding: 10px;
   font-size: 16px;
   text-align: center;

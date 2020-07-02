@@ -29,7 +29,7 @@ type Props = {|
 class ChatThreadList extends React.PureComponent<Props> {
   static propTypes = {
     filterThreads: PropTypes.func.isRequired,
-    emptyItem: PropTypes.element,
+    emptyItem: PropTypes.elementType,
     chatListData: PropTypes.arrayOf(chatThreadItemPropType).isRequired,
     navInfo: navInfoPropType.isRequired,
     timeZone: PropTypes.string,
