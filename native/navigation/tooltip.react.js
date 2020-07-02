@@ -36,8 +36,8 @@ import {
   type ServerCallState,
   serverCallStatePropType,
   serverCallStateSelector,
-  connect,
-} from 'lib/utils/redux-utils';
+} from 'lib/selectors/server-calls';
+import { connect } from 'lib/utils/redux-utils';
 import { createBoundServerCallsSelector } from 'lib/utils/action-utils';
 
 import {
