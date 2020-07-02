@@ -14,7 +14,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'lib/utils/redux-utils';
 import { webChatListData } from '../selectors/chat-selectors';
 
-import css from './chat-thread-list.css';
 import ChatThreadListItem from './chat-thread-list-item.react';
 
 type Props = {|
@@ -38,26 +37,25 @@ class ChatThreadList extends React.PureComponent<Props> {
   };
 
   render() {
-    const chatListData = this.props.chatListData.filter(item =>
-      this.props.filterThreads(item.threadInfo),
-    );
+    const threads: React.Node[] = this.props.chatListData
+      .filter(item => this.props.filterThreads(item.threadInfo))
+      .map(item => (
+        <ChatThreadListItem
+          item={item}
+          active={item.threadInfo.id === this.props.navInfo.activeChatThreadID}
+          navInfo={this.props.navInfo}
+          timeZone={this.props.timeZone}
+          dispatchActionPayload={this.props.dispatchActionPayload}
+          key={item.threadInfo.id}
+        />
+      ));
 
-    if (chatListData.length === 0 && this.props.emptyItem) {
+    if (threads.length === 0 && this.props.emptyItem) {
       const EmptyItem = this.props.emptyItem;
-      return <div className={css.container}>{<EmptyItem />}</div>;
+      threads.push(<EmptyItem />);
     }
 
-    const threads = chatListData.map(item => (
-      <ChatThreadListItem
-        item={item}
-        active={item.threadInfo.id === this.props.navInfo.activeChatThreadID}
-        navInfo={this.props.navInfo}
-        timeZone={this.props.timeZone}
-        dispatchActionPayload={this.props.dispatchActionPayload}
-        key={item.threadInfo.id}
-      />
-    ));
-    return <div className={css.container}>{threads}</div>;
+    return <div>{threads}</div>;
   }
 }
 

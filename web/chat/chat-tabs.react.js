@@ -1,55 +1,53 @@
 // @flow
 
 import * as React from 'react';
-import PropTypes from 'prop-types';
 
 import ChatThreadTab from './chat-thread-tab.react';
 import css from './chat-tabs.css';
+import ChatThreadHome from './chat-thread-home.react';
+import ChatThreadBackground from './chat-thread-background.react';
 
-type Props = {|
-  children: Array<React.Element<any>>,
-|};
+type Props = {||};
 type State = {|
   activeTab: string,
 |};
 
 class ChatTabs extends React.PureComponent<Props, State> {
-  static propTypes = {
-    children: PropTypes.array.isRequired,
+  state = {
+    activeTab: 'HOME',
   };
-
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      activeTab: 'HOME',
-    };
-  }
 
   onClickTabItem = (tab: string) => {
     this.setState({ activeTab: tab });
   };
-
+  homeTab = (
+    <ChatThreadTab
+      activeTab={this.state.activeTab}
+      key="HOME"
+      title="HOME"
+      onClick={this.onClickTabItem}
+    />
+  );
+  backgroundTab = (
+    <ChatThreadTab
+      activeTab={this.state.activeTab}
+      key="BACKGROUND"
+      title="BACKGROUND"
+      onClick={this.onClickTabItem}
+    />
+  );
   render() {
-    const threads = this.props.children;
-    const threadTabs = threads.map(child => (
-      <ChatThreadTab
-        activeTab={this.state.activeTab}
-        key={child.props.title}
-        title={child.props.title}
-        onClick={this.onClickTabItem}
-      />
-    ));
-    const threadTabContent = threads.map(child => {
-      if (child.props.title === this.state.activeTab) {
-        return child.props.children;
-      }
-    });
-
+    const threadTabs = [this.homeTab, this.backgroundTab];
+    const threadList =
+      this.state.activeTab === 'HOME' ? (
+        <ChatThreadHome />
+      ) : (
+        <ChatThreadBackground />
+      );
     return (
       <div className={css.container}>
         <ol>{threadTabs}</ol>
-        <div>{threadTabContent}</div>
+        <div>{threadList}</div>
       </div>
     );
   }
