@@ -1062,7 +1062,7 @@ class Calendar extends React.PureComponent<Props, State> {
     }
   }, 1000);
 
-  onScroll = (event: { nativeEvent: { contentOffset: { y: number } } }) => {
+  onScroll = (event: { +nativeEvent: { +contentOffset: { +y: number } } }) => {
     this.currentScrollPosition = event.nativeEvent.contentOffset.y;
   };
 

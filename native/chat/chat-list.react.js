@@ -264,9 +264,9 @@ class ChatList extends React.PureComponent<Props, State> {
   }
 
   onScroll = (event: {
-    nativeEvent: {
-      contentOffset: { y: number },
-      contentSize: { height: number },
+    +nativeEvent: {
+      +contentOffset: { +y: number },
+      +contentSize: { +height: number },
     },
   }) => {
     this.scrollPos = event.nativeEvent.contentOffset.y;

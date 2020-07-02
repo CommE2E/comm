@@ -546,6 +546,7 @@ async function fetchAllUsers(
   }
 
   const newUserInfos = await fetchUserInfos(allAddedUserIDs);
+  // $FlowFixMe should be fixed in flow-bin@0.115 / react-native@0.63
   return {
     ...userInfos,
     ...newUserInfos,

@@ -200,8 +200,8 @@ function RootRouter(
     },
     actionCreators: {
       ...baseActionCreators,
-      logIn: () => ({ type: logInActionType }),
-      logOut: () => ({ type: logOutActionType }),
+      logIn: () => ({ type: logInActionType }: LogInAction),
+      logOut: () => ({ type: logOutActionType }: LogOutAction),
       clearRootModals: (keys: $ReadOnlyArray<string>) => ({
         type: clearRootModalsActionType,
         payload: { keys },

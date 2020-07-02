@@ -21,7 +21,7 @@ class ClearableTextInput extends React.PureComponent<
   pendingMessage: ?{| value: string, resolve: (value: string) => void |};
   lastKeyPressed: ?string;
   lastTextInputSent = -1;
-  currentTextInput: ?TextInput;
+  currentTextInput: ?React.ElementRef<typeof TextInput>;
   focused = false;
 
   sendMessage() {
@@ -104,7 +104,7 @@ class ClearableTextInput extends React.PureComponent<
     }
   };
 
-  textInputRef = (textInput: ?TextInput) => {
+  textInputRef = (textInput: ?React.ElementRef<typeof TextInput>) => {
     if (this.focused && textInput) {
       textInput.focus();
     }

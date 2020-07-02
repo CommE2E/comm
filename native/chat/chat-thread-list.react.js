@@ -83,7 +83,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     searchText: '',
     searchResults: new Set(),
   };
-  searchInput: ?TextInput;
+  searchInput: ?React.ElementRef<typeof TextInput>;
   flatList: ?FlatList<Item>;
 
   componentDidMount() {
@@ -136,7 +136,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     return <ChatThreadListItem data={item} onPressItem={this.onPressItem} />;
   };
 
-  searchInputRef = (searchInput: ?TextInput) => {
+  searchInputRef = (searchInput: ?React.ElementRef<typeof TextInput>) => {
     this.searchInput = searchInput;
   };
 

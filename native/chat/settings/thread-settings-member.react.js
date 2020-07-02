@@ -89,7 +89,7 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
     keyboardState: keyboardStatePropType,
     overlayContext: overlayContextPropType,
   };
-  editButton: ?View;
+  editButton: ?React.ElementRef<typeof View>;
 
   visibleEntryIDs() {
     const role = this.props.memberInfo.role;
@@ -212,7 +212,7 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
     );
   }
 
-  editButtonRef = (editButton: ?View) => {
+  editButtonRef = (editButton: ?React.ElementRef<typeof View>) => {
     this.editButton = editButton;
   };
 

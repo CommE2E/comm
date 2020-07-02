@@ -94,7 +94,7 @@ class TextMessage extends React.PureComponent<Props> {
     keyboardState: keyboardStatePropType,
     overlayContext: overlayContextPropType,
   };
-  message: ?View;
+  message: ?React.ElementRef<typeof View>;
 
   render() {
     const {
@@ -124,7 +124,7 @@ class TextMessage extends React.PureComponent<Props> {
     );
   }
 
-  messageRef = (message: ?View) => {
+  messageRef = (message: ?React.ElementRef<typeof View>) => {
     this.message = message;
   };
 

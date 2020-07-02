@@ -18,7 +18,7 @@ import {
 } from '../themes/colors';
 
 type Props = {|
-  ...$Shape<React.ElementProps<typeof TextInput>>,
+  ...React.ElementConfig<typeof TextInput>,
   searchText: string,
   onChangeText: (searchText: string) => void,
   containerStyle?: ViewStyle,
@@ -108,7 +108,7 @@ const ConnectedSearch = connect((state: AppState) => ({
 }))(Search);
 
 type ConnectedProps = $Diff<Props, {| colors: Colors, styles: typeof styles |}>;
-export default React.forwardRef<ConnectedProps, TextInput>(
+export default React.forwardRef<ConnectedProps, typeof TextInput>(
   function ForwardedConnectedSearch(
     props: ConnectedProps,
     ref: React.Ref<typeof TextInput>,

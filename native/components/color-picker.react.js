@@ -522,6 +522,7 @@ const makeComputedStyles = ({
   };
   const svIndicatorPoint = rotatePoint(notRotatedPoint, rad, center);
 
+  const offsetDirection: string = isRTL ? 'right' : 'left';
   return {
     picker: {
       padding: pickerPadding,
@@ -530,7 +531,7 @@ const makeComputedStyles = ({
     },
     pickerIndicator: {
       top: mx + dx - indicatorSize / 2,
-      [isRTL ? 'right' : 'left']: my + dy - indicatorSize / 2,
+      [offsetDirection]: my + dy - indicatorSize / 2,
       width: indicatorSize,
       height: indicatorSize,
       transform: [
@@ -545,7 +546,7 @@ const makeComputedStyles = ({
     },
     svIndicator: {
       top: svIndicatorPoint.x - svIndicatorSize / 2,
-      [isRTL ? 'right' : 'left']: svIndicatorPoint.y - svIndicatorSize / 2,
+      [offsetDirection]: svIndicatorPoint.y - svIndicatorSize / 2,
       width: svIndicatorSize,
       height: svIndicatorSize,
       borderRadius: svIndicatorSize / 2,

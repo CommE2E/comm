@@ -140,7 +140,7 @@ class InternalEntry extends React.Component<Props, State> {
     saveEntry: PropTypes.func.isRequired,
     deleteEntry: PropTypes.func.isRequired,
   };
-  textInput: ?TextInput;
+  textInput: ?React.ElementRef<typeof TextInput>;
   creating = false;
   needsUpdateAfterCreation = false;
   needsDeleteAfterCreation = false;
@@ -414,7 +414,7 @@ class InternalEntry extends React.Component<Props, State> {
     );
   }
 
-  textInputRef = (textInput: ?TextInput) => {
+  textInputRef = (textInput: ?React.ElementRef<typeof TextInput>) => {
     this.textInput = textInput;
     if (textInput && this.state.editing) {
       this.enterEditMode();

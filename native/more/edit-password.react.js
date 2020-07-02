@@ -73,9 +73,9 @@ class EditPassword extends React.PureComponent<Props, State> {
     changeUserSettings: PropTypes.func.isRequired,
   };
   mounted = false;
-  currentPasswordInput: ?TextInput;
-  newPasswordInput: ?TextInput;
-  confirmPasswordInput: ?TextInput;
+  currentPasswordInput: ?React.ElementRef<typeof TextInput>;
+  newPasswordInput: ?React.ElementRef<typeof TextInput>;
+  confirmPasswordInput: ?React.ElementRef<typeof TextInput>;
 
   constructor(props: Props) {
     super(props);
@@ -206,7 +206,9 @@ class EditPassword extends React.PureComponent<Props, State> {
     this.setState({ currentPassword });
   };
 
-  currentPasswordRef = (currentPasswordInput: ?TextInput) => {
+  currentPasswordRef = (
+    currentPasswordInput: ?React.ElementRef<typeof TextInput>,
+  ) => {
     this.currentPasswordInput = currentPasswordInput;
   };
 
@@ -219,7 +221,7 @@ class EditPassword extends React.PureComponent<Props, State> {
     this.setState({ newPassword });
   };
 
-  newPasswordRef = (newPasswordInput: ?TextInput) => {
+  newPasswordRef = (newPasswordInput: ?React.ElementRef<typeof TextInput>) => {
     this.newPasswordInput = newPasswordInput;
   };
 
@@ -232,7 +234,9 @@ class EditPassword extends React.PureComponent<Props, State> {
     this.setState({ confirmPassword });
   };
 
-  confirmPasswordRef = (confirmPasswordInput: ?TextInput) => {
+  confirmPasswordRef = (
+    confirmPasswordInput: ?React.ElementRef<typeof TextInput>,
+  ) => {
     this.confirmPasswordInput = confirmPasswordInput;
   };
 

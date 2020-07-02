@@ -234,6 +234,7 @@ async function updatePassword(
 
   const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;
   const entryUserInfos = entriesResult ? entriesResult.userInfos : {};
+  // $FlowFixMe should be fixed in flow-bin@0.115 / react-native@0.63
   const userInfos = values({
     ...threadsResult.userInfos,
     ...messagesResult.userInfos,

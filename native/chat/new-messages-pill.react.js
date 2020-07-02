@@ -13,7 +13,7 @@ type Props = {|
   newMessageCount: number,
   containerStyle?: ViewStyle,
   style?: ViewStyle,
-  ...$Shape<React.ElementProps<typeof View>>,
+  ...React.ElementConfig<typeof View>,
 |};
 function NewMessagesPill(props: Props) {
   const {

@@ -11,7 +11,7 @@ import { createSelector } from 'reselect';
 import { dimensionsSelector } from '../selectors/dimension-selectors';
 
 class TextInput extends React.PureComponent<*> {
-  innerTextInput: ?BaseTextInput;
+  innerTextInput: ?React.ElementRef<typeof BaseTextInput>;
 
   render() {
     const style = [styles.textInput, this.props.style];
@@ -28,7 +28,9 @@ class TextInput extends React.PureComponent<*> {
     );
   }
 
-  innerTextInputRef = (innerTextInput: ?BaseTextInput) => {
+  innerTextInputRef = (
+    innerTextInput: ?React.ElementRef<typeof BaseTextInput>,
+  ) => {
     this.innerTextInput = innerTextInput;
   };
 

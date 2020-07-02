@@ -108,7 +108,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props> {
     keyboardState: keyboardStatePropType,
     overlayContext: overlayContextPropType,
   };
-  view: ?View;
+  view: ?React.ElementRef<typeof View>;
   clickable = true;
   hidden = new Value(0);
   opacity: Value;
@@ -192,7 +192,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props> {
 
   onLayout = () => {};
 
-  viewRef = (view: ?View) => {
+  viewRef = (view: ?React.ElementRef<typeof View>) => {
     this.view = view;
   };
 

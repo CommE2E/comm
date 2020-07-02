@@ -149,18 +149,20 @@ function ChatRouter(
           routeNames,
         },
       }),
-      replaceWithThread: (threadInfo: ThreadInfo) => ({
-        type: replaceWithThreadActionType,
-        payload: { threadInfo },
-      }),
+      replaceWithThread: (threadInfo: ThreadInfo) =>
+        ({
+          type: replaceWithThreadActionType,
+          payload: { threadInfo },
+        }: ReplaceWithThreadAction),
       clearThreads: (threadIDs: $ReadOnlyArray<string>) => ({
         type: clearThreadsActionType,
         payload: { threadIDs },
       }),
-      pushNewThread: (threadInfo: ThreadInfo) => ({
-        type: pushNewThreadActionType,
-        payload: { threadInfo },
-      }),
+      pushNewThread: (threadInfo: ThreadInfo) =>
+        ({
+          type: pushNewThreadActionType,
+          payload: { threadInfo },
+        }: PushNewThreadAction),
     },
     shouldActionChangeFocus: (action: GenericNavigationAction) => {
       if (action.type === replaceWithThreadActionType) {

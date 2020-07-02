@@ -106,7 +106,7 @@ class MessageList extends React.PureComponent<Props, State> {
     messageListVerticalBounds: null,
     loadingFromScroll: false,
   };
-  flatListContainer: ?View;
+  flatListContainer: ?React.ElementRef<typeof View>;
 
   flatListExtraDataSelector = createSelector(
     (propsAndState: PropsAndState) => propsAndState.messageListVerticalBounds,
@@ -271,7 +271,9 @@ class MessageList extends React.PureComponent<Props, State> {
     );
   }
 
-  flatListContainerRef = (flatListContainer: ?View) => {
+  flatListContainerRef = (
+    flatListContainer: ?React.ElementRef<typeof View>,
+  ) => {
     this.flatListContainer = flatListContainer;
   };
 

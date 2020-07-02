@@ -20,7 +20,7 @@ type Props = {|
 |};
 
 class RelationshipListItem extends React.PureComponent<Props> {
-  editButton = React.createRef<View>();
+  editButton = React.createRef<React.ElementRef<typeof View>>();
 
   render() {
     const borderBottom = this.props.lastListItem ? null : styles.borderBottom;

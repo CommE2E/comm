@@ -68,7 +68,7 @@ class ThreadSettingsName extends React.PureComponent<Props> {
     dispatchActionPromise: PropTypes.func.isRequired,
     changeThreadSettings: PropTypes.func.isRequired,
   };
-  textInput: ?TextInput;
+  textInput: ?React.ElementRef<typeof TextInput>;
 
   render() {
     return (
@@ -140,7 +140,7 @@ class ThreadSettingsName extends React.PureComponent<Props> {
     );
   }
 
-  textInputRef = (textInput: ?TextInput) => {
+  textInputRef = (textInput: ?React.ElementRef<typeof TextInput>) => {
     this.textInput = textInput;
   };
 

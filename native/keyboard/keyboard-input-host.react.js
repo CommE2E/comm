@@ -30,7 +30,7 @@ import {
 } from '../navigation/navigation-context';
 
 type Props = {|
-  textInputRef: ?TextInput,
+  textInputRef: ?React.ElementRef<typeof TextInput>,
   // Redux state
   styles: typeof styles,
   activeMessageList: ?string,

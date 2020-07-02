@@ -439,17 +439,19 @@ class Socket {
         fetchEntryInfos(viewer, [calendarQuery]),
         fetchCurrentUserInfo(viewer),
       ]);
+      // $FlowFixMe should be fixed in flow-bin@0.115 / react-native@0.63
+      const userInfos = values({
+        ...fetchMessagesResult.userInfos,
+        ...entriesResult.userInfos,
+        ...threadsResult.userInfos,
+      });
       const payload: StateSyncFullSocketPayload = {
         type: stateSyncPayloadTypes.FULL,
         messagesResult,
         threadInfos: threadsResult.threadInfos,
         currentUserInfo,
         rawEntryInfos: entriesResult.rawEntryInfos,
-        userInfos: values({
-          ...fetchMessagesResult.userInfos,
-          ...entriesResult.userInfos,
-          ...threadsResult.userInfos,
-        }),
+        userInfos,
         updatesCurrentAsOf: oldUpdatesCurrentAsOf,
       };
       if (viewer.sessionChanged) {

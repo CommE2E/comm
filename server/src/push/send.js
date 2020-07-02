@@ -126,11 +126,13 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       const dbID = dbIDs.shift();
       invariant(dbID, 'should have sufficient DB IDs');
       const byDeviceType = getDevicesByDeviceType(pushInfo[userID].devices);
+      const firstMessageID = firstNewMessageInfo.id;
+      invariant(firstMessageID, 'RawMessageInfo.id should be set on server');
       const notificationInfo = {
         dbID,
         userID,
         threadID,
-        messageID: firstNewMessageInfo.id,
+        messageID: firstMessageID,
         collapseKey: notifInfo.collapseKey,
       };
 
@@ -413,6 +415,7 @@ async function fetchMissingUserInfos(
   let finalUserInfos = userInfos;
   if (missingUserIDs.size > 0) {
     const newUserInfos = await fetchUserInfos([...missingUserIDs]);
+    // $FlowFixMe should be fixed in flow-bin@0.115 / react-native@0.63
     finalUserInfos = { ...userInfos, ...newUserInfos };
   }
   return finalUserInfos;

@@ -10,7 +10,7 @@ import sleep from 'lib/utils/sleep';
 import { waitForInteractions } from '../utils/interactions';
 
 class ClearableTextInput extends React.PureComponent<ClearableTextInputProps> {
-  textInput: ?TextInput;
+  textInput: ?React.ElementRef<typeof TextInput>;
   lastMessageSent: ?string;
   queuedResolve: ?() => mixed;
 
@@ -62,7 +62,7 @@ class ClearableTextInput extends React.PureComponent<ClearableTextInputProps> {
     );
   }
 
-  textInputRef = (textInput: ?TextInput) => {
+  textInputRef = (textInput: ?React.ElementRef<typeof TextInput>) => {
     this.textInput = textInput;
     this.props.textInputRef(textInput);
   };

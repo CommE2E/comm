@@ -74,8 +74,8 @@ class EditEmail extends React.PureComponent<Props, State> {
     changeUserSettings: PropTypes.func.isRequired,
   };
   mounted = false;
-  passwordInput: ?TextInput;
-  emailInput: ?TextInput;
+  passwordInput: ?React.ElementRef<typeof TextInput>;
+  emailInput: ?React.ElementRef<typeof TextInput>;
 
   constructor(props: Props) {
     super(props);
@@ -174,7 +174,7 @@ class EditEmail extends React.PureComponent<Props, State> {
     this.setState({ email: newEmail });
   };
 
-  emailInputRef = (emailInput: ?TextInput) => {
+  emailInputRef = (emailInput: ?React.ElementRef<typeof TextInput>) => {
     this.emailInput = emailInput;
   };
 
@@ -187,7 +187,7 @@ class EditEmail extends React.PureComponent<Props, State> {
     this.setState({ password: newPassword });
   };
 
-  passwordInputRef = (passwordInput: ?TextInput) => {
+  passwordInputRef = (passwordInput: ?React.ElementRef<typeof TextInput>) => {
     this.passwordInput = passwordInput;
   };
 

@@ -232,7 +232,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     overlayContext: overlayContextPropType,
   };
-  flatListContainer: ?View;
+  flatListContainer: ?React.ElementRef<typeof View>;
 
   constructor(props: Props) {
     super(props);
@@ -647,7 +647,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     );
   }
 
-  flatListContainerRef = (flatListContainer: ?View) => {
+  flatListContainerRef = (
+    flatListContainer: ?React.ElementRef<typeof View>,
+  ) => {
     this.flatListContainer = flatListContainer;
   };
 

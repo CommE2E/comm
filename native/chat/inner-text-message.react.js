@@ -29,7 +29,7 @@ import {
 type Props = {|
   item: ChatTextMessageInfoItemWithHeight,
   onPress: () => void,
-  messageRef?: (message: ?View) => void,
+  messageRef?: (message: ?React.ElementRef<typeof View>) => void,
   // Redux state
   activeTheme: ?GlobalTheme,
   colors: Colors,

@@ -74,7 +74,7 @@ class DeleteAccount extends React.PureComponent<Props, State> {
     deleteAccount: PropTypes.func.isRequired,
   };
   mounted = false;
-  passwordInput: ?TextInput;
+  passwordInput: ?React.ElementRef<typeof TextInput>;
 
   constructor(props: Props) {
     super(props);
@@ -174,7 +174,7 @@ class DeleteAccount extends React.PureComponent<Props, State> {
     this.setState({ password: newPassword });
   };
 
-  passwordInputRef = (passwordInput: ?TextInput) => {
+  passwordInputRef = (passwordInput: ?React.ElementRef<typeof TextInput>) => {
     this.passwordInput = passwordInput;
   };
 

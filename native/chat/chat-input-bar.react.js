@@ -121,7 +121,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     joinThread: PropTypes.func.isRequired,
     inputState: inputStatePropType,
   };
-  textInput: ?TextInput;
+  textInput: ?React.ElementRef<typeof TextInput>;
   clearableTextInput: ?ClearableTextInput;
   expandOpacity: Animated.Value;
   expandoButtonsOpacity: Animated.Value;
@@ -424,7 +424,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     );
   }
 
-  textInputRef = (textInput: ?TextInput) => {
+  textInputRef = (textInput: ?React.ElementRef<typeof TextInput>) => {
     this.textInput = textInput;
   };
 

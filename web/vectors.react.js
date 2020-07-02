@@ -1,14 +1,13 @@
 // @flow
 
-import React from 'react';
+import * as React from 'react';
 
-type SVGProps = {
+type SVGProps = {|
   className?: string,
   viewBox: string,
   preserveAspectRatio?: string,
-  // I can't figure out how to get Flow to work for this
-  children?: any,
-};
+  children?: React.Node,
+|};
 
 function SVG(props: SVGProps) {
   return (

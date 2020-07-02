@@ -70,7 +70,7 @@ class FFmpeg {
     const toDefer = [],
       toRun = [];
     for (let command of this.queue) {
-      const { type } = command;
+      const type: string = command.type;
       if (openSlots[type]) {
         openSlots = { [type]: openSlots[type] - 1 };
         this.currentCalls[type]++;

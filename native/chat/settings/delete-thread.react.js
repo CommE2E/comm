@@ -106,7 +106,7 @@ class DeleteThread extends React.PureComponent<Props, State> {
     onePasswordSupported: false,
   };
   mounted = false;
-  passwordInput: ?TextInput;
+  passwordInput: ?React.ElementRef<typeof TextInput>;
 
   constructor(props: Props) {
     super(props);
@@ -210,7 +210,7 @@ class DeleteThread extends React.PureComponent<Props, State> {
     this.guardedSetState({ password: newPassword });
   };
 
-  passwordInputRef = (passwordInput: ?TextInput) => {
+  passwordInputRef = (passwordInput: ?React.ElementRef<typeof TextInput>) => {
     this.passwordInput = passwordInput;
   };
 

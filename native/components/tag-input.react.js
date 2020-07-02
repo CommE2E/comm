@@ -76,7 +76,7 @@ type Props<T> = {|
   /**
    * Any misc. TextInput props (autoFocus, placeholder, returnKeyType, etc.)
    */
-  inputProps?: $PropertyType<TextInput, 'props'>,
+  inputProps?: React.ElementConfig<typeof TextInput>,
   /**
    * Min height of the tag input on screen
    */
@@ -279,7 +279,7 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
       inputWidth = this.state.wrapperWidth;
     }
 
-    const defaultTextInputProps: React.ElementProps<typeof TextInput> = {
+    const defaultTextInputProps: React.ElementConfig<typeof TextInput> = {
       blurOnSubmit: false,
       style: [
         styles.textInput,
@@ -297,7 +297,7 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
       underlineColorAndroid: 'rgba(0,0,0,0)',
     };
 
-    const textInputProps: React.ElementProps<typeof TextInput> = {
+    const textInputProps: React.ElementConfig<typeof TextInput> = {
       ...defaultTextInputProps,
       ...this.props.inputProps,
       // should not be overridden

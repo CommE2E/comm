@@ -269,6 +269,12 @@ async function pingResponder(
       serverRequests.push(stateCheck.checkStateRequest);
     }
 
+    // $FlowFixMe should be fixed in flow-bin@0.115 / react-native@0.63
+    const incrementalUserInfos = values({
+      ...messagesResult.userInfos,
+      ...updateUserInfos,
+      ...sessionInitializationResult.deltaEntryInfoResult.userInfos,
+    });
     const response: PingResponse = {
       type: pingResponseTypes.INCREMENTAL,
       messagesResult: {
@@ -278,11 +284,7 @@ async function pingResponder(
       },
       deltaEntryInfos:
         sessionInitializationResult.deltaEntryInfoResult.rawEntryInfos,
-      userInfos: values({
-        ...messagesResult.userInfos,
-        ...updateUserInfos,
-        ...sessionInitializationResult.deltaEntryInfoResult.userInfos,
-      }),
+      userInfos: incrementalUserInfos,
       serverRequests,
     };
     if (updatesResult) {
