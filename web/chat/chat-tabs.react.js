@@ -14,46 +14,47 @@ import ChatThreadHome from './chat-thread-home.react';
 import ChatThreadBackground from './chat-thread-background.react';
 
 type Props = {|
-  unreadBgrCount?: number,
+  unreadBackgroundCount: ?number,
 |};
 type State = {|
   activeTab: string,
 |};
 class ChatTabs extends React.PureComponent<Props, State> {
   static propTypes = {
-    unreadBgrCount: PropTypes.number,
+    unreadBackgroundCount: PropTypes.number,
   };
   state = {
     activeTab: 'HOME',
   };
 
-  onClickTabItem = (tab: string) => {
-    this.setState({ activeTab: tab });
+  onClickHome = () => {
+    this.setState({ activeTab: 'HOME' });
+  };
+  onClickBackground = () => {
+    this.setState({ activeTab: 'BACKGROUND' });
   };
 
   render() {
     const { activeTab } = this.state;
-    const { unreadBgrCount } = this.props;
     const threadList =
       activeTab === 'HOME' ? <ChatThreadHome /> : <ChatThreadBackground />;
     let backgroundTitle = `BACKGROUND`;
-    if (unreadBgrCount) {
-      backgroundTitle += ` (${unreadBgrCount})`;
+    if (this.props.unreadBackgroundCount) {
+      backgroundTitle += ` (${this.props.unreadBackgroundCount})`;
     }
+
     return (
       <div className={css.container}>
         <div className={css.tabs}>
           <ChatThreadTab
-            activeTab={this.state.activeTab}
-            name="HOME"
             title="HOME"
-            onClick={this.onClickTabItem}
+            tabIsActive={this.state.activeTab === 'HOME'}
+            onClick={this.onClickHome}
           />
           <ChatThreadTab
-            activeTab={this.state.activeTab}
             title={backgroundTitle}
-            name="BACKGROUND"
-            onClick={this.onClickTabItem}
+            tabIsActive={this.state.activeTab === 'BACKGROUND'}
+            onClick={this.onClickBackground}
           />
         </div>
         <div className={css.threadList}>{threadList}</div>
@@ -63,5 +64,5 @@ class ChatTabs extends React.PureComponent<Props, State> {
 }
 
 export default connect((state: AppState) => ({
-  unreadBgrCount: unreadBackgroundCount(state),
+  unreadBackgroundCount: unreadBackgroundCount(state),
 }))(ChatTabs);
