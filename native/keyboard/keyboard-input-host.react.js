@@ -41,7 +41,7 @@ type Props = {|
 |};
 class KeyboardInputHost extends React.PureComponent<Props> {
   static propTypes = {
-    textInputRef: PropTypes.instanceOf(TextInput),
+    textInputRef: PropTypes.object,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     activeMessageList: PropTypes.string,
     keyboardState: keyboardStatePropType,
