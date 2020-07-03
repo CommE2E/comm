@@ -4,6 +4,7 @@ import type { Viewer } from '../session/viewer';
 import {
   type RelationshipRequest,
   type RelationshipErrors,
+  type UndirectedRelationshipRow,
   relationshipActions,
   undirectedStatus,
   directedStatus,
@@ -13,6 +14,7 @@ import { updateTypes } from 'lib/types/update-types';
 import invariant from 'invariant';
 
 import { ServerError } from 'lib/utils/errors';
+import { sortIDs } from 'lib/shared/relationship-utils';
 
 import { fetchUserInfos } from '../fetchers/user-fetchers';
 import { fetchFriendRequestRelationshipOperations } from '../fetchers/relationship-fetchers';
@@ -69,27 +71,23 @@ async function updateRelationships(
         if (operation === 'delete_directed') {
           directedDeleteIDs.push(userID);
         } else if (operation === 'friend') {
-          undirectedInsertRows.push([...ids, undirectedStatus.FRIEND]);
+          const [user1, user2] = ids;
+          const status = undirectedStatus.FRIEND;
+          undirectedInsertRows.push({ user1, user2, status });
         } else if (operation === 'pending_friend') {
           const status = directedStatus.PENDING_FRIEND;
           directedInsertRows.push([viewer.userID, userID, status]);
         } else if (operation === 'know_of') {
-          undirectedInsertRows.push([...ids, undirectedStatus.KNOW_OF]);
+          const [user1, user2] = ids;
+          const status = undirectedStatus.KNOW_OF;
+          undirectedInsertRows.push({ user1, user2, status });
         } else {
           invariant(false, `unexpected relationship operation ${operation}`);
         }
       }
     }
 
-    const promises = [];
-    if (undirectedInsertRows.length) {
-      const undirectedInsertQuery = SQL`
-        INSERT INTO relationships_undirected (user1, user2, status)
-        VALUES ${undirectedInsertRows}
-        ON DUPLICATE KEY UPDATE status = GREATEST(status, VALUES(status))
-      `;
-      promises.push(dbQuery(undirectedInsertQuery));
-    }
+    const promises = [updateUndirectedRelationships(undirectedInsertRows)];
     if (directedInsertRows.length) {
       const directedInsertQuery = SQL`
         INSERT INTO relationships_directed (user1, user2, status)
@@ -114,14 +112,10 @@ async function updateRelationships(
     updateIDs.push(...userIDs);
 
     const updateRows = userIDs.map(userID => {
-      const ids = sortIDs(viewer.userID, userID);
-      return [...ids, undirectedStatus.KNOW_OF];
+      const [user1, user2] = sortIDs(viewer.userID, userID);
+      return { user1, user2, status: undirectedStatus.KNOW_OF };
     });
-    const insertQuery = SQL`
-      INSERT INTO relationships_undirected (user1, user2, status)
-      VALUES ${updateRows}
-      ON DUPLICATE KEY UPDATE status = VALUES(status)
-    `;
+
     const deleteQuery = SQL`
       DELETE FROM relationships_directed
       WHERE 
@@ -130,7 +124,10 @@ async function updateRelationships(
           user1 IN (${userIDs}) AND user2 = ${viewer.userID})
     `;
 
-    await Promise.all([dbQuery(insertQuery), dbQuery(deleteQuery)]);
+    await Promise.all([
+      updateUndirectedRelationships(updateRows, false),
+      dbQuery(deleteQuery),
+    ]);
   } else if (action === relationshipActions.BLOCK) {
     updateIDs.push(...userIDs);
 
@@ -138,8 +135,8 @@ async function updateRelationships(
     const undirectedRows = [];
     for (const userID of userIDs) {
       directedRows.push([viewer.userID, userID, directedStatus.BLOCKED]);
-      const ids = sortIDs(viewer.userID, userID);
-      undirectedRows.push([...ids, undirectedStatus.KNOW_OF]);
+      const [user1, user2] = sortIDs(viewer.userID, userID);
+      undirectedRows.push({ user1, user2, status: undirectedStatus.KNOW_OF });
     }
 
     const directedInsertQuery = SQL`
@@ -152,16 +149,11 @@ async function updateRelationships(
       WHERE status = ${directedStatus.PENDING_FRIEND} AND 
         user1 IN (${userIDs}) AND user2 = ${viewer.userID}
     `;
-    const undirectedInsertQuery = SQL`
-      INSERT INTO relationships_undirected (user1, user2, status)
-      VALUES ${undirectedRows}
-      ON DUPLICATE KEY UPDATE status = VALUES(status)
-    `;
 
     await Promise.all([
       dbQuery(directedInsertQuery),
       dbQuery(directedDeleteQuery),
-      dbQuery(undirectedInsertQuery),
+      updateUndirectedRelationships(undirectedRows, false),
     ]);
   } else if (action === relationshipActions.UNBLOCK) {
     updateIDs.push(...userIDs);
@@ -198,8 +190,27 @@ async function updateRelationships(
   return errors;
 }
 
-function sortIDs(firstId: string, secondId: string) {
-  return [firstId, secondId].map(Number).sort((a, b) => a - b);
+async function updateUndirectedRelationships(
+  changeset: UndirectedRelationshipRow[],
+  greatest: boolean = true,
+) {
+  if (!changeset.length) {
+    return;
+  }
+
+  const rows = changeset.map(row => [row.user1, row.user2, row.status]);
+  const query = SQL`
+    INSERT INTO relationships_undirected (user1, user2, status)
+    VALUES ${rows}
+  `;
+  if (greatest) {
+    query.append(
+      SQL`ON DUPLICATE KEY UPDATE status = GREATEST(status, VALUES(status))`,
+    );
+  } else {
+    query.append(SQL`ON DUPLICATE KEY UPDATE status = VALUES(status)`);
+  }
+  await dbQuery(query);
 }
 
-export { updateRelationships };
+export { updateRelationships, updateUndirectedRelationships };

@@ -7,10 +7,13 @@ import {
   threadPermissions,
 } from 'lib/types/thread-types';
 import { messageTypes } from 'lib/types/message-types';
+import { undirectedStatus } from 'lib/types/relationship-types';
 import type { Viewer } from '../session/viewer';
 
 import { generateRandomColor } from 'lib/shared/thread-utils';
+import { sortIDs } from 'lib/shared/relationship-utils';
 import { ServerError } from 'lib/utils/errors';
+import { cartesianProduct } from 'lib/utils/array';
 
 import { dbQuery, SQL } from '../database';
 import { checkThreadPermission } from '../fetchers/thread-fetchers';
@@ -94,20 +97,61 @@ async function createThread(
       : undefined,
     recalculateAllPermissions(id, threadType),
   ]);
+
   if (!creatorChangeset) {
     throw new ServerError('unknown_error');
   }
+  const {
+    membershipRows: creatorMembershipRows,
+    relationshipRows: creatorRelationshipRows,
+  } = creatorChangeset;
+
   const initialMemberAndCreatorIDs = initialMemberIDs
     ? [...initialMemberIDs, viewer.userID]
     : [viewer.userID];
-  const changeset = [...creatorChangeset, ...recalculatePermissionsChangeset];
+  const {
+    membershipRows: recalculateMembershipRows,
+    relationshipRows: recalculateRelationshipRows,
+  } = recalculatePermissionsChangeset;
+
+  const membershipRows = [
+    ...creatorMembershipRows,
+    ...recalculateMembershipRows,
+  ];
+  const relationshipRows = [
+    ...creatorRelationshipRows,
+    ...recalculateRelationshipRows,
+  ];
   if (initialMemberIDs && initialMemberIDs.length > 0) {
     if (!initialMembersChangeset) {
       throw new ServerError('unknown_error');
     }
-    changeset.push(...initialMembersChangeset);
+    const {
+      membershipRows: initialMembersMembershipRows,
+      relationshipRows: initialMembersRelationshipRows,
+    } = initialMembersChangeset;
+    membershipRows.push(...initialMembersMembershipRows);
+    relationshipRows.push(...initialMembersRelationshipRows)
+
+    const parentMemberIDs = recalculateMembershipRows
+      .map(rowToSave => rowToSave.userID)
+      .filter(userID => !initialMemberAndCreatorIDs.includes(userID));
+    const newMemberIDs = initialMemberIDs.filter(
+      memberID =>
+        !recalculateMembershipRows.find(
+          rowToSave => memberID === rowToSave.userID,
+        ),
+    );
+    const parentRelationshipRows = cartesianProduct(
+      parentMemberIDs,
+      newMemberIDs,
+    ).map(pair => {
+      const [user1, user2] = sortIDs(...pair);
+      return { user1, user2, status: undirectedStatus.KNOW_OF };
+    });
+    relationshipRows.push(...parentRelationshipRows);
   }
-  setJoinsToUnread(changeset, viewer.userID, id);
+  setJoinsToUnread(membershipRows, viewer.userID, id);
 
   const messageDatas = [
     {
@@ -134,6 +178,7 @@ async function createThread(
     });
   }
 
+  const changeset = { membershipRows, relationshipRows };
   const [newMessageInfos, commitResult] = await Promise.all([
     createMessages(viewer, messageDatas),
     commitMembershipChangeset(viewer, changeset),

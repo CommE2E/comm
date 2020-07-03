@@ -10,14 +10,20 @@ import type { ThreadSubscription } from 'lib/types/subscription-types';
 import type { Viewer } from '../session/viewer';
 import { updateTypes, type UpdateInfo } from 'lib/types/update-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
+import {
+  type UndirectedRelationshipRow,
+  undirectedStatus,
+} from 'lib/types/relationship-types';
 
 import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual';
+import _uniqWith from 'lodash/fp/uniqWith';
 
 import {
   makePermissionsBlob,
   makePermissionsForChildrenBlob,
 } from 'lib/permissions/thread-permissions';
+import { sortIDs } from 'lib/shared/relationship-utils';
 import { ServerError } from 'lib/utils/errors';
 
 import {
@@ -26,10 +32,11 @@ import {
   type FetchThreadInfosResult,
 } from '../fetchers/thread-fetchers';
 import { createUpdates } from '../creators/update-creator';
+import { updateUndirectedRelationships } from '../updaters/relationship-updaters';
 
 import { dbQuery, SQL, mergeOrConditions } from '../database';
 
-type RowToSave = {|
+type MembershipRowToSave = {|
   operation: 'update' | 'join',
   userID: string,
   threadID: string,
@@ -40,13 +47,16 @@ type RowToSave = {|
   subscription?: ThreadSubscription,
   unread?: boolean,
 |};
-type RowToDelete = {|
+type MembershipRowToDelete = {|
   operation: 'delete',
   userID: string,
   threadID: string,
 |};
-type Row = RowToSave | RowToDelete;
-type Changeset = Row[];
+type MembershipRow = MembershipRowToSave | MembershipRowToDelete;
+type Changeset = {|
+  membershipRows: MembershipRow[],
+  relationshipRows: UndirectedRelationshipRow[],
+|};
 
 // 0 role means to remove the user from the thread
 // null role means to set the user to the default role
@@ -63,7 +73,7 @@ async function changeRole(
     LEFT JOIN threads t ON t.id = m.thread
     LEFT JOIN memberships pm
       ON pm.thread = t.parent_thread_id AND pm.user = m.user
-    WHERE m.thread = ${threadID} AND m.user IN (${userIDs})
+    WHERE m.thread = ${threadID}
   `;
   const [[membershipResult], roleThreadResult] = await Promise.all([
     dbQuery(membershipQuery),
@@ -85,8 +95,10 @@ async function changeRole(
     });
   }
 
-  const changeset = [];
+  const relationshipRows = [];
+  const membershipRows = [];
   const toUpdateDescendants = new Map();
+  const memberIDs = new Set(roleInfo.keys());
   for (let userID of userIDs) {
     let oldPermissionsForChildren = null;
     let permissionsFromParent = null;
@@ -115,7 +127,7 @@ async function changeRole(
     const permissionsForChildren = makePermissionsForChildrenBlob(permissions);
 
     if (permissions) {
-      changeset.push({
+      membershipRows.push({
         operation:
           roleThreadResult.roleColumnValue !== '0' &&
           (!userRoleInfo || userRoleInfo.oldRole === '0')
@@ -127,8 +139,20 @@ async function changeRole(
         permissionsForChildren,
         role: roleThreadResult.roleColumnValue,
       });
+      memberIDs.add(userID);
+
+      for (const currentUserID of memberIDs) {
+        if (userID !== currentUserID) {
+          const [user1, user2] = sortIDs(userID, currentUserID);
+          relationshipRows.push({
+            user1,
+            user2,
+            status: undirectedStatus.KNOW_OF,
+          });
+        }
+      }
     } else {
-      changeset.push({
+      membershipRows.push({
         operation: 'delete',
         userID,
         threadID,
@@ -141,14 +165,15 @@ async function changeRole(
   }
 
   if (toUpdateDescendants.size > 0) {
-    const descendantResults = await updateDescendantPermissions(
-      threadID,
-      toUpdateDescendants,
-    );
-    changeset.push(...descendantResults);
+    const {
+      membershipRows: descendantMembershipRows,
+      relationshipRows: descendantRelationshipRows,
+    } = await updateDescendantPermissions(threadID, toUpdateDescendants);
+    membershipRows.push(...descendantMembershipRows);
+    relationshipRows.push(...descendantRelationshipRows);
   }
 
-  return changeset;
+  return { membershipRows, relationshipRows };
 }
 
 type RoleThreadResult = {|
@@ -214,17 +239,17 @@ async function updateDescendantPermissions(
   initialUsersToPermissionsFromParent: Map<string, ?ThreadPermissionsBlob>,
 ): Promise<Changeset> {
   const stack = [[initialParentThreadID, initialUsersToPermissionsFromParent]];
-  const changeset = [];
+  const membershipRows = [];
+  const relationshipRows = [];
   while (stack.length > 0) {
     const [parentThreadID, usersToPermissionsFromParent] = stack.shift();
 
-    const userIDs = [...usersToPermissionsFromParent.keys()];
     const query = SQL`
       SELECT t.id, m.user, t.type,
         r.permissions AS role_permissions, m.permissions,
         m.permissions_for_children, m.role
       FROM threads t
-      LEFT JOIN memberships m ON m.thread = t.id AND m.user IN (${userIDs})
+      LEFT JOIN memberships m ON m.thread = t.id
       LEFT JOIN roles r ON r.id = m.role
       WHERE t.parent_thread_id = ${parentThreadID}
     `;
@@ -282,7 +307,7 @@ async function updateDescendantPermissions(
           permissions,
         );
         if (permissions) {
-          changeset.push({
+          membershipRows.push({
             operation: 'update',
             userID,
             threadID,
@@ -290,8 +315,16 @@ async function updateDescendantPermissions(
             permissionsForChildren,
             role,
           });
+
+          for (const [childUserID] of userInfos) {
+            if (childUserID !== userID) {
+              const [user1, user2] = sortIDs(childUserID, userID);
+              const status = undirectedStatus.KNOW_OF;
+              relationshipRows.push({ user1, user2, status });
+            }
+          }
         } else {
-          changeset.push({
+          membershipRows.push({
             operation: 'delete',
             userID,
             threadID,
@@ -306,7 +339,7 @@ async function updateDescendantPermissions(
       }
     }
   }
-  return changeset;
+  return { membershipRows, relationshipRows };
 }
 
 // Unlike changeRole and others, this doesn't just create a Changeset.
@@ -342,8 +375,18 @@ async function recalculateAllPermissions(
     dbQuery(updateQuery),
   ]);
 
-  const changeset = [];
+  const relationshipRows = [];
+  const membershipRows = [];
   const toUpdateDescendants = new Map();
+  const parentIDs = [];
+  const childIDs = selectResult.reduce((acc, row) => {
+    if (row.user && row.role !== 0) {
+      acc.push(row.user.toString());
+      return acc;
+    }
+    return acc;
+  }, []);
+
   for (let row of selectResult) {
     if (!row.user) {
       continue;
@@ -367,7 +410,7 @@ async function recalculateAllPermissions(
     }
     const permissionsForChildren = makePermissionsForChildrenBlob(permissions);
     if (permissions) {
-      changeset.push({
+      membershipRows.push({
         operation: 'update',
         userID,
         threadID,
@@ -375,8 +418,20 @@ async function recalculateAllPermissions(
         permissionsForChildren,
         role,
       });
+
+      if (!oldPermissions) {
+        for (const childID of childIDs) {
+          const [user1, user2] = sortIDs(userID, childID);
+          parentIDs.push(userID);
+          relationshipRows.push({
+            user1,
+            user2,
+            status: undirectedStatus.KNOW_OF,
+          });
+        }
+      }
     } else {
-      changeset.push({
+      membershipRows.push({
         operation: 'delete',
         userID,
         threadID,
@@ -388,14 +443,23 @@ async function recalculateAllPermissions(
   }
 
   if (toUpdateDescendants.size > 0) {
-    const descendantResults = await updateDescendantPermissions(
-      threadID,
-      toUpdateDescendants,
+    const {
+      membershipRows: descendantMembershipRows,
+      relationshipRows: descendantRelationshipRows,
+    } = await updateDescendantPermissions(threadID, toUpdateDescendants);
+
+    membershipRows.push(...descendantMembershipRows);
+    relationshipRows.push(
+      ...descendantRelationshipRows.filter(({ user1, user2 }) => {
+        return (
+          parentIDs.includes(user1.toString()) ||
+          parentIDs.includes(user2.toString())
+        );
+      }),
     );
-    changeset.push(...descendantResults);
   }
 
-  return changeset;
+  return { membershipRows, relationshipRows };
 }
 
 const defaultSubscriptionString = JSON.stringify({
@@ -404,7 +468,7 @@ const defaultSubscriptionString = JSON.stringify({
 });
 const joinSubscriptionString = JSON.stringify({ home: true, pushNotifs: true });
 
-async function saveMemberships(toSave: $ReadOnlyArray<RowToSave>) {
+async function saveMemberships(toSave: $ReadOnlyArray<MembershipRowToSave>) {
   if (toSave.length === 0) {
     return;
   }
@@ -460,7 +524,9 @@ async function saveMemberships(toSave: $ReadOnlyArray<RowToSave>) {
   await dbQuery(query);
 }
 
-async function deleteMemberships(toDelete: $ReadOnlyArray<RowToDelete>) {
+async function deleteMemberships(
+  toDelete: $ReadOnlyArray<MembershipRowToDelete>,
+) {
   if (toDelete.length === 0) {
     return;
   }
@@ -491,9 +557,10 @@ async function commitMembershipChangeset(
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
+  const { membershipRows, relationshipRows } = changeset;
 
   const membershipRowMap = new Map();
-  for (let row of changeset) {
+  for (let row of membershipRows) {
     const { userID, threadID } = row;
     changedThreadIDs.add(threadID);
 
@@ -518,7 +585,11 @@ async function commitMembershipChangeset(
       toSave.push(row);
     }
   }
-  await Promise.all([saveMemberships(toSave), deleteMemberships(toDelete)]);
+  await Promise.all([
+    saveMemberships(toSave),
+    deleteMemberships(toDelete),
+    updateUndirectedRelationships(_uniqWith(_isEqual)(relationshipRows)),
+  ]);
 
   const serverThreadInfoFetchResult = await fetchServerThreadInfos(
     SQL`t.id IN (${[...changedThreadIDs]})`,
@@ -580,7 +651,7 @@ async function commitMembershipChangeset(
 }
 
 function setJoinsToUnread(
-  rows: Row[],
+  rows: MembershipRow[],
   exceptViewerID: string,
   exceptThreadID: string,
 ) {
