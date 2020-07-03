@@ -30,6 +30,7 @@ class ChatTabs extends React.PureComponent<Props, State> {
   onClickHome = () => {
     this.setState({ activeTab: 'HOME' });
   };
+
   onClickBackground = () => {
     this.setState({ activeTab: 'BACKGROUND' });
   };
@@ -38,7 +39,7 @@ class ChatTabs extends React.PureComponent<Props, State> {
     const { activeTab } = this.state;
     const threadList =
       activeTab === 'HOME' ? <ChatThreadHome /> : <ChatThreadBackground />;
-    let backgroundTitle = `BACKGROUND`;
+    let backgroundTitle = 'BACKGROUND';
     if (this.props.unreadBackgroundCount) {
       backgroundTitle += ` (${this.props.unreadBackgroundCount})`;
     }
