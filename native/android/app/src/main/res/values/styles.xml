@@ -2,10 +2,12 @@
   <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
     <item name="android:editTextBackground">@android:color/transparent</item>
   </style>
-  <style name="SplashTheme" parent="Theme.AppCompat.Light.NoActionBar">
-    <item name="android:textColor">#000000</item>
+  <style name="SplashThemeBase" parent="Theme.AppCompat.Light.NoActionBar">
     <item name="android:windowNoTitle">true</item>
-    <item name="android:background">@drawable/splashscreen_image</item>
     <item name="android:windowDrawsSystemBarBackgrounds">false</item>
+  </style>
+  <style name="SplashTheme" parent="SplashThemeBase">
+    <item name="android:background">@drawable/splashscreen_image</item>
+    <item name="android:textColor">#000000</item>
   </style>
 </resources>
