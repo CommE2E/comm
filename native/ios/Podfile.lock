@@ -15,11 +15,11 @@ PODS:
     - React-Core
     - UMCore
     - UMImageLoaderInterface
-  - EXImageManipulator (8.1.0):
+  - EXImageManipulator (8.2.1):
     - UMCore
     - UMFileSystemInterface
     - UMImageLoaderInterface
-  - EXMediaLibrary (8.2.1):
+  - EXMediaLibrary (8.3.0):
     - React
     - UMCore
     - UMFileSystemInterface
@@ -27,7 +27,7 @@ PODS:
   - EXPermissions (8.1.0):
     - UMCore
     - UMPermissionsInterface
-  - EXSplashScreen (0.2.3):
+  - EXSplashScreen (0.3.1):
     - UMCore
   - FBLazyVector (0.62.2)
   - FBReactNativeSpec (0.62.2):
@@ -283,8 +283,6 @@ PODS:
     - React
   - react-native-camera/RN (3.8.0):
     - React
-  - react-native-cameraroll (1.5.2):
-    - React
   - react-native-ffmpeg/min-lts (0.4.4):
     - mobile-ffmpeg-min (= 4.3.1.LTS)
     - React
@@ -473,7 +471,6 @@ DEPENDENCIES:
   - React-jsinspector (from `../../node_modules/react-native/ReactCommon/jsinspector`)
   - react-native-background-upload (from `../../node_modules/react-native-background-upload`)
   - react-native-camera (from `../../node_modules/react-native-camera`)
-  - "react-native-cameraroll (from `../../node_modules/@react-native-community/cameraroll`)"
   - react-native-ffmpeg/min-lts (from `../../node_modules/react-native-ffmpeg/react-native-ffmpeg.podspec`)
   - react-native-in-app-message (from `../../node_modules/react-native-in-app-message`)
   - "react-native-netinfo (from `../../node_modules/@react-native-community/netinfo`)"
@@ -597,8 +594,6 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native-background-upload"
   react-native-camera:
     :path: "../../node_modules/react-native-camera"
-  react-native-cameraroll:
-    :path: "../../node_modules/@react-native-community/cameraroll"
   react-native-ffmpeg:
     :podspec: "../../node_modules/react-native-ffmpeg/react-native-ffmpeg.podspec"
   react-native-in-app-message:
@@ -707,10 +702,10 @@ SPEC CHECKSUMS:
   EXConstants: 5304709b1bea70a4828f48ba4c7fc3ec3b2d9b17
   EXFileSystem: cf4232ba7c62dc49b78c2d36005f97b6fddf0b01
   EXImageLoader: 5ad6896fa1ef2ee814b551873cbf7a7baccc694a
-  EXImageManipulator: 97f61d14c292714d66884e83697e794f8cefe0b0
-  EXMediaLibrary: 267cf1daca04a4d71d20c5be0b82701fe6056a08
+  EXImageManipulator: fbc0fff59cd398ebec3f3e9bedd4451375de2d5f
+  EXMediaLibrary: 0bf8b552392a0ae3919482c1a0f56def9acbd881
   EXPermissions: 24b97f734ce9172d245a5be38ad9ccfcb6135964
-  EXSplashScreen: 6568daa178c8e17f2197d29cea858f0e0b61b695
+  EXSplashScreen: c4ed5d39cd5dbc1329f8dec720e280276bafa28b
   FBLazyVector: 4aab18c93cd9546e4bfed752b4084585eca8b245
   FBReactNativeSpec: 5465d51ccfeecb7faa12f9ae0024f2044ce4044e
   Flipper: 6c1f484f9a88d30ab3e272800d53688439e50f69
@@ -738,7 +733,6 @@ SPEC CHECKSUMS:
   React-jsinspector: 512e560d0e985d0e8c479a54a4e5c147a9c83493
   react-native-background-upload: 6e8ba7f41a6308231306bddc88f11da3b74c9de4
   react-native-camera: 21cf4ed26cf432ceb1fae959aa6924943fd6f714
-  react-native-cameraroll: 4360c9faab50dc6844f56d222c2d0c7ef5f1fe92
   react-native-ffmpeg: f9a60452aaa5d478aac205b248224994f3bde416
   react-native-in-app-message: f91de5009620af01456531118264c93e249b83ec
   react-native-netinfo: 6bb847e64f45a2d69c6173741111cfd95c669301
@@ -792,4 +786,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: f1c6bb62cf220aa637539c3349d07b350a42520d
 
-COCOAPODS: 1.9.1
+COCOAPODS: 1.9.3

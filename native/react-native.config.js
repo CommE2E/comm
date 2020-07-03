@@ -8,6 +8,5 @@ module.exports = {
         ios: null,
       },
     },
-    '@react-native-community/cameraroll': { platforms: { android: null } },
   },
 };
