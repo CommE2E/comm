@@ -56,6 +56,7 @@ import _sum from 'lodash/fp/sum';
 import _pickBy from 'lodash/fp/pickBy';
 import _size from 'lodash/fp/size';
 import _throttle from 'lodash/throttle';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { entryKey } from 'lib/shared/entry-utils';
 import { dateString, prettyDate, dateFromString } from 'lib/utils/date-utils';
@@ -91,7 +92,6 @@ import {
   ThreadPickerModalRouteName,
 } from '../navigation/route-names';
 import DisconnectedBar from '../navigation/disconnected-bar.react';
-import SafeAreaView from '../components/safe-area-view.react';
 import {
   type Colors,
   colorsPropType,
@@ -121,6 +121,8 @@ type ExtraData = $ReadOnly<{|
   activeEntries: { [key: string]: boolean },
   visibleEntries: { [key: string]: boolean },
 |}>;
+
+const safeAreaEdges = ['top'];
 
 type Props = {
   navigation: TabNavigationProp<'Calendar'>,
@@ -748,7 +750,7 @@ class Calendar extends React.PureComponent<Props, State> {
     }
     const disableInputBar = this.state.currentlyEditing.length === 0;
     return (
-      <SafeAreaView style={this.props.styles.container}>
+      <SafeAreaView style={this.props.styles.container} edges={safeAreaEdges}>
         <DisconnectedBar visible={this.props.calendarActive} />
         <TextHeightMeasurer
           textToMeasure={this.state.textToMeasure}

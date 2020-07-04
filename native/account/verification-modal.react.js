@@ -31,6 +31,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
 import PropTypes from 'prop-types';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { connect } from 'lib/utils/redux-utils';
@@ -52,7 +53,6 @@ import {
   removeKeyboardListener,
 } from '../keyboard/keyboard';
 import { VerificationModalRouteName } from '../navigation/route-names';
-import SafeAreaView from '../components/safe-area-view.react';
 import {
   connectNav,
   type NavContextType,
@@ -62,6 +62,7 @@ const animatedSpec = {
   useNativeDriver: false,
   easing: Easing.out(Easing.ease),
 };
+const safeAreaEdges = ['top', 'bottom'];
 
 export type VerificationModalParams = {|
   verifyCode: string,
@@ -447,10 +448,12 @@ class VerificationModal extends React.PureComponent<Props, State> {
     return (
       <React.Fragment>
         {background}
-        <SafeAreaView style={styles.container}>
-          {statusBar}
-          {animatedContent}
-          {closeButton}
+        <SafeAreaView style={styles.container} edges={safeAreaEdges}>
+          <View style={styles.container}>
+            {statusBar}
+            {animatedContent}
+            {closeButton}
+          </View>
         </SafeAreaView>
       </React.Fragment>
     );

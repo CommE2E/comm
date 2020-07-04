@@ -29,6 +29,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import OnePassword from 'react-native-onepassword';
 import PropTypes from 'prop-types';
 import _isEqual from 'lodash/fp/isEqual';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
 import {
@@ -60,7 +61,6 @@ import {
   setStateForContainer,
 } from '../utils/state-container';
 import { LoggedOutModalRouteName } from '../navigation/route-names';
-import SafeAreaView from '../components/safe-area-view.react';
 import {
   connectNav,
   type NavContextType,
@@ -72,6 +72,7 @@ const animatedSpec = {
   useNativeDriver: false,
   easing: Easing.out(Easing.ease),
 };
+const safeAreaEdges = ['top', 'bottom'];
 
 type LoggedOutMode = 'loading' | 'prompt' | 'log-in' | 'register';
 type Props = {
@@ -602,36 +603,19 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       </Animated.View>
     );
 
-    // Man, you gotta wonder sometimes if React Native is really worth it.
-    // The iOS order causes some extremely strange layout bugs on Android.
-    // The Android order makes the buttons in prompt mode not clickable.
-    if (Platform.OS === 'ios') {
-      return (
-        <React.Fragment>
-          {background}
-          <SafeAreaView style={styles.container}>
-            {statusBar}
-            {animatedContent}
-            {buttons}
-            {forgotPasswordLink}
-          </SafeAreaView>
-        </React.Fragment>
-      );
-    } else {
-      // https://github.com/facebook/react-native/issues/6785
-      const topContainerStyle = { height: this.props.dimensions.height };
-      return (
-        <View style={[styles.androidTopContainer, topContainerStyle]}>
-          {background}
+    return (
+      <React.Fragment>
+        {background}
+        <SafeAreaView style={styles.container} edges={safeAreaEdges}>
           <View style={styles.container}>
             {statusBar}
-            {buttons}
             {animatedContent}
+            {buttons}
             {forgotPasswordLink}
           </View>
-        </View>
-      );
-    }
+        </SafeAreaView>
+      </React.Fragment>
+    );
   }
 
   logInPanelContainerRef = (logInPanelContainer: ?LogInPanelContainer) => {
@@ -681,9 +665,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 }
 
 const styles = StyleSheet.create({
-  androidTopContainer: {
-    backgroundColor: 'transparent',
-  },
   animationContainer: {
     flex: 1,
   },
