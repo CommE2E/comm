@@ -319,7 +319,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       dimensions: { height: windowHeight },
       contentVerticalOffset,
     } = this.props;
-    let containerSize = Platform.OS === 'ios' ? 62 : 59; // header height
+    let containerSize = Platform.OS === 'ios' ? 62 : 61; // header height
     if (mode === 'log-in') {
       // We need to make space for the reset password button on smaller devices
       containerSize += windowHeight < 600 ? 195 : 165;
@@ -329,8 +329,8 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     } else {
       // This is arbitrary and artificial... actually centering just looks a bit
       // weird because the buttons are at the bottom. The reason it's different
-      // for iPhone X is because that's where LaunchScreen.xib places it and I'm
-      // not sure how to get AutoLayout to behave consistently with Yoga.
+      // for iPhone X is because that's where LaunchScreen.storyboard places it
+      // and I'm not sure how to get AutoLayout to behave consistently with Yoga
       containerSize += DeviceInfo.getConstants().isIPhoneX_deprecated ? 50 : 61;
     }
     const contentHeight = windowHeight - contentVerticalOffset;

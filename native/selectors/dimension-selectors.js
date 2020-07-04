@@ -32,11 +32,6 @@ const dimensionsSelector: (state: AppState) => Dimensions = createSelector(
   (dimensions: DimensionsInfo): Dimensions => {
     let { height, width } = dimensions;
     height -= contentBottomOffset;
-    if (Platform.OS === 'android') {
-      // Android starts the 0 pixel below the status bar height,
-      // but doesn't subtract it out of the dimensions
-      height -= statusBarHeight;
-    }
     return { height, width };
   },
 );
@@ -48,9 +43,6 @@ const contentVerticalOffsetSelector: (
 ) => number = createSelector(
   (state: AppState) => state.dimensions,
   (dimensions: DimensionsInfo): number => {
-    if (Platform.OS !== 'ios') {
-      return 0;
-    }
     const { height, width } = dimensions;
     if (width > height) {
       // We don't display a status bar at all in landscape mode,

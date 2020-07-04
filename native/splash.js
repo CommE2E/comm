@@ -7,11 +7,15 @@ import type { AppState } from './redux/redux-setup';
 import { Platform, PixelRatio } from 'react-native';
 import { createSelector } from 'reselect';
 
-import { dimensionsSelector } from './selectors/dimension-selectors';
+import {
+  dimensionsSelector,
+  contentVerticalOffsetSelector,
+} from './selectors/dimension-selectors';
 
 const splashStyleSelector: (state: AppState) => ImageStyle = createSelector(
   dimensionsSelector,
-  (dimensions: Dimensions): ImageStyle => {
+  contentVerticalOffsetSelector,
+  (dimensions: Dimensions, contentVerticalOffset: number): ImageStyle => {
     if (Platform.OS !== 'android') {
       return null;
     }
@@ -42,13 +46,13 @@ const splashStyleSelector: (state: AppState) => ImageStyle = createSelector(
     }
     const splashHeight =
       windowWidth <= 480 ? splashWidth * 2.5 : splashWidth * 2;
+    const translateX = (-1 * (splashWidth - windowWidth)) / 2;
+    const translateY =
+      (-1 * (splashHeight - windowHeight)) / 2 + contentVerticalOffset;
     return {
       width: splashWidth,
       height: splashHeight,
-      transform: [
-        { translateX: (-1 * (splashWidth - windowWidth)) / 2 },
-        { translateY: (-1 * (splashHeight - windowHeight)) / 2 },
-      ],
+      transform: [{ translateX }, { translateY }],
     };
   },
 );
