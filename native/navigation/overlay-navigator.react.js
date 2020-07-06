@@ -21,7 +21,7 @@ import { values } from 'lib/utils/objects';
 
 import OverlayRouter from './overlay-router';
 import { OverlayContext } from './overlay-context';
-import { scrollBlockingChatModals } from './route-names';
+import { scrollBlockingChatModals, TabNavigatorRouteName } from './route-names';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Value, timing, cond, call, lessOrEq, block } = Animated;
@@ -83,6 +83,31 @@ const OverlayNavigator = React.memo<Props>(
     const prevScenesRef = React.useRef();
     const prevScenes = prevScenesRef.current;
 
+    const visibleOverlayEntryForNewScene = scene => {
+      const { route } = scene;
+      if (route.name === TabNavigatorRouteName) {
+        // We don't consider the TabNavigator at the bottom to be an overlay
+        return undefined;
+      }
+      const presentedFrom = route.params
+        ? route.params.presentedFrom
+        : undefined;
+      return {
+        routeKey: route.key,
+        routeName: route.name,
+        position: positions[route.key],
+        presentedFrom,
+      };
+    };
+
+    const visibleOverlaysRef = React.useRef();
+    if (!visibleOverlaysRef.current) {
+      visibleOverlaysRef.current = scenes
+        .map(visibleOverlayEntryForNewScene)
+        .filter(Boolean);
+    }
+    let visibleOverlays = visibleOverlaysRef.current;
+
     // The scrollBlockingModalStatus state gets incorporated into the
     // OverlayContext, but it's global to the navigator rather than local to
     // each screen. Note that we also include the setter in OverlayContext. We
@@ -110,6 +135,7 @@ const OverlayNavigator = React.memo<Props>(
       ...scene,
       context: {
         ...scene.context,
+        visibleOverlays,
         scrollBlockingModalStatus,
         setScrollBlockingModalStatus,
       },
@@ -174,6 +200,10 @@ const OverlayNavigator = React.memo<Props>(
         let data = updatedSceneData[key];
         if (!data) {
           // A new route has been pushed
+          const newVisibleOverlayEntry = visibleOverlayEntryForNewScene(scene);
+          if (newVisibleOverlayEntry) {
+            visibleOverlays = [...visibleOverlays, newVisibleOverlayEntry];
+          }
           updatedSceneData[key] = sceneDataForNewScene(scene);
           sceneDataChanged = true;
           queueAnimation(key, 1);
@@ -193,10 +223,7 @@ const OverlayNavigator = React.memo<Props>(
           // that if and when our scene is dismissed, the sceneData has the most
           // recent descriptor
         }
-        if (
-          scene.context.position !== data.context.position ||
-          scene.context.isDismissing !== data.context.isDismissing
-        ) {
+        if (scene.context.isDismissing !== data.context.isDismissing) {
           data = { ...data, context: { ...data.context, ...scene.context } };
           dataChanged = true;
         }
@@ -235,19 +262,61 @@ const OverlayNavigator = React.memo<Props>(
           listeners: [
             cond(
               lessOrEq(position, 0),
-              call([], () =>
+              call([], () => {
+                // This gets called when the scene is no longer visible and
+                // handles cleaning up our data structures to remove it
+                const curVisibleOverlays = visibleOverlaysRef.current;
+                invariant(
+                  curVisibleOverlays,
+                  'visibleOverlaysRef should be set',
+                );
+                const newVisibleOverlays = curVisibleOverlays.filter(
+                  overlay => overlay.routeKey !== key,
+                );
+                invariant(
+                  newVisibleOverlays.length < curVisibleOverlays.length,
+                  `could not find ${key} in visibleOverlays`,
+                );
+                visibleOverlaysRef.current = newVisibleOverlays;
                 setSceneData(curSceneData => {
-                  const newSceneData = { ...curSceneData };
-                  delete newSceneData[key];
+                  const newSceneData = {};
+                  for (let sceneKey in curSceneData) {
+                    if (sceneKey === key) {
+                      continue;
+                    }
+                    newSceneData[sceneKey] = {
+                      ...curSceneData[sceneKey],
+                      context: {
+                        ...curSceneData[sceneKey].context,
+                        visibleOverlays: newVisibleOverlays,
+                      },
+                    };
+                  }
                   return newSceneData;
-                }),
-              ),
+                });
+              }),
             ),
           ],
         };
         sceneDataChanged = true;
         queueAnimation(key, 0);
       }
+    }
+
+    if (visibleOverlays !== visibleOverlaysRef.current) {
+      // This indicates we have pushed a new route. Let's make sure every
+      // sceneData has the updated visibleOverlays
+      for (let sceneKey in updatedSceneData) {
+        updatedSceneData[sceneKey] = {
+          ...updatedSceneData[sceneKey],
+          context: {
+            ...updatedSceneData[sceneKey].context,
+            visibleOverlays,
+          },
+        };
+      }
+      visibleOverlaysRef.current = visibleOverlays;
+      sceneDataChanged = true;
     }
 
     const pendingAnimations = pendingAnimationsRef.current;

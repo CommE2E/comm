@@ -6,19 +6,36 @@ import PropTypes from 'prop-types';
 
 type ScrollBlockingModalStatus = 'open' | 'closed' | 'closing';
 export type OverlayContextType = {|
-  position: Animated.Value,
-  isDismissing: boolean,
-  scrollBlockingModalStatus: ScrollBlockingModalStatus,
-  setScrollBlockingModalStatus: ScrollBlockingModalStatus => void,
+  // position and isDismissing are local to the current route
+  +position: Animated.Value,
+  +isDismissing: boolean,
+  // The rest are global to the entire OverlayNavigator
+  +visibleOverlays: $ReadOnlyArray<{|
+    +routeKey: string,
+    +routeName: string,
+    +position: Animated.Value,
+    +presentedFrom: ?string,
+  |}>,
+  +scrollBlockingModalStatus: ScrollBlockingModalStatus,
+  +setScrollBlockingModalStatus: ScrollBlockingModalStatus => void,
 |};
 const OverlayContext: React.Context<?OverlayContextType> = React.createContext(
   null,
 );
 
+// eslint-disable-next-line import/no-named-as-default-member
+const animatedValuePropType = PropTypes.instanceOf(Animated.Value);
 const overlayContextPropType = PropTypes.shape({
-  // eslint-disable-next-line import/no-named-as-default-member
-  position: PropTypes.instanceOf(Animated.Value).isRequired,
+  position: animatedValuePropType.isRequired,
   isDismissing: PropTypes.bool.isRequired,
+  visibleOverlays: PropTypes.arrayOf(
+    PropTypes.exact({
+      routeKey: PropTypes.string.isRequired,
+      routeName: PropTypes.string.isRequired,
+      position: animatedValuePropType.isRequired,
+      presentedFrom: PropTypes.string,
+    }),
+  ).isRequired,
   scrollBlockingModalStatus: PropTypes.oneOf(['open', 'closed', 'closing'])
     .isRequired,
   setScrollBlockingModalStatus: PropTypes.func.isRequired,
