@@ -319,7 +319,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       dimensions: { height: windowHeight },
       contentVerticalOffset,
     } = this.props;
-    let containerSize = Platform.OS === 'ios' ? 62 : 61; // header height
+    let containerSize = Platform.OS === 'ios' ? 62.33 : 58.54; // header height
     if (mode === 'log-in') {
       // We need to make space for the reset password button on smaller devices
       containerSize += windowHeight < 600 ? 195 : 165;
