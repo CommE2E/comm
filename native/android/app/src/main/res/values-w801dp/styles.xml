@@ -1,4 +1,4 @@
 <resources>
-  <style name="SplashTheme" parent="SplashThemeBase">
+  <style name="SplashTheme" parent="NoSplashTheme">
   </style>
 </resources>

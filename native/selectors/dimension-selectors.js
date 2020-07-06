@@ -27,10 +27,17 @@ if (Platform.OS === 'android') {
 // iPhone X home pill
 const contentBottomOffset = isIPhoneX ? 34 : 0;
 
+const androidOpaqueStatus = Platform.OS === 'android' && Platform.Version < 21;
+
 const dimensionsSelector: (state: AppState) => Dimensions = createSelector(
   (state: AppState) => state.dimensions,
   (dimensions: DimensionsInfo): Dimensions => {
     let { height, width } = dimensions;
+    if (androidOpaqueStatus) {
+      // Android always includes the status bar height,
+      // even if the zero pixel starts below the status bar
+      height -= statusBarHeight;
+    }
     height -= contentBottomOffset;
     return { height, width };
   },
@@ -43,6 +50,9 @@ const contentVerticalOffsetSelector: (
 ) => number = createSelector(
   (state: AppState) => state.dimensions,
   (dimensions: DimensionsInfo): number => {
+    if (androidOpaqueStatus) {
+      return 0;
+    }
     const { height, width } = dimensions;
     if (width > height) {
       // We don't display a status bar at all in landscape mode,
