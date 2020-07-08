@@ -31,9 +31,13 @@ import {
   TouchableOpacity,
   Platform,
   Image,
+  Animated,
+  Easing,
 } from 'react-native';
 import PropTypes from 'prop-types';
-import Animated, { Easing } from 'react-native-reanimated';
+import Reanimated, {
+  Easing as ReanimatedEasing,
+} from 'react-native-reanimated';
 import { RNCamera } from 'react-native-camera';
 import {
   PinchGestureHandler,
@@ -92,7 +96,7 @@ const {
   timing,
   spring,
   SpringUtils,
-} = Animated;
+} = Reanimated;
 /* eslint-enable import/no-named-as-default-member */
 
 const maxZoom = 16;
@@ -111,7 +115,12 @@ const zoomUpdateFactor = (() => {
 
 const stagingModeAnimationConfig = {
   duration: 150,
+  easing: ReanimatedEasing.inOut(ReanimatedEasing.ease),
+};
+const sendButtonAnimationConfig = {
+  duration: 150,
   easing: Easing.inOut(Easing.ease),
+  useNativeDriver: true,
 };
 
 const indicatorSpringConfig = {
@@ -122,7 +131,7 @@ const indicatorSpringConfig = {
 };
 const indicatorTimingConfig = {
   duration: 500,
-  easing: Easing.out(Easing.ease),
+  easing: ReanimatedEasing.out(ReanimatedEasing.ease),
   toValue: 0,
 };
 function runIndicatorAnimation(
@@ -318,7 +327,7 @@ class CameraModal extends React.PureComponent<Props, State> {
   cameraIDsFetched = false;
 
   stagingModeProgress = new Value(0);
-  sendButtonProgress = new Value(0);
+  sendButtonProgress = new Animated.Value(0);
   sendButtonStyle: ViewStyle;
   overlayStyle: ViewStyle;
 
@@ -335,7 +344,7 @@ class CameraModal extends React.PureComponent<Props, State> {
       pendingPhotoCapture: undefined,
     };
 
-    const sendButtonScale = interpolate(this.sendButtonProgress, {
+    const sendButtonScale = this.sendButtonProgress.interpolate({
       inputRange: [0, 1],
       outputRange: [1.1, 1],
     });
@@ -575,8 +584,8 @@ class CameraModal extends React.PureComponent<Props, State> {
     }
 
     if (this.state.pendingPhotoCapture && !prevState.pendingPhotoCapture) {
-      timing(this.sendButtonProgress, {
-        ...stagingModeAnimationConfig,
+      Animated.timing(this.sendButtonProgress, {
+        ...sendButtonAnimationConfig,
         toValue: 1,
       }).start();
     } else if (
@@ -727,15 +736,15 @@ class CameraModal extends React.PureComponent<Props, State> {
         simultaneousHandlers={this.tapHandler}
         ref={this.pinchHandler}
       >
-        <Animated.View style={styles.fill}>
+        <Reanimated.View style={styles.fill}>
           <TapGestureHandler
             onHandlerStateChange={this.tapEvent}
             simultaneousHandlers={this.pinchHandler}
             waitFor={this.pinchHandler}
             ref={this.tapHandler}
           >
-            <Animated.View style={styles.fill}>
-              <Animated.View style={this.focusIndicatorStyle} />
+            <Reanimated.View style={styles.fill}>
+              <Reanimated.View style={this.focusIndicatorStyle} />
               <TouchableOpacity
                 onPress={this.changeFlashMode}
                 onLayout={this.onFlashButtonLayout}
@@ -755,9 +764,9 @@ class CameraModal extends React.PureComponent<Props, State> {
                 </TouchableOpacity>
                 {switchCameraButton}
               </View>
-            </Animated.View>
+            </Reanimated.View>
           </TapGestureHandler>
-        </Animated.View>
+        </Reanimated.View>
       </PinchGestureHandler>
     );
   }
@@ -770,9 +779,9 @@ class CameraModal extends React.PureComponent<Props, State> {
       ? RNCamera.Constants.Type.front
       : RNCamera.Constants.Type.back;
     return (
-      <Animated.View style={this.containerStyle}>
+      <Reanimated.View style={this.containerStyle}>
         {statusBar}
-        <Animated.Code exec={this.animationCode} />
+        <Reanimated.Code exec={this.animationCode} />
         <RNCamera
           type={type}
           captureAudio={false}
@@ -786,8 +795,8 @@ class CameraModal extends React.PureComponent<Props, State> {
         >
           {this.renderCamera}
         </RNCamera>
-        <Animated.View style={this.overlayStyle} pointerEvents="none" />
-      </Animated.View>
+        <Reanimated.View style={this.overlayStyle} pointerEvents="none" />
+      </Reanimated.View>
     );
   }
 
