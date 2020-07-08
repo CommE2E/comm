@@ -12041,10 +12041,10 @@ react-native-background-upload@^5.6.0:
   resolved "https://registry.yarnpkg.com/react-native-background-upload/-/react-native-background-upload-5.6.0.tgz#77953c78571c5c7d7a4885207743c6c462f22066"
   integrity sha512-JWtRVs3LIP41BFIEd01wit/O/hsGcGPDBYASZFal+0wPYJHjZZCVFOj2sEQ/NSOb4ow7RXtkYYJEKnQt+RiMPw==
 
-react-native-camera@^3.8.0:
-  version "3.8.0"
-  resolved "https://registry.yarnpkg.com/react-native-camera/-/react-native-camera-3.8.0.tgz#c2e6aaa62dc84e07180c3ea29a5bfc4d24b188a7"
-  integrity sha512-8haG+GONkMaZPtGZcVy2gALn87vOZiPaWZ7I7V6H81WnVBy00Hcd9w1T8T1gdmxuVSFgV5gFKNjnYRc+xMe5pg==
+react-native-camera@^3.31.0:
+  version "3.31.0"
+  resolved "https://registry.yarnpkg.com/react-native-camera/-/react-native-camera-3.31.0.tgz#7b9b4dd30b6d1363bdffed4ce0a0bef93c3ebf87"
+  integrity sha512-TTuse7JGVUbh/cj+a4OfyXoPqhwPyYx+63tzJWZT0sWwZX5bvlxjYaEur/U1hiZZjOC03muEIMkTD7nYp6ZVFA==
   dependencies:
     prop-types "^15.6.2"
 
