@@ -502,14 +502,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const statusBar = <ConnectedStatusBar barStyle="light-content" />;
-    const background = (
-      <Image
-        source={{ uri: splashBackgroundURI }}
-        style={[styles.modalBackground, this.props.splashStyle]}
-      />
-    );
-
     let panel = null;
     let buttons = null;
     if (this.state.mode === 'log-in') {
@@ -603,12 +595,16 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       </Animated.View>
     );
 
+    const backgroundSource = { uri: splashBackgroundURI };
     return (
       <React.Fragment>
-        {background}
+        <ConnectedStatusBar barStyle="light-content" />
+        <Image
+          source={backgroundSource}
+          style={[styles.modalBackground, this.props.splashStyle]}
+        />
         <SafeAreaView style={styles.container} edges={safeAreaEdges}>
           <View style={styles.container}>
-            {statusBar}
             {animatedContent}
             {buttons}
             {forgotPasswordLink}
