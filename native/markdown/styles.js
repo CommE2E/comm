@@ -15,11 +15,6 @@ const unboundStyles = {
     flexWrap: 'wrap',
     justifyContent: 'flex-start',
   },
-  text: {
-    color: 'listForegroundLabel',
-    fontFamily: 'Arial',
-    fontSize: 18,
-  },
   emojiOnlyText: {
     fontSize: 36,
   },
