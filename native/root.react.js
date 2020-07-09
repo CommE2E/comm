@@ -10,7 +10,10 @@ import { PersistGate } from 'redux-persist/integration/react';
 import AsyncStorage from '@react-native-community/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 import invariant from 'invariant';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import {
+  SafeAreaProvider,
+  initialWindowMetrics,
+} from 'react-native-safe-area-context';
 import { useReduxDevToolsExtension } from '@react-navigation/devtools';
 
 import { actionLogger } from 'lib/utils/action-logger';
@@ -224,7 +227,7 @@ function Root() {
       <NavContext.Provider value={navContext}>
         <RootContext.Provider value={rootContext}>
           <InputStateContainer>
-            <SafeAreaProvider>
+            <SafeAreaProvider initialMetrics={initialWindowMetrics}>
               <ConnectedStatusBar />
               <PersistGate persistor={getPersistor()}>{gated}</PersistGate>
               {navigation}
