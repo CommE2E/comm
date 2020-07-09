@@ -111,8 +111,7 @@ class ChatList extends React.PureComponent<Props, State> {
   };
 
   get scrolledToBottom() {
-    const { scrollPos } = this;
-    return scrollPos === null || scrollPos === undefined || scrollPos <= 0;
+    return this.scrollPos <= 0;
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -128,7 +127,7 @@ class ChatList extends React.PureComponent<Props, State> {
       return;
     }
 
-    const scrollPos = this.scrollPos ? this.scrollPos : 0;
+    const { scrollPos } = this;
 
     let curDataIndex = 0,
       prevDataIndex = 0,

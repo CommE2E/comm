@@ -1,6 +1,7 @@
 // @flow
 
 import type { ChatTopTabsNavigationProp } from './chat.react';
+import type { NavigationRoute } from '../navigation/route-names';
 
 import * as React from 'react';
 import { useSelector } from 'react-redux';
@@ -15,10 +16,10 @@ import { unreadBackgroundCount } from 'lib/selectors/thread-selectors';
 import ChatThreadList from './chat-thread-list.react';
 import { useStyles } from '../themes/colors';
 
-type BackgroundChatThreadListProps = {
+type BackgroundChatThreadListProps = {|
   navigation: ChatTopTabsNavigationProp<'BackgroundChatThreadList'>,
-  ...
-};
+  route: NavigationRoute<'BackgroundChatThreadList'>,
+|};
 export default function BackgroundChatThreadList(
   props: BackgroundChatThreadListProps,
 ) {
@@ -42,6 +43,7 @@ export default function BackgroundChatThreadList(
   return (
     <ChatThreadList
       navigation={props.navigation}
+      route={props.route}
       filterThreads={threadInBackgroundChatList}
       emptyItem={EmptyItem}
     />

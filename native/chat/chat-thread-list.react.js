@@ -30,6 +30,9 @@ import ChatThreadListItem from './chat-thread-list-item.react';
 import {
   ComposeThreadRouteName,
   MessageListRouteName,
+  HomeChatThreadListRouteName,
+  BackgroundChatThreadListRouteName,
+  type NavigationRoute,
 } from '../navigation/route-names';
 import { styleSelector } from '../themes/colors';
 import Search from '../components/search.react';
@@ -48,10 +51,10 @@ type Item =
   | {| type: 'search', searchText: string |}
   | {| type: 'empty', emptyItem: React.ComponentType<{||}> |};
 
+type RouteNames = 'HomeChatThreadList' | 'BackgroundChatThreadList';
 type Props = {|
-  navigation: ChatTopTabsNavigationProp<
-    'HomeChatThreadList' | 'BackgroundChatThreadList',
-  >,
+  navigation: ChatTopTabsNavigationProp<RouteNames>,
+  route: NavigationRoute<RouteNames>,
   filterThreads: (threadItem: ThreadInfo) => boolean,
   emptyItem?: React.ComponentType<{||}>,
   // Redux state
@@ -85,6 +88,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   };
   searchInput: ?React.ElementRef<typeof TextInput>;
   flatList: ?FlatList<Item>;
+  scrollPos = 0;
 
   componentDidMount() {
     const chatNavigation: ?ChatNavigationProp<
@@ -111,8 +115,13 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   }
 
   onTabPress = () => {
-    if (this.props.navigation.isFocused() && this.flatList) {
+    if (!this.props.navigation.isFocused()) {
+      return;
+    }
+    if (this.scrollPos > 0 && this.flatList) {
       this.flatList.scrollToOffset({ offset: 0, animated: true });
+    } else if (this.props.route.name === BackgroundChatThreadListRouteName) {
+      this.props.navigation.navigate({ name: HomeChatThreadListRouteName });
     }
   };
 
@@ -239,6 +248,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
           extraData={this.props.viewerID}
           initialNumToRender={11}
           keyboardShouldPersistTaps="handled"
+          onScroll={this.onScroll}
           style={this.props.styles.flatList}
           ref={this.flatListRef}
         />
@@ -249,6 +259,10 @@ class ChatThreadList extends React.PureComponent<Props, State> {
 
   flatListRef = (flatList: ?FlatList<Item>) => {
     this.flatList = flatList;
+  };
+
+  onScroll = (event: { +nativeEvent: { +contentOffset: { +y: number } } }) => {
+    this.scrollPos = event.nativeEvent.contentOffset.y;
   };
 
   onChangeSearchText = (searchText: string) => {
