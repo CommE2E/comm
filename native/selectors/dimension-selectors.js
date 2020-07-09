@@ -66,6 +66,7 @@ const contentVerticalOffsetSelector: (
 const defaultTabBarHeight = 50;
 
 export {
+  androidOpaqueStatus,
   contentBottomOffset,
   dimensionsSelector,
   contentVerticalOffsetSelector,

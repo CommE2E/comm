@@ -11,6 +11,7 @@ import { useSafeArea } from 'react-native-safe-area-context';
 
 import { KeyboardContext } from '../keyboard/keyboard-state';
 import { updateDimensionsActiveType } from '../redux/action-types';
+import { androidOpaqueStatus } from '../selectors/dimension-selectors';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Value, timing, interpolate } = Animated;
@@ -25,7 +26,10 @@ function TabBar(props: Props) {
   const tabBarVisible = tabBarVisibleRef.current;
 
   const keyboardState = React.useContext(KeyboardContext);
-  const mediaGalleryOpen = keyboardState && keyboardState.mediaGalleryOpen;
+  const shouldHideTabBar =
+    keyboardState &&
+    (keyboardState.mediaGalleryOpen ||
+      (keyboardState.keyboardShowing && androidOpaqueStatus));
 
   const animateTabBar = React.useCallback(
     toValue =>
@@ -37,16 +41,16 @@ function TabBar(props: Props) {
     [tabBarVisible],
   );
 
-  const mediaGalleryWasOpenRef = React.useRef(false);
+  const prevShouldHideTabBarRef = React.useRef(false);
   React.useEffect(() => {
-    const mediaGalleryWasOpen = mediaGalleryWasOpenRef.current;
-    if (mediaGalleryOpen && !mediaGalleryWasOpen) {
+    const prevShouldHideTabBar = prevShouldHideTabBarRef.current;
+    if (shouldHideTabBar && !prevShouldHideTabBar) {
       animateTabBar(0);
-    } else if (!mediaGalleryOpen && mediaGalleryWasOpen) {
+    } else if (!shouldHideTabBar && prevShouldHideTabBar) {
       animateTabBar(1);
     }
-    mediaGalleryWasOpenRef.current = mediaGalleryOpen;
-  }, [mediaGalleryOpen, animateTabBar]);
+    prevShouldHideTabBarRef.current = shouldHideTabBar;
+  }, [shouldHideTabBar, animateTabBar]);
 
   const reduxTabBarHeight = useSelector(state => state.dimensions.tabBarHeight);
   const dispatch = useDispatch();
