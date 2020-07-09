@@ -6,7 +6,7 @@ import { type GlobalTheme, globalThemePropType } from '../types/themes';
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
@@ -17,8 +17,13 @@ import {
   filterCorners,
   getRoundedContainerStyle,
 } from './rounded-corners';
-import { type Colors, colorsPropType, colorsSelector } from '../themes/colors';
-import Markdown from '../components/markdown.react';
+import {
+  type Colors,
+  colorsPropType,
+  colorsSelector,
+  colors,
+} from '../themes/colors';
+import Markdown from '../markdown/markdown.react';
 
 type Props = {|
   item: ChatTextMessageInfoItemWithHeight,
@@ -53,7 +58,9 @@ class InnerTextMessage extends React.PureComponent<Props> {
       messageStyle.backgroundColor = this.props.colors.listChatBubble;
       darkColor = this.props.activeTheme === 'dark';
     }
-    textCustomStyle.height = item.contentHeight;
+    textCustomStyle.color = darkColor
+      ? colors.dark.listForegroundLabel
+      : colors.light.listForegroundLabel;
 
     const cornerStyle = getRoundedContainerStyle(
       filterCorners(allCorners, item),
@@ -66,7 +73,9 @@ class InnerTextMessage extends React.PureComponent<Props> {
         activeOpacity={0.6}
         style={[styles.message, messageStyle, cornerStyle]}
       >
-        <Markdown darkStyle={darkColor}>{text}</Markdown>
+        <Text style={[styles.text, textCustomStyle]}>
+          <Markdown darkStyle={darkColor}>{text}</Markdown>
+        </Text>
       </TouchableOpacity>
     );
 
@@ -82,6 +91,7 @@ class InnerTextMessage extends React.PureComponent<Props> {
     );
   }
 
+  // We need to set onLayout in order to allow .measure() to be on the ref
   onLayout = () => {};
 }
 
@@ -90,6 +100,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     paddingHorizontal: 12,
     paddingVertical: 6,
+  },
+  text: {
+    fontFamily: 'Arial',
+    fontSize: 18,
   },
 });
 
