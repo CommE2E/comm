@@ -200,10 +200,14 @@ const Chat = createChatNavigator<
 >();
 export default function ChatComponent() {
   const styles = useStyles(unboundStyles);
+  const behavior = Platform.select({
+    android: 'height',
+    default: 'padding',
+  });
   return (
     <View style={styles.view}>
       <KeyboardAvoidingView
-        behavior="height"
+        behavior={behavior}
         style={styles.keyboardAvoidingView}
       >
         <Chat.Navigator screenOptions={screenOptions}>
