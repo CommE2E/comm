@@ -10,11 +10,11 @@ import {
   TouchableWithoutFeedback,
   ViewPropTypes,
   StyleSheet,
+  KeyboardAvoidingView,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import { connect } from 'lib/utils/redux-utils';
 
-import KeyboardAvoidingView from '../keyboard/keyboard-avoiding-view.react';
 import { styleSelector } from '../themes/colors';
 
 type Props = $ReadOnly<{|
@@ -47,6 +47,7 @@ class Modal extends React.PureComponent<Props> {
     const { containerStyle, modalStyle, children } = this.props;
     return (
       <KeyboardAvoidingView
+        behavior="padding"
         style={[this.props.styles.container, containerStyle]}
       >
         <TouchableWithoutFeedback onPress={this.close}>

@@ -306,7 +306,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
 
 const styles = {
   container: {
-    backgroundColor: 'listSeparator',
+    backgroundColor: 'listBackground',
     flex: 1,
   },
   emojiOnlyText: {

@@ -25,7 +25,7 @@ function TabBar(props: Props) {
   const tabBarVisible = tabBarVisibleRef.current;
 
   const keyboardState = React.useContext(KeyboardContext);
-  const keyboardShowing = keyboardState && keyboardState.keyboardShowing;
+  const mediaGalleryOpen = keyboardState && keyboardState.mediaGalleryOpen;
 
   const animateTabBar = React.useCallback(
     toValue =>
@@ -37,16 +37,16 @@ function TabBar(props: Props) {
     [tabBarVisible],
   );
 
-  const keyboardWasShowingRef = React.useRef(false);
+  const mediaGalleryWasOpenRef = React.useRef(false);
   React.useEffect(() => {
-    const keyboardWasShowing = keyboardWasShowingRef.current;
-    if (keyboardShowing && !keyboardWasShowing) {
+    const mediaGalleryWasOpen = mediaGalleryWasOpenRef.current;
+    if (mediaGalleryOpen && !mediaGalleryWasOpen) {
       animateTabBar(0);
-    } else if (!keyboardShowing && keyboardWasShowing) {
+    } else if (!mediaGalleryOpen && mediaGalleryWasOpen) {
       animateTabBar(1);
     }
-    keyboardWasShowingRef.current = keyboardShowing;
-  }, [keyboardShowing, animateTabBar]);
+    mediaGalleryWasOpenRef.current = mediaGalleryOpen;
+  }, [mediaGalleryOpen, animateTabBar]);
 
   const reduxTabBarHeight = useSelector(state => state.dimensions.tabBarHeight);
   const dispatch = useDispatch();
@@ -108,7 +108,7 @@ function TabBar(props: Props) {
 
   return (
     <Animated.View style={containerStyle}>
-      <View onLayout={handleLayout} style={styles.tabBar}>
+      <View onLayout={handleLayout} style={styles.container}>
         <BottomTabBar {...props} />
       </View>
     </Animated.View>
@@ -120,12 +120,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-  },
-  tabBar: {
-    left: 0,
-    position: 'absolute',
-    right: 0,
-    top: 0,
   },
 });
 

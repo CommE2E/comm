@@ -43,6 +43,7 @@ import {
   Platform,
   LayoutAnimation,
   TouchableWithoutFeedback,
+  KeyboardAvoidingView,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
@@ -86,7 +87,6 @@ import {
   addKeyboardDismissListener,
   removeKeyboardListener,
 } from '../keyboard/keyboard';
-import KeyboardAvoidingView from '../keyboard/keyboard-avoiding-view.react';
 import {
   CalendarRouteName,
   ThreadPickerModalRouteName,
@@ -750,22 +750,29 @@ class Calendar extends React.PureComponent<Props, State> {
     }
     const disableInputBar = this.state.currentlyEditing.length === 0;
     return (
-      <SafeAreaView style={this.props.styles.container} edges={safeAreaEdges}>
+      <>
         <DisconnectedBar visible={this.props.calendarActive} />
         <TextHeightMeasurer
           textToMeasure={this.state.textToMeasure}
           allHeightsMeasuredCallback={this.allHeightsMeasured}
           style={[entryStyles.entry, entryStyles.text]}
         />
-        <KeyboardAvoidingView style={this.props.styles.keyboardAvoidingView}>
+        <SafeAreaView style={this.props.styles.container} edges={safeAreaEdges}>
           {loadingIndicator}
           {flatList}
+        </SafeAreaView>
+        <KeyboardAvoidingView
+          behavior="position"
+          style={this.props.styles.keyboardAvoidingViewContainer}
+          contentContainerStyle={this.props.styles.keyboardAvoidingView}
+          pointerEvents="box-none"
+        >
           <CalendarInputBar
             onSave={this.onSaveEntry}
             disabled={disableInputBar}
           />
         </KeyboardAvoidingView>
-      </SafeAreaView>
+      </>
     );
   }
 
@@ -1101,15 +1108,24 @@ class Calendar extends React.PureComponent<Props, State> {
 
 const styles = {
   container: {
-    backgroundColor: 'listSeparator',
+    backgroundColor: 'listBackground',
     flex: 1,
   },
   flatList: {
-    backgroundColor: 'listSeparator',
+    backgroundColor: 'listBackground',
     flex: 1,
   },
+  keyboardAvoidingViewContainer: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
   keyboardAvoidingView: {
-    flex: 1,
+    position: 'absolute',
+    left: 0,
+    right: 0,
   },
   sectionHeader: {
     backgroundColor: 'listSeparator',

@@ -15,7 +15,7 @@ import {
   type ExtraStackNavigatorProps,
 } from '@react-navigation/native';
 import { StackView } from '@react-navigation/stack';
-import { Platform, StyleSheet } from 'react-native';
+import { Platform, KeyboardAvoidingView, View } from 'react-native';
 import invariant from 'invariant';
 
 import HomeChatThreadList from './home-chat-thread-list.react';
@@ -39,13 +39,23 @@ import {
 import HeaderBackButton from '../navigation/header-back-button.react';
 import ChatHeader from './chat-header.react';
 import ChatRouter, { type ChatRouterNavigationProp } from './chat-router';
-import KeyboardAvoidingView from '../keyboard/keyboard-avoiding-view.react';
 import MessageStorePruner from './message-store-pruner.react';
 import ThreadScreenPruner from './thread-screen-pruner.react';
 import ComposeThreadButton from './compose-thread-button.react';
 import MessageListHeaderTitle from './message-list-header-title.react';
 import ThreadSettingsButton from './thread-settings-button.react';
 import { InputStateContext } from '../input/input-state';
+import { useStyles } from '../themes/colors';
+
+const unboundStyles = {
+  keyboardAvoidingView: {
+    flex: 1,
+  },
+  view: {
+    flex: 1,
+    backgroundColor: 'listBackground',
+  },
+};
 
 export type ChatTopTabsNavigationProp<
   RouteName: $Keys<ChatTopTabsParamList> = $Keys<ChatTopTabsParamList>,
@@ -175,12 +185,6 @@ const deleteThreadOptions = {
   headerBackTitle: 'Back',
 };
 
-const styles = StyleSheet.create({
-  keyboardAvoidingView: {
-    flex: 1,
-  },
-});
-
 export type ChatNavigationProp<
   RouteName: $Keys<ChatParamList> = $Keys<ChatParamList>,
 > = ChatRouterNavigationProp<ScreenParamList, RouteName>;
@@ -190,37 +194,44 @@ const Chat = createChatNavigator<
   ChatParamList,
   ChatNavigationProp<>,
 >();
-const ChatComponent = () => (
-  <KeyboardAvoidingView style={styles.keyboardAvoidingView}>
-    <Chat.Navigator screenOptions={screenOptions}>
-      <Chat.Screen
-        name={ChatThreadListRouteName}
-        component={ChatThreadsComponent}
-        options={chatThreadListOptions}
-      />
-      <Chat.Screen
-        name={MessageListRouteName}
-        component={MessageListContainer}
-        options={messageListOptions}
-      />
-      <Chat.Screen
-        name={ComposeThreadRouteName}
-        component={ComposeThread}
-        options={composeThreadOptions}
-      />
-      <Chat.Screen
-        name={ThreadSettingsRouteName}
-        component={ThreadSettings}
-        options={threadSettingsOptions}
-      />
-      <Chat.Screen
-        name={DeleteThreadRouteName}
-        component={DeleteThread}
-        options={deleteThreadOptions}
-      />
-    </Chat.Navigator>
-    <MessageStorePruner />
-    <ThreadScreenPruner />
-  </KeyboardAvoidingView>
-);
-export default ChatComponent;
+export default function ChatComponent() {
+  const styles = useStyles(unboundStyles);
+  return (
+    <View style={styles.view}>
+      <KeyboardAvoidingView
+        behavior="height"
+        style={styles.keyboardAvoidingView}
+      >
+        <Chat.Navigator screenOptions={screenOptions}>
+          <Chat.Screen
+            name={ChatThreadListRouteName}
+            component={ChatThreadsComponent}
+            options={chatThreadListOptions}
+          />
+          <Chat.Screen
+            name={MessageListRouteName}
+            component={MessageListContainer}
+            options={messageListOptions}
+          />
+          <Chat.Screen
+            name={ComposeThreadRouteName}
+            component={ComposeThread}
+            options={composeThreadOptions}
+          />
+          <Chat.Screen
+            name={ThreadSettingsRouteName}
+            component={ThreadSettings}
+            options={threadSettingsOptions}
+          />
+          <Chat.Screen
+            name={DeleteThreadRouteName}
+            component={DeleteThread}
+            options={deleteThreadOptions}
+          />
+        </Chat.Navigator>
+        <MessageStorePruner />
+        <ThreadScreenPruner />
+      </KeyboardAvoidingView>
+    </View>
+  );
+}

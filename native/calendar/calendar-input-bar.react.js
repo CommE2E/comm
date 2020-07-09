@@ -21,7 +21,10 @@ function CalendarInputBar(props: Props) {
     ? props.styles.inactiveContainer
     : undefined;
   return (
-    <View style={[props.styles.container, inactiveStyle]}>
+    <View
+      style={[props.styles.container, inactiveStyle]}
+      pointerEvents={props.disabled ? 'none' : 'auto'}
+    >
       <Button onPress={props.onSave} iosActiveOpacity={0.5}>
         <Text style={props.styles.saveButtonText}>Save</Text>
       </Button>
@@ -35,7 +38,6 @@ const styles = {
     backgroundColor: 'listInputBar',
   },
   inactiveContainer: {
-    height: 0,
     opacity: 0,
   },
   saveButtonText: {
