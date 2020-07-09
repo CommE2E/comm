@@ -55,6 +55,9 @@ const unboundStyles = {
     flex: 1,
     backgroundColor: 'listBackground',
   },
+  headerStyle: {
+    elevation: 0,
+  },
 };
 
 export type ChatTopTabsNavigationProp<
@@ -145,6 +148,7 @@ const chatThreadListOptions = ({ navigation }) => ({
       ? () => <ComposeThreadButton navigate={navigation.navigate} />
       : undefined,
   headerBackTitle: 'Back',
+  headerStyle: unboundStyles.headerStyle,
 });
 const messageListOptions = ({ navigation, route }) => ({
   // This is a render prop, not a component
