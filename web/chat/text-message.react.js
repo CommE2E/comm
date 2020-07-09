@@ -11,7 +11,6 @@ import type { MessagePositionInfo } from './message.react';
 import * as React from 'react';
 import invariant from 'invariant';
 import classNames from 'classnames';
-import Linkify from 'react-linkify';
 import PropTypes from 'prop-types';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
@@ -20,16 +19,7 @@ import { onlyEmojiRegex } from 'lib/shared/emojis';
 import css from './chat-message-list.css';
 import ComposedMessage from './composed-message.react';
 import textMessageSendFailed from './text-message-send-failed';
-
-const linkifyComponentDecorator = (
-  href: string,
-  text: React.Node,
-  key: string,
-) => (
-  <a href={href} key={key} target="_blank" rel="noopener noreferrer">
-    {text}
-  </a>
-);
+import Markdown from './markdown.react';
 
 type Props = {|
   item: ChatMessageInfoItem,
@@ -95,9 +85,7 @@ class TextMessage extends React.PureComponent<Props> {
         setMouseOver={this.props.setMouseOver}
       >
         <div className={messageClassName} style={messageStyle}>
-          <Linkify componentDecorator={linkifyComponentDecorator}>
-            {text}
-          </Linkify>
+          <Markdown>{text}</Markdown>
         </div>
       </ComposedMessage>
     );

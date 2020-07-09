@@ -69,6 +69,7 @@
     "redux-devtools-extension": "^2.13.2",
     "redux-thunk": "^2.2.0",
     "reselect": "^4.0.0",
+    "simple-markdown": "^0.7.2",
     "visibilityjs": "^2.0.2"
   }
 }
