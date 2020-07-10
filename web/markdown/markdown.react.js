@@ -20,9 +20,10 @@ class Markdown extends React.PureComponent<Props> {
   constructor(props: Props) {
     super(props);
 
-    const parser = SimpleMarkdown.parserFor(rules());
+    const customRules = rules();
+    const parser = SimpleMarkdown.parserFor(customRules);
     this.ast = parser(this.props.children, { inline: true });
-    this.output = SimpleMarkdown.outputFor(rules(), 'react');
+    this.output = SimpleMarkdown.outputFor(customRules, 'react');
   }
 
   render() {

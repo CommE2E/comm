@@ -19,7 +19,7 @@ import { onlyEmojiRegex } from 'lib/shared/emojis';
 import css from './chat-message-list.css';
 import ComposedMessage from './composed-message.react';
 import textMessageSendFailed from './text-message-send-failed';
-import Markdown from './markdown.react';
+import Markdown from '../markdown/markdown.react';
 
 type Props = {|
   item: ChatMessageInfoItem,
