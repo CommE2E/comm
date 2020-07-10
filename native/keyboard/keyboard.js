@@ -2,7 +2,7 @@
 
 import { Keyboard, Platform, DeviceInfo } from 'react-native';
 
-type ScreenRect = $ReadOnly<{|
+export type ScreenRect = $ReadOnly<{|
   screenX: number,
   screenY: number,
   width: number,

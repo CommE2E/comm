@@ -31,26 +31,40 @@ function TabBar(props: Props) {
     (keyboardState.mediaGalleryOpen ||
       (keyboardState.keyboardShowing && androidOpaqueStatus));
 
-  const animateTabBar = React.useCallback(
-    toValue =>
+  const prevKeyboardStateRef = React.useRef();
+  React.useEffect(() => {
+    prevKeyboardStateRef.current = keyboardState;
+  }, [keyboardState]);
+  const prevKeyboardState = prevKeyboardStateRef.current;
+
+  const setTabBar = React.useCallback(
+    toValue => {
+      const keyboardIsShowing = keyboardState && keyboardState.keyboardShowing;
+      const keyboardWasShowing =
+        prevKeyboardState && prevKeyboardState.keyboardShowing;
+      if (keyboardIsShowing === keyboardWasShowing) {
+        tabBarVisible.setValue(toValue);
+        return;
+      }
       timing(tabBarVisible, {
         toValue,
         duration: 200,
         easing: Easing.inOut(Easing.ease),
-      }).start(),
-    [tabBarVisible],
+      }).start();
+    },
+    [keyboardState, prevKeyboardState, tabBarVisible],
   );
 
   const prevShouldHideTabBarRef = React.useRef(false);
   React.useEffect(() => {
     const prevShouldHideTabBar = prevShouldHideTabBarRef.current;
     if (shouldHideTabBar && !prevShouldHideTabBar) {
-      animateTabBar(0);
+      setTabBar(0);
     } else if (!shouldHideTabBar && prevShouldHideTabBar) {
-      animateTabBar(1);
+      setTabBar(1);
     }
     prevShouldHideTabBarRef.current = shouldHideTabBar;
-  }, [shouldHideTabBar, animateTabBar]);
+  }, [shouldHideTabBar, setTabBar]);
 
   const reduxTabBarHeight = useSelector(state => state.dimensions.tabBarHeight);
   const dispatch = useDispatch();
