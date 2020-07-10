@@ -15,7 +15,7 @@ import {
   type ExtraStackNavigatorProps,
 } from '@react-navigation/native';
 import { StackView } from '@react-navigation/stack';
-import { Platform, KeyboardAvoidingView, View } from 'react-native';
+import { Platform, View } from 'react-native';
 import invariant from 'invariant';
 
 import HomeChatThreadList from './home-chat-thread-list.react';
@@ -46,6 +46,7 @@ import MessageListHeaderTitle from './message-list-header-title.react';
 import ThreadSettingsButton from './thread-settings-button.react';
 import { InputStateContext } from '../input/input-state';
 import { useStyles } from '../themes/colors';
+import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 
 const unboundStyles = {
   keyboardAvoidingView: {

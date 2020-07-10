@@ -43,7 +43,6 @@ import {
   Platform,
   LayoutAnimation,
   TouchableWithoutFeedback,
-  KeyboardAvoidingView,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
@@ -103,6 +102,7 @@ import {
   connectNav,
   type NavContextType,
 } from '../navigation/navigation-context';
+import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 
 export type EntryInfoWithHeight = {|
   ...EntryInfo,
@@ -1126,6 +1126,7 @@ const styles = {
     position: 'absolute',
     left: 0,
     right: 0,
+    bottom: 0,
   },
   sectionHeader: {
     backgroundColor: 'listSeparator',

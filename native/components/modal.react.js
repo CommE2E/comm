@@ -10,12 +10,12 @@ import {
   TouchableWithoutFeedback,
   ViewPropTypes,
   StyleSheet,
-  KeyboardAvoidingView,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import { connect } from 'lib/utils/redux-utils';
 
 import { styleSelector } from '../themes/colors';
+import KeyboardAvoidingView from './keyboard-avoiding-view.react';
 
 type Props = $ReadOnly<{|
   navigation: RootNavigationProp<>,
