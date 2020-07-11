@@ -5,6 +5,8 @@ import PropTypes from 'prop-types';
 import { KeyboardUtils } from 'react-native-keyboard-input';
 import { Platform } from 'react-native';
 
+import sleep from 'lib/utils/sleep';
+
 import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
@@ -12,6 +14,9 @@ import {
 } from './keyboard';
 import { KeyboardContext } from './keyboard-state';
 import KeyboardInputHost from './keyboard-input-host.react';
+import { waitForInteractions } from '../utils/interactions';
+import { androidOpaqueStatus } from '../selectors/dimension-selectors';
+import { tabBarAnimationDuration } from '../navigation/tab-bar.react';
 
 type Props = {|
   children: React.Node,
@@ -20,6 +25,7 @@ type State = {|
   systemKeyboardShowing: boolean,
   mediaGalleryOpen: boolean,
   mediaGalleryThreadID: ?string,
+  renderKeyboardInputHost: boolean,
 |};
 class KeyboardStateContainer extends React.PureComponent<Props, State> {
   static propTypes = {
@@ -29,6 +35,7 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
     systemKeyboardShowing: false,
     mediaGalleryOpen: false,
     mediaGalleryThreadID: null,
+    renderKeyboardInputHost: false,
   };
   keyboardShowListener: ?Object;
   keyboardDismissListener: ?Object;
@@ -59,6 +66,19 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
     }
   }
 
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    if (Platform.OS !== 'android' || androidOpaqueStatus) {
+      return;
+    }
+    if (this.state.mediaGalleryOpen && !prevState.mediaGalleryOpen) {
+      (async () => {
+        await sleep(tabBarAnimationDuration);
+        await waitForInteractions();
+        this.setState({ renderKeyboardInputHost: true });
+      })();
+    }
+  }
+
   dismissKeyboard = () => {
     KeyboardUtils.dismiss();
     this.hideMediaGallery();
@@ -78,17 +98,32 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
   }
 
   showMediaGallery = (threadID: string) => {
-    this.setState({ mediaGalleryOpen: true, mediaGalleryThreadID: threadID });
+    const updates: $Shape<State> = {
+      mediaGalleryOpen: true,
+      mediaGalleryThreadID: threadID,
+    };
+    if (androidOpaqueStatus) {
+      updates.renderKeyboardInputHost = true;
+    }
+    this.setState(updates);
   };
 
   hideMediaGallery = () => {
-    this.setState({ mediaGalleryOpen: false, mediaGalleryThreadID: null });
+    this.setState({
+      mediaGalleryOpen: false,
+      mediaGalleryThreadID: null,
+      renderKeyboardInputHost: false,
+    });
   };
 
   getMediaGalleryThreadID = () => this.state.mediaGalleryThreadID;
 
   render() {
-    const { systemKeyboardShowing, mediaGalleryOpen } = this.state;
+    const {
+      systemKeyboardShowing,
+      mediaGalleryOpen,
+      renderKeyboardInputHost,
+    } = this.state;
     const {
       keyboardShowing,
       dismissKeyboard,
@@ -107,10 +142,9 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
       hideMediaGallery,
       getMediaGalleryThreadID,
     };
-    const keyboardInputHost =
-      Platform.OS === 'android' && mediaGalleryOpen ? (
-        <KeyboardInputHost />
-      ) : null;
+    const keyboardInputHost = renderKeyboardInputHost ? (
+      <KeyboardInputHost />
+    ) : null;
     return (
       <KeyboardContext.Provider value={keyboardState}>
         {this.props.children}

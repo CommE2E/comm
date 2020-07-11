@@ -17,6 +17,8 @@ import { androidOpaqueStatus } from '../selectors/dimension-selectors';
 const { Value, timing, interpolate } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
+const tabBarAnimationDuration = 200;
+
 type Props = React.ElementConfig<typeof BottomTabBar>;
 function TabBar(props: Props) {
   const tabBarVisibleRef = new React.useRef();
@@ -48,7 +50,7 @@ function TabBar(props: Props) {
       }
       timing(tabBarVisible, {
         toValue,
-        duration: 200,
+        duration: tabBarAnimationDuration,
         easing: Easing.inOut(Easing.ease),
       }).start();
     },
@@ -143,4 +145,6 @@ const styles = StyleSheet.create({
 
 // This is a render prop, not a component
 // eslint-disable-next-line react/display-name
-export default (props: Props) => <TabBar {...props} />;
+const tabBar = (props: Props) => <TabBar {...props} />;
+
+export { tabBarAnimationDuration, tabBar };

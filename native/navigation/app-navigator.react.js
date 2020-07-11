@@ -35,7 +35,7 @@ import {
 import Calendar from '../calendar/calendar.react';
 import Chat from '../chat/chat.react';
 import More from '../more/more.react';
-import TabBar from './tab-bar.react';
+import { tabBar } from './tab-bar.react';
 import { createOverlayNavigator } from './overlay-navigator.react';
 import MultimediaModal from '../media/multimedia-modal.react';
 import { MultimediaTooltipModal } from '../chat/multimedia-tooltip-modal.react';
@@ -85,7 +85,7 @@ function TabNavigator() {
     <Tab.Navigator
       initialRouteName={ChatRouteName}
       lazy={false}
-      tabBar={TabBar}
+      tabBar={tabBar}
       backBehavior="none"
       tabBarOptions={tabBarOptions}
     >
