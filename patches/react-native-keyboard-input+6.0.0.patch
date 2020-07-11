@@ -10,6 +10,70 @@ index 46d2207..830c7b5 100644
      public void onBeforeLayout(NativeViewHierarchyOptimizer nativeViewHierarchyOptimizer) {
          mLayout.setShadowNode(this);
      }
+diff --git a/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor.java b/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor.java
+index ae5e756..e861f64 100644
+--- a/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor.java
++++ b/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor.java
+@@ -1,6 +1,11 @@
+ package com.wix.reactnativekeyboardinput;
+ 
++import android.graphics.Point;
+ import android.graphics.Rect;
++import android.os.Build;
++import android.util.Log;
++import android.util.TypedValue;
++import android.view.Display;
+ import android.view.ViewTreeObserver;
+ 
+ import androidx.annotation.Nullable;
+@@ -61,8 +66,28 @@ public class ReactSoftKeyboardMonitor implements ReactScreenMonitor.Listener {
+     private Listener mExternalListener;
+     private ReactRootView mLastReactRootView;
+ 
++    private int translucentNavBarHeight;
++
+     public ReactSoftKeyboardMonitor(ReactScreenMonitor screenMonitor) {
+         screenMonitor.addListener(this);
++
++        this.translucentNavBarHeight = 0;
++        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
++            return;
++        }
++
++        TypedValue typedValue = new TypedValue();
++        getWindow().getContext().getTheme().resolveAttribute(android.R.attr.windowTranslucentNavigation, typedValue, true);
++        if (typedValue.data == 0) {
++            return;
++        }
++
++        Display defaultDisplay = getWindow().getWindowManager().getDefaultDisplay();
++        Point size = new Point();
++        defaultDisplay.getSize(size);
++        Point realSize = new Point();
++        defaultDisplay.getRealSize(realSize);
++        this.translucentNavBarHeight = realSize.y - size.y;
+     }
+ 
+     @Override
+@@ -123,14 +148,14 @@ public class ReactSoftKeyboardMonitor implements ReactScreenMonitor.Listener {
+         RuntimeUtils.runOnUIThread(new Runnable() {
+             @Override
+             public void run() {
+-                final Integer locallyVisibleHeight = getLocallyVisibleHeight();
+-                if (locallyVisibleHeight == null) {
++                final Integer viewportVisibleHeight = getViewportVisibleHeight();
++                if (viewportVisibleHeight == null) {
+                     // Too late to join the party - react-view seems to be gone...
+                     return;
+                 }
+ 
+-                if (mLocallyVisibleHeight > locallyVisibleHeight) {
+-                    mKeyboardHeight = mLocallyVisibleHeight - locallyVisibleHeight;
++                if (mMaxViewportVisibleHeight > viewportVisibleHeight) {
++                    mKeyboardHeight = mMaxViewportVisibleHeight - viewportVisibleHeight + translucentNavBarHeight;
+                 }
+             }
+         });
 diff --git a/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomInputController.m b/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomInputController.m
 index 2a31b47..21090bf 100644
 --- a/node_modules/react-native-keyboard-input/lib/ios/RCTCustomInputController/RCTCustomInputController.m
