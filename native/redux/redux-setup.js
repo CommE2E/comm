@@ -39,12 +39,7 @@ import type { SetSessionPayload } from 'lib/types/session-types';
 import thunk from 'redux-thunk';
 import { createStore, applyMiddleware, type Store, compose } from 'redux';
 import { persistStore, persistReducer } from 'redux-persist';
-import {
-  AppState as NativeAppState,
-  Platform,
-  Dimensions as NativeDimensions,
-  Alert,
-} from 'react-native';
+import { AppState as NativeAppState, Platform, Alert } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 
 import baseReducer from 'lib/reducers/master-reducer';
@@ -83,9 +78,9 @@ import reactotron from '../reactotron';
 import reduceDrafts from '../reducers/draft-reducer';
 import { getGlobalNavContext } from '../navigation/icky-global';
 import {
-  defaultTabBarHeight,
+  defaultDimensionsInfo,
   type DimensionsInfo,
-} from '../selectors/dimension-selectors';
+} from './dimensions-updater.react';
 
 export type AppState = {|
   navInfo: NavInfo,
@@ -120,7 +115,6 @@ export type AppState = {|
   frozen: boolean,
 |};
 
-const { height, width } = NativeDimensions.get('window');
 const defaultState = ({
   navInfo: defaultNavInfo,
   currentUserInfo: null,
@@ -158,7 +152,7 @@ const defaultState = ({
   nextLocalID: 0,
   queuedReports: [],
   _persist: null,
-  dimensions: { height, width, tabBarHeight: defaultTabBarHeight },
+  dimensions: defaultDimensionsInfo,
   connectivity: defaultConnectivityInfo,
   globalThemeInfo: defaultGlobalThemeInfo,
   deviceCameraInfo: defaultDeviceCameraInfo,

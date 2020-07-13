@@ -23,7 +23,7 @@ import { store } from './redux/redux-setup';
 import ConnectedStatusBar from './connected-status-bar.react';
 import ErrorBoundary from './error-boundary.react';
 import DisconnectedBarVisibilityHandler from './navigation/disconnected-bar-visibility-handler.react';
-import DimensionsUpdater from './redux/dimensions-updater.react';
+import { DimensionsUpdater } from './redux/dimensions-updater.react';
 import ConnectivityUpdater from './redux/connectivity-updater.react';
 import ThemeHandler from './themes/theme-handler.react';
 import OrientationHandler from './navigation/orientation-handler.react';
