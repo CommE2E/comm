@@ -28,10 +28,7 @@ import { connect } from 'lib/utils/redux-utils';
 import { extensionFromFilename } from 'lib/media/file-utils';
 
 import { store } from '../redux/redux-setup';
-import {
-  dimensionsSelector,
-  contentBottomOffset,
-} from '../selectors/dimension-selectors';
+import { dimensionsSelector } from '../selectors/dimension-selectors';
 import MediaGalleryMedia from './media-gallery-media.react';
 import {
   type Colors,
@@ -51,6 +48,7 @@ const animationSpec = {
 type Props = {|
   // Redux state
   screenDimensions: Dimensions,
+  bottomInset: number,
   foreground: boolean,
   colors: Colors,
   styles: typeof styles,
@@ -68,6 +66,7 @@ type State = {|
 class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
   static propTypes = {
     screenDimensions: dimensionsPropType.isRequired,
+    bottomInset: PropTypes.number.isRequired,
     foreground: PropTypes.bool.isRequired,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
@@ -343,6 +342,9 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
   render() {
     let content;
     const { selections, error, containerHeight } = this.state;
+    const bottomOffsetStyle = {
+      marginBottom: this.props.bottomInset,
+    };
     if (selections && selections.length > 0 && containerHeight) {
       content = (
         <FlatList
@@ -365,22 +367,27 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
         <Text style={this.props.styles.error}>no media was found!</Text>
       );
     } else if (error) {
-      content = <Text style={this.props.styles.error}>{error}</Text>;
+      content = (
+        <Text style={[this.props.styles.error, bottomOffsetStyle]}>
+          {error}
+        </Text>
+      );
     } else {
       content = (
         <ActivityIndicator
           color={this.props.colors.listSeparatorLabel}
           size="large"
-          style={this.props.styles.loadingIndicator}
+          style={[this.props.styles.loadingIndicator, bottomOffsetStyle]}
         />
       );
     }
 
     const { queuedMediaURIs } = this.state;
     const queueCount = queuedMediaURIs ? queuedMediaURIs.size : 0;
+    const containerStyle = { bottom: -1 * this.props.bottomInset };
     return (
       <View
-        style={this.props.styles.container}
+        style={[this.props.styles.container, containerStyle]}
         onLayout={this.onContainerLayout}
       >
         {content}
@@ -506,7 +513,6 @@ const styles = {
   container: {
     alignItems: 'center',
     backgroundColor: 'listBackground',
-    bottom: -contentBottomOffset,
     flexDirection: 'row',
     left: 0,
     position: 'absolute',
@@ -517,12 +523,10 @@ const styles = {
     color: 'listBackgroundLabel',
     flex: 1,
     fontSize: 28,
-    marginBottom: contentBottomOffset,
     textAlign: 'center',
   },
   loadingIndicator: {
     flex: 1,
-    marginBottom: contentBottomOffset,
   },
   sendButtonContainer: {
     bottom: 30,
@@ -537,6 +541,7 @@ const stylesSelector = styleSelector(styles);
 
 const ReduxConnectedMediaGalleryKeyboard = connect((state: AppState) => ({
   screenDimensions: dimensionsSelector(state),
+  bottomInset: state.dimensions.bottomInset,
   foreground: state.foreground,
   colors: colorsSelector(state),
   styles: stylesSelector(state),

@@ -7,8 +7,8 @@ import * as React from 'react';
 import { View, Text } from 'react-native';
 import Animated from 'react-native-reanimated';
 import invariant from 'invariant';
+import { useSelector } from 'react-redux';
 
-import { contentBottomOffset } from '../selectors/dimension-selectors';
 import { useOverlayStyles } from '../themes/colors';
 import { OverlayContext } from './overlay-context';
 
@@ -35,9 +35,11 @@ function ActionResultModal(props: Props) {
   }, [message, goBackOnce]);
 
   const styles = useOverlayStyles(ourStyles);
+  const bottomInset = useSelector(state => state.dimensions.bottomInset);
   const containerStyle = {
     ...styles.container,
     opacity: position,
+    paddingBottom: bottomInset + 100,
   };
   return (
     <Animated.View style={containerStyle}>
@@ -63,7 +65,6 @@ const ourStyles = {
     alignItems: 'center',
     flex: 1,
     justifyContent: 'flex-end',
-    paddingBottom: contentBottomOffset + 100,
   },
   message: {
     borderRadius: 10,

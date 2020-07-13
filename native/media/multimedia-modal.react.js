@@ -41,10 +41,7 @@ import invariant from 'invariant';
 
 import { connect } from 'lib/utils/redux-utils';
 
-import {
-  contentBottomOffset,
-  dimensionsSelector,
-} from '../selectors/dimension-selectors';
+import { dimensionsSelector } from '../selectors/dimension-selectors';
 import Multimedia from './multimedia.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import {
@@ -199,6 +196,7 @@ type Props = {|
   // Redux state
   screenDimensions: Dimensions,
   topInset: number,
+  bottomInset: number,
   // withOverlayContext
   overlayContext: ?OverlayContextType,
 |};
@@ -221,6 +219,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     }).isRequired,
     screenDimensions: dimensionsPropType.isRequired,
     topInset: PropTypes.number.isRequired,
+    bottomInset: PropTypes.number.isRequired,
     overlayContext: overlayContextPropType,
   };
   state = {
@@ -1066,7 +1065,9 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   get contentContainerStyle() {
     const { verticalBounds } = this.props.route.params;
     const fullScreenHeight =
-      this.screenDimensions.height + contentBottomOffset + this.props.topInset;
+      this.screenDimensions.height +
+      this.props.bottomInset +
+      this.props.topInset;
     const top = verticalBounds.y;
     const bottom = fullScreenHeight - verticalBounds.y - verticalBounds.height;
 
@@ -1087,7 +1088,10 @@ class MultimediaModal extends React.PureComponent<Props, State> {
       opacity: this.closeButtonOpacity,
       top: Math.max(this.props.topInset - 2, 4),
     };
-    const saveButtonStyle = { opacity: this.actionLinksOpacity };
+    const saveButtonStyle = {
+      opacity: this.actionLinksOpacity,
+      bottom: this.props.bottomInset + 8,
+    };
     const view = (
       <Animated.View style={styles.container}>
         {statusBar}
@@ -1266,7 +1270,6 @@ const styles = StyleSheet.create({
     paddingTop: 2,
   },
   saveButtonContainer: {
-    bottom: contentBottomOffset + 8,
     left: 16,
     position: 'absolute',
   },
@@ -1289,4 +1292,5 @@ const styles = StyleSheet.create({
 export default connect((state: AppState) => ({
   screenDimensions: dimensionsSelector(state),
   topInset: state.dimensions.topInset,
+  bottomInset: state.dimensions.bottomInset,
 }))(withOverlayContext(MultimediaModal));

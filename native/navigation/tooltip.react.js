@@ -40,10 +40,7 @@ import {
 import { connect } from 'lib/utils/redux-utils';
 import { createBoundServerCallsSelector } from 'lib/utils/action-utils';
 
-import {
-  contentBottomOffset,
-  dimensionsSelector,
-} from '../selectors/dimension-selectors';
+import { dimensionsSelector } from '../selectors/dimension-selectors';
 import TooltipItem from './tooltip-item.react';
 import {
   withOverlayContext,
@@ -93,6 +90,7 @@ type TooltipProps<Navigation, Route> = {
   route: Route,
   // Redux state
   screenDimensions: Dimensions,
+  bottomInset: number,
   serverCallState: ServerCallState,
   // Redux dispatch functions
   dispatch: Dispatch,
@@ -125,6 +123,7 @@ function createTooltip<
         }).isRequired,
       }).isRequired,
       screenDimensions: dimensionsPropType.isRequired,
+      bottomInset: PropTypes.number.isRequired,
       serverCallState: serverCallStatePropType.isRequired,
       dispatch: PropTypes.func.isRequired,
       dispatchActionPayload: PropTypes.func.isRequired,
@@ -224,7 +223,7 @@ function createTooltip<
     get contentContainerStyle() {
       const { verticalBounds } = this.props.route.params;
       const fullScreenHeight =
-        this.props.screenDimensions.height + contentBottomOffset;
+        this.props.screenDimensions.height + this.props.bottomInset;
       const top = verticalBounds.y;
       const bottom =
         fullScreenHeight - verticalBounds.y - verticalBounds.height;
@@ -255,7 +254,7 @@ function createTooltip<
     }
 
     get tooltipContainerStyle() {
-      const { screenDimensions, route } = this.props;
+      const { screenDimensions, bottomInset, route } = this.props;
       const { initialCoordinates, verticalBounds } = route.params;
       const { x, y, width, height } = initialCoordinates;
       const { margin, location } = this;
@@ -277,7 +276,7 @@ function createTooltip<
       }
 
       if (location === 'above') {
-        const fullScreenHeight = screenDimensions.height + contentBottomOffset;
+        const fullScreenHeight = screenDimensions.height + bottomInset;
         style.bottom =
           fullScreenHeight - Math.max(y, verticalBounds.y) + margin;
         style.transform.push({ translateY: this.tooltipVerticalAbove });
@@ -425,6 +424,7 @@ function createTooltip<
   return connect(
     (state: AppState) => ({
       screenDimensions: dimensionsSelector(state),
+      bottomInset: state.dimensions.bottomInset,
       serverCallState: serverCallStateSelector(state),
     }),
     null,

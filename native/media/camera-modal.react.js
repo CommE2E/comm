@@ -52,10 +52,7 @@ import filesystem from 'react-native-fs';
 import { connect } from 'lib/utils/redux-utils';
 import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils';
 
-import {
-  contentBottomOffset,
-  dimensionsSelector,
-} from '../selectors/dimension-selectors';
+import { dimensionsSelector } from '../selectors/dimension-selectors';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import { clamp, gestureJustEnded } from '../utils/animation-utils';
 import ContentLoading from '../components/content-loading.react';
@@ -246,6 +243,7 @@ type Props = {
   // Redux state
   screenDimensions: Dimensions,
   topInset: number,
+  bottomInset: number,
   deviceCameraInfo: DeviceCameraInfo,
   deviceOrientation: Orientations,
   foreground: boolean,
@@ -277,6 +275,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     }).isRequired,
     screenDimensions: dimensionsPropType.isRequired,
     topInset: PropTypes.number.isRequired,
+    bottomInset: PropTypes.number.isRequired,
     deviceCameraInfo: deviceCameraInfoPropType.isRequired,
     deviceOrientation: PropTypes.string.isRequired,
     foreground: PropTypes.bool.isRequired,
@@ -665,6 +664,9 @@ class CameraModal extends React.PureComponent<Props, State> {
     const topButtonStyle = {
       top: Math.max(this.props.topInset - 3, 3),
     };
+    const sendButtonContainerStyle = {
+      bottom: this.props.bottomInset + 22,
+    };
     return (
       <>
         {image}
@@ -677,7 +679,10 @@ class CameraModal extends React.PureComponent<Props, State> {
         <SendMediaButton
           onPress={this.sendPhoto}
           pointerEvents={pendingPhotoCapture ? 'auto' : 'none'}
-          containerStyle={styles.sendButtonContainer}
+          containerStyle={[
+            styles.sendButtonContainer,
+            sendButtonContainerStyle,
+          ]}
           style={this.sendButtonStyle}
         />
       </>
@@ -728,6 +733,9 @@ class CameraModal extends React.PureComponent<Props, State> {
     const topButtonStyle = {
       top: Math.max(this.props.topInset - 3, 3),
     };
+    const bottomButtonsContainerStyle = {
+      bottom: this.props.bottomInset + 20,
+    };
     return (
       <PinchGestureHandler
         onGestureEvent={this.pinchEvent}
@@ -752,7 +760,12 @@ class CameraModal extends React.PureComponent<Props, State> {
               >
                 {flashIcon}
               </TouchableOpacity>
-              <View style={styles.bottomButtonsContainer}>
+              <View
+                style={[
+                  styles.bottomButtonsContainer,
+                  bottomButtonsContainerStyle,
+                ]}
+              >
                 <TouchableOpacity
                   onPress={this.takePhoto}
                   onLayout={this.onPhotoButtonLayout}
@@ -991,7 +1004,7 @@ class CameraModal extends React.PureComponent<Props, State> {
   focusOnPoint = ([inputX, inputY]: [number, number]) => {
     const screenWidth = this.props.screenDimensions.width;
     const screenHeight =
-      this.props.screenDimensions.height + contentBottomOffset;
+      this.props.screenDimensions.height + this.props.bottomInset;
     const relativeX = inputX / screenWidth;
     const relativeY = inputY / screenHeight;
 
@@ -1072,7 +1085,6 @@ const styles = StyleSheet.create({
   },
   bottomButtonsContainer: {
     alignItems: 'center',
-    bottom: contentBottomOffset + 20,
     flexDirection: 'row',
     justifyContent: 'center',
     left: 0,
@@ -1172,7 +1184,6 @@ const styles = StyleSheet.create({
     width: 60,
   },
   sendButtonContainer: {
-    bottom: contentBottomOffset + 22,
     position: 'absolute',
     right: 32,
   },
@@ -1201,6 +1212,7 @@ export default connect(
   (state: AppState) => ({
     screenDimensions: dimensionsSelector(state),
     topInset: state.dimensions.topInset,
+    bottomInset: state.dimensions.bottomInset,
     deviceCameraInfo: state.deviceCameraInfo,
     deviceOrientation: state.deviceOrientation,
     foreground: state.foreground,
