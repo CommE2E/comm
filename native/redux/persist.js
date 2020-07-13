@@ -19,16 +19,6 @@ import { inconsistencyResponsesToReports } from 'lib/shared/report-utils';
 
 import { defaultNotifPermissionAlertInfo } from '../push/alerts';
 
-const baseBlacklist = [
-  'loadingStatuses',
-  'foreground',
-  'dimensions',
-  'connectivity',
-  'deviceOrientation',
-  'frozen',
-];
-const blacklist = __DEV__ ? baseBlacklist : [...baseBlacklist, 'navInfo'];
-
 const migrations = {
   [1]: (state: AppState) => ({
     ...state,
@@ -171,7 +161,14 @@ const migrations = {
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  blacklist,
+  blacklist: [
+    'loadingStatuses',
+    'foreground',
+    'dimensions',
+    'connectivity',
+    'deviceOrientation',
+    'frozen',
+  ],
   debug: __DEV__,
   version: 16,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
