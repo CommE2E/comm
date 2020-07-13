@@ -51,6 +51,7 @@ type Props = {|
   setFocus: (media: MediaLibrarySelection, isFocused: boolean) => void,
   screenWidth: number,
   colors: Colors,
+  bottomInset: number,
 |};
 class MediaGalleryMedia extends React.PureComponent<Props> {
   static propTypes = {
@@ -64,6 +65,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     setFocus: PropTypes.func.isRequired,
     screenWidth: PropTypes.number.isRequired,
     colors: colorsPropType.isRequired,
+    bottomInset: PropTypes.number.isRequired,
   };
   // eslint-disable-next-line import/no-named-as-default-member
   focusProgress = new Reanimated.Value(0);
@@ -88,6 +90,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
       ...styles.buttons,
       opacity: this.focusProgress,
       transform: [{ scale: buttonsScale }],
+      marginBottom: this.props.bottomInset,
     };
 
     // eslint-disable-next-line import/no-named-as-default-member

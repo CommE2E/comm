@@ -17,6 +17,7 @@ import {
   ActivityIndicator,
   Animated,
   Easing,
+  Platform,
 } from 'react-native';
 import { KeyboardRegistry } from 'react-native-keyboard-input';
 import invariant from 'invariant';
@@ -62,6 +63,7 @@ type State = {|
   queuedMediaURIs: ?Set<string>,
   focusedMediaURI: ?string,
   screenWidth: number,
+  bottomInset: number,
 |};
 class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
   static propTypes = {
@@ -97,7 +99,18 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
       queuedMediaURIs: null,
       focusedMediaURI: null,
       screenWidth: props.screenDimensions.width,
+      bottomInset: props.bottomInset,
     };
+  }
+
+  static getDerivedStateFromProps(props: Props) {
+    // We keep these in this.state since that's what we pass in as
+    // FlatList's extraData
+    const {
+      bottomInset,
+      screenDimensions: { width },
+    } = props;
+    return { bottomInset, screenWidth: width };
   }
 
   componentDidMount() {
@@ -110,13 +123,6 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
-    const { width } = this.props.screenDimensions;
-    if (width !== prevProps.screenDimensions.width) {
-      // We keep screenWidth in this.state since that's what we pass in as
-      // FlatList's extraData
-      this.setState({ screenWidth: width });
-    }
-
     const { queuedMediaURIs } = this.state;
     const prevQueuedMediaURIs = prevState.queuedMediaURIs;
     if (queuedMediaURIs && !prevQueuedMediaURIs) {
@@ -327,6 +333,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
         setFocus={this.setFocus}
         screenWidth={this.state.screenWidth}
         colors={this.props.colors}
+        bottomInset={this.state.bottomInset}
       />
     );
   };
@@ -384,7 +391,11 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
 
     const { queuedMediaURIs } = this.state;
     const queueCount = queuedMediaURIs ? queuedMediaURIs.size : 0;
-    const containerStyle = { bottom: -1 * this.props.bottomInset };
+    const bottomInset = Platform.select({
+      ios: -1 * this.props.bottomInset,
+      default: 0,
+    });
+    const containerStyle = { bottom: bottomInset };
     return (
       <View
         style={[this.props.styles.container, containerStyle]}
@@ -395,7 +406,10 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
           onPress={this.sendQueuedMedia}
           queueCount={queueCount}
           pointerEvents={queuedMediaURIs ? 'auto' : 'none'}
-          containerStyle={this.props.styles.sendButtonContainer}
+          containerStyle={[
+            this.props.styles.sendButtonContainer,
+            bottomOffsetStyle,
+          ]}
           style={this.sendButtonStyle}
         />
       </View>
@@ -529,7 +543,7 @@ const styles = {
     flex: 1,
   },
   sendButtonContainer: {
-    bottom: 30,
+    bottom: 20,
     position: 'absolute',
     right: 30,
   },
