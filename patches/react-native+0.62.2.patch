@@ -1,0 +1,18 @@
+diff --git a/node_modules/react-native/Libraries/Image/AssetSourceResolver.js b/node_modules/react-native/Libraries/Image/AssetSourceResolver.js
+index 624c622..bc67109 100644
+--- a/node_modules/react-native/Libraries/Image/AssetSourceResolver.js
++++ b/node_modules/react-native/Libraries/Image/AssetSourceResolver.js
+@@ -114,7 +114,12 @@ class AssetSourceResolver {
+    */
+   scaledAssetURLNearBundle(): ResolvedAssetSource {
+     const path = this.jsbundleUrl || 'file://';
+-    return this.fromSource(path + getScaledAssetPath(this.asset));
++    return this.fromSource(
++      // Assets can have relative paths outside of the project root.
++      // When bundling them we replace `../` with `_` to make sure they
++      // don't end up outside of the expected assets directory.
++      path + getScaledAssetPath(this.asset).replace(/\.\.\//g, '_'),
++    );
+   }
+ 
+   /**
