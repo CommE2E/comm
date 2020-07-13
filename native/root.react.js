@@ -69,13 +69,16 @@ function Root() {
     };
     setNavContext(updatedNavContext);
     setGlobalNavContext(updatedNavContext);
-  }, [navStateRef, navDispatchRef, navStateInitializedRef, setNavContext]);
+  }, []);
 
-  const [initialState, setInitialState] = React.useState(null);
+  const [initialState, setInitialState] = React.useState(
+    __DEV__ ? undefined : defaultNavigationState,
+  );
+
   React.useEffect(() => {
     Orientation.lockToPortrait();
     (async () => {
-      let loadedState;
+      let loadedState = initialState;
       if (__DEV__) {
         try {
           const navStateString = await AsyncStorage.getItem(
@@ -92,17 +95,20 @@ function Root() {
       if (!loadedState) {
         loadedState = defaultNavigationState;
       }
+      if (loadedState !== initialState) {
+        setInitialState(loadedState);
+      }
       navStateRef.current = loadedState;
       updateNavContext();
       actionLogger.addOtherAction('navState', navInitAction, null, loadedState);
-      setInitialState(loadedState);
     })();
-  }, [navStateRef, updateNavContext, setInitialState]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updateNavContext]);
 
   const setNavStateInitialized = React.useCallback(() => {
     navStateInitializedRef.current = true;
     updateNavContext();
-  }, [navStateInitializedRef, updateNavContext]);
+  }, [updateNavContext]);
 
   const [rootContext, setRootContext] = React.useState(() => ({
     setNavStateInitialized,
@@ -115,7 +121,7 @@ function Root() {
         detectUnsupervisedBackground,
       }));
     },
-    [setRootContext],
+    [],
   );
 
   const frozen = useSelector(state => state.frozen);
@@ -151,7 +157,7 @@ function Root() {
         }
       })();
     },
-    [navStateRef, updateNavContext, queuedActionsRef, frozen],
+    [updateNavContext, frozen],
   );
 
   const navContainerRef = React.useRef();
@@ -163,7 +169,7 @@ function Root() {
         updateNavContext();
       }
     },
-    [navContainerRef, navDispatchRef, updateNavContext],
+    [updateNavContext],
   );
   useReduxDevToolsExtension(navContainerRef);
 
@@ -184,7 +190,7 @@ function Root() {
         type: `NAV/${action.type}`,
       });
     });
-  }, [navContainer, navStateRef, queuedActionsRef]);
+  }, [navContainer]);
 
   const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
   const theme = (() => {

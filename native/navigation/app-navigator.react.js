@@ -10,13 +10,6 @@ import { PersistGate } from 'redux-persist/integration/react';
 import * as SplashScreen from 'expo-splash-screen';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-let splashScreenHasHidden = false;
-(async () => {
-  try {
-    await SplashScreen.preventAutoHideAsync();
-  } catch {}
-})();
-
 import {
   CalendarRouteName,
   ChatRouteName,
@@ -49,6 +42,13 @@ import { getPersistor } from '../redux/persist';
 import { RootContext } from '../root-context';
 import { waitForInteractions } from '../utils/interactions';
 import ChatIcon from '../chat/chat-icon.react';
+
+let splashScreenHasHidden = false;
+(async () => {
+  try {
+    await SplashScreen.preventAutoHideAsync();
+  } catch {}
+})();
 
 const calendarTabOptions = {
   tabBarLabel: 'Calendar',
