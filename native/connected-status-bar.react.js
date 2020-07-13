@@ -35,13 +35,15 @@ class ConnectedStatusBar extends React.PureComponent<Props> {
     } = this.props;
 
     let barStyle = inBarStyle;
-    const fetchingSomething = this.props.globalLoadingStatus === 'loading';
-    if (!barStyle && this.props.activeTheme === 'light') {
-      barStyle = Platform.OS === 'android' ? 'light-content' : 'dark-content';
-    } else if (!barStyle && this.props.activeTheme === 'dark') {
-      barStyle = 'light-content';
+    if (!barStyle) {
+      if (Platform.OS !== 'android' && this.props.activeTheme === 'light') {
+        barStyle = 'dark-content';
+      } else {
+        barStyle = 'light-content';
+      }
     }
 
+    const fetchingSomething = this.props.globalLoadingStatus === 'loading';
     return (
       <StatusBar
         {...statusBarProps}

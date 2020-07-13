@@ -11,7 +11,7 @@
         <!--View Controller-->
         <scene sceneID="EHf-IW-A2E">
             <objects>
-                <viewController storyboardIdentifier="SplashScreenViewController" automaticallyAdjustsScrollViewInsets="NO" id="01J-lp-oVM" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="SplashScreenViewController" automaticallyAdjustsScrollViewInsets="NO" interfaceStyle="dark" id="01J-lp-oVM" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nvi-kw-ZOr">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <subviews>
