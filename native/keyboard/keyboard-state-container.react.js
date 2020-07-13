@@ -11,11 +11,11 @@ import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
   removeKeyboardListener,
+  androidKeyboardResizesFrame,
 } from './keyboard';
 import { KeyboardContext } from './keyboard-state';
 import KeyboardInputHost from './keyboard-input-host.react';
 import { waitForInteractions } from '../utils/interactions';
-import { androidOpaqueStatus } from '../selectors/dimension-selectors';
 import { tabBarAnimationDuration } from '../navigation/tab-bar.react';
 
 type Props = {|
@@ -67,7 +67,7 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
-    if (Platform.OS !== 'android' || androidOpaqueStatus) {
+    if (Platform.OS !== 'android' || androidKeyboardResizesFrame) {
       return;
     }
     if (this.state.mediaGalleryOpen && !prevState.mediaGalleryOpen) {
@@ -102,7 +102,7 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
       mediaGalleryOpen: true,
       mediaGalleryThreadID: threadID,
     };
-    if (androidOpaqueStatus) {
+    if (androidKeyboardResizesFrame) {
       updates.renderKeyboardInputHost = true;
     }
     this.setState(updates);

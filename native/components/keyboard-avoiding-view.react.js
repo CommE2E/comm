@@ -18,7 +18,7 @@ import {
 } from 'react-native';
 import invariant from 'invariant';
 
-import { androidOpaqueStatus } from '../selectors/dimension-selectors';
+import { androidKeyboardResizesFrame } from '../keyboard/keyboard';
 
 type ViewProps = React.ElementConfig<typeof View>;
 type Props = {|
@@ -29,7 +29,7 @@ type Props = {|
   keyboardState: ?KeyboardState,
 |};
 function KeyboardAvoidingView(props: Props) {
-  if (!androidOpaqueStatus) {
+  if (!androidKeyboardResizesFrame) {
     return <InnerKeyboardAvoidingView {...props} />;
   }
 
@@ -97,7 +97,7 @@ class InnerKeyboardAvoidingView extends React.PureComponent<Props, State> {
     const mediaGalleryOpen = keyboardState && keyboardState.mediaGalleryOpen;
     if (
       Platform.OS === 'android' &&
-      !androidOpaqueStatus &&
+      !androidKeyboardResizesFrame &&
       mediaGalleryOpen &&
       this.keyboardFrame.height > 0 &&
       this.viewFrame

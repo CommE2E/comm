@@ -11,7 +11,7 @@ import { useSafeArea } from 'react-native-safe-area-context';
 
 import { KeyboardContext } from '../keyboard/keyboard-state';
 import { updateDimensionsActiveType } from '../redux/action-types';
-import { androidOpaqueStatus } from '../selectors/dimension-selectors';
+import { androidKeyboardResizesFrame } from '../keyboard/keyboard';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Value, timing, interpolate } = Animated;
@@ -31,7 +31,7 @@ function TabBar(props: Props) {
   const shouldHideTabBar =
     keyboardState &&
     (keyboardState.mediaGalleryOpen ||
-      (keyboardState.keyboardShowing && androidOpaqueStatus));
+      (keyboardState.keyboardShowing && androidKeyboardResizesFrame));
 
   const prevKeyboardStateRef = React.useRef();
   React.useEffect(() => {
