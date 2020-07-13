@@ -68,10 +68,7 @@ import { connect } from 'lib/utils/redux-utils';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import { Entry, InternalEntry, entryStyles } from './entry.react';
-import {
-  dimensionsSelector,
-  contentVerticalOffsetSelector,
-} from '../selectors/dimension-selectors';
+import { dimensionsSelector } from '../selectors/dimension-selectors';
 import { calendarListData } from '../selectors/calendar-selectors';
 import {
   createIsForegroundSelector,
@@ -134,7 +131,7 @@ type Props = {
   endDate: string,
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
   dimensions: Dimensions,
-  contentVerticalOffset: number,
+  topInset: number,
   loadingStatus: LoadingStatus,
   connectionStatus: ConnectionStatus,
   colors: Colors,
@@ -192,7 +189,7 @@ class Calendar extends React.PureComponent<Props, State> {
     endDate: PropTypes.string.isRequired,
     calendarFilters: PropTypes.arrayOf(calendarFilterPropType).isRequired,
     dimensions: dimensionsPropType.isRequired,
-    contentVerticalOffset: PropTypes.number.isRequired,
+    topInset: PropTypes.number.isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
     connectionStatus: connectionStatusPropType.isRequired,
     colors: colorsPropType.isRequired,
@@ -779,10 +776,10 @@ class Calendar extends React.PureComponent<Props, State> {
   flatListHeight() {
     const {
       dimensions: { height: windowHeight },
-      contentVerticalOffset,
+      topInset,
       tabBarHeight,
     } = this.props;
-    return windowHeight - contentVerticalOffset - tabBarHeight;
+    return windowHeight - topInset - tabBarHeight;
   }
 
   initialScrollIndex(data: $ReadOnlyArray<CalendarItemWithHeight>) {
@@ -1161,7 +1158,7 @@ export default connectNav((context: ?NavContextType) => ({
       endDate: state.navInfo.endDate,
       calendarFilters: state.calendarFilters,
       dimensions: dimensionsSelector(state),
-      contentVerticalOffset: contentVerticalOffsetSelector(state),
+      topInset: state.dimensions.topInset,
       loadingStatus: loadingStatusSelector(state),
       connectionStatus: state.connection.status,
       colors: colorsSelector(state),

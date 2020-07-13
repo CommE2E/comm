@@ -39,10 +39,7 @@ import {
 import { connect } from 'lib/utils/redux-utils';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
 
-import {
-  dimensionsSelector,
-  contentVerticalOffsetSelector,
-} from '../selectors/dimension-selectors';
+import { dimensionsSelector } from '../selectors/dimension-selectors';
 import LogInPanelContainer from './log-in-panel-container.react';
 import RegisterPanel from './register-panel.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
@@ -85,7 +82,7 @@ type Props = {
   urlPrefix: string,
   loggedIn: boolean,
   dimensions: Dimensions,
-  contentVerticalOffset: number,
+  topInset: number,
   splashStyle: ImageStyle,
   // Redux dispatch functions
   dispatch: Dispatch,
@@ -112,7 +109,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     urlPrefix: PropTypes.string.isRequired,
     loggedIn: PropTypes.bool.isRequired,
     dimensions: dimensionsPropType.isRequired,
-    contentVerticalOffset: PropTypes.number.isRequired,
+    topInset: PropTypes.number.isRequired,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
@@ -317,7 +314,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   calculatePanelPaddingTop(mode: LoggedOutMode, keyboardHeight: number) {
     const {
       dimensions: { height: windowHeight },
-      contentVerticalOffset,
+      topInset,
     } = this.props;
     let containerSize = Platform.OS === 'ios' ? 62.33 : 58.54; // header height
     if (mode === 'log-in') {
@@ -333,7 +330,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       // and I'm not sure how to get AutoLayout to behave consistently with Yoga
       containerSize += DeviceInfo.getConstants().isIPhoneX_deprecated ? 50 : 61;
     }
-    const contentHeight = windowHeight - contentVerticalOffset;
+    const contentHeight = windowHeight - topInset;
     return (contentHeight - containerSize - keyboardHeight) / 2;
   }
 
@@ -741,7 +738,7 @@ export default connectNav((context: ?NavContextType) => ({
       urlPrefix: state.urlPrefix,
       loggedIn: isLoggedIn(state),
       dimensions: dimensionsSelector(state),
-      contentVerticalOffset: contentVerticalOffsetSelector(state),
+      topInset: state.dimensions.topInset,
       splashStyle: splashStyleSelector(state),
     }),
     null,

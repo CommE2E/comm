@@ -55,7 +55,6 @@ import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils';
 import {
   contentBottomOffset,
   dimensionsSelector,
-  contentVerticalOffsetSelector,
 } from '../selectors/dimension-selectors';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import { clamp, gestureJustEnded } from '../utils/animation-utils';
@@ -246,7 +245,7 @@ type Props = {
   route: NavigationRoute<'CameraModal'>,
   // Redux state
   screenDimensions: Dimensions,
-  contentVerticalOffset: number,
+  topInset: number,
   deviceCameraInfo: DeviceCameraInfo,
   deviceOrientation: Orientations,
   foreground: boolean,
@@ -277,7 +276,7 @@ class CameraModal extends React.PureComponent<Props, State> {
       }).isRequired,
     }).isRequired,
     screenDimensions: dimensionsPropType.isRequired,
-    contentVerticalOffset: PropTypes.number.isRequired,
+    topInset: PropTypes.number.isRequired,
     deviceCameraInfo: deviceCameraInfoPropType.isRequired,
     deviceOrientation: PropTypes.string.isRequired,
     foreground: PropTypes.bool.isRequired,
@@ -636,7 +635,7 @@ class CameraModal extends React.PureComponent<Props, State> {
       return this.renderStagingView();
     }
     const topButtonStyle = {
-      top: Math.max(this.props.contentVerticalOffset, 6),
+      top: Math.max(this.props.topInset, 6),
     };
     return (
       <>
@@ -664,7 +663,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     }
 
     const topButtonStyle = {
-      top: Math.max(this.props.contentVerticalOffset - 3, 3),
+      top: Math.max(this.props.topInset - 3, 3),
     };
     return (
       <>
@@ -727,7 +726,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     }
 
     const topButtonStyle = {
-      top: Math.max(this.props.contentVerticalOffset - 3, 3),
+      top: Math.max(this.props.topInset - 3, 3),
     };
     return (
       <PinchGestureHandler
@@ -1201,7 +1200,7 @@ const styles = StyleSheet.create({
 export default connect(
   (state: AppState) => ({
     screenDimensions: dimensionsSelector(state),
-    contentVerticalOffset: contentVerticalOffsetSelector(state),
+    topInset: state.dimensions.topInset,
     deviceCameraInfo: state.deviceCameraInfo,
     deviceOrientation: state.deviceOrientation,
     foreground: state.foreground,

@@ -23,13 +23,4 @@ const dimensionsSelector: (state: AppState) => Dimensions = createSelector(
   },
 );
 
-function contentVerticalOffsetSelector(state: AppState) {
-  return state.dimensions.topInset;
-}
-
-export {
-  androidOpaqueStatus,
-  contentBottomOffset,
-  dimensionsSelector,
-  contentVerticalOffsetSelector,
-};
+export { androidOpaqueStatus, contentBottomOffset, dimensionsSelector };

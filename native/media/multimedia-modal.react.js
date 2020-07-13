@@ -44,7 +44,6 @@ import { connect } from 'lib/utils/redux-utils';
 import {
   contentBottomOffset,
   dimensionsSelector,
-  contentVerticalOffsetSelector,
 } from '../selectors/dimension-selectors';
 import Multimedia from './multimedia.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
@@ -199,7 +198,7 @@ type Props = {|
   route: NavigationRoute<'MultimediaModal'>,
   // Redux state
   screenDimensions: Dimensions,
-  contentVerticalOffset: number,
+  topInset: number,
   // withOverlayContext
   overlayContext: ?OverlayContextType,
 |};
@@ -221,7 +220,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
       }).isRequired,
     }).isRequired,
     screenDimensions: dimensionsPropType.isRequired,
-    contentVerticalOffset: PropTypes.number.isRequired,
+    topInset: PropTypes.number.isRequired,
     overlayContext: overlayContextPropType,
   };
   state = {
@@ -946,7 +945,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     }
 
     const centerX = screenWidth / 2;
-    const centerY = screenHeight / 2 + this.props.contentVerticalOffset;
+    const centerY = screenHeight / 2 + this.props.topInset;
     if (this.centerX) {
       this.centerX.setValue(centerX);
     } else {
@@ -986,7 +985,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   componentDidUpdate(prevProps: Props) {
     if (
       this.props.screenDimensions !== prevProps.screenDimensions ||
-      this.props.contentVerticalOffset !== prevProps.contentVerticalOffset
+      this.props.topInset !== prevProps.topInset
     ) {
       this.updateDimensions();
     }
@@ -1001,12 +1000,12 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   }
 
   get screenDimensions(): Dimensions {
-    const { screenDimensions, contentVerticalOffset } = this.props;
-    if (contentVerticalOffset === 0) {
+    const { screenDimensions, topInset } = this.props;
+    if (topInset === 0) {
       return screenDimensions;
     }
     const { height, width } = screenDimensions;
-    return { height: height - contentVerticalOffset, width };
+    return { height: height - topInset, width };
   }
 
   get imageDimensions(): Dimensions {
@@ -1041,7 +1040,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   get imageContainerStyle() {
     const { height, width } = this.imageDimensions;
     const { height: screenHeight, width: screenWidth } = this.screenDimensions;
-    const top = (screenHeight - height) / 2 + this.props.contentVerticalOffset;
+    const top = (screenHeight - height) / 2 + this.props.topInset;
     const left = (screenWidth - width) / 2;
     const { verticalBounds } = this.props.route.params;
     return {
@@ -1067,9 +1066,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   get contentContainerStyle() {
     const { verticalBounds } = this.props.route.params;
     const fullScreenHeight =
-      this.screenDimensions.height +
-      contentBottomOffset +
-      this.props.contentVerticalOffset;
+      this.screenDimensions.height + contentBottomOffset + this.props.topInset;
     const top = verticalBounds.y;
     const bottom = fullScreenHeight - verticalBounds.y - verticalBounds.height;
 
@@ -1088,7 +1085,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     const backdropStyle = { opacity: this.backdropOpacity };
     const closeButtonStyle = {
       opacity: this.closeButtonOpacity,
-      top: Math.max(this.props.contentVerticalOffset - 2, 4),
+      top: Math.max(this.props.topInset - 2, 4),
     };
     const saveButtonStyle = { opacity: this.actionLinksOpacity };
     const view = (
@@ -1291,5 +1288,5 @@ const styles = StyleSheet.create({
 
 export default connect((state: AppState) => ({
   screenDimensions: dimensionsSelector(state),
-  contentVerticalOffset: contentVerticalOffsetSelector(state),
+  topInset: state.dimensions.topInset,
 }))(withOverlayContext(MultimediaModal));
