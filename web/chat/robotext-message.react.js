@@ -15,7 +15,6 @@ import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { MessagePositionInfo } from './message.react';
 
 import * as React from 'react';
-import Linkify from 'react-linkify';
 import PropTypes from 'prop-types';
 
 import { splitRobotext, parseRobotextEntity } from 'lib/shared/message-utils';
@@ -23,6 +22,7 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { connect } from 'lib/utils/redux-utils';
 
 import css from './chat-message-list.css';
+import Markdown from '../markdown/markdown.react';
 
 type Props = {|
   item: RobotextChatMessageInfoItem,
@@ -54,7 +54,7 @@ class RobotextMessage extends React.PureComponent<Props> {
         continue;
       }
       if (splitPart.charAt(0) !== '<') {
-        textParts.push(decodeURI(splitPart));
+        textParts.push(<Markdown>{decodeURI(splitPart)}</Markdown>);
         continue;
       }
 
@@ -69,7 +69,7 @@ class RobotextMessage extends React.PureComponent<Props> {
       }
     }
 
-    return <Linkify>{textParts}</Linkify>;
+    return textParts;
   }
 
   onMouseOver = (event: SyntheticEvent<HTMLDivElement>) => {
