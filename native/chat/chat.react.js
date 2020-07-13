@@ -56,8 +56,10 @@ const unboundStyles = {
     flex: 1,
     backgroundColor: 'listBackground',
   },
-  headerStyle: {
+  threadListHeaderStyle: {
     elevation: 0,
+    shadowOffset: { width: 0, height: 0 },
+    borderBottomWidth: 0,
   },
 };
 
@@ -149,7 +151,7 @@ const chatThreadListOptions = ({ navigation }) => ({
       ? () => <ComposeThreadButton navigate={navigation.navigate} />
       : undefined,
   headerBackTitle: 'Back',
-  headerStyle: unboundStyles.headerStyle,
+  headerStyle: unboundStyles.threadListHeaderStyle,
 });
 const messageListOptions = ({ navigation, route }) => ({
   // This is a render prop, not a component

@@ -145,10 +145,10 @@ for (let theme in colors) {
   }
 }
 
-type Styles = { [name: string]: { [field: string]: number | string } };
+type Styles = { [name: string]: { [field: string]: mixed } };
 
 type ReplaceField = (input: any) => any;
-type ReplaceStyleObject = <Obj: { [key: string]: number | string }>(
+type ReplaceStyleObject = <Obj: { [key: string]: mixed }>(
   Obj,
 ) => $ObjMap<Obj, ReplaceField>;
 
@@ -164,6 +164,9 @@ function stylesFromColors<IS: Styles>(
     const filledInStyle = { ...style };
     for (let styleKey in style) {
       const styleValue = style[styleKey];
+      if (typeof styleValue !== 'string') {
+        continue;
+      }
       if (magicStrings.has(styleValue)) {
         const mapped = themeColors[styleValue];
         if (mapped) {
