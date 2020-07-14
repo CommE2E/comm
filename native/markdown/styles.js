@@ -12,11 +12,8 @@ const unboundStyles = {
   paragraph: {
     alignItems: 'flex-start',
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexWrap: 'nowrap',
     justifyContent: 'flex-start',
-  },
-  emojiOnlyText: {
-    fontSize: 36,
   },
 };
 

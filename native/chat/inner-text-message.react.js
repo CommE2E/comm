@@ -6,7 +6,7 @@ import { type GlobalTheme, globalThemePropType } from '../types/themes';
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
@@ -48,7 +48,7 @@ class InnerTextMessage extends React.PureComponent<Props> {
     const { isViewer } = creator;
 
     let messageStyle = {},
-      textCustomStyle = {},
+      textStyle = { ...styles.text },
       darkColor;
     if (isViewer) {
       const threadColor = item.threadInfo.color;
@@ -58,7 +58,7 @@ class InnerTextMessage extends React.PureComponent<Props> {
       messageStyle.backgroundColor = this.props.colors.listChatBubble;
       darkColor = this.props.activeTheme === 'dark';
     }
-    textCustomStyle.color = darkColor
+    textStyle.color = darkColor
       ? colors.dark.listForegroundLabel
       : colors.light.listForegroundLabel;
 
@@ -73,9 +73,9 @@ class InnerTextMessage extends React.PureComponent<Props> {
         activeOpacity={0.6}
         style={[styles.message, messageStyle, cornerStyle]}
       >
-        <Text style={[styles.text, textCustomStyle]}>
-          <Markdown darkStyle={darkColor}>{text}</Markdown>
-        </Text>
+        <Markdown textStyle={textStyle} useDarkStyle={darkColor}>
+          {text}
+        </Markdown>
       </TouchableOpacity>
     );
 
