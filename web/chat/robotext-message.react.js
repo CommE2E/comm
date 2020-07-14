@@ -54,7 +54,9 @@ class RobotextMessage extends React.PureComponent<Props> {
         continue;
       }
       if (splitPart.charAt(0) !== '<') {
-        textParts.push(<Markdown>{decodeURI(splitPart)}</Markdown>);
+        textParts.push(
+          <Markdown onlyBasicRules={true}>{decodeURI(splitPart)}</Markdown>,
+        );
         continue;
       }
 

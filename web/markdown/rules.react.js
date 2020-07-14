@@ -5,7 +5,7 @@ import * as React from 'react';
 
 import { urlRegex } from 'lib/shared/markdown';
 
-export default function rules() {
+export function rules() {
   return {
     // We are using default simple-markdown rules
     // For more details, look at native/markdown/rules.react
@@ -34,5 +34,13 @@ export default function rules() {
       ...SimpleMarkdown.defaultRules.url,
       match: SimpleMarkdown.inlineRegex(urlRegex),
     },
+  };
+}
+
+// function will contain additional rules for message formatting
+export function advancedRules() {
+  const basicRules = rules();
+  return {
+    ...basicRules,
   };
 }
