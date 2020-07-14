@@ -25,7 +25,6 @@ import {
   Platform,
   BackHandler,
   ActivityIndicator,
-  DeviceInfo,
 } from 'react-native';
 import invariant from 'invariant';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -325,11 +324,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       // We need to make space for the password manager on smaller devices
       containerSize += windowHeight < 600 ? 261 : 246;
     } else {
-      // This is arbitrary and artificial... actually centering just looks a bit
-      // weird because the buttons are at the bottom. The reason it's different
-      // for iPhone X is because that's where LaunchScreen.storyboard places it
-      // and I'm not sure how to get AutoLayout to behave consistently with Yoga
-      containerSize += DeviceInfo.getConstants().isIPhoneX_deprecated ? 50 : 61;
+      containerSize += Platform.OS === 'ios' ? 40 : 61;
     }
     const contentHeight = windowHeight - bottomInset - topInset;
     return (contentHeight - keyboardHeight - containerSize) / 2;
