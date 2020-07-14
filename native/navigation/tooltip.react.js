@@ -7,7 +7,10 @@ import {
   layoutCoordinatesPropType,
 } from '../types/layout-types';
 import type { AppState } from '../redux/redux-setup';
-import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
+import {
+  type DimensionsInfo,
+  dimensionsInfoPropType,
+} from '../redux/dimensions-updater.react';
 import type { ViewStyle } from '../types/styles';
 import type { TooltipEntry } from './tooltip-item.react';
 import type { Dispatch } from 'lib/types/redux-types';
@@ -40,7 +43,6 @@ import {
 import { connect } from 'lib/utils/redux-utils';
 import { createBoundServerCallsSelector } from 'lib/utils/action-utils';
 
-import { dimensionsSelector } from '../selectors/dimension-selectors';
 import TooltipItem from './tooltip-item.react';
 import {
   withOverlayContext,
@@ -89,8 +91,7 @@ type TooltipProps<Navigation, Route> = {
   navigation: Navigation,
   route: Route,
   // Redux state
-  screenDimensions: Dimensions,
-  bottomInset: number,
+  dimensions: DimensionsInfo,
   serverCallState: ServerCallState,
   // Redux dispatch functions
   dispatch: Dispatch,
@@ -122,8 +123,7 @@ function createTooltip<
           visibleEntryIDs: PropTypes.arrayOf(PropTypes.string),
         }).isRequired,
       }).isRequired,
-      screenDimensions: dimensionsPropType.isRequired,
-      bottomInset: PropTypes.number.isRequired,
+      dimensions: dimensionsInfoPropType.isRequired,
       serverCallState: serverCallStatePropType.isRequired,
       dispatch: PropTypes.func.isRequired,
       dispatchActionPayload: PropTypes.func.isRequired,
@@ -222,8 +222,7 @@ function createTooltip<
 
     get contentContainerStyle() {
       const { verticalBounds } = this.props.route.params;
-      const fullScreenHeight =
-        this.props.screenDimensions.height + this.props.bottomInset;
+      const fullScreenHeight = this.props.dimensions.height;
       const top = verticalBounds.y;
       const bottom =
         fullScreenHeight - verticalBounds.y - verticalBounds.height;
@@ -254,7 +253,7 @@ function createTooltip<
     }
 
     get tooltipContainerStyle() {
-      const { screenDimensions, bottomInset, route } = this.props;
+      const { dimensions, route } = this.props;
       const { initialCoordinates, verticalBounds } = route.params;
       const { x, y, width, height } = initialCoordinates;
       const { margin, location } = this;
@@ -266,7 +265,7 @@ function createTooltip<
       style.transform = [{ translateX: this.tooltipHorizontal }];
 
       const extraLeftSpace = x;
-      const extraRightSpace = screenDimensions.width - width - x;
+      const extraRightSpace = dimensions.width - width - x;
       if (extraLeftSpace < extraRightSpace) {
         style.left = 0;
         style.minWidth = width + 2 * extraLeftSpace;
@@ -276,7 +275,7 @@ function createTooltip<
       }
 
       if (location === 'above') {
-        const fullScreenHeight = screenDimensions.height + bottomInset;
+        const fullScreenHeight = dimensions.height;
         style.bottom =
           fullScreenHeight - Math.max(y, verticalBounds.y) + margin;
         style.transform.push({ translateY: this.tooltipVerticalAbove });
@@ -296,7 +295,7 @@ function createTooltip<
     }
 
     render() {
-      const { navigation, route, screenDimensions } = this.props;
+      const { navigation, route, dimensions } = this.props;
 
       const { entries } = this;
       const items = entries.map((entry, index) => {
@@ -316,7 +315,7 @@ function createTooltip<
       const { initialCoordinates } = route.params;
       const { x, width } = initialCoordinates;
       const extraLeftSpace = x;
-      const extraRightSpace = screenDimensions.width - width - x;
+      const extraRightSpace = dimensions.width - width - x;
       if (extraLeftSpace < extraRightSpace) {
         triangleStyle = {
           alignSelf: 'flex-start',
@@ -405,11 +404,11 @@ function createTooltip<
     };
 
     onTooltipContainerLayout = (event: LayoutEvent) => {
-      const { route, screenDimensions } = this.props;
+      const { route, dimensions } = this.props;
       const { x, width } = route.params.initialCoordinates;
 
       const extraLeftSpace = x;
-      const extraRightSpace = screenDimensions.width - width - x;
+      const extraRightSpace = dimensions.width - width - x;
 
       const actualWidth = event.nativeEvent.layout.width;
       if (extraLeftSpace < extraRightSpace) {
@@ -423,8 +422,7 @@ function createTooltip<
   }
   return connect(
     (state: AppState) => ({
-      screenDimensions: dimensionsSelector(state),
-      bottomInset: state.dimensions.bottomInset,
+      dimensions: state.dimensions,
       serverCallState: serverCallStateSelector(state),
     }),
     null,

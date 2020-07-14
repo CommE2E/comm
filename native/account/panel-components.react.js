@@ -4,7 +4,10 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { ViewStyle } from '../types/styles';
 import type { KeyboardEvent, EmitterSubscription } from '../keyboard/keyboard';
-import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
+import {
+  type DimensionsInfo,
+  dimensionsInfoPropType,
+} from '../redux/dimensions-updater.react';
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
@@ -25,7 +28,6 @@ import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../components/button.react';
 import OnePasswordButton from '../components/one-password-button.react';
-import { dimensionsSelector } from '../selectors/dimension-selectors';
 import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
@@ -90,7 +92,7 @@ type PanelProps = {|
   opacityValue: Animated.Value,
   children: React.Node,
   style?: ViewStyle,
-  dimensions: Dimensions,
+  dimensions: DimensionsInfo,
 |};
 type PanelState = {|
   keyboardHeight: number,
@@ -100,7 +102,7 @@ class InnerPanel extends React.PureComponent<PanelProps, PanelState> {
     opacityValue: PropTypes.instanceOf(Animated.Value).isRequired,
     children: PropTypes.node.isRequired,
     style: ViewPropTypes.style,
-    dimensions: dimensionsPropType.isRequired,
+    dimensions: dimensionsInfoPropType.isRequired,
   };
   state = {
     keyboardHeight: 0,
@@ -127,10 +129,9 @@ class InnerPanel extends React.PureComponent<PanelProps, PanelState> {
   }
 
   keyboardHandler = (event: ?KeyboardEvent) => {
-    const windowHeight = this.props.dimensions.height;
-    const keyboardHeight = event
-      ? windowHeight - event.endCoordinates.screenY
-      : 0;
+    const frameEdge =
+      this.props.dimensions.height - this.props.dimensions.bottomInset;
+    const keyboardHeight = event ? frameEdge - event.endCoordinates.screenY : 0;
     if (keyboardHeight === this.state.keyboardHeight) {
       return;
     }
@@ -180,7 +181,7 @@ class InnerPanel extends React.PureComponent<PanelProps, PanelState> {
 }
 
 const Panel = connect((state: AppState) => ({
-  dimensions: dimensionsSelector(state),
+  dimensions: state.dimensions,
 }))(InnerPanel);
 
 const styles = StyleSheet.create({

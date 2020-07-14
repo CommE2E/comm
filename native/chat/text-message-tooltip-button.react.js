@@ -4,7 +4,6 @@ import {
   verticalBoundsPropType,
   layoutCoordinatesPropType,
 } from '../types/layout-types';
-import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { AppState } from '../redux/redux-setup';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
@@ -16,7 +15,6 @@ import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
 
-import { dimensionsSelector } from '../selectors/dimension-selectors';
 import InnerTextMessage from './inner-text-message.react';
 import { MessageHeader } from './message-header.react';
 
@@ -29,7 +27,7 @@ type Props = {
   route: TooltipRoute<'TextMessageTooltipModal'>,
   progress: Value,
   // Redux state
-  screenDimensions: Dimensions,
+  windowWidth: number,
 };
 class TextMessageTooltipButton extends React.PureComponent<Props> {
   static propTypes = {
@@ -46,7 +44,7 @@ class TextMessageTooltipButton extends React.PureComponent<Props> {
       }).isRequired,
     }).isRequired,
     progress: PropTypes.object.isRequired,
-    screenDimensions: dimensionsPropType.isRequired,
+    windowWidth: PropTypes.number.isRequired,
   };
 
   get headerStyle() {
@@ -56,7 +54,7 @@ class TextMessageTooltipButton extends React.PureComponent<Props> {
       opacity: this.props.progress,
       position: 'absolute',
       left: -initialCoordinates.x,
-      width: this.props.screenDimensions.width,
+      width: this.props.windowWidth,
       bottom,
     };
   }
@@ -79,5 +77,5 @@ class TextMessageTooltipButton extends React.PureComponent<Props> {
 }
 
 export default connect((state: AppState) => ({
-  screenDimensions: dimensionsSelector(state),
+  windowWidth: state.dimensions.width,
 }))(TextMessageTooltipButton);

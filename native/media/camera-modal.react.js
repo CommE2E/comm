@@ -1,11 +1,11 @@
 // @flow
 
 import type { AppState } from '../redux/redux-setup';
+import type { PhotoCapture } from 'lib/types/media-types';
 import {
-  type Dimensions,
-  dimensionsPropType,
-  type PhotoCapture,
-} from 'lib/types/media-types';
+  type DimensionsInfo,
+  dimensionsInfoPropType,
+} from '../redux/dimensions-updater.react';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
 import { updateDeviceCameraInfoActionType } from '../redux/action-types';
 import {
@@ -52,7 +52,6 @@ import filesystem from 'react-native-fs';
 import { connect } from 'lib/utils/redux-utils';
 import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils';
 
-import { dimensionsSelector } from '../selectors/dimension-selectors';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import { clamp, gestureJustEnded } from '../utils/animation-utils';
 import ContentLoading from '../components/content-loading.react';
@@ -241,9 +240,7 @@ type Props = {
   navigation: AppNavigationProp<'CameraModal'>,
   route: NavigationRoute<'CameraModal'>,
   // Redux state
-  screenDimensions: Dimensions,
-  topInset: number,
-  bottomInset: number,
+  dimensions: DimensionsInfo,
   deviceCameraInfo: DeviceCameraInfo,
   deviceOrientation: Orientations,
   foreground: boolean,
@@ -273,9 +270,7 @@ class CameraModal extends React.PureComponent<Props, State> {
         threadID: PropTypes.string.isRequired,
       }).isRequired,
     }).isRequired,
-    screenDimensions: dimensionsPropType.isRequired,
-    topInset: PropTypes.number.isRequired,
-    bottomInset: PropTypes.number.isRequired,
+    dimensions: dimensionsInfoPropType.isRequired,
     deviceCameraInfo: deviceCameraInfoPropType.isRequired,
     deviceOrientation: PropTypes.string.isRequired,
     foreground: PropTypes.bool.isRequired,
@@ -634,7 +629,7 @@ class CameraModal extends React.PureComponent<Props, State> {
       return this.renderStagingView();
     }
     const topButtonStyle = {
-      top: Math.max(this.props.topInset, 6),
+      top: Math.max(this.props.dimensions.topInset, 6),
     };
     return (
       <>
@@ -662,10 +657,10 @@ class CameraModal extends React.PureComponent<Props, State> {
     }
 
     const topButtonStyle = {
-      top: Math.max(this.props.topInset - 3, 3),
+      top: Math.max(this.props.dimensions.topInset - 3, 3),
     };
     const sendButtonContainerStyle = {
-      bottom: this.props.bottomInset + 22,
+      bottom: this.props.dimensions.bottomInset + 22,
     };
     return (
       <>
@@ -731,10 +726,10 @@ class CameraModal extends React.PureComponent<Props, State> {
     }
 
     const topButtonStyle = {
-      top: Math.max(this.props.topInset - 3, 3),
+      top: Math.max(this.props.dimensions.topInset - 3, 3),
     };
     const bottomButtonsContainerStyle = {
-      bottom: this.props.bottomInset + 20,
+      bottom: this.props.dimensions.bottomInset + 20,
     };
     return (
       <PinchGestureHandler
@@ -1002,9 +997,7 @@ class CameraModal extends React.PureComponent<Props, State> {
   };
 
   focusOnPoint = ([inputX, inputY]: [number, number]) => {
-    const screenWidth = this.props.screenDimensions.width;
-    const screenHeight =
-      this.props.screenDimensions.height + this.props.bottomInset;
+    const { width: screenWidth, height: screenHeight } = this.props.dimensions;
     const relativeX = inputX / screenWidth;
     const relativeY = inputY / screenHeight;
 
@@ -1210,9 +1203,7 @@ const styles = StyleSheet.create({
 
 export default connect(
   (state: AppState) => ({
-    screenDimensions: dimensionsSelector(state),
-    topInset: state.dimensions.topInset,
-    bottomInset: state.dimensions.bottomInset,
+    dimensions: state.dimensions,
     deviceCameraInfo: state.deviceCameraInfo,
     deviceOrientation: state.deviceOrientation,
     foreground: state.foreground,

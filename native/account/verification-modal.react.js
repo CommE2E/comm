@@ -8,7 +8,10 @@ import {
   type HandleVerificationCodeResult,
 } from 'lib/types/verify-types';
 import type { KeyboardEvent } from '../keyboard/keyboard';
-import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
+import {
+  type DimensionsInfo,
+  dimensionsInfoPropType,
+} from '../redux/dimensions-updater.react';
 import type { ImageStyle } from '../types/styles';
 import type { RootNavigationProp } from '../navigation/root-navigator.react';
 import type { NavigationRoute } from '../navigation/route-names';
@@ -41,7 +44,6 @@ import {
 } from 'lib/actions/user-actions';
 import sleep from 'lib/utils/sleep';
 
-import { dimensionsSelector } from '../selectors/dimension-selectors';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import ResetPasswordPanel from './reset-password-panel.react';
 import { createIsForegroundSelector } from '../navigation/nav-selectors';
@@ -75,7 +77,7 @@ type Props = {
   // Navigation state
   isForeground: boolean,
   // Redux state
-  dimensions: Dimensions,
+  dimensions: DimensionsInfo,
   splashStyle: ImageStyle,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
@@ -105,7 +107,7 @@ class VerificationModal extends React.PureComponent<Props, State> {
       }).isRequired,
     }).isRequired,
     isForeground: PropTypes.bool.isRequired,
-    dimensions: dimensionsPropType.isRequired,
+    dimensions: dimensionsInfoPropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     handleVerificationCode: PropTypes.func.isRequired,
   };
@@ -275,14 +277,15 @@ class VerificationModal extends React.PureComponent<Props, State> {
   }
 
   currentPaddingTop(mode: VerificationModalMode, keyboardHeight: number) {
-    const windowHeight = this.props.dimensions.height;
+    const { height, bottomInset, topInset } = this.props.dimensions;
+    const safeAreaHeight = height - bottomInset - topInset;
     let containerSize = 0;
     if (mode === 'simple-text') {
       containerSize = 90;
     } else if (mode === 'reset-password') {
       containerSize = 165;
     }
-    return (windowHeight - containerSize - keyboardHeight) / 2;
+    return (safeAreaHeight - containerSize - keyboardHeight) / 2;
   }
 
   animateToResetPassword(inputDuration: ?number = null) {
@@ -310,7 +313,14 @@ class VerificationModal extends React.PureComponent<Props, State> {
     if (this.expectingKeyboardToAppear) {
       this.expectingKeyboardToAppear = false;
     }
-    this.keyboardHeight = event.endCoordinates.height;
+    this.keyboardHeight = Platform.select({
+      // Android doesn't include the bottomInset in this height measurement
+      android: event.endCoordinates.height,
+      default: Math.max(
+        event.endCoordinates.height - this.props.dimensions.bottomInset,
+        0,
+      ),
+    });
     if (this.activeKeyboard) {
       // We do this because the Android keyboard can change in height and we
       // don't want to bother animating between those events
@@ -519,7 +529,7 @@ export default connectNav((context: ?NavContextType) => ({
 }))(
   connect(
     (state: AppState) => ({
-      dimensions: dimensionsSelector(state),
+      dimensions: state.dimensions,
       splashStyle: splashStyleSelector(state),
     }),
     { handleVerificationCode },

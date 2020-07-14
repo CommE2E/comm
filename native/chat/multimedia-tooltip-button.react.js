@@ -1,10 +1,6 @@
 // @flow
 
-import {
-  mediaInfoPropType,
-  type Dimensions,
-  dimensionsPropType,
-} from 'lib/types/media-types';
+import { mediaInfoPropType } from 'lib/types/media-types';
 import {
   verticalBoundsPropType,
   layoutCoordinatesPropType,
@@ -31,7 +27,6 @@ import InlineMultimedia from './inline-multimedia.react';
 import { multimediaMessageBorderRadius } from './multimedia-message.react';
 import { getRoundedContainerStyle } from './rounded-corners';
 import { MessageHeader } from './message-header.react';
-import { dimensionsSelector } from '../selectors/dimension-selectors';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Value } = Animated;
@@ -42,7 +37,7 @@ type Props = {
   route: TooltipRoute<'MultimediaTooltipModal'>,
   progress: Value,
   // Redux state
-  screenDimensions: Dimensions,
+  windowWidth: number,
   // withInputState
   inputState: ?InputState,
 };
@@ -63,7 +58,7 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
       }).isRequired,
     }).isRequired,
     progress: PropTypes.object.isRequired,
-    screenDimensions: dimensionsPropType.isRequired,
+    windowWidth: PropTypes.number.isRequired,
     inputState: inputStatePropType,
   };
 
@@ -74,7 +69,7 @@ class MultimediaTooltipButton extends React.PureComponent<Props> {
       opacity: this.props.progress,
       position: 'absolute',
       left: -initialCoordinates.x,
-      width: this.props.screenDimensions.width,
+      width: this.props.windowWidth,
       bottom,
     };
   }
@@ -129,5 +124,5 @@ const styles = StyleSheet.create({
 });
 
 export default connect((state: AppState) => ({
-  screenDimensions: dimensionsSelector(state),
+  windowWidth: state.dimensions.width,
 }))(withInputState(MultimediaTooltipButton));

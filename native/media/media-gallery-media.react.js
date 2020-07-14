@@ -6,6 +6,10 @@ import {
   type MediaLibrarySelection,
   mediaLibrarySelectionPropType,
 } from 'lib/types/media-types';
+import {
+  type DimensionsInfo,
+  dimensionsInfoPropType,
+} from '../redux/dimensions-updater.react';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -49,9 +53,8 @@ type Props = {|
   sendMedia: (media: MediaLibrarySelection) => void,
   isFocused: boolean,
   setFocus: (media: MediaLibrarySelection, isFocused: boolean) => void,
-  screenWidth: number,
+  dimensions: DimensionsInfo,
   colors: Colors,
-  bottomInset: number,
 |};
 class MediaGalleryMedia extends React.PureComponent<Props> {
   static propTypes = {
@@ -63,9 +66,8 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     sendMedia: PropTypes.func.isRequired,
     isFocused: PropTypes.bool.isRequired,
     setFocus: PropTypes.func.isRequired,
-    screenWidth: PropTypes.number.isRequired,
+    dimensions: dimensionsInfoPropType.isRequired,
     colors: colorsPropType.isRequired,
-    bottomInset: PropTypes.number.isRequired,
   };
   // eslint-disable-next-line import/no-named-as-default-member
   focusProgress = new Reanimated.Value(0);
@@ -90,7 +92,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
       ...styles.buttons,
       opacity: this.focusProgress,
       transform: [{ scale: buttonsScale }],
-      marginBottom: this.props.bottomInset,
+      marginBottom: this.props.dimensions.bottomInset,
     };
 
     // eslint-disable-next-line import/no-named-as-default-member
@@ -189,7 +191,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     const scaledWidth = height ? (width * containerHeight) / height : 0;
     const dimensionsStyle = {
       height: containerHeight,
-      width: Math.max(Math.min(scaledWidth, this.props.screenWidth), 150),
+      width: Math.max(Math.min(scaledWidth, this.props.dimensions.width), 150),
     };
 
     let buttons = null;

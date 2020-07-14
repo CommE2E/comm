@@ -21,7 +21,10 @@ import {
   type CalendarFilter,
   calendarFilterPropType,
 } from 'lib/types/filter-types';
-import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
+import {
+  type DimensionsInfo,
+  dimensionsInfoPropType,
+} from '../redux/dimensions-updater.react';
 import {
   type LoadingStatus,
   loadingStatusPropType,
@@ -68,7 +71,6 @@ import { connect } from 'lib/utils/redux-utils';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import { Entry, InternalEntry, entryStyles } from './entry.react';
-import { dimensionsSelector } from '../selectors/dimension-selectors';
 import { calendarListData } from '../selectors/calendar-selectors';
 import {
   createIsForegroundSelector,
@@ -130,13 +132,11 @@ type Props = {
   startDate: string,
   endDate: string,
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
-  dimensions: Dimensions,
-  topInset: number,
+  dimensions: DimensionsInfo,
   loadingStatus: LoadingStatus,
   connectionStatus: ConnectionStatus,
   colors: Colors,
   styles: typeof styles,
-  tabBarHeight: number,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -188,13 +188,11 @@ class Calendar extends React.PureComponent<Props, State> {
     startDate: PropTypes.string.isRequired,
     endDate: PropTypes.string.isRequired,
     calendarFilters: PropTypes.arrayOf(calendarFilterPropType).isRequired,
-    dimensions: dimensionsPropType.isRequired,
-    topInset: PropTypes.number.isRequired,
+    dimensions: dimensionsInfoPropType.isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
     connectionStatus: connectionStatusPropType.isRequired,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    tabBarHeight: PropTypes.number.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     updateCalendarQuery: PropTypes.func.isRequired,
   };
@@ -775,11 +773,12 @@ class Calendar extends React.PureComponent<Props, State> {
 
   flatListHeight() {
     const {
-      dimensions: { height: windowHeight },
+      height: windowHeight,
       topInset,
+      bottomInset,
       tabBarHeight,
-    } = this.props;
-    return windowHeight - topInset - tabBarHeight;
+    } = this.props.dimensions;
+    return windowHeight - topInset - bottomInset - tabBarHeight;
   }
 
   initialScrollIndex(data: $ReadOnlyArray<CalendarItemWithHeight>) {
@@ -888,9 +887,19 @@ class Calendar extends React.PureComponent<Props, State> {
   };
 
   keyboardShow = (event: KeyboardEvent) => {
+    // flatListHeight() factors in the size of the tab bar,
+    // but it is hidden by the keyboard since it is at the bottom
+    const { bottomInset, tabBarHeight } = this.props.dimensions;
     const inputBarHeight = Platform.OS === 'android' ? 37.7 : 35.5;
-    const keyboardShownHeight = event.endCoordinates.height + inputBarHeight;
+    const keyboardHeight = Platform.select({
+      // Android doesn't include the bottomInset in this height measurement
+      android: event.endCoordinates.height,
+      default: Math.max(event.endCoordinates.height - bottomInset, 0),
+    });
+    const keyboardShownHeight =
+      inputBarHeight + Math.max(keyboardHeight - tabBarHeight, 0);
     this.keyboardShownHeight = keyboardShownHeight;
+
     const lastEntryKeyActive = this.lastEntryKeyActive;
     if (lastEntryKeyActive && this.state.listDataWithHeights) {
       this.scrollToKey(lastEntryKeyActive, keyboardShownHeight);
@@ -916,10 +925,7 @@ class Calendar extends React.PureComponent<Props, State> {
     const itemHeight = Calendar.itemHeight(data[index]);
     const entryAdditionalActiveHeight = Platform.OS === 'android' ? 21 : 20;
     const itemEnd = itemStart + itemHeight + entryAdditionalActiveHeight;
-    // flatListHeight() factors in the size of the tab bar,
-    // but it is hidden by the keyboard since it is at the bottom
-    const visibleHeight =
-      this.flatListHeight() - keyboardHeight + this.props.tabBarHeight;
+    const visibleHeight = this.flatListHeight() - keyboardHeight;
     if (
       this.currentScrollPosition !== undefined &&
       this.currentScrollPosition !== null &&
@@ -1157,13 +1163,11 @@ export default connectNav((context: ?NavContextType) => ({
       startDate: state.navInfo.startDate,
       endDate: state.navInfo.endDate,
       calendarFilters: state.calendarFilters,
-      dimensions: dimensionsSelector(state),
-      topInset: state.dimensions.topInset,
+      dimensions: state.dimensions,
       loadingStatus: loadingStatusSelector(state),
       connectionStatus: state.connection.status,
       colors: colorsSelector(state),
       styles: stylesSelector(state),
-      tabBarHeight: state.dimensions.tabBarHeight,
     }),
     { updateCalendarQuery },
   )(Calendar),

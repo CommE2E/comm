@@ -4,8 +4,11 @@ import {
   type MediaInfo,
   mediaInfoPropType,
   type Dimensions,
-  dimensionsPropType,
 } from 'lib/types/media-types';
+import {
+  type DimensionsInfo,
+  dimensionsInfoPropType,
+} from '../redux/dimensions-updater.react';
 import type { AppState } from '../redux/redux-setup';
 import {
   type VerticalBounds,
@@ -41,7 +44,6 @@ import invariant from 'invariant';
 
 import { connect } from 'lib/utils/redux-utils';
 
-import { dimensionsSelector } from '../selectors/dimension-selectors';
 import Multimedia from './multimedia.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import {
@@ -194,9 +196,7 @@ type Props = {|
   navigation: AppNavigationProp<'MultimediaModal'>,
   route: NavigationRoute<'MultimediaModal'>,
   // Redux state
-  screenDimensions: Dimensions,
-  topInset: number,
-  bottomInset: number,
+  dimensions: DimensionsInfo,
   // withOverlayContext
   overlayContext: ?OverlayContextType,
 |};
@@ -217,9 +217,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
         item: chatMessageItemPropType.isRequired,
       }).isRequired,
     }).isRequired,
-    screenDimensions: dimensionsPropType.isRequired,
-    topInset: PropTypes.number.isRequired,
-    bottomInset: PropTypes.number.isRequired,
+    dimensions: dimensionsInfoPropType.isRequired,
     overlayContext: overlayContextPropType,
   };
   state = {
@@ -242,8 +240,8 @@ class MultimediaModal extends React.PureComponent<Props, State> {
 
   centerX: Value;
   centerY: Value;
-  screenWidth: Value;
-  screenHeight: Value;
+  frameWidth: Value;
+  frameHeight: Value;
   imageWidth: Value;
   imageHeight: Value;
 
@@ -530,14 +528,14 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   // How much space do we have to pan the image horizontally?
   horizontalPanSpace(scale: Value) {
     const apparentWidth = multiply(this.imageWidth, scale);
-    const horizPop = divide(sub(apparentWidth, this.screenWidth), 2);
+    const horizPop = divide(sub(apparentWidth, this.frameWidth), 2);
     return max(horizPop, 0);
   }
 
   // How much space do we have to pan the image vertically?
   verticalPanSpace(scale: Value) {
     const apparentHeight = multiply(this.imageHeight, scale);
-    const vertPop = divide(sub(apparentHeight, this.screenHeight), 2);
+    const vertPop = divide(sub(apparentHeight, this.frameHeight), 2);
     return max(vertPop, 0);
   }
 
@@ -790,8 +788,8 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   ): Value {
     const progressiveOpacity = max(
       min(
-        sub(1, abs(divide(curX, this.screenWidth))),
-        sub(1, abs(divide(curY, this.screenHeight))),
+        sub(1, abs(divide(curX, this.frameWidth))),
+        sub(1, abs(divide(curY, this.frameHeight))),
       ),
       0,
     );
@@ -931,20 +929,21 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   }
 
   updateDimensions() {
-    const { width: screenWidth, height: screenHeight } = this.screenDimensions;
-    if (this.screenWidth) {
-      this.screenWidth.setValue(screenWidth);
+    const { width: frameWidth, height: frameHeight } = this.frame;
+    const { topInset } = this.props.dimensions;
+    if (this.frameWidth) {
+      this.frameWidth.setValue(frameWidth);
     } else {
-      this.screenWidth = new Value(screenWidth);
+      this.frameWidth = new Value(frameWidth);
     }
-    if (this.screenHeight) {
-      this.screenHeight.setValue(screenHeight);
+    if (this.frameHeight) {
+      this.frameHeight.setValue(frameHeight);
     } else {
-      this.screenHeight = new Value(screenHeight);
+      this.frameHeight = new Value(frameHeight);
     }
 
-    const centerX = screenWidth / 2;
-    const centerY = screenHeight / 2 + this.props.topInset;
+    const centerX = frameWidth / 2;
+    const centerY = frameHeight / 2 + topInset;
     if (this.centerX) {
       this.centerX.setValue(centerX);
     } else {
@@ -982,10 +981,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (
-      this.props.screenDimensions !== prevProps.screenDimensions ||
-      this.props.topInset !== prevProps.topInset
-    ) {
+    if (this.props.dimensions !== prevProps.dimensions) {
       this.updateDimensions();
     }
 
@@ -998,18 +994,14 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     }
   }
 
-  get screenDimensions(): Dimensions {
-    const { screenDimensions, topInset } = this.props;
-    if (topInset === 0) {
-      return screenDimensions;
-    }
-    const { height, width } = screenDimensions;
-    return { height: height - topInset, width };
+  get frame(): Dimensions {
+    const { height, width, topInset, bottomInset } = this.props.dimensions;
+    return { height, width: width - topInset - bottomInset };
   }
 
   get imageDimensions(): Dimensions {
     // Make space for the close button
-    let { height: maxHeight, width: maxWidth } = this.screenDimensions;
+    let { height: maxHeight, width: maxWidth } = this.frame;
     if (maxHeight > maxWidth) {
       maxHeight -= 100;
     } else {
@@ -1038,9 +1030,9 @@ class MultimediaModal extends React.PureComponent<Props, State> {
 
   get imageContainerStyle() {
     const { height, width } = this.imageDimensions;
-    const { height: screenHeight, width: screenWidth } = this.screenDimensions;
-    const top = (screenHeight - height) / 2 + this.props.topInset;
-    const left = (screenWidth - width) / 2;
+    const { height: frameHeight, width: frameWidth } = this.frame;
+    const top = (frameHeight - height) / 2 + this.props.dimensions.topInset;
+    const left = (frameWidth - width) / 2;
     const { verticalBounds } = this.props.route.params;
     return {
       height,
@@ -1064,10 +1056,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
 
   get contentContainerStyle() {
     const { verticalBounds } = this.props.route.params;
-    const fullScreenHeight =
-      this.screenDimensions.height +
-      this.props.bottomInset +
-      this.props.topInset;
+    const fullScreenHeight = this.props.dimensions.height;
     const top = verticalBounds.y;
     const bottom = fullScreenHeight - verticalBounds.y - verticalBounds.height;
 
@@ -1086,11 +1075,11 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     const backdropStyle = { opacity: this.backdropOpacity };
     const closeButtonStyle = {
       opacity: this.closeButtonOpacity,
-      top: Math.max(this.props.topInset - 2, 4),
+      top: Math.max(this.props.dimensions.topInset - 2, 4),
     };
     const saveButtonStyle = {
       opacity: this.actionLinksOpacity,
-      bottom: this.props.bottomInset + 8,
+      bottom: this.props.dimensions.bottomInset + 8,
     };
     const view = (
       <Animated.View style={styles.container}>
@@ -1290,7 +1279,5 @@ const styles = StyleSheet.create({
 });
 
 export default connect((state: AppState) => ({
-  screenDimensions: dimensionsSelector(state),
-  topInset: state.dimensions.topInset,
-  bottomInset: state.dimensions.bottomInset,
+  dimensions: state.dimensions,
 }))(withOverlayContext(MultimediaModal));

@@ -6,7 +6,6 @@ import {
   stateContainerPropType,
 } from '../utils/state-container';
 import type { AppState } from '../redux/redux-setup';
-import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 
 import * as React from 'react';
 import { View, Animated, Text, Easing, StyleSheet } from 'react-native';
@@ -17,7 +16,6 @@ import PropTypes from 'prop-types';
 import sleep from 'lib/utils/sleep';
 import { connect } from 'lib/utils/redux-utils';
 
-import { dimensionsSelector } from '../selectors/dimension-selectors';
 import LogInPanel from './log-in-panel.react';
 import ForgotPasswordPanel from './forgot-password-panel.react';
 
@@ -37,7 +35,7 @@ type Props = {|
   logInState: StateContainer<LogInState>,
   innerRef: (container: ?LogInPanelContainer) => void,
   // Redux state
-  dimensions: Dimensions,
+  windowWidth: number,
 |};
 type State = {|
   panelTransition: Animated.Value,
@@ -52,7 +50,7 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
     forgotPasswordLinkOpacity: PropTypes.object.isRequired,
     logInState: stateContainerPropType.isRequired,
     innerRef: PropTypes.func.isRequired,
-    dimensions: dimensionsPropType.isRequired,
+    windowWidth: PropTypes.number.isRequired,
   };
   state = {
     panelTransition: new Animated.Value(0),
@@ -70,7 +68,7 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const windowWidth = this.props.dimensions.width;
+    const { windowWidth } = this.props;
     const logInPanelDynamicStyle = {
       left: this.state.panelTransition.interpolate({
         inputRange: [0, 2],
@@ -275,5 +273,5 @@ const styles = StyleSheet.create({
 });
 
 export default connect((state: AppState) => ({
-  dimensions: dimensionsSelector(state),
+  windowWidth: state.dimensions.width,
 }))(LogInPanelContainer);

@@ -9,6 +9,7 @@ import {
   useSafeAreaFrame,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
+import PropTypes from 'prop-types';
 
 import { updateDimensionsActiveType } from './action-types';
 
@@ -18,6 +19,14 @@ export type DimensionsInfo = {|
   bottomInset: number,
   tabBarHeight: number,
 |};
+
+const dimensionsInfoPropType = PropTypes.exact({
+  height: PropTypes.number.isRequired,
+  width: PropTypes.number.isRequired,
+  topInset: PropTypes.number.isRequired,
+  bottomInset: PropTypes.number.isRequired,
+  tabBarHeight: PropTypes.number.isRequired,
+});
 
 type Metrics = {|
   +frame: {| +x: number, +y: number, +width: number, +height: number |},
@@ -61,4 +70,4 @@ function DimensionsUpdater() {
   return null;
 }
 
-export { defaultDimensionsInfo, DimensionsUpdater };
+export { dimensionsInfoPropType, defaultDimensionsInfo, DimensionsUpdater };

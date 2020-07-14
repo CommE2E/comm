@@ -1,7 +1,6 @@
 // @flow
 
 import type { ViewStyle, TextStyle } from '../types/styles';
-import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 import type { AppState } from '../redux/redux-setup';
 import type { LayoutEvent } from '../types/react-native';
 
@@ -22,7 +21,6 @@ import invariant from 'invariant';
 
 import { connect } from 'lib/utils/redux-utils';
 
-import { dimensionsSelector } from '../selectors/dimension-selectors';
 import { type Colors, colorsPropType, colorsSelector } from '../themes/colors';
 
 type Props<T> = {|
@@ -97,7 +95,7 @@ type Props<T> = {|
   defaultInputWidth: number,
   innerRef?: (tagInput: ?TagInput<T>) => void,
   // Redux state
-  dimensions: Dimensions,
+  windowWidth: number,
   colors: Colors,
 |};
 type State = {|
@@ -124,7 +122,7 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
     onHeightChange: PropTypes.func,
     defaultInputWidth: PropTypes.number,
     innerRef: PropTypes.func,
-    dimensions: dimensionsPropType.isRequired,
+    windowWidth: PropTypes.number.isRequired,
     colors: colorsPropType.isRequired,
   };
   // scroll to bottom
@@ -147,7 +145,7 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
       wrapperHeight: 30,
       // was wrapperHeight: 36,
       contentHeight: 0,
-      wrapperWidth: props.dimensions.width,
+      wrapperWidth: props.windowWidth,
       spaceLeft: 0,
     };
   }
@@ -490,6 +488,6 @@ const styles = StyleSheet.create({
 });
 
 export default connect((state: AppState) => ({
-  dimensions: dimensionsSelector(state),
+  windowWidth: state.dimensions.width,
   colors: colorsSelector(state),
 }))(TagInput);

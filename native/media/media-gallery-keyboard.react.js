@@ -1,11 +1,11 @@
 // @flow
 
 import type { AppState } from '../redux/redux-setup';
+import type { MediaLibrarySelection } from 'lib/types/media-types';
 import {
-  type Dimensions,
-  dimensionsPropType,
-  type MediaLibrarySelection,
-} from 'lib/types/media-types';
+  type DimensionsInfo,
+  dimensionsInfoPropType,
+} from '../redux/dimensions-updater.react';
 import type { ViewToken, LayoutEvent } from '../types/react-native';
 import type { ViewStyle } from '../types/styles';
 
@@ -29,7 +29,6 @@ import { connect } from 'lib/utils/redux-utils';
 import { extensionFromFilename } from 'lib/media/file-utils';
 
 import { store } from '../redux/redux-setup';
-import { dimensionsSelector } from '../selectors/dimension-selectors';
 import MediaGalleryMedia from './media-gallery-media.react';
 import {
   type Colors,
@@ -48,8 +47,7 @@ const animationSpec = {
 
 type Props = {|
   // Redux state
-  screenDimensions: Dimensions,
-  bottomInset: number,
+  dimensions: DimensionsInfo,
   foreground: boolean,
   colors: Colors,
   styles: typeof styles,
@@ -62,13 +60,11 @@ type State = {|
   cursor: ?string,
   queuedMediaURIs: ?Set<string>,
   focusedMediaURI: ?string,
-  screenWidth: number,
-  bottomInset: number,
+  dimensions: DimensionsInfo,
 |};
 class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
   static propTypes = {
-    screenDimensions: dimensionsPropType.isRequired,
-    bottomInset: PropTypes.number.isRequired,
+    dimensions: dimensionsInfoPropType.isRequired,
     foreground: PropTypes.bool.isRequired,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
@@ -98,19 +94,14 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
       cursor: undefined,
       queuedMediaURIs: null,
       focusedMediaURI: null,
-      screenWidth: props.screenDimensions.width,
-      bottomInset: props.bottomInset,
+      dimensions: props.dimensions,
     };
   }
 
   static getDerivedStateFromProps(props: Props) {
-    // We keep these in this.state since that's what we pass in as
-    // FlatList's extraData
-    const {
-      bottomInset,
-      screenDimensions: { width },
-    } = props;
-    return { bottomInset, screenWidth: width };
+    // We keep this in state since we pass this.state as
+    // FlatList's extraData prop
+    return { dimensions: props.dimensions };
   }
 
   componentDidMount() {
@@ -331,9 +322,8 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
         sendMedia={this.sendSingleMedia}
         isFocused={this.state.focusedMediaURI === uri}
         setFocus={this.setFocus}
-        screenWidth={this.state.screenWidth}
+        dimensions={this.state.dimensions}
         colors={this.props.colors}
-        bottomInset={this.state.bottomInset}
       />
     );
   };
@@ -350,7 +340,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     let content;
     const { selections, error, containerHeight } = this.state;
     const bottomOffsetStyle = {
-      marginBottom: this.props.bottomInset,
+      marginBottom: this.props.dimensions.bottomInset,
     };
     if (selections && selections.length > 0 && containerHeight) {
       content = (
@@ -392,7 +382,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     const { queuedMediaURIs } = this.state;
     const queueCount = queuedMediaURIs ? queuedMediaURIs.size : 0;
     const bottomInset = Platform.select({
-      ios: -1 * this.props.bottomInset,
+      ios: -1 * this.props.dimensions.bottomInset,
       default: 0,
     });
     const containerStyle = { bottom: bottomInset };
@@ -554,8 +544,7 @@ const styles = {
 const stylesSelector = styleSelector(styles);
 
 const ReduxConnectedMediaGalleryKeyboard = connect((state: AppState) => ({
-  screenDimensions: dimensionsSelector(state),
-  bottomInset: state.dimensions.bottomInset,
+  dimensions: state.dimensions,
   foreground: state.foreground,
   colors: colorsSelector(state),
   styles: stylesSelector(state),

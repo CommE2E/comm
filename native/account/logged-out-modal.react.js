@@ -6,7 +6,10 @@ import type { AppState } from '../redux/redux-setup';
 import type { KeyboardEvent, EmitterSubscription } from '../keyboard/keyboard';
 import type { LogInState } from './log-in-panel.react';
 import type { RegisterState } from './register-panel.react';
-import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
+import {
+  type DimensionsInfo,
+  dimensionsInfoPropType,
+} from '../redux/dimensions-updater.react';
 import type { ImageStyle } from '../types/styles';
 
 import * as React from 'react';
@@ -39,7 +42,6 @@ import {
 import { connect } from 'lib/utils/redux-utils';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
 
-import { dimensionsSelector } from '../selectors/dimension-selectors';
 import LogInPanelContainer from './log-in-panel-container.react';
 import RegisterPanel from './register-panel.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
@@ -81,8 +83,7 @@ type Props = {
   cookie: ?string,
   urlPrefix: string,
   loggedIn: boolean,
-  dimensions: Dimensions,
-  topInset: number,
+  dimensions: DimensionsInfo,
   splashStyle: ImageStyle,
   // Redux dispatch functions
   dispatch: Dispatch,
@@ -108,8 +109,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     cookie: PropTypes.string,
     urlPrefix: PropTypes.string.isRequired,
     loggedIn: PropTypes.bool.isRequired,
-    dimensions: dimensionsPropType.isRequired,
-    topInset: PropTypes.number.isRequired,
+    dimensions: dimensionsInfoPropType.isRequired,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
@@ -313,9 +313,10 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   calculatePanelPaddingTop(mode: LoggedOutMode, keyboardHeight: number) {
     const {
-      dimensions: { height: windowHeight },
+      height: windowHeight,
       topInset,
-    } = this.props;
+      bottomInset,
+    } = this.props.dimensions;
     let containerSize = Platform.OS === 'ios' ? 62.33 : 58.54; // header height
     if (mode === 'log-in') {
       // We need to make space for the reset password button on smaller devices
@@ -330,17 +331,19 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       // and I'm not sure how to get AutoLayout to behave consistently with Yoga
       containerSize += DeviceInfo.getConstants().isIPhoneX_deprecated ? 50 : 61;
     }
-    const contentHeight = windowHeight - topInset;
-    return (contentHeight - containerSize - keyboardHeight) / 2;
+    const contentHeight = windowHeight - bottomInset - topInset;
+    return (contentHeight - keyboardHeight - containerSize) / 2;
   }
 
   calculateFooterPaddingTop(keyboardHeight: number) {
-    const windowHeight = this.props.dimensions.height;
+    const {
+      height: windowHeight,
+      topInset,
+      bottomInset,
+    } = this.props.dimensions;
+    const contentHeight = windowHeight - bottomInset - topInset;
     const textHeight = Platform.OS === 'ios' ? 17 : 19;
-    if (DeviceInfo.getConstants().isIPhoneX_deprecated) {
-      keyboardHeight -= 34;
-    }
-    return windowHeight - keyboardHeight - textHeight - 15;
+    return contentHeight - keyboardHeight - textHeight - 15;
   }
 
   animateToSecondMode(
@@ -399,12 +402,20 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     if (this.expectingKeyboardToAppear) {
       this.expectingKeyboardToAppear = false;
     }
+    const keyboardHeight = Platform.select({
+      // Android doesn't include the bottomInset in this height measurement
+      android: event.endCoordinates.height,
+      default: Math.max(
+        event.endCoordinates.height - this.props.dimensions.bottomInset,
+        0,
+      ),
+    });
     if (!this.activeKeyboard) {
       // We do this because the Android keyboard can change in height and we
       // don't want to bother moving the panel between those events
-      this.keyboardHeight = event.endCoordinates.height;
+      this.keyboardHeight = keyboardHeight;
     }
-    this.animateToSecondMode(event.duration, event.endCoordinates.height);
+    this.animateToSecondMode(event.duration, keyboardHeight);
     if (!this.activeKeyboard) {
       this.opacityChangeQueued = false;
     }
@@ -737,8 +748,7 @@ export default connectNav((context: ?NavContextType) => ({
       cookie: state.cookie,
       urlPrefix: state.urlPrefix,
       loggedIn: isLoggedIn(state),
-      dimensions: dimensionsSelector(state),
-      topInset: state.dimensions.topInset,
+      dimensions: state.dimensions,
       splashStyle: splashStyleSelector(state),
     }),
     null,

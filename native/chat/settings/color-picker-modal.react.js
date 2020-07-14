@@ -8,7 +8,6 @@ import {
   type ChangeThreadSettingsResult,
   type UpdateThreadRequest,
 } from 'lib/types/thread-types';
-import { type Dimensions, dimensionsPropType } from 'lib/types/media-types';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react';
 import type { NavigationRoute } from '../../navigation/route-names';
 
@@ -31,7 +30,6 @@ import {
   colorsSelector,
   styleSelector,
 } from '../../themes/colors';
-import { dimensionsSelector } from '../../selectors/dimension-selectors';
 
 export type ColorPickerModalParams = {|
   presentedFrom: string,
@@ -46,7 +44,7 @@ type Props = {|
   // Redux state
   colors: Colors,
   styles: typeof styles,
-  screenDimensions: Dimensions,
+  windowWidth: number,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -68,7 +66,7 @@ class ColorPickerModal extends React.PureComponent<Props> {
     }).isRequired,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    screenDimensions: dimensionsPropType.isRequired,
+    windowWidth: PropTypes.number.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     changeThreadSettings: PropTypes.func.isRequired,
   };
@@ -77,7 +75,7 @@ class ColorPickerModal extends React.PureComponent<Props> {
     const { color, threadInfo } = this.props.route.params;
     // Based on the assumption we are always in portrait,
     // and consequently width is the lowest dimensions
-    const modalStyle = { height: this.props.screenDimensions.width - 5 };
+    const modalStyle = { height: this.props.windowWidth - 5 };
     return (
       <Modal
         navigation={this.props.navigation}
@@ -178,7 +176,7 @@ export default connect(
   (state: AppState) => ({
     colors: colorsSelector(state),
     styles: stylesSelector(state),
-    screenDimensions: dimensionsSelector(state),
+    windowWidth: state.dimensions.width,
   }),
   { changeThreadSettings },
 )(ColorPickerModal);
