@@ -9,6 +9,10 @@ import type { TabNavigationProp } from '../navigation/app-navigator.react';
 import type { ChatMessageItemWithHeight } from './message-list-container.react';
 import type { ViewStyle } from '../types/styles';
 import type { AppState } from '../redux/redux-setup';
+import {
+  type KeyboardState,
+  withKeyboardState,
+} from '../keyboard/keyboard-state';
 
 import * as React from 'react';
 import {
@@ -17,6 +21,8 @@ import {
   Animated,
   Easing,
   StyleSheet,
+  TouchableWithoutFeedback,
+  View,
 } from 'react-native';
 import invariant from 'invariant';
 import _sum from 'lodash/fp/sum';
@@ -55,6 +61,8 @@ type Props = {
   data: $ReadOnlyArray<ChatMessageItemWithHeight>,
   // Redux state
   viewerID: ?string,
+  // withKeyboardState
+  keyboardState: ?KeyboardState,
 };
 type State = {|
   newMessageCount: number,
@@ -208,22 +216,24 @@ class ChatList extends React.PureComponent<Props, State> {
     const { navigation, viewerID, ...rest } = this.props;
     const { newMessageCount } = this.state;
     return (
-      <>
-        <FlatList
-          {...rest}
-          keyExtractor={chatMessageItemKey}
-          getItemLayout={ChatList.getItemLayout}
-          onScroll={this.onScroll}
-          ref={this.flatListRef}
-        />
-        <NewMessagesPill
-          onPress={this.onPressNewMessagesPill}
-          newMessageCount={newMessageCount}
-          pointerEvents={newMessageCount > 0 ? 'auto' : 'none'}
-          containerStyle={styles.newMessagesPillContainer}
-          style={this.newMessagesPillStyle}
-        />
-      </>
+      <TouchableWithoutFeedback onPress={this.onPressBackground}>
+        <View style={styles.container}>
+          <FlatList
+            {...rest}
+            keyExtractor={chatMessageItemKey}
+            getItemLayout={ChatList.getItemLayout}
+            onScroll={this.onScroll}
+            ref={this.flatListRef}
+          />
+          <NewMessagesPill
+            onPress={this.onPressNewMessagesPill}
+            newMessageCount={newMessageCount}
+            pointerEvents={newMessageCount > 0 ? 'auto' : 'none'}
+            containerStyle={styles.newMessagesPillContainer}
+            style={this.newMessagesPillStyle}
+          />
+        </View>
+      </TouchableWithoutFeedback>
     );
   }
 
@@ -284,9 +294,17 @@ class ChatList extends React.PureComponent<Props, State> {
     flatList.scrollToOffset({ offset: 0 });
     this.toggleNewMessagesPill(false);
   };
+
+  onPressBackground = () => {
+    const { keyboardState } = this.props;
+    keyboardState && keyboardState.dismissKeyboard();
+  };
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   newMessagesPillContainer: {
     bottom: 30,
     position: 'absolute',
@@ -296,4 +314,4 @@ const styles = StyleSheet.create({
 
 export default connect((state: AppState) => ({
   viewerID: state.currentUserInfo && state.currentUserInfo.id,
-}))(ChatList);
+}))(withKeyboardState(ChatList));
