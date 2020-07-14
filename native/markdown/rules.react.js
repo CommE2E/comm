@@ -6,6 +6,7 @@ import type { MarkdownStyles } from './styles';
 import * as React from 'react';
 import { Text, Linking } from 'react-native';
 import * as SimpleMarkdown from 'simple-markdown';
+import invariant from 'invariant';
 
 export default function rules(styles: StyleSheetOf<MarkdownStyles>) {
   return {
@@ -32,9 +33,12 @@ export default function rules(styles: StyleSheetOf<MarkdownStyles>) {
         const onPressLink = () => {
           Linking.openURL(node.target);
         };
+        state.linkPresent = true;
+        const innerNode = output(node.content, state);
+        state.linkPresent = false;
         return (
-          <Text key={state.key} style={styles.link} onPress={onPressLink}>
-            {output(node.content, state)}
+          <Text key={state.key} onPress={onPressLink}>
+            {innerNode}
           </Text>
         );
       },
@@ -45,7 +49,7 @@ export default function rules(styles: StyleSheetOf<MarkdownStyles>) {
       ...SimpleMarkdown.defaultRules.paragraph,
       // simple-markdown collapses multiple newlines into one, but we want to
       // preserve the newlines
-      match: SimpleMarkdown.anyScopeRegex(/^((?:[^\n]|\n(?! *\n))+)(?:\n *)\n/),
+      match: SimpleMarkdown.blockRegex(/^([^\n]+)(\n|$)/),
       // eslint-disable-next-line react/display-name
       react: (
         node: SimpleMarkdown.SingleASTNode,
@@ -66,14 +70,29 @@ export default function rules(styles: StyleSheetOf<MarkdownStyles>) {
         output: SimpleMarkdown.Output<string>,
         state: SimpleMarkdown.State,
       ) {
-        if (state.emojiOnly) {
-          return (
-            <Text key={state.key} style={styles.emojiOnlyText}>
-              {node.content}
-            </Text>
+        const { textStyle } = state;
+        invariant(
+          textStyle && typeof textStyle === 'object',
+          `state passed to Markdown output should have object textStyle`,
+        );
+
+        const style = [textStyle];
+        if (state.linkPresent) {
+          style.push(styles.link);
+        } else if (state.emojiOnly) {
+          const { fontSize } = textStyle;
+          invariant(
+            fontSize,
+            `textStyle should have fontSize if using emojiOnly`,
           );
+          style.push({ fontSize: fontSize * 2 });
         }
-        return <React.Fragment key={state.key}>{node.content}</React.Fragment>;
+
+        return (
+          <Text key={state.key} style={style}>
+            {node.content}
+          </Text>
+        );
       },
     },
   };
