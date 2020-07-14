@@ -28,7 +28,6 @@ import {
   Keyboard,
   TouchableHighlight,
   Easing,
-  DeviceInfo,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import invariant from 'invariant';
@@ -451,9 +450,7 @@ class VerificationModal extends React.PureComponent<Props, State> {
     }
     const padding = { paddingTop: this.state.paddingTop };
     const animatedContent = (
-      <Animated.View style={[styles.animationContainer, padding]}>
-        {content}
-      </Animated.View>
+      <Animated.View style={padding}>{content}</Animated.View>
     );
     return (
       <React.Fragment>
@@ -470,22 +467,14 @@ class VerificationModal extends React.PureComponent<Props, State> {
   }
 }
 
-const closeButtonTop =
-  Platform.OS === 'ios'
-    ? DeviceInfo.getConstants().isIPhoneX_deprecated
-      ? 49
-      : 25
-    : 15;
-
 const styles = StyleSheet.create({
-  animationContainer: {},
   closeButton: {
     backgroundColor: '#D0D0D055',
     borderRadius: 3,
     height: 36,
     position: 'absolute',
     right: 15,
-    top: closeButtonTop,
+    top: 15,
     width: 36,
   },
   closeButtonIcon: {
