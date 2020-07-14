@@ -746,13 +746,13 @@ class Calendar extends React.PureComponent<Props, State> {
     const disableInputBar = this.state.currentlyEditing.length === 0;
     return (
       <>
-        <DisconnectedBar visible={this.props.calendarActive} />
         <TextHeightMeasurer
           textToMeasure={this.state.textToMeasure}
           allHeightsMeasuredCallback={this.allHeightsMeasured}
           style={[entryStyles.entry, entryStyles.text]}
         />
         <SafeAreaView style={this.props.styles.container} edges={safeAreaEdges}>
+          <DisconnectedBar visible={this.props.calendarActive} />
           {loadingIndicator}
           {flatList}
         </SafeAreaView>
