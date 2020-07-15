@@ -390,13 +390,15 @@ class InternalEntry extends React.Component<Props, State> {
             androidFormat="opacity"
             iosActiveOpacity={opacity}
           >
-            <View>
-              <View style={[heightStyle, this.props.styles.textContainer]} />
+            <View style={heightStyle} />
+            <View style={this.props.styles.textContainer}>
               <Text
                 style={[this.props.styles.text, textStyle]}
                 onLayout={this.onTextLayout}
               >
-                <Markdown darkStyle={darkColor}>{rawText}</Markdown>
+                <Markdown textStyle={textStyle} useDarkStyle={darkColor}>
+                  {rawText}
+                </Markdown>
               </Text>
               {textInput}
             </View>

@@ -100,6 +100,11 @@ class RobotextMessage extends React.PureComponent<Props> {
     const robotext = item.robotext;
     const robotextParts = splitRobotext(robotext);
     const textParts = [];
+    const textStyle = [
+      this.props.styles.robotext,
+      { height: item.contentHeight },
+    ];
+    let keyIndex = 0;
     for (let splitPart of robotextParts) {
       if (splitPart === '') {
         continue;
@@ -107,8 +112,9 @@ class RobotextMessage extends React.PureComponent<Props> {
       if (splitPart.charAt(0) !== '<') {
         textParts.push(
           <Markdown
-            key={robotextParts.indexOf(splitPart)}
-            darkStyle={true}
+            textStyle={textStyle}
+            key={`text${keyIndex++}`}
+            useDarkStyle={true}
             onlyBasicRules={true}
           >
             {decodeURI(splitPart)}
@@ -134,10 +140,6 @@ class RobotextMessage extends React.PureComponent<Props> {
         textParts.push(rawText);
       }
     }
-    const textStyle = [
-      this.props.styles.robotext,
-      { height: item.contentHeight },
-    ];
     return (
       <View style={this.props.styles.robotextContainer}>
         <Text style={textStyle}>{textParts}</Text>
