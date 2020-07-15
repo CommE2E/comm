@@ -193,7 +193,7 @@ function RootRouter(
           accountModals.includes(lastRouteName) &&
           !accountModals.includes(newRouteName)
         ) {
-          return lastState;
+          return null;
         }
         return newState;
       }
