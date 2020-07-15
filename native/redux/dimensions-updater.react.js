@@ -10,6 +10,12 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import PropTypes from 'prop-types';
+import {
+  addKeyboardShowListener,
+  addKeyboardDismissListener,
+  removeKeyboardListener,
+  androidKeyboardResizesFrame,
+} from '../keyboard/keyboard';
 
 import { updateDimensionsActiveType } from './action-types';
 
@@ -36,8 +42,8 @@ function dimensionsUpdateFromMetrics(metrics: Metrics): $Shape<DimensionsInfo> {
   return {
     height: metrics.frame.height,
     width: metrics.frame.width,
-    topInset: metrics.insets.top,
-    bottomInset: metrics.insets.bottom,
+    topInset: androidKeyboardResizesFrame ? 0 : metrics.insets.top,
+    bottomInset: androidKeyboardResizesFrame ? 0 : metrics.insets.bottom,
   };
 }
 
@@ -53,7 +59,30 @@ function DimensionsUpdater() {
   const frame = useSafeAreaFrame();
   const insets = useSafeAreaInsets();
 
+  const keyboardShowingRef = React.useRef();
+  const keyboardShow = React.useCallback(() => {
+    keyboardShowingRef.current = true;
+  }, []);
+  const keyboardDismiss = React.useCallback(() => {
+    keyboardShowingRef.current = false;
+  }, []);
   React.useEffect(() => {
+    if (!androidKeyboardResizesFrame) {
+      return;
+    }
+    const showListener = addKeyboardShowListener(keyboardShow);
+    const dismissListener = addKeyboardDismissListener(keyboardDismiss);
+    return () => {
+      removeKeyboardListener(showListener);
+      removeKeyboardListener(dismissListener);
+    };
+  }, [keyboardShow, keyboardDismiss]);
+  const keyboardShowing = keyboardShowingRef.current;
+
+  React.useEffect(() => {
+    if (keyboardShowing) {
+      return;
+    }
     const updates = dimensionsUpdateFromMetrics({ frame, insets });
     for (let key in updates) {
       if (updates[key] === dimensions[key]) {
@@ -65,7 +94,7 @@ function DimensionsUpdater() {
       });
       return;
     }
-  }, [dimensions, dispatch, frame, insets]);
+  }, [keyboardShowing, dimensions, dispatch, frame, insets]);
 
   return null;
 }
