@@ -62,7 +62,7 @@ export default function rules(styles: StyleSheetOf<MarkdownStyles>) {
           // differently than it renders a single Text that contains those empty
           // lines within it. We render this space to make sure it renders as if
           // it were a single Text node
-          innerNode = ' ';
+          innerNode = <Text style={state.textStyle}> </Text>;
         }
         return (
           <Text key={state.key} style={styles.paragraph}>
