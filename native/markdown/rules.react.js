@@ -8,6 +8,8 @@ import { Text, Linking } from 'react-native';
 import * as SimpleMarkdown from 'simple-markdown';
 import invariant from 'invariant';
 
+import { urlRegex } from 'lib/shared/markdown';
+
 export default function rules(styles: StyleSheetOf<MarkdownStyles>) {
   return {
     // Matches '<https://google.com>' during parse phase and returns a 'link'
@@ -17,9 +19,7 @@ export default function rules(styles: StyleSheetOf<MarkdownStyles>) {
     url: {
       ...SimpleMarkdown.defaultRules.url,
       // simple-markdown is case-sensitive, but we don't want to be
-      match: SimpleMarkdown.inlineRegex(
-        /^(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/i,
-      ),
+      match: SimpleMarkdown.inlineRegex(urlRegex),
     },
     // Matches '[Google](https://google.com)' during parse phase and handles
     // rendering all 'link' nodes, including for 'autolink' and 'url'
@@ -49,17 +49,27 @@ export default function rules(styles: StyleSheetOf<MarkdownStyles>) {
       ...SimpleMarkdown.defaultRules.paragraph,
       // simple-markdown collapses multiple newlines into one, but we want to
       // preserve the newlines
-      match: SimpleMarkdown.blockRegex(/^([^\n]+)(\n|$)/),
+      match: SimpleMarkdown.blockRegex(/^([^\n]*)(?:\n|$)/),
       // eslint-disable-next-line react/display-name
       react: (
         node: SimpleMarkdown.SingleASTNode,
         output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
         state: SimpleMarkdown.State,
-      ) => (
-        <Text key={state.key} style={styles.paragraph}>
-          {output(node.content, state)}
-        </Text>
-      ),
+      ) => {
+        let innerNode = output(node.content, state);
+        if (Array.isArray(innerNode) && innerNode.length === 0) {
+          // React Native renders multiple empty lines within their own Text
+          // differently than it renders a single Text that contains those empty
+          // lines within it. We render this space to make sure it renders as if
+          // it were a single Text node
+          innerNode = ' ';
+        }
+        return (
+          <Text key={state.key} style={styles.paragraph}>
+            {innerNode}
+          </Text>
+        );
+      },
     },
     // This is the leaf node in the AST returned by the parse phase. We handle
     // rendering emoji as a different size here
