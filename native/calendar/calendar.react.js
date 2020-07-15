@@ -749,7 +749,7 @@ class Calendar extends React.PureComponent<Props, State> {
         <TextHeightMeasurer
           textToMeasure={this.state.textToMeasure}
           allHeightsMeasuredCallback={this.allHeightsMeasured}
-          style={[entryStyles.entry, entryStyles.text]}
+          style={entryStyles.textMeasurement}
         />
         <SafeAreaView style={this.props.styles.container} edges={safeAreaEdges}>
           <DisconnectedBar visible={this.props.calendarActive} />

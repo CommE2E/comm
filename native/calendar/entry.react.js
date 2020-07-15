@@ -370,11 +370,11 @@ class InternalEntry extends React.Component<Props, State> {
     if (rawText === '' || rawText.slice(-1) === '\n') {
       rawText += ' ';
     }
-    const textStyle = {};
-    textStyle.color = textColor;
-    if (textInput) {
-      textStyle.opacity = 0;
-    }
+    const textStyle = {
+      ...this.props.styles.text,
+      color: textColor,
+      opacity: textInput ? 0 : 1,
+    };
     // We use an empty View to set the height of the entry, and then position
     // the Text and TextInput absolutely. This allows to measure height changes
     // to the Text while controlling the actual height of the entry.
@@ -390,16 +390,16 @@ class InternalEntry extends React.Component<Props, State> {
             androidFormat="opacity"
             iosActiveOpacity={opacity}
           >
-            <View style={heightStyle} />
-            <View style={this.props.styles.textContainer}>
-              <Text
-                style={[this.props.styles.text, textStyle]}
-                onLayout={this.onTextLayout}
+            <View>
+              <View style={heightStyle} />
+              <View
+                style={this.props.styles.textContainer}
+                onLayout={this.onTextContainerLayout}
               >
                 <Markdown textStyle={textStyle} useDarkStyle={darkColor}>
                   {rawText}
                 </Markdown>
-              </Text>
+              </View>
               {textInput}
             </View>
             {actionLinks}
@@ -472,7 +472,7 @@ class InternalEntry extends React.Component<Props, State> {
     this.dispatchSave(this.props.entryInfo.id, this.state.text);
   };
 
-  onTextLayout = (event: LayoutEvent) => {
+  onTextContainerLayout = (event: LayoutEvent) => {
     this.guardedSetState({
       height: Math.ceil(event.nativeEvent.layout.height),
     });
@@ -653,6 +653,22 @@ class InternalEntry extends React.Component<Props, State> {
   };
 }
 
+const textStyle = {
+  fontFamily: 'System',
+  fontSize: 16,
+};
+const textPadding = {
+  paddingBottom: 6,
+  paddingLeft: 10,
+  paddingRight: 10,
+  paddingTop: 5,
+};
+const entryStyle = {
+  borderRadius: 8,
+  margin: 5,
+  overflow: 'hidden',
+};
+
 const styles = {
   actionLinks: {
     flex: 1,
@@ -670,11 +686,7 @@ const styles = {
   container: {
     backgroundColor: 'listBackground',
   },
-  entry: {
-    borderRadius: 8,
-    margin: 5,
-    overflow: 'hidden',
-  },
+  entry: entryStyle,
   leftLinks: {
     flex: 1,
     flexDirection: 'row',
@@ -700,19 +712,16 @@ const styles = {
     fontSize: 12,
     fontWeight: 'bold',
   },
-  text: {
-    fontFamily: 'System',
-    fontSize: 16,
-    paddingBottom: 6,
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingTop: 5,
-  },
+  text: textStyle,
   textContainer: {
-    margin: 0,
-    padding: 0,
     position: 'absolute',
     top: 0,
+    ...textPadding,
+  },
+  textMeasurement: {
+    ...textPadding,
+    ...textStyle,
+    ...entryStyle,
   },
   textInput: {
     fontFamily: 'System',
