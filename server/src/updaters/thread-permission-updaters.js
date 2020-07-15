@@ -492,43 +492,33 @@ async function commitMembershipChangeset(
     throw new ServerError('not_logged_in');
   }
 
-  const threadMembershipCreationPairs = new Set();
-  const threadMembershipDeletionPairs = new Set();
+  const membershipRowMap = new Map();
   for (let row of changeset) {
     const { userID, threadID } = row;
     changedThreadIDs.add(threadID);
 
     const pairString = `${userID}|${threadID}`;
-    if (row.operation === 'join') {
-      threadMembershipCreationPairs.add(pairString);
-    } else if (row.operation === 'delete') {
-      threadMembershipDeletionPairs.add(pairString);
+    const existing = membershipRowMap.get(pairString);
+    if (
+      !existing ||
+      (existing.operation !== 'join' &&
+        (row.operation === 'join' ||
+          (row.operation === 'delete' && existing.operation === 'update')))
+    ) {
+      membershipRowMap.set(pairString, row);
     }
   }
 
-  const toJoin = [],
-    toUpdate = [],
+  const toSave = [],
     toDelete = [];
-  for (let row of changeset) {
-    if (row.operation === 'join') {
-      toJoin.push(row);
-    } else if (row.operation === 'delete') {
+  for (let row of membershipRowMap.values()) {
+    if (row.operation === 'delete') {
       toDelete.push(row);
-    } else if (row.operation === 'update') {
-      const { userID, threadID } = row;
-      const pairString = `${userID}|${threadID}`;
-      if (
-        !threadMembershipCreationPairs.has(pairString) &&
-        !threadMembershipDeletionPairs.has(pairString)
-      ) {
-        toUpdate.push(row);
-      }
+    } else {
+      toSave.push(row);
     }
   }
-  await Promise.all([
-    saveMemberships([...toJoin, ...toUpdate]),
-    deleteMemberships(toDelete),
-  ]);
+  await Promise.all([saveMemberships(toSave), deleteMemberships(toDelete)]);
 
   const serverThreadInfoFetchResult = await fetchServerThreadInfos(
     SQL`t.id IN (${[...changedThreadIDs]})`,
@@ -541,10 +531,8 @@ async function commitMembershipChangeset(
     const serverThreadInfo = serverThreadInfos[changedThreadID];
     for (let memberInfo of serverThreadInfo.members) {
       const pairString = `${memberInfo.id}|${serverThreadInfo.id}`;
-      if (
-        threadMembershipCreationPairs.has(pairString) ||
-        threadMembershipDeletionPairs.has(pairString)
-      ) {
+      const membershipRow = membershipRowMap.get(pairString);
+      if (membershipRow && membershipRow.operation !== 'update') {
         continue;
       }
       updateDatas.push({
@@ -555,23 +543,23 @@ async function commitMembershipChangeset(
       });
     }
   }
-  for (let pair of threadMembershipCreationPairs) {
-    const [userID, threadID] = pair.split('|');
-    updateDatas.push({
-      type: updateTypes.JOIN_THREAD,
-      userID,
-      time,
-      threadID,
-    });
-  }
-  for (let pair of threadMembershipDeletionPairs) {
-    const [userID, threadID] = pair.split('|');
-    updateDatas.push({
-      type: updateTypes.DELETE_THREAD,
-      userID,
-      time,
-      threadID,
-    });
+  for (let row of membershipRowMap.values()) {
+    const { userID, threadID } = row;
+    if (row.operation === 'join') {
+      updateDatas.push({
+        type: updateTypes.JOIN_THREAD,
+        userID,
+        time,
+        threadID,
+      });
+    } else if (row.operation === 'delete') {
+      updateDatas.push({
+        type: updateTypes.DELETE_THREAD,
+        userID,
+        time,
+        threadID,
+      });
+    }
   }
 
   const threadInfoFetchResult = rawThreadInfosFromServerThreadInfos(
