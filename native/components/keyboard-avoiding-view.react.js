@@ -171,9 +171,12 @@ class InnerKeyboardAvoidingView extends React.PureComponent<Props, State> {
       const composedStyle = StyleSheet.compose(contentContainerStyle, {
         bottom,
       });
+      const { pointerEvents } = props;
       return (
         <View style={style} onLayout={this.onLayout} {...props}>
-          <View style={composedStyle}>{children}</View>
+          <View style={composedStyle} pointerEvents={pointerEvents}>
+            {children}
+          </View>
         </View>
       );
     } else if (behavior === 'padding') {
