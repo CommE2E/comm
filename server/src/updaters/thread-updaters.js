@@ -438,30 +438,22 @@ async function updateThread(
   } = await promiseAll(savePromises);
 
   const changeset = [];
-  if (recalculatePermissionsChangeset && newMemberIDs) {
-    changeset.push(
-      ...recalculatePermissionsChangeset.filter(
-        rowToSave => !newMemberIDs.includes(rowToSave.userID),
-      ),
-    );
-  } else if (recalculatePermissionsChangeset) {
+  if (recalculatePermissionsChangeset) {
     changeset.push(...recalculatePermissionsChangeset);
   }
   if (addMembersChangeset) {
-    for (let rowToSave of addMembersChangeset) {
-      if (rowToSave.operation === 'delete') {
-        changeset.push(rowToSave);
-        continue;
-      }
-      if (
-        rowToSave.operation === 'join' &&
-        (rowToSave.userID !== viewer.userID ||
-          rowToSave.threadID !== request.threadID)
-      ) {
-        rowToSave.unread = true;
-      }
-      changeset.push(rowToSave);
-    }
+    changeset.push(
+      addMembersChangeset.map(rowToSave => {
+        if (
+          rowToSave.operation === 'join' &&
+          (rowToSave.userID !== viewer.userID ||
+            rowToSave.threadID !== request.threadID)
+        ) {
+          rowToSave.unread = true;
+        }
+        return rowToSave;
+      }),
+    );
   }
 
   const time = Date.now();

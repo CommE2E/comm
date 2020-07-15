@@ -99,12 +99,7 @@ async function createThread(
   const initialMemberAndCreatorIDs = initialMemberIDs
     ? [...initialMemberIDs, viewer.userID]
     : [viewer.userID];
-  const changeset = [
-    ...creatorChangeset,
-    ...recalculatePermissionsChangeset.filter(
-      rowToSave => !initialMemberAndCreatorIDs.includes(rowToSave.userID),
-    ),
-  ];
+  const changeset = [...creatorChangeset, ...recalculatePermissionsChangeset];
   if (initialMemberIDs && initialMemberIDs.length > 0) {
     if (!initialMembersChangeset) {
       throw new ServerError('unknown_error');

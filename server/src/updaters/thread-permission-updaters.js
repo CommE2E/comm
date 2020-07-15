@@ -492,42 +492,47 @@ async function commitMembershipChangeset(
     throw new ServerError('not_logged_in');
   }
 
+  const threadMembershipCreationPairs = new Set();
+  const threadMembershipDeletionPairs = new Set();
+  for (let row of changeset) {
+    const { userID, threadID } = row;
+    changedThreadIDs.add(threadID);
+
+    const pairString = `${userID}|${threadID}`;
+    if (row.operation === 'join') {
+      threadMembershipCreationPairs.add(pairString);
+    } else if (row.operation === 'delete') {
+      threadMembershipDeletionPairs.add(pairString);
+    }
+  }
+
   const toJoin = [],
     toUpdate = [],
     toDelete = [];
   for (let row of changeset) {
     if (row.operation === 'join') {
       toJoin.push(row);
-    } else if (row.operation === 'update') {
-      toUpdate.push(row);
     } else if (row.operation === 'delete') {
       toDelete.push(row);
+    } else if (row.operation === 'update') {
+      const { userID, threadID } = row;
+      const pairString = `${userID}|${threadID}`;
+      if (
+        !threadMembershipCreationPairs.has(pairString) &&
+        !threadMembershipDeletionPairs.has(pairString)
+      ) {
+        toUpdate.push(row);
+      }
     }
   }
-
   await Promise.all([
     saveMemberships([...toJoin, ...toUpdate]),
     deleteMemberships(toDelete),
   ]);
 
-  const threadMembershipCreationPairs = new Set();
-  const threadMembershipDeletionPairs = new Set();
-  for (let rowToJoin of toJoin) {
-    const { userID, threadID } = rowToJoin;
-    changedThreadIDs.add(threadID);
-    threadMembershipCreationPairs.add(`${userID}|${threadID}`);
-  }
-  for (let rowToUpdate of toUpdate) {
-    const { threadID } = rowToUpdate;
-    changedThreadIDs.add(threadID);
-  }
-  for (let rowToDelete of toDelete) {
-    const { userID, threadID } = rowToDelete;
-    changedThreadIDs.add(threadID);
-    threadMembershipDeletionPairs.add(`${userID}|${threadID}`);
-  }
-
-  const serverThreadInfoFetchResult = await fetchServerThreadInfos();
+  const serverThreadInfoFetchResult = await fetchServerThreadInfos(
+    SQL`t.id IN (${[...changedThreadIDs]})`,
+  );
   const { threadInfos: serverThreadInfos } = serverThreadInfoFetchResult;
 
   const time = Date.now();
