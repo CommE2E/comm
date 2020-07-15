@@ -591,4 +591,24 @@ async function commitMembershipChangeset(
   };
 }
 
-export { changeRole, recalculateAllPermissions, commitMembershipChangeset };
+function setJoinsToUnread(
+  rows: Row[],
+  exceptViewerID: string,
+  exceptThreadID: string,
+) {
+  for (let row of rows) {
+    if (
+      row.operation === 'join' &&
+      (row.userID !== exceptViewerID || row.threadID !== exceptThreadID)
+    ) {
+      row.unread = true;
+    }
+  }
+}
+
+export {
+  changeRole,
+  recalculateAllPermissions,
+  commitMembershipChangeset,
+  setJoinsToUnread,
+};

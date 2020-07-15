@@ -39,6 +39,7 @@ import {
   changeRole,
   recalculateAllPermissions,
   commitMembershipChangeset,
+  setJoinsToUnread,
 } from './thread-permission-updaters';
 import createMessages from '../creators/message-creator';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
@@ -442,18 +443,8 @@ async function updateThread(
     changeset.push(...recalculatePermissionsChangeset);
   }
   if (addMembersChangeset) {
-    changeset.push(
-      addMembersChangeset.map(rowToSave => {
-        if (
-          rowToSave.operation === 'join' &&
-          (rowToSave.userID !== viewer.userID ||
-            rowToSave.threadID !== request.threadID)
-        ) {
-          rowToSave.unread = true;
-        }
-        return rowToSave;
-      }),
-    );
+    setJoinsToUnread(addMembersChangeset, viewer.userID, request.threadID);
+    changeset.push(addMembersChangeset);
   }
 
   const time = Date.now();
@@ -538,18 +529,7 @@ async function joinThread(
   if (!changeset) {
     throw new ServerError('unknown_error');
   }
-  for (let rowToSave of changeset) {
-    if (rowToSave.operation === 'delete') {
-      continue;
-    }
-    if (
-      rowToSave.operation === 'join' &&
-      (rowToSave.userID !== viewer.userID ||
-        rowToSave.threadID !== request.threadID)
-    ) {
-      rowToSave.unread = true;
-    }
-  }
+  setJoinsToUnread(changeset, viewer.userID, request.threadID);
 
   const messageData = {
     type: messageTypes.JOIN_THREAD,

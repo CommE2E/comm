@@ -21,6 +21,7 @@ import {
   changeRole,
   recalculateAllPermissions,
   commitMembershipChangeset,
+  setJoinsToUnread,
 } from '../updaters/thread-permission-updaters';
 import createMessages from './message-creator';
 
@@ -106,17 +107,7 @@ async function createThread(
     }
     changeset.push(...initialMembersChangeset);
   }
-  for (let rowToSave of changeset) {
-    if (rowToSave.operation === 'delete') {
-      continue;
-    }
-    if (
-      rowToSave.operation === 'join' &&
-      (rowToSave.userID !== viewer.userID || rowToSave.threadID !== id)
-    ) {
-      rowToSave.unread = true;
-    }
-  }
+  setJoinsToUnread(changeset, viewer.userID, id);
 
   const messageDatas = [
     {
