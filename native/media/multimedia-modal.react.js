@@ -995,8 +995,8 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   }
 
   get frame(): Dimensions {
-    const { height, width, topInset, bottomInset } = this.props.dimensions;
-    return { height, width: width - topInset - bottomInset };
+    const { width, height, topInset, bottomInset } = this.props.dimensions;
+    return { width, height: height - topInset - bottomInset };
   }
 
   get imageDimensions(): Dimensions {
