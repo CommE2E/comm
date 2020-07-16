@@ -317,11 +317,13 @@ async function updateDescendantPermissions(
             role,
           });
 
-          for (const [childUserID] of userInfos) {
-            if (childUserID !== userID) {
-              const [user1, user2] = sortIDs(childUserID, userID);
-              const status = undirectedStatus.KNOW_OF;
-              relationshipRows.push({ user1, user2, status });
+          if (!oldPermissions) {
+            for (const [childUserID] of userInfos) {
+              if (childUserID !== userID) {
+                const [user1, user2] = sortIDs(childUserID, userID);
+                const status = undirectedStatus.KNOW_OF;
+                relationshipRows.push({ user1, user2, status });
+              }
             }
           }
         } else {
@@ -682,15 +684,11 @@ function getParentThreadMembershipRowsForNewUsers(
           rowToSave.operation !== 'delete',
       ),
   );
-  const parentRelationshipRows = cartesianProduct(
-    parentMemberIDs,
-    newUserIDs,
-  ).map(pair => {
+  return cartesianProduct(parentMemberIDs, newUserIDs).map(pair => {
     const [user1, user2] = sortIDs(...pair);
     const status = undirectedStatus.KNOW_OF;
     return { user1, user2, status };
   });
-  return parentRelationshipRows;
 }
 
 export {
