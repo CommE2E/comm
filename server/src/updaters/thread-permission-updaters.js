@@ -25,6 +25,7 @@ import {
 } from 'lib/permissions/thread-permissions';
 import { sortIDs } from 'lib/shared/relationship-utils';
 import { ServerError } from 'lib/utils/errors';
+import { cartesianProduct } from 'lib/utils/array';
 
 import {
   fetchServerThreadInfos,
@@ -378,7 +379,7 @@ async function recalculateAllPermissions(
   const relationshipRows = [];
   const membershipRows = [];
   const toUpdateDescendants = new Map();
-  const parentIDs = [];
+  const parentIDs = new Set();
   const childIDs = selectResult.reduce((acc, row) => {
     if (row.user && row.role !== 0) {
       acc.push(row.user.toString());
@@ -420,9 +421,9 @@ async function recalculateAllPermissions(
       });
 
       if (!oldPermissions) {
+        parentIDs.add(userID);
         for (const childID of childIDs) {
           const [user1, user2] = sortIDs(userID, childID);
-          parentIDs.push(userID);
           relationshipRows.push({
             user1,
             user2,
@@ -452,8 +453,7 @@ async function recalculateAllPermissions(
     relationshipRows.push(
       ...descendantRelationshipRows.filter(({ user1, user2 }) => {
         return (
-          parentIDs.includes(user1.toString()) ||
-          parentIDs.includes(user2.toString())
+          parentIDs.has(user1.toString()) || parentIDs.has(user2.toString())
         );
       }),
     );
@@ -665,9 +665,38 @@ function setJoinsToUnread(
   }
 }
 
+function getParentThreadMembershipRowsForNewUsers(
+  threadID: string,
+  recalculateMembershipRows: MembershipRow[],
+  newMemberIDs: string[],
+): UndirectedRelationshipRow[] {
+  const parentMemberIDs = recalculateMembershipRows
+    .map(rowToSave => rowToSave.userID)
+    .filter(userID => !newMemberIDs.includes(userID));
+  const newUserIDs = newMemberIDs.filter(
+    memberID =>
+      !recalculateMembershipRows.find(
+        rowToSave =>
+          rowToSave.userID === memberID &&
+          rowToSave.threadID === threadID &&
+          rowToSave.operation !== 'delete',
+      ),
+  );
+  const parentRelationshipRows = cartesianProduct(
+    parentMemberIDs,
+    newUserIDs,
+  ).map(pair => {
+    const [user1, user2] = sortIDs(...pair);
+    const status = undirectedStatus.KNOW_OF;
+    return { user1, user2, status };
+  });
+  return parentRelationshipRows;
+}
+
 export {
   changeRole,
   recalculateAllPermissions,
   commitMembershipChangeset,
   setJoinsToUnread,
+  getParentThreadMembershipRowsForNewUsers,
 };

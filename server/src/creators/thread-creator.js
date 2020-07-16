@@ -131,7 +131,7 @@ async function createThread(
       relationshipRows: initialMembersRelationshipRows,
     } = initialMembersChangeset;
     membershipRows.push(...initialMembersMembershipRows);
-    relationshipRows.push(...initialMembersRelationshipRows)
+    relationshipRows.push(...initialMembersRelationshipRows);
 
     const parentMemberIDs = recalculateMembershipRows
       .map(rowToSave => rowToSave.userID)

@@ -15,14 +15,11 @@ import {
 } from 'lib/types/thread-types';
 import type { Viewer } from '../session/viewer';
 import { messageTypes, defaultNumberPerThread } from 'lib/types/message-types';
-import { undirectedStatus } from 'lib/types/relationship-types';
 
 import bcrypt from 'twin-bcrypt';
 import _find from 'lodash/fp/find';
 
-import { sortIDs } from 'lib/shared/relationship-utils';
 import { ServerError } from 'lib/utils/errors';
-import { cartesianProduct } from 'lib/utils/array';
 import { promiseAll } from 'lib/utils/promises';
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
@@ -43,6 +40,7 @@ import {
   recalculateAllPermissions,
   commitMembershipChangeset,
   setJoinsToUnread,
+  getParentThreadMembershipRowsForNewUsers,
 } from './thread-permission-updaters';
 import createMessages from '../creators/message-creator';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
@@ -448,23 +446,11 @@ async function updateThread(
       relationshipRows: recalculateRelationshipRows,
     } = recalculatePermissionsChangeset;
     membershipRows.push(...recalculateMembershipRows);
-    const parentMemberIDs = recalculateMembershipRows
-      .map(rowToSave => rowToSave.userID)
-      .filter(userID => !newMemberIDs.includes(userID));
-    const newUserIDs = newMemberIDs.filter(
-      memberID =>
-        !recalculateMembershipRows.find(
-          rowToSave => memberID === rowToSave.userID,
-        ),
+    const parentRelationshipRows = getParentThreadMembershipRowsForNewUsers(
+      request.threadID,
+      recalculateMembershipRows,
+      newMemberIDs,
     );
-    const parentRelationshipRows = cartesianProduct(
-      parentMemberIDs,
-      newUserIDs,
-    ).map(pair => {
-      const [user1, user2] = sortIDs(...pair);
-      const status = undirectedStatus.KNOW_OF;
-      return { user1, user2, status };
-    });
     relationshipRows.push(
       ...recalculateRelationshipRows,
       ...parentRelationshipRows,
