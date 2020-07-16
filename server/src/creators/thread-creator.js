@@ -22,6 +22,7 @@ import {
   recalculateAllPermissions,
   commitMembershipChangeset,
   setJoinsToUnread,
+  getParentThreadMembershipRowsForNewUsers,
 } from '../updaters/thread-permission-updaters';
 import createMessages from './message-creator';
 
@@ -94,20 +95,51 @@ async function createThread(
       : undefined,
     recalculateAllPermissions(id, threadType),
   ]);
+
   if (!creatorChangeset) {
     throw new ServerError('unknown_error');
   }
+  const {
+    membershipRows: creatorMembershipRows,
+    relationshipRows: creatorRelationshipRows,
+  } = creatorChangeset;
+
   const initialMemberAndCreatorIDs = initialMemberIDs
     ? [...initialMemberIDs, viewer.userID]
     : [viewer.userID];
-  const changeset = [...creatorChangeset, ...recalculatePermissionsChangeset];
+  const {
+    membershipRows: recalculateMembershipRows,
+    relationshipRows: recalculateRelationshipRows,
+  } = recalculatePermissionsChangeset;
+
+  const membershipRows = [
+    ...creatorMembershipRows,
+    ...recalculateMembershipRows,
+  ];
+  const relationshipRows = [
+    ...creatorRelationshipRows,
+    ...recalculateRelationshipRows,
+  ];
   if (initialMemberIDs && initialMemberIDs.length > 0) {
     if (!initialMembersChangeset) {
       throw new ServerError('unknown_error');
     }
-    changeset.push(...initialMembersChangeset);
+    const {
+      membershipRows: initialMembersMembershipRows,
+      relationshipRows: initialMembersRelationshipRows,
+    } = initialMembersChangeset;
+    const parentRelationshipRows = getParentThreadMembershipRowsForNewUsers(
+      id,
+      recalculateMembershipRows,
+      initialMemberAndCreatorIDs,
+    );
+    membershipRows.push(...initialMembersMembershipRows);
+    relationshipRows.push(
+      ...initialMembersRelationshipRows,
+      ...parentRelationshipRows,
+    );
   }
-  setJoinsToUnread(changeset, viewer.userID, id);
+  setJoinsToUnread(membershipRows, viewer.userID, id);
 
   const messageDatas = [
     {
@@ -134,6 +166,7 @@ async function createThread(
     });
   }
 
+  const changeset = { membershipRows, relationshipRows };
   const [newMessageInfos, commitResult] = await Promise.all([
     createMessages(viewer, messageDatas),
     commitMembershipChangeset(viewer, changeset),

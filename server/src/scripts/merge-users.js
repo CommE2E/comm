@@ -119,15 +119,22 @@ async function mergeUsers(
       changeRole(threadID, [toUserID], role),
     ),
   );
-  let changeset = [];
+  const membershipRows = [];
+  const relationshipRows = [];
   for (let currentChangeset of changesets) {
     if (!currentChangeset) {
       throw new Error('changeRole returned null');
     }
-    changeset = [...changeset, ...currentChangeset];
+    const {
+      membershipRows: currentMembershipRows,
+      relationshipRows: currentRelationshipRows,
+    } = currentChangeset;
+    membershipRows.push(...currentMembershipRows);
+    relationshipRows.push(...currentRelationshipRows);
   }
-  if (changeset.length > 0) {
+  if (membershipRows.length > 0 || relationshipRows.length > 0) {
     const toViewer = createScriptViewer(toUserID);
+    const changeset = { membershipRows, relationshipRows };
     await commitMembershipChangeset(toViewer, changeset);
   }
 }

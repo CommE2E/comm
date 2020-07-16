@@ -40,6 +40,7 @@ import {
   recalculateAllPermissions,
   commitMembershipChangeset,
   setJoinsToUnread,
+  getParentThreadMembershipRowsForNewUsers,
 } from './thread-permission-updaters';
 import createMessages from '../creators/message-creator';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
@@ -92,7 +93,6 @@ async function updateRole(
   if (!changeset) {
     throw new ServerError('unknown_error');
   }
-
   const messageData = {
     type: messageTypes.CHANGE_ROLE,
     threadID: request.threadID,
@@ -410,15 +410,15 @@ async function updateThread(
     ? parentThreadID
     : oldParentThreadID;
 
-  const savePromises = {};
+  const intermediatePromises = {};
   if (Object.keys(sqlUpdate).length > 0) {
     const updateQuery = SQL`
       UPDATE threads SET ${sqlUpdate} WHERE id = ${request.threadID}
     `;
-    savePromises.updateQuery = dbQuery(updateQuery);
+    intermediatePromises.updateQuery = dbQuery(updateQuery);
   }
   if (newMemberIDs) {
-    savePromises.addMembersChangeset = changeRole(
+    intermediatePromises.addMembersChangeset = changeRole(
       request.threadID,
       newMemberIDs,
       null,
@@ -428,7 +428,7 @@ async function updateThread(
     nextThreadType !== oldThreadType ||
     nextParentThreadID !== oldParentThreadID
   ) {
-    savePromises.recalculatePermissionsChangeset = recalculateAllPermissions(
+    intermediatePromises.recalculatePermissionsChangeset = recalculateAllPermissions(
       request.threadID,
       nextThreadType,
     );
@@ -436,15 +436,41 @@ async function updateThread(
   const {
     addMembersChangeset,
     recalculatePermissionsChangeset,
-  } = await promiseAll(savePromises);
+  } = await promiseAll(intermediatePromises);
 
-  const changeset = [];
-  if (recalculatePermissionsChangeset) {
-    changeset.push(...recalculatePermissionsChangeset);
+  const membershipRows = [];
+  const relationshipRows = [];
+  if (recalculatePermissionsChangeset && newMemberIDs) {
+    const {
+      membershipRows: recalculateMembershipRows,
+      relationshipRows: recalculateRelationshipRows,
+    } = recalculatePermissionsChangeset;
+    membershipRows.push(...recalculateMembershipRows);
+    const parentRelationshipRows = getParentThreadMembershipRowsForNewUsers(
+      request.threadID,
+      recalculateMembershipRows,
+      newMemberIDs,
+    );
+    relationshipRows.push(
+      ...recalculateRelationshipRows,
+      ...parentRelationshipRows,
+    );
+  } else if (recalculatePermissionsChangeset) {
+    const {
+      membershipRows: recalculateMembershipRows,
+      relationshipRows: recalculateRelationshipRows,
+    } = recalculatePermissionsChangeset;
+    membershipRows.push(...recalculateMembershipRows);
+    relationshipRows.push(...recalculateRelationshipRows);
   }
   if (addMembersChangeset) {
-    setJoinsToUnread(addMembersChangeset, viewer.userID, request.threadID);
-    changeset.push(addMembersChangeset);
+    const {
+      membershipRows: addMembersMembershipRows,
+      relationshipRows: addMembersRelationshipRows,
+    } = addMembersChangeset;
+    relationshipRows.push(...addMembersRelationshipRows);
+    setJoinsToUnread(addMembersMembershipRows, viewer.userID, request.threadID);
+    membershipRows.push(...addMembersMembershipRows);
   }
 
   const time = Date.now();
@@ -470,6 +496,7 @@ async function updateThread(
     });
   }
 
+  const changeset = { membershipRows, relationshipRows };
   const [newMessageInfos, { threadInfos, viewerUpdates }] = await Promise.all([
     createMessages(viewer, messageDatas),
     commitMembershipChangeset(
@@ -529,7 +556,7 @@ async function joinThread(
   if (!changeset) {
     throw new ServerError('unknown_error');
   }
-  setJoinsToUnread(changeset, viewer.userID, request.threadID);
+  setJoinsToUnread(changeset.membershipRows, viewer.userID, request.threadID);
 
   const messageData = {
     type: messageTypes.JOIN_THREAD,
