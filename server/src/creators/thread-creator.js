@@ -7,13 +7,10 @@ import {
   threadPermissions,
 } from 'lib/types/thread-types';
 import { messageTypes } from 'lib/types/message-types';
-import { undirectedStatus } from 'lib/types/relationship-types';
 import type { Viewer } from '../session/viewer';
 
 import { generateRandomColor } from 'lib/shared/thread-utils';
-import { sortIDs } from 'lib/shared/relationship-utils';
 import { ServerError } from 'lib/utils/errors';
-import { cartesianProduct } from 'lib/utils/array';
 
 import { dbQuery, SQL } from '../database';
 import { checkThreadPermission } from '../fetchers/thread-fetchers';
@@ -25,6 +22,7 @@ import {
   recalculateAllPermissions,
   commitMembershipChangeset,
   setJoinsToUnread,
+  getParentThreadMembershipRowsForNewUsers,
 } from '../updaters/thread-permission-updaters';
 import createMessages from './message-creator';
 
@@ -130,26 +128,16 @@ async function createThread(
       membershipRows: initialMembersMembershipRows,
       relationshipRows: initialMembersRelationshipRows,
     } = initialMembersChangeset;
-    membershipRows.push(...initialMembersMembershipRows);
-    relationshipRows.push(...initialMembersRelationshipRows);
-
-    const parentMemberIDs = recalculateMembershipRows
-      .map(rowToSave => rowToSave.userID)
-      .filter(userID => !initialMemberAndCreatorIDs.includes(userID));
-    const newMemberIDs = initialMemberIDs.filter(
-      memberID =>
-        !recalculateMembershipRows.find(
-          rowToSave => memberID === rowToSave.userID,
-        ),
+    const parentRelationshipRows = getParentThreadMembershipRowsForNewUsers(
+      id,
+      recalculateMembershipRows,
+      initialMemberAndCreatorIDs,
     );
-    const parentRelationshipRows = cartesianProduct(
-      parentMemberIDs,
-      newMemberIDs,
-    ).map(pair => {
-      const [user1, user2] = sortIDs(...pair);
-      return { user1, user2, status: undirectedStatus.KNOW_OF };
-    });
-    relationshipRows.push(...parentRelationshipRows);
+    membershipRows.push(...initialMembersMembershipRows);
+    relationshipRows.push(
+      ...initialMembersRelationshipRows,
+      ...parentRelationshipRows,
+    );
   }
   setJoinsToUnread(membershipRows, viewer.userID, id);
 
