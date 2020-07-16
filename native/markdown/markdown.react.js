@@ -4,6 +4,7 @@ import type { TextStyle } from '../types/styles';
 
 import * as React from 'react';
 import * as SimpleMarkdown from 'simple-markdown';
+import { Text } from 'react-native';
 
 import { onlyEmojiRegex } from 'lib/shared/emojis';
 
@@ -36,12 +37,12 @@ function Markdown(props: Props) {
     props.children,
   ]);
   const { textStyle } = props;
-  return React.useMemo(() => output(ast, { emojiOnly, textStyle }), [
-    ast,
-    output,
-    emojiOnly,
-    textStyle,
-  ]);
+  const renderedOutput = React.useMemo(
+    () => output(ast, { emojiOnly, textStyle }),
+    [ast, output, emojiOnly, textStyle],
+  );
+
+  return <Text>{renderedOutput}</Text>;
 }
 
 export default Markdown;

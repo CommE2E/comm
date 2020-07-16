@@ -2,9 +2,10 @@
 
 import type { StyleSheetOf } from '../themes/colors';
 import type { MarkdownStyles } from './styles';
+import type { TextStyle } from 'react-native/Libraries/StyleSheet/StyleSheet';
 
 import * as React from 'react';
-import { Text, Linking } from 'react-native';
+import { Text, Linking, StyleSheet } from 'react-native';
 import * as SimpleMarkdown from 'simple-markdown';
 import invariant from 'invariant';
 
@@ -49,27 +50,17 @@ export default function rules(styles: StyleSheetOf<MarkdownStyles>) {
       ...SimpleMarkdown.defaultRules.paragraph,
       // simple-markdown collapses multiple newlines into one, but we want to
       // preserve the newlines
-      match: SimpleMarkdown.blockRegex(/^([^\n]*)(?:\n|$)/),
+      match: SimpleMarkdown.blockRegex(/^((?:[^\n]*)(?:\n|$))/),
       // eslint-disable-next-line react/display-name
       react: (
         node: SimpleMarkdown.SingleASTNode,
         output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
         state: SimpleMarkdown.State,
-      ) => {
-        let innerNode = output(node.content, state);
-        if (Array.isArray(innerNode) && innerNode.length === 0) {
-          // React Native renders multiple empty lines within their own Text
-          // differently than it renders a single Text that contains those empty
-          // lines within it. We render this space to make sure it renders as if
-          // it were a single Text node
-          innerNode = <Text style={state.textStyle}> </Text>;
-        }
-        return (
-          <Text key={state.key} style={styles.paragraph}>
-            {innerNode}
-          </Text>
-        );
-      },
+      ) => (
+        <React.Fragment key={state.key}>
+          {output(node.content, state)}
+        </React.Fragment>
+      ),
     },
     // This is the leaf node in the AST returned by the parse phase. We handle
     // rendering emoji as a different size here
@@ -80,16 +71,17 @@ export default function rules(styles: StyleSheetOf<MarkdownStyles>) {
         output: SimpleMarkdown.Output<string>,
         state: SimpleMarkdown.State,
       ) {
-        const { textStyle } = state;
-        invariant(
-          textStyle && typeof textStyle === 'object',
-          `state passed to Markdown output should have object textStyle`,
-        );
-
-        const style = [textStyle];
+        const style = [state.textStyle];
         if (state.linkPresent) {
           style.push(styles.link);
         } else if (state.emojiOnly) {
+          const textStyle: TextStyle = (StyleSheet.flatten(
+            state.textStyle,
+          ): any);
+          invariant(
+            textStyle && typeof textStyle === 'object',
+            `state passed to Markdown output should have textStyle`,
+          );
           const { fontSize } = textStyle;
           invariant(
             fontSize,
@@ -97,7 +89,6 @@ export default function rules(styles: StyleSheetOf<MarkdownStyles>) {
           );
           style.push({ fontSize: fontSize * 2 });
         }
-
         return (
           <Text key={state.key} style={style}>
             {node.content}

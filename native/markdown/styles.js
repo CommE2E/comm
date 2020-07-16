@@ -9,12 +9,6 @@ const unboundStyles = {
     color: 'link',
     textDecorationLine: 'underline',
   },
-  paragraph: {
-    alignItems: 'flex-start',
-    flexDirection: 'row',
-    flexWrap: 'nowrap',
-    justifyContent: 'flex-start',
-  },
 };
 
 export type MarkdownStyles = typeof unboundStyles;
