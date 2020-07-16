@@ -103,6 +103,7 @@ async function changeRole(
   for (let userID of userIDs) {
     let oldPermissionsForChildren = null;
     let permissionsFromParent = null;
+    let hadMembershipRow = false;
     const userRoleInfo = roleInfo.get(userID);
     if (userRoleInfo) {
       const oldRole = userRoleInfo.oldRole;
@@ -117,6 +118,7 @@ async function changeRole(
       }
       oldPermissionsForChildren = userRoleInfo.oldPermissionsForChildren;
       permissionsFromParent = userRoleInfo.permissionsFromParent;
+      hadMembershipRow = true;
     }
 
     const permissions = makePermissionsBlob(
@@ -140,8 +142,15 @@ async function changeRole(
         permissionsForChildren,
         role: roleThreadResult.roleColumnValue,
       });
-      memberIDs.add(userID);
+    } else {
+      membershipRows.push({
+        operation: 'delete',
+        userID,
+        threadID,
+      });
+    }
 
+    if (permissions && !hadMembershipRow) {
       for (const currentUserID of memberIDs) {
         if (userID !== currentUserID) {
           const [user1, user2] = sortIDs(userID, currentUserID);
@@ -152,12 +161,7 @@ async function changeRole(
           });
         }
       }
-    } else {
-      membershipRows.push({
-        operation: 'delete',
-        userID,
-        threadID,
-      });
+      memberIDs.add(userID);
     }
 
     if (!_isEqual(permissionsForChildren)(oldPermissionsForChildren)) {
@@ -293,6 +297,7 @@ async function updateDescendantPermissions(
         const oldPermissionsForChildren = userInfo
           ? userInfo.permissionsForChildren
           : null;
+
         const permissions = makePermissionsBlob(
           rolePermissions,
           permissionsFromParent,
@@ -307,6 +312,7 @@ async function updateDescendantPermissions(
         const permissionsForChildren = makePermissionsForChildrenBlob(
           permissions,
         );
+
         if (permissions) {
           membershipRows.push({
             operation: 'update',
@@ -316,16 +322,6 @@ async function updateDescendantPermissions(
             permissionsForChildren,
             role,
           });
-
-          if (!oldPermissions) {
-            for (const [childUserID] of userInfos) {
-              if (childUserID !== userID) {
-                const [user1, user2] = sortIDs(childUserID, userID);
-                const status = undirectedStatus.KNOW_OF;
-                relationshipRows.push({ user1, user2, status });
-              }
-            }
-          }
         } else {
           membershipRows.push({
             operation: 'delete',
@@ -333,6 +329,17 @@ async function updateDescendantPermissions(
             threadID,
           });
         }
+
+        if (permissions && !oldPermissions) {
+          for (const [childUserID] of userInfos) {
+            if (childUserID !== userID) {
+              const [user1, user2] = sortIDs(childUserID, userID);
+              const status = undirectedStatus.KNOW_OF;
+              relationshipRows.push({ user1, user2, status });
+            }
+          }
+        }
+
         if (!_isEqual(permissionsForChildren)(oldPermissionsForChildren)) {
           usersForNextLayer.set(userID, permissionsForChildren);
         }
@@ -400,6 +407,7 @@ async function recalculateAllPermissions(
     const oldPermissionsForChildren = JSON.parse(row.permissions_for_children);
     const permissionsFromParent = JSON.parse(row.permissions_from_parent);
     const rolePermissions = JSON.parse(row.role_permissions);
+
     const permissions = makePermissionsBlob(
       rolePermissions,
       permissionsFromParent,
@@ -412,6 +420,7 @@ async function recalculateAllPermissions(
       continue;
     }
     const permissionsForChildren = makePermissionsForChildrenBlob(permissions);
+
     if (permissions) {
       membershipRows.push({
         operation: 'update',
@@ -421,18 +430,6 @@ async function recalculateAllPermissions(
         permissionsForChildren,
         role,
       });
-
-      if (!oldPermissions) {
-        parentIDs.add(userID);
-        for (const childID of childIDs) {
-          const [user1, user2] = sortIDs(userID, childID);
-          relationshipRows.push({
-            user1,
-            user2,
-            status: undirectedStatus.KNOW_OF,
-          });
-        }
-      }
     } else {
       membershipRows.push({
         operation: 'delete',
@@ -440,6 +437,19 @@ async function recalculateAllPermissions(
         threadID,
       });
     }
+
+    if (permissions && !oldPermissions) {
+      parentIDs.add(userID);
+      for (const childID of childIDs) {
+        const [user1, user2] = sortIDs(userID, childID);
+        relationshipRows.push({
+          user1,
+          user2,
+          status: undirectedStatus.KNOW_OF,
+        });
+      }
+    }
+
     if (!_isEqual(permissionsForChildren)(oldPermissionsForChildren)) {
       toUpdateDescendants.set(userID, permissionsForChildren);
     }
