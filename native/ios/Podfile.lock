@@ -286,8 +286,6 @@ PODS:
   - react-native-ffmpeg/min-lts (0.4.4):
     - mobile-ffmpeg-min (= 4.3.1.LTS)
     - React
-  - react-native-in-app-message (1.0.2):
-    - React
   - react-native-netinfo (4.4.0):
     - React
   - react-native-notifications (1.1.19):
@@ -472,7 +470,6 @@ DEPENDENCIES:
   - react-native-background-upload (from `../../node_modules/react-native-background-upload`)
   - react-native-camera (from `../../node_modules/react-native-camera`)
   - react-native-ffmpeg/min-lts (from `../../node_modules/react-native-ffmpeg/react-native-ffmpeg.podspec`)
-  - react-native-in-app-message (from `../../node_modules/react-native-in-app-message`)
   - "react-native-netinfo (from `../../node_modules/@react-native-community/netinfo`)"
   - react-native-notifications (from `../../node_modules/react-native-notifications`)
   - react-native-onepassword (from `../../node_modules/react-native-onepassword`)
@@ -596,8 +593,6 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native-camera"
   react-native-ffmpeg:
     :podspec: "../../node_modules/react-native-ffmpeg/react-native-ffmpeg.podspec"
-  react-native-in-app-message:
-    :path: "../../node_modules/react-native-in-app-message"
   react-native-netinfo:
     :path: "../../node_modules/@react-native-community/netinfo"
   react-native-notifications:
@@ -734,7 +729,6 @@ SPEC CHECKSUMS:
   react-native-background-upload: 6e8ba7f41a6308231306bddc88f11da3b74c9de4
   react-native-camera: b5c8c7a71feecfdd5b39f0dbbf6b64b957ed55f2
   react-native-ffmpeg: f9a60452aaa5d478aac205b248224994f3bde416
-  react-native-in-app-message: f91de5009620af01456531118264c93e249b83ec
   react-native-netinfo: 6bb847e64f45a2d69c6173741111cfd95c669301
   react-native-notifications: bb042206ac7eab9323d528c780b3d6fe796c1f5e
   react-native-onepassword: 5b2b7f425f9db40932703e65d350b78cbc598047
