@@ -11,6 +11,7 @@ import {
 } from '../keyboard/keyboard-state';
 import { messageListNavPropType } from './message-list-types';
 import type { ChatNavigationProp } from './chat.react';
+import { type GlobalTheme, globalThemePropType } from '../types/themes';
 
 import * as React from 'react';
 import { Text, TouchableWithoutFeedback, View } from 'react-native';
@@ -58,6 +59,7 @@ type Props = {|
   keyboardState: ?KeyboardState,
   // Redux state
   styles: typeof styles,
+  activeTheme: ?GlobalTheme,
   ...React.ElementProps<typeof View>,
 |};
 class RobotextMessage extends React.PureComponent<Props> {
@@ -68,6 +70,7 @@ class RobotextMessage extends React.PureComponent<Props> {
     toggleFocus: PropTypes.func.isRequired,
     keyboardState: keyboardStatePropType,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
+    activeTheme: globalThemePropType,
   };
 
   render() {
@@ -78,6 +81,7 @@ class RobotextMessage extends React.PureComponent<Props> {
       toggleFocus,
       keyboardState,
       styles,
+      activeTheme,
       ...viewProps
     } = this.props;
     let timestamp = null;
@@ -101,21 +105,18 @@ class RobotextMessage extends React.PureComponent<Props> {
     const robotext = item.robotext;
     const robotextParts = splitRobotext(robotext);
     const textParts = [];
-    const textStyle = [
-      this.props.styles.robotext,
-      { height: item.contentHeight },
-    ];
     let keyIndex = 0;
     for (let splitPart of robotextParts) {
       if (splitPart === '') {
         continue;
       }
       if (splitPart.charAt(0) !== '<') {
+        const darkColor = this.props.activeTheme === 'dark';
         textParts.push(
           <Markdown
-            textStyle={textStyle}
+            textStyle={this.props.styles.robotext}
             key={`text${keyIndex++}`}
-            useDarkStyle={true}
+            useDarkStyle={darkColor}
             rules={inlineMarkdownRules}
           >
             {decodeURI(splitPart)}
@@ -141,6 +142,10 @@ class RobotextMessage extends React.PureComponent<Props> {
         textParts.push(rawText);
       }
     }
+    const textStyle = [
+      this.props.styles.robotext,
+      { height: item.contentHeight },
+    ];
     return (
       <View style={this.props.styles.robotextContainer}>
         <Text style={textStyle}>{textParts}</Text>
@@ -160,6 +165,7 @@ class RobotextMessage extends React.PureComponent<Props> {
 
 const WrappedRobotextMessage = connect((state: AppState) => ({
   styles: stylesSelector(state),
+  activeTheme: state.globalThemeInfo.activeTheme,
 }))(withKeyboardState(RobotextMessage));
 
 type InnerThreadEntityProps = {
