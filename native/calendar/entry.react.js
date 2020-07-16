@@ -21,6 +21,7 @@ import type {
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { LayoutEvent } from '../types/react-native';
 import type { TabNavigationProp } from '../navigation/app-navigator.react';
+import type { TextStyle as FlattenedTextStyle } from 'react-native/Libraries/StyleSheet/StyleSheet';
 
 import * as React from 'react';
 import {
@@ -32,6 +33,7 @@ import {
   Alert,
   LayoutAnimation,
   Keyboard,
+  StyleSheet,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
@@ -39,7 +41,6 @@ import shallowequal from 'shallowequal';
 import _omit from 'lodash/fp/omit';
 import _isEqual from 'lodash/fp/isEqual';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import Hyperlink from 'react-native-hyperlink';
 import tinycolor from 'tinycolor2';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
@@ -75,6 +76,8 @@ import {
   type NavContextType,
 } from '../navigation/navigation-context';
 import { waitForInteractions } from '../utils/interactions';
+import Markdown from '../markdown/markdown.react';
+import { inlineMarkdownRules } from '../markdown/rules.react';
 
 function hueDistance(firstColor: string, secondColor: string): number {
   const firstHue = tinycolor(firstColor).toHsv().h;
@@ -370,12 +373,11 @@ class InternalEntry extends React.Component<Props, State> {
     if (rawText === '' || rawText.slice(-1) === '\n') {
       rawText += ' ';
     }
-    const textStyle = {};
-    textStyle.color = textColor;
-    if (textInput) {
-      textStyle.opacity = 0;
-    }
-    const linkStyle = darkColor ? styles.lightLinkText : styles.darkLinkText;
+    const textStyle = {
+      ...this.props.styles.text,
+      color: textColor,
+      opacity: textInput ? 0 : 1,
+    };
     // We use an empty View to set the height of the entry, and then position
     // the Text and TextInput absolutely. This allows to measure height changes
     // to the Text while controlling the actual height of the entry.
@@ -393,18 +395,18 @@ class InternalEntry extends React.Component<Props, State> {
           >
             <View>
               <View style={heightStyle} />
-              <Hyperlink
-                linkDefault={true}
-                linkStyle={linkStyle}
+              <View
                 style={this.props.styles.textContainer}
+                onLayout={this.onTextContainerLayout}
               >
-                <Text
-                  style={[this.props.styles.text, textStyle]}
-                  onLayout={this.onTextLayout}
+                <Markdown
+                  textStyle={textStyle}
+                  useDarkStyle={darkColor}
+                  rules={inlineMarkdownRules}
                 >
                   {rawText}
-                </Text>
-              </Hyperlink>
+                </Markdown>
+              </View>
               {textInput}
             </View>
             {actionLinks}
@@ -477,7 +479,7 @@ class InternalEntry extends React.Component<Props, State> {
     this.dispatchSave(this.props.entryInfo.id, this.state.text);
   };
 
-  onTextLayout = (event: LayoutEvent) => {
+  onTextContainerLayout = (event: LayoutEvent) => {
     this.guardedSetState({
       height: Math.ceil(event.nativeEvent.layout.height),
     });
@@ -675,10 +677,6 @@ const styles = {
   container: {
     backgroundColor: 'listBackground',
   },
-  darkLinkText: {
-    color: colors.light.link,
-    textDecorationLine: 'underline',
-  },
   entry: {
     borderRadius: 8,
     margin: 5,
@@ -694,10 +692,6 @@ const styles = {
     fontSize: 12,
     fontWeight: 'bold',
     paddingLeft: 5,
-  },
-  lightLinkText: {
-    color: colors.dark.link,
-    textDecorationLine: 'underline',
   },
   pencilIcon: {
     lineHeight: 13,
@@ -716,16 +710,14 @@ const styles = {
   text: {
     fontFamily: 'System',
     fontSize: 16,
+  },
+  textContainer: {
+    position: 'absolute',
+    top: 0,
     paddingBottom: 6,
     paddingLeft: 10,
     paddingRight: 10,
     paddingTop: 5,
-  },
-  textContainer: {
-    margin: 0,
-    padding: 0,
-    position: 'absolute',
-    top: 0,
   },
   textInput: {
     fontFamily: 'System',
@@ -739,6 +731,11 @@ const styles = {
   },
 };
 const stylesSelector = styleSelector(styles);
+
+const combinedEntryStyle: FlattenedTextStyle = (StyleSheet.flatten([
+  styles.textContainer,
+  styles.text,
+]): any);
 
 registerFetchKey(saveEntryActionTypes);
 registerFetchKey(deleteEntryActionTypes);
@@ -763,4 +760,4 @@ const Entry = connectNav((context: ?NavContextType) => ({
   )(InternalEntry),
 );
 
-export { InternalEntry, Entry, styles as entryStyles };
+export { InternalEntry, Entry, combinedEntryStyle };
