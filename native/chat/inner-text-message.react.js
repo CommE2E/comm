@@ -24,6 +24,7 @@ import {
   colors,
 } from '../themes/colors';
 import Markdown from '../markdown/markdown.react';
+import { fullMarkdownRules } from '../markdown/rules.react';
 
 type Props = {|
   item: ChatTextMessageInfoItemWithHeight,
@@ -73,7 +74,11 @@ class InnerTextMessage extends React.PureComponent<Props> {
         activeOpacity={0.6}
         style={[styles.message, messageStyle, cornerStyle]}
       >
-        <Markdown textStyle={textStyle} useDarkStyle={darkColor}>
+        <Markdown
+          textStyle={textStyle}
+          useDarkStyle={darkColor}
+          rules={fullMarkdownRules}
+        >
           {text}
         </Markdown>
       </TouchableOpacity>
