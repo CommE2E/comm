@@ -1,17 +1,19 @@
 // @flow
 
+import type { MarkdownRules } from './rules.react';
+
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import * as SimpleMarkdown from 'simple-markdown';
 
-import rules from './rules.react';
-
 type Props = {|
   children: string,
+  rules: MarkdownRules,
 |};
 class Markdown extends React.PureComponent<Props> {
   static propTypes = {
     children: PropTypes.string.isRequired,
+    rules: PropTypes.func.isRequired,
   };
 
   ast: SimpleMarkdown.Parser;
@@ -20,14 +22,14 @@ class Markdown extends React.PureComponent<Props> {
   constructor(props: Props) {
     super(props);
 
-    const customRules = rules();
-    const parser = SimpleMarkdown.parserFor(customRules);
+    const { simpleMarkdownRules } = this.props.rules();
+    const parser = SimpleMarkdown.parserFor(simpleMarkdownRules);
     this.ast = parser(this.props.children, { inline: true });
-    this.output = SimpleMarkdown.outputFor(customRules, 'react');
+    this.output = SimpleMarkdown.outputFor(simpleMarkdownRules, 'react');
   }
 
   render() {
-    return <div>{this.output(this.ast)}</div>;
+    return this.output(this.ast);
   }
 }
 

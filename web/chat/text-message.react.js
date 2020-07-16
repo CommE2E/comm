@@ -20,6 +20,7 @@ import css from './chat-message-list.css';
 import ComposedMessage from './composed-message.react';
 import textMessageSendFailed from './text-message-send-failed';
 import Markdown from '../markdown/markdown.react';
+import { markdownRules } from '../markdown/rules.react';
 
 type Props = {|
   item: ChatMessageInfoItem,
@@ -85,7 +86,7 @@ class TextMessage extends React.PureComponent<Props> {
         setMouseOver={this.props.setMouseOver}
       >
         <div className={messageClassName} style={messageStyle}>
-          <Markdown>{text}</Markdown>
+          <Markdown rules={markdownRules}>{text}</Markdown>
         </div>
       </ComposedMessage>
     );
