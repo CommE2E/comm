@@ -2,17 +2,27 @@
 
 import type { StyleSheetOf } from '../themes/colors';
 import type { MarkdownStyles } from './styles';
-import type { TextStyle } from 'react-native/Libraries/StyleSheet/StyleSheet';
 
 import * as React from 'react';
-import { Text, Linking, StyleSheet } from 'react-native';
+import { Text, Linking } from 'react-native';
 import * as SimpleMarkdown from 'simple-markdown';
-import invariant from 'invariant';
 
 import { urlRegex } from 'lib/shared/markdown';
 
-export default function rules(styles: StyleSheetOf<MarkdownStyles>) {
-  return {
+type MarkdownRuleSpec = {|
+  +simpleMarkdownRules: SimpleMarkdown.ParserRules,
+  +emojiOnlyFactor: ?number,
+|};
+export type MarkdownRules = (
+  styles: StyleSheetOf<MarkdownStyles>,
+) => MarkdownRuleSpec;
+
+// Entry requires a seamless transition between Markdown and TextInput
+// components, so we can't do anything that would change the position of text
+function inlineMarkdownRules(
+  styles: StyleSheetOf<MarkdownStyles>,
+): MarkdownRuleSpec {
+  const simpleMarkdownRules = {
     // Matches '<https://google.com>' during parse phase and returns a 'link'
     // node
     autolink: SimpleMarkdown.defaultRules.autolink,
@@ -34,12 +44,9 @@ export default function rules(styles: StyleSheetOf<MarkdownStyles>) {
         const onPressLink = () => {
           Linking.openURL(node.target);
         };
-        state.linkPresent = true;
-        const innerNode = output(node.content, state);
-        state.linkPresent = false;
         return (
-          <Text key={state.key} onPress={onPressLink}>
-            {innerNode}
+          <Text key={state.key} style={styles.link} onPress={onPressLink}>
+            {output(node.content, state)}
           </Text>
         );
       },
@@ -66,35 +73,29 @@ export default function rules(styles: StyleSheetOf<MarkdownStyles>) {
     // rendering emoji as a different size here
     text: {
       ...SimpleMarkdown.defaultRules.text,
-      react(
+      // eslint-disable-next-line react/display-name
+      react: (
         node: SimpleMarkdown.SingleASTNode,
         output: SimpleMarkdown.Output<string>,
         state: SimpleMarkdown.State,
-      ) {
-        const style = [state.textStyle];
-        if (state.linkPresent) {
-          style.push(styles.link);
-        } else if (state.emojiOnly) {
-          const textStyle: TextStyle = (StyleSheet.flatten(
-            state.textStyle,
-          ): any);
-          invariant(
-            textStyle && typeof textStyle === 'object',
-            `state passed to Markdown output should have textStyle`,
-          );
-          const { fontSize } = textStyle;
-          invariant(
-            fontSize,
-            `textStyle should have fontSize if using emojiOnly`,
-          );
-          style.push({ fontSize: fontSize * 2 });
-        }
-        return (
-          <Text key={state.key} style={style}>
-            {node.content}
-          </Text>
-        );
-      },
+      ) => <React.Fragment key={state.key}>{node.content}</React.Fragment>,
     },
   };
+  return {
+    simpleMarkdownRules,
+    emojiOnlyFactor: null,
+  };
 }
+
+// We allow the most markdown features for TextMessage, which doesn't have the
+// same requirements as Entry
+function fullMarkdownRules(
+  styles: StyleSheetOf<MarkdownStyles>,
+): MarkdownRuleSpec {
+  return {
+    ...inlineMarkdownRules(styles),
+    emojiOnlyFactor: 2,
+  };
+}
+
+export { inlineMarkdownRules, fullMarkdownRules };

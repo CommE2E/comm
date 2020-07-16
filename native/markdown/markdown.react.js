@@ -1,48 +1,79 @@
 // @flow
 
 import type { TextStyle } from '../types/styles';
+import type { TextStyle as FlattenedTextStyle } from 'react-native/Libraries/StyleSheet/StyleSheet';
+import type { MarkdownRules } from './rules.react';
 
 import * as React from 'react';
 import * as SimpleMarkdown from 'simple-markdown';
-import { Text } from 'react-native';
+import { Text, StyleSheet } from 'react-native';
+import invariant from 'invariant';
 
 import { onlyEmojiRegex } from 'lib/shared/emojis';
 
 import { getMarkdownStyles } from './styles';
-import rules from './rules.react';
 
 type Props = {|
   textStyle: TextStyle,
   useDarkStyle: boolean,
   children: string,
+  rules: MarkdownRules,
 |};
 function Markdown(props: Props) {
+  const { useDarkStyle, rules } = props;
   const style = React.useMemo(() => {
-    return getMarkdownStyles(props.useDarkStyle ? 'dark' : 'light');
-  }, [props.useDarkStyle]);
-  const customRules = React.useMemo(() => rules(style), [style]);
+    return getMarkdownStyles(useDarkStyle ? 'dark' : 'light');
+  }, [useDarkStyle]);
+  const { simpleMarkdownRules, emojiOnlyFactor } = React.useMemo(
+    () => rules(style),
+    [rules, style],
+  );
 
-  const parser = React.useMemo(() => SimpleMarkdown.parserFor(customRules), [
-    customRules,
-  ]);
+  const parser = React.useMemo(
+    () => SimpleMarkdown.parserFor(simpleMarkdownRules),
+    [simpleMarkdownRules],
+  );
   const ast = React.useMemo(
     () => parser(props.children, { disableAutoBlockNewlines: true }),
     [parser, props.children],
   );
 
-  const output = React.useMemo(() => {
-    return SimpleMarkdown.outputFor(customRules, 'react');
-  }, [customRules]);
-  const emojiOnly = React.useMemo(() => onlyEmojiRegex.test(props.children), [
-    props.children,
-  ]);
-  const { textStyle } = props;
-  const renderedOutput = React.useMemo(
-    () => output(ast, { emojiOnly, textStyle }),
-    [ast, output, emojiOnly, textStyle],
+  const output = React.useMemo(
+    () => SimpleMarkdown.outputFor(simpleMarkdownRules, 'react'),
+    [simpleMarkdownRules],
   );
+  const renderedOutput = React.useMemo(() => output(ast), [ast, output]);
 
-  return <Text>{renderedOutput}</Text>;
+  const emojiOnly = React.useMemo(() => {
+    if (emojiOnlyFactor === null || emojiOnlyFactor === undefined) {
+      return false;
+    }
+    return onlyEmojiRegex.test(props.children);
+  }, [emojiOnlyFactor, props.children]);
+  const textStyle = React.useMemo(() => {
+    if (
+      !emojiOnly ||
+      emojiOnlyFactor === null ||
+      emojiOnlyFactor === undefined
+    ) {
+      return props.textStyle;
+    }
+    const flattened: FlattenedTextStyle = (StyleSheet.flatten(
+      props.textStyle,
+    ): any);
+    invariant(
+      flattened && typeof flattened === 'object',
+      `state passed to Markdown output should have textStyle`,
+    );
+    const { fontSize } = flattened;
+    invariant(
+      fontSize,
+      `textStyle should have fontSize if using emojiOnlyFactor`,
+    );
+    return { ...flattened, fontSize: fontSize * emojiOnlyFactor };
+  }, [emojiOnly, props.textStyle, emojiOnlyFactor]);
+
+  return <Text style={textStyle}>{renderedOutput}</Text>;
 }
 
 export default Markdown;
