@@ -29,6 +29,7 @@ import { MessageListRouteName } from '../navigation/route-names';
 import { Timestamp } from './timestamp.react';
 import { styleSelector } from '../themes/colors';
 import Markdown from '../markdown/markdown.react';
+import { inlineMarkdownRules } from '../markdown/rules.react';
 
 export type ChatRobotextMessageInfoItemWithHeight = {|
   itemType: 'message',
@@ -115,7 +116,7 @@ class RobotextMessage extends React.PureComponent<Props> {
             textStyle={textStyle}
             key={`text${keyIndex++}`}
             useDarkStyle={true}
-            onlyBasicRules={true}
+            rules={inlineMarkdownRules}
           >
             {decodeURI(splitPart)}
           </Markdown>,

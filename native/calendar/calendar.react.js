@@ -70,7 +70,7 @@ import {
 import { connect } from 'lib/utils/redux-utils';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
-import { Entry, InternalEntry, entryStyles } from './entry.react';
+import { Entry, InternalEntry, combinedEntryStyle } from './entry.react';
 import { calendarListData } from '../selectors/calendar-selectors';
 import {
   createIsForegroundSelector,
@@ -749,7 +749,7 @@ class Calendar extends React.PureComponent<Props, State> {
         <TextHeightMeasurer
           textToMeasure={this.state.textToMeasure}
           allHeightsMeasuredCallback={this.allHeightsMeasured}
-          style={entryStyles.textMeasurement}
+          style={combinedEntryStyle}
         />
         <SafeAreaView style={this.props.styles.container} edges={safeAreaEdges}>
           <DisconnectedBar visible={this.props.calendarActive} />

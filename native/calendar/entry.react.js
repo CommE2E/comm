@@ -21,6 +21,7 @@ import type {
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { LayoutEvent } from '../types/react-native';
 import type { TabNavigationProp } from '../navigation/app-navigator.react';
+import type { TextStyle as FlattenedTextStyle } from 'react-native/Libraries/StyleSheet/StyleSheet';
 
 import * as React from 'react';
 import {
@@ -32,6 +33,7 @@ import {
   Alert,
   LayoutAnimation,
   Keyboard,
+  StyleSheet,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
@@ -75,6 +77,7 @@ import {
 } from '../navigation/navigation-context';
 import { waitForInteractions } from '../utils/interactions';
 import Markdown from '../markdown/markdown.react';
+import { inlineMarkdownRules } from '../markdown/rules.react';
 
 function hueDistance(firstColor: string, secondColor: string): number {
   const firstHue = tinycolor(firstColor).toHsv().h;
@@ -396,7 +399,11 @@ class InternalEntry extends React.Component<Props, State> {
                 style={this.props.styles.textContainer}
                 onLayout={this.onTextContainerLayout}
               >
-                <Markdown textStyle={textStyle} useDarkStyle={darkColor}>
+                <Markdown
+                  textStyle={textStyle}
+                  useDarkStyle={darkColor}
+                  rules={inlineMarkdownRules}
+                >
                   {rawText}
                 </Markdown>
               </View>
@@ -653,22 +660,6 @@ class InternalEntry extends React.Component<Props, State> {
   };
 }
 
-const textStyle = {
-  fontFamily: 'System',
-  fontSize: 16,
-};
-const textPadding = {
-  paddingBottom: 6,
-  paddingLeft: 10,
-  paddingRight: 10,
-  paddingTop: 5,
-};
-const entryStyle = {
-  borderRadius: 8,
-  margin: 5,
-  overflow: 'hidden',
-};
-
 const styles = {
   actionLinks: {
     flex: 1,
@@ -686,7 +677,11 @@ const styles = {
   container: {
     backgroundColor: 'listBackground',
   },
-  entry: entryStyle,
+  entry: {
+    borderRadius: 8,
+    margin: 5,
+    overflow: 'hidden',
+  },
   leftLinks: {
     flex: 1,
     flexDirection: 'row',
@@ -712,16 +707,17 @@ const styles = {
     fontSize: 12,
     fontWeight: 'bold',
   },
-  text: textStyle,
+  text: {
+    fontFamily: 'System',
+    fontSize: 16,
+  },
   textContainer: {
     position: 'absolute',
     top: 0,
-    ...textPadding,
-  },
-  textMeasurement: {
-    ...textPadding,
-    ...textStyle,
-    ...entryStyle,
+    paddingBottom: 6,
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 5,
   },
   textInput: {
     fontFamily: 'System',
@@ -735,6 +731,12 @@ const styles = {
   },
 };
 const stylesSelector = styleSelector(styles);
+
+const combinedEntryStyle: FlattenedTextStyle = (StyleSheet.flatten([
+  styles.textContainer,
+  styles.text,
+  styles.entry,
+]): any);
 
 registerFetchKey(saveEntryActionTypes);
 registerFetchKey(deleteEntryActionTypes);
@@ -759,4 +761,4 @@ const Entry = connectNav((context: ?NavContextType) => ({
   )(InternalEntry),
 );
 
-export { InternalEntry, Entry, styles as entryStyles };
+export { InternalEntry, Entry, combinedEntryStyle };
