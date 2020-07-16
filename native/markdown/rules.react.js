@@ -23,9 +23,6 @@ function inlineMarkdownRules(
   styles: StyleSheetOf<MarkdownStyles>,
 ): MarkdownRuleSpec {
   const simpleMarkdownRules = {
-    // Matches '<https://google.com>' during parse phase and returns a 'link'
-    // node
-    autolink: SimpleMarkdown.defaultRules.autolink,
     // Matches 'https://google.com' during parse phase and returns a 'link' node
     url: {
       ...SimpleMarkdown.defaultRules.url,
@@ -36,6 +33,7 @@ function inlineMarkdownRules(
     // rendering all 'link' nodes, including for 'autolink' and 'url'
     link: {
       ...SimpleMarkdown.defaultRules.link,
+      match: () => null,
       react(
         node: SimpleMarkdown.SingleASTNode,
         output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
@@ -92,8 +90,22 @@ function inlineMarkdownRules(
 function fullMarkdownRules(
   styles: StyleSheetOf<MarkdownStyles>,
 ): MarkdownRuleSpec {
+  const inlineRules = inlineMarkdownRules(styles);
+  const simpleMarkdownRules = {
+    ...inlineRules.simpleMarkdownRules,
+    // Matches '<https://google.com>' during parse phase and returns a 'link'
+    // node
+    autolink: SimpleMarkdown.defaultRules.autolink,
+    // Matches '[Google](https://google.com)' during parse phase and handles
+    // rendering all 'link' nodes, including for 'autolink' and 'url'
+    link: {
+      ...inlineRules.simpleMarkdownRules.link,
+      match: SimpleMarkdown.defaultRules.link.match,
+    },
+  };
   return {
-    ...inlineMarkdownRules(styles),
+    ...inlineRules,
+    simpleMarkdownRules,
     emojiOnlyFactor: 2,
   };
 }
