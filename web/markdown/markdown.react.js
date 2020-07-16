@@ -13,7 +13,7 @@ type Props = {|
 class Markdown extends React.PureComponent<Props> {
   static propTypes = {
     children: PropTypes.string.isRequired,
-    onlyBasicRules: PropTypes.bool,
+    rules: PropTypes.func.isRequired,
   };
 
   ast: SimpleMarkdown.Parser;
