@@ -5,8 +5,13 @@ import * as React from 'react';
 
 import { urlRegex } from 'lib/shared/markdown';
 
-export function rules() {
-  return {
+type MarkdownRuleSpec = {|
+  +simpleMarkdownRules: SimpleMarkdown.Rules,
+|};
+export type MarkdownRules = () => MarkdownRuleSpec;
+
+function linkRules(): MarkdownRuleSpec {
+  const simpleMarkdownRules = {
     // We are using default simple-markdown rules
     // For more details, look at native/markdown/rules.react
     autolink: SimpleMarkdown.defaultRules.autolink,
@@ -35,12 +40,16 @@ export function rules() {
       match: SimpleMarkdown.inlineRegex(urlRegex),
     },
   };
+  return {
+    simpleMarkdownRules: simpleMarkdownRules,
+  };
 }
 
 // function will contain additional rules for message formatting
-export function advancedRules() {
-  const basicRules = rules();
+function markdownRules(): MarkdownRuleSpec {
   return {
-    ...basicRules,
+    ...linkRules(),
   };
 }
+
+export { linkRules, markdownRules };

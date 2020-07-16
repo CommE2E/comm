@@ -23,6 +23,7 @@ import { connect } from 'lib/utils/redux-utils';
 
 import css from './chat-message-list.css';
 import Markdown from '../markdown/markdown.react';
+import { linkRules } from '../markdown/rules.react';
 
 type Props = {|
   item: RobotextChatMessageInfoItem,
@@ -49,13 +50,16 @@ class RobotextMessage extends React.PureComponent<Props> {
     const { robotext } = item;
     const robotextParts = splitRobotext(robotext);
     const textParts = [];
+    let keyIndex = 0;
     for (let splitPart of robotextParts) {
       if (splitPart === '') {
         continue;
       }
       if (splitPart.charAt(0) !== '<') {
         textParts.push(
-          <Markdown onlyBasicRules={true}>{decodeURI(splitPart)}</Markdown>,
+          <Markdown key={`text${keyIndex++}`} rules={linkRules}>
+            {decodeURI(splitPart)}
+          </Markdown>,
         );
         continue;
       }
