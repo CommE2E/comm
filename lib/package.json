@@ -15,7 +15,7 @@
     "fast-json-stable-stringify": "^2.0.0",
     "file-type": "^12.3.0",
     "invariant": "^2.2.4",
-    "lodash": "^4.17.5",
+    "lodash": "^4.17.19",
     "prop-types": "^15.7.2",
     "react": "16.11.0",
     "react-redux": "^7.1.1",
