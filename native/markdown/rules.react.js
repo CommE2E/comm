@@ -4,10 +4,11 @@ import type { StyleSheetOf } from '../themes/colors';
 import type { MarkdownStyles } from './styles';
 
 import * as React from 'react';
-import { Text, Linking } from 'react-native';
+import { Text, Linking, Alert } from 'react-native';
 import * as SimpleMarkdown from 'simple-markdown';
 
 import { urlRegex } from 'lib/shared/markdown';
+import { normalizeURL } from 'lib/utils/url-utils';
 
 type MarkdownRuleSpec = {|
   +simpleMarkdownRules: SimpleMarkdown.ParserRules,
@@ -16,6 +17,28 @@ type MarkdownRuleSpec = {|
 export type MarkdownRules = (
   styles: StyleSheetOf<MarkdownStyles>,
 ) => MarkdownRuleSpec;
+
+function displayLinkPrompt(inputURL: string) {
+  const url = normalizeURL(inputURL);
+  const onConfirm = () => {
+    Linking.openURL(url);
+  };
+
+  let displayURL = url.substring(0, 64);
+  if (url.length > displayURL.length) {
+    displayURL += '…';
+  }
+
+  Alert.alert(
+    'External link',
+    `You sure you want to open this link?\n\n${displayURL}`,
+    [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Open', onPress: onConfirm },
+    ],
+    { cancelable: true },
+  );
+}
 
 // Entry requires a seamless transition between Markdown and TextInput
 // components, so we can't do anything that would change the position of text
@@ -39,9 +62,7 @@ function inlineMarkdownRules(
         output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
         state: SimpleMarkdown.State,
       ) {
-        const onPressLink = () => {
-          Linking.openURL(node.target);
-        };
+        const onPressLink = () => displayLinkPrompt(node.target);
         return (
           <Text key={state.key} style={styles.link} onPress={onPressLink}>
             {output(node.content, state)}
