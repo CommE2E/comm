@@ -22,7 +22,7 @@
     "jest": "^24.9.0",
     "jetifier": "^1.6.4",
     "metro-react-native-babel-preset": "^0.58.0",
-    "patch-package": "^6.1.2",
+    "patch-package": "^6.2.2",
     "postinstall-postinstall": "^2.0.0",
     "react-test-renderer": "16.11.0"
   },
