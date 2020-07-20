@@ -9112,13 +9112,6 @@ lines-and-columns@^1.1.6:
   resolved "https://registry.yarnpkg.com/lines-and-columns/-/lines-and-columns-1.1.6.tgz#1c00c743b433cd0a4e80758f7b64a57440d9ff00"
   integrity sha1-HADHQ7QzzQpOgHWPe2SldEDZ/wA=
 
-linkify-it@^1.2.0:
-  version "1.2.4"
-  resolved "https://registry.yarnpkg.com/linkify-it/-/linkify-it-1.2.4.tgz#0773526c317c8fd13bd534ee1d180ff88abf881a"
-  integrity sha1-B3NSbDF8j9E71TTuHRgP+Iq/iBo=
-  dependencies:
-    uc.micro "^1.0.1"
-
 lint-staged@^10.0.8:
   version "10.0.8"
   resolved "https://registry.yarnpkg.com/lint-staged/-/lint-staged-10.0.8.tgz#0f7849cdc336061f25f5d4fcbcfa385701ff4739"
@@ -9548,11 +9541,6 @@ mdn-data@~1.1.0:
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/mdn-data/-/mdn-data-1.1.4.tgz#50b5d4ffc4575276573c4eedb8780812a8419f01"
   integrity sha512-FSYbp3lyKjyj3E7fMl6rYvUdX0FBXaluGqlFoYESWQlyUTq8R+wp0rkFxoYFqZlHCvsUXGjyJmLQSnXToYhOSA==
-
-mdurl@^1.0.0:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/mdurl/-/mdurl-1.0.1.tgz#fe85b2ec75a59037f2adfec100fd6c601761152e"
-  integrity sha1-/oWy7HWlkDfyrf7BAP1sYBdhFS4=
 
 media-typer@0.3.0:
   version "0.3.0"
@@ -12130,13 +12118,6 @@ react-native-gesture-handler@^1.6.1:
     invariant "^2.2.4"
     prop-types "^15.7.2"
 
-"react-native-hyperlink@git+https://git@github.com/ashoat/react-native-hyperlink.git#both":
-  version "0.0.12"
-  resolved "git+https://git@github.com/ashoat/react-native-hyperlink.git#0c872d5be30ba6382c926e78ad1545a97f586f85"
-  dependencies:
-    linkify-it "^1.2.0"
-    mdurl "^1.0.0"
-
 react-native-in-app-message@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/react-native-in-app-message/-/react-native-in-app-message-1.0.2.tgz#e971c039bcd0e238306f73fbea43fc866aa94a69"
@@ -14443,11 +14424,6 @@ ua-parser-js@^0.7.18:
   version "0.7.20"
   resolved "https://registry.yarnpkg.com/ua-parser-js/-/ua-parser-js-0.7.20.tgz#7527178b82f6a62a0f243d1f94fd30e3e3c21098"
   integrity sha512-8OaIKfzL5cpx8eCMAhhvTlft8GYF8b2eQr6JkCyVdrgjcytyOmPCXrqXFcUnhonRpLlh5yxEZVohm6mzaowUOw==
-
-uc.micro@^1.0.1:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/uc.micro/-/uc.micro-1.0.6.tgz#9c411a802a409a91fc6cf74081baba34b24499ac"
-  integrity sha512-8Y75pvTYkLJW2hWQHXxoqRgV7qb9B+9vFEtidML+7koHUFapnVJAZ6cKs+Qjz5Aw3aZWHMC6u0wJE3At+nSGwA==
 
 uglify-es@^3.1.9:
   version "3.3.9"

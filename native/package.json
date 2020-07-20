@@ -61,7 +61,6 @@
     "react-native-floating-action": "^1.19.1",
     "react-native-fs": "2.15.2",
     "react-native-gesture-handler": "^1.6.1",
-    "react-native-hyperlink": "git+https://git@github.com/ashoat/react-native-hyperlink.git#both",
     "react-native-in-app-message": "^1.0.2",
     "react-native-keyboard-input": "^6.0.0",
     "react-native-keychain": "^4.0.0",
@@ -84,6 +83,7 @@
     "redux-thunk": "^2.2.0",
     "reselect": "^4.0.0",
     "shallowequal": "^1.0.2",
+    "simple-markdown": "^0.7.2",
     "tinycolor2": "^1.4.1"
   },
   "jest": {

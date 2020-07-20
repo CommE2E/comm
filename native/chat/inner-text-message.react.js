@@ -8,10 +8,8 @@ import type { AppState } from '../redux/redux-setup';
 import * as React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
-import Hyperlink from 'react-native-hyperlink';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
-import { onlyEmojiRegex } from 'lib/shared/emojis';
 import { connect } from 'lib/utils/redux-utils';
 
 import {
@@ -25,6 +23,8 @@ import {
   colorsSelector,
   colors,
 } from '../themes/colors';
+import Markdown from '../markdown/markdown.react';
+import { fullMarkdownRules } from '../markdown/rules.react';
 
 type Props = {|
   item: ChatTextMessageInfoItemWithHeight,
@@ -49,7 +49,7 @@ class InnerTextMessage extends React.PureComponent<Props> {
     const { isViewer } = creator;
 
     let messageStyle = {},
-      textCustomStyle = {},
+      textStyle = { ...styles.text },
       darkColor;
     if (isViewer) {
       const threadColor = item.threadInfo.color;
@@ -59,39 +59,31 @@ class InnerTextMessage extends React.PureComponent<Props> {
       messageStyle.backgroundColor = this.props.colors.listChatBubble;
       darkColor = this.props.activeTheme === 'dark';
     }
-    textCustomStyle.height = item.contentHeight;
-
-    const linkStyle = darkColor ? styles.lightLinkText : styles.darkLinkText;
-    textCustomStyle.color = darkColor
+    textStyle.color = darkColor
       ? colors.dark.listForegroundLabel
       : colors.light.listForegroundLabel;
-    const textStyle = onlyEmojiRegex.test(text)
-      ? styles.emojiOnlyText
-      : styles.text;
 
     const cornerStyle = getRoundedContainerStyle(
       filterCorners(allCorners, item),
     );
 
+    const outerTextStyle = { height: item.contentHeight };
     const message = (
       <TouchableOpacity
         onPress={this.props.onPress}
         onLongPress={this.props.onPress}
         activeOpacity={0.6}
+        style={[styles.message, messageStyle, cornerStyle]}
       >
-        <Hyperlink
-          linkDefault={true}
-          style={[styles.message, messageStyle, cornerStyle]}
-          linkStyle={linkStyle}
-        >
-          <Text
-            onPress={this.props.onPress}
-            onLongPress={this.props.onPress}
-            style={[textStyle, textCustomStyle]}
+        <Text style={outerTextStyle}>
+          <Markdown
+            style={textStyle}
+            useDarkStyle={darkColor}
+            rules={fullMarkdownRules}
           >
             {text}
-          </Text>
-        </Hyperlink>
+          </Markdown>
+        </Text>
       </TouchableOpacity>
     );
 
@@ -107,22 +99,11 @@ class InnerTextMessage extends React.PureComponent<Props> {
     );
   }
 
+  // We need to set onLayout in order to allow .measure() to be on the ref
   onLayout = () => {};
 }
 
 const styles = StyleSheet.create({
-  darkLinkText: {
-    color: colors.light.link,
-    textDecorationLine: 'underline',
-  },
-  emojiOnlyText: {
-    fontFamily: 'Arial',
-    fontSize: 36,
-  },
-  lightLinkText: {
-    color: colors.dark.link,
-    textDecorationLine: 'underline',
-  },
   message: {
     overflow: 'hidden',
     paddingHorizontal: 12,

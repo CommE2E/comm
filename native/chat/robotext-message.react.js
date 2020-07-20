@@ -11,11 +11,11 @@ import {
 } from '../keyboard/keyboard-state';
 import { messageListNavPropType } from './message-list-types';
 import type { ChatNavigationProp } from './chat.react';
+import { type GlobalTheme, globalThemePropType } from '../types/themes';
 
 import * as React from 'react';
 import { Text, TouchableWithoutFeedback, View } from 'react-native';
 import PropTypes from 'prop-types';
-import Hyperlink from 'react-native-hyperlink';
 import invariant from 'invariant';
 
 import {
@@ -29,6 +29,8 @@ import { connect } from 'lib/utils/redux-utils';
 import { MessageListRouteName } from '../navigation/route-names';
 import { Timestamp } from './timestamp.react';
 import { styleSelector } from '../themes/colors';
+import Markdown from '../markdown/markdown.react';
+import { inlineMarkdownRules } from '../markdown/rules.react';
 
 export type ChatRobotextMessageInfoItemWithHeight = {|
   itemType: 'message',
@@ -57,6 +59,7 @@ type Props = {|
   keyboardState: ?KeyboardState,
   // Redux state
   styles: typeof styles,
+  activeTheme: ?GlobalTheme,
   ...React.ElementProps<typeof View>,
 |};
 class RobotextMessage extends React.PureComponent<Props> {
@@ -67,6 +70,7 @@ class RobotextMessage extends React.PureComponent<Props> {
     toggleFocus: PropTypes.func.isRequired,
     keyboardState: keyboardStatePropType,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
+    activeTheme: globalThemePropType,
   };
 
   render() {
@@ -77,6 +81,7 @@ class RobotextMessage extends React.PureComponent<Props> {
       toggleFocus,
       keyboardState,
       styles,
+      activeTheme,
       ...viewProps
     } = this.props;
     let timestamp = null;
@@ -100,12 +105,23 @@ class RobotextMessage extends React.PureComponent<Props> {
     const robotext = item.robotext;
     const robotextParts = splitRobotext(robotext);
     const textParts = [];
+    let keyIndex = 0;
     for (let splitPart of robotextParts) {
       if (splitPart === '') {
         continue;
       }
       if (splitPart.charAt(0) !== '<') {
-        textParts.push(decodeURI(splitPart));
+        const darkColor = this.props.activeTheme === 'dark';
+        textParts.push(
+          <Markdown
+            style={this.props.styles.robotext}
+            key={`text${keyIndex++}`}
+            useDarkStyle={darkColor}
+            rules={inlineMarkdownRules}
+          >
+            {decodeURI(splitPart)}
+          </Markdown>,
+        );
         continue;
       }
 
@@ -131,13 +147,9 @@ class RobotextMessage extends React.PureComponent<Props> {
       { height: item.contentHeight },
     ];
     return (
-      <Hyperlink
-        linkDefault={true}
-        linkStyle={this.props.styles.link}
-        style={this.props.styles.robotextContainer}
-      >
+      <View style={this.props.styles.robotextContainer}>
         <Text style={textStyle}>{textParts}</Text>
-      </Hyperlink>
+      </View>
     );
   }
 
@@ -153,6 +165,7 @@ class RobotextMessage extends React.PureComponent<Props> {
 
 const WrappedRobotextMessage = connect((state: AppState) => ({
   styles: stylesSelector(state),
+  activeTheme: state.globalThemeInfo.activeTheme,
 }))(withKeyboardState(RobotextMessage));
 
 type InnerThreadEntityProps = {
