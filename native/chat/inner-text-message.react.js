@@ -6,7 +6,7 @@ import { type GlobalTheme, globalThemePropType } from '../types/themes';
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
@@ -67,6 +67,7 @@ class InnerTextMessage extends React.PureComponent<Props> {
       filterCorners(allCorners, item),
     );
 
+    const outerTextStyle = { height: item.contentHeight };
     const message = (
       <TouchableOpacity
         onPress={this.props.onPress}
@@ -74,13 +75,15 @@ class InnerTextMessage extends React.PureComponent<Props> {
         activeOpacity={0.6}
         style={[styles.message, messageStyle, cornerStyle]}
       >
-        <Markdown
-          style={textStyle}
-          useDarkStyle={darkColor}
-          rules={fullMarkdownRules}
-        >
-          {text}
-        </Markdown>
+        <Text style={outerTextStyle}>
+          <Markdown
+            style={textStyle}
+            useDarkStyle={darkColor}
+            rules={fullMarkdownRules}
+          >
+            {text}
+          </Markdown>
+        </Text>
       </TouchableOpacity>
     );
 
