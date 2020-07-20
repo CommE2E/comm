@@ -14,19 +14,21 @@ import { onlyEmojiRegex } from 'lib/shared/emojis';
 import { getMarkdownStyles } from './styles';
 
 type Props = {|
+  ...React.ElementConfig<typeof Text>,
   style: TextStyle,
   useDarkStyle: boolean,
   children: string,
   rules: MarkdownRules,
 |};
 function Markdown(props: Props) {
-  const { useDarkStyle, rules } = props;
-  const style = React.useMemo(() => {
+  const { style, useDarkStyle, children, rules, ...rest } = props;
+
+  const markdownStyles = React.useMemo(() => {
     return getMarkdownStyles(useDarkStyle ? 'dark' : 'light');
   }, [useDarkStyle]);
   const { simpleMarkdownRules, emojiOnlyFactor } = React.useMemo(
-    () => rules(style),
-    [rules, style],
+    () => rules(markdownStyles),
+    [rules, markdownStyles],
   );
 
   const parser = React.useMemo(
@@ -34,8 +36,8 @@ function Markdown(props: Props) {
     [simpleMarkdownRules],
   );
   const ast = React.useMemo(
-    () => parser(props.children, { disableAutoBlockNewlines: true }),
-    [parser, props.children],
+    () => parser(children, { disableAutoBlockNewlines: true }),
+    [parser, children],
   );
 
   const output = React.useMemo(
@@ -48,19 +50,17 @@ function Markdown(props: Props) {
     if (emojiOnlyFactor === null || emojiOnlyFactor === undefined) {
       return false;
     }
-    return onlyEmojiRegex.test(props.children);
-  }, [emojiOnlyFactor, props.children]);
+    return onlyEmojiRegex.test(children);
+  }, [emojiOnlyFactor, children]);
   const textStyle = React.useMemo(() => {
     if (
       !emojiOnly ||
       emojiOnlyFactor === null ||
       emojiOnlyFactor === undefined
     ) {
-      return props.style;
+      return style;
     }
-    const flattened: FlattenedTextStyle = (StyleSheet.flatten(
-      props.style,
-    ): any);
+    const flattened: FlattenedTextStyle = (StyleSheet.flatten(style): any);
     invariant(
       flattened && typeof flattened === 'object',
       `Markdown component should have style`,
@@ -71,9 +71,13 @@ function Markdown(props: Props) {
       `style prop should have fontSize if using emojiOnlyFactor`,
     );
     return { ...flattened, fontSize: fontSize * emojiOnlyFactor };
-  }, [emojiOnly, props.style, emojiOnlyFactor]);
+  }, [emojiOnly, style, emojiOnlyFactor]);
 
-  return <Text style={textStyle}>{renderedOutput}</Text>;
+  return (
+    <Text style={textStyle} {...rest}>
+      {renderedOutput}
+    </Text>
+  );
 }
 
 export default Markdown;
