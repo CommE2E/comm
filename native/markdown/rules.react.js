@@ -88,17 +88,8 @@ function inlineMarkdownRules(
         </React.Fragment>
       ),
     },
-    // This is the leaf node in the AST returned by the parse phase. We handle
-    // rendering emoji as a different size here
-    text: {
-      ...SimpleMarkdown.defaultRules.text,
-      // eslint-disable-next-line react/display-name
-      react: (
-        node: SimpleMarkdown.SingleASTNode,
-        output: SimpleMarkdown.Output<string>,
-        state: SimpleMarkdown.State,
-      ) => <React.Fragment key={state.key}>{node.content}</React.Fragment>,
-    },
+    // This is the leaf node in the AST returned by the parse phase
+    text: SimpleMarkdown.defaultRules.text,
   };
   return {
     simpleMarkdownRules,
