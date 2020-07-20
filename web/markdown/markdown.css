@@ -1,0 +1,11 @@
+blockquote.block {
+    background: #f9f9f9;
+    border-left: 5px solid #ccc;
+    padding:		.5em 10px;
+}
+
+code.inlineCode {
+  background: #DDDDDD
+}
+
+

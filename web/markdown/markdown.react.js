@@ -24,7 +24,7 @@ class Markdown extends React.PureComponent<Props> {
 
     const { simpleMarkdownRules } = this.props.rules();
     const parser = SimpleMarkdown.parserFor(simpleMarkdownRules);
-    this.ast = parser(this.props.children, { inline: true });
+    this.ast = parser(this.props.children, { disableAutoBlockNewlines: true });
     this.output = SimpleMarkdown.outputFor(simpleMarkdownRules, 'react');
   }
 
