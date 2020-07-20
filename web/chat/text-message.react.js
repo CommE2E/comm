@@ -86,7 +86,9 @@ class TextMessage extends React.PureComponent<Props> {
         setMouseOver={this.props.setMouseOver}
       >
         <div className={messageClassName} style={messageStyle}>
-          <Markdown rules={markdownRules}>{text}</Markdown>
+          <Markdown useDarkStyle={darkColor} rules={markdownRules}>
+            {text}
+          </Markdown>
         </div>
       </ComposedMessage>
     );

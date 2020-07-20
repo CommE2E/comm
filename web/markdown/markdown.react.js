@@ -3,34 +3,47 @@
 import type { MarkdownRules } from './rules.react';
 
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import * as SimpleMarkdown from 'simple-markdown';
+import classNames from 'classnames';
+
+import css from './markdown.css';
 
 type Props = {|
   children: string,
   rules: MarkdownRules,
+  useDarkStyle: boolean,
 |};
-class Markdown extends React.PureComponent<Props> {
-  static propTypes = {
-    children: PropTypes.string.isRequired,
-    rules: PropTypes.func.isRequired,
-  };
+function Markdown(props: Props) {
+  const { useDarkStyle, children, rules } = props;
 
-  ast: SimpleMarkdown.Parser;
-  output: SimpleMarkdown.ReactOutput;
+  const markdownClassName = React.useMemo(
+    () =>
+      classNames({
+        [css.markdown]: true,
+        [css.darkBackground]: useDarkStyle,
+        [css.lightBackground]: !useDarkStyle,
+      }),
+    [useDarkStyle],
+  );
 
-  constructor(props: Props) {
-    super(props);
+  const { simpleMarkdownRules } = React.useMemo(() => rules(), [rules]);
 
-    const { simpleMarkdownRules } = this.props.rules();
-    const parser = SimpleMarkdown.parserFor(simpleMarkdownRules);
-    this.ast = parser(this.props.children, { inline: true });
-    this.output = SimpleMarkdown.outputFor(simpleMarkdownRules, 'react');
-  }
+  const parser = React.useMemo(
+    () => SimpleMarkdown.parserFor(simpleMarkdownRules),
+    [simpleMarkdownRules],
+  );
+  const ast = React.useMemo(
+    () => parser(children, { disableAutoBlockNewlines: true }),
+    [parser, children],
+  );
 
-  render() {
-    return this.output(this.ast);
-  }
+  const output = React.useMemo(
+    () => SimpleMarkdown.outputFor(simpleMarkdownRules, 'react'),
+    [simpleMarkdownRules],
+  );
+  const renderedOutput = React.useMemo(() => output(ast), [ast, output]);
+
+  return <div className={markdownClassName}>{renderedOutput}</div>;
 }
 
 export default Markdown;

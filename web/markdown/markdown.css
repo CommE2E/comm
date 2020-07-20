@@ -1,0 +1,40 @@
+div.markdown {
+  display: inline;
+}
+
+div.markdown h1,
+div.markdown h2,
+div.markdown h3,
+div.markdown h4,
+div.markdown h5,
+div.markdown h6 {
+  display: inline;
+}
+
+div.markdown blockquote {
+  display: inline-block;
+  padding: .5em 10px;
+  box-sizing: border-box;
+  width: 100%;
+}
+div.darkBackground blockquote {
+  background: #A9A9A9;
+  border-left: 5px solid #808080;
+}
+div.lightBackground blockquote {
+  background: #D3D3D3;
+  border-left: 5px solid #C0C0C0;
+}
+
+div.markdown code {
+  width: 100%;
+  display: inline-block;
+  padding: .5em 10px;
+  box-sizing: border-box;
+}
+div.lightBackground code {
+  background: #DCDCDC;
+}
+div.darkBackground code {
+  background: #808080;
+}
