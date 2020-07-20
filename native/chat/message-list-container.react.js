@@ -3,7 +3,7 @@
 import type { AppState } from '../redux/redux-setup';
 import { messageTypes } from 'lib/types/message-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import type { TextToMeasure } from '../text-height-measurer.react';
+import type { NodeToMeasure } from '../components/node-height-measurer.react';
 import type { ChatMessageInfoItemWithHeight } from './message.react';
 import {
   messageListRoutePropType,
@@ -14,7 +14,7 @@ import type { NavigationRoute } from '../navigation/route-names';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 import invariant from 'invariant';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 
@@ -33,7 +33,7 @@ import {
 import { onlyEmojiRegex } from 'lib/shared/emojis';
 
 import MessageList from './message-list.react';
-import TextHeightMeasurer from '../text-height-measurer.react';
+import NodeHeightMeasurer from '../components/node-height-measurer.react';
 import ChatInputBar from './chat-input-bar.react';
 import { multimediaMessageContentSizes } from './multimedia-message.react';
 import {
@@ -71,7 +71,7 @@ type Props = {|
   inputState: ?InputState,
 |};
 type State = {|
-  textToMeasure: TextToMeasure[],
+  nodesToMeasure: NodeToMeasure[],
   listDataWithHeights: ?$ReadOnlyArray<ChatMessageItemWithHeight>,
 |};
 class MessageListContainer extends React.PureComponent<Props, State> {
@@ -89,21 +89,21 @@ class MessageListContainer extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    const textToMeasure = props.messageListData
-      ? this.textToMeasureFromListData(props.messageListData)
+    const nodesToMeasure = props.messageListData
+      ? this.nodesToMeasureFromListData(props.messageListData)
       : [];
     const listDataWithHeights =
-      props.messageListData && textToMeasure.length === 0
+      props.messageListData && nodesToMeasure.length === 0
         ? this.mergeHeightsIntoListData()
         : null;
     this.state = {
-      textToMeasure,
+      nodesToMeasure,
       listDataWithHeights,
     };
   }
 
-  textToMeasureFromListData(listData: $ReadOnlyArray<ChatMessageItem>) {
-    const textToMeasure = [];
+  nodesToMeasureFromListData(listData: $ReadOnlyArray<ChatMessageItem>) {
+    const nodesToMeasure = [];
     for (let item of listData) {
       if (item.itemType !== 'message') {
         continue;
@@ -116,20 +116,24 @@ class MessageListContainer extends React.PureComponent<Props, State> {
             : this.props.styles.text,
           { width: this.props.textMessageMaxWidth },
         ];
-        textToMeasure.push({
+        const node = <Text style={style}>{messageInfo.text}</Text>;
+        nodesToMeasure.push({
           id: messageKey(messageInfo),
-          text: messageInfo.text,
-          style,
+          node,
         });
       } else if (item.robotext && typeof item.robotext === 'string') {
-        textToMeasure.push({
+        const node = (
+          <Text style={this.props.styles.robotext}>
+            {robotextToRawString(item.robotext)}
+          </Text>
+        );
+        nodesToMeasure.push({
           id: messageKey(messageInfo),
-          text: robotextToRawString(item.robotext),
-          style: this.props.styles.robotext,
+          node,
         });
       }
     }
-    return textToMeasure;
+    return nodesToMeasure;
   }
 
   static getThreadInfo(props: Props): ThreadInfo {
@@ -147,7 +151,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     const newListData = this.props.messageListData;
     if (!newListData && oldListData) {
       this.setState({
-        textToMeasure: [],
+        nodesToMeasure: [],
         listDataWithHeights: null,
       });
     }
@@ -167,8 +171,8 @@ class MessageListContainer extends React.PureComponent<Props, State> {
       return;
     }
 
-    const newTextToMeasure = this.textToMeasureFromListData(newListData);
-    this.setState({ textToMeasure: newTextToMeasure });
+    const newNodesToMeasure = this.nodesToMeasureFromListData(newListData);
+    this.setState({ nodesToMeasure: newNodesToMeasure });
   }
 
   render() {
@@ -193,8 +197,8 @@ class MessageListContainer extends React.PureComponent<Props, State> {
 
     return (
       <View style={this.props.styles.container}>
-        <TextHeightMeasurer
-          textToMeasure={this.state.textToMeasure}
+        <NodeHeightMeasurer
+          nodesToMeasure={this.state.nodesToMeasure}
           allHeightsMeasuredCallback={this.allHeightsMeasured}
         />
         {messageList}
@@ -208,20 +212,20 @@ class MessageListContainer extends React.PureComponent<Props, State> {
   }
 
   allHeightsMeasured = (
-    textToMeasure: TextToMeasure[],
-    newTextHeights: Map<string, number>,
+    nodesToMeasure: $ReadOnlyArray<NodeToMeasure>,
+    newHeights: Map<string, number>,
   ) => {
-    if (textToMeasure !== this.state.textToMeasure) {
+    if (nodesToMeasure !== this.state.nodesToMeasure) {
       return;
     }
     if (!this.props.messageListData) {
       return;
     }
-    const listDataWithHeights = this.mergeHeightsIntoListData(newTextHeights);
+    const listDataWithHeights = this.mergeHeightsIntoListData(newHeights);
     this.setState({ listDataWithHeights });
   };
 
-  mergeHeightsIntoListData(textHeights?: Map<string, number>) {
+  mergeHeightsIntoListData(nodeHeights?: Map<string, number>) {
     const { messageListData: listData, inputState } = this.props;
     const threadInfo = MessageListContainer.getThreadInfo(this.props);
     const listDataWithHeights = listData.map((item: ChatMessageItem) => {
@@ -260,10 +264,10 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           ...sizes,
         };
       }
-      invariant(textHeights, 'textHeights not set');
-      const textHeight = textHeights.get(key);
+      invariant(nodeHeights, 'nodeHeights not set');
+      const contentHeight = nodeHeights.get(key);
       invariant(
-        textHeight !== null && textHeight !== undefined,
+        contentHeight !== null && contentHeight !== undefined,
         `height for ${key} should be set`,
       );
       if (messageInfo.type === messageTypes.TEXT) {
@@ -280,7 +284,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           startsConversation: item.startsConversation,
           startsCluster: item.startsCluster,
           endsCluster: item.endsCluster,
-          contentHeight: textHeight,
+          contentHeight,
         };
       } else {
         invariant(
@@ -296,7 +300,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           startsCluster: item.startsCluster,
           endsCluster: item.endsCluster,
           robotext: item.robotext,
-          contentHeight: textHeight,
+          contentHeight,
         };
       }
     });

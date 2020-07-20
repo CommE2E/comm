@@ -16,7 +16,7 @@ import type {
 import type { ViewToken } from '../types/react-native';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { KeyboardEvent } from '../keyboard/keyboard';
-import type { TextToMeasure } from '../text-height-measurer.react';
+import type { NodeToMeasure } from '../components/node-height-measurer.react';
 import {
   type CalendarFilter,
   calendarFilterPropType,
@@ -76,7 +76,7 @@ import {
   createIsForegroundSelector,
   createActiveTabSelector,
 } from '../navigation/nav-selectors';
-import TextHeightMeasurer from '../text-height-measurer.react';
+import NodeHeightMeasurer from '../components/node-height-measurer.react';
 import ListLoadingIndicator from '../components/list-loading-indicator.react';
 import SectionFooter from './section-footer.react';
 import CalendarInputBar from './calendar-input-bar.react';
@@ -146,7 +146,7 @@ type Props = {
   ) => Promise<CalendarQueryUpdateResult>,
 };
 type State = {|
-  textToMeasure: TextToMeasure[],
+  nodesToMeasure: NodeToMeasure[],
   listDataWithHeights: ?$ReadOnlyArray<CalendarItemWithHeight>,
   readyToShowList: boolean,
   extraData: ExtraData,
@@ -197,7 +197,7 @@ class Calendar extends React.PureComponent<Props, State> {
     updateCalendarQuery: PropTypes.func.isRequired,
   };
   flatList: ?FlatList<CalendarItemWithHeight> = null;
-  textHeights: ?Map<string, number> = null;
+  nodeHeights: ?Map<string, number> = null;
   currentState: ?string = NativeAppState.currentState;
   lastForegrounded = 0;
   lastCalendarReset = 0;
@@ -225,15 +225,15 @@ class Calendar extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    const textToMeasure = props.listData
-      ? Calendar.textToMeasureFromListData(props.listData)
+    const nodesToMeasure = props.listData
+      ? Calendar.nodesToMeasureFromListData(props.listData)
       : [];
     this.latestExtraData = {
       activeEntries: {},
       visibleEntries: {},
     };
     this.state = {
-      textToMeasure,
+      nodesToMeasure,
       listDataWithHeights: null,
       readyToShowList: false,
       extraData: this.latestExtraData,
@@ -241,18 +241,20 @@ class Calendar extends React.PureComponent<Props, State> {
     };
   }
 
-  static textToMeasureFromListData(listData: $ReadOnlyArray<CalendarItem>) {
-    const textToMeasure = [];
+  static nodesToMeasureFromListData(listData: $ReadOnlyArray<CalendarItem>) {
+    const nodesToMeasure = [];
     for (let item of listData) {
       if (item.itemType !== 'entryInfo') {
         continue;
       }
-      textToMeasure.push({
+      const text = item.entryInfo.text === '' ? ' ' : item.entryInfo.text;
+      const node = <Text style={entryStyles.text}>{text}</Text>;
+      nodesToMeasure.push({
         id: entryKey(item.entryInfo),
-        text: item.entryInfo.text,
+        node,
       });
     }
-    return textToMeasure;
+    return nodesToMeasure;
   }
 
   componentDidMount() {
@@ -308,7 +310,7 @@ class Calendar extends React.PureComponent<Props, State> {
 
   componentDidUpdate(prevProps: Props, prevState: State) {
     if (this.props.listData !== prevProps.listData) {
-      this.handleNewTextToMeasure();
+      this.handleNewNodesToMeasure();
     }
 
     const { loadingStatus, connectionStatus } = this.props;
@@ -383,7 +385,7 @@ class Calendar extends React.PureComponent<Props, State> {
     }
   }
 
-  handleNewTextToMeasure() {
+  handleNewNodesToMeasure() {
     const { listData } = this.props;
     if (!listData) {
       this.latestExtraData = {
@@ -391,7 +393,7 @@ class Calendar extends React.PureComponent<Props, State> {
         visibleEntries: {},
       };
       this.setState({
-        textToMeasure: [],
+        nodesToMeasure: [],
         listDataWithHeights: null,
         readyToShowList: false,
         extraData: this.latestExtraData,
@@ -401,37 +403,37 @@ class Calendar extends React.PureComponent<Props, State> {
       return;
     }
 
-    const newTextToMeasure = Calendar.textToMeasureFromListData(listData);
-    const newText = _differenceWith(_isEqual)(newTextToMeasure)(
-      this.state.textToMeasure,
+    const newNodesToMeasure = Calendar.nodesToMeasureFromListData(listData);
+    const newNodes = _differenceWith(_isEqual)(newNodesToMeasure)(
+      this.state.nodesToMeasure,
     );
-    if (newText.length !== 0) {
-      // We set textHeights to null here since if a future set of text
-      // came in before we completed text measurement that was a subset
-      // of the earlier text, we would end up merging directly there, but
-      // then when the measurement for the middle text came in it would
-      // override the newer text heights.
-      this.textHeights = null;
-      this.setState({ textToMeasure: newTextToMeasure });
+    if (newNodes.length !== 0) {
+      // We set nodeHeights to null here since if a future set of nodes
+      // came in before we completed height measurement that was a subset
+      // of the earlier nodes, we would end up merging directly there, but
+      // then when the measurement for the middle nodes came in it would
+      // override the newer node heights.
+      this.nodeHeights = null;
+      this.setState({ nodesToMeasure: newNodesToMeasure });
       return;
     }
 
-    let allTextAlreadyMeasured = false;
-    if (this.textHeights) {
-      allTextAlreadyMeasured = true;
-      for (let textToMeasure of newTextToMeasure) {
-        if (!this.textHeights.has(textToMeasure.id)) {
-          allTextAlreadyMeasured = false;
+    let allNodesAlreadyMeasured = false;
+    if (this.nodeHeights) {
+      allNodesAlreadyMeasured = true;
+      for (let nodeToMeasure of newNodesToMeasure) {
+        if (!this.nodeHeights.has(nodeToMeasure.id)) {
+          allNodesAlreadyMeasured = false;
           break;
         }
       }
     }
-    if (allTextAlreadyMeasured) {
+    if (allNodesAlreadyMeasured) {
       this.mergeHeightsIntoListData();
     }
 
-    // If we don't have everything in textHeights, but we do have everything in
-    // textToMeasure, we can conclude that we're just waiting for the
+    // If we don't have everything in nodeHeights, but we do have everything in
+    // nodesToMeasure, we can conclude that we're just waiting for the
     // measurement to complete and then we'll be good.
   }
 
@@ -557,14 +559,14 @@ class Calendar extends React.PureComponent<Props, State> {
       return;
     }
 
-    const textHeights = this.textHeights;
-    invariant(textHeights, 'textHeights should be set');
+    const { nodeHeights } = this;
+    invariant(nodeHeights, 'nodeHeights should be set');
     const listDataWithHeights = _map((item: CalendarItem) => {
       if (item.itemType !== 'entryInfo') {
         return item;
       }
       const entryInfo = item.entryInfo;
-      const textHeight = textHeights.get(entryKey(entryInfo));
+      const textHeight = nodeHeights.get(entryKey(entryInfo));
       invariant(textHeight, `height for ${entryKey(entryInfo)} should be set`);
       return {
         itemType: 'entryInfo',
@@ -746,10 +748,9 @@ class Calendar extends React.PureComponent<Props, State> {
     const disableInputBar = this.state.currentlyEditing.length === 0;
     return (
       <>
-        <TextHeightMeasurer
-          textToMeasure={this.state.textToMeasure}
+        <NodeHeightMeasurer
+          nodesToMeasure={this.state.nodesToMeasure}
           allHeightsMeasuredCallback={this.allHeightsMeasured}
-          style={[entryStyles.entry, entryStyles.text]}
         />
         <SafeAreaView style={this.props.styles.container} edges={safeAreaEdges}>
           <DisconnectedBar visible={this.props.calendarActive} />
@@ -940,13 +941,13 @@ class Calendar extends React.PureComponent<Props, State> {
   }
 
   allHeightsMeasured = (
-    textToMeasure: TextToMeasure[],
-    newTextHeights: Map<string, number>,
+    nodesToMeasure: $ReadOnlyArray<NodeToMeasure>,
+    newHeights: Map<string, number>,
   ) => {
-    if (textToMeasure !== this.state.textToMeasure) {
+    if (nodesToMeasure !== this.state.nodesToMeasure) {
       return;
     }
-    this.textHeights = newTextHeights;
+    this.nodeHeights = newHeights;
     this.mergeHeightsIntoListData();
   };
 
