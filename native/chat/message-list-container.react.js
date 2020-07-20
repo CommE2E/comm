@@ -30,7 +30,6 @@ import {
   messageID,
   robotextToRawString,
 } from 'lib/shared/message-utils';
-import { onlyEmojiRegex } from 'lib/shared/emojis';
 
 import MessageList from './message-list.react';
 import NodeHeightMeasurer from '../components/node-height-measurer.react';
@@ -52,6 +51,8 @@ import {
   styleSelector,
 } from '../themes/colors';
 import ContentLoading from '../components/content-loading.react';
+import Markdown from '../markdown/markdown.react';
+import { fullMarkdownRules } from '../markdown/rules.react';
 
 export type ChatMessageItemWithHeight =
   | {| itemType: 'loader' |}
@@ -111,12 +112,18 @@ class MessageListContainer extends React.PureComponent<Props, State> {
       const { messageInfo } = item;
       if (messageInfo.type === messageTypes.TEXT) {
         const style = [
-          onlyEmojiRegex.test(messageInfo.text)
-            ? this.props.styles.emojiOnlyText
-            : this.props.styles.text,
+          this.props.styles.text,
           { width: this.props.textMessageMaxWidth },
         ];
-        const node = <Text style={style}>{messageInfo.text}</Text>;
+        const node = (
+          <Markdown
+            style={style}
+            useDarkStyle={false}
+            rules={fullMarkdownRules}
+          >
+            {messageInfo.text}
+          </Markdown>
+        );
         nodesToMeasure.push({
           id: messageKey(messageInfo),
           node,
@@ -312,10 +319,6 @@ const styles = {
   container: {
     backgroundColor: 'listBackground',
     flex: 1,
-  },
-  emojiOnlyText: {
-    fontFamily: 'Arial',
-    fontSize: 36,
   },
   robotext: {
     fontFamily: 'Arial',
