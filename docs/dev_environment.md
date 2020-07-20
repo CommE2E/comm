@@ -187,6 +187,25 @@ Now either close and reopen your terminal window or re-source your shell configu
 source ~/.bash_profile
 ```
 
+## Arcanist
+
+We use Phabricator for code review. To upload a “diff” to Phabricator, you’ll need to use a tool called Arcanist.
+
+To install Arcanist, first create a directory for it somewhere in your filesystem. Then run these commands in that directory:
+
+```
+git clone https://github.com/phacility/libphutil.git
+git clone https://github.com/phacility/arcanist.git
+```
+
+Finally, you’ll need to add the path `./arcanist/bin` to your `$PATH` in your `~/.bash_profile` (or desired shell configuration file):
+
+```
+export PATH=$PATH:~/src/arcanist/bin
+```
+
+Make sure to replace the `~/src` portion of the above with the location of the directory you installed Arcanist in.
+
 # Configuration
 
 ## Apache
@@ -416,6 +435,18 @@ Your `url.json` file should look like this:
 }
 ```
 
+## Phabricator
+
+The last configuration step is to set up an account on Phabricator, where we handle code review. Start by [logging in to Phabricator](https://phabricator.ashoat.com) using your GitHub account.
+
+Next, make sure you’re inside the directory containing the SquadCal Git repository, and run the following command:
+
+```
+arc install-certificate
+```
+
+This command will help you connect your Phabricator account with the local Arcanist instance, allowing you to run `arc diff` and `arc land` commands.
+
 # Development
 
 ## Flow typechecker
@@ -495,6 +526,32 @@ Finally, use this command to build and run the Android app:
 cd native
 react-native run-android
 ```
+
+## Creating a new diff
+
+The biggest difference between GitHub’s PR workflow and Phabricator’s “diff” workflow is that Phabricator lets you create a diff from any commit, or set of commits. In contrast, GitHub can only create PRs from branches.
+
+When you have a commit ready and want to submit a diff for code review, just run `arc diff` from within the SquadCal Git repo. Arcanist will attempt to determine the “base” for your diff automatically, but by default it will take the single most recent commit. You can see what base Arcanist thinks it should use by running `arc which`. You can also explicitly specify a base by using `arc diff --base`. For instance, `arc diff --base HEAD^` will create a diff from the most recent commit, which should be the default behavior.
+
+Keep in mind that `arc diff` always diffs the base against your current working copy. Though this nominally includes any unstashed changes you might have, `arc diff`’s interactive prompts will help you exclude unrelated changes in your working copy.
+
+It’s generally easiest to keep a 1:1 correspondence between diffs and commits. If you’re working with a stack of commits, you can use Git’s interactive rebase feature (`git rebase -i`) to run `arc diff` on each commit individually.
+
+## Updating a diff
+
+Whereas with GitHub PRs, updates are usually created by adding on more commits, in Phabricator the easiest way to update a diff is by amending the existing commit.
+
+When you run `arc diff` on a commit for the first time, it amends the commit message to include a link to the Phabricator diff. If and when you want to update that diff, just run `arc diff` again.
+
+If you’re working with a stack of diffs, and want to update an earlier diff, you can use Git’s interactive rebase feature (`git rebase -i`) to open the stack to a particular point. Then you can amend that commit and run `arc diff` before continuing the rebase.
+
+## Committing a diff
+
+After your diff has been accepted, you should be able to land it. To land a diff just run `arc land` from within the repository.
+
+If you’re dealing with a stack, `arc land` will make sure to only land the diffs that have been accepted, and shouldn’t land any diffs that depend on other diffs that haven’t been accepted yet.
+
+Note that you need commit rights to the repository in order to run `arc land`. If you don’t have commit rights, reach out to @ashoat for assistance.
 
 ## Final notes
 
