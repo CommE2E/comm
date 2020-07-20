@@ -400,7 +400,7 @@ class InternalEntry extends React.Component<Props, State> {
                 onLayout={this.onTextContainerLayout}
               >
                 <Markdown
-                  textStyle={textStyle}
+                  style={textStyle}
                   useDarkStyle={darkColor}
                   rules={inlineMarkdownRules}
                 >

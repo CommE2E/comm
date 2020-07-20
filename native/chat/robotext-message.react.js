@@ -114,7 +114,7 @@ class RobotextMessage extends React.PureComponent<Props> {
         const darkColor = this.props.activeTheme === 'dark';
         textParts.push(
           <Markdown
-            textStyle={this.props.styles.robotext}
+            style={this.props.styles.robotext}
             key={`text${keyIndex++}`}
             useDarkStyle={darkColor}
             rules={inlineMarkdownRules}

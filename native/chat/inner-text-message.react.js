@@ -75,7 +75,7 @@ class InnerTextMessage extends React.PureComponent<Props> {
         style={[styles.message, messageStyle, cornerStyle]}
       >
         <Markdown
-          textStyle={textStyle}
+          style={textStyle}
           useDarkStyle={darkColor}
           rules={fullMarkdownRules}
         >

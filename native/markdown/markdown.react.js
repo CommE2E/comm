@@ -14,7 +14,7 @@ import { onlyEmojiRegex } from 'lib/shared/emojis';
 import { getMarkdownStyles } from './styles';
 
 type Props = {|
-  textStyle: TextStyle,
+  style: TextStyle,
   useDarkStyle: boolean,
   children: string,
   rules: MarkdownRules,
@@ -56,22 +56,22 @@ function Markdown(props: Props) {
       emojiOnlyFactor === null ||
       emojiOnlyFactor === undefined
     ) {
-      return props.textStyle;
+      return props.style;
     }
     const flattened: FlattenedTextStyle = (StyleSheet.flatten(
-      props.textStyle,
+      props.style,
     ): any);
     invariant(
       flattened && typeof flattened === 'object',
-      `state passed to Markdown output should have textStyle`,
+      `Markdown component should have style`,
     );
     const { fontSize } = flattened;
     invariant(
       fontSize,
-      `textStyle should have fontSize if using emojiOnlyFactor`,
+      `style prop should have fontSize if using emojiOnlyFactor`,
     );
     return { ...flattened, fontSize: fontSize * emojiOnlyFactor };
-  }, [emojiOnly, props.textStyle, emojiOnlyFactor]);
+  }, [emojiOnly, props.style, emojiOnlyFactor]);
 
   return <Text style={textStyle}>{renderedOutput}</Text>;
 }
