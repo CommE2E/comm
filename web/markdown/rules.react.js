@@ -3,9 +3,10 @@
 import * as SimpleMarkdown from 'simple-markdown';
 import * as React from 'react';
 
-import { urlRegex } from 'lib/shared/markdown';
+import * as MarkdownRegex from 'lib/shared/markdown';
 
 import css from './markdown.css';
+
 type MarkdownRuleSpec = {|
   +simpleMarkdownRules: SimpleMarkdown.Rules,
 |};
@@ -37,8 +38,7 @@ function linkRules(): MarkdownRuleSpec {
     },
     paragraph: {
       ...SimpleMarkdown.defaultRules.paragraph,
-      match: SimpleMarkdown.blockRegex(/^((?:[^\n]*)(?:\n|$))/),
-      // match: SimpleMarkdown.blockRegex(/^((?:[^\n]|\n(?! *\n))+)(?:\n *)+\n/)
+      match: SimpleMarkdown.blockRegex(MarkdownRegex.paragraphRegex),
       // eslint-disable-next-line react/display-name
       react: (
         node: SimpleMarkdown.SingleASTNode,
@@ -50,18 +50,10 @@ function linkRules(): MarkdownRuleSpec {
         </React.Fragment>
       ),
     },
-    text: {
-      ...SimpleMarkdown.defaultRules.text,
-      // eslint-disable-next-line react/display-name
-      react: (
-        node: SimpleMarkdown.SingleASTNode,
-        output: SimpleMarkdown.Output<string>,
-        state: SimpleMarkdown.State,
-      ) => <React.Fragment key={state.key}>{node.content}</React.Fragment>,
-    },
+    text: SimpleMarkdown.defaultRules.text,
     url: {
       ...SimpleMarkdown.defaultRules.url,
-      match: SimpleMarkdown.inlineRegex(urlRegex),
+      match: SimpleMarkdown.inlineRegex(MarkdownRegex.urlRegex),
     },
   };
   return {
@@ -83,16 +75,15 @@ function markdownRules(): MarkdownRuleSpec {
     blockQuote: {
       ...SimpleMarkdown.defaultRules.blockQuote,
       // match end of blockQuote by either \n\n or end of string
-      match: SimpleMarkdown.blockRegex(/^( *>[^\n]+(\n[^\n]+)*\n*)+(\n{2,}|$)/),
+      match: SimpleMarkdown.blockRegex(MarkdownRegex.blockQuoteRegex),
       parse(
         capture: SimpleMarkdown.Capture,
         parse: SimpleMarkdown.Parser,
         state: SimpleMarkdown.State,
       ) {
-        var content = capture[0].replace(/^ *> ?/gm, '');
+        let content = capture[1].replace(/^ *> ?/gm, '');
         return {
-          // remove new line from captured string
-          content: parse(content.trim(), state),
+          content: parse(content, state),
         };
       },
       // eslint-disable-next-line react/display-name
@@ -122,33 +113,17 @@ function markdownRules(): MarkdownRuleSpec {
     em: SimpleMarkdown.defaultRules.em,
     strong: SimpleMarkdown.defaultRules.strong,
     del: SimpleMarkdown.defaultRules.del,
-    underline: {
-      order: SimpleMarkdown.defaultRules.em.order - 0.5,
-      match: SimpleMarkdown.inlineRegex(/^__([\s\S]+?)__(?!_)/),
-      parse: (
-        capture: SimpleMarkdown.Capture,
-        parse: SimpleMarkdown.Parser,
-        state: SimpleMarkdown.state,
-      ) => ({
-        content: parse(capture[1], state),
-      }),
-      // eslint-disable-next-line react/display-name
-      react: (
-        node: SimpleMarkdown.SingleASTNode,
-        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
-        state: SimpleMarkdown.State,
-      ) => <u key={state.key}>{output(node.content, state)}</u>,
+    u: SimpleMarkdown.defaultRules.u,
+    heading: {
+      ...SimpleMarkdown.defaultRules.heading,
+      match: SimpleMarkdown.blockRegex(MarkdownRegex.headingRegex),
     },
-    // heading: {
-    //   ...SimpleMarkdown.defaultRules.heading,
-    //   match: SimpleMarkdown.inlineRegex(/^ *(#{1,6} )([^\n]+?) *(?:\n+|$)/),
-    // },
     mailto: SimpleMarkdown.defaultRules.mailto,
     codeBlock: {
       ...SimpleMarkdown.defaultRules.codeBlock,
-      match: SimpleMarkdown.blockRegex(/^(?: {4}[^\n]+\n*)+(?:\n *)/),
+      match: SimpleMarkdown.blockRegex(MarkdownRegex.codeBlockRegex),
       parse(capture: SimpleMarkdown.Capture) {
-        var content = capture[0].replace(/^ {4}/gm, '');
+        let content = capture[0].replace(/^ {4}/gm, '');
         return {
           lang: undefined,
           content: content,
@@ -157,14 +132,7 @@ function markdownRules(): MarkdownRuleSpec {
     },
     fence: {
       ...SimpleMarkdown.defaultRules.fence,
-      match: SimpleMarkdown.blockRegex(/`{3}(?:(.*$)\n)?([\s\S]*)`{3}/m),
-      parse(capture: SimpleMarkdown.Capture) {
-        return {
-          type: 'codeBlock',
-          lang: capture[1] || undefined,
-          content: capture[2],
-        };
-      },
+      match: SimpleMarkdown.blockRegex(MarkdownRegex.fenceRegex),
     },
   };
   return {
