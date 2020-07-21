@@ -65,7 +65,12 @@ import {
   AddUsersModalRouteName,
   ComposeSubthreadModalRouteName,
 } from '../../navigation/route-names';
-import { styleSelector } from '../../themes/colors';
+import {
+  styleSelector,
+  type IndicatorStyle,
+  indicatorStylePropType,
+  indicatorStyleSelector,
+} from '../../themes/colors';
 import {
   withOverlayContext,
   type OverlayContextType,
@@ -195,6 +200,7 @@ type Props = {|
   childThreadInfos: ?(ThreadInfo[]),
   somethingIsSaving: boolean,
   styles: typeof styles,
+  indicatorStyle: IndicatorStyle,
   // withOverlayContext
   overlayContext: ?OverlayContextType,
 |};
@@ -230,6 +236,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     childThreadInfos: PropTypes.arrayOf(threadInfoPropType),
     somethingIsSaving: PropTypes.bool.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
+    indicatorStyle: indicatorStylePropType.isRequired,
     overlayContext: overlayContextPropType,
   };
   flatListContainer: ?React.ElementRef<typeof View>;
@@ -642,6 +649,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           contentContainerStyle={this.props.styles.flatList}
           renderItem={this.renderItem}
           scrollEnabled={!ThreadSettings.scrollDisabled(this.props)}
+          indicatorStyle={this.props.indicatorStyle}
         />
       </View>
     );
@@ -900,6 +908,7 @@ const WrappedThreadSettings = connect(
       childThreadInfos: childThreadInfos(state)[threadID],
       somethingIsSaving: somethingIsSaving(state, threadMembers),
       styles: stylesSelector(state),
+      indicatorStyle: indicatorStyleSelector(state),
     };
   },
 )(withOverlayContext(ThreadSettings));

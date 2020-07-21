@@ -95,6 +95,9 @@ import {
   colorsPropType,
   colorsSelector,
   styleSelector,
+  type IndicatorStyle,
+  indicatorStylePropType,
+  indicatorStyleSelector,
 } from '../themes/colors';
 import ContentLoading from '../components/content-loading.react';
 import {
@@ -137,6 +140,7 @@ type Props = {
   connectionStatus: ConnectionStatus,
   colors: Colors,
   styles: typeof styles,
+  indicatorStyle: IndicatorStyle,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -193,6 +197,7 @@ class Calendar extends React.PureComponent<Props, State> {
     connectionStatus: connectionStatusPropType.isRequired,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
+    indicatorStyle: indicatorStylePropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     updateCalendarQuery: PropTypes.func.isRequired,
   };
@@ -735,6 +740,7 @@ class Calendar extends React.PureComponent<Props, State> {
           scrollsToTop={false}
           extraData={this.state.extraData}
           style={[this.props.styles.flatList, flatListStyle]}
+          indicatorStyle={this.props.indicatorStyle}
           ref={this.flatListRef}
         />
       );
@@ -1169,6 +1175,7 @@ export default connectNav((context: ?NavContextType) => ({
       connectionStatus: state.connection.status,
       colors: colorsSelector(state),
       styles: stylesSelector(state),
+      indicatorStyle: indicatorStyleSelector(state),
     }),
     { updateCalendarQuery },
   )(Calendar),

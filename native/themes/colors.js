@@ -225,6 +225,23 @@ function getStylesForTheme<IS: Styles>(
   return stylesFromColors(obj, colors[theme]);
 }
 
+export type IndicatorStyle = 'white' | 'black';
+const indicatorStylePropType = PropTypes.oneOf(['white', 'black']);
+function useIndicatorStyle(): IndicatorStyle {
+  const theme = useSelector(
+    (state: AppState) => state.globalThemeInfo.activeTheme,
+  );
+  return theme && theme === 'dark' ? 'white' : 'black';
+}
+const indicatorStyleSelector: (
+  state: AppState,
+) => IndicatorStyle = createSelector(
+  (state: AppState) => state.globalThemeInfo.activeTheme,
+  (theme: ?GlobalTheme) => {
+    return theme && theme === 'dark' ? 'white' : 'black';
+  },
+);
+
 export {
   colorsPropType,
   colors,
@@ -233,4 +250,7 @@ export {
   useStyles,
   useOverlayStyles,
   getStylesForTheme,
+  indicatorStylePropType,
+  useIndicatorStyle,
+  indicatorStyleSelector,
 };

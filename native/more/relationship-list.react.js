@@ -12,7 +12,11 @@ import { connect } from 'lib/utils/redux-utils';
 import { type UserInfo } from 'lib/types/user-types';
 
 import { AddFriendsModalRouteName } from '../navigation/route-names';
-import { styleSelector } from '../themes/colors';
+import {
+  styleSelector,
+  type IndicatorStyle,
+  indicatorStyleSelector,
+} from '../themes/colors';
 
 import RelationshipListItem from './relationship-list-item.react';
 
@@ -50,6 +54,7 @@ type Props = {|
   route: NavigationRoute<'FriendList' | 'BlockList'>,
   // Redux state
   styles: typeof styles,
+  indicatorStyle: IndicatorStyle,
 |};
 class RelationshipList extends React.PureComponent<Props> {
   render() {
@@ -59,6 +64,7 @@ class RelationshipList extends React.PureComponent<Props> {
           contentContainerStyle={this.props.styles.contentContainer}
           data={LIST_DATA}
           renderItem={this.renderItem}
+          indicatorStyle={this.props.indicatorStyle}
         />
       </View>
     );
@@ -120,4 +126,5 @@ const stylesSelector = styleSelector(styles);
 
 export default connect((state: AppState) => ({
   styles: stylesSelector(state),
+  indicatorStyle: indicatorStyleSelector(state),
 }))(RelationshipList);

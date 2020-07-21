@@ -34,7 +34,12 @@ import {
   BackgroundChatThreadListRouteName,
   type NavigationRoute,
 } from '../navigation/route-names';
-import { styleSelector } from '../themes/colors';
+import {
+  styleSelector,
+  type IndicatorStyle,
+  indicatorStylePropType,
+  indicatorStyleSelector,
+} from '../themes/colors';
 import Search from '../components/search.react';
 
 const floatingActions = [
@@ -62,6 +67,7 @@ type Props = {|
   viewerID: ?string,
   threadSearchIndex: SearchIndex,
   styles: typeof styles,
+  indicatorStyle: IndicatorStyle,
 |};
 type State = {|
   searchText: string,
@@ -81,6 +87,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     viewerID: PropTypes.string,
     threadSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
+    indicatorStyle: indicatorStylePropType.isRequired,
   };
   state = {
     searchText: '',
@@ -250,6 +257,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
           keyboardShouldPersistTaps="handled"
           onScroll={this.onScroll}
           style={this.props.styles.flatList}
+          indicatorStyle={this.props.indicatorStyle}
           ref={this.flatListRef}
         />
         {floatingAction}
@@ -314,4 +322,5 @@ export default connect((state: AppState) => ({
   viewerID: state.currentUserInfo && state.currentUserInfo.id,
   threadSearchIndex: threadSearchIndex(state),
   styles: stylesSelector(state),
+  indicatorStyle: indicatorStyleSelector(state),
 }))(ChatThreadList);

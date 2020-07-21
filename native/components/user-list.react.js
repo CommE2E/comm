@@ -2,24 +2,35 @@
 
 import type { TextStyle } from '../types/styles';
 import { type UserListItem, userListItemPropType } from 'lib/types/user-types';
+import type { AppState } from '../redux/redux-setup';
 
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FlatList, Text } from 'react-native';
 import _sum from 'lodash/fp/sum';
 
+import { connect } from 'lib/utils/redux-utils';
+
 import { UserListUser, getUserListItemHeight } from './user-list-user.react';
+import {
+  type IndicatorStyle,
+  indicatorStylePropType,
+  indicatorStyleSelector,
+} from '../themes/colors';
 
 type Props = {
   userInfos: $ReadOnlyArray<UserListItem>,
   onSelect: (userID: string) => void,
   itemTextStyle?: TextStyle,
+  // Redux state
+  indicatorStyle: IndicatorStyle,
 };
 class UserList extends React.PureComponent<Props> {
   static propTypes = {
     userInfos: PropTypes.arrayOf(userListItemPropType).isRequired,
     onSelect: PropTypes.func.isRequired,
     itemTextStyle: Text.propTypes.style,
+    indicatorStyle: indicatorStylePropType.isRequired,
   };
 
   render() {
@@ -32,6 +43,7 @@ class UserList extends React.PureComponent<Props> {
         keyboardShouldPersistTaps="handled"
         initialNumToRender={20}
         extraData={this.props.itemTextStyle}
+        indicatorStyle={this.props.indicatorStyle}
       />
     );
   }
@@ -63,4 +75,6 @@ class UserList extends React.PureComponent<Props> {
   }
 }
 
-export default UserList;
+export default connect((state: AppState) => ({
+  indicatorStyle: indicatorStyleSelector(state),
+}))(UserList);

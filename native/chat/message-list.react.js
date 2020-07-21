@@ -36,7 +36,12 @@ import { registerFetchKey } from 'lib/reducers/loading-reducer';
 
 import { Message, type ChatMessageInfoItemWithHeight } from './message.react';
 import ListLoadingIndicator from '../components/list-loading-indicator.react';
-import { styleSelector } from '../themes/colors';
+import {
+  styleSelector,
+  type IndicatorStyle,
+  indicatorStylePropType,
+  indicatorStyleSelector,
+} from '../themes/colors';
 import {
   withOverlayContext,
   type OverlayContextType,
@@ -57,6 +62,7 @@ type Props = {|
   // Redux state
   startReached: boolean,
   styles: typeof styles,
+  indicatorStyle: IndicatorStyle,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -95,6 +101,7 @@ class MessageList extends React.PureComponent<Props, State> {
     route: messageListRoutePropType.isRequired,
     startReached: PropTypes.bool.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
+    indicatorStyle: indicatorStylePropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     fetchMessagesBeforeCursor: PropTypes.func.isRequired,
     fetchMostRecentMessages: PropTypes.func.isRequired,
@@ -266,6 +273,7 @@ class MessageList extends React.PureComponent<Props, State> {
           scrollsToTop={false}
           scrollEnabled={!MessageList.scrollDisabled(this.props)}
           extraData={this.flatListExtraData}
+          indicatorStyle={this.props.indicatorStyle}
         />
       </View>
     );
@@ -368,6 +376,7 @@ export default connect(
         state.messageStore.threads[threadID].startReached
       ),
       styles: stylesSelector(state),
+      indicatorStyle: indicatorStyleSelector(state),
     };
   },
   { fetchMessagesBeforeCursor, fetchMostRecentMessages },

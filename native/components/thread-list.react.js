@@ -14,7 +14,12 @@ import SearchIndex from 'lib/shared/search-index';
 import { connect } from 'lib/utils/redux-utils';
 
 import ThreadListThread from './thread-list-thread.react';
-import { styleSelector } from '../themes/colors';
+import {
+  styleSelector,
+  type IndicatorStyle,
+  indicatorStylePropType,
+  indicatorStyleSelector,
+} from '../themes/colors';
 import Search from './search.react';
 
 type Props = {|
@@ -25,6 +30,7 @@ type Props = {|
   searchIndex?: SearchIndex,
   // Redux state
   styles: typeof styles,
+  indicatorStyle: IndicatorStyle,
 |};
 type State = {|
   searchText: string,
@@ -39,6 +45,7 @@ class ThreadList extends React.PureComponent<Props, State> {
     itemTextStyle: Text.propTypes.style,
     searchIndex: PropTypes.instanceOf(SearchIndex),
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
+    indicatorStyle: indicatorStylePropType.isRequired,
   };
   state = {
     searchText: '',
@@ -90,6 +97,7 @@ class ThreadList extends React.PureComponent<Props, State> {
           getItemLayout={ThreadList.getItemLayout}
           keyboardShouldPersistTaps="handled"
           initialNumToRender={20}
+          indicatorStyle={this.props.indicatorStyle}
         />
       </React.Fragment>
     );
@@ -130,4 +138,5 @@ const stylesSelector = styleSelector(styles);
 
 export default connect((state: AppState) => ({
   styles: stylesSelector(state),
+  indicatorStyle: indicatorStyleSelector(state),
 }))(ThreadList);
