@@ -52,7 +52,11 @@ async function backupDB() {
   const dateString = dateFormat('yyyy-mm-dd-HH:MM');
   const filename = `${backupConfig.directory}/squadcal.${dateString}.sql.gz`;
 
-  await saveBackup(filename, cache);
+  try {
+    await saveBackup(filename, cache);
+  } catch (e) {
+    await unlink(filename);
+  }
 }
 
 async function saveBackup(
