@@ -195,6 +195,24 @@ class InternalEntry extends React.Component<Props, State> {
       this.currentlySaving = null;
     }
 
+    if (
+      !this.props.active &&
+      this.state.text === prevState.text &&
+      this.state.height !== prevState.height &&
+      this.state.height !== this.props.entryInfo.textHeight
+    ) {
+      const approxMeasuredHeight = Math.round(this.state.height * 1000) / 1000;
+      const approxExpectedHeight =
+        Math.round(this.props.entryInfo.textHeight * 1000) / 1000;
+      console.log(
+        `Entry height for ${entryKey(this.props.entryInfo)} was expected to ` +
+          `be ${approxExpectedHeight} but is actually ` +
+          `${approxMeasuredHeight}. This means Calendar's FlatList isn't ` +
+          'getting the right item height for some of its nodes, which is ' +
+          'guaranteed to cause glitchy behavior. Please investigate!!',
+      );
+    }
+
     // Our parent will set the active prop to false if something else gets
     // pressed or if the Entry is scrolled out of view. In either of those cases
     // we should complete the edit process.

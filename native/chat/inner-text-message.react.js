@@ -4,6 +4,7 @@ import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
 import { type GlobalTheme, globalThemePropType } from '../types/themes';
 import type { AppState } from '../redux/redux-setup';
+import type { LayoutEvent } from '../types/react-native';
 
 import * as React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
@@ -11,6 +12,7 @@ import PropTypes from 'prop-types';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
 import { connect } from 'lib/utils/redux-utils';
+import { messageKey } from 'lib/shared/message-utils';
 
 import {
   allCorners,
@@ -67,7 +69,9 @@ class InnerTextMessage extends React.PureComponent<Props> {
       filterCorners(allCorners, item),
     );
 
-    const outerTextStyle = { height: item.contentHeight };
+    const outerTextProps = __DEV__
+      ? { onLayout: this.onLayoutOuterText }
+      : { style: { height: item.contentHeight } };
     const message = (
       <TouchableOpacity
         onPress={this.props.onPress}
@@ -75,7 +79,7 @@ class InnerTextMessage extends React.PureComponent<Props> {
         activeOpacity={0.6}
         style={[styles.message, messageStyle, cornerStyle]}
       >
-        <Text style={outerTextStyle}>
+        <Text {...outerTextProps}>
           <Markdown
             style={textStyle}
             useDarkStyle={darkColor}
@@ -101,6 +105,22 @@ class InnerTextMessage extends React.PureComponent<Props> {
 
   // We need to set onLayout in order to allow .measure() to be on the ref
   onLayout = () => {};
+
+  onLayoutOuterText = (event: LayoutEvent) => {
+    const approxMeasuredHeight =
+      Math.round(event.nativeEvent.layout.height * 1000) / 1000;
+    const approxExpectedHeight =
+      Math.round(this.props.item.contentHeight * 1000) / 1000;
+    if (approxMeasuredHeight !== approxExpectedHeight) {
+      console.log(
+        `TextMessage height for ${messageKey(this.props.item.messageInfo)} ` +
+          `was expected to be ${approxExpectedHeight} but is actually ` +
+          `${approxMeasuredHeight}. This means MessageList's FlatList isn't ` +
+          'getting the right item height for some of its nodes, which is ' +
+          'guaranteed to cause glitchy behavior. Please investigate!!',
+      );
+    }
+  };
 }
 
 const styles = StyleSheet.create({
