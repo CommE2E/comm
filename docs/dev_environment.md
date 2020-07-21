@@ -191,14 +191,13 @@ source ~/.bash_profile
 
 We use Phabricator for code review. To upload a “diff” to Phabricator, you’ll need to use a tool called Arcanist.
 
-To install Arcanist, first create a directory for it somewhere in your filesystem. Then run these commands in that directory:
+To install Arcanist, we’ll need to clone its Git repository. Pick a place in your filesystem to store it, and then run this command:
 
 ```
-git clone https://github.com/phacility/libphutil.git
 git clone https://github.com/phacility/arcanist.git
 ```
 
-Finally, you’ll need to add the path `./arcanist/bin` to your `$PATH` in your `~/.bash_profile` (or desired shell configuration file):
+Next, you’ll need to add the path `./arcanist/bin` to your `$PATH` in your `~/.bash_profile` (or desired shell configuration file):
 
 ```
 export PATH=$PATH:~/src/arcanist/bin
