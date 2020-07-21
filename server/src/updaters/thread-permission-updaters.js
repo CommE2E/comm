@@ -603,9 +603,10 @@ async function commitMembershipChangeset(
     updateUndirectedRelationships(_uniqWith(_isEqual)(relationshipRows)),
   ]);
 
-  const serverThreadInfoFetchResult = await fetchServerThreadInfos(
-    SQL`t.id IN (${[...changedThreadIDs]})`,
-  );
+  // We fetch all threads here because clients still expect the full list of
+  // threads on most thread operations. We're in the process of switching them
+  // to just need the diff, but until then...
+  const serverThreadInfoFetchResult = await fetchServerThreadInfos();
   const { threadInfos: serverThreadInfos } = serverThreadInfoFetchResult;
 
   const time = Date.now();
