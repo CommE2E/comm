@@ -4,7 +4,7 @@
 # run from: wherever
 
 # The path to Phabricator on our server
-PHABRICATOR_PATH=/var/www/phabricator/phabricator
+PHABRICATOR_PATH=/var/www/phacility/phabricator
 
 # The path to the backup directory on our server
 BACKUP_PATH=/mnt/backup
