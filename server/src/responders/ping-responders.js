@@ -69,6 +69,7 @@ import {
 import {
   fetchCurrentUserInfo,
   fetchUserInfos,
+  fetchKnownUserInfos,
 } from '../fetchers/user-fetchers';
 import { fetchUpdateInfos } from '../fetchers/update-fetchers';
 import {
@@ -542,21 +543,40 @@ async function checkState(
   status: StateCheckStatus,
   calendarQuery: CalendarQuery,
 ): Promise<StateCheckResult> {
+  const { platformDetails } = viewer;
+  const shouldCheckUserInfos =
+    (platformDetails && platformDetails.platform === 'web') ||
+    (platformDetails &&
+      platformDetails.codeVersion !== null &&
+      platformDetails.codeVersion !== undefined &&
+      platformDetails.codeVersion > 58);
+
   if (status.status === 'state_validated') {
     return { sessionUpdate: { lastValidated: Date.now() } };
   } else if (status.status === 'state_check') {
-    const fetchedData = await promiseAll({
+    const promises = {
       threadsResult: fetchThreadInfos(viewer),
       entriesResult: fetchEntryInfos(viewer, [calendarQuery]),
       currentUserInfo: fetchCurrentUserInfo(viewer),
-    });
-    const hashesToCheck = {
+      userInfosResult: undefined,
+    };
+    if (shouldCheckUserInfos) {
+      promises.userInfosResult = fetchKnownUserInfos(viewer);
+    }
+    const fetchedData = await promiseAll(promises);
+    let hashesToCheck = {
       threadInfos: hash(fetchedData.threadsResult.threadInfos),
       entryInfos: hash(
         serverEntryInfosObject(fetchedData.entriesResult.rawEntryInfos),
       ),
       currentUserInfo: hash(fetchedData.currentUserInfo),
     };
+    if (shouldCheckUserInfos) {
+      hashesToCheck = {
+        ...hashesToCheck,
+        userInfos: hash(fetchedData.userInfosResult),
+      };
+    }
     const checkStateRequest = {
       type: serverRequestTypes.CHECK_STATE,
       hashesToCheck,
@@ -568,14 +588,18 @@ async function checkState(
 
   let fetchAllThreads = false,
     fetchAllEntries = false,
+    fetchAllUserInfos = false,
     fetchUserInfo = false;
   const threadIDsToFetch = [],
-    entryIDsToFetch = [];
+    entryIDsToFetch = [],
+    userIDsToFetch = [];
   for (let key of invalidKeys) {
     if (key === 'threadInfos') {
       fetchAllThreads = true;
     } else if (key === 'entryInfos') {
       fetchAllEntries = true;
+    } else if (key === 'userInfos') {
+      fetchAllUserInfos = true;
     } else if (key === 'currentUserInfo') {
       fetchUserInfo = true;
     } else if (key.startsWith('threadInfo|')) {
@@ -584,6 +608,9 @@ async function checkState(
     } else if (key.startsWith('entryInfo|')) {
       const [, entryID] = key.split('|');
       entryIDsToFetch.push(entryID);
+    } else if (key.startsWith('userInfo|')) {
+      const [, userID] = key.split('|');
+      userIDsToFetch.push(userID);
     }
   }
 
@@ -600,6 +627,11 @@ async function checkState(
     fetchPromises.entriesResult = fetchEntryInfos(viewer, [calendarQuery]);
   } else if (entryIDsToFetch.length > 0) {
     fetchPromises.entryInfos = fetchEntryInfosByID(viewer, entryIDsToFetch);
+  }
+  if (fetchAllUserInfos) {
+    fetchPromises.userInfos = fetchKnownUserInfos(viewer);
+  } else if (userIDsToFetch.length > 0) {
+    fetchPromises.userInfos = fetchUserInfos(userIDsToFetch);
   }
   if (fetchUserInfo) {
     fetchPromises.currentUserInfo = fetchCurrentUserInfo(viewer);
@@ -630,6 +662,14 @@ async function checkState(
         hashesToCheck[`entryInfo|${entryID}`] = hash(entryInfo);
       }
       failUnmentioned.entryInfos = true;
+    } else if (key === 'userInfos') {
+      // Instead of returning all userInfos, we want to narrow down and figure
+      // out which userInfos don't match first
+      const { userInfos } = fetchedData;
+      for (let userID in userInfos) {
+        hashesToCheck[`userInfo|${userID}`] = hash(userInfos[userID]);
+      }
+      failUnmentioned.userInfos = true;
     } else if (key === 'currentUserInfo') {
       stateChanges.currentUserInfo = fetchedData.currentUserInfo;
     } else if (key.startsWith('threadInfo|')) {
@@ -666,55 +706,71 @@ async function checkState(
         stateChanges.rawEntryInfos = [];
       }
       stateChanges.rawEntryInfos.push(entryInfo);
+    } else if (key.startsWith('userInfo|')) {
+      const { userInfos: fetchedUserInfos } = fetchedData;
+      const [, userID] = key.split('|');
+      const userInfo = fetchedUserInfos[userID];
+      if (!userInfo || !userInfo.username) {
+        if (!stateChanges.deleteUserInfoIDs) {
+          stateChanges.deleteUserInfoIDs = [];
+        }
+        stateChanges.deleteUserInfoIDs.push(userID);
+        continue;
+      }
+      if (!stateChanges.userInfos) {
+        stateChanges.userInfos = [];
+      }
+      stateChanges.userInfos.push(userInfo);
     }
   }
 
-  const userIDs = new Set();
-  if (stateChanges.rawThreadInfos) {
-    for (let threadInfo of stateChanges.rawThreadInfos) {
-      for (let userID of usersInThreadInfo(threadInfo)) {
+  if (!shouldCheckUserInfos) {
+    const userIDs = new Set();
+    if (stateChanges.rawThreadInfos) {
+      for (let threadInfo of stateChanges.rawThreadInfos) {
+        for (let userID of usersInThreadInfo(threadInfo)) {
+          userIDs.add(userID);
+        }
+      }
+    }
+    if (stateChanges.rawEntryInfos) {
+      for (let userID of usersInRawEntryInfos(stateChanges.rawEntryInfos)) {
         userIDs.add(userID);
       }
     }
-  }
-  if (stateChanges.rawEntryInfos) {
-    for (let userID of usersInRawEntryInfos(stateChanges.rawEntryInfos)) {
-      userIDs.add(userID);
-    }
-  }
 
-  const threadUserInfos = fetchedData.threadsResult
-    ? fetchedData.threadsResult.userInfos
-    : null;
-  const entryUserInfos = fetchedData.entriesResult
-    ? fetchedData.entriesResult.userInfos
-    : null;
-  const allUserInfos = { ...threadUserInfos, ...entryUserInfos };
+    const threadUserInfos = fetchedData.threadsResult
+      ? fetchedData.threadsResult.userInfos
+      : null;
+    const entryUserInfos = fetchedData.entriesResult
+      ? fetchedData.entriesResult.userInfos
+      : null;
+    const allUserInfos = { ...threadUserInfos, ...entryUserInfos };
 
-  const userInfos = [];
-  const userIDsToFetch = [];
-  for (let userID of userIDs) {
-    const userInfo = allUserInfos[userID];
-    if (userInfo) {
-      userInfos.push(userInfo);
-    } else {
-      userIDsToFetch.push(userID);
-    }
-  }
-  if (userIDsToFetch.length > 0) {
-    const fetchedUserInfos = await fetchUserInfos(userIDsToFetch);
-    for (let userID in fetchedUserInfos) {
-      const userInfo = fetchedUserInfos[userID];
-      if (userInfo && userInfo.username) {
-        const { id, username } = userInfo;
-        userInfos.push({ id, username });
+    const userInfos = [];
+    const oldUserIDsToFetch = [];
+    for (let userID of userIDs) {
+      const userInfo = allUserInfos[userID];
+      if (userInfo) {
+        userInfos.push(userInfo);
+      } else {
+        userIDsToFetch.push(userID);
       }
     }
+    if (userIDsToFetch.length > 0) {
+      const fetchedUserInfos = await fetchUserInfos(oldUserIDsToFetch);
+      for (let userID in fetchedUserInfos) {
+        const userInfo = fetchedUserInfos[userID];
+        if (userInfo && userInfo.username) {
+          const { id, username } = userInfo;
+          userInfos.push({ id, username });
+        }
+      }
+    }
+    if (userInfos.length > 0) {
+      stateChanges.userInfos = userInfos;
+    }
   }
-  if (userInfos.length > 0) {
-    stateChanges.userInfos = userInfos;
-  }
-
   const checkStateRequest = {
     type: serverRequestTypes.CHECK_STATE,
     hashesToCheck,

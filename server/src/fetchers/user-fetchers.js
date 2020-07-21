@@ -41,6 +41,29 @@ async function fetchUserInfos(userIDs: string[]): Promise<UserInfos> {
   return userInfos;
 }
 
+async function fetchKnownUserInfos(viewer: Viewer) {
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
+  const query = SQL`
+    SELECT DISTINCT u.id, u.username FROM relationships_undirected r 
+    LEFT JOIN users u ON r.user1 = u.id OR r.user2 = u.id 
+    WHERE (r.user1 = ${viewer.userID} OR r.user2 = ${viewer.userID})
+  `;
+  const [result] = await dbQuery(query);
+
+  const userInfos = {};
+  for (let row of result) {
+    const id = row.id.toString();
+    userInfos[id] = {
+      id,
+      username: row.username,
+    };
+  }
+
+  return userInfos;
+}
+
 async function verifyUserIDs(
   userIDs: $ReadOnlyArray<string>,
 ): Promise<string[]> {
@@ -118,4 +141,5 @@ export {
   fetchLoggedInUserInfos,
   fetchAllUserIDs,
   fetchUsername,
+  fetchKnownUserInfos,
 };
