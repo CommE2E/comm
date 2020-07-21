@@ -132,6 +132,14 @@ class ClearableTextInput extends React.PureComponent<
 
   onBlur = () => {
     this.focused = false;
+    if (this.pendingMessage) {
+      // This is to catch a race condition where somebody hits the send button
+      // and then blurs the TextInput before the textInputKey increment can
+      // rerender this component. With this.focused set to false, the new
+      // TextInput won't focus, and the old TextInput won't blur, which means
+      // nothing will call sendMessage unless we do it right here.
+      this.sendMessage();
+    }
   };
 
   render() {
