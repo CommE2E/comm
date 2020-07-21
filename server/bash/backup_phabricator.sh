@@ -21,7 +21,7 @@ OUTPUT_FILE="$BACKUP_PATH/phabricator.$(date +'%Y-%m-%d-%R').sql.gz"
 
 RETRIES=2
 while [[ $RETRIES -ge 0 ]]; do
-  if ./bin/storage dump --compress --overwrite --output "$OUTPUT_FILE"; then
+  if ./bin/storage dump --compress --overwrite --output "$OUTPUT_FILE" > /dev/null 2>&1; then
     break
   fi
   rm -f "$OUTPUT_FILE"
