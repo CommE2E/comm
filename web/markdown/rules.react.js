@@ -81,7 +81,7 @@ function markdownRules(): MarkdownRuleSpec {
         parse: SimpleMarkdown.Parser,
         state: SimpleMarkdown.State,
       ) {
-        let content = capture[1].replace(/^ *> ?/gm, '');
+        const content = capture[1].replace(/^ *> ?/gm, '');
         return {
           content: parse(content, state),
         };
@@ -123,9 +123,8 @@ function markdownRules(): MarkdownRuleSpec {
       ...SimpleMarkdown.defaultRules.codeBlock,
       match: SimpleMarkdown.blockRegex(MarkdownRegex.codeBlockRegex),
       parse(capture: SimpleMarkdown.Capture) {
-        let content = capture[0].replace(/^ {4}/gm, '');
+        const content = capture[0].replace(/^ {4}/gm, '');
         return {
-          lang: undefined,
           content: content,
         };
       },
@@ -133,6 +132,10 @@ function markdownRules(): MarkdownRuleSpec {
     fence: {
       ...SimpleMarkdown.defaultRules.fence,
       match: SimpleMarkdown.blockRegex(MarkdownRegex.fenceRegex),
+      parse: (capture: SimpleMarkdown.Capture) => ({
+        type: 'codeBlock',
+        content: capture[2],
+      }),
     },
   };
   return {
