@@ -38,7 +38,10 @@ import { handleCodeVerificationRequest } from '../models/verification';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
-import { fetchCurrentUserInfo } from '../fetchers/user-fetchers';
+import {
+  fetchCurrentUserInfo,
+  fetchKnownUserInfos,
+} from '../fetchers/user-fetchers';
 import { setNewSession } from '../session/cookies';
 import { activityUpdater } from '../updaters/activity-updaters';
 import urlFacts from '../../facts/url';
@@ -133,6 +136,7 @@ async function websiteResponder(
     viewer,
     initialNavInfo.verify,
   );
+  const userInfoPromise = fetchKnownUserInfos(viewer);
 
   const sessionIDPromise = (async () => {
     if (viewer.loggedIn) {
@@ -166,22 +170,9 @@ async function websiteResponder(
       inconsistencyReports: [],
     };
   })();
-  const userInfoPromise = (async () => {
-    const [
-      { userInfos: threadUserInfos },
-      { userInfos: messageUserInfos },
-      { userInfos: entryUserInfos },
-    ] = await Promise.all([
-      threadInfoPromise,
-      messageInfoPromise,
-      entryInfoPromise,
-    ]);
-    // $FlowFixMe should be fixed in flow-bin@0.115 / react-native@0.63
-    return {
-      ...messageUserInfos,
-      ...entryUserInfos,
-      ...threadUserInfos,
-    };
+  const userStorePromise = (async () => {
+    const userInfos = await userInfoPromise;
+    return { userInfos, inconsistencyReports: [] };
   })();
 
   const navInfoPromise = (async () => {
@@ -269,7 +260,7 @@ async function websiteResponder(
     serverVerificationResult: serverVerificationResultPromise,
     entryStore: entryStorePromise,
     threadStore: threadStorePromise,
-    userInfos: userInfoPromise,
+    userStore: userStorePromise,
     messageStore: messageStorePromise,
     updatesCurrentAsOf: initialTime,
     loadingStatuses: {},

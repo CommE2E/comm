@@ -524,6 +524,7 @@ export default connect(
       threadInfos: threadInfoSelector(state),
       colors: colorsSelector(state),
       styles: stylesSelector(state),
+      viewerID: state.currentUserInfo && state.currentUserInfo.id,
     };
   },
   { newThread, searchUsers },

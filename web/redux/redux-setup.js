@@ -5,7 +5,7 @@ import type { ThreadStore } from 'lib/types/thread-types';
 import type { EntryStore } from 'lib/types/entry-types';
 import type { BaseAction } from 'lib/types/redux-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { CurrentUserInfo, UserInfo } from 'lib/types/user-types';
+import type { CurrentUserInfo, UserStore } from 'lib/types/user-types';
 import type { ServerVerificationResult } from 'lib/types/verify-types';
 import type { MessageStore } from 'lib/types/message-types';
 import type { CalendarFilter } from 'lib/types/filter-types';
@@ -51,7 +51,7 @@ export type AppState = {|
   serverVerificationResult: ?ServerVerificationResult,
   entryStore: EntryStore,
   threadStore: ThreadStore,
-  userInfos: { [id: string]: UserInfo },
+  userStore: UserStore,
   messageStore: MessageStore,
   updatesCurrentAsOf: number,
   loadingStatuses: { [key: string]: { [idx: number]: LoadingStatus } },

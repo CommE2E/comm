@@ -6,6 +6,7 @@ import {
   type ReportCreationResponse,
   type ThreadInconsistencyReportCreationRequest,
   type EntryInconsistencyReportCreationRequest,
+  type UserInconsistencyReportCreationRequest,
   reportTypes,
 } from 'lib/types/report-types';
 import { messageTypes } from 'lib/types/message-types';
@@ -47,6 +48,8 @@ async function createReport(
   } else if (request.type === reportTypes.ENTRY_INCONSISTENCY) {
     ({ type, time, ...report } = request);
   } else if (request.type === reportTypes.MEDIA_MISSION) {
+    ({ type, time, ...report } = request);
+  } else if (request.type === reportTypes.USER_INCONSISTENCY) {
     ({ type, time, ...report } = request);
   } else {
     ({ type, ...report } = request);
@@ -160,6 +163,15 @@ function getSquadbotMessage(
       `occurred during ${request.action.type}\n` +
       `entry IDs that are inconsistent: ${nonMatchingString}`
     );
+  } else if (request.type === reportTypes.USER_INCONSISTENCY) {
+    const nonMatchingUserIDs = getInconsistentUserIDsFromReport(request);
+    const nonMatchingString = [...nonMatchingUserIDs].join(', ');
+    return (
+      `system detected inconsistency for ${name}!\n` +
+      `using ${platformString}\n` +
+      `occurred during ${request.action.type}\n` +
+      `user IDs that are inconsistent: ${nonMatchingString}`
+    );
   } else if (request.type === reportTypes.MEDIA_MISSION) {
     const mediaMissionJSON = JSON.stringify(request.mediaMission);
     const success = request.mediaMission.result.success
@@ -209,6 +221,13 @@ function getInconsistentEntryIDsFromReport(
     calendarQuery,
   );
   return findInconsistentObjectKeys(filteredBeforeAction, filteredAfterAction);
+}
+
+function getInconsistentUserIDsFromReport(
+  request: UserInconsistencyReportCreationRequest,
+): Set<string> {
+  const { beforeStateCheck, afterStateCheck } = request;
+  return findInconsistentObjectKeys(beforeStateCheck, afterStateCheck);
 }
 
 export default createReport;

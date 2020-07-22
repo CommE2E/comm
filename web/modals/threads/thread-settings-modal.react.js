@@ -534,7 +534,7 @@ export default connect(
       deleteThreadLoadingStatusSelector(state) === 'loading' ||
       changeThreadSettingsLoadingStatusSelector(state) === 'loading',
     viewerID: state.currentUserInfo && state.currentUserInfo.id,
-    userInfos: state.userInfos,
+    userInfos: state.userStore.userInfos,
   }),
   { deleteThread, changeThreadSettings },
 )(ThreadSettingsModal);

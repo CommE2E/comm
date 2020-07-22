@@ -3,7 +3,7 @@
 import type { ThreadStore } from 'lib/types/thread-types';
 import { type EntryStore } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { CurrentUserInfo, UserInfo } from 'lib/types/user-types';
+import type { CurrentUserInfo, UserStore } from 'lib/types/user-types';
 import type { MessageStore } from 'lib/types/message-types';
 import type { PersistState } from 'redux-persist/src/types';
 import {
@@ -87,7 +87,7 @@ export type AppState = {|
   currentUserInfo: ?CurrentUserInfo,
   entryStore: EntryStore,
   threadStore: ThreadStore,
-  userInfos: { [id: string]: UserInfo },
+  userStore: UserStore,
   messageStore: MessageStore,
   drafts: { [key: string]: string },
   updatesCurrentAsOf: number,
@@ -128,7 +128,10 @@ const defaultState = ({
     threadInfos: {},
     inconsistencyReports: [],
   },
-  userInfos: {},
+  userStore: {
+    userInfos: {},
+    inconsistencyReports: [],
+  },
   messageStore: {
     messages: {},
     threads: {},

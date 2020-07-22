@@ -156,6 +156,14 @@ const migrations = {
     }
     return result;
   },
+  [17]: state => ({
+    ...state,
+    userInfos: undefined,
+    userStore: {
+      userInfos: state.userInfos,
+      inconsistencyResponses: [],
+    },
+  }),
 };
 
 const persistConfig = {
@@ -170,7 +178,7 @@ const persistConfig = {
     'frozen',
   ],
   debug: __DEV__,
-  version: 16,
+  version: 17,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
   timeout: __DEV__ ? 0 : undefined,
 };

@@ -53,6 +53,14 @@ const entryInconsistencyReportValidatorShape = {
   lastActions: t.maybe(t.list(tActionSummary)),
   time: t.Number,
 };
+const userInconsistencyReportValidatorShape = {
+  platformDetails: tPlatformDetails,
+  action: t.Object,
+  beforeStateCheck: t.Object,
+  afterStateCheck: t.Object,
+  lastActions: t.list(tActionSummary),
+  time: t.Number,
+};
 
 const threadInconsistencyReportCreationRequest = tShape({
   ...threadInconsistencyReportValidatorShape,
@@ -85,6 +93,14 @@ const mediaMissionReportCreationRequest = tShape({
   messageLocalID: t.maybe(t.String),
 });
 
+const userInconsistencyReportCreationRequest = tShape({
+  ...userInconsistencyReportValidatorShape,
+  type: t.irreducible(
+    'reportTypes.USER_INCONSISTENCY',
+    x => x === reportTypes.USER_INCONSISTENCY,
+  ),
+});
+
 const reportCreationRequestInputValidator = t.union([
   tShape({
     type: t.maybe(
@@ -108,6 +124,7 @@ const reportCreationRequestInputValidator = t.union([
   threadInconsistencyReportCreationRequest,
   entryInconsistencyReportCreationRquest,
   mediaMissionReportCreationRequest,
+  userInconsistencyReportCreationRequest,
 ]);
 
 async function reportCreationResponder(
@@ -153,6 +170,7 @@ const reportMultiCreationRequestInputValidator = tShape({
       threadInconsistencyReportCreationRequest,
       entryInconsistencyReportCreationRquest,
       mediaMissionReportCreationRequest,
+      userInconsistencyReportCreationRequest,
     ]),
   ),
 });
