@@ -1,3 +1,4 @@
 {
-  "phabricator.uri" : "https://phabricator.ashoat.com/"
+  "phabricator.uri": "https://phabricator.ashoat.com/",
+  "repository.callsign": "SQUADCAL"
 }
