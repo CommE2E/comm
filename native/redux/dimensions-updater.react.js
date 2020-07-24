@@ -38,7 +38,13 @@ type Metrics = {|
   +frame: {| +x: number, +y: number, +width: number, +height: number |},
   +insets: {| +top: number, +left: number, +right: number, +bottom: number |},
 |};
-function dimensionsUpdateFromMetrics(metrics: Metrics): $Shape<DimensionsInfo> {
+function dimensionsUpdateFromMetrics(
+  metrics: ?Metrics,
+): $Shape<DimensionsInfo> {
+  if (!metrics) {
+    // This happens when the app gets booted to run a background task
+    return { height: 0, width: 0, topInset: 0, bottomInset: 0 };
+  }
   return {
     height: metrics.frame.height,
     width: metrics.frame.width,

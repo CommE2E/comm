@@ -11,7 +11,7 @@ index 46d2207..830c7b5 100644
          mLayout.setShadowNode(this);
      }
 diff --git a/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor.java b/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor.java
-index ae5e756..e861f64 100644
+index 6bd4453..8607b47 100644
 --- a/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor.java
 +++ b/node_modules/react-native-keyboard-input/lib/android/src/main/java/com/wix/reactnativekeyboardinput/ReactSoftKeyboardMonitor.java
 @@ -1,6 +1,11 @@
@@ -24,9 +24,9 @@ index ae5e756..e861f64 100644
 +import android.util.TypedValue;
 +import android.view.Display;
  import android.view.ViewTreeObserver;
+ import android.view.Window;
  
- import androidx.annotation.Nullable;
-@@ -61,8 +66,28 @@ public class ReactSoftKeyboardMonitor implements ReactScreenMonitor.Listener {
+@@ -65,8 +70,33 @@ public class ReactSoftKeyboardMonitor implements ReactScreenMonitor.Listener {
      private Listener mExternalListener;
      private ReactRootView mLastReactRootView;
  
@@ -36,6 +36,11 @@ index ae5e756..e861f64 100644
          screenMonitor.addListener(this);
 +
 +        this.translucentNavBarHeight = 0;
++
++        if (getWindow() == null) {
++            return;
++        }
++
 +        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
 +            return;
 +        }
@@ -55,7 +60,7 @@ index ae5e756..e861f64 100644
      }
  
      @Override
-@@ -123,14 +148,14 @@ public class ReactSoftKeyboardMonitor implements ReactScreenMonitor.Listener {
+@@ -132,21 +162,21 @@ public class ReactSoftKeyboardMonitor implements ReactScreenMonitor.Listener {
          RuntimeUtils.runOnUIThread(new Runnable() {
              @Override
              public void run() {
@@ -67,10 +72,20 @@ index ae5e756..e861f64 100644
                      return;
                  }
  
--                if (mLocallyVisibleHeight > locallyVisibleHeight) {
+                 if (mLocallyVisibleHeight == null) {
+-                    mLocallyVisibleHeight = locallyVisibleHeight;
++                    mLocallyVisibleHeight = viewportVisibleHeight;
+                     mKeyboardHeight = mLocallyVisibleHeight;
+                     Logger.d(TAG, "mLocallyVisibleHeight WAS NULL, now is: " + mLocallyVisibleHeight);
+-                } else if (mLocallyVisibleHeight > locallyVisibleHeight) {
 -                    mKeyboardHeight = mLocallyVisibleHeight - locallyVisibleHeight;
-+                if (mMaxViewportVisibleHeight > viewportVisibleHeight) {
++                } else if (mMaxViewportVisibleHeight > viewportVisibleHeight) {
 +                    mKeyboardHeight = mMaxViewportVisibleHeight - viewportVisibleHeight + translucentNavBarHeight;
+                 } else {
+-                    mKeyboardHeight = locallyVisibleHeight;
+-                    Logger.d(TAG, "mKeyboardHeight = " + mKeyboardHeight + " mLocallyVisibleHeight = " + mLocallyVisibleHeight + " locallyVisibleHeight = " + locallyVisibleHeight);
++                    mKeyboardHeight = viewportVisibleHeight;
++                    Logger.d(TAG, "mKeyboardHeight = " + mKeyboardHeight + " mLocallyVisibleHeight = " + mLocallyVisibleHeight + " viewportVisibleHeight= " + viewportVisibleHeight);
                  }
              }
          });
@@ -143,10 +158,10 @@ index b91aa83..f403d38 100644
          revealKeyboardInteractive={this.props.revealKeyboardInteractive}
          manageScrollView={this.props.manageScrollView}
 diff --git a/node_modules/react-native-keyboard-input/src/TextInputKeyboardMangerIOS.js b/node_modules/react-native-keyboard-input/src/TextInputKeyboardMangerIOS.js
-index 20d61c9..13a6493 100644
+index 20d61c9..e8369f0 100644
 --- a/node_modules/react-native-keyboard-input/src/TextInputKeyboardMangerIOS.js
 +++ b/node_modules/react-native-keyboard-input/src/TextInputKeyboardMangerIOS.js
-@@ -41,6 +41,12 @@ export default class TextInputKeyboardManagerIOS {
+@@ -41,6 +41,11 @@ export default class TextInputKeyboardManagerIOS {
        }
      }
    };
@@ -155,7 +170,6 @@ index 20d61c9..13a6493 100644
 +    const reactTag = findNodeHandle(textInputRef);
 +    CustomInputController.changeKeyboardHeightForInput(reactTag, keyboardHeight);
 +  }
-+
  }
  
  function findNodeHandle(ref) {

@@ -369,7 +369,7 @@ PODS:
     - React
   - ReactNativeDarkMode (0.2.0-rc.1):
     - React
-  - ReactNativeKeyboardInput (6.0.0):
+  - ReactNativeKeyboardInput (6.0.1):
     - React
   - ReactNativeKeyboardTrackingView (5.7.0):
     - React
@@ -753,7 +753,7 @@ SPEC CHECKSUMS:
   ReactCommon: ed4e11d27609d571e7eee8b65548efc191116eb3
   ReactNativeART: c580fba2f7d188d8fa4418ce78db8130654ed10f
   ReactNativeDarkMode: 88317ff05ba95fd063dd347ad32f8c4cefd3166c
-  ReactNativeKeyboardInput: c37e26821519869993b3b61844350feb9177ff37
+  ReactNativeKeyboardInput: 266ba27a2e9921f5bdc0b4cc30289b2a2f46b157
   ReactNativeKeyboardTrackingView: 02137fac3b2ebd330d74fa54ead48b14750a2306
   RNCAsyncStorage: 60a80e72d95bf02a01cace55d3697d9724f0d77f
   RNCMaskedView: 5a8ec07677aa885546a0d98da336457e2bea557f

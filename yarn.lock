@@ -12128,10 +12128,10 @@ react-native-iphone-x-helper@^1.2.1:
   resolved "https://registry.yarnpkg.com/react-native-iphone-x-helper/-/react-native-iphone-x-helper-1.2.1.tgz#645e2ffbbb49e80844bb4cbbe34a126fda1e6772"
   integrity sha512-/VbpIEp8tSNNHIvstuA3Swx610whci1Zpc9mqNkqn14DkMbw+ORviln2u0XyHG1kPvvwTNGZY6QpeFwxYaSdbQ==
 
-react-native-keyboard-input@^6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/react-native-keyboard-input/-/react-native-keyboard-input-6.0.0.tgz#db71ddc8f7c6fdb799b17b9ebdeb783c7ca55c08"
-  integrity sha512-dpmkLaLk1+hqYfsRFktB5z0UuJHvJSBCQG67o8MhHa9uOq01OSwMIQUujuOwnGwJ/iIzexZs7YaI2Yb6M34g5g==
+react-native-keyboard-input@6.0.1:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/react-native-keyboard-input/-/react-native-keyboard-input-6.0.1.tgz#996a0c00c2232b09e30cdee37dd8c086c688e1f7"
+  integrity sha512-tLvyD0D7SBWQvothqrXRdI1Czsj1zPb6TYkjN5KgPBzlm89VxFSxJMAUkTDHR2iY+wl/E5FVgDdSvVKH8T/pew==
   dependencies:
     lodash "^4.17.4"
     react-native-keyboard-tracking-view "^5.5.0"

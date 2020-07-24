@@ -62,7 +62,7 @@
     "react-native-fs": "2.15.2",
     "react-native-gesture-handler": "^1.6.1",
     "react-native-in-app-message": "^1.0.2",
-    "react-native-keyboard-input": "^6.0.0",
+    "react-native-keyboard-input": "6.0.1",
     "react-native-keychain": "^4.0.0",
     "react-native-notifications": "git+https://git@github.com/ashoat/react-native-notifications.git",
     "react-native-onepassword": "git+https://git@github.com/DriveWealth/react-native-onepassword.git#aed794d8c6f0f2560b62a0012449abf6f1b3576c",
