@@ -21,7 +21,6 @@ import type {
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { LayoutEvent } from '../types/react-native';
 import type { TabNavigationProp } from '../navigation/app-navigator.react';
-import type { TextStyle as FlattenedTextStyle } from 'react-native/Libraries/StyleSheet/StyleSheet';
 
 import * as React from 'react';
 import {
@@ -33,7 +32,6 @@ import {
   Alert,
   LayoutAnimation,
   Keyboard,
-  StyleSheet,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
@@ -750,11 +748,6 @@ const styles = {
 };
 const stylesSelector = styleSelector(styles);
 
-const combinedEntryStyle: FlattenedTextStyle = (StyleSheet.flatten([
-  styles.textContainer,
-  styles.text,
-]): any);
-
 registerFetchKey(saveEntryActionTypes);
 registerFetchKey(deleteEntryActionTypes);
 const activeThreadPickerSelector = createIsForegroundSelector(
@@ -778,4 +771,4 @@ const Entry = connectNav((context: ?NavContextType) => ({
   )(InternalEntry),
 );
 
-export { InternalEntry, Entry, combinedEntryStyle };
+export { InternalEntry, Entry, styles as entryStyles };
