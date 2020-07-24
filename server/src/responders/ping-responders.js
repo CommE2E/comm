@@ -631,7 +631,13 @@ async function checkState(
   if (fetchAllUserInfos) {
     fetchPromises.userInfos = fetchKnownUserInfos(viewer);
   } else if (userIDsToFetch.length > 0) {
-    fetchPromises.userInfos = fetchUserInfos(userIDsToFetch);
+    fetchPromises.userInfos = fetchKnownUserInfos(
+      viewer,
+      SQL`
+        ((r.user1 = ${viewer.userID} AND r.user2 IN (${userIDsToFetch})) OR
+          (r.user1 IN (${userIDsToFetch}) AND r.user2 = ${viewer.userID}))
+      `,
+    );
   }
   if (fetchUserInfo) {
     fetchPromises.currentUserInfo = fetchCurrentUserInfo(viewer);
@@ -754,10 +760,10 @@ async function checkState(
       if (userInfo) {
         userInfos.push(userInfo);
       } else {
-        userIDsToFetch.push(userID);
+        oldUserIDsToFetch.push(userID);
       }
     }
-    if (userIDsToFetch.length > 0) {
+    if (oldUserIDsToFetch.length > 0) {
       const fetchedUserInfos = await fetchUserInfos(oldUserIDsToFetch);
       for (let userID in fetchedUserInfos) {
         const userInfo = fetchedUserInfos[userID];

@@ -9,7 +9,7 @@ import type { Viewer } from '../session/viewer';
 
 import { ServerError } from 'lib/utils/errors';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL, SQLStatement } from '../database';
 
 async function fetchUserInfos(userIDs: string[]): Promise<UserInfos> {
   if (userIDs.length <= 0) {
@@ -41,15 +41,17 @@ async function fetchUserInfos(userIDs: string[]): Promise<UserInfos> {
   return userInfos;
 }
 
-async function fetchKnownUserInfos(viewer: Viewer) {
+async function fetchKnownUserInfos(viewer: Viewer, condition?: SQLStatement) {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
+
+  const whereClause = condition ? SQL`AND `.append(condition) : '';
   const query = SQL`
     SELECT DISTINCT u.id, u.username FROM relationships_undirected r 
     LEFT JOIN users u ON r.user1 = u.id OR r.user2 = u.id 
     WHERE (r.user1 = ${viewer.userID} OR r.user2 = ${viewer.userID})
-  `;
+  `.append(whereClause);
   const [result] = await dbQuery(query);
 
   const userInfos = {};
