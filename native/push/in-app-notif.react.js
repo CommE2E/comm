@@ -4,6 +4,9 @@ import type { GlobalTheme } from '../types/themes';
 
 import * as React from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+const edges = ['top'];
 
 type Props = {|
   title: ?string,
@@ -28,14 +31,22 @@ function InAppNotif(props: Props) {
   }
 
   const textStyles = [styles.text, useLightStyle ? styles.lightText : null];
-  return (
-    <View style={styles.notif}>
-      <Text style={textStyles}>
-        {title}
-        {props.message}
-      </Text>
-    </View>
+  const notificationContent = (
+    <Text style={textStyles}>
+      {title}
+      {props.message}
+    </Text>
   );
+
+  if (Platform.OS === 'android') {
+    return (
+      <SafeAreaView style={styles.notif} edges={edges}>
+        {notificationContent}
+      </SafeAreaView>
+    );
+  }
+
+  return <View style={styles.notif}>{notificationContent}</View>;
 }
 
 const styles = StyleSheet.create({

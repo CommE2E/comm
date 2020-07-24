@@ -596,7 +596,12 @@ class PushHandler extends React.PureComponent<Props, State> {
   };
 
   render() {
-    return <InAppNotification {...this.state.inAppNotifProps} />;
+    return (
+      <InAppNotification
+        {...this.state.inAppNotifProps}
+        hideStatusBar={false}
+      />
+    );
   }
 }
 
