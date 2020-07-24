@@ -45,7 +45,7 @@ async function createKnowOfRelationships() {
     })),
   ])(result);
 
-  await updateUndirectedRelationships(changeset, false);
+  await updateUndirectedRelationships(changeset);
 }
 
 main();
