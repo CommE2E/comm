@@ -44,11 +44,6 @@ import { waitForInteractions } from '../utils/interactions';
 import ChatIcon from '../chat/chat-icon.react';
 
 let splashScreenHasHidden = false;
-(async () => {
-  try {
-    await SplashScreen.preventAutoHideAsync();
-  } catch {}
-})();
 
 const calendarTabOptions = {
   tabBarLabel: 'Calendar',

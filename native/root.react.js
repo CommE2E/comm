@@ -15,6 +15,7 @@ import {
   initialWindowMetrics,
 } from 'react-native-safe-area-context';
 import { useReduxDevToolsExtension } from '@react-navigation/devtools';
+import * as SplashScreen from 'expo-splash-screen';
 
 import { actionLogger } from 'lib/utils/action-logger';
 
@@ -53,6 +54,14 @@ function Root() {
   const navStateRef = React.useRef();
   const navDispatchRef = React.useRef();
   const navStateInitializedRef = React.useRef(false);
+
+  React.useEffect(() => {
+    (async () => {
+      try {
+        await SplashScreen.preventAutoHideAsync();
+      } catch {}
+    })();
+  }, []);
 
   const [navContext, setNavContext] = React.useState(null);
   const updateNavContext = React.useCallback(() => {
