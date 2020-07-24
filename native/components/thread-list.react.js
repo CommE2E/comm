@@ -6,12 +6,13 @@ import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { FlatList, ViewPropTypes, Text } from 'react-native';
+import { FlatList, ViewPropTypes, Text, TextInput } from 'react-native';
 import invariant from 'invariant';
 import { createSelector } from 'reselect';
 
 import SearchIndex from 'lib/shared/search-index';
 import { connect } from 'lib/utils/redux-utils';
+import sleep from 'lib/utils/sleep';
 
 import ThreadListThread from './thread-list-thread.react';
 import {
@@ -51,6 +52,7 @@ class ThreadList extends React.PureComponent<Props, State> {
     searchText: '',
     searchResults: new Set(),
   };
+  textInput: ?React.ElementRef<typeof TextInput>;
 
   listDataSelector = createSelector(
     (propsAndState: PropsAndState) => propsAndState.threadInfos,
@@ -83,7 +85,7 @@ class ThreadList extends React.PureComponent<Props, State> {
           onChangeText={this.onChangeSearchText}
           containerStyle={this.props.styles.search}
           placeholder="Search threads"
-          autoFocus={true}
+          ref={this.searchRef}
         />
       );
     }
@@ -126,6 +128,17 @@ class ThreadList extends React.PureComponent<Props, State> {
     invariant(this.props.searchIndex, 'should be set');
     const results = this.props.searchIndex.getSearchResults(searchText);
     this.setState({ searchText, searchResults: new Set(results) });
+  };
+
+  searchRef = async (textInput: ?React.ElementRef<typeof TextInput>) => {
+    this.textInput = textInput;
+    if (!textInput) {
+      return;
+    }
+    await sleep(50);
+    if (this.textInput) {
+      this.textInput.focus();
+    }
   };
 }
 
