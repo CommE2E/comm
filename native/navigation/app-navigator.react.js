@@ -125,8 +125,13 @@ function AppNavigator(props: AppNavigatorProps) {
     setNavStateInitialized && setNavStateInitialized();
   }, [setNavStateInitialized]);
 
+  const [
+    localSplashScreenHasHidden,
+    setLocalSplashScreenHasHidden,
+  ] = React.useState(splashScreenHasHidden);
+
   React.useEffect(() => {
-    if (splashScreenHasHidden) {
+    if (localSplashScreenHasHidden) {
       return;
     }
     splashScreenHasHidden = true;
@@ -134,9 +139,19 @@ function AppNavigator(props: AppNavigatorProps) {
       await waitForInteractions();
       try {
         await SplashScreen.hideAsync();
+        setLocalSplashScreenHasHidden(true);
       } catch {}
     })();
-  }, []);
+  }, [localSplashScreenHasHidden]);
+
+  let pushHandler;
+  if (localSplashScreenHasHidden) {
+    pushHandler = (
+      <PersistGate persistor={getPersistor()}>
+        <PushHandler navigation={navigation} />
+      </PersistGate>
+    );
+  }
 
   return (
     <KeyboardStateContainer>
@@ -164,9 +179,7 @@ function AppNavigator(props: AppNavigatorProps) {
         />
         <App.Screen name={CameraModalRouteName} component={CameraModal} />
       </App.Navigator>
-      <PersistGate persistor={getPersistor()}>
-        <PushHandler navigation={navigation} />
-      </PersistGate>
+      {pushHandler}
     </KeyboardStateContainer>
   );
 }
