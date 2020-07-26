@@ -59,7 +59,7 @@ import _sum from 'lodash/fp/sum';
 import _pickBy from 'lodash/fp/pickBy';
 import _size from 'lodash/fp/size';
 import _throttle from 'lodash/throttle';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import SafeAreaView from 'react-native-safe-area-view';
 
 import { entryKey } from 'lib/shared/entry-utils';
 import { dateString, prettyDate, dateFromString } from 'lib/utils/date-utils';
@@ -69,6 +69,7 @@ import {
 } from 'lib/actions/entry-actions';
 import { connect } from 'lib/utils/redux-utils';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import sleep from 'lib/utils/sleep';
 
 import { Entry, InternalEntry, entryStyles } from './entry.react';
 import { calendarListData } from '../selectors/calendar-selectors';
@@ -124,7 +125,10 @@ type ExtraData = $ReadOnly<{|
   visibleEntries: { [key: string]: boolean },
 |}>;
 
-const safeAreaEdges = ['top'];
+const safeAreaViewForceInset = {
+  top: 'always',
+  bottom: 'never',
+};
 
 type Props = {
   navigation: TabNavigationProp<'Calendar'>,
@@ -337,7 +341,16 @@ class Calendar extends React.PureComponent<Props, State> {
 
     const lastLDWH = prevState.listDataWithHeights;
     const newLDWH = this.state.listDataWithHeights;
-    if (!lastLDWH || !newLDWH) {
+    if (!newLDWH) {
+      return;
+    } else if (!lastLDWH) {
+      if (!this.props.calendarActive) {
+        // FlatList has an initialScrollIndex prop, which is usually close to
+        // centering but can be off when there is a particularly large Entry in
+        // the list. scrollToToday lets us actually center, but gets overriden
+        // by initialScrollIndex if we call it after the FlatList mounts
+        sleep(50).then(() => this.scrollToToday());
+      }
       return;
     }
 
@@ -369,7 +382,7 @@ class Calendar extends React.PureComponent<Props, State> {
       // current calendar query gets reset due to inactivity, let's reset the
       // scroll position to the center (today)
       if (!this.props.calendarActive) {
-        setTimeout(() => this.scrollToToday(), 50);
+        sleep(50).then(() => this.scrollToToday());
       }
       this.firstScrollUpOnAndroidComplete = false;
     } else if (newStartDate < lastStartDate) {
@@ -762,7 +775,10 @@ class Calendar extends React.PureComponent<Props, State> {
           nodesToMeasure={this.state.nodesToMeasure}
           allHeightsMeasuredCallback={this.allHeightsMeasured}
         />
-        <SafeAreaView style={this.props.styles.container} edges={safeAreaEdges}>
+        <SafeAreaView
+          style={this.props.styles.container}
+          forceInset={safeAreaViewForceInset}
+        >
           <DisconnectedBar visible={this.props.calendarActive} />
           {loadingIndicator}
           {flatList}
