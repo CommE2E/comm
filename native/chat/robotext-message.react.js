@@ -23,6 +23,7 @@ import {
   messageKey,
   splitRobotext,
   parseRobotextEntity,
+  robotextToRawString,
 } from 'lib/shared/message-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { connect } from 'lib/utils/redux-utils';
@@ -48,7 +49,15 @@ export type ChatRobotextMessageInfoItemWithHeight = {|
 function robotextMessageItemHeight(
   item: ChatRobotextMessageInfoItemWithHeight,
 ) {
-  return 17 + item.contentHeight; // for padding, margin, and text
+  return item.contentHeight;
+}
+
+function dummyNodeForRobotextMessageHeightMeasurement(robotext: string) {
+  return (
+    <View style={styles.robotextContainer}>
+      <Text style={styles.dummyRobotext}>{robotextToRawString(robotext)}</Text>
+    </View>
+  );
 }
 
 type Props = {|
@@ -144,19 +153,18 @@ class RobotextMessage extends React.PureComponent<Props> {
         textParts.push(rawText);
       }
     }
-    const textStyle = [this.props.styles.robotext];
-    let onLayoutOuterText;
+
+    const viewStyle = [this.props.styles.robotextContainer];
+    let onLayout;
     if (__DEV__) {
-      ({ onLayoutOuterText } = this);
+      ({ onLayout } = this);
     } else {
-      textStyle.push({ height: item.contentHeight });
+      viewStyle.push({ height: item.contentHeight });
     }
 
     return (
-      <View style={this.props.styles.robotextContainer}>
-        <Text onLayout={onLayoutOuterText} style={textStyle}>
-          {textParts}
-        </Text>
+      <View onLayout={onLayout} style={viewStyle}>
+        <Text style={this.props.styles.robotext}>{textParts}</Text>
       </View>
     );
   }
@@ -170,7 +178,7 @@ class RobotextMessage extends React.PureComponent<Props> {
     }
   };
 
-  onLayoutOuterText = (event: LayoutEvent) => {
+  onLayout = (event: LayoutEvent) => {
     const approxMeasuredHeight =
       Math.round(event.nativeEvent.layout.height * 1000) / 1000;
     const approxExpectedHeight =
@@ -256,7 +264,16 @@ const styles = {
     fontSize: 15,
     textAlign: 'center',
   },
+  dummyRobotext: {
+    fontFamily: 'Arial',
+    fontSize: 15,
+    textAlign: 'center',
+  },
 };
 const stylesSelector = styleSelector(styles);
 
-export { WrappedRobotextMessage as RobotextMessage, robotextMessageItemHeight };
+export {
+  robotextMessageItemHeight,
+  dummyNodeForRobotextMessageHeightMeasurement,
+  WrappedRobotextMessage as RobotextMessage,
+};

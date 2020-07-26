@@ -14,7 +14,7 @@ import type { NavigationRoute } from '../navigation/route-names';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
 import invariant from 'invariant';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 
@@ -25,11 +25,7 @@ import {
   chatMessageItemPropType,
   messageListData,
 } from 'lib/selectors/chat-selectors';
-import {
-  messageKey,
-  messageID,
-  robotextToRawString,
-} from 'lib/shared/message-utils';
+import { messageKey, messageID } from 'lib/shared/message-utils';
 
 import MessageList from './message-list.react';
 import NodeHeightMeasurer from '../components/node-height-measurer.react';
@@ -49,6 +45,7 @@ import {
 } from '../themes/colors';
 import ContentLoading from '../components/content-loading.react';
 import { dummyNodeForTextMessageHeightMeasurement } from './inner-text-message.react';
+import { dummyNodeForRobotextMessageHeightMeasurement } from './robotext-message.react';
 
 export type ChatMessageItemWithHeight =
   | {| itemType: 'loader' |}
@@ -110,14 +107,9 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           node: dummyNodeForTextMessageHeightMeasurement(messageInfo.text),
         });
       } else if (item.robotext && typeof item.robotext === 'string') {
-        const node = (
-          <Text style={this.props.styles.robotext}>
-            {robotextToRawString(item.robotext)}
-          </Text>
-        );
         nodesToMeasure.push({
           id: messageKey(messageInfo),
-          node,
+          node: dummyNodeForRobotextMessageHeightMeasurement(item.robotext),
         });
       }
     }
@@ -300,12 +292,6 @@ const styles = {
   container: {
     backgroundColor: 'listBackground',
     flex: 1,
-  },
-  robotext: {
-    fontFamily: 'Arial',
-    fontSize: 15,
-    left: 24,
-    right: 24,
   },
 };
 const stylesSelector = styleSelector(styles);
