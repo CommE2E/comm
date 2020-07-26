@@ -71,7 +71,11 @@ import { connect } from 'lib/utils/redux-utils';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import sleep from 'lib/utils/sleep';
 
-import { Entry, InternalEntry, entryStyles } from './entry.react';
+import {
+  Entry,
+  InternalEntry,
+  dummyNodeForEntryHeightMeasurement,
+} from './entry.react';
 import { calendarListData } from '../selectors/calendar-selectors';
 import {
   createIsForegroundSelector,
@@ -253,19 +257,12 @@ class Calendar extends React.PureComponent<Props, State> {
   static nodesToMeasureFromListData(listData: $ReadOnlyArray<CalendarItem>) {
     const nodesToMeasure = [];
     for (let item of listData) {
-      if (item.itemType !== 'entryInfo') {
-        continue;
+      if (item.itemType === 'entryInfo') {
+        nodesToMeasure.push({
+          id: entryKey(item.entryInfo),
+          node: dummyNodeForEntryHeightMeasurement(item.entryInfo.text),
+        });
       }
-      const text = item.entryInfo.text === '' ? ' ' : item.entryInfo.text;
-      const node = (
-        <View style={[entryStyles.entry, entryStyles.textContainer]}>
-          <Text style={entryStyles.text}>{text}</Text>
-        </View>
-      );
-      nodesToMeasure.push({
-        id: entryKey(item.entryInfo),
-        node,
-      });
     }
     return nodesToMeasure;
   }

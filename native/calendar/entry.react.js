@@ -85,6 +85,15 @@ function hueDistance(firstColor: string, secondColor: string): number {
 }
 const omitEntryInfo = _omit(['entryInfo']);
 
+function dummyNodeForEntryHeightMeasurement(entryText: string) {
+  const text = entryText === '' ? ' ' : entryText;
+  return (
+    <View style={[styles.entry, styles.textContainer]}>
+      <Text style={styles.text}>{text}</Text>
+    </View>
+  );
+}
+
 type Props = {|
   navigation: TabNavigationProp<'Calendar'>,
   entryInfo: EntryInfoWithHeight,
@@ -771,4 +780,4 @@ const Entry = connectNav((context: ?NavContextType) => ({
   )(InternalEntry),
 );
 
-export { InternalEntry, Entry, styles as entryStyles };
+export { InternalEntry, Entry, dummyNodeForEntryHeightMeasurement };
