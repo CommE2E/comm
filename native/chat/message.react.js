@@ -22,7 +22,11 @@ import type { NavigationRoute } from '../navigation/route-names';
 import type { LayoutEvent } from '../types/react-native';
 
 import * as React from 'react';
-import { LayoutAnimation, TouchableWithoutFeedback } from 'react-native';
+import {
+  LayoutAnimation,
+  TouchableWithoutFeedback,
+  PixelRatio,
+} from 'react-native';
 import PropTypes from 'prop-types';
 
 import { messageKey } from 'lib/shared/message-utils';
@@ -135,21 +139,29 @@ class Message extends React.PureComponent<Props> {
   }
 
   onLayout = (event: LayoutEvent) => {
+    if (this.props.focused) {
+      return;
+    }
+
+    const measuredHeight = event.nativeEvent.layout.height;
     const expectedHeight = messageItemHeight(this.props.item);
 
-    const approxMeasuredHeight =
-      Math.round(event.nativeEvent.layout.height * 1000) / 1000;
-    const approxExpectedHeight = Math.round(expectedHeight * 1000) / 1000;
-    if (approxMeasuredHeight !== approxExpectedHeight) {
-      console.log(
-        `Message height for ${this.props.item.messageShapeType} ` +
-          `${messageKey(this.props.item.messageInfo)} was expected to be ` +
-          `${approxExpectedHeight} but is actually ${approxMeasuredHeight}. ` +
-          "This means MessageList's FlatList isn't getting the right item " +
-          'height for some of its nodes, which is guaranteed to cause ' +
-          'glitchy behavior. Please investigate!!',
-      );
+    const pixelRatio = 1 / PixelRatio.get();
+    const distance = Math.abs(measuredHeight - expectedHeight);
+    if (distance < pixelRatio) {
+      return;
     }
+
+    const approxMeasuredHeight = Math.round(measuredHeight * 100) / 100;
+    const approxExpectedHeight = Math.round(expectedHeight * 100) / 100;
+    console.log(
+      `Message height for ${this.props.item.messageShapeType} ` +
+        `${messageKey(this.props.item.messageInfo)} was expected to be ` +
+        `${approxExpectedHeight} but is actually ${approxMeasuredHeight}. ` +
+        "This means MessageList's FlatList isn't getting the right item " +
+        'height for some of its nodes, which is guaranteed to cause glitchy ' +
+        'behavior. Please investigate!!',
+    );
   };
 
   dismissKeyboard = () => {
