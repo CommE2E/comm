@@ -117,7 +117,7 @@ function multimediaMessageItemHeight(item: ChatMultimediaMessageInfoItem) {
   const { messageInfo, contentHeight, startsCluster, endsCluster } = item;
   const { creator } = messageInfo;
   const { isViewer } = creator;
-  let height = 5 + contentHeight; // for margin and images
+  let height = 5 + contentHeight; // 5 from marginBottom in ComposedMessage
   if (!isViewer && startsCluster) {
     height += authorNameHeight;
   }
@@ -133,13 +133,13 @@ function multimediaMessageItemHeight(item: ChatMultimediaMessageInfoItem) {
 const borderRadius = 16;
 
 type Props = {|
+  ...React.ElementConfig<typeof View>,
   item: ChatMultimediaMessageInfoItem,
   navigation: ChatNavigationProp<'MessageList'>,
   route: NavigationRoute<'MessageList'>,
   focused: boolean,
   toggleFocus: (messageKey: string) => void,
   verticalBounds: ?VerticalBounds,
-  ...React.ElementProps<typeof View>,
 |};
 class MultimediaMessage extends React.PureComponent<Props> {
   static propTypes = {

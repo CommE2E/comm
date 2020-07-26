@@ -19,10 +19,13 @@ import {
 } from '../keyboard/keyboard-state';
 import type { ChatNavigationProp } from './chat.react';
 import type { NavigationRoute } from '../navigation/route-names';
+import type { LayoutEvent } from '../types/react-native';
 
 import * as React from 'react';
 import { LayoutAnimation, TouchableWithoutFeedback } from 'react-native';
 import PropTypes from 'prop-types';
+
+import { messageKey } from 'lib/shared/message-utils';
 
 import { TextMessage, textMessageItemHeight } from './text-message.react';
 import {
@@ -119,12 +122,35 @@ class Message extends React.PureComponent<Props> {
         />
       );
     }
+
+    const onLayout = __DEV__ ? this.onLayout : undefined;
     return (
-      <TouchableWithoutFeedback onPress={this.dismissKeyboard}>
+      <TouchableWithoutFeedback
+        onPress={this.dismissKeyboard}
+        onLayout={onLayout}
+      >
         {message}
       </TouchableWithoutFeedback>
     );
   }
+
+  onLayout = (event: LayoutEvent) => {
+    const expectedHeight = messageItemHeight(this.props.item);
+
+    const approxMeasuredHeight =
+      Math.round(event.nativeEvent.layout.height * 1000) / 1000;
+    const approxExpectedHeight = Math.round(expectedHeight * 1000) / 1000;
+    if (approxMeasuredHeight !== approxExpectedHeight) {
+      console.log(
+        `Message height for ${this.props.item.messageShapeType} ` +
+          `${messageKey(this.props.item.messageInfo)} was expected to be ` +
+          `${approxExpectedHeight} but is actually ${approxMeasuredHeight}. ` +
+          "This means MessageList's FlatList isn't getting the right item " +
+          'height for some of its nodes, which is guaranteed to cause ' +
+          'glitchy behavior. Please investigate!!',
+      );
+    }
+  };
 
   dismissKeyboard = () => {
     const { keyboardState } = this.props;

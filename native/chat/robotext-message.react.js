@@ -12,7 +12,6 @@ import {
 import { messageListNavPropType } from './message-list-types';
 import type { ChatNavigationProp } from './chat.react';
 import { type GlobalTheme, globalThemePropType } from '../types/themes';
-import type { LayoutEvent } from '../types/react-native';
 
 import * as React from 'react';
 import { Text, TouchableWithoutFeedback, View } from 'react-native';
@@ -61,6 +60,7 @@ function dummyNodeForRobotextMessageHeightMeasurement(robotext: string) {
 }
 
 type Props = {|
+  ...React.ElementConfig<typeof View>,
   item: ChatRobotextMessageInfoItemWithHeight,
   navigation: ChatNavigationProp<'MessageList'>,
   focused: boolean,
@@ -70,7 +70,6 @@ type Props = {|
   // Redux state
   styles: typeof styles,
   activeTheme: ?GlobalTheme,
-  ...React.ElementProps<typeof View>,
 |};
 class RobotextMessage extends React.PureComponent<Props> {
   static propTypes = {
@@ -155,15 +154,14 @@ class RobotextMessage extends React.PureComponent<Props> {
     }
 
     const viewStyle = [this.props.styles.robotextContainer];
-    let onLayout;
-    if (__DEV__) {
-      ({ onLayout } = this);
-    } else {
+    if (!__DEV__) {
+      // We don't force view height in dev mode because we
+      // want to measure it in Message to see if it's correct
       viewStyle.push({ height: item.contentHeight });
     }
 
     return (
-      <View onLayout={onLayout} style={viewStyle}>
+      <View style={viewStyle}>
         <Text style={this.props.styles.robotext}>{textParts}</Text>
       </View>
     );
@@ -175,23 +173,6 @@ class RobotextMessage extends React.PureComponent<Props> {
       keyboardState && keyboardState.dismissKeyboardIfShowing();
     if (!didDismiss) {
       this.props.toggleFocus(messageKey(this.props.item.messageInfo));
-    }
-  };
-
-  onLayout = (event: LayoutEvent) => {
-    const approxMeasuredHeight =
-      Math.round(event.nativeEvent.layout.height * 1000) / 1000;
-    const approxExpectedHeight =
-      Math.round(this.props.item.contentHeight * 1000) / 1000;
-    if (approxMeasuredHeight !== approxExpectedHeight) {
-      console.log(
-        `RobotextMessage height for ` +
-          `${messageKey(this.props.item.messageInfo)} was expected to be ` +
-          `${approxExpectedHeight} but is actually ${approxMeasuredHeight}. ` +
-          "This means MessageList's FlatList isn't getting the right item " +
-          'height for some of its nodes, which is guaranteed to cause ' +
-          'glitchy behavior. Please investigate!!',
-      );
     }
   };
 }
@@ -254,9 +235,9 @@ const styles = {
     color: 'link',
   },
   robotextContainer: {
-    marginBottom: 5,
-    marginHorizontal: 24,
-    paddingVertical: 6,
+    paddingTop: 6,
+    paddingBottom: 11,
+    paddingHorizontal: 24,
   },
   robotext: {
     color: 'listForegroundSecondaryLabel',

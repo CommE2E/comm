@@ -20,6 +20,7 @@ import { type Colors, colorsPropType, colorsSelector } from '../themes/colors';
 const clusterEndHeight = 7;
 
 type Props = {|
+  ...React.ElementConfig<typeof View>,
   item: ChatMessageInfoItemWithHeight,
   sendFailed: boolean,
   focused: boolean,
@@ -27,7 +28,6 @@ type Props = {|
   // Redux state
   composedMessageMaxWidth: number,
   colors: Colors,
-  ...React.ElementProps<typeof View>,
 |};
 class ComposedMessage extends React.PureComponent<Props> {
   static propTypes = {

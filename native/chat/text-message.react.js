@@ -57,7 +57,7 @@ export type ChatTextMessageInfoItemWithHeight = {|
 function textMessageItemHeight(item: ChatTextMessageInfoItemWithHeight) {
   const { messageInfo, contentHeight, startsCluster, endsCluster } = item;
   const { isViewer } = messageInfo.creator;
-  let height = 17 + contentHeight; // for padding, margin, and text
+  let height = 5 + contentHeight; // 5 from marginBottom in ComposedMessage
   if (!isViewer && startsCluster) {
     height += authorNameHeight;
   }
@@ -71,6 +71,7 @@ function textMessageItemHeight(item: ChatTextMessageInfoItemWithHeight) {
 }
 
 type Props = {|
+  ...React.ElementConfig<typeof View>,
   item: ChatTextMessageInfoItemWithHeight,
   navigation: ChatNavigationProp<'MessageList'>,
   route: NavigationRoute<'MessageList'>,
@@ -81,7 +82,6 @@ type Props = {|
   keyboardState: ?KeyboardState,
   // withOverlayContext
   overlayContext: ?OverlayContextType,
-  ...React.ElementProps<typeof View>,
 |};
 class TextMessage extends React.PureComponent<Props> {
   static propTypes = {
