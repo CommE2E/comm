@@ -8,6 +8,7 @@ import type { AppState } from '../redux/redux-setup';
 import * as React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
 import { connect } from 'lib/utils/redux-utils';
@@ -25,16 +26,28 @@ import {
 } from '../themes/colors';
 import Markdown from '../markdown/markdown.react';
 import { fullMarkdownRules } from '../markdown/rules.react';
+import { composedMessageMaxWidthSelector } from './composed-message-width';
 
 function dummyNodeForTextMessageHeightMeasurement(text: string) {
+  return <DummyTextNode>{text}</DummyTextNode>;
+}
+
+type DummyTextNodeProps = {|
+  ...React.ElementConfig<typeof View>,
+  children: string,
+|};
+function DummyTextNode(props: DummyTextNodeProps) {
+  const { children, style, ...rest } = props;
+  const maxWidth = useSelector(state => composedMessageMaxWidthSelector(state));
+  const viewStyle = [props.style, styles.dummyMessage, { maxWidth }];
   return (
-    <View style={styles.dummyMessage}>
+    <View {...rest} style={viewStyle}>
       <Markdown
         style={styles.text}
         useDarkStyle={false}
         rules={fullMarkdownRules}
       >
-        {text}
+        {children}
       </Markdown>
     </View>
   );
