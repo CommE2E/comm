@@ -28,6 +28,20 @@ import {
 import Markdown from '../markdown/markdown.react';
 import { fullMarkdownRules } from '../markdown/rules.react';
 
+function dummyNodeForTextMessageHeightMeasurement(text: string) {
+  return (
+    <Text style={styles.dummyMessage}>
+      <Markdown
+        style={styles.text}
+        useDarkStyle={false}
+        rules={fullMarkdownRules}
+      >
+        {text}
+      </Markdown>
+    </Text>
+  );
+}
+
 type Props = {|
   item: ChatTextMessageInfoItemWithHeight,
   onPress: () => void,
@@ -124,6 +138,10 @@ class InnerTextMessage extends React.PureComponent<Props> {
 }
 
 const styles = StyleSheet.create({
+  dummyMessage: {
+    marginHorizontal: 12,
+    marginVertical: 6,
+  },
   message: {
     overflow: 'hidden',
     paddingHorizontal: 12,
@@ -135,7 +153,12 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect((state: AppState) => ({
+const ConnectedInnerTextMessage = connect((state: AppState) => ({
   activeTheme: state.globalThemeInfo.activeTheme,
   colors: colorsSelector(state),
 }))(InnerTextMessage);
+
+export {
+  ConnectedInnerTextMessage as InnerTextMessage,
+  dummyNodeForTextMessageHeightMeasurement,
+};

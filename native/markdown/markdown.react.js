@@ -14,14 +14,13 @@ import { onlyEmojiRegex } from 'lib/shared/emojis';
 import { getMarkdownStyles } from './styles';
 
 type Props = {|
-  ...React.ElementConfig<typeof Text>,
   style: TextStyle,
   useDarkStyle: boolean,
   children: string,
   rules: MarkdownRules,
 |};
 function Markdown(props: Props) {
-  const { style, useDarkStyle, children, rules, ...rest } = props;
+  const { style, useDarkStyle, children, rules } = props;
 
   const markdownStyles = React.useMemo(() => {
     return getMarkdownStyles(useDarkStyle ? 'dark' : 'light');
@@ -73,11 +72,7 @@ function Markdown(props: Props) {
     return { ...flattened, fontSize: fontSize * emojiOnlyFactor };
   }, [emojiOnly, style, emojiOnlyFactor]);
 
-  return (
-    <Text style={textStyle} {...rest}>
-      {renderedOutput}
-    </Text>
-  );
+  return <Text style={textStyle}>{renderedOutput}</Text>;
 }
 
 export default Markdown;

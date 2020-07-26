@@ -12,10 +12,4 @@ const composedMessageMaxWidthSelector: (
   (windowWidth: number): number => (windowWidth - 24) * 0.8,
 );
 
-// Keep strictly synced with styles.message in TextMessage
-const textMessageMaxWidthSelector: (state: AppState) => number = createSelector(
-  composedMessageMaxWidthSelector,
-  (composedMessageMaxWidth: number): number => composedMessageMaxWidth - 24,
-);
-
-export { composedMessageMaxWidthSelector, textMessageMaxWidthSelector };
+export { composedMessageMaxWidthSelector };

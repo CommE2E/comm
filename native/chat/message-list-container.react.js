@@ -35,10 +35,7 @@ import MessageList from './message-list.react';
 import NodeHeightMeasurer from '../components/node-height-measurer.react';
 import ChatInputBar from './chat-input-bar.react';
 import { multimediaMessageContentSizes } from './multimedia-message.react';
-import {
-  textMessageMaxWidthSelector,
-  composedMessageMaxWidthSelector,
-} from './composed-message-width';
+import { composedMessageMaxWidthSelector } from './composed-message-width';
 import {
   type InputState,
   inputStatePropType,
@@ -51,8 +48,7 @@ import {
   styleSelector,
 } from '../themes/colors';
 import ContentLoading from '../components/content-loading.react';
-import Markdown from '../markdown/markdown.react';
-import { fullMarkdownRules } from '../markdown/rules.react';
+import { dummyNodeForTextMessageHeightMeasurement } from './inner-text-message.react';
 
 export type ChatMessageItemWithHeight =
   | {| itemType: 'loader' |}
@@ -64,7 +60,6 @@ type Props = {|
   // Redux state
   threadInfo: ?ThreadInfo,
   messageListData: $ReadOnlyArray<ChatMessageItem>,
-  textMessageMaxWidth: number,
   composedMessageMaxWidth: number,
   colors: Colors,
   styles: typeof styles,
@@ -81,7 +76,6 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     route: messageListRoutePropType.isRequired,
     threadInfo: threadInfoPropType,
     messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
-    textMessageMaxWidth: PropTypes.number.isRequired,
     composedMessageMaxWidth: PropTypes.number.isRequired,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
@@ -111,22 +105,9 @@ class MessageListContainer extends React.PureComponent<Props, State> {
       }
       const { messageInfo } = item;
       if (messageInfo.type === messageTypes.TEXT) {
-        const style = [
-          this.props.styles.text,
-          { width: this.props.textMessageMaxWidth },
-        ];
-        const node = (
-          <Markdown
-            style={style}
-            useDarkStyle={false}
-            rules={fullMarkdownRules}
-          >
-            {messageInfo.text}
-          </Markdown>
-        );
         nodesToMeasure.push({
           id: messageKey(messageInfo),
-          node,
+          node: dummyNodeForTextMessageHeightMeasurement(messageInfo.text),
         });
       } else if (item.robotext && typeof item.robotext === 'string') {
         const node = (
@@ -326,10 +307,6 @@ const styles = {
     left: 24,
     right: 24,
   },
-  text: {
-    fontFamily: 'Arial',
-    fontSize: 18,
-  },
 };
 const stylesSelector = styleSelector(styles);
 
@@ -339,7 +316,6 @@ const ConnectedMessageListContainer = connect(
     return {
       threadInfo: threadInfoSelector(state)[threadID],
       messageListData: messageListData(threadID)(state),
-      textMessageMaxWidth: textMessageMaxWidthSelector(state),
       composedMessageMaxWidth: composedMessageMaxWidthSelector(state),
       colors: colorsSelector(state),
       styles: stylesSelector(state),

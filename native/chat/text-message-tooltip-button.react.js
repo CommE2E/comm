@@ -15,7 +15,7 @@ import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
 
-import InnerTextMessage from './inner-text-message.react';
+import { InnerTextMessage } from './inner-text-message.react';
 import { MessageHeader } from './message-header.react';
 
 /* eslint-disable import/no-named-as-default-member */

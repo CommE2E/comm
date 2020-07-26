@@ -24,7 +24,7 @@ import invariant from 'invariant';
 
 import { messageKey } from 'lib/shared/message-utils';
 
-import InnerTextMessage from './inner-text-message.react';
+import { InnerTextMessage } from './inner-text-message.react';
 import { textMessageTooltipHeight } from './text-message-tooltip-modal.react';
 import { TextMessageTooltipModalRouteName } from '../navigation/route-names';
 import { ComposedMessage, clusterEndHeight } from './composed-message.react';
