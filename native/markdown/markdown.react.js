@@ -18,23 +18,18 @@ type Props = {|
   useDarkStyle: boolean,
   children: string,
   rules: MarkdownRules,
-  // We need to use a Text container for Entry because it needs to match up
-  // exactly with TextInput. However, if we use a Text container, we can't
-  // support styles for things like blockQuote, which rely on rendering as a
-  // View, and Views can't be nested inside Texts without explicit height and
-  // width
-  container: 'View' | 'Text',
 |};
 function Markdown(props: Props) {
-  const { style, useDarkStyle, children, rules, container } = props;
+  const { style, useDarkStyle, children, rules } = props;
 
   const markdownStyles = React.useMemo(() => {
     return getMarkdownStyles(useDarkStyle ? 'dark' : 'light');
   }, [useDarkStyle]);
-  const { simpleMarkdownRules, emojiOnlyFactor } = React.useMemo(
-    () => rules(markdownStyles),
-    [rules, markdownStyles],
-  );
+  const {
+    simpleMarkdownRules,
+    emojiOnlyFactor,
+    container,
+  } = React.useMemo(() => rules(markdownStyles), [rules, markdownStyles]);
 
   const parser = React.useMemo(
     () => SimpleMarkdown.parserFor(simpleMarkdownRules),

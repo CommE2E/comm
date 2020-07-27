@@ -13,6 +13,12 @@ import { normalizeURL } from 'lib/utils/url-utils';
 type MarkdownRuleSpec = {|
   +simpleMarkdownRules: SimpleMarkdown.ParserRules,
   +emojiOnlyFactor: ?number,
+  // We need to use a Text container for Entry because it needs to match up
+  // exactly with TextInput. However, if we use a Text container, we can't
+  // support styles for things like blockQuote, which rely on rendering as a
+  // View, and Views can't be nested inside Texts without explicit height and
+  // width
+  +container: 'View' | 'Text',
 |};
 export type MarkdownRules = (
   styles: StyleSheetOf<MarkdownStyles>,
@@ -120,6 +126,7 @@ function inlineMarkdownRules(
   return {
     simpleMarkdownRules,
     emojiOnlyFactor: null,
+    container: 'Text',
   };
 }
 
@@ -145,6 +152,7 @@ function fullMarkdownRules(
     ...inlineRules,
     simpleMarkdownRules,
     emojiOnlyFactor: 2,
+    container: 'View',
   };
 }
 

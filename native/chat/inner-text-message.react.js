@@ -46,7 +46,6 @@ function DummyTextNode(props: DummyTextNodeProps) {
         style={styles.text}
         useDarkStyle={false}
         rules={fullMarkdownRules}
-        container="View"
       >
         {children}
       </Markdown>
@@ -112,7 +111,6 @@ class InnerTextMessage extends React.PureComponent<Props> {
           style={textStyle}
           useDarkStyle={darkColor}
           rules={fullMarkdownRules}
-          container="View"
         >
           {text}
         </Markdown>
