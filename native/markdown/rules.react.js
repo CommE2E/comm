@@ -4,7 +4,7 @@ import type { StyleSheetOf } from '../themes/colors';
 import type { MarkdownStyles } from './styles';
 
 import * as React from 'react';
-import { Text, Linking, Alert } from 'react-native';
+import { Text, Linking, Alert, View } from 'react-native';
 import * as SimpleMarkdown from 'simple-markdown';
 
 import * as MarkdownRegex from 'lib/shared/markdown';
@@ -146,6 +146,153 @@ function fullMarkdownRules(
     link: {
       ...inlineRules.simpleMarkdownRules.link,
       match: SimpleMarkdown.defaultRules.link.match,
+    },
+    mailto: SimpleMarkdown.defaultRules.mailto,
+    em: {
+      ...SimpleMarkdown.defaultRules.em,
+      // eslint-disable-next-line react/display-name
+      react: (
+        node: SimpleMarkdown.SingleASTNode,
+        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
+        state: SimpleMarkdown.State,
+      ) => (
+        <Text key={state.key} style={styles.italics}>
+          {output(node.content, state)}
+        </Text>
+      ),
+    },
+    strong: {
+      ...SimpleMarkdown.defaultRules.strong,
+      // eslint-disable-next-line react/display-name
+      react: (
+        node: SimpleMarkdown.SingleASTNode,
+        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
+        state: SimpleMarkdown.State,
+      ) => (
+        <Text key={state.key} style={styles.bold}>
+          {output(node.content, state)}
+        </Text>
+      ),
+    },
+    u: {
+      ...SimpleMarkdown.defaultRules.u,
+      // eslint-disable-next-line react/display-name
+      react: (
+        node: SimpleMarkdown.SingleASTNode,
+        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
+        state: SimpleMarkdown.State,
+      ) => (
+        <Text key={state.key} style={styles.underline}>
+          {output(node.content, state)}
+        </Text>
+      ),
+    },
+    del: {
+      ...SimpleMarkdown.defaultRules.del,
+      // eslint-disable-next-line react/display-name
+      react: (
+        node: SimpleMarkdown.SingleASTNode,
+        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
+        state: SimpleMarkdown.State,
+      ) => (
+        <Text key={state.key} style={styles.strikethrough}>
+          {output(node.content, state)}
+        </Text>
+      ),
+    },
+    inlineCode: {
+      ...SimpleMarkdown.defaultRules.inlineCode,
+      // eslint-disable-next-line react/display-name
+      react: (
+        node: SimpleMarkdown.SingleASTNode,
+        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
+        state: SimpleMarkdown.State,
+      ) => (
+        <Text key={state.key} style={styles.inlineCode}>
+          {node.content}
+        </Text>
+      ),
+    },
+    heading: {
+      ...SimpleMarkdown.defaultRules.heading,
+      match: SimpleMarkdown.blockRegex(
+        MarkdownRegex.headingStripFollowingNewlineRegex,
+      ),
+      // eslint-disable-next-line react/display-name
+      react(
+        node: SimpleMarkdown.SingleASTNode,
+        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
+        state: SimpleMarkdown.State,
+      ) {
+        const headingStyle = styles['h' + node.level];
+        return (
+          <Text key={state.key} style={[state.textStyle, headingStyle]}>
+            {output(node.content, state)}
+          </Text>
+        );
+      },
+    },
+    blockQuote: {
+      ...SimpleMarkdown.defaultRules.blockQuote,
+      // match end of blockQuote by either \n\n or end of string
+      match: SimpleMarkdown.blockRegex(
+        MarkdownRegex.blockQuoteStripFollowingNewlineRegex,
+      ),
+      parse(
+        capture: SimpleMarkdown.Capture,
+        parse: SimpleMarkdown.Parser,
+        state: SimpleMarkdown.State,
+      ) {
+        const content = capture[1].replace(/^ *> ?/gm, '');
+        return {
+          content: SimpleMarkdown.parseInline(parse, content, state),
+        };
+      },
+      // eslint-disable-next-line react/display-name
+      react: (
+        node: SimpleMarkdown.SingleASTNode,
+        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
+        state: SimpleMarkdown.State,
+      ) => (
+        <View key={state.key} style={styles.blockQuote}>
+          <Text style={state.textStyle}>{output(node.content, state)}</Text>
+        </View>
+      ),
+    },
+    codeBlock: {
+      ...SimpleMarkdown.defaultRules.codeBlock,
+      match: SimpleMarkdown.blockRegex(
+        MarkdownRegex.codeBlockStripTrailingNewlineRegex,
+      ),
+      parse(capture: SimpleMarkdown.Capture) {
+        return {
+          content: capture[1].replace(/^ {4}/gm, ''),
+        };
+      },
+      // eslint-disable-next-line react/display-name
+      react: (
+        node: SimpleMarkdown.SingleASTNode,
+        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
+        state: SimpleMarkdown.State,
+      ) => (
+        <View key={state.key} style={styles.codeBlock}>
+          <Text style={[state.textStyle, styles.codeBlockText]}>
+            {node.content}
+          </Text>
+        </View>
+      ),
+    },
+    fence: {
+      ...SimpleMarkdown.defaultRules.fence,
+      match: SimpleMarkdown.blockRegex(
+        MarkdownRegex.fenceStripTrailingNewlineRegex,
+      ),
+      parse(capture: SimpleMarkdown.Capture) {
+        return {
+          type: 'codeBlock',
+          content: capture[2],
+        };
+      },
     },
   };
   return {

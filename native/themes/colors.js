@@ -66,6 +66,9 @@ const light = Object.freeze({
   navigationCard: '#FFFFFF',
   floatingButtonBackground: '#999999',
   floatingButtonLabel: '#EEEEEE',
+  blockQuoteBackground: '#D3D3D3',
+  blockQuoteBorder: '#C0C0C0',
+  codeBackground: '#DCDCDC',
 });
 export type Colors = $Exact<typeof light>;
 
@@ -127,6 +130,9 @@ const dark: Colors = Object.freeze({
   navigationCard: '#2A2A2A',
   floatingButtonBackground: '#666666',
   floatingButtonLabel: 'white',
+  blockQuoteBackground: '#A9A9A9',
+  blockQuoteBorder: '#808080',
+  codeBackground: '#222222',
 });
 const colors = { light, dark };
 
