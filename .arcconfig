@@ -2,5 +2,5 @@
   "phabricator.uri": "https://phabricator.ashoat.com/",
   "repository.callsign": "SQUADCAL",
   "arc.land.onto.default": "master",
-  "base": "git:merge-base(origin/master)"
+  "base": "git:HEAD^"
 }
