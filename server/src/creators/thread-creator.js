@@ -35,7 +35,7 @@ async function createThread(
   }
 
   const threadType = request.type;
-  if (threadType === threadTypes.CHAT_NESTED_OPEN && !request.parentThreadID) {
+  if (threadType !== threadTypes.CHAT_SECRET && !request.parentThreadID) {
     throw new ServerError('invalid_parameters');
   }
   let parentThreadID = null;

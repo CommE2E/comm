@@ -29,23 +29,23 @@ class ThreadVisibility extends React.PureComponent<Props> {
   render() {
     const { threadType, color, includeLabel } = this.props;
     const visLabelStyle = [styles.visibilityLabel, { color }];
-    if (threadType === threadTypes.CHAT_NESTED_OPEN) {
-      const label = includeLabel ? (
-        <Text style={visLabelStyle}>Open</Text>
-      ) : null;
-      return (
-        <View style={styles.container}>
-          <Icon name="public" size={18} color={color} />
-          {label}
-        </View>
-      );
-    } else {
+    if (threadType === threadTypes.CHAT_SECRET) {
       const label = includeLabel ? (
         <Text style={visLabelStyle}>Secret</Text>
       ) : null;
       return (
         <View style={styles.container}>
           <Icon name="lock-outline" size={18} color={color} />
+          {label}
+        </View>
+      );
+    } else {
+      const label = includeLabel ? (
+        <Text style={visLabelStyle}>Open</Text>
+      ) : null;
+      return (
+        <View style={styles.container}>
+          <Icon name="public" size={18} color={color} />
           {label}
         </View>
       );
