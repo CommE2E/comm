@@ -6,7 +6,7 @@ import type { MarkdownRules } from './rules.react';
 
 import * as React from 'react';
 import * as SimpleMarkdown from 'simple-markdown';
-import { Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import invariant from 'invariant';
 
 import { onlyEmojiRegex } from 'lib/shared/emojis';
@@ -18,9 +18,15 @@ type Props = {|
   useDarkStyle: boolean,
   children: string,
   rules: MarkdownRules,
+  // We need to use a Text container for Entry because it needs to match up
+  // exactly with TextInput. However, if we use a Text container, we can't
+  // support styles for things like blockQuote, which rely on rendering as a
+  // View, and Views can't be nested inside Texts without explicit height and
+  // width
+  container: 'View' | 'Text',
 |};
 function Markdown(props: Props) {
-  const { style, useDarkStyle, children, rules } = props;
+  const { style, useDarkStyle, children, rules, container } = props;
 
   const markdownStyles = React.useMemo(() => {
     return getMarkdownStyles(useDarkStyle ? 'dark' : 'light');
@@ -35,15 +41,14 @@ function Markdown(props: Props) {
     [simpleMarkdownRules],
   );
   const ast = React.useMemo(
-    () => parser(children, { disableAutoBlockNewlines: true }),
-    [parser, children],
+    () => parser(children, { disableAutoBlockNewlines: true, container }),
+    [parser, children, container],
   );
 
   const output = React.useMemo(
     () => SimpleMarkdown.outputFor(simpleMarkdownRules, 'react'),
     [simpleMarkdownRules],
   );
-  const renderedOutput = React.useMemo(() => output(ast), [ast, output]);
 
   const emojiOnly = React.useMemo(() => {
     if (emojiOnlyFactor === null || emojiOnlyFactor === undefined) {
@@ -72,7 +77,16 @@ function Markdown(props: Props) {
     return { ...flattened, fontSize: fontSize * emojiOnlyFactor };
   }, [emojiOnly, style, emojiOnlyFactor]);
 
-  return <Text style={textStyle}>{renderedOutput}</Text>;
+  const renderedOutput = React.useMemo(
+    () => output(ast, { textStyle, container }),
+    [ast, output, textStyle, container],
+  );
+
+  if (container === 'Text') {
+    return <Text>{renderedOutput}</Text>;
+  } else {
+    return <View>{renderedOutput}</View>;
+  }
 }
 
 export default Markdown;

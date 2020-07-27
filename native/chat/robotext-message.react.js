@@ -128,6 +128,7 @@ class RobotextMessage extends React.PureComponent<Props> {
             key={key}
             useDarkStyle={darkColor}
             rules={inlineMarkdownRules}
+            container="Text"
           >
             {decodeURI(splitPart)}
           </Markdown>,

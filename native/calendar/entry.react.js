@@ -428,6 +428,7 @@ class InternalEntry extends React.Component<Props, State> {
                   style={textStyle}
                   useDarkStyle={darkColor}
                   rules={inlineMarkdownRules}
+                  container="Text"
                 >
                   {rawText}
                 </Markdown>

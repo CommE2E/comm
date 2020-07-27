@@ -46,4 +46,5 @@ div.markdown pre > code {
   margin: 0;
   box-sizing: border-box;
   border-radius: 5px;
+  tab-size: 2;
 }

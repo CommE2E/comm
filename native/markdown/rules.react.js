@@ -7,7 +7,7 @@ import * as React from 'react';
 import { Text, Linking, Alert } from 'react-native';
 import * as SimpleMarkdown from 'simple-markdown';
 
-import { urlRegex, paragraphRegex } from 'lib/shared/markdown';
+import * as MarkdownRegex from 'lib/shared/markdown';
 import { normalizeURL } from 'lib/utils/url-utils';
 
 type MarkdownRuleSpec = {|
@@ -50,7 +50,7 @@ function inlineMarkdownRules(
     url: {
       ...SimpleMarkdown.defaultRules.url,
       // simple-markdown is case-sensitive, but we don't want to be
-      match: SimpleMarkdown.inlineRegex(urlRegex),
+      match: SimpleMarkdown.inlineRegex(MarkdownRegex.urlRegex),
     },
     // Matches '[Google](https://google.com)' during parse phase and handles
     // rendering all 'link' nodes, including for 'autolink' and 'url'
@@ -74,18 +74,44 @@ function inlineMarkdownRules(
     // parser will be an array of one or more 'paragraph' nodes
     paragraph: {
       ...SimpleMarkdown.defaultRules.paragraph,
-      // simple-markdown collapses multiple newlines into one, but we want to
-      // preserve the newlines
-      match: SimpleMarkdown.blockRegex(paragraphRegex),
+      // simple-markdown's default RegEx collapses multiple newlines into one.
+      // We want to keep the newlines, but when rendering within a View, we
+      // strip just one trailing newline off, since the View adds vertical
+      // spacing between its children
+      match: (source: string, state: SimpleMarkdown.State) => {
+        if (state.inline) {
+          return null;
+        } else if (state.container === 'View') {
+          return MarkdownRegex.paragraphStripTrailingNewlineRegex.exec(source);
+        } else {
+          return MarkdownRegex.paragraphRegex.exec(source);
+        }
+      },
+      parse(
+        capture: SimpleMarkdown.Capture,
+        parse: SimpleMarkdown.Parser,
+        state: SimpleMarkdown.State,
+      ) {
+        let content = capture[1];
+        if (state.container === 'View') {
+          // React Native renders empty lines with less height. We want to
+          // preserve the newline characters, so we replace empty lines with a
+          // single space
+          content = content.replace(/^$/m, ' ');
+        }
+        return {
+          content: SimpleMarkdown.parseInline(parse, content, state),
+        };
+      },
       // eslint-disable-next-line react/display-name
       react: (
         node: SimpleMarkdown.SingleASTNode,
         output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
         state: SimpleMarkdown.State,
       ) => (
-        <React.Fragment key={state.key}>
+        <Text key={state.key} style={state.textStyle}>
           {output(node.content, state)}
-        </React.Fragment>
+        </Text>
       ),
     },
     // This is the leaf node in the AST returned by the parse phase
