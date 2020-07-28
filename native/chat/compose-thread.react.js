@@ -42,7 +42,7 @@ import {
 } from 'lib/selectors/user-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import {
-  threadInChatList,
+  threadInFilterList,
   userIsMember,
   threadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils';
@@ -217,7 +217,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
       return _flow(
         _filter(
           (threadInfo: ThreadInfo) =>
-            threadInChatList(threadInfo) &&
+            threadInFilterList(threadInfo) &&
             (!parentThreadInfo ||
               threadInfo.parentThreadID === parentThreadInfo.id) &&
             userIDs.every(userID => userIsMember(threadInfo, userID)),
