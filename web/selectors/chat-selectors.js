@@ -36,7 +36,7 @@ const activeChatThreadItem: (
     if (!threadInfo) {
       return null;
     }
-    return createChatThreadItem(threadInfo, messageStore, messageInfos);
+    return createChatThreadItem(threadInfo, messageStore, messageInfos, null);
   },
 );
 
