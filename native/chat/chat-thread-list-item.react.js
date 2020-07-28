@@ -10,6 +10,7 @@ import type { AppState } from '../redux/redux-setup';
 import * as React from 'react';
 import { View, Text } from 'react-native';
 import PropTypes from 'prop-types';
+import Icon from 'react-native-vector-icons/Entypo';
 
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
 import { connect } from 'lib/utils/redux-utils';
@@ -57,41 +58,78 @@ class ChatThreadListItem extends React.PureComponent<Props> {
   }
 
   render() {
+    const { listIosHighlightUnderlay } = this.props.colors;
+
+    const sidebars = this.props.data.sidebars.map(sidebar => {
+      const sidebarThreadInfo = sidebar.threadInfo;
+      const lastActivity = shortAbsoluteDate(sidebar.lastUpdatedTime);
+      const sidebarUnreadStyle = sidebarThreadInfo.currentUser.unread
+        ? this.props.styles.unread
+        : null;
+      return (
+        <Button
+          iosFormat="highlight"
+          iosHighlightUnderlayColor={listIosHighlightUnderlay}
+          iosActiveOpacity={0.85}
+          style={this.props.styles.sidebar}
+          key={sidebarThreadInfo.id}
+          onPress={this.onPress}
+        >
+          <Icon
+            name="align-right"
+            style={this.props.styles.sidebarIcon}
+            size={24}
+          />
+          <Text
+            style={[this.props.styles.sidebarName, sidebarUnreadStyle]}
+            numberOfLines={1}
+          >
+            {sidebarThreadInfo.uiName}
+          </Text>
+          <Text style={[this.props.styles.sidebarLastActivity, unreadStyle]}>
+            {lastActivity}
+          </Text>
+        </Button>
+      );
+    });
+
     const lastActivity = shortAbsoluteDate(this.props.data.lastUpdatedTime);
     const unreadStyle = this.props.data.threadInfo.currentUser.unread
       ? this.props.styles.unread
       : null;
-    const { listIosHighlightUnderlay } = this.props.colors;
     return (
-      <Button
-        onPress={this.onPress}
-        iosFormat="highlight"
-        iosHighlightUnderlayColor={listIosHighlightUnderlay}
-        iosActiveOpacity={0.85}
-      >
-        <View style={this.props.styles.container}>
-          <View style={this.props.styles.row}>
-            <Text
-              style={[this.props.styles.threadName, unreadStyle]}
-              numberOfLines={1}
-            >
-              {this.props.data.threadInfo.uiName}
-            </Text>
-            <View style={this.props.styles.colorSplotch}>
-              <ColorSplotch
-                color={this.props.data.threadInfo.color}
-                size="small"
-              />
+      <>
+        <Button
+          onPress={this.onPress}
+          iosFormat="highlight"
+          iosHighlightUnderlayColor={listIosHighlightUnderlay}
+          iosActiveOpacity={0.85}
+        >
+          <View style={this.props.styles.container}>
+            <View style={this.props.styles.row}>
+              <Text
+                style={[this.props.styles.threadName, unreadStyle]}
+                numberOfLines={1}
+              >
+                {this.props.data.threadInfo.uiName}
+              </Text>
+              <View style={this.props.styles.colorSplotch}>
+                <ColorSplotch
+                  color={this.props.data.threadInfo.color}
+                  size="small"
+                />
+              </View>
+            </View>
+            <View style={this.props.styles.row}>
+              {this.lastMessage()}
+              <Text style={[this.props.styles.lastActivity, unreadStyle]}>
+                {lastActivity}
+              </Text>
             </View>
           </View>
-          <View style={this.props.styles.row}>
-            {this.lastMessage()}
-            <Text style={[this.props.styles.lastActivity, unreadStyle]}>
-              {lastActivity}
-            </Text>
-          </View>
-        </View>
-      </Button>
+        </Button>
+        {sidebars}
+      </>
     );
   }
 
@@ -137,6 +175,29 @@ const styles = {
   unread: {
     color: 'listForegroundLabel',
     fontWeight: 'bold',
+  },
+  sidebar: {
+    height: 30,
+    flexDirection: 'row',
+    display: 'flex',
+    marginHorizontal: 20,
+    alignItems: 'center',
+  },
+  sidebarIcon: {
+    paddingLeft: 10,
+    color: 'listForegroundSecondaryLabel',
+  },
+  sidebarName: {
+    color: 'listForegroundSecondaryLabel',
+    flex: 1,
+    fontSize: 16,
+    paddingLeft: 5,
+    paddingBottom: 2,
+  },
+  sidebarLastActivity: {
+    color: 'listForegroundTertiaryLabel',
+    fontSize: 14,
+    marginLeft: 10,
   },
 };
 const stylesSelector = styleSelector(styles);

@@ -23,7 +23,7 @@ import { connect } from 'lib/utils/redux-utils';
 import {
   type ChatThreadItem,
   chatThreadItemPropType,
-  chatListData,
+  chatListDataWithNestedSidebars,
 } from 'lib/selectors/chat-selectors';
 
 import ChatThreadListItem from './chat-thread-list-item.react';
@@ -182,13 +182,15 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     if (item.type === 'search') {
       return Platform.OS === 'ios' ? 54.5 : 55;
     }
+
     // itemHeight for emptyItem might be wrong because of line wrapping
     // but we don't care because we'll only ever be rendering this item by itself
     // and it should always be on-screen
     if (item.type === 'empty') {
       return 123;
     }
-    return 60;
+
+    return 60 + item.sidebars.length * 30;
   }
 
   static heightOfItems(data: $ReadOnlyArray<Item>): number {
@@ -318,7 +320,7 @@ const styles = {
 const stylesSelector = styleSelector(styles);
 
 export default connect((state: AppState) => ({
-  chatListData: chatListData(state),
+  chatListData: chatListDataWithNestedSidebars(state),
   viewerID: state.currentUserInfo && state.currentUserInfo.id,
   threadSearchIndex: threadSearchIndex(state),
   styles: stylesSelector(state),
