@@ -36,7 +36,7 @@ import {
 
 import { connect } from 'lib/utils/redux-utils';
 import {
-  unreadHomeCount,
+  unreadCount,
   threadInfoSelector,
 } from 'lib/selectors/thread-selectors';
 import {
@@ -615,7 +615,7 @@ export default connectNav((context: ?NavContextType) => ({
 }))(
   connect(
     (state: AppState) => ({
-      unreadCount: unreadHomeCount(state),
+      unreadCount: unreadCount(state),
       deviceToken: state.deviceToken,
       threadInfos: threadInfoSelector(state),
       notifPermissionAlertInfo: state.notifPermissionAlertInfo,

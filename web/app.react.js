@@ -32,7 +32,7 @@ import { connect } from 'lib/utils/redux-utils';
 import { registerConfig } from 'lib/utils/config';
 import {
   mostRecentReadThreadSelector,
-  unreadHomeCount,
+  unreadCount,
 } from 'lib/selectors/thread-selectors';
 import {
   backgroundActionType,
@@ -359,7 +359,7 @@ export default connect(
         !activeChatThreadID ||
         state.threadStore.threadInfos[activeChatThreadID].currentUser.unread,
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
-      unreadCount: unreadHomeCount(state),
+      unreadCount: unreadCount(state),
     };
   },
   null,
