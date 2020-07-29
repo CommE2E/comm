@@ -14,7 +14,7 @@ div.markdown h6 {
 div.markdown blockquote {
   display: inline-block;
   padding: .5em 10px;
-  margin-bottom: 6px;
+  margin: 0 0 6px 0;
   box-sizing: border-box;
   width: 100%;
 }
@@ -44,8 +44,8 @@ div.markdown pre > code {
   width: 100%;
   display: inline-block;
   padding: .5em 10px;
-  margin: 0;
   box-sizing: border-box;
   border-radius: 5px;
   tab-size: 2;
+  margin: 0 0 6px 0;
 }

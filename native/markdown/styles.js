@@ -70,6 +70,7 @@ const unboundStyles = {
     backgroundColor: 'codeBackground',
     padding: 10,
     borderRadius: 5,
+    marginBottom: 6,
   },
   codeBlockText: {
     fontFamily: Platform.select({
