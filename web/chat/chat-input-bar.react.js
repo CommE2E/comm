@@ -34,6 +34,7 @@ import { connect } from 'lib/utils/redux-utils';
 import { joinThreadActionTypes, joinThread } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
+import { trimMessage } from 'lib/shared/message-utils';
 
 import css from './chat-message-list.css';
 import LoadingIndicator from '../loading-indicator.react';
@@ -266,7 +267,7 @@ class ChatInputBar extends React.PureComponent<Props> {
   send() {
     let { nextLocalID } = this.props;
 
-    const text = this.props.inputState.draft.trim();
+    const text = trimMessage(this.props.inputState.draft);
     if (text) {
       // TODO we should make the send button appear dynamically
       // iff trimmed text is nonempty, just like native

@@ -56,6 +56,7 @@ import { saveDraftActionType } from 'lib/actions/miscellaneous-action-types';
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
 import { joinThreadActionTypes, joinThread } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { trimMessage } from 'lib/shared/message-utils';
 
 import Button from '../components/button.react';
 import { nonThreadCalendarQuery } from '../navigation/nav-selectors';
@@ -149,7 +150,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
     // eslint-disable-next-line import/no-named-as-default-member
     this.sendButtonContainerOpen = new Animated.Value(
-      props.draft.trim() ? 1 : 0,
+      trimMessage(props.draft) ? 1 : 0,
     );
     this.sendButtonContainerWidth = Animated.interpolate(
       this.sendButtonContainerOpen,
@@ -184,8 +185,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
-    const currentText = this.state.text.trim();
-    const prevText = prevState.text.trim();
+    const currentText = trimMessage(this.state.text);
+    const prevText = trimMessage(prevState.text);
     if (
       (currentText === '' && prevText !== '') ||
       (currentText !== '' && prevText === '')
@@ -409,7 +410,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
               onPress={this.onSend}
               activeOpacity={0.4}
               style={this.props.styles.sendButton}
-              disabled={this.state.text.trim() === ''}
+              disabled={trimMessage(this.state.text) === ''}
             >
               <Icon
                 name="md-send"
@@ -445,7 +446,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   }, 400);
 
   onSend = async () => {
-    if (!this.state.text.trim()) {
+    if (!trimMessage(this.state.text)) {
       return;
     }
     this.updateSendButton('');
@@ -456,7 +457,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       'clearableTextInput should be sent in onSend',
     );
     let text = await clearableTextInput.getValueAndReset();
-    text = text.trim();
+    text = trimMessage(text);
     if (!text) {
       return;
     }

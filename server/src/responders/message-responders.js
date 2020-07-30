@@ -17,7 +17,7 @@ import invariant from 'invariant';
 
 import { ServerError } from 'lib/utils/errors';
 import { threadPermissions } from 'lib/types/thread-types';
-import { createMediaMessageData } from 'lib/shared/message-utils';
+import { createMediaMessageData, trimMessage } from 'lib/shared/message-utils';
 
 import createMessages from '../creators/message-creator';
 import { validateInput, tShape } from '../utils/validation-utils';
@@ -39,7 +39,7 @@ async function textMessageCreationResponder(
   await validateInput(viewer, sendTextMessageRequestInputValidator, request);
 
   const { threadID, localID, text: rawText } = request;
-  const text = rawText.trim();
+  const text = trimMessage(rawText);
   if (!text) {
     throw new ServerError('invalid_parameters');
   }
