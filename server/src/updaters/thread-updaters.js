@@ -40,7 +40,7 @@ import {
   recalculateAllPermissions,
   commitMembershipChangeset,
   setJoinsToUnread,
-  getParentThreadMembershipRowsForNewUsers,
+  getParentThreadRelationshipRowsForNewUsers,
 } from './thread-permission-updaters';
 import createMessages from '../creators/message-creator';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
@@ -446,7 +446,7 @@ async function updateThread(
       relationshipRows: recalculateRelationshipRows,
     } = recalculatePermissionsChangeset;
     membershipRows.push(...recalculateMembershipRows);
-    const parentRelationshipRows = getParentThreadMembershipRowsForNewUsers(
+    const parentRelationshipRows = getParentThreadRelationshipRowsForNewUsers(
       request.threadID,
       recalculateMembershipRows,
       newMemberIDs,

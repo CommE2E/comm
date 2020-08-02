@@ -678,7 +678,7 @@ function setJoinsToUnread(
   }
 }
 
-function getParentThreadMembershipRowsForNewUsers(
+function getParentThreadRelationshipRowsForNewUsers(
   threadID: string,
   recalculateMembershipRows: MembershipRow[],
   newMemberIDs: string[],
@@ -707,5 +707,5 @@ export {
   recalculateAllPermissions,
   commitMembershipChangeset,
   setJoinsToUnread,
-  getParentThreadMembershipRowsForNewUsers,
+  getParentThreadRelationshipRowsForNewUsers,
 };

@@ -22,7 +22,7 @@ import {
   recalculateAllPermissions,
   commitMembershipChangeset,
   setJoinsToUnread,
-  getParentThreadMembershipRowsForNewUsers,
+  getParentThreadRelationshipRowsForNewUsers,
 } from '../updaters/thread-permission-updaters';
 import createMessages from './message-creator';
 
@@ -128,7 +128,7 @@ async function createThread(
       membershipRows: initialMembersMembershipRows,
       relationshipRows: initialMembersRelationshipRows,
     } = initialMembersChangeset;
-    const parentRelationshipRows = getParentThreadMembershipRowsForNewUsers(
+    const parentRelationshipRows = getParentThreadRelationshipRowsForNewUsers(
       id,
       recalculateMembershipRows,
       initialMemberAndCreatorIDs,
