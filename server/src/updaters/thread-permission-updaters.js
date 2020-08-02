@@ -33,7 +33,10 @@ import {
   type FetchThreadInfosResult,
 } from '../fetchers/thread-fetchers';
 import { createUpdates } from '../creators/update-creator';
-import { updateUndirectedRelationships } from '../updaters/relationship-updaters';
+import {
+  updateDatasForUserPairs,
+  updateUndirectedRelationships,
+} from '../updaters/relationship-updaters';
 
 import { dbQuery, SQL, mergeOrConditions } from '../database';
 
@@ -597,10 +600,11 @@ async function commitMembershipChangeset(
       toSave.push(row);
     }
   }
+  const uniqueRelationshipRows = _uniqWith(_isEqual)(relationshipRows);
   await Promise.all([
     saveMemberships(toSave),
     deleteMemberships(toDelete),
-    updateUndirectedRelationships(_uniqWith(_isEqual)(relationshipRows)),
+    updateUndirectedRelationships(uniqueRelationshipRows),
   ]);
 
   // We fetch all threads here because clients still expect the full list of
@@ -610,7 +614,9 @@ async function commitMembershipChangeset(
   const { threadInfos: serverThreadInfos } = serverThreadInfoFetchResult;
 
   const time = Date.now();
-  const updateDatas = [];
+  const updateDatas = updateDatasForUserPairs(
+    uniqueRelationshipRows.map(({ user1, user2 }) => [user1, user2]),
+  );
   for (let changedThreadID of changedThreadIDs) {
     const serverThreadInfo = serverThreadInfos[changedThreadID];
     for (let memberInfo of serverThreadInfo.members) {

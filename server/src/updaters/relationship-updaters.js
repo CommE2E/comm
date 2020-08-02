@@ -9,12 +9,13 @@ import {
   undirectedStatus,
   directedStatus,
 } from 'lib/types/relationship-types';
-import { updateTypes } from 'lib/types/update-types';
+import { updateTypes, type UpdateData } from 'lib/types/update-types';
 
 import invariant from 'invariant';
 
 import { ServerError } from 'lib/utils/errors';
 import { sortIDs } from 'lib/shared/relationship-utils';
+import { cartesianProduct } from 'lib/utils/array';
 
 import { fetchUserInfos } from '../fetchers/user-fetchers';
 import { fetchFriendRequestRelationshipOperations } from '../fetchers/relationship-fetchers';
@@ -168,26 +169,33 @@ async function updateRelationships(
     invariant(false, `action ${action} is invalid or not supported currently`);
   }
 
-  const time = Date.now();
-  const updateDatas = [];
-  for (const userID of updateIDs) {
-    updateDatas.push({
-      type: updateTypes.UPDATE_USER,
-      userID,
-      time,
-      updatedUserID: viewer.userID,
-    });
-    updateDatas.push({
-      type: updateTypes.UPDATE_USER,
-      userID: viewer.userID,
-      time,
-      updatedUserID: userID,
-    });
-  }
-
-  await createUpdates(updateDatas);
+  await createUpdates(
+    updateDatasForUserPairs(cartesianProduct([viewer.userID], updateIDs)),
+  );
 
   return errors;
+}
+
+function updateDatasForUserPairs(
+  userPairs: $ReadOnlyArray<[string, string]>,
+): UpdateData[] {
+  const time = Date.now();
+  const updateDatas = [];
+  for (const [user1, user2] of userPairs) {
+    updateDatas.push({
+      type: updateTypes.UPDATE_USER,
+      userID: user1,
+      time,
+      updatedUserID: user2,
+    });
+    updateDatas.push({
+      type: updateTypes.UPDATE_USER,
+      userID: user2,
+      time,
+      updatedUserID: user1,
+    });
+  }
+  return updateDatas;
 }
 
 async function updateUndirectedRelationships(
@@ -213,4 +221,8 @@ async function updateUndirectedRelationships(
   await dbQuery(query);
 }
 
-export { updateRelationships, updateUndirectedRelationships };
+export {
+  updateRelationships,
+  updateDatasForUserPairs,
+  updateUndirectedRelationships,
+};
