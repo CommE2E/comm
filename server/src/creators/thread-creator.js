@@ -9,14 +9,17 @@ import {
 import { messageTypes } from 'lib/types/message-types';
 import type { Viewer } from '../session/viewer';
 
+import invariant from 'invariant';
+
 import { generateRandomColor } from 'lib/shared/thread-utils';
 import { ServerError } from 'lib/utils/errors';
+import { promiseAll } from 'lib/utils/promises';
 
 import { dbQuery, SQL } from '../database';
 import { checkThreadPermission } from '../fetchers/thread-fetchers';
 import createIDs from './id-creator';
 import { createInitialRolesForNewThread } from './role-creator';
-import { verifyUserIDs } from '../fetchers/user-fetchers';
+import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
 import {
   changeRole,
   recalculateAllPermissions,
@@ -35,18 +38,43 @@ async function createThread(
   }
 
   const threadType = request.type;
-  if (threadType !== threadTypes.CHAT_SECRET && !request.parentThreadID) {
+  const parentThreadID = request.parentThreadID ? request.parentThreadID : null;
+  const initialMemberIDs =
+    request.initialMemberIDs && request.initialMemberIDs.length > 0
+      ? request.initialMemberIDs
+      : [];
+
+  if (threadType !== threadTypes.CHAT_SECRET && !parentThreadID) {
     throw new ServerError('invalid_parameters');
   }
-  let parentThreadID = null;
-  if (request.parentThreadID) {
-    parentThreadID = request.parentThreadID;
-    const hasPermission = await checkThreadPermission(
+
+  const checkPromises = {};
+  if (parentThreadID) {
+    checkPromises.hasParentPermission = checkThreadPermission(
       viewer,
       parentThreadID,
       threadPermissions.CREATE_SUBTHREADS,
     );
-    if (!hasPermission) {
+  }
+  if (initialMemberIDs) {
+    checkPromises.fetchInitialMembers = fetchKnownUserInfos(
+      viewer,
+      SQL`
+        ((r.user1 = ${viewer.userID} AND r.user2 IN (${initialMemberIDs})) OR
+          (r.user1 IN (${initialMemberIDs}) AND r.user2 = ${viewer.userID}))
+      `,
+    );
+  }
+  const checkResults = await promiseAll(checkPromises);
+  if (checkResults.hasParentPermission === false) {
+    throw new ServerError('invalid_credentials');
+  }
+  if (checkResults.fetchInitialMembers) {
+    invariant(initialMemberIDs, 'should be set');
+    // Subtract 1 so we don't include the viewer
+    const confirmedMemberCount =
+      Object.keys(checkResults.fetchInitialMembers).length - 1;
+    if (confirmedMemberCount < initialMemberIDs.length) {
       throw new ServerError('invalid_credentials');
     }
   }
@@ -77,12 +105,7 @@ async function createThread(
       creation_time, color, parent_thread_id, default_role)
     VALUES ${[row]}
   `;
-  const [initialMemberIDs] = await Promise.all([
-    request.initialMemberIDs && request.initialMemberIDs.length > 0
-      ? verifyUserIDs(request.initialMemberIDs)
-      : undefined,
-    dbQuery(query),
-  ]);
+  await dbQuery(query);
 
   const [
     creatorChangeset,
@@ -90,9 +113,7 @@ async function createThread(
     recalculatePermissionsChangeset,
   ] = await Promise.all([
     changeRole(id, [viewer.userID], newRoles.creator.id),
-    initialMemberIDs && initialMemberIDs.length > 0
-      ? changeRole(id, initialMemberIDs, null)
-      : undefined,
+    initialMemberIDs ? changeRole(id, initialMemberIDs, null) : undefined,
     recalculateAllPermissions(id, threadType),
   ]);
 
@@ -120,7 +141,7 @@ async function createThread(
     ...creatorRelationshipRows,
     ...recalculateRelationshipRows,
   ];
-  if (initialMemberIDs && initialMemberIDs.length > 0) {
+  if (initialMemberIDs) {
     if (!initialMembersChangeset) {
       throw new ServerError('unknown_error');
     }
