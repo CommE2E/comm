@@ -3,7 +3,6 @@
 import type { AppState } from '../redux/redux-setup';
 import { messageTypes } from 'lib/types/message-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import type { NodeToMeasure } from '../components/node-height-measurer.react';
 import type { ChatMessageInfoItemWithHeight } from './message.react';
 import {
   messageListRoutePropType,
@@ -25,7 +24,7 @@ import {
   chatMessageItemPropType,
   messageListData,
 } from 'lib/selectors/chat-selectors';
-import { messageKey, messageID } from 'lib/shared/message-utils';
+import { messageID } from 'lib/shared/message-utils';
 
 import MessageList from './message-list.react';
 import NodeHeightMeasurer from '../components/node-height-measurer.react';
@@ -46,6 +45,7 @@ import {
 import ContentLoading from '../components/content-loading.react';
 import { dummyNodeForTextMessageHeightMeasurement } from './inner-text-message.react';
 import { dummyNodeForRobotextMessageHeightMeasurement } from './robotext-message.react';
+import { chatMessageItemKey } from './chat-list.react';
 
 export type ChatMessageItemWithHeight =
   | {| itemType: 'loader' |}
@@ -64,7 +64,6 @@ type Props = {|
   inputState: ?InputState,
 |};
 type State = {|
-  nodesToMeasure: NodeToMeasure[],
   listDataWithHeights: ?$ReadOnlyArray<ChatMessageItemWithHeight>,
 |};
 class MessageListContainer extends React.PureComponent<Props, State> {
@@ -78,43 +77,9 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     inputState: inputStatePropType,
   };
-
-  constructor(props: Props) {
-    super(props);
-    const nodesToMeasure = props.messageListData
-      ? this.nodesToMeasureFromListData(props.messageListData)
-      : [];
-    const listDataWithHeights =
-      props.messageListData && nodesToMeasure.length === 0
-        ? this.mergeHeightsIntoListData()
-        : null;
-    this.state = {
-      nodesToMeasure,
-      listDataWithHeights,
-    };
-  }
-
-  nodesToMeasureFromListData(listData: $ReadOnlyArray<ChatMessageItem>) {
-    const nodesToMeasure = [];
-    for (let item of listData) {
-      if (item.itemType !== 'message') {
-        continue;
-      }
-      const { messageInfo } = item;
-      if (messageInfo.type === messageTypes.TEXT) {
-        nodesToMeasure.push({
-          id: messageKey(messageInfo),
-          node: dummyNodeForTextMessageHeightMeasurement(messageInfo.text),
-        });
-      } else if (item.robotext && typeof item.robotext === 'string') {
-        nodesToMeasure.push({
-          id: messageKey(messageInfo),
-          node: dummyNodeForRobotextMessageHeightMeasurement(item.robotext),
-        });
-      }
-    }
-    return nodesToMeasure;
-  }
+  state = {
+    listDataWithHeights: null,
+  };
 
   static getThreadInfo(props: Props): ThreadInfo {
     return props.route.params.threadInfo;
@@ -130,29 +95,8 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     const oldListData = prevProps.messageListData;
     const newListData = this.props.messageListData;
     if (!newListData && oldListData) {
-      this.setState({
-        nodesToMeasure: [],
-        listDataWithHeights: null,
-      });
+      this.setState({ listDataWithHeights: null });
     }
-    if (!newListData) {
-      return;
-    }
-
-    const oldNavThreadInfo = MessageListContainer.getThreadInfo(prevProps);
-    const newNavThreadInfo = MessageListContainer.getThreadInfo(this.props);
-    const oldInputState = prevProps.inputState;
-    const newInputState = this.props.inputState;
-    if (
-      newListData === oldListData &&
-      newNavThreadInfo === oldNavThreadInfo &&
-      newInputState === oldInputState
-    ) {
-      return;
-    }
-
-    const newNodesToMeasure = this.nodesToMeasureFromListData(newListData);
-    this.setState({ nodesToMeasure: newNodesToMeasure });
   }
 
   render() {
@@ -178,8 +122,14 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     return (
       <View style={this.props.styles.container}>
         <NodeHeightMeasurer
-          nodesToMeasure={this.state.nodesToMeasure}
-          allHeightsMeasuredCallback={this.allHeightsMeasured}
+          listData={this.props.messageListData}
+          itemToID={this.heightMeasurerID}
+          itemToMeasureKey={this.heightMeasurerKey}
+          itemToDummy={this.heightMeasurerDummy}
+          mergeItemWithHeight={this.heightMeasurerMergeItem}
+          allHeightsMeasured={this.allHeightsMeasured}
+          inputState={this.props.inputState}
+          composedMessageMaxWidth={this.props.composedMessageMaxWidth}
         />
         {messageList}
         <ChatInputBar
@@ -191,101 +141,117 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     );
   }
 
-  allHeightsMeasured = (
-    nodesToMeasure: $ReadOnlyArray<NodeToMeasure>,
-    newHeights: Map<string, number>,
-  ) => {
-    if (nodesToMeasure !== this.state.nodesToMeasure) {
-      return;
-    }
-    if (!this.props.messageListData) {
-      return;
-    }
-    const listDataWithHeights = this.mergeHeightsIntoListData(newHeights);
-    this.setState({ listDataWithHeights });
+  heightMeasurerID = (item: ChatMessageItem) => {
+    return chatMessageItemKey(item);
   };
 
-  mergeHeightsIntoListData(nodeHeights?: Map<string, number>) {
-    const { messageListData: listData, inputState } = this.props;
+  heightMeasurerKey = (item: ChatMessageItem) => {
+    if (item.itemType !== 'message') {
+      return null;
+    }
+    const { messageInfo } = item;
+    if (messageInfo.type === messageTypes.TEXT) {
+      return messageInfo.text;
+    } else if (item.robotext && typeof item.robotext === 'string') {
+      return item.robotext;
+    }
+    return null;
+  };
+
+  heightMeasurerDummy = (item: ChatMessageItem) => {
+    invariant(
+      item.itemType === 'message',
+      'NodeHeightMeasurer asked for dummy for non-message item',
+    );
+    const { messageInfo } = item;
+    if (messageInfo.type === messageTypes.TEXT) {
+      return dummyNodeForTextMessageHeightMeasurement(messageInfo.text);
+    } else if (item.robotext && typeof item.robotext === 'string') {
+      return dummyNodeForRobotextMessageHeightMeasurement(item.robotext);
+    }
+    invariant(false, 'NodeHeightMeasurer asked for dummy for non-text message');
+  };
+
+  heightMeasurerMergeItem = (item: ChatMessageItem, height: ?number) => {
+    if (item.itemType !== 'message') {
+      return item;
+    }
+
+    const { messageInfo } = item;
     const threadInfo = MessageListContainer.getThreadInfo(this.props);
-    const listDataWithHeights = listData.map((item: ChatMessageItem) => {
-      if (item.itemType !== 'message') {
-        return item;
-      }
-      const { messageInfo } = item;
-      const key = messageKey(messageInfo);
-      if (
-        messageInfo.type === messageTypes.IMAGES ||
-        messageInfo.type === messageTypes.MULTIMEDIA
-      ) {
-        // Conditional due to Flow...
-        const localMessageInfo = item.localMessageInfo
-          ? item.localMessageInfo
-          : null;
-        const id = messageID(messageInfo);
-        const pendingUploads =
-          inputState &&
-          inputState.pendingUploads &&
-          inputState.pendingUploads[id];
-        const sizes = multimediaMessageContentSizes(
-          messageInfo,
-          this.props.composedMessageMaxWidth,
-        );
-        return {
-          itemType: 'message',
-          messageShapeType: 'multimedia',
-          messageInfo,
-          localMessageInfo,
-          threadInfo,
-          startsConversation: item.startsConversation,
-          startsCluster: item.startsCluster,
-          endsCluster: item.endsCluster,
-          pendingUploads,
-          ...sizes,
-        };
-      }
-      invariant(nodeHeights, 'nodeHeights not set');
-      const contentHeight = nodeHeights.get(key);
-      invariant(
-        contentHeight !== null && contentHeight !== undefined,
-        `height for ${key} should be set`,
+    if (
+      messageInfo.type === messageTypes.IMAGES ||
+      messageInfo.type === messageTypes.MULTIMEDIA
+    ) {
+      const { inputState } = this.props;
+      // Conditional due to Flow...
+      const localMessageInfo = item.localMessageInfo
+        ? item.localMessageInfo
+        : null;
+      const id = messageID(messageInfo);
+      const pendingUploads =
+        inputState &&
+        inputState.pendingUploads &&
+        inputState.pendingUploads[id];
+      const sizes = multimediaMessageContentSizes(
+        messageInfo,
+        this.props.composedMessageMaxWidth,
       );
-      if (messageInfo.type === messageTypes.TEXT) {
-        // Conditional due to Flow...
-        const localMessageInfo = item.localMessageInfo
-          ? item.localMessageInfo
-          : null;
-        return {
-          itemType: 'message',
-          messageShapeType: 'text',
-          messageInfo,
-          localMessageInfo,
-          threadInfo,
-          startsConversation: item.startsConversation,
-          startsCluster: item.startsCluster,
-          endsCluster: item.endsCluster,
-          contentHeight,
-        };
-      } else {
-        invariant(
-          typeof item.robotext === 'string',
-          "Flow can't handle our fancy types :(",
-        );
-        return {
-          itemType: 'message',
-          messageShapeType: 'robotext',
-          messageInfo,
-          threadInfo,
-          startsConversation: item.startsConversation,
-          startsCluster: item.startsCluster,
-          endsCluster: item.endsCluster,
-          robotext: item.robotext,
-          contentHeight,
-        };
-      }
-    });
-    return listDataWithHeights;
-  }
+      return {
+        itemType: 'message',
+        messageShapeType: 'multimedia',
+        messageInfo,
+        localMessageInfo,
+        threadInfo,
+        startsConversation: item.startsConversation,
+        startsCluster: item.startsCluster,
+        endsCluster: item.endsCluster,
+        pendingUploads,
+        ...sizes,
+      };
+    }
+
+    invariant(height !== null && height !== undefined, 'height should be set');
+    if (messageInfo.type === messageTypes.TEXT) {
+      // Conditional due to Flow...
+      const localMessageInfo = item.localMessageInfo
+        ? item.localMessageInfo
+        : null;
+      return {
+        itemType: 'message',
+        messageShapeType: 'text',
+        messageInfo,
+        localMessageInfo,
+        threadInfo,
+        startsConversation: item.startsConversation,
+        startsCluster: item.startsCluster,
+        endsCluster: item.endsCluster,
+        contentHeight: height,
+      };
+    } else {
+      invariant(
+        typeof item.robotext === 'string',
+        "Flow can't handle our fancy types :(",
+      );
+      return {
+        itemType: 'message',
+        messageShapeType: 'robotext',
+        messageInfo,
+        threadInfo,
+        startsConversation: item.startsConversation,
+        startsCluster: item.startsCluster,
+        endsCluster: item.endsCluster,
+        robotext: item.robotext,
+        contentHeight: height,
+      };
+    }
+  };
+
+  allHeightsMeasured = (
+    listDataWithHeights: $ReadOnlyArray<ChatMessageItemWithHeight>,
+  ) => {
+    this.setState({ listDataWithHeights });
+  };
 }
 
 const styles = {

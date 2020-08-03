@@ -6,165 +6,447 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { View, StyleSheet } from 'react-native';
 import invariant from 'invariant';
-import _isEmpty from 'lodash/fp/isEmpty';
-import _intersectionWith from 'lodash/fp/intersectionWith';
-import _differenceWith from 'lodash/fp/differenceWith';
-import _isEqual from 'lodash/fp/isEqual';
+import shallowequal from 'shallowequal';
 
 const measureBatchSize = 50;
 
-export type NodeToMeasure = {|
-  +id: string,
-  +node: React.Element<any>,
+type MergedItemPair<Item, MergedItem> = {|
+  +item: Item,
+  +mergedItem: MergedItem,
 |};
-type NodesToHeight = Map<string, number>;
-type Props = {|
-  +nodesToMeasure: NodeToMeasure[],
-  +allHeightsMeasuredCallback: (
-    nodesToMeasure: $ReadOnlyArray<NodeToMeasure>,
-    heights: NodesToHeight,
-  ) => void,
-  +minHeight?: number,
+
+type Props<Item, MergedItem> = {
+  // What we want to render
+  +listData: ?$ReadOnlyArray<Item>,
+  // Every item should have an ID. We use this ID to cache the result of calling
+  // mergeItemWithHeight below, and only update it if the input item changes,
+  // mergeItemWithHeight changes, or any extra props we get passed change
+  +itemToID: Item => string,
+  // Only measurable items should return a measureKey.
+  // Falsey keys won't get measured, but will still get passed through
+  // mergeItemWithHeight with height undefined
+  // Make sure that if an item's height changes, its measure key does too!
+  +itemToMeasureKey: Item => ?string,
+  // The "dummy" is the component whose height we will be measuring
+  // We will only call this with items for which itemToMeasureKey returns truthy
+  +itemToDummy: Item => React.Element<any>,
+  // Once we have the height, we need to merge it into the item
+  +mergeItemWithHeight: (item: Item, height: ?number) => MergedItem,
+  // We'll pass our results here when we're done
+  +allHeightsMeasured: (items: $ReadOnlyArray<MergedItem>) => mixed,
+  ...
+};
+type State<Item, MergedItem> = {|
+  // These are the dummies currently being rendered
+  +currentlyMeasuring: $ReadOnlyArray<{|
+    +measureKey: string,
+    +dummy: React.Element<any>,
+  |}>,
+  // When certain parameters change we need to remeasure everything. In order to
+  // avoid considering any onLayouts that got queued before we issued the
+  // remeasure, we increment the "iteration" and only count onLayouts with the
+  // right value
+  +iteration: number,
+  // We cache the measured heights here, keyed by measure key
+  +measuredHeights: Map<string, number>,
+  // We cache the results of calling mergeItemWithHeight on measured items after
+  // measuring their height, keyed by ID
+  +measurableItems: Map<string, MergedItemPair<Item, MergedItem>>,
+  +measurableItems: Map<string, MergedItemPair<Item, MergedItem>>,
+  // We cache the results of calling mergeItemWithHeight on items that aren't
+  // measurable (eg. itemToKey reurns falsey), keyed by ID
+  +unmeasurableItems: Map<string, MergedItemPair<Item, MergedItem>>,
 |};
-type State = {|
-  +currentlyMeasuring: ?Set<NodeToMeasure>,
-|};
-class NodeHeightMeasurer extends React.PureComponent<Props, State> {
-  state = {
-    currentlyMeasuring: null,
-  };
+class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
+  Props<Item, MergedItem>,
+  State<Item, MergedItem>,
+> {
   static propTypes = {
-    nodesToMeasure: PropTypes.arrayOf(
-      PropTypes.exact({
-        id: PropTypes.string.isRequired,
-        node: PropTypes.element.isRequired,
-      }),
-    ).isRequired,
-    allHeightsMeasuredCallback: PropTypes.func.isRequired,
-    minHeight: PropTypes.number,
+    listData: PropTypes.arrayOf(PropTypes.object),
+    itemToID: PropTypes.func.isRequired,
+    itemToMeasureKey: PropTypes.func.isRequired,
+    itemToDummy: PropTypes.func.isRequired,
+    mergeItemWithHeight: PropTypes.func.isRequired,
+    allHeightsMeasured: PropTypes.func.isRequired,
   };
+  containerWidth: ?number;
 
-  currentNodesToHeight: NodesToHeight = new Map();
-  nextNodesToHeight: ?NodesToHeight = null;
-  leftToMeasure: Set<NodeToMeasure> = new Set();
-  leftInBatch = 0;
+  constructor(props: Props<Item, MergedItem>) {
+    super(props);
 
-  componentDidMount() {
-    this.resetInternalState(this.props.nodesToMeasure);
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (this.props.nodesToMeasure !== prevProps.nodesToMeasure) {
-      this.resetInternalState(prevProps.nodesToMeasure);
-    }
-  }
-
-  // resets this.leftToMeasure and this.nextNodesToHeight
-  resetInternalState(prevNodesToMeasure: NodeToMeasure[]) {
-    this.leftToMeasure = new Set();
-    const nextNextNodesToHeight = new Map();
-    const nextNodesToMeasure = this.props.nodesToMeasure;
-
-    const newNodesToMeasure = _differenceWith(_isEqual)(nextNodesToMeasure)(
-      prevNodesToMeasure,
-    );
-    for (let nodeToMeasure of newNodesToMeasure) {
-      this.leftToMeasure.add(nodeToMeasure);
-    }
-
-    const existingNodesToHeight = this.nextNodesToHeight
-      ? this.nextNodesToHeight
-      : this.currentNodesToHeight;
-    const existingNodesToMeasure = _intersectionWith(_isEqual)(
-      nextNodesToMeasure,
-    )(prevNodesToMeasure);
-    for (let nodeToMeasure of existingNodesToMeasure) {
-      const { id } = nodeToMeasure;
-      const measuredHeight = existingNodesToHeight.get(id);
-      if (measuredHeight !== undefined) {
-        nextNextNodesToHeight.set(id, measuredHeight);
-      } else {
-        this.leftToMeasure.add(nodeToMeasure);
+    const { listData, itemToID, itemToMeasureKey, mergeItemWithHeight } = props;
+    const unmeasurableItems = new Map();
+    if (listData) {
+      for (const item of listData) {
+        const measureKey = itemToMeasureKey(item);
+        if (measureKey !== null && measureKey !== undefined) {
+          continue;
+        }
+        const mergedItem = mergeItemWithHeight(item, undefined);
+        unmeasurableItems.set(itemToID(item), { item, mergedItem });
       }
     }
 
-    this.nextNodesToHeight = nextNextNodesToHeight;
-    if (this.leftToMeasure.size === 0) {
-      this.done(nextNodesToMeasure);
-    } else {
-      this.newBatch();
-    }
+    this.state = {
+      currentlyMeasuring: [],
+      iteration: 0,
+      measuredHeights: new Map(),
+      measurableItems: new Map(),
+      unmeasurableItems,
+    };
   }
 
-  onLayout(nodeToMeasure: NodeToMeasure, event: LayoutEvent) {
-    invariant(this.nextNodesToHeight, 'nextNodesToHeight should be set');
-    this.nextNodesToHeight.set(
-      nodeToMeasure.id,
-      this.props.minHeight !== undefined && this.props.minHeight !== null
-        ? Math.max(event.nativeEvent.layout.height, this.props.minHeight)
-        : event.nativeEvent.layout.height,
+  static getDerivedStateFromProps(
+    props: Props<Item, MergedItem>,
+    state: State<Item, MergedItem>,
+  ) {
+    return NodeHeightMeasurer.getPossibleStateUpdateForNextBatch<
+      Item,
+      MergedItem,
+    >(props, state);
+  }
+
+  static getPossibleStateUpdateForNextBatch<InnerItem, InnerMergedItem>(
+    props: Props<InnerItem, InnerMergedItem>,
+    state: State<InnerItem, InnerMergedItem>,
+  ): ?$Shape<State<InnerItem, InnerMergedItem>> {
+    const { currentlyMeasuring, measuredHeights } = state;
+
+    let stillMeasuring = false;
+    for (const { measureKey } of currentlyMeasuring) {
+      const height = measuredHeights.get(measureKey);
+      if (height === null || height === undefined) {
+        stillMeasuring = true;
+        break;
+      }
+    }
+    if (stillMeasuring) {
+      return null;
+    }
+
+    const { listData, itemToMeasureKey, itemToDummy } = props;
+
+    const toMeasure = new Map();
+    if (listData) {
+      for (const item of listData) {
+        const measureKey = itemToMeasureKey(item);
+        if (!measureKey) {
+          continue;
+        }
+        const height = measuredHeights.get(measureKey);
+        if (height !== null && height !== undefined) {
+          continue;
+        }
+        const dummy = itemToDummy(item);
+        toMeasure.set(measureKey, dummy);
+        if (toMeasure.size === measureBatchSize) {
+          break;
+        }
+      }
+    }
+    if (currentlyMeasuring.length === 0 && toMeasure.size === 0) {
+      return null;
+    }
+
+    const nextCurrentlyMeasuring = [];
+    for (const [measureKey, dummy] of toMeasure) {
+      nextCurrentlyMeasuring.push({ measureKey, dummy });
+    }
+    return {
+      currentlyMeasuring: nextCurrentlyMeasuring,
+      measuredHeights: new Map(measuredHeights),
+    };
+  }
+
+  possiblyIssueNewBatch() {
+    const stateUpdate = NodeHeightMeasurer.getPossibleStateUpdateForNextBatch(
+      this.props,
+      this.state,
     );
-    this.leftToMeasure.delete(nodeToMeasure);
-    this.leftInBatch--;
-    if (this.leftToMeasure.size === 0) {
-      this.done(this.props.nodesToMeasure);
-    } else if (this.leftInBatch === 0) {
-      this.newBatch();
+    if (stateUpdate) {
+      this.setState(stateUpdate);
     }
   }
 
-  done(nodesToMeasure: NodeToMeasure[]) {
-    invariant(this.leftToMeasure.size === 0, 'should be 0 left to measure');
-    invariant(this.nextNodesToHeight, 'nextNodesToHeight should be set');
-    this.currentNodesToHeight = this.nextNodesToHeight;
-    this.nextNodesToHeight = null;
-    this.props.allHeightsMeasuredCallback(
-      nodesToMeasure,
-      this.currentNodesToHeight,
+  componentDidMount() {
+    this.triggerCallback(
+      this.state.measurableItems,
+      this.state.unmeasurableItems,
+      false,
     );
-    this.setState({ currentlyMeasuring: null });
   }
 
-  newBatch() {
-    let newBatchSize = Math.min(measureBatchSize, this.leftToMeasure.size);
-    this.leftInBatch = newBatchSize;
-    const newCurrentlyMeasuring = new Set();
-    const leftToMeasureIter = this.leftToMeasure.values();
-    for (; newBatchSize > 0; newBatchSize--) {
-      const value = leftToMeasureIter.next().value;
-      invariant(value !== undefined && value !== null, 'item should exist');
-      newCurrentlyMeasuring.add(value);
+  triggerCallback(
+    measurableItems: Map<string, MergedItemPair<Item, MergedItem>>,
+    unmeasurableItems: Map<string, MergedItemPair<Item, MergedItem>>,
+    mustTrigger: boolean,
+  ) {
+    const {
+      listData,
+      itemToID,
+      itemToMeasureKey,
+      allHeightsMeasured,
+    } = this.props;
+
+    if (!listData) {
+      return;
     }
-    this.setState({ currentlyMeasuring: newCurrentlyMeasuring });
+
+    const result = [];
+    for (const item of listData) {
+      const id = itemToID(item);
+      const measureKey = itemToMeasureKey(item);
+      if (measureKey !== null && measureKey !== undefined) {
+        const measurableItem = measurableItems.get(id);
+        if (!measurableItem && !mustTrigger) {
+          return;
+        }
+        invariant(
+          measurableItem,
+          `currentlyMeasuring empty but no result for ${id}`,
+        );
+        result.push(measurableItem.mergedItem);
+      } else {
+        const unmeasurableItem = unmeasurableItems.get(id);
+        if (!unmeasurableItem && !mustTrigger) {
+          return;
+        }
+        invariant(
+          unmeasurableItem,
+          `currentlyMeasuring empty but no result for ${id}`,
+        );
+        result.push(unmeasurableItem.mergedItem);
+      }
+    }
+
+    allHeightsMeasured(result);
+  }
+
+  componentDidUpdate(
+    prevProps: Props<Item, MergedItem>,
+    prevState: State<Item, MergedItem>,
+  ) {
+    const {
+      listData,
+      itemToID,
+      itemToMeasureKey,
+      itemToDummy,
+      mergeItemWithHeight,
+      allHeightsMeasured,
+      ...rest
+    } = this.props;
+    const {
+      listData: prevListData,
+      itemToID: prevItemToID,
+      itemToMeasureKey: prevItemToMeasureKey,
+      itemToDummy: prevItemToDummy,
+      mergeItemWithHeight: prevMergeItemWithHeight,
+      allHeightsMeasured: prevAllHeightsMeasured,
+      ...prevRest
+    } = prevProps;
+    const restShallowEqual = shallowequal(rest, prevRest);
+    const measurementJustCompleted =
+      this.state.currentlyMeasuring.length === 0 &&
+      prevState.currentlyMeasuring.length !== 0;
+
+    let incrementIteration = false;
+    const nextMeasuredHeights = new Map(this.state.measuredHeights);
+    let measuredHeightsChanged = false;
+    const nextMeasurableItems = new Map(this.state.measurableItems);
+    let measurableItemsChanged = false;
+    const nextUnmeasurableItems = new Map(this.state.unmeasurableItems);
+    let unmeasurableItemsChanged = false;
+
+    if (
+      itemToMeasureKey !== prevItemToMeasureKey ||
+      itemToDummy !== prevItemToDummy
+    ) {
+      incrementIteration = true;
+      nextMeasuredHeights.clear();
+      measuredHeightsChanged = true;
+    }
+    if (
+      itemToID !== prevItemToID ||
+      itemToMeasureKey !== prevItemToMeasureKey ||
+      itemToDummy !== prevItemToDummy ||
+      mergeItemWithHeight !== prevMergeItemWithHeight ||
+      !restShallowEqual
+    ) {
+      if (nextMeasurableItems.size > 0) {
+        nextMeasurableItems.clear();
+        measurableItemsChanged = true;
+      }
+    }
+    if (
+      itemToID !== prevItemToID ||
+      itemToMeasureKey !== prevItemToMeasureKey ||
+      mergeItemWithHeight !== prevMergeItemWithHeight ||
+      !restShallowEqual
+    ) {
+      if (nextUnmeasurableItems.size > 0) {
+        nextUnmeasurableItems.clear();
+        unmeasurableItemsChanged = true;
+      }
+    }
+
+    if (
+      measurementJustCompleted ||
+      listData !== prevListData ||
+      measuredHeightsChanged ||
+      measurableItemsChanged ||
+      unmeasurableItemsChanged
+    ) {
+      const currentMeasurableItems = new Map();
+      const currentUnmeasurableItems = new Map();
+      if (listData) {
+        for (const item of listData) {
+          const id = itemToID(item);
+          const measureKey = itemToMeasureKey(item);
+          if (measureKey !== null && measureKey !== undefined) {
+            currentMeasurableItems.set(id, item);
+          } else {
+            currentUnmeasurableItems.set(id, item);
+          }
+        }
+      }
+
+      for (const [id, { item }] of nextMeasurableItems) {
+        const currentItem = currentMeasurableItems.get(id);
+        if (!currentItem) {
+          measurableItemsChanged = true;
+          nextMeasurableItems.delete(id);
+        } else if (currentItem !== item) {
+          measurableItemsChanged = true;
+          const measureKey = itemToMeasureKey(currentItem);
+          if (measureKey === null || measureKey === undefined) {
+            nextMeasurableItems.delete(id);
+            continue;
+          }
+          const height = nextMeasuredHeights.get(measureKey);
+          if (height === null || height === undefined) {
+            nextMeasurableItems.delete(id);
+            continue;
+          }
+          const mergedItem = mergeItemWithHeight(currentItem, height);
+          nextMeasurableItems.set(id, { item: currentItem, mergedItem });
+        }
+      }
+      for (const [id, item] of currentMeasurableItems) {
+        if (nextMeasurableItems.has(id)) {
+          continue;
+        }
+        const measureKey = itemToMeasureKey(item);
+        if (measureKey === null || measureKey === undefined) {
+          continue;
+        }
+        const height = nextMeasuredHeights.get(measureKey);
+        if (height === null || height === undefined) {
+          continue;
+        }
+        const mergedItem = mergeItemWithHeight(item, height);
+        nextMeasurableItems.set(id, { item, mergedItem });
+        measurableItemsChanged = true;
+      }
+
+      for (const [id, { item }] of nextUnmeasurableItems) {
+        const currentItem = currentUnmeasurableItems.get(id);
+        if (!currentItem) {
+          unmeasurableItemsChanged = true;
+          nextUnmeasurableItems.delete(id);
+        } else if (currentItem !== item) {
+          unmeasurableItemsChanged = true;
+          const measureKey = itemToMeasureKey(currentItem);
+          if (measureKey !== null && measureKey !== undefined) {
+            nextUnmeasurableItems.delete(id);
+            continue;
+          }
+          const mergedItem = mergeItemWithHeight(currentItem, undefined);
+          nextUnmeasurableItems.set(id, { item: currentItem, mergedItem });
+        }
+      }
+      for (const [id, item] of currentUnmeasurableItems) {
+        if (nextUnmeasurableItems.has(id)) {
+          continue;
+        }
+        const measureKey = itemToMeasureKey(item);
+        if (measureKey !== null && measureKey !== undefined) {
+          continue;
+        }
+        const mergedItem = mergeItemWithHeight(item, undefined);
+        nextUnmeasurableItems.set(id, { item, mergedItem });
+        unmeasurableItemsChanged = true;
+      }
+    }
+
+    const stateUpdate = {};
+    if (incrementIteration) {
+      stateUpdate.iteration = this.state.iteration + 1;
+    }
+    if (measuredHeightsChanged) {
+      stateUpdate.measuredHeights = nextMeasuredHeights;
+    }
+    if (measurableItemsChanged) {
+      stateUpdate.measurableItems = nextMeasurableItems;
+    }
+    if (unmeasurableItemsChanged) {
+      stateUpdate.unmeasurableItems = nextUnmeasurableItems;
+    }
+    if (Object.keys(stateUpdate).length > 0) {
+      this.setState(stateUpdate);
+    }
+
+    if (measurementJustCompleted || !shallowequal(this.props, prevProps)) {
+      this.triggerCallback(
+        nextMeasurableItems,
+        nextUnmeasurableItems,
+        measurementJustCompleted,
+      );
+    }
+  }
+
+  onContainerLayout(event: LayoutEvent) {
+    const { width } = event.nativeEvent.layout;
+    if (this.containerWidth === undefined) {
+      this.containerWidth = width;
+    } else if (this.containerWidth !== width) {
+      this.containerWidth = width;
+      this.setState(innerPrevState => ({
+        iteration: innerPrevState.iteration + 1,
+        measuredHeights: new Map(),
+        measurableItems: new Map(),
+      }));
+    }
+  }
+
+  onDummyLayout(measureKey: string, iteration: number, event: LayoutEvent) {
+    if (iteration !== this.state.iteration) {
+      return;
+    }
+    const { height } = event.nativeEvent.layout;
+    this.state.measuredHeights.set(measureKey, height);
+    this.possiblyIssueNewBatch();
   }
 
   render() {
-    const set = this.state.currentlyMeasuring;
-    if (_isEmpty(set)) {
-      return null;
-    }
-    invariant(set, 'should be set');
-    const dummies = Array.from(set).map((nodeToMeasure: NodeToMeasure) => {
-      let { children } = nodeToMeasure.node.props;
-      if (children === '') {
-        children = ' ';
-      }
-      const style = [nodeToMeasure.node.props.style, styles.text];
-      const onLayout = event => this.onLayout(nodeToMeasure, event);
-      const node = React.cloneElement(nodeToMeasure.node, {
+    const { currentlyMeasuring, iteration } = this.state;
+    const dummies = currentlyMeasuring.map(({ measureKey, dummy }) => {
+      const { children } = dummy.props;
+      const style = [dummy.props.style, styles.dummy];
+      const onLayout = event =>
+        this.onDummyLayout(measureKey, iteration, event);
+      const node = React.cloneElement(dummy, {
         style,
         onLayout,
         children,
       });
-
-      return <React.Fragment key={nodeToMeasure.id}>{node}</React.Fragment>;
+      return <React.Fragment key={measureKey}>{node}</React.Fragment>;
     });
-    return <View>{dummies}</View>;
+    return <View onLayout={this.onContainerLayout}>{dummies}</View>;
   }
 }
 
 const styles = StyleSheet.create({
-  text: {
+  dummy: {
     opacity: 0,
     position: 'absolute',
   },

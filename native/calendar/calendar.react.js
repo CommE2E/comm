@@ -16,7 +16,6 @@ import type {
 import type { ViewToken } from '../types/react-native';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { KeyboardEvent } from '../keyboard/keyboard';
-import type { NodeToMeasure } from '../components/node-height-measurer.react';
 import {
   type CalendarFilter,
   calendarFilterPropType,
@@ -50,10 +49,8 @@ import {
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import _findIndex from 'lodash/fp/findIndex';
-import _isEqual from 'lodash/fp/isEqual';
 import _map from 'lodash/fp/map';
 import _find from 'lodash/fp/find';
-import _differenceWith from 'lodash/fp/differenceWith';
 import _filter from 'lodash/fp/filter';
 import _sum from 'lodash/fp/sum';
 import _pickBy from 'lodash/fp/pickBy';
@@ -158,7 +155,6 @@ type Props = {
   ) => Promise<CalendarQueryUpdateResult>,
 };
 type State = {|
-  nodesToMeasure: NodeToMeasure[],
   listDataWithHeights: ?$ReadOnlyArray<CalendarItemWithHeight>,
   readyToShowList: boolean,
   extraData: ExtraData,
@@ -210,7 +206,6 @@ class Calendar extends React.PureComponent<Props, State> {
     updateCalendarQuery: PropTypes.func.isRequired,
   };
   flatList: ?FlatList<CalendarItemWithHeight> = null;
-  nodeHeights: ?Map<string, number> = null;
   currentState: ?string = NativeAppState.currentState;
   lastForegrounded = 0;
   lastCalendarReset = 0;
@@ -238,33 +233,16 @@ class Calendar extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    const nodesToMeasure = props.listData
-      ? Calendar.nodesToMeasureFromListData(props.listData)
-      : [];
     this.latestExtraData = {
       activeEntries: {},
       visibleEntries: {},
     };
     this.state = {
-      nodesToMeasure,
       listDataWithHeights: null,
       readyToShowList: false,
       extraData: this.latestExtraData,
       currentlyEditing: [],
     };
-  }
-
-  static nodesToMeasureFromListData(listData: $ReadOnlyArray<CalendarItem>) {
-    const nodesToMeasure = [];
-    for (let item of listData) {
-      if (item.itemType === 'entryInfo') {
-        nodesToMeasure.push({
-          id: entryKey(item.entryInfo),
-          node: dummyNodeForEntryHeightMeasurement(item.entryInfo.text),
-        });
-      }
-    }
-    return nodesToMeasure;
   }
 
   componentDidMount() {
@@ -319,8 +297,18 @@ class Calendar extends React.PureComponent<Props, State> {
   };
 
   componentDidUpdate(prevProps: Props, prevState: State) {
-    if (this.props.listData !== prevProps.listData) {
-      this.handleNewNodesToMeasure();
+    if (!this.props.listData && this.props.listData !== prevProps.listData) {
+      this.latestExtraData = {
+        activeEntries: {},
+        visibleEntries: {},
+      };
+      this.setState({
+        listDataWithHeights: null,
+        readyToShowList: false,
+        extraData: this.latestExtraData,
+      });
+      this.topLoaderWaitingToLeaveView = true;
+      this.bottomLoaderWaitingToLeaveView = true;
     }
 
     const { loadingStatus, connectionStatus } = this.props;
@@ -345,25 +333,30 @@ class Calendar extends React.PureComponent<Props, State> {
         // FlatList has an initialScrollIndex prop, which is usually close to
         // centering but can be off when there is a particularly large Entry in
         // the list. scrollToToday lets us actually center, but gets overriden
-        // by initialScrollIndex if we call it after the FlatList mounts
+        // by initialScrollIndex if we call it right after the FlatList mounts
         sleep(50).then(() => this.scrollToToday());
       }
       return;
     }
 
-    if (newLDWH.length < lastLDWH.length && this.flatList) {
-      if (!this.props.calendarActive) {
-        // If the currentCalendarQuery gets reset we scroll to the center
-        this.scrollToToday();
-      } else if (Date.now() - this.lastForegrounded < 500) {
-        // If the app got foregrounded right before the calendar got reset, that
-        // indicates we should reset the scroll position
-        this.lastForegrounded = 0;
-        this.scrollToToday(false);
-      } else {
-        // Otherwise, it's possible that the foreground callback is about to get
-        // triggered. We record a timestamp here so we can scrollToToday there.
-        this.lastCalendarReset = Date.now();
+    if (newLDWH.length < lastLDWH.length) {
+      this.topLoaderWaitingToLeaveView = true;
+      this.bottomLoaderWaitingToLeaveView = true;
+      if (this.flatList) {
+        if (!this.props.calendarActive) {
+          // If the currentCalendarQuery gets reset we scroll to the center
+          this.scrollToToday();
+        } else if (Date.now() - this.lastForegrounded < 500) {
+          // If the app got foregrounded right before the calendar got reset,
+          // that indicates we should reset the scroll position
+          this.lastForegrounded = 0;
+          this.scrollToToday(false);
+        } else {
+          // Otherwise, it's possible that we got triggered before the
+          // foreground callback. Let's record a timestamp here so we can call
+          // scrollToToday there
+          this.lastCalendarReset = Date.now();
+        }
       }
     }
 
@@ -402,58 +395,6 @@ class Calendar extends React.PureComponent<Props, State> {
       this.scrollToKey(lastEntryKeyActive, keyboardShownHeight);
       this.lastEntryKeyActive = null;
     }
-  }
-
-  handleNewNodesToMeasure() {
-    const { listData } = this.props;
-    if (!listData) {
-      this.latestExtraData = {
-        activeEntries: {},
-        visibleEntries: {},
-      };
-      this.setState({
-        nodesToMeasure: [],
-        listDataWithHeights: null,
-        readyToShowList: false,
-        extraData: this.latestExtraData,
-      });
-      this.topLoaderWaitingToLeaveView = true;
-      this.bottomLoaderWaitingToLeaveView = true;
-      return;
-    }
-
-    const newNodesToMeasure = Calendar.nodesToMeasureFromListData(listData);
-    const newNodes = _differenceWith(_isEqual)(newNodesToMeasure)(
-      this.state.nodesToMeasure,
-    );
-    if (newNodes.length !== 0) {
-      // We set nodeHeights to null here since if a future set of nodes
-      // came in before we completed height measurement that was a subset
-      // of the earlier nodes, we would end up merging directly there, but
-      // then when the measurement for the middle nodes came in it would
-      // override the newer node heights.
-      this.nodeHeights = null;
-      this.setState({ nodesToMeasure: newNodesToMeasure });
-      return;
-    }
-
-    let allNodesAlreadyMeasured = false;
-    if (this.nodeHeights) {
-      allNodesAlreadyMeasured = true;
-      for (let nodeToMeasure of newNodesToMeasure) {
-        if (!this.nodeHeights.has(nodeToMeasure.id)) {
-          allNodesAlreadyMeasured = false;
-          break;
-        }
-      }
-    }
-    if (allNodesAlreadyMeasured) {
-      this.mergeHeightsIntoListData();
-    }
-
-    // If we don't have everything in nodeHeights, but we do have everything in
-    // nodesToMeasure, we can conclude that we're just waiting for the
-    // measurement to complete and then we'll be good.
   }
 
   static datesFromListData(
@@ -522,89 +463,6 @@ class Calendar extends React.PureComponent<Props, State> {
     } else {
       scrollAction();
     }
-  }
-
-  static entryInfoWithHeight(
-    entryInfo: EntryInfo,
-    textHeight: number,
-  ): EntryInfoWithHeight {
-    // Blame Flow for not accepting object spread on exact types
-    if (entryInfo.id && entryInfo.localID) {
-      return {
-        id: entryInfo.id,
-        localID: entryInfo.localID,
-        threadID: entryInfo.threadID,
-        text: entryInfo.text,
-        year: entryInfo.year,
-        month: entryInfo.month,
-        day: entryInfo.day,
-        creationTime: entryInfo.creationTime,
-        creator: entryInfo.creator,
-        deleted: entryInfo.deleted,
-        textHeight: Math.ceil(textHeight),
-      };
-    } else if (entryInfo.id) {
-      return {
-        id: entryInfo.id,
-        threadID: entryInfo.threadID,
-        text: entryInfo.text,
-        year: entryInfo.year,
-        month: entryInfo.month,
-        day: entryInfo.day,
-        creationTime: entryInfo.creationTime,
-        creator: entryInfo.creator,
-        deleted: entryInfo.deleted,
-        textHeight: Math.ceil(textHeight),
-      };
-    } else {
-      return {
-        localID: entryInfo.localID,
-        threadID: entryInfo.threadID,
-        text: entryInfo.text,
-        year: entryInfo.year,
-        month: entryInfo.month,
-        day: entryInfo.day,
-        creationTime: entryInfo.creationTime,
-        creator: entryInfo.creator,
-        deleted: entryInfo.deleted,
-        textHeight: Math.ceil(textHeight),
-      };
-    }
-  }
-
-  mergeHeightsIntoListData() {
-    const { listData } = this.props;
-    if (!listData) {
-      return;
-    }
-
-    const { nodeHeights } = this;
-    invariant(nodeHeights, 'nodeHeights should be set');
-    const listDataWithHeights = _map((item: CalendarItem) => {
-      if (item.itemType !== 'entryInfo') {
-        return item;
-      }
-      const entryInfo = item.entryInfo;
-      const textHeight = nodeHeights.get(entryKey(entryInfo));
-      invariant(textHeight, `height for ${entryKey(entryInfo)} should be set`);
-      return {
-        itemType: 'entryInfo',
-        entryInfo: Calendar.entryInfoWithHeight(item.entryInfo, textHeight),
-        threadInfo: item.threadInfo,
-      };
-    })(listData);
-    if (
-      // At the start, we need to set LoaderWaitingToLeaveView since we don't
-      // want the loaders to trigger when nothing is there
-      !this.state.listDataWithHeights ||
-      // We know that this is going to shrink our FlatList. When our FlatList
-      // shrinks, componentDidUpdate will trigger scrollToToday
-      listDataWithHeights.length < this.state.listDataWithHeights.length
-    ) {
-      this.topLoaderWaitingToLeaveView = true;
-      this.bottomLoaderWaitingToLeaveView = true;
-    }
-    this.setState({ listDataWithHeights });
   }
 
   scrollToToday(animated: ?boolean = undefined) {
@@ -688,7 +546,7 @@ class Calendar extends React.PureComponent<Props, State> {
     });
   };
 
-  static keyExtractor = (item: CalendarItemWithHeight) => {
+  static keyExtractor = (item: CalendarItemWithHeight | CalendarItem) => {
     if (item.itemType === 'loader') {
       return item.key;
     } else if (item.itemType === 'header') {
@@ -733,7 +591,7 @@ class Calendar extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const listDataWithHeights = this.state.listDataWithHeights;
+    const { listDataWithHeights } = this.state;
     let flatList = null;
     if (listDataWithHeights) {
       const flatListStyle = { opacity: this.state.readyToShowList ? 1 : 0 };
@@ -769,8 +627,12 @@ class Calendar extends React.PureComponent<Props, State> {
     return (
       <>
         <NodeHeightMeasurer
-          nodesToMeasure={this.state.nodesToMeasure}
-          allHeightsMeasuredCallback={this.allHeightsMeasured}
+          listData={this.props.listData}
+          itemToID={Calendar.keyExtractor}
+          itemToMeasureKey={this.heightMeasurerKey}
+          itemToDummy={this.heightMeasurerDummy}
+          mergeItemWithHeight={this.heightMeasurerMergeItem}
+          allHeightsMeasured={this.allHeightsMeasured}
         />
         <SafeAreaView
           style={this.props.styles.container}
@@ -963,15 +825,86 @@ class Calendar extends React.PureComponent<Props, State> {
     this.flatList.scrollToOffset({ offset, animated: true });
   }
 
-  allHeightsMeasured = (
-    nodesToMeasure: $ReadOnlyArray<NodeToMeasure>,
-    newHeights: Map<string, number>,
-  ) => {
-    if (nodesToMeasure !== this.state.nodesToMeasure) {
-      return;
+  heightMeasurerKey = (item: CalendarItem) => {
+    if (item.itemType !== 'entryInfo') {
+      return null;
     }
-    this.nodeHeights = newHeights;
-    this.mergeHeightsIntoListData();
+    return item.entryInfo.text;
+  };
+
+  heightMeasurerDummy = (item: CalendarItem) => {
+    invariant(
+      item.itemType === 'entryInfo',
+      'NodeHeightMeasurer asked for dummy for non-entryInfo item',
+    );
+    return dummyNodeForEntryHeightMeasurement(item.entryInfo.text);
+  };
+
+  heightMeasurerMergeItem = (item: CalendarItem, height: ?number) => {
+    if (item.itemType !== 'entryInfo') {
+      return item;
+    }
+    invariant(height !== null && height !== undefined, 'height should be set');
+    const { entryInfo } = item;
+    return {
+      itemType: 'entryInfo',
+      entryInfo: Calendar.entryInfoWithHeight(entryInfo, height),
+      threadInfo: item.threadInfo,
+    };
+  };
+
+  static entryInfoWithHeight(
+    entryInfo: EntryInfo,
+    textHeight: number,
+  ): EntryInfoWithHeight {
+    // Blame Flow for not accepting object spread on exact types
+    if (entryInfo.id && entryInfo.localID) {
+      return {
+        id: entryInfo.id,
+        localID: entryInfo.localID,
+        threadID: entryInfo.threadID,
+        text: entryInfo.text,
+        year: entryInfo.year,
+        month: entryInfo.month,
+        day: entryInfo.day,
+        creationTime: entryInfo.creationTime,
+        creator: entryInfo.creator,
+        deleted: entryInfo.deleted,
+        textHeight: Math.ceil(textHeight),
+      };
+    } else if (entryInfo.id) {
+      return {
+        id: entryInfo.id,
+        threadID: entryInfo.threadID,
+        text: entryInfo.text,
+        year: entryInfo.year,
+        month: entryInfo.month,
+        day: entryInfo.day,
+        creationTime: entryInfo.creationTime,
+        creator: entryInfo.creator,
+        deleted: entryInfo.deleted,
+        textHeight: Math.ceil(textHeight),
+      };
+    } else {
+      return {
+        localID: entryInfo.localID,
+        threadID: entryInfo.threadID,
+        text: entryInfo.text,
+        year: entryInfo.year,
+        month: entryInfo.month,
+        day: entryInfo.day,
+        creationTime: entryInfo.creationTime,
+        creator: entryInfo.creator,
+        deleted: entryInfo.deleted,
+        textHeight: Math.ceil(textHeight),
+      };
+    }
+  }
+
+  allHeightsMeasured = (
+    listDataWithHeights: $ReadOnlyArray<CalendarItemWithHeight>,
+  ) => {
+    this.setState({ listDataWithHeights });
   };
 
   onViewableItemsChanged = (info: {
