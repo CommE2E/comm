@@ -316,10 +316,7 @@ async function updateThread(
   if (newMemberIDs) {
     validationPromises.fetchNewMembers = fetchKnownUserInfos(
       viewer,
-      SQL`
-        ((r.user1 = ${viewer.userID} AND r.user2 IN (${newMemberIDs})) OR
-          (r.user1 IN (${newMemberIDs}) AND r.user2 = ${viewer.userID}))
-      `,
+      newMemberIDs,
     );
   }
 

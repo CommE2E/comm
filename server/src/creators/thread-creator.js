@@ -61,10 +61,7 @@ async function createThread(
   if (initialMemberIDs) {
     checkPromises.fetchInitialMembers = fetchKnownUserInfos(
       viewer,
-      SQL`
-        ((r.user1 = ${viewer.userID} AND r.user2 IN (${initialMemberIDs})) OR
-          (r.user1 IN (${initialMemberIDs}) AND r.user2 = ${viewer.userID}))
-      `,
+      initialMemberIDs,
     );
   }
   const checkResults = await promiseAll(checkPromises);

@@ -9,7 +9,7 @@ import type { Viewer } from '../session/viewer';
 
 import { ServerError } from 'lib/utils/errors';
 
-import { dbQuery, SQL, SQLStatement } from '../database';
+import { dbQuery, SQL } from '../database';
 
 async function fetchUserInfos(userIDs: string[]): Promise<UserInfos> {
   if (userIDs.length <= 0) {
@@ -41,17 +41,28 @@ async function fetchUserInfos(userIDs: string[]): Promise<UserInfos> {
   return userInfos;
 }
 
-async function fetchKnownUserInfos(viewer: Viewer, condition?: SQLStatement) {
+async function fetchKnownUserInfos(
+  viewer: Viewer,
+  userIDs?: $ReadOnlyArray<string>,
+) {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
 
-  const whereClause = condition ? SQL`AND `.append(condition) : '';
   const query = SQL`
     SELECT DISTINCT u.id, u.username FROM relationships_undirected r 
     LEFT JOIN users u ON r.user1 = u.id OR r.user2 = u.id 
-    WHERE (r.user1 = ${viewer.userID} OR r.user2 = ${viewer.userID})
-  `.append(whereClause);
+  `;
+  if (userIDs) {
+    query.append(SQL`
+      WHERE (r.user1 = ${viewer.userID} AND r.user2 IN (${userIDs})) OR
+        (r.user1 IN (${userIDs}) AND r.user2 = ${viewer.userID})
+    `);
+  } else {
+    query.append(SQL`
+      WHERE r.user1 = ${viewer.userID} OR r.user2 = ${viewer.userID}
+    `);
+  }
   const [result] = await dbQuery(query);
 
   const userInfos = {};

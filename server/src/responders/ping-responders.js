@@ -631,13 +631,7 @@ async function checkState(
   if (fetchAllUserInfos) {
     fetchPromises.userInfos = fetchKnownUserInfos(viewer);
   } else if (userIDsToFetch.length > 0) {
-    fetchPromises.userInfos = fetchKnownUserInfos(
-      viewer,
-      SQL`
-        ((r.user1 = ${viewer.userID} AND r.user2 IN (${userIDsToFetch})) OR
-          (r.user1 IN (${userIDsToFetch}) AND r.user2 = ${viewer.userID}))
-      `,
-    );
+    fetchPromises.userInfos = fetchKnownUserInfos(viewer, userIDsToFetch);
   }
   if (fetchUserInfo) {
     fetchPromises.currentUserInfo = fetchCurrentUserInfo(viewer);
