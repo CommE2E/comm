@@ -18,6 +18,7 @@ import { messageTypes, defaultNumberPerThread } from 'lib/types/message-types';
 
 import bcrypt from 'twin-bcrypt';
 import _find from 'lodash/fp/find';
+import invariant from 'invariant';
 
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
@@ -28,6 +29,7 @@ import { dbQuery, SQL } from '../database';
 import {
   verifyUserIDs,
   verifyUserOrCookieIDs,
+  fetchKnownUserInfos,
 } from '../fetchers/user-fetchers';
 import {
   checkThreadPermission,
@@ -307,10 +309,17 @@ async function updateThread(
     sqlUpdate.type = threadType;
   }
 
-  const unverifiedNewMemberIDs = request.changes.newMemberIDs;
-  if (unverifiedNewMemberIDs) {
-    validationPromises.verifiedNewMemberIDs = verifyUserIDs(
-      unverifiedNewMemberIDs,
+  const newMemberIDs =
+    request.changes.newMemberIDs && request.changes.newMemberIDs.length > 0
+      ? [...request.changes.newMemberIDs]
+      : null;
+  if (newMemberIDs) {
+    validationPromises.fetchNewMembers = fetchKnownUserInfos(
+      viewer,
+      SQL`
+        ((r.user1 = ${viewer.userID} AND r.user2 IN (${newMemberIDs})) OR
+          (r.user1 IN (${newMemberIDs}) AND r.user2 = ${viewer.userID}))
+      `,
     );
   }
 
@@ -333,17 +342,21 @@ async function updateThread(
   const {
     canMoveThread,
     threadPermissionsBlob,
-    verifiedNewMemberIDs,
+    fetchNewMembers,
     validationQuery: [validationResult],
   } = await promiseAll(validationPromises);
   if (canMoveThread === false) {
     throw new ServerError('invalid_credentials');
   }
+  if (fetchNewMembers) {
+    invariant(newMemberIDs, 'should be set');
+    for (const newMemberID of newMemberIDs) {
+      if (!fetchNewMembers[newMemberID]) {
+        throw new ServerError('invalid_credentials');
+      }
+    }
+  }
 
-  const newMemberIDs =
-    verifiedNewMemberIDs && verifiedNewMemberIDs.length > 0
-      ? verifiedNewMemberIDs
-      : null;
   if (Object.keys(sqlUpdate).length === 0 && !newMemberIDs) {
     throw new ServerError('invalid_parameters');
   }
