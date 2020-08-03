@@ -15,7 +15,7 @@ async function createSquadbotThread(userID: string): Promise<string> {
     type: threadTypes.CHAT_SECRET,
     initialMemberIDs: [userID],
   };
-  const result = await createThread(squadbotViewer, newThreadRequest);
+  const result = await createThread(squadbotViewer, newThreadRequest, true);
   return result.newThreadInfo.id;
 }
 

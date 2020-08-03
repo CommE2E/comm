@@ -684,10 +684,21 @@ function setJoinsToUnread(
   }
 }
 
+function getRelationshipRowsForUsers(
+  viewerID: string,
+  userIDs: $ReadOnlyArray<string>,
+): UndirectedRelationshipRow[] {
+  return cartesianProduct([viewerID], userIDs).map(pair => {
+    const [user1, user2] = sortIDs(...pair);
+    const status = undirectedStatus.KNOW_OF;
+    return { user1, user2, status };
+  });
+}
+
 function getParentThreadRelationshipRowsForNewUsers(
   threadID: string,
   recalculateMembershipRows: MembershipRow[],
-  newMemberIDs: string[],
+  newMemberIDs: $ReadOnlyArray<string>,
 ): UndirectedRelationshipRow[] {
   const parentMemberIDs = recalculateMembershipRows
     .map(rowToSave => rowToSave.userID)
@@ -713,5 +724,6 @@ export {
   recalculateAllPermissions,
   commitMembershipChangeset,
   setJoinsToUnread,
+  getRelationshipRowsForUsers,
   getParentThreadRelationshipRowsForNewUsers,
 };

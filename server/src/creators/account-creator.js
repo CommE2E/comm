@@ -99,15 +99,23 @@ async function createAccount(
   }
 
   const [personalThreadResult, ashoatThreadResult] = await Promise.all([
-    createThread(viewer, {
-      type: threadTypes.CHAT_SECRET,
-      name: request.username,
-      description: 'your personal calendar',
-    }),
-    createThread(viewer, {
-      type: threadTypes.CHAT_SECRET,
-      initialMemberIDs: [ashoat.id],
-    }),
+    createThread(
+      viewer,
+      {
+        type: threadTypes.CHAT_SECRET,
+        name: request.username,
+        description: 'your personal calendar',
+      },
+      true,
+    ),
+    createThread(
+      viewer,
+      {
+        type: threadTypes.CHAT_SECRET,
+        initialMemberIDs: [ashoat.id],
+      },
+      true,
+    ),
   ]);
   let messageTime = Date.now();
   const ashoatMessageDatas = ashoatMessages.map(message => ({

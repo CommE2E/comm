@@ -25,6 +25,7 @@ import {
   recalculateAllPermissions,
   commitMembershipChangeset,
   setJoinsToUnread,
+  getRelationshipRowsForUsers,
   getParentThreadRelationshipRowsForNewUsers,
 } from '../updaters/thread-permission-updaters';
 import createMessages from './message-creator';
@@ -32,6 +33,7 @@ import createMessages from './message-creator';
 async function createThread(
   viewer: Viewer,
   request: NewThreadRequest,
+  createRelationships?: boolean = false,
 ): Promise<NewThreadResult> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
@@ -66,16 +68,22 @@ async function createThread(
     );
   }
   const checkResults = await promiseAll(checkPromises);
+
   if (checkResults.hasParentPermission === false) {
     throw new ServerError('invalid_credentials');
   }
+
+  const viewerNeedsRelationshipsWith = [];
   if (checkResults.fetchInitialMembers) {
     invariant(initialMemberIDs, 'should be set');
-    // Subtract 1 so we don't include the viewer
-    const confirmedMemberCount =
-      Object.keys(checkResults.fetchInitialMembers).length - 1;
-    if (confirmedMemberCount < initialMemberIDs.length) {
-      throw new ServerError('invalid_credentials');
+    for (const initialMemberID of initialMemberIDs) {
+      if (checkResults.fetchInitialMembers[initialMemberID]) {
+        continue;
+      }
+      if (!createRelationships) {
+        throw new ServerError('invalid_credentials');
+      }
+      viewerNeedsRelationshipsWith.push(initialMemberID);
     }
   }
 
@@ -145,6 +153,12 @@ async function createThread(
     if (!initialMembersChangeset) {
       throw new ServerError('unknown_error');
     }
+    relationshipRows.push(
+      ...getRelationshipRowsForUsers(
+        viewer.userID,
+        viewerNeedsRelationshipsWith,
+      ),
+    );
     const {
       membershipRows: initialMembersMembershipRows,
       relationshipRows: initialMembersRelationshipRows,
