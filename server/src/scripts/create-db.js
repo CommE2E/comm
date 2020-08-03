@@ -1,12 +1,15 @@
 // @flow
 
+import { threadTypes } from 'lib/types/thread-types';
+import { undirectedStatus } from 'lib/types/relationship-types';
+
 import ashoat from 'lib/facts/ashoat';
 import bots from 'lib/facts/bots';
 import {
   makePermissionsBlob,
   makePermissionsForChildrenBlob,
 } from 'lib/permissions/thread-permissions';
-import { threadTypes } from 'lib/types/thread-types';
+import { sortIDs } from 'lib/shared/relationship-utils';
 
 import { setScriptContext } from './script-context';
 import { endScript } from './utils';
@@ -306,6 +309,7 @@ async function createTables() {
 }
 
 async function createUsers() {
+  const [user1, user2] = sortIDs(bots.squadbot.userID, ashoat.id);
   await dbQuery(SQL`
     INSERT INTO ids (id, table_name)
       VALUES
@@ -318,6 +322,8 @@ async function createUsers() {
           NULL, 1530049900980),
         (${ashoat.id}, 'ashoat', '', ${ashoat.email}, 1,
           NULL, 1463588881886);
+    INSERT INTO relationships_undirected (user1, user2, status)
+      VALUES (${user1}, ${user2}, ${undirectedStatus.KNOW_OF});
   `);
 }
 
