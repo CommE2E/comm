@@ -214,8 +214,8 @@ class Calendar extends React.PureComponent<Props, State> {
   // cache the most recent value as a member here
   latestExtraData: ExtraData;
   // For some reason, we have to delay the scrollToToday call after the first
-  // scroll upwards on Android. I don't know why. Might only be on the emulator.
-  firstScrollUpOnAndroidComplete = false;
+  // scroll upwards
+  firstScrollComplete = false;
   // When an entry becomes active, we make a note of its key so that once the
   // keyboard event happens, we know where to move the scrollPos to
   lastEntryKeyActive: ?string = null;
@@ -307,6 +307,7 @@ class Calendar extends React.PureComponent<Props, State> {
         readyToShowList: false,
         extraData: this.latestExtraData,
       });
+      this.firstScrollComplete = false;
       this.topLoaderWaitingToLeaveView = true;
       this.bottomLoaderWaitingToLeaveView = true;
     }
@@ -374,11 +375,11 @@ class Calendar extends React.PureComponent<Props, State> {
       if (!this.props.calendarActive) {
         sleep(50).then(() => this.scrollToToday());
       }
-      this.firstScrollUpOnAndroidComplete = false;
+      this.firstScrollComplete = false;
     } else if (newStartDate < lastStartDate) {
       this.updateScrollPositionAfterPrepend(lastLDWH, newLDWH);
     } else if (newEndDate > lastEndDate) {
-      this.firstScrollUpOnAndroidComplete = true;
+      this.firstScrollComplete = true;
     } else if (newLDWH.length > lastLDWH.length) {
       LayoutAnimation.easeInEaseOut();
     }
@@ -457,11 +458,10 @@ class Calendar extends React.PureComponent<Props, State> {
         animated: false,
       });
     };
-    if (Platform.OS === 'android' && !this.firstScrollUpOnAndroidComplete) {
+    scrollAction();
+    if (!this.firstScrollComplete) {
       setTimeout(scrollAction, 0);
-      this.firstScrollUpOnAndroidComplete = true;
-    } else {
-      scrollAction();
+      this.firstScrollComplete = true;
     }
   }
 
