@@ -13,6 +13,7 @@ import {
   type KeyboardState,
   withKeyboardState,
 } from '../keyboard/keyboard-state';
+import type { ChatMessageItem } from 'lib/selectors/chat-selectors';
 
 import * as React from 'react';
 import {
@@ -33,7 +34,7 @@ import { connect } from 'lib/utils/redux-utils';
 import { messageItemHeight } from './message.react';
 import NewMessagesPill from './new-messages-pill.react';
 
-function chatMessageItemKey(item: ChatMessageItemWithHeight) {
+function chatMessageItemKey(item: ChatMessageItemWithHeight | ChatMessageItem) {
   if (item.itemType === 'loader') {
     return 'loader';
   }
@@ -312,6 +313,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect((state: AppState) => ({
+const ConnectedChatList = connect((state: AppState) => ({
   viewerID: state.currentUserInfo && state.currentUserInfo.id,
 }))(withKeyboardState(ChatList));
+
+export { ConnectedChatList as ChatList, chatMessageItemKey };

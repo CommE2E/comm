@@ -52,7 +52,7 @@ import {
   keyboardStatePropType,
   withKeyboardState,
 } from '../keyboard/keyboard-state';
-import ChatList from './chat-list.react';
+import { ChatList } from './chat-list.react';
 
 type Props = {|
   threadInfo: ThreadInfo,
