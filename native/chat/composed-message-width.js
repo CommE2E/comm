@@ -1,6 +1,7 @@
 // @flow
 
 import type { AppState } from '../redux/redux-setup';
+import type { DimensionsInfo } from '../redux/dimensions-updater.react';
 
 import { createSelector } from 'reselect';
 
@@ -8,8 +9,13 @@ import { createSelector } from 'reselect';
 const composedMessageMaxWidthSelector: (
   state: AppState,
 ) => number = createSelector(
-  (state: AppState) => state.dimensions.width,
-  (windowWidth: number): number => (windowWidth - 24) * 0.8,
+  (state: AppState) => state.dimensions,
+  (dimensionsInfo: DimensionsInfo): number => {
+    const windowWidth = dimensionsInfo.rotated
+      ? dimensionsInfo.height
+      : dimensionsInfo.width;
+    return (windowWidth - 24) * 0.8;
+  },
 );
 
 export { composedMessageMaxWidthSelector };
