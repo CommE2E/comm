@@ -5,7 +5,7 @@ import type { AppState } from '../redux/redux-setup';
 import type { DisplayType } from './timestamp.react';
 
 import * as React from 'react';
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
 
 import { stringForUser } from 'lib/shared/user-utils';
 import { connect } from 'lib/utils/redux-utils';
@@ -13,6 +13,7 @@ import { connect } from 'lib/utils/redux-utils';
 import { Timestamp, timestampHeight } from './timestamp.react';
 import { styleSelector } from '../themes/colors';
 import { clusterEndHeight } from './composed-message.react';
+import { SingleLine } from '../components/single-line.react';
 
 type Props = {|
   item: ChatMessageInfoItemWithHeight,
@@ -34,9 +35,7 @@ function MessageHeader(props: Props) {
       style.push(props.styles.modal);
     }
     authorName = (
-      <Text style={style} numberOfLines={1}>
-        {stringForUser(creator)}
-      </Text>
+      <SingleLine style={style}>{stringForUser(creator)}</SingleLine>
     );
   }
 

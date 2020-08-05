@@ -21,6 +21,7 @@ import { stringForUser } from 'lib/shared/user-utils';
 import { connect } from 'lib/utils/redux-utils';
 
 import { styleSelector } from '../themes/colors';
+import { firstLine, SingleLine } from '../components/single-line.react';
 
 type Props = {|
   messageInfo: MessageInfo,
@@ -54,28 +55,28 @@ class MessagePreview extends React.PureComponent<Props> {
           </Text>
         );
       }
+      const firstMessageLine = firstLine(messageInfo.text);
       return (
         <Text
           style={[this.props.styles.lastMessage, unreadStyle]}
           numberOfLines={1}
         >
           {usernameText}
-          {messageInfo.text}
+          {firstMessageLine}
         </Text>
       );
     } else {
       const preview = messagePreviewText(messageInfo, this.props.threadInfo);
       return (
-        <Text
+        <SingleLine
           style={[
             this.props.styles.lastMessage,
             this.props.styles.preview,
             unreadStyle,
           ]}
-          numberOfLines={1}
         >
           {preview}
-        </Text>
+        </SingleLine>
       );
     }
   }

@@ -3,12 +3,12 @@
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
-import { Text } from 'react-native';
 
 import { longAbsoluteDate } from 'lib/utils/date-utils';
 import { connect } from 'lib/utils/redux-utils';
 
 import { styleSelector } from '../themes/colors';
+import { SingleLine } from '../components/single-line.react';
 
 export type DisplayType = 'lowContrast' | 'modal';
 
@@ -24,9 +24,9 @@ function Timestamp(props: Props) {
     style.push(props.styles.modal);
   }
   return (
-    <Text style={style} numberOfLines={1}>
+    <SingleLine style={style}>
       {longAbsoluteDate(props.time).toUpperCase()}
-    </Text>
+    </SingleLine>
   );
 }
 

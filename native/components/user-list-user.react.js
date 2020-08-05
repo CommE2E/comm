@@ -17,6 +17,7 @@ import {
   colorsSelector,
   styleSelector,
 } from '../themes/colors';
+import { SingleLine } from './single-line.react';
 
 // eslint-disable-next-line no-unused-vars
 const getUserListItemHeight = (item: UserListItem) => {
@@ -59,12 +60,9 @@ class UserListUser extends React.PureComponent<Props> {
         iosActiveOpacity={0.85}
         style={this.props.styles.button}
       >
-        <Text
-          style={[this.props.styles.text, this.props.textStyle]}
-          numberOfLines={1}
-        >
+        <SingleLine style={[this.props.styles.text, this.props.textStyle]}>
           {this.props.userInfo.username}
-        </Text>
+        </SingleLine>
         {parentThreadNotice}
       </Button>
     );

@@ -54,6 +54,7 @@ import {
   type OverlayContextType,
   overlayContextPropType,
 } from '../../navigation/overlay-context';
+import { SingleLine } from '../../components/single-line.react';
 
 type Props = {|
   memberInfo: RelativeMemberInfo,
@@ -133,18 +134,15 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
     let userInfo = null;
     if (this.props.memberInfo.username) {
       userInfo = (
-        <Text style={this.props.styles.username} numberOfLines={1}>
-          {userText}
-        </Text>
+        <SingleLine style={this.props.styles.username}>{userText}</SingleLine>
       );
     } else {
       userInfo = (
-        <Text
+        <SingleLine
           style={[this.props.styles.username, this.props.styles.anonymous]}
-          numberOfLines={1}
         >
           {userText}
-        </Text>
+        </SingleLine>
       );
     }
 
@@ -176,7 +174,9 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
     if (memberIsAdmin(this.props.memberInfo, this.props.threadInfo)) {
       roleInfo = (
         <View style={this.props.styles.row}>
-          <Text style={this.props.styles.role}>admin</Text>
+          <Text style={this.props.styles.role} numberOfLines={1}>
+            admin
+          </Text>
         </View>
       );
     } else {
@@ -190,7 +190,9 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
       if (canChangeRoles) {
         roleInfo = (
           <View style={this.props.styles.row}>
-            <Text style={this.props.styles.role}>parent admin</Text>
+            <Text style={this.props.styles.role} numberOfLines={1}>
+              parent admin
+            </Text>
           </View>
         );
       }

@@ -5,7 +5,7 @@ import type { ThreadSettingsNavigate } from './thread-settings.react';
 import type { AppState } from '../../redux/redux-setup';
 
 import * as React from 'react';
-import { Text, View, Platform } from 'react-native';
+import { View, Platform } from 'react-native';
 import PropTypes from 'prop-types';
 
 import { connect } from 'lib/utils/redux-utils';
@@ -20,6 +20,7 @@ import {
   colorsSelector,
   styleSelector,
 } from '../../themes/colors';
+import { SingleLine } from '../../components/single-line.react';
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -50,9 +51,9 @@ class ThreadSettingsChildThread extends React.PureComponent<Props> {
         >
           <View style={this.props.styles.leftSide}>
             <ColorSplotch color={this.props.threadInfo.color} />
-            <Text style={this.props.styles.text} numberOfLines={1}>
+            <SingleLine style={this.props.styles.text}>
               {this.props.threadInfo.uiName}
-            </Text>
+            </SingleLine>
           </View>
           <ThreadVisibility
             threadType={this.props.threadInfo.type}

@@ -61,6 +61,7 @@ import {
   colorsSelector,
   styleSelector,
 } from '../themes/colors';
+import { firstLine, SingleLine } from '../components/single-line.react';
 
 type Props = {
   navigation: MoreNavigationProp<'MoreScreen'>,
@@ -177,7 +178,9 @@ class MoreScreen extends React.PureComponent<Props> {
             <View style={this.props.styles.row}>
               <Text style={this.props.styles.label} numberOfLines={1}>
                 {'Logged in as '}
-                <Text style={this.props.styles.username}>{this.username}</Text>
+                <Text style={this.props.styles.username}>
+                  {firstLine(this.username)}
+                </Text>
               </Text>
               <Button onPress={this.onPressLogOut}>
                 <Text style={this.props.styles.logOutText}>Log out</Text>
@@ -189,9 +192,9 @@ class MoreScreen extends React.PureComponent<Props> {
             <View style={this.props.styles.row}>
               <Text style={this.props.styles.label}>Email</Text>
               <View style={this.props.styles.content}>
-                <Text style={this.props.styles.value} numberOfLines={1}>
+                <SingleLine style={this.props.styles.value}>
                   {this.email}
-                </Text>
+                </SingleLine>
                 {emailVerifiedNode}
               </View>
               <EditSettingButton

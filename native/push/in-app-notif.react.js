@@ -6,6 +6,8 @@ import * as React from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { SingleLine } from '../components/single-line.react';
+
 const edges = ['top'];
 
 type Props = {|
@@ -23,10 +25,10 @@ function InAppNotif(props: Props) {
       useLightStyle ? styles.lightTitle : null,
     ];
     title = (
-      <Text style={titleStyles} numberOfLines={1}>
-        {props.title}
+      <>
+        <SingleLine style={titleStyles}>{props.title}</SingleLine>
         {'\n'}
-      </Text>
+      </>
     );
   }
 

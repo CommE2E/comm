@@ -3,13 +3,14 @@
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 
 import { connect } from 'lib/utils/redux-utils';
 import { type UserInfo } from 'lib/types/user-types';
 
 import PencilIcon from '../components/pencil-icon.react';
 import { type Colors, colorsSelector, styleSelector } from '../themes/colors';
+import { SingleLine } from '../components/single-line.react';
 
 type Props = {|
   userInfo: UserInfo,
@@ -28,9 +29,9 @@ class RelationshipListItem extends React.PureComponent<Props> {
     return (
       <View style={this.props.styles.container}>
         <View style={[this.props.styles.innerContainer, borderBottom]}>
-          <Text style={this.props.styles.username} numberOfLines={1}>
+          <SingleLine style={this.props.styles.username}>
             {this.props.userInfo.username}
-          </Text>
+          </SingleLine>
           <TouchableOpacity
             onPress={this.onPressEdit}
             style={styles.editButton}

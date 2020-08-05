@@ -19,6 +19,7 @@ import {
   colorsSelector,
   styleSelector,
 } from '../themes/colors';
+import { SingleLine } from './single-line.react';
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -50,12 +51,9 @@ class ThreadListThread extends React.PureComponent<Props> {
         style={[this.props.styles.button, this.props.style]}
       >
         <ColorSplotch color={this.props.threadInfo.color} />
-        <Text
-          style={[this.props.styles.text, this.props.textStyle]}
-          numberOfLines={1}
-        >
+        <SingleLine style={[this.props.styles.text, this.props.textStyle]}>
           {this.props.threadInfo.uiName}
-        </Text>
+        </SingleLine>
       </Button>
     );
   }

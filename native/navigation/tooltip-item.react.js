@@ -16,6 +16,8 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 
+import { SingleLine } from '../components/single-line.react';
+
 export type TooltipEntry<Params> = {|
   id: string,
   text: string,
@@ -52,9 +54,9 @@ class TooltipItem<
         onPress={this.onPress}
         style={[styles.itemContainer, this.props.containerStyle]}
       >
-        <Text style={[styles.label, this.props.labelStyle]} numberOfLines={1}>
+        <SingleLine style={[styles.label, this.props.labelStyle]}>
           {this.props.spec.text}
-        </Text>
+        </SingleLine>
       </TouchableOpacity>
     );
   }

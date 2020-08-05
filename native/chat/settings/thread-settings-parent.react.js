@@ -15,6 +15,7 @@ import { connect } from 'lib/utils/redux-utils';
 import Button from '../../components/button.react';
 import { MessageListRouteName } from '../../navigation/route-names';
 import { styleSelector } from '../../themes/colors';
+import { SingleLine } from '../../components/single-line.react';
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -39,15 +40,14 @@ class ThreadSettingsParent extends React.PureComponent<Props> {
           onPress={this.onPressParentThread}
           style={this.props.styles.currentValue}
         >
-          <Text
+          <SingleLine
             style={[
               this.props.styles.currentValueText,
               this.props.styles.parentThreadLink,
             ]}
-            numberOfLines={1}
           >
             {this.props.parentThreadInfo.uiName}
-          </Text>
+          </SingleLine>
         </Button>
       );
     } else if (this.props.threadInfo.parentThreadID) {
@@ -58,6 +58,7 @@ class ThreadSettingsParent extends React.PureComponent<Props> {
             this.props.styles.currentValueText,
             this.props.styles.noParent,
           ]}
+          numberOfLines={1}
         >
           Secret parent
         </Text>
@@ -70,6 +71,7 @@ class ThreadSettingsParent extends React.PureComponent<Props> {
             this.props.styles.currentValueText,
             this.props.styles.noParent,
           ]}
+          numberOfLines={1}
         >
           No parent
         </Text>
@@ -77,7 +79,9 @@ class ThreadSettingsParent extends React.PureComponent<Props> {
     }
     return (
       <View style={this.props.styles.row}>
-        <Text style={this.props.styles.label}>Parent</Text>
+        <Text style={this.props.styles.label} numberOfLines={1}>
+          Parent
+        </Text>
         {parent}
       </View>
     );

@@ -24,6 +24,7 @@ import {
   colorsSelector,
   styleSelector,
 } from '../themes/colors';
+import { SingleLine } from '../components/single-line.react';
 
 type Props = {
   data: ChatThreadItem,
@@ -80,12 +81,11 @@ class ChatThreadListItem extends React.PureComponent<Props> {
             style={this.props.styles.sidebarIcon}
             size={24}
           />
-          <Text
+          <SingleLine
             style={[this.props.styles.sidebarName, sidebarUnreadStyle]}
-            numberOfLines={1}
           >
             {sidebarThreadInfo.uiName}
-          </Text>
+          </SingleLine>
           <Text style={[this.props.styles.sidebarLastActivity, unreadStyle]}>
             {lastActivity}
           </Text>
@@ -107,12 +107,9 @@ class ChatThreadListItem extends React.PureComponent<Props> {
         >
           <View style={this.props.styles.container}>
             <View style={this.props.styles.row}>
-              <Text
-                style={[this.props.styles.threadName, unreadStyle]}
-                numberOfLines={1}
-              >
+              <SingleLine style={[this.props.styles.threadName, unreadStyle]}>
                 {this.props.data.threadInfo.uiName}
-              </Text>
+              </SingleLine>
               <View style={this.props.styles.colorSplotch}>
                 <ColorSplotch
                   color={this.props.data.threadInfo.color}

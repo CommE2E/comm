@@ -76,6 +76,7 @@ import {
 import { waitForInteractions } from '../utils/interactions';
 import Markdown from '../markdown/markdown.react';
 import { inlineMarkdownRules } from '../markdown/rules.react';
+import { SingleLine } from '../components/single-line.react';
 
 function hueDistance(firstColor: string, secondColor: string): number {
   const firstHue = tinycolor(firstColor).toHsv().h;
@@ -359,12 +360,11 @@ class InternalEntry extends React.Component<Props, State> {
               iosActiveOpacity={0.85}
               style={this.props.styles.button}
             >
-              <Text
+              <SingleLine
                 style={[this.props.styles.rightLinksText, actionLinksTextStyle]}
-                numberOfLines={1}
               >
                 {this.props.threadInfo.uiName}
-              </Text>
+              </SingleLine>
             </Button>
           </View>
         </View>
