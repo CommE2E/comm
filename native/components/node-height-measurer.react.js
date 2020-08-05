@@ -404,8 +404,13 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
     }
   }
 
-  onContainerLayout(event: LayoutEvent) {
-    const { width } = event.nativeEvent.layout;
+  onContainerLayout = (event: LayoutEvent) => {
+    const { width, height } = event.nativeEvent.layout;
+    if (width > height) {
+      // We currently only use NodeHeightMeasurer on interfaces that are
+      // portrait-locked. If we expand beyond that we'll need to rethink this
+      return;
+    }
     if (this.containerWidth === undefined) {
       this.containerWidth = width;
     } else if (this.containerWidth !== width) {
@@ -416,7 +421,7 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
         measurableItems: new Map(),
       }));
     }
-  }
+  };
 
   onDummyLayout(measureKey: string, iteration: number, event: LayoutEvent) {
     if (iteration !== this.state.iteration) {
