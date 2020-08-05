@@ -24,6 +24,7 @@ export type DimensionsInfo = {|
   topInset: number,
   bottomInset: number,
   tabBarHeight: number,
+  rotated: boolean,
 |};
 
 const dimensionsInfoPropType = PropTypes.exact({
@@ -32,6 +33,7 @@ const dimensionsInfoPropType = PropTypes.exact({
   topInset: PropTypes.number.isRequired,
   bottomInset: PropTypes.number.isRequired,
   tabBarHeight: PropTypes.number.isRequired,
+  rotated: PropTypes.bool.isRequired,
 });
 
 type Metrics = {|
@@ -56,7 +58,10 @@ function dimensionsUpdateFromMetrics(
 const defaultDimensionsInfo = {
   ...dimensionsUpdateFromMetrics(initialWindowMetrics),
   tabBarHeight: 50,
+  rotated: false,
 };
+const defaultIsPortrait =
+  defaultDimensionsInfo.height >= defaultDimensionsInfo.width;
 
 function DimensionsUpdater() {
   const dimensions = useSelector(state => state.dimensions);
@@ -90,6 +95,9 @@ function DimensionsUpdater() {
       return;
     }
     const updates = dimensionsUpdateFromMetrics({ frame, insets });
+    if (updates.height && updates.width && updates.height !== updates.width) {
+      updates.rotated = updates.width > updates.height === defaultIsPortrait;
+    }
     for (let key in updates) {
       if (updates[key] === dimensions[key]) {
         continue;
