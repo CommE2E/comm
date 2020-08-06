@@ -34,6 +34,7 @@ import {
   serverEntryInfosObject,
 } from 'lib/shared/entry-utils';
 import { usersInThreadInfo } from 'lib/shared/thread-utils';
+import { hasMinCodeVersion } from 'lib/shared/version-utils';
 
 import { tShape, tPlatform, tPlatformDetails } from '../utils/validation-utils';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
@@ -278,13 +279,7 @@ async function checkState(
   status: StateCheckStatus,
   calendarQuery: CalendarQuery,
 ): Promise<StateCheckResult> {
-  const { platformDetails } = viewer;
-  const shouldCheckUserInfos =
-    (platformDetails && platformDetails.platform === 'web') ||
-    (platformDetails &&
-      platformDetails.codeVersion !== null &&
-      platformDetails.codeVersion !== undefined &&
-      platformDetails.codeVersion > 58);
+  const shouldCheckUserInfos = hasMinCodeVersion(viewer.platformDetails, 59);
 
   if (status.status === 'state_validated') {
     return { sessionUpdate: { lastValidated: Date.now() } };
