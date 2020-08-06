@@ -3,7 +3,7 @@
 import * as SimpleMarkdown from 'simple-markdown';
 import * as React from 'react';
 
-import * as MarkdownRegex from 'lib/shared/markdown';
+import * as SharedMarkdown from 'lib/shared/markdown';
 
 type MarkdownRuleSpec = {|
   +simpleMarkdownRules: SimpleMarkdown.Rules,
@@ -36,7 +36,7 @@ function linkRules(): MarkdownRuleSpec {
     },
     paragraph: {
       ...SimpleMarkdown.defaultRules.paragraph,
-      match: SimpleMarkdown.blockRegex(MarkdownRegex.paragraphRegex),
+      match: SimpleMarkdown.blockRegex(SharedMarkdown.paragraphRegex),
       // eslint-disable-next-line react/display-name
       react: (
         node: SimpleMarkdown.SingleASTNode,
@@ -51,7 +51,7 @@ function linkRules(): MarkdownRuleSpec {
     text: SimpleMarkdown.defaultRules.text,
     url: {
       ...SimpleMarkdown.defaultRules.url,
-      match: SimpleMarkdown.inlineRegex(MarkdownRegex.urlRegex),
+      match: SimpleMarkdown.inlineRegex(SharedMarkdown.urlRegex),
     },
   };
   return {
@@ -73,7 +73,7 @@ function markdownRules(): MarkdownRuleSpec {
     blockQuote: {
       ...SimpleMarkdown.defaultRules.blockQuote,
       // match end of blockQuote by either \n\n or end of string
-      match: SimpleMarkdown.blockRegex(MarkdownRegex.blockQuoteRegex),
+      match: SimpleMarkdown.blockRegex(SharedMarkdown.blockQuoteRegex),
       parse(
         capture: SimpleMarkdown.Capture,
         parse: SimpleMarkdown.Parser,
@@ -92,22 +92,35 @@ function markdownRules(): MarkdownRuleSpec {
     u: SimpleMarkdown.defaultRules.u,
     heading: {
       ...SimpleMarkdown.defaultRules.heading,
-      match: SimpleMarkdown.blockRegex(MarkdownRegex.headingRegex),
+      match: SimpleMarkdown.blockRegex(SharedMarkdown.headingRegex),
     },
     mailto: SimpleMarkdown.defaultRules.mailto,
     codeBlock: {
       ...SimpleMarkdown.defaultRules.codeBlock,
-      match: SimpleMarkdown.blockRegex(MarkdownRegex.codeBlockRegex),
+      match: SimpleMarkdown.blockRegex(SharedMarkdown.codeBlockRegex),
       parse: (capture: SimpleMarkdown.Capture) => ({
         content: capture[0].replace(/^ {4}/gm, ''),
       }),
     },
     fence: {
       ...SimpleMarkdown.defaultRules.fence,
-      match: SimpleMarkdown.blockRegex(MarkdownRegex.fenceRegex),
+      match: SimpleMarkdown.blockRegex(SharedMarkdown.fenceRegex),
       parse: (capture: SimpleMarkdown.Capture) => ({
         type: 'codeBlock',
         content: capture[2],
+      }),
+    },
+    json: {
+      order: SimpleMarkdown.defaultRules.paragraph.order - 1,
+      match: (source: string, state: SimpleMarkdown.State) => {
+        if (state.inline) {
+          return null;
+        }
+        return SharedMarkdown.jsonMatch(source);
+      },
+      parse: (capture: SimpleMarkdown.Capture) => ({
+        type: 'codeBlock',
+        content: SharedMarkdown.jsonPrint(capture.json),
       }),
     },
   };

@@ -7,7 +7,7 @@ import * as React from 'react';
 import { Text, Linking, Alert, View } from 'react-native';
 import * as SimpleMarkdown from 'simple-markdown';
 
-import * as MarkdownRegex from 'lib/shared/markdown';
+import * as SharedMarkdown from 'lib/shared/markdown';
 import { normalizeURL } from 'lib/utils/url-utils';
 
 type MarkdownRuleSpec = {|
@@ -56,7 +56,7 @@ function inlineMarkdownRules(
     url: {
       ...SimpleMarkdown.defaultRules.url,
       // simple-markdown is case-sensitive, but we don't want to be
-      match: SimpleMarkdown.inlineRegex(MarkdownRegex.urlRegex),
+      match: SimpleMarkdown.inlineRegex(SharedMarkdown.urlRegex),
     },
     // Matches '[Google](https://google.com)' during parse phase and handles
     // rendering all 'link' nodes, including for 'autolink' and 'url'
@@ -88,9 +88,9 @@ function inlineMarkdownRules(
         if (state.inline) {
           return null;
         } else if (state.container === 'View') {
-          return MarkdownRegex.paragraphStripTrailingNewlineRegex.exec(source);
+          return SharedMarkdown.paragraphStripTrailingNewlineRegex.exec(source);
         } else {
-          return MarkdownRegex.paragraphRegex.exec(source);
+          return SharedMarkdown.paragraphRegex.exec(source);
         }
       },
       parse(
@@ -216,7 +216,7 @@ function fullMarkdownRules(
     heading: {
       ...SimpleMarkdown.defaultRules.heading,
       match: SimpleMarkdown.blockRegex(
-        MarkdownRegex.headingStripFollowingNewlineRegex,
+        SharedMarkdown.headingStripFollowingNewlineRegex,
       ),
       // eslint-disable-next-line react/display-name
       react(
@@ -236,7 +236,7 @@ function fullMarkdownRules(
       ...SimpleMarkdown.defaultRules.blockQuote,
       // match end of blockQuote by either \n\n or end of string
       match: SimpleMarkdown.blockRegex(
-        MarkdownRegex.blockQuoteStripFollowingNewlineRegex,
+        SharedMarkdown.blockQuoteStripFollowingNewlineRegex,
       ),
       parse(
         capture: SimpleMarkdown.Capture,
@@ -262,7 +262,7 @@ function fullMarkdownRules(
     codeBlock: {
       ...SimpleMarkdown.defaultRules.codeBlock,
       match: SimpleMarkdown.blockRegex(
-        MarkdownRegex.codeBlockStripTrailingNewlineRegex,
+        SharedMarkdown.codeBlockStripTrailingNewlineRegex,
       ),
       parse(capture: SimpleMarkdown.Capture) {
         return {
@@ -285,14 +285,25 @@ function fullMarkdownRules(
     fence: {
       ...SimpleMarkdown.defaultRules.fence,
       match: SimpleMarkdown.blockRegex(
-        MarkdownRegex.fenceStripTrailingNewlineRegex,
+        SharedMarkdown.fenceStripTrailingNewlineRegex,
       ),
-      parse(capture: SimpleMarkdown.Capture) {
-        return {
-          type: 'codeBlock',
-          content: capture[2],
-        };
+      parse: (capture: SimpleMarkdown.Capture) => ({
+        type: 'codeBlock',
+        content: capture[2],
+      }),
+    },
+    json: {
+      order: SimpleMarkdown.defaultRules.paragraph.order - 1,
+      match: (source: string, state: SimpleMarkdown.State) => {
+        if (state.inline) {
+          return null;
+        }
+        return SharedMarkdown.jsonMatch(source);
       },
+      parse: (capture: SimpleMarkdown.Capture) => ({
+        type: 'codeBlock',
+        content: SharedMarkdown.jsonPrint(capture.json),
+      }),
     },
   };
   return {

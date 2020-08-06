@@ -40,12 +40,24 @@ div.darkBackground code {
   background: #222222;
   color: #F3F3F3;
 }
+
+div.markdown pre {
+  padding: .5em 10px;
+  border-radius: 5px;
+}
+div.lightBackground pre {
+  background: #DCDCDC;
+  color: #222222;
+}
+div.darkBackground pre {
+  background: #222222;
+  color: #F3F3F3;
+}
 div.markdown pre > code {
   width: 100%;
   display: inline-block;
-  padding: .5em 10px;
   box-sizing: border-box;
-  border-radius: 5px;
   tab-size: 2;
   margin: 0 0 6px 0;
+  overflow-x: scroll;
 }
