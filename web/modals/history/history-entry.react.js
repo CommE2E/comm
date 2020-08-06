@@ -6,7 +6,7 @@ import {
   type EntryInfo,
   entryInfoPropType,
   type RestoreEntryInfo,
-  type RestoreEntryResult,
+  type RestoreEntryResponse,
   type CalendarQuery,
 } from 'lib/types/entry-types';
 import type { AppState } from '../../redux-setup';
@@ -43,7 +43,7 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  restoreEntry: (info: RestoreEntryInfo) => Promise<RestoreEntryResult>,
+  restoreEntry: (info: RestoreEntryInfo) => Promise<RestoreEntryResponse>,
 };
 
 class HistoryEntry extends React.PureComponent<Props> {

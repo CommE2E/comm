@@ -202,7 +202,6 @@ async function restoreEntry(
       fetchUpdateInfoForEntryUpdate(viewer, request.entryID),
     ]);
     return {
-      entryInfo: oldEntryInfo,
       newMessageInfos: rawMessageInfo ? [rawMessageInfo] : [],
       updatesResult: {
         viewerUpdates: fetchUpdatesResult.updateInfos,
@@ -262,7 +261,7 @@ async function restoreEntry(
     Promise.all(dbPromises),
   ]);
 
-  return { entryInfo: newEntryInfo, newMessageInfos, updatesResult };
+  return { newMessageInfos, updatesResult };
 }
 
 async function deleteOrphanedEntries(): Promise<void> {
