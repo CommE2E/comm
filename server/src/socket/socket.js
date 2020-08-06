@@ -54,7 +54,7 @@ import {
   processClientResponses,
   initializeSession,
   checkState,
-} from '../responders/ping-responders';
+} from './session-utils';
 import { assertSecureRequest } from '../utils/security-utils';
 import {
   fetchViewerForSocket,

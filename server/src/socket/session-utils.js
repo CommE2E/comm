@@ -56,12 +56,12 @@ import {
 import { deviceTokenUpdater } from '../updaters/device-token-updaters';
 import createReport from '../creators/report-creator';
 import { compareNewCalendarQuery } from '../updaters/entry-updaters';
-import { activityUpdatesInputValidator } from './activity-responders';
+import { activityUpdatesInputValidator } from '../responders/activity-responders';
 import { SQL } from '../database';
 import {
   threadInconsistencyReportValidatorShape,
   entryInconsistencyReportValidatorShape,
-} from './report-responders';
+} from '../responders/report-responders';
 
 const clientResponseInputValidator = t.union([
   tShape({
