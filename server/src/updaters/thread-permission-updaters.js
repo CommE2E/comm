@@ -607,9 +607,9 @@ async function commitMembershipChangeset(
     updateUndirectedRelationships(uniqueRelationshipRows),
   ]);
 
-  // We fetch all threads here because clients still expect the full list of
-  // threads on most thread operations. We're in the process of switching them
-  // to just need the diff, but until then...
+  // We fetch all threads here because old clients still expect the full list of
+  // threads on most thread operations. Once verifyClientSupported gates on
+  // codeVersion 62, we can add a WHERE clause on changedThreadIDs here
   const serverThreadInfoFetchResult = await fetchServerThreadInfos();
   const { threadInfos: serverThreadInfos } = serverThreadInfoFetchResult;
 

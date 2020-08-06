@@ -9,7 +9,7 @@ import {
   type LeaveThreadResult,
   type UpdateThreadRequest,
   type NewThreadRequest,
-  type NewThreadResult,
+  type NewThreadResponse,
   type ServerThreadJoinRequest,
   type ThreadJoinResult,
   assertThreadType,
@@ -169,7 +169,7 @@ const newThreadRequestInputValidator = tShape({
 async function threadCreationResponder(
   viewer: Viewer,
   input: any,
-): Promise<NewThreadResult> {
+): Promise<NewThreadResponse> {
   await validateInput(viewer, newThreadRequestInputValidator, input);
   let request;
   if (

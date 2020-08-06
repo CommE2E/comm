@@ -2,7 +2,7 @@
 
 import {
   type NewThreadRequest,
-  type NewThreadResult,
+  type NewThreadResponse,
   threadTypes,
   threadPermissions,
 } from 'lib/types/thread-types';
@@ -14,6 +14,7 @@ import invariant from 'invariant';
 import { generateRandomColor } from 'lib/shared/thread-utils';
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
+import { hasMinCodeVersion } from 'lib/shared/version-utils';
 
 import { dbQuery, SQL } from '../database';
 import { checkThreadPermission } from '../fetchers/thread-fetchers';
@@ -34,7 +35,7 @@ async function createThread(
   viewer: Viewer,
   request: NewThreadRequest,
   createRelationships?: boolean = false,
-): Promise<NewThreadResult> {
+): Promise<NewThreadResponse> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
@@ -204,6 +205,16 @@ async function createThread(
     commitMembershipChangeset(viewer, changeset),
   ]);
   const { threadInfos, viewerUpdates } = commitResult;
+
+  if (hasMinCodeVersion(viewer.platformDetails, 62)) {
+    return {
+      newThreadID: id,
+      updatesResult: {
+        newUpdates: viewerUpdates,
+      },
+      newMessageInfos,
+    };
+  }
 
   return {
     newThreadInfo: threadInfos[id],

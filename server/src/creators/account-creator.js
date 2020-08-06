@@ -9,6 +9,7 @@ import { threadTypes } from 'lib/types/thread-types';
 import { messageTypes } from 'lib/types/message-types';
 
 import bcrypt from 'twin-bcrypt';
+import invariant from 'invariant';
 
 import { validUsernameRegex, validEmailRegex } from 'lib/shared/account-utils';
 import { ServerError } from 'lib/utils/errors';
@@ -117,10 +118,18 @@ async function createAccount(
       true,
     ),
   ]);
+  const ashoatThreadID = ashoatThreadResult.newThreadInfo
+    ? ashoatThreadResult.newThreadInfo.id
+    : ashoatThreadResult.newThreadID;
+  invariant(
+    ashoatThreadID,
+    'createThread should return either newThreadInfo or newThreadID',
+  );
+
   let messageTime = Date.now();
   const ashoatMessageDatas = ashoatMessages.map(message => ({
     type: messageTypes.TEXT,
-    threadID: ashoatThreadResult.newThreadInfo.id,
+    threadID: ashoatThreadID,
     creatorID: ashoat.id,
     time: messageTime++,
     text: message,
