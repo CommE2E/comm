@@ -1,11 +1,5 @@
 // @flow
 
-import {
-  type PingRequest,
-  type PingResponse,
-  pingResponseTypes,
-} from 'lib/types/ping-types';
-import { defaultNumberPerThread } from 'lib/types/message-types';
 import type { Viewer } from '../session/viewer';
 import {
   serverRequestTypes,
@@ -32,11 +26,8 @@ import type { SessionUpdate } from '../updaters/session-updaters';
 import t from 'tcomb';
 import invariant from 'invariant';
 
-import { ServerError } from 'lib/utils/errors';
-import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
-import { mostRecentUpdateTimestamp } from 'lib/shared/update-utils';
 import { promiseAll } from 'lib/utils/promises';
-import { values, hash } from 'lib/utils/objects';
+import { hash } from 'lib/utils/objects';
 import {
   usersInRawEntryInfos,
   serverEntryInfo,
@@ -44,34 +35,19 @@ import {
 } from 'lib/shared/entry-utils';
 import { usersInThreadInfo } from 'lib/shared/thread-utils';
 
-import {
-  validateInput,
-  tShape,
-  tPlatform,
-  tPlatformDetails,
-} from '../utils/validation-utils';
-import {
-  entryQueryInputValidator,
-  normalizeCalendarQuery,
-  verifyCalendarQueryThreadIDs,
-} from './entry-responders';
-import { fetchMessageInfosSince } from '../fetchers/message-fetchers';
+import { tShape, tPlatform, tPlatformDetails } from '../utils/validation-utils';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import {
   fetchEntryInfos,
   fetchEntryInfosByID,
   fetchEntriesForSession,
 } from '../fetchers/entry-fetchers';
-import {
-  updateActivityTime,
-  activityUpdater,
-} from '../updaters/activity-updaters';
+import { activityUpdater } from '../updaters/activity-updaters';
 import {
   fetchCurrentUserInfo,
   fetchUserInfos,
   fetchKnownUserInfos,
 } from '../fetchers/user-fetchers';
-import { fetchUpdateInfos } from '../fetchers/update-fetchers';
 import {
   setNewSession,
   setCookiePlatform,
@@ -79,9 +55,7 @@ import {
 } from '../session/cookies';
 import { deviceTokenUpdater } from '../updaters/device-token-updaters';
 import createReport from '../creators/report-creator';
-import { commitSessionUpdate } from '../updaters/session-updaters';
 import { compareNewCalendarQuery } from '../updaters/entry-updaters';
-import { deleteUpdatesBeforeTimeTargettingSession } from '../deleters/update-deleters';
 import { activityUpdatesInputValidator } from './activity-responders';
 import { SQL } from '../database';
 import {
@@ -147,195 +121,6 @@ const clientResponseInputValidator = t.union([
     activityUpdates: activityUpdatesInputValidator,
   }),
 ]);
-
-const pingRequestInputValidator = tShape({
-  type: t.maybe(t.Number),
-  calendarQuery: entryQueryInputValidator,
-  lastPing: t.maybe(t.Number), // deprecated
-  messagesCurrentAsOf: t.maybe(t.Number),
-  updatesCurrentAsOf: t.maybe(t.Number),
-  watchedIDs: t.list(t.String),
-  clientResponses: t.maybe(t.list(clientResponseInputValidator)),
-});
-
-async function pingResponder(
-  viewer: Viewer,
-  input: any,
-): Promise<PingResponse> {
-  const request: PingRequest = input;
-  request.calendarQuery = normalizeCalendarQuery(request.calendarQuery);
-  await validateInput(viewer, pingRequestInputValidator, request);
-
-  let clientMessagesCurrentAsOf;
-  if (
-    request.messagesCurrentAsOf !== null &&
-    request.messagesCurrentAsOf !== undefined
-  ) {
-    clientMessagesCurrentAsOf = request.messagesCurrentAsOf;
-  } else if (request.lastPing !== null && request.lastPing !== undefined) {
-    clientMessagesCurrentAsOf = request.lastPing;
-  }
-  if (
-    clientMessagesCurrentAsOf === null ||
-    clientMessagesCurrentAsOf === undefined
-  ) {
-    throw new ServerError('invalid_parameters');
-  }
-  const { calendarQuery } = request;
-  await verifyCalendarQueryThreadIDs(calendarQuery);
-
-  const oldUpdatesCurrentAsOf = request.updatesCurrentAsOf;
-  const sessionInitializationResult = await initializeSession(
-    viewer,
-    calendarQuery,
-    oldUpdatesCurrentAsOf,
-  );
-
-  const threadCursors = {};
-  for (let watchedThreadID of request.watchedIDs) {
-    threadCursors[watchedThreadID] = null;
-  }
-  const threadSelectionCriteria = { threadCursors, joinedThreads: true };
-  const [
-    messagesResult,
-    { serverRequests, stateCheckStatus },
-  ] = await Promise.all([
-    fetchMessageInfosSince(
-      viewer,
-      threadSelectionCriteria,
-      clientMessagesCurrentAsOf,
-      defaultNumberPerThread,
-    ),
-    processClientResponses(viewer, request.clientResponses),
-  ]);
-  const incrementalUpdate =
-    request.type === pingResponseTypes.INCREMENTAL &&
-    sessionInitializationResult.sessionContinued;
-  const messagesCurrentAsOf = mostRecentMessageTimestamp(
-    messagesResult.rawMessageInfos,
-    clientMessagesCurrentAsOf,
-  );
-
-  const promises = {};
-  promises.activityUpdate = updateActivityTime(viewer);
-  if (
-    viewer.loggedIn &&
-    oldUpdatesCurrentAsOf !== null &&
-    oldUpdatesCurrentAsOf !== undefined
-  ) {
-    promises.deleteExpiredUpdates = deleteUpdatesBeforeTimeTargettingSession(
-      viewer,
-      oldUpdatesCurrentAsOf,
-    );
-    promises.fetchUpdateResult = fetchUpdateInfos(
-      viewer,
-      oldUpdatesCurrentAsOf,
-      calendarQuery,
-    );
-  }
-  if (incrementalUpdate && stateCheckStatus) {
-    promises.stateCheck = checkState(viewer, stateCheckStatus, calendarQuery);
-  }
-  const { fetchUpdateResult, stateCheck } = await promiseAll(promises);
-
-  let updateUserInfos = {},
-    updatesResult = null;
-  if (fetchUpdateResult) {
-    invariant(
-      oldUpdatesCurrentAsOf !== null && oldUpdatesCurrentAsOf !== undefined,
-      'should be set',
-    );
-    updateUserInfos = fetchUpdateResult.userInfos;
-    const { updateInfos } = fetchUpdateResult;
-    const newUpdatesCurrentAsOf = mostRecentUpdateTimestamp(
-      [...updateInfos],
-      oldUpdatesCurrentAsOf,
-    );
-    updatesResult = {
-      newUpdates: updateInfos,
-      currentAsOf: newUpdatesCurrentAsOf,
-    };
-  }
-
-  if (incrementalUpdate) {
-    invariant(sessionInitializationResult.sessionContinued, 'should be set');
-
-    let sessionUpdate = sessionInitializationResult.sessionUpdate;
-    if (stateCheck && stateCheck.sessionUpdate) {
-      sessionUpdate = { ...sessionUpdate, ...stateCheck.sessionUpdate };
-    }
-    await commitSessionUpdate(viewer, sessionUpdate);
-
-    if (stateCheck && stateCheck.checkStateRequest) {
-      serverRequests.push(stateCheck.checkStateRequest);
-    }
-
-    // $FlowFixMe should be fixed in flow-bin@0.115 / react-native@0.63
-    const incrementalUserInfos = values({
-      ...messagesResult.userInfos,
-      ...updateUserInfos,
-      ...sessionInitializationResult.deltaEntryInfoResult.userInfos,
-    });
-    const response: PingResponse = {
-      type: pingResponseTypes.INCREMENTAL,
-      messagesResult: {
-        rawMessageInfos: messagesResult.rawMessageInfos,
-        truncationStatuses: messagesResult.truncationStatuses,
-        currentAsOf: messagesCurrentAsOf,
-      },
-      deltaEntryInfos:
-        sessionInitializationResult.deltaEntryInfoResult.rawEntryInfos,
-      userInfos: incrementalUserInfos,
-      serverRequests,
-    };
-    if (updatesResult) {
-      response.updatesResult = updatesResult;
-    }
-    return response;
-  }
-
-  const [threadsResult, entriesResult, currentUserInfo] = await Promise.all([
-    fetchThreadInfos(viewer),
-    fetchEntryInfos(viewer, [calendarQuery]),
-    fetchCurrentUserInfo(viewer),
-  ]);
-
-  const deltaEntriesUserInfos = sessionInitializationResult.sessionContinued
-    ? sessionInitializationResult.deltaEntryInfoResult.userInfos
-    : undefined;
-  const userInfos = values({
-    ...messagesResult.userInfos,
-    ...entriesResult.userInfos,
-    ...threadsResult.userInfos,
-    ...updateUserInfos,
-    ...deltaEntriesUserInfos,
-  });
-
-  const response: PingResponse = {
-    type: pingResponseTypes.FULL,
-    threadInfos: threadsResult.threadInfos,
-    currentUserInfo,
-    rawMessageInfos: messagesResult.rawMessageInfos,
-    truncationStatuses: messagesResult.truncationStatuses,
-    messagesCurrentAsOf,
-    serverTime: messagesCurrentAsOf,
-    rawEntryInfos: entriesResult.rawEntryInfos,
-    userInfos,
-    serverRequests,
-  };
-  if (updatesResult) {
-    response.updatesResult = updatesResult;
-  }
-  if (sessionInitializationResult.sessionContinued) {
-    // This will only happen when the client requests a FULL response, which
-    // doesn't occur in recent client versions. The client will use the result
-    // to identify entry inconsistencies.
-    response.deltaEntryInfos =
-      sessionInitializationResult.deltaEntryInfoResult.rawEntryInfos;
-  }
-
-  return response;
-}
 
 type StateCheckStatus =
   | {| status: 'state_validated' |}
@@ -497,7 +282,7 @@ type SessionInitializationResult =
 async function initializeSession(
   viewer: Viewer,
   calendarQuery: CalendarQuery,
-  oldLastUpdate: ?number,
+  oldLastUpdate: number,
 ): Promise<SessionInitializationResult> {
   if (!viewer.loggedIn) {
     return { sessionContinued: false };
@@ -514,22 +299,15 @@ async function initializeSession(
 
   if (comparisonResult) {
     const { difference, sessionUpdate, oldCalendarQuery } = comparisonResult;
-    if (oldLastUpdate !== null && oldLastUpdate !== undefined) {
-      sessionUpdate.lastUpdate = oldLastUpdate;
-    }
+    sessionUpdate.lastUpdate = oldLastUpdate;
     const deltaEntryInfoResult = await fetchEntriesForSession(
       viewer,
       difference,
       oldCalendarQuery,
     );
     return { sessionContinued: true, deltaEntryInfoResult, sessionUpdate };
-  } else if (oldLastUpdate !== null && oldLastUpdate !== undefined) {
-    await setNewSession(viewer, calendarQuery, oldLastUpdate);
-    return { sessionContinued: false };
   } else {
-    // We're only able to create the session if we have oldLastUpdate. At this
-    // time the only code in pingResponder that uses viewer.session should be
-    // gated on oldLastUpdate anyways, so we should be okay just returning.
+    await setNewSession(viewer, calendarQuery, oldLastUpdate);
     return { sessionContinued: false };
   }
 }
@@ -786,7 +564,6 @@ async function checkState(
 
 export {
   clientResponseInputValidator,
-  pingResponder,
   processClientResponses,
   initializeSession,
   checkState,

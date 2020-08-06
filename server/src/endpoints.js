@@ -43,7 +43,6 @@ import {
   threadCreationResponder,
   threadJoinResponder,
 } from './responders/thread-responders';
-import { pingResponder } from './responders/ping-responders';
 import {
   reportCreationResponder,
   reportMultiCreationResponder,
@@ -75,7 +74,6 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   create_thread: threadCreationResponder,
   fetch_messages: messageFetchResponder,
   join_thread: threadJoinResponder,
-  ping: pingResponder,
   log_out: logOutResponder,
   delete_account: accountDeletionResponder,
   create_account: accountCreationResponder,
