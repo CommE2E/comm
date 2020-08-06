@@ -110,13 +110,13 @@ async function fetchUserViewer(
 
   const cookieRow = result[0];
   let platformDetails = null;
-  if (cookieRow.platform && cookieRow.versions) {
+  if (cookieRow.versions) {
     platformDetails = {
       platform: cookieRow.platform,
       codeVersion: cookieRow.versions.codeVersion,
       stateVersion: cookieRow.versions.stateVersion,
     };
-  } else if (cookieRow.platform) {
+  } else {
     platformDetails = { platform: cookieRow.platform };
   }
   const deviceToken = cookieRow.device_token;
@@ -570,7 +570,7 @@ function addSessionChangeInfoToResult(
   result.cookieChange = sessionChange;
 }
 
-type CookieCreationParams = $Shape<{|
+type AnonymousCookieCreationParams = $Shape<{|
   platformDetails: ?PlatformDetails,
   deviceToken: ?string,
 |}>;
@@ -584,7 +584,7 @@ const defaultPlatformDetails = {};
 // is passed to the Viewer constructor directly, the resultant Viewer object
 // will throw whenever anybody attempts to access the relevant properties.
 async function createNewAnonymousCookie(
-  params: CookieCreationParams,
+  params: AnonymousCookieCreationParams,
 ): Promise<AnonymousViewerData> {
   const { platformDetails, deviceToken } = params;
   const { platform, ...versions } = platformDetails || defaultPlatformDetails;
@@ -629,6 +629,11 @@ async function createNewAnonymousCookie(
   };
 }
 
+type UserCookieCreationParams = {|
+  platformDetails: PlatformDetails,
+  deviceToken?: ?string,
+|};
+
 // The result of this function should never be passed directly to the Viewer
 // constructor. Instead, it should be passed to viewer.setNewCookie. There are
 // several fields on UserViewerData that are not set by this function:
@@ -638,7 +643,7 @@ async function createNewAnonymousCookie(
 // will throw whenever anybody attempts to access the relevant properties.
 async function createNewUserCookie(
   userID: string,
-  params: CookieCreationParams,
+  params: UserCookieCreationParams,
 ): Promise<UserViewerData> {
   const { platformDetails, deviceToken } = params;
   const { platform, ...versions } = platformDetails || defaultPlatformDetails;

@@ -37,7 +37,6 @@ import {
 import {
   validateInput,
   tShape,
-  tPlatform,
   tPlatformDetails,
   tDeviceType,
   tPassword,
@@ -161,21 +160,13 @@ const registerRequestInputValidator = tShape({
   password: tPassword,
   calendarQuery: t.maybe(newEntryQueryInputValidator),
   deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
-  platform: t.maybe(tPlatform),
-  platformDetails: t.maybe(tPlatformDetails),
+  platformDetails: tPlatformDetails,
 });
 
 async function accountCreationResponder(
   viewer: Viewer,
   input: any,
 ): Promise<RegisterResponse> {
-  if (!input.platformDetails && input.platform) {
-    input.platformDetails = {
-      ...viewer.platformDetails,
-      platform: input.platform,
-    };
-    delete input.platform;
-  }
   const request: RegisterRequest = input;
   await validateInput(viewer, registerRequestInputValidator, request);
   return await createAccount(viewer, request);
@@ -187,8 +178,7 @@ const logInRequestInputValidator = tShape({
   watchedIDs: t.list(t.String),
   calendarQuery: t.maybe(entryQueryInputValidator),
   deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
-  platform: t.maybe(tPlatform),
-  platformDetails: t.maybe(tPlatformDetails),
+  platformDetails: tPlatformDetails,
 });
 
 async function logInResponder(
@@ -196,13 +186,6 @@ async function logInResponder(
   input: any,
 ): Promise<LogInResponse> {
   await validateInput(viewer, logInRequestInputValidator, input);
-  if (!input.platformDetails && input.platform) {
-    input.platformDetails = {
-      ...viewer.platformDetails,
-      platform: input.platform,
-    };
-    delete input.platform;
-  }
   const request: LogInRequest = input;
 
   const calendarQuery = request.calendarQuery
@@ -298,8 +281,7 @@ const updatePasswordRequestInputValidator = tShape({
   watchedIDs: t.list(t.String),
   calendarQuery: t.maybe(entryQueryInputValidator),
   deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
-  platform: t.maybe(tPlatform),
-  platformDetails: t.maybe(tPlatformDetails),
+  platformDetails: tPlatformDetails,
 });
 
 async function passwordUpdateResponder(
@@ -307,13 +289,6 @@ async function passwordUpdateResponder(
   input: any,
 ): Promise<LogInResponse> {
   await validateInput(viewer, updatePasswordRequestInputValidator, input);
-  if (!input.platformDetails && input.platform) {
-    input.platformDetails = {
-      ...viewer.platformDetails,
-      platform: input.platform,
-    };
-    delete input.platform;
-  }
   const request: UpdatePasswordRequest = input;
   if (request.calendarQuery) {
     request.calendarQuery = normalizeCalendarQuery(request.calendarQuery);
