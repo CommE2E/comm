@@ -5,7 +5,7 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import {
   type ThreadInfo,
   threadInfoPropType,
-  type ChangeThreadSettingsResult,
+  type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
 } from 'lib/types/thread-types';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react';
@@ -50,7 +50,7 @@ type Props = {|
   // async functions that hit server APIs
   changeThreadSettings: (
     request: UpdateThreadRequest,
-  ) => Promise<ChangeThreadSettingsResult>,
+  ) => Promise<ChangeThreadSettingsPayload>,
 |};
 class ColorPickerModal extends React.PureComponent<Props> {
   static propTypes = {

@@ -4,7 +4,7 @@ import {
   type ThreadInfo,
   threadInfoPropType,
   threadPermissions,
-  type ChangeThreadSettingsResult,
+  type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
 } from 'lib/types/thread-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
@@ -60,7 +60,7 @@ type Props = {|
   // async functions that hit server APIs
   changeThreadSettings: (
     update: UpdateThreadRequest,
-  ) => Promise<ChangeThreadSettingsResult>,
+  ) => Promise<ChangeThreadSettingsPayload>,
 |};
 class ThreadSettingsDescription extends React.PureComponent<Props> {
   static propTypes = {

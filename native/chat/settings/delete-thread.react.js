@@ -8,8 +8,6 @@ import {
   type ThreadInfo,
   threadInfoPropType,
   type LeaveThreadPayload,
-  type RawThreadInfo,
-  rawThreadInfoPropType,
 } from 'lib/types/thread-types';
 import { type GlobalTheme, globalThemePropType } from '../../types/themes';
 import type { ChatNavigationProp } from '../chat.react';
@@ -65,7 +63,6 @@ type Props = {|
   activeTheme: ?GlobalTheme,
   colors: Colors,
   styles: typeof styles,
-  rawThreadInfos: { [id: string]: RawThreadInfo },
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -96,7 +93,6 @@ class DeleteThread extends React.PureComponent<Props, State> {
     activeTheme: globalThemePropType,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    rawThreadInfos: PropTypes.objectOf(rawThreadInfoPropType).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     deleteThread: PropTypes.func.isRequired,
     navContext: navContextPropType,
@@ -247,8 +243,7 @@ class DeleteThread extends React.PureComponent<Props, State> {
         this.state.password,
       );
       const invalidated = identifyInvalidatedThreads(
-        this.props.rawThreadInfos,
-        result.threadInfos,
+        result.updatesResult.newUpdates,
       );
       navContext.dispatch({
         type: clearThreadsActionType,
@@ -358,7 +353,6 @@ export default connect(
       activeTheme: state.globalThemeInfo.activeTheme,
       colors: colorsSelector(state),
       styles: stylesSelector(state),
-      rawThreadInfos: state.threadStore.threadInfos,
     };
   },
   { deleteThread },

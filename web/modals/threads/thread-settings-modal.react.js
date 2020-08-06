@@ -5,7 +5,7 @@ import {
   threadInfoPropType,
   threadTypes,
   assertThreadType,
-  type ChangeThreadSettingsResult,
+  type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
   type LeaveThreadPayload,
   threadPermissions,
@@ -81,7 +81,7 @@ type Props = {
   ) => Promise<LeaveThreadPayload>,
   changeThreadSettings: (
     update: UpdateThreadRequest,
-  ) => Promise<ChangeThreadSettingsResult>,
+  ) => Promise<ChangeThreadSettingsPayload>,
 };
 type State = {|
   queuedChanges: ThreadChanges,

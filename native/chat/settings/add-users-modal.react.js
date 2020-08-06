@@ -4,7 +4,7 @@ import type { AppState } from '../../redux/redux-setup';
 import {
   type ThreadInfo,
   threadInfoPropType,
-  type ChangeThreadSettingsResult,
+  type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
 } from 'lib/types/thread-types';
 import {
@@ -72,7 +72,7 @@ type Props = {|
   // async functions that hit server APIs
   changeThreadSettings: (
     request: UpdateThreadRequest,
-  ) => Promise<ChangeThreadSettingsResult>,
+  ) => Promise<ChangeThreadSettingsPayload>,
   searchUsers: (usernamePrefix: string) => Promise<UserSearchResult>,
 |};
 type State = {|
