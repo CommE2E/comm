@@ -9,7 +9,7 @@ import {
   type ServerRequest,
   type CheckStateServerRequest,
 } from 'lib/types/request-types';
-import { isDeviceType, assertDeviceType } from 'lib/types/device-types';
+import { isDeviceType } from 'lib/types/device-types';
 import {
   reportTypes,
   type ThreadInconsistencyReportCreationRequest,
@@ -53,7 +53,6 @@ import {
   setCookiePlatform,
   setCookiePlatformDetails,
 } from '../session/cookies';
-import { deviceTokenUpdater } from '../updaters/device-token-updaters';
 import createReport from '../creators/report-creator';
 import { compareNewCalendarQuery } from '../updaters/entry-updaters';
 import { activityUpdatesInputValidator } from '../responders/activity-responders';
@@ -70,13 +69,6 @@ const clientResponseInputValidator = t.union([
       x => x === serverRequestTypes.PLATFORM,
     ),
     platform: tPlatform,
-  }),
-  tShape({
-    type: t.irreducible(
-      'serverRequestTypes.DEVICE_TOKEN',
-      x => x === serverRequestTypes.DEVICE_TOKEN,
-    ),
-    deviceToken: t.String,
   }),
   tShape({
     ...threadInconsistencyReportValidatorShape,
@@ -161,13 +153,6 @@ async function processClientResponses(
       if (!isDeviceType(clientResponse.platform)) {
         viewerMissingPlatformDetails = false;
       }
-    } else if (clientResponse.type === serverRequestTypes.DEVICE_TOKEN) {
-      promises.push(
-        deviceTokenUpdater(viewer, {
-          deviceToken: clientResponse.deviceToken,
-          deviceType: assertDeviceType(viewer.platform),
-        }),
-      );
     } else if (
       clientResponse.type === serverRequestTypes.THREAD_INCONSISTENCY
     ) {
