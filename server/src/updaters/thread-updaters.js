@@ -24,6 +24,7 @@ import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
+import { hasMinCodeVersion } from 'lib/shared/version-utils';
 
 import { dbQuery, SQL } from '../database';
 import {
@@ -108,6 +109,10 @@ async function updateRole(
     commitMembershipChangeset(viewer, changeset),
   ]);
 
+  if (hasMinCodeVersion(viewer.platformDetails, 62)) {
+    return { updatesResult: { newUpdates: viewerUpdates }, newMessageInfos };
+  }
+
   return {
     threadInfo: threadInfos[request.threadID],
     threadInfos,
@@ -190,6 +195,10 @@ async function removeMembers(
     commitMembershipChangeset(viewer, changeset),
   ]);
 
+  if (hasMinCodeVersion(viewer.platformDetails, 62)) {
+    return { updatesResult: { newUpdates: viewerUpdates }, newMessageInfos };
+  }
+
   return {
     threadInfo: threadInfos[request.threadID],
     threadInfos,
@@ -252,6 +261,10 @@ async function leaveThread(
     commitMembershipChangeset(viewer, changeset),
     createMessages(viewer, [messageData]),
   ]);
+
+  if (hasMinCodeVersion(viewer.platformDetails, 62)) {
+    return { updatesResult: { newUpdates: viewerUpdates } };
+  }
 
   return {
     threadInfos,
@@ -520,6 +533,10 @@ async function updateThread(
     ),
   ]);
 
+  if (hasMinCodeVersion(viewer.platformDetails, 62)) {
+    return { updatesResult: { newUpdates: viewerUpdates }, newMessageInfos };
+  }
+
   return {
     threadInfo: threadInfos[request.threadID],
     threadInfos,
@@ -602,7 +619,6 @@ async function joinThread(
   }
 
   const response: ThreadJoinResult = {
-    threadInfos: membershipResult.threadInfos,
     rawMessageInfos: fetchMessagesResult.rawMessageInfos,
     truncationStatuses: fetchMessagesResult.truncationStatuses,
     userInfos,
@@ -610,6 +626,9 @@ async function joinThread(
       newUpdates: membershipResult.viewerUpdates,
     },
   };
+  if (!hasMinCodeVersion(viewer.platformDetails, 62)) {
+    response.threadInfos = membershipResult.threadInfos;
+  }
   if (rawEntryInfos) {
     response.rawEntryInfos = rawEntryInfos;
   }

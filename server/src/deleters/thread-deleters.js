@@ -12,6 +12,7 @@ import bcrypt from 'twin-bcrypt';
 
 import { ServerError } from 'lib/utils/errors';
 import { permissionLookup } from 'lib/permissions/thread-permissions';
+import { hasMinCodeVersion } from 'lib/shared/version-utils';
 
 import { dbQuery, SQL } from '../database';
 import {
@@ -45,16 +46,17 @@ async function deleteThread(
   if (!permissionsBlob) {
     // This should only occur if the first request goes through but the client
     // never receives the response
-    const [{ threadInfos }, { updateInfos }] = await Promise.all([
-      fetchThreadInfos(viewer),
+    const [{ updateInfos }, fetchThreadInfoResult] = await Promise.all([
       fetchUpdateInfoForThreadDeletion(viewer, threadID),
+      hasMinCodeVersion(viewer.platformDetails, 62)
+        ? undefined
+        : fetchThreadInfos(viewer),
     ]);
-    return {
-      threadInfos,
-      updatesResult: {
-        newUpdates: updateInfos,
-      },
-    };
+    if (fetchThreadInfoResult) {
+      const { threadInfos } = fetchThreadInfoResult;
+      return { threadInfos, updatesResult: { newUpdates: updateInfos } };
+    }
+    return { updatesResult: { newUpdates: updateInfos } };
   }
 
   const hasPermission = permissionLookup(
@@ -119,6 +121,10 @@ async function deleteThread(
     createUpdates(updateDatas, { viewer, updatesForCurrentSession: 'return' }),
     dbQuery(query),
   ]);
+
+  if (hasMinCodeVersion(viewer.platformDetails, 62)) {
+    return { updatesResult: { newUpdates: viewerUpdates } };
+  }
 
   const { threadInfos } = await fetchThreadInfos(viewer);
   return {
