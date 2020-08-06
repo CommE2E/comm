@@ -93,13 +93,6 @@ const clientResponseInputValidator = t.union([
   }),
   tShape({
     type: t.irreducible(
-      'serverRequestTypes.INITIAL_ACTIVITY_UPDATE',
-      x => x === serverRequestTypes.INITIAL_ACTIVITY_UPDATE,
-    ),
-    threadID: t.String,
-  }),
-  tShape({
-    type: t.irreducible(
       'serverRequestTypes.CHECK_STATE',
       x => x === serverRequestTypes.CHECK_STATE,
     ),
@@ -165,14 +158,6 @@ async function processClientResponses(
       );
       viewerMissingPlatform = false;
       viewerMissingPlatformDetails = false;
-    } else if (
-      clientResponse.type === serverRequestTypes.INITIAL_ACTIVITY_UPDATE
-    ) {
-      promises.push(
-        activityUpdater(viewer, {
-          updates: [{ focus: true, threadID: clientResponse.threadID }],
-        }),
-      );
     } else if (
       clientResponse.type === serverRequestTypes.INITIAL_ACTIVITY_UPDATES
     ) {
