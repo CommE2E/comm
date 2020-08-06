@@ -5,10 +5,10 @@ import {
   entryInfoPropType,
   type CreateEntryInfo,
   type SaveEntryInfo,
-  type SaveEntryResult,
+  type SaveEntryResponse,
   type CreateEntryPayload,
   type DeleteEntryInfo,
-  type DeleteEntryPayload,
+  type DeleteEntryResponse,
   type CalendarQuery,
 } from 'lib/types/entry-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
@@ -117,8 +117,8 @@ type Props = {|
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   createEntry: (info: CreateEntryInfo) => Promise<CreateEntryPayload>,
-  saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResult>,
-  deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryPayload>,
+  saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResponse>,
+  deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResponse>,
 |};
 type State = {|
   editing: boolean,

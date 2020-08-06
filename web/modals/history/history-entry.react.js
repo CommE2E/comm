@@ -6,7 +6,7 @@ import {
   type EntryInfo,
   entryInfoPropType,
   type RestoreEntryInfo,
-  type RestoreEntryPayload,
+  type RestoreEntryResult,
   type CalendarQuery,
 } from 'lib/types/entry-types';
 import type { AppState } from '../../redux-setup';
@@ -43,7 +43,7 @@ type Props = {
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  restoreEntry: (info: RestoreEntryInfo) => Promise<RestoreEntryPayload>,
+  restoreEntry: (info: RestoreEntryInfo) => Promise<RestoreEntryResult>,
 };
 
 class HistoryEntry extends React.PureComponent<Props> {
@@ -142,7 +142,7 @@ class HistoryEntry extends React.PureComponent<Props> {
       calendarQuery: this.props.calendarQuery(),
     });
     this.props.animateAndLoadEntry(entryID);
-    return result;
+    return { ...result, threadID: this.props.threadInfo.id };
   }
 }
 
