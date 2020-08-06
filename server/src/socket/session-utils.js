@@ -133,7 +133,7 @@ type ProcessClientResponsesResult = {|
 |};
 async function processClientResponses(
   viewer: Viewer,
-  clientResponses: ?$ReadOnlyArray<ClientResponse>,
+  clientResponses: $ReadOnlyArray<ClientResponse>,
 ): Promise<ProcessClientResponsesResult> {
   let viewerMissingPlatform = !viewer.platform;
   const { platformDetails } = viewer;
@@ -144,76 +144,66 @@ async function processClientResponses(
         platformDetails.codeVersion === undefined ||
         platformDetails.stateVersion === null ||
         platformDetails.stateVersion === undefined));
-  let viewerMissingDeviceToken =
-    isDeviceType(viewer.platform) && viewer.loggedIn && !viewer.deviceToken;
 
   const promises = [];
   let activityUpdates = [];
   let stateCheckStatus = null;
-  if (clientResponses) {
-    const clientSentPlatformDetails = clientResponses.some(
-      response => response.type === serverRequestTypes.PLATFORM_DETAILS,
-    );
-    for (let clientResponse of clientResponses) {
-      if (
-        clientResponse.type === serverRequestTypes.PLATFORM &&
-        !clientSentPlatformDetails
-      ) {
-        promises.push(setCookiePlatform(viewer, clientResponse.platform));
-        viewerMissingPlatform = false;
-        if (!isDeviceType(clientResponse.platform)) {
-          viewerMissingPlatformDetails = false;
-        }
-      } else if (clientResponse.type === serverRequestTypes.DEVICE_TOKEN) {
-        promises.push(
-          deviceTokenUpdater(viewer, {
-            deviceToken: clientResponse.deviceToken,
-            deviceType: assertDeviceType(viewer.platform),
-          }),
-        );
-        viewerMissingDeviceToken = false;
-      } else if (
-        clientResponse.type === serverRequestTypes.THREAD_INCONSISTENCY
-      ) {
-        promises.push(recordThreadInconsistency(viewer, clientResponse));
-      } else if (
-        clientResponse.type === serverRequestTypes.ENTRY_INCONSISTENCY
-      ) {
-        promises.push(recordEntryInconsistency(viewer, clientResponse));
-      } else if (clientResponse.type === serverRequestTypes.PLATFORM_DETAILS) {
-        promises.push(
-          setCookiePlatformDetails(viewer, clientResponse.platformDetails),
-        );
-        viewerMissingPlatform = false;
+  const clientSentPlatformDetails = clientResponses.some(
+    response => response.type === serverRequestTypes.PLATFORM_DETAILS,
+  );
+  for (let clientResponse of clientResponses) {
+    if (
+      clientResponse.type === serverRequestTypes.PLATFORM &&
+      !clientSentPlatformDetails
+    ) {
+      promises.push(setCookiePlatform(viewer, clientResponse.platform));
+      viewerMissingPlatform = false;
+      if (!isDeviceType(clientResponse.platform)) {
         viewerMissingPlatformDetails = false;
-      } else if (
-        clientResponse.type === serverRequestTypes.INITIAL_ACTIVITY_UPDATE
-      ) {
-        promises.push(
-          activityUpdater(viewer, {
-            updates: [{ focus: true, threadID: clientResponse.threadID }],
-          }),
-        );
-      } else if (
-        clientResponse.type === serverRequestTypes.INITIAL_ACTIVITY_UPDATES
-      ) {
-        activityUpdates = [
-          ...activityUpdates,
-          ...clientResponse.activityUpdates,
-        ];
-      } else if (clientResponse.type === serverRequestTypes.CHECK_STATE) {
-        const invalidKeys = [];
-        for (let key in clientResponse.hashResults) {
-          const result = clientResponse.hashResults[key];
-          if (!result) {
-            invalidKeys.push(key);
-          }
-        }
-        stateCheckStatus =
-          invalidKeys.length > 0
-            ? { status: 'state_invalid', invalidKeys }
-            : { status: 'state_validated' };
       }
+    } else if (clientResponse.type === serverRequestTypes.DEVICE_TOKEN) {
+      promises.push(
+        deviceTokenUpdater(viewer, {
+          deviceToken: clientResponse.deviceToken,
+          deviceType: assertDeviceType(viewer.platform),
+        }),
+      );
+    } else if (
+      clientResponse.type === serverRequestTypes.THREAD_INCONSISTENCY
+    ) {
+      promises.push(recordThreadInconsistency(viewer, clientResponse));
+    } else if (clientResponse.type === serverRequestTypes.ENTRY_INCONSISTENCY) {
+      promises.push(recordEntryInconsistency(viewer, clientResponse));
+    } else if (clientResponse.type === serverRequestTypes.PLATFORM_DETAILS) {
+      promises.push(
+        setCookiePlatformDetails(viewer, clientResponse.platformDetails),
+      );
+      viewerMissingPlatform = false;
+      viewerMissingPlatformDetails = false;
+    } else if (
+      clientResponse.type === serverRequestTypes.INITIAL_ACTIVITY_UPDATE
+    ) {
+      promises.push(
+        activityUpdater(viewer, {
+          updates: [{ focus: true, threadID: clientResponse.threadID }],
+        }),
+      );
+    } else if (
+      clientResponse.type === serverRequestTypes.INITIAL_ACTIVITY_UPDATES
+    ) {
+      activityUpdates = [...activityUpdates, ...clientResponse.activityUpdates];
+    } else if (clientResponse.type === serverRequestTypes.CHECK_STATE) {
+      const invalidKeys = [];
+      for (let key in clientResponse.hashResults) {
+        const result = clientResponse.hashResults[key];
+        if (!result) {
+          invalidKeys.push(key);
+        }
+      }
+      stateCheckStatus =
+        invalidKeys.length > 0
+          ? { status: 'state_invalid', invalidKeys }
+          : { status: 'state_validated' };
     }
   }
 
@@ -241,9 +231,6 @@ async function processClientResponses(
   }
   if (viewerMissingPlatformDetails) {
     serverRequests.push({ type: serverRequestTypes.PLATFORM_DETAILS });
-  }
-  if (viewerMissingDeviceToken) {
-    serverRequests.push({ type: serverRequestTypes.DEVICE_TOKEN });
   }
   return { serverRequests, stateCheckStatus, activityUpdateResult };
 }

@@ -23,7 +23,6 @@ import {
   stateCheckInactivityActivationInterval,
 } from 'lib/types/session-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
-import { serverRequestTypes } from 'lib/types/request-types';
 import { redisMessageTypes, type RedisMessage } from 'lib/types/redis-types';
 import { endpointIsSocketSafe } from 'lib/types/endpoints';
 
@@ -519,21 +518,14 @@ class Socket {
       });
     }
 
-    // Clients that support sockets always keep their server aware of their
-    // device token, without needing any requests
-    const filteredServerRequests = serverRequests.filter(
-      request =>
-        request.type !== serverRequestTypes.DEVICE_TOKEN &&
-        request.type !== serverRequestTypes.INITIAL_ACTIVITY_UPDATES,
-    );
-    if (filteredServerRequests.length > 0 || clientResponses.length > 0) {
+    if (serverRequests.length > 0 || clientResponses.length > 0) {
       // We send this message first since the STATE_SYNC triggers the client's
       // connection status to shift to "connected", and we want to make sure the
       // client responses are cleared from Redux before that happens
       responses.unshift({
         type: serverSocketMessageTypes.REQUESTS,
         responseTo: message.id,
-        payload: { serverRequests: filteredServerRequests },
+        payload: { serverRequests },
       });
     }
 
