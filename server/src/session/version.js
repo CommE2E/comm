@@ -17,10 +17,14 @@ async function verifyClientSupported(
   throw error;
 }
 
-// eslint-disable-next-line no-unused-vars
 function clientSupported(platformDetails: ?PlatformDetails): boolean {
-  // In the future when we decide to deprecate server support for an old client
-  // version, we should update this function to return false for those clients
+  if (!platformDetails || platformDetails.platform === 'web') {
+    return true;
+  }
+  const { codeVersion } = platformDetails;
+  if (!codeVersion || codeVersion < 24) {
+    return false;
+  }
   return true;
 }
 
