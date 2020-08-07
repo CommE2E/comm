@@ -130,7 +130,7 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
     if (listData) {
       for (const item of listData) {
         const measureKey = itemToMeasureKey(item);
-        if (!measureKey) {
+        if (measureKey === null || measureKey === undefined) {
           continue;
         }
         const height = measuredHeights.get(measureKey);
