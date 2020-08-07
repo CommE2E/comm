@@ -39,7 +39,8 @@ import { sanitizeAction, sanitizeState } from 'lib/utils/sanitization';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 
 import Button from './components/button.react';
-import { persistConfig, codeVersion, getPersistor } from './redux/persist';
+import { persistConfig, codeVersion } from './redux/persist';
+import { wipeAndExit } from './utils/crash-utils';
 
 const errorTitles = ['Oh no!!', 'Womp womp womp...'];
 
@@ -183,8 +184,7 @@ class Crash extends React.PureComponent<Props, State> {
     try {
       await this.props.logOut(this.props.preRequestUserState);
     } catch (e) {}
-    getPersistor().purge();
-    ExitApp.exitApp();
+    await wipeAndExit();
   }
 
   onCopyCrashReportID = () => {

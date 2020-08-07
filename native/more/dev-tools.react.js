@@ -10,14 +10,11 @@ import { View, Text, ScrollView, Platform } from 'react-native';
 import ExitApp from 'react-native-exit-app';
 import Icon from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
-import AsyncStorage from '@react-native-community/async-storage';
 
 import { connect } from 'lib/utils/redux-utils';
 import { setURLPrefix } from 'lib/utils/url-utils';
-import sleep from 'lib/utils/sleep';
 
 import Button from '../components/button.react';
-import { getPersistor } from '../redux/persist';
 import { serverOptions } from '../utils/url-utils';
 import { CustomServerModalRouteName } from '../navigation/route-names';
 import {
@@ -26,7 +23,7 @@ import {
   colorsSelector,
   styleSelector,
 } from '../themes/colors';
-import { navStateAsyncStorageKey } from '../navigation/persistance';
+import { wipeAndExit } from '../utils/crash-utils';
 
 const ServerIcon = () => (
   <Icon name="md-checkmark" size={20} color="#008800" style={styles.icon} />
@@ -166,12 +163,7 @@ class DevTools extends React.PureComponent<Props> {
   };
 
   onPressWipe = async () => {
-    await Promise.all([
-      getPersistor().purge(),
-      __DEV__ ? AsyncStorage.removeItem(navStateAsyncStorageKey) : null,
-    ]);
-    await sleep(50);
-    ExitApp.exitApp();
+    await wipeAndExit();
   };
 
   onSelectServer = (server: string) => {
