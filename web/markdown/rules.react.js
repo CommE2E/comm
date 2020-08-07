@@ -120,7 +120,7 @@ function markdownRules(): MarkdownRuleSpec {
       },
       parse: (capture: SimpleMarkdown.Capture) => ({
         type: 'codeBlock',
-        content: SharedMarkdown.jsonPrint(capture.json),
+        content: SharedMarkdown.jsonPrint(capture),
       }),
     },
   };
