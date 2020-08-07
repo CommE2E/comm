@@ -65,12 +65,13 @@ const unboundStyles = {
     borderLeftWidth: 5,
     padding: 10,
     marginBottom: 6,
+    marginVertical: 6,
   },
   codeBlock: {
     backgroundColor: 'codeBackground',
     padding: 10,
     borderRadius: 5,
-    marginBottom: 6,
+    marginVertical: 6,
   },
   codeBlockText: {
     fontFamily: Platform.select({

@@ -17,6 +17,7 @@ div.markdown blockquote {
   margin: 0 0 6px 0;
   box-sizing: border-box;
   width: 100%;
+  margin: 6px 0;
 }
 div.darkBackground blockquote {
   background: #A9A9A9;
@@ -44,6 +45,7 @@ div.darkBackground code {
 div.markdown pre {
   padding: .5em 10px;
   border-radius: 5px;
+  margin: 6px 0;
 }
 div.lightBackground pre {
   background: #DCDCDC;
@@ -58,6 +60,5 @@ div.markdown pre > code {
   display: inline-block;
   box-sizing: border-box;
   tab-size: 2;
-  margin: 0 0 6px 0;
   overflow-x: scroll;
 }
