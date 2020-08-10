@@ -1,15 +1,15 @@
 // @flow
 
 import * as React from 'react';
-import { Text, StyleSheet, Platform, Animated, Easing } from 'react-native';
+import { Text, StyleSheet, Platform } from 'react-native';
 import { useSelector } from 'react-redux';
+import Animated, { Easing } from 'react-native-reanimated';
 
 const expandedHeight = Platform.select({
   android: 29.5,
   default: 27,
 });
 const timingConfig = {
-  useNativeDriver: false,
   duration: 200,
   easing: Easing.inOut(Easing.ease),
 };
