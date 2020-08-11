@@ -114,7 +114,7 @@ async function changeRole(
       if (oldRole === roleThreadResult.roleColumnValue) {
         // If the old role is the same as the new one, we have nothing to update
         continue;
-      } else if (oldRole !== '0' && role === null) {
+      } else if (Number(oldRole) > 0 && role === null) {
         // In the case where we're just trying to add somebody to a thread, if
         // they already have a role with a nonzero role then we don't need to do
         // anything
@@ -137,7 +137,7 @@ async function changeRole(
       membershipRows.push({
         operation:
           roleThreadResult.roleColumnValue !== '0' &&
-          (!userRoleInfo || userRoleInfo.oldRole === '0')
+          (!userRoleInfo || Number(userRoleInfo.oldRole) <= 0)
             ? 'join'
             : 'update',
         userID,
@@ -519,8 +519,8 @@ async function saveMemberships(toSave: $ReadOnlyArray<MembershipRowToSave>) {
     VALUES ${insertRows}
     ON DUPLICATE KEY UPDATE
       subscription = IF(
-        (role = 0 AND VALUES(role) != 0)
-          OR (role != 0 AND VALUES(role) = 0),
+        (role <= 0 AND VALUES(role) > 0)
+          OR (role > 0 AND VALUES(role) <= 0),
         VALUES(subscription),
         subscription
       ),
@@ -542,7 +542,7 @@ async function deleteMemberships(
       SQL`(user = ${rowToDelete.userID} AND thread = ${rowToDelete.threadID})`,
   );
   const conditions = mergeOrConditions(deleteRows);
-  const query = SQL`DELETE FROM memberships WHERE `;
+  const query = SQL`UPDATE memberships SET role = -1 WHERE `;
   query.append(conditions);
   await dbQuery(query);
 }
