@@ -9,6 +9,7 @@ import { View, ViewPropTypes, TouchableOpacity, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { connect } from 'lib/utils/redux-utils';
+import { isLoggedIn } from 'lib/selectors/user-selectors';
 
 import {
   type Colors,
@@ -26,6 +27,7 @@ type Props = {|
   // Redux state
   colors: Colors,
   styles: typeof styles,
+  loggedIn: boolean,
 |};
 class Search extends React.PureComponent<Props> {
   static propTypes = {
@@ -35,7 +37,14 @@ class Search extends React.PureComponent<Props> {
     textInputRef: PropTypes.func,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
+    loggedIn: PropTypes.bool.isRequired,
   };
+
+  componentDidUpdate(prevProps: Props) {
+    if (!this.props.loggedIn && prevProps.loggedIn) {
+      this.clearSearch();
+    }
+  }
 
   render() {
     const {
@@ -45,6 +54,7 @@ class Search extends React.PureComponent<Props> {
       textInputRef,
       colors,
       styles,
+      loggedIn,
       ...rest
     } = this.props;
     const { listSearchIcon: iconColor } = colors;
@@ -105,9 +115,17 @@ const stylesSelector = styleSelector(styles);
 const ConnectedSearch = connect((state: AppState) => ({
   colors: colorsSelector(state),
   styles: stylesSelector(state),
+  loggedIn: isLoggedIn(state),
 }))(Search);
 
-type ConnectedProps = $Diff<Props, {| colors: Colors, styles: typeof styles |}>;
+type ConnectedProps = $Diff<
+  Props,
+  {|
+    colors: Colors,
+    styles: typeof styles,
+    loggedIn: boolean,
+  |},
+>;
 export default React.forwardRef<ConnectedProps, typeof TextInput>(
   function ForwardedConnectedSearch(
     props: ConnectedProps,
