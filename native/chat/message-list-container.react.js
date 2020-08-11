@@ -82,6 +82,10 @@ class MessageListContainer extends React.PureComponent<Props, State> {
   };
 
   static getThreadInfo(props: Props): ThreadInfo {
+    const { threadInfo } = props;
+    if (threadInfo) {
+      return threadInfo;
+    }
     return props.route.params.threadInfo;
   }
 

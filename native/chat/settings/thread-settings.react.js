@@ -258,8 +258,14 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   }
 
   static getThreadInfo(props: {
+    threadInfo: ?ThreadInfo,
     route: NavigationRoute<'ThreadSettings'>,
+    ...
   }): ThreadInfo {
+    const { threadInfo } = props;
+    if (threadInfo) {
+      return threadInfo;
+    }
     return props.route.params.threadInfo;
   }
 
