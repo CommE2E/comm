@@ -31,9 +31,6 @@ import _uniq from 'lodash/fp/uniq';
 import _intersection from 'lodash/fp/intersection';
 
 import { promiseAll } from 'lib/utils/promises';
-import { usersInRawEntryInfos } from 'lib/shared/entry-utils';
-import { usersInThreadInfo } from 'lib/shared/thread-utils';
-import { usersInMessageInfos } from 'lib/shared/message-utils';
 import { nonThreadCalendarFilters } from 'lib/selectors/calendar-filter-selectors';
 import {
   keyForUpdateData,
@@ -56,7 +53,7 @@ import {
   fetchEntryInfosByID,
 } from '../fetchers/entry-fetchers';
 import {
-  fetchUserInfos,
+  fetchKnownUserInfos,
   fetchLoggedInUserInfos,
 } from '../fetchers/user-fetchers';
 import { channelNameForUpdateTarget, publisher } from '../socket/redis';
@@ -512,7 +509,7 @@ async function updateInfosFromRawUpdateInfos(
     currentUserInfosResult,
   } = rawData;
   const updateInfos = [];
-  let userIDs = new Set();
+  const userIDsToFetch = new Set();
   for (let rawUpdateInfo of rawUpdateInfos) {
     if (rawUpdateInfo.type === updateTypes.DELETE_ACCOUNT) {
       updateInfos.push({
@@ -524,7 +521,6 @@ async function updateInfosFromRawUpdateInfos(
     } else if (rawUpdateInfo.type === updateTypes.UPDATE_THREAD) {
       const threadInfo = threadInfosResult.threadInfos[rawUpdateInfo.threadID];
       invariant(threadInfo, 'should be set');
-      userIDs = new Set([...userIDs, ...usersInThreadInfo(threadInfo)]);
       updateInfos.push({
         type: updateTypes.UPDATE_THREAD,
         id: rawUpdateInfo.id,
@@ -563,12 +559,6 @@ async function updateInfosFromRawUpdateInfos(
           rawMessageInfos.push(messageInfo);
         }
       }
-      userIDs = new Set([
-        ...userIDs,
-        ...usersInThreadInfo(threadInfo),
-        ...usersInRawEntryInfos(rawEntryInfos),
-        ...usersInMessageInfos(rawMessageInfos),
-      ]);
       updateInfos.push({
         type: updateTypes.JOIN_THREAD,
         id: rawUpdateInfo.id,
@@ -592,7 +582,6 @@ async function updateInfosFromRawUpdateInfos(
         candidate => candidate.id === rawUpdateInfo.entryID,
       );
       invariant(entryInfo, 'should be set');
-      userIDs = new Set([...userIDs, ...usersInRawEntryInfos([entryInfo])]);
       updateInfos.push({
         type: updateTypes.UPDATE_ENTRY,
         id: rawUpdateInfo.id,
@@ -618,31 +607,15 @@ async function updateInfosFromRawUpdateInfos(
         time: rawUpdateInfo.time,
         updatedUserID: rawUpdateInfo.updatedUserID,
       });
-      userIDs = new Set([...userIDs, rawUpdateInfo.updatedUserID]);
+      userIDsToFetch.add(rawUpdateInfo.updatedUserID);
     } else {
       invariant(false, `unrecognized updateType ${rawUpdateInfo.type}`);
     }
   }
 
-  const userInfos = {};
-  const userIDsToFetch = [];
-  for (let userID of userIDs) {
-    const userInfo = threadInfosResult.userInfos[userID];
-    if (userInfo) {
-      userInfos[userID] = userInfo;
-    } else {
-      userIDsToFetch.push(userID);
-    }
-  }
-  if (userIDsToFetch.length > 0) {
-    const fetchedUserInfos = await fetchUserInfos(userIDsToFetch);
-    for (let userID in fetchedUserInfos) {
-      const userInfo = fetchedUserInfos[userID];
-      if (userInfo && userInfo.username) {
-        const { id, username } = userInfo;
-        userInfos[userID] = { id, username };
-      }
-    }
+  let userInfos = {};
+  if (userIDsToFetch.size > 0) {
+    userInfos = await fetchKnownUserInfos(viewer, [...userIDsToFetch]);
   }
 
   updateInfos.sort(sortFunction);
