@@ -192,23 +192,23 @@ function findInconsistentObjectKeys(
 function getInconsistentThreadIDsFromReport(
   request: ThreadInconsistencyReportCreationRequest,
 ): Set<string> {
-  const { pushResult, pollResult } = request;
-  return findInconsistentObjectKeys(pollResult, pushResult);
+  const { pushResult, beforeAction } = request;
+  return findInconsistentObjectKeys(beforeAction, pushResult);
 }
 
 function getInconsistentEntryIDsFromReport(
   request: EntryInconsistencyReportCreationRequest,
 ): Set<string> {
-  const { pushResult, pollResult, calendarQuery } = request;
-  const filteredPollResult = filterRawEntryInfosByCalendarQuery(
-    serverEntryInfosObject(values(pollResult)),
+  const { pushResult, beforeAction, calendarQuery } = request;
+  const filteredBeforeAction = filterRawEntryInfosByCalendarQuery(
+    serverEntryInfosObject(values(beforeAction)),
     calendarQuery,
   );
-  const filteredPushResult = filterRawEntryInfosByCalendarQuery(
+  const filteredAfterAction = filterRawEntryInfosByCalendarQuery(
     serverEntryInfosObject(values(pushResult)),
     calendarQuery,
   );
-  return findInconsistentObjectKeys(filteredPollResult, filteredPushResult);
+  return findInconsistentObjectKeys(filteredBeforeAction, filteredAfterAction);
 }
 
 export default createReport;
