@@ -66,7 +66,10 @@ import {
 } from '../fetchers/message-fetchers';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
-import { fetchCurrentUserInfo } from '../fetchers/user-fetchers';
+import {
+  fetchCurrentUserInfo,
+  fetchKnownUserInfos,
+} from '../fetchers/user-fetchers';
 import { updateActivityTime } from '../updaters/activity-updaters';
 import { deleteUpdatesBeforeTimeTargettingSession } from '../deleters/update-deleters';
 import { fetchUpdateInfos } from '../fetchers/update-fetchers';
@@ -433,24 +436,20 @@ class Socket {
         threadsResult,
         entriesResult,
         currentUserInfo,
+        knownUserInfos,
       ] = await Promise.all([
         fetchThreadInfos(viewer),
         fetchEntryInfos(viewer, [calendarQuery]),
         fetchCurrentUserInfo(viewer),
+        fetchKnownUserInfos(viewer),
       ]);
-      // $FlowFixMe should be fixed in flow-bin@0.115 / react-native@0.63
-      const userInfos = values({
-        ...fetchMessagesResult.userInfos,
-        ...entriesResult.userInfos,
-        ...threadsResult.userInfos,
-      });
       const payload: StateSyncFullSocketPayload = {
         type: stateSyncPayloadTypes.FULL,
         messagesResult,
         threadInfos: threadsResult.threadInfos,
         currentUserInfo,
         rawEntryInfos: entriesResult.rawEntryInfos,
-        userInfos,
+        userInfos: values(knownUserInfos),
         updatesCurrentAsOf: oldUpdatesCurrentAsOf,
       };
       if (viewer.sessionChanged) {
@@ -489,8 +488,7 @@ class Socket {
       promises.sessionUpdate = commitSessionUpdate(viewer, sessionUpdate);
       const { fetchUpdateResult } = await promiseAll(promises);
 
-      const updateUserInfos = fetchUpdateResult.userInfos;
-      const { updateInfos } = fetchUpdateResult;
+      const { updateInfos, userInfos } = fetchUpdateResult;
       const newUpdatesCurrentAsOf = mostRecentUpdateTimestamp(
         [...updateInfos],
         oldUpdatesCurrentAsOf,
@@ -509,11 +507,7 @@ class Socket {
           updatesResult,
           deltaEntryInfos: deltaEntryInfoResult.rawEntryInfos,
           deletedEntryIDs: deltaEntryInfoResult.deletedEntryIDs,
-          userInfos: values({
-            ...fetchMessagesResult.userInfos,
-            ...updateUserInfos,
-            ...deltaEntryInfoResult.userInfos,
-          }),
+          userInfos: values(userInfos),
         },
       });
     }
