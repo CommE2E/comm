@@ -684,7 +684,6 @@ class Socket {
               0,
             ),
           },
-          userInfos: values(messageFetchResult.userInfos),
         },
       });
     }
