@@ -48,6 +48,7 @@ import {
 import createMessages from '../creators/message-creator';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
+import { updateRoles } from './role-updaters';
 
 async function updateRole(
   viewer: Viewer,
@@ -451,10 +452,10 @@ async function updateThread(
     nextThreadType !== oldThreadType ||
     nextParentThreadID !== oldParentThreadID
   ) {
-    intermediatePromises.recalculatePermissionsChangeset = recalculateAllPermissions(
-      request.threadID,
-      nextThreadType,
-    );
+    intermediatePromises.recalculatePermissionsChangeset = (async () => {
+      await updateRoles(viewer, request.threadID, nextThreadType);
+      await recalculateAllPermissions(request.threadID, nextThreadType);
+    })();
   }
   const {
     addMembersChangeset,
