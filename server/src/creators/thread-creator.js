@@ -45,7 +45,7 @@ async function createThread(
   const initialMemberIDs =
     request.initialMemberIDs && request.initialMemberIDs.length > 0
       ? request.initialMemberIDs
-      : [];
+      : null;
 
   if (threadType !== threadTypes.CHAT_SECRET && !parentThreadID) {
     throw new ServerError('invalid_parameters');

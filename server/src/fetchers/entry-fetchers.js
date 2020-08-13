@@ -23,10 +23,7 @@ import {
   filterExists,
   nonExcludeDeletedCalendarFilters,
 } from 'lib/selectors/calendar-filter-selectors';
-import {
-  rawEntryInfoWithinCalendarQuery,
-  usersInRawEntryInfos,
-} from 'lib/shared/entry-utils';
+import { rawEntryInfoWithinCalendarQuery } from 'lib/shared/entry-utils';
 
 import {
   dbQuery,
@@ -138,18 +135,10 @@ async function fetchEntryInfos(
   const [result] = await dbQuery(query);
 
   const rawEntryInfos = [];
-  const userInfos = {};
   for (let row of result) {
     rawEntryInfos.push(rawEntryInfoFromRow(row));
-    if (row.creator) {
-      const creatorID = row.creatorID.toString();
-      userInfos[creatorID] = {
-        id: creatorID,
-        username: row.creator,
-      };
-    }
   }
-  return { rawEntryInfos, userInfos };
+  return { rawEntryInfos, userInfos: {} };
 }
 
 async function checkThreadPermissionForEntry(
@@ -260,7 +249,7 @@ async function fetchEntriesForSession(
     }));
   }
 
-  const { rawEntryInfos, userInfos } = await fetchEntryInfos(
+  const { rawEntryInfos } = await fetchEntryInfos(
     viewer,
     calendarQueriesForFetch,
   );
@@ -286,18 +275,9 @@ async function fetchEntriesForSession(
       });
   }
 
-  const userIDs = new Set(usersInRawEntryInfos(filteredRawEntryInfos));
-  const filteredUserInfos = {};
-  for (let userID in userInfos) {
-    if (!userIDs.has(userID)) {
-      continue;
-    }
-    filteredUserInfos[userID] = userInfos[userID];
-  }
   return {
     rawEntryInfos: filteredRawEntryInfos,
     deletedEntryIDs,
-    userInfos: filteredUserInfos,
   };
 }
 

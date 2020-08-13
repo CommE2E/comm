@@ -12,7 +12,6 @@ import {
   accountUserInfoPropType,
 } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { UserSearchResult } from 'lib/types/search-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react';
@@ -35,9 +34,7 @@ import {
   changeThreadSettingsActionTypes,
   changeThreadSettings,
 } from 'lib/actions/thread-actions';
-import { searchUsersActionTypes, searchUsers } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { threadActualMembers } from 'lib/shared/thread-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 
@@ -73,7 +70,6 @@ type Props = {|
   changeThreadSettings: (
     request: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsPayload>,
-  searchUsers: (usernamePrefix: string) => Promise<UserSearchResult>,
 |};
 type State = {|
   usernameInputText: string,
@@ -97,24 +93,12 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     changeThreadSettings: PropTypes.func.isRequired,
-    searchUsers: PropTypes.func.isRequired,
   };
   state = {
     usernameInputText: '',
     userInfoInputArray: [],
   };
   tagInput: ?TagInput<AccountUserInfo> = null;
-
-  componentDidMount() {
-    this.searchUsers('');
-  }
-
-  searchUsers(usernamePrefix: string) {
-    this.props.dispatchActionPromise(
-      searchUsersActionTypes,
-      this.props.searchUsers(usernamePrefix),
-    );
-  }
 
   userSearchResultsSelector = createSelector(
     (propsAndState: PropsAndState) => propsAndState.usernameInputText,
@@ -234,7 +218,6 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     if (this.props.changeThreadSettingsLoadingStatus === 'loading') {
       return;
     }
-    this.searchUsers(text);
     this.setState({ usernameInputText: text });
   };
 
@@ -341,7 +324,6 @@ const stylesSelector = styleSelector(styles);
 const changeThreadSettingsLoadingStatusSelector = createLoadingStatusSelector(
   changeThreadSettingsActionTypes,
 );
-registerFetchKey(searchUsersActionTypes);
 
 export default connect(
   (
@@ -367,5 +349,5 @@ export default connect(
       styles: stylesSelector(state),
     };
   },
-  { changeThreadSettings, searchUsers },
+  { changeThreadSettings },
 )(AddUsersModal);

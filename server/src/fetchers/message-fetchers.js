@@ -428,7 +428,7 @@ async function fetchMessageInfos(
   `);
   const [result] = await dbQuery(query);
 
-  const { userInfos, messages } = parseMessageSQLResult(result, viewer);
+  const { messages } = parseMessageSQLResult(result, viewer);
 
   const rawMessageInfos = [];
   const threadToMessageCount = new Map();
@@ -476,7 +476,6 @@ async function fetchMessageInfos(
     }
   }
 
-  const allUserInfos = await fetchAllUsers(rawMessageInfos, userInfos);
   const shimmedRawMessageInfos = shimUnsupportedRawMessageInfos(
     rawMessageInfos,
     viewer.platformDetails,
@@ -485,7 +484,7 @@ async function fetchMessageInfos(
   return {
     rawMessageInfos: shimmedRawMessageInfos,
     truncationStatuses,
-    userInfos: allUserInfos,
+    userInfos: {},
   };
 }
 

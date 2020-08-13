@@ -17,7 +17,6 @@ import {
   accountUserInfoPropType,
 } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { UserSearchResult } from 'lib/types/search-types';
 import type { ChatNavigationProp } from './chat.react';
 import type { NavigationRoute } from '../navigation/route-names';
 
@@ -32,7 +31,6 @@ import { createSelector } from 'reselect';
 
 import { connect } from 'lib/utils/redux-utils';
 import { newThreadActionTypes, newThread } from 'lib/actions/thread-actions';
-import { searchUsersActionTypes, searchUsers } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   userInfoSelectorForOtherMembersOfThread,
@@ -41,7 +39,6 @@ import {
 import SearchIndex from 'lib/shared/search-index';
 import { threadInFilterList, userIsMember } from 'lib/shared/thread-utils';
 import { getUserSearchResults } from 'lib/shared/search-utils';
-import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 
 import TagInput from '../components/tag-input.react';
@@ -83,7 +80,6 @@ type Props = {|
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   newThread: (request: NewThreadRequest) => Promise<NewThreadResult>,
-  searchUsers: (usernamePrefix: string) => Promise<UserSearchResult>,
 |};
 type State = {|
   usernameInputText: string,
@@ -114,7 +110,6 @@ class ComposeThread extends React.PureComponent<Props, State> {
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     newThread: PropTypes.func.isRequired,
-    searchUsers: PropTypes.func.isRequired,
   };
   state = {
     usernameInputText: '',
@@ -139,10 +134,6 @@ class ComposeThread extends React.PureComponent<Props, State> {
         />
       ),
     });
-  }
-
-  componentDidMount() {
-    this.searchUsers('');
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -323,16 +314,8 @@ class ComposeThread extends React.PureComponent<Props, State> {
   tagDataLabelExtractor = (userInfo: AccountUserInfo) => userInfo.username;
 
   setUsernameInputText = (text: string) => {
-    this.searchUsers(text);
     this.setState({ usernameInputText: text });
   };
-
-  searchUsers(usernamePrefix: string) {
-    this.props.dispatchActionPromise(
-      searchUsersActionTypes,
-      this.props.searchUsers(usernamePrefix),
-    );
-  }
 
   onUserSelect = (userID: string) => {
     for (let existingUserInfo of this.state.userInfoInputArray) {
@@ -500,7 +483,6 @@ const styles = {
 const stylesSelector = styleSelector(styles);
 
 const loadingStatusSelector = createLoadingStatusSelector(newThreadActionTypes);
-registerFetchKey(searchUsersActionTypes);
 
 export default connect(
   (
@@ -527,5 +509,5 @@ export default connect(
       viewerID: state.currentUserInfo && state.currentUserInfo.id,
     };
   },
-  { newThread, searchUsers },
+  { newThread },
 )(ComposeThread);

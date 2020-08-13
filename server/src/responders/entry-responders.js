@@ -23,7 +23,6 @@ import t from 'tcomb';
 
 import { ServerError } from 'lib/utils/errors';
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
-import { values } from 'lib/utils/objects';
 
 import {
   validateInput,
@@ -239,7 +238,8 @@ async function calendarQueryUpdateResponder(
   return {
     rawEntryInfos: response.rawEntryInfos,
     deletedEntryIDs: response.deletedEntryIDs,
-    userInfos: values(response.userInfos),
+    // Old clients expect userInfos object
+    userInfos: [],
   };
 }
 

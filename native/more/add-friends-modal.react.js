@@ -11,14 +11,11 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import { CommonActions } from '@react-navigation/native';
 import { createSelector } from 'reselect';
+import _keyBy from 'lodash/fp/keyBy';
 
-import {
-  userInfoSelectorForOtherMembersOfThread,
-  userSearchIndexForOtherMembersOfThread,
-} from 'lib/selectors/user-selectors';
+import { searchIndexFromUserInfos } from 'lib/selectors/user-selectors';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { getUserSearchResults } from 'lib/shared/search-utils';
-import SearchIndex from 'lib/shared/search-index';
 import { connect } from 'lib/utils/redux-utils';
 import { searchUsersActionTypes, searchUsers } from 'lib/actions/user-actions';
 
@@ -38,8 +35,7 @@ type Props = {|
   navigation: RootNavigationProp<'AddFriendsModal'>,
   route: NavigationRoute<'AddFriendsModal'>,
   // Redux state
-  otherUserInfos: { [id: string]: AccountUserInfo },
-  userSearchIndex: SearchIndex,
+  viewerID: ?string,
   styles: typeof styles,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
@@ -51,6 +47,7 @@ type Props = {|
 type State = {|
   usernameInputText: string,
   userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
+  userInfos: { [id: string]: AccountUserInfo },
 |};
 
 type PropsAndState = {| ...Props, ...State |};
@@ -59,6 +56,7 @@ class AddFriendsModal extends React.PureComponent<Props, State> {
   state = {
     usernameInputText: '',
     userInfoInputArray: [],
+    userInfos: {},
   };
   tagInput: ?TagInput<AccountUserInfo> = null;
 
@@ -66,26 +64,26 @@ class AddFriendsModal extends React.PureComponent<Props, State> {
     this.searchUsers('');
   }
 
-  searchUsers(usernamePrefix: string) {
-    this.props.dispatchActionPromise(
-      searchUsersActionTypes,
-      this.props.searchUsers(usernamePrefix),
-    );
+  async searchUsers(usernamePrefix: string) {
+    const { userInfos } = await this.props.searchUsers(usernamePrefix);
+    this.setState({ userInfos: _keyBy(userInfo => userInfo.id)(userInfos) });
   }
 
   userSearchResultsSelector = createSelector(
     (propsAndState: PropsAndState) => propsAndState.usernameInputText,
-    (propsAndState: PropsAndState) => propsAndState.otherUserInfos,
-    (propsAndState: PropsAndState) => propsAndState.userSearchIndex,
+    (propsAndState: PropsAndState) => propsAndState.userInfos,
+    (propsAndState: PropsAndState) => propsAndState.viewerID,
     (propsAndState: PropsAndState) => propsAndState.userInfoInputArray,
     (
       text: string,
       userInfos: { [id: string]: AccountUserInfo },
-      searchIndex: SearchIndex,
+      viewerID: ?string,
       userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
     ) => {
-      // TODO: exclude current and blocked friends
-      const excludeUserIDs = userInfoInputArray.map(userInfo => userInfo.id);
+      const excludeUserIDs = userInfoInputArray
+        .map(userInfo => userInfo.id)
+        .concat(viewerID || []);
+      const searchIndex = searchIndexFromUserInfos(userInfos);
       return getUserSearchResults(text, userInfos, searchIndex, excludeUserIDs);
     },
   );
@@ -158,7 +156,7 @@ class AddFriendsModal extends React.PureComponent<Props, State> {
       return;
     }
 
-    const selectedUserInfo = this.props.otherUserInfos[userID];
+    const selectedUserInfo = this.state.userInfos[userID];
 
     this.setState(state => ({
       userInfoInputArray: state.userInfoInputArray.concat(selectedUserInfo),
@@ -224,8 +222,7 @@ registerFetchKey(searchUsersActionTypes);
 export default connect(
   (state: AppState) => {
     return {
-      otherUserInfos: userInfoSelectorForOtherMembersOfThread(null)(state),
-      userSearchIndex: userSearchIndexForOtherMembersOfThread(null)(state),
+      viewerID: state.currentUserInfo && state.currentUserInfo.id,
       styles: stylesSelector(state),
     };
   },
