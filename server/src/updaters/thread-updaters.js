@@ -453,8 +453,10 @@ async function updateThread(
     nextParentThreadID !== oldParentThreadID
   ) {
     intermediatePromises.recalculatePermissionsChangeset = (async () => {
-      await updateRoles(viewer, request.threadID, nextThreadType);
-      await recalculateAllPermissions(request.threadID, nextThreadType);
+      if (nextThreadType !== oldThreadType) {
+        await updateRoles(viewer, request.threadID, nextThreadType);
+      }
+      return await recalculateAllPermissions(request.threadID, nextThreadType);
     })();
   }
   const {
