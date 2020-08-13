@@ -44,7 +44,7 @@ async function fetchUserInfos(userIDs: string[]): Promise<UserInfos> {
 async function fetchKnownUserInfos(
   viewer: Viewer,
   userIDs?: $ReadOnlyArray<string>,
-) {
+): Promise<UserInfos> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }

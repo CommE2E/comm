@@ -5,16 +5,18 @@ import type {
   DeleteAccountRequest,
 } from 'lib/types/account-types';
 import type { Viewer } from '../session/viewer';
+import type { UserInfo } from 'lib/types/user-types';
 import { updateTypes } from 'lib/types/update-types';
 
 import bcrypt from 'twin-bcrypt';
 
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
+import { values } from 'lib/utils/objects';
 
 import { dbQuery, SQL } from '../database';
 import { createNewAnonymousCookie } from '../session/cookies';
-import { fetchAllUserIDs } from '../fetchers/user-fetchers';
+import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
 import { createUpdates } from '../creators/update-creator';
 import { handleAsyncPromise } from '../responders/handlers';
 import { rescindPushNotifs } from '../push/rescind';
@@ -41,6 +43,10 @@ async function deleteAccount(
 
   const deletedUserID = viewer.userID;
   await rescindPushNotifs(SQL`n.user = ${deletedUserID}`, SQL`NULL`);
+  const knownUserInfos = await fetchKnownUserInfos(viewer);
+  const usersToUpdate = values(knownUserInfos).filter(
+    userID => userID !== deletedUserID,
+  );
 
   // TODO: if this results in any orphaned orgs, convert them to chats
   const deletionQuery = SQL`
@@ -77,7 +83,10 @@ async function deleteAccount(
     viewer.setNewCookie(anonymousViewerData);
   }
 
-  const deletionUpdatesPromise = createAccountDeletionUpdates(deletedUserID);
+  const deletionUpdatesPromise = createAccountDeletionUpdates(
+    usersToUpdate,
+    deletedUserID,
+  );
   if (request) {
     handleAsyncPromise(deletionUpdatesPromise);
   } else {
@@ -96,16 +105,20 @@ async function deleteAccount(
 }
 
 async function createAccountDeletionUpdates(
+  knownUserInfos: $ReadOnlyArray<UserInfo>,
   deletedUserID: string,
 ): Promise<void> {
-  const allUserIDs = await fetchAllUserIDs();
   const time = Date.now();
-  const updateDatas = allUserIDs.map(userID => ({
-    type: updateTypes.DELETE_ACCOUNT,
-    userID,
-    time,
-    deletedUserID,
-  }));
+  const updateDatas = [];
+  for (const userInfo of knownUserInfos) {
+    const { id: userID } = userInfo;
+    updateDatas.push({
+      type: updateTypes.DELETE_ACCOUNT,
+      userID,
+      time,
+      deletedUserID,
+    });
+  }
   await createUpdates(updateDatas);
 }
 
