@@ -20,34 +20,19 @@ async function createInitialRolesForNewThread(
   threadID: string,
   threadType: ThreadType,
 ): Promise<InitialRoles> {
-  const {
-    defaultPermissions,
-    creatorPermissions,
-  } = getRolePermissionBlobsForChat(threadType);
-  const [defaultRoleID, creatorRoleID] = await createIDs(
-    'roles',
-    creatorPermissions ? 2 : 1,
-  );
+  const rolePermissions = getRolePermissionBlobsForChat(threadType);
+  const ids = await createIDs('roles', Object.values(rolePermissions).length);
 
   const time = Date.now();
-  const newRows = [
-    [
-      defaultRoleID,
-      threadID,
-      'Members',
-      JSON.stringify(defaultPermissions),
-      time,
-    ],
-  ];
-  if (creatorPermissions) {
-    newRows.push([
-      creatorRoleID,
-      threadID,
-      'Admins',
-      JSON.stringify(creatorPermissions),
-      time,
-    ]);
+  const newRows = [];
+  const namesToIDs = {};
+  for (const name in rolePermissions) {
+    const id = ids.shift();
+    namesToIDs[name] = id;
+    const permissionsBlob = JSON.stringify(rolePermissions[name]);
+    newRows.push([id, threadID, name, permissionsBlob, time]);
   }
+
   const query = SQL`
     INSERT INTO roles (id, thread, name, permissions, creation_time)
     VALUES ${newRows}
@@ -55,32 +40,33 @@ async function createInitialRolesForNewThread(
   await dbQuery(query);
 
   const defaultRoleInfo = {
-    id: defaultRoleID,
+    id: namesToIDs.Members,
     name: 'Members',
-    permissions: defaultPermissions,
+    permissions: rolePermissions.Members,
     isDefault: true,
   };
-  if (creatorPermissions) {
-    return {
-      default: defaultRoleInfo,
-      creator: {
-        id: creatorRoleID,
-        name: 'Admins',
-        permissions: creatorPermissions,
-        isDefault: false,
-      },
-    };
-  } else {
+  if (!rolePermissions.Admins) {
     return {
       default: defaultRoleInfo,
       creator: defaultRoleInfo,
     };
   }
+
+  const adminRoleInfo = {
+    id: namesToIDs.Admins,
+    name: 'Admins',
+    permissions: rolePermissions.Admins,
+    isDefault: false,
+  };
+  return {
+    default: defaultRoleInfo,
+    creator: adminRoleInfo,
+  };
 }
 
 type RolePermissionBlobs = {|
-  defaultPermissions: ThreadRolePermissionsBlob,
-  creatorPermissions?: ThreadRolePermissionsBlob,
+  Members: ThreadRolePermissionsBlob,
+  Admins?: ThreadRolePermissionsBlob,
 |};
 
 // Originally all chat threads were orgs, but for the alpha launch I decided
@@ -157,8 +143,8 @@ function getRolePermissionBlobsForOrg(): RolePermissionBlobs {
     [descendantChangeRole]: true,
   };
   return {
-    defaultPermissions: memberPermissions,
-    creatorPermissions: adminPermissions,
+    Members: memberPermissions,
+    Admins: adminPermissions,
   };
 }
 
@@ -176,7 +162,7 @@ function getRolePermissionBlobsForChat(
       [threadPermissions.REMOVE_MEMBERS]: true,
     };
     return {
-      defaultPermissions: memberPermissions,
+      Members: memberPermissions,
     };
   }
 
@@ -202,7 +188,7 @@ function getRolePermissionBlobsForChat(
     [openDescendantJoinThread]: true,
   };
   return {
-    defaultPermissions: memberPermissions,
+    Members: memberPermissions,
   };
 }
 
