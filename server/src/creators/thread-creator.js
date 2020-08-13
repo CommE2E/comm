@@ -86,7 +86,7 @@ async function createThread(
   }
 
   const [id] = await createIDs('threads', 1);
-  const newRoles = await createInitialRolesForNewThread(id);
+  const newRoles = await createInitialRolesForNewThread(id, threadType);
 
   const name = request.name ? request.name : null;
   const description = request.description ? request.description : null;

@@ -329,8 +329,9 @@ async function createUsers() {
 
 async function createThreads() {
   const staffSquadbotThreadRoleID = 118821;
-  const defaultRolePermissions = getRolePermissionBlobsForChat()
-    .defaultPermissions;
+  const defaultRolePermissions = getRolePermissionBlobsForChat(
+    threadTypes.CHAT_SECRET,
+  ).defaultPermissions;
   const membershipPermissions = makePermissionsBlob(
     defaultRolePermissions,
     null,

@@ -5,6 +5,8 @@ import {
   threadPermissions,
   threadPermissionPrefixes,
   type ThreadRolePermissionsBlob,
+  type ThreadType,
+  threadTypes,
 } from 'lib/types/thread-types';
 
 import { dbQuery, SQL } from '../database';
@@ -16,11 +18,12 @@ type InitialRoles = {|
 |};
 async function createInitialRolesForNewThread(
   threadID: string,
+  threadType: ThreadType,
 ): Promise<InitialRoles> {
   const {
     defaultPermissions,
     creatorPermissions,
-  } = getRolePermissionBlobsForChat();
+  } = getRolePermissionBlobsForChat(threadType);
   const [defaultRoleID, creatorRoleID] = await createIDs(
     'roles',
     creatorPermissions ? 2 : 1,
@@ -159,7 +162,24 @@ function getRolePermissionBlobsForOrg(): RolePermissionBlobs {
   };
 }
 
-function getRolePermissionBlobsForChat(): RolePermissionBlobs {
+function getRolePermissionBlobsForChat(
+  threadType: ThreadType,
+): RolePermissionBlobs {
+  if (threadType === threadTypes.SIDEBAR) {
+    const memberPermissions = {
+      [threadPermissions.KNOW_OF]: true,
+      [threadPermissions.VISIBLE]: true,
+      [threadPermissions.VOICED]: true,
+      [threadPermissions.EDIT_THREAD]: true,
+      [threadPermissions.ADD_MEMBERS]: true,
+      [threadPermissions.EDIT_PERMISSIONS]: true,
+      [threadPermissions.REMOVE_MEMBERS]: true,
+    };
+    return {
+      defaultPermissions: memberPermissions,
+    };
+  }
+
   const openDescendantKnowOf =
     threadPermissionPrefixes.OPEN_DESCENDANT + threadPermissions.KNOW_OF;
   const openDescendantVisible =
