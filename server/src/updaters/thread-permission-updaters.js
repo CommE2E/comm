@@ -355,16 +355,10 @@ async function updateDescendantPermissions(
   return { membershipRows, relationshipRows };
 }
 
-// Unlike changeRole and others, this doesn't just create a Changeset.
-// It mutates the threads table by setting the type column.
-// Caller still needs to save the resultant Changeset.
 async function recalculateAllPermissions(
   threadID: string,
-  newThreadType: ThreadType,
+  threadType: ThreadType,
 ): Promise<Changeset> {
-  const updateQuery = SQL`
-    UPDATE threads SET type = ${newThreadType} WHERE id = ${threadID}
-  `;
   const selectQuery = SQL`
     SELECT m.user, m.role, m.permissions, m.permissions_for_children,
       pm.permissions_for_children AS permissions_from_parent,
@@ -383,10 +377,7 @@ async function recalculateAllPermissions(
     LEFT JOIN memberships m ON m.thread = t.id AND m.user = pm.user
     WHERE t.id = ${threadID} AND m.thread IS NULL
   `;
-  const [[selectResult]] = await Promise.all([
-    dbQuery(selectQuery),
-    dbQuery(updateQuery),
-  ]);
+  const [selectResult] = await dbQuery(selectQuery);
 
   const relationshipRows = [];
   const membershipRows = [];
@@ -415,7 +406,7 @@ async function recalculateAllPermissions(
       rolePermissions,
       permissionsFromParent,
       threadID,
-      newThreadType,
+      threadType,
     );
     if (_isEqual(permissions)(oldPermissions)) {
       // This thread and all of its children need no updates, since its
