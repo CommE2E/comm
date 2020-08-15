@@ -48,6 +48,9 @@ async function fetchKnownUserInfos(
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
+  if (userIDs && userIDs.length === 0) {
+    return {};
+  }
 
   const query = SQL`
     SELECT DISTINCT u.id, u.username FROM relationships_undirected r 
