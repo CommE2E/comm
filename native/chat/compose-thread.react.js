@@ -15,8 +15,6 @@ import {
 import {
   type AccountUserInfo,
   accountUserInfoPropType,
-  type UserInfo,
-  userInfoPropType,
 } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { UserSearchResult } from 'lib/types/search-types';
@@ -41,11 +39,7 @@ import {
   userSearchIndexForOtherMembersOfThread,
 } from 'lib/selectors/user-selectors';
 import SearchIndex from 'lib/shared/search-index';
-import {
-  threadInFilterList,
-  userIsMember,
-  threadInfoFromRawThreadInfo,
-} from 'lib/shared/thread-utils';
+import { threadInFilterList, userIsMember } from 'lib/shared/thread-utils';
 import { getUserSearchResults } from 'lib/shared/search-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
@@ -85,8 +79,6 @@ type Props = {|
   threadInfos: { [id: string]: ThreadInfo },
   colors: Colors,
   styles: typeof styles,
-  viewerID: ?string,
-  userInfos: { [id: string]: UserInfo },
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -120,8 +112,6 @@ class ComposeThread extends React.PureComponent<Props, State> {
     threadInfos: PropTypes.objectOf(threadInfoPropType).isRequired,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    viewerID: PropTypes.string,
-    userInfos: PropTypes.objectOf(userInfoPropType).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     newThread: PropTypes.func.isRequired,
     searchUsers: PropTypes.func.isRequired,
@@ -132,6 +122,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
   };
   tagInput: ?TagInput<AccountUserInfo>;
   createThreadPressed = false;
+  waitingOnThreadID: ?string;
 
   constructor(props: Props) {
     super(props);
@@ -164,6 +155,15 @@ class ComposeThread extends React.PureComponent<Props, State> {
       this.props.navigation.setParams({
         parentThreadInfo: newReduxParentThreadInfo,
       });
+    }
+
+    if (
+      this.waitingOnThreadID &&
+      this.props.threadInfos[this.waitingOnThreadID] &&
+      !prevProps.threadInfos[this.waitingOnThreadID]
+    ) {
+      const threadInfo = this.props.threadInfos[this.waitingOnThreadID];
+      this.props.navigation.pushNewThread(threadInfo);
     }
   }
 
@@ -370,15 +370,10 @@ class ComposeThread extends React.PureComponent<Props, State> {
 
   dispatchNewChatThreadAction = async () => {
     this.createThreadPressed = true;
-    const promise = this.newChatThreadAction();
-    this.props.dispatchActionPromise(newThreadActionTypes, promise);
-    const { newThreadInfo: rawThreadInfo } = await promise;
-    const threadInfo = threadInfoFromRawThreadInfo(
-      rawThreadInfo,
-      this.props.viewerID,
-      this.props.userInfos,
+    this.props.dispatchActionPromise(
+      newThreadActionTypes,
+      this.newChatThreadAction(),
     );
-    this.props.navigation.pushNewThread(threadInfo);
   };
 
   async newChatThreadAction() {
@@ -392,12 +387,14 @@ class ComposeThread extends React.PureComponent<Props, State> {
         (userInfo: AccountUserInfo) => userInfo.id,
       );
       const parentThreadInfo = ComposeThread.getParentThreadInfo(this.props);
-      return await this.props.newThread({
+      const result = await this.props.newThread({
         type: threadType,
         parentThreadID: parentThreadInfo ? parentThreadInfo.id : null,
         initialMemberIDs,
         color: parentThreadInfo ? parentThreadInfo.color : null,
       });
+      this.waitingOnThreadID = result.newThreadID;
+      return result;
     } catch (e) {
       this.createThreadPressed = false;
       this.setLinkButton(true);
@@ -527,8 +524,6 @@ export default connect(
       threadInfos: threadInfoSelector(state),
       colors: colorsSelector(state),
       styles: stylesSelector(state),
-      viewerID: state.currentUserInfo && state.currentUserInfo.id,
-      userInfos: state.userInfos,
     };
   },
   { newThread, searchUsers },
