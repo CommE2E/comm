@@ -206,7 +206,7 @@ async function createThread(
   ]);
   const { threadInfos, viewerUpdates } = commitResult;
 
-  if (hasMinCodeVersion(viewer.platformDetails, 64)) {
+  if (hasMinCodeVersion(viewer.platformDetails, 62)) {
     return {
       newThreadID: id,
       updatesResult: {
@@ -217,7 +217,6 @@ async function createThread(
   }
 
   return {
-    newThreadID: id,
     newThreadInfo: threadInfos[id],
     updatesResult: {
       newUpdates: viewerUpdates,
