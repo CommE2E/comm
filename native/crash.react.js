@@ -41,6 +41,7 @@ import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import Button from './components/button.react';
 import { persistConfig, codeVersion } from './redux/persist';
 import { wipeAndExit } from './utils/crash-utils';
+import ConnectedStatusBar from './connected-status-bar.react';
 
 const errorTitles = ['Oh no!!', 'Womp womp womp...'];
 
@@ -118,6 +119,7 @@ class Crash extends React.PureComponent<Props, State> {
 
     return (
       <View style={styles.container}>
+        <ConnectedStatusBar barStyle="dark-content" />
         <Icon name="bug" size={32} color="red" />
         <Text style={styles.header}>{this.errorTitle}</Text>
         <Text style={styles.text}>I&apos;m sorry, but the app crashed.</Text>
