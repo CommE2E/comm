@@ -5,7 +5,6 @@ import {
   type MessageInfo,
   messageTypes,
 } from 'lib/types/message-types';
-import type { UserInfos } from 'lib/types/user-types';
 import type { ServerThreadInfo, ThreadInfo } from 'lib/types/thread-types';
 import type { DeviceType } from 'lib/types/device-types';
 import type { CollapsableNotifInfo } from '../fetchers/message-fetchers';
@@ -271,7 +270,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
 }
 
 async function fetchInfos(pushInfo: PushInfo) {
-  const collapsableNotifsResult = await fetchCollapsableNotifs(pushInfo);
+  const usersToCollapsableNotifInfo = await fetchCollapsableNotifs(pushInfo);
 
   const threadIDs = new Set();
   const threadWithChangedNamesToMessages = new Map();
@@ -298,8 +297,6 @@ async function fetchInfos(pushInfo: PushInfo) {
       }
     }
   };
-  const usersToCollapsableNotifInfo =
-    collapsableNotifsResult.usersToCollapsableNotifInfo;
   for (let userID in usersToCollapsableNotifInfo) {
     for (let notifInfo of usersToCollapsableNotifInfo[userID]) {
       for (let rawMessageInfo of notifInfo.existingMessageInfos) {
@@ -346,17 +343,11 @@ async function fetchInfos(pushInfo: PushInfo) {
     `);
     promises.oldNames = dbQuery(oldNameQuery);
   }
-  const { threadResult, oldNames } = await promiseAll(promises);
+  promises.userInfos = fetchMissingUserInfos(usersToCollapsableNotifInfo);
+  const { threadResult, oldNames, userInfos } = await promiseAll(promises);
 
   // These threadInfos won't have currentUser set
-  const {
-    threadInfos: serverThreadInfos,
-    userInfos: threadUserInfos,
-  } = threadResult;
-  const mergedUserInfos = {
-    ...collapsableNotifsResult.userInfos,
-    ...threadUserInfos,
-  };
+  const { threadInfos: serverThreadInfos } = threadResult;
 
   if (oldNames) {
     const [result] = oldNames;
@@ -366,37 +357,26 @@ async function fetchInfos(pushInfo: PushInfo) {
     }
   }
 
-  const userInfos = await fetchMissingUserInfos(
-    mergedUserInfos,
-    usersToCollapsableNotifInfo,
-  );
-
   return { usersToCollapsableNotifInfo, serverThreadInfos, userInfos };
 }
 
-async function fetchMissingUserInfos(
-  userInfos: UserInfos,
-  usersToCollapsableNotifInfo: { [userID: string]: CollapsableNotifInfo[] },
-) {
+async function fetchMissingUserInfos(usersToCollapsableNotifInfo: {
+  [userID: string]: CollapsableNotifInfo[],
+}) {
   const missingUserIDs = new Set();
-  const addIfMissing = (userID: string) => {
-    if (!userInfos[userID]) {
-      missingUserIDs.add(userID);
-    }
-  };
   const addUserIDsFromMessageInfos = (rawMessageInfo: RawMessageInfo) => {
-    addIfMissing(rawMessageInfo.creatorID);
+    missingUserIDs.add(rawMessageInfo.creatorID);
     if (rawMessageInfo.type === messageTypes.ADD_MEMBERS) {
       for (let userID of rawMessageInfo.addedUserIDs) {
-        addIfMissing(userID);
+        missingUserIDs.add(userID);
       }
     } else if (rawMessageInfo.type === messageTypes.REMOVE_MEMBERS) {
       for (let userID of rawMessageInfo.removedUserIDs) {
-        addIfMissing(userID);
+        missingUserIDs.add(userID);
       }
     } else if (rawMessageInfo.type === messageTypes.CREATE_THREAD) {
       for (let userID of rawMessageInfo.initialThreadState.memberIDs) {
-        addIfMissing(userID);
+        missingUserIDs.add(userID);
       }
     }
   };
@@ -412,13 +392,7 @@ async function fetchMissingUserInfos(
     }
   }
 
-  let finalUserInfos = userInfos;
-  if (missingUserIDs.size > 0) {
-    const newUserInfos = await fetchUserInfos([...missingUserIDs]);
-    // $FlowFixMe should be fixed in flow-bin@0.115 / react-native@0.63
-    finalUserInfos = { ...userInfos, ...newUserInfos };
-  }
-  return finalUserInfos;
+  return await fetchUserInfos([...missingUserIDs]);
 }
 
 async function createDBIDs(pushInfo: PushInfo): Promise<string[]> {

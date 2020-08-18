@@ -25,6 +25,7 @@ import createMessages from './message-creator';
 import createThread from './thread-creator';
 import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
+import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
 
 const ashoatMessages = [
   'welcome to SquadCal! thanks for helping to test the alpha.',
@@ -134,20 +135,24 @@ async function createAccount(
     time: messageTime++,
     text: message,
   }));
-  const ashoatMessageInfos = await createMessages(viewer, ashoatMessageDatas);
+  const [ashoatMessageInfos, threadsResult, userInfos] = await Promise.all([
+    createMessages(viewer, ashoatMessageDatas),
+    fetchThreadInfos(viewer),
+    fetchKnownUserInfos(viewer),
+  ]);
   const rawMessageInfos = [
     ...personalThreadResult.newMessageInfos,
     ...ashoatThreadResult.newMessageInfos,
     ...ashoatMessageInfos,
   ];
 
-  const threadsResult = await fetchThreadInfos(viewer);
-  const userInfos = values({ ...threadsResult.userInfos });
-
   return {
     id,
     rawMessageInfos,
-    cookieChange: { threadInfos: threadsResult.threadInfos, userInfos },
+    cookieChange: {
+      threadInfos: threadsResult.threadInfos,
+      userInfos: values(userInfos),
+    },
   };
 }
 

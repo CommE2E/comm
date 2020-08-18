@@ -25,7 +25,10 @@ import { verifyCode, clearVerifyCodes } from '../models/verification';
 import { createNewUserCookie, setNewSession } from '../session/cookies';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
-import { fetchLoggedInUserInfos } from '../fetchers/user-fetchers';
+import {
+  fetchLoggedInUserInfos,
+  fetchKnownUserInfos,
+} from '../fetchers/user-fetchers';
 import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
 import { createUpdates } from '../creators/update-creator';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
@@ -226,20 +229,19 @@ async function updatePassword(
   }
   const threadSelectionCriteria = { threadCursors, joinedThreads: true };
 
-  const [threadsResult, messagesResult, entriesResult] = await Promise.all([
+  const [
+    threadsResult,
+    messagesResult,
+    entriesResult,
+    userInfos,
+  ] = await Promise.all([
     fetchThreadInfos(viewer),
     fetchMessageInfos(viewer, threadSelectionCriteria, defaultNumberPerThread),
     calendarQuery ? fetchEntryInfos(viewer, [calendarQuery]) : undefined,
+    fetchKnownUserInfos(viewer),
   ]);
 
   const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;
-  const entryUserInfos = entriesResult ? entriesResult.userInfos : {};
-  // $FlowFixMe should be fixed in flow-bin@0.115 / react-native@0.63
-  const userInfos = values({
-    ...threadsResult.userInfos,
-    ...messagesResult.userInfos,
-    ...entryUserInfos,
-  });
   const response: LogInResponse = {
     currentUserInfo: {
       id: userID,
@@ -250,7 +252,7 @@ async function updatePassword(
     rawMessageInfos: messagesResult.rawMessageInfos,
     truncationStatuses: messagesResult.truncationStatuses,
     serverTime: newServerTime,
-    userInfos,
+    userInfos: values(userInfos),
     cookieChange: {
       threadInfos: threadsResult.threadInfos,
       userInfos: [],

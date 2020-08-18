@@ -125,7 +125,8 @@ async function entryFetchResponder(
 
   await verifyCalendarQueryThreadIDs(request);
 
-  return await fetchEntryInfos(viewer, [request]);
+  const response = await fetchEntryInfos(viewer, [request]);
+  return { ...response, userInfos: {} };
 }
 
 const entryRevisionHistoryFetchInputValidator = tShape({

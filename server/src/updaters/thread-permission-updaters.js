@@ -10,6 +10,7 @@ import type { ThreadSubscription } from 'lib/types/subscription-types';
 import type { Viewer } from '../session/viewer';
 import { updateTypes, type UpdateInfo } from 'lib/types/update-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
+import type { AccountUserInfo } from 'lib/types/user-types';
 import {
   type UndirectedRelationshipRow,
   undirectedStatus,
@@ -554,6 +555,7 @@ async function deleteMemberships(
 type ChangesetCommitResult = {|
   ...FetchThreadInfosResult,
   viewerUpdates: $ReadOnlyArray<UpdateInfo>,
+  userInfos: { [id: string]: AccountUserInfo },
 |};
 async function commitMembershipChangeset(
   viewer: Viewer,
@@ -662,7 +664,7 @@ async function commitMembershipChangeset(
     viewer,
     serverThreadInfoFetchResult,
   );
-  const { viewerUpdates } = await createUpdates(updateDatas, {
+  const { viewerUpdates, userInfos } = await createUpdates(updateDatas, {
     viewer,
     calendarQuery,
     ...threadInfoFetchResult,
@@ -671,6 +673,7 @@ async function commitMembershipChangeset(
 
   return {
     ...threadInfoFetchResult,
+    userInfos,
     viewerUpdates,
   };
 }

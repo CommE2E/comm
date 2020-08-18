@@ -6,7 +6,6 @@ import type {
   ThreadPermission,
   ThreadPermissionsBlob,
 } from 'lib/types/thread-types';
-import type { AccountUserInfo } from 'lib/types/user-types';
 import type { Viewer } from '../session/viewer';
 
 import {
@@ -19,7 +18,6 @@ import { dbQuery, SQL, SQLStatement } from '../database';
 
 type FetchServerThreadInfosResult = {|
   threadInfos: { [id: string]: ServerThreadInfo },
-  userInfos: { [id: string]: AccountUserInfo },
 |};
 
 async function fetchServerThreadInfos(
@@ -31,7 +29,7 @@ async function fetchServerThreadInfos(
     SELECT t.id, t.name, t.parent_thread_id, t.color, t.description,
       t.type, t.creation_time, t.default_role, r.id AS role,
       r.name AS role_name, r.permissions AS role_permissions, m.user,
-      m.permissions, m.subscription, m.unread, u.username
+      m.permissions, m.subscription, m.unread
     FROM threads t
     LEFT JOIN (
         SELECT thread, id, name, permissions
@@ -40,14 +38,12 @@ async function fetchServerThreadInfos(
           FROM threads
       ) r ON r.thread = t.id
     LEFT JOIN memberships m ON m.role = r.id AND m.thread = t.id
-    LEFT JOIN users u ON u.id = m.user
   `
     .append(whereClause)
     .append(SQL`ORDER BY m.user ASC`);
   const [result] = await dbQuery(query);
 
   const threadInfos = {};
-  const userInfos = {};
   for (let row of result) {
     const threadID = row.id.toString();
     if (!threadInfos[threadID]) {
@@ -85,20 +81,13 @@ async function fetchServerThreadInfos(
         subscription: row.subscription,
         unread: row.role ? !!row.unread : null,
       });
-      if (row.username) {
-        userInfos[userID] = {
-          id: userID,
-          username: row.username,
-        };
-      }
     }
   }
-  return { threadInfos, userInfos };
+  return { threadInfos };
 }
 
 export type FetchThreadInfosResult = {|
   threadInfos: { [id: string]: RawThreadInfo },
-  userInfos: { [id: string]: AccountUserInfo },
 |};
 
 async function fetchThreadInfos(
@@ -115,7 +104,6 @@ function rawThreadInfosFromServerThreadInfos(
 ): FetchThreadInfosResult {
   const viewerID = viewer.id;
   const threadInfos = {};
-  const userInfos = {};
   for (let threadID in serverResult.threadInfos) {
     const serverThreadInfo = serverResult.threadInfos[threadID];
     const threadInfo = rawThreadInfoFromServerThreadInfo(
@@ -124,15 +112,9 @@ function rawThreadInfosFromServerThreadInfos(
     );
     if (threadInfo) {
       threadInfos[threadID] = threadInfo;
-      for (let member of threadInfo.members) {
-        const userInfo = serverResult.userInfos[member.id];
-        if (userInfo) {
-          userInfos[member.id] = userInfo;
-        }
-      }
     }
   }
-  return { threadInfos, userInfos };
+  return { threadInfos };
 }
 
 async function verifyThreadIDs(

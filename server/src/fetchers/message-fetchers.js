@@ -1,7 +1,6 @@
 // @flow
 
 import type { PushInfo } from '../push/send';
-import type { UserInfos } from 'lib/types/user-types';
 import {
   type RawMessageInfo,
   messageTypes,
@@ -28,7 +27,6 @@ import { permissionLookup } from 'lib/permissions/thread-permissions';
 import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL, mergeOrConditions } from '../database';
-import { fetchUserInfos } from './user-fetchers';
 import { creationString, localIDFromCreationString } from '../utils/idempotent';
 import { mediaFromRow } from './upload-fetchers';
 
@@ -37,10 +35,9 @@ export type CollapsableNotifInfo = {|
   existingMessageInfos: RawMessageInfo[],
   newMessageInfos: RawMessageInfo[],
 |};
-export type FetchCollapsableNotifsResult = {|
-  usersToCollapsableNotifInfo: { [userID: string]: CollapsableNotifInfo[] },
-  userInfos: UserInfos,
-|};
+export type FetchCollapsableNotifsResult = {
+  [userID: string]: CollapsableNotifInfo[],
+};
 
 // This function doesn't filter RawMessageInfos based on what messageTypes the
 // client supports, since each user can have multiple clients. The caller must
@@ -89,16 +86,15 @@ async function fetchCollapsableNotifs(
   }
 
   if (sqlTuples.length === 0) {
-    return { usersToCollapsableNotifInfo, userInfos: {} };
+    return usersToCollapsableNotifInfo;
   }
 
   const visPermissionExtractString = `$.${threadPermissions.VISIBLE}.value`;
   const collapseQuery = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
-      u.username AS creator, m.user AS creatorID,
-      stm.permissions AS subthread_permissions, n.user, n.collapse_key,
-      up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret,
-      up.extra AS uploadExtra
+      m.user AS creatorID, stm.permissions AS subthread_permissions, n.user,
+      n.collapse_key, up.id AS uploadID, up.type AS uploadType,
+      up.secret AS uploadSecret, up.extra AS uploadExtra
     FROM notifications n
     LEFT JOIN messages m ON m.id = n.message
     LEFT JOIN uploads up
@@ -108,7 +104,6 @@ async function fetchCollapsableNotifs(
     LEFT JOIN memberships stm
       ON m.type = ${messageTypes.CREATE_SUB_THREAD}
         AND stm.thread = m.content AND stm.user = n.user
-    LEFT JOIN users u ON u.id = m.user
     WHERE n.rescinded = 0 AND
       JSON_EXTRACT(mm.permissions, ${visPermissionExtractString}) IS TRUE AND
   `;
@@ -116,7 +111,7 @@ async function fetchCollapsableNotifs(
   collapseQuery.append(SQL`ORDER BY m.time DESC`);
   const [collapseResult] = await dbQuery(collapseQuery);
 
-  const { userInfos, messages } = parseMessageSQLResult(collapseResult);
+  const messages = parseMessageSQLResult(collapseResult);
 
   for (let message of messages) {
     const { rawMessageInfo, rows } = message;
@@ -137,28 +132,19 @@ async function fetchCollapsableNotifs(
     }
   }
 
-  return { usersToCollapsableNotifInfo, userInfos };
+  return usersToCollapsableNotifInfo;
 }
 
-type MessageSQLResult = {|
-  messages: $ReadOnlyArray<{|
-    rawMessageInfo: RawMessageInfo,
-    rows: $ReadOnlyArray<Object>,
-  |}>,
-  userInfos: UserInfos,
-|};
+type MessageSQLResult = $ReadOnlyArray<{|
+  rawMessageInfo: RawMessageInfo,
+  rows: $ReadOnlyArray<Object>,
+|}>;
 function parseMessageSQLResult(
   rows: $ReadOnlyArray<Object>,
   viewer?: Viewer,
 ): MessageSQLResult {
-  const userInfos = {},
-    rowsByID = new Map();
+  const rowsByID = new Map();
   for (let row of rows) {
-    const creatorID = row.creatorID.toString();
-    userInfos[creatorID] = {
-      id: creatorID,
-      username: row.creator,
-    };
     const id = row.id.toString();
     const currentRowsForID = rowsByID.get(id);
     if (currentRowsForID) {
@@ -176,7 +162,7 @@ function parseMessageSQLResult(
     }
   }
 
-  return { messages, userInfos };
+  return messages;
 }
 
 function assertSingleRow(rows: $ReadOnlyArray<Object>): Object {
@@ -393,8 +379,8 @@ async function fetchMessageInfos(
   const query = SQL`
     SELECT * FROM (
       SELECT x.id, x.content, x.time, x.type, x.user AS creatorID,
-        x.creation, u.username AS creator, x.subthread_permissions,
-        x.uploadID, x.uploadType, x.uploadSecret, x.uploadExtra,
+        x.creation, x.subthread_permissions, x.uploadID, x.uploadType,
+        x.uploadSecret, x.uploadExtra,
         @num := if(
           @thread = x.thread,
           if(@message = x.id, @num, @num + 1),
@@ -422,13 +408,12 @@ async function fetchMessageInfos(
   query.append(SQL`
         ORDER BY m.thread, m.time DESC
       ) x
-      LEFT JOIN users u ON u.id = x.user
     ) y
     WHERE y.number <= ${numberPerThread}
   `);
   const [result] = await dbQuery(query);
 
-  const { messages } = parseMessageSQLResult(result, viewer);
+  const messages = parseMessageSQLResult(result, viewer);
 
   const rawMessageInfos = [];
   const threadToMessageCount = new Map();
@@ -484,7 +469,6 @@ async function fetchMessageInfos(
   return {
     rawMessageInfos: shimmedRawMessageInfos,
     truncationStatuses,
-    userInfos: {},
   };
 }
 
@@ -522,36 +506,6 @@ function threadSelectionCriteriaToInitialTruncationStatuses(
   return truncationStatuses;
 }
 
-async function fetchAllUsers(
-  rawMessageInfos: $ReadOnlyArray<RawMessageInfo>,
-  userInfos: UserInfos,
-): Promise<UserInfos> {
-  const allAddedUserIDs = [];
-  for (let rawMessageInfo of rawMessageInfos) {
-    let newUsers = [];
-    if (rawMessageInfo.type === messageTypes.ADD_MEMBERS) {
-      newUsers = rawMessageInfo.addedUserIDs;
-    } else if (rawMessageInfo.type === messageTypes.CREATE_THREAD) {
-      newUsers = rawMessageInfo.initialThreadState.memberIDs;
-    }
-    for (let userID of newUsers) {
-      if (!userInfos[userID]) {
-        allAddedUserIDs.push(userID);
-      }
-    }
-  }
-  if (allAddedUserIDs.length === 0) {
-    return userInfos;
-  }
-
-  const newUserInfos = await fetchUserInfos(allAddedUserIDs);
-  // $FlowFixMe should be fixed in flow-bin@0.115 / react-native@0.63
-  return {
-    ...userInfos,
-    ...newUserInfos,
-  };
-}
-
 async function fetchMessageInfosSince(
   viewer: Viewer,
   criteria: ThreadSelectionCriteria,
@@ -567,8 +521,7 @@ async function fetchMessageInfosSince(
   const viewerID = viewer.id;
   const query = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
-      m.creation, u.username AS creator, m.user AS creatorID,
-      stm.permissions AS subthread_permissions,
+      m.creation, m.user AS creatorID, stm.permissions AS subthread_permissions,
       up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret,
       up.extra AS uploadExtra
     FROM messages m
@@ -578,7 +531,6 @@ async function fetchMessageInfosSince(
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
     LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
       AND stm.thread = m.content AND stm.user = ${viewerID}
-    LEFT JOIN users u ON u.id = m.user
     WHERE m.time > ${currentAsOf} AND
       JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE AND
   `;
@@ -588,13 +540,9 @@ async function fetchMessageInfosSince(
   `);
   const [result] = await dbQuery(query);
 
-  const { userInfos: allCreatorUserInfos, messages } = parseMessageSQLResult(
-    result,
-    viewer,
-  );
+  const messages = parseMessageSQLResult(result, viewer);
 
   const rawMessageInfos = [];
-  const userInfos = {};
   let currentThreadID = null;
   let numMessagesForCurrentThreadID = 0;
   for (let message of messages) {
@@ -612,18 +560,12 @@ async function fetchMessageInfosSince(
         // If a CREATE_THREAD message is here, then we have all messages
         truncationStatuses[threadID] = messageTruncationStatus.EXHAUSTIVE;
       }
-      const { creatorID } = rawMessageInfo;
-      const userInfo = allCreatorUserInfos[creatorID];
-      if (userInfo) {
-        userInfos[creatorID] = userInfo;
-      }
       rawMessageInfos.push(rawMessageInfo);
     } else if (numMessagesForCurrentThreadID === maxNumberPerThread + 1) {
       truncationStatuses[threadID] = messageTruncationStatus.TRUNCATED;
     }
   }
 
-  const allUserInfos = await fetchAllUsers(rawMessageInfos, userInfos);
   const shimmedRawMessageInfos = shimUnsupportedRawMessageInfos(
     rawMessageInfos,
     viewer.platformDetails,
@@ -632,20 +574,18 @@ async function fetchMessageInfosSince(
   return {
     rawMessageInfos: shimmedRawMessageInfos,
     truncationStatuses,
-    userInfos: allUserInfos,
   };
 }
 
-async function getMessageFetchResultFromRedisMessages(
+function getMessageFetchResultFromRedisMessages(
   viewer: Viewer,
   rawMessageInfos: $ReadOnlyArray<RawMessageInfo>,
-): Promise<FetchMessageInfosResult> {
+): FetchMessageInfosResult {
   const truncationStatuses = {};
   for (let rawMessageInfo of rawMessageInfos) {
     truncationStatuses[rawMessageInfo.threadID] =
       messageTruncationStatus.UNCHANGED;
   }
-  const userInfos = await fetchAllUsers(rawMessageInfos, {});
   const shimmedRawMessageInfos = shimUnsupportedRawMessageInfos(
     rawMessageInfos,
     viewer.platformDetails,
@@ -653,7 +593,6 @@ async function getMessageFetchResultFromRedisMessages(
   return {
     rawMessageInfos: shimmedRawMessageInfos,
     truncationStatuses,
-    userInfos,
   };
 }
 

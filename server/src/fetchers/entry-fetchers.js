@@ -2,7 +2,7 @@
 
 import type {
   CalendarQuery,
-  FetchEntryInfosResponse,
+  FetchEntryInfosBase,
   DeltaEntryInfosResponse,
   RawEntryInfo,
 } from 'lib/types/entry-types';
@@ -110,12 +110,12 @@ function sqlConditionForCalendarQuery(
 async function fetchEntryInfos(
   viewer: Viewer,
   calendarQueries: $ReadOnlyArray<CalendarQuery>,
-): Promise<FetchEntryInfosResponse> {
+): Promise<FetchEntryInfosBase> {
   const queryConditions = calendarQueries
     .map(sqlConditionForCalendarQuery)
     .filter(condition => condition);
   if (queryConditions.length === 0) {
-    return { rawEntryInfos: [], userInfos: {} };
+    return { rawEntryInfos: [] };
   }
   const queryCondition = mergeOrConditions(queryConditions);
 
@@ -123,11 +123,10 @@ async function fetchEntryInfos(
   const query = SQL`
     SELECT DAY(d.date) AS day, MONTH(d.date) AS month, YEAR(d.date) AS year,
       e.id, e.text, e.creation_time AS creationTime, d.thread AS threadID,
-      e.deleted, e.creator AS creatorID, u.username AS creator
+      e.deleted, e.creator AS creatorID
     FROM entries e
     LEFT JOIN days d ON d.id = e.day
     LEFT JOIN memberships m ON m.thread = d.thread AND m.user = ${viewerID}
-    LEFT JOIN users u ON u.id = e.creator
     WHERE JSON_EXTRACT(m.permissions, ${visPermissionExtractString}) IS TRUE AND
   `;
   query.append(queryCondition);
@@ -138,7 +137,7 @@ async function fetchEntryInfos(
   for (let row of result) {
     rawEntryInfos.push(rawEntryInfoFromRow(row));
   }
-  return { rawEntryInfos, userInfos: {} };
+  return { rawEntryInfos };
 }
 
 async function checkThreadPermissionForEntry(

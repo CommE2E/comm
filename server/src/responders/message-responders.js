@@ -5,7 +5,7 @@ import {
   messageTypes,
   type SendTextMessageRequest,
   type SendMultimediaMessageRequest,
-  type FetchMessageInfosResult,
+  type FetchMessageInfosResponse,
   type FetchMessageInfosRequest,
   defaultNumberPerThread,
   type SendMessageResponse,
@@ -72,18 +72,18 @@ const fetchMessageInfosRequestInputValidator = tShape({
   cursors: t.dict(t.String, t.maybe(t.String)),
   numberPerThread: t.maybe(t.Number),
 });
-
 async function messageFetchResponder(
   viewer: Viewer,
   input: any,
-): Promise<FetchMessageInfosResult> {
+): Promise<FetchMessageInfosResponse> {
   const request: FetchMessageInfosRequest = input;
   await validateInput(viewer, fetchMessageInfosRequestInputValidator, request);
-  return await fetchMessageInfos(
+  const response = await fetchMessageInfos(
     viewer,
     { threadCursors: request.cursors },
     request.numberPerThread ? request.numberPerThread : defaultNumberPerThread,
   );
+  return { ...response, userInfos: {} };
 }
 
 const sendMultimediaMessageRequestInputValidator = tShape({

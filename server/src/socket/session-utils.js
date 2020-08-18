@@ -469,26 +469,9 @@ async function checkState(
       }
     }
 
-    const threadUserInfos = fetchedData.threadsResult
-      ? fetchedData.threadsResult.userInfos
-      : null;
-    const entryUserInfos = fetchedData.entriesResult
-      ? fetchedData.entriesResult.userInfos
-      : null;
-    const allUserInfos = { ...threadUserInfos, ...entryUserInfos };
-
     const userInfos = [];
-    const oldUserIDsToFetch = [];
-    for (let userID of userIDs) {
-      const userInfo = allUserInfos[userID];
-      if (userInfo) {
-        userInfos.push(userInfo);
-      } else {
-        oldUserIDsToFetch.push(userID);
-      }
-    }
-    if (oldUserIDsToFetch.length > 0) {
-      const fetchedUserInfos = await fetchUserInfos(oldUserIDsToFetch);
+    if (userIDs.size > 0) {
+      const fetchedUserInfos = await fetchUserInfos([...userIDs]);
       for (let userID in fetchedUserInfos) {
         const userInfo = fetchedUserInfos[userID];
         if (userInfo && userInfo.username) {

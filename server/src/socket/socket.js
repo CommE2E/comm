@@ -661,7 +661,7 @@ class Socket {
       const { viewer } = this;
       invariant(viewer, 'should be set');
       const rawMessageInfos = message.messages;
-      const messageFetchResult = await getMessageFetchResultFromRedisMessages(
+      const messageFetchResult = getMessageFetchResultFromRedisMessages(
         viewer,
         rawMessageInfos,
       );
