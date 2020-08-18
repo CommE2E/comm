@@ -148,6 +148,9 @@ function validateState(oldState: AppState, state: AppState): AppState {
   if (
     activeThread &&
     !Visibility.hidden() &&
+    document &&
+    document.hasFocus &&
+    document.hasFocus() &&
     state.threadStore.threadInfos[activeThread].currentUser.unread
   ) {
     // Makes sure a currently focused thread is never unread

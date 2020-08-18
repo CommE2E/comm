@@ -12,7 +12,6 @@ import * as React from 'react';
 import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual';
 import PropTypes from 'prop-types';
-import Visibility from 'visibilityjs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar, faComments } from '@fortawesome/free-solid-svg-icons';
 import { config as faConfig } from '@fortawesome/fontawesome-svg-core';
@@ -34,10 +33,6 @@ import {
   mostRecentReadThreadSelector,
   unreadCount,
 } from 'lib/selectors/thread-selectors';
-import {
-  backgroundActionType,
-  foregroundActionType,
-} from 'lib/reducers/foreground-reducer';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
 
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
@@ -56,6 +51,7 @@ import {
 } from './redux-setup';
 import Splash from './splash/splash.react';
 import Chat from './chat/chat.react';
+import FocusHandler from './focus-handler.react';
 
 // We want Webpack's css-loader and style-loader to handle the Fontawesome CSS,
 // so we disable the autoAddCss logic and import the CSS file. Otherwise every
@@ -140,17 +136,7 @@ class App extends React.PureComponent<Props, State> {
     } else if (this.props.location.pathname !== '/') {
       history.replace('/');
     }
-
-    Visibility.change(this.onVisibilityChange);
   }
-
-  onVisibilityChange = (e, state: string) => {
-    if (state === 'visible') {
-      this.props.dispatchActionPayload(foregroundActionType, null);
-    } else {
-      this.props.dispatchActionPayload(backgroundActionType, null);
-    }
-  };
 
   componentDidUpdate(prevProps: Props) {
     if (this.props.loggedIn) {
@@ -230,6 +216,7 @@ class App extends React.PureComponent<Props, State> {
     }
     return (
       <DndProvider backend={HTML5Backend}>
+        <FocusHandler />
         {content}
         {this.state.currentModal}
       </DndProvider>
