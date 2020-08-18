@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Visibility from 'visibilityjs';
 
 import {
@@ -39,18 +39,38 @@ function FocusHandler() {
     };
   }, [onFocus, onBlur]);
 
-  const foreground = visible && focused;
   const dispatch = useDispatch();
-  const prevForegroundRef = React.useRef(true);
+  const curForeground = useSelector(state => state.foreground);
+  const updateRedux = React.useCallback(
+    foreground => {
+      if (foreground === curForeground) {
+        return;
+      }
+      if (foreground) {
+        dispatch({ type: foregroundActionType, payload: null });
+      } else {
+        dispatch({ type: backgroundActionType, payload: null });
+      }
+    },
+    [dispatch, curForeground],
+  );
+
+  const foreground = visible && focused;
+  const prevForegroundRef = React.useRef(curForeground);
+  const foregroundTimerRef = React.useRef();
   React.useEffect(() => {
     const prevForeground = prevForegroundRef.current;
     if (foreground && !prevForeground) {
-      dispatch({ type: foregroundActionType, payload: null });
+      foregroundTimerRef.current = setTimeout(() => updateRedux(true), 2000);
     } else if (!foreground && prevForeground) {
-      dispatch({ type: backgroundActionType, payload: null });
+      if (foregroundTimerRef.current) {
+        clearTimeout(foregroundTimerRef.current);
+        foregroundTimerRef.current = undefined;
+      }
+      updateRedux(false);
     }
     prevForegroundRef.current = foreground;
-  }, [foreground, dispatch]);
+  }, [foreground, updateRedux]);
 
   return null;
 }
