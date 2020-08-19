@@ -11,7 +11,7 @@ import {
   threadPermissions,
   type ThreadChanges,
 } from 'lib/types/thread-types';
-import type { AppState } from '../../redux-setup';
+import type { AppState } from '../../redux/redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import { type UserInfo, userInfoPropType } from 'lib/types/user-types';
 

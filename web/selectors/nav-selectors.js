@@ -1,6 +1,6 @@
 // @flow
 
-import type { AppState, NavInfo } from '../redux-setup';
+import type { AppState, NavInfo } from '../redux/redux-setup';
 import type { CalendarFilter } from 'lib/types/filter-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
 

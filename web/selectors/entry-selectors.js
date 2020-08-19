@@ -1,6 +1,6 @@
 // @flow
 
-import type { AppState } from '../redux-setup';
+import type { AppState } from '../redux/redux-setup';
 import type { EntryInfo } from 'lib/types/entry-types';
 
 import { createSelector } from 'reselect';

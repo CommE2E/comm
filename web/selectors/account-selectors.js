@@ -1,6 +1,6 @@
 // @flow
 
-import type { AppState } from '../redux-setup';
+import type { AppState } from '../redux/redux-setup';
 import type { LogInExtraInfo } from 'lib/types/account-types';
 
 import { createSelector } from 'reselect';

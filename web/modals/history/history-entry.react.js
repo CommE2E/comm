@@ -9,7 +9,7 @@ import {
   type RestoreEntryResponse,
   type CalendarQuery,
 } from 'lib/types/entry-types';
-import type { AppState } from '../../redux-setup';
+import type { AppState } from '../../redux/redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 

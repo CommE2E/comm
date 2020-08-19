@@ -7,7 +7,11 @@ import {
   type CalendarQueryUpdateResult,
   type CalendarQueryUpdateStartingPayload,
 } from 'lib/types/entry-types';
-import { type AppState, type NavInfo, navInfoPropType } from '../redux-setup';
+import {
+  type AppState,
+  type NavInfo,
+  navInfoPropType,
+} from '../redux/redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
 import * as React from 'react';

@@ -1,6 +1,6 @@
 // @flow
 
-import type { NavInfo } from './redux-setup';
+import type { NavInfo } from './redux/redux-setup';
 
 import invariant from 'invariant';
 

@@ -25,7 +25,7 @@ import {
   deleteAccountActionTypes,
 } from 'lib/actions/user-actions';
 
-import { activeThreadSelector } from './selectors/nav-selectors';
+import { activeThreadSelector } from '../selectors/nav-selectors';
 
 export type NavInfo = {|
   ...$Exact<BaseNavInfo>,

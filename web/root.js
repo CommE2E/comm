@@ -1,6 +1,6 @@
 // @flow
 
-import type { AppState, Action } from './redux-setup';
+import type { AppState, Action } from './redux/redux-setup';
 
 import * as React from 'react';
 import { Provider } from 'react-redux';
@@ -10,7 +10,7 @@ import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProductio
 
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger';
 
-import { reducer } from './redux-setup';
+import { reducer } from './redux/redux-setup';
 import HotRoot from './hot';
 
 declare var preloadedState: AppState;

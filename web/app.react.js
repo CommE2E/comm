@@ -48,10 +48,10 @@ import {
   type NavInfo,
   navInfoPropType,
   updateNavInfoActionType,
-} from './redux-setup';
+} from './redux/redux-setup';
 import Splash from './splash/splash.react';
 import Chat from './chat/chat.react';
-import FocusHandler from './focus-handler.react';
+import FocusHandler from './redux/focus-handler.react';
 
 // We want Webpack's css-loader and style-loader to handle the Fontawesome CSS,
 // so we disable the autoAddCss logic and import the CSS file. Otherwise every

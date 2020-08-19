@@ -1,7 +1,7 @@
 // @flow
 
 import type { $Response, $Request } from 'express';
-import type { AppState, Action } from 'web/redux-setup';
+import type { AppState, Action } from 'web/redux/redux-setup';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
 import { threadPermissions } from 'lib/types/thread-types';
 import { defaultConnectionInfo } from 'lib/types/socket-types';
@@ -28,7 +28,7 @@ import { threadHasPermission } from 'lib/shared/thread-utils';
 import { promiseAll } from 'lib/utils/promises';
 
 import 'web/server-rendering';
-import * as ReduxSetup from 'web/redux-setup';
+import * as ReduxSetup from 'web/redux/redux-setup';
 import App from 'web/dist/app.build.cjs';
 import { navInfoFromURL } from 'web/url-utils';
 import { activeThreadFromNavInfo } from 'web/selectors/nav-selectors';

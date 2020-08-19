@@ -3,7 +3,7 @@
 import { type DeviceType, assertDeviceType } from 'lib/types/device-types';
 import type { AccessRequest } from 'lib/types/account-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { AppState } from '../redux-setup';
+import type { AppState } from '../redux/redux-setup';
 import {
   type LoadingStatus,
   loadingStatusPropType,

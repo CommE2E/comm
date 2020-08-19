@@ -1,6 +1,10 @@
 // @flow
 
-import { type AppState, type NavInfo, navInfoPropType } from '../redux-setup';
+import {
+  type AppState,
+  type NavInfo,
+  navInfoPropType,
+} from '../redux/redux-setup';
 import {
   type ChatThreadItem,
   chatThreadItemPropType,

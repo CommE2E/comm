@@ -8,7 +8,7 @@ import {
   type NavInfo,
   navInfoPropType,
   updateNavInfoActionType,
-} from '../redux-setup';
+} from '../redux/redux-setup';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
 
 import * as React from 'react';

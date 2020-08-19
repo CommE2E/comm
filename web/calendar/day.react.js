@@ -4,7 +4,7 @@ import type { EntryInfo } from 'lib/types/entry-types';
 import { entryInfoPropType } from 'lib/types/entry-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
-import type { AppState } from '../redux-setup';
+import type { AppState } from '../redux/redux-setup';
 import type { InnerEntry } from './entry.react';
 
 import * as React from 'react';

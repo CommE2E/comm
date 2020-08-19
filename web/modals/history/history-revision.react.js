@@ -4,7 +4,7 @@ import type { HistoryRevisionInfo } from 'lib/types/history-types';
 import { historyRevisionInfoPropType } from 'lib/types/history-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
-import type { AppState } from '../../redux-setup';
+import type { AppState } from '../../redux/redux-setup';
 
 import * as React from 'react';
 import classNames from 'classnames';

@@ -14,7 +14,7 @@ import {
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { AppState } from '../redux-setup';
+import type { AppState } from '../redux/redux-setup';
 import type {
   DispatchActionPayload,
   DispatchActionPromise,

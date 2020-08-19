@@ -10,7 +10,7 @@ import {
   type NavInfo,
   navInfoPropType,
   updateNavInfoActionType,
-} from '../redux-setup';
+} from '../redux/redux-setup';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { MessagePositionInfo } from './message.react';
 

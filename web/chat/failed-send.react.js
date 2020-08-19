@@ -10,7 +10,7 @@ import {
   assertComposableMessageType,
 } from 'lib/types/message-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import type { AppState } from '../redux-setup';
+import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
 import invariant from 'invariant';
