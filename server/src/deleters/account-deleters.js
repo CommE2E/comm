@@ -17,6 +17,7 @@ import { createNewAnonymousCookie } from '../session/cookies';
 import { fetchAllUserIDs } from '../fetchers/user-fetchers';
 import { createUpdates } from '../creators/update-creator';
 import { handleAsyncPromise } from '../responders/handlers';
+import { rescindPushNotifs } from '../push/rescind';
 
 async function deleteAccount(
   viewer: Viewer,
@@ -38,8 +39,10 @@ async function deleteAccount(
     }
   }
 
-  // TODO: if this results in any orphaned orgs, convert them to chats
   const deletedUserID = viewer.userID;
+  await rescindPushNotifs(SQL`n.user = ${deletedUserID}`, SQL`NULL`);
+
+  // TODO: if this results in any orphaned orgs, convert them to chats
   const deletionQuery = SQL`
     DELETE u, iu, v, iv, c, ic, m, f, n, ino, up, iup, s, si, ru, rd
     FROM users u
