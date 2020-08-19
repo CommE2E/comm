@@ -18,7 +18,7 @@ type ClearAndroidNotificationsPayload = {|
 
 type RescindAndroidNotificationPayload = {|
   notifID: string,
-  threadID?: string,
+  threadID: string,
 |};
 
 export type AndroidNotificationActions =
@@ -55,7 +55,7 @@ function reduceThreadIDsToNotifIDs(
     if (!state[action.payload.threadID]) {
       return state;
     }
-    for (let notifID of state[action.payload.threadID]) {
+    for (const notifID of state[action.payload.threadID]) {
       getFirebase()
         .notifications()
         .android.removeDeliveredNotificationsByTag(notifID);
@@ -66,25 +66,15 @@ function reduceThreadIDsToNotifIDs(
     };
   } else if (action.type === rescindAndroidNotificationActionType) {
     const { threadID, notifID } = action.payload;
-    if (threadID) {
-      const existingNotifIDs = state[threadID];
-      if (!existingNotifIDs) {
-        return state;
-      }
-      const filtered = existingNotifIDs.filter(id => id !== notifID);
-      if (filtered.length === existingNotifIDs.length) {
-        return state;
-      }
-      return { ...state, [threadID]: filtered };
+    const existingNotifIDs = state[threadID];
+    if (!existingNotifIDs) {
+      return state;
     }
-    for (let candThreadID in state) {
-      const existingNotifIDs = state[candThreadID];
-      const filtered = existingNotifIDs.filter(id => id !== notifID);
-      if (filtered.length !== existingNotifIDs.length) {
-        return { ...state, [candThreadID]: filtered };
-      }
+    const filtered = existingNotifIDs.filter(id => id !== notifID);
+    if (filtered.length === existingNotifIDs.length) {
+      return state;
     }
-    return state;
+    return { ...state, [threadID]: filtered };
   } else {
     return state;
   }

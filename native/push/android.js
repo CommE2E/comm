@@ -32,25 +32,12 @@ function handleAndroidMessage(
     firebase.notifications().setBadge(parseInt(badge, 10));
   }
 
-  const customNotification = data.custom_notification
-    ? JSON.parse(data.custom_notification)
-    : null;
-  let { messageInfos } = data;
-  if (!messageInfos && customNotification) {
-    messageInfos = customNotification.messageInfos;
-  }
+  const { messageInfos } = data;
   if (messageInfos) {
     saveMessageInfos(messageInfos, updatesCurrentAsOf);
   }
 
-  let { rescind, rescindID } = data;
-  let rescindActionPayload = null;
-  if (rescind) {
-    rescindActionPayload = { notifID: rescindID, threadID: data.threadID };
-  } else if (customNotification) {
-    ({ rescind, notifID: rescindID } = customNotification);
-    rescindActionPayload = { notifID: rescindID };
-  }
+  const { rescind, rescindID } = data;
   if (rescind) {
     invariant(rescindID, 'rescind message without notifID');
     firebase
@@ -58,15 +45,12 @@ function handleAndroidMessage(
       .android.removeDeliveredNotificationsByTag(rescindID);
     dispatch({
       type: rescindAndroidNotificationActionType,
-      payload: rescindActionPayload,
+      payload: { notifID: rescindID, threadID: data.threadID },
     });
     return;
   }
 
   let { id, title, prefix, body, threadID } = data;
-  if (!id && customNotification) {
-    ({ id, body, threadID } = customNotification);
-  }
   ({ body } = mergePrefixIntoBody({ body, title, prefix }));
 
   if (handleIfActive) {
