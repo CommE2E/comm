@@ -37,6 +37,7 @@ import {
   updateDatasForUserPairs,
   updateUndirectedRelationships,
 } from '../updaters/relationship-updaters';
+import { rescindPushNotifs } from '../push/rescind';
 
 import { dbQuery, SQL, mergeOrConditions } from '../database';
 
@@ -583,8 +584,21 @@ async function commitMembershipChangeset(
   }
 
   const toSave = [],
-    toDelete = [];
+    toDelete = [],
+    rescindPromises = [];
   for (let row of membershipRowMap.values()) {
+    if (
+      row.operation === 'delete' ||
+      (row.operation === 'update' && Number(row.role) <= 0)
+    ) {
+      const { userID, threadID } = row;
+      rescindPromises.push(
+        rescindPushNotifs(
+          SQL`n.thread = ${threadID} AND n.user = ${userID}`,
+          SQL`IF(m.thread = ${threadID}, NULL, m.thread)`,
+        ),
+      );
+    }
     if (row.operation === 'delete') {
       toDelete.push(row);
     } else {
@@ -596,6 +610,7 @@ async function commitMembershipChangeset(
     saveMemberships(toSave),
     deleteMemberships(toDelete),
     updateUndirectedRelationships(uniqueRelationshipRows),
+    ...rescindPromises,
   ]);
 
   // We fetch all threads here because old clients still expect the full list of
