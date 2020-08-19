@@ -1,6 +1,12 @@
 // @flow
 
 import {
+  logOutActionTypes,
+  deleteAccountActionTypes,
+} from 'lib/actions/user-actions';
+import { setNewSessionActionType } from 'lib/utils/action-utils';
+
+import {
   recordAndroidNotificationActionType,
   clearAndroidNotificationsActionType,
   rescindAndroidNotificationActionType,
@@ -75,6 +81,13 @@ function reduceThreadIDsToNotifIDs(
       return state;
     }
     return { ...state, [threadID]: filtered };
+  } else if (
+    action.type === logOutActionTypes.success ||
+    action.type === deleteAccountActionTypes.success ||
+    (action.type === setNewSessionActionType &&
+      action.payload.sessionChange.cookieInvalidated)
+  ) {
+    return {};
   } else {
     return state;
   }

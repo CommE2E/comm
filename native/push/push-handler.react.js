@@ -281,6 +281,10 @@ class PushHandler extends React.PureComponent<Props, State> {
       this.ensurePushNotifsEnabled();
     }
 
+    if (!this.props.loggedIn && prevProps.loggedIn) {
+      this.clearAllNotifs();
+    }
+
     if (
       this.state.inAppNotifProps &&
       this.state.inAppNotifProps !== prevState.inAppNotifProps
@@ -302,6 +306,16 @@ class PushHandler extends React.PureComponent<Props, State> {
       getFirebase()
         .notifications()
         .setBadge(curUnreadCount);
+    }
+  }
+
+  clearAllNotifs() {
+    if (Platform.OS === 'ios') {
+      NotificationsIOS.removeAllDeliveredNotifications();
+    } else if (Platform.OS === 'android') {
+      getFirebase()
+        .notifications()
+        .removeAllDeliveredNotifications();
     }
   }
 
