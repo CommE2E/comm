@@ -51,6 +51,7 @@ import {
 } from './redux/redux-setup';
 import Splash from './splash/splash.react';
 import Chat from './chat/chat.react';
+import VisibilityHandler from './redux/visibility-handler.react';
 import FocusHandler from './redux/focus-handler.react';
 
 // We want Webpack's css-loader and style-loader to handle the Fontawesome CSS,
@@ -217,6 +218,7 @@ class App extends React.PureComponent<Props, State> {
     return (
       <DndProvider backend={HTML5Backend}>
         <FocusHandler />
+        <VisibilityHandler />
         {content}
         {this.state.currentModal}
       </DndProvider>

@@ -26,6 +26,7 @@ import {
 } from 'lib/actions/user-actions';
 
 import { activeThreadSelector } from '../selectors/nav-selectors';
+import { updateWindowActiveActionType } from './action-types';
 
 export type NavInfo = {|
   ...$Exact<BaseNavInfo>,
@@ -68,6 +69,7 @@ export type AppState = {|
   timeZone: ?string,
   userAgent: ?string,
   dataLoaded: boolean,
+  windowActive: boolean,
 |};
 
 export const updateNavInfoActionType = 'UPDATE_NAV_INFO';
@@ -79,6 +81,10 @@ export type Action =
   | {|
       type: 'UPDATE_WINDOW_DIMENSIONS',
       payload: WindowDimensions,
+    |}
+  | {|
+      type: 'UPDATE_WINDOW_ACTIVE',
+      payload: boolean,
     |};
 
 export function reducer(oldState: AppState | void, action: Action) {
@@ -94,6 +100,11 @@ export function reducer(oldState: AppState | void, action: Action) {
     return validateState(oldState, {
       ...state,
       windowDimensions: action.payload,
+    });
+  } else if (action.type === updateWindowActiveActionType) {
+    return validateState(oldState, {
+      ...state,
+      windowActive: action.payload,
     });
   } else if (action.type === setNewSessionActionType) {
     if (

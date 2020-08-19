@@ -24,11 +24,13 @@ export default connect(
       state.currentUserInfo &&
       !state.currentUserInfo.anonymous &&
       state.foreground;
+    const activeThread =
+      active && state.windowActive ? activeThreadSelector(state) : null;
     return {
       active,
       openSocket: openSocketSelector(state),
       getClientResponses: webGetClientResponsesSelector(state),
-      activeThread: active ? activeThreadSelector(state) : null,
+      activeThread,
       sessionStateFunc: webSessionStateFuncSelector(state),
       sessionIdentification: sessionIdentificationSelector(state),
       cookie: state.cookie,

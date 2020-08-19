@@ -2,25 +2,10 @@
 
 import * as React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Visibility from 'visibilityjs';
 
-import {
-  backgroundActionType,
-  foregroundActionType,
-} from 'lib/reducers/foreground-reducer';
+import { updateWindowActiveActionType } from './action-types';
 
 function FocusHandler() {
-  const [visible, setVisible] = React.useState(!Visibility.hidden());
-  const onVisibilityChange = React.useCallback((event, state: string) => {
-    setVisible(state === 'visible');
-  }, []);
-  React.useEffect(() => {
-    const listener = Visibility.change(onVisibilityChange);
-    return () => {
-      Visibility.unbind(listener);
-    };
-  }, [onVisibilityChange]);
-
   const [focused, setFocused] = React.useState(
     !window || !window.hasFocus || window.hasFocus(),
   );
@@ -40,37 +25,32 @@ function FocusHandler() {
   }, [onFocus, onBlur]);
 
   const dispatch = useDispatch();
-  const curForeground = useSelector(state => state.foreground);
+  const curWindowActive = useSelector(state => state.windowActive);
   const updateRedux = React.useCallback(
-    foreground => {
-      if (foreground === curForeground) {
+    windowActive => {
+      if (windowActive === curWindowActive) {
         return;
       }
-      if (foreground) {
-        dispatch({ type: foregroundActionType, payload: null });
-      } else {
-        dispatch({ type: backgroundActionType, payload: null });
-      }
+      dispatch({ type: updateWindowActiveActionType, payload: windowActive });
     },
-    [dispatch, curForeground],
+    [dispatch, curWindowActive],
   );
 
-  const foreground = visible && focused;
-  const prevForegroundRef = React.useRef(curForeground);
-  const foregroundTimerRef = React.useRef();
+  const prevFocusedRef = React.useRef(curWindowActive);
+  const timerRef = React.useRef();
   React.useEffect(() => {
-    const prevForeground = prevForegroundRef.current;
-    if (foreground && !prevForeground) {
-      foregroundTimerRef.current = setTimeout(() => updateRedux(true), 2000);
-    } else if (!foreground && prevForeground) {
-      if (foregroundTimerRef.current) {
-        clearTimeout(foregroundTimerRef.current);
-        foregroundTimerRef.current = undefined;
+    const prevFocused = prevFocusedRef.current;
+    if (focused && !prevFocused) {
+      timerRef.current = setTimeout(() => updateRedux(true), 2000);
+    } else if (!focused && prevFocused) {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = undefined;
       }
       updateRedux(false);
     }
-    prevForegroundRef.current = foreground;
-  }, [foreground, updateRedux]);
+    prevFocusedRef.current = focused;
+  }, [focused, updateRedux]);
 
   return null;
 }

@@ -291,6 +291,7 @@ async function websiteResponder(
     cookie: undefined,
     deviceToken: undefined,
     dataLoaded: viewer.loggedIn,
+    windowActive: true,
   };
 
   const state = await promiseAll(statePromises);
