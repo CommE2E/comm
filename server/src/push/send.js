@@ -60,7 +60,7 @@ export type PushInfo = { [userID: string]: PushUserInfo };
 
 async function sendPushNotifs(pushInfo: PushInfo) {
   if (Object.keys(pushInfo).length === 0) {
-    return [];
+    return;
   }
 
   const [
