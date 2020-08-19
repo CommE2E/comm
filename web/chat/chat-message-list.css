@@ -233,7 +233,7 @@ div.messageBox {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  max-width: 68%;
+  max-width: calc(min(68%, 1000px));
 }
 div.fixedWidthMessageBox {
   width: 68%;
@@ -302,7 +302,7 @@ div.messageBox span.multimedia > span.multimediaImage {
   min-width: initial;
 }
 div.messageBox span.multimedia > span.multimediaImage > img {
-  max-height: initial;
+  max-height: 600px;
 }
 
 div.imageGrid > span.multimedia {
@@ -317,7 +317,7 @@ div.imageGrid > span.multimedia > span.multimediaImage {
 div.imageGrid > span.multimedia > span.multimediaImage:after {
   content: "";
   display: block;
-  padding-bottom: 100%;
+  padding-bottom: calc(min(600px, 100%));
 }
 div.imageGrid > span.multimedia > span.multimediaImage > img {
   position: absolute;
