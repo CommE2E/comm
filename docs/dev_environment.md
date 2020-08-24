@@ -124,7 +124,7 @@ sudo gem install cocoapods
 
 ## React Native Debugger
 
-The React Native Debugger allows you step through Javascript execution, track Redux state, and inspect the React component tree.
+The React Native Debugger allows you to step through Javascript execution, track Redux state, and inspect the React component tree.
 
 ```
 brew cask install react-native-debugger

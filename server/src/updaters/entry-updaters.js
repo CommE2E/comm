@@ -201,7 +201,7 @@ async function createUpdateDatasForChangedEntryInfo(
   invariant(entryID, 'should be set');
 
   // If we ever make it possible to move entries from one thread to another,
-  // we should update this code rto look at oldEntryInfo.threadID as well
+  // we should update this code to look at oldEntryInfo.threadID as well
   const fetchedFilters = await fetchActiveSessionsForThread(
     newEntryInfo.threadID,
   );
