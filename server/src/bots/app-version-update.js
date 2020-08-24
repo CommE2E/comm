@@ -40,11 +40,11 @@ async function botherMonthlyActivesToUpdateAppVersion(): Promise<void> {
       SELECT t.id, m1.user, COUNT(m3.user) AS user_count
       FROM threads t
       LEFT JOIN memberships m1 ON m1.thread = t.id
-        AND m1.user != ${squadbot.userID}
+        AND m1.user != ${squadbot.userID} AND m1.role >= 0
       LEFT JOIN memberships m2 ON m2.thread = t.id
-        AND m2.user = ${squadbot.userID}
+        AND m2.user = ${squadbot.userID} AND m2.role >= 0
       LEFT JOIN memberships m3 ON m3.thread = t.id
-      WHERE m1.user IS NOT NULL AND m2.user IS NOT NULL
+      WHERE m1.user IS NOT NULL AND m2.user IS NOT NULL AND m3.role >= 0
       GROUP BY t.id, m1.user
     ) t ON t.user = x.user AND t.user_count = 2
     WHERE v.id IS NOT NULL AND x.max_code_version < v.code_version

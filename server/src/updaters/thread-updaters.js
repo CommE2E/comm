@@ -83,7 +83,7 @@ async function updateRole(
   let nonMemberUser = false;
   let numResults = 0;
   for (let row of result) {
-    if (!row.role) {
+    if (row.role <= 0) {
       nonMemberUser = true;
       break;
     }
@@ -159,7 +159,7 @@ async function removeMembers(
   let nonDefaultRoleUser = false;
   const actualMemberIDs = [];
   for (let row of result) {
-    if (!row.role) {
+    if (row.role <= 0) {
       continue;
     }
     actualMemberIDs.push(row.user.toString());

@@ -42,11 +42,11 @@ import { rescindPushNotifs } from '../push/rescind';
 
 import { dbQuery, SQL, mergeOrConditions } from '../database';
 
-type MembershipRowToSave = {|
+export type MembershipRowToSave = {|
   operation: 'update' | 'join',
   userID: string,
   threadID: string,
-  permissions: ThreadPermissionsBlob,
+  permissions: ?ThreadPermissionsBlob,
   permissionsForChildren: ?ThreadPermissionsBlob,
   // null role represents by "0"
   role: string,
@@ -498,7 +498,7 @@ async function saveMemberships(toSave: $ReadOnlyArray<MembershipRowToSave>) {
       rowToSave.role,
       time,
       subscription,
-      JSON.stringify(rowToSave.permissions),
+      rowToSave.permissions ? JSON.stringify(rowToSave.permissions) : null,
       rowToSave.permissionsForChildren
         ? JSON.stringify(rowToSave.permissionsForChildren)
         : null,
@@ -543,7 +543,11 @@ async function deleteMemberships(
       SQL`(user = ${rowToDelete.userID} AND thread = ${rowToDelete.threadID})`,
   );
   const conditions = mergeOrConditions(deleteRows);
-  const query = SQL`UPDATE memberships SET role = -1 WHERE `;
+  const query = SQL`
+    UPDATE memberships 
+    SET role = -1, permissions = NULL, permissions_for_children = NULL, 
+      unread = 0, subscription = ${defaultSubscriptionString} 
+    WHERE `;
   query.append(conditions);
   await dbQuery(query);
 }
@@ -731,6 +735,7 @@ function getParentThreadRelationshipRowsForNewUsers(
 export {
   changeRole,
   recalculateAllPermissions,
+  saveMemberships,
   commitMembershipChangeset,
   setJoinsToUnread,
   getRelationshipRowsForUsers,

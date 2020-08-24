@@ -78,7 +78,7 @@ async function createTables() {
       thread bigint(20) NOT NULL,
       user bigint(20) NOT NULL,
       role bigint(20) NOT NULL,
-      permissions json NOT NULL,
+      permissions json DEFAULT NULL,
       permissions_for_children json DEFAULT NULL,
       creation_time bigint(20) NOT NULL,
       subscription json NOT NULL,

@@ -37,7 +37,8 @@ async function fetchServerThreadInfos(
         UNION SELECT id AS thread, 0 AS id, NULL AS name, NULL AS permissions
           FROM threads
       ) r ON r.thread = t.id
-    LEFT JOIN memberships m ON m.role = r.id AND m.thread = t.id
+    LEFT JOIN memberships m ON m.role = r.id AND m.thread = t.id AND
+      m.role >= 0
   `
     .append(whereClause)
     .append(SQL`ORDER BY m.user ASC`);
@@ -212,7 +213,7 @@ async function viewerIsMember(
     return false;
   }
   const row = result[0];
-  return !!row.role;
+  return row.role > 0;
 }
 
 export {

@@ -200,7 +200,7 @@ async function postMessageSend(
   `);
   appendSQLArray(query, subthreadJoins, SQL` `);
   query.append(SQL`
-    WHERE (m.role != 0 OR f.user IS NOT NULL) AND
+    WHERE (m.role > 0 OR f.user IS NOT NULL) AND
       JSON_EXTRACT(m.permissions, ${visibleExtractString}) IS TRUE AND
       m.thread IN (${[...threadsToMessageIndices.keys()]})
   `);

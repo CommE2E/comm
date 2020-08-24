@@ -62,7 +62,7 @@ async function activityUpdater(
     const membershipQuery = SQL`
       SELECT thread
       FROM memberships
-      WHERE role != 0
+      WHERE role > 0
         AND thread IN (${verifiedThreadIDs})
         AND user = ${viewer.userID}
     `;
