@@ -43,7 +43,7 @@ async function updateRoles(
     const setAdminQuery = SQL`
       UPDATE memberships
       SET role = ${id}
-      WHERE thread = ${threadID} AND user = ${viewer.userID}
+      WHERE thread = ${threadID} AND user = ${viewer.userID} AND role > 0
     `;
     promises.push(dbQuery(setAdminQuery));
   } else if (!rolePermissions.Admins && currentRolePermissions.Admins) {
@@ -59,7 +59,7 @@ async function updateRoles(
     const updateMembershipsQuery = SQL`
       UPDATE memberships
       SET role = ${currentRoleIDs.Members}
-      WHERE thread = ${threadID}
+      WHERE thread = ${threadID} AND role > 0
     `;
     promises.push(dbQuery(updateMembershipsQuery));
   }
