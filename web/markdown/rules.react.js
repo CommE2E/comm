@@ -123,6 +123,12 @@ function markdownRules(): MarkdownRuleSpec {
         content: SharedMarkdown.jsonPrint(capture),
       }),
     },
+    list: {
+      ...SimpleMarkdown.defaultRules.list,
+      match: SharedMarkdown.matchList,
+      parse: SharedMarkdown.parseList,
+    },
+    escape: SimpleMarkdown.defaultRules.escape,
   };
   return {
     ...linkMarkdownRules,

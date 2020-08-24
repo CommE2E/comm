@@ -60,5 +60,11 @@ div.markdown pre > code {
   display: inline-block;
   box-sizing: border-box;
   tab-size: 2;
-  overflow-x: scroll;
+  overflow-x: auto;
+}
+
+div.markdown ol,
+div.markdown ul {
+  padding-left: 1em;
+  margin-left: 0.5em;
 }
