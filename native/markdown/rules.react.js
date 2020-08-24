@@ -305,6 +305,32 @@ function fullMarkdownRules(
         content: SharedMarkdown.jsonPrint(capture),
       }),
     },
+    list: {
+      ...SimpleMarkdown.defaultRules.list,
+      match: SharedMarkdown.matchList,
+      parse: SharedMarkdown.parseList,
+      react(
+        node: SimpleMarkdown.SingleASTNode,
+        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
+        state: SimpleMarkdown.State,
+      ) {
+        const children = node.items.map((item, i) => {
+          const content = output(item, state);
+          const bulletValue = node.ordered ? node.start + i + '. ' : '\u2022 ';
+          return (
+            <View key={i} style={styles.listRow}>
+              <Text style={[state.textStyle, styles.listBulletStyle]}>
+                {bulletValue}
+              </Text>
+              <View style={styles.insideListView}>{content}</View>
+            </View>
+          );
+        });
+
+        return <View key={state.key}>{children}</View>;
+      },
+    },
+    escape: SimpleMarkdown.defaultRules.escape,
   };
   return {
     ...inlineRules,

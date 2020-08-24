@@ -83,6 +83,15 @@ const unboundStyles = {
       default: 18,
     }),
   },
+  listBulletStyle: {
+    fontWeight: 'bold',
+  },
+  listRow: {
+    flexDirection: 'row',
+  },
+  insideListView: {
+    flexShrink: 1,
+  },
 };
 
 export type MarkdownStyles = typeof unboundStyles;
