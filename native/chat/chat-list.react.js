@@ -18,7 +18,6 @@ import type { ChatMessageItem } from 'lib/selectors/chat-selectors';
 import * as React from 'react';
 import {
   FlatList,
-  LayoutAnimation,
   Animated,
   Easing,
   StyleSheet,
@@ -188,28 +187,18 @@ class ChatList extends React.PureComponent<Props, State> {
       return;
     }
 
-    if (scrollPos <= 0 && adjustScrollPos > 0) {
-      // This indicates we're scrolled to the bottom and something just got
-      // prepended to the front (bottom) of the chat list. We'll animate it in
-      // and we won't adjust scroll position
-      LayoutAnimation.easeInEaseOut();
-    } else if (newLocalMessage) {
-      // This indicates the current client just sent a new message, but we are
-      // scrolled up in the ChatList. We'll scroll back down to show the new
-      // message
+    flatList.scrollToOffset({
+      offset: scrollPos + adjustScrollPos,
+      animated: false,
+    });
+
+    if (newLocalMessage || scrollPos <= 0) {
       flatList.scrollToOffset({ offset: 0 });
-      LayoutAnimation.easeInEaseOut();
-    } else {
-      flatList.scrollToOffset({
-        offset: scrollPos + adjustScrollPos,
-        animated: false,
-      });
-      if (newRemoteMessageCount > 0) {
-        this.setState(prevState => ({
-          newMessageCount: prevState.newMessageCount + newRemoteMessageCount,
-        }));
-        this.toggleNewMessagesPill(true);
-      }
+    } else if (newRemoteMessageCount > 0) {
+      this.setState(prevState => ({
+        newMessageCount: prevState.newMessageCount + newRemoteMessageCount,
+      }));
+      this.toggleNewMessagesPill(true);
     }
   }
 
