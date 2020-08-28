@@ -245,7 +245,7 @@ function fullMarkdownRules(
       ) {
         const content = capture[1].replace(/^ *> ?/gm, '');
         return {
-          content: SimpleMarkdown.parseInline(parse, content, state),
+          content: parse(content, state),
         };
       },
       // eslint-disable-next-line react/display-name
@@ -255,7 +255,7 @@ function fullMarkdownRules(
         state: SimpleMarkdown.State,
       ) => (
         <View key={state.key} style={styles.blockQuote}>
-          <Text style={state.textStyle}>{output(node.content, state)}</Text>
+          {output(node.content, state)}
         </View>
       ),
     },
