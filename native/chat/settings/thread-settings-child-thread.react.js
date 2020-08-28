@@ -101,6 +101,7 @@ const styles = {
     alignItems: 'center',
   },
   text: {
+    flex: 1,
     color: 'link',
     fontSize: 16,
     paddingLeft: 8,
