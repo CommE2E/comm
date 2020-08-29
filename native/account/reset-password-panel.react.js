@@ -109,6 +109,7 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
             placeholder="New password"
             autoFocus={true}
             secureTextEntry={true}
+            textContentType="password"
             returnKeyType="next"
             blurOnSubmit={false}
             onSubmitEditing={this.focusConfirmPasswordInput}
@@ -124,6 +125,7 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
             onChangeText={this.onChangeConfirmPasswordInputText}
             placeholder="Confirm password"
             secureTextEntry={true}
+            textContentType="password"
             returnKeyType="go"
             blurOnSubmit={false}
             onSubmitEditing={this.onSubmit}

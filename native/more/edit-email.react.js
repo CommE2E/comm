@@ -157,6 +157,7 @@ class EditEmail extends React.PureComponent<Props, State> {
             placeholder="Password"
             placeholderTextColor={panelForegroundTertiaryLabel}
             secureTextEntry={true}
+            textContentType="password"
             returnKeyType="go"
             onSubmitEditing={this.submitEmail}
             ref={this.passwordInputRef}

@@ -103,6 +103,7 @@ class RegisterPanel extends React.PureComponent<Props> {
             autoCorrect={false}
             autoCapitalize="none"
             keyboardType="ascii-capable"
+            textContentType="username"
             returnKeyType="next"
             blurOnSubmit={false}
             onSubmitEditing={this.focusEmailInput}
@@ -140,6 +141,7 @@ class RegisterPanel extends React.PureComponent<Props> {
             onChangeText={this.onChangePasswordInputText}
             placeholder="Password"
             secureTextEntry={true}
+            textContentType="password"
             returnKeyType="next"
             blurOnSubmit={false}
             onSubmitEditing={this.focusConfirmPasswordInput}
@@ -155,6 +157,7 @@ class RegisterPanel extends React.PureComponent<Props> {
             onChangeText={this.onChangeConfirmPasswordInputText}
             placeholder="Confirm password"
             secureTextEntry={true}
+            textContentType="password"
             returnKeyType="go"
             blurOnSubmit={false}
             onSubmitEditing={this.onSubmit}

@@ -190,6 +190,7 @@ class DeleteThread extends React.PureComponent<Props, State> {
             placeholder="Password"
             placeholderTextColor={panelForegroundTertiaryLabel}
             secureTextEntry={true}
+            textContentType="password"
             returnKeyType="go"
             onSubmitEditing={this.submitDeletion}
             ref={this.passwordInputRef}
