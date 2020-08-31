@@ -82,6 +82,7 @@ const {
   block,
   set,
   cond,
+  not,
   and,
   eq,
   neq,
@@ -93,6 +94,7 @@ const {
   divide,
   max,
   stopClock,
+  clockRunning,
 } = Reanimated;
 /* eslint-enable import/no-named-as-default-member */
 
@@ -404,11 +406,23 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       LoggedOutModal.getModeNumber(this.nextMode),
     );
     const clock = new Clock();
+    const keyboardTimeoutClock = new Clock();
     return block([
       cond(lessThan(panelPaddingTop, 0), [
         set(panelPaddingTop, potentialPanelPaddingTop),
         set(targetPanelPaddingTop, potentialPanelPaddingTop),
       ]),
+      cond(
+        lessThan(this.keyboardHeightValue, 0),
+        [
+          runTiming(keyboardTimeoutClock, 0, 1, true, { duration: 500 }),
+          cond(
+            not(clockRunning(keyboardTimeoutClock)),
+            set(this.keyboardHeightValue, 0),
+          ),
+        ],
+        stopClock(keyboardTimeoutClock),
+      ),
       cond(
         and(
           greaterOrEq(this.keyboardHeightValue, 0),
@@ -727,7 +741,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     if (!this.expectingKeyboardToAppear || !this.mounted) {
       return;
     }
-    this.keyboardHeightValue.setValue(0);
     this.expectingKeyboardToAppear = false;
     this.animateToSecondMode();
   };
