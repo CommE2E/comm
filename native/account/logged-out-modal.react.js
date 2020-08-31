@@ -32,6 +32,9 @@ import OnePassword from 'react-native-onepassword';
 import PropTypes from 'prop-types';
 import _isEqual from 'lodash/fp/isEqual';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Reanimated, {
+  Easing as ReanimatedEasing,
+} from 'react-native-reanimated';
 
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
 import {
@@ -94,7 +97,6 @@ type State = {
   footerPaddingTop: Animated.Value,
   panelOpacity: Animated.Value,
   forgotPasswordLinkOpacity: Animated.Value,
-  buttonOpacity: Animated.Value,
   onePasswordSupported: boolean,
   logInState: StateContainer<LogInState>,
   registerState: StateContainer<RegisterState>,
@@ -125,6 +127,8 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   keyboardHeight = 0;
   lastPanelPaddingTopValue: ?number = null;
   logInPanelContainer: ?LogInPanelContainer = null;
+
+  buttonOpacity: Reanimated.Value;
 
   constructor(props: Props) {
     super(props);
@@ -159,7 +163,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       footerPaddingTop: new Animated.Value(this.calculateFooterPaddingTop(0)),
       panelOpacity: new Animated.Value(0),
       forgotPasswordLinkOpacity: new Animated.Value(0),
-      buttonOpacity: new Animated.Value(props.rehydrateConcluded ? 1 : 0),
       onePasswordSupported: false,
       logInState: {
         state: {
@@ -181,6 +184,8 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     if (props.rehydrateConcluded) {
       this.nextMode = 'prompt';
     }
+
+    this.buttonOpacity = new Reanimated.Value(props.rehydrateConcluded ? 1 : 0);
   }
 
   guardedSetState = (change: StateChange<State>) => {
@@ -216,7 +221,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     }
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps: Props, prevState: State) {
     if (!prevProps.rehydrateConcluded && this.props.rehydrateConcluded) {
       this.showPrompt();
       this.onInitialAppLoad();
@@ -225,6 +230,15 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       this.onForeground();
     } else if (prevProps.isForeground && !this.props.isForeground) {
       this.onBackground();
+    }
+
+    if (this.state.mode === 'prompt' && prevState.mode !== 'prompt') {
+      this.buttonOpacity.setValue(0);
+      Reanimated.timing(this.buttonOpacity, {
+        easing: ReanimatedEasing.out(ReanimatedEasing.ease),
+        duration: 250,
+        toValue: 1.0,
+      }).start();
     }
   }
 
@@ -288,11 +302,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   showPrompt = () => {
     this.nextMode = 'prompt';
     this.guardedSetState({ mode: 'prompt' });
-    Animated.timing(this.state.buttonOpacity, {
-      ...animatedSpec,
-      duration: 250,
-      toValue: 1.0,
-    }).start();
   };
 
   hardwareBack = () => {
@@ -528,9 +537,9 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
         />
       );
     } else if (this.state.mode === 'prompt') {
-      const opacityStyle = { opacity: this.state.buttonOpacity };
+      const opacityStyle = { opacity: this.buttonOpacity };
       buttons = (
-        <Animated.View style={[styles.buttonContainer, opacityStyle]}>
+        <Reanimated.View style={[styles.buttonContainer, opacityStyle]}>
           <TouchableOpacity
             onPress={this.onPressLogIn}
             style={styles.button}
@@ -545,7 +554,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
           >
             <Text style={styles.buttonText}>SIGN UP</Text>
           </TouchableOpacity>
-        </Animated.View>
+        </Reanimated.View>
       );
     } else if (this.state.mode === 'loading') {
       panel = (
