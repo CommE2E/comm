@@ -38,7 +38,7 @@ import {
   State as GestureState,
 } from 'react-native-gesture-handler';
 import Orientation from 'react-native-orientation-locker';
-import Animated, { Easing } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/Ionicons';
 import invariant from 'invariant';
 
@@ -50,6 +50,7 @@ import {
   clamp,
   gestureJustStarted,
   gestureJustEnded,
+  runTiming,
 } from '../utils/animation-utils';
 import { intentionalSaveMedia } from './save-media';
 import {
@@ -87,7 +88,6 @@ const {
   startClock,
   stopClock,
   clockRunning,
-  timing,
   decay,
 } = Animated;
 /* eslint-enable import/no-named-as-default-member */
@@ -118,38 +118,6 @@ function panDelta(value: Value, gestureActive: Value) {
     ],
     set(prevValue, 0),
   );
-}
-
-function runTiming(
-  clock: Clock,
-  initialValue: Value | number,
-  finalValue: Value | number,
-  startStopClock: boolean = true,
-): Value {
-  const state = {
-    finished: new Value(0),
-    position: new Value(0),
-    frameTime: new Value(0),
-    time: new Value(0),
-  };
-  const config = {
-    toValue: new Value(0),
-    duration: 250,
-    easing: Easing.out(Easing.ease),
-  };
-  return [
-    cond(not(clockRunning(clock)), [
-      set(state.finished, 0),
-      set(state.frameTime, 0),
-      set(state.time, 0),
-      set(state.position, initialValue),
-      set(config.toValue, finalValue),
-      startStopClock && startClock(clock),
-    ]),
-    timing(clock, state, config),
-    cond(state.finished, startStopClock && stopClock(clock)),
-    state.position,
-  ];
 }
 
 function runDecay(

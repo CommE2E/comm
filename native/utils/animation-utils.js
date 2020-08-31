@@ -1,10 +1,23 @@
 // @flow
 
-import Animated from 'react-native-reanimated';
+import Animated, { Easing } from 'react-native-reanimated';
 import { State as GestureState } from 'react-native-gesture-handler';
 
 /* eslint-disable import/no-named-as-default-member */
-const { Value, cond, greaterThan, eq, sub, set } = Animated;
+const {
+  Clock,
+  Value,
+  cond,
+  not,
+  greaterThan,
+  eq,
+  sub,
+  set,
+  startClock,
+  stopClock,
+  clockRunning,
+  timing,
+} = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
 function clamp(value: Value, minValue: Value, maxValue: Value): Value {
@@ -41,4 +54,43 @@ function gestureJustEnded(state: Value) {
   ]);
 }
 
-export { clamp, delta, gestureJustStarted, gestureJustEnded };
+const defaultTimingConfig = {
+  duration: 250,
+  easing: Easing.out(Easing.ease),
+};
+
+type TimingConfig = $Shape<typeof defaultTimingConfig>;
+function runTiming(
+  clock: Clock,
+  initialValue: Value | number,
+  finalValue: Value | number,
+  startStopClock: boolean = true,
+  config: TimingConfig = defaultTimingConfig,
+): Value {
+  const state = {
+    finished: new Value(0),
+    position: new Value(0),
+    frameTime: new Value(0),
+    time: new Value(0),
+  };
+  const timingConfig = {
+    ...defaultTimingConfig,
+    ...config,
+    toValue: new Value(0),
+  };
+  return [
+    cond(not(clockRunning(clock)), [
+      set(state.finished, 0),
+      set(state.frameTime, 0),
+      set(state.time, 0),
+      set(state.position, initialValue),
+      set(timingConfig.toValue, finalValue),
+      startStopClock && startClock(clock),
+    ]),
+    timing(clock, state, timingConfig),
+    cond(state.finished, startStopClock && stopClock(clock)),
+    state.position,
+  ];
+}
+
+export { clamp, delta, gestureJustStarted, gestureJustEnded, runTiming };
