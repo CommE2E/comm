@@ -67,6 +67,7 @@ import {
   type NavContextType,
   navContextPropType,
 } from '../navigation/navigation-context';
+import { runTiming } from '../utils/animation-utils';
 
 let initialAppLoad = true;
 const animatedSpec = {
@@ -74,6 +75,26 @@ const animatedSpec = {
   easing: Easing.out(Easing.ease),
 };
 const safeAreaEdges = ['top', 'bottom'];
+
+/* eslint-disable import/no-named-as-default-member */
+const {
+  Clock,
+  block,
+  set,
+  cond,
+  and,
+  eq,
+  neq,
+  greaterThan,
+  lessThan,
+  greaterOrEq,
+  add,
+  sub,
+  divide,
+  max,
+  stopClock,
+} = Reanimated;
+/* eslint-enable import/no-named-as-default-member */
 
 type LoggedOutMode = 'loading' | 'prompt' | 'log-in' | 'register';
 type Props = {
@@ -93,7 +114,6 @@ type Props = {
 };
 type State = {
   mode: LoggedOutMode,
-  panelPaddingTop: Animated.Value,
   footerPaddingTop: Animated.Value,
   panelOpacity: Animated.Value,
   forgotPasswordLinkOpacity: Animated.Value,
@@ -125,10 +145,14 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   activeKeyboard = false;
   opacityChangeQueued = false;
   keyboardHeight = 0;
-  lastPanelPaddingTopValue: ?number = null;
   logInPanelContainer: ?LogInPanelContainer = null;
 
+  contentHeight: Reanimated.Value;
+  keyboardHeightValue = new Reanimated.Value(0);
+  modeValue: Reanimated.Value;
+
   buttonOpacity: Reanimated.Value;
+  panelPaddingTopValue: Reanimated.Value;
 
   constructor(props: Props) {
     super(props);
@@ -157,9 +181,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
     this.state = {
       mode: props.rehydrateConcluded ? 'prompt' : 'loading',
-      panelPaddingTop: new Animated.Value(
-        this.calculatePanelPaddingTop('prompt', 0),
-      ),
       footerPaddingTop: new Animated.Value(this.calculateFooterPaddingTop(0)),
       panelOpacity: new Animated.Value(0),
       forgotPasswordLinkOpacity: new Animated.Value(0),
@@ -185,7 +206,16 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       this.nextMode = 'prompt';
     }
 
+    const { height: windowHeight, topInset, bottomInset } = props.dimensions;
+    this.contentHeight = new Reanimated.Value(
+      windowHeight - topInset - bottomInset,
+    );
+    this.modeValue = new Reanimated.Value(
+      LoggedOutModal.getModeNumber(this.nextMode),
+    );
+
     this.buttonOpacity = new Reanimated.Value(props.rehydrateConcluded ? 1 : 0);
+    this.panelPaddingTopValue = this.panelPaddingTop();
   }
 
   guardedSetState = (change: StateChange<State>) => {
@@ -193,6 +223,25 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       this.setState(change);
     }
   };
+
+  setMode(newMode: LoggedOutMode) {
+    this.nextMode = newMode;
+    this.guardedSetState({ mode: newMode });
+    this.modeValue.setValue(LoggedOutModal.getModeNumber(newMode));
+  }
+
+  static getModeNumber(mode: LoggedOutMode) {
+    if (mode === 'loading') {
+      return 0;
+    } else if (mode === 'prompt') {
+      return 1;
+    } else if (mode === 'log-in') {
+      return 2;
+    } else if (mode === 'register') {
+      return 3;
+    }
+    invariant(false, `${mode} is not a valid LoggedOutMode`);
+  }
 
   async determineOnePasswordSupport() {
     let onePasswordSupported;
@@ -223,7 +272,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   componentDidUpdate(prevProps: Props, prevState: State) {
     if (!prevProps.rehydrateConcluded && this.props.rehydrateConcluded) {
-      this.showPrompt();
+      this.setMode('prompt');
       this.onInitialAppLoad();
     }
     if (!prevProps.isForeground && this.props.isForeground) {
@@ -239,6 +288,18 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
         duration: 250,
         toValue: 1.0,
       }).start();
+    }
+
+    const newContentHeight =
+      this.props.dimensions.height -
+      this.props.dimensions.topInset -
+      this.props.dimensions.bottomInset;
+    const oldContentHeight =
+      prevProps.dimensions.height -
+      prevProps.dimensions.topInset -
+      prevProps.dimensions.bottomInset;
+    if (newContentHeight !== oldContentHeight) {
+      this.contentHeight.setValue(newContentHeight);
     }
   }
 
@@ -299,11 +360,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     }
   }
 
-  showPrompt = () => {
-    this.nextMode = 'prompt';
-    this.guardedSetState({ mode: 'prompt' });
-  };
-
   hardwareBack = () => {
     if (this.nextMode === 'log-in') {
       invariant(this.logInPanelContainer, 'ref should be set');
@@ -319,24 +375,63 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     return false;
   };
 
-  calculatePanelPaddingTop(mode: LoggedOutMode, keyboardHeight: number) {
-    const {
-      height: windowHeight,
-      topInset,
-      bottomInset,
-    } = this.props.dimensions;
-    let containerSize = Platform.OS === 'ios' ? 62.33 : 58.54; // header height
-    if (mode === 'log-in') {
-      // We need to make space for the reset password button on smaller devices
-      containerSize += windowHeight < 600 ? 195 : 165;
-    } else if (mode === 'register') {
-      // We need to make space for the password manager on smaller devices
-      containerSize += windowHeight < 600 ? 261 : 246;
-    } else {
-      containerSize += Platform.OS === 'ios' ? 40 : 61;
-    }
-    const contentHeight = windowHeight - bottomInset - topInset;
-    return (contentHeight - keyboardHeight - containerSize) / 2;
+  panelPaddingTop() {
+    const headerHeight = Platform.OS === 'ios' ? 62.33 : 58.54;
+    const containerSize = add(
+      headerHeight,
+      cond(
+        eq(this.modeValue, 2),
+        // We make space for the reset password button on smaller devices
+        cond(lessThan(this.contentHeight, 600), 195, 165),
+        0,
+      ),
+      cond(
+        eq(this.modeValue, 3),
+        // We make space for the password manager on smaller devices
+        cond(lessThan(this.contentHeight, 600), 261, 246),
+        0,
+      ),
+      cond(lessThan(this.modeValue, 2), Platform.OS === 'ios' ? 40 : 61, 0),
+    );
+    const potentialPanelPaddingTop = divide(
+      max(sub(this.contentHeight, this.keyboardHeightValue, containerSize), 0),
+      2,
+    );
+
+    const panelPaddingTop = new Reanimated.Value(-1);
+    const targetPanelPaddingTop = new Reanimated.Value(-1);
+    const prevModeValue = new Reanimated.Value(
+      LoggedOutModal.getModeNumber(this.nextMode),
+    );
+    const clock = new Clock();
+    return block([
+      cond(lessThan(panelPaddingTop, 0), [
+        set(panelPaddingTop, potentialPanelPaddingTop),
+        set(targetPanelPaddingTop, potentialPanelPaddingTop),
+      ]),
+      cond(
+        and(
+          greaterOrEq(this.keyboardHeightValue, 0),
+          neq(prevModeValue, this.modeValue),
+        ),
+        [
+          stopClock(clock),
+          cond(
+            neq(greaterThan(prevModeValue, 1), greaterThan(this.modeValue, 1)),
+            set(targetPanelPaddingTop, potentialPanelPaddingTop),
+          ),
+          set(prevModeValue, this.modeValue),
+        ],
+      ),
+      cond(
+        neq(panelPaddingTop, targetPanelPaddingTop),
+        set(
+          panelPaddingTop,
+          runTiming(clock, panelPaddingTop, targetPanelPaddingTop),
+        ),
+      ),
+      panelPaddingTop,
+    ]);
   }
 
   calculateFooterPaddingTop(keyboardHeight: number) {
@@ -350,34 +445,14 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     return contentHeight - keyboardHeight - textHeight - 15;
   }
 
-  animateToSecondMode(
-    inputDuration: ?number = null,
-    realKeyboardHeight: ?number = null,
-  ) {
+  animateToSecondMode(inputDuration: ?number = null) {
     const duration = inputDuration ? inputDuration : 150;
-    if (!realKeyboardHeight) {
-      realKeyboardHeight = this.keyboardHeight;
-    }
     const animations = [];
-    const newPanelPaddingTopValue = this.calculatePanelPaddingTop(
-      this.state.mode,
-      this.keyboardHeight,
-    );
-    if (newPanelPaddingTopValue !== this.lastPanelPaddingTopValue) {
-      this.lastPanelPaddingTopValue = newPanelPaddingTopValue;
-      animations.push(
-        Animated.timing(this.state.panelPaddingTop, {
-          ...animatedSpec,
-          duration,
-          toValue: newPanelPaddingTopValue,
-        }),
-      );
-    }
     animations.push(
       Animated.timing(this.state.footerPaddingTop, {
         ...animatedSpec,
         duration,
-        toValue: this.calculateFooterPaddingTop(realKeyboardHeight),
+        toValue: this.calculateFooterPaddingTop(this.keyboardHeight),
       }),
     );
     if (this.opacityChangeQueued) {
@@ -414,12 +489,9 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
         0,
       ),
     });
-    if (!this.activeKeyboard) {
-      // We do this because the Android keyboard can change in height and we
-      // don't want to bother moving the panel between those events
-      this.keyboardHeight = keyboardHeight;
-    }
-    this.animateToSecondMode(event.duration, keyboardHeight);
+    this.keyboardHeightValue.setValue(keyboardHeight);
+    this.keyboardHeight = keyboardHeight;
+    this.animateToSecondMode(event.duration);
     if (!this.activeKeyboard) {
       this.opacityChangeQueued = false;
     }
@@ -428,17 +500,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   animateKeyboardDownOrBackToPrompt(inputDuration: ?number) {
     const duration = inputDuration ? inputDuration : 250;
-    const newLastPanelPaddingTopValue = this.calculatePanelPaddingTop(
-      this.nextMode,
-      0,
-    );
-    this.lastPanelPaddingTopValue = newLastPanelPaddingTopValue;
     const animations = [
-      Animated.timing(this.state.panelPaddingTop, {
-        ...animatedSpec,
-        duration,
-        toValue: newLastPanelPaddingTopValue,
-      }),
       Animated.timing(this.state.footerPaddingTop, {
         ...animatedSpec,
         duration,
@@ -465,6 +527,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   }
 
   keyboardHide = (event: ?KeyboardEvent) => {
+    this.keyboardHeightValue.setValue(0);
     if (this.expectingKeyboardToAppear) {
       // On the iOS simulator, it's possible to disable the keyboard. In this
       // case, when a TextInput's autoFocus would normally cause keyboardShow
@@ -503,6 +566,8 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
     this.opacityChangeQueued = true;
     this.nextMode = 'prompt';
+    this.keyboardHeightValue.setValue(0);
+    this.modeValue.setValue(LoggedOutModal.getModeNumber('prompt'));
 
     if (this.activeKeyboard) {
       // If keyboard is currently active, keyboardHide will handle the
@@ -591,10 +656,10 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       opacity: this.state.panelOpacity,
       left: windowWidth < 360 ? 28 : 40,
     };
-    const padding = { paddingTop: this.state.panelPaddingTop };
+    const padding = { paddingTop: this.panelPaddingTopValue };
 
     const animatedContent = (
-      <Animated.View style={[styles.animationContainer, padding]}>
+      <Reanimated.View style={[styles.animationContainer, padding]}>
         <View>
           <Text style={styles.header}>SquadCal</Text>
           <Animated.View style={[styles.backButton, buttonStyle]}>
@@ -604,7 +669,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
           </Animated.View>
         </View>
         {panel}
-      </Animated.View>
+      </Reanimated.View>
     );
 
     const backgroundSource = { uri: splashBackgroundURI };
@@ -631,9 +696,9 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   };
 
   onPressLogIn = () => {
+    this.keyboardHeightValue.setValue(-1);
     this.opacityChangeQueued = true;
-    this.nextMode = 'log-in';
-    this.guardedSetState({ mode: 'log-in' });
+    this.setMode('log-in');
     if (this.activeKeyboard) {
       // If keyboard isn't currently active, keyboardShow will handle the
       // animation. This is so we can run all animations in parallel
@@ -645,9 +710,9 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   };
 
   onPressRegister = () => {
+    this.keyboardHeightValue.setValue(-1);
     this.opacityChangeQueued = true;
-    this.nextMode = 'register';
-    this.guardedSetState({ mode: 'register' });
+    this.setMode('register');
     if (this.activeKeyboard) {
       // If keyboard isn't currently active, keyboardShow will handle the
       // animation. This is so we can run all animations in parallel
@@ -662,6 +727,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     if (!this.expectingKeyboardToAppear || !this.mounted) {
       return;
     }
+    this.keyboardHeightValue.setValue(0);
     this.expectingKeyboardToAppear = false;
     this.animateToSecondMode();
   };
