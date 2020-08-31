@@ -116,7 +116,6 @@ type Props = {
 };
 type State = {
   mode: LoggedOutMode,
-  footerPaddingTop: Animated.Value,
   panelOpacity: Animated.Value,
   forgotPasswordLinkOpacity: Animated.Value,
   onePasswordSupported: boolean,
@@ -155,6 +154,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   buttonOpacity: Reanimated.Value;
   panelPaddingTopValue: Reanimated.Value;
+  footerPaddingTopValue: Reanimated.Value;
 
   constructor(props: Props) {
     super(props);
@@ -183,7 +183,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
     this.state = {
       mode: props.rehydrateConcluded ? 'prompt' : 'loading',
-      footerPaddingTop: new Animated.Value(this.calculateFooterPaddingTop(0)),
       panelOpacity: new Animated.Value(0),
       forgotPasswordLinkOpacity: new Animated.Value(0),
       onePasswordSupported: false,
@@ -218,6 +217,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
     this.buttonOpacity = new Reanimated.Value(props.rehydrateConcluded ? 1 : 0);
     this.panelPaddingTopValue = this.panelPaddingTop();
+    this.footerPaddingTopValue = this.footerPaddingTop();
   }
 
   guardedSetState = (change: StateChange<State>) => {
@@ -448,27 +448,41 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     ]);
   }
 
-  calculateFooterPaddingTop(keyboardHeight: number) {
-    const {
-      height: windowHeight,
-      topInset,
-      bottomInset,
-    } = this.props.dimensions;
-    const contentHeight = windowHeight - bottomInset - topInset;
+  footerPaddingTop() {
     const textHeight = Platform.OS === 'ios' ? 17 : 19;
-    return contentHeight - keyboardHeight - textHeight - 15;
+    const targetFooterPaddingTop = max(
+      sub(this.contentHeight, max(this.keyboardHeightValue, 0), textHeight, 15),
+      0,
+    );
+
+    const footerPaddingTop = new Reanimated.Value(-1);
+    const prevTargetFooterPaddingTop = new Reanimated.Value(-1);
+    const clock = new Clock();
+    return block([
+      cond(lessThan(footerPaddingTop, 0), [
+        set(footerPaddingTop, targetFooterPaddingTop),
+        set(prevTargetFooterPaddingTop, targetFooterPaddingTop),
+      ]),
+      cond(greaterOrEq(this.keyboardHeightValue, 0), [
+        cond(neq(targetFooterPaddingTop, prevTargetFooterPaddingTop), [
+          stopClock(clock),
+          set(prevTargetFooterPaddingTop, targetFooterPaddingTop),
+        ]),
+        cond(
+          neq(footerPaddingTop, targetFooterPaddingTop),
+          set(
+            footerPaddingTop,
+            runTiming(clock, footerPaddingTop, targetFooterPaddingTop),
+          ),
+        ),
+      ]),
+      footerPaddingTop,
+    ]);
   }
 
   animateToSecondMode(inputDuration: ?number = null) {
     const duration = inputDuration ? inputDuration : 150;
     const animations = [];
-    animations.push(
-      Animated.timing(this.state.footerPaddingTop, {
-        ...animatedSpec,
-        duration,
-        toValue: this.calculateFooterPaddingTop(this.keyboardHeight),
-      }),
-    );
     if (this.opacityChangeQueued) {
       animations.push(
         Animated.timing(this.state.panelOpacity, {
@@ -514,13 +528,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   animateKeyboardDownOrBackToPrompt(inputDuration: ?number) {
     const duration = inputDuration ? inputDuration : 250;
-    const animations = [
-      Animated.timing(this.state.footerPaddingTop, {
-        ...animatedSpec,
-        duration,
-        toValue: this.calculateFooterPaddingTop(this.keyboardHeight),
-      }),
-    ];
+    const animations = [];
     if (this.opacityChangeQueued) {
       animations.push(
         Animated.timing(this.state.panelOpacity, {
@@ -647,21 +655,25 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
     let forgotPasswordLink = null;
     if (this.state.mode === 'log-in') {
-      const dynamicStyle = {
+      const animatedStyle = {
         opacity: this.state.forgotPasswordLinkOpacity,
-        top: this.state.footerPaddingTop,
+      };
+      const reanimatedStyle = {
+        top: this.footerPaddingTopValue,
       };
       forgotPasswordLink = (
-        <Animated.View
-          style={[styles.forgotPasswordTextContainer, dynamicStyle]}
+        <Reanimated.View
+          style={[styles.forgotPasswordTextContainer, reanimatedStyle]}
         >
-          <TouchableOpacity
-            activeOpacity={0.6}
-            onPress={this.onPressForgotPassword}
-          >
-            <Text style={styles.forgotPasswordText}>Forgot password?</Text>
-          </TouchableOpacity>
-        </Animated.View>
+          <Animated.View style={animatedStyle}>
+            <TouchableOpacity
+              activeOpacity={0.6}
+              onPress={this.onPressForgotPassword}
+            >
+              <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </Reanimated.View>
       );
     }
 
