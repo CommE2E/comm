@@ -81,6 +81,7 @@ const {
   Clock,
   block,
   set,
+  call,
   cond,
   not,
   and,
@@ -116,7 +117,6 @@ type Props = {
 };
 type State = {
   mode: LoggedOutMode,
-  panelOpacity: Animated.Value,
   forgotPasswordLinkOpacity: Animated.Value,
   onePasswordSupported: boolean,
   logInState: StateContainer<LogInState>,
@@ -155,6 +155,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   buttonOpacity: Reanimated.Value;
   panelPaddingTopValue: Reanimated.Value;
   footerPaddingTopValue: Reanimated.Value;
+  panelOpacityValue: Reanimated.Value;
 
   constructor(props: Props) {
     super(props);
@@ -183,7 +184,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
     this.state = {
       mode: props.rehydrateConcluded ? 'prompt' : 'loading',
-      panelOpacity: new Animated.Value(0),
       forgotPasswordLinkOpacity: new Animated.Value(0),
       onePasswordSupported: false,
       logInState: {
@@ -218,6 +218,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     this.buttonOpacity = new Reanimated.Value(props.rehydrateConcluded ? 1 : 0);
     this.panelPaddingTopValue = this.panelPaddingTop();
     this.footerPaddingTopValue = this.footerPaddingTop();
+    this.panelOpacityValue = this.panelOpacity();
   }
 
   guardedSetState = (change: StateChange<State>) => {
@@ -231,6 +232,10 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     this.guardedSetState({ mode: newMode });
     this.modeValue.setValue(LoggedOutModal.getModeNumber(newMode));
   }
+
+  proceedToNextMode = () => {
+    this.guardedSetState({ mode: this.nextMode });
+  };
 
   static getModeNumber(mode: LoggedOutMode) {
     if (mode === 'loading') {
@@ -480,17 +485,42 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     ]);
   }
 
+  panelOpacity() {
+    const targetPanelOpacity = greaterThan(this.modeValue, 1);
+
+    const panelOpacity = new Reanimated.Value(-1);
+    const prevPanelOpacity = new Reanimated.Value(-1);
+    const prevTargetPanelOpacity = new Reanimated.Value(-1);
+    const clock = new Clock();
+    return block([
+      cond(lessThan(panelOpacity, 0), [
+        set(panelOpacity, targetPanelOpacity),
+        set(prevPanelOpacity, targetPanelOpacity),
+        set(prevTargetPanelOpacity, targetPanelOpacity),
+      ]),
+      cond(greaterOrEq(this.keyboardHeightValue, 0), [
+        cond(neq(targetPanelOpacity, prevTargetPanelOpacity), [
+          stopClock(clock),
+          set(prevTargetPanelOpacity, targetPanelOpacity),
+        ]),
+        cond(
+          neq(panelOpacity, targetPanelOpacity),
+          set(panelOpacity, runTiming(clock, panelOpacity, targetPanelOpacity)),
+        ),
+      ]),
+      cond(
+        and(eq(panelOpacity, 0), neq(prevPanelOpacity, 0)),
+        call([], this.proceedToNextMode),
+      ),
+      set(prevPanelOpacity, panelOpacity),
+      panelOpacity,
+    ]);
+  }
+
   animateToSecondMode(inputDuration: ?number = null) {
     const duration = inputDuration ? inputDuration : 150;
     const animations = [];
     if (this.opacityChangeQueued) {
-      animations.push(
-        Animated.timing(this.state.panelOpacity, {
-          ...animatedSpec,
-          duration,
-          toValue: 1,
-        }),
-      );
       animations.push(
         Animated.timing(this.state.forgotPasswordLinkOpacity, {
           ...animatedSpec,
@@ -531,13 +561,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     const animations = [];
     if (this.opacityChangeQueued) {
       animations.push(
-        Animated.timing(this.state.panelOpacity, {
-          ...animatedSpec,
-          duration,
-          toValue: 0,
-        }),
-      );
-      animations.push(
         Animated.timing(this.state.forgotPasswordLinkOpacity, {
           ...animatedSpec,
           duration,
@@ -576,16 +599,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   };
 
   goBackToPrompt = () => {
-    let opacityListenerID: ?string = null;
-    const opacityListener = (animatedUpdate: { value: number }) => {
-      if (animatedUpdate.value === 0) {
-        this.guardedSetState({ mode: this.nextMode });
-        invariant(opacityListenerID, 'should be set');
-        this.state.panelOpacity.removeListener(opacityListenerID);
-      }
-    };
-    opacityListenerID = this.state.panelOpacity.addListener(opacityListener);
-
     this.opacityChangeQueued = true;
     this.nextMode = 'prompt';
     this.keyboardHeightValue.setValue(0);
@@ -608,7 +621,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
         <LogInPanelContainer
           onePasswordSupported={this.state.onePasswordSupported}
           setActiveAlert={this.setActiveAlert}
-          opacityValue={this.state.panelOpacity}
+          opacityValue={this.panelOpacityValue}
           forgotPasswordLinkOpacity={this.state.forgotPasswordLinkOpacity}
           logInState={this.state.logInState}
           innerRef={this.logInPanelContainerRef}
@@ -618,7 +631,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       panel = (
         <RegisterPanel
           setActiveAlert={this.setActiveAlert}
-          opacityValue={this.state.panelOpacity}
+          opacityValue={this.panelOpacityValue}
           onePasswordSupported={this.state.onePasswordSupported}
           state={this.state.registerState}
         />
@@ -679,7 +692,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
     const windowWidth = this.props.dimensions.width;
     const buttonStyle = {
-      opacity: this.state.panelOpacity,
+      opacity: this.panelOpacityValue,
       left: windowWidth < 360 ? 28 : 40,
     };
     const padding = { paddingTop: this.panelPaddingTopValue };
@@ -688,11 +701,11 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       <Reanimated.View style={[styles.animationContainer, padding]}>
         <View>
           <Text style={styles.header}>SquadCal</Text>
-          <Animated.View style={[styles.backButton, buttonStyle]}>
+          <Reanimated.View style={[styles.backButton, buttonStyle]}>
             <TouchableOpacity activeOpacity={0.6} onPress={this.hardwareBack}>
               <Icon name="arrow-circle-o-left" size={36} color="#FFFFFFAA" />
             </TouchableOpacity>
-          </Animated.View>
+          </Reanimated.View>
         </View>
         {panel}
       </Reanimated.View>

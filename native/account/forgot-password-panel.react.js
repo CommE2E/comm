@@ -5,10 +5,11 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 
 import React from 'react';
-import { StyleSheet, View, Animated, Alert, Keyboard } from 'react-native';
+import { StyleSheet, View, Alert, Keyboard } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
+import Animated from 'react-native-reanimated';
 
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {

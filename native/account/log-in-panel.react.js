@@ -15,18 +15,12 @@ import {
 } from '../utils/state-container';
 
 import React from 'react';
-import {
-  View,
-  StyleSheet,
-  Alert,
-  Keyboard,
-  Animated,
-  Platform,
-} from 'react-native';
+import { View, StyleSheet, Alert, Keyboard, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
 import PropTypes from 'prop-types';
+import Animated from 'react-native-reanimated';
 
 import { validUsernameRegex, validEmailRegex } from 'lib/shared/account-utils';
 import { connect } from 'lib/utils/redux-utils';

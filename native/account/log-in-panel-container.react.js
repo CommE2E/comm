@@ -12,6 +12,7 @@ import { View, Animated, Text, Easing, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
+import Reanimated from 'react-native-reanimated';
 
 import sleep from 'lib/utils/sleep';
 import { connect } from 'lib/utils/redux-utils';
@@ -30,7 +31,7 @@ type LogInMode = 'log-in' | 'forgot-password' | 'forgot-password-success';
 type Props = {|
   onePasswordSupported: boolean,
   setActiveAlert: (activeAlert: boolean) => void,
-  opacityValue: Animated.Value,
+  opacityValue: Reanimated.Value,
   forgotPasswordLinkOpacity: Animated.Value,
   logInState: StateContainer<LogInState>,
   innerRef: (container: ?LogInPanelContainer) => void,

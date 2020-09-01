@@ -93,7 +93,11 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
       passwordStyle = { paddingRight: 30 };
     }
     return (
-      <Panel opacityValue={this.props.opacityValue} style={styles.container}>
+      <Panel
+        opacityValue={this.props.opacityValue}
+        style={styles.container}
+        animationLibrary="react-native"
+      >
         <View>
           <Icon name="user" size={22} color="#777" style={styles.icon} />
           <View style={styles.usernameContainer}>
