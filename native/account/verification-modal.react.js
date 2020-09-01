@@ -23,18 +23,16 @@ import {
   View,
   StyleSheet,
   ActivityIndicator,
-  Animated,
   Platform,
   Keyboard,
   TouchableHighlight,
-  Easing,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
 import PropTypes from 'prop-types';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Reanimated from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { connect } from 'lib/utils/redux-utils';
@@ -61,22 +59,21 @@ import {
 } from '../navigation/navigation-context';
 import { runTiming } from '../utils/animation-utils';
 
-const animatedSpec = {
-  useNativeDriver: false,
-  easing: Easing.out(Easing.ease),
-};
 const safeAreaEdges = ['top', 'bottom'];
 
 /* eslint-disable import/no-named-as-default-member */
 const {
+  Value,
   Clock,
   block,
   set,
+  call,
   cond,
   not,
   and,
   eq,
   neq,
+  greaterThan,
   lessThan,
   greaterOrEq,
   sub,
@@ -84,7 +81,7 @@ const {
   max,
   stopClock,
   clockRunning,
-} = Reanimated;
+} = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
 export type VerificationModalParams = {|
@@ -107,14 +104,13 @@ type Props = {
     code: string,
   ) => Promise<HandleVerificationCodeResult>,
 };
-type State = {
+type State = {|
   mode: VerificationModalMode,
   verifyField: ?VerifyField,
   errorMessage: ?string,
   resetPasswordUsername: ?string,
-  resetPasswordPanelOpacityValue: Animated.Value,
   onePasswordSupported: boolean,
-};
+|};
 class VerificationModal extends React.PureComponent<Props, State> {
   static propTypes = {
     navigation: PropTypes.shape({
@@ -134,19 +130,16 @@ class VerificationModal extends React.PureComponent<Props, State> {
 
   keyboardShowListener: ?Object;
   keyboardHideListener: ?Object;
-  expectingKeyboardToAppear = false;
 
   activeAlert = false;
-  activeKeyboard = false;
-  opacityChangeQueued = false;
-  keyboardHeight = 0;
   nextMode: VerificationModalMode = 'simple-text';
 
-  contentHeight: Reanimated.Value;
-  keyboardHeightValue = new Reanimated.Value(0);
-  modeValue: Reanimated.Value;
+  contentHeight: Value;
+  keyboardHeightValue = new Value(0);
+  modeValue: Value;
 
-  paddingTopValue: Reanimated.Value;
+  paddingTopValue: Value;
+  resetPasswordPanelOpacityValue: Value;
 
   constructor(props: Props) {
     super(props);
@@ -155,20 +148,20 @@ class VerificationModal extends React.PureComponent<Props, State> {
       verifyField: null,
       errorMessage: null,
       resetPasswordUsername: null,
-      resetPasswordPanelOpacityValue: new Animated.Value(0),
       onePasswordSupported: false,
     };
     const { height: windowHeight, topInset, bottomInset } = props.dimensions;
 
-    this.contentHeight = new Reanimated.Value(
-      windowHeight - topInset - bottomInset,
-    );
-    this.modeValue = new Reanimated.Value(
-      VerificationModal.getModeNumber(this.nextMode),
-    );
+    this.contentHeight = new Value(windowHeight - topInset - bottomInset);
+    this.modeValue = new Value(VerificationModal.getModeNumber(this.nextMode));
 
     this.paddingTopValue = this.paddingTop();
+    this.resetPasswordPanelOpacityValue = this.resetPasswordPanelOpacity();
   }
+
+  proceedToNextMode = () => {
+    this.setState({ mode: this.nextMode });
+  };
 
   static getModeNumber(mode: VerificationModalMode) {
     if (mode === 'simple-text') {
@@ -193,9 +186,9 @@ class VerificationModal extends React.PureComponent<Props, State> {
       2,
     );
 
-    const paddingTop = new Reanimated.Value(-1);
-    const targetPaddingTop = new Reanimated.Value(-1);
-    const prevModeValue = new Reanimated.Value(
+    const paddingTop = new Value(-1);
+    const targetPaddingTop = new Value(-1);
+    const prevModeValue = new Value(
       VerificationModal.getModeNumber(this.nextMode),
     );
     const clock = new Clock();
@@ -232,6 +225,60 @@ class VerificationModal extends React.PureComponent<Props, State> {
         set(paddingTop, runTiming(clock, paddingTop, targetPaddingTop)),
       ),
       paddingTop,
+    ]);
+  }
+
+  resetPasswordPanelOpacity() {
+    const targetResetPasswordPanelOpacity = greaterThan(this.modeValue, 0);
+
+    const resetPasswordPanelOpacity = new Value(-1);
+    const prevResetPasswordPanelOpacity = new Value(-1);
+    const prevTargetResetPasswordPanelOpacity = new Value(-1);
+    const clock = new Clock();
+    return block([
+      cond(lessThan(resetPasswordPanelOpacity, 0), [
+        set(resetPasswordPanelOpacity, targetResetPasswordPanelOpacity),
+        set(prevResetPasswordPanelOpacity, targetResetPasswordPanelOpacity),
+        set(
+          prevTargetResetPasswordPanelOpacity,
+          targetResetPasswordPanelOpacity,
+        ),
+      ]),
+      cond(greaterOrEq(this.keyboardHeightValue, 0), [
+        cond(
+          neq(
+            targetResetPasswordPanelOpacity,
+            prevTargetResetPasswordPanelOpacity,
+          ),
+          [
+            stopClock(clock),
+            set(
+              prevTargetResetPasswordPanelOpacity,
+              targetResetPasswordPanelOpacity,
+            ),
+          ],
+        ),
+        cond(
+          neq(resetPasswordPanelOpacity, targetResetPasswordPanelOpacity),
+          set(
+            resetPasswordPanelOpacity,
+            runTiming(
+              clock,
+              resetPasswordPanelOpacity,
+              targetResetPasswordPanelOpacity,
+            ),
+          ),
+        ),
+      ]),
+      cond(
+        and(
+          eq(resetPasswordPanelOpacity, 0),
+          neq(prevResetPasswordPanelOpacity, 0),
+        ),
+        call([], this.proceedToNextMode),
+      ),
+      set(prevResetPasswordPanelOpacity, resetPasswordPanelOpacity),
+      resetPasswordPanelOpacity,
     ]);
   }
 
@@ -327,32 +374,11 @@ class VerificationModal extends React.PureComponent<Props, State> {
   };
 
   onResetPasswordSuccess = async () => {
-    let opacityListenerID: ?string = null;
-    const opacityListener = (animatedUpdate: { value: number }) => {
-      if (animatedUpdate.value === 0) {
-        this.setState({ mode: this.nextMode });
-        invariant(opacityListenerID, 'should be set');
-        this.state.resetPasswordPanelOpacityValue.removeListener(
-          opacityListenerID,
-        );
-      }
-    };
-    opacityListenerID = this.state.resetPasswordPanelOpacityValue.addListener(
-      opacityListener,
-    );
-
-    this.opacityChangeQueued = true;
     this.nextMode = 'simple-text';
     this.modeValue.setValue(VerificationModal.getModeNumber(this.nextMode));
     this.keyboardHeightValue.setValue(0);
 
-    if (this.activeKeyboard) {
-      // If keyboard is currently active, keyboardHide will handle the
-      // animation. This is so we can run all animations in parallel
-      Keyboard.dismiss();
-    } else {
-      this.animateKeyboardDownOrBackToSimpleText(null);
-    }
+    Keyboard.dismiss();
 
     // Wait a couple seconds before letting the SUCCESS action propagate and
     // clear VerificationModal
@@ -368,7 +394,6 @@ class VerificationModal extends React.PureComponent<Props, State> {
       if (result.verifyField === verifyField.EMAIL) {
         this.setState({ verifyField: result.verifyField });
       } else if (result.verifyField === verifyField.RESET_PASSWORD) {
-        this.opacityChangeQueued = true;
         this.nextMode = 'reset-password';
         this.modeValue.setValue(VerificationModal.getModeNumber(this.nextMode));
         this.keyboardHeightValue.setValue(-1);
@@ -377,13 +402,6 @@ class VerificationModal extends React.PureComponent<Props, State> {
           mode: 'reset-password',
           resetPasswordUsername: result.resetPasswordUsername,
         });
-        if (this.activeKeyboard) {
-          // If keyboard isn't currently active, keyboardShow will handle the
-          // animation. This is so we can run all animations in parallel
-          this.animateToResetPassword();
-        } else if (Platform.OS === 'ios') {
-          this.expectingKeyboardToAppear = true;
-        }
       }
     } catch (e) {
       if (e.message === 'invalid_code') {
@@ -395,26 +413,8 @@ class VerificationModal extends React.PureComponent<Props, State> {
     }
   }
 
-  animateToResetPassword(inputDuration: ?number = null) {
-    const duration = inputDuration ? inputDuration : 150;
-    const animations = [];
-    if (this.opacityChangeQueued) {
-      animations.push(
-        Animated.timing(this.state.resetPasswordPanelOpacityValue, {
-          ...animatedSpec,
-          duration,
-          toValue: 1,
-        }),
-      );
-    }
-    Animated.parallel(animations).start();
-  }
-
   keyboardShow = (event: KeyboardEvent) => {
-    if (this.expectingKeyboardToAppear) {
-      this.expectingKeyboardToAppear = false;
-    }
-    this.keyboardHeight = Platform.select({
+    const keyboardHeight = Platform.select({
       // Android doesn't include the bottomInset in this height measurement
       android: event.endCoordinates.height,
       default: Math.max(
@@ -422,52 +422,13 @@ class VerificationModal extends React.PureComponent<Props, State> {
         0,
       ),
     });
-    this.keyboardHeightValue.setValue(this.keyboardHeight);
-    if (this.activeKeyboard) {
-      // We do this because the Android keyboard can change in height and we
-      // don't want to bother animating between those events
-      return;
-    }
-    this.activeKeyboard = true;
-    this.animateToResetPassword(event.duration);
-    this.opacityChangeQueued = false;
+    this.keyboardHeightValue.setValue(keyboardHeight);
   };
 
-  animateKeyboardDownOrBackToSimpleText(inputDuration: ?number) {
-    const duration = inputDuration ? inputDuration : 250;
-    const animations = [];
-    if (this.opacityChangeQueued) {
-      animations.push(
-        Animated.timing(this.state.resetPasswordPanelOpacityValue, {
-          ...animatedSpec,
-          duration,
-          toValue: 0,
-        }),
-      );
-    }
-    Animated.parallel(animations).start();
-  }
-
-  keyboardHide = (event: ?KeyboardEvent) => {
+  keyboardHide = () => {
     if (!this.activeAlert) {
       this.keyboardHeightValue.setValue(0);
     }
-    if (this.expectingKeyboardToAppear) {
-      // On the iOS simulator, it's possible to disable the keyboard. In this
-      // case, when a TextInput's autoFocus would normally cause keyboardShow
-      // to trigger, keyboardHide is instead triggered. Since the Apple app
-      // testers seem to use the iOS simulator, we need to support this case.
-      this.expectingKeyboardToAppear = false;
-      this.animateToResetPassword();
-      return;
-    }
-    this.keyboardHeight = 0;
-    this.activeKeyboard = false;
-    if (this.activeAlert) {
-      return;
-    }
-    this.animateKeyboardDownOrBackToSimpleText(event && event.duration);
-    this.opacityChangeQueued = false;
   };
 
   setActiveAlert = (activeAlert: boolean) => {
@@ -507,7 +468,7 @@ class VerificationModal extends React.PureComponent<Props, State> {
           onePasswordSupported={this.state.onePasswordSupported}
           onSuccess={this.onResetPasswordSuccess}
           setActiveAlert={this.setActiveAlert}
-          opacityValue={this.state.resetPasswordPanelOpacityValue}
+          opacityValue={this.resetPasswordPanelOpacityValue}
         />
       );
     } else if (this.state.errorMessage) {
@@ -550,7 +511,7 @@ class VerificationModal extends React.PureComponent<Props, State> {
     }
     const padding = { paddingTop: this.paddingTopValue };
     const animatedContent = (
-      <Reanimated.View style={padding}>{content}</Reanimated.View>
+      <Animated.View style={padding}>{content}</Animated.View>
     );
     return (
       <React.Fragment>

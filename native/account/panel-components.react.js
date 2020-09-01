@@ -16,14 +16,13 @@ import {
   ActivityIndicator,
   Text,
   StyleSheet,
-  Animated,
   ScrollView,
   LayoutAnimation,
   ViewPropTypes,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
-import Reanimated from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 import { connect } from 'lib/utils/redux-utils';
 
@@ -91,7 +90,6 @@ function PanelOnePasswordButton(props: {| onPress: () => Promise<void> |}) {
 
 type PanelProps = {|
   opacityValue: Animated.Value,
-  animationLibrary: 'react-native' | 'reanimated',
   children: React.Node,
   style?: ViewStyle,
   dimensions: DimensionsInfo,
@@ -102,13 +100,9 @@ type PanelState = {|
 class InnerPanel extends React.PureComponent<PanelProps, PanelState> {
   static propTypes = {
     opacityValue: PropTypes.object.isRequired,
-    animationLibrary: PropTypes.oneOf(['react-native', 'reanimated']),
     children: PropTypes.node.isRequired,
     style: ViewPropTypes.style,
     dimensions: dimensionsInfoPropType.isRequired,
-  };
-  static defaultProps = {
-    animationLibrary: 'reanimated',
   };
   state = {
     keyboardHeight: 0,
@@ -163,16 +157,12 @@ class InnerPanel extends React.PureComponent<PanelProps, PanelState> {
       opacity: this.props.opacityValue,
       marginTop: windowHeight < 600 ? 15 : 40,
     };
-    const AnimatedView =
-      this.props.animationLibrary === 'react-native'
-        ? Animated.View
-        : Reanimated.View;
     const content = (
-      <AnimatedView
+      <Animated.View
         style={[styles.container, containerStyle, this.props.style]}
       >
         {this.props.children}
-      </AnimatedView>
+      </Animated.View>
     );
     if (windowHeight >= 568) {
       return content;

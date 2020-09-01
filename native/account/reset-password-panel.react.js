@@ -14,7 +14,6 @@ import React from 'react';
 import {
   Alert,
   StyleSheet,
-  Animated,
   Keyboard,
   View,
   Text,
@@ -24,6 +23,7 @@ import invariant from 'invariant';
 import OnePassword from 'react-native-onepassword';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
+import Animated from 'react-native-reanimated';
 
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
@@ -93,11 +93,7 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
       passwordStyle = { paddingRight: 30 };
     }
     return (
-      <Panel
-        opacityValue={this.props.opacityValue}
-        style={styles.container}
-        animationLibrary="react-native"
-      >
+      <Panel opacityValue={this.props.opacityValue} style={styles.container}>
         <View>
           <Icon name="user" size={22} color="#777" style={styles.icon} />
           <View style={styles.usernameContainer}>
