@@ -20,6 +20,7 @@ import {
   ActionResultModalRouteName,
   TextMessageTooltipModalRouteName,
   ThreadSettingsMemberTooltipModalRouteName,
+  RelationshipListItemTooltipModalRouteName,
   CameraModalRouteName,
   type ScreenParamList,
   type TabParamList,
@@ -35,6 +36,7 @@ import { MultimediaTooltipModal } from '../chat/multimedia-tooltip-modal.react';
 import ActionResultModal from './action-result-modal.react';
 import { TextMessageTooltipModal } from '../chat/text-message-tooltip-modal.react';
 import ThreadSettingsMemberTooltipModal from '../chat/settings/thread-settings-member-tooltip-modal.react';
+import RelationshipListItemTooltipModal from '../more/relationship-list-item-tooltip-modal.react';
 import CameraModal from '../media/camera-modal.react';
 import KeyboardStateContainer from '../keyboard/keyboard-state-container.react';
 import PushHandler from '../push/push-handler.react';
@@ -176,6 +178,10 @@ function AppNavigator(props: AppNavigatorProps) {
         <App.Screen
           name={ThreadSettingsMemberTooltipModalRouteName}
           component={ThreadSettingsMemberTooltipModal}
+        />
+        <App.Screen
+          name={RelationshipListItemTooltipModalRouteName}
+          component={RelationshipListItemTooltipModal}
         />
         <App.Screen name={CameraModalRouteName} component={CameraModal} />
       </App.Navigator>

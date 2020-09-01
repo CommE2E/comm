@@ -118,13 +118,17 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       const excludeUserIDs = userInfoInputArray
         .map(userInfo => userInfo.id)
         .concat(threadActualMembers(threadInfo.members));
-      return getUserSearchResults(
+      const results = getUserSearchResults(
         text,
         userInfos,
         searchIndex,
         excludeUserIDs,
         parentThreadInfo,
       );
+      return results.map(({ memberOfParentThread, ...result }) => ({
+        ...result,
+        notice: !memberOfParentThread ? 'not in parent thread' : undefined,
+      }));
     },
   );
 

@@ -23,7 +23,7 @@ import {
   CustomServerModalRouteName,
   ColorPickerModalRouteName,
   ComposeSubthreadModalRouteName,
-  AddFriendsModalRouteName,
+  RelationshipUpdateModalRouteName,
   type ScreenParamList,
   type RootParamList,
 } from './route-names';
@@ -34,7 +34,7 @@ import ThreadPickerModal from '../calendar/thread-picker-modal.react';
 import AddUsersModal from '../chat/settings/add-users-modal.react';
 import CustomServerModal from '../more/custom-server-modal.react';
 import ColorPickerModal from '../chat/settings/color-picker-modal.react';
-import AddFriendsModal from '../more/add-friends-modal.react';
+import RelationshipUpdateModal from '../more/relationship-update-modal.react';
 import ComposeSubthreadModal from '../chat/settings/compose-subthread-modal.react';
 import RootRouter, { type RootRouterNavigationProp } from './root-router';
 import { RootNavigatorContext } from './root-navigator-context';
@@ -180,8 +180,8 @@ const RootComponent = () => {
         options={modalOverlayScreenOptions}
       />
       <Root.Screen
-        name={AddFriendsModalRouteName}
-        component={AddFriendsModal}
+        name={RelationshipUpdateModalRouteName}
+        component={RelationshipUpdateModal}
         options={modalOverlayScreenOptions}
       />
     </Root.Navigator>

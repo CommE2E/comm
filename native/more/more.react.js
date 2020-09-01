@@ -23,7 +23,7 @@ import {
   DevToolsRouteName,
   AppearancePreferencesRouteName,
   FriendListRouteName,
-  AddFriendsModalRouteName,
+  RelationshipUpdateModalRouteName,
   BlockListRouteName,
   type ScreenParamList,
   type MoreParamList,
@@ -50,18 +50,34 @@ const friendListOptions = ({ navigation }) => ({
   headerRight: () => (
     <RelationshipListAddButton
       onPress={() => {
-        navigation.navigate({ name: AddFriendsModalRouteName });
+        navigation.navigate({
+          name: RelationshipUpdateModalRouteName,
+          params: {
+            target: 'friends',
+          },
+        });
       }}
     />
   ),
   headerBackTitle: 'Back',
 });
-const blockListOptions = {
+const blockListOptions = ({ navigation }) => ({
   headerTitle: 'Block list',
   // eslint-disable-next-line react/display-name
-  headerRight: () => <RelationshipListAddButton onPress={() => {}} />,
+  headerRight: () => (
+    <RelationshipListAddButton
+      onPress={() => {
+        navigation.navigate({
+          name: RelationshipUpdateModalRouteName,
+          params: {
+            target: 'blocked',
+          },
+        });
+      }}
+    />
+  ),
   headerBackTitle: 'Back',
-};
+});
 
 export type MoreNavigationProp<
   RouteName: $Keys<MoreParamList> = $Keys<MoreParamList>,

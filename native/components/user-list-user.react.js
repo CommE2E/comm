@@ -43,18 +43,16 @@ class UserListUser extends React.PureComponent<Props> {
   };
 
   render() {
-    let parentThreadNotice = null;
-    if (!this.props.userInfo.memberOfParentThread) {
-      parentThreadNotice = (
-        <Text style={this.props.styles.parentThreadNotice}>
-          not in parent thread
-        </Text>
-      );
+    const { userInfo } = this.props;
+    let notice = null;
+    if (userInfo.notice) {
+      notice = <Text style={this.props.styles.notice}>{userInfo.notice}</Text>;
     }
     const { modalIosHighlightUnderlay: underlayColor } = this.props.colors;
     return (
       <Button
         onPress={this.onSelect}
+        disabled={userInfo.disabled}
         iosFormat="highlight"
         iosHighlightUnderlayColor={underlayColor}
         iosActiveOpacity={0.85}
@@ -63,7 +61,7 @@ class UserListUser extends React.PureComponent<Props> {
         <SingleLine style={[this.props.styles.text, this.props.textStyle]}>
           {this.props.userInfo.username}
         </SingleLine>
-        {parentThreadNotice}
+        {notice}
       </Button>
     );
   }
@@ -79,7 +77,7 @@ const styles = {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  parentThreadNotice: {
+  notice: {
     color: 'modalForegroundSecondaryLabel',
     fontStyle: 'italic',
   },
