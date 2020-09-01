@@ -18,8 +18,6 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  Animated,
-  Easing,
   Image,
   Keyboard,
   Platform,
@@ -32,9 +30,7 @@ import OnePassword from 'react-native-onepassword';
 import PropTypes from 'prop-types';
 import _isEqual from 'lodash/fp/isEqual';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Reanimated, {
-  Easing as ReanimatedEasing,
-} from 'react-native-reanimated';
+import Animated, { Easing } from 'react-native-reanimated';
 
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
 import {
@@ -70,14 +66,11 @@ import {
 import { runTiming } from '../utils/animation-utils';
 
 let initialAppLoad = true;
-const animatedSpec = {
-  useNativeDriver: false,
-  easing: Easing.out(Easing.ease),
-};
 const safeAreaEdges = ['top', 'bottom'];
 
 /* eslint-disable import/no-named-as-default-member */
 const {
+  Value,
   Clock,
   block,
   set,
@@ -96,7 +89,7 @@ const {
   max,
   stopClock,
   clockRunning,
-} = Reanimated;
+} = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
 type LoggedOutMode = 'loading' | 'prompt' | 'log-in' | 'register';
@@ -115,14 +108,12 @@ type Props = {
   dispatch: Dispatch,
   dispatchActionPayload: DispatchActionPayload,
 };
-type State = {
+type State = {|
   mode: LoggedOutMode,
-  forgotPasswordLinkOpacity: Animated.Value,
   onePasswordSupported: boolean,
   logInState: StateContainer<LogInState>,
   registerState: StateContainer<RegisterState>,
-};
-
+|};
 class LoggedOutModal extends React.PureComponent<Props, State> {
   static propTypes = {
     isForeground: PropTypes.bool.isRequired,
@@ -138,24 +129,22 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   keyboardShowListener: ?EmitterSubscription;
   keyboardHideListener: ?EmitterSubscription;
-  expectingKeyboardToAppear = false;
 
   mounted = false;
   nextMode: LoggedOutMode = 'loading';
   activeAlert = false;
-  activeKeyboard = false;
-  opacityChangeQueued = false;
-  keyboardHeight = 0;
   logInPanelContainer: ?LogInPanelContainer = null;
 
-  contentHeight: Reanimated.Value;
-  keyboardHeightValue = new Reanimated.Value(0);
-  modeValue: Reanimated.Value;
+  contentHeight: Value;
+  keyboardHeightValue = new Value(0);
+  modeValue: Value;
+  hideForgotPasswordLink = new Value(0);
 
-  buttonOpacity: Reanimated.Value;
-  panelPaddingTopValue: Reanimated.Value;
-  footerPaddingTopValue: Reanimated.Value;
-  panelOpacityValue: Reanimated.Value;
+  buttonOpacity: Value;
+  panelPaddingTopValue: Value;
+  footerPaddingTopValue: Value;
+  panelOpacityValue: Value;
+  forgotPasswordLinkOpacityValue: Value;
 
   constructor(props: Props) {
     super(props);
@@ -184,7 +173,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
     this.state = {
       mode: props.rehydrateConcluded ? 'prompt' : 'loading',
-      forgotPasswordLinkOpacity: new Animated.Value(0),
       onePasswordSupported: false,
       logInState: {
         state: {
@@ -208,17 +196,14 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     }
 
     const { height: windowHeight, topInset, bottomInset } = props.dimensions;
-    this.contentHeight = new Reanimated.Value(
-      windowHeight - topInset - bottomInset,
-    );
-    this.modeValue = new Reanimated.Value(
-      LoggedOutModal.getModeNumber(this.nextMode),
-    );
+    this.contentHeight = new Value(windowHeight - topInset - bottomInset);
+    this.modeValue = new Value(LoggedOutModal.getModeNumber(this.nextMode));
 
-    this.buttonOpacity = new Reanimated.Value(props.rehydrateConcluded ? 1 : 0);
+    this.buttonOpacity = new Value(props.rehydrateConcluded ? 1 : 0);
     this.panelPaddingTopValue = this.panelPaddingTop();
     this.footerPaddingTopValue = this.footerPaddingTop();
     this.panelOpacityValue = this.panelOpacity();
+    this.forgotPasswordLinkOpacityValue = this.forgotPasswordLinkOpacity();
   }
 
   guardedSetState = (change: StateChange<State>) => {
@@ -290,8 +275,8 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
     if (this.state.mode === 'prompt' && prevState.mode !== 'prompt') {
       this.buttonOpacity.setValue(0);
-      Reanimated.timing(this.buttonOpacity, {
-        easing: ReanimatedEasing.out(ReanimatedEasing.ease),
+      Animated.timing(this.buttonOpacity, {
+        easing: Easing.out(Easing.ease),
         duration: 250,
         toValue: 1.0,
       }).start();
@@ -405,9 +390,9 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       2,
     );
 
-    const panelPaddingTop = new Reanimated.Value(-1);
-    const targetPanelPaddingTop = new Reanimated.Value(-1);
-    const prevModeValue = new Reanimated.Value(
+    const panelPaddingTop = new Value(-1);
+    const targetPanelPaddingTop = new Value(-1);
+    const prevModeValue = new Value(
       LoggedOutModal.getModeNumber(this.nextMode),
     );
     const clock = new Clock();
@@ -460,8 +445,8 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       0,
     );
 
-    const footerPaddingTop = new Reanimated.Value(-1);
-    const prevTargetFooterPaddingTop = new Reanimated.Value(-1);
+    const footerPaddingTop = new Value(-1);
+    const prevTargetFooterPaddingTop = new Value(-1);
     const clock = new Clock();
     return block([
       cond(lessThan(footerPaddingTop, 0), [
@@ -488,9 +473,9 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   panelOpacity() {
     const targetPanelOpacity = greaterThan(this.modeValue, 1);
 
-    const panelOpacity = new Reanimated.Value(-1);
-    const prevPanelOpacity = new Reanimated.Value(-1);
-    const prevTargetPanelOpacity = new Reanimated.Value(-1);
+    const panelOpacity = new Value(-1);
+    const prevPanelOpacity = new Value(-1);
+    const prevTargetPanelOpacity = new Value(-1);
     const clock = new Clock();
     return block([
       cond(lessThan(panelOpacity, 0), [
@@ -517,27 +502,56 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     ]);
   }
 
-  animateToSecondMode(inputDuration: ?number = null) {
-    const duration = inputDuration ? inputDuration : 150;
-    const animations = [];
-    if (this.opacityChangeQueued) {
-      animations.push(
-        Animated.timing(this.state.forgotPasswordLinkOpacity, {
-          ...animatedSpec,
-          duration,
-          toValue: 1,
-        }),
-      );
-    }
-    Animated.parallel(animations).start();
+  forgotPasswordLinkOpacity() {
+    const targetForgotPasswordLinkOpacity = and(
+      eq(this.modeValue, 2),
+      not(this.hideForgotPasswordLink),
+    );
+
+    const forgotPasswordLinkOpacity = new Value(-1);
+    const prevTargetForgotPasswordLinkOpacity = new Value(-1);
+    const clock = new Clock();
+    return block([
+      cond(lessThan(forgotPasswordLinkOpacity, 0), [
+        set(forgotPasswordLinkOpacity, targetForgotPasswordLinkOpacity),
+        set(
+          prevTargetForgotPasswordLinkOpacity,
+          targetForgotPasswordLinkOpacity,
+        ),
+      ]),
+      cond(greaterOrEq(this.keyboardHeightValue, 0), [
+        cond(
+          neq(
+            targetForgotPasswordLinkOpacity,
+            prevTargetForgotPasswordLinkOpacity,
+          ),
+          [
+            stopClock(clock),
+            set(
+              prevTargetForgotPasswordLinkOpacity,
+              targetForgotPasswordLinkOpacity,
+            ),
+          ],
+        ),
+        cond(
+          neq(forgotPasswordLinkOpacity, targetForgotPasswordLinkOpacity),
+          set(
+            forgotPasswordLinkOpacity,
+            runTiming(
+              clock,
+              forgotPasswordLinkOpacity,
+              targetForgotPasswordLinkOpacity,
+            ),
+          ),
+        ),
+      ]),
+      forgotPasswordLinkOpacity,
+    ]);
   }
 
   keyboardShow = (event: KeyboardEvent) => {
     if (_isEqual(event.startCoordinates)(event.endCoordinates)) {
       return;
-    }
-    if (this.expectingKeyboardToAppear) {
-      this.expectingKeyboardToAppear = false;
     }
     const keyboardHeight = Platform.select({
       // Android doesn't include the bottomInset in this height measurement
@@ -548,50 +562,12 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       ),
     });
     this.keyboardHeightValue.setValue(keyboardHeight);
-    this.keyboardHeight = keyboardHeight;
-    this.animateToSecondMode(event.duration);
-    if (!this.activeKeyboard) {
-      this.opacityChangeQueued = false;
-    }
-    this.activeKeyboard = true;
   };
 
-  animateKeyboardDownOrBackToPrompt(inputDuration: ?number) {
-    const duration = inputDuration ? inputDuration : 250;
-    const animations = [];
-    if (this.opacityChangeQueued) {
-      animations.push(
-        Animated.timing(this.state.forgotPasswordLinkOpacity, {
-          ...animatedSpec,
-          duration,
-          toValue: 0,
-        }),
-      );
+  keyboardHide = () => {
+    if (!this.activeAlert) {
+      this.keyboardHeightValue.setValue(0);
     }
-    Animated.parallel(animations).start();
-  }
-
-  keyboardHide = (event: ?KeyboardEvent) => {
-    this.keyboardHeightValue.setValue(0);
-    if (this.expectingKeyboardToAppear) {
-      // On the iOS simulator, it's possible to disable the keyboard. In this
-      // case, when a TextInput's autoFocus would normally cause keyboardShow
-      // to trigger, keyboardHide is instead triggered. Since the Apple app
-      // testers seem to use the iOS simulator, we need to support this case.
-      this.expectingKeyboardToAppear = false;
-      this.animateToSecondMode();
-      return;
-    }
-    if (event && _isEqual(event.startCoordinates)(event.endCoordinates)) {
-      return;
-    }
-    this.keyboardHeight = 0;
-    this.activeKeyboard = false;
-    if (this.activeAlert) {
-      return;
-    }
-    this.animateKeyboardDownOrBackToPrompt(event && event.duration);
-    this.opacityChangeQueued = false;
   };
 
   setActiveAlert = (activeAlert: boolean) => {
@@ -599,18 +575,10 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   };
 
   goBackToPrompt = () => {
-    this.opacityChangeQueued = true;
     this.nextMode = 'prompt';
     this.keyboardHeightValue.setValue(0);
     this.modeValue.setValue(LoggedOutModal.getModeNumber('prompt'));
-
-    if (this.activeKeyboard) {
-      // If keyboard is currently active, keyboardHide will handle the
-      // animation. This is so we can run all animations in parallel
-      Keyboard.dismiss();
-    } else {
-      this.animateKeyboardDownOrBackToPrompt(null);
-    }
+    Keyboard.dismiss();
   };
 
   render() {
@@ -622,7 +590,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
           onePasswordSupported={this.state.onePasswordSupported}
           setActiveAlert={this.setActiveAlert}
           opacityValue={this.panelOpacityValue}
-          forgotPasswordLinkOpacity={this.state.forgotPasswordLinkOpacity}
+          hideForgotPasswordLink={this.hideForgotPasswordLink}
           logInState={this.state.logInState}
           innerRef={this.logInPanelContainerRef}
         />
@@ -639,7 +607,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     } else if (this.state.mode === 'prompt') {
       const opacityStyle = { opacity: this.buttonOpacity };
       buttons = (
-        <Reanimated.View style={[styles.buttonContainer, opacityStyle]}>
+        <Animated.View style={[styles.buttonContainer, opacityStyle]}>
           <TouchableOpacity
             onPress={this.onPressLogIn}
             style={styles.button}
@@ -654,7 +622,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
           >
             <Text style={styles.buttonText}>SIGN UP</Text>
           </TouchableOpacity>
-        </Reanimated.View>
+        </Animated.View>
       );
     } else if (this.state.mode === 'loading') {
       panel = (
@@ -668,25 +636,21 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
     let forgotPasswordLink = null;
     if (this.state.mode === 'log-in') {
-      const animatedStyle = {
-        opacity: this.state.forgotPasswordLinkOpacity,
-      };
       const reanimatedStyle = {
         top: this.footerPaddingTopValue,
+        opacity: this.forgotPasswordLinkOpacityValue,
       };
       forgotPasswordLink = (
-        <Reanimated.View
+        <Animated.View
           style={[styles.forgotPasswordTextContainer, reanimatedStyle]}
         >
-          <Animated.View style={animatedStyle}>
-            <TouchableOpacity
-              activeOpacity={0.6}
-              onPress={this.onPressForgotPassword}
-            >
-              <Text style={styles.forgotPasswordText}>Forgot password?</Text>
-            </TouchableOpacity>
-          </Animated.View>
-        </Reanimated.View>
+          <TouchableOpacity
+            activeOpacity={0.6}
+            onPress={this.onPressForgotPassword}
+          >
+            <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+          </TouchableOpacity>
+        </Animated.View>
       );
     }
 
@@ -698,17 +662,17 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     const padding = { paddingTop: this.panelPaddingTopValue };
 
     const animatedContent = (
-      <Reanimated.View style={[styles.animationContainer, padding]}>
+      <Animated.View style={[styles.animationContainer, padding]}>
         <View>
           <Text style={styles.header}>SquadCal</Text>
-          <Reanimated.View style={[styles.backButton, buttonStyle]}>
+          <Animated.View style={[styles.backButton, buttonStyle]}>
             <TouchableOpacity activeOpacity={0.6} onPress={this.hardwareBack}>
               <Icon name="arrow-circle-o-left" size={36} color="#FFFFFFAA" />
             </TouchableOpacity>
-          </Reanimated.View>
+          </Animated.View>
         </View>
         {panel}
-      </Reanimated.View>
+      </Animated.View>
     );
 
     const backgroundSource = { uri: splashBackgroundURI };
@@ -736,38 +700,12 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   onPressLogIn = () => {
     this.keyboardHeightValue.setValue(-1);
-    this.opacityChangeQueued = true;
     this.setMode('log-in');
-    if (this.activeKeyboard) {
-      // If keyboard isn't currently active, keyboardShow will handle the
-      // animation. This is so we can run all animations in parallel
-      this.animateToSecondMode();
-      return;
-    }
-    this.expectingKeyboardToAppear = true;
-    setTimeout(this.animateToSecondIfKeyboardStillHidden, 500);
   };
 
   onPressRegister = () => {
     this.keyboardHeightValue.setValue(-1);
-    this.opacityChangeQueued = true;
     this.setMode('register');
-    if (this.activeKeyboard) {
-      // If keyboard isn't currently active, keyboardShow will handle the
-      // animation. This is so we can run all animations in parallel
-      this.animateToSecondMode();
-      return;
-    }
-    this.expectingKeyboardToAppear = true;
-    setTimeout(this.animateToSecondIfKeyboardStillHidden, 500);
-  };
-
-  animateToSecondIfKeyboardStillHidden = () => {
-    if (!this.expectingKeyboardToAppear || !this.mounted) {
-      return;
-    }
-    this.expectingKeyboardToAppear = false;
-    this.animateToSecondMode();
   };
 
   onPressForgotPassword = () => {

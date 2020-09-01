@@ -32,7 +32,7 @@ type Props = {|
   onePasswordSupported: boolean,
   setActiveAlert: (activeAlert: boolean) => void,
   opacityValue: Reanimated.Value,
-  forgotPasswordLinkOpacity: Animated.Value,
+  hideForgotPasswordLink: Reanimated.Value,
   logInState: StateContainer<LogInState>,
   innerRef: (container: ?LogInPanelContainer) => void,
   // Redux state
@@ -48,7 +48,7 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
     onePasswordSupported: PropTypes.bool.isRequired,
     setActiveAlert: PropTypes.func.isRequired,
     opacityValue: PropTypes.object.isRequired,
-    forgotPasswordLinkOpacity: PropTypes.object.isRequired,
+    hideForgotPasswordLink: PropTypes.object.isRequired,
     logInState: stateContainerPropType.isRequired,
     innerRef: PropTypes.func.isRequired,
     windowWidth: PropTypes.number.isRequired,
@@ -164,16 +164,7 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
   onPressForgotPassword = () => {
     this.setState({ nextLogInMode: 'forgot-password' });
 
-    const animations = [
-      Animated.timing(this.props.forgotPasswordLinkOpacity, {
-        ...animatedSpec,
-        toValue: 0,
-      }),
-      Animated.timing(this.state.panelTransition, {
-        ...animatedSpec,
-        toValue: 1,
-      }),
-    ];
+    this.props.hideForgotPasswordLink.setValue(1);
 
     let listenerID = '';
     const listener = (animatedUpdate: { value: number }) => {
@@ -184,7 +175,10 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
     };
     listenerID = this.state.panelTransition.addListener(listener);
 
-    Animated.parallel(animations).start();
+    Animated.timing(this.state.panelTransition, {
+      ...animatedSpec,
+      toValue: 1,
+    }).start();
   };
 
   backFromLogInMode = () => {
@@ -199,16 +193,7 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
     invariant(this.logInPanel, 'ref should be set');
     this.logInPanel.focusUsernameOrEmailInput();
 
-    const animations = [
-      Animated.timing(this.props.forgotPasswordLinkOpacity, {
-        ...animatedSpec,
-        toValue: 1,
-      }),
-      Animated.timing(this.state.panelTransition, {
-        ...animatedSpec,
-        toValue: 0,
-      }),
-    ];
+    this.props.hideForgotPasswordLink.setValue(0);
 
     let listenerID = '';
     const listener = (animatedUpdate: { value: number }) => {
@@ -219,7 +204,10 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
     };
     listenerID = this.state.panelTransition.addListener(listener);
 
-    Animated.parallel(animations).start();
+    Animated.timing(this.state.panelTransition, {
+      ...animatedSpec,
+      toValue: 0,
+    }).start();
     return true;
   };
 
