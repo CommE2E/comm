@@ -23,6 +23,11 @@ import type { LayoutEvent } from '../types/react-native';
 import type { AppNavigationProp } from './app-navigator.react';
 import type { TooltipModalParamList } from './route-names';
 import type { LeafRoute } from '@react-navigation/native';
+import {
+  type InputState,
+  inputStatePropType,
+  withInputState,
+} from '../input/input-state';
 
 import * as React from 'react';
 import Animated from 'react-native-reanimated';
@@ -99,6 +104,8 @@ type TooltipProps<Navigation, Route> = {
   dispatchActionPromise: DispatchActionPromise,
   // withOverlayContext
   overlayContext: ?OverlayContextType,
+  // withInputState
+  inputState: ?InputState,
 };
 function createTooltip<
   RouteName: $Keys<TooltipModalParamList>,
@@ -129,6 +136,7 @@ function createTooltip<
       dispatchActionPayload: PropTypes.func.isRequired,
       dispatchActionPromise: PropTypes.func.isRequired,
       overlayContext: overlayContextPropType,
+      inputState: inputStatePropType,
     };
     backdropOpacity: Value;
     tooltipContainerOpacity: Value;
@@ -382,6 +390,7 @@ function createTooltip<
         this.props.route.params,
         dispatchFunctions,
         this.bindServerCall,
+        this.props.inputState,
       );
     };
 
@@ -427,7 +436,7 @@ function createTooltip<
     }),
     null,
     true,
-  )(withOverlayContext(Tooltip));
+  )(withOverlayContext(withInputState(Tooltip)));
 }
 
 const styles = StyleSheet.create({

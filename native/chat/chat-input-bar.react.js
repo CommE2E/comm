@@ -59,7 +59,10 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { trimMessage } from 'lib/shared/message-utils';
 
 import Button from '../components/button.react';
-import { nonThreadCalendarQuery } from '../navigation/nav-selectors';
+import {
+  nonThreadCalendarQuery,
+  activeThreadSelector,
+} from '../navigation/nav-selectors';
 import { getKeyboardHeight } from '../keyboard/keyboard';
 import {
   type Colors,
@@ -82,6 +85,7 @@ type Props = {|
   threadInfo: ThreadInfo,
   navigation: ChatNavigationProp<'MessageList'>,
   route: NavigationRoute<'MessageList'>,
+  isActive: boolean,
   // Redux state
   viewerID: ?string,
   draft: string,
@@ -109,6 +113,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     threadInfo: threadInfoPropType.isRequired,
     navigation: messageListNavPropType.isRequired,
     route: messageListRoutePropType.isRequired,
+    isActive: PropTypes.bool.isRequired,
     viewerID: PropTypes.string,
     draft: PropTypes.string.isRequired,
     joinThreadLoadingStatus: loadingStatusPropType.isRequired,
@@ -184,9 +189,28 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     }).start();
   }
 
+  componentDidMount() {
+    if (this.props.isActive) {
+      this.addReplyListener();
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.props.isActive) {
+      this.removeReplyListener();
+    }
+  }
+
   componentDidUpdate(prevProps: Props, prevState: State) {
+    if (this.props.isActive && !prevProps.isActive) {
+      this.addReplyListener();
+    } else if (!this.props.isActive && prevProps.isActive) {
+      this.removeReplyListener();
+    }
+
     const currentText = trimMessage(this.state.text);
     const prevText = trimMessage(prevState.text);
+
     if (
       (currentText === '' && prevText !== '') ||
       (currentText !== '' && prevText === '')
@@ -214,6 +238,22 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       this.expandButtons();
       this.setIOSKeyboardHeight();
     }
+  }
+
+  addReplyListener() {
+    invariant(
+      this.props.inputState,
+      'inputState should be set in addReplyListener',
+    );
+    this.props.inputState.addReplyListener(this.focusAndUpdateText);
+  }
+
+  removeReplyListener() {
+    invariant(
+      this.props.inputState,
+      'inputState should be set in removeReplyListener',
+    );
+    this.props.inputState.removeReplyListener(this.focusAndUpdateText);
   }
 
   setIOSKeyboardHeight() {
@@ -445,6 +485,12 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     });
   }, 400);
 
+  focusAndUpdateText = (text: string) => {
+    this.updateText(text);
+    invariant(this.textInput, 'textInput should be set in focusAndUpdateText');
+    this.textInput.focus();
+  };
+
   onSend = async () => {
     if (!trimMessage(this.state.text)) {
       return;
@@ -638,9 +684,12 @@ const joinThreadLoadingStatusSelector = createLoadingStatusSelector(
   joinThreadActionTypes,
 );
 
-export default connectNav((context: ?NavContextType) => ({
-  navContext: context,
-}))(
+export default connectNav(
+  (context: ?NavContextType, ownProps: { threadInfo: ThreadInfo }) => ({
+    navContext: context,
+    isActive: ownProps.threadInfo.id === activeThreadSelector(context),
+  }),
+)(
   connect(
     (
       state: AppState,

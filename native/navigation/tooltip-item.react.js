@@ -6,6 +6,7 @@ import type {
   ActionFunc,
   BoundServerCall,
 } from 'lib/utils/action-utils';
+import type { InputState } from '../input/input-state';
 
 import * as React from 'react';
 import {
@@ -25,6 +26,7 @@ export type TooltipEntry<Params> = {|
     props: Params,
     dispatchFunctions: DispatchFunctions,
     bindServerCall: (serverCall: ActionFunc) => BoundServerCall,
+    inputState: ?InputState,
   ) => mixed,
 |};
 

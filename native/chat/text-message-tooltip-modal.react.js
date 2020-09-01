@@ -1,8 +1,15 @@
 // @flow
 
 import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
+import type {
+  DispatchFunctions,
+  ActionFunc,
+  BoundServerCall,
+} from 'lib/utils/action-utils';
+import { type InputState } from '../input/input-state';
 
 import Clipboard from '@react-native-community/clipboard';
+import invariant from 'invariant';
 
 import {
   createTooltip,
@@ -25,8 +32,30 @@ function onPressCopy(props: CustomProps) {
   setTimeout(confirmCopy);
 }
 
+const createReply = (message: string) => {
+  // add `>` to each line to include empty lines in the quote
+  const quotedMessage = message.replace(/^/gm, '> ');
+  return quotedMessage + '\n\n';
+};
+
+function onPressReply(
+  props: CustomProps,
+  dispatchFunctions: DispatchFunctions,
+  bindServerCall: (serverCall: ActionFunc) => BoundServerCall,
+  inputState: ?InputState,
+) {
+  invariant(
+    inputState,
+    'inputState should be set in TextMessageTooltipModal.onPressReply',
+  );
+  inputState.addReply(createReply(props.item.messageInfo.text));
+}
+
 const spec = {
-  entries: [{ id: 'copy', text: 'Copy', onPress: onPressCopy }],
+  entries: [
+    { id: 'copy', text: 'Copy', onPress: onPressCopy },
+    { id: 'reply', text: 'Reply', onPress: onPressReply },
+  ],
 };
 
 const TextMessageTooltipModal = createTooltip(TextMessageTooltipButton, spec);

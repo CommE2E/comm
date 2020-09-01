@@ -133,6 +133,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   };
   sendCallbacks: Array<() => void> = [];
   activeURIs = new Map();
+  replyCallbacks: Array<(message: string) => void> = [];
 
   static getCompletedUploads(props: Props, state: State): CompletedUploads {
     const completedUploads = {};
@@ -300,6 +301,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       pendingUploads,
       sendTextMessage: this.sendTextMessage,
       sendMultimediaMessage: this.sendMultimediaMessage,
+      addReply: this.addReply,
+      addReplyListener: this.addReplyListener,
+      removeReplyListener: this.removeReplyListener,
       messageHasUploadFailure: this.messageHasUploadFailure,
       retryMultimediaMessage: this.retryMultimediaMessage,
       registerSendCallback: this.registerSendCallback,
@@ -807,6 +811,20 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       }
     }
     return false;
+  };
+
+  addReply = (message: string) => {
+    this.replyCallbacks.forEach(addReplyCallback => addReplyCallback(message));
+  };
+
+  addReplyListener = (callbackReply: (message: string) => void) => {
+    this.replyCallbacks.push(callbackReply);
+  };
+
+  removeReplyListener = (callbackReply: (message: string) => void) => {
+    this.replyCallbacks = this.replyCallbacks.filter(
+      candidate => candidate !== callbackReply,
+    );
   };
 
   retryMultimediaMessage = async (localMessageID: string) => {
