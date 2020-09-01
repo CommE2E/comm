@@ -8,38 +8,49 @@ import {
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
-import { View, Animated, Text, Easing, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
-import Reanimated from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 import sleep from 'lib/utils/sleep';
 import { connect } from 'lib/utils/redux-utils';
 
 import LogInPanel from './log-in-panel.react';
 import ForgotPasswordPanel from './forgot-password-panel.react';
-
-const animatedSpec = {
-  useNativeDriver: false,
-  duration: 350,
-  easing: Easing.out(Easing.ease),
-};
+import { runTiming } from '../utils/animation-utils';
 
 type LogInMode = 'log-in' | 'forgot-password' | 'forgot-password-success';
+
+/* eslint-disable import/no-named-as-default-member */
+const {
+  Value,
+  Clock,
+  block,
+  set,
+  call,
+  cond,
+  eq,
+  neq,
+  lessThan,
+  modulo,
+  stopClock,
+  interpolate,
+} = Animated;
+/* eslint-enable import/no-named-as-default-member */
 
 type Props = {|
   onePasswordSupported: boolean,
   setActiveAlert: (activeAlert: boolean) => void,
-  opacityValue: Reanimated.Value,
-  hideForgotPasswordLink: Reanimated.Value,
+  opacityValue: Value,
+  hideForgotPasswordLink: Value,
   logInState: StateContainer<LogInState>,
   innerRef: (container: ?LogInPanelContainer) => void,
   // Redux state
   windowWidth: number,
 |};
 type State = {|
-  panelTransition: Animated.Value,
   logInMode: LogInMode,
   nextLogInMode: LogInMode,
 |};
@@ -48,17 +59,67 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
     onePasswordSupported: PropTypes.bool.isRequired,
     setActiveAlert: PropTypes.func.isRequired,
     opacityValue: PropTypes.object.isRequired,
-    hideForgotPasswordLink: PropTypes.object.isRequired,
+    hideForgotPasswordLink: PropTypes.instanceOf(Value).isRequired,
     logInState: stateContainerPropType.isRequired,
     innerRef: PropTypes.func.isRequired,
     windowWidth: PropTypes.number.isRequired,
   };
-  state = {
-    panelTransition: new Animated.Value(0),
-    logInMode: 'log-in',
-    nextLogInMode: 'log-in',
-  };
   logInPanel: ?InnerLogInPanel = null;
+
+  panelTransitionTarget: Value;
+  panelTransitionValue: Value;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      logInMode: 'log-in',
+      nextLogInMode: 'log-in',
+    };
+    this.panelTransitionTarget = new Value(
+      LogInPanelContainer.getModeNumber('log-in'),
+    );
+    this.panelTransitionValue = this.panelTransition();
+  }
+
+  proceedToNextMode = () => {
+    this.setState({ logInMode: this.state.nextLogInMode });
+  };
+
+  static getModeNumber(mode: LogInMode) {
+    if (mode === 'log-in') {
+      return 0;
+    } else if (mode === 'forgot-password') {
+      return 1;
+    } else if (mode === 'forgot-password-success') {
+      return 2;
+    }
+    invariant(false, `${mode} is not a valid LogInModalMode`);
+  }
+
+  panelTransition() {
+    const panelTransition = new Value(-1);
+    const prevPanelTransitionTarget = new Value(-1);
+    const clock = new Clock();
+    return block([
+      cond(lessThan(panelTransition, 0), [
+        set(panelTransition, this.panelTransitionTarget),
+        set(prevPanelTransitionTarget, this.panelTransitionTarget),
+      ]),
+      cond(neq(this.panelTransitionTarget, prevPanelTransitionTarget), [
+        stopClock(clock),
+        set(prevPanelTransitionTarget, this.panelTransitionTarget),
+      ]),
+      cond(
+        neq(panelTransition, this.panelTransitionTarget),
+        set(
+          panelTransition,
+          runTiming(clock, panelTransition, this.panelTransitionTarget),
+        ),
+      ),
+      cond(eq(modulo(panelTransition, 1), 0), call([], this.proceedToNextMode)),
+      panelTransition,
+    ]);
+  }
 
   componentDidMount() {
     this.props.innerRef(this);
@@ -71,11 +132,11 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
   render() {
     const { windowWidth } = this.props;
     const logInPanelDynamicStyle = {
-      left: this.state.panelTransition.interpolate({
+      left: interpolate(this.panelTransitionValue, {
         inputRange: [0, 2],
         outputRange: [0, windowWidth * -2],
       }),
-      right: this.state.panelTransition.interpolate({
+      right: interpolate(this.panelTransitionValue, {
         inputRange: [0, 2],
         outputRange: [0, windowWidth * 2],
       }),
@@ -97,11 +158,11 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
       this.state.logInMode !== 'log-in'
     ) {
       const forgotPasswordPanelDynamicStyle = {
-        left: this.state.panelTransition.interpolate({
+        left: interpolate(this.panelTransitionValue, {
           inputRange: [0, 2],
           outputRange: [windowWidth, windowWidth * -1],
         }),
-        right: this.state.panelTransition.interpolate({
+        right: interpolate(this.panelTransitionValue, {
           inputRange: [0, 2],
           outputRange: [windowWidth * -1, windowWidth],
         }),
@@ -122,11 +183,11 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
       this.state.logInMode === 'forgot-password-success'
     ) {
       const forgotPasswordSuccessDynamicStyle = {
-        left: this.state.panelTransition.interpolate({
+        left: interpolate(this.panelTransitionValue, {
           inputRange: [0, 2],
           outputRange: [windowWidth * 2, 0],
         }),
-        right: this.state.panelTransition.interpolate({
+        right: interpolate(this.panelTransitionValue, {
           inputRange: [0, 2],
           outputRange: [windowWidth * -2, 0],
         }),
@@ -162,23 +223,11 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
   };
 
   onPressForgotPassword = () => {
-    this.setState({ nextLogInMode: 'forgot-password' });
-
     this.props.hideForgotPasswordLink.setValue(1);
-
-    let listenerID = '';
-    const listener = (animatedUpdate: { value: number }) => {
-      if (animatedUpdate.value === 1) {
-        this.setState({ logInMode: this.state.nextLogInMode });
-        this.state.panelTransition.removeListener(listenerID);
-      }
-    };
-    listenerID = this.state.panelTransition.addListener(listener);
-
-    Animated.timing(this.state.panelTransition, {
-      ...animatedSpec,
-      toValue: 1,
-    }).start();
+    this.setState({ nextLogInMode: 'forgot-password' });
+    this.panelTransitionTarget.setValue(
+      LogInPanelContainer.getModeNumber('forgot-password'),
+    );
   };
 
   backFromLogInMode = () => {
@@ -194,20 +243,10 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
     this.logInPanel.focusUsernameOrEmailInput();
 
     this.props.hideForgotPasswordLink.setValue(0);
+    this.panelTransitionTarget.setValue(
+      LogInPanelContainer.getModeNumber('log-in'),
+    );
 
-    let listenerID = '';
-    const listener = (animatedUpdate: { value: number }) => {
-      if (animatedUpdate.value === 0) {
-        this.setState({ logInMode: this.state.nextLogInMode });
-        this.state.panelTransition.removeListener(listenerID);
-      }
-    };
-    listenerID = this.state.panelTransition.addListener(listener);
-
-    Animated.timing(this.state.panelTransition, {
-      ...animatedSpec,
-      toValue: 0,
-    }).start();
     return true;
   };
 
@@ -217,20 +256,9 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
     }
 
     this.setState({ nextLogInMode: 'forgot-password-success' });
-
-    let listenerID = '';
-    const listener = (animatedUpdate: { value: number }) => {
-      if (animatedUpdate.value === 2) {
-        this.setState({ logInMode: this.state.nextLogInMode });
-        this.state.panelTransition.removeListener(listenerID);
-      }
-    };
-    listenerID = this.state.panelTransition.addListener(listener);
-
-    Animated.timing(this.state.panelTransition, {
-      ...animatedSpec,
-      toValue: 2,
-    }).start();
+    this.panelTransitionTarget.setValue(
+      LogInPanelContainer.getModeNumber('forgot-password-success'),
+    );
 
     this.inCoupleSecondsNavigateToLogIn();
   };
