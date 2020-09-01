@@ -29,6 +29,7 @@
   "dependencies": {
     "@react-native-community/art": "^1.1.2",
     "@react-native-community/async-storage": "^1.6.1",
+    "@react-native-community/clipboard": "^1.2.3",
     "@react-native-community/masked-view": "^0.1.10",
     "@react-native-community/netinfo": "^4.4.0",
     "@react-navigation/bottom-tabs": "^5.6.1",

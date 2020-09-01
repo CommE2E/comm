@@ -2,7 +2,7 @@
 
 import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
 
-import { Clipboard } from 'react-native';
+import Clipboard from '@react-native-community/clipboard';
 
 import {
   createTooltip,

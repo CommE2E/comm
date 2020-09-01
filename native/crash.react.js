@@ -22,13 +22,13 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
-  Clipboard,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import _shuffle from 'lodash/fp/shuffle';
 import ExitApp from 'react-native-exit-app';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
+import Clipboard from '@react-native-community/clipboard';
 
 import { connect } from 'lib/utils/redux-utils';
 import { sendReportActionTypes, sendReport } from 'lib/actions/report-actions';

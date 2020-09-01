@@ -375,6 +375,8 @@ PODS:
     - React
   - RNCAsyncStorage (1.6.2):
     - React
+  - RNCClipboard (1.2.3):
+    - React
   - RNCMaskedView (0.1.10):
     - React
   - RNExitApp (1.1.0):
@@ -495,6 +497,7 @@ DEPENDENCIES:
   - ReactNativeKeyboardInput (from `../../node_modules/react-native-keyboard-input`)
   - ReactNativeKeyboardTrackingView (from `../../node_modules/react-native-keyboard-tracking-view`)
   - "RNCAsyncStorage (from `../../node_modules/@react-native-community/async-storage`)"
+  - "RNCClipboard (from `../../node_modules/@react-native-community/clipboard`)"
   - "RNCMaskedView (from `../../node_modules/@react-native-community/masked-view`)"
   - RNExitApp (from `../../node_modules/react-native-exit-app`)
   - RNFastImage (from `../../node_modules/react-native-fast-image`)
@@ -640,6 +643,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native-keyboard-tracking-view"
   RNCAsyncStorage:
     :path: "../../node_modules/@react-native-community/async-storage"
+  RNCClipboard:
+    :path: "../../node_modules/@react-native-community/clipboard"
   RNCMaskedView:
     :path: "../../node_modules/@react-native-community/masked-view"
   RNExitApp:
@@ -756,6 +761,7 @@ SPEC CHECKSUMS:
   ReactNativeKeyboardInput: 266ba27a2e9921f5bdc0b4cc30289b2a2f46b157
   ReactNativeKeyboardTrackingView: 02137fac3b2ebd330d74fa54ead48b14750a2306
   RNCAsyncStorage: 60a80e72d95bf02a01cace55d3697d9724f0d77f
+  RNCClipboard: 48eaf27bea3de7c9a265529725434268d47a2ee9
   RNCMaskedView: 5a8ec07677aa885546a0d98da336457e2bea557f
   RNExitApp: c4e052df2568b43bec8a37c7cd61194d4cfee2c3
   RNFastImage: 9b0c22643872bb7494c8d87bbbb66cc4c0d9e7a2
