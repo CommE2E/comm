@@ -77,6 +77,8 @@ class PanelButton extends React.PureComponent<ButtonProps> {
   }
 }
 
+const scrollViewBelow = 568;
+
 type PanelProps = {|
   opacityValue: Animated.Value,
   children: React.Node,
@@ -124,11 +126,13 @@ class InnerPanel extends React.PureComponent<PanelProps, PanelState> {
     if (keyboardHeight === this.state.keyboardHeight) {
       return;
     }
-    if (!event) {
-      this.setState({ keyboardHeight });
-      return;
-    }
-    if (event.duration && event.easing) {
+    const windowHeight = this.props.dimensions.height;
+    if (
+      windowHeight < scrollViewBelow &&
+      event &&
+      event.duration &&
+      event.easing
+    ) {
       LayoutAnimation.configureNext({
         duration: event.duration,
         update: {
@@ -153,7 +157,7 @@ class InnerPanel extends React.PureComponent<PanelProps, PanelState> {
         {this.props.children}
       </Animated.View>
     );
-    if (windowHeight >= 568) {
+    if (windowHeight >= scrollViewBelow) {
       return content;
     }
     const scrollViewStyle = {
