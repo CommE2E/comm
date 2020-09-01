@@ -63,7 +63,10 @@ import {
   type NavContextType,
   navContextPropType,
 } from '../navigation/navigation-context';
-import { runTiming } from '../utils/animation-utils';
+import {
+  runTiming,
+  ratchetAlongWithKeyboardHeight,
+} from '../utils/animation-utils';
 
 let initialAppLoad = true;
 const safeAreaEdges = ['top', 'bottom'];
@@ -427,6 +430,10 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
           set(prevModeValue, this.modeValue),
         ],
       ),
+      ratchetAlongWithKeyboardHeight(this.keyboardHeightValue, [
+        stopClock(clock),
+        set(targetPanelPaddingTop, potentialPanelPaddingTop),
+      ]),
       cond(
         neq(panelPaddingTop, targetPanelPaddingTop),
         set(

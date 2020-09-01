@@ -57,7 +57,10 @@ import {
   connectNav,
   type NavContextType,
 } from '../navigation/navigation-context';
-import { runTiming } from '../utils/animation-utils';
+import {
+  runTiming,
+  ratchetAlongWithKeyboardHeight,
+} from '../utils/animation-utils';
 
 const safeAreaEdges = ['top', 'bottom'];
 
@@ -220,6 +223,10 @@ class VerificationModal extends React.PureComponent<Props, State> {
           set(prevModeValue, this.modeValue),
         ],
       ),
+      ratchetAlongWithKeyboardHeight(this.keyboardHeightValue, [
+        stopClock(clock),
+        set(targetPaddingTop, potentialPaddingTop),
+      ]),
       cond(
         neq(paddingTop, targetPaddingTop),
         set(paddingTop, runTiming(clock, paddingTop, targetPaddingTop)),

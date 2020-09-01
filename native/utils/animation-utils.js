@@ -2,17 +2,22 @@
 
 import Animated, { Easing } from 'react-native-reanimated';
 import { State as GestureState } from 'react-native-gesture-handler';
+import { Platform } from 'react-native';
 
 /* eslint-disable import/no-named-as-default-member */
 const {
   Clock,
   Value,
+  block,
   cond,
   not,
+  and,
   greaterThan,
+  lessThan,
   eq,
   sub,
   set,
+  max,
   startClock,
   stopClock,
   clockRunning,
@@ -93,4 +98,38 @@ function runTiming(
   ];
 }
 
-export { clamp, delta, gestureJustStarted, gestureJustEnded, runTiming };
+// You provide a node that performs a "ratchet",
+// and this function will call it as keyboard height increases
+function ratchetAlongWithKeyboardHeight(
+  keyboardHeight: Animated.Node,
+  ratchetFunction: Animated.Node,
+) {
+  const prevKeyboardHeightValue = new Value(-1);
+  const whenToUpdate = Platform.select({
+    // In certain situations, iOS will send multiple keyboardShows in rapid
+    // succession with increasing height values. Only the final value has any
+    // semblance of reality. I've encountered this when using the native
+    // password management integration
+    ios: greaterThan(keyboardHeight, max(prevKeyboardHeightValue, 0)),
+    // Android's keyboard can resize due to user interaction sometimes. In these
+    // cases it can get quite big, in which case we don't want to update
+    defaut: and(eq(prevKeyboardHeightValue, 0), greaterThan(keyboardHeight, 0)),
+  });
+  return block([
+    cond(
+      lessThan(prevKeyboardHeightValue, 0),
+      set(prevKeyboardHeightValue, keyboardHeight),
+    ),
+    cond(whenToUpdate, ratchetFunction),
+    set(prevKeyboardHeightValue, keyboardHeight),
+  ]);
+}
+
+export {
+  clamp,
+  delta,
+  gestureJustStarted,
+  gestureJustEnded,
+  runTiming,
+  ratchetAlongWithKeyboardHeight,
+};
