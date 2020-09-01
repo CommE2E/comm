@@ -2,10 +2,6 @@
 # yarn lockfile v1
 
 
-"1PasswordExtension@git+https://github.com/jjshammas/onepassword-app-extension.git":
-  version "1.6.4"
-  resolved "git+https://github.com/jjshammas/onepassword-app-extension.git#acf20f71c890e92ee489fc8e7bb0f7df922e855d"
-
 "@babel/cli@^7.8.4":
   version "7.8.4"
   resolved "https://registry.yarnpkg.com/@babel/cli/-/cli-7.8.4.tgz#505fb053721a98777b2b175323ea4f090b7d3c1c"
@@ -12143,12 +12139,6 @@ react-native-keychain@^4.0.0:
   dependencies:
     core-js "^1.0.0"
     uuid "^2.0.3"
-
-"react-native-onepassword@git+https://git@github.com/DriveWealth/react-native-onepassword.git#aed794d8c6f0f2560b62a0012449abf6f1b3576c":
-  version "1.0.6"
-  resolved "git+https://git@github.com/DriveWealth/react-native-onepassword.git#aed794d8c6f0f2560b62a0012449abf6f1b3576c"
-  dependencies:
-    "1PasswordExtension" "git+https://github.com/jjshammas/onepassword-app-extension.git"
 
 react-native-orientation-locker@^1.1.6:
   version "1.1.6"

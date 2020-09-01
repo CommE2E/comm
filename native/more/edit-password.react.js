@@ -20,7 +20,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import invariant from 'invariant';
-import OnePassword from 'react-native-onepassword';
 import { CommonActions } from '@react-navigation/native';
 
 import { connect } from 'lib/utils/redux-utils';
@@ -31,7 +30,6 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import Button from '../components/button.react';
-import OnePasswordButton from '../components/one-password-button.react';
 import { setNativeCredentials } from '../account/native-credentials';
 import {
   type Colors,
@@ -58,7 +56,6 @@ type State = {|
   currentPassword: string,
   newPassword: string,
   confirmPassword: string,
-  onePasswordSupported: boolean,
 |};
 class EditPassword extends React.PureComponent<Props, State> {
   static propTypes = {
@@ -72,21 +69,15 @@ class EditPassword extends React.PureComponent<Props, State> {
     dispatchActionPromise: PropTypes.func.isRequired,
     changeUserSettings: PropTypes.func.isRequired,
   };
+  state = {
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  };
   mounted = false;
   currentPasswordInput: ?React.ElementRef<typeof TextInput>;
   newPasswordInput: ?React.ElementRef<typeof TextInput>;
   confirmPasswordInput: ?React.ElementRef<typeof TextInput>;
-
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: '',
-      onePasswordSupported: false,
-    };
-    this.determineOnePasswordSupport();
-  }
 
   componentDidMount() {
     this.mounted = true;
@@ -96,38 +87,7 @@ class EditPassword extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  async determineOnePasswordSupport() {
-    let onePasswordSupported;
-    try {
-      onePasswordSupported = await OnePassword.isSupported();
-    } catch (e) {
-      onePasswordSupported = false;
-    }
-    if (this.mounted) {
-      this.setState({ onePasswordSupported });
-    }
-  }
-
   render() {
-    let onePasswordCurrentPasswordButton = null;
-    let onePasswordNewPasswordButton = null;
-    if (this.state.onePasswordSupported) {
-      const theme = this.props.activeTheme ? this.props.activeTheme : 'light';
-      onePasswordCurrentPasswordButton = (
-        <OnePasswordButton
-          onPress={this.onPressOnePasswordCurrentPassword}
-          theme={theme}
-          style={this.props.styles.onePasswordButton}
-        />
-      );
-      onePasswordNewPasswordButton = (
-        <OnePasswordButton
-          onPress={this.onPressOnePasswordNewPassword}
-          theme={theme}
-          style={this.props.styles.onePasswordButton}
-        />
-      );
-    }
     const buttonContent =
       this.props.loadingStatus === 'loading' ? (
         <ActivityIndicator size="small" color="white" />
@@ -157,7 +117,6 @@ class EditPassword extends React.PureComponent<Props, State> {
               onSubmitEditing={this.focusNewPassword}
               ref={this.currentPasswordRef}
             />
-            {onePasswordCurrentPasswordButton}
           </View>
         </View>
         <Text style={this.props.styles.header}>NEW PASSWORD</Text>
@@ -176,7 +135,6 @@ class EditPassword extends React.PureComponent<Props, State> {
               onSubmitEditing={this.focusConfirmPassword}
               ref={this.newPasswordRef}
             />
-            {onePasswordNewPasswordButton}
           </View>
           <View style={this.props.styles.hr} />
           <View style={this.props.styles.row}>
@@ -246,37 +204,6 @@ class EditPassword extends React.PureComponent<Props, State> {
   focusConfirmPassword = () => {
     invariant(this.confirmPasswordInput, 'confirmPasswordInput should be set');
     this.confirmPasswordInput.focus();
-  };
-
-  onPressOnePasswordCurrentPassword = async () => {
-    try {
-      const credentials = await OnePassword.findLogin('https://squadcal.org');
-      this.setState({ currentPassword: credentials.password }, () => {
-        if (
-          this.state.newPassword &&
-          this.state.newPassword === this.state.confirmPassword
-        ) {
-          this.submitPassword();
-        }
-      });
-    } catch (e) {}
-  };
-
-  onPressOnePasswordNewPassword = async () => {
-    try {
-      const credentials = await OnePassword.findLogin('https://squadcal.org');
-      this.setState(
-        {
-          newPassword: credentials.password,
-          confirmPassword: credentials.password,
-        },
-        () => {
-          if (this.state.currentPassword) {
-            this.submitPassword();
-          }
-        },
-      );
-    } catch (e) {}
   };
 
   goBackOnce() {
@@ -381,9 +308,6 @@ const styles = {
     fontFamily: 'Arial',
     fontSize: 16,
     paddingVertical: 0,
-  },
-  onePasswordButton: {
-    marginLeft: 6,
   },
   row: {
     flexDirection: 'row',

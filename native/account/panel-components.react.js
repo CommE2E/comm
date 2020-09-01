@@ -27,7 +27,6 @@ import Animated from 'react-native-reanimated';
 import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../components/button.react';
-import OnePasswordButton from '../components/one-password-button.react';
 import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
@@ -76,16 +75,6 @@ class PanelButton extends React.PureComponent<ButtonProps> {
       </Button>
     );
   }
-}
-
-function PanelOnePasswordButton(props: {| onPress: () => Promise<void> |}) {
-  return (
-    <OnePasswordButton
-      onPress={props.onPress}
-      theme="light"
-      style={styles.onePasswordImage}
-    />
-  );
 }
 
 type PanelProps = {|
@@ -199,11 +188,6 @@ const styles = StyleSheet.create({
     paddingBottom: 2,
     width: 14,
   },
-  onePasswordImage: {
-    position: 'absolute',
-    right: 5,
-    top: 8,
-  },
   submitButton: {
     borderBottomRightRadius: 6,
     bottom: 0,
@@ -228,4 +212,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export { PanelButton, PanelOnePasswordButton, Panel };
+export { PanelButton, Panel };

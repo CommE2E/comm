@@ -20,7 +20,6 @@ import {
   Platform,
 } from 'react-native';
 import invariant from 'invariant';
-import OnePassword from 'react-native-onepassword';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import PropTypes from 'prop-types';
 import Animated from 'react-native-reanimated';
@@ -33,11 +32,7 @@ import {
 import { connect } from 'lib/utils/redux-utils';
 
 import { TextInput } from './modal-components.react';
-import {
-  PanelButton,
-  PanelOnePasswordButton,
-  Panel,
-} from './panel-components.react';
+import { PanelButton, Panel } from './panel-components.react';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
 import {
   connectNav,
@@ -47,7 +42,6 @@ import {
 type Props = {
   verifyCode: string,
   username: string,
-  onePasswordSupported: boolean,
   onSuccess: () => Promise<void>,
   setActiveAlert: (activeAlert: boolean) => void,
   opacityValue: Animated.Value,
@@ -67,7 +61,6 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
   static propTypes = {
     verifyCode: PropTypes.string.isRequired,
     username: PropTypes.string.isRequired,
-    onePasswordSupported: PropTypes.bool.isRequired,
     onSuccess: PropTypes.func.isRequired,
     setActiveAlert: PropTypes.func.isRequired,
     opacityValue: PropTypes.object.isRequired,
@@ -84,14 +77,6 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
   confirmPasswordInput: ?TextInput;
 
   render() {
-    let onePassword = null;
-    let passwordStyle = { paddingRight: 0 };
-    if (this.props.onePasswordSupported) {
-      onePassword = (
-        <PanelOnePasswordButton onPress={this.onPressOnePassword} />
-      );
-      passwordStyle = { paddingRight: 30 };
-    }
     return (
       <Panel opacityValue={this.props.opacityValue} style={styles.container}>
         <View>
@@ -103,7 +88,7 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
         <View>
           <Icon name="lock" size={22} color="#777" style={styles.icon} />
           <TextInput
-            style={[styles.input, passwordStyle]}
+            style={styles.input}
             value={this.state.passwordInputText}
             onChangeText={this.onChangePasswordInputText}
             placeholder="New password"
@@ -116,7 +101,6 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
             editable={this.props.loadingStatus !== 'loading'}
             ref={this.passwordInputRef}
           />
-          {onePassword}
         </View>
         <View>
           <TextInput
@@ -245,17 +229,6 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
 
   onAppOutOfDateAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
-  };
-
-  onPressOnePassword = async () => {
-    try {
-      const credentials = await OnePassword.findLogin('https://squadcal.org');
-      this.setState({
-        passwordInputText: credentials.password,
-        confirmPasswordInputText: credentials.password,
-      });
-      this.onSubmit();
-    } catch (e) {}
   };
 }
 

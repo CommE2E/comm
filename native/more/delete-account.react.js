@@ -22,7 +22,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import invariant from 'invariant';
-import OnePassword from 'react-native-onepassword';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
@@ -33,7 +32,6 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 
 import Button from '../components/button.react';
-import OnePasswordButton from '../components/one-password-button.react';
 import { deleteNativeCredentialsFor } from '../account/native-credentials';
 import {
   type Colors,
@@ -60,7 +58,6 @@ type Props = {|
 |};
 type State = {|
   password: string,
-  onePasswordSupported: boolean,
 |};
 class DeleteAccount extends React.PureComponent<Props, State> {
   static propTypes = {
@@ -73,17 +70,11 @@ class DeleteAccount extends React.PureComponent<Props, State> {
     dispatchActionPromise: PropTypes.func.isRequired,
     deleteAccount: PropTypes.func.isRequired,
   };
+  state = {
+    password: '',
+  };
   mounted = false;
   passwordInput: ?React.ElementRef<typeof TextInput>;
-
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      password: '',
-      onePasswordSupported: false,
-    };
-    this.determineOnePasswordSupport();
-  }
 
   componentDidMount() {
     this.mounted = true;
@@ -93,30 +84,7 @@ class DeleteAccount extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  async determineOnePasswordSupport() {
-    let onePasswordSupported;
-    try {
-      onePasswordSupported = await OnePassword.isSupported();
-    } catch (e) {
-      onePasswordSupported = false;
-    }
-    if (this.mounted) {
-      this.setState({ onePasswordSupported });
-    }
-  }
-
   render() {
-    let onePasswordButton = null;
-    if (this.state.onePasswordSupported) {
-      const theme = this.props.activeTheme ? this.props.activeTheme : 'light';
-      onePasswordButton = (
-        <OnePasswordButton
-          onPress={this.onPressOnePassword}
-          theme={theme}
-          style={this.props.styles.onePasswordButton}
-        />
-      );
-    }
     const buttonContent =
       this.props.loadingStatus === 'loading' ? (
         <ActivityIndicator size="small" color="white" />
@@ -159,7 +127,6 @@ class DeleteAccount extends React.PureComponent<Props, State> {
             onSubmitEditing={this.submitDeletion}
             ref={this.passwordInputRef}
           />
-          {onePasswordButton}
         </View>
         <Button
           onPress={this.submitDeletion}
@@ -182,13 +149,6 @@ class DeleteAccount extends React.PureComponent<Props, State> {
   focusPasswordInput = () => {
     invariant(this.passwordInput, 'passwordInput should be set');
     this.passwordInput.focus();
-  };
-
-  onPressOnePassword = async () => {
-    try {
-      const credentials = await OnePassword.findLogin('https://squadcal.org');
-      this.setState({ password: credentials.password });
-    } catch (e) {}
   };
 
   submitDeletion = () => {
@@ -257,9 +217,6 @@ const styles = {
   },
   lastWarningText: {
     marginBottom: 24,
-  },
-  onePasswordButton: {
-    marginLeft: 6,
   },
   saveText: {
     color: 'white',

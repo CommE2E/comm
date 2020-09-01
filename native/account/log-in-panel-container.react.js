@@ -41,7 +41,6 @@ const {
 /* eslint-enable import/no-named-as-default-member */
 
 type Props = {|
-  onePasswordSupported: boolean,
   setActiveAlert: (activeAlert: boolean) => void,
   opacityValue: Value,
   hideForgotPasswordLink: Value,
@@ -56,7 +55,6 @@ type State = {|
 |};
 class LogInPanelContainer extends React.PureComponent<Props, State> {
   static propTypes = {
-    onePasswordSupported: PropTypes.bool.isRequired,
     setActiveAlert: PropTypes.func.isRequired,
     opacityValue: PropTypes.object.isRequired,
     hideForgotPasswordLink: PropTypes.instanceOf(Value).isRequired,
@@ -146,7 +144,6 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
         <LogInPanel
           setActiveAlert={this.props.setActiveAlert}
           opacityValue={this.props.opacityValue}
-          onePasswordSupported={this.props.onePasswordSupported}
           innerRef={this.logInPanelRef}
           state={this.props.logInState}
         />

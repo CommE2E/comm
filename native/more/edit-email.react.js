@@ -20,7 +20,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import invariant from 'invariant';
-import OnePassword from 'react-native-onepassword';
 import { CommonActions } from '@react-navigation/native';
 
 import { connect } from 'lib/utils/redux-utils';
@@ -32,7 +31,6 @@ import { validEmailRegex } from 'lib/shared/account-utils';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import Button from '../components/button.react';
-import OnePasswordButton from '../components/one-password-button.react';
 import {
   type Colors,
   colorsPropType,
@@ -58,7 +56,6 @@ type Props = {|
 type State = {|
   email: string,
   password: string,
-  onePasswordSupported: boolean,
 |};
 class EditEmail extends React.PureComponent<Props, State> {
   static propTypes = {
@@ -82,9 +79,7 @@ class EditEmail extends React.PureComponent<Props, State> {
     this.state = {
       email: props.email ? props.email : '',
       password: '',
-      onePasswordSupported: false,
     };
-    this.determineOnePasswordSupport();
   }
 
   componentDidMount() {
@@ -95,30 +90,7 @@ class EditEmail extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  async determineOnePasswordSupport() {
-    let onePasswordSupported;
-    try {
-      onePasswordSupported = await OnePassword.isSupported();
-    } catch (e) {
-      onePasswordSupported = false;
-    }
-    if (this.mounted) {
-      this.setState({ onePasswordSupported });
-    }
-  }
-
   render() {
-    let onePasswordButton = null;
-    if (this.state.onePasswordSupported) {
-      const theme = this.props.activeTheme ? this.props.activeTheme : 'light';
-      onePasswordButton = (
-        <OnePasswordButton
-          onPress={this.onPressOnePassword}
-          theme={theme}
-          style={this.props.styles.onePasswordButton}
-        />
-      );
-    }
     const buttonContent =
       this.props.loadingStatus === 'loading' ? (
         <ActivityIndicator size="small" color="white" />
@@ -162,7 +134,6 @@ class EditEmail extends React.PureComponent<Props, State> {
             onSubmitEditing={this.submitEmail}
             ref={this.passwordInputRef}
           />
-          {onePasswordButton}
         </View>
         <Button onPress={this.submitEmail} style={this.props.styles.saveButton}>
           {buttonContent}
@@ -195,17 +166,6 @@ class EditEmail extends React.PureComponent<Props, State> {
   focusPasswordInput = () => {
     invariant(this.passwordInput, 'passwordInput should be set');
     this.passwordInput.focus();
-  };
-
-  onPressOnePassword = async () => {
-    try {
-      const credentials = await OnePassword.findLogin('https://squadcal.org');
-      this.setState({ password: credentials.password }, () => {
-        if (this.state.email && this.state.email !== this.props.email) {
-          this.submitEmail();
-        }
-      });
-    } catch (e) {}
   };
 
   goBackOnce() {
@@ -303,9 +263,6 @@ const styles = {
     fontFamily: 'Arial',
     fontSize: 16,
     paddingVertical: 0,
-  },
-  onePasswordButton: {
-    marginLeft: 6,
   },
   saveButton: {
     backgroundColor: 'greenButton',

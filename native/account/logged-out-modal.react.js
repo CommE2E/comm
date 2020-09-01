@@ -26,7 +26,6 @@ import {
 } from 'react-native';
 import invariant from 'invariant';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import OnePassword from 'react-native-onepassword';
 import PropTypes from 'prop-types';
 import _isEqual from 'lodash/fp/isEqual';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -113,7 +112,6 @@ type Props = {
 };
 type State = {|
   mode: LoggedOutMode,
-  onePasswordSupported: boolean,
   logInState: StateContainer<LogInState>,
   registerState: StateContainer<RegisterState>,
 |};
@@ -151,7 +149,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.determineOnePasswordSupport();
 
     // Man, this is a lot of boilerplate just to containerize some state.
     // Mostly due to Flow typing requirements...
@@ -176,7 +173,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
     this.state = {
       mode: props.rehydrateConcluded ? 'prompt' : 'loading',
-      onePasswordSupported: false,
       logInState: {
         state: {
           usernameOrEmailInputText: '',
@@ -236,16 +232,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       return 3;
     }
     invariant(false, `${mode} is not a valid LoggedOutMode`);
-  }
-
-  async determineOnePasswordSupport() {
-    let onePasswordSupported;
-    try {
-      onePasswordSupported = await OnePassword.isSupported();
-    } catch (e) {
-      onePasswordSupported = false;
-    }
-    this.guardedSetState({ onePasswordSupported });
   }
 
   componentDidMount() {
@@ -594,7 +580,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     if (this.state.mode === 'log-in') {
       panel = (
         <LogInPanelContainer
-          onePasswordSupported={this.state.onePasswordSupported}
           setActiveAlert={this.setActiveAlert}
           opacityValue={this.panelOpacityValue}
           hideForgotPasswordLink={this.hideForgotPasswordLink}
@@ -607,7 +592,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
         <RegisterPanel
           setActiveAlert={this.setActiveAlert}
           opacityValue={this.panelOpacityValue}
-          onePasswordSupported={this.state.onePasswordSupported}
           state={this.state.registerState}
         />
       );

@@ -24,7 +24,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import invariant from 'invariant';
-import OnePassword from 'react-native-onepassword';
 
 import { connect } from 'lib/utils/redux-utils';
 import {
@@ -36,7 +35,6 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { identifyInvalidatedThreads } from 'lib/shared/thread-utils';
 
 import Button from '../../components/button.react';
-import OnePasswordButton from '../../components/one-password-button.react';
 import {
   type Colors,
   colorsPropType,
@@ -75,7 +73,6 @@ type Props = {|
 |};
 type State = {|
   password: string,
-  onePasswordSupported: boolean,
 |};
 class DeleteThread extends React.PureComponent<Props, State> {
   static propTypes = {
@@ -99,15 +96,9 @@ class DeleteThread extends React.PureComponent<Props, State> {
   };
   state = {
     password: '',
-    onePasswordSupported: false,
   };
   mounted = false;
   passwordInput: ?React.ElementRef<typeof TextInput>;
-
-  constructor(props: Props) {
-    super(props);
-    this.determineOnePasswordSupport();
-  }
 
   static getThreadInfo(props: Props): ThreadInfo {
     const { threadInfo } = props;
@@ -139,28 +130,7 @@ class DeleteThread extends React.PureComponent<Props, State> {
     }
   }
 
-  async determineOnePasswordSupport() {
-    let onePasswordSupported;
-    try {
-      onePasswordSupported = await OnePassword.isSupported();
-    } catch (e) {
-      onePasswordSupported = false;
-    }
-    this.guardedSetState({ onePasswordSupported });
-  }
-
   render() {
-    let onePasswordButton = null;
-    if (this.state.onePasswordSupported) {
-      const theme = this.props.activeTheme ? this.props.activeTheme : 'light';
-      onePasswordButton = (
-        <OnePasswordButton
-          onPress={this.onPressOnePassword}
-          theme={theme}
-          style={this.props.styles.onePasswordButton}
-        />
-      );
-    }
     const buttonContent =
       this.props.loadingStatus === 'loading' ? (
         <ActivityIndicator size="small" color="white" />
@@ -195,7 +165,6 @@ class DeleteThread extends React.PureComponent<Props, State> {
             onSubmitEditing={this.submitDeletion}
             ref={this.passwordInputRef}
           />
-          {onePasswordButton}
         </View>
         <Button
           onPress={this.submitDeletion}
@@ -218,13 +187,6 @@ class DeleteThread extends React.PureComponent<Props, State> {
   focusPasswordInput = () => {
     invariant(this.passwordInput, 'passwordInput should be set');
     this.passwordInput.focus();
-  };
-
-  onPressOnePassword = async () => {
-    try {
-      const credentials = await OnePassword.findLogin('https://squadcal.org');
-      this.guardedSetState({ password: credentials.password });
-    } catch (e) {}
   };
 
   submitDeletion = () => {
@@ -309,9 +271,6 @@ const styles = {
     fontFamily: 'Arial',
     fontSize: 16,
     paddingVertical: 0,
-  },
-  onePasswordButton: {
-    marginLeft: 6,
   },
   scrollView: {
     backgroundColor: 'panelBackground',

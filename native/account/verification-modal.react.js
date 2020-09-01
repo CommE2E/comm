@@ -29,7 +29,6 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import invariant from 'invariant';
-import OnePassword from 'react-native-onepassword';
 import PropTypes from 'prop-types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated from 'react-native-reanimated';
@@ -112,7 +111,6 @@ type State = {|
   verifyField: ?VerifyField,
   errorMessage: ?string,
   resetPasswordUsername: ?string,
-  onePasswordSupported: boolean,
 |};
 class VerificationModal extends React.PureComponent<Props, State> {
   static propTypes = {
@@ -151,7 +149,6 @@ class VerificationModal extends React.PureComponent<Props, State> {
       verifyField: null,
       errorMessage: null,
       resetPasswordUsername: null,
-      onePasswordSupported: false,
     };
     const { height: windowHeight, topInset, bottomInset } = props.dimensions;
 
@@ -289,19 +286,7 @@ class VerificationModal extends React.PureComponent<Props, State> {
     ]);
   }
 
-  async determineOnePasswordSupport() {
-    let onePasswordSupported;
-    try {
-      onePasswordSupported = await OnePassword.isSupported();
-    } catch (e) {
-      onePasswordSupported = false;
-    }
-    this.setState({ onePasswordSupported });
-  }
-
   componentDidMount() {
-    this.determineOnePasswordSupport();
-
     this.props.dispatchActionPromise(
       handleVerificationCodeActionTypes,
       this.handleVerificationCodeAction(),
@@ -472,7 +457,6 @@ class VerificationModal extends React.PureComponent<Props, State> {
         <ResetPasswordPanel
           verifyCode={code}
           username={this.state.resetPasswordUsername}
-          onePasswordSupported={this.state.onePasswordSupported}
           onSuccess={this.onResetPasswordSuccess}
           setActiveAlert={this.setActiveAlert}
           opacityValue={this.resetPasswordPanelOpacityValue}

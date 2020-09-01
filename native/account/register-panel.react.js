@@ -18,7 +18,6 @@ import React from 'react';
 import { View, StyleSheet, Platform, Keyboard, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import invariant from 'invariant';
-import OnePassword from 'react-native-onepassword';
 import PropTypes from 'prop-types';
 import Animated from 'react-native-reanimated';
 
@@ -28,11 +27,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { validUsernameRegex, validEmailRegex } from 'lib/shared/account-utils';
 
 import { TextInput } from './modal-components.react';
-import {
-  PanelButton,
-  PanelOnePasswordButton,
-  Panel,
-} from './panel-components.react';
+import { PanelButton, Panel } from './panel-components.react';
 import { setNativeCredentials } from './native-credentials';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
 import {
@@ -49,7 +44,6 @@ export type RegisterState = {
 type Props = {
   setActiveAlert: (activeAlert: boolean) => void,
   opacityValue: Animated.Value,
-  onePasswordSupported: boolean,
   state: StateContainer<RegisterState>,
   // Redux state
   loadingStatus: LoadingStatus,
@@ -63,7 +57,6 @@ class RegisterPanel extends React.PureComponent<Props> {
   static propTypes = {
     setActiveAlert: PropTypes.func.isRequired,
     opacityValue: PropTypes.object.isRequired,
-    onePasswordSupported: PropTypes.bool.isRequired,
     state: stateContainerPropType.isRequired,
     loadingStatus: PropTypes.string.isRequired,
     logInExtraInfo: PropTypes.func.isRequired,
@@ -76,14 +69,6 @@ class RegisterPanel extends React.PureComponent<Props> {
   confirmPasswordInput: ?TextInput;
 
   render() {
-    let onePassword = null;
-    let passwordStyle = {};
-    if (this.props.onePasswordSupported) {
-      onePassword = (
-        <PanelOnePasswordButton onPress={this.onPressOnePassword} />
-      );
-      passwordStyle = { paddingRight: 30 };
-    }
     return (
       <Panel opacityValue={this.props.opacityValue} style={styles.container}>
         <View>
@@ -130,7 +115,7 @@ class RegisterPanel extends React.PureComponent<Props> {
         <View>
           <Icon name="lock" size={22} color="#777" style={styles.icon} />
           <TextInput
-            style={[styles.input, passwordStyle]}
+            style={styles.input}
             value={this.props.state.state.passwordInputText}
             onChangeText={this.onChangePasswordInputText}
             placeholder="Password"
@@ -142,7 +127,6 @@ class RegisterPanel extends React.PureComponent<Props> {
             editable={this.props.loadingStatus !== 'loading'}
             ref={this.passwordInputRef}
           />
-          {onePassword}
         </View>
         <View>
           <TextInput
@@ -375,23 +359,6 @@ class RegisterPanel extends React.PureComponent<Props> {
 
   onAppOutOfDateAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
-  };
-
-  onPressOnePassword = async () => {
-    try {
-      const credentials = await OnePassword.findLogin('https://squadcal.org');
-      this.props.state.setState({
-        usernameInputText: credentials.username,
-        passwordInputText: credentials.password,
-        confirmPasswordInputText: credentials.password,
-      });
-      if (this.props.state.state.emailInputText) {
-        this.onSubmit();
-      } else {
-        invariant(this.emailInput, 'ref should exist');
-        this.emailInput.focus();
-      }
-    } catch (e) {}
   };
 }
 

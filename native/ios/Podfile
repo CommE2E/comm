@@ -80,9 +80,6 @@ target 'SquadCal' do
   pod 'react-native-ffmpeg/min-lts', :podspec => '../../node_modules/react-native-ffmpeg/react-native-ffmpeg.podspec'
   pod 'react-native-video/VideoCaching', :podspec => '../../node_modules/react-native-video/react-native-video.podspec'
 
-  pod '1PasswordExtension', :git => 'https://github.com/agilebits/onepassword-app-extension.git',
-                            :commit => 'ba96cf1203f6ea749b7c3f4e921b15d577536253'
-
   use_native_modules!
   use_unimodules!(modules_paths: ['../..'])
 
