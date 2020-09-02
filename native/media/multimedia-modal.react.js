@@ -5,10 +5,6 @@ import {
   mediaInfoPropType,
   type Dimensions,
 } from 'lib/types/media-types';
-import {
-  type DimensionsInfo,
-  dimensionsInfoPropType,
-} from '../redux/dimensions-updater.react';
 import type { AppState } from '../redux/redux-setup';
 import {
   type VerticalBounds,
@@ -58,6 +54,11 @@ import {
   type OverlayContextType,
   overlayContextPropType,
 } from '../navigation/overlay-context';
+import {
+  type DerivedDimensionsInfo,
+  derivedDimensionsInfoPropType,
+  derivedDimensionsInfoSelector,
+} from '../selectors/dimensions-selectors';
 
 /* eslint-disable import/no-named-as-default-member */
 const {
@@ -164,7 +165,7 @@ type Props = {|
   navigation: AppNavigationProp<'MultimediaModal'>,
   route: NavigationRoute<'MultimediaModal'>,
   // Redux state
-  dimensions: DimensionsInfo,
+  dimensions: DerivedDimensionsInfo,
   // withOverlayContext
   overlayContext: ?OverlayContextType,
 |};
@@ -185,7 +186,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
         item: chatMessageItemPropType.isRequired,
       }).isRequired,
     }).isRequired,
-    dimensions: dimensionsInfoPropType.isRequired,
+    dimensions: derivedDimensionsInfoPropType.isRequired,
     overlayContext: overlayContextPropType,
   };
   state = {
@@ -963,8 +964,8 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   }
 
   get frame(): Dimensions {
-    const { width, height, topInset, bottomInset } = this.props.dimensions;
-    return { width, height: height - topInset - bottomInset };
+    const { width, safeAreaHeight } = this.props.dimensions;
+    return { width, height: safeAreaHeight };
   }
 
   get imageDimensions(): Dimensions {
@@ -1247,5 +1248,5 @@ const styles = StyleSheet.create({
 });
 
 export default connect((state: AppState) => ({
-  dimensions: state.dimensions,
+  dimensions: derivedDimensionsInfoSelector(state),
 }))(withOverlayContext(MultimediaModal));

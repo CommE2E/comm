@@ -6,10 +6,6 @@ import type { AppState } from '../redux/redux-setup';
 import type { KeyboardEvent, EmitterSubscription } from '../keyboard/keyboard';
 import type { LogInState } from './log-in-panel.react';
 import type { RegisterState } from './register-panel.react';
-import {
-  type DimensionsInfo,
-  dimensionsInfoPropType,
-} from '../redux/dimensions-updater.react';
 import type { ImageStyle } from '../types/styles';
 
 import * as React from 'react';
@@ -66,6 +62,11 @@ import {
   runTiming,
   ratchetAlongWithKeyboardHeight,
 } from '../utils/animation-utils';
+import {
+  type DerivedDimensionsInfo,
+  derivedDimensionsInfoPropType,
+  derivedDimensionsInfoSelector,
+} from '../selectors/dimensions-selectors';
 
 let initialAppLoad = true;
 const safeAreaEdges = ['top', 'bottom'];
@@ -116,7 +117,7 @@ type Props = {
   cookie: ?string,
   urlPrefix: string,
   loggedIn: boolean,
-  dimensions: DimensionsInfo,
+  dimensions: DerivedDimensionsInfo,
   splashStyle: ImageStyle,
   // Redux dispatch functions
   dispatch: Dispatch,
@@ -135,7 +136,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     cookie: PropTypes.string,
     urlPrefix: PropTypes.string.isRequired,
     loggedIn: PropTypes.bool.isRequired,
-    dimensions: dimensionsInfoPropType.isRequired,
+    dimensions: derivedDimensionsInfoPropType.isRequired,
     dispatch: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
@@ -206,8 +207,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       this.nextMode = 'prompt';
     }
 
-    const { height: windowHeight, topInset, bottomInset } = props.dimensions;
-    this.contentHeight = new Value(windowHeight - topInset - bottomInset);
+    this.contentHeight = new Value(props.dimensions.safeAreaHeight);
     this.modeValue = new Value(modeNumbers[this.nextMode]);
 
     this.buttonOpacity = new Value(props.rehydrateConcluded ? 1 : 0);
@@ -270,14 +270,8 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       }).start();
     }
 
-    const newContentHeight =
-      this.props.dimensions.height -
-      this.props.dimensions.topInset -
-      this.props.dimensions.bottomInset;
-    const oldContentHeight =
-      prevProps.dimensions.height -
-      prevProps.dimensions.topInset -
-      prevProps.dimensions.bottomInset;
+    const newContentHeight = this.props.dimensions.safeAreaHeight;
+    const oldContentHeight = prevProps.dimensions.safeAreaHeight;
     if (newContentHeight !== oldContentHeight) {
       this.contentHeight.setValue(newContentHeight);
     }
@@ -814,7 +808,7 @@ export default connectNav((context: ?NavContextType) => ({
       cookie: state.cookie,
       urlPrefix: state.urlPrefix,
       loggedIn: isLoggedIn(state),
-      dimensions: state.dimensions,
+      dimensions: derivedDimensionsInfoSelector(state),
       splashStyle: splashStyleSelector(state),
     }),
     null,

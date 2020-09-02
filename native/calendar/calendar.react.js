@@ -21,10 +21,6 @@ import {
   calendarFilterPropType,
 } from 'lib/types/filter-types';
 import {
-  type DimensionsInfo,
-  dimensionsInfoPropType,
-} from '../redux/dimensions-updater.react';
-import {
   type LoadingStatus,
   loadingStatusPropType,
 } from 'lib/types/loading-types';
@@ -107,6 +103,11 @@ import {
   type NavContextType,
 } from '../navigation/navigation-context';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
+import {
+  type DerivedDimensionsInfo,
+  derivedDimensionsInfoPropType,
+  derivedDimensionsInfoSelector,
+} from '../selectors/dimensions-selectors';
 
 export type EntryInfoWithHeight = {|
   ...EntryInfo,
@@ -140,7 +141,7 @@ type Props = {
   startDate: string,
   endDate: string,
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
-  dimensions: DimensionsInfo,
+  dimensions: DerivedDimensionsInfo,
   loadingStatus: LoadingStatus,
   connectionStatus: ConnectionStatus,
   colors: Colors,
@@ -196,7 +197,7 @@ class Calendar extends React.PureComponent<Props, State> {
     startDate: PropTypes.string.isRequired,
     endDate: PropTypes.string.isRequired,
     calendarFilters: PropTypes.arrayOf(calendarFilterPropType).isRequired,
-    dimensions: dimensionsInfoPropType.isRequired,
+    dimensions: derivedDimensionsInfoPropType.isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
     connectionStatus: connectionStatusPropType.isRequired,
     colors: colorsPropType.isRequired,
@@ -658,13 +659,8 @@ class Calendar extends React.PureComponent<Props, State> {
   }
 
   flatListHeight() {
-    const {
-      height: windowHeight,
-      topInset,
-      bottomInset,
-      tabBarHeight,
-    } = this.props.dimensions;
-    return windowHeight - topInset - bottomInset - tabBarHeight;
+    const { safeAreaHeight, tabBarHeight } = this.props.dimensions;
+    return safeAreaHeight - tabBarHeight;
   }
 
   initialScrollIndex(data: $ReadOnlyArray<CalendarItemWithHeight>) {
@@ -1120,7 +1116,7 @@ export default connectNav((context: ?NavContextType) => ({
       startDate: state.navInfo.startDate,
       endDate: state.navInfo.endDate,
       calendarFilters: state.calendarFilters,
-      dimensions: state.dimensions,
+      dimensions: derivedDimensionsInfoSelector(state),
       loadingStatus: loadingStatusSelector(state),
       connectionStatus: state.connection.status,
       colors: colorsSelector(state),

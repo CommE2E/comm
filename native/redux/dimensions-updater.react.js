@@ -21,20 +21,21 @@ import { updateDimensionsActiveType } from './action-types';
 
 export type DimensionsInfo = {|
   ...Dimensions,
-  topInset: number,
-  bottomInset: number,
-  tabBarHeight: number,
-  rotated: boolean,
+  +topInset: number,
+  +bottomInset: number,
+  +tabBarHeight: number,
+  +rotated: boolean,
 |};
 
-const dimensionsInfoPropType = PropTypes.exact({
+const dimensionsInfoPropTypeShape = {
   height: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
   topInset: PropTypes.number.isRequired,
   bottomInset: PropTypes.number.isRequired,
   tabBarHeight: PropTypes.number.isRequired,
   rotated: PropTypes.bool.isRequired,
-});
+};
+const dimensionsInfoPropType = PropTypes.exact(dimensionsInfoPropTypeShape);
 
 type Metrics = {|
   +frame: {| +x: number, +y: number, +width: number, +height: number |},
@@ -113,4 +114,9 @@ function DimensionsUpdater() {
   return null;
 }
 
-export { dimensionsInfoPropType, defaultDimensionsInfo, DimensionsUpdater };
+export {
+  dimensionsInfoPropTypeShape,
+  dimensionsInfoPropType,
+  defaultDimensionsInfo,
+  DimensionsUpdater,
+};

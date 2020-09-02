@@ -8,10 +8,6 @@ import {
   type HandleVerificationCodeResult,
 } from 'lib/types/verify-types';
 import type { KeyboardEvent } from '../keyboard/keyboard';
-import {
-  type DimensionsInfo,
-  dimensionsInfoPropType,
-} from '../redux/dimensions-updater.react';
 import type { ImageStyle } from '../types/styles';
 import type { RootNavigationProp } from '../navigation/root-navigator.react';
 import type { NavigationRoute } from '../navigation/route-names';
@@ -60,6 +56,11 @@ import {
   runTiming,
   ratchetAlongWithKeyboardHeight,
 } from '../utils/animation-utils';
+import {
+  type DerivedDimensionsInfo,
+  derivedDimensionsInfoPropType,
+  derivedDimensionsInfoSelector,
+} from '../selectors/dimensions-selectors';
 
 const safeAreaEdges = ['top', 'bottom'];
 
@@ -101,7 +102,7 @@ type Props = {
   // Navigation state
   isForeground: boolean,
   // Redux state
-  dimensions: DimensionsInfo,
+  dimensions: DerivedDimensionsInfo,
   splashStyle: ImageStyle,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
@@ -128,7 +129,7 @@ class VerificationModal extends React.PureComponent<Props, State> {
       }).isRequired,
     }).isRequired,
     isForeground: PropTypes.bool.isRequired,
-    dimensions: dimensionsInfoPropType.isRequired,
+    dimensions: derivedDimensionsInfoPropType.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     handleVerificationCode: PropTypes.func.isRequired,
   };
@@ -154,9 +155,8 @@ class VerificationModal extends React.PureComponent<Props, State> {
       errorMessage: null,
       resetPasswordUsername: null,
     };
-    const { height: windowHeight, topInset, bottomInset } = props.dimensions;
 
-    this.contentHeight = new Value(windowHeight - topInset - bottomInset);
+    this.contentHeight = new Value(props.dimensions.safeAreaHeight);
     this.modeValue = new Value(modeNumbers[this.nextMode]);
 
     this.paddingTopValue = this.paddingTop();
@@ -336,14 +336,8 @@ class VerificationModal extends React.PureComponent<Props, State> {
       this.onBackground();
     }
 
-    const newContentHeight =
-      this.props.dimensions.height -
-      this.props.dimensions.topInset -
-      this.props.dimensions.bottomInset;
-    const oldContentHeight =
-      prevProps.dimensions.height -
-      prevProps.dimensions.topInset -
-      prevProps.dimensions.bottomInset;
+    const newContentHeight = this.props.dimensions.safeAreaHeight;
+    const oldContentHeight = prevProps.dimensions.safeAreaHeight;
     if (newContentHeight !== oldContentHeight) {
       this.contentHeight.setValue(newContentHeight);
     }
@@ -574,7 +568,7 @@ export default connectNav((context: ?NavContextType) => ({
 }))(
   connect(
     (state: AppState) => ({
-      dimensions: state.dimensions,
+      dimensions: derivedDimensionsInfoSelector(state),
       splashStyle: splashStyleSelector(state),
     }),
     { handleVerificationCode },
