@@ -75,7 +75,6 @@ const {
   and,
   eq,
   neq,
-  greaterThan,
   lessThan,
   greaterOrEq,
   sub,
@@ -169,12 +168,20 @@ class VerificationModal extends React.PureComponent<Props, State> {
   };
 
   paddingTop() {
+    const simpleTextHeight = 90;
+    const resetPasswordPanelHeight = 165;
     const potentialPaddingTop = divide(
       max(
         sub(
           this.contentHeight,
-          cond(eq(this.modeValue, 0), 90),
-          cond(eq(this.modeValue, 1), 165),
+          cond(
+            eq(this.modeValue, modeNumbers['simple-text']),
+            simpleTextHeight,
+          ),
+          cond(
+            eq(this.modeValue, modeNumbers['reset-password']),
+            resetPasswordPanelHeight,
+          ),
           this.keyboardHeightValue,
         ),
         0,
@@ -227,7 +234,10 @@ class VerificationModal extends React.PureComponent<Props, State> {
   }
 
   resetPasswordPanelOpacity() {
-    const targetResetPasswordPanelOpacity = greaterThan(this.modeValue, 0);
+    const targetResetPasswordPanelOpacity = eq(
+      this.modeValue,
+      modeNumbers['reset-password'],
+    );
 
     const resetPasswordPanelOpacity = new Value(-1);
     const prevResetPasswordPanelOpacity = new Value(-1);

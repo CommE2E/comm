@@ -82,7 +82,6 @@ const {
   and,
   eq,
   neq,
-  greaterThan,
   lessThan,
   greaterOrEq,
   add,
@@ -101,6 +100,12 @@ const modeNumbers: { [LoggedOutMode]: number } = {
   'log-in': 2,
   'register': 3,
 };
+function isPastPrompt(modeValue: Animated.Node) {
+  return and(
+    neq(modeValue, modeNumbers['loading']),
+    neq(modeValue, modeNumbers['prompt']),
+  );
+}
 
 type Props = {
   // Navigation state
@@ -352,21 +357,43 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   panelPaddingTop() {
     const headerHeight = Platform.OS === 'ios' ? 62.33 : 58.54;
+    const promptButtonsSize = Platform.OS === 'ios' ? 40 : 61;
+    const logInContainerSize = 165;
+    const registerPanelSize = 246;
+
+    // On large enough devices, we want to properly center the panels on screen.
+    // But on smaller devices, this can lead to some issues:
+    // - We need enough space below the log-in panel to render the
+    //   "Forgot password?" link
+    // - On Android, ratchetAlongWithKeyboardHeight won't adjust the panel's
+    //   position when the keyboard size changes
+    // To address these issues, we artifically increase the panel sizes so that
+    // they get positioned a little higher than center on small devices.
+    const smallDeviceThreshold = 600;
+    const smallDeviceLogInContainerSize = 195;
+    const smallDeviceRegisterPanelSize = 261;
+
     const containerSize = add(
       headerHeight,
+      cond(not(isPastPrompt(this.modeValue)), promptButtonsSize, 0),
       cond(
-        eq(this.modeValue, 2),
-        // We make space for the reset password button on smaller devices
-        cond(lessThan(this.contentHeight, 600), 195, 165),
+        eq(this.modeValue, modeNumbers['log-in']),
+        cond(
+          lessThan(this.contentHeight, smallDeviceThreshold),
+          smallDeviceLogInContainerSize,
+          logInContainerSize,
+        ),
         0,
       ),
       cond(
-        eq(this.modeValue, 3),
-        // We make space for the password manager on smaller devices
-        cond(lessThan(this.contentHeight, 600), 261, 246),
+        eq(this.modeValue, modeNumbers['register']),
+        cond(
+          lessThan(this.contentHeight, smallDeviceThreshold),
+          smallDeviceRegisterPanelSize,
+          registerPanelSize,
+        ),
         0,
       ),
-      cond(lessThan(this.modeValue, 2), Platform.OS === 'ios' ? 40 : 61, 0),
     );
     const potentialPanelPaddingTop = divide(
       max(sub(this.contentHeight, this.keyboardHeightValue, containerSize), 0),
@@ -402,7 +429,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
         [
           stopClock(clock),
           cond(
-            neq(greaterThan(prevModeValue, 1), greaterThan(this.modeValue, 1)),
+            neq(isPastPrompt(prevModeValue), isPastPrompt(this.modeValue)),
             set(targetPanelPaddingTop, potentialPanelPaddingTop),
           ),
           set(prevModeValue, this.modeValue),
@@ -425,8 +452,14 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   footerPaddingTop() {
     const textHeight = Platform.OS === 'ios' ? 17 : 19;
+    const spacingAboveKeyboard = 15;
     const targetFooterPaddingTop = max(
-      sub(this.contentHeight, max(this.keyboardHeightValue, 0), textHeight, 15),
+      sub(
+        this.contentHeight,
+        max(this.keyboardHeightValue, 0),
+        textHeight,
+        spacingAboveKeyboard,
+      ),
       0,
     );
 
@@ -456,7 +489,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   }
 
   panelOpacity() {
-    const targetPanelOpacity = greaterThan(this.modeValue, 1);
+    const targetPanelOpacity = isPastPrompt(this.modeValue);
 
     const panelOpacity = new Value(-1);
     const prevPanelOpacity = new Value(-1);
@@ -489,7 +522,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   forgotPasswordLinkOpacity() {
     const targetForgotPasswordLinkOpacity = and(
-      eq(this.modeValue, 2),
+      eq(this.modeValue, modeNumbers['log-in']),
       not(this.hideForgotPasswordLink),
     );
 
