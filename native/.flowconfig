@@ -14,7 +14,9 @@
 
 [untyped]
 .*/node_modules/@react-native-community/cli/.*/.*
-.*/node_modules/react-native-camera/src/.*
+
+[declarations]
+.*/node_modules/react-native-camera/*
 
 [include]
 ../node_modules
