@@ -675,7 +675,18 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   };
 
   onPressLogIn = () => {
-    this.keyboardHeightValue.setValue(-1);
+    if (Platform.OS !== 'ios') {
+      // For some strange reason, iOS's password management logic doesn't
+      // realize that the username and password fields in LogInPanel are related
+      // if the username field gets focused on mount. To avoid this issue we
+      // need the username and password fields to both appear on-screen before
+      // we focus the username field. However, when we set keyboardHeightValue
+      // to -1 here, we are telling our Reanimated logic to wait until the
+      // keyboard appears before showing LogInPanel. Since we need LogInPanel
+      // to appear before the username field is focused, we need to avoid this
+      // behavior on iOS.
+      this.keyboardHeightValue.setValue(-1);
+    }
     this.setMode('log-in');
   };
 

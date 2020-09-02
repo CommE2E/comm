@@ -103,7 +103,7 @@ class LogInPanel extends React.PureComponent<Props> {
             value={this.props.state.state.usernameOrEmailInputText}
             onChangeText={this.onChangeUsernameOrEmailInputText}
             placeholder={this.props.usernamePlaceholder}
-            autoFocus={true}
+            autoFocus={Platform.OS !== 'ios'}
             autoCorrect={false}
             autoCapitalize="none"
             keyboardType="ascii-capable"
@@ -142,6 +142,9 @@ class LogInPanel extends React.PureComponent<Props> {
 
   usernameOrEmailInputRef = (usernameOrEmailInput: ?TextInput) => {
     this.usernameOrEmailInput = usernameOrEmailInput;
+    if (Platform.OS === 'ios' && usernameOrEmailInput) {
+      setTimeout(() => usernameOrEmailInput.focus());
+    }
   };
 
   focusUsernameOrEmailInput = () => {
