@@ -75,8 +75,13 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
   };
   passwordInput: ?TextInput;
   confirmPasswordInput: ?TextInput;
+  passwordBeingAutoFilled = false;
 
   render() {
+    let onPasswordKeyPress;
+    if (Platform.OS === 'ios') {
+      onPasswordKeyPress = this.onPasswordKeyPress;
+    }
     return (
       <Panel opacityValue={this.props.opacityValue} style={styles.container}>
         <View>
@@ -91,6 +96,7 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
             style={styles.input}
             value={this.state.passwordInputText}
             onChangeText={this.onChangePasswordInputText}
+            onKeyPress={onPasswordKeyPress}
             placeholder="New password"
             autoFocus={true}
             secureTextEntry={true}
@@ -142,7 +148,27 @@ class ResetPasswordPanel extends React.PureComponent<Props, State> {
   };
 
   onChangePasswordInputText = (text: string) => {
-    this.setState({ passwordInputText: text });
+    const stateUpdate = {};
+    stateUpdate.passwordInputText = text;
+    if (this.passwordBeingAutoFilled) {
+      this.passwordBeingAutoFilled = false;
+      stateUpdate.confirmPasswordInputText = text;
+    }
+    this.setState(stateUpdate);
+  };
+
+  onPasswordKeyPress = (
+    event: $ReadOnly<{ nativeEvent: $ReadOnly<{ key: string }> }>,
+  ) => {
+    const { key } = event.nativeEvent;
+    if (
+      key.length > 1 &&
+      key !== 'Backspace' &&
+      key !== 'Enter' &&
+      this.state.confirmPasswordInputText.length === 0
+    ) {
+      this.passwordBeingAutoFilled = true;
+    }
   };
 
   onChangeConfirmPasswordInputText = (text: string) => {

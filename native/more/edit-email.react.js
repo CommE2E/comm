@@ -110,13 +110,14 @@ class EditEmail extends React.PureComponent<Props, State> {
             underlineColorAndroid="transparent"
             value={this.state.email}
             onChangeText={this.onChangeEmailText}
-            placeholder="Email"
+            placeholder="Email address"
             placeholderTextColor={panelForegroundTertiaryLabel}
             autoFocus={true}
             selectTextOnFocus={true}
             returnKeyType="next"
             autoCapitalize="none"
             keyboardType="email-address"
+            textContentType="emailAddress"
             autoCompleteType="email"
             onSubmitEditing={this.focusPasswordInput}
             ref={this.emailInputRef}

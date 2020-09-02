@@ -53,7 +53,10 @@ type Props = {
   // async functions that hit server APIs
   register: (registerInfo: RegisterInfo) => Promise<RegisterResult>,
 };
-class RegisterPanel extends React.PureComponent<Props> {
+type State = {|
+  confirmPasswordFocused: boolean,
+|};
+class RegisterPanel extends React.PureComponent<Props, State> {
   static propTypes = {
     setActiveAlert: PropTypes.func.isRequired,
     opacityValue: PropTypes.object.isRequired,
@@ -63,34 +66,35 @@ class RegisterPanel extends React.PureComponent<Props> {
     dispatchActionPromise: PropTypes.func.isRequired,
     register: PropTypes.func.isRequired,
   };
+  state = {
+    confirmPasswordFocused: false,
+  };
   usernameInput: ?TextInput;
   emailInput: ?TextInput;
   passwordInput: ?TextInput;
   confirmPasswordInput: ?TextInput;
+  passwordBeingAutoFilled = false;
 
   render() {
+    let confirmPasswordTextInputExtraProps;
+    if (
+      Platform.OS !== 'ios' ||
+      this.state.confirmPasswordFocused ||
+      this.props.state.state.confirmPasswordInputText.length > 0
+    ) {
+      confirmPasswordTextInputExtraProps = {
+        secureTextEntry: true,
+        textContentType: 'password',
+      };
+    }
+
+    let onPasswordKeyPress;
+    if (Platform.OS === 'ios') {
+      onPasswordKeyPress = this.onPasswordKeyPress;
+    }
+
     return (
       <Panel opacityValue={this.props.opacityValue} style={styles.container}>
-        <View>
-          <Icon name="user" size={22} color="#777" style={styles.icon} />
-          <TextInput
-            style={styles.input}
-            value={this.props.state.state.usernameInputText}
-            onChangeText={this.onChangeUsernameInputText}
-            placeholder="Username"
-            autoFocus={true}
-            autoCorrect={false}
-            autoCapitalize="none"
-            keyboardType="ascii-capable"
-            textContentType="username"
-            autoCompleteType="username"
-            returnKeyType="next"
-            blurOnSubmit={false}
-            onSubmitEditing={this.focusEmailInput}
-            editable={this.props.loadingStatus !== 'loading'}
-            ref={this.usernameInputRef}
-          />
-        </View>
         <View>
           <Icon
             name="envelope"
@@ -103,15 +107,37 @@ class RegisterPanel extends React.PureComponent<Props> {
             value={this.props.state.state.emailInputText}
             onChangeText={this.onChangeEmailInputText}
             placeholder="Email address"
+            autoFocus={true}
             autoCorrect={false}
             autoCapitalize="none"
             keyboardType="email-address"
+            textContentType="emailAddress"
             autoCompleteType="email"
+            returnKeyType="next"
+            blurOnSubmit={false}
+            onSubmitEditing={this.focusUsernameInput}
+            onBlur={this.onEmailBlur}
+            editable={this.props.loadingStatus !== 'loading'}
+            ref={this.emailInputRef}
+          />
+        </View>
+        <View>
+          <Icon name="user" size={22} color="#777" style={styles.icon} />
+          <TextInput
+            style={styles.input}
+            value={this.props.state.state.usernameInputText}
+            onChangeText={this.onChangeUsernameInputText}
+            placeholder="Username"
+            autoCorrect={false}
+            autoCapitalize="none"
+            keyboardType="ascii-capable"
+            textContentType="username"
+            autoCompleteType="username"
             returnKeyType="next"
             blurOnSubmit={false}
             onSubmitEditing={this.focusPasswordInput}
             editable={this.props.loadingStatus !== 'loading'}
-            ref={this.emailInputRef}
+            ref={this.usernameInputRef}
           />
         </View>
         <View>
@@ -120,6 +146,7 @@ class RegisterPanel extends React.PureComponent<Props> {
             style={styles.input}
             value={this.props.state.state.passwordInputText}
             onChangeText={this.onChangePasswordInputText}
+            onKeyPress={onPasswordKeyPress}
             placeholder="Password"
             secureTextEntry={true}
             textContentType="password"
@@ -137,14 +164,14 @@ class RegisterPanel extends React.PureComponent<Props> {
             value={this.props.state.state.confirmPasswordInputText}
             onChangeText={this.onChangeConfirmPasswordInputText}
             placeholder="Confirm password"
-            secureTextEntry={true}
-            textContentType="password"
             autoCompleteType="password"
             returnKeyType="go"
             blurOnSubmit={false}
             onSubmitEditing={this.onSubmit}
+            onFocus={this.onConfirmPasswordFocus}
             editable={this.props.loadingStatus !== 'loading'}
             ref={this.confirmPasswordInputRef}
+            {...confirmPasswordTextInputExtraProps}
           />
         </View>
         <PanelButton
@@ -172,9 +199,9 @@ class RegisterPanel extends React.PureComponent<Props> {
     this.confirmPasswordInput = confirmPasswordInput;
   };
 
-  focusEmailInput = () => {
-    invariant(this.emailInput, 'ref should be set');
-    this.emailInput.focus();
+  focusUsernameInput = () => {
+    invariant(this.usernameInput, 'ref should be set');
+    this.usernameInput.focus();
   };
 
   focusPasswordInput = () => {
@@ -193,14 +220,48 @@ class RegisterPanel extends React.PureComponent<Props> {
 
   onChangeEmailInputText = (text: string) => {
     this.props.state.setState({ emailInputText: text });
+    if (this.props.state.state.emailInputText.length === 0 && text.length > 1) {
+      this.focusUsernameInput();
+    }
+  };
+
+  onEmailBlur = () => {
+    const trimmedEmail = this.props.state.state.emailInputText.trim();
+    if (trimmedEmail !== this.props.state.state.emailInputText) {
+      this.props.state.setState({ emailInputText: trimmedEmail });
+    }
   };
 
   onChangePasswordInputText = (text: string) => {
-    this.props.state.setState({ passwordInputText: text });
+    const stateUpdate = {};
+    stateUpdate.passwordInputText = text;
+    if (this.passwordBeingAutoFilled) {
+      this.passwordBeingAutoFilled = false;
+      stateUpdate.confirmPasswordInputText = text;
+    }
+    this.props.state.setState(stateUpdate);
+  };
+
+  onPasswordKeyPress = (
+    event: $ReadOnly<{ nativeEvent: $ReadOnly<{ key: string }> }>,
+  ) => {
+    const { key } = event.nativeEvent;
+    if (
+      key.length > 1 &&
+      key !== 'Backspace' &&
+      key !== 'Enter' &&
+      this.props.state.state.confirmPasswordInputText.length === 0
+    ) {
+      this.passwordBeingAutoFilled = true;
+    }
   };
 
   onChangeConfirmPasswordInputText = (text: string) => {
     this.props.state.setState({ confirmPasswordInputText: text });
+  };
+
+  onConfirmPasswordFocus = () => {
+    this.setState({ confirmPasswordFocused: true });
   };
 
   onSubmit = () => {
