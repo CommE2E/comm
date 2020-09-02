@@ -12,6 +12,7 @@ const {
   cond,
   not,
   and,
+  or,
   greaterThan,
   lessThan,
   eq,
@@ -115,12 +116,16 @@ function ratchetAlongWithKeyboardHeight(
     // cases it can get quite big, in which case we don't want to update
     defaut: and(eq(prevKeyboardHeightValue, 0), greaterThan(keyboardHeight, 0)),
   });
+  const whenToReset = and(
+    eq(keyboardHeight, 0),
+    greaterThan(prevKeyboardHeightValue, 0),
+  );
   return block([
     cond(
       lessThan(prevKeyboardHeightValue, 0),
       set(prevKeyboardHeightValue, keyboardHeight),
     ),
-    cond(whenToUpdate, ratchetFunction),
+    cond(or(whenToUpdate, whenToReset), ratchetFunction),
     set(prevKeyboardHeightValue, keyboardHeight),
   ]);
 }
