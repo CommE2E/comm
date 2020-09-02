@@ -95,6 +95,13 @@ const {
 /* eslint-enable import/no-named-as-default-member */
 
 type LoggedOutMode = 'loading' | 'prompt' | 'log-in' | 'register';
+const modeNumbers: { [LoggedOutMode]: number } = {
+  'loading': 0,
+  'prompt': 1,
+  'log-in': 2,
+  'register': 3,
+};
+
 type Props = {
   // Navigation state
   isForeground: boolean,
@@ -196,7 +203,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
     const { height: windowHeight, topInset, bottomInset } = props.dimensions;
     this.contentHeight = new Value(windowHeight - topInset - bottomInset);
-    this.modeValue = new Value(LoggedOutModal.getModeNumber(this.nextMode));
+    this.modeValue = new Value(modeNumbers[this.nextMode]);
 
     this.buttonOpacity = new Value(props.rehydrateConcluded ? 1 : 0);
     this.panelPaddingTopValue = this.panelPaddingTop();
@@ -214,25 +221,12 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   setMode(newMode: LoggedOutMode) {
     this.nextMode = newMode;
     this.guardedSetState({ mode: newMode });
-    this.modeValue.setValue(LoggedOutModal.getModeNumber(newMode));
+    this.modeValue.setValue(modeNumbers[newMode]);
   }
 
   proceedToNextMode = () => {
     this.guardedSetState({ mode: this.nextMode });
   };
-
-  static getModeNumber(mode: LoggedOutMode) {
-    if (mode === 'loading') {
-      return 0;
-    } else if (mode === 'prompt') {
-      return 1;
-    } else if (mode === 'log-in') {
-      return 2;
-    } else if (mode === 'register') {
-      return 3;
-    }
-    invariant(false, `${mode} is not a valid LoggedOutMode`);
-  }
 
   componentDidMount() {
     this.mounted = true;
@@ -381,9 +375,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
     const panelPaddingTop = new Value(-1);
     const targetPanelPaddingTop = new Value(-1);
-    const prevModeValue = new Value(
-      LoggedOutModal.getModeNumber(this.nextMode),
-    );
+    const prevModeValue = new Value(modeNumbers[this.nextMode]);
     const clock = new Clock();
     const keyboardTimeoutClock = new Clock();
     return block([
@@ -570,7 +562,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   goBackToPrompt = () => {
     this.nextMode = 'prompt';
     this.keyboardHeightValue.setValue(0);
-    this.modeValue.setValue(LoggedOutModal.getModeNumber('prompt'));
+    this.modeValue.setValue(modeNumbers['prompt']);
     Keyboard.dismiss();
   };
 

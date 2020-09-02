@@ -22,6 +22,11 @@ import ForgotPasswordPanel from './forgot-password-panel.react';
 import { runTiming } from '../utils/animation-utils';
 
 type LogInMode = 'log-in' | 'forgot-password' | 'forgot-password-success';
+const modeNumbers: { [LogInMode]: number } = {
+  'log-in': 0,
+  'forgot-password': 1,
+  'forgot-password-success': 2,
+};
 
 /* eslint-disable import/no-named-as-default-member */
 const {
@@ -73,26 +78,13 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
       logInMode: 'log-in',
       nextLogInMode: 'log-in',
     };
-    this.panelTransitionTarget = new Value(
-      LogInPanelContainer.getModeNumber('log-in'),
-    );
+    this.panelTransitionTarget = new Value(modeNumbers['log-in']);
     this.panelTransitionValue = this.panelTransition();
   }
 
   proceedToNextMode = () => {
     this.setState({ logInMode: this.state.nextLogInMode });
   };
-
-  static getModeNumber(mode: LogInMode) {
-    if (mode === 'log-in') {
-      return 0;
-    } else if (mode === 'forgot-password') {
-      return 1;
-    } else if (mode === 'forgot-password-success') {
-      return 2;
-    }
-    invariant(false, `${mode} is not a valid LogInModalMode`);
-  }
 
   panelTransition() {
     const panelTransition = new Value(-1);
@@ -222,9 +214,7 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
   onPressForgotPassword = () => {
     this.props.hideForgotPasswordLink.setValue(1);
     this.setState({ nextLogInMode: 'forgot-password' });
-    this.panelTransitionTarget.setValue(
-      LogInPanelContainer.getModeNumber('forgot-password'),
-    );
+    this.panelTransitionTarget.setValue(modeNumbers['forgot-password']);
   };
 
   backFromLogInMode = () => {
@@ -240,9 +230,7 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
     this.logInPanel.focusUsernameOrEmailInput();
 
     this.props.hideForgotPasswordLink.setValue(0);
-    this.panelTransitionTarget.setValue(
-      LogInPanelContainer.getModeNumber('log-in'),
-    );
+    this.panelTransitionTarget.setValue(modeNumbers['log-in']);
 
     return true;
   };
@@ -253,9 +241,7 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
     }
 
     this.setState({ nextLogInMode: 'forgot-password-success' });
-    this.panelTransitionTarget.setValue(
-      LogInPanelContainer.getModeNumber('forgot-password-success'),
-    );
+    this.panelTransitionTarget.setValue(modeNumbers['forgot-password-success']);
 
     this.inCoupleSecondsNavigateToLogIn();
   };

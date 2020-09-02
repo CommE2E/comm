@@ -91,6 +91,11 @@ export type VerificationModalParams = {|
 |};
 
 type VerificationModalMode = 'simple-text' | 'reset-password';
+const modeNumbers: { [VerificationModalMode]: number } = {
+  'simple-text': 0,
+  'reset-password': 1,
+};
+
 type Props = {
   navigation: RootNavigationProp<'VerificationModal'>,
   route: NavigationRoute<'VerificationModal'>,
@@ -153,7 +158,7 @@ class VerificationModal extends React.PureComponent<Props, State> {
     const { height: windowHeight, topInset, bottomInset } = props.dimensions;
 
     this.contentHeight = new Value(windowHeight - topInset - bottomInset);
-    this.modeValue = new Value(VerificationModal.getModeNumber(this.nextMode));
+    this.modeValue = new Value(modeNumbers[this.nextMode]);
 
     this.paddingTopValue = this.paddingTop();
     this.resetPasswordPanelOpacityValue = this.resetPasswordPanelOpacity();
@@ -162,15 +167,6 @@ class VerificationModal extends React.PureComponent<Props, State> {
   proceedToNextMode = () => {
     this.setState({ mode: this.nextMode });
   };
-
-  static getModeNumber(mode: VerificationModalMode) {
-    if (mode === 'simple-text') {
-      return 0;
-    } else if (mode === 'reset-password') {
-      return 1;
-    }
-    invariant(false, `${mode} is not a valid VerificationModalMode`);
-  }
 
   paddingTop() {
     const potentialPaddingTop = divide(
@@ -188,9 +184,7 @@ class VerificationModal extends React.PureComponent<Props, State> {
 
     const paddingTop = new Value(-1);
     const targetPaddingTop = new Value(-1);
-    const prevModeValue = new Value(
-      VerificationModal.getModeNumber(this.nextMode),
-    );
+    const prevModeValue = new Value(modeNumbers[this.nextMode]);
     const clock = new Clock();
     const keyboardTimeoutClock = new Clock();
     return block([
@@ -312,7 +306,7 @@ class VerificationModal extends React.PureComponent<Props, State> {
     if (code !== prevCode) {
       Keyboard.dismiss();
       this.nextMode = 'simple-text';
-      this.modeValue.setValue(VerificationModal.getModeNumber(this.nextMode));
+      this.modeValue.setValue(modeNumbers[this.nextMode]);
       this.keyboardHeightValue.setValue(0);
       this.setState({
         mode: this.nextMode,
@@ -367,7 +361,7 @@ class VerificationModal extends React.PureComponent<Props, State> {
 
   onResetPasswordSuccess = async () => {
     this.nextMode = 'simple-text';
-    this.modeValue.setValue(VerificationModal.getModeNumber(this.nextMode));
+    this.modeValue.setValue(modeNumbers[this.nextMode]);
     this.keyboardHeightValue.setValue(0);
 
     Keyboard.dismiss();
@@ -387,7 +381,7 @@ class VerificationModal extends React.PureComponent<Props, State> {
         this.setState({ verifyField: result.verifyField });
       } else if (result.verifyField === verifyField.RESET_PASSWORD) {
         this.nextMode = 'reset-password';
-        this.modeValue.setValue(VerificationModal.getModeNumber(this.nextMode));
+        this.modeValue.setValue(modeNumbers[this.nextMode]);
         this.keyboardHeightValue.setValue(-1);
         this.setState({
           verifyField: result.verifyField,
