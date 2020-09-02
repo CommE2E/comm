@@ -493,17 +493,10 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       not(this.hideForgotPasswordLink),
     );
 
-    const forgotPasswordLinkOpacity = new Value(-1);
-    const prevTargetForgotPasswordLinkOpacity = new Value(-1);
+    const forgotPasswordLinkOpacity = new Value(0);
+    const prevTargetForgotPasswordLinkOpacity = new Value(0);
     const clock = new Clock();
     return block([
-      cond(lessThan(forgotPasswordLinkOpacity, 0), [
-        set(forgotPasswordLinkOpacity, targetForgotPasswordLinkOpacity),
-        set(
-          prevTargetForgotPasswordLinkOpacity,
-          targetForgotPasswordLinkOpacity,
-        ),
-      ]),
       cond(greaterOrEq(this.keyboardHeightValue, 0), [
         cond(
           neq(
