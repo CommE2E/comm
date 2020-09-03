@@ -8,9 +8,10 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
-import { View, Text, Animated } from 'react-native';
+import { Text, View } from 'react-native';
 import PropTypes from 'prop-types';
-import Swipeable from 'react-native-gesture-handler/Swipeable';
+import Swipeable from '../components/swipeable';
+import { useNavigation } from '@react-navigation/native';
 
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
 import { connect } from 'lib/utils/redux-utils';
@@ -33,22 +34,24 @@ type Props = {
   // Redux state
   colors: Colors,
   styles: typeof styles,
-  windowWidth: number,
 };
-class ChatThreadListItem extends React.PureComponent<Props> {
-  static propTypes = {
-    data: chatThreadItemPropType.isRequired,
-    onPressItem: PropTypes.func.isRequired,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    windowWidth: PropTypes.number.isRequired,
-  };
+function ChatThreadListItem({ data, onPressItem, colors, ...props }: Props) {
+  const swipeable = React.useRef<?Swipeable>();
+  const navigation = useNavigation();
 
-  lastMessage() {
-    const mostRecentMessageInfo = this.props.data.mostRecentMessageInfo;
+  React.useEffect(() => {
+    return navigation.addListener('blur', () => {
+      if (swipeable.current) {
+        swipeable.current.close();
+      }
+    });
+  }, [navigation, swipeable]);
+
+  const lastMessage = React.useCallback(() => {
+    const mostRecentMessageInfo = data.mostRecentMessageInfo;
     if (!mostRecentMessageInfo) {
       return (
-        <Text style={this.props.styles.noMessages} numberOfLines={1}>
+        <Text style={props.styles.noMessages} numberOfLines={1}>
           No messages
         </Text>
       );
@@ -56,156 +59,77 @@ class ChatThreadListItem extends React.PureComponent<Props> {
     return (
       <MessagePreview
         messageInfo={mostRecentMessageInfo}
-        threadInfo={this.props.data.threadInfo}
+        threadInfo={data.threadInfo}
       />
     );
-  }
+  }, [data.mostRecentMessageInfo, data.threadInfo, props.styles]);
 
-  renderRightActions = progress => {
-    const trans = progress.interpolate({
-      inputRange: [0, 1],
-      outputRange: [180, 0],
-    });
-    const trans2 = progress.interpolate({
-      inputRange: [0, 1],
-      outputRange: [120, 0],
-    });
-    const trans3 = progress.interpolate({
-      inputRange: [0, 1],
-      outputRange: [60, 0],
-    });
+  const sidebars = data.sidebars.map(sidebar => (
+    <ChatThreadListSidebar
+      {...sidebar}
+      onPressItem={onPressItem}
+      key={sidebar.threadInfo.id}
+    />
+  ));
 
-    const commonActionStyle = [
-      this.props.styles.action,
-      {
-        width: this.props.windowWidth + 60,
-        marginRight: -this.props.windowWidth,
-        paddingRight: this.props.windowWidth,
-      },
-    ];
+  const onPress = React.useCallback(() => {
+    onPressItem(data.threadInfo);
+  }, [onPressItem, data.threadInfo]);
 
-    return (
-      <View style={this.props.styles.actionsContainer}>
-        <Animated.View
-          style={{
-            transform: [{ translateX: trans }],
-          }}
+  const lastActivity = shortAbsoluteDate(data.lastUpdatedTime);
+  const unreadStyle = data.threadInfo.currentUser.unread
+    ? props.styles.unread
+    : null;
+  return (
+    <>
+      <Swipeable
+        buttonWidth={60}
+        innerRef={swipeable}
+        rightActions={[
+          {
+            key: 'action1',
+            onPress: () => console.log('action1'),
+            color: colors.greenButton,
+            content: <Text>action1</Text>,
+          },
+          {
+            key: 'action2',
+            onPress: () => console.log('action2'),
+            color: colors.redButton,
+            content: <Text>action2</Text>,
+          },
+        ]}
+      >
+        <Button
+          onPress={onPress}
+          iosFormat="highlight"
+          iosHighlightUnderlayColor={colors.listIosHighlightUnderlay}
+          iosActiveOpacity={0.85}
         >
-          <Button
-            onPress={() => {}}
-            style={[
-              ...commonActionStyle,
-              {
-                backgroundColor: this.props.colors.greenButton,
-              },
-            ]}
-          >
-            <Text>Action1</Text>
-          </Button>
-        </Animated.View>
-        <Animated.View
-          style={{
-            transform: [{ translateX: trans2 }],
-          }}
-        >
-          <Button
-            onPress={() => {}}
-            style={[
-              ...commonActionStyle,
-              {
-                backgroundColor: this.props.colors.redButton,
-              },
-            ]}
-          >
-            <Text>Action2</Text>
-          </Button>
-        </Animated.View>
-        <Animated.View
-          style={{
-            transform: [{ translateX: trans3 }],
-          }}
-        >
-          <Button
-            onPress={() => {}}
-            style={[
-              ...commonActionStyle,
-              {
-                backgroundColor: this.props.colors.mintButton,
-              },
-            ]}
-          >
-            <Text>Action3</Text>
-          </Button>
-        </Animated.View>
-      </View>
-    );
-  };
-
-  render() {
-    const { listIosHighlightUnderlay } = this.props.colors;
-
-    const sidebars = this.props.data.sidebars.map(sidebar => (
-      <ChatThreadListSidebar
-        {...sidebar}
-        onPressItem={this.props.onPressItem}
-        key={sidebar.threadInfo.id}
-      />
-    ));
-
-    const lastActivity = shortAbsoluteDate(this.props.data.lastUpdatedTime);
-    const unreadStyle = this.props.data.threadInfo.currentUser.unread
-      ? this.props.styles.unread
-      : null;
-    return (
-      <>
-        <Swipeable renderRightActions={this.renderRightActions}>
-          <Button
-            onPress={this.onPress}
-            iosFormat="highlight"
-            iosHighlightUnderlayColor={listIosHighlightUnderlay}
-            iosActiveOpacity={0.85}
-          >
-            <View style={this.props.styles.container}>
-              <View style={this.props.styles.row}>
-                <SingleLine style={[this.props.styles.threadName, unreadStyle]}>
-                  {this.props.data.threadInfo.uiName}
-                </SingleLine>
-                <View style={this.props.styles.colorSplotch}>
-                  <ColorSplotch
-                    color={this.props.data.threadInfo.color}
-                    size="small"
-                  />
-                </View>
-              </View>
-              <View style={this.props.styles.row}>
-                {this.lastMessage()}
-                <Text style={[this.props.styles.lastActivity, unreadStyle]}>
-                  {lastActivity}
-                </Text>
+          <View style={props.styles.container}>
+            <View style={props.styles.row}>
+              <SingleLine style={[props.styles.threadName, unreadStyle]}>
+                {data.threadInfo.uiName}
+              </SingleLine>
+              <View style={props.styles.colorSplotch}>
+                <ColorSplotch color={data.threadInfo.color} size="small" />
               </View>
             </View>
-          </Button>
-        </Swipeable>
-        {sidebars}
-      </>
-    );
-  }
-
-  onPress = () => {
-    this.props.onPressItem(this.props.data.threadInfo);
-  };
+            <View style={props.styles.row}>
+              {lastMessage()}
+              <Text style={[props.styles.lastActivity, unreadStyle]}>
+                {lastActivity}
+              </Text>
+            </View>
+          </View>
+        </Button>
+      </Swipeable>
+      {sidebars}
+    </>
+  );
 }
 
 const styles = {
-  action: {
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  actionsContainer: {
-    height: 60,
-    flexDirection: 'row',
-  },
   colorSplotch: {
     marginLeft: 10,
     marginTop: 2,
@@ -247,8 +171,14 @@ const styles = {
 };
 const stylesSelector = styleSelector(styles);
 
+ChatThreadListItem.propTypes = {
+  data: chatThreadItemPropType.isRequired,
+  onPressItem: PropTypes.func.isRequired,
+  colors: colorsPropType.isRequired,
+  styles: PropTypes.objectOf(PropTypes.object).isRequired,
+};
+
 export default connect((state: AppState) => ({
   colors: colorsSelector(state),
   styles: stylesSelector(state),
-  windowWidth: state.dimensions.width,
 }))(ChatThreadListItem);
