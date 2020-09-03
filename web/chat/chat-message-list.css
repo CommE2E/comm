@@ -165,6 +165,22 @@ div.messageTimestampBottomRightTooltip:after {
   border-color: transparent transparent black transparent;
 }
 
+div.messageReplyTooltip {
+  position: relative;
+  color: gray;
+  padding: 15px;
+  font-size: 14px;
+}
+div.messageReplyTooltipIcon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+div.messageReplyTooltipIcon:hover {
+  cursor: pointer;
+}
+
 div.textMessage {
   padding: 6px 12px;
   white-space: pre-wrap;
@@ -225,16 +241,32 @@ div.iconContainer > svg {
   height: 16px;
 }
 
-div.messageBox {
+div.messageBoxContainer {
+  position: relative;
+  display: flex;
+  max-width: calc(min(68%, 1000px));
   margin: 0 4px 0 12px;
+}
+div.nonViewerMessageBoxContainer {
+  justify-content: flex-start;
+}
+div.viewerMessageBoxContainer {
+  justify-content: flex-end;
+}
+div.fixedWidthMessageBoxContainer {
+  width: 68%;
+}
+
+div.messageBox {
   overflow: hidden;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  max-width: calc(min(68%, 1000px));
+  flex-shrink: 0;
+  max-width: 100%;
 }
 div.fixedWidthMessageBox {
-  width: 68%;
+  width: 100%;
 }
 
 div.failedSend {

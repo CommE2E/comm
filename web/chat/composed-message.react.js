@@ -6,7 +6,11 @@ import {
 } from 'lib/selectors/chat-selectors';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import { assertComposableMessageType } from 'lib/types/message-types';
-import type { MessagePositionInfo } from './message.react';
+import {
+  type OnMessagePositionInfo,
+  type MessagePositionInfo,
+  onMessagePositionInfoPropType,
+} from './message-position-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -21,14 +25,19 @@ import { stringForUser } from 'lib/shared/user-utils';
 
 import FailedSend from './failed-send.react';
 import css from './chat-message-list.css';
+import MessageReplyTooltip from './message-reply-tooltip.react';
 
 type Props = {|
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
   sendFailed: boolean,
-  setMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
+  setMouseOverMessagePosition: (
+    messagePositionInfo: MessagePositionInfo,
+  ) => void,
+  mouseOverMessagePosition?: ?OnMessagePositionInfo,
+  canReply: boolean,
   children: React.Node,
-  className?: ?string,
+  fixedWidth?: boolean,
   borderRadius: number,
 |};
 class ComposedMessage extends React.PureComponent<Props> {
@@ -36,9 +45,11 @@ class ComposedMessage extends React.PureComponent<Props> {
     item: chatMessageItemPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
     sendFailed: PropTypes.bool.isRequired,
-    setMouseOver: PropTypes.func.isRequired,
+    setMouseOverMessagePosition: PropTypes.func.isRequired,
+    mouseOverMessagePosition: onMessagePositionInfoPropType,
+    canReply: PropTypes.bool.isRequired,
     children: PropTypes.node.isRequired,
-    className: PropTypes.string,
+    fixedWidth: PropTypes.bool,
     borderRadius: PropTypes.number.isRequired,
   };
   static defaultProps = {
@@ -56,6 +67,16 @@ class ComposedMessage extends React.PureComponent<Props> {
       [css.content]: true,
       [css.viewerContent]: isViewer,
       [css.nonViewerContent]: !isViewer,
+    });
+    const messageBoxContainerClassName = classNames({
+      [css.messageBoxContainer]: true,
+      [css.viewerMessageBoxContainer]: isViewer,
+      [css.nonViewerMessageBoxContainer]: !isViewer,
+      [css.fixedWidthMessageBoxContainer]: this.props.fixedWidth,
+    });
+    const messageBoxClassName = classNames({
+      [css.messageBox]: true,
+      [css.fixedWidthMessageBox]: this.props.fixedWidth,
     });
     const messageBoxStyle = {
       borderTopRightRadius: isViewer && !item.startsCluster ? 0 : borderRadius,
@@ -95,17 +116,39 @@ class ComposedMessage extends React.PureComponent<Props> {
       );
     }
 
+    let viewerTooltip, nonViewerTooltip;
+    if (
+      this.props.mouseOverMessagePosition &&
+      this.props.mouseOverMessagePosition.item.messageInfo.id === id &&
+      this.props.canReply
+    ) {
+      const replyTooltip = (
+        <MessageReplyTooltip
+          messagePositionInfo={this.props.mouseOverMessagePosition}
+          onReplyClick={this.onMouseLeave}
+        />
+      );
+      if (isViewer) {
+        viewerTooltip = replyTooltip;
+      } else {
+        nonViewerTooltip = replyTooltip;
+      }
+    }
+
     return (
       <React.Fragment>
         {authorName}
         <div className={contentClassName}>
           <div
-            className={classNames(css.messageBox, this.props.className)}
-            style={messageBoxStyle}
-            onMouseOver={this.onMouseOver}
-            onMouseOut={this.onMouseOut}
+            className={messageBoxContainerClassName}
+            onMouseEnter={this.onMouseEnter}
+            onMouseLeave={this.onMouseLeave}
           >
-            {this.props.children}
+            {viewerTooltip}
+            <div className={messageBoxClassName} style={messageBoxStyle}>
+              {this.props.children}
+            </div>
+            {nonViewerTooltip}
           </div>
           {deliveryIcon}
         </div>
@@ -114,17 +157,21 @@ class ComposedMessage extends React.PureComponent<Props> {
     );
   }
 
-  onMouseOver = (event: SyntheticEvent<HTMLDivElement>) => {
+  onMouseEnter = (event: SyntheticEvent<HTMLDivElement>) => {
     const { item } = this.props;
     const rect = event.currentTarget.getBoundingClientRect();
     const { top, bottom, left, right, height, width } = rect;
     const messagePosition = { top, bottom, left, right, height, width };
-    this.props.setMouseOver({ type: 'on', item, messagePosition });
+    this.props.setMouseOverMessagePosition({
+      type: 'on',
+      item,
+      messagePosition,
+    });
   };
 
-  onMouseOut = () => {
+  onMouseLeave = () => {
     const { item } = this.props;
-    this.props.setMouseOver({ type: 'off', item });
+    this.props.setMouseOverMessagePosition({ type: 'off', item });
   };
 }
 

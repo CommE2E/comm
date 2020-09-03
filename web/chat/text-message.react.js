@@ -6,7 +6,11 @@ import {
 } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import type { MessagePositionInfo } from './message.react';
+import {
+  type MessagePositionInfo,
+  type OnMessagePositionInfo,
+  onMessagePositionInfoPropType,
+} from './message-position-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
@@ -25,13 +29,17 @@ import { markdownRules } from '../markdown/rules.react';
 type Props = {|
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
-  setMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
+  setMouseOverMessagePosition: (
+    messagePositionInfo: MessagePositionInfo,
+  ) => void,
+  mouseOverMessagePosition: ?OnMessagePositionInfo,
 |};
 class TextMessage extends React.PureComponent<Props> {
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
-    setMouseOver: PropTypes.func.isRequired,
+    setMouseOverMessagePosition: PropTypes.func.isRequired,
+    mouseOverMessagePosition: onMessagePositionInfoPropType,
   };
 
   constructor(props: Props) {
@@ -83,7 +91,9 @@ class TextMessage extends React.PureComponent<Props> {
         item={this.props.item}
         threadInfo={this.props.threadInfo}
         sendFailed={textMessageSendFailed(this.props.item)}
-        setMouseOver={this.props.setMouseOver}
+        setMouseOverMessagePosition={this.props.setMouseOverMessagePosition}
+        mouseOverMessagePosition={this.props.mouseOverMessagePosition}
+        canReply={true}
       >
         <div className={messageClassName} style={messageStyle}>
           <Markdown useDarkStyle={darkColor} rules={markdownRules}>

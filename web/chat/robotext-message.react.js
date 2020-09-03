@@ -12,7 +12,7 @@ import {
   updateNavInfoActionType,
 } from '../redux/redux-setup';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import type { MessagePositionInfo } from './message.react';
+import type { MessagePositionInfo } from './message-position-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -27,18 +27,20 @@ import { linkRules } from '../markdown/rules.react';
 
 type Props = {|
   item: RobotextChatMessageInfoItem,
-  setMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
+  setMouseOverMessagePosition: (
+    messagePositionInfo: MessagePositionInfo,
+  ) => void,
 |};
 class RobotextMessage extends React.PureComponent<Props> {
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
-    setMouseOver: PropTypes.func.isRequired,
+    setMouseOverMessagePosition: PropTypes.func.isRequired,
   };
 
   render() {
     return (
       <div className={css.robotext}>
-        <span onMouseOver={this.onMouseOver} onMouseOut={this.onMouseOut}>
+        <span onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave}>
           {this.linkedRobotext()}
         </span>
       </div>
@@ -79,17 +81,21 @@ class RobotextMessage extends React.PureComponent<Props> {
     return textParts;
   }
 
-  onMouseOver = (event: SyntheticEvent<HTMLDivElement>) => {
+  onMouseEnter = (event: SyntheticEvent<HTMLDivElement>) => {
     const { item } = this.props;
     const rect = event.currentTarget.getBoundingClientRect();
     const { top, bottom, left, right, height, width } = rect;
     const messagePosition = { top, bottom, left, right, height, width };
-    this.props.setMouseOver({ type: 'on', item, messagePosition });
+    this.props.setMouseOverMessagePosition({
+      type: 'on',
+      item,
+      messagePosition,
+    });
   };
 
-  onMouseOut = () => {
+  onMouseLeave = () => {
     const { item } = this.props;
-    this.props.setMouseOver({ type: 'off', item });
+    this.props.setMouseOverMessagePosition({ type: 'off', item });
   };
 }
 

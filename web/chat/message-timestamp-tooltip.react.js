@@ -1,6 +1,6 @@
 // @flow
 
-import type { OnMessagePositionInfo } from './message.react';
+import type { OnMessagePositionInfo } from './message-position-types';
 import { isComposableMessageType } from 'lib/types/message-types';
 
 import * as React from 'react';

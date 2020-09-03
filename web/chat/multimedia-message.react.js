@@ -5,7 +5,7 @@ import {
   chatMessageItemPropType,
 } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types';
-import type { MessagePositionInfo } from './message.react';
+import type { MessagePositionInfo } from './message-position-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 
 import * as React from 'react';
@@ -25,7 +25,9 @@ import {
 type Props = {|
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
-  setMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
+  setMouseOverMessagePosition: (
+    messagePositionInfo: MessagePositionInfo,
+  ) => void,
   setModal: (modal: ?React.Node) => void,
   // withInputState
   inputState: InputState,
@@ -34,7 +36,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
-    setMouseOver: PropTypes.func.isRequired,
+    setMouseOverMessagePosition: PropTypes.func.isRequired,
     setModal: PropTypes.func.isRequired,
     inputState: inputStatePropType.isRequired,
   };
@@ -75,15 +77,15 @@ class MultimediaMessage extends React.PureComponent<Props> {
       ) : (
         multimedia
       );
-    const className = multimedia.length > 1 ? css.fixedWidthMessageBox : null;
 
     return (
       <ComposedMessage
         item={item}
         threadInfo={this.props.threadInfo}
         sendFailed={sendFailed(this.props.item, this.props.inputState)}
-        setMouseOver={this.props.setMouseOver}
-        className={className}
+        setMouseOverMessagePosition={this.props.setMouseOverMessagePosition}
+        canReply={false}
+        fixedWidth={multimedia.length > 1}
         borderRadius={16}
       >
         {content}

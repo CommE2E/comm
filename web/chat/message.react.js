@@ -6,6 +6,11 @@ import {
 } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import {
+  type OnMessagePositionInfo,
+  type MessagePositionInfo,
+  onMessagePositionInfoPropType,
+} from './message-position-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -18,28 +23,13 @@ import RobotextMessage from './robotext-message.react';
 import MultimediaMessage from './multimedia-message.react';
 import css from './chat-message-list.css';
 
-export type OnMessagePositionInfo = {|
-  type: 'on',
-  item: ChatMessageInfoItem,
-  messagePosition: {|
-    top: number,
-    bottom: number,
-    left: number,
-    right: number,
-    height: number,
-    width: number,
-  |},
-|};
-export type MessagePositionInfo =
-  | OnMessagePositionInfo
-  | {|
-      type: 'off',
-      item: ChatMessageInfoItem,
-    |};
 type Props = {|
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
-  setMouseOver: (messagePositionInfo: MessagePositionInfo) => void,
+  setMouseOverMessagePosition: (
+    messagePositionInfo: MessagePositionInfo,
+  ) => void,
+  mouseOverMessagePosition: ?OnMessagePositionInfo,
   setModal: (modal: ?React.Node) => void,
   timeZone: ?string,
 |};
@@ -47,7 +37,8 @@ class Message extends React.PureComponent<Props> {
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
-    setMouseOver: PropTypes.func.isRequired,
+    setMouseOverMessagePosition: PropTypes.func.isRequired,
+    mouseOverMessagePosition: onMessagePositionInfoPropType,
     setModal: PropTypes.func.isRequired,
     timeZone: PropTypes.string,
   };
@@ -69,7 +60,8 @@ class Message extends React.PureComponent<Props> {
         <TextMessage
           item={item}
           threadInfo={this.props.threadInfo}
-          setMouseOver={this.props.setMouseOver}
+          setMouseOverMessagePosition={this.props.setMouseOverMessagePosition}
+          mouseOverMessagePosition={this.props.mouseOverMessagePosition}
         />
       );
     } else if (
@@ -80,14 +72,17 @@ class Message extends React.PureComponent<Props> {
         <MultimediaMessage
           item={item}
           threadInfo={this.props.threadInfo}
-          setMouseOver={this.props.setMouseOver}
+          setMouseOverMessagePosition={this.props.setMouseOverMessagePosition}
           setModal={this.props.setModal}
         />
       );
     } else {
       invariant(item.robotext, "Flow can't handle our fancy types :(");
       message = (
-        <RobotextMessage item={item} setMouseOver={this.props.setMouseOver} />
+        <RobotextMessage
+          item={item}
+          setMouseOverMessagePosition={this.props.setMouseOverMessagePosition}
+        />
       );
     }
     return (
