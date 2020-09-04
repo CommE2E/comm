@@ -69,14 +69,22 @@ const spec = {
     {
       id: 'unfriend',
       text: 'Unfriend',
-      onPress: (props, ...rest) =>
-        onRemoveUser({ ...props, action: 'unfriend' }, ...rest),
+      onPress: (props, dispatchFunctions, bindServerCall) =>
+        onRemoveUser(
+          { ...props, action: 'unfriend' },
+          dispatchFunctions,
+          bindServerCall,
+        ),
     },
     {
       id: 'unblock',
       text: 'Unblock',
-      onPress: (props, ...rest) =>
-        onRemoveUser({ ...props, action: 'unblock' }, ...rest),
+      onPress: (props, dispatchFunctions, bindServerCall) =>
+        onRemoveUser(
+          { ...props, action: 'unblock' },
+          dispatchFunctions,
+          bindServerCall,
+        ),
     },
   ],
 };
