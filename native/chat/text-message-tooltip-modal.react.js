@@ -11,6 +11,8 @@ import { type InputState } from '../input/input-state';
 import Clipboard from '@react-native-community/clipboard';
 import invariant from 'invariant';
 
+import { createMessageReply } from 'lib/shared/message-utils';
+
 import {
   createTooltip,
   tooltipHeight,
@@ -32,12 +34,6 @@ function onPressCopy(props: CustomProps) {
   setTimeout(confirmCopy);
 }
 
-const createReply = (message: string) => {
-  // add `>` to each line to include empty lines in the quote
-  const quotedMessage = message.replace(/^/gm, '> ');
-  return quotedMessage + '\n\n';
-};
-
 function onPressReply(
   props: CustomProps,
   dispatchFunctions: DispatchFunctions,
@@ -48,7 +44,7 @@ function onPressReply(
     inputState,
     'inputState should be set in TextMessageTooltipModal.onPressReply',
   );
-  inputState.addReply(createReply(props.item.messageInfo.text));
+  inputState.addReply(createMessageReply(props.item.messageInfo.text));
 }
 
 const spec = {
