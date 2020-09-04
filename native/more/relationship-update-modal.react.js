@@ -224,7 +224,12 @@ class RelationshipUpdateModal extends React.PureComponent<Props, State> {
       return;
     }
 
-    const selectedUserInfo = this.state.searchUserInfos[userID];
+    let selectedUserInfo = this.state.searchUserInfos[userID];
+    if (!selectedUserInfo) {
+      const userInfo = this.props.userInfos[userID];
+      selectedUserInfo = { id: userInfo.id, username: userInfo.username };
+    }
+    invariant(selectedUserInfo, `could not find selected userID ${userID}`);
 
     this.setState(state => ({
       userInfoInputArray: state.userInfoInputArray.concat(selectedUserInfo),
