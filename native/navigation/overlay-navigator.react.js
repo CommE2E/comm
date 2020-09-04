@@ -21,7 +21,7 @@ import { values } from 'lib/utils/objects';
 
 import OverlayRouter from './overlay-router';
 import { OverlayContext } from './overlay-context';
-import { scrollBlockingChatModals, TabNavigatorRouteName } from './route-names';
+import { scrollBlockingModals, TabNavigatorRouteName } from './route-names';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Value, timing, cond, call, lessOrEq, block } = Animated;
@@ -116,7 +116,7 @@ const OverlayNavigator = React.memo<Props>(
     const getScrollBlockingModalStatus = data => {
       let status = 'closed';
       for (let scene of data) {
-        if (!scrollBlockingChatModals.includes(scene.route.name)) {
+        if (!scrollBlockingModals.includes(scene.route.name)) {
           continue;
         }
         if (!scene.context.isDismissing) {

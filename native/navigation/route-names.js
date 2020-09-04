@@ -136,7 +136,7 @@ export const accountModals = [
   VerificationModalRouteName,
 ];
 
-export const scrollBlockingChatModals = [
+export const scrollBlockingModals = [
   MultimediaModalRouteName,
   MultimediaTooltipModalRouteName,
   TextMessageTooltipModalRouteName,

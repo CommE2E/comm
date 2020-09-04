@@ -23,7 +23,7 @@ import {
   ThreadPickerModalRouteName,
   ActionResultModalRouteName,
   accountModals,
-  scrollBlockingChatModals,
+  scrollBlockingModals,
   chatRootModals,
   threadRoutes,
 } from './route-names';
@@ -86,7 +86,7 @@ const createActiveTabSelector: (
   baseCreateActiveTabSelector,
 );
 
-const scrollBlockingChatModalsClosedSelector: (
+const scrollBlockingModalsClosedSelector: (
   context: ?NavContextType,
 ) => boolean = createSelector(
   (context: ?NavContextType) => context && context.state,
@@ -101,7 +101,7 @@ const scrollBlockingChatModalsClosedSelector: (
     const appState = getStateFromNavigatorRoute(currentRootSubroute);
     for (let i = appState.index; i >= 0; i--) {
       const route = appState.routes[i];
-      if (scrollBlockingChatModals.includes(route.name)) {
+      if (scrollBlockingModals.includes(route.name)) {
         return false;
       }
     }
@@ -128,7 +128,7 @@ function selectBackgroundIsDark(
   while (currentAppSubroute.name === ActionResultModalRouteName) {
     currentAppSubroute = appState.routes[--appIndex];
   }
-  if (scrollBlockingChatModals.includes(currentAppSubroute.name)) {
+  if (scrollBlockingModals.includes(currentAppSubroute.name)) {
     // All the scroll-blocking chat modals have a dark background
     return true;
   }
@@ -255,7 +255,7 @@ export {
   createIsForegroundSelector,
   useIsAppLoggedIn,
   createActiveTabSelector,
-  scrollBlockingChatModalsClosedSelector,
+  scrollBlockingModalsClosedSelector,
   selectBackgroundIsDark,
   activeThreadSelector,
   activeMessageListSelector,
