@@ -67,6 +67,9 @@ export type InputState = {|
   setDraft: (draft: string) => void,
   messageHasUploadFailure: (localMessageID: string) => boolean,
   retryMultimediaMessage: (localMessageID: string) => void,
+  addReply: (text: string) => void,
+  addReplyListener: ((message: string) => void) => void,
+  removeReplyListener: ((message: string) => void) => void,
 |};
 const arrayOfUploadsPropType = PropTypes.arrayOf(
   pendingMultimediaUploadPropType,
@@ -82,6 +85,9 @@ const inputStatePropType = PropTypes.shape({
   setDraft: PropTypes.func.isRequired,
   messageHasUploadFailure: PropTypes.func.isRequired,
   retryMultimediaMessage: PropTypes.func.isRequired,
+  addReply: PropTypes.func.isRequired,
+  addReplyListener: PropTypes.func.isRequired,
+  removeReplyListener: PropTypes.func.isRequired,
 });
 
 const InputStateContext = React.createContext<?InputState>(null);

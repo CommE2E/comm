@@ -116,6 +116,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     pendingUploads: {},
     drafts: {},
   };
+  replyCallbacks: Array<(message: string) => void> = [];
 
   static completedMessageIDs(state: State) {
     const completed = new Map();
@@ -374,6 +375,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               localMessageID,
               assignedUploads[localMessageID],
             ),
+          addReply: (message: string) => this.addReply(message),
+          addReplyListener: this.addReplyListener,
+          removeReplyListener: this.removeReplyListener,
         };
       },
     ),
@@ -991,6 +995,20 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     this.uploadFiles(threadID, uploadsToRetry);
   }
+
+  addReply = (message: string) => {
+    this.replyCallbacks.forEach(addReplyCallback => addReplyCallback(message));
+  };
+
+  addReplyListener = (callbackReply: (message: string) => void) => {
+    this.replyCallbacks.push(callbackReply);
+  };
+
+  removeReplyListener = (callbackReply: (message: string) => void) => {
+    this.replyCallbacks = this.replyCallbacks.filter(
+      candidate => candidate !== callbackReply,
+    );
+  };
 
   render() {
     const { activeChatThreadID } = this.props;

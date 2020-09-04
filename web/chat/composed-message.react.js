@@ -26,6 +26,11 @@ import { stringForUser } from 'lib/shared/user-utils';
 import FailedSend from './failed-send.react';
 import css from './chat-message-list.css';
 import MessageReplyTooltip from './message-reply-tooltip.react';
+import {
+  inputStatePropType,
+  type InputState,
+  withInputState,
+} from '../input/input-state';
 
 type Props = {|
   item: ChatMessageInfoItem,
@@ -39,6 +44,8 @@ type Props = {|
   children: React.Node,
   fixedWidth?: boolean,
   borderRadius: number,
+  // withInputState
+  inputState: InputState,
 |};
 class ComposedMessage extends React.PureComponent<Props> {
   static propTypes = {
@@ -51,6 +58,7 @@ class ComposedMessage extends React.PureComponent<Props> {
     children: PropTypes.node.isRequired,
     fixedWidth: PropTypes.bool,
     borderRadius: PropTypes.number.isRequired,
+    inputState: inputStatePropType.isRequired,
   };
   static defaultProps = {
     borderRadius: 8,
@@ -126,6 +134,7 @@ class ComposedMessage extends React.PureComponent<Props> {
         <MessageReplyTooltip
           messagePositionInfo={this.props.mouseOverMessagePosition}
           onReplyClick={this.onMouseLeave}
+          inputState={this.props.inputState}
         />
       );
       if (isViewer) {
@@ -175,4 +184,4 @@ class ComposedMessage extends React.PureComponent<Props> {
   };
 }
 
-export default ComposedMessage;
+export default withInputState(ComposedMessage);

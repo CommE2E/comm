@@ -50,6 +50,7 @@ type Props = {|
   joinThreadLoadingStatus: LoadingStatus,
   calendarQuery: () => CalendarQuery,
   nextLocalID: number,
+  isThreadActive: boolean,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   dispatchActionPayload: DispatchActionPayload,
@@ -64,6 +65,7 @@ class ChatInputBar extends React.PureComponent<Props> {
     joinThreadLoadingStatus: loadingStatusPropType.isRequired,
     calendarQuery: PropTypes.func.isRequired,
     nextLocalID: PropTypes.number.isRequired,
+    isThreadActive: PropTypes.bool.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
     joinThread: PropTypes.func.isRequired,
@@ -73,9 +75,24 @@ class ChatInputBar extends React.PureComponent<Props> {
 
   componentDidMount() {
     this.updateHeight();
+    if (this.props.isThreadActive) {
+      this.addReplyListener();
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.props.isThreadActive) {
+      this.removeReplyListener();
+    }
   }
 
   componentDidUpdate(prevProps: Props) {
+    if (this.props.isThreadActive && !prevProps.isThreadActive) {
+      this.addReplyListener();
+    } else if (!this.props.isThreadActive && prevProps.isThreadActive) {
+      this.removeReplyListener();
+    }
+
     const { inputState } = this.props;
     const prevInputState = prevProps.inputState;
     if (inputState.draft !== prevInputState.draft) {
@@ -126,6 +143,22 @@ class ChatInputBar extends React.PureComponent<Props> {
       const newHeight = Math.min(textarea.scrollHeight, 150);
       textarea.style.height = `${newHeight}px`;
     }
+  }
+
+  addReplyListener() {
+    invariant(
+      this.props.inputState,
+      'inputState should be set in addReplyListener',
+    );
+    this.props.inputState.addReplyListener(this.focusAndUpdateText);
+  }
+
+  removeReplyListener() {
+    invariant(
+      this.props.inputState,
+      'inputState should be set in removeReplyListener',
+    );
+    this.props.inputState.removeReplyListener(this.focusAndUpdateText);
   }
 
   render() {
@@ -252,6 +285,15 @@ class ChatInputBar extends React.PureComponent<Props> {
     this.props.inputState.setDraft(event.currentTarget.value);
   };
 
+  focusAndUpdateText = (text: string) => {
+    invariant(this.textarea, 'textarea should be set');
+    this.textarea.focus();
+    invariant(this.textarea, 'textarea should be set');
+    this.textarea.value = text;
+    this.updateHeight();
+    this.props.inputState.setDraft(text);
+  };
+
   onKeyDown = (event: SyntheticKeyboardEvent<HTMLTextAreaElement>) => {
     if (event.keyCode === 13 && !event.shiftKey) {
       event.preventDefault();
@@ -341,11 +383,12 @@ const joinThreadLoadingStatusSelector = createLoadingStatusSelector(
 );
 
 export default connect(
-  (state: AppState) => ({
+  (state: AppState, ownProps: { threadInfo: ThreadInfo, ... }) => ({
     viewerID: state.currentUserInfo && state.currentUserInfo.id,
     joinThreadLoadingStatus: joinThreadLoadingStatusSelector(state),
     calendarQuery: nonThreadCalendarQuery(state),
     nextLocalID: state.nextLocalID,
+    isThreadActive: ownProps.threadInfo.id === state.navInfo.activeChatThreadID,
   }),
   { joinThread },
 )(ChatInputBar);
