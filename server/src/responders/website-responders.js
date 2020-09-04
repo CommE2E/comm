@@ -285,8 +285,10 @@ async function websiteResponder(
     windowActive: true,
   };
 
-  const state = await promiseAll(statePromises);
+  const stateResult = await promiseAll(statePromises);
+  const state: AppState = { ...stateResult };
   const store: Store<AppState, Action> = createStore(reducer, state);
+
   const routerContext = {};
   const reactStream = renderToNodeStream(
     <Provider store={store}>

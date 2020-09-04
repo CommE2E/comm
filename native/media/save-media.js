@@ -13,6 +13,7 @@ import {
 import { Platform, PermissionsAndroid } from 'react-native';
 import filesystem from 'react-native-fs';
 import * as MediaLibrary from 'expo-media-library';
+import invariant from 'invariant';
 
 import { readableFilename, pathFromURI } from 'lib/media/file-utils';
 import { promiseAll } from 'lib/utils/promises';
@@ -406,6 +407,8 @@ async function copyToSortedDirectory(
       steps,
     };
   }
+  const { hash } = hashStep;
+  invariant(hash, 'hash should be truthy if hashStep.success is truthy');
 
   if (fileInfoResult) {
     steps.push(...fileInfoResult.steps);
@@ -420,7 +423,7 @@ async function copyToSortedDirectory(
     };
   }
 
-  const name = readableFilename(hashStep.hash, mime);
+  const name = readableFilename(hash, mime);
   if (!name) {
     return {
       result: { success: false, reason: 'mime_check_failed', mime },

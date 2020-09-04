@@ -445,12 +445,16 @@ async function checkState(
           stateChanges.deleteUserInfoIDs = [];
         }
         stateChanges.deleteUserInfoIDs.push(userID);
-        continue;
+      } else {
+        if (!stateChanges.userInfos) {
+          stateChanges.userInfos = [];
+        }
+        stateChanges.userInfos.push({
+          ...userInfo,
+          // Flow gets confused if we don't do this
+          username: userInfo.username,
+        });
       }
-      if (!stateChanges.userInfos) {
-        stateChanges.userInfos = [];
-      }
-      stateChanges.userInfos.push(userInfo);
     }
   }
 
