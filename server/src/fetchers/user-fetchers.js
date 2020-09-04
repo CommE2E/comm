@@ -4,6 +4,7 @@ import type {
   UserInfos,
   CurrentUserInfo,
   LoggedInUserInfo,
+  GlobalUserInfo,
 } from 'lib/types/user-types';
 import {
   undirectedStatus,
@@ -16,7 +17,9 @@ import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from '../database';
 
-async function fetchUserInfos(userIDs: string[]): Promise<UserInfos> {
+async function fetchUserInfos(
+  userIDs: string[],
+): Promise<{ [id: string]: GlobalUserInfo }> {
   if (userIDs.length <= 0) {
     return {};
   }
