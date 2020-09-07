@@ -78,6 +78,9 @@ type Props = {|
 type State = {|
   messageMouseover: ?OnMessagePositionInfo,
 |};
+type Snapshot = {|
+  +scrolledToBottom: boolean,
+|};
 class ChatMessageList extends React.PureComponent<Props, State> {
   static propTypes = {
     setModal: PropTypes.func.isRequired,
@@ -120,7 +123,36 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     threadWatcher.removeID(threadInfo.id);
   }
 
-  componentDidUpdate(prevProps: Props) {
+  getSnapshotBeforeUpdate(prevProps: Props) {
+    if (
+      ChatMessageList.hasNewMessage(this.props, prevProps) &&
+      this.messageContainer
+    ) {
+      const { scrollTop, scrollHeight, clientHeight } = this.messageContainer;
+      const scrolledToBottom = this.props.firefox
+        ? scrollTop <= 1
+        : scrollTop + clientHeight + 1 >= scrollHeight;
+      return { scrolledToBottom };
+    }
+    return null;
+  }
+
+  static hasNewMessage(props: Props, prevProps: Props) {
+    const { messageListData } = props;
+    if (!messageListData || messageListData.length === 0) {
+      return false;
+    }
+    const prevMessageListData = prevProps.messageListData;
+    if (!prevMessageListData || prevMessageListData.length === 0) {
+      return true;
+    }
+    return (
+      ChatMessageList.keyExtractor(prevMessageListData[0]) !==
+      ChatMessageList.keyExtractor(messageListData[0])
+    );
+  }
+
+  componentDidUpdate(prevProps: Props, prevState: State, snapshot: ?Snapshot) {
     const { messageListData } = this.props;
     const prevMessageListData = prevProps.messageListData;
 
@@ -135,25 +167,20 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     }
 
     const { messageContainer } = this;
-    if (
-      messageContainer &&
-      prevProps.messageListData !== this.props.messageListData
-    ) {
+    if (messageContainer && prevMessageListData !== messageListData) {
       this.onScroll();
     }
 
+    // We'll scroll to the bottom if the user was already scrolled to the bottom
+    // before the new message, or if the new message was composed locally
+    const hasNewMessage = ChatMessageList.hasNewMessage(this.props, prevProps);
     if (
       this.props.activeChatThreadID !== prevProps.activeChatThreadID ||
-      // This conditional evaluates to true when this client is the case of
-      // a new message being prepended to the messageListData
-      (messageListData &&
-        messageListData.length > 0 &&
-        (!prevMessageListData ||
-          prevMessageListData.length === 0 ||
-          ChatMessageList.keyExtractor(prevMessageListData[0]) !==
-            ChatMessageList.keyExtractor(messageListData[0])) &&
+      (hasNewMessage &&
+        messageListData &&
         messageListData[0].itemType === 'message' &&
-        messageListData[0].messageInfo.localID)
+        messageListData[0].messageInfo.localID) ||
+      (hasNewMessage && snapshot && snapshot.scrolledToBottom)
     ) {
       this.scrollToBottom();
     }
