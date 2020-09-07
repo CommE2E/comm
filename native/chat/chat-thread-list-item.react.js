@@ -31,11 +31,20 @@ import ChatThreadListSidebar from './chat-thread-list-sidebar.react';
 type Props = {
   data: ChatThreadItem,
   onPressItem: (threadInfo: ThreadInfo) => void,
+  onSwipeableWillOpen: (threadInfo: ThreadInfo) => void,
+  currentlyOpenedSwipeableId?: string,
   // Redux state
   colors: Colors,
   styles: typeof styles,
 };
-function ChatThreadListItem({ data, onPressItem, colors, ...props }: Props) {
+function ChatThreadListItem({
+  data,
+  onPressItem,
+  onSwipeableWillOpen,
+  currentlyOpenedSwipeableId,
+  colors,
+  ...props
+}: Props) {
   const swipeable = React.useRef<?Swipeable>();
   const navigation = useNavigation();
 
@@ -46,6 +55,15 @@ function ChatThreadListItem({ data, onPressItem, colors, ...props }: Props) {
       }
     });
   }, [navigation, swipeable]);
+
+  React.useEffect(() => {
+    if (
+      swipeable.current &&
+      data.threadInfo.id !== currentlyOpenedSwipeableId
+    ) {
+      swipeable.current.close();
+    }
+  }, [currentlyOpenedSwipeableId, swipeable, data.threadInfo.id]);
 
   const lastMessage = React.useCallback(() => {
     const mostRecentMessageInfo = data.mostRecentMessageInfo;
@@ -76,6 +94,10 @@ function ChatThreadListItem({ data, onPressItem, colors, ...props }: Props) {
     onPressItem(data.threadInfo);
   }, [onPressItem, data.threadInfo]);
 
+  const onSwipeableRightWillOpen = React.useCallback(() => {
+    onSwipeableWillOpen(data.threadInfo);
+  }, [onSwipeableWillOpen, data.threadInfo]);
+
   const lastActivity = shortAbsoluteDate(data.lastUpdatedTime);
   const unreadStyle = data.threadInfo.currentUser.unread
     ? props.styles.unread
@@ -85,6 +107,7 @@ function ChatThreadListItem({ data, onPressItem, colors, ...props }: Props) {
       <Swipeable
         buttonWidth={60}
         innerRef={swipeable}
+        onSwipeableRightWillOpen={onSwipeableRightWillOpen}
         rightActions={[
           {
             key: 'action1',
@@ -174,6 +197,8 @@ const stylesSelector = styleSelector(styles);
 ChatThreadListItem.propTypes = {
   data: chatThreadItemPropType.isRequired,
   onPressItem: PropTypes.func.isRequired,
+  onSwipeableWillOpen: PropTypes.func.isRequired,
+  currentlyOpenedSwipeableId: PropTypes.string,
   colors: colorsPropType.isRequired,
   styles: PropTypes.objectOf(PropTypes.object).isRequired,
 };

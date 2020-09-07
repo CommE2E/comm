@@ -25,6 +25,7 @@ type Props = {
     +color: ?string,
     +content: React.Node,
   |}>,
+  +onSwipeableRightWillOpen?: () => void,
   +innerRef: {|
     current: ?SwipeableComponent,
   |},
@@ -42,11 +43,12 @@ class Swipeable extends React.PureComponent<Props> {
     rightActions: PropTypes.arrayOf(
       PropTypes.exact({
         key: PropTypes.string.isRequired,
-        onPress: PropTypes.func,
+        onPress: PropTypes.func.isRequired,
         color: PropTypes.string,
         content: PropTypes.node.isRequired,
       }),
     ),
+    onSwipeableRightWillOpen: PropTypes.func,
     innerRef: PropTypes.exact({
       current: PropTypes.instanceOf(SwipeableComponent),
     }),
@@ -104,6 +106,7 @@ class Swipeable extends React.PureComponent<Props> {
       <SwipeableComponent
         renderRightActions={this.renderRightActions}
         ref={this.props.innerRef}
+        onSwipeableRightWillOpen={this.props.onSwipeableRightWillOpen}
       >
         {this.props.children}
       </SwipeableComponent>

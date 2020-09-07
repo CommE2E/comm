@@ -72,6 +72,7 @@ type Props = {|
 type State = {|
   searchText: string,
   searchResults: Set<string>,
+  openedSwipeableId: string,
 |};
 type PropsAndState = {| ...Props, ...State |};
 class ChatThreadList extends React.PureComponent<Props, State> {
@@ -92,6 +93,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   state = {
     searchText: '',
     searchResults: new Set(),
+    openedSwipeableId: '',
   };
   searchInput: ?React.ElementRef<typeof TextInput>;
   flatList: ?FlatList<Item>;
@@ -149,7 +151,14 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       const EmptyItem = item.emptyItem;
       return <EmptyItem />;
     }
-    return <ChatThreadListItem data={item} onPressItem={this.onPressItem} />;
+    return (
+      <ChatThreadListItem
+        data={item}
+        onPressItem={this.onPressItem}
+        onSwipeableWillOpen={this.onSwipeableWillOpen}
+        currentlyOpenedSwipeableId={this.state.openedSwipeableId}
+      />
+    );
   };
 
   searchInputRef = (searchInput: ?React.ElementRef<typeof TextInput>) => {
@@ -254,7 +263,9 @@ class ChatThreadList extends React.PureComponent<Props, State> {
           renderItem={this.renderItem}
           keyExtractor={ChatThreadList.keyExtractor}
           getItemLayout={ChatThreadList.getItemLayout}
-          extraData={this.props.viewerID}
+          extraData={`${this.props.viewerID || ''} ${
+            this.state.openedSwipeableId
+          }`}
           initialNumToRender={11}
           keyboardShouldPersistTaps="handled"
           onScroll={this.onScroll}
@@ -290,6 +301,10 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       params: { threadInfo },
       key: `${MessageListRouteName}${threadInfo.id}`,
     });
+  };
+
+  onSwipeableWillOpen = (threadInfo: ThreadInfo) => {
+    this.setState(state => ({ ...state, openedSwipeableId: threadInfo.id }));
   };
 
   composeThread = () => {
