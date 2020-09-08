@@ -53,7 +53,7 @@ import {
   sendTextMessage,
 } from 'lib/actions/message-actions';
 import { createMediaMessageInfo } from 'lib/shared/message-utils';
-import { getMessageForException } from 'lib/utils/errors';
+import { getMessageForException, cloneError } from 'lib/utils/errors';
 import { queueReportsActionType } from 'lib/actions/report-actions';
 import { getConfig } from 'lib/utils/config';
 
@@ -323,9 +323,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         time: result.time,
       };
     } catch (e) {
-      e.localID = localID;
-      e.threadID = threadID;
-      throw e;
+      const copy = cloneError(e);
+      copy.localID = localID;
+      copy.threadID = threadID;
+      throw copy;
     }
   }
 
@@ -814,9 +815,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         time: result.time,
       };
     } catch (e) {
-      e.localID = messageInfo.localID;
-      e.threadID = messageInfo.threadID;
-      throw e;
+      const copy = cloneError(e);
+      copy.localID = messageInfo.localID;
+      copy.threadID = messageInfo.threadID;
+      throw copy;
     }
   }
 

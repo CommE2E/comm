@@ -62,7 +62,7 @@ import {
 import { pathFromURI } from 'lib/media/file-utils';
 import { isStaff } from 'lib/shared/user-utils';
 import { videoDurationLimit } from 'lib/media/video-utils';
-import { getMessageForException } from 'lib/utils/errors';
+import { getMessageForException, cloneError } from 'lib/utils/errors';
 
 import {
   InputStateContext,
@@ -289,9 +289,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         time: result.time,
       };
     } catch (e) {
-      e.localID = localID;
-      e.threadID = threadID;
-      throw e;
+      const copy = cloneError(e);
+      copy.localID = localID;
+      copy.threadID = threadID;
+      throw copy;
     }
   }
 
@@ -360,9 +361,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         time: result.time,
       };
     } catch (e) {
-      e.localID = messageInfo.localID;
-      e.threadID = messageInfo.threadID;
-      throw e;
+      const copy = cloneError(e);
+      copy.localID = messageInfo.localID;
+      copy.threadID = messageInfo.threadID;
+      throw copy;
     }
   }
 
