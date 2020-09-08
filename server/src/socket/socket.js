@@ -215,15 +215,15 @@ class Socket {
         clientSocketMessageInputValidator,
         clientSocketMessage,
       );
+      const serverResponses = await this.handleClientSocketMessage(
+        clientSocketMessage,
+      );
       if (!this.redis) {
         this.redis = new RedisSubscriber(
           { userID: viewer.userID, sessionID: viewer.session },
           this.onRedisMessage,
         );
       }
-      const serverResponses = await this.handleClientSocketMessage(
-        clientSocketMessage,
-      );
       if (viewer.sessionChanged) {
         // This indicates that something has caused the session to change, which
         // shouldn't happen from inside a WebSocket since we can't handle cookie
