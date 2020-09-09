@@ -21,11 +21,8 @@ div.firefoxMessageContainer {
   flex-direction: column !important;
   transform: scaleY(-1);
 }
-div.messageContainer > div {
-  transform: translateZ(0);
-}
 div.firefoxMessageContainer > div {
-  transform: translateZ(0) scaleY(-1) !important;
+  transform: scaleY(-1);
 }
 
 div.message {
