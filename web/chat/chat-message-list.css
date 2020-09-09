@@ -127,6 +127,7 @@ div.messageTimestampTooltip {
   border-radius: 5px;
   font-size: 14px;
   z-index: 1;
+  pointer-events: none;
 }
 div.messageTimestampTooltip:after {
   content: "";
