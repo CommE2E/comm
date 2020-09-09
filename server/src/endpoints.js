@@ -42,6 +42,7 @@ import {
   threadUpdateResponder,
   threadCreationResponder,
   threadJoinResponder,
+  threadSetUnreadStatusResponder,
 } from './responders/thread-responders';
 import {
   reportCreationResponder,
@@ -74,6 +75,7 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   create_thread: threadCreationResponder,
   fetch_messages: messageFetchResponder,
   join_thread: threadJoinResponder,
+  set_thread_unread_status: threadSetUnreadStatusResponder,
   log_out: logOutResponder,
   delete_account: accountDeletionResponder,
   create_account: accountCreationResponder,

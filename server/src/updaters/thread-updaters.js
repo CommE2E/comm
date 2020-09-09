@@ -9,6 +9,8 @@ import {
   type UpdateThreadRequest,
   type ServerThreadJoinRequest,
   type ThreadJoinResult,
+  type SetThreadUnreadStatusRequest,
+  type SetThreadUnreadStatusResult,
   threadPermissions,
   threadTypes,
   assertThreadType,
@@ -625,4 +627,39 @@ async function joinThread(
   return response;
 }
 
-export { updateRole, removeMembers, leaveThread, updateThread, joinThread };
+async function setThreadUnreadStatus(
+  viewer: Viewer,
+  request: SetThreadUnreadStatusRequest,
+): Promise<SetThreadUnreadStatusResult> {
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
+
+  const isMember = await viewerIsMember(viewer, request.threadID);
+  if (!isMember) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const update = SQL`
+    UPDATE memberships m
+    SET m.unread = ${request.unread ? 1 : 0}
+    WHERE m.thread = ${request.threadID} AND m.user = ${viewer.userID}
+  `;
+
+  await dbQuery(update);
+
+  return {
+    updatesResult: {
+      newUpdates: [],
+    },
+  };
+}
+
+export {
+  updateRole,
+  removeMembers,
+  leaveThread,
+  updateThread,
+  joinThread,
+  setThreadUnreadStatus,
+};
