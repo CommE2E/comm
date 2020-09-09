@@ -5,10 +5,13 @@ import {
   chatThreadItemPropType,
 } from 'lib/selectors/chat-selectors';
 import type { ThreadInfo } from 'lib/types/thread-types';
+import { useServerCall } from 'lib/utils/action-utils';
+import { setThreadUnreadStatus } from 'lib/actions/thread-actions';
 
 import * as React from 'react';
 import { Text, View } from 'react-native';
 import PropTypes from 'prop-types';
+import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Swipeable from '../components/swipeable';
 import { useNavigation } from '@react-navigation/native';
 
@@ -19,6 +22,7 @@ import MessagePreview from './message-preview.react';
 import ColorSplotch from '../components/color-splotch.react';
 import { useColors, useStyles } from '../themes/colors';
 import { SingleLine } from '../components/single-line.react';
+import { useMemo } from 'react';
 import ChatThreadListSidebar from './chat-thread-list-sidebar.react';
 
 type Props = {|
@@ -30,12 +34,14 @@ type Props = {|
 function ChatThreadListItem({
   data,
   onPressItem,
+  onSwipeableWillOpen,
   currentlyOpenedSwipeableId,
 }: Props) {
   const swipeable = React.useRef<?Swipeable>();
   const navigation = useNavigation();
   const styles = useStyles(unboundStyles);
   const colors = useColors();
+  const updateUnreadStatus = useServerCall(setThreadUnreadStatus);
 
   React.useEffect(() => {
     return navigation.addListener('blur', () => {
@@ -83,33 +89,68 @@ function ChatThreadListItem({
     onPressItem(data.threadInfo);
   }, [onPressItem, data.threadInfo]);
 
+  const onSwipeableRightWillOpen = React.useCallback(() => {
+    onSwipeableWillOpen(data.threadInfo);
+  }, [onSwipeableWillOpen, data.threadInfo]);
+
   const lastActivity = shortAbsoluteDate(data.lastUpdatedTime);
   const unreadStyle = data.threadInfo.currentUser.unread ? styles.unread : null;
+
+  const swipeableActions = useMemo(() => {
+    const isUnread = data.threadInfo.currentUser.unread;
+    const toggleUnreadStatus = () => {
+      updateUnreadStatus(data.threadInfo.id, !isUnread);
+      if (swipeable.current) {
+        swipeable.current.close();
+      }
+    };
+    return [
+      {
+        key: 'action1',
+        onPress: toggleUnreadStatus,
+        color: isUnread ? colors.redButton : colors.greenButton,
+        content: (
+          <MaterialIcon
+            name={isUnread ? 'email-open-outline' : 'email-mark-as-unread'}
+            size={24}
+          />
+        ),
+      },
+    ];
+  }, [colors, data.threadInfo, updateUnreadStatus]);
+
   return (
     <>
-      <Button
-        onPress={onPress}
-        iosFormat="highlight"
-        iosHighlightUnderlayColor={colors.listIosHighlightUnderlay}
-        iosActiveOpacity={0.85}
+      <Swipeable
+        buttonWidth={60}
+        innerRef={swipeable}
+        onSwipeableRightWillOpen={onSwipeableRightWillOpen}
+        rightActions={swipeableActions}
       >
-        <View style={styles.container}>
-          <View style={styles.row}>
-            <SingleLine style={[styles.threadName, unreadStyle]}>
-              {data.threadInfo.uiName}
-            </SingleLine>
-            <View style={styles.colorSplotch}>
-              <ColorSplotch color={data.threadInfo.color} size="small" />
+        <Button
+          onPress={onPress}
+          iosFormat="highlight"
+          iosHighlightUnderlayColor={colors.listIosHighlightUnderlay}
+          iosActiveOpacity={0.85}
+        >
+          <View style={styles.container}>
+            <View style={styles.row}>
+              <SingleLine style={[styles.threadName, unreadStyle]}>
+                {data.threadInfo.uiName}
+              </SingleLine>
+              <View style={styles.colorSplotch}>
+                <ColorSplotch color={data.threadInfo.color} size="small" />
+              </View>
+            </View>
+            <View style={styles.row}>
+              {lastMessage}
+              <Text style={[styles.lastActivity, unreadStyle]}>
+                {lastActivity}
+              </Text>
             </View>
           </View>
-          <View style={styles.row}>
-            {lastMessage}
-            <Text style={[styles.lastActivity, unreadStyle]}>
-              {lastActivity}
-            </Text>
-          </View>
-        </View>
-      </Button>
+        </Button>
+      </Swipeable>
       {sidebars}
     </>
   );
