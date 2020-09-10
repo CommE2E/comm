@@ -27,6 +27,7 @@ import { promiseAll } from 'lib/utils/promises';
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
+import { updateTypes } from 'lib/types/update-types';
 
 import { dbQuery, SQL } from '../database';
 import {
@@ -48,6 +49,7 @@ import {
   getParentThreadRelationshipRowsForNewUsers,
 } from './thread-permission-updaters';
 import createMessages from '../creators/message-creator';
+import { createUpdates } from '../creators/update-creator';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { updateRoles } from './role-updaters';
@@ -646,11 +648,24 @@ async function setThreadUnreadStatus(
     WHERE m.thread = ${request.threadID} AND m.user = ${viewer.userID}
   `;
 
-  await dbQuery(update);
-
+  const queryPromise = dbQuery(update);
+  const time = Date.now();
+  const updatesPromise = createUpdates(
+    [
+      {
+        type: updateTypes.UPDATE_THREAD_READ_STATUS,
+        userID: viewer.userID,
+        time: time,
+        threadID: request.threadID,
+        unread: request.unread,
+      },
+    ],
+    { viewer, updatesForCurrentSession: 'ignore' },
+  );
+  const [updates] = await Promise.all([updatesPromise, queryPromise]);
   return {
     updatesResult: {
-      newUpdates: [],
+      newUpdates: updates.viewerUpdates,
     },
   };
 }
