@@ -1,21 +1,26 @@
-a.thread {
-  display: block;
-  padding: 5px 15px;
-  cursor: pointer;
+div.thread {
+  display: flex;
+  flex-direction: row;
+  padding: 5px 5px 5px 15px;
 }
-a.thread:hover {
+div.thread:hover {
   background-color: #EEEEEE;
 }
-a.activeThread {
+div.activeThread {
   background-color: #EEEEEE;
 }
-a.thread div.title {
+div.thread div.title {
   font-family: 'Open Sans', sans-serif;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   color: black;
+}
+a.threadButton {
+  flex: 1;
+  cursor: pointer;
+  overflow: hidden;
 }
 div.threadRow {
   display: flex;
@@ -48,4 +53,19 @@ div.dark {
 }
 div.italic {
   font-style: italic;
+}
+
+.menu {
+  background-color: transparent;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 0 10px;
+  margin: 0 5px;
+}
+.menu:hover {
+  background-color: #DDDDDD;
+}
+.icon {
+  font-size: 26px;
 }

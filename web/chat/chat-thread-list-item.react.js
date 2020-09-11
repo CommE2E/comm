@@ -14,6 +14,8 @@ import type { DispatchActionPayload } from 'lib/utils/action-utils';
 import * as React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import { faEllipsisV } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
 
@@ -43,26 +45,31 @@ class ChatThreadListItem extends React.PureComponent<Props> {
     const unread = item.threadInfo.currentUser.unread;
     const activeStyle = this.props.active ? css.activeThread : null;
     return (
-      <a className={classNames(css.thread, activeStyle)} onClick={this.onClick}>
-        <div className={css.threadRow}>
-          <div className={css.title}>{item.threadInfo.uiName}</div>
-          <div className={css.colorSplotch} style={colorSplotchStyle} />
-        </div>
-        <div className={css.threadRow}>
-          <MessagePreview
-            messageInfo={item.mostRecentMessageInfo}
-            threadInfo={item.threadInfo}
-          />
-          <div
-            className={classNames([
-              css.lastActivity,
-              unread ? css.black : css.dark,
-            ])}
-          >
-            {lastActivity}
+      <div className={classNames(css.thread, activeStyle)}>
+        <a className={css.threadButton} onClick={this.onClick}>
+          <div className={css.threadRow}>
+            <div className={css.title}>{item.threadInfo.uiName}</div>
+            <div className={css.colorSplotch} style={colorSplotchStyle} />
           </div>
-        </div>
-      </a>
+          <div className={css.threadRow}>
+            <MessagePreview
+              messageInfo={item.mostRecentMessageInfo}
+              threadInfo={item.threadInfo}
+            />
+            <div
+              className={classNames([
+                css.lastActivity,
+                unread ? css.black : css.dark,
+              ])}
+            >
+              {lastActivity}
+            </div>
+          </div>
+        </a>
+        <button className={css.menu}>
+          <FontAwesomeIcon icon={faEllipsisV} className={css.icon} />
+        </button>
+      </div>
     );
   }
 
