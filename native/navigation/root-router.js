@@ -97,12 +97,27 @@ function resetState<Route: ResetStateRoute>(
   };
 }
 
+function resetFirstRoute(
+  state: StackNavigationState,
+): PossiblyStaleNavigationState {
+  const [firstRoute, ...restRoutes] = state.routes;
+  const newFirstRoute = resetState(
+    defaultNavigationState.routes[0],
+    firstRoute,
+  );
+  return ({
+    ...state,
+    routes: [newFirstRoute, ...restRoutes],
+  }: any);
+}
+
 function RootRouter(
   routerOptions: StackRouterOptions,
 ): Router<StackNavigationState, RootRouterNavigationAction> {
   const {
     getStateForAction: baseGetStateForAction,
     actionCreators: baseActionCreators,
+    getStateForRouteFocus: baseGetStateForRouteFocus,
     ...rest
   } = StackRouter(routerOptions);
   return {
@@ -117,7 +132,7 @@ function RootRouter(
           return lastState;
         }
         return removeScreensFromStack(
-          lastState,
+          resetFirstRoute(lastState),
           (route: PossiblyStaleRoute<>) =>
             accountModals.includes(route.name) ? 'remove' : 'keep',
         );
@@ -125,15 +140,7 @@ function RootRouter(
         if (!lastState) {
           return lastState;
         }
-        const [firstRoute, ...restRoutes] = lastState.routes;
-        const newFirstRoute = resetState(
-          defaultNavigationState.routes[0],
-          firstRoute,
-        );
-        let newState: PossiblyStaleNavigationState = ({
-          ...lastState,
-          routes: [newFirstRoute, ...restRoutes],
-        }: any);
+        let newState = resetFirstRoute(lastState);
 
         let loggedOutModalFound = false;
         newState = removeScreensFromStack(
@@ -193,10 +200,24 @@ function RootRouter(
           accountModals.includes(lastRouteName) &&
           !accountModals.includes(newRouteName)
         ) {
-          return null;
+          // Only our custom action types are allowed to clear account modals
+          return lastState;
         }
         return newState;
       }
+    },
+    getStateForRouteFocus: (state: StackNavigationState, key: string) => {
+      const newState = baseGetStateForRouteFocus(state, key);
+      const lastRouteName = state.routes[state.index].name;
+      const newRouteName = newState.routes[newState.index].name;
+      if (
+        accountModals.includes(lastRouteName) &&
+        !accountModals.includes(newRouteName)
+      ) {
+        // Only our custom action types are allowed to clear account modals
+        return state;
+      }
+      return newState;
     },
     actionCreators: {
       ...baseActionCreators,
