@@ -205,7 +205,9 @@ class RelationshipListItem extends React.PureComponent<Props> {
       });
       return result;
     } catch (e) {
-      Alert.alert('Unknown error', 'Uhh... try again?', [{ text: 'OK' }]);
+      Alert.alert('Unknown error', 'Uhh... try again?', [{ text: 'OK' }], {
+        cancelable: true,
+      });
       throw e;
     }
   }

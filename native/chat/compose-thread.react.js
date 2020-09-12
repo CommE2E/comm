@@ -350,6 +350,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
           { text: 'Cancel', style: 'cancel' },
           { text: 'Confirm', onPress: this.dispatchNewChatThreadAction },
         ],
+        { cancelable: true },
       );
     } else {
       this.dispatchNewChatThreadAction();

@@ -58,10 +58,15 @@ function onRemoveUser(
     unfriend: `remove ${userText} from friends?`,
     unblock: `unblock ${userText}?`,
   }[props.action];
-  Alert.alert(`Confirm ${action}`, `Are you sure you want to ${message}`, [
-    { text: 'Cancel', style: 'cancel' },
-    { text: 'OK', onPress: onConfirmRemoveUser },
-  ]);
+  Alert.alert(
+    `Confirm ${action}`,
+    `Are you sure you want to ${message}`,
+    [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'OK', onPress: onConfirmRemoveUser },
+    ],
+    { cancelable: true },
+  );
 }
 
 const spec = {

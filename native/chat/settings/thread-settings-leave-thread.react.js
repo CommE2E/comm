@@ -98,6 +98,8 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
       Alert.alert(
         'Need another admin',
         'Make somebody else an admin before you leave!',
+        undefined,
+        { cancelable: true },
       );
       return;
     }
@@ -109,6 +111,7 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
         { text: 'Cancel', style: 'cancel' },
         { text: 'OK', onPress: this.onConfirmLeaveThread },
       ],
+      { cancelable: true },
     );
   };
 
@@ -138,7 +141,9 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
       });
       return result;
     } catch (e) {
-      Alert.alert('Unknown error', 'Uhh... try again?');
+      Alert.alert('Unknown error', 'Uhh... try again?', undefined, {
+        cancelable: true,
+      });
       throw e;
     }
   }

@@ -56,6 +56,7 @@ function onRemoveUser(
       { text: 'Cancel', style: 'cancel' },
       { text: 'OK', onPress: onConfirmRemoveUser },
     ],
+    { cancelable: true },
   );
 }
 
@@ -104,6 +105,7 @@ function onToggleAdmin(
       { text: 'Cancel', style: 'cancel' },
       { text: 'OK', onPress: onConfirmMakeAdmin },
     ],
+    { cancelable: true },
   );
 }
 

@@ -467,6 +467,8 @@ class PushHandler extends React.PureComponent<Props, State> {
         'Please check your network connection, make sure Google Play ' +
           'services are installed and enabled, and confirm that your Google ' +
           'Play credentials are valid in the Google Play Store.',
+        undefined,
+        { cancelable: true },
       );
     }
   };

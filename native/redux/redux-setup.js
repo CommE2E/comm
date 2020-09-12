@@ -338,6 +338,7 @@ function sessionInvalidationAlert(payload: SetSessionPayload) {
       "Your app version is pretty old, and the server doesn't know how to " +
         `speak to it anymore. Please use the ${app} app to update!`,
       [{ text: 'OK' }],
+      { cancelable: true },
     );
   } else {
     Alert.alert(
@@ -345,6 +346,7 @@ function sessionInvalidationAlert(payload: SetSessionPayload) {
       "We're sorry, but your session was invalidated by the server. " +
         'Please log in again.',
       [{ text: 'OK' }],
+      { cancelable: true },
     );
   }
 }

@@ -309,15 +309,20 @@ class MoreScreen extends React.PureComponent<Props> {
         'in the app and keep them available on squadcal.org in Safari.'
       : 'We will automatically fill out log-in forms with your credentials ' +
         'in the app.';
-    Alert.alert(alertTitle, alertDescription, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Keep', onPress: this.logOutButKeepNativeCredentialsWrapper },
-      {
-        text: 'Remove',
-        onPress: this.logOutAndDeleteNativeCredentialsWrapper,
-        style: 'destructive',
-      },
-    ]);
+    Alert.alert(
+      alertTitle,
+      alertDescription,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Keep', onPress: this.logOutButKeepNativeCredentialsWrapper },
+        {
+          text: 'Remove',
+          onPress: this.logOutAndDeleteNativeCredentialsWrapper,
+          style: 'destructive',
+        },
+      ],
+      { cancelable: true },
+    );
   };
 
   logOutButKeepNativeCredentialsWrapper = () => {
@@ -361,6 +366,8 @@ class MoreScreen extends React.PureComponent<Props> {
       'Verify email',
       "We've sent you an email to verify your email address. Just click on " +
         'the link in the email to complete the verification process.',
+      undefined,
+      { cancelable: true },
     );
   }
 

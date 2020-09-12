@@ -213,6 +213,8 @@ class EditEmail extends React.PureComponent<Props, State> {
         'Verify email',
         "We've sent you an email to verify your email address. Just click on " +
           'the link in the email to complete the verification process.',
+        undefined,
+        { cancelable: true },
       );
       return result;
     } catch (e) {

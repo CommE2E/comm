@@ -66,6 +66,7 @@ const ThreadScreenPruner = React.memo<{||}>(() => {
         'Thread invalidated',
         'You no longer have permission to view this thread :(',
         [{ text: 'OK' }],
+        { cancelable: true },
       );
     }
     navContext.dispatch({
