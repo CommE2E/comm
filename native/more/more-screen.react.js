@@ -3,8 +3,6 @@
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { AppState } from '../redux/redux-setup';
 import type { LogOutResult } from 'lib/types/account-types';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import { loadingStatusPropType } from 'lib/types/loading-types';
 import {
   type CurrentUserInfo,
   currentUserPropType,
@@ -28,7 +26,6 @@ import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { connect } from 'lib/utils/redux-utils';
 import {
   logOutActionTypes,
@@ -68,7 +65,8 @@ type Props = {
   // Redux state
   currentUserInfo: ?CurrentUserInfo,
   preRequestUserState: PreRequestUserState,
-  resendVerificationLoadingStatus: LoadingStatus,
+  resendVerificationLoading: boolean,
+  logOutLoading: boolean,
   colors: Colors,
   styles: typeof styles,
   // Redux dispatch functions
@@ -84,7 +82,8 @@ class MoreScreen extends React.PureComponent<Props> {
     }).isRequired,
     currentUserInfo: currentUserPropType,
     preRequestUserState: preRequestUserStatePropType.isRequired,
-    resendVerificationLoadingStatus: loadingStatusPropType.isRequired,
+    resendVerificationLoading: PropTypes.bool.isRequired,
+    logOutLoading: PropTypes.bool.isRequired,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
@@ -110,6 +109,14 @@ class MoreScreen extends React.PureComponent<Props> {
       : undefined;
   }
 
+  get loggedOutOrLoggingOut() {
+    return (
+      !this.props.currentUserInfo ||
+      this.props.currentUserInfo.anonymous ||
+      this.props.logOutLoading
+    );
+  }
+
   render() {
     const { emailVerified } = this;
     let emailVerifiedNode = null;
@@ -127,7 +134,7 @@ class MoreScreen extends React.PureComponent<Props> {
       );
     } else if (emailVerified === false) {
       let resendVerificationEmailSpinner;
-      if (this.props.resendVerificationLoadingStatus === 'loading') {
+      if (this.props.resendVerificationLoading) {
         resendVerificationEmailSpinner = (
           <ActivityIndicator
             size="small"
@@ -182,7 +189,10 @@ class MoreScreen extends React.PureComponent<Props> {
                   {firstLine(this.username)}
                 </Text>
               </Text>
-              <Button onPress={this.onPressLogOut}>
+              <Button
+                onPress={this.onPressLogOut}
+                disabled={this.loggedOutOrLoggingOut}
+              >
                 <Text style={this.props.styles.logOutText}>Log out</Text>
               </Button>
             </View>
@@ -288,6 +298,9 @@ class MoreScreen extends React.PureComponent<Props> {
   }
 
   onPressLogOut = () => {
+    if (this.loggedOutOrLoggingOut) {
+      return;
+    }
     const alertTitle =
       Platform.OS === 'ios' ? 'Keep Login Info in Keychain' : 'Keep Login Info';
     const sharedWebCredentials = getNativeSharedWebCredentials();
@@ -308,10 +321,16 @@ class MoreScreen extends React.PureComponent<Props> {
   };
 
   logOutButKeepNativeCredentialsWrapper = () => {
+    if (this.loggedOutOrLoggingOut) {
+      return;
+    }
     this.props.dispatchActionPromise(logOutActionTypes, this.logOut());
   };
 
   logOutAndDeleteNativeCredentialsWrapper = () => {
+    if (this.loggedOutOrLoggingOut) {
+      return;
+    }
     this.props.dispatchActionPromise(
       logOutActionTypes,
       this.logOutAndDeleteNativeCredentials(),
@@ -505,7 +524,9 @@ const styles = {
 };
 const stylesSelector = styleSelector(styles);
 
-registerFetchKey(logOutActionTypes);
+const logOutLoadingStatusSelector = createLoadingStatusSelector(
+  logOutActionTypes,
+);
 const resendVerificationLoadingStatusSelector = createLoadingStatusSelector(
   resendVerificationEmailActionTypes,
 );
@@ -514,9 +535,9 @@ export default connect(
   (state: AppState) => ({
     currentUserInfo: state.currentUserInfo,
     preRequestUserState: preRequestUserStateSelector(state),
-    resendVerificationLoadingStatus: resendVerificationLoadingStatusSelector(
-      state,
-    ),
+    resendVerificationLoading:
+      resendVerificationLoadingStatusSelector(state) === 'loading',
+    logOutLoading: logOutLoadingStatusSelector(state) === 'loading',
     colors: colorsSelector(state),
     styles: stylesSelector(state),
   }),
