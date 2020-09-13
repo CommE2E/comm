@@ -15,6 +15,7 @@ import type {
 
 import { StackRouter, CommonActions } from '@react-navigation/native';
 import invariant from 'invariant';
+import _isEqual from 'lodash/fp/isEqual';
 
 import { removeScreensFromStack } from './navigation-utils';
 import {
@@ -75,25 +76,36 @@ function resetState<Route: ResetStateRoute>(
   newPartialRoute: Route,
   oldRoute: Route,
 ): Route {
+  if (_isEqual(newPartialRoute)(oldRoute)) {
+    return oldRoute;
+  }
+
   if (!newPartialRoute.state) {
     invariant(!oldRoute.state, 'resetState found non-matching state');
     return { ...oldRoute, ...newPartialRoute };
   }
   invariant(oldRoute.state, 'resetState found non-matching state');
+
   const routes = [];
   for (let i = 0; i < newPartialRoute.state.routes.length; i++) {
     routes.push(
       resetState(newPartialRoute.state.routes[i], oldRoute.state.routes[i]),
     );
   }
+
+  let newState = {
+    ...oldRoute.state,
+    ...newPartialRoute.state,
+    routes,
+  };
+  if (_isEqual(newState)(oldRoute.state)) {
+    newState = oldRoute.state;
+  }
+
   return {
     ...oldRoute,
     ...newPartialRoute,
-    state: {
-      ...oldRoute.state,
-      ...newPartialRoute.state,
-      routes,
-    },
+    state: newState,
   };
 }
 
