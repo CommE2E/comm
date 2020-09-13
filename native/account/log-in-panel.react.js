@@ -165,6 +165,12 @@ class LogInPanel extends React.PureComponent<Props> {
 
   onChangeUsernameOrEmailInputText = (text: string) => {
     this.props.state.setState({ usernameOrEmailInputText: text });
+    if (
+      this.props.state.state.passwordInputText.length === 0 &&
+      text.length > 1
+    ) {
+      this.focusPasswordInput();
+    }
   };
 
   onChangePasswordInputText = (text: string) => {
