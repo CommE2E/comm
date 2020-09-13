@@ -114,7 +114,10 @@ function ratchetAlongWithKeyboardHeight(
     ios: greaterThan(keyboardHeight, max(prevKeyboardHeightValue, 0)),
     // Android's keyboard can resize due to user interaction sometimes. In these
     // cases it can get quite big, in which case we don't want to update
-    defaut: and(eq(prevKeyboardHeightValue, 0), greaterThan(keyboardHeight, 0)),
+    default: and(
+      eq(prevKeyboardHeightValue, 0),
+      greaterThan(keyboardHeight, 0),
+    ),
   });
   const whenToReset = and(
     eq(keyboardHeight, 0),
