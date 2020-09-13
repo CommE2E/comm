@@ -108,6 +108,7 @@ class LogInPanel extends React.PureComponent<Props> {
             autoCapitalize="none"
             keyboardType="ascii-capable"
             textContentType="username"
+            autoCompleteType="username"
             returnKeyType="next"
             blurOnSubmit={false}
             onSubmitEditing={this.focusPasswordInput}
@@ -124,6 +125,7 @@ class LogInPanel extends React.PureComponent<Props> {
             placeholder="Password"
             secureTextEntry={true}
             textContentType="password"
+            autoCompleteType="password"
             returnKeyType="go"
             blurOnSubmit={false}
             onSubmitEditing={this.onSubmit}

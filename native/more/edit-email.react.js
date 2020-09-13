@@ -115,6 +115,9 @@ class EditEmail extends React.PureComponent<Props, State> {
             autoFocus={true}
             selectTextOnFocus={true}
             returnKeyType="next"
+            autoCapitalize="none"
+            keyboardType="email-address"
+            autoCompleteType="email"
             onSubmitEditing={this.focusPasswordInput}
             ref={this.emailInputRef}
           />
@@ -130,6 +133,7 @@ class EditEmail extends React.PureComponent<Props, State> {
             placeholderTextColor={panelForegroundTertiaryLabel}
             secureTextEntry={true}
             textContentType="password"
+            autoCompleteType="password"
             returnKeyType="go"
             onSubmitEditing={this.submitEmail}
             ref={this.passwordInputRef}
