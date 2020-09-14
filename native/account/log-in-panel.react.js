@@ -102,6 +102,7 @@ class LogInPanel extends React.PureComponent<Props> {
             style={styles.input}
             value={this.props.state.state.usernameOrEmailInputText}
             onChangeText={this.onChangeUsernameOrEmailInputText}
+            onKeyPress={this.onUsernameOrEmailKeyPress}
             placeholder={this.props.usernamePlaceholder}
             autoFocus={Platform.OS !== 'ios'}
             autoCorrect={false}
@@ -165,9 +166,17 @@ class LogInPanel extends React.PureComponent<Props> {
 
   onChangeUsernameOrEmailInputText = (text: string) => {
     this.props.state.setState({ usernameOrEmailInputText: text });
+  };
+
+  onUsernameOrEmailKeyPress = (
+    event: $ReadOnly<{ nativeEvent: $ReadOnly<{ key: string }> }>,
+  ) => {
+    const { key } = event.nativeEvent;
     if (
-      this.props.state.state.passwordInputText.length === 0 &&
-      text.length > 1
+      key.length > 1 &&
+      key !== 'Backspace' &&
+      key !== 'Enter' &&
+      this.props.state.state.passwordInputText.length === 0
     ) {
       this.focusPasswordInput();
     }
