@@ -2,28 +2,34 @@
 
 import type { LoadingStatus } from 'lib/types/loading-types';
 
-import React from 'react';
+import * as React from 'react';
 import classNames from 'classnames';
 
 import css from './style.css';
 
-type Props = {
-  status: LoadingStatus,
-  size?: 'small' | 'medium' | 'large',
-  color?: 'black' | 'white',
-  loadingClassName?: string,
-  errorClassName?: string,
-};
-
+type Props = {|
+  +status: LoadingStatus,
+  +size?: 'small' | 'medium' | 'large',
+  +color?: 'black' | 'white',
+  +loadingClassName?: string,
+  +errorClassName?: string,
+|};
 export default function LoadingIndicator(props: Props) {
+  const [hasRendered, setHasRendered] = React.useState(false);
+  React.useEffect(() => {
+    setHasRendered(true);
+  }, []);
+
   const size = props.size ? props.size : 'small';
   const color = props.color ? props.color : 'white';
   if (props.status === 'loading') {
     const classNameInput = {
-      [css['loading-indicator-loading']]: size === 'medium',
-      [css['loading-indicator-loading-small']]: size === 'small',
-      [css['loading-indicator-loading-large']]: size === 'large',
-      [css['loading-indicator-black']]: color === 'black',
+      [css['loading-indicator-loading']]: true,
+      [css['loading-indicator-loading-medium']]:
+        hasRendered && size === 'medium',
+      [css['loading-indicator-loading-small']]: hasRendered && size === 'small',
+      [css['loading-indicator-loading-large']]: hasRendered && size === 'large',
+      [css['loading-indicator-black']]: hasRendered && color === 'black',
     };
     if (props.loadingClassName) {
       classNameInput[props.loadingClassName] = true;
