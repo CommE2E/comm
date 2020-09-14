@@ -56,16 +56,51 @@ div.italic {
 }
 
 .menu {
+  position: relative;
+  display: flex;
+  margin: 0 5px;
+}
+.menu > button {
   background-color: transparent;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   padding: 0 10px;
-  margin: 0 5px;
 }
-.menu:hover {
+.menu > button:hover {
   background-color: #DDDDDD;
 }
 .icon {
   font-size: 26px;
+}
+
+.menuContent {
+  display: none;
+  position: absolute;
+  top: 41px;
+  right: 0;
+  z-index: 1;
+  width: max-content;
+  overflow: hidden;
+  background-color: #EEEEEE;
+  border-radius: 5px;
+  box-shadow: 1px 1px 5px 2px #00000022;
+}
+.menuContentVisible {
+  display: block;
+}
+.menuContent ul {
+  list-style: none;
+}
+.menuContent li:not(:last-child) {
+  border-bottom: 1px solid #DDDDDD;
+}
+.menuContent button {
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  font-size: 16px;
+}
+.menuContent button:hover {
+  background-color: #DDDDDD;
 }

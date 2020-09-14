@@ -29,13 +29,19 @@ type Props = {|
   timeZone: ?string,
   dispatchActionPayload: DispatchActionPayload,
 |};
-class ChatThreadListItem extends React.PureComponent<Props> {
+type State = {|
+  +menuVisible: boolean,
+|};
+class ChatThreadListItem extends React.PureComponent<Props, State> {
   static propTypes = {
     item: chatThreadItemPropType.isRequired,
     active: PropTypes.bool.isRequired,
     navInfo: navInfoPropType.isRequired,
     timeZone: PropTypes.string,
     dispatchActionPayload: PropTypes.func.isRequired,
+  };
+  state = {
+    menuVisible: false,
   };
 
   render() {
@@ -66,9 +72,28 @@ class ChatThreadListItem extends React.PureComponent<Props> {
             </div>
           </div>
         </a>
-        <button className={css.menu}>
-          <FontAwesomeIcon icon={faEllipsisV} className={css.icon} />
-        </button>
+        <div className={css.menu} onMouseLeave={this.hideMenu}>
+          <button onClick={this.toggleMenu}>
+            <FontAwesomeIcon icon={faEllipsisV} className={css.icon} />
+          </button>
+          <div
+            className={classNames(css.menuContent, {
+              [css.menuContentVisible]: this.state.menuVisible,
+            })}
+          >
+            <ul>
+              <li>
+                <button>Mark as unread</button>
+              </li>
+              <li>
+                <button>Mark as unread</button>
+              </li>
+              <li>
+                <button>Mark as unread</button>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
     );
   }
@@ -79,6 +104,14 @@ class ChatThreadListItem extends React.PureComponent<Props> {
       ...this.props.navInfo,
       activeChatThreadID: this.props.item.threadInfo.id,
     });
+  };
+
+  toggleMenu = () => {
+    this.setState(state => ({ menuVisible: !state.menuVisible }));
+  };
+
+  hideMenu = () => {
+    this.setState({ menuVisible: false });
   };
 }
 
