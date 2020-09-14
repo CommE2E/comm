@@ -344,7 +344,11 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     if (!this.messageContainer) {
       return;
     }
-    if (this.messageContainer.scrollTop > 55 || this.props.startReached) {
+    const { scrollTop, scrollHeight, clientHeight } = this.messageContainer;
+    if (
+      this.props.startReached ||
+      Math.abs(scrollTop) + clientHeight + 55 < scrollHeight
+    ) {
       return;
     }
     const oldestMessageServerID = this.oldestMessageServerID();
