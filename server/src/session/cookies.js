@@ -740,6 +740,7 @@ const cookieOptions = {
   httpOnly: true,
   secure: https,
   maxAge: cookieLifetime,
+  sameSite: 'Strict',
 };
 function addActualHTTPCookie(viewer: Viewer, res: $Response) {
   res.cookie(viewer.cookieName, viewer.cookieString, cookieOptions);
