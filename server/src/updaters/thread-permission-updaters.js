@@ -335,13 +335,16 @@ async function updateDescendantPermissions(
           });
         }
 
-        if (permissions && !oldPermissions) {
-          for (const [childUserID] of userInfos) {
-            if (childUserID !== userID) {
-              const [user1, user2] = sortIDs(childUserID, userID);
-              const status = undirectedStatus.KNOW_OF;
-              relationshipRows.push({ user1, user2, status });
-            }
+        if (permissions && !userInfo) {
+          // If there was no membership row before, and we are creating one,
+          // we'll need to make sure the new member has a relationship row with
+          // each existing member. We assume whoever called us will handle
+          // making sure the set of new members all have relationship rows with
+          // each other.
+          for (const [existingMemberID] of userInfos) {
+            const [user1, user2] = sortIDs(existingMemberID, userID);
+            const status = undirectedStatus.KNOW_OF;
+            relationshipRows.push({ user1, user2, status });
           }
         }
 
@@ -364,16 +367,17 @@ async function recalculateAllPermissions(
   const selectQuery = SQL`
     SELECT m.user, m.role, m.permissions, m.permissions_for_children,
       pm.permissions_for_children AS permissions_from_parent,
-      r.permissions AS role_permissions
+      r.permissions AS role_permissions, 'existing' AS row_state
     FROM memberships m
     LEFT JOIN threads t ON t.id = m.thread
     LEFT JOIN roles r ON r.id = m.role
-    LEFT JOIN memberships pm ON pm.thread = t.parent_thread_id AND pm.user = m.user
+    LEFT JOIN memberships pm ON pm.thread = t.parent_thread_id
+      AND pm.user = m.user
     WHERE m.thread = ${threadID}
     UNION SELECT pm.user, 0 AS role, NULL AS permissions,
       NULL AS permissions_for_children,
       pm.permissions_for_children AS permissions_from_parent,
-      NULL AS role_permissions
+      NULL AS role_permissions, 'from_parent' AS row_state
     FROM threads t
     LEFT JOIN memberships pm ON pm.thread = t.parent_thread_id
     LEFT JOIN memberships m ON m.thread = t.id AND m.user = pm.user
@@ -384,14 +388,9 @@ async function recalculateAllPermissions(
   const relationshipRows = [];
   const membershipRows = [];
   const toUpdateDescendants = new Map();
-  const parentIDs = new Set();
-  const childIDs = selectResult.reduce((acc, row) => {
-    if (row.user && row.role !== 0) {
-      acc.push(row.user.toString());
-      return acc;
-    }
-    return acc;
-  }, []);
+  const existingMemberIDs = selectResult
+    .filter(row => row.user && row.row_state === 'existing')
+    .map(row => row.user.toString());
 
   for (let row of selectResult) {
     if (!row.user) {
@@ -403,6 +402,7 @@ async function recalculateAllPermissions(
     const oldPermissionsForChildren = JSON.parse(row.permissions_for_children);
     const permissionsFromParent = JSON.parse(row.permissions_from_parent);
     const rolePermissions = JSON.parse(row.role_permissions);
+    const hadMembershipRow = row.row_state === 'existing';
 
     const permissions = makePermissionsBlob(
       rolePermissions,
@@ -434,15 +434,16 @@ async function recalculateAllPermissions(
       });
     }
 
-    if (permissions && !oldPermissions) {
-      parentIDs.add(userID);
-      for (const childID of childIDs) {
-        const [user1, user2] = sortIDs(userID, childID);
-        relationshipRows.push({
-          user1,
-          user2,
-          status: undirectedStatus.KNOW_OF,
-        });
+    if (permissions && !hadMembershipRow) {
+      // If there was no membership row before, and we are creating one,
+      // we'll need to make sure the new member has a relationship row with
+      // each existing member. We assume all the new members already have
+      // relationship rows with each other, since they must all share the same
+      // parent thread.
+      for (const existingMemberID of existingMemberIDs) {
+        const [user1, user2] = sortIDs(userID, existingMemberID);
+        const status = undirectedStatus.KNOW_OF;
+        relationshipRows.push({ user1, user2, status });
       }
     }
 
@@ -458,13 +459,7 @@ async function recalculateAllPermissions(
     } = await updateDescendantPermissions(threadID, toUpdateDescendants);
 
     membershipRows.push(...descendantMembershipRows);
-    relationshipRows.push(
-      ...descendantRelationshipRows.filter(({ user1, user2 }) => {
-        return (
-          parentIDs.has(user1.toString()) || parentIDs.has(user2.toString())
-        );
-      }),
-    );
+    relationshipRows.push(...descendantRelationshipRows);
   }
 
   return { membershipRows, relationshipRows };
