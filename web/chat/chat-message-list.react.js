@@ -80,7 +80,8 @@ type State = {|
   +mouseOverMessagePosition: ?OnMessagePositionInfo,
 |};
 type Snapshot = {|
-  +scrolledToBottom: boolean,
+  +scrollTop: number,
+  +scrollHeight: number,
 |};
 class ChatMessageList extends React.PureComponent<Props, State> {
   static propTypes = {
@@ -129,9 +130,8 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       ChatMessageList.hasNewMessage(this.props, prevProps) &&
       this.messageContainer
     ) {
-      const { scrollTop } = this.messageContainer;
-      const scrolledToBottom = Math.abs(scrollTop) <= 1;
-      return { scrolledToBottom };
+      const { scrollTop, scrollHeight } = this.messageContainer;
+      return { scrollTop, scrollHeight };
     }
     return null;
   }
@@ -179,9 +179,23 @@ class ChatMessageList extends React.PureComponent<Props, State> {
         messageListData &&
         messageListData[0].itemType === 'message' &&
         messageListData[0].messageInfo.localID) ||
-      (hasNewMessage && snapshot && snapshot.scrolledToBottom)
+      (hasNewMessage && snapshot && Math.abs(snapshot.scrollTop) <= 1)
     ) {
       this.scrollToBottom();
+    } else if (hasNewMessage && messageContainer && snapshot) {
+      const { scrollTop, scrollHeight } = messageContainer;
+      if (
+        scrollHeight > snapshot.scrollHeight &&
+        scrollTop === snapshot.scrollTop
+      ) {
+        const newHeight = scrollHeight - snapshot.scrollHeight;
+        const newScrollTop = Math.abs(scrollTop) + newHeight;
+        if (this.props.firefox) {
+          messageContainer.scrollTop = newScrollTop;
+        } else {
+          messageContainer.scrollTop = -1 * newScrollTop;
+        }
+      }
     }
   }
 
