@@ -129,10 +129,8 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       ChatMessageList.hasNewMessage(this.props, prevProps) &&
       this.messageContainer
     ) {
-      const { scrollTop, scrollHeight, clientHeight } = this.messageContainer;
-      const scrolledToBottom = this.props.firefox
-        ? scrollTop <= 1
-        : scrollTop + clientHeight + 1 >= scrollHeight;
+      const { scrollTop } = this.messageContainer;
+      const scrolledToBottom = Math.abs(scrollTop) <= 1;
       return { scrolledToBottom };
     }
     return null;
@@ -188,14 +186,8 @@ class ChatMessageList extends React.PureComponent<Props, State> {
   }
 
   scrollToBottom() {
-    const { messageContainer } = this;
-    if (!messageContainer) {
-      return;
-    }
-    if (this.props.firefox) {
-      messageContainer.scrollTop = 0;
-    } else {
-      messageContainer.scrollTop = messageContainer.scrollHeight;
+    if (this.messageContainer) {
+      this.messageContainer.scrollTop = 0;
     }
   }
 
