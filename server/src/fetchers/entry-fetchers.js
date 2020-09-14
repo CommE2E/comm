@@ -97,7 +97,7 @@ function sqlConditionForCalendarQuery(
     // Filter to empty set means the result is empty
     return null;
   } else {
-    conditions.push(SQL`m.role != 0`);
+    conditions.push(SQL`m.role > 0`);
   }
 
   if (filterExists(filters, calendarThreadFilterTypes.NOT_DELETED)) {

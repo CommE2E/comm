@@ -475,7 +475,7 @@ async function fetchMessageInfos(
 function threadSelectionCriteriaToSQLClause(criteria: ThreadSelectionCriteria) {
   const conditions = [];
   if (criteria.joinedThreads === true) {
-    conditions.push(SQL`mm.role != 0`);
+    conditions.push(SQL`mm.role > 0`);
   }
   if (criteria.threadCursors) {
     for (let threadID in criteria.threadCursors) {
