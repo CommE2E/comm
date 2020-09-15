@@ -19,18 +19,21 @@ import sendFailed from './multimedia-message-send-failed';
 import {
   inputStatePropType,
   type InputState,
-  withInputState,
+  InputStateContext,
 } from '../input/input-state';
 
-type Props = {|
-  item: ChatMessageInfoItem,
-  threadInfo: ThreadInfo,
-  setMouseOverMessagePosition: (
+type BaseProps = {|
+  +item: ChatMessageInfoItem,
+  +threadInfo: ThreadInfo,
+  +setMouseOverMessagePosition: (
     messagePositionInfo: MessagePositionInfo,
   ) => void,
-  setModal: (modal: ?React.Node) => void,
+  +setModal: (modal: ?React.Node) => void,
+|};
+type Props = {|
+  ...BaseProps,
   // withInputState
-  inputState: InputState,
+  +inputState: ?InputState,
 |};
 class MultimediaMessage extends React.PureComponent<Props> {
   static propTypes = {
@@ -38,11 +41,11 @@ class MultimediaMessage extends React.PureComponent<Props> {
     threadInfo: threadInfoPropType.isRequired,
     setMouseOverMessagePosition: PropTypes.func.isRequired,
     setModal: PropTypes.func.isRequired,
-    inputState: inputStatePropType.isRequired,
+    inputState: inputStatePropType,
   };
 
   render() {
-    const { item, setModal } = this.props;
+    const { item, setModal, inputState } = this.props;
     invariant(
       item.messageInfo.type === messageTypes.IMAGES ||
         item.messageInfo.type === messageTypes.MULTIMEDIA,
@@ -50,9 +53,8 @@ class MultimediaMessage extends React.PureComponent<Props> {
     );
     const { localID, media } = item.messageInfo;
 
-    const pendingUploads = localID
-      ? this.props.inputState.assignedUploads[localID]
-      : null;
+    invariant(inputState, 'inputState should be set in MultimediaMessage');
+    const pendingUploads = localID ? inputState.assignedUploads[localID] : null;
     const multimedia = [];
     for (let singleMedia of media) {
       const pendingUpload = pendingUploads
@@ -82,7 +84,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
       <ComposedMessage
         item={item}
         threadInfo={this.props.threadInfo}
-        sendFailed={sendFailed(this.props.item, this.props.inputState)}
+        sendFailed={sendFailed(item, inputState)}
         setMouseOverMessagePosition={this.props.setMouseOverMessagePosition}
         canReply={false}
         fixedWidth={multimedia.length > 1}
@@ -94,4 +96,9 @@ class MultimediaMessage extends React.PureComponent<Props> {
   }
 }
 
-export default withInputState(MultimediaMessage);
+export default React.memo<BaseProps>(function ConnectedMultimediaMessage(
+  props: BaseProps,
+) {
+  const inputState = React.useContext(InputStateContext);
+  return <MultimediaMessage {...props} inputState={inputState} />;
+});
