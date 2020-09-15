@@ -5,7 +5,6 @@ import {
   verticalBoundsPropType,
   layoutCoordinatesPropType,
 } from '../types/layout-types';
-import type { AppState } from '../redux/redux-setup';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { TooltipRoute } from '../navigation/tooltip.react';
 
@@ -13,15 +12,15 @@ import * as React from 'react';
 import Animated from 'react-native-reanimated';
 import PropTypes from 'prop-types';
 import { View, StyleSheet } from 'react-native';
+import { useSelector } from 'react-redux';
 
-import { connect } from 'lib/utils/redux-utils';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import { messageID } from 'lib/shared/message-utils';
 
 import {
   type InputState,
   inputStatePropType,
-  withInputState,
+  InputStateContext,
 } from '../input/input-state';
 import InlineMultimedia from './inline-multimedia.react';
 import { multimediaMessageBorderRadius } from './multimedia-message.react';
@@ -32,14 +31,19 @@ import { MessageHeader } from './message-header.react';
 const { Value } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
+type BaseProps = {
+  +navigation: AppNavigationProp<'MultimediaTooltipModal'>,
+  +route: TooltipRoute<'MultimediaTooltipModal'>,
+  +progress: Value,
+  ...
+};
 type Props = {
-  navigation: AppNavigationProp<'MultimediaTooltipModal'>,
-  route: TooltipRoute<'MultimediaTooltipModal'>,
-  progress: Value,
+  ...BaseProps,
   // Redux state
-  windowWidth: number,
+  +windowWidth: number,
   // withInputState
-  inputState: ?InputState,
+  +inputState: ?InputState,
+  ...
 };
 class MultimediaTooltipButton extends React.PureComponent<Props> {
   static propTypes = {
@@ -123,6 +127,16 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect((state: AppState) => ({
-  windowWidth: state.dimensions.width,
-}))(withInputState(MultimediaTooltipButton));
+export default React.memo<BaseProps>(function ConnectedMultimediaTooltipButton(
+  props: BaseProps,
+) {
+  const windowWidth = useSelector(state => state.dimensions.width);
+  const inputState = React.useContext(InputStateContext);
+  return (
+    <MultimediaTooltipButton
+      {...props}
+      windowWidth={windowWidth}
+      inputState={inputState}
+    />
+  );
+});
