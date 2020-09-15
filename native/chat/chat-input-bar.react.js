@@ -1,10 +1,5 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
-import type {
-  DispatchActionPayload,
-  DispatchActionPromise,
-} from 'lib/utils/action-utils';
 import { messageTypes } from 'lib/types/message-types';
 import {
   type ThreadInfo,
@@ -19,7 +14,7 @@ import type { CalendarQuery } from 'lib/types/entry-types';
 import {
   type KeyboardState,
   keyboardStatePropType,
-  withKeyboardState,
+  KeyboardContext,
 } from '../keyboard/keyboard-state';
 import {
   messageListRoutePropType,
@@ -28,10 +23,12 @@ import {
 import {
   type InputState,
   inputStatePropType,
-  withInputState,
+  InputStateContext,
 } from '../input/input-state';
 import type { ChatNavigationProp } from './chat.react';
 import type { NavigationRoute } from '../navigation/route-names';
+import { NavContext } from '../navigation/navigation-context';
+import type { Dispatch } from 'lib/types/redux-types';
 
 import * as React from 'react';
 import {
@@ -50,13 +47,18 @@ import invariant from 'invariant';
 import Animated, { Easing } from 'react-native-reanimated';
 import { TextInputKeyboardMangerIOS } from 'react-native-keyboard-input';
 import _throttle from 'lodash/throttle';
+import { useSelector, useDispatch } from 'react-redux';
 
-import { connect } from 'lib/utils/redux-utils';
 import { saveDraftActionType } from 'lib/actions/miscellaneous-action-types';
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
 import { joinThreadActionTypes, joinThread } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { trimMessage } from 'lib/shared/message-utils';
+import {
+  type DispatchActionPromise,
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import Button from '../components/button.react';
 import {
@@ -67,46 +69,46 @@ import { getKeyboardHeight } from '../keyboard/keyboard';
 import {
   type Colors,
   colorsPropType,
-  colorsSelector,
-  styleSelector,
+  useStyles,
+  useColors,
 } from '../themes/colors';
 import { CameraModalRouteName } from '../navigation/route-names';
 import KeyboardInputHost from '../keyboard/keyboard-input-host.react';
-import {
-  connectNav,
-  type NavContextType,
-} from '../navigation/navigation-context';
 import ClearableTextInput from '../components/clearable-text-input.react';
 
 const draftKeyFromThreadID = (threadID: string) =>
   `${threadID}/message_composer`;
 
+type BaseProps = {|
+  +threadInfo: ThreadInfo,
+  +navigation: ChatNavigationProp<'MessageList'>,
+  +route: NavigationRoute<'MessageList'>,
+|};
 type Props = {|
-  threadInfo: ThreadInfo,
-  navigation: ChatNavigationProp<'MessageList'>,
-  route: NavigationRoute<'MessageList'>,
-  isActive: boolean,
+  ...BaseProps,
   // Redux state
-  viewerID: ?string,
-  draft: string,
-  joinThreadLoadingStatus: LoadingStatus,
-  calendarQuery: () => CalendarQuery,
-  nextLocalID: number,
-  colors: Colors,
-  styles: typeof styles,
+  +viewerID: ?string,
+  +draft: string,
+  +joinThreadLoadingStatus: LoadingStatus,
+  +calendarQuery: () => CalendarQuery,
+  +nextLocalID: number,
+  +colors: Colors,
+  +styles: typeof unboundStyles,
+  // connectNav
+  +isActive: boolean,
   // withKeyboardState
-  keyboardState: ?KeyboardState,
+  +keyboardState: ?KeyboardState,
   // Redux dispatch functions
-  dispatchActionPayload: DispatchActionPayload,
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatch: Dispatch,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
+  +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
   // withInputState
-  inputState: ?InputState,
+  +inputState: ?InputState,
 |};
 type State = {|
-  text: string,
-  buttonsExpanded: boolean,
+  +text: string,
+  +buttonsExpanded: boolean,
 |};
 class ChatInputBar extends React.PureComponent<Props, State> {
   static propTypes = {
@@ -122,7 +124,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     keyboardState: keyboardStatePropType,
-    dispatchActionPayload: PropTypes.func.isRequired,
+    dispatch: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     joinThread: PropTypes.func.isRequired,
     inputState: inputStatePropType,
@@ -479,9 +481,12 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   };
 
   saveDraft = _throttle((text: string) => {
-    this.props.dispatchActionPayload(saveDraftActionType, {
-      key: draftKeyFromThreadID(this.props.threadInfo.id),
-      draft: text,
+    this.props.dispatch({
+      type: saveDraftActionType,
+      payload: {
+        key: draftKeyFromThreadID(this.props.threadInfo.id),
+        draft: text,
+      },
     });
   }, 400);
 
@@ -597,7 +602,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   cameraIcon: {
     paddingBottom: 10,
     paddingRight: 3,
@@ -678,37 +683,61 @@ const styles = {
     paddingVertical: 5,
   },
 };
-const stylesSelector = styleSelector(styles);
 
 const joinThreadLoadingStatusSelector = createLoadingStatusSelector(
   joinThreadActionTypes,
 );
 
-export default connectNav(
-  (context: ?NavContextType, ownProps: { threadInfo: ThreadInfo }) => ({
-    navContext: context,
-    isActive: ownProps.threadInfo.id === activeThreadSelector(context),
-  }),
-)(
-  connect(
-    (
-      state: AppState,
-      ownProps: { threadInfo: ThreadInfo, navContext: ?NavContextType },
-    ) => {
-      const draft = state.drafts[draftKeyFromThreadID(ownProps.threadInfo.id)];
-      return {
-        viewerID: state.currentUserInfo && state.currentUserInfo.id,
-        draft: draft ? draft : '',
-        joinThreadLoadingStatus: joinThreadLoadingStatusSelector(state),
-        calendarQuery: nonThreadCalendarQuery({
-          redux: state,
-          navContext: ownProps.navContext,
-        }),
-        nextLocalID: state.nextLocalID,
-        colors: colorsSelector(state),
-        styles: stylesSelector(state),
-      };
-    },
-    { joinThread },
-  )(withKeyboardState(withInputState(ChatInputBar))),
-);
+export default React.memo<BaseProps>(function ConnectedChatInputBar(
+  props: BaseProps,
+) {
+  const inputState = React.useContext(InputStateContext);
+  const keyboardState = React.useContext(KeyboardContext);
+  const navContext = React.useContext(NavContext);
+
+  const styles = useStyles(unboundStyles);
+  const colors = useColors();
+
+  const isActive = React.useMemo(
+    () => props.threadInfo.id === activeThreadSelector(navContext),
+    [props.threadInfo.id, navContext],
+  );
+
+  const draftKey = draftKeyFromThreadID(props.threadInfo.id);
+  const draft = useSelector(state => state.drafts[draftKey] || '');
+
+  const viewerID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
+  const joinThreadLoadingStatus = useSelector(joinThreadLoadingStatusSelector);
+  const calendarQuery = useSelector(state =>
+    nonThreadCalendarQuery({
+      redux: state,
+      navContext,
+    }),
+  );
+  const nextLocalID = useSelector(state => state.nextLocalID);
+
+  const dispatch = useDispatch();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callJoinThread = useServerCall(joinThread);
+
+  return (
+    <ChatInputBar
+      {...props}
+      viewerID={viewerID}
+      draft={draft}
+      joinThreadLoadingStatus={joinThreadLoadingStatus}
+      calendarQuery={calendarQuery}
+      nextLocalID={nextLocalID}
+      colors={colors}
+      styles={styles}
+      isActive={isActive}
+      keyboardState={keyboardState}
+      dispatch={dispatch}
+      dispatchActionPromise={dispatchActionPromise}
+      joinThread={callJoinThread}
+      inputState={inputState}
+    />
+  );
+});
