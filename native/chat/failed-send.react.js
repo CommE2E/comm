@@ -3,35 +3,37 @@
 import type { ChatMessageInfoItemWithHeight } from './message.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import { messageTypes, type RawMessageInfo } from 'lib/types/message-types';
-import type { AppState } from '../redux/redux-setup';
 import {
   type InputState,
   inputStatePropType,
-  withInputState,
+  InputStateContext,
 } from '../input/input-state';
 
 import * as React from 'react';
 import { Text, View } from 'react-native';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 
 import { messageID } from 'lib/shared/message-utils';
-import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../components/button.react';
-import { styleSelector } from '../themes/colors';
+import { useStyles } from '../themes/colors';
 import multimediaMessageSendFailed from './multimedia-message-send-failed';
 import textMessageSendFailed from './text-message-send-failed';
 
 const failedSendHeight = 22;
 
+type BaseProps = {|
+  +item: ChatMessageInfoItemWithHeight,
+|};
 type Props = {|
-  item: ChatMessageInfoItemWithHeight,
+  ...BaseProps,
   // Redux state
-  rawMessageInfo: ?RawMessageInfo,
-  styles: typeof styles,
+  +rawMessageInfo: ?RawMessageInfo,
+  +styles: typeof unboundStyles,
   // withInputState
-  inputState: ?InputState,
+  +inputState: ?InputState,
 |};
 class FailedSend extends React.PureComponent<Props> {
   static propTypes = {
@@ -129,7 +131,7 @@ class FailedSend extends React.PureComponent<Props> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   deliveryFailed: {
     color: 'listSeparatorLabel',
     paddingHorizontal: 3,
@@ -146,16 +148,22 @@ const styles = {
     paddingHorizontal: 3,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-const ConnectedFailedSend = connect(
-  (state: AppState, ownProps: { item: ChatMessageInfoItemWithHeight }) => {
-    const id = messageID(ownProps.item.messageInfo);
-    return {
-      rawMessageInfo: state.messageStore.messages[id],
-      styles: stylesSelector(state),
-    };
-  },
-)(withInputState(FailedSend));
+const ConnectedFailedSend = React.memo<BaseProps>(function ConnectedFailedSend(
+  props: BaseProps,
+) {
+  const id = messageID(props.item.messageInfo);
+  const rawMessageInfo = useSelector(state => state.messageStore.messages[id]);
+  const styles = useStyles(unboundStyles);
+  const inputState = React.useContext(InputStateContext);
+  return (
+    <FailedSend
+      {...props}
+      rawMessageInfo={rawMessageInfo}
+      styles={styles}
+      inputState={inputState}
+    />
+  );
+});
 
 export { ConnectedFailedSend as FailedSend, failedSendHeight };
