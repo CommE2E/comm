@@ -96,10 +96,19 @@ function ChatThreadListItem({
   const lastActivity = shortAbsoluteDate(data.lastUpdatedTime);
   const unreadStyle = data.threadInfo.currentUser.unread ? styles.unread : null;
 
+  const mostRecentMessageId = data.mostRecentMessageInfo?.id ?? '0';
+
   const swipeableActions = useMemo(() => {
     const isUnread = data.threadInfo.currentUser.unread;
     const toggleUnreadStatus = () => {
-      updateUnreadStatus(data.threadInfo.id, !isUnread);
+      const request = {
+        threadID: data.threadInfo.id,
+        unread: !isUnread,
+      };
+      if (isUnread) {
+        request.latestMessage = mostRecentMessageId;
+      }
+      updateUnreadStatus(request);
       if (swipeable.current) {
         swipeable.current.close();
       }
@@ -117,7 +126,7 @@ function ChatThreadListItem({
         ),
       },
     ];
-  }, [colors, data.threadInfo, updateUnreadStatus]);
+  }, [colors, data.threadInfo, mostRecentMessageId, updateUnreadStatus]);
 
   return (
     <>

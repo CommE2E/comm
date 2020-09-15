@@ -28,6 +28,7 @@ import {
   tNumEnum,
   tColor,
   tPassword,
+  tBool,
 } from '../utils/validation-utils';
 import { deleteThread } from '../deleters/thread-deleters';
 import {
@@ -213,10 +214,17 @@ async function threadJoinResponder(
   return await joinThread(viewer, request);
 }
 
-const setThreadUnreadStatusValidator = tShape({
-  threadID: t.String,
-  unread: t.Boolean,
-});
+const setThreadUnreadStatusValidator = t.union([
+  tShape({
+    threadID: t.String,
+    unread: tBool(true),
+  }),
+  tShape({
+    threadID: t.String,
+    unread: tBool(false),
+    latestMessage: t.String,
+  }),
+]);
 async function threadSetUnreadStatusResponder(
   viewer: Viewer,
   input: any,

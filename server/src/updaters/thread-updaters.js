@@ -53,6 +53,7 @@ import { createUpdates } from '../creators/update-creator';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { updateRoles } from './role-updaters';
+import { rescindPushNotifs } from '../push/rescind';
 
 async function updateRole(
   viewer: Viewer,
@@ -642,32 +643,70 @@ async function setThreadUnreadStatus(
     throw new ServerError('invalid_parameters');
   }
 
-  const update = SQL`
+  const resetThreadToUnread = await shouldResetThreadToUnread(viewer, request);
+
+  if (!resetThreadToUnread) {
+    const update = SQL`
     UPDATE memberships m
     SET m.unread = ${request.unread ? 1 : 0}
     WHERE m.thread = ${request.threadID} AND m.user = ${viewer.userID}
   `;
+    const queryPromise = dbQuery(update);
 
-  const queryPromise = dbQuery(update);
-  const time = Date.now();
-  const updatesPromise = createUpdates(
-    [
-      {
-        type: updateTypes.UPDATE_THREAD_READ_STATUS,
-        userID: viewer.userID,
-        time: time,
-        threadID: request.threadID,
-        unread: request.unread,
-      },
-    ],
-    { viewer, updatesForCurrentSession: 'ignore' },
-  );
-  const [updates] = await Promise.all([updatesPromise, queryPromise]);
+    const time = Date.now();
+    const updatesPromise = createUpdates(
+      [
+        {
+          type: updateTypes.UPDATE_THREAD_READ_STATUS,
+          userID: viewer.userID,
+          time: time,
+          threadID: request.threadID,
+          unread: request.unread,
+        },
+      ],
+      { viewer, updatesForCurrentSession: 'ignore' },
+    );
+
+    await Promise.all([updatesPromise, queryPromise]);
+  }
+
+  if (!request.unread) {
+    const rescindCondition = SQL`
+      n.user = ${viewer.userID} AND
+      n.thread = ${request.threadID} AND
+      n.message <= ${request.latestMessage}
+    `;
+    await rescindPushNotifs(rescindCondition);
+  }
+
   return {
-    updatesResult: {
-      newUpdates: updates.viewerUpdates,
-    },
+    resetToUnread: resetThreadToUnread,
   };
+}
+
+async function shouldResetThreadToUnread(
+  viewer: Viewer,
+  request: SetThreadUnreadStatusRequest,
+): Promise<boolean> {
+  if (request.unread || request.latestMessage.startsWith('local')) {
+    return false;
+  }
+
+  const knowOfExtractString = `$.${threadPermissions.KNOW_OF}.value`;
+  const latestMessageQuery = SQL`
+    SELECT MAX(m.id) AS id
+    FROM messages m
+    LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
+      AND stm.thread = m.content AND stm.user = ${viewer.userID}
+    WHERE m.thread = ${request.threadID} AND
+      (
+        m.type != ${messageTypes.CREATE_SUB_THREAD} OR
+        JSON_EXTRACT(stm.permissions, ${knowOfExtractString}) IS TRUE
+      )
+  `;
+  const [result] = await dbQuery(latestMessageQuery);
+
+  return !!(result[0] && `${result[0].id}` !== request.latestMessage);
 }
 
 export {
