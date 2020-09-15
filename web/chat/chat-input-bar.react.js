@@ -1,10 +1,5 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
-import type {
-  DispatchActionPromise,
-  DispatchActionPayload,
-} from 'lib/utils/action-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
@@ -29,12 +24,17 @@ import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { faFileImage } from '@fortawesome/free-regular-svg-icons';
 import PropTypes from 'prop-types';
 import _difference from 'lodash/fp/difference';
+import { useSelector } from 'react-redux';
 
-import { connect } from 'lib/utils/redux-utils';
 import { joinThreadActionTypes, joinThread } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
 import { trimMessage } from 'lib/shared/message-utils';
+import {
+  type DispatchActionPromise,
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import css from './chat-message-list.css';
 import LoadingIndicator from '../loading-indicator.react';
@@ -42,20 +42,22 @@ import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import { allowedMimeTypeString } from '../media/file-utils';
 import Multimedia from '../media/multimedia.react';
 
+type BaseProps = {|
+  +threadInfo: ThreadInfo,
+  +inputState: InputState,
+|};
 type Props = {|
-  threadInfo: ThreadInfo,
-  inputState: InputState,
+  ...BaseProps,
   // Redux state
-  viewerID: ?string,
-  joinThreadLoadingStatus: LoadingStatus,
-  calendarQuery: () => CalendarQuery,
-  nextLocalID: number,
-  isThreadActive: boolean,
+  +viewerID: ?string,
+  +joinThreadLoadingStatus: LoadingStatus,
+  +calendarQuery: () => CalendarQuery,
+  +nextLocalID: number,
+  +isThreadActive: boolean,
   // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
-  dispatchActionPayload: DispatchActionPayload,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
+  +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
 |};
 class ChatInputBar extends React.PureComponent<Props> {
   static propTypes = {
@@ -67,7 +69,6 @@ class ChatInputBar extends React.PureComponent<Props> {
     nextLocalID: PropTypes.number.isRequired,
     isThreadActive: PropTypes.bool.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
-    dispatchActionPayload: PropTypes.func.isRequired,
     joinThread: PropTypes.func.isRequired,
   };
   textarea: ?HTMLTextAreaElement;
@@ -382,13 +383,30 @@ const joinThreadLoadingStatusSelector = createLoadingStatusSelector(
   joinThreadActionTypes,
 );
 
-export default connect(
-  (state: AppState, ownProps: { threadInfo: ThreadInfo, ... }) => ({
-    viewerID: state.currentUserInfo && state.currentUserInfo.id,
-    joinThreadLoadingStatus: joinThreadLoadingStatusSelector(state),
-    calendarQuery: nonThreadCalendarQuery(state),
-    nextLocalID: state.nextLocalID,
-    isThreadActive: ownProps.threadInfo.id === state.navInfo.activeChatThreadID,
-  }),
-  { joinThread },
-)(ChatInputBar);
+export default React.memo<BaseProps>(function ConnectedChatInputBar(
+  props: BaseProps,
+) {
+  const viewerID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
+  const nextLocalID = useSelector(state => state.nextLocalID);
+  const isThreadActive = useSelector(
+    state => props.threadInfo.id === state.navInfo.activeChatThreadID,
+  );
+  const joinThreadLoadingStatus = useSelector(joinThreadLoadingStatusSelector);
+  const calendarQuery = useSelector(nonThreadCalendarQuery);
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callJoinThread = useServerCall(joinThread);
+  return (
+    <ChatInputBar
+      {...props}
+      viewerID={viewerID}
+      joinThreadLoadingStatus={joinThreadLoadingStatus}
+      calendarQuery={calendarQuery}
+      nextLocalID={nextLocalID}
+      isThreadActive={isThreadActive}
+      dispatchActionPromise={dispatchActionPromise}
+      joinThread={callJoinThread}
+    />
+  );
+});
