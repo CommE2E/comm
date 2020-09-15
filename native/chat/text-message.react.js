@@ -116,6 +116,7 @@ class TextMessage extends React.PureComponent<Props> {
         item={item}
         sendFailed={textMessageSendFailed(item)}
         focused={focused}
+        canSwipe={true}
         {...viewProps}
       >
         <InnerTextMessage

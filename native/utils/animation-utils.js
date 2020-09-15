@@ -16,13 +16,19 @@ const {
   greaterThan,
   lessThan,
   eq,
+  add,
   sub,
+  multiply,
+  divide,
+  abs,
   set,
   max,
   startClock,
   stopClock,
   clockRunning,
   timing,
+  spring,
+  SpringUtils,
 } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
@@ -31,6 +37,20 @@ function clamp(value: Value, minValue: Value, maxValue: Value): Value {
     greaterThan(value, maxValue),
     maxValue,
     cond(greaterThan(minValue, value), minValue, value),
+  );
+}
+
+function dividePastDistance(
+  value: Value,
+  distance: number,
+  factor: number,
+): Value {
+  const absValue = abs(value);
+  const absFactor = cond(eq(absValue, 0), 1, divide(value, absValue));
+  return cond(
+    lessThan(absValue, distance),
+    value,
+    multiply(add(distance, divide(sub(absValue, distance), factor)), absFactor),
   );
 }
 
@@ -99,6 +119,42 @@ function runTiming(
   ];
 }
 
+const defaultSpringConfig = SpringUtils.makeDefaultConfig();
+
+type SpringConfig = $Shape<typeof defaultSpringConfig>;
+function runSpring(
+  clock: Clock,
+  initialValue: Value | number,
+  finalValue: Value | number,
+  startStopClock: boolean = true,
+  config: SpringConfig = defaultSpringConfig,
+): Value {
+  const state = {
+    finished: new Value(0),
+    position: new Value(0),
+    velocity: new Value(0),
+    time: new Value(0),
+  };
+  const springConfig = {
+    ...defaultSpringConfig,
+    ...config,
+    toValue: new Value(0),
+  };
+  return [
+    cond(not(clockRunning(clock)), [
+      set(state.finished, 0),
+      set(state.velocity, 0),
+      set(state.time, 0),
+      set(state.position, initialValue),
+      set(springConfig.toValue, finalValue),
+      startStopClock && startClock(clock),
+    ]),
+    spring(clock, state, springConfig),
+    cond(state.finished, startStopClock && stopClock(clock)),
+    state.position,
+  ];
+}
+
 // You provide a node that performs a "ratchet",
 // and this function will call it as keyboard height increases
 function ratchetAlongWithKeyboardHeight(
@@ -135,9 +191,11 @@ function ratchetAlongWithKeyboardHeight(
 
 export {
   clamp,
+  dividePastDistance,
   delta,
   gestureJustStarted,
   gestureJustEnded,
   runTiming,
+  runSpring,
   ratchetAlongWithKeyboardHeight,
 };
