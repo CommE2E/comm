@@ -1,7 +1,6 @@
 // @flow
 
 import * as React from 'react';
-import hoistNonReactStatics from 'hoist-non-react-statics';
 import PropTypes from 'prop-types';
 
 export type RootContextType = {|
@@ -32,10 +31,8 @@ function withRootContext<
       </RootContext.Consumer>
     );
   }
-  const MemoizedRootContextHOC = React.memo(RootContextHOC);
-  hoistNonReactStatics(MemoizedRootContextHOC, Component);
   // $FlowFixMe React.memo typing fixed in later version of Flow
-  return MemoizedRootContextHOC;
+  return React.memo(RootContextHOC);
 }
 
 const rootContextPropType = PropTypes.shape({

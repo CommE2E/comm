@@ -15,7 +15,6 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { View } from 'react-native';
 import invariant from 'invariant';
-import hoistNonReactStatics from 'hoist-non-react-statics';
 
 import { connect } from 'lib/utils/redux-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
@@ -266,7 +265,7 @@ const styles = {
 };
 const stylesSelector = styleSelector(styles);
 
-const ConnectedMessageListContainer = connect(
+export default connect(
   (state: AppState, ownProps: { route: NavigationRoute<'MessageList'> }) => {
     const threadID = ownProps.route.params.threadInfo.id;
     return {
@@ -278,7 +277,3 @@ const ConnectedMessageListContainer = connect(
     };
   },
 )(withInputState(MessageListContainer));
-
-hoistNonReactStatics(ConnectedMessageListContainer, MessageListContainer);
-
-export default ConnectedMessageListContainer;

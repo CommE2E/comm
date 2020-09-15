@@ -18,7 +18,6 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { View, FlatList } from 'react-native';
 import invariant from 'invariant';
-import hoistNonReactStatics from 'hoist-non-react-statics';
 import { createSelector } from 'reselect';
 
 import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
@@ -897,7 +896,7 @@ const somethingIsSaving = (
   return false;
 };
 
-const WrappedThreadSettings = connect(
+export default connect(
   (
     state: AppState,
     ownProps: {
@@ -918,7 +917,3 @@ const WrappedThreadSettings = connect(
     };
   },
 )(withOverlayContext(ThreadSettings));
-
-hoistNonReactStatics(WrappedThreadSettings, ThreadSettings);
-
-export default WrappedThreadSettings;

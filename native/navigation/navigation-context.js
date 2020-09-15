@@ -9,7 +9,6 @@ import type { ChatRouterNavigationAction } from '../chat/chat-router';
 import type { OverlayRouterNavigationAction } from './overlay-router';
 
 import * as React from 'react';
-import hoistNonReactStatics from 'hoist-non-react-statics';
 import PropTypes from 'prop-types';
 
 export type NavAction =
@@ -50,10 +49,8 @@ function withNavContext<
       </NavContext.Consumer>
     );
   }
-  const MemoizedNavContextHOC = React.memo(NavContextHOC);
-  hoistNonReactStatics(MemoizedNavContextHOC, Component);
   // $FlowFixMe React.memo typing fixed in later version of Flow
-  return MemoizedNavContextHOC;
+  return React.memo(NavContextHOC);
 }
 
 function connectNav<
@@ -82,7 +79,6 @@ function connectNav<
       ? `NavConnected(${Component.displayName})`
       : `NavConnectedComponent`;
     const MemoizedNavConnectedComponent = React.memo(NavConnectedComponent);
-    hoistNonReactStatics(MemoizedNavConnectedComponent, Component);
     // $FlowFixMe React.memo typing fixed in later version of Flow
     return withNavContext(MemoizedNavConnectedComponent);
   };
