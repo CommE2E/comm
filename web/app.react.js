@@ -16,7 +16,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar, faComments } from '@fortawesome/free-solid-svg-icons';
 import { config as faConfig } from '@fortawesome/fontawesome-svg-core';
 import classNames from 'classnames';
-import HTML5Backend from 'react-dnd-html5-backend';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import { DndProvider } from 'react-dnd';
 
 import {
