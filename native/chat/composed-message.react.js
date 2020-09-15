@@ -8,13 +8,21 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, View, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
+import invariant from 'invariant';
 import { useSelector } from 'react-redux';
+
+import { createMessageReply } from 'lib/shared/message-utils';
 
 import SwipeableMessage from './swipeable-message.react';
 import { FailedSend } from './failed-send.react';
 import { composedMessageMaxWidthSelector } from './composed-message-width';
 import { MessageHeader } from './message-header.react';
 import { type Colors, colorsPropType, useColors } from '../themes/colors';
+import {
+  inputStatePropType,
+  type InputState,
+  InputStateContext,
+} from '../input/input-state';
 
 const clusterEndHeight = 7;
 
@@ -31,6 +39,8 @@ type Props = {|
   // Redux state
   +composedMessageMaxWidth: number,
   +colors: Colors,
+  // withInputState
+  +inputState: ?InputState,
 |};
 class ComposedMessage extends React.PureComponent<Props> {
   static propTypes = {
@@ -41,6 +51,7 @@ class ComposedMessage extends React.PureComponent<Props> {
     children: PropTypes.node.isRequired,
     composedMessageMaxWidth: PropTypes.number.isRequired,
     colors: colorsPropType.isRequired,
+    inputState: inputStatePropType,
   };
 
   render() {
@@ -53,6 +64,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       children,
       composedMessageMaxWidth,
       colors,
+      inputState,
       ...viewProps
     } = this.props;
     const { id, creator } = item.messageInfo;
@@ -121,7 +133,12 @@ class ComposedMessage extends React.PureComponent<Props> {
     );
   }
 
-  reply = () => {};
+  reply = () => {
+    const { inputState, item } = this.props;
+    invariant(inputState, 'inputState should be set in reply');
+    invariant(item.messageInfo.text, 'text should be set in reply');
+    inputState.addReply(createMessageReply(item.messageInfo.text));
+  };
 }
 
 const styles = StyleSheet.create({
@@ -158,14 +175,15 @@ const ConnectedComposedMessage = React.memo<BaseProps>(
       composedMessageMaxWidthSelector,
     );
     const colors = useColors();
+    const inputState = React.useContext(InputStateContext);
     return (
       <ComposedMessage
         {...props}
         composedMessageMaxWidth={composedMessageMaxWidth}
         colors={colors}
+        inputState={inputState}
       />
     );
   },
 );
-
 export { ConnectedComposedMessage as ComposedMessage, clusterEndHeight };
