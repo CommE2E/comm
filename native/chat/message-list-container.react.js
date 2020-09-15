@@ -1,6 +1,5 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
 import { messageTypes } from 'lib/types/message-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { ChatMessageInfoItemWithHeight } from './message.react';
@@ -15,8 +14,8 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { View } from 'react-native';
 import invariant from 'invariant';
+import { useSelector } from 'react-redux';
 
-import { connect } from 'lib/utils/redux-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import {
   type ChatMessageItem,
@@ -33,13 +32,13 @@ import { composedMessageMaxWidthSelector } from './composed-message-width';
 import {
   type InputState,
   inputStatePropType,
-  withInputState,
+  InputStateContext,
 } from '../input/input-state';
 import {
   type Colors,
   colorsPropType,
-  colorsSelector,
-  styleSelector,
+  useColors,
+  useStyles,
 } from '../themes/colors';
 import ContentLoading from '../components/content-loading.react';
 import { dummyNodeForTextMessageHeightMeasurement } from './inner-text-message.react';
@@ -50,20 +49,23 @@ export type ChatMessageItemWithHeight =
   | {| itemType: 'loader' |}
   | ChatMessageInfoItemWithHeight;
 
+type BaseProps = {|
+  +navigation: ChatNavigationProp<'MessageList'>,
+  +route: NavigationRoute<'MessageList'>,
+|};
 type Props = {|
-  navigation: ChatNavigationProp<'MessageList'>,
-  route: NavigationRoute<'MessageList'>,
+  ...BaseProps,
   // Redux state
-  threadInfo: ?ThreadInfo,
-  messageListData: $ReadOnlyArray<ChatMessageItem>,
-  composedMessageMaxWidth: number,
-  colors: Colors,
-  styles: typeof styles,
+  +threadInfo: ?ThreadInfo,
+  +messageListData: $ReadOnlyArray<ChatMessageItem>,
+  +composedMessageMaxWidth: number,
+  +colors: Colors,
+  +styles: typeof unboundStyles,
   // withInputState
-  inputState: ?InputState,
+  +inputState: ?InputState,
 |};
 type State = {|
-  listDataWithHeights: ?$ReadOnlyArray<ChatMessageItemWithHeight>,
+  +listDataWithHeights: ?$ReadOnlyArray<ChatMessageItemWithHeight>,
 |};
 class MessageListContainer extends React.PureComponent<Props, State> {
   static propTypes = {
@@ -257,23 +259,34 @@ class MessageListContainer extends React.PureComponent<Props, State> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   container: {
     backgroundColor: 'listBackground',
     flex: 1,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-export default connect(
-  (state: AppState, ownProps: { route: NavigationRoute<'MessageList'> }) => {
-    const threadID = ownProps.route.params.threadInfo.id;
-    return {
-      threadInfo: threadInfoSelector(state)[threadID],
-      messageListData: messageListData(threadID)(state),
-      composedMessageMaxWidth: composedMessageMaxWidthSelector(state),
-      colors: colorsSelector(state),
-      styles: stylesSelector(state),
-    };
-  },
-)(withInputState(MessageListContainer));
+export default React.memo<BaseProps>(function ConnectedMessageListContainer(
+  props: BaseProps,
+) {
+  const threadID = props.route.params.threadInfo.id;
+  const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
+  const boundMessageListData = useSelector(state =>
+    messageListData(threadID)(state),
+  );
+  const composedMessageMaxWidth = useSelector(composedMessageMaxWidthSelector);
+  const colors = useColors();
+  const styles = useStyles(unboundStyles);
+  const inputState = React.useContext(InputStateContext);
+  return (
+    <MessageListContainer
+      {...props}
+      threadInfo={threadInfo}
+      messageListData={boundMessageListData}
+      composedMessageMaxWidth={composedMessageMaxWidth}
+      colors={colors}
+      styles={styles}
+      inputState={inputState}
+    />
+  );
+});
