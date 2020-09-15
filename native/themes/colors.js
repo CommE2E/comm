@@ -194,13 +194,10 @@ function styleSelector<IS: Styles>(
 }
 
 function useStyles<IS: Styles>(obj: IS): StyleSheetOf<IS> {
-  const theme = useSelector(
-    (state: AppState) => state.globalThemeInfo.activeTheme,
-  );
-  const explicitTheme = theme ? theme : 'light';
-  return React.useMemo(() => stylesFromColors(obj, colors[explicitTheme]), [
+  const ourColors = useColors();
+  return React.useMemo(() => stylesFromColors(obj, ourColors), [
     obj,
-    explicitTheme,
+    ourColors,
   ]);
 }
 
@@ -222,6 +219,10 @@ function useOverlayStyles<IS: Styles>(obj: IS): StyleSheetOf<IS> {
     obj,
     syntheticTheme,
   ]);
+}
+
+function useColors(): Colors {
+  return useSelector(colorsSelector);
 }
 
 function getStylesForTheme<IS: Styles>(
@@ -255,6 +256,7 @@ export {
   styleSelector,
   useStyles,
   useOverlayStyles,
+  useColors,
   getStylesForTheme,
   indicatorStylePropType,
   useIndicatorStyle,

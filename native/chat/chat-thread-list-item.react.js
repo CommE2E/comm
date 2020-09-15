@@ -10,7 +10,6 @@ import type { AppState } from '../redux/redux-setup';
 import * as React from 'react';
 import { View, Text } from 'react-native';
 import PropTypes from 'prop-types';
-import Icon from 'react-native-vector-icons/Entypo';
 
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
 import { connect } from 'lib/utils/redux-utils';
@@ -25,6 +24,7 @@ import {
   styleSelector,
 } from '../themes/colors';
 import { SingleLine } from '../components/single-line.react';
+import ChatThreadListSidebar from './chat-thread-list-sidebar.react';
 
 type Props = {
   data: ChatThreadItem,
@@ -61,37 +61,13 @@ class ChatThreadListItem extends React.PureComponent<Props> {
   render() {
     const { listIosHighlightUnderlay } = this.props.colors;
 
-    const sidebars = this.props.data.sidebars.map(sidebar => {
-      const sidebarThreadInfo = sidebar.threadInfo;
-      const lastActivity = shortAbsoluteDate(sidebar.lastUpdatedTime);
-      const sidebarUnreadStyle = sidebarThreadInfo.currentUser.unread
-        ? this.props.styles.unread
-        : null;
-      return (
-        <Button
-          iosFormat="highlight"
-          iosHighlightUnderlayColor={listIosHighlightUnderlay}
-          iosActiveOpacity={0.85}
-          style={this.props.styles.sidebar}
-          key={sidebarThreadInfo.id}
-          onPress={this.onPress}
-        >
-          <Icon
-            name="align-right"
-            style={this.props.styles.sidebarIcon}
-            size={24}
-          />
-          <SingleLine
-            style={[this.props.styles.sidebarName, sidebarUnreadStyle]}
-          >
-            {sidebarThreadInfo.uiName}
-          </SingleLine>
-          <Text style={[this.props.styles.sidebarLastActivity, unreadStyle]}>
-            {lastActivity}
-          </Text>
-        </Button>
-      );
-    });
+    const sidebars = this.props.data.sidebars.map(sidebar => (
+      <ChatThreadListSidebar
+        {...sidebar}
+        onPressItem={this.props.onPressItem}
+        key={sidebar.threadInfo.id}
+      />
+    ));
 
     const lastActivity = shortAbsoluteDate(this.props.data.lastUpdatedTime);
     const unreadStyle = this.props.data.threadInfo.currentUser.unread
@@ -172,29 +148,6 @@ const styles = {
   unread: {
     color: 'listForegroundLabel',
     fontWeight: 'bold',
-  },
-  sidebar: {
-    height: 30,
-    flexDirection: 'row',
-    display: 'flex',
-    marginHorizontal: 20,
-    alignItems: 'center',
-  },
-  sidebarIcon: {
-    paddingLeft: 10,
-    color: 'listForegroundSecondaryLabel',
-  },
-  sidebarName: {
-    color: 'listForegroundSecondaryLabel',
-    flex: 1,
-    fontSize: 16,
-    paddingLeft: 5,
-    paddingBottom: 2,
-  },
-  sidebarLastActivity: {
-    color: 'listForegroundTertiaryLabel',
-    fontSize: 14,
-    marginLeft: 10,
   },
 };
 const stylesSelector = styleSelector(styles);
