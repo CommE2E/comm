@@ -20,6 +20,7 @@ import {
   CheckCircle as CheckCircleIcon,
   XCircle as XCircleIcon,
 } from 'react-feather';
+import invariant from 'invariant';
 
 import { stringForUser } from 'lib/shared/user-utils';
 
@@ -29,23 +30,27 @@ import MessageReplyTooltip from './message-reply-tooltip.react';
 import {
   inputStatePropType,
   type InputState,
-  withInputState,
+  InputStateContext,
 } from '../input/input-state';
 
-type Props = {|
-  item: ChatMessageInfoItem,
-  threadInfo: ThreadInfo,
-  sendFailed: boolean,
-  setMouseOverMessagePosition: (
+type BaseProps = {|
+  +item: ChatMessageInfoItem,
+  +threadInfo: ThreadInfo,
+  +sendFailed: boolean,
+  +setMouseOverMessagePosition: (
     messagePositionInfo: MessagePositionInfo,
   ) => void,
-  mouseOverMessagePosition?: ?OnMessagePositionInfo,
-  canReply: boolean,
-  children: React.Node,
-  fixedWidth?: boolean,
-  borderRadius: number,
+  +mouseOverMessagePosition?: ?OnMessagePositionInfo,
+  +canReply: boolean,
+  +children: React.Node,
+  +fixedWidth?: boolean,
+  +borderRadius: number,
+|};
+type BaseConfig = React.Config<BaseProps, typeof ComposedMessage.defaultProps>;
+type Props = {|
+  ...BaseProps,
   // withInputState
-  inputState: InputState,
+  +inputState: ?InputState,
 |};
 class ComposedMessage extends React.PureComponent<Props> {
   static propTypes = {
@@ -58,7 +63,7 @@ class ComposedMessage extends React.PureComponent<Props> {
     children: PropTypes.node.isRequired,
     fixedWidth: PropTypes.bool,
     borderRadius: PropTypes.number.isRequired,
-    inputState: inputStatePropType.isRequired,
+    inputState: inputStatePropType,
   };
   static defaultProps = {
     borderRadius: 8,
@@ -130,11 +135,13 @@ class ComposedMessage extends React.PureComponent<Props> {
       this.props.mouseOverMessagePosition.item.messageInfo.id === id &&
       this.props.canReply
     ) {
+      const { inputState } = this.props;
+      invariant(inputState, 'inputState should be set in ComposedMessage');
       const replyTooltip = (
         <MessageReplyTooltip
           messagePositionInfo={this.props.mouseOverMessagePosition}
           onReplyClick={this.onMouseLeave}
-          inputState={this.props.inputState}
+          inputState={inputState}
         />
       );
       if (isViewer) {
@@ -184,4 +191,9 @@ class ComposedMessage extends React.PureComponent<Props> {
   };
 }
 
-export default withInputState(ComposedMessage);
+export default React.memo<BaseConfig>(function ConnectedComposedMessage(
+  props: BaseConfig,
+) {
+  const inputState = React.useContext(InputStateContext);
+  return <ComposedMessage {...props} inputState={inputState} />;
+});
