@@ -1,23 +1,21 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
 import {
   type ChatMessageItem,
   chatMessageItemPropType,
 } from 'lib/selectors/chat-selectors';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
-import { DropTarget } from 'react-dnd';
+import { useDrop } from 'react-dnd';
 import { NativeTypes } from 'react-dnd-html5-backend';
 import classNames from 'classnames';
 import { detect as detectBrowser } from 'detect-browser';
+import { useSelector } from 'react-redux';
 
-import { connect } from 'lib/utils/redux-utils';
 import { messageKey } from 'lib/shared/message-utils';
 import { threadInChatList } from 'lib/shared/thread-utils';
 import threadWatcher from 'lib/shared/thread-watcher';
@@ -29,6 +27,11 @@ import {
   fetchMostRecentMessages,
 } from 'lib/actions/message-actions';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
+import {
+  type DispatchActionPromise,
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import { webMessageListData } from '../selectors/chat-selectors';
 import ChatInputBar from './chat-input-bar.react';
@@ -42,31 +45,34 @@ import MessageTimestampTooltip from './message-timestamp-tooltip.react';
 import {
   inputStatePropType,
   type InputState,
-  withInputState,
+  InputStateContext,
 } from '../input/input-state';
 import css from './chat-message-list.css';
 
+type BaseProps = {|
+  +setModal: (modal: ?React.Node) => void,
+|};
 type PassedProps = {|
-  setModal: (modal: ?React.Node) => void,
+  ...BaseProps,
   // Redux state
-  activeChatThreadID: ?string,
-  threadInfo: ?ThreadInfo,
-  messageListData: ?$ReadOnlyArray<ChatMessageItem>,
-  startReached: boolean,
-  timeZone: ?string,
-  firefox: boolean,
+  +activeChatThreadID: ?string,
+  +threadInfo: ?ThreadInfo,
+  +messageListData: ?$ReadOnlyArray<ChatMessageItem>,
+  +startReached: boolean,
+  +timeZone: ?string,
+  +firefox: boolean,
   // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  fetchMessagesBeforeCursor: (
+  +fetchMessagesBeforeCursor: (
     threadID: string,
     beforeMessageID: string,
   ) => Promise<FetchMessageInfosPayload>,
-  fetchMostRecentMessages: (
+  +fetchMostRecentMessages: (
     threadID: string,
   ) => Promise<FetchMessageInfosPayload>,
   // withInputState
-  inputState: ?InputState,
+  +inputState: ?InputState,
 |};
 type ReactDnDProps = {|
   isActive: boolean,
@@ -379,42 +385,71 @@ class ChatMessageList extends React.PureComponent<Props, State> {
 registerFetchKey(fetchMessagesBeforeCursorActionTypes);
 registerFetchKey(fetchMostRecentMessagesActionTypes);
 
-const ReduxConnectedChatMessageList = connect(
-  (state: AppState) => {
-    const { activeChatThreadID } = state.navInfo;
-    const browser = detectBrowser(state.userAgent);
-    const firefox = browser && browser.name === 'firefox';
-    return {
-      activeChatThreadID,
-      threadInfo: activeChatThreadID
-        ? threadInfoSelector(state)[activeChatThreadID]
-        : null,
-      messageListData: webMessageListData(state),
-      startReached: !!(
-        activeChatThreadID &&
-        state.messageStore.threads[activeChatThreadID].startReached
-      ),
-      timeZone: state.timeZone,
-      firefox,
-    };
-  },
-  { fetchMessagesBeforeCursor, fetchMostRecentMessages },
-)(ChatMessageList);
+export default React.memo<BaseProps>(function ConnectedChatMessageList(
+  props: BaseProps,
+) {
+  const userAgent = useSelector(state => state.userAgent);
+  const firefox = React.useMemo(() => {
+    const browser = detectBrowser(userAgent);
+    return browser && browser.name === 'firefox';
+  }, [userAgent]);
 
-export default withInputState(
-  DropTarget(
-    NativeTypes.FILE,
-    {
-      drop: (props: PassedProps, monitor) => {
-        const { files } = monitor.getItem();
-        if (props.inputState && files.length > 0) {
-          props.inputState.appendFiles(files);
-        }
-      },
+  const messageListData = useSelector(webMessageListData);
+  const timeZone = useSelector(state => state.timeZone);
+
+  const activeChatThreadID = useSelector(
+    state => state.navInfo.activeChatThreadID,
+  );
+  const threadInfo = useSelector(state => {
+    const activeID = state.navInfo.activeChatThreadID;
+    if (!activeID) {
+      return null;
+    }
+    return threadInfoSelector(state)[activeID];
+  });
+  const startReached = useSelector(state => {
+    const activeID = state.navInfo.activeChatThreadID;
+    if (!activeID) {
+      return null;
+    }
+    return state.messageStore.threads[activeID].startReached;
+  });
+
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callFetchMessagesBeforeCursor = useServerCall(
+    fetchMessagesBeforeCursor,
+  );
+  const callFetchMostRecentMessages = useServerCall(fetchMostRecentMessages);
+
+  const inputState = React.useContext(InputStateContext);
+  const [dndProps, connectDropTarget] = useDrop({
+    accept: NativeTypes.FILE,
+    drop: item => {
+      const { files } = item;
+      if (inputState && files.length > 0) {
+        inputState.appendFiles(files);
+      }
     },
-    (connector, monitor) => ({
-      connectDropTarget: connector.dropTarget(),
+    collect: monitor => ({
       isActive: monitor.isOver() && monitor.canDrop(),
     }),
-  )(ReduxConnectedChatMessageList),
-);
+  });
+
+  return (
+    <ChatMessageList
+      {...props}
+      activeChatThreadID={activeChatThreadID}
+      threadInfo={threadInfo}
+      messageListData={messageListData}
+      startReached={startReached}
+      timeZone={timeZone}
+      firefox={firefox}
+      inputState={inputState}
+      dispatchActionPromise={dispatchActionPromise}
+      fetchMessagesBeforeCursor={callFetchMessagesBeforeCursor}
+      fetchMostRecentMessages={callFetchMostRecentMessages}
+      {...dndProps}
+      connectDropTarget={connectDropTarget}
+    />
+  );
+});
