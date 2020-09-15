@@ -1,11 +1,15 @@
 // @flow
 
-import type { AppState } from './redux/redux-setup';
+import * as React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 
-import { connect } from 'lib/utils/redux-utils';
 import { logOut } from 'lib/actions/user-actions';
-import Socket from 'lib/socket/socket.react';
+import Socket, { type BaseSocketProps } from 'lib/socket/socket.react';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
+import {
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import {
   openSocketSelector,
@@ -18,29 +22,58 @@ import {
   webCalendarQuery,
 } from './selectors/nav-selectors';
 
-export default connect(
-  (state: AppState) => {
-    const active =
-      state.currentUserInfo &&
+export default React.memo<BaseSocketProps>(function WebSocket(
+  props: BaseSocketProps,
+) {
+  const cookie = useSelector(state => state.cookie);
+  const urlPrefix = useSelector(state => state.urlPrefix);
+  const connection = useSelector(state => state.connection);
+  const active = useSelector(
+    state =>
+      !!state.currentUserInfo &&
       !state.currentUserInfo.anonymous &&
-      state.foreground;
-    const activeThread =
-      active && state.windowActive ? activeThreadSelector(state) : null;
-    return {
-      active,
-      openSocket: openSocketSelector(state),
-      getClientResponses: webGetClientResponsesSelector(state),
-      activeThread,
-      sessionStateFunc: webSessionStateFuncSelector(state),
-      sessionIdentification: sessionIdentificationSelector(state),
-      cookie: state.cookie,
-      urlPrefix: state.urlPrefix,
-      connection: state.connection,
-      currentCalendarQuery: webCalendarQuery(state),
-      canSendReports: true,
-      frozen: false,
-      preRequestUserState: preRequestUserStateSelector(state),
-    };
-  },
-  { logOut },
-)(Socket);
+      state.foreground,
+  );
+
+  const openSocket = useSelector(openSocketSelector);
+  const sessionIdentification = useSelector(sessionIdentificationSelector);
+  const preRequestUserState = useSelector(preRequestUserStateSelector);
+  const getClientResponses = useSelector(webGetClientResponsesSelector);
+  const sessionStateFunc = useSelector(webSessionStateFuncSelector);
+  const currentCalendarQuery = useSelector(webCalendarQuery);
+
+  const reduxActiveThread = useSelector(activeThreadSelector);
+  const windowActive = useSelector(state => state.windowActive);
+  const activeThread = React.useMemo(() => {
+    if (!active || !windowActive) {
+      return null;
+    }
+    return reduxActiveThread;
+  }, [active, windowActive, reduxActiveThread]);
+
+  const dispatch = useDispatch();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callLogOut = useServerCall(logOut);
+
+  return (
+    <Socket
+      {...props}
+      active={active}
+      openSocket={openSocket}
+      getClientResponses={getClientResponses}
+      activeThread={activeThread}
+      sessionStateFunc={sessionStateFunc}
+      sessionIdentification={sessionIdentification}
+      cookie={cookie}
+      urlPrefix={urlPrefix}
+      connection={connection}
+      currentCalendarQuery={currentCalendarQuery}
+      canSendReports={true}
+      frozen={false}
+      preRequestUserState={preRequestUserState}
+      dispatch={dispatch}
+      dispatchActionPromise={dispatchActionPromise}
+      logOut={callLogOut}
+    />
+  );
+});

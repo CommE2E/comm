@@ -1,11 +1,15 @@
 // @flow
 
-import type { AppState } from './redux/redux-setup';
+import * as React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 
-import { connect } from 'lib/utils/redux-utils';
 import { logOut } from 'lib/actions/user-actions';
-import Socket from 'lib/socket/socket.react';
+import Socket, { type BaseSocketProps } from 'lib/socket/socket.react';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
+import {
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import {
   openSocketSelector,
@@ -17,51 +21,86 @@ import {
   activeMessageListSelector,
   nativeCalendarQuery,
 } from './navigation/nav-selectors';
-import {
-  connectNav,
-  type NavContextType,
-} from './navigation/navigation-context';
-import { withInputState, type InputState } from './input/input-state';
+import { NavContext } from './navigation/navigation-context';
+import { InputStateContext } from './input/input-state';
 
-export default connectNav((context: ?NavContextType) => ({
-  rawActiveThread: activeMessageListSelector(context),
-  navContext: context,
-}))(
-  withInputState(
-    connect(
-      (
-        state: AppState,
-        ownProps: {
-          rawActiveThread: boolean,
-          navContext: ?NavContextType,
-          inputState: ?InputState,
-        },
-      ) => {
-        const active =
-          !!state.currentUserInfo &&
-          !state.currentUserInfo.anonymous &&
-          state.foreground;
-        const navPlusRedux = { redux: state, navContext: ownProps.navContext };
-        return {
-          active,
-          openSocket: openSocketSelector(state),
-          getClientResponses: nativeGetClientResponsesSelector(navPlusRedux),
-          activeThread: active ? ownProps.rawActiveThread : null,
-          sessionStateFunc: nativeSessionStateFuncSelector(navPlusRedux),
-          sessionIdentification: sessionIdentificationSelector(state),
-          cookie: state.cookie,
-          urlPrefix: state.urlPrefix,
-          connection: state.connection,
-          currentCalendarQuery: nativeCalendarQuery(navPlusRedux),
-          canSendReports:
-            !state.frozen &&
-            state.connectivity.hasWiFi &&
-            (!ownProps.inputState || !ownProps.inputState.uploadInProgress()),
-          frozen: state.frozen,
-          preRequestUserState: preRequestUserStateSelector(state),
-        };
-      },
-      { logOut },
-    )(Socket),
-  ),
-);
+export default React.memo<BaseSocketProps>(function NativeSocket(
+  props: BaseSocketProps,
+) {
+  const inputState = React.useContext(InputStateContext);
+  const navContext = React.useContext(NavContext);
+
+  const cookie = useSelector(state => state.cookie);
+  const urlPrefix = useSelector(state => state.urlPrefix);
+  const connection = useSelector(state => state.connection);
+  const frozen = useSelector(state => state.frozen);
+  const active = useSelector(
+    state =>
+      !!state.currentUserInfo &&
+      !state.currentUserInfo.anonymous &&
+      state.foreground,
+  );
+
+  const openSocket = useSelector(openSocketSelector);
+  const sessionIdentification = useSelector(sessionIdentificationSelector);
+  const preRequestUserState = useSelector(preRequestUserStateSelector);
+
+  const getClientResponses = useSelector(state =>
+    nativeGetClientResponsesSelector({
+      redux: state,
+      navContext,
+    }),
+  );
+  const sessionStateFunc = useSelector(state =>
+    nativeSessionStateFuncSelector({
+      redux: state,
+      navContext,
+    }),
+  );
+  const currentCalendarQuery = useSelector(state =>
+    nativeCalendarQuery({
+      redux: state,
+      navContext,
+    }),
+  );
+
+  const canSendReports = useSelector(
+    state =>
+      !state.frozen &&
+      state.connectivity.hasWiFi &&
+      (!inputState || !inputState.uploadInProgress()),
+  );
+
+  const activeThread = React.useMemo(() => {
+    if (!active) {
+      return null;
+    }
+    return activeMessageListSelector(navContext);
+  }, [active, navContext]);
+
+  const dispatch = useDispatch();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callLogOut = useServerCall(logOut);
+
+  return (
+    <Socket
+      {...props}
+      active={active}
+      openSocket={openSocket}
+      getClientResponses={getClientResponses}
+      activeThread={activeThread}
+      sessionStateFunc={sessionStateFunc}
+      sessionIdentification={sessionIdentification}
+      cookie={cookie}
+      urlPrefix={urlPrefix}
+      connection={connection}
+      currentCalendarQuery={currentCalendarQuery}
+      canSendReports={canSendReports}
+      frozen={frozen}
+      preRequestUserState={preRequestUserState}
+      dispatch={dispatch}
+      dispatchActionPromise={dispatchActionPromise}
+      logOut={callLogOut}
+    />
+  );
+});
