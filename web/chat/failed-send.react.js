@@ -10,14 +10,13 @@ import {
   assertComposableMessageType,
 } from 'lib/types/message-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 
 import { messageID } from 'lib/shared/message-utils';
-import { connect } from 'lib/utils/redux-utils';
 
 import css from './chat-message-list.css';
 import multimediaMessageSendFailed from './multimedia-message-send-failed';
@@ -25,23 +24,26 @@ import textMessageSendFailed from './text-message-send-failed';
 import {
   inputStatePropType,
   type InputState,
-  withInputState,
+  InputStateContext,
 } from '../input/input-state';
 
+type BaseProps = {|
+  +item: ChatMessageInfoItem,
+  +threadInfo: ThreadInfo,
+|};
 type Props = {|
-  item: ChatMessageInfoItem,
-  threadInfo: ThreadInfo,
+  ...BaseProps,
   // Redux state
-  rawMessageInfo: RawComposableMessageInfo,
+  +rawMessageInfo: RawComposableMessageInfo,
   // withInputState
-  inputState: InputState,
+  +inputState: ?InputState,
 |};
 class FailedSend extends React.PureComponent<Props> {
   static propTypes = {
     item: chatMessageItemPropType.isRequired,
     threadInfo: threadInfoPropType.isRequired,
     rawMessageInfo: PropTypes.object.isRequired,
-    inputState: inputStatePropType.isRequired,
+    inputState: inputStatePropType,
   };
   retryingText = false;
   retryingMedia = false;
@@ -53,13 +55,16 @@ class FailedSend extends React.PureComponent<Props> {
       (prevProps.rawMessageInfo.type === messageTypes.IMAGES ||
         prevProps.rawMessageInfo.type === messageTypes.MULTIMEDIA)
     ) {
-      const isFailed = multimediaMessageSendFailed(
-        this.props.item,
-        this.props.inputState,
+      const { inputState } = this.props;
+      const prevInputState = prevProps.inputState;
+      invariant(
+        inputState && prevInputState,
+        'inputState should be set in FailedSend',
       );
+      const isFailed = multimediaMessageSendFailed(this.props.item, inputState);
       const wasFailed = multimediaMessageSendFailed(
         prevProps.item,
-        prevProps.inputState,
+        prevInputState,
       );
       const isDone =
         this.props.item.messageInfo.id !== null &&
@@ -102,13 +107,16 @@ class FailedSend extends React.PureComponent<Props> {
   retrySend = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.stopPropagation();
 
+    const { inputState } = this.props;
+    invariant(inputState, 'inputState should be set in FailedSend');
+
     const { rawMessageInfo } = this.props;
     if (rawMessageInfo.type === messageTypes.TEXT) {
       if (this.retryingText) {
         return;
       }
       this.retryingText = true;
-      this.props.inputState.sendTextMessage({
+      inputState.sendTextMessage({
         ...rawMessageInfo,
         time: Date.now(),
       });
@@ -122,24 +130,31 @@ class FailedSend extends React.PureComponent<Props> {
         return;
       }
       this.retryingMedia = true;
-      this.props.inputState.retryMultimediaMessage(localID);
+      inputState.retryMultimediaMessage(localID);
     }
   };
 }
 
-export default connect(
-  (state: AppState, ownProps: { item: ChatMessageInfoItem }) => {
-    const { messageInfo } = ownProps.item;
-    assertComposableMessageType(messageInfo.type);
-    const id = messageID(messageInfo);
-    const rawMessageInfo = state.messageStore.messages[id];
-    assertComposableMessageType(rawMessageInfo.type);
-    invariant(
-      rawMessageInfo.type === messageTypes.TEXT ||
-        rawMessageInfo.type === messageTypes.IMAGES ||
-        rawMessageInfo.type === messageTypes.MULTIMEDIA,
-      'FailedSend should only be used for composable message types',
-    );
-    return { rawMessageInfo };
-  },
-)(withInputState(FailedSend));
+export default React.memo<BaseProps>(function ConnectedFailedSend(
+  props: BaseProps,
+) {
+  const { messageInfo } = props.item;
+  assertComposableMessageType(messageInfo.type);
+  const id = messageID(messageInfo);
+  const rawMessageInfo = useSelector(state => state.messageStore.messages[id]);
+  assertComposableMessageType(rawMessageInfo.type);
+  invariant(
+    rawMessageInfo.type === messageTypes.TEXT ||
+      rawMessageInfo.type === messageTypes.IMAGES ||
+      rawMessageInfo.type === messageTypes.MULTIMEDIA,
+    'FailedSend should only be used for composable message types',
+  );
+  const inputState = React.useContext(InputStateContext);
+  return (
+    <FailedSend
+      {...props}
+      rawMessageInfo={rawMessageInfo}
+      inputState={inputState}
+    />
+  );
+});
