@@ -1,17 +1,17 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
 import {
   type InputState,
   inputStatePropType,
-  withInputState,
+  InputStateContext,
 } from '../input/input-state';
 import {
   type KeyboardState,
   keyboardStatePropType,
-  withKeyboardState,
+  KeyboardContext,
 } from '../keyboard/keyboard-state';
 import type { MediaLibrarySelection } from 'lib/types/media-types';
+import { NavContext } from '../navigation/navigation-context';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
@@ -19,25 +19,22 @@ import { TextInput } from 'react-native';
 import { KeyboardAccessoryView } from 'react-native-keyboard-input';
 import invariant from 'invariant';
 
-import { connect } from 'lib/utils/redux-utils';
-
-import { styleSelector } from '../themes/colors';
+import { useStyles } from '../themes/colors';
 import { mediaGalleryKeyboardName } from '../media/media-gallery-keyboard.react';
 import { activeMessageListSelector } from '../navigation/nav-selectors';
-import {
-  connectNav,
-  type NavContextType,
-} from '../navigation/navigation-context';
 
+type BaseProps = {|
+  +textInputRef?: React.ElementRef<typeof TextInput>,
+|};
 type Props = {|
-  textInputRef: ?React.ElementRef<typeof TextInput>,
+  ...BaseProps,
   // Redux state
-  styles: typeof styles,
-  activeMessageList: ?string,
+  +styles: typeof unboundStyles,
+  +activeMessageList: ?string,
   // withKeyboardState
-  keyboardState: ?KeyboardState,
+  +keyboardState: ?KeyboardState,
   // withInputState
-  inputState: ?InputState,
+  +inputState: ?InputState,
 |};
 class KeyboardInputHost extends React.PureComponent<Props> {
   static propTypes = {
@@ -108,17 +105,27 @@ class KeyboardInputHost extends React.PureComponent<Props> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   kbInitialProps: {
     backgroundColor: 'listBackground',
   },
 };
-const stylesSelector = styleSelector(styles);
 
-export default connect((state: AppState) => ({
-  styles: stylesSelector(state),
-}))(
-  connectNav((context: ?NavContextType) => ({
-    activeMessageList: activeMessageListSelector(context),
-  }))(withKeyboardState(withInputState(KeyboardInputHost))),
-);
+export default React.memo<BaseProps>(function ConnectedKeyboardInputHost(
+  props: BaseProps,
+) {
+  const inputState = React.useContext(InputStateContext);
+  const keyboardState = React.useContext(KeyboardContext);
+  const navContext = React.useContext(NavContext);
+  const styles = useStyles(unboundStyles);
+  const activeMessageList = activeMessageListSelector(navContext);
+  return (
+    <KeyboardInputHost
+      {...props}
+      styles={styles}
+      activeMessageList={activeMessageList}
+      keyboardState={keyboardState}
+      inputState={inputState}
+    />
+  );
+});
