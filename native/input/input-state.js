@@ -65,32 +65,9 @@ const inputStatePropType = PropTypes.shape({
 
 const InputStateContext = React.createContext<?InputState>(null);
 
-function withInputState<
-  AllProps: {},
-  ComponentType: React.ComponentType<AllProps>,
->(
-  Component: ComponentType,
-): React.ComponentType<
-  $Diff<React.ElementConfig<ComponentType>, { inputState: ?InputState }>,
-> {
-  class InputStateHOC extends React.PureComponent<
-    $Diff<React.ElementConfig<ComponentType>, { inputState: ?InputState }>,
-  > {
-    render() {
-      return (
-        <InputStateContext.Consumer>
-          {value => <Component {...this.props} inputState={value} />}
-        </InputStateContext.Consumer>
-      );
-    }
-  }
-  return InputStateHOC;
-}
-
 export {
   messagePendingUploadsPropType,
   pendingMultimediaUploadPropType,
   inputStatePropType,
   InputStateContext,
-  withInputState,
 };
