@@ -4,9 +4,19 @@ import {
   type ChatThreadItem,
   chatThreadItemPropType,
 } from 'lib/selectors/chat-selectors';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { useServerCall } from 'lib/utils/action-utils';
-import { setThreadUnreadStatus } from 'lib/actions/thread-actions';
+import type {
+  SetThreadUnreadStatusPayload,
+  SetThreadUnreadStatusRequest,
+  ThreadInfo,
+} from 'lib/types/thread-types';
+import {
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils';
+import {
+  setThreadUnreadStatus,
+  setThreadUnreadStatusActionTypes,
+} from 'lib/actions/thread-actions';
 
 import * as React from 'react';
 import { Text, View } from 'react-native';
@@ -41,7 +51,12 @@ function ChatThreadListItem({
   const navigation = useNavigation();
   const styles = useStyles(unboundStyles);
   const colors = useColors();
-  const updateUnreadStatus = useServerCall(setThreadUnreadStatus);
+  const updateUnreadStatus: (
+    request: SetThreadUnreadStatusRequest,
+  ) => Promise<SetThreadUnreadStatusPayload> = useServerCall(
+    setThreadUnreadStatus,
+  );
+  const dispatchActionPromise = useDispatchActionPromise();
 
   React.useEffect(() => {
     return navigation.addListener('blur', () => {
@@ -101,14 +116,22 @@ function ChatThreadListItem({
   const swipeableActions = useMemo(() => {
     const isUnread = data.threadInfo.currentUser.unread;
     const toggleUnreadStatus = () => {
-      const request = {
-        threadID: data.threadInfo.id,
-        unread: !isUnread,
-      };
-      if (isUnread) {
-        request.latestMessage = mostRecentMessageId;
-      }
-      updateUnreadStatus(request);
+      const request = isUnread
+        ? {
+            unread: false,
+            threadID: data.threadInfo.id,
+            latestMessage: mostRecentMessageId,
+          }
+        : { unread: true, threadID: data.threadInfo.id };
+      dispatchActionPromise(
+        setThreadUnreadStatusActionTypes,
+        updateUnreadStatus(request),
+        undefined,
+        {
+          threadID: data.threadInfo.id,
+          unread: !isUnread,
+        },
+      );
       if (swipeable.current) {
         swipeable.current.close();
       }
@@ -126,7 +149,13 @@ function ChatThreadListItem({
         ),
       },
     ];
-  }, [colors, data.threadInfo, mostRecentMessageId, updateUnreadStatus]);
+  }, [
+    colors,
+    data.threadInfo,
+    mostRecentMessageId,
+    updateUnreadStatus,
+    dispatchActionPromise,
+  ]);
 
   return (
     <>
