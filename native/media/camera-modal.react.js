@@ -1,12 +1,10 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
 import type { PhotoCapture } from 'lib/types/media-types';
 import {
   type DimensionsInfo,
   dimensionsInfoPropType,
 } from '../redux/dimensions-updater.react';
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
 import { updateDeviceCameraInfoActionType } from '../redux/action-types';
 import {
   type DeviceCameraInfo,
@@ -16,12 +14,13 @@ import type { Orientations } from 'react-native-orientation-locker';
 import {
   type InputState,
   inputStatePropType,
-  withInputState,
+  InputStateContext,
 } from '../input/input-state';
 import type { ViewStyle } from '../types/styles';
 import type { NativeMethodsMixinType } from '../types/react-native';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { NavigationRoute } from '../navigation/route-names';
+import type { Dispatch } from 'lib/types/redux-types';
 
 import * as React from 'react';
 import {
@@ -48,8 +47,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Orientation from 'react-native-orientation-locker';
 import invariant from 'invariant';
 import filesystem from 'react-native-fs';
+import { useSelector, useDispatch } from 'react-redux';
 
-import { connect } from 'lib/utils/redux-utils';
 import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils';
 
 import ConnectedStatusBar from '../connected-status-bar.react';
@@ -58,7 +57,7 @@ import ContentLoading from '../components/content-loading.react';
 import { colors } from '../themes/colors';
 import SendMediaButton from './send-media-button.react';
 import {
-  withOverlayContext,
+  OverlayContext,
   type OverlayContextType,
   overlayContextPropType,
 } from '../navigation/overlay-context';
@@ -236,29 +235,36 @@ type TouchableOpacityInstance = React.AbstractComponent<
   NativeMethodsMixinType,
 >;
 
-type Props = {
-  navigation: AppNavigationProp<'CameraModal'>,
-  route: NavigationRoute<'CameraModal'>,
+type BaseProps = {|
+  +navigation: AppNavigationProp<'CameraModal'>,
+  +route: NavigationRoute<'CameraModal'>,
+|};
+type Props = {|
+  ...BaseProps,
   // Redux state
-  dimensions: DimensionsInfo,
-  deviceCameraInfo: DeviceCameraInfo,
-  deviceOrientation: Orientations,
-  foreground: boolean,
+  +dimensions: DimensionsInfo,
+  +deviceCameraInfo: DeviceCameraInfo,
+  +deviceOrientation: Orientations,
+  +foreground: boolean,
   // Redux dispatch functions
-  dispatchActionPayload: DispatchActionPayload,
+  +dispatch: Dispatch,
   // withInputState
-  inputState: ?InputState,
+  +inputState: ?InputState,
   // withOverlayContext
-  overlayContext: ?OverlayContextType,
-};
+  +overlayContext: ?OverlayContextType,
+|};
 type State = {|
-  zoom: number,
-  useFrontCamera: boolean,
-  hasCamerasOnBothSides: boolean,
-  flashMode: number,
-  autoFocusPointOfInterest: ?{| x: number, y: number, autoExposure?: boolean |},
-  stagingMode: boolean,
-  pendingPhotoCapture: ?PhotoCapture,
+  +zoom: number,
+  +useFrontCamera: boolean,
+  +hasCamerasOnBothSides: boolean,
+  +flashMode: number,
+  +autoFocusPointOfInterest: ?{|
+    x: number,
+    y: number,
+    autoExposure?: boolean,
+  |},
+  +stagingMode: boolean,
+  +pendingPhotoCapture: ?PhotoCapture,
 |};
 class CameraModal extends React.PureComponent<Props, State> {
   static propTypes = {
@@ -274,7 +280,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     deviceCameraInfo: deviceCameraInfoPropType.isRequired,
     deviceOrientation: PropTypes.string.isRequired,
     foreground: PropTypes.bool.isRequired,
-    dispatchActionPayload: PropTypes.func.isRequired,
+    dispatch: PropTypes.func.isRequired,
     inputState: inputStatePropType,
     overlayContext: overlayContextPropType,
   };
@@ -1057,9 +1063,9 @@ class CameraModal extends React.PureComponent<Props, State> {
       hasCamerasOnBothSides !== oldHasCamerasOnBothSides ||
       defaultUseFrontCamera !== oldDefaultUseFrontCamera
     ) {
-      this.props.dispatchActionPayload(updateDeviceCameraInfoActionType, {
-        hasCamerasOnBothSides,
-        defaultUseFrontCamera,
+      this.props.dispatch({
+        type: updateDeviceCameraInfoActionType,
+        payload: { hasCamerasOnBothSides, defaultUseFrontCamera },
       });
     }
   };
@@ -1201,13 +1207,26 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect(
-  (state: AppState) => ({
-    dimensions: state.dimensions,
-    deviceCameraInfo: state.deviceCameraInfo,
-    deviceOrientation: state.deviceOrientation,
-    foreground: state.foreground,
-  }),
-  null,
-  true,
-)(withOverlayContext(withInputState(CameraModal)));
+export default React.memo<BaseProps>(function ConnectedCameraModal(
+  props: BaseProps,
+) {
+  const dimensions = useSelector(state => state.dimensions);
+  const deviceCameraInfo = useSelector(state => state.deviceCameraInfo);
+  const deviceOrientation = useSelector(state => state.deviceOrientation);
+  const foreground = useSelector(state => state.foreground);
+  const overlayContext = React.useContext(OverlayContext);
+  const inputState = React.useContext(InputStateContext);
+  const dispatch = useDispatch();
+  return (
+    <CameraModal
+      {...props}
+      dimensions={dimensions}
+      deviceCameraInfo={deviceCameraInfo}
+      deviceOrientation={deviceOrientation}
+      foreground={foreground}
+      dispatch={dispatch}
+      overlayContext={overlayContext}
+      inputState={inputState}
+    />
+  );
+});
