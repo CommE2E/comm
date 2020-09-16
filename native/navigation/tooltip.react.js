@@ -6,19 +6,12 @@ import {
   type LayoutCoordinates,
   layoutCoordinatesPropType,
 } from '../types/layout-types';
-import type { AppState } from '../redux/redux-setup';
 import {
   type DimensionsInfo,
   dimensionsInfoPropType,
 } from '../redux/dimensions-updater.react';
-import type { ViewStyle } from '../types/styles';
-import type { TooltipEntry } from './tooltip-item.react';
+import type { ViewStyle, TextStyle } from '../types/styles';
 import type { Dispatch } from 'lib/types/redux-types';
-import type {
-  DispatchActionPayload,
-  DispatchActionPromise,
-  ActionFunc,
-} from 'lib/utils/action-utils';
 import type { LayoutEvent } from '../types/react-native';
 import type { AppNavigationProp } from './app-navigator.react';
 import type { TooltipModalParamList } from './route-names';
@@ -26,7 +19,7 @@ import type { LeafRoute } from '@react-navigation/native';
 import {
   type InputState,
   inputStatePropType,
-  withInputState,
+  InputStateContext,
 } from '../input/input-state';
 
 import * as React from 'react';
@@ -36,87 +29,134 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   Platform,
+  TouchableOpacity,
+  Text,
+  ViewPropTypes,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
+import { useSelector, useDispatch } from 'react-redux';
 
 import {
   type ServerCallState,
   serverCallStatePropType,
   serverCallStateSelector,
 } from 'lib/selectors/server-calls';
-import { connect } from 'lib/utils/redux-utils';
-import { createBoundServerCallsSelector } from 'lib/utils/action-utils';
-
-import TooltipItem from './tooltip-item.react';
 import {
-  withOverlayContext,
+  createBoundServerCallsSelector,
+  useDispatchActionPromise,
+  type DispatchActionPromise,
+  type ActionFunc,
+  type DispatchFunctions,
+  type BoundServerCall,
+} from 'lib/utils/action-utils';
+
+import {
+  OverlayContext,
   type OverlayContextType,
   overlayContextPropType,
 } from './overlay-context';
+import { SingleLine } from '../components/single-line.react';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Value, Extrapolate, add, multiply, interpolate } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
-type TooltipSpec<Entry> = {|
-  entries: $ReadOnlyArray<Entry>,
-  labelStyle?: ViewStyle,
+type InternalTooltipEntry<RouteParams> = {|
+  +id: string,
+  +text: string,
+  +onPress: (
+    props: RouteParams,
+    dispatchFunctions: DispatchFunctions,
+    bindServerCall: (serverCall: ActionFunc) => BoundServerCall,
+    inputState: ?InputState,
+  ) => mixed,
 |};
-
-type TooltipCommonProps = {
-  presentedFrom: string,
-  initialCoordinates: LayoutCoordinates,
-  verticalBounds: VerticalBounds,
-  location?: 'above' | 'below',
-  margin?: number,
-  visibleEntryIDs?: $ReadOnlyArray<string>,
-};
+type TooltipItemProps<Entry> = {|
+  +spec: Entry,
+  +onPress: (entry: Entry) => void,
+  +containerStyle?: ViewStyle,
+  +labelStyle?: TextStyle,
+|};
+type TooltipSpec<Entry> = {|
+  +entries: $ReadOnlyArray<Entry>,
+  +labelStyle?: ViewStyle,
+|};
 
 export type TooltipParams<CustomProps> = {|
-  ...$Exact<CustomProps>,
-  ...$Exact<TooltipCommonProps>,
+  ...CustomProps,
+  +presentedFrom: string,
+  +initialCoordinates: LayoutCoordinates,
+  +verticalBounds: VerticalBounds,
+  +location?: 'above' | 'below',
+  +margin?: number,
+  +visibleEntryIDs?: $ReadOnlyArray<string>,
 |};
-
-export type TooltipRoute<
+export type TooltipEntry<
   RouteName: $Keys<TooltipModalParamList>,
-  Params = $ElementType<TooltipModalParamList, RouteName>,
-> = {|
+> = InternalTooltipEntry<$ElementType<TooltipModalParamList, RouteName>>;
+export type TooltipRoute<RouteName: $Keys<TooltipModalParamList>> = {|
   ...LeafRoute<RouteName>,
-  +params: Params,
+  +params: $ElementType<TooltipModalParamList, RouteName>,
 |};
 
-type ButtonProps<Navigation, Route> = {
-  navigation: Navigation,
-  route: Route,
-  progress: Value,
-};
-
-type TooltipProps<Navigation, Route> = {
-  navigation: Navigation,
-  route: Route,
+type BaseTooltipProps<RouteName> = {|
+  +navigation: AppNavigationProp<RouteName>,
+  +route: TooltipRoute<RouteName>,
+|};
+type ButtonProps<RouteName> = {|
+  ...BaseTooltipProps<RouteName>,
+  +progress: Value,
+|};
+type TooltipProps<RouteName> = {|
+  ...BaseTooltipProps<RouteName>,
   // Redux state
-  dimensions: DimensionsInfo,
-  serverCallState: ServerCallState,
+  +dimensions: DimensionsInfo,
+  +serverCallState: ServerCallState,
   // Redux dispatch functions
-  dispatch: Dispatch,
-  dispatchActionPayload: DispatchActionPayload,
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatch: Dispatch,
+  +dispatchActionPromise: DispatchActionPromise,
   // withOverlayContext
-  overlayContext: ?OverlayContextType,
+  +overlayContext: ?OverlayContextType,
   // withInputState
-  inputState: ?InputState,
-};
+  +inputState: ?InputState,
+|};
 function createTooltip<
   RouteName: $Keys<TooltipModalParamList>,
-  Navigation: AppNavigationProp<RouteName>,
-  Params: TooltipCommonProps,
-  Route: TooltipRoute<RouteName, Params>,
-  Entry: TooltipEntry<Params>,
-  TooltipPropsType: TooltipProps<Navigation, Route>,
-  ButtonComponentType: React.ComponentType<ButtonProps<Navigation, Route>>,
->(ButtonComponent: ButtonComponentType, tooltipSpec: TooltipSpec<Entry>) {
-  class Tooltip extends React.PureComponent<TooltipPropsType> {
+  Entry: InternalTooltipEntry<$ElementType<TooltipModalParamList, RouteName>>,
+>(
+  ButtonComponent: React.ComponentType<ButtonProps<RouteName>>,
+  tooltipSpec: TooltipSpec<Entry>,
+): React.ComponentType<BaseTooltipProps<RouteName>> {
+  class TooltipItem extends React.PureComponent<TooltipItemProps<Entry>> {
+    static propTypes = {
+      spec: PropTypes.shape({
+        text: PropTypes.string.isRequired,
+        onPress: PropTypes.func.isRequired,
+      }).isRequired,
+      onPress: PropTypes.func.isRequired,
+      containerStyle: ViewPropTypes.style,
+      labelStyle: Text.propTypes.style,
+    };
+
+    render() {
+      return (
+        <TouchableOpacity
+          onPress={this.onPress}
+          style={[styles.itemContainer, this.props.containerStyle]}
+        >
+          <SingleLine style={[styles.label, this.props.labelStyle]}>
+            {this.props.spec.text}
+          </SingleLine>
+        </TouchableOpacity>
+      );
+    }
+
+    onPress = () => {
+      this.props.onPress(this.props.spec);
+    };
+  }
+  class Tooltip extends React.PureComponent<TooltipProps<RouteName>> {
     static propTypes = {
       navigation: PropTypes.shape({
         goBackOnce: PropTypes.func.isRequired,
@@ -133,7 +173,6 @@ function createTooltip<
       dimensions: dimensionsInfoPropType.isRequired,
       serverCallState: serverCallStatePropType.isRequired,
       dispatch: PropTypes.func.isRequired,
-      dispatchActionPayload: PropTypes.func.isRequired,
       dispatchActionPromise: PropTypes.func.isRequired,
       overlayContext: overlayContextPropType,
       inputState: inputStatePropType,
@@ -145,7 +184,7 @@ function createTooltip<
     tooltipHorizontalOffset = new Value(0);
     tooltipHorizontal: Value;
 
-    constructor(props: TooltipPropsType) {
+    constructor(props: TooltipProps<RouteName>) {
       super(props);
 
       const { overlayContext } = props;
@@ -181,7 +220,7 @@ function createTooltip<
       );
     }
 
-    get entries() {
+    get entries(): $ReadOnlyArray<Entry> {
       const { entries } = tooltipSpec;
       const { visibleEntryIDs } = this.props.route.params;
       if (!visibleEntryIDs) {
@@ -383,11 +422,10 @@ function createTooltip<
       this.props.navigation.goBackOnce();
       const dispatchFunctions = {
         dispatch: this.props.dispatch,
-        dispatchActionPayload: this.props.dispatchActionPayload,
         dispatchActionPromise: this.props.dispatchActionPromise,
       };
       entry.onPress(
-        this.props.route.params,
+        (this.props.route.params: any),
         dispatchFunctions,
         this.bindServerCall,
         this.props.inputState,
@@ -429,14 +467,27 @@ function createTooltip<
       }
     };
   }
-  return connect(
-    (state: AppState) => ({
-      dimensions: state.dimensions,
-      serverCallState: serverCallStateSelector(state),
-    }),
-    null,
-    true,
-  )(withOverlayContext(withInputState(Tooltip)));
+  return React.memo<BaseTooltipProps<RouteName>>(function ConnectedTooltip(
+    props: BaseTooltipProps<RouteName>,
+  ) {
+    const dimensions = useSelector(state => state.dimensions);
+    const serverCallState = useSelector(serverCallStateSelector);
+    const dispatch = useDispatch();
+    const dispatchActionPromise = useDispatchActionPromise();
+    const overlayContext = React.useContext(OverlayContext);
+    const inputState = React.useContext(InputStateContext);
+    return (
+      <Tooltip
+        {...props}
+        dimensions={dimensions}
+        serverCallState={serverCallState}
+        dispatch={dispatch}
+        dispatchActionPromise={dispatchActionPromise}
+        overlayContext={overlayContext}
+        inputState={inputState}
+      />
+    );
+  });
 }
 
 const styles = StyleSheet.create({
@@ -455,6 +506,9 @@ const styles = StyleSheet.create({
     flex: 1,
     overflow: 'hidden',
   },
+  itemContainer: {
+    padding: 10,
+  },
   itemMargin: {
     borderBottomColor: '#E1E1E1',
     borderBottomWidth: 1,
@@ -463,6 +517,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 5,
     overflow: 'hidden',
+  },
+  label: {
+    color: '#444',
+    fontSize: 14,
+    lineHeight: 17,
+    textAlign: 'center',
   },
   triangleDown: {
     borderBottomColor: 'transparent',

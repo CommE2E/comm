@@ -7,19 +7,18 @@ import {
   createTooltip,
   tooltipHeight,
   type TooltipParams,
+  type TooltipEntry,
 } from '../navigation/tooltip.react';
 import MultimediaTooltipButton from './multimedia-tooltip-button.react';
 import { intentionalSaveMedia } from '../media/save-media';
 
-type CustomProps = {
-  item: ChatMultimediaMessageInfoItem,
-  mediaInfo: MediaInfo,
-  verticalOffset: number,
-};
+export type MultimediaTooltipModalParams = TooltipParams<{|
+  +item: ChatMultimediaMessageInfoItem,
+  +mediaInfo: MediaInfo,
+  +verticalOffset: number,
+|}>;
 
-export type MultimediaTooltipModalParams = TooltipParams<CustomProps>;
-
-function onPressSave(props: CustomProps) {
+function onPressSave(props: MultimediaTooltipModalParams) {
   const { mediaInfo, item } = props;
   const { id: uploadID, uri } = mediaInfo;
   const { id: messageServerID, localID: messageLocalID } = item.messageInfo;
@@ -31,7 +30,10 @@ const spec = {
   entries: [{ id: 'save', text: 'Save', onPress: onPressSave }],
 };
 
-const MultimediaTooltipModal = createTooltip(MultimediaTooltipButton, spec);
+const MultimediaTooltipModal = createTooltip<
+  'MultimediaTooltipModal',
+  TooltipEntry<'MultimediaTooltipModal'>,
+>(MultimediaTooltipButton, spec);
 
 const multimediaTooltipHeight = tooltipHeight(spec.entries.length);
 

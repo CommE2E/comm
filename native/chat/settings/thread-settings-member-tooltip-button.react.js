@@ -9,7 +9,8 @@ import PropTypes from 'prop-types';
 import PencilIcon from '../../components/pencil-icon.react';
 
 type Props = {
-  navigation: AppNavigationProp<'ThreadSettingsMemberTooltipModal'>,
+  +navigation: AppNavigationProp<'ThreadSettingsMemberTooltipModal'>,
+  ...
 };
 class ThreadSettingsMemberTooltipButton extends React.PureComponent<Props> {
   static propTypes = {

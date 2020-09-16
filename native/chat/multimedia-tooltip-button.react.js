@@ -31,20 +31,18 @@ import { MessageHeader } from './message-header.react';
 const { Value } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
-type BaseProps = {
+type BaseProps = {|
   +navigation: AppNavigationProp<'MultimediaTooltipModal'>,
   +route: TooltipRoute<'MultimediaTooltipModal'>,
   +progress: Value,
-  ...
-};
-type Props = {
+|};
+type Props = {|
   ...BaseProps,
   // Redux state
   +windowWidth: number,
   // withInputState
   +inputState: ?InputState,
-  ...
-};
+|};
 class MultimediaTooltipButton extends React.PureComponent<Props> {
   static propTypes = {
     navigation: PropTypes.shape({

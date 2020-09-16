@@ -22,18 +22,17 @@ import { memberIsAdmin } from 'lib/shared/thread-utils';
 import {
   createTooltip,
   type TooltipParams,
+  type TooltipEntry,
 } from '../../navigation/tooltip.react';
 import ThreadSettingsMemberTooltipButton from './thread-settings-member-tooltip-button.react';
 
-type CustomProps = {
-  memberInfo: RelativeMemberInfo,
-  threadInfo: ThreadInfo,
-};
-
-export type ThreadSettingsMemberTooltipModalParams = TooltipParams<CustomProps>;
+export type ThreadSettingsMemberTooltipModalParams = TooltipParams<{|
+  +memberInfo: RelativeMemberInfo,
+  +threadInfo: ThreadInfo,
+|}>;
 
 function onRemoveUser(
-  props: CustomProps,
+  props: ThreadSettingsMemberTooltipModalParams,
   dispatchFunctions: DispatchFunctions,
   bindServerCall: (serverCall: ActionFunc) => BoundServerCall,
 ) {
@@ -61,7 +60,7 @@ function onRemoveUser(
 }
 
 function onToggleAdmin(
-  props: CustomProps,
+  props: ThreadSettingsMemberTooltipModalParams,
   dispatchFunctions: DispatchFunctions,
   bindServerCall: (serverCall: ActionFunc) => BoundServerCall,
 ) {
@@ -117,9 +116,9 @@ const spec = {
   ],
 };
 
-const ThreadSettingsMemberTooltipModal = createTooltip(
-  ThreadSettingsMemberTooltipButton,
-  spec,
-);
+const ThreadSettingsMemberTooltipModal = createTooltip<
+  'ThreadSettingsMemberTooltipModal',
+  TooltipEntry<'ThreadSettingsMemberTooltipModal'>,
+>(ThreadSettingsMemberTooltipButton, spec);
 
 export default ThreadSettingsMemberTooltipModal;

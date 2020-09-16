@@ -17,22 +17,25 @@ import {
   updateRelationships,
 } from 'lib/actions/relationship-actions';
 
-import { createTooltip, type TooltipParams } from '../navigation/tooltip.react';
+import {
+  createTooltip,
+  type TooltipParams,
+  type TooltipEntry,
+} from '../navigation/tooltip.react';
 import PencilIcon from '../components/pencil-icon.react';
 
 type Action = 'unfriend' | 'unblock';
 
-type CustomProps = {
-  relativeUserInfo: RelativeUserInfo,
-  action: Action,
-};
+export type RelationshipListItemTooltipModalParams = TooltipParams<{|
+  +relativeUserInfo: RelativeUserInfo,
+|}>;
 
-export type RelationshipListItemTooltipModalParams = TooltipParams<
-  $Diff<CustomProps, { action: Action }>,
->;
-
+type OnRemoveUserProps = {|
+  ...RelationshipListItemTooltipModalParams,
+  +action: Action,
+|};
 function onRemoveUser(
-  props: CustomProps,
+  props: OnRemoveUserProps,
   dispatchFunctions: DispatchFunctions,
   bindServerCall: (serverCall: ActionFunc) => BoundServerCall,
 ) {
@@ -95,7 +98,8 @@ const spec = {
 };
 
 type Props = {
-  navigation: AppNavigationProp<'RelationshipListItemTooltipModal'>,
+  +navigation: AppNavigationProp<'RelationshipListItemTooltipModal'>,
+  ...
 };
 class RelationshipListItemTooltipButton extends React.PureComponent<Props> {
   render() {
@@ -111,9 +115,9 @@ class RelationshipListItemTooltipButton extends React.PureComponent<Props> {
   };
 }
 
-const RelationshipListItemTooltipModal = createTooltip(
-  RelationshipListItemTooltipButton,
-  spec,
-);
+const RelationshipListItemTooltipModal = createTooltip<
+  'RelationshipListItemTooltipModal',
+  TooltipEntry<'RelationshipListItemTooltipModal'>,
+>(RelationshipListItemTooltipButton, spec);
 
 export default RelationshipListItemTooltipModal;

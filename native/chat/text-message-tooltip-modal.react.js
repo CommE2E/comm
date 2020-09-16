@@ -6,7 +6,7 @@ import type {
   ActionFunc,
   BoundServerCall,
 } from 'lib/utils/action-utils';
-import { type InputState } from '../input/input-state';
+import type { InputState } from '../input/input-state';
 
 import Clipboard from '@react-native-community/clipboard';
 import invariant from 'invariant';
@@ -17,25 +17,24 @@ import {
   createTooltip,
   tooltipHeight,
   type TooltipParams,
+  type TooltipEntry,
 } from '../navigation/tooltip.react';
 import TextMessageTooltipButton from './text-message-tooltip-button.react';
 import { displayActionResultModal } from '../navigation/action-result-modal';
 
-type CustomProps = {
-  item: ChatTextMessageInfoItemWithHeight,
-};
-
-export type TextMessageTooltipModalParams = TooltipParams<CustomProps>;
+export type TextMessageTooltipModalParams = TooltipParams<{|
+  +item: ChatTextMessageInfoItemWithHeight,
+|}>;
 
 const confirmCopy = () => displayActionResultModal('copied!');
 
-function onPressCopy(props: CustomProps) {
+function onPressCopy(props: TextMessageTooltipModalParams) {
   Clipboard.setString(props.item.messageInfo.text);
   setTimeout(confirmCopy);
 }
 
 function onPressReply(
-  props: CustomProps,
+  props: TextMessageTooltipModalParams,
   dispatchFunctions: DispatchFunctions,
   bindServerCall: (serverCall: ActionFunc) => BoundServerCall,
   inputState: ?InputState,
@@ -54,7 +53,10 @@ const spec = {
   ],
 };
 
-const TextMessageTooltipModal = createTooltip(TextMessageTooltipButton, spec);
+const TextMessageTooltipModal = createTooltip<
+  'TextMessageTooltipModal',
+  TooltipEntry<'TextMessageTooltipModal'>,
+>(TextMessageTooltipButton, spec);
 
 const textMessageTooltipHeight = tooltipHeight(spec.entries.length);
 

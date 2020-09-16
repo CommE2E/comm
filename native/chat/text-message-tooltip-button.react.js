@@ -22,13 +22,13 @@ import { MessageHeader } from './message-header.react';
 const { Value } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
-type Props = {
-  navigation: AppNavigationProp<'TextMessageTooltipModal'>,
-  route: TooltipRoute<'TextMessageTooltipModal'>,
-  progress: Value,
+type Props = {|
+  +navigation: AppNavigationProp<'TextMessageTooltipModal'>,
+  +route: TooltipRoute<'TextMessageTooltipModal'>,
+  +progress: Value,
   // Redux state
-  windowWidth: number,
-};
+  +windowWidth: number,
+|};
 class TextMessageTooltipButton extends React.PureComponent<Props> {
   static propTypes = {
     navigation: PropTypes.shape({
