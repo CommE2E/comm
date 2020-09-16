@@ -11,18 +11,21 @@ import RemoteImage from './remote-image.react';
 import {
   type InputState,
   inputStatePropType,
-  withInputState,
+  InputStateContext,
 } from '../input/input-state';
 
+type BaseProps = {|
+  +mediaInfo: MediaInfo,
+  +spinnerColor: string,
+|};
 type Props = {|
-  mediaInfo: MediaInfo,
-  spinnerColor: string,
+  ...BaseProps,
   // withInputState
-  inputState: ?InputState,
+  +inputState: ?InputState,
 |};
 type State = {|
-  currentURI: string,
-  departingURI: ?string,
+  +currentURI: string,
+  +departingURI: ?string,
 |};
 class Multimedia extends React.PureComponent<Props, State> {
   static propTypes = {
@@ -143,4 +146,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withInputState(Multimedia);
+export default React.memo<BaseProps>(function ConnectedMultimedia(
+  props: BaseProps,
+) {
+  const inputState = React.useContext(InputStateContext);
+  return <Multimedia {...props} inputState={inputState} />;
+});
