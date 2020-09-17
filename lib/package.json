@@ -8,6 +8,13 @@
     "clean": "rm -rf node_modules/"
   },
   "devDependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.10.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.11.0",
+    "@babel/plugin-proposal-optional-chaining": "^7.11.0",
+    "@babel/preset-flow": "^7.9.0",
+    "@babel/preset-react": "^7.9.1",
     "flow-bin": "^0.113.0",
     "flow-typed": "^3.2.1"
   },
