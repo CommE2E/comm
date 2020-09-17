@@ -30,7 +30,7 @@ const browserBabelRule = {
     ...babelRule.options,
     presets: [
       ...babelRule.options.presets,
-      [ '@babel/preset-env', { modules: false } ],
+      [ '@babel/preset-env', { targets: 'defaults' } ],
     ],
   },
 };
