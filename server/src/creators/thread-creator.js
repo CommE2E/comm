@@ -17,7 +17,7 @@ import { promiseAll } from 'lib/utils/promises';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 
 import { dbQuery, SQL } from '../database';
-import { checkThreadPermission } from '../fetchers/thread-fetchers';
+import { checkThreadPermission } from '../fetchers/thread-permission-fetchers';
 import createIDs from './id-creator';
 import { createInitialRolesForNewThread } from './role-creator';
 import { fetchKnownUserInfos } from '../fetchers/user-fetchers';

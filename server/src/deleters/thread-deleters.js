@@ -16,10 +16,10 @@ import { hasMinCodeVersion } from 'lib/shared/version-utils';
 
 import { dbQuery, SQL } from '../database';
 import {
-  fetchThreadPermissionsBlob,
   fetchThreadInfos,
   fetchServerThreadInfos,
 } from '../fetchers/thread-fetchers';
+import { fetchThreadPermissionsBlob } from '../fetchers/thread-permission-fetchers';
 import { rescindPushNotifs } from '../push/rescind';
 import { createUpdates } from '../creators/update-creator';
 import { fetchUpdateInfoForThreadDeletion } from '../fetchers/update-fetchers';

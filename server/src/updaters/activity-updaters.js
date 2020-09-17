@@ -19,7 +19,7 @@ import { rescindPushNotifs } from '../push/rescind';
 import { createUpdates } from '../creators/update-creator';
 import { deleteActivityForViewerSession } from '../deleters/activity-deleters';
 import { earliestFocusedTimeConsideredCurrent } from '../shared/focused-times';
-import { checkThreadPermissions } from '../fetchers/thread-fetchers';
+import { checkThreadPermissions } from '../fetchers/thread-permission-fetchers';
 
 async function activityUpdater(
   viewer: Viewer,

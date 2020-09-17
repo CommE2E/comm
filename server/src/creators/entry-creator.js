@@ -18,7 +18,7 @@ import { dbQuery, SQL } from '../database';
 import fetchOrCreateDayID from '../creators/day-creator';
 import createIDs from '../creators/id-creator';
 import createMessages from '../creators/message-creator';
-import { checkThreadPermission } from '../fetchers/thread-fetchers';
+import { checkThreadPermission } from '../fetchers/thread-permission-fetchers';
 import { createUpdateDatasForChangedEntryInfo } from '../updaters/entry-updaters';
 import { fetchEntryInfoForLocalID } from '../fetchers/entry-fetchers';
 import { fetchMessageInfoForEntryAction } from '../fetchers/message-fetchers';

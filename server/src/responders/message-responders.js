@@ -21,7 +21,7 @@ import { createMediaMessageData, trimMessage } from 'lib/shared/message-utils';
 
 import createMessages from '../creators/message-creator';
 import { validateInput, tShape } from '../utils/validation-utils';
-import { checkThreadPermission } from '../fetchers/thread-fetchers';
+import { checkThreadPermission } from '../fetchers/thread-permission-fetchers';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchMedia } from '../fetchers/upload-fetchers';
 import { assignMedia } from '../updaters/upload-updaters';

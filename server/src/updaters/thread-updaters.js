@@ -32,12 +32,12 @@ import {
   verifyUserOrCookieIDs,
   fetchKnownUserInfos,
 } from '../fetchers/user-fetchers';
+import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
 import {
   checkThreadPermission,
-  fetchServerThreadInfos,
   viewerIsMember,
   fetchThreadPermissionsBlob,
-} from '../fetchers/thread-fetchers';
+} from '../fetchers/thread-permission-fetchers';
 import {
   changeRole,
   recalculateAllPermissions,
