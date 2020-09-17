@@ -796,11 +796,11 @@ class Calendar extends React.PureComponent<Props, State> {
   scrollToKey(lastEntryKeyActive: string, keyboardHeight: number) {
     const data = this.state.listDataWithHeights;
     invariant(data, 'should be set');
-    const index = _findIndex(
+    const index = data.findIndex(
       (item: CalendarItemWithHeight) =>
         Calendar.keyExtractor(item) === lastEntryKeyActive,
-    )(data);
-    if (index === null || index === undefined) {
+    );
+    if (index === -1) {
       return;
     }
     const itemStart = Calendar.heightOfItems(data.filter((_, i) => i < index));
