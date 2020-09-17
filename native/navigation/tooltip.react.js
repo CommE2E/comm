@@ -62,24 +62,24 @@ import { SingleLine } from '../components/single-line.react';
 const { Value, Extrapolate, add, multiply, interpolate } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
-type InternalTooltipEntry<RouteParams> = {|
+export type TooltipEntry<RouteName: $Keys<TooltipModalParamList>> = {|
   +id: string,
   +text: string,
   +onPress: (
-    props: RouteParams,
+    route: TooltipRoute<RouteName>,
     dispatchFunctions: DispatchFunctions,
     bindServerCall: (serverCall: ActionFunc) => BoundServerCall,
     inputState: ?InputState,
   ) => mixed,
 |};
-type TooltipItemProps<Entry> = {|
-  +spec: Entry,
-  +onPress: (entry: Entry) => void,
+type TooltipItemProps<RouteName> = {|
+  +spec: TooltipEntry<RouteName>,
+  +onPress: (entry: TooltipEntry<RouteName>) => void,
   +containerStyle?: ViewStyle,
   +labelStyle?: TextStyle,
 |};
-type TooltipSpec<Entry> = {|
-  +entries: $ReadOnlyArray<Entry>,
+type TooltipSpec<RouteName> = {|
+  +entries: $ReadOnlyArray<TooltipEntry<RouteName>>,
   +labelStyle?: ViewStyle,
 |};
 
@@ -92,9 +92,6 @@ export type TooltipParams<CustomProps> = {|
   +margin?: number,
   +visibleEntryIDs?: $ReadOnlyArray<string>,
 |};
-export type TooltipEntry<
-  RouteName: $Keys<TooltipModalParamList>,
-> = InternalTooltipEntry<$ElementType<TooltipModalParamList, RouteName>>;
 export type TooltipRoute<RouteName: $Keys<TooltipModalParamList>> = {|
   ...LeafRoute<RouteName>,
   +params: $ElementType<TooltipModalParamList, RouteName>,
@@ -121,14 +118,11 @@ type TooltipProps<RouteName> = {|
   // withInputState
   +inputState: ?InputState,
 |};
-function createTooltip<
-  RouteName: $Keys<TooltipModalParamList>,
-  Entry: InternalTooltipEntry<$ElementType<TooltipModalParamList, RouteName>>,
->(
+function createTooltip<RouteName: $Keys<TooltipModalParamList>>(
   ButtonComponent: React.ComponentType<ButtonProps<RouteName>>,
-  tooltipSpec: TooltipSpec<Entry>,
+  tooltipSpec: TooltipSpec<RouteName>,
 ): React.ComponentType<BaseTooltipProps<RouteName>> {
-  class TooltipItem extends React.PureComponent<TooltipItemProps<Entry>> {
+  class TooltipItem extends React.PureComponent<TooltipItemProps<RouteName>> {
     static propTypes = {
       spec: PropTypes.shape({
         text: PropTypes.string.isRequired,
@@ -220,7 +214,7 @@ function createTooltip<
       );
     }
 
-    get entries(): $ReadOnlyArray<Entry> {
+    get entries(): $ReadOnlyArray<TooltipEntry<RouteName>> {
       const { entries } = tooltipSpec;
       const { visibleEntryIDs } = this.props.route.params;
       if (!visibleEntryIDs) {
@@ -418,14 +412,14 @@ function createTooltip<
       this.props.navigation.goBackOnce();
     };
 
-    onPressEntry = (entry: Entry) => {
+    onPressEntry = (entry: TooltipEntry<RouteName>) => {
       this.props.navigation.goBackOnce();
       const dispatchFunctions = {
         dispatch: this.props.dispatch,
         dispatchActionPromise: this.props.dispatchActionPromise,
       };
       entry.onPress(
-        (this.props.route.params: any),
+        this.props.route,
         dispatchFunctions,
         this.bindServerCall,
         this.props.inputState,

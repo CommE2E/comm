@@ -22,7 +22,7 @@ import { memberIsAdmin } from 'lib/shared/thread-utils';
 import {
   createTooltip,
   type TooltipParams,
-  type TooltipEntry,
+  type TooltipRoute,
 } from '../../navigation/tooltip.react';
 import ThreadSettingsMemberTooltipButton from './thread-settings-member-tooltip-button.react';
 
@@ -32,22 +32,22 @@ export type ThreadSettingsMemberTooltipModalParams = TooltipParams<{|
 |}>;
 
 function onRemoveUser(
-  props: ThreadSettingsMemberTooltipModalParams,
+  route: TooltipRoute<'ThreadSettingsMemberTooltipModal'>,
   dispatchFunctions: DispatchFunctions,
   bindServerCall: (serverCall: ActionFunc) => BoundServerCall,
 ) {
+  const { memberInfo, threadInfo } = route.params;
   const boundRemoveUsersFromThread = bindServerCall(removeUsersFromThread);
   const onConfirmRemoveUser = () => {
-    const customKeyName =
-      removeUsersFromThreadActionTypes.started + `:${props.memberInfo.id}`;
+    const customKeyName = `${removeUsersFromThreadActionTypes.started}:${memberInfo.id}`;
     dispatchFunctions.dispatchActionPromise(
       removeUsersFromThreadActionTypes,
-      boundRemoveUsersFromThread(props.threadInfo.id, [props.memberInfo.id]),
+      boundRemoveUsersFromThread(threadInfo.id, [memberInfo.id]),
       { customKeyName },
     );
   };
 
-  const userText = stringForUser(props.memberInfo);
+  const userText = stringForUser(memberInfo);
   Alert.alert(
     'Confirm removal',
     `Are you sure you want to remove ${userText} from this thread?`,
@@ -60,16 +60,17 @@ function onRemoveUser(
 }
 
 function onToggleAdmin(
-  props: ThreadSettingsMemberTooltipModalParams,
+  route: TooltipRoute<'ThreadSettingsMemberTooltipModal'>,
   dispatchFunctions: DispatchFunctions,
   bindServerCall: (serverCall: ActionFunc) => BoundServerCall,
 ) {
-  const isCurrentlyAdmin = memberIsAdmin(props.memberInfo, props.threadInfo);
+  const { memberInfo, threadInfo } = route.params;
+  const isCurrentlyAdmin = memberIsAdmin(memberInfo, threadInfo);
   const boundChangeThreadMemberRoles = bindServerCall(changeThreadMemberRoles);
   const onConfirmMakeAdmin = () => {
     let newRole = null;
-    for (let roleID in props.threadInfo.roles) {
-      const role = props.threadInfo.roles[roleID];
+    for (let roleID in threadInfo.roles) {
+      const role = threadInfo.roles[roleID];
       if (isCurrentlyAdmin && role.isDefault) {
         newRole = role.id;
         break;
@@ -80,20 +81,15 @@ function onToggleAdmin(
     }
     invariant(newRole !== null, 'Could not find new role');
 
-    const customKeyName =
-      changeThreadMemberRolesActionTypes.started + `:${props.memberInfo.id}`;
+    const customKeyName = `${changeThreadMemberRolesActionTypes.started}:${memberInfo.id}`;
     dispatchFunctions.dispatchActionPromise(
       changeThreadMemberRolesActionTypes,
-      boundChangeThreadMemberRoles(
-        props.threadInfo.id,
-        [props.memberInfo.id],
-        newRole,
-      ),
+      boundChangeThreadMemberRoles(threadInfo.id, [memberInfo.id], newRole),
       { customKeyName },
     );
   };
 
-  const userText = stringForUser(props.memberInfo);
+  const userText = stringForUser(memberInfo);
   const actionClause = isCurrentlyAdmin
     ? `remove ${userText} as an admin`
     : `make ${userText} an admin`;
@@ -118,7 +114,6 @@ const spec = {
 
 const ThreadSettingsMemberTooltipModal = createTooltip<
   'ThreadSettingsMemberTooltipModal',
-  TooltipEntry<'ThreadSettingsMemberTooltipModal'>,
 >(ThreadSettingsMemberTooltipButton, spec);
 
 export default ThreadSettingsMemberTooltipModal;

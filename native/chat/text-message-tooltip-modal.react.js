@@ -17,7 +17,7 @@ import {
   createTooltip,
   tooltipHeight,
   type TooltipParams,
-  type TooltipEntry,
+  type TooltipRoute,
 } from '../navigation/tooltip.react';
 import TextMessageTooltipButton from './text-message-tooltip-button.react';
 import { displayActionResultModal } from '../navigation/action-result-modal';
@@ -28,13 +28,13 @@ export type TextMessageTooltipModalParams = TooltipParams<{|
 
 const confirmCopy = () => displayActionResultModal('copied!');
 
-function onPressCopy(props: TextMessageTooltipModalParams) {
-  Clipboard.setString(props.item.messageInfo.text);
+function onPressCopy(route: TooltipRoute<'TextMessageTooltipModal'>) {
+  Clipboard.setString(route.params.item.messageInfo.text);
   setTimeout(confirmCopy);
 }
 
 function onPressReply(
-  props: TextMessageTooltipModalParams,
+  route: TooltipRoute<'TextMessageTooltipModal'>,
   dispatchFunctions: DispatchFunctions,
   bindServerCall: (serverCall: ActionFunc) => BoundServerCall,
   inputState: ?InputState,
@@ -43,7 +43,7 @@ function onPressReply(
     inputState,
     'inputState should be set in TextMessageTooltipModal.onPressReply',
   );
-  inputState.addReply(createMessageReply(props.item.messageInfo.text));
+  inputState.addReply(createMessageReply(route.params.item.messageInfo.text));
 }
 
 const spec = {
@@ -53,10 +53,10 @@ const spec = {
   ],
 };
 
-const TextMessageTooltipModal = createTooltip<
-  'TextMessageTooltipModal',
-  TooltipEntry<'TextMessageTooltipModal'>,
->(TextMessageTooltipButton, spec);
+const TextMessageTooltipModal = createTooltip<'TextMessageTooltipModal'>(
+  TextMessageTooltipButton,
+  spec,
+);
 
 const textMessageTooltipHeight = tooltipHeight(spec.entries.length);
 
