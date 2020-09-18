@@ -1,34 +1,48 @@
 // @flow
 
-import {
-  type AppState,
-  type NavInfo,
-  navInfoPropType,
-} from '../redux/redux-setup';
+import { type NavInfo, navInfoPropType } from '../redux/redux-setup';
+import type { Dispatch } from 'lib/types/redux-types';
 import {
   type ChatThreadItem,
   chatThreadItemPropType,
 } from 'lib/selectors/chat-selectors';
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import type {
+  SetThreadUnreadStatusPayload,
+  SetThreadUnreadStatusRequest,
+  ThreadInfo,
+} from 'lib/types/thread-types';
+import { setThreadUnreadStatus } from 'lib/actions/thread-actions';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { connect } from 'lib/utils/redux-utils';
+import {
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils';
 import { webChatListData } from '../selectors/chat-selectors';
 
 import ChatThreadListItem from './chat-thread-list-item.react';
 
+type BaseProps = {|
+  +filterThreads: (threadItem: ThreadInfo) => boolean,
+  +emptyItem?: React.ComponentType<{||}>,
+|};
 type Props = {|
-  filterThreads: (threadItem: ThreadInfo) => boolean,
-  emptyItem?: React.ComponentType<{||}>,
+  ...BaseProps,
   // Redux state
-  chatListData: $ReadOnlyArray<ChatThreadItem>,
-  navInfo: NavInfo,
-  timeZone: ?string,
+  +chatListData: $ReadOnlyArray<ChatThreadItem>,
+  +navInfo: NavInfo,
+  +timeZone: ?string,
   // Redux dispatch functions
-  dispatchActionPayload: DispatchActionPayload,
+  +dispatch: Dispatch,
+  +dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  +setThreadUnreadStatus: (
+    request: SetThreadUnreadStatusRequest,
+  ) => Promise<SetThreadUnreadStatusPayload>,
 |};
 class ChatThreadList extends React.PureComponent<Props> {
   static propTypes = {
@@ -37,7 +51,9 @@ class ChatThreadList extends React.PureComponent<Props> {
     chatListData: PropTypes.arrayOf(chatThreadItemPropType).isRequired,
     navInfo: navInfoPropType.isRequired,
     timeZone: PropTypes.string,
-    dispatchActionPayload: PropTypes.func.isRequired,
+    dispatch: PropTypes.func.isRequired,
+    dispatchActionPromise: PropTypes.func.isRequired,
+    setThreadUnreadStatus: PropTypes.func.isRequired,
   };
 
   render() {
@@ -49,7 +65,9 @@ class ChatThreadList extends React.PureComponent<Props> {
           active={item.threadInfo.id === this.props.navInfo.activeChatThreadID}
           navInfo={this.props.navInfo}
           timeZone={this.props.timeZone}
-          dispatchActionPayload={this.props.dispatchActionPayload}
+          dispatch={this.props.dispatch}
+          dispatchActionPromise={this.props.dispatchActionPromise}
+          setThreadUnreadStatus={this.props.setThreadUnreadStatus}
           key={item.threadInfo.id}
         />
       ));
@@ -63,12 +81,25 @@ class ChatThreadList extends React.PureComponent<Props> {
   }
 }
 
-export default connect(
-  (state: AppState) => ({
-    chatListData: webChatListData(state),
-    navInfo: state.navInfo,
-    timeZone: state.timeZone,
-  }),
-  null,
-  true,
-)(ChatThreadList);
+export default React.memo<BaseProps>(function ConnectedChatThreadList(
+  props: BaseProps,
+) {
+  const chatListData = useSelector(webChatListData);
+  const navInfo = useSelector(state => state.navInfo);
+  const timeZone = useSelector(state => state.timeZone);
+  const dispatch = useDispatch();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callSetThreadUnreadStatus = useServerCall(setThreadUnreadStatus);
+
+  return (
+    <ChatThreadList
+      {...props}
+      chatListData={chatListData}
+      navInfo={navInfo}
+      timeZone={timeZone}
+      dispatch={dispatch}
+      dispatchActionPromise={dispatchActionPromise}
+      setThreadUnreadStatus={callSetThreadUnreadStatus}
+    />
+  );
+});

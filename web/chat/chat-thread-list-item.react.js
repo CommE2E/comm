@@ -4,12 +4,18 @@ import {
   type ChatThreadItem,
   chatThreadItemPropType,
 } from 'lib/selectors/chat-selectors';
+import type { Dispatch } from 'lib/types/redux-types';
 import {
   type NavInfo,
   navInfoPropType,
   updateNavInfoActionType,
 } from '../redux/redux-setup';
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import { setThreadUnreadStatusActionTypes } from 'lib/actions/thread-actions';
+import type {
+  SetThreadUnreadStatusPayload,
+  SetThreadUnreadStatusRequest,
+} from 'lib/types/thread-types';
 
 import * as React from 'react';
 import classNames from 'classnames';
@@ -23,11 +29,15 @@ import css from './chat-thread-list.css';
 import MessagePreview from './message-preview.react';
 
 type Props = {|
-  item: ChatThreadItem,
-  active: boolean,
-  navInfo: NavInfo,
-  timeZone: ?string,
-  dispatchActionPayload: DispatchActionPayload,
+  +item: ChatThreadItem,
+  +active: boolean,
+  +navInfo: NavInfo,
+  +timeZone: ?string,
+  +dispatch: Dispatch,
+  +dispatchActionPromise: DispatchActionPromise,
+  +setThreadUnreadStatus: (
+    request: SetThreadUnreadStatusRequest,
+  ) => Promise<SetThreadUnreadStatusPayload>,
 |};
 type State = {|
   +menuVisible: boolean,
@@ -38,7 +48,9 @@ class ChatThreadListItem extends React.PureComponent<Props, State> {
     active: PropTypes.bool.isRequired,
     navInfo: navInfoPropType.isRequired,
     timeZone: PropTypes.string,
-    dispatchActionPayload: PropTypes.func.isRequired,
+    dispatch: PropTypes.func.isRequired,
+    dispatchActionPromise: PropTypes.func.isRequired,
+    setThreadUnreadStatus: PropTypes.func.isRequired,
   };
   state = {
     menuVisible: false,
@@ -83,7 +95,7 @@ class ChatThreadListItem extends React.PureComponent<Props, State> {
           >
             <ul>
               <li>
-                <button>
+                <button onClick={this.toggleUnreadStatus}>
                   {`Mark as ${
                     item.threadInfo.currentUser.unread ? 'read' : 'unread'
                   }`}
@@ -98,9 +110,12 @@ class ChatThreadListItem extends React.PureComponent<Props, State> {
 
   onClick = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.props.dispatchActionPayload(updateNavInfoActionType, {
-      ...this.props.navInfo,
-      activeChatThreadID: this.props.item.threadInfo.id,
+    this.props.dispatch({
+      type: updateNavInfoActionType,
+      payload: {
+        ...this.props.navInfo,
+        activeChatThreadID: this.props.item.threadInfo.id,
+      },
     });
   };
 
@@ -110,6 +125,31 @@ class ChatThreadListItem extends React.PureComponent<Props, State> {
 
   hideMenu = () => {
     this.setState({ menuVisible: false });
+  };
+
+  toggleUnreadStatus = () => {
+    const { threadInfo, mostRecentMessageInfo } = this.props.item;
+    const isUnread = threadInfo.currentUser.unread;
+    const request = isUnread
+      ? {
+          threadID: threadInfo.id,
+          unread: !isUnread,
+          latestMessage: mostRecentMessageInfo?.id ?? '0',
+        }
+      : {
+          threadID: threadInfo.id,
+          unread: !isUnread,
+        };
+    this.props.dispatchActionPromise(
+      setThreadUnreadStatusActionTypes,
+      this.props.setThreadUnreadStatus(request),
+      undefined,
+      {
+        threadID: threadInfo.id,
+        unread: !threadInfo.currentUser.unread,
+      },
+    );
+    this.hideMenu();
   };
 }
 
