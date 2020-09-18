@@ -17,6 +17,18 @@ const cssLoader = {
     },
   },
 };
+const cssExtractLoader = {
+  loader: MiniCssExtractPlugin.loader,
+  options: {
+    esModule: true,
+  },
+};
+const styleLoader = {
+  loader: 'style-loader',
+  options: {
+    esModule: true,
+  },
+};
 
 const babelRule = {
   test: /\.js$/,
@@ -122,14 +134,14 @@ module.exports = function(env) {
             test: /\.css$/,
             exclude: /node_modules\/.*\.css$/,
             use: [
-              'style-loader',
+              styleLoader,
               cssLoader,
             ],
           },
           {
             test: /node_modules\/.*\.css$/,
             use: [
-              'style-loader',
+              styleLoader,
               {
                 ...cssLoader,
                 options: {
@@ -193,9 +205,7 @@ module.exports = function(env) {
             test: /\.css$/,
             exclude: /node_modules\/.*\.css$/,
             use: [
-              {
-                loader: MiniCssExtractPlugin.loader,
-              },
+              cssExtractLoader,
               {
                 ...cssLoader,
                 options: {
@@ -208,9 +218,7 @@ module.exports = function(env) {
           {
             test: /node_modules\/.*\.css$/,
             use: [
-              {
-                loader: MiniCssExtractPlugin.loader,
-              },
+              cssExtractLoader,
               {
                 ...cssLoader,
                 options: {
