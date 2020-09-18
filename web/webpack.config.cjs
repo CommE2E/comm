@@ -30,7 +30,14 @@ const browserBabelRule = {
     ...babelRule.options,
     presets: [
       ...babelRule.options.presets,
-      [ '@babel/preset-env', { targets: 'defaults' } ],
+      [
+        '@babel/preset-env',
+        {
+          targets: 'defaults',
+          useBuiltIns: 'usage',
+          corejs: '3.6',
+        },
+      ],
     ],
   },
 };
