@@ -24,7 +24,6 @@ import invariant from 'invariant';
 
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
-import { permissionLookup } from 'lib/permissions/thread-permissions';
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import { updateTypes } from 'lib/types/update-types';
@@ -39,7 +38,7 @@ import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
 import {
   checkThreadPermission,
   viewerIsMember,
-  fetchThreadPermissionsBlob,
+  checkThread,
 } from '../fetchers/thread-permission-fetchers';
 import {
   changeRole,
@@ -311,13 +310,6 @@ async function updateThread(
   }
   const parentThreadID = request.changes.parentThreadID;
   if (parentThreadID !== undefined) {
-    if (parentThreadID !== null) {
-      validationPromises.canMoveThread = checkThreadPermission(
-        viewer,
-        parentThreadID,
-        threadPermissions.CREATE_SUBTHREADS,
-      );
-    }
     // TODO some sort of message when this changes
     sqlUpdate.parent_thread_id = parentThreadID;
   }
@@ -332,17 +324,17 @@ async function updateThread(
     request.changes.newMemberIDs && request.changes.newMemberIDs.length > 0
       ? [...request.changes.newMemberIDs]
       : null;
+
+  if (Object.keys(sqlUpdate).length === 0 && !newMemberIDs) {
+    throw new ServerError('invalid_parameters');
+  }
+
   if (newMemberIDs) {
     validationPromises.fetchNewMembers = fetchKnownUserInfos(
       viewer,
       newMemberIDs,
     );
   }
-
-  validationPromises.threadPermissionsBlob = fetchThreadPermissionsBlob(
-    viewer,
-    request.threadID,
-  );
 
   // Two unrelated purposes for this query:
   // - get hash for viewer password check (users table)
@@ -355,15 +347,46 @@ async function updateThread(
   `;
   validationPromises.validationQuery = dbQuery(validationQuery);
 
+  const checks = [];
+  if (sqlUpdate.name || sqlUpdate.description || sqlUpdate.color) {
+    checks.push({
+      check: 'permission',
+      permission: threadPermissions.EDIT_THREAD,
+    });
+  }
+  if (sqlUpdate.parent_thread_id !== undefined || sqlUpdate.type) {
+    checks.push({
+      check: 'permission',
+      permission: threadPermissions.EDIT_PERMISSIONS,
+    });
+  }
+  if (newMemberIDs) {
+    checks.push({
+      check: 'permission',
+      permission: threadPermissions.ADD_MEMBERS,
+    });
+  }
+  if (
+    sqlUpdate.parent_thread_id !== null &&
+    sqlUpdate.parent_thread_id !== undefined
+  ) {
+    checks.push({
+      check: 'permission',
+      permission: threadPermissions.CREATE_SUBTHREADS,
+    });
+  }
+
+  validationPromises.hasNecessaryPermissions = checkThread(
+    viewer,
+    request.threadID,
+    checks,
+  );
+
   const {
-    canMoveThread,
-    threadPermissionsBlob,
     fetchNewMembers,
     validationQuery: [validationResult],
+    hasNecessaryPermissions,
   } = await promiseAll(validationPromises);
-  if (canMoveThread === false) {
-    throw new ServerError('invalid_credentials');
-  }
   if (fetchNewMembers) {
     invariant(newMemberIDs, 'should be set');
     for (const newMemberID of newMemberIDs) {
@@ -373,47 +396,21 @@ async function updateThread(
     }
   }
 
-  if (Object.keys(sqlUpdate).length === 0 && !newMemberIDs) {
-    throw new ServerError('invalid_parameters');
-  }
-
   if (validationResult.length === 0 || validationResult[0].type === null) {
     throw new ServerError('internal_error');
   }
   const validationRow = validationResult[0];
 
-  if (sqlUpdate.name || sqlUpdate.description || sqlUpdate.color) {
-    const canEditThread = permissionLookup(
-      threadPermissionsBlob,
-      threadPermissions.EDIT_THREAD,
-    );
-    if (!canEditThread) {
-      throw new ServerError('invalid_credentials');
-    }
+  if (!hasNecessaryPermissions) {
+    throw new ServerError('invalid_credentials');
   }
-  if (sqlUpdate.parent_thread_id || sqlUpdate.type) {
-    const canEditPermissions = permissionLookup(
-      threadPermissionsBlob,
-      threadPermissions.EDIT_PERMISSIONS,
-    );
-    if (!canEditPermissions) {
-      throw new ServerError('invalid_credentials');
-    }
-    if (
-      !request.accountPassword ||
-      !bcrypt.compareSync(request.accountPassword, validationRow.hash)
-    ) {
-      throw new ServerError('invalid_credentials');
-    }
-  }
-  if (newMemberIDs) {
-    const canAddMembers = permissionLookup(
-      threadPermissionsBlob,
-      threadPermissions.ADD_MEMBERS,
-    );
-    if (!canAddMembers) {
-      throw new ServerError('invalid_credentials');
-    }
+
+  if (
+    (sqlUpdate.parent_thread_id !== undefined || sqlUpdate.type) &&
+    (!request.accountPassword ||
+      !bcrypt.compareSync(request.accountPassword, validationRow.hash))
+  ) {
+    throw new ServerError('invalid_credentials');
   }
 
   const oldThreadType = assertThreadType(validationRow.type);
@@ -638,8 +635,16 @@ async function setThreadUnreadStatus(
     throw new ServerError('not_logged_in');
   }
 
-  const isMember = await viewerIsMember(viewer, request.threadID);
-  if (!isMember) {
+  const isMemberAndCanViewThread = await checkThread(viewer, request.threadID, [
+    {
+      check: 'is_member',
+    },
+    {
+      check: 'permission',
+      permission: threadPermissions.VISIBLE,
+    },
+  ]);
+  if (!isMemberAndCanViewThread) {
     throw new ServerError('invalid_parameters');
   }
 

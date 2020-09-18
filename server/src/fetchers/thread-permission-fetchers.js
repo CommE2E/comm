@@ -29,66 +29,73 @@ async function fetchThreadPermissionsBlob(
   return row.permissions;
 }
 
-async function checkThreadPermission(
+function checkThreadPermission(
   viewer: Viewer,
   threadID: string,
   permission: ThreadPermission,
 ): Promise<boolean> {
-  const permissionsBlob = await fetchThreadPermissionsBlob(viewer, threadID);
-  return permissionLookup(permissionsBlob, permission);
+  return checkThread(viewer, threadID, [{ check: 'permission', permission }]);
 }
 
-async function checkThreadPermissions(
+function viewerIsMember(viewer: Viewer, threadID: string): Promise<boolean> {
+  return checkThread(viewer, threadID, [{ check: 'is_member' }]);
+}
+
+type Check =
+  | {| +check: 'is_member' |}
+  | {| +check: 'permission', +permission: ThreadPermission |};
+
+function isThreadValid(
+  permissions: ?ThreadPermissionsBlob,
+  role: number,
+  checks: $ReadOnlyArray<Check>,
+): boolean {
+  for (const check of checks) {
+    if (check.check === 'is_member') {
+      if (role <= 0) {
+        return false;
+      }
+    } else if (check.check === 'permission') {
+      if (!permissionLookup(permissions, check.permission)) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+async function checkThreads(
   viewer: Viewer,
   threadIDs: $ReadOnlyArray<string>,
-  permission: ThreadPermission,
-): Promise<{ [threadID: string]: boolean }> {
-  const viewerID = viewer.id;
+  checks: $ReadOnlyArray<Check>,
+): Promise<Set<string>> {
   const query = SQL`
-    SELECT thread, permissions
-    FROM memberships
-    WHERE thread IN (${threadIDs}) AND user = ${viewerID}
+      SELECT thread, permissions, role
+      FROM memberships
+      WHERE thread IN (${threadIDs}) AND user = ${viewer.userID}
   `;
   const [result] = await dbQuery(query);
 
-  const permissionsBlobs = new Map();
-  for (let row of result) {
-    const threadID = row.thread.toString();
-    permissionsBlobs.set(threadID, row.permissions);
-  }
-
-  const permissionByThread = {};
-  for (let threadID of threadIDs) {
-    const permissionsBlob = permissionsBlobs.get(threadID);
-    permissionByThread[threadID] = permissionLookup(
-      permissionsBlob,
-      permission,
-    );
-  }
-  return permissionByThread;
+  return new Set(
+    result
+      .filter(row => isThreadValid(row.permissions, row.role, checks))
+      .map(row => row.thread.toString()),
+  );
 }
 
-async function viewerIsMember(
+async function checkThread(
   viewer: Viewer,
   threadID: string,
+  checks: $ReadOnlyArray<Check>,
 ): Promise<boolean> {
-  const viewerID = viewer.id;
-  const query = SQL`
-    SELECT role
-    FROM memberships
-    WHERE user = ${viewerID} AND thread = ${threadID}
-  `;
-  const [result] = await dbQuery(query);
-  if (result.length === 0) {
-    return false;
-  }
-  const row = result[0];
-  return row.role > 0;
+  const validThreads = await checkThreads(viewer, [threadID], checks);
+  return validThreads.has(threadID);
 }
 
 export {
   fetchThreadPermissionsBlob,
   checkThreadPermission,
-  checkThreadPermissions,
   viewerIsMember,
+  checkThreads,
+  checkThread,
 };

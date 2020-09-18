@@ -19,7 +19,7 @@ import { rescindPushNotifs } from '../push/rescind';
 import { createUpdates } from '../creators/update-creator';
 import { deleteActivityForViewerSession } from '../deleters/activity-deleters';
 import { earliestFocusedTimeConsideredCurrent } from '../shared/focused-times';
-import { checkThreadPermissions } from '../fetchers/thread-permission-fetchers';
+import { checkThreads } from '../fetchers/thread-permission-fetchers';
 
 async function activityUpdater(
   viewer: Viewer,
@@ -42,39 +42,28 @@ async function activityUpdater(
     updatesForThreadID.push(activityUpdate);
   }
 
-  const permissionResults = await checkThreadPermissions(
+  const viewerMemberThreads = await checkThreads(
     viewer,
     [...unverifiedThreadIDs],
-    threadPermissions.VISIBLE,
+    [
+      {
+        check: 'is_member',
+      },
+      {
+        check: 'permission',
+        permission: threadPermissions.VISIBLE,
+      },
+    ],
   );
-  const verifiedThreadIDs = Object.keys(permissionResults).filter(
-    key => permissionResults[key],
-  );
-  if (verifiedThreadIDs.length === 0) {
+
+  if (viewerMemberThreads.size === 0) {
     return { unfocusedToUnread: [] };
   }
-
-  const viewerMemberThreadsPromise = (async () => {
-    const membershipQuery = SQL`
-      SELECT thread
-      FROM memberships
-      WHERE role > 0
-        AND thread IN (${verifiedThreadIDs})
-        AND user = ${viewer.userID}
-    `;
-    const [membershipResult] = await dbQuery(membershipQuery);
-    const viewerMemberThreads = new Set();
-    for (let row of membershipResult) {
-      const threadID = row.thread.toString();
-      viewerMemberThreads.add(threadID);
-    }
-    return viewerMemberThreads;
-  })();
 
   const currentlyFocused = [];
   const unfocusedLatestMessages = new Map();
   const rescindConditions = [];
-  for (let threadID of verifiedThreadIDs) {
+  for (let threadID of viewerMemberThreads) {
     const focusUpdates = focusUpdatesByThreadID.get(threadID);
     invariant(focusUpdates, `no focusUpdate for thread ID ${threadID}`);
 
@@ -102,10 +91,10 @@ async function activityUpdater(
 
   const focusUpdatePromise = updateFocusedRows(viewer, currentlyFocused);
 
-  const [viewerMemberThreads, unfocusedToUnread] = await Promise.all([
-    viewerMemberThreadsPromise,
-    determineUnfocusedThreadsReadStatus(viewer, unfocusedLatestMessages),
-  ]);
+  const unfocusedToUnread = await determineUnfocusedThreadsReadStatus(
+    viewer,
+    unfocusedLatestMessages,
+  );
 
   const setToRead = [...currentlyFocused];
   const setToUnread = [];
