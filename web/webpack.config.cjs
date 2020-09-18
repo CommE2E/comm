@@ -241,7 +241,10 @@ module.exports = function(env) {
             ...cssLoader,
             options: {
               ...cssLoader.options,
-              onlyLocals: true,
+              modules: {
+                ...cssLoader.options.modules,
+                exportOnlyLocals: true,
+              }
             },
           },
         },
