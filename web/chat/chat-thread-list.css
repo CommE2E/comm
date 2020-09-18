@@ -70,7 +70,7 @@ div.italic {
 .menu > button:hover {
   background-color: #DDDDDD;
 }
-.icon {
+.menu > button svg {
   font-size: 26px;
 }
 

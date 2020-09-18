@@ -74,7 +74,7 @@ class ChatThreadListItem extends React.PureComponent<Props, State> {
         </a>
         <div className={css.menu} onMouseLeave={this.hideMenu}>
           <button onClick={this.toggleMenu}>
-            <FontAwesomeIcon icon={faEllipsisV} className={css.icon} />
+            <FontAwesomeIcon icon={faEllipsisV} />
           </button>
           <div
             className={classNames(css.menuContent, {
@@ -83,13 +83,11 @@ class ChatThreadListItem extends React.PureComponent<Props, State> {
           >
             <ul>
               <li>
-                <button>Mark as unread</button>
-              </li>
-              <li>
-                <button>Mark as unread</button>
-              </li>
-              <li>
-                <button>Mark as unread</button>
+                <button>
+                  {`Mark as ${
+                    item.threadInfo.currentUser.unread ? 'read' : 'unread'
+                  }`}
+                </button>
               </li>
             </ul>
           </div>
