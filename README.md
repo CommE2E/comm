@@ -1,11 +1,9 @@
 ## SquadCal
 
 SquadCal is the working name of this open source messaging project. The goal is to create a chat app that:
-1. Is oriented around helping people spend time together,
-2. Can scale chat threads to dozens or even hundreds of users,
-3. Helps people manage and maintain their relationships over time,
-4. Is end-to-end encrypted, and
-5. Supports extensive personalization/customization of chat threads.
+1. Is oriented around social planning,
+2. Can support large communities, and
+3. Is end-to-end encrypted.
 
 ## Repo structure
 
