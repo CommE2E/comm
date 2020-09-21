@@ -296,7 +296,8 @@ async function updateDescendantPermissions(
         permissionsFromParent,
       ] of usersToPermissionsFromParent) {
         const userInfo = userInfos.get(userID);
-        const role = userInfo ? userInfo.role : '0';
+        const role =
+          userInfo && Number(userInfo.role) > 0 ? userInfo.role : '0';
         const rolePermissions = userInfo ? userInfo.rolePermissions : null;
         const oldPermissions = userInfo ? userInfo.permissions : null;
         const oldPermissionsForChildren = userInfo
