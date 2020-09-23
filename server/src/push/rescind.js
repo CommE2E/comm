@@ -3,7 +3,7 @@
 import { threadPermissions } from 'lib/types/thread-types';
 import { threadSubscriptions } from 'lib/types/subscription-types';
 
-import apn from 'apn';
+import apn from '@parse/node-apn';
 import invariant from 'invariant';
 
 import { promiseAll } from 'lib/utils/promises';

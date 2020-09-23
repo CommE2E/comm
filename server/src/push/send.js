@@ -10,7 +10,7 @@ import type { DeviceType } from 'lib/types/device-types';
 import type { CollapsableNotifInfo } from '../fetchers/message-fetchers';
 import { updateTypes } from 'lib/types/update-types';
 
-import apn from 'apn';
+import apn from '@parse/node-apn';
 import invariant from 'invariant';
 import uuidv4 from 'uuid/v4';
 import _flow from 'lodash/fp/flow';
