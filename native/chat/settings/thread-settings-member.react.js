@@ -7,7 +7,6 @@ import {
   threadPermissions,
   relativeMemberInfoPropType,
 } from 'lib/types/thread-types';
-import type { AppState } from '../../redux/redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import {
@@ -27,10 +26,10 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
+import { useSelector } from 'react-redux';
 
 import { threadHasPermission, memberIsAdmin } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
-import { connect } from 'lib/utils/redux-utils';
 import {
   removeUsersFromThreadActionTypes,
   changeThreadMemberRolesActionTypes,
@@ -41,38 +40,41 @@ import PencilIcon from '../../components/pencil-icon.react';
 import {
   type Colors,
   colorsPropType,
-  colorsSelector,
-  styleSelector,
+  useColors,
+  useStyles,
 } from '../../themes/colors';
 import {
   type KeyboardState,
   keyboardStatePropType,
-  withKeyboardState,
+  KeyboardContext,
 } from '../../keyboard/keyboard-state';
 import {
-  withOverlayContext,
+  OverlayContext,
   type OverlayContextType,
   overlayContextPropType,
 } from '../../navigation/overlay-context';
 import { SingleLine } from '../../components/single-line.react';
 
+type BaseProps = {|
+  +memberInfo: RelativeMemberInfo,
+  +threadInfo: ThreadInfo,
+  +canEdit: boolean,
+  +navigate: ThreadSettingsNavigate,
+  +lastListItem: boolean,
+  +verticalBounds: ?VerticalBounds,
+  +threadSettingsRouteKey: string,
+|};
 type Props = {|
-  memberInfo: RelativeMemberInfo,
-  threadInfo: ThreadInfo,
-  canEdit: boolean,
-  navigate: ThreadSettingsNavigate,
-  lastListItem: boolean,
-  verticalBounds: ?VerticalBounds,
-  threadSettingsRouteKey: string,
+  ...BaseProps,
   // Redux state
-  removeUserLoadingStatus: LoadingStatus,
-  changeRoleLoadingStatus: LoadingStatus,
-  colors: Colors,
-  styles: typeof styles,
+  +removeUserLoadingStatus: LoadingStatus,
+  +changeRoleLoadingStatus: LoadingStatus,
+  +colors: Colors,
+  +styles: typeof unboundStyles,
   // withKeyboardState
-  keyboardState: ?KeyboardState,
+  +keyboardState: ?KeyboardState,
   // withOverlayContext
-  overlayContext: ?OverlayContextType,
+  +overlayContext: ?OverlayContextType,
 |};
 class ThreadSettingsMember extends React.PureComponent<Props> {
   static propTypes = {
@@ -262,7 +264,7 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   anonymous: {
     color: 'panelForegroundTertiaryLabel',
     fontStyle: 'italic',
@@ -303,19 +305,37 @@ const styles = {
     lineHeight: 20,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-export default connect(
-  (state: AppState, ownProps: { memberInfo: RelativeMemberInfo }) => ({
-    removeUserLoadingStatus: createLoadingStatusSelector(
+export default React.memo<BaseProps>(function ConnectedThreadSettingsMember(
+  props: BaseProps,
+) {
+  const memberID = props.memberInfo.id;
+  const removeUserLoadingStatus = useSelector(state =>
+    createLoadingStatusSelector(
       removeUsersFromThreadActionTypes,
-      `${removeUsersFromThreadActionTypes.started}:${ownProps.memberInfo.id}`,
+      `${removeUsersFromThreadActionTypes.started}:${memberID}`,
     )(state),
-    changeRoleLoadingStatus: createLoadingStatusSelector(
+  );
+  const changeRoleLoadingStatus = useSelector(state =>
+    createLoadingStatusSelector(
       changeThreadMemberRolesActionTypes,
-      `${changeThreadMemberRolesActionTypes.started}:${ownProps.memberInfo.id}`,
+      `${changeThreadMemberRolesActionTypes.started}:${memberID}`,
     )(state),
-    colors: colorsSelector(state),
-    styles: stylesSelector(state),
-  }),
-)(withKeyboardState(withOverlayContext(ThreadSettingsMember)));
+  );
+
+  const colors = useColors();
+  const styles = useStyles(unboundStyles);
+  const keyboardState = React.useContext(KeyboardContext);
+  const overlayContext = React.useContext(OverlayContext);
+  return (
+    <ThreadSettingsMember
+      {...props}
+      removeUserLoadingStatus={removeUserLoadingStatus}
+      changeRoleLoadingStatus={changeRoleLoadingStatus}
+      colors={colors}
+      styles={styles}
+      keyboardState={keyboardState}
+      overlayContext={overlayContext}
+    />
+  );
+});
