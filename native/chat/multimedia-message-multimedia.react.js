@@ -19,7 +19,6 @@ import {
   messageListRoutePropType,
   messageListNavPropType,
 } from './message-list-types';
-import type { AppState } from '../redux/redux-setup';
 import type { ChatNavigationProp } from './chat.react';
 import type { NavigationRoute } from '../navigation/route-names';
 
@@ -31,18 +30,17 @@ import invariant from 'invariant';
 
 import { messageKey } from 'lib/shared/message-utils';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
-import { connect } from 'lib/utils/redux-utils';
 
 import InlineMultimedia from './inline-multimedia.react';
 import { multimediaTooltipHeight } from './multimedia-tooltip-modal.react';
-import { type Colors, colorsPropType, colorsSelector } from '../themes/colors';
+import { type Colors, colorsPropType, useColors } from '../themes/colors';
 import {
   type KeyboardState,
   keyboardStatePropType,
-  withKeyboardState,
+  KeyboardContext,
 } from '../keyboard/keyboard-state';
 import {
-  withOverlayContext,
+  OverlayContext,
   type OverlayContextType,
   overlayContextPropType,
 } from '../navigation/overlay-context';
@@ -51,27 +49,30 @@ import {
 const { Value, sub, interpolate, Extrapolate } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
+type BaseProps = {|
+  +mediaInfo: MediaInfo,
+  +item: ChatMultimediaMessageInfoItem,
+  +navigation: ChatNavigationProp<'MessageList'>,
+  +route: NavigationRoute<'MessageList'>,
+  +verticalBounds: ?VerticalBounds,
+  +verticalOffset: number,
+  +style: ImageStyle,
+  +postInProgress: boolean,
+  +pendingUpload: ?PendingMultimediaUpload,
+  +messageFocused: boolean,
+  +toggleMessageFocus: (messageKey: string) => void,
+|};
 type Props = {|
-  mediaInfo: MediaInfo,
-  item: ChatMultimediaMessageInfoItem,
-  navigation: ChatNavigationProp<'MessageList'>,
-  route: NavigationRoute<'MessageList'>,
-  verticalBounds: ?VerticalBounds,
-  verticalOffset: number,
-  style: ImageStyle,
-  postInProgress: boolean,
-  pendingUpload: ?PendingMultimediaUpload,
-  messageFocused: boolean,
-  toggleMessageFocus: (messageKey: string) => void,
+  ...BaseProps,
   // Redux state
-  colors: Colors,
+  +colors: Colors,
   // withKeyboardState
-  keyboardState: ?KeyboardState,
+  +keyboardState: ?KeyboardState,
   // withOverlayContext
-  overlayContext: ?OverlayContextType,
+  +overlayContext: ?OverlayContextType,
 |};
 type State = {|
-  opacity: number | Value,
+  +opacity: number | Value,
 |};
 class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   static propTypes = {
@@ -318,6 +319,18 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect((state: AppState) => ({
-  colors: colorsSelector(state),
-}))(withOverlayContext(withKeyboardState(MultimediaMessageMultimedia)));
+export default React.memo<BaseProps>(
+  function ConnectedMultimediaMessageMultimedia(props: BaseProps) {
+    const colors = useColors();
+    const keyboardState = React.useContext(KeyboardContext);
+    const overlayContext = React.useContext(OverlayContext);
+    return (
+      <MultimediaMessageMultimedia
+        {...props}
+        colors={colors}
+        keyboardState={keyboardState}
+        overlayContext={overlayContext}
+      />
+    );
+  },
+);
