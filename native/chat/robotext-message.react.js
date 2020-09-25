@@ -1,21 +1,12 @@
 // @flow
 
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
-import type { AppState } from '../redux/redux-setup';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import type { RobotextMessageInfo } from 'lib/types/message-types';
-import {
-  type KeyboardState,
-  keyboardStatePropType,
-  withKeyboardState,
-} from '../keyboard/keyboard-state';
-import { messageListNavPropType } from './message-list-types';
+import { KeyboardContext } from '../keyboard/keyboard-state';
 import type { ChatNavigationProp } from './chat.react';
-import { type GlobalTheme, globalThemePropType } from '../types/themes';
 
 import * as React from 'react';
 import { Text, TouchableWithoutFeedback, View } from 'react-native';
-import PropTypes from 'prop-types';
 import invariant from 'invariant';
 
 import {
@@ -25,11 +16,11 @@ import {
   robotextToRawString,
 } from 'lib/shared/message-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
-import { connect } from 'lib/utils/redux-utils';
+import { useSelector } from 'react-redux';
 
 import { MessageListRouteName } from '../navigation/route-names';
 import { Timestamp } from './timestamp.react';
-import { styleSelector } from '../themes/colors';
+import { useStyles } from '../themes/colors';
 import Markdown from '../markdown/markdown.react';
 import { inlineMarkdownRules } from '../markdown/rules.react';
 
@@ -53,184 +44,141 @@ function robotextMessageItemHeight(
 
 function dummyNodeForRobotextMessageHeightMeasurement(robotext: string) {
   return (
-    <View style={styles.robotextContainer}>
-      <Text style={styles.dummyRobotext}>{robotextToRawString(robotext)}</Text>
+    <View style={unboundStyles.robotextContainer}>
+      <Text style={unboundStyles.dummyRobotext}>
+        {robotextToRawString(robotext)}
+      </Text>
     </View>
   );
 }
 
 type Props = {|
   ...React.ElementConfig<typeof View>,
-  item: ChatRobotextMessageInfoItemWithHeight,
-  navigation: ChatNavigationProp<'MessageList'>,
-  focused: boolean,
-  toggleFocus: (messageKey: string) => void,
-  // withKeyboardState
-  keyboardState: ?KeyboardState,
-  // Redux state
-  styles: typeof styles,
-  activeTheme: ?GlobalTheme,
+  +item: ChatRobotextMessageInfoItemWithHeight,
+  +navigation: ChatNavigationProp<'MessageList'>,
+  +focused: boolean,
+  +toggleFocus: (messageKey: string) => void,
 |};
-class RobotextMessage extends React.PureComponent<Props> {
-  static propTypes = {
-    item: chatMessageItemPropType.isRequired,
-    navigation: messageListNavPropType.isRequired,
-    focused: PropTypes.bool.isRequired,
-    toggleFocus: PropTypes.func.isRequired,
-    keyboardState: keyboardStatePropType,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    activeTheme: globalThemePropType,
-  };
+function RobotextMessage(props: Props) {
+  const { item, navigation, focused, toggleFocus, ...viewProps } = props;
 
-  render() {
-    const {
-      item,
-      navigation,
-      focused,
-      toggleFocus,
-      keyboardState,
-      styles,
-      activeTheme,
-      ...viewProps
-    } = this.props;
-    let timestamp = null;
-    if (focused || item.startsConversation) {
-      timestamp = (
-        <Timestamp time={item.messageInfo.time} display="lowContrast" />
+  const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
+  const styles = useStyles(unboundStyles);
+
+  let timestamp = null;
+  if (focused || item.startsConversation) {
+    timestamp = (
+      <Timestamp time={item.messageInfo.time} display="lowContrast" />
+    );
+  }
+
+  const robotext = item.robotext;
+  const robotextParts = splitRobotext(robotext);
+  const textParts = [];
+  let keyIndex = 0;
+  for (let splitPart of robotextParts) {
+    if (splitPart === '') {
+      continue;
+    }
+    if (splitPart.charAt(0) !== '<') {
+      const darkColor = activeTheme === 'dark';
+      const key = `text${keyIndex++}`;
+      textParts.push(
+        <Markdown
+          style={styles.robotext}
+          key={key}
+          useDarkStyle={darkColor}
+          rules={inlineMarkdownRules}
+        >
+          {decodeURI(splitPart)}
+        </Markdown>,
       );
+      continue;
     }
-    return (
-      <View {...viewProps}>
-        {timestamp}
-        <TouchableWithoutFeedback onPress={this.onPress}>
-          {this.linkedRobotext()}
-        </TouchableWithoutFeedback>
-      </View>
-    );
+
+    const { rawText, entityType, id } = parseRobotextEntity(splitPart);
+
+    if (entityType === 't' && id !== item.messageInfo.threadID) {
+      textParts.push(
+        <ThreadEntity
+          key={id}
+          id={id}
+          name={rawText}
+          navigation={navigation}
+        />,
+      );
+    } else if (entityType === 'c') {
+      textParts.push(<ColorEntity key={id} color={rawText} />);
+    } else {
+      textParts.push(rawText);
+    }
   }
 
-  linkedRobotext() {
-    const { item, navigation } = this.props;
-    const robotext = item.robotext;
-    const robotextParts = splitRobotext(robotext);
-    const textParts = [];
-    let keyIndex = 0;
-    for (let splitPart of robotextParts) {
-      if (splitPart === '') {
-        continue;
-      }
-      if (splitPart.charAt(0) !== '<') {
-        const darkColor = this.props.activeTheme === 'dark';
-        const key = `text${keyIndex++}`;
-        textParts.push(
-          <Markdown
-            style={this.props.styles.robotext}
-            key={key}
-            useDarkStyle={darkColor}
-            rules={inlineMarkdownRules}
-          >
-            {decodeURI(splitPart)}
-          </Markdown>,
-        );
-        continue;
-      }
-
-      const { rawText, entityType, id } = parseRobotextEntity(splitPart);
-
-      if (entityType === 't' && id !== this.props.item.messageInfo.threadID) {
-        textParts.push(
-          <ThreadEntity
-            key={id}
-            id={id}
-            name={rawText}
-            navigation={navigation}
-          />,
-        );
-      } else if (entityType === 'c') {
-        textParts.push(<ColorEntity key={id} color={rawText} />);
-      } else {
-        textParts.push(rawText);
-      }
-    }
-
-    const viewStyle = [this.props.styles.robotextContainer];
-    if (!__DEV__) {
-      // We don't force view height in dev mode because we
-      // want to measure it in Message to see if it's correct
-      viewStyle.push({ height: item.contentHeight });
-    }
-
-    return (
-      <View style={viewStyle}>
-        <Text style={this.props.styles.robotext}>{textParts}</Text>
-      </View>
-    );
+  const viewStyle = [styles.robotextContainer];
+  if (!__DEV__) {
+    // We don't force view height in dev mode because we
+    // want to measure it in Message to see if it's correct
+    viewStyle.push({ height: item.contentHeight });
   }
 
-  onPress = () => {
-    const { keyboardState } = this.props;
-    const didDismiss =
-      keyboardState && keyboardState.dismissKeyboardIfShowing();
+  const keyboardState = React.useContext(KeyboardContext);
+  const didDismiss = keyboardState && keyboardState.dismissKeyboardIfShowing();
+  const key = messageKey(item.messageInfo);
+  const onPress = React.useCallback(() => {
     if (!didDismiss) {
-      this.props.toggleFocus(messageKey(this.props.item.messageInfo));
+      toggleFocus(key);
     }
-  };
+  }, [didDismiss, toggleFocus, key]);
+
+  return (
+    <View {...viewProps}>
+      {timestamp}
+      <TouchableWithoutFeedback onPress={onPress}>
+        <View style={viewStyle}>
+          <Text style={styles.robotext}>{textParts}</Text>
+        </View>
+      </TouchableWithoutFeedback>
+    </View>
+  );
 }
 
-const WrappedRobotextMessage = connect((state: AppState) => ({
-  styles: stylesSelector(state),
-  activeTheme: state.globalThemeInfo.activeTheme,
-}))(withKeyboardState(RobotextMessage));
+type ThreadEntityProps = {|
+  +id: string,
+  +name: string,
+  +navigation: ChatNavigationProp<'MessageList'>,
+|};
+function ThreadEntity(props: ThreadEntityProps) {
+  const threadID = props.id;
+  const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
 
-type InnerThreadEntityProps = {
-  id: string,
-  name: string,
-  navigation: ChatNavigationProp<'MessageList'>,
-  // Redux state
-  threadInfo: ?ThreadInfo,
-  styles: typeof styles,
-};
-class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
-  static propTypes = {
-    id: PropTypes.string.isRequired,
-    name: PropTypes.string.isRequired,
-    navigation: messageListNavPropType.isRequired,
-    threadInfo: threadInfoPropType,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-  };
+  const styles = useStyles(unboundStyles);
 
-  render() {
-    if (!this.props.threadInfo) {
-      return <Text>{this.props.name}</Text>;
-    }
-    return (
-      <Text style={this.props.styles.link} onPress={this.onPressThread}>
-        {this.props.name}
-      </Text>
-    );
-  }
-
-  onPressThread = () => {
-    const { threadInfo, navigation } = this.props;
+  const { navigate } = props.navigation;
+  const onPressThread = React.useCallback(() => {
     invariant(threadInfo, 'onPressThread should have threadInfo');
-    navigation.navigate({
+    navigate({
       name: MessageListRouteName,
       params: { threadInfo },
       key: `${MessageListRouteName}${threadInfo.id}`,
     });
-  };
-}
-const ThreadEntity = connect((state: AppState, ownProps: { id: string }) => ({
-  threadInfo: threadInfoSelector(state)[ownProps.id],
-  styles: stylesSelector(state),
-}))(InnerThreadEntity);
+  }, [threadInfo, navigate]);
 
-function ColorEntity(props: {| color: string |}) {
+  if (!threadInfo) {
+    return <Text>{props.name}</Text>;
+  }
+  return (
+    <Text style={styles.link} onPress={onPressThread}>
+      {props.name}
+    </Text>
+  );
+}
+
+function ColorEntity(props: {| +color: string |}) {
   const colorStyle = { color: props.color };
   return <Text style={colorStyle}>{props.color}</Text>;
 }
 
-const styles = {
+const unboundStyles = {
   link: {
     color: 'link',
   },
@@ -251,10 +199,9 @@ const styles = {
     textAlign: 'center',
   },
 };
-const stylesSelector = styleSelector(styles);
 
 export {
   robotextMessageItemHeight,
   dummyNodeForRobotextMessageHeightMeasurement,
-  WrappedRobotextMessage as RobotextMessage,
+  RobotextMessage,
 };
