@@ -27,29 +27,4 @@ const keyboardStatePropType = PropTypes.shape({
 
 const KeyboardContext = React.createContext<?KeyboardState>(null);
 
-function withKeyboardState<
-  AllProps: {},
-  ComponentType: React.ComponentType<AllProps>,
->(
-  Component: ComponentType,
-): React.ComponentType<
-  $Diff<React.ElementConfig<ComponentType>, { keyboardState: ?KeyboardState }>,
-> {
-  class KeyboardStateHOC extends React.PureComponent<
-    $Diff<
-      React.ElementConfig<ComponentType>,
-      { keyboardState: ?KeyboardState },
-    >,
-  > {
-    render() {
-      return (
-        <KeyboardContext.Consumer>
-          {value => <Component {...this.props} keyboardState={value} />}
-        </KeyboardContext.Consumer>
-      );
-    }
-  }
-  return KeyboardStateHOC;
-}
-
-export { keyboardStatePropType, KeyboardContext, withKeyboardState };
+export { keyboardStatePropType, KeyboardContext };
