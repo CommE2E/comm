@@ -1,11 +1,9 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { ViewToken } from '../types/react-native';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { ChatMessageItemWithHeight } from './message-list-container.react';
 import type { VerticalBounds } from '../types/layout-types';
 import {
@@ -21,9 +19,9 @@ import { View, TouchableWithoutFeedback } from 'react-native';
 import _find from 'lodash/fp/find';
 import { createSelector } from 'reselect';
 import invariant from 'invariant';
+import { useSelector } from 'react-redux';
 
 import { messageKey } from 'lib/shared/message-utils';
-import { connect } from 'lib/utils/redux-utils';
 import {
   fetchMessagesBeforeCursorActionTypes,
   fetchMessagesBeforeCursor,
@@ -33,55 +31,63 @@ import {
 import threadWatcher from 'lib/shared/thread-watcher';
 import { threadInChatList } from 'lib/shared/thread-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
+import {
+  type DispatchActionPromise,
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import { Message, type ChatMessageInfoItemWithHeight } from './message.react';
 import ListLoadingIndicator from '../components/list-loading-indicator.react';
 import {
-  styleSelector,
+  useStyles,
   type IndicatorStyle,
   indicatorStylePropType,
-  indicatorStyleSelector,
+  useIndicatorStyle,
 } from '../themes/colors';
 import {
-  withOverlayContext,
+  OverlayContext,
   type OverlayContextType,
   overlayContextPropType,
 } from '../navigation/overlay-context';
 import {
   type KeyboardState,
   keyboardStatePropType,
-  withKeyboardState,
+  KeyboardContext,
 } from '../keyboard/keyboard-state';
 import { ChatList } from './chat-list.react';
 
+type BaseProps = {|
+  +threadInfo: ThreadInfo,
+  +messageListData: $ReadOnlyArray<ChatMessageItemWithHeight>,
+  +navigation: ChatNavigationProp<'MessageList'>,
+  +route: NavigationRoute<'MessageList'>,
+|};
 type Props = {|
-  threadInfo: ThreadInfo,
-  messageListData: $ReadOnlyArray<ChatMessageItemWithHeight>,
-  navigation: ChatNavigationProp<'MessageList'>,
-  route: NavigationRoute<'MessageList'>,
+  ...BaseProps,
   // Redux state
-  startReached: boolean,
-  styles: typeof styles,
-  indicatorStyle: IndicatorStyle,
+  +startReached: boolean,
+  +styles: typeof unboundStyles,
+  +indicatorStyle: IndicatorStyle,
   // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  fetchMessagesBeforeCursor: (
+  +fetchMessagesBeforeCursor: (
     threadID: string,
     beforeMessageID: string,
   ) => Promise<FetchMessageInfosPayload>,
-  fetchMostRecentMessages: (
+  +fetchMostRecentMessages: (
     threadID: string,
   ) => Promise<FetchMessageInfosPayload>,
   // withOverlayContext
-  overlayContext: ?OverlayContextType,
+  +overlayContext: ?OverlayContextType,
   // withKeyboardState
-  keyboardState: ?KeyboardState,
+  +keyboardState: ?KeyboardState,
 |};
 type State = {|
-  focusedMessageKey: ?string,
-  messageListVerticalBounds: ?VerticalBounds,
-  loadingFromScroll: boolean,
+  +focusedMessageKey: ?string,
+  +messageListVerticalBounds: ?VerticalBounds,
+  +loadingFromScroll: boolean,
 |};
 type PropsAndState = {|
   ...Props,
@@ -350,7 +356,7 @@ class MessageList extends React.PureComponent<Props, State> {
   }
 }
 
-const styles = {
+const unboundStyles = {
   container: {
     backgroundColor: 'listBackground',
     flex: 1,
@@ -362,22 +368,45 @@ const styles = {
     flex: 1,
   },
 };
-const stylesSelector = styleSelector(styles);
 
 registerFetchKey(fetchMessagesBeforeCursorActionTypes);
 registerFetchKey(fetchMostRecentMessagesActionTypes);
 
-export default connect(
-  (state: AppState, ownProps: { threadInfo: ThreadInfo }) => {
-    const threadID = ownProps.threadInfo.id;
-    return {
-      startReached: !!(
+export default React.memo<BaseProps>(function ConnectedMessageList(
+  props: BaseProps,
+) {
+  const keyboardState = React.useContext(KeyboardContext);
+  const overlayContext = React.useContext(OverlayContext);
+
+  const threadID = props.threadInfo.id;
+  const startReached = useSelector(
+    state =>
+      !!(
         state.messageStore.threads[threadID] &&
         state.messageStore.threads[threadID].startReached
       ),
-      styles: stylesSelector(state),
-      indicatorStyle: indicatorStyleSelector(state),
-    };
-  },
-  { fetchMessagesBeforeCursor, fetchMostRecentMessages },
-)(withKeyboardState(withOverlayContext(MessageList)));
+  );
+
+  const styles = useStyles(unboundStyles);
+  const indicatorStyle = useIndicatorStyle();
+
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callFetchMessagesBeforeCursor = useServerCall(
+    fetchMessagesBeforeCursor,
+  );
+  const callFetchMostRecentMessages = useServerCall(fetchMostRecentMessages);
+
+  return (
+    <MessageList
+      {...props}
+      startReached={startReached}
+      styles={styles}
+      indicatorStyle={indicatorStyle}
+      dispatchActionPromise={dispatchActionPromise}
+      fetchMessagesBeforeCursor={callFetchMessagesBeforeCursor}
+      fetchMostRecentMessages={callFetchMostRecentMessages}
+      overlayContext={overlayContext}
+      keyboardState={keyboardState}
+    />
+  );
+});
