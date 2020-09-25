@@ -15,7 +15,7 @@ import {
 import {
   type KeyboardState,
   keyboardStatePropType,
-  withKeyboardState,
+  KeyboardContext,
 } from '../keyboard/keyboard-state';
 import type { ChatNavigationProp } from './chat.react';
 import type { NavigationRoute } from '../navigation/route-names';
@@ -62,15 +62,18 @@ function messageItemHeight(item: ChatMessageInfoItemWithHeight) {
   return height;
 }
 
+type BaseProps = {|
+  +item: ChatMessageInfoItemWithHeight,
+  +focused: boolean,
+  +navigation: ChatNavigationProp<'MessageList'>,
+  +route: NavigationRoute<'MessageList'>,
+  +toggleFocus: (messageKey: string) => void,
+  +verticalBounds: ?VerticalBounds,
+|};
 type Props = {|
-  item: ChatMessageInfoItemWithHeight,
-  focused: boolean,
-  navigation: ChatNavigationProp<'MessageList'>,
-  route: NavigationRoute<'MessageList'>,
-  toggleFocus: (messageKey: string) => void,
-  verticalBounds: ?VerticalBounds,
+  ...BaseProps,
   // withKeyboardState
-  keyboardState: ?KeyboardState,
+  +keyboardState: ?KeyboardState,
 |};
 class Message extends React.PureComponent<Props> {
   static propTypes = {
@@ -170,6 +173,11 @@ class Message extends React.PureComponent<Props> {
   };
 }
 
-const WrappedMessage = withKeyboardState(Message);
+const ConnectedMessage = React.memo<BaseProps>(function ConnectedMessage(
+  props: BaseProps,
+) {
+  const keyboardState = React.useContext(KeyboardContext);
+  return <Message {...props} keyboardState={keyboardState} />;
+});
 
-export { WrappedMessage as Message, messageItemHeight };
+export { ConnectedMessage as Message, messageItemHeight };
