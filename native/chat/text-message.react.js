@@ -34,10 +34,10 @@ import textMessageSendFailed from './text-message-send-failed';
 import {
   type KeyboardState,
   keyboardStatePropType,
-  withKeyboardState,
+  KeyboardContext,
 } from '../keyboard/keyboard-state';
 import {
-  withOverlayContext,
+  OverlayContext,
   type OverlayContextType,
   overlayContextPropType,
 } from '../navigation/overlay-context';
@@ -70,18 +70,21 @@ function textMessageItemHeight(item: ChatTextMessageInfoItemWithHeight) {
   return height;
 }
 
-type Props = {|
+type BaseProps = {|
   ...React.ElementConfig<typeof View>,
-  item: ChatTextMessageInfoItemWithHeight,
-  navigation: ChatNavigationProp<'MessageList'>,
-  route: NavigationRoute<'MessageList'>,
-  focused: boolean,
-  toggleFocus: (messageKey: string) => void,
-  verticalBounds: ?VerticalBounds,
+  +item: ChatTextMessageInfoItemWithHeight,
+  +navigation: ChatNavigationProp<'MessageList'>,
+  +route: NavigationRoute<'MessageList'>,
+  +focused: boolean,
+  +toggleFocus: (messageKey: string) => void,
+  +verticalBounds: ?VerticalBounds,
+|};
+type Props = {|
+  ...BaseProps,
   // withKeyboardState
-  keyboardState: ?KeyboardState,
+  +keyboardState: ?KeyboardState,
   // withOverlayContext
-  overlayContext: ?OverlayContextType,
+  +overlayContext: ?OverlayContextType,
 |};
 class TextMessage extends React.PureComponent<Props> {
   static propTypes = {
@@ -194,6 +197,18 @@ class TextMessage extends React.PureComponent<Props> {
   };
 }
 
-const WrappedTextMessage = withKeyboardState(withOverlayContext(TextMessage));
+const ConnectedTextMessage = React.memo<BaseProps>(
+  function ConnectedTextMessage(props: BaseProps) {
+    const keyboardState = React.useContext(KeyboardContext);
+    const overlayContext = React.useContext(OverlayContext);
+    return (
+      <TextMessage
+        {...props}
+        overlayContext={overlayContext}
+        keyboardState={keyboardState}
+      />
+    );
+  },
+);
 
-export { WrappedTextMessage as TextMessage, textMessageItemHeight };
+export { ConnectedTextMessage as TextMessage, textMessageItemHeight };
