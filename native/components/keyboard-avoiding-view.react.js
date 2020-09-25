@@ -5,7 +5,7 @@ import type { ScreenRect, KeyboardEvent } from '../keyboard/keyboard';
 import type { ViewStyle } from '../types/styles';
 import {
   type KeyboardState,
-  withKeyboardState,
+  KeyboardContext,
 } from '../keyboard/keyboard-state';
 
 import * as React from 'react';
@@ -21,24 +21,22 @@ import invariant from 'invariant';
 import { androidKeyboardResizesFrame } from '../keyboard/keyboard';
 
 type ViewProps = React.ElementConfig<typeof View>;
-type Props = {|
+type BaseProps = {|
   ...ViewProps,
-  behavior: 'height' | 'position' | 'padding',
-  contentContainerStyle?: ?ViewStyle,
-  // withKeyboardState
-  keyboardState: ?KeyboardState,
+  +behavior: 'height' | 'position' | 'padding',
+  +contentContainerStyle?: ?ViewStyle,
 |};
-function KeyboardAvoidingView(props: Props) {
+export default React.memo<BaseProps>(function KeyboardAvoidingView(
+  props: BaseProps,
+) {
+  const keyboardState = React.useContext(KeyboardContext);
   if (!androidKeyboardResizesFrame) {
-    return <InnerKeyboardAvoidingView {...props} />;
+    return (
+      <InnerKeyboardAvoidingView {...props} keyboardState={keyboardState} />
+    );
   }
 
-  const {
-    behavior,
-    contentContainerStyle,
-    keyboardState,
-    ...viewProps
-  } = props;
+  const { behavior, contentContainerStyle, ...viewProps } = props;
   if (behavior !== 'position') {
     return <View {...viewProps} />;
   }
@@ -49,12 +47,17 @@ function KeyboardAvoidingView(props: Props) {
       <View style={contentContainerStyle}>{children}</View>
     </View>
   );
-}
+});
 
-type Subscription = { +remove: () => void };
-type State = {|
-  bottom: number,
+type Props = {|
+  ...BaseProps,
+  // withKeyboardState
+  +keyboardState: ?KeyboardState,
 |};
+type State = {|
+  +bottom: number,
+|};
+type Subscription = { +remove: () => void, ... };
 class InnerKeyboardAvoidingView extends React.PureComponent<Props, State> {
   state = {
     bottom: 0,
@@ -192,5 +195,3 @@ class InnerKeyboardAvoidingView extends React.PureComponent<Props, State> {
     invariant(false, `invalid KeyboardAvoidingView behavior ${behavior}`);
   }
 }
-
-export default withKeyboardState(KeyboardAvoidingView);
