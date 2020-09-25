@@ -8,10 +8,9 @@ import type { ChatNavigationProp } from './chat.react';
 import type { TabNavigationProp } from '../navigation/app-navigator.react';
 import type { ChatMessageItemWithHeight } from './message-list-container.react';
 import type { ViewStyle } from '../types/styles';
-import type { AppState } from '../redux/redux-setup';
 import {
   type KeyboardState,
-  withKeyboardState,
+  KeyboardContext,
 } from '../keyboard/keyboard-state';
 import type { ChatMessageItem } from 'lib/selectors/chat-selectors';
 
@@ -26,9 +25,9 @@ import {
 } from 'react-native';
 import invariant from 'invariant';
 import _sum from 'lodash/fp/sum';
+import { useSelector } from 'react-redux';
 
 import { messageKey } from 'lib/shared/message-utils';
-import { connect } from 'lib/utils/redux-utils';
 
 import { messageItemHeight } from './message.react';
 import NewMessagesPill from './new-messages-pill.react';
@@ -52,20 +51,27 @@ const animationSpec = {
   useNativeDriver: true,
 };
 
-type Props = {
-  ...React.Config<
-    FlatListProps<ChatMessageItemWithHeight>,
-    FlatListDefaultProps,
+type BaseProps = {|
+  ...$ReadOnly<
+    $Exact<
+      React.Config<
+        FlatListProps<ChatMessageItemWithHeight>,
+        FlatListDefaultProps,
+      >,
+    >,
   >,
-  navigation: ChatNavigationProp<'MessageList'>,
-  data: $ReadOnlyArray<ChatMessageItemWithHeight>,
+  +navigation: ChatNavigationProp<'MessageList'>,
+  +data: $ReadOnlyArray<ChatMessageItemWithHeight>,
+|};
+type Props = {|
+  ...BaseProps,
   // Redux state
-  viewerID: ?string,
+  +viewerID: ?string,
   // withKeyboardState
-  keyboardState: ?KeyboardState,
-};
+  +keyboardState: ?KeyboardState,
+|};
 type State = {|
-  newMessageCount: number,
+  +newMessageCount: number,
 |};
 class ChatList extends React.PureComponent<Props, State> {
   state = {
@@ -302,8 +308,16 @@ const styles = StyleSheet.create({
   },
 });
 
-const ConnectedChatList = connect((state: AppState) => ({
-  viewerID: state.currentUserInfo && state.currentUserInfo.id,
-}))(withKeyboardState(ChatList));
+const ConnectedChatList = React.memo<BaseProps>(function ConnectedChatList(
+  props: BaseProps,
+) {
+  const keyboardState = React.useContext(KeyboardContext);
+  const viewerID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
+  return (
+    <ChatList {...props} keyboardState={keyboardState} viewerID={viewerID} />
+  );
+});
 
 export { ConnectedChatList as ChatList, chatMessageItemKey };
