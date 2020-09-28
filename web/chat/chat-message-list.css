@@ -17,11 +17,11 @@ div.messageContainer {
   display: flex;
   flex-direction: column-reverse;
 }
-div.firefoxMessageContainer {
+div.mirroredMessageContainer {
   flex-direction: column !important;
   transform: scaleY(-1);
 }
-div.firefoxMessageContainer > div {
+div.mirroredMessageContainer > div {
   transform: scaleY(-1);
 }
 

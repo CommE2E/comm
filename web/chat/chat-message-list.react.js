@@ -60,7 +60,7 @@ type PassedProps = {|
   +messageListData: ?$ReadOnlyArray<ChatMessageItem>,
   +startReached: boolean,
   +timeZone: ?string,
-  +firefox: boolean,
+  +supportsReverseFlex: boolean,
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -97,7 +97,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     messageListData: PropTypes.arrayOf(chatMessageItemPropType),
     startReached: PropTypes.bool.isRequired,
     timeZone: PropTypes.string,
-    firefox: PropTypes.bool.isRequired,
+    supportsReverseFlex: PropTypes.bool.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     fetchMessagesBeforeCursor: PropTypes.func.isRequired,
     fetchMostRecentMessages: PropTypes.func.isRequired,
@@ -196,10 +196,10 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       ) {
         const newHeight = scrollHeight - snapshot.scrollHeight;
         const newScrollTop = Math.abs(scrollTop) + newHeight;
-        if (this.props.firefox) {
-          messageContainer.scrollTop = newScrollTop;
-        } else {
+        if (this.props.supportsReverseFlex) {
           messageContainer.scrollTop = -1 * newScrollTop;
+        } else {
+          messageContainer.scrollTop = newScrollTop;
         }
       }
     }
@@ -289,7 +289,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
 
     const messageContainerStyle = classNames({
       [css.messageContainer]: true,
-      [css.firefoxMessageContainer]: this.props.firefox,
+      [css.mirroredMessageContainer]: !this.props.supportsReverseFlex,
     });
     return connectDropTarget(
       <div className={containerStyle} ref={this.containerRef}>
@@ -389,9 +389,11 @@ export default React.memo<BaseProps>(function ConnectedChatMessageList(
   props: BaseProps,
 ) {
   const userAgent = useSelector(state => state.userAgent);
-  const firefox = React.useMemo(() => {
+  const supportsReverseFlex = React.useMemo(() => {
     const browser = detectBrowser(userAgent);
-    return browser && browser.name === 'firefox';
+    return (
+      !browser || browser.name !== 'firefox' || parseInt(browser.version) >= 81
+    );
   }, [userAgent]);
 
   const messageListData = useSelector(webMessageListData);
@@ -443,7 +445,7 @@ export default React.memo<BaseProps>(function ConnectedChatMessageList(
       messageListData={messageListData}
       startReached={startReached}
       timeZone={timeZone}
-      firefox={firefox}
+      supportsReverseFlex={supportsReverseFlex}
       inputState={inputState}
       dispatchActionPromise={dispatchActionPromise}
       fetchMessagesBeforeCursor={callFetchMessagesBeforeCursor}
