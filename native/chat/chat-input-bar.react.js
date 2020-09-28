@@ -491,7 +491,11 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   }, 400);
 
   focusAndUpdateText = (text: string) => {
-    this.updateText(text);
+    const textFromInput = this.state.text;
+    if (!textFromInput.startsWith(text)) {
+      const prependedText = text.concat(textFromInput);
+      this.updateText(prependedText);
+    }
     invariant(this.textInput, 'textInput should be set in focusAndUpdateText');
     this.textInput.focus();
   };
