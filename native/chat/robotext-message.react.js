@@ -122,13 +122,14 @@ function RobotextMessage(props: Props) {
   }
 
   const keyboardState = React.useContext(KeyboardContext);
-  const didDismiss = keyboardState && keyboardState.dismissKeyboardIfShowing();
   const key = messageKey(item.messageInfo);
   const onPress = React.useCallback(() => {
+    const didDismiss =
+      keyboardState && keyboardState.dismissKeyboardIfShowing();
     if (!didDismiss) {
       toggleFocus(key);
     }
-  }, [didDismiss, toggleFocus, key]);
+  }, [keyboardState, toggleFocus, key]);
 
   return (
     <View {...viewProps}>
