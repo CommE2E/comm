@@ -1,9 +1,6 @@
 // @flow
 
-import type {
-  GlobalAccountUserInfo,
-  AccountUserInfo,
-} from 'lib/types/user-types';
+import type { GlobalAccountUserInfo, UserInfo } from 'lib/types/user-types';
 import type { UserSearchResult } from 'lib/types/search-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import {
@@ -52,7 +49,7 @@ type Props = {|
   navigation: RootNavigationProp<'RelationshipUpdateModal'>,
   route: NavigationRoute<'RelationshipUpdateModal'>,
   // Redux state
-  userInfos: { [id: string]: AccountUserInfo },
+  userInfos: { [id: string]: UserInfo },
   viewerID: ?string,
   styles: typeof styles,
   // Redux dispatch functions
@@ -76,7 +73,7 @@ class RelationshipUpdateModal extends React.PureComponent<Props, State> {
     userInfoInputArray: [],
     searchUserInfos: {},
   };
-  tagInput: ?TagInput<AccountUserInfo> = null;
+  tagInput: ?TagInput<GlobalAccountUserInfo> = null;
 
   componentDidMount() {
     this.searchUsers('');
@@ -98,7 +95,7 @@ class RelationshipUpdateModal extends React.PureComponent<Props, State> {
     (
       text: string,
       searchUserInfos: { [id: string]: GlobalAccountUserInfo },
-      userInfos: { [id: string]: AccountUserInfo },
+      userInfos: { [id: string]: UserInfo },
       viewerID: ?string,
       userInfoInputArray: $ReadOnlyArray<GlobalAccountUserInfo>,
     ) => {
@@ -120,8 +117,19 @@ class RelationshipUpdateModal extends React.PureComponent<Props, State> {
         .map(userInfo => userInfo.id)
         .concat(viewerID || [])
         .concat(excludeBlockedAndFriendIDs);
-      // $FlowFixMe should be fixed in flow-bin@0.115 / react-native@0.63
-      const mergedUserInfos = { ...searchUserInfos, ...userInfos };
+
+      const mergedUserInfos = {};
+      for (const id in searchUserInfos) {
+        const { username } = searchUserInfos[id];
+        mergedUserInfos[id] = { id, username };
+      }
+      for (const id in userInfos) {
+        const { username } = userInfos[id];
+        if (username) {
+          mergedUserInfos[id] = { id, username };
+        }
+      }
+
       const searchIndex = searchIndexFromUserInfos(mergedUserInfos);
       const results = getUserSearchResults(
         text,
@@ -202,11 +210,12 @@ class RelationshipUpdateModal extends React.PureComponent<Props, State> {
     );
   }
 
-  tagInputRef = (tagInput: ?TagInput<AccountUserInfo>) => {
+  tagInputRef = (tagInput: ?TagInput<GlobalAccountUserInfo>) => {
     this.tagInput = tagInput;
   };
 
-  tagDataLabelExtractor = (userInfo: AccountUserInfo) => userInfo.username;
+  tagDataLabelExtractor = (userInfo: GlobalAccountUserInfo) =>
+    userInfo.username;
 
   setUsernameInputText = (text: string) => {
     this.searchUsers(text);
@@ -227,7 +236,9 @@ class RelationshipUpdateModal extends React.PureComponent<Props, State> {
     let selectedUserInfo = this.state.searchUserInfos[userID];
     if (!selectedUserInfo) {
       const userInfo = this.props.userInfos[userID];
-      selectedUserInfo = { id: userInfo.id, username: userInfo.username };
+      const { id, username } = userInfo;
+      invariant(username, 'username should be set in onUserSelect');
+      selectedUserInfo = { id, username };
     }
     invariant(selectedUserInfo, `could not find selected userID ${userID}`);
 
