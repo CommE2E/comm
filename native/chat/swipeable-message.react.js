@@ -66,7 +66,7 @@ function SwipeableMessage(props: Props) {
   const {
     swipeEvent,
     transformMessageBoxStyle,
-    translateReplyStyle,
+    transformReplyStyle,
   } = React.useMemo(() => {
     const swipeX = new Value(0);
     const swipeState = new Value(-1);
@@ -129,23 +129,23 @@ function SwipeableMessage(props: Props) {
       outputRange: isViewer ? [-23, -23 + threshold] : [0 - threshold, 0],
       extrapolate: Extrapolate.CLAMP,
     });
-    const translateReplyOpacity = interpolate(translateX, {
+    const replyIconOpacity = interpolate(translateX, {
       inputRange: isViewer ? [-1 * threshold, -25] : [25, threshold],
       outputRange: isViewer ? [1, 0] : [0, 1],
       extrapolate: Extrapolate.CLAMP,
     });
-    const innerTranslateReplyStyle = {
+    const innerTransformReplyStyle = {
       transform: [
         {
           translateX: translateReplyIcon,
         },
       ],
-      opacity: translateReplyOpacity,
+      opacity: replyIconOpacity,
     };
     return {
       swipeEvent: innerSwipeEvent,
       transformMessageBoxStyle: innerTransformMessageBoxStyle,
-      translateReplyStyle: innerTranslateReplyStyle,
+      transformReplyStyle: innerTransformReplyStyle,
     };
   }, [isViewer, onSwipeableWillOpen, onPassThreshold]);
 
@@ -156,7 +156,7 @@ function SwipeableMessage(props: Props) {
   return (
     <React.Fragment>
       <View style={[styles.icon, iconPosition]}>
-        <Animated.View style={translateReplyStyle}>
+        <Animated.View style={transformReplyStyle}>
           <View style={styles.iconBackground}>
             <FontAwesomeIcon
               name="reply"
@@ -168,7 +168,7 @@ function SwipeableMessage(props: Props) {
       </View>
       <PanGestureHandler
         maxPointers={1}
-        minDist={10}
+        minDist={4}
         onGestureEvent={swipeEvent}
         onHandlerStateChange={swipeEvent}
         failOffsetX={isViewer ? 5 : -5}
