@@ -287,17 +287,27 @@ class ChatInputBar extends React.PureComponent<Props> {
   };
 
   focusAndUpdateText = (text: string) => {
+    // We need to call focus() first on Safari, otherwise the cursor
+    // ends up at the start instead of the end for some reason
     const { textarea } = this;
     invariant(textarea, 'textarea should be set');
     textarea.focus();
-    const textFromInput = textarea.value;
 
-    if (!textFromInput.startsWith(text)) {
-      const prependedText = text.concat(textFromInput);
-      textarea.value = prependedText;
-      this.updateHeight();
+    // We reset the textarea to an empty string at the start so that the cursor
+    // always ends up at the end, even if the text doesn't actually change
+    textarea.value = '';
+    const currentText = this.props.inputState.draft;
+    if (!currentText.startsWith(text)) {
+      const prependedText = text.concat(currentText);
       this.props.inputState.setDraft(prependedText);
+      textarea.value = prependedText;
+    } else {
+      textarea.value = currentText;
     }
+
+    // The above strategies make sure the cursor is at the end,
+    // but we also need to make sure that we're scrolled to the bottom
+    textarea.scrollTop = textarea.scrollHeight;
   };
 
   onKeyDown = (event: SyntheticKeyboardEvent<HTMLTextAreaElement>) => {
