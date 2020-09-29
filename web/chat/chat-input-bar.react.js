@@ -287,12 +287,17 @@ class ChatInputBar extends React.PureComponent<Props> {
   };
 
   focusAndUpdateText = (text: string) => {
-    invariant(this.textarea, 'textarea should be set');
-    this.textarea.focus();
-    invariant(this.textarea, 'textarea should be set');
-    this.textarea.value = text;
-    this.updateHeight();
-    this.props.inputState.setDraft(text);
+    const { textarea } = this;
+    invariant(textarea, 'textarea should be set');
+    textarea.focus();
+    const textFromInput = textarea.value;
+
+    if (!textFromInput.startsWith(text)) {
+      const prependedText = text.concat(textFromInput);
+      textarea.value = prependedText;
+      this.updateHeight();
+      this.props.inputState.setDraft(prependedText);
+    }
   };
 
   onKeyDown = (event: SyntheticKeyboardEvent<HTMLTextAreaElement>) => {
