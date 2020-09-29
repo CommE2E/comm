@@ -6,7 +6,7 @@ import { type GlobalTheme, globalThemePropType } from '../types/themes';
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 
@@ -27,6 +27,7 @@ import {
 import Markdown from '../markdown/markdown.react';
 import { fullMarkdownRules } from '../markdown/rules.react';
 import { composedMessageMaxWidthSelector } from './composed-message-width';
+import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
 
 function dummyNodeForTextMessageHeightMeasurement(text: string) {
   return <DummyTextNode>{text}</DummyTextNode>;
@@ -101,7 +102,7 @@ class InnerTextMessage extends React.PureComponent<Props> {
     }
 
     const message = (
-      <TouchableOpacity
+      <GestureTouchableOpacity
         onPress={this.props.onPress}
         onLongPress={this.props.onPress}
         activeOpacity={0.6}
@@ -114,7 +115,7 @@ class InnerTextMessage extends React.PureComponent<Props> {
         >
           {text}
         </Markdown>
-      </TouchableOpacity>
+      </GestureTouchableOpacity>
     );
 
     const { messageRef } = this.props;

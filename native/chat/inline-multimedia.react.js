@@ -8,11 +8,12 @@ import {
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import * as Progress from 'react-native-progress';
 
 import Multimedia from '../media/multimedia.react';
+import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
 
 type Props = {|
   mediaInfo: MediaInfo,
@@ -69,7 +70,7 @@ class InlineMultimedia extends React.PureComponent<Props> {
     }
 
     return (
-      <TouchableOpacity
+      <GestureTouchableOpacity
         onPress={this.props.onPress}
         onLongPress={this.props.onLongPress}
         style={styles.expand}
@@ -79,7 +80,7 @@ class InlineMultimedia extends React.PureComponent<Props> {
           spinnerColor={this.props.spinnerColor}
         />
         {progressIndicator}
-      </TouchableOpacity>
+      </GestureTouchableOpacity>
     );
   }
 
