@@ -182,6 +182,10 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     return ChatInputBar.systemKeyboardShowing(this.props);
   }
 
+  immediatelyShowSendButton() {
+    this.sendButtonContainerOpen.setValue(1);
+  }
+
   updateSendButton(currentText: string) {
     // eslint-disable-next-line import/no-named-as-default-member
     Animated.timing(this.sendButtonContainerOpen, {
@@ -491,10 +495,12 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   }, 400);
 
   focusAndUpdateText = (text: string) => {
-    const textFromInput = this.state.text;
-    if (!textFromInput.startsWith(text)) {
-      const prependedText = text.concat(textFromInput);
+    const currentText = this.state.text;
+    if (!currentText.startsWith(text)) {
+      const prependedText = text.concat(currentText);
       this.updateText(prependedText);
+      this.immediatelyShowSendButton();
+      this.immediatelyHideButtons();
     }
     invariant(this.textInput, 'textInput should be set in focusAndUpdateText');
     this.textInput.focus();
@@ -580,6 +586,11 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       toValue: 0,
       easing: Easing.inOut(Easing.ease),
     }).start();
+    this.setState({ buttonsExpanded: false });
+  }
+
+  immediatelyHideButtons() {
+    this.expandoButtonsOpacity.setValue(0);
     this.setState({ buttonsExpanded: false });
   }
 
