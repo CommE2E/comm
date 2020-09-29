@@ -2,7 +2,6 @@
 
 import type { GlobalAccountUserInfo, UserInfo } from 'lib/types/user-types';
 import type { UserSearchResult } from 'lib/types/search-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import {
   type RelationshipRequest,
   userRelationshipStatus,
@@ -18,23 +17,28 @@ import { CommonActions } from '@react-navigation/native';
 import { createSelector } from 'reselect';
 import _keyBy from 'lodash/fp/keyBy';
 import invariant from 'invariant';
+import { useSelector } from 'react-redux';
 
 import { searchIndexFromUserInfos } from 'lib/selectors/user-selectors';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { getUserSearchResults } from 'lib/shared/search-utils';
-import { connect } from 'lib/utils/redux-utils';
 import { values } from 'lib/utils/objects';
 import { searchUsersActionTypes, searchUsers } from 'lib/actions/user-actions';
 import {
   updateRelationshipsActionTypes,
   updateRelationships,
 } from 'lib/actions/relationship-actions';
+import {
+  type DispatchActionPromise,
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import UserList from '../components/user-list.react';
 import Modal from '../components/modal.react';
 import Button from '../components/button.react';
 import TagInput from '../components/tag-input.react';
-import { styleSelector } from '../themes/colors';
+import { useStyles } from '../themes/colors';
 
 const tagInputProps = {
   autoFocus: true,
@@ -45,28 +49,28 @@ export type RelationshipUpdateModalParams = {|
   +target: 'friends' | 'blocked',
 |};
 
+type BaseProps = {|
+  +navigation: RootNavigationProp<'RelationshipUpdateModal'>,
+  +route: NavigationRoute<'RelationshipUpdateModal'>,
+|};
 type Props = {|
-  navigation: RootNavigationProp<'RelationshipUpdateModal'>,
-  route: NavigationRoute<'RelationshipUpdateModal'>,
+  ...BaseProps,
   // Redux state
-  userInfos: { [id: string]: UserInfo },
-  viewerID: ?string,
-  styles: typeof styles,
+  +userInfos: { [id: string]: UserInfo },
+  +viewerID: ?string,
+  +styles: typeof unboundStyles,
   // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  searchUsers: (usernamePrefix: string) => Promise<UserSearchResult>,
-  updateRelationships: (request: RelationshipRequest) => Promise<void>,
+  +searchUsers: (usernamePrefix: string) => Promise<UserSearchResult>,
+  +updateRelationships: (request: RelationshipRequest) => Promise<void>,
 |};
-
 type State = {|
-  usernameInputText: string,
-  userInfoInputArray: $ReadOnlyArray<GlobalAccountUserInfo>,
-  searchUserInfos: { [id: string]: GlobalAccountUserInfo },
+  +usernameInputText: string,
+  +userInfoInputArray: $ReadOnlyArray<GlobalAccountUserInfo>,
+  +searchUserInfos: { [id: string]: GlobalAccountUserInfo },
 |};
-
 type PropsAndState = {| ...Props, ...State |};
-
 class RelationshipUpdateModal extends React.PureComponent<Props, State> {
   state = {
     usernameInputText: '',
@@ -312,7 +316,7 @@ class RelationshipUpdateModal extends React.PureComponent<Props, State> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   activityIndicator: {
     paddingRight: 6,
   },
@@ -343,17 +347,31 @@ const styles = {
     fontSize: 18,
   },
 };
-const stylesSelector = styleSelector(styles);
 
 registerFetchKey(searchUsersActionTypes);
 
-export default connect(
-  (state: AppState) => {
-    return {
-      viewerID: state.currentUserInfo && state.currentUserInfo.id,
-      userInfos: state.userStore.userInfos,
-      styles: stylesSelector(state),
-    };
-  },
-  { searchUsers, updateRelationships },
-)(RelationshipUpdateModal);
+export default React.memo<BaseProps>(function ConnectedRelationshipUpdateModal(
+  props: BaseProps,
+) {
+  const viewerID = useSelector(
+    (state: AppState) => state.currentUserInfo && state.currentUserInfo.id,
+  );
+  const userInfos = useSelector((state: AppState) => state.userStore.userInfos);
+  const styles = useStyles(unboundStyles);
+
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callSearchUsers = useServerCall(searchUsers);
+  const callUpdateRelationships = useServerCall(updateRelationships);
+
+  return (
+    <RelationshipUpdateModal
+      {...props}
+      viewerID={viewerID}
+      userInfos={userInfos}
+      styles={styles}
+      dispatchActionPromise={dispatchActionPromise}
+      searchUsers={callSearchUsers}
+      updateRelationships={callUpdateRelationships}
+    />
+  );
+});
