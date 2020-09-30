@@ -22,9 +22,6 @@ const activityUpdatesInputValidator = t.list(
       threadID: t.String,
       latestMessage: t.maybe(t.String),
     }),
-    tShape({
-      closing: tBool(true),
-    }),
   ]),
 );
 

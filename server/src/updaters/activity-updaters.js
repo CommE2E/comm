@@ -32,10 +32,6 @@ async function activityUpdater(
   const unverifiedThreadIDs = new Set();
   const focusUpdatesByThreadID = new Map();
   for (let activityUpdate of request.updates) {
-    if (activityUpdate.closing) {
-      // This was deprecated, but old clients are still sending it
-      continue;
-    }
     const threadID = activityUpdate.threadID;
     unverifiedThreadIDs.add(threadID);
     let updatesForThreadID = focusUpdatesByThreadID.get(threadID);
