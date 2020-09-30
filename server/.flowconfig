@@ -16,6 +16,8 @@
 module.file_ext=.js
 module.file_ext=.cjs
 module.file_ext=.json
+esproposal.optional_chaining=enable
+esproposal.nullish_coalescing=enable
 
 [lints]
 sketchy-null-number=warn
