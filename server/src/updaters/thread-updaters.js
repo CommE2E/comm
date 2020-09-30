@@ -53,6 +53,7 @@ import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { updateRoles } from './role-updaters';
 import { rescindPushNotifs } from '../push/rescind';
+import { determineUnfocusedThreadsReadStatus } from './activity-updaters';
 
 async function updateRole(
   viewer: Viewer,
@@ -697,21 +698,12 @@ async function shouldResetThreadToUnread(
     return false;
   }
 
-  const knowOfExtractString = `$.${threadPermissions.KNOW_OF}.value`;
-  const latestMessageQuery = SQL`
-    SELECT MAX(m.id) AS id
-    FROM messages m
-    LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
-      AND stm.thread = m.content AND stm.user = ${viewer.userID}
-    WHERE m.thread = ${request.threadID} AND
-      (
-        m.type != ${messageTypes.CREATE_SUB_THREAD} OR
-        JSON_EXTRACT(stm.permissions, ${knowOfExtractString}) IS TRUE
-      )
-  `;
-  const [result] = await dbQuery(latestMessageQuery);
+  const resetToUnread = await determineUnfocusedThreadsReadStatus(
+    viewer,
+    new Map([[request.threadID, request.latestMessage]]),
+  );
 
-  return !!(result[0] && `${result[0].id}` !== request.latestMessage);
+  return resetToUnread.some(threadID => threadID === request.threadID);
 }
 
 export {

@@ -190,7 +190,7 @@ async function updateFocusedRows(
 // is no longer the latest message ID.
 // Returns the set of unfocused threads that should be set to unread on
 // the client because a new message arrived since they were unfocused.
-async function determineUnfocusedThreadsReadStatus(
+export async function determineUnfocusedThreadsReadStatus(
   viewer: Viewer,
   unfocusedLatestMessages: Map<string, string>,
 ): Promise<string[]> {
