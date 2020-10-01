@@ -1,6 +1,5 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import {
@@ -28,18 +27,22 @@ import _flow from 'lodash/fp/flow';
 import _filter from 'lodash/fp/filter';
 import _sortBy from 'lodash/fp/sortBy';
 import { createSelector } from 'reselect';
+import { useSelector } from 'react-redux';
 
-import { connect } from 'lib/utils/redux-utils';
 import { newThreadActionTypes, newThread } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
-  userInfoSelectorForOtherMembersOfThread,
-  userSearchIndexForOtherMembersOfThread,
+  userInfoSelectorForPotentialMembers,
+  userSearchIndexForPotentialMembers,
 } from 'lib/selectors/user-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import { threadInFilterList, userIsMember } from 'lib/shared/thread-utils';
 import { getUserSearchResults } from 'lib/shared/search-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import {
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import TagInput from '../components/tag-input.react';
 import UserList from '../components/user-list.react';
@@ -50,8 +53,8 @@ import ThreadVisibility from '../components/thread-visibility.react';
 import {
   type Colors,
   colorsPropType,
-  colorsSelector,
-  styleSelector,
+  useColors,
+  useStyles,
 } from '../themes/colors';
 
 const tagInputProps = {
@@ -65,25 +68,28 @@ export type ComposeThreadParams = {|
   parentThreadInfo?: ThreadInfo,
 |};
 
+type BaseProps = {|
+  +navigation: ChatNavigationProp<'ComposeThread'>,
+  +route: NavigationRoute<'ComposeThread'>,
+|};
 type Props = {|
-  navigation: ChatNavigationProp<'ComposeThread'>,
-  route: NavigationRoute<'ComposeThread'>,
+  ...BaseProps,
   // Redux state
-  parentThreadInfo: ?ThreadInfo,
-  loadingStatus: LoadingStatus,
-  otherUserInfos: { [id: string]: AccountUserInfo },
-  userSearchIndex: SearchIndex,
-  threadInfos: { [id: string]: ThreadInfo },
-  colors: Colors,
-  styles: typeof styles,
+  +parentThreadInfo: ?ThreadInfo,
+  +loadingStatus: LoadingStatus,
+  +otherUserInfos: { [id: string]: AccountUserInfo },
+  +userSearchIndex: SearchIndex,
+  +threadInfos: { [id: string]: ThreadInfo },
+  +colors: Colors,
+  +styles: typeof unboundStyles,
   // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  newThread: (request: NewThreadRequest) => Promise<NewThreadResult>,
+  +newThread: (request: NewThreadRequest) => Promise<NewThreadResult>,
 |};
 type State = {|
-  usernameInputText: string,
-  userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
+  +usernameInputText: string,
+  +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
 |};
 type PropsAndState = {| ...Props, ...State |};
 class ComposeThread extends React.PureComponent<Props, State> {
@@ -416,7 +422,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   container: {
     flex: 1,
   },
@@ -486,34 +492,41 @@ const styles = {
     paddingVertical: 6,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-const loadingStatusSelector = createLoadingStatusSelector(newThreadActionTypes);
+export default React.memo<BaseProps>(function ConnectedComposeThread(
+  props: BaseProps,
+) {
+  const parentThreadInfoID = props.route.params.parentThreadInfo?.id;
 
-export default connect(
-  (
-    state: AppState,
-    ownProps: {
-      route: NavigationRoute<'ComposeThread'>,
-    },
-  ) => {
-    let reduxParentThreadInfo = null;
-    const parentThreadInfo = ownProps.route.params.parentThreadInfo;
-    if (parentThreadInfo) {
-      reduxParentThreadInfo = threadInfoSelector(state)[parentThreadInfo.id];
-    }
-    return {
-      parentThreadInfo: reduxParentThreadInfo,
-      loadingStatus: loadingStatusSelector(state),
-      otherUserInfos: userInfoSelectorForOtherMembersOfThread((null: ?string))(
-        state,
-      ),
-      userSearchIndex: userSearchIndexForOtherMembersOfThread(null)(state),
-      threadInfos: threadInfoSelector(state),
-      colors: colorsSelector(state),
-      styles: stylesSelector(state),
-      viewerID: state.currentUserInfo && state.currentUserInfo.id,
-    };
-  },
-  { newThread },
-)(ComposeThread);
+  const reduxParentThreadInfo = useSelector(state =>
+    parentThreadInfoID ? threadInfoSelector(state)[parentThreadInfoID] : null,
+  );
+  const loadingStatus = useSelector(
+    createLoadingStatusSelector(newThreadActionTypes),
+  );
+  const otherUserInfos = useSelector(
+    userInfoSelectorForPotentialMembers(parentThreadInfoID),
+  );
+  const userSearchIndex = useSelector(
+    userSearchIndexForPotentialMembers(parentThreadInfoID),
+  );
+  const threadInfos = useSelector(threadInfoSelector);
+  const colors = useColors();
+  const styles = useStyles(unboundStyles);
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callNewThread = useServerCall(newThread);
+  return (
+    <ComposeThread
+      {...props}
+      parentThreadInfo={reduxParentThreadInfo}
+      loadingStatus={loadingStatus}
+      otherUserInfos={otherUserInfos}
+      userSearchIndex={userSearchIndex}
+      threadInfos={threadInfos}
+      colors={colors}
+      styles={styles}
+      dispatchActionPromise={dispatchActionPromise}
+      newThread={callNewThread}
+    />
+  );
+});

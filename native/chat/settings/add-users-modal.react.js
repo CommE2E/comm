@@ -1,6 +1,5 @@
 // @flow
 
-import type { AppState } from '../../redux/redux-setup';
 import {
   type ThreadInfo,
   threadInfoPropType,
@@ -22,14 +21,14 @@ import { View, Text, ActivityIndicator, Alert } from 'react-native';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import { createSelector } from 'reselect';
+import { useSelector } from 'react-redux';
 
 import {
-  userInfoSelectorForOtherMembersOfThread,
-  userSearchIndexForOtherMembersOfThread,
+  userInfoSelectorForPotentialMembers,
+  userSearchIndexForPotentialMembers,
 } from 'lib/selectors/user-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import { getUserSearchResults } from 'lib/shared/search-utils';
-import { connect } from 'lib/utils/redux-utils';
 import {
   changeThreadSettingsActionTypes,
   changeThreadSettings,
@@ -37,12 +36,16 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadActualMembers } from 'lib/shared/thread-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import {
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import UserList from '../../components/user-list.react';
 import TagInput from '../../components/tag-input.react';
 import Button from '../../components/button.react';
 import Modal from '../../components/modal.react';
-import { styleSelector } from '../../themes/colors';
+import { useStyles } from '../../themes/colors';
 
 const tagInputProps = {
   placeholder: 'Select users to add',
@@ -55,25 +58,28 @@ export type AddUsersModalParams = {|
   threadInfo: ThreadInfo,
 |};
 
+type BaseProps = {|
+  +navigation: RootNavigationProp<'AddUsersModal'>,
+  +route: NavigationRoute<'AddUsersModal'>,
+|};
 type Props = {|
-  navigation: RootNavigationProp<'AddUsersModal'>,
-  route: NavigationRoute<'AddUsersModal'>,
+  ...BaseProps,
   // Redux state
-  parentThreadInfo: ?ThreadInfo,
-  otherUserInfos: { [id: string]: AccountUserInfo },
-  userSearchIndex: SearchIndex,
-  changeThreadSettingsLoadingStatus: LoadingStatus,
-  styles: typeof styles,
+  +parentThreadInfo: ?ThreadInfo,
+  +otherUserInfos: { [id: string]: AccountUserInfo },
+  +userSearchIndex: SearchIndex,
+  +changeThreadSettingsLoadingStatus: LoadingStatus,
+  +styles: typeof unboundStyles,
   // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  changeThreadSettings: (
+  +changeThreadSettings: (
     request: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsPayload>,
 |};
 type State = {|
-  usernameInputText: string,
-  userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
+  +usernameInputText: string,
+  +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
 |};
 type PropsAndState = {| ...Props, ...State |};
 class AddUsersModal extends React.PureComponent<Props, State> {
@@ -292,7 +298,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   activityIndicator: {
     paddingRight: 6,
   },
@@ -323,35 +329,37 @@ const styles = {
     fontSize: 18,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-const changeThreadSettingsLoadingStatusSelector = createLoadingStatusSelector(
-  changeThreadSettingsActionTypes,
-);
+export default React.memo<BaseProps>(function ConnectedAddUsersModal(
+  props: BaseProps,
+) {
+  const { parentThreadID } = props.route.params.threadInfo;
 
-export default connect(
-  (
-    state: AppState,
-    ownProps: {
-      route: NavigationRoute<'AddUsersModal'>,
-    },
-  ) => {
-    let parentThreadInfo = null;
-    const { parentThreadID } = ownProps.route.params.threadInfo;
-    if (parentThreadID) {
-      parentThreadInfo = threadInfoSelector(state)[parentThreadID];
-    }
-    return {
-      parentThreadInfo,
-      otherUserInfos: userInfoSelectorForOtherMembersOfThread((null: ?string))(
-        state,
-      ),
-      userSearchIndex: userSearchIndexForOtherMembersOfThread(null)(state),
-      changeThreadSettingsLoadingStatus: changeThreadSettingsLoadingStatusSelector(
-        state,
-      ),
-      styles: stylesSelector(state),
-    };
-  },
-  { changeThreadSettings },
-)(AddUsersModal);
+  const parentThreadInfo = useSelector(state =>
+    parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
+  );
+  const otherUserInfos = useSelector(
+    userInfoSelectorForPotentialMembers(parentThreadID),
+  );
+  const userSearchIndex = useSelector(
+    userSearchIndexForPotentialMembers(parentThreadID),
+  );
+  const changeThreadSettingsLoadingStatus = useSelector(
+    createLoadingStatusSelector(changeThreadSettingsActionTypes),
+  );
+  const styles = useStyles(unboundStyles);
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callChangeThreadSettings = useServerCall(changeThreadSettings);
+  return (
+    <AddUsersModal
+      {...props}
+      parentThreadInfo={parentThreadInfo}
+      otherUserInfos={otherUserInfos}
+      userSearchIndex={userSearchIndex}
+      changeThreadSettingsLoadingStatus={changeThreadSettingsLoadingStatus}
+      styles={styles}
+      dispatchActionPromise={dispatchActionPromise}
+      changeThreadSettings={callChangeThreadSettings}
+    />
+  );
+});
