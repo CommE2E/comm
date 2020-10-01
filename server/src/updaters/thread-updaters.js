@@ -9,8 +9,6 @@ import {
   type UpdateThreadRequest,
   type ServerThreadJoinRequest,
   type ThreadJoinResult,
-  type SetThreadUnreadStatusRequest,
-  type SetThreadUnreadStatusResult,
   threadPermissions,
   threadTypes,
   assertThreadType,
@@ -26,7 +24,6 @@ import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
-import { updateTypes } from 'lib/types/update-types';
 
 import { dbQuery, SQL } from '../database';
 import {
@@ -48,12 +45,9 @@ import {
   getParentThreadRelationshipRowsForNewUsers,
 } from './thread-permission-updaters';
 import createMessages from '../creators/message-creator';
-import { createUpdates } from '../creators/update-creator';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { updateRoles } from './role-updaters';
-import { rescindPushNotifs } from '../push/rescind';
-import { determineUnfocusedThreadsReadStatus } from './activity-updaters';
 
 async function updateRole(
   viewer: Viewer,
@@ -628,89 +622,4 @@ async function joinThread(
   return response;
 }
 
-async function setThreadUnreadStatus(
-  viewer: Viewer,
-  request: SetThreadUnreadStatusRequest,
-): Promise<SetThreadUnreadStatusResult> {
-  if (!viewer.loggedIn) {
-    throw new ServerError('not_logged_in');
-  }
-
-  const isMemberAndCanViewThread = await checkThread(viewer, request.threadID, [
-    {
-      check: 'is_member',
-    },
-    {
-      check: 'permission',
-      permission: threadPermissions.VISIBLE,
-    },
-  ]);
-  if (!isMemberAndCanViewThread) {
-    throw new ServerError('invalid_parameters');
-  }
-
-  const resetThreadToUnread = await shouldResetThreadToUnread(viewer, request);
-
-  if (!resetThreadToUnread) {
-    const update = SQL`
-    UPDATE memberships m
-    SET m.unread = ${request.unread ? 1 : 0}
-    WHERE m.thread = ${request.threadID} AND m.user = ${viewer.userID}
-  `;
-    const queryPromise = dbQuery(update);
-
-    const time = Date.now();
-    const updatesPromise = createUpdates(
-      [
-        {
-          type: updateTypes.UPDATE_THREAD_READ_STATUS,
-          userID: viewer.userID,
-          time: time,
-          threadID: request.threadID,
-          unread: request.unread,
-        },
-      ],
-      { viewer, updatesForCurrentSession: 'ignore' },
-    );
-
-    await Promise.all([updatesPromise, queryPromise]);
-  }
-
-  if (!request.unread) {
-    const rescindCondition = SQL`
-      n.user = ${viewer.userID} AND
-      n.thread = ${request.threadID} AND
-      n.message <= ${request.latestMessage}
-    `;
-    await rescindPushNotifs(rescindCondition);
-  }
-
-  return {
-    resetToUnread: resetThreadToUnread,
-  };
-}
-
-async function shouldResetThreadToUnread(
-  viewer: Viewer,
-  request: SetThreadUnreadStatusRequest,
-): Promise<boolean> {
-  if (request.unread || request.latestMessage.startsWith('local')) {
-    return false;
-  }
-
-  const resetToUnread = await determineUnfocusedThreadsReadStatus(
-    viewer,
-    new Map([[request.threadID, request.latestMessage]]),
-  );
-
-  return resetToUnread.some(threadID => threadID === request.threadID);
-}
-
-export {
-  updateRole,
-  removeMembers,
-  leaveThread,
-  updateThread,
-  joinThread,
-  setThreadUnreadStatus,
-};
+export { updateRole, removeMembers, leaveThread, updateThread, joinThread };

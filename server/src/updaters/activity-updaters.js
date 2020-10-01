@@ -6,7 +6,11 @@ import type {
   UpdateActivityRequest,
 } from 'lib/types/activity-types';
 import { messageTypes } from 'lib/types/message-types';
-import { threadPermissions } from 'lib/types/thread-types';
+import {
+  threadPermissions,
+  type SetThreadUnreadStatusRequest,
+  type SetThreadUnreadStatusResult,
+} from 'lib/types/thread-types';
 import { updateTypes } from 'lib/types/update-types';
 
 import invariant from 'invariant';
@@ -19,7 +23,10 @@ import { rescindPushNotifs } from '../push/rescind';
 import { createUpdates } from '../creators/update-creator';
 import { deleteActivityForViewerSession } from '../deleters/activity-deleters';
 import { earliestFocusedTimeConsideredCurrent } from '../shared/focused-times';
-import { checkThreads } from '../fetchers/thread-permission-fetchers';
+import {
+  checkThread,
+  checkThreads,
+} from '../fetchers/thread-permission-fetchers';
 
 async function activityUpdater(
   viewer: Viewer,
@@ -190,7 +197,7 @@ async function updateFocusedRows(
 // is no longer the latest message ID.
 // Returns the set of unfocused threads that should be set to unread on
 // the client because a new message arrived since they were unfocused.
-export async function determineUnfocusedThreadsReadStatus(
+async function determineUnfocusedThreadsReadStatus(
   viewer: Viewer,
   unfocusedLatestMessages: Map<string, string>,
 ): Promise<string[]> {
@@ -266,6 +273,84 @@ async function checkThreadsFocused(
   return focusedThreadIDs;
 }
 
+async function setThreadUnreadStatus(
+  viewer: Viewer,
+  request: SetThreadUnreadStatusRequest,
+): Promise<SetThreadUnreadStatusResult> {
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
+
+  const isMemberAndCanViewThread = await checkThread(viewer, request.threadID, [
+    {
+      check: 'is_member',
+    },
+    {
+      check: 'permission',
+      permission: threadPermissions.VISIBLE,
+    },
+  ]);
+  if (!isMemberAndCanViewThread) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const resetThreadToUnread = await shouldResetThreadToUnread(viewer, request);
+
+  if (!resetThreadToUnread) {
+    const update = SQL`
+    UPDATE memberships m
+    SET m.unread = ${request.unread ? 1 : 0}
+    WHERE m.thread = ${request.threadID} AND m.user = ${viewer.userID}
+  `;
+    const queryPromise = dbQuery(update);
+
+    const time = Date.now();
+    const updatesPromise = createUpdates(
+      [
+        {
+          type: updateTypes.UPDATE_THREAD_READ_STATUS,
+          userID: viewer.userID,
+          time: time,
+          threadID: request.threadID,
+          unread: request.unread,
+        },
+      ],
+      { viewer, updatesForCurrentSession: 'ignore' },
+    );
+
+    await Promise.all([updatesPromise, queryPromise]);
+  }
+
+  if (!request.unread) {
+    const rescindCondition = SQL`
+      n.user = ${viewer.userID} AND
+      n.thread = ${request.threadID} AND
+      n.message <= ${request.latestMessage}
+    `;
+    await rescindPushNotifs(rescindCondition);
+  }
+
+  return {
+    resetToUnread: resetThreadToUnread,
+  };
+}
+
+async function shouldResetThreadToUnread(
+  viewer: Viewer,
+  request: SetThreadUnreadStatusRequest,
+): Promise<boolean> {
+  if (request.unread || request.latestMessage.startsWith('local')) {
+    return false;
+  }
+
+  const resetToUnread = await determineUnfocusedThreadsReadStatus(
+    viewer,
+    new Map([[request.threadID, request.latestMessage]]),
+  );
+
+  return resetToUnread.some(threadID => threadID === request.threadID);
+}
+
 // The `focused` table tracks which chat threads are currently in view for a
 // given cookie. We track this so that if a user is currently viewing a thread's
 // messages, then notifications on that thread are not sent. This function does
@@ -284,4 +369,4 @@ async function updateActivityTime(viewer: Viewer): Promise<void> {
   await dbQuery(focusedQuery);
 }
 
-export { activityUpdater, updateActivityTime };
+export { activityUpdater, updateActivityTime, setThreadUnreadStatus };

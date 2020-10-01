@@ -12,8 +12,6 @@ import {
   type NewThreadResponse,
   type ServerThreadJoinRequest,
   type ThreadJoinResult,
-  type SetThreadUnreadStatusResult,
-  type SetThreadUnreadStatusRequest,
   assertThreadType,
 } from 'lib/types/thread-types';
 import type { Viewer } from '../session/viewer';
@@ -28,7 +26,6 @@ import {
   tNumEnum,
   tColor,
   tPassword,
-  tBool,
 } from '../utils/validation-utils';
 import { deleteThread } from '../deleters/thread-deleters';
 import {
@@ -37,7 +34,6 @@ import {
   leaveThread,
   updateThread,
   joinThread,
-  setThreadUnreadStatus,
 } from '../updaters/thread-updaters';
 import createThread from '../creators/thread-creator';
 import {
@@ -214,27 +210,6 @@ async function threadJoinResponder(
   return await joinThread(viewer, request);
 }
 
-const setThreadUnreadStatusValidator = t.union([
-  tShape({
-    threadID: t.String,
-    unread: tBool(true),
-  }),
-  tShape({
-    threadID: t.String,
-    unread: tBool(false),
-    latestMessage: t.String,
-  }),
-]);
-async function threadSetUnreadStatusResponder(
-  viewer: Viewer,
-  input: any,
-): Promise<SetThreadUnreadStatusResult> {
-  const request: SetThreadUnreadStatusRequest = input;
-  await validateInput(viewer, setThreadUnreadStatusValidator, request);
-
-  return await setThreadUnreadStatus(viewer, request);
-}
-
 export {
   threadDeletionResponder,
   roleUpdateResponder,
@@ -243,5 +218,4 @@ export {
   threadUpdateResponder,
   threadCreationResponder,
   threadJoinResponder,
-  threadSetUnreadStatusResponder,
 };

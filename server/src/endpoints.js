@@ -8,7 +8,10 @@ import {
   messageFetchResponder,
   multimediaMessageCreationResponder,
 } from './responders/message-responders';
-import { updateActivityResponder } from './responders/activity-responders';
+import {
+  updateActivityResponder,
+  threadSetUnreadStatusResponder,
+} from './responders/activity-responders';
 import { deviceTokenUpdateResponder } from './responders/device-responders';
 import {
   userSubscriptionUpdateResponder,
@@ -42,7 +45,6 @@ import {
   threadUpdateResponder,
   threadCreationResponder,
   threadJoinResponder,
-  threadSetUnreadStatusResponder,
 } from './responders/thread-responders';
 import {
   reportCreationResponder,
