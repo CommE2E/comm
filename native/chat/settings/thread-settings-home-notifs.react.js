@@ -1,7 +1,6 @@
 // @flow
 
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import type { AppState } from '../../redux/redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type {
   SubscriptionUpdateRequest,
@@ -12,27 +11,33 @@ import * as React from 'react';
 import { Text, View, Switch } from 'react-native';
 import PropTypes from 'prop-types';
 
-import { connect } from 'lib/utils/redux-utils';
 import {
   updateSubscriptionActionTypes,
   updateSubscription,
 } from 'lib/actions/user-actions';
+import {
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
 
-import { styleSelector } from '../../themes/colors';
+import { useStyles } from '../../themes/colors';
 
+type BaseProps = {|
+  +threadInfo: ThreadInfo,
+|};
 type Props = {|
-  threadInfo: ThreadInfo,
+  ...BaseProps,
   // Redux state
-  styles: typeof styles,
+  +styles: typeof unboundStyles,
   // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  updateSubscription: (
+  +updateSubscription: (
     subscriptionUpdate: SubscriptionUpdateRequest,
   ) => Promise<SubscriptionUpdateResult>,
 |};
 type State = {|
-  currentValue: boolean,
+  +currentValue: boolean,
 |};
 class ThreadSettingsHomeNotifs extends React.PureComponent<Props, State> {
   static propTypes = {
@@ -77,7 +82,7 @@ class ThreadSettingsHomeNotifs extends React.PureComponent<Props, State> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   currentValue: {
     alignItems: 'flex-end',
     flex: 1,
@@ -99,11 +104,19 @@ const styles = {
     paddingVertical: 3,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-export default connect(
-  (state: AppState) => ({
-    styles: stylesSelector(state),
-  }),
-  { updateSubscription },
-)(ThreadSettingsHomeNotifs);
+export default React.memo<BaseProps>(function ConnectedThreadSettingsHomeNotifs(
+  props: BaseProps,
+) {
+  const styles = useStyles(unboundStyles);
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callUpdateSubscription = useServerCall(updateSubscription);
+  return (
+    <ThreadSettingsHomeNotifs
+      {...props}
+      styles={styles}
+      dispatchActionPromise={dispatchActionPromise}
+      updateSubscription={callUpdateSubscription}
+    />
+  );
+});
