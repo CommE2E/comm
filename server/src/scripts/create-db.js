@@ -82,7 +82,9 @@ async function createTables() {
       permissions_for_children json DEFAULT NULL,
       creation_time bigint(20) NOT NULL,
       subscription json NOT NULL,
-      unread tinyint(1) NOT NULL
+      unread tinyint(1) NOT NULL,
+      last_message bigint(20) NOT NULL DEFAULT 0,
+      last_read_message bigint(20) NOT NULL DEFAULT 0
     ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
     CREATE TABLE messages (
