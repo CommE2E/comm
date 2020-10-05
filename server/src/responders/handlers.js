@@ -23,7 +23,10 @@ export type DownloadResponder = (
 export type HTMLResponder = DownloadResponder;
 export type UploadResponder = (viewer: Viewer, req: $Request) => Promise<*>;
 
-function jsonHandler(responder: JSONResponder) {
+function jsonHandler(
+  responder: JSONResponder,
+  expectCookieInvalidation: boolean,
+) {
   return async (req: $Request, res: $Response) => {
     let viewer;
     try {
@@ -37,10 +40,10 @@ function jsonHandler(responder: JSONResponder) {
         return;
       }
       const result = { ...responderResult };
-      addCookieToJSONResponse(viewer, res, result);
+      addCookieToJSONResponse(viewer, res, result, expectCookieInvalidation);
       res.json({ success: true, ...result });
     } catch (e) {
-      await handleException(e, res, viewer);
+      await handleException(e, res, viewer, expectCookieInvalidation);
     }
   };
 }
@@ -64,7 +67,12 @@ function getMessageForException(error: Error & { sqlMessage?: string }) {
     : error.message;
 }
 
-async function handleException(error: Error, res: $Response, viewer: ?Viewer) {
+async function handleException(
+  error: Error,
+  res: $Response,
+  viewer?: ?Viewer,
+  expectCookieInvalidation?: boolean,
+) {
   console.warn(error);
   if (res.headersSent) {
     return;
@@ -91,7 +99,7 @@ async function handleException(error: Error, res: $Response, viewer: ?Viewer) {
       viewer.cookieInvalidated = true;
     }
     // This can mutate the result object
-    addCookieToJSONResponse(viewer, res, result);
+    addCookieToJSONResponse(viewer, res, result, !!expectCookieInvalidation);
   }
   res.json(result);
 }
@@ -125,7 +133,7 @@ function uploadHandler(responder: UploadResponder) {
         return;
       }
       const result = { ...responderResult };
-      addCookieToJSONResponse(viewer, res, result);
+      addCookieToJSONResponse(viewer, res, result, false);
       res.json({ success: true, ...result });
     } catch (e) {
       await handleException(e, res, viewer);

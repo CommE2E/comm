@@ -59,10 +59,14 @@ if (cluster.isMaster) {
   router.use('/compiled', express.static('compiled', compiledFolderOptions));
   router.use('/', express.static('icons'));
 
-  for (let endpoint in jsonEndpoints) {
+  for (const endpoint in jsonEndpoints) {
     // $FlowFixMe Flow thinks endpoint is string
     const responder = jsonEndpoints[endpoint];
-    router.post(`/${endpoint}`, jsonHandler(responder));
+    const expectCookieInvalidation = endpoint === 'log_out';
+    router.post(
+      `/${endpoint}`,
+      jsonHandler(responder, expectCookieInvalidation),
+    );
   }
 
   router.get(

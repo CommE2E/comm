@@ -716,7 +716,11 @@ function addCookieToJSONResponse(
   viewer: Viewer,
   res: $Response,
   result: Object,
+  expectCookieInvalidation: boolean,
 ) {
+  if (expectCookieInvalidation) {
+    viewer.cookieInvalidated = false;
+  }
   if (!viewer.getData().cookieInsertedThisRequest) {
     handleAsyncPromise(extendCookieLifespan(viewer.cookieID));
   }
