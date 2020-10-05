@@ -3,14 +3,13 @@
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
-import type { AppState } from '../../redux/redux-setup';
 import type { ThreadSettingsNavigate } from './thread-settings.react';
 
 import * as React from 'react';
 import { Text, ActivityIndicator, View, Platform } from 'react-native';
 import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 
-import { connect } from 'lib/utils/redux-utils';
 import { changeThreadSettingsActionTypes } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
@@ -20,21 +19,24 @@ import { ColorPickerModalRouteName } from '../../navigation/route-names';
 import {
   type Colors,
   colorsPropType,
-  colorsSelector,
-  styleSelector,
+  useColors,
+  useStyles,
 } from '../../themes/colors';
 
+type BaseProps = {|
+  +threadInfo: ThreadInfo,
+  +colorEditValue: string,
+  +setColorEditValue: (color: string) => void,
+  +canChangeSettings: boolean,
+  +navigate: ThreadSettingsNavigate,
+  +threadSettingsRouteKey: string,
+|};
 type Props = {|
-  threadInfo: ThreadInfo,
-  colorEditValue: string,
-  setColorEditValue: (color: string) => void,
-  canChangeSettings: boolean,
-  navigate: ThreadSettingsNavigate,
-  threadSettingsRouteKey: string,
+  ...BaseProps,
   // Redux state
-  loadingStatus: LoadingStatus,
-  colors: Colors,
-  styles: typeof styles,
+  +loadingStatus: LoadingStatus,
+  +colors: Colors,
+  +styles: typeof unboundStyles,
 |};
 class ThreadSettingsColor extends React.PureComponent<Props> {
   static propTypes = {
@@ -95,7 +97,7 @@ class ThreadSettingsColor extends React.PureComponent<Props> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   colorLine: {
     lineHeight: Platform.select({ android: 22, default: 25 }),
   },
@@ -116,15 +118,24 @@ const styles = {
     width: 96,
   },
 };
-const stylesSelector = styleSelector(styles);
 
 const loadingStatusSelector = createLoadingStatusSelector(
   changeThreadSettingsActionTypes,
   `${changeThreadSettingsActionTypes.started}:color`,
 );
 
-export default connect((state: AppState) => ({
-  loadingStatus: loadingStatusSelector(state),
-  colors: colorsSelector(state),
-  styles: stylesSelector(state),
-}))(ThreadSettingsColor);
+export default React.memo<BaseProps>(function ConnectedThreadSettingsColor(
+  props: BaseProps,
+) {
+  const loadingStatus = useSelector(loadingStatusSelector);
+  const colors = useColors();
+  const styles = useStyles(unboundStyles);
+  return (
+    <ThreadSettingsColor
+      {...props}
+      loadingStatus={loadingStatus}
+      colors={colors}
+      styles={styles}
+    />
+  );
+});
