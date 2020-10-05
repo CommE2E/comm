@@ -1762,9 +1762,9 @@
     "@types/hammerjs" "^2.0.36"
 
 "@expo/configure-splash-screen@~0.1.0":
-  version "0.1.15"
-  resolved "https://registry.yarnpkg.com/@expo/configure-splash-screen/-/configure-splash-screen-0.1.15.tgz#4e30bae340026c3737a0778a249d945ab6b0411f"
-  integrity sha512-jKall/3aq3g/dQd0gPijsCxHyPXWh8rq/F2h0IYf1mcixlrMGTTFl/0um48SMJzyEg4HYMe4w8thn79vseI+AA==
+  version "0.1.19"
+  resolved "https://registry.yarnpkg.com/@expo/configure-splash-screen/-/configure-splash-screen-0.1.19.tgz#22257cd63e4e21036dda55851a28b6e9b02a9b1a"
+  integrity sha512-9rVtF3BwHcNWom8crn6Rc09U3gnmUKroZL6ta04hUTpikMpGaZYdES2gj2ZryHvIACGHbxtM9MErSWH3B6iz5w==
   dependencies:
     "@react-native-community/cli-platform-android" "^4.10.0"
     "@react-native-community/cli-platform-ios" "^4.10.0"
@@ -1773,6 +1773,7 @@
     core-js "^3.6.5"
     deep-equal "^2.0.3"
     fs-extra "^9.0.0"
+    lodash "^4.17.15"
     pngjs "^5.0.0"
     xcode "^3.0.0"
     xml-js "^1.6.11"
