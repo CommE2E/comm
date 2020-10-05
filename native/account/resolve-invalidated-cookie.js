@@ -2,6 +2,7 @@
 
 import type { FetchJSON } from 'lib/utils/fetch-json';
 import type { DispatchRecoveryAttempt } from 'lib/utils/action-utils';
+import type { LogInActionSource } from 'lib/types/account-types';
 
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
 
@@ -16,6 +17,7 @@ import { getGlobalNavContext } from '../navigation/icky-global';
 async function resolveInvalidatedCookie(
   fetchJSON: FetchJSON,
   dispatchRecoveryAttempt: DispatchRecoveryAttempt,
+  source?: LogInActionSource,
 ) {
   const keychainCredentials = await fetchNativeKeychainCredentials();
   if (keychainCredentials) {
@@ -29,6 +31,7 @@ async function resolveInvalidatedCookie(
       logIn(fetchJSON, {
         usernameOrEmail: keychainCredentials.username,
         password: keychainCredentials.password,
+        source,
         ...extraInfo,
       }),
       { calendarQuery },
@@ -49,6 +52,7 @@ async function resolveInvalidatedCookie(
       logIn(fetchJSON, {
         usernameOrEmail: sharedWebCredentials.username,
         password: sharedWebCredentials.password,
+        source,
         ...extraInfo,
       }),
       { calendarQuery },

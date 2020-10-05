@@ -44,10 +44,14 @@ import Orientation from 'react-native-orientation-locker';
 
 import baseReducer from 'lib/reducers/master-reducer';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger';
-import { invalidSessionDowngrade } from 'lib/shared/account-utils';
+import {
+  invalidSessionDowngrade,
+  invalidSessionRecovery,
+} from 'lib/shared/account-utils';
 import {
   logOutActionTypes,
   deleteAccountActionTypes,
+  logInActionTypes,
 } from 'lib/actions/user-actions';
 
 import { activeMessageListSelector } from '../navigation/nav-selectors';
@@ -185,6 +189,22 @@ function reducer(state: AppState = defaultState, action: *) {
         state,
         action.payload.currentUserInfo,
         action.payload.preRequestUserState,
+      ))
+  ) {
+    return state;
+  }
+  if (
+    (action.type === setNewSessionActionType &&
+      invalidSessionRecovery(
+        state,
+        action.payload.sessionChange.currentUserInfo,
+        action.payload.source,
+      )) ||
+    (action.type === logInActionTypes.success &&
+      invalidSessionRecovery(
+        state,
+        action.payload.currentUserInfo,
+        action.payload.source,
       ))
   ) {
     return state;
