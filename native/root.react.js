@@ -4,7 +4,7 @@ import type { PossiblyStaleNavigationState } from '@react-navigation/native';
 
 import * as React from 'react';
 import { Provider, useSelector } from 'react-redux';
-import { Platform, UIManager, View, StyleSheet } from 'react-native';
+import { Platform, UIManager, View, StyleSheet, YellowBox } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 import { PersistGate } from 'redux-persist/integration/react';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -41,6 +41,11 @@ import LifecycleHandler from './lifecycle/lifecycle-handler.react';
 import { DarkTheme, LightTheme } from './themes/navigation';
 import { validNavState } from './navigation/navigation-utils';
 import { navStateAsyncStorageKey } from './navigation/persistance';
+
+YellowBox.ignoreWarnings([
+  // react-native-reanimated
+  'Please report: Excessive number of pending callbacks',
+]);
 
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental &&
