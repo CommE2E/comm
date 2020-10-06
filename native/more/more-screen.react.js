@@ -229,7 +229,7 @@ class MoreScreen extends React.PureComponent<Props> {
               />
             </View>
           </View>
-          {/* <View style={this.props.styles.slightlyPaddedSection}>
+          <View style={this.props.styles.slightlyPaddedSection}>
             <Button
               onPress={this.onPressFriendList}
               style={this.props.styles.submenuButton}
@@ -248,7 +248,7 @@ class MoreScreen extends React.PureComponent<Props> {
               <Text style={this.props.styles.submenuText}>Block list</Text>
               <Icon name="ios-arrow-forward" size={20} color={linkColor} />
             </Button>
-          </View> */}
+          </View>
           <Text style={this.props.styles.header}>PREFERENCES</Text>
           <View style={this.props.styles.slightlyPaddedSection}>
             <Button
