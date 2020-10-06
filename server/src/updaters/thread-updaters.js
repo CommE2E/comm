@@ -15,6 +15,7 @@ import {
 } from 'lib/types/thread-types';
 import type { Viewer } from '../session/viewer';
 import { messageTypes, defaultNumberPerThread } from 'lib/types/message-types';
+import { userRelationshipStatus } from 'lib/types/relationship-types';
 
 import bcrypt from 'twin-bcrypt';
 import _find from 'lodash/fp/find';
@@ -382,14 +383,6 @@ async function updateThread(
     validationQuery: [validationResult],
     hasNecessaryPermissions,
   } = await promiseAll(validationPromises);
-  if (fetchNewMembers) {
-    invariant(newMemberIDs, 'should be set');
-    for (const newMemberID of newMemberIDs) {
-      if (!fetchNewMembers[newMemberID]) {
-        throw new ServerError('invalid_credentials');
-      }
-    }
-  }
 
   if (validationResult.length === 0 || validationResult[0].type === null) {
     throw new ServerError('internal_error');
@@ -409,8 +402,8 @@ async function updateThread(
   }
 
   const oldThreadType = assertThreadType(validationRow.type);
-  const oldParentThreadID = validationRow.parentThreadID
-    ? validationRow.parentThreadID.toString()
+  const oldParentThreadID = validationRow.parent_thread_id
+    ? validationRow.parent_thread_id.toString()
     : null;
 
   // If the thread is being switched to nested, a parent must be specified
@@ -430,6 +423,39 @@ async function updateThread(
   const nextParentThreadID = parentThreadID
     ? parentThreadID
     : oldParentThreadID;
+
+  let parentThreadMembers;
+  if (nextParentThreadID) {
+    const parentThread = await fetchServerThreadInfos(
+      SQL`t.id = ${nextParentThreadID}`,
+    );
+    parentThreadMembers = parentThread.threadInfos[
+      nextParentThreadID
+    ].members.map(userInfo => userInfo.id);
+  }
+
+  if (fetchNewMembers) {
+    invariant(newMemberIDs, 'should be set');
+    for (const newMemberID of newMemberIDs) {
+      if (!fetchNewMembers[newMemberID]) {
+        throw new ServerError('invalid_credentials');
+      }
+      const { relationshipStatus } = fetchNewMembers[newMemberID];
+
+      if (relationshipStatus === userRelationshipStatus.FRIEND) {
+        continue;
+      } else if (
+        parentThreadMembers &&
+        parentThreadMembers.includes(newMemberID) &&
+        relationshipStatus !== userRelationshipStatus.BLOCKED_BY_VIEWER &&
+        relationshipStatus !== userRelationshipStatus.BLOCKED_VIEWER &&
+        relationshipStatus !== userRelationshipStatus.BOTH_BLOCKED
+      ) {
+        continue;
+      }
+      throw new ServerError('invalid_credentials');
+    }
+  }
 
   const intermediatePromises = {};
   if (Object.keys(sqlUpdate).length > 0) {

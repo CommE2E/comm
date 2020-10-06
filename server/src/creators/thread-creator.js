@@ -7,6 +7,7 @@ import {
   threadPermissions,
 } from 'lib/types/thread-types';
 import { messageTypes } from 'lib/types/message-types';
+import { userRelationshipStatus } from 'lib/types/relationship-types';
 import type { Viewer } from '../session/viewer';
 
 import invariant from 'invariant';
@@ -21,6 +22,7 @@ import { checkThreadPermission } from '../fetchers/thread-permission-fetchers';
 import createIDs from './id-creator';
 import { createInitialRolesForNewThread } from './role-creator';
 import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
+import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
 import {
   changeRole,
   recalculateAllPermissions,
@@ -31,10 +33,16 @@ import {
 } from '../updaters/thread-permission-updaters';
 import createMessages from './message-creator';
 
+// If forceAddMembers is set, we will allow the viewer to add random users who
+// they aren't friends with. We will only fail if the viewer is trying to add
+// somebody who they have blocked or has blocked them. On the other hand, if
+// forceAddMembers is not set, we will fail if the viewer tries to add somebody
+// who they aren't friends with and doesn't have a membership row with a
+// nonnegative role for the parent thread.
 async function createThread(
   viewer: Viewer,
   request: NewThreadRequest,
-  createRelationships?: boolean = false,
+  forceAddMembers?: boolean = false,
 ): Promise<NewThreadResponse> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
@@ -58,6 +66,9 @@ async function createThread(
       parentThreadID,
       threadPermissions.CREATE_SUBTHREADS,
     );
+    checkPromises.parentThread = fetchServerThreadInfos(
+      SQL`t.id = ${parentThreadID}`,
+    );
   }
   if (initialMemberIDs) {
     checkPromises.fetchInitialMembers = fetchKnownUserInfos(
@@ -65,23 +76,51 @@ async function createThread(
       initialMemberIDs,
     );
   }
-  const checkResults = await promiseAll(checkPromises);
+  const {
+    hasParentPermission,
+    parentThread,
+    fetchInitialMembers,
+  } = await promiseAll(checkPromises);
 
-  if (checkResults.hasParentPermission === false) {
+  if (hasParentPermission === false) {
     throw new ServerError('invalid_credentials');
   }
 
+  let parentThreadMembers;
+  if (parentThread && parentThreadID) {
+    parentThreadMembers = parentThread.threadInfos[parentThreadID].members.map(
+      userInfo => userInfo.id,
+    );
+  }
+
   const viewerNeedsRelationshipsWith = [];
-  if (checkResults.fetchInitialMembers) {
+  if (fetchInitialMembers) {
     invariant(initialMemberIDs, 'should be set');
     for (const initialMemberID of initialMemberIDs) {
-      if (checkResults.fetchInitialMembers[initialMemberID]) {
+      const initialMember = fetchInitialMembers[initialMemberID];
+      if (!initialMember && forceAddMembers) {
+        viewerNeedsRelationshipsWith.push(initialMemberID);
         continue;
-      }
-      if (!createRelationships) {
+      } else if (!initialMember) {
         throw new ServerError('invalid_credentials');
       }
-      viewerNeedsRelationshipsWith.push(initialMemberID);
+      const { relationshipStatus } = initialMember;
+      if (relationshipStatus === userRelationshipStatus.FRIEND) {
+        continue;
+      } else if (
+        relationshipStatus === userRelationshipStatus.BLOCKED_BY_VIEWER ||
+        relationshipStatus === userRelationshipStatus.BLOCKED_VIEWER ||
+        relationshipStatus === userRelationshipStatus.BOTH_BLOCKED
+      ) {
+        throw new ServerError('invalid_credentials');
+      } else if (
+        parentThreadMembers &&
+        parentThreadMembers.includes(initialMemberID)
+      ) {
+        continue;
+      } else if (!forceAddMembers) {
+        throw new ServerError('invalid_credentials');
+      }
     }
   }
 
