@@ -14,20 +14,14 @@ import {
   activityUpdater,
   setThreadUnreadStatus,
 } from '../updaters/activity-updaters';
-import { validateInput, tBool, tShape } from '../utils/validation-utils';
+import { validateInput, tShape } from '../utils/validation-utils';
 
 const activityUpdatesInputValidator = t.list(
-  t.union([
-    tShape({
-      focus: tBool(true),
-      threadID: t.String,
-    }),
-    tShape({
-      focus: tBool(false),
-      threadID: t.String,
-      latestMessage: t.maybe(t.String),
-    }),
-  ]),
+  tShape({
+    focus: t.Bool,
+    threadID: t.String,
+    latestMessage: t.maybe(t.String),
+  }),
 );
 
 const inputValidator = tShape({
