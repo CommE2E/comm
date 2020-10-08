@@ -50,6 +50,7 @@ type Props = {|
   // successful onPress or onLongPress. We will wait for stickyActive to flip
   // from true to false before animating back to our deactivated mode.
   +stickyActive?: boolean,
+  +overlay?: React.Node,
 |};
 function GestureTouchableOpacity(props: Props) {
   const { onPress: innerOnPress, onLongPress: innerOnLongPress } = props;
@@ -165,8 +166,11 @@ function GestureTouchableOpacity(props: Props) {
 
   const tapHandler = (
     <TapGestureHandler onHandlerStateChange={tapEvent} maxDurationMs={100000}>
-      <Animated.View style={[transformStyle, props.style]}>
-        {props.children}
+      <Animated.View style={styles.fill}>
+        <Animated.View style={[transformStyle, props.style]}>
+          {props.children}
+        </Animated.View>
+        {props.overlay}
       </Animated.View>
     </TapGestureHandler>
   );
