@@ -45,6 +45,10 @@ type Props = {|
   +onLongPress?: () => mixed,
   +children?: React.Node,
   +style?: ViewStyle,
+  // If stickyActive is a boolean, we assume that we should stay active after a
+  // successful onPress or onLongPress. We will wait for stickyActive to flip
+  // from true to false before animating back to our deactivated mode.
+  +stickyActive?: boolean,
 |};
 function GestureTouchableOpacity(props: Props) {
   const { onPress: innerOnPress, onLongPress: innerOnLongPress } = props;
@@ -56,6 +60,22 @@ function GestureTouchableOpacity(props: Props) {
   }, [innerOnLongPress]);
   const activeOpacity = props.activeOpacity ?? 0.2;
 
+  const { stickyActive } = props;
+  const prevStickyActiveRef = React.useRef(stickyActive);
+  const activeValueRef = React.useRef(new Value(stickyActive ? 1 : 0));
+  React.useEffect(() => {
+    const prevActive = prevStickyActiveRef.current;
+    if (!prevActive && stickyActive) {
+      activeValueRef.current.setValue(1);
+    } else if (prevActive && !stickyActive) {
+      activeValueRef.current.setValue(0);
+    }
+    prevStickyActiveRef.current = stickyActive;
+  }, [stickyActive]);
+  const activeValue = activeValueRef.current;
+
+  const stickyActiveEnabled =
+    stickyActive !== null && stickyActive !== undefined;
   const { longPressEvent, tapEvent, transformStyle } = React.useMemo(() => {
     const longPressState = new Value(-1);
     const innerLongPressEvent = event([
@@ -78,6 +98,7 @@ function GestureTouchableOpacity(props: Props) {
       eq(longPressState, GestureState.ACTIVE),
       eq(tapState, GestureState.BEGAN),
       eq(tapState, GestureState.ACTIVE),
+      activeValue,
     );
 
     const tapSuccess = eq(tapState, GestureState.END);
@@ -114,14 +135,17 @@ function GestureTouchableOpacity(props: Props) {
         ),
       ),
       [
-        cond(and(tapSuccess, not(prevTapSuccess)), call([], onPress)),
+        cond(and(tapSuccess, not(prevTapSuccess)), [
+          stickyActiveEnabled ? set(activeValue, 1) : undefined,
+          call([], onPress),
+        ]),
         set(prevTapSuccess, tapSuccess),
       ],
       [
-        cond(
-          and(longPressSuccess, not(prevLongPressSuccess)),
+        cond(and(longPressSuccess, not(prevLongPressSuccess)), [
+          stickyActiveEnabled ? set(activeValue, 1) : undefined,
           call([], onLongPress),
-        ),
+        ]),
         set(prevLongPressSuccess, longPressSuccess),
       ],
       curOpacity,
@@ -136,7 +160,7 @@ function GestureTouchableOpacity(props: Props) {
       tapEvent: innerTapEvent,
       transformStyle: innerTransformStyle,
     };
-  }, [onPress, onLongPress, activeOpacity]);
+  }, [onPress, onLongPress, activeOpacity, activeValue, stickyActiveEnabled]);
 
   return (
     <LongPressGestureHandler
