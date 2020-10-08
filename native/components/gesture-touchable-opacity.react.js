@@ -3,6 +3,7 @@
 import type { ViewStyle } from '../types/styles';
 
 import * as React from 'react';
+import { StyleSheet } from 'react-native';
 import {
   LongPressGestureHandler,
   TapGestureHandler,
@@ -162,18 +163,31 @@ function GestureTouchableOpacity(props: Props) {
     };
   }, [onPress, onLongPress, activeOpacity, activeValue, stickyActiveEnabled]);
 
+  const tapHandler = (
+    <TapGestureHandler onHandlerStateChange={tapEvent} maxDurationMs={100000}>
+      <Animated.View style={[transformStyle, props.style]}>
+        {props.children}
+      </Animated.View>
+    </TapGestureHandler>
+  );
+  if (!innerOnLongPress) {
+    return tapHandler;
+  }
+
   return (
     <LongPressGestureHandler
       onHandlerStateChange={longPressEvent}
       minDurationMs={370}
     >
-      <Animated.View style={transformStyle}>
-        <TapGestureHandler onHandlerStateChange={tapEvent}>
-          <Animated.View style={props.style}>{props.children}</Animated.View>
-        </TapGestureHandler>
-      </Animated.View>
+      <Animated.View style={styles.fill}>{tapHandler}</Animated.View>
     </LongPressGestureHandler>
   );
 }
+
+const styles = StyleSheet.create({
+  fill: {
+    flex: 1,
+  },
+});
 
 export default GestureTouchableOpacity;
