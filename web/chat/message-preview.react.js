@@ -16,6 +16,7 @@ import {
   threadIsTwoPersonChat,
 } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
+import { firstLine } from 'lib/utils/string-utils';
 
 import css from './chat-thread-list.css';
 
@@ -54,7 +55,7 @@ class MessagePreview extends React.PureComponent<Props> {
       return (
         <div className={classNames(css.lastMessage, colorStyle)}>
           {usernameText}
-          {messageInfo.text}
+          {firstLine(messageInfo.text)}
         </div>
       );
     } else {
@@ -62,7 +63,7 @@ class MessagePreview extends React.PureComponent<Props> {
       const colorStyle = unread ? css.black : css.light;
       return (
         <div className={classNames([css.lastMessage, colorStyle])}>
-          {preview}
+          {firstLine(preview)}
         </div>
       );
     }
