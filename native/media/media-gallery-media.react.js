@@ -224,13 +224,20 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     let media;
     const source = { uri };
     if (step === 'video_library') {
+      let resizeMode = 'contain';
+      if (Platform.OS === 'ios') {
+        const [major, minor] = Platform.Version.split('.');
+        if (parseInt(major, 10) === 14 && parseInt(minor, 10) < 2) {
+          resizeMode = 'stretch';
+        }
+      }
       media = (
         <Reanimated.View style={this.videoContainerStyle}>
           <Video
             source={source}
             repeat={true}
             muted={true}
-            resizeMode="contain"
+            resizeMode={resizeMode}
             style={dimensionsStyle}
           />
           <Reanimated.View style={this.videoOverlayStyle} />
