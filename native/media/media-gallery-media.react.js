@@ -1,7 +1,6 @@
 // @flow
 
 import type { ViewStyle, ImageStyle } from '../types/styles';
-import { type Colors, colorsPropType } from '../themes/colors';
 import {
   type MediaLibrarySelection,
   mediaLibrarySelectionPropType,
@@ -25,14 +24,11 @@ import {
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import LottieView from 'lottie-react-native';
-import GenericTouchable, {
-  TOUCHABLE_STATE,
-} from 'react-native-gesture-handler/touchables/GenericTouchable';
 import Reanimated, {
   Easing as ReanimatedEasing,
 } from 'react-native-reanimated';
-import invariant from 'invariant';
 import Video from 'react-native-video';
+import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
 
 const animatedSpec = {
   duration: 400,
@@ -45,16 +41,15 @@ const reanimatedSpec = {
 };
 
 type Props = {|
-  selection: MediaLibrarySelection,
-  containerHeight: number,
-  queueModeActive: boolean,
-  isQueued: boolean,
-  setMediaQueued: (media: MediaLibrarySelection, isQueued: boolean) => void,
-  sendMedia: (media: MediaLibrarySelection) => void,
-  isFocused: boolean,
-  setFocus: (media: MediaLibrarySelection, isFocused: boolean) => void,
-  dimensions: DimensionsInfo,
-  colors: Colors,
+  +selection: MediaLibrarySelection,
+  +containerHeight: number,
+  +queueModeActive: boolean,
+  +isQueued: boolean,
+  +setMediaQueued: (media: MediaLibrarySelection, isQueued: boolean) => void,
+  +sendMedia: (media: MediaLibrarySelection) => void,
+  +isFocused: boolean,
+  +setFocus: (media: MediaLibrarySelection, isFocused: boolean) => void,
+  +dimensions: DimensionsInfo,
 |};
 class MediaGalleryMedia extends React.PureComponent<Props> {
   static propTypes = {
@@ -67,17 +62,11 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     isFocused: PropTypes.bool.isRequired,
     setFocus: PropTypes.func.isRequired,
     dimensions: dimensionsInfoPropType.isRequired,
-    colors: colorsPropType.isRequired,
   };
   // eslint-disable-next-line import/no-named-as-default-member
   focusProgress = new Reanimated.Value(0);
   buttonsStyle: ViewStyle;
-  // eslint-disable-next-line import/no-named-as-default-member
-  backdropProgress = new Reanimated.Value(0);
-  animatingBackdropToZero = false;
-  imageStyle: ImageStyle;
-  videoContainerStyle: ViewStyle;
-  videoOverlayStyle: ViewStyle;
+  mediaStyle: ImageStyle;
   checkProgress = new Animated.Value(0);
 
   constructor(props: Props) {
@@ -100,29 +89,8 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
       inputRange: [0, 1],
       outputRange: [1, 1.3],
     });
-    this.videoContainerStyle = {
+    this.mediaStyle = {
       transform: [{ scale: mediaScale }],
-    };
-
-    // eslint-disable-next-line import/no-named-as-default-member
-    const backdropOpacity = Reanimated.interpolate(this.backdropProgress, {
-      inputRange: [0, 1],
-      outputRange: [1, 0.2],
-    });
-    this.imageStyle = {
-      opacity: backdropOpacity,
-      transform: [{ scale: mediaScale }],
-    };
-
-    // eslint-disable-next-line import/no-named-as-default-member
-    const overlayOpacity = Reanimated.interpolate(this.backdropProgress, {
-      inputRange: [0, 1],
-      outputRange: [0, 0.8],
-    });
-    this.videoOverlayStyle = {
-      ...styles.videoOverlay,
-      opacity: overlayOpacity,
-      backgroundColor: props.colors.listBackground,
     };
   }
 
@@ -133,29 +101,13 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
   componentDidUpdate(prevProps: Props) {
     const isActive = MediaGalleryMedia.isActive(this.props);
     const wasActive = MediaGalleryMedia.isActive(prevProps);
-    const { backdropProgress } = this;
     if (isActive && !wasActive) {
-      if (backdropProgress) {
-        // eslint-disable-next-line import/no-named-as-default-member
-        Reanimated.timing(backdropProgress, {
-          ...reanimatedSpec,
-          toValue: 1,
-        }).start();
-      }
       // eslint-disable-next-line import/no-named-as-default-member
       Reanimated.timing(this.focusProgress, {
         ...reanimatedSpec,
         toValue: 1,
       }).start();
     } else if (!isActive && wasActive) {
-      if (backdropProgress && !this.animatingBackdropToZero) {
-        this.animatingBackdropToZero = true;
-        // eslint-disable-next-line import/no-named-as-default-member
-        Reanimated.timing(backdropProgress, {
-          ...reanimatedSpec,
-          toValue: 0,
-        }).start(this.onAnimatingBackdropToZeroCompletion);
-      }
       // eslint-disable-next-line import/no-named-as-default-member
       Reanimated.timing(this.focusProgress, {
         ...reanimatedSpec,
@@ -198,7 +150,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     const { queueModeActive } = this.props;
     if (!queueModeActive) {
       buttons = (
-        <React.Fragment>
+        <>
           <TouchableOpacity
             onPress={this.onPressSend}
             style={styles.sendButton}
@@ -217,7 +169,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
             <MaterialIcon name="add-to-photos" style={styles.buttonIcon} />
             <Text style={styles.buttonText}>Queue</Text>
           </TouchableOpacity>
-        </React.Fragment>
+        </>
       );
     }
 
@@ -232,7 +184,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
         }
       }
       media = (
-        <Reanimated.View style={this.videoContainerStyle}>
+        <Reanimated.View style={this.mediaStyle}>
           <Video
             source={source}
             repeat={true}
@@ -240,35 +192,37 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
             resizeMode={resizeMode}
             style={dimensionsStyle}
           />
-          <Reanimated.View style={this.videoOverlayStyle} />
         </Reanimated.View>
       );
     } else {
       media = (
         <Reanimated.Image
           source={source}
-          style={[this.imageStyle, dimensionsStyle]}
+          style={[this.mediaStyle, dimensionsStyle]}
         />
       );
     }
 
+    const overlay = (
+      <Reanimated.View style={this.buttonsStyle}>
+        <LottieView
+          source={require('../animations/check.json')}
+          progress={this.checkProgress}
+          style={styles.checkAnimation}
+          resizeMode="cover"
+        />
+      </Reanimated.View>
+    );
+
     return (
       <View style={[styles.container, dimensionsStyle]}>
-        <GenericTouchable
+        <GestureTouchableOpacity
           onPress={this.onPressBackdrop}
-          onStateChange={this.onBackdropStateChange}
-          delayPressOut={1}
+          overlay={overlay}
+          stickyActive={active}
         >
           {media}
-          <Reanimated.View style={this.buttonsStyle}>
-            <LottieView
-              source={require('../animations/check.json')}
-              progress={this.checkProgress}
-              style={styles.checkAnimation}
-              resizeMode="cover"
-            />
-          </Reanimated.View>
-        </GenericTouchable>
+        </GestureTouchableOpacity>
         <Reanimated.View
           style={this.buttonsStyle}
           pointerEvents={active ? 'box-none' : 'none'}
@@ -289,39 +243,12 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     }
   };
 
-  onBackdropStateChange = (from: number, to: number) => {
-    if (MediaGalleryMedia.isActive(this.props)) {
-      return;
-    }
-    const { backdropProgress } = this;
-    invariant(backdropProgress, 'should be set');
-    if (to === TOUCHABLE_STATE.BEGAN) {
-      backdropProgress.setValue(1);
-    } else if (
-      !this.animatingBackdropToZero &&
-      (to === TOUCHABLE_STATE.UNDETERMINED ||
-        to === TOUCHABLE_STATE.MOVED_OUTSIDE)
-    ) {
-      this.animatingBackdropToZero = true;
-      // eslint-disable-next-line import/no-named-as-default-member
-      Reanimated.timing(backdropProgress, {
-        ...reanimatedSpec,
-        duration: 150,
-        toValue: 0,
-      }).start(this.onAnimatingBackdropToZeroCompletion);
-    }
-  };
-
   onPressSend = () => {
     this.props.sendMedia(this.props.selection);
   };
 
   onPressEnqueue = () => {
     this.props.setMediaQueued(this.props.selection, true);
-  };
-
-  onAnimatingBackdropToZeroCompletion = () => {
-    this.animatingBackdropToZero = false;
   };
 }
 
@@ -372,13 +299,6 @@ const styles = StyleSheet.create({
     ...buttonStyle,
     backgroundColor: '#7ED321',
     paddingLeft: 18,
-  },
-  videoOverlay: {
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-    right: 0,
-    top: 0,
   },
 });
 

@@ -323,7 +323,6 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
         isFocused={this.state.focusedMediaURI === uri}
         setFocus={this.setFocus}
         dimensions={this.state.dimensions}
-        colors={this.props.colors}
       />
     );
   };
