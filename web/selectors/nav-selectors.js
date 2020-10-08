@@ -1,6 +1,6 @@
 // @flow
 
-import type { AppState, NavInfo } from '../redux/redux-setup';
+import type { AppState } from '../redux/redux-setup';
 import type { CalendarFilter } from 'lib/types/filter-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
 
@@ -78,12 +78,8 @@ const monthAssertingSelector: (state: AppState) => number = createSelector(
   monthAssertingExtractor,
 );
 
-function activeThreadFromNavInfo(navInfo: NavInfo): ?string {
-  return navInfo.tab === 'chat' ? navInfo.activeChatThreadID : null;
-}
-
 function activeThreadSelector(state: AppState): ?string {
-  return activeThreadFromNavInfo(state.navInfo);
+  return state.navInfo.tab === 'chat' ? state.navInfo.activeChatThreadID : null;
 }
 
 const webCalendarQuery: (
@@ -122,7 +118,6 @@ export {
   yearAssertingSelector,
   monthExtractor,
   monthAssertingSelector,
-  activeThreadFromNavInfo,
   activeThreadSelector,
   webCalendarQuery,
   nonThreadCalendarQuery,

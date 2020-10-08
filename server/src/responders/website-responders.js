@@ -31,7 +31,6 @@ import 'web/server-rendering';
 import * as ReduxSetup from 'web/redux/redux-setup';
 import App from 'web/dist/app.build.cjs';
 import { navInfoFromURL } from 'web/url-utils';
-import { activeThreadFromNavInfo } from 'web/selectors/nav-selectors';
 
 import { Viewer } from '../session/viewer';
 import { handleCodeVerificationRequest } from '../models/verification';
@@ -43,10 +42,8 @@ import {
   fetchKnownUserInfos,
 } from '../fetchers/user-fetchers';
 import { setNewSession } from '../session/cookies';
-import { activityUpdater } from '../updaters/activity-updaters';
 import urlFacts from '../../facts/url';
 import { streamJSON, waitForStream } from '../utils/json-stream';
-import { handleAsyncPromise } from '../responders/handlers';
 
 const { basePath, baseDomain } = urlFacts;
 const { renderToNodeStream } = ReactDOMServer;
@@ -203,16 +200,6 @@ async function websiteResponder(
     return finalNavInfo;
   })();
 
-  const updateActivityPromise = (async () => {
-    const [navInfo] = await Promise.all([navInfoPromise, sessionIDPromise]);
-    const activeThread = activeThreadFromNavInfo(navInfo);
-    if (activeThread) {
-      await activityUpdater(viewer, {
-        updates: [{ focus: true, threadID: activeThread }],
-      });
-    }
-  })();
-
   const { jsURL, fontsURL, cssInclude } = await assetInfoPromise;
 
   // prettier-ignore
@@ -327,8 +314,6 @@ async function websiteResponder(
       </body>
     </html>
   `);
-
-  handleAsyncPromise(updateActivityPromise);
 }
 
 async function handleVerificationRequest(
