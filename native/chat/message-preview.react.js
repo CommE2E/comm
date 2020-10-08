@@ -19,9 +19,10 @@ import {
 } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
 import { connect } from 'lib/utils/redux-utils';
+import { firstLine } from 'lib/utils/string-utils';
 
 import { styleSelector } from '../themes/colors';
-import { firstLine, SingleLine } from '../components/single-line.react';
+import { SingleLine } from '../components/single-line.react';
 
 type Props = {|
   messageInfo: MessageInfo,

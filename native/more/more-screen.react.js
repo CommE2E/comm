@@ -35,6 +35,7 @@ import {
 } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
+import { firstLine } from 'lib/utils/string-utils';
 
 import {
   getNativeSharedWebCredentials,
@@ -58,7 +59,7 @@ import {
   colorsSelector,
   styleSelector,
 } from '../themes/colors';
-import { firstLine, SingleLine } from '../components/single-line.react';
+import { SingleLine } from '../components/single-line.react';
 
 type Props = {
   navigation: MoreNavigationProp<'MoreScreen'>,

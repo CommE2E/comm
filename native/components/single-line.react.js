@@ -3,13 +3,7 @@
 import * as React from 'react';
 import { Text } from 'react-native';
 
-const newlineRegex = /[\r\n]/;
-function firstLine(text: ?string): string {
-  if (!text) {
-    return '';
-  }
-  return text.split(newlineRegex, 1)[0];
-}
+import { firstLine } from 'lib/utils/string-utils';
 
 type Props = {|
   ...React.ElementConfig<typeof Text>,
@@ -24,4 +18,4 @@ function SingleLine(props: Props) {
   );
 }
 
-export { firstLine, SingleLine };
+export { SingleLine };
