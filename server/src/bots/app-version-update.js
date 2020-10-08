@@ -15,6 +15,14 @@ import { createBotViewer } from '../session/bots';
 const thirtyDays = 30 * 24 * 60 * 60 * 1000;
 const { squadbot } = bots;
 
+async function tryCreateSquadbotThread(userID: string) {
+  try {
+    return await createSquadbotThread(userID);
+  } catch {
+    return null;
+  }
+}
+
 async function botherMonthlyActivesToUpdateAppVersion(): Promise<void> {
   const cutoff = Date.now() - thirtyDays;
   const query = SQL`
@@ -63,13 +71,16 @@ async function botherMonthlyActivesToUpdateAppVersion(): Promise<void> {
       const squadbotThread = row.squadbot_thread.toString();
       squadbotThreads.set(userID, squadbotThread);
     } else {
-      usersToSquadbotThreadPromises[userID] = createSquadbotThread(userID);
+      usersToSquadbotThreadPromises[userID] = tryCreateSquadbotThread(userID);
     }
   }
 
   const newSquadbotThreads = await promiseAll(usersToSquadbotThreadPromises);
-  for (let userID in newSquadbotThreads) {
-    squadbotThreads.set(userID, newSquadbotThreads[userID]);
+  for (const userID in newSquadbotThreads) {
+    const newSquadbotThreadID = newSquadbotThreads[userID];
+    if (newSquadbotThreadID) {
+      squadbotThreads.set(userID, newSquadbotThreadID);
+    }
   }
 
   const time = Date.now();
