@@ -11,11 +11,11 @@ import {
   updateNavInfoActionType,
 } from '../redux/redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import { setThreadUnreadStatusActionTypes } from 'lib/actions/thread-actions';
+import { setThreadUnreadStatusActionTypes } from 'lib/actions/activity-actions';
 import type {
   SetThreadUnreadStatusPayload,
   SetThreadUnreadStatusRequest,
-} from 'lib/types/thread-types';
+} from 'lib/types/activity-types';
 
 import * as React from 'react';
 import classNames from 'classnames';

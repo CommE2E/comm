@@ -7,12 +7,12 @@ import {
   chatThreadItemPropType,
 } from 'lib/selectors/chat-selectors';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import type {
   SetThreadUnreadStatusPayload,
   SetThreadUnreadStatusRequest,
-  ThreadInfo,
-} from 'lib/types/thread-types';
-import { setThreadUnreadStatus } from 'lib/actions/thread-actions';
+} from 'lib/types/activity-types';
+import { setThreadUnreadStatus } from 'lib/actions/activity-actions';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';

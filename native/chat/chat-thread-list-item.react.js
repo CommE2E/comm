@@ -4,11 +4,11 @@ import {
   type ChatThreadItem,
   chatThreadItemPropType,
 } from 'lib/selectors/chat-selectors';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import type {
   SetThreadUnreadStatusPayload,
   SetThreadUnreadStatusRequest,
-  ThreadInfo,
-} from 'lib/types/thread-types';
+} from 'lib/types/activity-types';
 import {
   useDispatchActionPromise,
   useServerCall,
@@ -16,7 +16,7 @@ import {
 import {
   setThreadUnreadStatus,
   setThreadUnreadStatusActionTypes,
-} from 'lib/actions/thread-actions';
+} from 'lib/actions/activity-actions';
 
 import * as React from 'react';
 import { Text, View } from 'react-native';

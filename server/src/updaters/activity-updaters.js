@@ -4,13 +4,11 @@ import type { Viewer } from '../session/viewer';
 import type {
   UpdateActivityResult,
   UpdateActivityRequest,
+  SetThreadUnreadStatusRequest,
+  SetThreadUnreadStatusResult,
 } from 'lib/types/activity-types';
 import { messageTypes } from 'lib/types/message-types';
-import {
-  threadPermissions,
-  type SetThreadUnreadStatusRequest,
-  type SetThreadUnreadStatusResult,
-} from 'lib/types/thread-types';
+import { threadPermissions } from 'lib/types/thread-types';
 import { updateTypes } from 'lib/types/update-types';
 
 import invariant from 'invariant';

@@ -4,11 +4,9 @@ import type { Viewer } from '../session/viewer';
 import type {
   UpdateActivityResult,
   UpdateActivityRequest,
-} from 'lib/types/activity-types';
-import type {
   SetThreadUnreadStatusRequest,
   SetThreadUnreadStatusResult,
-} from 'lib/types/thread-types';
+} from 'lib/types/activity-types';
 
 import t from 'tcomb';
 
