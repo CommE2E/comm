@@ -337,13 +337,13 @@ async function shouldResetThreadToUnread(
   viewer: Viewer,
   request: SetThreadUnreadStatusRequest,
 ): Promise<boolean> {
-  if (request.unread || request.latestMessage.startsWith('local')) {
+  if (request.unread || request.latestMessage?.startsWith('local')) {
     return false;
   }
 
   const resetToUnread = await determineUnfocusedThreadsReadStatus(
     viewer,
-    new Map([[request.threadID, request.latestMessage]]),
+    new Map([[request.threadID, request.latestMessage ?? '0']]),
   );
 
   return resetToUnread.some(threadID => threadID === request.threadID);

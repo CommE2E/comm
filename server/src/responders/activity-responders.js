@@ -43,17 +43,11 @@ async function updateActivityResponder(
   return await activityUpdater(viewer, request);
 }
 
-const setThreadUnreadStatusValidator = t.union([
-  tShape({
-    threadID: t.String,
-    unread: tBool(true),
-  }),
-  tShape({
-    threadID: t.String,
-    unread: tBool(false),
-    latestMessage: t.String,
-  }),
-]);
+const setThreadUnreadStatusValidator = tShape({
+  threadID: t.String,
+  unread: t.Bool,
+  latestMessage: t.maybe(t.String),
+});
 async function threadSetUnreadStatusResponder(
   viewer: Viewer,
   input: any,

@@ -111,18 +111,16 @@ function ChatThreadListItem({
   const lastActivity = shortAbsoluteDate(data.lastUpdatedTime);
   const unreadStyle = data.threadInfo.currentUser.unread ? styles.unread : null;
 
-  const mostRecentMessageId = data.mostRecentMessageInfo?.id ?? '0';
+  const mostRecentMessageId = data.mostRecentMessageInfo?.id;
 
   const swipeableActions = useMemo(() => {
     const isUnread = data.threadInfo.currentUser.unread;
     const toggleUnreadStatus = () => {
-      const request = isUnread
-        ? {
-            unread: false,
-            threadID: data.threadInfo.id,
-            latestMessage: mostRecentMessageId,
-          }
-        : { unread: true, threadID: data.threadInfo.id };
+      const request = {
+        unread: !isUnread,
+        threadID: data.threadInfo.id,
+        latestMessage: mostRecentMessageId,
+      };
       dispatchActionPromise(
         setThreadUnreadStatusActionTypes,
         updateUnreadStatus(request),
