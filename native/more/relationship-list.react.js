@@ -201,7 +201,7 @@ const styles = {
     backgroundColor: 'panelBackground',
   },
   contentContainer: {
-    marginTop: 24,
+    paddingVertical: 24,
   },
   separator: {
     backgroundColor: 'panelForegroundBorder',
