@@ -346,13 +346,19 @@ async function setThreadUnreadStatus(
   }
 
   const resetThreadToUnread = await shouldResetThreadToUnread(viewer, request);
-
   if (!resetThreadToUnread) {
+    const lastReadMessage = request.unread
+      ? SQL`0`
+      : SQL`GREATEST(m.last_read_message, ${request.latestMessage ?? 0})`;
     const update = SQL`
       UPDATE memberships m
-      SET m.unread = ${request.unread ? 1 : 0}
+      SET m.unread = ${request.unread ? 1 : 0},
+        m.last_read_message =
+    `;
+    update.append(lastReadMessage);
+    update.append(SQL`
       WHERE m.thread = ${request.threadID} AND m.user = ${viewer.userID}
-  `;
+    `);
     const queryPromise = dbQuery(update);
 
     const time = Date.now();
