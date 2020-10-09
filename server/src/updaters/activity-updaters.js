@@ -277,16 +277,18 @@ async function updateLastReadMessage(
 
   const query = SQL`
     UPDATE memberships
-    SET last_read_message = GREATEST(last_read_message, CASE 
+    SET last_read_message = GREATEST(last_read_message, 
+      CASE 
   `;
   lastReadMessages.forEach((lastMessage, threadID) => {
-    query.append(SQL`WHEN thread = ${threadID} THEN ${lastMessage} `);
+    query.append(SQL`
+        WHEN thread = ${threadID} THEN ${lastMessage} `);
   });
   query.append(SQL`
-      ELSE last_read_message
-    END)
-  WHERE thread IN (${[...lastReadMessages.keys()]}) 
-    AND user = ${viewer.userID}
+        ELSE last_read_message
+      END)
+    WHERE thread IN (${[...lastReadMessages.keys()]}) 
+      AND user = ${viewer.userID}
   `);
 
   return await dbQuery(query);
@@ -301,20 +303,20 @@ async function updateUnreadStatus(
   if (setToRead.length > 0) {
     promises.push(
       dbQuery(SQL`
-      UPDATE memberships
-      SET unread = 0
-      WHERE thread IN (${setToRead})
-        AND user = ${viewer.userID}
+        UPDATE memberships
+        SET unread = 0
+        WHERE thread IN (${setToRead})
+          AND user = ${viewer.userID}
     `),
     );
   }
   if (setToUnread.length > 0) {
     promises.push(
       dbQuery(SQL`
-      UPDATE memberships
-      SET unread = 1
-      WHERE thread IN (${setToUnread})
-        AND user = ${viewer.userID}
+        UPDATE memberships
+        SET unread = 1
+        WHERE thread IN (${setToUnread})
+          AND user = ${viewer.userID}
     `),
     );
   }
@@ -347,9 +349,9 @@ async function setThreadUnreadStatus(
 
   if (!resetThreadToUnread) {
     const update = SQL`
-    UPDATE memberships m
-    SET m.unread = ${request.unread ? 1 : 0}
-    WHERE m.thread = ${request.threadID} AND m.user = ${viewer.userID}
+      UPDATE memberships m
+      SET m.unread = ${request.unread ? 1 : 0}
+      WHERE m.thread = ${request.threadID} AND m.user = ${viewer.userID}
   `;
     const queryPromise = dbQuery(update);
 
