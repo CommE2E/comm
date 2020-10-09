@@ -447,7 +447,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   footerPaddingTop() {
     const textHeight = Platform.OS === 'ios' ? 17 : 19;
     const spacingAboveKeyboard = 15;
-    const targetFooterPaddingTop = max(
+    const potentialFooterPaddingTop = max(
       sub(
         this.contentHeight,
         max(this.keyboardHeightValue, 0),
@@ -458,26 +458,24 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     );
 
     const footerPaddingTop = new Value(-1);
-    const prevTargetFooterPaddingTop = new Value(-1);
+    const targetFooterPaddingTop = new Value(-1);
     const clock = new Clock();
     return block([
       cond(lessThan(footerPaddingTop, 0), [
-        set(footerPaddingTop, targetFooterPaddingTop),
-        set(prevTargetFooterPaddingTop, targetFooterPaddingTop),
+        set(footerPaddingTop, potentialFooterPaddingTop),
+        set(targetFooterPaddingTop, potentialFooterPaddingTop),
       ]),
-      cond(greaterOrEq(this.keyboardHeightValue, 0), [
-        cond(neq(targetFooterPaddingTop, prevTargetFooterPaddingTop), [
-          stopClock(clock),
-          set(prevTargetFooterPaddingTop, targetFooterPaddingTop),
-        ]),
-        cond(
-          neq(footerPaddingTop, targetFooterPaddingTop),
-          set(
-            footerPaddingTop,
-            runTiming(clock, footerPaddingTop, targetFooterPaddingTop),
-          ),
+      ratchetAlongWithKeyboardHeight(this.keyboardHeightValue, [
+        stopClock(clock),
+        set(targetFooterPaddingTop, potentialFooterPaddingTop),
+      ]),
+      cond(
+        neq(footerPaddingTop, targetFooterPaddingTop),
+        set(
+          footerPaddingTop,
+          runTiming(clock, footerPaddingTop, targetFooterPaddingTop),
         ),
-      ]),
+      ),
       footerPaddingTop,
     ]);
   }
