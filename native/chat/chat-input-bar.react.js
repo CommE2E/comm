@@ -29,6 +29,7 @@ import type { ChatNavigationProp } from './chat.react';
 import type { NavigationRoute } from '../navigation/route-names';
 import { NavContext } from '../navigation/navigation-context';
 import type { Dispatch } from 'lib/types/redux-types';
+import type { ViewStyle } from '../types/styles';
 
 import * as React from 'react';
 import {
@@ -75,6 +76,30 @@ import {
 import { CameraModalRouteName } from '../navigation/route-names';
 import KeyboardInputHost from '../keyboard/keyboard-input-host.react';
 import ClearableTextInput from '../components/clearable-text-input.react';
+import { runTiming } from '../utils/animation-utils';
+
+/* eslint-disable import/no-named-as-default-member */
+const {
+  Value,
+  Clock,
+  block,
+  set,
+  cond,
+  neq,
+  sub,
+  interpolate,
+  stopClock,
+} = Animated;
+/* eslint-enable import/no-named-as-default-member */
+
+const expandoButtonsAnimationConfig = {
+  duration: 500,
+  easing: Easing.inOut(Easing.ease),
+};
+const sendButtonAnimationConfig = {
+  duration: 150,
+  easing: Easing.inOut(Easing.ease),
+};
 
 const draftKeyFromThreadID = (threadID: string) =>
   `${threadID}/message_composer`;
@@ -131,11 +156,17 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   };
   textInput: ?React.ElementRef<typeof TextInput>;
   clearableTextInput: ?ClearableTextInput;
-  expandOpacity: Animated.Value;
-  expandoButtonsOpacity: Animated.Value;
-  expandoButtonsWidth: Animated.Value;
-  sendButtonContainerOpen: Animated.Value;
-  sendButtonContainerWidth: Animated.Value;
+
+  expandoButtonsOpen: Value;
+  targetExpandoButtonsOpen: Value;
+  expandoButtonsStyle: ViewStyle;
+  cameraRollIconStyle: ViewStyle;
+  cameraIconStyle: ViewStyle;
+  expandIconStyle: ViewStyle;
+
+  sendButtonContainerOpen: Value;
+  targetSendButtonContainerOpen: Value;
+  sendButtonContainerStyle: ViewStyle;
 
   constructor(props: Props) {
     super(props);
@@ -144,28 +175,99 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       buttonsExpanded: true,
     };
 
-    // eslint-disable-next-line import/no-named-as-default-member
-    this.expandoButtonsOpacity = new Animated.Value(1);
-    this.expandOpacity = Animated.sub(1, this.expandoButtonsOpacity);
-    this.expandoButtonsWidth = Animated.interpolate(
-      this.expandoButtonsOpacity,
-      {
-        inputRange: [0, 1],
-        outputRange: [22, 60],
-      },
-    );
+    this.expandoButtonsOpen = new Value(1);
+    this.targetExpandoButtonsOpen = new Value(1);
+    const prevTargetExpandoButtonsOpen = new Value(1);
+    const expandoButtonClock = new Clock();
+    const expandoButtonsOpen = block([
+      cond(neq(this.targetExpandoButtonsOpen, prevTargetExpandoButtonsOpen), [
+        stopClock(expandoButtonClock),
+        set(prevTargetExpandoButtonsOpen, this.targetExpandoButtonsOpen),
+      ]),
+      cond(
+        neq(this.expandoButtonsOpen, this.targetExpandoButtonsOpen),
+        set(
+          this.expandoButtonsOpen,
+          runTiming(
+            expandoButtonClock,
+            this.expandoButtonsOpen,
+            this.targetExpandoButtonsOpen,
+            true,
+            expandoButtonsAnimationConfig,
+          ),
+        ),
+      ),
+      this.expandoButtonsOpen,
+    ]);
 
-    // eslint-disable-next-line import/no-named-as-default-member
-    this.sendButtonContainerOpen = new Animated.Value(
-      trimMessage(props.draft) ? 1 : 0,
+    this.cameraRollIconStyle = {
+      ...unboundStyles.cameraRollIcon,
+      opacity: expandoButtonsOpen,
+    };
+    this.cameraIconStyle = {
+      ...unboundStyles.cameraIcon,
+      opacity: expandoButtonsOpen,
+    };
+
+    const expandoButtonsWidth = interpolate(expandoButtonsOpen, {
+      inputRange: [0, 1],
+      outputRange: [22, 60],
+    });
+    this.expandoButtonsStyle = {
+      ...unboundStyles.expandoButtons,
+      width: expandoButtonsWidth,
+    };
+
+    const expandOpacity = sub(1, expandoButtonsOpen);
+    this.expandIconStyle = {
+      ...unboundStyles.expandIcon,
+      opacity: expandOpacity,
+    };
+
+    const initialSendButtonContainerOpen = trimMessage(props.draft) ? 1 : 0;
+    this.sendButtonContainerOpen = new Value(initialSendButtonContainerOpen);
+    this.targetSendButtonContainerOpen = new Value(
+      initialSendButtonContainerOpen,
     );
-    this.sendButtonContainerWidth = Animated.interpolate(
+    const prevTargetSendButtonContainerOpen = new Value(
+      initialSendButtonContainerOpen,
+    );
+    const sendButtonClock = new Clock();
+    const sendButtonContainerOpen = block([
+      cond(
+        neq(
+          this.targetSendButtonContainerOpen,
+          prevTargetSendButtonContainerOpen,
+        ),
+        [
+          stopClock(sendButtonClock),
+          set(
+            prevTargetSendButtonContainerOpen,
+            this.targetSendButtonContainerOpen,
+          ),
+        ],
+      ),
+      cond(
+        neq(this.sendButtonContainerOpen, this.targetSendButtonContainerOpen),
+        set(
+          this.sendButtonContainerOpen,
+          runTiming(
+            sendButtonClock,
+            this.sendButtonContainerOpen,
+            this.targetSendButtonContainerOpen,
+            true,
+            sendButtonAnimationConfig,
+          ),
+        ),
+      ),
       this.sendButtonContainerOpen,
-      {
-        inputRange: [0, 1],
-        outputRange: [4, 38],
-      },
-    );
+    ]);
+
+    const sendButtonContainerWidth = interpolate(sendButtonContainerOpen, {
+      inputRange: [0, 1],
+      outputRange: [4, 38],
+    });
+    this.sendButtonContainerStyle = { width: sendButtonContainerWidth };
   }
 
   static mediaGalleryOpen(props: Props) {
@@ -184,15 +286,11 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   immediatelyShowSendButton() {
     this.sendButtonContainerOpen.setValue(1);
+    this.targetSendButtonContainerOpen.setValue(1);
   }
 
   updateSendButton(currentText: string) {
-    // eslint-disable-next-line import/no-named-as-default-member
-    Animated.timing(this.sendButtonContainerOpen, {
-      duration: 150,
-      toValue: currentText === '' ? 0 : 1,
-      easing: Easing.inOut(Easing.ease),
-    }).start();
+    this.targetSendButtonContainerOpen.setValue(currentText === '' ? 0 : 1);
   }
 
   componentDidMount() {
@@ -275,34 +373,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       return;
     }
     TextInputKeyboardMangerIOS.setKeyboardHeight(textInput, keyboardHeight);
-  }
-
-  get expandoButtonsStyle() {
-    return {
-      ...this.props.styles.expandoButtons,
-      width: this.expandoButtonsWidth,
-    };
-  }
-
-  get cameraRollIconStyle() {
-    return {
-      ...this.props.styles.cameraRollIcon,
-      opacity: this.expandoButtonsOpacity,
-    };
-  }
-
-  get cameraIconStyle() {
-    return {
-      ...this.props.styles.cameraIcon,
-      opacity: this.expandoButtonsOpacity,
-    };
-  }
-
-  get expandIconStyle() {
-    return {
-      ...this.props.styles.expandIcon,
-      opacity: this.expandOpacity,
-    };
   }
 
   render() {
@@ -405,7 +475,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         </Animated.View>
       </TouchableOpacity>
     );
-    const sendButtonContainerStyle = { width: this.sendButtonContainerWidth };
     return (
       <TouchableWithoutFeedback onPress={this.dismissKeyboard}>
         <View style={this.props.styles.inputContainer}>
@@ -451,7 +520,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
             textInputRef={this.textInputRef}
             ref={this.clearableTextInputRef}
           />
-          <Animated.View style={sendButtonContainerStyle}>
+          <Animated.View style={this.sendButtonContainerStyle}>
             <TouchableOpacity
               onPress={this.onSend}
               activeOpacity={0.4}
@@ -563,12 +632,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     if (this.state.buttonsExpanded) {
       return;
     }
-    // eslint-disable-next-line import/no-named-as-default-member
-    Animated.timing(this.expandoButtonsOpacity, {
-      duration: 500,
-      toValue: 1,
-      easing: Easing.inOut(Easing.ease),
-    }).start();
+    this.targetExpandoButtonsOpen.setValue(1);
     this.setState({ buttonsExpanded: true });
   };
 
@@ -580,17 +644,13 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     ) {
       return;
     }
-    // eslint-disable-next-line import/no-named-as-default-member
-    Animated.timing(this.expandoButtonsOpacity, {
-      duration: 500,
-      toValue: 0,
-      easing: Easing.inOut(Easing.ease),
-    }).start();
+    this.targetExpandoButtonsOpen.setValue(0);
     this.setState({ buttonsExpanded: false });
   }
 
   immediatelyHideButtons() {
-    this.expandoButtonsOpacity.setValue(0);
+    this.expandoButtonsOpen.setValue(0);
+    this.targetExpandoButtonsOpen.setValue(0);
     this.setState({ buttonsExpanded: false });
   }
 
