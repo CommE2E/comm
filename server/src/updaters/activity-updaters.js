@@ -337,7 +337,7 @@ async function shouldResetThreadToUnread(
   viewer: Viewer,
   request: SetThreadUnreadStatusRequest,
 ): Promise<boolean> {
-  if (request.unread || request.latestMessage?.startsWith('local')) {
+  if (request.unread) {
     return false;
   }
 

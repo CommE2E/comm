@@ -128,12 +128,12 @@ class ChatThreadListItem extends React.PureComponent<Props, State> {
   };
 
   toggleUnreadStatus = () => {
-    const { threadInfo, mostRecentMessageInfo } = this.props.item;
+    const { threadInfo, mostRecentNonLocalMessage } = this.props.item;
     const isUnread = threadInfo.currentUser.unread;
     const request = {
       threadID: threadInfo.id,
       unread: !isUnread,
-      latestMessage: mostRecentMessageInfo?.id,
+      latestMessage: mostRecentNonLocalMessage,
     };
     this.props.dispatchActionPromise(
       setThreadUnreadStatusActionTypes,
