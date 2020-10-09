@@ -25,7 +25,7 @@ import { dbQuery, SQL } from '../database';
 async function updateRelationships(
   viewer: Viewer,
   request: RelationshipRequest,
-) {
+): Promise<RelationshipErrors> {
   const { action } = request;
 
   if (!viewer.loggedIn) {

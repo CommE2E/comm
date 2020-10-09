@@ -1,7 +1,10 @@
 // @flow
 
-import type { RelationshipRequest } from 'lib/types/relationship-types';
-import { relationshipActionsList } from 'lib/types/relationship-types';
+import {
+  type RelationshipRequest,
+  type RelationshipErrors,
+  relationshipActionsList,
+} from 'lib/types/relationship-types';
 import type { Viewer } from '../session/viewer';
 
 import t from 'tcomb';
@@ -17,7 +20,7 @@ const updateRelationshipInputValidator = tShape({
 async function updateRelationshipsResponder(
   viewer: Viewer,
   input: any,
-): Promise<void> {
+): Promise<RelationshipErrors> {
   const request: RelationshipRequest = input;
   await validateInput(viewer, updateRelationshipInputValidator, request);
   return await updateRelationships(viewer, request);
