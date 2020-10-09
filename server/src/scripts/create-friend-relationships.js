@@ -18,10 +18,11 @@ async function main() {
 
 async function createFriendRelationshipsForThreadMembers() {
   const [result] = await dbQuery(SQL`
-    SELECT thread, user 
-    FROM memberships 
-    WHERE role > 0
-    ORDER BY user ASC
+    SELECT m.thread, m.user
+    FROM memberships m
+    LEFT JOIN users u ON u.id = m.user
+    WHERE m.role > 0 AND u.id IS NOT NULL
+    ORDER BY m.user ASC
   `);
 
   await createUndirectedRelationships(result, undirectedStatus.FRIEND);
