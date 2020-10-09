@@ -36,14 +36,24 @@ function onRemoveUser(
   bindServerCall: (serverCall: ActionFunc) => BoundServerCall,
 ) {
   const boundRemoveRelationships = bindServerCall(updateRelationships);
+  const callRemoveRelationships = async () => {
+    try {
+      return await boundRemoveRelationships({
+        action: props.action,
+        userIDs: [props.relativeUserInfo.id],
+      });
+    } catch (e) {
+      Alert.alert('Unknown error', 'Uhh... try again?', [{ text: 'OK' }], {
+        cancelable: true,
+      });
+      throw e;
+    }
+  };
   const onConfirmRemoveUser = () => {
     const customKeyName = `${updateRelationshipsActionTypes.started}:${props.relativeUserInfo.id}`;
     dispatchFunctions.dispatchActionPromise(
       updateRelationshipsActionTypes,
-      boundRemoveRelationships({
-        action: props.action,
-        userIDs: [props.relativeUserInfo.id],
-      }),
+      callRemoveRelationships(),
       { customKeyName },
     );
   };

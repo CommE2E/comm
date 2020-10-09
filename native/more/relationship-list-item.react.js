@@ -199,11 +199,10 @@ class RelationshipListItem extends React.PureComponent<Props> {
     try {
       const action = this.updateFriendshipAction;
       invariant(action, 'invalid relationshipAction');
-      const result = await this.props.updateRelationships({
+      return await this.props.updateRelationships({
         action,
         userIDs: [this.props.userInfo.id],
       });
-      return result;
     } catch (e) {
       Alert.alert('Unknown error', 'Uhh... try again?', [{ text: 'OK' }], {
         cancelable: true,
