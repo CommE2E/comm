@@ -1,5 +1,10 @@
 // @flow
 
+import {
+  type UndirectedStatus,
+  undirectedStatus,
+} from 'lib/types/relationship-types';
+
 import _flow from 'lodash/fp/flow';
 import _groupBy from 'lodash/fp/groupBy';
 import _mapValues from 'lodash/fp/mapValues';
@@ -11,7 +16,11 @@ import _isEqual from 'lodash/fp/isEqual';
 
 import { getAllTuples } from 'lib/utils/array';
 
-import { updateUndirectedRelationships } from '../updaters/relationship-updaters';
+import {
+  updateUndirectedRelationships,
+  updateDatasForUserPairs,
+} from '../updaters/relationship-updaters';
+import { createUpdates } from '../creators/update-creator';
 
 type QueryResult = {|
   +thread: number,
@@ -19,22 +28,28 @@ type QueryResult = {|
 |};
 async function createUndirectedRelationships(
   dbQueryResult: $ReadOnlyArray<QueryResult>,
-  setStatus: number,
+  setStatus: UndirectedStatus,
 ) {
-  const changeset = _flow([
+  const userPairs = _flow([
     _groupBy(membership => membership.thread),
     _mapValues(_flow([_map(membership => membership.user), getAllTuples])),
     _values,
     _flatten,
     _uniqWith(_isEqual),
-    _map(([user1, user2]) => ({
-      user1,
-      user2,
-      status: setStatus,
-    })),
   ])(dbQueryResult);
 
+  const changeset = userPairs.map(([user1, user2]) => ({
+    user1,
+    user2,
+    status: setStatus,
+  }));
   await updateUndirectedRelationships(changeset);
+
+  if (setStatus !== undirectedStatus.KNOW_OF) {
+    // We don't call createUpdates for KNOW_OF because the KNOW_OF
+    // migration shouldn't lead to any changes in the userStore
+    await createUpdates(updateDatasForUserPairs(userPairs));
+  }
 }
 
 export { createUndirectedRelationships };
