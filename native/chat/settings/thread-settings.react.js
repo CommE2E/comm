@@ -19,6 +19,7 @@ import PropTypes from 'prop-types';
 import { View, FlatList } from 'react-native';
 import invariant from 'invariant';
 import { createSelector } from 'reselect';
+import { useSelector } from 'react-redux';
 
 import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
 import {
@@ -38,7 +39,6 @@ import {
   threadInChatList,
 } from 'lib/shared/thread-utils';
 import threadWatcher from 'lib/shared/thread-watcher';
-import { connect } from 'lib/utils/redux-utils';
 
 import {
   ThreadSettingsCategoryHeader,
@@ -65,13 +65,13 @@ import {
   ComposeSubthreadModalRouteName,
 } from '../../navigation/route-names';
 import {
-  styleSelector,
+  useStyles,
   type IndicatorStyle,
   indicatorStylePropType,
-  indicatorStyleSelector,
+  useIndicatorStyle,
 } from '../../themes/colors';
 import {
-  withOverlayContext,
+  OverlayContext,
   type OverlayContextType,
   overlayContextPropType,
 } from '../../navigation/overlay-context';
@@ -190,28 +190,31 @@ type ChatSettingsItem =
       canLeaveThread: boolean,
     |};
 
+type BaseProps = {|
+  +navigation: ChatNavigationProp<'ThreadSettings'>,
+  +route: NavigationRoute<'ThreadSettings'>,
+|};
 type Props = {|
-  navigation: ChatNavigationProp<'ThreadSettings'>,
-  route: NavigationRoute<'ThreadSettings'>,
+  ...BaseProps,
   // Redux state
-  threadInfo: ?ThreadInfo,
-  threadMembers: RelativeMemberInfo[],
-  childThreadInfos: ?(ThreadInfo[]),
-  somethingIsSaving: boolean,
-  styles: typeof styles,
-  indicatorStyle: IndicatorStyle,
+  +threadInfo: ?ThreadInfo,
+  +threadMembers: RelativeMemberInfo[],
+  +childThreadInfos: ?(ThreadInfo[]),
+  +somethingIsSaving: boolean,
+  +styles: typeof unboundStyles,
+  +indicatorStyle: IndicatorStyle,
   // withOverlayContext
-  overlayContext: ?OverlayContextType,
+  +overlayContext: ?OverlayContextType,
 |};
 type State = {|
-  showMaxMembers: number,
-  showMaxChildThreads: number,
-  nameEditValue: ?string,
-  descriptionEditValue: ?string,
-  nameTextHeight: ?number,
-  descriptionTextHeight: ?number,
-  colorEditValue: string,
-  verticalBounds: ?VerticalBounds,
+  +showMaxMembers: number,
+  +showMaxChildThreads: number,
+  +nameEditValue: ?string,
+  +descriptionEditValue: ?string,
+  +nameTextHeight: ?number,
+  +descriptionTextHeight: ?number,
+  +colorEditValue: string,
+  +verticalBounds: ?VerticalBounds,
 |};
 type PropsAndState = {| ...Props, ...State |};
 class ThreadSettings extends React.PureComponent<Props, State> {
@@ -838,7 +841,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   container: {
     backgroundColor: 'panelBackground',
     flex: 1,
@@ -847,7 +850,6 @@ const styles = {
     paddingVertical: 16,
   },
 };
-const stylesSelector = styleSelector(styles);
 
 const editNameLoadingStatusSelector = createLoadingStatusSelector(
   changeThreadSettingsActionTypes,
@@ -896,24 +898,33 @@ const somethingIsSaving = (
   return false;
 };
 
-export default connect(
-  (
-    state: AppState,
-    ownProps: {
-      route: NavigationRoute<'ThreadSettings'>,
-    },
-  ) => {
-    const threadID = ownProps.route.params.threadInfo.id;
-    const threadMembers = relativeMemberInfoSelectorForMembersOfThread(
-      threadID,
-    )(state);
-    return {
-      threadInfo: threadInfoSelector(state)[threadID],
-      threadMembers,
-      childThreadInfos: childThreadInfos(state)[threadID],
-      somethingIsSaving: somethingIsSaving(state, threadMembers),
-      styles: stylesSelector(state),
-      indicatorStyle: indicatorStyleSelector(state),
-    };
-  },
-)(withOverlayContext(ThreadSettings));
+export default React.memo<BaseProps>(function ConnectedThreadSettings(
+  props: BaseProps,
+) {
+  const threadID = props.route.params.threadInfo.id;
+  const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
+  const threadMembers = useSelector(
+    relativeMemberInfoSelectorForMembersOfThread(threadID),
+  );
+  const boundChildThreadInfos = useSelector(
+    state => childThreadInfos(state)[threadID],
+  );
+  const boundSomethingIsSaving = useSelector(state =>
+    somethingIsSaving(state, threadMembers),
+  );
+  const styles = useStyles(unboundStyles);
+  const indicatorStyle = useIndicatorStyle();
+  const overlayContext = React.useContext(OverlayContext);
+  return (
+    <ThreadSettings
+      {...props}
+      threadInfo={threadInfo}
+      threadMembers={threadMembers}
+      childThreadInfos={boundChildThreadInfos}
+      somethingIsSaving={boundSomethingIsSaving}
+      styles={styles}
+      indicatorStyle={indicatorStyle}
+      overlayContext={overlayContext}
+    />
+  );
+});
