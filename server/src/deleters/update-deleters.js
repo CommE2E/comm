@@ -37,7 +37,7 @@ async function deleteExpiredUpdates(): Promise<void> {
   `);
 }
 
-async function deleteUpdatesBeforeTimeTargettingSession(
+async function deleteUpdatesBeforeTimeTargetingSession(
   viewer: Viewer,
   beforeTime: number,
 ): Promise<void> {
@@ -48,5 +48,5 @@ async function deleteUpdatesBeforeTimeTargettingSession(
 export {
   deleteExpiredUpdates,
   deleteUpdatesByConditions,
-  deleteUpdatesBeforeTimeTargettingSession,
+  deleteUpdatesBeforeTimeTargetingSession,
 };

@@ -36,4 +36,16 @@ async function deleteUpload(viewer: Viewer, id: string): Promise<void> {
   await dbQuery(deleteQuery);
 }
 
-export { deleteUpload };
+const maxUnassignedUploadAge = 24 * 60 * 60 * 1000;
+async function deleteUnassignedUploads(): Promise<void> {
+  const oldestUnassignedUploadToKeep = Date.now() - maxUnassignedUploadAge;
+  await dbQuery(SQL`
+    DELETE u, i
+    FROM uploads u
+    LEFT JOIN ids i ON i.id = u.id
+    WHERE u.container IS NULL
+      AND creation_time < ${oldestUnassignedUploadToKeep}
+  `);
+}
+
+export { deleteUpload, deleteUnassignedUploads };

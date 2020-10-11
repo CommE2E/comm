@@ -71,7 +71,7 @@ import {
   fetchKnownUserInfos,
 } from '../fetchers/user-fetchers';
 import { updateActivityTime } from '../updaters/activity-updaters';
-import { deleteUpdatesBeforeTimeTargettingSession } from '../deleters/update-deleters';
+import { deleteUpdatesBeforeTimeTargetingSession } from '../deleters/update-deleters';
 import { fetchUpdateInfos } from '../fetchers/update-fetchers';
 import { commitSessionUpdate } from '../updaters/session-updaters';
 import { handleAsyncPromise } from '../responders/handlers';
@@ -476,7 +476,7 @@ class Socket {
       } = sessionInitializationResult;
 
       const promises = {};
-      promises.deleteExpiredUpdates = deleteUpdatesBeforeTimeTargettingSession(
+      promises.deleteExpiredUpdates = deleteUpdatesBeforeTimeTargetingSession(
         viewer,
         oldUpdatesCurrentAsOf,
       );
@@ -593,7 +593,7 @@ class Socket {
     invariant(viewer, 'should be set');
     const { currentAsOf } = message.payload;
     await Promise.all([
-      deleteUpdatesBeforeTimeTargettingSession(viewer, currentAsOf),
+      deleteUpdatesBeforeTimeTargetingSession(viewer, currentAsOf),
       commitSessionUpdate(viewer, { lastUpdate: currentAsOf }),
     ]);
     return [];

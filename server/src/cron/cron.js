@@ -19,6 +19,7 @@ import {
   deleteOrphanedSessions,
   deleteOldWebSessions,
 } from '../deleters/session-deleters';
+import { deleteUnassignedUploads } from '../deleters/upload-deleters';
 import { backupDB } from './backups';
 import { botherMonthlyActivesToUpdateAppVersion } from '../bots/app-version-update';
 import { updateAndReloadGeoipDB } from './update-geoip-db';
@@ -44,6 +45,7 @@ if (cluster.isMaster) {
         await deleteOrphanedSessions();
         await deleteOldWebSessions();
         await deleteExpiredUpdates();
+        await deleteUnassignedUploads();
       } catch (e) {
         console.warn('encountered error while trying to clean database', e);
       }
