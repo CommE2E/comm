@@ -5,7 +5,6 @@ import {
   mediaInfoPropType,
   type Dimensions,
 } from 'lib/types/media-types';
-import type { AppState } from '../redux/redux-setup';
 import {
   type VerticalBounds,
   verticalBoundsPropType,
@@ -37,8 +36,7 @@ import Orientation from 'react-native-orientation-locker';
 import Animated from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/Ionicons';
 import invariant from 'invariant';
-
-import { connect } from 'lib/utils/redux-utils';
+import { useSelector } from 'react-redux';
 
 import Multimedia from './multimedia.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
@@ -50,7 +48,7 @@ import {
 } from '../utils/animation-utils';
 import { intentionalSaveMedia } from './save-media';
 import {
-  withOverlayContext,
+  OverlayContext,
   type OverlayContextType,
   overlayContextPropType,
 } from '../navigation/overlay-context';
@@ -161,17 +159,20 @@ type TouchableOpacityInstance = React.AbstractComponent<
   NativeMethodsMixinType,
 >;
 
+type BaseProps = {|
+  +navigation: AppNavigationProp<'MultimediaModal'>,
+  +route: NavigationRoute<'MultimediaModal'>,
+|};
 type Props = {|
-  navigation: AppNavigationProp<'MultimediaModal'>,
-  route: NavigationRoute<'MultimediaModal'>,
+  ...BaseProps,
   // Redux state
-  dimensions: DerivedDimensionsInfo,
+  +dimensions: DerivedDimensionsInfo,
   // withOverlayContext
-  overlayContext: ?OverlayContextType,
+  +overlayContext: ?OverlayContextType,
 |};
 type State = {|
-  closeButtonEnabled: boolean,
-  actionLinksEnabled: boolean,
+  +closeButtonEnabled: boolean,
+  +actionLinksEnabled: boolean,
 |};
 class MultimediaModal extends React.PureComponent<Props, State> {
   static propTypes = {
@@ -1247,6 +1248,16 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect((state: AppState) => ({
-  dimensions: derivedDimensionsInfoSelector(state),
-}))(withOverlayContext(MultimediaModal));
+export default React.memo<BaseProps>(function ConnectedMultimediaModal(
+  props: BaseProps,
+) {
+  const dimensions = useSelector(derivedDimensionsInfoSelector);
+  const overlayContext = React.useContext(OverlayContext);
+  return (
+    <MultimediaModal
+      {...props}
+      dimensions={dimensions}
+      overlayContext={overlayContext}
+    />
+  );
+});
