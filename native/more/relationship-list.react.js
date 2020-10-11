@@ -4,25 +4,24 @@ import type { UserInfo } from 'lib/types/user-types';
 import type { UserRelationships } from 'lib/types/relationship-types';
 import type { VerticalBounds } from '../types/layout-types';
 import type { NavigationRoute } from '../navigation/route-names';
-import type { AppState } from '../redux/redux-setup';
 import type { MoreNavigationProp } from './more.react';
 
 import * as React from 'react';
 import { View, Text, FlatList } from 'react-native';
 import invariant from 'invariant';
 import { createSelector } from 'reselect';
+import { useSelector } from 'react-redux';
 
-import { connect } from 'lib/utils/redux-utils';
 import { userRelationshipsSelector } from 'lib/selectors/relationship-selectors';
 
 import {
-  withOverlayContext,
+  OverlayContext,
   type OverlayContextType,
 } from '../navigation/overlay-context';
 import {
-  styleSelector,
+  useStyles,
   type IndicatorStyle,
-  indicatorStyleSelector,
+  useIndicatorStyle,
 } from '../themes/colors';
 
 import RelationshipListItem from './relationship-list-item.react';
@@ -43,19 +42,21 @@ type ListItem =
       verticalBounds: ?VerticalBounds,
     |};
 
+type BaseProps = {|
+  +navigation: MoreNavigationProp<>,
+  +route: NavigationRoute<'FriendList' | 'BlockList'>,
+|};
 type Props = {|
-  navigation: MoreNavigationProp<>,
-  route: NavigationRoute<'FriendList' | 'BlockList'>,
-  verticalBounds: ?VerticalBounds,
+  ...BaseProps,
   // Redux state
-  relationships: UserRelationships,
-  styles: typeof styles,
-  indicatorStyle: IndicatorStyle,
+  +relationships: UserRelationships,
+  +styles: typeof unboundStyles,
+  +indicatorStyle: IndicatorStyle,
   // withOverlayContext
-  overlayContext: ?OverlayContextType,
+  +overlayContext: ?OverlayContextType,
 |};
 type State = {|
-  verticalBounds: ?VerticalBounds,
+  +verticalBounds: ?VerticalBounds,
 |};
 type PropsAndState = {| ...Props, ...State |};
 class RelationshipList extends React.PureComponent<Props, State> {
@@ -195,7 +196,7 @@ class RelationshipList extends React.PureComponent<Props, State> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   container: {
     flex: 1,
     backgroundColor: 'panelBackground',
@@ -219,10 +220,20 @@ const styles = {
   },
 };
 
-const stylesSelector = styleSelector(styles);
-
-export default connect((state: AppState) => ({
-  relationships: userRelationshipsSelector(state),
-  styles: stylesSelector(state),
-  indicatorStyle: indicatorStyleSelector(state),
-}))(withOverlayContext(RelationshipList));
+export default React.memo<BaseProps>(function ConnectedRelationshipList(
+  props: BaseProps,
+) {
+  const relationships = useSelector(userRelationshipsSelector);
+  const styles = useStyles(unboundStyles);
+  const indicatorStyle = useIndicatorStyle();
+  const overlayContext = React.useContext(OverlayContext);
+  return (
+    <RelationshipList
+      {...props}
+      relationships={relationships}
+      styles={styles}
+      indicatorStyle={indicatorStyle}
+      overlayContext={overlayContext}
+    />
+  );
+});
