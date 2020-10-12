@@ -18,6 +18,7 @@ a.filtersButton > svg {
 div.content {
   min-height: 100%;
   padding-top: 10px;
+  position: relative;
 }
 
 h2.nav {
