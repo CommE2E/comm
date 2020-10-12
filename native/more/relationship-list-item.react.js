@@ -1,7 +1,6 @@
 // @flow
 
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import {
   type RelationshipRequest,
   userRelationshipStatus,
@@ -9,7 +8,6 @@ import {
 } from 'lib/types/relationship-types';
 import type { NavigationRoute } from '../navigation/route-names';
 import type { VerticalBounds } from '../types/layout-types';
-import type { AppState } from '../redux/redux-setup';
 import type { RelationshipListNavigate } from './relationship-list.react';
 
 import * as React from 'react';
@@ -21,52 +19,59 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import invariant from 'invariant';
+import { useSelector } from 'react-redux';
 
-import { connect } from 'lib/utils/redux-utils';
 import { type UserInfo } from 'lib/types/user-types';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   updateRelationshipsActionTypes,
   updateRelationships,
 } from 'lib/actions/relationship-actions';
+import {
+  type DispatchActionPromise,
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import PencilIcon from '../components/pencil-icon.react';
 import { SingleLine } from '../components/single-line.react';
 import {
-  withOverlayContext,
+  OverlayContext,
   type OverlayContextType,
 } from '../navigation/overlay-context';
 import { RelationshipListItemTooltipModalRouteName } from '../navigation/route-names';
-import { type Colors, colorsSelector, styleSelector } from '../themes/colors';
+import { type Colors, useColors, useStyles } from '../themes/colors';
 
-type Props = {|
-  userInfo: UserInfo,
-  lastListItem: boolean,
-  verticalBounds: ?VerticalBounds,
-  relationshipListRouteKey: string,
-  relationshipListRouteName: $PropertyType<
+type BaseProps = {|
+  +userInfo: UserInfo,
+  +lastListItem: boolean,
+  +verticalBounds: ?VerticalBounds,
+  +relationshipListRouteKey: string,
+  +relationshipListRouteName: $PropertyType<
     NavigationRoute<'FriendList' | 'BlockList'>,
     'name',
   >,
-  navigate: RelationshipListNavigate,
-  // Redux state
-  removeUserLoadingStatus: LoadingStatus,
-  colors: Colors,
-  styles: typeof styles,
-  // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
-  // withOverlayContext
-  overlayContext: ?OverlayContextType,
-  // async functions that hit server APIs
-  updateRelationships: (request: RelationshipRequest) => Promise<void>,
+  +navigate: RelationshipListNavigate,
 |};
-
+type Props = {|
+  ...BaseProps,
+  // Redux state
+  +removeUserLoadingStatus: LoadingStatus,
+  +colors: Colors,
+  +styles: typeof unboundStyles,
+  // Redux dispatch functions
+  +dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  +updateRelationships: (request: RelationshipRequest) => Promise<void>,
+  // withOverlayContext
+  +overlayContext: ?OverlayContextType,
+|};
 class RelationshipListItem extends React.PureComponent<Props> {
   editButton = React.createRef<React.ElementRef<typeof View>>();
 
   render() {
     const { lastListItem, removeUserLoadingStatus, userInfo } = this.props;
-    const borderBottom = lastListItem ? null : styles.borderBottom;
+    const borderBottom = lastListItem ? null : this.props.styles.borderBottom;
 
     let editButton = null;
     if (removeUserLoadingStatus === 'loading') {
@@ -81,7 +86,10 @@ class RelationshipListItem extends React.PureComponent<Props> {
       userInfo.relationshipStatus === userRelationshipStatus.BLOCKED_BY_VIEWER
     ) {
       editButton = (
-        <TouchableOpacity onPress={this.onPressEdit} style={styles.editButton}>
+        <TouchableOpacity
+          onPress={this.onPressEdit}
+          style={this.props.styles.editButton}
+        >
           <View onLayout={this.onLayout} ref={this.editButton}>
             <PencilIcon />
           </View>
@@ -93,7 +101,7 @@ class RelationshipListItem extends React.PureComponent<Props> {
       editButton = (
         <TouchableOpacity
           onPress={this.onPressUpdateFriendship}
-          style={styles.editButton}
+          style={this.props.styles.editButton}
         >
           <Text style={this.props.styles.accept}>Accept</Text>
         </TouchableOpacity>
@@ -104,7 +112,7 @@ class RelationshipListItem extends React.PureComponent<Props> {
       editButton = (
         <TouchableOpacity
           onPress={this.onPressUpdateFriendship}
-          style={styles.editButton}
+          style={this.props.styles.editButton}
         >
           <Text style={this.props.styles.cancel}>Cancel request</Text>
         </TouchableOpacity>
@@ -212,7 +220,7 @@ class RelationshipListItem extends React.PureComponent<Props> {
   }
 }
 
-const styles = {
+const unboundStyles = {
   editButton: {
     paddingLeft: 10,
   },
@@ -247,16 +255,30 @@ const styles = {
     paddingLeft: 6,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-export default connect(
-  (state: AppState, ownProps: { userInfo: UserInfo }) => ({
-    removeUserLoadingStatus: createLoadingStatusSelector(
+export default React.memo<BaseProps>(function ConnectedRelationshipListItem(
+  props: BaseProps,
+) {
+  const removeUserLoadingStatus = useSelector(state =>
+    createLoadingStatusSelector(
       updateRelationshipsActionTypes,
-      `${updateRelationshipsActionTypes.started}:${ownProps.userInfo.id}`,
+      `${updateRelationshipsActionTypes.started}:${props.userInfo.id}`,
     )(state),
-    colors: colorsSelector(state),
-    styles: stylesSelector(state),
-  }),
-  { updateRelationships },
-)(withOverlayContext(RelationshipListItem));
+  );
+  const colors = useColors();
+  const styles = useStyles(unboundStyles);
+  const dispatchActionPromise = useDispatchActionPromise();
+  const boundUpdateRelationships = useServerCall(updateRelationships);
+  const overlayContext = React.useContext(OverlayContext);
+  return (
+    <RelationshipListItem
+      {...props}
+      removeUserLoadingStatus={removeUserLoadingStatus}
+      colors={colors}
+      styles={styles}
+      dispatchActionPromise={dispatchActionPromise}
+      updateRelationships={boundUpdateRelationships}
+      overlayContext={overlayContext}
+    />
+  );
+});
