@@ -1,11 +1,7 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
 import type { DeviceType } from 'lib/types/device-types';
-import type {
-  DispatchActionPayload,
-  DispatchActionPromise,
-} from 'lib/utils/action-utils';
+import type { Dispatch } from 'lib/types/redux-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import {
   type NotifPermissionAlertInfo,
@@ -33,8 +29,8 @@ import {
   Notification as InAppNotification,
   TapticFeedback,
 } from 'react-native-in-app-message';
+import { useSelector, useDispatch } from 'react-redux';
 
-import { connect } from 'lib/utils/redux-utils';
 import {
   unreadCount,
   threadInfoSelector,
@@ -45,6 +41,11 @@ import {
 } from 'lib/actions/device-actions';
 import { mergePrefixIntoBody } from 'lib/shared/notif-utils';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
+import {
+  useServerCall,
+  useDispatchActionPromise,
+  type DispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import {
   recordNotifPermissionAlertActionType,
@@ -63,12 +64,9 @@ import {
 import { getFirebase } from './firebase';
 import { saveMessageInfos } from './utils';
 import InAppNotif from './in-app-notif.react';
+import { NavContext } from '../navigation/navigation-context';
 import {
-  connectNav,
-  type NavContextType,
-} from '../navigation/navigation-context';
-import {
-  withRootContext,
+  RootContext,
   type RootContextType,
   rootContextPropType,
 } from '../root-context';
@@ -90,32 +88,35 @@ const msInDay = 24 * 60 * 60 * 1000;
 const supportsTapticFeedback =
   Platform.OS === 'ios' && parseInt(Platform.Version, 10) >= 10;
 
-type Props = {
-  navigation: RootNavigationProp<'App'>,
+type BaseProps = {|
+  +navigation: RootNavigationProp<'App'>,
+|};
+type Props = {|
+  ...BaseProps,
   // Navigation state
-  activeThread: ?string,
+  +activeThread: ?string,
   // Redux state
-  unreadCount: number,
-  deviceToken: ?string,
-  threadInfos: { [id: string]: ThreadInfo },
-  notifPermissionAlertInfo: NotifPermissionAlertInfo,
-  connection: ConnectionInfo,
-  updatesCurrentAsOf: number,
-  activeTheme: ?GlobalTheme,
-  loggedIn: boolean,
+  +unreadCount: number,
+  +deviceToken: ?string,
+  +threadInfos: { [id: string]: ThreadInfo },
+  +notifPermissionAlertInfo: NotifPermissionAlertInfo,
+  +connection: ConnectionInfo,
+  +updatesCurrentAsOf: number,
+  +activeTheme: ?GlobalTheme,
+  +loggedIn: boolean,
   // Redux dispatch functions
-  dispatchActionPayload: DispatchActionPayload,
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatch: Dispatch,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  setDeviceToken: (
+  +setDeviceToken: (
     deviceToken: string,
     deviceType: DeviceType,
   ) => Promise<string>,
   // withRootContext
-  rootContext: ?RootContextType,
-};
+  +rootContext: ?RootContextType,
+|};
 type State = {|
-  inAppNotifProps: ?{|
+  +inAppNotifProps: ?{|
     customComponent: React.Node,
     blurType: ?('xlight' | 'dark'),
     onPress: () => void,
@@ -135,7 +136,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     updatesCurrentAsOf: PropTypes.number.isRequired,
     activeTheme: globalThemePropType,
     loggedIn: PropTypes.bool.isRequired,
-    dispatchActionPayload: PropTypes.func.isRequired,
+    dispatch: PropTypes.func.isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     setDeviceToken: PropTypes.func.isRequired,
     rootContext: rootContextPropType,
@@ -334,8 +335,9 @@ class PushHandler extends React.PureComponent<Props, State> {
         ),
       );
     } else if (Platform.OS === 'android') {
-      this.props.dispatchActionPayload(clearAndroidNotificationsActionType, {
-        threadID: activeThread,
+      this.props.dispatch({
+        type: clearAndroidNotificationsActionType,
+        payload: { threadID: activeThread },
       });
     }
   }
@@ -452,8 +454,9 @@ class PushHandler extends React.PureComponent<Props, State> {
     ) {
       return;
     }
-    this.props.dispatchActionPayload(recordNotifPermissionAlertActionType, {
-      time: Date.now(),
+    this.props.dispatch({
+      type: recordNotifPermissionAlertActionType,
+      payload: { time: Date.now() },
     });
 
     if (deviceType === 'ios') {
@@ -628,20 +631,41 @@ AppRegistry.registerHeadlessTask(
   () => androidBackgroundMessageTask,
 );
 
-export default connectNav((context: ?NavContextType) => ({
-  activeThread: activeMessageListSelector(context),
-}))(
-  connect(
-    (state: AppState) => ({
-      unreadCount: unreadCount(state),
-      deviceToken: state.deviceToken,
-      threadInfos: threadInfoSelector(state),
-      notifPermissionAlertInfo: state.notifPermissionAlertInfo,
-      connection: state.connection,
-      updatesCurrentAsOf: state.updatesCurrentAsOf,
-      activeTheme: state.globalThemeInfo.activeTheme,
-      loggedIn: isLoggedIn(state),
-    }),
-    { setDeviceToken },
-  )(withRootContext(PushHandler)),
-);
+export default React.memo<BaseProps>(function ConnectedPushHandler(
+  props: BaseProps,
+) {
+  const navContext = React.useContext(NavContext);
+  const activeThread = activeMessageListSelector(navContext);
+  const boundUnreadCount = useSelector(unreadCount);
+  const deviceToken = useSelector(state => state.deviceToken);
+  const threadInfos = useSelector(threadInfoSelector);
+  const notifPermissionAlertInfo = useSelector(
+    state => state.notifPermissionAlertInfo,
+  );
+  const connection = useSelector(state => state.connection);
+  const updatesCurrentAsOf = useSelector(state => state.updatesCurrentAsOf);
+  const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
+  const loggedIn = useSelector(isLoggedIn);
+  const dispatch = useDispatch();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const boundSetDeviceToken = useServerCall(setDeviceToken);
+  const rootContext = React.useContext(RootContext);
+  return (
+    <PushHandler
+      {...props}
+      activeThread={activeThread}
+      unreadCount={boundUnreadCount}
+      deviceToken={deviceToken}
+      threadInfos={threadInfos}
+      notifPermissionAlertInfo={notifPermissionAlertInfo}
+      connection={connection}
+      updatesCurrentAsOf={updatesCurrentAsOf}
+      activeTheme={activeTheme}
+      loggedIn={loggedIn}
+      dispatch={dispatch}
+      dispatchActionPromise={dispatchActionPromise}
+      setDeviceToken={boundSetDeviceToken}
+      rootContext={rootContext}
+    />
+  );
+});
