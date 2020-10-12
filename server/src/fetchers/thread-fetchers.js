@@ -21,7 +21,8 @@ async function fetchServerThreadInfos(
     SELECT t.id, t.name, t.parent_thread_id, t.color, t.description,
       t.type, t.creation_time, t.default_role, r.id AS role,
       r.name AS role_name, r.permissions AS role_permissions, m.user,
-      m.permissions, m.subscription, m.unread
+      m.permissions, m.subscription, 
+      m.last_read_message < m.last_message AS unread
     FROM threads t
     LEFT JOIN (
         SELECT thread, id, name, permissions
