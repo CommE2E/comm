@@ -41,32 +41,4 @@ const overlayContextPropType = PropTypes.shape({
   setScrollBlockingModalStatus: PropTypes.func.isRequired,
 });
 
-function withOverlayContext<
-  AllProps: {},
-  ComponentType: React.ComponentType<AllProps>,
->(
-  Component: ComponentType,
-): React.ComponentType<
-  $Diff<
-    React.ElementConfig<ComponentType>,
-    { overlayContext: ?OverlayContextType },
-  >,
-> {
-  class OverlayContextHOC extends React.PureComponent<
-    $Diff<
-      React.ElementConfig<ComponentType>,
-      { overlayContext: ?OverlayContextType },
-    >,
-  > {
-    render() {
-      return (
-        <OverlayContext.Consumer>
-          {value => <Component {...this.props} overlayContext={value} />}
-        </OverlayContext.Consumer>
-      );
-    }
-  }
-  return OverlayContextHOC;
-}
-
-export { OverlayContext, overlayContextPropType, withOverlayContext };
+export { OverlayContext, overlayContextPropType };
