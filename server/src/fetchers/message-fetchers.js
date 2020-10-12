@@ -111,13 +111,25 @@ async function fetchCollapsableNotifs(
   collapseQuery.append(SQL`ORDER BY m.time DESC`);
   const [collapseResult] = await dbQuery(collapseQuery);
 
-  const messages = parseMessageSQLResult(collapseResult);
+  const rowsByUser = new Map();
+  for (const row of collapseResult) {
+    const user = row.user.toString();
+    const currentRowsForUser = rowsByUser.get(user);
+    if (currentRowsForUser) {
+      currentRowsForUser.push(row);
+    } else {
+      rowsByUser.set(user, [row]);
+    }
+  }
 
-  for (let message of messages) {
-    const { rawMessageInfo, rows } = message;
-    const [row] = rows;
-    const info = usersToCollapseKeysToInfo[row.user][row.collapse_key];
-    info.existingMessageInfos.push(rawMessageInfo);
+  for (const userRows of rowsByUser.values()) {
+    const messages = parseMessageSQLResult(userRows);
+    for (const message of messages) {
+      const { rawMessageInfo, rows } = message;
+      const [row] = rows;
+      const info = usersToCollapseKeysToInfo[row.user][row.collapse_key];
+      info.existingMessageInfos.push(rawMessageInfo);
+    }
   }
 
   for (let userID in usersToCollapseKeysToInfo) {
@@ -170,7 +182,7 @@ function assertSingleRow(rows: $ReadOnlyArray<Object>): Object {
     throw new Error('expected single row, but none present!');
   } else if (rows.length !== 1) {
     const messageIDs = rows.map(row => row.id.toString());
-    console.log(
+    console.warn(
       `expected single row, but there are multiple! ${messageIDs.join(', ')}`,
     );
   }
