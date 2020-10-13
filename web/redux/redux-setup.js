@@ -15,7 +15,6 @@ import type { ClientReportCreationRequest } from 'lib/types/report-types';
 
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
-import Visibility from 'visibilityjs';
 
 import baseReducer from 'lib/reducers/master-reducer';
 import { mostRecentReadThreadSelector } from 'lib/selectors/thread-selectors';
@@ -27,6 +26,7 @@ import {
 
 import { activeThreadSelector } from '../selectors/nav-selectors';
 import { updateWindowActiveActionType } from './action-types';
+import { getVisibility } from './visibility';
 
 export type NavInfo = {|
   ...$Exact<BaseNavInfo>,
@@ -158,7 +158,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
   const activeThread = activeThreadSelector(state);
   if (
     activeThread &&
-    !Visibility.hidden() &&
+    !getVisibility().hidden() &&
     typeof document !== 'undefined' &&
     document &&
     document.hasFocus &&

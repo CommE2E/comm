@@ -2,24 +2,26 @@
 
 import * as React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Visibility from 'visibilityjs';
 
 import {
   backgroundActionType,
   foregroundActionType,
 } from 'lib/reducers/foreground-reducer';
 
+import { getVisibility } from './visibility';
+
 function VisibilityHandler() {
-  const [visible, setVisible] = React.useState(!Visibility.hidden());
+  const [visible, setVisible] = React.useState(!getVisibility().hidden());
   const onVisibilityChange = React.useCallback((event, state: string) => {
     setVisible(state === 'visible');
   }, []);
+  const visibility = getVisibility();
   React.useEffect(() => {
-    const listener = Visibility.change(onVisibilityChange);
+    const listener = visibility.change(onVisibilityChange);
     return () => {
-      Visibility.unbind(listener);
+      visibility.unbind(listener);
     };
-  }, [onVisibilityChange]);
+  }, [visibility, onVisibilityChange]);
 
   const dispatch = useDispatch();
   const curForeground = useSelector(state => state.foreground);
