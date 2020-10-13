@@ -1,5 +1,7 @@
 // @flow
 
+import { queryWarnTime } from './consts';
+
 type Pool = {
   +on: ('acquire' | 'connection' | 'enqueue' | 'release', () => mixed) => void,
   +pool: {
@@ -59,6 +61,14 @@ class DatabaseMonitor {
 
   onEnqueue = () => {
     this.countOutstandingQueries();
+  };
+
+  reportLaggingQuery = (query: string) => {
+    const count = this.countOutstandingQueries();
+    console.log(
+      `a query is taking more than ${queryWarnTime}ms to execute. ` +
+        `there are currently ${count} queries outstanding. query: ${query}`,
+    );
   };
 }
 

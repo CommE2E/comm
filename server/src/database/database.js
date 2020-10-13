@@ -7,14 +7,13 @@ import SQL from 'sql-template-strings';
 import dbConfig from '../../secrets/db_config';
 import { getScriptContext } from '../scripts/script-context';
 import DatabaseMonitor from './monitor';
+import { connectionLimit, queryWarnTime } from './consts';
 
 const SQLStatement = SQL.SQLStatement;
 
 export type QueryResult = [any[] & { insertId?: number }, any[]];
 
-const connectionLimit = 10;
-
-let pool;
+let pool, databaseMonitor;
 function getPool() {
   if (pool) {
     return pool;
@@ -27,7 +26,7 @@ function getPool() {
       scriptContext && scriptContext.allowMultiStatementSQLQueries
     ),
   });
-  new DatabaseMonitor(pool);
+  databaseMonitor = new DatabaseMonitor(pool);
   return pool;
 }
 
@@ -78,6 +77,11 @@ FakeSQLResult.prototype = Array.prototype;
 const fakeResult: any = new FakeSQLResult();
 
 async function dbQuery(statement: SQLStatement, triesLeft?: number = 2) {
+  const connectionPool = getPool();
+  const timeoutID = setTimeout(
+    () => databaseMonitor.reportLaggingQuery(statement.sql),
+    queryWarnTime,
+  );
   const scriptContext = getScriptContext();
   try {
     const sql = statement.sql.trim();
@@ -91,7 +95,7 @@ async function dbQuery(statement: SQLStatement, triesLeft?: number = 2) {
       console.log(rawSQL(statement));
       return [fakeResult];
     }
-    return await getPool().query(statement);
+    return await connectionPool.query(statement);
   } catch (e) {
     if (e.errno === 1213 && triesLeft > 0) {
       console.log('deadlock occurred, trying again', e);
@@ -99,6 +103,8 @@ async function dbQuery(statement: SQLStatement, triesLeft?: number = 2) {
     }
     e.query = statement.sql;
     throw e;
+  } finally {
+    clearTimeout(timeoutID);
   }
 }
 
