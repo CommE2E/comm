@@ -6,10 +6,13 @@ import SQL from 'sql-template-strings';
 
 import dbConfig from '../../secrets/db_config';
 import { getScriptContext } from '../scripts/script-context';
+import DatabaseMonitor from './monitor';
 
 const SQLStatement = SQL.SQLStatement;
 
 export type QueryResult = [any[] & { insertId?: number }, any[]];
+
+const connectionLimit = 10;
 
 let pool;
 function getPool() {
@@ -19,11 +22,12 @@ function getPool() {
   const scriptContext = getScriptContext();
   pool = mysqlPromise.createPool({
     ...dbConfig,
-    connectionLimit: 10,
+    connectionLimit,
     multipleStatements: !!(
       scriptContext && scriptContext.allowMultiStatementSQLQueries
     ),
   });
+  new DatabaseMonitor(pool);
   return pool;
 }
 
