@@ -61,7 +61,9 @@ const imageRule = {
 
 const baseBrowserConfig = {
   name: 'browser',
-  entry: [ './script.js' ],
+  entry: {
+    browser: [ './script.js' ],
+  },
   output: {
     filename: 'prod.[hash:12].build.js',
     path: path.join(__dirname, 'dist'),
@@ -92,10 +94,13 @@ module.exports = function(env) {
   if (env === 'dev') {
     browserConfig = {
       ...browserConfig,
-      entry: [
-        'react-hot-loader/patch',
+      entry: {
         ...browserConfig.entry,
-      ],
+        browser: [
+          'react-hot-loader/patch',
+          ...browserConfig.entry.browser,
+        ],
+      },
       mode: 'development',
       output: {
         ...browserConfig.output,
@@ -233,7 +238,9 @@ module.exports = function(env) {
     target: 'node',
     externals: [ 'react', 'react-dom', 'react-redux' ],
     mode: env === 'dev' ? 'development' : 'production',
-    entry: [ './app.react.js' ],
+    entry: {
+      server: [ './app.react.js' ],
+    },
     output: {
       filename: 'app.build.cjs',
       library: 'app',
