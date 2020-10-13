@@ -26,7 +26,7 @@ import { promiseAll } from 'lib/utils/promises';
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 import {
   verifyUserIDs,
   verifyUserOrCookieIDs,

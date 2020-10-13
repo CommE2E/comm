@@ -3,7 +3,7 @@
 import type { DeviceTokenUpdateRequest } from 'lib/types/device-types';
 import type { Viewer } from '../session/viewer';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 
 async function deviceTokenUpdater(
   viewer: Viewer,

@@ -31,7 +31,7 @@ import {
   SQLStatement,
   mergeAndConditions,
   mergeOrConditions,
-} from '../database';
+} from '../database/database';
 import { creationString } from '../utils/idempotent';
 
 async function fetchEntryInfo(

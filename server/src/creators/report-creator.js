@@ -21,7 +21,7 @@ import {
 import { sanitizeAction, sanitizeState } from 'lib/utils/sanitization';
 import { values } from 'lib/utils/objects';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 import createIDs from './id-creator';
 import { fetchUsername } from '../fetchers/user-fetchers';
 import urlFacts from '../../facts/url';

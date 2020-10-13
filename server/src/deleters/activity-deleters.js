@@ -2,7 +2,7 @@
 
 import type { Viewer } from '../session/viewer';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 import { earliestFocusedTimeConsideredExpired } from '../shared/focused-times';
 
 async function deleteActivityForViewerSession(

@@ -3,7 +3,7 @@
 import type { GlobalAccountUserInfo } from 'lib/types/user-types';
 import type { UserSearchRequest } from 'lib/types/search-types';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 
 async function searchForUsers(
   query: UserSearchRequest,

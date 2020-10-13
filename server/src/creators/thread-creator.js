@@ -17,7 +17,7 @@ import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers';
 import createIDs from './id-creator';
 import { createInitialRolesForNewThread } from './role-creator';

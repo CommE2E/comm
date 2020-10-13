@@ -16,7 +16,7 @@ import { ServerError } from 'lib/utils/errors';
 import { values } from 'lib/utils/objects';
 import ashoat from 'lib/facts/ashoat';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 import createIDs from './id-creator';
 import { createNewUserCookie, setNewSession } from '../session/cookies';
 import { deleteCookie } from '../deleters/cookie-deleters';

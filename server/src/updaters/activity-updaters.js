@@ -16,7 +16,7 @@ import _difference from 'lodash/fp/difference';
 
 import { ServerError } from 'lib/utils/errors';
 
-import { dbQuery, SQL, mergeOrConditions } from '../database';
+import { dbQuery, SQL, mergeOrConditions } from '../database/database';
 import { rescindPushNotifs } from '../push/rescind';
 import { createUpdates } from '../creators/update-creator';
 import { deleteActivityForViewerSession } from '../deleters/activity-deleters';

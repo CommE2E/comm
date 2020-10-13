@@ -12,7 +12,7 @@ import { ServerError } from 'lib/utils/errors';
 import { isStaff } from 'lib/shared/user-utils';
 import { values } from 'lib/utils/objects';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 
 async function fetchErrorReportInfos(
   viewer: Viewer,

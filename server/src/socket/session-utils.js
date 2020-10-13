@@ -57,7 +57,7 @@ import {
 import createReport from '../creators/report-creator';
 import { compareNewCalendarQuery } from '../updaters/entry-updaters';
 import { activityUpdatesInputValidator } from '../responders/activity-responders';
-import { SQL } from '../database';
+import { SQL } from '../database/database';
 import {
   threadInconsistencyReportValidatorShape,
   entryInconsistencyReportValidatorShape,

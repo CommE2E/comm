@@ -9,7 +9,7 @@ import {
 
 import _groupBy from 'lodash/fp/groupBy';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 
 type RelationshipOperation =
   | 'delete_directed'

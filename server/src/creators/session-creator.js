@@ -3,7 +3,7 @@
 import type { Viewer } from '../session/viewer';
 import type { CalendarQuery } from 'lib/types/entry-types';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 
 async function createSession(
   viewer: Viewer,

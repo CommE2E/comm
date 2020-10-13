@@ -8,7 +8,7 @@ import invariant from 'invariant';
 
 import { promiseAll } from 'lib/utils/promises';
 
-import { dbQuery, SQL, SQLStatement } from '../database';
+import { dbQuery, SQL, SQLStatement } from '../database/database';
 import { apnPush, fcmPush } from './utils';
 import createIDs from '../creators/id-creator';
 

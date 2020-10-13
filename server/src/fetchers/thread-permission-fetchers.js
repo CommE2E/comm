@@ -8,7 +8,7 @@ import { permissionLookup } from 'lib/permissions/thread-permissions';
 
 import type { Viewer } from '../session/viewer';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 
 async function fetchThreadPermissionsBlob(
   viewer: Viewer,

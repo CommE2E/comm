@@ -7,7 +7,7 @@ import apn from '@parse/node-apn';
 import fcmAdmin from 'firebase-admin';
 import invariant from 'invariant';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 
 let cachedAPNProvider = undefined;
 async function getAPNProvider() {

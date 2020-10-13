@@ -55,7 +55,7 @@ import {
   normalizeCalendarQuery,
   verifyCalendarQueryThreadIDs,
 } from './entry-responders';
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { sendAccessRequestEmailToAshoat } from '../emails/access-request';

@@ -15,7 +15,7 @@ import { ServerError } from 'lib/utils/errors';
 import { dateString } from 'lib/utils/date-utils';
 import { values } from 'lib/utils/objects';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 import { checkThreadPermissionForEntry } from '../fetchers/entry-fetchers';
 import createIDs from '../creators/id-creator';
 import createMessages from '../creators/message-creator';

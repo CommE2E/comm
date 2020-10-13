@@ -14,7 +14,7 @@ import { ServerError } from 'lib/utils/errors';
 import { dateFromString } from 'lib/utils/date-utils';
 import { values } from 'lib/utils/objects';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 import fetchOrCreateDayID from '../creators/day-creator';
 import createIDs from '../creators/id-creator';
 import createMessages from '../creators/message-creator';

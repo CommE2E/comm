@@ -4,8 +4,8 @@ import mysqlPromise from 'mysql2/promise';
 import mysql from 'mysql2';
 import SQL from 'sql-template-strings';
 
-import dbConfig from '../secrets/db_config';
-import { getScriptContext } from './scripts/script-context';
+import dbConfig from '../../secrets/db_config';
+import { getScriptContext } from '../scripts/script-context';
 
 const SQLStatement = SQL.SQLStatement;
 

@@ -6,7 +6,7 @@ import type { Viewer } from '../session/viewer';
 import { getAllThreadPermissions } from 'lib/permissions/thread-permissions';
 import { rawThreadInfoFromServerThreadInfo } from 'lib/shared/thread-utils';
 
-import { dbQuery, SQL, SQLStatement } from '../database';
+import { dbQuery, SQL, SQLStatement } from '../database/database';
 
 type FetchServerThreadInfosResult = {|
   threadInfos: { [id: string]: ServerThreadInfo },

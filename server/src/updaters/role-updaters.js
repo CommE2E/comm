@@ -6,7 +6,7 @@ import type { ThreadType } from 'lib/types/thread-types';
 import _isEqual from 'lodash/fp/isEqual';
 import invariant from 'invariant';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 import { fetchRoles } from '../fetchers/role-fetchers';
 import { getRolePermissionBlobsForChat } from '../creators/role-creator';
 import createIDs from '../creators/id-creator';

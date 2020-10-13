@@ -2,7 +2,7 @@
 
 import type { Viewer } from '../session/viewer';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 import { ServerError } from 'lib/utils/errors';
 
 async function deleteUpload(viewer: Viewer, id: string): Promise<void> {

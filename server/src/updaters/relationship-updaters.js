@@ -20,7 +20,7 @@ import { cartesianProduct } from 'lib/utils/array';
 import { fetchUserInfos } from '../fetchers/user-fetchers';
 import { fetchFriendRequestRelationshipOperations } from '../fetchers/relationship-fetchers';
 import { createUpdates } from '../creators/update-creator';
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 
 async function updateRelationships(
   viewer: Viewer,

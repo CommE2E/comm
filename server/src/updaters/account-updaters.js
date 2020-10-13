@@ -18,7 +18,7 @@ import { verifyField } from 'lib/types/verify-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 import { values } from 'lib/utils/objects';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 import { sendEmailAddressVerificationEmail } from '../emails/verification';
 import { sendPasswordResetEmail } from '../emails/reset-password';
 import { verifyCode, clearVerifyCodes } from '../models/verification';

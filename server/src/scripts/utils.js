@@ -1,6 +1,6 @@
 // @flow
 
-import { getPool } from '../database';
+import { getPool } from '../database/database';
 import { publisher } from '../socket/redis';
 
 function endScript() {

@@ -29,7 +29,7 @@ import {
 } from 'lib/shared/thread-utils';
 import { promiseAll } from 'lib/utils/promises';
 
-import { dbQuery, SQL, mergeOrConditions } from '../database';
+import { dbQuery, SQL, mergeOrConditions } from '../database/database';
 import { apnPush, fcmPush, getUnreadCounts } from './utils';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
 import { fetchUserInfos } from '../fetchers/user-fetchers';

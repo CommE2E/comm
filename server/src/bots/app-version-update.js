@@ -7,7 +7,7 @@ import invariant from 'invariant';
 import bots from 'lib/facts/bots';
 import { promiseAll } from 'lib/utils/promises';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 import { createSquadbotThread } from './squadbot';
 import createMessages from '../creators/message-creator';
 import { createBotViewer } from '../session/bots';

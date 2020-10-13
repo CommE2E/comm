@@ -26,7 +26,7 @@ import {
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 import { ServerError } from 'lib/utils/errors';
 
-import { dbQuery, SQL, mergeOrConditions } from '../database';
+import { dbQuery, SQL, mergeOrConditions } from '../database/database';
 import { creationString, localIDFromCreationString } from '../utils/idempotent';
 import { mediaFromRow } from './upload-fetchers';
 

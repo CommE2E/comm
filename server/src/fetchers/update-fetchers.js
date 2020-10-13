@@ -13,7 +13,7 @@ import invariant from 'invariant';
 
 import { ServerError } from 'lib/utils/errors';
 
-import { dbQuery, SQL, SQLStatement } from '../database';
+import { dbQuery, SQL, SQLStatement } from '../database/database';
 import {
   type FetchUpdatesResult,
   fetchUpdateInfosWithRawUpdateInfos,

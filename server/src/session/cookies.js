@@ -24,7 +24,7 @@ import invariant from 'invariant';
 import { values } from 'lib/utils/objects';
 import { promiseAll } from 'lib/utils/promises';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 import { Viewer } from './viewer';
 import urlFacts from '../../facts/url';
 import createIDs from '../creators/id-creator';

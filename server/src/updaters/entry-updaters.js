@@ -27,7 +27,7 @@ import {
 } from 'lib/shared/entry-utils';
 import { values } from 'lib/utils/objects';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 import {
   fetchEntryInfo,
   checkThreadPermissionForEntry,

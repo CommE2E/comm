@@ -40,7 +40,7 @@ import {
 } from '../updaters/relationship-updaters';
 import { rescindPushNotifs } from '../push/rescind';
 
-import { dbQuery, SQL, mergeOrConditions } from '../database';
+import { dbQuery, SQL, mergeOrConditions } from '../database/database';
 
 export type MembershipRowToSave = {|
   operation: 'update' | 'join',

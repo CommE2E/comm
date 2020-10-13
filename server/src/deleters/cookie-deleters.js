@@ -4,7 +4,12 @@ import { cookieLifetime } from 'lib/types/session-types';
 
 import invariant from 'invariant';
 
-import { dbQuery, SQL, SQLStatement, mergeOrConditions } from '../database';
+import {
+  dbQuery,
+  SQL,
+  SQLStatement,
+  mergeOrConditions,
+} from '../database/database';
 
 async function deleteCookiesByConditions(
   conditions: $ReadOnlyArray<SQLStatement>,

@@ -40,7 +40,12 @@ import {
   rawUpdateInfoFromUpdateData,
 } from 'lib/shared/update-utils';
 
-import { dbQuery, SQL, SQLStatement, mergeAndConditions } from '../database';
+import {
+  dbQuery,
+  SQL,
+  SQLStatement,
+  mergeAndConditions,
+} from '../database/database';
 import createIDs from './id-creator';
 import { deleteUpdatesByConditions } from '../deleters/update-deleters';
 import {

@@ -14,7 +14,7 @@ import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
 import { values } from 'lib/utils/objects';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 import { createNewAnonymousCookie } from '../session/cookies';
 import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
 import { createUpdates } from '../creators/update-creator';

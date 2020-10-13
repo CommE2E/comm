@@ -14,7 +14,7 @@ import { ServerError } from 'lib/utils/errors';
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 import {
   fetchThreadInfos,
   fetchServerThreadInfos,

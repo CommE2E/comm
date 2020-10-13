@@ -2,7 +2,7 @@
 
 import type { RoleInfo } from 'lib/types/thread-types';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 
 async function fetchRoles(threadID: string): Promise<RoleInfo[]> {
   const query = SQL`

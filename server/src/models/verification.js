@@ -14,7 +14,7 @@ import bcrypt from 'twin-bcrypt';
 
 import { ServerError } from 'lib/utils/errors';
 
-import { dbQuery, SQL, mergeOrConditions } from '../database';
+import { dbQuery, SQL, mergeOrConditions } from '../database/database';
 import createIDs from '../creators/id-creator';
 import { createUpdates } from '../creators/update-creator';
 

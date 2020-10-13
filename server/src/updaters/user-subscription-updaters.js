@@ -10,7 +10,7 @@ import { updateTypes } from 'lib/types/update-types';
 import { ServerError } from 'lib/utils/errors';
 import { viewerIsMember } from 'lib/shared/thread-utils';
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 import { createUpdates } from '../creators/update-creator';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 

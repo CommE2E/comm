@@ -1,6 +1,6 @@
 // @flow
 
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 
 async function deleteOrphanedRevisions(): Promise<void> {
   await dbQuery(SQL`

@@ -4,7 +4,12 @@ import type { Viewer } from '../session/viewer';
 
 import invariant from 'invariant';
 
-import { dbQuery, SQL, SQLStatement, mergeOrConditions } from '../database';
+import {
+  dbQuery,
+  SQL,
+  SQLStatement,
+  mergeOrConditions,
+} from '../database/database';
 
 async function deleteUpdatesByConditions(
   conditions: $ReadOnlyArray<SQLStatement>,

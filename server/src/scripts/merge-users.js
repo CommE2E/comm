@@ -3,7 +3,7 @@
 import { type UpdateData, updateTypes } from 'lib/types/update-types';
 import type { ServerThreadInfo } from 'lib/types/thread-types';
 
-import { dbQuery, SQL, SQLStatement } from '../database';
+import { dbQuery, SQL, SQLStatement } from '../database/database';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
 import {
   changeRole,

@@ -21,7 +21,12 @@ import {
 } from 'lib/shared/message-utils';
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 
-import { dbQuery, SQL, appendSQLArray, mergeOrConditions } from '../database';
+import {
+  dbQuery,
+  SQL,
+  appendSQLArray,
+  mergeOrConditions,
+} from '../database/database';
 import createIDs from './id-creator';
 import { sendPushNotifs } from '../push/send';
 import { createUpdates } from './update-creator';

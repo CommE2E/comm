@@ -13,7 +13,7 @@ import { sortIDs } from 'lib/shared/relationship-utils';
 
 import { setScriptContext } from './script-context';
 import { endScript } from './utils';
-import { dbQuery, SQL } from '../database';
+import { dbQuery, SQL } from '../database/database';
 import { getRolePermissionBlobsForChat } from '../creators/role-creator';
 
 setScriptContext({
