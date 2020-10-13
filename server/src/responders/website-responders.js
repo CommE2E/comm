@@ -27,7 +27,6 @@ import { mostRecentReadThread } from 'lib/selectors/thread-selectors';
 import { threadHasPermission } from 'lib/shared/thread-utils';
 import { promiseAll } from 'lib/utils/promises';
 
-import 'web/server-rendering';
 import * as ReduxSetup from 'web/redux/redux-setup';
 import App from 'web/dist/app.build.cjs';
 import { navInfoFromURL } from 'web/url-utils';

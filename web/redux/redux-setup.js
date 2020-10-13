@@ -159,6 +159,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
   if (
     activeThread &&
     !Visibility.hidden() &&
+    typeof document !== 'undefined' &&
     document &&
     document.hasFocus &&
     document.hasFocus() &&

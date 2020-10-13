@@ -7,7 +7,10 @@ import { updateWindowActiveActionType } from './action-types';
 
 function FocusHandler() {
   const [focused, setFocused] = React.useState(
-    !window || !window.hasFocus || window.hasFocus(),
+    typeof window === 'undefined' ||
+      !window ||
+      !window.hasFocus ||
+      window.hasFocus(),
   );
   const onFocus = React.useCallback(() => {
     setFocused(true);
@@ -16,6 +19,9 @@ function FocusHandler() {
     setFocused(false);
   }, []);
   React.useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
     window.addEventListener('focus', onFocus);
     window.addEventListener('blur', onBlur);
     return () => {
