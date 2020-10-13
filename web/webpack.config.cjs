@@ -8,6 +8,12 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const babelConfig = require('./babel.config.cjs');
 
+const sharedPlugins = [
+  new webpack.optimize.LimitChunkCountPlugin({
+    maxChunks: 1,
+  }),
+];
+
 const cssLoader = {
   loader: 'css-loader',
   options: {
@@ -80,6 +86,7 @@ const baseBrowserConfig = {
     ],
   },
   plugins: [
+    ...sharedPlugins,
     new CleanWebpackPlugin({
       cleanOnceBeforeBuildPatterns: [],
     }),
@@ -265,6 +272,7 @@ module.exports = function(env) {
         },
       ],
     },
+    plugins: sharedPlugins,
   };
   return [ browserConfig, nodeServerRenderingConfig ];
 };

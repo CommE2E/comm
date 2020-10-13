@@ -8,14 +8,14 @@ import {
   foregroundActionType,
 } from 'lib/reducers/foreground-reducer';
 
-import { getVisibility } from './visibility';
+import { useVisibility } from './visibility';
 
 function VisibilityHandler() {
-  const [visible, setVisible] = React.useState(!getVisibility().hidden());
+  const visibility = useVisibility();
+  const [visible, setVisible] = React.useState(!visibility.hidden());
   const onVisibilityChange = React.useCallback((event, state: string) => {
     setVisible(state === 'visible');
   }, []);
-  const visibility = getVisibility();
   React.useEffect(() => {
     const listener = visibility.change(onVisibilityChange);
     return () => {
