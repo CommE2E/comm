@@ -35,7 +35,11 @@ import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 import { mostRecentUpdateTimestamp } from 'lib/shared/update-utils';
 import { promiseAll } from 'lib/utils/promises';
 import { values } from 'lib/utils/objects';
-import { serverRequestSocketTimeout } from 'lib/shared/timeouts';
+import {
+  serverRequestSocketTimeout,
+  serverResponseTimeout,
+} from 'lib/shared/timeouts';
+import sleep from 'lib/utils/sleep';
 
 import { Viewer } from '../session/viewer';
 import {
@@ -364,22 +368,29 @@ class Socket {
   async handleClientSocketMessage(
     message: ClientSocketMessage,
   ): Promise<ServerSocketMessage[]> {
-    if (message.type === clientSocketMessageTypes.INITIAL) {
-      this.markActivityOccurred();
-      return await this.handleInitialClientSocketMessage(message);
-    } else if (message.type === clientSocketMessageTypes.RESPONSES) {
-      this.markActivityOccurred();
-      return await this.handleResponsesClientSocketMessage(message);
-    } else if (message.type === clientSocketMessageTypes.PING) {
-      return await this.handlePingClientSocketMessage(message);
-    } else if (message.type === clientSocketMessageTypes.ACK_UPDATES) {
-      this.markActivityOccurred();
-      return await this.handleAckUpdatesClientSocketMessage(message);
-    } else if (message.type === clientSocketMessageTypes.API_REQUEST) {
-      this.markActivityOccurred();
-      return await this.handleAPIRequestClientSocketMessage(message);
-    }
-    return [];
+    const resultPromise = (async () => {
+      if (message.type === clientSocketMessageTypes.INITIAL) {
+        this.markActivityOccurred();
+        return await this.handleInitialClientSocketMessage(message);
+      } else if (message.type === clientSocketMessageTypes.RESPONSES) {
+        this.markActivityOccurred();
+        return await this.handleResponsesClientSocketMessage(message);
+      } else if (message.type === clientSocketMessageTypes.PING) {
+        return await this.handlePingClientSocketMessage(message);
+      } else if (message.type === clientSocketMessageTypes.ACK_UPDATES) {
+        this.markActivityOccurred();
+        return await this.handleAckUpdatesClientSocketMessage(message);
+      } else if (message.type === clientSocketMessageTypes.API_REQUEST) {
+        this.markActivityOccurred();
+        return await this.handleAPIRequestClientSocketMessage(message);
+      }
+      return [];
+    })();
+    const timeoutPromise = (async () => {
+      await sleep(serverResponseTimeout);
+      throw new ServerError('socket_response_timeout');
+    })();
+    return await Promise.race([resultPromise, timeoutPromise]);
   }
 
   async handleInitialClientSocketMessage(
