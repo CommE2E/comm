@@ -3,15 +3,13 @@
 import type { AccessRequest } from 'lib/types/account-types';
 
 import React from 'react';
-import ReactHTML from 'react-html-email';
+import { Item, Span, renderEmail } from 'react-html-email';
 import _shuffle from 'lodash/fp/shuffle';
 
 import ashoat from 'lib/facts/ashoat';
 
 import sendmail from './sendmail';
 import Template from './template.react';
-
-const { Item, Span, renderEmail } = ReactHTML;
 
 const someHeadings = [
   'What is UP my man??',

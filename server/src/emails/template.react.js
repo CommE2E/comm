@@ -2,9 +2,7 @@
 
 import React from 'react';
 import * as React2 from 'react';
-import ReactHTML from 'react-html-email';
-
-const { Email, Box } = ReactHTML;
+import { Email, Box } from 'react-html-email';
 
 const css = `
 @media only screen and (max-device-width: 480px) {

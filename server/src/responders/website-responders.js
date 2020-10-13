@@ -10,8 +10,8 @@ import type { ServerVerificationResult } from 'lib/types/verify-types';
 import html from 'common-tags/lib/html';
 import { createStore, type Store } from 'redux';
 import ReactDOMServer from 'react-dom/server';
-import ReactRedux from 'react-redux';
-import ReactRouter from 'react-router';
+import { Provider } from 'react-redux';
+import { Route, StaticRouter } from 'react-router';
 import React from 'react';
 import _keyBy from 'lodash/fp/keyBy';
 import fs from 'fs';
@@ -27,7 +27,7 @@ import { mostRecentReadThread } from 'lib/selectors/thread-selectors';
 import { threadHasPermission } from 'lib/shared/thread-utils';
 import { promiseAll } from 'lib/utils/promises';
 
-import * as ReduxSetup from 'web/redux/redux-setup';
+import { reducer } from 'web/redux/redux-setup';
 import App from 'web/dist/app.build.cjs';
 import { navInfoFromURL } from 'web/url-utils';
 
@@ -46,9 +46,6 @@ import { streamJSON, waitForStream } from '../utils/json-stream';
 
 const { basePath, baseDomain } = urlFacts;
 const { renderToNodeStream } = ReactDOMServer;
-const { Provider } = ReactRedux;
-const { reducer } = ReduxSetup;
-const { Route, StaticRouter } = ReactRouter;
 
 const baseURL = basePath.replace(/\/$/, '');
 const baseHref = baseDomain + baseURL;
