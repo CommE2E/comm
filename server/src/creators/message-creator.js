@@ -37,6 +37,39 @@ import { publisher } from '../socket/redis';
 import { fetchMessageInfoForLocalID } from '../fetchers/message-fetchers';
 import { creationString } from '../utils/idempotent';
 
+type UserThreadInfo = {|
+  +devices: Map<
+    string,
+    {|
+      +deviceType: string,
+      +deviceToken: string,
+      +codeVersion: ?string,
+    |},
+  >,
+  +threadIDs: Set<string>,
+  +notFocusedThreadIDs: Set<string>,
+  +subthreadsCanNotify: Set<string>,
+  +subthreadsCanSetToUnread: Set<string>,
+|};
+
+type LatestMessagesPerUser = Map<
+  string,
+  $ReadOnlyMap<
+    string,
+    {|
+      +latestMessage: string,
+      +latestReadMessage?: string,
+    |},
+  >,
+>;
+
+type LatestMessages = $ReadOnlyArray<{|
+  +userID: string,
+  +threadID: string,
+  +latestMessage: string,
+  +latestReadMessage: ?string,
+|}>;
+
 // Does not do permission checks! (checkThreadPermission)
 async function createMessages(
   viewer: Viewer,
@@ -122,7 +155,7 @@ async function createMessages(
       messageData.type === messageTypes.MULTIMEDIA
     ) {
       const mediaIDs = [];
-      for (let { id } of messageData.media) {
+      for (const { id } of messageData.media) {
         mediaIDs.push(parseInt(id, 10));
       }
       content = JSON.stringify(mediaIDs);
@@ -176,7 +209,7 @@ async function postMessageSend(
   let joinIndex = 0;
   let subthreadSelects = '';
   const subthreadJoins = [];
-  for (let subthread of subthreadPermissionsToCheck) {
+  for (const subthread of subthreadPermissionsToCheck) {
     const index = joinIndex++;
     subthreadSelects += `
       ,
@@ -210,9 +243,9 @@ async function postMessageSend(
       m.thread IN (${[...threadsToMessageIndices.keys()]})
   `);
 
-  const perUserInfo = new Map();
+  const perUserInfo = new Map<string, UserThreadInfo>();
   const [result] = await dbQuery(query);
-  for (let row of result) {
+  for (const row of result) {
     const userID = row.user.toString();
     const threadID = row.thread.toString();
     const deviceToken = row.device_token;
@@ -230,7 +263,7 @@ async function postMessageSend(
       perUserInfo.set(userID, thisUserInfo);
       // Subthread info will be the same for each subthread, so we only parse
       // it once
-      for (let subthread of subthreadPermissionsToCheck) {
+      for (const subthread of subthreadPermissionsToCheck) {
         const isSubthreadMember = !!row[`subthread${subthread}_role`];
         const permissions = row[`subthread${subthread}_permissions`];
         const canSeeSubthread = permissionLookup(
@@ -264,10 +297,11 @@ async function postMessageSend(
     }
   }
 
-  const pushInfo = {},
-    setUnreadPairs = [],
-    messageInfosPerUser = {};
-  for (let pair of perUserInfo) {
+  const pushInfo = {};
+  const setUnreadPairs = [];
+  const messageInfosPerUser = {};
+  const latestMessagesPerUser: LatestMessagesPerUser = new Map();
+  for (const pair of perUserInfo) {
     const [userID, preUserPushInfo] = pair;
     const { subthreadsCanSetToUnread, subthreadsCanNotify } = preUserPushInfo;
     const userPushInfo = {
@@ -275,10 +309,10 @@ async function postMessageSend(
       messageInfos: [],
     };
     const threadIDsToSetToUnread = new Set();
-    for (let threadID of preUserPushInfo.notFocusedThreadIDs) {
+    for (const threadID of preUserPushInfo.notFocusedThreadIDs) {
       const messageIndices = threadsToMessageIndices.get(threadID);
       invariant(messageIndices, `indices should exist for thread ${threadID}`);
-      for (let messageIndex of messageIndices) {
+      for (const messageIndex of messageIndices) {
         const messageInfo = messageInfos[messageIndex];
         if (messageInfo.creatorID === userID) {
           continue;
@@ -306,14 +340,14 @@ async function postMessageSend(
     ) {
       pushInfo[userID] = userPushInfo;
     }
-    for (let threadID of threadIDsToSetToUnread) {
+    for (const threadID of threadIDsToSetToUnread) {
       setUnreadPairs.push({ userID, threadID });
     }
     const userMessageInfos = [];
-    for (let threadID of preUserPushInfo.threadIDs) {
+    for (const threadID of preUserPushInfo.threadIDs) {
       const messageIndices = threadsToMessageIndices.get(threadID);
       invariant(messageIndices, `indices should exist for thread ${threadID}`);
-      for (let messageIndex of messageIndices) {
+      for (const messageIndex of messageIndices) {
         const messageInfo = messageInfos[messageIndex];
         userMessageInfos.push(messageInfo);
       }
@@ -321,11 +355,24 @@ async function postMessageSend(
     if (userMessageInfos.length > 0) {
       messageInfosPerUser[userID] = userMessageInfos;
     }
+
+    latestMessagesPerUser.set(
+      userID,
+      determineLatestMessagesPerThread(
+        preUserPushInfo,
+        userID,
+        threadsToMessageIndices,
+        messageInfos,
+      ),
+    );
   }
+
+  const latestMessages = flattenLatestMessagesPerUser(latestMessagesPerUser);
 
   await Promise.all([
     updateUnreadStatus(setUnreadPairs),
     redisPublish(viewer, messageInfosPerUser),
+    updateLatestMessages(latestMessages),
   ]);
 
   await sendPushNotifs(pushInfo);
@@ -366,7 +413,7 @@ async function redisPublish(
   viewer: Viewer,
   messageInfosPerUser: { [userID: string]: $ReadOnlyArray<RawMessageInfo> },
 ) {
-  for (let userID in messageInfosPerUser) {
+  for (const userID in messageInfosPerUser) {
     if (userID === viewer.userID && viewer.hasSessionInfo) {
       continue;
     }
@@ -384,7 +431,7 @@ async function redisPublish(
     return;
   }
   const sessionIDs = await fetchOtherSessionsForViewer(viewer);
-  for (let sessionID of sessionIDs) {
+  for (const sessionID of sessionIDs) {
     publisher.sendMessage(
       { userID: viewer.userID, sessionID },
       {
@@ -393,6 +440,123 @@ async function redisPublish(
       },
     );
   }
+}
+
+function determineLatestMessagesPerThread(
+  preUserPushInfo: UserThreadInfo,
+  userID: string,
+  threadsToMessageIndices: $ReadOnlyMap<string, $ReadOnlyArray<number>>,
+  messageInfos: $ReadOnlyArray<RawMessageInfo>,
+) {
+  const {
+    threadIDs,
+    notFocusedThreadIDs,
+    subthreadsCanSetToUnread,
+  } = preUserPushInfo;
+  const latestMessagesPerThread = new Map();
+  for (const threadID of threadIDs) {
+    const messageIndices = threadsToMessageIndices.get(threadID);
+    invariant(messageIndices, `indices should exist for thread ${threadID}`);
+    for (const messageIndex of messageIndices) {
+      const messageInfo = messageInfos[messageIndex];
+      if (
+        messageInfo.type === messageTypes.CREATE_SUB_THREAD &&
+        !subthreadsCanSetToUnread.has(messageInfo.childThreadID)
+      ) {
+        continue;
+      }
+
+      const messageID = messageInfo.id;
+      invariant(
+        messageID,
+        'message ID should exist in determineLatestMessagesPerThread',
+      );
+
+      if (
+        notFocusedThreadIDs.has(threadID) &&
+        messageInfo.creatorID !== userID
+      ) {
+        latestMessagesPerThread.set(threadID, {
+          latestMessage: messageID,
+        });
+      } else {
+        latestMessagesPerThread.set(threadID, {
+          latestMessage: messageID,
+          latestReadMessage: messageID,
+        });
+      }
+    }
+  }
+  return latestMessagesPerThread;
+}
+
+function flattenLatestMessagesPerUser(
+  latestMessagesPerUser: LatestMessagesPerUser,
+): LatestMessages {
+  const result = [];
+  for (const [userID, latestMessagesPerThread] of latestMessagesPerUser) {
+    for (const [threadID, latestMessages] of latestMessagesPerThread) {
+      result.push({
+        userID,
+        threadID,
+        latestMessage: latestMessages.latestMessage,
+        latestReadMessage: latestMessages.latestReadMessage,
+      });
+    }
+  }
+  return result;
+}
+
+function updateLatestMessages(latestMessages: LatestMessages) {
+  const query = SQL`
+    UPDATE memberships
+    SET 
+  `;
+
+  const lastMessageExpression = SQL`
+    last_message = GREATEST(last_message, CASE 
+  `;
+  const lastReadMessageExpression = SQL`
+    , last_read_message = GREATEST(last_read_message, CASE 
+  `;
+  let shouldUpdateLastReadMessage = false;
+  for (const {
+    userID,
+    threadID,
+    latestMessage,
+    latestReadMessage,
+  } of latestMessages) {
+    lastMessageExpression.append(SQL`
+      WHEN user = ${userID} AND thread = ${threadID} THEN ${latestMessage}
+    `);
+    if (latestReadMessage) {
+      shouldUpdateLastReadMessage = true;
+      lastReadMessageExpression.append(SQL`
+        WHEN user = ${userID} AND thread = ${threadID} THEN ${latestReadMessage}
+      `);
+    }
+  }
+  lastMessageExpression.append(SQL`
+    ELSE last_message
+    END)
+  `);
+  lastReadMessageExpression.append(SQL`
+    ELSE last_read_message
+    END)
+  `);
+
+  const conditions = latestMessages.map(
+    ({ userID, threadID }) => SQL`(user = ${userID} AND thread = ${threadID})`,
+  );
+
+  query.append(lastMessageExpression);
+  if (shouldUpdateLastReadMessage) {
+    query.append(lastReadMessageExpression);
+  }
+  query.append(SQL`WHERE `);
+  query.append(mergeOrConditions(conditions));
+
+  return dbQuery(query);
 }
 
 export default createMessages;
