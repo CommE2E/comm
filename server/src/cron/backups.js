@@ -41,7 +41,13 @@ async function backupDB() {
 
   const mysqlDump = childProcess.spawn(
     'mysqldump',
-    ['-u', dbConfig.user, `-p${dbConfig.password}`, dbConfig.database],
+    [
+      '-u',
+      dbConfig.user,
+      `-p${dbConfig.password}`,
+      '--single-transaction',
+      dbConfig.database,
+    ],
     {
       stdio: ['ignore', 'pipe', 'ignore'],
     },
