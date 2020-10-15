@@ -309,6 +309,7 @@ async function fetchInfos(pushInfo: PushInfo) {
   }
 
   const promises = {};
+  // These threadInfos won't have currentUser set
   promises.threadResult = fetchServerThreadInfos(
     SQL`t.id IN (${[...threadIDs]})`,
   );
@@ -343,12 +344,9 @@ async function fetchInfos(pushInfo: PushInfo) {
     `);
     promises.oldNames = dbQuery(oldNameQuery);
   }
-  promises.userInfos = fetchMissingUserInfos(usersToCollapsableNotifInfo);
-  const { threadResult, oldNames, userInfos } = await promiseAll(promises);
 
-  // These threadInfos won't have currentUser set
-  const { threadInfos: serverThreadInfos } = threadResult;
-
+  const { threadResult, oldNames } = await promiseAll(promises);
+  const serverThreadInfos = threadResult.threadInfos;
   if (oldNames) {
     const [result] = oldNames;
     for (let row of result) {
@@ -357,36 +355,50 @@ async function fetchInfos(pushInfo: PushInfo) {
     }
   }
 
+  const userInfos = await fetchNotifUserInfos(
+    serverThreadInfos,
+    usersToCollapsableNotifInfo,
+  );
+
   return { usersToCollapsableNotifInfo, serverThreadInfos, userInfos };
 }
 
-async function fetchMissingUserInfos(usersToCollapsableNotifInfo: {
-  [userID: string]: CollapsableNotifInfo[],
-}) {
+async function fetchNotifUserInfos(
+  serverThreadInfos: { [threadID: string]: ServerThreadInfo },
+  usersToCollapsableNotifInfo: { [userID: string]: CollapsableNotifInfo[] },
+) {
   const missingUserIDs = new Set();
+
+  for (const threadID in serverThreadInfos) {
+    const serverThreadInfo = serverThreadInfos[threadID];
+    for (const member of serverThreadInfo.members) {
+      missingUserIDs.add(member.id);
+    }
+  }
+
   const addUserIDsFromMessageInfos = (rawMessageInfo: RawMessageInfo) => {
     missingUserIDs.add(rawMessageInfo.creatorID);
     if (rawMessageInfo.type === messageTypes.ADD_MEMBERS) {
-      for (let userID of rawMessageInfo.addedUserIDs) {
+      for (const userID of rawMessageInfo.addedUserIDs) {
         missingUserIDs.add(userID);
       }
     } else if (rawMessageInfo.type === messageTypes.REMOVE_MEMBERS) {
-      for (let userID of rawMessageInfo.removedUserIDs) {
+      for (const userID of rawMessageInfo.removedUserIDs) {
         missingUserIDs.add(userID);
       }
     } else if (rawMessageInfo.type === messageTypes.CREATE_THREAD) {
-      for (let userID of rawMessageInfo.initialThreadState.memberIDs) {
+      for (const userID of rawMessageInfo.initialThreadState.memberIDs) {
         missingUserIDs.add(userID);
       }
     }
   };
 
-  for (let userID in usersToCollapsableNotifInfo) {
-    for (let notifInfo of usersToCollapsableNotifInfo[userID]) {
-      for (let rawMessageInfo of notifInfo.existingMessageInfos) {
+  for (const userID in usersToCollapsableNotifInfo) {
+    for (const notifInfo of usersToCollapsableNotifInfo[userID]) {
+      for (const rawMessageInfo of notifInfo.existingMessageInfos) {
         addUserIDsFromMessageInfos(rawMessageInfo);
       }
-      for (let rawMessageInfo of notifInfo.newMessageInfos) {
+      for (const rawMessageInfo of notifInfo.newMessageInfos) {
         addUserIDsFromMessageInfos(rawMessageInfo);
       }
     }
