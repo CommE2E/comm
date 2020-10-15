@@ -420,6 +420,9 @@ div.modal-body div.form-footer div.modal-form-error {
   padding-left: 6px;
   align-self: center;
 }
+div.modal-body div.form-footer div.modal-form-error ol {
+  padding-left: 20px;
+}
 
 div.form-text > div.form-title {
   vertical-align: initial;

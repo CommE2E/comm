@@ -35,26 +35,26 @@ import {
   type NavContextType,
 } from '../navigation/navigation-context';
 
-export type RegisterState = {
-  usernameInputText: string,
-  emailInputText: string,
-  passwordInputText: string,
-  confirmPasswordInputText: string,
-};
+export type RegisterState = {|
+  +usernameInputText: string,
+  +emailInputText: string,
+  +passwordInputText: string,
+  +confirmPasswordInputText: string,
+|};
 type Props = {
-  setActiveAlert: (activeAlert: boolean) => void,
-  opacityValue: Animated.Value,
-  state: StateContainer<RegisterState>,
+  +setActiveAlert: (activeAlert: boolean) => void,
+  +opacityValue: Animated.Value,
+  +state: StateContainer<RegisterState>,
   // Redux state
-  loadingStatus: LoadingStatus,
-  logInExtraInfo: () => LogInExtraInfo,
+  +loadingStatus: LoadingStatus,
+  +logInExtraInfo: () => LogInExtraInfo,
   // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  register: (registerInfo: RegisterInfo) => Promise<RegisterResult>,
+  +register: (registerInfo: RegisterInfo) => Promise<RegisterResult>,
 };
 type State = {|
-  confirmPasswordFocused: boolean,
+  +confirmPasswordFocused: boolean,
 |};
 class RegisterPanel extends React.PureComponent<Props, State> {
   static propTypes = {
@@ -288,7 +288,9 @@ class RegisterPanel extends React.PureComponent<Props, State> {
     ) {
       Alert.alert(
         'Invalid username',
-        'Alphanumeric usernames only',
+        'Usernames must be at least six characters long, start with either a ' +
+          'letter or a number, and may contain only letters, numbers, or the ' +
+          'characters “-” and “_”',
         [{ text: 'OK', onPress: this.onUsernameAlertAcknowledged }],
         { cancelable: false },
       );

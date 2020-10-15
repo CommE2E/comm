@@ -17,7 +17,10 @@ import {
   forgotPassword,
 } from 'lib/actions/user-actions';
 import { connect } from 'lib/utils/redux-utils';
-import { validUsernameRegex, validEmailRegex } from 'lib/shared/account-utils';
+import {
+  oldValidUsernameRegex,
+  validEmailRegex,
+} from 'lib/shared/account-utils';
 
 import {
   TextInput,
@@ -25,21 +28,21 @@ import {
 } from './modal-components.react';
 import { PanelButton, Panel } from './panel-components.react';
 
-type Props = {
-  setActiveAlert: (activeAlert: boolean) => void,
-  opacityValue: Animated.Value,
-  onSuccess: () => void,
+type Props = {|
+  +setActiveAlert: (activeAlert: boolean) => void,
+  +opacityValue: Animated.Value,
+  +onSuccess: () => void,
   // Redux state
-  loadingStatus: LoadingStatus,
-  usernamePlaceholder: string,
+  +loadingStatus: LoadingStatus,
+  +usernamePlaceholder: string,
   // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  forgotPassword: (usernameOrEmail: string) => Promise<void>,
-};
-type State = {
-  usernameOrEmailInputText: string,
-};
+  +forgotPassword: (usernameOrEmail: string) => Promise<void>,
+|};
+type State = {|
+  +usernameOrEmailInputText: string,
+|};
 class ForgotPasswordPanel extends React.PureComponent<Props, State> {
   static propTypes = {
     setActiveAlert: PropTypes.func.isRequired,
@@ -96,7 +99,8 @@ class ForgotPasswordPanel extends React.PureComponent<Props, State> {
   onSubmit = () => {
     this.props.setActiveAlert(true);
     if (
-      this.state.usernameOrEmailInputText.search(validUsernameRegex) === -1 &&
+      this.state.usernameOrEmailInputText.search(oldValidUsernameRegex) ===
+        -1 &&
       this.state.usernameOrEmailInputText.search(validEmailRegex) === -1
     ) {
       Alert.alert(

@@ -21,7 +21,10 @@ import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import Animated from 'react-native-reanimated';
 
-import { validUsernameRegex, validEmailRegex } from 'lib/shared/account-utils';
+import {
+  oldValidUsernameRegex,
+  validEmailRegex,
+} from 'lib/shared/account-utils';
 import { connect } from 'lib/utils/redux-utils';
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -41,24 +44,24 @@ import {
   type NavContextType,
 } from '../navigation/navigation-context';
 
-export type LogInState = {
-  usernameOrEmailInputText: string,
-  passwordInputText: string,
-};
-type Props = {
-  setActiveAlert: (activeAlert: boolean) => void,
-  opacityValue: Animated.Value,
-  innerRef: (logInPanel: ?LogInPanel) => void,
-  state: StateContainer<LogInState>,
+export type LogInState = {|
+  +usernameOrEmailInputText: string,
+  +passwordInputText: string,
+|};
+type Props = {|
+  +setActiveAlert: (activeAlert: boolean) => void,
+  +opacityValue: Animated.Value,
+  +innerRef: (logInPanel: ?LogInPanel) => void,
+  +state: StateContainer<LogInState>,
   // Redux state
-  loadingStatus: LoadingStatus,
-  logInExtraInfo: () => LogInExtraInfo,
-  usernamePlaceholder: string,
+  +loadingStatus: LoadingStatus,
+  +logInExtraInfo: () => LogInExtraInfo,
+  +usernamePlaceholder: string,
   // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  logIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
-};
+  +logIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
+|};
 class LogInPanel extends React.PureComponent<Props> {
   static propTypes = {
     setActiveAlert: PropTypes.func.isRequired,
@@ -190,7 +193,7 @@ class LogInPanel extends React.PureComponent<Props> {
     this.props.setActiveAlert(true);
     if (
       this.props.state.state.usernameOrEmailInputText.search(
-        validUsernameRegex,
+        oldValidUsernameRegex,
       ) === -1 &&
       this.props.state.state.usernameOrEmailInputText.search(
         validEmailRegex,

@@ -23,24 +23,23 @@ import Modal from '../modal.react';
 import VerifyEmailModal from './verify-email-modal.react';
 import { webLogInExtraInfoSelector } from '../../selectors/account-selectors';
 
-type Props = {
-  setModal: (modal: ?React.Node) => void,
+type Props = {|
+  +setModal: (modal: ?React.Node) => void,
   // Redux state
-  inputDisabled: boolean,
-  logInExtraInfo: () => LogInExtraInfo,
+  +inputDisabled: boolean,
+  +logInExtraInfo: () => LogInExtraInfo,
   // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  register: (registerInfo: RegisterInfo) => Promise<RegisterResult>,
-};
-type State = {
-  username: string,
-  email: string,
-  password: string,
-  confirmPassword: string,
-  errorMessage: string,
-};
-
+  +register: (registerInfo: RegisterInfo) => Promise<RegisterResult>,
+|};
+type State = {|
+  +username: string,
+  +email: string,
+  +password: string,
+  +confirmPassword: string,
+  +errorMessage: React.Node,
+|};
 class RegisterModal extends React.PureComponent<Props, State> {
   usernameInput: ?HTMLInputElement;
   emailInput: ?HTMLInputElement;
@@ -53,7 +52,7 @@ class RegisterModal extends React.PureComponent<Props, State> {
       email: '',
       password: '',
       confirmPassword: '',
-      errorMessage: '',
+      errorMessage: null,
     };
   }
 
@@ -201,7 +200,18 @@ class RegisterModal extends React.PureComponent<Props, State> {
       this.setState(
         {
           username: '',
-          errorMessage: 'alphanumeric usernames only',
+          errorMessage: (
+            <>
+              Usernames must:
+              <ol>
+                <li>Be at least six characters long,</li>
+                <li>Start with either a letter or a number,</li>
+                <li>
+                  Contain only letters, numbers, or the characters “-” and “_”.
+                </li>
+              </ol>
+            </>
+          ),
         },
         () => {
           invariant(this.usernameInput, 'usernameInput ref unset');

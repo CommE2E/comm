@@ -13,7 +13,10 @@ import * as React from 'react';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 
-import { validUsernameRegex, validEmailRegex } from 'lib/shared/account-utils';
+import {
+  oldValidUsernameRegex,
+  validEmailRegex,
+} from 'lib/shared/account-utils';
 import { connect } from 'lib/utils/redux-utils';
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -23,22 +26,21 @@ import Modal from '../modal.react';
 import ForgotPasswordModal from './forgot-password-modal.react';
 import { webLogInExtraInfoSelector } from '../../selectors/account-selectors';
 
-type Props = {
-  setModal: (modal: ?React.Node) => void,
+type Props = {|
+  +setModal: (modal: ?React.Node) => void,
   // Redux state
-  inputDisabled: boolean,
-  logInExtraInfo: () => LogInExtraInfo,
+  +inputDisabled: boolean,
+  +logInExtraInfo: () => LogInExtraInfo,
   // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  logIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
-};
-type State = {
-  usernameOrEmail: string,
-  password: string,
-  errorMessage: string,
-};
-
+  +logIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
+|};
+type State = {|
+  +usernameOrEmail: string,
+  +password: string,
+  +errorMessage: string,
+|};
 class LogInModal extends React.PureComponent<Props, State> {
   usernameOrEmailInput: ?HTMLInputElement;
   passwordInput: ?HTMLInputElement;
@@ -139,7 +141,7 @@ class LogInModal extends React.PureComponent<Props, State> {
     event.preventDefault();
 
     if (
-      this.state.usernameOrEmail.search(validUsernameRegex) === -1 &&
+      this.state.usernameOrEmail.search(oldValidUsernameRegex) === -1 &&
       this.state.usernameOrEmail.search(validEmailRegex) === -1
     ) {
       this.setState(
