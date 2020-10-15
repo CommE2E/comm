@@ -298,37 +298,26 @@ async function postMessageSend(
   }
 
   const pushInfo = {};
-  const setUnreadPairs = [];
   const messageInfosPerUser = {};
   const latestMessagesPerUser: LatestMessagesPerUser = new Map();
   for (const pair of perUserInfo) {
     const [userID, preUserPushInfo] = pair;
-    const { subthreadsCanSetToUnread, subthreadsCanNotify } = preUserPushInfo;
+    const { subthreadsCanNotify } = preUserPushInfo;
     const userPushInfo = {
       devices: [...preUserPushInfo.devices.values()],
       messageInfos: [],
     };
-    const threadIDsToSetToUnread = new Set();
+
     for (const threadID of preUserPushInfo.notFocusedThreadIDs) {
       const messageIndices = threadsToMessageIndices.get(threadID);
       invariant(messageIndices, `indices should exist for thread ${threadID}`);
       for (const messageIndex of messageIndices) {
         const messageInfo = messageInfos[messageIndex];
-        if (messageInfo.creatorID === userID) {
-          continue;
-        }
         if (
-          messageInfo.type !== messageTypes.CREATE_SUB_THREAD ||
-          subthreadsCanSetToUnread.has(messageInfo.childThreadID)
-        ) {
-          threadIDsToSetToUnread.add(threadID);
-        }
-        if (!messageTypeGeneratesNotifs(messageInfo.type)) {
-          continue;
-        }
-        if (
-          messageInfo.type !== messageTypes.CREATE_SUB_THREAD ||
-          subthreadsCanNotify.has(messageInfo.childThreadID)
+          (messageInfo.type !== messageTypes.CREATE_SUB_THREAD ||
+            subthreadsCanNotify.has(messageInfo.childThreadID)) &&
+          messageTypeGeneratesNotifs(messageInfo.type) &&
+          messageInfo.creatorID !== userID
         ) {
           userPushInfo.messageInfos.push(messageInfo);
         }
@@ -339,9 +328,6 @@ async function postMessageSend(
       userPushInfo.messageInfos.length > 0
     ) {
       pushInfo[userID] = userPushInfo;
-    }
-    for (const threadID of threadIDsToSetToUnread) {
-      setUnreadPairs.push({ userID, threadID });
     }
     const userMessageInfos = [];
     for (const threadID of preUserPushInfo.threadIDs) {
@@ -370,43 +356,12 @@ async function postMessageSend(
   const latestMessages = flattenLatestMessagesPerUser(latestMessagesPerUser);
 
   await Promise.all([
-    updateUnreadStatus(setUnreadPairs),
+    createReadStatusUpdates(latestMessages),
     redisPublish(viewer, messageInfosPerUser),
     updateLatestMessages(latestMessages),
   ]);
 
   await sendPushNotifs(pushInfo);
-}
-
-async function updateUnreadStatus(
-  setUnreadPairs: $ReadOnlyArray<{| userID: string, threadID: string |}>,
-) {
-  if (setUnreadPairs.length === 0) {
-    return;
-  }
-  const updateConditions = setUnreadPairs.map(
-    pair => SQL`(user = ${pair.userID} AND thread = ${pair.threadID})`,
-  );
-  const updateQuery = SQL`
-    UPDATE memberships
-    SET unread = 1
-    WHERE
-  `;
-  updateQuery.append(mergeOrConditions(updateConditions));
-
-  const now = Date.now();
-  await Promise.all([
-    dbQuery(updateQuery),
-    createUpdates(
-      setUnreadPairs.map(pair => ({
-        type: updateTypes.UPDATE_THREAD_READ_STATUS,
-        userID: pair.userID,
-        time: now,
-        threadID: pair.threadID,
-        unread: true,
-      })),
-    ),
-  ]);
 }
 
 async function redisPublish(
@@ -505,6 +460,25 @@ function flattenLatestMessagesPerUser(
     }
   }
   return result;
+}
+
+async function createReadStatusUpdates(latestMessages: LatestMessages) {
+  const now = Date.now();
+  const readStatusUpdates = latestMessages
+    .filter(message => !message.latestReadMessage)
+    .map(({ userID, threadID }) => ({
+      type: updateTypes.UPDATE_THREAD_READ_STATUS,
+      userID,
+      time: now,
+      threadID,
+      unread: true,
+    }));
+
+  if (readStatusUpdates.length === 0) {
+    return;
+  }
+
+  return await createUpdates(readStatusUpdates);
 }
 
 function updateLatestMessages(latestMessages: LatestMessages) {
