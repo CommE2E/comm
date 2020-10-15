@@ -6,8 +6,6 @@
   "threadID": "82251",
   "messageInfos": "[{\"type\":0,\"threadID\":\"82251\",\"creatorID\":\"1402\",\"time\":1586135605476,\"text\":\"asdasd\",\"id\":\"166127\"}]",
   "aps": {
-    "alert": "somebody to test: asdasd",
-    "sound": "default",
     "badge": 12,
     "thread-id": "82251"
   }
