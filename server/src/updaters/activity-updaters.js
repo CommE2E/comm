@@ -146,17 +146,11 @@ async function activityUpdater(
     viewer,
     updatesForCurrentSession: 'ignore',
   });
-  const setUnreadStatusPromise = updateUnreadStatus(
-    viewer,
-    setToRead,
-    setToUnread,
-  );
 
   await Promise.all([
     focusUpdatePromise,
     updateLatestReadMessagePromise,
     updatesPromise,
-    setUnreadStatusPromise,
   ]);
 
   // We do this afterwards so the badge count is correct
@@ -294,36 +288,6 @@ async function updateLastReadMessage(
   return await dbQuery(query);
 }
 
-async function updateUnreadStatus(
-  viewer: Viewer,
-  setToRead: $ReadOnlyArray<string>,
-  setToUnread: $ReadOnlyArray<string>,
-) {
-  const promises = [];
-  if (setToRead.length > 0) {
-    promises.push(
-      dbQuery(SQL`
-        UPDATE memberships
-        SET unread = 0
-        WHERE thread IN (${setToRead})
-          AND user = ${viewer.userID}
-    `),
-    );
-  }
-  if (setToUnread.length > 0) {
-    promises.push(
-      dbQuery(SQL`
-        UPDATE memberships
-        SET unread = 1
-        WHERE thread IN (${setToUnread})
-          AND user = ${viewer.userID}
-    `),
-    );
-  }
-
-  return await Promise.all(promises);
-}
-
 async function setThreadUnreadStatus(
   viewer: Viewer,
   request: SetThreadUnreadStatusRequest,
@@ -352,8 +316,7 @@ async function setThreadUnreadStatus(
       : SQL`GREATEST(m.last_read_message, ${request.latestMessage ?? 0})`;
     const update = SQL`
       UPDATE memberships m
-      SET m.unread = ${request.unread ? 1 : 0},
-        m.last_read_message =
+      SET m.last_read_message =
     `;
     update.append(lastReadMessage);
     update.append(SQL`
