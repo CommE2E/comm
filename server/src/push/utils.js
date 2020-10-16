@@ -181,7 +181,8 @@ async function getUnreadCounts(
   const query = SQL`
     SELECT user, COUNT(thread) AS unread_count
     FROM memberships
-    WHERE user IN (${userIDs}) AND unread = 1 AND role > 0
+    WHERE user IN (${userIDs}) AND last_message > last_read_message 
+      AND role > 0
       AND JSON_EXTRACT(permissions, ${visPermissionExtractString})
       AND JSON_EXTRACT(subscription, ${notificationExtractString})
     GROUP BY user
