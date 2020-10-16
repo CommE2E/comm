@@ -25,7 +25,9 @@ async function rescindPushNotifs(
   fetchQuery.append(SQL`
       ) AS unread_count
     FROM notifications n
-    LEFT JOIN memberships m ON m.user = n.user AND m.unread = 1 AND m.role > 0 
+    LEFT JOIN memberships m ON m.user = n.user 
+      AND m.last_message > m.last_read_message 
+      AND m.role > 0 
       AND JSON_EXTRACT(subscription, ${notificationExtractString})
       AND JSON_EXTRACT(permissions, ${visPermissionExtractString})
     WHERE n.rescinded = 0 AND
