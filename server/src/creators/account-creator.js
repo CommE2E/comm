@@ -12,12 +12,14 @@ import bcrypt from 'twin-bcrypt';
 import invariant from 'invariant';
 
 import {
+  validUsernameRegex,
   oldValidUsernameRegex,
   validEmailRegex,
 } from 'lib/shared/account-utils';
 import { ServerError } from 'lib/utils/errors';
 import { values } from 'lib/utils/objects';
 import ashoat from 'lib/facts/ashoat';
+import { hasMinCodeVersion } from 'lib/shared/version-utils';
 
 import { dbQuery, SQL } from '../database/database';
 import createIDs from './id-creator';
@@ -43,7 +45,10 @@ async function createAccount(
   if (request.password.trim() === '') {
     throw new ServerError('empty_password');
   }
-  if (request.username.search(oldValidUsernameRegex) === -1) {
+  const usernameRegex = hasMinCodeVersion(viewer.platformDetails, 69)
+    ? validUsernameRegex
+    : oldValidUsernameRegex;
+  if (request.username.search(usernameRegex) === -1) {
     throw new ServerError('invalid_username');
   }
   if (request.email.search(validEmailRegex) === -1) {
