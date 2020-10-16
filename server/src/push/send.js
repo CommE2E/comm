@@ -28,6 +28,7 @@ import {
   threadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils';
 import { promiseAll } from 'lib/utils/promises';
+import { oldValidUsernameRegex } from 'lib/shared/account-utils';
 
 import { dbQuery, SQL, mergeOrConditions } from '../database/database';
 import { apnPush, fcmPush, getUnreadCounts } from './utils';
@@ -117,10 +118,18 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       const threadID = firstNewMessageInfo.threadID;
 
       const threadInfo = threadInfos[threadID];
-      const badgeOnly = !threadInfo.currentUser.subscription.pushNotifs;
-      if (badgeOnly && !threadInfo.currentUser.subscription.home) {
+      const updateBadge = threadInfo.currentUser.subscription.home;
+      const displayBanner = threadInfo.currentUser.subscription.pushNotifs;
+      const username = userInfos[userID] && userInfos[userID].username;
+      const userWasMentioned =
+        username &&
+        oldValidUsernameRegex.test(username) &&
+        firstNewMessageInfo.type === messageTypes.TEXT &&
+        new RegExp(`\\B@${username}\\b`).test(firstNewMessageInfo.text);
+      if (!updateBadge && !displayBanner && !userWasMentioned) {
         continue;
       }
+      const badgeOnly = !displayBanner && !userWasMentioned;
 
       const dbID = dbIDs.shift();
       invariant(dbID, 'should have sufficient DB IDs');
