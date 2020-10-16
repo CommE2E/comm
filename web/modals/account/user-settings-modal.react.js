@@ -224,25 +224,21 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
     let buttons = null;
     if (this.state.currentTabType === 'delete') {
       buttons = (
-        <span className={css['form-submit']}>
-          <input
-            type="submit"
-            value="Delete account"
-            onClick={this.onDelete}
-            disabled={this.props.inputDisabled}
-          />
-        </span>
+        <input
+          type="submit"
+          value="Delete account"
+          onClick={this.onDelete}
+          disabled={this.props.inputDisabled}
+        />
       );
     } else {
       buttons = (
-        <span className={css['form-submit']}>
-          <input
-            type="submit"
-            value="Update account"
-            onClick={this.onSubmit}
-            disabled={this.props.inputDisabled}
-          />
-        </span>
+        <input
+          type="submit"
+          value="Update account"
+          onClick={this.onSubmit}
+          disabled={this.props.inputDisabled}
+        />
       );
     }
 
@@ -284,10 +280,10 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
               </div>
             </div>
             <div className={css['form-footer']}>
-              <span className={css['modal-form-error']}>
-                {this.state.errorMessage}
-              </span>
               {buttons}
+              <div className={css['modal-form-error']}>
+                {this.state.errorMessage}
+              </div>
             </div>
           </form>
         </div>

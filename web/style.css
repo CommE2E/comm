@@ -404,21 +404,21 @@ div.color-title {
 }
 
 div.modal-body div.form-footer {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  align-items: start;
   margin-top: 5px;
   border-top: 2px solid #EFEFEF;
   min-height: 26px;
   padding: 7px 4px 4px 0;
 }
-div.modal-body div.form-footer span.modal-form-error {
-  display: inline-block;
-  font-size: 14px;
+div.modal-body div.form-footer div.modal-form-error {
+  font-size: 12px;
   color: red;
   font-style: italic;
-  padding-top: 5px;
-}
-div.modal-body div.form-footer span.form-submit {
-  display: inline-block;
-  float: right;
+  padding-left: 6px;
+  align-self: center;
 }
 
 div.form-text > div.form-title {

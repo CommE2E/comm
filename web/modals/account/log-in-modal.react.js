@@ -94,17 +94,15 @@ class LogInModal extends React.PureComponent<Props, State> {
               </div>
             </div>
             <div className={css['form-footer']}>
-              <span className={css['modal-form-error']}>
+              <input
+                type="submit"
+                value="Log in"
+                onClick={this.onSubmit}
+                disabled={this.props.inputDisabled}
+              />
+              <div className={css['modal-form-error']}>
                 {this.state.errorMessage}
-              </span>
-              <span className={css['form-submit']}>
-                <input
-                  type="submit"
-                  value="Log in"
-                  onClick={this.onSubmit}
-                  disabled={this.props.inputDisabled}
-                />
-              </span>
+              </div>
             </div>
           </form>
         </div>

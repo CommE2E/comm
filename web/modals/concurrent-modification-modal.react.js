@@ -19,13 +19,11 @@ export default function ConcurrentModificationModal(props: Props) {
           time as you! Please refresh the entry and try again.
         </p>
         <div className={css['form-footer']}>
-          <span className={css['form-submit']}>
-            <input
-              type="submit"
-              value="Refresh entry"
-              onClick={props.onRefresh}
-            />
-          </span>
+          <input
+            type="submit"
+            value="Refresh entry"
+            onClick={props.onRefresh}
+          />
         </div>
       </div>
     </Modal>

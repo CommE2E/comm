@@ -27,13 +27,11 @@ class ConfirmLeaveThreadModal extends React.PureComponent<Props> {
             {'"?'}
           </p>
           <div className={css['form-footer']}>
-            <span className={css['form-submit']}>
-              <input
-                type="submit"
-                value="Leave thread"
-                onClick={this.props.onConfirm}
-              />
-            </span>
+            <input
+              type="submit"
+              value="Leave thread"
+              onClick={this.props.onConfirm}
+            />
           </div>
         </div>
       </Modal>

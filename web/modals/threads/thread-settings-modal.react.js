@@ -256,25 +256,21 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     let buttons = null;
     if (this.state.currentTabType === 'delete') {
       buttons = (
-        <span className={css['form-submit']}>
-          <input
-            type="submit"
-            value="Delete"
-            onClick={this.onDelete}
-            disabled={this.props.inputDisabled}
-          />
-        </span>
+        <input
+          type="submit"
+          value="Delete"
+          onClick={this.onDelete}
+          disabled={this.props.inputDisabled}
+        />
       );
     } else {
       buttons = (
-        <span className={css['form-submit']}>
-          <input
-            type="submit"
-            value="Save"
-            onClick={this.onSubmit}
-            disabled={this.props.inputDisabled || !this.changeQueued()}
-          />
-        </span>
+        <input
+          type="submit"
+          value="Save"
+          onClick={this.onSubmit}
+          disabled={this.props.inputDisabled || !this.changeQueued()}
+        />
       );
     }
 
@@ -334,10 +330,10 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
               </div>
             </div>
             <div className={css['form-footer']}>
-              <span className={css['modal-form-error']}>
-                {this.state.errorMessage}
-              </span>
               {buttons}
+              <div className={css['modal-form-error']}>
+                {this.state.errorMessage}
+              </div>
             </div>
           </form>
         </div>
