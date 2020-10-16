@@ -217,9 +217,9 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     this.forgotPasswordLinkOpacityValue = this.forgotPasswordLinkOpacity();
   }
 
-  guardedSetState = (change: StateChange<State>) => {
+  guardedSetState = (change: StateChange<State>, callback?: () => mixed) => {
     if (this.mounted) {
-      this.setState(change);
+      this.setState(change, callback);
     }
   };
 
