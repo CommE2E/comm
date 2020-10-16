@@ -51,7 +51,8 @@ export type MembershipRowToSave = {|
   // null role represents by "0"
   role: string,
   subscription?: ThreadSubscription,
-  unread?: boolean,
+  lastMessage?: number,
+  lastReadMessage?: number,
 |};
 type MembershipRowToDelete = {|
   operation: 'delete',
@@ -90,7 +91,7 @@ async function changeRole(
   }
 
   const roleInfo = new Map();
-  for (let row of membershipResult) {
+  for (const row of membershipResult) {
     const userID = row.user.toString();
     const oldPermissionsForChildren = row.permissions_for_children;
     const permissionsFromParent = row.permissions_from_parent;
@@ -105,7 +106,7 @@ async function changeRole(
   const membershipRows = [];
   const toUpdateDescendants = new Map();
   const memberIDs = new Set(roleInfo.keys());
-  for (let userID of userIDs) {
+  for (const userID of userIDs) {
     let oldPermissionsForChildren = null;
     let permissionsFromParent = null;
     let hadMembershipRow = false;
@@ -266,7 +267,7 @@ async function updateDescendantPermissions(
     const [result] = await dbQuery(query);
 
     const childThreadInfos = new Map();
-    for (let row of result) {
+    for (const row of result) {
       const threadID = row.id.toString();
       if (!childThreadInfos.has(threadID)) {
         childThreadInfos.set(threadID, {
@@ -288,7 +289,7 @@ async function updateDescendantPermissions(
       });
     }
 
-    for (let [threadID, childThreadInfo] of childThreadInfos) {
+    for (const [threadID, childThreadInfo] of childThreadInfos) {
       const userInfos = childThreadInfo.userInfos;
       const usersForNextLayer = new Map();
       for (const [
@@ -393,7 +394,7 @@ async function recalculateAllPermissions(
     .filter(row => row.user && row.row_state === 'existing')
     .map(row => row.user.toString());
 
-  for (let row of selectResult) {
+  for (const row of selectResult) {
     if (!row.user) {
       continue;
     }
@@ -479,7 +480,7 @@ async function saveMemberships(toSave: $ReadOnlyArray<MembershipRowToSave>) {
 
   const time = Date.now();
   const insertRows = [];
-  for (let rowToSave of toSave) {
+  for (const rowToSave of toSave) {
     let subscription;
     if (rowToSave.subscription) {
       subscription = JSON.stringify(rowToSave.subscription);
@@ -488,6 +489,8 @@ async function saveMemberships(toSave: $ReadOnlyArray<MembershipRowToSave>) {
     } else {
       subscription = defaultSubscriptionString;
     }
+    const lastMessage = rowToSave.lastMessage ?? 0;
+    const lastReadMessage = rowToSave.lastReadMessage ?? 0;
     insertRows.push([
       rowToSave.userID,
       rowToSave.threadID,
@@ -498,7 +501,9 @@ async function saveMemberships(toSave: $ReadOnlyArray<MembershipRowToSave>) {
       rowToSave.permissionsForChildren
         ? JSON.stringify(rowToSave.permissionsForChildren)
         : null,
-      rowToSave.unread ? '1' : '0',
+      lastMessage > lastReadMessage ? '1' : '0',
+      lastMessage,
+      lastReadMessage,
     ]);
   }
 
@@ -512,7 +517,8 @@ async function saveMemberships(toSave: $ReadOnlyArray<MembershipRowToSave>) {
   // update the permissions of an existing membership row.
   const query = SQL`
     INSERT INTO memberships (user, thread, role, creation_time, subscription,
-      permissions, permissions_for_children, unread)
+      permissions, permissions_for_children, unread, last_message,
+      last_read_message)
     VALUES ${insertRows}
     ON DUPLICATE KEY UPDATE
       subscription = IF(
@@ -542,7 +548,8 @@ async function deleteMemberships(
   const query = SQL`
     UPDATE memberships 
     SET role = -1, permissions = NULL, permissions_for_children = NULL, 
-      unread = 0, subscription = ${defaultSubscriptionString} 
+      unread = 0, subscription = ${defaultSubscriptionString},
+      last_message = 0, last_read_message = 0
     WHERE `;
   query.append(conditions);
   await dbQuery(query);
@@ -569,7 +576,7 @@ async function commitMembershipChangeset(
   const { membershipRows, relationshipRows } = changeset;
 
   const membershipRowMap = new Map();
-  for (let row of membershipRows) {
+  for (const row of membershipRows) {
     const { userID, threadID } = row;
     changedThreadIDs.add(threadID);
 
@@ -588,7 +595,7 @@ async function commitMembershipChangeset(
   const toSave = [],
     toDelete = [],
     rescindPromises = [];
-  for (let row of membershipRowMap.values()) {
+  for (const row of membershipRowMap.values()) {
     if (
       row.operation === 'delete' ||
       (row.operation === 'update' && Number(row.role) <= 0)
@@ -625,9 +632,9 @@ async function commitMembershipChangeset(
   const updateDatas = updateDatasForUserPairs(
     uniqueRelationshipRows.map(({ user1, user2 }) => [user1, user2]),
   );
-  for (let changedThreadID of changedThreadIDs) {
+  for (const changedThreadID of changedThreadIDs) {
     const serverThreadInfo = serverThreadInfos[changedThreadID];
-    for (let memberInfo of serverThreadInfo.members) {
+    for (const memberInfo of serverThreadInfo.members) {
       const pairString = `${memberInfo.id}|${serverThreadInfo.id}`;
       const membershipRow = membershipRowMap.get(pairString);
       if (membershipRow && membershipRow.operation !== 'update') {
@@ -641,7 +648,7 @@ async function commitMembershipChangeset(
       });
     }
   }
-  for (let row of membershipRowMap.values()) {
+  for (const row of membershipRowMap.values()) {
     const { userID, threadID } = row;
     if (row.operation === 'join') {
       updateDatas.push({
@@ -683,12 +690,13 @@ function setJoinsToUnread(
   exceptViewerID: string,
   exceptThreadID: string,
 ) {
-  for (let row of rows) {
+  for (const row of rows) {
     if (
       row.operation === 'join' &&
       (row.userID !== exceptViewerID || row.threadID !== exceptThreadID)
     ) {
-      row.unread = true;
+      row.lastMessage = 1;
+      row.lastReadMessage = 0;
     }
   }
 }
