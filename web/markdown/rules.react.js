@@ -88,6 +88,19 @@ function markdownRules(): MarkdownRuleSpec {
     inlineCode: SimpleMarkdown.defaultRules.inlineCode,
     em: SimpleMarkdown.defaultRules.em,
     strong: SimpleMarkdown.defaultRules.strong,
+    mention: {
+      ...SimpleMarkdown.defaultRules.strong,
+      match: SimpleMarkdown.inlineRegex(SharedMarkdown.mentionRegex),
+      parse: (capture: SimpleMarkdown.Capture) => ({
+        content: capture[0],
+      }),
+      // eslint-disable-next-line react/display-name
+      react: (
+        node: SimpleMarkdown.SingleASTNode,
+        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
+        state: SimpleMarkdown.State,
+      ) => <strong key={state.key}>{node.content}</strong>,
+    },
     del: SimpleMarkdown.defaultRules.del,
     u: SimpleMarkdown.defaultRules.u,
     heading: {

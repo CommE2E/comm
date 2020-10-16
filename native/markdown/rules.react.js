@@ -174,6 +174,23 @@ function fullMarkdownRules(
         </Text>
       ),
     },
+    mention: {
+      ...SimpleMarkdown.defaultRules.strong,
+      match: SimpleMarkdown.inlineRegex(SharedMarkdown.mentionRegex),
+      parse: (capture: SimpleMarkdown.Capture) => ({
+        content: capture[0],
+      }),
+      // eslint-disable-next-line react/display-name
+      react: (
+        node: SimpleMarkdown.SingleASTNode,
+        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
+        state: SimpleMarkdown.State,
+      ) => (
+        <Text key={state.key} style={styles.bold}>
+          {node.content}
+        </Text>
+      ),
+    },
     u: {
       ...SimpleMarkdown.defaultRules.u,
       // eslint-disable-next-line react/display-name
