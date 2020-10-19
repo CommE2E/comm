@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Text, Linking, Alert, View } from 'react-native';
 import * as SimpleMarkdown from 'simple-markdown';
+import _memoize from 'lodash/memoize';
 
 import * as SharedMarkdown from 'lib/shared/markdown';
 import { normalizeURL } from 'lib/utils/url-utils';
@@ -44,7 +45,7 @@ function displayLinkPrompt(inputURL: string) {
 
 // Entry requires a seamless transition between Markdown and TextInput
 // components, so we can't do anything that would change the position of text
-function inlineMarkdownRules(useDarkStyle: boolean): MarkdownRules {
+const inlineMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
   const styles = getMarkdownStyles(useDarkStyle ? 'dark' : 'light');
   const simpleMarkdownRules = {
     // Matches 'https://google.com' during parse phase and returns a 'link' node
@@ -123,11 +124,11 @@ function inlineMarkdownRules(useDarkStyle: boolean): MarkdownRules {
     emojiOnlyFactor: null,
     container: 'Text',
   };
-}
+});
 
 // We allow the most markdown features for TextMessage, which doesn't have the
 // same requirements as Entry
-function fullMarkdownRules(useDarkStyle: boolean): MarkdownRules {
+const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
   const styles = getMarkdownStyles(useDarkStyle ? 'dark' : 'light');
   const inlineRules = inlineMarkdownRules(useDarkStyle);
   const simpleMarkdownRules = {
@@ -349,6 +350,6 @@ function fullMarkdownRules(useDarkStyle: boolean): MarkdownRules {
     emojiOnlyFactor: 2,
     container: 'View',
   };
-}
+});
 
 export { inlineMarkdownRules, fullMarkdownRules };

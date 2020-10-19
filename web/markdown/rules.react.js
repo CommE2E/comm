@@ -2,6 +2,7 @@
 
 import * as SimpleMarkdown from 'simple-markdown';
 import * as React from 'react';
+import _memoize from 'lodash/memoize';
 
 import * as SharedMarkdown from 'lib/shared/markdown';
 
@@ -10,7 +11,7 @@ export type MarkdownRules = {|
   +useDarkStyle: boolean,
 |};
 
-function linkRules(useDarkStyle: boolean): MarkdownRules {
+const linkRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
   const simpleMarkdownRules = {
     // We are using default simple-markdown rules
     // For more details, look at native/markdown/rules.react
@@ -58,10 +59,10 @@ function linkRules(useDarkStyle: boolean): MarkdownRules {
     simpleMarkdownRules: simpleMarkdownRules,
     useDarkStyle,
   };
-}
+});
 
 // function will contain additional rules for message formatting
-function markdownRules(useDarkStyle: boolean): MarkdownRules {
+const markdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
   const linkMarkdownRules = linkRules(useDarkStyle);
 
   const simpleMarkdownRules = {
@@ -149,6 +150,6 @@ function markdownRules(useDarkStyle: boolean): MarkdownRules {
     simpleMarkdownRules,
     useDarkStyle,
   };
-}
+});
 
 export { linkRules, markdownRules };
