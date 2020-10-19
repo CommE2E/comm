@@ -61,6 +61,7 @@ import ThreadSettingsPushNotifs from './thread-settings-push-notifs.react';
 import ThreadSettingsHomeNotifs from './thread-settings-home-notifs.react';
 import ThreadSettingsLeaveThread from './thread-settings-leave-thread.react';
 import ThreadSettingsDeleteThread from './thread-settings-delete-thread.react';
+import ThreadSettingsPromoteSidebar from './thread-settings-promote-sidebar.react';
 import {
   AddUsersModalRouteName,
   ComposeSubthreadModalRouteName,
@@ -178,9 +179,16 @@ type ChatSettingsItem =
       key: string,
     |}
   | {|
+      itemType: 'promoteSidebar',
+      key: string,
+      threadInfo: ThreadInfo,
+      lastActionButton: boolean,
+    |}
+  | {|
       itemType: 'leaveThread',
       key: string,
       threadInfo: ThreadInfo,
+      firstActionButton: boolean,
       lastActionButton: boolean,
     |}
   | {|
@@ -665,7 +673,13 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         threadInfo,
         threadPermissions.DELETE_THREAD,
       );
-      if (isMember || canDeleteThread) {
+      const canChangeThreadType = threadHasPermission(
+        threadInfo,
+        threadPermissions.EDIT_PERMISSIONS,
+      );
+      const canPromoteSidebar =
+        threadInfo.type === threadTypes.SIDEBAR && canChangeThreadType;
+      if (isMember || canDeleteThread || canPromoteSidebar) {
         listData.push({
           itemType: 'header',
           key: 'actionsHeader',
@@ -673,11 +687,20 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           categoryType: 'unpadded',
         });
       }
+      if (canPromoteSidebar) {
+        listData.push({
+          itemType: 'promoteSidebar',
+          key: 'promoteSidebar',
+          threadInfo,
+          lastActionButton: !isMember && !canDeleteThread,
+        });
+      }
       if (isMember) {
         listData.push({
           itemType: 'leaveThread',
           key: 'leaveThread',
           threadInfo,
+          firstActionButton: !canPromoteSidebar,
           lastActionButton: !canDeleteThread,
         });
       }
@@ -687,10 +710,10 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           key: 'deleteThread',
           threadInfo,
           navigate,
-          firstActionButton: !isMember,
+          firstActionButton: !canPromoteSidebar && !isMember,
         });
       }
-      if (isMember || canDeleteThread) {
+      if (isMember || canDeleteThread || canPromoteSidebar) {
         listData.push({
           itemType: 'footer',
           key: 'actionsFooter',
@@ -837,6 +860,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       return (
         <ThreadSettingsLeaveThread
           threadInfo={item.threadInfo}
+          firstActionButton={item.firstActionButton}
           lastActionButton={item.lastActionButton}
         />
       );
@@ -846,6 +870,13 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           threadInfo={item.threadInfo}
           firstActionButton={item.firstActionButton}
           navigate={item.navigate}
+        />
+      );
+    } else if (item.itemType === 'promoteSidebar') {
+      return (
+        <ThreadSettingsPromoteSidebar
+          threadInfo={item.threadInfo}
+          lastActionButton={item.lastActionButton}
         />
       );
     } else {
