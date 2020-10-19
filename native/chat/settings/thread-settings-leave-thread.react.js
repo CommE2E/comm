@@ -5,17 +5,17 @@ import {
   threadInfoPropType,
   type LeaveThreadPayload,
 } from 'lib/types/thread-types';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import { loadingStatusPropType } from 'lib/types/loading-types';
-import type { AppState } from '../../redux/redux-setup';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import {
+  type LoadingStatus,
+  loadingStatusPropType,
+} from 'lib/types/loading-types';
 
 import * as React from 'react';
 import { Text, Alert, ActivityIndicator, View, Platform } from 'react-native';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
+import { useSelector } from 'react-redux';
 
-import { connect } from 'lib/utils/redux-utils';
 import {
   leaveThreadActionTypes,
   leaveThread,
@@ -23,35 +23,43 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors';
 import { identifyInvalidatedThreads } from 'lib/shared/thread-utils';
+import {
+  type DispatchActionPromise,
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import Button from '../../components/button.react';
 import {
   type Colors,
   colorsPropType,
-  colorsSelector,
-  styleSelector,
+  useColors,
+  useStyles,
 } from '../../themes/colors';
 import {
-  withNavContext,
+  NavContext,
   type NavContextType,
   navContextPropType,
 } from '../../navigation/navigation-context';
 import { clearThreadsActionType } from '../../navigation/action-types';
 
+type BaseProps = {|
+  +threadInfo: ThreadInfo,
+  +canDeleteThread: boolean,
+|};
 type Props = {|
-  threadInfo: ThreadInfo,
-  canDeleteThread: boolean,
+  ...BaseProps,
   // Redux state
-  loadingStatus: LoadingStatus,
-  otherUsersButNoOtherAdmins: boolean,
-  colors: Colors,
-  styles: typeof styles,
+  +loadingStatus: LoadingStatus,
+  +otherUsersButNoOtherAdmins: boolean,
+  +colors: Colors,
+  +styles: typeof unboundStyles,
   // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  leaveThread: (threadID: string) => Promise<LeaveThreadPayload>,
+  +leaveThread: (threadID: string) => Promise<LeaveThreadPayload>,
   // withNavContext
-  navContext: ?NavContextType,
+  +navContext: ?NavContextType,
 |};
 class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
   static propTypes = {
@@ -149,7 +157,7 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
   }
 }
 
-const styles = {
+const unboundStyles = {
   button: {
     flexDirection: 'row',
     paddingHorizontal: 12,
@@ -169,20 +177,33 @@ const styles = {
     fontSize: 16,
   },
 };
-const stylesSelector = styleSelector(styles);
 
 const loadingStatusSelector = createLoadingStatusSelector(
   leaveThreadActionTypes,
 );
 
-export default connect(
-  (state: AppState, ownProps: { threadInfo: ThreadInfo }) => ({
-    loadingStatus: loadingStatusSelector(state),
-    otherUsersButNoOtherAdmins: otherUsersButNoOtherAdmins(
-      ownProps.threadInfo.id,
-    )(state),
-    colors: colorsSelector(state),
-    styles: stylesSelector(state),
-  }),
-  { leaveThread },
-)(withNavContext(ThreadSettingsLeaveThread));
+export default React.memo<BaseProps>(
+  function ConnectedThreadSettingsLeaveThread(props: BaseProps) {
+    const loadingStatus = useSelector(loadingStatusSelector);
+    const otherUsersButNoOtherAdminsValue = useSelector(
+      otherUsersButNoOtherAdmins(props.threadInfo.id),
+    );
+    const colors = useColors();
+    const styles = useStyles(unboundStyles);
+    const dispatchActionPromise = useDispatchActionPromise();
+    const callLeaveThread = useServerCall(leaveThread);
+    const navContext = React.useContext(NavContext);
+    return (
+      <ThreadSettingsLeaveThread
+        {...props}
+        loadingStatus={loadingStatus}
+        otherUsersButNoOtherAdmins={otherUsersButNoOtherAdminsValue}
+        colors={colors}
+        styles={styles}
+        dispatchActionPromise={dispatchActionPromise}
+        leaveThread={callLeaveThread}
+        navContext={navContext}
+      />
+    );
+  },
+);
