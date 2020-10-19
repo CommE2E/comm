@@ -6,6 +6,7 @@ import {
   type RelativeMemberInfo,
   relativeMemberInfoPropType,
   threadPermissions,
+  threadTypes,
 } from 'lib/types/thread-types';
 import type { AppState } from '../../redux/redux-setup';
 import type { CategoryType } from './thread-settings-category.react';
@@ -471,19 +472,28 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         categoryType: 'full',
       });
 
-      let subthreadItems = null;
+      const subthreads = [];
       if (childThreads) {
+        for (const childThreadInfo of childThreads) {
+          if (childThreadInfo.type !== threadTypes.SIDEBAR) {
+            subthreads.push(childThreadInfo);
+          }
+        }
+      }
+
+      let subthreadItems = null;
+      if (subthreads.length > 0) {
         let subthreadInfosSlice;
         let seeMoreSubthreads = null;
-        if (childThreads.length > showMaxSubthreads) {
-          subthreadInfosSlice = childThreads.slice(0, showMaxSubthreads);
+        if (subthreads.length > showMaxSubthreads) {
+          subthreadInfosSlice = subthreads.slice(0, showMaxSubthreads);
           seeMoreSubthreads = {
             itemType: 'seeMore',
             key: 'seeMoreSubthreads',
             onPress: this.onPressSeeMoreSubthreads,
           };
         } else {
-          subthreadInfosSlice = childThreads;
+          subthreadInfosSlice = subthreads;
         }
         const subthreadSlice = subthreadInfosSlice.map(subthreadInfo => ({
           itemType: 'childThread',
