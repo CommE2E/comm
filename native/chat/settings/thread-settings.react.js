@@ -210,6 +210,7 @@ type Props = {|
 type State = {|
   +showMaxMembers: number,
   +showMaxSubthreads: number,
+  +showMaxSidebars: number,
   +nameEditValue: ?string,
   +descriptionEditValue: ?string,
   +nameTextHeight: ?number,
@@ -251,6 +252,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     this.state = {
       showMaxMembers: itemPageLength,
       showMaxSubthreads: itemPageLength,
+      showMaxSidebars: itemPageLength,
       nameEditValue: null,
       descriptionEditValue: null,
       nameTextHeight: null,
@@ -354,6 +356,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.route.key,
     (propsAndState: PropsAndState) => propsAndState.childThreadInfos,
     (propsAndState: PropsAndState) => propsAndState.showMaxSubthreads,
+    (propsAndState: PropsAndState) => propsAndState.showMaxSidebars,
     (propsAndState: PropsAndState) => propsAndState.threadMembers,
     (propsAndState: PropsAndState) => propsAndState.showMaxMembers,
     (propsAndState: PropsAndState) => propsAndState.verticalBounds,
@@ -369,6 +372,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       routeKey: string,
       childThreads: ?(ThreadInfo[]),
       showMaxSubthreads: number,
+      showMaxSidebars: number,
       threadMembers: RelativeMemberInfo[],
       showMaxMembers: number,
       verticalBounds: ?VerticalBounds,
@@ -473,9 +477,12 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       });
 
       const subthreads = [];
+      const sidebars = [];
       if (childThreads) {
         for (const childThreadInfo of childThreads) {
-          if (childThreadInfo.type !== threadTypes.SIDEBAR) {
+          if (childThreadInfo.type === threadTypes.SIDEBAR) {
+            sidebars.push(childThreadInfo);
+          } else {
             subthreads.push(childThreadInfo);
           }
         }
@@ -540,6 +547,50 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         listData.push({
           itemType: 'footer',
           key: 'subthreadFooter',
+          categoryType: 'unpadded',
+        });
+      }
+
+      let sidebarItems = null;
+      if (sidebars.length > 0) {
+        let sidebarInfosSlice;
+        let seeMoreSidebars = null;
+        if (sidebars.length > showMaxSidebars) {
+          sidebarInfosSlice = sidebars.slice(0, showMaxSidebars);
+          seeMoreSidebars = {
+            itemType: 'seeMore',
+            key: 'seeMoreSidebars',
+            onPress: this.onPressSeeMoreSidebars,
+          };
+        } else {
+          sidebarInfosSlice = sidebars;
+        }
+        const sidebarSlice = sidebarInfosSlice.map(sidebarInfo => ({
+          itemType: 'childThread',
+          key: `childThread${sidebarInfo.id}`,
+          threadInfo: sidebarInfo,
+          navigate,
+          lastListItem: false,
+        }));
+        if (seeMoreSidebars) {
+          sidebarItems = [...sidebarSlice, seeMoreSidebars];
+        } else {
+          sidebarSlice[sidebarSlice.length - 1].lastListItem = true;
+          sidebarItems = sidebarSlice;
+        }
+      }
+
+      if (sidebarItems) {
+        listData.push({
+          itemType: 'header',
+          key: 'sidebarHeader',
+          title: 'Sidebars',
+          categoryType: 'unpadded',
+        });
+        listData.push(...sidebarItems);
+        listData.push({
+          itemType: 'footer',
+          key: 'sidebarFooter',
           categoryType: 'unpadded',
         });
       }
@@ -847,6 +898,12 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   onPressSeeMoreSubthreads = () => {
     this.setState(prevState => ({
       showMaxSubthreads: prevState.showMaxSubthreads + itemPageLength,
+    }));
+  };
+
+  onPressSeeMoreSidebars = () => {
+    this.setState(prevState => ({
+      showMaxSidebars: prevState.showMaxSidebars + itemPageLength,
     }));
   };
 }
