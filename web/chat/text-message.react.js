@@ -1,21 +1,16 @@
 // @flow
 
-import {
-  type ChatMessageInfoItem,
-  chatMessageItemPropType,
-} from 'lib/selectors/chat-selectors';
+import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types';
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import {
-  type MessagePositionInfo,
-  type OnMessagePositionInfo,
-  onMessagePositionInfoPropType,
+import type { ThreadInfo } from 'lib/types/thread-types';
+import type {
+  MessagePositionInfo,
+  OnMessagePositionInfo,
 } from './message-position-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
 import { onlyEmojiRegex } from 'lib/shared/emojis';
@@ -27,80 +22,56 @@ import Markdown from '../markdown/markdown.react';
 import { markdownRules } from '../markdown/rules.react';
 
 type Props = {|
-  item: ChatMessageInfoItem,
-  threadInfo: ThreadInfo,
-  setMouseOverMessagePosition: (
+  +item: ChatMessageInfoItem,
+  +threadInfo: ThreadInfo,
+  +setMouseOverMessagePosition: (
     messagePositionInfo: MessagePositionInfo,
   ) => void,
-  mouseOverMessagePosition: ?OnMessagePositionInfo,
+  +mouseOverMessagePosition: ?OnMessagePositionInfo,
 |};
-class TextMessage extends React.PureComponent<Props> {
-  static propTypes = {
-    item: chatMessageItemPropType.isRequired,
-    threadInfo: threadInfoPropType.isRequired,
-    setMouseOverMessagePosition: PropTypes.func.isRequired,
-    mouseOverMessagePosition: onMessagePositionInfoPropType,
-  };
+function TextMessage(props: Props) {
+  invariant(
+    props.item.messageInfo.type === messageTypes.TEXT,
+    'TextMessage should only be used for messageTypes.TEXT',
+  );
+  const {
+    text,
+    creator: { isViewer },
+  } = props.item.messageInfo;
 
-  constructor(props: Props) {
-    super(props);
-    invariant(
-      props.item.messageInfo.type === messageTypes.TEXT,
-      'TextMessage should only be used for messageTypes.TEXT',
-    );
+  const messageStyle = {};
+  let darkColor = false;
+  if (isViewer) {
+    const threadColor = props.threadInfo.color;
+    darkColor = colorIsDark(threadColor);
+    messageStyle.backgroundColor = `#${threadColor}`;
+  } else {
+    messageStyle.backgroundColor = 'rgba(221,221,221,0.73)';
   }
 
-  componentDidUpdate() {
-    invariant(
-      this.props.item.messageInfo.type === messageTypes.TEXT,
-      'TextMessage should only be used for messageTypes.TEXT',
-    );
-  }
+  const onlyEmoji = onlyEmojiRegex.test(text);
+  const messageClassName = classNames({
+    [css.textMessage]: true,
+    [css.normalTextMessage]: !onlyEmoji,
+    [css.emojiOnlyTextMessage]: onlyEmoji,
+    [css.darkTextMessage]: darkColor,
+    [css.lightTextMessage]: !darkColor,
+  });
 
-  render() {
-    invariant(
-      this.props.item.messageInfo.type === messageTypes.TEXT,
-      'TextMessage should only be used for messageTypes.TEXT',
-    );
-    const {
-      text,
-      creator: { isViewer },
-    } = this.props.item.messageInfo;
-
-    const messageStyle = {};
-    let darkColor = false;
-    if (isViewer) {
-      const threadColor = this.props.threadInfo.color;
-      darkColor = colorIsDark(threadColor);
-      messageStyle.backgroundColor = `#${threadColor}`;
-    } else {
-      messageStyle.backgroundColor = 'rgba(221,221,221,0.73)';
-    }
-
-    const onlyEmoji = onlyEmojiRegex.test(text);
-    const messageClassName = classNames({
-      [css.textMessage]: true,
-      [css.normalTextMessage]: !onlyEmoji,
-      [css.emojiOnlyTextMessage]: onlyEmoji,
-      [css.darkTextMessage]: darkColor,
-      [css.lightTextMessage]: !darkColor,
-    });
-
-    return (
-      <ComposedMessage
-        item={this.props.item}
-        threadInfo={this.props.threadInfo}
-        sendFailed={textMessageSendFailed(this.props.item)}
-        setMouseOverMessagePosition={this.props.setMouseOverMessagePosition}
-        mouseOverMessagePosition={this.props.mouseOverMessagePosition}
-        canReply={true}
-      >
-        <div className={messageClassName} style={messageStyle}>
-          <Markdown rules={markdownRules(darkColor)}>{text}</Markdown>
-        </div>
-      </ComposedMessage>
-    );
-  }
+  return (
+    <ComposedMessage
+      item={props.item}
+      threadInfo={props.threadInfo}
+      sendFailed={textMessageSendFailed(props.item)}
+      setMouseOverMessagePosition={props.setMouseOverMessagePosition}
+      mouseOverMessagePosition={props.mouseOverMessagePosition}
+      canReply={true}
+    >
+      <div className={messageClassName} style={messageStyle}>
+        <Markdown rules={markdownRules(darkColor)}>{text}</Markdown>
+      </div>
+    </ComposedMessage>
+  );
 }
 
 export default TextMessage;
