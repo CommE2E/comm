@@ -17,7 +17,6 @@ import type { Viewer } from '../session/viewer';
 import { messageTypes, defaultNumberPerThread } from 'lib/types/message-types';
 import { userRelationshipStatus } from 'lib/types/relationship-types';
 
-import bcrypt from 'twin-bcrypt';
 import _find from 'lodash/fp/find';
 import invariant from 'invariant';
 
@@ -332,11 +331,8 @@ async function updateThread(
     );
   }
 
-  // Two unrelated purposes for this query:
-  // - get hash for viewer password check (users table)
-  // - get current value of type, parent_thread_id (threads table)
   const validationQuery = SQL`
-    SELECT u.hash, t.type, t.parent_thread_id
+    SELECT t.type, t.parent_thread_id
     FROM users u
     LEFT JOIN threads t ON t.id = ${request.threadID}
     WHERE u.id = ${viewer.userID}
@@ -390,14 +386,6 @@ async function updateThread(
   const validationRow = validationResult[0];
 
   if (!hasNecessaryPermissions) {
-    throw new ServerError('invalid_credentials');
-  }
-
-  if (
-    (sqlUpdate.parent_thread_id !== undefined || sqlUpdate.type) &&
-    (!request.accountPassword ||
-      !bcrypt.compareSync(request.accountPassword, validationRow.hash))
-  ) {
     throw new ServerError('invalid_credentials');
   }
 
