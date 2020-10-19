@@ -82,7 +82,6 @@ async function createTables() {
       permissions_for_children json DEFAULT NULL,
       creation_time bigint(20) NOT NULL,
       subscription json NOT NULL,
-      unread tinyint(1) NOT NULL,
       last_message bigint(20) NOT NULL DEFAULT 0,
       last_read_message bigint(20) NOT NULL DEFAULT 0
     ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -361,16 +360,16 @@ async function createThreads() {
           NULL, ${staffSquadbotThreadRoleID}, ${bots.squadbot.userID},
           1530049901942, 'ef1a63');
     INSERT INTO memberships (thread, user, role, permissions,
-        permissions_for_children, creation_time, subscription, unread)
+        permissions_for_children, creation_time, subscription)
       VALUES
         (${bots.squadbot.staffThreadID}, ${bots.squadbot.userID},
           ${staffSquadbotThreadRoleID}, ${membershipPermissionsString},
           ${membershipChildPermissionsString}, 1530049902080,
-          ${subscriptionString}, 0),
+          ${subscriptionString}),
         (${bots.squadbot.staffThreadID}, ${ashoat.id},
           ${staffSquadbotThreadRoleID}, ${membershipPermissionsString},
           ${membershipChildPermissionsString}, 1530049902080,
-          ${subscriptionString}, 0);
+          ${subscriptionString});
   `);
 }
 

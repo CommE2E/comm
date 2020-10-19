@@ -501,7 +501,6 @@ async function saveMemberships(toSave: $ReadOnlyArray<MembershipRowToSave>) {
       rowToSave.permissionsForChildren
         ? JSON.stringify(rowToSave.permissionsForChildren)
         : null,
-      lastMessage > lastReadMessage ? '1' : '0',
       lastMessage,
       lastReadMessage,
     ]);
@@ -517,8 +516,7 @@ async function saveMemberships(toSave: $ReadOnlyArray<MembershipRowToSave>) {
   // update the permissions of an existing membership row.
   const query = SQL`
     INSERT INTO memberships (user, thread, role, creation_time, subscription,
-      permissions, permissions_for_children, unread, last_message,
-      last_read_message)
+      permissions, permissions_for_children, last_message, last_read_message)
     VALUES ${insertRows}
     ON DUPLICATE KEY UPDATE
       subscription = IF(
@@ -548,8 +546,8 @@ async function deleteMemberships(
   const query = SQL`
     UPDATE memberships 
     SET role = -1, permissions = NULL, permissions_for_children = NULL, 
-      unread = 0, subscription = ${defaultSubscriptionString},
-      last_message = 0, last_read_message = 0
+      subscription = ${defaultSubscriptionString}, last_message = 0,
+      last_read_message = 0
     WHERE `;
   query.append(conditions);
   await dbQuery(query);
