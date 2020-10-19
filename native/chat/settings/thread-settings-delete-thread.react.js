@@ -1,71 +1,52 @@
 // @flow
 
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import type { ThreadSettingsNavigate } from './thread-settings.react';
-import type { AppState } from '../../redux/redux-setup';
 
 import * as React from 'react';
 import { Text, View, Platform } from 'react-native';
-import PropTypes from 'prop-types';
-
-import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../../components/button.react';
 import { DeleteThreadRouteName } from '../../navigation/route-names';
-import {
-  type Colors,
-  colorsPropType,
-  colorsSelector,
-  styleSelector,
-} from '../../themes/colors';
+import { useColors, useStyles } from '../../themes/colors';
 
 type Props = {|
-  threadInfo: ThreadInfo,
-  navigate: ThreadSettingsNavigate,
-  canLeaveThread: boolean,
-  // Redux state
-  colors: Colors,
-  styles: typeof styles,
+  +threadInfo: ThreadInfo,
+  +navigate: ThreadSettingsNavigate,
+  +canLeaveThread: boolean,
 |};
-class ThreadSettingsDeleteThread extends React.PureComponent<Props> {
-  static propTypes = {
-    threadInfo: threadInfoPropType.isRequired,
-    navigate: PropTypes.func.isRequired,
-    canLeaveThread: PropTypes.bool.isRequired,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-  };
-
-  render() {
-    const borderStyle = this.props.canLeaveThread
-      ? this.props.styles.border
-      : null;
-    const { panelIosHighlightUnderlay } = this.props.colors;
-    return (
-      <View style={this.props.styles.container}>
-        <Button
-          onPress={this.onPress}
-          style={[this.props.styles.button, borderStyle]}
-          iosFormat="highlight"
-          iosHighlightUnderlayColor={panelIosHighlightUnderlay}
-        >
-          <Text style={this.props.styles.text}>Delete thread...</Text>
-        </Button>
-      </View>
-    );
-  }
-
-  onPress = () => {
-    const threadInfo = this.props.threadInfo;
-    this.props.navigate({
+function ThreadSettingsDeleteThread(props: Props) {
+  const { navigate, threadInfo } = props;
+  const onPress = React.useCallback(() => {
+    navigate({
       name: DeleteThreadRouteName,
       params: { threadInfo },
       key: `${DeleteThreadRouteName}${threadInfo.id}`,
     });
-  };
+  }, [navigate, threadInfo]);
+
+  const styles = useStyles(unboundStyles);
+  const { canLeaveThread } = props;
+  const borderStyle = canLeaveThread ? styles.border : null;
+
+  const colors = useColors();
+  const { panelIosHighlightUnderlay } = colors;
+
+  return (
+    <View style={styles.container}>
+      <Button
+        onPress={onPress}
+        style={[styles.button, borderStyle]}
+        iosFormat="highlight"
+        iosHighlightUnderlayColor={panelIosHighlightUnderlay}
+      >
+        <Text style={styles.text}>Delete thread...</Text>
+      </Button>
+    </View>
+  );
 }
 
-const styles = {
+const unboundStyles = {
   border: {
     borderColor: 'panelForegroundBorder',
     borderTopWidth: 1,
@@ -86,9 +67,5 @@ const styles = {
     fontSize: 16,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-export default connect((state: AppState) => ({
-  colors: colorsSelector(state),
-  styles: stylesSelector(state),
-}))(ThreadSettingsDeleteThread);
+export default ThreadSettingsDeleteThread;
