@@ -91,112 +91,112 @@ export type ThreadSettingsNavigate = $PropertyType<
 
 type ChatSettingsItem =
   | {|
-      itemType: 'header',
-      key: string,
-      title: string,
-      categoryType: CategoryType,
+      +itemType: 'header',
+      +key: string,
+      +title: string,
+      +categoryType: CategoryType,
     |}
   | {|
-      itemType: 'footer',
-      key: string,
-      categoryType: CategoryType,
+      +itemType: 'footer',
+      +key: string,
+      +categoryType: CategoryType,
     |}
   | {|
-      itemType: 'name',
-      key: string,
-      threadInfo: ThreadInfo,
-      nameEditValue: ?string,
-      nameTextHeight: ?number,
-      canChangeSettings: boolean,
+      +itemType: 'name',
+      +key: string,
+      +threadInfo: ThreadInfo,
+      +nameEditValue: ?string,
+      +nameTextHeight: ?number,
+      +canChangeSettings: boolean,
     |}
   | {|
-      itemType: 'color',
-      key: string,
-      threadInfo: ThreadInfo,
-      colorEditValue: string,
-      canChangeSettings: boolean,
-      navigate: ThreadSettingsNavigate,
-      threadSettingsRouteKey: string,
+      +itemType: 'color',
+      +key: string,
+      +threadInfo: ThreadInfo,
+      +colorEditValue: string,
+      +canChangeSettings: boolean,
+      +navigate: ThreadSettingsNavigate,
+      +threadSettingsRouteKey: string,
     |}
   | {|
-      itemType: 'description',
-      key: string,
-      threadInfo: ThreadInfo,
-      descriptionEditValue: ?string,
-      descriptionTextHeight: ?number,
-      canChangeSettings: boolean,
+      +itemType: 'description',
+      +key: string,
+      +threadInfo: ThreadInfo,
+      +descriptionEditValue: ?string,
+      +descriptionTextHeight: ?number,
+      +canChangeSettings: boolean,
     |}
   | {|
-      itemType: 'parent',
-      key: string,
-      threadInfo: ThreadInfo,
-      navigate: ThreadSettingsNavigate,
+      +itemType: 'parent',
+      +key: string,
+      +threadInfo: ThreadInfo,
+      +navigate: ThreadSettingsNavigate,
     |}
   | {|
-      itemType: 'visibility',
-      key: string,
-      threadInfo: ThreadInfo,
+      +itemType: 'visibility',
+      +key: string,
+      +threadInfo: ThreadInfo,
     |}
   | {|
-      itemType: 'pushNotifs',
-      key: string,
-      threadInfo: ThreadInfo,
+      +itemType: 'pushNotifs',
+      +key: string,
+      +threadInfo: ThreadInfo,
     |}
   | {|
-      itemType: 'homeNotifs',
-      key: string,
-      threadInfo: ThreadInfo,
+      +itemType: 'homeNotifs',
+      +key: string,
+      +threadInfo: ThreadInfo,
     |}
   | {|
-      itemType: 'seeMore',
-      key: string,
-      onPress: () => void,
+      +itemType: 'seeMore',
+      +key: string,
+      +onPress: () => void,
     |}
   | {|
-      itemType: 'childThread',
-      key: string,
-      threadInfo: ThreadInfo,
-      navigate: ThreadSettingsNavigate,
-      lastListItem: boolean,
+      +itemType: 'childThread',
+      +key: string,
+      +threadInfo: ThreadInfo,
+      +navigate: ThreadSettingsNavigate,
+      +lastListItem: boolean,
     |}
   | {|
-      itemType: 'addSubthread',
-      key: string,
+      +itemType: 'addSubthread',
+      +key: string,
     |}
   | {|
-      itemType: 'member',
-      key: string,
-      memberInfo: RelativeMemberInfo,
-      threadInfo: ThreadInfo,
-      canEdit: boolean,
-      navigate: ThreadSettingsNavigate,
-      lastListItem: boolean,
-      verticalBounds: ?VerticalBounds,
-      threadSettingsRouteKey: string,
+      +itemType: 'member',
+      +key: string,
+      +memberInfo: RelativeMemberInfo,
+      +threadInfo: ThreadInfo,
+      +canEdit: boolean,
+      +navigate: ThreadSettingsNavigate,
+      +lastListItem: boolean,
+      +verticalBounds: ?VerticalBounds,
+      +threadSettingsRouteKey: string,
     |}
   | {|
-      itemType: 'addMember',
-      key: string,
+      +itemType: 'addMember',
+      +key: string,
     |}
   | {|
-      itemType: 'promoteSidebar',
-      key: string,
-      threadInfo: ThreadInfo,
-      lastActionButton: boolean,
+      +itemType: 'promoteSidebar',
+      +key: string,
+      +threadInfo: ThreadInfo,
+      +lastActionButton: boolean,
     |}
   | {|
-      itemType: 'leaveThread',
-      key: string,
-      threadInfo: ThreadInfo,
-      firstActionButton: boolean,
-      lastActionButton: boolean,
+      +itemType: 'leaveThread',
+      +key: string,
+      +threadInfo: ThreadInfo,
+      +firstActionButton: boolean,
+      +lastActionButton: boolean,
     |}
   | {|
-      itemType: 'deleteThread',
-      key: string,
-      threadInfo: ThreadInfo,
-      navigate: ThreadSettingsNavigate,
-      firstActionButton: boolean,
+      +itemType: 'deleteThread',
+      +key: string,
+      +threadInfo: ThreadInfo,
+      +navigate: ThreadSettingsNavigate,
+      +firstActionButton: boolean,
     |};
 
 type BaseProps = {|
