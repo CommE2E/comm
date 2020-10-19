@@ -3,6 +3,7 @@
 import type { GlobalTheme } from '../types/themes';
 
 import { Platform } from 'react-native';
+import _memoize from 'lodash/memoize';
 
 import { getStylesForTheme } from '../themes/colors';
 
@@ -96,6 +97,10 @@ const unboundStyles = {
 
 export type MarkdownStyles = typeof unboundStyles;
 
-export function getMarkdownStyles(theme: GlobalTheme) {
-  return getStylesForTheme(unboundStyles, theme);
-}
+const getMarkdownStyles: GlobalTheme => MarkdownStyles = _memoize(
+  (theme: GlobalTheme) => {
+    return getStylesForTheme(unboundStyles, theme);
+  },
+);
+
+export { getMarkdownStyles };
