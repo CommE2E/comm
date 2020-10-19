@@ -43,11 +43,7 @@ function DummyTextNode(props: DummyTextNodeProps) {
   const viewStyle = [props.style, styles.dummyMessage, { maxWidth }];
   return (
     <View {...rest} style={viewStyle}>
-      <Markdown
-        style={styles.text}
-        useDarkStyle={false}
-        rules={fullMarkdownRules}
-      >
+      <Markdown style={styles.text} rules={fullMarkdownRules(false)}>
         {children}
       </Markdown>
     </View>
@@ -108,11 +104,7 @@ class InnerTextMessage extends React.PureComponent<Props> {
         activeOpacity={0.6}
         style={[styles.message, messageStyle, cornerStyle]}
       >
-        <Markdown
-          style={textStyle}
-          useDarkStyle={darkColor}
-          rules={fullMarkdownRules}
-        >
+        <Markdown style={textStyle} rules={fullMarkdownRules(darkColor)}>
           {text}
         </Markdown>
       </GestureTouchableOpacity>

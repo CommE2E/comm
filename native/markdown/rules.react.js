@@ -1,8 +1,5 @@
 // @flow
 
-import type { StyleSheetOf } from '../themes/colors';
-import type { MarkdownStyles } from './styles';
-
 import * as React from 'react';
 import { Text, Linking, Alert, View } from 'react-native';
 import * as SimpleMarkdown from 'simple-markdown';
@@ -10,7 +7,9 @@ import * as SimpleMarkdown from 'simple-markdown';
 import * as SharedMarkdown from 'lib/shared/markdown';
 import { normalizeURL } from 'lib/utils/url-utils';
 
-type MarkdownRuleSpec = {|
+import { getMarkdownStyles } from './styles';
+
+export type MarkdownRules = {|
   +simpleMarkdownRules: SimpleMarkdown.ParserRules,
   +emojiOnlyFactor: ?number,
   // We need to use a Text container for Entry because it needs to match up
@@ -20,9 +19,6 @@ type MarkdownRuleSpec = {|
   // width
   +container: 'View' | 'Text',
 |};
-export type MarkdownRules = (
-  styles: StyleSheetOf<MarkdownStyles>,
-) => MarkdownRuleSpec;
 
 function displayLinkPrompt(inputURL: string) {
   const url = normalizeURL(inputURL);
@@ -48,9 +44,8 @@ function displayLinkPrompt(inputURL: string) {
 
 // Entry requires a seamless transition between Markdown and TextInput
 // components, so we can't do anything that would change the position of text
-function inlineMarkdownRules(
-  styles: StyleSheetOf<MarkdownStyles>,
-): MarkdownRuleSpec {
+function inlineMarkdownRules(useDarkStyle: boolean): MarkdownRules {
+  const styles = getMarkdownStyles(useDarkStyle ? 'dark' : 'light');
   const simpleMarkdownRules = {
     // Matches 'https://google.com' during parse phase and returns a 'link' node
     url: {
@@ -132,10 +127,9 @@ function inlineMarkdownRules(
 
 // We allow the most markdown features for TextMessage, which doesn't have the
 // same requirements as Entry
-function fullMarkdownRules(
-  styles: StyleSheetOf<MarkdownStyles>,
-): MarkdownRuleSpec {
-  const inlineRules = inlineMarkdownRules(styles);
+function fullMarkdownRules(useDarkStyle: boolean): MarkdownRules {
+  const styles = getMarkdownStyles(useDarkStyle ? 'dark' : 'light');
+  const inlineRules = inlineMarkdownRules(useDarkStyle);
   const simpleMarkdownRules = {
     ...inlineRules.simpleMarkdownRules,
     // Matches '<https://google.com>' during parse phase and returns a 'link'

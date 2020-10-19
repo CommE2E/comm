@@ -87,8 +87,7 @@ function RobotextMessage(props: Props) {
         <Markdown
           style={styles.robotext}
           key={key}
-          useDarkStyle={darkColor}
-          rules={inlineMarkdownRules}
+          rules={inlineMarkdownRules(darkColor)}
         >
           {decodeURI(splitPart)}
         </Markdown>,

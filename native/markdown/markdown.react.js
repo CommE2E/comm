@@ -11,25 +11,14 @@ import invariant from 'invariant';
 
 import { onlyEmojiRegex } from 'lib/shared/emojis';
 
-import { getMarkdownStyles } from './styles';
-
 type Props = {|
-  style: TextStyle,
-  useDarkStyle: boolean,
-  children: string,
-  rules: MarkdownRules,
+  +style: TextStyle,
+  +children: string,
+  +rules: MarkdownRules,
 |};
 function Markdown(props: Props) {
-  const { style, useDarkStyle, children, rules } = props;
-
-  const markdownStyles = React.useMemo(() => {
-    return getMarkdownStyles(useDarkStyle ? 'dark' : 'light');
-  }, [useDarkStyle]);
-  const {
-    simpleMarkdownRules,
-    emojiOnlyFactor,
-    container,
-  } = React.useMemo(() => rules(markdownStyles), [rules, markdownStyles]);
+  const { style, children, rules } = props;
+  const { simpleMarkdownRules, emojiOnlyFactor, container } = rules;
 
   const parser = React.useMemo(
     () => SimpleMarkdown.parserFor(simpleMarkdownRules),
