@@ -66,6 +66,7 @@ class InnerKeyboardAvoidingView extends React.PureComponent<Props, State> {
   viewFrame: ?Layout;
   keyboardFrame: ?ScreenRect;
   defaultViewFrameHeight = 0;
+  waitingForLayout: Array<() => mixed> = [];
 
   componentDidMount() {
     if (Platform.OS === 'ios') {
@@ -90,6 +91,11 @@ class InnerKeyboardAvoidingView extends React.PureComponent<Props, State> {
     if (!event) {
       this.keyboardFrame = null;
       this.setState({ bottom: 0 });
+      return;
+    }
+
+    if (!this.viewFrame) {
+      this.waitingForLayout.push(() => this.onKeyboardChange(event));
       return;
     }
 
@@ -155,6 +161,11 @@ class InnerKeyboardAvoidingView extends React.PureComponent<Props, State> {
     if (!keyboardShowing) {
       this.defaultViewFrameHeight = this.viewFrame.height;
     }
+
+    for (const callback of this.waitingForLayout) {
+      callback();
+    }
+    this.waitingForLayout = [];
   };
 
   render() {
