@@ -60,7 +60,7 @@ class RobotextMessage extends React.PureComponent<Props> {
       if (splitPart.charAt(0) !== '<') {
         const key = `text${keyIndex++}`;
         textParts.push(
-          <Markdown key={key} useDarkStyle={false} rules={linkRules}>
+          <Markdown key={key} rules={linkRules(false)}>
             {decodeURI(splitPart)}
           </Markdown>,
         );

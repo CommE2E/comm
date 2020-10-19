@@ -96,9 +96,7 @@ class TextMessage extends React.PureComponent<Props> {
         canReply={true}
       >
         <div className={messageClassName} style={messageStyle}>
-          <Markdown useDarkStyle={darkColor} rules={markdownRules}>
-            {text}
-          </Markdown>
+          <Markdown rules={markdownRules(darkColor)}>{text}</Markdown>
         </div>
       </ComposedMessage>
     );

@@ -9,12 +9,12 @@ import classNames from 'classnames';
 import css from './markdown.css';
 
 type Props = {|
-  children: string,
-  rules: MarkdownRules,
-  useDarkStyle: boolean,
+  +children: string,
+  +rules: MarkdownRules,
 |};
 function Markdown(props: Props) {
-  const { useDarkStyle, children, rules } = props;
+  const { children, rules } = props;
+  const { simpleMarkdownRules, useDarkStyle } = rules;
 
   const markdownClassName = React.useMemo(
     () =>
@@ -25,8 +25,6 @@ function Markdown(props: Props) {
       }),
     [useDarkStyle],
   );
-
-  const { simpleMarkdownRules } = React.useMemo(() => rules(), [rules]);
 
   const parser = React.useMemo(
     () => SimpleMarkdown.parserFor(simpleMarkdownRules),

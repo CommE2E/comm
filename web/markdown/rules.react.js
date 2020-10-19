@@ -5,12 +5,12 @@ import * as React from 'react';
 
 import * as SharedMarkdown from 'lib/shared/markdown';
 
-type MarkdownRuleSpec = {|
+export type MarkdownRules = {|
   +simpleMarkdownRules: SimpleMarkdown.Rules,
+  +useDarkStyle: boolean,
 |};
-export type MarkdownRules = () => MarkdownRuleSpec;
 
-function linkRules(): MarkdownRuleSpec {
+function linkRules(useDarkStyle: boolean): MarkdownRules {
   const simpleMarkdownRules = {
     // We are using default simple-markdown rules
     // For more details, look at native/markdown/rules.react
@@ -56,12 +56,13 @@ function linkRules(): MarkdownRuleSpec {
   };
   return {
     simpleMarkdownRules: simpleMarkdownRules,
+    useDarkStyle,
   };
 }
 
 // function will contain additional rules for message formatting
-function markdownRules(): MarkdownRuleSpec {
-  const linkMarkdownRules = linkRules();
+function markdownRules(useDarkStyle: boolean): MarkdownRules {
+  const linkMarkdownRules = linkRules(useDarkStyle);
 
   const simpleMarkdownRules = {
     ...linkMarkdownRules.simpleMarkdownRules,
@@ -146,6 +147,7 @@ function markdownRules(): MarkdownRuleSpec {
   return {
     ...linkMarkdownRules,
     simpleMarkdownRules,
+    useDarkStyle,
   };
 }
 
