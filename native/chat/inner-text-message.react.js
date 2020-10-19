@@ -1,12 +1,14 @@
 // @flow
 
 import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
+import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
+import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
 
 import {
   allCorners,
@@ -15,25 +17,29 @@ import {
 } from './rounded-corners';
 import { useColors, colors } from '../themes/colors';
 import Markdown from '../markdown/markdown.react';
-import { fullMarkdownRules } from '../markdown/rules.react';
+import { textMessageRules } from '../markdown/rules.react';
 import { composedMessageMaxWidthSelector } from './composed-message-width';
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
 
-function dummyNodeForTextMessageHeightMeasurement(text: string) {
-  return <DummyTextNode>{text}</DummyTextNode>;
+function dummyNodeForTextMessageHeightMeasurement(
+  text: string,
+  members: $ReadOnlyArray<RelativeMemberInfo>,
+) {
+  return <DummyTextNode members={members}>{text}</DummyTextNode>;
 }
 
 type DummyTextNodeProps = {|
   ...React.ElementConfig<typeof View>,
-  children: string,
+  +members: $ReadOnlyArray<RelativeMemberInfo>,
+  +children: string,
 |};
 function DummyTextNode(props: DummyTextNodeProps) {
-  const { children, style, ...rest } = props;
+  const { members, children, style, ...rest } = props;
   const maxWidth = useSelector(state => composedMessageMaxWidthSelector(state));
   const viewStyle = [props.style, styles.dummyMessage, { maxWidth }];
   return (
     <View {...rest} style={viewStyle}>
-      <Markdown style={styles.text} rules={fullMarkdownRules(false)}>
+      <Markdown style={styles.text} rules={textMessageRules(false, members)}>
         {children}
       </Markdown>
     </View>
@@ -76,6 +82,11 @@ function InnerTextMessage(props: Props) {
     messageStyle.height = item.contentHeight;
   }
 
+  const threadID = item.threadInfo.id;
+  const threadMembers = useSelector(
+    relativeMemberInfoSelectorForMembersOfThread(threadID),
+  );
+
   const message = (
     <GestureTouchableOpacity
       onPress={props.onPress}
@@ -83,7 +94,10 @@ function InnerTextMessage(props: Props) {
       activeOpacity={0.6}
       style={[styles.message, messageStyle, cornerStyle]}
     >
-      <Markdown style={textStyle} rules={fullMarkdownRules(darkColor)}>
+      <Markdown
+        style={textStyle}
+        rules={textMessageRules(darkColor, threadMembers)}
+      >
         {text}
       </Markdown>
     </GestureTouchableOpacity>

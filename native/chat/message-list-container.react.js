@@ -1,7 +1,12 @@
 // @flow
 
 import { messageTypes } from 'lib/types/message-types';
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import {
+  type ThreadInfo,
+  threadInfoPropType,
+  type RelativeMemberInfo,
+  relativeMemberInfoPropType,
+} from 'lib/types/thread-types';
 import type { ChatMessageInfoItemWithHeight } from './message.react';
 import {
   messageListRoutePropType,
@@ -23,6 +28,7 @@ import {
   messageListData,
 } from 'lib/selectors/chat-selectors';
 import { messageID } from 'lib/shared/message-utils';
+import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
 
 import MessageList from './message-list.react';
 import NodeHeightMeasurer from '../components/node-height-measurer.react';
@@ -62,6 +68,7 @@ type Props = {|
   ...BaseProps,
   // Redux state
   +threadInfo: ?ThreadInfo,
+  +threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
   +messageListData: $ReadOnlyArray<ChatMessageItem>,
   +composedMessageMaxWidth: number,
   +colors: Colors,
@@ -79,6 +86,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     navigation: messageListNavPropType.isRequired,
     route: messageListRoutePropType.isRequired,
     threadInfo: threadInfoPropType,
+    threadMembers: PropTypes.arrayOf(relativeMemberInfoPropType).isRequired,
     messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
     composedMessageMaxWidth: PropTypes.number.isRequired,
     colors: colorsPropType.isRequired,
@@ -193,7 +201,10 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     );
     const { messageInfo } = item;
     if (messageInfo.type === messageTypes.TEXT) {
-      return dummyNodeForTextMessageHeightMeasurement(messageInfo.text);
+      return dummyNodeForTextMessageHeightMeasurement(
+        messageInfo.text,
+        this.props.threadMembers,
+      );
     } else if (item.robotext && typeof item.robotext === 'string') {
       return dummyNodeForRobotextMessageHeightMeasurement(item.robotext);
     }
@@ -298,6 +309,9 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
 ) {
   const threadID = props.route.params.threadInfo.id;
   const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
+  const threadMembers = useSelector(state =>
+    relativeMemberInfoSelectorForMembersOfThread(threadID)(state),
+  );
   const boundMessageListData = useSelector(state =>
     messageListData(threadID)(state),
   );
@@ -310,6 +324,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     <MessageListContainer
       {...props}
       threadInfo={threadInfo}
+      threadMembers={threadMembers}
       messageListData={boundMessageListData}
       composedMessageMaxWidth={composedMessageMaxWidth}
       colors={colors}

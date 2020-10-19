@@ -1,5 +1,7 @@
 // @flow
 
+import type { RelativeMemberInfo } from 'lib/types/thread-types';
+
 import * as SimpleMarkdown from 'simple-markdown';
 import * as React from 'react';
 import _memoize from 'lodash/memoize';
@@ -61,7 +63,6 @@ const linkRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
   };
 });
 
-// function will contain additional rules for message formatting
 const markdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
   const linkMarkdownRules = linkRules(useDarkStyle);
 
@@ -90,19 +91,6 @@ const markdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
     inlineCode: SimpleMarkdown.defaultRules.inlineCode,
     em: SimpleMarkdown.defaultRules.em,
     strong: SimpleMarkdown.defaultRules.strong,
-    mention: {
-      ...SimpleMarkdown.defaultRules.strong,
-      match: SimpleMarkdown.inlineRegex(SharedMarkdown.mentionRegex),
-      parse: (capture: SimpleMarkdown.Capture) => ({
-        content: capture[0],
-      }),
-      // eslint-disable-next-line react/display-name
-      react: (
-        node: SimpleMarkdown.SingleASTNode,
-        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
-        state: SimpleMarkdown.State,
-      ) => <strong key={state.key}>{node.content}</strong>,
-    },
     del: SimpleMarkdown.defaultRules.del,
     u: SimpleMarkdown.defaultRules.u,
     heading: {
@@ -152,4 +140,30 @@ const markdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
   };
 });
 
-export { linkRules, markdownRules };
+const textMessageRules: (
+  boolean,
+  $ReadOnlyArray<RelativeMemberInfo>,
+) => MarkdownRules = _memoize((useDarkStyle, members) => {
+  const baseRules = markdownRules(useDarkStyle);
+  return {
+    ...baseRules,
+    simpleMarkdownRules: {
+      ...baseRules.simpleMarkdownRules,
+      mention: {
+        ...SimpleMarkdown.defaultRules.strong,
+        match: SharedMarkdown.matchMentions(members),
+        parse: (capture: SimpleMarkdown.Capture) => ({
+          content: capture[0],
+        }),
+        // eslint-disable-next-line react/display-name
+        react: (
+          node: SimpleMarkdown.SingleASTNode,
+          output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
+          state: SimpleMarkdown.State,
+        ) => <strong key={state.key}>{node.content}</strong>,
+      },
+    },
+  };
+});
+
+export { linkRules, textMessageRules };

@@ -1,5 +1,7 @@
 // @flow
 
+import type { RelativeMemberInfo } from 'lib/types/thread-types';
+
 import * as React from 'react';
 import { Text, Linking, Alert, View } from 'react-native';
 import * as SimpleMarkdown from 'simple-markdown';
@@ -169,23 +171,6 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
         </Text>
       ),
     },
-    mention: {
-      ...SimpleMarkdown.defaultRules.strong,
-      match: SimpleMarkdown.inlineRegex(SharedMarkdown.mentionRegex),
-      parse: (capture: SimpleMarkdown.Capture) => ({
-        content: capture[0],
-      }),
-      // eslint-disable-next-line react/display-name
-      react: (
-        node: SimpleMarkdown.SingleASTNode,
-        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
-        state: SimpleMarkdown.State,
-      ) => (
-        <Text key={state.key} style={styles.bold}>
-          {node.content}
-        </Text>
-      ),
-    },
     u: {
       ...SimpleMarkdown.defaultRules.u,
       // eslint-disable-next-line react/display-name
@@ -352,4 +337,35 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
   };
 });
 
-export { inlineMarkdownRules, fullMarkdownRules };
+const textMessageRules: (
+  boolean,
+  $ReadOnlyArray<RelativeMemberInfo>,
+) => MarkdownRules = _memoize((useDarkStyle, members) => {
+  const styles = getMarkdownStyles(useDarkStyle ? 'dark' : 'light');
+  const baseRules = fullMarkdownRules(useDarkStyle);
+  return {
+    ...baseRules,
+    simpleMarkdownRules: {
+      ...baseRules.simpleMarkdownRules,
+      mention: {
+        ...SimpleMarkdown.defaultRules.strong,
+        match: SharedMarkdown.matchMentions(members),
+        parse: (capture: SimpleMarkdown.Capture) => ({
+          content: capture[0],
+        }),
+        // eslint-disable-next-line react/display-name
+        react: (
+          node: SimpleMarkdown.SingleASTNode,
+          output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
+          state: SimpleMarkdown.State,
+        ) => (
+          <Text key={state.key} style={styles.bold}>
+            {node.content}
+          </Text>
+        ),
+      },
+    },
+  };
+});
+
+export { inlineMarkdownRules, textMessageRules };
