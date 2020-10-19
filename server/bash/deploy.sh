@@ -19,7 +19,7 @@ set -e
 [[ `whoami` = root ]] || exec sudo su -c "$0 $1"
 
 # STEP 1: clone source into new directory
-CHECKOUT_PATH=$1.$(date +%F-%H:%M)
+CHECKOUT_PATH=$1.$(date +%F-%H-%M)
 rm -rf "$CHECKOUT_PATH" # badass. risky
 mkdir -p "$CHECKOUT_PATH"
 chown $DAEMON_USER:$DAEMON_USER "$CHECKOUT_PATH"
