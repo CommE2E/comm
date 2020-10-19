@@ -181,14 +181,14 @@ type ChatSettingsItem =
       itemType: 'leaveThread',
       key: string,
       threadInfo: ThreadInfo,
-      canDeleteThread: boolean,
+      lastActionButton: boolean,
     |}
   | {|
       itemType: 'deleteThread',
       key: string,
       threadInfo: ThreadInfo,
       navigate: ThreadSettingsNavigate,
-      canLeaveThread: boolean,
+      firstActionButton: boolean,
     |};
 
 type BaseProps = {|
@@ -678,7 +678,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           itemType: 'leaveThread',
           key: 'leaveThread',
           threadInfo,
-          canDeleteThread,
+          lastActionButton: !canDeleteThread,
         });
       }
       if (canDeleteThread) {
@@ -687,7 +687,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           key: 'deleteThread',
           threadInfo,
           navigate,
-          canLeaveThread: isMember,
+          firstActionButton: !isMember,
         });
       }
       if (isMember || canDeleteThread) {
@@ -837,14 +837,14 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       return (
         <ThreadSettingsLeaveThread
           threadInfo={item.threadInfo}
-          canDeleteThread={item.canDeleteThread}
+          lastActionButton={item.lastActionButton}
         />
       );
     } else if (item.itemType === 'deleteThread') {
       return (
         <ThreadSettingsDeleteThread
           threadInfo={item.threadInfo}
-          canLeaveThread={item.canLeaveThread}
+          firstActionButton={item.firstActionButton}
           navigate={item.navigate}
         />
       );

@@ -45,7 +45,7 @@ import { clearThreadsActionType } from '../../navigation/action-types';
 
 type BaseProps = {|
   +threadInfo: ThreadInfo,
-  +canDeleteThread: boolean,
+  +lastActionButton: boolean,
 |};
 type Props = {|
   ...BaseProps,
@@ -64,7 +64,7 @@ type Props = {|
 class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
   static propTypes = {
     threadInfo: threadInfoPropType.isRequired,
-    canDeleteThread: PropTypes.bool.isRequired,
+    lastActionButton: PropTypes.bool.isRequired,
     loadingStatus: loadingStatusPropType.isRequired,
     otherUsersButNoOtherAdmins: PropTypes.bool.isRequired,
     colors: colorsPropType.isRequired,
@@ -83,9 +83,9 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
       this.props.loadingStatus === 'loading' ? (
         <ActivityIndicator size="small" color={panelForegroundSecondaryLabel} />
       ) : null;
-    const lastButtonStyle = this.props.canDeleteThread
-      ? null
-      : this.props.styles.lastButton;
+    const lastButtonStyle = this.props.lastActionButton
+      ? this.props.styles.lastButton
+      : null;
     return (
       <View style={this.props.styles.container}>
         <Button

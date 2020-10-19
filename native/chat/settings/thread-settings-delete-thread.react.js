@@ -13,7 +13,7 @@ import { useColors, useStyles } from '../../themes/colors';
 type Props = {|
   +threadInfo: ThreadInfo,
   +navigate: ThreadSettingsNavigate,
-  +canLeaveThread: boolean,
+  +firstActionButton: boolean,
 |};
 function ThreadSettingsDeleteThread(props: Props) {
   const { navigate, threadInfo } = props;
@@ -26,8 +26,7 @@ function ThreadSettingsDeleteThread(props: Props) {
   }, [navigate, threadInfo]);
 
   const styles = useStyles(unboundStyles);
-  const { canLeaveThread } = props;
-  const borderStyle = canLeaveThread ? styles.border : null;
+  const borderStyle = props.firstActionButton ? null : styles.topBorder;
 
   const colors = useColors();
   const { panelIosHighlightUnderlay } = colors;
@@ -47,7 +46,7 @@ function ThreadSettingsDeleteThread(props: Props) {
 }
 
 const unboundStyles = {
-  border: {
+  topBorder: {
     borderColor: 'panelForegroundBorder',
     borderTopWidth: 1,
   },
