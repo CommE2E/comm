@@ -44,6 +44,11 @@ import ContentLoading from '../components/content-loading.react';
 import { dummyNodeForTextMessageHeightMeasurement } from './inner-text-message.react';
 import { dummyNodeForRobotextMessageHeightMeasurement } from './robotext-message.react';
 import { chatMessageItemKey } from './chat-list.react';
+import {
+  OverlayContext,
+  type OverlayContextType,
+  overlayContextPropType,
+} from '../navigation/overlay-context';
 
 export type ChatMessageItemWithHeight =
   | {| itemType: 'loader' |}
@@ -63,6 +68,8 @@ type Props = {|
   +styles: typeof unboundStyles,
   // withInputState
   +inputState: ?InputState,
+  // withOverlayContext
+  +overlayContext: ?OverlayContextType,
 |};
 type State = {|
   +listDataWithHeights: ?$ReadOnlyArray<ChatMessageItemWithHeight>,
@@ -77,10 +84,12 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     inputState: inputStatePropType,
+    overlayContext: overlayContextPropType,
   };
   state = {
     listDataWithHeights: null,
   };
+  pendingListDataWithHeights: ?$ReadOnlyArray<ChatMessageItemWithHeight>;
 
   static getThreadInfo(props: Props): ThreadInfo {
     const { threadInfo } = props;
@@ -88,6 +97,15 @@ class MessageListContainer extends React.PureComponent<Props, State> {
       return threadInfo;
     }
     return props.route.params.threadInfo;
+  }
+
+  get frozen() {
+    const { overlayContext } = this.props;
+    invariant(
+      overlayContext,
+      'MessageListContainer should have OverlayContext',
+    );
+    return overlayContext.scrollBlockingModalStatus !== 'closed';
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -101,6 +119,11 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     const newListData = this.props.messageListData;
     if (!newListData && oldListData) {
       this.setState({ listDataWithHeights: null });
+    }
+
+    if (!this.frozen && this.pendingListDataWithHeights) {
+      this.setState({ listDataWithHeights: this.pendingListDataWithHeights });
+      this.pendingListDataWithHeights = undefined;
     }
   }
 
@@ -255,7 +278,11 @@ class MessageListContainer extends React.PureComponent<Props, State> {
   allHeightsMeasured = (
     listDataWithHeights: $ReadOnlyArray<ChatMessageItemWithHeight>,
   ) => {
-    this.setState({ listDataWithHeights });
+    if (this.frozen) {
+      this.pendingListDataWithHeights = listDataWithHeights;
+    } else {
+      this.setState({ listDataWithHeights });
+    }
   };
 }
 
@@ -278,6 +305,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
   const colors = useColors();
   const styles = useStyles(unboundStyles);
   const inputState = React.useContext(InputStateContext);
+  const overlayContext = React.useContext(OverlayContext);
   return (
     <MessageListContainer
       {...props}
@@ -287,6 +315,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
       colors={colors}
       styles={styles}
       inputState={inputState}
+      overlayContext={overlayContext}
     />
   );
 });
