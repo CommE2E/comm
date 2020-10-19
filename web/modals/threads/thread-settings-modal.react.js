@@ -183,9 +183,8 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
         </div>
       );
     } else if (this.state.currentTabType === 'privacy') {
-      let threadTypeSection = null;
-      if (this.possiblyChangedValue('parentThreadID')) {
-        threadTypeSection = (
+      mainContent = (
+        <div className={css['edit-thread-privacy-container']}>
           <div className={css['modal-radio-selector']}>
             <div className={css['form-title']}>Thread type</div>
             <div className={css['form-enum-selector']}>
@@ -235,21 +234,34 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
               </div>
             </div>
           </div>
-        );
-      }
-      mainContent = (
-        <div className={css['edit-thread-privacy-container']}>
-          {threadTypeSection}
         </div>
       );
     } else if (this.state.currentTabType === 'delete') {
       mainContent = (
-        <div>
-          <p className={css['italic']}>
-            Your thread will be permanently deleted. There is no way to reverse
-            this.
-          </p>
-        </div>
+        <>
+          <div>
+            <p className={css['italic']}>
+              Your thread will be permanently deleted. There is no way to
+              reverse this.
+            </p>
+          </div>
+          <div className={css['edit-thread-account-password']}>
+            <p className={css['confirm-account-password']}>
+              Please enter your account password to confirm your identity
+            </p>
+            <div className={css['form-title']}>Account password</div>
+            <div className={css['form-content']}>
+              <input
+                type="password"
+                placeholder="Personal account password"
+                value={this.state.accountPassword}
+                onChange={this.onChangeAccountPassword}
+                disabled={this.props.inputDisabled}
+                ref={this.accountPasswordInputRef}
+              />
+            </div>
+          </div>
+        </>
       );
     }
 
@@ -274,61 +286,48 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       );
     }
 
+    const tabs = [
+      <Tab
+        name="General"
+        tabType="general"
+        onClick={this.setTab}
+        selected={this.state.currentTabType === 'general'}
+        key="general"
+      />,
+    ];
+    if (this.possiblyChangedValue('parentThreadID')) {
+      tabs.push(
+        <Tab
+          name="Privacy"
+          tabType="privacy"
+          onClick={this.setTab}
+          selected={this.state.currentTabType === 'privacy'}
+          key="privacy"
+        />,
+      );
+    }
     const canDeleteThread = threadHasPermission(
       this.props.threadInfo,
       threadPermissions.DELETE_THREAD,
     );
-    let deleteTab = null;
     if (canDeleteThread) {
-      deleteTab = (
+      tabs.push(
         <Tab
           name="Delete"
           tabType="delete"
           onClick={this.setTab}
           selected={this.state.currentTabType === 'delete'}
           key="delete"
-        />
+        />,
       );
     }
 
     return (
       <Modal name="Thread settings" onClose={this.props.onClose} size="large">
-        <ul className={css['tab-panel']}>
-          <Tab
-            name="General"
-            tabType="general"
-            onClick={this.setTab}
-            selected={this.state.currentTabType === 'general'}
-            key="general"
-          />
-          <Tab
-            name="Privacy"
-            tabType="privacy"
-            onClick={this.setTab}
-            selected={this.state.currentTabType === 'privacy'}
-            key="privacy"
-          />
-          {deleteTab}
-        </ul>
+        <ul className={css['tab-panel']}>{tabs}</ul>
         <div className={css['modal-body']}>
           <form method="POST">
             {mainContent}
-            <div className={css['edit-thread-account-password']}>
-              <p className={css['confirm-account-password']}>
-                Please enter your account password to confirm your identity
-              </p>
-              <div className={css['form-title']}>Account password</div>
-              <div className={css['form-content']}>
-                <input
-                  type="password"
-                  placeholder="Personal account password"
-                  value={this.state.accountPassword}
-                  onChange={this.onChangeAccountPassword}
-                  disabled={this.props.inputDisabled}
-                  ref={this.accountPasswordInputRef}
-                />
-              </div>
-            </div>
             <div className={css['form-footer']}>
               {buttons}
               <div className={css['modal-form-error']}>
@@ -427,42 +426,23 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       const response = await this.props.changeThreadSettings({
         threadID: this.props.threadInfo.id,
         changes: this.state.queuedChanges,
-        accountPassword: this.state.accountPassword
-          ? this.state.accountPassword
-          : null,
       });
       this.props.onClose();
       return response;
     } catch (e) {
-      if (e.message === 'invalid_credentials') {
-        this.setState(
-          {
-            accountPassword: '',
-            errorMessage: 'wrong password',
-          },
-          () => {
-            invariant(
-              this.accountPasswordInput,
-              'accountPasswordInput ref unset',
-            );
-            this.accountPasswordInput.focus();
-          },
-        );
-      } else {
-        this.setState(
-          prevState => ({
-            ...prevState,
-            queuedChanges: {},
-            accountPassword: '',
-            errorMessage: 'unknown error',
-            currentTabType: 'general',
-          }),
-          () => {
-            invariant(this.nameInput, 'nameInput ref unset');
-            this.nameInput.focus();
-          },
-        );
-      }
+      this.setState(
+        prevState => ({
+          ...prevState,
+          queuedChanges: {},
+          accountPassword: '',
+          errorMessage: 'unknown error',
+          currentTabType: 'general',
+        }),
+        () => {
+          invariant(this.nameInput, 'nameInput ref unset');
+          this.nameInput.focus();
+        },
+      );
       throw e;
     }
   }
