@@ -13,7 +13,7 @@ import { connect } from 'lib/utils/redux-utils';
 import { MessageListRouteName } from '../../navigation/route-names';
 import Button from '../../components/button.react';
 import ColorSplotch from '../../components/color-splotch.react';
-import ThreadVisibility from '../../components/thread-visibility.react';
+import ThreadIcon from '../../components/thread-icon.react';
 import {
   type Colors,
   colorsPropType,
@@ -55,10 +55,9 @@ class ThreadSettingsChildThread extends React.PureComponent<Props> {
               {this.props.threadInfo.uiName}
             </SingleLine>
           </View>
-          <ThreadVisibility
+          <ThreadIcon
             threadType={this.props.threadInfo.type}
             color={this.props.colors.panelForegroundSecondaryLabel}
-            includeLabel={false}
           />
         </Button>
       </View>
