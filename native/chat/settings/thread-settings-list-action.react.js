@@ -86,16 +86,16 @@ type AddChildThreadProps = {|
   // Redux state
   styles: typeof styles,
 |};
-function ThreadSettingsAddChildThread(props: AddChildThreadProps) {
+function ThreadSettingsAddSubthread(props: AddChildThreadProps) {
   return (
     <View style={props.styles.addItemRow}>
       <ThreadSettingsListAction
         onPress={props.onPress}
-        text="Add child thread"
+        text="Add subthread"
         iconName="md-add"
         iconStyle={props.styles.addIcon}
         iconSize={20}
-        buttonStyle={props.styles.addChildThreadButton}
+        buttonStyle={props.styles.addSubthreadButton}
         styles={props.styles}
       />
     </View>
@@ -103,7 +103,7 @@ function ThreadSettingsAddChildThread(props: AddChildThreadProps) {
 }
 
 const styles = {
-  addChildThreadButton: {
+  addSubthreadButton: {
     paddingTop: Platform.OS === 'ios' ? 4 : 1,
   },
   addIcon: {
@@ -161,12 +161,12 @@ const WrappedThreadSettingsAddMember = connect((state: AppState) => ({
   styles: stylesSelector(state),
 }))(ThreadSettingsAddMember);
 
-const WrappedThreadSettingsAddChildThread = connect((state: AppState) => ({
+const WrappedThreadSettingsAddSubthread = connect((state: AppState) => ({
   styles: stylesSelector(state),
-}))(ThreadSettingsAddChildThread);
+}))(ThreadSettingsAddSubthread);
 
 export {
   WrappedThreadSettingsSeeMore as ThreadSettingsSeeMore,
   WrappedThreadSettingsAddMember as ThreadSettingsAddMember,
-  WrappedThreadSettingsAddChildThread as ThreadSettingsAddChildThread,
+  WrappedThreadSettingsAddSubthread as ThreadSettingsAddSubthread,
 };

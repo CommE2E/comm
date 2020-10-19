@@ -48,7 +48,7 @@ import ThreadSettingsMember from './thread-settings-member.react';
 import {
   ThreadSettingsSeeMore,
   ThreadSettingsAddMember,
-  ThreadSettingsAddChildThread,
+  ThreadSettingsAddSubthread,
 } from './thread-settings-list-action.react';
 import ThreadSettingsChildThread from './thread-settings-child-thread.react';
 import ThreadSettingsName from './thread-settings-name.react';
@@ -158,7 +158,7 @@ type ChatSettingsItem =
       lastListItem: boolean,
     |}
   | {|
-      itemType: 'addChildThread',
+      itemType: 'addSubthread',
       key: string,
     |}
   | {|
@@ -208,7 +208,7 @@ type Props = {|
 |};
 type State = {|
   +showMaxMembers: number,
-  +showMaxChildThreads: number,
+  +showMaxSubthreads: number,
   +nameEditValue: ?string,
   +descriptionEditValue: ?string,
   +nameTextHeight: ?number,
@@ -249,7 +249,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     invariant(threadInfo, 'ThreadInfo should exist when ThreadSettings opened');
     this.state = {
       showMaxMembers: itemPageLength,
-      showMaxChildThreads: itemPageLength,
+      showMaxSubthreads: itemPageLength,
       nameEditValue: null,
       descriptionEditValue: null,
       nameTextHeight: null,
@@ -352,7 +352,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
     (propsAndState: PropsAndState) => propsAndState.route.key,
     (propsAndState: PropsAndState) => propsAndState.childThreadInfos,
-    (propsAndState: PropsAndState) => propsAndState.showMaxChildThreads,
+    (propsAndState: PropsAndState) => propsAndState.showMaxSubthreads,
     (propsAndState: PropsAndState) => propsAndState.threadMembers,
     (propsAndState: PropsAndState) => propsAndState.showMaxMembers,
     (propsAndState: PropsAndState) => propsAndState.verticalBounds,
@@ -367,7 +367,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       navigate: ThreadSettingsNavigate,
       routeKey: string,
       childThreads: ?(ThreadInfo[]),
-      showMaxChildThreads: number,
+      showMaxSubthreads: number,
       threadMembers: RelativeMemberInfo[],
       showMaxMembers: number,
       verticalBounds: ?VerticalBounds,
@@ -471,65 +471,65 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         categoryType: 'full',
       });
 
-      let childThreadItems = null;
+      let subthreadItems = null;
       if (childThreads) {
-        let childThreadInfosSlice;
-        let seeMoreChildThreads = null;
-        if (childThreads.length > showMaxChildThreads) {
-          childThreadInfosSlice = childThreads.slice(0, showMaxChildThreads);
-          seeMoreChildThreads = {
+        let subthreadInfosSlice;
+        let seeMoreSubthreads = null;
+        if (childThreads.length > showMaxSubthreads) {
+          subthreadInfosSlice = childThreads.slice(0, showMaxSubthreads);
+          seeMoreSubthreads = {
             itemType: 'seeMore',
-            key: 'seeMoreChildThreads',
-            onPress: this.onPressSeeMoreChildThreads,
+            key: 'seeMoreSubthreads',
+            onPress: this.onPressSeeMoreSubthreads,
           };
         } else {
-          childThreadInfosSlice = childThreads;
+          subthreadInfosSlice = childThreads;
         }
-        const childThreadSlice = childThreadInfosSlice.map(childThreadInfo => ({
+        const subthreadSlice = subthreadInfosSlice.map(subthreadInfo => ({
           itemType: 'childThread',
-          key: `childThread${childThreadInfo.id}`,
-          threadInfo: childThreadInfo,
+          key: `childThread${subthreadInfo.id}`,
+          threadInfo: subthreadInfo,
           navigate,
           lastListItem: false,
         }));
-        if (seeMoreChildThreads) {
-          childThreadItems = [...childThreadSlice, seeMoreChildThreads];
+        if (seeMoreSubthreads) {
+          subthreadItems = [...subthreadSlice, seeMoreSubthreads];
         } else {
-          childThreadSlice[childThreadSlice.length - 1].lastListItem = true;
-          childThreadItems = childThreadSlice;
+          subthreadSlice[subthreadSlice.length - 1].lastListItem = true;
+          subthreadItems = subthreadSlice;
         }
       }
 
-      let addChildThread = null;
+      let addSubthread = null;
       const canCreateSubthreads = threadHasPermission(
         threadInfo,
         threadPermissions.CREATE_SUBTHREADS,
       );
       if (canCreateSubthreads) {
-        addChildThread = {
-          itemType: 'addChildThread',
-          key: 'addChildThread',
+        addSubthread = {
+          itemType: 'addSubthread',
+          key: 'addSubthread',
         };
       }
 
-      if (addChildThread || childThreadItems) {
+      if (addSubthread || subthreadItems) {
         listData.push({
           itemType: 'header',
-          key: 'childThreadHeader',
-          title: 'Child threads',
+          key: 'subthreadHeader',
+          title: 'Subthreads',
           categoryType: 'unpadded',
         });
       }
-      if (addChildThread) {
-        listData.push(addChildThread);
+      if (addSubthread) {
+        listData.push(addSubthread);
       }
-      if (childThreadItems) {
-        listData.push(...childThreadItems);
+      if (subthreadItems) {
+        listData.push(...subthreadItems);
       }
-      if (addChildThread || childThreadItems) {
+      if (addSubthread || subthreadItems) {
         listData.push({
           itemType: 'footer',
-          key: 'childThreadFooter',
+          key: 'subthreadFooter',
           categoryType: 'unpadded',
         });
       }
@@ -754,9 +754,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           lastListItem={item.lastListItem}
         />
       );
-    } else if (item.itemType === 'addChildThread') {
+    } else if (item.itemType === 'addSubthread') {
       return (
-        <ThreadSettingsAddChildThread onPress={this.onPressComposeSubthread} />
+        <ThreadSettingsAddSubthread onPress={this.onPressComposeSubthread} />
       );
     } else if (item.itemType === 'member') {
       return (
@@ -834,9 +834,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     }));
   };
 
-  onPressSeeMoreChildThreads = () => {
+  onPressSeeMoreSubthreads = () => {
     this.setState(prevState => ({
-      showMaxChildThreads: prevState.showMaxChildThreads + itemPageLength,
+      showMaxSubthreads: prevState.showMaxSubthreads + itemPageLength,
     }));
   };
 }
