@@ -482,6 +482,10 @@ async function createReadStatusUpdates(latestMessages: LatestMessages) {
 }
 
 function updateLatestMessages(latestMessages: LatestMessages) {
+  if (latestMessages.length === 0) {
+    return;
+  }
+
   const query = SQL`
     UPDATE memberships
     SET 
