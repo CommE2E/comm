@@ -213,6 +213,12 @@ async function createThread(
   }
   setJoinsToUnread(membershipRows, viewer.userID, id);
 
+  const changeset = { membershipRows, relationshipRows };
+  const { threadInfos, viewerUpdates } = await commitMembershipChangeset(
+    viewer,
+    changeset,
+  );
+
   const messageDatas = [
     {
       type: messageTypes.CREATE_THREAD,
@@ -237,13 +243,7 @@ async function createThread(
       childThreadID: id,
     });
   }
-
-  const changeset = { membershipRows, relationshipRows };
-  const [newMessageInfos, commitResult] = await Promise.all([
-    createMessages(viewer, messageDatas),
-    commitMembershipChangeset(viewer, changeset),
-  ]);
-  const { threadInfos, viewerUpdates } = commitResult;
+  const newMessageInfos = await createMessages(viewer, messageDatas);
 
   if (hasMinCodeVersion(viewer.platformDetails, 62)) {
     return {

@@ -96,6 +96,11 @@ async function updateRole(
   if (!changeset) {
     throw new ServerError('unknown_error');
   }
+  const { threadInfos, viewerUpdates } = await commitMembershipChangeset(
+    viewer,
+    changeset,
+  );
+
   const messageData = {
     type: messageTypes.CHANGE_ROLE,
     threadID: request.threadID,
@@ -104,10 +109,7 @@ async function updateRole(
     userIDs: memberIDs,
     newRole: request.role,
   };
-  const [newMessageInfos, { threadInfos, viewerUpdates }] = await Promise.all([
-    createMessages(viewer, [messageData]),
-    commitMembershipChangeset(viewer, changeset),
-  ]);
+  const newMessageInfos = await createMessages(viewer, [messageData]);
 
   if (hasMinCodeVersion(viewer.platformDetails, 62)) {
     return { updatesResult: { newUpdates: viewerUpdates }, newMessageInfos };
@@ -182,6 +184,10 @@ async function removeMembers(
   if (!changeset) {
     throw new ServerError('unknown_error');
   }
+  const { threadInfos, viewerUpdates } = await commitMembershipChangeset(
+    viewer,
+    changeset,
+  );
 
   const messageData = {
     type: messageTypes.REMOVE_MEMBERS,
@@ -190,10 +196,7 @@ async function removeMembers(
     time: Date.now(),
     removedUserIDs: actualMemberIDs,
   };
-  const [newMessageInfos, { threadInfos, viewerUpdates }] = await Promise.all([
-    createMessages(viewer, [messageData]),
-    commitMembershipChangeset(viewer, changeset),
-  ]);
+  const newMessageInfos = await createMessages(viewer, [messageData]);
 
   if (hasMinCodeVersion(viewer.platformDetails, 62)) {
     return { updatesResult: { newUpdates: viewerUpdates }, newMessageInfos };
@@ -250,6 +253,10 @@ async function leaveThread(
   if (!changeset) {
     throw new ServerError('unknown_error');
   }
+  const { threadInfos, viewerUpdates } = await commitMembershipChangeset(
+    viewer,
+    changeset,
+  );
 
   const messageData = {
     type: messageTypes.LEAVE_THREAD,
@@ -257,10 +264,7 @@ async function leaveThread(
     creatorID: viewerID,
     time: Date.now(),
   };
-  const [{ threadInfos, viewerUpdates }] = await Promise.all([
-    commitMembershipChangeset(viewer, changeset),
-    createMessages(viewer, [messageData]),
-  ]);
+  await createMessages(viewer, [messageData]);
 
   if (hasMinCodeVersion(viewer.platformDetails, 62)) {
     return { updatesResult: { newUpdates: viewerUpdates } };
@@ -510,6 +514,15 @@ async function updateThread(
     membershipRows.push(...addMembersMembershipRows);
   }
 
+  const changeset = { membershipRows, relationshipRows };
+  const { threadInfos, viewerUpdates } = await commitMembershipChangeset(
+    viewer,
+    changeset,
+    // This forces an update for this thread,
+    // regardless of whether any membership rows are changed
+    Object.keys(sqlUpdate).length > 0 ? new Set([request.threadID]) : new Set(),
+  );
+
   const time = Date.now();
   const messageDatas = [];
   for (let fieldName in changedFields) {
@@ -532,20 +545,7 @@ async function updateThread(
       addedUserIDs: newMemberIDs,
     });
   }
-
-  const changeset = { membershipRows, relationshipRows };
-  const [newMessageInfos, { threadInfos, viewerUpdates }] = await Promise.all([
-    createMessages(viewer, messageDatas),
-    commitMembershipChangeset(
-      viewer,
-      changeset,
-      // This forces an update for this thread,
-      // regardless of whether any membership rows are changed
-      Object.keys(sqlUpdate).length > 0
-        ? new Set([request.threadID])
-        : new Set(),
-    ),
-  ]);
+  const newMessageInfos = await createMessages(viewer, messageDatas);
 
   if (hasMinCodeVersion(viewer.platformDetails, 62)) {
     return { updatesResult: { newUpdates: viewerUpdates }, newMessageInfos };
@@ -599,16 +599,20 @@ async function joinThread(
   }
   setJoinsToUnread(changeset.membershipRows, viewer.userID, request.threadID);
 
+  const membershipResult = await commitMembershipChangeset(
+    viewer,
+    changeset,
+    new Set(),
+    calendarQuery,
+  );
+
   const messageData = {
     type: messageTypes.JOIN_THREAD,
     threadID: request.threadID,
     creatorID: viewer.userID,
     time: Date.now(),
   };
-  const [membershipResult] = await Promise.all([
-    commitMembershipChangeset(viewer, changeset, new Set(), calendarQuery),
-    createMessages(viewer, [messageData]),
-  ]);
+  await createMessages(viewer, [messageData]);
 
   const threadSelectionCriteria = {
     threadCursors: { [request.threadID]: false },
