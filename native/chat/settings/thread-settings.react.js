@@ -351,7 +351,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     }
   }
 
-  listDataSelector = createSelector(
+  threadBasicsListDataSelector = createSelector(
     (propsAndState: PropsAndState) =>
       ThreadSettings.getThreadInfo(propsAndState),
     (propsAndState: PropsAndState) => propsAndState.nameEditValue,
@@ -362,12 +362,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => !propsAndState.somethingIsSaving,
     (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
     (propsAndState: PropsAndState) => propsAndState.route.key,
-    (propsAndState: PropsAndState) => propsAndState.childThreadInfos,
-    (propsAndState: PropsAndState) => propsAndState.showMaxSubthreads,
-    (propsAndState: PropsAndState) => propsAndState.showMaxSidebars,
-    (propsAndState: PropsAndState) => propsAndState.threadMembers,
-    (propsAndState: PropsAndState) => propsAndState.showMaxMembers,
-    (propsAndState: PropsAndState) => propsAndState.verticalBounds,
     (
       threadInfo: ThreadInfo,
       nameEditValue: ?string,
@@ -378,12 +372,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       canStartEditing: boolean,
       navigate: ThreadSettingsNavigate,
       routeKey: string,
-      childThreads: ?(ThreadInfo[]),
-      showMaxSubthreads: number,
-      showMaxSidebars: number,
-      threadMembers: RelativeMemberInfo[],
-      showMaxMembers: number,
-      verticalBounds: ?VerticalBounds,
     ) => {
       const canEditThread = threadHasPermission(
         threadInfo,
@@ -483,156 +471,189 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         key: 'privacyFooter',
         categoryType: 'full',
       });
+      return listData;
+    },
+  );
 
-      const subthreads = [];
-      const sidebars = [];
-      if (childThreads) {
-        for (const childThreadInfo of childThreads) {
-          if (childThreadInfo.type === threadTypes.SIDEBAR) {
-            sidebars.push(childThreadInfo);
-          } else {
-            subthreads.push(childThreadInfo);
-          }
-        }
+  subthreadsListDataSelector = createSelector(
+    (propsAndState: PropsAndState) =>
+      ThreadSettings.getThreadInfo(propsAndState),
+    (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
+    (propsAndState: PropsAndState) => propsAndState.childThreadInfos,
+    (propsAndState: PropsAndState) => propsAndState.showMaxSubthreads,
+    (
+      threadInfo: ThreadInfo,
+      navigate: ThreadSettingsNavigate,
+      childThreads: ?(ThreadInfo[]),
+      showMaxSubthreads: number,
+    ) => {
+      const listData: ChatSettingsItem[] = [];
+
+      const subthreads =
+        childThreads?.filter(
+          childThreadInfo => childThreadInfo.type !== threadTypes.SIDEBAR,
+        ) ?? [];
+      const canCreateSubthreads = threadHasPermission(
+        threadInfo,
+        threadPermissions.CREATE_SUBTHREADS,
+      );
+      if (subthreads.length === 0 && !canCreateSubthreads) {
+        return listData;
       }
 
-      let subthreadItems = null;
-      if (subthreads.length > 0) {
-        let subthreadInfosSlice;
-        let seeMoreSubthreads = null;
-        if (subthreads.length > showMaxSubthreads) {
-          subthreadInfosSlice = subthreads.slice(0, showMaxSubthreads);
-          seeMoreSubthreads = {
-            itemType: 'seeMore',
-            key: 'seeMoreSubthreads',
-            onPress: this.onPressSeeMoreSubthreads,
-          };
-        } else {
-          subthreadInfosSlice = subthreads;
-        }
-        const subthreadSlice = subthreadInfosSlice.map(subthreadInfo => ({
+      const subthreadSlice = subthreads
+        .slice(0, showMaxSubthreads)
+        .map(subthreadInfo => ({
           itemType: 'childThread',
           key: `childThread${subthreadInfo.id}`,
           threadInfo: subthreadInfo,
           navigate,
           lastListItem: false,
         }));
-        if (seeMoreSubthreads) {
-          subthreadItems = [...subthreadSlice, seeMoreSubthreads];
-        } else {
-          subthreadSlice[subthreadSlice.length - 1].lastListItem = true;
-          subthreadItems = subthreadSlice;
-        }
+
+      let subthreadItems = subthreadSlice;
+      if (subthreads.length > showMaxSubthreads) {
+        subthreadItems = [
+          ...subthreadItems, // for Flow
+          {
+            itemType: 'seeMore',
+            key: 'seeMoreSubthreads',
+            onPress: this.onPressSeeMoreSubthreads,
+          },
+        ];
+      } else {
+        subthreadItems[subthreadItems.length - 1].lastListItem = true;
       }
 
-      let addSubthread = null;
-      const canCreateSubthreads = threadHasPermission(
-        threadInfo,
-        threadPermissions.CREATE_SUBTHREADS,
-      );
+      listData.push({
+        itemType: 'header',
+        key: 'subthreadHeader',
+        title: 'Subthreads',
+        categoryType: 'unpadded',
+      });
       if (canCreateSubthreads) {
-        addSubthread = {
+        listData.push({
           itemType: 'addSubthread',
           key: 'addSubthread',
-        };
-      }
-
-      if (addSubthread || subthreadItems) {
-        listData.push({
-          itemType: 'header',
-          key: 'subthreadHeader',
-          title: 'Subthreads',
-          categoryType: 'unpadded',
         });
       }
-      if (addSubthread) {
-        listData.push(addSubthread);
-      }
-      if (subthreadItems) {
-        listData.push(...subthreadItems);
-      }
-      if (addSubthread || subthreadItems) {
-        listData.push({
-          itemType: 'footer',
-          key: 'subthreadFooter',
-          categoryType: 'unpadded',
-        });
+      listData.push(...subthreadItems);
+      listData.push({
+        itemType: 'footer',
+        key: 'subthreadFooter',
+        categoryType: 'unpadded',
+      });
+
+      return listData;
+    },
+  );
+
+  sidebarsListDataSelector = createSelector(
+    (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
+    (propsAndState: PropsAndState) => propsAndState.childThreadInfos,
+    (propsAndState: PropsAndState) => propsAndState.showMaxSidebars,
+    (
+      navigate: ThreadSettingsNavigate,
+      childThreads: ?(ThreadInfo[]),
+      showMaxSidebars: number,
+    ) => {
+      const listData: ChatSettingsItem[] = [];
+
+      const sidebars =
+        childThreads?.filter(
+          childThreadInfo => childThreadInfo.type === threadTypes.SIDEBAR,
+        ) ?? [];
+      if (sidebars.length === 0) {
+        return listData;
       }
 
-      let sidebarItems = null;
-      if (sidebars.length > 0) {
-        let sidebarInfosSlice;
-        let seeMoreSidebars = null;
-        if (sidebars.length > showMaxSidebars) {
-          sidebarInfosSlice = sidebars.slice(0, showMaxSidebars);
-          seeMoreSidebars = {
-            itemType: 'seeMore',
-            key: 'seeMoreSidebars',
-            onPress: this.onPressSeeMoreSidebars,
-          };
-        } else {
-          sidebarInfosSlice = sidebars;
-        }
-        const sidebarSlice = sidebarInfosSlice.map(sidebarInfo => ({
+      const sidebarSlice = sidebars
+        .slice(0, showMaxSidebars)
+        .map(sidebarInfo => ({
           itemType: 'childThread',
           key: `childThread${sidebarInfo.id}`,
           threadInfo: sidebarInfo,
           navigate,
           lastListItem: false,
         }));
-        if (seeMoreSidebars) {
-          sidebarItems = [...sidebarSlice, seeMoreSidebars];
-        } else {
-          sidebarSlice[sidebarSlice.length - 1].lastListItem = true;
-          sidebarItems = sidebarSlice;
-        }
-      }
 
-      if (sidebarItems) {
-        listData.push({
-          itemType: 'header',
-          key: 'sidebarHeader',
-          title: 'Sidebars',
-          categoryType: 'unpadded',
-        });
-        listData.push(...sidebarItems);
-        listData.push({
-          itemType: 'footer',
-          key: 'sidebarFooter',
-          categoryType: 'unpadded',
-        });
-      }
-
-      let threadMemberItems;
-      let seeMoreMembers = null;
-      if (threadMembers.length > showMaxMembers) {
-        threadMemberItems = threadMembers.slice(0, showMaxMembers);
-        seeMoreMembers = {
-          itemType: 'seeMore',
-          key: 'seeMoreMembers',
-          onPress: this.onPressSeeMoreMembers,
-        };
+      let sidebarItems = sidebarSlice;
+      if (sidebars.length > showMaxSidebars) {
+        sidebarItems = [
+          ...sidebarItems, // for Flow
+          {
+            itemType: 'seeMore',
+            key: 'seeMoreSidebars',
+            onPress: this.onPressSeeMoreSidebars,
+          },
+        ];
       } else {
-        threadMemberItems = threadMembers;
+        sidebarItems[sidebarItems.length - 1].lastListItem = true;
       }
-      const members = threadMemberItems.map(memberInfo => ({
-        itemType: 'member',
-        key: `member${memberInfo.id}`,
-        memberInfo,
-        threadInfo,
-        canEdit: canStartEditing,
-        navigate,
-        lastListItem: false,
-        verticalBounds,
-        threadSettingsRouteKey: routeKey,
-      }));
 
-      let membershipItems;
-      if (seeMoreMembers) {
-        membershipItems = [...members, seeMoreMembers];
-      } else if (members.length > 0) {
-        members[members.length - 1].lastListItem = true;
-        membershipItems = members;
+      listData.push({
+        itemType: 'header',
+        key: 'sidebarHeader',
+        title: 'Sidebars',
+        categoryType: 'unpadded',
+      });
+      listData.push(...sidebarItems);
+      listData.push({
+        itemType: 'footer',
+        key: 'sidebarFooter',
+        categoryType: 'unpadded',
+      });
+
+      return listData;
+    },
+  );
+
+  threadMembersListDataSelector = createSelector(
+    (propsAndState: PropsAndState) =>
+      ThreadSettings.getThreadInfo(propsAndState),
+    (propsAndState: PropsAndState) => !propsAndState.somethingIsSaving,
+    (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
+    (propsAndState: PropsAndState) => propsAndState.route.key,
+    (propsAndState: PropsAndState) => propsAndState.threadMembers,
+    (propsAndState: PropsAndState) => propsAndState.showMaxMembers,
+    (propsAndState: PropsAndState) => propsAndState.verticalBounds,
+    (
+      threadInfo: ThreadInfo,
+      canStartEditing: boolean,
+      navigate: ThreadSettingsNavigate,
+      routeKey: string,
+      threadMembers: RelativeMemberInfo[],
+      showMaxMembers: number,
+      verticalBounds: ?VerticalBounds,
+    ) => {
+      const listData: ChatSettingsItem[] = [];
+
+      const members = threadMembers
+        .slice(0, showMaxMembers)
+        .map(memberInfo => ({
+          itemType: 'member',
+          key: `member${memberInfo.id}`,
+          memberInfo,
+          threadInfo,
+          canEdit: canStartEditing,
+          navigate,
+          lastListItem: false,
+          verticalBounds,
+          threadSettingsRouteKey: routeKey,
+        }));
+
+      let membershipItems = members;
+      if (threadMembers.length > showMaxMembers) {
+        membershipItems = [
+          ...membershipItems, // for Flow
+          {
+            itemType: 'seeMore',
+            key: 'seeMoreMembers',
+            onPress: this.onPressSeeMoreMembers,
+          },
+        ];
+      } else if (membershipItems.length > 0) {
+        membershipItems[membershipItems.length - 1].lastListItem = true;
       }
 
       let addMembers = null;
@@ -669,6 +690,18 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         });
       }
 
+      return listData;
+    },
+  );
+
+  actionsListDataSelector = createSelector(
+    (propsAndState: PropsAndState) =>
+      ThreadSettings.getThreadInfo(propsAndState),
+    (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
+    (threadInfo: ThreadInfo, navigate: ThreadSettingsNavigate) => {
+      const listData: ChatSettingsItem[] = [];
+
+      const isMember = viewerIsMember(threadInfo);
       const canDeleteThread = threadHasPermission(
         threadInfo,
         threadPermissions.DELETE_THREAD,
@@ -679,6 +712,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       );
       const canPromoteSidebar =
         threadInfo.type === threadTypes.SIDEBAR && canChangeThreadType;
+
       if (isMember || canDeleteThread || canPromoteSidebar) {
         listData.push({
           itemType: 'header',
@@ -723,6 +757,27 @@ class ThreadSettings extends React.PureComponent<Props, State> {
 
       return listData;
     },
+  );
+
+  listDataSelector = createSelector(
+    this.threadBasicsListDataSelector,
+    this.subthreadsListDataSelector,
+    this.sidebarsListDataSelector,
+    this.threadMembersListDataSelector,
+    this.actionsListDataSelector,
+    (
+      threadBasicsListData: ChatSettingsItem[],
+      subthreadsListData: ChatSettingsItem[],
+      sidebarsListData: ChatSettingsItem[],
+      threadMembersListData: ChatSettingsItem[],
+      actionsListData: ChatSettingsItem[],
+    ) => [
+      ...threadBasicsListData,
+      ...subthreadsListData,
+      ...sidebarsListData,
+      ...threadMembersListData,
+      ...actionsListData,
+    ],
   );
 
   get listData() {
