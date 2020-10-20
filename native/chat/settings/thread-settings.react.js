@@ -217,8 +217,8 @@ type Props = {|
 |};
 type State = {|
   +showMaxMembers: number,
-  +showMaxSubthreads: number,
-  +showMaxSidebars: number,
+  +numSubthreadsShowing: number,
+  +numSidebarsShowing: number,
   +nameEditValue: ?string,
   +descriptionEditValue: ?string,
   +nameTextHeight: ?number,
@@ -259,8 +259,8 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     invariant(threadInfo, 'ThreadInfo should exist when ThreadSettings opened');
     this.state = {
       showMaxMembers: itemPageLength,
-      showMaxSubthreads: itemPageLength,
-      showMaxSidebars: itemPageLength,
+      numSubthreadsShowing: itemPageLength,
+      numSidebarsShowing: itemPageLength,
       nameEditValue: null,
       descriptionEditValue: null,
       nameTextHeight: null,
@@ -480,12 +480,12 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       ThreadSettings.getThreadInfo(propsAndState),
     (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
     (propsAndState: PropsAndState) => propsAndState.childThreadInfos,
-    (propsAndState: PropsAndState) => propsAndState.showMaxSubthreads,
+    (propsAndState: PropsAndState) => propsAndState.numSubthreadsShowing,
     (
       threadInfo: ThreadInfo,
       navigate: ThreadSettingsNavigate,
       childThreads: ?(ThreadInfo[]),
-      showMaxSubthreads: number,
+      numSubthreadsShowing: number,
     ) => {
       const listData: ChatSettingsItem[] = [];
 
@@ -502,7 +502,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       }
 
       const subthreadSlice = subthreads
-        .slice(0, showMaxSubthreads)
+        .slice(0, numSubthreadsShowing)
         .map(subthreadInfo => ({
           itemType: 'childThread',
           key: `childThread${subthreadInfo.id}`,
@@ -512,7 +512,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         }));
 
       let subthreadItems = subthreadSlice;
-      if (subthreads.length > showMaxSubthreads) {
+      if (subthreads.length > numSubthreadsShowing) {
         subthreadItems = [
           ...subthreadItems, // for Flow
           {
@@ -551,11 +551,11 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   sidebarsListDataSelector = createSelector(
     (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
     (propsAndState: PropsAndState) => propsAndState.childThreadInfos,
-    (propsAndState: PropsAndState) => propsAndState.showMaxSidebars,
+    (propsAndState: PropsAndState) => propsAndState.numSidebarsShowing,
     (
       navigate: ThreadSettingsNavigate,
       childThreads: ?(ThreadInfo[]),
-      showMaxSidebars: number,
+      numSidebarsShowing: number,
     ) => {
       const listData: ChatSettingsItem[] = [];
 
@@ -568,7 +568,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       }
 
       const sidebarSlice = sidebars
-        .slice(0, showMaxSidebars)
+        .slice(0, numSidebarsShowing)
         .map(sidebarInfo => ({
           itemType: 'childThread',
           key: `childThread${sidebarInfo.id}`,
@@ -578,7 +578,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         }));
 
       let sidebarItems = sidebarSlice;
-      if (sidebars.length > showMaxSidebars) {
+      if (sidebars.length > numSidebarsShowing) {
         sidebarItems = [
           ...sidebarItems, // for Flow
           {
@@ -983,13 +983,13 @@ class ThreadSettings extends React.PureComponent<Props, State> {
 
   onPressSeeMoreSubthreads = () => {
     this.setState(prevState => ({
-      showMaxSubthreads: prevState.showMaxSubthreads + itemPageLength,
+      numSubthreadsShowing: prevState.numSubthreadsShowing + itemPageLength,
     }));
   };
 
   onPressSeeMoreSidebars = () => {
     this.setState(prevState => ({
-      showMaxSidebars: prevState.showMaxSidebars + itemPageLength,
+      numSidebarsShowing: prevState.numSidebarsShowing + itemPageLength,
     }));
   };
 }
