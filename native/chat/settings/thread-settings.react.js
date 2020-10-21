@@ -521,7 +521,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
             onPress: this.onPressSeeMoreSubthreads,
           },
         ];
-      } else {
+      } else if (subthreadItems.length > 0) {
         subthreadItems[subthreadItems.length - 1].lastListItem = true;
       }
 
@@ -628,6 +628,14 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     ) => {
       const listData: ChatSettingsItem[] = [];
 
+      const canAddMembers = threadHasPermission(
+        threadInfo,
+        threadPermissions.ADD_MEMBERS,
+      );
+      if (threadMembers.length === 0 && !canAddMembers) {
+        return listData;
+      }
+
       const members = threadMembers
         .slice(0, showMaxMembers)
         .map(memberInfo => ({
@@ -656,39 +664,24 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         membershipItems[membershipItems.length - 1].lastListItem = true;
       }
 
-      let addMembers = null;
-      const canAddMembers = threadHasPermission(
-        threadInfo,
-        threadPermissions.ADD_MEMBERS,
-      );
+      listData.push({
+        itemType: 'header',
+        key: 'memberHeader',
+        title: 'Members',
+        categoryType: 'unpadded',
+      });
       if (canAddMembers) {
-        addMembers = {
+        listData.push({
           itemType: 'addMember',
           key: 'addMember',
-        };
-      }
-
-      if (addMembers || membershipItems) {
-        listData.push({
-          itemType: 'header',
-          key: 'memberHeader',
-          title: 'Members',
-          categoryType: 'unpadded',
         });
       }
-      if (addMembers) {
-        listData.push(addMembers);
-      }
-      if (membershipItems) {
-        listData.push(...membershipItems);
-      }
-      if (addMembers || membershipItems) {
-        listData.push({
-          itemType: 'footer',
-          key: 'memberFooter',
-          categoryType: 'unpadded',
-        });
-      }
+      listData.push(...membershipItems);
+      listData.push({
+        itemType: 'footer',
+        key: 'memberFooter',
+        categoryType: 'unpadded',
+      });
 
       return listData;
     },
