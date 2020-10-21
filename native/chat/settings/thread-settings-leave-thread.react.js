@@ -1,18 +1,11 @@
 // @flow
 
-import {
-  type ThreadInfo,
-  threadInfoPropType,
-  type LeaveThreadPayload,
-} from 'lib/types/thread-types';
-import {
-  type LoadingStatus,
-  loadingStatusPropType,
-} from 'lib/types/loading-types';
+import type { ThreadInfo, LeaveThreadPayload } from 'lib/types/thread-types';
+import type { LoadingStatus } from 'lib/types/loading-types';
+import type { ViewStyle } from '../../types/styles';
 
 import * as React from 'react';
-import { Text, Alert, ActivityIndicator, View, Platform } from 'react-native';
-import PropTypes from 'prop-types';
+import { Text, Alert, ActivityIndicator, View } from 'react-native';
 import invariant from 'invariant';
 import { useSelector } from 'react-redux';
 
@@ -30,23 +23,16 @@ import {
 } from 'lib/utils/action-utils';
 
 import Button from '../../components/button.react';
-import {
-  type Colors,
-  colorsPropType,
-  useColors,
-  useStyles,
-} from '../../themes/colors';
+import { type Colors, useColors, useStyles } from '../../themes/colors';
 import {
   NavContext,
   type NavContextType,
-  navContextPropType,
 } from '../../navigation/navigation-context';
 import { clearThreadsActionType } from '../../navigation/action-types';
 
 type BaseProps = {|
   +threadInfo: ThreadInfo,
-  +firstActionButton: boolean,
-  +lastActionButton: boolean,
+  +buttonStyle: ViewStyle,
 |};
 type Props = {|
   ...BaseProps,
@@ -63,19 +49,6 @@ type Props = {|
   +navContext: ?NavContextType,
 |};
 class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
-  static propTypes = {
-    threadInfo: threadInfoPropType.isRequired,
-    firstActionButton: PropTypes.bool.isRequired,
-    lastActionButton: PropTypes.bool.isRequired,
-    loadingStatus: loadingStatusPropType.isRequired,
-    otherUsersButNoOtherAdmins: PropTypes.bool.isRequired,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    leaveThread: PropTypes.func.isRequired,
-    navContext: navContextPropType,
-  };
-
   render() {
     const {
       panelIosHighlightUnderlay,
@@ -85,17 +58,11 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
       this.props.loadingStatus === 'loading' ? (
         <ActivityIndicator size="small" color={panelForegroundSecondaryLabel} />
       ) : null;
-    const firstButtonStyle = this.props.firstActionButton
-      ? null
-      : this.props.styles.topBorder;
-    const lastButtonStyle = this.props.lastActionButton
-      ? this.props.styles.lastButton
-      : null;
     return (
       <View style={this.props.styles.container}>
         <Button
           onPress={this.onPress}
-          style={[this.props.styles.button, firstButtonStyle, lastButtonStyle]}
+          style={[this.props.styles.button, this.props.buttonStyle]}
           iosFormat="highlight"
           iosHighlightUnderlayColor={panelIosHighlightUnderlay}
         >
@@ -171,14 +138,6 @@ const unboundStyles = {
   container: {
     backgroundColor: 'panelForeground',
     paddingHorizontal: 12,
-  },
-  topBorder: {
-    borderColor: 'panelForegroundBorder',
-    borderTopWidth: 1,
-  },
-  lastButton: {
-    paddingBottom: Platform.OS === 'ios' ? 14 : 12,
-    paddingTop: 10,
   },
   text: {
     color: 'redText',

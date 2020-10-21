@@ -2,19 +2,15 @@
 
 import {
   type ThreadInfo,
-  threadInfoPropType,
   type UpdateThreadRequest,
   type ChangeThreadSettingsPayload,
   threadTypes,
 } from 'lib/types/thread-types';
-import {
-  type LoadingStatus,
-  loadingStatusPropType,
-} from 'lib/types/loading-types';
+import type { LoadingStatus } from 'lib/types/loading-types';
+import type { ViewStyle } from '../../types/styles';
 
 import * as React from 'react';
-import { Text, Alert, ActivityIndicator, View, Platform } from 'react-native';
-import PropTypes from 'prop-types';
+import { Text, Alert, ActivityIndicator, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import {
@@ -29,16 +25,11 @@ import {
 } from 'lib/utils/action-utils';
 
 import Button from '../../components/button.react';
-import {
-  type Colors,
-  colorsPropType,
-  useColors,
-  useStyles,
-} from '../../themes/colors';
+import { type Colors, useColors, useStyles } from '../../themes/colors';
 
 type BaseProps = {|
   +threadInfo: ThreadInfo,
-  +lastActionButton: boolean,
+  +buttonStyle: ViewStyle,
 |};
 type Props = {|
   ...BaseProps,
@@ -54,16 +45,6 @@ type Props = {|
   ) => Promise<ChangeThreadSettingsPayload>,
 |};
 class ThreadSettingsPromoteSubthread extends React.PureComponent<Props> {
-  static propTypes = {
-    threadInfo: threadInfoPropType.isRequired,
-    lastActionButton: PropTypes.bool.isRequired,
-    loadingStatus: loadingStatusPropType.isRequired,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    changeThreadSettings: PropTypes.func.isRequired,
-  };
-
   render() {
     const {
       panelIosHighlightUnderlay,
@@ -73,14 +54,11 @@ class ThreadSettingsPromoteSubthread extends React.PureComponent<Props> {
       this.props.loadingStatus === 'loading' ? (
         <ActivityIndicator size="small" color={panelForegroundSecondaryLabel} />
       ) : null;
-    const lastButtonStyle = this.props.lastActionButton
-      ? this.props.styles.lastButton
-      : null;
     return (
       <View style={this.props.styles.container}>
         <Button
           onPress={this.onPress}
-          style={[this.props.styles.button, lastButtonStyle]}
+          style={[this.props.styles.button, this.props.buttonStyle]}
           iosFormat="highlight"
           iosHighlightUnderlayColor={panelIosHighlightUnderlay}
         >
@@ -123,10 +101,6 @@ const unboundStyles = {
   container: {
     backgroundColor: 'panelForeground',
     paddingHorizontal: 12,
-  },
-  lastButton: {
-    paddingBottom: Platform.OS === 'ios' ? 14 : 12,
-    paddingTop: 10,
   },
   text: {
     color: 'panelForegroundSecondaryLabel',

@@ -2,9 +2,10 @@
 
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { ThreadSettingsNavigate } from './thread-settings.react';
+import type { ViewStyle } from '../../types/styles';
 
 import * as React from 'react';
-import { Text, View, Platform } from 'react-native';
+import { Text, View } from 'react-native';
 
 import Button from '../../components/button.react';
 import { DeleteThreadRouteName } from '../../navigation/route-names';
@@ -13,7 +14,7 @@ import { useColors, useStyles } from '../../themes/colors';
 type Props = {|
   +threadInfo: ThreadInfo,
   +navigate: ThreadSettingsNavigate,
-  +firstActionButton: boolean,
+  +buttonStyle: ViewStyle,
 |};
 function ThreadSettingsDeleteThread(props: Props) {
   const { navigate, threadInfo } = props;
@@ -25,17 +26,15 @@ function ThreadSettingsDeleteThread(props: Props) {
     });
   }, [navigate, threadInfo]);
 
-  const styles = useStyles(unboundStyles);
-  const borderStyle = props.firstActionButton ? null : styles.topBorder;
-
   const colors = useColors();
   const { panelIosHighlightUnderlay } = colors;
 
+  const styles = useStyles(unboundStyles);
   return (
     <View style={styles.container}>
       <Button
         onPress={onPress}
-        style={[styles.button, borderStyle]}
+        style={[styles.button, props.buttonStyle]}
         iosFormat="highlight"
         iosHighlightUnderlayColor={panelIosHighlightUnderlay}
       >
@@ -46,15 +45,10 @@ function ThreadSettingsDeleteThread(props: Props) {
 }
 
 const unboundStyles = {
-  topBorder: {
-    borderColor: 'panelForegroundBorder',
-    borderTopWidth: 1,
-  },
   button: {
     flexDirection: 'row',
-    paddingBottom: Platform.OS === 'ios' ? 14 : 12,
     paddingHorizontal: 12,
-    paddingTop: 10,
+    paddingVertical: 10,
   },
   container: {
     backgroundColor: 'panelForeground',

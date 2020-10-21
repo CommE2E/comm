@@ -14,10 +14,11 @@ import type { VerticalBounds } from '../../types/layout-types';
 import type { ChatNavigationProp } from '../chat.react';
 import type { TabNavigationProp } from '../../navigation/app-navigator.react';
 import type { NavigationRoute } from '../../navigation/route-names';
+import type { ViewStyle } from '../../types/styles';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { View, FlatList } from 'react-native';
+import { View, FlatList, Platform } from 'react-native';
 import invariant from 'invariant';
 import { createSelector } from 'reselect';
 import { useSelector } from 'react-redux';
@@ -190,8 +191,7 @@ type ChatSettingsButtonItemBase = {|
 |};
 type ChatSettingsButtonItem = {|
   ...ChatSettingsButtonItemBase,
-  +firstActionButton: boolean,
-  +lastActionButton: boolean,
+  +buttonStyle: ViewStyle,
 |};
 
 type BaseProps = {|
@@ -697,7 +697,12 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) =>
       ThreadSettings.getThreadInfo(propsAndState),
     (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
-    (threadInfo: ThreadInfo, navigate: ThreadSettingsNavigate) => {
+    (propsAndState: PropsAndState) => propsAndState.styles,
+    (
+      threadInfo: ThreadInfo,
+      navigate: ThreadSettingsNavigate,
+      styles: typeof unboundStyles,
+    ) => {
       const buttons: ChatSettingsButtonItemBase[] = [];
 
       const canChangeThreadType = threadHasPermission(
@@ -751,8 +756,10 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       for (let i = 0; i < buttons.length; i++) {
         listData.push({
           ...buttons[i],
-          firstActionButton: i === 0,
-          lastActionButton: i === buttons.length - 1,
+          buttonStyle: [
+            i === 0 ? null : styles.nonTopButton,
+            i === buttons.length - 1 ? styles.lastButton : null,
+          ],
         });
       }
       listData.push({
@@ -921,23 +928,22 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       return (
         <ThreadSettingsLeaveThread
           threadInfo={item.threadInfo}
-          firstActionButton={item.firstActionButton}
-          lastActionButton={item.lastActionButton}
+          buttonStyle={item.buttonStyle}
         />
       );
     } else if (item.itemType === 'deleteThread') {
       return (
         <ThreadSettingsDeleteThread
           threadInfo={item.threadInfo}
-          firstActionButton={item.firstActionButton}
           navigate={item.navigate}
+          buttonStyle={item.buttonStyle}
         />
       );
     } else if (item.itemType === 'promoteSidebar') {
       return (
         <ThreadSettingsPromoteSidebar
           threadInfo={item.threadInfo}
-          lastActionButton={item.lastActionButton}
+          buttonStyle={item.buttonStyle}
         />
       );
     } else {
@@ -1007,6 +1013,13 @@ const unboundStyles = {
   },
   flatList: {
     paddingVertical: 16,
+  },
+  nonTopButton: {
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
+  },
+  lastButton: {
+    paddingBottom: Platform.OS === 'ios' ? 14 : 12,
   },
 };
 
