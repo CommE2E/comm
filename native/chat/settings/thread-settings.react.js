@@ -152,13 +152,7 @@ type ChatSettingsItem =
       +key: string,
       +onPress: () => void,
     |}
-  | {|
-      +itemType: 'childThread',
-      +key: string,
-      +threadInfo: ThreadInfo,
-      +navigate: ThreadSettingsNavigate,
-      +lastListItem: boolean,
-    |}
+  | ChatSettingsChildThreadItem
   | {|
       +itemType: 'addSubthread',
       +key: string,
@@ -178,26 +172,27 @@ type ChatSettingsItem =
       +itemType: 'addMember',
       +key: string,
     |}
-  | {|
-      +itemType: 'promoteSidebar',
-      +key: string,
-      +threadInfo: ThreadInfo,
-      +lastActionButton: boolean,
-    |}
-  | {|
-      +itemType: 'leaveThread',
-      +key: string,
-      +threadInfo: ThreadInfo,
-      +firstActionButton: boolean,
-      +lastActionButton: boolean,
-    |}
-  | {|
-      +itemType: 'deleteThread',
-      +key: string,
-      +threadInfo: ThreadInfo,
-      +navigate: ThreadSettingsNavigate,
-      +firstActionButton: boolean,
-    |};
+  | ChatSettingsButtonItem;
+
+type ChatSettingsChildThreadItem = {|
+  +itemType: 'childThread',
+  +key: string,
+  +threadInfo: ThreadInfo,
+  +navigate: ThreadSettingsNavigate,
+  +lastListItem: boolean,
+|};
+
+type ChatSettingsButtonItemBase = {|
+  +itemType: 'promoteSidebar' | 'leaveThread' | 'deleteThread',
+  +key: string,
+  +threadInfo: ThreadInfo,
+  +navigate: ThreadSettingsNavigate,
+|};
+type ChatSettingsButtonItem = {|
+  ...ChatSettingsButtonItemBase,
+  +firstActionButton: boolean,
+  +lastActionButton: boolean,
+|};
 
 type BaseProps = {|
   +navigation: ChatNavigationProp<'ThreadSettings'>,
@@ -501,15 +496,16 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         return listData;
       }
 
-      const subthreadSlice = subthreads
-        .slice(0, numSubthreadsShowing)
-        .map(subthreadInfo => ({
-          itemType: 'childThread',
-          key: `childThread${subthreadInfo.id}`,
-          threadInfo: subthreadInfo,
-          navigate,
-          lastListItem: false,
-        }));
+      const subthreadSlice = subthreads.slice(0, numSubthreadsShowing).map(
+        subthreadInfo =>
+          ({
+            itemType: 'childThread',
+            key: `childThread${subthreadInfo.id}`,
+            threadInfo: subthreadInfo,
+            navigate,
+            lastListItem: false,
+          }: ChatSettingsChildThreadItem),
+      );
 
       let subthreadItems = subthreadSlice;
       if (subthreads.length > numSubthreadsShowing) {
@@ -522,7 +518,10 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           },
         ];
       } else if (subthreadItems.length > 0) {
-        subthreadItems[subthreadItems.length - 1].lastListItem = true;
+        subthreadItems[subthreadItems.length - 1] = {
+          ...subthreadItems[subthreadItems.length - 1],
+          lastListItem: true,
+        };
       }
 
       listData.push({
@@ -567,15 +566,16 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         return listData;
       }
 
-      const sidebarSlice = sidebars
-        .slice(0, numSidebarsShowing)
-        .map(sidebarInfo => ({
-          itemType: 'childThread',
-          key: `childThread${sidebarInfo.id}`,
-          threadInfo: sidebarInfo,
-          navigate,
-          lastListItem: false,
-        }));
+      const sidebarSlice = sidebars.slice(0, numSidebarsShowing).map(
+        sidebarInfo =>
+          ({
+            itemType: 'childThread',
+            key: `childThread${sidebarInfo.id}`,
+            threadInfo: sidebarInfo,
+            navigate,
+            lastListItem: false,
+          }: ChatSettingsChildThreadItem),
+      );
 
       let sidebarItems = sidebarSlice;
       if (sidebars.length > numSidebarsShowing) {
@@ -588,7 +588,10 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           },
         ];
       } else {
-        sidebarItems[sidebarItems.length - 1].lastListItem = true;
+        sidebarItems[sidebarItems.length - 1] = {
+          ...sidebarItems[sidebarItems.length - 1],
+          lastListItem: true,
+        };
       }
 
       listData.push({
@@ -661,7 +664,10 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           },
         ];
       } else if (membershipItems.length > 0) {
-        membershipItems[membershipItems.length - 1].lastListItem = true;
+        membershipItems[membershipItems.length - 1] = {
+          ...membershipItems[membershipItems.length - 1],
+          lastListItem: true,
+        };
       }
 
       listData.push({
@@ -692,61 +698,68 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       ThreadSettings.getThreadInfo(propsAndState),
     (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
     (threadInfo: ThreadInfo, navigate: ThreadSettingsNavigate) => {
-      const listData: ChatSettingsItem[] = [];
+      const buttons: ChatSettingsButtonItemBase[] = [];
 
-      const isMember = viewerIsMember(threadInfo);
-      const canDeleteThread = threadHasPermission(
-        threadInfo,
-        threadPermissions.DELETE_THREAD,
-      );
       const canChangeThreadType = threadHasPermission(
         threadInfo,
         threadPermissions.EDIT_PERMISSIONS,
       );
       const canPromoteSidebar =
         threadInfo.type === threadTypes.SIDEBAR && canChangeThreadType;
-
-      if (isMember || canDeleteThread || canPromoteSidebar) {
-        listData.push({
-          itemType: 'header',
-          key: 'actionsHeader',
-          title: 'Actions',
-          categoryType: 'unpadded',
-        });
-      }
       if (canPromoteSidebar) {
-        listData.push({
+        buttons.push({
           itemType: 'promoteSidebar',
           key: 'promoteSidebar',
           threadInfo,
-          lastActionButton: !isMember && !canDeleteThread,
+          navigate,
         });
       }
-      if (isMember) {
-        listData.push({
+
+      if (viewerIsMember(threadInfo)) {
+        buttons.push({
           itemType: 'leaveThread',
           key: 'leaveThread',
           threadInfo,
-          firstActionButton: !canPromoteSidebar,
-          lastActionButton: !canDeleteThread,
+          navigate,
         });
       }
+
+      const canDeleteThread = threadHasPermission(
+        threadInfo,
+        threadPermissions.DELETE_THREAD,
+      );
       if (canDeleteThread) {
-        listData.push({
+        buttons.push({
           itemType: 'deleteThread',
           key: 'deleteThread',
           threadInfo,
           navigate,
-          firstActionButton: !canPromoteSidebar && !isMember,
         });
       }
-      if (isMember || canDeleteThread || canPromoteSidebar) {
+
+      const listData: ChatSettingsItem[] = [];
+      if (buttons.length === 0) {
+        return listData;
+      }
+
+      listData.push({
+        itemType: 'header',
+        key: 'actionsHeader',
+        title: 'Actions',
+        categoryType: 'unpadded',
+      });
+      for (let i = 0; i < buttons.length; i++) {
         listData.push({
-          itemType: 'footer',
-          key: 'actionsFooter',
-          categoryType: 'unpadded',
+          ...buttons[i],
+          firstActionButton: i === 0,
+          lastActionButton: i === buttons.length - 1,
         });
       }
+      listData.push({
+        itemType: 'footer',
+        key: 'actionsFooter',
+        categoryType: 'unpadded',
+      });
 
       return listData;
     },
