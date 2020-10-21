@@ -125,7 +125,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
         username &&
         oldValidUsernameRegex.test(username) &&
         firstNewMessageInfo.type === messageTypes.TEXT &&
-        new RegExp(`\\B@${username}\\b`).test(firstNewMessageInfo.text);
+        new RegExp(`\\B@${username}\\b`, 'i').test(firstNewMessageInfo.text);
       if (!updateBadge && !displayBanner && !userWasMentioned) {
         continue;
       }
