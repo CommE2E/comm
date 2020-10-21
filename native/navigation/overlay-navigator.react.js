@@ -329,7 +329,7 @@ const OverlayNavigator = React.memo<Props>(
         const position = positions[key];
         invariant(position, `should have position for animating key ${key}`);
         timing(position, {
-          duration: 250,
+          duration: 150,
           easing: Easing.inOut(Easing.ease),
           toValue,
         }).start();
