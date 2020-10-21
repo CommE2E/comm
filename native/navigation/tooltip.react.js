@@ -36,6 +36,7 @@ import {
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import { useSelector, useDispatch } from 'react-redux';
+import { TapticFeedback } from 'react-native-in-app-message';
 
 import {
   type ServerCallState,
@@ -212,6 +213,12 @@ function createTooltip<RouteName: $Keys<TooltipModalParamList>>(
         add(1, multiply(-1, position)),
         this.tooltipHorizontalOffset,
       );
+    }
+
+    componentDidMount() {
+      if (Platform.OS === 'ios') {
+        TapticFeedback.impact();
+      }
     }
 
     get entries(): $ReadOnlyArray<TooltipEntry<RouteName>> {
