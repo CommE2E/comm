@@ -153,50 +153,41 @@ type ChatSettingsItem =
       +key: string,
       +onPress: () => void,
     |}
-  | ChatSettingsChildThreadItem
+  | {|
+      +itemType: 'childThread',
+      +key: string,
+      +threadInfo: ThreadInfo,
+      +navigate: ThreadSettingsNavigate,
+      +firstListItem: boolean,
+      +lastListItem: boolean,
+    |}
   | {|
       +itemType: 'addSubthread',
       +key: string,
     |}
-  | ChatSettingsMemberItem
+  | {|
+      +itemType: 'member',
+      +key: string,
+      +memberInfo: RelativeMemberInfo,
+      +threadInfo: ThreadInfo,
+      +canEdit: boolean,
+      +navigate: ThreadSettingsNavigate,
+      +firstListItem: boolean,
+      +lastListItem: boolean,
+      +verticalBounds: ?VerticalBounds,
+      +threadSettingsRouteKey: string,
+    |}
   | {|
       +itemType: 'addMember',
       +key: string,
     |}
-  | ChatSettingsButtonItem;
-
-type ChatSettingsChildThreadItem = {|
-  +itemType: 'childThread',
-  +key: string,
-  +threadInfo: ThreadInfo,
-  +navigate: ThreadSettingsNavigate,
-  +firstListItem: boolean,
-  +lastListItem: boolean,
-|};
-
-type ChatSettingsMemberItem = {|
-  +itemType: 'member',
-  +key: string,
-  +memberInfo: RelativeMemberInfo,
-  +threadInfo: ThreadInfo,
-  +canEdit: boolean,
-  +navigate: ThreadSettingsNavigate,
-  +firstListItem: boolean,
-  +lastListItem: boolean,
-  +verticalBounds: ?VerticalBounds,
-  +threadSettingsRouteKey: string,
-|};
-
-type ChatSettingsButtonItemBase = {|
-  +itemType: 'promoteSidebar' | 'leaveThread' | 'deleteThread',
-  +key: string,
-  +threadInfo: ThreadInfo,
-  +navigate: ThreadSettingsNavigate,
-|};
-type ChatSettingsButtonItem = {|
-  ...ChatSettingsButtonItemBase,
-  +buttonStyle: ViewStyle,
-|};
+  | {|
+      +itemType: 'promoteSidebar' | 'leaveThread' | 'deleteThread',
+      +key: string,
+      +threadInfo: ThreadInfo,
+      +navigate: ThreadSettingsNavigate,
+      +buttonStyle: ViewStyle,
+    |};
 
 type BaseProps = {|
   +navigation: ChatNavigationProp<'ThreadSettings'>,
@@ -689,7 +680,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       navigate: ThreadSettingsNavigate,
       styles: typeof unboundStyles,
     ) => {
-      const buttons: ChatSettingsButtonItemBase[] = [];
+      const buttons = [];
 
       const canChangeThreadType = threadHasPermission(
         threadInfo,
