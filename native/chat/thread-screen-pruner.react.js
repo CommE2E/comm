@@ -5,6 +5,7 @@ import type { AppState } from '../redux/redux-setup';
 import * as React from 'react';
 import { Alert } from 'react-native';
 
+import { threadIsPending } from 'lib/shared/thread-utils';
 import { NavContext } from '../navigation/navigation-context';
 import {
   getStateFromNavigatorRoute,
@@ -38,7 +39,7 @@ const ThreadScreenPruner = React.memo<{||}>(() => {
     }
     for (let route of chatRoute.routes) {
       const threadID = getThreadIDFromRoute(route);
-      if (threadID) {
+      if (threadID && !threadIsPending(threadID)) {
         threadIDs.add(threadID);
       }
     }
