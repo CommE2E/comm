@@ -170,6 +170,7 @@ type ChatSettingsChildThreadItem = {|
   +key: string,
   +threadInfo: ThreadInfo,
   +navigate: ThreadSettingsNavigate,
+  +firstListItem: boolean,
   +lastListItem: boolean,
 |};
 
@@ -499,47 +500,41 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         return listData;
       }
 
-      const subthreadSlice = subthreads.slice(0, numSubthreadsShowing).map(
-        subthreadInfo =>
-          ({
-            itemType: 'childThread',
-            key: `childThread${subthreadInfo.id}`,
-            threadInfo: subthreadInfo,
-            navigate,
-            lastListItem: false,
-          }: ChatSettingsChildThreadItem),
-      );
-
-      let subthreadItems = subthreadSlice;
-      if (subthreads.length > numSubthreadsShowing) {
-        subthreadItems = [
-          ...subthreadItems, // for Flow
-          {
-            itemType: 'seeMore',
-            key: 'seeMoreSubthreads',
-            onPress: this.onPressSeeMoreSubthreads,
-          },
-        ];
-      } else if (subthreadItems.length > 0) {
-        subthreadItems[subthreadItems.length - 1] = {
-          ...subthreadItems[subthreadItems.length - 1],
-          lastListItem: true,
-        };
-      }
-
       listData.push({
         itemType: 'header',
         key: 'subthreadHeader',
         title: 'Subthreads',
         categoryType: 'unpadded',
       });
+
       if (canCreateSubthreads) {
         listData.push({
           itemType: 'addSubthread',
           key: 'addSubthread',
         });
       }
-      listData.push(...subthreadItems);
+
+      const numItems = Math.min(numSubthreadsShowing, subthreads.length);
+      for (let i = 0; i < numItems; i++) {
+        const subthreadInfo = subthreads[i];
+        listData.push({
+          itemType: 'childThread',
+          key: `childThread${subthreadInfo.id}`,
+          threadInfo: subthreadInfo,
+          navigate,
+          firstListItem: i === 0 && !canCreateSubthreads,
+          lastListItem: i === numItems - 1 && numItems === subthreads.length,
+        });
+      }
+
+      if (numItems < subthreads.length) {
+        listData.push({
+          itemType: 'seeMore',
+          key: 'seeMoreSubthreads',
+          onPress: this.onPressSeeMoreSubthreads,
+        });
+      }
+
       listData.push({
         itemType: 'footer',
         key: 'subthreadFooter',
@@ -569,41 +564,34 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         return listData;
       }
 
-      const sidebarSlice = sidebars.slice(0, numSidebarsShowing).map(
-        sidebarInfo =>
-          ({
-            itemType: 'childThread',
-            key: `childThread${sidebarInfo.id}`,
-            threadInfo: sidebarInfo,
-            navigate,
-            lastListItem: false,
-          }: ChatSettingsChildThreadItem),
-      );
-
-      let sidebarItems = sidebarSlice;
-      if (sidebars.length > numSidebarsShowing) {
-        sidebarItems = [
-          ...sidebarItems, // for Flow
-          {
-            itemType: 'seeMore',
-            key: 'seeMoreSidebars',
-            onPress: this.onPressSeeMoreSidebars,
-          },
-        ];
-      } else {
-        sidebarItems[sidebarItems.length - 1] = {
-          ...sidebarItems[sidebarItems.length - 1],
-          lastListItem: true,
-        };
-      }
-
       listData.push({
         itemType: 'header',
         key: 'sidebarHeader',
         title: 'Sidebars',
         categoryType: 'unpadded',
       });
-      listData.push(...sidebarItems);
+
+      const numItems = Math.min(numSidebarsShowing, sidebars.length);
+      for (let i = 0; i < numItems; i++) {
+        const sidebarInfo = sidebars[i];
+        listData.push({
+          itemType: 'childThread',
+          key: `childThread${sidebarInfo.id}`,
+          threadInfo: sidebarInfo,
+          navigate,
+          firstListItem: i === 0,
+          lastListItem: i === numItems - 1 && numItems === sidebars.length,
+        });
+      }
+
+      if (numItems < sidebars.length) {
+        listData.push({
+          itemType: 'seeMore',
+          key: 'seeMoreSidebars',
+          onPress: this.onPressSeeMoreSidebars,
+        });
+      }
+
       listData.push({
         itemType: 'footer',
         key: 'sidebarFooter',
@@ -901,6 +889,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         <ThreadSettingsChildThread
           threadInfo={item.threadInfo}
           navigate={item.navigate}
+          firstListItem={item.firstListItem}
           lastListItem={item.lastListItem}
         />
       );

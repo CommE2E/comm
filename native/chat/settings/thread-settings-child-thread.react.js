@@ -16,6 +16,7 @@ import { SingleLine } from '../../components/single-line.react';
 type Props = {|
   +threadInfo: ThreadInfo,
   +navigate: ThreadSettingsNavigate,
+  +firstListItem: boolean,
   +lastListItem: boolean,
 |};
 function ThreadSettingsChildThread(props: Props) {
@@ -31,10 +32,11 @@ function ThreadSettingsChildThread(props: Props) {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
 
-  const lastButtonStyle = props.lastListItem ? styles.lastButton : null;
+  const firstItem = props.firstListItem ? null : styles.topBorder;
+  const lastItem = props.lastListItem ? styles.lastButton : null;
   return (
     <View style={styles.container}>
-      <Button onPress={onPress} style={[styles.button, lastButtonStyle]}>
+      <Button onPress={onPress} style={[styles.button, firstItem, lastItem]}>
         <View style={styles.leftSide}>
           <ColorSplotch color={threadInfo.color} />
           <SingleLine style={styles.text}>{threadInfo.uiName}</SingleLine>
@@ -56,8 +58,10 @@ const unboundStyles = {
     paddingLeft: 12,
     paddingRight: 10,
     alignItems: 'center',
-    borderTopWidth: 1,
+  },
+  topBorder: {
     borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
   },
   container: {
     backgroundColor: 'panelForeground',
