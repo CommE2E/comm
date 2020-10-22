@@ -1,80 +1,54 @@
 // @flow
 
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import type { ThreadSettingsNavigate } from './thread-settings.react';
-import type { AppState } from '../../redux/redux-setup';
 
 import * as React from 'react';
 import { View, Platform } from 'react-native';
-import PropTypes from 'prop-types';
-
-import { connect } from 'lib/utils/redux-utils';
 
 import { MessageListRouteName } from '../../navigation/route-names';
 import Button from '../../components/button.react';
 import ColorSplotch from '../../components/color-splotch.react';
 import ThreadIcon from '../../components/thread-icon.react';
-import {
-  type Colors,
-  colorsPropType,
-  colorsSelector,
-  styleSelector,
-} from '../../themes/colors';
+import { useColors, useStyles } from '../../themes/colors';
 import { SingleLine } from '../../components/single-line.react';
 
 type Props = {|
-  threadInfo: ThreadInfo,
-  navigate: ThreadSettingsNavigate,
-  lastListItem: boolean,
-  // Redux state
-  colors: Colors,
-  styles: typeof styles,
+  +threadInfo: ThreadInfo,
+  +navigate: ThreadSettingsNavigate,
+  +lastListItem: boolean,
 |};
-class ThreadSettingsChildThread extends React.PureComponent<Props> {
-  static propTypes = {
-    threadInfo: threadInfoPropType.isRequired,
-    navigate: PropTypes.func.isRequired,
-    lastListItem: PropTypes.bool.isRequired,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-  };
-
-  render() {
-    const lastButtonStyle = this.props.lastListItem
-      ? this.props.styles.lastButton
-      : null;
-    return (
-      <View style={this.props.styles.container}>
-        <Button
-          onPress={this.onPress}
-          style={[this.props.styles.button, lastButtonStyle]}
-        >
-          <View style={this.props.styles.leftSide}>
-            <ColorSplotch color={this.props.threadInfo.color} />
-            <SingleLine style={this.props.styles.text}>
-              {this.props.threadInfo.uiName}
-            </SingleLine>
-          </View>
-          <ThreadIcon
-            threadType={this.props.threadInfo.type}
-            color={this.props.colors.panelForegroundSecondaryLabel}
-          />
-        </Button>
-      </View>
-    );
-  }
-
-  onPress = () => {
-    const { threadInfo, navigate } = this.props;
+function ThreadSettingsChildThread(props: Props) {
+  const { navigate, threadInfo } = props;
+  const onPress = React.useCallback(() => {
     navigate({
       name: MessageListRouteName,
       params: { threadInfo },
       key: `${MessageListRouteName}${threadInfo.id}`,
     });
-  };
+  }, [navigate, threadInfo]);
+
+  const styles = useStyles(unboundStyles);
+  const colors = useColors();
+
+  const lastButtonStyle = props.lastListItem ? styles.lastButton : null;
+  return (
+    <View style={styles.container}>
+      <Button onPress={onPress} style={[styles.button, lastButtonStyle]}>
+        <View style={styles.leftSide}>
+          <ColorSplotch color={threadInfo.color} />
+          <SingleLine style={styles.text}>{threadInfo.uiName}</SingleLine>
+        </View>
+        <ThreadIcon
+          threadType={threadInfo.type}
+          color={colors.panelForegroundSecondaryLabel}
+        />
+      </Button>
+    </View>
+  );
 }
 
-const styles = {
+const unboundStyles = {
   button: {
     flex: 1,
     flexDirection: 'row',
@@ -106,9 +80,5 @@ const styles = {
     paddingLeft: 8,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-export default connect((state: AppState) => ({
-  colors: colorsSelector(state),
-  styles: stylesSelector(state),
-}))(ThreadSettingsChildThread);
+export default ThreadSettingsChildThread;
