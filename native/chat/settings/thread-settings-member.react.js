@@ -3,16 +3,10 @@
 import {
   type ThreadInfo,
   type RelativeMemberInfo,
-  threadInfoPropType,
   threadPermissions,
-  relativeMemberInfoPropType,
 } from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import { loadingStatusPropType } from 'lib/types/loading-types';
-import {
-  type VerticalBounds,
-  verticalBoundsPropType,
-} from '../../types/layout-types';
+import type { VerticalBounds } from '../../types/layout-types';
 import { ThreadSettingsMemberTooltipModalRouteName } from '../../navigation/route-names';
 import type { ThreadSettingsNavigate } from './thread-settings.react';
 
@@ -24,7 +18,6 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from 'react-native';
-import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import { useSelector } from 'react-redux';
 
@@ -37,21 +30,14 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import PencilIcon from '../../components/pencil-icon.react';
-import {
-  type Colors,
-  colorsPropType,
-  useColors,
-  useStyles,
-} from '../../themes/colors';
+import { type Colors, useColors, useStyles } from '../../themes/colors';
 import {
   type KeyboardState,
-  keyboardStatePropType,
   KeyboardContext,
 } from '../../keyboard/keyboard-state';
 import {
   OverlayContext,
   type OverlayContextType,
-  overlayContextPropType,
 } from '../../navigation/overlay-context';
 import { SingleLine } from '../../components/single-line.react';
 
@@ -60,6 +46,7 @@ type BaseProps = {|
   +threadInfo: ThreadInfo,
   +canEdit: boolean,
   +navigate: ThreadSettingsNavigate,
+  +firstListItem: boolean,
   +lastListItem: boolean,
   +verticalBounds: ?VerticalBounds,
   +threadSettingsRouteKey: string,
@@ -77,21 +64,6 @@ type Props = {|
   +overlayContext: ?OverlayContextType,
 |};
 class ThreadSettingsMember extends React.PureComponent<Props> {
-  static propTypes = {
-    memberInfo: relativeMemberInfoPropType.isRequired,
-    threadInfo: threadInfoPropType.isRequired,
-    canEdit: PropTypes.bool.isRequired,
-    navigate: PropTypes.func.isRequired,
-    lastListItem: PropTypes.bool.isRequired,
-    verticalBounds: verticalBoundsPropType,
-    threadSettingsRouteKey: PropTypes.string.isRequired,
-    removeUserLoadingStatus: loadingStatusPropType.isRequired,
-    changeRoleLoadingStatus: loadingStatusPropType.isRequired,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    keyboardState: keyboardStatePropType,
-    overlayContext: overlayContextPropType,
-  };
   editButton: ?React.ElementRef<typeof View>;
 
   visibleEntryIDs() {
@@ -200,12 +172,15 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
       }
     }
 
-    const lastInnerContainer = this.props.lastListItem
+    const firstItem = this.props.firstListItem
+      ? null
+      : this.props.styles.topBorder;
+    const lastItem = this.props.lastListItem
       ? this.props.styles.lastInnerContainer
       : null;
     return (
       <View style={this.props.styles.container}>
-        <View style={[this.props.styles.innerContainer, lastInnerContainer]}>
+        <View style={[this.props.styles.innerContainer, firstItem, lastItem]}>
           <View style={this.props.styles.row}>
             {userInfo}
             {editButton}
@@ -277,16 +252,17 @@ const unboundStyles = {
   editButton: {
     paddingLeft: 10,
   },
-  innerContainer: {
+  topBorder: {
     borderColor: 'panelForegroundBorder',
     borderTopWidth: 1,
+  },
+  innerContainer: {
     flex: 1,
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
   lastInnerContainer: {
     paddingBottom: Platform.OS === 'ios' ? 12 : 10,
-    paddingTop: 8,
   },
   role: {
     color: 'panelForegroundTertiaryLabel',

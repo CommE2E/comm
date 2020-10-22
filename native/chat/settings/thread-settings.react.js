@@ -158,17 +158,7 @@ type ChatSettingsItem =
       +itemType: 'addSubthread',
       +key: string,
     |}
-  | {|
-      +itemType: 'member',
-      +key: string,
-      +memberInfo: RelativeMemberInfo,
-      +threadInfo: ThreadInfo,
-      +canEdit: boolean,
-      +navigate: ThreadSettingsNavigate,
-      +lastListItem: boolean,
-      +verticalBounds: ?VerticalBounds,
-      +threadSettingsRouteKey: string,
-    |}
+  | ChatSettingsMemberItem
   | {|
       +itemType: 'addMember',
       +key: string,
@@ -181,6 +171,19 @@ type ChatSettingsChildThreadItem = {|
   +threadInfo: ThreadInfo,
   +navigate: ThreadSettingsNavigate,
   +lastListItem: boolean,
+|};
+
+type ChatSettingsMemberItem = {|
+  +itemType: 'member',
+  +key: string,
+  +memberInfo: RelativeMemberInfo,
+  +threadInfo: ThreadInfo,
+  +canEdit: boolean,
+  +navigate: ThreadSettingsNavigate,
+  +firstListItem: boolean,
+  +lastListItem: boolean,
+  +verticalBounds: ?VerticalBounds,
+  +threadSettingsRouteKey: string,
 |};
 
 type ChatSettingsButtonItemBase = {|
@@ -211,7 +214,7 @@ type Props = {|
   +overlayContext: ?OverlayContextType,
 |};
 type State = {|
-  +showMaxMembers: number,
+  +numMembersShowing: number,
   +numSubthreadsShowing: number,
   +numSidebarsShowing: number,
   +nameEditValue: ?string,
@@ -253,7 +256,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     const threadInfo = props.threadInfo;
     invariant(threadInfo, 'ThreadInfo should exist when ThreadSettings opened');
     this.state = {
-      showMaxMembers: itemPageLength,
+      numMembersShowing: itemPageLength,
       numSubthreadsShowing: itemPageLength,
       numSidebarsShowing: itemPageLength,
       nameEditValue: null,
@@ -618,7 +621,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
     (propsAndState: PropsAndState) => propsAndState.route.key,
     (propsAndState: PropsAndState) => propsAndState.threadMembers,
-    (propsAndState: PropsAndState) => propsAndState.showMaxMembers,
+    (propsAndState: PropsAndState) => propsAndState.numMembersShowing,
     (propsAndState: PropsAndState) => propsAndState.verticalBounds,
     (
       threadInfo: ThreadInfo,
@@ -626,7 +629,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       navigate: ThreadSettingsNavigate,
       routeKey: string,
       threadMembers: RelativeMemberInfo[],
-      showMaxMembers: number,
+      numMembersShowing: number,
       verticalBounds: ?VerticalBounds,
     ) => {
       const listData: ChatSettingsItem[] = [];
@@ -639,50 +642,45 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         return listData;
       }
 
-      const members = threadMembers
-        .slice(0, showMaxMembers)
-        .map(memberInfo => ({
-          itemType: 'member',
-          key: `member${memberInfo.id}`,
-          memberInfo,
-          threadInfo,
-          canEdit: canStartEditing,
-          navigate,
-          lastListItem: false,
-          verticalBounds,
-          threadSettingsRouteKey: routeKey,
-        }));
-
-      let membershipItems = members;
-      if (threadMembers.length > showMaxMembers) {
-        membershipItems = [
-          ...membershipItems, // for Flow
-          {
-            itemType: 'seeMore',
-            key: 'seeMoreMembers',
-            onPress: this.onPressSeeMoreMembers,
-          },
-        ];
-      } else if (membershipItems.length > 0) {
-        membershipItems[membershipItems.length - 1] = {
-          ...membershipItems[membershipItems.length - 1],
-          lastListItem: true,
-        };
-      }
-
       listData.push({
         itemType: 'header',
         key: 'memberHeader',
         title: 'Members',
         categoryType: 'unpadded',
       });
+
       if (canAddMembers) {
         listData.push({
           itemType: 'addMember',
           key: 'addMember',
         });
       }
-      listData.push(...membershipItems);
+
+      const numItems = Math.min(numMembersShowing, threadMembers.length);
+      for (let i = 0; i < numItems; i++) {
+        const memberInfo = threadMembers[i];
+        listData.push({
+          itemType: 'member',
+          key: `member${memberInfo.id}`,
+          memberInfo,
+          threadInfo,
+          canEdit: canStartEditing,
+          navigate,
+          firstListItem: i === 0 && !canAddMembers,
+          lastListItem: i === numItems - 1 && numItems === threadMembers.length,
+          verticalBounds,
+          threadSettingsRouteKey: routeKey,
+        });
+      }
+
+      if (numItems < threadMembers.length) {
+        listData.push({
+          itemType: 'seeMore',
+          key: 'seeMoreMembers',
+          onPress: this.onPressSeeMoreMembers,
+        });
+      }
+
       listData.push({
         itemType: 'footer',
         key: 'memberFooter',
@@ -917,6 +915,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           threadInfo={item.threadInfo}
           canEdit={item.canEdit}
           navigate={item.navigate}
+          firstListItem={item.firstListItem}
           lastListItem={item.lastListItem}
           verticalBounds={item.verticalBounds}
           threadSettingsRouteKey={item.threadSettingsRouteKey}
@@ -989,7 +988,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
 
   onPressSeeMoreMembers = () => {
     this.setState(prevState => ({
-      showMaxMembers: prevState.showMaxMembers + itemPageLength,
+      numMembersShowing: prevState.numMembersShowing + itemPageLength,
     }));
   };
 
