@@ -2,9 +2,7 @@
 
 import {
   type ThreadInfo,
-  threadInfoPropType,
   type RelativeMemberInfo,
-  relativeMemberInfoPropType,
   threadPermissions,
   threadTypes,
 } from 'lib/types/thread-types';
@@ -17,7 +15,6 @@ import type { NavigationRoute } from '../../navigation/route-names';
 import type { ViewStyle } from '../../types/styles';
 
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { View, FlatList, Platform } from 'react-native';
 import invariant from 'invariant';
 import { createSelector } from 'reselect';
@@ -70,14 +67,16 @@ import {
 import {
   useStyles,
   type IndicatorStyle,
-  indicatorStylePropType,
   useIndicatorStyle,
 } from '../../themes/colors';
 import {
   OverlayContext,
   type OverlayContextType,
-  overlayContextPropType,
 } from '../../navigation/overlay-context';
+import {
+  type KeyboardState,
+  KeyboardContext,
+} from '../../keyboard/keyboard-state';
 
 const itemPageLength = 5;
 
@@ -204,6 +203,8 @@ type Props = {|
   +indicatorStyle: IndicatorStyle,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
+  // withKeyboardState
+  +keyboardState: ?KeyboardState,
 |};
 type State = {|
   +numMembersShowing: number,
@@ -218,29 +219,6 @@ type State = {|
 |};
 type PropsAndState = {| ...Props, ...State |};
 class ThreadSettings extends React.PureComponent<Props, State> {
-  static propTypes = {
-    navigation: PropTypes.shape({
-      navigate: PropTypes.func.isRequired,
-      setParams: PropTypes.func.isRequired,
-      setOptions: PropTypes.func.isRequired,
-      dangerouslyGetParent: PropTypes.func.isRequired,
-      isFocused: PropTypes.func.isRequired,
-      popToTop: PropTypes.func.isRequired,
-    }).isRequired,
-    route: PropTypes.shape({
-      key: PropTypes.string.isRequired,
-      params: PropTypes.shape({
-        threadInfo: threadInfoPropType.isRequired,
-      }).isRequired,
-    }).isRequired,
-    threadInfo: threadInfoPropType,
-    threadMembers: PropTypes.arrayOf(relativeMemberInfoPropType).isRequired,
-    childThreadInfos: PropTypes.arrayOf(threadInfoPropType),
-    somethingIsSaving: PropTypes.bool.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    indicatorStyle: indicatorStylePropType.isRequired,
-    overlayContext: overlayContextPropType,
-  };
   flatListContainer: ?React.ElementRef<typeof View>;
 
   constructor(props: Props) {
@@ -803,6 +781,12 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     if (!flatListContainer) {
       return;
     }
+
+    const { keyboardState } = this.props;
+    if (!keyboardState || keyboardState.keyboardShowing) {
+      return;
+    }
+
     flatListContainer.measure((x, y, width, height, pageX, pageY) => {
       if (
         height === null ||
@@ -1066,6 +1050,7 @@ export default React.memo<BaseProps>(function ConnectedThreadSettings(
   const styles = useStyles(unboundStyles);
   const indicatorStyle = useIndicatorStyle();
   const overlayContext = React.useContext(OverlayContext);
+  const keyboardState = React.useContext(KeyboardContext);
   return (
     <ThreadSettings
       {...props}
@@ -1076,6 +1061,7 @@ export default React.memo<BaseProps>(function ConnectedThreadSettings(
       styles={styles}
       indicatorStyle={indicatorStyle}
       overlayContext={overlayContext}
+      keyboardState={keyboardState}
     />
   );
 });

@@ -23,6 +23,10 @@ import {
   type IndicatorStyle,
   useIndicatorStyle,
 } from '../themes/colors';
+import {
+  type KeyboardState,
+  KeyboardContext,
+} from '../keyboard/keyboard-state';
 
 import RelationshipListItem from './relationship-list-item.react';
 
@@ -54,6 +58,8 @@ type Props = {|
   +indicatorStyle: IndicatorStyle,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
+  // withKeyboardState
+  +keyboardState: ?KeyboardState,
 |};
 type State = {|
   +verticalBounds: ?VerticalBounds,
@@ -150,6 +156,12 @@ class RelationshipList extends React.PureComponent<Props, State> {
     if (!flatListContainerRef.current) {
       return;
     }
+
+    const { keyboardState } = this.props;
+    if (!keyboardState || keyboardState.keyboardShowing) {
+      return;
+    }
+
     flatListContainerRef.current.measure(
       (x, y, width, height, pageX, pageY) => {
         if (
@@ -227,6 +239,7 @@ export default React.memo<BaseProps>(function ConnectedRelationshipList(
   const styles = useStyles(unboundStyles);
   const indicatorStyle = useIndicatorStyle();
   const overlayContext = React.useContext(OverlayContext);
+  const keyboardState = React.useContext(KeyboardContext);
   return (
     <RelationshipList
       {...props}
@@ -234,6 +247,7 @@ export default React.memo<BaseProps>(function ConnectedRelationshipList(
       styles={styles}
       indicatorStyle={indicatorStyle}
       overlayContext={overlayContext}
+      keyboardState={keyboardState}
     />
   );
 });

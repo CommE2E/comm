@@ -296,6 +296,12 @@ class MessageList extends React.PureComponent<Props, State> {
     if (!flatListContainer) {
       return;
     }
+
+    const { keyboardState } = this.props;
+    if (!keyboardState || keyboardState.keyboardShowing) {
+      return;
+    }
+
     flatListContainer.measure((x, y, width, height, pageX, pageY) => {
       if (
         height === null ||
