@@ -16,6 +16,7 @@ import { connect } from 'lib/utils/redux-utils';
 import Button from '../components/button.react';
 import { ThreadSettingsRouteName } from '../navigation/route-names';
 import { styleSelector } from '../themes/colors';
+import { threadIsPersonalAndPending } from 'lib/shared/thread-utils';
 
 type Props = {|
   threadInfo: ThreadInfo,
@@ -32,7 +33,10 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
 
   render() {
     let icon, fakeIcon;
-    if (Platform.OS === 'ios') {
+    const areSettingsDisabled = threadIsPersonalAndPending(
+      this.props.threadInfo,
+    );
+    if (Platform.OS === 'ios' && !areSettingsDisabled) {
       icon = (
         <Icon
           name="ios-arrow-forward"
@@ -53,6 +57,7 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
         onPress={this.onPress}
         style={this.props.styles.button}
         androidBorderlessRipple={true}
+        disabled={areSettingsDisabled}
       >
         <View style={this.props.styles.container}>
           {fakeIcon}
