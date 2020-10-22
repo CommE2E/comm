@@ -23,7 +23,7 @@ import invariant from 'invariant';
 import {
   threadHasPermission,
   memberIsAdmin,
-  memberIsParentAdmin,
+  memberHasAdminPowers,
 } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
 import {
@@ -157,7 +157,7 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
           </Text>
         </View>
       );
-    } else if (memberIsParentAdmin(this.props.memberInfo)) {
+    } else if (memberHasAdminPowers(this.props.memberInfo)) {
       roleInfo = (
         <View style={this.props.styles.row}>
           <Text style={this.props.styles.role} numberOfLines={1}>
