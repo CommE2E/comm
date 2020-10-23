@@ -1,13 +1,9 @@
 // @flow
 
-import { type MediaInfo, mediaInfoPropType } from 'lib/types/media-types';
-import {
-  type PendingMultimediaUpload,
-  pendingMultimediaUploadPropType,
-} from '../input/input-state';
+import type { MediaInfo } from 'lib/types/media-types';
+import type { PendingMultimediaUpload } from '../input/input-state';
 
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { View, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import * as Progress from 'react-native-progress';
@@ -15,76 +11,63 @@ import * as Progress from 'react-native-progress';
 import Multimedia from '../media/multimedia.react';
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
 
+const formatProgressText = (progress: number) =>
+  `${Math.floor(progress * 100)}%`;
+
 type Props = {|
-  mediaInfo: MediaInfo,
-  onPress: () => void,
-  onLongPress: () => void,
-  postInProgress: boolean,
-  pendingUpload: ?PendingMultimediaUpload,
-  spinnerColor: string,
+  +mediaInfo: MediaInfo,
+  +onPress: () => void,
+  +onLongPress: () => void,
+  +postInProgress: boolean,
+  +pendingUpload: ?PendingMultimediaUpload,
+  +spinnerColor: string,
 |};
-class InlineMultimedia extends React.PureComponent<Props> {
-  static propTypes = {
-    mediaInfo: mediaInfoPropType.isRequired,
-    onPress: PropTypes.func.isRequired,
-    onLongPress: PropTypes.func.isRequired,
-    postInProgress: PropTypes.bool.isRequired,
-    pendingUpload: pendingMultimediaUploadPropType,
-    spinnerColor: PropTypes.string.isRequired,
-  };
+function InlineMultimedia(props: Props) {
+  const { mediaInfo, pendingUpload, postInProgress } = props;
 
-  render() {
-    const { mediaInfo, pendingUpload, postInProgress } = this.props;
+  let failed = mediaInfo.id.startsWith('localUpload') && !postInProgress;
+  let progressPercent = 1;
+  if (pendingUpload) {
+    ({ progressPercent, failed } = pendingUpload);
+  }
 
-    let failed = mediaInfo.id.startsWith('localUpload') && !postInProgress;
-    let progressPercent = 1;
-    if (pendingUpload) {
-      ({ progressPercent, failed } = pendingUpload);
-    }
-
-    let progressIndicator;
-    if (failed) {
-      progressIndicator = (
-        <View style={styles.centerContainer}>
-          <Icon name="alert-circle" style={styles.uploadError} size={64} />
-        </View>
-      );
-    } else if (progressPercent !== 1) {
-      progressIndicator = (
-        <View style={styles.centerContainer}>
-          <Progress.Circle
-            size={100}
-            indeterminate={progressPercent === 0}
-            progress={progressPercent}
-            borderWidth={5}
-            fill="#DDDDDD"
-            unfilledColor="#DDDDDD"
-            color="#88BB88"
-            thickness={15}
-            showsText={true}
-            textStyle={styles.progressIndicatorText}
-            formatText={this.formatProgressText}
-          />
-        </View>
-      );
-    }
-
-    return (
-      <GestureTouchableOpacity
-        onPress={this.props.onPress}
-        onLongPress={this.props.onLongPress}
-        style={styles.expand}
-      >
-        <Multimedia
-          mediaInfo={mediaInfo}
-          spinnerColor={this.props.spinnerColor}
+  let progressIndicator;
+  if (failed) {
+    progressIndicator = (
+      <View style={styles.centerContainer}>
+        <Icon name="alert-circle" style={styles.uploadError} size={64} />
+      </View>
+    );
+  } else if (progressPercent !== 1) {
+    progressIndicator = (
+      <View style={styles.centerContainer}>
+        <Progress.Circle
+          size={100}
+          indeterminate={progressPercent === 0}
+          progress={progressPercent}
+          borderWidth={5}
+          fill="#DDDDDD"
+          unfilledColor="#DDDDDD"
+          color="#88BB88"
+          thickness={15}
+          showsText={true}
+          textStyle={styles.progressIndicatorText}
+          formatText={formatProgressText}
         />
-        {progressIndicator}
-      </GestureTouchableOpacity>
+      </View>
     );
   }
 
-  formatProgressText = (progress: number) => `${Math.floor(progress * 100)}%`;
+  return (
+    <GestureTouchableOpacity
+      onPress={props.onPress}
+      onLongPress={props.onLongPress}
+      style={styles.expand}
+    >
+      <Multimedia mediaInfo={mediaInfo} spinnerColor={props.spinnerColor} />
+      {progressIndicator}
+    </GestureTouchableOpacity>
+  );
 }
 
 const styles = StyleSheet.create({
