@@ -5,7 +5,6 @@ import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { useSelector } from 'react-redux';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
 import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
@@ -20,6 +19,7 @@ import Markdown from '../markdown/markdown.react';
 import { textMessageRules } from '../markdown/rules.react';
 import { composedMessageMaxWidthSelector } from './composed-message-width';
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
+import { useSelector } from '../redux/redux-utils';
 
 function dummyNodeForTextMessageHeightMeasurement(
   text: string,

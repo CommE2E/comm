@@ -21,7 +21,6 @@ import { View, Text, ActivityIndicator, Alert } from 'react-native';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import { createSelector } from 'reselect';
-import { useSelector } from 'react-redux';
 
 import {
   userInfoSelectorForPotentialMembers,
@@ -46,6 +45,7 @@ import TagInput from '../../components/tag-input.react';
 import Button from '../../components/button.react';
 import Modal from '../../components/modal.react';
 import { useStyles } from '../../themes/colors';
+import { useSelector } from '../../redux/redux-utils';
 
 const tagInputProps = {
   placeholder: 'Select users to add',

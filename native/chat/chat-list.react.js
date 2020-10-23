@@ -25,12 +25,12 @@ import {
 } from 'react-native';
 import invariant from 'invariant';
 import _sum from 'lodash/fp/sum';
-import { useSelector } from 'react-redux';
 
 import { messageKey } from 'lib/shared/message-utils';
 
 import { messageItemHeight } from './message.react';
 import NewMessagesPill from './new-messages-pill.react';
+import { useSelector } from '../redux/redux-utils';
 
 function chatMessageItemKey(item: ChatMessageItemWithHeight | ChatMessageItem) {
   if (item.itemType === 'loader') {

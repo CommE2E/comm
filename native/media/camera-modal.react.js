@@ -47,7 +47,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Orientation from 'react-native-orientation-locker';
 import invariant from 'invariant';
 import filesystem from 'react-native-fs';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils';
 
@@ -61,6 +61,7 @@ import {
   type OverlayContextType,
   overlayContextPropType,
 } from '../navigation/overlay-context';
+import { useSelector } from '../redux/redux-utils';
 
 /* eslint-disable import/no-named-as-default-member */
 const {

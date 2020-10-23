@@ -10,7 +10,6 @@ import * as React from 'react';
 import { View, Text, FlatList } from 'react-native';
 import invariant from 'invariant';
 import { createSelector } from 'reselect';
-import { useSelector } from 'react-redux';
 
 import { userRelationshipsSelector } from 'lib/selectors/relationship-selectors';
 
@@ -29,6 +28,7 @@ import {
 } from '../keyboard/keyboard-state';
 
 import RelationshipListItem from './relationship-list-item.react';
+import { useSelector } from '../redux/redux-utils';
 
 export type RelationshipListNavigate = $PropertyType<
   MoreNavigationProp<'FriendList' | 'BlockList'>,

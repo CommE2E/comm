@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import { logOut } from 'lib/actions/user-actions';
 import Socket, { type BaseSocketProps } from 'lib/socket/socket.react';
@@ -21,6 +21,7 @@ import {
   activeThreadSelector,
   webCalendarQuery,
 } from './selectors/nav-selectors';
+import { useSelector } from './redux/redux-utils';
 
 export default React.memo<BaseSocketProps>(function WebSocket(
   props: BaseSocketProps,

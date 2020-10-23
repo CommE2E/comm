@@ -3,7 +3,6 @@
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
-import { useSelector } from 'react-redux';
 import { Alert } from 'react-native';
 
 import { NavContext } from '../navigation/navigation-context';
@@ -13,6 +12,7 @@ import {
 } from '../navigation/navigation-utils';
 import { useActiveThread } from '../navigation/nav-selectors';
 import { clearThreadsActionType } from '../navigation/action-types';
+import { useSelector } from '../redux/redux-utils';
 
 const ThreadScreenPruner = React.memo<{||}>(() => {
   const rawThreadInfos = useSelector(

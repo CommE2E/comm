@@ -14,7 +14,6 @@ import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import * as React from 'react';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
-import { useSelector } from 'react-redux';
 
 import { messageID } from 'lib/shared/message-utils';
 
@@ -26,6 +25,7 @@ import {
   type InputState,
   InputStateContext,
 } from '../input/input-state';
+import { useSelector } from '../redux/redux-utils';
 
 type BaseProps = {|
   +item: ChatMessageInfoItem,

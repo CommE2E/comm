@@ -9,7 +9,6 @@ import PropTypes from 'prop-types';
 import { StyleSheet, View, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import invariant from 'invariant';
-import { useSelector } from 'react-redux';
 
 import { createMessageReply } from 'lib/shared/message-utils';
 
@@ -23,6 +22,7 @@ import {
   type InputState,
   InputStateContext,
 } from '../input/input-state';
+import { useSelector } from '../redux/redux-utils';
 
 const clusterEndHeight = 7;
 

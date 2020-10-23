@@ -16,13 +16,14 @@ import { setThreadUnreadStatus } from 'lib/actions/activity-actions';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils';
 import { webChatListData } from '../selectors/chat-selectors';
+import { useSelector } from '../redux/redux-utils';
 
 import ChatThreadListItem from './chat-thread-list-item.react';
 

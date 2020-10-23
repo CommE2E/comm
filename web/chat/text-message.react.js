@@ -11,7 +11,6 @@ import type {
 import * as React from 'react';
 import invariant from 'invariant';
 import classNames from 'classnames';
-import { useSelector } from 'react-redux';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
 import { onlyEmojiRegex } from 'lib/shared/emojis';
@@ -22,6 +21,7 @@ import ComposedMessage from './composed-message.react';
 import textMessageSendFailed from './text-message-send-failed';
 import Markdown from '../markdown/markdown.react';
 import { textMessageRules } from '../markdown/rules.react';
+import { useSelector } from '../redux/redux-utils';
 
 type Props = {|
   +item: ChatMessageInfoItem,

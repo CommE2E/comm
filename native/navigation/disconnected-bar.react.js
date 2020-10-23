@@ -2,7 +2,8 @@
 
 import * as React from 'react';
 import { Text, StyleSheet, Platform, Animated, Easing } from 'react-native';
-import { useSelector } from 'react-redux';
+
+import { useSelector } from '../redux/redux-utils';
 
 const expandedHeight = Platform.select({
   android: 29.5,

@@ -6,12 +6,13 @@ import * as React from 'react';
 import { Platform, View, StyleSheet } from 'react-native';
 import { BottomTabBar } from '@react-navigation/bottom-tabs';
 import Animated, { Easing } from 'react-native-reanimated';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useSafeArea } from 'react-native-safe-area-context';
 
 import { KeyboardContext } from '../keyboard/keyboard-state';
 import { updateDimensionsActiveType } from '../redux/action-types';
 import { androidKeyboardResizesFrame } from '../keyboard/keyboard';
+import { useSelector } from '../redux/redux-utils';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Value, timing, interpolate } = Animated;

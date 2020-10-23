@@ -14,7 +14,6 @@ import { useDrop } from 'react-dnd';
 import { NativeTypes } from 'react-dnd-html5-backend';
 import classNames from 'classnames';
 import { detect as detectBrowser } from 'detect-browser';
-import { useSelector } from 'react-redux';
 
 import { messageKey } from 'lib/shared/message-utils';
 import { threadInChatList } from 'lib/shared/thread-utils';
@@ -47,6 +46,7 @@ import {
   type InputState,
   InputStateContext,
 } from '../input/input-state';
+import { useSelector } from '../redux/redux-utils';
 import css from './chat-message-list.css';
 
 type BaseProps = {|

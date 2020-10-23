@@ -27,7 +27,6 @@ import _flow from 'lodash/fp/flow';
 import _filter from 'lodash/fp/filter';
 import _sortBy from 'lodash/fp/sortBy';
 import { createSelector } from 'reselect';
-import { useSelector } from 'react-redux';
 
 import { newThreadActionTypes, newThread } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -56,6 +55,7 @@ import {
   useColors,
   useStyles,
 } from '../themes/colors';
+import { useSelector } from '../redux/redux-utils';
 
 const tagInputProps = {
   placeholder: 'username',

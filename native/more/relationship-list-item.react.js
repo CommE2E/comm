@@ -19,7 +19,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import invariant from 'invariant';
-import { useSelector } from 'react-redux';
 
 import { type UserInfo } from 'lib/types/user-types';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -41,6 +40,7 @@ import {
 } from '../navigation/overlay-context';
 import { RelationshipListItemTooltipModalRouteName } from '../navigation/route-names';
 import { type Colors, useColors, useStyles } from '../themes/colors';
+import { useSelector } from '../redux/redux-utils';
 
 type BaseProps = {|
   +userInfo: UserInfo,

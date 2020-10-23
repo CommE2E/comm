@@ -13,7 +13,6 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
-import { useSelector } from 'react-redux';
 
 import { messageID } from 'lib/shared/message-utils';
 
@@ -21,6 +20,7 @@ import Button from '../components/button.react';
 import { useStyles } from '../themes/colors';
 import multimediaMessageSendFailed from './multimedia-message-send-failed';
 import textMessageSendFailed from './text-message-send-failed';
+import { useSelector } from '../redux/redux-utils';
 
 const failedSendHeight = 22;
 

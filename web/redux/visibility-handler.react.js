@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import {
   backgroundActionType,
@@ -9,6 +9,7 @@ import {
 } from 'lib/reducers/foreground-reducer';
 
 import { useVisibility } from './visibility';
+import { useSelector } from './redux-utils';
 
 function VisibilityHandler() {
   const visibility = useVisibility();

@@ -7,7 +7,6 @@ import type { ViewStyle } from '../../types/styles';
 import * as React from 'react';
 import { Text, Alert, ActivityIndicator, View } from 'react-native';
 import invariant from 'invariant';
-import { useSelector } from 'react-redux';
 
 import {
   leaveThreadActionTypes,
@@ -29,6 +28,7 @@ import {
   type NavContextType,
 } from '../../navigation/navigation-context';
 import { clearThreadsActionType } from '../../navigation/action-types';
+import { useSelector } from '../../redux/redux-utils';
 
 type BaseProps = {|
   +threadInfo: ThreadInfo,

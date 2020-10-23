@@ -1,9 +1,10 @@
 // @flow
 
 import * as React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import { updateWindowActiveActionType } from './action-types';
+import { useSelector } from './redux-utils';
 
 function FocusHandler() {
   const [focused, setFocused] = React.useState(

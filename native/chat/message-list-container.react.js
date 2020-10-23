@@ -19,7 +19,6 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { View } from 'react-native';
 import invariant from 'invariant';
-import { useSelector } from 'react-redux';
 
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import {
@@ -55,6 +54,7 @@ import {
   type OverlayContextType,
   overlayContextPropType,
 } from '../navigation/overlay-context';
+import { useSelector } from '../redux/redux-utils';
 
 export type ChatMessageItemWithHeight =
   | {| itemType: 'loader' |}

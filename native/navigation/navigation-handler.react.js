@@ -3,7 +3,6 @@
 import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
-import { useSelector } from 'react-redux';
 
 import { isLoggedIn } from 'lib/selectors/user-selectors';
 
@@ -15,6 +14,7 @@ import ModalPruner from './modal-pruner.react';
 import NavFromReduxHandler from './nav-from-redux-handler.react';
 import { logInActionType, logOutActionType } from './action-types';
 import DevTools from '../redux/dev-tools.react';
+import { useSelector } from '../redux/redux-utils';
 
 const NavigationHandler = React.memo<{||}>(() => {
   const navContext = React.useContext(NavContext);

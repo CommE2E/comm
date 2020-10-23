@@ -35,7 +35,7 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 import invariant from 'invariant';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { TapticFeedback } from 'react-native-in-app-message';
 
 import {
@@ -58,6 +58,7 @@ import {
   overlayContextPropType,
 } from './overlay-context';
 import { SingleLine } from '../components/single-line.react';
+import { useSelector } from '../redux/redux-utils';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Value, Extrapolate, add, multiply, interpolate } = Animated;

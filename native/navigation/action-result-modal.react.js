@@ -7,10 +7,10 @@ import * as React from 'react';
 import { View, Text } from 'react-native';
 import Animated from 'react-native-reanimated';
 import invariant from 'invariant';
-import { useSelector } from 'react-redux';
 
 import { useOverlayStyles } from '../themes/colors';
 import { OverlayContext } from './overlay-context';
+import { useSelector } from '../redux/redux-utils';
 
 export type ActionResultModalParams = {|
   message: string,

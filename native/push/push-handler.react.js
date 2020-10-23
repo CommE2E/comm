@@ -29,7 +29,7 @@ import {
   Notification as InAppNotification,
   TapticFeedback,
 } from 'react-native-in-app-message';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import {
   unreadCount,
@@ -76,6 +76,7 @@ import {
   addLifecycleListener,
   getCurrentLifecycleState,
 } from '../lifecycle/lifecycle';
+import { useSelector } from '../redux/redux-utils';
 
 YellowBox.ignoreWarnings([
   // react-native-firebase

@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import { logOut } from 'lib/actions/user-actions';
 import Socket, { type BaseSocketProps } from 'lib/socket/socket.react';
@@ -24,6 +24,7 @@ import {
 } from './navigation/nav-selectors';
 import { NavContext } from './navigation/navigation-context';
 import { InputStateContext } from './input/input-state';
+import { useSelector } from './redux/redux-utils';
 
 export default React.memo<BaseSocketProps>(function NativeSocket(
   props: BaseSocketProps,

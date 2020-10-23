@@ -8,7 +8,6 @@ import type { ThreadSettingsNavigate } from './thread-settings.react';
 import * as React from 'react';
 import { Text, ActivityIndicator, View, Platform } from 'react-native';
 import PropTypes from 'prop-types';
-import { useSelector } from 'react-redux';
 
 import { changeThreadSettingsActionTypes } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -22,6 +21,7 @@ import {
   useColors,
   useStyles,
 } from '../../themes/colors';
+import { useSelector } from '../../redux/redux-utils';
 
 type BaseProps = {|
   +threadInfo: ThreadInfo,

@@ -48,7 +48,7 @@ import invariant from 'invariant';
 import Animated, { Easing } from 'react-native-reanimated';
 import { TextInputKeyboardMangerIOS } from 'react-native-keyboard-input';
 import _throttle from 'lodash/throttle';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import { saveDraftActionType } from 'lib/actions/miscellaneous-action-types';
 import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
@@ -77,6 +77,7 @@ import { CameraModalRouteName } from '../navigation/route-names';
 import KeyboardInputHost from '../keyboard/keyboard-input-host.react';
 import ClearableTextInput from '../components/clearable-text-input.react';
 import { runTiming } from '../utils/animation-utils';
+import { useSelector } from '../redux/redux-utils';
 
 /* eslint-disable import/no-named-as-default-member */
 const {

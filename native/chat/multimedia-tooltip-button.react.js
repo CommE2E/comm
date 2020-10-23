@@ -12,7 +12,6 @@ import * as React from 'react';
 import Animated from 'react-native-reanimated';
 import PropTypes from 'prop-types';
 import { View, StyleSheet } from 'react-native';
-import { useSelector } from 'react-redux';
 
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import { messageID } from 'lib/shared/message-utils';
@@ -26,6 +25,7 @@ import InlineMultimedia from './inline-multimedia.react';
 import { multimediaMessageBorderRadius } from './multimedia-message.react';
 import { getRoundedContainerStyle } from './rounded-corners';
 import { MessageHeader } from './message-header.react';
+import { useSelector } from '../redux/redux-utils';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Value } = Animated;

@@ -18,7 +18,6 @@ import * as React from 'react';
 import { View, FlatList, Platform } from 'react-native';
 import invariant from 'invariant';
 import { createSelector } from 'reselect';
-import { useSelector } from 'react-redux';
 
 import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
 import {
@@ -77,6 +76,7 @@ import {
   type KeyboardState,
   KeyboardContext,
 } from '../../keyboard/keyboard-state';
+import { useSelector } from '../../redux/redux-utils';
 
 const itemPageLength = 5;
 

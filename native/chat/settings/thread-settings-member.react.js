@@ -19,7 +19,6 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import invariant from 'invariant';
-import { useSelector } from 'react-redux';
 
 import { threadHasPermission, memberIsAdmin } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
@@ -40,6 +39,7 @@ import {
   type OverlayContextType,
 } from '../../navigation/overlay-context';
 import { SingleLine } from '../../components/single-line.react';
+import { useSelector } from '../../redux/redux-utils';
 
 type BaseProps = {|
   +memberInfo: RelativeMemberInfo,

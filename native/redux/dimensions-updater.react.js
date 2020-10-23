@@ -3,21 +3,22 @@
 import type { Dimensions } from 'lib/types/media-types';
 
 import * as React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import {
   initialWindowMetrics,
   useSafeAreaFrame,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import PropTypes from 'prop-types';
+
 import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
   removeKeyboardListener,
   androidKeyboardResizesFrame,
 } from '../keyboard/keyboard';
-
 import { updateDimensionsActiveType } from './action-types';
+import { useSelector } from './redux-utils';
 
 export type DimensionsInfo = {|
   ...Dimensions,

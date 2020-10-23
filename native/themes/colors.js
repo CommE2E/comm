@@ -7,10 +7,10 @@ import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import { createSelector } from 'reselect';
 import PropTypes from 'prop-types';
-import { useSelector } from 'react-redux';
 
 import { selectBackgroundIsDark } from '../navigation/nav-selectors';
 import { NavContext } from '../navigation/navigation-context';
+import { useSelector } from '../redux/redux-utils';
 
 const light = Object.freeze({
   redButton: '#BB8888',

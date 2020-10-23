@@ -11,7 +11,6 @@ import type { ViewStyle } from '../../types/styles';
 
 import * as React from 'react';
 import { Text, Alert, ActivityIndicator, View } from 'react-native';
-import { useSelector } from 'react-redux';
 
 import {
   changeThreadSettingsActionTypes,
@@ -26,6 +25,7 @@ import {
 
 import Button from '../../components/button.react';
 import { type Colors, useColors, useStyles } from '../../themes/colors';
+import { useSelector } from '../../redux/redux-utils';
 
 type BaseProps = {|
   +threadInfo: ThreadInfo,

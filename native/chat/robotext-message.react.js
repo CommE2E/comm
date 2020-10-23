@@ -16,13 +16,13 @@ import {
   robotextToRawString,
 } from 'lib/shared/message-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
-import { useSelector } from 'react-redux';
 
 import { MessageListRouteName } from '../navigation/route-names';
 import { Timestamp } from './timestamp.react';
 import { useStyles } from '../themes/colors';
 import Markdown from '../markdown/markdown.react';
 import { inlineMarkdownRules } from '../markdown/rules.react';
+import { useSelector } from '../redux/redux-utils';
 
 export type ChatRobotextMessageInfoItemWithHeight = {|
   itemType: 'message',

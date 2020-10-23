@@ -19,7 +19,6 @@ import { View, TouchableWithoutFeedback } from 'react-native';
 import _find from 'lodash/fp/find';
 import { createSelector } from 'reselect';
 import invariant from 'invariant';
-import { useSelector } from 'react-redux';
 
 import { messageKey } from 'lib/shared/message-utils';
 import {
@@ -56,6 +55,7 @@ import {
   KeyboardContext,
 } from '../keyboard/keyboard-state';
 import { ChatList } from './chat-list.react';
+import { useSelector } from '../redux/redux-utils';
 
 type BaseProps = {|
   +threadInfo: ThreadInfo,

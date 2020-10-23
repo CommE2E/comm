@@ -17,7 +17,6 @@ import { CommonActions } from '@react-navigation/native';
 import { createSelector } from 'reselect';
 import _keyBy from 'lodash/fp/keyBy';
 import invariant from 'invariant';
-import { useSelector } from 'react-redux';
 
 import { searchIndexFromUserInfos } from 'lib/selectors/user-selectors';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
@@ -39,6 +38,7 @@ import Modal from '../components/modal.react';
 import Button from '../components/button.react';
 import TagInput from '../components/tag-input.react';
 import { useStyles } from '../themes/colors';
+import { useSelector } from '../redux/redux-utils';
 
 const tagInputProps = {
   autoFocus: true,

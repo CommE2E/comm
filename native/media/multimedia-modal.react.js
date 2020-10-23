@@ -36,7 +36,6 @@ import Orientation from 'react-native-orientation-locker';
 import Animated from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/Ionicons';
 import invariant from 'invariant';
-import { useSelector } from 'react-redux';
 
 import Multimedia from './multimedia.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
@@ -57,6 +56,7 @@ import {
   derivedDimensionsInfoPropType,
   derivedDimensionsInfoSelector,
 } from '../selectors/dimensions-selectors';
+import { useSelector } from '../redux/redux-utils';
 
 /* eslint-disable import/no-named-as-default-member */
 const {

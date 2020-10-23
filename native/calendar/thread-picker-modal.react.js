@@ -6,7 +6,7 @@ import type { NavigationRoute } from '../navigation/route-names';
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import invariant from 'invariant';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import { onScreenEntryEditableThreadInfos } from 'lib/selectors/thread-selectors';
 import {
@@ -19,6 +19,7 @@ import Modal from '../components/modal.react';
 import ThreadList from '../components/thread-list.react';
 import { RootNavigatorContext } from '../navigation/root-navigator-context';
 import { waitForInteractions } from '../utils/interactions';
+import { useSelector } from '../redux/redux-utils';
 
 export type ThreadPickerModalParams = {|
   presentedFrom: string,

@@ -24,7 +24,6 @@ import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { faFileImage } from '@fortawesome/free-regular-svg-icons';
 import PropTypes from 'prop-types';
 import _difference from 'lodash/fp/difference';
-import { useSelector } from 'react-redux';
 
 import { joinThreadActionTypes, joinThread } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -41,6 +40,7 @@ import LoadingIndicator from '../loading-indicator.react';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import { allowedMimeTypeString } from '../media/file-utils';
 import Multimedia from '../media/multimedia.react';
+import { useSelector } from '../redux/redux-utils';
 
 type BaseProps = {|
   +threadInfo: ThreadInfo,

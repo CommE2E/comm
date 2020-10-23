@@ -4,7 +4,6 @@ import type { ChatTopTabsNavigationProp } from './chat.react';
 import type { NavigationRoute } from '../navigation/route-names';
 
 import * as React from 'react';
-import { useSelector } from 'react-redux';
 import { Text } from 'react-native';
 
 import {
@@ -15,6 +14,7 @@ import { unreadBackgroundCount } from 'lib/selectors/thread-selectors';
 
 import ChatThreadList from './chat-thread-list.react';
 import { useStyles } from '../themes/colors';
+import { useSelector } from '../redux/redux-utils';
 
 type BackgroundChatThreadListProps = {|
   navigation: ChatTopTabsNavigationProp<'BackgroundChatThreadList'>,
