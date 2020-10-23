@@ -100,6 +100,11 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     };
   }
 
+  static getStableKey(props: Props) {
+    const { item, mediaInfo } = props;
+    return `multimedia|${messageKey(item.messageInfo)}|${mediaInfo.index}`;
+  }
+
   static getOverlayContext(props: Props) {
     const { overlayContext } = props;
     invariant(
@@ -115,7 +120,8 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     for (let overlay of visibleOverlays) {
       if (
         overlay.routeName === MultimediaModalRouteName &&
-        overlay.presentedFrom === props.route.key
+        overlay.presentedFrom === props.route.key &&
+        overlay.routeKey === MultimediaMessageMultimedia.getStableKey(props)
       ) {
         return overlay.position;
       }
@@ -217,6 +223,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
       const coordinates = { x: pageX, y: pageY, width, height };
       this.props.navigation.navigate({
         name: MultimediaModalRouteName,
+        key: MultimediaMessageMultimedia.getStableKey(this.props),
         params: {
           presentedFrom: this.props.route.key,
           mediaInfo,
