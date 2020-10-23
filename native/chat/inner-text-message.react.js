@@ -20,6 +20,7 @@ import { textMessageRules } from '../markdown/rules.react';
 import { composedMessageMaxWidthSelector } from './composed-message-width';
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
 import { useSelector } from '../redux/redux-utils';
+import { KeyboardContext } from '../keyboard/keyboard-state';
 
 function dummyNodeForTextMessageHeightMeasurement(
   text: string,
@@ -87,11 +88,15 @@ function InnerTextMessage(props: Props) {
     relativeMemberInfoSelectorForMembersOfThread(threadID),
   );
 
+  const keyboardState = React.useContext(KeyboardContext);
+  const keyboardShowing = keyboardState?.keyboardShowing;
+
   const message = (
     <GestureTouchableOpacity
       onPress={props.onPress}
       onLongPress={props.onPress}
       activeOpacity={0.6}
+      disabled={keyboardShowing}
       style={[styles.message, messageStyle, cornerStyle]}
     >
       <Markdown

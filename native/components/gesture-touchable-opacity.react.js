@@ -54,6 +54,7 @@ type Props = {|
   // from true to false before animating back to our deactivated mode.
   +stickyActive?: boolean,
   +overlay?: React.Node,
+  +disabled?: boolean,
 |};
 function GestureTouchableOpacity(props: Props) {
   const { onPress: innerOnPress, onLongPress: innerOnLongPress } = props;
@@ -65,8 +66,9 @@ function GestureTouchableOpacity(props: Props) {
   }, [innerOnLongPress]);
   const activeOpacity = props.activeOpacity ?? 0.2;
 
-  const { stickyActive } = props;
+  const { stickyActive, disabled } = props;
   const activeValue = useReanimatedValueForBoolean(!!stickyActive);
+  const disabledValue = useReanimatedValueForBoolean(!!disabled);
   const stickyActiveEnabled =
     stickyActive !== null && stickyActive !== undefined;
   const { longPressEvent, tapEvent, transformStyle } = React.useMemo(() => {
@@ -128,17 +130,20 @@ function GestureTouchableOpacity(props: Props) {
         ),
       ),
       [
-        cond(and(tapSuccess, not(prevTapSuccess)), [
+        cond(and(tapSuccess, not(prevTapSuccess), not(disabledValue)), [
           stickyActiveEnabled ? set(activeValue, 1) : undefined,
           call([], onPress),
         ]),
         set(prevTapSuccess, tapSuccess),
       ],
       [
-        cond(and(longPressSuccess, not(prevLongPressSuccess)), [
-          stickyActiveEnabled ? set(activeValue, 1) : undefined,
-          call([], onLongPress),
-        ]),
+        cond(
+          and(longPressSuccess, not(prevLongPressSuccess), not(disabledValue)),
+          [
+            stickyActiveEnabled ? set(activeValue, 1) : undefined,
+            call([], onLongPress),
+          ],
+        ),
         set(prevLongPressSuccess, longPressSuccess),
       ],
       curOpacity,
@@ -153,7 +158,14 @@ function GestureTouchableOpacity(props: Props) {
       tapEvent: innerTapEvent,
       transformStyle: innerTransformStyle,
     };
-  }, [onPress, onLongPress, activeOpacity, activeValue, stickyActiveEnabled]);
+  }, [
+    onPress,
+    onLongPress,
+    activeOpacity,
+    activeValue,
+    disabledValue,
+    stickyActiveEnabled,
+  ]);
 
   const tapHandler = (
     <TapGestureHandler onHandlerStateChange={tapEvent} maxDurationMs={100000}>

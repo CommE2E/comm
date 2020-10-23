@@ -10,6 +10,7 @@ import * as Progress from 'react-native-progress';
 
 import Multimedia from '../media/multimedia.react';
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
+import { KeyboardContext } from '../keyboard/keyboard-state';
 
 const formatProgressText = (progress: number) =>
   `${Math.floor(progress * 100)}%`;
@@ -58,10 +59,14 @@ function InlineMultimedia(props: Props) {
     );
   }
 
+  const keyboardState = React.useContext(KeyboardContext);
+  const keyboardShowing = keyboardState?.keyboardShowing;
+
   return (
     <GestureTouchableOpacity
       onPress={props.onPress}
       onLongPress={props.onLongPress}
+      disabled={keyboardShowing}
       style={styles.expand}
     >
       <Multimedia mediaInfo={mediaInfo} spinnerColor={props.spinnerColor} />
