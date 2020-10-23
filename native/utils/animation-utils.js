@@ -3,6 +3,7 @@
 import Animated, { Easing } from 'react-native-reanimated';
 import { State as GestureState } from 'react-native-gesture-handler';
 import { Platform } from 'react-native';
+import * as React from 'react';
 
 /* eslint-disable import/no-named-as-default-member */
 const {
@@ -189,6 +190,14 @@ function ratchetAlongWithKeyboardHeight(
   ]);
 }
 
+function useReanimatedValueForBoolean(booleanValue: boolean): Value {
+  const reanimatedValueRef = React.useRef(new Value(booleanValue ? 1 : 0));
+  React.useEffect(() => {
+    reanimatedValueRef.current.setValue(booleanValue ? 1 : 0);
+  }, [booleanValue]);
+  return reanimatedValueRef.current;
+}
+
 export {
   clamp,
   dividePastDistance,
@@ -198,4 +207,5 @@ export {
   runTiming,
   runSpring,
   ratchetAlongWithKeyboardHeight,
+  useReanimatedValueForBoolean,
 };

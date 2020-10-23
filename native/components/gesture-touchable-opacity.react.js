@@ -11,7 +11,10 @@ import {
 } from 'react-native-gesture-handler';
 import Animated, { Easing } from 'react-native-reanimated';
 
-import { runTiming } from '../utils/animation-utils';
+import {
+  runTiming,
+  useReanimatedValueForBoolean,
+} from '../utils/animation-utils';
 
 /* eslint-disable import/no-named-as-default-member */
 const {
@@ -63,19 +66,7 @@ function GestureTouchableOpacity(props: Props) {
   const activeOpacity = props.activeOpacity ?? 0.2;
 
   const { stickyActive } = props;
-  const prevStickyActiveRef = React.useRef(stickyActive);
-  const activeValueRef = React.useRef(new Value(stickyActive ? 1 : 0));
-  React.useEffect(() => {
-    const prevActive = prevStickyActiveRef.current;
-    if (!prevActive && stickyActive) {
-      activeValueRef.current.setValue(1);
-    } else if (prevActive && !stickyActive) {
-      activeValueRef.current.setValue(0);
-    }
-    prevStickyActiveRef.current = stickyActive;
-  }, [stickyActive]);
-  const activeValue = activeValueRef.current;
-
+  const activeValue = useReanimatedValueForBoolean(!!stickyActive);
   const stickyActiveEnabled =
     stickyActive !== null && stickyActive !== undefined;
   const { longPressEvent, tapEvent, transformStyle } = React.useMemo(() => {
