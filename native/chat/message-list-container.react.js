@@ -10,7 +10,7 @@ import * as React from 'react';
 import { View } from 'react-native';
 import invariant from 'invariant';
 
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import { possiblyPendingThreadInfoSelector } from 'lib/selectors/thread-selectors';
 import {
   type ChatMessageItem,
   messageListData,
@@ -271,11 +271,11 @@ const unboundStyles = {
 export default React.memo<BaseProps>(function ConnectedMessageListContainer(
   props: BaseProps,
 ) {
-  const threadID = props.route.params.threadInfo.id;
-  const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
-  const boundMessageListData = useSelector(state =>
-    messageListData(threadID)(state),
+  const threadInfo = useSelector(
+    possiblyPendingThreadInfoSelector(props.route.params.threadInfo),
   );
+  const threadID = threadInfo?.id ?? props.route.params.threadInfo.id;
+  const boundMessageListData = useSelector(messageListData(threadID));
   const composedMessageMaxWidth = useSelector(composedMessageMaxWidthSelector);
   const colors = useColors();
   const styles = useStyles(unboundStyles);
