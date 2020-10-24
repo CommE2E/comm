@@ -1,25 +1,16 @@
 // @flow
 
-import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type {
   TextMessageInfo,
   LocalMessageInfo,
 } from 'lib/types/message-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import {
-  type VerticalBounds,
-  verticalBoundsPropType,
-} from '../types/layout-types';
-import {
-  messageListRoutePropType,
-  messageListNavPropType,
-} from './message-list-types';
+import type { VerticalBounds } from '../types/layout-types';
 import type { ChatNavigationProp } from './chat.react';
 import type { NavigationRoute } from '../navigation/route-names';
 
 import * as React from 'react';
 import { View } from 'react-native';
-import PropTypes from 'prop-types';
 import invariant from 'invariant';
 
 import { messageKey } from 'lib/shared/message-utils';
@@ -33,14 +24,13 @@ import { failedSendHeight } from './failed-send.react';
 import textMessageSendFailed from './text-message-send-failed';
 import {
   type KeyboardState,
-  keyboardStatePropType,
   KeyboardContext,
 } from '../keyboard/keyboard-state';
 import {
   OverlayContext,
   type OverlayContextType,
-  overlayContextPropType,
 } from '../navigation/overlay-context';
+import { MarkdownLinkContext } from '../markdown/markdown-link-context';
 
 export type ChatTextMessageInfoItemWithHeight = {|
   itemType: 'message',
@@ -85,18 +75,10 @@ type Props = {|
   +keyboardState: ?KeyboardState,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
+  // MarkdownLinkContext
+  +linkPressActive: boolean,
 |};
 class TextMessage extends React.PureComponent<Props> {
-  static propTypes = {
-    item: chatMessageItemPropType.isRequired,
-    navigation: messageListNavPropType.isRequired,
-    route: messageListRoutePropType.isRequired,
-    focused: PropTypes.bool.isRequired,
-    toggleFocus: PropTypes.func.isRequired,
-    verticalBounds: verticalBoundsPropType,
-    keyboardState: keyboardStatePropType,
-    overlayContext: overlayContextPropType,
-  };
   message: ?React.ElementRef<typeof View>;
 
   render() {
@@ -109,6 +91,7 @@ class TextMessage extends React.PureComponent<Props> {
       verticalBounds,
       keyboardState,
       overlayContext,
+      linkPressActive,
       ...viewProps
     } = this.props;
     return (
@@ -139,9 +122,9 @@ class TextMessage extends React.PureComponent<Props> {
 
     const {
       message,
-      props: { verticalBounds },
+      props: { verticalBounds, linkPressActive },
     } = this;
-    if (!message || !verticalBounds) {
+    if (!message || !verticalBounds || linkPressActive) {
       return;
     }
 
@@ -202,12 +185,24 @@ const ConnectedTextMessage = React.memo<BaseProps>(
   function ConnectedTextMessage(props: BaseProps) {
     const keyboardState = React.useContext(KeyboardContext);
     const overlayContext = React.useContext(OverlayContext);
+
+    const [linkPressActive, setLinkPressActive] = React.useState(false);
+    const markdownLinkContext = React.useMemo(
+      () => ({
+        setLinkPressActive,
+      }),
+      [setLinkPressActive],
+    );
+
     return (
-      <TextMessage
-        {...props}
-        overlayContext={overlayContext}
-        keyboardState={keyboardState}
-      />
+      <MarkdownLinkContext.Provider value={markdownLinkContext}>
+        <TextMessage
+          {...props}
+          overlayContext={overlayContext}
+          keyboardState={keyboardState}
+          linkPressActive={linkPressActive}
+        />
+      </MarkdownLinkContext.Provider>
     );
   },
 );
