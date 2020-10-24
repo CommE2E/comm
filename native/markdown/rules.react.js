@@ -3,14 +3,14 @@
 import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
 import * as React from 'react';
-import { Text, Linking, Alert, View } from 'react-native';
+import { Text, View } from 'react-native';
 import * as SimpleMarkdown from 'simple-markdown';
 import _memoize from 'lodash/memoize';
 
 import * as SharedMarkdown from 'lib/shared/markdown';
-import { normalizeURL } from 'lib/utils/url-utils';
 
 import { getMarkdownStyles } from './styles';
+import MarkdownLink from './markdown-link.react';
 
 export type MarkdownRules = {|
   +simpleMarkdownRules: SimpleMarkdown.ParserRules,
@@ -22,28 +22,6 @@ export type MarkdownRules = {|
   // width
   +container: 'View' | 'Text',
 |};
-
-function displayLinkPrompt(inputURL: string) {
-  const url = normalizeURL(inputURL);
-  const onConfirm = () => {
-    Linking.openURL(url);
-  };
-
-  let displayURL = url.substring(0, 64);
-  if (url.length > displayURL.length) {
-    displayURL += '…';
-  }
-
-  Alert.alert(
-    'External link',
-    `You sure you want to open this link?\n\n${displayURL}`,
-    [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Open', onPress: onConfirm },
-    ],
-    { cancelable: true },
-  );
-}
 
 // Entry requires a seamless transition between Markdown and TextInput
 // components, so we can't do anything that would change the position of text
@@ -66,11 +44,14 @@ const inlineMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
         output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
         state: SimpleMarkdown.State,
       ) {
-        const onPressLink = () => displayLinkPrompt(node.target);
         return (
-          <Text key={state.key} style={styles.link} onPress={onPressLink}>
+          <MarkdownLink
+            key={state.key}
+            style={styles.link}
+            target={node.target}
+          >
             {output(node.content, state)}
-          </Text>
+          </MarkdownLink>
         );
       },
     },
