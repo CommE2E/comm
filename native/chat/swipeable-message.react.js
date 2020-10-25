@@ -11,6 +11,7 @@ import {
   PanGestureHandler,
   State as GestureState,
 } from 'react-native-gesture-handler';
+import { GestureHandlerRefContext } from '@react-navigation/stack';
 
 import { useColors, useStyles } from '../themes/colors';
 import { dividePastDistance, runSpring } from '../utils/animation-utils';
@@ -153,6 +154,8 @@ function SwipeableMessage(props: Props) {
   const { messageBoxStyle, children } = props;
   const colors = useColors();
   const styles = useStyles(unboundStyles);
+  const reactNavGestureHandlerRef = React.useContext(GestureHandlerRefContext);
+  const waitFor = reactNavGestureHandlerRef ?? undefined;
   return (
     <React.Fragment>
       <View style={[styles.icon, iconPosition]}>
@@ -173,6 +176,7 @@ function SwipeableMessage(props: Props) {
         onHandlerStateChange={swipeEvent}
         failOffsetX={isViewer ? 5 : -5}
         failOffsetY={[-5, 5]}
+        waitFor={waitFor}
       >
         <Animated.View style={[messageBoxStyle, transformMessageBoxStyle]}>
           {children}
