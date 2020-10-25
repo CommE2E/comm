@@ -1,7 +1,5 @@
 // @flow
 
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { AppState } from '../redux/redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type {
   LogInInfo,
@@ -9,23 +7,23 @@ import type {
   LogInResult,
   LogInStartingPayload,
 } from 'lib/types/account-types';
-import {
-  type StateContainer,
-  stateContainerPropType,
-} from '../utils/state-container';
+import type { StateContainer } from '../utils/state-container';
 
-import React from 'react';
+import * as React from 'react';
 import { View, StyleSheet, Alert, Keyboard, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import Animated from 'react-native-reanimated';
+import {
+  useServerCall,
+  useDispatchActionPromise,
+  type DispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import {
   oldValidUsernameRegex,
   validEmailRegex,
 } from 'lib/shared/account-utils';
-import { connect } from 'lib/utils/redux-utils';
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
@@ -39,20 +37,21 @@ import {
   setNativeCredentials,
 } from './native-credentials';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
-import {
-  connectNav,
-  type NavContextType,
-} from '../navigation/navigation-context';
+import { NavContext } from '../navigation/navigation-context';
+import { useSelector } from '../redux/redux-utils';
 
 export type LogInState = {|
   +usernameOrEmailInputText: string,
   +passwordInputText: string,
 |};
-type Props = {|
+type BaseProps = {|
   +setActiveAlert: (activeAlert: boolean) => void,
   +opacityValue: Animated.Value,
   +innerRef: (logInPanel: ?LogInPanel) => void,
   +state: StateContainer<LogInState>,
+|};
+type Props = {|
+  ...BaseProps,
   // Redux state
   +loadingStatus: LoadingStatus,
   +logInExtraInfo: () => LogInExtraInfo,
@@ -63,17 +62,6 @@ type Props = {|
   +logIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
 |};
 class LogInPanel extends React.PureComponent<Props> {
-  static propTypes = {
-    setActiveAlert: PropTypes.func.isRequired,
-    opacityValue: PropTypes.object.isRequired,
-    innerRef: PropTypes.func.isRequired,
-    state: stateContainerPropType.isRequired,
-    loadingStatus: PropTypes.string.isRequired,
-    logInExtraInfo: PropTypes.func.isRequired,
-    usernamePlaceholder: PropTypes.string.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    logIn: PropTypes.func.isRequired,
-  };
   usernameOrEmailInput: ?TextInput;
   passwordInput: ?TextInput;
 
@@ -338,18 +326,31 @@ const styles = StyleSheet.create({
 
 const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 
-export default connectNav((context: ?NavContextType) => ({
-  navContext: context,
-}))(
-  connect(
-    (state: AppState, ownProps: { navContext: ?NavContextType }) => ({
-      loadingStatus: loadingStatusSelector(state),
-      logInExtraInfo: nativeLogInExtraInfoSelector({
-        redux: state,
-        navContext: ownProps.navContext,
-      }),
-      usernamePlaceholder: usernamePlaceholderSelector(state),
+export default React.memo<BaseProps>(function ConnectedLogInPanel(
+  props: BaseProps,
+) {
+  const loadingStatus = useSelector(loadingStatusSelector);
+  const usernamePlaceholder = useSelector(usernamePlaceholderSelector);
+
+  const navContext = React.useContext(NavContext);
+  const logInExtraInfo = useSelector(state =>
+    nativeLogInExtraInfoSelector({
+      redux: state,
+      navContext,
     }),
-    { logIn },
-  )(LogInPanel),
-);
+  );
+
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callLogIn = useServerCall(logIn);
+
+  return (
+    <LogInPanel
+      {...props}
+      loadingStatus={loadingStatus}
+      logInExtraInfo={logInExtraInfo}
+      usernamePlaceholder={usernamePlaceholder}
+      dispatchActionPromise={dispatchActionPromise}
+      logIn={callLogIn}
+    />
+  );
+});
