@@ -1,8 +1,6 @@
 // @flow
 
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
 import type { Dispatch } from 'lib/types/redux-types';
-import type { AppState } from '../redux/redux-setup';
 import type { KeyboardEvent, EmitterSubscription } from '../keyboard/keyboard';
 import type { LogInState } from './log-in-panel.react';
 import type { RegisterState } from './register-panel.react';
@@ -22,17 +20,16 @@ import {
 } from 'react-native';
 import invariant from 'invariant';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import PropTypes from 'prop-types';
 import _isEqual from 'lodash/fp/isEqual';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { Easing } from 'react-native-reanimated';
+import { useDispatch } from 'react-redux';
 
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
 import {
   appStartNativeCredentialsAutoLogIn,
   appStartReduxLoggedInButInvalidCookie,
 } from 'lib/actions/user-actions';
-import { connect } from 'lib/utils/redux-utils';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
 
 import LogInPanelContainer from './log-in-panel-container.react';
@@ -53,20 +50,16 @@ import {
   setStateForContainer,
 } from '../utils/state-container';
 import { LoggedOutModalRouteName } from '../navigation/route-names';
-import {
-  connectNav,
-  type NavContextType,
-  navContextPropType,
-} from '../navigation/navigation-context';
+import { NavContext } from '../navigation/navigation-context';
 import {
   runTiming,
   ratchetAlongWithKeyboardHeight,
 } from '../utils/animation-utils';
 import {
   type DerivedDimensionsInfo,
-  derivedDimensionsInfoPropType,
   derivedDimensionsInfoSelector,
 } from '../selectors/dimensions-selectors';
+import { useSelector } from '../redux/redux-utils';
 
 let initialAppLoad = true;
 const safeAreaEdges = ['top', 'bottom'];
@@ -110,37 +103,24 @@ function isPastPrompt(modeValue: Animated.Node) {
 
 type Props = {
   // Navigation state
-  isForeground: boolean,
-  navContext: ?NavContextType,
+  +isForeground: boolean,
   // Redux state
-  rehydrateConcluded: boolean,
-  cookie: ?string,
-  urlPrefix: string,
-  loggedIn: boolean,
-  dimensions: DerivedDimensionsInfo,
-  splashStyle: ImageStyle,
+  +rehydrateConcluded: boolean,
+  +cookie: ?string,
+  +urlPrefix: string,
+  +loggedIn: boolean,
+  +dimensions: DerivedDimensionsInfo,
+  +splashStyle: ImageStyle,
   // Redux dispatch functions
-  dispatch: Dispatch,
-  dispatchActionPayload: DispatchActionPayload,
+  +dispatch: Dispatch,
+  ...
 };
 type State = {|
-  mode: LoggedOutMode,
-  logInState: StateContainer<LogInState>,
-  registerState: StateContainer<RegisterState>,
+  +mode: LoggedOutMode,
+  +logInState: StateContainer<LogInState>,
+  +registerState: StateContainer<RegisterState>,
 |};
 class LoggedOutModal extends React.PureComponent<Props, State> {
-  static propTypes = {
-    isForeground: PropTypes.bool.isRequired,
-    navContext: navContextPropType,
-    rehydrateConcluded: PropTypes.bool.isRequired,
-    cookie: PropTypes.string,
-    urlPrefix: PropTypes.string.isRequired,
-    loggedIn: PropTypes.bool.isRequired,
-    dimensions: derivedDimensionsInfoPropType.isRequired,
-    dispatch: PropTypes.func.isRequired,
-    dispatchActionPayload: PropTypes.func.isRequired,
-  };
-
   keyboardShowListener: ?EmitterSubscription;
   keyboardHideListener: ?EmitterSubscription;
 
@@ -330,7 +310,10 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     }
 
     if (loggedIn || hasUserCookie) {
-      this.props.dispatchActionPayload(resetUserStateActionType, null);
+      this.props.dispatch({
+        type: resetUserStateActionType,
+        payload: null,
+      });
     }
   }
 
@@ -792,24 +775,34 @@ const styles = StyleSheet.create({
 const isForegroundSelector = createIsForegroundSelector(
   LoggedOutModalRouteName,
 );
-export default connectNav((context: ?NavContextType) => ({
-  isForeground: isForegroundSelector(context),
-  navContext: context,
-}))(
-  connect(
-    (state: AppState, ownProps: { navContext: ?NavContextType }) => ({
-      rehydrateConcluded: !!(
-        state._persist &&
-        state._persist.rehydrated &&
-        ownProps.navContext
-      ),
-      cookie: state.cookie,
-      urlPrefix: state.urlPrefix,
-      loggedIn: isLoggedIn(state),
-      dimensions: derivedDimensionsInfoSelector(state),
-      splashStyle: splashStyleSelector(state),
-    }),
-    null,
-    true,
-  )(LoggedOutModal),
-);
+
+export default React.memo<{ ... }>(function ConnectedLoggedOutModal(props: {
+  ...,
+}) {
+  const navContext = React.useContext(NavContext);
+  const isForeground = isForegroundSelector(navContext);
+
+  const rehydrateConcluded = useSelector(
+    state => !!(state._persist && state._persist.rehydrated && navContext),
+  );
+  const cookie = useSelector(state => state.cookie);
+  const urlPrefix = useSelector(state => state.urlPrefix);
+  const loggedIn = useSelector(isLoggedIn);
+  const dimensions = useSelector(derivedDimensionsInfoSelector);
+  const splashStyle = useSelector(splashStyleSelector);
+
+  const dispatch = useDispatch();
+  return (
+    <LoggedOutModal
+      {...props}
+      isForeground={isForeground}
+      rehydrateConcluded={rehydrateConcluded}
+      cookie={cookie}
+      urlPrefix={urlPrefix}
+      loggedIn={loggedIn}
+      dimensions={dimensions}
+      splashStyle={splashStyle}
+      dispatch={dispatch}
+    />
+  );
+});
