@@ -1,8 +1,6 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type {
   UpdatePasswordInfo,
   LogInExtraInfo,
@@ -21,7 +19,6 @@ import {
 } from 'react-native';
 import invariant from 'invariant';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import PropTypes from 'prop-types';
 import Animated from 'react-native-reanimated';
 
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -29,46 +26,40 @@ import {
   resetPasswordActionTypes,
   resetPassword,
 } from 'lib/actions/user-actions';
-import { connect } from 'lib/utils/redux-utils';
+import {
+  useServerCall,
+  useDispatchActionPromise,
+  type DispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import { TextInput } from './modal-components.react';
 import { PanelButton, Panel } from './panel-components.react';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
-import {
-  connectNav,
-  type NavContextType,
-} from '../navigation/navigation-context';
+import { NavContext } from '../navigation/navigation-context';
+import { useSelector } from '../redux/redux-utils';
 
-type Props = {
-  verifyCode: string,
-  username: string,
-  onSuccess: () => Promise<void>,
-  setActiveAlert: (activeAlert: boolean) => void,
-  opacityValue: Animated.Value,
+type BaseProps = {|
+  +verifyCode: string,
+  +username: string,
+  +onSuccess: () => Promise<void>,
+  +setActiveAlert: (activeAlert: boolean) => void,
+  +opacityValue: Animated.Value,
+|};
+type Props = {|
+  ...BaseProps,
   // Redux state
-  loadingStatus: LoadingStatus,
-  logInExtraInfo: () => LogInExtraInfo,
+  +loadingStatus: LoadingStatus,
+  +logInExtraInfo: () => LogInExtraInfo,
   // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  resetPassword: (info: UpdatePasswordInfo) => Promise<LogInResult>,
-};
-type State = {
-  passwordInputText: string,
-  confirmPasswordInputText: string,
-};
+  +resetPassword: (info: UpdatePasswordInfo) => Promise<LogInResult>,
+|};
+type State = {|
+  +passwordInputText: string,
+  +confirmPasswordInputText: string,
+|};
 class ResetPasswordPanel extends React.PureComponent<Props, State> {
-  static propTypes = {
-    verifyCode: PropTypes.string.isRequired,
-    username: PropTypes.string.isRequired,
-    onSuccess: PropTypes.func.isRequired,
-    setActiveAlert: PropTypes.func.isRequired,
-    opacityValue: PropTypes.object.isRequired,
-    loadingStatus: PropTypes.string.isRequired,
-    logInExtraInfo: PropTypes.func.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    resetPassword: PropTypes.func.isRequired,
-  };
   state = {
     passwordInputText: '',
     confirmPasswordInputText: '',
@@ -289,17 +280,29 @@ const loadingStatusSelector = createLoadingStatusSelector(
   resetPasswordActionTypes,
 );
 
-export default connectNav((context: ?NavContextType) => ({
-  navContext: context,
-}))(
-  connect(
-    (state: AppState, ownProps: { navContext: ?NavContextType }) => ({
-      loadingStatus: loadingStatusSelector(state),
-      logInExtraInfo: nativeLogInExtraInfoSelector({
-        redux: state,
-        navContext: ownProps.navContext,
-      }),
+export default React.memo<BaseProps>(function ConnectedResetPasswordPanel(
+  props: BaseProps,
+) {
+  const loadingStatus = useSelector(loadingStatusSelector);
+
+  const navContext = React.useContext(NavContext);
+  const logInExtraInfo = useSelector(state =>
+    nativeLogInExtraInfoSelector({
+      redux: state,
+      navContext,
     }),
-    { resetPassword },
-  )(ResetPasswordPanel),
-);
+  );
+
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callResetPassword = useServerCall(resetPassword);
+
+  return (
+    <ResetPasswordPanel
+      {...props}
+      loadingStatus={loadingStatus}
+      logInExtraInfo={logInExtraInfo}
+      dispatchActionPromise={dispatchActionPromise}
+      resetPassword={callResetPassword}
+    />
+  );
+});
