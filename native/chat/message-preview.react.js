@@ -13,10 +13,7 @@ import { Text } from 'react-native';
 import PropTypes from 'prop-types';
 
 import { messagePreviewText } from 'lib/shared/message-utils';
-import {
-  threadIsPersonalChat,
-  threadIsTwoPersonChat,
-} from 'lib/shared/thread-utils';
+import { threadIsGroupChat } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
 import { connect } from 'lib/utils/redux-utils';
 import { firstLine } from 'lib/utils/string-utils';
@@ -44,10 +41,7 @@ class MessagePreview extends React.PureComponent<Props> {
       : null;
     if (messageInfo.type === messageTypes.TEXT) {
       let usernameText = null;
-      if (
-        !threadIsPersonalChat(this.props.threadInfo) &&
-        !threadIsTwoPersonChat(this.props.threadInfo)
-      ) {
+      if (threadIsGroupChat(this.props.threadInfo)) {
         const userString = stringForUser(messageInfo.creator);
         const username = `${userString}: `;
         usernameText = (
