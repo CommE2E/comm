@@ -50,7 +50,7 @@ function handleAndroidMessage(
     return;
   }
 
-  let { id, title, prefix, body, threadID } = data;
+  let { id, title, prefix, body, threadID, badgeOnly } = data;
   ({ body } = mergePrefixIntoBody({ body, title, prefix }));
 
   if (handleIfActive) {
@@ -59,6 +59,10 @@ function handleAndroidMessage(
     if (isActive) {
       return;
     }
+  }
+
+  if (badgeOnly === '1') {
+    return;
   }
 
   const notification = new firebase.notifications.Notification()
