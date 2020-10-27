@@ -24,6 +24,8 @@ function ThreadIcon(props: Props) {
         style={styles.sidebarIcon}
       />
     );
+  } else if (threadType === threadTypes.PERSONAL) {
+    return <MaterialIcon name="people" size={18} color={color} />;
   } else {
     return <MaterialIcon name="public" size={18} color={color} />;
   }
