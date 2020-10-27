@@ -219,6 +219,8 @@ dependencies {
     implementation 'com.facebook.fresco:animated-webp:2.2.0'
     implementation 'com.facebook.fresco:webpsupport:2.2.0'
 
+    implementation 'org.conscrypt:conscrypt-android:2.0.0'
+
     if (enableHermes) {
         def hermesPath = "../../../node_modules/hermes-engine/android/";
         debugImplementation files(hermesPath + "hermes-debug.aar")

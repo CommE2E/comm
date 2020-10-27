@@ -27,6 +27,7 @@ import com.wix.reactnativekeyboardinput.KeyboardInputPackage;
 import java.util.Arrays;
 import java.util.List;
 import java.lang.reflect.InvocationTargetException;
+import java.security.Security;
 
 public class MainApplication extends MultiDexApplication implements ReactApplication {
   private final ReactModuleRegistryProvider mModuleRegistryProvider = new ReactModuleRegistryProvider(new BasePackageList().getPackageList(), null);
@@ -67,6 +68,7 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
   @Override
   public void onCreate() {
     super.onCreate();
+    Security.insertProviderAt(new org.conscrypt.OpenSSLProvider(), 1);
     SoLoader.init(this, /* native exopackage */ false);
     initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
   }
