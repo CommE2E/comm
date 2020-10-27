@@ -1,6 +1,5 @@
 // @flow
 
-import type { DeviceType } from 'lib/types/device-types';
 import type { Dispatch } from 'lib/types/redux-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import {
@@ -17,13 +16,7 @@ import type { RootNavigationProp } from '../navigation/root-navigator.react';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import {
-  AppRegistry,
-  Platform,
-  Alert,
-  Vibration,
-  LogBox,
-} from 'react-native';
+import { AppRegistry, Platform, Alert, Vibration, LogBox } from 'react-native';
 import NotificationsIOS from 'react-native-notifications';
 import {
   Notification as InAppNotification,
@@ -109,10 +102,7 @@ type Props = {|
   +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  +setDeviceToken: (
-    deviceToken: string,
-    deviceType: DeviceType,
-  ) => Promise<string>,
+  +setDeviceToken: (deviceToken: string) => Promise<string>,
   // withRootContext
   +rootContext: ?RootContextType,
 |};
@@ -425,7 +415,7 @@ class PushHandler extends React.PureComponent<Props, State> {
   setDeviceToken(deviceToken: string) {
     this.props.dispatchActionPromise(
       setDeviceTokenActionTypes,
-      this.props.setDeviceToken(deviceToken, Platform.OS),
+      this.props.setDeviceToken(deviceToken),
       undefined,
       deviceToken,
     );

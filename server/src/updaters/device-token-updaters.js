@@ -1,7 +1,12 @@
 // @flow
 
-import type { DeviceTokenUpdateRequest } from 'lib/types/device-types';
+import {
+  type DeviceTokenUpdateRequest,
+  isDeviceType,
+} from 'lib/types/device-types';
 import type { Viewer } from '../session/viewer';
+
+import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from '../database/database';
 
@@ -9,12 +14,26 @@ async function deviceTokenUpdater(
   viewer: Viewer,
   update: DeviceTokenUpdateRequest,
 ): Promise<void> {
+  const deviceType = update.platformDetails?.platform ?? update.deviceType;
+  if (!isDeviceType(deviceType)) {
+    throw new ServerError('invalid_parameters');
+  }
+
   viewer.setDeviceToken(update.deviceToken);
   await clearDeviceToken(update.deviceToken);
+
+  const setColumns = {};
+  setColumns.device_token = update.deviceToken;
+  setColumns.platform = deviceType;
+  if (update.platformDetails) {
+    const { platform, ...versions } = update.platformDetails;
+    if (Object.keys(versions).length > 0) {
+      setColumns.versions = JSON.stringify(versions);
+    }
+  }
+
   const query = SQL`
-    UPDATE cookies
-    SET device_token = ${update.deviceToken}, platform = ${update.deviceType}
-    WHERE id = ${viewer.cookieID}
+    UPDATE cookies SET ${setColumns} WHERE id = ${viewer.cookieID}
   `;
   await dbQuery(query);
 }

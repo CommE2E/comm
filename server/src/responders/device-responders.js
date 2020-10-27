@@ -6,11 +6,16 @@ import type { Viewer } from '../session/viewer';
 import t from 'tcomb';
 
 import { deviceTokenUpdater } from '../updaters/device-token-updaters';
-import { validateInput, tShape } from '../utils/validation-utils';
+import {
+  validateInput,
+  tShape,
+  tPlatformDetails,
+} from '../utils/validation-utils';
 
 const deviceTokenUpdateRequestInputValidator = tShape({
-  deviceType: t.enums.of(['ios', 'android']),
   deviceToken: t.String,
+  deviceType: t.maybe(t.enums.of(['ios', 'android'])),
+  platformDetails: t.maybe(tPlatformDetails),
 });
 
 async function deviceTokenUpdateResponder(
