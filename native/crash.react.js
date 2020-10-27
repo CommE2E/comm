@@ -112,7 +112,7 @@ class Crash extends React.PureComponent<Props, State> {
         </React.Fragment>
       );
     } else {
-      crashID = <ActivityIndicator size="small" />;
+      crashID = <ActivityIndicator size="small" color="black" />;
     }
 
     const buttonStyle = { opacity: Number(this.state.doneWaiting) };

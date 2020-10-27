@@ -140,6 +140,7 @@ class MoreScreen extends React.PureComponent<Props> {
           <ActivityIndicator
             size="small"
             style={this.props.styles.resendVerificationEmailSpinner}
+            color={this.props.colors.panelForegroundSecondaryLabel}
           />
         );
       }
