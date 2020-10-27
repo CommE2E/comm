@@ -20,7 +20,7 @@ import com.android.build.OutputFile
  *   // default. Can be overridden with ENTRY_FILE environment variable.
  *   entryFile: "index.android.js",
  *
- *   // https://facebook.github.io/react-native/docs/performance#enable-the-ram-format
+ *   // https://reactnative.dev/docs/performance#enable-the-ram-format
  *   bundleCommand: "ram-bundle",
  *
  *   // whether to bundle JS and assets in debug mode
