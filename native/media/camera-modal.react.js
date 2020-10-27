@@ -17,7 +17,7 @@ import {
   InputStateContext,
 } from '../input/input-state';
 import type { ViewStyle } from '../types/styles';
-import type { NativeMethodsMixinType } from '../types/react-native';
+import type { NativeMethods } from '../types/react-native';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { NavigationRoute } from '../navigation/route-names';
 import type { Dispatch } from 'lib/types/redux-types';
@@ -233,7 +233,7 @@ export type CameraModalParams = {|
 
 type TouchableOpacityInstance = React.AbstractComponent<
   React.ElementConfig<typeof TouchableOpacity>,
-  NativeMethodsMixinType,
+  NativeMethods,
 >;
 
 type BaseProps = {|

@@ -12,4 +12,4 @@ export type {
   KeyPressEvent,
 } from 'react-native/Libraries/Components/TextInput/TextInput';
 
-export type { NativeMethodsMixinType } from 'react-native/Libraries/Renderer/shims/ReactNativeTypes';
+export type { NativeMethods } from 'react-native/Libraries/Renderer/shims/ReactNativeTypes';

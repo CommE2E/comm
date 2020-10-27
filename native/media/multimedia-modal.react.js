@@ -11,7 +11,7 @@ import {
   type LayoutCoordinates,
   layoutCoordinatesPropType,
 } from '../types/layout-types';
-import type { NativeMethodsMixinType } from '../types/react-native';
+import type { NativeMethods } from '../types/react-native';
 import type { ChatMultimediaMessageInfoItem } from '../chat/multimedia-message.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
@@ -156,7 +156,7 @@ export type MultimediaModalParams = {|
 
 type TouchableOpacityInstance = React.AbstractComponent<
   React.ElementConfig<typeof TouchableOpacity>,
-  NativeMethodsMixinType,
+  NativeMethods,
 >;
 
 type BaseProps = {|
