@@ -49,13 +49,19 @@ async function createThread(
   }
 
   const threadType = request.type;
+  const shouldCreateRelationships =
+    forceAddMembers || threadType === threadTypes.PERSONAL;
   const parentThreadID = request.parentThreadID ? request.parentThreadID : null;
   const initialMemberIDs =
     request.initialMemberIDs && request.initialMemberIDs.length > 0
       ? request.initialMemberIDs
       : null;
 
-  if (threadType !== threadTypes.CHAT_SECRET && !parentThreadID) {
+  if (
+    threadType !== threadTypes.CHAT_SECRET &&
+    threadType !== threadTypes.PERSONAL &&
+    !parentThreadID
+  ) {
     throw new ServerError('invalid_parameters');
   }
 
@@ -102,7 +108,7 @@ async function createThread(
     invariant(initialMemberIDs, 'should be set');
     for (const initialMemberID of initialMemberIDs) {
       const initialMember = fetchInitialMembers[initialMemberID];
-      if (!initialMember && forceAddMembers) {
+      if (!initialMember && shouldCreateRelationships) {
         viewerNeedsRelationshipsWith.push(initialMemberID);
         continue;
       } else if (!initialMember) {
@@ -122,7 +128,7 @@ async function createThread(
         parentThreadMembers.includes(initialMemberID)
       ) {
         continue;
-      } else if (!forceAddMembers) {
+      } else if (!shouldCreateRelationships) {
         throw new ServerError('invalid_credentials');
       }
     }
