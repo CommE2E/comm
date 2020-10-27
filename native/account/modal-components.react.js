@@ -15,7 +15,6 @@ class TextInput extends React.PureComponent<*> {
     return (
       <View style={styles.textInputWrapperView}>
         <BaseTextInput
-          underlineColorAndroid="transparent"
           placeholderTextColor="#888888"
           {...this.props}
           style={style}
@@ -44,6 +43,7 @@ const styles = StyleSheet.create({
     height: 40,
     margin: 0,
     padding: 0,
+    borderBottomColor: 'transparent',
   },
   textInputWrapperView: {
     borderBottomColor: '#BBBBBB',

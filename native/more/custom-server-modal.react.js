@@ -60,7 +60,6 @@ class CustomServerModal extends React.PureComponent<Props, State> {
       >
         <TextInput
           style={this.props.styles.textInput}
-          underlineColorAndroid="transparent"
           value={this.state.customServer}
           onChangeText={this.onChangeCustomServer}
           autoFocus={true}
@@ -115,6 +114,7 @@ const styles = {
     fontSize: 16,
     margin: 0,
     padding: 0,
+    borderBottomColor: 'transparent',
   },
 };
 const stylesSelector = styleSelector(styles);

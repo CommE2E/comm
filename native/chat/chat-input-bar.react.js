@@ -513,7 +513,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
           <ClearableTextInput
             value={this.state.text}
             onChangeText={this.updateText}
-            underlineColorAndroid="transparent"
             placeholder="Send a message..."
             placeholderTextColor={this.props.colors.listInputButton}
             multiline={true}

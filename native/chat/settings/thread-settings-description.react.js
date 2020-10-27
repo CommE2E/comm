@@ -107,7 +107,6 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
           <View style={this.props.styles.row}>
             <TextInput
               style={[this.props.styles.text, textInputStyle]}
-              underlineColorAndroid="transparent"
               value={this.props.descriptionEditValue}
               onChangeText={this.props.setDescriptionEditValue}
               multiline={true}
@@ -286,6 +285,7 @@ const styles = {
     fontSize: 16,
     margin: 0,
     padding: 0,
+    borderBottomColor: 'transparent',
   },
 };
 const stylesSelector = styleSelector(styles);

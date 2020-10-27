@@ -105,7 +105,6 @@ class EditPassword extends React.PureComponent<Props, State> {
           <View style={this.props.styles.row}>
             <TextInput
               style={this.props.styles.input}
-              underlineColorAndroid="transparent"
               value={this.state.currentPassword}
               onChangeText={this.onChangeCurrentPassword}
               placeholder="Current password"
@@ -125,7 +124,6 @@ class EditPassword extends React.PureComponent<Props, State> {
           <View style={this.props.styles.row}>
             <TextInput
               style={this.props.styles.input}
-              underlineColorAndroid="transparent"
               value={this.state.newPassword}
               onChangeText={this.onChangeNewPassword}
               placeholder="New password"
@@ -141,7 +139,6 @@ class EditPassword extends React.PureComponent<Props, State> {
           <View style={this.props.styles.row}>
             <TextInput
               style={this.props.styles.input}
-              underlineColorAndroid="transparent"
               value={this.state.confirmPassword}
               onChangeText={this.onChangeConfirmPassword}
               placeholder="Confirm password"
@@ -309,6 +306,7 @@ const styles = {
     fontFamily: 'Arial',
     fontSize: 16,
     paddingVertical: 0,
+    borderBottomColor: 'transparent',
   },
   row: {
     flexDirection: 'row',

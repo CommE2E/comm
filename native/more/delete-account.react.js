@@ -116,7 +116,6 @@ class DeleteAccount extends React.PureComponent<Props, State> {
         <View style={this.props.styles.section}>
           <TextInput
             style={this.props.styles.input}
-            underlineColorAndroid="transparent"
             value={this.state.password}
             onChangeText={this.onChangePasswordText}
             placeholder="Password"
@@ -215,6 +214,7 @@ const styles = {
     fontFamily: 'Arial',
     fontSize: 16,
     paddingVertical: 0,
+    borderBottomColor: 'transparent',
   },
   lastWarningText: {
     marginBottom: 24,

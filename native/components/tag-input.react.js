@@ -292,7 +292,6 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
       placeholderTextColor: placeholderColor,
       returnKeyType: 'done',
       keyboardType: 'default',
-      underlineColorAndroid: 'rgba(0,0,0,0)',
     };
 
     const textInputProps: React.ElementConfig<typeof TextInput> = {
@@ -482,6 +481,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 0,
     marginTop: 3,
     padding: 0,
+    borderBottomColor: 'transparent',
   },
   textInputContainer: {},
   wrapper: {},

@@ -124,7 +124,6 @@ class ThreadSettingsName extends React.PureComponent<Props> {
       <React.Fragment>
         <TextInput
           style={[this.props.styles.currentValue, textInputStyle]}
-          underlineColorAndroid="transparent"
           value={this.props.nameEditValue}
           onChangeText={this.props.setNameEditValue}
           multiline={true}
@@ -219,6 +218,7 @@ const styles = {
     paddingLeft: 4,
     paddingRight: 0,
     paddingVertical: 0,
+    borderBottomColor: 'transparent',
   },
   label: {
     color: 'panelForegroundTertiaryLabel',

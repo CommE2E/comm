@@ -382,7 +382,6 @@ class InternalEntry extends React.Component<Props, State> {
       textInput = (
         <TextInput
           style={[this.props.styles.textInput, textInputStyle]}
-          underlineColorAndroid="transparent"
           value={this.state.text}
           onChangeText={this.onChangeText}
           multiline={true}

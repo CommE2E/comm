@@ -70,7 +70,6 @@ class Search extends React.PureComponent<Props> {
 
     const textInputProps: React.ElementProps<typeof TextInput> = {
       style: styles.searchInput,
-      underlineColorAndroid: 'transparent',
       value: searchText,
       onChangeText: onChangeText,
       placeholderTextColor: iconColor,
@@ -108,6 +107,7 @@ const styles = {
     marginLeft: 8,
     marginVertical: 0,
     padding: 0,
+    borderBottomColor: 'transparent',
   },
 };
 const stylesSelector = styleSelector(styles);
