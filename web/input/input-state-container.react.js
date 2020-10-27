@@ -423,8 +423,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       prevState => {
         const prevUploads = prevState.pendingUploads[threadID];
         const mergedUploads = prevUploads
-          ? // $FlowFixMe should be fixed in flow-bin@0.115 / react-native@0.63
-            { ...prevUploads, ...newUploadsObject }
+          ? { ...prevUploads, ...newUploadsObject }
           : newUploadsObject;
         return {
           pendingUploads: {
