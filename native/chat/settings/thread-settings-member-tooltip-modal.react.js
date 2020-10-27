@@ -17,7 +17,7 @@ import {
   changeThreadMemberRolesActionTypes,
   changeThreadMemberRoles,
 } from 'lib/actions/thread-actions';
-import { memberIsAdmin } from 'lib/shared/thread-utils';
+import { memberIsAdmin, roleIsAdminRole } from 'lib/shared/thread-utils';
 
 import {
   createTooltip,
@@ -74,7 +74,7 @@ function onToggleAdmin(
       if (isCurrentlyAdmin && role.isDefault) {
         newRole = role.id;
         break;
-      } else if (!isCurrentlyAdmin && role.name === 'Admins') {
+      } else if (!isCurrentlyAdmin && roleIsAdminRole(role)) {
         newRole = role.id;
         break;
       }

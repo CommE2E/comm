@@ -17,14 +17,18 @@ import type { Viewer } from '../session/viewer';
 import { messageTypes, defaultNumberPerThread } from 'lib/types/message-types';
 import { userRelationshipStatus } from 'lib/types/relationship-types';
 
-import _find from 'lodash/fp/find';
 import invariant from 'invariant';
 
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
-import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
+import {
+  threadHasAdminRole,
+  roleIsAdminRole,
+  viewerIsMember,
+  threadHasPermission,
+} from 'lib/shared/thread-utils';
 
 import { dbQuery, SQL } from '../database/database';
 import {
@@ -231,7 +235,7 @@ async function leaveThread(
   }
 
   const viewerID = viewer.userID;
-  if (_find({ name: 'Admins' })(threadInfo.roles)) {
+  if (threadHasAdminRole(threadInfo)) {
     let otherUsersExist = false;
     let otherAdminsExist = false;
     for (let member of threadInfo.members) {
@@ -240,7 +244,7 @@ async function leaveThread(
         continue;
       }
       otherUsersExist = true;
-      if (threadInfo.roles[role].name === 'Admins') {
+      if (roleIsAdminRole(threadInfo.roles[role])) {
         otherAdminsExist = true;
         break;
       }
