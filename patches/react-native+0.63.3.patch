@@ -1,0 +1,13 @@
+diff --git a/node_modules/react-native/Libraries/Components/Touchable/TouchableNativeFeedback.js b/node_modules/react-native/Libraries/Components/Touchable/TouchableNativeFeedback.js
+index 5dc03df..e526092 100644
+--- a/node_modules/react-native/Libraries/Components/Touchable/TouchableNativeFeedback.js
++++ b/node_modules/react-native/Libraries/Components/Touchable/TouchableNativeFeedback.js
+@@ -338,7 +338,7 @@ class TouchableNativeFeedback extends React.Component<Props, State> {
+ }
+ 
+ const getBackgroundProp =
+-  Platform.OS === 'android'
++  Platform.OS === 'android' && Platform.Version >= 21
+     ? (background, useForeground) =>
+         useForeground && TouchableNativeFeedback.canUseNativeForeground()
+           ? {nativeForegroundAndroid: background}
