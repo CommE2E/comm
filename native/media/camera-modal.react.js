@@ -346,7 +346,7 @@ class CameraModal extends React.PureComponent<Props, State> {
 
     const sendButtonScale = this.sendButtonProgress.interpolate({
       inputRange: [0, 1],
-      outputRange: [1.1, 1],
+      outputRange: ([1.1, 1]: number[]), // Flow...
     });
     this.sendButtonStyle = {
       opacity: this.sendButtonProgress,

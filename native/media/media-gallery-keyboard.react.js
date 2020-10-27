@@ -81,7 +81,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     super(props);
     const sendButtonScale = this.queueModeProgress.interpolate({
       inputRange: [0, 1],
-      outputRange: [1.3, 1],
+      outputRange: ([1.3, 1]: number[]), // Flow...
     });
     this.sendButtonStyle = {
       opacity: this.queueModeProgress,

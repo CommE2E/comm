@@ -59,7 +59,7 @@ function DisconnectedBar(props: Props) {
     () => ({
       height: showing.interpolate({
         inputRange: [0, 1],
-        outputRange: [0, expandedHeight],
+        outputRange: ([0, expandedHeight]: number[]), // Flow...
       }),
     }),
     [showing],

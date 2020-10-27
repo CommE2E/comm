@@ -88,7 +88,7 @@ class ChatList extends React.PureComponent<Props, State> {
     super(props);
     const sendButtonTranslateY = this.newMessagesPillProgress.interpolate({
       inputRange: [0, 1],
-      outputRange: [10, 0],
+      outputRange: ([10, 0]: number[]), // Flow...
     });
     this.newMessagesPillStyle = {
       opacity: this.newMessagesPillProgress,
