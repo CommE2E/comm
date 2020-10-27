@@ -257,6 +257,7 @@ class InternalEntry extends React.Component<Props, State> {
   componentWillUnmount() {
     this.mounted = false;
     this.props.entryRef(entryKey(this.props.entryInfo), null);
+    this.props.onConcludeEditMode(this.props.entryInfo);
   }
 
   static isActive(props: Props, state: State) {
