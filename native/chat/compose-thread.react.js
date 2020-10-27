@@ -125,8 +125,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
   createThreadPressed = false;
   waitingOnThreadID: ?string;
 
-  constructor(props: Props) {
-    super(props);
+  componentDidMount() {
     this.setLinkButton(true);
   }
 
