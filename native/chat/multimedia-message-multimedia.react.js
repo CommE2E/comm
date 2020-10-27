@@ -2,7 +2,7 @@
 
 import { type MediaInfo, mediaInfoPropType } from 'lib/types/media-types';
 import type { ChatMultimediaMessageInfoItem } from './multimedia-message.react';
-import type { ImageStyle } from '../types/styles';
+import type { ViewStyle } from '../types/styles';
 import {
   MultimediaModalRouteName,
   MultimediaTooltipModalRouteName,
@@ -56,7 +56,7 @@ type BaseProps = {|
   +route: NavigationRoute<'MessageList'>,
   +verticalBounds: ?VerticalBounds,
   +verticalOffset: number,
-  +style: ImageStyle,
+  +style: ViewStyle,
   +postInProgress: boolean,
   +pendingUpload: ?PendingMultimediaUpload,
   +messageFocused: boolean,

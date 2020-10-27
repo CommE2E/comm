@@ -338,7 +338,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
   render() {
     let content;
     const { selections, error, containerHeight } = this.state;
-    const bottomOffsetStyle = {
+    const bottomOffsetStyle: ViewStyle = {
       marginBottom: this.props.dimensions.bottomInset,
     };
     if (selections && selections.length > 0 && containerHeight) {

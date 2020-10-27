@@ -62,7 +62,6 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     alignSelf: 'flex-start',
     justifyContent: 'flex-start',
-    textAlign: 'left',
     width: '100%',
   },
   text: {

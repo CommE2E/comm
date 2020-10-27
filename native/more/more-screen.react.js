@@ -144,7 +144,7 @@ class MoreScreen extends React.PureComponent<Props> {
         );
       }
       emailVerifiedNode = (
-        <View style={this.props.styles.verification}>
+        <View style={this.props.styles.verificationSection}>
           <Text
             style={[
               this.props.styles.verificationText,
@@ -520,6 +520,11 @@ const styles = {
     textAlign: 'right',
   },
   verification: {
+    alignSelf: 'flex-end',
+    flexDirection: 'row',
+    height: 20,
+  },
+  verificationSection: {
     alignSelf: 'flex-end',
     flexDirection: 'row',
     height: 20,

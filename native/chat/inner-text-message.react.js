@@ -61,7 +61,7 @@ function InnerTextMessage(props: Props) {
   const boundColors = useColors();
 
   let messageStyle = {},
-    textStyle = { ...styles.text },
+    textStyle = {},
     darkColor;
   if (isViewer) {
     const threadColor = item.threadInfo.color;
@@ -100,7 +100,7 @@ function InnerTextMessage(props: Props) {
       style={[styles.message, messageStyle, cornerStyle]}
     >
       <Markdown
-        style={textStyle}
+        style={[styles.text, textStyle]}
         rules={textMessageRules(darkColor, threadMembers)}
       >
         {text}

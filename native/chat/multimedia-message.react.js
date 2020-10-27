@@ -6,7 +6,7 @@ import type {
   LocalMessageInfo,
 } from 'lib/types/message-types';
 import type { Media, Corners } from 'lib/types/media-types';
-import type { ImageStyle } from '../types/styles';
+import type { ViewStyle } from '../types/styles';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import {
   type VerticalBounds,
@@ -225,7 +225,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
           j + 1 < mediaPerRow
             ? [styles.filler, styles.imageBeforeImage]
             : styles.filler;
-        row.push(<View style={[style, styles.filler]} key={key} />);
+        row.push(<View style={style} key={key} />);
       }
 
       const rowStyle = lastRow ? styles.row : [styles.row, styles.rowAboveRow];
@@ -243,7 +243,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
     index: number,
     verticalOffset: number,
     corners: Corners,
-    style?: ImageStyle,
+    style?: ViewStyle,
   ): React.Node {
     const filteredCorners = filterCorners(corners, this.props.item);
     const roundedStyle = getRoundedContainerStyle(

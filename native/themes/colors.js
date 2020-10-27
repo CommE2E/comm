@@ -154,11 +154,7 @@ for (let theme in colors) {
 type Styles = { [name: string]: { [field: string]: mixed } };
 
 type ReplaceField = (input: any) => any;
-type ReplaceStyleObject = <Obj: { [key: string]: mixed }>(
-  Obj,
-) => $ObjMap<Obj, ReplaceField>;
-
-export type StyleSheetOf<S: Styles> = $ObjMap<S, ReplaceStyleObject>;
+export type StyleSheetOf<S: Styles> = $ObjMap<S, ReplaceField>;
 
 function stylesFromColors<IS: Styles>(
   obj: IS,
