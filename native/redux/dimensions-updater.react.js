@@ -16,6 +16,7 @@ import {
   addKeyboardDismissListener,
   removeKeyboardListener,
   androidKeyboardResizesFrame,
+  rnsacThinksAndroidKeyboardResizesFrame,
 } from '../keyboard/keyboard';
 import { updateDimensionsActiveType } from './action-types';
 import { useSelector } from './redux-utils';
@@ -80,7 +81,7 @@ function DimensionsUpdater() {
     keyboardShowingRef.current = false;
   }, []);
   React.useEffect(() => {
-    if (!androidKeyboardResizesFrame) {
+    if (!rnsacThinksAndroidKeyboardResizesFrame) {
       return;
     }
     const showListener = addKeyboardShowListener(keyboardShow);
