@@ -4,7 +4,7 @@ import type { PossiblyStaleNavigationState } from '@react-navigation/native';
 
 import * as React from 'react';
 import { Provider } from 'react-redux';
-import { Platform, UIManager, View, StyleSheet, YellowBox } from 'react-native';
+import { Platform, UIManager, View, StyleSheet, LogBox } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 import { PersistGate } from 'redux-persist/integration/react';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -43,7 +43,7 @@ import { validNavState } from './navigation/navigation-utils';
 import { navStateAsyncStorageKey } from './navigation/persistance';
 import { useSelector } from './redux/redux-utils';
 
-YellowBox.ignoreWarnings([
+LogBox.ignoreLogs([
   // react-native-reanimated
   'Please report: Excessive number of pending callbacks',
 ]);

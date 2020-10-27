@@ -22,7 +22,7 @@ import {
   Platform,
   Alert,
   Vibration,
-  YellowBox,
+  LogBox,
 } from 'react-native';
 import NotificationsIOS from 'react-native-notifications';
 import {
@@ -78,7 +78,7 @@ import {
 } from '../lifecycle/lifecycle';
 import { useSelector } from '../redux/redux-utils';
 
-YellowBox.ignoreWarnings([
+LogBox.ignoreLogs([
   // react-native-firebase
   'Require cycle: ../node_modules/react-native-firebase',
   // react-native-in-app-message
