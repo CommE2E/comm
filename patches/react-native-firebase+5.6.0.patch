@@ -138,6 +138,19 @@ index 1716dbe..8a52a88 100644
              ) {
                throw new Error(
                  'Query.onSnapshot failed: Observer.error must be a valid function.'
+diff --git a/node_modules/react-native-firebase/dist/modules/firestore/TransactionHandler.js.flow b/node_modules/react-native-firebase/dist/modules/firestore/TransactionHandler.js.flow
+index 624acf0..f4b3039 100644
+--- a/node_modules/react-native-firebase/dist/modules/firestore/TransactionHandler.js.flow
++++ b/node_modules/react-native-firebase/dist/modules/firestore/TransactionHandler.js.flow
+@@ -18,7 +18,7 @@ const generateTransactionId = (): number => transactionId++;
+ 
+ export type TransactionMeta = {
+   id: number,
+-  stack: string[],
++  stack: string,
+   reject?: Function,
+   resolve?: Function,
+   transaction: Transaction,
 diff --git a/node_modules/react-native-firebase/dist/modules/messaging/index.js.flow b/node_modules/react-native-firebase/dist/modules/messaging/index.js.flow
 index 988be94..a030db8 100644
 --- a/node_modules/react-native-firebase/dist/modules/messaging/index.js.flow
