@@ -1,6 +1,10 @@
 // @flow
 
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import {
+  type ThreadInfo,
+  threadInfoPropType,
+  threadTypes,
+} from 'lib/types/thread-types';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { ViewToken } from '../types/react-native';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types';
@@ -37,6 +41,7 @@ import {
 } from 'lib/utils/action-utils';
 
 import { Message, type ChatMessageInfoItemWithHeight } from './message.react';
+import RelationshipPrompt from './relationship-prompt.react';
 import ListLoadingIndicator from '../components/list-loading-indicator.react';
 import {
   useStyles,
@@ -263,12 +268,24 @@ class MessageList extends React.PureComponent<Props, State> {
   render() {
     const { messageListData, startReached } = this.props;
     const footer = startReached ? this.ListFooterComponent : undefined;
+    let relationshipPrompt = null;
+    if (this.props.threadInfo.type === threadTypes.PERSONAL) {
+      relationshipPrompt = (
+        <RelationshipPrompt
+          pendingPersonalThreadUserInfo={
+            this.props.route.params.pendingPersonalThreadUserInfo
+          }
+          threadInfo={this.props.threadInfo}
+        />
+      );
+    }
     return (
       <View
         style={this.props.styles.container}
         ref={this.flatListContainerRef}
         onLayout={this.onFlatListContainerLayout}
       >
+        {relationshipPrompt}
         <ChatList
           navigation={this.props.navigation}
           inverted={true}
