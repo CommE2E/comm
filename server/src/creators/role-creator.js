@@ -90,6 +90,7 @@ function getRolePermissionBlobsForOrg(): RolePermissionBlobs {
     [threadPermissions.EDIT_ENTRIES]: true,
     [threadPermissions.EDIT_THREAD]: true,
     [threadPermissions.CREATE_SUBTHREADS]: true,
+    [threadPermissions.CREATE_SIDEBARS]: true,
     [threadPermissions.ADD_MEMBERS]: true,
   };
   const descendantKnowOf =
@@ -106,6 +107,8 @@ function getRolePermissionBlobsForOrg(): RolePermissionBlobs {
     threadPermissionPrefixes.DESCENDANT + threadPermissions.EDIT_THREAD;
   const descendantCreateSubthreads =
     threadPermissionPrefixes.DESCENDANT + threadPermissions.CREATE_SUBTHREADS;
+  const descendantCreateSidebars =
+    threadPermissionPrefixes.DESCENDANT + threadPermissions.CREATE_SIDEBARS;
   const descendantAddMembers =
     threadPermissionPrefixes.DESCENDANT + threadPermissions.ADD_MEMBERS;
   const descendantDeleteThread =
@@ -124,6 +127,7 @@ function getRolePermissionBlobsForOrg(): RolePermissionBlobs {
     [threadPermissions.EDIT_ENTRIES]: true,
     [threadPermissions.EDIT_THREAD]: true,
     [threadPermissions.CREATE_SUBTHREADS]: true,
+    [threadPermissions.CREATE_SIDEBARS]: true,
     [threadPermissions.ADD_MEMBERS]: true,
     [threadPermissions.DELETE_THREAD]: true,
     [threadPermissions.EDIT_PERMISSIONS]: true,
@@ -136,6 +140,7 @@ function getRolePermissionBlobsForOrg(): RolePermissionBlobs {
     [descendantEditEntries]: true,
     [descendantEditThread]: true,
     [descendantCreateSubthreads]: true,
+    [descendantCreateSidebars]: true,
     [descendantAddMembers]: true,
     [descendantDeleteThread]: true,
     [descendantEditPermissions]: true,
@@ -180,6 +185,7 @@ function getRolePermissionBlobsForChat(
     [threadPermissions.EDIT_ENTRIES]: true,
     [threadPermissions.EDIT_THREAD]: true,
     [threadPermissions.CREATE_SUBTHREADS]: true,
+    [threadPermissions.CREATE_SIDEBARS]: true,
     [threadPermissions.ADD_MEMBERS]: true,
     [threadPermissions.EDIT_PERMISSIONS]: true,
     [threadPermissions.REMOVE_MEMBERS]: true,
