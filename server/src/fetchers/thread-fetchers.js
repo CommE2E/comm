@@ -97,6 +97,7 @@ function rawThreadInfosFromServerThreadInfos(
   serverResult: FetchServerThreadInfosResult,
 ): FetchThreadInfosResult {
   const viewerID = viewer.id;
+  const hasCodeVersionBelow70 = !hasMinCodeVersion(viewer.platformDetails, 70);
   const threadInfos = {};
   for (let threadID in serverResult.threadInfos) {
     const serverThreadInfo = serverResult.threadInfos[threadID];
@@ -104,7 +105,8 @@ function rawThreadInfosFromServerThreadInfos(
       serverThreadInfo,
       viewerID,
       {
-        includeVisibilityRules: !hasMinCodeVersion(viewer.platformDetails, 70),
+        includeVisibilityRules: hasCodeVersionBelow70,
+        filterMemberList: hasCodeVersionBelow70,
       },
     );
     if (threadInfo) {

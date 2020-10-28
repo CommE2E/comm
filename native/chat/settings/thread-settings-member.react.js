@@ -20,7 +20,11 @@ import {
 } from 'react-native';
 import invariant from 'invariant';
 
-import { threadHasPermission, memberIsAdmin } from 'lib/shared/thread-utils';
+import {
+  threadHasPermission,
+  memberIsAdmin,
+  memberIsParentAdmin,
+} from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
 import {
   removeUsersFromThreadActionTypes,
@@ -153,23 +157,14 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
           </Text>
         </View>
       );
-    } else {
-      // In the future, when we might have more than two roles per threads, we
-      // will need something more sophisticated here. For now, if the user isn't
-      // an admin and yet has the CHANGE_ROLE permissions, we know that they are
-      // an admin of an ancestor of this thread.
-      const canChangeRoles =
-        this.props.memberInfo.permissions[threadPermissions.CHANGE_ROLE] &&
-        this.props.memberInfo.permissions[threadPermissions.CHANGE_ROLE].value;
-      if (canChangeRoles) {
-        roleInfo = (
-          <View style={this.props.styles.row}>
-            <Text style={this.props.styles.role} numberOfLines={1}>
-              parent admin
-            </Text>
-          </View>
-        );
-      }
+    } else if (memberIsParentAdmin(this.props.memberInfo)) {
+      roleInfo = (
+        <View style={this.props.styles.row}>
+          <Text style={this.props.styles.role} numberOfLines={1}>
+            parent admin
+          </Text>
+        </View>
+      );
     }
 
     const firstItem = this.props.firstListItem
