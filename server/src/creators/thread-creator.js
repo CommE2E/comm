@@ -64,7 +64,9 @@ async function createThread(
     checkPromises.hasParentPermission = checkThreadPermission(
       viewer,
       parentThreadID,
-      threadPermissions.CREATE_SUBTHREADS,
+      threadType === threadTypes.SIDEBAR
+        ? threadPermissions.CREATE_SIDEBARS
+        : threadPermissions.CREATE_SUBTHREADS,
     );
     checkPromises.parentThread = fetchServerThreadInfos(
       SQL`t.id = ${parentThreadID}`,

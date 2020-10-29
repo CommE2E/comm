@@ -422,7 +422,9 @@ async function updateThread(
         nextThreadType !== oldThreadType) &&
       !threadHasPermission(
         parentThreadInfo,
-        threadPermissions.CREATE_SUBTHREADS,
+        nextThreadType === threadTypes.SIDEBAR
+          ? threadPermissions.CREATE_SIDEBARS
+          : threadPermissions.CREATE_SUBTHREADS,
       )
     ) {
       throw new ServerError('invalid_parameters');
