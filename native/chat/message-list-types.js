@@ -2,18 +2,21 @@
 
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { MarkdownRules } from '../markdown/rules.react';
+import { type UserInfo, userInfoPropType } from 'lib/types/user-types';
 
 import PropTypes from 'prop-types';
 import * as React from 'react';
 
 export type MessageListParams = {|
   threadInfo: ThreadInfo,
+  pendingPersonalThreadUserInfo?: UserInfo,
 |};
 
 export const messageListRoutePropType = PropTypes.shape({
   key: PropTypes.string.isRequired,
   params: PropTypes.shape({
     threadInfo: threadInfoPropType.isRequired,
+    pendingPersonalThreadUserInfo: userInfoPropType,
   }).isRequired,
 });
 
