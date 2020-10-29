@@ -24,7 +24,7 @@ import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
-import { threadHasPermission } from 'lib/shared/thread-utils';
+import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
 
 import { dbQuery, SQL } from '../database/database';
 import {
@@ -35,7 +35,7 @@ import {
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import {
   checkThreadPermission,
-  viewerIsMember,
+  viewerIsMember as fetchViewerIsMember,
   checkThread,
 } from '../fetchers/thread-permission-fetchers';
 import {
@@ -221,12 +221,12 @@ async function leaveThread(
     throw new ServerError('not_logged_in');
   }
 
-  const [isMember, fetchThreadResult] = await Promise.all([
-    viewerIsMember(viewer, request.threadID),
-    fetchThreadInfos(viewer, SQL`t.id = ${request.threadID}`),
-  ]);
+  const fetchThreadResult = await fetchThreadInfos(
+    viewer,
+    SQL`t.id = ${request.threadID}`,
+  );
   const threadInfo = fetchThreadResult.threadInfos[request.threadID];
-  if (!isMember || !threadInfo) {
+  if (!viewerIsMember(threadInfo)) {
     throw new ServerError('invalid_parameters');
   }
 
@@ -574,7 +574,7 @@ async function joinThread(
   }
 
   const [isMember, hasPermission] = await Promise.all([
-    viewerIsMember(viewer, request.threadID),
+    fetchViewerIsMember(viewer, request.threadID),
     checkThreadPermission(
       viewer,
       request.threadID,
