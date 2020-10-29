@@ -123,6 +123,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       const username = userInfos[userID] && userInfos[userID].username;
       const userWasMentioned =
         username &&
+        threadInfo.currentUser.role &&
         oldValidUsernameRegex.test(username) &&
         firstNewMessageInfo.type === messageTypes.TEXT &&
         new RegExp(`\\B@${username}\\b`, 'i').test(firstNewMessageInfo.text);
