@@ -24,6 +24,7 @@ import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
+import { threadHasPermission } from 'lib/shared/thread-utils';
 
 import { dbQuery, SQL } from '../database/database';
 import {
@@ -31,7 +32,7 @@ import {
   verifyUserOrCookieIDs,
   fetchKnownUserInfos,
 } from '../fetchers/user-fetchers';
-import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
+import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import {
   checkThreadPermission,
   viewerIsMember,
@@ -220,26 +221,26 @@ async function leaveThread(
     throw new ServerError('not_logged_in');
   }
 
-  const [isMember, { threadInfos: serverThreadInfos }] = await Promise.all([
+  const [isMember, fetchThreadResult] = await Promise.all([
     viewerIsMember(viewer, request.threadID),
-    fetchServerThreadInfos(SQL`t.id = ${request.threadID}`),
+    fetchThreadInfos(viewer, SQL`t.id = ${request.threadID}`),
   ]);
-  if (!isMember) {
+  const threadInfo = fetchThreadResult.threadInfos[request.threadID];
+  if (!isMember || !threadInfo) {
     throw new ServerError('invalid_parameters');
   }
-  const serverThreadInfo = serverThreadInfos[request.threadID];
 
   const viewerID = viewer.userID;
-  if (_find({ name: 'Admins' })(serverThreadInfo.roles)) {
+  if (_find({ name: 'Admins' })(threadInfo.roles)) {
     let otherUsersExist = false;
     let otherAdminsExist = false;
-    for (let member of serverThreadInfo.members) {
+    for (let member of threadInfo.members) {
       const role = member.role;
       if (!role || member.id === viewerID) {
         continue;
       }
       otherUsersExist = true;
-      if (serverThreadInfo.roles[role].name === 'Admins') {
+      if (threadInfo.roles[role].name === 'Admins') {
         otherAdminsExist = true;
         break;
       }
@@ -290,24 +291,22 @@ async function updateThread(
 
   const changedFields = {};
   const sqlUpdate = {};
-  const name = request.changes.name;
+  const { name } = request.changes;
   if (name !== undefined && name !== null) {
-    changedFields.name = request.changes.name;
-    sqlUpdate.name = request.changes.name ? request.changes.name : null;
+    changedFields.name = name;
+    sqlUpdate.name = name ?? null;
   }
-  const description = request.changes.description;
+  const { description } = request.changes;
   if (description !== undefined && description !== null) {
-    changedFields.description = request.changes.description;
-    sqlUpdate.description = request.changes.description
-      ? request.changes.description
-      : null;
+    changedFields.description = description;
+    sqlUpdate.description = description ?? null;
   }
   if (request.changes.color) {
     const color = request.changes.color.toLowerCase();
     changedFields.color = color;
     sqlUpdate.color = color;
   }
-  const parentThreadID = request.changes.parentThreadID;
+  const { parentThreadID } = request.changes;
   if (parentThreadID !== undefined) {
     // TODO some sort of message when this changes
     sqlUpdate.parent_thread_id = parentThreadID;
@@ -343,13 +342,17 @@ async function updateThread(
   validationPromises.validationQuery = dbQuery(validationQuery);
 
   const checks = [];
-  if (sqlUpdate.name || sqlUpdate.description || sqlUpdate.color) {
+  if (
+    sqlUpdate.name !== undefined ||
+    sqlUpdate.description !== undefined ||
+    sqlUpdate.color !== undefined
+  ) {
     checks.push({
       check: 'permission',
       permission: threadPermissions.EDIT_THREAD,
     });
   }
-  if (sqlUpdate.parent_thread_id !== undefined || sqlUpdate.type) {
+  if (parentThreadID !== undefined || sqlUpdate.type !== undefined) {
     checks.push({
       check: 'permission',
       permission: threadPermissions.EDIT_PERMISSIONS,
@@ -359,15 +362,6 @@ async function updateThread(
     checks.push({
       check: 'permission',
       permission: threadPermissions.ADD_MEMBERS,
-    });
-  }
-  if (
-    sqlUpdate.parent_thread_id !== null &&
-    sqlUpdate.parent_thread_id !== undefined
-  ) {
-    checks.push({
-      check: 'permission',
-      permission: threadPermissions.CREATE_SUBTHREADS,
     });
   }
 
@@ -397,32 +391,43 @@ async function updateThread(
     ? validationRow.parent_thread_id.toString()
     : null;
 
-  // If the thread is being switched to nested, a parent must be specified
-  if (
-    oldThreadType === threadTypes.CHAT_SECRET &&
-    threadType !== threadTypes.CHAT_SECRET &&
-    oldParentThreadID === null &&
-    parentThreadID === null
-  ) {
-    throw new ServerError('no_parent_thread_specified');
-  }
-
   const nextThreadType =
     threadType !== null && threadType !== undefined
       ? threadType
       : oldThreadType;
-  const nextParentThreadID = parentThreadID
-    ? parentThreadID
-    : oldParentThreadID;
+  const nextParentThreadID =
+    parentThreadID !== undefined ? parentThreadID : oldParentThreadID;
+
+  // If the thread is being switched to nested, a parent must be specified
+  if (
+    oldThreadType === threadTypes.CHAT_SECRET &&
+    threadType !== threadTypes.CHAT_SECRET &&
+    nextParentThreadID === null
+  ) {
+    throw new ServerError('no_parent_thread_specified');
+  }
 
   let parentThreadMembers;
   if (nextParentThreadID) {
-    const parentThread = await fetchServerThreadInfos(
+    const parentFetchResult = await fetchThreadInfos(
+      viewer,
       SQL`t.id = ${nextParentThreadID}`,
     );
-    parentThreadMembers = parentThread.threadInfos[
-      nextParentThreadID
-    ].members.map(userInfo => userInfo.id);
+    const parentThreadInfo = parentFetchResult.threadInfos[nextParentThreadID];
+    if (!parentThreadInfo) {
+      throw new ServerError('invalid_parameters');
+    }
+    if (
+      (nextParentThreadID !== oldParentThreadID ||
+        nextThreadType !== oldThreadType) &&
+      !threadHasPermission(
+        parentThreadInfo,
+        threadPermissions.CREATE_SUBTHREADS,
+      )
+    ) {
+      throw new ServerError('invalid_parameters');
+    }
+    parentThreadMembers = parentThreadInfo.members.map(userInfo => userInfo.id);
   }
 
   if (fetchNewMembers) {
