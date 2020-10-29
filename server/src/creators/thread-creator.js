@@ -12,17 +12,19 @@ import type { Viewer } from '../session/viewer';
 
 import invariant from 'invariant';
 
-import { generateRandomColor } from 'lib/shared/thread-utils';
+import {
+  generateRandomColor,
+  threadHasPermission,
+} from 'lib/shared/thread-utils';
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 
 import { dbQuery, SQL } from '../database/database';
-import { checkThreadPermission } from '../fetchers/thread-permission-fetchers';
 import createIDs from './id-creator';
 import { createInitialRolesForNewThread } from './role-creator';
 import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
-import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
+import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import {
   changeRole,
   recalculateAllPermissions,
@@ -61,14 +63,8 @@ async function createThread(
 
   const checkPromises = {};
   if (parentThreadID) {
-    checkPromises.hasParentPermission = checkThreadPermission(
+    checkPromises.parentThreadFetch = fetchThreadInfos(
       viewer,
-      parentThreadID,
-      threadType === threadTypes.SIDEBAR
-        ? threadPermissions.CREATE_SIDEBARS
-        : threadPermissions.CREATE_SUBTHREADS,
-    );
-    checkPromises.parentThread = fetchServerThreadInfos(
       SQL`t.id = ${parentThreadID}`,
     );
   }
@@ -78,21 +74,22 @@ async function createThread(
       initialMemberIDs,
     );
   }
-  const {
-    hasParentPermission,
-    parentThread,
-    fetchInitialMembers,
-  } = await promiseAll(checkPromises);
-
-  if (hasParentPermission === false) {
-    throw new ServerError('invalid_credentials');
-  }
+  const { parentThreadFetch, fetchInitialMembers } = await promiseAll(
+    checkPromises,
+  );
 
   let parentThreadMembers;
-  if (parentThread && parentThreadID) {
-    parentThreadMembers = parentThread.threadInfos[parentThreadID].members.map(
-      userInfo => userInfo.id,
-    );
+  if (parentThreadID) {
+    invariant(parentThreadFetch, 'parentThreadFetch should be set');
+    const parentThreadInfo = parentThreadFetch.threadInfos[parentThreadID];
+    const permission =
+      threadType === threadTypes.SIDEBAR
+        ? threadPermissions.CREATE_SIDEBARS
+        : threadPermissions.CREATE_SUBTHREADS;
+    if (!threadHasPermission(parentThreadInfo, permission)) {
+      throw new ServerError('invalid_credentials');
+    }
+    parentThreadMembers = parentThreadInfo.members.map(userInfo => userInfo.id);
   }
 
   const viewerNeedsRelationshipsWith = [];
