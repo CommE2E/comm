@@ -336,10 +336,9 @@ async function updateThread(
   }
 
   const validationQuery = SQL`
-    SELECT t.type, t.parent_thread_id
-    FROM users u
-    LEFT JOIN threads t ON t.id = ${request.threadID}
-    WHERE u.id = ${viewer.userID}
+    SELECT type, parent_thread_id
+    FROM threads
+    WHERE id = ${request.threadID}
   `;
   validationPromises.validationQuery = dbQuery(validationQuery);
 
@@ -384,7 +383,7 @@ async function updateThread(
     hasNecessaryPermissions,
   } = await promiseAll(validationPromises);
 
-  if (validationResult.length === 0 || validationResult[0].type === null) {
+  if (validationResult.length === 0) {
     throw new ServerError('internal_error');
   }
   const validationRow = validationResult[0];
