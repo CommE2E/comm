@@ -196,7 +196,7 @@ type Props = {|
   ...BaseProps,
   // Redux state
   +threadInfo: ?ThreadInfo,
-  +threadMembers: RelativeMemberInfo[],
+  +threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
   +childThreadInfos: ?(ThreadInfo[]),
   +somethingIsSaving: boolean,
   +styles: typeof unboundStyles,
@@ -585,7 +585,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       canStartEditing: boolean,
       navigate: ThreadSettingsNavigate,
       routeKey: string,
-      threadMembers: RelativeMemberInfo[],
+      threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
       numMembersShowing: number,
       verticalBounds: ?VerticalBounds,
     ) => {
@@ -1004,7 +1004,7 @@ const leaveThreadLoadingStatusSelector = createLoadingStatusSelector(
 
 const somethingIsSaving = (
   state: AppState,
-  threadMembers: RelativeMemberInfo[],
+  threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
 ) => {
   if (
     editNameLoadingStatusSelector(state) === 'loading' ||
