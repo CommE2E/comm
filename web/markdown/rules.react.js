@@ -7,6 +7,9 @@ import * as React from 'react';
 import _memoize from 'lodash/memoize';
 
 import * as SharedMarkdown from 'lib/shared/markdown';
+import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
+
+import { useSelector } from '../redux/redux-utils';
 
 export type MarkdownRules = {|
   +simpleMarkdownRules: SimpleMarkdown.Rules,
@@ -140,10 +143,24 @@ const markdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
   };
 });
 
-const textMessageRules: (
-  boolean,
-  $ReadOnlyArray<RelativeMemberInfo>,
-) => MarkdownRules = _memoize((useDarkStyle, members) => {
+function useTextMessageRulesFunc(threadID: ?string) {
+  const threadMembers = useSelector(
+    relativeMemberInfoSelectorForMembersOfThread(threadID),
+  );
+  return React.useMemo(() => {
+    if (!threadMembers) {
+      return undefined;
+    }
+    return _memoize<[boolean], MarkdownRules>((useDarkStyle: boolean) =>
+      textMessageRules(threadMembers, useDarkStyle),
+    );
+  }, [threadMembers]);
+}
+
+function textMessageRules(
+  members: $ReadOnlyArray<RelativeMemberInfo>,
+  useDarkStyle: boolean,
+) {
   const baseRules = markdownRules(useDarkStyle);
   return {
     ...baseRules,
@@ -164,6 +181,6 @@ const textMessageRules: (
       },
     },
   };
-});
+}
 
-export { linkRules, textMessageRules };
+export { linkRules, useTextMessageRulesFunc };

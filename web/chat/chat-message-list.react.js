@@ -48,6 +48,8 @@ import {
 } from '../input/input-state';
 import { useSelector } from '../redux/redux-utils';
 import css from './chat-message-list.css';
+import { useTextMessageRulesFunc } from '../markdown/rules.react';
+import { MessageListContext } from './message-list-types';
 
 type BaseProps = {|
   +setModal: (modal: ?React.Node) => void,
@@ -437,21 +439,31 @@ export default React.memo<BaseProps>(function ConnectedChatMessageList(
     }),
   });
 
+  const getTextMessageMarkdownRules = useTextMessageRulesFunc(threadInfo?.id);
+  const messageListContext = React.useMemo(() => {
+    if (!getTextMessageMarkdownRules) {
+      return undefined;
+    }
+    return { getTextMessageMarkdownRules };
+  }, [getTextMessageMarkdownRules]);
+
   return (
-    <ChatMessageList
-      {...props}
-      activeChatThreadID={activeChatThreadID}
-      threadInfo={threadInfo}
-      messageListData={messageListData}
-      startReached={startReached}
-      timeZone={timeZone}
-      supportsReverseFlex={supportsReverseFlex}
-      inputState={inputState}
-      dispatchActionPromise={dispatchActionPromise}
-      fetchMessagesBeforeCursor={callFetchMessagesBeforeCursor}
-      fetchMostRecentMessages={callFetchMostRecentMessages}
-      {...dndProps}
-      connectDropTarget={connectDropTarget}
-    />
+    <MessageListContext.Provider value={messageListContext}>
+      <ChatMessageList
+        {...props}
+        activeChatThreadID={activeChatThreadID}
+        threadInfo={threadInfo}
+        messageListData={messageListData}
+        startReached={startReached}
+        timeZone={timeZone}
+        supportsReverseFlex={supportsReverseFlex}
+        inputState={inputState}
+        dispatchActionPromise={dispatchActionPromise}
+        fetchMessagesBeforeCursor={callFetchMessagesBeforeCursor}
+        fetchMostRecentMessages={callFetchMostRecentMessages}
+        {...dndProps}
+        connectDropTarget={connectDropTarget}
+      />
+    </MessageListContext.Provider>
   );
 });

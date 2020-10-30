@@ -1,50 +1,29 @@
 // @flow
 
 import { messageTypes } from 'lib/types/message-types';
-import {
-  type ThreadInfo,
-  threadInfoPropType,
-  type RelativeMemberInfo,
-  relativeMemberInfoPropType,
-} from 'lib/types/thread-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import type { ChatMessageInfoItemWithHeight } from './message.react';
-import {
-  messageListRoutePropType,
-  messageListNavPropType,
-} from './message-list-types';
 import type { ChatNavigationProp } from './chat.react';
 import type { NavigationRoute } from '../navigation/route-names';
 
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { View } from 'react-native';
 import invariant from 'invariant';
 
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import {
   type ChatMessageItem,
-  chatMessageItemPropType,
   messageListData,
 } from 'lib/selectors/chat-selectors';
 import { messageID } from 'lib/shared/message-utils';
-import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
 
 import MessageList from './message-list.react';
 import NodeHeightMeasurer from '../components/node-height-measurer.react';
 import ChatInputBar from './chat-input-bar.react';
 import { multimediaMessageContentSizes } from './multimedia-message.react';
 import { composedMessageMaxWidthSelector } from './composed-message-width';
-import {
-  type InputState,
-  inputStatePropType,
-  InputStateContext,
-} from '../input/input-state';
-import {
-  type Colors,
-  colorsPropType,
-  useColors,
-  useStyles,
-} from '../themes/colors';
+import { type InputState, InputStateContext } from '../input/input-state';
+import { type Colors, useColors, useStyles } from '../themes/colors';
 import ContentLoading from '../components/content-loading.react';
 import { dummyNodeForTextMessageHeightMeasurement } from './inner-text-message.react';
 import { dummyNodeForRobotextMessageHeightMeasurement } from './robotext-message.react';
@@ -52,9 +31,10 @@ import { chatMessageItemKey } from './chat-list.react';
 import {
   OverlayContext,
   type OverlayContextType,
-  overlayContextPropType,
 } from '../navigation/overlay-context';
 import { useSelector } from '../redux/redux-utils';
+import { useTextMessageRulesFunc } from '../markdown/rules.react';
+import { MessageListContext } from './message-list-types';
 
 export type ChatMessageItemWithHeight =
   | {| itemType: 'loader' |}
@@ -68,7 +48,6 @@ type Props = {|
   ...BaseProps,
   // Redux state
   +threadInfo: ?ThreadInfo,
-  +threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
   +messageListData: $ReadOnlyArray<ChatMessageItem>,
   +composedMessageMaxWidth: number,
   +colors: Colors,
@@ -82,18 +61,6 @@ type State = {|
   +listDataWithHeights: ?$ReadOnlyArray<ChatMessageItemWithHeight>,
 |};
 class MessageListContainer extends React.PureComponent<Props, State> {
-  static propTypes = {
-    navigation: messageListNavPropType.isRequired,
-    route: messageListRoutePropType.isRequired,
-    threadInfo: threadInfoPropType,
-    threadMembers: PropTypes.arrayOf(relativeMemberInfoPropType).isRequired,
-    messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
-    composedMessageMaxWidth: PropTypes.number.isRequired,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    inputState: inputStatePropType,
-    overlayContext: overlayContextPropType,
-  };
   state = {
     listDataWithHeights: null,
   };
@@ -201,10 +168,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     );
     const { messageInfo } = item;
     if (messageInfo.type === messageTypes.TEXT) {
-      return dummyNodeForTextMessageHeightMeasurement(
-        messageInfo.text,
-        this.props.threadMembers,
-      );
+      return dummyNodeForTextMessageHeightMeasurement(messageInfo.text);
     } else if (item.robotext && typeof item.robotext === 'string') {
       return dummyNodeForRobotextMessageHeightMeasurement(item.robotext);
     }
@@ -309,9 +273,6 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
 ) {
   const threadID = props.route.params.threadInfo.id;
   const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
-  const threadMembers = useSelector(state =>
-    relativeMemberInfoSelectorForMembersOfThread(threadID)(state),
-  );
   const boundMessageListData = useSelector(state =>
     messageListData(threadID)(state),
   );
@@ -320,17 +281,27 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
   const styles = useStyles(unboundStyles);
   const inputState = React.useContext(InputStateContext);
   const overlayContext = React.useContext(OverlayContext);
+
+  const getTextMessageMarkdownRules = useTextMessageRulesFunc(threadID);
+  const messageListContext = React.useMemo(
+    () => ({
+      getTextMessageMarkdownRules,
+    }),
+    [getTextMessageMarkdownRules],
+  );
+
   return (
-    <MessageListContainer
-      {...props}
-      threadInfo={threadInfo}
-      threadMembers={threadMembers}
-      messageListData={boundMessageListData}
-      composedMessageMaxWidth={composedMessageMaxWidth}
-      colors={colors}
-      styles={styles}
-      inputState={inputState}
-      overlayContext={overlayContext}
-    />
+    <MessageListContext.Provider value={messageListContext}>
+      <MessageListContainer
+        {...props}
+        threadInfo={threadInfo}
+        messageListData={boundMessageListData}
+        composedMessageMaxWidth={composedMessageMaxWidth}
+        colors={colors}
+        styles={styles}
+        inputState={inputState}
+        overlayContext={overlayContext}
+      />
+    </MessageListContext.Provider>
   );
 });

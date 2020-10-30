@@ -1,13 +1,12 @@
 // @flow
 
 import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
-import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
+import invariant from 'invariant';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
-import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
 
 import {
   allCorners,
@@ -16,31 +15,34 @@ import {
 } from './rounded-corners';
 import { useColors, colors } from '../themes/colors';
 import Markdown from '../markdown/markdown.react';
-import { textMessageRules } from '../markdown/rules.react';
 import { composedMessageMaxWidthSelector } from './composed-message-width';
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
 import { useSelector } from '../redux/redux-utils';
 import { KeyboardContext } from '../keyboard/keyboard-state';
+import { MessageListContext } from './message-list-types';
 
-function dummyNodeForTextMessageHeightMeasurement(
-  text: string,
-  members: $ReadOnlyArray<RelativeMemberInfo>,
-) {
-  return <DummyTextNode members={members}>{text}</DummyTextNode>;
+function useTextMessageMarkdownRules(useDarkStyle: boolean) {
+  const messageListContext = React.useContext(MessageListContext);
+  invariant(messageListContext, 'DummyTextNode should have MessageListContext');
+  return messageListContext.getTextMessageMarkdownRules(useDarkStyle);
+}
+
+function dummyNodeForTextMessageHeightMeasurement(text: string) {
+  return <DummyTextNode>{text}</DummyTextNode>;
 }
 
 type DummyTextNodeProps = {|
   ...React.ElementConfig<typeof View>,
-  +members: $ReadOnlyArray<RelativeMemberInfo>,
   +children: string,
 |};
 function DummyTextNode(props: DummyTextNodeProps) {
-  const { members, children, style, ...rest } = props;
+  const { children, style, ...rest } = props;
   const maxWidth = useSelector(state => composedMessageMaxWidthSelector(state));
   const viewStyle = [props.style, styles.dummyMessage, { maxWidth }];
+  const rules = useTextMessageMarkdownRules(false);
   return (
     <View {...rest} style={viewStyle}>
-      <Markdown style={styles.text} rules={textMessageRules(false, members)}>
+      <Markdown style={styles.text} rules={rules}>
         {children}
       </Markdown>
     </View>
@@ -83,13 +85,10 @@ function InnerTextMessage(props: Props) {
     messageStyle.height = item.contentHeight;
   }
 
-  const threadID = item.threadInfo.id;
-  const threadMembers = useSelector(
-    relativeMemberInfoSelectorForMembersOfThread(threadID),
-  );
-
   const keyboardState = React.useContext(KeyboardContext);
   const keyboardShowing = keyboardState?.keyboardShowing;
+
+  const rules = useTextMessageMarkdownRules(darkColor);
 
   const message = (
     <GestureTouchableOpacity
@@ -99,10 +98,7 @@ function InnerTextMessage(props: Props) {
       disabled={keyboardShowing}
       style={[styles.message, messageStyle, cornerStyle]}
     >
-      <Markdown
-        style={[styles.text, textStyle]}
-        rules={textMessageRules(darkColor, threadMembers)}
-      >
+      <Markdown style={[styles.text, textStyle]} rules={rules}>
         {text}
       </Markdown>
     </GestureTouchableOpacity>

@@ -14,14 +14,12 @@ import classNames from 'classnames';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
 import { onlyEmojiRegex } from 'lib/shared/emojis';
-import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
 
 import css from './chat-message-list.css';
 import ComposedMessage from './composed-message.react';
 import textMessageSendFailed from './text-message-send-failed';
 import Markdown from '../markdown/markdown.react';
-import { textMessageRules } from '../markdown/rules.react';
-import { useSelector } from '../redux/redux-utils';
+import { MessageListContext } from './message-list-types';
 
 type Props = {|
   +item: ChatMessageInfoItem,
@@ -60,10 +58,9 @@ function TextMessage(props: Props) {
     [css.lightTextMessage]: !darkColor,
   });
 
-  const threadID = props.threadInfo.id;
-  const threadMembers = useSelector(state =>
-    relativeMemberInfoSelectorForMembersOfThread(threadID)(state),
-  );
+  const messageListContext = React.useContext(MessageListContext);
+  invariant(messageListContext, 'DummyTextNode should have MessageListContext');
+  const rules = messageListContext.getTextMessageMarkdownRules(darkColor);
 
   return (
     <ComposedMessage
@@ -75,9 +72,7 @@ function TextMessage(props: Props) {
       canReply={true}
     >
       <div className={messageClassName} style={messageStyle}>
-        <Markdown rules={textMessageRules(darkColor, threadMembers)}>
-          {text}
-        </Markdown>
+        <Markdown rules={rules}>{text}</Markdown>
       </div>
     </ComposedMessage>
   );

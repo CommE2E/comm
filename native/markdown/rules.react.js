@@ -8,9 +8,11 @@ import * as SimpleMarkdown from 'simple-markdown';
 import _memoize from 'lodash/memoize';
 
 import * as SharedMarkdown from 'lib/shared/markdown';
+import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
 
 import { getMarkdownStyles } from './styles';
 import MarkdownLink from './markdown-link.react';
+import { useSelector } from '../redux/redux-utils';
 
 export type MarkdownRules = {|
   +simpleMarkdownRules: SimpleMarkdown.ParserRules,
@@ -318,10 +320,23 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
   };
 });
 
-const textMessageRules: (
-  boolean,
-  $ReadOnlyArray<RelativeMemberInfo>,
-) => MarkdownRules = _memoize((useDarkStyle, members) => {
+function useTextMessageRulesFunc(threadID: string) {
+  const threadMembers = useSelector(
+    relativeMemberInfoSelectorForMembersOfThread(threadID),
+  );
+  return React.useMemo(
+    () =>
+      _memoize<[boolean], MarkdownRules>((useDarkStyle: boolean) =>
+        textMessageRules(threadMembers, useDarkStyle),
+      ),
+    [threadMembers],
+  );
+}
+
+function textMessageRules(
+  members: $ReadOnlyArray<RelativeMemberInfo>,
+  useDarkStyle: boolean,
+) {
   const styles = getMarkdownStyles(useDarkStyle ? 'dark' : 'light');
   const baseRules = fullMarkdownRules(useDarkStyle);
   return {
@@ -347,6 +362,6 @@ const textMessageRules: (
       },
     },
   };
-});
+}
 
-export { inlineMarkdownRules, textMessageRules };
+export { inlineMarkdownRules, useTextMessageRulesFunc };
