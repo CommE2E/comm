@@ -248,6 +248,9 @@ async function createUpdates(
       content = JSON.stringify({ deletedUserID: updateData.deletedUserID });
     } else if (updateData.type === updateTypes.UPDATE_THREAD) {
       content = JSON.stringify({ threadID: updateData.threadID });
+      if (updateData.targetSession) {
+        target = updateData.targetSession;
+      }
     } else if (updateData.type === updateTypes.UPDATE_THREAD_READ_STATUS) {
       const { threadID, unread } = updateData;
       content = JSON.stringify({ threadID, unread });
