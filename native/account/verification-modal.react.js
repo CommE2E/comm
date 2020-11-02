@@ -1,7 +1,5 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import {
   type VerifyField,
   verifyField,
@@ -25,17 +23,20 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated from 'react-native-reanimated';
 
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
-import { connect } from 'lib/utils/redux-utils';
 import {
   handleVerificationCodeActionTypes,
   handleVerificationCode,
 } from 'lib/actions/user-actions';
 import sleep from 'lib/utils/sleep';
+import {
+  useServerCall,
+  useDispatchActionPromise,
+  type DispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import ConnectedStatusBar from '../connected-status-bar.react';
 import ResetPasswordPanel from './reset-password-panel.react';
@@ -48,19 +49,16 @@ import {
   removeKeyboardListener,
 } from '../keyboard/keyboard';
 import { VerificationModalRouteName } from '../navigation/route-names';
-import {
-  connectNav,
-  type NavContextType,
-} from '../navigation/navigation-context';
+import { NavContext } from '../navigation/navigation-context';
 import {
   runTiming,
   ratchetAlongWithKeyboardHeight,
 } from '../utils/animation-utils';
 import {
   type DerivedDimensionsInfo,
-  derivedDimensionsInfoPropType,
   derivedDimensionsInfoSelector,
 } from '../selectors/dimensions-selectors';
+import { useSelector } from '../redux/redux-utils';
 
 const safeAreaEdges = ['top', 'bottom'];
 
@@ -87,7 +85,7 @@ const {
 /* eslint-enable import/no-named-as-default-member */
 
 export type VerificationModalParams = {|
-  verifyCode: string,
+  +verifyCode: string,
 |};
 
 type VerificationModalMode = 'simple-text' | 'reset-password';
@@ -96,44 +94,31 @@ const modeNumbers: { [VerificationModalMode]: number } = {
   'reset-password': 1,
 };
 
-type Props = {
-  navigation: RootNavigationProp<'VerificationModal'>,
-  route: NavigationRoute<'VerificationModal'>,
+type BaseProps = {|
+  +navigation: RootNavigationProp<'VerificationModal'>,
+  +route: NavigationRoute<'VerificationModal'>,
+|};
+type Props = {|
+  ...BaseProps,
   // Navigation state
-  isForeground: boolean,
+  +isForeground: boolean,
   // Redux state
-  dimensions: DerivedDimensionsInfo,
-  splashStyle: ImageStyle,
+  +dimensions: DerivedDimensionsInfo,
+  +splashStyle: ImageStyle,
   // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  handleVerificationCode: (
+  +handleVerificationCode: (
     code: string,
   ) => Promise<HandleVerificationCodeResult>,
-};
+|};
 type State = {|
-  mode: VerificationModalMode,
-  verifyField: ?VerifyField,
-  errorMessage: ?string,
-  resetPasswordUsername: ?string,
+  +mode: VerificationModalMode,
+  +verifyField: ?VerifyField,
+  +errorMessage: ?string,
+  +resetPasswordUsername: ?string,
 |};
 class VerificationModal extends React.PureComponent<Props, State> {
-  static propTypes = {
-    navigation: PropTypes.shape({
-      clearRootModals: PropTypes.func.isRequired,
-    }).isRequired,
-    route: PropTypes.shape({
-      key: PropTypes.string.isRequired,
-      params: PropTypes.shape({
-        verifyCode: PropTypes.string.isRequired,
-      }).isRequired,
-    }).isRequired,
-    isForeground: PropTypes.bool.isRequired,
-    dimensions: derivedDimensionsInfoPropType.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    handleVerificationCode: PropTypes.func.isRequired,
-  };
-
   keyboardShowListener: ?Object;
   keyboardHideListener: ?Object;
 
@@ -563,14 +548,27 @@ registerFetchKey(handleVerificationCodeActionTypes);
 const isForegroundSelector = createIsForegroundSelector(
   VerificationModalRouteName,
 );
-export default connectNav((context: ?NavContextType) => ({
-  isForeground: isForegroundSelector(context),
-}))(
-  connect(
-    (state: AppState) => ({
-      dimensions: derivedDimensionsInfoSelector(state),
-      splashStyle: splashStyleSelector(state),
-    }),
-    { handleVerificationCode },
-  )(VerificationModal),
-);
+
+export default React.memo<BaseProps>(function ConnectedVerificationModal(
+  props: BaseProps,
+) {
+  const navContext = React.useContext(NavContext);
+  const isForeground = isForegroundSelector(navContext);
+
+  const dimensions = useSelector(derivedDimensionsInfoSelector);
+  const splashStyle = useSelector(splashStyleSelector);
+
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callHandleVerificationCode = useServerCall(handleVerificationCode);
+
+  return (
+    <VerificationModal
+      {...props}
+      isForeground={isForeground}
+      dimensions={dimensions}
+      splashStyle={splashStyle}
+      dispatchActionPromise={dispatchActionPromise}
+      handleVerificationCode={callHandleVerificationCode}
+    />
+  );
+});
