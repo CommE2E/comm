@@ -1,7 +1,5 @@
 // @flow
 
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { AppState } from '../redux/redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type {
   RegisterInfo,
@@ -9,31 +7,29 @@ import type {
   RegisterResult,
   LogInStartingPayload,
 } from 'lib/types/account-types';
-import {
-  type StateContainer,
-  stateContainerPropType,
-} from '../utils/state-container';
+import { type StateContainer } from '../utils/state-container';
 
 import React from 'react';
 import { View, StyleSheet, Platform, Keyboard, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import Animated from 'react-native-reanimated';
 
-import { connect } from 'lib/utils/redux-utils';
 import { registerActionTypes, register } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { validUsernameRegex, validEmailRegex } from 'lib/shared/account-utils';
+import {
+  useServerCall,
+  useDispatchActionPromise,
+  type DispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import { TextInput } from './modal-components.react';
 import { PanelButton, Panel } from './panel-components.react';
 import { setNativeCredentials } from './native-credentials';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
-import {
-  connectNav,
-  type NavContextType,
-} from '../navigation/navigation-context';
+import { NavContext } from '../navigation/navigation-context';
+import { useSelector } from '../redux/redux-utils';
 
 export type RegisterState = {|
   +usernameInputText: string,
@@ -41,10 +37,13 @@ export type RegisterState = {|
   +passwordInputText: string,
   +confirmPasswordInputText: string,
 |};
-type Props = {
+type BaseProps = {|
   +setActiveAlert: (activeAlert: boolean) => void,
   +opacityValue: Animated.Value,
   +state: StateContainer<RegisterState>,
+|};
+type Props = {|
+  ...BaseProps,
   // Redux state
   +loadingStatus: LoadingStatus,
   +logInExtraInfo: () => LogInExtraInfo,
@@ -52,20 +51,11 @@ type Props = {
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +register: (registerInfo: RegisterInfo) => Promise<RegisterResult>,
-};
+|};
 type State = {|
   +confirmPasswordFocused: boolean,
 |};
 class RegisterPanel extends React.PureComponent<Props, State> {
-  static propTypes = {
-    setActiveAlert: PropTypes.func.isRequired,
-    opacityValue: PropTypes.object.isRequired,
-    state: stateContainerPropType.isRequired,
-    loadingStatus: PropTypes.string.isRequired,
-    logInExtraInfo: PropTypes.func.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    register: PropTypes.func.isRequired,
-  };
   state = {
     confirmPasswordFocused: false,
   };
@@ -450,17 +440,29 @@ const styles = StyleSheet.create({
 
 const loadingStatusSelector = createLoadingStatusSelector(registerActionTypes);
 
-export default connectNav((context: ?NavContextType) => ({
-  navContext: context,
-}))(
-  connect(
-    (state: AppState, ownProps: { navContext: ?NavContextType }) => ({
-      loadingStatus: loadingStatusSelector(state),
-      logInExtraInfo: nativeLogInExtraInfoSelector({
-        redux: state,
-        navContext: ownProps.navContext,
-      }),
+export default React.memo<BaseProps>(function ConnectedRegisterPanel(
+  props: BaseProps,
+) {
+  const loadingStatus = useSelector(loadingStatusSelector);
+
+  const navContext = React.useContext(NavContext);
+  const logInExtraInfo = useSelector(state =>
+    nativeLogInExtraInfoSelector({
+      redux: state,
+      navContext,
     }),
-    { register },
-  )(RegisterPanel),
-);
+  );
+
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callRegister = useServerCall(register);
+
+  return (
+    <RegisterPanel
+      {...props}
+      loadingStatus={loadingStatus}
+      logInExtraInfo={logInExtraInfo}
+      dispatchActionPromise={dispatchActionPromise}
+      register={callRegister}
+    />
+  );
+});
