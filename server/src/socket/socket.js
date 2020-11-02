@@ -40,6 +40,7 @@ import {
   serverResponseTimeout,
 } from 'lib/shared/timeouts';
 import sleep from 'lib/utils/sleep';
+import SequentialPromiseResolver from 'lib/utils/sequential-promise-resolver';
 
 import { Viewer } from '../session/viewer';
 import {
@@ -161,6 +162,7 @@ class Socket {
   httpRequest: $Request;
   viewer: ?Viewer;
   redis: ?RedisSubscriber;
+  redisPromiseResolver: SequentialPromiseResolver<ServerSocketMessage>;
 
   stateCheckConditions: StateCheckConditions = {
     activityRecentlyOccurred: true,
@@ -174,6 +176,7 @@ class Socket {
     ws.on('message', this.onMessage);
     ws.on('close', this.onClose);
     this.resetTimeout();
+    this.redisPromiseResolver = new SequentialPromiseResolver(this.sendMessage);
   }
 
   onMessage = async (messageString: string) => {
@@ -355,7 +358,7 @@ class Socket {
     }
   };
 
-  sendMessage(message: ServerSocketMessage) {
+  sendMessage = (message: ServerSocketMessage) => {
     invariant(
       this.ws.readyState > 0,
       "shouldn't send message until connection established",
@@ -363,7 +366,7 @@ class Socket {
     if (this.ws.readyState === 1) {
       this.ws.send(JSON.stringify(message));
     }
-  }
+  };
 
   async handleClientSocketMessage(
     message: ClientSocketMessage,
@@ -647,27 +650,33 @@ class Socket {
         return;
       }
       const rawUpdateInfos = message.updates;
-      const {
-        updateInfos,
-        userInfos,
-      } = await fetchUpdateInfosWithRawUpdateInfos(rawUpdateInfos, { viewer });
-      if (updateInfos.length === 0) {
-        console.warn(
-          'could not get any UpdateInfos from redisMessageTypes.NEW_UPDATES',
-        );
-        return;
-      }
-      this.markActivityOccurred();
-      this.sendMessage({
-        type: serverSocketMessageTypes.UPDATES,
-        payload: {
-          updatesResult: {
-            currentAsOf: mostRecentUpdateTimestamp([...updateInfos], 0),
-            newUpdates: updateInfos,
-          },
-          userInfos: values(userInfos),
-        },
-      });
+      this.redisPromiseResolver.add(
+        (async () => {
+          const {
+            updateInfos,
+            userInfos,
+          } = await fetchUpdateInfosWithRawUpdateInfos(rawUpdateInfos, {
+            viewer,
+          });
+          if (updateInfos.length === 0) {
+            console.warn(
+              'could not get any UpdateInfos from redisMessageTypes.NEW_UPDATES',
+            );
+            return null;
+          }
+          this.markActivityOccurred();
+          return {
+            type: serverSocketMessageTypes.UPDATES,
+            payload: {
+              updatesResult: {
+                currentAsOf: mostRecentUpdateTimestamp([...updateInfos], 0),
+                newUpdates: updateInfos,
+              },
+              userInfos: values(userInfos),
+            },
+          };
+        })(),
+      );
     } else if (message.type === redisMessageTypes.NEW_MESSAGES) {
       const { viewer } = this;
       invariant(viewer, 'should be set');
@@ -683,20 +692,24 @@ class Socket {
         );
         return;
       }
-      this.markActivityOccurred();
-      this.sendMessage({
-        type: serverSocketMessageTypes.MESSAGES,
-        payload: {
-          messagesResult: {
-            rawMessageInfos: messageFetchResult.rawMessageInfos,
-            truncationStatuses: messageFetchResult.truncationStatuses,
-            currentAsOf: mostRecentMessageTimestamp(
-              messageFetchResult.rawMessageInfos,
-              0,
-            ),
-          },
-        },
-      });
+      this.redisPromiseResolver.add(
+        (async () => {
+          this.markActivityOccurred();
+          return {
+            type: serverSocketMessageTypes.MESSAGES,
+            payload: {
+              messagesResult: {
+                rawMessageInfos: messageFetchResult.rawMessageInfos,
+                truncationStatuses: messageFetchResult.truncationStatuses,
+                currentAsOf: mostRecentMessageTimestamp(
+                  messageFetchResult.rawMessageInfos,
+                  0,
+                ),
+              },
+            },
+          };
+        })(),
+      );
     }
   }
 
