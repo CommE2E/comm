@@ -154,9 +154,11 @@ async function activityUpdater(
   ]);
 
   // We do this afterwards so the badge count is correct
-  const rescindCondition = SQL`n.user = ${viewer.userID} AND `;
-  rescindCondition.append(mergeOrConditions(rescindConditions));
-  await rescindPushNotifs(rescindCondition);
+  if (rescindConditions.length > 0) {
+    const rescindCondition = SQL`n.user = ${viewer.userID} AND `;
+    rescindCondition.append(mergeOrConditions(rescindConditions));
+    await rescindPushNotifs(rescindCondition);
+  }
 
   return { unfocusedToUnread: outdatedUnfocused };
 }
@@ -228,10 +230,6 @@ async function checkUnfocusedLatestMessage(
     const threadID = row.thread.toString();
     const serverLatestMessage = row.latest_message;
     const clientLatestMessage = unfocusedLatestMessages.get(threadID);
-    invariant(
-      clientLatestMessage,
-      'latest message should be set for all provided threads',
-    );
     if (clientLatestMessage < serverLatestMessage) {
       resetToUnread.push(threadID);
     }
