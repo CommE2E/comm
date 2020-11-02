@@ -62,7 +62,6 @@ import {
   fetchLoggedInUserInfos,
 } from '../fetchers/user-fetchers';
 import { channelNameForUpdateTarget, publisher } from '../socket/redis';
-import { handleAsyncPromise } from '../responders/handlers';
 
 type UpdatesForCurrentSession =
   // This is the default if no Viewer is passed, or if an isSocket Viewer is
@@ -358,9 +357,7 @@ async function createUpdates(
   }
 
   if (publishInfos.size > 0) {
-    handleAsyncPromise(
-      redisPublish(publishInfos.values(), dontBroadcastSession),
-    );
+    promises.redis = redisPublish(publishInfos.values(), dontBroadcastSession);
   }
 
   if (deleteSQLConditions.length > 0) {
