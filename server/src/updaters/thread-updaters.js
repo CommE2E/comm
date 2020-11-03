@@ -401,6 +401,8 @@ async function updateThread(
   // If the thread is being switched to nested, a parent must be specified
   if (
     oldThreadType === threadTypes.CHAT_SECRET &&
+    threadType !== undefined &&
+    threadType !== null &&
     threadType !== threadTypes.CHAT_SECRET &&
     nextParentThreadID === null
   ) {
