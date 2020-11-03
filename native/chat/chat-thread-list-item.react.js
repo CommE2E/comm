@@ -92,13 +92,19 @@ function ChatThreadListItem({
     );
   }, [data.mostRecentMessageInfo, data.threadInfo, styles]);
 
-  const sidebars = data.sidebars.map(sidebar => (
-    <ChatThreadListSidebar
-      {...sidebar}
-      onPressItem={onPressItem}
-      key={sidebar.threadInfo.id}
-    />
-  ));
+  const sidebars = [];
+  for (const sidebarItem of data.sidebars) {
+    if (sidebarItem.type === 'sidebar') {
+      sidebars.push(
+        <ChatThreadListSidebar
+          threadInfo={sidebarItem.threadInfo}
+          lastUpdatedTime={sidebarItem.lastUpdatedTime}
+          onPressItem={onPressItem}
+          key={sidebarItem.threadInfo.id}
+        />,
+      );
+    }
+  }
 
   const onPress = React.useCallback(() => {
     onPressItem(data.threadInfo);
