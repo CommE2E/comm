@@ -23,6 +23,7 @@ import invariant from 'invariant';
 
 import { values } from 'lib/utils/objects';
 import { promiseAll } from 'lib/utils/promises';
+import { hasMinCodeVersion } from 'lib/shared/version-utils';
 
 import { dbQuery, SQL } from '../database/database';
 import { Viewer } from './viewer';
@@ -33,6 +34,7 @@ import { deleteCookie } from '../deleters/cookie-deleters';
 import { handleAsyncPromise } from '../responders/handlers';
 import { createSession } from '../creators/session-creator';
 import { clearDeviceToken } from '../updaters/device-token-updaters';
+import { updateThreadMembers } from '../updaters/thread-updaters';
 
 const { baseDomain, basePath, https } = urlFacts;
 
@@ -771,6 +773,13 @@ async function setCookiePlatformDetails(
   viewer: Viewer,
   platformDetails: PlatformDetails,
 ): Promise<void> {
+  if (
+    hasMinCodeVersion(platformDetails, 70) &&
+    !hasMinCodeVersion(viewer.platformDetails, 70)
+  ) {
+    await updateThreadMembers(viewer);
+  }
+
   viewer.setPlatformDetails(platformDetails);
   const { platform, ...versions } = platformDetails;
   const versionsString =

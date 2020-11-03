@@ -15,6 +15,7 @@ import {
 } from 'lib/types/thread-types';
 import type { Viewer } from '../session/viewer';
 import { messageTypes, defaultNumberPerThread } from 'lib/types/message-types';
+import { updateTypes } from 'lib/types/update-types';
 import { userRelationshipStatus } from 'lib/types/relationship-types';
 
 import invariant from 'invariant';
@@ -53,6 +54,7 @@ import createMessages from '../creators/message-creator';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { updateRoles } from './role-updaters';
+import { createUpdates } from '../creators/update-creator';
 
 async function updateRole(
   viewer: Viewer,
@@ -654,4 +656,32 @@ async function joinThread(
   return response;
 }
 
-export { updateRole, removeMembers, leaveThread, updateThread, joinThread };
+async function updateThreadMembers(viewer: Viewer) {
+  const { threadInfos } = await fetchThreadInfos(
+    viewer,
+    SQL`t.parent_thread_id IS NOT NULL `,
+  );
+
+  const updateDatas = [];
+  const time = Date.now();
+  for (const threadID in threadInfos) {
+    updateDatas.push({
+      type: updateTypes.UPDATE_THREAD,
+      userID: viewer.id,
+      time,
+      threadID: threadID,
+      targetSession: viewer.session,
+    });
+  }
+
+  await createUpdates(updateDatas);
+}
+
+export {
+  updateRole,
+  removeMembers,
+  leaveThread,
+  updateThread,
+  joinThread,
+  updateThreadMembers,
+};
