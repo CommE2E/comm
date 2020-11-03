@@ -87,7 +87,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
         }
         return threadInfoFromRawThreadInfo(rawThreadInfo, userID, userInfos);
       }),
-      _pickBy(threadInfo => threadInfo),
+      _pickBy((threadInfo) => threadInfo),
     )(serverThreadInfos);
     for (let notifInfo of usersToCollapsableNotifInfo[userID]) {
       const hydrateMessageInfo = (rawMessageInfo: RawMessageInfo) =>
@@ -223,16 +223,28 @@ async function sendPushNotifs(pushInfo: PushInfo) {
     Promise.all(cleanUpPromises),
   ]);
 
+  await saveNotifResults(deliveryResults, notifications, true);
+}
+
+// The results in deliveryResults will be combined with the rows
+// in rowsToSave and then written to the notifications table
+async function saveNotifResults(
+  deliveryResults: $ReadOnlyArray<IOSResult | AndroidResult>,
+  inputRowsToSave: Map<string, NotificationRow>,
+  rescindable: boolean,
+) {
+  const rowsToSave = new Map(inputRowsToSave);
+
   const allInvalidTokens = [];
-  for (let deliveryResult of deliveryResults) {
+  for (const deliveryResult of deliveryResults) {
     const { info, delivery, invalidTokens } = deliveryResult;
     const { dbID, userID } = info;
-    const curNotifRow = notifications.get(dbID);
+    const curNotifRow = rowsToSave.get(dbID);
     if (curNotifRow) {
       curNotifRow.deliveries.push(delivery);
     } else {
       const { threadID, messageID, collapseKey } = info;
-      notifications.set(dbID, {
+      rowsToSave.set(dbID, {
         dbID,
         userID,
         threadID,
@@ -250,7 +262,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
   }
 
   const notificationRows = [];
-  for (let notification of notifications.values()) {
+  for (const notification of rowsToSave.values()) {
     notificationRows.push([
       notification.dbID,
       notification.userID,
@@ -258,7 +270,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       notification.messageID,
       notification.collapseKey,
       JSON.stringify(notification.deliveries),
-      0,
+      Number(!rescindable),
     ]);
   }
 
@@ -646,7 +658,7 @@ async function removeInvalidTokens(
   invalidTokens: $ReadOnlyArray<InvalidToken>,
 ): Promise<void> {
   const sqlTuples = invalidTokens.map(
-    invalidTokenUser =>
+    (invalidTokenUser) =>
       SQL`(
       user = ${invalidTokenUser.userID} AND
       device_token IN (${invalidTokenUser.tokens})
@@ -681,7 +693,7 @@ async function removeInvalidTokens(
   for (let entry of userCookiePairsToInvalidDeviceTokens) {
     const [userCookiePair, deviceTokens] = entry;
     const [userID, cookieID] = userCookiePair.split('|');
-    const updateDatas = [...deviceTokens].map(deviceToken => ({
+    const updateDatas = [...deviceTokens].map((deviceToken) => ({
       type: updateTypes.BAD_DEVICE_TOKEN,
       userID,
       time,
