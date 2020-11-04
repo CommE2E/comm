@@ -99,7 +99,7 @@ async function createTables() {
     CREATE TABLE notifications (
       id bigint(20) NOT NULL,
       user bigint(20) NOT NULL,
-      thread bigint(20) NOT NULL,
+      thread bigint(20) DEFAULT NULL,
       message bigint(20) DEFAULT NULL,
       collapse_key varchar(255) DEFAULT NULL,
       delivery json NOT NULL,

@@ -52,7 +52,7 @@ type Delivery = IOSDelivery | AndroidDelivery | {| collapsedInto: string |};
 type NotificationRow = {|
   +dbID: string,
   +userID: string,
-  +threadID: string,
+  +threadID?: ?string,
   +messageID?: ?string,
   +collapseKey?: ?string,
   +deliveries: Delivery[],
@@ -245,8 +245,8 @@ async function saveNotifResults(
     if (curNotifRow) {
       curNotifRow.deliveries.push(delivery);
     } else {
-      const { threadID } = info;
       // Ternary expressions for Flow
+      const threadID = info.threadID ? info.threadID : null;
       const messageID = info.messageID ? info.messageID : null;
       const collapseKey = info.collapseKey ? info.collapseKey : null;
       rowsToSave.set(dbID, {
@@ -581,7 +581,6 @@ type NotificationInfo =
       +source: 'mark_as_unread' | 'mark_as_read',
       +dbID: string,
       +userID: string,
-      +threadID: string,
       +codeVersion: number,
     |};
 
@@ -731,11 +730,8 @@ async function removeInvalidTokens(
   await Promise.all(promises);
 }
 
-// threadID parameter isn't actually used, it's just stored in the
-// notifications table for potential future debugging purposes
 async function updateBadgeCount(
   viewer: Viewer,
-  threadID: string,
   source: $PropertyType<NotificationInfo, 'source'>,
   excludeDeviceTokens: $ReadOnlyArray<string>,
 ) {
@@ -782,7 +778,6 @@ async function updateBadgeCount(
           source: 'mark_as_unread',
           dbID,
           userID,
-          threadID,
           codeVersion,
         }),
       );
@@ -799,7 +794,6 @@ async function updateBadgeCount(
           source: 'mark_as_unread',
           dbID,
           userID,
-          threadID,
           codeVersion,
         }),
       );

@@ -353,7 +353,6 @@ async function setThreadUnreadStatus(
 
   await updateBadgeCount(
     viewer,
-    request.threadID,
     request.unread ? 'mark_as_unread' : 'mark_as_read',
     excludeDeviceTokens,
   );
