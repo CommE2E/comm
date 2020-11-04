@@ -109,7 +109,7 @@ async function rescindPushNotifs(
     invariant(dbIDs, 'dbIDs should be set');
     for (const rescindedID in deliveryResults) {
       const delivery = {};
-      delivery.type = 'rescind';
+      delivery.source = 'rescind';
       delivery.rescindedID = rescindedID;
       const { errors } = deliveryResults[rescindedID];
       if (errors) {
