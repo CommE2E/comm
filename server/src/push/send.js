@@ -9,6 +9,7 @@ import type { ServerThreadInfo, ThreadInfo } from 'lib/types/thread-types';
 import type { DeviceType } from 'lib/types/device-types';
 import type { CollapsableNotifInfo } from '../fetchers/message-fetchers';
 import { updateTypes } from 'lib/types/update-types';
+import type { Viewer } from '../session/viewer';
 
 import apn from '@parse/node-apn';
 import invariant from 'invariant';
@@ -39,22 +40,22 @@ import createIDs from '../creators/id-creator';
 import { createUpdates } from '../creators/update-creator';
 
 type Device = {|
-  deviceType: DeviceType,
-  deviceToken: string,
-  codeVersion: ?number,
+  +deviceType: DeviceType,
+  +deviceToken: string,
+  +codeVersion: ?number,
 |};
 type PushUserInfo = {|
-  devices: Device[],
-  messageInfos: RawMessageInfo[],
+  +devices: Device[],
+  +messageInfos: RawMessageInfo[],
 |};
 type Delivery = IOSDelivery | AndroidDelivery | {| collapsedInto: string |};
 type NotificationRow = {|
-  dbID: string,
-  userID: string,
-  threadID: string,
-  messageID: string,
-  collapseKey: ?string,
-  deliveries: Delivery[],
+  +dbID: string,
+  +userID: string,
+  +threadID: string,
+  +messageID?: ?string,
+  +collapseKey?: ?string,
+  +deliveries: Delivery[],
 |};
 export type PushInfo = { [userID: string]: PushUserInfo };
 
@@ -138,6 +139,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       const firstMessageID = firstNewMessageInfo.id;
       invariant(firstMessageID, 'RawMessageInfo.id should be set on server');
       const notificationInfo = {
+        source: 'new_message',
         dbID,
         userID,
         threadID,
@@ -147,7 +149,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
 
       const iosVersionsToTokens = byDeviceType.get('ios');
       if (iosVersionsToTokens) {
-        for (let [codeVer, deviceTokens] of iosVersionsToTokens) {
+        for (const [codeVer, deviceTokens] of iosVersionsToTokens) {
           const codeVersion = parseInt(codeVer, 10); // only for Flow
           const shimmedNewRawMessageInfos = shimUnsupportedRawMessageInfos(
             newRawMessageInfos,
@@ -171,7 +173,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       }
       const androidVersionsToTokens = byDeviceType.get('android');
       if (androidVersionsToTokens) {
-        for (let [codeVer, deviceTokens] of androidVersionsToTokens) {
+        for (const [codeVer, deviceTokens] of androidVersionsToTokens) {
           const codeVersion = parseInt(codeVer, 10); // only for Flow
           const shimmedNewRawMessageInfos = shimUnsupportedRawMessageInfos(
             newRawMessageInfos,
@@ -243,7 +245,10 @@ async function saveNotifResults(
     if (curNotifRow) {
       curNotifRow.deliveries.push(delivery);
     } else {
-      const { threadID, messageID, collapseKey } = info;
+      const { threadID } = info;
+      // Ternary expressions for Flow
+      const messageID = info.messageID ? info.messageID : null;
+      const collapseKey = info.collapseKey ? info.collapseKey : null;
       rowsToSave.set(dbID, {
         dbID,
         userID,
@@ -527,7 +532,7 @@ function prepareAndroidNotification(
         badge: unreadCount.toString(),
         ...rest,
         threadID: threadInfo.id,
-        messageInfos: JSON.stringify(newRawMessageInfos),
+        messageInfos,
       },
     };
   } else if (codeVersion < 31) {
@@ -562,16 +567,26 @@ function prepareAndroidNotification(
   };
 }
 
-type NotificationInfo = {|
-  dbID: string,
-  userID: string,
-  threadID: string,
-  messageID: string,
-  collapseKey: ?string,
-  codeVersion: number,
-|};
+type NotificationInfo =
+  | {|
+      +source: 'new_message',
+      +dbID: string,
+      +userID: string,
+      +threadID: string,
+      +messageID: string,
+      +collapseKey: ?string,
+      +codeVersion: number,
+    |}
+  | {|
+      +source: 'mark_as_unread',
+      +dbID: string,
+      +userID: string,
+      +threadID: string,
+      +codeVersion: number,
+    |};
 
 type IOSDelivery = {|
+  source: $PropertyType<NotificationInfo, 'source'>,
   deviceType: 'ios',
   iosID: string,
   deviceTokens: $ReadOnlyArray<string>,
@@ -590,6 +605,7 @@ async function sendIOSNotification(
 ): Promise<IOSResult> {
   const response = await apnPush(notification, deviceTokens);
   const delivery: IOSDelivery = {
+    source: notificationInfo.source,
     deviceType: 'ios',
     iosID: notification.id,
     deviceTokens,
@@ -609,6 +625,7 @@ async function sendIOSNotification(
 }
 
 type AndroidDelivery = {|
+  source: $PropertyType<NotificationInfo, 'source'>,
   deviceType: 'android',
   androidIDs: $ReadOnlyArray<string>,
   deviceTokens: $ReadOnlyArray<string>,
@@ -625,13 +642,13 @@ async function sendAndroidNotification(
   deviceTokens: $ReadOnlyArray<string>,
   notificationInfo: NotificationInfo,
 ): Promise<AndroidResult> {
-  const response = await fcmPush(
-    notification,
-    deviceTokens,
-    notificationInfo.collapseKey,
-  );
+  const collapseKey = notificationInfo.collapseKey
+    ? notificationInfo.collapseKey
+    : null; // for Flow...
+  const response = await fcmPush(notification, deviceTokens, collapseKey);
   const androidIDs = response.fcmIDs ? response.fcmIDs : [];
   const delivery: AndroidDelivery = {
+    source: notificationInfo.source,
     deviceType: 'android',
     androidIDs,
     deviceTokens,
@@ -651,8 +668,8 @@ async function sendAndroidNotification(
 }
 
 type InvalidToken = {|
-  userID: string,
-  tokens: $ReadOnlyArray<string>,
+  +userID: string,
+  +tokens: $ReadOnlyArray<string>,
 |};
 async function removeInvalidTokens(
   invalidTokens: $ReadOnlyArray<InvalidToken>,
@@ -714,4 +731,73 @@ async function removeInvalidTokens(
   await Promise.all(promises);
 }
 
-export { sendPushNotifs };
+// threadID parameter isn't actually used, it's just stored in the
+// notifications table for potential future debugging purposes
+async function updateBadgeCount(viewer: Viewer, threadID: string) {
+  const { userID } = viewer;
+
+  const deviceTokenQuery = SQL`
+    SELECT platform, device_token, versions
+    FROM cookies
+    WHERE user = ${userID}
+      AND device_token IS NOT NULL
+      AND id != ${viewer.cookieID}
+  `;
+  const [unreadCounts, [deviceTokenResult], [dbID]] = await Promise.all([
+    getUnreadCounts([userID]),
+    dbQuery(deviceTokenQuery),
+    createIDs('notifications', 1),
+  ]);
+  const unreadCount = unreadCounts[userID];
+
+  const devices = deviceTokenResult.map((row) => ({
+    deviceType: row.platform,
+    deviceToken: row.device_token,
+    codeVersion: row.versions?.codeVersion,
+  }));
+  const byDeviceType = getDevicesByDeviceType(devices);
+
+  const deliveryPromises = [];
+
+  const iosVersionsToTokens = byDeviceType.get('ios');
+  if (iosVersionsToTokens) {
+    for (const [codeVer, deviceTokens] of iosVersionsToTokens) {
+      const codeVersion = parseInt(codeVer, 10); // only for Flow
+      const notification = new apn.Notification();
+      notification.topic = 'org.squadcal.app';
+      notification.badge = unreadCount;
+      notification.pushType = 'alert';
+      deliveryPromises.push(
+        sendIOSNotification(notification, [...deviceTokens], {
+          source: 'mark_as_unread',
+          dbID,
+          userID,
+          threadID,
+          codeVersion,
+        }),
+      );
+    }
+  }
+
+  const androidVersionsToTokens = byDeviceType.get('android');
+  if (androidVersionsToTokens) {
+    for (const [codeVer, deviceTokens] of androidVersionsToTokens) {
+      const codeVersion = parseInt(codeVer, 10); // only for Flow
+      const notification = { data: { badge: unreadCount.toString() } };
+      deliveryPromises.push(
+        sendAndroidNotification(notification, [...deviceTokens], {
+          source: 'mark_as_unread',
+          dbID,
+          userID,
+          threadID,
+          codeVersion,
+        }),
+      );
+    }
+  }
+
+  const deliveryResults = await Promise.all(deliveryPromises);
+  await saveNotifResults(deliveryResults, new Map(), false);
+}
+
+export { sendPushNotifs, updateBadgeCount };

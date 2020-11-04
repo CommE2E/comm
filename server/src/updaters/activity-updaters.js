@@ -19,6 +19,7 @@ import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL, mergeOrConditions } from '../database/database';
 import { rescindPushNotifs } from '../push/rescind';
+import { updateBadgeCount } from '../push/send';
 import { createUpdates } from '../creators/update-creator';
 import { deleteActivityForViewerSession } from '../deleters/activity-deleters';
 import { earliestFocusedTimeConsideredCurrent } from '../shared/focused-times';
@@ -46,7 +47,7 @@ async function activityUpdater(
   }
 
   const unverifiedThreadIDs: $ReadOnlySet<string> = new Set(
-    request.updates.map(update => update.threadID),
+    request.updates.map((update) => update.threadID),
   );
   const viewerMemberThreads = await checkThreads(
     viewer,
@@ -77,16 +78,16 @@ async function activityUpdater(
     const latestMessage = _max(
       focusUpdates
         .filter(
-          update =>
+          (update) =>
             update.latestMessage && !update.latestMessage.startsWith('local'),
         )
-        .map(update => parseInt(update.latestMessage)),
+        .map((update) => parseInt(update.latestMessage)),
     );
     if (latestMessage) {
       latestMessages.set(threadID, latestMessage);
     }
 
-    const focusEnded = focusUpdates.some(update => !update.focus);
+    const focusEnded = focusUpdates.some((update) => !update.focus);
 
     if (!focusEnded) {
       currentlyFocused.push(threadID);
@@ -169,7 +170,7 @@ async function updateFocusedRows(
 ): Promise<void> {
   const time = Date.now();
   if (threadIDs.length > 0) {
-    const focusedInsertRows = threadIDs.map(threadID => [
+    const focusedInsertRows = threadIDs.map((threadID) => [
       viewer.userID,
       viewer.session,
       threadID,
@@ -346,6 +347,8 @@ async function setThreadUnreadStatus(
       n.message <= ${request.latestMessage}
     `;
     await rescindPushNotifs(rescindCondition);
+  } else {
+    await updateBadgeCount(viewer, request.threadID);
   }
 
   return {
@@ -366,7 +369,7 @@ async function shouldResetThreadToUnread(
     new Map([[request.threadID, parseInt(request.latestMessage) || 0]]),
   );
 
-  return resetToUnread.some(threadID => threadID === request.threadID);
+  return resetToUnread.some((threadID) => threadID === request.threadID);
 }
 
 // The `focused` table tracks which chat threads are currently in view for a
