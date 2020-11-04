@@ -137,8 +137,8 @@ const createChatNavigator = createNavigatorFactory<
   ExtraStackNavigatorProps,
 >(ChatNavigator);
 
-const header = props => <ChatHeader {...props} />;
-const headerBackButton = props => <HeaderBackButton {...props} />;
+const header = (props) => <ChatHeader {...props} />;
+const headerBackButton = (props) => <HeaderBackButton {...props} />;
 const screenOptions = {
   header,
   headerLeft: headerBackButton,

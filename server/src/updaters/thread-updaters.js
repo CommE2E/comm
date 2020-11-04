@@ -431,7 +431,9 @@ async function updateThread(
     ) {
       throw new ServerError('invalid_parameters');
     }
-    parentThreadMembers = parentThreadInfo.members.map(userInfo => userInfo.id);
+    parentThreadMembers = parentThreadInfo.members.map(
+      (userInfo) => userInfo.id,
+    );
   }
 
   if (fetchNewMembers) {

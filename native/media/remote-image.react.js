@@ -46,7 +46,7 @@ class RemoteImage extends React.PureComponent<Props, State> {
       this.props.connectionStatus === 'connected' &&
       prevProps.connectionStatus !== 'connected'
     ) {
-      this.setState(otherPrevState => ({
+      this.setState((otherPrevState) => ({
         attempt: otherPrevState.attempt + 1,
       }));
     }

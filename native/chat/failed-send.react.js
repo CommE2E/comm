@@ -153,7 +153,9 @@ const ConnectedFailedSend = React.memo<BaseProps>(function ConnectedFailedSend(
   props: BaseProps,
 ) {
   const id = messageID(props.item.messageInfo);
-  const rawMessageInfo = useSelector(state => state.messageStore.messages[id]);
+  const rawMessageInfo = useSelector(
+    (state) => state.messageStore.messages[id],
+  );
   const styles = useStyles(unboundStyles);
   const inputState = React.useContext(InputStateContext);
   return (

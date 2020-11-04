@@ -83,7 +83,7 @@ const OverlayNavigator = React.memo<Props>(
     const prevScenesRef = React.useRef();
     const prevScenes = prevScenesRef.current;
 
-    const visibleOverlayEntryForNewScene = scene => {
+    const visibleOverlayEntryForNewScene = (scene) => {
       const { route } = scene;
       if (route.name === TabNavigatorRouteName) {
         // We don't consider the TabNavigator at the bottom to be an overlay
@@ -113,7 +113,7 @@ const OverlayNavigator = React.memo<Props>(
     // each screen. Note that we also include the setter in OverlayContext. We
     // do this so that screens can freeze ScrollViews as quickly as possible to
     // avoid drags after onLongPress is triggered
-    const getScrollBlockingModalStatus = data => {
+    const getScrollBlockingModalStatus = (data) => {
       let status = 'closed';
       for (let scene of data) {
         if (!scrollBlockingModals.includes(scene.route.name)) {
@@ -131,7 +131,7 @@ const OverlayNavigator = React.memo<Props>(
       scrollBlockingModalStatus,
       setScrollBlockingModalStatus,
     ] = React.useState(() => getScrollBlockingModalStatus(scenes));
-    const sceneDataForNewScene = scene => ({
+    const sceneDataForNewScene = (scene) => ({
       ...scene,
       context: {
         ...scene.context,
@@ -271,14 +271,14 @@ const OverlayNavigator = React.memo<Props>(
                   'visibleOverlaysRef should be set',
                 );
                 const newVisibleOverlays = curVisibleOverlays.filter(
-                  overlay => overlay.routeKey !== key,
+                  (overlay) => overlay.routeKey !== key,
                 );
                 invariant(
                   newVisibleOverlays.length < curVisibleOverlays.length,
                   `could not find ${key} in visibleOverlays`,
                 );
                 visibleOverlaysRef.current = newVisibleOverlays;
-                setSceneData(curSceneData => {
+                setSceneData((curSceneData) => {
                   const newSceneData = {};
                   for (let sceneKey in curSceneData) {
                     if (sceneKey === key) {

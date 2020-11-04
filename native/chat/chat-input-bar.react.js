@@ -421,7 +421,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       );
     } else {
       const defaultRoleID = Object.keys(this.props.threadInfo.roles).find(
-        roleID => this.props.threadInfo.roles[roleID].isDefault,
+        (roleID) => this.props.threadInfo.roles[roleID].isDefault,
       );
       invariant(
         defaultRoleID !== undefined,
@@ -779,19 +779,19 @@ export default React.memo<BaseProps>(function ConnectedChatInputBar(
   );
 
   const draftKey = draftKeyFromThreadID(props.threadInfo.id);
-  const draft = useSelector(state => state.drafts[draftKey] || '');
+  const draft = useSelector((state) => state.drafts[draftKey] || '');
 
   const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
+    (state) => state.currentUserInfo && state.currentUserInfo.id,
   );
   const joinThreadLoadingStatus = useSelector(joinThreadLoadingStatusSelector);
-  const calendarQuery = useSelector(state =>
+  const calendarQuery = useSelector((state) =>
     nonThreadCalendarQuery({
       redux: state,
       navContext,
     }),
   );
-  const nextLocalID = useSelector(state => state.nextLocalID);
+  const nextLocalID = useSelector((state) => state.nextLocalID);
 
   const dispatch = useDispatch();
   const dispatchActionPromise = useDispatchActionPromise();

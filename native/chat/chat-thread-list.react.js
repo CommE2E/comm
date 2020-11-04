@@ -220,13 +220,13 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       const chatItems = [];
       if (!searchText) {
         chatItems.push(
-          ...reduxChatListData.filter(item =>
+          ...reduxChatListData.filter((item) =>
             this.props.filterThreads(item.threadInfo),
           ),
         );
       } else {
         chatItems.push(
-          ...reduxChatListData.filter(item =>
+          ...reduxChatListData.filter((item) =>
             searchResults.has(item.threadInfo.id),
           ),
         );
@@ -304,7 +304,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   };
 
   onSwipeableWillOpen = (threadInfo: ThreadInfo) => {
-    this.setState(state => ({ ...state, openedSwipeableId: threadInfo.id }));
+    this.setState((state) => ({ ...state, openedSwipeableId: threadInfo.id }));
   };
 
   composeThread = () => {

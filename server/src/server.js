@@ -49,7 +49,9 @@ if (cluster.isMaster) {
     express.static(
       '.well-known',
       // Necessary for apple-app-site-association file
-      { setHeaders: res => res.setHeader('Content-Type', 'application/json') },
+      {
+        setHeaders: (res) => res.setHeader('Content-Type', 'application/json'),
+      },
     ),
   );
   const compiledFolderOptions =

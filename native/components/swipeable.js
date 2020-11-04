@@ -62,7 +62,7 @@ class Swipeable extends React.PureComponent<Props> {
     rightActions: [],
   };
 
-  renderRightActions = progress => {
+  renderRightActions = (progress) => {
     const actions = this.props.rightActions.map(
       ({ key, content, color, onPress }, i) => {
         const translation = progress.interpolate({

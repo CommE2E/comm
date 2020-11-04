@@ -86,7 +86,7 @@ class RelationshipUpdateModal extends React.PureComponent<Props, State> {
   async searchUsers(usernamePrefix: string) {
     const { userInfos } = await this.props.searchUsers(usernamePrefix);
     this.setState({
-      searchUserInfos: _keyBy(userInfo => userInfo.id)(userInfos),
+      searchUserInfos: _keyBy((userInfo) => userInfo.id)(userInfos),
     });
   }
 
@@ -110,15 +110,15 @@ class RelationshipUpdateModal extends React.PureComponent<Props, State> {
         excludeStatuses.push(userRelationshipStatus.BOTH_BLOCKED);
       }
       const excludeBlockedAndFriendIDs = values(searchUserInfos)
-        .filter(searchUserInfo => {
+        .filter((searchUserInfo) => {
           const userInfo = userInfos[searchUserInfo.id];
           return (
             userInfo && excludeStatuses.includes(userInfo.relationshipStatus)
           );
         })
-        .map(userInfo => userInfo.id);
+        .map((userInfo) => userInfo.id);
       const excludeUserIDs = userInfoInputArray
-        .map(userInfo => userInfo.id)
+        .map((userInfo) => userInfo.id)
         .concat(viewerID || [])
         .concat(excludeBlockedAndFriendIDs);
 
@@ -141,7 +141,7 @@ class RelationshipUpdateModal extends React.PureComponent<Props, State> {
         searchIndex,
         excludeUserIDs,
       );
-      return results.map(result => {
+      return results.map((result) => {
         const userInfo = userInfos[result.id];
         const disabledFriends =
           userInfo &&
@@ -233,7 +233,7 @@ class RelationshipUpdateModal extends React.PureComponent<Props, State> {
   };
 
   onUserSelect = (userID: string) => {
-    if (this.state.userInfoInputArray.find(o => o.id === userID)) {
+    if (this.state.userInfoInputArray.find((o) => o.id === userID)) {
       return;
     }
 
@@ -246,7 +246,7 @@ class RelationshipUpdateModal extends React.PureComponent<Props, State> {
     }
     invariant(selectedUserInfo, `could not find selected userID ${userID}`);
 
-    this.setState(state => ({
+    this.setState((state) => ({
       userInfoInputArray: state.userInfoInputArray.concat(selectedUserInfo),
       usernameInputText: '',
     }));
@@ -270,7 +270,7 @@ class RelationshipUpdateModal extends React.PureComponent<Props, State> {
         blocked: relationshipActions.BLOCK,
       }[target];
       const userIDs = this.state.userInfoInputArray.map(
-        userInfo => userInfo.id,
+        (userInfo) => userInfo.id,
       );
       const result = await this.props.updateRelationships({
         action,
@@ -305,7 +305,7 @@ class RelationshipUpdateModal extends React.PureComponent<Props, State> {
   };
 
   goBackOnce() {
-    this.props.navigation.dispatch(state => ({
+    this.props.navigation.dispatch((state) => ({
       ...CommonActions.goBack(),
       target: state.key,
     }));

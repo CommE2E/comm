@@ -78,8 +78,8 @@ async function checkThreads(
 
   return new Set(
     result
-      .filter(row => isThreadValid(row.permissions, row.role, checks))
-      .map(row => row.thread.toString()),
+      .filter((row) => isThreadValid(row.permissions, row.role, checks))
+      .map((row) => row.thread.toString()),
   );
 }
 

@@ -89,7 +89,9 @@ async function createThread(
     if (!threadHasPermission(parentThreadInfo, permission)) {
       throw new ServerError('invalid_credentials');
     }
-    parentThreadMembers = parentThreadInfo.members.map(userInfo => userInfo.id);
+    parentThreadMembers = parentThreadInfo.members.map(
+      (userInfo) => userInfo.id,
+    );
   }
 
   const viewerNeedsRelationshipsWith = [];

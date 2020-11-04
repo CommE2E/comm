@@ -7,8 +7,8 @@ import EXIF from 'exif-js';
 import { getMessageForException } from 'lib/utils/errors';
 
 function getEXIFOrientation(file: File): Promise<?number> {
-  return new Promise(resolve => {
-    EXIF.getData(file, function() {
+  return new Promise((resolve) => {
+    EXIF.getData(file, function () {
       resolve(EXIF.getTag(this, 'Orientation'));
     });
   });

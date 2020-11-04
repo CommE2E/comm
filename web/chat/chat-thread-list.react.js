@@ -59,8 +59,8 @@ class ChatThreadList extends React.PureComponent<Props> {
 
   render() {
     const threads: React.Node[] = this.props.chatListData
-      .filter(item => this.props.filterThreads(item.threadInfo))
-      .map(item => (
+      .filter((item) => this.props.filterThreads(item.threadInfo))
+      .map((item) => (
         <ChatThreadListItem
           item={item}
           active={item.threadInfo.id === this.props.navInfo.activeChatThreadID}
@@ -86,8 +86,8 @@ export default React.memo<BaseProps>(function ConnectedChatThreadList(
   props: BaseProps,
 ) {
   const chatListData = useSelector(webChatListData);
-  const navInfo = useSelector(state => state.navInfo);
-  const timeZone = useSelector(state => state.timeZone);
+  const navInfo = useSelector((state) => state.navInfo);
+  const timeZone = useSelector((state) => state.timeZone);
   const dispatch = useDispatch();
   const dispatchActionPromise = useDispatchActionPromise();
   const callSetThreadUnreadStatus = useServerCall(setThreadUnreadStatus);

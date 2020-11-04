@@ -96,7 +96,7 @@ const baseTransitionPreset = Platform.select({
 });
 const transitionPreset = {
   ...baseTransitionPreset,
-  cardStyleInterpolator: interpolatorProps => {
+  cardStyleInterpolator: (interpolatorProps) => {
     const baseCardStyleInterpolator = baseTransitionPreset.cardStyleInterpolator(
       interpolatorProps,
     );

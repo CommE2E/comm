@@ -136,7 +136,7 @@ async function createAccount(
   );
 
   let messageTime = Date.now();
-  const ashoatMessageDatas = ashoatMessages.map(message => ({
+  const ashoatMessageDatas = ashoatMessages.map((message) => ({
     type: messageTypes.TEXT,
     threadID: ashoatThreadID,
     creatorID: ashoat.id,

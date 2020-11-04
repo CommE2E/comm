@@ -31,8 +31,8 @@ import {
 import MoreHeader from './more-header.react';
 import HeaderBackButton from '../navigation/header-back-button.react';
 
-const header = props => <MoreHeader {...props} />;
-const headerBackButton = props => <HeaderBackButton {...props} />;
+const header = (props) => <MoreHeader {...props} />;
+const headerBackButton = (props) => <HeaderBackButton {...props} />;
 const screenOptions = {
   header,
   headerLeft: headerBackButton,

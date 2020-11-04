@@ -163,7 +163,7 @@ async function createUpdates(
       keyUpdateDatasChanged = true;
     } else {
       const filteredKeyUpdateDatas = keyUpdateDatas.filter(
-        keyUpdateData => types.indexOf(keyUpdateData.type) === -1,
+        (keyUpdateData) => types.indexOf(keyUpdateData.type) === -1,
       );
       if (filteredKeyUpdateDatas.length === 0) {
         keyUpdateDatas = [];
@@ -580,7 +580,7 @@ async function updateInfosFromRawUpdateInfos(
     } else if (rawUpdateInfo.type === updateTypes.UPDATE_ENTRY) {
       invariant(entryInfosResult, 'should be set');
       const entryInfo = entryInfosResult.find(
-        candidate => candidate.id === rawUpdateInfo.entryID,
+        (candidate) => candidate.id === rawUpdateInfo.entryID,
       );
       invariant(entryInfo, 'should be set');
       updateInfos.push({
@@ -592,7 +592,7 @@ async function updateInfosFromRawUpdateInfos(
     } else if (rawUpdateInfo.type === updateTypes.UPDATE_CURRENT_USER) {
       invariant(currentUserInfosResult, 'should be set');
       const currentUserInfo = currentUserInfosResult.find(
-        candidate => candidate.id === viewer.userID,
+        (candidate) => candidate.id === viewer.userID,
       );
       invariant(currentUserInfo, 'should be set');
       updateInfos.push({

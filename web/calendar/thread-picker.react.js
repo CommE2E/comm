@@ -120,7 +120,7 @@ class ThreadPicker extends React.PureComponent<Props, State> {
 
     const options = this.props.onScreenThreadInfos
       .slice(firstIndex, secondIndex)
-      .map(threadInfo => (
+      .map((threadInfo) => (
         <ThreadPickerOption
           threadInfo={threadInfo}
           createNewEntry={this.props.createNewEntry}
@@ -165,7 +165,7 @@ class ThreadPicker extends React.PureComponent<Props, State> {
 
   onBackPagerClick = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.setState(prevState => {
+    this.setState((prevState) => {
       invariant(prevState.currentPage > 0, "can't go back from 0");
       return { currentPage: prevState.currentPage - 1 };
     });

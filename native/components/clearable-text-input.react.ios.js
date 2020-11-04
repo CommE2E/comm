@@ -118,9 +118,9 @@ class ClearableTextInput extends React.PureComponent<
     if (!this.focused) {
       return value;
     }
-    return await new Promise(resolve => {
+    return await new Promise((resolve) => {
       this.pendingMessage = { value, resolve };
-      this.setState(prevState => ({
+      this.setState((prevState) => ({
         textInputKey: prevState.textInputKey + 1,
       }));
     });

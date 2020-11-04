@@ -82,7 +82,7 @@ async function createMessages(
   const messageInfos: RawMessageInfo[] = [];
   const newMessageDatas: MessageData[] = [];
   const existingMessages = await Promise.all(
-    messageDatas.map(messageData =>
+    messageDatas.map((messageData) =>
       fetchMessageInfoForLocalID(viewer, messageDataLocalID(messageData)),
     ),
   );
@@ -465,7 +465,7 @@ function flattenLatestMessagesPerUser(
 async function createReadStatusUpdates(latestMessages: LatestMessages) {
   const now = Date.now();
   const readStatusUpdates = latestMessages
-    .filter(message => !message.latestReadMessage)
+    .filter((message) => !message.latestReadMessage)
     .map(({ userID, threadID }) => ({
       type: updateTypes.UPDATE_THREAD_READ_STATUS,
       userID,

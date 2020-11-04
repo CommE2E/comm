@@ -761,7 +761,7 @@ class Calendar extends React.PureComponent<Props, State> {
   onConcludeEntryEditMode = (entryInfo: EntryInfoWithHeight) => {
     const key = entryKey(entryInfo);
     const newCurrentlyEditing = this.state.currentlyEditing.filter(
-      k => k !== key,
+      (k) => k !== key,
     );
     if (newCurrentlyEditing.length < this.state.currentlyEditing.length) {
       this.setState({ currentlyEditing: newCurrentlyEditing });
@@ -934,7 +934,7 @@ class Calendar extends React.PureComponent<Props, State> {
         // and then we could set scrolled-away entries to be inactive without
         // worrying about this edge case. Until then...
         const foundItem = _find(
-          item => item.entryInfo && entryKey(item.entryInfo) === key,
+          (item) => item.entryInfo && entryKey(item.entryInfo) === key,
         )(ldwh);
         return !!foundItem;
       })(this.latestExtraData.activeEntries),

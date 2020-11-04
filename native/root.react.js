@@ -131,7 +131,7 @@ function Root() {
 
   const detectUnsupervisedBackgroundRef = React.useCallback(
     (detectUnsupervisedBackground: ?(alreadyClosed: boolean) => boolean) => {
-      setRootContext(prevRootContext => ({
+      setRootContext((prevRootContext) => ({
         ...prevRootContext,
         detectUnsupervisedBackground,
       }));
@@ -139,7 +139,7 @@ function Root() {
     [],
   );
 
-  const frozen = useSelector(state => state.frozen);
+  const frozen = useSelector((state) => state.frozen);
   const queuedActionsRef = React.useRef([]);
   const onNavigationStateChange = React.useCallback(
     (state: ?PossiblyStaleNavigationState) => {
@@ -193,7 +193,7 @@ function Root() {
     if (!navContainer) {
       return;
     }
-    return navContainer.addListener('__unsafe_action__', event => {
+    return navContainer.addListener('__unsafe_action__', (event) => {
       const { action, noop } = event.data;
       const navState = navStateRef.current;
       if (noop) {
@@ -207,7 +207,7 @@ function Root() {
     });
   }, [navContainer]);
 
-  const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
+  const activeTheme = useSelector((state) => state.globalThemeInfo.activeTheme);
   const theme = (() => {
     if (activeTheme === 'light') {
       return LightTheme;

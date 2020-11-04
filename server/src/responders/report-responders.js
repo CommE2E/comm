@@ -66,7 +66,7 @@ const threadInconsistencyReportCreationRequest = tShape({
   ...threadInconsistencyReportValidatorShape,
   type: t.irreducible(
     'reportTypes.THREAD_INCONSISTENCY',
-    x => x === reportTypes.THREAD_INCONSISTENCY,
+    (x) => x === reportTypes.THREAD_INCONSISTENCY,
   ),
 });
 
@@ -74,14 +74,14 @@ const entryInconsistencyReportCreationRquest = tShape({
   ...entryInconsistencyReportValidatorShape,
   type: t.irreducible(
     'reportTypes.ENTRY_INCONSISTENCY',
-    x => x === reportTypes.ENTRY_INCONSISTENCY,
+    (x) => x === reportTypes.ENTRY_INCONSISTENCY,
   ),
 });
 
 const mediaMissionReportCreationRequest = tShape({
   type: t.irreducible(
     'reportTypes.MEDIA_MISSION',
-    x => x === reportTypes.MEDIA_MISSION,
+    (x) => x === reportTypes.MEDIA_MISSION,
   ),
   platformDetails: tPlatformDetails,
   time: t.Number,
@@ -97,14 +97,14 @@ const userInconsistencyReportCreationRequest = tShape({
   ...userInconsistencyReportValidatorShape,
   type: t.irreducible(
     'reportTypes.USER_INCONSISTENCY',
-    x => x === reportTypes.USER_INCONSISTENCY,
+    (x) => x === reportTypes.USER_INCONSISTENCY,
   ),
 });
 
 const reportCreationRequestInputValidator = t.union([
   tShape({
     type: t.maybe(
-      t.irreducible('reportTypes.ERROR', x => x === reportTypes.ERROR),
+      t.irreducible('reportTypes.ERROR', (x) => x === reportTypes.ERROR),
     ),
     platformDetails: t.maybe(tPlatformDetails),
     deviceType: t.maybe(tPlatform),
@@ -154,7 +154,10 @@ const reportMultiCreationRequestInputValidator = tShape({
   reports: t.list(
     t.union([
       tShape({
-        type: t.irreducible('reportTypes.ERROR', x => x === reportTypes.ERROR),
+        type: t.irreducible(
+          'reportTypes.ERROR',
+          (x) => x === reportTypes.ERROR,
+        ),
         platformDetails: tPlatformDetails,
         errors: t.list(
           tShape({
@@ -189,7 +192,7 @@ async function reportMultiCreationResponder(
     request,
   );
   await Promise.all(
-    request.reports.map(reportCreationRequest =>
+    request.reports.map((reportCreationRequest) =>
       createReport(viewer, reportCreationRequest),
     ),
   );

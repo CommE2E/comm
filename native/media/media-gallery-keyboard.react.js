@@ -217,7 +217,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
       const existingURIs = new Set(mediaURIs);
       let first = true;
       const selections = assets
-        .map(asset => {
+        .map((asset) => {
           const { id, height, width, filename, mediaType, duration } = asset;
           const isVideo = mediaType === MediaLibrary.MediaType.video;
           const uri = getCompatibleMediaURI(
@@ -445,7 +445,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
         };
       }
       const queuedMediaURIs = prevQueuedMediaURIs.filter(
-        uri => uri !== selection.uri,
+        (uri) => uri !== selection.uri,
       );
       if (queuedMediaURIs.length < prevQueuedMediaURIs.length) {
         return {
@@ -498,7 +498,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
       selectTime: now,
       sendTime: now,
     };
-    const selectionsWithTime = selections.map(selection => ({
+    const selectionsWithTime = selections.map((selection) => ({
       ...selection,
       ...timeProps,
     }));

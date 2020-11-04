@@ -386,7 +386,7 @@ export default React.memo<BaseProps>(function ConnectedMessageList(
 
   const threadID = props.threadInfo.id;
   const startReached = useSelector(
-    state =>
+    (state) =>
       !!(
         state.messageStore.threads[threadID] &&
         state.messageStore.threads[threadID].startReached

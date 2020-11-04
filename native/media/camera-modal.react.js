@@ -1211,10 +1211,10 @@ const styles = StyleSheet.create({
 export default React.memo<BaseProps>(function ConnectedCameraModal(
   props: BaseProps,
 ) {
-  const dimensions = useSelector(state => state.dimensions);
-  const deviceCameraInfo = useSelector(state => state.deviceCameraInfo);
-  const deviceOrientation = useSelector(state => state.deviceOrientation);
-  const foreground = useSelector(state => state.foreground);
+  const dimensions = useSelector((state) => state.dimensions);
+  const deviceCameraInfo = useSelector((state) => state.deviceCameraInfo);
+  const deviceOrientation = useSelector((state) => state.deviceOrientation);
+  const foreground = useSelector((state) => state.foreground);
   const overlayContext = React.useContext(OverlayContext);
   const inputState = React.useContext(InputStateContext);
   const dispatch = useDispatch();

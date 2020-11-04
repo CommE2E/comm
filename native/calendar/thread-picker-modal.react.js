@@ -39,9 +39,9 @@ function ThreadPickerModal(props: Props) {
   } = props;
 
   const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
+    (state) => state.currentUserInfo && state.currentUserInfo.id,
   );
-  const nextLocalID = useSelector(state => state.nextLocalID);
+  const nextLocalID = useSelector((state) => state.nextLocalID);
   const dispatch = useDispatch();
 
   const rootNavigatorContext = React.useContext(RootNavigatorContext);
@@ -73,8 +73,8 @@ function ThreadPickerModal(props: Props) {
     [navigation, rootNavigatorContext],
   );
 
-  const index = useSelector(state => threadSearchIndex(state));
-  const onScreenThreadInfos = useSelector(state =>
+  const index = useSelector((state) => threadSearchIndex(state));
+  const onScreenThreadInfos = useSelector((state) =>
     onScreenEntryEditableThreadInfos(state),
   );
   return (

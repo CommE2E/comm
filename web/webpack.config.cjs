@@ -62,13 +62,13 @@ const browserBabelRule = {
 
 const imageRule = {
   test: /\.png$/,
-  use: [ 'url-loader' ],
+  use: ['url-loader'],
 };
 
 const baseBrowserConfig = {
   name: 'browser',
   entry: {
-    browser: [ './script.js' ],
+    browser: ['./script.js'],
   },
   output: {
     filename: 'prod.[hash:12].build.js',
@@ -80,10 +80,7 @@ const baseBrowserConfig = {
     },
   },
   optimization: {
-    minimizer: [
-      new TerserPlugin(),
-      new OptimizeCssAssetsPlugin(),
-    ],
+    minimizer: [new TerserPlugin(), new OptimizeCssAssetsPlugin()],
   },
   plugins: [
     ...sharedPlugins,
@@ -93,7 +90,7 @@ const baseBrowserConfig = {
   ],
 };
 
-module.exports = function(env) {
+module.exports = function (env) {
   if (env !== 'prod' && env !== 'dev') {
     env = 'dev';
   }
@@ -103,10 +100,7 @@ module.exports = function(env) {
       ...browserConfig,
       entry: {
         ...browserConfig.entry,
-        browser: [
-          'react-hot-loader/patch',
-          ...browserConfig.entry.browser,
-        ],
+        browser: ['react-hot-loader/patch', ...browserConfig.entry.browser],
       },
       mode: 'development',
       output: {
@@ -140,10 +134,7 @@ module.exports = function(env) {
           {
             test: /\.css$/,
             exclude: /node_modules\/.*\.css$/,
-            use: [
-              styleLoader,
-              cssLoader,
-            ],
+            use: [styleLoader, cssLoader],
           },
           {
             test: /node_modules\/.*\.css$/,
@@ -220,7 +211,7 @@ module.exports = function(env) {
                   url: false,
                 },
               },
-            ]
+            ],
           },
           {
             test: /node_modules\/.*\.css$/,
@@ -234,7 +225,7 @@ module.exports = function(env) {
                   modules: false,
                 },
               },
-            ]
+            ],
           },
         ],
       },
@@ -243,10 +234,10 @@ module.exports = function(env) {
   const nodeServerRenderingConfig = {
     name: 'server',
     target: 'node',
-    externals: [ 'react', 'react-dom', 'react-redux' ],
+    externals: ['react', 'react-dom', 'react-redux'],
     mode: env === 'dev' ? 'development' : 'production',
     entry: {
-      server: [ './app.react.js' ],
+      server: ['./app.react.js'],
     },
     output: {
       filename: 'app.build.cjs',
@@ -266,7 +257,7 @@ module.exports = function(env) {
               modules: {
                 ...cssLoader.options.modules,
                 exportOnlyLocals: true,
-              }
+              },
             },
           },
         },
@@ -274,5 +265,5 @@ module.exports = function(env) {
     },
     plugins: sharedPlugins,
   };
-  return [ browserConfig, nodeServerRenderingConfig ];
+  return [browserConfig, nodeServerRenderingConfig];
 };

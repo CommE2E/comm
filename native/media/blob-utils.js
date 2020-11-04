@@ -19,7 +19,7 @@ import { getFetchableURI } from './identifier-utils';
 function blobToDataURI(blob: Blob): Promise<string> {
   const fileReader = new FileReader();
   return new Promise((resolve, reject) => {
-    fileReader.onerror = error => {
+    fileReader.onerror = (error) => {
       fileReader.abort();
       reject(error);
     };
@@ -45,7 +45,7 @@ function dataURIToIntArray(dataURI: string): Uint8Array {
   }
 
   const meta = uri.substring(5, firstComma).split(';');
-  const base64Encoded = meta.some(metum => metum === 'base64');
+  const base64Encoded = meta.some((metum) => metum === 'base64');
 
   let data = unescape(uri.substr(firstComma + 1, base64CharsNeeded));
   if (base64Encoded) {

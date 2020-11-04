@@ -120,7 +120,7 @@ class ChatThreadListItem extends React.PureComponent<Props, State> {
   };
 
   toggleMenu = () => {
-    this.setState(state => ({ menuVisible: !state.menuVisible }));
+    this.setState((state) => ({ menuVisible: !state.menuVisible }));
   };
 
   hideMenu = () => {

@@ -62,7 +62,7 @@ type Props = {|
 function RobotextMessage(props: Props) {
   const { item, navigation, focused, toggleFocus, ...viewProps } = props;
 
-  const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
+  const activeTheme = useSelector((state) => state.globalThemeInfo.activeTheme);
   const styles = useStyles(unboundStyles);
 
   let timestamp = null;
@@ -149,7 +149,9 @@ type ThreadEntityProps = {|
 |};
 function ThreadEntity(props: ThreadEntityProps) {
   const threadID = props.id;
-  const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
+  const threadInfo = useSelector(
+    (state) => threadInfoSelector(state)[threadID],
+  );
 
   const styles = useStyles(unboundStyles);
 

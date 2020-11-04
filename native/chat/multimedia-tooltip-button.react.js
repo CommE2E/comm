@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
 export default React.memo<BaseProps>(function ConnectedMultimediaTooltipButton(
   props: BaseProps,
 ) {
-  const windowWidth = useSelector(state => state.dimensions.width);
+  const windowWidth = useSelector((state) => state.dimensions.width);
   const inputState = React.useContext(InputStateContext);
   return (
     <MultimediaTooltipButton

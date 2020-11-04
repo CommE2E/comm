@@ -391,8 +391,8 @@ async function recalculateAllPermissions(
   const membershipRows = [];
   const toUpdateDescendants = new Map();
   const existingMemberIDs = selectResult
-    .filter(row => row.user && row.row_state === 'existing')
-    .map(row => row.user.toString());
+    .filter((row) => row.user && row.row_state === 'existing')
+    .map((row) => row.user.toString());
 
   for (const row of selectResult) {
     if (!row.user) {
@@ -539,7 +539,7 @@ async function deleteMemberships(
     return;
   }
   const deleteRows = toDelete.map(
-    rowToDelete =>
+    (rowToDelete) =>
       SQL`(user = ${rowToDelete.userID} AND thread = ${rowToDelete.threadID})`,
   );
   const conditions = mergeOrConditions(deleteRows);
@@ -703,7 +703,7 @@ function getRelationshipRowsForUsers(
   viewerID: string,
   userIDs: $ReadOnlyArray<string>,
 ): UndirectedRelationshipRow[] {
-  return cartesianProduct([viewerID], userIDs).map(pair => {
+  return cartesianProduct([viewerID], userIDs).map((pair) => {
     const [user1, user2] = sortIDs(...pair);
     const status = undirectedStatus.KNOW_OF;
     return { user1, user2, status };
@@ -716,18 +716,18 @@ function getParentThreadRelationshipRowsForNewUsers(
   newMemberIDs: $ReadOnlyArray<string>,
 ): UndirectedRelationshipRow[] {
   const parentMemberIDs = recalculateMembershipRows
-    .map(rowToSave => rowToSave.userID)
-    .filter(userID => !newMemberIDs.includes(userID));
+    .map((rowToSave) => rowToSave.userID)
+    .filter((userID) => !newMemberIDs.includes(userID));
   const newUserIDs = newMemberIDs.filter(
-    memberID =>
+    (memberID) =>
       !recalculateMembershipRows.find(
-        rowToSave =>
+        (rowToSave) =>
           rowToSave.userID === memberID &&
           rowToSave.threadID === threadID &&
           rowToSave.operation !== 'delete',
       ),
   );
-  return cartesianProduct(parentMemberIDs, newUserIDs).map(pair => {
+  return cartesianProduct(parentMemberIDs, newUserIDs).map((pair) => {
     const [user1, user2] = sortIDs(...pair);
     const status = undirectedStatus.KNOW_OF;
     return { user1, user2, status };

@@ -28,7 +28,7 @@ const migrations = {
     ...state,
     messageSentFromRoute: [],
   }),
-  [3]: state => ({
+  [3]: (state) => ({
     currentUserInfo: state.currentUserInfo,
     entryStore: state.entryStore,
     threadInfos: state.threadInfos,
@@ -57,7 +57,7 @@ const migrations = {
     ...state,
     calendarFilters: defaultCalendarFilters,
   }),
-  [6]: state => ({
+  [6]: (state) => ({
     ...state,
     threadInfos: undefined,
     threadStore: {
@@ -65,7 +65,7 @@ const migrations = {
       inconsistencyResponses: [],
     },
   }),
-  [7]: state => ({
+  [7]: (state) => ({
     ...state,
     lastUserInteraction: undefined,
     sessionID: undefined,
@@ -124,7 +124,7 @@ const migrations = {
       messageTypes.MULTIMEDIA,
     ]),
   }),
-  [15]: state => ({
+  [15]: (state) => ({
     ...state,
     threadStore: {
       ...state.threadStore,
@@ -142,7 +142,7 @@ const migrations = {
     },
     queuedReports: [],
   }),
-  [16]: state => {
+  [16]: (state) => {
     const result = {
       ...state,
       messageSentFromRoute: undefined,
@@ -156,7 +156,7 @@ const migrations = {
     }
     return result;
   },
-  [17]: state => ({
+  [17]: (state) => ({
     ...state,
     userInfos: undefined,
     userStore: {
@@ -164,7 +164,7 @@ const migrations = {
       inconsistencyResponses: [],
     },
   }),
-  [18]: state => ({
+  [18]: (state) => ({
     ...state,
     userStore: {
       userInfos: state.userStore.userInfos,

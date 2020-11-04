@@ -20,7 +20,7 @@ type Props = {|
 |};
 function DisconnectedBar(props: Props) {
   const shouldShowDisconnectedBar = useSelector(
-    state => state.connection.showDisconnectedBar,
+    (state) => state.connection.showDisconnectedBar,
   );
 
   const showingRef = new React.useRef();
@@ -31,7 +31,7 @@ function DisconnectedBar(props: Props) {
 
   const { visible } = props;
   const changeShowing = React.useCallback(
-    toValue => {
+    (toValue) => {
       if (!visible) {
         showing.setValue(toValue);
         return;

@@ -73,7 +73,7 @@ async function mergeUsers(
   for (let threadID in threadInfos) {
     const threadInfo = threadInfos[threadID];
     const fromUserExistingMember = threadInfo.members.find(
-      memberInfo => memberInfo.id === fromUserID,
+      (memberInfo) => memberInfo.id === fromUserID,
     );
     if (!fromUserExistingMember) {
       setNeedingUpdate(threadInfo);
@@ -86,7 +86,7 @@ async function mergeUsers(
       continue;
     }
     const toUserExistingMember = threadInfo.members.find(
-      memberInfo => memberInfo.id === toUserID,
+      (memberInfo) => memberInfo.id === toUserID,
     );
     if (!toUserExistingMember || !toUserExistingMember.role) {
       setGettingUpdate(threadInfo);

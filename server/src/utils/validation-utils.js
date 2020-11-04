@@ -9,11 +9,11 @@ import { ServerError } from 'lib/utils/errors';
 import { verifyClientSupported } from '../session/version';
 
 function tBool(value: boolean) {
-  return t.irreducible('literal bool', x => x === value);
+  return t.irreducible('literal bool', (x) => x === value);
 }
 
 function tString(value: string) {
-  return t.irreducible('literal string', x => x === value);
+  return t.irreducible('literal string', (x) => x === value);
 }
 
 function tShape(spec: { [key: string]: * }) {
@@ -21,7 +21,7 @@ function tShape(spec: { [key: string]: * }) {
 }
 
 function tRegex(regex: RegExp) {
-  return t.refinement(t.String, val => regex.test(val));
+  return t.refinement(t.String, (val) => regex.test(val));
 }
 
 function tNumEnum(assertFunc: (input: number) => *) {

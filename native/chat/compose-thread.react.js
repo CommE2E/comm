@@ -187,7 +187,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
         text,
         userInfos,
         searchIndex,
-        userInfoInputArray.map(userInfo => userInfo.id),
+        userInfoInputArray.map((userInfo) => userInfo.id),
         parentThreadInfo,
       );
       return results.map(({ memberOfParentThread, ...result }) => ({
@@ -211,7 +211,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
       threadInfos: { [id: string]: ThreadInfo },
       userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
     ) => {
-      const userIDs = userInfoInputArray.map(userInfo => userInfo.id);
+      const userIDs = userInfoInputArray.map((userInfo) => userInfo.id);
       if (userIDs.length === 0) {
         return [];
       }
@@ -221,7 +221,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
             threadInFilterList(threadInfo) &&
             (!parentThreadInfo ||
               threadInfo.parentThreadID === parentThreadInfo.id) &&
-            userIDs.every(userID => userIsMember(threadInfo, userID)),
+            userIDs.every((userID) => userIsMember(threadInfo, userID)),
         ),
         _sortBy(
           ([
@@ -497,7 +497,7 @@ export default React.memo<BaseProps>(function ConnectedComposeThread(
 ) {
   const parentThreadInfoID = props.route.params.parentThreadInfo?.id;
 
-  const reduxParentThreadInfo = useSelector(state =>
+  const reduxParentThreadInfo = useSelector((state) =>
     parentThreadInfoID ? threadInfoSelector(state)[parentThreadInfoID] : null,
   );
   const loadingStatus = useSelector(

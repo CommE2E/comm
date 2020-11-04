@@ -87,10 +87,7 @@ async function saveBackup(
 function trySaveBackup(filePath: string, cache: StreamCache): Promise<void> {
   const writeStream = fs.createWriteStream(filePath);
   return new Promise((resolve, reject) => {
-    cache
-      .pipe(writeStream)
-      .on('finish', resolve)
-      .on('error', reject);
+    cache.pipe(writeStream).on('finish', resolve).on('error', reject);
   });
 }
 

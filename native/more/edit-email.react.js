@@ -172,7 +172,7 @@ class EditEmail extends React.PureComponent<Props, State> {
   };
 
   goBackOnce() {
-    this.props.navigation.dispatch(state => ({
+    this.props.navigation.dispatch((state) => ({
       ...CommonActions.goBack(),
       target: state.key,
     }));

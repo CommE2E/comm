@@ -2,7 +2,6 @@
   "trailingComma": "all",
   "singleQuote": true,
   "quoteProps": "consistent",
-  "endOfLine": "lf",
   "overrides": [
     {
       "files": "*.js",

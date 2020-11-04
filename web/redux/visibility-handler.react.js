@@ -25,9 +25,9 @@ function VisibilityHandler() {
   }, [visibility, onVisibilityChange]);
 
   const dispatch = useDispatch();
-  const curForeground = useSelector(state => state.foreground);
+  const curForeground = useSelector((state) => state.foreground);
   const updateRedux = React.useCallback(
-    foreground => {
+    (foreground) => {
       if (foreground === curForeground) {
         return;
       }

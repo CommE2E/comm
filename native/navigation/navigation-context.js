@@ -45,7 +45,7 @@ function withNavContext<
   ) {
     return (
       <NavContext.Consumer>
-        {value => <Component {...props} navContext={value} />}
+        {(value) => <Component {...props} navContext={value} />}
       </NavContext.Consumer>
     );
   }

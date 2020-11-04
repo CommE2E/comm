@@ -112,7 +112,7 @@ class Day extends React.PureComponent<Props, State> {
     }
 
     const entries = this.props.entryInfos
-      .filter(entryInfo =>
+      .filter((entryInfo) =>
         _some(['id', entryInfo.threadID])(this.props.onScreenThreadInfos),
       )
       .map((entryInfo, i) => {
@@ -264,7 +264,7 @@ class Day extends React.PureComponent<Props, State> {
 
   focusOnFirstEntryNewerThan = (time: number) => {
     const entryInfo = this.props.entryInfos.find(
-      candidate => candidate.creationTime > time,
+      (candidate) => candidate.creationTime > time,
     );
     if (entryInfo) {
       const entry = this.entries.get(entryKey(entryInfo));

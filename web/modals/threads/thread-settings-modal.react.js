@@ -130,7 +130,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     return (
       Object.keys(
         _pickBy(
-          value => value !== null && value !== undefined,
+          (value) => value !== null && value !== undefined,
           // the lodash/fp libdef coerces the returned object's properties to the
           // same type, which means it only works for object-as-maps $FlowFixMe
         )(this.state.queuedChanges),
@@ -431,7 +431,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       return response;
     } catch (e) {
       this.setState(
-        prevState => ({
+        (prevState) => ({
           ...prevState,
           queuedChanges: {},
           accountPassword: '',

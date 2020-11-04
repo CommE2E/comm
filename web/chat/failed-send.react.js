@@ -141,7 +141,9 @@ export default React.memo<BaseProps>(function ConnectedFailedSend(
   const { messageInfo } = props.item;
   assertComposableMessageType(messageInfo.type);
   const id = messageID(messageInfo);
-  const rawMessageInfo = useSelector(state => state.messageStore.messages[id]);
+  const rawMessageInfo = useSelector(
+    (state) => state.messageStore.messages[id],
+  );
   assertComposableMessageType(rawMessageInfo.type);
   invariant(
     rawMessageInfo.type === messageTypes.TEXT ||

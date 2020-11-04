@@ -331,7 +331,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   };
 
   sendTextMessage = (messageInfo: RawTextMessageInfo) => {
-    this.sendCallbacks.forEach(callback => callback());
+    this.sendCallbacks.forEach((callback) => callback());
     this.props.dispatchActionPromise(
       sendTextMessageActionTypes,
       this.sendTextMessageAction(messageInfo),
@@ -372,9 +372,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     threadID: string,
     selections: $ReadOnlyArray<NativeMediaSelection>,
   ) => {
-    this.sendCallbacks.forEach(callback => callback());
+    this.sendCallbacks.forEach((callback) => callback());
     const localMessageID = `local${this.props.nextLocalID}`;
-    const selectionsWithIDs = selections.map(selection => ({
+    const selectionsWithIDs = selections.map((selection) => ({
       selection,
       localID: getNewLocalID(),
     }));
@@ -388,7 +388,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     this.setState(
-      prevState => {
+      (prevState) => {
         return {
           pendingUploads: {
             ...prevState.pendingUploads,
@@ -449,7 +449,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     selectionsWithIDs: $ReadOnlyArray<SelectionWithID>,
   ) {
     const results = await Promise.all(
-      selectionsWithIDs.map(selectionWithID =>
+      selectionsWithIDs.map((selectionWithID) =>
         this.uploadFile(localMessageID, selectionWithID),
       ),
     );
@@ -639,7 +639,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     localUploadID: string,
     progressPercent: number,
   ) {
-    this.setState(prevState => {
+    this.setState((prevState) => {
       const pendingUploads = prevState.pendingUploads[localMessageID];
       if (!pendingUploads) {
         return {};
@@ -737,18 +737,18 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       });
     }
     return await new Promise((resolve, reject) => {
-      Upload.addListener('error', uploadID, data => {
+      Upload.addListener('error', uploadID, (data) => {
         reject(data.error);
       });
       Upload.addListener('cancelled', uploadID, () => {
         reject(new Error('request aborted'));
       });
-      Upload.addListener('completed', uploadID, data => {
+      Upload.addListener('completed', uploadID, (data) => {
         resolve(JSON.parse(data.responseBody));
       });
       if (options && options.onProgress) {
         const { onProgress } = options;
-        Upload.addListener('progress', uploadID, data =>
+        Upload.addListener('progress', uploadID, (data) =>
           onProgress(data.progress / 100),
         );
       }
@@ -760,7 +760,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     localUploadID: string,
     message: string,
   ) {
-    this.setState(prevState => {
+    this.setState((prevState) => {
       const uploads = prevState.pendingUploads[localMessageID];
       const upload = uploads[localUploadID];
       if (!upload) {
@@ -816,7 +816,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   };
 
   addReply = (message: string) => {
-    this.replyCallbacks.forEach(addReplyCallback => addReplyCallback(message));
+    this.replyCallbacks.forEach((addReplyCallback) =>
+      addReplyCallback(message),
+    );
   };
 
   addReplyListener = (callbackReply: (message: string) => void) => {
@@ -825,7 +827,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   removeReplyListener = (callbackReply: (message: string) => void) => {
     this.replyCallbacks = this.replyCallbacks.filter(
-      candidate => candidate !== callbackReply,
+      (candidate) => candidate !== callbackReply,
     );
   };
 
@@ -841,7 +843,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const now = Date.now();
 
     const updateMedia = <T: Media>(media: $ReadOnlyArray<T>): T[] =>
-      media.map(singleMedia => {
+      media.map((singleMedia) => {
         const oldID = singleMedia.id;
         if (!oldID.startsWith('localUpload')) {
           // already uploaded
@@ -918,7 +920,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
     if (incompleteMedia.length === 0) {
       this.dispatchMultimediaMessageAction(newRawMessageInfo);
-      this.setState(prevState => ({
+      this.setState((prevState) => ({
         pendingUploads: {
           ...prevState.pendingUploads,
           [localMessageID]: {},
@@ -950,14 +952,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         progressPercent: 0,
       };
     }
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       pendingUploads: {
         ...prevState.pendingUploads,
         [localMessageID]: pendingUploads,
       },
     }));
 
-    const selectionsWithIDs = retryMedia.map(singleMedia => {
+    const selectionsWithIDs = retryMedia.map((singleMedia) => {
       const { id, localMediaSelection } = singleMedia;
       invariant(
         localMediaSelection,
@@ -975,7 +977,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   unregisterSendCallback = (callback: () => void) => {
     this.sendCallbacks = this.sendCallbacks.filter(
-      candidate => candidate !== callback,
+      (candidate) => candidate !== callback,
     );
   };
 
@@ -1031,7 +1033,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       return Promise.resolve(getResult());
     }
 
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       const finish = () => resolve(getResult());
       const newActiveURI = {
         ...activeURI,

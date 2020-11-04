@@ -108,14 +108,14 @@ function saveMedia(
   reportPromise: Promise<$ReadOnlyArray<MediaMissionStep>>,
 |} {
   let resolveResult;
-  const sendResult = result => {
+  const sendResult = (result) => {
     if (resolveResult) {
       resolveResult(result);
     }
   };
 
   const reportPromise = innerSaveMedia(uri, permissions, sendResult);
-  const resultPromise = new Promise(resolve => {
+  const resultPromise = new Promise((resolve) => {
     resolveResult = resolve;
   });
 
