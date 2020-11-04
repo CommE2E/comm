@@ -578,7 +578,7 @@ type NotificationInfo =
       +codeVersion: number,
     |}
   | {|
-      +source: 'mark_as_unread',
+      +source: 'mark_as_unread' | 'mark_as_read',
       +dbID: string,
       +userID: string,
       +threadID: string,
@@ -733,7 +733,12 @@ async function removeInvalidTokens(
 
 // threadID parameter isn't actually used, it's just stored in the
 // notifications table for potential future debugging purposes
-async function updateBadgeCount(viewer: Viewer, threadID: string) {
+async function updateBadgeCount(
+  viewer: Viewer,
+  threadID: string,
+  source: $PropertyType<NotificationInfo, 'source'>,
+  excludeDeviceTokens: $ReadOnlyArray<string>,
+) {
   const { userID } = viewer;
 
   const deviceTokenQuery = SQL`
@@ -743,6 +748,11 @@ async function updateBadgeCount(viewer: Viewer, threadID: string) {
       AND device_token IS NOT NULL
       AND id != ${viewer.cookieID}
   `;
+  if (excludeDeviceTokens.length > 0) {
+    deviceTokenQuery.append(
+      SQL`AND device_token NOT IN (${excludeDeviceTokens})`,
+    );
+  }
   const [unreadCounts, [deviceTokenResult], [dbID]] = await Promise.all([
     getUnreadCounts([userID]),
     dbQuery(deviceTokenQuery),

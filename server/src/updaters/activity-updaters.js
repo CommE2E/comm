@@ -340,16 +340,23 @@ async function setThreadUnreadStatus(
     await Promise.all([updatesPromise, queryPromise]);
   }
 
+  const excludeDeviceTokens = [];
   if (!request.unread) {
     const rescindCondition = SQL`
       n.user = ${viewer.userID} AND
       n.thread = ${request.threadID} AND
       n.message <= ${request.latestMessage}
     `;
-    await rescindPushNotifs(rescindCondition);
-  } else {
-    await updateBadgeCount(viewer, request.threadID);
+    const handledDeviceTokens = await rescindPushNotifs(rescindCondition);
+    excludeDeviceTokens.push(...handledDeviceTokens);
   }
+
+  await updateBadgeCount(
+    viewer,
+    request.threadID,
+    request.unread ? 'mark_as_unread' : 'mark_as_read',
+    excludeDeviceTokens,
+  );
 
   return {
     resetToUnread: resetThreadToUnread,
