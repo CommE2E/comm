@@ -578,7 +578,7 @@ type NotificationInfo =
       +codeVersion: number,
     |}
   | {|
-      +source: 'mark_as_unread' | 'mark_as_read',
+      +source: 'mark_as_unread' | 'mark_as_read' | 'activity_update',
       +dbID: string,
       +userID: string,
       +codeVersion: number,
@@ -732,7 +732,7 @@ async function removeInvalidTokens(
 
 async function updateBadgeCount(
   viewer: Viewer,
-  source: $PropertyType<NotificationInfo, 'source'>,
+  source: 'mark_as_unread' | 'mark_as_read' | 'activity_update',
   excludeDeviceTokens: $ReadOnlyArray<string>,
 ) {
   const { userID } = viewer;
@@ -775,7 +775,7 @@ async function updateBadgeCount(
       notification.pushType = 'alert';
       deliveryPromises.push(
         sendIOSNotification(notification, [...deviceTokens], {
-          source: 'mark_as_unread',
+          source,
           dbID,
           userID,
           codeVersion,
@@ -791,7 +791,7 @@ async function updateBadgeCount(
       const notification = { data: { badge: unreadCount.toString() } };
       deliveryPromises.push(
         sendAndroidNotification(notification, [...deviceTokens], {
-          source: 'mark_as_unread',
+          source,
           dbID,
           userID,
           codeVersion,

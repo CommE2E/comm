@@ -17,7 +17,12 @@ import _max from 'lodash/fp/max';
 
 import { ServerError } from 'lib/utils/errors';
 
-import { dbQuery, SQL, mergeOrConditions } from '../database/database';
+import {
+  dbQuery,
+  SQL,
+  mergeOrConditions,
+  SQLStatement,
+} from '../database/database';
 import { rescindPushNotifs } from '../push/rescind';
 import { updateBadgeCount } from '../push/send';
 import { createUpdates } from '../creators/update-creator';
@@ -155,11 +160,16 @@ async function activityUpdater(
   ]);
 
   // We do this afterwards so the badge count is correct
+  let rescindCondition;
   if (rescindConditions.length > 0) {
-    const rescindCondition = SQL`n.user = ${viewer.userID} AND `;
+    rescindCondition = SQL`n.user = ${viewer.userID} AND `;
     rescindCondition.append(mergeOrConditions(rescindConditions));
-    await rescindPushNotifs(rescindCondition);
   }
+  await rescindAndUpdateBadgeCounts(
+    viewer,
+    rescindCondition,
+    'activity_update',
+  );
 
   return { unfocusedToUnread: outdatedUnfocused };
 }
@@ -340,26 +350,37 @@ async function setThreadUnreadStatus(
     await Promise.all([updatesPromise, queryPromise]);
   }
 
-  const excludeDeviceTokens = [];
+  let rescindCondition;
   if (!request.unread) {
-    const rescindCondition = SQL`
+    rescindCondition = SQL`
       n.user = ${viewer.userID} AND
       n.thread = ${request.threadID} AND
       n.message <= ${request.latestMessage}
     `;
-    const handledDeviceTokens = await rescindPushNotifs(rescindCondition);
-    excludeDeviceTokens.push(...handledDeviceTokens);
   }
-
-  await updateBadgeCount(
+  await rescindAndUpdateBadgeCounts(
     viewer,
+    rescindCondition,
     request.unread ? 'mark_as_unread' : 'mark_as_read',
-    excludeDeviceTokens,
   );
 
   return {
     resetToUnread: resetThreadToUnread,
   };
+}
+
+async function rescindAndUpdateBadgeCounts(
+  viewer: Viewer,
+  rescindCondition: ?SQLStatement,
+  source: 'activity_update' | 'mark_as_unread' | 'mark_as_read',
+) {
+  const excludeDeviceTokens = [];
+  if (rescindCondition) {
+    const handledDeviceTokens = await rescindPushNotifs(rescindCondition);
+    excludeDeviceTokens.push(...handledDeviceTokens);
+  }
+
+  await updateBadgeCount(viewer, source, excludeDeviceTokens);
 }
 
 async function shouldResetThreadToUnread(
