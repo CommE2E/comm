@@ -1,6 +1,5 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { TabNavigationProp } from '../navigation/app-navigator.react';
 import type {
@@ -11,18 +10,15 @@ import type {
 import * as React from 'react';
 import { View, FlatList, Platform, TextInput } from 'react-native';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import PropTypes from 'prop-types';
 import _sum from 'lodash/fp/sum';
 import { FloatingAction } from 'react-native-floating-action';
 import { createSelector } from 'reselect';
 import invariant from 'invariant';
 
-import { threadSearchIndex } from 'lib/selectors/nav-selectors';
+import { threadSearchIndex as threadSearchIndexSelector } from 'lib/selectors/nav-selectors';
 import SearchIndex from 'lib/shared/search-index';
-import { connect } from 'lib/utils/redux-utils';
 import {
   type ChatThreadItem,
-  chatThreadItemPropType,
   chatListDataWithNestedSidebars,
 } from 'lib/selectors/chat-selectors';
 
@@ -36,12 +32,12 @@ import {
   type NavigationRoute,
 } from '../navigation/route-names';
 import {
-  styleSelector,
   type IndicatorStyle,
-  indicatorStylePropType,
   indicatorStyleSelector,
+  useStyles,
 } from '../themes/colors';
 import Search from '../components/search.react';
+import { useSelector } from '../redux/redux-utils';
 
 const floatingActions = [
   {
@@ -57,40 +53,32 @@ type Item =
   | {| type: 'search', searchText: string |}
   | {| type: 'empty', emptyItem: React.ComponentType<{||}> |};
 
-type RouteNames = 'HomeChatThreadList' | 'BackgroundChatThreadList';
+type BaseProps = {|
+  +navigation:
+    | ChatTopTabsNavigationProp<'HomeChatThreadList'>
+    | ChatTopTabsNavigationProp<'BackgroundChatThreadList'>,
+  +route:
+    | NavigationRoute<'HomeChatThreadList'>
+    | NavigationRoute<'BackgroundChatThreadList'>,
+  +filterThreads: (threadItem: ThreadInfo) => boolean,
+  +emptyItem?: React.ComponentType<{||}>,
+|};
 type Props = {|
-  navigation: ChatTopTabsNavigationProp<RouteNames>,
-  route: NavigationRoute<RouteNames>,
-  filterThreads: (threadItem: ThreadInfo) => boolean,
-  emptyItem?: React.ComponentType<{||}>,
+  ...BaseProps,
   // Redux state
-  chatListData: $ReadOnlyArray<ChatThreadItem>,
-  viewerID: ?string,
-  threadSearchIndex: SearchIndex,
-  styles: typeof styles,
-  indicatorStyle: IndicatorStyle,
+  +chatListData: $ReadOnlyArray<ChatThreadItem>,
+  +viewerID: ?string,
+  +threadSearchIndex: SearchIndex,
+  +styles: typeof unboundStyles,
+  +indicatorStyle: IndicatorStyle,
 |};
 type State = {|
-  searchText: string,
-  searchResults: Set<string>,
-  openedSwipeableId: string,
+  +searchText: string,
+  +searchResults: Set<string>,
+  +openedSwipeableId: string,
 |};
 type PropsAndState = {| ...Props, ...State |};
 class ChatThreadList extends React.PureComponent<Props, State> {
-  static propTypes = {
-    navigation: PropTypes.shape({
-      navigate: PropTypes.func.isRequired,
-      dangerouslyGetParent: PropTypes.func.isRequired,
-      isFocused: PropTypes.func.isRequired,
-    }).isRequired,
-    filterThreads: PropTypes.func.isRequired,
-    emptyItem: PropTypes.elementType,
-    chatListData: PropTypes.arrayOf(chatThreadItemPropType).isRequired,
-    viewerID: PropTypes.string,
-    threadSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    indicatorStyle: indicatorStylePropType.isRequired,
-  };
   state = {
     searchText: '',
     searchResults: new Set(),
@@ -328,7 +316,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   icon: {
     fontSize: 28,
   },
@@ -345,12 +333,26 @@ const styles = {
     backgroundColor: 'listBackground',
   },
 };
-const stylesSelector = styleSelector(styles);
 
-export default connect((state: AppState) => ({
-  chatListData: chatListDataWithNestedSidebars(state),
-  viewerID: state.currentUserInfo && state.currentUserInfo.id,
-  threadSearchIndex: threadSearchIndex(state),
-  styles: stylesSelector(state),
-  indicatorStyle: indicatorStyleSelector(state),
-}))(ChatThreadList);
+export default React.memo<BaseProps>(function ConnectedChatThreadList(
+  props: BaseProps,
+) {
+  const chatListData = useSelector(chatListDataWithNestedSidebars);
+  const viewerID = useSelector(
+    (state) => state.currentUserInfo && state.currentUserInfo.id,
+  );
+  const threadSearchIndex = useSelector(threadSearchIndexSelector);
+  const styles = useStyles(unboundStyles);
+  const indicatorStyle = useSelector(indicatorStyleSelector);
+
+  return (
+    <ChatThreadList
+      {...props}
+      chatListData={chatListData}
+      viewerID={viewerID}
+      threadSearchIndex={threadSearchIndex}
+      styles={styles}
+      indicatorStyle={indicatorStyle}
+    />
+  );
+});
