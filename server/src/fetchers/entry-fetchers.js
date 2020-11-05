@@ -33,6 +33,7 @@ import {
   mergeOrConditions,
 } from '../database/database';
 import { creationString } from '../utils/idempotent';
+import { checkIfThreadIsBlocked } from '../fetchers/thread-permission-fetchers';
 
 async function fetchEntryInfo(
   viewer: Viewer,
@@ -163,6 +164,15 @@ async function checkThreadPermissionForEntry(
   if (row.id === null) {
     return false;
   }
+  const threadIsBlocked = await checkIfThreadIsBlocked(
+    viewer,
+    row.id.toString(),
+    permission,
+  );
+  if (threadIsBlocked) {
+    return false;
+  }
+
   return permissionLookup(row.permissions, permission);
 }
 

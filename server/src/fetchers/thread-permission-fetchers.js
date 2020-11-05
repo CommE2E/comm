@@ -4,11 +4,17 @@ import type {
   ThreadPermission,
   ThreadPermissionsBlob,
 } from 'lib/types/thread-types';
-import { permissionLookup } from 'lib/permissions/thread-permissions';
-
 import type { Viewer } from '../session/viewer';
 
+import { permissionLookup } from 'lib/permissions/thread-permissions';
+import {
+  threadIsWithBlockedUserOnly,
+  permissionsDisabledByBlock,
+} from 'lib/shared/thread-utils';
+
 import { dbQuery, SQL } from '../database/database';
+import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
+import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 
 async function fetchThreadPermissionsBlob(
   viewer: Viewer,
@@ -70,17 +76,78 @@ async function checkThreads(
   checks: $ReadOnlyArray<Check>,
 ): Promise<Set<string>> {
   const query = SQL`
-      SELECT thread, permissions, role
-      FROM memberships
-      WHERE thread IN (${threadIDs}) AND user = ${viewer.userID}
+    SELECT thread, permissions, role
+    FROM memberships
+    WHERE thread IN (${threadIDs}) AND user = ${viewer.userID}
   `;
-  const [result] = await dbQuery(query);
+
+  const permissionsToCheck = [];
+  for (const check of checks) {
+    if (check.check === 'permission') {
+      permissionsToCheck.push(check.permission);
+    }
+  }
+
+  const [[result], disabledThreadIDs] = await Promise.all([
+    dbQuery(query),
+    checkThreadDisabled(viewer, permissionsToCheck, threadIDs),
+  ]);
 
   return new Set(
     result
-      .filter((row) => isThreadValid(row.permissions, row.role, checks))
+      .filter(
+        (row) =>
+          isThreadValid(row.permissions, row.role, checks) &&
+          !disabledThreadIDs.has(row.thread.toString()),
+      )
       .map((row) => row.thread.toString()),
   );
+}
+
+async function checkThreadDisabled(
+  viewer: Viewer,
+  permissionsToCheck: $ReadOnlyArray<ThreadPermission>,
+  threadIDs: $ReadOnlyArray<string>,
+) {
+  const threadIDsWithDisabledPermissions = new Set();
+
+  const permissionMightBeDisabled = permissionsToCheck.some((permission) =>
+    permissionsDisabledByBlock.has(permission),
+  );
+  if (!permissionMightBeDisabled) {
+    return threadIDsWithDisabledPermissions;
+  }
+
+  const [{ threadInfos }, userInfos] = await Promise.all([
+    fetchThreadInfos(viewer, SQL`t.id IN (${[...threadIDs]})`),
+    fetchKnownUserInfos(viewer),
+  ]);
+
+  for (const threadID in threadInfos) {
+    const blockedThread = threadIsWithBlockedUserOnly(
+      threadInfos[threadID],
+      viewer.id,
+      userInfos,
+    );
+    if (blockedThread) {
+      threadIDsWithDisabledPermissions.add(threadID);
+    }
+  }
+  return threadIDsWithDisabledPermissions;
+}
+
+async function checkIfThreadIsBlocked(
+  viewer: Viewer,
+  threadID: string,
+  permission: ThreadPermission,
+) {
+  const disabledThreadIDs = await checkThreadDisabled(
+    viewer,
+    [permission],
+    [threadID],
+  );
+
+  return disabledThreadIDs.has(threadID);
 }
 
 async function checkThread(
@@ -98,4 +165,5 @@ export {
   viewerIsMember,
   checkThreads,
   checkThread,
+  checkIfThreadIsBlocked,
 };
