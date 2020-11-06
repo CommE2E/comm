@@ -5,6 +5,7 @@ import { Text, View } from 'react-native';
 
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors';
 import type { ThreadInfo } from 'lib/types/thread-types';
+import type { UserInfo } from 'lib/types/user-types';
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
 
 import Button from '../components/button.react';
@@ -18,7 +19,10 @@ import SwipeableThread from './swipeable-thread.react';
 
 type Props = {|
   +data: ChatThreadItem,
-  +onPressItem: (threadInfo: ThreadInfo) => void,
+  +onPressItem: (
+    data: ThreadInfo,
+    pendingPersonalThreadUserInfo?: UserInfo,
+  ) => void,
   +onPressSeeMoreSidebars: (threadInfo: ThreadInfo) => void,
   +onSwipeableWillOpen: (threadInfo: ThreadInfo) => void,
   +currentlyOpenedSwipeableId: string,
@@ -75,8 +79,8 @@ function ChatThreadListItem({
   });
 
   const onPress = React.useCallback(() => {
-    onPressItem(data.threadInfo);
-  }, [onPressItem, data.threadInfo]);
+    onPressItem(data.threadInfo, data.pendingPersonalThreadUserInfo);
+  }, [onPressItem, data.threadInfo, data.pendingPersonalThreadUserInfo]);
 
   const lastActivity = shortAbsoluteDate(data.lastUpdatedTime);
   const unreadStyle = data.threadInfo.currentUser.unread ? styles.unread : null;

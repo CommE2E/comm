@@ -8,13 +8,19 @@ import { FloatingAction } from 'react-native-floating-action';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { createSelector } from 'reselect';
 
+import { searchUsers } from 'lib/actions/user-actions';
 import {
   type ChatThreadItem,
   chatListData,
 } from 'lib/selectors/chat-selectors';
 import { threadSearchIndex as threadSearchIndexSelector } from 'lib/selectors/nav-selectors';
+import { usersWithPersonalThreadSelector } from 'lib/selectors/user-selectors';
 import SearchIndex from 'lib/shared/search-index';
+import { createPendingThreadItem } from 'lib/shared/thread-utils';
+import type { UserSearchResult } from 'lib/types/search-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
+import type { GlobalAccountUserInfo, UserInfo } from 'lib/types/user-types';
+import { useServerCall } from 'lib/utils/action-utils';
 
 import Search from '../components/search.react';
 import type { TabNavigationProp } from '../navigation/app-navigator.react';
@@ -49,8 +55,8 @@ const floatingActions = [
 
 type Item =
   | ChatThreadItem
-  | {| type: 'search', searchText: string |}
-  | {| type: 'empty', emptyItem: React.ComponentType<{||}> |};
+  | {| +type: 'search', +searchText: string |}
+  | {| +type: 'empty', +emptyItem: React.ComponentType<{||}> |};
 
 type BaseProps = {|
   +navigation:
@@ -70,17 +76,22 @@ type Props = {|
   +threadSearchIndex: SearchIndex,
   +styles: typeof unboundStyles,
   +indicatorStyle: IndicatorStyle,
+  +usersWithPersonalThread: $ReadOnlySet<string>,
+  // async functions that hit server APIs
+  +searchUsers: (usernamePrefix: string) => Promise<UserSearchResult>,
 |};
 type State = {|
   +searchText: string,
-  +searchResults: Set<string>,
+  +threadsSearchResults: Set<string>,
+  +usersSearchResults: $ReadOnlyArray<GlobalAccountUserInfo>,
   +openedSwipeableId: string,
 |};
 type PropsAndState = {| ...Props, ...State |};
 class ChatThreadList extends React.PureComponent<Props, State> {
   state: State = {
     searchText: '',
-    searchResults: new Set(),
+    threadsSearchResults: new Set(),
+    usersSearchResults: [],
     openedSwipeableId: '',
   };
   searchInput: ?React.ElementRef<typeof TextInput>;
@@ -155,9 +166,9 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   };
 
   static keyExtractor(item: Item) {
-    if (item.threadInfo) {
+    if (item.type === 'chatThreadItem') {
       return item.threadInfo.id;
-    } else if (item.emptyItem) {
+    } else if (item.type === 'empty') {
       return 'empty';
     } else {
       return 'search';
@@ -198,13 +209,15 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   listDataSelector = createSelector(
     (propsAndState: PropsAndState) => propsAndState.chatListData,
     (propsAndState: PropsAndState) => propsAndState.searchText,
-    (propsAndState: PropsAndState) => propsAndState.searchResults,
+    (propsAndState: PropsAndState) => propsAndState.threadsSearchResults,
     (propsAndState: PropsAndState) => propsAndState.emptyItem,
+    (propsAndState: PropsAndState) => propsAndState.usersSearchResults,
     (
       reduxChatListData: $ReadOnlyArray<ChatThreadItem>,
       searchText: string,
-      searchResults: Set<string>,
+      threadsSearchResults: Set<string>,
       emptyItem?: React.ComponentType<{||}>,
+      usersSearchResults: $ReadOnlyArray<GlobalAccountUserInfo>,
     ): Item[] => {
       const chatItems = [];
       if (!searchText) {
@@ -216,7 +229,15 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       } else {
         chatItems.push(
           ...reduxChatListData.filter((item) =>
-            searchResults.has(item.threadInfo.id),
+            threadsSearchResults.has(item.threadInfo.id),
+          ),
+        );
+      }
+      const { viewerID } = this.props;
+      if (viewerID) {
+        chatItems.push(
+          ...usersSearchResults.map((user) =>
+            createPendingThreadItem(viewerID, user),
           ),
         );
       }
@@ -275,19 +296,37 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     this.scrollPos = event.nativeEvent.contentOffset.y;
   };
 
-  onChangeSearchText = (searchText: string) => {
+  async searchUsers(usernamePrefix: string) {
+    if (usernamePrefix.length === 0) {
+      return [];
+    }
+
+    const { userInfos } = await this.props.searchUsers(usernamePrefix);
+    return userInfos.filter(
+      (info) =>
+        !this.props.usersWithPersonalThread.has(info.id) &&
+        info.id !== this.props.viewerID,
+    );
+  }
+
+  onChangeSearchText = async (searchText: string) => {
     const results = this.props.threadSearchIndex.getSearchResults(searchText);
-    this.setState({ searchText, searchResults: new Set(results) });
+    this.setState({ searchText, threadsSearchResults: new Set(results) });
+    const usersSearchResults = await this.searchUsers(searchText);
+    this.setState({ usersSearchResults });
   };
 
-  onPressItem = (threadInfo: ThreadInfo) => {
+  onPressItem = (
+    threadInfo: ThreadInfo,
+    pendingPersonalThreadUserInfo?: UserInfo,
+  ) => {
     this.onChangeSearchText('');
     if (this.searchInput) {
       this.searchInput.blur();
     }
     this.props.navigation.navigate({
       name: MessageListRouteName,
-      params: { threadInfo },
+      params: { threadInfo, pendingPersonalThreadUserInfo },
       key: `${MessageListRouteName}${threadInfo.id}`,
     });
   };
@@ -343,6 +382,8 @@ export default React.memo<BaseProps>(function ConnectedChatThreadList(
   const threadSearchIndex = useSelector(threadSearchIndexSelector);
   const styles = useStyles(unboundStyles);
   const indicatorStyle = useSelector(indicatorStyleSelector);
+  const callSearchUsers = useServerCall(searchUsers);
+  const usersWithPersonalThread = useSelector(usersWithPersonalThreadSelector);
 
   return (
     <ChatThreadList
@@ -352,6 +393,8 @@ export default React.memo<BaseProps>(function ConnectedChatThreadList(
       threadSearchIndex={threadSearchIndex}
       styles={styles}
       indicatorStyle={indicatorStyle}
+      searchUsers={callSearchUsers}
+      usersWithPersonalThread={usersWithPersonalThread}
     />
   );
 });

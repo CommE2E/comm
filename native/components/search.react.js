@@ -20,7 +20,7 @@ import type { ViewStyle } from '../types/styles';
 type Props = {|
   ...React.ElementConfig<typeof TextInput>,
   searchText: string,
-  onChangeText: (searchText: string) => void,
+  onChangeText: (searchText: string) => mixed,
   containerStyle?: ViewStyle,
   textInputRef?: React.Ref<typeof TextInput>,
   // Redux state
