@@ -1,12 +1,10 @@
 // @flow
 
-import {
-  type EntryInfo,
-  entryInfoPropType,
-  type CalendarQuery,
-  type CalendarQueryUpdateResult,
+import type {
+  EntryInfo,
+  CalendarQuery,
+  CalendarQueryUpdateResult,
 } from 'lib/types/entry-types';
-import type { AppState } from '../redux/redux-setup';
 import type {
   CalendarItem,
   SectionHeaderItem,
@@ -14,21 +12,11 @@ import type {
   LoaderItem,
 } from '../selectors/calendar-selectors';
 import type { ViewToken } from '../types/react-native';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { KeyboardEvent } from '../keyboard/keyboard';
-import {
-  type CalendarFilter,
-  calendarFilterPropType,
-} from 'lib/types/filter-types';
-import {
-  type LoadingStatus,
-  loadingStatusPropType,
-} from 'lib/types/loading-types';
-import {
-  type ConnectionStatus,
-  connectionStatusPropType,
-} from 'lib/types/socket-types';
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import type { CalendarFilter } from 'lib/types/filter-types';
+import type { LoadingStatus } from 'lib/types/loading-types';
+import type { ConnectionStatus } from 'lib/types/socket-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import type { TabNavigationProp } from '../navigation/app-navigator.react';
 import type { NavigationRoute } from '../navigation/route-names';
 
@@ -42,7 +30,6 @@ import {
   LayoutAnimation,
   TouchableWithoutFeedback,
 } from 'react-native';
-import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import _findIndex from 'lodash/fp/findIndex';
 import _map from 'lodash/fp/map';
@@ -60,9 +47,13 @@ import {
   updateCalendarQueryActionTypes,
   updateCalendarQuery,
 } from 'lib/actions/entry-actions';
-import { connect } from 'lib/utils/redux-utils';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import sleep from 'lib/utils/sleep';
+import {
+  useServerCall,
+  useDispatchActionPromise,
+  type DispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import {
   Entry,
@@ -89,29 +80,24 @@ import {
 } from '../navigation/route-names';
 import DisconnectedBar from '../navigation/disconnected-bar.react';
 import {
+  useColors,
+  useStyles,
+  useIndicatorStyle,
   type Colors,
-  colorsPropType,
-  colorsSelector,
-  styleSelector,
   type IndicatorStyle,
-  indicatorStylePropType,
-  indicatorStyleSelector,
 } from '../themes/colors';
 import ContentLoading from '../components/content-loading.react';
-import {
-  connectNav,
-  type NavContextType,
-} from '../navigation/navigation-context';
+import { NavContext } from '../navigation/navigation-context';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 import {
   type DerivedDimensionsInfo,
-  derivedDimensionsInfoPropType,
   derivedDimensionsInfoSelector,
 } from '../selectors/dimensions-selectors';
+import { useSelector } from '../redux/redux-utils';
 
 export type EntryInfoWithHeight = {|
   ...EntryInfo,
-  textHeight: number,
+  +textHeight: number,
 |};
 type CalendarItemWithHeight =
   | LoaderItem
@@ -122,90 +108,50 @@ type CalendarItemWithHeight =
       entryInfo: EntryInfoWithHeight,
       threadInfo: ThreadInfo,
     |};
-type ExtraData = $ReadOnly<{|
-  activeEntries: { [key: string]: boolean },
-  visibleEntries: { [key: string]: boolean },
-|}>;
+type ExtraData = {|
+  +activeEntries: { +[key: string]: boolean },
+  +visibleEntries: { +[key: string]: boolean },
+|};
 
 const safeAreaViewForceInset = {
   top: 'always',
   bottom: 'never',
 };
 
-type Props = {
-  navigation: TabNavigationProp<'Calendar'>,
-  route: NavigationRoute<'Calendar'>,
+type BaseProps = {|
+  +navigation: TabNavigationProp<'Calendar'>,
+  +route: NavigationRoute<'Calendar'>,
+|};
+type Props = {|
+  ...BaseProps,
+  // Nav state
+  +calendarActive: boolean,
   // Redux state
-  listData: ?$ReadOnlyArray<CalendarItem>,
-  calendarActive: boolean,
-  startDate: string,
-  endDate: string,
-  calendarFilters: $ReadOnlyArray<CalendarFilter>,
-  dimensions: DerivedDimensionsInfo,
-  loadingStatus: LoadingStatus,
-  connectionStatus: ConnectionStatus,
-  colors: Colors,
-  styles: typeof styles,
-  indicatorStyle: IndicatorStyle,
+  +listData: ?$ReadOnlyArray<CalendarItem>,
+  +startDate: string,
+  +endDate: string,
+  +calendarFilters: $ReadOnlyArray<CalendarFilter>,
+  +dimensions: DerivedDimensionsInfo,
+  +loadingStatus: LoadingStatus,
+  +connectionStatus: ConnectionStatus,
+  +colors: Colors,
+  +styles: typeof unboundStyles,
+  +indicatorStyle: IndicatorStyle,
   // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  updateCalendarQuery: (
+  +updateCalendarQuery: (
     calendarQuery: CalendarQuery,
     reduxAlreadyUpdated?: boolean,
   ) => Promise<CalendarQueryUpdateResult>,
-};
+|};
 type State = {|
-  listDataWithHeights: ?$ReadOnlyArray<CalendarItemWithHeight>,
-  readyToShowList: boolean,
-  extraData: ExtraData,
-  currentlyEditing: $ReadOnlyArray<string>,
+  +listDataWithHeights: ?$ReadOnlyArray<CalendarItemWithHeight>,
+  +readyToShowList: boolean,
+  +extraData: ExtraData,
+  +currentlyEditing: $ReadOnlyArray<string>,
 |};
 class Calendar extends React.PureComponent<Props, State> {
-  static propTypes = {
-    navigation: PropTypes.shape({
-      navigate: PropTypes.func.isRequired,
-      addListener: PropTypes.func.isRequired,
-      removeListener: PropTypes.func.isRequired,
-      isFocused: PropTypes.func.isRequired,
-    }).isRequired,
-    route: PropTypes.shape({
-      key: PropTypes.string.isRequired,
-    }).isRequired,
-    listData: PropTypes.arrayOf(
-      PropTypes.oneOfType([
-        PropTypes.shape({
-          itemType: PropTypes.oneOf(['loader']),
-          key: PropTypes.string.isRequired,
-        }),
-        PropTypes.shape({
-          itemType: PropTypes.oneOf(['header']),
-          dateString: PropTypes.string.isRequired,
-        }),
-        PropTypes.shape({
-          itemType: PropTypes.oneOf(['entryInfo']),
-          entryInfo: entryInfoPropType.isRequired,
-          threadInfo: threadInfoPropType.isRequired,
-        }),
-        PropTypes.shape({
-          itemType: PropTypes.oneOf(['footer']),
-          dateString: PropTypes.string.isRequired,
-        }),
-      ]),
-    ),
-    calendarActive: PropTypes.bool.isRequired,
-    startDate: PropTypes.string.isRequired,
-    endDate: PropTypes.string.isRequired,
-    calendarFilters: PropTypes.arrayOf(calendarFilterPropType).isRequired,
-    dimensions: derivedDimensionsInfoPropType.isRequired,
-    loadingStatus: loadingStatusPropType.isRequired,
-    connectionStatus: connectionStatusPropType.isRequired,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    indicatorStyle: indicatorStylePropType.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    updateCalendarQuery: PropTypes.func.isRequired,
-  };
   flatList: ?FlatList<CalendarItemWithHeight> = null;
   currentState: ?string = NativeAppState.currentState;
   lastForegrounded = 0;
@@ -1062,7 +1008,7 @@ class Calendar extends React.PureComponent<Props, State> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   container: {
     backgroundColor: 'listBackground',
     flex: 1,
@@ -1097,7 +1043,6 @@ const styles = {
   },
   weekendSectionHeader: {},
 };
-const stylesSelector = styleSelector(styles);
 
 const loadingStatusSelector = createLoadingStatusSelector(
   updateCalendarQueryActionTypes,
@@ -1106,23 +1051,44 @@ const activeTabSelector = createActiveTabSelector(CalendarRouteName);
 const activeThreadPickerSelector = createIsForegroundSelector(
   ThreadPickerModalRouteName,
 );
-export default connectNav((context: ?NavContextType) => ({
-  calendarActive:
-    activeTabSelector(context) || activeThreadPickerSelector(context),
-}))(
-  connect(
-    (state: AppState) => ({
-      listData: calendarListData(state),
-      startDate: state.navInfo.startDate,
-      endDate: state.navInfo.endDate,
-      calendarFilters: state.calendarFilters,
-      dimensions: derivedDimensionsInfoSelector(state),
-      loadingStatus: loadingStatusSelector(state),
-      connectionStatus: state.connection.status,
-      colors: colorsSelector(state),
-      styles: stylesSelector(state),
-      indicatorStyle: indicatorStyleSelector(state),
-    }),
-    { updateCalendarQuery },
-  )(Calendar),
-);
+
+export default React.memo<BaseProps>(function ConnectedCalendar(
+  props: BaseProps,
+) {
+  const navContext = React.useContext(NavContext);
+  const calendarActive =
+    activeTabSelector(navContext) || activeThreadPickerSelector(navContext);
+
+  const listData = useSelector(calendarListData);
+  const startDate = useSelector((state) => state.navInfo.startDate);
+  const endDate = useSelector((state) => state.navInfo.endDate);
+  const calendarFilters = useSelector((state) => state.calendarFilters);
+  const dimensions = useSelector(derivedDimensionsInfoSelector);
+  const loadingStatus = useSelector(loadingStatusSelector);
+  const connectionStatus = useSelector((state) => state.connection.status);
+  const colors = useColors();
+  const styles = useStyles(unboundStyles);
+  const indicatorStyle = useIndicatorStyle();
+
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callUpdateCalendarQuery = useServerCall(updateCalendarQuery);
+
+  return (
+    <Calendar
+      {...props}
+      calendarActive={calendarActive}
+      listData={listData}
+      startDate={startDate}
+      endDate={endDate}
+      calendarFilters={calendarFilters}
+      dimensions={dimensions}
+      loadingStatus={loadingStatus}
+      connectionStatus={connectionStatus}
+      colors={colors}
+      styles={styles}
+      indicatorStyle={indicatorStyle}
+      dispatchActionPromise={dispatchActionPromise}
+      updateCalendarQuery={callUpdateCalendarQuery}
+    />
+  );
+});
