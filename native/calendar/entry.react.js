@@ -1,26 +1,20 @@
 // @flow
 
 import type { EntryInfoWithHeight } from './calendar.react';
-import {
-  entryInfoPropType,
-  type CreateEntryInfo,
-  type SaveEntryInfo,
-  type SaveEntryResponse,
-  type CreateEntryPayload,
-  type DeleteEntryInfo,
-  type DeleteEntryResponse,
-  type CalendarQuery,
+import type {
+  CreateEntryInfo,
+  SaveEntryInfo,
+  SaveEntryResponse,
+  CreateEntryPayload,
+  DeleteEntryInfo,
+  DeleteEntryResponse,
+  CalendarQuery,
 } from 'lib/types/entry-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
-import type { AppState } from '../redux/redux-setup';
-import type {
-  DispatchActionPayload,
-  DispatchActionPromise,
-} from 'lib/utils/action-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { LayoutEvent } from '../types/react-native';
 import type { TabNavigationProp } from '../navigation/app-navigator.react';
+import type { Dispatch } from 'lib/types/redux-types';
 
 import * as React from 'react';
 import {
@@ -33,13 +27,13 @@ import {
   LayoutAnimation,
   Keyboard,
 } from 'react-native';
-import PropTypes from 'prop-types';
 import invariant from 'invariant';
 import shallowequal from 'shallowequal';
 import _omit from 'lodash/fp/omit';
 import _isEqual from 'lodash/fp/isEqual';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import tinycolor from 'tinycolor2';
+import { useDispatch } from 'react-redux';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
 import {
@@ -51,12 +45,16 @@ import {
   deleteEntry,
   concurrentModificationResetActionType,
 } from 'lib/actions/entry-actions';
-import { connect } from 'lib/utils/redux-utils';
 import { ServerError } from 'lib/utils/errors';
 import { entryKey } from 'lib/shared/entry-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { dateString } from 'lib/utils/date-utils';
 import sleep from 'lib/utils/sleep';
+import {
+  useServerCall,
+  useDispatchActionPromise,
+  type DispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import Button from '../components/button.react';
 import {
@@ -68,15 +66,13 @@ import {
   nonThreadCalendarQuery,
 } from '../navigation/nav-selectors';
 import LoadingIndicator from './loading-indicator.react';
-import { colors, styleSelector } from '../themes/colors';
-import {
-  connectNav,
-  type NavContextType,
-} from '../navigation/navigation-context';
+import { colors, useStyles } from '../themes/colors';
+import { NavContext } from '../navigation/navigation-context';
 import { waitForInteractions } from '../utils/interactions';
 import Markdown from '../markdown/markdown.react';
 import { inlineMarkdownRules } from '../markdown/rules.react';
 import { SingleLine } from '../components/single-line.react';
+import { useSelector } from '../redux/redux-utils';
 
 function hueDistance(firstColor: string, secondColor: string): number {
   const firstHue = tinycolor(firstColor).toHsv().h;
@@ -89,68 +85,47 @@ const omitEntryInfo = _omit(['entryInfo']);
 function dummyNodeForEntryHeightMeasurement(entryText: string) {
   const text = entryText === '' ? ' ' : entryText;
   return (
-    <View style={[styles.entry, styles.textContainer]}>
-      <Text style={styles.text}>{text}</Text>
+    <View style={[unboundStyles.entry, unboundStyles.textContainer]}>
+      <Text style={unboundStyles.text}>{text}</Text>
     </View>
   );
 }
 
+type BaseProps = {|
+  +navigation: TabNavigationProp<'Calendar'>,
+  +entryInfo: EntryInfoWithHeight,
+  +threadInfo: ThreadInfo,
+  +visible: boolean,
+  +active: boolean,
+  +makeActive: (entryKey: string, active: boolean) => void,
+  +onEnterEditMode: (entryInfo: EntryInfoWithHeight) => void,
+  +onConcludeEditMode: (entryInfo: EntryInfoWithHeight) => void,
+  +onPressWhitespace: () => void,
+  +entryRef: (entryKey: string, entry: ?InternalEntry) => void,
+|};
 type Props = {|
-  navigation: TabNavigationProp<'Calendar'>,
-  entryInfo: EntryInfoWithHeight,
-  threadInfo: ThreadInfo,
-  visible: boolean,
-  active: boolean,
-  makeActive: (entryKey: string, active: boolean) => void,
-  onEnterEditMode: (entryInfo: EntryInfoWithHeight) => void,
-  onConcludeEditMode: (entryInfo: EntryInfoWithHeight) => void,
-  onPressWhitespace: () => void,
-  entryRef: (entryKey: string, entry: ?InternalEntry) => void,
+  ...BaseProps,
   // Redux state
-  calendarQuery: () => CalendarQuery,
-  online: boolean,
-  styles: typeof styles,
+  +calendarQuery: () => CalendarQuery,
+  +online: boolean,
+  +styles: typeof unboundStyles,
   // Nav state
-  threadPickerActive: boolean,
+  +threadPickerActive: boolean,
   // Redux dispatch functions
-  dispatchActionPayload: DispatchActionPayload,
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatch: Dispatch,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  createEntry: (info: CreateEntryInfo) => Promise<CreateEntryPayload>,
-  saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResponse>,
-  deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResponse>,
+  +createEntry: (info: CreateEntryInfo) => Promise<CreateEntryPayload>,
+  +saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResponse>,
+  +deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResponse>,
 |};
 type State = {|
-  editing: boolean,
-  text: string,
-  loadingStatus: LoadingStatus,
-  height: number,
+  +editing: boolean,
+  +text: string,
+  +loadingStatus: LoadingStatus,
+  +height: number,
 |};
 class InternalEntry extends React.Component<Props, State> {
-  static propTypes = {
-    navigation: PropTypes.shape({
-      navigate: PropTypes.func.isRequired,
-      goBack: PropTypes.func.isRequired,
-    }).isRequired,
-    entryInfo: entryInfoPropType.isRequired,
-    threadInfo: threadInfoPropType.isRequired,
-    visible: PropTypes.bool.isRequired,
-    active: PropTypes.bool.isRequired,
-    makeActive: PropTypes.func.isRequired,
-    onEnterEditMode: PropTypes.func.isRequired,
-    onConcludeEditMode: PropTypes.func.isRequired,
-    onPressWhitespace: PropTypes.func.isRequired,
-    entryRef: PropTypes.func.isRequired,
-    calendarQuery: PropTypes.func.isRequired,
-    online: PropTypes.bool.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    threadPickerActive: PropTypes.bool.isRequired,
-    dispatchActionPayload: PropTypes.func.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    createEntry: PropTypes.func.isRequired,
-    saveEntry: PropTypes.func.isRequired,
-    deleteEntry: PropTypes.func.isRequired,
-  };
   textInput: ?React.ElementRef<typeof TextInput>;
   creating = false;
   needsUpdateAfterCreation = false;
@@ -168,7 +143,10 @@ class InternalEntry extends React.Component<Props, State> {
       loadingStatus: 'inactive',
       height: props.entryInfo.textHeight,
     };
-    this.state.editing = InternalEntry.isActive(props, this.state);
+    this.state = {
+      ...this.state,
+      editing: InternalEntry.isActive(props, this.state),
+    };
   }
 
   guardedSetState(input: $Shape<State>) {
@@ -616,10 +594,10 @@ class InternalEntry extends React.Component<Props, State> {
             loadingStatus: 'inactive',
             text: revertedText,
           });
-          this.props.dispatchActionPayload(
-            concurrentModificationResetActionType,
-            { id: entryID, dbText: revertedText },
-          );
+          this.props.dispatch({
+            type: concurrentModificationResetActionType,
+            payload: { id: entryID, dbText: revertedText },
+          });
         };
         Alert.alert(
           'Concurrent modification',
@@ -684,7 +662,7 @@ class InternalEntry extends React.Component<Props, State> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   actionLinks: {
     flex: 1,
     flexDirection: 'row',
@@ -754,7 +732,6 @@ const styles = {
     top: Platform.OS === 'android' ? 4.8 : 0.5,
   },
 };
-const stylesSelector = styleSelector(styles);
 
 registerFetchKey(saveEntryActionTypes);
 registerFetchKey(deleteEntryActionTypes);
@@ -762,21 +739,41 @@ const activeThreadPickerSelector = createIsForegroundSelector(
   ThreadPickerModalRouteName,
 );
 
-const Entry = connectNav((context: ?NavContextType) => ({
-  navContext: context,
-  threadPickerActive: activeThreadPickerSelector(context),
-}))(
-  connect(
-    (state: AppState, ownProps: { navContext: ?NavContextType }) => ({
-      calendarQuery: nonThreadCalendarQuery({
-        redux: state,
-        navContext: ownProps.navContext,
-      }),
-      online: state.connection.status === 'connected',
-      styles: stylesSelector(state),
+const Entry = React.memo<BaseProps>(function ConnectedEntry(props: BaseProps) {
+  const navContext = React.useContext(NavContext);
+  const threadPickerActive = activeThreadPickerSelector(navContext);
+
+  const calendarQuery = useSelector((state) =>
+    nonThreadCalendarQuery({
+      redux: state,
+      navContext,
     }),
-    { createEntry, saveEntry, deleteEntry },
-  )(InternalEntry),
-);
+  );
+  const online = useSelector(
+    (state) => state.connection.status === 'connected',
+  );
+  const styles = useStyles(unboundStyles);
+
+  const dispatch = useDispatch();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callCreateEntry = useServerCall(createEntry);
+  const callSaveEntry = useServerCall(saveEntry);
+  const callDeleteEntry = useServerCall(deleteEntry);
+
+  return (
+    <InternalEntry
+      {...props}
+      threadPickerActive={threadPickerActive}
+      calendarQuery={calendarQuery}
+      online={online}
+      styles={styles}
+      dispatch={dispatch}
+      dispatchActionPromise={dispatchActionPromise}
+      createEntry={callCreateEntry}
+      saveEntry={callSaveEntry}
+      deleteEntry={callDeleteEntry}
+    />
+  );
+});
 
 export { InternalEntry, Entry, dummyNodeForEntryHeightMeasurement };
