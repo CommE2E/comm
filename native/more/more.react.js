@@ -1,9 +1,11 @@
 // @flow
 
-import type { StackNavigationProp } from '@react-navigation/stack';
-
 import * as React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
+import {
+  createStackNavigator,
+  type StackNavigationProp,
+  type StackHeaderProps,
+} from '@react-navigation/stack';
 
 import MoreScreen from './more-screen.react';
 import EditEmail from './edit-email.react';
@@ -31,7 +33,7 @@ import {
 import MoreHeader from './more-header.react';
 import HeaderBackButton from '../navigation/header-back-button.react';
 
-const header = (props) => <MoreHeader {...props} />;
+const header = (props: StackHeaderProps) => <MoreHeader {...props} />;
 const headerBackButton = (props) => <HeaderBackButton {...props} />;
 const screenOptions = {
   header,
