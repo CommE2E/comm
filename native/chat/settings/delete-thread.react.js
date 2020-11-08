@@ -1,20 +1,12 @@
 // @flow
 
-import type { AppState } from '../../redux/redux-setup';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import { loadingStatusPropType } from 'lib/types/loading-types';
-import {
-  type ThreadInfo,
-  threadInfoPropType,
-  type LeaveThreadPayload,
-} from 'lib/types/thread-types';
-import { type GlobalTheme, globalThemePropType } from '../../types/themes';
+import type { ThreadInfo, LeaveThreadPayload } from 'lib/types/thread-types';
+import type { GlobalTheme } from '../../types/themes';
 import type { ChatNavigationProp } from '../chat.react';
 import type { NavigationRoute } from '../../navigation/route-names';
 
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import {
   Text,
   View,
@@ -25,7 +17,6 @@ import {
 } from 'react-native';
 import invariant from 'invariant';
 
-import { connect } from 'lib/utils/redux-utils';
 import {
   deleteThreadActionTypes,
   deleteThread,
@@ -33,67 +24,51 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { identifyInvalidatedThreads } from 'lib/shared/thread-utils';
+import {
+  useServerCall,
+  useDispatchActionPromise,
+  type DispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import Button from '../../components/button.react';
+import { type Colors, useColors, useStyles } from '../../themes/colors';
 import {
-  type Colors,
-  colorsPropType,
-  colorsSelector,
-  styleSelector,
-} from '../../themes/colors';
-import {
-  withNavContext,
-  type NavContextType,
-  navContextPropType,
+  NavContext,
+  type NavAction,
 } from '../../navigation/navigation-context';
 import { clearThreadsActionType } from '../../navigation/action-types';
+import { useSelector } from '../../redux/redux-utils';
 
 export type DeleteThreadParams = {|
-  threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo,
 |};
 
+type BaseProps = {|
+  +navigation: ChatNavigationProp<'DeleteThread'>,
+  +route: NavigationRoute<'DeleteThread'>,
+|};
 type Props = {|
-  navigation: ChatNavigationProp<'DeleteThread'>,
-  route: NavigationRoute<'DeleteThread'>,
+  ...BaseProps,
   // Redux state
-  threadInfo: ?ThreadInfo,
-  loadingStatus: LoadingStatus,
-  activeTheme: ?GlobalTheme,
-  colors: Colors,
-  styles: typeof styles,
+  +threadInfo: ?ThreadInfo,
+  +loadingStatus: LoadingStatus,
+  +activeTheme: ?GlobalTheme,
+  +colors: Colors,
+  +styles: typeof unboundStyles,
   // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  deleteThread: (
+  +deleteThread: (
     threadID: string,
     currentAccountPassword: string,
   ) => Promise<LeaveThreadPayload>,
   // withNavContext
-  navContext: ?NavContextType,
+  +navDispatch: (action: NavAction) => void,
 |};
 type State = {|
-  password: string,
+  +password: string,
 |};
 class DeleteThread extends React.PureComponent<Props, State> {
-  static propTypes = {
-    navigation: PropTypes.shape({
-      navigate: PropTypes.func.isRequired,
-      setParams: PropTypes.func.isRequired,
-    }).isRequired,
-    route: PropTypes.shape({
-      params: PropTypes.shape({
-        threadInfo: threadInfoPropType.isRequired,
-      }).isRequired,
-    }).isRequired,
-    threadInfo: threadInfoPropType,
-    loadingStatus: loadingStatusPropType.isRequired,
-    activeTheme: globalThemePropType,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    deleteThread: PropTypes.func.isRequired,
-    navContext: navContextPropType,
-  };
   state = {
     password: '',
   };
@@ -198,9 +173,8 @@ class DeleteThread extends React.PureComponent<Props, State> {
 
   async deleteThread() {
     const threadInfo = DeleteThread.getThreadInfo(this.props);
-    const { navContext } = this.props;
-    invariant(navContext, 'navContext should exist in deleteThread');
-    navContext.dispatch({
+    const { navDispatch } = this.props;
+    navDispatch({
       type: clearThreadsActionType,
       payload: { threadIDs: [threadInfo.id] },
     });
@@ -212,7 +186,7 @@ class DeleteThread extends React.PureComponent<Props, State> {
       const invalidated = identifyInvalidatedThreads(
         result.updatesResult.newUpdates,
       );
-      navContext.dispatch({
+      navDispatch({
         type: clearThreadsActionType,
         payload: { threadIDs: [...invalidated] },
       });
@@ -244,7 +218,7 @@ class DeleteThread extends React.PureComponent<Props, State> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   deleteButton: {
     backgroundColor: 'redButton',
     borderRadius: 5,
@@ -298,27 +272,43 @@ const styles = {
     textAlign: 'center',
   },
 };
-const stylesSelector = styleSelector(styles);
 
 const loadingStatusSelector = createLoadingStatusSelector(
   deleteThreadActionTypes,
 );
 
-export default connect(
-  (
-    state: AppState,
-    ownProps: {
-      route: NavigationRoute<'DeleteThread'>,
-    },
-  ): * => {
-    const threadID = ownProps.route.params.threadInfo.id;
-    return {
-      threadInfo: threadInfoSelector(state)[threadID],
-      loadingStatus: loadingStatusSelector(state),
-      activeTheme: state.globalThemeInfo.activeTheme,
-      colors: colorsSelector(state),
-      styles: stylesSelector(state),
-    };
-  },
-  { deleteThread },
-)(withNavContext(DeleteThread));
+export default React.memo<BaseProps>(function ConnectedDeleteThread(
+  props: BaseProps,
+) {
+  const threadID = props.route.params.threadInfo.id;
+  const threadInfo = useSelector(
+    (state) => threadInfoSelector(state)[threadID],
+  );
+
+  const loadingStatus = useSelector(loadingStatusSelector);
+  const activeTheme = useSelector((state) => state.globalThemeInfo.activeTheme);
+
+  const colors = useColors();
+  const styles = useStyles(unboundStyles);
+
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callDeleteThread = useServerCall(deleteThread);
+
+  const navContext = React.useContext(NavContext);
+  invariant(navContext, 'NavContext should be set in DeleteThread');
+  const navDispatch = navContext.dispatch;
+
+  return (
+    <DeleteThread
+      {...props}
+      threadInfo={threadInfo}
+      loadingStatus={loadingStatus}
+      activeTheme={activeTheme}
+      colors={colors}
+      styles={styles}
+      dispatchActionPromise={dispatchActionPromise}
+      deleteThread={callDeleteThread}
+      navDispatch={navDispatch}
+    />
+  );
+});
