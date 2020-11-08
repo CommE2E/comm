@@ -1,53 +1,48 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
-import { messageStorePruneActionType } from 'lib/actions/message-actions';
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
-
 import * as React from 'react';
-import PropTypes from 'prop-types';
+import { useDispatch } from 'react-redux';
 
-import { connect } from 'lib/utils/redux-utils';
+import { messageStorePruneActionType } from 'lib/actions/message-actions';
 
 import {
   nextMessagePruneTimeSelector,
   pruneThreadIDsSelector,
 } from '../selectors/message-selectors';
-import {
-  connectNav,
-  type NavContextType,
-} from '../navigation/navigation-context';
+import { NavContext } from '../navigation/navigation-context';
+import { useSelector } from '../redux/redux-utils';
 
-type Props = {|
-  // Redux state
-  nextMessagePruneTime: ?number,
-  pruneThreadIDs: () => $ReadOnlyArray<string>,
-  foreground: boolean,
-  frozen: boolean,
-  // Redux dispatch functions
-  dispatchActionPayload: DispatchActionPayload,
-|};
-class MessageStorePruner extends React.PureComponent<Props> {
-  static propTypes = {
-    nextMessagePruneTime: PropTypes.number,
-    pruneThreadIDs: PropTypes.func.isRequired,
-    foreground: PropTypes.bool.isRequired,
-    frozen: PropTypes.bool.isRequired,
-    dispatchActionPayload: PropTypes.func.isRequired,
-  };
-  pruned = false;
+function MessageStorePruner() {
+  const nextMessagePruneTime = useSelector(nextMessagePruneTimeSelector);
+  const prevNextMessagePruneTimeRef = React.useRef(nextMessagePruneTime);
 
-  componentDidUpdate(prevProps: Props) {
+  const foreground = useSelector((state) => state.foreground);
+  const frozen = useSelector((state) => state.frozen);
+
+  const navContext = React.useContext(NavContext);
+  const pruneThreadIDs = useSelector((state) =>
+    pruneThreadIDsSelector({
+      redux: state,
+      navContext,
+    }),
+  );
+
+  const prunedRef = React.useRef(false);
+
+  const dispatch = useDispatch();
+
+  React.useEffect(() => {
     if (
-      this.pruned &&
-      this.props.nextMessagePruneTime !== prevProps.nextMessagePruneTime
+      prunedRef.current &&
+      nextMessagePruneTime !== prevNextMessagePruneTimeRef.current
     ) {
-      this.pruned = false;
+      prunedRef.current = false;
     }
-    if (this.props.frozen || this.pruned) {
+    prevNextMessagePruneTimeRef.current = nextMessagePruneTime;
+
+    if (frozen || prunedRef.current) {
       return;
     }
-    const { nextMessagePruneTime } = this.props;
     if (nextMessagePruneTime === null || nextMessagePruneTime === undefined) {
       return;
     }
@@ -55,36 +50,19 @@ class MessageStorePruner extends React.PureComponent<Props> {
     if (timeUntilExpiration > 0) {
       return;
     }
-    const threadIDs = this.props.pruneThreadIDs();
+    const threadIDs = pruneThreadIDs();
     if (threadIDs.length === 0) {
       return;
     }
-    this.pruned = true;
-    this.props.dispatchActionPayload(messageStorePruneActionType, {
-      threadIDs,
+    prunedRef.current = true;
+    dispatch({
+      type: messageStorePruneActionType,
+      payload: { threadIDs },
     });
-  }
+    // We include foreground so this effect will be called on foreground
+  }, [nextMessagePruneTime, frozen, foreground, pruneThreadIDs, dispatch]);
 
-  render() {
-    return null;
-  }
+  return null;
 }
 
-export default connectNav((context: ?NavContextType) => ({
-  navContext: context,
-}))(
-  connect(
-    (state: AppState, ownProps: { navContext: ?NavContextType }) => ({
-      nextMessagePruneTime: nextMessagePruneTimeSelector(state),
-      pruneThreadIDs: pruneThreadIDsSelector({
-        redux: state,
-        navContext: ownProps.navContext,
-      }),
-      // We include this so that componentDidUpdate will be called on foreground
-      foreground: state.foreground,
-      frozen: state.frozen,
-    }),
-    null,
-    true,
-  )(MessageStorePruner),
-);
+export default MessageStorePruner;
