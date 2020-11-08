@@ -13,8 +13,9 @@ import {
   type StackNavigationEventMap,
   type StackNavigatorProps,
   type ExtraStackNavigatorProps,
+  type StackHeaderProps as CoreStackHeaderProps,
 } from '@react-navigation/native';
-import { StackView } from '@react-navigation/stack';
+import { StackView, type StackHeaderProps } from '@react-navigation/stack';
 import { Platform, View } from 'react-native';
 import invariant from 'invariant';
 
@@ -137,7 +138,12 @@ const createChatNavigator = createNavigatorFactory<
   ExtraStackNavigatorProps,
 >(ChatNavigator);
 
-const header = (props) => <ChatHeader {...props} />;
+const header = (props: CoreStackHeaderProps) => {
+  // Flow has trouble reconciling identical types between different libdefs,
+  // and flow-typed has no way for one libdef to depend on another
+  const castProps: StackHeaderProps = (props: any);
+  return <ChatHeader {...castProps} />;
+};
 const headerBackButton = (props) => <HeaderBackButton {...props} />;
 const screenOptions = {
   header,
