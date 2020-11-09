@@ -83,6 +83,7 @@ class RelationshipListItem extends React.PureComponent<Props> {
       );
     } else if (
       userInfo.relationshipStatus === userRelationshipStatus.FRIEND ||
+      userInfo.relationshipStatus === userRelationshipStatus.BOTH_BLOCKED ||
       userInfo.relationshipStatus === userRelationshipStatus.BLOCKED_BY_VIEWER
     ) {
       editButton = (
