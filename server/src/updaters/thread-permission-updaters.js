@@ -33,7 +33,10 @@ import {
   rawThreadInfosFromServerThreadInfos,
   type FetchThreadInfosResult,
 } from '../fetchers/thread-fetchers';
-import { createUpdates } from '../creators/update-creator';
+import {
+  createUpdates,
+  type UpdatesForCurrentSession,
+} from '../creators/update-creator';
 import {
   updateDatasForUserPairs,
   updateUndirectedRelationships,
@@ -565,8 +568,15 @@ type ChangesetCommitResult = {|
 async function commitMembershipChangeset(
   viewer: Viewer,
   changeset: Changeset,
-  changedThreadIDs?: Set<string> = new Set(),
-  calendarQuery?: ?CalendarQuery,
+  {
+    changedThreadIDs = new Set(),
+    calendarQuery,
+    updatesForCurrentSession = 'return',
+  }: {|
+    changedThreadIDs?: Set<string>,
+    calendarQuery?: ?CalendarQuery,
+    updatesForCurrentSession?: UpdatesForCurrentSession,
+  |} = {},
 ): Promise<ChangesetCommitResult> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
@@ -673,7 +683,7 @@ async function commitMembershipChangeset(
     viewer,
     calendarQuery,
     ...threadInfoFetchResult,
-    updatesForCurrentSession: 'return',
+    updatesForCurrentSession,
   });
 
   return {

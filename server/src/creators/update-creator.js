@@ -59,7 +59,7 @@ import {
 } from '../fetchers/user-fetchers';
 import { channelNameForUpdateTarget, publisher } from '../socket/redis';
 
-type UpdatesForCurrentSession =
+export type UpdatesForCurrentSession =
   // This is the default if no Viewer is passed, or if an isSocket Viewer is
   // passed in. We will broadcast to all valid sessions via Redis and return
   // nothing to the caller, relying on the current session's Redis listener to

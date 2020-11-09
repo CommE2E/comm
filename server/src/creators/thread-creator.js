@@ -9,6 +9,7 @@ import {
 import { messageTypes } from 'lib/types/message-types';
 import { userRelationshipStatus } from 'lib/types/relationship-types';
 import type { Viewer } from '../session/viewer';
+import type { UpdatesForCurrentSession } from './update-creator';
 
 import invariant from 'invariant';
 
@@ -43,6 +44,7 @@ async function createThread(
   viewer: Viewer,
   request: NewThreadRequest,
   forceAddMembers?: boolean = false,
+  updatesForCurrentSession?: UpdatesForCurrentSession = 'return',
 ): Promise<NewThreadResponse> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
@@ -227,6 +229,7 @@ async function createThread(
   const { threadInfos, viewerUpdates } = await commitMembershipChangeset(
     viewer,
     changeset,
+    { updatesForCurrentSession },
   );
 
   const messageDatas = [

@@ -543,9 +543,14 @@ async function updateThread(
   const { threadInfos, viewerUpdates } = await commitMembershipChangeset(
     viewer,
     changeset,
-    // This forces an update for this thread,
-    // regardless of whether any membership rows are changed
-    Object.keys(sqlUpdate).length > 0 ? new Set([request.threadID]) : new Set(),
+    {
+      // This forces an update for this thread,
+      // regardless of whether any membership rows are changed
+      changedThreadIDs:
+        Object.keys(sqlUpdate).length > 0
+          ? new Set([request.threadID])
+          : new Set(),
+    },
   );
 
   const time = Date.now();
@@ -624,12 +629,9 @@ async function joinThread(
   }
   setJoinsToUnread(changeset.membershipRows, viewer.userID, request.threadID);
 
-  const membershipResult = await commitMembershipChangeset(
-    viewer,
-    changeset,
-    new Set(),
+  const membershipResult = await commitMembershipChangeset(viewer, changeset, {
     calendarQuery,
-  );
+  });
 
   const messageData = {
     type: messageTypes.JOIN_THREAD,
