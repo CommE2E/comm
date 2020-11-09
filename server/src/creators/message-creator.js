@@ -10,6 +10,7 @@ import { threadPermissions } from 'lib/types/thread-types';
 import { updateTypes } from 'lib/types/update-types';
 import { redisMessageTypes } from 'lib/types/redis-types';
 import type { Viewer } from '../session/viewer';
+import type { UpdatesForCurrentSession } from './update-creator';
 
 import invariant from 'invariant';
 
@@ -74,6 +75,7 @@ type LatestMessages = $ReadOnlyArray<{|
 async function createMessages(
   viewer: Viewer,
   messageDatas: $ReadOnlyArray<MessageData>,
+  updatesForCurrentSession?: UpdatesForCurrentSession = 'return',
 ): Promise<RawMessageInfo[]> {
   if (messageDatas.length === 0) {
     return [];
@@ -184,6 +186,7 @@ async function createMessages(
       threadsToMessageIndices,
       subthreadPermissionsToCheck,
       stripLocalIDs(messageInfos),
+      updatesForCurrentSession,
     ),
   );
 
@@ -192,6 +195,10 @@ async function createMessages(
     VALUES ${messageInsertRows}
   `;
   await dbQuery(messageInsertQuery);
+
+  if (updatesForCurrentSession !== 'return') {
+    return [];
+  }
 
   return shimUnsupportedRawMessageInfos(messageInfos, viewer.platformDetails);
 }
@@ -205,6 +212,7 @@ async function postMessageSend(
   threadsToMessageIndices: Map<string, number[]>,
   subthreadPermissionsToCheck: Set<string>,
   messageInfos: RawMessageInfo[],
+  updatesForCurrentSession: UpdatesForCurrentSession,
 ) {
   let joinIndex = 0;
   let subthreadSelects = '';
@@ -357,7 +365,7 @@ async function postMessageSend(
 
   await Promise.all([
     createReadStatusUpdates(latestMessages),
-    redisPublish(viewer, messageInfosPerUser),
+    redisPublish(viewer, messageInfosPerUser, updatesForCurrentSession),
     updateLatestMessages(latestMessages),
   ]);
 
@@ -367,9 +375,12 @@ async function postMessageSend(
 async function redisPublish(
   viewer: Viewer,
   messageInfosPerUser: { [userID: string]: $ReadOnlyArray<RawMessageInfo> },
+  updatesForCurrentSession: UpdatesForCurrentSession,
 ) {
+  const avoidBroadcastingToCurrentSession =
+    viewer.hasSessionInfo && updatesForCurrentSession !== 'broadcast';
   for (const userID in messageInfosPerUser) {
-    if (userID === viewer.userID && viewer.hasSessionInfo) {
+    if (userID === viewer.userID && avoidBroadcastingToCurrentSession) {
       continue;
     }
     const messageInfos = messageInfosPerUser[userID];
@@ -382,7 +393,7 @@ async function redisPublish(
     );
   }
   const viewerMessageInfos = messageInfosPerUser[viewer.userID];
-  if (!viewerMessageInfos || !viewer.hasSessionInfo) {
+  if (!viewerMessageInfos || !avoidBroadcastingToCurrentSession) {
     return;
   }
   const sessionIDs = await fetchOtherSessionsForViewer(viewer);
