@@ -171,6 +171,21 @@ const migrations = {
       inconsistencyReports: [],
     },
   }),
+  [19]: (state) => {
+    const threadInfos = {};
+    for (const threadID in state.threadStore.threadInfos) {
+      const threadInfo = state.threadStore.threadInfos[threadID];
+      const { visibilityRules, ...rest } = threadInfo;
+      threadInfos[threadID] = rest;
+    }
+    return {
+      ...state,
+      threadStore: {
+        ...state.threadStore,
+        threadInfos,
+      },
+    };
+  },
 };
 
 const persistConfig = {

@@ -5,6 +5,7 @@ import type { Viewer } from '../session/viewer';
 
 import { getAllThreadPermissions } from 'lib/permissions/thread-permissions';
 import { rawThreadInfoFromServerThreadInfo } from 'lib/shared/thread-utils';
+import { hasMinCodeVersion } from 'lib/shared/version-utils';
 
 import { dbQuery, SQL, SQLStatement } from '../database/database';
 
@@ -102,6 +103,9 @@ function rawThreadInfosFromServerThreadInfos(
     const threadInfo = rawThreadInfoFromServerThreadInfo(
       serverThreadInfo,
       viewerID,
+      {
+        includeVisibilityRules: !hasMinCodeVersion(viewer.platformDetails, 70),
+      },
     );
     if (threadInfo) {
       threadInfos[threadID] = threadInfo;
