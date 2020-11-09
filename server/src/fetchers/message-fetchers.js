@@ -218,19 +218,13 @@ function rawMessageInfoFromRows(
     return rawTextMessageInfo;
   } else if (type === messageTypes.CREATE_THREAD) {
     const row = assertSingleRow(rows);
-    const dbInitialThreadState = JSON.parse(row.content);
-    // For legacy clients before the rename
-    const initialThreadState = {
-      ...dbInitialThreadState,
-      visibilityRules: dbInitialThreadState.type,
-    };
     return {
       type: messageTypes.CREATE_THREAD,
       id: row.id.toString(),
       threadID: row.threadID.toString(),
       time: row.time,
       creatorID: row.creatorID.toString(),
-      initialThreadState,
+      initialThreadState: JSON.parse(row.content),
     };
   } else if (type === messageTypes.ADD_MEMBERS) {
     const row = assertSingleRow(rows);
