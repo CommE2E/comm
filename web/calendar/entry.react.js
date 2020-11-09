@@ -12,7 +12,7 @@ import {
   type CalendarQuery,
 } from 'lib/types/entry-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
+import { threadInfoPropType, threadPermissions } from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { AppState } from '../redux/redux-setup';
 import type {
@@ -26,7 +26,7 @@ import invariant from 'invariant';
 import PropTypes from 'prop-types';
 
 import { entryKey } from 'lib/shared/entry-utils';
-import { colorIsDark } from 'lib/shared/thread-utils';
+import { colorIsDark, threadHasPermission } from 'lib/shared/thread-utils';
 import { connect } from 'lib/utils/redux-utils';
 import {
   createEntryActionTypes,
@@ -210,6 +210,10 @@ class Entry extends React.PureComponent<Props, State> {
     });
     const style = { backgroundColor: '#' + this.props.threadInfo.color };
     const loadingIndicatorColor = darkColor ? 'white' : 'black';
+    const canEditEntry = threadHasPermission(
+      this.props.threadInfo,
+      threadPermissions.EDIT_ENTRIES,
+    );
     return (
       <div
         className={entryClasses}
@@ -226,6 +230,7 @@ class Entry extends React.PureComponent<Props, State> {
           onBlur={this.onBlur}
           tabIndex={this.props.tabIndex}
           ref={this.textareaRef}
+          disabled={!canEditEntry}
         />
         <LoadingIndicator
           status={this.state.loadingStatus}
