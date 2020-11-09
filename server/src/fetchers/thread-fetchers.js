@@ -44,7 +44,6 @@ async function fetchServerThreadInfos(
       threadInfos[threadID] = {
         id: threadID,
         type: row.type,
-        visibilityRules: row.type,
         name: row.name ? row.name : '',
         description: row.description ? row.description : '',
         color: row.color,
