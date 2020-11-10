@@ -10,7 +10,7 @@ import type {
   DeleteEntryResponse,
   CalendarQuery,
 } from 'lib/types/entry-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import { type ThreadInfo, threadPermissions } from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { LayoutEvent } from '../types/react-native';
 import type { TabNavigationProp } from '../navigation/app-navigator.react';
@@ -35,7 +35,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import tinycolor from 'tinycolor2';
 import { useDispatch } from 'react-redux';
 
-import { colorIsDark } from 'lib/shared/thread-utils';
+import { colorIsDark, threadHasPermission } from 'lib/shared/thread-utils';
 import {
   createEntryActionTypes,
   createEntry,
@@ -387,10 +387,15 @@ class InternalEntry extends React.Component<Props, State> {
     const heightStyle = { height: this.state.height };
     const entryStyle = { backgroundColor: threadColor };
     const opacity = editing ? 1.0 : 0.6;
+    const canEditEntry = threadHasPermission(
+      this.props.threadInfo,
+      threadPermissions.EDIT_ENTRIES,
+    );
     return (
       <TouchableWithoutFeedback onPress={this.props.onPressWhitespace}>
         <View style={this.props.styles.container}>
           <Button
+            disabled={!canEditEntry}
             onPress={this.setActive}
             style={[this.props.styles.entry, entryStyle]}
             androidFormat="opacity"
@@ -450,7 +455,7 @@ class InternalEntry extends React.Component<Props, State> {
     }
   };
 
-  setActive = () => this.props.makeActive(entryKey(this.props.entryInfo), true);
+  setActive = () => this.makeActive(true);
 
   completeEdit = () => {
     // This gets called from CalendarInputBar (save button above keyboard),
@@ -473,7 +478,7 @@ class InternalEntry extends React.Component<Props, State> {
       this.save();
     }
     this.guardedSetState({ editing: false });
-    this.props.makeActive(entryKey(this.props.entryInfo), false);
+    this.makeActive(false);
     this.props.onConcludeEditMode(this.props.entryInfo);
   };
 
@@ -490,6 +495,14 @@ class InternalEntry extends React.Component<Props, State> {
   onChangeText = (newText: string) => {
     this.guardedSetState({ text: newText });
   };
+
+  makeActive(active: boolean) {
+    const { threadInfo } = this.props;
+    if (!threadHasPermission(threadInfo, threadPermissions.EDIT_ENTRIES)) {
+      return;
+    }
+    this.props.makeActive(entryKey(this.props.entryInfo), active);
+  }
 
   dispatchSave(serverID: ?string, newText: string) {
     if (this.currentlySaving === newText) {
