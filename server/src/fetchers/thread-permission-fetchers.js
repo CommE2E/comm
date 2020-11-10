@@ -16,6 +16,11 @@ import { dbQuery, SQL } from '../database/database';
 import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 
+// Note that it's risky to verify permissions by inspecting the blob directly.
+// There are other factors that can override permissions in the permissions
+// blob, such as when one user blocks another. It's always better to go through
+// checkThreads and friends, or by looking at the ThreadInfo through
+// threadHasPermission.
 async function fetchThreadPermissionsBlob(
   viewer: Viewer,
   threadID: string,
