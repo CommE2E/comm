@@ -12,10 +12,7 @@ import type { Viewer } from '../session/viewer';
 
 import invariant from 'invariant';
 
-import {
-  generateRandomColor,
-  threadHasPermission,
-} from 'lib/shared/thread-utils';
+import { generateRandomColor } from 'lib/shared/thread-utils';
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
@@ -25,6 +22,7 @@ import createIDs from './id-creator';
 import { createInitialRolesForNewThread } from './role-creator';
 import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
+import { checkThreadPermission } from '../fetchers/thread-permission-fetchers';
 import {
   changeRole,
   recalculateAllPermissions,
@@ -67,6 +65,13 @@ async function createThread(
       viewer,
       SQL`t.id = ${parentThreadID}`,
     );
+    checkPromises.hasParentPermission = checkThreadPermission(
+      viewer,
+      parentThreadID,
+      threadType === threadTypes.SIDEBAR
+        ? threadPermissions.CREATE_SIDEBARS
+        : threadPermissions.CREATE_SUBTHREADS,
+    );
   }
   if (initialMemberIDs) {
     checkPromises.fetchInitialMembers = fetchKnownUserInfos(
@@ -74,19 +79,17 @@ async function createThread(
       initialMemberIDs,
     );
   }
-  const { parentThreadFetch, fetchInitialMembers } = await promiseAll(
-    checkPromises,
-  );
+  const {
+    parentThreadFetch,
+    hasParentPermission,
+    fetchInitialMembers,
+  } = await promiseAll(checkPromises);
 
   let parentThreadMembers;
   if (parentThreadID) {
     invariant(parentThreadFetch, 'parentThreadFetch should be set');
     const parentThreadInfo = parentThreadFetch.threadInfos[parentThreadID];
-    const permission =
-      threadType === threadTypes.SIDEBAR
-        ? threadPermissions.CREATE_SIDEBARS
-        : threadPermissions.CREATE_SUBTHREADS;
-    if (!threadHasPermission(parentThreadInfo, permission)) {
+    if (!hasParentPermission) {
       throw new ServerError('invalid_credentials');
     }
     parentThreadMembers = parentThreadInfo.members.map(

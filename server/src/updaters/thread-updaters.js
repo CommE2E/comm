@@ -28,7 +28,6 @@ import {
   threadHasAdminRole,
   roleIsAdminRole,
   viewerIsMember,
-  threadHasPermission,
 } from 'lib/shared/thread-utils';
 
 import { dbQuery, SQL } from '../database/database';
@@ -417,24 +416,34 @@ async function updateThread(
 
   let parentThreadMembers;
   if (nextParentThreadID) {
-    const parentFetchResult = await fetchThreadInfos(
-      viewer,
-      SQL`t.id = ${nextParentThreadID}`,
+    const promises = [
+      fetchThreadInfos(viewer, SQL`t.id = ${nextParentThreadID}`),
+    ];
+
+    const threadChanged =
+      nextParentThreadID !== oldParentThreadID ||
+      nextThreadType !== oldThreadType;
+    if (threadChanged) {
+      promises.push(
+        checkThreadPermission(
+          viewer,
+          nextParentThreadID,
+          nextThreadType === threadTypes.SIDEBAR
+            ? threadPermissions.CREATE_SIDEBARS
+            : threadPermissions.CREATE_SUBTHREADS,
+        ),
+      );
+    }
+
+    const [parentFetchResult, hasParentPermission] = await Promise.all(
+      promises,
     );
+
     const parentThreadInfo = parentFetchResult.threadInfos[nextParentThreadID];
     if (!parentThreadInfo) {
       throw new ServerError('invalid_parameters');
     }
-    if (
-      (nextParentThreadID !== oldParentThreadID ||
-        nextThreadType !== oldThreadType) &&
-      !threadHasPermission(
-        parentThreadInfo,
-        nextThreadType === threadTypes.SIDEBAR
-          ? threadPermissions.CREATE_SIDEBARS
-          : threadPermissions.CREATE_SUBTHREADS,
-      )
-    ) {
+    if (threadChanged && !hasParentPermission) {
       throw new ServerError('invalid_parameters');
     }
     parentThreadMembers = parentThreadInfo.members.map(
