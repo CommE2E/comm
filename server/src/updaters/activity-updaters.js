@@ -33,6 +33,27 @@ import {
   checkThreads,
 } from '../fetchers/thread-permission-fetchers';
 
+type PartialThreadStatus = {|
+  +focusActive: boolean,
+  +threadID: string,
+  +newLastReadMessage: ?number,
+|};
+type ThreadStatus =
+  | {|
+      +focusActive: true,
+      +threadID: string,
+      +newLastReadMessage: number,
+      +curLastReadMessage: number,
+      +rescindCondition: SQLStatement,
+    |}
+  | {|
+      +focusActive: false,
+      +threadID: string,
+      +newLastReadMessage: ?number,
+      +curLastReadMessage: number,
+      +rescindCondition: ?SQLStatement,
+      +newerMessageFromOtherAuthor: boolean,
+    |};
 async function activityUpdater(
   viewer: Viewer,
   request: UpdateActivityRequest,
@@ -54,7 +75,7 @@ async function activityUpdater(
   const unverifiedThreadIDs: $ReadOnlySet<string> = new Set(
     request.updates.map((update) => update.threadID),
   );
-  const viewerMemberThreads = await checkThreads(
+  const verifiedThreadIDs = await checkThreads(
     viewer,
     [...unverifiedThreadIDs],
     [
@@ -68,19 +89,17 @@ async function activityUpdater(
     ],
   );
 
-  if (viewerMemberThreads.size === 0) {
+  if (verifiedThreadIDs.size === 0) {
     return { unfocusedToUnread: [] };
   }
 
-  const currentlyFocused = [];
-  const unfocusedLatestMessages = new Map<string, number>();
-  const latestMessages = new Map<string, number>();
-  const rescindConditions = [];
-  for (const threadID of viewerMemberThreads) {
+  const partialThreadStatuses: PartialThreadStatus[] = [];
+  for (const threadID of verifiedThreadIDs) {
     const focusUpdates = focusUpdatesByThreadID.get(threadID);
     invariant(focusUpdates, `no focusUpdate for thread ID ${threadID}`);
+    const focusActive = !focusUpdates.some((update) => !update.focus);
 
-    const latestMessage = _max(
+    const newLastReadMessage = _max(
       focusUpdates
         .filter(
           (update) =>
@@ -88,78 +107,126 @@ async function activityUpdater(
         )
         .map((update) => parseInt(update.latestMessage)),
     );
-    if (latestMessage) {
-      latestMessages.set(threadID, latestMessage);
+
+    partialThreadStatuses.push({
+      threadID,
+      focusActive,
+      newLastReadMessage,
+    });
+  }
+
+  // We update the focused rows before we check for new messages so we can
+  // guarantee that any messages that may have set the thread to unread before
+  // we set it to focused are caught and overriden
+  await updateFocusedRows(viewer, partialThreadStatuses);
+
+  const unfocusedLatestMessages = new Map<string, number>();
+  for (const partialThreadStatus of partialThreadStatuses) {
+    const { threadID, focusActive, newLastReadMessage } = partialThreadStatus;
+    if (!focusActive) {
+      unfocusedLatestMessages.set(threadID, newLastReadMessage ?? 0);
     }
+  }
+  const [
+    unfocusedThreadsWithNewerMessages,
+    lastMessageInfos,
+  ] = await Promise.all([
+    checkForNewerMessages(viewer, unfocusedLatestMessages),
+    fetchLastMessageInfo(viewer, [...verifiedThreadIDs]),
+  ]);
 
-    const focusEnded = focusUpdates.some((update) => !update.focus);
+  const threadStatuses: ThreadStatus[] = [];
+  for (const partialThreadStatus of partialThreadStatuses) {
+    const { threadID, focusActive, newLastReadMessage } = partialThreadStatus;
 
-    if (!focusEnded) {
-      currentlyFocused.push(threadID);
-      rescindConditions.push(SQL`n.thread = ${threadID}`);
+    const lastMessageInfo = lastMessageInfos.get(threadID);
+    invariant(
+      lastMessageInfo !== undefined,
+      `no lastMessageInfo for thread ID ${threadID}`,
+    );
+    const {
+      lastMessage,
+      lastReadMessage: curLastReadMessage,
+    } = lastMessageInfo;
+
+    if (focusActive) {
+      threadStatuses.push({
+        focusActive: true,
+        threadID,
+        newLastReadMessage: newLastReadMessage
+          ? Math.max(lastMessage, newLastReadMessage)
+          : lastMessage,
+        curLastReadMessage,
+        rescindCondition: SQL`n.thread = ${threadID}`,
+      });
     } else {
-      unfocusedLatestMessages.set(threadID, latestMessage ?? 0);
-      if (latestMessage) {
-        rescindConditions.push(
-          SQL`(n.thread = ${threadID} AND n.message <= ${latestMessage})`,
-        );
+      threadStatuses.push({
+        focusActive: false,
+        threadID,
+        newLastReadMessage,
+        curLastReadMessage,
+        rescindCondition: newLastReadMessage
+          ? SQL`(n.thread = ${threadID} AND n.message <= ${newLastReadMessage})`
+          : null,
+        newerMessageFromOtherAuthor: unfocusedThreadsWithNewerMessages.has(
+          threadID,
+        ),
+      });
+    }
+  }
+
+  // The following block determines whether to enqueue updates for a given
+  // (user, thread) pair and whether to propagate badge count notifs to all of
+  // that user's devices
+  const setUnread: Array<{| +threadID: string, +unread: boolean |}> = [];
+  for (const threadStatus of threadStatuses) {
+    const { threadID, curLastReadMessage } = threadStatus;
+    if (!threadStatus.focusActive) {
+      const { newLastReadMessage, newerMessageFromOtherAuthor } = threadStatus;
+      if (newerMessageFromOtherAuthor) {
+        setUnread.push({ threadID, unread: true });
+      } else if (!newLastReadMessage) {
+        // This is a rare edge case. It should only be possible for threads that
+        // have zero messages on both the client and server, which shouldn't
+        // happen. In this case we'll set the thread to read, just in case...
+        console.warn(`thread ID ${threadID} appears to have no messages`);
+        setUnread.push({ threadID, unread: false });
+      } else if (newLastReadMessage > curLastReadMessage) {
+        setUnread.push({ threadID, unread: false });
+      }
+    } else {
+      const { newLastReadMessage } = threadStatus;
+      if (newLastReadMessage > curLastReadMessage) {
+        setUnread.push({ threadID, unread: false });
       }
     }
   }
 
-  const focusUpdatePromise = updateFocusedRows(viewer, currentlyFocused);
+  const time = Date.now();
+  const updateDatas = setUnread.map(({ threadID, unread }) => ({
+    type: updateTypes.UPDATE_THREAD_READ_STATUS,
+    userID: viewer.userID,
+    time,
+    threadID,
+    unread,
+  }));
 
-  const outdatedUnfocused = await checkUnfocusedLatestMessage(
-    viewer,
-    unfocusedLatestMessages,
-  );
-
-  const setToRead = [...currentlyFocused];
-  const setToUnread = [];
-  for (const [threadID] of unfocusedLatestMessages) {
-    if (!outdatedUnfocused.includes(threadID)) {
-      setToRead.push(threadID);
-    } else {
-      setToUnread.push(threadID);
+  const latestMessages = new Map<string, number>();
+  for (const threadStatus of threadStatuses) {
+    const { threadID, newLastReadMessage, curLastReadMessage } = threadStatus;
+    if (newLastReadMessage && newLastReadMessage > curLastReadMessage) {
+      latestMessages.set(threadID, newLastReadMessage);
     }
   }
-
-  const time = Date.now();
-  const updateDatas = [];
-  const appendUpdateDatas = (
-    threadIDs: $ReadOnlyArray<string>,
-    unread: boolean,
-  ) => {
-    for (const threadID of threadIDs) {
-      updateDatas.push({
-        type: updateTypes.UPDATE_THREAD_READ_STATUS,
-        userID: viewer.userID,
-        time,
-        threadID,
-        unread,
-      });
-    }
-  };
-
-  appendUpdateDatas(setToRead, false);
-  appendUpdateDatas(setToUnread, true);
-
-  const updateLatestReadMessagePromise = updateLastReadMessage(
-    viewer,
-    latestMessages,
-  );
-  const updatesPromise = createUpdates(updateDatas, {
-    viewer,
-    updatesForCurrentSession: 'ignore',
-  });
-
   await Promise.all([
-    focusUpdatePromise,
-    updateLatestReadMessagePromise,
-    updatesPromise,
+    updateLastReadMessage(viewer, latestMessages),
+    createUpdates(updateDatas, { viewer, updatesForCurrentSession: 'ignore' }),
   ]);
 
   // We do this afterwards so the badge count is correct
+  const rescindConditions = threadStatuses
+    .map(({ rescindCondition }) => rescindCondition)
+    .filter(Boolean);
   let rescindCondition;
   if (rescindConditions.length > 0) {
     rescindCondition = SQL`n.user = ${viewer.userID} AND `;
@@ -168,17 +235,21 @@ async function activityUpdater(
   await rescindAndUpdateBadgeCounts(
     viewer,
     rescindCondition,
-    'activity_update',
+    updateDatas.length > 0 ? 'activity_update' : null,
   );
 
-  return { unfocusedToUnread: outdatedUnfocused };
+  return { unfocusedToUnread: [...unfocusedThreadsWithNewerMessages] };
 }
 
 async function updateFocusedRows(
   viewer: Viewer,
-  threadIDs: $ReadOnlyArray<string>,
+  partialThreadStatuses: $ReadOnlyArray<PartialThreadStatus>,
 ): Promise<void> {
+  const threadIDs = partialThreadStatuses
+    .filter((threadStatus) => threadStatus.focusActive)
+    .map(({ threadID }) => threadID);
   const time = Date.now();
+
   if (threadIDs.length > 0) {
     const focusedInsertRows = threadIDs.map((threadID) => [
       viewer.userID,
@@ -192,6 +263,7 @@ async function updateFocusedRows(
       ON DUPLICATE KEY UPDATE time = VALUES(time)
     `);
   }
+
   await deleteActivityForViewerSession(viewer, time);
 }
 
@@ -200,15 +272,15 @@ async function updateFocusedRows(
 // is no longer the latest message ID.
 // Returns the set of unfocused threads that should be set to unread on
 // the client because a new message arrived since they were unfocused.
-async function checkUnfocusedLatestMessage(
+async function checkForNewerMessages(
   viewer: Viewer,
-  unfocusedLatestMessages: Map<string, number>,
-): Promise<string[]> {
-  if (unfocusedLatestMessages.size === 0 || !viewer.loggedIn) {
-    return [];
+  latestMessages: Map<string, number>,
+): Promise<Set<string>> {
+  if (latestMessages.size === 0 || !viewer.loggedIn) {
+    return new Set();
   }
 
-  const unfocusedThreadIDs = [...unfocusedLatestMessages.keys()];
+  const unfocusedThreadIDs = [...latestMessages.keys()];
   const focusedElsewhereThreadIDs = await checkThreadsFocused(
     viewer,
     unfocusedThreadIDs,
@@ -217,7 +289,7 @@ async function checkUnfocusedLatestMessage(
     focusedElsewhereThreadIDs,
   );
   if (unreadCandidates.length === 0) {
-    return [];
+    return new Set();
   }
 
   const knowOfExtractString = `$.${threadPermissions.KNOW_OF}.value`;
@@ -236,16 +308,16 @@ async function checkUnfocusedLatestMessage(
   `;
   const [result] = await dbQuery(query);
 
-  const resetToUnread = [];
+  const threadsWithNewerMessages = new Set();
   for (const row of result) {
     const threadID = row.thread.toString();
     const serverLatestMessage = row.latest_message;
-    const clientLatestMessage = unfocusedLatestMessages.get(threadID);
+    const clientLatestMessage = latestMessages.get(threadID);
     if (clientLatestMessage < serverLatestMessage) {
-      resetToUnread.push(threadID);
+      threadsWithNewerMessages.add(threadID);
     }
   }
-  return resetToUnread;
+  return threadsWithNewerMessages;
 }
 
 async function checkThreadsFocused(
@@ -372,15 +444,20 @@ async function setThreadUnreadStatus(
 async function rescindAndUpdateBadgeCounts(
   viewer: Viewer,
   rescindCondition: ?SQLStatement,
-  source: 'activity_update' | 'mark_as_unread' | 'mark_as_read',
+  badgeCountUpdateSource: ?(
+    | 'activity_update'
+    | 'mark_as_unread'
+    | 'mark_as_read'
+  ),
 ) {
   const excludeDeviceTokens = [];
   if (rescindCondition) {
     const handledDeviceTokens = await rescindPushNotifs(rescindCondition);
     excludeDeviceTokens.push(...handledDeviceTokens);
   }
-
-  await updateBadgeCount(viewer, source, excludeDeviceTokens);
+  if (badgeCountUpdateSource) {
+    await updateBadgeCount(viewer, badgeCountUpdateSource, excludeDeviceTokens);
+  }
 }
 
 async function shouldResetThreadToUnread(
@@ -391,12 +468,12 @@ async function shouldResetThreadToUnread(
     return false;
   }
 
-  const resetToUnread = await checkUnfocusedLatestMessage(
+  const threadsWithNewerMessages = await checkForNewerMessages(
     viewer,
     new Map([[request.threadID, parseInt(request.latestMessage) || 0]]),
   );
 
-  return resetToUnread.some((threadID) => threadID === request.threadID);
+  return threadsWithNewerMessages.has(request.threadID);
 }
 
 // The `focused` table tracks which chat threads are currently in view for a
@@ -415,6 +492,31 @@ async function updateActivityTime(viewer: Viewer): Promise<void> {
     WHERE user = ${viewer.userID} AND session = ${viewer.session}
   `;
   await dbQuery(focusedQuery);
+}
+
+type LastMessageInfo = {|
+  +lastMessage: number,
+  +lastReadMessage: number,
+|};
+async function fetchLastMessageInfo(
+  viewer: Viewer,
+  threadIDs: $ReadOnlyArray<string>,
+) {
+  const query = SQL`
+    SELECT thread, last_message, last_read_message
+    FROM memberships
+    WHERE user = ${viewer.userID} AND thread IN (${threadIDs})
+  `;
+  const [result] = await dbQuery(query);
+
+  const lastMessages = new Map<string, LastMessageInfo>();
+  for (const row of result) {
+    const threadID = row.thread.toString();
+    const lastMessage = row.last_message;
+    const lastReadMessage = row.last_read_message;
+    lastMessages.set(threadID, { lastMessage, lastReadMessage });
+  }
+  return lastMessages;
 }
 
 export { activityUpdater, updateActivityTime, setThreadUnreadStatus };
