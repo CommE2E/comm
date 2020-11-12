@@ -197,7 +197,7 @@ type Props = {|
   // Redux state
   +threadInfo: ?ThreadInfo,
   +threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
-  +childThreadInfos: ?(ThreadInfo[]),
+  +childThreadInfos: ?$ReadOnlyArray<ThreadInfo>,
   +somethingIsSaving: boolean,
   +styles: typeof unboundStyles,
   +indicatorStyle: IndicatorStyle,
@@ -452,7 +452,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     (
       threadInfo: ThreadInfo,
       navigate: ThreadSettingsNavigate,
-      childThreads: ?(ThreadInfo[]),
+      childThreads: ?$ReadOnlyArray<ThreadInfo>,
       numSubthreadsShowing: number,
     ) => {
       const listData: ChatSettingsItem[] = [];
@@ -520,7 +520,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.numSidebarsShowing,
     (
       navigate: ThreadSettingsNavigate,
-      childThreads: ?(ThreadInfo[]),
+      childThreads: ?$ReadOnlyArray<ThreadInfo>,
       numSidebarsShowing: number,
     ) => {
       const listData: ChatSettingsItem[] = [];
