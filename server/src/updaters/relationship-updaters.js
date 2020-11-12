@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 
 import { sortIDs } from 'lib/shared/relationship-utils';
+import { messageTypes } from 'lib/types/message-types';
 import {
   type RelationshipRequest,
   type RelationshipErrors,
@@ -15,7 +16,10 @@ import { threadTypes } from 'lib/types/thread-types';
 import { updateTypes, type UpdateData } from 'lib/types/update-types';
 import { cartesianProduct } from 'lib/utils/array';
 import { ServerError } from 'lib/utils/errors';
+import { promiseAll } from 'lib/utils/promises';
+import _mapValues from 'lodash/fp/mapValues';
 
+import createMessages from '../creators/message-creator';
 import createThread from '../creators/thread-creator';
 import { createUpdates } from '../creators/update-creator';
 import { dbQuery, SQL } from '../database/database';
@@ -57,7 +61,7 @@ async function updateRelationships(
     // reported to the caller and can be repeated - there should be only
     // one PERSONAL thread per a pair of users and we can safely call it
     // repeatedly.
-    await createPersonalThreads(viewer, request);
+    const threadIDPerUser = await createPersonalThreads(viewer, request);
     const {
       userRelationshipOperations,
       errors: friendRequestErrors,
@@ -67,6 +71,8 @@ async function updateRelationships(
     const undirectedInsertRows = [];
     const directedInsertRows = [];
     const directedDeleteIDs = [];
+    const messageDatas = [];
+    const now = Date.now();
     for (const userID in userRelationshipOperations) {
       const operations = userRelationshipOperations[userID];
       const ids = sortIDs(viewer.userID, userID);
@@ -82,9 +88,25 @@ async function updateRelationships(
           const [user1, user2] = ids;
           const status = undirectedStatus.FRIEND;
           undirectedInsertRows.push({ user1, user2, status });
+          messageDatas.push({
+            type: messageTypes.UPDATE_RELATIONSHIP,
+            threadID: threadIDPerUser[userID],
+            creatorID: viewer.userID,
+            targetID: userID,
+            time: now,
+            operation: 'request_accepted',
+          });
         } else if (operation === 'pending_friend') {
           const status = directedStatus.PENDING_FRIEND;
           directedInsertRows.push([viewer.userID, userID, status]);
+          messageDatas.push({
+            type: messageTypes.UPDATE_RELATIONSHIP,
+            threadID: threadIDPerUser[userID],
+            creatorID: viewer.userID,
+            targetID: userID,
+            time: now,
+            operation: 'request_sent',
+          });
         } else if (operation === 'know_of') {
           const [user1, user2] = ids;
           const status = undirectedStatus.KNOW_OF;
@@ -113,6 +135,9 @@ async function updateRelationships(
             user1 IN (${directedDeleteIDs}) AND user2 = ${viewer.userID})
       `;
       promises.push(dbQuery(directedDeleteQuery));
+    }
+    if (messageDatas.length > 0) {
+      promises.push(createMessages(viewer, messageDatas, 'broadcast'));
     }
 
     await Promise.all(promises);
@@ -238,19 +263,23 @@ async function createPersonalThreads(
       `but we tried to do that for ${request.action}`,
   );
 
-  const threadCreationPromises = request.userIDs.map((id) =>
-    createThread(
+  const threadCreationPromises = {};
+  for (const userID of request.userIDs) {
+    threadCreationPromises[userID] = createThread(
       viewer,
       {
         type: threadTypes.PERSONAL,
-        initialMemberIDs: [id],
+        initialMemberIDs: [userID],
       },
       true,
       'broadcast',
-    ),
-  );
+    );
+  }
 
-  return await Promise.all(threadCreationPromises);
+  const personalThreadPerUser = await promiseAll(threadCreationPromises);
+  return _mapValues((newThread) => newThread.newThreadID)(
+    personalThreadPerUser,
+  );
 }
 
 export {
