@@ -36,7 +36,6 @@ function ChatThreadListSidebar(props: Props) {
       iosHighlightUnderlayColor={colors.listIosHighlightUnderlay}
       iosActiveOpacity={0.85}
       style={styles.sidebar}
-      key={threadInfo.id}
       onPress={onPress}
     >
       <Icon name="align-right" style={styles.icon} size={24} />
@@ -57,12 +56,14 @@ const unboundStyles = {
     height: 30,
     flexDirection: 'row',
     display: 'flex',
-    marginHorizontal: 20,
+    marginLeft: 20,
+    marginRight: 10,
     alignItems: 'center',
   },
   icon: {
     paddingLeft: 10,
     color: 'listForegroundSecondaryLabel',
+    width: 35,
   },
   name: {
     color: 'listForegroundSecondaryLabel',

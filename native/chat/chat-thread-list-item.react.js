@@ -34,6 +34,7 @@ import { useColors, useStyles } from '../themes/colors';
 import { SingleLine } from '../components/single-line.react';
 import { useMemo } from 'react';
 import ChatThreadListSidebar from './chat-thread-list-sidebar.react';
+import ChatThreadListSeeMoreSidebars from './chat-thread-list-see-more-sidebars.react';
 
 type Props = {|
   +data: ChatThreadItem,
@@ -92,19 +93,26 @@ function ChatThreadListItem({
     );
   }, [data.mostRecentMessageInfo, data.threadInfo, styles]);
 
-  const sidebars = [];
-  for (const sidebarItem of data.sidebars) {
+  const sidebars = data.sidebars.map((sidebarItem) => {
     if (sidebarItem.type === 'sidebar') {
-      sidebars.push(
+      return (
         <ChatThreadListSidebar
           threadInfo={sidebarItem.threadInfo}
           lastUpdatedTime={sidebarItem.lastUpdatedTime}
           onPressItem={onPressItem}
           key={sidebarItem.threadInfo.id}
-        />,
+        />
+      );
+    } else {
+      return (
+        <ChatThreadListSeeMoreSidebars
+          threadInfo={data.threadInfo}
+          unread={sidebarItem.unread}
+          key="seeMore"
+        />
       );
     }
-  }
+  });
 
   const onPress = React.useCallback(() => {
     onPressItem(data.threadInfo);
