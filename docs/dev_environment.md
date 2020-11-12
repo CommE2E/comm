@@ -158,14 +158,14 @@ Start by downloading and installing [Android Studio](https://developer.android.c
 
 ### Android SDK
 
-Android Studio installs the latest Android SDK by default, but since React Native uses the Android 9 SDK specifically, we’ll need to install it using Android Studio’s SDK Manager. You can access the SDK Manager from the “Welcome to Android Studio” screen that pops up when you first open the application, under “Configure”. If you already have a project open, you can access it from Tools → SDK Manager.
+Android Studio installs the latest Android SDK by default, but since React Native uses the Android 10 SDK specifically, we’ll need to install it using Android Studio’s SDK Manager. You can access the SDK Manager from the “Welcome to Android Studio” screen that pops up when you first open the application, under “Configure”. If you already have a project open, you can access it from Tools → SDK Manager.
 
-Once you have the SDK Manager open, select the “SDK Platforms” tab, and then check the box for “Show Package Details”. Now expand the “Android 9 (Pie)” section, and make sure the following subsections are checked:
+Once you have the SDK Manager open, select the “SDK Platforms” tab, and then check the box for “Show Package Details”. Now expand the “Android 10 (Q)” section, and make sure the following subsections are checked:
 
-* `Android SDK Platform 28`
+* `Android SDK Platform 29`
 * `Intel x86 Atom_64 System Image` or `Google APIs Intel x86 Atom System Image`
 
-Next, select the “SDK Tools” tab, and check the box for “Show Package Details”. Expand the “Android SDK Build-Tools” section, and make sure that the “28.0.3” subsection is checked.
+Next, select the “SDK Tools” tab, and check the box for “Show Package Details”. Expand the “Android SDK Build-Tools” section, and make sure that the “29.0.2” subsection is checked.
 
 To finish the SDK Manager step, click “Apply” to download and install everything you’ve selected.
 
