@@ -12,9 +12,14 @@ import { useColors, useStyles } from '../themes/colors';
 type Props = {|
   +threadInfo: ThreadInfo,
   +unread: boolean,
+  +onPress: (threadInfo: ThreadInfo) => void,
 |};
 function ChatThreadListSeeMoreSidebars(props: Props) {
-  const onPressButton = React.useCallback(() => {}, []);
+  const { onPress, threadInfo } = props;
+  const onPressButton = React.useCallback(() => onPress(threadInfo), [
+    onPress,
+    threadInfo,
+  ]);
 
   const colors = useColors();
   const styles = useStyles(unboundStyles);

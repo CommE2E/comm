@@ -24,6 +24,7 @@ import {
   ColorPickerModalRouteName,
   ComposeSubthreadModalRouteName,
   RelationshipUpdateModalRouteName,
+  SidebarListModalRouteName,
   type ScreenParamList,
   type RootParamList,
 } from './route-names';
@@ -36,6 +37,7 @@ import CustomServerModal from '../more/custom-server-modal.react';
 import ColorPickerModal from '../chat/settings/color-picker-modal.react';
 import RelationshipUpdateModal from '../more/relationship-update-modal.react';
 import ComposeSubthreadModal from '../chat/settings/compose-subthread-modal.react';
+import SidebarListModal from '../chat/sidebar-list-modal.react';
 import RootRouter, { type RootRouterNavigationProp } from './root-router';
 import { RootNavigatorContext } from './root-navigator-context';
 
@@ -182,6 +184,11 @@ const RootComponent = () => {
       <Root.Screen
         name={RelationshipUpdateModalRouteName}
         component={RelationshipUpdateModal}
+        options={modalOverlayScreenOptions}
+      />
+      <Root.Screen
+        name={SidebarListModalRouteName}
+        component={SidebarListModal}
         options={modalOverlayScreenOptions}
       />
     </Root.Navigator>

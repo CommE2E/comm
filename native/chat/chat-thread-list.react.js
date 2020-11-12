@@ -30,6 +30,7 @@ import ChatThreadListItem from './chat-thread-list-item.react';
 import {
   ComposeThreadRouteName,
   MessageListRouteName,
+  SidebarListModalRouteName,
   HomeChatThreadListRouteName,
   BackgroundChatThreadListRouteName,
   type NavigationRoute,
@@ -155,6 +156,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       <ChatThreadListItem
         data={item}
         onPressItem={this.onPressItem}
+        onPressSeeMoreSidebars={this.onPressSeeMoreSidebars}
         onSwipeableWillOpen={this.onSwipeableWillOpen}
         currentlyOpenedSwipeableId={this.state.openedSwipeableId}
       />
@@ -300,6 +302,17 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       name: MessageListRouteName,
       params: { threadInfo },
       key: `${MessageListRouteName}${threadInfo.id}`,
+    });
+  };
+
+  onPressSeeMoreSidebars = (threadInfo: ThreadInfo) => {
+    this.onChangeSearchText('');
+    if (this.searchInput) {
+      this.searchInput.blur();
+    }
+    this.props.navigation.navigate({
+      name: SidebarListModalRouteName,
+      params: { threadInfo },
     });
   };
 

@@ -39,12 +39,14 @@ import ChatThreadListSeeMoreSidebars from './chat-thread-list-see-more-sidebars.
 type Props = {|
   +data: ChatThreadItem,
   +onPressItem: (threadInfo: ThreadInfo) => void,
+  +onPressSeeMoreSidebars: (threadInfo: ThreadInfo) => void,
   +onSwipeableWillOpen: (threadInfo: ThreadInfo) => void,
   +currentlyOpenedSwipeableId?: string,
 |};
 function ChatThreadListItem({
   data,
   onPressItem,
+  onPressSeeMoreSidebars,
   onSwipeableWillOpen,
   currentlyOpenedSwipeableId,
 }: Props) {
@@ -108,6 +110,7 @@ function ChatThreadListItem({
         <ChatThreadListSeeMoreSidebars
           threadInfo={data.threadInfo}
           unread={sidebarItem.unread}
+          onPress={onPressSeeMoreSidebars}
           key="seeMore"
         />
       );

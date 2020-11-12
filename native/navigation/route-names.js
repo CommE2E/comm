@@ -19,6 +19,7 @@ import type { ComposeThreadParams } from '../chat/compose-thread.react';
 import type { ThreadSettingsParams } from '../chat/settings/thread-settings.react';
 import type { DeleteThreadParams } from '../chat/settings/delete-thread.react';
 import type { MessageListParams } from '../chat/message-list-types';
+import type { SidebarListModalParams } from '../chat/sidebar-list-modal.react';
 
 export const AppRouteName = 'App';
 export const TabNavigatorRouteName = 'TabNavigator';
@@ -58,6 +59,7 @@ export const CameraModalRouteName = 'CameraModal';
 export const FriendListRouteName = 'FriendList';
 export const BlockListRouteName = 'BlockList';
 export const RelationshipUpdateModalRouteName = 'RelationshipUpdateModal';
+export const SidebarListModalRouteName = 'SidebarListModal';
 
 export type RootParamList = {|
   LoggedOutModal: void,
@@ -69,6 +71,7 @@ export type RootParamList = {|
   ColorPickerModal: ColorPickerModalParams,
   ComposeSubthreadModal: ComposeSubthreadModalParams,
   RelationshipUpdateModal: RelationshipUpdateModalParams,
+  SidebarListModal: SidebarListModalParams,
 |};
 
 export type TooltipModalParamList = {|
