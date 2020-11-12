@@ -161,6 +161,11 @@ async function createMessages(
         mediaIDs.push(parseInt(id, 10));
       }
       content = JSON.stringify(mediaIDs);
+    } else if (messageData.type === messageTypes.UPDATE_RELATIONSHIP) {
+      content = JSON.stringify({
+        operation: messageData.operation,
+        targetID: messageData.targetID,
+      });
     }
 
     const creation =

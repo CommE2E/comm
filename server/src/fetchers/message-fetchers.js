@@ -366,6 +366,18 @@ function rawMessageInfoFromRows(
       localID: localIDFromCreationString(viewer, row.creation),
       time: row.time,
     });
+  } else if (type === messageTypes.UPDATE_RELATIONSHIP) {
+    const row = assertSingleRow(rows);
+    const content = JSON.parse(row.content);
+    return {
+      type: messageTypes.UPDATE_RELATIONSHIP,
+      id: row.id.toString(),
+      threadID: row.threadID.toString(),
+      time: row.time,
+      creatorID: row.creatorID.toString(),
+      targetID: content.targetID,
+      operation: content.operation,
+    };
   } else {
     invariant(false, `unrecognized messageType ${type}`);
   }
