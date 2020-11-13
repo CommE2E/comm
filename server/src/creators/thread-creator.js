@@ -163,12 +163,73 @@ async function createThread(
     parentThreadID,
     newRoles.default.id,
   ];
-  const query = SQL`
-    INSERT INTO threads(id, type, name, description, creator,
-      creation_time, color, parent_thread_id, default_role)
-    VALUES ${[row]}
-  `;
-  await dbQuery(query);
+  if (threadType === threadTypes.PERSONAL) {
+    const otherMemberID = initialMemberIDs?.[0];
+    invariant(
+      otherMemberID,
+      'Other member id should be set for a PERSONAL thread',
+    );
+    const query = SQL`
+      INSERT INTO threads(id, type, name, description, creator,
+        creation_time, color, parent_thread_id, default_role)
+      SELECT ${row}
+      WHERE NOT EXISTS (
+        SELECT * 
+        FROM threads t
+        INNER JOIN memberships m1 
+          ON m1.thread = t.id AND m1.user = ${viewer.userID}
+        INNER JOIN memberships m2
+          ON m2.thread = t.id AND m2.user = ${otherMemberID}
+        WHERE t.type = ${threadTypes.PERSONAL}
+      )
+    `;
+    const [result] = await dbQuery(query);
+
+    if (result.affectedRows === 0) {
+      const personalThreadQuery = SQL`
+        SELECT t.id 
+        FROM threads t
+        INNER JOIN memberships m1 
+          ON m1.thread = t.id AND m1.user = ${viewer.userID}
+        INNER JOIN memberships m2
+          ON m2.thread = t.id AND m2.user = ${otherMemberID}
+        WHERE t.type = ${threadTypes.PERSONAL}
+      `;
+      const deleteRoles = SQL`
+        DELETE FROM roles
+        WHERE id IN (${newRoles.default.id}, ${newRoles.creator.id})
+      `;
+      const deleteIDs = SQL`
+        DELETE FROM ids
+        WHERE id IN (${id}, ${newRoles.default.id}, ${newRoles.creator.id})
+      `;
+      const [[personalThreadResult]] = await Promise.all([
+        dbQuery(personalThreadQuery),
+        dbQuery(deleteRoles),
+        dbQuery(deleteIDs),
+      ]);
+      invariant(
+        personalThreadResult.length > 0,
+        'PERSONAL thread should exist',
+      );
+      const personalThreadID = personalThreadResult[0].id.toString();
+
+      return {
+        newThreadID: personalThreadID,
+        updatesResult: {
+          newUpdates: [],
+        },
+        newMessageInfos: [],
+      };
+    }
+  } else {
+    const query = SQL`
+      INSERT INTO threads(id, type, name, description, creator,
+        creation_time, color, parent_thread_id, default_role)
+      VALUES ${[row]}
+    `;
+    await dbQuery(query);
+  }
 
   const [
     creatorChangeset,

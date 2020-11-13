@@ -17,7 +17,6 @@ import { updateTypes, type UpdateData } from 'lib/types/update-types';
 import { cartesianProduct } from 'lib/utils/array';
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
-import _mapValues from 'lodash/fp/mapValues';
 
 import createMessages from '../creators/message-creator';
 import createThread from '../creators/thread-creator';
@@ -263,8 +262,29 @@ async function createPersonalThreads(
       `but we tried to do that for ${request.action}`,
   );
 
+  const threadIDPerUser = {};
+
+  const personalThreadsQuery = SQL`
+    SELECT t.id AS threadID, m2.user AS user2
+    FROM threads t
+    INNER JOIN memberships m1
+      ON m1.thread = t.id AND m1.user = ${viewer.userID}
+    INNER JOIN memberships m2
+      ON m2.thread = t.id AND m2.user IN (${request.userIDs})
+    WHERE t.type = ${threadTypes.PERSONAL}
+  `;
+  const [personalThreadsResult] = await dbQuery(personalThreadsQuery);
+
+  for (const row of personalThreadsResult) {
+    const user2 = row.user2.toString();
+    threadIDPerUser[user2] = row.threadID.toString();
+  }
+
   const threadCreationPromises = {};
   for (const userID of request.userIDs) {
+    if (threadIDPerUser[userID]) {
+      continue;
+    }
     threadCreationPromises[userID] = createThread(
       viewer,
       {
@@ -277,9 +297,14 @@ async function createPersonalThreads(
   }
 
   const personalThreadPerUser = await promiseAll(threadCreationPromises);
-  return _mapValues((newThread) => newThread.newThreadID)(
-    personalThreadPerUser,
-  );
+
+  for (const userID in personalThreadPerUser) {
+    const newThread = personalThreadPerUser[userID];
+    threadIDPerUser[userID] =
+      newThread.newThreadID ?? newThread.newThreadInfo.id;
+  }
+
+  return threadIDPerUser;
 }
 
 export {
