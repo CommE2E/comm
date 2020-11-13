@@ -27,16 +27,12 @@ import {
 } from 'lib/types/redis-types';
 
 import invariant from 'invariant';
-import _uniq from 'lodash/fp/uniq';
-import _intersection from 'lodash/fp/intersection';
 
 import { promiseAll } from 'lib/utils/promises';
 import { nonThreadCalendarFilters } from 'lib/selectors/calendar-filter-selectors';
 import {
   keyForUpdateData,
   keyForUpdateInfo,
-  conditionKeyForUpdateData,
-  conditionKeyForUpdateDataFromKey,
   rawUpdateInfoFromUpdateData,
 } from 'lib/shared/update-utils';
 
@@ -78,6 +74,12 @@ type UpdatesForCurrentSession =
   // communicating the relevant information to the client.
   | 'ignore';
 
+type DeleteCondition = {|
+  +userID: string,
+  +target: ?string,
+  +types: null | $ReadOnlySet<number>,
+|};
+
 export type ViewerInfo =
   | {|
       viewer: Viewer,
@@ -90,7 +92,6 @@ export type ViewerInfo =
       updatesForCurrentSession?: UpdatesForCurrentSession,
       threadInfos: { [id: string]: RawThreadInfo },
     |};
-const emptyArray = [];
 const defaultUpdateCreationResult = { viewerUpdates: [], userInfos: {} };
 const sortFunction = (a: UpdateData | UpdateInfo, b: UpdateData | UpdateInfo) =>
   a.time - b.time;
@@ -121,104 +122,52 @@ async function createUpdates(
 
   const filteredUpdateDatas: UpdateData[] = [];
   const keyedUpdateDatas: Map<string, UpdateData[]> = new Map();
-  const deleteConditions: Map<string, number[]> = new Map();
-  for (let updateData of sortedUpdateDatas) {
-    // If we don't end up `continue`ing below, types indicates which
-    // update types we should delete for the corresponding key
-    let types;
-    if (updateData.type === updateTypes.DELETE_ACCOUNT) {
-      types = [updateTypes.DELETE_ACCOUNT, updateTypes.UPDATE_USER];
-    } else if (updateData.type === updateTypes.UPDATE_THREAD) {
-      types = [
-        updateTypes.UPDATE_THREAD,
-        updateTypes.UPDATE_THREAD_READ_STATUS,
-      ];
-    } else if (updateData.type === updateTypes.UPDATE_THREAD_READ_STATUS) {
-      types = [updateTypes.UPDATE_THREAD_READ_STATUS];
-    } else if (
-      updateData.type === updateTypes.DELETE_THREAD ||
-      updateData.type === updateTypes.JOIN_THREAD
-    ) {
-      types = [];
-    } else if (updateData.type === updateTypes.UPDATE_ENTRY) {
-      types = [];
-    } else if (updateData.type === updateTypes.UPDATE_CURRENT_USER) {
-      types = [updateTypes.UPDATE_CURRENT_USER];
-    } else if (updateData.type === updateTypes.UPDATE_USER) {
-      types = [updateTypes.UPDATE_USER];
-    } else {
+  for (const updateData of sortedUpdateDatas) {
+    const key = keyForUpdateData(updateData);
+    if (!key) {
       filteredUpdateDatas.push(updateData);
       continue;
     }
-    const conditionKey = conditionKeyForUpdateData(updateData);
-    invariant(conditionKey && types, 'should be set');
+    const conditionKey = `${updateData.userID}|${key}`;
 
-    // Possibly filter any UpdateDatas in the current batch based on this one
-    let keyUpdateDatas = keyedUpdateDatas.get(conditionKey);
-    let keyUpdateDatasChanged = false;
-    if (!keyUpdateDatas) {
-      keyUpdateDatas = [];
-    } else if (types.length === 0) {
-      keyUpdateDatas = [];
-      keyUpdateDatasChanged = true;
-    } else {
-      const filteredKeyUpdateDatas = keyUpdateDatas.filter(
-        (keyUpdateData) => types.indexOf(keyUpdateData.type) === -1,
-      );
-      if (filteredKeyUpdateDatas.length === 0) {
-        keyUpdateDatas = [];
-        keyUpdateDatasChanged = true;
-      } else if (filteredKeyUpdateDatas.length !== keyUpdateDatas.length) {
-        keyUpdateDatas = filteredKeyUpdateDatas;
-        keyUpdateDatasChanged = true;
-      }
-    }
+    const deleteCondition = getDeleteCondition(updateData);
+    invariant(
+      deleteCondition,
+      `updateData of type ${updateData.type} has conditionKey ` +
+        `${conditionKey} but no deleteCondition`,
+    );
 
-    // Update the deleteConditions and add our UpdateData to keyedUpdateDatas
-    const existingTypes = deleteConditions.get(conditionKey);
-    if (types.length === 0) {
-      // If this UpdateData says to delete all the others, then include it, and
-      // update the deleteConditions (if they don't already say to delete)
-      if (!existingTypes || existingTypes.length !== 0) {
-        deleteConditions.set(conditionKey, emptyArray);
-      }
-      keyUpdateDatas.push(updateData);
-      keyUpdateDatasChanged = true;
-    } else if (!existingTypes) {
-      // If there were no existing conditions, then set the deleteConditions and
-      // include this UpdateData
-      deleteConditions.set(conditionKey, types);
-      keyUpdateDatas.push(updateData);
-      keyUpdateDatasChanged = true;
-    } else {
-      // Finally, if we have a list of types to delete, both existing and new,
-      // then merge the list for the deleteConditions, and include this
-      // UpdateData as long as its list of types isn't a strict subset of the
-      // existing one.
-      const newTypes = _uniq([...existingTypes, ...types]);
-      deleteConditions.set(conditionKey, newTypes);
-      const intersection = _intersection(existingTypes)(types);
-      if (
-        intersection.length !== types.length ||
-        intersection.length === existingTypes.length
-      ) {
-        keyUpdateDatas.push(updateData);
-        keyUpdateDatasChanged = true;
-      }
-    }
-
-    if (!keyUpdateDatasChanged) {
+    const curUpdateDatas = keyedUpdateDatas.get(conditionKey);
+    if (!curUpdateDatas) {
+      keyedUpdateDatas.set(conditionKey, [updateData]);
       continue;
     }
-    if (keyUpdateDatas.length === 0) {
-      keyedUpdateDatas.delete(conditionKey);
-    } else {
-      keyedUpdateDatas.set(conditionKey, keyUpdateDatas);
+
+    const filteredCurrent = curUpdateDatas.filter((curUpdateData) =>
+      filterOnDeleteCondition(curUpdateData, deleteCondition),
+    );
+    if (filteredCurrent.length === 0) {
+      keyedUpdateDatas.set(conditionKey, [updateData]);
+      continue;
     }
+
+    const isNewUpdateDataFiltered = !filteredCurrent.every((curUpdateData) => {
+      const curDeleteCondition = getDeleteCondition(curUpdateData);
+      invariant(
+        curDeleteCondition,
+        `updateData of type ${curUpdateData.type} is in keyedUpdateDatas ` +
+          "but doesn't have a deleteCondition",
+      );
+      return filterOnDeleteCondition(updateData, curDeleteCondition);
+    });
+    if (!isNewUpdateDataFiltered) {
+      filteredCurrent.push(updateData);
+    }
+    keyedUpdateDatas.set(conditionKey, filteredCurrent);
   }
 
-  for (let [, singleUpdateDatas] of keyedUpdateDatas) {
-    filteredUpdateDatas.push(...singleUpdateDatas);
+  for (const keyUpdateDatas of keyedUpdateDatas.values()) {
+    filteredUpdateDatas.push(...keyUpdateDatas);
   }
   const ids = await createIDs('updates', filteredUpdateDatas.length);
 
@@ -242,15 +191,11 @@ async function createUpdates(
   const earliestTime: Map<string, number> = new Map();
   for (let i = 0; i < filteredUpdateDatas.length; i++) {
     const updateData = filteredUpdateDatas[i];
-    let content,
-      target = null;
+    let content;
     if (updateData.type === updateTypes.DELETE_ACCOUNT) {
       content = JSON.stringify({ deletedUserID: updateData.deletedUserID });
     } else if (updateData.type === updateTypes.UPDATE_THREAD) {
       content = JSON.stringify({ threadID: updateData.threadID });
-      if (updateData.targetSession) {
-        target = updateData.targetSession;
-      }
     } else if (updateData.type === updateTypes.UPDATE_THREAD_READ_STATUS) {
       const { threadID, unread } = updateData;
       content = JSON.stringify({ threadID, unread });
@@ -261,13 +206,11 @@ async function createUpdates(
       const { threadID } = updateData;
       content = JSON.stringify({ threadID });
     } else if (updateData.type === updateTypes.BAD_DEVICE_TOKEN) {
-      const { deviceToken, targetCookie } = updateData;
+      const { deviceToken } = updateData;
       content = JSON.stringify({ deviceToken });
-      target = targetCookie;
     } else if (updateData.type === updateTypes.UPDATE_ENTRY) {
-      const { entryID, targetSession } = updateData;
+      const { entryID } = updateData;
       content = JSON.stringify({ entryID });
-      target = targetSession;
     } else if (updateData.type === updateTypes.UPDATE_CURRENT_USER) {
       // user column contains all the info we need to construct the UpdateInfo
       content = null;
@@ -278,6 +221,7 @@ async function createUpdates(
       invariant(false, `unrecognized updateType ${updateData.type}`);
     }
 
+    const target = getTargetFromUpdateData(updateData);
     const rawUpdateInfo = rawUpdateInfoFromUpdateData(updateData, ids[i]);
 
     if (!target || !dontBroadcastSession || target !== dontBroadcastSession) {
@@ -310,7 +254,7 @@ async function createUpdates(
 
     const key = keyForUpdateData(updateData);
     if (key) {
-      const conditionKey = conditionKeyForUpdateDataFromKey(updateData, key);
+      const conditionKey = `${updateData.userID}|${key}`;
       const currentEarliestTime = earliestTime.get(conditionKey);
       if (!currentEarliestTime || updateData.time < currentEarliestTime) {
         earliestTime.set(conditionKey, updateData.time);
@@ -330,23 +274,57 @@ async function createUpdates(
     insertRows.push(insertRow);
   }
 
-  const deleteSQLConditions: SQLStatement[] = [...deleteConditions].map(
-    ([conditionKey: string, types: number[]]) => {
-      const [userID, key, target] = conditionKey.split('|');
+  const deleteSQLConditions: SQLStatement[] = [];
+  for (const [conditionKey, keyUpdateDatas] of keyedUpdateDatas) {
+    const deleteConditionByTarget: Map<?string, DeleteCondition> = new Map();
+    for (const updateData of keyUpdateDatas) {
+      const deleteCondition = getDeleteCondition(updateData);
+      invariant(
+        deleteCondition,
+        `updateData of type ${updateData.type} is in keyedUpdateDatas but ` +
+          "doesn't have a deleteCondition",
+      );
+      const { target, types } = deleteCondition;
+
+      const existingDeleteCondition = deleteConditionByTarget.get(target);
+      if (!existingDeleteCondition) {
+        deleteConditionByTarget.set(target, deleteCondition);
+        continue;
+      }
+
+      const existingTypes = existingDeleteCondition.types;
+      if (!existingTypes) {
+        continue;
+      } else if (!types) {
+        deleteConditionByTarget.set(target, deleteCondition);
+        continue;
+      }
+
+      const mergedTypes = new Set([...types, ...existingTypes]);
+      deleteConditionByTarget.set(target, {
+        ...deleteCondition,
+        types: mergedTypes,
+      });
+    }
+
+    for (const deleteCondition of deleteConditionByTarget.values()) {
+      const { userID, target, types } = deleteCondition;
+      const key = conditionKey.split('|')[1];
       const conditions = [SQL`u.user = ${userID}`, SQL`u.key = ${key}`];
       if (target) {
         conditions.push(SQL`u.target = ${target}`);
       }
-      if (types.length > 0) {
-        conditions.push(SQL`u.type IN (${types})`);
+      if (types) {
+        invariant(types.size > 0, 'deleteCondition had empty types set');
+        conditions.push(SQL`u.type IN (${[...types]})`);
       }
       const earliestTimeForCondition = earliestTime.get(conditionKey);
       if (earliestTimeForCondition) {
         conditions.push(SQL`u.time < ${earliestTimeForCondition}`);
       }
-      return mergeAndConditions(conditions);
-    },
-  );
+      deleteSQLConditions.push(mergeAndConditions(conditions));
+    }
+  }
 
   const promises = {};
 
@@ -689,6 +667,64 @@ async function redisPublish(
     }
     publisher.sendMessage(updateTarget, redisMessage);
   }
+}
+
+function getTargetFromUpdateData(updateData: UpdateData): ?string {
+  if (updateData.targetSession) {
+    return updateData.targetSession;
+  } else if (updateData.targetCookie) {
+    return updateData.targetCookie;
+  } else {
+    return null;
+  }
+}
+
+function getDeleteCondition(updateData: UpdateData): ?DeleteCondition {
+  let types;
+  if (updateData.type === updateTypes.DELETE_ACCOUNT) {
+    types = [updateTypes.DELETE_ACCOUNT, updateTypes.UPDATE_USER];
+  } else if (updateData.type === updateTypes.UPDATE_THREAD) {
+    types = [updateTypes.UPDATE_THREAD, updateTypes.UPDATE_THREAD_READ_STATUS];
+  } else if (updateData.type === updateTypes.UPDATE_THREAD_READ_STATUS) {
+    types = [updateTypes.UPDATE_THREAD_READ_STATUS];
+  } else if (
+    updateData.type === updateTypes.DELETE_THREAD ||
+    updateData.type === updateTypes.JOIN_THREAD
+  ) {
+    types = null;
+  } else if (updateData.type === updateTypes.UPDATE_ENTRY) {
+    types = null;
+  } else if (updateData.type === updateTypes.UPDATE_CURRENT_USER) {
+    types = [updateTypes.UPDATE_CURRENT_USER];
+  } else if (updateData.type === updateTypes.UPDATE_USER) {
+    types = [updateTypes.UPDATE_USER];
+  } else {
+    return null;
+  }
+
+  const target = getTargetFromUpdateData(updateData);
+  const { userID } = updateData;
+  return { userID, target, types: new Set(types) };
+}
+
+function filterOnDeleteCondition(
+  updateData: UpdateData,
+  deleteCondition: DeleteCondition,
+): boolean {
+  invariant(
+    updateData.userID === deleteCondition.userID,
+    `updateData of type ${updateData.type} being compared to wrong userID`,
+  );
+  if (deleteCondition.target) {
+    const target = getTargetFromUpdateData(updateData);
+    if (target !== deleteCondition.target) {
+      return true;
+    }
+  }
+  if (!deleteCondition.types) {
+    return false;
+  }
+  return !deleteCondition.types.has(updateData.type);
 }
 
 export { createUpdates, fetchUpdateInfosWithRawUpdateInfos };
