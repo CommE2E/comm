@@ -16,6 +16,8 @@ import { useSelector } from '../redux/redux-utils';
 import Modal from '../components/modal.react';
 import Search from '../components/search.react';
 import { useIndicatorStyle } from '../themes/colors';
+import { MessageListRouteName } from '../navigation/route-names';
+import ChatThreadListSidebar from './chat-thread-list-sidebar.react';
 
 export type SidebarListModalParams = {|
   +threadInfo: ThreadInfo,
@@ -92,11 +94,39 @@ function SidebarListModal(props: Props) {
     [],
   );
 
-  const renderItem = React.useCallback(() => {
-    return null;
-  }, []);
-
   const { navigation } = props;
+  const { navigate } = navigation;
+  const onPressItem = React.useCallback(
+    (threadInfo: ThreadInfo) => {
+      setSearchState({
+        text: '',
+        results: new Set(),
+      });
+      if (searchTextInputRef.current) {
+        searchTextInputRef.current.blur();
+      }
+      navigate({
+        name: MessageListRouteName,
+        params: { threadInfo },
+        key: `${MessageListRouteName}${threadInfo.id}`,
+      });
+    },
+    [navigate],
+  );
+
+  const renderItem = React.useCallback(
+    (row: { item: SidebarInfo, ... }) => {
+      return (
+        <ChatThreadListSidebar
+          {...row.item}
+          onPressItem={onPressItem}
+          style={styles.sidebar}
+        />
+      );
+    },
+    [onPressItem],
+  );
+
   const indicatorStyle = useIndicatorStyle();
   return (
     <Modal navigation={navigation}>
@@ -123,6 +153,10 @@ function SidebarListModal(props: Props) {
 const styles = StyleSheet.create({
   search: {
     marginBottom: 8,
+  },
+  sidebar: {
+    marginLeft: 0,
+    marginRight: 5,
   },
 });
 

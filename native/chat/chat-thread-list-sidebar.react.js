@@ -1,6 +1,7 @@
 // @flow
 
 import type { ThreadInfo } from 'lib/types/thread-types';
+import type { ViewStyle } from '../types/styles';
 
 import * as React from 'react';
 import Icon from 'react-native-vector-icons/Entypo';
@@ -16,6 +17,7 @@ type Props = {|
   +threadInfo: ThreadInfo,
   +lastUpdatedTime: number,
   +onPressItem: (threadInfo: ThreadInfo) => void,
+  +style?: ?ViewStyle,
 |};
 function ChatThreadListSidebar(props: Props) {
   const colors = useColors();
@@ -35,7 +37,7 @@ function ChatThreadListSidebar(props: Props) {
       iosFormat="highlight"
       iosHighlightUnderlayColor={colors.listIosHighlightUnderlay}
       iosActiveOpacity={0.85}
-      style={styles.sidebar}
+      style={[styles.sidebar, props.style]}
       onPress={onPress}
     >
       <Icon name="align-right" style={styles.icon} size={24} />
@@ -56,12 +58,12 @@ const unboundStyles = {
     height: 30,
     flexDirection: 'row',
     display: 'flex',
-    marginLeft: 20,
+    marginLeft: 25,
     marginRight: 10,
     alignItems: 'center',
   },
   icon: {
-    paddingLeft: 10,
+    paddingLeft: 5,
     color: 'listForegroundSecondaryLabel',
     width: 35,
   },
