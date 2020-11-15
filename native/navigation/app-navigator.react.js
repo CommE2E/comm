@@ -10,6 +10,8 @@ import { PersistGate } from 'redux-persist/integration/react';
 import * as SplashScreen from 'expo-splash-screen';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
+import { unreadCount } from 'lib/selectors/thread-selectors';
+
 import {
   CalendarRouteName,
   ChatRouteName,
@@ -43,7 +45,7 @@ import PushHandler from '../push/push-handler.react';
 import { getPersistor } from '../redux/persist';
 import { RootContext } from '../root-context';
 import { waitForInteractions } from '../utils/interactions';
-import ChatIcon from '../chat/chat-icon.react';
+import { useSelector } from '../redux/redux-utils';
 
 let splashScreenHasHidden = false;
 
@@ -54,11 +56,14 @@ const calendarTabOptions = {
     <Icon name="calendar" style={[styles.icon, { color }]} />
   ),
 };
-const chatTabOptions = {
+const getChatTabOptions = (badge: number) => ({
   tabBarLabel: 'Chat',
   // eslint-disable-next-line react/display-name
-  tabBarIcon: ({ color }) => <ChatIcon color={color} />,
-};
+  tabBarIcon: ({ color }) => (
+    <Icon name="comments-o" style={[styles.icon, { color }]} />
+  ),
+  tabBarBadge: badge ? badge : undefined,
+});
 const moreTabOptions = {
   tabBarLabel: 'More',
   // eslint-disable-next-line react/display-name
@@ -78,6 +83,7 @@ const Tab = createBottomTabNavigator<
 >();
 const tabBarOptions = { keyboardHidesTabBar: false };
 function TabNavigator() {
+  const chatBadge = useSelector(unreadCount);
   return (
     <Tab.Navigator
       initialRouteName={ChatRouteName}
@@ -94,7 +100,7 @@ function TabNavigator() {
       <Tab.Screen
         name={ChatRouteName}
         component={Chat}
-        options={chatTabOptions}
+        options={getChatTabOptions(chatBadge)}
       />
       <Tab.Screen
         name={MoreRouteName}

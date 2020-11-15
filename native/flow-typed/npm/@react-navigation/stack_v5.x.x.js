@@ -1339,6 +1339,8 @@ declare module '@react-navigation/stack' {
       color: string,
       size: number,
     |}) => React$Node,
+    +tabBarBadge: number | string,
+    +tabBarBadgeStyle: TextStyleProp,
     +tabBarAccessibilityLabel: string,
     +tabBarTestID: string,
     +tabBarVisible: boolean,
