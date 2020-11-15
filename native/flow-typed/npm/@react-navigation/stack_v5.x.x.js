@@ -1299,6 +1299,7 @@ declare module '@react-navigation/stack' {
     +mode?: 'card' | 'modal',
     +headerMode?: 'float' | 'screen' | 'none',
     +keyboardHandlingEnabled?: boolean,
+    +detachInactiveScreens?: boolean,
   |};
 
   declare export type ExtraStackNavigatorProps = {|
