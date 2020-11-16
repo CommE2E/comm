@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 import { connect } from 'lib/utils/redux-utils';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { styleSelector } from '../themes/colors';
 import KeyboardAvoidingView from './keyboard-avoiding-view.react';
@@ -46,15 +47,17 @@ class Modal extends React.PureComponent<Props> {
   render() {
     const { containerStyle, modalStyle, children } = this.props;
     return (
-      <KeyboardAvoidingView
-        behavior="padding"
-        style={[this.props.styles.container, containerStyle]}
-      >
-        <TouchableWithoutFeedback onPress={this.close}>
-          <View style={StyleSheet.absoluteFill} />
-        </TouchableWithoutFeedback>
-        <View style={[this.props.styles.modal, modalStyle]}>{children}</View>
-      </KeyboardAvoidingView>
+      <SafeAreaView style={this.props.styles.container}>
+        <KeyboardAvoidingView
+          behavior="padding"
+          style={[this.props.styles.container, containerStyle]}
+        >
+          <TouchableWithoutFeedback onPress={this.close}>
+            <View style={StyleSheet.absoluteFill} />
+          </TouchableWithoutFeedback>
+          <View style={[this.props.styles.modal, modalStyle]}>{children}</View>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
     );
   }
 }
