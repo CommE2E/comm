@@ -42,9 +42,9 @@ import Button from '../components/button.react';
 import TagInput from '../components/tag-input.react';
 import { useStyles } from '../themes/colors';
 import { useSelector } from '../redux/redux-utils';
+import { waitForModalInputFocus } from '../utils/timers';
 
 const tagInputProps = {
-  autoFocus: true,
   returnKeyType: 'go',
 };
 
@@ -227,8 +227,15 @@ class RelationshipUpdateModal extends React.PureComponent<Props, State> {
     );
   }
 
-  tagInputRef = (tagInput: ?TagInput<GlobalAccountUserInfo>) => {
+  tagInputRef = async (tagInput: ?TagInput<GlobalAccountUserInfo>) => {
     this.tagInput = tagInput;
+    if (!tagInput) {
+      return;
+    }
+    await waitForModalInputFocus();
+    if (this.tagInput) {
+      this.tagInput.focus();
+    }
   };
 
   tagDataLabelExtractor = (userInfo: GlobalAccountUserInfo) =>

@@ -10,7 +10,6 @@ import { TextInput, FlatList, StyleSheet } from 'react-native';
 import { sidebarInfoSelector } from 'lib/selectors/thread-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import { threadSearchText } from 'lib/shared/thread-utils';
-import sleep from 'lib/utils/sleep';
 
 import { useSelector } from '../redux/redux-utils';
 import Modal from '../components/modal.react';
@@ -18,6 +17,7 @@ import Search from '../components/search.react';
 import { useIndicatorStyle } from '../themes/colors';
 import { MessageListRouteName } from '../navigation/route-names';
 import ChatThreadListSidebar from './chat-thread-list-sidebar.react';
+import { waitForModalInputFocus } from '../utils/timers';
 
 export type SidebarListModalParams = {|
   +threadInfo: ThreadInfo,
@@ -86,7 +86,7 @@ function SidebarListModal(props: Props) {
       if (!textInput) {
         return;
       }
-      await sleep(50);
+      await waitForModalInputFocus();
       if (searchTextInputRef.current) {
         searchTextInputRef.current.focus();
       }

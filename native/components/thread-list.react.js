@@ -12,7 +12,6 @@ import { createSelector } from 'reselect';
 
 import SearchIndex from 'lib/shared/search-index';
 import { connect } from 'lib/utils/redux-utils';
-import sleep from 'lib/utils/sleep';
 
 import ThreadListThread from './thread-list-thread.react';
 import {
@@ -22,6 +21,7 @@ import {
   indicatorStyleSelector,
 } from '../themes/colors';
 import Search from './search.react';
+import { waitForModalInputFocus } from '../utils/timers';
 
 type Props = {|
   threadInfos: $ReadOnlyArray<ThreadInfo>,
@@ -135,7 +135,7 @@ class ThreadList extends React.PureComponent<Props, State> {
     if (!textInput) {
       return;
     }
-    await sleep(50);
+    await waitForModalInputFocus();
     if (this.textInput) {
       this.textInput.focus();
     }
