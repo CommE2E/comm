@@ -27,7 +27,7 @@ import {
   userSearchIndexForPotentialMembers,
 } from 'lib/selectors/user-selectors';
 import SearchIndex from 'lib/shared/search-index';
-import { getUserSearchResults } from 'lib/shared/search-utils';
+import { getPotentialMemberItems } from 'lib/shared/search-utils';
 import {
   changeThreadSettingsActionTypes,
   changeThreadSettings,
@@ -124,17 +124,14 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       const excludeUserIDs = userInfoInputArray
         .map((userInfo) => userInfo.id)
         .concat(threadActualMembers(threadInfo.members));
-      const results = getUserSearchResults(
+
+      return getPotentialMemberItems(
         text,
         userInfos,
         searchIndex,
         excludeUserIDs,
         parentThreadInfo,
       );
-      return results.map(({ memberOfParentThread, ...result }) => ({
-        ...result,
-        notice: !memberOfParentThread ? 'not in parent thread' : undefined,
-      }));
     },
   );
 

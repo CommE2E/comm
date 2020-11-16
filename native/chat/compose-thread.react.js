@@ -36,7 +36,7 @@ import {
 } from 'lib/selectors/user-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import { threadInFilterList, userIsMember } from 'lib/shared/thread-utils';
-import { getUserSearchResults } from 'lib/shared/search-utils';
+import { getPotentialMemberItems } from 'lib/shared/search-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import {
   useServerCall,
@@ -182,19 +182,14 @@ class ComposeThread extends React.PureComponent<Props, State> {
       searchIndex: SearchIndex,
       userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
       parentThreadInfo: ?ThreadInfo,
-    ) => {
-      const results = getUserSearchResults(
+    ) =>
+      getPotentialMemberItems(
         text,
         userInfos,
         searchIndex,
         userInfoInputArray.map((userInfo) => userInfo.id),
         parentThreadInfo,
-      );
-      return results.map(({ memberOfParentThread, ...result }) => ({
-        ...result,
-        notice: !memberOfParentThread ? 'not in parent thread' : undefined,
-      }));
-    },
+      ),
   );
 
   get userSearchResults() {
