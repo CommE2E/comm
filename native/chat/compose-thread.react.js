@@ -503,12 +503,8 @@ export default React.memo<BaseProps>(function ConnectedComposeThread(
   const loadingStatus = useSelector(
     createLoadingStatusSelector(newThreadActionTypes),
   );
-  const otherUserInfos = useSelector(
-    userInfoSelectorForPotentialMembers(parentThreadInfoID),
-  );
-  const userSearchIndex = useSelector(
-    userSearchIndexForPotentialMembers(parentThreadInfoID),
-  );
+  const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
+  const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
   const threadInfos = useSelector(threadInfoSelector);
   const colors = useColors();
   const styles = useStyles(unboundStyles);

@@ -338,12 +338,8 @@ export default React.memo<BaseProps>(function ConnectedAddUsersModal(
   const parentThreadInfo = useSelector((state) =>
     parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
   );
-  const otherUserInfos = useSelector(
-    userInfoSelectorForPotentialMembers(parentThreadID),
-  );
-  const userSearchIndex = useSelector(
-    userSearchIndexForPotentialMembers(parentThreadID),
-  );
+  const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
+  const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
   const changeThreadSettingsLoadingStatus = useSelector(
     createLoadingStatusSelector(changeThreadSettingsActionTypes),
   );
