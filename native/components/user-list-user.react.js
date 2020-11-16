@@ -6,7 +6,7 @@ import type { AppState } from '../redux/redux-setup';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Text, Platform } from 'react-native';
+import { Text, Platform, Alert } from 'react-native';
 
 import { connect } from 'lib/utils/redux-utils';
 
@@ -67,7 +67,14 @@ class UserListUser extends React.PureComponent<Props> {
   }
 
   onSelect = () => {
-    this.props.onSelect(this.props.userInfo.id);
+    const { userInfo } = this.props;
+    if (!userInfo.alertText) {
+      this.props.onSelect(userInfo.id);
+      return;
+    }
+    Alert.alert('Not a friend', userInfo.alertText, [{ text: 'OK' }], {
+      cancelable: true,
+    });
   };
 }
 
