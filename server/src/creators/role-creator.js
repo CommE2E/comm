@@ -177,6 +177,24 @@ function getRolePermissionBlobsForChat(
     threadPermissionPrefixes.OPEN_DESCENDANT + threadPermissions.VISIBLE;
   const openDescendantJoinThread =
     threadPermissionPrefixes.OPEN_DESCENDANT + threadPermissions.JOIN_THREAD;
+
+  if (threadType === threadTypes.PERSONAL) {
+    return {
+      Members: {
+        [threadPermissions.KNOW_OF]: true,
+        [threadPermissions.VISIBLE]: true,
+        [threadPermissions.VOICED]: true,
+        [threadPermissions.EDIT_ENTRIES]: true,
+        [threadPermissions.EDIT_THREAD]: true,
+        [threadPermissions.CREATE_SUBTHREADS]: true,
+        [threadPermissions.CREATE_SIDEBARS]: true,
+        [openDescendantKnowOf]: true,
+        [openDescendantVisible]: true,
+        [openDescendantJoinThread]: true,
+      },
+    };
+  }
+
   const memberPermissions = {
     [threadPermissions.KNOW_OF]: true,
     [threadPermissions.VISIBLE]: true,
