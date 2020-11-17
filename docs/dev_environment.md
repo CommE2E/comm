@@ -143,8 +143,15 @@ brew cask install reactotron
 We’ll need the Java Development Kit for Android development.
 
 ```
-brew tap AdoptOpenJDK/openjdk
-brew cask install adoptopenjdk8
+brew cask install adoptopenjdk/openjdk/adoptopenjdk8
+```
+
+There's one more thing we have to do. macOS Big Sur comes with a Java 8 JRE for Java applets that has a higher version number than `adoptopenjdk8`. That JRE doesn't include a JDK, which is necessary in order to compile our app for Android.
+
+To force Gradle to resolve `adoptopenjdk8`, you'll need to explicitly override `$JAVA_HOME` in your `~/.bash_profile` (or desired shell configuration file):
+
+```
+export JAVA_HOME=$(/usr/libexec/java_home -v1.8.0)
 ```
 
 ## Android Studio
@@ -523,7 +530,7 @@ Finally, use this command to build and run the Android app:
 
 ```
 cd native
-react-native run-android
+yarn react-native run-android
 ```
 
 ## Creating a new diff
