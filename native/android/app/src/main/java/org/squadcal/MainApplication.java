@@ -89,7 +89,7 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
       try {
         // We use reflection here to pick up the class that initializes Flipper,
         // since Flipper library is not available in release mode
-        Class<?> aClass = Class.forName("com.rndiffapp.ReactNativeFlipper");
+        Class<?> aClass = Class.forName("org.squadcal.ReactNativeFlipper");
         aClass
           .getMethod(
             "initializeFlipper",
