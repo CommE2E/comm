@@ -704,7 +704,7 @@ function getDeleteCondition(updateData: UpdateData): ?DeleteCondition {
 
   const target = getTargetFromUpdateData(updateData);
   const { userID } = updateData;
-  return { userID, target, types: new Set(types) };
+  return { userID, target, types: types ? new Set(types) : types };
 }
 
 function filterOnDeleteCondition(
