@@ -323,6 +323,10 @@ async function updateThread(
     sqlUpdate.type = threadType;
   }
 
+  if (threadType === threadTypes.PERSONAL) {
+    throw new ServerError('invalid_parameters');
+  }
+
   const newMemberIDs =
     request.changes.newMemberIDs && request.changes.newMemberIDs.length > 0
       ? [...request.changes.newMemberIDs]

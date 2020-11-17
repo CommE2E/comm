@@ -67,6 +67,13 @@ async function createThread(
     throw new ServerError('invalid_parameters');
   }
 
+  if (
+    threadType === threadTypes.PERSONAL &&
+    (request.initialMemberIDs?.length !== 1 || parentThreadID)
+  ) {
+    throw new ServerError('invalid_parameters');
+  }
+
   const checkPromises = {};
   if (parentThreadID) {
     checkPromises.parentThreadFetch = fetchThreadInfos(
