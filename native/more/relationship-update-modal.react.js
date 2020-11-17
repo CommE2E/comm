@@ -1,6 +1,10 @@
 // @flow
 
-import type { GlobalAccountUserInfo, UserInfo } from 'lib/types/user-types';
+import type {
+  GlobalAccountUserInfo,
+  UserInfo,
+  AccountUserInfo,
+} from 'lib/types/user-types';
 import type { UserSearchResult } from 'lib/types/search-types';
 import {
   type RelationshipRequest,
@@ -20,7 +24,6 @@ import invariant from 'invariant';
 
 import { searchIndexFromUserInfos } from 'lib/selectors/user-selectors';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
-import { getUserSearchResults } from 'lib/shared/search-utils';
 import { values } from 'lib/utils/objects';
 import { searchUsersActionTypes, searchUsers } from 'lib/actions/user-actions';
 import {
@@ -135,12 +138,22 @@ class RelationshipUpdateModal extends React.PureComponent<Props, State> {
       }
 
       const searchIndex = searchIndexFromUserInfos(mergedUserInfos);
-      const results = getUserSearchResults(
-        text,
-        mergedUserInfos,
-        searchIndex,
-        excludeUserIDs,
-      );
+      const results = [];
+      const appendUserInfo = (userInfo: AccountUserInfo) => {
+        if (!excludeUserIDs.includes(userInfo.id)) {
+          results.push(userInfo);
+        }
+      };
+      if (text === '') {
+        for (const id in mergedUserInfos) {
+          appendUserInfo(mergedUserInfos[id]);
+        }
+      } else {
+        const ids = searchIndex.getSearchResults(text);
+        for (const id of ids) {
+          appendUserInfo(mergedUserInfos[id]);
+        }
+      }
       return results.map((result) => {
         const userInfo = userInfos[result.id];
         const disabledFriends =
