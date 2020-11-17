@@ -679,11 +679,11 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
 const unboundStyles = {
   cameraIcon: {
-    paddingBottom: 10,
+    paddingBottom: Platform.OS === 'android' ? 11 : 10,
     paddingRight: 3,
   },
   cameraRollIcon: {
-    paddingBottom: Platform.OS === 'ios' ? 5 : 8,
+    paddingBottom: Platform.OS === 'android' ? 8 : 7,
     paddingRight: 8,
   },
   container: {
@@ -695,7 +695,7 @@ const unboundStyles = {
     right: 0,
   },
   expandIcon: {
-    paddingBottom: Platform.OS === 'ios' ? 10 : 12,
+    paddingBottom: Platform.OS === 'android' ? 12 : 10,
   },
   expandoButtons: {
     alignSelf: 'flex-end',
@@ -738,7 +738,7 @@ const unboundStyles = {
   },
   sendButton: {
     position: 'absolute',
-    bottom: Platform.OS === 'android' ? 3 : 0,
+    bottom: Platform.OS === 'android' ? 4 : 3,
     left: 0,
   },
   sendIcon: {
