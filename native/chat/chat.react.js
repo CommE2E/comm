@@ -149,6 +149,11 @@ const headerBackButton = (props) => <HeaderBackButton {...props} />;
 const screenOptions = {
   header,
   headerLeft: headerBackButton,
+  gestureEnabled: Platform.OS === 'ios',
+  animationEnabled:
+    Platform.OS !== 'web' &&
+    Platform.OS !== 'windows' &&
+    Platform.OS !== 'macos',
 };
 
 const chatThreadListOptions = ({ navigation }) => ({

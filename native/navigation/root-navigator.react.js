@@ -119,7 +119,10 @@ const transitionPreset = {
 
 const defaultScreenOptions = {
   gestureEnabled: Platform.OS === 'ios',
-  animationEnabled: Platform.OS !== 'web',
+  animationEnabled:
+    Platform.OS !== 'web' &&
+    Platform.OS !== 'windows' &&
+    Platform.OS !== 'macos',
   cardStyle: { backgroundColor: 'transparent' },
   ...transitionPreset,
 };
