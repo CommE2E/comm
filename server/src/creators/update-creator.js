@@ -77,7 +77,7 @@ export type UpdatesForCurrentSession =
 type DeleteCondition = {|
   +userID: string,
   +target: ?string,
-  +types: null | $ReadOnlySet<number>,
+  +types: 'all_types' | $ReadOnlySet<number>,
 |};
 
 export type ViewerInfo =
@@ -293,9 +293,9 @@ async function createUpdates(
       }
 
       const existingTypes = existingDeleteCondition.types;
-      if (!existingTypes) {
+      if (existingTypes === 'all_types') {
         continue;
-      } else if (!types) {
+      } else if (types === 'all_types') {
         deleteConditionByTarget.set(target, deleteCondition);
         continue;
       }
@@ -314,7 +314,7 @@ async function createUpdates(
       if (target) {
         conditions.push(SQL`u.target = ${target}`);
       }
-      if (types) {
+      if (types !== 'all_types') {
         invariant(types.size > 0, 'deleteCondition had empty types set');
         conditions.push(SQL`u.type IN (${[...types]})`);
       }
@@ -682,29 +682,32 @@ function getTargetFromUpdateData(updateData: UpdateData): ?string {
 function getDeleteCondition(updateData: UpdateData): ?DeleteCondition {
   let types;
   if (updateData.type === updateTypes.DELETE_ACCOUNT) {
-    types = [updateTypes.DELETE_ACCOUNT, updateTypes.UPDATE_USER];
+    types = new Set([updateTypes.DELETE_ACCOUNT, updateTypes.UPDATE_USER]);
   } else if (updateData.type === updateTypes.UPDATE_THREAD) {
-    types = [updateTypes.UPDATE_THREAD, updateTypes.UPDATE_THREAD_READ_STATUS];
+    types = new Set([
+      updateTypes.UPDATE_THREAD,
+      updateTypes.UPDATE_THREAD_READ_STATUS,
+    ]);
   } else if (updateData.type === updateTypes.UPDATE_THREAD_READ_STATUS) {
-    types = [updateTypes.UPDATE_THREAD_READ_STATUS];
+    types = new Set([updateTypes.UPDATE_THREAD_READ_STATUS]);
   } else if (
     updateData.type === updateTypes.DELETE_THREAD ||
     updateData.type === updateTypes.JOIN_THREAD
   ) {
-    types = null;
+    types = 'all_types';
   } else if (updateData.type === updateTypes.UPDATE_ENTRY) {
-    types = null;
+    types = 'all_types';
   } else if (updateData.type === updateTypes.UPDATE_CURRENT_USER) {
-    types = [updateTypes.UPDATE_CURRENT_USER];
+    types = new Set([updateTypes.UPDATE_CURRENT_USER]);
   } else if (updateData.type === updateTypes.UPDATE_USER) {
-    types = [updateTypes.UPDATE_USER];
+    types = new Set([updateTypes.UPDATE_USER]);
   } else {
     return null;
   }
 
   const target = getTargetFromUpdateData(updateData);
   const { userID } = updateData;
-  return { userID, target, types: types ? new Set(types) : types };
+  return { userID, target, types };
 }
 
 function filterOnDeleteCondition(
@@ -721,7 +724,7 @@ function filterOnDeleteCondition(
       return true;
     }
   }
-  if (!deleteCondition.types) {
+  if (deleteCondition.types === 'all_types') {
     return false;
   }
   return !deleteCondition.types.has(updateData.type);
