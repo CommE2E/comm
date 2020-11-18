@@ -184,15 +184,27 @@ async function createMessages(
     messageInfos.push(rawMessageInfoFromMessageData(messageData, ids[i]));
   }
 
-  handleAsyncPromise(
-    postMessageSend(
+  if (viewer.isScriptViewer) {
+    await postMessageSend(
       viewer,
       threadsToMessageIndices,
       subthreadPermissionsToCheck,
       stripLocalIDs(messageInfos),
       updatesForCurrentSession,
-    ),
-  );
+    );
+  } else {
+    // We aren't awaiting because this function calls external services and we
+    // don't want to delay the response
+    handleAsyncPromise(
+      postMessageSend(
+        viewer,
+        threadsToMessageIndices,
+        subthreadPermissionsToCheck,
+        stripLocalIDs(messageInfos),
+        updatesForCurrentSession,
+      ),
+    );
+  }
 
   const messageInsertQuery = SQL`
     INSERT INTO messages(id, thread, user, type, content, time, creation)
