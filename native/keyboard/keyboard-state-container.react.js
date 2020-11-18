@@ -15,7 +15,7 @@ import {
 } from './keyboard';
 import { KeyboardContext } from './keyboard-state';
 import KeyboardInputHost from './keyboard-input-host.react';
-import { waitForInteractions } from '../utils/interactions';
+import { waitForInteractions } from '../utils/timers';
 import { tabBarAnimationDuration } from '../navigation/tab-bar.react';
 
 type Props = {|

@@ -7,7 +7,7 @@ import { TextInput, View, StyleSheet } from 'react-native';
 
 import sleep from 'lib/utils/sleep';
 
-import { waitForInteractions } from '../utils/interactions';
+import { waitForInteractions } from '../utils/timers';
 
 class ClearableTextInput extends React.PureComponent<ClearableTextInputProps> {
   textInput: ?React.ElementRef<typeof TextInput>;

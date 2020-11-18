@@ -18,7 +18,7 @@ import { threadSearchIndex } from 'lib/selectors/nav-selectors';
 import Modal from '../components/modal.react';
 import ThreadList from '../components/thread-list.react';
 import { RootNavigatorContext } from '../navigation/root-navigator-context';
-import { waitForInteractions } from '../utils/interactions';
+import { waitForInteractions } from '../utils/timers';
 import { useSelector } from '../redux/redux-utils';
 
 export type ThreadPickerModalParams = {|

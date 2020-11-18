@@ -44,7 +44,7 @@ import KeyboardStateContainer from '../keyboard/keyboard-state-container.react';
 import PushHandler from '../push/push-handler.react';
 import { getPersistor } from '../redux/persist';
 import { RootContext } from '../root-context';
-import { waitForInteractions } from '../utils/interactions';
+import { waitForInteractions } from '../utils/timers';
 import { useSelector } from '../redux/redux-utils';
 
 let splashScreenHasHidden = false;

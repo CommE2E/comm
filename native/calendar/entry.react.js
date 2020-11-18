@@ -68,7 +68,7 @@ import {
 import LoadingIndicator from './loading-indicator.react';
 import { colors, useStyles } from '../themes/colors';
 import { NavContext } from '../navigation/navigation-context';
-import { waitForInteractions } from '../utils/interactions';
+import { waitForInteractions } from '../utils/timers';
 import Markdown from '../markdown/markdown.react';
 import { inlineMarkdownRules } from '../markdown/rules.react';
 import { SingleLine } from '../components/single-line.react';
