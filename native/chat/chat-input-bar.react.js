@@ -11,6 +11,7 @@ import {
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
+import { type UserInfo, userInfoPropType } from 'lib/types/user-types';
 import {
   type KeyboardState,
   keyboardStatePropType,
@@ -51,7 +52,12 @@ import _throttle from 'lodash/throttle';
 import { useDispatch } from 'react-redux';
 
 import { saveDraftActionType } from 'lib/actions/miscellaneous-action-types';
-import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
+import {
+  threadHasPermission,
+  viewerIsMember,
+  threadFrozenDueToViewerBlock,
+  threadActualMembers,
+} from 'lib/shared/thread-utils';
 import { joinThreadActionTypes, joinThread } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { trimMessage } from 'lib/shared/message-utils';
@@ -118,6 +124,7 @@ type Props = {|
   +joinThreadLoadingStatus: LoadingStatus,
   +calendarQuery: () => CalendarQuery,
   +nextLocalID: number,
+  +userInfos: { [id: string]: UserInfo },
   +colors: Colors,
   +styles: typeof unboundStyles,
   // connectNav
@@ -147,6 +154,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     joinThreadLoadingStatus: loadingStatusPropType.isRequired,
     calendarQuery: PropTypes.func.isRequired,
     nextLocalID: PropTypes.number.isRequired,
+    userInfos: PropTypes.objectOf(userInfoPropType).isRequired,
     colors: colorsPropType.isRequired,
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     keyboardState: keyboardStatePropType,
@@ -413,6 +421,19 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     let content;
     if (threadHasPermission(this.props.threadInfo, threadPermissions.VOICED)) {
       content = this.renderInput();
+    } else if (
+      threadFrozenDueToViewerBlock(
+        this.props.threadInfo,
+        this.props.viewerID,
+        this.props.userInfos,
+      ) &&
+      threadActualMembers(this.props.threadInfo.members).length === 2
+    ) {
+      content = (
+        <Text style={this.props.styles.explanation}>
+          You can&apos;t send messages to a user that you&apos;ve blocked.
+        </Text>
+      );
     } else if (isMember) {
       content = (
         <Text style={this.props.styles.explanation}>
@@ -792,6 +813,7 @@ export default React.memo<BaseProps>(function ConnectedChatInputBar(
     }),
   );
   const nextLocalID = useSelector((state) => state.nextLocalID);
+  const userInfos = useSelector((state) => state.userStore.userInfos);
 
   const dispatch = useDispatch();
   const dispatchActionPromise = useDispatchActionPromise();
@@ -805,6 +827,7 @@ export default React.memo<BaseProps>(function ConnectedChatInputBar(
       joinThreadLoadingStatus={joinThreadLoadingStatus}
       calendarQuery={calendarQuery}
       nextLocalID={nextLocalID}
+      userInfos={userInfos}
       colors={colors}
       styles={styles}
       isActive={isActive}
