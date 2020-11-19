@@ -9,13 +9,13 @@ module.exports = {
   'lib/**/*.js': function libFlow(files) {
     return 'yarn workspace lib flow --quiet';
   },
-  'web/**/*.js': function webFlow(files) {
+  '{web,lib}/**/*.js': function webFlow(files) {
     return 'yarn workspace web flow --quiet';
   },
-  'native/**/*.js': function nativeFlow(files) {
+  '{native,lib}/**/*.js': function nativeFlow(files) {
     return 'yarn workspace native flow --quiet';
   },
-  'server/**/*.js': function serverFlow(files) {
+  '{server,web,lib}/**/*.js': function serverFlow(files) {
     return 'yarn workspace server flow --quiet';
   },
 };
