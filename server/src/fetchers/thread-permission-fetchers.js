@@ -95,7 +95,7 @@ async function checkThreads(
 
   const [[result], disabledThreadIDs] = await Promise.all([
     dbQuery(query),
-    checkThreadDisabled(viewer, permissionsToCheck, threadIDs),
+    checkThreadsFrozen(viewer, permissionsToCheck, threadIDs),
   ]);
 
   return new Set(
@@ -109,7 +109,7 @@ async function checkThreads(
   );
 }
 
-async function checkThreadDisabled(
+async function checkThreadsFrozen(
   viewer: Viewer,
   permissionsToCheck: $ReadOnlyArray<ThreadPermission>,
   threadIDs: $ReadOnlyArray<string>,
@@ -146,7 +146,7 @@ async function checkIfThreadIsBlocked(
   threadID: string,
   permission: ThreadPermission,
 ) {
-  const disabledThreadIDs = await checkThreadDisabled(
+  const disabledThreadIDs = await checkThreadsFrozen(
     viewer,
     [permission],
     [threadID],
