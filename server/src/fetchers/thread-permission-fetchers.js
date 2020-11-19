@@ -8,7 +8,7 @@ import type { Viewer } from '../session/viewer';
 
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 import {
-  threadIsWithBlockedUserOnly,
+  threadFrozenDueToBlock,
   permissionsDisabledByBlock,
 } from 'lib/shared/thread-utils';
 
@@ -129,7 +129,7 @@ async function checkThreadDisabled(
   ]);
 
   for (const threadID in threadInfos) {
-    const blockedThread = threadIsWithBlockedUserOnly(
+    const blockedThread = threadFrozenDueToBlock(
       threadInfos[threadID],
       viewer.id,
       userInfos,
