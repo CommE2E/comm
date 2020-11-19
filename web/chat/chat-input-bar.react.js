@@ -11,6 +11,7 @@ import {
   type ThreadJoinPayload,
 } from 'lib/types/thread-types';
 import { messageTypes } from 'lib/types/message-types';
+import { type UserInfo, userInfoPropType } from 'lib/types/user-types';
 import {
   inputStatePropType,
   type InputState,
@@ -27,7 +28,12 @@ import _difference from 'lodash/fp/difference';
 
 import { joinThreadActionTypes, joinThread } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
+import {
+  threadHasPermission,
+  viewerIsMember,
+  threadFrozenDueToViewerBlock,
+  threadActualMembers,
+} from 'lib/shared/thread-utils';
 import { trimMessage } from 'lib/shared/message-utils';
 import {
   type DispatchActionPromise,
@@ -54,6 +60,7 @@ type Props = {|
   +calendarQuery: () => CalendarQuery,
   +nextLocalID: number,
   +isThreadActive: boolean,
+  +userInfos: { [id: string]: UserInfo },
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -68,6 +75,7 @@ class ChatInputBar extends React.PureComponent<Props> {
     calendarQuery: PropTypes.func.isRequired,
     nextLocalID: PropTypes.number.isRequired,
     isThreadActive: PropTypes.bool.isRequired,
+    userInfos: PropTypes.objectOf(userInfoPropType).isRequired,
     dispatchActionPromise: PropTypes.func.isRequired,
     joinThread: PropTypes.func.isRequired,
   };
@@ -232,6 +240,19 @@ class ChatInputBar extends React.PureComponent<Props> {
             Send
           </a>
         </div>
+      );
+    } else if (
+      threadFrozenDueToViewerBlock(
+        this.props.threadInfo,
+        this.props.viewerID,
+        this.props.userInfos,
+      ) &&
+      threadActualMembers(this.props.threadInfo.members).length === 2
+    ) {
+      content = (
+        <span className={css.explanation}>
+          You can&apos;t send messages to a user that you&apos;ve blocked.
+        </span>
       );
     } else if (isMember) {
       content = (
@@ -408,6 +429,7 @@ export default React.memo<BaseProps>(function ConnectedChatInputBar(
   const isThreadActive = useSelector(
     (state) => props.threadInfo.id === state.navInfo.activeChatThreadID,
   );
+  const userInfos = useSelector((state) => state.userStore.userInfos);
   const joinThreadLoadingStatus = useSelector(joinThreadLoadingStatusSelector);
   const calendarQuery = useSelector(nonThreadCalendarQuery);
   const dispatchActionPromise = useDispatchActionPromise();
@@ -420,6 +442,7 @@ export default React.memo<BaseProps>(function ConnectedChatInputBar(
       calendarQuery={calendarQuery}
       nextLocalID={nextLocalID}
       isThreadActive={isThreadActive}
+      userInfos={userInfos}
       dispatchActionPromise={dispatchActionPromise}
       joinThread={callJoinThread}
     />
