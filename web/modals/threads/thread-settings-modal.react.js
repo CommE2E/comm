@@ -13,7 +13,7 @@ import {
 } from 'lib/types/thread-types';
 import type { AppState } from '../../redux/redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import { type UserInfo, userInfoPropType } from 'lib/types/user-types';
+import { type UserInfos, userInfoPropType } from 'lib/types/user-types';
 
 import * as React from 'react';
 import classNames from 'classnames';
@@ -71,7 +71,7 @@ type Props = {
   // Redux state
   inputDisabled: boolean,
   viewerID: ?string,
-  userInfos: { [id: string]: UserInfo },
+  userInfos: UserInfos,
   // Redux dispatch functions
   dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs

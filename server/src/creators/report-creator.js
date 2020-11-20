@@ -183,9 +183,9 @@ function getSquadbotMessage(
   }
 }
 
-function findInconsistentObjectKeys(
-  first: { [id: string]: Object },
-  second: { [id: string]: Object },
+function findInconsistentObjectKeys<O>(
+  first: { +[id: string]: O },
+  second: { +[id: string]: O },
 ): Set<string> {
   const nonMatchingIDs = new Set();
   for (let id in first) {

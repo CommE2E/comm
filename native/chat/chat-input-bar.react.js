@@ -11,7 +11,7 @@ import {
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
-import { type UserInfo, userInfoPropType } from 'lib/types/user-types';
+import { type UserInfos, userInfoPropType } from 'lib/types/user-types';
 import {
   type KeyboardState,
   keyboardStatePropType,
@@ -124,7 +124,7 @@ type Props = {|
   +joinThreadLoadingStatus: LoadingStatus,
   +calendarQuery: () => CalendarQuery,
   +nextLocalID: number,
-  +userInfos: { [id: string]: UserInfo },
+  +userInfos: UserInfos,
   +colors: Colors,
   +styles: typeof unboundStyles,
   // connectNav

@@ -2,7 +2,7 @@
 
 import type {
   GlobalAccountUserInfo,
-  UserInfo,
+  UserInfos,
   AccountUserInfo,
 } from 'lib/types/user-types';
 import type { UserSearchResult } from 'lib/types/search-types';
@@ -59,7 +59,7 @@ type BaseProps = {|
 type Props = {|
   ...BaseProps,
   // Redux state
-  +userInfos: { [id: string]: UserInfo },
+  +userInfos: UserInfos,
   +viewerID: ?string,
   +styles: typeof unboundStyles,
   // Redux dispatch functions
@@ -102,7 +102,7 @@ class RelationshipUpdateModal extends React.PureComponent<Props, State> {
     (
       text: string,
       searchUserInfos: { [id: string]: GlobalAccountUserInfo },
-      userInfos: { [id: string]: UserInfo },
+      userInfos: UserInfos,
       viewerID: ?string,
       userInfoInputArray: $ReadOnlyArray<GlobalAccountUserInfo>,
     ) => {

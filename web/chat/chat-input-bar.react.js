@@ -11,7 +11,7 @@ import {
   type ThreadJoinPayload,
 } from 'lib/types/thread-types';
 import { messageTypes } from 'lib/types/message-types';
-import { type UserInfo, userInfoPropType } from 'lib/types/user-types';
+import { type UserInfos, userInfoPropType } from 'lib/types/user-types';
 import {
   inputStatePropType,
   type InputState,
@@ -60,7 +60,7 @@ type Props = {|
   +calendarQuery: () => CalendarQuery,
   +nextLocalID: number,
   +isThreadActive: boolean,
-  +userInfos: { [id: string]: UserInfo },
+  +userInfos: UserInfos,
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
