@@ -386,11 +386,12 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   render() {
     const isMember = viewerIsMember(this.props.threadInfo);
+    const canJoin = threadHasPermission(
+      this.props.threadInfo,
+      threadPermissions.JOIN_THREAD,
+    );
     let joinButton = null;
-    if (
-      !isMember &&
-      threadHasPermission(this.props.threadInfo, threadPermissions.JOIN_THREAD)
-    ) {
+    if (!isMember && canJoin) {
       let buttonContent;
       if (this.props.joinThreadLoadingStatus === 'loading') {
         buttonContent = (
@@ -452,7 +453,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       const membersAreVoiced = !!defaultRole.permissions[
         threadPermissions.VOICED
       ];
-      if (membersAreVoiced) {
+      if (membersAreVoiced && canJoin) {
         content = (
           <Text style={this.props.styles.explanation}>
             Join this thread to send messages.
