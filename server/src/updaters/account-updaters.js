@@ -25,10 +25,7 @@ import { verifyCode, clearVerifyCodes } from '../models/verification';
 import { createNewUserCookie, setNewSession } from '../session/cookies';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
-import {
-  fetchLoggedInUserInfos,
-  fetchKnownUserInfos,
-} from '../fetchers/user-fetchers';
+import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
 import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
 import { createUpdates } from '../creators/update-creator';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
@@ -45,7 +42,6 @@ async function accountUpdater(
   const newPassword = update.updatedFields.password;
 
   const fetchPromises = {};
-  fetchPromises.currentUserInfos = fetchLoggedInUserInfos([viewer.userID]);
   if (email) {
     if (email.search(validEmailRegex) === -1) {
       throw new ServerError('invalid_email');
@@ -57,9 +53,7 @@ async function accountUpdater(
   fetchPromises.verifyQuery = dbQuery(SQL`
     SELECT username, email, hash FROM users WHERE id = ${viewer.userID}
   `);
-  const { verifyQuery, emailQuery, currentUserInfos } = await promiseAll(
-    fetchPromises,
-  );
+  const { verifyQuery, emailQuery } = await promiseAll(fetchPromises);
 
   const [verifyResult] = verifyQuery;
   if (verifyResult.length === 0) {
@@ -69,10 +63,6 @@ async function accountUpdater(
   if (!bcrypt.compareSync(update.currentPassword, verifyRow.hash)) {
     throw new ServerError('invalid_credentials');
   }
-  if (currentUserInfos.length === 0) {
-    throw new ServerError('internal_error');
-  }
-  const currentUserInfo = currentUserInfos[0];
 
   const savePromises = [];
   const changedFields = {};
@@ -86,10 +76,7 @@ async function accountUpdater(
 
     changedFields.email = email;
     changedFields.email_verified = 0;
-
     currentUserInfoChanged = true;
-    currentUserInfo.email = email;
-    currentUserInfo.emailVerified = false;
 
     savePromises.push(
       sendEmailAddressVerificationEmail(
