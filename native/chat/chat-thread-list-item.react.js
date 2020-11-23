@@ -97,10 +97,10 @@ function ChatThreadListItem({
 
   const sidebars = data.sidebars.map((sidebarItem) => {
     if (sidebarItem.type === 'sidebar') {
+      const { type, ...sidebarInfo } = sidebarItem;
       return (
         <ChatThreadListSidebar
-          threadInfo={sidebarItem.threadInfo}
-          lastUpdatedTime={sidebarItem.lastUpdatedTime}
+          {...sidebarInfo}
           onPressItem={onPressItem}
           key={sidebarItem.threadInfo.id}
         />

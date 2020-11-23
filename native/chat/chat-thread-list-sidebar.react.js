@@ -1,6 +1,6 @@
 // @flow
 
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types';
 import type { ViewStyle } from '../types/styles';
 
 import * as React from 'react';
@@ -14,8 +14,7 @@ import Button from '../components/button.react';
 import { SingleLine } from '../components/single-line.react';
 
 type Props = {|
-  +threadInfo: ThreadInfo,
-  +lastUpdatedTime: number,
+  ...SidebarInfo,
   +onPressItem: (threadInfo: ThreadInfo) => void,
   +style?: ?ViewStyle,
 |};
