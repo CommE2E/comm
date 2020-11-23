@@ -11,7 +11,7 @@ async function searchForUsers(
   const sqlQuery = SQL`SELECT id, username FROM users `;
   const prefix = query.prefix;
   if (prefix) {
-    sqlQuery.append(SQL`WHERE username LIKE ${prefix + '%'} `);
+    sqlQuery.append(SQL`WHERE LOWER(username) LIKE LOWER(${prefix + '%'}) `);
   }
   sqlQuery.append(SQL`LIMIT 20`);
 
