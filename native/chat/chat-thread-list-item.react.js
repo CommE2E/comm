@@ -62,6 +62,8 @@ function ChatThreadListItem({
         <ChatThreadListSidebar
           {...sidebarInfo}
           onPressItem={onPressItem}
+          onSwipeableWillOpen={onSwipeableWillOpen}
+          currentlyOpenedSwipeableId={currentlyOpenedSwipeableId}
           key={sidebarItem.threadInfo.id}
         />
       );

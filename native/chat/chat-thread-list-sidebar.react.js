@@ -12,26 +12,31 @@ import { shortAbsoluteDate } from 'lib/utils/date-utils';
 import { useColors, useStyles } from '../themes/colors';
 import Button from '../components/button.react';
 import { SingleLine } from '../components/single-line.react';
+import SwipeableThread from './swipeable-thread.react';
 
 type Props = {|
   ...SidebarInfo,
   +onPressItem: (threadInfo: ThreadInfo) => void,
+  +onSwipeableWillOpen?: (threadInfo: ThreadInfo) => void,
+  +currentlyOpenedSwipeableId?: string,
   +style?: ?ViewStyle,
 |};
 function ChatThreadListSidebar(props: Props) {
-  const colors = useColors();
-  const styles = useStyles(unboundStyles);
-
-  const { threadInfo, lastUpdatedTime, onPressItem } = props;
+  const { lastUpdatedTime } = props;
   const lastActivity = shortAbsoluteDate(lastUpdatedTime);
+
+  const { threadInfo } = props;
+  const styles = useStyles(unboundStyles);
   const unreadStyle = threadInfo.currentUser.unread ? styles.unread : null;
 
+  const { onPressItem } = props;
   const onPress = React.useCallback(() => onPressItem(threadInfo), [
     threadInfo,
     onPressItem,
   ]);
 
-  return (
+  const colors = useColors();
+  const sidebar = (
     <Button
       iosFormat="highlight"
       iosHighlightUnderlayColor={colors.listIosHighlightUnderlay}
@@ -45,6 +50,26 @@ function ChatThreadListSidebar(props: Props) {
       </SingleLine>
       <Text style={[styles.lastActivity, unreadStyle]}>{lastActivity}</Text>
     </Button>
+  );
+
+  const {
+    mostRecentNonLocalMessage,
+    onSwipeableWillOpen,
+    currentlyOpenedSwipeableId,
+  } = props;
+  if (!onSwipeableWillOpen) {
+    return sidebar;
+  }
+  return (
+    <SwipeableThread
+      threadInfo={threadInfo}
+      mostRecentNonLocalMessage={mostRecentNonLocalMessage}
+      onSwipeableWillOpen={onSwipeableWillOpen}
+      currentlyOpenedSwipeableId={currentlyOpenedSwipeableId}
+      iconSize={16}
+    >
+      {sidebar}
+    </SwipeableThread>
   );
 }
 
