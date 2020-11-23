@@ -5,25 +5,10 @@ import {
   chatThreadItemPropType,
 } from 'lib/selectors/chat-selectors';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import type {
-  SetThreadUnreadStatusPayload,
-  SetThreadUnreadStatusRequest,
-} from 'lib/types/activity-types';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils';
-import {
-  setThreadUnreadStatus,
-  setThreadUnreadStatusActionTypes,
-} from 'lib/actions/activity-actions';
 
 import * as React from 'react';
 import { Text, View } from 'react-native';
 import PropTypes from 'prop-types';
-import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import Swipeable from '../components/swipeable';
-import { useNavigation } from '@react-navigation/native';
 
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
 
@@ -32,9 +17,9 @@ import MessagePreview from './message-preview.react';
 import ColorSplotch from '../components/color-splotch.react';
 import { useColors, useStyles } from '../themes/colors';
 import { SingleLine } from '../components/single-line.react';
-import { useMemo } from 'react';
 import ChatThreadListSidebar from './chat-thread-list-sidebar.react';
 import ChatThreadListSeeMoreSidebars from './chat-thread-list-see-more-sidebars.react';
+import SwipeableThread from './swipeable-thread.react';
 
 type Props = {|
   +data: ChatThreadItem,
@@ -50,33 +35,8 @@ function ChatThreadListItem({
   onSwipeableWillOpen,
   currentlyOpenedSwipeableId,
 }: Props) {
-  const swipeable = React.useRef<?Swipeable>();
-  const navigation = useNavigation();
   const styles = useStyles(unboundStyles);
   const colors = useColors();
-  const updateUnreadStatus: (
-    request: SetThreadUnreadStatusRequest,
-  ) => Promise<SetThreadUnreadStatusPayload> = useServerCall(
-    setThreadUnreadStatus,
-  );
-  const dispatchActionPromise = useDispatchActionPromise();
-
-  React.useEffect(() => {
-    return navigation.addListener('blur', () => {
-      if (swipeable.current) {
-        swipeable.current.close();
-      }
-    });
-  }, [navigation, swipeable]);
-
-  React.useEffect(() => {
-    if (
-      swipeable.current &&
-      data.threadInfo.id !== currentlyOpenedSwipeableId
-    ) {
-      swipeable.current.close();
-    }
-  }, [currentlyOpenedSwipeableId, swipeable, data.threadInfo.id]);
 
   const lastMessage = React.useMemo(() => {
     const mostRecentMessageInfo = data.mostRecentMessageInfo;
@@ -121,62 +81,17 @@ function ChatThreadListItem({
     onPressItem(data.threadInfo);
   }, [onPressItem, data.threadInfo]);
 
-  const onSwipeableRightWillOpen = React.useCallback(() => {
-    onSwipeableWillOpen(data.threadInfo);
-  }, [onSwipeableWillOpen, data.threadInfo]);
-
   const lastActivity = shortAbsoluteDate(data.lastUpdatedTime);
   const unreadStyle = data.threadInfo.currentUser.unread ? styles.unread : null;
 
-  const swipeableActions = useMemo(() => {
-    const isUnread = data.threadInfo.currentUser.unread;
-    const toggleUnreadStatus = () => {
-      const request = {
-        unread: !isUnread,
-        threadID: data.threadInfo.id,
-        latestMessage: data.mostRecentNonLocalMessage,
-      };
-      dispatchActionPromise(
-        setThreadUnreadStatusActionTypes,
-        updateUnreadStatus(request),
-        undefined,
-        {
-          threadID: data.threadInfo.id,
-          unread: !isUnread,
-        },
-      );
-      if (swipeable.current) {
-        swipeable.current.close();
-      }
-    };
-    return [
-      {
-        key: 'action1',
-        onPress: toggleUnreadStatus,
-        color: isUnread ? colors.redButton : colors.greenButton,
-        content: (
-          <MaterialIcon
-            name={isUnread ? 'email-open-outline' : 'email-mark-as-unread'}
-            size={24}
-          />
-        ),
-      },
-    ];
-  }, [
-    colors,
-    data.threadInfo,
-    data.mostRecentNonLocalMessage,
-    updateUnreadStatus,
-    dispatchActionPromise,
-  ]);
-
   return (
     <>
-      <Swipeable
-        buttonWidth={60}
-        innerRef={swipeable}
-        onSwipeableRightWillOpen={onSwipeableRightWillOpen}
-        rightActions={swipeableActions}
+      <SwipeableThread
+        threadInfo={data.threadInfo}
+        mostRecentNonLocalMessage={data.mostRecentNonLocalMessage}
+        onSwipeableWillOpen={onSwipeableWillOpen}
+        currentlyOpenedSwipeableId={currentlyOpenedSwipeableId}
+        iconSize={24}
       >
         <Button
           onPress={onPress}
@@ -201,7 +116,7 @@ function ChatThreadListItem({
             </View>
           </View>
         </Button>
-      </Swipeable>
+      </SwipeableThread>
       {sidebars}
     </>
   );
