@@ -9,6 +9,10 @@ import {
 import type { NavigationRoute } from '../navigation/route-names';
 import type { VerticalBounds } from '../types/layout-types';
 import type { RelationshipListNavigate } from './relationship-list.react';
+import type {
+  AccountUserInfo,
+  GlobalAccountUserInfo,
+} from 'lib/types/user-types';
 
 import * as React from 'react';
 import {
@@ -20,7 +24,6 @@ import {
 } from 'react-native';
 import invariant from 'invariant';
 
-import { type UserInfo } from 'lib/types/user-types';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   updateRelationshipsActionTypes,
@@ -38,20 +41,21 @@ import {
   OverlayContext,
   type OverlayContextType,
 } from '../navigation/overlay-context';
-import { RelationshipListItemTooltipModalRouteName } from '../navigation/route-names';
+import {
+  RelationshipListItemTooltipModalRouteName,
+  FriendListRouteName,
+  BlockListRouteName,
+} from '../navigation/route-names';
 import { type Colors, useColors, useStyles } from '../themes/colors';
 import { useSelector } from '../redux/redux-utils';
 
 type BaseProps = {|
-  +userInfo: UserInfo,
+  +userInfo: AccountUserInfo,
   +lastListItem: boolean,
   +verticalBounds: ?VerticalBounds,
-  +relationshipListRouteKey: string,
-  +relationshipListRouteName: $PropertyType<
-    NavigationRoute<'FriendList' | 'BlockList'>,
-    'name',
-  >,
+  +relationshipListRoute: NavigationRoute<'FriendList' | 'BlockList'>,
   +navigate: RelationshipListNavigate,
+  +onSelect: (selectedUser: GlobalAccountUserInfo) => void,
 |};
 type Props = {|
   ...BaseProps,
@@ -70,7 +74,25 @@ class RelationshipListItem extends React.PureComponent<Props> {
   editButton = React.createRef<React.ElementRef<typeof View>>();
 
   render() {
-    const { lastListItem, removeUserLoadingStatus, userInfo } = this.props;
+    const {
+      lastListItem,
+      removeUserLoadingStatus,
+      userInfo,
+      relationshipListRoute,
+    } = this.props;
+    const relationshipsToEdit = {
+      [FriendListRouteName]: [userRelationshipStatus.FRIEND],
+      [BlockListRouteName]: [
+        userRelationshipStatus.BOTH_BLOCKED,
+        userRelationshipStatus.BLOCKED_BY_VIEWER,
+      ],
+    }[relationshipListRoute.name];
+
+    const canEditFriendRequest = {
+      [FriendListRouteName]: true,
+      [BlockListRouteName]: false,
+    }[relationshipListRoute.name];
+
     const borderBottom = lastListItem ? null : this.props.styles.borderBottom;
 
     let editButton = null;
@@ -81,11 +103,7 @@ class RelationshipListItem extends React.PureComponent<Props> {
           color={this.props.colors.panelForegroundSecondaryLabel}
         />
       );
-    } else if (
-      userInfo.relationshipStatus === userRelationshipStatus.FRIEND ||
-      userInfo.relationshipStatus === userRelationshipStatus.BOTH_BLOCKED ||
-      userInfo.relationshipStatus === userRelationshipStatus.BLOCKED_BY_VIEWER
-    ) {
+    } else if (relationshipsToEdit.includes(userInfo.relationshipStatus)) {
       editButton = (
         <TouchableOpacity
           onPress={this.onPressEdit}
@@ -97,25 +115,36 @@ class RelationshipListItem extends React.PureComponent<Props> {
         </TouchableOpacity>
       );
     } else if (
-      userInfo.relationshipStatus === userRelationshipStatus.REQUEST_RECEIVED
+      userInfo.relationshipStatus === userRelationshipStatus.REQUEST_RECEIVED &&
+      canEditFriendRequest
     ) {
       editButton = (
         <TouchableOpacity
           onPress={this.onPressUpdateFriendship}
           style={this.props.styles.editButton}
         >
-          <Text style={this.props.styles.accept}>Accept</Text>
+          <Text style={this.props.styles.blueAction}>Accept</Text>
         </TouchableOpacity>
       );
     } else if (
-      userInfo.relationshipStatus === userRelationshipStatus.REQUEST_SENT
+      userInfo.relationshipStatus === userRelationshipStatus.REQUEST_SENT &&
+      canEditFriendRequest
     ) {
       editButton = (
         <TouchableOpacity
           onPress={this.onPressUpdateFriendship}
           style={this.props.styles.editButton}
         >
-          <Text style={this.props.styles.cancel}>Cancel request</Text>
+          <Text style={this.props.styles.redAction}>Cancel request</Text>
+        </TouchableOpacity>
+      );
+    } else {
+      editButton = (
+        <TouchableOpacity
+          onPress={this.onSelect}
+          style={this.props.styles.editButton}
+        >
+          <Text style={this.props.styles.blueAction}>Add</Text>
         </TouchableOpacity>
       );
     }
@@ -132,12 +161,17 @@ class RelationshipListItem extends React.PureComponent<Props> {
     );
   }
 
+  onSelect = () => {
+    const { id, username } = this.props.userInfo;
+    this.props.onSelect({ id, username });
+  };
+
   visibleEntryIDs() {
-    const { relationshipListRouteName } = this.props;
+    const { relationshipListRoute } = this.props;
     const id = {
-      FriendList: 'unfriend',
-      BlockList: 'unblock',
-    }[relationshipListRouteName];
+      [FriendListRouteName]: 'unfriend',
+      [BlockListRouteName]: 'unblock',
+    }[relationshipListRoute.name];
     return [id];
   }
 
@@ -166,7 +200,7 @@ class RelationshipListItem extends React.PureComponent<Props> {
       this.props.navigate({
         name: RelationshipListItemTooltipModalRouteName,
         params: {
-          presentedFrom: this.props.relationshipListRouteKey,
+          presentedFrom: this.props.relationshipListRoute.key,
           initialCoordinates: coordinates,
           verticalBounds,
           visibleEntryIDs: this.visibleEntryIDs(),
@@ -245,12 +279,12 @@ const unboundStyles = {
     fontSize: 16,
     lineHeight: 20,
   },
-  accept: {
+  blueAction: {
     color: 'link',
     fontSize: 16,
     paddingLeft: 6,
   },
-  cancel: {
+  redAction: {
     color: 'redText',
     fontSize: 16,
     paddingLeft: 6,

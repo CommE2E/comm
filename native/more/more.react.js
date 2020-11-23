@@ -16,7 +16,6 @@ import BuildInfo from './build-info.react';
 import DevTools from './dev-tools.react';
 import AppearancePreferences from './appearance-preferences.react';
 import RelationshipList from './relationship-list.react';
-import RelationshipListAddButton from './relationship-list-add-button.react';
 import {
   MoreScreenRouteName,
   EditEmailRouteName,
@@ -26,7 +25,6 @@ import {
   DevToolsRouteName,
   AppearancePreferencesRouteName,
   FriendListRouteName,
-  RelationshipUpdateModalRouteName,
   BlockListRouteName,
   type ScreenParamList,
   type MoreParamList,
@@ -49,40 +47,14 @@ const deleteAccountOptions = { headerTitle: 'Delete account' };
 const buildInfoOptions = { headerTitle: 'Build info' };
 const devToolsOptions = { headerTitle: 'Developer tools' };
 const appearanceOptions = { headerTitle: 'Appearance' };
-const friendListOptions = ({ navigation }) => ({
+const friendListOptions = {
   headerTitle: 'Friend list',
-  // eslint-disable-next-line react/display-name
-  headerRight: () => (
-    <RelationshipListAddButton
-      onPress={() => {
-        navigation.navigate({
-          name: RelationshipUpdateModalRouteName,
-          params: {
-            target: 'friends',
-          },
-        });
-      }}
-    />
-  ),
   headerBackTitle: 'Back',
-});
-const blockListOptions = ({ navigation }) => ({
+};
+const blockListOptions = {
   headerTitle: 'Block list',
-  // eslint-disable-next-line react/display-name
-  headerRight: () => (
-    <RelationshipListAddButton
-      onPress={() => {
-        navigation.navigate({
-          name: RelationshipUpdateModalRouteName,
-          params: {
-            target: 'blocked',
-          },
-        });
-      }}
-    />
-  ),
   headerBackTitle: 'Back',
-});
+};
 
 export type MoreNavigationProp<
   RouteName: $Keys<MoreParamList> = $Keys<MoreParamList>,

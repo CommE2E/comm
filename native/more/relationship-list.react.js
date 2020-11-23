@@ -1,22 +1,49 @@
 // @flow
 
-import type { UserInfo } from 'lib/types/user-types';
-import type { UserRelationships } from 'lib/types/relationship-types';
+import type {
+  UserInfos,
+  GlobalAccountUserInfo,
+  AccountUserInfo,
+} from 'lib/types/user-types';
+import {
+  type UserRelationships,
+  type RelationshipRequest,
+  userRelationshipStatus,
+  relationshipActions,
+} from 'lib/types/relationship-types';
+import type { UserSearchResult } from 'lib/types/search-types';
 import type { VerticalBounds } from '../types/layout-types';
 import type { NavigationRoute } from '../navigation/route-names';
 import type { MoreNavigationProp } from './more.react';
 
 import * as React from 'react';
-import { View, Text, FlatList } from 'react-native';
+import { View, Text, FlatList, Alert, Platform } from 'react-native';
 import invariant from 'invariant';
 import { createSelector } from 'reselect';
 
 import { userRelationshipsSelector } from 'lib/selectors/relationship-selectors';
+import { userStoreSearchIndex as userStoreSearchIndexSelector } from 'lib/selectors/user-selectors';
+import {
+  type DispatchActionPromise,
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
+import {
+  updateRelationshipsActionTypes,
+  updateRelationships,
+} from 'lib/actions/relationship-actions';
+import { searchUsersActionTypes, searchUsers } from 'lib/actions/user-actions';
+import { registerFetchKey } from 'lib/reducers/loading-reducer';
+import SearchIndex from 'lib/shared/search-index';
 
 import {
   OverlayContext,
   type OverlayContextType,
 } from '../navigation/overlay-context';
+import {
+  FriendListRouteName,
+  BlockListRouteName,
+} from '../navigation/route-names';
 import {
   useStyles,
   type IndicatorStyle,
@@ -29,21 +56,29 @@ import {
 
 import RelationshipListItem from './relationship-list-item.react';
 import { useSelector } from '../redux/redux-utils';
+import TagInput from '../components/tag-input.react';
+import LinkButton from '../components/link-button.react';
 
 export type RelationshipListNavigate = $PropertyType<
   MoreNavigationProp<'FriendList' | 'BlockList'>,
   'navigate',
 >;
 
+const tagInputProps = {
+  placeholder: 'username',
+  autoFocus: true,
+  returnKeyType: 'go',
+};
+
 type ListItem =
-  | {| type: 'empty' |}
-  | {| type: 'header' |}
-  | {| type: 'footer' |}
+  | {| +type: 'empty', +because: 'no-relationships' | 'no-results' |}
+  | {| +type: 'header' |}
+  | {| +type: 'footer' |}
   | {|
-      type: 'user',
-      userInfo: UserInfo,
-      lastListItem: boolean,
-      verticalBounds: ?VerticalBounds,
+      +type: 'user',
+      +userInfo: AccountUserInfo,
+      +lastListItem: boolean,
+      +verticalBounds: ?VerticalBounds,
     |};
 
 type BaseProps = {|
@@ -54,8 +89,16 @@ type Props = {|
   ...BaseProps,
   // Redux state
   +relationships: UserRelationships,
+  +userInfos: UserInfos,
+  +viewerID: ?string,
+  +userStoreSearchIndex: SearchIndex,
   +styles: typeof unboundStyles,
   +indicatorStyle: IndicatorStyle,
+  // Redux dispatch functions
+  +dispatchActionPromise: DispatchActionPromise,
+  // async functions that hit server APIs
+  +searchUsers: (usernamePrefix: string) => Promise<UserSearchResult>,
+  +updateRelationships: (request: RelationshipRequest) => Promise<void>,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
   // withKeyboardState
@@ -63,47 +106,44 @@ type Props = {|
 |};
 type State = {|
   +verticalBounds: ?VerticalBounds,
+  +searchInputText: string,
+  +serverSearchResults: $ReadOnlyArray<GlobalAccountUserInfo>,
+  +currentTags: $ReadOnlyArray<GlobalAccountUserInfo>,
+  +userStoreSearchResults: Set<string>,
 |};
 type PropsAndState = {| ...Props, ...State |};
 class RelationshipList extends React.PureComponent<Props, State> {
   flatListContainerRef = React.createRef();
-
+  tagInput: ?TagInput<GlobalAccountUserInfo> = null;
   state: State = {
     verticalBounds: null,
+    searchInputText: '',
+    serverSearchResults: [],
+    userStoreSearchResults: new Set(),
+    currentTags: [],
   };
 
-  listDataSelector = createSelector(
-    (propsAndState: PropsAndState) => propsAndState.relationships,
-    (propsAndState: PropsAndState) => propsAndState.route.name,
-    (propsAndState: PropsAndState) => propsAndState.verticalBounds,
-    (
-      relationships: UserRelationships,
-      routeName: $ElementType<
-        NavigationRoute<'FriendList' | 'BlockList'>,
-        'name',
-      >,
-      verticalBounds: ?VerticalBounds,
-    ) => {
-      const users = {
-        FriendList: relationships.friends,
-        BlockList: relationships.blocked,
-      }[routeName];
-      const isEmpty = !users.length;
+  componentDidMount() {
+    this.setSaveButton(false);
+  }
 
-      const mapUser = (userInfo, index) => ({
-        type: 'user',
-        userInfo,
-        lastListItem: users.length - 1 === index,
-        verticalBounds,
-      });
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    const prevTags = prevState.currentTags.length;
+    const currentTags = this.state.currentTags.length;
+    if (prevTags !== 0 && currentTags === 0) {
+      this.setSaveButton(false);
+    } else if (prevTags === 0 && currentTags !== 0) {
+      this.setSaveButton(true);
+    }
+  }
 
-      return []
-        .concat(isEmpty ? { type: 'empty' } : [])
-        .concat(isEmpty ? [] : { type: 'header' })
-        .concat(users.map(mapUser))
-        .concat(isEmpty ? [] : { type: 'footer' });
-    },
-  );
+  setSaveButton(enabled: boolean) {
+    this.props.navigation.setOptions({
+      headerRight: () => (
+        <LinkButton text="Save" onPress={this.onPressAdd} disabled={!enabled} />
+      ),
+    });
+  }
 
   static keyExtractor(item: ListItem) {
     if (item.userInfo) {
@@ -112,9 +152,10 @@ class RelationshipList extends React.PureComponent<Props, State> {
       return 'empty';
     } else if (item.type === 'header') {
       return 'header';
-    } else {
-      return 'search';
+    } else if (item.type === 'footer') {
+      return 'footer';
     }
+    invariant(false, 'keyExtractor conditions should be exhaustive');
   }
 
   get listData() {
@@ -133,22 +174,192 @@ class RelationshipList extends React.PureComponent<Props, State> {
   }
 
   render() {
+    const inputProps = {
+      ...tagInputProps,
+      onSubmitEditing: this.onPressAdd,
+    };
     return (
-      <View
-        ref={this.flatListContainerRef}
-        onLayout={this.onFlatListContainerLayout}
-        style={this.props.styles.container}
-      >
-        <FlatList
-          contentContainerStyle={this.props.styles.contentContainer}
-          data={this.listData}
-          renderItem={this.renderItem}
-          keyExtractor={RelationshipList.keyExtractor}
-          scrollEnabled={!RelationshipList.scrollDisabled(this.props)}
-          indicatorStyle={this.props.indicatorStyle}
-        />
+      <View style={this.props.styles.container}>
+        <View style={this.props.styles.tagInputContainer}>
+          <Text style={this.props.styles.tagInputLabel}>Search:</Text>
+          <View style={this.props.styles.tagInput}>
+            <TagInput
+              value={this.state.currentTags}
+              onChange={this.onChangeTagInput}
+              text={this.state.searchInputText}
+              onChangeText={this.onChangeSearchText}
+              labelExtractor={this.tagDataLabelExtractor}
+              innerRef={this.tagInputRef}
+              inputProps={inputProps}
+              maxHeight={36}
+            />
+          </View>
+        </View>
+        <View
+          ref={this.flatListContainerRef}
+          onLayout={this.onFlatListContainerLayout}
+          style={this.props.styles.container}
+        >
+          <FlatList
+            contentContainerStyle={this.props.styles.contentContainer}
+            data={this.listData}
+            renderItem={this.renderItem}
+            keyExtractor={RelationshipList.keyExtractor}
+            scrollEnabled={!RelationshipList.scrollDisabled(this.props)}
+            indicatorStyle={this.props.indicatorStyle}
+            keyboardShouldPersistTaps="handled"
+          />
+        </View>
       </View>
     );
+  }
+
+  listDataSelector = createSelector(
+    (propsAndState: PropsAndState) => propsAndState.relationships,
+    (propsAndState: PropsAndState) => propsAndState.route.name,
+    (propsAndState: PropsAndState) => propsAndState.verticalBounds,
+    (propsAndState: PropsAndState) => propsAndState.searchInputText,
+    (propsAndState: PropsAndState) => propsAndState.serverSearchResults,
+    (propsAndState: PropsAndState) => propsAndState.userStoreSearchResults,
+    (propsAndState: PropsAndState) => propsAndState.userInfos,
+    (propsAndState: PropsAndState) => propsAndState.viewerID,
+    (propsAndState: PropsAndState) => propsAndState.currentTags,
+    (
+      relationships: UserRelationships,
+      routeName: 'FriendList' | 'BlockList',
+      verticalBounds: ?VerticalBounds,
+      searchInputText: string,
+      serverSearchResults: $ReadOnlyArray<GlobalAccountUserInfo>,
+      userStoreSearchResults: Set<string>,
+      userInfos: UserInfos,
+      viewerID: ?string,
+      currentTags: $ReadOnlyArray<GlobalAccountUserInfo>,
+    ) => {
+      const defaultUsers = {
+        [FriendListRouteName]: relationships.friends,
+        [BlockListRouteName]: relationships.blocked,
+      }[routeName];
+
+      const excludeUserIDsArray = currentTags
+        .map((userInfo) => userInfo.id)
+        .concat(viewerID || []);
+
+      const excludeUserIDs = new Set(excludeUserIDsArray);
+
+      let displayUsers = defaultUsers;
+
+      if (searchInputText !== '') {
+        const mergedUserInfos: { [id: string]: AccountUserInfo } = {};
+        for (const userInfo of serverSearchResults) {
+          mergedUserInfos[userInfo.id] = userInfo;
+        }
+        for (const id of userStoreSearchResults) {
+          const { username, relationshipStatus } = userInfos[id];
+          if (username) {
+            mergedUserInfos[id] = { id, username, relationshipStatus };
+          }
+        }
+
+        const sortToEnd = [];
+        const userSearchResults = [];
+        const sortRelationshipTypesToEnd = {
+          [FriendListRouteName]: [userRelationshipStatus.FRIEND],
+          [BlockListRouteName]: [
+            userRelationshipStatus.BLOCKED_BY_VIEWER,
+            userRelationshipStatus.BOTH_BLOCKED,
+          ],
+        }[routeName];
+        for (const userID in mergedUserInfos) {
+          if (excludeUserIDs.has(userID)) {
+            continue;
+          }
+
+          const userInfo = mergedUserInfos[userID];
+          if (
+            sortRelationshipTypesToEnd.includes(userInfo.relationshipStatus)
+          ) {
+            sortToEnd.push(userInfo);
+          } else {
+            userSearchResults.push(userInfo);
+          }
+        }
+
+        displayUsers = userSearchResults.concat(sortToEnd);
+      }
+
+      let emptyItem;
+      if (displayUsers.length === 0 && searchInputText === '') {
+        emptyItem = { type: 'empty', because: 'no-relationships' };
+      } else if (displayUsers.length === 0) {
+        emptyItem = { type: 'empty', because: 'no-results' };
+      }
+
+      const mappedUsers = displayUsers.map((userInfo, index) => ({
+        type: 'user',
+        userInfo,
+        lastListItem: displayUsers.length - 1 === index,
+        verticalBounds,
+      }));
+
+      return []
+        .concat(emptyItem ? emptyItem : [])
+        .concat(emptyItem ? [] : { type: 'header' })
+        .concat(mappedUsers)
+        .concat(emptyItem ? [] : { type: 'footer' });
+    },
+  );
+
+  tagInputRef = (tagInput: ?TagInput<GlobalAccountUserInfo>) => {
+    this.tagInput = tagInput;
+  };
+
+  tagDataLabelExtractor = (userInfo: GlobalAccountUserInfo) =>
+    userInfo.username;
+
+  onChangeTagInput = (currentTags: $ReadOnlyArray<GlobalAccountUserInfo>) => {
+    this.setState({ currentTags });
+  };
+
+  onChangeSearchText = async (searchText: string) => {
+    const excludeStatuses = {
+      [FriendListRouteName]: [
+        userRelationshipStatus.BLOCKED_VIEWER,
+        userRelationshipStatus.BOTH_BLOCKED,
+      ],
+      [BlockListRouteName]: [],
+    }[this.props.route.name];
+
+    const results = this.props.userStoreSearchIndex
+      .getSearchResults(searchText)
+      .filter((userID) => {
+        const relationship = this.props.userInfos[userID].relationshipStatus;
+        return !excludeStatuses.includes(relationship);
+      });
+
+    this.setState({
+      searchInputText: searchText,
+      userStoreSearchResults: new Set(results),
+    });
+
+    const serverSearchResults = await this.searchUsers(searchText);
+    const filteredServerSearchResults = serverSearchResults.filter(
+      (searchUserInfo) => {
+        const userInfo = this.props.userInfos[searchUserInfo.id];
+        return (
+          !userInfo || !excludeStatuses.includes(userInfo.relationshipStatus)
+        );
+      },
+    );
+    this.setState({ serverSearchResults: filteredServerSearchResults });
+  };
+
+  async searchUsers(usernamePrefix: string) {
+    if (usernamePrefix.length === 0) {
+      return [];
+    }
+
+    const { userInfos } = await this.props.searchUsers(usernamePrefix);
+    return userInfos;
   }
 
   onFlatListContainerLayout = () => {
@@ -177,18 +388,85 @@ class RelationshipList extends React.PureComponent<Props, State> {
     );
   };
 
+  onSelect = (selectedUser: GlobalAccountUserInfo) => {
+    this.setState((state) => {
+      if (state.currentTags.find((o) => o.id === selectedUser.id)) {
+        return null;
+      }
+      return {
+        searchInputText: '',
+        currentTags: state.currentTags.concat(selectedUser),
+      };
+    });
+  };
+
+  onPressAdd = () => {
+    if (this.state.currentTags.length === 0) {
+      return;
+    }
+    this.props.dispatchActionPromise(
+      updateRelationshipsActionTypes,
+      this.updateRelationships(),
+    );
+  };
+
+  async updateRelationships() {
+    const routeName = this.props.route.name;
+    const action = {
+      [FriendListRouteName]: relationshipActions.FRIEND,
+      [BlockListRouteName]: relationshipActions.BLOCK,
+    }[routeName];
+    const userIDs = this.state.currentTags.map((userInfo) => userInfo.id);
+
+    try {
+      const result = await this.props.updateRelationships({
+        action,
+        userIDs,
+      });
+      this.setState({
+        currentTags: [],
+        searchInputText: '',
+      });
+      return result;
+    } catch (e) {
+      Alert.alert(
+        'Unknown error',
+        'Uhh... try again?',
+        [{ text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged }],
+        { cancelable: true, onDismiss: this.onUnknownErrorAlertAcknowledged },
+      );
+      throw e;
+    }
+  }
+
+  onErrorAcknowledged = () => {
+    invariant(this.tagInput, 'tagInput should be set');
+    this.tagInput.focus();
+  };
+
+  onUnknownErrorAlertAcknowledged = () => {
+    this.setState(
+      {
+        currentTags: [],
+        searchInputText: '',
+      },
+      this.onErrorAcknowledged,
+    );
+  };
+
   renderItem = ({ item }: { item: ListItem }) => {
     if (item.type === 'empty') {
       const action = {
-        FriendList: 'added',
-        BlockList: 'blocked',
+        [FriendListRouteName]: 'added',
+        [BlockListRouteName]: 'blocked',
       }[this.props.route.name];
 
-      return (
-        <Text
-          style={this.props.styles.emptyText}
-        >{`You haven't ${action} any users yet`}</Text>
-      );
+      const emptyMessage =
+        item.because === 'no-relationships'
+          ? `You haven't ${action} any users yet`
+          : 'No results';
+
+      return <Text style={this.props.styles.emptyText}>{emptyMessage}</Text>;
     } else if (item.type === 'header' || item.type === 'footer') {
       return <View style={this.props.styles.separator} />;
     } else if (item.type === 'user') {
@@ -198,8 +476,8 @@ class RelationshipList extends React.PureComponent<Props, State> {
           lastListItem={item.lastListItem}
           verticalBounds={item.verticalBounds}
           navigate={this.props.navigation.navigate}
-          relationshipListRouteKey={this.props.route.key}
-          relationshipListRouteName={this.props.route.name}
+          relationshipListRoute={this.props.route}
+          onSelect={this.onSelect}
         />
       );
     } else {
@@ -214,11 +492,12 @@ const unboundStyles = {
     backgroundColor: 'panelBackground',
   },
   contentContainer: {
-    paddingVertical: 24,
+    paddingTop: 12,
+    paddingBottom: 24,
   },
   separator: {
     backgroundColor: 'panelForegroundBorder',
-    height: 1,
+    height: Platform.OS === 'android' ? 1.5 : 1,
   },
   emptyText: {
     color: 'panelForegroundSecondaryLabel',
@@ -230,24 +509,61 @@ const unboundStyles = {
     paddingVertical: 10,
     marginHorizontal: 12,
   },
+  tagInput: {
+    flex: 1,
+    marginLeft: 8,
+    paddingRight: 12,
+  },
+  tagInputLabel: {
+    color: 'panelForegroundTertiaryLabel',
+    fontSize: 16,
+    paddingLeft: 12,
+  },
+  tagInputContainer: {
+    alignItems: 'center',
+    backgroundColor: 'panelForeground',
+    borderBottomWidth: 1,
+    borderColor: 'panelForegroundBorder',
+    flexDirection: 'row',
+    paddingVertical: 6,
+  },
 };
+
+registerFetchKey(searchUsersActionTypes);
+registerFetchKey(updateRelationshipsActionTypes);
 
 export default React.memo<BaseProps>(function ConnectedRelationshipList(
   props: BaseProps,
 ) {
   const relationships = useSelector(userRelationshipsSelector);
+  const userInfos = useSelector((state) => state.userStore.userInfos);
+  const viewerID = useSelector(
+    (state) => state.currentUserInfo && state.currentUserInfo.id,
+  );
+  const userStoreSearchIndex = useSelector(userStoreSearchIndexSelector);
   const styles = useStyles(unboundStyles);
   const indicatorStyle = useIndicatorStyle();
   const overlayContext = React.useContext(OverlayContext);
   const keyboardState = React.useContext(KeyboardContext);
+
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callSearchUsers = useServerCall(searchUsers);
+  const callUpdateRelationships = useServerCall(updateRelationships);
+
   return (
     <RelationshipList
       {...props}
       relationships={relationships}
+      userInfos={userInfos}
+      viewerID={viewerID}
+      userStoreSearchIndex={userStoreSearchIndex}
       styles={styles}
       indicatorStyle={indicatorStyle}
       overlayContext={overlayContext}
       keyboardState={keyboardState}
+      dispatchActionPromise={dispatchActionPromise}
+      searchUsers={callSearchUsers}
+      updateRelationships={callUpdateRelationships}
     />
   );
 });

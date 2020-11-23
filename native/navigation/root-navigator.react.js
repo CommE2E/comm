@@ -23,7 +23,6 @@ import {
   CustomServerModalRouteName,
   ColorPickerModalRouteName,
   ComposeSubthreadModalRouteName,
-  RelationshipUpdateModalRouteName,
   SidebarListModalRouteName,
   type ScreenParamList,
   type RootParamList,
@@ -35,7 +34,6 @@ import ThreadPickerModal from '../calendar/thread-picker-modal.react';
 import AddUsersModal from '../chat/settings/add-users-modal.react';
 import CustomServerModal from '../more/custom-server-modal.react';
 import ColorPickerModal from '../chat/settings/color-picker-modal.react';
-import RelationshipUpdateModal from '../more/relationship-update-modal.react';
 import ComposeSubthreadModal from '../chat/settings/compose-subthread-modal.react';
 import SidebarListModal from '../chat/sidebar-list-modal.react';
 import RootRouter, { type RootRouterNavigationProp } from './root-router';
@@ -182,11 +180,6 @@ const RootComponent = () => {
       <Root.Screen
         name={ComposeSubthreadModalRouteName}
         component={ComposeSubthreadModal}
-        options={modalOverlayScreenOptions}
-      />
-      <Root.Screen
-        name={RelationshipUpdateModalRouteName}
-        component={RelationshipUpdateModal}
         options={modalOverlayScreenOptions}
       />
       <Root.Screen

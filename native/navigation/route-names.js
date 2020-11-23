@@ -4,7 +4,6 @@ import type { LeafRoute } from '@react-navigation/native';
 import type { VerificationModalParams } from '../account/verification-modal.react';
 import type { ThreadPickerModalParams } from '../calendar/thread-picker-modal.react';
 import type { AddUsersModalParams } from '../chat/settings/add-users-modal.react';
-import type { RelationshipUpdateModalParams } from '../more/relationship-update-modal.react';
 import type { RelationshipListItemTooltipModalParams } from '../more/relationship-list-item-tooltip-modal.react';
 import type { CustomServerModalParams } from '../more/custom-server-modal.react';
 import type { ColorPickerModalParams } from '../chat/settings/color-picker-modal.react';
@@ -58,7 +57,6 @@ export const ThreadSettingsMemberTooltipModalRouteName =
 export const CameraModalRouteName = 'CameraModal';
 export const FriendListRouteName = 'FriendList';
 export const BlockListRouteName = 'BlockList';
-export const RelationshipUpdateModalRouteName = 'RelationshipUpdateModal';
 export const SidebarListModalRouteName = 'SidebarListModal';
 
 export type RootParamList = {|
@@ -70,7 +68,6 @@ export type RootParamList = {|
   CustomServerModal: CustomServerModalParams,
   ColorPickerModal: ColorPickerModalParams,
   ComposeSubthreadModal: ComposeSubthreadModalParams,
-  RelationshipUpdateModal: RelationshipUpdateModalParams,
   SidebarListModal: SidebarListModalParams,
 |};
 
