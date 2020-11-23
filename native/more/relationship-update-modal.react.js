@@ -75,7 +75,7 @@ type State = {|
 |};
 type PropsAndState = {| ...Props, ...State |};
 class RelationshipUpdateModal extends React.PureComponent<Props, State> {
-  state = {
+  state: State = {
     usernameInputText: '',
     userInfoInputArray: [],
     searchUserInfos: {},

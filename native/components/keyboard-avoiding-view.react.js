@@ -59,7 +59,7 @@ type State = {|
 |};
 type Subscription = { +remove: () => void, ... };
 class InnerKeyboardAvoidingView extends React.PureComponent<Props, State> {
-  state = {
+  state: State = {
     bottom: 0,
   };
   subscriptions: Subscription[] = [];

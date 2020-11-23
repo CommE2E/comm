@@ -69,7 +69,7 @@ class EditPassword extends React.PureComponent<Props, State> {
     dispatchActionPromise: PropTypes.func.isRequired,
     changeUserSettings: PropTypes.func.isRequired,
   };
-  state = {
+  state: State = {
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',

@@ -56,7 +56,7 @@ type State = {|
   +confirmPasswordFocused: boolean,
 |};
 class RegisterPanel extends React.PureComponent<Props, State> {
-  state = {
+  state: State = {
     confirmPasswordFocused: false,
   };
   usernameInput: ?TextInput;

@@ -68,7 +68,7 @@ type PropsAndState = {| ...Props, ...State |};
 class RelationshipList extends React.PureComponent<Props, State> {
   flatListContainerRef = React.createRef();
 
-  state = {
+  state: State = {
     verticalBounds: null,
   };
 

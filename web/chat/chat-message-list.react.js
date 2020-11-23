@@ -105,7 +105,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     fetchMostRecentMessages: PropTypes.func.isRequired,
     inputState: inputStatePropType,
   };
-  state = {
+  state: State = {
     mouseOverMessagePosition: null,
   };
   container: ?HTMLDivElement;

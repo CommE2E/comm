@@ -31,7 +31,7 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
   static propTypes = {
     children: PropTypes.node.isRequired,
   };
-  state = {
+  state: State = {
     systemKeyboardShowing: false,
     mediaGalleryOpen: false,
     mediaGalleryThreadID: null,

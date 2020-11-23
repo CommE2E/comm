@@ -63,7 +63,7 @@ class FilterPanel extends React.PureComponent<Props, State> {
     includeDeleted: PropTypes.bool.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
-  state = {
+  state: State = {
     query: '',
     searchResults: [],
     collapsed: false,

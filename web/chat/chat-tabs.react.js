@@ -23,7 +23,7 @@ class ChatTabs extends React.PureComponent<Props, State> {
   static propTypes = {
     unreadBackgroundCount: PropTypes.number,
   };
-  state = {
+  state: State = {
     activeTab: 'HOME',
   };
 

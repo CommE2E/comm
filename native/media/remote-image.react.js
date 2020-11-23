@@ -35,7 +35,7 @@ class RemoteImage extends React.PureComponent<Props, State> {
     invisibleLoad: PropTypes.bool.isRequired,
     connectionStatus: connectionStatusPropType.isRequired,
   };
-  state = {
+  state: State = {
     attempt: 0,
     loaded: false,
   };

@@ -70,7 +70,7 @@ class DeleteAccount extends React.PureComponent<Props, State> {
     dispatchActionPromise: PropTypes.func.isRequired,
     deleteAccount: PropTypes.func.isRequired,
   };
-  state = {
+  state: State = {
     password: '',
   };
   mounted = false;

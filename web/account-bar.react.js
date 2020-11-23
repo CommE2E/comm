@@ -48,7 +48,7 @@ class AccountBar extends React.PureComponent<Props, State> {
     dispatchActionPromise: PropTypes.func.isRequired,
     logOut: PropTypes.func.isRequired,
   };
-  state = {
+  state: State = {
     expanded: false,
   };
   menu: ?HTMLDivElement;

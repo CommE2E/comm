@@ -48,7 +48,7 @@ class ThreadList extends React.PureComponent<Props, State> {
     styles: PropTypes.objectOf(PropTypes.object).isRequired,
     indicatorStyle: indicatorStylePropType.isRequired,
   };
-  state = {
+  state: State = {
     searchText: '',
     searchResults: new Set(),
   };

@@ -128,7 +128,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     sendMultimediaMessage: PropTypes.func.isRequired,
     sendTextMessage: PropTypes.func.isRequired,
   };
-  state = {
+  state: State = {
     pendingUploads: {},
   };
   sendCallbacks: Array<() => void> = [];

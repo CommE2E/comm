@@ -15,7 +15,7 @@ class ClearableTextInput extends React.PureComponent<
   ClearableTextInputProps,
   State,
 > {
-  state = {
+  state: State = {
     textInputKey: 0,
   };
   pendingMessage: ?{| value: string, resolve: (value: string) => void |};

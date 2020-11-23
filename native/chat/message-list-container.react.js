@@ -61,7 +61,7 @@ type State = {|
   +listDataWithHeights: ?$ReadOnlyArray<ChatMessageItemWithHeight>,
 |};
 class MessageListContainer extends React.PureComponent<Props, State> {
-  state = {
+  state: State = {
     listDataWithHeights: null,
   };
   pendingListDataWithHeights: ?$ReadOnlyArray<ChatMessageItemWithHeight>;

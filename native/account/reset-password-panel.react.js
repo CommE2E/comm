@@ -60,7 +60,7 @@ type State = {|
   +confirmPasswordInputText: string,
 |};
 class ResetPasswordPanel extends React.PureComponent<Props, State> {
-  state = {
+  state: State = {
     passwordInputText: '',
     confirmPasswordInputText: '',
   };

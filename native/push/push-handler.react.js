@@ -132,7 +132,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     setDeviceToken: PropTypes.func.isRequired,
     rootContext: rootContextPropType,
   };
-  state = {
+  state: State = {
     inAppNotifProps: null,
   };
   currentState: ?string = getCurrentLifecycleState();

@@ -95,7 +95,7 @@ class InnerPanel extends React.PureComponent<PanelProps, PanelState> {
     style: ViewPropTypes.style,
     dimensions: dimensionsInfoPropType.isRequired,
   };
-  state = {
+  state: PanelState = {
     keyboardHeight: 0,
   };
   keyboardShowListener: ?EmitterSubscription;

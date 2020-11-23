@@ -53,7 +53,7 @@ class ForgotPasswordPanel extends React.PureComponent<Props, State> {
     dispatchActionPromise: PropTypes.func.isRequired,
     forgotPassword: PropTypes.func.isRequired,
   };
-  state = {
+  state: State = {
     usernameOrEmailInputText: '',
   };
   usernameOrEmailInput: ?TextInput;

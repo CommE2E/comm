@@ -119,7 +119,7 @@ class MessageList extends React.PureComponent<Props, State> {
     overlayContext: overlayContextPropType,
     keyboardState: keyboardStatePropType,
   };
-  state = {
+  state: State = {
     focusedMessageKey: null,
     messageListVerticalBounds: null,
     loadingFromScroll: false,

@@ -117,7 +117,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
     dispatchActionPromise: PropTypes.func.isRequired,
     newThread: PropTypes.func.isRequired,
   };
-  state = {
+  state: State = {
     usernameInputText: '',
     userInfoInputArray: [],
   };

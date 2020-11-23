@@ -22,7 +22,7 @@ type State = {|
   errorData: $ReadOnlyArray<ErrorData>,
 |};
 class ErrorBoundary extends React.PureComponent<Props, State> {
-  state = {
+  state: State = {
     errorData: [],
   };
 

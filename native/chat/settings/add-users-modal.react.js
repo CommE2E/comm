@@ -100,7 +100,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     dispatchActionPromise: PropTypes.func.isRequired,
     changeThreadSettings: PropTypes.func.isRequired,
   };
-  state = {
+  state: State = {
     usernameInputText: '',
     userInfoInputArray: [],
   };

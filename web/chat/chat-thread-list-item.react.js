@@ -52,7 +52,7 @@ class ChatThreadListItem extends React.PureComponent<Props, State> {
     dispatchActionPromise: PropTypes.func.isRequired,
     setThreadUnreadStatus: PropTypes.func.isRequired,
   };
-  state = {
+  state: State = {
     menuVisible: false,
   };
 

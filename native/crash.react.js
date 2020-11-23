@@ -77,7 +77,7 @@ class Crash extends React.PureComponent<Props, State> {
     logOut: PropTypes.func.isRequired,
   };
   errorTitle = _shuffle(errorTitles)[0];
-  state = {
+  state: State = {
     errorReportID: null,
     doneWaiting: false,
   };

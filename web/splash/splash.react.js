@@ -53,7 +53,7 @@ class Splash extends React.PureComponent<Props, State> {
   };
   emailInput: ?HTMLInputElement;
   bottomContainer: ?HTMLDivElement;
-  state = {
+  state: State = {
     platform: 'ios',
     email: '',
     error: null,

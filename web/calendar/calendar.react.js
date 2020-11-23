@@ -77,7 +77,7 @@ class Calendar extends React.PureComponent<Props, State> {
     dispatchActionPromise: PropTypes.func.isRequired,
     updateCalendarQuery: PropTypes.func.isRequired,
   };
-  state = {
+  state: State = {
     filterPanelOpen: false,
   };
 

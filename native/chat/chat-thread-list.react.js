@@ -79,7 +79,7 @@ type State = {|
 |};
 type PropsAndState = {| ...Props, ...State |};
 class ChatThreadList extends React.PureComponent<Props, State> {
-  state = {
+  state: State = {
     searchText: '',
     searchResults: new Set(),
     openedSwipeableId: '',

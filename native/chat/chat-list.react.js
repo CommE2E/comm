@@ -74,7 +74,7 @@ type State = {|
   +newMessageCount: number,
 |};
 class ChatList extends React.PureComponent<Props, State> {
-  state = {
+  state: State = {
     newMessageCount: 0,
   };
 

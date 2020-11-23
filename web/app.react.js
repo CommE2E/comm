@@ -107,7 +107,7 @@ class App extends React.PureComponent<Props, State> {
     unreadCount: PropTypes.number.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
-  state = {
+  state: State = {
     currentModal: null,
   };
 

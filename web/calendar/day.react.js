@@ -65,7 +65,7 @@ class Day extends React.PureComponent<Props, State> {
     timeZone: PropTypes.string,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
-  state = {
+  state: State = {
     pickerOpen: false,
     hovered: false,
   };

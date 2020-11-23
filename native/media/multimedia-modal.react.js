@@ -190,7 +190,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     dimensions: derivedDimensionsInfoPropType.isRequired,
     overlayContext: overlayContextPropType,
   };
-  state = {
+  state: State = {
     closeButtonEnabled: true,
     actionLinksEnabled: true,
   };

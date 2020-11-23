@@ -69,7 +69,7 @@ type State = {|
   +password: string,
 |};
 class DeleteThread extends React.PureComponent<Props, State> {
-  state = {
+  state: State = {
     password: '',
   };
   mounted = false;
