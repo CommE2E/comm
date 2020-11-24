@@ -123,12 +123,16 @@ function runTiming(
 const defaultSpringConfig = SpringUtils.makeDefaultConfig();
 
 type SpringConfig = $Shape<typeof defaultSpringConfig>;
+type SpringAnimationInitialState = $Shape<{|
+  +velocity: Value | number,
+|}>;
 function runSpring(
   clock: Clock,
   initialValue: Value | number,
   finalValue: Value | number,
   startStopClock: boolean = true,
   config: SpringConfig = defaultSpringConfig,
+  initialState?: SpringAnimationInitialState,
 ): Value {
   const state = {
     finished: new Value(0),
@@ -144,7 +148,7 @@ function runSpring(
   return [
     cond(not(clockRunning(clock)), [
       set(state.finished, 0),
-      set(state.velocity, 0),
+      set(state.velocity, initialState?.velocity ?? 0),
       set(state.time, 0),
       set(state.position, initialValue),
       set(springConfig.toValue, finalValue),

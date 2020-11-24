@@ -71,11 +71,13 @@ function SwipeableMessage(props: Props) {
   } = React.useMemo(() => {
     const swipeX = new Value(0);
     const swipeState = new Value(-1);
+    const swipeVelocityX = new Value(0);
     const innerSwipeEvent = event([
       {
         nativeEvent: {
           translationX: swipeX,
           state: swipeState,
+          velocityX: swipeVelocityX,
         },
       },
     ]);
@@ -115,7 +117,12 @@ function SwipeableMessage(props: Props) {
           cond(
             eq(curX, 0),
             stopClock(resetClock),
-            set(curX, runSpring(resetClock, curX, 0, true, springConfig)),
+            set(
+              curX,
+              runSpring(resetClock, curX, 0, true, springConfig, {
+                velocity: swipeVelocityX,
+              }),
+            ),
           ),
           curX,
         ],
