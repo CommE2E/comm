@@ -33,8 +33,10 @@ import {
   type OverlayContextType,
 } from '../navigation/overlay-context';
 import { useSelector } from '../redux/redux-utils';
-import { useTextMessageRulesFunc } from '../markdown/rules.react';
-import { MessageListContext } from './message-list-types';
+import {
+  MessageListContext,
+  useMessageListContext,
+} from './message-list-types';
 
 export type ChatMessageItemWithHeight =
   | {| itemType: 'loader' |}
@@ -281,15 +283,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
   const styles = useStyles(unboundStyles);
   const inputState = React.useContext(InputStateContext);
   const overlayContext = React.useContext(OverlayContext);
-
-  const getTextMessageMarkdownRules = useTextMessageRulesFunc(threadID);
-  const messageListContext = React.useMemo(
-    () => ({
-      getTextMessageMarkdownRules,
-    }),
-    [getTextMessageMarkdownRules],
-  );
-
+  const messageListContext = useMessageListContext(threadID);
   return (
     <MessageListContext.Provider value={messageListContext}>
       <MessageListContainer

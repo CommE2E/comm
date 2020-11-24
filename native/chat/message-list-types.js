@@ -7,12 +7,14 @@ import { type UserInfo, userInfoPropType } from 'lib/types/user-types';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 
+import { useTextMessageRulesFunc } from '../markdown/rules.react';
+
 export type MessageListParams = {|
   threadInfo: ThreadInfo,
   pendingPersonalThreadUserInfo?: UserInfo,
 |};
 
-export const messageListRoutePropType = PropTypes.shape({
+const messageListRoutePropType = PropTypes.shape({
   key: PropTypes.string.isRequired,
   params: PropTypes.shape({
     threadInfo: threadInfoPropType.isRequired,
@@ -20,7 +22,7 @@ export const messageListRoutePropType = PropTypes.shape({
   }).isRequired,
 });
 
-export const messageListNavPropType = PropTypes.shape({
+const messageListNavPropType = PropTypes.shape({
   navigate: PropTypes.func.isRequired,
   setParams: PropTypes.func.isRequired,
   setOptions: PropTypes.func.isRequired,
@@ -33,4 +35,21 @@ export type MessageListContextType = {|
   +getTextMessageMarkdownRules: (useDarkStyle: boolean) => MarkdownRules,
 |};
 
-export const MessageListContext = React.createContext<?MessageListContextType>();
+const MessageListContext = React.createContext<?MessageListContextType>();
+
+function useMessageListContext(threadID: string) {
+  const getTextMessageMarkdownRules = useTextMessageRulesFunc(threadID);
+  return React.useMemo(
+    () => ({
+      getTextMessageMarkdownRules,
+    }),
+    [getTextMessageMarkdownRules],
+  );
+}
+
+export {
+  messageListRoutePropType,
+  messageListNavPropType,
+  MessageListContext,
+  useMessageListContext,
+};
