@@ -143,6 +143,13 @@ async function fetchKnownUserInfos(
     if (relationshipStatus) {
       userInfos[id].relationshipStatus = relationshipStatus;
     }
+
+    if (relationshipStatus && !row.username) {
+      console.warn(
+        `user ${viewer.userID} has ${relationshipStatus} relationship with ` +
+          `anonymous user ${id}`,
+      );
+    }
   }
 
   return userInfos;
