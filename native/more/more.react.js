@@ -6,6 +6,7 @@ import {
   type StackNavigationProp,
   type StackHeaderProps,
 } from '@react-navigation/stack';
+import { View } from 'react-native';
 
 import MoreScreen from './more-screen.react';
 import EditEmail from './edit-email.react';
@@ -32,6 +33,8 @@ import {
 } from '../navigation/route-names';
 import MoreHeader from './more-header.react';
 import HeaderBackButton from '../navigation/header-back-button.react';
+import { useStyles } from '../themes/colors';
+import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 
 const header = (props: StackHeaderProps) => <MoreHeader {...props} />;
 const headerBackButton = (props) => <HeaderBackButton {...props} />;
@@ -90,53 +93,77 @@ const More = createStackNavigator<
   MoreParamList,
   MoreNavigationProp<>,
 >();
-const MoreComponent = () => (
-  <More.Navigator screenOptions={screenOptions}>
-    <More.Screen
-      name={MoreScreenRouteName}
-      component={MoreScreen}
-      options={moreScreenOptions}
-    />
-    <More.Screen
-      name={EditEmailRouteName}
-      component={EditEmail}
-      options={editEmailOptions}
-    />
-    <More.Screen
-      name={EditPasswordRouteName}
-      component={EditPassword}
-      options={editPasswordOptions}
-    />
-    <More.Screen
-      name={DeleteAccountRouteName}
-      component={DeleteAccount}
-      options={deleteAccountOptions}
-    />
-    <More.Screen
-      name={BuildInfoRouteName}
-      component={BuildInfo}
-      options={buildInfoOptions}
-    />
-    <More.Screen
-      name={DevToolsRouteName}
-      component={DevTools}
-      options={devToolsOptions}
-    />
-    <More.Screen
-      name={AppearancePreferencesRouteName}
-      component={AppearancePreferences}
-      options={appearanceOptions}
-    />
-    <More.Screen
-      name={FriendListRouteName}
-      component={RelationshipList}
-      options={friendListOptions}
-    />
-    <More.Screen
-      name={BlockListRouteName}
-      component={RelationshipList}
-      options={blockListOptions}
-    />
-  </More.Navigator>
-);
+function MoreComponent() {
+  const styles = useStyles(unboundStyles);
+  return (
+    <View style={styles.view}>
+      <KeyboardAvoidingView
+        behavior="padding"
+        style={styles.keyboardAvoidingView}
+      >
+        <More.Navigator
+          screenOptions={screenOptions}
+          detachInactiveScreens={false}
+        >
+          <More.Screen
+            name={MoreScreenRouteName}
+            component={MoreScreen}
+            options={moreScreenOptions}
+          />
+          <More.Screen
+            name={EditEmailRouteName}
+            component={EditEmail}
+            options={editEmailOptions}
+          />
+          <More.Screen
+            name={EditPasswordRouteName}
+            component={EditPassword}
+            options={editPasswordOptions}
+          />
+          <More.Screen
+            name={DeleteAccountRouteName}
+            component={DeleteAccount}
+            options={deleteAccountOptions}
+          />
+          <More.Screen
+            name={BuildInfoRouteName}
+            component={BuildInfo}
+            options={buildInfoOptions}
+          />
+          <More.Screen
+            name={DevToolsRouteName}
+            component={DevTools}
+            options={devToolsOptions}
+          />
+          <More.Screen
+            name={AppearancePreferencesRouteName}
+            component={AppearancePreferences}
+            options={appearanceOptions}
+          />
+          <More.Screen
+            name={FriendListRouteName}
+            component={RelationshipList}
+            options={friendListOptions}
+          />
+          <More.Screen
+            name={BlockListRouteName}
+            component={RelationshipList}
+            options={blockListOptions}
+          />
+        </More.Navigator>
+      </KeyboardAvoidingView>
+    </View>
+  );
+}
+
+const unboundStyles = {
+  keyboardAvoidingView: {
+    flex: 1,
+  },
+  view: {
+    flex: 1,
+    backgroundColor: 'panelBackground',
+  },
+};
+
 export default MoreComponent;
