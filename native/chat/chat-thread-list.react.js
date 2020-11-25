@@ -19,7 +19,7 @@ import { threadSearchIndex as threadSearchIndexSelector } from 'lib/selectors/na
 import SearchIndex from 'lib/shared/search-index';
 import {
   type ChatThreadItem,
-  chatListDataWithNestedSidebars,
+  chatListData,
 } from 'lib/selectors/chat-selectors';
 
 import ChatThreadListItem from './chat-thread-list-item.react';
@@ -337,7 +337,7 @@ const unboundStyles = {
 export default React.memo<BaseProps>(function ConnectedChatThreadList(
   props: BaseProps,
 ) {
-  const chatListData = useSelector(chatListDataWithNestedSidebars);
+  const boundChatListData = useSelector(chatListData);
   const viewerID = useSelector(
     (state) => state.currentUserInfo && state.currentUserInfo.id,
   );
@@ -348,7 +348,7 @@ export default React.memo<BaseProps>(function ConnectedChatThreadList(
   return (
     <ChatThreadList
       {...props}
-      chatListData={chatListData}
+      chatListData={boundChatListData}
       viewerID={viewerID}
       threadSearchIndex={threadSearchIndex}
       styles={styles}
