@@ -1,14 +1,10 @@
 // @flow
 
-import {
-  type ChatThreadItem,
-  chatThreadItemPropType,
-} from 'lib/selectors/chat-selectors';
+import type { ChatThreadItem } from 'lib/selectors/chat-selectors';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import * as React from 'react';
 import { Text, View } from 'react-native';
-import PropTypes from 'prop-types';
 
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
 
@@ -163,13 +159,6 @@ const unboundStyles = {
     color: 'listForegroundLabel',
     fontWeight: 'bold',
   },
-};
-
-ChatThreadListItem.propTypes = {
-  data: chatThreadItemPropType.isRequired,
-  onPressItem: PropTypes.func.isRequired,
-  onSwipeableWillOpen: PropTypes.func.isRequired,
-  currentlyOpenedSwipeableId: PropTypes.string,
 };
 
 export default ChatThreadListItem;
