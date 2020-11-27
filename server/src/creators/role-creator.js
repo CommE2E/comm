@@ -92,6 +92,7 @@ function getRolePermissionBlobsForOrg(): RolePermissionBlobs {
     [threadPermissions.CREATE_SUBTHREADS]: true,
     [threadPermissions.CREATE_SIDEBARS]: true,
     [threadPermissions.ADD_MEMBERS]: true,
+    [threadPermissions.LEAVE_THREAD]: true,
   };
   const descendantKnowOf =
     threadPermissionPrefixes.DESCENDANT + threadPermissions.KNOW_OF;
@@ -133,6 +134,7 @@ function getRolePermissionBlobsForOrg(): RolePermissionBlobs {
     [threadPermissions.EDIT_PERMISSIONS]: true,
     [threadPermissions.REMOVE_MEMBERS]: true,
     [threadPermissions.CHANGE_ROLE]: true,
+    [threadPermissions.LEAVE_THREAD]: true,
     [descendantKnowOf]: true,
     [descendantVisible]: true,
     [descendantJoinThread]: true,
@@ -165,6 +167,7 @@ function getRolePermissionBlobsForChat(
       [threadPermissions.ADD_MEMBERS]: true,
       [threadPermissions.EDIT_PERMISSIONS]: true,
       [threadPermissions.REMOVE_MEMBERS]: true,
+      [threadPermissions.LEAVE_THREAD]: true,
     };
     return {
       Members: memberPermissions,
@@ -207,6 +210,7 @@ function getRolePermissionBlobsForChat(
     [threadPermissions.ADD_MEMBERS]: true,
     [threadPermissions.EDIT_PERMISSIONS]: true,
     [threadPermissions.REMOVE_MEMBERS]: true,
+    [threadPermissions.LEAVE_THREAD]: true,
     [openDescendantKnowOf]: true,
     [openDescendantVisible]: true,
     [openDescendantJoinThread]: true,
