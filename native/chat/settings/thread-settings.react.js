@@ -675,7 +675,12 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         });
       }
 
-      if (viewerIsMember(threadInfo)) {
+      const canLeaveThread = threadHasPermission(
+        threadInfo,
+        threadPermissions.LEAVE_THREAD,
+      );
+
+      if (viewerIsMember(threadInfo) && canLeaveThread) {
         buttons.push({
           itemType: 'leaveThread',
           key: 'leaveThread',
