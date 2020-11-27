@@ -42,6 +42,10 @@ import {
   type OverlayContextType,
 } from '../navigation/overlay-context';
 import {
+  type KeyboardState,
+  KeyboardContext,
+} from '../keyboard/keyboard-state';
+import {
   RelationshipListItemTooltipModalRouteName,
   FriendListRouteName,
   BlockListRouteName,
@@ -69,6 +73,8 @@ type Props = {|
   +updateRelationships: (request: RelationshipRequest) => Promise<void>,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
+  // withKeyboardState
+  +keyboardState: ?KeyboardState,
 |};
 class RelationshipListItem extends React.PureComponent<Props> {
   editButton = React.createRef<React.ElementRef<typeof View>>();
@@ -176,6 +182,10 @@ class RelationshipListItem extends React.PureComponent<Props> {
   }
 
   onPressEdit = () => {
+    if (this.props.keyboardState?.dismissKeyboardIfShowing()) {
+      return;
+    }
+
     const {
       editButton,
       props: { verticalBounds },
@@ -305,6 +315,7 @@ export default React.memo<BaseProps>(function ConnectedRelationshipListItem(
   const dispatchActionPromise = useDispatchActionPromise();
   const boundUpdateRelationships = useServerCall(updateRelationships);
   const overlayContext = React.useContext(OverlayContext);
+  const keyboardState = React.useContext(KeyboardContext);
   return (
     <RelationshipListItem
       {...props}
@@ -314,6 +325,7 @@ export default React.memo<BaseProps>(function ConnectedRelationshipListItem(
       dispatchActionPromise={dispatchActionPromise}
       updateRelationships={boundUpdateRelationships}
       overlayContext={overlayContext}
+      keyboardState={keyboardState}
     />
   );
 });
