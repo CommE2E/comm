@@ -6,22 +6,12 @@ import {
   type ChatThreadItem,
   chatThreadItemPropType,
 } from 'lib/selectors/chat-selectors';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import type {
-  SetThreadUnreadStatusPayload,
-  SetThreadUnreadStatusRequest,
-} from 'lib/types/activity-types';
-import { setThreadUnreadStatus } from 'lib/actions/activity-actions';
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils';
 import { webChatListData } from '../selectors/chat-selectors';
 import { useSelector } from '../redux/redux-utils';
 
@@ -39,11 +29,6 @@ type Props = {|
   +timeZone: ?string,
   // Redux dispatch functions
   +dispatch: Dispatch,
-  +dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
-  +setThreadUnreadStatus: (
-    request: SetThreadUnreadStatusRequest,
-  ) => Promise<SetThreadUnreadStatusPayload>,
 |};
 class ChatThreadList extends React.PureComponent<Props> {
   static propTypes = {
@@ -53,8 +38,6 @@ class ChatThreadList extends React.PureComponent<Props> {
     navInfo: navInfoPropType.isRequired,
     timeZone: PropTypes.string,
     dispatch: PropTypes.func.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    setThreadUnreadStatus: PropTypes.func.isRequired,
   };
 
   render() {
@@ -67,8 +50,6 @@ class ChatThreadList extends React.PureComponent<Props> {
           navInfo={this.props.navInfo}
           timeZone={this.props.timeZone}
           dispatch={this.props.dispatch}
-          dispatchActionPromise={this.props.dispatchActionPromise}
-          setThreadUnreadStatus={this.props.setThreadUnreadStatus}
           key={item.threadInfo.id}
         />
       ));
@@ -89,9 +70,6 @@ export default React.memo<BaseProps>(function ConnectedChatThreadList(
   const navInfo = useSelector((state) => state.navInfo);
   const timeZone = useSelector((state) => state.timeZone);
   const dispatch = useDispatch();
-  const dispatchActionPromise = useDispatchActionPromise();
-  const callSetThreadUnreadStatus = useServerCall(setThreadUnreadStatus);
-
   return (
     <ChatThreadList
       {...props}
@@ -99,8 +77,6 @@ export default React.memo<BaseProps>(function ConnectedChatThreadList(
       navInfo={navInfo}
       timeZone={timeZone}
       dispatch={dispatch}
-      dispatchActionPromise={dispatchActionPromise}
-      setThreadUnreadStatus={callSetThreadUnreadStatus}
     />
   );
 });

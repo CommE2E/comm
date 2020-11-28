@@ -10,23 +10,16 @@ import {
   navInfoPropType,
   updateNavInfoActionType,
 } from '../redux/redux-setup';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import { setThreadUnreadStatusActionTypes } from 'lib/actions/activity-actions';
-import type {
-  SetThreadUnreadStatusPayload,
-  SetThreadUnreadStatusRequest,
-} from 'lib/types/activity-types';
 
 import * as React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { faEllipsisV } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
 
 import css from './chat-thread-list.css';
 import MessagePreview from './message-preview.react';
+import ChatThreadListItemMenu from './chat-thread-list-item-menu.react';
 
 type Props = {|
   +item: ChatThreadItem,
@@ -34,26 +27,14 @@ type Props = {|
   +navInfo: NavInfo,
   +timeZone: ?string,
   +dispatch: Dispatch,
-  +dispatchActionPromise: DispatchActionPromise,
-  +setThreadUnreadStatus: (
-    request: SetThreadUnreadStatusRequest,
-  ) => Promise<SetThreadUnreadStatusPayload>,
 |};
-type State = {|
-  +menuVisible: boolean,
-|};
-class ChatThreadListItem extends React.PureComponent<Props, State> {
+class ChatThreadListItem extends React.PureComponent<Props> {
   static propTypes = {
     item: chatThreadItemPropType.isRequired,
     active: PropTypes.bool.isRequired,
     navInfo: navInfoPropType.isRequired,
     timeZone: PropTypes.string,
     dispatch: PropTypes.func.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    setThreadUnreadStatus: PropTypes.func.isRequired,
-  };
-  state: State = {
-    menuVisible: false,
   };
 
   render() {
@@ -84,26 +65,7 @@ class ChatThreadListItem extends React.PureComponent<Props, State> {
             </div>
           </div>
         </a>
-        <div className={css.menu} onMouseLeave={this.hideMenu}>
-          <button onClick={this.toggleMenu}>
-            <FontAwesomeIcon icon={faEllipsisV} />
-          </button>
-          <div
-            className={classNames(css.menuContent, {
-              [css.menuContentVisible]: this.state.menuVisible,
-            })}
-          >
-            <ul>
-              <li>
-                <button onClick={this.toggleUnreadStatus}>
-                  {`Mark as ${
-                    item.threadInfo.currentUser.unread ? 'read' : 'unread'
-                  }`}
-                </button>
-              </li>
-            </ul>
-          </div>
-        </div>
+        <ChatThreadListItemMenu item={item} />
       </div>
     );
   }
@@ -117,34 +79,6 @@ class ChatThreadListItem extends React.PureComponent<Props, State> {
         activeChatThreadID: this.props.item.threadInfo.id,
       },
     });
-  };
-
-  toggleMenu = () => {
-    this.setState((state) => ({ menuVisible: !state.menuVisible }));
-  };
-
-  hideMenu = () => {
-    this.setState({ menuVisible: false });
-  };
-
-  toggleUnreadStatus = () => {
-    const { threadInfo, mostRecentNonLocalMessage } = this.props.item;
-    const isUnread = threadInfo.currentUser.unread;
-    const request = {
-      threadID: threadInfo.id,
-      unread: !isUnread,
-      latestMessage: mostRecentNonLocalMessage,
-    };
-    this.props.dispatchActionPromise(
-      setThreadUnreadStatusActionTypes,
-      this.props.setThreadUnreadStatus(request),
-      undefined,
-      {
-        threadID: threadInfo.id,
-        unread: !threadInfo.currentUser.unread,
-      },
-    );
-    this.hideMenu();
   };
 }
 
