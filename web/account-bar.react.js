@@ -1,24 +1,19 @@
 // @flow
 
-import type { AppState } from './redux/redux-setup';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import type { LogOutResult } from 'lib/types/account-types';
-import {
-  type CurrentUserInfo,
-  currentUserPropType,
-} from 'lib/types/user-types';
-import {
-  type PreRequestUserState,
-  preRequestUserStatePropType,
-} from 'lib/types/session-types';
+import type { CurrentUserInfo } from 'lib/types/user-types';
+import type { PreRequestUserState } from 'lib/types/session-types';
 
 import * as React from 'react';
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 
 import { logOut, logOutActionTypes } from 'lib/actions/user-actions';
-import { connect } from 'lib/utils/redux-utils';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
+import {
+  useServerCall,
+  useDispatchActionPromise,
+  type DispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import css from './style.css';
 import LogInModal from './modals/account/log-in-modal.react';
@@ -26,28 +21,25 @@ import RegisterModal from './modals/account/register-modal.react';
 import UserSettingsModal from './modals/account/user-settings-modal.react.js';
 import { UpCaret, DownCaret } from './vectors.react';
 import { htmlTargetFromEvent } from './vector-utils';
+import { useSelector } from './redux/redux-utils';
 
+type BaseProps = {|
+  +setModal: (modal: ?React.Node) => void,
+|};
 type Props = {|
-  setModal: (modal: ?React.Node) => void,
+  ...BaseProps,
   // Redux state
-  currentUserInfo: ?CurrentUserInfo,
-  preRequestUserState: PreRequestUserState,
+  +currentUserInfo: ?CurrentUserInfo,
+  +preRequestUserState: PreRequestUserState,
   // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
+  +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
 |};
 type State = {|
-  expanded: boolean,
+  +expanded: boolean,
 |};
 class AccountBar extends React.PureComponent<Props, State> {
-  static propTypes = {
-    setModal: PropTypes.func.isRequired,
-    currentUserInfo: currentUserPropType,
-    preRequestUserState: preRequestUserStatePropType.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    logOut: PropTypes.func.isRequired,
-  };
   state: State = {
     expanded: false,
   };
@@ -193,10 +185,20 @@ class AccountBar extends React.PureComponent<Props, State> {
   };
 }
 
-export default connect(
-  (state: AppState) => ({
-    currentUserInfo: state.currentUserInfo,
-    preRequestUserState: preRequestUserStateSelector(state),
-  }),
-  { logOut },
-)(AccountBar);
+export default React.memo<BaseProps>(function ConnectedAccountBar(
+  props: BaseProps,
+) {
+  const currentUserInfo = useSelector((state) => state.currentUserInfo);
+  const preRequestUserState = useSelector(preRequestUserStateSelector);
+  const dispatchActionPromise = useDispatchActionPromise();
+  const boundLogOut = useServerCall(logOut);
+  return (
+    <AccountBar
+      {...props}
+      currentUserInfo={currentUserInfo}
+      preRequestUserState={preRequestUserState}
+      dispatchActionPromise={dispatchActionPromise}
+      logOut={boundLogOut}
+    />
+  );
+});
