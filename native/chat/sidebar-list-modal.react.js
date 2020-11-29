@@ -16,7 +16,7 @@ import Modal from '../components/modal.react';
 import Search from '../components/search.react';
 import { useIndicatorStyle } from '../themes/colors';
 import { MessageListRouteName } from '../navigation/route-names';
-import ChatThreadListSidebar from './chat-thread-list-sidebar.react';
+import SidebarItem from './sidebar-item.react';
 import { waitForModalInputFocus } from '../utils/timers';
 
 export type SidebarListModalParams = {|
@@ -117,8 +117,8 @@ function SidebarListModal(props: Props) {
   const renderItem = React.useCallback(
     (row: { item: SidebarInfo, ... }) => {
       return (
-        <ChatThreadListSidebar
-          {...row.item}
+        <SidebarItem
+          sidebarInfo={row.item}
           onPressItem={onPressItem}
           style={styles.sidebar}
         />

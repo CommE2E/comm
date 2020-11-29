@@ -22,7 +22,7 @@ type Props = {|
   +onPressItem: (threadInfo: ThreadInfo) => void,
   +onPressSeeMoreSidebars: (threadInfo: ThreadInfo) => void,
   +onSwipeableWillOpen: (threadInfo: ThreadInfo) => void,
-  +currentlyOpenedSwipeableId?: string,
+  +currentlyOpenedSwipeableId: string,
 |};
 function ChatThreadListItem({
   data,
@@ -56,7 +56,7 @@ function ChatThreadListItem({
       const { type, ...sidebarInfo } = sidebarItem;
       return (
         <ChatThreadListSidebar
-          {...sidebarInfo}
+          sidebarInfo={sidebarInfo}
           onPressItem={onPressItem}
           onSwipeableWillOpen={onSwipeableWillOpen}
           currentlyOpenedSwipeableId={currentlyOpenedSwipeableId}
