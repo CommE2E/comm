@@ -1,82 +1,34 @@
 // @flow
 
-import { type NavInfo, navInfoPropType } from '../redux/redux-setup';
-import type { Dispatch } from 'lib/types/redux-types';
-import {
-  type ChatThreadItem,
-  chatThreadItemPropType,
-} from 'lib/selectors/chat-selectors';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { useDispatch } from 'react-redux';
 
 import { webChatListData } from '../selectors/chat-selectors';
 import { useSelector } from '../redux/redux-utils';
 
 import ChatThreadListItem from './chat-thread-list-item.react';
 
-type BaseProps = {|
+type Props = {|
   +filterThreads: (threadItem: ThreadInfo) => boolean,
   +emptyItem?: React.ComponentType<{||}>,
 |};
-type Props = {|
-  ...BaseProps,
-  // Redux state
-  +chatListData: $ReadOnlyArray<ChatThreadItem>,
-  +navInfo: NavInfo,
-  +timeZone: ?string,
-  // Redux dispatch functions
-  +dispatch: Dispatch,
-|};
-class ChatThreadList extends React.PureComponent<Props> {
-  static propTypes = {
-    filterThreads: PropTypes.func.isRequired,
-    emptyItem: PropTypes.elementType,
-    chatListData: PropTypes.arrayOf(chatThreadItemPropType).isRequired,
-    navInfo: navInfoPropType.isRequired,
-    timeZone: PropTypes.string,
-    dispatch: PropTypes.func.isRequired,
-  };
-
-  render() {
-    const threads: React.Node[] = this.props.chatListData
-      .filter((item) => this.props.filterThreads(item.threadInfo))
+function ChatThreadList(props: Props) {
+  const { filterThreads, emptyItem } = props;
+  const chatListData = useSelector(webChatListData);
+  const listData: React.Node[] = React.useMemo(() => {
+    const threads = chatListData
+      .filter((item) => filterThreads(item.threadInfo))
       .map((item) => (
-        <ChatThreadListItem
-          item={item}
-          active={item.threadInfo.id === this.props.navInfo.activeChatThreadID}
-          navInfo={this.props.navInfo}
-          timeZone={this.props.timeZone}
-          dispatch={this.props.dispatch}
-          key={item.threadInfo.id}
-        />
+        <ChatThreadListItem item={item} key={item.threadInfo.id} />
       ));
-
-    if (threads.length === 0 && this.props.emptyItem) {
-      const EmptyItem = this.props.emptyItem;
+    if (threads.length === 0 && emptyItem) {
+      const EmptyItem = emptyItem;
       threads.push(<EmptyItem />);
     }
-
-    return <div>{threads}</div>;
-  }
+    return threads;
+  }, [chatListData, filterThreads, emptyItem]);
+  return <div>{listData}</div>;
 }
 
-export default React.memo<BaseProps>(function ConnectedChatThreadList(
-  props: BaseProps,
-) {
-  const chatListData = useSelector(webChatListData);
-  const navInfo = useSelector((state) => state.navInfo);
-  const timeZone = useSelector((state) => state.timeZone);
-  const dispatch = useDispatch();
-  return (
-    <ChatThreadList
-      {...props}
-      chatListData={chatListData}
-      navInfo={navInfo}
-      timeZone={timeZone}
-      dispatch={dispatch}
-    />
-  );
-});
+export default ChatThreadList;
