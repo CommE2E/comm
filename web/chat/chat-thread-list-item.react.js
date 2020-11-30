@@ -29,15 +29,44 @@ function ChatThreadListItem(props: Props) {
   const lastActivity = shortAbsoluteDate(item.lastUpdatedTime, timeZone);
 
   const active = useThreadIsActive(threadID);
-  const activeStyle = active ? css.activeThread : null;
+  const containerClassName = React.useMemo(
+    () =>
+      classNames({
+        [css.thread]: true,
+        [css.activeThread]: active,
+      }),
+    [active],
+  );
 
-  const colorSplotchStyle = { backgroundColor: `#${item.threadInfo.color}` };
-  const unread = item.threadInfo.currentUser.unread;
+  const { unread } = item.threadInfo.currentUser;
+  const titleClassName = React.useMemo(
+    () =>
+      classNames({
+        [css.title]: true,
+        [css.unread]: unread,
+      }),
+    [unread],
+  );
+  const lastActivityClassName = React.useMemo(
+    () =>
+      classNames({
+        [css.lastActivity]: true,
+        [css.unread]: unread,
+        [css.dark]: !unread,
+      }),
+    [unread],
+  );
+
+  const { color } = item.threadInfo;
+  const colorSplotchStyle = React.useMemo(
+    () => ({ backgroundColor: `#${color}` }),
+    [color],
+  );
   return (
-    <div className={classNames(css.thread, activeStyle)}>
+    <div className={containerClassName}>
       <a className={css.threadButton} onClick={onClick}>
         <div className={css.threadRow}>
-          <div className={css.title}>{item.threadInfo.uiName}</div>
+          <div className={titleClassName}>{item.threadInfo.uiName}</div>
           <div className={css.colorSplotch} style={colorSplotchStyle} />
         </div>
         <div className={css.threadRow}>
@@ -45,14 +74,7 @@ function ChatThreadListItem(props: Props) {
             messageInfo={item.mostRecentMessageInfo}
             threadInfo={item.threadInfo}
           />
-          <div
-            className={classNames([
-              css.lastActivity,
-              unread ? css.black : css.dark,
-            ])}
-          >
-            {lastActivity}
-          </div>
+          <div className={lastActivityClassName}>{lastActivity}</div>
         </div>
       </a>
       <ChatThreadListItemMenu item={item} />
