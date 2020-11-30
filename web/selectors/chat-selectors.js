@@ -1,12 +1,20 @@
 // @flow
 
 import type { AppState } from '../redux/redux-setup';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import {
+  type ThreadInfo,
+  type SidebarInfo,
+  threadTypes,
+} from 'lib/types/thread-types';
 import type { MessageStore, MessageInfo } from 'lib/types/message-types';
 
 import { createSelector } from 'reselect';
+import invariant from 'invariant';
 
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import {
+  threadInfoSelector,
+  sidebarInfoSelector,
+} from 'lib/selectors/thread-selectors';
 import {
   messageInfoSelector,
   type ChatThreadItem,
@@ -42,17 +50,76 @@ const activeChatThreadItem: (
 
 const webChatListData: (state: AppState) => ChatThreadItem[] = createSelector(
   chatListData,
+  sidebarInfoSelector,
   activeChatThreadItem,
-  (data: ChatThreadItem[], activeItem: ?ChatThreadItem): ChatThreadItem[] => {
+  (
+    data: ChatThreadItem[],
+    sidebarInfos: { [id: string]: $ReadOnlyArray<SidebarInfo> },
+    activeItem: ?ChatThreadItem,
+  ): ChatThreadItem[] => {
     if (!activeItem) {
       return data;
     }
-    for (let item of data) {
+
+    const result = [];
+    for (const item of data) {
       if (item.threadInfo.id === activeItem.threadInfo.id) {
         return data;
       }
+      if (
+        activeItem.threadInfo.type !== threadTypes.SIDEBAR ||
+        activeItem.threadInfo.parentThreadID !== item.threadInfo.id
+      ) {
+        result.push(item);
+        continue;
+      }
+
+      const { parentThreadID } = activeItem.threadInfo;
+      invariant(
+        parentThreadID,
+        `thread ID ${activeItem.threadInfo.id} is a sidebar without a parent`,
+      );
+
+      for (const sidebarItem of item.sidebars) {
+        if (sidebarItem.type !== 'sidebar') {
+          continue;
+        } else if (sidebarItem.threadInfo.id === activeItem.threadInfo.id) {
+          return data;
+        }
+      }
+
+      const activeSidebarInfo = sidebarInfos[parentThreadID].find(
+        (sidebar) => sidebar.threadInfo.id === activeItem.threadInfo.id,
+      );
+      invariant(
+        activeSidebarInfo,
+        `could not find sidebarInfo for thread ID ${activeItem.threadInfo.id}`,
+      );
+
+      let newSidebarItemInserted = false;
+      const newSidebarItems = [];
+      for (const sidebarItem of item.sidebars) {
+        if (
+          !newSidebarItemInserted &&
+          (sidebarItem.lastUpdatedTime === undefined ||
+            sidebarItem.lastUpdatedTime < activeSidebarInfo.lastUpdatedTime)
+        ) {
+          newSidebarItemInserted = true;
+          newSidebarItems.push({ type: 'sidebar', ...activeSidebarInfo });
+        }
+        newSidebarItems.push(sidebarItem);
+      }
+      result.push({
+        ...item,
+        sidebars: newSidebarItems,
+      });
     }
-    return [activeItem, ...data];
+
+    if (activeItem.threadInfo.type !== threadTypes.SIDEBAR) {
+      result.unshift(activeItem);
+    }
+
+    return result;
   },
 );
 
