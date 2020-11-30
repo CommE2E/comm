@@ -1,11 +1,9 @@
 // @flow
 
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors';
-import { updateNavInfoActionType } from '../redux/redux-setup';
 
 import * as React from 'react';
 import classNames from 'classnames';
-import { useDispatch } from 'react-redux';
 
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
 
@@ -13,6 +11,10 @@ import css from './chat-thread-list.css';
 import MessagePreview from './message-preview.react';
 import ChatThreadListItemMenu from './chat-thread-list-item-menu.react';
 import { useSelector } from '../redux/redux-utils';
+import {
+  useOnClickThread,
+  useThreadIsActive,
+} from '../selectors/nav-selectors';
 
 type Props = {|
   +item: ChatThreadItem,
@@ -21,26 +23,12 @@ function ChatThreadListItem(props: Props) {
   const { item } = props;
   const threadID = item.threadInfo.id;
 
-  const dispatch = useDispatch();
-  const onClick = React.useCallback(
-    (event: SyntheticEvent<HTMLAnchorElement>) => {
-      event.preventDefault();
-      dispatch({
-        type: updateNavInfoActionType,
-        payload: {
-          activeChatThreadID: threadID,
-        },
-      });
-    },
-    [dispatch, threadID],
-  );
+  const onClick = useOnClickThread(threadID);
 
   const timeZone = useSelector((state) => state.timeZone);
   const lastActivity = shortAbsoluteDate(item.lastUpdatedTime, timeZone);
 
-  const active = useSelector(
-    (state) => threadID === state.navInfo.activeChatThreadID,
-  );
+  const active = useThreadIsActive(threadID);
   const activeStyle = active ? css.activeThread : null;
 
   const colorSplotchStyle = { backgroundColor: `#${item.threadInfo.color}` };

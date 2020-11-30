@@ -4,11 +4,16 @@ import type { AppState } from '../redux/redux-setup';
 import type { CalendarFilter } from 'lib/types/filter-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
 
+import * as React from 'react';
 import { createSelector } from 'reselect';
 import invariant from 'invariant';
+import { useDispatch } from 'react-redux';
 
 import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
 import { nonThreadCalendarFiltersSelector } from 'lib/selectors/calendar-filter-selectors';
+
+import { useSelector } from '../redux/redux-utils';
+import { updateNavInfoActionType } from '../redux/redux-setup';
 
 const dateExtractionRegex = /^([0-9]{4})-([0-9]{2})-[0-9]{2}$/;
 
@@ -113,6 +118,26 @@ const nonThreadCalendarQuery: (
   },
 );
 
+function useOnClickThread(threadID: string) {
+  const dispatch = useDispatch();
+  return React.useCallback(
+    (event: SyntheticEvent<HTMLAnchorElement>) => {
+      event.preventDefault();
+      dispatch({
+        type: updateNavInfoActionType,
+        payload: {
+          activeChatThreadID: threadID,
+        },
+      });
+    },
+    [dispatch, threadID],
+  );
+}
+
+function useThreadIsActive(threadID: string) {
+  return useSelector((state) => threadID === state.navInfo.activeChatThreadID);
+}
+
 export {
   yearExtractor,
   yearAssertingSelector,
@@ -121,4 +146,6 @@ export {
   activeThreadSelector,
   webCalendarQuery,
   nonThreadCalendarQuery,
+  useOnClickThread,
+  useThreadIsActive,
 };
