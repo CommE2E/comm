@@ -226,12 +226,17 @@ async function leaveThread(
     throw new ServerError('not_logged_in');
   }
 
-  const fetchThreadResult = await fetchThreadInfos(
-    viewer,
-    SQL`t.id = ${request.threadID}`,
-  );
+  const [fetchThreadResult, hasPermission] = await Promise.all([
+    fetchThreadInfos(viewer, SQL`t.id = ${request.threadID}`),
+    checkThreadPermission(
+      viewer,
+      request.threadID,
+      threadPermissions.LEAVE_THREAD,
+    ),
+  ]);
+
   const threadInfo = fetchThreadResult.threadInfos[request.threadID];
-  if (!viewerIsMember(threadInfo)) {
+  if (!viewerIsMember(threadInfo) || !hasPermission) {
     throw new ServerError('invalid_parameters');
   }
 
