@@ -77,6 +77,9 @@ svg.sidebarIcon {
   padding: 0 6px;
   font-size: 20px;
 }
+div.sidebar .menu > button svg {
+  font-size: 16px;
+}
 
 .menu {
   position: relative;
@@ -93,14 +96,17 @@ svg.sidebarIcon {
 .menu > button:hover {
   background-color: #DDDDDD;
 }
+.menu > button:focus {
+  outline: none;
+}
 .menu > button svg {
-  font-size: 26px;
+  font-size: 20px;
 }
 
 .menuContent {
   display: none;
   position: absolute;
-  top: 41px;
+  top: calc(100% + 1px);
   right: 0;
   z-index: 1;
   width: max-content;

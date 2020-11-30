@@ -94,7 +94,10 @@ function ChatThreadListItem(props: Props) {
             <div className={lastActivityClassName}>{lastActivity}</div>
           </div>
         </a>
-        <ChatThreadListItemMenu item={item} />
+        <ChatThreadListItemMenu
+          threadInfo={item.threadInfo}
+          mostRecentNonLocalMessage={item.mostRecentNonLocalMessage}
+        />
       </div>
       {sidebars}
     </>

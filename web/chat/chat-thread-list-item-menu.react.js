@@ -4,7 +4,7 @@ import type {
   SetThreadUnreadStatusPayload,
   SetThreadUnreadStatusRequest,
 } from 'lib/types/activity-types';
-import type { ChatThreadItem } from 'lib/selectors/chat-selectors';
+import type { ThreadInfo } from 'lib/types/thread-types';
 
 import * as React from 'react';
 import classNames from 'classnames';
@@ -23,7 +23,8 @@ import {
 import css from './chat-thread-list.css';
 
 type Props = {|
-  +item: ChatThreadItem,
+  +threadInfo: ThreadInfo,
+  +mostRecentNonLocalMessage: ?string,
 |};
 function ChatThreadListItemMenu(props: Props) {
   const [menuVisible, setMenuVisible] = React.useState(false);
@@ -36,7 +37,7 @@ function ChatThreadListItemMenu(props: Props) {
     setMenuVisible(false);
   }, []);
 
-  const { threadInfo, mostRecentNonLocalMessage } = props.item;
+  const { threadInfo, mostRecentNonLocalMessage } = props;
   const dispatchActionPromise = useDispatchActionPromise();
   const boundSetThreadUnreadStatus: (
     request: SetThreadUnreadStatusRequest,
