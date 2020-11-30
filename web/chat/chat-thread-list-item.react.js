@@ -21,7 +21,6 @@ function ChatThreadListItem(props: Props) {
   const { item } = props;
   const threadID = item.threadInfo.id;
 
-  const navInfo = useSelector((state) => state.navInfo);
   const dispatch = useDispatch();
   const onClick = React.useCallback(
     (event: SyntheticEvent<HTMLAnchorElement>) => {
@@ -29,18 +28,19 @@ function ChatThreadListItem(props: Props) {
       dispatch({
         type: updateNavInfoActionType,
         payload: {
-          ...navInfo,
           activeChatThreadID: threadID,
         },
       });
     },
-    [dispatch, navInfo, threadID],
+    [dispatch, threadID],
   );
 
   const timeZone = useSelector((state) => state.timeZone);
   const lastActivity = shortAbsoluteDate(item.lastUpdatedTime, timeZone);
 
-  const active = threadID === navInfo.activeChatThreadID;
+  const active = useSelector(
+    (state) => threadID === state.navInfo.activeChatThreadID,
+  );
   const activeStyle = active ? css.activeThread : null;
 
   const colorSplotchStyle = { backgroundColor: `#${item.threadInfo.color}` };

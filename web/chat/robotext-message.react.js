@@ -5,12 +5,7 @@ import {
   chatMessageItemPropType,
 } from 'lib/selectors/chat-selectors';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import {
-  type AppState,
-  type NavInfo,
-  navInfoPropType,
-  updateNavInfoActionType,
-} from '../redux/redux-setup';
+import { type AppState, updateNavInfoActionType } from '../redux/redux-setup';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { MessagePositionInfo } from './message-position-types';
 
@@ -104,7 +99,6 @@ type InnerThreadEntityProps = {
   name: string,
   // Redux state
   threadInfo: ThreadInfo,
-  navInfo: NavInfo,
   // Redux dispatch functions
   dispatchActionPayload: DispatchActionPayload,
 };
@@ -113,7 +107,6 @@ class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
     id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     threadInfo: threadInfoPropType.isRequired,
-    navInfo: navInfoPropType.isRequired,
     dispatchActionPayload: PropTypes.func.isRequired,
   };
 
@@ -125,7 +118,6 @@ class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
     event.preventDefault();
     const id = this.props.id;
     this.props.dispatchActionPayload(updateNavInfoActionType, {
-      ...this.props.navInfo,
       activeChatThreadID: id,
     });
   };
@@ -133,7 +125,6 @@ class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
 const ThreadEntity = connect(
   (state: AppState, ownProps: { id: string }) => ({
     threadInfo: threadInfoSelector(state)[ownProps.id],
-    navInfo: state.navInfo,
   }),
   null,
   true,

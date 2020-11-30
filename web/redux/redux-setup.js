@@ -30,9 +30,9 @@ import { getVisibility } from './visibility';
 
 export type NavInfo = {|
   ...$Exact<BaseNavInfo>,
-  tab: 'calendar' | 'chat',
-  verify: ?string,
-  activeChatThreadID: ?string,
+  +tab: 'calendar' | 'chat',
+  +verify: ?string,
+  +activeChatThreadID: ?string,
 |};
 
 export const navInfoPropType = PropTypes.shape({
@@ -77,7 +77,7 @@ export const updateWindowDimensions = 'UPDATE_WINDOW_DIMENSIONS';
 
 export type Action =
   | BaseAction
-  | {| type: 'UPDATE_NAV_INFO', payload: NavInfo |}
+  | {| type: 'UPDATE_NAV_INFO', payload: $Shape<NavInfo> |}
   | {|
       type: 'UPDATE_WINDOW_DIMENSIONS',
       payload: WindowDimensions,
@@ -94,7 +94,10 @@ export function reducer(oldState: AppState | void, action: Action) {
   if (action.type === updateNavInfoActionType) {
     return validateState(oldState, {
       ...state,
-      navInfo: action.payload,
+      navInfo: {
+        ...state.navInfo,
+        ...action.payload,
+      },
     });
   } else if (action.type === updateWindowDimensions) {
     return validateState(oldState, {

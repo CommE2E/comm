@@ -308,7 +308,6 @@ class App extends React.PureComponent<Props, State> {
   onClickCalendar = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.dispatchActionPayload(updateNavInfoActionType, {
-      ...this.props.navInfo,
       tab: 'calendar',
     });
   };
@@ -316,7 +315,6 @@ class App extends React.PureComponent<Props, State> {
   onClickChat = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.dispatchActionPayload(updateNavInfoActionType, {
-      ...this.props.navInfo,
       tab: 'chat',
       activeChatThreadID: this.props.activeThreadCurrentlyUnread
         ? this.props.mostRecentReadThread
