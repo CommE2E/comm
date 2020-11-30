@@ -12794,6 +12794,11 @@ react-dom@16.13.1:
     prop-types "^15.6.2"
     scheduler "^0.19.1"
 
+react-entypo-icons@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/react-entypo-icons/-/react-entypo-icons-1.4.1.tgz#f7403adeb36d9b2b7e66c6dca7e6ad5baee1fd95"
+  integrity sha512-XaFvXW1SqymEn3+rdxHsdoKXeHBjM3BOI1N5gDSyedmy+wGUPeyzDDV0PCS8f8V8d1GWJAwb+0rydfi61aR6wQ==
+
 react-feather@^2.0.3:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/react-feather/-/react-feather-2.0.3.tgz#1453ff5d8c242f72b8c02846118fbd2d406375ad"

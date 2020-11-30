@@ -15,6 +15,7 @@ import {
   useOnClickThread,
   useThreadIsActive,
 } from '../selectors/nav-selectors';
+import ChatThreadListSidebar from './chat-thread-list-sidebar.react';
 
 type Props = {|
   +item: ChatThreadItem,
@@ -62,23 +63,41 @@ function ChatThreadListItem(props: Props) {
     () => ({ backgroundColor: `#${color}` }),
     [color],
   );
+
+  const sidebars = item.sidebars.map((sidebarItem) => {
+    if (sidebarItem.type === 'sidebar') {
+      const { type, ...sidebarInfo } = sidebarItem;
+      return (
+        <ChatThreadListSidebar
+          sidebarInfo={sidebarInfo}
+          key={sidebarInfo.threadInfo.id}
+        />
+      );
+    } else {
+      return null;
+    }
+  });
+
   return (
-    <div className={containerClassName}>
-      <a className={css.threadButton} onClick={onClick}>
-        <div className={css.threadRow}>
-          <div className={titleClassName}>{item.threadInfo.uiName}</div>
-          <div className={css.colorSplotch} style={colorSplotchStyle} />
-        </div>
-        <div className={css.threadRow}>
-          <MessagePreview
-            messageInfo={item.mostRecentMessageInfo}
-            threadInfo={item.threadInfo}
-          />
-          <div className={lastActivityClassName}>{lastActivity}</div>
-        </div>
-      </a>
-      <ChatThreadListItemMenu item={item} />
-    </div>
+    <>
+      <div className={containerClassName}>
+        <a className={css.threadButton} onClick={onClick}>
+          <div className={css.threadRow}>
+            <div className={titleClassName}>{item.threadInfo.uiName}</div>
+            <div className={css.colorSplotch} style={colorSplotchStyle} />
+          </div>
+          <div className={css.threadRow}>
+            <MessagePreview
+              messageInfo={item.mostRecentMessageInfo}
+              threadInfo={item.threadInfo}
+            />
+            <div className={lastActivityClassName}>{lastActivity}</div>
+          </div>
+        </a>
+        <ChatThreadListItemMenu item={item} />
+      </div>
+      {sidebars}
+    </>
   );
 }
 

@@ -10,6 +10,7 @@ div.activeThread {
   background-color: #EEEEEE;
 }
 div.thread div.title {
+  font-size: 16px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -30,6 +31,7 @@ div.colorSplotch {
   width: 20px;
 }
 div.lastActivity {
+  font-size: 15px;
   white-space: nowrap;
 }
 
@@ -55,6 +57,25 @@ div.dark {
 }
 div.italic {
   font-style: italic;
+}
+
+div.thread div.sidebarTitle {
+  flex: 1;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: black;
+  align-self: flex-start;
+}
+div.sidebarLastActivity {
+  white-space: nowrap;
+  font-size: 14px;
+}
+svg.sidebarIcon {
+  color: black;
+  padding: 0 6px;
+  font-size: 20px;
 }
 
 .menu {
