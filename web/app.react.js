@@ -53,6 +53,7 @@ import Splash from './splash/splash.react';
 import Chat from './chat/chat.react';
 import VisibilityHandler from './redux/visibility-handler.react';
 import FocusHandler from './redux/focus-handler.react';
+import InputStateContainer from './input/input-state-container.react';
 
 // We want Webpack's css-loader and style-loader to handle the Fontawesome CSS,
 // so we disable the autoAddCss logic and import the CSS file. Otherwise every
@@ -290,9 +291,11 @@ class App extends React.PureComponent<Props, State> {
             </div>
           </div>
         </header>
-        <div className={css['main-content-container']}>
-          <div className={css['main-content']}>{mainContent}</div>
-        </div>
+        <InputStateContainer setModal={this.setModal}>
+          <div className={css['main-content-container']}>
+            <div className={css['main-content']}>{mainContent}</div>
+          </div>
+        </InputStateContainer>
       </React.Fragment>
     );
   }
