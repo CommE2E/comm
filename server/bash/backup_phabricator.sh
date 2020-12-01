@@ -13,7 +13,7 @@ BACKUP_PATH=/mnt/backup
 BACKUP_USER=squadcal
 
 # The maximum amount of space to spend on Phabricator backups
-MAX_DISK_USAGE_KB=51200 # 50 MiB
+MAX_DISK_USAGE_KB=204800 # 200 MiB
 
 set -e
 [[ `whoami` = root ]] || exec sudo su -c "$0"
