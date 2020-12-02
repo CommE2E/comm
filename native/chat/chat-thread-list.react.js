@@ -19,6 +19,7 @@ import SearchIndex from 'lib/shared/search-index';
 import { createPendingThreadItem } from 'lib/shared/thread-utils';
 import type { UserSearchResult } from 'lib/types/search-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
+import { threadTypes } from 'lib/types/thread-types';
 import type { GlobalAccountUserInfo, UserInfo } from 'lib/types/user-types';
 import { useServerCall } from 'lib/utils/action-utils';
 
@@ -219,20 +220,27 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       emptyItem?: React.ComponentType<{||}>,
       usersSearchResults: $ReadOnlyArray<GlobalAccountUserInfo>,
     ): Item[] => {
+      const personalThreads = [];
       const chatItems = [];
-      if (!searchText) {
-        chatItems.push(
-          ...reduxChatListData.filter((item) =>
-            this.props.filterThreads(item.threadInfo),
-          ),
-        );
+
+      const pushItem = (item) => {
+        if (item.threadInfo.type === threadTypes.PERSONAL) {
+          personalThreads.push(item);
+        } else {
+          chatItems.push(item);
+        }
+      };
+
+      if (searchText) {
+        reduxChatListData
+          .filter((item) => threadsSearchResults.has(item.threadInfo.id))
+          .forEach(pushItem);
       } else {
-        chatItems.push(
-          ...reduxChatListData.filter((item) =>
-            threadsSearchResults.has(item.threadInfo.id),
-          ),
-        );
+        reduxChatListData
+          .filter((item) => this.props.filterThreads(item.threadInfo))
+          .forEach(pushItem);
       }
+
       const { viewerID } = this.props;
       if (viewerID) {
         chatItems.push(
@@ -241,10 +249,10 @@ class ChatThreadList extends React.PureComponent<Props, State> {
           ),
         );
       }
-      if (emptyItem && chatItems.length === 0) {
+      if (emptyItem && chatItems.length === 0 && personalThreads.length === 0) {
         chatItems.push({ type: 'empty', emptyItem });
       }
-      return [{ type: 'search', searchText }, ...chatItems];
+      return [{ type: 'search', searchText }, ...personalThreads, ...chatItems];
     },
   );
 
