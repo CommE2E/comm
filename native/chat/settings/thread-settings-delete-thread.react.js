@@ -1,15 +1,15 @@
 // @flow
 
 import type { ThreadInfo } from 'lib/types/thread-types';
-import type { ThreadSettingsNavigate } from './thread-settings.react';
-import type { ViewStyle } from '../../types/styles';
-
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import Button from '../../components/button.react';
 import { DeleteThreadRouteName } from '../../navigation/route-names';
 import { useColors, useStyles } from '../../themes/colors';
+import type { ViewStyle } from '../../types/styles';
+
+import type { ThreadSettingsNavigate } from './thread-settings.react';
 
 type Props = {|
   +threadInfo: ThreadInfo,

@@ -1,18 +1,17 @@
 // @flow
 
-import type { RemoteMessage } from 'react-native-firebase';
-
 import invariant from 'invariant';
-
 import { mergePrefixIntoBody } from 'lib/shared/notif-utils';
+import type { RemoteMessage } from 'react-native-firebase';
 
 import {
   recordAndroidNotificationActionType,
   rescindAndroidNotificationActionType,
 } from '../redux/action-types';
+import { store, dispatch } from '../redux/redux-setup';
+
 import { getFirebase } from './firebase';
 import { saveMessageInfos } from './utils';
-import { store, dispatch } from '../redux/redux-setup';
 
 const androidNotificationChannelID = 'default';
 const vibrationSpec = [500, 500];

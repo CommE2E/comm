@@ -1,17 +1,15 @@
 // @flow
 
+import geoip from 'geoip-lite';
+import invariant from 'invariant';
+import type { Platform, PlatformDetails } from 'lib/types/device-types';
+import type { CalendarQuery } from 'lib/types/entry-types';
 import {
   type CookieSource,
   type SessionIdentifierType,
   cookieTypes,
   sessionIdentifierTypes,
 } from 'lib/types/session-types';
-import type { Platform, PlatformDetails } from 'lib/types/device-types';
-import type { CalendarQuery } from 'lib/types/entry-types';
-
-import invariant from 'invariant';
-import geoip from 'geoip-lite';
-
 import { ServerError } from 'lib/utils/errors';
 
 export type UserViewerData = {|

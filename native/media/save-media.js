@@ -1,5 +1,9 @@
 // @flow
 
+import * as MediaLibrary from 'expo-media-library';
+import invariant from 'invariant';
+import { queueReportsActionType } from 'lib/actions/report-actions';
+import { readableFilename, pathFromURI } from 'lib/media/file-utils';
 import type {
   MediaMissionStep,
   MediaMissionResult,
@@ -9,20 +13,17 @@ import {
   reportTypes,
   type MediaMissionReportCreationRequest,
 } from 'lib/types/report-types';
-
+import { getConfig } from 'lib/utils/config';
+import { getMessageForException } from 'lib/utils/errors';
+import { promiseAll } from 'lib/utils/promises';
 import { Platform, PermissionsAndroid } from 'react-native';
 import filesystem from 'react-native-fs';
-import * as MediaLibrary from 'expo-media-library';
-import invariant from 'invariant';
 
-import { readableFilename, pathFromURI } from 'lib/media/file-utils';
-import { promiseAll } from 'lib/utils/promises';
-import { getMessageForException } from 'lib/utils/errors';
-import { getConfig } from 'lib/utils/config';
-import { queueReportsActionType } from 'lib/actions/report-actions';
+import { displayActionResultModal } from '../navigation/action-result-modal';
+import { dispatch } from '../redux/redux-setup';
+import { requestAndroidPermission } from '../utils/android-permissions';
 
 import { fetchBlob } from './blob-utils';
-import { getMediaLibraryIdentifier } from './identifier-utils';
 import {
   fetchAssetInfo,
   fetchFileInfo,
@@ -32,9 +33,7 @@ import {
   fetchFileHash,
   copyFile,
 } from './file-utils';
-import { displayActionResultModal } from '../navigation/action-result-modal';
-import { requestAndroidPermission } from '../utils/android-permissions';
-import { dispatch } from '../redux/redux-setup';
+import { getMediaLibraryIdentifier } from './identifier-utils';
 
 async function intentionalSaveMedia(
   uri: string,

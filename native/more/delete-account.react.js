@@ -1,18 +1,23 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import { loadingStatusPropType } from 'lib/types/loading-types';
+import invariant from 'invariant';
+import {
+  deleteAccountActionTypes,
+  deleteAccount,
+} from 'lib/actions/user-actions';
+import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import type { LogOutResult } from 'lib/types/account-types';
-import { type GlobalTheme, globalThemePropType } from '../types/themes';
+import { loadingStatusPropType } from 'lib/types/loading-types';
+import type { LoadingStatus } from 'lib/types/loading-types';
 import {
   type PreRequestUserState,
   preRequestUserStatePropType,
 } from 'lib/types/session-types';
-
-import * as React from 'react';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import PropTypes from 'prop-types';
+import * as React from 'react';
 import {
   Text,
   View,
@@ -21,24 +26,17 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import invariant from 'invariant';
 
-import { connect } from 'lib/utils/redux-utils';
-import {
-  deleteAccountActionTypes,
-  deleteAccount,
-} from 'lib/actions/user-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
-
-import Button from '../components/button.react';
 import { deleteNativeCredentialsFor } from '../account/native-credentials';
+import Button from '../components/button.react';
+import type { AppState } from '../redux/redux-setup';
 import {
   type Colors,
   colorsPropType,
   colorsSelector,
   styleSelector,
 } from '../themes/colors';
+import { type GlobalTheme, globalThemePropType } from '../types/themes';
 
 type Props = {|
   // Redux state

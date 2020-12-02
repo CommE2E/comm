@@ -1,29 +1,23 @@
 // @flow
 
-import {
-  type VerticalBounds,
-  verticalBoundsPropType,
-  type LayoutCoordinates,
-  layoutCoordinatesPropType,
-} from '../types/layout-types';
-import {
-  type DimensionsInfo,
-  dimensionsInfoPropType,
-} from '../redux/dimensions-updater.react';
-import type { ViewStyle, TextStyle } from '../types/styles';
-import type { Dispatch } from 'lib/types/redux-types';
-import type { LayoutEvent } from '../types/react-native';
-import type { AppNavigationProp } from './app-navigator.react';
-import type { TooltipModalParamList } from './route-names';
 import type { LeafRoute } from '@react-navigation/native';
+import invariant from 'invariant';
 import {
-  type InputState,
-  inputStatePropType,
-  InputStateContext,
-} from '../input/input-state';
-
+  type ServerCallState,
+  serverCallStatePropType,
+  serverCallStateSelector,
+} from 'lib/selectors/server-calls';
+import type { Dispatch } from 'lib/types/redux-types';
+import {
+  createBoundServerCallsSelector,
+  useDispatchActionPromise,
+  type DispatchActionPromise,
+  type ActionFunc,
+  type DispatchFunctions,
+  type BoundServerCall,
+} from 'lib/utils/action-utils';
+import PropTypes from 'prop-types';
 import * as React from 'react';
-import Animated from 'react-native-reanimated';
 import {
   View,
   StyleSheet,
@@ -33,32 +27,37 @@ import {
   Text,
   ViewPropTypes,
 } from 'react-native';
-import PropTypes from 'prop-types';
-import invariant from 'invariant';
-import { useDispatch } from 'react-redux';
 import { TapticFeedback } from 'react-native-in-app-message';
+import Animated from 'react-native-reanimated';
+import { useDispatch } from 'react-redux';
 
+import { SingleLine } from '../components/single-line.react';
 import {
-  type ServerCallState,
-  serverCallStatePropType,
-  serverCallStateSelector,
-} from 'lib/selectors/server-calls';
+  type InputState,
+  inputStatePropType,
+  InputStateContext,
+} from '../input/input-state';
 import {
-  createBoundServerCallsSelector,
-  useDispatchActionPromise,
-  type DispatchActionPromise,
-  type ActionFunc,
-  type DispatchFunctions,
-  type BoundServerCall,
-} from 'lib/utils/action-utils';
+  type DimensionsInfo,
+  dimensionsInfoPropType,
+} from '../redux/dimensions-updater.react';
+import { useSelector } from '../redux/redux-utils';
+import {
+  type VerticalBounds,
+  verticalBoundsPropType,
+  type LayoutCoordinates,
+  layoutCoordinatesPropType,
+} from '../types/layout-types';
+import type { LayoutEvent } from '../types/react-native';
+import type { ViewStyle, TextStyle } from '../types/styles';
 
+import type { AppNavigationProp } from './app-navigator.react';
 import {
   OverlayContext,
   type OverlayContextType,
   overlayContextPropType,
 } from './overlay-context';
-import { SingleLine } from '../components/single-line.react';
-import { useSelector } from '../redux/redux-utils';
+import type { TooltipModalParamList } from './route-names';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Value, Extrapolate, add, multiply, interpolate } = Animated;

@@ -1,7 +1,8 @@
 // @flow
 
-import type { ChatMessageInfoItemWithHeight } from './message.react';
 import type { Corners } from 'lib/types/media-types';
+
+import type { ChatMessageInfoItemWithHeight } from './message.react';
 
 function filterCorners(corners: Corners, item: ChatMessageInfoItemWithHeight) {
   const { startsCluster, endsCluster } = item;

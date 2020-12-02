@@ -1,13 +1,23 @@
 // @flow
 
-import type { LoadingStatus } from 'lib/types/loading-types';
+import invariant from 'invariant';
+import {
+  resetPasswordActionTypes,
+  resetPassword,
+} from 'lib/actions/user-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import type {
   UpdatePasswordInfo,
   LogInExtraInfo,
   LogInResult,
   LogInStartingPayload,
 } from 'lib/types/account-types';
-
+import type { LoadingStatus } from 'lib/types/loading-types';
+import {
+  useServerCall,
+  useDispatchActionPromise,
+  type DispatchActionPromise,
+} from 'lib/utils/action-utils';
 import React from 'react';
 import {
   Alert,
@@ -17,26 +27,15 @@ import {
   Text,
   Platform,
 } from 'react-native';
-import invariant from 'invariant';
-import Icon from 'react-native-vector-icons/FontAwesome';
 import Animated from 'react-native-reanimated';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import {
-  resetPasswordActionTypes,
-  resetPassword,
-} from 'lib/actions/user-actions';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-  type DispatchActionPromise,
-} from 'lib/utils/action-utils';
+import { NavContext } from '../navigation/navigation-context';
+import { useSelector } from '../redux/redux-utils';
+import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
 
 import { TextInput } from './modal-components.react';
 import { PanelButton, Panel } from './panel-components.react';
-import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
-import { NavContext } from '../navigation/navigation-context';
-import { useSelector } from '../redux/redux-utils';
 
 type BaseProps = {|
   +verifyCode: string,

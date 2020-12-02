@@ -1,13 +1,12 @@
 // @flow
 
-import type { RedisClient } from 'redis';
 import {
   redisMessageTypes,
   type RedisMessage,
   type UpdateTarget,
   type SessionIdentifier,
 } from 'lib/types/redis-types';
-
+import type { RedisClient } from 'redis';
 import redis from 'redis';
 import uuidv4 from 'uuid/v4';
 

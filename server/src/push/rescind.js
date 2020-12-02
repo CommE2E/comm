@@ -1,16 +1,15 @@
 // @flow
 
-import { threadPermissions } from 'lib/types/thread-types';
-import { threadSubscriptions } from 'lib/types/subscription-types';
-
 import apn from '@parse/node-apn';
 import invariant from 'invariant';
-
+import { threadSubscriptions } from 'lib/types/subscription-types';
+import { threadPermissions } from 'lib/types/thread-types';
 import { promiseAll } from 'lib/utils/promises';
 
-import { dbQuery, SQL, SQLStatement } from '../database/database';
-import { apnPush, fcmPush } from './utils';
 import createIDs from '../creators/id-creator';
+import { dbQuery, SQL, SQLStatement } from '../database/database';
+
+import { apnPush, fcmPush } from './utils';
 
 // Returns list of deviceTokens that have been updated
 async function rescindPushNotifs(

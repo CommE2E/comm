@@ -1,47 +1,45 @@
 // @flow
 
+import AsyncStorage from '@react-native-community/async-storage';
+import { useReduxDevToolsExtension } from '@react-navigation/devtools';
+import { NavigationContainer } from '@react-navigation/native';
 import type { PossiblyStaleNavigationState } from '@react-navigation/native';
-
+import * as SplashScreen from 'expo-splash-screen';
+import invariant from 'invariant';
+import { actionLogger } from 'lib/utils/action-logger';
 import * as React from 'react';
-import { Provider } from 'react-redux';
 import { Platform, UIManager, View, StyleSheet, LogBox } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
-import { PersistGate } from 'redux-persist/integration/react';
-import AsyncStorage from '@react-native-community/async-storage';
-import { NavigationContainer } from '@react-navigation/native';
-import invariant from 'invariant';
 import {
   SafeAreaProvider,
   initialWindowMetrics,
 } from 'react-native-safe-area-context';
-import { useReduxDevToolsExtension } from '@react-navigation/devtools';
-import * as SplashScreen from 'expo-splash-screen';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
 
-import { actionLogger } from 'lib/utils/action-logger';
-
-import RootNavigator from './navigation/root-navigator.react';
-import { store } from './redux/redux-setup';
 import ConnectedStatusBar from './connected-status-bar.react';
 import ErrorBoundary from './error-boundary.react';
-import DisconnectedBarVisibilityHandler from './navigation/disconnected-bar-visibility-handler.react';
-import { DimensionsUpdater } from './redux/dimensions-updater.react';
-import ConnectivityUpdater from './redux/connectivity-updater.react';
-import ThemeHandler from './themes/theme-handler.react';
-import OrientationHandler from './navigation/orientation-handler.react';
-import Socket from './socket.react';
-import { getPersistor } from './redux/persist';
-import { NavContext } from './navigation/navigation-context';
-import { setGlobalNavContext } from './navigation/icky-global';
-import { RootContext } from './root-context';
-import NavigationHandler from './navigation/navigation-handler.react';
-import { defaultNavigationState } from './navigation/default-state';
 import InputStateContainer from './input/input-state-container.react';
-import './themes/fonts';
 import LifecycleHandler from './lifecycle/lifecycle-handler.react';
-import { DarkTheme, LightTheme } from './themes/navigation';
+import { defaultNavigationState } from './navigation/default-state';
+import DisconnectedBarVisibilityHandler from './navigation/disconnected-bar-visibility-handler.react';
+import { setGlobalNavContext } from './navigation/icky-global';
+import { NavContext } from './navigation/navigation-context';
+import NavigationHandler from './navigation/navigation-handler.react';
 import { validNavState } from './navigation/navigation-utils';
+import OrientationHandler from './navigation/orientation-handler.react';
 import { navStateAsyncStorageKey } from './navigation/persistance';
+import RootNavigator from './navigation/root-navigator.react';
+import ConnectivityUpdater from './redux/connectivity-updater.react';
+import { DimensionsUpdater } from './redux/dimensions-updater.react';
+import { getPersistor } from './redux/persist';
+import { store } from './redux/redux-setup';
 import { useSelector } from './redux/redux-utils';
+import { RootContext } from './root-context';
+import Socket from './socket.react';
+import { DarkTheme, LightTheme } from './themes/navigation';
+import ThemeHandler from './themes/theme-handler.react';
+import './themes/fonts';
 
 LogBox.ignoreLogs([
   // react-native-reanimated

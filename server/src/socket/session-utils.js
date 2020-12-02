@@ -1,6 +1,24 @@
 // @flow
 
-import type { Viewer } from '../session/viewer';
+import invariant from 'invariant';
+import {
+  usersInRawEntryInfos,
+  serverEntryInfo,
+  serverEntryInfosObject,
+} from 'lib/shared/entry-utils';
+import { usersInThreadInfo } from 'lib/shared/thread-utils';
+import { hasMinCodeVersion } from 'lib/shared/version-utils';
+import type { UpdateActivityResult } from 'lib/types/activity-types';
+import { isDeviceType } from 'lib/types/device-types';
+import type {
+  CalendarQuery,
+  DeltaEntryInfosResponse,
+} from 'lib/types/entry-types';
+import {
+  reportTypes,
+  type ThreadInconsistencyReportCreationRequest,
+  type EntryInconsistencyReportCreationRequest,
+} from 'lib/types/report-types';
 import {
   serverRequestTypes,
   type ThreadInconsistencyClientResponse,
@@ -9,59 +27,39 @@ import {
   type ServerRequest,
   type CheckStateServerRequest,
 } from 'lib/types/request-types';
-import { isDeviceType } from 'lib/types/device-types';
-import {
-  reportTypes,
-  type ThreadInconsistencyReportCreationRequest,
-  type EntryInconsistencyReportCreationRequest,
-} from 'lib/types/report-types';
-import type {
-  CalendarQuery,
-  DeltaEntryInfosResponse,
-} from 'lib/types/entry-types';
 import { sessionCheckFrequency } from 'lib/types/session-types';
-import type { UpdateActivityResult } from 'lib/types/activity-types';
-import type { SessionUpdate } from '../updaters/session-updaters';
-
-import t from 'tcomb';
-import invariant from 'invariant';
-
-import { promiseAll } from 'lib/utils/promises';
 import { hash } from 'lib/utils/objects';
-import {
-  usersInRawEntryInfos,
-  serverEntryInfo,
-  serverEntryInfosObject,
-} from 'lib/shared/entry-utils';
-import { usersInThreadInfo } from 'lib/shared/thread-utils';
-import { hasMinCodeVersion } from 'lib/shared/version-utils';
+import { promiseAll } from 'lib/utils/promises';
+import t from 'tcomb';
 
-import { tShape, tPlatform, tPlatformDetails } from '../utils/validation-utils';
-import { fetchThreadInfos } from '../fetchers/thread-fetchers';
+import createReport from '../creators/report-creator';
+import { SQL } from '../database/database';
 import {
   fetchEntryInfos,
   fetchEntryInfosByID,
   fetchEntriesForSession,
 } from '../fetchers/entry-fetchers';
-import { activityUpdater } from '../updaters/activity-updaters';
+import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import {
   fetchCurrentUserInfo,
   fetchUserInfos,
   fetchKnownUserInfos,
 } from '../fetchers/user-fetchers';
+import { activityUpdatesInputValidator } from '../responders/activity-responders';
+import {
+  threadInconsistencyReportValidatorShape,
+  entryInconsistencyReportValidatorShape,
+} from '../responders/report-responders';
 import {
   setNewSession,
   setCookiePlatform,
   setCookiePlatformDetails,
 } from '../session/cookies';
-import createReport from '../creators/report-creator';
+import type { Viewer } from '../session/viewer';
+import { activityUpdater } from '../updaters/activity-updaters';
 import { compareNewCalendarQuery } from '../updaters/entry-updaters';
-import { activityUpdatesInputValidator } from '../responders/activity-responders';
-import { SQL } from '../database/database';
-import {
-  threadInconsistencyReportValidatorShape,
-  entryInconsistencyReportValidatorShape,
-} from '../responders/report-responders';
+import type { SessionUpdate } from '../updaters/session-updaters';
+import { tShape, tPlatform, tPlatformDetails } from '../utils/validation-utils';
 
 const clientResponseInputValidator = t.union([
   tShape({

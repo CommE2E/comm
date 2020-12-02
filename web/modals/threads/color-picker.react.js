@@ -1,8 +1,8 @@
 // @flow
 
+import PropTypes from 'prop-types';
 import * as React from 'react';
 import { ChromePicker } from 'react-color';
-import PropTypes from 'prop-types';
 
 import css from '../../style.css';
 

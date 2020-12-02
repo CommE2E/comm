@@ -1,31 +1,30 @@
 // @flow
 
+import invariant from 'invariant';
 import {
   type ChatMessageInfoItem,
   chatMessageItemPropType,
 } from 'lib/selectors/chat-selectors';
+import { messageID } from 'lib/shared/message-utils';
 import {
   messageTypes,
   type RawComposableMessageInfo,
   assertComposableMessageType,
 } from 'lib/types/message-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-
-import * as React from 'react';
-import invariant from 'invariant';
 import PropTypes from 'prop-types';
+import * as React from 'react';
 
-import { messageID } from 'lib/shared/message-utils';
-
-import css from './chat-message-list.css';
-import multimediaMessageSendFailed from './multimedia-message-send-failed';
-import textMessageSendFailed from './text-message-send-failed';
 import {
   inputStatePropType,
   type InputState,
   InputStateContext,
 } from '../input/input-state';
 import { useSelector } from '../redux/redux-utils';
+
+import css from './chat-message-list.css';
+import multimediaMessageSendFailed from './multimedia-message-send-failed';
+import textMessageSendFailed from './text-message-send-failed';
 
 type BaseProps = {|
   +item: ChatMessageInfoItem,

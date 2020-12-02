@@ -5,10 +5,9 @@ import {
   type RelationshipErrors,
   relationshipActionsList,
 } from 'lib/types/relationship-types';
-import type { Viewer } from '../session/viewer';
-
 import t from 'tcomb';
 
+import type { Viewer } from '../session/viewer';
 import { updateRelationships } from '../updaters/relationship-updaters';
 import { validateInput, tShape } from '../utils/validation-utils';
 

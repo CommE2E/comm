@@ -1,8 +1,8 @@
 // @flow
 
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 import { XCircle as XCircleIcon } from 'react-feather';
 
 import css from './media.css';

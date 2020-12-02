@@ -1,19 +1,26 @@
 // @flow
 
+import invariant from 'invariant';
+import {
+  updateRelationshipsActionTypes,
+  updateRelationships,
+} from 'lib/actions/relationship-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import {
   type RelationshipRequest,
   userRelationshipStatus,
   relationshipActions,
 } from 'lib/types/relationship-types';
-import type { NavigationRoute } from '../navigation/route-names';
-import type { VerticalBounds } from '../types/layout-types';
-import type { RelationshipListNavigate } from './relationship-list.react';
 import type {
   AccountUserInfo,
   GlobalAccountUserInfo,
 } from 'lib/types/user-types';
-
+import {
+  type DispatchActionPromise,
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
 import * as React from 'react';
 import {
   Alert,
@@ -22,36 +29,28 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
-import invariant from 'invariant';
-
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import {
-  updateRelationshipsActionTypes,
-  updateRelationships,
-} from 'lib/actions/relationship-actions';
-import {
-  type DispatchActionPromise,
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils';
 
 import PencilIcon from '../components/pencil-icon.react';
 import { SingleLine } from '../components/single-line.react';
-import {
-  OverlayContext,
-  type OverlayContextType,
-} from '../navigation/overlay-context';
 import {
   type KeyboardState,
   KeyboardContext,
 } from '../keyboard/keyboard-state';
 import {
+  OverlayContext,
+  type OverlayContextType,
+} from '../navigation/overlay-context';
+import type { NavigationRoute } from '../navigation/route-names';
+import {
   RelationshipListItemTooltipModalRouteName,
   FriendListRouteName,
   BlockListRouteName,
 } from '../navigation/route-names';
-import { type Colors, useColors, useStyles } from '../themes/colors';
 import { useSelector } from '../redux/redux-utils';
+import { type Colors, useColors, useStyles } from '../themes/colors';
+import type { VerticalBounds } from '../types/layout-types';
+
+import type { RelationshipListNavigate } from './relationship-list.react';
 
 type BaseProps = {|
   +userInfo: AccountUserInfo,

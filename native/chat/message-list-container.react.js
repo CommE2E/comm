@@ -1,42 +1,41 @@
 // @flow
 
-import { messageTypes } from 'lib/types/message-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import type { ChatMessageInfoItemWithHeight } from './message.react';
-import type { ChatNavigationProp } from './chat.react';
-import type { NavigationRoute } from '../navigation/route-names';
-
-import * as React from 'react';
-import { View } from 'react-native';
 import invariant from 'invariant';
-
-import { possiblyPendingThreadInfoSelector } from 'lib/selectors/thread-selectors';
 import {
   type ChatMessageItem,
   messageListData,
 } from 'lib/selectors/chat-selectors';
+import { possiblyPendingThreadInfoSelector } from 'lib/selectors/thread-selectors';
 import { messageID } from 'lib/shared/message-utils';
+import { messageTypes } from 'lib/types/message-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
+import * as React from 'react';
+import { View } from 'react-native';
 
-import MessageList from './message-list.react';
-import NodeHeightMeasurer from '../components/node-height-measurer.react';
-import ChatInputBar from './chat-input-bar.react';
-import { multimediaMessageContentSizes } from './multimedia-message.react';
-import { composedMessageMaxWidthSelector } from './composed-message-width';
-import { type InputState, InputStateContext } from '../input/input-state';
-import { type Colors, useColors, useStyles } from '../themes/colors';
 import ContentLoading from '../components/content-loading.react';
-import { dummyNodeForTextMessageHeightMeasurement } from './inner-text-message.react';
-import { dummyNodeForRobotextMessageHeightMeasurement } from './robotext-message.react';
-import { chatMessageItemKey } from './chat-list.react';
+import NodeHeightMeasurer from '../components/node-height-measurer.react';
+import { type InputState, InputStateContext } from '../input/input-state';
 import {
   OverlayContext,
   type OverlayContextType,
 } from '../navigation/overlay-context';
+import type { NavigationRoute } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
+import { type Colors, useColors, useStyles } from '../themes/colors';
+
+import ChatInputBar from './chat-input-bar.react';
+import { chatMessageItemKey } from './chat-list.react';
+import type { ChatNavigationProp } from './chat.react';
+import { composedMessageMaxWidthSelector } from './composed-message-width';
+import { dummyNodeForTextMessageHeightMeasurement } from './inner-text-message.react';
 import {
   MessageListContext,
   useMessageListContext,
 } from './message-list-types';
+import MessageList from './message-list.react';
+import type { ChatMessageInfoItemWithHeight } from './message.react';
+import { multimediaMessageContentSizes } from './multimedia-message.react';
+import { dummyNodeForRobotextMessageHeightMeasurement } from './robotext-message.react';
 
 export type ChatMessageItemWithHeight =
   | {| itemType: 'loader' |}

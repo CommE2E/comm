@@ -1,19 +1,18 @@
 // @flow
 
+import NetInfo from '@react-native-community/netinfo';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import type { AppState } from './redux-setup';
+import { connect } from 'lib/utils/redux-utils';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+
 import {
   type ConnectivityInfo,
   connectivityInfoPropType,
 } from '../types/connectivity';
 
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import NetInfo from '@react-native-community/netinfo';
-
-import { connect } from 'lib/utils/redux-utils';
-
 import { updateConnectivityActiveType } from './action-types';
+import type { AppState } from './redux-setup';
 
 type Props = {|
   // Redux state

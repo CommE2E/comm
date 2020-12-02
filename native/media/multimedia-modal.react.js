@@ -1,22 +1,13 @@
 // @flow
 
+import invariant from 'invariant';
+import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import {
   type MediaInfo,
   mediaInfoPropType,
   type Dimensions,
 } from 'lib/types/media-types';
-import {
-  type VerticalBounds,
-  verticalBoundsPropType,
-  type LayoutCoordinates,
-  layoutCoordinatesPropType,
-} from '../types/layout-types';
-import type { NativeMethods } from '../types/react-native';
-import type { ChatMultimediaMessageInfoItem } from '../chat/multimedia-message.react';
-import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
-import type { AppNavigationProp } from '../navigation/app-navigator.react';
-import type { NavigationRoute } from '../navigation/route-names';
-
+import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   View,
@@ -25,7 +16,6 @@ import {
   TouchableOpacity,
   Platform,
 } from 'react-native';
-import PropTypes from 'prop-types';
 import {
   PinchGestureHandler,
   PanGestureHandler,
@@ -35,28 +25,38 @@ import {
 import Orientation from 'react-native-orientation-locker';
 import Animated from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/Ionicons';
-import invariant from 'invariant';
 
-import Multimedia from './multimedia.react';
+import type { ChatMultimediaMessageInfoItem } from '../chat/multimedia-message.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
+import type { AppNavigationProp } from '../navigation/app-navigator.react';
+import {
+  OverlayContext,
+  type OverlayContextType,
+  overlayContextPropType,
+} from '../navigation/overlay-context';
+import type { NavigationRoute } from '../navigation/route-names';
+import { useSelector } from '../redux/redux-utils';
+import {
+  type DerivedDimensionsInfo,
+  derivedDimensionsInfoPropType,
+  derivedDimensionsInfoSelector,
+} from '../selectors/dimensions-selectors';
+import {
+  type VerticalBounds,
+  verticalBoundsPropType,
+  type LayoutCoordinates,
+  layoutCoordinatesPropType,
+} from '../types/layout-types';
+import type { NativeMethods } from '../types/react-native';
 import {
   clamp,
   gestureJustStarted,
   gestureJustEnded,
   runTiming,
 } from '../utils/animation-utils';
+
+import Multimedia from './multimedia.react';
 import { intentionalSaveMedia } from './save-media';
-import {
-  OverlayContext,
-  type OverlayContextType,
-  overlayContextPropType,
-} from '../navigation/overlay-context';
-import {
-  type DerivedDimensionsInfo,
-  derivedDimensionsInfoPropType,
-  derivedDimensionsInfoSelector,
-} from '../selectors/dimensions-selectors';
-import { useSelector } from '../redux/redux-utils';
 
 /* eslint-disable import/no-named-as-default-member */
 const {

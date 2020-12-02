@@ -1,8 +1,8 @@
 // @flow
 
+import PropTypes from 'prop-types';
 import * as React from 'react';
 import Animated from 'react-native-reanimated';
-import PropTypes from 'prop-types';
 
 type ScrollBlockingModalStatus = 'open' | 'closed' | 'closing';
 export type OverlayContextType = {|

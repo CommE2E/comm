@@ -1,25 +1,24 @@
 // @flow
 
+import classNames from 'classnames';
+import invariant from 'invariant';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
+import { onlyEmojiRegex } from 'lib/shared/emojis';
+import { colorIsDark } from 'lib/shared/thread-utils';
 import { messageTypes } from 'lib/types/message-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
+import * as React from 'react';
+
+import Markdown from '../markdown/markdown.react';
+
+import css from './chat-message-list.css';
+import ComposedMessage from './composed-message.react';
+import { MessageListContext } from './message-list-types';
 import type {
   MessagePositionInfo,
   OnMessagePositionInfo,
 } from './message-position-types';
-
-import * as React from 'react';
-import invariant from 'invariant';
-import classNames from 'classnames';
-
-import { colorIsDark } from 'lib/shared/thread-utils';
-import { onlyEmojiRegex } from 'lib/shared/emojis';
-
-import css from './chat-message-list.css';
-import ComposedMessage from './composed-message.react';
 import textMessageSendFailed from './text-message-send-failed';
-import Markdown from '../markdown/markdown.react';
-import { MessageListContext } from './message-list-types';
 
 type Props = {|
   +item: ChatMessageInfoItem,

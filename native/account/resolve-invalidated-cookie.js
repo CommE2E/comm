@@ -1,18 +1,18 @@
 // @flow
 
-import type { FetchJSON } from 'lib/utils/fetch-json';
-import type { DispatchRecoveryAttempt } from 'lib/utils/action-utils';
-import type { LogInActionSource } from 'lib/types/account-types';
-
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
+import type { LogInActionSource } from 'lib/types/account-types';
+import type { DispatchRecoveryAttempt } from 'lib/utils/action-utils';
+import type { FetchJSON } from 'lib/utils/fetch-json';
+
+import { getGlobalNavContext } from '../navigation/icky-global';
+import { store } from '../redux/redux-setup';
+import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
 
 import {
   fetchNativeKeychainCredentials,
   getNativeSharedWebCredentials,
 } from './native-credentials';
-import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
-import { store } from '../redux/redux-setup';
-import { getGlobalNavContext } from '../navigation/icky-global';
 
 async function resolveInvalidatedCookie(
   fetchJSON: FetchJSON,

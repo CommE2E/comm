@@ -1,34 +1,32 @@
 // @flow
 
-import type { AccountUpdate } from 'lib/types/user-types';
-import type { Viewer } from '../session/viewer';
+import { validEmailRegex } from 'lib/shared/account-utils';
 import type {
   ResetPasswordRequest,
   LogInResponse,
   UpdatePasswordRequest,
 } from 'lib/types/account-types';
+import { defaultNumberPerThread } from 'lib/types/message-types';
 import { updateTypes } from 'lib/types/update-types';
-
+import type { AccountUpdate } from 'lib/types/user-types';
+import { verifyField } from 'lib/types/verify-types';
+import { ServerError } from 'lib/utils/errors';
+import { values } from 'lib/utils/objects';
+import { promiseAll } from 'lib/utils/promises';
 import bcrypt from 'twin-bcrypt';
 
-import { validEmailRegex } from 'lib/shared/account-utils';
-import { promiseAll } from 'lib/utils/promises';
-import { ServerError } from 'lib/utils/errors';
-import { verifyField } from 'lib/types/verify-types';
-import { defaultNumberPerThread } from 'lib/types/message-types';
-import { values } from 'lib/utils/objects';
-
-import { dbQuery, SQL } from '../database/database';
-import { sendEmailAddressVerificationEmail } from '../emails/verification';
-import { sendPasswordResetEmail } from '../emails/reset-password';
-import { verifyCode, clearVerifyCodes } from '../models/verification';
-import { createNewUserCookie, setNewSession } from '../session/cookies';
-import { fetchMessageInfos } from '../fetchers/message-fetchers';
-import { fetchEntryInfos } from '../fetchers/entry-fetchers';
-import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
-import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
 import { createUpdates } from '../creators/update-creator';
+import { dbQuery, SQL } from '../database/database';
+import { sendPasswordResetEmail } from '../emails/reset-password';
+import { sendEmailAddressVerificationEmail } from '../emails/verification';
+import { fetchEntryInfos } from '../fetchers/entry-fetchers';
+import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
+import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
+import { verifyCode, clearVerifyCodes } from '../models/verification';
+import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
+import { createNewUserCookie, setNewSession } from '../session/cookies';
+import type { Viewer } from '../session/viewer';
 
 async function accountUpdater(
   viewer: Viewer,

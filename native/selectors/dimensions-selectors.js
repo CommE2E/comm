@@ -1,13 +1,13 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
+import PropTypes from 'prop-types';
+import { createSelector } from 'reselect';
+
 import {
   type DimensionsInfo,
   dimensionsInfoPropTypeShape,
 } from '../redux/dimensions-updater.react';
-
-import { createSelector } from 'reselect';
-import PropTypes from 'prop-types';
+import type { AppState } from '../redux/redux-setup';
 
 export type DerivedDimensionsInfo = {|
   ...DimensionsInfo,

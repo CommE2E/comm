@@ -1,17 +1,33 @@
 // @flow
 
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import * as SplashScreen from 'expo-splash-screen';
+import { unreadCount } from 'lib/selectors/thread-selectors';
+import * as React from 'react';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { PersistGate } from 'redux-persist/integration/react';
+
+import Calendar from '../calendar/calendar.react';
+import Chat from '../chat/chat.react';
+import { MultimediaTooltipModal } from '../chat/multimedia-tooltip-modal.react';
+import ThreadSettingsMemberTooltipModal from '../chat/settings/thread-settings-member-tooltip-modal.react';
+import { TextMessageTooltipModal } from '../chat/text-message-tooltip-modal.react';
+import KeyboardStateContainer from '../keyboard/keyboard-state-container.react';
+import CameraModal from '../media/camera-modal.react';
+import MultimediaModal from '../media/multimedia-modal.react';
+import More from '../more/more.react';
+import RelationshipListItemTooltipModal from '../more/relationship-list-item-tooltip-modal.react';
+import PushHandler from '../push/push-handler.react';
+import { getPersistor } from '../redux/persist';
+import { useSelector } from '../redux/redux-utils';
+import { RootContext } from '../root-context';
+import { waitForInteractions } from '../utils/timers';
+
+import ActionResultModal from './action-result-modal.react';
+import { createOverlayNavigator } from './overlay-navigator.react';
 import type { OverlayRouterNavigationProp } from './overlay-router';
 import type { RootNavigationProp } from './root-navigator.react';
-import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-
-import * as React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { PersistGate } from 'redux-persist/integration/react';
-import * as SplashScreen from 'expo-splash-screen';
-import Icon from 'react-native-vector-icons/FontAwesome';
-
-import { unreadCount } from 'lib/selectors/thread-selectors';
-
 import {
   CalendarRouteName,
   ChatRouteName,
@@ -28,24 +44,7 @@ import {
   type TabParamList,
   type OverlayParamList,
 } from './route-names';
-import Calendar from '../calendar/calendar.react';
-import Chat from '../chat/chat.react';
-import More from '../more/more.react';
 import { tabBar } from './tab-bar.react';
-import { createOverlayNavigator } from './overlay-navigator.react';
-import MultimediaModal from '../media/multimedia-modal.react';
-import { MultimediaTooltipModal } from '../chat/multimedia-tooltip-modal.react';
-import ActionResultModal from './action-result-modal.react';
-import { TextMessageTooltipModal } from '../chat/text-message-tooltip-modal.react';
-import ThreadSettingsMemberTooltipModal from '../chat/settings/thread-settings-member-tooltip-modal.react';
-import RelationshipListItemTooltipModal from '../more/relationship-list-item-tooltip-modal.react';
-import CameraModal from '../media/camera-modal.react';
-import KeyboardStateContainer from '../keyboard/keyboard-state-container.react';
-import PushHandler from '../push/push-handler.react';
-import { getPersistor } from '../redux/persist';
-import { RootContext } from '../root-context';
-import { waitForInteractions } from '../utils/timers';
-import { useSelector } from '../redux/redux-utils';
 
 let splashScreenHasHidden = false;
 

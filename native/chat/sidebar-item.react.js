@@ -1,17 +1,15 @@
 // @flow
 
 import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types';
-import type { ViewStyle } from '../types/styles';
-
+import { shortAbsoluteDate } from 'lib/utils/date-utils';
 import * as React from 'react';
 import { Text } from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo';
 
-import { shortAbsoluteDate } from 'lib/utils/date-utils';
-
-import { useColors, useStyles } from '../themes/colors';
 import Button from '../components/button.react';
 import { SingleLine } from '../components/single-line.react';
+import { useColors, useStyles } from '../themes/colors';
+import type { ViewStyle } from '../types/styles';
 
 type Props = {|
   +sidebarInfo: SidebarInfo,

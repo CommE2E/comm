@@ -1,13 +1,12 @@
 // @flow
 
 import type { StackHeaderProps } from '@react-navigation/stack';
-
 import * as React from 'react';
 
 import Header from '../navigation/header.react';
 import { createActiveTabSelector } from '../navigation/nav-selectors';
-import { MoreRouteName } from '../navigation/route-names';
 import { NavContext } from '../navigation/navigation-context';
+import { MoreRouteName } from '../navigation/route-names';
 
 const activeTabSelector = createActiveTabSelector(MoreRouteName);
 

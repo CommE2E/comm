@@ -1,27 +1,10 @@
 // @flow
 
+import invariant from 'invariant';
+import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils';
 import type { PhotoCapture } from 'lib/types/media-types';
-import {
-  type DimensionsInfo,
-  dimensionsInfoPropType,
-} from '../redux/dimensions-updater.react';
-import { updateDeviceCameraInfoActionType } from '../redux/action-types';
-import {
-  type DeviceCameraInfo,
-  deviceCameraInfoPropType,
-} from '../types/camera';
-import type { Orientations } from 'react-native-orientation-locker';
-import {
-  type InputState,
-  inputStatePropType,
-  InputStateContext,
-} from '../input/input-state';
-import type { ViewStyle } from '../types/styles';
-import type { NativeMethods } from '../types/react-native';
-import type { AppNavigationProp } from '../navigation/app-navigator.react';
-import type { NavigationRoute } from '../navigation/route-names';
 import type { Dispatch } from 'lib/types/redux-types';
-
+import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   View,
@@ -33,35 +16,51 @@ import {
   Animated,
   Easing,
 } from 'react-native';
-import PropTypes from 'prop-types';
-import Reanimated, {
-  Easing as ReanimatedEasing,
-} from 'react-native-reanimated';
 import { RNCamera } from 'react-native-camera';
+import filesystem from 'react-native-fs';
 import {
   PinchGestureHandler,
   TapGestureHandler,
   State as GestureState,
 } from 'react-native-gesture-handler';
-import Icon from 'react-native-vector-icons/Ionicons';
 import Orientation from 'react-native-orientation-locker';
-import invariant from 'invariant';
-import filesystem from 'react-native-fs';
+import type { Orientations } from 'react-native-orientation-locker';
+import Reanimated, {
+  Easing as ReanimatedEasing,
+} from 'react-native-reanimated';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { useDispatch } from 'react-redux';
 
-import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils';
-
-import ConnectedStatusBar from '../connected-status-bar.react';
-import { clamp, gestureJustEnded } from '../utils/animation-utils';
 import ContentLoading from '../components/content-loading.react';
-import { colors } from '../themes/colors';
-import SendMediaButton from './send-media-button.react';
+import ConnectedStatusBar from '../connected-status-bar.react';
+import {
+  type InputState,
+  inputStatePropType,
+  InputStateContext,
+} from '../input/input-state';
+import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import {
   OverlayContext,
   type OverlayContextType,
   overlayContextPropType,
 } from '../navigation/overlay-context';
+import type { NavigationRoute } from '../navigation/route-names';
+import { updateDeviceCameraInfoActionType } from '../redux/action-types';
+import {
+  type DimensionsInfo,
+  dimensionsInfoPropType,
+} from '../redux/dimensions-updater.react';
 import { useSelector } from '../redux/redux-utils';
+import { colors } from '../themes/colors';
+import {
+  type DeviceCameraInfo,
+  deviceCameraInfoPropType,
+} from '../types/camera';
+import type { NativeMethods } from '../types/react-native';
+import type { ViewStyle } from '../types/styles';
+import { clamp, gestureJustEnded } from '../utils/animation-utils';
+
+import SendMediaButton from './send-media-button.react';
 
 /* eslint-disable import/no-named-as-default-member */
 const {

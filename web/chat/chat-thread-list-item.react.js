@@ -1,21 +1,20 @@
 // @flow
 
-import type { ChatThreadItem } from 'lib/selectors/chat-selectors';
-
-import * as React from 'react';
 import classNames from 'classnames';
-
+import type { ChatThreadItem } from 'lib/selectors/chat-selectors';
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
+import * as React from 'react';
 
-import css from './chat-thread-list.css';
-import MessagePreview from './message-preview.react';
-import ChatThreadListItemMenu from './chat-thread-list-item-menu.react';
 import { useSelector } from '../redux/redux-utils';
 import {
   useOnClickThread,
   useThreadIsActive,
 } from '../selectors/nav-selectors';
+
+import ChatThreadListItemMenu from './chat-thread-list-item-menu.react';
 import ChatThreadListSidebar from './chat-thread-list-sidebar.react';
+import css from './chat-thread-list.css';
+import MessagePreview from './message-preview.react';
 
 type Props = {|
   +item: ChatThreadItem,

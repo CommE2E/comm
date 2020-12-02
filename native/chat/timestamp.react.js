@@ -1,14 +1,12 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
-
-import * as React from 'react';
-
 import { longAbsoluteDate } from 'lib/utils/date-utils';
 import { connect } from 'lib/utils/redux-utils';
+import * as React from 'react';
 
-import { styleSelector } from '../themes/colors';
 import { SingleLine } from '../components/single-line.react';
+import type { AppState } from '../redux/redux-setup';
+import { styleSelector } from '../themes/colors';
 
 export type DisplayType = 'lowContrast' | 'modal';
 

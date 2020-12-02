@@ -1,5 +1,15 @@
 // @flow
 
+import invariant from 'invariant';
+import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
+import {
+  threadHasAdminRole,
+  roleIsAdminRole,
+  viewerIsMember,
+} from 'lib/shared/thread-utils';
+import { hasMinCodeVersion } from 'lib/shared/version-utils';
+import { messageTypes, defaultNumberPerThread } from 'lib/types/message-types';
+import { userRelationshipStatus } from 'lib/types/relationship-types';
 import {
   type RoleChangeRequest,
   type ChangeThreadSettingsResult,
@@ -13,29 +23,15 @@ import {
   threadTypes,
   assertThreadType,
 } from 'lib/types/thread-types';
-import type { Viewer } from '../session/viewer';
-import { messageTypes, defaultNumberPerThread } from 'lib/types/message-types';
 import { updateTypes } from 'lib/types/update-types';
-import { userRelationshipStatus } from 'lib/types/relationship-types';
-
-import invariant from 'invariant';
-
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
-import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
-import { hasMinCodeVersion } from 'lib/shared/version-utils';
-import {
-  threadHasAdminRole,
-  roleIsAdminRole,
-  viewerIsMember,
-} from 'lib/shared/thread-utils';
 
+import createMessages from '../creators/message-creator';
+import { createUpdates } from '../creators/update-creator';
 import { dbQuery, SQL } from '../database/database';
-import {
-  verifyUserIDs,
-  verifyUserOrCookieIDs,
-  fetchKnownUserInfos,
-} from '../fetchers/user-fetchers';
+import { fetchEntryInfos } from '../fetchers/entry-fetchers';
+import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import {
   checkThreadPermission,
@@ -43,17 +39,20 @@ import {
   checkThread,
 } from '../fetchers/thread-permission-fetchers';
 import {
+  verifyUserIDs,
+  verifyUserOrCookieIDs,
+  fetchKnownUserInfos,
+} from '../fetchers/user-fetchers';
+import type { Viewer } from '../session/viewer';
+
+import { updateRoles } from './role-updaters';
+import {
   changeRole,
   recalculateAllPermissions,
   commitMembershipChangeset,
   setJoinsToUnread,
   getParentThreadRelationshipRowsForNewUsers,
 } from './thread-permission-updaters';
-import createMessages from '../creators/message-creator';
-import { fetchMessageInfos } from '../fetchers/message-fetchers';
-import { fetchEntryInfos } from '../fetchers/entry-fetchers';
-import { updateRoles } from './role-updaters';
-import { createUpdates } from '../creators/update-creator';
 
 async function updateRole(
   viewer: Viewer,

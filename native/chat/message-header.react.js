@@ -1,19 +1,18 @@
 // @flow
 
-import type { ChatMessageInfoItemWithHeight } from './message.react';
-import type { AppState } from '../redux/redux-setup';
-import type { DisplayType } from './timestamp.react';
-
+import { stringForUser } from 'lib/shared/user-utils';
+import { connect } from 'lib/utils/redux-utils';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { stringForUser } from 'lib/shared/user-utils';
-import { connect } from 'lib/utils/redux-utils';
-
-import { Timestamp, timestampHeight } from './timestamp.react';
-import { styleSelector } from '../themes/colors';
-import { clusterEndHeight } from './composed-message.react';
 import { SingleLine } from '../components/single-line.react';
+import type { AppState } from '../redux/redux-setup';
+import { styleSelector } from '../themes/colors';
+
+import { clusterEndHeight } from './composed-message.react';
+import type { ChatMessageInfoItemWithHeight } from './message.react';
+import type { DisplayType } from './timestamp.react';
+import { Timestamp, timestampHeight } from './timestamp.react';
 
 type Props = {|
   item: ChatMessageInfoItemWithHeight,

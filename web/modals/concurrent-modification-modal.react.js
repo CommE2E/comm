@@ -3,6 +3,7 @@
 import React from 'react';
 
 import css from '../style.css';
+
 import Modal from './modal.react';
 
 type Props = {

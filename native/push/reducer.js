@@ -11,6 +11,7 @@ import {
   clearAndroidNotificationsActionType,
   rescindAndroidNotificationActionType,
 } from '../redux/action-types';
+
 import { getFirebase } from './firebase';
 
 type RecordAndroidNotificationPayload = {|

@@ -1,19 +1,17 @@
 // @flow
 
+import invariant from 'invariant';
+import { mediaConfig, pathFromURI } from 'lib/media/file-utils';
+import { getVideoProcessingPlan } from 'lib/media/video-utils';
 import type {
   MediaMissionStep,
   MediaMissionFailure,
   VideoProbeMediaMissionStep,
   Dimensions,
 } from 'lib/types/media-types';
-
-import filesystem from 'react-native-fs';
-import { Platform } from 'react-native';
-import invariant from 'invariant';
-
-import { mediaConfig, pathFromURI } from 'lib/media/file-utils';
-import { getVideoProcessingPlan } from 'lib/media/video-utils';
 import { getMessageForException } from 'lib/utils/errors';
+import { Platform } from 'react-native';
+import filesystem from 'react-native-fs';
 
 import { ffmpeg } from './ffmpeg';
 

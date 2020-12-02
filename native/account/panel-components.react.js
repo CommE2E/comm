@@ -2,14 +2,8 @@
 
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
-import type { ViewStyle } from '../types/styles';
-import type { KeyboardEvent, EmitterSubscription } from '../keyboard/keyboard';
-import {
-  type DimensionsInfo,
-  dimensionsInfoPropType,
-} from '../redux/dimensions-updater.react';
-import type { AppState } from '../redux/redux-setup';
-
+import { connect } from 'lib/utils/redux-utils';
+import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   View,
@@ -20,18 +14,22 @@ import {
   LayoutAnimation,
   ViewPropTypes,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import PropTypes from 'prop-types';
 import Animated from 'react-native-reanimated';
-
-import { connect } from 'lib/utils/redux-utils';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 import Button from '../components/button.react';
+import type { KeyboardEvent, EmitterSubscription } from '../keyboard/keyboard';
 import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
   removeKeyboardListener,
 } from '../keyboard/keyboard';
+import {
+  type DimensionsInfo,
+  dimensionsInfoPropType,
+} from '../redux/dimensions-updater.react';
+import type { AppState } from '../redux/redux-setup';
+import type { ViewStyle } from '../types/styles';
 
 type ButtonProps = {|
   text: string,

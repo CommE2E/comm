@@ -1,8 +1,7 @@
 // @flow
 
-import { cookieLifetime } from 'lib/types/session-types';
-
 import invariant from 'invariant';
+import { cookieLifetime } from 'lib/types/session-types';
 
 import {
   dbQuery,

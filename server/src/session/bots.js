@@ -1,7 +1,7 @@
 // @flow
 
-import { ServerError } from 'lib/utils/errors';
 import bots from 'lib/facts/bots';
+import { ServerError } from 'lib/utils/errors';
 
 import { Viewer } from './viewer';
 

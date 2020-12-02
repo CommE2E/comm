@@ -1,28 +1,26 @@
 // @flow
 
+import invariant from 'invariant';
 import type {
   CreateEntryRequest,
   SaveEntryResponse,
 } from 'lib/types/entry-types';
-import type { Viewer } from '../session/viewer';
 import { messageTypes } from 'lib/types/message-types';
 import { threadPermissions } from 'lib/types/thread-types';
-
-import invariant from 'invariant';
-
-import { ServerError } from 'lib/utils/errors';
 import { dateFromString } from 'lib/utils/date-utils';
+import { ServerError } from 'lib/utils/errors';
 import { values } from 'lib/utils/objects';
 
-import { dbQuery, SQL } from '../database/database';
 import fetchOrCreateDayID from '../creators/day-creator';
 import createIDs from '../creators/id-creator';
 import createMessages from '../creators/message-creator';
-import { checkThreadPermission } from '../fetchers/thread-permission-fetchers';
-import { createUpdateDatasForChangedEntryInfo } from '../updaters/entry-updaters';
+import { dbQuery, SQL } from '../database/database';
 import { fetchEntryInfoForLocalID } from '../fetchers/entry-fetchers';
 import { fetchMessageInfoForEntryAction } from '../fetchers/message-fetchers';
+import { checkThreadPermission } from '../fetchers/thread-permission-fetchers';
 import { fetchUpdateInfoForEntryUpdate } from '../fetchers/update-fetchers';
+import type { Viewer } from '../session/viewer';
+import { createUpdateDatasForChangedEntryInfo } from '../updaters/entry-updaters';
 import { creationString } from '../utils/idempotent';
 
 async function createEntry(

@@ -1,6 +1,7 @@
 // @flow
 
-import type { Viewer } from '../session/viewer';
+import invariant from 'invariant';
+import { sortIDs } from 'lib/shared/relationship-utils';
 import {
   type RelationshipRequest,
   type RelationshipErrors,
@@ -10,17 +11,14 @@ import {
   directedStatus,
 } from 'lib/types/relationship-types';
 import { updateTypes, type UpdateData } from 'lib/types/update-types';
-
-import invariant from 'invariant';
-
-import { ServerError } from 'lib/utils/errors';
-import { sortIDs } from 'lib/shared/relationship-utils';
 import { cartesianProduct } from 'lib/utils/array';
+import { ServerError } from 'lib/utils/errors';
 
-import { fetchUserInfos } from '../fetchers/user-fetchers';
-import { fetchFriendRequestRelationshipOperations } from '../fetchers/relationship-fetchers';
 import { createUpdates } from '../creators/update-creator';
 import { dbQuery, SQL } from '../database/database';
+import { fetchFriendRequestRelationshipOperations } from '../fetchers/relationship-fetchers';
+import { fetchUserInfos } from '../fetchers/user-fetchers';
+import type { Viewer } from '../session/viewer';
 
 async function updateRelationships(
   viewer: Viewer,

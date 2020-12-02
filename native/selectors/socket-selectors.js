@@ -1,25 +1,23 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
-import type {
-  SessionIdentification,
-  SessionState,
-} from 'lib/types/session-types';
-import type {
-  ServerRequest,
-  ClientClientResponse,
-} from 'lib/types/request-types';
-import type { NavPlusRedux } from '../types/selector-types';
-
-import { createSelector } from 'reselect';
-
-import { createOpenSocketFunction } from 'lib/shared/socket-utils';
 import {
   getClientResponsesSelector,
   sessionStateFuncSelector,
 } from 'lib/selectors/socket-selectors';
+import { createOpenSocketFunction } from 'lib/shared/socket-utils';
+import type {
+  ServerRequest,
+  ClientClientResponse,
+} from 'lib/types/request-types';
+import type {
+  SessionIdentification,
+  SessionState,
+} from 'lib/types/session-types';
+import { createSelector } from 'reselect';
 
 import { calendarActiveSelector } from '../navigation/nav-selectors';
+import type { AppState } from '../redux/redux-setup';
+import type { NavPlusRedux } from '../types/selector-types';
 
 const openSocketSelector: (state: AppState) => () => WebSocket = createSelector(
   (state: AppState) => state.urlPrefix,

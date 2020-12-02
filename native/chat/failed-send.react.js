@@ -1,26 +1,25 @@
 // @flow
 
-import type { ChatMessageInfoItemWithHeight } from './message.react';
+import invariant from 'invariant';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
+import { messageID } from 'lib/shared/message-utils';
 import { messageTypes, type RawMessageInfo } from 'lib/types/message-types';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { Text, View } from 'react-native';
+
+import Button from '../components/button.react';
 import {
   type InputState,
   inputStatePropType,
   InputStateContext,
 } from '../input/input-state';
-
-import * as React from 'react';
-import { Text, View } from 'react-native';
-import invariant from 'invariant';
-import PropTypes from 'prop-types';
-
-import { messageID } from 'lib/shared/message-utils';
-
-import Button from '../components/button.react';
+import { useSelector } from '../redux/redux-utils';
 import { useStyles } from '../themes/colors';
+
+import type { ChatMessageInfoItemWithHeight } from './message.react';
 import multimediaMessageSendFailed from './multimedia-message-send-failed';
 import textMessageSendFailed from './text-message-send-failed';
-import { useSelector } from '../redux/redux-utils';
 
 const failedSendHeight = 22;
 

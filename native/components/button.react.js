@@ -1,7 +1,7 @@
 // @flow
 
-import type { ViewStyle } from '../types/styles';
-
+import invariant from 'invariant';
+import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   Platform,
@@ -11,8 +11,8 @@ import {
   ViewPropTypes,
   TouchableOpacity,
 } from 'react-native';
-import PropTypes from 'prop-types';
-import invariant from 'invariant';
+
+import type { ViewStyle } from '../types/styles';
 
 const ANDROID_VERSION_LOLLIPOP = 21;
 

@@ -1,40 +1,40 @@
 // @flow
 
+import invariant from 'invariant';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
+import type { Media, Corners } from 'lib/types/media-types';
 import type {
   MultimediaMessageInfo,
   LocalMessageInfo,
 } from 'lib/types/message-types';
-import type { Media, Corners } from 'lib/types/media-types';
-import type { ViewStyle } from '../types/styles';
 import type { ThreadInfo } from 'lib/types/thread-types';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { StyleSheet, View } from 'react-native';
+
+import type { MessagePendingUploads } from '../input/input-state';
+import type { NavigationRoute } from '../navigation/route-names';
 import {
   type VerticalBounds,
   verticalBoundsPropType,
 } from '../types/layout-types';
-import type { MessagePendingUploads } from '../input/input-state';
+import type { ViewStyle } from '../types/styles';
+
+import type { ChatNavigationProp } from './chat.react';
+import { ComposedMessage, clusterEndHeight } from './composed-message.react';
+import { failedSendHeight } from './failed-send.react';
+import { authorNameHeight } from './message-header.react';
 import {
   messageListRoutePropType,
   messageListNavPropType,
 } from './message-list-types';
-import type { ChatNavigationProp } from './chat.react';
-import type { NavigationRoute } from '../navigation/route-names';
-
-import * as React from 'react';
-import { StyleSheet, View } from 'react-native';
-import PropTypes from 'prop-types';
-import invariant from 'invariant';
-
-import { ComposedMessage, clusterEndHeight } from './composed-message.react';
 import MultimediaMessageMultimedia from './multimedia-message-multimedia.react';
+import sendFailed from './multimedia-message-send-failed';
 import {
   allCorners,
   filterCorners,
   getRoundedContainerStyle,
 } from './rounded-corners';
-import { authorNameHeight } from './message-header.react';
-import { failedSendHeight } from './failed-send.react';
-import sendFailed from './multimedia-message-send-failed';
 
 type ContentSizes = {|
   imageHeight: number,

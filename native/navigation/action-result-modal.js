@@ -3,8 +3,8 @@
 import { CommonActions } from '@react-navigation/native';
 import invariant from 'invariant';
 
-import { ActionResultModalRouteName } from './route-names';
 import { getGlobalNavContext } from './icky-global';
+import { ActionResultModalRouteName } from './route-names';
 
 function displayActionResultModal(message: string) {
   const navContext = getGlobalNavContext();

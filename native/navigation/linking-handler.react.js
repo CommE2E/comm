@@ -1,13 +1,11 @@
 // @flow
 
-import type { NavAction } from './navigation-context';
-
+import { CommonActions } from '@react-navigation/native';
+import { infoFromURL } from 'lib/utils/url-utils';
 import * as React from 'react';
 import { Linking } from 'react-native';
-import { CommonActions } from '@react-navigation/native';
 
-import { infoFromURL } from 'lib/utils/url-utils';
-
+import type { NavAction } from './navigation-context';
 import { VerificationModalRouteName } from './route-names';
 
 type Props = {|

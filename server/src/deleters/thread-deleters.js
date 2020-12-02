@@ -1,28 +1,26 @@
 // @flow
 
+import { permissionLookup } from 'lib/permissions/thread-permissions';
+import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import {
   type ThreadDeletionRequest,
   type LeaveThreadResult,
   threadPermissions,
 } from 'lib/types/thread-types';
-import type { Viewer } from '../session/viewer';
 import { updateTypes } from 'lib/types/update-types';
-
+import { ServerError } from 'lib/utils/errors';
 import bcrypt from 'twin-bcrypt';
 
-import { ServerError } from 'lib/utils/errors';
-import { permissionLookup } from 'lib/permissions/thread-permissions';
-import { hasMinCodeVersion } from 'lib/shared/version-utils';
-
+import { createUpdates } from '../creators/update-creator';
 import { dbQuery, SQL } from '../database/database';
 import {
   fetchThreadInfos,
   fetchServerThreadInfos,
 } from '../fetchers/thread-fetchers';
 import { fetchThreadPermissionsBlob } from '../fetchers/thread-permission-fetchers';
-import { rescindPushNotifs } from '../push/rescind';
-import { createUpdates } from '../creators/update-creator';
 import { fetchUpdateInfoForThreadDeletion } from '../fetchers/update-fetchers';
+import { rescindPushNotifs } from '../push/rescind';
+import type { Viewer } from '../session/viewer';
 
 async function deleteThread(
   viewer: Viewer,

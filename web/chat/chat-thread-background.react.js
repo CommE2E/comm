@@ -1,14 +1,13 @@
 // @flow
 
-import * as React from 'react';
-
 import {
   threadInBackgroundChatList,
   emptyItemText,
 } from 'lib/shared/thread-utils';
+import * as React from 'react';
 
-import ChatThreadList from './chat-thread-list.react';
 import css from './chat-tabs.css';
+import ChatThreadList from './chat-thread-list.react';
 
 export default function ChatThreadBackground() {
   return (

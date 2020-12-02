@@ -1,36 +1,35 @@
 // @flow
 
-import type {
-  RegisterResponse,
-  RegisterRequest,
-} from 'lib/types/account-types';
-import type { Viewer } from '../session/viewer';
-import { threadTypes } from 'lib/types/thread-types';
-import { messageTypes } from 'lib/types/message-types';
-
-import bcrypt from 'twin-bcrypt';
 import invariant from 'invariant';
-
+import ashoat from 'lib/facts/ashoat';
 import {
   validUsernameRegex,
   oldValidUsernameRegex,
   validEmailRegex,
 } from 'lib/shared/account-utils';
+import { hasMinCodeVersion } from 'lib/shared/version-utils';
+import type {
+  RegisterResponse,
+  RegisterRequest,
+} from 'lib/types/account-types';
+import { messageTypes } from 'lib/types/message-types';
+import { threadTypes } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
 import { values } from 'lib/utils/objects';
-import ashoat from 'lib/facts/ashoat';
-import { hasMinCodeVersion } from 'lib/shared/version-utils';
+import bcrypt from 'twin-bcrypt';
 
 import { dbQuery, SQL } from '../database/database';
-import createIDs from './id-creator';
-import { createNewUserCookie, setNewSession } from '../session/cookies';
 import { deleteCookie } from '../deleters/cookie-deleters';
 import { sendEmailAddressVerificationEmail } from '../emails/verification';
-import createMessages from './message-creator';
-import createThread from './thread-creator';
-import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
+import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
+import { createNewUserCookie, setNewSession } from '../session/cookies';
+import type { Viewer } from '../session/viewer';
+
+import createIDs from './id-creator';
+import createMessages from './message-creator';
+import createThread from './thread-creator';
 
 const ashoatMessages = [
   'welcome to SquadCal! thanks for helping to test the alpha.',

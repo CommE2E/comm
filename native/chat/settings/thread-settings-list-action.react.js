@@ -1,17 +1,15 @@
 // @flow
 
-import type { ViewStyle, TextStyle } from '../../types/styles';
-import type { IoniconsGlyphs } from 'react-native-vector-icons/Ionicons';
-import type { AppState } from '../../redux/redux-setup';
-
+import { connect } from 'lib/utils/redux-utils';
 import * as React from 'react';
 import { View, Text, Platform } from 'react-native';
+import type { IoniconsGlyphs } from 'react-native-vector-icons/Ionicons';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-import { connect } from 'lib/utils/redux-utils';
-
 import Button from '../../components/button.react';
+import type { AppState } from '../../redux/redux-setup';
 import { styleSelector } from '../../themes/colors';
+import type { ViewStyle, TextStyle } from '../../types/styles';
 
 type ListActionProps = {|
   onPress: () => void,

@@ -1,21 +1,20 @@
 // @flow
 
-import type { ThreadInfo } from 'lib/types/thread-types';
-import type {
-  SetThreadUnreadStatusPayload,
-  SetThreadUnreadStatusRequest,
-} from 'lib/types/activity-types';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils';
+import { useNavigation } from '@react-navigation/native';
 import {
   setThreadUnreadStatus,
   setThreadUnreadStatusActionTypes,
 } from 'lib/actions/activity-actions';
-
+import type {
+  SetThreadUnreadStatusPayload,
+  SetThreadUnreadStatusRequest,
+} from 'lib/types/activity-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
+import {
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils';
 import * as React from 'react';
-import { useNavigation } from '@react-navigation/native';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import Swipeable from '../components/swipeable';

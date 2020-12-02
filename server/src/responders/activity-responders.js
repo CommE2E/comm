@@ -1,15 +1,14 @@
 // @flow
 
-import type { Viewer } from '../session/viewer';
 import type {
   UpdateActivityResult,
   UpdateActivityRequest,
   SetThreadUnreadStatusRequest,
   SetThreadUnreadStatusResult,
 } from 'lib/types/activity-types';
-
 import t from 'tcomb';
 
+import type { Viewer } from '../session/viewer';
 import {
   activityUpdater,
   setThreadUnreadStatus,

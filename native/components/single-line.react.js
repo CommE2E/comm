@@ -1,9 +1,8 @@
 // @flow
 
+import { firstLine } from 'lib/utils/string-utils';
 import * as React from 'react';
 import { Text } from 'react-native';
-
-import { firstLine } from 'lib/utils/string-utils';
 
 type Props = {|
   ...React.ElementConfig<typeof Text>,

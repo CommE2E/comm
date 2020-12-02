@@ -1,19 +1,17 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
-import type { CalendarFilter } from 'lib/types/filter-types';
-import type { CalendarQuery } from 'lib/types/entry-types';
-
-import * as React from 'react';
-import { createSelector } from 'reselect';
 import invariant from 'invariant';
-import { useDispatch } from 'react-redux';
-
-import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
 import { nonThreadCalendarFiltersSelector } from 'lib/selectors/calendar-filter-selectors';
+import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
+import type { CalendarQuery } from 'lib/types/entry-types';
+import type { CalendarFilter } from 'lib/types/filter-types';
+import * as React from 'react';
+import { useDispatch } from 'react-redux';
+import { createSelector } from 'reselect';
 
-import { useSelector } from '../redux/redux-utils';
+import type { AppState } from '../redux/redux-setup';
 import { updateNavInfoActionType } from '../redux/redux-setup';
+import { useSelector } from '../redux/redux-utils';
 
 const dateExtractionRegex = /^([0-9]{4})-([0-9]{2})-[0-9]{2}$/;
 

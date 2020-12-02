@@ -1,25 +1,24 @@
 // @flow
 
-import type { AppState } from '../../redux/redux-setup';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-
-import * as React from 'react';
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
-
-import {
-  oldValidUsernameRegex,
-  validEmailRegex,
-} from 'lib/shared/account-utils';
-import { connect } from 'lib/utils/redux-utils';
 import {
   forgotPasswordActionTypes,
   forgotPassword,
 } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import {
+  oldValidUsernameRegex,
+  validEmailRegex,
+} from 'lib/shared/account-utils';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 
+import type { AppState } from '../../redux/redux-setup';
 import css from '../../style.css';
 import Modal from '../modal.react';
+
 import PasswordResetEmailModal from './password-reset-email-modal.react';
 
 type Props = {|

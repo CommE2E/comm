@@ -1,25 +1,23 @@
 // @flow
 
-import type { RootNavigationProp } from '../navigation/root-navigator.react';
-import type { NavigationRoute } from '../navigation/route-names';
-
-import * as React from 'react';
-import { StyleSheet } from 'react-native';
 import invariant from 'invariant';
-import { useDispatch } from 'react-redux';
-
-import { onScreenEntryEditableThreadInfos } from 'lib/selectors/thread-selectors';
 import {
   createLocalEntry,
   createLocalEntryActionType,
 } from 'lib/actions/entry-actions';
 import { threadSearchIndex } from 'lib/selectors/nav-selectors';
+import { onScreenEntryEditableThreadInfos } from 'lib/selectors/thread-selectors';
+import * as React from 'react';
+import { StyleSheet } from 'react-native';
+import { useDispatch } from 'react-redux';
 
 import Modal from '../components/modal.react';
 import ThreadList from '../components/thread-list.react';
 import { RootNavigatorContext } from '../navigation/root-navigator-context';
-import { waitForInteractions } from '../utils/timers';
+import type { RootNavigationProp } from '../navigation/root-navigator.react';
+import type { NavigationRoute } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
+import { waitForInteractions } from '../utils/timers';
 
 export type ThreadPickerModalParams = {|
   presentedFrom: string,

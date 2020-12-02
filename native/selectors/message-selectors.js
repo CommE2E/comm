@@ -1,12 +1,11 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
 import type { ThreadMessageInfo } from 'lib/types/message-types';
-import type { NavPlusRedux } from '../types/selector-types';
-
 import { createSelector } from 'reselect';
 
 import { activeThreadSelector } from '../navigation/nav-selectors';
+import type { AppState } from '../redux/redux-setup';
+import type { NavPlusRedux } from '../types/selector-types';
 
 const msInHour = 60 * 60 * 1000;
 

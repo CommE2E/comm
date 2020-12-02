@@ -10,11 +10,10 @@ import type {
   StackNavigationState,
   RouterConfigOptions,
 } from '@react-navigation/native';
-
 import { StackRouter, CommonActions } from '@react-navigation/native';
 
-import { removeScreensFromStack } from './navigation-utils';
 import { clearOverlayModalsActionType } from './action-types';
+import { removeScreensFromStack } from './navigation-utils';
 
 type ClearOverlayModalsAction = {|
   +type: 'CLEAR_OVERLAY_MODALS',

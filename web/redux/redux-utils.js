@@ -1,8 +1,8 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
-
 import { useSelector as reactReduxUseSelector } from 'react-redux';
+
+import type { AppState } from './redux-setup';
 
 function useSelector<SS>(
   selector: (state: AppState) => SS,

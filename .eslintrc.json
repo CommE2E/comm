@@ -25,7 +25,13 @@
     "import/no-unresolved": 0,
     "no-unused-vars": ["error", { "ignoreRestSiblings": true }],
     "react/prop-types": ["error", { "skipUndeclared": true }],
-    "no-shadow": 1
+    "no-shadow": 1,
+    "import/order": ["warn", { "newlines-between": "always",
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        }
+    }]
   },
   "settings": {
     "react": {

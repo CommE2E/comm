@@ -1,60 +1,69 @@
 // @flow
 
-import type { ThreadStore } from 'lib/types/thread-types';
-import { type EntryStore } from 'lib/types/entry-types';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import type { CurrentUserInfo, UserStore } from 'lib/types/user-types';
-import type { MessageStore } from 'lib/types/message-types';
-import type { PersistState } from 'redux-persist/src/types';
-import {
-  type NotifPermissionAlertInfo,
-  defaultNotifPermissionAlertInfo,
-} from '../push/alerts';
-import {
-  type CalendarFilter,
-  defaultCalendarFilters,
-} from 'lib/types/filter-types';
-import { setNewSessionActionType } from 'lib/utils/action-utils';
-import { updateTypes } from 'lib/types/update-types';
 import { setDeviceTokenActionTypes } from 'lib/actions/device-actions';
-import {
-  type ConnectionInfo,
-  defaultConnectionInfo,
-  incrementalStateSyncActionType,
-} from 'lib/types/socket-types';
-import {
-  type ConnectivityInfo,
-  defaultConnectivityInfo,
-} from '../types/connectivity';
-import type { Dispatch } from 'lib/types/redux-types';
-import { type GlobalThemeInfo, defaultGlobalThemeInfo } from '../types/themes';
-import {
-  type DeviceCameraInfo,
-  defaultDeviceCameraInfo,
-} from '../types/camera';
-import type { Orientations } from 'react-native-orientation-locker';
-import type { ClientReportCreationRequest } from 'lib/types/report-types';
-import type { SetSessionPayload } from 'lib/types/session-types';
-
-import thunk from 'redux-thunk';
-import { createStore, applyMiddleware, type Store, compose } from 'redux';
-import { persistStore, persistReducer } from 'redux-persist';
-import { AppState as NativeAppState, Platform, Alert } from 'react-native';
-import Orientation from 'react-native-orientation-locker';
-
-import baseReducer from 'lib/reducers/master-reducer';
-import { reduxLoggerMiddleware } from 'lib/utils/action-logger';
-import {
-  invalidSessionDowngrade,
-  invalidSessionRecovery,
-} from 'lib/shared/account-utils';
 import {
   logOutActionTypes,
   deleteAccountActionTypes,
   logInActionTypes,
 } from 'lib/actions/user-actions';
+import baseReducer from 'lib/reducers/master-reducer';
+import {
+  invalidSessionDowngrade,
+  invalidSessionRecovery,
+} from 'lib/shared/account-utils';
+import { type EntryStore } from 'lib/types/entry-types';
+import {
+  type CalendarFilter,
+  defaultCalendarFilters,
+} from 'lib/types/filter-types';
+import type { LoadingStatus } from 'lib/types/loading-types';
+import type { MessageStore } from 'lib/types/message-types';
+import type { Dispatch } from 'lib/types/redux-types';
+import type { ClientReportCreationRequest } from 'lib/types/report-types';
+import type { SetSessionPayload } from 'lib/types/session-types';
+import {
+  type ConnectionInfo,
+  defaultConnectionInfo,
+  incrementalStateSyncActionType,
+} from 'lib/types/socket-types';
+import type { ThreadStore } from 'lib/types/thread-types';
+import { updateTypes } from 'lib/types/update-types';
+import type { CurrentUserInfo, UserStore } from 'lib/types/user-types';
+import { reduxLoggerMiddleware } from 'lib/utils/action-logger';
+import { setNewSessionActionType } from 'lib/utils/action-utils';
+import { AppState as NativeAppState, Platform, Alert } from 'react-native';
+import type { Orientations } from 'react-native-orientation-locker';
+import Orientation from 'react-native-orientation-locker';
+import { createStore, applyMiddleware, type Store, compose } from 'redux';
+import { persistStore, persistReducer } from 'redux-persist';
+import type { PersistState } from 'redux-persist/src/types';
+import thunk from 'redux-thunk';
 
+import { type NavInfo, defaultNavInfo } from '../navigation/default-state';
+import { getGlobalNavContext } from '../navigation/icky-global';
 import { activeMessageListSelector } from '../navigation/nav-selectors';
+import {
+  type NotifPermissionAlertInfo,
+  defaultNotifPermissionAlertInfo,
+} from '../push/alerts';
+import { reduceThreadIDsToNotifIDs } from '../push/reducer';
+import reactotron from '../reactotron';
+import reduceDrafts from '../reducers/draft-reducer';
+import {
+  type DeviceCameraInfo,
+  defaultDeviceCameraInfo,
+} from '../types/camera';
+import {
+  type ConnectivityInfo,
+  defaultConnectivityInfo,
+} from '../types/connectivity';
+import { type GlobalThemeInfo, defaultGlobalThemeInfo } from '../types/themes';
+import {
+  defaultURLPrefix,
+  natServer,
+  setCustomServer,
+} from '../utils/url-utils';
+
 import {
   resetUserStateActionType,
   recordNotifPermissionAlertActionType,
@@ -70,21 +79,11 @@ import {
   backgroundActionTypes,
   setReduxStateActionType,
 } from './action-types';
-import { type NavInfo, defaultNavInfo } from '../navigation/default-state';
-import { reduceThreadIDsToNotifIDs } from '../push/reducer';
-import { persistConfig, setPersistor } from './persist';
-import {
-  defaultURLPrefix,
-  natServer,
-  setCustomServer,
-} from '../utils/url-utils';
-import reactotron from '../reactotron';
-import reduceDrafts from '../reducers/draft-reducer';
-import { getGlobalNavContext } from '../navigation/icky-global';
 import {
   defaultDimensionsInfo,
   type DimensionsInfo,
 } from './dimensions-updater.react';
+import { persistConfig, setPersistor } from './persist';
 
 export type AppState = {|
   navInfo: NavInfo,

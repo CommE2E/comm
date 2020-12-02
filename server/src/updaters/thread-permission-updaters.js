@@ -1,51 +1,49 @@
 // @flow
 
+import invariant from 'invariant';
+import bots from 'lib/facts/bots';
+import {
+  makePermissionsBlob,
+  makePermissionsForChildrenBlob,
+} from 'lib/permissions/thread-permissions';
+import { sortIDs } from 'lib/shared/relationship-utils';
+import type { CalendarQuery } from 'lib/types/entry-types';
+import {
+  type UndirectedRelationshipRow,
+  undirectedStatus,
+} from 'lib/types/relationship-types';
+import type { ThreadSubscription } from 'lib/types/subscription-types';
 import {
   type ThreadPermissionsBlob,
   type ThreadRolePermissionsBlob,
   type ThreadType,
   assertThreadType,
 } from 'lib/types/thread-types';
-import type { ThreadSubscription } from 'lib/types/subscription-types';
-import type { Viewer } from '../session/viewer';
 import { updateTypes, type UpdateInfo } from 'lib/types/update-types';
-import type { CalendarQuery } from 'lib/types/entry-types';
 import type { AccountUserInfo } from 'lib/types/user-types';
-import {
-  type UndirectedRelationshipRow,
-  undirectedStatus,
-} from 'lib/types/relationship-types';
-
-import invariant from 'invariant';
+import { cartesianProduct } from 'lib/utils/array';
+import { ServerError } from 'lib/utils/errors';
 import _isEqual from 'lodash/fp/isEqual';
 import _uniqWith from 'lodash/fp/uniqWith';
 
 import {
-  makePermissionsBlob,
-  makePermissionsForChildrenBlob,
-} from 'lib/permissions/thread-permissions';
-import { sortIDs } from 'lib/shared/relationship-utils';
-import { ServerError } from 'lib/utils/errors';
-import { cartesianProduct } from 'lib/utils/array';
-import bots from 'lib/facts/bots';
-
+  createUpdates,
+  type UpdatesForCurrentSession,
+} from '../creators/update-creator';
+import { dbQuery, SQL, mergeOrConditions } from '../database/database';
 import {
   fetchServerThreadInfos,
   rawThreadInfosFromServerThreadInfos,
   type FetchThreadInfosResult,
 } from '../fetchers/thread-fetchers';
-import {
-  createUpdates,
-  type UpdatesForCurrentSession,
-} from '../creators/update-creator';
+import { rescindPushNotifs } from '../push/rescind';
+import { createScriptViewer } from '../session/scripts';
+import type { Viewer } from '../session/viewer';
+
 import {
   updateDatasForUserPairs,
   updateUndirectedRelationships,
-} from '../updaters/relationship-updaters';
-import { rescindPushNotifs } from '../push/rescind';
-
-import { dbQuery, SQL, mergeOrConditions } from '../database/database';
-import { createScriptViewer } from '../session/scripts';
+} from './relationship-updaters';
 
 export type MembershipRowToSave = {|
   operation: 'update' | 'join',

@@ -1,9 +1,8 @@
 // @flow
 
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-
-import * as React from 'react';
 import PropTypes from 'prop-types';
+import * as React from 'react';
 
 import css from '../../style.css';
 import Modal from '../modal.react';

@@ -1,14 +1,14 @@
 // @flow
 
-import * as React from 'react';
-import { useDispatch } from 'react-redux';
-
 import {
   backgroundActionType,
   foregroundActionType,
 } from 'lib/reducers/foreground-reducer';
+import * as React from 'react';
+import { useDispatch } from 'react-redux';
 
 import { appBecameInactive } from '../redux/redux-setup';
+
 import { addLifecycleListener } from './lifecycle';
 
 const LifecycleHandler = React.memo<{||}>(() => {

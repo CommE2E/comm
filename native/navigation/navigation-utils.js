@@ -6,14 +6,13 @@ import type {
   StaleLeafRoute,
   ScreenParams,
 } from '@react-navigation/native';
-
 import invariant from 'invariant';
 
 import {
   ComposeThreadRouteName,
   AppRouteName,
   threadRoutes,
-} from '../navigation/route-names';
+} from './route-names';
 
 function getStateFromNavigatorRoute(
   route: PossiblyStaleRoute<>,

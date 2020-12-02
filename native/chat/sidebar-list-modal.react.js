@@ -1,23 +1,22 @@
 // @flow
 
-import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types';
-import type { RootNavigationProp } from '../navigation/root-navigator.react';
-import type { NavigationRoute } from '../navigation/route-names';
-
-import * as React from 'react';
-import { TextInput, FlatList, StyleSheet } from 'react-native';
-
 import { sidebarInfoSelector } from 'lib/selectors/thread-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import { threadSearchText } from 'lib/shared/thread-utils';
+import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types';
+import * as React from 'react';
+import { TextInput, FlatList, StyleSheet } from 'react-native';
 
-import { useSelector } from '../redux/redux-utils';
 import Modal from '../components/modal.react';
 import Search from '../components/search.react';
-import { useIndicatorStyle } from '../themes/colors';
+import type { RootNavigationProp } from '../navigation/root-navigator.react';
+import type { NavigationRoute } from '../navigation/route-names';
 import { MessageListRouteName } from '../navigation/route-names';
-import SidebarItem from './sidebar-item.react';
+import { useSelector } from '../redux/redux-utils';
+import { useIndicatorStyle } from '../themes/colors';
 import { waitForModalInputFocus } from '../utils/timers';
+
+import SidebarItem from './sidebar-item.react';
 
 export type SidebarListModalParams = {|
   +threadInfo: ThreadInfo,

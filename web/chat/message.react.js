@@ -1,27 +1,25 @@
 // @flow
 
+import invariant from 'invariant';
 import {
   type ChatMessageInfoItem,
   chatMessageItemPropType,
 } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import { longAbsoluteDate } from 'lib/utils/date-utils';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+
+import css from './chat-message-list.css';
 import {
   type OnMessagePositionInfo,
   type MessagePositionInfo,
   onMessagePositionInfoPropType,
 } from './message-position-types';
-
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import invariant from 'invariant';
-
-import { longAbsoluteDate } from 'lib/utils/date-utils';
-
-import TextMessage from './text-message.react';
-import RobotextMessage from './robotext-message.react';
 import MultimediaMessage from './multimedia-message.react';
-import css from './chat-message-list.css';
+import RobotextMessage from './robotext-message.react';
+import TextMessage from './text-message.react';
 
 type Props = {|
   item: ChatMessageInfoItem,

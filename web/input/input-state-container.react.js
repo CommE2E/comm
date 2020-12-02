@@ -1,6 +1,23 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
+import { detect as detectBrowser } from 'detect-browser';
+import invariant from 'invariant';
+import {
+  createLocalMessageActionType,
+  sendMultimediaMessageActionTypes,
+  sendMultimediaMessage,
+  sendTextMessageActionTypes,
+  sendTextMessage,
+} from 'lib/actions/message-actions';
+import { queueReportsActionType } from 'lib/actions/report-actions';
+import {
+  uploadMultimedia,
+  updateMultimediaMessageMediaActionType,
+  deleteUpload,
+  type MultimediaUploadCallbacks,
+  type MultimediaUploadExtras,
+} from 'lib/actions/upload-actions';
+import { createMediaMessageInfo } from 'lib/shared/message-utils';
 import type {
   UploadMultimediaResult,
   MediaMissionStep,
@@ -8,11 +25,6 @@ import type {
   MediaMissionResult,
   MediaMission,
 } from 'lib/types/media-types';
-import type {
-  DispatchActionPayload,
-  DispatchActionPromise,
-} from 'lib/utils/action-utils';
-import { type PendingMultimediaUpload, InputStateContext } from './input-state';
 import {
   messageTypes,
   type RawMessageInfo,
@@ -24,41 +36,28 @@ import {
   type RawTextMessageInfo,
 } from 'lib/types/message-types';
 import { reportTypes } from 'lib/types/report-types';
-
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { createSelector } from 'reselect';
-import _memoize from 'lodash/memoize';
+import type {
+  DispatchActionPayload,
+  DispatchActionPromise,
+} from 'lib/utils/action-utils';
+import { getConfig } from 'lib/utils/config';
+import { getMessageForException, cloneError } from 'lib/utils/errors';
+import { connect } from 'lib/utils/redux-utils';
+import _groupBy from 'lodash/fp/groupBy';
 import _keyBy from 'lodash/fp/keyBy';
 import _omit from 'lodash/fp/omit';
-import _groupBy from 'lodash/fp/groupBy';
 import _partition from 'lodash/fp/partition';
 import _sortBy from 'lodash/fp/sortBy';
-import invariant from 'invariant';
-import { detect as detectBrowser } from 'detect-browser';
-
-import { connect } from 'lib/utils/redux-utils';
-import {
-  uploadMultimedia,
-  updateMultimediaMessageMediaActionType,
-  deleteUpload,
-  type MultimediaUploadCallbacks,
-  type MultimediaUploadExtras,
-} from 'lib/actions/upload-actions';
-import {
-  createLocalMessageActionType,
-  sendMultimediaMessageActionTypes,
-  sendMultimediaMessage,
-  sendTextMessageActionTypes,
-  sendTextMessage,
-} from 'lib/actions/message-actions';
-import { createMediaMessageInfo } from 'lib/shared/message-utils';
-import { getMessageForException, cloneError } from 'lib/utils/errors';
-import { queueReportsActionType } from 'lib/actions/report-actions';
-import { getConfig } from 'lib/utils/config';
+import _memoize from 'lodash/memoize';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { createSelector } from 'reselect';
 
 import { validateFile, preloadImage } from '../media/media-utils';
 import InvalidUploadModal from '../modals/chat/invalid-upload.react';
+import type { AppState } from '../redux/redux-setup';
+
+import { type PendingMultimediaUpload, InputStateContext } from './input-state';
 
 let nextLocalUploadID = 0;
 

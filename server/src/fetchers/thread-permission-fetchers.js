@@ -1,20 +1,20 @@
 // @flow
 
-import type {
-  ThreadPermission,
-  ThreadPermissionsBlob,
-} from 'lib/types/thread-types';
-import type { Viewer } from '../session/viewer';
-
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 import {
   threadFrozenDueToBlock,
   permissionsDisabledByBlock,
 } from 'lib/shared/thread-utils';
+import type {
+  ThreadPermission,
+  ThreadPermissionsBlob,
+} from 'lib/types/thread-types';
 
 import { dbQuery, SQL } from '../database/database';
-import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
-import { fetchThreadInfos } from '../fetchers/thread-fetchers';
+import type { Viewer } from '../session/viewer';
+
+import { fetchThreadInfos } from './thread-fetchers';
+import { fetchKnownUserInfos } from './user-fetchers';
 
 // Note that it's risky to verify permissions by inspecting the blob directly.
 // There are other factors that can override permissions in the permissions

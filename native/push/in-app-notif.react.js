@@ -1,12 +1,11 @@
 // @flow
 
-import type { GlobalTheme } from '../types/themes';
-
 import * as React from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { SingleLine } from '../components/single-line.react';
+import type { GlobalTheme } from '../types/themes';
 
 const edges = ['top'];
 

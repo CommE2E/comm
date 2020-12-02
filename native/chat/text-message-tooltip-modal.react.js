@@ -1,26 +1,25 @@
 // @flow
 
-import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
+import Clipboard from '@react-native-community/clipboard';
+import invariant from 'invariant';
+import { createMessageReply } from 'lib/shared/message-utils';
 import type {
   DispatchFunctions,
   ActionFunc,
   BoundServerCall,
 } from 'lib/utils/action-utils';
+
 import type { InputState } from '../input/input-state';
-
-import Clipboard from '@react-native-community/clipboard';
-import invariant from 'invariant';
-
-import { createMessageReply } from 'lib/shared/message-utils';
-
+import { displayActionResultModal } from '../navigation/action-result-modal';
 import {
   createTooltip,
   tooltipHeight,
   type TooltipParams,
   type TooltipRoute,
 } from '../navigation/tooltip.react';
+
 import TextMessageTooltipButton from './text-message-tooltip-button.react';
-import { displayActionResultModal } from '../navigation/action-result-modal';
+import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
 
 export type TextMessageTooltipModalParams = TooltipParams<{|
   +item: ChatTextMessageInfoItemWithHeight,

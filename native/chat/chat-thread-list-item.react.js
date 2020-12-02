@@ -2,19 +2,18 @@
 
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors';
 import type { ThreadInfo } from 'lib/types/thread-types';
-
+import { shortAbsoluteDate } from 'lib/utils/date-utils';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import { shortAbsoluteDate } from 'lib/utils/date-utils';
-
 import Button from '../components/button.react';
-import MessagePreview from './message-preview.react';
 import ColorSplotch from '../components/color-splotch.react';
-import { useColors, useStyles } from '../themes/colors';
 import { SingleLine } from '../components/single-line.react';
-import ChatThreadListSidebar from './chat-thread-list-sidebar.react';
+import { useColors, useStyles } from '../themes/colors';
+
 import ChatThreadListSeeMoreSidebars from './chat-thread-list-see-more-sidebars.react';
+import ChatThreadListSidebar from './chat-thread-list-sidebar.react';
+import MessagePreview from './message-preview.react';
 import SwipeableThread from './swipeable-thread.react';
 
 type Props = {|

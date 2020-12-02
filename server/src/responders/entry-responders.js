@@ -1,6 +1,6 @@
 // @flow
 
-import type { Viewer } from '../session/viewer';
+import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
 import type {
   CalendarQuery,
   SaveEntryRequest,
@@ -13,36 +13,34 @@ import type {
   DeltaEntryInfosResult,
   SaveEntryResponse,
 } from 'lib/types/entry-types';
+import { calendarThreadFilterTypes } from 'lib/types/filter-types';
 import type {
   FetchEntryRevisionInfosResult,
   FetchEntryRevisionInfosRequest,
 } from 'lib/types/history-types';
-import { calendarThreadFilterTypes } from 'lib/types/filter-types';
-
+import { ServerError } from 'lib/utils/errors';
 import t from 'tcomb';
 
-import { ServerError } from 'lib/utils/errors';
-import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
-
+import createEntry from '../creators/entry-creator';
+import { deleteEntry, restoreEntry } from '../deleters/entry-deleters';
+import {
+  fetchEntryInfos,
+  fetchEntryRevisionInfo,
+  fetchEntriesForSession,
+} from '../fetchers/entry-fetchers';
+import { verifyThreadIDs } from '../fetchers/thread-fetchers';
+import type { Viewer } from '../session/viewer';
+import {
+  updateEntry,
+  compareNewCalendarQuery,
+} from '../updaters/entry-updaters';
+import { commitSessionUpdate } from '../updaters/session-updaters';
 import {
   validateInput,
   tString,
   tShape,
   tDate,
 } from '../utils/validation-utils';
-import { verifyThreadIDs } from '../fetchers/thread-fetchers';
-import {
-  fetchEntryInfos,
-  fetchEntryRevisionInfo,
-  fetchEntriesForSession,
-} from '../fetchers/entry-fetchers';
-import createEntry from '../creators/entry-creator';
-import {
-  updateEntry,
-  compareNewCalendarQuery,
-} from '../updaters/entry-updaters';
-import { deleteEntry, restoreEntry } from '../deleters/entry-deleters';
-import { commitSessionUpdate } from '../updaters/session-updaters';
 
 const entryQueryInputValidator = tShape({
   navID: t.maybe(t.String),

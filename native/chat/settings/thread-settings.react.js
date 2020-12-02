@@ -1,82 +1,81 @@
 // @flow
 
-import {
-  type ThreadInfo,
-  type RelativeMemberInfo,
-  threadPermissions,
-  threadTypes,
-} from 'lib/types/thread-types';
-import type { AppState } from '../../redux/redux-setup';
-import type { CategoryType } from './thread-settings-category.react';
-import type { VerticalBounds } from '../../types/layout-types';
-import type { ChatNavigationProp } from '../chat.react';
-import type { TabNavigationProp } from '../../navigation/app-navigator.react';
-import type { NavigationRoute } from '../../navigation/route-names';
-import type { ViewStyle } from '../../types/styles';
-
-import * as React from 'react';
-import { View, FlatList, Platform } from 'react-native';
 import invariant from 'invariant';
-import { createSelector } from 'reselect';
-
-import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
-import {
-  threadInfoSelector,
-  childThreadInfos,
-} from 'lib/selectors/thread-selectors';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   changeThreadSettingsActionTypes,
   leaveThreadActionTypes,
   removeUsersFromThreadActionTypes,
   changeThreadMemberRolesActionTypes,
 } from 'lib/actions/thread-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import {
+  threadInfoSelector,
+  childThreadInfos,
+} from 'lib/selectors/thread-selectors';
+import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
 import {
   threadHasPermission,
   viewerIsMember,
   threadInChatList,
 } from 'lib/shared/thread-utils';
 import threadWatcher from 'lib/shared/thread-watcher';
+import {
+  type ThreadInfo,
+  type RelativeMemberInfo,
+  threadPermissions,
+  threadTypes,
+} from 'lib/types/thread-types';
+import * as React from 'react';
+import { View, FlatList, Platform } from 'react-native';
+import { createSelector } from 'reselect';
 
 import {
-  ThreadSettingsCategoryHeader,
-  ThreadSettingsCategoryFooter,
-} from './thread-settings-category.react';
-import ThreadSettingsMember from './thread-settings-member.react';
+  type KeyboardState,
+  KeyboardContext,
+} from '../../keyboard/keyboard-state';
+import type { TabNavigationProp } from '../../navigation/app-navigator.react';
 import {
-  ThreadSettingsSeeMore,
-  ThreadSettingsAddMember,
-  ThreadSettingsAddSubthread,
-} from './thread-settings-list-action.react';
-import ThreadSettingsChildThread from './thread-settings-child-thread.react';
-import ThreadSettingsName from './thread-settings-name.react';
-import ThreadSettingsColor from './thread-settings-color.react';
-import ThreadSettingsDescription from './thread-settings-description.react';
-import ThreadSettingsParent from './thread-settings-parent.react';
-import ThreadSettingsVisibility from './thread-settings-visibility.react';
-import ThreadSettingsPushNotifs from './thread-settings-push-notifs.react';
-import ThreadSettingsHomeNotifs from './thread-settings-home-notifs.react';
-import ThreadSettingsLeaveThread from './thread-settings-leave-thread.react';
-import ThreadSettingsDeleteThread from './thread-settings-delete-thread.react';
-import ThreadSettingsPromoteSidebar from './thread-settings-promote-sidebar.react';
+  OverlayContext,
+  type OverlayContextType,
+} from '../../navigation/overlay-context';
+import type { NavigationRoute } from '../../navigation/route-names';
 import {
   AddUsersModalRouteName,
   ComposeSubthreadModalRouteName,
 } from '../../navigation/route-names';
+import type { AppState } from '../../redux/redux-setup';
+import { useSelector } from '../../redux/redux-utils';
 import {
   useStyles,
   type IndicatorStyle,
   useIndicatorStyle,
 } from '../../themes/colors';
+import type { VerticalBounds } from '../../types/layout-types';
+import type { ViewStyle } from '../../types/styles';
+import type { ChatNavigationProp } from '../chat.react';
+
+import type { CategoryType } from './thread-settings-category.react';
 import {
-  OverlayContext,
-  type OverlayContextType,
-} from '../../navigation/overlay-context';
+  ThreadSettingsCategoryHeader,
+  ThreadSettingsCategoryFooter,
+} from './thread-settings-category.react';
+import ThreadSettingsChildThread from './thread-settings-child-thread.react';
+import ThreadSettingsColor from './thread-settings-color.react';
+import ThreadSettingsDeleteThread from './thread-settings-delete-thread.react';
+import ThreadSettingsDescription from './thread-settings-description.react';
+import ThreadSettingsHomeNotifs from './thread-settings-home-notifs.react';
+import ThreadSettingsLeaveThread from './thread-settings-leave-thread.react';
 import {
-  type KeyboardState,
-  KeyboardContext,
-} from '../../keyboard/keyboard-state';
-import { useSelector } from '../../redux/redux-utils';
+  ThreadSettingsSeeMore,
+  ThreadSettingsAddMember,
+  ThreadSettingsAddSubthread,
+} from './thread-settings-list-action.react';
+import ThreadSettingsMember from './thread-settings-member.react';
+import ThreadSettingsName from './thread-settings-name.react';
+import ThreadSettingsParent from './thread-settings-parent.react';
+import ThreadSettingsPromoteSidebar from './thread-settings-promote-sidebar.react';
+import ThreadSettingsPushNotifs from './thread-settings-push-notifs.react';
+import ThreadSettingsVisibility from './thread-settings-visibility.react';
 
 const itemPageLength = 5;
 

@@ -6,16 +6,15 @@ import {
   updateDisconnectedBarActionType,
 } from 'lib/types/socket-types';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+
 import type { AppState } from '../redux/redux-setup';
 import {
   type ConnectivityInfo,
   connectivityInfoPropType,
 } from '../types/connectivity';
-
-import * as React from 'react';
-import PropTypes from 'prop-types';
-
-import { connect } from 'lib/utils/redux-utils';
 
 type Props = {|
   // Redux state

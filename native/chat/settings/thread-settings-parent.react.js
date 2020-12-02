@@ -1,21 +1,20 @@
 // @flow
 
+import invariant from 'invariant';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import type { AppState } from '../../redux/redux-setup';
-import type { ThreadSettingsNavigate } from './thread-settings.react';
-
+import { connect } from 'lib/utils/redux-utils';
+import PropTypes from 'prop-types';
 import * as React from 'react';
 import { Text, View, Platform } from 'react-native';
-import PropTypes from 'prop-types';
-import invariant from 'invariant';
-
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
-import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../../components/button.react';
-import { MessageListRouteName } from '../../navigation/route-names';
-import { styleSelector } from '../../themes/colors';
 import { SingleLine } from '../../components/single-line.react';
+import { MessageListRouteName } from '../../navigation/route-names';
+import type { AppState } from '../../redux/redux-setup';
+import { styleSelector } from '../../themes/colors';
+
+import type { ThreadSettingsNavigate } from './thread-settings.react';
 
 type Props = {|
   threadInfo: ThreadInfo,

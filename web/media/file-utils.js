@@ -1,10 +1,7 @@
 // @flow
 
-import type { DetermineFileTypeMediaMissionStep } from 'lib/types/media-types';
-
-import isSvg from 'is-svg';
 import invariant from 'invariant';
-
+import isSvg from 'is-svg';
 import {
   mediaConfig,
   serverTranscodableTypes,
@@ -12,6 +9,7 @@ import {
   type FileDataInfo,
   readableFilename,
 } from 'lib/media/file-utils';
+import type { DetermineFileTypeMediaMissionStep } from 'lib/types/media-types';
 import { getMessageForException } from 'lib/utils/errors';
 
 function deepFileInfoFromData(data: Buffer | ArrayBuffer): FileDataInfo {

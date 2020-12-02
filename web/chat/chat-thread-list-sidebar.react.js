@@ -1,14 +1,14 @@
 // @flow
 
-import type { SidebarInfo } from 'lib/types/thread-types';
-
-import * as React from 'react';
 import classNames from 'classnames';
+import type { SidebarInfo } from 'lib/types/thread-types';
+import * as React from 'react';
 
+import { useThreadIsActive } from '../selectors/nav-selectors';
+
+import ChatThreadListItemMenu from './chat-thread-list-item-menu.react';
 import css from './chat-thread-list.css';
 import SidebarItem from './sidebar-item.react';
-import { useThreadIsActive } from '../selectors/nav-selectors';
-import ChatThreadListItemMenu from './chat-thread-list-item-menu.react';
 
 type Props = {|
   +sidebarInfo: SidebarInfo,

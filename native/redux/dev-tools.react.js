@@ -1,13 +1,13 @@
 // @flow
 
+import { actionLogger } from 'lib/utils/action-logger';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { actionLogger } from 'lib/utils/action-logger';
-
-import { NavContext } from '../navigation/navigation-context';
-import { setReduxStateActionType } from './action-types';
 import { setNavStateActionType } from '../navigation/action-types';
+import { NavContext } from '../navigation/navigation-context';
+
+import { setReduxStateActionType } from './action-types';
 import { useSelector } from './redux-utils';
 
 const DevTools = React.memo<{||}>(() => {

@@ -1,5 +1,6 @@
 // @flow
 
+import type { $Response, $Request } from 'express';
 import {
   type ReportCreationResponse,
   type ReportCreationRequest,
@@ -7,24 +8,22 @@ import {
   type FetchErrorReportInfosRequest,
   reportTypes,
 } from 'lib/types/report-types';
-import type { Viewer } from '../session/viewer';
-import type { $Response, $Request } from 'express';
-
+import { ServerError } from 'lib/utils/errors';
 import t from 'tcomb';
 
-import { ServerError } from 'lib/utils/errors';
-
+import createReport from '../creators/report-creator';
+import {
+  fetchErrorReportInfos,
+  fetchReduxToolsImport,
+} from '../fetchers/report-fetchers';
+import type { Viewer } from '../session/viewer';
 import {
   validateInput,
   tShape,
   tPlatform,
   tPlatformDetails,
 } from '../utils/validation-utils';
-import createReport from '../creators/report-creator';
-import {
-  fetchErrorReportInfos,
-  fetchReduxToolsImport,
-} from '../fetchers/report-fetchers';
+
 import { newEntryQueryInputValidator } from './entry-responders';
 
 const tActionSummary = tShape({

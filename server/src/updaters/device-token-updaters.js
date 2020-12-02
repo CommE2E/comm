@@ -4,11 +4,10 @@ import {
   type DeviceTokenUpdateRequest,
   isDeviceType,
 } from 'lib/types/device-types';
-import type { Viewer } from '../session/viewer';
-
 import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from '../database/database';
+import type { Viewer } from '../session/viewer';
 
 async function deviceTokenUpdater(
   viewer: Viewer,

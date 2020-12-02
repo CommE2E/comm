@@ -14,18 +14,11 @@ import {
   type ThreadJoinResult,
   assertThreadType,
 } from 'lib/types/thread-types';
-import type { Viewer } from '../session/viewer';
-
 import t from 'tcomb';
 
-import {
-  validateInput,
-  tShape,
-  tNumEnum,
-  tColor,
-  tPassword,
-} from '../utils/validation-utils';
+import createThread from '../creators/thread-creator';
 import { deleteThread } from '../deleters/thread-deleters';
+import type { Viewer } from '../session/viewer';
 import {
   updateRole,
   removeMembers,
@@ -33,7 +26,14 @@ import {
   updateThread,
   joinThread,
 } from '../updaters/thread-updaters';
-import createThread from '../creators/thread-creator';
+import {
+  validateInput,
+  tShape,
+  tNumEnum,
+  tColor,
+  tPassword,
+} from '../utils/validation-utils';
+
 import {
   entryQueryInputValidator,
   verifyCalendarQueryThreadIDs,

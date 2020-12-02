@@ -1,14 +1,11 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
+import * as MediaLibrary from 'expo-media-library';
+import invariant from 'invariant';
+import { extensionFromFilename } from 'lib/media/file-utils';
 import type { MediaLibrarySelection } from 'lib/types/media-types';
-import {
-  type DimensionsInfo,
-  dimensionsInfoPropType,
-} from '../redux/dimensions-updater.react';
-import type { ViewToken, LayoutEvent } from '../types/react-native';
-import type { ViewStyle } from '../types/styles';
-
+import { connect } from 'lib/utils/redux-utils';
+import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   View,
@@ -20,24 +17,26 @@ import {
   Platform,
 } from 'react-native';
 import { KeyboardRegistry } from 'react-native-keyboard-input';
-import invariant from 'invariant';
 import { Provider } from 'react-redux';
-import PropTypes from 'prop-types';
-import * as MediaLibrary from 'expo-media-library';
 
-import { connect } from 'lib/utils/redux-utils';
-import { extensionFromFilename } from 'lib/media/file-utils';
-
+import {
+  type DimensionsInfo,
+  dimensionsInfoPropType,
+} from '../redux/dimensions-updater.react';
+import type { AppState } from '../redux/redux-setup';
 import { store } from '../redux/redux-setup';
-import MediaGalleryMedia from './media-gallery-media.react';
 import {
   type Colors,
   colorsPropType,
   colorsSelector,
   styleSelector,
 } from '../themes/colors';
-import SendMediaButton from './send-media-button.react';
+import type { ViewToken, LayoutEvent } from '../types/react-native';
+import type { ViewStyle } from '../types/styles';
+
 import { getCompatibleMediaURI } from './identifier-utils';
+import MediaGalleryMedia from './media-gallery-media.react';
+import SendMediaButton from './send-media-button.react';
 
 const animationSpec = {
   duration: 400,

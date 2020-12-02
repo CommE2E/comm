@@ -1,11 +1,11 @@
 // @flow
 
+import { saveDraftActionType } from 'lib/actions/miscellaneous-action-types';
 import {
   logOutActionTypes,
   deleteAccountActionTypes,
 } from 'lib/actions/user-actions';
 import { setNewSessionActionType } from 'lib/utils/action-utils';
-import { saveDraftActionType } from 'lib/actions/miscellaneous-action-types';
 
 export default function reduceDrafts(
   state: ?{ [key: string]: string },

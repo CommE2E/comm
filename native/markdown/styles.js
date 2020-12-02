@@ -1,11 +1,10 @@
 // @flow
 
-import type { GlobalTheme } from '../types/themes';
-
-import { Platform } from 'react-native';
 import _memoize from 'lodash/memoize';
+import { Platform } from 'react-native';
 
 import { getStylesForTheme } from '../themes/colors';
+import type { GlobalTheme } from '../types/themes';
 
 const unboundStyles = {
   link: {

@@ -1,13 +1,12 @@
 // @flow
 
-import type { RawThreadInfo, ServerThreadInfo } from 'lib/types/thread-types';
-import type { Viewer } from '../session/viewer';
-
 import { getAllThreadPermissions } from 'lib/permissions/thread-permissions';
 import { rawThreadInfoFromServerThreadInfo } from 'lib/shared/thread-utils';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
+import type { RawThreadInfo, ServerThreadInfo } from 'lib/types/thread-types';
 
 import { dbQuery, SQL, SQLStatement } from '../database/database';
+import type { Viewer } from '../session/viewer';
 
 type FetchServerThreadInfosResult = {|
   threadInfos: { [id: string]: ServerThreadInfo },

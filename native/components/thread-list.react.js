@@ -1,27 +1,26 @@
 // @flow
 
-import type { ViewStyle, TextStyle } from '../types/styles';
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import type { AppState } from '../redux/redux-setup';
-
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { FlatList, ViewPropTypes, Text, TextInput } from 'react-native';
 import invariant from 'invariant';
+import SearchIndex from 'lib/shared/search-index';
+import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import { connect } from 'lib/utils/redux-utils';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { FlatList, ViewPropTypes, Text, TextInput } from 'react-native';
 import { createSelector } from 'reselect';
 
-import SearchIndex from 'lib/shared/search-index';
-import { connect } from 'lib/utils/redux-utils';
-
-import ThreadListThread from './thread-list-thread.react';
+import type { AppState } from '../redux/redux-setup';
 import {
   styleSelector,
   type IndicatorStyle,
   indicatorStylePropType,
   indicatorStyleSelector,
 } from '../themes/colors';
-import Search from './search.react';
+import type { ViewStyle, TextStyle } from '../types/styles';
 import { waitForModalInputFocus } from '../utils/timers';
+
+import Search from './search.react';
+import ThreadListThread from './thread-list-thread.react';
 
 type Props = {|
   threadInfos: $ReadOnlyArray<ThreadInfo>,

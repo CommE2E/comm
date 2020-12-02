@@ -1,9 +1,9 @@
 // @flow
 
-import type { Colors } from '../themes/colors';
-
 import * as React from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
+
+import type { Colors } from '../themes/colors';
 
 type Props = {|
   fillType: 'flex' | 'absolute',

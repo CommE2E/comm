@@ -1,26 +1,24 @@
 // @flow
 
+import { threadTypeDescriptions } from 'lib/shared/thread-utils';
 import {
   type ThreadInfo,
   threadInfoPropType,
   threadTypes,
 } from 'lib/types/thread-types';
-import type { AppState } from '../../redux/redux-setup';
-import type { RootNavigationProp } from '../../navigation/root-navigator.react';
-import type { NavigationRoute } from '../../navigation/route-names';
-
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { Text } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import IonIcon from 'react-native-vector-icons/Ionicons';
-
-import { threadTypeDescriptions } from 'lib/shared/thread-utils';
 import { connect } from 'lib/utils/redux-utils';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { Text } from 'react-native';
+import IonIcon from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import Button from '../../components/button.react';
-import { ComposeThreadRouteName } from '../../navigation/route-names';
 import Modal from '../../components/modal.react';
+import type { RootNavigationProp } from '../../navigation/root-navigator.react';
+import type { NavigationRoute } from '../../navigation/route-names';
+import { ComposeThreadRouteName } from '../../navigation/route-names';
+import type { AppState } from '../../redux/redux-setup';
 import {
   type Colors,
   colorsPropType,

@@ -4,23 +4,22 @@ import {
   type UndirectedStatus,
   undirectedStatus,
 } from 'lib/types/relationship-types';
-
+import { getAllTuples } from 'lib/utils/array';
+import _flatten from 'lodash/fp/flatten';
 import _flow from 'lodash/fp/flow';
 import _groupBy from 'lodash/fp/groupBy';
-import _mapValues from 'lodash/fp/mapValues';
-import _map from 'lodash/fp/map';
-import _values from 'lodash/fp/values';
-import _flatten from 'lodash/fp/flatten';
-import _uniqWith from 'lodash/fp/uniqWith';
 import _isEqual from 'lodash/fp/isEqual';
-
-import { getAllTuples } from 'lib/utils/array';
+import _map from 'lodash/fp/map';
+import _mapValues from 'lodash/fp/mapValues';
+import _uniqWith from 'lodash/fp/uniqWith';
+import _values from 'lodash/fp/values';
 
 import {
   updateUndirectedRelationships,
   updateDatasForUserPairs,
 } from '../updaters/relationship-updaters';
-import { createUpdates } from '../creators/update-creator';
+
+import { createUpdates } from './update-creator';
 
 type QueryResult = {|
   +thread: number,

@@ -1,24 +1,22 @@
 // @flow
 
+import {
+  updateRelationshipsActionTypes,
+  updateRelationships,
+} from 'lib/actions/relationship-actions';
+import { stringForUser } from 'lib/shared/user-utils';
+import type { RelativeUserInfo } from 'lib/types/user-types';
 import type {
   DispatchFunctions,
   ActionFunc,
   BoundServerCall,
 } from 'lib/utils/action-utils';
-import type { RelativeUserInfo } from 'lib/types/user-types';
-import type { AppNavigationProp } from '../navigation/app-navigator.react';
-
 import * as React from 'react';
 import { Alert, TouchableOpacity } from 'react-native';
 
-import { stringForUser } from 'lib/shared/user-utils';
-import {
-  updateRelationshipsActionTypes,
-  updateRelationships,
-} from 'lib/actions/relationship-actions';
-
-import { createTooltip, type TooltipParams } from '../navigation/tooltip.react';
 import PencilIcon from '../components/pencil-icon.react';
+import type { AppNavigationProp } from '../navigation/app-navigator.react';
+import { createTooltip, type TooltipParams } from '../navigation/tooltip.react';
 
 type Action = 'unfriend' | 'unblock';
 

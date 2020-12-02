@@ -1,14 +1,12 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
-
+import { connect } from 'lib/utils/redux-utils';
+import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, Text, ScrollView } from 'react-native';
-import PropTypes from 'prop-types';
-
-import { connect } from 'lib/utils/redux-utils';
 
 import { persistConfig, codeVersion } from '../redux/persist';
+import type { AppState } from '../redux/redux-setup';
 import { styleSelector } from '../themes/colors';
 
 type Props = {|

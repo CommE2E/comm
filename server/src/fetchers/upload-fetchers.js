@@ -1,11 +1,11 @@
 // @flow
 
-import type { Viewer } from '../session/viewer';
 import type { Media } from 'lib/types/media-types';
-
-import { dbQuery, SQL } from '../database/database';
 import { ServerError } from 'lib/utils/errors';
+
 import urlFacts from '../../facts/url';
+import { dbQuery, SQL } from '../database/database';
+import type { Viewer } from '../session/viewer';
 
 const { baseDomain, basePath } = urlFacts;
 

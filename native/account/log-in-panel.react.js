@@ -1,44 +1,43 @@
 // @flow
 
-import type { LoadingStatus } from 'lib/types/loading-types';
+import invariant from 'invariant';
+import { logInActionTypes, logIn } from 'lib/actions/user-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import {
+  oldValidUsernameRegex,
+  validEmailRegex,
+} from 'lib/shared/account-utils';
 import type {
   LogInInfo,
   LogInExtraInfo,
   LogInResult,
   LogInStartingPayload,
 } from 'lib/types/account-types';
-import type { StateContainer } from '../utils/state-container';
-
-import * as React from 'react';
-import { View, StyleSheet, Alert, Keyboard, Platform } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import invariant from 'invariant';
-import Animated from 'react-native-reanimated';
+import type { LoadingStatus } from 'lib/types/loading-types';
 import {
   useServerCall,
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/action-utils';
+import * as React from 'react';
+import { View, StyleSheet, Alert, Keyboard, Platform } from 'react-native';
+import Animated from 'react-native-reanimated';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
-import {
-  oldValidUsernameRegex,
-  validEmailRegex,
-} from 'lib/shared/account-utils';
-import { logInActionTypes, logIn } from 'lib/actions/user-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { NavContext } from '../navigation/navigation-context';
+import { useSelector } from '../redux/redux-utils';
+import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
+import type { StateContainer } from '../utils/state-container';
 
 import {
   TextInput,
   usernamePlaceholderSelector,
 } from './modal-components.react';
-import { PanelButton, Panel } from './panel-components.react';
 import {
   fetchNativeCredentials,
   setNativeCredentials,
 } from './native-credentials';
-import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
-import { NavContext } from '../navigation/navigation-context';
-import { useSelector } from '../redux/redux-utils';
+import { PanelButton, Panel } from './panel-components.react';
 
 export type LogInState = {|
   +usernameOrEmailInputText: string,

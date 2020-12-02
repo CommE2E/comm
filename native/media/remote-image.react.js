@@ -4,15 +4,14 @@ import {
   type ConnectionStatus,
   connectionStatusPropType,
 } from 'lib/types/socket-types';
-import type { AppState } from '../redux/redux-setup';
-import type { ImageStyle } from '../types/styles';
-
-import * as React from 'react';
+import { connect } from 'lib/utils/redux-utils';
 import PropTypes from 'prop-types';
+import * as React from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import FastImage from 'react-native-fast-image';
 
-import { connect } from 'lib/utils/redux-utils';
+import type { AppState } from '../redux/redux-setup';
+import type { ImageStyle } from '../types/styles';
 
 type Props = {|
   uri: string,

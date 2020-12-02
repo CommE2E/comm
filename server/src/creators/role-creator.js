@@ -10,6 +10,7 @@ import {
 } from 'lib/types/thread-types';
 
 import { dbQuery, SQL } from '../database/database';
+
 import createIDs from './id-creator';
 
 type InitialRoles = {|

@@ -1,18 +1,17 @@
 // @flow
 
-import type { Viewer } from '../session/viewer';
+import { isStaff } from 'lib/shared/user-utils';
 import {
   type FetchErrorReportInfosResponse,
   type FetchErrorReportInfosRequest,
   type ReduxToolsImport,
   reportTypes,
 } from 'lib/types/report-types';
-
 import { ServerError } from 'lib/utils/errors';
-import { isStaff } from 'lib/shared/user-utils';
 import { values } from 'lib/utils/objects';
 
 import { dbQuery, SQL } from '../database/database';
+import type { Viewer } from '../session/viewer';
 
 async function fetchErrorReportInfos(
   viewer: Viewer,

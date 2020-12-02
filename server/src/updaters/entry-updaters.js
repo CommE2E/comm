@@ -1,5 +1,10 @@
 // @flow
 
+import invariant from 'invariant';
+import {
+  rawEntryInfoWithinCalendarQuery,
+  calendarQueryDifference,
+} from 'lib/shared/entry-utils';
 import {
   type SaveEntryRequest,
   type SaveEntryResponse,
@@ -7,35 +12,29 @@ import {
   type CalendarQuery,
   defaultCalendarQuery,
 } from 'lib/types/entry-types';
-import type { Viewer } from '../session/viewer';
+import { messageTypes } from 'lib/types/message-types';
+import { threadPermissions } from 'lib/types/thread-types';
 import {
   updateTypes,
   type CreateUpdatesResponse,
 } from 'lib/types/update-types';
-import type { SessionUpdate } from './session-updaters';
-
-import invariant from 'invariant';
+import { dateString } from 'lib/utils/date-utils';
+import { ServerError } from 'lib/utils/errors';
+import { values } from 'lib/utils/objects';
 import _isEqual from 'lodash/fp/isEqual';
 
-import { ServerError } from 'lib/utils/errors';
-import { threadPermissions } from 'lib/types/thread-types';
-import { messageTypes } from 'lib/types/message-types';
-import { dateString } from 'lib/utils/date-utils';
-import {
-  rawEntryInfoWithinCalendarQuery,
-  calendarQueryDifference,
-} from 'lib/shared/entry-utils';
-import { values } from 'lib/utils/objects';
-
+import createIDs from '../creators/id-creator';
+import createMessages from '../creators/message-creator';
+import { createUpdates } from '../creators/update-creator';
 import { dbQuery, SQL } from '../database/database';
 import {
   fetchEntryInfo,
   checkThreadPermissionForEntry,
 } from '../fetchers/entry-fetchers';
-import createIDs from '../creators/id-creator';
-import createMessages from '../creators/message-creator';
 import { fetchActiveSessionsForThread } from '../fetchers/session-fetchers';
-import { createUpdates } from '../creators/update-creator';
+import type { Viewer } from '../session/viewer';
+
+import type { SessionUpdate } from './session-updaters';
 
 const defaultUpdateCreationResponse = { viewerUpdates: [], userInfos: [] };
 async function updateEntry(

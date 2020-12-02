@@ -1,20 +1,6 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
-import {
-  type ThreadInfo,
-  type SidebarInfo,
-  threadTypes,
-} from 'lib/types/thread-types';
-import type { MessageStore, MessageInfo } from 'lib/types/message-types';
-
-import { createSelector } from 'reselect';
 import invariant from 'invariant';
-
-import {
-  threadInfoSelector,
-  sidebarInfoSelector,
-} from 'lib/selectors/thread-selectors';
 import {
   messageInfoSelector,
   type ChatThreadItem,
@@ -23,6 +9,19 @@ import {
   type ChatMessageItem,
   createChatMessageItems,
 } from 'lib/selectors/chat-selectors';
+import {
+  threadInfoSelector,
+  sidebarInfoSelector,
+} from 'lib/selectors/thread-selectors';
+import type { MessageStore, MessageInfo } from 'lib/types/message-types';
+import {
+  type ThreadInfo,
+  type SidebarInfo,
+  threadTypes,
+} from 'lib/types/thread-types';
+import { createSelector } from 'reselect';
+
+import type { AppState } from '../redux/redux-setup';
 
 const activeChatThreadItem: (
   state: AppState,

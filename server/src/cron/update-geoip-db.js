@@ -1,8 +1,9 @@
 // @flow
 
 import childProcess from 'child_process';
-import geoip from 'geoip-lite';
 import cluster from 'cluster';
+
+import geoip from 'geoip-lite';
 
 import { handleAsyncPromise } from '../responders/handlers';
 

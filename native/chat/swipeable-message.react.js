@@ -1,19 +1,18 @@
 // @flow
 
-import type { ViewStyle } from '../types/styles';
-
+import { GestureHandlerRefContext } from '@react-navigation/stack';
 import * as React from 'react';
 import { View, Platform } from 'react-native';
-import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
-import { TapticFeedback } from 'react-native-in-app-message';
-import Animated from 'react-native-reanimated';
 import {
   PanGestureHandler,
   State as GestureState,
 } from 'react-native-gesture-handler';
-import { GestureHandlerRefContext } from '@react-navigation/stack';
+import { TapticFeedback } from 'react-native-in-app-message';
+import Animated from 'react-native-reanimated';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
 import { useColors, useStyles } from '../themes/colors';
+import type { ViewStyle } from '../types/styles';
 import { dividePastDistance, runSpring } from '../utils/animation-utils';
 
 /* eslint-disable import/no-named-as-default-member */

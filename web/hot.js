@@ -1,12 +1,12 @@
 // @flow
 
 import * as React from 'react';
-import { Router, Route } from 'react-router';
 import { hot } from 'react-hot-loader/root';
+import { Router, Route } from 'react-router';
 
 import App from './app.react';
-import Socket from './socket.react';
 import history from './router-history';
+import Socket from './socket.react';
 
 const RootComponent = () => (
   <React.Fragment>

@@ -1,6 +1,15 @@
 // @flow
 
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import {
+  initialMode as initialSystemTheme,
+  eventEmitter as systemThemeEventEmitter,
+} from 'react-native-dark-mode';
+
+import { updateThemeInfoActionType } from '../redux/action-types';
 import type { AppState } from '../redux/redux-setup';
 import {
   type GlobalTheme,
@@ -8,16 +17,6 @@ import {
   globalThemeInfoPropType,
   osCanTheme,
 } from '../types/themes';
-import { updateThemeInfoActionType } from '../redux/action-types';
-
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import {
-  initialMode as initialSystemTheme,
-  eventEmitter as systemThemeEventEmitter,
-} from 'react-native-dark-mode';
-
-import { connect } from 'lib/utils/redux-utils';
 
 type Props = {|
   // Redux state

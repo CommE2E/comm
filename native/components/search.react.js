@@ -1,22 +1,20 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
-import type { ViewStyle } from '../types/styles';
-
-import * as React from 'react';
+import { isLoggedIn } from 'lib/selectors/user-selectors';
+import { connect } from 'lib/utils/redux-utils';
 import PropTypes from 'prop-types';
+import * as React from 'react';
 import { View, ViewPropTypes, TouchableOpacity, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-import { connect } from 'lib/utils/redux-utils';
-import { isLoggedIn } from 'lib/selectors/user-selectors';
-
+import type { AppState } from '../redux/redux-setup';
 import {
   type Colors,
   colorsPropType,
   colorsSelector,
   styleSelector,
 } from '../themes/colors';
+import type { ViewStyle } from '../types/styles';
 
 type Props = {|
   ...React.ElementConfig<typeof TextInput>,

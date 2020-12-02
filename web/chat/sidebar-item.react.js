@@ -1,16 +1,15 @@
 // @flow
 
-import type { SidebarInfo } from 'lib/types/thread-types';
-
-import * as React from 'react';
 import classNames from 'classnames';
+import type { SidebarInfo } from 'lib/types/thread-types';
+import { shortAbsoluteDate } from 'lib/utils/date-utils';
+import * as React from 'react';
 import AlignRightIcon from 'react-entypo-icons/lib/entypo/AlignRight';
 
-import { shortAbsoluteDate } from 'lib/utils/date-utils';
-
-import css from './chat-thread-list.css';
 import { useSelector } from '../redux/redux-utils';
 import { useOnClickThread } from '../selectors/nav-selectors';
+
+import css from './chat-thread-list.css';
 
 type Props = {|
   +sidebarInfo: SidebarInfo,

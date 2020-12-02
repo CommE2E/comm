@@ -1,39 +1,18 @@
 // @flow
 
+import invariant from 'invariant';
+import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
+import { messageKey } from 'lib/shared/message-utils';
 import { type MediaInfo, mediaInfoPropType } from 'lib/types/media-types';
-import type { ChatMultimediaMessageInfoItem } from './multimedia-message.react';
-import type { ViewStyle } from '../types/styles';
-import {
-  MultimediaModalRouteName,
-  MultimediaTooltipModalRouteName,
-} from '../navigation/route-names';
-import {
-  type VerticalBounds,
-  verticalBoundsPropType,
-} from '../types/layout-types';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { View, StyleSheet } from 'react-native';
+import Animated from 'react-native-reanimated';
+
 import {
   type PendingMultimediaUpload,
   pendingMultimediaUploadPropType,
 } from '../input/input-state';
-import {
-  messageListRoutePropType,
-  messageListNavPropType,
-} from './message-list-types';
-import type { ChatNavigationProp } from './chat.react';
-import type { NavigationRoute } from '../navigation/route-names';
-
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { View, StyleSheet } from 'react-native';
-import Animated from 'react-native-reanimated';
-import invariant from 'invariant';
-
-import { messageKey } from 'lib/shared/message-utils';
-import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
-
-import InlineMultimedia from './inline-multimedia.react';
-import { multimediaTooltipHeight } from './multimedia-tooltip-modal.react';
-import { type Colors, colorsPropType, useColors } from '../themes/colors';
 import {
   type KeyboardState,
   keyboardStatePropType,
@@ -44,6 +23,26 @@ import {
   type OverlayContextType,
   overlayContextPropType,
 } from '../navigation/overlay-context';
+import type { NavigationRoute } from '../navigation/route-names';
+import {
+  MultimediaModalRouteName,
+  MultimediaTooltipModalRouteName,
+} from '../navigation/route-names';
+import { type Colors, colorsPropType, useColors } from '../themes/colors';
+import {
+  type VerticalBounds,
+  verticalBoundsPropType,
+} from '../types/layout-types';
+import type { ViewStyle } from '../types/styles';
+
+import type { ChatNavigationProp } from './chat.react';
+import InlineMultimedia from './inline-multimedia.react';
+import {
+  messageListRoutePropType,
+  messageListNavPropType,
+} from './message-list-types';
+import type { ChatMultimediaMessageInfoItem } from './multimedia-message.react';
+import { multimediaTooltipHeight } from './multimedia-tooltip-modal.react';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Value, sub, interpolate, Extrapolate } = Animated;

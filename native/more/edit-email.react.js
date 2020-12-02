@@ -1,16 +1,21 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import { loadingStatusPropType } from 'lib/types/loading-types';
-import type { AccountUpdate } from 'lib/types/user-types';
+import { CommonActions } from '@react-navigation/native';
+import invariant from 'invariant';
+import {
+  changeUserSettingsActionTypes,
+  changeUserSettings,
+} from 'lib/actions/user-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { validEmailRegex } from 'lib/shared/account-utils';
 import type { ChangeUserSettingsResult } from 'lib/types/account-types';
-import { type GlobalTheme, globalThemePropType } from '../types/themes';
-import type { MoreNavigationProp } from './more.react';
-
-import * as React from 'react';
+import { loadingStatusPropType } from 'lib/types/loading-types';
+import type { LoadingStatus } from 'lib/types/loading-types';
+import type { AccountUpdate } from 'lib/types/user-types';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import PropTypes from 'prop-types';
+import * as React from 'react';
 import {
   Text,
   View,
@@ -19,24 +24,18 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import invariant from 'invariant';
-import { CommonActions } from '@react-navigation/native';
-
-import { connect } from 'lib/utils/redux-utils';
-import {
-  changeUserSettingsActionTypes,
-  changeUserSettings,
-} from 'lib/actions/user-actions';
-import { validEmailRegex } from 'lib/shared/account-utils';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import Button from '../components/button.react';
+import type { AppState } from '../redux/redux-setup';
 import {
   type Colors,
   colorsPropType,
   colorsSelector,
   styleSelector,
 } from '../themes/colors';
+import { type GlobalTheme, globalThemePropType } from '../types/themes';
+
+import type { MoreNavigationProp } from './more.react';
 
 type Props = {|
   navigation: MoreNavigationProp<'EditEmail'>,

@@ -1,15 +1,22 @@
 // @flow
 
+import invariant from 'invariant';
+import {
+  handleVerificationCodeActionTypes,
+  handleVerificationCode,
+} from 'lib/actions/user-actions';
+import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import {
   type VerifyField,
   verifyField,
   type HandleVerificationCodeResult,
 } from 'lib/types/verify-types';
-import type { KeyboardEvent } from '../keyboard/keyboard';
-import type { ImageStyle } from '../types/styles';
-import type { RootNavigationProp } from '../navigation/root-navigator.react';
-import type { NavigationRoute } from '../navigation/route-names';
-
+import {
+  useServerCall,
+  useDispatchActionPromise,
+  type DispatchActionPromise,
+} from 'lib/utils/action-utils';
+import sleep from 'lib/utils/sleep';
 import * as React from 'react';
 import {
   Image,
@@ -21,44 +28,36 @@ import {
   Keyboard,
   TouchableHighlight,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import invariant from 'invariant';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated from 'react-native-reanimated';
-
-import { registerFetchKey } from 'lib/reducers/loading-reducer';
-import {
-  handleVerificationCodeActionTypes,
-  handleVerificationCode,
-} from 'lib/actions/user-actions';
-import sleep from 'lib/utils/sleep';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-  type DispatchActionPromise,
-} from 'lib/utils/action-utils';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 import ConnectedStatusBar from '../connected-status-bar.react';
-import ResetPasswordPanel from './reset-password-panel.react';
-import { createIsForegroundSelector } from '../navigation/nav-selectors';
-import { splashBackgroundURI } from './background-info';
-import { splashStyleSelector } from '../splash';
+import type { KeyboardEvent } from '../keyboard/keyboard';
 import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
   removeKeyboardListener,
 } from '../keyboard/keyboard';
-import { VerificationModalRouteName } from '../navigation/route-names';
+import { createIsForegroundSelector } from '../navigation/nav-selectors';
 import { NavContext } from '../navigation/navigation-context';
-import {
-  runTiming,
-  ratchetAlongWithKeyboardHeight,
-} from '../utils/animation-utils';
+import type { RootNavigationProp } from '../navigation/root-navigator.react';
+import { VerificationModalRouteName } from '../navigation/route-names';
+import type { NavigationRoute } from '../navigation/route-names';
+import { useSelector } from '../redux/redux-utils';
 import {
   type DerivedDimensionsInfo,
   derivedDimensionsInfoSelector,
 } from '../selectors/dimensions-selectors';
-import { useSelector } from '../redux/redux-utils';
+import { splashStyleSelector } from '../splash';
+import type { ImageStyle } from '../types/styles';
+import {
+  runTiming,
+  ratchetAlongWithKeyboardHeight,
+} from '../utils/animation-utils';
+
+import { splashBackgroundURI } from './background-info';
+import ResetPasswordPanel from './reset-password-panel.react';
 
 const safeAreaEdges = ['top', 'bottom'];
 

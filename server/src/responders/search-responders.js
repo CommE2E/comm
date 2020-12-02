@@ -4,12 +4,11 @@ import type {
   UserSearchRequest,
   UserSearchResult,
 } from 'lib/types/search-types';
-import type { Viewer } from '../session/viewer';
-
 import t from 'tcomb';
 
-import { validateInput, tShape } from '../utils/validation-utils';
 import { searchForUsers } from '../search/users';
+import type { Viewer } from '../session/viewer';
+import { validateInput, tShape } from '../utils/validation-utils';
 
 const userSearchRequestInputValidator = tShape({
   prefix: t.maybe(t.String),

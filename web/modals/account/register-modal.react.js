@@ -1,27 +1,26 @@
 // @flow
 
-import type { AppState } from '../../redux/redux-setup';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import invariant from 'invariant';
+import { registerActionTypes, register } from 'lib/actions/user-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { validUsernameRegex, validEmailRegex } from 'lib/shared/account-utils';
 import type {
   RegisterInfo,
   LogInExtraInfo,
   RegisterResult,
   LogInStartingPayload,
 } from 'lib/types/account-types';
-
-import * as React from 'react';
-import invariant from 'invariant';
-import PropTypes from 'prop-types';
-
-import { validUsernameRegex, validEmailRegex } from 'lib/shared/account-utils';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import { connect } from 'lib/utils/redux-utils';
-import { registerActionTypes, register } from 'lib/actions/user-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 
+import type { AppState } from '../../redux/redux-setup';
+import { webLogInExtraInfoSelector } from '../../selectors/account-selectors';
 import css from '../../style.css';
 import Modal from '../modal.react';
+
 import VerifyEmailModal from './verify-email-modal.react';
-import { webLogInExtraInfoSelector } from '../../selectors/account-selectors';
 
 type Props = {|
   +setModal: (modal: ?React.Node) => void,

@@ -1,13 +1,11 @@
 // @flow
 
-import type { AppState } from '../../redux/redux-setup';
-
+import invariant from 'invariant';
+import { connect } from 'lib/utils/redux-utils';
 import * as React from 'react';
 import { View, Text, Platform } from 'react-native';
-import invariant from 'invariant';
 
-import { connect } from 'lib/utils/redux-utils';
-
+import type { AppState } from '../../redux/redux-setup';
 import { styleSelector } from '../../themes/colors';
 
 export type CategoryType = 'full' | 'outline' | 'unpadded';

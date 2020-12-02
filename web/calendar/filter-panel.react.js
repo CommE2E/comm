@@ -1,7 +1,18 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import {
+  faCog,
+  faTimesCircle,
+  faChevronUp,
+  faChevronDown,
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import classNames from 'classnames';
+import {
+  filteredThreadIDsSelector,
+  includeDeletedSelector,
+} from 'lib/selectors/calendar-filter-selectors';
+import SearchIndex from 'lib/shared/search-index';
 import {
   calendarThreadFilterTypes,
   type FilterThreadInfo,
@@ -10,34 +21,22 @@ import {
   clearCalendarThreadFilter,
   setCalendarDeletedFilter,
 } from 'lib/types/filter-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
-
-import * as React from 'react';
+import { connect } from 'lib/utils/redux-utils';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faCog,
-  faTimesCircle,
-  faChevronUp,
-  faChevronDown,
-} from '@fortawesome/free-solid-svg-icons';
+import * as React from 'react';
 import Switch from 'react-switch';
 
-import { connect } from 'lib/utils/redux-utils';
-import {
-  filteredThreadIDsSelector,
-  includeDeletedSelector,
-} from 'lib/selectors/calendar-filter-selectors';
-import SearchIndex from 'lib/shared/search-index';
-
-import css from './filter-panel.css';
 import ThreadSettingsModal from '../modals/threads/thread-settings-modal.react';
-import { MagnifyingGlass } from '../vectors.react';
+import type { AppState } from '../redux/redux-setup';
 import {
   webFilterThreadInfos,
   webFilterThreadSearchIndex,
 } from '../selectors/calendar-selectors';
+import { MagnifyingGlass } from '../vectors.react';
+
+import css from './filter-panel.css';
 
 type Props = {|
   setModal: (modal: ?React.Node) => void,

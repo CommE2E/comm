@@ -1,9 +1,9 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
-import type { DimensionsInfo } from '../redux/dimensions-updater.react';
-
 import { createSelector } from 'reselect';
+
+import type { DimensionsInfo } from '../redux/dimensions-updater.react';
+import type { AppState } from '../redux/redux-setup';
 
 // Keep sorta synced with styles.alignment/styles.messageBox in ComposedMessage
 const composedMessageMaxWidthSelector: (

@@ -1,15 +1,13 @@
 // @flow
 
 import type { ThreadInfo } from 'lib/types/thread-types';
-import type { AppState } from '../../redux/redux-setup';
-import type { Colors } from '../../themes/colors';
-
+import { connect } from 'lib/utils/redux-utils';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import { connect } from 'lib/utils/redux-utils';
-
 import ThreadVisibility from '../../components/thread-visibility.react';
+import type { AppState } from '../../redux/redux-setup';
+import type { Colors } from '../../themes/colors';
 import { colorsSelector, styleSelector } from '../../themes/colors';
 
 type Props = {|

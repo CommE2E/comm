@@ -1,21 +1,15 @@
 // @flow
 
-import * as React from 'react';
 import {
   createStackNavigator,
   type StackNavigationProp,
   type StackHeaderProps,
 } from '@react-navigation/stack';
+import * as React from 'react';
 import { View } from 'react-native';
 
-import MoreScreen from './more-screen.react';
-import EditEmail from './edit-email.react';
-import EditPassword from './edit-password.react';
-import DeleteAccount from './delete-account.react';
-import BuildInfo from './build-info.react';
-import DevTools from './dev-tools.react';
-import AppearancePreferences from './appearance-preferences.react';
-import RelationshipList from './relationship-list.react';
+import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
+import HeaderBackButton from '../navigation/header-back-button.react';
 import {
   MoreScreenRouteName,
   EditEmailRouteName,
@@ -29,10 +23,17 @@ import {
   type ScreenParamList,
   type MoreParamList,
 } from '../navigation/route-names';
-import MoreHeader from './more-header.react';
-import HeaderBackButton from '../navigation/header-back-button.react';
 import { useStyles } from '../themes/colors';
-import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
+
+import AppearancePreferences from './appearance-preferences.react';
+import BuildInfo from './build-info.react';
+import DeleteAccount from './delete-account.react';
+import DevTools from './dev-tools.react';
+import EditEmail from './edit-email.react';
+import EditPassword from './edit-password.react';
+import MoreHeader from './more-header.react';
+import MoreScreen from './more-screen.react';
+import RelationshipList from './relationship-list.react';
 
 const header = (props: StackHeaderProps) => <MoreHeader {...props} />;
 const headerBackButton = (props) => <HeaderBackButton {...props} />;

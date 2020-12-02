@@ -1,11 +1,9 @@
 // @flow
 
-import type { ViewStyle, TextStyle } from '../types/styles';
-import type { AppState } from '../redux/redux-setup';
-import type { LayoutEvent } from '../types/react-native';
-
-import * as React from 'react';
+import invariant from 'invariant';
+import { connect } from 'lib/utils/redux-utils';
 import PropTypes from 'prop-types';
+import * as React from 'react';
 import {
   View,
   Text,
@@ -17,11 +15,11 @@ import {
   ViewPropTypes,
   Platform,
 } from 'react-native';
-import invariant from 'invariant';
 
-import { connect } from 'lib/utils/redux-utils';
-
+import type { AppState } from '../redux/redux-setup';
 import { type Colors, colorsPropType, colorsSelector } from '../themes/colors';
+import type { LayoutEvent } from '../types/react-native';
+import type { ViewStyle, TextStyle } from '../types/styles';
 
 type Props<T> = {|
   /**
@@ -474,6 +472,7 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   textInput: {
+    borderBottomColor: 'transparent',
     flex: 0.6,
     fontSize: 16,
     height: 24,
@@ -481,7 +480,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 0,
     marginTop: 3,
     padding: 0,
-    borderBottomColor: 'transparent',
   },
   textInputContainer: {},
   wrapper: {},

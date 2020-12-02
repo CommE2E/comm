@@ -1,30 +1,29 @@
 // @flow
 
-import * as React from 'react';
-import { useDispatch } from 'react-redux';
-
 import { logOut } from 'lib/actions/user-actions';
-import Socket, { type BaseSocketProps } from 'lib/socket/socket.react';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
+import { isLoggedIn } from 'lib/selectors/user-selectors';
+import Socket, { type BaseSocketProps } from 'lib/socket/socket.react';
 import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
-import { isLoggedIn } from 'lib/selectors/user-selectors';
+import * as React from 'react';
+import { useDispatch } from 'react-redux';
 
+import { InputStateContext } from './input/input-state';
+import {
+  activeMessageListSelector,
+  nativeCalendarQuery,
+} from './navigation/nav-selectors';
+import { NavContext } from './navigation/navigation-context';
+import { useSelector } from './redux/redux-utils';
 import {
   openSocketSelector,
   sessionIdentificationSelector,
   nativeGetClientResponsesSelector,
   nativeSessionStateFuncSelector,
 } from './selectors/socket-selectors';
-import {
-  activeMessageListSelector,
-  nativeCalendarQuery,
-} from './navigation/nav-selectors';
-import { NavContext } from './navigation/navigation-context';
-import { InputStateContext } from './input/input-state';
-import { useSelector } from './redux/redux-utils';
 
 export default React.memo<BaseSocketProps>(function NativeSocket(
   props: BaseSocketProps,

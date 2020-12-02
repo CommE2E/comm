@@ -1,22 +1,21 @@
 // @flow
 
+import crypto from 'crypto';
+
+import { updateTypes } from 'lib/types/update-types';
 import {
   type VerifyField,
   verifyField,
   assertVerifyField,
   type ServerSuccessfulVerificationResult,
 } from 'lib/types/verify-types';
-import { updateTypes } from 'lib/types/update-types';
-import type { Viewer } from '../session/viewer';
-
-import crypto from 'crypto';
+import { ServerError } from 'lib/utils/errors';
 import bcrypt from 'twin-bcrypt';
 
-import { ServerError } from 'lib/utils/errors';
-
-import { dbQuery, SQL, mergeOrConditions } from '../database/database';
 import createIDs from '../creators/id-creator';
 import { createUpdates } from '../creators/update-creator';
+import { dbQuery, SQL, mergeOrConditions } from '../database/database';
+import type { Viewer } from '../session/viewer';
 
 const day = 24 * 60 * 60 * 1000; // in ms
 const verifyCodeLifetimes = {

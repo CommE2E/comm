@@ -1,12 +1,11 @@
 // @flow
 
-import type { AppNavigationProp } from '../../navigation/app-navigator.react';
-
+import PropTypes from 'prop-types';
 import * as React from 'react';
 import { TouchableOpacity } from 'react-native';
-import PropTypes from 'prop-types';
 
 import PencilIcon from '../../components/pencil-icon.react';
+import type { AppNavigationProp } from '../../navigation/app-navigator.react';
 
 type Props = {
   +navigation: AppNavigationProp<'ThreadSettingsMemberTooltipModal'>,

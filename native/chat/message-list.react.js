@@ -1,66 +1,65 @@
 // @flow
 
-import {
-  type ThreadInfo,
-  threadInfoPropType,
-  threadTypes,
-} from 'lib/types/thread-types';
-import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
-import type { ViewToken } from '../types/react-native';
-import type { FetchMessageInfosPayload } from 'lib/types/message-types';
-import type { ChatMessageItemWithHeight } from './message-list-container.react';
-import type { VerticalBounds } from '../types/layout-types';
-import {
-  messageListRoutePropType,
-  messageListNavPropType,
-} from './message-list-types';
-import type { ChatNavigationProp } from './chat.react';
-import type { NavigationRoute } from '../navigation/route-names';
-
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { View, TouchableWithoutFeedback } from 'react-native';
-import _find from 'lodash/fp/find';
-import { createSelector } from 'reselect';
 import invariant from 'invariant';
-
-import { messageKey } from 'lib/shared/message-utils';
 import {
   fetchMessagesBeforeCursorActionTypes,
   fetchMessagesBeforeCursor,
   fetchMostRecentMessagesActionTypes,
   fetchMostRecentMessages,
 } from 'lib/actions/message-actions';
-import threadWatcher from 'lib/shared/thread-watcher';
-import { threadInChatList } from 'lib/shared/thread-utils';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
+import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
+import { messageKey } from 'lib/shared/message-utils';
+import { threadInChatList } from 'lib/shared/thread-utils';
+import threadWatcher from 'lib/shared/thread-watcher';
+import type { FetchMessageInfosPayload } from 'lib/types/message-types';
+import {
+  type ThreadInfo,
+  threadInfoPropType,
+  threadTypes,
+} from 'lib/types/thread-types';
 import {
   type DispatchActionPromise,
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
+import _find from 'lodash/fp/find';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { View, TouchableWithoutFeedback } from 'react-native';
+import { createSelector } from 'reselect';
 
-import { Message, type ChatMessageInfoItemWithHeight } from './message.react';
-import RelationshipPrompt from './relationship-prompt.react';
 import ListLoadingIndicator from '../components/list-loading-indicator.react';
+import {
+  type KeyboardState,
+  keyboardStatePropType,
+  KeyboardContext,
+} from '../keyboard/keyboard-state';
+import {
+  OverlayContext,
+  type OverlayContextType,
+  overlayContextPropType,
+} from '../navigation/overlay-context';
+import type { NavigationRoute } from '../navigation/route-names';
+import { useSelector } from '../redux/redux-utils';
 import {
   useStyles,
   type IndicatorStyle,
   indicatorStylePropType,
   useIndicatorStyle,
 } from '../themes/colors';
-import {
-  OverlayContext,
-  type OverlayContextType,
-  overlayContextPropType,
-} from '../navigation/overlay-context';
-import {
-  type KeyboardState,
-  keyboardStatePropType,
-  KeyboardContext,
-} from '../keyboard/keyboard-state';
+import type { VerticalBounds } from '../types/layout-types';
+import type { ViewToken } from '../types/react-native';
+
 import { ChatList } from './chat-list.react';
-import { useSelector } from '../redux/redux-utils';
+import type { ChatNavigationProp } from './chat.react';
+import type { ChatMessageItemWithHeight } from './message-list-container.react';
+import {
+  messageListRoutePropType,
+  messageListNavPropType,
+} from './message-list-types';
+import { Message, type ChatMessageInfoItemWithHeight } from './message.react';
+import RelationshipPrompt from './relationship-prompt.react';
 
 type BaseProps = {|
   +threadInfo: ThreadInfo,

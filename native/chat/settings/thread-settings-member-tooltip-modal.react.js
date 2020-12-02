@@ -1,16 +1,6 @@
 // @flow
 
-import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types';
-import type {
-  DispatchFunctions,
-  ActionFunc,
-  BoundServerCall,
-} from 'lib/utils/action-utils';
-
-import { Alert } from 'react-native';
 import invariant from 'invariant';
-
-import { stringForUser } from 'lib/shared/user-utils';
 import {
   removeUsersFromThreadActionTypes,
   removeUsersFromThread,
@@ -18,12 +8,21 @@ import {
   changeThreadMemberRoles,
 } from 'lib/actions/thread-actions';
 import { memberIsAdmin, roleIsAdminRole } from 'lib/shared/thread-utils';
+import { stringForUser } from 'lib/shared/user-utils';
+import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types';
+import type {
+  DispatchFunctions,
+  ActionFunc,
+  BoundServerCall,
+} from 'lib/utils/action-utils';
+import { Alert } from 'react-native';
 
 import {
   createTooltip,
   type TooltipParams,
   type TooltipRoute,
 } from '../../navigation/tooltip.react';
+
 import ThreadSettingsMemberTooltipButton from './thread-settings-member-tooltip-button.react';
 
 export type ThreadSettingsMemberTooltipModalParams = TooltipParams<{|

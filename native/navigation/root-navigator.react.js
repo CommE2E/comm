@@ -1,8 +1,5 @@
 // @flow
 
-import * as React from 'react';
-import { Platform } from 'react-native';
-import { enableScreens } from 'react-native-screens';
 import {
   createNavigatorFactory,
   useNavigationBuilder,
@@ -13,7 +10,22 @@ import {
   type ExtraStackNavigatorProps,
 } from '@react-navigation/native';
 import { StackView, TransitionPresets } from '@react-navigation/stack';
+import * as React from 'react';
+import { Platform } from 'react-native';
+import { enableScreens } from 'react-native-screens';
 
+import LoggedOutModal from '../account/logged-out-modal.react';
+import VerificationModal from '../account/verification-modal.react';
+import ThreadPickerModal from '../calendar/thread-picker-modal.react';
+import AddUsersModal from '../chat/settings/add-users-modal.react';
+import ColorPickerModal from '../chat/settings/color-picker-modal.react';
+import ComposeSubthreadModal from '../chat/settings/compose-subthread-modal.react';
+import SidebarListModal from '../chat/sidebar-list-modal.react';
+import CustomServerModal from '../more/custom-server-modal.react';
+
+import AppNavigator from './app-navigator.react';
+import { RootNavigatorContext } from './root-navigator-context';
+import RootRouter, { type RootRouterNavigationProp } from './root-router';
 import {
   LoggedOutModalRouteName,
   VerificationModalRouteName,
@@ -27,17 +39,6 @@ import {
   type ScreenParamList,
   type RootParamList,
 } from './route-names';
-import LoggedOutModal from '../account/logged-out-modal.react';
-import VerificationModal from '../account/verification-modal.react';
-import AppNavigator from './app-navigator.react';
-import ThreadPickerModal from '../calendar/thread-picker-modal.react';
-import AddUsersModal from '../chat/settings/add-users-modal.react';
-import CustomServerModal from '../more/custom-server-modal.react';
-import ColorPickerModal from '../chat/settings/color-picker-modal.react';
-import ComposeSubthreadModal from '../chat/settings/compose-subthread-modal.react';
-import SidebarListModal from '../chat/sidebar-list-modal.react';
-import RootRouter, { type RootRouterNavigationProp } from './root-router';
-import { RootNavigatorContext } from './root-navigator-context';
 
 if (Platform.OS !== 'android' || Platform.Version >= 21) {
   // Older Android devices get stack overflows when trying to draw deeply nested

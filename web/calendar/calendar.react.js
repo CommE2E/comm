@@ -1,5 +1,14 @@
 // @flow
 
+import { faFilter } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import dateFormat from 'dateformat';
+import invariant from 'invariant';
+import {
+  updateCalendarQueryActionTypes,
+  updateCalendarQuery,
+} from 'lib/actions/entry-actions';
+import { currentDaysToEntries } from 'lib/selectors/thread-selectors';
 import {
   entryInfoPropType,
   type EntryInfo,
@@ -7,41 +16,31 @@ import {
   type CalendarQueryUpdateResult,
   type CalendarQueryUpdateStartingPayload,
 } from 'lib/types/entry-types';
-import {
-  type AppState,
-  type NavInfo,
-  navInfoPropType,
-} from '../redux/redux-setup';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import invariant from 'invariant';
-import dateFormat from 'dateformat';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFilter } from '@fortawesome/free-solid-svg-icons';
-
 import {
   getDate,
   dateString,
   startDateForYearAndMonth,
   endDateForYearAndMonth,
 } from 'lib/utils/date-utils';
-import { currentDaysToEntries } from 'lib/selectors/thread-selectors';
 import { connect } from 'lib/utils/redux-utils';
-import {
-  updateCalendarQueryActionTypes,
-  updateCalendarQuery,
-} from 'lib/actions/entry-actions';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 
-import Day from './day.react';
+import {
+  type AppState,
+  type NavInfo,
+  navInfoPropType,
+} from '../redux/redux-setup';
 import {
   yearAssertingSelector,
   monthAssertingSelector,
   webCalendarQuery,
 } from '../selectors/nav-selectors';
-import css from './calendar.css';
 import { canonicalURLFromReduxState } from '../url-utils';
+
+import css from './calendar.css';
+import Day from './day.react';
 import FilterPanel from './filter-panel.react';
 
 type Props = {

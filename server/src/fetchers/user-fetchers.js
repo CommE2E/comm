@@ -1,21 +1,20 @@
 // @flow
 
+import {
+  undirectedStatus,
+  directedStatus,
+  userRelationshipStatus,
+} from 'lib/types/relationship-types';
 import type {
   UserInfos,
   CurrentUserInfo,
   LoggedInUserInfo,
   GlobalUserInfo,
 } from 'lib/types/user-types';
-import {
-  undirectedStatus,
-  directedStatus,
-  userRelationshipStatus,
-} from 'lib/types/relationship-types';
-import type { Viewer } from '../session/viewer';
-
 import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from '../database/database';
+import type { Viewer } from '../session/viewer';
 
 async function fetchUserInfos(
   userIDs: string[],

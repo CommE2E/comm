@@ -1,16 +1,15 @@
 // @flow
 
-import type { GlobalTheme } from '../types/themes';
-import type { AppState } from '../redux/redux-setup';
-
+import PropTypes from 'prop-types';
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import { createSelector } from 'reselect';
-import PropTypes from 'prop-types';
 
 import { selectBackgroundIsDark } from '../navigation/nav-selectors';
 import { NavContext } from '../navigation/navigation-context';
+import type { AppState } from '../redux/redux-setup';
 import { useSelector } from '../redux/redux-utils';
+import type { GlobalTheme } from '../types/themes';
 
 const light = Object.freeze({
   redButton: '#BB8888',

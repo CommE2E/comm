@@ -1,12 +1,11 @@
 // @flow
 
-import ExitApp from 'react-native-exit-app';
 import AsyncStorage from '@react-native-community/async-storage';
-
 import sleep from 'lib/utils/sleep';
+import ExitApp from 'react-native-exit-app';
 
-import { getPersistor } from '../redux/persist';
 import { navStateAsyncStorageKey } from '../navigation/persistance';
+import { getPersistor } from '../redux/persist';
 
 async function wipeAndExit() {
   await Promise.all([

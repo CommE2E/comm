@@ -1,28 +1,27 @@
 // @flow
 
-import type { ChatMessageInfoItemWithHeight } from './message.react';
+import invariant from 'invariant';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
+import { createMessageReply } from 'lib/shared/message-utils';
 import { assertComposableMessageType } from 'lib/types/message-types';
-
-import * as React from 'react';
 import PropTypes from 'prop-types';
+import * as React from 'react';
 import { StyleSheet, View, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
-import invariant from 'invariant';
 
-import { createMessageReply } from 'lib/shared/message-utils';
-
-import SwipeableMessage from './swipeable-message.react';
-import { FailedSend } from './failed-send.react';
-import { composedMessageMaxWidthSelector } from './composed-message-width';
-import { MessageHeader } from './message-header.react';
-import { type Colors, colorsPropType, useColors } from '../themes/colors';
 import {
   inputStatePropType,
   type InputState,
   InputStateContext,
 } from '../input/input-state';
 import { useSelector } from '../redux/redux-utils';
+import { type Colors, colorsPropType, useColors } from '../themes/colors';
+
+import { composedMessageMaxWidthSelector } from './composed-message-width';
+import { FailedSend } from './failed-send.react';
+import { MessageHeader } from './message-header.react';
+import type { ChatMessageInfoItemWithHeight } from './message.react';
+import SwipeableMessage from './swipeable-message.react';
 
 const clusterEndHeight = 7;
 

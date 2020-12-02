@@ -1,12 +1,12 @@
 // @flow
 
-import type { LayoutEvent } from '../types/react-native';
-
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { View, StyleSheet } from 'react-native';
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { View, StyleSheet } from 'react-native';
 import shallowequal from 'shallowequal';
+
+import type { LayoutEvent } from '../types/react-native';
 
 const measureBatchSize = 50;
 

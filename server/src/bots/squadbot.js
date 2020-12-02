@@ -1,13 +1,11 @@
 // @flow
 
+import invariant from 'invariant';
+import bots from 'lib/facts/bots';
 import { threadTypes } from 'lib/types/thread-types';
 
-import invariant from 'invariant';
-
-import bots from 'lib/facts/bots';
-
-import { createBotViewer } from '../session/bots';
 import createThread from '../creators/thread-creator';
+import { createBotViewer } from '../session/bots';
 
 const { squadbot } = bots;
 

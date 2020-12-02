@@ -1,9 +1,9 @@
 // @flow
 
-import Animated, { Easing } from 'react-native-reanimated';
-import { State as GestureState } from 'react-native-gesture-handler';
-import { Platform } from 'react-native';
 import * as React from 'react';
+import { Platform } from 'react-native';
+import { State as GestureState } from 'react-native-gesture-handler';
+import Animated, { Easing } from 'react-native-reanimated';
 
 /* eslint-disable import/no-named-as-default-member */
 const {

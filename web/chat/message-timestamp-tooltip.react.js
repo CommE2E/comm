@@ -1,16 +1,15 @@
 // @flow
 
-import type { OnMessagePositionInfo } from './message-position-types';
-import { isComposableMessageType } from 'lib/types/message-types';
-
-import * as React from 'react';
-import invariant from 'invariant';
 import classNames from 'classnames';
-
+import invariant from 'invariant';
+import { isComposableMessageType } from 'lib/types/message-types';
 import { longAbsoluteDate } from 'lib/utils/date-utils';
+import * as React from 'react';
 
 import { calculateTextWidth } from '../utils/text-utils';
+
 import css from './chat-message-list.css';
+import type { OnMessagePositionInfo } from './message-position-types';
 
 type Props = {|
   messagePositionInfo: ?OnMessagePositionInfo,

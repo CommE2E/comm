@@ -1,37 +1,36 @@
 // @flow
 
+import classNames from 'classnames';
+import invariant from 'invariant';
 import {
   type ChatMessageInfoItem,
   chatMessageItemPropType,
 } from 'lib/selectors/chat-selectors';
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import { stringForUser } from 'lib/shared/user-utils';
 import { assertComposableMessageType } from 'lib/types/message-types';
-import {
-  type OnMessagePositionInfo,
-  type MessagePositionInfo,
-  onMessagePositionInfoPropType,
-} from './message-position-types';
-
-import * as React from 'react';
+import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
+import * as React from 'react';
 import {
   Circle as CircleIcon,
   CheckCircle as CheckCircleIcon,
   XCircle as XCircleIcon,
 } from 'react-feather';
-import invariant from 'invariant';
 
-import { stringForUser } from 'lib/shared/user-utils';
-
-import FailedSend from './failed-send.react';
-import css from './chat-message-list.css';
-import MessageReplyTooltip from './message-reply-tooltip.react';
 import {
   inputStatePropType,
   type InputState,
   InputStateContext,
 } from '../input/input-state';
+
+import css from './chat-message-list.css';
+import FailedSend from './failed-send.react';
+import {
+  type OnMessagePositionInfo,
+  type MessagePositionInfo,
+  onMessagePositionInfoPropType,
+} from './message-position-types';
+import MessageReplyTooltip from './message-reply-tooltip.react';
 
 type BaseProps = {|
   +item: ChatMessageInfoItem,

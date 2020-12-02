@@ -1,13 +1,11 @@
 // @flow
 
+import { HeaderBackButton as BaseHeaderBackButton } from '@react-navigation/stack';
+import { connect } from 'lib/utils/redux-utils';
+import * as React from 'react';
+
 import type { AppState } from '../redux/redux-setup';
 import type { Colors } from '../themes/colors';
-
-import * as React from 'react';
-import { HeaderBackButton as BaseHeaderBackButton } from '@react-navigation/stack';
-
-import { connect } from 'lib/utils/redux-utils';
-
 import { colorsSelector } from '../themes/colors';
 
 type Props = {

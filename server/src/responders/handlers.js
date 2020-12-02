@@ -1,10 +1,9 @@
 // @flow
 
 import type { $Response, $Request } from 'express';
-import type { Viewer } from '../session/viewer';
-
 import { ServerError } from 'lib/utils/errors';
 
+import { deleteCookie } from '../deleters/cookie-deleters';
 import {
   fetchViewerForJSONRequest,
   addCookieToJSONResponse,
@@ -12,7 +11,7 @@ import {
   addCookieToHomeResponse,
   createNewAnonymousCookie,
 } from '../session/cookies';
-import { deleteCookie } from '../deleters/cookie-deleters';
+import type { Viewer } from '../session/viewer';
 
 export type JSONResponder = (viewer: Viewer, input: any) => Promise<*>;
 export type DownloadResponder = (

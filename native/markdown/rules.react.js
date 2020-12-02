@@ -1,18 +1,17 @@
 // @flow
 
+import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
+import * as SharedMarkdown from 'lib/shared/markdown';
 import type { RelativeMemberInfo } from 'lib/types/thread-types';
-
+import _memoize from 'lodash/memoize';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 import * as SimpleMarkdown from 'simple-markdown';
-import _memoize from 'lodash/memoize';
 
-import * as SharedMarkdown from 'lib/shared/markdown';
-import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
-
-import { getMarkdownStyles } from './styles';
-import MarkdownLink from './markdown-link.react';
 import { useSelector } from '../redux/redux-utils';
+
+import MarkdownLink from './markdown-link.react';
+import { getMarkdownStyles } from './styles';
 
 export type MarkdownRules = {|
   +simpleMarkdownRules: SimpleMarkdown.ParserRules,

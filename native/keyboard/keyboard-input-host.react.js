@@ -1,27 +1,27 @@
 // @flow
 
+import invariant from 'invariant';
+import type { MediaLibrarySelection } from 'lib/types/media-types';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { TextInput } from 'react-native';
+import { KeyboardAccessoryView } from 'react-native-keyboard-input';
+
 import {
   type InputState,
   inputStatePropType,
   InputStateContext,
 } from '../input/input-state';
+import { mediaGalleryKeyboardName } from '../media/media-gallery-keyboard.react';
+import { activeMessageListSelector } from '../navigation/nav-selectors';
+import { NavContext } from '../navigation/navigation-context';
+import { useStyles } from '../themes/colors';
+
 import {
   type KeyboardState,
   keyboardStatePropType,
   KeyboardContext,
-} from '../keyboard/keyboard-state';
-import type { MediaLibrarySelection } from 'lib/types/media-types';
-import { NavContext } from '../navigation/navigation-context';
-
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { TextInput } from 'react-native';
-import { KeyboardAccessoryView } from 'react-native-keyboard-input';
-import invariant from 'invariant';
-
-import { useStyles } from '../themes/colors';
-import { mediaGalleryKeyboardName } from '../media/media-gallery-keyboard.react';
-import { activeMessageListSelector } from '../navigation/nav-selectors';
+} from './keyboard-state';
 
 type BaseProps = {|
   +textInputRef?: React.ElementRef<typeof TextInput>,

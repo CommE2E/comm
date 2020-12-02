@@ -1,9 +1,8 @@
 // @flow
 
-import type { LoadingStatus } from 'lib/types/loading-types';
-
-import * as React from 'react';
 import classNames from 'classnames';
+import type { LoadingStatus } from 'lib/types/loading-types';
+import * as React from 'react';
 
 import css from './style.css';
 

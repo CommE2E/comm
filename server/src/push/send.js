@@ -1,43 +1,42 @@
 // @flow
 
+import apn from '@parse/node-apn';
+import invariant from 'invariant';
+import { oldValidUsernameRegex } from 'lib/shared/account-utils';
+import {
+  createMessageInfo,
+  sortMessageInfoList,
+  shimUnsupportedRawMessageInfos,
+} from 'lib/shared/message-utils';
+import { notifTextsForMessageInfo } from 'lib/shared/notif-utils';
+import {
+  rawThreadInfoFromServerThreadInfo,
+  threadInfoFromRawThreadInfo,
+} from 'lib/shared/thread-utils';
+import type { DeviceType } from 'lib/types/device-types';
 import {
   type RawMessageInfo,
   type MessageInfo,
   messageTypes,
 } from 'lib/types/message-types';
 import type { ServerThreadInfo, ThreadInfo } from 'lib/types/thread-types';
-import type { DeviceType } from 'lib/types/device-types';
-import type { CollapsableNotifInfo } from '../fetchers/message-fetchers';
 import { updateTypes } from 'lib/types/update-types';
-import type { Viewer } from '../session/viewer';
-
-import apn from '@parse/node-apn';
-import invariant from 'invariant';
-import uuidv4 from 'uuid/v4';
+import { promiseAll } from 'lib/utils/promises';
 import _flow from 'lodash/fp/flow';
 import _mapValues from 'lodash/fp/mapValues';
 import _pickBy from 'lodash/fp/pickBy';
+import uuidv4 from 'uuid/v4';
 
-import { notifTextsForMessageInfo } from 'lib/shared/notif-utils';
-import {
-  createMessageInfo,
-  sortMessageInfoList,
-  shimUnsupportedRawMessageInfos,
-} from 'lib/shared/message-utils';
-import {
-  rawThreadInfoFromServerThreadInfo,
-  threadInfoFromRawThreadInfo,
-} from 'lib/shared/thread-utils';
-import { promiseAll } from 'lib/utils/promises';
-import { oldValidUsernameRegex } from 'lib/shared/account-utils';
-
-import { dbQuery, SQL, mergeOrConditions } from '../database/database';
-import { apnPush, fcmPush, getUnreadCounts } from './utils';
-import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
-import { fetchUserInfos } from '../fetchers/user-fetchers';
-import { fetchCollapsableNotifs } from '../fetchers/message-fetchers';
 import createIDs from '../creators/id-creator';
 import { createUpdates } from '../creators/update-creator';
+import { dbQuery, SQL, mergeOrConditions } from '../database/database';
+import type { CollapsableNotifInfo } from '../fetchers/message-fetchers';
+import { fetchCollapsableNotifs } from '../fetchers/message-fetchers';
+import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
+import { fetchUserInfos } from '../fetchers/user-fetchers';
+import type { Viewer } from '../session/viewer';
+
+import { apnPush, fcmPush, getUnreadCounts } from './utils';
 
 type Device = {|
   +deviceType: DeviceType,

@@ -1,5 +1,21 @@
 // @flow
 
+import invariant from 'invariant';
+import {
+  changeThreadSettingsActionTypes,
+  changeThreadSettings,
+} from 'lib/actions/thread-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import {
+  userInfoSelectorForPotentialMembers,
+  userSearchIndexForPotentialMembers,
+} from 'lib/selectors/user-selectors';
+import SearchIndex from 'lib/shared/search-index';
+import { getPotentialMemberItems } from 'lib/shared/search-utils';
+import { threadActualMembers } from 'lib/shared/thread-utils';
+import { loadingStatusPropType } from 'lib/types/loading-types';
+import type { LoadingStatus } from 'lib/types/loading-types';
 import {
   type ThreadInfo,
   threadInfoPropType,
@@ -11,41 +27,23 @@ import {
   accountUserInfoPropType,
 } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import { loadingStatusPropType } from 'lib/types/loading-types';
-import type { RootNavigationProp } from '../../navigation/root-navigator.react';
-import type { NavigationRoute } from '../../navigation/route-names';
-
-import * as React from 'react';
-import { View, Text, ActivityIndicator, Alert } from 'react-native';
-import PropTypes from 'prop-types';
-import invariant from 'invariant';
-import { createSelector } from 'reselect';
-
-import {
-  userInfoSelectorForPotentialMembers,
-  userSearchIndexForPotentialMembers,
-} from 'lib/selectors/user-selectors';
-import SearchIndex from 'lib/shared/search-index';
-import { getPotentialMemberItems } from 'lib/shared/search-utils';
-import {
-  changeThreadSettingsActionTypes,
-  changeThreadSettings,
-} from 'lib/actions/thread-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { threadActualMembers } from 'lib/shared/thread-utils';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { View, Text, ActivityIndicator, Alert } from 'react-native';
+import { createSelector } from 'reselect';
 
-import UserList from '../../components/user-list.react';
-import TagInput from '../../components/tag-input.react';
 import Button from '../../components/button.react';
 import Modal from '../../components/modal.react';
-import { useStyles } from '../../themes/colors';
+import TagInput from '../../components/tag-input.react';
+import UserList from '../../components/user-list.react';
+import type { RootNavigationProp } from '../../navigation/root-navigator.react';
+import type { NavigationRoute } from '../../navigation/route-names';
 import { useSelector } from '../../redux/redux-utils';
+import { useStyles } from '../../themes/colors';
 
 const tagInputProps = {
   placeholder: 'Select users to add',

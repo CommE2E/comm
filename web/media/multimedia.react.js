@@ -1,20 +1,21 @@
 // @flow
 
+import classNames from 'classnames';
+import invariant from 'invariant';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { CircularProgressbar } from 'react-circular-progressbar';
+import {
+  XCircle as XCircleIcon,
+  AlertCircle as AlertCircleIcon,
+} from 'react-feather';
+
 import {
   type PendingMultimediaUpload,
   pendingMultimediaUploadPropType,
 } from '../input/input-state';
 
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import invariant from 'invariant';
-import {
-  XCircle as XCircleIcon,
-  AlertCircle as AlertCircleIcon,
-} from 'react-feather';
-import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import classNames from 'classnames';
 
 import css from './media.css';
 import MultimediaModal from './multimedia-modal.react';

@@ -1,13 +1,11 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
-import type { Colors } from '../themes/colors';
-
+import { connect } from 'lib/utils/redux-utils';
 import * as React from 'react';
 import { ActivityIndicator } from 'react-native';
 
-import { connect } from 'lib/utils/redux-utils';
-
+import type { AppState } from '../redux/redux-setup';
+import type { Colors } from '../themes/colors';
 import { colorsSelector, styleSelector } from '../themes/colors';
 
 type Props = {|

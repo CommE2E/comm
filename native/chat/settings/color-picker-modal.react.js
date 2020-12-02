@@ -1,29 +1,27 @@
 // @flow
 
-import type { AppState } from '../../redux/redux-setup';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import {
+  changeThreadSettingsActionTypes,
+  changeThreadSettings,
+} from 'lib/actions/thread-actions';
 import {
   type ThreadInfo,
   threadInfoPropType,
   type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
 } from 'lib/types/thread-types';
-import type { RootNavigationProp } from '../../navigation/root-navigator.react';
-import type { NavigationRoute } from '../../navigation/route-names';
-
-import * as React from 'react';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 import PropTypes from 'prop-types';
+import * as React from 'react';
 import { TouchableHighlight, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-import { connect } from 'lib/utils/redux-utils';
-import {
-  changeThreadSettingsActionTypes,
-  changeThreadSettings,
-} from 'lib/actions/thread-actions';
-
-import Modal from '../../components/modal.react';
 import ColorPicker from '../../components/color-picker.react';
+import Modal from '../../components/modal.react';
+import type { RootNavigationProp } from '../../navigation/root-navigator.react';
+import type { NavigationRoute } from '../../navigation/route-names';
+import type { AppState } from '../../redux/redux-setup';
 import {
   type Colors,
   colorsPropType,

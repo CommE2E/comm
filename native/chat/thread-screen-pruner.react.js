@@ -1,18 +1,17 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
-
+import { threadIsPending } from 'lib/shared/thread-utils';
 import * as React from 'react';
 import { Alert } from 'react-native';
 
-import { threadIsPending } from 'lib/shared/thread-utils';
+import { clearThreadsActionType } from '../navigation/action-types';
+import { useActiveThread } from '../navigation/nav-selectors';
 import { NavContext } from '../navigation/navigation-context';
 import {
   getStateFromNavigatorRoute,
   getThreadIDFromRoute,
 } from '../navigation/navigation-utils';
-import { useActiveThread } from '../navigation/nav-selectors';
-import { clearThreadsActionType } from '../navigation/action-types';
+import type { AppState } from '../redux/redux-setup';
 import { useSelector } from '../redux/redux-utils';
 
 const ThreadScreenPruner = React.memo<{||}>(() => {

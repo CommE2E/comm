@@ -1,8 +1,8 @@
 // @flow
 
-import type { MarkdownRules } from '../markdown/rules.react';
-
 import * as React from 'react';
+
+import type { MarkdownRules } from '../markdown/rules.react';
 
 export type MessageListContextType = {|
   +getTextMessageMarkdownRules: (useDarkStyle: boolean) => MarkdownRules,

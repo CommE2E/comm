@@ -1,13 +1,6 @@
 // @flow
 
-import type { Layout, LayoutEvent } from '../types/react-native';
-import type { ScreenRect, KeyboardEvent } from '../keyboard/keyboard';
-import type { ViewStyle } from '../types/styles';
-import {
-  type KeyboardState,
-  KeyboardContext,
-} from '../keyboard/keyboard-state';
-
+import invariant from 'invariant';
 import * as React from 'react';
 import {
   View,
@@ -16,9 +9,15 @@ import {
   LayoutAnimation,
   StyleSheet,
 } from 'react-native';
-import invariant from 'invariant';
 
+import type { ScreenRect, KeyboardEvent } from '../keyboard/keyboard';
 import { androidKeyboardResizesFrame } from '../keyboard/keyboard';
+import {
+  type KeyboardState,
+  KeyboardContext,
+} from '../keyboard/keyboard-state';
+import type { Layout, LayoutEvent } from '../types/react-native';
+import type { ViewStyle } from '../types/styles';
 
 type ViewProps = React.ElementConfig<typeof View>;
 type BaseProps = {|

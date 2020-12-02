@@ -1,5 +1,7 @@
 // @flow
 
+import invariant from 'invariant';
+import { pathFromURI, readableFilename } from 'lib/media/file-utils';
 import type {
   Dimensions,
   MediaType,
@@ -7,16 +9,12 @@ import type {
   MediaMissionFailure,
   NativeMediaSelection,
 } from 'lib/types/media-types';
-
 import { Image } from 'react-native';
-import invariant from 'invariant';
-
-import { pathFromURI, readableFilename } from 'lib/media/file-utils';
 
 import { fetchFileInfo } from './file-utils';
-import { processVideo } from './video-utils';
 import { processImage } from './image-utils';
 import { saveMedia } from './save-media';
+import { processVideo } from './video-utils';
 
 type MediaProcessConfig = {|
   hasWiFi: boolean,

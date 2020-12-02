@@ -1,5 +1,13 @@
 // @flow
 
+import invariant from 'invariant';
+import {
+  changeThreadSettingsActionTypes,
+  changeThreadSettings,
+} from 'lib/actions/thread-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import type { LoadingStatus } from 'lib/types/loading-types';
+import { loadingStatusPropType } from 'lib/types/loading-types';
 import {
   type ThreadInfo,
   threadInfoPropType,
@@ -7,34 +15,25 @@ import {
   type UpdateThreadRequest,
 } from 'lib/types/thread-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import { loadingStatusPropType } from 'lib/types/loading-types';
-import type { AppState } from '../../redux/redux-setup';
-import type {
-  LayoutEvent,
-  ContentSizeChangeEvent,
-} from '../../types/react-native';
-
+import { connect } from 'lib/utils/redux-utils';
+import PropTypes from 'prop-types';
 import * as React from 'react';
 import { Text, Alert, ActivityIndicator, TextInput, View } from 'react-native';
-import PropTypes from 'prop-types';
-import invariant from 'invariant';
-
-import { connect } from 'lib/utils/redux-utils';
-import {
-  changeThreadSettingsActionTypes,
-  changeThreadSettings,
-} from 'lib/actions/thread-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import EditSettingButton from '../../components/edit-setting-button.react';
-import SaveSettingButton from './save-setting-button.react';
+import type { AppState } from '../../redux/redux-setup';
 import {
   type Colors,
   colorsPropType,
   colorsSelector,
   styleSelector,
 } from '../../themes/colors';
+import type {
+  LayoutEvent,
+  ContentSizeChangeEvent,
+} from '../../types/react-native';
+
+import SaveSettingButton from './save-setting-button.react';
 
 type Props = {|
   threadInfo: ThreadInfo,

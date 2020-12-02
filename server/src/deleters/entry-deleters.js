@@ -1,27 +1,25 @@
 // @flow
 
-import type { Viewer } from '../session/viewer';
-import { threadPermissions } from 'lib/types/thread-types';
-import { messageTypes } from 'lib/types/message-types';
-
 import type {
   DeleteEntryRequest,
   DeleteEntryResponse,
   RestoreEntryRequest,
   RestoreEntryResponse,
 } from 'lib/types/entry-types';
-
-import { ServerError } from 'lib/utils/errors';
+import { messageTypes } from 'lib/types/message-types';
+import { threadPermissions } from 'lib/types/thread-types';
 import { dateString } from 'lib/utils/date-utils';
+import { ServerError } from 'lib/utils/errors';
 import { values } from 'lib/utils/objects';
 
-import { dbQuery, SQL } from '../database/database';
-import { checkThreadPermissionForEntry } from '../fetchers/entry-fetchers';
 import createIDs from '../creators/id-creator';
 import createMessages from '../creators/message-creator';
-import { createUpdateDatasForChangedEntryInfo } from '../updaters/entry-updaters';
+import { dbQuery, SQL } from '../database/database';
+import { checkThreadPermissionForEntry } from '../fetchers/entry-fetchers';
 import { fetchMessageInfoForEntryAction } from '../fetchers/message-fetchers';
 import { fetchUpdateInfoForEntryUpdate } from '../fetchers/update-fetchers';
+import type { Viewer } from '../session/viewer';
+import { createUpdateDatasForChangedEntryInfo } from '../updaters/entry-updaters';
 
 const lastRevisionQuery = (entryID: string) => SQL`
     SELECT r.id, r.author, r.text, r.session, r.last_update, r.deleted,

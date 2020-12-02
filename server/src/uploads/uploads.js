@@ -1,20 +1,19 @@
 // @flow
 
-import type { Viewer } from '../session/viewer';
 import type { $Request } from 'express';
 import type {
   UploadMultimediaResult,
   UploadDeletionRequest,
   Dimensions,
 } from 'lib/types/media-types';
-
+import { ServerError } from 'lib/utils/errors';
 import multer from 'multer';
 
-import { ServerError } from 'lib/utils/errors';
-
 import createUploads from '../creators/upload-creator';
-import { fetchUpload } from '../fetchers/upload-fetchers';
 import { deleteUpload } from '../deleters/upload-deleters';
+import { fetchUpload } from '../fetchers/upload-fetchers';
+import type { Viewer } from '../session/viewer';
+
 import { validateAndConvert } from './media-utils';
 
 const upload = multer();

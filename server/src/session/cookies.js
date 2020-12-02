@@ -1,7 +1,13 @@
 // @flow
 
+import crypto from 'crypto';
+import url from 'url';
+
 import type { $Response, $Request } from 'express';
-import type { AnonymousViewerData, UserViewerData } from './viewer';
+import invariant from 'invariant';
+import { hasMinCodeVersion } from 'lib/shared/version-utils';
+import type { Platform, PlatformDetails } from 'lib/types/device-types';
+import type { CalendarQuery } from 'lib/types/entry-types';
 import {
   type ServerSessionChange,
   cookieLifetime,
@@ -11,30 +17,24 @@ import {
   sessionIdentifierTypes,
   type SessionIdentifierType,
 } from 'lib/types/session-types';
-import type { Platform, PlatformDetails } from 'lib/types/device-types';
-import type { CalendarQuery } from 'lib/types/entry-types';
-import type { UserInfo } from 'lib/types/user-types';
 import type { InitialClientSocketMessage } from 'lib/types/socket-types';
-
-import bcrypt from 'twin-bcrypt';
-import url from 'url';
-import crypto from 'crypto';
-import invariant from 'invariant';
-
+import type { UserInfo } from 'lib/types/user-types';
 import { values } from 'lib/utils/objects';
 import { promiseAll } from 'lib/utils/promises';
-import { hasMinCodeVersion } from 'lib/shared/version-utils';
+import bcrypt from 'twin-bcrypt';
 
-import { dbQuery, SQL } from '../database/database';
-import { Viewer } from './viewer';
 import urlFacts from '../../facts/url';
 import createIDs from '../creators/id-creator';
-import { assertSecureRequest } from '../utils/security-utils';
+import { createSession } from '../creators/session-creator';
+import { dbQuery, SQL } from '../database/database';
 import { deleteCookie } from '../deleters/cookie-deleters';
 import { handleAsyncPromise } from '../responders/handlers';
-import { createSession } from '../creators/session-creator';
 import { clearDeviceToken } from '../updaters/device-token-updaters';
 import { updateThreadMembers } from '../updaters/thread-updaters';
+import { assertSecureRequest } from '../utils/security-utils';
+
+import { Viewer } from './viewer';
+import type { AnonymousViewerData, UserViewerData } from './viewer';
 
 const { baseDomain, basePath, https } = urlFacts;
 

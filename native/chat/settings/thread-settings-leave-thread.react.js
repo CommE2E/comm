@@ -1,13 +1,6 @@
 // @flow
 
-import type { ThreadInfo, LeaveThreadPayload } from 'lib/types/thread-types';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import type { ViewStyle } from '../../types/styles';
-
-import * as React from 'react';
-import { Text, Alert, ActivityIndicator, View } from 'react-native';
 import invariant from 'invariant';
-
 import {
   leaveThreadActionTypes,
   leaveThread,
@@ -15,20 +8,25 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors';
 import { identifyInvalidatedThreads } from 'lib/shared/thread-utils';
+import type { LoadingStatus } from 'lib/types/loading-types';
+import type { ThreadInfo, LeaveThreadPayload } from 'lib/types/thread-types';
 import {
   type DispatchActionPromise,
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
+import * as React from 'react';
+import { Text, Alert, ActivityIndicator, View } from 'react-native';
 
 import Button from '../../components/button.react';
-import { type Colors, useColors, useStyles } from '../../themes/colors';
+import { clearThreadsActionType } from '../../navigation/action-types';
 import {
   NavContext,
   type NavContextType,
 } from '../../navigation/navigation-context';
-import { clearThreadsActionType } from '../../navigation/action-types';
 import { useSelector } from '../../redux/redux-utils';
+import { type Colors, useColors, useStyles } from '../../themes/colors';
+import type { ViewStyle } from '../../types/styles';
 
 type BaseProps = {|
   +threadInfo: ThreadInfo,

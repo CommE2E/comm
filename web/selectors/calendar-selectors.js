@@ -1,15 +1,14 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
-import type { FilterThreadInfo } from 'lib/types/filter-types';
-
-import { createSelector } from 'reselect';
-
 import {
   filterThreadInfos,
   filterThreadSearchIndex,
 } from 'lib/selectors/calendar-selectors';
 import type SearchIndex from 'lib/shared/search-index';
+import type { FilterThreadInfo } from 'lib/types/filter-types';
+import { createSelector } from 'reselect';
+
+import type { AppState } from '../redux/redux-setup';
 
 const webFilterThreadInfos: (
   state: AppState,

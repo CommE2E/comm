@@ -1,24 +1,22 @@
 // @flow
 
+import { faEllipsisV } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import classNames from 'classnames';
+import {
+  setThreadUnreadStatusActionTypes,
+  setThreadUnreadStatus,
+} from 'lib/actions/activity-actions';
 import type {
   SetThreadUnreadStatusPayload,
   SetThreadUnreadStatusRequest,
 } from 'lib/types/activity-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
-
-import * as React from 'react';
-import classNames from 'classnames';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsisV } from '@fortawesome/free-solid-svg-icons';
-
 import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
-import {
-  setThreadUnreadStatusActionTypes,
-  setThreadUnreadStatus,
-} from 'lib/actions/activity-actions';
+import * as React from 'react';
 
 import css from './chat-thread-list.css';
 

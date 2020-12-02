@@ -1,8 +1,22 @@
 // @flow
 
-import type { LoadingStatus } from 'lib/types/loading-types';
-import { loadingStatusPropType } from 'lib/types/loading-types';
+import { faFileImage } from '@fortawesome/free-regular-svg-icons';
+import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import invariant from 'invariant';
+import { joinThreadActionTypes, joinThread } from 'lib/actions/thread-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { trimMessage } from 'lib/shared/message-utils';
+import {
+  threadHasPermission,
+  viewerIsMember,
+  threadFrozenDueToViewerBlock,
+  threadActualMembers,
+} from 'lib/shared/thread-utils';
 import type { CalendarQuery } from 'lib/types/entry-types';
+import { loadingStatusPropType } from 'lib/types/loading-types';
+import type { LoadingStatus } from 'lib/types/loading-types';
+import { messageTypes } from 'lib/types/message-types';
 import {
   type ThreadInfo,
   threadInfoPropType,
@@ -10,43 +24,28 @@ import {
   type ClientThreadJoinRequest,
   type ThreadJoinPayload,
 } from 'lib/types/thread-types';
-import { messageTypes } from 'lib/types/message-types';
 import { type UserInfos, userInfoPropType } from 'lib/types/user-types';
-import {
-  inputStatePropType,
-  type InputState,
-  type PendingMultimediaUpload,
-} from '../input/input-state';
-
-import * as React from 'react';
-import invariant from 'invariant';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
-import { faFileImage } from '@fortawesome/free-regular-svg-icons';
-import PropTypes from 'prop-types';
-import _difference from 'lodash/fp/difference';
-
-import { joinThreadActionTypes, joinThread } from 'lib/actions/thread-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import {
-  threadHasPermission,
-  viewerIsMember,
-  threadFrozenDueToViewerBlock,
-  threadActualMembers,
-} from 'lib/shared/thread-utils';
-import { trimMessage } from 'lib/shared/message-utils';
 import {
   type DispatchActionPromise,
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
+import _difference from 'lodash/fp/difference';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 
-import css from './chat-message-list.css';
+import {
+  inputStatePropType,
+  type InputState,
+  type PendingMultimediaUpload,
+} from '../input/input-state';
 import LoadingIndicator from '../loading-indicator.react';
-import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import { allowedMimeTypeString } from '../media/file-utils';
 import Multimedia from '../media/multimedia.react';
 import { useSelector } from '../redux/redux-utils';
+import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
+
+import css from './chat-message-list.css';
 
 type BaseProps = {|
   +threadInfo: ThreadInfo,

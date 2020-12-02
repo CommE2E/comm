@@ -4,22 +4,20 @@ import type {
   LogOutResponse,
   DeleteAccountRequest,
 } from 'lib/types/account-types';
-import type { Viewer } from '../session/viewer';
-import type { UserInfo } from 'lib/types/user-types';
 import { updateTypes } from 'lib/types/update-types';
-
+import type { UserInfo } from 'lib/types/user-types';
+import { ServerError } from 'lib/utils/errors';
+import { values } from 'lib/utils/objects';
+import { promiseAll } from 'lib/utils/promises';
 import bcrypt from 'twin-bcrypt';
 
-import { ServerError } from 'lib/utils/errors';
-import { promiseAll } from 'lib/utils/promises';
-import { values } from 'lib/utils/objects';
-
-import { dbQuery, SQL } from '../database/database';
-import { createNewAnonymousCookie } from '../session/cookies';
-import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
 import { createUpdates } from '../creators/update-creator';
-import { handleAsyncPromise } from '../responders/handlers';
+import { dbQuery, SQL } from '../database/database';
+import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
 import { rescindPushNotifs } from '../push/rescind';
+import { handleAsyncPromise } from '../responders/handlers';
+import { createNewAnonymousCookie } from '../session/cookies';
+import type { Viewer } from '../session/viewer';
 
 async function deleteAccount(
   viewer: Viewer,

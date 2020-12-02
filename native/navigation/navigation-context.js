@@ -4,11 +4,12 @@ import type {
   CommonAction,
   PossiblyStaleNavigationState,
 } from '@react-navigation/native';
-import type { RootRouterNavigationAction } from './root-router';
-import type { ChatRouterNavigationAction } from '../chat/chat-router';
-import type { OverlayRouterNavigationAction } from './overlay-router';
-
 import * as React from 'react';
+
+import type { ChatRouterNavigationAction } from '../chat/chat-router';
+
+import type { OverlayRouterNavigationAction } from './overlay-router';
+import type { RootRouterNavigationAction } from './root-router';
 
 export type NavAction =
   | CommonAction

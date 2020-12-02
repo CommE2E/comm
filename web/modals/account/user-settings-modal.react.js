@@ -1,27 +1,7 @@
 // @flow
 
-import type { AppState } from '../../redux/redux-setup';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import {
-  type AccountUpdate,
-  type CurrentUserInfo,
-  currentUserPropType,
-} from 'lib/types/user-types';
-import type {
-  LogOutResult,
-  ChangeUserSettingsResult,
-} from 'lib/types/account-types';
-import {
-  type PreRequestUserState,
-  preRequestUserStatePropType,
-} from 'lib/types/session-types';
-
-import * as React from 'react';
-import invariant from 'invariant';
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
-
-import { validEmailRegex } from 'lib/shared/account-utils';
+import invariant from 'invariant';
 import {
   deleteAccountActionTypes,
   deleteAccount,
@@ -30,12 +10,31 @@ import {
   resendVerificationEmailActionTypes,
   resendVerificationEmail,
 } from 'lib/actions/user-actions';
-import { connect } from 'lib/utils/redux-utils';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { validEmailRegex } from 'lib/shared/account-utils';
+import type {
+  LogOutResult,
+  ChangeUserSettingsResult,
+} from 'lib/types/account-types';
+import {
+  type PreRequestUserState,
+  preRequestUserStatePropType,
+} from 'lib/types/session-types';
+import {
+  type AccountUpdate,
+  type CurrentUserInfo,
+  currentUserPropType,
+} from 'lib/types/user-types';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 
+import type { AppState } from '../../redux/redux-setup';
 import css from '../../style.css';
 import Modal from '../modal.react';
+
 import VerifyEmailModal from './verify-email-modal.react';
 
 type TabType = 'general' | 'delete';

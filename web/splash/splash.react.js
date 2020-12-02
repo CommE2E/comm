@@ -1,29 +1,28 @@
 // @flow
 
-import { type DeviceType, assertDeviceType } from 'lib/types/device-types';
-import type { AccessRequest } from 'lib/types/account-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { AppState } from '../redux/redux-setup';
-import {
-  type LoadingStatus,
-  loadingStatusPropType,
-} from 'lib/types/loading-types';
-
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import invariant from 'invariant';
-
-import { validEmailRegex } from 'lib/shared/account-utils';
-import { connect } from 'lib/utils/redux-utils';
 import {
   requestAccessActionTypes,
   requestAccess,
 } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { validEmailRegex } from 'lib/shared/account-utils';
+import type { AccessRequest } from 'lib/types/account-types';
+import { type DeviceType, assertDeviceType } from 'lib/types/device-types';
+import {
+  type LoadingStatus,
+  loadingStatusPropType,
+} from 'lib/types/loading-types';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 
-import css from './splash.css';
 import LoadingIndicator from '../loading-indicator.react';
 import LogInModal from '../modals/account/log-in-modal.react';
+import type { AppState } from '../redux/redux-setup';
+
+import css from './splash.css';
 
 const defaultRequestAccessScrollHeight = 390;
 

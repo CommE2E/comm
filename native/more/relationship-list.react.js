@@ -1,10 +1,15 @@
 // @flow
 
-import type {
-  UserInfos,
-  GlobalAccountUserInfo,
-  AccountUserInfo,
-} from 'lib/types/user-types';
+import invariant from 'invariant';
+import {
+  updateRelationshipsActionTypes,
+  updateRelationships,
+} from 'lib/actions/relationship-actions';
+import { searchUsersActionTypes, searchUsers } from 'lib/actions/user-actions';
+import { registerFetchKey } from 'lib/reducers/loading-reducer';
+import { userRelationshipsSelector } from 'lib/selectors/relationship-selectors';
+import { userStoreSearchIndex as userStoreSearchIndexSelector } from 'lib/selectors/user-selectors';
+import SearchIndex from 'lib/shared/search-index';
 import {
   type UserRelationships,
   type RelationshipRequest,
@@ -12,52 +17,45 @@ import {
   relationshipActions,
 } from 'lib/types/relationship-types';
 import type { UserSearchResult } from 'lib/types/search-types';
-import type { VerticalBounds } from '../types/layout-types';
-import type { NavigationRoute } from '../navigation/route-names';
-import type { MoreNavigationProp } from './more.react';
-
-import * as React from 'react';
-import { View, Text, FlatList, Alert, Platform } from 'react-native';
-import invariant from 'invariant';
-import { createSelector } from 'reselect';
-
-import { userRelationshipsSelector } from 'lib/selectors/relationship-selectors';
-import { userStoreSearchIndex as userStoreSearchIndexSelector } from 'lib/selectors/user-selectors';
+import type {
+  UserInfos,
+  GlobalAccountUserInfo,
+  AccountUserInfo,
+} from 'lib/types/user-types';
 import {
   type DispatchActionPromise,
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
-import {
-  updateRelationshipsActionTypes,
-  updateRelationships,
-} from 'lib/actions/relationship-actions';
-import { searchUsersActionTypes, searchUsers } from 'lib/actions/user-actions';
-import { registerFetchKey } from 'lib/reducers/loading-reducer';
-import SearchIndex from 'lib/shared/search-index';
+import * as React from 'react';
+import { View, Text, FlatList, Alert, Platform } from 'react-native';
+import { createSelector } from 'reselect';
 
+import LinkButton from '../components/link-button.react';
+import TagInput from '../components/tag-input.react';
+import {
+  type KeyboardState,
+  KeyboardContext,
+} from '../keyboard/keyboard-state';
 import {
   OverlayContext,
   type OverlayContextType,
 } from '../navigation/overlay-context';
+import type { NavigationRoute } from '../navigation/route-names';
 import {
   FriendListRouteName,
   BlockListRouteName,
 } from '../navigation/route-names';
+import { useSelector } from '../redux/redux-utils';
 import {
   useStyles,
   type IndicatorStyle,
   useIndicatorStyle,
 } from '../themes/colors';
-import {
-  type KeyboardState,
-  KeyboardContext,
-} from '../keyboard/keyboard-state';
+import type { VerticalBounds } from '../types/layout-types';
 
+import type { MoreNavigationProp } from './more.react';
 import RelationshipListItem from './relationship-list-item.react';
-import { useSelector } from '../redux/redux-utils';
-import TagInput from '../components/tag-input.react';
-import LinkButton from '../components/link-button.react';
 
 export type RelationshipListNavigate = $PropertyType<
   MoreNavigationProp<'FriendList' | 'BlockList'>,

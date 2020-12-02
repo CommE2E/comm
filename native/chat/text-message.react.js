@@ -1,36 +1,35 @@
 // @flow
 
+import invariant from 'invariant';
+import { messageKey } from 'lib/shared/message-utils';
 import type {
   TextMessageInfo,
   LocalMessageInfo,
 } from 'lib/types/message-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import type { VerticalBounds } from '../types/layout-types';
-import type { ChatNavigationProp } from './chat.react';
-import type { NavigationRoute } from '../navigation/route-names';
-
 import * as React from 'react';
 import { View } from 'react-native';
-import invariant from 'invariant';
 
-import { messageKey } from 'lib/shared/message-utils';
-
-import { InnerTextMessage } from './inner-text-message.react';
-import { textMessageTooltipHeight } from './text-message-tooltip-modal.react';
-import { TextMessageTooltipModalRouteName } from '../navigation/route-names';
-import { ComposedMessage, clusterEndHeight } from './composed-message.react';
-import { authorNameHeight } from './message-header.react';
-import { failedSendHeight } from './failed-send.react';
-import textMessageSendFailed from './text-message-send-failed';
 import {
   type KeyboardState,
   KeyboardContext,
 } from '../keyboard/keyboard-state';
+import { MarkdownLinkContext } from '../markdown/markdown-link-context';
 import {
   OverlayContext,
   type OverlayContextType,
 } from '../navigation/overlay-context';
-import { MarkdownLinkContext } from '../markdown/markdown-link-context';
+import type { NavigationRoute } from '../navigation/route-names';
+import { TextMessageTooltipModalRouteName } from '../navigation/route-names';
+import type { VerticalBounds } from '../types/layout-types';
+
+import type { ChatNavigationProp } from './chat.react';
+import { ComposedMessage, clusterEndHeight } from './composed-message.react';
+import { failedSendHeight } from './failed-send.react';
+import { InnerTextMessage } from './inner-text-message.react';
+import { authorNameHeight } from './message-header.react';
+import textMessageSendFailed from './text-message-send-failed';
+import { textMessageTooltipHeight } from './text-message-tooltip-modal.react';
 
 export type ChatTextMessageInfoItemWithHeight = {|
   itemType: 'message',

@@ -1,19 +1,9 @@
 // @flow
 
-import type {
-  Props as FlatListProps,
-  DefaultProps as FlatListDefaultProps,
-} from 'react-native/Libraries/Lists/FlatList';
-import type { ChatNavigationProp } from './chat.react';
-import type { TabNavigationProp } from '../navigation/app-navigator.react';
-import type { ChatMessageItemWithHeight } from './message-list-container.react';
-import type { ViewStyle } from '../types/styles';
-import {
-  type KeyboardState,
-  KeyboardContext,
-} from '../keyboard/keyboard-state';
+import invariant from 'invariant';
 import type { ChatMessageItem } from 'lib/selectors/chat-selectors';
-
+import { messageKey } from 'lib/shared/message-utils';
+import _sum from 'lodash/fp/sum';
 import * as React from 'react';
 import {
   FlatList,
@@ -23,14 +13,23 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import invariant from 'invariant';
-import _sum from 'lodash/fp/sum';
+import type {
+  Props as FlatListProps,
+  DefaultProps as FlatListDefaultProps,
+} from 'react-native/Libraries/Lists/FlatList';
 
-import { messageKey } from 'lib/shared/message-utils';
+import {
+  type KeyboardState,
+  KeyboardContext,
+} from '../keyboard/keyboard-state';
+import type { TabNavigationProp } from '../navigation/app-navigator.react';
+import { useSelector } from '../redux/redux-utils';
+import type { ViewStyle } from '../types/styles';
 
+import type { ChatNavigationProp } from './chat.react';
+import type { ChatMessageItemWithHeight } from './message-list-container.react';
 import { messageItemHeight } from './message.react';
 import NewMessagesPill from './new-messages-pill.react';
-import { useSelector } from '../redux/redux-utils';
 
 function chatMessageItemKey(item: ChatMessageItemWithHeight | ChatMessageItem) {
   if (item.itemType === 'loader') {

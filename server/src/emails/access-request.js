@@ -1,12 +1,10 @@
 // @flow
 
+import ashoat from 'lib/facts/ashoat';
 import type { AccessRequest } from 'lib/types/account-types';
-
+import _shuffle from 'lodash/fp/shuffle';
 import React from 'react';
 import { Item, Span, renderEmail } from 'react-html-email';
-import _shuffle from 'lodash/fp/shuffle';
-
-import ashoat from 'lib/facts/ashoat';
 
 import sendmail from './sendmail';
 import Template from './template.react';

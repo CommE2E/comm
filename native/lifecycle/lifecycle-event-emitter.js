@@ -2,11 +2,10 @@
 
 import invariant from 'invariant';
 import { Platform } from 'react-native';
-
+import NativeEventEmitter from 'react-native/Libraries/EventEmitter/NativeEventEmitter';
 import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport';
 import * as TurboModuleRegistry from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 // eslint-disable-next-line import/default
-import NativeEventEmitter from 'react-native/Libraries/EventEmitter/NativeEventEmitter';
 
 interface Spec extends TurboModule {
   +getConstants: () => {|

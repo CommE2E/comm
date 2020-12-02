@@ -1,11 +1,20 @@
 // @flow
 
+import invariant from 'invariant';
+import {
+  deleteThreadActionTypes,
+  deleteThread,
+} from 'lib/actions/thread-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import { identifyInvalidatedThreads } from 'lib/shared/thread-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { ThreadInfo, LeaveThreadPayload } from 'lib/types/thread-types';
-import type { GlobalTheme } from '../../types/themes';
-import type { ChatNavigationProp } from '../chat.react';
-import type { NavigationRoute } from '../../navigation/route-names';
-
+import {
+  useServerCall,
+  useDispatchActionPromise,
+  type DispatchActionPromise,
+} from 'lib/utils/action-utils';
 import * as React from 'react';
 import {
   Text,
@@ -15,29 +24,18 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import invariant from 'invariant';
-
-import {
-  deleteThreadActionTypes,
-  deleteThread,
-} from 'lib/actions/thread-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
-import { identifyInvalidatedThreads } from 'lib/shared/thread-utils';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-  type DispatchActionPromise,
-} from 'lib/utils/action-utils';
 
 import Button from '../../components/button.react';
-import { type Colors, useColors, useStyles } from '../../themes/colors';
+import { clearThreadsActionType } from '../../navigation/action-types';
 import {
   NavContext,
   type NavAction,
 } from '../../navigation/navigation-context';
-import { clearThreadsActionType } from '../../navigation/action-types';
+import type { NavigationRoute } from '../../navigation/route-names';
 import { useSelector } from '../../redux/redux-utils';
+import { type Colors, useColors, useStyles } from '../../themes/colors';
+import type { GlobalTheme } from '../../types/themes';
+import type { ChatNavigationProp } from '../chat.react';
 
 export type DeleteThreadParams = {|
   +threadInfo: ThreadInfo,

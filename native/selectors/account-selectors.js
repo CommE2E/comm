@@ -1,13 +1,11 @@
 // @flow
 
+import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
 import type { LogInExtraInfo } from 'lib/types/account-types';
-import type { NavPlusRedux } from '../types/selector-types';
-
 import { createSelector } from 'reselect';
 
-import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
-
 import { calendarActiveSelector } from '../navigation/nav-selectors';
+import type { NavPlusRedux } from '../types/selector-types';
 
 const nativeLogInExtraInfoSelector: (
   input: NavPlusRedux,

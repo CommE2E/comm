@@ -1,75 +1,74 @@
 // @flow
 
-import type { Dispatch } from 'lib/types/redux-types';
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import {
-  type NotifPermissionAlertInfo,
-  notifPermissionAlertInfoPropType,
-} from './alerts';
-import {
-  type ConnectionInfo,
-  connectionInfoPropType,
-} from 'lib/types/socket-types';
-import type { RemoteMessage, NotificationOpen } from 'react-native-firebase';
-import { type GlobalTheme, globalThemePropType } from '../types/themes';
-import type { RootNavigationProp } from '../navigation/root-navigator.react';
-
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { AppRegistry, Platform, Alert, Vibration, LogBox } from 'react-native';
-import NotificationsIOS from 'react-native-notifications';
-import {
-  Notification as InAppNotification,
-  TapticFeedback,
-} from 'react-native-in-app-message';
-import { useDispatch } from 'react-redux';
-
-import {
-  unreadCount,
-  threadInfoSelector,
-} from 'lib/selectors/thread-selectors';
 import {
   setDeviceTokenActionTypes,
   setDeviceToken,
 } from 'lib/actions/device-actions';
-import { mergePrefixIntoBody } from 'lib/shared/notif-utils';
+import {
+  unreadCount,
+  threadInfoSelector,
+} from 'lib/selectors/thread-selectors';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
+import { mergePrefixIntoBody } from 'lib/shared/notif-utils';
+import type { Dispatch } from 'lib/types/redux-types';
+import {
+  type ConnectionInfo,
+  connectionInfoPropType,
+} from 'lib/types/socket-types';
+import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import {
   useServerCall,
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/action-utils';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { AppRegistry, Platform, Alert, Vibration, LogBox } from 'react-native';
+import type { RemoteMessage, NotificationOpen } from 'react-native-firebase';
+import {
+  Notification as InAppNotification,
+  TapticFeedback,
+} from 'react-native-in-app-message';
+import NotificationsIOS from 'react-native-notifications';
+import { useDispatch } from 'react-redux';
 
+import {
+  addLifecycleListener,
+  getCurrentLifecycleState,
+} from '../lifecycle/lifecycle';
+import { replaceWithThreadActionType } from '../navigation/action-types';
+import { activeMessageListSelector } from '../navigation/nav-selectors';
+import { NavContext } from '../navigation/navigation-context';
+import type { RootNavigationProp } from '../navigation/root-navigator.react';
+import { MessageListRouteName } from '../navigation/route-names';
 import {
   recordNotifPermissionAlertActionType,
   clearAndroidNotificationsActionType,
 } from '../redux/action-types';
-import { activeMessageListSelector } from '../navigation/nav-selectors';
+import { useSelector } from '../redux/redux-utils';
 import {
-  requestIOSPushPermissions,
-  iosPushPermissionResponseReceived,
-} from './ios';
+  RootContext,
+  type RootContextType,
+  rootContextPropType,
+} from '../root-context';
+import { type GlobalTheme, globalThemePropType } from '../types/themes';
+
+import {
+  type NotifPermissionAlertInfo,
+  notifPermissionAlertInfoPropType,
+} from './alerts';
 import {
   androidNotificationChannelID,
   handleAndroidMessage,
   androidBackgroundMessageTask,
 } from './android';
 import { getFirebase } from './firebase';
-import { saveMessageInfos } from './utils';
 import InAppNotif from './in-app-notif.react';
-import { NavContext } from '../navigation/navigation-context';
 import {
-  RootContext,
-  type RootContextType,
-  rootContextPropType,
-} from '../root-context';
-import { MessageListRouteName } from '../navigation/route-names';
-import { replaceWithThreadActionType } from '../navigation/action-types';
-import {
-  addLifecycleListener,
-  getCurrentLifecycleState,
-} from '../lifecycle/lifecycle';
-import { useSelector } from '../redux/redux-utils';
+  requestIOSPushPermissions,
+  iosPushPermissionResponseReceived,
+} from './ios';
+import { saveMessageInfos } from './utils';
 
 LogBox.ignoreLogs([
   // react-native-firebase

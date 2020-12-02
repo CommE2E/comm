@@ -1,7 +1,5 @@
 // @flow
 
-import type { Viewer } from '../session/viewer';
-
 import invariant from 'invariant';
 
 import {
@@ -10,6 +8,7 @@ import {
   SQLStatement,
   mergeOrConditions,
 } from '../database/database';
+import type { Viewer } from '../session/viewer';
 
 async function deleteUpdatesByConditions(
   conditions: $ReadOnlyArray<SQLStatement>,

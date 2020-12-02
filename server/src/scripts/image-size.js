@@ -3,6 +3,7 @@
 import sizeOf from 'buffer-image-size';
 
 import { dbQuery, SQL } from '../database/database';
+
 import { endScript } from './utils';
 
 async function main() {

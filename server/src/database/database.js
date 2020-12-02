@@ -1,13 +1,14 @@
 // @flow
 
-import mysqlPromise from 'mysql2/promise';
 import mysql from 'mysql2';
+import mysqlPromise from 'mysql2/promise';
 import SQL from 'sql-template-strings';
 
 import dbConfig from '../../secrets/db_config';
 import { getScriptContext } from '../scripts/script-context';
-import DatabaseMonitor from './monitor';
+
 import { connectionLimit, queryWarnTime } from './consts';
+import DatabaseMonitor from './monitor';
 
 const SQLStatement = SQL.SQLStatement;
 

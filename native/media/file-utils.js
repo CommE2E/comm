@@ -1,5 +1,14 @@
 // @flow
 
+import base64 from 'base-64';
+import * as MediaLibrary from 'expo-media-library';
+import invariant from 'invariant';
+import {
+  mediaConfig,
+  pathFromURI,
+  fileInfoFromData,
+  bytesNeededForFileTypeCheck,
+} from 'lib/media/file-utils';
 import type {
   MediaMissionStep,
   MediaMissionFailure,
@@ -11,20 +20,9 @@ import type {
   FetchFileHashMediaMissionStep,
   CopyFileMediaMissionStep,
 } from 'lib/types/media-types';
-
-import { Platform } from 'react-native';
-import * as MediaLibrary from 'expo-media-library';
-import filesystem from 'react-native-fs';
-import base64 from 'base-64';
-import invariant from 'invariant';
-
-import {
-  mediaConfig,
-  pathFromURI,
-  fileInfoFromData,
-  bytesNeededForFileTypeCheck,
-} from 'lib/media/file-utils';
 import { getMessageForException } from 'lib/utils/errors';
+import { Platform } from 'react-native';
+import filesystem from 'react-native-fs';
 
 import { stringToIntArray } from './blob-utils';
 import { ffmpeg } from './ffmpeg';

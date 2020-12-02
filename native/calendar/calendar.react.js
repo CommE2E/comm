@@ -1,25 +1,36 @@
 // @flow
 
+import invariant from 'invariant';
+import {
+  updateCalendarQueryActionTypes,
+  updateCalendarQuery,
+} from 'lib/actions/entry-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { entryKey } from 'lib/shared/entry-utils';
 import type {
   EntryInfo,
   CalendarQuery,
   CalendarQueryUpdateResult,
 } from 'lib/types/entry-types';
-import type {
-  CalendarItem,
-  SectionHeaderItem,
-  SectionFooterItem,
-  LoaderItem,
-} from '../selectors/calendar-selectors';
-import type { ViewToken } from '../types/react-native';
-import type { KeyboardEvent } from '../keyboard/keyboard';
 import type { CalendarFilter } from 'lib/types/filter-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { ConnectionStatus } from 'lib/types/socket-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import type { TabNavigationProp } from '../navigation/app-navigator.react';
-import type { NavigationRoute } from '../navigation/route-names';
-
+import {
+  useServerCall,
+  useDispatchActionPromise,
+  type DispatchActionPromise,
+} from 'lib/utils/action-utils';
+import { dateString, prettyDate, dateFromString } from 'lib/utils/date-utils';
+import sleep from 'lib/utils/sleep';
+import _filter from 'lodash/fp/filter';
+import _find from 'lodash/fp/find';
+import _findIndex from 'lodash/fp/findIndex';
+import _map from 'lodash/fp/map';
+import _pickBy from 'lodash/fp/pickBy';
+import _size from 'lodash/fp/size';
+import _sum from 'lodash/fp/sum';
+import _throttle from 'lodash/throttle';
 import * as React from 'react';
 import {
   View,
@@ -30,55 +41,42 @@ import {
   LayoutAnimation,
   TouchableWithoutFeedback,
 } from 'react-native';
-import invariant from 'invariant';
-import _findIndex from 'lodash/fp/findIndex';
-import _map from 'lodash/fp/map';
-import _find from 'lodash/fp/find';
-import _filter from 'lodash/fp/filter';
-import _sum from 'lodash/fp/sum';
-import _pickBy from 'lodash/fp/pickBy';
-import _size from 'lodash/fp/size';
-import _throttle from 'lodash/throttle';
 import SafeAreaView from 'react-native-safe-area-view';
 
-import { entryKey } from 'lib/shared/entry-utils';
-import { dateString, prettyDate, dateFromString } from 'lib/utils/date-utils';
-import {
-  updateCalendarQueryActionTypes,
-  updateCalendarQuery,
-} from 'lib/actions/entry-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import sleep from 'lib/utils/sleep';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-  type DispatchActionPromise,
-} from 'lib/utils/action-utils';
-
-import {
-  Entry,
-  InternalEntry,
-  dummyNodeForEntryHeightMeasurement,
-} from './entry.react';
-import { calendarListData } from '../selectors/calendar-selectors';
-import {
-  createIsForegroundSelector,
-  createActiveTabSelector,
-} from '../navigation/nav-selectors';
-import NodeHeightMeasurer from '../components/node-height-measurer.react';
+import ContentLoading from '../components/content-loading.react';
+import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 import ListLoadingIndicator from '../components/list-loading-indicator.react';
-import SectionFooter from './section-footer.react';
-import CalendarInputBar from './calendar-input-bar.react';
+import NodeHeightMeasurer from '../components/node-height-measurer.react';
 import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
   removeKeyboardListener,
 } from '../keyboard/keyboard';
+import type { KeyboardEvent } from '../keyboard/keyboard';
+import type { TabNavigationProp } from '../navigation/app-navigator.react';
+import DisconnectedBar from '../navigation/disconnected-bar.react';
+import {
+  createIsForegroundSelector,
+  createActiveTabSelector,
+} from '../navigation/nav-selectors';
+import { NavContext } from '../navigation/navigation-context';
 import {
   CalendarRouteName,
   ThreadPickerModalRouteName,
 } from '../navigation/route-names';
-import DisconnectedBar from '../navigation/disconnected-bar.react';
+import type { NavigationRoute } from '../navigation/route-names';
+import { useSelector } from '../redux/redux-utils';
+import { calendarListData } from '../selectors/calendar-selectors';
+import type {
+  CalendarItem,
+  SectionHeaderItem,
+  SectionFooterItem,
+  LoaderItem,
+} from '../selectors/calendar-selectors';
+import {
+  type DerivedDimensionsInfo,
+  derivedDimensionsInfoSelector,
+} from '../selectors/dimensions-selectors';
 import {
   useColors,
   useStyles,
@@ -86,14 +84,15 @@ import {
   type Colors,
   type IndicatorStyle,
 } from '../themes/colors';
-import ContentLoading from '../components/content-loading.react';
-import { NavContext } from '../navigation/navigation-context';
-import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
+import type { ViewToken } from '../types/react-native';
+
+import CalendarInputBar from './calendar-input-bar.react';
 import {
-  type DerivedDimensionsInfo,
-  derivedDimensionsInfoSelector,
-} from '../selectors/dimensions-selectors';
-import { useSelector } from '../redux/redux-utils';
+  Entry,
+  InternalEntry,
+  dummyNodeForEntryHeightMeasurement,
+} from './entry.react';
+import SectionFooter from './section-footer.react';
 
 export type EntryInfoWithHeight = {|
   ...EntryInfo,

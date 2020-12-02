@@ -1,11 +1,10 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
+import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
 import type { LogInExtraInfo } from 'lib/types/account-types';
-
 import { createSelector } from 'reselect';
 
-import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
+import type { AppState } from '../redux/redux-setup';
 
 const webLogInExtraInfoSelector: (
   state: AppState,

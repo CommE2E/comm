@@ -1,20 +1,20 @@
 // @flow
 
+import crypto from 'crypto';
+
+import { shimUploadURI } from 'lib/media/media-utils';
 import type {
   MediaType,
   UploadMultimediaResult,
   Dimensions,
 } from 'lib/types/media-types';
-import type { Viewer } from '../session/viewer';
-
-import crypto from 'crypto';
-
 import { ServerError } from 'lib/utils/errors';
-import { shimUploadURI } from 'lib/media/media-utils';
 
 import { dbQuery, SQL } from '../database/database';
-import createIDs from './id-creator';
 import { getUploadURL } from '../fetchers/upload-fetchers';
+import type { Viewer } from '../session/viewer';
+
+import createIDs from './id-creator';
 
 export type UploadInput = {|
   name: string,

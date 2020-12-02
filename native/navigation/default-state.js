@@ -1,8 +1,7 @@
 // @flow
 
-import type { BaseNavInfo } from 'lib/types/nav-types';
 import type { StaleNavigationState } from '@react-navigation/native';
-
+import type { BaseNavInfo } from 'lib/types/nav-types';
 import { fifteenDaysEarlier, fifteenDaysLater } from 'lib/utils/date-utils';
 
 import {

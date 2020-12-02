@@ -1,25 +1,24 @@
 // @flow
 
-import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
-
+import invariant from 'invariant';
+import { colorIsDark } from 'lib/shared/thread-utils';
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
-import invariant from 'invariant';
 
-import { colorIsDark } from 'lib/shared/thread-utils';
+import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
+import { KeyboardContext } from '../keyboard/keyboard-state';
+import Markdown from '../markdown/markdown.react';
+import { useSelector } from '../redux/redux-utils';
+import { useColors, colors } from '../themes/colors';
 
+import { composedMessageMaxWidthSelector } from './composed-message-width';
+import { MessageListContext } from './message-list-types';
 import {
   allCorners,
   filterCorners,
   getRoundedContainerStyle,
 } from './rounded-corners';
-import { useColors, colors } from '../themes/colors';
-import Markdown from '../markdown/markdown.react';
-import { composedMessageMaxWidthSelector } from './composed-message-width';
-import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
-import { useSelector } from '../redux/redux-utils';
-import { KeyboardContext } from '../keyboard/keyboard-state';
-import { MessageListContext } from './message-list-types';
+import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
 
 function useTextMessageMarkdownRules(useDarkStyle: boolean) {
   const messageListContext = React.useContext(MessageListContext);

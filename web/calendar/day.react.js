@@ -1,38 +1,37 @@
 // @flow
 
-import type { EntryInfo } from 'lib/types/entry-types';
-import { entryInfoPropType } from 'lib/types/entry-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
-import type { AppState } from '../redux/redux-setup';
-import type { InnerEntry } from './entry.react';
-
-import * as React from 'react';
 import classNames from 'classnames';
-import _some from 'lodash/fp/some';
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
-
-import { entryKey } from 'lib/shared/entry-utils';
-import { onScreenThreadInfos } from 'lib/selectors/thread-selectors';
 import {
   createLocalEntry,
   createLocalEntryActionType,
 } from 'lib/actions/entry-actions';
+import { onScreenThreadInfos } from 'lib/selectors/thread-selectors';
+import { entryKey } from 'lib/shared/entry-utils';
+import type { EntryInfo } from 'lib/types/entry-types';
+import { entryInfoPropType } from 'lib/types/entry-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
+import { threadInfoPropType } from 'lib/types/thread-types';
 import {
   dateString,
   dateFromString,
   currentDateInTimeZone,
 } from 'lib/utils/date-utils';
 import { connect } from 'lib/utils/redux-utils';
+import _some from 'lodash/fp/some';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 
-import css from './calendar.css';
-import Entry from './entry.react';
+import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 import HistoryModal from '../modals/history/history-modal.react';
-import ThreadPicker from './thread-picker.react';
+import type { AppState } from '../redux/redux-setup';
 import { htmlTargetFromEvent } from '../vector-utils';
 import { AddVector, HistoryVector } from '../vectors.react';
-import LogInFirstModal from '../modals/account/log-in-first-modal.react';
+
+import css from './calendar.css';
+import type { InnerEntry } from './entry.react';
+import Entry from './entry.react';
+import ThreadPicker from './thread-picker.react';
 
 type Props = {
   dayString: string,

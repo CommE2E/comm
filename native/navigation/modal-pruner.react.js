@@ -1,19 +1,18 @@
 // @flow
 
-import type { NavContextType } from './navigation-context';
 import type {
   PossiblyStaleNavigationState,
   PossiblyStaleRoute,
 } from '@react-navigation/native';
-
-import * as React from 'react';
 import invariant from 'invariant';
+import * as React from 'react';
 
-import { AppRouteName } from './route-names';
 import {
   clearRootModalsActionType,
   clearOverlayModalsActionType,
 } from './action-types';
+import type { NavContextType } from './navigation-context';
+import { AppRouteName } from './route-names';
 
 type DependencyInfo = {|
   status: 'missing' | 'resolved' | 'unresolved',

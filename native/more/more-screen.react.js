@@ -1,18 +1,27 @@
 // @flow
 
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { AppState } from '../redux/redux-setup';
-import type { LogOutResult } from 'lib/types/account-types';
+import invariant from 'invariant';
 import {
-  type CurrentUserInfo,
-  currentUserPropType,
-} from 'lib/types/user-types';
+  logOutActionTypes,
+  logOut,
+  resendVerificationEmailActionTypes,
+  resendVerificationEmail,
+} from 'lib/actions/user-actions';
+import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import type { LogOutResult } from 'lib/types/account-types';
 import {
   type PreRequestUserState,
   preRequestUserStatePropType,
 } from 'lib/types/session-types';
-import type { MoreNavigationProp } from './more.react';
-
+import {
+  type CurrentUserInfo,
+  currentUserPropType,
+} from 'lib/types/user-types';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
+import { firstLine } from 'lib/utils/string-utils';
+import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   View,
@@ -22,20 +31,7 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/Ionicons';
-
-import { connect } from 'lib/utils/redux-utils';
-import {
-  logOutActionTypes,
-  logOut,
-  resendVerificationEmailActionTypes,
-  resendVerificationEmail,
-} from 'lib/actions/user-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
-import { firstLine } from 'lib/utils/string-utils';
 
 import {
   getNativeSharedWebCredentials,
@@ -43,6 +39,7 @@ import {
 } from '../account/native-credentials';
 import Button from '../components/button.react';
 import EditSettingButton from '../components/edit-setting-button.react';
+import { SingleLine } from '../components/single-line.react';
 import {
   EditEmailRouteName,
   EditPasswordRouteName,
@@ -53,13 +50,15 @@ import {
   FriendListRouteName,
   BlockListRouteName,
 } from '../navigation/route-names';
+import type { AppState } from '../redux/redux-setup';
 import {
   type Colors,
   colorsPropType,
   colorsSelector,
   styleSelector,
 } from '../themes/colors';
-import { SingleLine } from '../components/single-line.react';
+
+import type { MoreNavigationProp } from './more.react';
 
 type Props = {
   navigation: MoreNavigationProp<'MoreScreen'>,

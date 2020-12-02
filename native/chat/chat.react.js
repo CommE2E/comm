@@ -1,6 +1,5 @@
 // @flow
 
-import * as React from 'react';
 import {
   createMaterialTopTabNavigator,
   type MaterialTopTabNavigationProp,
@@ -16,15 +15,13 @@ import {
   type StackHeaderProps as CoreStackHeaderProps,
 } from '@react-navigation/native';
 import { StackView, type StackHeaderProps } from '@react-navigation/stack';
-import { Platform, View } from 'react-native';
 import invariant from 'invariant';
+import * as React from 'react';
+import { Platform, View } from 'react-native';
 
-import HomeChatThreadList from './home-chat-thread-list.react';
-import BackgroundChatThreadList from './background-chat-thread-list.react';
-import MessageListContainer from './message-list-container.react';
-import ComposeThread from './compose-thread.react';
-import ThreadSettings from './settings/thread-settings.react';
-import DeleteThread from './settings/delete-thread.react';
+import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
+import { InputStateContext } from '../input/input-state';
+import HeaderBackButton from '../navigation/header-back-button.react';
 import {
   ComposeThreadRouteName,
   DeleteThreadRouteName,
@@ -37,17 +34,21 @@ import {
   type ChatParamList,
   type ChatTopTabsParamList,
 } from '../navigation/route-names';
-import HeaderBackButton from '../navigation/header-back-button.react';
+import { useStyles } from '../themes/colors';
+
+import BackgroundChatThreadList from './background-chat-thread-list.react';
 import ChatHeader from './chat-header.react';
 import ChatRouter, { type ChatRouterNavigationProp } from './chat-router';
-import MessageStorePruner from './message-store-pruner.react';
-import ThreadScreenPruner from './thread-screen-pruner.react';
 import ComposeThreadButton from './compose-thread-button.react';
+import ComposeThread from './compose-thread.react';
+import HomeChatThreadList from './home-chat-thread-list.react';
+import MessageListContainer from './message-list-container.react';
 import MessageListHeaderTitle from './message-list-header-title.react';
+import MessageStorePruner from './message-store-pruner.react';
+import DeleteThread from './settings/delete-thread.react';
+import ThreadSettings from './settings/thread-settings.react';
+import ThreadScreenPruner from './thread-screen-pruner.react';
 import ThreadSettingsButton from './thread-settings-button.react';
-import { InputStateContext } from '../input/input-state';
-import { useStyles } from '../themes/colors';
-import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 
 const unboundStyles = {
   keyboardAvoidingView: {

@@ -1,6 +1,13 @@
 // @flow
 
-import type { PushInfo } from '../push/send';
+import invariant from 'invariant';
+import { permissionLookup } from 'lib/permissions/thread-permissions';
+import {
+  sortMessageInfoList,
+  shimUnsupportedRawMessageInfos,
+  createMediaMessageInfo,
+} from 'lib/shared/message-utils';
+import { notifCollapseKeyForRawMessageInfo } from 'lib/shared/notif-utils';
 import {
   type RawMessageInfo,
   messageTypes,
@@ -13,21 +20,13 @@ import {
   type RawTextMessageInfo,
 } from 'lib/types/message-types';
 import { threadPermissions } from 'lib/types/thread-types';
-import type { Viewer } from '../session/viewer';
-
-import invariant from 'invariant';
-
-import { notifCollapseKeyForRawMessageInfo } from 'lib/shared/notif-utils';
-import {
-  sortMessageInfoList,
-  shimUnsupportedRawMessageInfos,
-  createMediaMessageInfo,
-} from 'lib/shared/message-utils';
-import { permissionLookup } from 'lib/permissions/thread-permissions';
 import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL, mergeOrConditions } from '../database/database';
+import type { PushInfo } from '../push/send';
+import type { Viewer } from '../session/viewer';
 import { creationString, localIDFromCreationString } from '../utils/idempotent';
+
 import { mediaFromRow } from './upload-fetchers';
 
 export type CollapsableNotifInfo = {|

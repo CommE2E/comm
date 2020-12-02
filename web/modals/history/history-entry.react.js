@@ -1,7 +1,14 @@
 // @flow
 
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
+import classNames from 'classnames';
+import invariant from 'invariant';
+import {
+  restoreEntryActionTypes,
+  restoreEntry,
+} from 'lib/actions/entry-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import { colorIsDark } from 'lib/shared/thread-utils';
 import {
   type EntryInfo,
   entryInfoPropType,
@@ -9,27 +16,19 @@ import {
   type RestoreEntryResponse,
   type CalendarQuery,
 } from 'lib/types/entry-types';
-import type { AppState } from '../../redux/redux-setup';
 import type { LoadingStatus } from 'lib/types/loading-types';
+import { threadInfoPropType } from 'lib/types/thread-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-
-import * as React from 'react';
-import classNames from 'classnames';
-import invariant from 'invariant';
-import PropTypes from 'prop-types';
-
-import { colorIsDark } from 'lib/shared/thread-utils';
-import {
-  restoreEntryActionTypes,
-  restoreEntry,
-} from 'lib/actions/entry-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { connect } from 'lib/utils/redux-utils';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+
+import LoadingIndicator from '../../loading-indicator.react';
+import type { AppState } from '../../redux/redux-setup';
+import { nonThreadCalendarQuery } from '../../selectors/nav-selectors';
 
 import css from './history.css';
-import LoadingIndicator from '../../loading-indicator.react';
-import { nonThreadCalendarQuery } from '../../selectors/nav-selectors';
 
 type Props = {
   entryInfo: EntryInfo,

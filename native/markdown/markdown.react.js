@@ -1,15 +1,15 @@
 // @flow
 
-import type { TextStyle } from '../types/styles';
-import type { TextStyle as FlattenedTextStyle } from 'react-native/Libraries/StyleSheet/StyleSheet';
-import type { MarkdownRules } from './rules.react';
-
-import * as React from 'react';
-import * as SimpleMarkdown from 'simple-markdown';
-import { View, Text, StyleSheet } from 'react-native';
 import invariant from 'invariant';
-
 import { onlyEmojiRegex } from 'lib/shared/emojis';
+import * as React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import type { TextStyle as FlattenedTextStyle } from 'react-native/Libraries/StyleSheet/StyleSheet';
+import * as SimpleMarkdown from 'simple-markdown';
+
+import type { TextStyle } from '../types/styles';
+
+import type { MarkdownRules } from './rules.react';
 
 type Props = {|
   +style: TextStyle,

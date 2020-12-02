@@ -1,16 +1,15 @@
 // @flow
 
 import type { MediaInfo } from 'lib/types/media-types';
-import type { PendingMultimediaUpload } from '../input/input-state';
-
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/Feather';
 import * as Progress from 'react-native-progress';
+import Icon from 'react-native-vector-icons/Feather';
 
-import Multimedia from '../media/multimedia.react';
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
+import type { PendingMultimediaUpload } from '../input/input-state';
 import { KeyboardContext } from '../keyboard/keyboard-state';
+import Multimedia from '../media/multimedia.react';
 
 const formatProgressText = (progress: number) =>
   `${Math.floor(progress * 100)}%`;

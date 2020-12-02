@@ -1,45 +1,44 @@
 // @flow
 
-import type { ChatRobotextMessageInfoItemWithHeight } from './robotext-message.react';
-import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
-import type { ChatMultimediaMessageInfoItem } from './multimedia-message.react';
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
-import {
-  type VerticalBounds,
-  verticalBoundsPropType,
-} from '../types/layout-types';
-import {
-  messageListRoutePropType,
-  messageListNavPropType,
-} from './message-list-types';
-import {
-  type KeyboardState,
-  keyboardStatePropType,
-  KeyboardContext,
-} from '../keyboard/keyboard-state';
-import type { ChatNavigationProp } from './chat.react';
-import type { NavigationRoute } from '../navigation/route-names';
-import type { LayoutEvent } from '../types/react-native';
-
+import { messageKey } from 'lib/shared/message-utils';
+import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   LayoutAnimation,
   TouchableWithoutFeedback,
   PixelRatio,
 } from 'react-native';
-import PropTypes from 'prop-types';
 
-import { messageKey } from 'lib/shared/message-utils';
-
-import { TextMessage, textMessageItemHeight } from './text-message.react';
 import {
-  RobotextMessage,
-  robotextMessageItemHeight,
-} from './robotext-message.react';
+  type KeyboardState,
+  keyboardStatePropType,
+  KeyboardContext,
+} from '../keyboard/keyboard-state';
+import type { NavigationRoute } from '../navigation/route-names';
+import {
+  type VerticalBounds,
+  verticalBoundsPropType,
+} from '../types/layout-types';
+import type { LayoutEvent } from '../types/react-native';
+
+import type { ChatNavigationProp } from './chat.react';
+import {
+  messageListRoutePropType,
+  messageListNavPropType,
+} from './message-list-types';
+import type { ChatMultimediaMessageInfoItem } from './multimedia-message.react';
 import {
   MultimediaMessage,
   multimediaMessageItemHeight,
 } from './multimedia-message.react';
+import type { ChatRobotextMessageInfoItemWithHeight } from './robotext-message.react';
+import {
+  RobotextMessage,
+  robotextMessageItemHeight,
+} from './robotext-message.react';
+import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
+import { TextMessage, textMessageItemHeight } from './text-message.react';
 import { timestampHeight } from './timestamp.react';
 
 export type ChatMessageInfoItemWithHeight =

@@ -1,24 +1,8 @@
 // @flow
 
-import {
-  type ChatMessageItem,
-  chatMessageItemPropType,
-} from 'lib/selectors/chat-selectors';
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import type { FetchMessageInfosPayload } from 'lib/types/message-types';
-
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import invariant from 'invariant';
-import { useDrop } from 'react-dnd';
-import { NativeTypes } from 'react-dnd-html5-backend';
 import classNames from 'classnames';
 import { detect as detectBrowser } from 'detect-browser';
-
-import { messageKey } from 'lib/shared/message-utils';
-import { threadInChatList } from 'lib/shared/thread-utils';
-import threadWatcher from 'lib/shared/thread-watcher';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import invariant from 'invariant';
 import {
   fetchMessagesBeforeCursorActionTypes,
   fetchMessagesBeforeCursor,
@@ -27,29 +11,44 @@ import {
 } from 'lib/actions/message-actions';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import {
+  type ChatMessageItem,
+  chatMessageItemPropType,
+} from 'lib/selectors/chat-selectors';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import { messageKey } from 'lib/shared/message-utils';
+import { threadInChatList } from 'lib/shared/thread-utils';
+import threadWatcher from 'lib/shared/thread-watcher';
+import type { FetchMessageInfosPayload } from 'lib/types/message-types';
+import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import {
   type DispatchActionPromise,
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { useDrop } from 'react-dnd';
+import { NativeTypes } from 'react-dnd-html5-backend';
 
-import { webMessageListData } from '../selectors/chat-selectors';
-import ChatInputBar from './chat-input-bar.react';
-import Message from './message.react';
-import type {
-  OnMessagePositionInfo,
-  MessagePositionInfo,
-} from './message-position-types';
-import LoadingIndicator from '../loading-indicator.react';
-import MessageTimestampTooltip from './message-timestamp-tooltip.react';
 import {
   inputStatePropType,
   type InputState,
   InputStateContext,
 } from '../input/input-state';
-import { useSelector } from '../redux/redux-utils';
-import css from './chat-message-list.css';
+import LoadingIndicator from '../loading-indicator.react';
 import { useTextMessageRulesFunc } from '../markdown/rules.react';
+import { useSelector } from '../redux/redux-utils';
+import { webMessageListData } from '../selectors/chat-selectors';
+
+import ChatInputBar from './chat-input-bar.react';
+import css from './chat-message-list.css';
 import { MessageListContext } from './message-list-types';
+import type {
+  OnMessagePositionInfo,
+  MessagePositionInfo,
+} from './message-position-types';
+import MessageTimestampTooltip from './message-timestamp-tooltip.react';
+import Message from './message.react';
 
 type BaseProps = {|
   +setModal: (modal: ?React.Node) => void,

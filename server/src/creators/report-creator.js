@@ -1,6 +1,11 @@
 // @flow
 
-import type { Viewer } from '../session/viewer';
+import bots from 'lib/facts/bots';
+import {
+  filterRawEntryInfosByCalendarQuery,
+  serverEntryInfosObject,
+} from 'lib/shared/entry-utils';
+import { messageTypes } from 'lib/types/message-types';
 import {
   type ReportCreationRequest,
   type ReportCreationResponse,
@@ -9,25 +14,19 @@ import {
   type UserInconsistencyReportCreationRequest,
   reportTypes,
 } from 'lib/types/report-types';
-import { messageTypes } from 'lib/types/message-types';
-
-import bots from 'lib/facts/bots';
+import { values } from 'lib/utils/objects';
+import { sanitizeAction, sanitizeState } from 'lib/utils/sanitization';
 import _isEqual from 'lodash/fp/isEqual';
 
-import {
-  filterRawEntryInfosByCalendarQuery,
-  serverEntryInfosObject,
-} from 'lib/shared/entry-utils';
-import { sanitizeAction, sanitizeState } from 'lib/utils/sanitization';
-import { values } from 'lib/utils/objects';
-
-import { dbQuery, SQL } from '../database/database';
-import createIDs from './id-creator';
-import { fetchUsername } from '../fetchers/user-fetchers';
 import urlFacts from '../../facts/url';
-import createMessages from './message-creator';
+import { dbQuery, SQL } from '../database/database';
+import { fetchUsername } from '../fetchers/user-fetchers';
 import { handleAsyncPromise } from '../responders/handlers';
 import { createBotViewer } from '../session/bots';
+import type { Viewer } from '../session/viewer';
+
+import createIDs from './id-creator';
+import createMessages from './message-creator';
 
 const { baseDomain, basePath } = urlFacts;
 const { squadbot } = bots;

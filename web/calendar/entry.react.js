@@ -1,5 +1,19 @@
 // @flow
 
+import classNames from 'classnames';
+import invariant from 'invariant';
+import {
+  createEntryActionTypes,
+  createEntry,
+  saveEntryActionTypes,
+  saveEntry,
+  deleteEntryActionTypes,
+  deleteEntry,
+  concurrentModificationResetActionType,
+} from 'lib/actions/entry-actions';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import { entryKey } from 'lib/shared/entry-utils';
+import { colorIsDark, threadHasPermission } from 'lib/shared/thread-utils';
 import {
   type EntryInfo,
   entryInfoPropType,
@@ -11,43 +25,28 @@ import {
   type DeleteEntryResponse,
   type CalendarQuery,
 } from 'lib/types/entry-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType, threadPermissions } from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { AppState } from '../redux/redux-setup';
+import { threadInfoPropType, threadPermissions } from 'lib/types/thread-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import type {
   DispatchActionPayload,
   DispatchActionPromise,
 } from 'lib/utils/action-utils';
-
-import * as React from 'react';
-import classNames from 'classnames';
-import invariant from 'invariant';
-import PropTypes from 'prop-types';
-
-import { entryKey } from 'lib/shared/entry-utils';
-import { colorIsDark, threadHasPermission } from 'lib/shared/thread-utils';
-import { connect } from 'lib/utils/redux-utils';
-import {
-  createEntryActionTypes,
-  createEntry,
-  saveEntryActionTypes,
-  saveEntry,
-  deleteEntryActionTypes,
-  deleteEntry,
-  concurrentModificationResetActionType,
-} from 'lib/actions/entry-actions';
-import { ServerError } from 'lib/utils/errors';
 import { dateString } from 'lib/utils/date-utils';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import { ServerError } from 'lib/utils/errors';
+import { connect } from 'lib/utils/redux-utils';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 
-import css from './calendar.css';
 import LoadingIndicator from '../loading-indicator.react';
+import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 import ConcurrentModificationModal from '../modals/concurrent-modification-modal.react';
 import HistoryModal from '../modals/history/history-modal.react';
-import { HistoryVector, DeleteVector } from '../vectors.react';
-import LogInFirstModal from '../modals/account/log-in-first-modal.react';
+import type { AppState } from '../redux/redux-setup';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
+import { HistoryVector, DeleteVector } from '../vectors.react';
+
+import css from './calendar.css';
 
 type Props = {|
   innerRef: (key: string, me: Entry) => void,

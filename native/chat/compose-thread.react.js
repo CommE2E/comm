@@ -1,7 +1,18 @@
 // @flow
 
-import type { LoadingStatus } from 'lib/types/loading-types';
+import invariant from 'invariant';
+import { newThreadActionTypes, newThread } from 'lib/actions/thread-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import {
+  userInfoSelectorForPotentialMembers,
+  userSearchIndexForPotentialMembers,
+} from 'lib/selectors/user-selectors';
+import SearchIndex from 'lib/shared/search-index';
+import { getPotentialMemberItems } from 'lib/shared/search-utils';
+import { threadInFilterList, userIsMember } from 'lib/shared/thread-utils';
 import { loadingStatusPropType } from 'lib/types/loading-types';
+import type { LoadingStatus } from 'lib/types/loading-types';
 import {
   type ThreadInfo,
   threadInfoPropType,
@@ -16,46 +27,34 @@ import {
   accountUserInfoPropType,
 } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { ChatNavigationProp } from './chat.react';
-import type { NavigationRoute } from '../navigation/route-names';
-
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { View, Text, Alert } from 'react-native';
-import invariant from 'invariant';
-import _flow from 'lodash/fp/flow';
-import _filter from 'lodash/fp/filter';
-import _sortBy from 'lodash/fp/sortBy';
-import { createSelector } from 'reselect';
-
-import { newThreadActionTypes, newThread } from 'lib/actions/thread-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import {
-  userInfoSelectorForPotentialMembers,
-  userSearchIndexForPotentialMembers,
-} from 'lib/selectors/user-selectors';
-import SearchIndex from 'lib/shared/search-index';
-import { threadInFilterList, userIsMember } from 'lib/shared/thread-utils';
-import { getPotentialMemberItems } from 'lib/shared/search-utils';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
+import _filter from 'lodash/fp/filter';
+import _flow from 'lodash/fp/flow';
+import _sortBy from 'lodash/fp/sortBy';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { View, Text, Alert } from 'react-native';
+import { createSelector } from 'reselect';
 
-import TagInput from '../components/tag-input.react';
-import UserList from '../components/user-list.react';
-import ThreadList from '../components/thread-list.react';
 import LinkButton from '../components/link-button.react';
-import { MessageListRouteName } from '../navigation/route-names';
+import TagInput from '../components/tag-input.react';
+import ThreadList from '../components/thread-list.react';
 import ThreadVisibility from '../components/thread-visibility.react';
+import UserList from '../components/user-list.react';
+import type { NavigationRoute } from '../navigation/route-names';
+import { MessageListRouteName } from '../navigation/route-names';
+import { useSelector } from '../redux/redux-utils';
 import {
   type Colors,
   colorsPropType,
   useColors,
   useStyles,
 } from '../themes/colors';
-import { useSelector } from '../redux/redux-utils';
+
+import type { ChatNavigationProp } from './chat.react';
 
 const tagInputProps = {
   placeholder: 'username',

@@ -1,15 +1,14 @@
 // @flow
 
-import type { Viewer } from '../session/viewer';
-import type { ThreadType } from 'lib/types/thread-types';
-
-import _isEqual from 'lodash/fp/isEqual';
 import invariant from 'invariant';
+import type { ThreadType } from 'lib/types/thread-types';
+import _isEqual from 'lodash/fp/isEqual';
 
+import createIDs from '../creators/id-creator';
+import { getRolePermissionBlobsForChat } from '../creators/role-creator';
 import { dbQuery, SQL } from '../database/database';
 import { fetchRoles } from '../fetchers/role-fetchers';
-import { getRolePermissionBlobsForChat } from '../creators/role-creator';
-import createIDs from '../creators/id-creator';
+import type { Viewer } from '../session/viewer';
 
 async function updateRoles(
   viewer: Viewer,

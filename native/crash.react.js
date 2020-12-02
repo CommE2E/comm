@@ -1,19 +1,28 @@
 // @flow
 
+import Clipboard from '@react-native-community/clipboard';
+import invariant from 'invariant';
+import { sendReportActionTypes, sendReport } from 'lib/actions/report-actions';
+import { logOutActionTypes, logOut } from 'lib/actions/user-actions';
+import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
+import type { LogOutResult } from 'lib/types/account-types';
+import type { ErrorData } from 'lib/types/report-types';
 import {
   type ClientReportCreationRequest,
   type ReportCreationResponse,
   reportTypes,
 } from 'lib/types/report-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { AppState } from './redux/redux-setup';
-import type { ErrorData } from 'lib/types/report-types';
-import type { LogOutResult } from 'lib/types/account-types';
 import {
   type PreRequestUserState,
   preRequestUserStatePropType,
 } from 'lib/types/session-types';
-
+import { actionLogger } from 'lib/utils/action-logger';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
+import { sanitizeAction, sanitizeState } from 'lib/utils/sanitization';
+import sleep from 'lib/utils/sleep';
+import _shuffle from 'lodash/fp/shuffle';
+import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   View,
@@ -23,25 +32,14 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import _shuffle from 'lodash/fp/shuffle';
 import ExitApp from 'react-native-exit-app';
-import PropTypes from 'prop-types';
-import invariant from 'invariant';
-import Clipboard from '@react-native-community/clipboard';
-
-import { connect } from 'lib/utils/redux-utils';
-import { sendReportActionTypes, sendReport } from 'lib/actions/report-actions';
-import sleep from 'lib/utils/sleep';
-import { actionLogger } from 'lib/utils/action-logger';
-import { logOutActionTypes, logOut } from 'lib/actions/user-actions';
-import { sanitizeAction, sanitizeState } from 'lib/utils/sanitization';
-import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 import Button from './components/button.react';
-import { persistConfig, codeVersion } from './redux/persist';
-import { wipeAndExit } from './utils/crash-utils';
 import ConnectedStatusBar from './connected-status-bar.react';
+import { persistConfig, codeVersion } from './redux/persist';
+import type { AppState } from './redux/redux-setup';
+import { wipeAndExit } from './utils/crash-utils';
 
 const errorTitles = ['Oh no!!', 'Womp womp womp...'];
 

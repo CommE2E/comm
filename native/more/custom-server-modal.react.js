@@ -1,20 +1,18 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import type { RootNavigationProp } from '../navigation/root-navigator.react';
-
-import * as React from 'react';
-import { Text, TextInput } from 'react-native';
-import PropTypes from 'prop-types';
-
 import { connect } from 'lib/utils/redux-utils';
 import { setURLPrefix } from 'lib/utils/url-utils';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { Text, TextInput } from 'react-native';
 
 import Button from '../components/button.react';
 import Modal from '../components/modal.react';
-import { setCustomServer } from '../utils/url-utils';
+import type { RootNavigationProp } from '../navigation/root-navigator.react';
+import type { AppState } from '../redux/redux-setup';
 import { styleSelector } from '../themes/colors';
+import { setCustomServer } from '../utils/url-utils';
 
 export type CustomServerModalParams = {|
   presentedFrom: string,

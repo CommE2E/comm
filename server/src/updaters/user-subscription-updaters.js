@@ -1,18 +1,17 @@
 // @flow
 
+import { viewerIsMember } from 'lib/shared/thread-utils';
 import type {
   ThreadSubscription,
   SubscriptionUpdateRequest,
 } from 'lib/types/subscription-types';
-import type { Viewer } from '../session/viewer';
 import { updateTypes } from 'lib/types/update-types';
-
 import { ServerError } from 'lib/utils/errors';
-import { viewerIsMember } from 'lib/shared/thread-utils';
 
-import { dbQuery, SQL } from '../database/database';
 import { createUpdates } from '../creators/update-creator';
+import { dbQuery, SQL } from '../database/database';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
+import type { Viewer } from '../session/viewer';
 
 async function userSubscriptionUpdater(
   viewer: Viewer,

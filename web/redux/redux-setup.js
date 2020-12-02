@@ -1,30 +1,29 @@
 // @flow
 
-import type { BaseNavInfo } from 'lib/types/nav-types';
-import type { ThreadStore } from 'lib/types/thread-types';
-import type { EntryStore } from 'lib/types/entry-types';
-import type { BaseAction } from 'lib/types/redux-types';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import type { CurrentUserInfo, UserStore } from 'lib/types/user-types';
-import type { ServerVerificationResult } from 'lib/types/verify-types';
-import type { MessageStore } from 'lib/types/message-types';
-import type { CalendarFilter } from 'lib/types/filter-types';
-import { setNewSessionActionType } from 'lib/utils/action-utils';
-import type { ConnectionInfo } from 'lib/types/socket-types';
-import type { ClientReportCreationRequest } from 'lib/types/report-types';
-
-import PropTypes from 'prop-types';
 import invariant from 'invariant';
-
-import baseReducer from 'lib/reducers/master-reducer';
-import { mostRecentReadThreadSelector } from 'lib/selectors/thread-selectors';
-import { invalidSessionDowngrade } from 'lib/shared/account-utils';
 import {
   logOutActionTypes,
   deleteAccountActionTypes,
 } from 'lib/actions/user-actions';
+import baseReducer from 'lib/reducers/master-reducer';
+import { mostRecentReadThreadSelector } from 'lib/selectors/thread-selectors';
+import { invalidSessionDowngrade } from 'lib/shared/account-utils';
+import type { EntryStore } from 'lib/types/entry-types';
+import type { CalendarFilter } from 'lib/types/filter-types';
+import type { LoadingStatus } from 'lib/types/loading-types';
+import type { MessageStore } from 'lib/types/message-types';
+import type { BaseNavInfo } from 'lib/types/nav-types';
+import type { BaseAction } from 'lib/types/redux-types';
+import type { ClientReportCreationRequest } from 'lib/types/report-types';
+import type { ConnectionInfo } from 'lib/types/socket-types';
+import type { ThreadStore } from 'lib/types/thread-types';
+import type { CurrentUserInfo, UserStore } from 'lib/types/user-types';
+import type { ServerVerificationResult } from 'lib/types/verify-types';
+import { setNewSessionActionType } from 'lib/utils/action-utils';
+import PropTypes from 'prop-types';
 
 import { activeThreadSelector } from '../selectors/nav-selectors';
+
 import { updateWindowActiveActionType } from './action-types';
 import { getVisibility } from './visibility';
 

@@ -1,27 +1,25 @@
 // @flow
 
-import type { LogOutResult } from 'lib/types/account-types';
-import type { CurrentUserInfo } from 'lib/types/user-types';
-import type { PreRequestUserState } from 'lib/types/session-types';
-
-import * as React from 'react';
 import invariant from 'invariant';
-
 import { logOut, logOutActionTypes } from 'lib/actions/user-actions';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
+import type { LogOutResult } from 'lib/types/account-types';
+import type { PreRequestUserState } from 'lib/types/session-types';
+import type { CurrentUserInfo } from 'lib/types/user-types';
 import {
   useServerCall,
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/action-utils';
+import * as React from 'react';
 
-import css from './style.css';
 import LogInModal from './modals/account/log-in-modal.react';
 import RegisterModal from './modals/account/register-modal.react';
 import UserSettingsModal from './modals/account/user-settings-modal.react.js';
-import { UpCaret, DownCaret } from './vectors.react';
-import { htmlTargetFromEvent } from './vector-utils';
 import { useSelector } from './redux/redux-utils';
+import css from './style.css';
+import { htmlTargetFromEvent } from './vector-utils';
+import { UpCaret, DownCaret } from './vectors.react';
 
 type BaseProps = {|
   +setModal: (modal: ?React.Node) => void,

@@ -1,31 +1,29 @@
 // @flow
 
 import {
+  changeThreadSettingsActionTypes,
+  changeThreadSettings,
+} from 'lib/actions/thread-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import type { LoadingStatus } from 'lib/types/loading-types';
+import {
   type ThreadInfo,
   type UpdateThreadRequest,
   type ChangeThreadSettingsPayload,
   threadTypes,
 } from 'lib/types/thread-types';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import type { ViewStyle } from '../../types/styles';
-
-import * as React from 'react';
-import { Text, Alert, ActivityIndicator, View } from 'react-native';
-
-import {
-  changeThreadSettingsActionTypes,
-  changeThreadSettings,
-} from 'lib/actions/thread-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   type DispatchActionPromise,
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
+import * as React from 'react';
+import { Text, Alert, ActivityIndicator, View } from 'react-native';
 
 import Button from '../../components/button.react';
-import { type Colors, useColors, useStyles } from '../../themes/colors';
 import { useSelector } from '../../redux/redux-utils';
+import { type Colors, useColors, useStyles } from '../../themes/colors';
+import type { ViewStyle } from '../../types/styles';
 
 type BaseProps = {|
   +threadInfo: ThreadInfo,

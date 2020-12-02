@@ -1,12 +1,10 @@
 // @flow
 
-import type { Viewer } from '../session/viewer';
-
+import { ServerError } from 'lib/utils/errors';
 import t from 'tcomb';
 
-import { ServerError } from 'lib/utils/errors';
-
 import { verifyClientSupported } from '../session/version';
+import type { Viewer } from '../session/viewer';
 
 function tBool(value: boolean) {
   return t.irreducible('literal bool', (x) => x === value);

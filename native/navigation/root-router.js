@@ -12,24 +12,23 @@ import type {
   RouterConfigOptions,
   PossiblyStaleNavigationState,
 } from '@react-navigation/native';
-
 import { StackRouter, CommonActions } from '@react-navigation/native';
 import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual';
 
-import { removeScreensFromStack } from './navigation-utils';
-import {
-  accountModals,
-  LoggedOutModalRouteName,
-  AppRouteName,
-} from './route-names';
-import { defaultNavigationState } from './default-state';
 import {
   logInActionType,
   logOutActionType,
   clearRootModalsActionType,
   setNavStateActionType,
 } from './action-types';
+import { defaultNavigationState } from './default-state';
+import { removeScreensFromStack } from './navigation-utils';
+import {
+  accountModals,
+  LoggedOutModalRouteName,
+  AppRouteName,
+} from './route-names';
 
 type LogInAction = {|
   +type: 'LOG_IN',

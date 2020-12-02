@@ -1,11 +1,13 @@
 // @flow
 
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { KeyboardUtils } from 'react-native-keyboard-input';
-import { Platform } from 'react-native';
-
 import sleep from 'lib/utils/sleep';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { Platform } from 'react-native';
+import { KeyboardUtils } from 'react-native-keyboard-input';
+
+import { tabBarAnimationDuration } from '../navigation/tab-bar.react';
+import { waitForInteractions } from '../utils/timers';
 
 import {
   addKeyboardShowListener,
@@ -13,10 +15,8 @@ import {
   removeKeyboardListener,
   androidKeyboardResizesFrame,
 } from './keyboard';
-import { KeyboardContext } from './keyboard-state';
 import KeyboardInputHost from './keyboard-input-host.react';
-import { waitForInteractions } from '../utils/timers';
-import { tabBarAnimationDuration } from '../navigation/tab-bar.react';
+import { KeyboardContext } from './keyboard-state';
 
 type Props = {|
   children: React.Node,

@@ -1,16 +1,14 @@
 // @flow
 
-import type { AppState } from '../../redux/redux-setup';
+import invariant from 'invariant';
 import {
   type ServerVerificationResult,
   verifyField,
 } from 'lib/types/verify-types';
-
-import * as React from 'react';
-import invariant from 'invariant';
-
 import { connect } from 'lib/utils/redux-utils';
+import * as React from 'react';
 
+import type { AppState } from '../../redux/redux-setup';
 import css from '../../style.css';
 import Modal from '../modal.react';
 

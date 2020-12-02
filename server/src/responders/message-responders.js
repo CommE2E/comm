@@ -1,6 +1,7 @@
 // @flow
 
-import type { Viewer } from '../session/viewer';
+import invariant from 'invariant';
+import { createMediaMessageData, trimMessage } from 'lib/shared/message-utils';
 import {
   messageTypes,
   type SendTextMessageRequest,
@@ -11,20 +12,17 @@ import {
   type SendMessageResponse,
   type TextMessageData,
 } from 'lib/types/message-types';
-
-import t from 'tcomb';
-import invariant from 'invariant';
-
-import { ServerError } from 'lib/utils/errors';
 import { threadPermissions } from 'lib/types/thread-types';
-import { createMediaMessageData, trimMessage } from 'lib/shared/message-utils';
+import { ServerError } from 'lib/utils/errors';
+import t from 'tcomb';
 
 import createMessages from '../creators/message-creator';
-import { validateInput, tShape } from '../utils/validation-utils';
-import { checkThreadPermission } from '../fetchers/thread-permission-fetchers';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
+import { checkThreadPermission } from '../fetchers/thread-permission-fetchers';
 import { fetchMedia } from '../fetchers/upload-fetchers';
+import type { Viewer } from '../session/viewer';
 import { assignMedia } from '../updaters/upload-updaters';
+import { validateInput, tShape } from '../utils/validation-utils';
 
 const sendTextMessageRequestInputValidator = tShape({
   threadID: t.String,

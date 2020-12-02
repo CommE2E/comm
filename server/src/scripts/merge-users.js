@@ -1,17 +1,18 @@
 // @flow
 
-import { type UpdateData, updateTypes } from 'lib/types/update-types';
 import type { ServerThreadInfo } from 'lib/types/thread-types';
+import { type UpdateData, updateTypes } from 'lib/types/update-types';
 
+import { createUpdates } from '../creators/update-creator';
 import { dbQuery, SQL, SQLStatement } from '../database/database';
+import { deleteAccount } from '../deleters/account-deleters';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
+import { createScriptViewer } from '../session/scripts';
 import {
   changeRole,
   commitMembershipChangeset,
 } from '../updaters/thread-permission-updaters';
-import { createUpdates } from '../creators/update-creator';
-import { createScriptViewer } from '../session/scripts';
-import { deleteAccount } from '../deleters/account-deleters';
+
 import { endScript } from './utils';
 
 async function main() {

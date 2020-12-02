@@ -1,16 +1,15 @@
 // @flow
 
+import { messageStorePruneActionType } from 'lib/actions/message-actions';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { messageStorePruneActionType } from 'lib/actions/message-actions';
-
+import { NavContext } from '../navigation/navigation-context';
+import { useSelector } from '../redux/redux-utils';
 import {
   nextMessagePruneTimeSelector,
   pruneThreadIDsSelector,
 } from '../selectors/message-selectors';
-import { NavContext } from '../navigation/navigation-context';
-import { useSelector } from '../redux/redux-utils';
 
 function MessageStorePruner() {
   const nextMessagePruneTime = useSelector(nextMessagePruneTimeSelector);

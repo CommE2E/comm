@@ -1,10 +1,28 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
-import type {
-  DispatchActionPayload,
-  DispatchActionPromise,
-} from 'lib/utils/action-utils';
+import invariant from 'invariant';
+import {
+  createLocalMessageActionType,
+  sendMultimediaMessageActionTypes,
+  sendMultimediaMessage,
+  sendTextMessageActionTypes,
+  sendTextMessage,
+} from 'lib/actions/message-actions';
+import { queueReportsActionType } from 'lib/actions/report-actions';
+import {
+  uploadMultimedia,
+  updateMultimediaMessageMediaActionType,
+  type MultimediaUploadCallbacks,
+  type MultimediaUploadExtras,
+} from 'lib/actions/upload-actions';
+import { pathFromURI } from 'lib/media/file-utils';
+import { videoDurationLimit } from 'lib/media/video-utils';
+import {
+  createLoadingStatusSelector,
+  combineLoadingStatuses,
+} from 'lib/selectors/loading-selectors';
+import { createMediaMessageInfo } from 'lib/shared/message-utils';
+import { isStaff } from 'lib/shared/user-utils';
 import type {
   UploadMultimediaResult,
   Media,
@@ -27,50 +45,31 @@ import {
   reportTypes,
 } from 'lib/types/report-types';
 import type {
+  DispatchActionPayload,
+  DispatchActionPromise,
+} from 'lib/utils/action-utils';
+import { getConfig } from 'lib/utils/config';
+import { getMessageForException, cloneError } from 'lib/utils/errors';
+import type {
   FetchJSONOptions,
   FetchJSONServerResponse,
 } from 'lib/utils/fetch-json';
-
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import invariant from 'invariant';
-import { createSelector } from 'reselect';
-import * as Upload from 'react-native-background-upload';
-import { Platform } from 'react-native';
-
 import { connect } from 'lib/utils/redux-utils';
-import {
-  uploadMultimedia,
-  updateMultimediaMessageMediaActionType,
-  type MultimediaUploadCallbacks,
-  type MultimediaUploadExtras,
-} from 'lib/actions/upload-actions';
-import {
-  createLocalMessageActionType,
-  sendMultimediaMessageActionTypes,
-  sendMultimediaMessage,
-  sendTextMessageActionTypes,
-  sendTextMessage,
-} from 'lib/actions/message-actions';
-import { createMediaMessageInfo } from 'lib/shared/message-utils';
-import { queueReportsActionType } from 'lib/actions/report-actions';
-import { getConfig } from 'lib/utils/config';
-import {
-  createLoadingStatusSelector,
-  combineLoadingStatuses,
-} from 'lib/selectors/loading-selectors';
-import { pathFromURI } from 'lib/media/file-utils';
-import { isStaff } from 'lib/shared/user-utils';
-import { videoDurationLimit } from 'lib/media/video-utils';
-import { getMessageForException, cloneError } from 'lib/utils/errors';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { Platform } from 'react-native';
+import * as Upload from 'react-native-background-upload';
+import { createSelector } from 'reselect';
+
+import { disposeTempFile } from '../media/file-utils';
+import { processMedia } from '../media/media-utils';
+import { displayActionResultModal } from '../navigation/action-result-modal';
+import type { AppState } from '../redux/redux-setup';
 
 import {
   InputStateContext,
   type PendingMultimediaUploads,
 } from './input-state';
-import { processMedia } from '../media/media-utils';
-import { displayActionResultModal } from '../navigation/action-result-modal';
-import { disposeTempFile } from '../media/file-utils';
 
 let nextLocalUploadID = 0;
 function getNewLocalID() {

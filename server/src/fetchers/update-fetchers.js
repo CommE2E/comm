@@ -1,23 +1,21 @@
 // @flow
 
+import invariant from 'invariant';
+import type { CalendarQuery } from 'lib/types/entry-types';
 import {
   type RawUpdateInfo,
   updateTypes,
   assertUpdateType,
 } from 'lib/types/update-types';
-import type { CalendarQuery } from 'lib/types/entry-types';
-import type { Viewer } from '../session/viewer';
-import type { ViewerInfo } from '../creators/update-creator';
-
-import invariant from 'invariant';
-
 import { ServerError } from 'lib/utils/errors';
 
-import { dbQuery, SQL, SQLStatement } from '../database/database';
+import type { ViewerInfo } from '../creators/update-creator';
 import {
   type FetchUpdatesResult,
   fetchUpdateInfosWithRawUpdateInfos,
 } from '../creators/update-creator';
+import { dbQuery, SQL, SQLStatement } from '../database/database';
+import type { Viewer } from '../session/viewer';
 
 async function fetchUpdateInfosWithQuery(
   viewerInfo: ViewerInfo,

@@ -1,24 +1,22 @@
 // @flow
 
-import type { ViewStyle, TextStyle } from '../types/styles';
-import type { AppState } from '../redux/redux-setup';
-
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-
-import * as React from 'react';
+import { connect } from 'lib/utils/redux-utils';
 import PropTypes from 'prop-types';
+import * as React from 'react';
 import { Text, ViewPropTypes } from 'react-native';
 
-import { connect } from 'lib/utils/redux-utils';
-
-import Button from './button.react';
-import ColorSplotch from './color-splotch.react';
+import type { AppState } from '../redux/redux-setup';
 import {
   type Colors,
   colorsPropType,
   colorsSelector,
   styleSelector,
 } from '../themes/colors';
+import type { ViewStyle, TextStyle } from '../types/styles';
+
+import Button from './button.react';
+import ColorSplotch from './color-splotch.react';
 import { SingleLine } from './single-line.react';
 
 type Props = {|

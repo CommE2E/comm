@@ -1,22 +1,21 @@
 // @flow
 
+import { HeaderTitle } from '@react-navigation/stack';
+import { threadIsPersonalAndPending } from 'lib/shared/thread-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
-import type { AppState } from '../redux/redux-setup';
-import type { ChatNavigationProp } from './chat.react';
-
+import { connect } from 'lib/utils/redux-utils';
+import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, Platform } from 'react-native';
-import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { HeaderTitle } from '@react-navigation/stack';
-
-import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../components/button.react';
 import { ThreadSettingsRouteName } from '../navigation/route-names';
+import type { AppState } from '../redux/redux-setup';
 import { styleSelector } from '../themes/colors';
-import { threadIsPersonalAndPending } from 'lib/shared/thread-utils';
+
+import type { ChatNavigationProp } from './chat.react';
 
 type Props = {|
   threadInfo: ThreadInfo,

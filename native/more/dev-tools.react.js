@@ -1,22 +1,18 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import type { MoreNavigationProp } from './more.react';
-import type { NavigationRoute } from '../navigation/route-names';
-
+import { connect } from 'lib/utils/redux-utils';
+import { setURLPrefix } from 'lib/utils/url-utils';
+import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, Text, ScrollView, Platform } from 'react-native';
 import ExitApp from 'react-native-exit-app';
 import Icon from 'react-native-vector-icons/Ionicons';
-import PropTypes from 'prop-types';
-
-import { connect } from 'lib/utils/redux-utils';
-import { setURLPrefix } from 'lib/utils/url-utils';
 
 import Button from '../components/button.react';
-import { serverOptions } from '../utils/url-utils';
+import type { NavigationRoute } from '../navigation/route-names';
 import { CustomServerModalRouteName } from '../navigation/route-names';
+import type { AppState } from '../redux/redux-setup';
 import {
   type Colors,
   colorsPropType,
@@ -24,6 +20,9 @@ import {
   styleSelector,
 } from '../themes/colors';
 import { wipeAndExit } from '../utils/crash-utils';
+import { serverOptions } from '../utils/url-utils';
+
+import type { MoreNavigationProp } from './more.react';
 
 const ServerIcon = () => (
   <Icon name="md-checkmark" size={20} color="#008800" style={styles.icon} />

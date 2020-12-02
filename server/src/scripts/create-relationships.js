@@ -3,8 +3,9 @@
 import { undirectedStatus } from 'lib/types/relationship-types';
 
 import { createUndirectedRelationships } from '../creators/relationship-creators';
-import { saveMemberships } from '../updaters/thread-permission-updaters';
 import { dbQuery, SQL } from '../database/database';
+import { saveMemberships } from '../updaters/thread-permission-updaters';
+
 import { endScript } from './utils';
 
 async function main() {

@@ -1,13 +1,11 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
-
+import { connect } from 'lib/utils/redux-utils';
 import * as React from 'react';
 import { Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-import { connect } from 'lib/utils/redux-utils';
-
+import type { AppState } from '../redux/redux-setup';
 import { styleSelector } from '../themes/colors';
 
 type Props = {|

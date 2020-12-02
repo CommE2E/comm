@@ -1,13 +1,12 @@
 // @flow
 
-import type { ChatTopTabsNavigationProp } from './chat.react';
-import type { NavigationRoute } from '../navigation/route-names';
-
+import { threadInHomeChatList } from 'lib/shared/thread-utils';
 import * as React from 'react';
 
-import { threadInHomeChatList } from 'lib/shared/thread-utils';
+import type { NavigationRoute } from '../navigation/route-names';
 
 import ChatThreadList from './chat-thread-list.react';
+import type { ChatTopTabsNavigationProp } from './chat.react';
 
 type HomeChatThreadListProps = {|
   navigation: ChatTopTabsNavigationProp<'HomeChatThreadList'>,

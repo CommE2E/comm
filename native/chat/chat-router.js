@@ -1,6 +1,5 @@
 // @flow
 
-import type { ThreadInfo } from 'lib/types/thread-types';
 import type {
   StackNavigationProp,
   ParamListBase,
@@ -12,24 +11,24 @@ import type {
   RouterConfigOptions,
   GenericNavigationAction,
 } from '@react-navigation/native';
-
 import { StackRouter, CommonActions } from '@react-navigation/native';
+import type { ThreadInfo } from 'lib/types/thread-types';
 
-import {
-  ChatThreadListRouteName,
-  MessageListRouteName,
-  ComposeThreadRouteName,
-} from '../navigation/route-names';
-import {
-  removeScreensFromStack,
-  getThreadIDFromRoute,
-} from '../navigation/navigation-utils';
 import {
   clearScreensActionType,
   replaceWithThreadActionType,
   clearThreadsActionType,
   pushNewThreadActionType,
 } from '../navigation/action-types';
+import {
+  removeScreensFromStack,
+  getThreadIDFromRoute,
+} from '../navigation/navigation-utils';
+import {
+  ChatThreadListRouteName,
+  MessageListRouteName,
+  ComposeThreadRouteName,
+} from '../navigation/route-names';
 
 type ClearScreensAction = {|
   +type: 'CLEAR_SCREENS',

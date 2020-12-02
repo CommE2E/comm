@@ -1,11 +1,10 @@
 // @flow
 
 import type { ThreadInfo } from 'lib/types/thread-types';
-
 import * as React from 'react';
 
-import { webChatListData } from '../selectors/chat-selectors';
 import { useSelector } from '../redux/redux-utils';
+import { webChatListData } from '../selectors/chat-selectors';
 
 import ChatThreadListItem from './chat-thread-list-item.react';
 

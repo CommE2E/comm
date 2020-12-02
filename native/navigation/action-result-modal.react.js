@@ -1,16 +1,16 @@
 // @flow
 
-import type { AppNavigationProp } from './app-navigator.react';
-import type { NavigationRoute } from './route-names';
-
+import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text } from 'react-native';
 import Animated from 'react-native-reanimated';
-import invariant from 'invariant';
 
-import { useOverlayStyles } from '../themes/colors';
-import { OverlayContext } from './overlay-context';
 import { useSelector } from '../redux/redux-utils';
+import { useOverlayStyles } from '../themes/colors';
+
+import type { AppNavigationProp } from './app-navigator.react';
+import { OverlayContext } from './overlay-context';
+import type { NavigationRoute } from './route-names';
 
 export type ActionResultModalParams = {|
   message: string,

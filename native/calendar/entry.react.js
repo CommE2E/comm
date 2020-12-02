@@ -1,6 +1,18 @@
 // @flow
 
-import type { EntryInfoWithHeight } from './calendar.react';
+import invariant from 'invariant';
+import {
+  createEntryActionTypes,
+  createEntry,
+  saveEntryActionTypes,
+  saveEntry,
+  deleteEntryActionTypes,
+  deleteEntry,
+  concurrentModificationResetActionType,
+} from 'lib/actions/entry-actions';
+import { registerFetchKey } from 'lib/reducers/loading-reducer';
+import { entryKey } from 'lib/shared/entry-utils';
+import { colorIsDark, threadHasPermission } from 'lib/shared/thread-utils';
 import type {
   CreateEntryInfo,
   SaveEntryInfo,
@@ -10,12 +22,19 @@ import type {
   DeleteEntryResponse,
   CalendarQuery,
 } from 'lib/types/entry-types';
-import { type ThreadInfo, threadPermissions } from 'lib/types/thread-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { LayoutEvent } from '../types/react-native';
-import type { TabNavigationProp } from '../navigation/app-navigator.react';
 import type { Dispatch } from 'lib/types/redux-types';
-
+import { type ThreadInfo, threadPermissions } from 'lib/types/thread-types';
+import {
+  useServerCall,
+  useDispatchActionPromise,
+  type DispatchActionPromise,
+} from 'lib/utils/action-utils';
+import { dateString } from 'lib/utils/date-utils';
+import { ServerError } from 'lib/utils/errors';
+import sleep from 'lib/utils/sleep';
+import _isEqual from 'lodash/fp/isEqual';
+import _omit from 'lodash/fp/omit';
 import * as React from 'react';
 import {
   View,
@@ -27,52 +46,32 @@ import {
   LayoutAnimation,
   Keyboard,
 } from 'react-native';
-import invariant from 'invariant';
-import shallowequal from 'shallowequal';
-import _omit from 'lodash/fp/omit';
-import _isEqual from 'lodash/fp/isEqual';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import tinycolor from 'tinycolor2';
 import { useDispatch } from 'react-redux';
-
-import { colorIsDark, threadHasPermission } from 'lib/shared/thread-utils';
-import {
-  createEntryActionTypes,
-  createEntry,
-  saveEntryActionTypes,
-  saveEntry,
-  deleteEntryActionTypes,
-  deleteEntry,
-  concurrentModificationResetActionType,
-} from 'lib/actions/entry-actions';
-import { ServerError } from 'lib/utils/errors';
-import { entryKey } from 'lib/shared/entry-utils';
-import { registerFetchKey } from 'lib/reducers/loading-reducer';
-import { dateString } from 'lib/utils/date-utils';
-import sleep from 'lib/utils/sleep';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-  type DispatchActionPromise,
-} from 'lib/utils/action-utils';
+import shallowequal from 'shallowequal';
+import tinycolor from 'tinycolor2';
 
 import Button from '../components/button.react';
-import {
-  MessageListRouteName,
-  ThreadPickerModalRouteName,
-} from '../navigation/route-names';
+import { SingleLine } from '../components/single-line.react';
+import Markdown from '../markdown/markdown.react';
+import { inlineMarkdownRules } from '../markdown/rules.react';
+import type { TabNavigationProp } from '../navigation/app-navigator.react';
 import {
   createIsForegroundSelector,
   nonThreadCalendarQuery,
 } from '../navigation/nav-selectors';
-import LoadingIndicator from './loading-indicator.react';
-import { colors, useStyles } from '../themes/colors';
 import { NavContext } from '../navigation/navigation-context';
-import { waitForInteractions } from '../utils/timers';
-import Markdown from '../markdown/markdown.react';
-import { inlineMarkdownRules } from '../markdown/rules.react';
-import { SingleLine } from '../components/single-line.react';
+import {
+  MessageListRouteName,
+  ThreadPickerModalRouteName,
+} from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
+import { colors, useStyles } from '../themes/colors';
+import type { LayoutEvent } from '../types/react-native';
+import { waitForInteractions } from '../utils/timers';
+
+import type { EntryInfoWithHeight } from './calendar.react';
+import LoadingIndicator from './loading-indicator.react';
 
 function hueDistance(firstColor: string, secondColor: string): number {
   const firstHue = tinycolor(firstColor).toHsv().h;

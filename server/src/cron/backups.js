@@ -1,12 +1,13 @@
 // @flow
 
-import fs from 'fs';
 import childProcess from 'child_process';
-import zlib from 'zlib';
-import dateFormat from 'dateformat';
-import StreamCache from 'stream-cache';
+import fs from 'fs';
 import { promisify } from 'util';
+import zlib from 'zlib';
+
+import dateFormat from 'dateformat';
 import invariant from 'invariant';
+import StreamCache from 'stream-cache';
 
 import dbConfig from '../../secrets/db_config';
 

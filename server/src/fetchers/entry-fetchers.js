@@ -1,29 +1,26 @@
 // @flow
 
-import type {
-  CalendarQuery,
-  FetchEntryInfosBase,
-  DeltaEntryInfosResponse,
-  RawEntryInfo,
-} from 'lib/types/entry-types';
-import type { HistoryRevisionInfo } from 'lib/types/history-types';
-import type { Viewer } from '../session/viewer';
-import {
-  threadPermissions,
-  type ThreadPermission,
-} from 'lib/types/thread-types';
-import { calendarThreadFilterTypes } from 'lib/types/filter-types';
-
 import invariant from 'invariant';
-
 import { permissionLookup } from 'lib/permissions/thread-permissions';
-import { ServerError } from 'lib/utils/errors';
 import {
   filteredThreadIDs,
   filterExists,
   nonExcludeDeletedCalendarFilters,
 } from 'lib/selectors/calendar-filter-selectors';
 import { rawEntryInfoWithinCalendarQuery } from 'lib/shared/entry-utils';
+import type {
+  CalendarQuery,
+  FetchEntryInfosBase,
+  DeltaEntryInfosResponse,
+  RawEntryInfo,
+} from 'lib/types/entry-types';
+import { calendarThreadFilterTypes } from 'lib/types/filter-types';
+import type { HistoryRevisionInfo } from 'lib/types/history-types';
+import {
+  threadPermissions,
+  type ThreadPermission,
+} from 'lib/types/thread-types';
+import { ServerError } from 'lib/utils/errors';
 
 import {
   dbQuery,
@@ -32,8 +29,10 @@ import {
   mergeAndConditions,
   mergeOrConditions,
 } from '../database/database';
+import type { Viewer } from '../session/viewer';
 import { creationString } from '../utils/idempotent';
-import { checkIfThreadIsBlocked } from '../fetchers/thread-permission-fetchers';
+
+import { checkIfThreadIsBlocked } from './thread-permission-fetchers';
 
 async function fetchEntryInfo(
   viewer: Viewer,

@@ -1,29 +1,24 @@
 // @flow
 
+import invariant from 'invariant';
+import { generateRandomColor } from 'lib/shared/thread-utils';
+import { hasMinCodeVersion } from 'lib/shared/version-utils';
+import { messageTypes } from 'lib/types/message-types';
+import { userRelationshipStatus } from 'lib/types/relationship-types';
 import {
   type NewThreadRequest,
   type NewThreadResponse,
   threadTypes,
   threadPermissions,
 } from 'lib/types/thread-types';
-import { messageTypes } from 'lib/types/message-types';
-import { userRelationshipStatus } from 'lib/types/relationship-types';
-import type { Viewer } from '../session/viewer';
-import type { UpdatesForCurrentSession } from './update-creator';
-
-import invariant from 'invariant';
-
-import { generateRandomColor } from 'lib/shared/thread-utils';
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
-import { hasMinCodeVersion } from 'lib/shared/version-utils';
 
 import { dbQuery, SQL } from '../database/database';
-import createIDs from './id-creator';
-import { createInitialRolesForNewThread } from './role-creator';
-import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers';
+import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
+import type { Viewer } from '../session/viewer';
 import {
   changeRole,
   recalculateAllPermissions,
@@ -32,7 +27,11 @@ import {
   getRelationshipRowsForUsers,
   getParentThreadRelationshipRowsForNewUsers,
 } from '../updaters/thread-permission-updaters';
+
+import createIDs from './id-creator';
 import createMessages from './message-creator';
+import { createInitialRolesForNewThread } from './role-creator';
+import type { UpdatesForCurrentSession } from './update-creator';
 
 // If forceAddMembers is set, we will allow the viewer to add random users who
 // they aren't friends with. We will only fail if the viewer is trying to add

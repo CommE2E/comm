@@ -1,13 +1,11 @@
 // @flow
 
+import invariant from 'invariant';
 import type {
   MediaType,
   MediaMissionStep,
   MediaMissionFailure,
 } from 'lib/types/media-types';
-
-import invariant from 'invariant';
-
 import { getMessageForException } from 'lib/utils/errors';
 
 import { determineFileType } from './file-utils';

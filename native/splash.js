@@ -1,11 +1,11 @@
 // @flow
 
-import type { ImageStyle } from './types/styles';
-import type { DimensionsInfo } from './redux/dimensions-updater.react';
-import type { AppState } from './redux/redux-setup';
-
 import { Platform, PixelRatio } from 'react-native';
 import { createSelector } from 'reselect';
+
+import type { DimensionsInfo } from './redux/dimensions-updater.react';
+import type { AppState } from './redux/redux-setup';
+import type { ImageStyle } from './types/styles';
 
 const splashStyleSelector: (state: AppState) => ImageStyle = createSelector(
   (state: AppState) => state.dimensions,

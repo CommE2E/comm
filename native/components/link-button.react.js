@@ -1,16 +1,15 @@
 // @flow
 
-import type { ViewStyle } from '../types/styles';
-import type { AppState } from '../redux/redux-setup';
-
+import { connect } from 'lib/utils/redux-utils';
+import PropTypes from 'prop-types';
 import * as React from 'react';
 import { Text, ViewPropTypes } from 'react-native';
-import PropTypes from 'prop-types';
 
-import { connect } from 'lib/utils/redux-utils';
+import type { AppState } from '../redux/redux-setup';
+import { styleSelector } from '../themes/colors';
+import type { ViewStyle } from '../types/styles';
 
 import Button from './button.react';
-import { styleSelector } from '../themes/colors';
 
 type Props = {
   text: string,

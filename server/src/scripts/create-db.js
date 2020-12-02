@@ -1,8 +1,5 @@
 // @flow
 
-import { threadTypes } from 'lib/types/thread-types';
-import { undirectedStatus } from 'lib/types/relationship-types';
-
 import ashoat from 'lib/facts/ashoat';
 import bots from 'lib/facts/bots';
 import {
@@ -10,11 +7,14 @@ import {
   makePermissionsForChildrenBlob,
 } from 'lib/permissions/thread-permissions';
 import { sortIDs } from 'lib/shared/relationship-utils';
+import { undirectedStatus } from 'lib/types/relationship-types';
+import { threadTypes } from 'lib/types/thread-types';
+
+import { getRolePermissionBlobsForChat } from '../creators/role-creator';
+import { dbQuery, SQL } from '../database/database';
 
 import { setScriptContext } from './script-context';
 import { endScript } from './utils';
-import { dbQuery, SQL } from '../database/database';
-import { getRolePermissionBlobsForChat } from '../creators/role-creator';
 
 setScriptContext({
   allowMultiStatementSQLQueries: true,

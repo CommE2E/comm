@@ -1,25 +1,23 @@
 // @flow
 
+import { messagePreviewText } from 'lib/shared/message-utils';
+import { threadIsGroupChat } from 'lib/shared/thread-utils';
+import { stringForUser } from 'lib/shared/user-utils';
 import {
   type MessageInfo,
   messageInfoPropType,
   messageTypes,
 } from 'lib/types/message-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import type { AppState } from '../redux/redux-setup';
-
-import * as React from 'react';
-import { Text } from 'react-native';
-import PropTypes from 'prop-types';
-
-import { messagePreviewText } from 'lib/shared/message-utils';
-import { threadIsGroupChat } from 'lib/shared/thread-utils';
-import { stringForUser } from 'lib/shared/user-utils';
 import { connect } from 'lib/utils/redux-utils';
 import { firstLine } from 'lib/utils/string-utils';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { Text } from 'react-native';
 
-import { styleSelector } from '../themes/colors';
 import { SingleLine } from '../components/single-line.react';
+import type { AppState } from '../redux/redux-setup';
+import { styleSelector } from '../themes/colors';
 
 type Props = {|
   messageInfo: MessageInfo,

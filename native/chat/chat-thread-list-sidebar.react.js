@@ -1,11 +1,10 @@
 // @flow
 
 import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types';
-
 import * as React from 'react';
 
-import SwipeableThread from './swipeable-thread.react';
 import SidebarItem from './sidebar-item.react';
+import SwipeableThread from './swipeable-thread.react';
 
 type Props = {|
   +sidebarInfo: SidebarInfo,

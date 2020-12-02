@@ -1,29 +1,27 @@
 // @flow
 
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import type { AppState } from '../redux/redux-setup';
-import {
-  type GlobalThemePreference,
-  type GlobalThemeInfo,
-  globalThemeInfoPropType,
-  osCanTheme,
-} from '../types/themes';
-import { updateThemeInfoActionType } from '../redux/action-types';
-
+import { connect } from 'lib/utils/redux-utils';
+import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, Text, ScrollView, Platform } from 'react-native';
-import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-import { connect } from 'lib/utils/redux-utils';
-
 import Button from '../components/button.react';
+import { updateThemeInfoActionType } from '../redux/action-types';
+import type { AppState } from '../redux/redux-setup';
 import {
   type Colors,
   colorsPropType,
   colorsSelector,
   styleSelector,
 } from '../themes/colors';
+import {
+  type GlobalThemePreference,
+  type GlobalThemeInfo,
+  globalThemeInfoPropType,
+  osCanTheme,
+} from '../types/themes';
 
 const CheckIcon = () => (
   <Icon name="md-checkmark" size={20} color="#008800" style={styles.icon} />

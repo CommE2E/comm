@@ -1,19 +1,12 @@
 // @flow
 
+import invariant from 'invariant';
+import { nonThreadCalendarFilters } from 'lib/selectors/calendar-filter-selectors';
 import {
-  type UpdateInfo,
-  type UpdateData,
-  type RawUpdateInfo,
-  type CreateUpdatesResult,
-  updateTypes,
-} from 'lib/types/update-types';
-import type { Viewer } from '../session/viewer';
-import type { RawThreadInfo } from 'lib/types/thread-types';
-import type { AccountUserInfo, LoggedInUserInfo } from 'lib/types/user-types';
-import {
-  defaultNumberPerThread,
-  type FetchMessageInfosResult,
-} from 'lib/types/message-types';
+  keyForUpdateData,
+  keyForUpdateInfo,
+  rawUpdateInfoFromUpdateData,
+} from 'lib/shared/update-utils';
 import {
   type RawEntryInfo,
   type FetchEntryInfosBase,
@@ -21,20 +14,24 @@ import {
   defaultCalendarQuery,
 } from 'lib/types/entry-types';
 import {
+  defaultNumberPerThread,
+  type FetchMessageInfosResult,
+} from 'lib/types/message-types';
+import {
   type UpdateTarget,
   redisMessageTypes,
   type NewUpdatesRedisMessage,
 } from 'lib/types/redis-types';
-
-import invariant from 'invariant';
-
-import { promiseAll } from 'lib/utils/promises';
-import { nonThreadCalendarFilters } from 'lib/selectors/calendar-filter-selectors';
+import type { RawThreadInfo } from 'lib/types/thread-types';
 import {
-  keyForUpdateData,
-  keyForUpdateInfo,
-  rawUpdateInfoFromUpdateData,
-} from 'lib/shared/update-utils';
+  type UpdateInfo,
+  type UpdateData,
+  type RawUpdateInfo,
+  type CreateUpdatesResult,
+  updateTypes,
+} from 'lib/types/update-types';
+import type { AccountUserInfo, LoggedInUserInfo } from 'lib/types/user-types';
+import { promiseAll } from 'lib/utils/promises';
 
 import {
   dbQuery,
@@ -42,22 +39,24 @@ import {
   SQLStatement,
   mergeAndConditions,
 } from '../database/database';
-import createIDs from './id-creator';
 import { deleteUpdatesByConditions } from '../deleters/update-deleters';
-import {
-  fetchThreadInfos,
-  type FetchThreadInfosResult,
-} from '../fetchers/thread-fetchers';
-import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import {
   fetchEntryInfos,
   fetchEntryInfosByID,
 } from '../fetchers/entry-fetchers';
+import { fetchMessageInfos } from '../fetchers/message-fetchers';
+import {
+  fetchThreadInfos,
+  type FetchThreadInfosResult,
+} from '../fetchers/thread-fetchers';
 import {
   fetchKnownUserInfos,
   fetchLoggedInUserInfos,
 } from '../fetchers/user-fetchers';
+import type { Viewer } from '../session/viewer';
 import { channelNameForUpdateTarget, publisher } from '../socket/redis';
+
+import createIDs from './id-creator';
 
 export type UpdatesForCurrentSession =
   // This is the default if no Viewer is passed, or if an isSocket Viewer is

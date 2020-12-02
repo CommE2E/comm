@@ -1,26 +1,22 @@
 // @flow
 
-import {
-  messageTypes,
-  messageDataLocalID,
-  type MessageData,
-  type RawMessageInfo,
-} from 'lib/types/message-types';
-import { threadPermissions } from 'lib/types/thread-types';
-import { updateTypes } from 'lib/types/update-types';
-import { redisMessageTypes } from 'lib/types/redis-types';
-import type { Viewer } from '../session/viewer';
-import type { UpdatesForCurrentSession } from './update-creator';
-
 import invariant from 'invariant';
-
+import { permissionLookup } from 'lib/permissions/thread-permissions';
 import {
   rawMessageInfoFromMessageData,
   messageTypeGeneratesNotifs,
   shimUnsupportedRawMessageInfos,
   stripLocalIDs,
 } from 'lib/shared/message-utils';
-import { permissionLookup } from 'lib/permissions/thread-permissions';
+import {
+  messageTypes,
+  messageDataLocalID,
+  type MessageData,
+  type RawMessageInfo,
+} from 'lib/types/message-types';
+import { redisMessageTypes } from 'lib/types/redis-types';
+import { threadPermissions } from 'lib/types/thread-types';
+import { updateTypes } from 'lib/types/update-types';
 
 import {
   dbQuery,
@@ -28,15 +24,18 @@ import {
   appendSQLArray,
   mergeOrConditions,
 } from '../database/database';
-import createIDs from './id-creator';
-import { sendPushNotifs } from '../push/send';
-import { createUpdates } from './update-creator';
-import { handleAsyncPromise } from '../responders/handlers';
-import { earliestFocusedTimeConsideredCurrent } from '../shared/focused-times';
-import { fetchOtherSessionsForViewer } from '../fetchers/session-fetchers';
-import { publisher } from '../socket/redis';
 import { fetchMessageInfoForLocalID } from '../fetchers/message-fetchers';
+import { fetchOtherSessionsForViewer } from '../fetchers/session-fetchers';
+import { sendPushNotifs } from '../push/send';
+import { handleAsyncPromise } from '../responders/handlers';
+import type { Viewer } from '../session/viewer';
+import { earliestFocusedTimeConsideredCurrent } from '../shared/focused-times';
+import { publisher } from '../socket/redis';
 import { creationString } from '../utils/idempotent';
+
+import createIDs from './id-creator';
+import type { UpdatesForCurrentSession } from './update-creator';
+import { createUpdates } from './update-creator';
 
 type UserThreadInfo = {|
   +devices: Map<

@@ -1,6 +1,6 @@
 // @flow
 
-import type { Viewer } from '../session/viewer';
+import invariant from 'invariant';
 import type {
   UpdateActivityResult,
   UpdateActivityRequest,
@@ -10,28 +10,26 @@ import type {
 import { messageTypes } from 'lib/types/message-types';
 import { threadPermissions } from 'lib/types/thread-types';
 import { updateTypes } from 'lib/types/update-types';
-
-import invariant from 'invariant';
+import { ServerError } from 'lib/utils/errors';
 import _difference from 'lodash/fp/difference';
 import _max from 'lodash/fp/max';
 
-import { ServerError } from 'lib/utils/errors';
-
+import { createUpdates } from '../creators/update-creator';
 import {
   dbQuery,
   SQL,
   mergeOrConditions,
   SQLStatement,
 } from '../database/database';
-import { rescindPushNotifs } from '../push/rescind';
-import { updateBadgeCount } from '../push/send';
-import { createUpdates } from '../creators/update-creator';
 import { deleteActivityForViewerSession } from '../deleters/activity-deleters';
-import { earliestFocusedTimeConsideredCurrent } from '../shared/focused-times';
 import {
   checkThread,
   checkThreads,
 } from '../fetchers/thread-permission-fetchers';
+import { rescindPushNotifs } from '../push/rescind';
+import { updateBadgeCount } from '../push/send';
+import type { Viewer } from '../session/viewer';
+import { earliestFocusedTimeConsideredCurrent } from '../shared/focused-times';
 
 type PartialThreadStatus = {|
   +focusActive: boolean,

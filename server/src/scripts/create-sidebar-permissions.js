@@ -6,8 +6,9 @@ import {
 } from 'lib/types/thread-types';
 
 import { dbQuery, SQL } from '../database/database';
-import { endScript } from './utils';
 import { recalculateAllThreadPermissions } from '../updaters/thread-permission-updaters';
+
+import { endScript } from './utils';
 
 async function main() {
   try {

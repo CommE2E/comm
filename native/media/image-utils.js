@@ -1,14 +1,12 @@
 // @flow
 
+import * as ImageManipulator from 'expo-image-manipulator';
+import { getImageProcessingPlan } from 'lib/media/image-utils';
 import type {
   Dimensions,
   MediaMissionStep,
   MediaMissionFailure,
 } from 'lib/types/media-types';
-
-import * as ImageManipulator from 'expo-image-manipulator';
-
-import { getImageProcessingPlan } from 'lib/media/image-utils';
 import { getMessageForException } from 'lib/utils/errors';
 
 type ProcessImageInfo = {|

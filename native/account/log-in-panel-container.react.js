@@ -1,25 +1,24 @@
 // @flow
 
-import type { InnerLogInPanel, LogInState } from './log-in-panel.react';
+import invariant from 'invariant';
+import { connect } from 'lib/utils/redux-utils';
+import sleep from 'lib/utils/sleep';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import Animated from 'react-native-reanimated';
+import Icon from 'react-native-vector-icons/FontAwesome';
+
+import type { AppState } from '../redux/redux-setup';
+import { runTiming } from '../utils/animation-utils';
 import {
   type StateContainer,
   stateContainerPropType,
 } from '../utils/state-container';
-import type { AppState } from '../redux/redux-setup';
 
-import * as React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import invariant from 'invariant';
-import PropTypes from 'prop-types';
-import Animated from 'react-native-reanimated';
-
-import sleep from 'lib/utils/sleep';
-import { connect } from 'lib/utils/redux-utils';
-
-import LogInPanel from './log-in-panel.react';
 import ForgotPasswordPanel from './forgot-password-panel.react';
-import { runTiming } from '../utils/animation-utils';
+import LogInPanel from './log-in-panel.react';
+import type { InnerLogInPanel, LogInState } from './log-in-panel.react';
 
 type LogInMode = 'log-in' | 'forgot-password' | 'forgot-password-success';
 const modeNumbers: { [LogInMode]: number } = {

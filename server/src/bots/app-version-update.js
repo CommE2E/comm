@@ -1,16 +1,15 @@
 // @flow
 
-import { messageTypes } from 'lib/types/message-types';
-
 import invariant from 'invariant';
-
 import bots from 'lib/facts/bots';
+import { messageTypes } from 'lib/types/message-types';
 import { promiseAll } from 'lib/utils/promises';
 
-import { dbQuery, SQL } from '../database/database';
-import { createSquadbotThread } from './squadbot';
 import createMessages from '../creators/message-creator';
+import { dbQuery, SQL } from '../database/database';
 import { createBotViewer } from '../session/bots';
+
+import { createSquadbotThread } from './squadbot';
 
 const thirtyDays = 30 * 24 * 60 * 60 * 1000;
 const { squadbot } = bots;

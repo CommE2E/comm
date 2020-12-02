@@ -1,47 +1,46 @@
 // @flow
 
-import type { HistoryMode, HistoryRevisionInfo } from 'lib/types/history-types';
-import type {
-  EntryInfo,
-  CalendarQuery,
-  FetchEntryInfosResult,
-} from 'lib/types/entry-types';
-import { entryInfoPropType } from 'lib/types/entry-types';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import type { AppState } from '../../redux/redux-setup';
-import {
-  type CalendarFilter,
-  calendarFilterPropType,
-} from 'lib/types/filter-types';
-
-import * as React from 'react';
-import invariant from 'invariant';
 import classNames from 'classnames';
 import dateFormat from 'dateformat';
-import _flow from 'lodash/fp/flow';
-import _unionBy from 'lodash/fp/unionBy';
-import _map from 'lodash/fp/map';
-import _filter from 'lodash/fp/filter';
-import PropTypes from 'prop-types';
-
-import { dateFromString } from 'lib/utils/date-utils';
+import invariant from 'invariant';
 import {
   fetchEntriesActionTypes,
   fetchEntries,
   fetchRevisionsForEntryActionTypes,
   fetchRevisionsForEntry,
 } from 'lib/actions/entry-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { connect } from 'lib/utils/redux-utils';
 import { nonExcludeDeletedCalendarFiltersSelector } from 'lib/selectors/calendar-filter-selectors';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import type {
+  EntryInfo,
+  CalendarQuery,
+  FetchEntryInfosResult,
+} from 'lib/types/entry-types';
+import { entryInfoPropType } from 'lib/types/entry-types';
+import {
+  type CalendarFilter,
+  calendarFilterPropType,
+} from 'lib/types/filter-types';
+import type { HistoryMode, HistoryRevisionInfo } from 'lib/types/history-types';
+import type { LoadingStatus } from 'lib/types/loading-types';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import { dateFromString } from 'lib/utils/date-utils';
+import { connect } from 'lib/utils/redux-utils';
+import _filter from 'lodash/fp/filter';
+import _flow from 'lodash/fp/flow';
+import _map from 'lodash/fp/map';
+import _unionBy from 'lodash/fp/unionBy';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 
-import css from './history.css';
-import Modal from '../modal.react';
 import LoadingIndicator from '../../loading-indicator.react';
+import type { AppState } from '../../redux/redux-setup';
+import { allDaysToEntries } from '../../selectors/entry-selectors';
+import Modal from '../modal.react';
+
 import HistoryEntry from './history-entry.react';
 import HistoryRevision from './history-revision.react';
-import { allDaysToEntries } from '../../selectors/entry-selectors';
+import css from './history.css';
 
 type Props = {
   mode: HistoryMode,

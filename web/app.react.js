@@ -1,24 +1,10 @@
 // @flow
 
-import type { LoadingStatus } from 'lib/types/loading-types';
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import {
-  verifyField,
-  type ServerVerificationResult,
-  serverVerificationResultPropType,
-} from 'lib/types/verify-types';
-
-import * as React from 'react';
-import invariant from 'invariant';
-import _isEqual from 'lodash/fp/isEqual';
-import PropTypes from 'prop-types';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendar, faComments } from '@fortawesome/free-solid-svg-icons';
 import { config as faConfig } from '@fortawesome/fontawesome-svg-core';
+import { faCalendar, faComments } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import { DndProvider } from 'react-dnd';
-
+import invariant from 'invariant';
 import {
   fetchEntriesActionTypes,
   updateCalendarQueryActionTypes,
@@ -27,33 +13,45 @@ import {
   createLoadingStatusSelector,
   combineLoadingStatuses,
 } from 'lib/selectors/loading-selectors';
-import { connect } from 'lib/utils/redux-utils';
-import { registerConfig } from 'lib/utils/config';
 import {
   mostRecentReadThreadSelector,
   unreadCount,
 } from 'lib/selectors/thread-selectors';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
+import type { LoadingStatus } from 'lib/types/loading-types';
+import {
+  verifyField,
+  type ServerVerificationResult,
+  serverVerificationResultPropType,
+} from 'lib/types/verify-types';
+import type { DispatchActionPayload } from 'lib/utils/action-utils';
+import { registerConfig } from 'lib/utils/config';
+import { connect } from 'lib/utils/redux-utils';
+import _isEqual from 'lodash/fp/isEqual';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
-import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
-import css from './style.css';
 import AccountBar from './account-bar.react';
 import Calendar from './calendar/calendar.react';
+import Chat from './chat/chat.react';
+import InputStateContainer from './input/input-state-container.react';
+import LoadingIndicator from './loading-indicator.react';
 import ResetPasswordModal from './modals/account/reset-password-modal.react';
 import VerificationModal from './modals/account/verification-modal.react';
-import LoadingIndicator from './loading-indicator.react';
-import history from './router-history';
+import FocusHandler from './redux/focus-handler.react';
 import {
   type AppState,
   type NavInfo,
   navInfoPropType,
   updateNavInfoActionType,
 } from './redux/redux-setup';
-import Splash from './splash/splash.react';
-import Chat from './chat/chat.react';
 import VisibilityHandler from './redux/visibility-handler.react';
-import FocusHandler from './redux/focus-handler.react';
-import InputStateContainer from './input/input-state-container.react';
+import history from './router-history';
+import Splash from './splash/splash.react';
+import css from './style.css';
+import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
 
 // We want Webpack's css-loader and style-loader to handle the Fontawesome CSS,
 // so we disable the autoAddCss logic and import the CSS file. Otherwise every

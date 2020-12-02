@@ -6,7 +6,6 @@ import type {
   MediaMissionStep,
   MediaMissionFailure,
 } from 'lib/types/media-types';
-
 import { getMessageForException } from 'lib/utils/errors';
 
 import { probeFile } from './blob-utils';

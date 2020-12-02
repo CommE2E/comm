@@ -1,22 +1,21 @@
 // @flow
 
-import type { TextStyle } from '../types/styles';
 import { type UserListItem, userListItemPropType } from 'lib/types/user-types';
-import type { AppState } from '../redux/redux-setup';
-
-import React from 'react';
-import PropTypes from 'prop-types';
-import { FlatList, Text } from 'react-native';
-import _sum from 'lodash/fp/sum';
-
 import { connect } from 'lib/utils/redux-utils';
+import _sum from 'lodash/fp/sum';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { FlatList, Text } from 'react-native';
 
-import { UserListUser, getUserListItemHeight } from './user-list-user.react';
+import type { AppState } from '../redux/redux-setup';
 import {
   type IndicatorStyle,
   indicatorStylePropType,
   indicatorStyleSelector,
 } from '../themes/colors';
+import type { TextStyle } from '../types/styles';
+
+import { UserListUser, getUserListItemHeight } from './user-list-user.react';
 
 type Props = {
   userInfos: $ReadOnlyArray<UserListItem>,

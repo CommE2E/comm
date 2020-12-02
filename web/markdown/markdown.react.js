@@ -1,12 +1,11 @@
 // @flow
 
-import type { MarkdownRules } from './rules.react';
-
+import classNames from 'classnames';
 import * as React from 'react';
 import * as SimpleMarkdown from 'simple-markdown';
-import classNames from 'classnames';
 
 import css from './markdown.css';
+import type { MarkdownRules } from './rules.react';
 
 type Props = {|
   +children: string,

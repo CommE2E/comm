@@ -5,22 +5,20 @@ import type {
   NavigatorPropsBase,
   ExtraNavigatorPropsBase,
 } from '@react-navigation/native';
-import type { OverlayRouterNavigationProp } from './overlay-router';
-
-import * as React from 'react';
-import { View, StyleSheet } from 'react-native';
-import Animated, { Easing } from 'react-native-reanimated';
-import invariant from 'invariant';
 import {
   useNavigationBuilder,
   createNavigatorFactory,
   NavigationHelpersContext,
 } from '@react-navigation/native';
-
+import invariant from 'invariant';
 import { values } from 'lib/utils/objects';
+import * as React from 'react';
+import { View, StyleSheet } from 'react-native';
+import Animated, { Easing } from 'react-native-reanimated';
 
-import OverlayRouter from './overlay-router';
 import { OverlayContext } from './overlay-context';
+import OverlayRouter from './overlay-router';
+import type { OverlayRouterNavigationProp } from './overlay-router';
 import { scrollBlockingModals, TabNavigatorRouteName } from './route-names';
 
 /* eslint-disable import/no-named-as-default-member */

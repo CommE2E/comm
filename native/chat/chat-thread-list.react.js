@@ -1,28 +1,22 @@
 // @flow
 
-import type { ThreadInfo } from 'lib/types/thread-types';
-import type { TabNavigationProp } from '../navigation/app-navigator.react';
-import type {
-  ChatTopTabsNavigationProp,
-  ChatNavigationProp,
-} from './chat.react';
-
-import * as React from 'react';
-import { View, FlatList, Platform, TextInput } from 'react-native';
-import IonIcon from 'react-native-vector-icons/Ionicons';
-import _sum from 'lodash/fp/sum';
-import { FloatingAction } from 'react-native-floating-action';
-import { createSelector } from 'reselect';
 import invariant from 'invariant';
-
-import { threadSearchIndex as threadSearchIndexSelector } from 'lib/selectors/nav-selectors';
-import SearchIndex from 'lib/shared/search-index';
 import {
   type ChatThreadItem,
   chatListData,
 } from 'lib/selectors/chat-selectors';
+import { threadSearchIndex as threadSearchIndexSelector } from 'lib/selectors/nav-selectors';
+import SearchIndex from 'lib/shared/search-index';
+import type { ThreadInfo } from 'lib/types/thread-types';
+import _sum from 'lodash/fp/sum';
+import * as React from 'react';
+import { View, FlatList, Platform, TextInput } from 'react-native';
+import { FloatingAction } from 'react-native-floating-action';
+import IonIcon from 'react-native-vector-icons/Ionicons';
+import { createSelector } from 'reselect';
 
-import ChatThreadListItem from './chat-thread-list-item.react';
+import Search from '../components/search.react';
+import type { TabNavigationProp } from '../navigation/app-navigator.react';
 import {
   ComposeThreadRouteName,
   MessageListRouteName,
@@ -31,13 +25,18 @@ import {
   BackgroundChatThreadListRouteName,
   type NavigationRoute,
 } from '../navigation/route-names';
+import { useSelector } from '../redux/redux-utils';
 import {
   type IndicatorStyle,
   indicatorStyleSelector,
   useStyles,
 } from '../themes/colors';
-import Search from '../components/search.react';
-import { useSelector } from '../redux/redux-utils';
+
+import ChatThreadListItem from './chat-thread-list-item.react';
+import type {
+  ChatTopTabsNavigationProp,
+  ChatNavigationProp,
+} from './chat.react';
 
 const floatingActions = [
   {

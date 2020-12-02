@@ -1,35 +1,34 @@
 // @flow
 
-import type { LoadingStatus } from 'lib/types/loading-types';
+import invariant from 'invariant';
+import { registerActionTypes, register } from 'lib/actions/user-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { validUsernameRegex, validEmailRegex } from 'lib/shared/account-utils';
 import type {
   RegisterInfo,
   LogInExtraInfo,
   RegisterResult,
   LogInStartingPayload,
 } from 'lib/types/account-types';
-import { type StateContainer } from '../utils/state-container';
-
-import React from 'react';
-import { View, StyleSheet, Platform, Keyboard, Alert } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import invariant from 'invariant';
-import Animated from 'react-native-reanimated';
-
-import { registerActionTypes, register } from 'lib/actions/user-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { validUsernameRegex, validEmailRegex } from 'lib/shared/account-utils';
+import type { LoadingStatus } from 'lib/types/loading-types';
 import {
   useServerCall,
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/action-utils';
+import React from 'react';
+import { View, StyleSheet, Platform, Keyboard, Alert } from 'react-native';
+import Animated from 'react-native-reanimated';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
-import { TextInput } from './modal-components.react';
-import { PanelButton, Panel } from './panel-components.react';
-import { setNativeCredentials } from './native-credentials';
-import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
 import { NavContext } from '../navigation/navigation-context';
 import { useSelector } from '../redux/redux-utils';
+import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
+import { type StateContainer } from '../utils/state-container';
+
+import { TextInput } from './modal-components.react';
+import { setNativeCredentials } from './native-credentials';
+import { PanelButton, Panel } from './panel-components.react';
 
 export type RegisterState = {|
   +usernameInputText: string,

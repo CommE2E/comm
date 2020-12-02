@@ -1,16 +1,17 @@
 // @flow
 
 import type { MediaInfo } from 'lib/types/media-types';
-import type { ChatMultimediaMessageInfoItem } from './multimedia-message.react';
 
+import { intentionalSaveMedia } from '../media/save-media';
 import {
   createTooltip,
   tooltipHeight,
   type TooltipParams,
   type TooltipRoute,
 } from '../navigation/tooltip.react';
+
+import type { ChatMultimediaMessageInfoItem } from './multimedia-message.react';
 import MultimediaTooltipButton from './multimedia-tooltip-button.react';
-import { intentionalSaveMedia } from '../media/save-media';
 
 export type MultimediaTooltipModalParams = TooltipParams<{|
   +item: ChatMultimediaMessageInfoItem,

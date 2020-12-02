@@ -1,7 +1,5 @@
 // @flow
 
-import type { ViewStyle } from '../types/styles';
-
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import {
@@ -11,6 +9,7 @@ import {
 } from 'react-native-gesture-handler';
 import Animated, { Easing } from 'react-native-reanimated';
 
+import type { ViewStyle } from '../types/styles';
 import {
   runTiming,
   useReanimatedValueForBoolean,

@@ -1,6 +1,21 @@
 // @flow
 
+import invariant from 'invariant';
+import { saveDraftActionType } from 'lib/actions/miscellaneous-action-types';
+import { joinThreadActionTypes, joinThread } from 'lib/actions/thread-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { trimMessage } from 'lib/shared/message-utils';
+import {
+  threadHasPermission,
+  viewerIsMember,
+  threadFrozenDueToViewerBlock,
+  threadActualMembers,
+} from 'lib/shared/thread-utils';
+import type { CalendarQuery } from 'lib/types/entry-types';
+import { loadingStatusPropType } from 'lib/types/loading-types';
+import type { LoadingStatus } from 'lib/types/loading-types';
 import { messageTypes } from 'lib/types/message-types';
+import type { Dispatch } from 'lib/types/redux-types';
 import {
   type ThreadInfo,
   threadInfoPropType,
@@ -8,30 +23,14 @@ import {
   type ClientThreadJoinRequest,
   type ThreadJoinPayload,
 } from 'lib/types/thread-types';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import { loadingStatusPropType } from 'lib/types/loading-types';
-import type { CalendarQuery } from 'lib/types/entry-types';
 import { type UserInfos, userInfoPropType } from 'lib/types/user-types';
 import {
-  type KeyboardState,
-  keyboardStatePropType,
-  KeyboardContext,
-} from '../keyboard/keyboard-state';
-import {
-  messageListRoutePropType,
-  messageListNavPropType,
-} from './message-list-types';
-import {
-  type InputState,
-  inputStatePropType,
-  InputStateContext,
-} from '../input/input-state';
-import type { ChatNavigationProp } from './chat.react';
-import type { NavigationRoute } from '../navigation/route-names';
-import { NavContext } from '../navigation/navigation-context';
-import type { Dispatch } from 'lib/types/redux-types';
-import type { ViewStyle } from '../types/styles';
-
+  type DispatchActionPromise,
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
+import _throttle from 'lodash/throttle';
+import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   View,
@@ -42,48 +41,48 @@ import {
   ActivityIndicator,
   TouchableWithoutFeedback,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
-import FAIcon from 'react-native-vector-icons/FontAwesome';
-import PropTypes from 'prop-types';
-import invariant from 'invariant';
-import Animated, { Easing } from 'react-native-reanimated';
 import { TextInputKeyboardMangerIOS } from 'react-native-keyboard-input';
-import _throttle from 'lodash/throttle';
+import Animated, { Easing } from 'react-native-reanimated';
+import FAIcon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { useDispatch } from 'react-redux';
 
-import { saveDraftActionType } from 'lib/actions/miscellaneous-action-types';
-import {
-  threadHasPermission,
-  viewerIsMember,
-  threadFrozenDueToViewerBlock,
-  threadActualMembers,
-} from 'lib/shared/thread-utils';
-import { joinThreadActionTypes, joinThread } from 'lib/actions/thread-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { trimMessage } from 'lib/shared/message-utils';
-import {
-  type DispatchActionPromise,
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils';
-
 import Button from '../components/button.react';
+import ClearableTextInput from '../components/clearable-text-input.react';
+import {
+  type InputState,
+  inputStatePropType,
+  InputStateContext,
+} from '../input/input-state';
+import { getKeyboardHeight } from '../keyboard/keyboard';
+import KeyboardInputHost from '../keyboard/keyboard-input-host.react';
+import {
+  type KeyboardState,
+  keyboardStatePropType,
+  KeyboardContext,
+} from '../keyboard/keyboard-state';
 import {
   nonThreadCalendarQuery,
   activeThreadSelector,
 } from '../navigation/nav-selectors';
-import { getKeyboardHeight } from '../keyboard/keyboard';
+import { NavContext } from '../navigation/navigation-context';
+import type { NavigationRoute } from '../navigation/route-names';
+import { CameraModalRouteName } from '../navigation/route-names';
+import { useSelector } from '../redux/redux-utils';
 import {
   type Colors,
   colorsPropType,
   useStyles,
   useColors,
 } from '../themes/colors';
-import { CameraModalRouteName } from '../navigation/route-names';
-import KeyboardInputHost from '../keyboard/keyboard-input-host.react';
-import ClearableTextInput from '../components/clearable-text-input.react';
+import type { ViewStyle } from '../types/styles';
 import { runTiming } from '../utils/animation-utils';
-import { useSelector } from '../redux/redux-utils';
+
+import type { ChatNavigationProp } from './chat.react';
+import {
+  messageListRoutePropType,
+  messageListNavPropType,
+} from './message-list-types';
 
 /* eslint-disable import/no-named-as-default-member */
 const {

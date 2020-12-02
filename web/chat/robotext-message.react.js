@@ -4,21 +4,20 @@ import {
   type RobotextChatMessageInfoItem,
   chatMessageItemPropType,
 } from 'lib/selectors/chat-selectors';
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import { type AppState, updateNavInfoActionType } from '../redux/redux-setup';
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import type { MessagePositionInfo } from './message-position-types';
-
-import * as React from 'react';
-import PropTypes from 'prop-types';
-
-import { splitRobotext, parseRobotextEntity } from 'lib/shared/message-utils';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import { splitRobotext, parseRobotextEntity } from 'lib/shared/message-utils';
+import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import type { DispatchActionPayload } from 'lib/utils/action-utils';
 import { connect } from 'lib/utils/redux-utils';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 
-import css from './chat-message-list.css';
 import Markdown from '../markdown/markdown.react';
 import { linkRules } from '../markdown/rules.react';
+import { type AppState, updateNavInfoActionType } from '../redux/redux-setup';
+
+import css from './chat-message-list.css';
+import type { MessagePositionInfo } from './message-position-types';
 
 type Props = {|
   item: RobotextChatMessageInfoItem,

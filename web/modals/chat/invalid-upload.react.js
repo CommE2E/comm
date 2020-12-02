@@ -1,10 +1,10 @@
 // @flow
 
-import * as React from 'react';
 import PropTypes from 'prop-types';
+import * as React from 'react';
 
-import Modal from '../modal.react';
 import css from '../../style.css';
+import Modal from '../modal.react';
 
 type Props = {|
   setModal: (modal: ?React.Node) => void,

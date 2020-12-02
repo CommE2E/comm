@@ -1,12 +1,9 @@
 // @flow
 
-import type { AppState } from '../redux/redux-setup';
-import type { LayoutEvent } from '../types/react-native';
-
-import type { ViewStyle } from '../types/styles';
-
-import * as React from 'react';
+import invariant from 'invariant';
+import { connect } from 'lib/utils/redux-utils';
 import PropTypes from 'prop-types';
+import * as React from 'react';
 import {
   View,
   Image,
@@ -18,12 +15,13 @@ import {
   Keyboard,
 } from 'react-native';
 import tinycolor from 'tinycolor2';
-import invariant from 'invariant';
 
-import { connect } from 'lib/utils/redux-utils';
+import type { AppState } from '../redux/redux-setup';
+import { type Colors, colorsPropType, colorsSelector } from '../themes/colors';
+import type { LayoutEvent } from '../types/react-native';
+import type { ViewStyle } from '../types/styles';
 
 import Button from './button.react';
-import { type Colors, colorsPropType, colorsSelector } from '../themes/colors';
 
 type PanEvent = $ReadOnly<{
   nativeEvent: $ReadOnly<{

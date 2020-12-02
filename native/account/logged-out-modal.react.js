@@ -1,11 +1,14 @@
 // @flow
 
+import invariant from 'invariant';
+import {
+  appStartNativeCredentialsAutoLogIn,
+  appStartReduxLoggedInButInvalidCookie,
+} from 'lib/actions/user-actions';
+import { isLoggedIn } from 'lib/selectors/user-selectors';
 import type { Dispatch } from 'lib/types/redux-types';
-import type { KeyboardEvent, EmitterSubscription } from '../keyboard/keyboard';
-import type { LogInState } from './log-in-panel.react';
-import type { RegisterState } from './register-panel.react';
-import type { ImageStyle } from '../types/styles';
-
+import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
+import _isEqual from 'lodash/fp/isEqual';
 import * as React from 'react';
 import {
   View,
@@ -18,48 +21,44 @@ import {
   BackHandler,
   ActivityIndicator,
 } from 'react-native';
-import invariant from 'invariant';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import _isEqual from 'lodash/fp/isEqual';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { Easing } from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { useDispatch } from 'react-redux';
 
-import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
-import {
-  appStartNativeCredentialsAutoLogIn,
-  appStartReduxLoggedInButInvalidCookie,
-} from 'lib/actions/user-actions';
-import { isLoggedIn } from 'lib/selectors/user-selectors';
-
-import LogInPanelContainer from './log-in-panel-container.react';
-import RegisterPanel from './register-panel.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
-import { createIsForegroundSelector } from '../navigation/nav-selectors';
-import { resetUserStateActionType } from '../redux/action-types';
-import { splashBackgroundURI } from './background-info';
-import { splashStyleSelector } from '../splash';
+import type { KeyboardEvent, EmitterSubscription } from '../keyboard/keyboard';
 import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
   removeKeyboardListener,
 } from '../keyboard/keyboard';
-import {
-  type StateContainer,
-  type StateChange,
-  setStateForContainer,
-} from '../utils/state-container';
-import { LoggedOutModalRouteName } from '../navigation/route-names';
+import { createIsForegroundSelector } from '../navigation/nav-selectors';
 import { NavContext } from '../navigation/navigation-context';
+import { LoggedOutModalRouteName } from '../navigation/route-names';
+import { resetUserStateActionType } from '../redux/action-types';
+import { useSelector } from '../redux/redux-utils';
+import {
+  type DerivedDimensionsInfo,
+  derivedDimensionsInfoSelector,
+} from '../selectors/dimensions-selectors';
+import { splashStyleSelector } from '../splash';
+import type { ImageStyle } from '../types/styles';
 import {
   runTiming,
   ratchetAlongWithKeyboardHeight,
 } from '../utils/animation-utils';
 import {
-  type DerivedDimensionsInfo,
-  derivedDimensionsInfoSelector,
-} from '../selectors/dimensions-selectors';
-import { useSelector } from '../redux/redux-utils';
+  type StateContainer,
+  type StateChange,
+  setStateForContainer,
+} from '../utils/state-container';
+
+import { splashBackgroundURI } from './background-info';
+import LogInPanelContainer from './log-in-panel-container.react';
+import type { LogInState } from './log-in-panel.react';
+import RegisterPanel from './register-panel.react';
+import type { RegisterState } from './register-panel.react';
 
 let initialAppLoad = true;
 const safeAreaEdges = ['top', 'bottom'];

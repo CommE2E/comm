@@ -1,17 +1,15 @@
 // @flow
 
-import type {
-  MediaMissionStep,
-  MediaMissionFailure,
-} from 'lib/types/media-types';
-
 import base64 from 'base-64';
 import invariant from 'invariant';
-
 import {
   fileInfoFromData,
   bytesNeededForFileTypeCheck,
 } from 'lib/media/file-utils';
+import type {
+  MediaMissionStep,
+  MediaMissionFailure,
+} from 'lib/types/media-types';
 import { getMessageForException } from 'lib/utils/errors';
 
 import { getFetchableURI } from './identifier-utils';

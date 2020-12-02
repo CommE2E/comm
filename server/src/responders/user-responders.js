@@ -1,10 +1,6 @@
 // @flow
 
-import type {
-  SubscriptionUpdateRequest,
-  SubscriptionUpdateResponse,
-} from 'lib/types/subscription-types';
-import type { AccountUpdate } from 'lib/types/user-types';
+import invariant from 'invariant';
 import type {
   ResetPasswordRequest,
   LogOutResponse,
@@ -16,24 +12,40 @@ import type {
   UpdatePasswordRequest,
   AccessRequest,
 } from 'lib/types/account-types';
-import type { Viewer } from '../session/viewer';
-
+import { defaultNumberPerThread } from 'lib/types/message-types';
+import type {
+  SubscriptionUpdateRequest,
+  SubscriptionUpdateResponse,
+} from 'lib/types/subscription-types';
+import type { AccountUpdate } from 'lib/types/user-types';
+import { ServerError } from 'lib/utils/errors';
+import { values } from 'lib/utils/objects';
+import { promiseAll } from 'lib/utils/promises';
 import t from 'tcomb';
 import bcrypt from 'twin-bcrypt';
-import invariant from 'invariant';
 
-import { ServerError } from 'lib/utils/errors';
-import { promiseAll } from 'lib/utils/promises';
-import { defaultNumberPerThread } from 'lib/types/message-types';
-import { values } from 'lib/utils/objects';
-
-import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters';
+import createAccount from '../creators/account-creator';
+import { dbQuery, SQL } from '../database/database';
+import { deleteAccount } from '../deleters/account-deleters';
+import { deleteCookie } from '../deleters/cookie-deleters';
+import { sendAccessRequestEmailToAshoat } from '../emails/access-request';
+import { fetchEntryInfos } from '../fetchers/entry-fetchers';
+import { fetchMessageInfos } from '../fetchers/message-fetchers';
+import { fetchThreadInfos } from '../fetchers/thread-fetchers';
+import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
+import {
+  createNewAnonymousCookie,
+  createNewUserCookie,
+  setNewSession,
+} from '../session/cookies';
+import type { Viewer } from '../session/viewer';
 import {
   accountUpdater,
   checkAndSendVerificationEmail,
   checkAndSendPasswordResetEmail,
   updatePassword,
 } from '../updaters/account-updaters';
+import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters';
 import {
   validateInput,
   tShape,
@@ -41,26 +53,13 @@ import {
   tDeviceType,
   tPassword,
 } from '../utils/validation-utils';
-import {
-  createNewAnonymousCookie,
-  createNewUserCookie,
-  setNewSession,
-} from '../session/cookies';
-import { deleteCookie } from '../deleters/cookie-deleters';
-import { deleteAccount } from '../deleters/account-deleters';
-import createAccount from '../creators/account-creator';
+
 import {
   entryQueryInputValidator,
   newEntryQueryInputValidator,
   normalizeCalendarQuery,
   verifyCalendarQueryThreadIDs,
 } from './entry-responders';
-import { dbQuery, SQL } from '../database/database';
-import { fetchMessageInfos } from '../fetchers/message-fetchers';
-import { fetchEntryInfos } from '../fetchers/entry-fetchers';
-import { sendAccessRequestEmailToAshoat } from '../emails/access-request';
-import { fetchThreadInfos } from '../fetchers/thread-fetchers';
-import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
 
 const subscriptionUpdateRequestInputValidator = tShape({
   threadID: t.String,

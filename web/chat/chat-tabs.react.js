@@ -1,17 +1,16 @@
 // @flow
 
+import { unreadBackgroundCount } from 'lib/selectors/thread-selectors';
+import { connect } from 'lib/utils/redux-utils';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+
 import type { AppState } from '../redux/redux-setup';
 
-import * as React from 'react';
-import PropTypes from 'prop-types';
-
-import { connect } from 'lib/utils/redux-utils';
-import { unreadBackgroundCount } from 'lib/selectors/thread-selectors';
-
-import ChatThreadTab from './chat-thread-tab.react';
 import css from './chat-tabs.css';
-import ChatThreadHome from './chat-thread-home.react';
 import ChatThreadBackground from './chat-thread-background.react';
+import ChatThreadHome from './chat-thread-home.react';
+import ChatThreadTab from './chat-thread-tab.react';
 
 type Props = {|
   unreadBackgroundCount: ?number,

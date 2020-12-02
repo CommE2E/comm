@@ -1,18 +1,43 @@
 // @flow
 
-import type { JSONResponder } from './responders/handlers';
 import type { Endpoint } from 'lib/types/endpoints';
 
-import {
-  textMessageCreationResponder,
-  messageFetchResponder,
-  multimediaMessageCreationResponder,
-} from './responders/message-responders';
 import {
   updateActivityResponder,
   threadSetUnreadStatusResponder,
 } from './responders/activity-responders';
 import { deviceTokenUpdateResponder } from './responders/device-responders';
+import {
+  entryFetchResponder,
+  entryRevisionFetchResponder,
+  entryCreationResponder,
+  entryUpdateResponder,
+  entryDeletionResponder,
+  entryRestorationResponder,
+  calendarQueryUpdateResponder,
+} from './responders/entry-responders';
+import type { JSONResponder } from './responders/handlers';
+import {
+  textMessageCreationResponder,
+  messageFetchResponder,
+  multimediaMessageCreationResponder,
+} from './responders/message-responders';
+import { updateRelationshipsResponder } from './responders/relationship-responders';
+import {
+  reportCreationResponder,
+  reportMultiCreationResponder,
+  errorReportFetchInfosResponder,
+} from './responders/report-responders';
+import { userSearchResponder } from './responders/search-responders';
+import {
+  threadDeletionResponder,
+  roleUpdateResponder,
+  memberRemovalResponder,
+  threadLeaveResponder,
+  threadUpdateResponder,
+  threadCreationResponder,
+  threadJoinResponder,
+} from './responders/thread-responders';
 import {
   userSubscriptionUpdateResponder,
   accountUpdateResponder,
@@ -25,32 +50,7 @@ import {
   passwordUpdateResponder,
   requestAccessResponder,
 } from './responders/user-responders';
-import { updateRelationshipsResponder } from './responders/relationship-responders';
-import { userSearchResponder } from './responders/search-responders';
-import {
-  entryFetchResponder,
-  entryRevisionFetchResponder,
-  entryCreationResponder,
-  entryUpdateResponder,
-  entryDeletionResponder,
-  entryRestorationResponder,
-  calendarQueryUpdateResponder,
-} from './responders/entry-responders';
 import { codeVerificationResponder } from './responders/verification-responders';
-import {
-  threadDeletionResponder,
-  roleUpdateResponder,
-  memberRemovalResponder,
-  threadLeaveResponder,
-  threadUpdateResponder,
-  threadCreationResponder,
-  threadJoinResponder,
-} from './responders/thread-responders';
-import {
-  reportCreationResponder,
-  reportMultiCreationResponder,
-  errorReportFetchInfosResponder,
-} from './responders/report-responders';
 import { uploadDeletionResponder } from './uploads/uploads';
 
 const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {

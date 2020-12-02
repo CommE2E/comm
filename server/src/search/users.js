@@ -1,7 +1,7 @@
 // @flow
 
-import type { GlobalAccountUserInfo } from 'lib/types/user-types';
 import type { UserSearchRequest } from 'lib/types/search-types';
+import type { GlobalAccountUserInfo } from 'lib/types/user-types';
 
 import { dbQuery, SQL } from '../database/database';
 

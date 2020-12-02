@@ -1,16 +1,14 @@
 // @flow
 
-import type { TextStyle } from '../types/styles';
-import type { AppState } from '../redux/redux-setup';
-import type { Colors } from '../themes/colors';
-
+import { connect } from 'lib/utils/redux-utils';
 import * as React from 'react';
 import { TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-import { connect } from 'lib/utils/redux-utils';
-
+import type { AppState } from '../redux/redux-setup';
+import type { Colors } from '../themes/colors';
 import { colorsSelector } from '../themes/colors';
+import type { TextStyle } from '../types/styles';
 
 type Props = {|
   onPress: () => void,

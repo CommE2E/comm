@@ -1,17 +1,12 @@
 // @flow
 
-import type { ViewStyle, ImageStyle } from '../types/styles';
 import {
   type MediaLibrarySelection,
   mediaLibrarySelectionPropType,
 } from 'lib/types/media-types';
-import {
-  type DimensionsInfo,
-  dimensionsInfoPropType,
-} from '../redux/dimensions-updater.react';
-
-import * as React from 'react';
+import LottieView from 'lottie-react-native';
 import PropTypes from 'prop-types';
+import * as React from 'react';
 import {
   TouchableOpacity,
   StyleSheet,
@@ -21,14 +16,19 @@ import {
   Animated,
   Easing,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import LottieView from 'lottie-react-native';
 import Reanimated, {
   Easing as ReanimatedEasing,
 } from 'react-native-reanimated';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import Video from 'react-native-video';
+
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
+import {
+  type DimensionsInfo,
+  dimensionsInfoPropType,
+} from '../redux/dimensions-updater.react';
+import type { ViewStyle, ImageStyle } from '../types/styles';
 
 const animatedSpec = {
   duration: 400,
