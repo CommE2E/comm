@@ -27,6 +27,7 @@ import {
 import { sortIDs } from 'lib/shared/relationship-utils';
 import { ServerError } from 'lib/utils/errors';
 import { cartesianProduct } from 'lib/utils/array';
+import bots from 'lib/facts/bots';
 
 import {
   fetchServerThreadInfos,
@@ -44,6 +45,7 @@ import {
 import { rescindPushNotifs } from '../push/rescind';
 
 import { dbQuery, SQL, mergeOrConditions } from '../database/database';
+import { createScriptViewer } from '../session/scripts';
 
 export type MembershipRowToSave = {|
   operation: 'update' | 'join',
@@ -744,6 +746,26 @@ function getParentThreadRelationshipRowsForNewUsers(
   });
 }
 
+async function recalculateAllThreadPermissions() {
+  const getAllThreads = SQL`SELECT id, type FROM threads`;
+  const [result] = await dbQuery(getAllThreads);
+
+  // We handle each thread one-by-one to avoid a situation where a permission
+  // calculation for a child thread, done during a call to
+  // recalculateAllPermissions for the parent thread, can be incorrectly
+  // overriden by a call to recalculateAllPermissions for the child thread. If
+  // the changeset resulting from the parent call isn't committed before the
+  // calculation is done for the child, the calculation done for the child can
+  // be incorrect.
+  const viewer = createScriptViewer(bots.squadbot.userID);
+  for (const row of result) {
+    const threadID = row.id.toString();
+    const threadType = assertThreadType(row.type);
+    const changeset = await recalculateAllPermissions(threadID, threadType);
+    await commitMembershipChangeset(viewer, changeset);
+  }
+}
+
 export {
   changeRole,
   recalculateAllPermissions,
@@ -752,4 +774,5 @@ export {
   setJoinsToUnread,
   getRelationshipRowsForUsers,
   getParentThreadRelationshipRowsForNewUsers,
+  recalculateAllThreadPermissions,
 };
