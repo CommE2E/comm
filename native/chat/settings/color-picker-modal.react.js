@@ -6,28 +6,24 @@ import {
 } from 'lib/actions/thread-actions';
 import {
   type ThreadInfo,
-  threadInfoPropType,
   type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
 } from 'lib/types/thread-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
-import PropTypes from 'prop-types';
+import {
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
 import * as React from 'react';
 import { TouchableHighlight, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { useSelector } from 'react-redux';
 
 import ColorPicker from '../../components/color-picker.react';
 import Modal from '../../components/modal.react';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react';
 import type { NavigationRoute } from '../../navigation/route-names';
-import type { AppState } from '../../redux/redux-setup';
-import {
-  type Colors,
-  colorsPropType,
-  colorsSelector,
-  styleSelector,
-} from '../../themes/colors';
+import { type Colors, useStyles, useColors } from '../../themes/colors';
 
 export type ColorPickerModalParams = {|
   presentedFrom: string,
@@ -36,39 +32,24 @@ export type ColorPickerModalParams = {|
   setColor: (color: string) => void,
 |};
 
+type BaseProps = {|
+  +navigation: RootNavigationProp<'ColorPickerModal'>,
+  +route: NavigationRoute<'ColorPickerModal'>,
+|};
 type Props = {|
-  navigation: RootNavigationProp<'ColorPickerModal'>,
-  route: NavigationRoute<'ColorPickerModal'>,
+  ...BaseProps,
   // Redux state
-  colors: Colors,
-  styles: typeof styles,
-  windowWidth: number,
+  +colors: Colors,
+  +styles: typeof unboundStyles,
+  +windowWidth: number,
   // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  changeThreadSettings: (
+  +changeThreadSettings: (
     request: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsPayload>,
 |};
 class ColorPickerModal extends React.PureComponent<Props> {
-  static propTypes = {
-    navigation: PropTypes.shape({
-      goBackOnce: PropTypes.func.isRequired,
-    }).isRequired,
-    route: PropTypes.shape({
-      params: PropTypes.shape({
-        color: PropTypes.string.isRequired,
-        threadInfo: threadInfoPropType.isRequired,
-        setColor: PropTypes.func.isRequired,
-      }).isRequired,
-    }).isRequired,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    windowWidth: PropTypes.number.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    changeThreadSettings: PropTypes.func.isRequired,
-  };
-
   render() {
     const { color, threadInfo } = this.props.route.params;
     // Based on the assumption we are always in portrait,
@@ -139,7 +120,7 @@ class ColorPickerModal extends React.PureComponent<Props> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   closeButton: {
     borderRadius: 3,
     height: 18,
@@ -168,13 +149,25 @@ const styles = {
     marginVertical: 20,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-export default connect(
-  (state: AppState) => ({
-    colors: colorsSelector(state),
-    styles: stylesSelector(state),
-    windowWidth: state.dimensions.width,
-  }),
-  { changeThreadSettings },
-)(ColorPickerModal);
+export default React.memo<BaseProps>(function ConnectedColorPickerModal(
+  props: BaseProps,
+) {
+  const styles = useStyles(unboundStyles);
+  const colors = useColors();
+  const windowWidth = useSelector((state) => state.dimensions.width);
+
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callChangeThreadSettings = useServerCall(changeThreadSettings);
+
+  return (
+    <ColorPickerModal
+      {...props}
+      styles={styles}
+      colors={colors}
+      windowWidth={windowWidth}
+      dispatchActionPromise={dispatchActionPromise}
+      changeThreadSettings={callChangeThreadSettings}
+    />
+  );
+});
