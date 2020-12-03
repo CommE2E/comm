@@ -1,25 +1,22 @@
 // @flow
 
 import { longAbsoluteDate } from 'lib/utils/date-utils';
-import { connect } from 'lib/utils/redux-utils';
 import * as React from 'react';
 
 import { SingleLine } from '../components/single-line.react';
-import type { AppState } from '../redux/redux-setup';
-import { styleSelector } from '../themes/colors';
+import { useStyles } from '../themes/colors';
 
 export type DisplayType = 'lowContrast' | 'modal';
 
 type Props = {|
-  time: number,
-  display: DisplayType,
-  // Redux state
-  styles: typeof styles,
+  +time: number,
+  +display: DisplayType,
 |};
 function Timestamp(props: Props) {
-  const style = [props.styles.timestamp];
+  const styles = useStyles(unboundStyles);
+  const style = [styles.timestamp];
   if (props.display === 'modal') {
-    style.push(props.styles.modal);
+    style.push(styles.modal);
   }
   return (
     <SingleLine style={style}>
@@ -30,7 +27,7 @@ function Timestamp(props: Props) {
 
 const timestampHeight = 26;
 
-const styles = {
+const unboundStyles = {
   modal: {
     // high contrast framed against OverlayNavigator-dimmed background
     color: 'white',
@@ -44,10 +41,5 @@ const styles = {
     paddingVertical: 3,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-const WrappedTimestamp = connect((state: AppState) => ({
-  styles: stylesSelector(state),
-}))(Timestamp);
-
-export { WrappedTimestamp as Timestamp, timestampHeight };
+export { Timestamp, timestampHeight };
