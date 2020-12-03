@@ -1,37 +1,26 @@
 // @flow
 
-import { type UserListItem, userListItemPropType } from 'lib/types/user-types';
-import { connect } from 'lib/utils/redux-utils';
+import type { UserListItem } from 'lib/types/user-types';
 import _sum from 'lodash/fp/sum';
-import PropTypes from 'prop-types';
 import React from 'react';
-import { FlatList, Text } from 'react-native';
+import { FlatList } from 'react-native';
 
-import type { AppState } from '../redux/redux-setup';
-import {
-  type IndicatorStyle,
-  indicatorStylePropType,
-  indicatorStyleSelector,
-} from '../themes/colors';
+import { type IndicatorStyle, useIndicatorStyle } from '../themes/colors';
 import type { TextStyle } from '../types/styles';
 
 import { UserListUser, getUserListItemHeight } from './user-list-user.react';
 
+type BaseProps = {|
+  +userInfos: $ReadOnlyArray<UserListItem>,
+  +onSelect: (userID: string) => void,
+  +itemTextStyle?: TextStyle,
+|};
 type Props = {
-  userInfos: $ReadOnlyArray<UserListItem>,
-  onSelect: (userID: string) => void,
-  itemTextStyle?: TextStyle,
+  ...BaseProps,
   // Redux state
-  indicatorStyle: IndicatorStyle,
+  +indicatorStyle: IndicatorStyle,
 };
 class UserList extends React.PureComponent<Props> {
-  static propTypes = {
-    userInfos: PropTypes.arrayOf(userListItemPropType).isRequired,
-    onSelect: PropTypes.func.isRequired,
-    itemTextStyle: Text.propTypes.style,
-    indicatorStyle: indicatorStylePropType.isRequired,
-  };
-
   render() {
     return (
       <FlatList
@@ -74,6 +63,9 @@ class UserList extends React.PureComponent<Props> {
   }
 }
 
-export default connect((state: AppState) => ({
-  indicatorStyle: indicatorStyleSelector(state),
-}))(UserList);
+export default React.memo<BaseProps>(function ConnectedUserList(
+  props: BaseProps,
+) {
+  const indicatorStyle = useIndicatorStyle();
+  return <UserList {...props} indicatorStyle={indicatorStyle} />;
+});
