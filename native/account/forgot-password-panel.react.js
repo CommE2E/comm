@@ -11,15 +11,17 @@ import {
   validEmailRegex,
 } from 'lib/shared/account-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
-import PropTypes from 'prop-types';
+import {
+  type DispatchActionPromise,
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
 import React from 'react';
 import { StyleSheet, View, Alert, Keyboard } from 'react-native';
 import Animated from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-import type { AppState } from '../redux/redux-setup';
+import { useSelector } from '../redux/redux-utils';
 
 import {
   TextInput,
@@ -27,10 +29,13 @@ import {
 } from './modal-components.react';
 import { PanelButton, Panel } from './panel-components.react';
 
-type Props = {|
+type BaseProps = {|
   +setActiveAlert: (activeAlert: boolean) => void,
   +opacityValue: Animated.Value,
   +onSuccess: () => void,
+|};
+type Props = {|
+  ...BaseProps,
   // Redux state
   +loadingStatus: LoadingStatus,
   +usernamePlaceholder: string,
@@ -43,15 +48,6 @@ type State = {|
   +usernameOrEmailInputText: string,
 |};
 class ForgotPasswordPanel extends React.PureComponent<Props, State> {
-  static propTypes = {
-    setActiveAlert: PropTypes.func.isRequired,
-    opacityValue: PropTypes.object.isRequired,
-    onSuccess: PropTypes.func.isRequired,
-    loadingStatus: PropTypes.string.isRequired,
-    usernamePlaceholder: PropTypes.string.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    forgotPassword: PropTypes.func.isRequired,
-  };
   state: State = {
     usernameOrEmailInputText: '',
   };
@@ -172,10 +168,22 @@ const loadingStatusSelector = createLoadingStatusSelector(
   forgotPasswordActionTypes,
 );
 
-export default connect(
-  (state: AppState) => ({
-    loadingStatus: loadingStatusSelector(state),
-    usernamePlaceholder: usernamePlaceholderSelector(state),
-  }),
-  { forgotPassword },
-)(ForgotPasswordPanel);
+export default React.memo<BaseProps>(function ConnectedForgotPasswordPanel(
+  props: BaseProps,
+) {
+  const loadingStatus = useSelector(loadingStatusSelector);
+  const usernamePlaceholder = useSelector(usernamePlaceholderSelector);
+
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callForgotPassword = useServerCall(forgotPassword);
+
+  return (
+    <ForgotPasswordPanel
+      {...props}
+      loadingStatus={loadingStatus}
+      usernamePlaceholder={usernamePlaceholder}
+      dispatchActionPromise={dispatchActionPromise}
+      forgotPassword={callForgotPassword}
+    />
+  );
+});
