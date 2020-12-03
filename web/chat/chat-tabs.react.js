@@ -1,68 +1,48 @@
 // @flow
 
 import { unreadBackgroundCount } from 'lib/selectors/thread-selectors';
-import { connect } from 'lib/utils/redux-utils';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
-import type { AppState } from '../redux/redux-setup';
+import { useSelector } from '../redux/redux-utils';
 
 import css from './chat-tabs.css';
 import ChatThreadBackground from './chat-thread-background.react';
 import ChatThreadHome from './chat-thread-home.react';
 import ChatThreadTab from './chat-thread-tab.react';
 
-type Props = {|
-  unreadBackgroundCount: ?number,
-|};
-type State = {|
-  activeTab: string,
-|};
-class ChatTabs extends React.PureComponent<Props, State> {
-  static propTypes = {
-    unreadBackgroundCount: PropTypes.number,
-  };
-  state: State = {
-    activeTab: 'HOME',
-  };
-
-  onClickHome = () => {
-    this.setState({ activeTab: 'HOME' });
-  };
-
-  onClickBackground = () => {
-    this.setState({ activeTab: 'BACKGROUND' });
-  };
-
-  render() {
-    const { activeTab } = this.state;
-    const threadList =
-      activeTab === 'HOME' ? <ChatThreadHome /> : <ChatThreadBackground />;
-    let backgroundTitle = 'BACKGROUND';
-    if (this.props.unreadBackgroundCount) {
-      backgroundTitle += ` (${this.props.unreadBackgroundCount})`;
-    }
-
-    return (
-      <div className={css.container}>
-        <div className={css.tabs}>
-          <ChatThreadTab
-            title="HOME"
-            tabIsActive={this.state.activeTab === 'HOME'}
-            onClick={this.onClickHome}
-          />
-          <ChatThreadTab
-            title={backgroundTitle}
-            tabIsActive={this.state.activeTab === 'BACKGROUND'}
-            onClick={this.onClickBackground}
-          />
-        </div>
-        <div className={css.threadList}>{threadList}</div>
-      </div>
-    );
+function ChatTabs() {
+  let backgroundTitle = 'BACKGROUND';
+  const unreadBackgroundCountVal = useSelector(unreadBackgroundCount);
+  if (unreadBackgroundCountVal) {
+    backgroundTitle += ` (${unreadBackgroundCountVal})`;
   }
+
+  const [activeTab, setActiveTab] = React.useState('HOME');
+  const onClickHome = React.useCallback(() => setActiveTab('HOME'), []);
+  const onClickBackground = React.useCallback(
+    () => setActiveTab('BACKGROUND'),
+    [],
+  );
+
+  const threadList =
+    activeTab === 'HOME' ? <ChatThreadHome /> : <ChatThreadBackground />;
+  return (
+    <div className={css.container}>
+      <div className={css.tabs}>
+        <ChatThreadTab
+          title="HOME"
+          tabIsActive={activeTab === 'HOME'}
+          onClick={onClickHome}
+        />
+        <ChatThreadTab
+          title={backgroundTitle}
+          tabIsActive={activeTab === 'BACKGROUND'}
+          onClick={onClickBackground}
+        />
+      </div>
+      <div className={css.threadList}>{threadList}</div>
+    </div>
+  );
 }
 
-export default connect((state: AppState) => ({
-  unreadBackgroundCount: unreadBackgroundCount(state),
-}))(ChatTabs);
+export default ChatTabs;
