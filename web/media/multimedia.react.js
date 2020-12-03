@@ -5,6 +5,7 @@ import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import { CircularProgressbar } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 import {
   XCircle as XCircleIcon,
   AlertCircle as AlertCircleIcon,
@@ -14,9 +15,6 @@ import {
   type PendingMultimediaUpload,
   pendingMultimediaUploadPropType,
 } from '../input/input-state';
-
-import 'react-circular-progressbar/dist/styles.css';
-
 import css from './media.css';
 import MultimediaModal from './multimedia-modal.react';
 

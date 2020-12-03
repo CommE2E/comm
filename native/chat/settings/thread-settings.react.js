@@ -1,6 +1,10 @@
 // @flow
 
 import invariant from 'invariant';
+import * as React from 'react';
+import { View, FlatList, Platform } from 'react-native';
+import { createSelector } from 'reselect';
+
 import {
   changeThreadSettingsActionTypes,
   leaveThreadActionTypes,
@@ -25,9 +29,6 @@ import {
   threadPermissions,
   threadTypes,
 } from 'lib/types/thread-types';
-import * as React from 'react';
-import { View, FlatList, Platform } from 'react-native';
-import { createSelector } from 'reselect';
 
 import {
   type KeyboardState,
@@ -53,7 +54,6 @@ import {
 import type { VerticalBounds } from '../../types/layout-types';
 import type { ViewStyle } from '../../types/styles';
 import type { ChatNavigationProp } from '../chat.react';
-
 import type { CategoryType } from './thread-settings-category.react';
 import {
   ThreadSettingsCategoryHeader,

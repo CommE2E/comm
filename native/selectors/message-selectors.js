@@ -1,7 +1,8 @@
 // @flow
 
-import type { ThreadMessageInfo } from 'lib/types/message-types';
 import { createSelector } from 'reselect';
+
+import type { ThreadMessageInfo } from 'lib/types/message-types';
 
 import { activeThreadSelector } from '../navigation/nav-selectors';
 import type { AppState } from '../redux/redux-setup';

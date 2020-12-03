@@ -1,8 +1,9 @@
 // @flow
 
-import { messageStorePruneActionType } from 'lib/actions/message-actions';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
+
+import { messageStorePruneActionType } from 'lib/actions/message-actions';
 
 import { NavContext } from '../navigation/navigation-context';
 import { useSelector } from '../redux/redux-utils';

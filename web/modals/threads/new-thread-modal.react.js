@@ -1,6 +1,9 @@
 // @flow
 
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+
 import { newThreadActionTypes, newThread } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
@@ -19,13 +22,10 @@ import {
 } from 'lib/types/thread-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import { connect } from 'lib/utils/redux-utils';
-import PropTypes from 'prop-types';
-import * as React from 'react';
 
 import type { AppState } from '../../redux/redux-setup';
 import css from '../../style.css';
 import Modal from '../modal.react';
-
 import ColorPicker from './color-picker.react';
 
 type Props = {

@@ -1,11 +1,12 @@
 // @flow
 
 import invariant from 'invariant';
-import type { MediaLibrarySelection } from 'lib/types/media-types';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import { TextInput } from 'react-native';
 import { KeyboardAccessoryView } from 'react-native-keyboard-input';
+
+import type { MediaLibrarySelection } from 'lib/types/media-types';
 
 import {
   type InputState,
@@ -16,7 +17,6 @@ import { mediaGalleryKeyboardName } from '../media/media-gallery-keyboard.react'
 import { activeMessageListSelector } from '../navigation/nav-selectors';
 import { NavContext } from '../navigation/navigation-context';
 import { useStyles } from '../themes/colors';
-
 import {
   type KeyboardState,
   keyboardStatePropType,

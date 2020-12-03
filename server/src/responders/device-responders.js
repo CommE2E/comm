@@ -1,7 +1,8 @@
 // @flow
 
-import type { DeviceTokenUpdateRequest } from 'lib/types/device-types';
 import t from 'tcomb';
+
+import type { DeviceTokenUpdateRequest } from 'lib/types/device-types';
 
 import type { Viewer } from '../session/viewer';
 import { deviceTokenUpdater } from '../updaters/device-token-updaters';

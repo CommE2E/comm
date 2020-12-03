@@ -1,8 +1,9 @@
 // @flow
 
-import type { ThreadInfo } from 'lib/types/thread-types';
 import * as React from 'react';
 import { Text, View } from 'react-native';
+
+import type { ThreadInfo } from 'lib/types/thread-types';
 
 import ThreadVisibility from '../../components/thread-visibility.react';
 import { useStyles, useColors } from '../../themes/colors';

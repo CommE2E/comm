@@ -1,7 +1,6 @@
 // @flow
 
 import cluster from 'cluster';
-
 import schedule from 'node-schedule';
 
 import { botherMonthlyActivesToUpdateAppVersion } from '../bots/app-version-update';
@@ -22,7 +21,6 @@ import { deleteInaccessibleThreads } from '../deleters/thread-deleters';
 import { deleteExpiredUpdates } from '../deleters/update-deleters';
 import { deleteUnassignedUploads } from '../deleters/upload-deleters';
 import { deleteExpiredVerifications } from '../models/verification';
-
 import { backupDB } from './backups';
 import { updateAndReloadGeoipDB } from './update-geoip-db';
 

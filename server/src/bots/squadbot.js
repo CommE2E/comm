@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+
 import bots from 'lib/facts/bots';
 import { threadTypes } from 'lib/types/thread-types';
 

@@ -1,5 +1,7 @@
 // @flow
 
+import { createSelector } from 'reselect';
+
 import {
   getClientResponsesSelector,
   sessionStateFuncSelector,
@@ -13,7 +15,6 @@ import type {
   SessionIdentification,
   SessionState,
 } from 'lib/types/session-types';
-import { createSelector } from 'reselect';
 
 import type { AppState } from '../redux/redux-setup';
 

@@ -1,6 +1,10 @@
 // @flow
 
 import invariant from 'invariant';
+import * as React from 'react';
+import { Text, Alert, ActivityIndicator, TextInput, View } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+
 import {
   changeThreadSettingsActionTypes,
   changeThreadSettings,
@@ -19,9 +23,6 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
-import * as React from 'react';
-import { Text, Alert, ActivityIndicator, TextInput, View } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
 
 import Button from '../../components/button.react';
 import EditSettingButton from '../../components/edit-setting-button.react';
@@ -31,7 +32,6 @@ import type {
   LayoutEvent,
   ContentSizeChangeEvent,
 } from '../../types/react-native';
-
 import SaveSettingButton from './save-setting-button.react';
 import {
   ThreadSettingsCategoryHeader,

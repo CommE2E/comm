@@ -1,13 +1,14 @@
 // @flow
 
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { Text, ActivityIndicator, View, Platform } from 'react-native';
+
 import { changeThreadSettingsActionTypes } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import PropTypes from 'prop-types';
-import * as React from 'react';
-import { Text, ActivityIndicator, View, Platform } from 'react-native';
 
 import ColorSplotch from '../../components/color-splotch.react';
 import EditSettingButton from '../../components/edit-setting-button.react';
@@ -19,7 +20,6 @@ import {
   useColors,
   useStyles,
 } from '../../themes/colors';
-
 import type { ThreadSettingsNavigate } from './thread-settings.react';
 
 type BaseProps = {|

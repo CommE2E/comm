@@ -1,6 +1,9 @@
 // @flow
 
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+
 import {
   type ChatMessageInfoItem,
   chatMessageItemPropType,
@@ -8,8 +11,6 @@ import {
 import { messageTypes } from 'lib/types/message-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import { longAbsoluteDate } from 'lib/utils/date-utils';
-import PropTypes from 'prop-types';
-import * as React from 'react';
 
 import css from './chat-message-list.css';
 import {

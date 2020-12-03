@@ -1,12 +1,13 @@
 // @flow
 
-import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
-import { messageID } from 'lib/shared/message-utils';
-import { mediaInfoPropType } from 'lib/types/media-types';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
+
+import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
+import { messageID } from 'lib/shared/message-utils';
+import { mediaInfoPropType } from 'lib/types/media-types';
 
 import {
   type InputState,
@@ -20,7 +21,6 @@ import {
   verticalBoundsPropType,
   layoutCoordinatesPropType,
 } from '../types/layout-types';
-
 import InlineMultimedia from './inline-multimedia.react';
 import { MessageHeader } from './message-header.react';
 import { multimediaMessageBorderRadius } from './multimedia-message.react';

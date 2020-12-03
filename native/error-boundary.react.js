@@ -1,7 +1,8 @@
 // @flow
 
-import type { ErrorInfo, ErrorData } from 'lib/types/report-types';
 import * as React from 'react';
+
+import type { ErrorInfo, ErrorData } from 'lib/types/report-types';
 
 import Crash from './crash.react';
 

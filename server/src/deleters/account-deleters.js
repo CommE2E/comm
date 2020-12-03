@@ -1,5 +1,7 @@
 // @flow
 
+import bcrypt from 'twin-bcrypt';
+
 import type {
   LogOutResponse,
   DeleteAccountRequest,
@@ -9,7 +11,6 @@ import type { UserInfo } from 'lib/types/user-types';
 import { ServerError } from 'lib/utils/errors';
 import { values } from 'lib/utils/objects';
 import { promiseAll } from 'lib/utils/promises';
-import bcrypt from 'twin-bcrypt';
 
 import { createUpdates } from '../creators/update-creator';
 import { dbQuery, SQL } from '../database/database';

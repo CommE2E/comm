@@ -1,9 +1,10 @@
 // @flow
 
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import { type UserInfo, userInfoPropType } from 'lib/types/user-types';
 import PropTypes from 'prop-types';
 import * as React from 'react';
+
+import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import { type UserInfo, userInfoPropType } from 'lib/types/user-types';
 
 import type { MarkdownRules } from '../markdown/rules.react';
 import { useTextMessageRulesFunc } from '../markdown/rules.react';

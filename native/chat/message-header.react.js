@@ -1,12 +1,12 @@
 // @flow
 
-import { stringForUser } from 'lib/shared/user-utils';
 import * as React from 'react';
 import { View } from 'react-native';
 
+import { stringForUser } from 'lib/shared/user-utils';
+
 import { SingleLine } from '../components/single-line.react';
 import { useStyles } from '../themes/colors';
-
 import { clusterEndHeight } from './composed-message.react';
 import type { ChatMessageInfoItemWithHeight } from './message.react';
 import type { DisplayType } from './timestamp.react';

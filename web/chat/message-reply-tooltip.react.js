@@ -3,11 +3,11 @@
 import { faReply } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import invariant from 'invariant';
-import { createMessageReply } from 'lib/shared/message-utils';
 import * as React from 'react';
 
-import type { InputState } from '../input/input-state';
+import { createMessageReply } from 'lib/shared/message-utils';
 
+import type { InputState } from '../input/input-state';
 import css from './chat-message-list.css';
 import type { OnMessagePositionInfo } from './message-position-types';
 

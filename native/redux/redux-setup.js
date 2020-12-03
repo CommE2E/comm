@@ -1,5 +1,13 @@
 // @flow
 
+import { AppState as NativeAppState, Platform, Alert } from 'react-native';
+import type { Orientations } from 'react-native-orientation-locker';
+import Orientation from 'react-native-orientation-locker';
+import { createStore, applyMiddleware, type Store, compose } from 'redux';
+import { persistStore, persistReducer } from 'redux-persist';
+import type { PersistState } from 'redux-persist/src/types';
+import thunk from 'redux-thunk';
+
 import { setDeviceTokenActionTypes } from 'lib/actions/device-actions';
 import {
   logOutActionTypes,
@@ -31,13 +39,6 @@ import { updateTypes } from 'lib/types/update-types';
 import type { CurrentUserInfo, UserStore } from 'lib/types/user-types';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger';
 import { setNewSessionActionType } from 'lib/utils/action-utils';
-import { AppState as NativeAppState, Platform, Alert } from 'react-native';
-import type { Orientations } from 'react-native-orientation-locker';
-import Orientation from 'react-native-orientation-locker';
-import { createStore, applyMiddleware, type Store, compose } from 'redux';
-import { persistStore, persistReducer } from 'redux-persist';
-import type { PersistState } from 'redux-persist/src/types';
-import thunk from 'redux-thunk';
 
 import { type NavInfo, defaultNavInfo } from '../navigation/default-state';
 import { getGlobalNavContext } from '../navigation/icky-global';
@@ -63,7 +64,6 @@ import {
   natServer,
   setCustomServer,
 } from '../utils/url-utils';
-
 import {
   resetUserStateActionType,
   recordNotifPermissionAlertActionType,

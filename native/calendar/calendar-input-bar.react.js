@@ -1,8 +1,9 @@
 // @flow
 
-import { connect } from 'lib/utils/redux-utils';
 import * as React from 'react';
 import { View, Text } from 'react-native';
+
+import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../components/button.react';
 import type { AppState } from '../redux/redux-setup';

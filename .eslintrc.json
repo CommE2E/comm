@@ -26,17 +26,26 @@
     "no-unused-vars": ["error", { "ignoreRestSiblings": true }],
     "react/prop-types": ["error", { "skipUndeclared": true }],
     "no-shadow": 1,
-    "import/order": ["warn", { "newlines-between": "always",
+    "import/order": [
+      "warn",
+      {
+        "newlines-between": "always",
         "alphabetize": {
           "order": "asc",
           "caseInsensitive": true
-        }
-    }]
+        },
+        "groups": [
+          ["builtin", "external"],
+          "internal"
+        ]
+      }
+    ]
   },
   "settings": {
     "react": {
       "version": "detect"
     },
-    "import/ignore": ["react-native"]
+    "import/ignore": ["react-native"],
+    "import/internal-regex": "^(lib|native|server|web)/"
   }
 }

@@ -1,6 +1,8 @@
 // @flow
 
 import invariant from 'invariant';
+import { createSelector } from 'reselect';
+
 import {
   messageInfoSelector,
   type ChatThreadItem,
@@ -19,7 +21,6 @@ import {
   type SidebarInfo,
   threadTypes,
 } from 'lib/types/thread-types';
-import { createSelector } from 'reselect';
 
 import type { AppState } from '../redux/redux-setup';
 

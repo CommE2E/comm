@@ -1,14 +1,12 @@
 // @flow
 
 import cluster from 'cluster';
-import os from 'os';
-
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import expressWs from 'express-ws';
+import os from 'os';
 
 import urlFacts from '../facts/url';
-
 import './cron/cron';
 import { jsonEndpoints } from './endpoints';
 import {

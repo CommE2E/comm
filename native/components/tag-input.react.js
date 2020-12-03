@@ -1,7 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import { connect } from 'lib/utils/redux-utils';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
@@ -15,6 +14,8 @@ import {
   ViewPropTypes,
   Platform,
 } from 'react-native';
+
+import { connect } from 'lib/utils/redux-utils';
 
 import type { AppState } from '../redux/redux-setup';
 import { type Colors, colorsPropType, colorsSelector } from '../themes/colors';

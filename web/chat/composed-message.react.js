@@ -2,13 +2,6 @@
 
 import classNames from 'classnames';
 import invariant from 'invariant';
-import {
-  type ChatMessageInfoItem,
-  chatMessageItemPropType,
-} from 'lib/selectors/chat-selectors';
-import { stringForUser } from 'lib/shared/user-utils';
-import { assertComposableMessageType } from 'lib/types/message-types';
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
@@ -18,11 +11,18 @@ import {
 } from 'react-feather';
 
 import {
+  type ChatMessageInfoItem,
+  chatMessageItemPropType,
+} from 'lib/selectors/chat-selectors';
+import { stringForUser } from 'lib/shared/user-utils';
+import { assertComposableMessageType } from 'lib/types/message-types';
+import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+
+import {
   inputStatePropType,
   type InputState,
   InputStateContext,
 } from '../input/input-state';
-
 import css from './chat-message-list.css';
 import FailedSend from './failed-send.react';
 import {

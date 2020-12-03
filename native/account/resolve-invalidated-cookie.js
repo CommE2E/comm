@@ -8,7 +8,6 @@ import type { FetchJSON } from 'lib/utils/fetch-json';
 import { getGlobalNavContext } from '../navigation/icky-global';
 import { store } from '../redux/redux-setup';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
-
 import {
   fetchNativeKeychainCredentials,
   getNativeSharedWebCredentials,

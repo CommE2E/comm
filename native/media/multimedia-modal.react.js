@@ -1,12 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
-import {
-  type MediaInfo,
-  mediaInfoPropType,
-  type Dimensions,
-} from 'lib/types/media-types';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
@@ -25,6 +19,13 @@ import {
 import Orientation from 'react-native-orientation-locker';
 import Animated from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/Ionicons';
+
+import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
+import {
+  type MediaInfo,
+  mediaInfoPropType,
+  type Dimensions,
+} from 'lib/types/media-types';
 
 import type { ChatMultimediaMessageInfoItem } from '../chat/multimedia-message.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
@@ -54,7 +55,6 @@ import {
   gestureJustEnded,
   runTiming,
 } from '../utils/animation-utils';
-
 import Multimedia from './multimedia.react';
 import { intentionalSaveMedia } from './save-media';
 

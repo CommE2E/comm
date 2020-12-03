@@ -2,6 +2,17 @@
 
 import { CommonActions } from '@react-navigation/native';
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import {
+  Text,
+  View,
+  TextInput,
+  ScrollView,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
+
 import {
   changeUserSettingsActionTypes,
   changeUserSettings,
@@ -14,16 +25,6 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import type { AccountUpdate } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import { connect } from 'lib/utils/redux-utils';
-import PropTypes from 'prop-types';
-import * as React from 'react';
-import {
-  Text,
-  View,
-  TextInput,
-  ScrollView,
-  Alert,
-  ActivityIndicator,
-} from 'react-native';
 
 import Button from '../components/button.react';
 import type { AppState } from '../redux/redux-setup';
@@ -34,7 +35,6 @@ import {
   styleSelector,
 } from '../themes/colors';
 import { type GlobalTheme, globalThemePropType } from '../types/themes';
-
 import type { MoreNavigationProp } from './more.react';
 
 type Props = {|

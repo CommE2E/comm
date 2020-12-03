@@ -1,11 +1,12 @@
 // @flow
 
+import _groupBy from 'lodash/fp/groupBy';
+
 import {
   type RelationshipErrors,
   undirectedStatus,
   directedStatus,
 } from 'lib/types/relationship-types';
-import _groupBy from 'lodash/fp/groupBy';
 
 import { dbQuery, SQL } from '../database/database';
 import type { Viewer } from '../session/viewer';

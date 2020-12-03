@@ -1,13 +1,14 @@
 // @flow
 
 import invariant from 'invariant';
-import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
-import { messageKey } from 'lib/shared/message-utils';
-import { type MediaInfo, mediaInfoPropType } from 'lib/types/media-types';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
+
+import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
+import { messageKey } from 'lib/shared/message-utils';
+import { type MediaInfo, mediaInfoPropType } from 'lib/types/media-types';
 
 import {
   type PendingMultimediaUpload,
@@ -34,7 +35,6 @@ import {
   verticalBoundsPropType,
 } from '../types/layout-types';
 import type { ViewStyle } from '../types/styles';
-
 import type { ChatNavigationProp } from './chat.react';
 import InlineMultimedia from './inline-multimedia.react';
 import {

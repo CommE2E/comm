@@ -1,13 +1,13 @@
 // @flow
 
-import type { UserListItem } from 'lib/types/user-types';
 import _sum from 'lodash/fp/sum';
 import React from 'react';
 import { FlatList } from 'react-native';
 
+import type { UserListItem } from 'lib/types/user-types';
+
 import { type IndicatorStyle, useIndicatorStyle } from '../themes/colors';
 import type { TextStyle } from '../types/styles';
-
 import { UserListUser, getUserListItemHeight } from './user-list-user.react';
 
 type BaseProps = {|

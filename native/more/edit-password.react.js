@@ -2,17 +2,6 @@
 
 import { CommonActions } from '@react-navigation/native';
 import invariant from 'invariant';
-import {
-  changeUserSettingsActionTypes,
-  changeUserSettings,
-} from 'lib/actions/user-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import type { ChangeUserSettingsResult } from 'lib/types/account-types';
-import { loadingStatusPropType } from 'lib/types/loading-types';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import type { AccountUpdate } from 'lib/types/user-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
@@ -24,6 +13,18 @@ import {
   ActivityIndicator,
 } from 'react-native';
 
+import {
+  changeUserSettingsActionTypes,
+  changeUserSettings,
+} from 'lib/actions/user-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import type { ChangeUserSettingsResult } from 'lib/types/account-types';
+import { loadingStatusPropType } from 'lib/types/loading-types';
+import type { LoadingStatus } from 'lib/types/loading-types';
+import type { AccountUpdate } from 'lib/types/user-types';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
+
 import { setNativeCredentials } from '../account/native-credentials';
 import Button from '../components/button.react';
 import type { AppState } from '../redux/redux-setup';
@@ -34,7 +35,6 @@ import {
   styleSelector,
 } from '../themes/colors';
 import { type GlobalTheme, globalThemePropType } from '../types/themes';
-
 import type { MoreNavigationProp } from './more.react';
 
 type Props = {

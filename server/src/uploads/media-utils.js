@@ -2,13 +2,14 @@
 
 import bmp from '@vingle/bmp-js';
 import invariant from 'invariant';
+import sharp from 'sharp';
+
 import {
   serverTranscodableTypes,
   readableFilename,
 } from 'lib/media/file-utils';
 import { getImageProcessingPlan } from 'lib/media/image-utils';
 import type { Dimensions } from 'lib/types/media-types';
-import sharp from 'sharp';
 import { deepFileInfoFromData } from 'web/media/file-utils';
 
 import type { UploadInput } from '../creators/upload-creator';

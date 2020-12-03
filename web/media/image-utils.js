@@ -1,6 +1,7 @@
 // @flow
 
 import EXIF from 'exif-js';
+
 import type { GetOrientationMediaMissionStep } from 'lib/types/media-types';
 import { getMessageForException } from 'lib/utils/errors';
 

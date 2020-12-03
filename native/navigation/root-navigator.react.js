@@ -22,7 +22,6 @@ import ColorPickerModal from '../chat/settings/color-picker-modal.react';
 import ComposeSubthreadModal from '../chat/settings/compose-subthread-modal.react';
 import SidebarListModal from '../chat/sidebar-list-modal.react';
 import CustomServerModal from '../more/custom-server-modal.react';
-
 import AppNavigator from './app-navigator.react';
 import { RootNavigatorContext } from './root-navigator-context';
 import RootRouter, { type RootRouterNavigationProp } from './root-router';

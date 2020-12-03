@@ -3,6 +3,9 @@
 import base64 from 'base-64';
 import * as MediaLibrary from 'expo-media-library';
 import invariant from 'invariant';
+import { Platform } from 'react-native';
+import filesystem from 'react-native-fs';
+
 import {
   mediaConfig,
   pathFromURI,
@@ -21,8 +24,6 @@ import type {
   CopyFileMediaMissionStep,
 } from 'lib/types/media-types';
 import { getMessageForException } from 'lib/utils/errors';
-import { Platform } from 'react-native';
-import filesystem from 'react-native-fs';
 
 import { stringToIntArray } from './blob-utils';
 import { ffmpeg } from './ffmpeg';

@@ -1,6 +1,12 @@
 // @flow
 
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { Platform } from 'react-native';
+import * as Upload from 'react-native-background-upload';
+import { createSelector } from 'reselect';
+
 import {
   createLocalMessageActionType,
   sendMultimediaMessageActionTypes,
@@ -55,17 +61,11 @@ import type {
   FetchJSONServerResponse,
 } from 'lib/utils/fetch-json';
 import { connect } from 'lib/utils/redux-utils';
-import PropTypes from 'prop-types';
-import * as React from 'react';
-import { Platform } from 'react-native';
-import * as Upload from 'react-native-background-upload';
-import { createSelector } from 'reselect';
 
 import { disposeTempFile } from '../media/file-utils';
 import { processMedia } from '../media/media-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
 import type { AppState } from '../redux/redux-setup';
-
 import {
   InputStateContext,
   type PendingMultimediaUploads,

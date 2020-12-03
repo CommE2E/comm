@@ -1,5 +1,16 @@
 // @flow
 
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { AppRegistry, Platform, Alert, Vibration, LogBox } from 'react-native';
+import type { RemoteMessage, NotificationOpen } from 'react-native-firebase';
+import {
+  Notification as InAppNotification,
+  TapticFeedback,
+} from 'react-native-in-app-message';
+import NotificationsIOS from 'react-native-notifications';
+import { useDispatch } from 'react-redux';
+
 import {
   setDeviceTokenActionTypes,
   setDeviceToken,
@@ -21,16 +32,6 @@ import {
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/action-utils';
-import PropTypes from 'prop-types';
-import * as React from 'react';
-import { AppRegistry, Platform, Alert, Vibration, LogBox } from 'react-native';
-import type { RemoteMessage, NotificationOpen } from 'react-native-firebase';
-import {
-  Notification as InAppNotification,
-  TapticFeedback,
-} from 'react-native-in-app-message';
-import NotificationsIOS from 'react-native-notifications';
-import { useDispatch } from 'react-redux';
 
 import {
   addLifecycleListener,
@@ -52,7 +53,6 @@ import {
   rootContextPropType,
 } from '../root-context';
 import { type GlobalTheme, globalThemePropType } from '../types/themes';
-
 import {
   type NotifPermissionAlertInfo,
   notifPermissionAlertInfoPropType,

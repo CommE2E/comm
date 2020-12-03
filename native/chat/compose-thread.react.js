@@ -1,6 +1,14 @@
 // @flow
 
 import invariant from 'invariant';
+import _filter from 'lodash/fp/filter';
+import _flow from 'lodash/fp/flow';
+import _sortBy from 'lodash/fp/sortBy';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { View, Text, Alert } from 'react-native';
+import { createSelector } from 'reselect';
+
 import { newThreadActionTypes, newThread } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
@@ -31,13 +39,6 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
-import _filter from 'lodash/fp/filter';
-import _flow from 'lodash/fp/flow';
-import _sortBy from 'lodash/fp/sortBy';
-import PropTypes from 'prop-types';
-import * as React from 'react';
-import { View, Text, Alert } from 'react-native';
-import { createSelector } from 'reselect';
 
 import LinkButton from '../components/link-button.react';
 import TagInput from '../components/tag-input.react';
@@ -53,7 +54,6 @@ import {
   useColors,
   useStyles,
 } from '../themes/colors';
-
 import type { ChatNavigationProp } from './chat.react';
 
 const tagInputProps = {

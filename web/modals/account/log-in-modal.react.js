@@ -1,6 +1,9 @@
 // @flow
 
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
@@ -15,14 +18,11 @@ import type {
 } from 'lib/types/account-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import { connect } from 'lib/utils/redux-utils';
-import PropTypes from 'prop-types';
-import * as React from 'react';
 
 import type { AppState } from '../../redux/redux-setup';
 import { webLogInExtraInfoSelector } from '../../selectors/account-selectors';
 import css from '../../style.css';
 import Modal from '../modal.react';
-
 import ForgotPasswordModal from './forgot-password-modal.react';
 
 type Props = {|

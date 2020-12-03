@@ -12,6 +12,7 @@ import type {
   GenericNavigationAction,
 } from '@react-navigation/native';
 import { StackRouter, CommonActions } from '@react-navigation/native';
+
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import {

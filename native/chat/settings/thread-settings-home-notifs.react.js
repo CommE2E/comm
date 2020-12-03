@@ -1,5 +1,9 @@
 // @flow
 
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { Text, View, Switch } from 'react-native';
+
 import {
   updateSubscriptionActionTypes,
   updateSubscription,
@@ -14,9 +18,6 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
-import PropTypes from 'prop-types';
-import * as React from 'react';
-import { Text, View, Switch } from 'react-native';
 
 import { useStyles } from '../../themes/colors';
 

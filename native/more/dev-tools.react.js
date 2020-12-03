@@ -1,13 +1,14 @@
 // @flow
 
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
-import { setURLPrefix } from 'lib/utils/url-utils';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, Text, ScrollView, Platform } from 'react-native';
 import ExitApp from 'react-native-exit-app';
 import Icon from 'react-native-vector-icons/Ionicons';
+
+import type { DispatchActionPayload } from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
+import { setURLPrefix } from 'lib/utils/url-utils';
 
 import Button from '../components/button.react';
 import type { NavigationRoute } from '../navigation/route-names';
@@ -21,7 +22,6 @@ import {
 } from '../themes/colors';
 import { wipeAndExit } from '../utils/crash-utils';
 import { serverOptions } from '../utils/url-utils';
-
 import type { MoreNavigationProp } from './more.react';
 
 const ServerIcon = () => (

@@ -1,11 +1,12 @@
 // @flow
 
-import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
-import * as SharedMarkdown from 'lib/shared/markdown';
-import type { RelativeMemberInfo } from 'lib/types/thread-types';
 import _memoize from 'lodash/memoize';
 import * as React from 'react';
 import * as SimpleMarkdown from 'simple-markdown';
+
+import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
+import * as SharedMarkdown from 'lib/shared/markdown';
+import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
 import { useSelector } from '../redux/redux-utils';
 

@@ -7,7 +7,6 @@ import type {
 import * as React from 'react';
 
 import type { ChatRouterNavigationAction } from '../chat/chat-router';
-
 import type { OverlayRouterNavigationAction } from './overlay-router';
 import type { RootRouterNavigationAction } from './root-router';
 

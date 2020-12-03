@@ -1,9 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils';
-import type { PhotoCapture } from 'lib/types/media-types';
-import type { Dispatch } from 'lib/types/redux-types';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
@@ -30,6 +27,10 @@ import Reanimated, {
 } from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useDispatch } from 'react-redux';
+
+import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils';
+import type { PhotoCapture } from 'lib/types/media-types';
+import type { Dispatch } from 'lib/types/redux-types';
 
 import ContentLoading from '../components/content-loading.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
@@ -59,7 +60,6 @@ import {
 import type { NativeMethods } from '../types/react-native';
 import type { ViewStyle } from '../types/styles';
 import { clamp, gestureJustEnded } from '../utils/animation-utils';
-
 import SendMediaButton from './send-media-button.react';
 
 /* eslint-disable import/no-named-as-default-member */

@@ -1,8 +1,9 @@
 // @flow
 
+import { PermissionsAndroid } from 'react-native';
+
 import { getMessageForException } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
-import { PermissionsAndroid } from 'react-native';
 
 const granted = new Set();
 

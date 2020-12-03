@@ -1,6 +1,13 @@
 // @flow
 
 import invariant from 'invariant';
+import _sum from 'lodash/fp/sum';
+import * as React from 'react';
+import { View, FlatList, Platform, TextInput } from 'react-native';
+import { FloatingAction } from 'react-native-floating-action';
+import IonIcon from 'react-native-vector-icons/Ionicons';
+import { createSelector } from 'reselect';
+
 import {
   type ChatThreadItem,
   chatListData,
@@ -8,12 +15,6 @@ import {
 import { threadSearchIndex as threadSearchIndexSelector } from 'lib/selectors/nav-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import _sum from 'lodash/fp/sum';
-import * as React from 'react';
-import { View, FlatList, Platform, TextInput } from 'react-native';
-import { FloatingAction } from 'react-native-floating-action';
-import IonIcon from 'react-native-vector-icons/Ionicons';
-import { createSelector } from 'reselect';
 
 import Search from '../components/search.react';
 import type { TabNavigationProp } from '../navigation/app-navigator.react';
@@ -31,7 +32,6 @@ import {
   indicatorStyleSelector,
   useStyles,
 } from '../themes/colors';
-
 import ChatThreadListItem from './chat-thread-list-item.react';
 import type {
   ChatTopTabsNavigationProp,

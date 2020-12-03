@@ -2,15 +2,15 @@
 
 import classNames from 'classnames';
 import invariant from 'invariant';
+import * as React from 'react';
+
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
 import { onlyEmojiRegex } from 'lib/shared/emojis';
 import { colorIsDark } from 'lib/shared/thread-utils';
 import { messageTypes } from 'lib/types/message-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import * as React from 'react';
 
 import Markdown from '../markdown/markdown.react';
-
 import css from './chat-message-list.css';
 import ComposedMessage from './composed-message.react';
 import { MessageListContext } from './message-list-types';

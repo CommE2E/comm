@@ -1,8 +1,9 @@
 // @flow
 
-import type { ThreadInfo } from 'lib/types/thread-types';
 import * as React from 'react';
 import { View, Platform } from 'react-native';
+
+import type { ThreadInfo } from 'lib/types/thread-types';
 
 import Button from '../../components/button.react';
 import ColorSplotch from '../../components/color-splotch.react';
@@ -10,7 +11,6 @@ import { SingleLine } from '../../components/single-line.react';
 import ThreadIcon from '../../components/thread-icon.react';
 import { MessageListRouteName } from '../../navigation/route-names';
 import { useColors, useStyles } from '../../themes/colors';
-
 import type { ThreadSettingsNavigate } from './thread-settings.react';
 
 type Props = {|

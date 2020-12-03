@@ -24,7 +24,6 @@ import {
   type MoreParamList,
 } from '../navigation/route-names';
 import { useStyles } from '../themes/colors';
-
 import AppearancePreferences from './appearance-preferences.react';
 import BuildInfo from './build-info.react';
 import DeleteAccount from './delete-account.react';

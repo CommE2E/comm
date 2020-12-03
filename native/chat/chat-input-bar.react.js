@@ -1,6 +1,25 @@
 // @flow
 
 import invariant from 'invariant';
+import _throttle from 'lodash/throttle';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  Platform,
+  Text,
+  ActivityIndicator,
+  TouchableWithoutFeedback,
+  Alert,
+} from 'react-native';
+import { TextInputKeyboardMangerIOS } from 'react-native-keyboard-input';
+import Animated, { Easing } from 'react-native-reanimated';
+import FAIcon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { useDispatch } from 'react-redux';
+
 import { saveDraftActionType } from 'lib/actions/miscellaneous-action-types';
 import {
   joinThreadActionTypes,
@@ -39,24 +58,6 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
-import _throttle from 'lodash/throttle';
-import PropTypes from 'prop-types';
-import * as React from 'react';
-import {
-  View,
-  TextInput,
-  TouchableOpacity,
-  Platform,
-  Text,
-  ActivityIndicator,
-  TouchableWithoutFeedback,
-  Alert,
-} from 'react-native';
-import { TextInputKeyboardMangerIOS } from 'react-native-keyboard-input';
-import Animated, { Easing } from 'react-native-reanimated';
-import FAIcon from 'react-native-vector-icons/FontAwesome';
-import Icon from 'react-native-vector-icons/Ionicons';
-import { useDispatch } from 'react-redux';
 
 import Button from '../components/button.react';
 import ClearableTextInput from '../components/clearable-text-input.react';
@@ -88,7 +89,6 @@ import {
 } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
 import { runTiming } from '../utils/animation-utils';
-
 import type { ChatNavigationProp } from './chat.react';
 import {
   messageListRoutePropType,

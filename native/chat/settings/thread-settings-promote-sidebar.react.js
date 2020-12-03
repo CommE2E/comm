@@ -1,5 +1,8 @@
 // @flow
 
+import * as React from 'react';
+import { Text, Alert, ActivityIndicator, View } from 'react-native';
+
 import {
   changeThreadSettingsActionTypes,
   changeThreadSettings,
@@ -17,8 +20,6 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
-import * as React from 'react';
-import { Text, Alert, ActivityIndicator, View } from 'react-native';
 
 import Button from '../../components/button.react';
 import { useSelector } from '../../redux/redux-utils';

@@ -3,6 +3,8 @@
 import { faEllipsisV } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
+import * as React from 'react';
+
 import {
   setThreadUnreadStatusActionTypes,
   setThreadUnreadStatus,
@@ -16,7 +18,6 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
-import * as React from 'react';
 
 import css from './chat-thread-list.css';
 

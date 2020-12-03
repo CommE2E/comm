@@ -1,11 +1,12 @@
 // @flow
 
+import * as React from 'react';
+import { useDispatch } from 'react-redux';
+
 import {
   backgroundActionType,
   foregroundActionType,
 } from 'lib/reducers/foreground-reducer';
-import * as React from 'react';
-import { useDispatch } from 'react-redux';
 
 import { useSelector } from './redux-utils';
 import { useVisibility } from './visibility';

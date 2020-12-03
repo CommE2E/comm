@@ -1,6 +1,21 @@
 // @flow
 
 import invariant from 'invariant';
+import * as React from 'react';
+import {
+  Image,
+  Text,
+  View,
+  StyleSheet,
+  ActivityIndicator,
+  Platform,
+  Keyboard,
+  TouchableHighlight,
+} from 'react-native';
+import Animated from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Icon from 'react-native-vector-icons/FontAwesome';
+
 import {
   handleVerificationCodeActionTypes,
   handleVerificationCode,
@@ -17,20 +32,6 @@ import {
   type DispatchActionPromise,
 } from 'lib/utils/action-utils';
 import sleep from 'lib/utils/sleep';
-import * as React from 'react';
-import {
-  Image,
-  Text,
-  View,
-  StyleSheet,
-  ActivityIndicator,
-  Platform,
-  Keyboard,
-  TouchableHighlight,
-} from 'react-native';
-import Animated from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/FontAwesome';
 
 import ConnectedStatusBar from '../connected-status-bar.react';
 import type { KeyboardEvent } from '../keyboard/keyboard';
@@ -55,7 +56,6 @@ import {
   runTiming,
   ratchetAlongWithKeyboardHeight,
 } from '../utils/animation-utils';
-
 import { splashBackgroundURI } from './background-info';
 import ResetPasswordPanel from './reset-password-panel.react';
 

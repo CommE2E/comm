@@ -1,6 +1,9 @@
 // @flow
 
 import invariant from 'invariant';
+import _difference from 'lodash/fp/difference';
+import _max from 'lodash/fp/max';
+
 import type {
   UpdateActivityResult,
   UpdateActivityRequest,
@@ -11,8 +14,6 @@ import { messageTypes } from 'lib/types/message-types';
 import { threadPermissions } from 'lib/types/thread-types';
 import { updateTypes } from 'lib/types/update-types';
 import { ServerError } from 'lib/utils/errors';
-import _difference from 'lodash/fp/difference';
-import _max from 'lodash/fp/max';
 
 import { createUpdates } from '../creators/update-creator';
 import {

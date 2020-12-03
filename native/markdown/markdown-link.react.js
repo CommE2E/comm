@@ -1,8 +1,9 @@
 // @flow
 
-import { normalizeURL } from 'lib/utils/url-utils';
 import * as React from 'react';
 import { Text, Linking, Alert } from 'react-native';
+
+import { normalizeURL } from 'lib/utils/url-utils';
 
 import { MarkdownLinkContext } from './markdown-link-context';
 

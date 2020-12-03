@@ -1,12 +1,12 @@
 // @flow
 
-import { isLoggedIn } from 'lib/selectors/user-selectors';
 import * as React from 'react';
+
+import { isLoggedIn } from 'lib/selectors/user-selectors';
 
 import DevTools from '../redux/dev-tools.react';
 import type { AppState } from '../redux/redux-setup';
 import { useSelector } from '../redux/redux-utils';
-
 import { logInActionType, logOutActionType } from './action-types';
 import LinkingHandler from './linking-handler.react';
 import ModalPruner from './modal-pruner.react';

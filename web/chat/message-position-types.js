@@ -1,10 +1,11 @@
 // @flow
 
+import PropTypes from 'prop-types';
+
 import {
   type ChatMessageInfoItem,
   chatMessageItemPropType,
 } from 'lib/selectors/chat-selectors';
-import PropTypes from 'prop-types';
 
 export const onMessagePositionInfoPropType = PropTypes.exact({
   type: PropTypes.oneOf(['on']).isRequired,

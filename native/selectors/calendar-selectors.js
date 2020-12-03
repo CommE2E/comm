@@ -1,5 +1,7 @@
 // @flow
 
+import { createSelector } from 'reselect';
+
 import {
   currentDaysToEntries,
   threadInfoSelector,
@@ -8,7 +10,6 @@ import { isLoggedIn } from 'lib/selectors/user-selectors';
 import type { EntryInfo } from 'lib/types/entry-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { dateString } from 'lib/utils/date-utils';
-import { createSelector } from 'reselect';
 
 import type { AppState } from '../redux/redux-setup';
 

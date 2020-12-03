@@ -5,7 +5,6 @@ import * as React from 'react';
 import { TextInput, View, StyleSheet } from 'react-native';
 
 import type { KeyPressEvent } from '../types/react-native';
-
 import type { ClearableTextInputProps } from './clearable-text-input';
 
 type State = {|

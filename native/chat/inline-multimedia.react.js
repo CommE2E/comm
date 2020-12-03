@@ -1,10 +1,11 @@
 // @flow
 
-import type { MediaInfo } from 'lib/types/media-types';
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 import * as Progress from 'react-native-progress';
 import Icon from 'react-native-vector-icons/Feather';
+
+import type { MediaInfo } from 'lib/types/media-types';
 
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
 import type { PendingMultimediaUpload } from '../input/input-state';

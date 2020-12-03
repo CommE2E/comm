@@ -1,5 +1,7 @@
 // @flow
 
+import t from 'tcomb';
+
 import {
   type ThreadDeletionRequest,
   type RoleChangeRequest,
@@ -14,7 +16,6 @@ import {
   type ThreadJoinResult,
   assertThreadType,
 } from 'lib/types/thread-types';
-import t from 'tcomb';
 
 import createThread from '../creators/thread-creator';
 import { deleteThread } from '../deleters/thread-deleters';
@@ -33,7 +34,6 @@ import {
   tColor,
   tPassword,
 } from '../utils/validation-utils';
-
 import {
   entryQueryInputValidator,
   verifyCalendarQueryThreadIDs,

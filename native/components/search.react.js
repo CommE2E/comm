@@ -1,11 +1,12 @@
 // @flow
 
-import { isLoggedIn } from 'lib/selectors/user-selectors';
-import { connect } from 'lib/utils/redux-utils';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, ViewPropTypes, TouchableOpacity, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+
+import { isLoggedIn } from 'lib/selectors/user-selectors';
+import { connect } from 'lib/utils/redux-utils';
 
 import type { AppState } from '../redux/redux-setup';
 import {

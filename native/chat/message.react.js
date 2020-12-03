@@ -1,7 +1,5 @@
 // @flow
 
-import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
-import { messageKey } from 'lib/shared/message-utils';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
@@ -9,6 +7,9 @@ import {
   TouchableWithoutFeedback,
   PixelRatio,
 } from 'react-native';
+
+import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
+import { messageKey } from 'lib/shared/message-utils';
 
 import {
   type KeyboardState,
@@ -21,7 +22,6 @@ import {
   verticalBoundsPropType,
 } from '../types/layout-types';
 import type { LayoutEvent } from '../types/react-native';
-
 import type { ChatNavigationProp } from './chat.react';
 import {
   messageListRoutePropType,

@@ -1,6 +1,10 @@
 // @flow
 
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { StyleSheet, View } from 'react-native';
+
 import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { Media, Corners } from 'lib/types/media-types';
 import type {
@@ -8,9 +12,6 @@ import type {
   LocalMessageInfo,
 } from 'lib/types/message-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import PropTypes from 'prop-types';
-import * as React from 'react';
-import { StyleSheet, View } from 'react-native';
 
 import type { MessagePendingUploads } from '../input/input-state';
 import type { NavigationRoute } from '../navigation/route-names';
@@ -19,7 +20,6 @@ import {
   verticalBoundsPropType,
 } from '../types/layout-types';
 import type { ViewStyle } from '../types/styles';
-
 import type { ChatNavigationProp } from './chat.react';
 import { ComposedMessage, clusterEndHeight } from './composed-message.react';
 import { failedSendHeight } from './failed-send.react';

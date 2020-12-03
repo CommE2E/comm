@@ -1,6 +1,11 @@
 // @flow
 
 import invariant from 'invariant';
+import React from 'react';
+import { StyleSheet, View, Alert, Keyboard } from 'react-native';
+import Animated from 'react-native-reanimated';
+import Icon from 'react-native-vector-icons/FontAwesome';
+
 import {
   forgotPasswordActionTypes,
   forgotPassword,
@@ -16,13 +21,8 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
-import React from 'react';
-import { StyleSheet, View, Alert, Keyboard } from 'react-native';
-import Animated from 'react-native-reanimated';
-import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { useSelector } from '../redux/redux-utils';
-
 import {
   TextInput,
   usernamePlaceholderSelector,

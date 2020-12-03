@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+
 import { cookieLifetime } from 'lib/types/session-types';
 
 import {

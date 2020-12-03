@@ -10,8 +10,8 @@
   "scripts": {
     "clean": "yarn workspace lib clean && yarn workspace web clean && yarn workspace native clean && yarn workspace server clean && rm -rf node_modules/",
     "cleaninstall": "yarn clean && yarn",
-    "eslint": "eslint lib native server web",
-    "eslint:fix": "eslint --fix lib native server web"
+    "eslint": "eslint .",
+    "eslint:fix": "eslint --fix ."
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",

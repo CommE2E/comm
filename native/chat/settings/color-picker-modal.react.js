@@ -1,5 +1,10 @@
 // @flow
 
+import * as React from 'react';
+import { TouchableHighlight, Alert } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { useSelector } from 'react-redux';
+
 import {
   changeThreadSettingsActionTypes,
   changeThreadSettings,
@@ -14,10 +19,6 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
-import * as React from 'react';
-import { TouchableHighlight, Alert } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import { useSelector } from 'react-redux';
 
 import ColorPicker from '../../components/color-picker.react';
 import Modal from '../../components/modal.react';

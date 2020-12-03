@@ -1,5 +1,8 @@
 // @flow
 
+import * as React from 'react';
+import { Alert, TouchableOpacity } from 'react-native';
+
 import {
   updateRelationshipsActionTypes,
   updateRelationships,
@@ -11,8 +14,6 @@ import type {
   ActionFunc,
   BoundServerCall,
 } from 'lib/utils/action-utils';
-import * as React from 'react';
-import { Alert, TouchableOpacity } from 'react-native';
 
 import PencilIcon from '../components/pencil-icon.react';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';

@@ -1,11 +1,12 @@
 // @flow
 
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, Text, ScrollView, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+
+import type { DispatchActionPayload } from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../components/button.react';
 import { updateThemeInfoActionType } from '../redux/action-types';

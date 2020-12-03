@@ -1,15 +1,15 @@
 // @flow
 
 import invariant from 'invariant';
-import { mergePrefixIntoBody } from 'lib/shared/notif-utils';
 import type { RemoteMessage } from 'react-native-firebase';
+
+import { mergePrefixIntoBody } from 'lib/shared/notif-utils';
 
 import {
   recordAndroidNotificationActionType,
   rescindAndroidNotificationActionType,
 } from '../redux/action-types';
 import { store, dispatch } from '../redux/redux-setup';
-
 import { getFirebase } from './firebase';
 import { saveMessageInfos } from './utils';
 

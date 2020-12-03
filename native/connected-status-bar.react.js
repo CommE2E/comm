@@ -1,11 +1,12 @@
 // @flow
 
-import { globalLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import { connect } from 'lib/utils/redux-utils';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { StatusBar, Platform } from 'react-native';
+
+import { globalLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import type { LoadingStatus } from 'lib/types/loading-types';
+import { connect } from 'lib/utils/redux-utils';
 
 import type { AppState } from './redux/redux-setup';
 import { type GlobalTheme, globalThemePropType } from './types/themes';

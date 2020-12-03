@@ -1,5 +1,7 @@
 // @flow
 
+import _isEqual from 'lodash/fp/isEqual';
+
 import bots from 'lib/facts/bots';
 import {
   filterRawEntryInfosByCalendarQuery,
@@ -16,7 +18,6 @@ import {
 } from 'lib/types/report-types';
 import { values } from 'lib/utils/objects';
 import { sanitizeAction, sanitizeState } from 'lib/utils/sanitization';
-import _isEqual from 'lodash/fp/isEqual';
 
 import urlFacts from '../../facts/url';
 import { dbQuery, SQL } from '../database/database';
@@ -24,7 +25,6 @@ import { fetchUsername } from '../fetchers/user-fetchers';
 import { handleAsyncPromise } from '../responders/handlers';
 import { createBotViewer } from '../session/bots';
 import type { Viewer } from '../session/viewer';
-
 import createIDs from './id-creator';
 import createMessages from './message-creator';
 

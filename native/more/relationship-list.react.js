@@ -1,6 +1,10 @@
 // @flow
 
 import invariant from 'invariant';
+import * as React from 'react';
+import { View, Text, FlatList, Alert, Platform } from 'react-native';
+import { createSelector } from 'reselect';
+
 import {
   updateRelationshipsActionTypes,
   updateRelationships,
@@ -27,9 +31,6 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
-import * as React from 'react';
-import { View, Text, FlatList, Alert, Platform } from 'react-native';
-import { createSelector } from 'reselect';
 
 import LinkButton from '../components/link-button.react';
 import TagInput from '../components/tag-input.react';
@@ -53,7 +54,6 @@ import {
   useIndicatorStyle,
 } from '../themes/colors';
 import type { VerticalBounds } from '../types/layout-types';
-
 import type { MoreNavigationProp } from './more.react';
 import RelationshipListItem from './relationship-list-item.react';
 

@@ -2,6 +2,10 @@
 
 import classNames from 'classnames';
 import invariant from 'invariant';
+import _some from 'lodash/fp/some';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+
 import {
   createLocalEntry,
   createLocalEntryActionType,
@@ -18,16 +22,12 @@ import {
   currentDateInTimeZone,
 } from 'lib/utils/date-utils';
 import { connect } from 'lib/utils/redux-utils';
-import _some from 'lodash/fp/some';
-import PropTypes from 'prop-types';
-import * as React from 'react';
 
 import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 import HistoryModal from '../modals/history/history-modal.react';
 import type { AppState } from '../redux/redux-setup';
 import { htmlTargetFromEvent } from '../vector-utils';
 import { AddVector, HistoryVector } from '../vectors.react';
-
 import css from './calendar.css';
 import type { InnerEntry } from './entry.react';
 import Entry from './entry.react';

@@ -2,20 +2,20 @@
 
 import AsyncStorage from '@react-native-community/async-storage';
 import invariant from 'invariant';
+import { Platform } from 'react-native';
+import Orientation from 'react-native-orientation-locker';
+import { createMigrate } from 'redux-persist';
+
 import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors';
 import { inconsistencyResponsesToReports } from 'lib/shared/report-utils';
 import { unshimMessageStore } from 'lib/shared/unshim-utils';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
 import { messageTypes } from 'lib/types/message-types';
 import { defaultConnectionInfo } from 'lib/types/socket-types';
-import { Platform } from 'react-native';
-import Orientation from 'react-native-orientation-locker';
-import { createMigrate } from 'redux-persist';
 
 import { defaultNotifPermissionAlertInfo } from '../push/alerts';
 import { defaultDeviceCameraInfo } from '../types/camera';
 import { defaultGlobalThemeInfo } from '../types/themes';
-
 import type { AppState } from './redux-setup';
 
 const migrations = {

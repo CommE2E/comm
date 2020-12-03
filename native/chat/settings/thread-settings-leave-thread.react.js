@@ -1,6 +1,9 @@
 // @flow
 
 import invariant from 'invariant';
+import * as React from 'react';
+import { Text, Alert, ActivityIndicator, View } from 'react-native';
+
 import {
   leaveThreadActionTypes,
   leaveThread,
@@ -15,8 +18,6 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
-import * as React from 'react';
-import { Text, Alert, ActivityIndicator, View } from 'react-native';
 
 import Button from '../../components/button.react';
 import { clearThreadsActionType } from '../../navigation/action-types';

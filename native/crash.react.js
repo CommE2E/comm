@@ -2,6 +2,20 @@
 
 import Clipboard from '@react-native-community/clipboard';
 import invariant from 'invariant';
+import _shuffle from 'lodash/fp/shuffle';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import {
+  View,
+  Text,
+  Platform,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
+import ExitApp from 'react-native-exit-app';
+import Icon from 'react-native-vector-icons/FontAwesome';
+
 import { sendReportActionTypes, sendReport } from 'lib/actions/report-actions';
 import { logOutActionTypes, logOut } from 'lib/actions/user-actions';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
@@ -21,19 +35,6 @@ import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import { connect } from 'lib/utils/redux-utils';
 import { sanitizeAction, sanitizeState } from 'lib/utils/sanitization';
 import sleep from 'lib/utils/sleep';
-import _shuffle from 'lodash/fp/shuffle';
-import PropTypes from 'prop-types';
-import * as React from 'react';
-import {
-  View,
-  Text,
-  Platform,
-  StyleSheet,
-  ScrollView,
-  ActivityIndicator,
-} from 'react-native';
-import ExitApp from 'react-native-exit-app';
-import Icon from 'react-native-vector-icons/FontAwesome';
 
 import Button from './components/button.react';
 import ConnectedStatusBar from './connected-status-bar.react';

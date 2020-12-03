@@ -1,7 +1,8 @@
 // @flow
 
-import { longAbsoluteDate } from 'lib/utils/date-utils';
 import * as React from 'react';
+
+import { longAbsoluteDate } from 'lib/utils/date-utils';
 
 import { SingleLine } from '../components/single-line.react';
 import { useStyles } from '../themes/colors';

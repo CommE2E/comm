@@ -2,6 +2,7 @@
 
 import base64 from 'base-64';
 import invariant from 'invariant';
+
 import {
   fileInfoFromData,
   bytesNeededForFileTypeCheck,

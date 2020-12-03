@@ -1,13 +1,14 @@
 // @flow
 
 import invariant from 'invariant';
-import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
-import { createMessageReply } from 'lib/shared/message-utils';
-import { assertComposableMessageType } from 'lib/types/message-types';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import { StyleSheet, View, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
+
+import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
+import { createMessageReply } from 'lib/shared/message-utils';
+import { assertComposableMessageType } from 'lib/types/message-types';
 
 import {
   inputStatePropType,
@@ -16,7 +17,6 @@ import {
 } from '../input/input-state';
 import { useSelector } from '../redux/redux-utils';
 import { type Colors, colorsPropType, useColors } from '../themes/colors';
-
 import { composedMessageMaxWidthSelector } from './composed-message-width';
 import { FailedSend } from './failed-send.react';
 import { MessageHeader } from './message-header.react';

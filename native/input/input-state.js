@@ -1,9 +1,10 @@
 // @flow
 
-import type { NativeMediaSelection } from 'lib/types/media-types';
-import type { RawTextMessageInfo } from 'lib/types/message-types';
 import PropTypes from 'prop-types';
 import * as React from 'react';
+
+import type { NativeMediaSelection } from 'lib/types/media-types';
+import type { RawTextMessageInfo } from 'lib/types/message-types';
 
 export type PendingMultimediaUpload = {|
   failed: ?string,

@@ -5,7 +5,6 @@ import * as React from 'react';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
-
 import LogInModal from './log-in-modal.react';
 import RegisterModal from './register-modal.react';
 

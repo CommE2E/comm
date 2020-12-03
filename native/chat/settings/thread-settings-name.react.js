@@ -1,6 +1,9 @@
 // @flow
 
 import invariant from 'invariant';
+import * as React from 'react';
+import { Text, Alert, ActivityIndicator, TextInput, View } from 'react-native';
+
 import {
   changeThreadSettingsActionTypes,
   changeThreadSettings,
@@ -17,8 +20,6 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
-import * as React from 'react';
-import { Text, Alert, ActivityIndicator, TextInput, View } from 'react-native';
 
 import EditSettingButton from '../../components/edit-setting-button.react';
 import { useSelector } from '../../redux/redux-utils';
@@ -27,7 +28,6 @@ import type {
   LayoutEvent,
   ContentSizeChangeEvent,
 } from '../../types/react-native';
-
 import SaveSettingButton from './save-setting-button.react';
 
 type BaseProps = {|

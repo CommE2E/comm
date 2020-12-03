@@ -1,11 +1,12 @@
 // @flow
 
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
-import { setURLPrefix } from 'lib/utils/url-utils';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import { Text, TextInput } from 'react-native';
+
+import type { DispatchActionPayload } from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
+import { setURLPrefix } from 'lib/utils/url-utils';
 
 import Button from '../components/button.react';
 import Modal from '../components/modal.react';

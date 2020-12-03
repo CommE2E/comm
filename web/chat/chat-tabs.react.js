@@ -1,10 +1,10 @@
 // @flow
 
-import { unreadBackgroundCount } from 'lib/selectors/thread-selectors';
 import * as React from 'react';
 
-import { useSelector } from '../redux/redux-utils';
+import { unreadBackgroundCount } from 'lib/selectors/thread-selectors';
 
+import { useSelector } from '../redux/redux-utils';
 import css from './chat-tabs.css';
 import ChatThreadBackground from './chat-thread-background.react';
 import ChatThreadHome from './chat-thread-home.react';

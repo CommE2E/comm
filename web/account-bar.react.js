@@ -1,6 +1,8 @@
 // @flow
 
 import invariant from 'invariant';
+import * as React from 'react';
+
 import { logOut, logOutActionTypes } from 'lib/actions/user-actions';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import type { LogOutResult } from 'lib/types/account-types';
@@ -11,7 +13,6 @@ import {
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/action-utils';
-import * as React from 'react';
 
 import LogInModal from './modals/account/log-in-modal.react';
 import RegisterModal from './modals/account/register-modal.react';

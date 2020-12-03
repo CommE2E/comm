@@ -2,6 +2,11 @@
 
 import apn from '@parse/node-apn';
 import invariant from 'invariant';
+import _flow from 'lodash/fp/flow';
+import _mapValues from 'lodash/fp/mapValues';
+import _pickBy from 'lodash/fp/pickBy';
+import uuidv4 from 'uuid/v4';
+
 import { oldValidUsernameRegex } from 'lib/shared/account-utils';
 import {
   createMessageInfo,
@@ -22,10 +27,6 @@ import {
 import type { ServerThreadInfo, ThreadInfo } from 'lib/types/thread-types';
 import { updateTypes } from 'lib/types/update-types';
 import { promiseAll } from 'lib/utils/promises';
-import _flow from 'lodash/fp/flow';
-import _mapValues from 'lodash/fp/mapValues';
-import _pickBy from 'lodash/fp/pickBy';
-import uuidv4 from 'uuid/v4';
 
 import createIDs from '../creators/id-creator';
 import { createUpdates } from '../creators/update-creator';
@@ -35,7 +36,6 @@ import { fetchCollapsableNotifs } from '../fetchers/message-fetchers';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
 import { fetchUserInfos } from '../fetchers/user-fetchers';
 import type { Viewer } from '../session/viewer';
-
 import { apnPush, fcmPush, getUnreadCounts } from './utils';
 
 type Device = {|

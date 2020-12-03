@@ -6,7 +6,6 @@ import SQL from 'sql-template-strings';
 
 import dbConfig from '../../secrets/db_config';
 import { getScriptContext } from '../scripts/script-context';
-
 import { connectionLimit, queryWarnTime } from './consts';
 import DatabaseMonitor from './monitor';
 

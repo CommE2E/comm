@@ -1,6 +1,9 @@
 // @flow
 
 import { useNavigation } from '@react-navigation/native';
+import * as React from 'react';
+import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+
 import {
   setThreadUnreadStatus,
   setThreadUnreadStatusActionTypes,
@@ -14,8 +17,6 @@ import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils';
-import * as React from 'react';
-import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import Swipeable from '../components/swipeable';
 import { useColors } from '../themes/colors';

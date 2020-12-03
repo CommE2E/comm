@@ -3,7 +3,6 @@
 import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from '../database/database';
-
 import createIDs from './id-creator';
 
 async function fetchOrCreateDayID(

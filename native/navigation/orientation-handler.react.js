@@ -1,11 +1,12 @@
 // @flow
 
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import type { Orientations } from 'react-native-orientation-locker';
 import Orientation from 'react-native-orientation-locker';
+
+import type { DispatchActionPayload } from 'lib/utils/action-utils';
+import { connect } from 'lib/utils/redux-utils';
 
 import { updateDeviceOrientationActionType } from '../redux/action-types';
 import type { AppState } from '../redux/redux-setup';

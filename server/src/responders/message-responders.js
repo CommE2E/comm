@@ -1,6 +1,8 @@
 // @flow
 
 import invariant from 'invariant';
+import t from 'tcomb';
+
 import { createMediaMessageData, trimMessage } from 'lib/shared/message-utils';
 import {
   messageTypes,
@@ -14,7 +16,6 @@ import {
 } from 'lib/types/message-types';
 import { threadPermissions } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
-import t from 'tcomb';
 
 import createMessages from '../creators/message-creator';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';

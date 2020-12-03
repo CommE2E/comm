@@ -1,5 +1,11 @@
 // @flow
 
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { Text } from 'react-native';
+import IonIcon from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+
 import { threadTypeDescriptions } from 'lib/shared/thread-utils';
 import {
   type ThreadInfo,
@@ -7,11 +13,6 @@ import {
   threadTypes,
 } from 'lib/types/thread-types';
 import { connect } from 'lib/utils/redux-utils';
-import PropTypes from 'prop-types';
-import * as React from 'react';
-import { Text } from 'react-native';
-import IonIcon from 'react-native-vector-icons/Ionicons';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import Button from '../../components/button.react';
 import Modal from '../../components/modal.react';

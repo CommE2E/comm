@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+
 import type { CalendarQuery } from 'lib/types/entry-types';
 import {
   type RawUpdateInfo,

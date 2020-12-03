@@ -1,6 +1,12 @@
 // @flow
 
 import invariant from 'invariant';
+import _find from 'lodash/fp/find';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { View, TouchableWithoutFeedback } from 'react-native';
+import { createSelector } from 'reselect';
+
 import {
   fetchMessagesBeforeCursorActionTypes,
   fetchMessagesBeforeCursor,
@@ -23,11 +29,6 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
-import _find from 'lodash/fp/find';
-import PropTypes from 'prop-types';
-import * as React from 'react';
-import { View, TouchableWithoutFeedback } from 'react-native';
-import { createSelector } from 'reselect';
 
 import ListLoadingIndicator from '../components/list-loading-indicator.react';
 import {
@@ -50,7 +51,6 @@ import {
 } from '../themes/colors';
 import type { VerticalBounds } from '../types/layout-types';
 import type { ViewToken } from '../types/react-native';
-
 import { ChatList } from './chat-list.react';
 import type { ChatNavigationProp } from './chat.react';
 import type { ChatMessageItemWithHeight } from './message-list-container.react';

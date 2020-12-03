@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+
 import { generateRandomColor } from 'lib/shared/thread-utils';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import { messageTypes } from 'lib/types/message-types';
@@ -27,7 +28,6 @@ import {
   getRelationshipRowsForUsers,
   getParentThreadRelationshipRowsForNewUsers,
 } from '../updaters/thread-permission-updaters';
-
 import createIDs from './id-creator';
 import createMessages from './message-creator';
 import { createInitialRolesForNewThread } from './role-creator';

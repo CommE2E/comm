@@ -1,14 +1,14 @@
 // @flow
 
-import sleep from 'lib/utils/sleep';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import { Platform } from 'react-native';
 import { KeyboardUtils } from 'react-native-keyboard-input';
 
+import sleep from 'lib/utils/sleep';
+
 import { tabBarAnimationDuration } from '../navigation/tab-bar.react';
 import { waitForInteractions } from '../utils/timers';
-
 import {
   addKeyboardShowListener,
   addKeyboardDismissListener,

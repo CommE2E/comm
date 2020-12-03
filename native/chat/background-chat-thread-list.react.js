@@ -1,17 +1,17 @@
 // @flow
 
+import * as React from 'react';
+import { Text } from 'react-native';
+
 import { unreadBackgroundCount } from 'lib/selectors/thread-selectors';
 import {
   threadInBackgroundChatList,
   emptyItemText,
 } from 'lib/shared/thread-utils';
-import * as React from 'react';
-import { Text } from 'react-native';
 
 import type { NavigationRoute } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { useStyles } from '../themes/colors';
-
 import ChatThreadList from './chat-thread-list.react';
 import type { ChatTopTabsNavigationProp } from './chat.react';
 

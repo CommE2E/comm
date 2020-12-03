@@ -8,6 +8,10 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import Switch from 'react-switch';
+
 import {
   filteredThreadIDsSelector,
   includeDeletedSelector,
@@ -24,9 +28,6 @@ import {
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
 import { connect } from 'lib/utils/redux-utils';
-import PropTypes from 'prop-types';
-import * as React from 'react';
-import Switch from 'react-switch';
 
 import ThreadSettingsModal from '../modals/threads/thread-settings-modal.react';
 import type { AppState } from '../redux/redux-setup';
@@ -35,7 +36,6 @@ import {
   webFilterThreadSearchIndex,
 } from '../selectors/calendar-selectors';
 import { MagnifyingGlass } from '../vectors.react';
-
 import css from './filter-panel.css';
 
 type Props = {|

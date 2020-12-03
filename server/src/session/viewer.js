@@ -2,6 +2,7 @@
 
 import geoip from 'geoip-lite';
 import invariant from 'invariant';
+
 import type { Platform, PlatformDetails } from 'lib/types/device-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import {

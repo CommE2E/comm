@@ -4,6 +4,9 @@ import { faFilter } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import dateFormat from 'dateformat';
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+
 import {
   updateCalendarQueryActionTypes,
   updateCalendarQuery,
@@ -24,8 +27,6 @@ import {
   endDateForYearAndMonth,
 } from 'lib/utils/date-utils';
 import { connect } from 'lib/utils/redux-utils';
-import PropTypes from 'prop-types';
-import * as React from 'react';
 
 import {
   type AppState,
@@ -38,7 +39,6 @@ import {
   webCalendarQuery,
 } from '../selectors/nav-selectors';
 import { canonicalURLFromReduxState } from '../url-utils';
-
 import css from './calendar.css';
 import Day from './day.react';
 import FilterPanel from './filter-panel.react';

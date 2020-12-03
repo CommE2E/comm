@@ -6,7 +6,6 @@ import Animated from 'react-native-reanimated';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { TooltipRoute } from '../navigation/tooltip.react';
 import { useSelector } from '../redux/redux-utils';
-
 import { InnerTextMessage } from './inner-text-message.react';
 import { MessageHeader } from './message-header.react';
 import {

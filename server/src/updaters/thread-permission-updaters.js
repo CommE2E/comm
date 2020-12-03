@@ -1,6 +1,9 @@
 // @flow
 
 import invariant from 'invariant';
+import _isEqual from 'lodash/fp/isEqual';
+import _uniqWith from 'lodash/fp/uniqWith';
+
 import bots from 'lib/facts/bots';
 import {
   makePermissionsBlob,
@@ -23,8 +26,6 @@ import { updateTypes, type UpdateInfo } from 'lib/types/update-types';
 import type { AccountUserInfo } from 'lib/types/user-types';
 import { cartesianProduct } from 'lib/utils/array';
 import { ServerError } from 'lib/utils/errors';
-import _isEqual from 'lodash/fp/isEqual';
-import _uniqWith from 'lodash/fp/uniqWith';
 
 import {
   createUpdates,
@@ -39,7 +40,6 @@ import {
 import { rescindPushNotifs } from '../push/rescind';
 import { createScriptViewer } from '../session/scripts';
 import type { Viewer } from '../session/viewer';
-
 import {
   updateDatasForUserPairs,
   updateUndirectedRelationships,

@@ -1,10 +1,5 @@
 // @flow
 
-import {
-  type UndirectedStatus,
-  undirectedStatus,
-} from 'lib/types/relationship-types';
-import { getAllTuples } from 'lib/utils/array';
 import _flatten from 'lodash/fp/flatten';
 import _flow from 'lodash/fp/flow';
 import _groupBy from 'lodash/fp/groupBy';
@@ -15,10 +10,15 @@ import _uniqWith from 'lodash/fp/uniqWith';
 import _values from 'lodash/fp/values';
 
 import {
+  type UndirectedStatus,
+  undirectedStatus,
+} from 'lib/types/relationship-types';
+import { getAllTuples } from 'lib/utils/array';
+
+import {
   updateUndirectedRelationships,
   updateDatasForUserPairs,
 } from '../updaters/relationship-updaters';
-
 import { createUpdates } from './update-creator';
 
 type QueryResult = {|

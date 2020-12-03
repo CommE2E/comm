@@ -1,6 +1,8 @@
 // @flow
 
 import type { $Response, $Request } from 'express';
+import t from 'tcomb';
+
 import {
   type ReportCreationResponse,
   type ReportCreationRequest,
@@ -9,7 +11,6 @@ import {
   reportTypes,
 } from 'lib/types/report-types';
 import { ServerError } from 'lib/utils/errors';
-import t from 'tcomb';
 
 import createReport from '../creators/report-creator';
 import {
@@ -23,7 +24,6 @@ import {
   tPlatform,
   tPlatformDetails,
 } from '../utils/validation-utils';
-
 import { newEntryQueryInputValidator } from './entry-responders';
 
 const tActionSummary = tShape({

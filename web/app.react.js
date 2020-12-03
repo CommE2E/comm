@@ -5,6 +5,12 @@ import { faCalendar, faComments } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import invariant from 'invariant';
+import _isEqual from 'lodash/fp/isEqual';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+
 import {
   fetchEntriesActionTypes,
   updateCalendarQueryActionTypes,
@@ -27,11 +33,6 @@ import {
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
 import { registerConfig } from 'lib/utils/config';
 import { connect } from 'lib/utils/redux-utils';
-import _isEqual from 'lodash/fp/isEqual';
-import PropTypes from 'prop-types';
-import * as React from 'react';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
 
 import AccountBar from './account-bar.react';
 import Calendar from './calendar/calendar.react';

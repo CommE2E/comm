@@ -1,6 +1,26 @@
 // @flow
 
 import invariant from 'invariant';
+import _filter from 'lodash/fp/filter';
+import _find from 'lodash/fp/find';
+import _findIndex from 'lodash/fp/findIndex';
+import _map from 'lodash/fp/map';
+import _pickBy from 'lodash/fp/pickBy';
+import _size from 'lodash/fp/size';
+import _sum from 'lodash/fp/sum';
+import _throttle from 'lodash/throttle';
+import * as React from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  AppState as NativeAppState,
+  Platform,
+  LayoutAnimation,
+  TouchableWithoutFeedback,
+} from 'react-native';
+import SafeAreaView from 'react-native-safe-area-view';
+
 import {
   updateCalendarQueryActionTypes,
   updateCalendarQuery,
@@ -23,25 +43,6 @@ import {
 } from 'lib/utils/action-utils';
 import { dateString, prettyDate, dateFromString } from 'lib/utils/date-utils';
 import sleep from 'lib/utils/sleep';
-import _filter from 'lodash/fp/filter';
-import _find from 'lodash/fp/find';
-import _findIndex from 'lodash/fp/findIndex';
-import _map from 'lodash/fp/map';
-import _pickBy from 'lodash/fp/pickBy';
-import _size from 'lodash/fp/size';
-import _sum from 'lodash/fp/sum';
-import _throttle from 'lodash/throttle';
-import * as React from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  AppState as NativeAppState,
-  Platform,
-  LayoutAnimation,
-  TouchableWithoutFeedback,
-} from 'react-native';
-import SafeAreaView from 'react-native-safe-area-view';
 
 import ContentLoading from '../components/content-loading.react';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
@@ -85,7 +86,6 @@ import {
   type IndicatorStyle,
 } from '../themes/colors';
 import type { ViewToken } from '../types/react-native';
-
 import CalendarInputBar from './calendar-input-bar.react';
 import {
   Entry,

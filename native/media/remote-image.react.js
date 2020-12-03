@@ -1,14 +1,15 @@
 // @flow
 
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import FastImage from 'react-native-fast-image';
+
 import {
   type ConnectionStatus,
   connectionStatusPropType,
 } from 'lib/types/socket-types';
 import { connect } from 'lib/utils/redux-utils';
-import PropTypes from 'prop-types';
-import * as React from 'react';
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
-import FastImage from 'react-native-fast-image';
 
 import type { AppState } from '../redux/redux-setup';
 import type { ImageStyle } from '../types/styles';

@@ -1,10 +1,11 @@
 // @flow
 
-import { type UserListItem, userListItemPropType } from 'lib/types/user-types';
-import { connect } from 'lib/utils/redux-utils';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import { Text, Platform, Alert } from 'react-native';
+
+import { type UserListItem, userListItemPropType } from 'lib/types/user-types';
+import { connect } from 'lib/utils/redux-utils';
 
 import type { AppState } from '../redux/redux-setup';
 import {
@@ -14,7 +15,6 @@ import {
   styleSelector,
 } from '../themes/colors';
 import type { TextStyle } from '../types/styles';
-
 import Button from './button.react';
 import { SingleLine } from './single-line.react';
 

@@ -1,5 +1,7 @@
 // @flow
 
+import bcrypt from 'twin-bcrypt';
+
 import { validEmailRegex } from 'lib/shared/account-utils';
 import type {
   ResetPasswordRequest,
@@ -13,7 +15,6 @@ import { verifyField } from 'lib/types/verify-types';
 import { ServerError } from 'lib/utils/errors';
 import { values } from 'lib/utils/objects';
 import { promiseAll } from 'lib/utils/promises';
-import bcrypt from 'twin-bcrypt';
 
 import { createUpdates } from '../creators/update-creator';
 import { dbQuery, SQL } from '../database/database';

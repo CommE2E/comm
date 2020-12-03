@@ -1,8 +1,9 @@
 // @flow
 
-import { threadIsPending } from 'lib/shared/thread-utils';
 import * as React from 'react';
 import { Alert } from 'react-native';
+
+import { threadIsPending } from 'lib/shared/thread-utils';
 
 import { clearThreadsActionType } from '../navigation/action-types';
 import { useActiveThread } from '../navigation/nav-selectors';

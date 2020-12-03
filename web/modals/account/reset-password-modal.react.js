@@ -1,6 +1,9 @@
 // @flow
 
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+
 import {
   resetPasswordActionTypes,
   resetPassword,
@@ -15,8 +18,6 @@ import type {
 import { verifyField } from 'lib/types/verify-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import { connect } from 'lib/utils/redux-utils';
-import PropTypes from 'prop-types';
-import * as React from 'react';
 
 import type { AppState } from '../../redux/redux-setup';
 import { webLogInExtraInfoSelector } from '../../selectors/account-selectors';

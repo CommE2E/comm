@@ -1,6 +1,18 @@
 // @flow
 
 import invariant from 'invariant';
+import React from 'react';
+import {
+  Alert,
+  StyleSheet,
+  Keyboard,
+  View,
+  Text,
+  Platform,
+} from 'react-native';
+import Animated from 'react-native-reanimated';
+import Icon from 'react-native-vector-icons/FontAwesome';
+
 import {
   resetPasswordActionTypes,
   resetPassword,
@@ -18,22 +30,10 @@ import {
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/action-utils';
-import React from 'react';
-import {
-  Alert,
-  StyleSheet,
-  Keyboard,
-  View,
-  Text,
-  Platform,
-} from 'react-native';
-import Animated from 'react-native-reanimated';
-import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { NavContext } from '../navigation/navigation-context';
 import { useSelector } from '../redux/redux-utils';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
-
 import { TextInput } from './modal-components.react';
 import { PanelButton, Panel } from './panel-components.react';
 

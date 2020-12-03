@@ -2,6 +2,9 @@
 
 import * as MediaLibrary from 'expo-media-library';
 import invariant from 'invariant';
+import { Platform, PermissionsAndroid } from 'react-native';
+import filesystem from 'react-native-fs';
+
 import { queueReportsActionType } from 'lib/actions/report-actions';
 import { readableFilename, pathFromURI } from 'lib/media/file-utils';
 import type {
@@ -16,13 +19,10 @@ import {
 import { getConfig } from 'lib/utils/config';
 import { getMessageForException } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
-import { Platform, PermissionsAndroid } from 'react-native';
-import filesystem from 'react-native-fs';
 
 import { displayActionResultModal } from '../navigation/action-result-modal';
 import { dispatch } from '../redux/redux-setup';
 import { requestAndroidPermission } from '../utils/android-permissions';
-
 import { fetchBlob } from './blob-utils';
 import {
   fetchAssetInfo,

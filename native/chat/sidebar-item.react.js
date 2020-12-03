@@ -1,10 +1,11 @@
 // @flow
 
-import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types';
-import { shortAbsoluteDate } from 'lib/utils/date-utils';
 import * as React from 'react';
 import { Text } from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo';
+
+import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types';
+import { shortAbsoluteDate } from 'lib/utils/date-utils';
 
 import Button from '../components/button.react';
 import { SingleLine } from '../components/single-line.react';

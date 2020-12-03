@@ -1,6 +1,7 @@
 // @flow
 
 import type { $Response, $Request } from 'express';
+
 import { ServerError } from 'lib/utils/errors';
 
 import { deleteCookie } from '../deleters/cookie-deleters';

@@ -3,10 +3,11 @@
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as SplashScreen from 'expo-splash-screen';
-import { unreadCount } from 'lib/selectors/thread-selectors';
 import * as React from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { PersistGate } from 'redux-persist/integration/react';
+
+import { unreadCount } from 'lib/selectors/thread-selectors';
 
 import Calendar from '../calendar/calendar.react';
 import Chat from '../chat/chat.react';
@@ -23,7 +24,6 @@ import { getPersistor } from '../redux/persist';
 import { useSelector } from '../redux/redux-utils';
 import { RootContext } from '../root-context';
 import { waitForInteractions } from '../utils/timers';
-
 import ActionResultModal from './action-result-modal.react';
 import { createOverlayNavigator } from './overlay-navigator.react';
 import type { OverlayRouterNavigationProp } from './overlay-router';

@@ -2,6 +2,7 @@
 
 import invariant from 'invariant';
 import isSvg from 'is-svg';
+
 import {
   mediaConfig,
   serverTranscodableTypes,

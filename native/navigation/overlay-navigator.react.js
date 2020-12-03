@@ -11,10 +11,11 @@ import {
   NavigationHelpersContext,
 } from '@react-navigation/native';
 import invariant from 'invariant';
-import { values } from 'lib/utils/objects';
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 import Animated, { Easing } from 'react-native-reanimated';
+
+import { values } from 'lib/utils/objects';
 
 import { OverlayContext } from './overlay-context';
 import OverlayRouter from './overlay-router';

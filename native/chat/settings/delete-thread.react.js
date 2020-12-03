@@ -1,6 +1,16 @@
 // @flow
 
 import invariant from 'invariant';
+import * as React from 'react';
+import {
+  Text,
+  View,
+  TextInput,
+  ScrollView,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
+
 import {
   deleteThreadActionTypes,
   deleteThread,
@@ -15,15 +25,6 @@ import {
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/action-utils';
-import * as React from 'react';
-import {
-  Text,
-  View,
-  TextInput,
-  ScrollView,
-  Alert,
-  ActivityIndicator,
-} from 'react-native';
 
 import Button from '../../components/button.react';
 import { clearThreadsActionType } from '../../navigation/action-types';

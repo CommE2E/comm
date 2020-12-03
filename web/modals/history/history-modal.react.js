@@ -3,6 +3,13 @@
 import classNames from 'classnames';
 import dateFormat from 'dateformat';
 import invariant from 'invariant';
+import _filter from 'lodash/fp/filter';
+import _flow from 'lodash/fp/flow';
+import _map from 'lodash/fp/map';
+import _unionBy from 'lodash/fp/unionBy';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+
 import {
   fetchEntriesActionTypes,
   fetchEntries,
@@ -26,18 +33,11 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import { dateFromString } from 'lib/utils/date-utils';
 import { connect } from 'lib/utils/redux-utils';
-import _filter from 'lodash/fp/filter';
-import _flow from 'lodash/fp/flow';
-import _map from 'lodash/fp/map';
-import _unionBy from 'lodash/fp/unionBy';
-import PropTypes from 'prop-types';
-import * as React from 'react';
 
 import LoadingIndicator from '../../loading-indicator.react';
 import type { AppState } from '../../redux/redux-setup';
 import { allDaysToEntries } from '../../selectors/entry-selectors';
 import Modal from '../modal.react';
-
 import HistoryEntry from './history-entry.react';
 import HistoryRevision from './history-revision.react';
 import css from './history.css';

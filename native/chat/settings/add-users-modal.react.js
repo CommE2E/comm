@@ -1,6 +1,11 @@
 // @flow
 
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { View, Text, ActivityIndicator, Alert } from 'react-native';
+import { createSelector } from 'reselect';
+
 import {
   changeThreadSettingsActionTypes,
   changeThreadSettings,
@@ -31,10 +36,6 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
-import PropTypes from 'prop-types';
-import * as React from 'react';
-import { View, Text, ActivityIndicator, Alert } from 'react-native';
-import { createSelector } from 'reselect';
 
 import Button from '../../components/button.react';
 import Modal from '../../components/modal.react';

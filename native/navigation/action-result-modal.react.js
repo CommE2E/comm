@@ -7,7 +7,6 @@ import Animated from 'react-native-reanimated';
 
 import { useSelector } from '../redux/redux-utils';
 import { useOverlayStyles } from '../themes/colors';
-
 import type { AppNavigationProp } from './app-navigator.react';
 import { OverlayContext } from './overlay-context';
 import type { NavigationRoute } from './route-names';

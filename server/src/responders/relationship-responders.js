@@ -1,11 +1,12 @@
 // @flow
 
+import t from 'tcomb';
+
 import {
   type RelationshipRequest,
   type RelationshipErrors,
   relationshipActionsList,
 } from 'lib/types/relationship-types';
-import t from 'tcomb';
 
 import type { Viewer } from '../session/viewer';
 import { updateRelationships } from '../updaters/relationship-updaters';

@@ -1,9 +1,10 @@
 // @flow
 
-import { threadTypes, type ThreadType } from 'lib/types/thread-types';
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+
+import { threadTypes, type ThreadType } from 'lib/types/thread-types';
 
 type Props = {|
   +threadType: ThreadType,

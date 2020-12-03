@@ -1,6 +1,8 @@
 // @flow
 
 import invariant from 'invariant';
+import { Image } from 'react-native';
+
 import { pathFromURI, readableFilename } from 'lib/media/file-utils';
 import type {
   Dimensions,
@@ -9,7 +11,6 @@ import type {
   MediaMissionFailure,
   NativeMediaSelection,
 } from 'lib/types/media-types';
-import { Image } from 'react-native';
 
 import { fetchFileInfo } from './file-utils';
 import { processImage } from './image-utils';

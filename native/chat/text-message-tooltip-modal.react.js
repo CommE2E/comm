@@ -2,6 +2,7 @@
 
 import Clipboard from '@react-native-community/clipboard';
 import invariant from 'invariant';
+
 import { createMessageReply } from 'lib/shared/message-utils';
 import type {
   DispatchFunctions,
@@ -17,7 +18,6 @@ import {
   type TooltipParams,
   type TooltipRoute,
 } from '../navigation/tooltip.react';
-
 import TextMessageTooltipButton from './text-message-tooltip-button.react';
 import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
 

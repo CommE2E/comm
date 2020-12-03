@@ -1,6 +1,18 @@
 // @flow
 
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import {
+  View,
+  Text,
+  Alert,
+  Platform,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
+
 import {
   logOutActionTypes,
   logOut,
@@ -21,17 +33,6 @@ import {
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import { connect } from 'lib/utils/redux-utils';
 import { firstLine } from 'lib/utils/string-utils';
-import PropTypes from 'prop-types';
-import * as React from 'react';
-import {
-  View,
-  Text,
-  Alert,
-  Platform,
-  ScrollView,
-  ActivityIndicator,
-} from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
 
 import {
   getNativeSharedWebCredentials,
@@ -57,7 +58,6 @@ import {
   colorsSelector,
   styleSelector,
 } from '../themes/colors';
-
 import type { MoreNavigationProp } from './more.react';
 
 type Props = {

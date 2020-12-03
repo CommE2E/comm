@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 import {
   filteredThreadIDs,
@@ -31,7 +32,6 @@ import {
 } from '../database/database';
 import type { Viewer } from '../session/viewer';
 import { creationString } from '../utils/idempotent';
-
 import { checkIfThreadIsBlocked } from './thread-permission-fetchers';
 
 async function fetchEntryInfo(

@@ -1,16 +1,16 @@
 // @flow
 
-import { connect } from 'lib/utils/redux-utils';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
+import { connect } from 'lib/utils/redux-utils';
+
 import Button from '../components/button.react';
 import { ComposeThreadRouteName } from '../navigation/route-names';
 import type { AppState } from '../redux/redux-setup';
 import { type Colors, colorsPropType, colorsSelector } from '../themes/colors';
-
 import type { ChatNavigationProp } from './chat.react';
 
 type Props = {|

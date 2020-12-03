@@ -1,5 +1,7 @@
 // @flow
 
+import bcrypt from 'twin-bcrypt';
+
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import {
@@ -9,7 +11,6 @@ import {
 } from 'lib/types/thread-types';
 import { updateTypes } from 'lib/types/update-types';
 import { ServerError } from 'lib/utils/errors';
-import bcrypt from 'twin-bcrypt';
 
 import { createUpdates } from '../creators/update-creator';
 import { dbQuery, SQL } from '../database/database';

@@ -1,10 +1,11 @@
 // @flow
 
+import t from 'tcomb';
+
 import type {
   UserSearchRequest,
   UserSearchResult,
 } from 'lib/types/search-types';
-import t from 'tcomb';
 
 import { searchForUsers } from '../search/users';
 import type { Viewer } from '../session/viewer';

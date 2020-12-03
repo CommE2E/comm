@@ -1,6 +1,5 @@
 // @flow
 
-import { connect } from 'lib/utils/redux-utils';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
@@ -11,11 +10,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { connect } from 'lib/utils/redux-utils';
+
 import type { RootNavigationProp } from '../navigation/root-navigator.react';
 import type { AppState } from '../redux/redux-setup';
 import { styleSelector } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
-
 import KeyboardAvoidingView from './keyboard-avoiding-view.react';
 
 type Props = $ReadOnly<{|

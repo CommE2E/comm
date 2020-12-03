@@ -1,10 +1,11 @@
 // @flow
 
-import { connect } from 'lib/utils/redux-utils';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, Text, TouchableWithoutFeedback } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+
+import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../components/button.react';
 import type { AppState } from '../redux/redux-setup';

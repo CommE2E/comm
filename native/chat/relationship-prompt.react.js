@@ -1,6 +1,9 @@
 // @flow
 
 import invariant from 'invariant';
+import * as React from 'react';
+import { Alert, Text, View } from 'react-native';
+
 import {
   updateRelationships as serverUpdateRelationships,
   updateRelationshipsActionTypes,
@@ -16,8 +19,6 @@ import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils';
-import * as React from 'react';
-import { Alert, Text, View } from 'react-native';
 
 import Button from '../components/button.react';
 import { useSelector } from '../redux/redux-utils';

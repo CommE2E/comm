@@ -2,6 +2,9 @@
 
 import classNames from 'classnames';
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+
 import {
   deleteAccountActionTypes,
   deleteAccount,
@@ -28,13 +31,10 @@ import {
 } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import { connect } from 'lib/utils/redux-utils';
-import PropTypes from 'prop-types';
-import * as React from 'react';
 
 import type { AppState } from '../../redux/redux-setup';
 import css from '../../style.css';
 import Modal from '../modal.react';
-
 import VerifyEmailModal from './verify-email-modal.react';
 
 type TabType = 'general' | 'delete';

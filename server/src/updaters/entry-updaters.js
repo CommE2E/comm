@@ -1,6 +1,8 @@
 // @flow
 
 import invariant from 'invariant';
+import _isEqual from 'lodash/fp/isEqual';
+
 import {
   rawEntryInfoWithinCalendarQuery,
   calendarQueryDifference,
@@ -21,7 +23,6 @@ import {
 import { dateString } from 'lib/utils/date-utils';
 import { ServerError } from 'lib/utils/errors';
 import { values } from 'lib/utils/objects';
-import _isEqual from 'lodash/fp/isEqual';
 
 import createIDs from '../creators/id-creator';
 import createMessages from '../creators/message-creator';
@@ -33,7 +34,6 @@ import {
 } from '../fetchers/entry-fetchers';
 import { fetchActiveSessionsForThread } from '../fetchers/session-fetchers';
 import type { Viewer } from '../session/viewer';
-
 import type { SessionUpdate } from './session-updaters';
 
 const defaultUpdateCreationResponse = { viewerUpdates: [], userInfos: [] };

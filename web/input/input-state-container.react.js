@@ -2,6 +2,16 @@
 
 import { detect as detectBrowser } from 'detect-browser';
 import invariant from 'invariant';
+import _groupBy from 'lodash/fp/groupBy';
+import _keyBy from 'lodash/fp/keyBy';
+import _omit from 'lodash/fp/omit';
+import _partition from 'lodash/fp/partition';
+import _sortBy from 'lodash/fp/sortBy';
+import _memoize from 'lodash/memoize';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { createSelector } from 'reselect';
+
 import {
   createLocalMessageActionType,
   sendMultimediaMessageActionTypes,
@@ -43,20 +53,10 @@ import type {
 import { getConfig } from 'lib/utils/config';
 import { getMessageForException, cloneError } from 'lib/utils/errors';
 import { connect } from 'lib/utils/redux-utils';
-import _groupBy from 'lodash/fp/groupBy';
-import _keyBy from 'lodash/fp/keyBy';
-import _omit from 'lodash/fp/omit';
-import _partition from 'lodash/fp/partition';
-import _sortBy from 'lodash/fp/sortBy';
-import _memoize from 'lodash/memoize';
-import PropTypes from 'prop-types';
-import * as React from 'react';
-import { createSelector } from 'reselect';
 
 import { validateFile, preloadImage } from '../media/media-utils';
 import InvalidUploadModal from '../modals/chat/invalid-upload.react';
 import type { AppState } from '../redux/redux-setup';
-
 import { type PendingMultimediaUpload, InputStateContext } from './input-state';
 
 let nextLocalUploadID = 0;

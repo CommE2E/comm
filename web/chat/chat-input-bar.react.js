@@ -4,6 +4,10 @@ import { faFileImage } from '@fortawesome/free-regular-svg-icons';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import invariant from 'invariant';
+import _difference from 'lodash/fp/difference';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+
 import { joinThreadActionTypes, joinThread } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { trimMessage } from 'lib/shared/message-utils';
@@ -30,9 +34,6 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
-import _difference from 'lodash/fp/difference';
-import PropTypes from 'prop-types';
-import * as React from 'react';
 
 import {
   inputStatePropType,
@@ -44,7 +45,6 @@ import { allowedMimeTypeString } from '../media/file-utils';
 import Multimedia from '../media/multimedia.react';
 import { useSelector } from '../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
-
 import css from './chat-message-list.css';
 
 type BaseProps = {|

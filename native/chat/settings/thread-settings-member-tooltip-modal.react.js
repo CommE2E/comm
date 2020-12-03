@@ -1,6 +1,8 @@
 // @flow
 
 import invariant from 'invariant';
+import { Alert } from 'react-native';
+
 import {
   removeUsersFromThreadActionTypes,
   removeUsersFromThread,
@@ -15,14 +17,12 @@ import type {
   ActionFunc,
   BoundServerCall,
 } from 'lib/utils/action-utils';
-import { Alert } from 'react-native';
 
 import {
   createTooltip,
   type TooltipParams,
   type TooltipRoute,
 } from '../../navigation/tooltip.react';
-
 import ThreadSettingsMemberTooltipButton from './thread-settings-member-tooltip-button.react';
 
 export type ThreadSettingsMemberTooltipModalParams = TooltipParams<{|

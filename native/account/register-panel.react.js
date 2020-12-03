@@ -1,6 +1,11 @@
 // @flow
 
 import invariant from 'invariant';
+import React from 'react';
+import { View, StyleSheet, Platform, Keyboard, Alert } from 'react-native';
+import Animated from 'react-native-reanimated';
+import Icon from 'react-native-vector-icons/FontAwesome';
+
 import { registerActionTypes, register } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { validUsernameRegex, validEmailRegex } from 'lib/shared/account-utils';
@@ -16,16 +21,11 @@ import {
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/action-utils';
-import React from 'react';
-import { View, StyleSheet, Platform, Keyboard, Alert } from 'react-native';
-import Animated from 'react-native-reanimated';
-import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { NavContext } from '../navigation/navigation-context';
 import { useSelector } from '../redux/redux-utils';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
 import { type StateContainer } from '../utils/state-container';
-
 import { TextInput } from './modal-components.react';
 import { setNativeCredentials } from './native-credentials';
 import { PanelButton, Panel } from './panel-components.react';

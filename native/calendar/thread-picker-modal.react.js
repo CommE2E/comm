@@ -1,15 +1,16 @@
 // @flow
 
 import invariant from 'invariant';
+import * as React from 'react';
+import { StyleSheet } from 'react-native';
+import { useDispatch } from 'react-redux';
+
 import {
   createLocalEntry,
   createLocalEntryActionType,
 } from 'lib/actions/entry-actions';
 import { threadSearchIndex } from 'lib/selectors/nav-selectors';
 import { onScreenEntryEditableThreadInfos } from 'lib/selectors/thread-selectors';
-import * as React from 'react';
-import { StyleSheet } from 'react-native';
-import { useDispatch } from 'react-redux';
 
 import Modal from '../components/modal.react';
 import ThreadList from '../components/thread-list.react';

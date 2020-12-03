@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+
 import { nonThreadCalendarFilters } from 'lib/selectors/calendar-filter-selectors';
 import {
   keyForUpdateData,
@@ -55,7 +56,6 @@ import {
 } from '../fetchers/user-fetchers';
 import type { Viewer } from '../session/viewer';
 import { channelNameForUpdateTarget, publisher } from '../socket/redis';
-
 import createIDs from './id-creator';
 
 export type UpdatesForCurrentSession =

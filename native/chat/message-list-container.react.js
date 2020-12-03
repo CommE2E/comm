@@ -1,6 +1,9 @@
 // @flow
 
 import invariant from 'invariant';
+import * as React from 'react';
+import { View } from 'react-native';
+
 import {
   type ChatMessageItem,
   messageListData,
@@ -9,8 +12,6 @@ import { possiblyPendingThreadInfoSelector } from 'lib/selectors/thread-selector
 import { messageID } from 'lib/shared/message-utils';
 import { messageTypes } from 'lib/types/message-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import * as React from 'react';
-import { View } from 'react-native';
 
 import ContentLoading from '../components/content-loading.react';
 import NodeHeightMeasurer from '../components/node-height-measurer.react';
@@ -22,7 +23,6 @@ import {
 import type { NavigationRoute } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { type Colors, useColors, useStyles } from '../themes/colors';
-
 import ChatInputBar from './chat-input-bar.react';
 import { chatMessageItemKey } from './chat-list.react';
 import type { ChatNavigationProp } from './chat.react';

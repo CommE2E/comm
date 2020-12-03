@@ -1,7 +1,8 @@
 // @flow
 
-import { ServerError } from 'lib/utils/errors';
 import t from 'tcomb';
+
+import { ServerError } from 'lib/utils/errors';
 
 import { verifyClientSupported } from '../session/version';
 import type { Viewer } from '../session/viewer';

@@ -1,6 +1,5 @@
 // @flow
 
-import type { Dimensions } from 'lib/types/media-types';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
@@ -10,6 +9,8 @@ import {
 } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 
+import type { Dimensions } from 'lib/types/media-types';
+
 import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
@@ -17,7 +18,6 @@ import {
   androidKeyboardResizesFrame,
   rnsacThinksAndroidKeyboardResizesFrame,
 } from '../keyboard/keyboard';
-
 import { updateDimensionsActiveType } from './action-types';
 import { useSelector } from './redux-utils';
 

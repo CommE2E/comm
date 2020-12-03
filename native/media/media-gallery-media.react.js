@@ -1,9 +1,5 @@
 // @flow
 
-import {
-  type MediaLibrarySelection,
-  mediaLibrarySelectionPropType,
-} from 'lib/types/media-types';
 import LottieView from 'lottie-react-native';
 import PropTypes from 'prop-types';
 import * as React from 'react';
@@ -22,6 +18,11 @@ import Reanimated, {
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import Video from 'react-native-video';
+
+import {
+  type MediaLibrarySelection,
+  mediaLibrarySelectionPropType,
+} from 'lib/types/media-types';
 
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
 import {

@@ -2,6 +2,10 @@
 
 import classNames from 'classnames';
 import dateFormat from 'dateformat';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import TimeAgo from 'react-timeago';
+
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { colorIsDark } from 'lib/shared/thread-utils';
 import type { HistoryRevisionInfo } from 'lib/types/history-types';
@@ -9,12 +13,8 @@ import { historyRevisionInfoPropType } from 'lib/types/history-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
 import { connect } from 'lib/utils/redux-utils';
-import PropTypes from 'prop-types';
-import * as React from 'react';
-import TimeAgo from 'react-timeago';
 
 import type { AppState } from '../../redux/redux-setup';
-
 import css from './history.css';
 
 type Props = {

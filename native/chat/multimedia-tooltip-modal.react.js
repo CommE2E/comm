@@ -9,7 +9,6 @@ import {
   type TooltipParams,
   type TooltipRoute,
 } from '../navigation/tooltip.react';
-
 import type { ChatMultimediaMessageInfoItem } from './multimedia-message.react';
 import MultimediaTooltipButton from './multimedia-tooltip-button.react';
 

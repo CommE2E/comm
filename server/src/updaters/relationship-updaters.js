@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+
 import { sortIDs } from 'lib/shared/relationship-utils';
 import {
   type RelationshipRequest,

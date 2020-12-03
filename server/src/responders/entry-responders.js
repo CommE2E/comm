@@ -1,5 +1,7 @@
 // @flow
 
+import t from 'tcomb';
+
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
 import type {
   CalendarQuery,
@@ -19,7 +21,6 @@ import type {
   FetchEntryRevisionInfosRequest,
 } from 'lib/types/history-types';
 import { ServerError } from 'lib/utils/errors';
-import t from 'tcomb';
 
 import createEntry from '../creators/entry-creator';
 import { deleteEntry, restoreEntry } from '../deleters/entry-deleters';

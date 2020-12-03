@@ -1,6 +1,8 @@
 // @flow
 
 import invariant from 'invariant';
+import t from 'tcomb';
+
 import {
   usersInRawEntryInfos,
   serverEntryInfo,
@@ -30,7 +32,6 @@ import {
 import { sessionCheckFrequency } from 'lib/types/session-types';
 import { hash } from 'lib/utils/objects';
 import { promiseAll } from 'lib/utils/promises';
-import t from 'tcomb';
 
 import createReport from '../creators/report-creator';
 import { SQL } from '../database/database';

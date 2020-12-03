@@ -1,6 +1,15 @@
 // @flow
 
 import invariant from 'invariant';
+import * as React from 'react';
+import {
+  Alert,
+  View,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
+
 import {
   updateRelationshipsActionTypes,
   updateRelationships,
@@ -21,14 +30,6 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
-import * as React from 'react';
-import {
-  Alert,
-  View,
-  Text,
-  TouchableOpacity,
-  ActivityIndicator,
-} from 'react-native';
 
 import PencilIcon from '../components/pencil-icon.react';
 import { SingleLine } from '../components/single-line.react';
@@ -49,7 +50,6 @@ import {
 import { useSelector } from '../redux/redux-utils';
 import { type Colors, useColors, useStyles } from '../themes/colors';
 import type { VerticalBounds } from '../types/layout-types';
-
 import type { RelationshipListNavigate } from './relationship-list.react';
 
 type BaseProps = {|

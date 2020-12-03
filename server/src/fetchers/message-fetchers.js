@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 import {
   sortMessageInfoList,
@@ -26,7 +27,6 @@ import { dbQuery, SQL, mergeOrConditions } from '../database/database';
 import type { PushInfo } from '../push/send';
 import type { Viewer } from '../session/viewer';
 import { creationString, localIDFromCreationString } from '../utils/idempotent';
-
 import { mediaFromRow } from './upload-fetchers';
 
 export type CollapsableNotifInfo = {|

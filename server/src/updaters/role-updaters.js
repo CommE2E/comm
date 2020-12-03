@@ -1,8 +1,9 @@
 // @flow
 
 import invariant from 'invariant';
-import type { ThreadType } from 'lib/types/thread-types';
 import _isEqual from 'lodash/fp/isEqual';
+
+import type { ThreadType } from 'lib/types/thread-types';
 
 import createIDs from '../creators/id-creator';
 import { getRolePermissionBlobsForChat } from '../creators/role-creator';

@@ -1,7 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import { connect } from 'lib/utils/redux-utils';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
@@ -16,11 +15,12 @@ import {
 } from 'react-native';
 import tinycolor from 'tinycolor2';
 
+import { connect } from 'lib/utils/redux-utils';
+
 import type { AppState } from '../redux/redux-setup';
 import { type Colors, colorsPropType, colorsSelector } from '../themes/colors';
 import type { LayoutEvent } from '../types/react-native';
 import type { ViewStyle } from '../types/styles';
-
 import Button from './button.react';
 
 type PanEvent = $ReadOnly<{

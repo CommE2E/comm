@@ -1,14 +1,15 @@
 // @flow
 
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+
 import {
   type ChatMessageInfoItem,
   chatMessageItemPropType,
 } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import PropTypes from 'prop-types';
-import * as React from 'react';
 
 import {
   inputStatePropType,
@@ -16,7 +17,6 @@ import {
   InputStateContext,
 } from '../input/input-state';
 import Multimedia from '../media/multimedia.react';
-
 import css from './chat-message-list.css';
 import ComposedMessage from './composed-message.react';
 import type { MessagePositionInfo } from './message-position-types';

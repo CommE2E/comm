@@ -2,6 +2,10 @@
 
 import classNames from 'classnames';
 import invariant from 'invariant';
+import _pickBy from 'lodash/fp/pickBy';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+
 import {
   deleteThreadActionTypes,
   deleteThread,
@@ -28,14 +32,10 @@ import {
 import { type UserInfos, userInfoPropType } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import { connect } from 'lib/utils/redux-utils';
-import _pickBy from 'lodash/fp/pickBy';
-import PropTypes from 'prop-types';
-import * as React from 'react';
 
 import type { AppState } from '../../redux/redux-setup';
 import css from '../../style.css';
 import Modal from '../modal.react';
-
 import ColorPicker from './color-picker.react';
 
 type TabType = 'general' | 'privacy' | 'delete';

@@ -2,6 +2,10 @@
 
 import type { $Request } from 'express';
 import invariant from 'invariant';
+import _debounce from 'lodash/debounce';
+import t from 'tcomb';
+import type { WebSocket } from 'ws';
+
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 import {
   serverRequestSocketTimeout,
@@ -36,9 +40,6 @@ import { values } from 'lib/utils/objects';
 import { promiseAll } from 'lib/utils/promises';
 import SequentialPromiseResolver from 'lib/utils/sequential-promise-resolver';
 import sleep from 'lib/utils/sleep';
-import _debounce from 'lodash/debounce';
-import t from 'tcomb';
-import type { WebSocket } from 'ws';
 
 import { fetchUpdateInfosWithRawUpdateInfos } from '../creators/update-creator';
 import { deleteActivityForViewerSession } from '../deleters/activity-deleters';
@@ -76,7 +77,6 @@ import {
   tShape,
   tCookie,
 } from '../utils/validation-utils';
-
 import { RedisSubscriber } from './redis';
 import {
   clientResponseInputValidator,

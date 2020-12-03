@@ -1,6 +1,7 @@
 // @flow
 
 import * as ImageManipulator from 'expo-image-manipulator';
+
 import { getImageProcessingPlan } from 'lib/media/image-utils';
 import type {
   Dimensions,

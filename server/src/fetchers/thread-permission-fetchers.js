@@ -12,7 +12,6 @@ import type {
 
 import { dbQuery, SQL } from '../database/database';
 import type { Viewer } from '../session/viewer';
-
 import { fetchThreadInfos } from './thread-fetchers';
 import { fetchKnownUserInfos } from './user-fetchers';
 

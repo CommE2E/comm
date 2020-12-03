@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
 import {
   threadHasAdminRole,
@@ -44,7 +45,6 @@ import {
   fetchKnownUserInfos,
 } from '../fetchers/user-fetchers';
 import type { Viewer } from '../session/viewer';
-
 import { updateRoles } from './role-updaters';
 import {
   changeRole,

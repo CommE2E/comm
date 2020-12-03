@@ -1,16 +1,16 @@
 // @flow
 
 import classNames from 'classnames';
+import * as React from 'react';
+
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors';
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
-import * as React from 'react';
 
 import { useSelector } from '../redux/redux-utils';
 import {
   useOnClickThread,
   useThreadIsActive,
 } from '../selectors/nav-selectors';
-
 import ChatThreadListItemMenu from './chat-thread-list-item-menu.react';
 import ChatThreadListSidebar from './chat-thread-list-sidebar.react';
 import css from './chat-thread-list.css';

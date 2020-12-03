@@ -1,6 +1,8 @@
 // @flow
 
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
+
 import {
   logOutActionTypes,
   deleteAccountActionTypes,
@@ -20,10 +22,8 @@ import type { ThreadStore } from 'lib/types/thread-types';
 import type { CurrentUserInfo, UserStore } from 'lib/types/user-types';
 import type { ServerVerificationResult } from 'lib/types/verify-types';
 import { setNewSessionActionType } from 'lib/utils/action-utils';
-import PropTypes from 'prop-types';
 
 import { activeThreadSelector } from '../selectors/nav-selectors';
-
 import { updateWindowActiveActionType } from './action-types';
 import { getVisibility } from './visibility';
 

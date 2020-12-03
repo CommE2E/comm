@@ -1,14 +1,15 @@
 // @flow
 
 import invariant from 'invariant';
+import * as React from 'react';
+import { View } from 'react-native';
+
 import { messageKey } from 'lib/shared/message-utils';
 import type {
   TextMessageInfo,
   LocalMessageInfo,
 } from 'lib/types/message-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import * as React from 'react';
-import { View } from 'react-native';
 
 import {
   type KeyboardState,
@@ -22,7 +23,6 @@ import {
 import type { NavigationRoute } from '../navigation/route-names';
 import { TextMessageTooltipModalRouteName } from '../navigation/route-names';
 import type { VerticalBounds } from '../types/layout-types';
-
 import type { ChatNavigationProp } from './chat.react';
 import { ComposedMessage, clusterEndHeight } from './composed-message.react';
 import { failedSendHeight } from './failed-send.react';

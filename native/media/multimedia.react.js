@@ -1,17 +1,17 @@
 // @flow
 
 import invariant from 'invariant';
-import { type MediaInfo, mediaInfoPropType } from 'lib/types/media-types';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, Image, StyleSheet } from 'react-native';
+
+import { type MediaInfo, mediaInfoPropType } from 'lib/types/media-types';
 
 import {
   type InputState,
   inputStatePropType,
   InputStateContext,
 } from '../input/input-state';
-
 import RemoteImage from './remote-image.react';
 
 type BaseProps = {|

@@ -1,9 +1,10 @@
 // @flow
 
 import invariant from 'invariant';
+import { RNFFmpeg, RNFFprobe, RNFFmpegConfig } from 'react-native-ffmpeg';
+
 import { getHasMultipleFramesProbeCommand } from 'lib/media/video-utils';
 import type { FFmpegStatistics } from 'lib/types/media-types';
-import { RNFFmpeg, RNFFprobe, RNFFmpegConfig } from 'react-native-ffmpeg';
 
 const maxSimultaneousCalls = {
   process: 1,

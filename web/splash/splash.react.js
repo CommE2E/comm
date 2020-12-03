@@ -1,6 +1,9 @@
 // @flow
 
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+
 import {
   requestAccessActionTypes,
   requestAccess,
@@ -15,13 +18,10 @@ import {
 } from 'lib/types/loading-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import { connect } from 'lib/utils/redux-utils';
-import PropTypes from 'prop-types';
-import * as React from 'react';
 
 import LoadingIndicator from '../loading-indicator.react';
 import LogInModal from '../modals/account/log-in-modal.react';
 import type { AppState } from '../redux/redux-setup';
-
 import css from './splash.css';
 
 const defaultRequestAccessScrollHeight = 390;

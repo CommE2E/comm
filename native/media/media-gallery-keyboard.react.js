@@ -2,9 +2,6 @@
 
 import * as MediaLibrary from 'expo-media-library';
 import invariant from 'invariant';
-import { extensionFromFilename } from 'lib/media/file-utils';
-import type { MediaLibrarySelection } from 'lib/types/media-types';
-import { connect } from 'lib/utils/redux-utils';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
@@ -18,6 +15,10 @@ import {
 } from 'react-native';
 import { KeyboardRegistry } from 'react-native-keyboard-input';
 import { Provider } from 'react-redux';
+
+import { extensionFromFilename } from 'lib/media/file-utils';
+import type { MediaLibrarySelection } from 'lib/types/media-types';
+import { connect } from 'lib/utils/redux-utils';
 
 import {
   type DimensionsInfo,
@@ -33,7 +34,6 @@ import {
 } from '../themes/colors';
 import type { ViewToken, LayoutEvent } from '../types/react-native';
 import type { ViewStyle } from '../types/styles';
-
 import { getCompatibleMediaURI } from './identifier-utils';
 import MediaGalleryMedia from './media-gallery-media.react';
 import SendMediaButton from './send-media-button.react';

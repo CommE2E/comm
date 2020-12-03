@@ -1,12 +1,13 @@
 // @flow
 
+import t from 'tcomb';
+
 import type {
   CodeVerificationRequest,
   HandleVerificationCodeResult,
 } from 'lib/types/verify-types';
 import { verifyField } from 'lib/types/verify-types';
 import { ServerError } from 'lib/utils/errors';
-import t from 'tcomb';
 
 import { handleCodeVerificationRequest } from '../models/verification';
 import type { Viewer } from '../session/viewer';

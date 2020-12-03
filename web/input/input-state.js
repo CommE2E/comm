@@ -1,5 +1,8 @@
 // @flow
 
+import PropTypes from 'prop-types';
+import * as React from 'react';
+
 import {
   type MediaType,
   mediaTypePropType,
@@ -9,8 +12,6 @@ import {
   mediaMissionStepPropType,
 } from 'lib/types/media-types';
 import type { RawTextMessageInfo } from 'lib/types/message-types';
-import PropTypes from 'prop-types';
-import * as React from 'react';
 
 export type PendingMultimediaUpload = {|
   localID: string,

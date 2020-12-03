@@ -1,6 +1,7 @@
 // @flow
 
 import crypto from 'crypto';
+import bcrypt from 'twin-bcrypt';
 
 import { updateTypes } from 'lib/types/update-types';
 import {
@@ -10,7 +11,6 @@ import {
   type ServerSuccessfulVerificationResult,
 } from 'lib/types/verify-types';
 import { ServerError } from 'lib/utils/errors';
-import bcrypt from 'twin-bcrypt';
 
 import createIDs from '../creators/id-creator';
 import { createUpdates } from '../creators/update-creator';

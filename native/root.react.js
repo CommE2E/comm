@@ -6,7 +6,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import type { PossiblyStaleNavigationState } from '@react-navigation/native';
 import * as SplashScreen from 'expo-splash-screen';
 import invariant from 'invariant';
-import { actionLogger } from 'lib/utils/action-logger';
 import * as React from 'react';
 import { Platform, UIManager, View, StyleSheet, LogBox } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
@@ -16,6 +15,8 @@ import {
 } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
+
+import { actionLogger } from 'lib/utils/action-logger';
 
 import ConnectedStatusBar from './connected-status-bar.react';
 import ErrorBoundary from './error-boundary.react';

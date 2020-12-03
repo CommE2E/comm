@@ -13,7 +13,6 @@ import { ServerError } from 'lib/utils/errors';
 import { dbQuery, SQL } from '../database/database';
 import { getUploadURL } from '../fetchers/upload-fetchers';
 import type { Viewer } from '../session/viewer';
-
 import createIDs from './id-creator';
 
 export type UploadInput = {|

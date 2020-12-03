@@ -4,7 +4,6 @@ import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
 import { updateThreadLastNavigatedActionType } from '../redux/action-types';
-
 import { useActiveMessageList } from './nav-selectors';
 
 const ThreadScreenTracker = React.memo<{||}>(() => {

@@ -1,6 +1,9 @@
 // @flow
 
 import invariant from 'invariant';
+import t from 'tcomb';
+import bcrypt from 'twin-bcrypt';
+
 import type {
   ResetPasswordRequest,
   LogOutResponse,
@@ -21,8 +24,6 @@ import type { AccountUpdate } from 'lib/types/user-types';
 import { ServerError } from 'lib/utils/errors';
 import { values } from 'lib/utils/objects';
 import { promiseAll } from 'lib/utils/promises';
-import t from 'tcomb';
-import bcrypt from 'twin-bcrypt';
 
 import createAccount from '../creators/account-creator';
 import { dbQuery, SQL } from '../database/database';
@@ -53,7 +54,6 @@ import {
   tDeviceType,
   tPassword,
 } from '../utils/validation-utils';
-
 import {
   entryQueryInputValidator,
   newEntryQueryInputValidator,

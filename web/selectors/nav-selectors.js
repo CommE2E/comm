@@ -1,13 +1,14 @@
 // @flow
 
 import invariant from 'invariant';
+import * as React from 'react';
+import { useDispatch } from 'react-redux';
+import { createSelector } from 'reselect';
+
 import { nonThreadCalendarFiltersSelector } from 'lib/selectors/calendar-filter-selectors';
 import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { CalendarFilter } from 'lib/types/filter-types';
-import * as React from 'react';
-import { useDispatch } from 'react-redux';
-import { createSelector } from 'reselect';
 
 import type { AppState } from '../redux/redux-setup';
 import { updateNavInfoActionType } from '../redux/redux-setup';

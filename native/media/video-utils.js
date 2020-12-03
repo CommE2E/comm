@@ -1,6 +1,9 @@
 // @flow
 
 import invariant from 'invariant';
+import { Platform } from 'react-native';
+import filesystem from 'react-native-fs';
+
 import { mediaConfig, pathFromURI } from 'lib/media/file-utils';
 import { getVideoProcessingPlan } from 'lib/media/video-utils';
 import type {
@@ -10,8 +13,6 @@ import type {
   Dimensions,
 } from 'lib/types/media-types';
 import { getMessageForException } from 'lib/utils/errors';
-import { Platform } from 'react-native';
-import filesystem from 'react-native-fs';
 
 import { ffmpeg } from './ffmpeg';
 

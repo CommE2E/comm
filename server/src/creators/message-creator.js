@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 import {
   rawMessageInfoFromMessageData,
@@ -32,7 +33,6 @@ import type { Viewer } from '../session/viewer';
 import { earliestFocusedTimeConsideredCurrent } from '../shared/focused-times';
 import { publisher } from '../socket/redis';
 import { creationString } from '../utils/idempotent';
-
 import createIDs from './id-creator';
 import type { UpdatesForCurrentSession } from './update-creator';
 import { createUpdates } from './update-creator';

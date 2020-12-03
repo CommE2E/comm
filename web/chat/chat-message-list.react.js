@@ -3,6 +3,11 @@
 import classNames from 'classnames';
 import { detect as detectBrowser } from 'detect-browser';
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { useDrop } from 'react-dnd';
+import { NativeTypes } from 'react-dnd-html5-backend';
+
 import {
   fetchMessagesBeforeCursorActionTypes,
   fetchMessagesBeforeCursor,
@@ -25,10 +30,6 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
-import PropTypes from 'prop-types';
-import * as React from 'react';
-import { useDrop } from 'react-dnd';
-import { NativeTypes } from 'react-dnd-html5-backend';
 
 import {
   inputStatePropType,
@@ -39,7 +40,6 @@ import LoadingIndicator from '../loading-indicator.react';
 import { useTextMessageRulesFunc } from '../markdown/rules.react';
 import { useSelector } from '../redux/redux-utils';
 import { webMessageListData } from '../selectors/chat-selectors';
-
 import ChatInputBar from './chat-input-bar.react';
 import css from './chat-message-list.css';
 import { MessageListContext } from './message-list-types';

@@ -1,10 +1,11 @@
 // @flow
 
-import { connect } from 'lib/utils/redux-utils';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import { Animated, View } from 'react-native';
 import SwipeableComponent from 'react-native-gesture-handler/Swipeable';
+
+import { connect } from 'lib/utils/redux-utils';
 
 import type { AppState } from '../redux/redux-setup';
 import {
@@ -13,7 +14,6 @@ import {
   colorsSelector,
   styleSelector,
 } from '../themes/colors';
-
 import Button from './button.react';
 
 type Props = {

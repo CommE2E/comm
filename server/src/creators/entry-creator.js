@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+
 import type {
   CreateEntryRequest,
   SaveEntryResponse,

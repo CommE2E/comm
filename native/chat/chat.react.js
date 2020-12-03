@@ -35,7 +35,6 @@ import {
   type ChatTopTabsParamList,
 } from '../navigation/route-names';
 import { useStyles } from '../themes/colors';
-
 import BackgroundChatThreadList from './background-chat-thread-list.react';
 import ChatHeader from './chat-header.react';
 import ChatRouter, { type ChatRouterNavigationProp } from './chat-router';

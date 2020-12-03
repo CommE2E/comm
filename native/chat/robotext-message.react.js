@@ -1,6 +1,9 @@
 // @flow
 
 import invariant from 'invariant';
+import * as React from 'react';
+import { Text, TouchableWithoutFeedback, View } from 'react-native';
+
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import {
   messageKey,
@@ -10,8 +13,6 @@ import {
 } from 'lib/shared/message-utils';
 import type { RobotextMessageInfo } from 'lib/types/message-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import * as React from 'react';
-import { Text, TouchableWithoutFeedback, View } from 'react-native';
 
 import { KeyboardContext } from '../keyboard/keyboard-state';
 import Markdown from '../markdown/markdown.react';
@@ -19,7 +20,6 @@ import { inlineMarkdownRules } from '../markdown/rules.react';
 import { MessageListRouteName } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { useStyles } from '../themes/colors';
-
 import type { ChatNavigationProp } from './chat.react';
 import { Timestamp } from './timestamp.react';
 

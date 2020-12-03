@@ -1,12 +1,12 @@
 // @flow
 
-import { verifyField } from 'lib/types/verify-types';
 import React from 'react';
 import { Item, Span, A, renderEmail } from 'react-html-email';
 
+import { verifyField } from 'lib/types/verify-types';
+
 import urlFacts from '../../facts/url';
 import { createVerificationCode } from '../models/verification';
-
 import sendmail from './sendmail';
 import Template from './template.react';
 

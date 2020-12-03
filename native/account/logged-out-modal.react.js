@@ -1,13 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import {
-  appStartNativeCredentialsAutoLogIn,
-  appStartReduxLoggedInButInvalidCookie,
-} from 'lib/actions/user-actions';
-import { isLoggedIn } from 'lib/selectors/user-selectors';
-import type { Dispatch } from 'lib/types/redux-types';
-import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
 import _isEqual from 'lodash/fp/isEqual';
 import * as React from 'react';
 import {
@@ -25,6 +18,14 @@ import Animated, { Easing } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useDispatch } from 'react-redux';
+
+import {
+  appStartNativeCredentialsAutoLogIn,
+  appStartReduxLoggedInButInvalidCookie,
+} from 'lib/actions/user-actions';
+import { isLoggedIn } from 'lib/selectors/user-selectors';
+import type { Dispatch } from 'lib/types/redux-types';
+import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
 
 import ConnectedStatusBar from '../connected-status-bar.react';
 import type { KeyboardEvent, EmitterSubscription } from '../keyboard/keyboard';
@@ -53,7 +54,6 @@ import {
   type StateChange,
   setStateForContainer,
 } from '../utils/state-container';
-
 import { splashBackgroundURI } from './background-info';
 import LogInPanelContainer from './log-in-panel-container.react';
 import type { LogInState } from './log-in-panel.react';

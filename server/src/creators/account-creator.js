@@ -1,6 +1,8 @@
 // @flow
 
 import invariant from 'invariant';
+import bcrypt from 'twin-bcrypt';
+
 import ashoat from 'lib/facts/ashoat';
 import {
   validUsernameRegex,
@@ -16,7 +18,6 @@ import { messageTypes } from 'lib/types/message-types';
 import { threadTypes } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
 import { values } from 'lib/utils/objects';
-import bcrypt from 'twin-bcrypt';
 
 import { dbQuery, SQL } from '../database/database';
 import { deleteCookie } from '../deleters/cookie-deleters';
@@ -26,7 +27,6 @@ import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
 import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
 import { createNewUserCookie, setNewSession } from '../session/cookies';
 import type { Viewer } from '../session/viewer';
-
 import createIDs from './id-creator';
 import createMessages from './message-creator';
 import createThread from './thread-creator';

@@ -12,7 +12,6 @@ import {
   changeRole,
   commitMembershipChangeset,
 } from '../updaters/thread-permission-updaters';
-
 import { endScript } from './utils';
 
 async function main() {

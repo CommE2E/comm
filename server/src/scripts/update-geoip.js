@@ -1,7 +1,6 @@
 // @flow
 
 import { updateGeoipDB } from '../cron/update-geoip-db';
-
 import { endScript } from './utils';
 
 async function main() {

@@ -1,5 +1,8 @@
 // @flow
 
+import * as React from 'react';
+import { useDispatch } from 'react-redux';
+
 import { logOut } from 'lib/actions/user-actions';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
@@ -8,8 +11,6 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
-import * as React from 'react';
-import { useDispatch } from 'react-redux';
 
 import { InputStateContext } from './input/input-state';
 import {

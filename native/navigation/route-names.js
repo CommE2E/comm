@@ -19,7 +19,6 @@ import type { CameraModalParams } from '../media/camera-modal.react';
 import type { MultimediaModalParams } from '../media/multimedia-modal.react';
 import type { CustomServerModalParams } from '../more/custom-server-modal.react';
 import type { RelationshipListItemTooltipModalParams } from '../more/relationship-list-item-tooltip-modal.react';
-
 import type { ActionResultModalParams } from './action-result-modal.react';
 
 export const AppRouteName = 'App';

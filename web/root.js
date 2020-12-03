@@ -1,11 +1,12 @@
 // @flow
 
-import { reduxLoggerMiddleware } from 'lib/utils/action-logger';
 import * as React from 'react';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware, type Store } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction';
 import thunk from 'redux-thunk';
+
+import { reduxLoggerMiddleware } from 'lib/utils/action-logger';
 
 import HotRoot from './hot';
 import { reducer } from './redux/redux-setup';

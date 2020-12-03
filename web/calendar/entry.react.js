@@ -2,6 +2,9 @@
 
 import classNames from 'classnames';
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+
 import {
   createEntryActionTypes,
   createEntry,
@@ -35,8 +38,6 @@ import type {
 import { dateString } from 'lib/utils/date-utils';
 import { ServerError } from 'lib/utils/errors';
 import { connect } from 'lib/utils/redux-utils';
-import PropTypes from 'prop-types';
-import * as React from 'react';
 
 import LoadingIndicator from '../loading-indicator.react';
 import LogInFirstModal from '../modals/account/log-in-first-modal.react';
@@ -45,7 +46,6 @@ import HistoryModal from '../modals/history/history-modal.react';
 import type { AppState } from '../redux/redux-setup';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import { HistoryVector, DeleteVector } from '../vectors.react';
-
 import css from './calendar.css';
 
 type Props = {|

@@ -1,8 +1,9 @@
 // @flow
 
 import AsyncStorage from '@react-native-community/async-storage';
-import sleep from 'lib/utils/sleep';
 import ExitApp from 'react-native-exit-app';
+
+import sleep from 'lib/utils/sleep';
 
 import { navStateAsyncStorageKey } from '../navigation/persistance';
 import { getPersistor } from '../redux/persist';

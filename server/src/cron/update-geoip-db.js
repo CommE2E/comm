@@ -2,7 +2,6 @@
 
 import childProcess from 'child_process';
 import cluster from 'cluster';
-
 import geoip from 'geoip-lite';
 
 import { handleAsyncPromise } from '../responders/handlers';

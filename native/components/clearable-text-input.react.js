@@ -1,11 +1,11 @@
 // @flow
 
-import sleep from 'lib/utils/sleep';
 import * as React from 'react';
 import { TextInput, View, StyleSheet } from 'react-native';
 
-import { waitForInteractions } from '../utils/timers';
+import sleep from 'lib/utils/sleep';
 
+import { waitForInteractions } from '../utils/timers';
 import type { ClearableTextInputProps } from './clearable-text-input';
 
 class ClearableTextInput extends React.PureComponent<ClearableTextInputProps> {

@@ -1,6 +1,8 @@
 // @flow
 
 import classNames from 'classnames';
+import * as React from 'react';
+
 import { messagePreviewText } from 'lib/shared/message-utils';
 import { threadIsGroupChat } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
@@ -11,7 +13,6 @@ import {
 } from 'lib/types/message-types';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import { firstLine } from 'lib/utils/string-utils';
-import * as React from 'react';
 
 import css from './chat-thread-list.css';
 

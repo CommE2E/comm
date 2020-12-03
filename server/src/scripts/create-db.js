@@ -12,7 +12,6 @@ import { threadTypes } from 'lib/types/thread-types';
 
 import { getRolePermissionBlobsForChat } from '../creators/role-creator';
 import { dbQuery, SQL } from '../database/database';
-
 import { setScriptContext } from './script-context';
 import { endScript } from './utils';
 

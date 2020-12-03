@@ -1,6 +1,17 @@
 // @flow
 
 import invariant from 'invariant';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import {
+  Text,
+  View,
+  TextInput,
+  ScrollView,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
+
 import {
   deleteAccountActionTypes,
   deleteAccount,
@@ -16,16 +27,6 @@ import {
 } from 'lib/types/session-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import { connect } from 'lib/utils/redux-utils';
-import PropTypes from 'prop-types';
-import * as React from 'react';
-import {
-  Text,
-  View,
-  TextInput,
-  ScrollView,
-  Alert,
-  ActivityIndicator,
-} from 'react-native';
 
 import { deleteNativeCredentialsFor } from '../account/native-credentials';
 import Button from '../components/button.react';

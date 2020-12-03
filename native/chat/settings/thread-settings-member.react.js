@@ -1,6 +1,15 @@
 // @flow
 
 import invariant from 'invariant';
+import * as React from 'react';
+import {
+  View,
+  Text,
+  Platform,
+  ActivityIndicator,
+  TouchableOpacity,
+} from 'react-native';
+
 import {
   removeUsersFromThreadActionTypes,
   changeThreadMemberRolesActionTypes,
@@ -18,14 +27,6 @@ import {
   type RelativeMemberInfo,
   threadPermissions,
 } from 'lib/types/thread-types';
-import * as React from 'react';
-import {
-  View,
-  Text,
-  Platform,
-  ActivityIndicator,
-  TouchableOpacity,
-} from 'react-native';
 
 import PencilIcon from '../../components/pencil-icon.react';
 import { SingleLine } from '../../components/single-line.react';
@@ -41,7 +42,6 @@ import { ThreadSettingsMemberTooltipModalRouteName } from '../../navigation/rout
 import { useSelector } from '../../redux/redux-utils';
 import { type Colors, useColors, useStyles } from '../../themes/colors';
 import type { VerticalBounds } from '../../types/layout-types';
-
 import type { ThreadSettingsNavigate } from './thread-settings.react';
 
 type BaseProps = {|

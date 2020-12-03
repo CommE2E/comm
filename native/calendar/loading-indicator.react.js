@@ -1,9 +1,10 @@
 // @flow
 
-import type { LoadingStatus } from 'lib/types/loading-types';
 import * as React from 'react';
 import { ActivityIndicator, StyleSheet, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
+
+import type { LoadingStatus } from 'lib/types/loading-types';
 
 type Props = {|
   loadingStatus: LoadingStatus,

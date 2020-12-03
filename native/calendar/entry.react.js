@@ -1,6 +1,24 @@
 // @flow
 
 import invariant from 'invariant';
+import _isEqual from 'lodash/fp/isEqual';
+import _omit from 'lodash/fp/omit';
+import * as React from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  Platform,
+  TouchableWithoutFeedback,
+  Alert,
+  LayoutAnimation,
+  Keyboard,
+} from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { useDispatch } from 'react-redux';
+import shallowequal from 'shallowequal';
+import tinycolor from 'tinycolor2';
+
 import {
   createEntryActionTypes,
   createEntry,
@@ -33,23 +51,6 @@ import {
 import { dateString } from 'lib/utils/date-utils';
 import { ServerError } from 'lib/utils/errors';
 import sleep from 'lib/utils/sleep';
-import _isEqual from 'lodash/fp/isEqual';
-import _omit from 'lodash/fp/omit';
-import * as React from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  Platform,
-  TouchableWithoutFeedback,
-  Alert,
-  LayoutAnimation,
-  Keyboard,
-} from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import { useDispatch } from 'react-redux';
-import shallowequal from 'shallowequal';
-import tinycolor from 'tinycolor2';
 
 import Button from '../components/button.react';
 import { SingleLine } from '../components/single-line.react';
@@ -69,7 +70,6 @@ import { useSelector } from '../redux/redux-utils';
 import { colors, useStyles } from '../themes/colors';
 import type { LayoutEvent } from '../types/react-native';
 import { waitForInteractions } from '../utils/timers';
-
 import type { EntryInfoWithHeight } from './calendar.react';
 import LoadingIndicator from './loading-indicator.react';
 
