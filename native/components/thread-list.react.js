@@ -2,19 +2,15 @@
 
 import invariant from 'invariant';
 import SearchIndex from 'lib/shared/search-index';
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import { connect } from 'lib/utils/redux-utils';
-import PropTypes from 'prop-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import * as React from 'react';
-import { FlatList, ViewPropTypes, Text, TextInput } from 'react-native';
+import { FlatList, TextInput } from 'react-native';
 import { createSelector } from 'reselect';
 
-import type { AppState } from '../redux/redux-setup';
 import {
-  styleSelector,
   type IndicatorStyle,
-  indicatorStylePropType,
-  indicatorStyleSelector,
+  useStyles,
+  useIndicatorStyle,
 } from '../themes/colors';
 import type { ViewStyle, TextStyle } from '../types/styles';
 import { waitForModalInputFocus } from '../utils/timers';
@@ -22,31 +18,25 @@ import { waitForModalInputFocus } from '../utils/timers';
 import Search from './search.react';
 import ThreadListThread from './thread-list-thread.react';
 
+type BaseProps = {|
+  +threadInfos: $ReadOnlyArray<ThreadInfo>,
+  +onSelect: (threadID: string) => void,
+  +itemStyle?: ViewStyle,
+  +itemTextStyle?: TextStyle,
+  +searchIndex?: SearchIndex,
+|};
 type Props = {|
-  threadInfos: $ReadOnlyArray<ThreadInfo>,
-  onSelect: (threadID: string) => void,
-  itemStyle?: ViewStyle,
-  itemTextStyle?: TextStyle,
-  searchIndex?: SearchIndex,
+  ...BaseProps,
   // Redux state
-  styles: typeof styles,
-  indicatorStyle: IndicatorStyle,
+  +styles: typeof unboundStyles,
+  +indicatorStyle: IndicatorStyle,
 |};
 type State = {|
-  searchText: string,
-  searchResults: Set<string>,
+  +searchText: string,
+  +searchResults: Set<string>,
 |};
 type PropsAndState = {| ...Props, ...State |};
 class ThreadList extends React.PureComponent<Props, State> {
-  static propTypes = {
-    threadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
-    onSelect: PropTypes.func.isRequired,
-    itemStyle: ViewPropTypes.style,
-    itemTextStyle: Text.propTypes.style,
-    searchIndex: PropTypes.instanceOf(SearchIndex),
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    indicatorStyle: indicatorStylePropType.isRequired,
-  };
   state: State = {
     searchText: '',
     searchResults: new Set(),
@@ -141,14 +131,19 @@ class ThreadList extends React.PureComponent<Props, State> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   search: {
     marginBottom: 8,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-export default connect((state: AppState) => ({
-  styles: stylesSelector(state),
-  indicatorStyle: indicatorStyleSelector(state),
-}))(ThreadList);
+export default React.memo<BaseProps>(function ConnectedThreadList(
+  props: BaseProps,
+) {
+  const styles = useStyles(unboundStyles);
+  const indicatorStyle = useIndicatorStyle();
+
+  return (
+    <ThreadList {...props} styles={styles} indicatorStyle={indicatorStyle} />
+  );
+});
