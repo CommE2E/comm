@@ -7,27 +7,22 @@ import {
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import { loadingStatusPropType } from 'lib/types/loading-types';
 import {
   type ThreadInfo,
-  threadInfoPropType,
   type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
 } from 'lib/types/thread-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
-import PropTypes from 'prop-types';
+import {
+  type DispatchActionPromise,
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
 import * as React from 'react';
 import { Text, Alert, ActivityIndicator, TextInput, View } from 'react-native';
 
 import EditSettingButton from '../../components/edit-setting-button.react';
-import type { AppState } from '../../redux/redux-setup';
-import {
-  type Colors,
-  colorsPropType,
-  colorsSelector,
-  styleSelector,
-} from '../../themes/colors';
+import { useSelector } from '../../redux/redux-utils';
+import { type Colors, useStyles, useColors } from '../../themes/colors';
 import type {
   LayoutEvent,
   ContentSizeChangeEvent,
@@ -35,38 +30,28 @@ import type {
 
 import SaveSettingButton from './save-setting-button.react';
 
+type BaseProps = {|
+  +threadInfo: ThreadInfo,
+  +nameEditValue: ?string,
+  +setNameEditValue: (value: ?string, callback?: () => void) => void,
+  +nameTextHeight: ?number,
+  +setNameTextHeight: (number: number) => void,
+  +canChangeSettings: boolean,
+|};
 type Props = {|
-  threadInfo: ThreadInfo,
-  nameEditValue: ?string,
-  setNameEditValue: (value: ?string, callback?: () => void) => void,
-  nameTextHeight: ?number,
-  setNameTextHeight: (number: number) => void,
-  canChangeSettings: boolean,
+  ...BaseProps,
   // Redux state
-  loadingStatus: LoadingStatus,
-  colors: Colors,
-  styles: typeof styles,
+  +loadingStatus: LoadingStatus,
+  +colors: Colors,
+  +styles: typeof unboundStyles,
   // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  changeThreadSettings: (
+  +changeThreadSettings: (
     update: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsPayload>,
 |};
 class ThreadSettingsName extends React.PureComponent<Props> {
-  static propTypes = {
-    threadInfo: threadInfoPropType.isRequired,
-    nameEditValue: PropTypes.string,
-    setNameEditValue: PropTypes.func.isRequired,
-    nameTextHeight: PropTypes.number,
-    setNameTextHeight: PropTypes.func.isRequired,
-    canChangeSettings: PropTypes.bool.isRequired,
-    loadingStatus: loadingStatusPropType.isRequired,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    changeThreadSettings: PropTypes.func.isRequired,
-  };
   textInput: ?React.ElementRef<typeof TextInput>;
 
   render() {
@@ -207,7 +192,7 @@ class ThreadSettingsName extends React.PureComponent<Props> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   currentValue: {
     color: 'panelForegroundSecondaryLabel',
     flex: 1,
@@ -231,18 +216,30 @@ const styles = {
     paddingVertical: 8,
   },
 };
-const stylesSelector = styleSelector(styles);
 
 const loadingStatusSelector = createLoadingStatusSelector(
   changeThreadSettingsActionTypes,
   `${changeThreadSettingsActionTypes.started}:name`,
 );
 
-export default connect(
-  (state: AppState) => ({
-    loadingStatus: loadingStatusSelector(state),
-    colors: colorsSelector(state),
-    styles: stylesSelector(state),
-  }),
-  { changeThreadSettings },
-)(ThreadSettingsName);
+export default React.memo<BaseProps>(function ConnectedThreadSettingsName(
+  props: BaseProps,
+) {
+  const styles = useStyles(unboundStyles);
+  const colors = useColors();
+  const loadingStatus = useSelector(loadingStatusSelector);
+
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callChangeThreadSettings = useServerCall(changeThreadSettings);
+
+  return (
+    <ThreadSettingsName
+      {...props}
+      styles={styles}
+      colors={colors}
+      loadingStatus={loadingStatus}
+      dispatchActionPromise={dispatchActionPromise}
+      changeThreadSettings={callChangeThreadSettings}
+    />
+  );
+});
