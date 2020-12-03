@@ -8,30 +8,25 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadHasPermission } from 'lib/shared/thread-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import { loadingStatusPropType } from 'lib/types/loading-types';
 import {
   type ThreadInfo,
-  threadInfoPropType,
   threadPermissions,
   type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
 } from 'lib/types/thread-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
-import PropTypes from 'prop-types';
+import {
+  type DispatchActionPromise,
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
 import * as React from 'react';
 import { Text, Alert, ActivityIndicator, TextInput, View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 import Button from '../../components/button.react';
 import EditSettingButton from '../../components/edit-setting-button.react';
-import type { AppState } from '../../redux/redux-setup';
-import {
-  type Colors,
-  colorsPropType,
-  colorsSelector,
-  styleSelector,
-} from '../../themes/colors';
+import { useSelector } from '../../redux/redux-utils';
+import { type Colors, useStyles, useColors } from '../../themes/colors';
 import type {
   LayoutEvent,
   ContentSizeChangeEvent,
@@ -43,38 +38,28 @@ import {
   ThreadSettingsCategoryFooter,
 } from './thread-settings-category.react';
 
+type BaseProps = {|
+  +threadInfo: ThreadInfo,
+  +descriptionEditValue: ?string,
+  +setDescriptionEditValue: (value: ?string, callback?: () => void) => void,
+  +descriptionTextHeight: ?number,
+  +setDescriptionTextHeight: (number: number) => void,
+  +canChangeSettings: boolean,
+|};
 type Props = {|
-  threadInfo: ThreadInfo,
-  descriptionEditValue: ?string,
-  setDescriptionEditValue: (value: ?string, callback?: () => void) => void,
-  descriptionTextHeight: ?number,
-  setDescriptionTextHeight: (number: number) => void,
-  canChangeSettings: boolean,
+  ...BaseProps,
   // Redux state
-  loadingStatus: LoadingStatus,
-  colors: Colors,
-  styles: typeof styles,
+  +loadingStatus: LoadingStatus,
+  +colors: Colors,
+  +styles: typeof unboundStyles,
   // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  changeThreadSettings: (
+  +changeThreadSettings: (
     update: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsPayload>,
 |};
 class ThreadSettingsDescription extends React.PureComponent<Props> {
-  static propTypes = {
-    threadInfo: threadInfoPropType.isRequired,
-    descriptionEditValue: PropTypes.string,
-    setDescriptionEditValue: PropTypes.func.isRequired,
-    descriptionTextHeight: PropTypes.number,
-    setDescriptionTextHeight: PropTypes.func.isRequired,
-    canChangeSettings: PropTypes.bool.isRequired,
-    loadingStatus: loadingStatusPropType.isRequired,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    changeThreadSettings: PropTypes.func.isRequired,
-  };
   textInput: ?React.ElementRef<typeof TextInput>;
 
   render() {
@@ -246,7 +231,7 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   addDescriptionButton: {
     flexDirection: 'row',
     paddingHorizontal: 24,
@@ -287,18 +272,29 @@ const styles = {
     borderBottomColor: 'transparent',
   },
 };
-const stylesSelector = styleSelector(styles);
 
 const loadingStatusSelector = createLoadingStatusSelector(
   changeThreadSettingsActionTypes,
   `${changeThreadSettingsActionTypes.started}:description`,
 );
 
-export default connect(
-  (state: AppState) => ({
-    loadingStatus: loadingStatusSelector(state),
-    colors: colorsSelector(state),
-    styles: stylesSelector(state),
-  }),
-  { changeThreadSettings },
-)(ThreadSettingsDescription);
+export default React.memo<BaseProps>(
+  function ConnectedThreadSettingsDescription(props: BaseProps) {
+    const loadingStatus = useSelector(loadingStatusSelector);
+    const colors = useColors();
+    const styles = useStyles(unboundStyles);
+
+    const dispatchActionPromise = useDispatchActionPromise();
+    const callChangeThreadSettings = useServerCall(changeThreadSettings);
+    return (
+      <ThreadSettingsDescription
+        {...props}
+        loadingStatus={loadingStatus}
+        colors={colors}
+        styles={styles}
+        dispatchActionPromise={dispatchActionPromise}
+        changeThreadSettings={callChangeThreadSettings}
+      />
+    );
+  },
+);
