@@ -1,23 +1,19 @@
 // @flow
 
-import { connect } from 'lib/utils/redux-utils';
 import * as React from 'react';
 import { TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-import type { AppState } from '../redux/redux-setup';
-import type { Colors } from '../themes/colors';
-import { colorsSelector } from '../themes/colors';
+import { useColors } from '../themes/colors';
 import type { TextStyle } from '../types/styles';
 
 type Props = {|
-  onPress: () => void,
-  canChangeSettings: boolean,
-  style?: TextStyle,
-  // Redux state
-  colors: Colors,
+  +onPress: () => void,
+  +canChangeSettings: boolean,
+  +style?: TextStyle,
 |};
 function EditSettingButton(props: Props) {
+  const colors = useColors();
   if (!props.canChangeSettings) {
     return null;
   }
@@ -25,7 +21,7 @@ function EditSettingButton(props: Props) {
   if (props.style) {
     appliedStyles.push(props.style);
   }
-  const { link: linkColor } = props.colors;
+  const { link: linkColor } = colors;
   return (
     <TouchableOpacity onPress={props.onPress}>
       <Icon name="pencil" size={16} style={appliedStyles} color={linkColor} />
@@ -41,6 +37,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect((state: AppState) => ({
-  colors: colorsSelector(state),
-}))(EditSettingButton);
+export default EditSettingButton;
