@@ -30,12 +30,12 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { trimMessage } from 'lib/shared/message-utils';
 import {
-  getOtherMemberID,
   threadHasPermission,
   viewerIsMember,
   threadIsPersonalAndPending,
   threadFrozenDueToViewerBlock,
   threadActualMembers,
+  getPendingPersonalThreadOtherUser,
 } from 'lib/shared/thread-utils';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
@@ -620,11 +620,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       return threadInfo.id;
     }
 
-    const otherMemberID = getOtherMemberID(threadInfo);
-    invariant(
-      otherMemberID,
-      'Pending thread should contain other member id in its id',
-    );
+    const otherMemberID = getPendingPersonalThreadOtherUser(threadInfo);
     try {
       const resultPromise = this.props.newThread({
         type: threadTypes.PERSONAL,
