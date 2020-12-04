@@ -13,7 +13,7 @@ const { squadbot } = bots;
 async function createSquadbotThread(userID: string): Promise<string> {
   const squadbotViewer = createBotViewer(squadbot.userID);
   const newThreadRequest = {
-    type: threadTypes.CHAT_SECRET,
+    type: threadTypes.PERSONAL,
     initialMemberIDs: [userID],
   };
   const result = await createThread(squadbotViewer, newThreadRequest, true);

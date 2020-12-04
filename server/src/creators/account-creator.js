@@ -120,7 +120,7 @@ async function createAccount(
     createThread(
       viewer,
       {
-        type: threadTypes.CHAT_SECRET,
+        type: threadTypes.PERSONAL,
         initialMemberIDs: [ashoat.id],
       },
       true,
