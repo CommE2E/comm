@@ -219,6 +219,7 @@ async function createThread(
         updatesResult: {
           newUpdates: [],
         },
+        userInfos: {},
         newMessageInfos: [],
       };
     }
@@ -293,11 +294,13 @@ async function createThread(
   setJoinsToUnread(membershipRows, viewer.userID, id);
 
   const changeset = { membershipRows, relationshipRows };
-  const { threadInfos, viewerUpdates } = await commitMembershipChangeset(
-    viewer,
-    changeset,
-    { updatesForCurrentSession },
-  );
+  const {
+    threadInfos,
+    viewerUpdates,
+    userInfos,
+  } = await commitMembershipChangeset(viewer, changeset, {
+    updatesForCurrentSession,
+  });
 
   const messageDatas = [
     {
@@ -335,6 +338,7 @@ async function createThread(
       updatesResult: {
         newUpdates: viewerUpdates,
       },
+      userInfos,
       newMessageInfos,
     };
   }
@@ -344,6 +348,7 @@ async function createThread(
     updatesResult: {
       newUpdates: viewerUpdates,
     },
+    userInfos,
     newMessageInfos,
   };
 }
