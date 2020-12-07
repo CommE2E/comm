@@ -32,15 +32,17 @@ Install [Homebrew](https://brew.sh/), a package manager for macOS.
 Next, install [Node](https://nodejs.org/) using Homebrew.
 
 ```
-brew install node
+brew install node; brew upgrade node
 ```
+
+The reason we use both `install` and `upgrade` is that there's no single Homebrew command equivalent to "install if not installed, and upgrade if already installed".
 
 ## Yarn
 
 We use the [Yarn](https://yarnpkg.com/) package manager for JavaScript in our repo.
 
 ```
-brew install yarn
+brew install yarn; brew upgrade yarn
 ```
 
 ## Watchman
@@ -48,7 +50,7 @@ brew install yarn
 Watchman is a tool from Facebook used in the React Native dev environment to watch for changes to your filesystem.
 
 ```
-brew install watchman
+brew install watchman; brew upgrade watchman
 ```
 
 ## nvm
@@ -56,7 +58,7 @@ brew install watchman
 Node Version Manager is a tool that helps us make sure we use the same version of Node on our server between prod and dev environments.
 
 ```
-brew install nvm
+brew install nvm; brew upgrade nvm
 ```
 
 After installing, Homebrew will print out some instructions under the Caveats section of its output. It will ask you to do two things: `mkdir ~/.nvm`, and to add some lines to your `~/.bash_profile` (or desired shell configuration file). We recommend that you append `--no-use` to the line that loads nvm, so that you continue to use your Homebrew-sourced Node distribution by default:
@@ -78,7 +80,7 @@ source ~/.bash_profile
 For now we’re using MySQL 5.7 as the primary server-side database. Hopefully we’ll change this soon, but for now, install MySQL 5.7 using Homebrew.
 
 ```
-brew install mysql@5.7
+brew install mysql@5.7; brew upgrade mysql@5.7
 ```
 
 Next we’ll configure MySQL to start when your computer boots using `brew services`:
@@ -105,7 +107,7 @@ mysqladmin -u root password
 We use Redis on the server side as a message broker.
 
 ```
-brew install redis
+brew install redis; brew upgrade redis
 ```
 
 We’ll set it up to start on boot with `brew services`:
@@ -127,7 +129,7 @@ sudo gem install cocoapods
 The React Native Debugger allows you to step through Javascript execution, track Redux state, and inspect the React component tree.
 
 ```
-brew cask install react-native-debugger
+brew install react-native-debugger; brew upgrade react-native-debugger
 ```
 
 ## Reactotron
@@ -135,7 +137,7 @@ brew cask install react-native-debugger
 Reactotron is an event tracker and logger that can be used to aid in debugging on React Native.
 
 ```
-brew cask install reactotron
+brew install reactotron; brew upgrade reactotron
 ```
 
 ## JDK
@@ -143,7 +145,7 @@ brew cask install reactotron
 We’ll need the Java Development Kit for Android development.
 
 ```
-brew cask install adoptopenjdk/openjdk/adoptopenjdk8
+brew install adoptopenjdk/openjdk/adoptopenjdk8; brew upgrade adoptopenjdk/openjdk/adoptopenjdk8
 ```
 
 There's one more thing we have to do. macOS Big Sur comes with a Java 8 JRE for Java applets that has a higher version number than `adoptopenjdk8`. That JRE doesn't include a JDK, which is necessary in order to compile our app for Android.
