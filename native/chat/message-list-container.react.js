@@ -8,10 +8,15 @@ import {
   type ChatMessageItem,
   messageListData,
 } from 'lib/selectors/chat-selectors';
-import { possiblyPendingThreadInfoSelector } from 'lib/selectors/thread-selectors';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { messageID } from 'lib/shared/message-utils';
+import {
+  getPendingPersonalThreadOtherUser,
+  getCurrentUser,
+  threadIsPersonalAndPending,
+} from 'lib/shared/thread-utils';
 import { messageTypes } from 'lib/types/message-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import { type ThreadInfo, threadTypes } from 'lib/types/thread-types';
 
 import ContentLoading from '../components/content-loading.react';
 import NodeHeightMeasurer from '../components/node-height-measurer.react';
@@ -36,7 +41,6 @@ import MessageList from './message-list.react';
 import type { ChatMessageInfoItemWithHeight } from './message.react';
 import { multimediaMessageContentSizes } from './multimedia-message.react';
 import { dummyNodeForRobotextMessageHeightMeasurement } from './robotext-message.react';
-
 export type ChatMessageItemWithHeight =
   | {| itemType: 'loader' |}
   | ChatMessageInfoItemWithHeight;
@@ -48,7 +52,7 @@ type BaseProps = {|
 type Props = {|
   ...BaseProps,
   // Redux state
-  +threadInfo: ?ThreadInfo,
+  +threadInfo: ThreadInfo,
   +messageListData: $ReadOnlyArray<ChatMessageItem>,
   +composedMessageMaxWidth: number,
   +colors: Colors,
@@ -67,14 +71,6 @@ class MessageListContainer extends React.PureComponent<Props, State> {
   };
   pendingListDataWithHeights: ?$ReadOnlyArray<ChatMessageItemWithHeight>;
 
-  static getThreadInfo(props: Props): ThreadInfo {
-    const { threadInfo } = props;
-    if (threadInfo) {
-      return threadInfo;
-    }
-    return props.route.params.threadInfo;
-  }
-
   get frozen() {
     const { overlayContext } = this.props;
     invariant(
@@ -85,12 +81,6 @@ class MessageListContainer extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const oldReduxThreadInfo = prevProps.threadInfo;
-    const newReduxThreadInfo = this.props.threadInfo;
-    if (newReduxThreadInfo && newReduxThreadInfo !== oldReduxThreadInfo) {
-      this.props.navigation.setParams({ threadInfo: newReduxThreadInfo });
-    }
-
     const oldListData = prevProps.messageListData;
     const newListData = this.props.messageListData;
     if (!newListData && oldListData) {
@@ -104,7 +94,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const threadInfo = MessageListContainer.getThreadInfo(this.props);
+    const { threadInfo } = this.props;
     const { listDataWithHeights } = this.state;
 
     let messageList;
@@ -182,7 +172,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     }
 
     const { messageInfo } = item;
-    const threadInfo = MessageListContainer.getThreadInfo(this.props);
+    const { threadInfo } = this.props;
     if (
       messageInfo.type === messageTypes.IMAGES ||
       messageInfo.type === messageTypes.MULTIMEDIA
@@ -272,10 +262,62 @@ const unboundStyles = {
 export default React.memo<BaseProps>(function ConnectedMessageListContainer(
   props: BaseProps,
 ) {
-  const threadInfo = useSelector(
-    possiblyPendingThreadInfoSelector(props.route.params.threadInfo),
+  const viewerID = useSelector(
+    (state) => state.currentUserInfo && state.currentUserInfo.id,
   );
-  const threadID = threadInfo?.id ?? props.route.params.threadInfo.id;
+  const threadInfos = useSelector(threadInfoSelector);
+  const userInfos = useSelector((state) => state.userStore.userInfos);
+  const threadInfoRef = React.useRef(props.route.params.threadInfo);
+  const originalThreadInfoRef = React.useRef(props.route.params.threadInfo);
+  const originalThreadInfo = originalThreadInfoRef.current;
+
+  const latestThreadInfo = React.useMemo(() => {
+    const threadInfoFromParams = originalThreadInfo;
+    const threadInfoFromStore = threadInfos[threadInfoFromParams.id];
+
+    if (threadInfoFromStore) {
+      return threadInfoFromStore;
+    } else if (!viewerID || !threadIsPersonalAndPending(threadInfoFromParams)) {
+      return undefined;
+    }
+
+    const otherMemberID = getPendingPersonalThreadOtherUser(
+      threadInfoFromParams,
+    );
+    for (const threadID in threadInfos) {
+      const currentThreadInfo = threadInfos[threadID];
+      if (currentThreadInfo.type !== threadTypes.PERSONAL) {
+        continue;
+      }
+      invariant(
+        currentThreadInfo.members.length === 2,
+        'Personal thread should have exactly two members',
+      );
+      const members = new Set(
+        currentThreadInfo.members.map((member) => member.id),
+      );
+      if (members.has(viewerID) && members.has(otherMemberID)) {
+        return currentThreadInfo;
+      }
+    }
+
+    return {
+      ...threadInfoFromParams,
+      currentUser: getCurrentUser(threadInfoFromParams, viewerID, userInfos),
+    };
+  }, [threadInfos, userInfos, viewerID, originalThreadInfo]);
+
+  if (latestThreadInfo) {
+    threadInfoRef.current = latestThreadInfo;
+  }
+
+  const threadInfo = threadInfoRef.current;
+  const { setParams } = props.navigation;
+  React.useEffect(() => {
+    setParams({ threadInfo });
+  }, [setParams, threadInfo]);
+
+  const threadID = threadInfoRef.current.id;
   const boundMessageListData = useSelector(messageListData(threadID));
   const composedMessageMaxWidth = useSelector(composedMessageMaxWidthSelector);
   const colors = useColors();
@@ -287,7 +329,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     <MessageListContext.Provider value={messageListContext}>
       <MessageListContainer
         {...props}
-        threadInfo={threadInfo}
+        threadInfo={threadInfoRef.current}
         messageListData={boundMessageListData}
         composedMessageMaxWidth={composedMessageMaxWidth}
         colors={colors}
