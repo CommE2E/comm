@@ -4,29 +4,21 @@ import * as React from 'react';
 import { TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-import { connect } from 'lib/utils/redux-utils';
-
-import type { AppState } from '../../redux/redux-setup';
-import { styleSelector } from '../../themes/colors';
+import { useStyles } from '../../themes/colors';
 
 type Props = {|
-  onPress: () => void,
-  // Redux state
-  styles: typeof styles,
+  +onPress: () => void,
 |};
 function SaveSettingButton(props: Props) {
+  const styles = useStyles(unboundStyles);
   return (
-    <TouchableOpacity onPress={props.onPress} style={props.styles.container}>
-      <Icon
-        name="md-checkbox-outline"
-        size={24}
-        style={props.styles.editIcon}
-      />
+    <TouchableOpacity onPress={props.onPress} style={styles.container}>
+      <Icon name="md-checkbox-outline" size={24} style={styles.editIcon} />
     </TouchableOpacity>
   );
 }
 
-const styles = {
+const unboundStyles = {
   container: {
     width: 26,
   },
@@ -37,8 +29,5 @@ const styles = {
     top: -3,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-export default connect((state: AppState) => ({
-  styles: stylesSelector(state),
-}))(SaveSettingButton);
+export default SaveSettingButton;
