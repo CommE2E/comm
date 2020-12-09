@@ -1,57 +1,44 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, Text, ScrollView } from 'react-native';
 
-import { connect } from 'lib/utils/redux-utils';
-
 import { persistConfig, codeVersion } from '../redux/persist';
-import type { AppState } from '../redux/redux-setup';
-import { styleSelector } from '../themes/colors';
+import { useStyles } from '../themes/colors';
 
-type Props = {|
-  // Redux state
-  styles: typeof styles,
-|};
-class BuildInfo extends React.PureComponent<Props> {
-  static propTypes = {
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-  };
-
-  render() {
-    return (
-      <ScrollView
-        contentContainerStyle={this.props.styles.scrollViewContentContainer}
-        style={this.props.styles.scrollView}
-      >
-        <View style={this.props.styles.section}>
-          <View style={this.props.styles.row}>
-            <Text style={this.props.styles.label}>Release</Text>
-            <Text style={this.props.styles.releaseText}>ALPHA</Text>
-          </View>
-          <View style={this.props.styles.row}>
-            <Text style={this.props.styles.label}>Code version</Text>
-            <Text style={this.props.styles.text}>{codeVersion}</Text>
-          </View>
-          <View style={this.props.styles.row}>
-            <Text style={this.props.styles.label}>State version</Text>
-            <Text style={this.props.styles.text}>{persistConfig.version}</Text>
-          </View>
+function BuildInfo() {
+  const styles = useStyles(unboundStyles);
+  return (
+    <ScrollView
+      contentContainerStyle={styles.scrollViewContentContainer}
+      style={styles.scrollView}
+    >
+      <View style={styles.section}>
+        <View style={styles.row}>
+          <Text style={styles.label}>Release</Text>
+          <Text style={styles.releaseText}>ALPHA</Text>
         </View>
-        <View style={this.props.styles.section}>
-          <View style={this.props.styles.row}>
-            <Text style={this.props.styles.thanksText}>
-              Thank you for helping to test the alpha!
-            </Text>
-          </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Code version</Text>
+          <Text style={styles.text}>{codeVersion}</Text>
         </View>
-      </ScrollView>
-    );
-  }
+        <View style={styles.row}>
+          <Text style={styles.label}>State version</Text>
+          <Text style={styles.text}>{persistConfig.version}</Text>
+        </View>
+      </View>
+      <View style={styles.section}>
+        <View style={styles.row}>
+          <Text style={styles.thanksText}>
+            Thank you for helping to test the alpha!
+          </Text>
+        </View>
+      </View>
+    </ScrollView>
+  );
 }
 
-const styles = {
+const unboundStyles = {
   label: {
     color: 'panelForegroundTertiaryLabel',
     fontSize: 16,
@@ -92,8 +79,5 @@ const styles = {
     textAlign: 'center',
   },
 };
-const stylesSelector = styleSelector(styles);
 
-export default connect((state: AppState) => ({
-  styles: stylesSelector(state),
-}))(BuildInfo);
+export default BuildInfo;
