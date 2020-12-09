@@ -5,21 +5,18 @@ import { View, Text, Platform } from 'react-native';
 import type { IoniconsGlyphs } from 'react-native-vector-icons/Ionicons';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-import { connect } from 'lib/utils/redux-utils';
-
 import Button from '../../components/button.react';
-import type { AppState } from '../../redux/redux-setup';
-import { styleSelector } from '../../themes/colors';
+import { useStyles } from '../../themes/colors';
 import type { ViewStyle, TextStyle } from '../../types/styles';
 
 type ListActionProps = {|
-  onPress: () => void,
-  text: string,
-  iconName: IoniconsGlyphs,
-  iconSize: number,
-  iconStyle?: TextStyle,
-  buttonStyle?: ViewStyle,
-  styles: typeof styles,
+  +onPress: () => void,
+  +text: string,
+  +iconName: IoniconsGlyphs,
+  +iconSize: number,
+  +iconStyle?: TextStyle,
+  +buttonStyle?: ViewStyle,
+  +styles: typeof unboundStyles,
 |};
 function ThreadSettingsListAction(props: ListActionProps) {
   return (
@@ -37,22 +34,21 @@ function ThreadSettingsListAction(props: ListActionProps) {
 }
 
 type SeeMoreProps = {|
-  onPress: () => void,
-  // Redux state
-  styles: typeof styles,
+  +onPress: () => void,
 |};
 function ThreadSettingsSeeMore(props: SeeMoreProps) {
+  const styles = useStyles(unboundStyles);
   return (
-    <View style={props.styles.seeMoreRow}>
-      <View style={props.styles.seeMoreContents}>
+    <View style={styles.seeMoreRow}>
+      <View style={styles.seeMoreContents}>
         <ThreadSettingsListAction
           onPress={props.onPress}
           text="See more..."
           iconName="ios-more"
           iconSize={36}
-          iconStyle={props.styles.seeMoreIcon}
-          buttonStyle={props.styles.seeMoreButton}
-          styles={props.styles}
+          iconStyle={styles.seeMoreIcon}
+          buttonStyle={styles.seeMoreButton}
+          styles={styles}
         />
       </View>
     </View>
@@ -60,48 +56,46 @@ function ThreadSettingsSeeMore(props: SeeMoreProps) {
 }
 
 type AddMemberProps = {|
-  onPress: () => void,
-  // Redux state
-  styles: typeof styles,
+  +onPress: () => void,
 |};
 function ThreadSettingsAddMember(props: AddMemberProps) {
+  const styles = useStyles(unboundStyles);
   return (
-    <View style={props.styles.addItemRow}>
+    <View style={styles.addItemRow}>
       <ThreadSettingsListAction
         onPress={props.onPress}
         text="Add users"
         iconName="md-add"
-        iconStyle={props.styles.addIcon}
+        iconStyle={styles.addIcon}
         iconSize={20}
-        buttonStyle={props.styles.addMemberButton}
-        styles={props.styles}
+        buttonStyle={styles.addMemberButton}
+        styles={styles}
       />
     </View>
   );
 }
 
 type AddChildThreadProps = {|
-  onPress: () => void,
-  // Redux state
-  styles: typeof styles,
+  +onPress: () => void,
 |};
 function ThreadSettingsAddSubthread(props: AddChildThreadProps) {
+  const styles = useStyles(unboundStyles);
   return (
-    <View style={props.styles.addItemRow}>
+    <View style={styles.addItemRow}>
       <ThreadSettingsListAction
         onPress={props.onPress}
         text="Add subthread"
         iconName="md-add"
-        iconStyle={props.styles.addIcon}
+        iconStyle={styles.addIcon}
         iconSize={20}
-        buttonStyle={props.styles.addSubthreadButton}
-        styles={props.styles}
+        buttonStyle={styles.addSubthreadButton}
+        styles={styles}
       />
     </View>
   );
 }
 
-const styles = {
+const unboundStyles = {
   addSubthreadButton: {
     paddingTop: Platform.OS === 'ios' ? 4 : 1,
   },
@@ -150,22 +144,9 @@ const styles = {
     fontStyle: 'italic',
   },
 };
-const stylesSelector = styleSelector(styles);
-
-const WrappedThreadSettingsSeeMore = connect((state: AppState) => ({
-  styles: stylesSelector(state),
-}))(ThreadSettingsSeeMore);
-
-const WrappedThreadSettingsAddMember = connect((state: AppState) => ({
-  styles: stylesSelector(state),
-}))(ThreadSettingsAddMember);
-
-const WrappedThreadSettingsAddSubthread = connect((state: AppState) => ({
-  styles: stylesSelector(state),
-}))(ThreadSettingsAddSubthread);
 
 export {
-  WrappedThreadSettingsSeeMore as ThreadSettingsSeeMore,
-  WrappedThreadSettingsAddMember as ThreadSettingsAddMember,
-  WrappedThreadSettingsAddSubthread as ThreadSettingsAddSubthread,
+  ThreadSettingsSeeMore,
+  ThreadSettingsAddMember,
+  ThreadSettingsAddSubthread,
 };
