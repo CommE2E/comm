@@ -4,34 +4,30 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text, Platform } from 'react-native';
 
-import { connect } from 'lib/utils/redux-utils';
-
-import type { AppState } from '../../redux/redux-setup';
-import { styleSelector } from '../../themes/colors';
+import { useStyles } from '../../themes/colors';
 
 export type CategoryType = 'full' | 'outline' | 'unpadded';
 type HeaderProps = {|
-  type: CategoryType,
-  title: string,
-  // Redux state
-  styles: typeof styles,
+  +type: CategoryType,
+  +title: string,
 |};
 function ThreadSettingsCategoryHeader(props: HeaderProps) {
+  const styles = useStyles(unboundStyles);
   let contentStyle, paddingStyle;
   if (props.type === 'full') {
-    contentStyle = props.styles.fullHeader;
-    paddingStyle = props.styles.fullHeaderPadding;
+    contentStyle = styles.fullHeader;
+    paddingStyle = styles.fullHeaderPadding;
   } else if (props.type === 'outline') {
     // nothing
   } else if (props.type === 'unpadded') {
-    contentStyle = props.styles.fullHeader;
+    contentStyle = styles.fullHeader;
   } else {
     invariant(false, 'invalid ThreadSettingsCategory type');
   }
   return (
     <View>
-      <View style={[props.styles.header, contentStyle]}>
-        <Text style={props.styles.title}>{props.title.toUpperCase()}</Text>
+      <View style={[styles.header, contentStyle]}>
+        <Text style={styles.title}>{props.title.toUpperCase()}</Text>
       </View>
       <View style={paddingStyle} />
     </View>
@@ -39,26 +35,25 @@ function ThreadSettingsCategoryHeader(props: HeaderProps) {
 }
 
 type FooterProps = {|
-  type: CategoryType,
-  // Redux state
-  styles: typeof styles,
+  +type: CategoryType,
 |};
 function ThreadSettingsCategoryFooter(props: FooterProps) {
+  const styles = useStyles(unboundStyles);
   let contentStyle, paddingStyle;
   if (props.type === 'full') {
-    contentStyle = props.styles.fullFooter;
-    paddingStyle = props.styles.fullFooterPadding;
+    contentStyle = styles.fullFooter;
+    paddingStyle = styles.fullFooterPadding;
   } else if (props.type === 'outline') {
     // nothing
   } else if (props.type === 'unpadded') {
-    contentStyle = props.styles.fullFooter;
+    contentStyle = styles.fullFooter;
   } else {
     invariant(false, 'invalid ThreadSettingsCategory type');
   }
   return (
     <View>
       <View style={paddingStyle} />
-      <View style={[props.styles.footer, contentStyle]} />
+      <View style={[styles.footer, contentStyle]} />
     </View>
   );
 }
@@ -67,7 +62,7 @@ const paddingHeight = Platform.select({
   android: 6.5,
   default: 6,
 });
-const styles = {
+const unboundStyles = {
   footer: {
     marginBottom: 16,
   },
@@ -99,17 +94,5 @@ const styles = {
     paddingLeft: 24,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-const WrappedThreadSettingsCategoryHeader = connect((state: AppState) => ({
-  styles: stylesSelector(state),
-}))(ThreadSettingsCategoryHeader);
-
-const WrappedThreadSettingsCategoryFooter = connect((state: AppState) => ({
-  styles: stylesSelector(state),
-}))(ThreadSettingsCategoryFooter);
-
-export {
-  WrappedThreadSettingsCategoryHeader as ThreadSettingsCategoryHeader,
-  WrappedThreadSettingsCategoryFooter as ThreadSettingsCategoryFooter,
-};
+export { ThreadSettingsCategoryHeader, ThreadSettingsCategoryFooter };
