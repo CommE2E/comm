@@ -50,6 +50,13 @@ async function initializeFCMApp() {
   return fcmAppInitialized;
 }
 
+async function terminateFirebaseAdmin() {
+  const app = fcmAdmin.app();
+  if (app) {
+    app.delete();
+  }
+}
+
 const fcmTokenInvalidationErrors = new Set([
   'messaging/registration-token-not-registered',
   'messaging/invalid-registration-token',
@@ -200,4 +207,4 @@ async function getUnreadCounts(
   return usersToUnreadCounts;
 }
 
-export { apnPush, fcmPush, getUnreadCounts };
+export { apnPush, fcmPush, getUnreadCounts, terminateFirebaseAdmin };
