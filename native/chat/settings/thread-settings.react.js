@@ -17,18 +17,22 @@ import {
   childThreadInfos,
 } from 'lib/selectors/thread-selectors';
 import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
+import { getAvailableRelationshipButtons } from 'lib/shared/relationship-utils';
 import {
   threadHasPermission,
   viewerIsMember,
   threadInChatList,
+  getSingleOtherUser,
 } from 'lib/shared/thread-utils';
 import threadWatcher from 'lib/shared/thread-watcher';
+import type { RelationshipButton } from 'lib/types/relationship-types';
 import {
   type ThreadInfo,
   type RelativeMemberInfo,
   threadPermissions,
   threadTypes,
 } from 'lib/types/thread-types';
+import type { UserInfos } from 'lib/types/user-types';
 
 import {
   type KeyboardState,
@@ -63,6 +67,7 @@ import ThreadSettingsChildThread from './thread-settings-child-thread.react';
 import ThreadSettingsColor from './thread-settings-color.react';
 import ThreadSettingsDeleteThread from './thread-settings-delete-thread.react';
 import ThreadSettingsDescription from './thread-settings-description.react';
+import ThreadSettingsEditRelationship from './thread-settings-edit-relationship.react';
 import ThreadSettingsHomeNotifs from './thread-settings-home-notifs.react';
 import ThreadSettingsLeaveThread from './thread-settings-leave-thread.react';
 import {
@@ -185,6 +190,14 @@ type ChatSettingsItem =
       +threadInfo: ThreadInfo,
       +navigate: ThreadSettingsNavigate,
       +buttonStyle: ViewStyle,
+    |}
+  | {|
+      +itemType: 'editRelationship',
+      +key: string,
+      +threadInfo: ThreadInfo,
+      +navigate: ThreadSettingsNavigate,
+      +buttonStyle: ViewStyle,
+      +relationshipButton: RelationshipButton,
     |};
 
 type BaseProps = {|
@@ -194,6 +207,8 @@ type BaseProps = {|
 type Props = {|
   ...BaseProps,
   // Redux state
+  +userInfos: UserInfos,
+  +viewerID: ?string,
   +threadInfo: ?ThreadInfo,
   +threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
   +childThreadInfos: ?$ReadOnlyArray<ThreadInfo>,
@@ -652,10 +667,14 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       ThreadSettings.getThreadInfo(propsAndState),
     (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
     (propsAndState: PropsAndState) => propsAndState.styles,
+    (propsAndState: PropsAndState) => propsAndState.userInfos,
+    (propsAndState: PropsAndState) => propsAndState.viewerID,
     (
       threadInfo: ThreadInfo,
       navigate: ThreadSettingsNavigate,
       styles: typeof unboundStyles,
+      userInfos: UserInfos,
+      viewerID: ?string,
     ) => {
       const buttons = [];
 
@@ -701,6 +720,26 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         });
       }
 
+      const threadIsPersonal = threadInfo.type === threadTypes.PERSONAL;
+      if (threadIsPersonal && viewerID) {
+        const otherMemberID = getSingleOtherUser(threadInfo, viewerID);
+        invariant(otherMemberID, 'Other user should be specified');
+        const otherUserInfo = userInfos[otherMemberID];
+        const availableRelationshipActions = getAvailableRelationshipButtons(
+          otherUserInfo,
+        );
+
+        for (const action of availableRelationshipActions) {
+          buttons.push({
+            itemType: 'editRelationship',
+            key: action,
+            threadInfo,
+            navigate,
+            relationshipButton: action,
+          });
+        }
+      }
+
       const listData: ChatSettingsItem[] = [];
       if (buttons.length === 0) {
         return listData;
@@ -713,13 +752,24 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         categoryType: 'unpadded',
       });
       for (let i = 0; i < buttons.length; i++) {
-        listData.push({
-          ...buttons[i],
-          buttonStyle: [
-            i === 0 ? null : styles.nonTopButton,
-            i === buttons.length - 1 ? styles.lastButton : null,
-          ],
-        });
+        // Necessary for Flow...
+        if (buttons[i].itemType === 'editRelationship') {
+          listData.push({
+            ...buttons[i],
+            buttonStyle: [
+              i === 0 ? null : styles.nonTopButton,
+              i === buttons.length - 1 ? styles.lastButton : null,
+            ],
+          });
+        } else {
+          listData.push({
+            ...buttons[i],
+            buttonStyle: [
+              i === 0 ? null : styles.nonTopButton,
+              i === buttons.length - 1 ? styles.lastButton : null,
+            ],
+          });
+        }
       }
       listData.push({
         itemType: 'footer',
@@ -913,6 +963,14 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           buttonStyle={item.buttonStyle}
         />
       );
+    } else if (item.itemType === 'editRelationship') {
+      return (
+        <ThreadSettingsEditRelationship
+          threadInfo={item.threadInfo}
+          relationshipButton={item.relationshipButton}
+          buttonStyle={item.buttonStyle}
+        />
+      );
     } else {
       invariant(false, `unexpected ThreadSettings item type ${item.itemType}`);
     }
@@ -1040,6 +1098,10 @@ const somethingIsSaving = (
 export default React.memo<BaseProps>(function ConnectedThreadSettings(
   props: BaseProps,
 ) {
+  const userInfos = useSelector((state) => state.userStore.userInfos);
+  const viewerID = useSelector(
+    (state) => state.currentUserInfo && state.currentUserInfo.id,
+  );
   const threadID = props.route.params.threadInfo.id;
   const threadInfo = useSelector(
     (state) => threadInfoSelector(state)[threadID],
@@ -1060,6 +1122,8 @@ export default React.memo<BaseProps>(function ConnectedThreadSettings(
   return (
     <ThreadSettings
       {...props}
+      userInfos={userInfos}
+      viewerID={viewerID}
       threadInfo={threadInfo}
       threadMembers={threadMembers}
       childThreadInfos={boundChildThreadInfos}
