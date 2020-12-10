@@ -501,7 +501,13 @@ async function updateInfosFromRawUpdateInfos(
       });
     } else if (rawUpdateInfo.type === updateTypes.UPDATE_THREAD) {
       const threadInfo = threadInfosResult.threadInfos[rawUpdateInfo.threadID];
-      invariant(threadInfo, 'should be set');
+      if (!threadInfo) {
+        console.warn(
+          "failed to hydrate updateTypes.UPDATE_THREAD because we couldn't " +
+            `fetch RawThreadInfo for ${rawUpdateInfo.threadID}`,
+        );
+        continue;
+      }
       updateInfos.push({
         type: updateTypes.UPDATE_THREAD,
         id: rawUpdateInfo.id,
@@ -525,7 +531,13 @@ async function updateInfosFromRawUpdateInfos(
       });
     } else if (rawUpdateInfo.type === updateTypes.JOIN_THREAD) {
       const threadInfo = threadInfosResult.threadInfos[rawUpdateInfo.threadID];
-      invariant(threadInfo, 'should be set');
+      if (!threadInfo) {
+        console.warn(
+          "failed to hydrate updateTypes.JOIN_THREAD because we couldn't " +
+            `fetch RawThreadInfo for ${rawUpdateInfo.threadID}`,
+        );
+        continue;
+      }
       const rawEntryInfos = [];
       invariant(calendarResult, 'should be set');
       for (let entryInfo of calendarResult.rawEntryInfos) {
@@ -562,7 +574,13 @@ async function updateInfosFromRawUpdateInfos(
       const entryInfo = entryInfosResult.find(
         (candidate) => candidate.id === rawUpdateInfo.entryID,
       );
-      invariant(entryInfo, 'should be set');
+      if (!entryInfo) {
+        console.warn(
+          "failed to hydrate updateTypes.UPDATE_ENTRY because we couldn't " +
+            `fetch RawEntryInfo for ${rawUpdateInfo.entryID}`,
+        );
+        continue;
+      }
       updateInfos.push({
         type: updateTypes.UPDATE_ENTRY,
         id: rawUpdateInfo.id,
@@ -574,7 +592,13 @@ async function updateInfosFromRawUpdateInfos(
       const currentUserInfo = currentUserInfosResult.find(
         (candidate) => candidate.id === viewer.userID,
       );
-      invariant(currentUserInfo, 'should be set');
+      if (!currentUserInfo) {
+        console.warn(
+          'failed to hydrate updateTypes.UPDATE_CURRENT_USER because we ' +
+            `couldn't fetch CurrentUserInfo for ${viewer.userID}`,
+        );
+        continue;
+      }
       updateInfos.push({
         type: updateTypes.UPDATE_CURRENT_USER,
         id: rawUpdateInfo.id,
