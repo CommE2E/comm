@@ -117,15 +117,13 @@ async function createPersonalThreadsForFriends() {
   `;
   const [result] = await dbQuery(usersQuery);
 
-  const threadCreationPromises = result.map(({ user1, user2 }) => {
+  for (const { user1, user2 } of result) {
     console.log(`Creating personal thread for ${user1} and ${user2}`);
-    return createThread(createScriptViewer(user1.toString()), {
+    await createThread(createScriptViewer(user1.toString()), {
       type: threadTypes.PERSONAL,
       initialMemberIDs: [user2.toString()],
     });
-  });
-
-  await Promise.all(threadCreationPromises);
+  }
 }
 
 main();
