@@ -51,10 +51,7 @@ async function initializeFCMApp() {
 }
 
 async function terminateFirebaseAdmin() {
-  const app = fcmAdmin.app();
-  if (app) {
-    app.delete();
-  }
+  fcmAdmin.apps?.forEach((app) => app?.delete());
 }
 
 const fcmTokenInvalidationErrors = new Set([
