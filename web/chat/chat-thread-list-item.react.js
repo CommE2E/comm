@@ -12,6 +12,7 @@ import {
   useThreadIsActive,
 } from '../selectors/nav-selectors';
 import ChatThreadListItemMenu from './chat-thread-list-item-menu.react';
+import ChatThreadListSeeMoreSidebars from './chat-thread-list-see-more-sidebars.react';
 import ChatThreadListSidebar from './chat-thread-list-sidebar.react';
 import css from './chat-thread-list.css';
 import MessagePreview from './message-preview.react';
@@ -73,7 +74,12 @@ function ChatThreadListItem(props: Props) {
         />
       );
     } else {
-      return null;
+      return (
+        <ChatThreadListSeeMoreSidebars
+          unread={sidebarItem.unread}
+          key="seeMore"
+        />
+      );
     }
   });
 
