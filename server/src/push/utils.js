@@ -50,8 +50,13 @@ async function initializeFCMApp() {
   return fcmAppInitialized;
 }
 
-async function terminateFirebaseAdmin() {
+function endFirebase() {
   fcmAdmin.apps?.forEach((app) => app?.delete());
+}
+
+async function endAPNs() {
+  const apnProvider = await getAPNProvider();
+  apnProvider?.shutdown();
 }
 
 const fcmTokenInvalidationErrors = new Set([
@@ -204,4 +209,4 @@ async function getUnreadCounts(
   return usersToUnreadCounts;
 }
 
-export { apnPush, fcmPush, getUnreadCounts, terminateFirebaseAdmin };
+export { apnPush, fcmPush, getUnreadCounts, endFirebase, endAPNs };
