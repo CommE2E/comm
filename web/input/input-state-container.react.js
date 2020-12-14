@@ -321,6 +321,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         serverID: result.id,
         threadID,
         time: result.time,
+        interface: result.interface,
       };
     } catch (e) {
       const copy = cloneError(e);
@@ -815,6 +816,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         serverID: result.id,
         threadID: messageInfo.threadID,
         time: result.time,
+        interface: result.interface,
       };
     } catch (e) {
       const copy = cloneError(e);
