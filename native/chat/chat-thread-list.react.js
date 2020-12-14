@@ -220,39 +220,44 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       emptyItem?: React.ComponentType<{||}>,
       usersSearchResults: $ReadOnlyArray<GlobalAccountUserInfo>,
     ): Item[] => {
-      const personalThreads = [];
       const chatItems = [];
+      chatItems.push({ type: 'search', searchText });
 
-      const pushItem = (item) => {
-        if (item.threadInfo.type === threadTypes.PERSONAL) {
-          personalThreads.push(item);
-        } else {
-          chatItems.push(item);
-        }
-      };
-
-      if (searchText) {
-        reduxChatListData
-          .filter((item) => threadsSearchResults.has(item.threadInfo.id))
-          .forEach(pushItem);
-      } else {
-        reduxChatListData
-          .filter((item) => this.props.filterThreads(item.threadInfo))
-          .forEach(pushItem);
-      }
-
-      const { viewerID } = this.props;
-      if (viewerID) {
+      if (!searchText) {
         chatItems.push(
-          ...usersSearchResults.map((user) =>
-            createPendingThreadItem(viewerID, user),
+          ...reduxChatListData.filter((item) =>
+            this.props.filterThreads(item.threadInfo),
           ),
         );
+      } else {
+        const personalThreads = [];
+        const nonPersonalThreads = [];
+        for (const item of reduxChatListData) {
+          if (!threadsSearchResults.has(item.threadInfo.id)) {
+            continue;
+          }
+          if (item.threadInfo.type === threadTypes.PERSONAL) {
+            personalThreads.push(item);
+          } else {
+            nonPersonalThreads.push(item);
+          }
+        }
+        chatItems.push(...personalThreads, ...nonPersonalThreads);
+        const { viewerID } = this.props;
+        if (viewerID) {
+          chatItems.push(
+            ...usersSearchResults.map((user) =>
+              createPendingThreadItem(viewerID, user),
+            ),
+          );
+        }
       }
-      if (emptyItem && chatItems.length === 0 && personalThreads.length === 0) {
+
+      if (emptyItem && chatItems.length === 0) {
         chatItems.push({ type: 'empty', emptyItem });
       }
-      return [{ type: 'search', searchText }, ...personalThreads, ...chatItems];
+
+      return chatItems;
     },
   );
 
