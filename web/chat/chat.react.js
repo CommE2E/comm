@@ -11,7 +11,7 @@ type Props = {|
 function Chat(props: Props) {
   return (
     <>
-      <ChatTabs />
+      <ChatTabs setModal={props.setModal} />
       <ChatMessageList setModal={props.setModal} />
     </>
   );

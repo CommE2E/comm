@@ -10,7 +10,10 @@ import ChatThreadBackground from './chat-thread-background.react';
 import ChatThreadHome from './chat-thread-home.react';
 import ChatThreadTab from './chat-thread-tab.react';
 
-function ChatTabs() {
+type Props = {|
+  +setModal: (modal: ?React.Node) => void,
+|};
+function ChatTabs(props: Props) {
   let backgroundTitle = 'BACKGROUND';
   const unreadBackgroundCountVal = useSelector(unreadBackgroundCount);
   if (unreadBackgroundCountVal) {
@@ -25,7 +28,11 @@ function ChatTabs() {
   );
 
   const threadList =
-    activeTab === 'HOME' ? <ChatThreadHome /> : <ChatThreadBackground />;
+    activeTab === 'HOME' ? (
+      <ChatThreadHome setModal={props.setModal} />
+    ) : (
+      <ChatThreadBackground setModal={props.setModal} />
+    );
   return (
     <div className={css.container}>
       <div className={css.tabs}>

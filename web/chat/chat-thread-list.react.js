@@ -10,23 +10,28 @@ import ChatThreadListItem from './chat-thread-list-item.react';
 
 type Props = {|
   +filterThreads: (threadItem: ThreadInfo) => boolean,
+  +setModal: (modal: ?React.Node) => void,
   +emptyItem?: React.ComponentType<{||}>,
 |};
 function ChatThreadList(props: Props) {
-  const { filterThreads, emptyItem } = props;
+  const { filterThreads, setModal, emptyItem } = props;
   const chatListData = useSelector(webChatListData);
   const listData: React.Node[] = React.useMemo(() => {
     const threads = chatListData
       .filter((item) => filterThreads(item.threadInfo))
       .map((item) => (
-        <ChatThreadListItem item={item} key={item.threadInfo.id} />
+        <ChatThreadListItem
+          item={item}
+          key={item.threadInfo.id}
+          setModal={setModal}
+        />
       ));
     if (threads.length === 0 && emptyItem) {
       const EmptyItem = emptyItem;
       threads.push(<EmptyItem />);
     }
     return threads;
-  }, [chatListData, filterThreads, emptyItem]);
+  }, [chatListData, emptyItem, filterThreads, setModal]);
   return <div>{listData}</div>;
 }
 

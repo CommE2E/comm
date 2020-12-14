@@ -6,6 +6,14 @@ import { threadInHomeChatList } from 'lib/shared/thread-utils';
 
 import ChatThreadList from './chat-thread-list.react';
 
-export default function ChatThreadHome() {
-  return <ChatThreadList filterThreads={threadInHomeChatList} />;
+type Props = {|
+  +setModal: (modal: ?React.Node) => void,
+|};
+export default function ChatThreadHome(props: Props) {
+  return (
+    <ChatThreadList
+      filterThreads={threadInHomeChatList}
+      setModal={props.setModal}
+    />
+  );
 }

@@ -19,9 +19,10 @@ import MessagePreview from './message-preview.react';
 
 type Props = {|
   +item: ChatThreadItem,
+  +setModal: (modal: ?React.Node) => void,
 |};
 function ChatThreadListItem(props: Props) {
-  const { item } = props;
+  const { item, setModal } = props;
   const threadID = item.threadInfo.id;
 
   const onClick = useOnClickThread(threadID);
@@ -77,6 +78,7 @@ function ChatThreadListItem(props: Props) {
       return (
         <ChatThreadListSeeMoreSidebars
           unread={sidebarItem.unread}
+          setModal={setModal}
           key="seeMore"
         />
       );
