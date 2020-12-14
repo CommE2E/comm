@@ -34,7 +34,7 @@ async function fetchServerThreadInfos(
       m.role >= 0
   `
     .append(whereClause)
-    .append(SQL`ORDER BY m.user ASC`);
+    .append(SQL` ORDER BY m.user ASC`);
   const [result] = await dbQuery(query);
 
   const threadInfos = {};
