@@ -77,6 +77,7 @@ function ChatThreadListItem(props: Props) {
     } else {
       return (
         <ChatThreadListSeeMoreSidebars
+          threadInfo={item.threadInfo}
           unread={sidebarItem.unread}
           setModal={setModal}
           key="seeMore"

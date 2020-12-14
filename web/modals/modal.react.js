@@ -13,10 +13,11 @@ type Props = {
   onClose: () => void,
   children?: React.Node,
   size?: ModalSize,
+  fixedHeight?: boolean,
 };
 
 class Modal extends React.PureComponent<Props> {
-  static defaultProps = { size: 'small' };
+  static defaultProps = { size: 'small', fixedHeight: true };
   overlay: ?HTMLDivElement;
 
   componentDidMount() {
@@ -29,9 +30,13 @@ class Modal extends React.PureComponent<Props> {
       css['modal-overlay'],
       { [css['small-modal-overlay']]: this.props.size === 'small' },
       { [css['large-modal-overlay']]: this.props.size === 'large' },
+      { [css['resizable-modal-overlay']]: !this.props.fixedHeight },
     );
     const modalContainerClasses = classNames(css['modal-container'], {
       [css['large-modal-container']]: this.props.size === 'large',
+    });
+    const modalClasses = classNames(css['modal'], {
+      [css['fixed-height-modal']]: this.props.fixedHeight,
     });
     return (
       <div
@@ -42,7 +47,7 @@ class Modal extends React.PureComponent<Props> {
         onKeyDown={this.onKeyDown}
       >
         <div className={modalContainerClasses}>
-          <div className={css['modal']}>
+          <div className={modalClasses}>
             <div className={css['modal-header']}>
               <span className={css['modal-close']} onClick={this.props.onClose}>
                 ×

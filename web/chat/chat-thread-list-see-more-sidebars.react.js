@@ -4,18 +4,24 @@ import classNames from 'classnames';
 import * as React from 'react';
 import DotsThreeHorizontal from 'react-entypo-icons/lib/entypo/DotsThreeHorizontal';
 
+import type { ThreadInfo } from 'lib/types/thread-types';
+
 import SidebarListModal from '../modals/chat/sidebar-list-modal.react';
 import css from './chat-thread-list.css';
 
 type Props = {|
+  +threadInfo: ThreadInfo,
   +unread: boolean,
   +setModal: (modal: ?React.Node) => void,
 |};
 function ChatThreadListSeeMoreSidebars(props: Props) {
-  const { unread, setModal } = props;
+  const { unread, setModal, threadInfo } = props;
   const onClick = React.useCallback(
-    () => setModal(<SidebarListModal setModal={setModal} />),
-    [setModal],
+    () =>
+      setModal(
+        <SidebarListModal setModal={setModal} threadInfo={threadInfo} />,
+      ),
+    [setModal, threadInfo],
   );
   return (
     <div className={classNames(css.thread, css.sidebar)} onClick={onClick}>

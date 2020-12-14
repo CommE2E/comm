@@ -1,6 +1,6 @@
 div.modalBody {
   position: relative;
-  height: 240px;
+  min-height: 240px;
   overflow: hidden;
   padding: 6px 6px;
   width: 100%;
