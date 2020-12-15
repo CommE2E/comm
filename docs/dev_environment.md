@@ -148,14 +148,6 @@ We’ll need the Java Development Kit for Android development.
 brew install adoptopenjdk/openjdk/adoptopenjdk8; brew upgrade adoptopenjdk/openjdk/adoptopenjdk8
 ```
 
-There's one more thing we have to do. macOS Big Sur comes with a Java 8 JRE for Java applets that has a higher version number than `adoptopenjdk8`. That JRE doesn't include a JDK, which is necessary in order to compile our app for Android.
-
-To force Gradle to resolve `adoptopenjdk8`, you'll need to explicitly override `$JAVA_HOME` in your `~/.bash_profile` (or desired shell configuration file):
-
-```
-export JAVA_HOME=$(/usr/libexec/java_home -v1.8.0)
-```
-
 ## Android Studio
 
 Start by downloading and installing [Android Studio](https://developer.android.com/studio/index.html). When prompted to choose an installation type, select “Custom”. Make sure you check the boxes for the following:
@@ -188,6 +180,7 @@ export PATH=$PATH:$ANDROID_HOME/emulator
 export PATH=$PATH:$ANDROID_HOME/tools
 export PATH=$PATH:$ANDROID_HOME/tools/bin
 export PATH=$PATH:$ANDROID_HOME/platform-tools
+export JAVA_HOME="/Applications/Android Studio.app/Contents/jre/jdk/Contents/Home"
 ```
 
 Now either close and reopen your terminal window or re-source your shell configuration file in order to run the new commands:
