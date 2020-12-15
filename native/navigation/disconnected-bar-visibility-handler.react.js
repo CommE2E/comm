@@ -1,98 +1,69 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
+import { useDispatch } from 'react-redux';
 
-import {
-  type ConnectionStatus,
-  connectionStatusPropType,
-  updateDisconnectedBarActionType,
-} from 'lib/types/socket-types';
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
+import { updateDisconnectedBarActionType } from 'lib/types/socket-types';
 
-import type { AppState } from '../redux/redux-setup';
-import {
-  type ConnectivityInfo,
-  connectivityInfoPropType,
-} from '../types/connectivity';
+import { useSelector } from '../redux/redux-utils';
 
-type Props = {|
-  // Redux state
-  showDisconnectedBar: boolean,
-  connectionStatus: ConnectionStatus,
-  someRequestIsLate: boolean,
-  connectivity: ConnectivityInfo,
-  // Redux dispatch functions
-  dispatchActionPayload: DispatchActionPayload,
-|};
-class DisconnectedBarVisibilityHandler extends React.PureComponent<Props> {
-  static propTypes = {
-    showDisconnectedBar: PropTypes.bool.isRequired,
-    connectionStatus: connectionStatusPropType.isRequired,
-    someRequestIsLate: PropTypes.bool.isRequired,
-    connectivity: connectivityInfoPropType.isRequired,
-    dispatchActionPayload: PropTypes.func.isRequired,
-  };
-  networkActive = true;
+function DisconnectedBarVisibilityHandler() {
+  const dispatch = useDispatch();
+  const disconnected = useSelector(
+    (state) => state.connection.showDisconnectedBar,
+  );
+  const setDisconnected = React.useCallback(
+    (newDisconnected: boolean) => {
+      if (newDisconnected === disconnected) {
+        return;
+      }
+      dispatch({
+        type: updateDisconnectedBarActionType,
+        payload: { visible: newDisconnected },
+      });
+    },
+    [disconnected, dispatch],
+  );
 
-  get disconnected() {
-    return this.props.showDisconnectedBar;
-  }
-
-  setDisconnected(disconnected: boolean) {
-    if (this.disconnected === disconnected) {
-      return;
+  const networkActiveRef = React.useRef(true);
+  const networkConnected = useSelector((state) => state.connectivity.connected);
+  React.useEffect(() => {
+    networkActiveRef.current = networkConnected;
+    if (!networkConnected) {
+      setDisconnected(true);
     }
-    this.props.dispatchActionPayload(updateDisconnectedBarActionType, {
-      visible: disconnected,
-    });
-  }
+  }, [setDisconnected, networkConnected]);
 
-  componentDidMount() {
-    this.handleConnectionChange();
-  }
+  const prevConnectionStatusRef = React.useRef();
+  const connectionStatus = useSelector((state) => state.connection.status);
+  const someRequestIsLate = useSelector(
+    (state) => state.connection.lateResponses.length !== 0,
+  );
+  React.useEffect(() => {
+    const prevConnectionStatus = prevConnectionStatusRef.current;
+    prevConnectionStatusRef.current = connectionStatus;
 
-  handleConnectionChange() {
-    this.networkActive = this.props.connectivity.connected;
-    if (!this.networkActive) {
-      this.setDisconnected(true);
-    }
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    const { connected } = this.props.connectivity;
-    if (connected !== prevProps.connectivity.connected) {
-      this.handleConnectionChange();
-    }
-
-    const { connectionStatus: status, someRequestIsLate } = this.props;
-    if (status === 'connected' && prevProps.connectionStatus !== 'connected') {
+    if (
+      connectionStatus === 'connected' &&
+      prevConnectionStatus !== 'connected'
+    ) {
       // Sometimes NetInfo misses the network coming back online for some
       // reason. But if the socket reconnects, the network must be up
-      this.networkActive = true;
-      this.setDisconnected(false);
-    } else if (!this.networkActive || someRequestIsLate) {
-      this.setDisconnected(true);
-    } else if (status === 'reconnecting' || status === 'forcedDisconnecting') {
-      this.setDisconnected(true);
-    } else if (status === 'connected') {
-      this.setDisconnected(false);
+      networkActiveRef.current = true;
+      setDisconnected(false);
+    } else if (!networkActiveRef.current || someRequestIsLate) {
+      setDisconnected(true);
+    } else if (
+      connectionStatus === 'reconnecting' ||
+      connectionStatus === 'forcedDisconnecting'
+    ) {
+      setDisconnected(true);
+    } else if (connectionStatus === 'connected') {
+      setDisconnected(false);
     }
-  }
+  }, [connectionStatus, someRequestIsLate, setDisconnected]);
 
-  render() {
-    return null;
-  }
+  return null;
 }
 
-export default connect(
-  (state: AppState) => ({
-    showDisconnectedBar: state.connection.showDisconnectedBar,
-    connectionStatus: state.connection.status,
-    someRequestIsLate: state.connection.lateResponses.length !== 0,
-    connectivity: state.connectivity,
-  }),
-  null,
-  true,
-)(DisconnectedBarVisibilityHandler);
+export default DisconnectedBarVisibilityHandler;
