@@ -1,9 +1,10 @@
 // @flow
 
 import * as React from 'react';
-import { Text, StyleSheet, Platform, Animated, Easing } from 'react-native';
+import { Text, Platform, Animated, Easing } from 'react-native';
 
 import { useSelector } from '../redux/redux-utils';
+import { useStyles } from '../themes/colors';
 
 const expandedHeight = Platform.select({
   android: 29.5,
@@ -16,12 +17,16 @@ const timingConfig = {
 };
 
 type Props = {|
-  visible: boolean,
+  +visible: boolean,
 |};
 function DisconnectedBar(props: Props) {
-  const shouldShowDisconnectedBar = useSelector(
+  const disconnected = useSelector(
     (state) => state.connection.showDisconnectedBar,
   );
+  const socketConnected = useSelector(
+    (state) => state.connection.status === 'connected',
+  );
+  const shouldShowDisconnectedBar = disconnected || !socketConnected;
 
   const showingRef = new React.useRef();
   if (!showingRef.current) {
@@ -65,26 +70,54 @@ function DisconnectedBar(props: Props) {
     [showing],
   );
 
+  const [barCause, setBarCause] = React.useState('connecting');
+  React.useEffect(() => {
+    if (shouldShowDisconnectedBar && disconnected) {
+      setBarCause('disconnected');
+    } else if (shouldShowDisconnectedBar) {
+      setBarCause('connecting');
+    }
+  }, [shouldShowDisconnectedBar, disconnected]);
+
+  const styles = useStyles(unboundStyles);
+  const text = barCause === 'disconnected' ? 'DISCONNECTED' : 'CONNECTING…';
+  const viewStyle =
+    barCause === 'disconnected' ? styles.disconnected : styles.connecting;
+  const textStyle =
+    barCause === 'disconnected'
+      ? styles.disconnectedText
+      : styles.connectingText;
+
   return (
-    <Animated.View style={[styles.container, heightStyle]} pointerEvents="none">
-      <Text style={styles.text} numberOfLines={1}>
-        DISCONNECTED
+    <Animated.View style={[viewStyle, heightStyle]} pointerEvents="none">
+      <Text style={textStyle} numberOfLines={1}>
+        {text}
       </Text>
     </Animated.View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
+const unboundStyles = {
+  disconnected: {
     backgroundColor: '#CC0000',
     overflow: 'hidden',
   },
-  text: {
+  connecting: {
+    backgroundColor: 'disconnectedBarBackground',
+    overflow: 'hidden',
+  },
+  disconnectedText: {
     color: 'white',
     fontSize: 14,
     padding: 5,
     textAlign: 'center',
   },
-});
+  connectingText: {
+    color: 'panelForegroundLabel',
+    fontSize: 14,
+    padding: 5,
+    textAlign: 'center',
+  },
+};
 
 export default DisconnectedBar;
