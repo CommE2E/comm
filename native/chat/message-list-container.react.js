@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+import _isEqual from 'lodash/fp/isEqual';
 import * as React from 'react';
 import { View } from 'react-native';
 
@@ -11,12 +12,12 @@ import {
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { messageID } from 'lib/shared/message-utils';
 import {
-  getPendingPersonalThreadOtherUser,
   getCurrentUser,
-  threadIsPersonalAndPending,
+  threadHasAdminRole,
+  threadIsPending,
 } from 'lib/shared/thread-utils';
 import { messageTypes } from 'lib/types/message-types';
-import { type ThreadInfo, threadTypes } from 'lib/types/thread-types';
+import { type ThreadInfo } from 'lib/types/thread-types';
 
 import ContentLoading from '../components/content-loading.react';
 import NodeHeightMeasurer from '../components/node-height-measurer.react';
@@ -277,26 +278,25 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
 
     if (threadInfoFromStore) {
       return threadInfoFromStore;
-    } else if (!viewerID || !threadIsPersonalAndPending(threadInfoFromParams)) {
+    } else if (!viewerID || !threadIsPending(threadInfoFromParams.id)) {
       return undefined;
     }
 
-    const otherMemberID = getPendingPersonalThreadOtherUser(
-      threadInfoFromParams,
+    const pendingThreadMemberIDs = new Set(
+      threadInfoFromParams.members.map((member) => member.id),
     );
     for (const threadID in threadInfos) {
       const currentThreadInfo = threadInfos[threadID];
       if (
-        currentThreadInfo.type !== threadTypes.PERSONAL ||
-        currentThreadInfo.members.length !== 2
+        currentThreadInfo.parentThreadID ||
+        threadHasAdminRole(currentThreadInfo)
       ) {
         continue;
       }
-
       const members = new Set(
         currentThreadInfo.members.map((member) => member.id),
       );
-      if (members.has(viewerID) && members.has(otherMemberID)) {
+      if (_isEqual(members, pendingThreadMemberIDs)) {
         return currentThreadInfo;
       }
     }
