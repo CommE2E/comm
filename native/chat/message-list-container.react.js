@@ -16,13 +16,14 @@ import {
 import { messageID } from 'lib/shared/message-utils';
 import { getPotentialMemberItems } from 'lib/shared/search-utils';
 import {
+  createPendingThread,
   getCurrentUser,
   getPendingThreadKey,
   threadHasAdminRole,
   threadIsPending,
 } from 'lib/shared/thread-utils';
 import { messageTypes } from 'lib/types/message-types';
-import { type ThreadInfo } from 'lib/types/thread-types';
+import { type ThreadInfo, threadTypes } from 'lib/types/thread-types';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types';
 
 import ContentLoading from '../components/content-loading.react';
@@ -374,7 +375,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     return infos;
   }, [threadInfos]);
 
-  const latestThreadInfo = React.useMemo(() => {
+  const latestThreadInfo = React.useMemo((): ?ThreadInfo => {
     const threadInfoFromParams = originalThreadInfo;
     const threadInfoFromStore = threadInfos[threadInfoFromParams.id];
 
@@ -389,20 +390,31 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
       : threadInfoFromParams.members.map((member) => member.id);
     const threadKey = getPendingThreadKey(pendingThreadMemberIDs);
 
-    return (
-      threadCandidates.get(threadKey) ?? {
-        ...threadInfoFromParams,
-        currentUser: getCurrentUser(threadInfoFromParams, viewerID, userInfos),
-      }
-    );
+    if (threadCandidates.get(threadKey)) {
+      return threadCandidates.get(threadKey);
+    }
+
+    const updatedThread = props.route.params.searching
+      ? createPendingThread(
+          viewerID,
+          userInfoInputArray.length === 1
+            ? threadTypes.PERSONAL
+            : threadTypes.CHAT_SECRET,
+          userInfoInputArray,
+        )
+      : threadInfoFromParams;
+    return {
+      ...updatedThread,
+      currentUser: getCurrentUser(updatedThread, viewerID, userInfos),
+    };
   }, [
+    originalThreadInfo,
     threadInfos,
+    viewerID,
+    props.route.params.searching,
+    userInfoInputArray,
     threadCandidates,
     userInfos,
-    viewerID,
-    originalThreadInfo,
-    userInfoInputArray,
-    props.route.params.searching,
   ]);
 
   if (latestThreadInfo) {
