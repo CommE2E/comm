@@ -3,7 +3,6 @@
 import Clipboard from '@react-native-community/clipboard';
 import invariant from 'invariant';
 import _shuffle from 'lodash/fp/shuffle';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   View,
@@ -26,55 +25,44 @@ import {
   type ReportCreationResponse,
   reportTypes,
 } from 'lib/types/report-types';
-import {
-  type PreRequestUserState,
-  preRequestUserStatePropType,
-} from 'lib/types/session-types';
+import type { PreRequestUserState } from 'lib/types/session-types';
 import { actionLogger } from 'lib/utils/action-logger';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
+import {
+  type DispatchActionPromise,
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
 import { sanitizeAction, sanitizeState } from 'lib/utils/sanitization';
 import sleep from 'lib/utils/sleep';
 
 import Button from './components/button.react';
 import ConnectedStatusBar from './connected-status-bar.react';
 import { persistConfig, codeVersion } from './redux/persist';
-import type { AppState } from './redux/redux-setup';
+import { useSelector } from './redux/redux-utils';
 import { wipeAndExit } from './utils/crash-utils';
 
 const errorTitles = ['Oh no!!', 'Womp womp womp...'];
 
-type Props = {
-  errorData: $ReadOnlyArray<ErrorData>,
+type BaseProps = {|
+  +errorData: $ReadOnlyArray<ErrorData>,
+|};
+type Props = {|
+  ...BaseProps,
   // Redux state
-  preRequestUserState: PreRequestUserState,
+  +preRequestUserState: PreRequestUserState,
   // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  sendReport: (
+  +sendReport: (
     request: ClientReportCreationRequest,
   ) => Promise<ReportCreationResponse>,
-  logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
-};
+  +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
+|};
 type State = {|
-  errorReportID: ?string,
-  doneWaiting: boolean,
+  +errorReportID: ?string,
+  +doneWaiting: boolean,
 |};
 class Crash extends React.PureComponent<Props, State> {
-  static propTypes = {
-    errorData: PropTypes.arrayOf(
-      PropTypes.shape({
-        error: PropTypes.object.isRequired,
-        info: PropTypes.shape({
-          componentStack: PropTypes.string.isRequired,
-        }),
-      }),
-    ).isRequired,
-    preRequestUserState: preRequestUserStatePropType.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    sendReport: PropTypes.func.isRequired,
-    logOut: PropTypes.func.isRequired,
-  };
   errorTitle = _shuffle(errorTitles)[0];
   state: State = {
     errorReportID: null,
@@ -260,9 +248,19 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect(
-  (state: AppState) => ({
-    preRequestUserState: preRequestUserStateSelector(state),
-  }),
-  { sendReport, logOut },
-)(Crash);
+export default React.memo<BaseProps>(function ConnectedCrash(props: BaseProps) {
+  const preRequestUserState = useSelector(preRequestUserStateSelector);
+
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callSendReport = useServerCall(sendReport);
+  const callLogOut = useServerCall(logOut);
+  return (
+    <Crash
+      {...props}
+      preRequestUserState={preRequestUserState}
+      dispatchActionPromise={dispatchActionPromise}
+      sendReport={callSendReport}
+      logOut={callLogOut}
+    />
+  );
+});
