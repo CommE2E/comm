@@ -10,7 +10,12 @@ import {
   messageListData,
 } from 'lib/selectors/chat-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import {
+  userInfoSelectorForPotentialMembers,
+  userSearchIndexForPotentialMembers,
+} from 'lib/selectors/user-selectors';
 import { messageID } from 'lib/shared/message-utils';
+import { getPotentialMemberItems } from 'lib/shared/search-utils';
 import {
   getCurrentUser,
   threadHasAdminRole,
@@ -18,9 +23,12 @@ import {
 } from 'lib/shared/thread-utils';
 import { messageTypes } from 'lib/types/message-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
+import type { AccountUserInfo, UserListItem } from 'lib/types/user-types';
 
 import ContentLoading from '../components/content-loading.react';
 import NodeHeightMeasurer from '../components/node-height-measurer.react';
+import TagInput from '../components/tag-input.react';
+import UserList from '../components/user-list.react';
 import { type InputState, InputStateContext } from '../input/input-state';
 import {
   OverlayContext,
@@ -46,6 +54,12 @@ export type ChatMessageItemWithHeight =
   | {| itemType: 'loader' |}
   | ChatMessageInfoItemWithHeight;
 
+const inputProps = {
+  placeholder: 'username',
+  autoFocus: true,
+  returnKeyType: 'go',
+};
+
 type BaseProps = {|
   +navigation: ChatNavigationProp<'MessageList'>,
   +route: NavigationRoute<'MessageList'>,
@@ -53,6 +67,12 @@ type BaseProps = {|
 type Props = {|
   ...BaseProps,
   // Redux state
+  +usernameInputText: string,
+  +updateUsernameInput: (text: string) => void,
+  +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
+  +updateTagInput: (items: $ReadOnlyArray<AccountUserInfo>) => void,
+  +otherUserInfos: { [id: string]: AccountUserInfo },
+  +userSearchResults: $ReadOnlyArray<UserListItem>,
   +threadInfo: ThreadInfo,
   +messageListData: $ReadOnlyArray<ChatMessageItem>,
   +composedMessageMaxWidth: number,
@@ -94,9 +114,46 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     }
   }
 
+  tagDataLabelExtractor = (userInfo: AccountUserInfo) => userInfo.username;
+
+  onUserSelect = (userID: string) => {
+    for (const existingUserInfo of this.props.userInfoInputArray) {
+      if (userID === existingUserInfo.id) {
+        return;
+      }
+    }
+    const userInfoInputArray = [
+      ...this.props.userInfoInputArray,
+      this.props.otherUserInfos[userID],
+    ];
+    this.props.updateUsernameInput('');
+    this.props.updateTagInput(userInfoInputArray);
+  };
+
   render() {
     const { threadInfo } = this.props;
     const { listDataWithHeights } = this.state;
+    const { searching } = this.props.route.params;
+
+    let searchComponent = null;
+    if (searching) {
+      searchComponent = (
+        <>
+          <TagInput
+            value={this.props.userInfoInputArray}
+            onChange={this.props.updateTagInput}
+            text={this.props.usernameInputText}
+            onChangeText={this.props.updateUsernameInput}
+            labelExtractor={this.tagDataLabelExtractor}
+            inputProps={inputProps}
+          />
+          <UserList
+            userInfos={this.props.userSearchResults}
+            onSelect={this.onUserSelect}
+          />
+        </>
+      );
+    }
 
     let messageList;
     if (listDataWithHeights) {
@@ -126,6 +183,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           inputState={this.props.inputState}
           composedMessageMaxWidth={this.props.composedMessageMaxWidth}
         />
+        {searchComponent}
         {messageList}
         <ChatInputBar
           threadInfo={threadInfo}
@@ -266,6 +324,33 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
   const viewerID = useSelector(
     (state) => state.currentUserInfo && state.currentUserInfo.id,
   );
+
+  const [usernameInputText, setUsernameInputText] = React.useState('');
+  const [userInfoInputArray, setUserInfoInputArray] = React.useState<
+    $ReadOnlyArray<AccountUserInfo>,
+  >([]);
+  const updateTagInput = React.useCallback(
+    (input: $ReadOnlyArray<AccountUserInfo>) => setUserInfoInputArray(input),
+    [],
+  );
+  const updateUsernameInput = React.useCallback(
+    (text: string) => setUsernameInputText(text),
+    [],
+  );
+  const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
+  const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
+
+  const userSearchResults = React.useMemo(
+    () =>
+      getPotentialMemberItems(
+        usernameInputText,
+        otherUserInfos,
+        userSearchIndex,
+        userInfoInputArray.map((userInfo) => userInfo.id),
+      ),
+    [usernameInputText, otherUserInfos, userSearchIndex, userInfoInputArray],
+  );
+
   const threadInfos = useSelector(threadInfoSelector);
   const userInfos = useSelector((state) => state.userStore.userInfos);
   const threadInfoRef = React.useRef(props.route.params.threadInfo);
@@ -283,8 +368,11 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     }
 
     const pendingThreadMemberIDs = new Set(
-      threadInfoFromParams.members.map((member) => member.id),
+      props.route.params.searching
+        ? userInfoInputArray.map((user) => user.id)
+        : threadInfoFromParams.members.map((member) => member.id),
     );
+    pendingThreadMemberIDs.add(viewerID);
     for (const threadID in threadInfos) {
       const currentThreadInfo = threadInfos[threadID];
       if (
@@ -305,7 +393,14 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
       ...threadInfoFromParams,
       currentUser: getCurrentUser(threadInfoFromParams, viewerID, userInfos),
     };
-  }, [threadInfos, userInfos, viewerID, originalThreadInfo]);
+  }, [
+    threadInfos,
+    userInfos,
+    viewerID,
+    originalThreadInfo,
+    userInfoInputArray,
+    props.route.params.searching,
+  ]);
 
   if (latestThreadInfo) {
     threadInfoRef.current = latestThreadInfo;
@@ -329,6 +424,12 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     <MessageListContext.Provider value={messageListContext}>
       <MessageListContainer
         {...props}
+        usernameInputText={usernameInputText}
+        updateUsernameInput={updateUsernameInput}
+        userInfoInputArray={userInfoInputArray}
+        updateTagInput={updateTagInput}
+        otherUserInfos={otherUserInfos}
+        userSearchResults={userSearchResults}
         threadInfo={threadInfoRef.current}
         messageListData={boundMessageListData}
         composedMessageMaxWidth={composedMessageMaxWidth}

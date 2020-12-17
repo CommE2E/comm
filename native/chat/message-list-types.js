@@ -12,6 +12,7 @@ import { useTextMessageRulesFunc } from '../markdown/rules.react';
 export type MessageListParams = {|
   threadInfo: ThreadInfo,
   pendingPersonalThreadUserInfo?: UserInfo,
+  searching?: boolean,
 |};
 
 const messageListRoutePropType = PropTypes.shape({
@@ -19,6 +20,7 @@ const messageListRoutePropType = PropTypes.shape({
   params: PropTypes.shape({
     threadInfo: threadInfoPropType.isRequired,
     pendingPersonalThreadUserInfo: userInfoPropType,
+    searching: PropTypes.bool,
   }).isRequired,
 });
 
