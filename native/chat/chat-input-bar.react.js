@@ -32,10 +32,11 @@ import { trimMessage } from 'lib/shared/message-utils';
 import {
   threadHasPermission,
   viewerIsMember,
-  threadIsPersonalAndPending,
   threadFrozenDueToViewerBlock,
   threadActualMembers,
-  getPendingPersonalThreadOtherUser,
+  threadIsPending,
+  getPendingThreadOtherUsers,
+  pendingThreadType,
 } from 'lib/shared/thread-utils';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
@@ -48,7 +49,6 @@ import {
   threadPermissions,
   type ClientThreadJoinRequest,
   type ThreadJoinPayload,
-  threadTypes,
   type NewThreadRequest,
   type NewThreadResult,
 } from 'lib/types/thread-types';
@@ -616,15 +616,15 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       return this.newThreadID;
     }
     const { threadInfo } = this.props;
-    if (!threadIsPersonalAndPending(threadInfo)) {
+    if (!threadIsPending(threadInfo.id)) {
       return threadInfo.id;
     }
 
-    const otherMemberID = getPendingPersonalThreadOtherUser(threadInfo);
+    const otherMemberIDs = getPendingThreadOtherUsers(threadInfo);
     try {
       const resultPromise = this.props.newThread({
-        type: threadTypes.PERSONAL,
-        initialMemberIDs: [otherMemberID],
+        type: pendingThreadType(otherMemberIDs.length),
+        initialMemberIDs: otherMemberIDs,
         color: threadInfo.color,
       });
       this.props.dispatchActionPromise(newThreadActionTypes, resultPromise);

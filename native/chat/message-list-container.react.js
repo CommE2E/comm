@@ -19,11 +19,12 @@ import {
   createPendingThread,
   getCurrentUser,
   getPendingThreadKey,
+  pendingThreadType,
   threadHasAdminRole,
   threadIsPending,
 } from 'lib/shared/thread-utils';
 import { messageTypes } from 'lib/types/message-types';
-import { type ThreadInfo, threadTypes } from 'lib/types/thread-types';
+import { type ThreadInfo } from 'lib/types/thread-types';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types';
 
 import ContentLoading from '../components/content-loading.react';
@@ -397,9 +398,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     const updatedThread = props.route.params.searching
       ? createPendingThread(
           viewerID,
-          userInfoInputArray.length === 1
-            ? threadTypes.PERSONAL
-            : threadTypes.CHAT_SECRET,
+          pendingThreadType(userInfoInputArray.length),
           userInfoInputArray,
         )
       : threadInfoFromParams;
