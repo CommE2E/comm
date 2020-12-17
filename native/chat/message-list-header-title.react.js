@@ -6,7 +6,7 @@ import * as React from 'react';
 import { View, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-import { threadIsPersonalAndPending } from 'lib/shared/thread-utils';
+import { threadIsPending } from 'lib/shared/thread-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadInfoPropType } from 'lib/types/thread-types';
 import { connect } from 'lib/utils/redux-utils';
@@ -32,9 +32,7 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
 
   render() {
     let icon, fakeIcon;
-    const areSettingsDisabled = threadIsPersonalAndPending(
-      this.props.threadInfo,
-    );
+    const areSettingsDisabled = threadIsPending(this.props.threadInfo.id);
     if (Platform.OS === 'ios' && !areSettingsDisabled) {
       icon = (
         <Icon
