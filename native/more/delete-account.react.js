@@ -1,7 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   Text,
@@ -19,56 +18,40 @@ import {
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import type { LogOutResult } from 'lib/types/account-types';
-import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import {
-  type PreRequestUserState,
-  preRequestUserStatePropType,
-} from 'lib/types/session-types';
+import type { PreRequestUserState } from 'lib/types/session-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
+import {
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import { deleteNativeCredentialsFor } from '../account/native-credentials';
 import Button from '../components/button.react';
-import type { AppState } from '../redux/redux-setup';
-import {
-  type Colors,
-  colorsPropType,
-  colorsSelector,
-  styleSelector,
-} from '../themes/colors';
-import { type GlobalTheme, globalThemePropType } from '../types/themes';
+import { useSelector } from '../redux/redux-utils';
+import { type Colors, useColors, useStyles } from '../themes/colors';
+import type { GlobalTheme } from '../types/themes';
 
 type Props = {|
   // Redux state
-  loadingStatus: LoadingStatus,
-  username: ?string,
-  preRequestUserState: PreRequestUserState,
-  activeTheme: ?GlobalTheme,
-  colors: Colors,
-  styles: typeof styles,
+  +loadingStatus: LoadingStatus,
+  +username: ?string,
+  +preRequestUserState: PreRequestUserState,
+  +activeTheme: ?GlobalTheme,
+  +colors: Colors,
+  +styles: typeof unboundStyles,
   // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
+  +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  deleteAccount: (
+  +deleteAccount: (
     password: string,
     preRequestUserState: PreRequestUserState,
   ) => Promise<LogOutResult>,
 |};
 type State = {|
-  password: string,
+  +password: string,
 |};
 class DeleteAccount extends React.PureComponent<Props, State> {
-  static propTypes = {
-    loadingStatus: loadingStatusPropType.isRequired,
-    username: PropTypes.string,
-    preRequestUserState: preRequestUserStatePropType.isRequired,
-    activeTheme: globalThemePropType,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    deleteAccount: PropTypes.func.isRequired,
-  };
   state: State = {
     password: '',
   };
@@ -191,7 +174,7 @@ class DeleteAccount extends React.PureComponent<Props, State> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   deleteButton: {
     backgroundColor: 'redButton',
     borderRadius: 5,
@@ -247,23 +230,37 @@ const styles = {
     textAlign: 'center',
   },
 };
-const stylesSelector = styleSelector(styles);
 
 const loadingStatusSelector = createLoadingStatusSelector(
   deleteAccountActionTypes,
 );
 
-export default connect(
-  (state: AppState) => ({
-    loadingStatus: loadingStatusSelector(state),
-    username:
-      state.currentUserInfo && !state.currentUserInfo.anonymous
-        ? state.currentUserInfo.username
-        : undefined,
-    preRequestUserState: preRequestUserStateSelector(state),
-    activeTheme: state.globalThemeInfo.activeTheme,
-    colors: colorsSelector(state),
-    styles: stylesSelector(state),
-  }),
-  { deleteAccount },
-)(DeleteAccount);
+export default React.memo<{ ... }>(function ConnectedDeleteAccount() {
+  const loadingStatus = useSelector(loadingStatusSelector);
+  const username = useSelector((state) => {
+    if (state.currentUserInfo && !state.currentUserInfo.anonymous) {
+      return state.currentUserInfo.username;
+    }
+    return undefined;
+  });
+  const preRequestUserState = useSelector(preRequestUserStateSelector);
+  const activeTheme = useSelector((state) => state.globalThemeInfo.activeTheme);
+  const colors = useColors();
+  const styles = useStyles(unboundStyles);
+
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callDeleteAccount = useServerCall(deleteAccount);
+
+  return (
+    <DeleteAccount
+      loadingStatus={loadingStatus}
+      username={username}
+      preRequestUserState={preRequestUserState}
+      activeTheme={activeTheme}
+      colors={colors}
+      styles={styles}
+      dispatchActionPromise={dispatchActionPromise}
+      deleteAccount={callDeleteAccount}
+    />
+  );
+});
