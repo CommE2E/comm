@@ -1,7 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import _isEqual from 'lodash/fp/isEqual';
 import * as React from 'react';
 import { View } from 'react-native';
 
@@ -18,6 +17,7 @@ import { messageID } from 'lib/shared/message-utils';
 import { getPotentialMemberItems } from 'lib/shared/search-utils';
 import {
   getCurrentUser,
+  getPendingThreadKey,
   threadHasAdminRole,
   threadIsPending,
 } from 'lib/shared/thread-utils';
@@ -357,6 +357,23 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
   const originalThreadInfoRef = React.useRef(props.route.params.threadInfo);
   const originalThreadInfo = originalThreadInfoRef.current;
 
+  const threadCandidates = React.useMemo(() => {
+    const infos = new Map<string, ThreadInfo>();
+    for (const threadID in threadInfos) {
+      const info = threadInfos[threadID];
+      if (info.parentThreadID || threadHasAdminRole(info)) {
+        continue;
+      }
+
+      const key = getPendingThreadKey(info.members.map((member) => member.id));
+      const indexedThread = infos.get(key);
+      if (!indexedThread || info.creationTime < indexedThread.creationTime) {
+        infos.set(key, info);
+      }
+    }
+    return infos;
+  }, [threadInfos]);
+
   const latestThreadInfo = React.useMemo(() => {
     const threadInfoFromParams = originalThreadInfo;
     const threadInfoFromStore = threadInfos[threadInfoFromParams.id];
@@ -367,34 +384,20 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
       return undefined;
     }
 
-    const pendingThreadMemberIDs = new Set(
-      props.route.params.searching
-        ? userInfoInputArray.map((user) => user.id)
-        : threadInfoFromParams.members.map((member) => member.id),
-    );
-    pendingThreadMemberIDs.add(viewerID);
-    for (const threadID in threadInfos) {
-      const currentThreadInfo = threadInfos[threadID];
-      if (
-        currentThreadInfo.parentThreadID ||
-        threadHasAdminRole(currentThreadInfo)
-      ) {
-        continue;
-      }
-      const members = new Set(
-        currentThreadInfo.members.map((member) => member.id),
-      );
-      if (_isEqual(members, pendingThreadMemberIDs)) {
-        return currentThreadInfo;
-      }
-    }
+    const pendingThreadMemberIDs = props.route.params.searching
+      ? [...userInfoInputArray.map((user) => user.id), viewerID]
+      : threadInfoFromParams.members.map((member) => member.id);
+    const threadKey = getPendingThreadKey(pendingThreadMemberIDs);
 
-    return {
-      ...threadInfoFromParams,
-      currentUser: getCurrentUser(threadInfoFromParams, viewerID, userInfos),
-    };
+    return (
+      threadCandidates.get(threadKey) ?? {
+        ...threadInfoFromParams,
+        currentUser: getCurrentUser(threadInfoFromParams, viewerID, userInfos),
+      }
+    );
   }, [
     threadInfos,
+    threadCandidates,
     userInfos,
     viewerID,
     originalThreadInfo,
