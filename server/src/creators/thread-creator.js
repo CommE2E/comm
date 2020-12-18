@@ -119,14 +119,22 @@ async function createThread(
     invariant(initialMemberIDs, 'should be set');
     for (const initialMemberID of initialMemberIDs) {
       const initialMember = fetchInitialMembers[initialMemberID];
-      if (!initialMember && shouldCreateRelationships) {
+      if (
+        !initialMember &&
+        shouldCreateRelationships &&
+        (threadType !== threadTypes.SIDEBAR ||
+          parentThreadMembers?.includes(initialMemberID))
+      ) {
         viewerNeedsRelationshipsWith.push(initialMemberID);
         continue;
       } else if (!initialMember) {
         throw new ServerError('invalid_credentials');
       }
       const { relationshipStatus } = initialMember;
-      if (relationshipStatus === userRelationshipStatus.FRIEND) {
+      if (
+        relationshipStatus === userRelationshipStatus.FRIEND &&
+        threadType !== threadTypes.SIDEBAR
+      ) {
         continue;
       } else if (
         relationshipStatus === userRelationshipStatus.BLOCKED_BY_VIEWER ||

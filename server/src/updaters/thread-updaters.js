@@ -466,8 +466,10 @@ async function updateThread(
         throw new ServerError('invalid_credentials');
       }
       const { relationshipStatus } = fetchNewMembers[newMemberID];
-
-      if (relationshipStatus === userRelationshipStatus.FRIEND) {
+      if (
+        relationshipStatus === userRelationshipStatus.FRIEND &&
+        nextThreadType !== threadTypes.SIDEBAR
+      ) {
         continue;
       } else if (
         parentThreadMembers &&
