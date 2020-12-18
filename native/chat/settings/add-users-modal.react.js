@@ -130,6 +130,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
         searchIndex,
         excludeUserIDs,
         parentThreadInfo,
+        threadInfo.type,
       );
     },
   );

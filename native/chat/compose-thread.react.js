@@ -175,12 +175,14 @@ class ComposeThread extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.userInfoInputArray,
     (propsAndState: PropsAndState) =>
       ComposeThread.getParentThreadInfo(propsAndState),
+    (propsAndState: PropsAndState) => propsAndState.route.params.threadType,
     (
       text: string,
       userInfos: { [id: string]: AccountUserInfo },
       searchIndex: SearchIndex,
       userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
       parentThreadInfo: ?ThreadInfo,
+      threadType: ?ThreadType,
     ) =>
       getPotentialMemberItems(
         text,
@@ -188,6 +190,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
         searchIndex,
         userInfoInputArray.map((userInfo) => userInfo.id),
         parentThreadInfo,
+        threadType,
       ),
   );
 

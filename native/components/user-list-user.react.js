@@ -58,7 +58,7 @@ class UserListUser extends React.PureComponent<Props> {
       this.props.onSelect(userInfo.id);
       return;
     }
-    Alert.alert('Not a friend', userInfo.alertText, [{ text: 'OK' }], {
+    Alert.alert(userInfo.alertTitle, userInfo.alertText, [{ text: 'OK' }], {
       cancelable: true,
     });
   };
