@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import {
   type ChatMessageItem,
@@ -133,26 +133,41 @@ class MessageListContainer extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { threadInfo } = this.props;
+    const { threadInfo, styles } = this.props;
     const { listDataWithHeights } = this.state;
     const { searching } = this.props.route.params;
+
+    const separator =
+      this.props.userSearchResults.length > 0 ? (
+        <View style={styles.separator} />
+      ) : null;
 
     let searchComponent = null;
     if (searching) {
       searchComponent = (
         <>
-          <TagInput
-            value={this.props.userInfoInputArray}
-            onChange={this.props.updateTagInput}
-            text={this.props.usernameInputText}
-            onChangeText={this.props.updateUsernameInput}
-            labelExtractor={this.tagDataLabelExtractor}
-            inputProps={inputProps}
-          />
-          <UserList
-            userInfos={this.props.userSearchResults}
-            onSelect={this.onUserSelect}
-          />
+          <View style={styles.userSelection}>
+            <View style={styles.tagInputContainer}>
+              <Text style={styles.tagInputLabel}>To: </Text>
+              <View style={styles.tagInput}>
+                <TagInput
+                  value={this.props.userInfoInputArray}
+                  onChange={this.props.updateTagInput}
+                  text={this.props.usernameInputText}
+                  onChangeText={this.props.updateUsernameInput}
+                  labelExtractor={this.tagDataLabelExtractor}
+                  inputProps={inputProps}
+                />
+              </View>
+            </View>
+            <View style={styles.userList}>
+              <UserList
+                userInfos={this.props.userSearchResults}
+                onSelect={this.onUserSelect}
+              />
+            </View>
+          </View>
+          {separator}
         </>
       );
     }
@@ -174,7 +189,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     }
 
     return (
-      <View style={this.props.styles.container}>
+      <View style={styles.container}>
         <NodeHeightMeasurer
           listData={this.props.messageListData}
           itemToID={this.heightMeasurerID}
@@ -186,12 +201,14 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           composedMessageMaxWidth={this.props.composedMessageMaxWidth}
         />
         {searchComponent}
-        {messageList}
-        <ChatInputBar
-          threadInfo={threadInfo}
-          navigation={this.props.navigation}
-          route={this.props.route}
-        />
+        <View style={styles.threadContent}>
+          {messageList}
+          <ChatInputBar
+            threadInfo={threadInfo}
+            navigation={this.props.navigation}
+            route={this.props.route}
+          />
+        </View>
       </View>
     );
   }
@@ -317,6 +334,38 @@ const unboundStyles = {
   container: {
     backgroundColor: 'listBackground',
     flex: 1,
+  },
+  userSelection: {
+    backgroundColor: 'panelBackground',
+    maxHeight: 500,
+  },
+  threadContent: {
+    flex: 1,
+  },
+  tagInputLabel: {
+    color: 'modalForegroundSecondaryLabel',
+    fontSize: 16,
+    paddingLeft: 12,
+  },
+  tagInputContainer: {
+    alignItems: 'center',
+    backgroundColor: 'modalForeground',
+    borderBottomWidth: 1,
+    borderColor: 'modalForegroundBorder',
+    flexDirection: 'row',
+    paddingVertical: 6,
+  },
+  tagInput: {
+    flex: 1,
+  },
+  userList: {
+    backgroundColor: 'modalBackground',
+    paddingLeft: 35,
+    paddingRight: 12,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: 'modalForegroundBorder',
   },
 };
 
