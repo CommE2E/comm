@@ -1,19 +1,11 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { Text, Platform, Alert } from 'react-native';
 
-import { type UserListItem, userListItemPropType } from 'lib/types/user-types';
-import { connect } from 'lib/utils/redux-utils';
+import type { UserListItem } from 'lib/types/user-types';
 
-import type { AppState } from '../redux/redux-setup';
-import {
-  type Colors,
-  colorsPropType,
-  colorsSelector,
-  styleSelector,
-} from '../themes/colors';
+import { type Colors, useColors, useStyles } from '../themes/colors';
 import type { TextStyle } from '../types/styles';
 import Button from './button.react';
 import { SingleLine } from './single-line.react';
@@ -24,23 +16,18 @@ const getUserListItemHeight = (item: UserListItem) => {
   return Platform.OS === 'ios' ? 31.5 : 33.5;
 };
 
+type BaseProps = {|
+  +userInfo: UserListItem,
+  +onSelect: (userID: string) => void,
+  +textStyle?: TextStyle,
+|};
 type Props = {|
-  userInfo: UserListItem,
-  onSelect: (userID: string) => void,
-  textStyle?: TextStyle,
+  ...BaseProps,
   // Redux state
-  colors: Colors,
-  styles: typeof styles,
+  +colors: Colors,
+  +styles: typeof unboundStyles,
 |};
 class UserListUser extends React.PureComponent<Props> {
-  static propTypes = {
-    userInfo: userListItemPropType.isRequired,
-    onSelect: PropTypes.func.isRequired,
-    textStyle: Text.propTypes.style,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-  };
-
   render() {
     const { userInfo } = this.props;
     let notice = null;
@@ -77,7 +64,7 @@ class UserListUser extends React.PureComponent<Props> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   button: {
     alignItems: 'center',
     flexDirection: 'row',
@@ -95,11 +82,13 @@ const styles = {
     paddingVertical: 6,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-const WrappedUserListUser = connect((state: AppState) => ({
-  colors: colorsSelector(state),
-  styles: stylesSelector(state),
-}))(UserListUser);
+const ConnectedUserListUser = React.memo<BaseProps>(
+  function ConnectedUserListUser(props: BaseProps) {
+    const colors = useColors();
+    const styles = useStyles(unboundStyles);
+    return <UserListUser {...props} colors={colors} styles={styles} />;
+  },
+);
 
-export { WrappedUserListUser as UserListUser, getUserListItemHeight };
+export { ConnectedUserListUser as UserListUser, getUserListItemHeight };
