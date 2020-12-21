@@ -221,7 +221,6 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       usersSearchResults: $ReadOnlyArray<GlobalAccountUserInfo>,
     ): Item[] => {
       const chatItems = [];
-      chatItems.push({ type: 'search', searchText });
 
       if (!searchText) {
         chatItems.push(
@@ -257,7 +256,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
         chatItems.push({ type: 'empty', emptyItem });
       }
 
-      return chatItems;
+      return [{ type: 'search', searchText }, ...chatItems];
     },
   );
 
