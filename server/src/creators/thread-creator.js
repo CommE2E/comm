@@ -2,7 +2,10 @@
 
 import invariant from 'invariant';
 
-import { generateRandomColor } from 'lib/shared/thread-utils';
+import {
+  generatePendingThreadColor,
+  generateRandomColor,
+} from 'lib/shared/thread-utils';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import { messageTypes } from 'lib/types/message-types';
 import { userRelationshipStatus } from 'lib/types/relationship-types';
@@ -147,9 +150,15 @@ async function createThread(
 
   const name = request.name ? request.name : null;
   const description = request.description ? request.description : null;
-  const color = request.color
+  let color = request.color
     ? request.color.toLowerCase()
     : generateRandomColor();
+  if (threadType === threadTypes.PERSONAL) {
+    color = generatePendingThreadColor(
+      request.initialMemberIDs ?? [],
+      viewer.id,
+    );
+  }
   const time = Date.now();
 
   const row = [
