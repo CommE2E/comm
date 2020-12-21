@@ -723,20 +723,21 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       const threadIsPersonal = threadInfo.type === threadTypes.PERSONAL;
       if (threadIsPersonal && viewerID) {
         const otherMemberID = getSingleOtherUser(threadInfo, viewerID);
-        invariant(otherMemberID, 'Other user should be specified');
-        const otherUserInfo = userInfos[otherMemberID];
-        const availableRelationshipActions = getAvailableRelationshipButtons(
-          otherUserInfo,
-        );
+        if (otherMemberID) {
+          const otherUserInfo = userInfos[otherMemberID];
+          const availableRelationshipActions = getAvailableRelationshipButtons(
+            otherUserInfo,
+          );
 
-        for (const action of availableRelationshipActions) {
-          buttons.push({
-            itemType: 'editRelationship',
-            key: action,
-            threadInfo,
-            navigate,
-            relationshipButton: action,
-          });
+          for (const action of availableRelationshipActions) {
+            buttons.push({
+              itemType: 'editRelationship',
+              key: action,
+              threadInfo,
+              navigate,
+              relationshipButton: action,
+            });
+          }
         }
       }
 

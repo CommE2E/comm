@@ -286,13 +286,13 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     );
     for (const threadID in threadInfos) {
       const currentThreadInfo = threadInfos[threadID];
-      if (currentThreadInfo.type !== threadTypes.PERSONAL) {
+      if (
+        currentThreadInfo.type !== threadTypes.PERSONAL ||
+        currentThreadInfo.members.length !== 2
+      ) {
         continue;
       }
-      invariant(
-        currentThreadInfo.members.length === 2,
-        'Personal thread should have exactly two members',
-      );
+
       const members = new Set(
         currentThreadInfo.members.map((member) => member.id),
       );
