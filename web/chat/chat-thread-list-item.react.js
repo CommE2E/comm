@@ -79,6 +79,7 @@ function ChatThreadListItem(props: Props) {
         <ChatThreadListSeeMoreSidebars
           threadInfo={item.threadInfo}
           unread={sidebarItem.unread}
+          showingSidebarsInline={sidebarItem.showingSidebarsInline}
           setModal={setModal}
           key="seeMore"
         />

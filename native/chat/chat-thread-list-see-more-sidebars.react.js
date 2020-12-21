@@ -12,10 +12,11 @@ import { useColors, useStyles } from '../themes/colors';
 type Props = {|
   +threadInfo: ThreadInfo,
   +unread: boolean,
+  +showingSidebarsInline: boolean,
   +onPress: (threadInfo: ThreadInfo) => void,
 |};
 function ChatThreadListSeeMoreSidebars(props: Props) {
-  const { onPress, threadInfo } = props;
+  const { onPress, threadInfo, unread, showingSidebarsInline } = props;
   const onPressButton = React.useCallback(() => onPress(threadInfo), [
     onPress,
     threadInfo,
@@ -23,7 +24,8 @@ function ChatThreadListSeeMoreSidebars(props: Props) {
 
   const colors = useColors();
   const styles = useStyles(unboundStyles);
-  const unreadStyle = props.unread ? styles.unread : null;
+  const unreadStyle = unread ? styles.unread : null;
+  const buttonText = showingSidebarsInline ? 'See more...' : 'See sidebars...';
   return (
     <Button
       iosFormat="highlight"
@@ -33,7 +35,7 @@ function ChatThreadListSeeMoreSidebars(props: Props) {
       onPress={onPressButton}
     >
       <Icon name="ios-more" size={28} style={styles.icon} />
-      <Text style={[styles.text, unreadStyle]}>See more...</Text>
+      <Text style={[styles.text, unreadStyle]}>{buttonText}</Text>
     </Button>
   );
 }
