@@ -48,6 +48,8 @@ async function markThreadsAsPersonal() {
         AND t.id != ${bots.squadbot.staffThreadID}
         AND m3.user IS NULL
         AND r2.id IS NULL
+        AND m1.role != -1
+        AND m2.role != -1
       GROUP BY m1.user, m2.user
     ) T
     INNER JOIN roles r ON r.thread = T.id
@@ -59,6 +61,8 @@ async function markThreadsAsPersonal() {
       WHERE t.type = ${threadTypes.PERSONAL}
         AND m1.user = user1
         AND m2.user = user2
+        AND m1.role != -1
+        AND m2.role != -1
     )
   `;
   const [result] = await dbQuery(findThreadsToUpdate);
@@ -113,6 +117,8 @@ async function createPersonalThreadsForFriends() {
         WHERE t.type = ${threadTypes.PERSONAL}
           AND m1.user = r.user1
           AND m2.user = r.user2
+          AND m1.role != -1
+          AND m2.role != -1
       )
   `;
   const [result] = await dbQuery(usersQuery);
