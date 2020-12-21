@@ -11,4 +11,16 @@ function endScript() {
   endAPNs();
 }
 
-export { endScript };
+async function main(functions: $ReadOnlyArray<() => Promise<mixed>>) {
+  try {
+    for (const f of functions) {
+      await f();
+    }
+  } catch (e) {
+    console.warn(e);
+  } finally {
+    endScript();
+  }
+}
+
+export { endScript, main };
