@@ -190,6 +190,8 @@ async function createThread(
         INNER JOIN memberships m2
           ON m2.thread = t.id AND m2.user = ${otherMemberID}
         WHERE t.type = ${threadTypes.PERSONAL}
+          AND m1.role != -1
+          AND m2.role != -1
       )
     `;
     const [result] = await dbQuery(query);
@@ -203,6 +205,8 @@ async function createThread(
         INNER JOIN memberships m2
           ON m2.thread = t.id AND m2.user = ${otherMemberID}
         WHERE t.type = ${threadTypes.PERSONAL}
+          AND m1.role != -1
+          AND m2.role != -1
       `;
       const deleteRoles = SQL`
         DELETE FROM roles

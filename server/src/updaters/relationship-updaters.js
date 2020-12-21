@@ -272,6 +272,8 @@ async function createPersonalThreads(
     INNER JOIN memberships m2
       ON m2.thread = t.id AND m2.user IN (${request.userIDs})
     WHERE t.type = ${threadTypes.PERSONAL}
+      AND m1.role != -1
+      AND m2.role != -1
   `;
   const [personalThreadsResult] = await dbQuery(personalThreadsQuery);
 
