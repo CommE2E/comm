@@ -135,7 +135,6 @@ class MessageListContainer extends React.PureComponent<Props, State> {
   render() {
     const { threadInfo, styles } = this.props;
     const { listDataWithHeights } = this.state;
-    const { searching } = this.props.route.params;
 
     const separator =
       this.props.userSearchResults.length > 0 ? (
@@ -143,7 +142,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
       ) : null;
 
     let searchComponent = null;
-    if (searching) {
+    if (this.props.route.params.searching) {
       searchComponent = (
         <>
           <View style={styles.userSelection}>
@@ -405,8 +404,24 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
   const threadInfos = useSelector(threadInfoSelector);
   const userInfos = useSelector((state) => state.userStore.userInfos);
   const threadInfoRef = React.useRef(props.route.params.threadInfo);
-  const originalThreadInfoRef = React.useRef(props.route.params.threadInfo);
-  const originalThreadInfo = originalThreadInfoRef.current;
+  const [originalThreadInfo, setOriginalThreadInfo] = React.useState(
+    props.route.params.threadInfo,
+  );
+
+  const inputState = React.useContext(InputStateContext);
+  const hideSearch = React.useCallback(() => {
+    setOriginalThreadInfo(threadInfoRef.current);
+    props.navigation.setParams({
+      searching: false,
+    });
+  }, [props.navigation]);
+  React.useEffect(() => {
+    if (!props.route.params.searching) {
+      return;
+    }
+    inputState?.registerSendCallback(hideSearch);
+    return () => inputState?.unregisterSendCallback(hideSearch);
+  }, [hideSearch, inputState, props.route.params.searching]);
 
   const threadCandidates = React.useMemo(() => {
     const infos = new Map<string, ThreadInfo>();
@@ -480,7 +495,6 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
   const composedMessageMaxWidth = useSelector(composedMessageMaxWidthSelector);
   const colors = useColors();
   const styles = useStyles(unboundStyles);
-  const inputState = React.useContext(InputStateContext);
   const overlayContext = React.useContext(OverlayContext);
   const messageListContext = useMessageListContext(threadID);
   return (
