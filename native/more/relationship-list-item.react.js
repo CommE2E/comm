@@ -18,6 +18,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import {
   type RelationshipRequest,
+  type RelationshipAction,
   userRelationshipStatus,
   relationshipActions,
 } from 'lib/types/relationship-types';
@@ -124,12 +125,23 @@ class RelationshipListItem extends React.PureComponent<Props> {
       canEditFriendRequest
     ) {
       editButton = (
-        <TouchableOpacity
-          onPress={this.onPressUpdateFriendship}
-          style={this.props.styles.editButton}
-        >
-          <Text style={this.props.styles.blueAction}>Accept</Text>
-        </TouchableOpacity>
+        <View style={this.props.styles.buttonContainer}>
+          <TouchableOpacity
+            onPress={this.onPressFriendUser}
+            style={this.props.styles.editButton}
+          >
+            <Text style={this.props.styles.blueAction}>Accept</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={this.onPressUnfriendUser}
+            style={[
+              this.props.styles.editButton,
+              this.props.styles.editButtonWithMargin,
+            ]}
+          >
+            <Text style={this.props.styles.redAction}>Reject</Text>
+          </TouchableOpacity>
+        </View>
       );
     } else if (
       userInfo.relationshipStatus === userRelationshipStatus.REQUEST_SENT &&
@@ -137,7 +149,7 @@ class RelationshipListItem extends React.PureComponent<Props> {
     ) {
       editButton = (
         <TouchableOpacity
-          onPress={this.onPressUpdateFriendship}
+          onPress={this.onPressUnfriendUser}
           style={this.props.styles.editButton}
         >
           <Text style={this.props.styles.redAction}>Cancel request</Text>
@@ -222,35 +234,26 @@ class RelationshipListItem extends React.PureComponent<Props> {
   // We need to set onLayout in order to allow .measure() to be on the ref
   onLayout = () => {};
 
-  onPressUpdateFriendship = () => {
+  onPressFriendUser = () => {
+    this.onPressUpdateFriendship(relationshipActions.FRIEND);
+  };
+
+  onPressUnfriendUser = () => {
+    this.onPressUpdateFriendship(relationshipActions.UNFRIEND);
+  };
+
+  onPressUpdateFriendship(action: RelationshipAction) {
     const { id } = this.props.userInfo;
     const customKeyName = `${updateRelationshipsActionTypes.started}:${id}`;
     this.props.dispatchActionPromise(
       updateRelationshipsActionTypes,
-      this.updateFriendship(),
+      this.updateFriendship(action),
       { customKeyName },
     );
-  };
-
-  get updateFriendshipAction() {
-    const { userInfo } = this.props;
-    if (
-      userInfo.relationshipStatus === userRelationshipStatus.REQUEST_RECEIVED
-    ) {
-      return relationshipActions.FRIEND;
-    } else if (
-      userInfo.relationshipStatus === userRelationshipStatus.REQUEST_SENT
-    ) {
-      return relationshipActions.UNFRIEND;
-    } else {
-      return undefined;
-    }
   }
 
-  async updateFriendship() {
+  async updateFriendship(action: RelationshipAction) {
     try {
-      const action = this.updateFriendshipAction;
-      invariant(action, 'invalid relationshipAction');
       return await this.props.updateRelationships({
         action,
         userIDs: [this.props.userInfo.id],
@@ -281,6 +284,12 @@ const unboundStyles = {
   },
   borderBottom: {
     borderBottomWidth: 1,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+  },
+  editButtonWithMargin: {
+    marginLeft: 15,
   },
   username: {
     color: 'panelForegroundSecondaryLabel',
