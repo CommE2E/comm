@@ -1,14 +1,12 @@
 // @flow
 
 import { HeaderTitle } from '@react-navigation/stack';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import { threadIsPending } from 'lib/shared/thread-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
 import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../components/button.react';
@@ -18,21 +16,19 @@ import { styleSelector } from '../themes/colors';
 import type { ChatNavigationProp } from './chat.react';
 
 type Props = {|
-  threadInfo: ThreadInfo,
-  navigate: $PropertyType<ChatNavigationProp<'MessageList'>, 'navigate'>,
+  +threadInfo: ThreadInfo,
+  +searching: boolean,
+  +navigate: $PropertyType<ChatNavigationProp<'MessageList'>, 'navigate'>,
   // Redux state
-  styles: typeof styles,
+  +styles: typeof styles,
 |};
 class MessageListHeaderTitle extends React.PureComponent<Props> {
-  static propTypes = {
-    threadInfo: threadInfoPropType.isRequired,
-    navigate: PropTypes.func.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-  };
-
   render() {
+    const isSearchEmpty =
+      this.props.searching && this.props.threadInfo.members.length === 1;
     let icon, fakeIcon;
-    const areSettingsDisabled = threadIsPending(this.props.threadInfo.id);
+    const areSettingsDisabled =
+      threadIsPending(this.props.threadInfo.id) || isSearchEmpty;
     if (Platform.OS === 'ios' && !areSettingsDisabled) {
       icon = (
         <Icon
@@ -49,6 +45,7 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
         />
       );
     }
+    const title = isSearchEmpty ? 'New Message' : this.props.threadInfo.uiName;
     return (
       <Button
         onPress={this.onPress}
@@ -58,7 +55,7 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
       >
         <View style={this.props.styles.container}>
           {fakeIcon}
-          <HeaderTitle>{this.props.threadInfo.uiName}</HeaderTitle>
+          <HeaderTitle>{title}</HeaderTitle>
           {icon}
         </View>
       </Button>

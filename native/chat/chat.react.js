@@ -171,6 +171,7 @@ const messageListOptions = ({ navigation, route }) => ({
   headerTitle: () => (
     <MessageListHeaderTitle
       threadInfo={route.params.threadInfo}
+      searching={route.params.searching}
       navigate={navigation.navigate}
     />
   ),
