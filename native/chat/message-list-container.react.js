@@ -6,7 +6,7 @@ import { Text, View } from 'react-native';
 
 import {
   type ChatMessageItem,
-  messageListData,
+  messageListData as messageListDataSelector,
 } from 'lib/selectors/chat-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import {
@@ -135,17 +135,25 @@ class MessageListContainer extends React.PureComponent<Props, State> {
   render() {
     const { threadInfo, styles } = this.props;
     const { listDataWithHeights } = this.state;
+    const { searching } = this.props.route.params;
 
-    const separator =
-      this.props.userSearchResults.length > 0 ? (
-        <View style={styles.separator} />
-      ) : null;
+    const showMessageList =
+      !searching || this.props.userInfoInputArray.length > 0;
 
     let searchComponent = null;
-    if (this.props.route.params.searching) {
+    if (searching) {
+      const separator =
+        this.props.userSearchResults.length > 0 ? (
+          <View style={styles.separator} />
+        ) : null;
+
+      const userSelectionHeightStyle = showMessageList
+        ? styles.userSelectionLimitedHeight
+        : null;
+
       searchComponent = (
         <>
-          <View style={styles.userSelection}>
+          <View style={[styles.userSelection, userSelectionHeightStyle]}>
             <View style={styles.tagInputContainer}>
               <Text style={styles.tagInputLabel}>To: </Text>
               <View style={styles.tagInput}>
@@ -171,19 +179,33 @@ class MessageListContainer extends React.PureComponent<Props, State> {
       );
     }
 
-    let messageList;
-    if (listDataWithHeights) {
-      messageList = (
-        <MessageList
-          threadInfo={threadInfo}
-          messageListData={listDataWithHeights}
-          navigation={this.props.navigation}
-          route={this.props.route}
-        />
-      );
-    } else {
-      messageList = (
-        <ContentLoading fillType="flex" colors={this.props.colors} />
+    let threadContent = null;
+    if (showMessageList) {
+      let messageList;
+      if (listDataWithHeights) {
+        messageList = (
+          <MessageList
+            threadInfo={threadInfo}
+            messageListData={listDataWithHeights}
+            navigation={this.props.navigation}
+            route={this.props.route}
+          />
+        );
+      } else {
+        messageList = (
+          <ContentLoading fillType="flex" colors={this.props.colors} />
+        );
+      }
+
+      threadContent = (
+        <View style={styles.threadContent}>
+          {messageList}
+          <ChatInputBar
+            threadInfo={threadInfo}
+            navigation={this.props.navigation}
+            route={this.props.route}
+          />
+        </View>
       );
     }
 
@@ -200,14 +222,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           composedMessageMaxWidth={this.props.composedMessageMaxWidth}
         />
         {searchComponent}
-        <View style={styles.threadContent}>
-          {messageList}
-          <ChatInputBar
-            threadInfo={threadInfo}
-            navigation={this.props.navigation}
-            route={this.props.route}
-          />
-        </View>
+        {threadContent}
       </View>
     );
   }
@@ -336,6 +351,8 @@ const unboundStyles = {
   },
   userSelection: {
     backgroundColor: 'panelBackground',
+  },
+  userSelectionLimitedHeight: {
     maxHeight: 500,
   },
   threadContent: {
@@ -491,7 +508,18 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
   }, [setParams, threadInfo]);
 
   const threadID = threadInfoRef.current.id;
-  const boundMessageListData = useSelector(messageListData(threadID));
+  const boundMessageListData = useSelector(messageListDataSelector(threadID));
+  const messageListData = React.useMemo(
+    () =>
+      props.route.params.searching && userInfoInputArray.length === 0
+        ? []
+        : boundMessageListData,
+    [
+      boundMessageListData,
+      props.route.params.searching,
+      userInfoInputArray.length,
+    ],
+  );
   const composedMessageMaxWidth = useSelector(composedMessageMaxWidthSelector);
   const colors = useColors();
   const styles = useStyles(unboundStyles);
@@ -508,7 +536,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
         otherUserInfos={otherUserInfos}
         userSearchResults={userSearchResults}
         threadInfo={threadInfoRef.current}
-        messageListData={boundMessageListData}
+        messageListData={messageListData}
         composedMessageMaxWidth={composedMessageMaxWidth}
         colors={colors}
         styles={styles}
