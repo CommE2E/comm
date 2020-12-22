@@ -371,13 +371,15 @@ class ComposeThread extends React.PureComponent<Props, State> {
     this.setLinkButton(false);
     try {
       const threadTypeParam = this.props.route.params.threadType;
-      const threadType = threadTypeParam
-        ? threadTypeParam
-        : threadTypes.CHAT_SECRET;
+      const threadType = threadTypeParam ?? threadTypes.CHAT_SECRET;
       const initialMemberIDs = this.state.userInfoInputArray.map(
         (userInfo: AccountUserInfo) => userInfo.id,
       );
       const parentThreadInfo = ComposeThread.getParentThreadInfo(this.props);
+      invariant(
+        threadType !== 5,
+        'Creating sidebars from thread composer is not yet supported',
+      );
       const result = await this.props.newThread({
         type: threadType,
         parentThreadID: parentThreadInfo ? parentThreadInfo.id : null,

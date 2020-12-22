@@ -23,14 +23,14 @@ function tRegex(regex: RegExp) {
   return t.refinement(t.String, (val) => regex.test(val));
 }
 
-function tNumEnum(assertFunc: (input: number) => *) {
+function tNumEnum(nums: $ReadOnlyArray<number>) {
   return t.refinement(t.Number, (input: number) => {
-    try {
-      assertFunc(input);
-      return true;
-    } catch (e) {
-      return false;
+    for (const num of nums) {
+      if (input === num) {
+        return true;
+      }
     }
+    return false;
   });
 }
 

@@ -253,6 +253,10 @@ class NewThreadModal extends React.PureComponent<Props, State> {
   async newThreadAction(threadType: ThreadType) {
     const name = this.state.name.trim();
     try {
+      invariant(
+        threadType !== 5,
+        'Creating sidebars from modal is not yet supported',
+      );
       const response = await this.props.newThread({
         type: threadType,
         name,

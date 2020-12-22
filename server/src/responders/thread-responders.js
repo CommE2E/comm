@@ -14,8 +14,9 @@ import {
   type NewThreadResponse,
   type ServerThreadJoinRequest,
   type ThreadJoinResult,
-  assertThreadType,
+  threadTypes,
 } from 'lib/types/thread-types';
+import { values } from 'lib/utils/objects';
 
 import createThread from '../creators/thread-creator';
 import { deleteThread } from '../deleters/thread-deleters';
@@ -101,7 +102,7 @@ async function threadLeaveResponder(
 const updateThreadRequestInputValidator = tShape({
   threadID: t.String,
   changes: tShape({
-    type: t.maybe(tNumEnum(assertThreadType)),
+    type: t.maybe(tNumEnum(values(threadTypes))),
     name: t.maybe(t.String),
     description: t.maybe(t.String),
     color: t.maybe(tColor),
@@ -120,14 +121,28 @@ async function threadUpdateResponder(
   return await updateThread(viewer, request);
 }
 
-const newThreadRequestInputValidator = tShape({
-  type: tNumEnum(assertThreadType),
+const threadRequestValidationShape = {
   name: t.maybe(t.String),
   description: t.maybe(t.String),
   color: t.maybe(tColor),
   parentThreadID: t.maybe(t.String),
   initialMemberIDs: t.maybe(t.list(t.String)),
-});
+};
+const newThreadRequestInputValidator = t.union([
+  tShape({
+    type: tNumEnum([threadTypes.SIDEBAR]),
+    initialMessageID: t.String,
+    ...threadRequestValidationShape,
+  }),
+  tShape({
+    type: tNumEnum([
+      threadTypes.CHAT_NESTED_OPEN,
+      threadTypes.CHAT_SECRET,
+      threadTypes.PERSONAL,
+    ]),
+    ...threadRequestValidationShape,
+  }),
+]);
 async function threadCreationResponder(
   viewer: Viewer,
   input: any,
@@ -163,4 +178,5 @@ export {
   threadUpdateResponder,
   threadCreationResponder,
   threadJoinResponder,
+  newThreadRequestInputValidator,
 };
