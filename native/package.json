@@ -29,7 +29,7 @@
     "react-test-renderer": "16.13.1"
   },
   "dependencies": {
-    "@react-native-community/art": "^1.1.2",
+    "@react-native-community/art": "^1.2.0",
     "@react-native-community/async-storage": "^1.6.1",
     "@react-native-community/clipboard": "^1.2.3",
     "@react-native-community/masked-view": "^0.1.10",
@@ -68,7 +68,7 @@
     "react-native-keychain": "^4.0.0",
     "react-native-notifications": "git+https://git@github.com/ashoat/react-native-notifications.git",
     "react-native-orientation-locker": "^1.1.6",
-    "react-native-progress": "^4.0.3",
+    "react-native-progress": "^4.1.2",
     "react-native-reanimated": "^1.13.1",
     "react-native-safe-area-context": "^3.1.9",
     "react-native-safe-area-view": "^2.0.0",
