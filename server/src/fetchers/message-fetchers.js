@@ -675,6 +675,32 @@ async function fetchMessageInfoForEntryAction(
   return rawMessageInfoFromRows(result, viewer);
 }
 
+async function fetchMessageInfoByID(
+  viewer: Viewer,
+  messageID: string,
+): Promise<?RawMessageInfo> {
+  if (!viewer.hasSessionInfo) {
+    return null;
+  }
+
+  const query = SQL`
+    SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, m.creation, 
+           m.user AS creatorID, up.id AS uploadID, up.type AS uploadType, 
+           up.secret AS uploadSecret, up.extra AS uploadExtra
+    FROM messages m
+    LEFT JOIN uploads up
+      ON m.type IN (${[messageTypes.IMAGES, messageTypes.MULTIMEDIA]})
+        AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
+    WHERE m.id = ${messageID}
+  `;
+
+  const [result] = await dbQuery(query);
+  if (result.length === 0) {
+    return null;
+  }
+  return rawMessageInfoFromRows(result, viewer);
+}
+
 export {
   fetchCollapsableNotifs,
   fetchMessageInfos,
@@ -682,4 +708,5 @@ export {
   getMessageFetchResultFromRedisMessages,
   fetchMessageInfoForLocalID,
   fetchMessageInfoForEntryAction,
+  fetchMessageInfoByID,
 };
