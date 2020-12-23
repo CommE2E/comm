@@ -16,7 +16,10 @@ import {
 import { threadSearchIndex as threadSearchIndexSelector } from 'lib/selectors/nav-selectors';
 import { usersWithPersonalThreadSelector } from 'lib/selectors/user-selectors';
 import SearchIndex from 'lib/shared/search-index';
-import { createPendingThreadItem } from 'lib/shared/thread-utils';
+import {
+  createPendingThread,
+  createPendingThreadItem,
+} from 'lib/shared/thread-utils';
 import type { UserSearchResult } from 'lib/types/search-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadTypes } from 'lib/types/thread-types';
@@ -26,7 +29,6 @@ import { useServerCall } from 'lib/utils/action-utils';
 import Search from '../components/search.react';
 import type { TabNavigationProp } from '../navigation/app-navigator.react';
 import {
-  ComposeThreadRouteName,
   MessageListRouteName,
   SidebarListModalRouteName,
   HomeChatThreadListRouteName,
@@ -359,10 +361,19 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   };
 
   composeThread = () => {
-    this.props.navigation.navigate({
-      name: ComposeThreadRouteName,
-      params: {},
-    });
+    if (this.props.viewerID) {
+      this.props.navigation.navigate({
+        name: MessageListRouteName,
+        params: {
+          threadInfo: createPendingThread(
+            this.props.viewerID,
+            threadTypes.CHAT_SECRET,
+            [],
+          ),
+          searching: true,
+        },
+      });
+    }
   };
 }
 
