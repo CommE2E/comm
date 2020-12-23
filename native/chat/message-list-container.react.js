@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 
 import {
   type ChatMessageItem,
@@ -29,8 +29,6 @@ import type { AccountUserInfo, UserListItem } from 'lib/types/user-types';
 
 import ContentLoading from '../components/content-loading.react';
 import NodeHeightMeasurer from '../components/node-height-measurer.react';
-import TagInput from '../components/tag-input.react';
-import UserList from '../components/user-list.react';
 import { type InputState, InputStateContext } from '../input/input-state';
 import {
   OverlayContext,
@@ -44,6 +42,7 @@ import { chatMessageItemKey } from './chat-list.react';
 import type { ChatNavigationProp } from './chat.react';
 import { composedMessageMaxWidthSelector } from './composed-message-width';
 import { dummyNodeForTextMessageHeightMeasurement } from './inner-text-message.react';
+import MessageListThreadSearch from './message-list-thread-search.react';
 import {
   MessageListContext,
   useMessageListContext,
@@ -55,12 +54,6 @@ import { dummyNodeForRobotextMessageHeightMeasurement } from './robotext-message
 export type ChatMessageItemWithHeight =
   | {| itemType: 'loader' |}
   | ChatMessageInfoItemWithHeight;
-
-const inputProps = {
-  placeholder: 'username',
-  autoFocus: true,
-  returnKeyType: 'go',
-};
 
 type BaseProps = {|
   +navigation: ChatNavigationProp<'MessageList'>,
@@ -116,82 +109,27 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     }
   }
 
-  tagDataLabelExtractor = (userInfo: AccountUserInfo) => userInfo.username;
-
-  onUserSelect = (userID: string) => {
-    for (const existingUserInfo of this.props.userInfoInputArray) {
-      if (userID === existingUserInfo.id) {
-        return;
-      }
-    }
-    const userInfoInputArray = [
-      ...this.props.userInfoInputArray,
-      this.props.otherUserInfos[userID],
-    ];
-    this.props.updateUsernameInput('');
-    this.props.updateTagInput(userInfoInputArray);
-  };
-
   render() {
-    const {
-      threadInfo,
-      styles,
-      userInfoInputArray,
-      usernameInputText,
-      userSearchResults,
-    } = this.props;
+    const { threadInfo, styles } = this.props;
     const { listDataWithHeights } = this.state;
     const { searching } = this.props.route.params;
 
-    const showMessageList = !searching || userInfoInputArray.length > 0;
-
     let searchComponent = null;
     if (searching) {
-      const isSearchResultVisible =
-        (userInfoInputArray.length === 0 || usernameInputText.length > 0) &&
-        userSearchResults.length > 0;
-
-      let separator = null;
-      let userList = null;
-      if (isSearchResultVisible) {
-        userList = (
-          <View style={styles.userList}>
-            <UserList
-              userInfos={userSearchResults}
-              onSelect={this.onUserSelect}
-            />
-          </View>
-        );
-        separator = <View style={styles.separator} />;
-      }
-
-      const userSelectionHeightStyle = showMessageList
-        ? styles.userSelectionLimitedHeight
-        : null;
-
       searchComponent = (
-        <>
-          <View style={[styles.userSelection, userSelectionHeightStyle]}>
-            <View style={styles.tagInputContainer}>
-              <Text style={styles.tagInputLabel}>To: </Text>
-              <View style={styles.tagInput}>
-                <TagInput
-                  value={userInfoInputArray}
-                  onChange={this.props.updateTagInput}
-                  text={usernameInputText}
-                  onChangeText={this.props.updateUsernameInput}
-                  labelExtractor={this.tagDataLabelExtractor}
-                  inputProps={inputProps}
-                />
-              </View>
-            </View>
-            {userList}
-          </View>
-          {separator}
-        </>
+        <MessageListThreadSearch
+          usernameInputText={this.props.usernameInputText}
+          updateUsernameInput={this.props.updateUsernameInput}
+          userInfoInputArray={this.props.userInfoInputArray}
+          updateTagInput={this.props.updateTagInput}
+          otherUserInfos={this.props.otherUserInfos}
+          userSearchResults={this.props.userSearchResults}
+        />
       );
     }
 
+    const showMessageList =
+      !searching || this.props.userInfoInputArray.length > 0;
     let threadContent = null;
     if (showMessageList) {
       let messageList;
@@ -362,39 +300,8 @@ const unboundStyles = {
     backgroundColor: 'listBackground',
     flex: 1,
   },
-  userSelection: {
-    backgroundColor: 'panelBackground',
-  },
-  userSelectionLimitedHeight: {
-    maxHeight: 500,
-  },
   threadContent: {
     flex: 1,
-  },
-  tagInputLabel: {
-    color: 'modalForegroundSecondaryLabel',
-    fontSize: 16,
-    paddingLeft: 12,
-  },
-  tagInputContainer: {
-    alignItems: 'center',
-    backgroundColor: 'modalForeground',
-    borderBottomWidth: 1,
-    borderColor: 'modalForegroundBorder',
-    flexDirection: 'row',
-    paddingVertical: 6,
-  },
-  tagInput: {
-    flex: 1,
-  },
-  userList: {
-    backgroundColor: 'modalBackground',
-    paddingLeft: 35,
-    paddingRight: 12,
-  },
-  separator: {
-    height: 1,
-    backgroundColor: 'modalForegroundBorder',
   },
 };
 
@@ -438,6 +345,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     props.route.params.threadInfo,
   );
 
+  const { searching } = props.route.params;
   const inputState = React.useContext(InputStateContext);
   const hideSearch = React.useCallback(() => {
     setOriginalThreadInfo(threadInfoRef.current);
@@ -446,12 +354,12 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     });
   }, [props.navigation]);
   React.useEffect(() => {
-    if (!props.route.params.searching) {
+    if (!searching) {
       return;
     }
     inputState?.registerSendCallback(hideSearch);
     return () => inputState?.unregisterSendCallback(hideSearch);
-  }, [hideSearch, inputState, props.route.params.searching]);
+  }, [hideSearch, inputState, searching]);
 
   const threadCandidates = React.useMemo(() => {
     const infos = new Map<string, ThreadInfo>();
@@ -480,7 +388,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
       return undefined;
     }
 
-    const pendingThreadMemberIDs = props.route.params.searching
+    const pendingThreadMemberIDs = searching
       ? [...userInfoInputArray.map((user) => user.id), viewerID]
       : threadInfoFromParams.members.map((member) => member.id);
     const threadKey = getPendingThreadKey(pendingThreadMemberIDs);
@@ -489,7 +397,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
       return threadCandidates.get(threadKey);
     }
 
-    const updatedThread = props.route.params.searching
+    const updatedThread = searching
       ? createPendingThread(
           viewerID,
           pendingThreadType(userInfoInputArray.length),
@@ -504,7 +412,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     originalThreadInfo,
     threadInfos,
     viewerID,
-    props.route.params.searching,
+    searching,
     userInfoInputArray,
     threadCandidates,
     userInfos,
@@ -524,14 +432,8 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
   const boundMessageListData = useSelector(messageListDataSelector(threadID));
   const messageListData = React.useMemo(
     () =>
-      props.route.params.searching && userInfoInputArray.length === 0
-        ? []
-        : boundMessageListData,
-    [
-      boundMessageListData,
-      props.route.params.searching,
-      userInfoInputArray.length,
-    ],
+      searching && userInfoInputArray.length === 0 ? [] : boundMessageListData,
+    [boundMessageListData, searching, userInfoInputArray.length],
   );
   const composedMessageMaxWidth = useSelector(composedMessageMaxWidthSelector);
   const colors = useColors();
