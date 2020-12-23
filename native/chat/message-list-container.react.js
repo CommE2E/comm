@@ -133,19 +133,37 @@ class MessageListContainer extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { threadInfo, styles } = this.props;
+    const {
+      threadInfo,
+      styles,
+      userInfoInputArray,
+      usernameInputText,
+      userSearchResults,
+    } = this.props;
     const { listDataWithHeights } = this.state;
     const { searching } = this.props.route.params;
 
-    const showMessageList =
-      !searching || this.props.userInfoInputArray.length > 0;
+    const showMessageList = !searching || userInfoInputArray.length > 0;
 
     let searchComponent = null;
     if (searching) {
-      const separator =
-        this.props.userSearchResults.length > 0 ? (
-          <View style={styles.separator} />
-        ) : null;
+      const isSearchResultVisible =
+        (userInfoInputArray.length === 0 || usernameInputText.length > 0) &&
+        userSearchResults.length > 0;
+
+      let separator = null;
+      let userList = null;
+      if (isSearchResultVisible) {
+        userList = (
+          <View style={styles.userList}>
+            <UserList
+              userInfos={userSearchResults}
+              onSelect={this.onUserSelect}
+            />
+          </View>
+        );
+        separator = <View style={styles.separator} />;
+      }
 
       const userSelectionHeightStyle = showMessageList
         ? styles.userSelectionLimitedHeight
@@ -158,21 +176,16 @@ class MessageListContainer extends React.PureComponent<Props, State> {
               <Text style={styles.tagInputLabel}>To: </Text>
               <View style={styles.tagInput}>
                 <TagInput
-                  value={this.props.userInfoInputArray}
+                  value={userInfoInputArray}
                   onChange={this.props.updateTagInput}
-                  text={this.props.usernameInputText}
+                  text={usernameInputText}
                   onChangeText={this.props.updateUsernameInput}
                   labelExtractor={this.tagDataLabelExtractor}
                   inputProps={inputProps}
                 />
               </View>
             </View>
-            <View style={styles.userList}>
-              <UserList
-                userInfos={this.props.userSearchResults}
-                onSelect={this.onUserSelect}
-              />
-            </View>
+            {userList}
           </View>
           {separator}
         </>
