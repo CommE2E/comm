@@ -78,6 +78,7 @@ function RootNavigator({
         descriptors={descriptors}
         navigation={navigation}
         keyboardHandlingEnabled={keyboardHandlingEnabled}
+        detachInactiveScreens={Platform.OS !== 'ios'}
       />
     </RootNavigatorContext.Provider>
   );
