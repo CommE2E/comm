@@ -7,9 +7,9 @@ export type GlobalTheme = 'light' | 'dark';
 export type GlobalThemePreference = GlobalTheme | 'system';
 
 export type GlobalThemeInfo = {|
-  activeTheme: ?GlobalTheme,
-  systemTheme: ?GlobalTheme,
-  preference: GlobalThemePreference,
+  +activeTheme: ?GlobalTheme,
+  +systemTheme: ?GlobalTheme,
+  +preference: GlobalThemePreference,
 |};
 
 export const globalThemePropType = PropTypes.oneOf(['light', 'dark']);

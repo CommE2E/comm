@@ -12,6 +12,7 @@ import {
   serverResponseTimeout,
 } from 'lib/shared/timeouts';
 import { mostRecentUpdateTimestamp } from 'lib/shared/update-utils';
+import type { Shape } from 'lib/types/core';
 import { endpointIsSocketSafe } from 'lib/types/endpoints';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 import { redisMessageTypes, type RedisMessage } from 'lib/types/redis-types';
@@ -754,7 +755,7 @@ class Socket {
     }
   }
 
-  setStateCheckConditions(newConditions: $Shape<StateCheckConditions>) {
+  setStateCheckConditions(newConditions: Shape<StateCheckConditions>) {
     this.stateCheckConditions = {
       ...this.stateCheckConditions,
       ...newConditions,

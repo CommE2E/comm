@@ -1,5 +1,6 @@
 // @flow
 
+import type { Shape } from 'lib/types/core';
 import type { ServerThreadInfo } from 'lib/types/thread-types';
 import { type UpdateData, updateTypes } from 'lib/types/update-types';
 
@@ -24,10 +25,10 @@ async function main() {
   }
 }
 
-type ReplaceUserInfo = $Shape<{|
-  username: boolean,
-  email: boolean,
-  password: boolean,
+type ReplaceUserInfo = Shape<{|
+  +username: boolean,
+  +email: boolean,
+  +password: boolean,
 |}>;
 async function mergeUsers(
   fromUserID: string,

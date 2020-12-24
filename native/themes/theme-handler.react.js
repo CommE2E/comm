@@ -7,6 +7,8 @@ import {
 } from 'react-native-dark-mode';
 import { useDispatch } from 'react-redux';
 
+import type { Shape } from 'lib/types/core';
+
 import { updateThemeInfoActionType } from '../redux/action-types';
 import { useSelector } from '../redux/redux-utils';
 import {
@@ -24,11 +26,11 @@ function ThemeHandler() {
         return;
       }
 
-      const updateObject: $Shape<GlobalThemeInfo> = {
+      let updateObject: Shape<GlobalThemeInfo> = {
         systemTheme: colorScheme,
       };
       if (globalThemeInfo.preference === 'system') {
-        updateObject.activeTheme = colorScheme;
+        updateObject = { ...updateObject, activeTheme: colorScheme };
       }
 
       dispatch({

@@ -256,9 +256,9 @@ async function createUpdateDatasForChangedEntryInfo(
 }
 
 type CalendarQueryComparisonResult = {|
-  difference: $ReadOnlyArray<CalendarQuery>,
-  oldCalendarQuery: CalendarQuery,
-  sessionUpdate: SessionUpdate,
+  +difference: $ReadOnlyArray<CalendarQuery>,
+  +oldCalendarQuery: CalendarQuery,
+  +sessionUpdate: SessionUpdate,
 |};
 function compareNewCalendarQuery(
   viewer: Viewer,
@@ -275,7 +275,11 @@ function compareNewCalendarQuery(
   const sessionUpdate = _isEqual(oldCalendarQuery)(newCalendarQuery)
     ? {}
     : { query: newCalendarQuery };
-  return { difference, oldCalendarQuery, sessionUpdate };
+  return {
+    difference,
+    oldCalendarQuery,
+    sessionUpdate: Object.freeze({ ...sessionUpdate }),
+  };
 }
 
 export {

@@ -96,7 +96,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      queuedChanges: {},
+      queuedChanges: Object.freeze({}),
       errorMessage: '',
       accountPassword: '',
       currentTabType: 'general',
@@ -432,7 +432,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       this.setState(
         (prevState) => ({
           ...prevState,
-          queuedChanges: {},
+          queuedChanges: Object.freeze({}),
           accountPassword: '',
           errorMessage: 'unknown error',
           currentTabType: 'general',

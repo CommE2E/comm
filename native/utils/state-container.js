@@ -2,12 +2,14 @@
 
 import PropTypes from 'prop-types';
 
+import type { Shape } from 'lib/types/core';
+
 export type SimpleStateSetter<S: {}> = (
-  newState: $Shape<S>,
+  newState: Shape<S>,
   callback?: () => mixed,
 ) => void;
 
-export type StateChange<S: {}> = $Shape<S> | ((S) => $Shape<S>);
+export type StateChange<S: {}> = Shape<S> | ((S) => Shape<S>);
 type StateSetter<S: {}> = (
   newState: StateChange<S>,
   callback?: () => mixed,
@@ -25,9 +27,9 @@ const stateContainerPropType = PropTypes.shape({
 
 function setStateForContainer<FullState: {}, OurContainer: {}>(
   setState: StateSetter<FullState>,
-  reverseSelector: (ourChange: $Shape<OurContainer>) => StateChange<FullState>,
+  reverseSelector: (ourChange: Shape<OurContainer>) => StateChange<FullState>,
 ): SimpleStateSetter<OurContainer> {
-  return (ourChange: $Shape<OurContainer>, callback?: () => mixed) =>
+  return (ourChange: Shape<OurContainer>, callback?: () => mixed) =>
     setState(reverseSelector(ourChange), callback);
 }
 

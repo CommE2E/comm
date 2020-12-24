@@ -5,6 +5,8 @@ import { Platform } from 'react-native';
 import { State as GestureState } from 'react-native-gesture-handler';
 import Animated, { Easing } from 'react-native-reanimated';
 
+import type { Shape } from 'lib/types/core';
+
 /* eslint-disable import/no-named-as-default-member */
 const {
   Clock,
@@ -86,7 +88,7 @@ const defaultTimingConfig = {
   easing: Easing.out(Easing.ease),
 };
 
-type TimingConfig = $Shape<typeof defaultTimingConfig>;
+type TimingConfig = Shape<typeof defaultTimingConfig>;
 function runTiming(
   clock: Clock,
   initialValue: Value | number,
@@ -122,8 +124,8 @@ function runTiming(
 
 const defaultSpringConfig = SpringUtils.makeDefaultConfig();
 
-type SpringConfig = $Shape<typeof defaultSpringConfig>;
-type SpringAnimationInitialState = $Shape<{|
+type SpringConfig = Shape<typeof defaultSpringConfig>;
+type SpringAnimationInitialState = Shape<{|
   +velocity: Value | number,
 |}>;
 function runSpring(

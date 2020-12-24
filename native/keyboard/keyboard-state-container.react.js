@@ -5,6 +5,7 @@ import * as React from 'react';
 import { Platform } from 'react-native';
 import { KeyboardUtils } from 'react-native-keyboard-input';
 
+import type { Shape } from 'lib/types/core';
 import sleep from 'lib/utils/sleep';
 
 import { tabBarAnimationDuration } from '../navigation/tab-bar.react';
@@ -98,12 +99,12 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
   }
 
   showMediaGallery = (threadID: string) => {
-    const updates: $Shape<State> = {
+    let updates: Shape<State> = {
       mediaGalleryOpen: true,
       mediaGalleryThreadID: threadID,
     };
     if (androidKeyboardResizesFrame) {
-      updates.renderKeyboardInputHost = true;
+      updates = { ...updates, renderKeyboardInputHost: true };
     }
     this.setState(updates);
   };

@@ -6,6 +6,8 @@ import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 import shallowequal from 'shallowequal';
 
+import type { Shape } from 'lib/types/core';
+
 import type { LayoutEvent } from '../types/react-native';
 
 const measureBatchSize = 50;
@@ -109,7 +111,7 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
   static getPossibleStateUpdateForNextBatch<InnerItem, InnerMergedItem>(
     props: Props<InnerItem, InnerMergedItem>,
     state: State<InnerItem, InnerMergedItem>,
-  ): ?$Shape<State<InnerItem, InnerMergedItem>> {
+  ): ?Shape<State<InnerItem, InnerMergedItem>> {
     const { currentlyMeasuring, measuredHeights } = state;
 
     let stillMeasuring = false;

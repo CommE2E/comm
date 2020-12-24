@@ -7,6 +7,7 @@ import bcrypt from 'twin-bcrypt';
 import url from 'url';
 
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
+import type { Shape } from 'lib/types/core';
 import type { Platform, PlatformDetails } from 'lib/types/device-types';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import {
@@ -571,9 +572,9 @@ function addSessionChangeInfoToResult(
   result.cookieChange = sessionChange;
 }
 
-type AnonymousCookieCreationParams = $Shape<{|
-  platformDetails: ?PlatformDetails,
-  deviceToken: ?string,
+type AnonymousCookieCreationParams = Shape<{|
+  +platformDetails: ?PlatformDetails,
+  +deviceToken: ?string,
 |}>;
 const defaultPlatformDetails = {};
 

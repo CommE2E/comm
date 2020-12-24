@@ -255,8 +255,11 @@ async function initializeSession(
   }
 
   if (comparisonResult) {
-    const { difference, sessionUpdate, oldCalendarQuery } = comparisonResult;
-    sessionUpdate.lastUpdate = oldLastUpdate;
+    const { difference, oldCalendarQuery } = comparisonResult;
+    const sessionUpdate = {
+      ...comparisonResult.sessionUpdate,
+      lastUpdate: oldLastUpdate,
+    };
     const deltaEntryInfoResult = await fetchEntriesForSession(
       viewer,
       difference,

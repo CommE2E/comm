@@ -31,6 +31,7 @@ import {
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { entryKey } from 'lib/shared/entry-utils';
 import { colorIsDark, threadHasPermission } from 'lib/shared/thread-utils';
+import type { Shape } from 'lib/types/core';
 import type {
   CreateEntryInfo,
   SaveEntryInfo,
@@ -148,7 +149,7 @@ class InternalEntry extends React.Component<Props, State> {
     };
   }
 
-  guardedSetState(input: $Shape<State>) {
+  guardedSetState(input: Shape<State>) {
     if (this.mounted) {
       this.setState(input);
     }

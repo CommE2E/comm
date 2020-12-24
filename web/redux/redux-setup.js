@@ -10,6 +10,7 @@ import {
 import baseReducer from 'lib/reducers/master-reducer';
 import { mostRecentReadThreadSelector } from 'lib/selectors/thread-selectors';
 import { invalidSessionDowngrade } from 'lib/shared/account-utils';
+import type { Shape } from 'lib/types/core';
 import type { EntryStore } from 'lib/types/entry-types';
 import type { CalendarFilter } from 'lib/types/filter-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
@@ -76,7 +77,7 @@ export const updateWindowDimensions = 'UPDATE_WINDOW_DIMENSIONS';
 
 export type Action =
   | BaseAction
-  | {| type: 'UPDATE_NAV_INFO', payload: $Shape<NavInfo> |}
+  | {| type: 'UPDATE_NAV_INFO', payload: Shape<NavInfo> |}
   | {|
       type: 'UPDATE_WINDOW_DIMENSIONS',
       payload: WindowDimensions,

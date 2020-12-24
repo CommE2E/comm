@@ -12,6 +12,7 @@ import {
   fileInfoFromData,
   bytesNeededForFileTypeCheck,
 } from 'lib/media/file-utils';
+import type { Shape } from 'lib/types/core';
 import type {
   MediaMissionStep,
   MediaMissionFailure,
@@ -28,26 +29,27 @@ import { getMessageForException } from 'lib/utils/errors';
 import { stringToIntArray } from './blob-utils';
 import { ffmpeg } from './ffmpeg';
 
-const defaultOptionals = Object.freeze({});
+const defaultInputs = Object.freeze({});
+const defaultFields = Object.freeze({});
 
 type FetchFileInfoResult = {|
-  success: true,
-  uri: string,
-  orientation: ?number,
-  fileSize: number,
-  mime: ?string,
-  mediaType: ?MediaType,
+  +success: true,
+  +uri: string,
+  +orientation: ?number,
+  +fileSize: number,
+  +mime: ?string,
+  +mediaType: ?MediaType,
 |};
-type OptionalInputs = $Shape<{| mediaNativeID: ?string |}>;
-type OptionalFields = $Shape<{|
-  orientation: boolean,
-  mediaType: boolean,
-  mime: boolean,
+type OptionalInputs = Shape<{| +mediaNativeID: ?string |}>;
+type OptionalFields = Shape<{|
+  +orientation: boolean,
+  +mediaType: boolean,
+  +mime: boolean,
 |}>;
 async function fetchFileInfo(
   inputURI: string,
-  optionalInputs?: OptionalInputs = defaultOptionals,
-  optionalFields?: OptionalFields = defaultOptionals,
+  optionalInputs?: OptionalInputs = defaultInputs,
+  optionalFields?: OptionalFields = defaultFields,
 ): Promise<{|
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: MediaMissionFailure | FetchFileInfoResult,

@@ -2,11 +2,7 @@
 
 import _groupBy from 'lodash/fp/groupBy';
 
-import {
-  type RelationshipErrors,
-  undirectedStatus,
-  directedStatus,
-} from 'lib/types/relationship-types';
+import { undirectedStatus, directedStatus } from 'lib/types/relationship-types';
 
 import { dbQuery, SQL } from '../database/database';
 import type { Viewer } from '../session/viewer';
@@ -44,7 +40,7 @@ async function fetchFriendRequestRelationshipOperations(
     result,
   );
 
-  const errors: RelationshipErrors = {};
+  const errors = {};
   const userRelationshipOperations: UserRelationshipOperations = {};
   for (const userID in relationshipsByUserId) {
     const relationships = relationshipsByUserId[userID];

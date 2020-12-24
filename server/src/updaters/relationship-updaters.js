@@ -39,7 +39,7 @@ async function updateRelationships(
   const uniqueUserIDs = [...new Set(request.userIDs)];
   const users = await fetchUserInfos(uniqueUserIDs);
 
-  let errors: RelationshipErrors = {};
+  let errors = {};
   const userIDs: string[] = [];
   for (let userID of uniqueUserIDs) {
     if (userID === viewer.userID || !users[userID].username) {
@@ -50,7 +50,7 @@ async function updateRelationships(
     }
   }
   if (!userIDs.length) {
-    return errors;
+    return Object.freeze({ ...errors });
   }
 
   const updateIDs = [];
@@ -204,7 +204,7 @@ async function updateRelationships(
     updateDatasForUserPairs(cartesianProduct([viewer.userID], updateIDs)),
   );
 
-  return errors;
+  return Object.freeze({ ...errors });
 }
 
 function updateDatasForUserPairs(

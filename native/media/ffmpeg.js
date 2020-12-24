@@ -51,7 +51,7 @@ class FFmpeg {
   }
 
   possiblyRunCommands() {
-    let openSlots: $Shape<CallCounter> = {};
+    let openSlots = {};
     for (let type in this.currentCalls) {
       const currentCalls = this.currentCalls[type];
       const maxCalls = maxSimultaneousCalls[type];
