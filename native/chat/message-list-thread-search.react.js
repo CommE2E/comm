@@ -62,6 +62,7 @@ export default React.memo<Props>(function MessageListThreadSearch({
 
   let separator = null;
   let userList = null;
+  let userSelectionAdditionalStyles = styles.userSelectionLimitedHeight;
   if (isSearchResultVisible) {
     userList = (
       <View style={styles.userList}>
@@ -69,15 +70,12 @@ export default React.memo<Props>(function MessageListThreadSearch({
       </View>
     );
     separator = <View style={styles.separator} />;
+    userSelectionAdditionalStyles = null;
   }
 
-  const showMessageList = userInfoInputArray.length > 0;
-  const userSelectionHeightStyle = showMessageList
-    ? styles.userSelectionLimitedHeight
-    : null;
   return (
     <>
-      <View style={[styles.userSelection, userSelectionHeightStyle]}>
+      <View style={[styles.userSelection, userSelectionAdditionalStyles]}>
         <View style={styles.tagInputContainer}>
           <Text style={styles.tagInputLabel}>To: </Text>
           <View style={styles.tagInput}>
@@ -101,9 +99,10 @@ export default React.memo<Props>(function MessageListThreadSearch({
 const unboundStyles = {
   userSelection: {
     backgroundColor: 'panelBackground',
+    flex: 1,
   },
   userSelectionLimitedHeight: {
-    maxHeight: 500,
+    flex: 0,
   },
   tagInputLabel: {
     color: 'modalForegroundSecondaryLabel',
@@ -125,6 +124,7 @@ const unboundStyles = {
     backgroundColor: 'modalBackground',
     paddingLeft: 35,
     paddingRight: 12,
+    flex: 1,
   },
   separator: {
     height: 1,
