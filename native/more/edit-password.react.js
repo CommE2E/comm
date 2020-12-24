@@ -42,6 +42,7 @@ type Props = {|
   ...BaseProps,
   // Redux state
   +loadingStatus: LoadingStatus,
+  +username: ?string,
   +activeTheme: ?GlobalTheme,
   +colors: Colors,
   +styles: typeof unboundStyles,
@@ -226,6 +227,10 @@ class EditPassword extends React.PureComponent<Props, State> {
   };
 
   async savePassword() {
+    const { username } = this.props;
+    if (!username) {
+      return;
+    }
     try {
       const result = await this.props.changeUserSettings({
         updatedFields: {
@@ -234,6 +239,7 @@ class EditPassword extends React.PureComponent<Props, State> {
         currentPassword: this.state.currentPassword,
       });
       await setNativeCredentials({
+        username,
         password: this.state.newPassword,
       });
       this.goBackOnce();
@@ -340,6 +346,12 @@ export default React.memo<BaseProps>(function ConnectedEditPassword(
   props: BaseProps,
 ) {
   const loadingStatus = useSelector(loadingStatusSelector);
+  const username = useSelector((state) => {
+    if (state.currentUserInfo && !state.currentUserInfo.anonymous) {
+      return state.currentUserInfo.username;
+    }
+    return undefined;
+  });
   const activeTheme = useSelector((state) => state.globalThemeInfo.activeTheme);
   const colors = useColors();
   const styles = useStyles(unboundStyles);
@@ -351,6 +363,7 @@ export default React.memo<BaseProps>(function ConnectedEditPassword(
     <EditPassword
       {...props}
       loadingStatus={loadingStatus}
+      username={username}
       activeTheme={activeTheme}
       colors={colors}
       styles={styles}
