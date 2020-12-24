@@ -1,79 +1,67 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   initialMode as initialSystemTheme,
   eventEmitter as systemThemeEventEmitter,
 } from 'react-native-dark-mode';
-
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
+import { useDispatch } from 'react-redux';
 
 import { updateThemeInfoActionType } from '../redux/action-types';
-import type { AppState } from '../redux/redux-setup';
+import { useSelector } from '../redux/redux-utils';
 import {
   type GlobalTheme,
   type GlobalThemeInfo,
-  globalThemeInfoPropType,
   osCanTheme,
 } from '../types/themes';
 
-type Props = {|
-  // Redux state
-  globalThemeInfo: GlobalThemeInfo,
-  // Redux dispatch functions
-  dispatchActionPayload: DispatchActionPayload,
-|};
-class ThemeHandler extends React.PureComponent<Props> {
-  static propTypes = {
-    globalThemeInfo: globalThemeInfoPropType.isRequired,
-    dispatchActionPayload: PropTypes.func.isRequired,
-  };
+function ThemeHandler() {
+  const globalThemeInfo = useSelector((state) => state.globalThemeInfo);
+  const dispatch = useDispatch();
+  const updateSystemTheme = React.useCallback(
+    (colorScheme: GlobalTheme) => {
+      if (globalThemeInfo.systemTheme === colorScheme) {
+        return;
+      }
 
-  componentDidMount() {
+      const updateObject: $Shape<GlobalThemeInfo> = {
+        systemTheme: colorScheme,
+      };
+      if (globalThemeInfo.preference === 'system') {
+        updateObject.activeTheme = colorScheme;
+      }
+
+      dispatch({
+        type: updateThemeInfoActionType,
+        updateObject,
+      });
+    },
+    [globalThemeInfo, dispatch],
+  );
+
+  React.useEffect(() => {
     if (!osCanTheme) {
-      return;
+      return undefined;
     }
     systemThemeEventEmitter.addListener(
       'currentModeChanged',
-      this.updateSystemTheme,
+      updateSystemTheme,
     );
-    this.updateSystemTheme(initialSystemTheme);
-  }
+    return () => {
+      systemThemeEventEmitter.removeListener(
+        'currentModeChanged',
+        updateSystemTheme,
+      );
+    };
+  }, [updateSystemTheme]);
 
-  componentWillUnmount() {
-    if (!osCanTheme) {
-      return;
-    }
-    systemThemeEventEmitter.removeListener(
-      'currentModeChanged',
-      this.updateSystemTheme,
-    );
-  }
+  React.useEffect(
+    () => updateSystemTheme(initialSystemTheme),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
 
-  updateSystemTheme = (colorScheme: GlobalTheme) => {
-    if (this.props.globalThemeInfo.systemTheme === colorScheme) {
-      return;
-    }
-
-    const updateObject: $Shape<GlobalThemeInfo> = { systemTheme: colorScheme };
-    if (this.props.globalThemeInfo.preference === 'system') {
-      updateObject.activeTheme = colorScheme;
-    }
-
-    this.props.dispatchActionPayload(updateThemeInfoActionType, updateObject);
-  };
-
-  render() {
-    return null;
-  }
+  return null;
 }
 
-export default connect(
-  (state: AppState) => ({
-    globalThemeInfo: state.globalThemeInfo,
-  }),
-  null,
-  true,
-)(ThemeHandler);
+export default ThemeHandler;
