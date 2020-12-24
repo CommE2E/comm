@@ -1,32 +1,27 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { createPendingThread } from 'lib/shared/thread-utils';
 import { threadTypes } from 'lib/types/thread-types';
-import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../components/button.react';
 import { MessageListRouteName } from '../navigation/route-names';
-import type { AppState } from '../redux/redux-setup';
-import { type Colors, colorsPropType, colorsSelector } from '../themes/colors';
+import { useSelector } from '../redux/redux-utils';
+import { type Colors, useColors } from '../themes/colors';
 import type { ChatNavigationProp } from './chat.react';
 
-type Props = {|
+type BaseProps = {|
   +navigate: $PropertyType<ChatNavigationProp<'ChatThreadList'>, 'navigate'>,
-  // Redux state
+|};
+type Props = {|
+  ...BaseProps,
   +colors: Colors,
   +viewerID: ?string,
 |};
 class ComposeThreadButton extends React.PureComponent<Props> {
-  static propTypes = {
-    navigate: PropTypes.func.isRequired,
-    colors: colorsPropType.isRequired,
-  };
-
   render() {
     const { link: linkColor } = this.props.colors;
     return (
@@ -64,7 +59,13 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect((state: AppState) => ({
-  colors: colorsSelector(state),
-  viewerID: state.currentUserInfo && state.currentUserInfo.id,
-}))(ComposeThreadButton);
+export default React.memo<BaseProps>(function ConnectedComposeThreadButton(
+  props,
+) {
+  const colors = useColors();
+  const viewerID = useSelector(
+    (state) => state.currentUserInfo && state.currentUserInfo.id,
+  );
+
+  return <ComposeThreadButton {...props} colors={colors} viewerID={viewerID} />;
+});
