@@ -145,21 +145,8 @@ async function setNativeSharedWebCredentials(credentials: UserCredentials) {
   }
 }
 
-async function setNativeCredentials(credentials: $Shape<UserCredentials>) {
-  if (!credentials.username || !credentials.password) {
-    const currentCredentials = await fetchNativeCredentials();
-    if (currentCredentials) {
-      credentials = {
-        username: credentials.username
-          ? credentials.username
-          : currentCredentials.username,
-        password: credentials.password
-          ? credentials.password
-          : currentCredentials.password,
-      };
-    }
-  }
-  await Promise.all([
+function setNativeCredentials(credentials: UserCredentials) {
+  return Promise.all([
     setNativeKeychainCredentials(credentials),
     setNativeSharedWebCredentials(credentials),
   ]);
