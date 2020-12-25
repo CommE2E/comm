@@ -39,6 +39,10 @@ async function backupDB() {
     return;
   }
 
+  const dateString = dateFormat('yyyy-mm-dd-HH:MM');
+  const filename = `squadcal.${dateString}.sql.gz`;
+  const filePath = `${backupConfig.directory}/${filename}`;
+
   const mysqlDump = childProcess.spawn(
     'mysqldump',
     [
@@ -53,25 +57,42 @@ async function backupDB() {
     },
   );
   const cache = new StreamCache();
-  mysqlDump.stdout.pipe(zlib.createGzip()).pipe(cache);
-
-  const dateString = dateFormat('yyyy-mm-dd-HH:MM');
-  const filename = `${backupConfig.directory}/squadcal.${dateString}.sql.gz`;
+  mysqlDump.on('error', (e: Error) => {
+    console.warn(`error trying to spawn mysqldump for ${filename}`, e);
+  });
+  mysqlDump.on('exit', (code: number | null, signal: string | null) => {
+    if (signal !== null && signal !== undefined) {
+      console.warn(`mysqldump received signal ${signal} for ${filename}`);
+    } else if (code !== null && code !== 0) {
+      console.warn(`mysqldump exited with code ${code} for ${filename}`);
+    }
+  });
+  mysqlDump.stdout
+    .on('error', (e: Error) => {
+      console.warn(`mysqldump stdout stream emitted error for ${filename}`, e);
+    })
+    .pipe(zlib.createGzip())
+    .on('error', (e: Error) => {
+      console.warn(`gzip transform stream emitted error for ${filename}`, e);
+    })
+    .pipe(cache);
 
   try {
-    await saveBackup(filename, cache);
+    await saveBackup(filename, filePath, cache);
   } catch (e) {
-    await unlink(filename);
+    console.warn(`saveBackup threw for ${filename}`, e);
+    await unlink(filePath);
   }
 }
 
 async function saveBackup(
+  filename: string,
   filePath: string,
   cache: StreamCache,
   retries: number = 2,
 ): Promise<void> {
   try {
-    await trySaveBackup(filePath, cache);
+    await trySaveBackup(filename, filePath, cache);
   } catch (e) {
     if (e.code !== 'ENOSPC') {
       throw e;
@@ -80,14 +101,41 @@ async function saveBackup(
       throw e;
     }
     await deleteOldestBackup();
-    await saveBackup(filePath, cache, retries - 1);
+    await saveBackup(filename, filePath, cache, retries - 1);
   }
 }
 
-function trySaveBackup(filePath: string, cache: StreamCache): Promise<void> {
+const backupWatchFrequency = 60 * 1000;
+function trySaveBackup(
+  filename: string,
+  filePath: string,
+  cache: StreamCache,
+): Promise<void> {
+  const timeoutObject: {| timeout: ?TimeoutID |} = { timeout: null };
+  const setBackupTimeout = (alreadyWaited: number) => {
+    timeoutObject.timeout = setTimeout(() => {
+      const nowWaited = alreadyWaited + backupWatchFrequency;
+      console.log(
+        `writing backup for ${filename} has taken ${nowWaited}ms so far`,
+      );
+      setBackupTimeout(nowWaited);
+    }, backupWatchFrequency);
+  };
+  setBackupTimeout(0);
+
   const writeStream = fs.createWriteStream(filePath);
   return new Promise((resolve, reject) => {
-    cache.pipe(writeStream).on('finish', resolve).on('error', reject);
+    cache
+      .pipe(writeStream)
+      .on('finish', () => {
+        clearTimeout(timeoutObject.timeout);
+        resolve();
+      })
+      .on('error', (e: Error) => {
+        clearTimeout(timeoutObject.timeout);
+        console.warn(`write stream emitted error for ${filename}`, e);
+        reject(e);
+      });
   });
 }
 
