@@ -19,6 +19,8 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Platform, View } from 'react-native';
 
+import { threadIsPending } from 'lib/shared/thread-utils';
+
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 import { InputStateContext } from '../input/input-state';
 import HeaderBackButton from '../navigation/header-back-button.react';
@@ -180,7 +182,7 @@ const messageListOptions = ({ navigation, route }) => ({
     flex: 1,
   },
   headerRight:
-    Platform.OS === 'android'
+    Platform.OS === 'android' && !threadIsPending(route.params.threadInfo.id)
       ? // This is a render prop, not a component
         // eslint-disable-next-line react/display-name
         () => (
