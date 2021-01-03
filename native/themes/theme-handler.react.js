@@ -35,7 +35,7 @@ function ThemeHandler() {
 
       dispatch({
         type: updateThemeInfoActionType,
-        updateObject,
+        payload: updateObject,
       });
     },
     [globalThemeInfo, dispatch],
