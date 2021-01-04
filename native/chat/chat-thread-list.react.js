@@ -238,9 +238,9 @@ class ChatThreadList extends React.PureComponent<Props, State> {
             continue;
           }
           if (item.threadInfo.type === threadTypes.PERSONAL) {
-            personalThreads.push(item);
+            personalThreads.push({ ...item, sidebars: [] });
           } else {
-            nonPersonalThreads.push(item);
+            nonPersonalThreads.push({ ...item, sidebars: [] });
           }
         }
         chatItems.push(...personalThreads, ...nonPersonalThreads);
