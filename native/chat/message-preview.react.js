@@ -40,7 +40,11 @@ class MessagePreview extends React.PureComponent<Props> {
       : null;
     if (messageInfo.type === messageTypes.TEXT) {
       let usernameText = null;
-      if (threadIsGroupChat(this.props.threadInfo)) {
+      if (
+        threadIsGroupChat(this.props.threadInfo) ||
+        this.props.threadInfo.name !== '' ||
+        messageInfo.creator.isViewer
+      ) {
         const userString = stringForUser(messageInfo.creator);
         const username = `${userString}: `;
         usernameText = (
