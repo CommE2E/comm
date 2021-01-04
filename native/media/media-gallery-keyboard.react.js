@@ -2,7 +2,6 @@
 
 import * as MediaLibrary from 'expo-media-library';
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   View,
@@ -18,20 +17,11 @@ import { Provider } from 'react-redux';
 
 import { extensionFromFilename } from 'lib/media/file-utils';
 import type { MediaLibrarySelection } from 'lib/types/media-types';
-import { connect } from 'lib/utils/redux-utils';
 
-import {
-  type DimensionsInfo,
-  dimensionsInfoPropType,
-} from '../redux/dimensions-updater.react';
-import type { AppState } from '../redux/redux-setup';
+import type { DimensionsInfo } from '../redux/dimensions-updater.react';
 import { store } from '../redux/redux-setup';
-import {
-  type Colors,
-  colorsPropType,
-  colorsSelector,
-  styleSelector,
-} from '../themes/colors';
+import { useSelector } from '../redux/redux-utils';
+import { type Colors, useColors, useStyles } from '../themes/colors';
 import type { ViewToken, LayoutEvent } from '../types/react-native';
 import type { ViewStyle } from '../types/styles';
 import { getCompatibleMediaURI } from './identifier-utils';
@@ -46,28 +36,22 @@ const animationSpec = {
 
 type Props = {|
   // Redux state
-  dimensions: DimensionsInfo,
-  foreground: boolean,
-  colors: Colors,
-  styles: typeof styles,
+  +dimensions: DimensionsInfo,
+  +foreground: boolean,
+  +colors: Colors,
+  +styles: typeof unboundStyles,
 |};
 type State = {|
-  selections: ?$ReadOnlyArray<MediaLibrarySelection>,
-  error: ?string,
-  containerHeight: ?number,
+  +selections: ?$ReadOnlyArray<MediaLibrarySelection>,
+  +error: ?string,
+  +containerHeight: ?number,
   // null means end reached; undefined means no fetch yet
-  cursor: ?string,
-  queuedMediaURIs: ?Set<string>,
-  focusedMediaURI: ?string,
-  dimensions: DimensionsInfo,
+  +cursor: ?string,
+  +queuedMediaURIs: ?Set<string>,
+  +focusedMediaURI: ?string,
+  +dimensions: DimensionsInfo,
 |};
 class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
-  static propTypes = {
-    dimensions: dimensionsInfoPropType.isRequired,
-    foreground: PropTypes.bool.isRequired,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-  };
   mounted = false;
   fetchingPhotos = false;
   flatList: ?FlatList<MediaLibrarySelection>;
@@ -511,7 +495,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
 
 const mediaGalleryKeyboardName = 'MediaGalleryKeyboard';
 
-const styles = {
+const unboundStyles = {
   container: {
     alignItems: 'center',
     backgroundColor: 'listBackground',
@@ -539,19 +523,26 @@ const styles = {
     width: 2,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-const ReduxConnectedMediaGalleryKeyboard = connect((state: AppState) => ({
-  dimensions: state.dimensions,
-  foreground: state.foreground,
-  colors: colorsSelector(state),
-  styles: stylesSelector(state),
-}))(MediaGalleryKeyboard);
+function ConnectedMediaGalleryKeyboard() {
+  const dimensions = useSelector((state) => state.dimensions);
+  const foreground = useSelector((state) => state.foreground);
+  const colors = useColors();
+  const styles = useStyles(unboundStyles);
+  return (
+    <MediaGalleryKeyboard
+      dimensions={dimensions}
+      foreground={foreground}
+      colors={colors}
+      styles={styles}
+    />
+  );
+}
 
 function ReduxMediaGalleryKeyboard() {
   return (
     <Provider store={store}>
-      <ReduxConnectedMediaGalleryKeyboard />
+      <ConnectedMediaGalleryKeyboard />
     </Provider>
   );
 }
