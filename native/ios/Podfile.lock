@@ -14,12 +14,12 @@ PODS:
     - React-Core
     - UMCore
     - UMImageLoaderInterface
-  - EXImageManipulator (8.2.1):
+  - EXImageManipulator (8.4.0):
     - UMCore
     - UMFileSystemInterface
     - UMImageLoaderInterface
-  - EXMediaLibrary (8.3.0):
-    - React
+  - EXMediaLibrary (10.0.0):
+    - React-Core
     - UMCore
     - UMFileSystemInterface
     - UMPermissionsInterface
@@ -696,8 +696,8 @@ SPEC CHECKSUMS:
   EXConstants: 5304709b1bea70a4828f48ba4c7fc3ec3b2d9b17
   EXFileSystem: cf4232ba7c62dc49b78c2d36005f97b6fddf0b01
   EXImageLoader: 5ad6896fa1ef2ee814b551873cbf7a7baccc694a
-  EXImageManipulator: fbc0fff59cd398ebec3f3e9bedd4451375de2d5f
-  EXMediaLibrary: 0bf8b552392a0ae3919482c1a0f56def9acbd881
+  EXImageManipulator: 77756def08b3f2bc2a0470c657fbd0d94f381fa4
+  EXMediaLibrary: 580c097a85f9253deaaf7aaa75a8a2e692e9d8b9
   EXPermissions: 24b97f734ce9172d245a5be38ad9ccfcb6135964
   EXSplashScreen: c4ed5d39cd5dbc1329f8dec720e280276bafa28b
   FBLazyVector: 3bb422f41b18121b71783a905c10e58606f7dc3e
