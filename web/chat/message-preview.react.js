@@ -27,7 +27,11 @@ class MessagePreview extends React.PureComponent<Props> {
   };
 
   render() {
-    const messageInfo = this.props.messageInfo;
+    const messageInfo =
+      this.props.messageInfo &&
+      (this.props.messageInfo.type === messageTypes.SIDEBAR_SOURCE
+        ? this.props.messageInfo.initialMessage
+        : this.props.messageInfo);
     if (!messageInfo) {
       return (
         <div className={classNames(css.lastMessage, css.dark, css.italic)}>

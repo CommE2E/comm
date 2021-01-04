@@ -122,7 +122,7 @@ async function fetchCollapsableNotifs(
   }
 
   for (const userRows of rowsByUser.values()) {
-    const messages = parseMessageSQLResult(userRows);
+    const messages = await parseMessageSQLResult(userRows);
     for (const message of messages) {
       const { rawMessageInfo, rows } = message;
       const [row] = rows;
@@ -150,10 +150,10 @@ type MessageSQLResult = $ReadOnlyArray<{|
   rawMessageInfo: RawMessageInfo,
   rows: $ReadOnlyArray<Object>,
 |}>;
-function parseMessageSQLResult(
+async function parseMessageSQLResult(
   rows: $ReadOnlyArray<Object>,
   viewer?: Viewer,
-): MessageSQLResult {
+): Promise<MessageSQLResult> {
   const rowsByID = new Map();
   for (let row of rows) {
     const id = row.id.toString();
@@ -167,7 +167,7 @@ function parseMessageSQLResult(
 
   const messages = [];
   for (let messageRows of rowsByID.values()) {
-    const rawMessageInfo = rawMessageInfoFromRows(messageRows, viewer);
+    const rawMessageInfo = await rawMessageInfoFromRows(messageRows, viewer);
     if (rawMessageInfo) {
       messages.push({ rawMessageInfo, rows: messageRows });
     }
@@ -195,10 +195,10 @@ function mostRecentRowType(rows: $ReadOnlyArray<Object>): MessageType {
   return assertMessageType(rows[0].type);
 }
 
-function rawMessageInfoFromRows(
+async function rawMessageInfoFromRows(
   rows: $ReadOnlyArray<Object>,
   viewer?: ?Viewer,
-): ?RawMessageInfo {
+): Promise<?RawMessageInfo> {
   const type = mostRecentRowType(rows);
   if (type === messageTypes.TEXT) {
     const row = assertSingleRow(rows);
@@ -377,6 +377,31 @@ function rawMessageInfoFromRows(
       targetID: content.targetID,
       operation: content.operation,
     };
+  } else if (type === messageTypes.SIDEBAR_SOURCE) {
+    const row = assertSingleRow(rows);
+    const content = JSON.parse(row.content);
+    const initialMessage = await fetchMessageInfoByID(
+      viewer,
+      content.initialMessageID,
+    );
+    return {
+      type: messageTypes.SIDEBAR_SOURCE,
+      id: row.id.toString(),
+      threadID: row.threadID.toString(),
+      time: row.time,
+      creatorID: row.creatorID.toString(),
+      initialMessage,
+    };
+  } else if (type === messageTypes.CREATE_SIDEBAR) {
+    const row = assertSingleRow(rows);
+    return {
+      type: messageTypes.CREATE_SIDEBAR,
+      id: row.id.toString(),
+      threadID: row.threadID.toString(),
+      time: row.time,
+      creatorID: row.creatorID.toString(),
+      initialThreadState: JSON.parse(row.content),
+    };
   } else {
     invariant(false, `unrecognized messageType ${type}`);
   }
@@ -430,7 +455,7 @@ async function fetchMessageInfos(
   `);
   const [result] = await dbQuery(query);
 
-  const messages = parseMessageSQLResult(result, viewer);
+  const messages = await parseMessageSQLResult(result, viewer);
 
   const rawMessageInfos = [];
   const threadToMessageCount = new Map();
@@ -454,10 +479,13 @@ async function fetchMessageInfos(
   }
 
   for (let rawMessageInfo of rawMessageInfos) {
-    if (rawMessageInfo.type === messageTypes.CREATE_THREAD) {
-      // If a CREATE_THREAD message for a given thread is in the result set,
-      // then our result set includes all messages in the query range for that
-      // thread
+    if (
+      rawMessageInfo.type === messageTypes.CREATE_THREAD ||
+      rawMessageInfo.type === messageTypes.SIDEBAR_SOURCE
+    ) {
+      // If a CREATE_THREAD or SIDEBAR_SOURCE message for a given thread is in
+      // the result set, then our result set includes all messages in the query
+      // range for that thread
       truncationStatuses[rawMessageInfo.threadID] =
         messageTruncationStatus.EXHAUSTIVE;
     }
@@ -557,7 +585,7 @@ async function fetchMessageInfosSince(
   `);
   const [result] = await dbQuery(query);
 
-  const messages = parseMessageSQLResult(result, viewer);
+  const messages = await parseMessageSQLResult(result, viewer);
 
   const rawMessageInfos = [];
   let currentThreadID = null;
@@ -573,8 +601,12 @@ async function fetchMessageInfosSince(
       numMessagesForCurrentThreadID++;
     }
     if (numMessagesForCurrentThreadID <= maxNumberPerThread) {
-      if (rawMessageInfo.type === messageTypes.CREATE_THREAD) {
-        // If a CREATE_THREAD message is here, then we have all messages
+      if (
+        rawMessageInfo.type === messageTypes.CREATE_THREAD ||
+        rawMessageInfo.type === messageTypes.SIDEBAR_SOURCE
+      ) {
+        // If a CREATE_THREAD or SIDEBAR_SOURCE message is here, then we have
+        // all messages
         truncationStatuses[threadID] = messageTruncationStatus.EXHAUSTIVE;
       }
       rawMessageInfos.push(rawMessageInfo);
@@ -676,17 +708,13 @@ async function fetchMessageInfoForEntryAction(
 }
 
 async function fetchMessageInfoByID(
-  viewer: Viewer,
+  viewer?: ?Viewer,
   messageID: string,
 ): Promise<?RawMessageInfo> {
-  if (!viewer.hasSessionInfo) {
-    return null;
-  }
-
   const query = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, m.creation, 
-           m.user AS creatorID, up.id AS uploadID, up.type AS uploadType, 
-           up.secret AS uploadSecret, up.extra AS uploadExtra
+      m.user AS creatorID, up.id AS uploadID, up.type AS uploadType, 
+      up.secret AS uploadSecret, up.extra AS uploadExtra
     FROM messages m
     LEFT JOIN uploads up
       ON m.type IN (${[messageTypes.IMAGES, messageTypes.MULTIMEDIA]})

@@ -54,7 +54,6 @@ type State<Item, MergedItem> = {|
   // We cache the results of calling mergeItemWithHeight on measured items after
   // measuring their height, keyed by ID
   +measurableItems: Map<string, MergedItemPair<Item, MergedItem>>,
-  +measurableItems: Map<string, MergedItemPair<Item, MergedItem>>,
   // We cache the results of calling mergeItemWithHeight on items that aren't
   // measurable (eg. itemToKey reurns falsey), keyed by ID
   +unmeasurableItems: Map<string, MergedItemPair<Item, MergedItem>>,

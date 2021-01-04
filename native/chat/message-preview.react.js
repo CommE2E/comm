@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import { Text } from 'react-native';
@@ -34,7 +35,10 @@ class MessagePreview extends React.PureComponent<Props> {
   };
 
   render() {
-    const messageInfo: MessageInfo = this.props.messageInfo;
+    const messageInfo: MessageInfo =
+      this.props.messageInfo.type === messageTypes.SIDEBAR_SOURCE
+        ? this.props.messageInfo.initialMessage
+        : this.props.messageInfo;
     const unreadStyle = this.props.threadInfo.currentUser.unread
       ? this.props.styles.unread
       : null;
@@ -64,6 +68,10 @@ class MessagePreview extends React.PureComponent<Props> {
         </Text>
       );
     } else {
+      invariant(
+        messageInfo.type !== messageTypes.SIDEBAR_SOURCE,
+        'Sidebar source should not be handled here',
+      );
       const preview = messagePreviewText(messageInfo, this.props.threadInfo);
       return (
         <SingleLine

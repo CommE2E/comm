@@ -121,7 +121,10 @@ async function createMessages(
     messageIndices.push(i);
 
     let content;
-    if (messageData.type === messageTypes.CREATE_THREAD) {
+    if (
+      messageData.type === messageTypes.CREATE_THREAD ||
+      messageData.type === messageTypes.CREATE_SIDEBAR
+    ) {
       content = JSON.stringify(messageData.initialThreadState);
     } else if (messageData.type === messageTypes.CREATE_SUB_THREAD) {
       content = messageData.childThreadID;
@@ -164,6 +167,10 @@ async function createMessages(
       content = JSON.stringify({
         operation: messageData.operation,
         targetID: messageData.targetID,
+      });
+    } else if (messageData.type === messageTypes.SIDEBAR_SOURCE) {
+      content = JSON.stringify({
+        initialMessageID: messageData.initialMessage.id,
       });
     }
 

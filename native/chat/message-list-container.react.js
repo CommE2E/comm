@@ -215,6 +215,10 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     }
 
     const { messageInfo } = item;
+    invariant(
+      messageInfo.type !== messageTypes.SIDEBAR_SOURCE,
+      'Sidebar source messages should be replaced by initialMessage before being measured',
+    );
     const { threadInfo } = this.props;
     if (
       messageInfo.type === messageTypes.IMAGES ||

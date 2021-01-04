@@ -304,7 +304,8 @@ async function fetchInfos(pushInfo: PushInfo) {
     const threadID = rawMessageInfo.threadID;
     threadIDs.add(threadID);
     if (
-      rawMessageInfo.type === messageTypes.CREATE_THREAD &&
+      (rawMessageInfo.type === messageTypes.CREATE_THREAD ||
+        rawMessageInfo.type === messageTypes.CREATE_SIDEBAR) &&
       rawMessageInfo.initialThreadState.parentThreadID
     ) {
       threadIDs.add(rawMessageInfo.initialThreadState.parentThreadID);
@@ -412,7 +413,10 @@ async function fetchNotifUserInfos(
       for (const userID of rawMessageInfo.removedUserIDs) {
         missingUserIDs.add(userID);
       }
-    } else if (rawMessageInfo.type === messageTypes.CREATE_THREAD) {
+    } else if (
+      rawMessageInfo.type === messageTypes.CREATE_THREAD ||
+      rawMessageInfo.type === messageTypes.CREATE_SIDEBAR
+    ) {
       for (const userID of rawMessageInfo.initialThreadState.memberIDs) {
         missingUserIDs.add(userID);
       }
