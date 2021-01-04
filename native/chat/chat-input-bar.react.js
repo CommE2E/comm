@@ -512,6 +512,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         </Animated.View>
       </TouchableOpacity>
     );
+    const threadColor = `#${this.props.threadInfo.color}`;
     return (
       <TouchableWithoutFeedback onPress={this.dismissKeyboard}>
         <View style={this.props.styles.inputContainer}>
@@ -567,7 +568,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
                 name="md-send"
                 size={25}
                 style={this.props.styles.sendIcon}
-                color={this.props.colors.greenButton}
+                color={threadColor}
               />
             </TouchableOpacity>
           </Animated.View>

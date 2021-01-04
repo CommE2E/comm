@@ -214,6 +214,7 @@ class ChatInputBar extends React.PureComponent<Props> {
 
     let content;
     if (threadHasPermission(this.props.threadInfo, threadPermissions.VOICED)) {
+      const sendIconStyle = { color: `#${this.props.threadInfo.color}` };
       content = (
         <div className={css.inputBarTextInput}>
           <textarea
@@ -236,7 +237,11 @@ class ChatInputBar extends React.PureComponent<Props> {
             <FontAwesomeIcon icon={faFileImage} />
           </a>
           <a className={css.send} onClick={this.onSend}>
-            <FontAwesomeIcon icon={faChevronRight} className={css.sendButton} />
+            <FontAwesomeIcon
+              icon={faChevronRight}
+              className={css.sendButton}
+              style={sendIconStyle}
+            />
             Send
           </a>
         </div>
