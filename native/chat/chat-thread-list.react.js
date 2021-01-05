@@ -11,7 +11,7 @@ import { createSelector } from 'reselect';
 import { searchUsers } from 'lib/actions/user-actions';
 import {
   type ChatThreadItem,
-  chatListData,
+  useFlattenedChatListData,
 } from 'lib/selectors/chat-selectors';
 import { threadSearchIndex as threadSearchIndexSelector } from 'lib/selectors/nav-selectors';
 import { usersWithPersonalThreadSelector } from 'lib/selectors/user-selectors';
@@ -19,6 +19,7 @@ import SearchIndex from 'lib/shared/search-index';
 import {
   createPendingThread,
   createPendingThreadItem,
+  threadIsTopLevel,
 } from 'lib/shared/thread-utils';
 import type { UserSearchResult } from 'lib/types/search-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
@@ -226,8 +227,10 @@ class ChatThreadList extends React.PureComponent<Props, State> {
 
       if (!searchText) {
         chatItems.push(
-          ...reduxChatListData.filter((item) =>
-            this.props.filterThreads(item.threadInfo),
+          ...reduxChatListData.filter(
+            (item) =>
+              threadIsTopLevel(item.threadInfo) &&
+              this.props.filterThreads(item.threadInfo),
           ),
         );
       } else {
@@ -398,7 +401,7 @@ const unboundStyles = {
 export default React.memo<BaseProps>(function ConnectedChatThreadList(
   props: BaseProps,
 ) {
-  const boundChatListData = useSelector(chatListData);
+  const boundChatListData = useFlattenedChatListData();
   const viewerID = useSelector(
     (state) => state.currentUserInfo && state.currentUserInfo.id,
   );
