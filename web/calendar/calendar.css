@@ -51,6 +51,19 @@ table.calendar > thead > tr > th {
   font-size: 14px;
 }
 textarea.entryText {
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", sans-serif;
+  font-size: 11px;
+  width: 100%;
+  background: none;
+  border: none;
+  outline: none;
+  resize: none;
+  overflow: auto;
+  overflow-y: hidden;
+  padding-right: 15px;
 }
 table.calendar td.day {
   border: 1px solid transparent;

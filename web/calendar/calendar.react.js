@@ -215,7 +215,17 @@ class Calendar extends React.PureComponent<Props, State> {
             </h2>
           </div>
           <table className={css.calendar}>
-            <thead></thead>
+            <thead>
+              <tr>
+                <th>Sunday</th>
+                <th>Monday</th>
+                <th>Tuesday</th>
+                <th>Wednesday</th>
+                <th>Thursday</th>
+                <th>Friday</th>
+                <th>Saturday</th>
+              </tr>
+            </thead>
             <tbody>{rows}</tbody>
           </table>
         </div>
