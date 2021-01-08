@@ -5,11 +5,12 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import { messageKey } from 'lib/shared/message-utils';
+import { threadHasPermission } from 'lib/shared/thread-utils';
 import type {
   TextMessageInfo,
   LocalMessageInfo,
 } from 'lib/types/message-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import { type ThreadInfo, threadPermissions } from 'lib/types/thread-types';
 
 import {
   type KeyboardState,
@@ -93,12 +94,16 @@ class TextMessage extends React.PureComponent<Props> {
       linkPressActive,
       ...viewProps
     } = this.props;
+    const canSwipe = threadHasPermission(
+      item.threadInfo,
+      threadPermissions.VOICED,
+    );
     return (
       <ComposedMessage
         item={item}
         sendFailed={textMessageSendFailed(item)}
         focused={focused}
-        canSwipe={true}
+        canSwipe={canSwipe}
         {...viewProps}
       >
         <InnerTextMessage
@@ -113,6 +118,17 @@ class TextMessage extends React.PureComponent<Props> {
   messageRef = (message: ?React.ElementRef<typeof View>) => {
     this.message = message;
   };
+
+  visibleEntryIDs() {
+    const result = ['copy'];
+    if (
+      threadHasPermission(this.props.item.threadInfo, threadPermissions.VOICED)
+    ) {
+      result.push('reply');
+    }
+
+    return result;
+  }
 
   onPress = () => {
     if (this.dismissKeyboardIfShowing()) {
@@ -166,6 +182,7 @@ class TextMessage extends React.PureComponent<Props> {
           presentedFrom: this.props.route.key,
           initialCoordinates: coordinates,
           verticalBounds,
+          visibleEntryIDs: this.visibleEntryIDs(),
           location,
           margin,
           item,
