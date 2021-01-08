@@ -6,9 +6,9 @@ import * as React from 'react';
 
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
 import { onlyEmojiRegex } from 'lib/shared/emojis';
-import { colorIsDark } from 'lib/shared/thread-utils';
+import { colorIsDark, threadHasPermission } from 'lib/shared/thread-utils';
 import { messageTypes } from 'lib/types/message-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import { type ThreadInfo, threadPermissions } from 'lib/types/thread-types';
 
 import Markdown from '../markdown/markdown.react';
 import css from './chat-message-list.css';
@@ -60,7 +60,10 @@ function TextMessage(props: Props) {
   const messageListContext = React.useContext(MessageListContext);
   invariant(messageListContext, 'DummyTextNode should have MessageListContext');
   const rules = messageListContext.getTextMessageMarkdownRules(darkColor);
-
+  const canReply = threadHasPermission(
+    props.threadInfo,
+    threadPermissions.VOICED,
+  );
   return (
     <ComposedMessage
       item={props.item}
@@ -68,7 +71,7 @@ function TextMessage(props: Props) {
       sendFailed={textMessageSendFailed(props.item)}
       setMouseOverMessagePosition={props.setMouseOverMessagePosition}
       mouseOverMessagePosition={props.mouseOverMessagePosition}
-      canReply={true}
+      canReply={canReply}
     >
       <div className={messageClassName} style={messageStyle}>
         <Markdown rules={rules}>{text}</Markdown>
