@@ -13,7 +13,7 @@ MAX_DISK_USAGE_KB=3145728 # 3 GiB
 DAEMON_USER=squadcal
 
 # Input to git clone
-GIT_CLONE_PARAMS=https://github.com/Ashoat/squadcal.git
+GIT_CLONE_PARAMS=https://github.com/CommE2E/comm.git
 
 set -e
 [[ `whoami` = root ]] || exec sudo su -c "$0 $1"

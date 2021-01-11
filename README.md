@@ -1,9 +1,6 @@
-## SquadCal
+## Comm
 
-SquadCal is the working name of this open source messaging project. The goal is to create a chat app that:
-1. Is oriented around social planning,
-2. Can support large communities, and
-3. Is end-to-end encrypted.
+Comm is the working name of this open source messaging project.
 
 ## Repo structure
 

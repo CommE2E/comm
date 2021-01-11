@@ -259,8 +259,8 @@ sudo vim /private/etc/apache2/users/$USER.conf
 
 <VirtualHost *:80>
   ProxyRequests on
-  ProxyPass /squadcal/ws ws://localhost:3000/ws
-  ProxyPass /squadcal/ http://localhost:3000/
+  ProxyPass /comm/ws ws://localhost:3000/ws
+  ProxyPass /comm/ http://localhost:3000/
 
   RequestHeader set "X-Forwarded-Proto" expr=%{REQUEST_SCHEME}
   RequestHeader set "X-Forwarded-SSL" expr=%{HTTPS}
@@ -292,19 +292,19 @@ mysql -u root -p
 Type in the MySQL root password you set up previously when prompted. Then, we’ll go ahead and create an empty database.
 
 ```
-CREATE DATABASE squadcal;
+CREATE DATABASE comm;
 ```
 
 Now we need to create a user that can access this database. For the following command, replace “password” with a unique password.
 
 ```
-CREATE USER squadcal@localhost IDENTIFIED BY 'password';
+CREATE USER comm@localhost IDENTIFIED BY 'password';
 ```
 
 Finally, we will give permissions to this user to access this database.
 
 ```
-GRANT ALL ON squadcal.* TO squadcal@localhost;
+GRANT ALL ON comm.* TO comm@localhost;
 ```
 
 You can now exit the MySQL console using Ctrl+D.
@@ -375,13 +375,13 @@ From there you can just hit Next and then Finish. You should then be able to sta
 Finally! It’s time to clone the repo from GitHub.
 
 ```
-git clone git@github.com:Ashoat/squadcal.git
+git clone git@github.com:CommE2E/comm.git
 ```
 
 Once you have the repo cloned, you can run this command to pull in dependencies.
 
 ```
-cd squadcal
+cd comm
 yarn cleaninstall
 ```
 
@@ -400,13 +400,13 @@ The DB config file should look like this:
 ```json
 {
   "host": "localhost",
-  "user": "squadcal",
+  "user": "comm",
   "password": "password",
-  "database": "squadcal"
+  "database": "comm"
 }
 ```
 
-Make sure to replace the password with the one you set up for your `squadcal` MySQL user earlier.
+Make sure to replace the password with the one you set up for your `comm` MySQL user earlier.
 
 New let’s run a script to setup the database. Before we can run the script, we’ll have to use Babel to transpile our source files into something Node can interpret. Babel will transpile the files in `src` into a new directory called `dist`. We also use `rsync` to copy over files that don’t need transpilation.
 
@@ -430,7 +430,7 @@ Your `url.json` file should look like this:
 ```json
 {
   "baseDomain": "http://localhost",
-  "basePath": "/squadcal/",
+  "basePath": "/comm/",
   "baseRoutePath": "/",
   "https": false
 }
@@ -493,7 +493,7 @@ cd server
 yarn dev
 ```
 
-You should now be able to load the website in your web browser at http://localhost/squadcal/.
+You should now be able to load the website in your web browser at http://localhost/comm/.
 
 This will run three processes. The first two are to keep the `dist` folder updated whenever the `src` folder changes. They are “watch” versions of the same Babel and `rsync` commands we used to initially create the `dist` folder (before running the `create-db.js` script above). The final process is `nodemon`, which is similar to `node` except that it restarts whenever any of its source files (in the `dist` directory) changes.
 
