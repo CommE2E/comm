@@ -1,6 +1,6 @@
 {
   "phabricator.uri": "https://phabricator.ashoat.com/",
-  "repository.callsign": "SQUADCAL",
+  "repository.callsign": "COMM",
   "arc.land.onto": ["master"],
   "base": "git:HEAD^"
 }
