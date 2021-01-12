@@ -115,7 +115,7 @@ async function createAccount(
         name: request.username,
         description: 'your personal calendar',
       },
-      true,
+      { forceAddMembers: true },
     ),
     createThread(
       viewer,
@@ -123,7 +123,7 @@ async function createAccount(
         type: threadTypes.PERSONAL,
         initialMemberIDs: [ashoat.id],
       },
-      true,
+      { forceAddMembers: true },
     ),
   ]);
   const ashoatThreadID = ashoatThreadResult.newThreadInfo

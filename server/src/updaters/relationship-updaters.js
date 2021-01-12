@@ -293,8 +293,7 @@ async function createPersonalThreads(
         type: threadTypes.PERSONAL,
         initialMemberIDs: [userID],
       },
-      true,
-      'broadcast',
+      { forceAddMembers: true, updatesForCurrentSession: 'broadcast' },
     );
   }
 

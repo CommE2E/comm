@@ -7,6 +7,7 @@ import {
   generateRandomColor,
 } from 'lib/shared/thread-utils';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
+import type { Shape } from 'lib/types/core';
 import { messageTypes } from 'lib/types/message-types';
 import { userRelationshipStatus } from 'lib/types/relationship-types';
 import {
@@ -36,6 +37,11 @@ import createMessages from './message-creator';
 import { createInitialRolesForNewThread } from './role-creator';
 import type { UpdatesForCurrentSession } from './update-creator';
 
+type CreateThreadOptions = Shape<{|
+  +forceAddMembers: boolean,
+  +updatesForCurrentSession: UpdatesForCurrentSession,
+|}>;
+
 // If forceAddMembers is set, we will allow the viewer to add random users who
 // they aren't friends with. We will only fail if the viewer is trying to add
 // somebody who they have blocked or has blocked them. On the other hand, if
@@ -45,12 +51,15 @@ import type { UpdatesForCurrentSession } from './update-creator';
 async function createThread(
   viewer: Viewer,
   request: NewThreadRequest,
-  forceAddMembers?: boolean = false,
-  updatesForCurrentSession?: UpdatesForCurrentSession = 'return',
+  options?: CreateThreadOptions,
 ): Promise<NewThreadResponse> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
+
+  const forceAddMembers = options?.forceAddMembers ?? false;
+  const updatesForCurrentSession =
+    options?.updatesForCurrentSession ?? 'return';
 
   const threadType = request.type;
   const shouldCreateRelationships =
