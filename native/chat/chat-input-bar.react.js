@@ -53,6 +53,7 @@ import {
   type ThreadJoinPayload,
   type NewThreadRequest,
   type NewThreadResult,
+  threadTypes,
 } from 'lib/types/thread-types';
 import { type UserInfos, userInfoPropType } from 'lib/types/user-types';
 import {
@@ -629,11 +630,28 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
     const otherMemberIDs = getPendingThreadOtherUsers(threadInfo);
     try {
-      const resultPromise = this.props.newThread({
-        type: pendingThreadType(otherMemberIDs.length),
-        initialMemberIDs: otherMemberIDs,
-        color: threadInfo.color,
-      });
+      let resultPromise;
+      if (threadInfo.type !== threadTypes.SIDEBAR) {
+        resultPromise = this.props.newThread({
+          type: pendingThreadType(otherMemberIDs.length),
+          initialMemberIDs: otherMemberIDs,
+          color: threadInfo.color,
+        });
+      } else {
+        const sourceMessageID = this.props.route.params.sidebarSourceMessageID;
+        invariant(
+          sourceMessageID,
+          'sourceMessageID should be set getServerThreadID for sidebar',
+        );
+
+        resultPromise = this.props.newThread({
+          type: threadTypes.SIDEBAR,
+          initialMemberIDs: otherMemberIDs,
+          color: threadInfo.color,
+          sourceMessageID,
+          parentThreadID: threadInfo.parentThreadID,
+        });
+      }
       this.props.dispatchActionPromise(newThreadActionTypes, resultPromise);
       const { newThreadID } = await resultPromise;
       this.newThreadID = newThreadID;

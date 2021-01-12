@@ -71,6 +71,8 @@ export type TooltipEntry<RouteName: $Keys<TooltipModalParamList>> = {|
     dispatchFunctions: DispatchFunctions,
     bindServerCall: (serverCall: ActionFunc) => BoundServerCall,
     inputState: ?InputState,
+    navigation: AppNavigationProp<RouteName>,
+    viewerID: ?string,
   ) => mixed,
 |};
 type TooltipItemProps<RouteName> = {|
@@ -111,6 +113,7 @@ type TooltipProps<RouteName> = {|
   // Redux state
   +dimensions: DimensionsInfo,
   +serverCallState: ServerCallState,
+  +viewerID: ?string,
   // Redux dispatch functions
   +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
@@ -155,6 +158,7 @@ function createTooltip<RouteName: $Keys<TooltipModalParamList>>(
     static propTypes = {
       navigation: PropTypes.shape({
         goBackOnce: PropTypes.func.isRequired,
+        navigate: PropTypes.func.isRequired,
       }).isRequired,
       route: PropTypes.shape({
         params: PropTypes.shape({
@@ -167,6 +171,7 @@ function createTooltip<RouteName: $Keys<TooltipModalParamList>>(
       }).isRequired,
       dimensions: dimensionsInfoPropType.isRequired,
       serverCallState: serverCallStatePropType.isRequired,
+      viewerID: PropTypes.string,
       dispatch: PropTypes.func.isRequired,
       dispatchActionPromise: PropTypes.func.isRequired,
       overlayContext: overlayContextPropType,
@@ -430,6 +435,8 @@ function createTooltip<RouteName: $Keys<TooltipModalParamList>>(
         dispatchFunctions,
         this.bindServerCall,
         this.props.inputState,
+        this.props.navigation,
+        this.props.viewerID,
       );
     };
 
@@ -473,6 +480,9 @@ function createTooltip<RouteName: $Keys<TooltipModalParamList>>(
   ) {
     const dimensions = useSelector((state) => state.dimensions);
     const serverCallState = useSelector(serverCallStateSelector);
+    const viewerID = useSelector(
+      (state) => state.currentUserInfo && state.currentUserInfo.id,
+    );
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
     const overlayContext = React.useContext(OverlayContext);
@@ -482,6 +492,7 @@ function createTooltip<RouteName: $Keys<TooltipModalParamList>>(
         {...props}
         dimensions={dimensions}
         serverCallState={serverCallState}
+        viewerID={viewerID}
         dispatch={dispatch}
         dispatchActionPromise={dispatchActionPromise}
         overlayContext={overlayContext}

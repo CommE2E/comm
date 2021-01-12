@@ -119,10 +119,22 @@ class TextMessage extends React.PureComponent<Props> {
 
   visibleEntryIDs() {
     const result = ['copy'];
-    if (
-      threadHasPermission(this.props.item.threadInfo, threadPermissions.VOICED)
-    ) {
+
+    const canReply = threadHasPermission(
+      this.props.item.threadInfo,
+      threadPermissions.VOICED,
+    );
+    const canCreateSidebars = threadHasPermission(
+      this.props.item.threadInfo,
+      threadPermissions.CREATE_SIDEBARS,
+    );
+
+    if (canReply) {
       result.push('reply');
+    }
+
+    if (canCreateSidebars) {
+      result.push('sidebar');
     }
 
     return result;

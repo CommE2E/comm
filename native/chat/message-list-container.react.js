@@ -7,8 +7,13 @@ import { View } from 'react-native';
 import {
   type ChatMessageItem,
   messageListData as messageListDataSelector,
+  messageInfoSelector,
+  getSourceMessageChatItemForPendingSidebar,
 } from 'lib/selectors/chat-selectors';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import {
+  threadInfoSelector,
+  threadInfoFromSourceMessageIDSelector,
+} from 'lib/selectors/thread-selectors';
 import {
   userInfoSelectorForPotentialMembers,
   userSearchIndexForPotentialMembers,
@@ -24,7 +29,7 @@ import {
   threadIsPending,
 } from 'lib/shared/thread-utils';
 import { messageTypes } from 'lib/types/message-types';
-import { type ThreadInfo } from 'lib/types/thread-types';
+import { type ThreadInfo, threadTypes } from 'lib/types/thread-types';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types';
 
 import ContentLoading from '../components/content-loading.react';
@@ -382,6 +387,14 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     return infos;
   }, [threadInfos]);
 
+  const { sidebarSourceMessageID } = props.route.params;
+  const sidebarCandidate = useSelector((state) => {
+    if (!sidebarSourceMessageID) {
+      return null;
+    }
+    return threadInfoFromSourceMessageIDSelector(state)[sidebarSourceMessageID];
+  });
+
   const latestThreadInfo = React.useMemo((): ?ThreadInfo => {
     const threadInfoFromParams = originalThreadInfo;
     const threadInfoFromStore = threadInfos[threadInfoFromParams.id];
@@ -397,8 +410,15 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
       : threadInfoFromParams.members.map((member) => member.id);
     const threadKey = getPendingThreadKey(pendingThreadMemberIDs);
 
-    if (threadCandidates.get(threadKey)) {
+    if (
+      threadInfoFromParams.type !== threadTypes.SIDEBAR &&
+      threadCandidates.get(threadKey)
+    ) {
       return threadCandidates.get(threadKey);
+    }
+
+    if (sidebarCandidate) {
+      return sidebarCandidate;
     }
 
     const updatedThread = searching
@@ -419,6 +439,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     searching,
     userInfoInputArray,
     threadCandidates,
+    sidebarCandidate,
     userInfos,
   ]);
 
@@ -434,11 +455,35 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
 
   const threadID = threadInfoRef.current.id;
   const boundMessageListData = useSelector(messageListDataSelector(threadID));
-  const messageListData = React.useMemo(
-    () =>
-      searching && userInfoInputArray.length === 0 ? [] : boundMessageListData,
-    [boundMessageListData, searching, userInfoInputArray.length],
+  const sidebarSourceMessageInfo = useSelector((state) =>
+    sidebarSourceMessageID && !sidebarCandidate
+      ? messageInfoSelector(state)[sidebarSourceMessageID]
+      : null,
   );
+  invariant(
+    !sidebarSourceMessageInfo ||
+      sidebarSourceMessageInfo.type !== messageTypes.SIDEBAR_SOURCE,
+    'sidebars can not be created from sidebar_source message',
+  );
+  const messageListData = React.useMemo(() => {
+    if (searching && userInfoInputArray.length === 0) {
+      return [];
+    } else if (sidebarSourceMessageInfo) {
+      return [
+        getSourceMessageChatItemForPendingSidebar(
+          sidebarSourceMessageInfo,
+          threadInfos,
+        ),
+      ];
+    }
+    return boundMessageListData;
+  }, [
+    searching,
+    userInfoInputArray.length,
+    sidebarSourceMessageInfo,
+    boundMessageListData,
+    threadInfos,
+  ]);
   const composedMessageMaxWidth = useSelector(composedMessageMaxWidthSelector);
   const colors = useColors();
   const styles = useStyles(unboundStyles);

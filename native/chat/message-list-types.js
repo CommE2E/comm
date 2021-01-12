@@ -13,6 +13,7 @@ export type MessageListParams = {|
   threadInfo: ThreadInfo,
   pendingPersonalThreadUserInfo?: UserInfo,
   searching?: boolean,
+  sidebarSourceMessageID?: string,
 |};
 
 const messageListRoutePropType = PropTypes.shape({
@@ -21,6 +22,7 @@ const messageListRoutePropType = PropTypes.shape({
     threadInfo: threadInfoPropType.isRequired,
     pendingPersonalThreadUserInfo: userInfoPropType,
     searching: PropTypes.bool,
+    sidebarSourceMessageID: PropTypes.string,
   }).isRequired,
 });
 

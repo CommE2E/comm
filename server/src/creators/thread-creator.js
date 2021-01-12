@@ -20,6 +20,7 @@ import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
 
 import { dbQuery, SQL } from '../database/database';
+import { fetchMessageInfoByID } from '../fetchers/message-fetchers';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers';
 import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
@@ -176,6 +177,13 @@ async function createThread(
       viewer.id,
     );
   }
+  const sourceMessageID = request.sourceMessageID
+    ? request.sourceMessageID
+    : null;
+  invariant(
+    threadType !== threadTypes.SIDEBAR || sourceMessageID,
+    'sourceMessageID should be set for sidebar',
+  );
   const time = Date.now();
 
   const row = [
@@ -188,6 +196,7 @@ async function createThread(
     color,
     parentThreadID,
     newRoles.default.id,
+    sourceMessageID,
   ];
   if (threadType === threadTypes.PERSONAL) {
     const otherMemberID = initialMemberIDs?.[0];
@@ -197,7 +206,7 @@ async function createThread(
     );
     const query = SQL`
       INSERT INTO threads(id, type, name, description, creator,
-        creation_time, color, parent_thread_id, default_role)
+        creation_time, color, parent_thread_id, default_role, source_message)
       SELECT ${row}
       WHERE NOT EXISTS (
         SELECT * 
@@ -256,7 +265,7 @@ async function createThread(
   } else {
     const query = SQL`
       INSERT INTO threads(id, type, name, description, creator,
-        creation_time, color, parent_thread_id, default_role)
+        creation_time, color, parent_thread_id, default_role, source_message)
       VALUES ${[row]}
     `;
     await dbQuery(query);
@@ -332,8 +341,9 @@ async function createThread(
     updatesForCurrentSession,
   });
 
-  const messageDatas = [
-    {
+  const messageDatas = [];
+  if (threadType !== threadTypes.SIDEBAR) {
+    messageDatas.push({
       type: messageTypes.CREATE_THREAD,
       threadID: id,
       creatorID: viewer.userID,
@@ -345,9 +355,40 @@ async function createThread(
         color,
         memberIDs: initialMemberAndCreatorIDs,
       },
-    },
-  ];
-  if (parentThreadID) {
+    });
+  } else {
+    invariant(parentThreadID, 'parentThreadID should be set for sidebar');
+    invariant(sourceMessageID, 'sourceMessageID should be set for sidebar');
+    const sourceMessage = await fetchMessageInfoByID(viewer, sourceMessageID);
+    if (!sourceMessage || sourceMessage.type === messageTypes.SIDEBAR_SOURCE) {
+      throw new ServerError('invalid_parameters');
+    }
+
+    messageDatas.push(
+      {
+        type: messageTypes.CREATE_SIDEBAR,
+        threadID: id,
+        creatorID: viewer.userID,
+        time,
+        sourceMessageAuthorID: sourceMessage.creatorID,
+        initialThreadState: {
+          name,
+          parentThreadID,
+          color,
+          memberIDs: initialMemberAndCreatorIDs,
+        },
+      },
+      {
+        type: messageTypes.SIDEBAR_SOURCE,
+        threadID: id,
+        creatorID: viewer.userID,
+        time,
+        sourceMessage,
+      },
+    );
+  }
+
+  if (parentThreadID && threadType !== threadTypes.SIDEBAR) {
     messageDatas.push({
       type: messageTypes.CREATE_SUB_THREAD,
       threadID: parentThreadID,
