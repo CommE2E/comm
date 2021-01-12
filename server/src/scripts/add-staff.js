@@ -9,12 +9,18 @@ import { main } from './utils';
 const newStaffIDs = ['518252'];
 
 async function addStaff() {
-  await updateThread(createScriptViewer(bots.squadbot.userID), {
-    threadID: bots.squadbot.staffThreadID,
-    changes: {
-      newMemberIDs: newStaffIDs,
+  await updateThread(
+    createScriptViewer(bots.squadbot.userID),
+    {
+      threadID: bots.squadbot.staffThreadID,
+      changes: {
+        newMemberIDs: newStaffIDs,
+      },
     },
-  });
+    {
+      forceAddMembers: true,
+    },
+  );
 }
 
 main([addStaff]);

@@ -9,6 +9,7 @@ import {
   viewerIsMember,
 } from 'lib/shared/thread-utils';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
+import type { Shape } from 'lib/types/core';
 import { messageTypes, defaultNumberPerThread } from 'lib/types/message-types';
 import { userRelationshipStatus } from 'lib/types/relationship-types';
 import {
@@ -288,14 +289,19 @@ async function leaveThread(
   };
 }
 
+type UpdateThreadOptions = Shape<{|
+  +forceAddMembers: boolean,
+|}>;
+
 async function updateThread(
   viewer: Viewer,
   request: UpdateThreadRequest,
+  options?: UpdateThreadOptions,
 ): Promise<ChangeThreadSettingsResult> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
-
+  const forceAddMembers = options?.forceAddMembers ?? false;
   const validationPromises = {};
 
   const changedFields = {};
@@ -461,9 +467,16 @@ async function updateThread(
 
   if (fetchNewMembers) {
     invariant(newMemberIDs, 'should be set');
-    for (const newMemberID of newMemberIDs) {
+    const newIDs = newMemberIDs; // for Flow
+    for (const newMemberID of newIDs) {
       if (!fetchNewMembers[newMemberID]) {
-        throw new ServerError('invalid_credentials');
+        if (!forceAddMembers) {
+          throw new ServerError('invalid_credentials');
+        } else if (nextThreadType === threadTypes.SIDEBAR) {
+          throw new ServerError('invalid_thread_type');
+        } else {
+          continue;
+        }
       }
       const { relationshipStatus } = fetchNewMembers[newMemberID];
       if (
