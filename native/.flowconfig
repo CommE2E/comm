@@ -10,8 +10,8 @@
 ; Flow doesn't support platforms
 .*/Libraries/Utilities/LoadingView.js
 
-.*/squadcal/web/.*
-.*/squadcal/server/.*
+.*/comm/web/.*
+.*/comm/server/.*
 
 [untyped]
 .*/node_modules/@react-native-community/cli/.*/.*
