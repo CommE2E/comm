@@ -4,9 +4,9 @@ import invariant from 'invariant';
 import { Platform } from 'react-native';
 
 const productionServer = 'https://squadcal.org';
-const localhostServer = 'http://localhost/squadcal';
-const localhostServerFromAndroidEmulator = 'http://10.0.2.2/squadcal';
-const natServer = 'http://192.168.1.4/squadcal';
+const localhostServer = 'http://localhost/comm';
+const localhostServerFromAndroidEmulator = 'http://10.0.2.2/comm';
+const natServer = 'http://192.168.1.4/comm';
 
 function defaultURLPrefix() {
   if (!__DEV__) {
