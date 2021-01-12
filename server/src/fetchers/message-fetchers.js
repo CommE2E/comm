@@ -121,8 +121,9 @@ async function fetchCollapsableNotifs(
     }
   }
 
+  const derivedMessages = await fetchDerivedMessages(collapseResult);
   for (const userRows of rowsByUser.values()) {
-    const messages = await parseMessageSQLResult(userRows);
+    const messages = parseMessageSQLResult(userRows, derivedMessages);
     for (const message of messages) {
       const { rawMessageInfo, rows } = message;
       const [row] = rows;
@@ -150,10 +151,11 @@ type MessageSQLResult = $ReadOnlyArray<{|
   rawMessageInfo: RawMessageInfo,
   rows: $ReadOnlyArray<Object>,
 |}>;
-async function parseMessageSQLResult(
+function parseMessageSQLResult(
   rows: $ReadOnlyArray<Object>,
+  derivedMessages: $ReadOnlyMap<string, RawMessageInfo>,
   viewer?: Viewer,
-): Promise<MessageSQLResult> {
+): MessageSQLResult {
   const rowsByID = new Map();
   for (let row of rows) {
     const id = row.id.toString();
@@ -167,7 +169,11 @@ async function parseMessageSQLResult(
 
   const messages = [];
   for (let messageRows of rowsByID.values()) {
-    const rawMessageInfo = await rawMessageInfoFromRows(messageRows, viewer);
+    const rawMessageInfo = rawMessageInfoFromRows(
+      messageRows,
+      viewer,
+      derivedMessages,
+    );
     if (rawMessageInfo) {
       messages.push({ rawMessageInfo, rows: messageRows });
     }
@@ -195,10 +201,11 @@ function mostRecentRowType(rows: $ReadOnlyArray<Object>): MessageType {
   return assertMessageType(rows[0].type);
 }
 
-async function rawMessageInfoFromRows(
+function rawMessageInfoFromRows(
   rows: $ReadOnlyArray<Object>,
-  viewer?: ?Viewer,
-): Promise<?RawMessageInfo> {
+  viewer?: Viewer,
+  derivedMessages: $ReadOnlyMap<string, RawMessageInfo>,
+): ?RawMessageInfo {
   const type = mostRecentRowType(rows);
   if (type === messageTypes.TEXT) {
     const row = assertSingleRow(rows);
@@ -380,10 +387,7 @@ async function rawMessageInfoFromRows(
   } else if (type === messageTypes.SIDEBAR_SOURCE) {
     const row = assertSingleRow(rows);
     const content = JSON.parse(row.content);
-    const initialMessage = await fetchMessageInfoByID(
-      viewer,
-      content.initialMessageID,
-    );
+    const initialMessage = derivedMessages.get(content.initialMessageID);
     return {
       type: messageTypes.SIDEBAR_SOURCE,
       id: row.id.toString(),
@@ -454,8 +458,8 @@ async function fetchMessageInfos(
     WHERE y.number <= ${numberPerThread}
   `);
   const [result] = await dbQuery(query);
-
-  const messages = await parseMessageSQLResult(result, viewer);
+  const derivedMessages = await fetchDerivedMessages(result, viewer);
+  const messages = parseMessageSQLResult(result, derivedMessages, viewer);
 
   const rawMessageInfos = [];
   const threadToMessageCount = new Map();
@@ -584,8 +588,8 @@ async function fetchMessageInfosSince(
     ORDER BY m.thread, m.time DESC
   `);
   const [result] = await dbQuery(query);
-
-  const messages = await parseMessageSQLResult(result, viewer);
+  const derivedMessages = await fetchDerivedMessages(result, viewer);
+  const messages = parseMessageSQLResult(result, derivedMessages, viewer);
 
   const rawMessageInfos = [];
   let currentThreadID = null;
@@ -674,7 +678,8 @@ async function fetchMessageInfoForLocalID(
   if (result.length === 0) {
     return null;
   }
-  return rawMessageInfoFromRows(result, viewer);
+  const derivedMessages = await fetchDerivedMessages(result, viewer);
+  return rawMessageInfoFromRows(result, viewer, derivedMessages);
 }
 
 const entryIDExtractString = '$.entryID';
@@ -704,13 +709,11 @@ async function fetchMessageInfoForEntryAction(
   if (result.length === 0) {
     return null;
   }
-  return rawMessageInfoFromRows(result, viewer);
+  const derivedMessages = await fetchDerivedMessages(result, viewer);
+  return rawMessageInfoFromRows(result, viewer, derivedMessages);
 }
 
-async function fetchMessageInfoByID(
-  viewer?: ?Viewer,
-  messageID: string,
-): Promise<?RawMessageInfo> {
+async function fetchMessageRowsByIDs(messageIDs: $ReadOnlyArray<string>) {
   const query = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, m.creation, 
       m.user AS creatorID, up.id AS uploadID, up.type AS uploadType, 
@@ -719,14 +722,51 @@ async function fetchMessageInfoByID(
     LEFT JOIN uploads up
       ON m.type IN (${[messageTypes.IMAGES, messageTypes.MULTIMEDIA]})
         AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
-    WHERE m.id = ${messageID}
+    WHERE m.id IN (${messageIDs})
   `;
-
   const [result] = await dbQuery(query);
+  return result;
+}
+
+async function fetchDerivedMessages(
+  rows: $ReadOnlyArray<Object>,
+  viewer?: Viewer,
+): Promise<$ReadOnlyMap<string, RawMessageInfo>> {
+  const requiredIDs = new Set<string>();
+  for (const row of rows) {
+    if (row.type === messageTypes.SIDEBAR_SOURCE) {
+      const content = JSON.parse(row.content);
+      requiredIDs.add(content.initialMessageID);
+    }
+  }
+
+  const messagesByID = new Map<string, RawMessageInfo>();
+  if (requiredIDs.size === 0) {
+    return messagesByID;
+  }
+
+  const result = await fetchMessageRowsByIDs([...requiredIDs]);
+  const messages = parseMessageSQLResult(result, new Map(), viewer);
+
+  for (const message of messages) {
+    const { rawMessageInfo } = message;
+    if (rawMessageInfo.id) {
+      messagesByID.set(rawMessageInfo.id, rawMessageInfo);
+    }
+  }
+  return messagesByID;
+}
+
+async function fetchMessageInfoByID(
+  viewer?: Viewer,
+  messageID: string,
+): Promise<?RawMessageInfo> {
+  const result = await fetchMessageRowsByIDs([messageID]);
   if (result.length === 0) {
     return null;
   }
-  return rawMessageInfoFromRows(result, viewer);
+  const derivedMessages = await fetchDerivedMessages(result, viewer);
+  return rawMessageInfoFromRows(result, viewer, derivedMessages);
 }
 
 export {
