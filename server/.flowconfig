@@ -13,6 +13,7 @@
 ../lib/flow-typed
 
 [options]
+sharedmemory.heap_size=3221225472
 module.file_ext=.js
 module.file_ext=.cjs
 module.file_ext=.json

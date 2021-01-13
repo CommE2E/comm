@@ -28,6 +28,7 @@
 ../node_modules/react-native/flow/
 
 [options]
+sharedmemory.heap_size=3221225472
 emoji=true
 
 esproposal.optional_chaining=enable

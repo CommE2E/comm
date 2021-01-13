@@ -8,6 +8,7 @@
 ../lib/flow-typed
 
 [options]
+sharedmemory.heap_size=3221225472
 module.name_mapper.extension='css' -> '<PROJECT_ROOT>/flow/CSSModule.js.flow'
 esproposal.optional_chaining=enable
 esproposal.nullish_coalescing=enable

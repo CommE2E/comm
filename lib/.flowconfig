@@ -5,6 +5,7 @@
 [libs]
 
 [options]
+sharedmemory.heap_size=3221225472
 esproposal.optional_chaining=enable
 esproposal.nullish_coalescing=enable
 
