@@ -11,6 +11,42 @@ index 5dc03df..e526092 100644
      ? (background, useForeground) =>
          useForeground && TouchableNativeFeedback.canUseNativeForeground()
            ? {nativeForegroundAndroid: background}
+diff --git a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h
+index 7e12add..f6c9e40 100644
+--- a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h
++++ b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h
+@@ -36,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
+ // The `caretHidden` property actually is not supported yet;
+ // it's declared here only to conform to the interface.
+ @property (nonatomic, assign) BOOL caretHidden;
++@property (nonatomic, assign) BOOL allowImagePaste;
+ 
+ @end
+ 
+diff --git a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.m b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.m
+index 88d3183..79185de 100644
+--- a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.m
++++ b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.m
+@@ -173,6 +173,9 @@ - (void)setSelectedTextRange:(UITextRange *)selectedTextRange notifyDelegate:(BO
+ 
+ - (void)paste:(id)sender
+ {
++  if ([UIPasteboard generalPasteboard].hasImages && _allowImagePaste) {
++    [_textInputDelegate textInputImagePasted];
++  }
+   [super paste:sender];
+   _textWasPasted = YES;
+ }
+@@ -261,6 +264,9 @@ - (BOOL)canPerformAction:(SEL)action withSender:(id)sender
+     return NO;
+   }
+   
++  if (action == @selector(paste:) && [UIPasteboard generalPasteboard].hasImages) {
++    return _allowImagePaste;
++  }
+   return [super canPerformAction:action withSender:sender];
+ }
+ 
 diff --git a/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h b/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h
 index 3e1839b..2df81fb 100644
 --- a/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h
@@ -73,3 +109,15 @@ index aa69593..8366cf2 100644
  - (void)updateLocalData
  {
    [self enforceTextAttributesIfNeeded];
+diff --git a/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputViewManager.m b/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputViewManager.m
+index dca1437..5af6457 100644
+--- a/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputViewManager.m
++++ b/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputViewManager.m
+@@ -33,6 +33,7 @@ @implementation RCTBaseTextInputViewManager
+ 
+ #pragma mark - Unified <TextInput> properties
+ 
++RCT_REMAP_VIEW_PROPERTY(allowImagePaste, backedTextInputView.allowImagePaste, BOOL)
+ RCT_REMAP_VIEW_PROPERTY(autoCapitalize, backedTextInputView.autocapitalizationType, UITextAutocapitalizationType)
+ RCT_REMAP_VIEW_PROPERTY(autoCorrect, backedTextInputView.autocorrectionType, UITextAutocorrectionType)
+ RCT_REMAP_VIEW_PROPERTY(contextMenuHidden, backedTextInputView.contextMenuHidden, BOOL)
