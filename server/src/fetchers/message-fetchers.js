@@ -388,6 +388,12 @@ function rawMessageInfoFromRows(
     const row = assertSingleRow(rows);
     const content = JSON.parse(row.content);
     const initialMessage = derivedMessages.get(content.initialMessageID);
+    if (!initialMessage) {
+      console.warn(
+        `Message with id ${row.id} has a derived message ` +
+          `${content.initialMessageID} which is not present in the database`,
+      );
+    }
     return {
       type: messageTypes.SIDEBAR_SOURCE,
       id: row.id.toString(),
