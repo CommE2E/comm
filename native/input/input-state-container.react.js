@@ -745,7 +745,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         reject(new Error('request aborted'));
       });
       Upload.addListener('completed', uploadID, (data) => {
-        resolve(JSON.parse(data.responseBody));
+        try {
+          resolve(JSON.parse(data.responseBody));
+        } catch (e) {
+          reject(e);
+        }
       });
       if (options && options.onProgress) {
         const { onProgress } = options;
