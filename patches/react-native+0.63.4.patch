@@ -11,3 +11,65 @@ index 5dc03df..e526092 100644
      ? (background, useForeground) =>
          useForeground && TouchableNativeFeedback.canUseNativeForeground()
            ? {nativeForegroundAndroid: background}
+diff --git a/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h b/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h
+index 3e1839b..2df81fb 100644
+--- a/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h
++++ b/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h
+@@ -32,6 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
+ - (void)textInputDidChange;
+ 
+ - (void)textInputDidChangeSelection;
++- (void)textInputImagePasted;
+ 
+ @optional
+ 
+diff --git a/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.m b/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.m
+index aa69593..8366cf2 100644
+--- a/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.m
++++ b/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.m
+@@ -19,6 +19,8 @@
+ #import <React/RCTTextAttributes.h>
+ #import <React/RCTTextSelection.h>
+ 
++#import <MobileCoreServices/MobileCoreServices.h>
++
+ @implementation RCTBaseTextInputView {
+   __weak RCTBridge *_bridge;
+   __weak RCTEventDispatcher *_eventDispatcher;
+@@ -479,6 +481,36 @@ - (void)textInputDidChangeSelection
+   });
+ }
+ 
++- (void)textInputImagePasted
++{
++  NSFileManager *fileManager = [NSFileManager defaultManager];
++  UIPasteboard *clipboard = [UIPasteboard generalPasteboard];
++  NSData *imageData = [clipboard dataForPasteboardType:(NSString*)kUTTypeImage];
++  
++  if (!imageData) {
++    RCTLog(@"Failed to get image from UIPasteboard.");
++    return;
++  }
++  
++  NSString *fileName = [@([imageData hash]) stringValue];
++  NSString *fileDest = [NSTemporaryDirectory() stringByAppendingPathComponent:fileName];
++  
++  if (![fileManager fileExistsAtPath:fileDest]) {
++    BOOL fileWritten = [imageData writeToFile:fileDest atomically:true];
++    if (!fileWritten) {
++      RCTLog(@"Failed to save image to temporary directory.");
++      return;
++    }
++  }
++  
++  NSDictionary *eventBody = @{
++    @"fileName": fileName,
++    @"filePath": fileDest,
++  };
++  
++  [_eventDispatcher sendAppEventWithName:@"imagePasted" body:eventBody];
++}
++
+ - (void)updateLocalData
+ {
+   [self enforceTextAttributesIfNeeded];
