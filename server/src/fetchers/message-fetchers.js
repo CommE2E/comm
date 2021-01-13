@@ -18,8 +18,8 @@ import {
   type MessageTruncationStatus,
   messageTruncationStatus,
   type FetchMessageInfosResult,
-  type RawTextMessageInfo,
 } from 'lib/types/message-types';
+import type { RawTextMessageInfo } from 'lib/types/message/text';
 import { threadPermissions } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
 

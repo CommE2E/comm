@@ -38,13 +38,13 @@ import type {
 import {
   messageTypes,
   type RawMessageInfo,
-  type RawImagesMessageInfo,
-  type RawMediaMessageInfo,
   type RawMultimediaMessageInfo,
   type SendMessageResult,
   type SendMessagePayload,
-  type RawTextMessageInfo,
 } from 'lib/types/message-types';
+import type { RawImagesMessageInfo } from 'lib/types/message/images';
+import type { RawMediaMessageInfo } from 'lib/types/message/media';
+import type { RawTextMessageInfo } from 'lib/types/message/text';
 import { reportTypes } from 'lib/types/report-types';
 import type {
   DispatchActionPayload,

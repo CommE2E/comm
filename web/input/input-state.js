@@ -11,7 +11,7 @@ import {
   type MediaMissionStep,
   mediaMissionStepPropType,
 } from 'lib/types/media-types';
-import type { RawTextMessageInfo } from 'lib/types/message-types';
+import type { RawTextMessageInfo } from 'lib/types/message/text';
 
 export type PendingMultimediaUpload = {|
   localID: string,

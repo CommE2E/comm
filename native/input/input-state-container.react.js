@@ -42,10 +42,10 @@ import {
   type RawMultimediaMessageInfo,
   type SendMessageResult,
   type SendMessagePayload,
-  type RawImagesMessageInfo,
-  type RawMediaMessageInfo,
-  type RawTextMessageInfo,
 } from 'lib/types/message-types';
+import type { RawImagesMessageInfo } from 'lib/types/message/images';
+import type { RawMediaMessageInfo } from 'lib/types/message/media';
+import type { RawTextMessageInfo } from 'lib/types/message/text';
 import {
   type MediaMissionReportCreationRequest,
   reportTypes,

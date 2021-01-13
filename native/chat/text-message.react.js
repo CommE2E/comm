@@ -6,10 +6,8 @@ import { View } from 'react-native';
 
 import { messageKey } from 'lib/shared/message-utils';
 import { threadHasPermission } from 'lib/shared/thread-utils';
-import type {
-  TextMessageInfo,
-  LocalMessageInfo,
-} from 'lib/types/message-types';
+import type { LocalMessageInfo } from 'lib/types/message-types';
+import type { TextMessageInfo } from 'lib/types/message/text';
 import { type ThreadInfo, threadPermissions } from 'lib/types/thread-types';
 
 import {
