@@ -2,7 +2,6 @@
 
 import invariant from 'invariant';
 import _find from 'lodash/fp/find';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, TouchableWithoutFeedback } from 'react-native';
 import { createSelector } from 'reselect';
@@ -14,16 +13,11 @@ import {
   fetchMostRecentMessages,
 } from 'lib/actions/message-actions';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
-import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import { messageKey } from 'lib/shared/message-utils';
 import { threadInChatList } from 'lib/shared/thread-utils';
 import threadWatcher from 'lib/shared/thread-watcher';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types';
-import {
-  type ThreadInfo,
-  threadInfoPropType,
-  threadTypes,
-} from 'lib/types/thread-types';
+import { type ThreadInfo, threadTypes } from 'lib/types/thread-types';
 import {
   type DispatchActionPromise,
   useServerCall,
@@ -33,20 +27,17 @@ import {
 import ListLoadingIndicator from '../components/list-loading-indicator.react';
 import {
   type KeyboardState,
-  keyboardStatePropType,
   KeyboardContext,
 } from '../keyboard/keyboard-state';
 import {
   OverlayContext,
   type OverlayContextType,
-  overlayContextPropType,
 } from '../navigation/overlay-context';
 import type { NavigationRoute } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import {
   useStyles,
   type IndicatorStyle,
-  indicatorStylePropType,
   useIndicatorStyle,
 } from '../themes/colors';
 import type { VerticalBounds } from '../types/layout-types';
@@ -54,10 +45,6 @@ import type { ViewToken } from '../types/react-native';
 import { ChatList } from './chat-list.react';
 import type { ChatNavigationProp } from './chat.react';
 import type { ChatMessageItemWithHeight } from './message-list-container.react';
-import {
-  messageListRoutePropType,
-  messageListNavPropType,
-} from './message-list-types';
 import { Message, type ChatMessageInfoItemWithHeight } from './message.react';
 import RelationshipPrompt from './relationship-prompt.react';
 
@@ -104,20 +91,6 @@ type FlatListExtraData = {|
   route: NavigationRoute<'MessageList'>,
 |};
 class MessageList extends React.PureComponent<Props, State> {
-  static propTypes = {
-    threadInfo: threadInfoPropType.isRequired,
-    messageListData: PropTypes.arrayOf(chatMessageItemPropType).isRequired,
-    navigation: messageListNavPropType.isRequired,
-    route: messageListRoutePropType.isRequired,
-    startReached: PropTypes.bool.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    indicatorStyle: indicatorStylePropType.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    fetchMessagesBeforeCursor: PropTypes.func.isRequired,
-    fetchMostRecentMessages: PropTypes.func.isRequired,
-    overlayContext: overlayContextPropType,
-    keyboardState: keyboardStatePropType,
-  };
   state: State = {
     focusedMessageKey: null,
     messageListVerticalBounds: null,

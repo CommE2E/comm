@@ -1,22 +1,17 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
-import {
-  type ChatMessageInfoItem,
-  chatMessageItemPropType,
-} from 'lib/selectors/chat-selectors';
+import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types';
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import { type ThreadInfo } from 'lib/types/thread-types';
 import { longAbsoluteDate } from 'lib/utils/date-utils';
 
 import css from './chat-message-list.css';
 import {
   type OnMessagePositionInfo,
   type MessagePositionInfo,
-  onMessagePositionInfoPropType,
 } from './message-position-types';
 import MultimediaMessage from './multimedia-message.react';
 import RobotextMessage from './robotext-message.react';
@@ -33,15 +28,6 @@ type Props = {|
   timeZone: ?string,
 |};
 class Message extends React.PureComponent<Props> {
-  static propTypes = {
-    item: chatMessageItemPropType.isRequired,
-    threadInfo: threadInfoPropType.isRequired,
-    setMouseOverMessagePosition: PropTypes.func.isRequired,
-    mouseOverMessagePosition: onMessagePositionInfoPropType,
-    setModal: PropTypes.func.isRequired,
-    timeZone: PropTypes.string,
-  };
-
   render() {
     const { item, timeZone } = this.props;
 

@@ -1,22 +1,16 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { StyleSheet, View, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 
-import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import { createMessageReply } from 'lib/shared/message-utils';
 import { assertComposableMessageType } from 'lib/types/message-types';
 
-import {
-  inputStatePropType,
-  type InputState,
-  InputStateContext,
-} from '../input/input-state';
+import { type InputState, InputStateContext } from '../input/input-state';
 import { useSelector } from '../redux/redux-utils';
-import { type Colors, colorsPropType, useColors } from '../themes/colors';
+import { type Colors, useColors } from '../themes/colors';
 import { composedMessageMaxWidthSelector } from './composed-message-width';
 import { FailedSend } from './failed-send.react';
 import { MessageHeader } from './message-header.react';
@@ -42,17 +36,6 @@ type Props = {|
   +inputState: ?InputState,
 |};
 class ComposedMessage extends React.PureComponent<Props> {
-  static propTypes = {
-    item: chatMessageItemPropType.isRequired,
-    sendFailed: PropTypes.bool.isRequired,
-    focused: PropTypes.bool.isRequired,
-    canSwipe: PropTypes.bool,
-    children: PropTypes.node.isRequired,
-    composedMessageMaxWidth: PropTypes.number.isRequired,
-    colors: colorsPropType.isRequired,
-    inputState: inputStatePropType,
-  };
-
   render() {
     assertComposableMessageType(this.props.item.messageInfo.type);
     const {

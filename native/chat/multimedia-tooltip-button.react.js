@@ -1,26 +1,15 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import { messageID } from 'lib/shared/message-utils';
-import { mediaInfoPropType } from 'lib/types/media-types';
 
-import {
-  type InputState,
-  inputStatePropType,
-  InputStateContext,
-} from '../input/input-state';
+import { type InputState, InputStateContext } from '../input/input-state';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { TooltipRoute } from '../navigation/tooltip.react';
 import { useSelector } from '../redux/redux-utils';
-import {
-  verticalBoundsPropType,
-  layoutCoordinatesPropType,
-} from '../types/layout-types';
 import InlineMultimedia from './inline-multimedia.react';
 import { MessageHeader } from './message-header.react';
 import { multimediaMessageBorderRadius } from './multimedia-message.react';
@@ -43,26 +32,6 @@ type Props = {|
   +inputState: ?InputState,
 |};
 class MultimediaTooltipButton extends React.PureComponent<Props> {
-  static propTypes = {
-    navigation: PropTypes.shape({
-      goBackOnce: PropTypes.func.isRequired,
-    }).isRequired,
-    route: PropTypes.shape({
-      params: PropTypes.shape({
-        initialCoordinates: layoutCoordinatesPropType.isRequired,
-        verticalBounds: verticalBoundsPropType.isRequired,
-        location: PropTypes.oneOf(['above', 'below']),
-        margin: PropTypes.number,
-        item: chatMessageItemPropType.isRequired,
-        mediaInfo: mediaInfoPropType.isRequired,
-        verticalOffset: PropTypes.number.isRequired,
-      }).isRequired,
-    }).isRequired,
-    progress: PropTypes.object.isRequired,
-    windowWidth: PropTypes.number.isRequired,
-    inputState: inputStatePropType,
-  };
-
   get headerStyle() {
     const { initialCoordinates, verticalOffset } = this.props.route.params;
     const bottom = initialCoordinates.height + verticalOffset;

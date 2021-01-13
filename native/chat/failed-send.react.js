@@ -1,20 +1,14 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import { messageID } from 'lib/shared/message-utils';
 import { messageTypes, type RawMessageInfo } from 'lib/types/message-types';
 
 import Button from '../components/button.react';
-import {
-  type InputState,
-  inputStatePropType,
-  InputStateContext,
-} from '../input/input-state';
+import { type InputState, InputStateContext } from '../input/input-state';
 import { useSelector } from '../redux/redux-utils';
 import { useStyles } from '../themes/colors';
 import type { ChatMessageInfoItemWithHeight } from './message.react';
@@ -35,12 +29,6 @@ type Props = {|
   +inputState: ?InputState,
 |};
 class FailedSend extends React.PureComponent<Props> {
-  static propTypes = {
-    item: chatMessageItemPropType.isRequired,
-    rawMessageInfo: PropTypes.object,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    inputState: inputStatePropType,
-  };
   retryingText = false;
   retryingMedia = false;
 

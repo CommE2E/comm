@@ -1,23 +1,14 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import { createSelector } from 'reselect';
 
-import {
-  type DimensionsInfo,
-  dimensionsInfoPropTypeShape,
-} from '../redux/dimensions-updater.react';
+import { type DimensionsInfo } from '../redux/dimensions-updater.react';
 import type { AppState } from '../redux/redux-setup';
 
 export type DerivedDimensionsInfo = {|
   ...DimensionsInfo,
   +safeAreaHeight: number,
 |};
-
-const derivedDimensionsInfoPropType = PropTypes.exact({
-  ...dimensionsInfoPropTypeShape,
-  safeAreaHeight: PropTypes.number.isRequired,
-});
 
 const derivedDimensionsInfoSelector: (
   state: AppState,
@@ -32,4 +23,4 @@ const derivedDimensionsInfoSelector: (
   }),
 );
 
-export { derivedDimensionsInfoPropType, derivedDimensionsInfoSelector };
+export { derivedDimensionsInfoSelector };

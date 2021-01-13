@@ -3,10 +3,7 @@
 import PropTypes from 'prop-types';
 import * as React from 'react';
 
-import {
-  type RobotextChatMessageInfoItem,
-  chatMessageItemPropType,
-} from 'lib/selectors/chat-selectors';
+import { type RobotextChatMessageInfoItem } from 'lib/selectors/chat-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { splitRobotext, parseRobotextEntity } from 'lib/shared/message-utils';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
@@ -26,11 +23,6 @@ type Props = {|
   ) => void,
 |};
 class RobotextMessage extends React.PureComponent<Props> {
-  static propTypes = {
-    item: chatMessageItemPropType.isRequired,
-    setMouseOverMessagePosition: PropTypes.func.isRequired,
-  };
-
   render() {
     return (
       <div className={css.robotext}>

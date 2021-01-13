@@ -3,7 +3,6 @@
 import classNames from 'classnames';
 import { detect as detectBrowser } from 'detect-browser';
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { useDrop } from 'react-dnd';
 import { NativeTypes } from 'react-dnd-html5-backend';
@@ -15,27 +14,20 @@ import {
   fetchMostRecentMessages,
 } from 'lib/actions/message-actions';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
-import {
-  type ChatMessageItem,
-  chatMessageItemPropType,
-} from 'lib/selectors/chat-selectors';
+import { type ChatMessageItem } from 'lib/selectors/chat-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { messageKey } from 'lib/shared/message-utils';
 import { threadInChatList } from 'lib/shared/thread-utils';
 import threadWatcher from 'lib/shared/thread-watcher';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types';
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import { type ThreadInfo } from 'lib/types/thread-types';
 import {
   type DispatchActionPromise,
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
 
-import {
-  inputStatePropType,
-  type InputState,
-  InputStateContext,
-} from '../input/input-state';
+import { type InputState, InputStateContext } from '../input/input-state';
 import LoadingIndicator from '../loading-indicator.react';
 import { useTextMessageRulesFunc } from '../markdown/rules.react';
 import { useSelector } from '../redux/redux-utils';
@@ -91,19 +83,6 @@ type Snapshot = {|
   +scrollHeight: number,
 |};
 class ChatMessageList extends React.PureComponent<Props, State> {
-  static propTypes = {
-    setModal: PropTypes.func.isRequired,
-    activeChatThreadID: PropTypes.string,
-    threadInfo: threadInfoPropType,
-    messageListData: PropTypes.arrayOf(chatMessageItemPropType),
-    startReached: PropTypes.bool.isRequired,
-    timeZone: PropTypes.string,
-    supportsReverseFlex: PropTypes.bool.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    fetchMessagesBeforeCursor: PropTypes.func.isRequired,
-    fetchMostRecentMessages: PropTypes.func.isRequired,
-    inputState: inputStatePropType,
-  };
   state: State = {
     mouseOverMessagePosition: null,
   };

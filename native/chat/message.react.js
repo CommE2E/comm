@@ -1,6 +1,5 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   LayoutAnimation,
@@ -8,25 +7,16 @@ import {
   PixelRatio,
 } from 'react-native';
 
-import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import { messageKey } from 'lib/shared/message-utils';
 
 import {
   type KeyboardState,
-  keyboardStatePropType,
   KeyboardContext,
 } from '../keyboard/keyboard-state';
 import type { NavigationRoute } from '../navigation/route-names';
-import {
-  type VerticalBounds,
-  verticalBoundsPropType,
-} from '../types/layout-types';
+import { type VerticalBounds } from '../types/layout-types';
 import type { LayoutEvent } from '../types/react-native';
 import type { ChatNavigationProp } from './chat.react';
-import {
-  messageListRoutePropType,
-  messageListNavPropType,
-} from './message-list-types';
 import type { ChatMultimediaMessageInfoItem } from './multimedia-message.react';
 import {
   MultimediaMessage,
@@ -75,16 +65,6 @@ type Props = {|
   +keyboardState: ?KeyboardState,
 |};
 class Message extends React.PureComponent<Props> {
-  static propTypes = {
-    item: chatMessageItemPropType.isRequired,
-    focused: PropTypes.bool.isRequired,
-    navigation: messageListNavPropType.isRequired,
-    route: messageListRoutePropType.isRequired,
-    toggleFocus: PropTypes.func.isRequired,
-    verticalBounds: verticalBoundsPropType,
-    keyboardState: keyboardStatePropType,
-  };
-
   componentDidUpdate(prevProps: Props) {
     if (
       (prevProps.focused || prevProps.item.startsConversation) !==

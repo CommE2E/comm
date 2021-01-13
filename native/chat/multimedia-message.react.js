@@ -1,11 +1,9 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import type { Media, Corners } from 'lib/types/media-types';
 import type {
   MultimediaMessageInfo,
@@ -15,19 +13,12 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 
 import type { MessagePendingUploads } from '../input/input-state';
 import type { NavigationRoute } from '../navigation/route-names';
-import {
-  type VerticalBounds,
-  verticalBoundsPropType,
-} from '../types/layout-types';
+import { type VerticalBounds } from '../types/layout-types';
 import type { ViewStyle } from '../types/styles';
 import type { ChatNavigationProp } from './chat.react';
 import { ComposedMessage, clusterEndHeight } from './composed-message.react';
 import { failedSendHeight } from './failed-send.react';
 import { authorNameHeight } from './message-header.react';
-import {
-  messageListRoutePropType,
-  messageListNavPropType,
-} from './message-list-types';
 import MultimediaMessageMultimedia from './multimedia-message-multimedia.react';
 import sendFailed from './multimedia-message-send-failed';
 import {
@@ -142,15 +133,6 @@ type Props = {|
   verticalBounds: ?VerticalBounds,
 |};
 class MultimediaMessage extends React.PureComponent<Props> {
-  static propTypes = {
-    item: chatMessageItemPropType.isRequired,
-    navigation: messageListNavPropType.isRequired,
-    route: messageListRoutePropType.isRequired,
-    focused: PropTypes.bool.isRequired,
-    toggleFocus: PropTypes.func.isRequired,
-    verticalBounds: verticalBoundsPropType,
-  };
-
   render() {
     const {
       item,

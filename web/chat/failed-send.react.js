@@ -1,26 +1,18 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
-import {
-  type ChatMessageInfoItem,
-  chatMessageItemPropType,
-} from 'lib/selectors/chat-selectors';
+import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
 import { messageID } from 'lib/shared/message-utils';
 import {
   messageTypes,
   type RawComposableMessageInfo,
   assertComposableMessageType,
 } from 'lib/types/message-types';
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import { type ThreadInfo } from 'lib/types/thread-types';
 
-import {
-  inputStatePropType,
-  type InputState,
-  InputStateContext,
-} from '../input/input-state';
+import { type InputState, InputStateContext } from '../input/input-state';
 import { useSelector } from '../redux/redux-utils';
 import css from './chat-message-list.css';
 import multimediaMessageSendFailed from './multimedia-message-send-failed';
@@ -38,12 +30,6 @@ type Props = {|
   +inputState: ?InputState,
 |};
 class FailedSend extends React.PureComponent<Props> {
-  static propTypes = {
-    item: chatMessageItemPropType.isRequired,
-    threadInfo: threadInfoPropType.isRequired,
-    rawMessageInfo: PropTypes.object.isRequired,
-    inputState: inputStatePropType,
-  };
   retryingText = false;
   retryingMedia = false;
 

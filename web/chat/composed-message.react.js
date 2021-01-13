@@ -2,7 +2,6 @@
 
 import classNames from 'classnames';
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   Circle as CircleIcon,
@@ -10,25 +9,17 @@ import {
   XCircle as XCircleIcon,
 } from 'react-feather';
 
-import {
-  type ChatMessageInfoItem,
-  chatMessageItemPropType,
-} from 'lib/selectors/chat-selectors';
+import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
 import { stringForUser } from 'lib/shared/user-utils';
 import { assertComposableMessageType } from 'lib/types/message-types';
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import { type ThreadInfo } from 'lib/types/thread-types';
 
-import {
-  inputStatePropType,
-  type InputState,
-  InputStateContext,
-} from '../input/input-state';
+import { type InputState, InputStateContext } from '../input/input-state';
 import css from './chat-message-list.css';
 import FailedSend from './failed-send.react';
 import {
   type OnMessagePositionInfo,
   type MessagePositionInfo,
-  onMessagePositionInfoPropType,
 } from './message-position-types';
 import MessageReplyTooltip from './message-reply-tooltip.react';
 
@@ -52,18 +43,6 @@ type Props = {|
   +inputState: ?InputState,
 |};
 class ComposedMessage extends React.PureComponent<Props> {
-  static propTypes = {
-    item: chatMessageItemPropType.isRequired,
-    threadInfo: threadInfoPropType.isRequired,
-    sendFailed: PropTypes.bool.isRequired,
-    setMouseOverMessagePosition: PropTypes.func.isRequired,
-    mouseOverMessagePosition: onMessagePositionInfoPropType,
-    canReply: PropTypes.bool.isRequired,
-    children: PropTypes.node.isRequired,
-    fixedWidth: PropTypes.bool,
-    borderRadius: PropTypes.number.isRequired,
-    inputState: inputStatePropType,
-  };
   static defaultProps = {
     borderRadius: 8,
   };

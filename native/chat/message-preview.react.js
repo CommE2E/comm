@@ -1,19 +1,14 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { Text } from 'react-native';
 
 import { messagePreviewText } from 'lib/shared/message-utils';
 import { threadIsGroupChat } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
-import {
-  type MessageInfo,
-  messageInfoPropType,
-  messageTypes,
-} from 'lib/types/message-types';
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import { type MessageInfo, messageTypes } from 'lib/types/message-types';
+import { type ThreadInfo } from 'lib/types/thread-types';
 import { connect } from 'lib/utils/redux-utils';
 import { firstLine } from 'lib/utils/string-utils';
 
@@ -28,12 +23,6 @@ type Props = {|
   styles: typeof styles,
 |};
 class MessagePreview extends React.PureComponent<Props> {
-  static propTypes = {
-    messageInfo: messageInfoPropType.isRequired,
-    threadInfo: threadInfoPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-  };
-
   render() {
     const messageInfo: MessageInfo =
       this.props.messageInfo.type === messageTypes.SIDEBAR_SOURCE

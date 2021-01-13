@@ -1,21 +1,13 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
-import {
-  type ChatMessageInfoItem,
-  chatMessageItemPropType,
-} from 'lib/selectors/chat-selectors';
+import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types';
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import { type ThreadInfo } from 'lib/types/thread-types';
 
-import {
-  inputStatePropType,
-  type InputState,
-  InputStateContext,
-} from '../input/input-state';
+import { type InputState, InputStateContext } from '../input/input-state';
 import Multimedia from '../media/multimedia.react';
 import css from './chat-message-list.css';
 import ComposedMessage from './composed-message.react';
@@ -36,14 +28,6 @@ type Props = {|
   +inputState: ?InputState,
 |};
 class MultimediaMessage extends React.PureComponent<Props> {
-  static propTypes = {
-    item: chatMessageItemPropType.isRequired,
-    threadInfo: threadInfoPropType.isRequired,
-    setMouseOverMessagePosition: PropTypes.func.isRequired,
-    setModal: PropTypes.func.isRequired,
-    inputState: inputStatePropType,
-  };
-
   render() {
     const { item, setModal, inputState } = this.props;
     invariant(

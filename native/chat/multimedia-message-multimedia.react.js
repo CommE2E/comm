@@ -1,46 +1,32 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { chatMessageItemPropType } from 'lib/selectors/chat-selectors';
 import { messageKey } from 'lib/shared/message-utils';
-import { type MediaInfo, mediaInfoPropType } from 'lib/types/media-types';
+import { type MediaInfo } from 'lib/types/media-types';
 
-import {
-  type PendingMultimediaUpload,
-  pendingMultimediaUploadPropType,
-} from '../input/input-state';
+import { type PendingMultimediaUpload } from '../input/input-state';
 import {
   type KeyboardState,
-  keyboardStatePropType,
   KeyboardContext,
 } from '../keyboard/keyboard-state';
 import {
   OverlayContext,
   type OverlayContextType,
-  overlayContextPropType,
 } from '../navigation/overlay-context';
 import type { NavigationRoute } from '../navigation/route-names';
 import {
   MultimediaModalRouteName,
   MultimediaTooltipModalRouteName,
 } from '../navigation/route-names';
-import { type Colors, colorsPropType, useColors } from '../themes/colors';
-import {
-  type VerticalBounds,
-  verticalBoundsPropType,
-} from '../types/layout-types';
+import { type Colors, useColors } from '../themes/colors';
+import { type VerticalBounds } from '../types/layout-types';
 import type { ViewStyle } from '../types/styles';
 import type { ChatNavigationProp } from './chat.react';
 import InlineMultimedia from './inline-multimedia.react';
-import {
-  messageListRoutePropType,
-  messageListNavPropType,
-} from './message-list-types';
 import type { ChatMultimediaMessageInfoItem } from './multimedia-message.react';
 import { multimediaTooltipHeight } from './multimedia-tooltip-modal.react';
 
@@ -74,21 +60,6 @@ type State = {|
   +opacity: number | Value,
 |};
 class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
-  static propTypes = {
-    mediaInfo: mediaInfoPropType.isRequired,
-    item: chatMessageItemPropType.isRequired,
-    navigation: messageListNavPropType.isRequired,
-    route: messageListRoutePropType.isRequired,
-    verticalBounds: verticalBoundsPropType,
-    verticalOffset: PropTypes.number.isRequired,
-    postInProgress: PropTypes.bool.isRequired,
-    pendingUpload: pendingMultimediaUploadPropType,
-    messageFocused: PropTypes.bool.isRequired,
-    toggleMessageFocus: PropTypes.func.isRequired,
-    colors: colorsPropType.isRequired,
-    keyboardState: keyboardStatePropType,
-    overlayContext: overlayContextPropType,
-  };
   view: ?React.ElementRef<typeof View>;
   clickable = true;
 

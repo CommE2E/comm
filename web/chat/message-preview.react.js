@@ -6,12 +6,8 @@ import * as React from 'react';
 import { messagePreviewText } from 'lib/shared/message-utils';
 import { threadIsGroupChat } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
-import {
-  type MessageInfo,
-  messageInfoPropType,
-  messageTypes,
-} from 'lib/types/message-types';
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import { type MessageInfo, messageTypes } from 'lib/types/message-types';
+import { type ThreadInfo } from 'lib/types/thread-types';
 import { firstLine } from 'lib/utils/string-utils';
 
 import css from './chat-thread-list.css';
@@ -21,11 +17,6 @@ type Props = {|
   threadInfo: ThreadInfo,
 |};
 class MessagePreview extends React.PureComponent<Props> {
-  static propTypes = {
-    messageInfo: messageInfoPropType,
-    threadInfo: threadInfoPropType.isRequired,
-  };
-
   render() {
     const messageInfo =
       this.props.messageInfo &&
