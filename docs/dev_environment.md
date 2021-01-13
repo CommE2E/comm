@@ -528,6 +528,8 @@ cd native
 yarn react-native run-android
 ```
 
+# Working with Phabricator
+
 ## Creating a new diff
 
 The biggest difference between GitHub’s PR workflow and Phabricator’s “diff” workflow is that Phabricator lets you create a diff from any commit, or set of commits. In contrast, GitHub can only create PRs from branches.
@@ -553,6 +555,17 @@ After your diff has been accepted, you should be able to land it. To land a diff
 If you’re dealing with a stack, `arc land` will make sure to only land the diffs that have been accepted, and shouldn’t land any diffs that depend on other diffs that haven’t been accepted yet.
 
 Note that you need commit rights to the repository in order to run `arc land`. If you don’t have commit rights, reach out to @ashoat for assistance.
+
+## Creating a Herald rule
+
+Once you have access to Phabricator, you may want to set up a Herald rule so that you get CC’d on any new diffs. The way to do that in Phabricator is:
+
+1. Go to “More Applications” on the left-hand sidebar.
+2. Select “Herald” from the list.
+3. Press the “Create Herald Rule” button in the upper-right corner of the screen.
+4. Select “Differential Revisions” from the list.
+5. Select “Personal Rule” from the list.
+6. Set up your new rule to match [this one](https://phabricator.ashoat.com/H2).
 
 ## Final notes
 
