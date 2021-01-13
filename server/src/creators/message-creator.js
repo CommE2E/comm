@@ -288,7 +288,7 @@ async function postMessageSend(
       // Subthread info will be the same for each subthread, so we only parse
       // it once
       for (const subthread of subthreadPermissionsToCheck) {
-        const isSubthreadMember = !!row[`subthread${subthread}_role`];
+        const isSubthreadMember = row[`subthread${subthread}_role`] > 0;
         const permissions = row[`subthread${subthread}_permissions`];
         const canSeeSubthread = permissionLookup(
           permissions,
