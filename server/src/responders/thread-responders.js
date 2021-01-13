@@ -131,7 +131,7 @@ const threadRequestValidationShape = {
 const newThreadRequestInputValidator = t.union([
   tShape({
     type: tNumEnum([threadTypes.SIDEBAR]),
-    initialMessageID: t.String,
+    sourceMessageID: t.String,
     ...threadRequestValidationShape,
   }),
   tShape({

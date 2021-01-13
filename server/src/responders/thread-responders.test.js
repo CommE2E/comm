@@ -15,10 +15,10 @@ describe('Thread responders', () => {
     };
     const requestWithMessageID = {
       ...requestWithoutMessageID,
-      initialMessageID: 'messageID',
+      sourceMessageID: 'messageID',
     };
 
-    it('Should require initialMessageID of a sidebar', () => {
+    it('Should require sourceMessageID of a sidebar', () => {
       expect(
         newThreadRequestInputValidator.is({
           type: threadTypes.SIDEBAR,
@@ -34,7 +34,7 @@ describe('Thread responders', () => {
       ).toBe(true);
     });
 
-    it('Should not require initialMessageID of not a sidebar', () => {
+    it('Should not require sourceMessageID of not a sidebar', () => {
       expect(
         newThreadRequestInputValidator.is({
           type: threadTypes.CHAT_SECRET,
