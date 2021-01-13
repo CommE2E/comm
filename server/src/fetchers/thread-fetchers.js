@@ -19,9 +19,9 @@ async function fetchServerThreadInfos(
 
   const query = SQL`
     SELECT t.id, t.name, t.parent_thread_id, t.color, t.description,
-      t.type, t.creation_time, t.default_role, r.id AS role,
+      t.type, t.creation_time, t.default_role, t.source_message, r.id AS role,
       r.name AS role_name, r.permissions AS role_permissions, m.user,
-      m.permissions, m.subscription, 
+      m.permissions, m.subscription,
       m.last_read_message < m.last_message AS unread
     FROM threads t
     LEFT JOIN (
@@ -53,6 +53,7 @@ async function fetchServerThreadInfos(
           : null,
         members: [],
         roles: {},
+        sourceMessageID: row.source_message,
       };
     }
     const role = row.role.toString();
