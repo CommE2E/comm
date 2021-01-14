@@ -78,7 +78,7 @@ index 3e1839b..2df81fb 100644
  @optional
  
 diff --git a/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.m b/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.m
-index aa69593..007c6b0 100644
+index aa69593..d00bc93 100644
 --- a/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.m
 +++ b/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.m
 @@ -19,6 +19,8 @@
@@ -90,7 +90,7 @@ index aa69593..007c6b0 100644
  @implementation RCTBaseTextInputView {
    __weak RCTBridge *_bridge;
    __weak RCTEventDispatcher *_eventDispatcher;
-@@ -479,6 +481,39 @@ - (void)textInputDidChangeSelection
+@@ -479,6 +481,45 @@ - (void)textInputDidChangeSelection
    });
  }
  
@@ -99,6 +99,7 @@ index aa69593..007c6b0 100644
 +  NSFileManager *fileManager = [NSFileManager defaultManager];
 +  UIPasteboard *clipboard = [UIPasteboard generalPasteboard];
 +  NSData *imageData = [clipboard dataForPasteboardType:(NSString*)kUTTypeImage];
++  
 +  UIImage *uiImage = [UIImage imageWithData:imageData];
 +  
 +  if (!imageData) {
@@ -107,7 +108,12 @@ index aa69593..007c6b0 100644
 +  }
 +  
 +  NSString *fileName = [@([imageData hash]) stringValue];
-+  NSString *fileDest = [NSTemporaryDirectory() stringByAppendingPathComponent:fileName];
++  NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES];
++  
++  // We add the PNG file extension because EXImageLoader fails without it.
++  // Our code ignores file extensions and looks at magic numbers directly.
++  NSURL *fileURL = [[tmpDirURL URLByAppendingPathComponent:fileName] URLByAppendingPathExtension:@"png"];
++  NSString *fileDest = [fileURL path];
 +  
 +  if (![fileManager fileExistsAtPath:fileDest]) {
 +    BOOL fileWritten = [imageData writeToFile:fileDest atomically:true];
