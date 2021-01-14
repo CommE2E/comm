@@ -6,7 +6,9 @@ import { View, StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { messageKey } from 'lib/shared/message-utils';
+import { threadHasPermission } from 'lib/shared/thread-utils';
 import { type MediaInfo } from 'lib/types/media-types';
+import { threadPermissions } from 'lib/types/thread-types';
 
 import { type PendingMultimediaUpload } from '../input/input-state';
 import {
@@ -205,6 +207,20 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     });
   };
 
+  visibleEntryIDs() {
+    const result = ['save'];
+
+    const canCreateSidebars = threadHasPermission(
+      this.props.item.threadInfo,
+      threadPermissions.CREATE_SIDEBARS,
+    );
+    if (canCreateSidebars) {
+      result.push('sidebar');
+    }
+
+    return result;
+  }
+
   onLongPress = () => {
     if (this.dismissKeyboardIfShowing()) {
       return;
@@ -275,6 +291,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
           verticalBounds,
           location,
           margin,
+          visibleEntryIDs: this.visibleEntryIDs(),
         },
       });
     });

@@ -1,8 +1,19 @@
 // @flow
 
-import type { MediaInfo } from 'lib/types/media-types';
+import invariant from 'invariant';
 
+import { createPendingSidebar } from 'lib/shared/thread-utils';
+import type { MediaInfo } from 'lib/types/media-types';
+import type {
+  DispatchFunctions,
+  ActionFunc,
+  BoundServerCall,
+} from 'lib/utils/action-utils';
+
+import type { InputState } from '../input/input-state';
 import { intentionalSaveMedia } from '../media/save-media';
+import type { AppNavigationProp } from '../navigation/app-navigator.react';
+import { MessageListRouteName } from '../navigation/route-names';
 import {
   createTooltip,
   tooltipHeight,
@@ -26,8 +37,41 @@ function onPressSave(route: TooltipRoute<'MultimediaTooltipModal'>) {
   return intentionalSaveMedia(uri, ids);
 }
 
+function onPressCreateSidebar(
+  route: TooltipRoute<'MultimediaTooltipModal'>,
+  dispatchFunctions: DispatchFunctions,
+  bindServerCall: (serverCall: ActionFunc) => BoundServerCall,
+  inputState: ?InputState,
+  navigation: AppNavigationProp<'MultimediaTooltipModal'>,
+  viewerID: ?string,
+) {
+  invariant(
+    viewerID,
+    'viewerID should be set in MultimediaTooltipModal.onPressCreateSidebar',
+  );
+  const { messageInfo, threadInfo } = route.params.item;
+  const pendingSidebarInfo = createPendingSidebar(
+    messageInfo,
+    threadInfo,
+    viewerID,
+  );
+  const initialMessageID = messageInfo.id;
+
+  navigation.navigate({
+    name: MessageListRouteName,
+    params: {
+      threadInfo: pendingSidebarInfo,
+      sidebarSourceMessageID: initialMessageID,
+    },
+    key: `${MessageListRouteName}${pendingSidebarInfo.id}`,
+  });
+}
+
 const spec = {
-  entries: [{ id: 'save', text: 'Save', onPress: onPressSave }],
+  entries: [
+    { id: 'save', text: 'Save', onPress: onPressSave },
+    { id: 'sidebar', text: 'Create sidebar', onPress: onPressCreateSidebar },
+  ],
 };
 
 const MultimediaTooltipModal = createTooltip<'MultimediaTooltipModal'>(
