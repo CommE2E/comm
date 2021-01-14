@@ -1,3 +1,21 @@
+diff --git a/node_modules/react-native/Libraries/Components/TextInput/TextInput.js b/node_modules/react-native/Libraries/Components/TextInput/TextInput.js
+index b124944..ca0884a 100644
+--- a/node_modules/react-native/Libraries/Components/TextInput/TextInput.js
++++ b/node_modules/react-native/Libraries/Components/TextInput/TextInput.js
+@@ -207,6 +207,13 @@ export type TextContentType =
+ type PasswordRules = string;
+ 
+ type IOSProps = $ReadOnly<{|
++  /**
++   * If `true`, allows pasting of images.
++   * The default value is false.
++   * @platform ios
++   */
++  allowImagePaste?: ?boolean,
++
+   /**
+    * If `false`, disables spell-check style (i.e. red underlines).
+    * The default value is inherited from `autoCorrect`.
 diff --git a/node_modules/react-native/Libraries/Components/Touchable/TouchableNativeFeedback.js b/node_modules/react-native/Libraries/Components/Touchable/TouchableNativeFeedback.js
 index 5dc03df..e526092 100644
 --- a/node_modules/react-native/Libraries/Components/Touchable/TouchableNativeFeedback.js
@@ -60,7 +78,7 @@ index 3e1839b..2df81fb 100644
  @optional
  
 diff --git a/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.m b/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.m
-index aa69593..8366cf2 100644
+index aa69593..007c6b0 100644
 --- a/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.m
 +++ b/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.m
 @@ -19,6 +19,8 @@
@@ -72,7 +90,7 @@ index aa69593..8366cf2 100644
  @implementation RCTBaseTextInputView {
    __weak RCTBridge *_bridge;
    __weak RCTEventDispatcher *_eventDispatcher;
-@@ -479,6 +481,36 @@ - (void)textInputDidChangeSelection
+@@ -479,6 +481,39 @@ - (void)textInputDidChangeSelection
    });
  }
  
@@ -81,6 +99,7 @@ index aa69593..8366cf2 100644
 +  NSFileManager *fileManager = [NSFileManager defaultManager];
 +  UIPasteboard *clipboard = [UIPasteboard generalPasteboard];
 +  NSData *imageData = [clipboard dataForPasteboardType:(NSString*)kUTTypeImage];
++  UIImage *uiImage = [UIImage imageWithData:imageData];
 +  
 +  if (!imageData) {
 +    RCTLog(@"Failed to get image from UIPasteboard.");
@@ -101,6 +120,8 @@ index aa69593..8366cf2 100644
 +  NSDictionary *eventBody = @{
 +    @"fileName": fileName,
 +    @"filePath": fileDest,
++    @"height": @(uiImage.size.height),
++    @"width": @(uiImage.size.width),
 +  };
 +  
 +  [_eventDispatcher sendAppEventWithName:@"imagePasted" body:eventBody];
