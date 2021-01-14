@@ -53,7 +53,7 @@ async function fetchServerThreadInfos(
           : null,
         members: [],
         roles: {},
-        sourceMessageID: row.source_message,
+        sourceMessageID: row.source_message?.toString(),
       };
     }
     const role = row.role.toString();
