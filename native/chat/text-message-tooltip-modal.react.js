@@ -4,9 +4,7 @@ import Clipboard from '@react-native-community/clipboard';
 import invariant from 'invariant';
 
 import { createMessageReply } from 'lib/shared/message-utils';
-import { createPendingThread } from 'lib/shared/thread-utils';
-import { threadTypes } from 'lib/types/thread-types';
-import type { GlobalAccountUserInfo } from 'lib/types/user-types';
+import { createPendingSidebar } from 'lib/shared/thread-utils';
 import type {
   DispatchFunctions,
   ActionFunc,
@@ -62,32 +60,13 @@ function onPressCreateSidebar(
     viewerID,
     'viewerID should be set in TextMessageTooltipModal.onPressCreateSidebar',
   );
-  createSidebar(route, navigation, viewerID);
-}
-
-function createSidebar(
-  route: TooltipRoute<'TextMessageTooltipModal'>,
-  navigation: AppNavigationProp<'TextMessageTooltipModal'>,
-  viewerID: string,
-) {
   const { messageInfo, threadInfo } = route.params.item;
-  const { id, username } = messageInfo.creator;
-  const sourceMessageID = messageInfo.id;
-  const { id: parentThreadID, color } = threadInfo;
-
-  invariant(
-    username,
-    'username should be set in TextMessageTooltipModal.createSidebar',
-  );
-  const initialMemberUserInfo: GlobalAccountUserInfo = { id, username };
-
-  const pendingSidebarInfo = createPendingThread(
+  const pendingSidebarInfo = createPendingSidebar(
+    messageInfo,
+    threadInfo,
     viewerID,
-    threadTypes.SIDEBAR,
-    [initialMemberUserInfo],
-    parentThreadID,
-    color,
   );
+  const sourceMessageID = messageInfo.id;
 
   navigation.navigate({
     name: MessageListRouteName,
