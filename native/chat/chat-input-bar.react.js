@@ -13,6 +13,7 @@ import {
   ActivityIndicator,
   TouchableWithoutFeedback,
   Alert,
+  NativeAppEventEmitter,
 } from 'react-native';
 import { TextInputKeyboardMangerIOS } from 'react-native-keyboard-input';
 import Animated, { Easing } from 'react-native-reanimated';
@@ -41,6 +42,7 @@ import {
 import type { CalendarQuery } from 'lib/types/entry-types';
 import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
+import type { PhotoPaste } from 'lib/types/media-types';
 import { messageTypes } from 'lib/types/message-types';
 import type { Dispatch } from 'lib/types/redux-types';
 import {
@@ -548,6 +550,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
             </View>
           </Animated.View>
           <ClearableTextInput
+            allowImagePasteForThreadID={this.props.threadInfo.id}
             value={this.state.text}
             onChangeText={this.updateText}
             placeholder="Send a message..."
@@ -867,6 +870,39 @@ export default React.memo<BaseProps>(function ConnectedChatInputBar(
   const dispatchActionPromise = useDispatchActionPromise();
   const callJoinThread = useServerCall(joinThread);
   const callNewThread = useServerCall(newThread);
+
+  const imagePastedCallback = React.useCallback(
+    (imagePastedEvent) => {
+      if (props.threadInfo.id !== imagePastedEvent['threadID']) {
+        return;
+      }
+      const pastedImage: PhotoPaste = {
+        step: 'photo_paste',
+        dimensions: {
+          height: imagePastedEvent['height'],
+          width: imagePastedEvent['width'],
+        },
+        filename: imagePastedEvent['fileName'],
+        uri: 'file://' + imagePastedEvent['filePath'],
+        selectTime: 0,
+        sendTime: 0,
+        retries: 0,
+      };
+
+      const selection: $ReadOnlyArray<PhotoPaste> = [pastedImage];
+      invariant(inputState, 'inputState should be set in imagePasteListener');
+      inputState.sendMultimediaMessage(props.threadInfo.id, selection);
+    },
+    [inputState, props.threadInfo.id],
+  );
+
+  React.useEffect(() => {
+    const imagePasteListener = NativeAppEventEmitter.addListener(
+      'imagePasted',
+      imagePastedCallback,
+    );
+    return () => imagePasteListener.remove();
+  }, [imagePastedCallback]);
 
   return (
     <ChatInputBar
