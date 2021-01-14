@@ -404,13 +404,17 @@ function rawMessageInfoFromRows(
     };
   } else if (type === messageTypes.CREATE_SIDEBAR) {
     const row = assertSingleRow(rows);
+    const { initialMessageAuthorID, ...initialThreadState } = JSON.parse(
+      row.content,
+    );
     return {
       type: messageTypes.CREATE_SIDEBAR,
       id: row.id.toString(),
       threadID: row.threadID.toString(),
       time: row.time,
       creatorID: row.creatorID.toString(),
-      initialThreadState: JSON.parse(row.content),
+      initialMessageAuthorID,
+      initialThreadState,
     };
   } else {
     invariant(false, `unrecognized messageType ${type}`);
