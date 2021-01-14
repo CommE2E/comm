@@ -417,6 +417,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               dimensions: selection.dimensions,
               localMediaSelection: selection,
             };
+          } else if (selection.step === 'photo_paste') {
+            return {
+              id: localID,
+              uri: selection.uri,
+              type: 'photo',
+              dimensions: selection.dimensions,
+              localMediaSelection: selection,
+            };
           } else if (selection.step === 'video_library') {
             return {
               id: localID,
@@ -877,6 +885,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         if (oldSelection.step === 'photo_capture') {
           selection = { ...oldSelection, sendTime: now, retries };
         } else if (oldSelection.step === 'photo_library') {
+          selection = { ...oldSelection, sendTime: now, retries };
+        } else if (oldSelection.step === 'photo_paste') {
           selection = { ...oldSelection, sendTime: now, retries };
         } else {
           selection = { ...oldSelection, sendTime: now, retries };
