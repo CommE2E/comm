@@ -27,6 +27,7 @@ import { promiseAll } from 'lib/utils/promises';
 import App from 'web/dist/app.build.cjs';
 import { reducer } from 'web/redux/redux-setup';
 import type { AppState, Action } from 'web/redux/redux-setup';
+import getTitle from 'web/title/getTitle';
 import { navInfoFromURL } from 'web/url-utils';
 
 import urlFacts from '../../facts/url';
@@ -202,7 +203,7 @@ async function websiteResponder(
     <html lang="en">
       <head>
         <meta charset="utf-8" />
-        <title>SquadCal</title>
+        <title>${getTitle(0)}</title>
         <base href="${basePath}" />
         <link rel="stylesheet" type="text/css" href="${fontsURL}" />
         ${cssInclude}

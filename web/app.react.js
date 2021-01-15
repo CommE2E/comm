@@ -46,6 +46,7 @@ import VisibilityHandler from './redux/visibility-handler.react';
 import history from './router-history';
 import Splash from './splash/splash.react';
 import css from './style.css';
+import getTitle from './title/getTitle';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
 
 // We want Webpack's css-loader and style-loader to handle the Fontawesome CSS,
@@ -355,6 +356,10 @@ export default React.memo<BaseProps>(function ConnectedApp(props: BaseProps) {
     (state) => state.currentUserInfo && state.currentUserInfo.id,
   );
   const boundUnreadCount = useSelector(unreadCount);
+
+  React.useEffect(() => {
+    document.title = getTitle(boundUnreadCount);
+  }, [boundUnreadCount]);
 
   const dispatch = useDispatch();
 
