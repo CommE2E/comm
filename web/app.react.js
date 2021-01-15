@@ -6,10 +6,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { useDispatch } from 'react-redux';
 
 import {
   fetchEntriesActionTypes,
@@ -25,14 +25,12 @@ import {
 } from 'lib/selectors/thread-selectors';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
 import type { LoadingStatus } from 'lib/types/loading-types';
+import type { Dispatch } from 'lib/types/redux-types';
 import {
   verifyField,
   type ServerVerificationResult,
-  serverVerificationResultPropType,
 } from 'lib/types/verify-types';
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
 import { registerConfig } from 'lib/utils/config';
-import { connect } from 'lib/utils/redux-utils';
 
 import AccountBar from './account-bar.react';
 import Calendar from './calendar/calendar.react';
@@ -42,12 +40,8 @@ import LoadingIndicator from './loading-indicator.react';
 import ResetPasswordModal from './modals/account/reset-password-modal.react';
 import VerificationModal from './modals/account/verification-modal.react';
 import FocusHandler from './redux/focus-handler.react';
-import {
-  type AppState,
-  type NavInfo,
-  navInfoPropType,
-  updateNavInfoActionType,
-} from './redux/redux-setup';
+import { type NavInfo, updateNavInfoActionType } from './redux/redux-setup';
+import { useSelector } from './redux/redux-utils';
 import VisibilityHandler from './redux/visibility-handler.react';
 import history from './router-history';
 import Splash from './splash/splash.react';
@@ -73,40 +67,30 @@ registerConfig({
   platformDetails: { platform: 'web' },
 });
 
-type Props = {
-  location: {
-    pathname: string,
+type BaseProps = {|
+  +location: {
+    +pathname: string,
+    ...
   },
+|};
+type Props = {|
+  ...BaseProps,
   // Redux state
-  navInfo: NavInfo,
-  serverVerificationResult: ?ServerVerificationResult,
-  entriesLoadingStatus: LoadingStatus,
-  loggedIn: boolean,
-  mostRecentReadThread: ?string,
-  activeThreadCurrentlyUnread: boolean,
-  viewerID: ?string,
-  unreadCount: number,
+  +navInfo: NavInfo,
+  +serverVerificationResult: ?ServerVerificationResult,
+  +entriesLoadingStatus: LoadingStatus,
+  +loggedIn: boolean,
+  +mostRecentReadThread: ?string,
+  +activeThreadCurrentlyUnread: boolean,
+  +viewerID: ?string,
+  +unreadCount: number,
   // Redux dispatch functions
-  dispatchActionPayload: DispatchActionPayload,
-};
+  +dispatch: Dispatch,
+|};
 type State = {|
-  currentModal: ?React.Node,
+  +currentModal: ?React.Node,
 |};
 class App extends React.PureComponent<Props, State> {
-  static propTypes = {
-    location: PropTypes.shape({
-      pathname: PropTypes.string.isRequired,
-    }).isRequired,
-    navInfo: navInfoPropType.isRequired,
-    serverVerificationResult: serverVerificationResultPropType,
-    entriesLoadingStatus: PropTypes.string.isRequired,
-    loggedIn: PropTypes.bool.isRequired,
-    mostRecentReadThread: PropTypes.string,
-    activeThreadCurrentlyUnread: PropTypes.bool.isRequired,
-    viewerID: PropTypes.string,
-    unreadCount: PropTypes.number.isRequired,
-    dispatchActionPayload: PropTypes.func.isRequired,
-  };
   state: State = {
     currentModal: null,
   };
@@ -146,7 +130,10 @@ class App extends React.PureComponent<Props, State> {
           navInfo: this.props.navInfo,
         });
         if (!_isEqual(newNavInfo)(this.props.navInfo)) {
-          this.props.dispatchActionPayload(updateNavInfoActionType, newNavInfo);
+          this.props.dispatch({
+            type: updateNavInfoActionType,
+            payload: newNavInfo,
+          });
         }
       } else if (!_isEqual(this.props.navInfo)(prevProps.navInfo)) {
         const newURL = canonicalURLFromReduxState(
@@ -309,18 +296,22 @@ class App extends React.PureComponent<Props, State> {
 
   onClickCalendar = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.props.dispatchActionPayload(updateNavInfoActionType, {
-      tab: 'calendar',
+    this.props.dispatch({
+      type: updateNavInfoActionType,
+      payload: { tab: 'calendar' },
     });
   };
 
   onClickChat = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.props.dispatchActionPayload(updateNavInfoActionType, {
-      tab: 'chat',
-      activeChatThreadID: this.props.activeThreadCurrentlyUnread
-        ? this.props.mostRecentReadThread
-        : this.props.navInfo.activeChatThreadID,
+    this.props.dispatch({
+      type: updateNavInfoActionType,
+      payload: {
+        tab: 'chat',
+        activeChatThreadID: this.props.activeThreadCurrentlyUnread
+          ? this.props.mostRecentReadThread
+          : this.props.navInfo.activeChatThreadID,
+      },
     });
   };
 }
@@ -332,25 +323,53 @@ const updateCalendarQueryLoadingStatusSelector = createLoadingStatusSelector(
   updateCalendarQueryActionTypes,
 );
 
-export default connect(
-  (state: AppState) => {
-    const activeChatThreadID = state.navInfo.activeChatThreadID;
-    return {
-      navInfo: state.navInfo,
-      serverVerificationResult: state.serverVerificationResult,
-      entriesLoadingStatus: combineLoadingStatuses(
-        fetchEntriesLoadingStatusSelector(state),
-        updateCalendarQueryLoadingStatusSelector(state),
-      ),
-      loggedIn: isLoggedIn(state),
-      mostRecentReadThread: mostRecentReadThreadSelector(state),
-      activeThreadCurrentlyUnread:
-        !activeChatThreadID ||
-        state.threadStore.threadInfos[activeChatThreadID].currentUser.unread,
-      viewerID: state.currentUserInfo && state.currentUserInfo.id,
-      unreadCount: unreadCount(state),
-    };
-  },
-  null,
-  true,
-)(App);
+export default React.memo<BaseProps>(function ConnectedApp(props: BaseProps) {
+  const activeChatThreadID = useSelector(
+    (state) => state.navInfo.activeChatThreadID,
+  );
+  const navInfo = useSelector((state) => state.navInfo);
+  const serverVerificationResult = useSelector(
+    (state) => state.serverVerificationResult,
+  );
+
+  const fetchEntriesLoadingStatus = useSelector(
+    fetchEntriesLoadingStatusSelector,
+  );
+  const updateCalendarQueryLoadingStatus = useSelector(
+    updateCalendarQueryLoadingStatusSelector,
+  );
+  const entriesLoadingStatus = combineLoadingStatuses(
+    fetchEntriesLoadingStatus,
+    updateCalendarQueryLoadingStatus,
+  );
+
+  const loggedIn = useSelector(isLoggedIn);
+  const mostRecentReadThread = useSelector(mostRecentReadThreadSelector);
+  const activeThreadCurrentlyUnread = useSelector(
+    (state) =>
+      !activeChatThreadID ||
+      !!state.threadStore.threadInfos[activeChatThreadID].currentUser.unread,
+  );
+
+  const viewerID = useSelector(
+    (state) => state.currentUserInfo && state.currentUserInfo.id,
+  );
+  const boundUnreadCount = useSelector(unreadCount);
+
+  const dispatch = useDispatch();
+
+  return (
+    <App
+      {...props}
+      navInfo={navInfo}
+      serverVerificationResult={serverVerificationResult}
+      entriesLoadingStatus={entriesLoadingStatus}
+      loggedIn={loggedIn}
+      mostRecentReadThread={mostRecentReadThread}
+      activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
+      viewerID={viewerID}
+      unreadCount={boundUnreadCount}
+      dispatch={dispatch}
+    />
+  );
+});
