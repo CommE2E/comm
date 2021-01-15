@@ -726,12 +726,15 @@ async function fetchMessageInfoForEntryAction(
 async function fetchMessageRowsByIDs(messageIDs: $ReadOnlyArray<string>) {
   const query = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, m.creation, 
-      m.user AS creatorID, up.id AS uploadID, up.type AS uploadType, 
-      up.secret AS uploadSecret, up.extra AS uploadExtra
+      m.user AS creatorID, stm.permissions AS subthread_permissions,
+      up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret, 
+      up.extra AS uploadExtra
     FROM messages m
     LEFT JOIN uploads up
       ON m.type IN (${[messageTypes.IMAGES, messageTypes.MULTIMEDIA]})
         AND JSON_CONTAINS(m.content, CAST(up.id as JSON), '$')
+    LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
+      AND stm.thread = m.content AND stm.user = m.user
     WHERE m.id IN (${messageIDs})
   `;
   const [result] = await dbQuery(query);
