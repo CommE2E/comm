@@ -1,5 +1,5 @@
 diff --git a/node_modules/react-native/Libraries/Components/TextInput/TextInput.js b/node_modules/react-native/Libraries/Components/TextInput/TextInput.js
-index b124944..ca0884a 100644
+index b124944..28535ed 100644
 --- a/node_modules/react-native/Libraries/Components/TextInput/TextInput.js
 +++ b/node_modules/react-native/Libraries/Components/TextInput/TextInput.js
 @@ -207,6 +207,13 @@ export type TextContentType =
@@ -7,11 +7,11 @@ index b124944..ca0884a 100644
  
  type IOSProps = $ReadOnly<{|
 +  /**
-+   * If `true`, allows pasting of images.
-+   * The default value is false.
++   * If set, allows pasting of images for given threadID.
++   * The default value is NULL.
 +   * @platform ios
 +   */
-+  allowImagePaste?: ?boolean,
++  allowImagePasteForThreadID?: ?string,
 +
    /**
     * If `false`, disables spell-check style (i.e. red underlines).
@@ -30,27 +30,27 @@ index 5dc03df..e526092 100644
          useForeground && TouchableNativeFeedback.canUseNativeForeground()
            ? {nativeForegroundAndroid: background}
 diff --git a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h
-index 7e12add..f6c9e40 100644
+index 7e12add..6979293 100644
 --- a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h
 +++ b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h
 @@ -36,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
  // The `caretHidden` property actually is not supported yet;
  // it's declared here only to conform to the interface.
  @property (nonatomic, assign) BOOL caretHidden;
-+@property (nonatomic, assign) BOOL allowImagePaste;
++@property (nonatomic, assign) NSString *allowImagePasteForThreadID;
  
  @end
  
 diff --git a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.m b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.m
-index 88d3183..79185de 100644
+index 88d3183..4fe51ff 100644
 --- a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.m
 +++ b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.m
 @@ -173,6 +173,9 @@ - (void)setSelectedTextRange:(UITextRange *)selectedTextRange notifyDelegate:(BO
  
  - (void)paste:(id)sender
  {
-+  if ([UIPasteboard generalPasteboard].hasImages && _allowImagePaste) {
-+    [_textInputDelegate textInputImagePasted];
++  if ([UIPasteboard generalPasteboard].hasImages && _allowImagePasteForThreadID) {
++    [_textInputDelegate textInputImagePasted:_allowImagePasteForThreadID];
 +  }
    [super paste:sender];
    _textWasPasted = YES;
@@ -60,25 +60,25 @@ index 88d3183..79185de 100644
    }
    
 +  if (action == @selector(paste:) && [UIPasteboard generalPasteboard].hasImages) {
-+    return _allowImagePaste;
++    return (_allowImagePasteForThreadID != NULL);
 +  }
    return [super canPerformAction:action withSender:sender];
  }
  
 diff --git a/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h b/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h
-index 3e1839b..2df81fb 100644
+index 3e1839b..8fe347e 100644
 --- a/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h
 +++ b/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h
 @@ -32,6 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
  - (void)textInputDidChange;
  
  - (void)textInputDidChangeSelection;
-+- (void)textInputImagePasted;
++- (void)textInputImagePasted:(NSString *)threadID;
  
  @optional
  
 diff --git a/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.m b/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.m
-index aa69593..d00bc93 100644
+index aa69593..e98bfd6 100644
 --- a/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.m
 +++ b/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.m
 @@ -19,6 +19,8 @@
@@ -90,11 +90,11 @@ index aa69593..d00bc93 100644
  @implementation RCTBaseTextInputView {
    __weak RCTBridge *_bridge;
    __weak RCTEventDispatcher *_eventDispatcher;
-@@ -479,6 +481,45 @@ - (void)textInputDidChangeSelection
+@@ -479,6 +481,46 @@ - (void)textInputDidChangeSelection
    });
  }
  
-+- (void)textInputImagePasted
++- (void)textInputImagePasted:(NSString *)threadID
 +{
 +  NSFileManager *fileManager = [NSFileManager defaultManager];
 +  UIPasteboard *clipboard = [UIPasteboard generalPasteboard];
@@ -128,6 +128,7 @@ index aa69593..d00bc93 100644
 +    @"filePath": fileDest,
 +    @"height": @(uiImage.size.height),
 +    @"width": @(uiImage.size.width),
++    @"threadID": threadID,
 +  };
 +  
 +  [_eventDispatcher sendAppEventWithName:@"imagePasted" body:eventBody];
@@ -137,14 +138,14 @@ index aa69593..d00bc93 100644
  {
    [self enforceTextAttributesIfNeeded];
 diff --git a/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputViewManager.m b/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputViewManager.m
-index dca1437..5af6457 100644
+index dca1437..cede0b4 100644
 --- a/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputViewManager.m
 +++ b/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputViewManager.m
 @@ -33,6 +33,7 @@ @implementation RCTBaseTextInputViewManager
  
  #pragma mark - Unified <TextInput> properties
  
-+RCT_REMAP_VIEW_PROPERTY(allowImagePaste, backedTextInputView.allowImagePaste, BOOL)
++RCT_REMAP_VIEW_PROPERTY(allowImagePasteForThreadID, backedTextInputView.allowImagePasteForThreadID, NSString)
  RCT_REMAP_VIEW_PROPERTY(autoCapitalize, backedTextInputView.autocapitalizationType, UITextAutocapitalizationType)
  RCT_REMAP_VIEW_PROPERTY(autoCorrect, backedTextInputView.autocorrectionType, UITextAutocorrectionType)
  RCT_REMAP_VIEW_PROPERTY(contextMenuHidden, backedTextInputView.contextMenuHidden, BOOL)
