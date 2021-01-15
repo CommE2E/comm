@@ -387,11 +387,11 @@ function rawMessageInfoFromRows(
   } else if (type === messageTypes.SIDEBAR_SOURCE) {
     const row = assertSingleRow(rows);
     const content = JSON.parse(row.content);
-    const initialMessage = derivedMessages.get(content.initialMessageID);
-    if (!initialMessage) {
+    const sourceMessage = derivedMessages.get(content.sourceMessageID);
+    if (!sourceMessage) {
       console.warn(
         `Message with id ${row.id} has a derived message ` +
-          `${content.initialMessageID} which is not present in the database`,
+          `${content.sourceMessageID} which is not present in the database`,
       );
     }
     return {
@@ -400,11 +400,11 @@ function rawMessageInfoFromRows(
       threadID: row.threadID.toString(),
       time: row.time,
       creatorID: row.creatorID.toString(),
-      initialMessage,
+      sourceMessage,
     };
   } else if (type === messageTypes.CREATE_SIDEBAR) {
     const row = assertSingleRow(rows);
-    const { initialMessageAuthorID, ...initialThreadState } = JSON.parse(
+    const { sourceMessageAuthorID, ...initialThreadState } = JSON.parse(
       row.content,
     );
     return {
@@ -413,7 +413,7 @@ function rawMessageInfoFromRows(
       threadID: row.threadID.toString(),
       time: row.time,
       creatorID: row.creatorID.toString(),
-      initialMessageAuthorID,
+      sourceMessageAuthorID,
       initialThreadState,
     };
   } else {
@@ -749,7 +749,7 @@ async function fetchDerivedMessages(
   for (const row of rows) {
     if (row.type === messageTypes.SIDEBAR_SOURCE) {
       const content = JSON.parse(row.content);
-      requiredIDs.add(content.initialMessageID);
+      requiredIDs.add(content.sourceMessageID);
     }
   }
 

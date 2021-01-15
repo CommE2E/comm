@@ -26,7 +26,7 @@ class MessagePreview extends React.PureComponent<Props> {
   render() {
     const messageInfo: MessageInfo =
       this.props.messageInfo.type === messageTypes.SIDEBAR_SOURCE
-        ? this.props.messageInfo.initialMessage
+        ? this.props.messageInfo.sourceMessage
         : this.props.messageInfo;
     const unreadStyle = this.props.threadInfo.currentUser.unread
       ? this.props.styles.unread

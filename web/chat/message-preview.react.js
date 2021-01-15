@@ -21,7 +21,7 @@ class MessagePreview extends React.PureComponent<Props> {
     const messageInfo =
       this.props.messageInfo &&
       (this.props.messageInfo.type === messageTypes.SIDEBAR_SOURCE
-        ? this.props.messageInfo.initialMessage
+        ? this.props.messageInfo.sourceMessage
         : this.props.messageInfo);
     if (!messageInfo) {
       return (

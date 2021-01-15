@@ -167,12 +167,12 @@ async function createMessages(
       });
     } else if (messageData.type === messageTypes.SIDEBAR_SOURCE) {
       content = JSON.stringify({
-        initialMessageID: messageData.initialMessage.id,
+        sourceMessageID: messageData.sourceMessage.id,
       });
     } else if (messageData.type === messageTypes.CREATE_SIDEBAR) {
       content = JSON.stringify({
         ...messageData.initialThreadState,
-        initialMessageAuthorID: messageData.initialMessageAuthorID,
+        sourceMessageAuthorID: messageData.sourceMessageAuthorID,
       });
     }
 
