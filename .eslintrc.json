@@ -16,6 +16,7 @@
   "parser": "babel-eslint",
   "plugins": ["react", "react-hooks", "flowtype", "monorepo", "import"],
   "rules": {
+    "curly": "error",
     "linebreak-style": "error",
     "semi": "error",
     "react-hooks/rules-of-hooks": "error",
