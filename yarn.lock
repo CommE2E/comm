@@ -15077,6 +15077,11 @@ requires-port@^1.0.0:
   resolved "https://registry.yarnpkg.com/requires-port/-/requires-port-1.0.0.tgz#925d2601d39ac485e091cf0da5c6e694dc3dcaff"
   integrity sha1-kl0mAdOaxIXgkc8NpcbmlNw9yv8=
 
+rereadable-stream@^1.4.5:
+  version "1.4.5"
+  resolved "https://registry.yarnpkg.com/rereadable-stream/-/rereadable-stream-1.4.5.tgz#aed1f880597fcd20d695b93141256d9bb0b7119a"
+  integrity sha512-hgVjbKq65Ynx4FAYTZaNjy0Oy9z+VPEmSYE1087k+P0dGbKUK+ZtFmIoMHXZ7TdjnR8u5y8/ecaDVbpypD6X1w==
+
 reselect-map@^1.0.5:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/reselect-map/-/reselect-map-1.0.5.tgz#d7792208d888afd0a6e2da8e6933b7f0a7635295"
@@ -16053,11 +16058,6 @@ stream-buffers@~2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/stream-buffers/-/stream-buffers-2.2.0.tgz#91d5f5130d1cef96dcfa7f726945188741d09ee4"
   integrity sha1-kdX1Ew0c75bc+n9yaUUYh0HQnuQ=
-
-stream-cache@^0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/stream-cache/-/stream-cache-0.0.2.tgz#1ac5ad6832428ca55667dbdee395dad4e6db118f"
-  integrity sha1-GsWtaDJCjKVWZ9ve45Xa1ObbEY8=
 
 stream-combiner@^0.2.2:
   version "0.2.2"

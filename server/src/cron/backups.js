@@ -4,7 +4,7 @@ import childProcess from 'child_process';
 import dateFormat from 'dateformat';
 import fs from 'fs';
 import invariant from 'invariant';
-import StreamCache from 'stream-cache';
+import { ReReadable } from 'rereadable-stream';
 import { promisify } from 'util';
 import zlib from 'zlib';
 
@@ -56,7 +56,7 @@ async function backupDB() {
       stdio: ['ignore', 'pipe', 'ignore'],
     },
   );
-  const cache = new StreamCache();
+  const cache = new ReReadable();
   mysqlDump.on('error', (e: Error) => {
     console.warn(`error trying to spawn mysqldump for ${filename}`, e);
   });
@@ -88,7 +88,7 @@ async function backupDB() {
 async function saveBackup(
   filename: string,
   filePath: string,
-  cache: StreamCache,
+  cache: ReReadable,
   retries: number = 2,
 ): Promise<void> {
   try {
@@ -109,7 +109,7 @@ const backupWatchFrequency = 60 * 1000;
 function trySaveBackup(
   filename: string,
   filePath: string,
-  cache: StreamCache,
+  cache: ReReadable,
 ): Promise<void> {
   const timeoutObject: {| timeout: ?TimeoutID |} = { timeout: null };
   const setBackupTimeout = (alreadyWaited: number) => {
@@ -126,6 +126,7 @@ function trySaveBackup(
   const writeStream = fs.createWriteStream(filePath);
   return new Promise((resolve, reject) => {
     cache
+      .rewind()
       .pipe(writeStream)
       .on('finish', () => {
         clearTimeout(timeoutObject.timeout);
