@@ -111,9 +111,10 @@ async function createAccount(
     createThread(
       viewer,
       {
-        type: threadTypes.CHAT_SECRET,
+        type: threadTypes.PRIVATE,
         name: request.username,
-        description: 'your personal calendar',
+        description:
+          'This is your private thread, where you can set reminders and jot notes in private!',
       },
       { forceAddMembers: true },
     ),

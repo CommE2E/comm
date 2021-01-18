@@ -75,6 +75,7 @@ async function createThread(
   if (
     threadType !== threadTypes.CHAT_SECRET &&
     threadType !== threadTypes.PERSONAL &&
+    threadType !== threadTypes.PRIVATE &&
     !parentThreadID
   ) {
     throw new ServerError('invalid_parameters');
