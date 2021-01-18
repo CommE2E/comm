@@ -15,6 +15,8 @@ function ThreadIcon(props: Props) {
   const { threadType, color } = props;
   if (threadType === threadTypes.CHAT_SECRET) {
     return <MaterialIcon name="lock-outline" size={18} color={color} />;
+  } else if (threadType === threadTypes.PRIVATE) {
+    return <MaterialIcon name="lock" size={18} color={color} />;
   } else if (threadType === threadTypes.SIDEBAR) {
     return (
       <EntypoIcon

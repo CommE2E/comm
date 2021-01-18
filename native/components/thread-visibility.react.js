@@ -20,6 +20,13 @@ function ThreadVisibility(props: Props) {
         <Text style={visLabelStyle}>Secret</Text>
       </View>
     );
+  } else if (threadType === threadTypes.PRIVATE) {
+    return (
+      <View style={styles.container}>
+        <Icon name="person" size={18} color={color} />
+        <Text style={visLabelStyle}>Private</Text>
+      </View>
+    );
   } else {
     return (
       <View style={styles.container}>
