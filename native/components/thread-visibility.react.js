@@ -2,9 +2,10 @@
 
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import { threadTypes, type ThreadType } from 'lib/types/thread-types';
+
+import ThreadIcon from './thread-icon.react';
 
 type Props = {|
   +threadType: ThreadType,
@@ -13,28 +14,22 @@ type Props = {|
 function ThreadVisibility(props: Props) {
   const { threadType, color } = props;
   const visLabelStyle = [styles.visibilityLabel, { color }];
+
+  let label;
   if (threadType === threadTypes.CHAT_SECRET) {
-    return (
-      <View style={styles.container}>
-        <Icon name="lock-outline" size={18} color={color} />
-        <Text style={visLabelStyle}>Secret</Text>
-      </View>
-    );
+    label = 'Secret';
   } else if (threadType === threadTypes.PRIVATE) {
-    return (
-      <View style={styles.container}>
-        <Icon name="person" size={18} color={color} />
-        <Text style={visLabelStyle}>Private</Text>
-      </View>
-    );
+    label = 'Private';
   } else {
-    return (
-      <View style={styles.container}>
-        <Icon name="public" size={18} color={color} />
-        <Text style={visLabelStyle}>Open</Text>
-      </View>
-    );
+    label = 'Open';
   }
+
+  return (
+    <View style={styles.container}>
+      <ThreadIcon threadType={threadType} color={color} />
+      <Text style={visLabelStyle}>{label}</Text>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
