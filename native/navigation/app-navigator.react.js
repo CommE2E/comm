@@ -12,6 +12,7 @@ import { unreadCount } from 'lib/selectors/thread-selectors';
 import Calendar from '../calendar/calendar.react';
 import Chat from '../chat/chat.react';
 import { MultimediaTooltipModal } from '../chat/multimedia-tooltip-modal.react';
+import { RobotextMessageTooltipModal } from '../chat/robotext-message-tooltip-modal.react';
 import ThreadSettingsMemberTooltipModal from '../chat/settings/thread-settings-member-tooltip-modal.react';
 import { TextMessageTooltipModal } from '../chat/text-message-tooltip-modal.react';
 import KeyboardStateContainer from '../keyboard/keyboard-state-container.react';
@@ -39,6 +40,7 @@ import {
   TextMessageTooltipModalRouteName,
   ThreadSettingsMemberTooltipModalRouteName,
   RelationshipListItemTooltipModalRouteName,
+  RobotextMessageTooltipModalRouteName,
   CameraModalRouteName,
   type ScreenParamList,
   type TabParamList,
@@ -187,6 +189,10 @@ function AppNavigator(props: AppNavigatorProps) {
         <App.Screen
           name={RelationshipListItemTooltipModalRouteName}
           component={RelationshipListItemTooltipModal}
+        />
+        <App.Screen
+          name={RobotextMessageTooltipModalRouteName}
+          component={RobotextMessageTooltipModal}
         />
         <App.Screen name={CameraModalRouteName} component={CameraModal} />
       </App.Navigator>

@@ -46,6 +46,7 @@ import ChatInputBar from './chat-input-bar.react';
 import { chatMessageItemKey } from './chat-list.react';
 import type { ChatNavigationProp } from './chat.react';
 import { composedMessageMaxWidthSelector } from './composed-message-width';
+import { dummyNodeForRobotextMessageHeightMeasurement } from './inner-robotext-message.react';
 import { dummyNodeForTextMessageHeightMeasurement } from './inner-text-message.react';
 import MessageListThreadSearch from './message-list-thread-search.react';
 import {
@@ -55,7 +56,6 @@ import {
 import MessageList from './message-list.react';
 import type { ChatMessageInfoItemWithHeight } from './message.react';
 import { multimediaMessageContentSizes } from './multimedia-message.react';
-import { dummyNodeForRobotextMessageHeightMeasurement } from './robotext-message.react';
 export type ChatMessageItemWithHeight =
   | {| itemType: 'loader' |}
   | ChatMessageInfoItemWithHeight;

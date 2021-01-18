@@ -8,6 +8,7 @@ import type { ComposeThreadParams } from '../chat/compose-thread.react';
 import type { ImagePasteModalParams } from '../chat/image-paste-modal.react';
 import type { MessageListParams } from '../chat/message-list-types';
 import type { MultimediaTooltipModalParams } from '../chat/multimedia-tooltip-modal.react';
+import type { RobotextMessageTooltipModalParams } from '../chat/robotext-message-tooltip-modal.react';
 import type { AddUsersModalParams } from '../chat/settings/add-users-modal.react';
 import type { ColorPickerModalParams } from '../chat/settings/color-picker-modal.react';
 import type { ComposeSubthreadModalParams } from '../chat/settings/compose-subthread-modal.react';
@@ -61,6 +62,8 @@ export const FriendListRouteName = 'FriendList';
 export const BlockListRouteName = 'BlockList';
 export const SidebarListModalRouteName = 'SidebarListModal';
 export const ImagePasteModalRouteName = 'ImagePasteModal';
+export const RobotextMessageTooltipModalRouteName =
+  'RobotextMessageTooltipModal';
 
 export type RootParamList = {|
   LoggedOutModal: void,
@@ -76,10 +79,11 @@ export type RootParamList = {|
 |};
 
 export type TooltipModalParamList = {|
-  MultimediaTooltipModal: MultimediaTooltipModalParams,
-  TextMessageTooltipModal: TextMessageTooltipModalParams,
-  ThreadSettingsMemberTooltipModal: ThreadSettingsMemberTooltipModalParams,
-  RelationshipListItemTooltipModal: RelationshipListItemTooltipModalParams,
+  +MultimediaTooltipModal: MultimediaTooltipModalParams,
+  +TextMessageTooltipModal: TextMessageTooltipModalParams,
+  +ThreadSettingsMemberTooltipModal: ThreadSettingsMemberTooltipModalParams,
+  +RelationshipListItemTooltipModal: RelationshipListItemTooltipModalParams,
+  +RobotextMessageTooltipModal: RobotextMessageTooltipModalParams,
 |};
 
 export type OverlayParamList = {|
@@ -146,6 +150,7 @@ export const scrollBlockingModals = [
   TextMessageTooltipModalRouteName,
   ThreadSettingsMemberTooltipModalRouteName,
   RelationshipListItemTooltipModalRouteName,
+  RobotextMessageTooltipModalRouteName,
 ];
 
 export const chatRootModals = [
