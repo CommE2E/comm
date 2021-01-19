@@ -2,12 +2,11 @@
 
 import invariant from 'invariant';
 
-import { permissionLookup } from 'lib/permissions/thread-permissions';
 import {
   sortMessageInfoList,
   shimUnsupportedRawMessageInfos,
-  createMediaMessageInfo,
 } from 'lib/shared/message-utils';
+import { messageSpecs } from 'lib/shared/messages/message-specs';
 import { notifCollapseKeyForRawMessageInfo } from 'lib/shared/notif-utils';
 import {
   type RawMessageInfo,
@@ -19,7 +18,6 @@ import {
   messageTruncationStatus,
   type FetchMessageInfosResult,
 } from 'lib/types/message-types';
-import type { RawTextMessageInfo } from 'lib/types/message/text';
 import { threadPermissions } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
 
@@ -207,218 +205,26 @@ function rawMessageInfoFromRows(
   derivedMessages: $ReadOnlyMap<string, RawMessageInfo>,
 ): ?RawMessageInfo {
   const type = mostRecentRowType(rows);
-  if (type === messageTypes.TEXT) {
-    const row = assertSingleRow(rows);
-    const rawTextMessageInfo: RawTextMessageInfo = {
-      type: messageTypes.TEXT,
-      id: row.id.toString(),
-      threadID: row.threadID.toString(),
-      time: row.time,
-      creatorID: row.creatorID.toString(),
-      text: row.content,
-    };
-    const localID = localIDFromCreationString(viewer, row.creation);
-    if (localID) {
-      rawTextMessageInfo.localID = localID;
-    }
-    return rawTextMessageInfo;
-  } else if (type === messageTypes.CREATE_THREAD) {
-    const row = assertSingleRow(rows);
-    return {
-      type: messageTypes.CREATE_THREAD,
-      id: row.id.toString(),
-      threadID: row.threadID.toString(),
-      time: row.time,
-      creatorID: row.creatorID.toString(),
-      initialThreadState: JSON.parse(row.content),
-    };
-  } else if (type === messageTypes.ADD_MEMBERS) {
-    const row = assertSingleRow(rows);
-    return {
-      type: messageTypes.ADD_MEMBERS,
-      id: row.id.toString(),
-      threadID: row.threadID.toString(),
-      time: row.time,
-      creatorID: row.creatorID.toString(),
-      addedUserIDs: JSON.parse(row.content),
-    };
-  } else if (type === messageTypes.CREATE_SUB_THREAD) {
-    const row = assertSingleRow(rows);
-    const subthreadPermissions = row.subthread_permissions;
-    if (!permissionLookup(subthreadPermissions, threadPermissions.KNOW_OF)) {
-      return null;
-    }
-    return {
-      type: messageTypes.CREATE_SUB_THREAD,
-      id: row.id.toString(),
-      threadID: row.threadID.toString(),
-      time: row.time,
-      creatorID: row.creatorID.toString(),
-      childThreadID: row.content,
-    };
-  } else if (type === messageTypes.CHANGE_SETTINGS) {
-    const row = assertSingleRow(rows);
-    const content = JSON.parse(row.content);
-    const field = Object.keys(content)[0];
-    return {
-      type: messageTypes.CHANGE_SETTINGS,
-      id: row.id.toString(),
-      threadID: row.threadID.toString(),
-      time: row.time,
-      creatorID: row.creatorID.toString(),
-      field,
-      value: content[field],
-    };
-  } else if (type === messageTypes.REMOVE_MEMBERS) {
-    const row = assertSingleRow(rows);
-    return {
-      type: messageTypes.REMOVE_MEMBERS,
-      id: row.id.toString(),
-      threadID: row.threadID.toString(),
-      time: row.time,
-      creatorID: row.creatorID.toString(),
-      removedUserIDs: JSON.parse(row.content),
-    };
-  } else if (type === messageTypes.CHANGE_ROLE) {
-    const row = assertSingleRow(rows);
-    const content = JSON.parse(row.content);
-    return {
-      type: messageTypes.CHANGE_ROLE,
-      id: row.id.toString(),
-      threadID: row.threadID.toString(),
-      time: row.time,
-      creatorID: row.creatorID.toString(),
-      userIDs: content.userIDs,
-      newRole: content.newRole,
-    };
-  } else if (type === messageTypes.LEAVE_THREAD) {
-    const row = assertSingleRow(rows);
-    return {
-      type: messageTypes.LEAVE_THREAD,
-      id: row.id.toString(),
-      threadID: row.threadID.toString(),
-      time: row.time,
-      creatorID: row.creatorID.toString(),
-    };
-  } else if (type === messageTypes.JOIN_THREAD) {
-    const row = assertSingleRow(rows);
-    return {
-      type: messageTypes.JOIN_THREAD,
-      id: row.id.toString(),
-      threadID: row.threadID.toString(),
-      time: row.time,
-      creatorID: row.creatorID.toString(),
-    };
-  } else if (type === messageTypes.CREATE_ENTRY) {
-    const row = assertSingleRow(rows);
-    const content = JSON.parse(row.content);
-    return {
-      type: messageTypes.CREATE_ENTRY,
-      id: row.id.toString(),
-      threadID: row.threadID.toString(),
-      time: row.time,
-      creatorID: row.creatorID.toString(),
-      entryID: content.entryID,
-      date: content.date,
-      text: content.text,
-    };
-  } else if (type === messageTypes.EDIT_ENTRY) {
-    const row = assertSingleRow(rows);
-    const content = JSON.parse(row.content);
-    return {
-      type: messageTypes.EDIT_ENTRY,
-      id: row.id.toString(),
-      threadID: row.threadID.toString(),
-      time: row.time,
-      creatorID: row.creatorID.toString(),
-      entryID: content.entryID,
-      date: content.date,
-      text: content.text,
-    };
-  } else if (type === messageTypes.DELETE_ENTRY) {
-    const row = assertSingleRow(rows);
-    const content = JSON.parse(row.content);
-    return {
-      type: messageTypes.DELETE_ENTRY,
-      id: row.id.toString(),
-      threadID: row.threadID.toString(),
-      time: row.time,
-      creatorID: row.creatorID.toString(),
-      entryID: content.entryID,
-      date: content.date,
-      text: content.text,
-    };
-  } else if (type === messageTypes.RESTORE_ENTRY) {
-    const row = assertSingleRow(rows);
-    const content = JSON.parse(row.content);
-    return {
-      type: messageTypes.RESTORE_ENTRY,
-      id: row.id.toString(),
-      threadID: row.threadID.toString(),
-      time: row.time,
-      creatorID: row.creatorID.toString(),
-      entryID: content.entryID,
-      date: content.date,
-      text: content.text,
-    };
-  } else if (type === messageTypes.IMAGES || type === messageTypes.MULTIMEDIA) {
+  const messageSpec = messageSpecs[type];
+
+  if (type === messageTypes.IMAGES || type === messageTypes.MULTIMEDIA) {
     const media = rows.filter((row) => row.uploadID).map(mediaFromRow);
     const [row] = rows;
-    return createMediaMessageInfo({
-      threadID: row.threadID.toString(),
-      creatorID: row.creatorID.toString(),
+    const localID = localIDFromCreationString(viewer, row.creation);
+    return messageSpec.rawMessageInfoFromRow(row, {
       media,
-      id: row.id.toString(),
-      localID: localIDFromCreationString(viewer, row.creation),
-      time: row.time,
+      derivedMessages,
+      localID,
     });
-  } else if (type === messageTypes.UPDATE_RELATIONSHIP) {
-    const row = assertSingleRow(rows);
-    const content = JSON.parse(row.content);
-    return {
-      type: messageTypes.UPDATE_RELATIONSHIP,
-      id: row.id.toString(),
-      threadID: row.threadID.toString(),
-      time: row.time,
-      creatorID: row.creatorID.toString(),
-      targetID: content.targetID,
-      operation: content.operation,
-    };
-  } else if (type === messageTypes.SIDEBAR_SOURCE) {
-    const row = assertSingleRow(rows);
-    const content = JSON.parse(row.content);
-    const sourceMessage = derivedMessages.get(content.sourceMessageID);
-    if (!sourceMessage) {
-      console.warn(
-        `Message with id ${row.id} has a derived message ` +
-          `${content.sourceMessageID} which is not present in the database`,
-      );
-    }
-    return {
-      type: messageTypes.SIDEBAR_SOURCE,
-      id: row.id.toString(),
-      threadID: row.threadID.toString(),
-      time: row.time,
-      creatorID: row.creatorID.toString(),
-      sourceMessage,
-    };
-  } else if (type === messageTypes.CREATE_SIDEBAR) {
-    const row = assertSingleRow(rows);
-    const { sourceMessageAuthorID, ...initialThreadState } = JSON.parse(
-      row.content,
-    );
-    return {
-      type: messageTypes.CREATE_SIDEBAR,
-      id: row.id.toString(),
-      threadID: row.threadID.toString(),
-      time: row.time,
-      creatorID: row.creatorID.toString(),
-      sourceMessageAuthorID,
-      initialThreadState,
-    };
-  } else {
-    invariant(false, `unrecognized messageType ${type}`);
   }
+
+  const row = assertSingleRow(rows);
+  const localID = localIDFromCreationString(viewer, row.creation);
+  invariant(
+    messageSpec.rawMessageInfoFromRow,
+    `unrecognized messageType ${type}`,
+  );
+  return messageSpec.rawMessageInfoFromRow(row, { derivedMessages, localID });
 }
 
 const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
