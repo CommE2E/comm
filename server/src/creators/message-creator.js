@@ -9,6 +9,7 @@ import {
   shimUnsupportedRawMessageInfos,
   stripLocalIDs,
 } from 'lib/shared/message-utils';
+import { messageSpecs } from 'lib/shared/messages/message-specs';
 import {
   messageTypes,
   messageDataLocalID,
@@ -120,61 +121,9 @@ async function createMessages(
     }
     messageIndices.push(i);
 
-    let content;
-    if (messageData.type === messageTypes.CREATE_THREAD) {
-      content = JSON.stringify(messageData.initialThreadState);
-    } else if (messageData.type === messageTypes.CREATE_SUB_THREAD) {
-      content = messageData.childThreadID;
-    } else if (messageData.type === messageTypes.TEXT) {
-      content = messageData.text;
-    } else if (messageData.type === messageTypes.ADD_MEMBERS) {
-      content = JSON.stringify(messageData.addedUserIDs);
-    } else if (messageData.type === messageTypes.CHANGE_SETTINGS) {
-      content = JSON.stringify({
-        [messageData.field]: messageData.value,
-      });
-    } else if (messageData.type === messageTypes.REMOVE_MEMBERS) {
-      content = JSON.stringify(messageData.removedUserIDs);
-    } else if (messageData.type === messageTypes.CHANGE_ROLE) {
-      content = JSON.stringify({
-        userIDs: messageData.userIDs,
-        newRole: messageData.newRole,
-      });
-    } else if (
-      messageData.type === messageTypes.CREATE_ENTRY ||
-      messageData.type === messageTypes.EDIT_ENTRY ||
-      messageData.type === messageTypes.DELETE_ENTRY ||
-      messageData.type === messageTypes.RESTORE_ENTRY
-    ) {
-      content = JSON.stringify({
-        entryID: messageData.entryID,
-        date: messageData.date,
-        text: messageData.text,
-      });
-    } else if (
-      messageData.type === messageTypes.IMAGES ||
-      messageData.type === messageTypes.MULTIMEDIA
-    ) {
-      const mediaIDs = [];
-      for (const { id } of messageData.media) {
-        mediaIDs.push(parseInt(id, 10));
-      }
-      content = JSON.stringify(mediaIDs);
-    } else if (messageData.type === messageTypes.UPDATE_RELATIONSHIP) {
-      content = JSON.stringify({
-        operation: messageData.operation,
-        targetID: messageData.targetID,
-      });
-    } else if (messageData.type === messageTypes.SIDEBAR_SOURCE) {
-      content = JSON.stringify({
-        sourceMessageID: messageData.sourceMessage.id,
-      });
-    } else if (messageData.type === messageTypes.CREATE_SIDEBAR) {
-      content = JSON.stringify({
-        ...messageData.initialThreadState,
-        sourceMessageAuthorID: messageData.sourceMessageAuthorID,
-      });
-    }
+    const content = messageSpecs[messageData.type].messageContent?.(
+      messageData,
+    );
 
     const creation =
       messageData.localID && viewer.hasSessionInfo
