@@ -3,8 +3,10 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { View } from 'react-native';
+import { useSelector } from 'react-redux';
 
 import { messageKey } from 'lib/shared/message-utils';
+import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils';
 import { threadHasPermission } from 'lib/shared/thread-utils';
 import type { RobotextMessageInfo } from 'lib/types/message-types';
 import { type ThreadInfo, threadPermissions } from 'lib/types/thread-types';
@@ -78,17 +80,24 @@ function RobotextMessage(props: Props) {
   const overlayContext = React.useContext(OverlayContext);
   const viewRef = React.useRef<?React.ElementRef<typeof View>>();
 
+  const messageCreatorUserInfo = useSelector(
+    (state) => state.userStore.userInfos[props.item.messageInfo.creator.id],
+  );
   const visibleEntryIDs = React.useMemo(() => {
     const canCreateSidebars = threadHasPermission(
       item.threadInfo,
       threadPermissions.CREATE_SIDEBARS,
     );
+    const creatorRelationship = messageCreatorUserInfo.relationshipStatus;
+    const creatorRelationshipHasBlock =
+      creatorRelationship &&
+      relationshipBlockedInEitherDirection(creatorRelationship);
 
-    if (canCreateSidebars) {
+    if (canCreateSidebars && !creatorRelationshipHasBlock) {
       return ['sidebar'];
     }
     return [];
-  }, [item.threadInfo]);
+  }, [item.threadInfo, messageCreatorUserInfo.relationshipStatus]);
 
   const openRobotextTooltipModal = React.useCallback(
     (x, y, width, height, pageX, pageY) => {

@@ -4,11 +4,14 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
+import { useSelector } from 'react-redux';
 
 import { messageKey } from 'lib/shared/message-utils';
+import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils';
 import { threadHasPermission } from 'lib/shared/thread-utils';
 import { type MediaInfo } from 'lib/types/media-types';
 import { threadPermissions } from 'lib/types/thread-types';
+import type { UserInfo } from 'lib/types/user-types';
 
 import { type PendingMultimediaUpload } from '../input/input-state';
 import {
@@ -53,6 +56,7 @@ type Props = {|
   ...BaseProps,
   // Redux state
   +colors: Colors,
+  +messageCreatorUserInfo: UserInfo,
   // withKeyboardState
   +keyboardState: ?KeyboardState,
   // withOverlayContext
@@ -214,7 +218,13 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
       this.props.item.threadInfo,
       threadPermissions.CREATE_SIDEBARS,
     );
-    if (canCreateSidebars) {
+    const creatorRelationship = this.props.messageCreatorUserInfo
+      .relationshipStatus;
+    const creatorRelationshipHasBlock =
+      creatorRelationship &&
+      relationshipBlockedInEitherDirection(creatorRelationship);
+
+    if (canCreateSidebars && !creatorRelationshipHasBlock) {
       result.push('sidebar');
     }
 
@@ -318,10 +328,14 @@ export default React.memo<BaseProps>(
     const colors = useColors();
     const keyboardState = React.useContext(KeyboardContext);
     const overlayContext = React.useContext(OverlayContext);
+    const messageCreatorUserInfo = useSelector(
+      (state) => state.userStore.userInfos[props.item.messageInfo.creator.id],
+    );
     return (
       <MultimediaMessageMultimedia
         {...props}
         colors={colors}
+        messageCreatorUserInfo={messageCreatorUserInfo}
         keyboardState={keyboardState}
         overlayContext={overlayContext}
       />

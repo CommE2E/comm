@@ -3,12 +3,15 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { View } from 'react-native';
+import { useSelector } from 'react-redux';
 
 import { messageKey } from 'lib/shared/message-utils';
+import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils';
 import { threadHasPermission } from 'lib/shared/thread-utils';
 import type { LocalMessageInfo } from 'lib/types/message-types';
 import type { TextMessageInfo } from 'lib/types/message/text';
 import { type ThreadInfo, threadPermissions } from 'lib/types/thread-types';
+import type { UserInfo } from 'lib/types/user-types';
 
 import {
   type KeyboardState,
@@ -69,6 +72,8 @@ type BaseProps = {|
 |};
 type Props = {|
   ...BaseProps,
+  // Redux state
+  +messageCreatorUserInfo: UserInfo,
   // withKeyboardState
   +keyboardState: ?KeyboardState,
   // withOverlayContext
@@ -90,6 +95,7 @@ class TextMessage extends React.PureComponent<Props> {
       keyboardState,
       overlayContext,
       linkPressActive,
+      messageCreatorUserInfo,
       ...viewProps
     } = this.props;
     const canSwipe = threadHasPermission(
@@ -129,11 +135,17 @@ class TextMessage extends React.PureComponent<Props> {
       threadPermissions.CREATE_SIDEBARS,
     );
 
+    const creatorRelationship = this.props.messageCreatorUserInfo
+      .relationshipStatus;
+    const creatorRelationshipHasBlock =
+      creatorRelationship &&
+      relationshipBlockedInEitherDirection(creatorRelationship);
+
     if (canReply) {
       result.push('reply');
     }
 
-    if (canCreateSidebars) {
+    if (canCreateSidebars && !creatorRelationshipHasBlock) {
       result.push('sidebar');
     }
 
@@ -219,11 +231,15 @@ const ConnectedTextMessage = React.memo<BaseProps>(
       }),
       [setLinkPressActive],
     );
+    const messageCreatorUserInfo = useSelector(
+      (state) => state.userStore.userInfos[props.item.messageInfo.creator.id],
+    );
 
     return (
       <MarkdownLinkContext.Provider value={markdownLinkContext}>
         <TextMessage
           {...props}
+          messageCreatorUserInfo={messageCreatorUserInfo}
           overlayContext={overlayContext}
           keyboardState={keyboardState}
           linkPressActive={linkPressActive}
