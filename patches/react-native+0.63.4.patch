@@ -42,23 +42,28 @@ index 7e12add..6979293 100644
  @end
  
 diff --git a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.m b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.m
-index 88d3183..4fe51ff 100644
+index 88d3183..25d00e2 100644
 --- a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.m
 +++ b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.m
-@@ -173,6 +173,9 @@ - (void)setSelectedTextRange:(UITextRange *)selectedTextRange notifyDelegate:(BO
+@@ -173,8 +173,12 @@ - (void)setSelectedTextRange:(UITextRange *)selectedTextRange notifyDelegate:(BO
  
  - (void)paste:(id)sender
  {
+-  [super paste:sender];
+-  _textWasPasted = YES;
 +  if ([UIPasteboard generalPasteboard].hasImages && _allowImagePasteForThreadID) {
 +    [_textInputDelegate textInputImagePasted:_allowImagePasteForThreadID];
++  } else {
++    [super paste:sender];
++    _textWasPasted = YES;
 +  }
-   [super paste:sender];
-   _textWasPasted = YES;
  }
-@@ -261,6 +264,9 @@ - (BOOL)canPerformAction:(SEL)action withSender:(id)sender
+ 
+ - (void)setContentOffset:(CGPoint)contentOffset animated:(__unused BOOL)animated
+@@ -261,6 +265,9 @@ - (BOOL)canPerformAction:(SEL)action withSender:(id)sender
      return NO;
    }
-   
+ 
 +  if (action == @selector(paste:) && [UIPasteboard generalPasteboard].hasImages) {
 +    return (_allowImagePasteForThreadID != NULL);
 +  }
