@@ -1,14 +1,9 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
-import {
-  View,
-  TouchableWithoutFeedback,
-  ViewPropTypes,
-  StyleSheet,
-} from 'react-native';
+import { View, TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import type { Edge } from 'react-native-safe-area-context';
 
 import { connect } from 'lib/utils/redux-utils';
 
@@ -23,21 +18,11 @@ type Props = $ReadOnly<{|
   children: React.Node,
   containerStyle?: ViewStyle,
   modalStyle?: ViewStyle,
+  safeAreaEdges?: $ReadOnlyArray<Edge>,
   // Redux state
   styles: typeof styles,
 |}>;
 class Modal extends React.PureComponent<Props> {
-  static propTypes = {
-    children: PropTypes.node,
-    navigation: PropTypes.shape({
-      isFocused: PropTypes.func.isRequired,
-      goBackOnce: PropTypes.func.isRequired,
-    }).isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    containerStyle: ViewPropTypes.style,
-    modalStyle: ViewPropTypes.style,
-  };
-
   close = () => {
     if (this.props.navigation.isFocused()) {
       this.props.navigation.goBackOnce();
@@ -45,9 +30,9 @@ class Modal extends React.PureComponent<Props> {
   };
 
   render() {
-    const { containerStyle, modalStyle, children } = this.props;
+    const { containerStyle, modalStyle, children, safeAreaEdges } = this.props;
     return (
-      <SafeAreaView style={this.props.styles.container}>
+      <SafeAreaView style={this.props.styles.container} edges={safeAreaEdges}>
         <KeyboardAvoidingView
           behavior="padding"
           style={[this.props.styles.container, containerStyle]}

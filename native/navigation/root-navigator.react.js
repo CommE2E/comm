@@ -17,6 +17,7 @@ import { enableScreens } from 'react-native-screens';
 import LoggedOutModal from '../account/logged-out-modal.react';
 import VerificationModal from '../account/verification-modal.react';
 import ThreadPickerModal from '../calendar/thread-picker-modal.react';
+import ImagePasteModal from '../chat/image-paste-modal.react';
 import AddUsersModal from '../chat/settings/add-users-modal.react';
 import ColorPickerModal from '../chat/settings/color-picker-modal.react';
 import ComposeSubthreadModal from '../chat/settings/compose-subthread-modal.react';
@@ -30,6 +31,7 @@ import {
   VerificationModalRouteName,
   AppRouteName,
   ThreadPickerModalRouteName,
+  ImagePasteModalRouteName,
   AddUsersModalRouteName,
   CustomServerModalRouteName,
   ColorPickerModalRouteName,
@@ -161,6 +163,11 @@ const RootComponent = () => {
       <Root.Screen
         name={ThreadPickerModalRouteName}
         component={ThreadPickerModal}
+        options={modalOverlayScreenOptions}
+      />
+      <Root.Screen
+        name={ImagePasteModalRouteName}
+        component={ImagePasteModal}
         options={modalOverlayScreenOptions}
       />
       <Root.Screen

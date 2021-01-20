@@ -603,7 +603,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       );
     }
 
-    if (selection.captureTime) {
+    if (selection.captureTime || selection.step === 'photo_paste') {
       // If we are uploading a newly captured photo, we dispose of the original
       // file here. Note that we try to save photo captures to the camera roll
       // if we have permission. Even if we fail, this temporary file isn't

@@ -5,6 +5,7 @@ import type { LeafRoute } from '@react-navigation/native';
 import type { VerificationModalParams } from '../account/verification-modal.react';
 import type { ThreadPickerModalParams } from '../calendar/thread-picker-modal.react';
 import type { ComposeThreadParams } from '../chat/compose-thread.react';
+import type { ImagePasteModalParams } from '../chat/image-paste-modal.react';
 import type { MessageListParams } from '../chat/message-list-types';
 import type { MultimediaTooltipModalParams } from '../chat/multimedia-tooltip-modal.react';
 import type { AddUsersModalParams } from '../chat/settings/add-users-modal.react';
@@ -59,6 +60,7 @@ export const CameraModalRouteName = 'CameraModal';
 export const FriendListRouteName = 'FriendList';
 export const BlockListRouteName = 'BlockList';
 export const SidebarListModalRouteName = 'SidebarListModal';
+export const ImagePasteModalRouteName = 'ImagePasteModal';
 
 export type RootParamList = {|
   LoggedOutModal: void,
@@ -70,6 +72,7 @@ export type RootParamList = {|
   ColorPickerModal: ColorPickerModalParams,
   ComposeSubthreadModal: ComposeSubthreadModalParams,
   SidebarListModal: SidebarListModalParams,
+  ImagePasteModal: ImagePasteModalParams,
 |};
 
 export type TooltipModalParamList = {|

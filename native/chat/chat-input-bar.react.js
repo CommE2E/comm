@@ -80,8 +80,11 @@ import {
   activeThreadSelector,
 } from '../navigation/nav-selectors';
 import { NavContext } from '../navigation/navigation-context';
-import type { NavigationRoute } from '../navigation/route-names';
-import { CameraModalRouteName } from '../navigation/route-names';
+import {
+  type NavigationRoute,
+  CameraModalRouteName,
+  ImagePasteModalRouteName,
+} from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import {
   type Colors,
@@ -879,21 +882,24 @@ export default React.memo<BaseProps>(function ConnectedChatInputBar(
       const pastedImage: PhotoPaste = {
         step: 'photo_paste',
         dimensions: {
-          height: imagePastedEvent['height'],
-          width: imagePastedEvent['width'],
+          height: imagePastedEvent.height,
+          width: imagePastedEvent.width,
         },
-        filename: imagePastedEvent['fileName'],
-        uri: 'file://' + imagePastedEvent['filePath'],
+        filename: imagePastedEvent.fileName,
+        uri: 'file://' + imagePastedEvent.filePath,
         selectTime: 0,
         sendTime: 0,
         retries: 0,
       };
-
-      const selection: $ReadOnlyArray<PhotoPaste> = [pastedImage];
-      invariant(inputState, 'inputState should be set in imagePasteListener');
-      inputState.sendMultimediaMessage(props.threadInfo.id, selection);
+      props.navigation.navigate({
+        name: ImagePasteModalRouteName,
+        params: {
+          imagePasteStagingInfo: pastedImage,
+          threadID: props.threadInfo.id,
+        },
+      });
     },
-    [inputState, props.threadInfo.id],
+    [props.navigation, props.threadInfo.id],
   );
 
   React.useEffect(() => {
