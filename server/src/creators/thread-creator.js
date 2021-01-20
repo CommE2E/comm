@@ -2,6 +2,7 @@
 
 import invariant from 'invariant';
 
+import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils';
 import {
   generatePendingThreadColor,
   generateRandomColor,
@@ -147,9 +148,8 @@ async function createThread(
       ) {
         continue;
       } else if (
-        relationshipStatus === userRelationshipStatus.BLOCKED_BY_VIEWER ||
-        relationshipStatus === userRelationshipStatus.BLOCKED_VIEWER ||
-        relationshipStatus === userRelationshipStatus.BOTH_BLOCKED
+        relationshipStatus &&
+        relationshipBlockedInEitherDirection(relationshipStatus)
       ) {
         throw new ServerError('invalid_credentials');
       } else if (
