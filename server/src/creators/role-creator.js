@@ -174,6 +174,17 @@ function getRolePermissionBlobsForChat(
     };
   }
 
+  if (threadType === threadTypes.PRIVATE) {
+    const memberPermissions = {
+      [threadPermissions.KNOW_OF]: true,
+      [threadPermissions.VISIBLE]: true,
+      [threadPermissions.VOICED]: true,
+    };
+    return {
+      Members: memberPermissions,
+    };
+  }
+
   const openDescendantKnowOf =
     threadPermissionPrefixes.OPEN_DESCENDANT + threadPermissions.KNOW_OF;
   const openDescendantVisible =
