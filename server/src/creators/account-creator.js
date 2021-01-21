@@ -107,7 +107,7 @@ async function createAccount(
     await setNewSession(viewer, calendarQuery, 0);
   }
 
-  const [personalThreadResult, ashoatThreadResult] = await Promise.all([
+  const [privateThreadResult, ashoatThreadResult] = await Promise.all([
     createThread(
       viewer,
       {
@@ -149,7 +149,7 @@ async function createAccount(
     fetchKnownUserInfos(viewer),
   ]);
   const rawMessageInfos = [
-    ...personalThreadResult.newMessageInfos,
+    ...privateThreadResult.newMessageInfos,
     ...ashoatThreadResult.newMessageInfos,
     ...ashoatMessageInfos,
   ];
