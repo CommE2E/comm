@@ -35,7 +35,7 @@ Next, install [Node](https://nodejs.org/) using Homebrew.
 brew install node; brew upgrade node
 ```
 
-The reason we use both `install` and `upgrade` is that there's no single Homebrew command equivalent to "install if not installed, and upgrade if already installed".
+The reason we use both `install` and `upgrade` is that there’s no single Homebrew command equivalent to “install if not installed, and upgrade if already installed”.
 
 ## Yarn
 
@@ -122,6 +122,18 @@ CocoaPods is a dependency management system for iOS development. React Native us
 
 ```
 sudo gem install cocoapods
+```
+
+In order for `pod` to be accessible from the command-line, we’ll need to update your `$PATH` environmental variable. Open your `~/.bash_profile` (or desired shell configuration file) and add the following line:
+
+```
+export PATH=$PATH:/usr/local/lib/ruby/gems/2.7.0/bin
+```
+
+Make sure you reload the `~/.bash_profile` after editing it:
+
+```
+source ~/.bash_profile
 ```
 
 ## React Native Debugger
