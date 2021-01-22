@@ -13,6 +13,7 @@ import {
   sortMessageInfoList,
   shimUnsupportedRawMessageInfos,
 } from 'lib/shared/message-utils';
+import { messageSpecs } from 'lib/shared/messages/message-specs';
 import { notifTextsForMessageInfo } from 'lib/shared/notif-utils';
 import {
   rawThreadInfoFromServerThreadInfo,
@@ -405,21 +406,10 @@ async function fetchNotifUserInfos(
 
   const addUserIDsFromMessageInfos = (rawMessageInfo: RawMessageInfo) => {
     missingUserIDs.add(rawMessageInfo.creatorID);
-    if (rawMessageInfo.type === messageTypes.ADD_MEMBERS) {
-      for (const userID of rawMessageInfo.addedUserIDs) {
-        missingUserIDs.add(userID);
-      }
-    } else if (rawMessageInfo.type === messageTypes.REMOVE_MEMBERS) {
-      for (const userID of rawMessageInfo.removedUserIDs) {
-        missingUserIDs.add(userID);
-      }
-    } else if (
-      rawMessageInfo.type === messageTypes.CREATE_THREAD ||
-      rawMessageInfo.type === messageTypes.CREATE_SIDEBAR
-    ) {
-      for (const userID of rawMessageInfo.initialThreadState.memberIDs) {
-        missingUserIDs.add(userID);
-      }
+    const userIDs =
+      messageSpecs[rawMessageInfo.type].userIDs?.(rawMessageInfo) ?? [];
+    for (const userID of userIDs) {
+      missingUserIDs.add(userID);
     }
   };
 
