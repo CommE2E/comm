@@ -304,14 +304,11 @@ async function fetchInfos(pushInfo: PushInfo) {
   const addThreadIDsFromMessageInfos = (rawMessageInfo: RawMessageInfo) => {
     const threadID = rawMessageInfo.threadID;
     threadIDs.add(threadID);
-    if (
-      (rawMessageInfo.type === messageTypes.CREATE_THREAD ||
-        rawMessageInfo.type === messageTypes.CREATE_SIDEBAR) &&
-      rawMessageInfo.initialThreadState.parentThreadID
-    ) {
-      threadIDs.add(rawMessageInfo.initialThreadState.parentThreadID);
-    } else if (rawMessageInfo.type === messageTypes.CREATE_SUB_THREAD) {
-      threadIDs.add(rawMessageInfo.childThreadID);
+    const messageSpec = messageSpecs[rawMessageInfo.type];
+    if (messageSpec.threadIDs) {
+      for (const id of messageSpec.threadIDs(rawMessageInfo)) {
+        threadIDs.add(id);
+      }
     }
     if (
       rawMessageInfo.type === messageTypes.CHANGE_SETTINGS &&
@@ -325,12 +322,12 @@ async function fetchInfos(pushInfo: PushInfo) {
       }
     }
   };
-  for (let userID in usersToCollapsableNotifInfo) {
-    for (let notifInfo of usersToCollapsableNotifInfo[userID]) {
-      for (let rawMessageInfo of notifInfo.existingMessageInfos) {
+  for (const userID in usersToCollapsableNotifInfo) {
+    for (const notifInfo of usersToCollapsableNotifInfo[userID]) {
+      for (const rawMessageInfo of notifInfo.existingMessageInfos) {
         addThreadIDsFromMessageInfos(rawMessageInfo);
       }
-      for (let rawMessageInfo of notifInfo.newMessageInfos) {
+      for (const rawMessageInfo of notifInfo.newMessageInfos) {
         addThreadIDsFromMessageInfos(rawMessageInfo);
       }
     }
@@ -359,7 +356,7 @@ async function fetchInfos(pushInfo: PushInfo) {
           AND JSON_EXTRACT(content, "$.name") IS NOT NULL
           AND`;
     const threadClauses = [];
-    for (let [threadID, messages] of threadWithChangedNamesToMessages) {
+    for (const [threadID, messages] of threadWithChangedNamesToMessages) {
       threadClauses.push(
         SQL`(thread = ${threadID} AND id NOT IN (${messages}))`,
       );
@@ -377,7 +374,7 @@ async function fetchInfos(pushInfo: PushInfo) {
   const serverThreadInfos = threadResult.threadInfos;
   if (oldNames) {
     const [result] = oldNames;
-    for (let row of result) {
+    for (const row of result) {
       const threadID = row.thread.toString();
       serverThreadInfos[threadID].name = row.name;
     }
