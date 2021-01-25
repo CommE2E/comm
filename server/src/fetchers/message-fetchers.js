@@ -279,7 +279,7 @@ async function fetchMessageInfos(
 
   const rawMessageInfos = [];
   const threadToMessageCount = new Map();
-  for (let message of messages) {
+  for (const message of messages) {
     const { rawMessageInfo } = message;
     rawMessageInfos.push(rawMessageInfo);
     const { threadID } = rawMessageInfo;
@@ -288,7 +288,7 @@ async function fetchMessageInfos(
     threadToMessageCount.set(threadID, currentCount + 1);
   }
 
-  for (let [threadID, messageCount] of threadToMessageCount) {
+  for (const [threadID, messageCount] of threadToMessageCount) {
     // If there are fewer messages returned than the max for a given thread,
     // then our result set includes all messages in the query range for that
     // thread
@@ -298,20 +298,14 @@ async function fetchMessageInfos(
         : messageTruncationStatus.TRUNCATED;
   }
 
-  for (let rawMessageInfo of rawMessageInfos) {
-    if (
-      rawMessageInfo.type === messageTypes.CREATE_THREAD ||
-      rawMessageInfo.type === messageTypes.SIDEBAR_SOURCE
-    ) {
-      // If a CREATE_THREAD or SIDEBAR_SOURCE message for a given thread is in
-      // the result set, then our result set includes all messages in the query
-      // range for that thread
+  for (const rawMessageInfo of rawMessageInfos) {
+    if (messageSpecs[rawMessageInfo.type].startsThread) {
       truncationStatuses[rawMessageInfo.threadID] =
         messageTruncationStatus.EXHAUSTIVE;
     }
   }
 
-  for (let threadID in criteria.threadCursors) {
+  for (const threadID in criteria.threadCursors) {
     const truncationStatus = truncationStatuses[threadID];
     if (truncationStatus === null || truncationStatus === undefined) {
       // If nothing was returned for a thread that was explicitly queried for,
@@ -410,7 +404,7 @@ async function fetchMessageInfosSince(
   const rawMessageInfos = [];
   let currentThreadID = null;
   let numMessagesForCurrentThreadID = 0;
-  for (let message of messages) {
+  for (const message of messages) {
     const { rawMessageInfo } = message;
     const { threadID } = rawMessageInfo;
     if (threadID !== currentThreadID) {
@@ -421,12 +415,7 @@ async function fetchMessageInfosSince(
       numMessagesForCurrentThreadID++;
     }
     if (numMessagesForCurrentThreadID <= maxNumberPerThread) {
-      if (
-        rawMessageInfo.type === messageTypes.CREATE_THREAD ||
-        rawMessageInfo.type === messageTypes.SIDEBAR_SOURCE
-      ) {
-        // If a CREATE_THREAD or SIDEBAR_SOURCE message is here, then we have
-        // all messages
+      if (messageSpecs[rawMessageInfo.type].startsThread) {
         truncationStatuses[threadID] = messageTruncationStatus.EXHAUSTIVE;
       }
       rawMessageInfos.push(rawMessageInfo);
