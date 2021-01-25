@@ -13,6 +13,11 @@ import { useSelector } from '../redux/redux-utils';
 import { type Colors, useColors } from '../themes/colors';
 import { composedMessageMaxWidthSelector } from './composed-message-width';
 import { FailedSend } from './failed-send.react';
+import {
+  InlineSidebar,
+  inlineSidebarMarginBottom,
+  inlineSidebarMarginTop,
+} from './inline-sidebar.react';
 import { MessageHeader } from './message-header.react';
 import type { ChatMessageInfoItemWithHeight } from './message.react';
 import SwipeableMessage from './swipeable-message.react';
@@ -100,6 +105,18 @@ class ComposedMessage extends React.PureComponent<Props> {
     } else {
       messageBox = <View style={fullMessageBoxStyle}>{children}</View>;
     }
+    let inlineSidebar = null;
+    if (item.threadCreatedFromMessage) {
+      const positioning = isViewer ? 'right' : 'left';
+      inlineSidebar = (
+        <View style={styles.inlineSidebar}>
+          <InlineSidebar
+            threadInfo={item.threadCreatedFromMessage}
+            positioning={positioning}
+          />
+        </View>
+      );
+    }
 
     return (
       <View {...viewProps}>
@@ -110,6 +127,7 @@ class ComposedMessage extends React.PureComponent<Props> {
             {deliveryIcon}
           </View>
           {failedSendInfo}
+          {inlineSidebar}
         </View>
       </View>
     );
@@ -139,6 +157,10 @@ const styles = StyleSheet.create({
   iconContainer: {
     marginLeft: 2,
     width: 16,
+  },
+  inlineSidebar: {
+    marginBottom: inlineSidebarMarginBottom,
+    marginTop: inlineSidebarMarginTop,
   },
   leftChatBubble: {
     justifyContent: 'flex-start',

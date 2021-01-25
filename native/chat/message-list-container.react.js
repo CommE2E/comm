@@ -252,6 +252,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
         startsConversation: item.startsConversation,
         startsCluster: item.startsCluster,
         endsCluster: item.endsCluster,
+        threadCreatedFromMessage: item.threadCreatedFromMessage,
         pendingUploads,
         ...sizes,
       };
@@ -272,6 +273,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
         startsConversation: item.startsConversation,
         startsCluster: item.startsCluster,
         endsCluster: item.endsCluster,
+        threadCreatedFromMessage: item.threadCreatedFromMessage,
         contentHeight: height,
       };
     } else {
@@ -287,6 +289,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
         startsConversation: item.startsConversation,
         startsCluster: item.startsCluster,
         endsCluster: item.endsCluster,
+        threadCreatedFromMessage: item.threadCreatedFromMessage,
         robotext: item.robotext,
         contentHeight: height,
       };

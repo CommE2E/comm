@@ -28,21 +28,27 @@ import type { VerticalBounds } from '../types/layout-types';
 import type { ChatNavigationProp } from './chat.react';
 import { ComposedMessage, clusterEndHeight } from './composed-message.react';
 import { failedSendHeight } from './failed-send.react';
+import {
+  inlineSidebarHeight,
+  inlineSidebarMarginBottom,
+  inlineSidebarMarginTop,
+} from './inline-sidebar.react';
 import { InnerTextMessage } from './inner-text-message.react';
 import { authorNameHeight } from './message-header.react';
 import textMessageSendFailed from './text-message-send-failed';
 import { textMessageTooltipHeight } from './text-message-tooltip-modal.react';
 
 export type ChatTextMessageInfoItemWithHeight = {|
-  itemType: 'message',
-  messageShapeType: 'text',
-  messageInfo: TextMessageInfo,
-  localMessageInfo: ?LocalMessageInfo,
-  threadInfo: ThreadInfo,
-  startsConversation: boolean,
-  startsCluster: boolean,
-  endsCluster: boolean,
-  contentHeight: number,
+  +itemType: 'message',
+  +messageShapeType: 'text',
+  +messageInfo: TextMessageInfo,
+  +localMessageInfo: ?LocalMessageInfo,
+  +threadInfo: ThreadInfo,
+  +startsConversation: boolean,
+  +startsCluster: boolean,
+  +endsCluster: boolean,
+  +contentHeight: number,
+  +threadCreatedFromMessage: ?ThreadInfo,
 |};
 
 function textMessageItemHeight(item: ChatTextMessageInfoItemWithHeight) {
@@ -57,6 +63,10 @@ function textMessageItemHeight(item: ChatTextMessageInfoItemWithHeight) {
   }
   if (textMessageSendFailed(item)) {
     height += failedSendHeight;
+  }
+  if (item.threadCreatedFromMessage) {
+    height +=
+      inlineSidebarHeight + inlineSidebarMarginTop + inlineSidebarMarginBottom;
   }
   return height;
 }

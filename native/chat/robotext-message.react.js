@@ -15,27 +15,33 @@ import { KeyboardContext } from '../keyboard/keyboard-state';
 import { OverlayContext } from '../navigation/overlay-context';
 import { RobotextMessageTooltipModalRouteName } from '../navigation/route-names';
 import type { NavigationRoute } from '../navigation/route-names';
+import { useStyles } from '../themes/colors';
 import type { VerticalBounds } from '../types/layout-types';
 import type { ChatNavigationProp } from './chat.react';
+import { InlineSidebar, inlineSidebarHeight } from './inline-sidebar.react';
 import { InnerRobotextMessage } from './inner-robotext-message.react';
 import { robotextMessageTooltipHeight } from './robotext-message-tooltip-modal.react';
 import { Timestamp } from './timestamp.react';
 
 export type ChatRobotextMessageInfoItemWithHeight = {|
-  itemType: 'message',
-  messageShapeType: 'robotext',
-  messageInfo: RobotextMessageInfo,
-  threadInfo: ThreadInfo,
-  startsConversation: boolean,
-  startsCluster: boolean,
-  endsCluster: boolean,
-  robotext: string,
-  contentHeight: number,
+  +itemType: 'message',
+  +messageShapeType: 'robotext',
+  +messageInfo: RobotextMessageInfo,
+  +threadInfo: ThreadInfo,
+  +startsConversation: boolean,
+  +startsCluster: boolean,
+  +endsCluster: boolean,
+  +robotext: string,
+  +threadCreatedFromMessage: ?ThreadInfo,
+  +contentHeight: number,
 |};
 
 function robotextMessageItemHeight(
   item: ChatRobotextMessageInfoItemWithHeight,
 ) {
+  if (item.threadCreatedFromMessage) {
+    return item.contentHeight + inlineSidebarHeight;
+  }
   return item.contentHeight;
 }
 
@@ -63,6 +69,19 @@ function RobotextMessage(props: Props) {
   if (focused || item.startsConversation) {
     timestamp = (
       <Timestamp time={item.messageInfo.time} display="lowContrast" />
+    );
+  }
+
+  const styles = useStyles(unboundStyles);
+  let inlineSidebar = null;
+  if (item.threadCreatedFromMessage) {
+    inlineSidebar = (
+      <View style={styles.sidebar}>
+        <InlineSidebar
+          threadInfo={item.threadCreatedFromMessage}
+          positioning="center"
+        />
+      </View>
     );
   }
 
@@ -194,9 +213,17 @@ function RobotextMessage(props: Props) {
           onPress={onPress}
           onLongPress={onLongPress}
         />
+        {inlineSidebar}
       </View>
     </View>
   );
 }
+
+const unboundStyles = {
+  sidebar: {
+    marginTop: -5,
+    marginBottom: 5,
+  },
+};
 
 export { robotextMessageItemHeight, RobotextMessage };

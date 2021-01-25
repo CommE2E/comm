@@ -14,6 +14,7 @@ import {
 import {
   threadInfoSelector,
   sidebarInfoSelector,
+  threadInfoFromSourceMessageIDSelector,
 } from 'lib/selectors/thread-selectors';
 import type { MessageStore, MessageInfo } from 'lib/types/message-types';
 import {
@@ -130,11 +131,13 @@ const webMessageListData: (
   (state: AppState) => state.messageStore,
   messageInfoSelector,
   threadInfoSelector,
+  threadInfoFromSourceMessageIDSelector,
   (
     threadID: ?string,
     messageStore: MessageStore,
     messageInfos: { [id: string]: MessageInfo },
     threadInfos: { [id: string]: ThreadInfo },
+    threadInfoFromSourceMessageID: { [id: string]: ThreadInfo },
   ): ?(ChatMessageItem[]) => {
     if (!threadID) {
       return null;
@@ -144,6 +147,7 @@ const webMessageListData: (
       messageStore,
       messageInfos,
       threadInfos,
+      threadInfoFromSourceMessageID,
     );
   },
 );

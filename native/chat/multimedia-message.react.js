@@ -18,6 +18,11 @@ import type { ViewStyle } from '../types/styles';
 import type { ChatNavigationProp } from './chat.react';
 import { ComposedMessage, clusterEndHeight } from './composed-message.react';
 import { failedSendHeight } from './failed-send.react';
+import {
+  inlineSidebarHeight,
+  inlineSidebarMarginBottom,
+  inlineSidebarMarginTop,
+} from './inline-sidebar.react';
 import { authorNameHeight } from './message-header.react';
 import MultimediaMessageMultimedia from './multimedia-message-multimedia.react';
 import sendFailed from './multimedia-message-send-failed';
@@ -28,21 +33,22 @@ import {
 } from './rounded-corners';
 
 type ContentSizes = {|
-  imageHeight: number,
-  contentHeight: number,
-  contentWidth: number,
+  +imageHeight: number,
+  +contentHeight: number,
+  +contentWidth: number,
 |};
 export type ChatMultimediaMessageInfoItem = {|
   ...ContentSizes,
-  itemType: 'message',
-  messageShapeType: 'multimedia',
-  messageInfo: MultimediaMessageInfo,
-  localMessageInfo: ?LocalMessageInfo,
-  threadInfo: ThreadInfo,
-  startsConversation: boolean,
-  startsCluster: boolean,
-  endsCluster: boolean,
-  pendingUploads: ?MessagePendingUploads,
+  +itemType: 'message',
+  +messageShapeType: 'multimedia',
+  +messageInfo: MultimediaMessageInfo,
+  +localMessageInfo: ?LocalMessageInfo,
+  +threadInfo: ThreadInfo,
+  +startsConversation: boolean,
+  +startsCluster: boolean,
+  +endsCluster: boolean,
+  +threadCreatedFromMessage: ?ThreadInfo,
+  +pendingUploads: ?MessagePendingUploads,
 |};
 
 function getMediaPerRow(mediaCount: number) {
@@ -118,6 +124,10 @@ function multimediaMessageItemHeight(item: ChatMultimediaMessageInfoItem) {
   if (sendFailed(item)) {
     height += failedSendHeight;
   }
+  if (item.threadCreatedFromMessage) {
+    height +=
+      inlineSidebarHeight + inlineSidebarMarginTop + inlineSidebarMarginBottom;
+  }
   return height;
 }
 
@@ -125,12 +135,12 @@ const borderRadius = 16;
 
 type Props = {|
   ...React.ElementConfig<typeof View>,
-  item: ChatMultimediaMessageInfoItem,
-  navigation: ChatNavigationProp<'MessageList'>,
-  route: NavigationRoute<'MessageList'>,
-  focused: boolean,
-  toggleFocus: (messageKey: string) => void,
-  verticalBounds: ?VerticalBounds,
+  +item: ChatMultimediaMessageInfoItem,
+  +navigation: ChatNavigationProp<'MessageList'>,
+  +route: NavigationRoute<'MessageList'>,
+  +focused: boolean,
+  +toggleFocus: (messageKey: string) => void,
+  +verticalBounds: ?VerticalBounds,
 |};
 class MultimediaMessage extends React.PureComponent<Props> {
   render() {
