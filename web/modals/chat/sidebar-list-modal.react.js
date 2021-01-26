@@ -21,7 +21,7 @@ type Props = {|
   +setModal: (modal: ?React.Node) => void,
   +threadInfo: ThreadInfo,
 |};
-function SidebarsListModal(props: Props) {
+function SidebarListModal(props: Props) {
   const { setModal, threadInfo } = props;
   const [searchState, setSearchState] = React.useState({
     text: '',
@@ -139,4 +139,4 @@ function SidebarsListModal(props: Props) {
   );
 }
 
-export default SidebarsListModal;
+export default SidebarListModal;
