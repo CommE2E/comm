@@ -191,6 +191,13 @@ const migrations = {
       messageTypes.UPDATE_RELATIONSHIP,
     ]),
   }),
+  [21]: (state: AppState) => ({
+    ...state,
+    messageStore: unshimMessageStore(state.messageStore, [
+      messageTypes.CREATE_SIDEBAR,
+      messageTypes.SIDEBAR_SOURCE,
+    ]),
+  }),
 };
 
 const persistConfig = {
@@ -205,7 +212,7 @@ const persistConfig = {
     'frozen',
   ],
   debug: __DEV__,
-  version: 20,
+  version: 21,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
   timeout: __DEV__ ? 0 : undefined,
 };
