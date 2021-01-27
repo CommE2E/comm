@@ -20,6 +20,7 @@ import {
 } from '../navigation/tooltip.react';
 import RobotextMessageTooltipButton from './robotext-message-tooltip-button.react';
 import type { ChatRobotextMessageInfoItemWithHeight } from './robotext-message.react';
+import { onPressGoToSidebar } from './sidebar-navigation';
 
 export type RobotextMessageTooltipModalParams = TooltipParams<{|
   +item: ChatRobotextMessageInfoItemWithHeight,
@@ -58,7 +59,16 @@ function onPressCreateSidebar(
 
 const spec = {
   entries: [
-    { id: 'sidebar', text: 'Create sidebar', onPress: onPressCreateSidebar },
+    {
+      id: 'create_sidebar',
+      text: 'Create sidebar',
+      onPress: onPressCreateSidebar,
+    },
+    {
+      id: 'open_sidebar',
+      text: 'Go to sidebar',
+      onPress: onPressGoToSidebar,
+    },
   ],
 };
 

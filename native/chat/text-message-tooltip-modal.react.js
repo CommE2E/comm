@@ -21,6 +21,7 @@ import {
   type TooltipParams,
   type TooltipRoute,
 } from '../navigation/tooltip.react';
+import { onPressGoToSidebar } from './sidebar-navigation';
 import TextMessageTooltipButton from './text-message-tooltip-button.react';
 import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
 
@@ -82,7 +83,16 @@ const spec = {
   entries: [
     { id: 'copy', text: 'Copy', onPress: onPressCopy },
     { id: 'reply', text: 'Reply', onPress: onPressReply },
-    { id: 'sidebar', text: 'Create sidebar', onPress: onPressCreateSidebar },
+    {
+      id: 'create_sidebar',
+      text: 'Create sidebar',
+      onPress: onPressCreateSidebar,
+    },
+    {
+      id: 'open_sidebar',
+      text: 'Go to sidebar',
+      onPress: onPressGoToSidebar,
+    },
   ],
 };
 

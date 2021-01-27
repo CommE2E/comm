@@ -112,11 +112,17 @@ function RobotextMessage(props: Props) {
       creatorRelationship &&
       relationshipBlockedInEitherDirection(creatorRelationship);
 
-    if (canCreateSidebars && !creatorRelationshipHasBlock) {
-      return ['sidebar'];
+    if (item.threadCreatedFromMessage) {
+      return ['open_sidebar'];
+    } else if (canCreateSidebars && !creatorRelationshipHasBlock) {
+      return ['create_sidebar'];
     }
     return [];
-  }, [item.threadInfo, messageCreatorUserInfo.relationshipStatus]);
+  }, [
+    item.threadCreatedFromMessage,
+    item.threadInfo,
+    messageCreatorUserInfo.relationshipStatus,
+  ]);
 
   const openRobotextTooltipModal = React.useCallback(
     (x, y, width, height, pageX, pageY) => {

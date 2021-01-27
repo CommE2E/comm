@@ -22,6 +22,7 @@ import {
 } from '../navigation/tooltip.react';
 import type { ChatMultimediaMessageInfoItem } from './multimedia-message.react';
 import MultimediaTooltipButton from './multimedia-tooltip-button.react';
+import { onPressGoToSidebar } from './sidebar-navigation';
 
 export type MultimediaTooltipModalParams = TooltipParams<{|
   +item: ChatMultimediaMessageInfoItem,
@@ -70,7 +71,16 @@ function onPressCreateSidebar(
 const spec = {
   entries: [
     { id: 'save', text: 'Save', onPress: onPressSave },
-    { id: 'sidebar', text: 'Create sidebar', onPress: onPressCreateSidebar },
+    {
+      id: 'create_sidebar',
+      text: 'Create sidebar',
+      onPress: onPressCreateSidebar,
+    },
+    {
+      id: 'open_sidebar',
+      text: 'Go to sidebar',
+      onPress: onPressGoToSidebar,
+    },
   ],
 };
 

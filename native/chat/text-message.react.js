@@ -155,8 +155,10 @@ class TextMessage extends React.PureComponent<Props> {
       result.push('reply');
     }
 
-    if (canCreateSidebars && !creatorRelationshipHasBlock) {
-      result.push('sidebar');
+    if (this.props.item.threadCreatedFromMessage) {
+      result.push('open_sidebar');
+    } else if (canCreateSidebars && !creatorRelationshipHasBlock) {
+      result.push('create_sidebar');
     }
 
     return result;
