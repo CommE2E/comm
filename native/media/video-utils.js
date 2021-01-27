@@ -32,6 +32,11 @@ type ProcessVideoInfo = {|
   dimensions: Dimensions,
   hasWiFi: boolean,
 |};
+
+type VideoProcessConfig = {|
+  +onTranscodingProgress: (percent: number) => void,
+|};
+
 type ProcessVideoResponse = {|
   success: true,
   uri: string,
@@ -41,6 +46,7 @@ type ProcessVideoResponse = {|
 |};
 async function processVideo(
   input: ProcessVideoInfo,
+  config: VideoProcessConfig,
 ): Promise<{|
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: MediaMissionFailure | ProcessVideoResponse,
@@ -106,7 +112,11 @@ async function processVideo(
     exceptionMessage;
   const start = Date.now();
   try {
-    const { rc, lastStats } = await ffmpeg.process(ffmpegCommand, duration);
+    const { rc, lastStats } = await ffmpeg.process(
+      ffmpegCommand,
+      duration,
+      config.onTranscodingProgress,
+    );
     success = rc === 0;
     if (success) {
       returnCode = rc;

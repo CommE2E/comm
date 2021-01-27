@@ -1,6 +1,5 @@
 // @flow
 
-import invariant from 'invariant';
 import { RNFFmpeg, RNFFprobe, RNFFmpegConfig } from 'react-native-ffmpeg';
 
 import { getHasMultipleFramesProbeCommand } from 'lib/media/video-utils';
@@ -21,14 +20,6 @@ type QueuedCommand = {|
 class FFmpeg {
   queue: QueuedCommand[] = [];
   currentCalls: CallCounter = { process: 0, probe: 0 };
-
-  // The length of the video that's currently being transcoded in seconds
-  activeCommandInputVideoDuration: ?number;
-  lastStats: ?FFmpegStatistics;
-
-  constructor() {
-    RNFFmpegConfig.enableStatisticsCallback(this.statisticsCallback);
-  }
 
   queueCommand<R>(
     type: QueuedCommandType,
@@ -83,13 +74,24 @@ class FFmpeg {
     toRun.forEach(({ runCommand }) => runCommand());
   }
 
-  process(ffmpegCommand: string, inputVideoDuration: number) {
+  process(
+    ffmpegCommand: string,
+    inputVideoDuration: number,
+    onTranscodingProgress: (percent: number) => void,
+  ) {
     const duration = inputVideoDuration > 0 ? inputVideoDuration : 0.001;
     const wrappedCommand = async () => {
       RNFFmpegConfig.resetStatistics();
-      this.activeCommandInputVideoDuration = duration;
+      let lastStats;
+      RNFFmpegConfig.enableStatisticsCallback(
+        (statisticsData: FFmpegStatistics) => {
+          lastStats = statisticsData;
+          const { time } = statisticsData;
+          onTranscodingProgress(time / 1000 / duration);
+        },
+      );
       const ffmpegResult = await RNFFmpeg.execute(ffmpegCommand);
-      return { ...ffmpegResult, lastStats: this.lastStats };
+      return { ...ffmpegResult, lastStats };
     };
     return this.queueCommand('process', wrappedCommand);
   }
@@ -133,14 +135,6 @@ class FFmpeg {
     const numFrames = parseInt(probeOutput.lastCommandOutput);
     return numFrames > 1;
   }
-
-  statisticsCallback = (statisticsData: FFmpegStatistics) => {
-    this.lastStats = statisticsData;
-    const { time } = statisticsData;
-    const videoDuration = this.activeCommandInputVideoDuration;
-    invariant(videoDuration, 'should be set');
-    console.log(time / 1000 / videoDuration);
-  };
 }
 
 const ffmpeg = new FFmpeg();

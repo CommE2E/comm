@@ -69,6 +69,7 @@ import type { AppState } from '../redux/redux-setup';
 import {
   InputStateContext,
   type PendingMultimediaUploads,
+  type MultimediaProcessingStep,
 } from './input-state';
 
 let nextLocalUploadID = 0;
@@ -504,7 +505,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     try {
       const processMediaReturn = processMedia(
         selection,
-        this.mediaProcessConfig(),
+        this.mediaProcessConfig(localMessageID, localID),
       );
       reportPromise = processMediaReturn.reportPromise;
       const processResult = await processMediaReturn.resultPromise;
@@ -539,7 +540,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         { ...processedMedia.dimensions, loop: processedMedia.loop },
         {
           onProgress: (percent: number) =>
-            this.setProgress(localMessageID, localID, percent),
+            this.setProgress(localMessageID, localID, 'upload', percent),
           uploadBlob: this.uploadBlob,
         },
       );
@@ -632,20 +633,25 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     return await finish(mediaMissionResult);
   }
 
-  mediaProcessConfig() {
+  mediaProcessConfig(localMessageID: string, localID: string) {
     const { hasWiFi, viewerID } = this.props;
+    const onTranscodingProgress = (percent: number) => {
+      this.setProgress(localMessageID, localID, 'transcode', percent);
+    };
     if (__DEV__ || (viewerID && isStaff(viewerID))) {
       return {
         hasWiFi,
         finalFileHeaderCheck: true,
+        onTranscodingProgress,
       };
     }
-    return { hasWiFi };
+    return { hasWiFi, onTranscodingProgress };
   }
 
   setProgress(
     localMessageID: string,
     localUploadID: string,
+    processingStep: MultimediaProcessingStep,
     progressPercent: number,
   ) {
     this.setState((prevState) => {
@@ -667,6 +673,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         [localUploadID]: {
           ...pendingUpload,
           progressPercent,
+          processingStep,
         },
       };
       return {
@@ -965,6 +972,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       pendingUploads[id] = {
         failed: null,
         progressPercent: 0,
+        processingStep: null,
       };
     }
     this.setState((prevState) => ({

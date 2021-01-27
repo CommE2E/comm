@@ -21,6 +21,7 @@ type MediaProcessConfig = {|
   hasWiFi: boolean,
   // Blocks return until we can confirm result has the correct MIME
   finalFileHeaderCheck?: boolean,
+  onTranscodingProgress: (percent: number) => void,
 |};
 type MediaResult = {|
   success: true,
@@ -149,14 +150,19 @@ async function innerProcessMedia(
   }
 
   if (mediaType === 'video') {
-    const { steps: videoSteps, result: videoResult } = await processVideo({
-      uri: initialURI,
-      mime,
-      filename: selection.filename,
-      fileSize,
-      dimensions,
-      hasWiFi: config.hasWiFi,
-    });
+    const { steps: videoSteps, result: videoResult } = await processVideo(
+      {
+        uri: initialURI,
+        mime,
+        filename: selection.filename,
+        fileSize,
+        dimensions,
+        hasWiFi: config.hasWiFi,
+      },
+      {
+        onTranscodingProgress: config.onTranscodingProgress,
+      },
+    );
     steps.push(...videoSteps);
     if (!videoResult.success) {
       return await finish(videoResult);

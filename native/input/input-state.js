@@ -6,14 +6,18 @@ import * as React from 'react';
 import type { NativeMediaSelection } from 'lib/types/media-types';
 import type { RawTextMessageInfo } from 'lib/types/messages/text';
 
+export type MultimediaProcessingStep = 'transcode' | 'upload';
+
 export type PendingMultimediaUpload = {|
-  failed: ?string,
-  progressPercent: number,
+  +failed: ?string,
+  +progressPercent: number,
+  +processingStep: ?MultimediaProcessingStep,
 |};
 
 const pendingMultimediaUploadPropType = PropTypes.shape({
   failed: PropTypes.string,
   progressPercent: PropTypes.number.isRequired,
+  processingStep: PropTypes.oneOf(['transcode', 'upload']),
 });
 
 export type MessagePendingUploads = {
