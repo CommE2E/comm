@@ -3,7 +3,8 @@
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-import { threadTypes, type ThreadType } from 'lib/types/thread-types';
+import { threadLabel } from 'lib/shared/thread-utils';
+import type { ThreadType } from 'lib/types/thread-types';
 
 import ThreadIcon from './thread-icon.react';
 
@@ -14,15 +15,7 @@ type Props = {|
 function ThreadVisibility(props: Props) {
   const { threadType, color } = props;
   const visLabelStyle = [styles.visibilityLabel, { color }];
-
-  let label;
-  if (threadType === threadTypes.CHAT_SECRET) {
-    label = 'Secret';
-  } else if (threadType === threadTypes.PRIVATE) {
-    label = 'Private';
-  } else {
-    label = 'Open';
-  }
+  const label = threadLabel(threadType);
 
   return (
     <View style={styles.container}>
