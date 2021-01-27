@@ -185,6 +185,12 @@ const migrations = {
       },
     };
   },
+  [20]: (state: AppState) => ({
+    ...state,
+    messageStore: unshimMessageStore(state.messageStore, [
+      messageTypes.UPDATE_RELATIONSHIP,
+    ]),
+  }),
 };
 
 const persistConfig = {
@@ -199,7 +205,7 @@ const persistConfig = {
     'frozen',
   ],
   debug: __DEV__,
-  version: 18,
+  version: 20,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
   timeout: __DEV__ ? 0 : undefined,
 };
