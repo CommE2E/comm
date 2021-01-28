@@ -10,6 +10,7 @@ import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-ut
 import { threadHasPermission } from 'lib/shared/thread-utils';
 import type { RobotextMessageInfo } from 'lib/types/message-types';
 import { type ThreadInfo, threadPermissions } from 'lib/types/thread-types';
+import type { UserInfo } from 'lib/types/user-types';
 
 import { KeyboardContext } from '../keyboard/keyboard-state';
 import { OverlayContext } from '../navigation/overlay-context';
@@ -98,15 +99,15 @@ function RobotextMessage(props: Props) {
   const overlayContext = React.useContext(OverlayContext);
   const viewRef = React.useRef<?React.ElementRef<typeof View>>();
 
-  const messageCreatorUserInfo = useSelector(
+  const messageCreatorUserInfo: ?UserInfo = useSelector(
     (state) => state.userStore.userInfos[props.item.messageInfo.creator.id],
   );
+  const creatorRelationship = messageCreatorUserInfo?.relationshipStatus;
   const visibleEntryIDs = React.useMemo(() => {
     const canCreateSidebars = threadHasPermission(
       item.threadInfo,
       threadPermissions.CREATE_SIDEBARS,
     );
-    const creatorRelationship = messageCreatorUserInfo.relationshipStatus;
     const creatorRelationshipHasBlock =
       creatorRelationship &&
       relationshipBlockedInEitherDirection(creatorRelationship);
@@ -117,11 +118,7 @@ function RobotextMessage(props: Props) {
       return ['create_sidebar'];
     }
     return [];
-  }, [
-    item.threadCreatedFromMessage,
-    item.threadInfo,
-    messageCreatorUserInfo.relationshipStatus,
-  ]);
+  }, [item.threadCreatedFromMessage, item.threadInfo, creatorRelationship]);
 
   const openRobotextTooltipModal = React.useCallback(
     (x, y, width, height, pageX, pageY) => {
