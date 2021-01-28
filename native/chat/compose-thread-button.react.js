@@ -41,11 +41,10 @@ class ComposeThreadButton extends React.PureComponent<Props> {
       this.props.navigate({
         name: MessageListRouteName,
         params: {
-          threadInfo: createPendingThread(
-            this.props.viewerID,
-            threadTypes.CHAT_SECRET,
-            [],
-          ),
+          threadInfo: createPendingThread({
+            viewerID: this.props.viewerID,
+            threadType: threadTypes.CHAT_SECRET,
+          }),
           searching: true,
         },
       });

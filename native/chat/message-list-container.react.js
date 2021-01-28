@@ -425,11 +425,11 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     }
 
     const updatedThread = searching
-      ? createPendingThread(
+      ? createPendingThread({
           viewerID,
-          pendingThreadType(userInfoInputArray.length),
-          userInfoInputArray,
-        )
+          threadType: pendingThreadType(userInfoInputArray.length),
+          members: userInfoInputArray,
+        })
       : threadInfoFromParams;
     return {
       ...updatedThread,
