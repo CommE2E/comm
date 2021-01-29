@@ -650,6 +650,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
           color: threadInfo.color,
           sourceMessageID,
           parentThreadID: threadInfo.parentThreadID,
+          name: threadInfo.name,
         });
       }
       this.props.dispatchActionPromise(newThreadActionTypes, resultPromise);
