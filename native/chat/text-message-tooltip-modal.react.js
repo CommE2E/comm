@@ -4,7 +4,6 @@ import Clipboard from '@react-native-community/clipboard';
 import invariant from 'invariant';
 
 import { createMessageReply } from 'lib/shared/message-utils';
-import { createPendingSidebar } from 'lib/shared/thread-utils';
 import type {
   DispatchFunctions,
   ActionFunc,
@@ -13,15 +12,13 @@ import type {
 
 import type { InputState } from '../input/input-state';
 import { displayActionResultModal } from '../navigation/action-result-modal';
-import type { AppNavigationProp } from '../navigation/app-navigator.react';
-import { MessageListRouteName } from '../navigation/route-names';
 import {
   createTooltip,
   tooltipHeight,
   type TooltipParams,
   type TooltipRoute,
 } from '../navigation/tooltip.react';
-import { onPressGoToSidebar } from './sidebar-navigation';
+import { onPressGoToSidebar, onPressCreateSidebar } from './sidebar-navigation';
 import TextMessageTooltipButton from './text-message-tooltip-button.react';
 import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
 
@@ -47,36 +44,6 @@ function onPressReply(
     'inputState should be set in TextMessageTooltipModal.onPressReply',
   );
   inputState.addReply(createMessageReply(route.params.item.messageInfo.text));
-}
-
-function onPressCreateSidebar(
-  route: TooltipRoute<'TextMessageTooltipModal'>,
-  dispatchFunctions: DispatchFunctions,
-  bindServerCall: (serverCall: ActionFunc) => BoundServerCall,
-  inputState: ?InputState,
-  navigation: AppNavigationProp<'TextMessageTooltipModal'>,
-  viewerID: ?string,
-) {
-  invariant(
-    viewerID,
-    'viewerID should be set in TextMessageTooltipModal.onPressCreateSidebar',
-  );
-  const { messageInfo, threadInfo } = route.params.item;
-  const pendingSidebarInfo = createPendingSidebar(
-    messageInfo,
-    threadInfo,
-    viewerID,
-  );
-  const sourceMessageID = messageInfo.id;
-
-  navigation.navigate({
-    name: MessageListRouteName,
-    params: {
-      threadInfo: pendingSidebarInfo,
-      sidebarSourceMessageID: sourceMessageID,
-    },
-    key: `${MessageListRouteName}${pendingSidebarInfo.id}`,
-  });
 }
 
 const spec = {
