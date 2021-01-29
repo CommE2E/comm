@@ -11,7 +11,6 @@ import { onPressGoToSidebar, onPressCreateSidebar } from './sidebar-navigation';
 
 export type RobotextMessageTooltipModalParams = TooltipParams<{|
   +item: ChatRobotextMessageInfoItemWithHeight,
-  +robotext: string,
 |}>;
 
 const spec = {

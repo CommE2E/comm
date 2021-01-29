@@ -85,7 +85,6 @@ function RobotextMessage(props: Props) {
     );
   }
 
-  const robotext = item.robotext;
   const keyboardState = React.useContext(KeyboardContext);
   const key = messageKey(item.messageInfo);
   const onPress = React.useCallback(() => {
@@ -163,18 +162,10 @@ function RobotextMessage(props: Props) {
           location,
           margin,
           item,
-          robotext,
         },
       });
     },
-    [
-      item,
-      props.navigation,
-      props.route.key,
-      robotext,
-      verticalBounds,
-      visibleEntryIDs,
-    ],
+    [item, props.navigation, props.route.key, verticalBounds, visibleEntryIDs],
   );
 
   const onLongPress = React.useCallback(() => {
