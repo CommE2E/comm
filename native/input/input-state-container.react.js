@@ -43,9 +43,9 @@ import {
   type SendMessageResult,
   type SendMessagePayload,
 } from 'lib/types/message-types';
-import type { RawImagesMessageInfo } from 'lib/types/message/images';
-import type { RawMediaMessageInfo } from 'lib/types/message/media';
-import type { RawTextMessageInfo } from 'lib/types/message/text';
+import type { RawImagesMessageInfo } from 'lib/types/messages/images';
+import type { RawMediaMessageInfo } from 'lib/types/messages/media';
+import type { RawTextMessageInfo } from 'lib/types/messages/text';
 import {
   type MediaMissionReportCreationRequest,
   reportTypes,

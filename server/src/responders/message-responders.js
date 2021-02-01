@@ -13,7 +13,7 @@ import {
   defaultNumberPerThread,
   type SendMessageResponse,
 } from 'lib/types/message-types';
-import type { TextMessageData } from 'lib/types/message/text';
+import type { TextMessageData } from 'lib/types/messages/text';
 import { threadPermissions } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
 

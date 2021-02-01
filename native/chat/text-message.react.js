@@ -9,7 +9,7 @@ import { messageKey } from 'lib/shared/message-utils';
 import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils';
 import { threadHasPermission } from 'lib/shared/thread-utils';
 import type { LocalMessageInfo } from 'lib/types/message-types';
-import type { TextMessageInfo } from 'lib/types/message/text';
+import type { TextMessageInfo } from 'lib/types/messages/text';
 import { type ThreadInfo, threadPermissions } from 'lib/types/thread-types';
 import type { UserInfo } from 'lib/types/user-types';
 

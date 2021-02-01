@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import * as React from 'react';
 
 import type { NativeMediaSelection } from 'lib/types/media-types';
-import type { RawTextMessageInfo } from 'lib/types/message/text';
+import type { RawTextMessageInfo } from 'lib/types/messages/text';
 
 export type PendingMultimediaUpload = {|
   failed: ?string,
