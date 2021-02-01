@@ -6,6 +6,7 @@ import sharp from 'sharp';
 
 import {
   serverTranscodableTypes,
+  serverCanHandleTypes,
   readableFilename,
 } from 'lib/media/file-utils';
 import { getImageProcessingPlan } from 'lib/media/image-utils';
@@ -39,11 +40,49 @@ async function validateAndConvert(
   if (!mime || !mediaType) {
     return null;
   }
+
+  if (!serverCanHandleTypes.has(mime)) {
+    return null;
+  }
+
+  if (mediaType === 'video') {
+    invariant(
+      inputDimensions,
+      'inputDimensions should be set in validateAndConvert',
+    );
+    return {
+      mime: mime,
+      mediaType: mediaType,
+      name: initialName,
+      buffer: initialBuffer,
+      dimensions: inputDimensions,
+      loop: inputLoop,
+    };
+  }
+
   if (!serverTranscodableTypes.has(mime)) {
     // This should've gotten converted on the client
     return null;
   }
 
+  return convertImage(
+    initialBuffer,
+    mime,
+    initialName,
+    inputDimensions,
+    inputLoop,
+    size,
+  );
+}
+
+async function convertImage(
+  initialBuffer: Buffer,
+  mime: string,
+  initialName: string,
+  inputDimensions: ?Dimensions,
+  inputLoop: boolean,
+  size: number,
+): Promise<?UploadInput> {
   let sharpImage, metadata;
   try {
     sharpImage = initializeSharp(initialBuffer, mime);
@@ -72,7 +111,7 @@ async function validateAndConvert(
     invariant(name, `should be able to construct filename for ${mime}`);
     return {
       mime,
-      mediaType,
+      mediaType: 'photo',
       name,
       buffer: initialBuffer,
       dimensions: initialDimensions,
@@ -112,7 +151,7 @@ async function validateAndConvert(
     !convertedMIME ||
     !convertedMediaType ||
     convertedMIME !== targetMIME ||
-    convertedMediaType !== mediaType
+    convertedMediaType !== 'photo'
   ) {
     return null;
   }
@@ -124,7 +163,7 @@ async function validateAndConvert(
 
   return {
     mime: targetMIME,
-    mediaType,
+    mediaType: 'photo',
     name: convertedName,
     buffer: convertedBuffer,
     dimensions: convertedDimensions,
