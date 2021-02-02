@@ -13,15 +13,10 @@ import {
 } from 'lib/selectors/chat-selectors';
 import {
   threadInfoSelector,
-  sidebarInfoSelector,
   threadInfoFromSourceMessageIDSelector,
 } from 'lib/selectors/thread-selectors';
 import type { MessageStore, MessageInfo } from 'lib/types/message-types';
-import {
-  type ThreadInfo,
-  type SidebarInfo,
-  threadTypes,
-} from 'lib/types/thread-types';
+import { type ThreadInfo, threadTypes } from 'lib/types/thread-types';
 
 import type { AppState } from '../redux/redux-setup';
 
@@ -51,13 +46,8 @@ const activeChatThreadItem: (
 
 const webChatListData: (state: AppState) => ChatThreadItem[] = createSelector(
   chatListData,
-  sidebarInfoSelector,
   activeChatThreadItem,
-  (
-    data: ChatThreadItem[],
-    sidebarInfos: { [id: string]: $ReadOnlyArray<SidebarInfo> },
-    activeItem: ?ChatThreadItem,
-  ): ChatThreadItem[] => {
+  (data: ChatThreadItem[], activeItem: ?ChatThreadItem): ChatThreadItem[] => {
     if (!activeItem) {
       return data;
     }
@@ -89,24 +79,21 @@ const webChatListData: (state: AppState) => ChatThreadItem[] = createSelector(
         }
       }
 
-      const activeSidebarInfo = sidebarInfos[parentThreadID].find(
-        (sidebar) => sidebar.threadInfo.id === activeItem.threadInfo.id,
-      );
-      invariant(
-        activeSidebarInfo,
-        `could not find sidebarInfo for thread ID ${activeItem.threadInfo.id}`,
-      );
-
       let newSidebarItemInserted = false;
       const newSidebarItems = [];
       for (const sidebarItem of item.sidebars) {
         if (
           !newSidebarItemInserted &&
           (sidebarItem.lastUpdatedTime === undefined ||
-            sidebarItem.lastUpdatedTime < activeSidebarInfo.lastUpdatedTime)
+            sidebarItem.lastUpdatedTime < activeItem.lastUpdatedTime)
         ) {
           newSidebarItemInserted = true;
-          newSidebarItems.push({ type: 'sidebar', ...activeSidebarInfo });
+          newSidebarItems.push({
+            type: 'sidebar',
+            lastUpdatedTime: activeItem.lastUpdatedTime,
+            mostRecentNonLocalMessage: activeItem.mostRecentNonLocalMessage,
+            threadInfo: activeItem.threadInfo,
+          });
         }
         newSidebarItems.push(sidebarItem);
       }
