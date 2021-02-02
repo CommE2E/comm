@@ -14,6 +14,7 @@ import Markdown from '../markdown/markdown.react';
 import { linkRules } from '../markdown/rules.react';
 import { type AppState, updateNavInfoActionType } from '../redux/redux-setup';
 import css from './chat-message-list.css';
+import { InlineSidebar } from './inline-sidebar.react';
 import type { MessagePositionInfo } from './message-position-types';
 
 type Props = {|
@@ -24,11 +25,23 @@ type Props = {|
 |};
 class RobotextMessage extends React.PureComponent<Props> {
   render() {
+    let inlineSidebar;
+    if (this.props.item.threadCreatedFromMessage) {
+      inlineSidebar = (
+        <div className={css.sidebarMarginTop}>
+          <InlineSidebar
+            threadInfo={this.props.item.threadCreatedFromMessage}
+            positioning="center"
+          />
+        </div>
+      );
+    }
     return (
       <div className={css.robotext}>
         <span onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave}>
           {this.linkedRobotext()}
         </span>
+        {inlineSidebar}
       </div>
     );
   }

@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import invariant from 'invariant';
 import * as React from 'react';
 import {
-  Circle as CircleIcon,
+  CornerDownRight as CircleIcon,
   CheckCircle as CheckCircleIcon,
   XCircle as XCircleIcon,
 } from 'react-feather';
@@ -17,6 +17,7 @@ import { type ThreadInfo } from 'lib/types/thread-types';
 import { type InputState, InputStateContext } from '../input/input-state';
 import css from './chat-message-list.css';
 import FailedSend from './failed-send.react';
+import { InlineSidebar } from './inline-sidebar.react';
 import {
   type OnMessagePositionInfo,
   type MessagePositionInfo,
@@ -129,6 +130,19 @@ class ComposedMessage extends React.PureComponent<Props> {
       }
     }
 
+    let inlineSidebar = null;
+    if (item.threadCreatedFromMessage) {
+      const positioning = isViewer ? 'right' : 'left';
+      inlineSidebar = (
+        <div className={css.sidebarMarginBottom}>
+          <InlineSidebar
+            threadInfo={item.threadCreatedFromMessage}
+            positioning={positioning}
+          />
+        </div>
+      );
+    }
+
     return (
       <React.Fragment>
         {authorName}
@@ -147,6 +161,7 @@ class ComposedMessage extends React.PureComponent<Props> {
           {deliveryIcon}
         </div>
         {failedSendInfo}
+        {inlineSidebar}
       </React.Fragment>
     );
   }
