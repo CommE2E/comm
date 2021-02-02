@@ -17,7 +17,7 @@ import {
   type RawMessageInfo,
 } from 'lib/types/message-types';
 import { redisMessageTypes } from 'lib/types/redis-types';
-import { threadPermissions } from 'lib/types/thread-types';
+import { threadPermissions, threadTypes } from 'lib/types/thread-types';
 import { updateTypes } from 'lib/types/update-types';
 
 import {
@@ -168,13 +168,48 @@ async function createMessages(
     INSERT INTO messages(id, thread, user, type, content, time, creation)
     VALUES ${messageInsertRows}
   `;
-  await dbQuery(messageInsertQuery);
+  await Promise.all([
+    dbQuery(messageInsertQuery),
+    updateRepliesCount(threadsToMessageIndices, newMessageDatas),
+  ]);
 
   if (updatesForCurrentSession !== 'return') {
     return [];
   }
 
   return shimUnsupportedRawMessageInfos(messageInfos, viewer.platformDetails);
+}
+
+async function updateRepliesCount(
+  threadsToMessageIndices: Map<string, number[]>,
+  newMessageDatas: MessageData[],
+) {
+  const updatedThreads = [];
+  const update = SQL`
+    UPDATE threads
+    SET replies_count = replies_count + (CASE `;
+  for (const [threadID, messages] of threadsToMessageIndices.entries()) {
+    const newRepliesIncrease = messages
+      .map((i) => newMessageDatas[i].type)
+      .filter((type) => messageSpecs[type].includedInRepliesCount).length;
+    if (newRepliesIncrease === 0) {
+      continue;
+    }
+
+    update.append(SQL`
+      WHEN id = ${threadID} THEN ${newRepliesIncrease}
+    `);
+    updatedThreads.push(threadID);
+  }
+  update.append(SQL`
+      ELSE 0
+      END)
+    WHERE id IN (${updatedThreads})
+      AND type = ${threadTypes.SIDEBAR}
+  `);
+  if (updatedThreads.length > 0) {
+    await dbQuery(update);
+  }
 }
 
 // Handles:
