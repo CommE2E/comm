@@ -394,7 +394,12 @@ export default React.memo<BaseProps>(function ConnectedChatMessageList(
     if (!activeID) {
       return null;
     }
-    return state.messageStore.threads[activeID].startReached;
+
+    const threadMessageInfo = state.messageStore.threads[activeID];
+    if (!threadMessageInfo) {
+      return null;
+    }
+    return threadMessageInfo.startReached;
   });
 
   const dispatchActionPromise = useDispatchActionPromise();
