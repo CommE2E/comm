@@ -28,6 +28,7 @@ import {
 } from '../database/database';
 import { fetchMessageInfoForLocalID } from '../fetchers/message-fetchers';
 import { fetchOtherSessionsForViewer } from '../fetchers/session-fetchers';
+import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
 import { sendPushNotifs } from '../push/send';
 import { handleAsyncPromise } from '../responders/handlers';
 import type { Viewer } from '../session/viewer';
@@ -208,7 +209,24 @@ async function updateRepliesCount(
       AND type = ${threadTypes.SIDEBAR}
   `);
   if (updatedThreads.length > 0) {
-    await dbQuery(update);
+    const [{ threadInfos: serverThreadInfos }] = await Promise.all([
+      fetchServerThreadInfos(SQL`t.id IN (${updatedThreads})`),
+      dbQuery(update),
+    ]);
+
+    const time = Date.now();
+    const updates = [];
+    for (const threadID in serverThreadInfos) {
+      for (const member of serverThreadInfos[threadID].members) {
+        updates.push({
+          userID: member.id,
+          time,
+          threadID,
+          type: updateTypes.UPDATE_THREAD,
+        });
+      }
+    }
+    await createUpdates(updates);
   }
 }
 
