@@ -11,14 +11,12 @@ import {
   fetchMessagesBeforeCursorActionTypes,
   fetchMessagesBeforeCursor,
   fetchMostRecentMessagesActionTypes,
-  fetchMostRecentMessages,
 } from 'lib/actions/message-actions';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { type ChatMessageItem } from 'lib/selectors/chat-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { messageKey } from 'lib/shared/message-utils';
-import { threadInChatList } from 'lib/shared/thread-utils';
-import threadWatcher from 'lib/shared/thread-watcher';
+import { useWatchThread } from 'lib/shared/thread-utils';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
 import {
@@ -61,9 +59,6 @@ type PassedProps = {|
     threadID: string,
     beforeMessageID: string,
   ) => Promise<FetchMessageInfosPayload>,
-  +fetchMostRecentMessages: (
-    threadID: string,
-  ) => Promise<FetchMessageInfosPayload>,
   // withInputState
   +inputState: ?InputState,
 |};
@@ -91,24 +86,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
   loadingFromScroll = false;
 
   componentDidMount() {
-    const { threadInfo } = this.props;
-    if (!threadInfo || threadInChatList(threadInfo)) {
-      return;
-    }
-    threadWatcher.watchID(threadInfo.id);
-    this.props.dispatchActionPromise(
-      fetchMostRecentMessagesActionTypes,
-      this.props.fetchMostRecentMessages(threadInfo.id),
-    );
     this.scrollToBottom();
-  }
-
-  componentWillUnmount() {
-    const { threadInfo } = this.props;
-    if (!threadInfo || threadInChatList(threadInfo)) {
-      return;
-    }
-    threadWatcher.removeID(threadInfo.id);
   }
 
   getSnapshotBeforeUpdate(prevProps: Props) {
@@ -406,7 +384,6 @@ export default React.memo<BaseProps>(function ConnectedChatMessageList(
   const callFetchMessagesBeforeCursor = useServerCall(
     fetchMessagesBeforeCursor,
   );
-  const callFetchMostRecentMessages = useServerCall(fetchMostRecentMessages);
 
   const inputState = React.useContext(InputStateContext);
   const [dndProps, connectDropTarget] = useDrop({
@@ -430,6 +407,8 @@ export default React.memo<BaseProps>(function ConnectedChatMessageList(
     return { getTextMessageMarkdownRules };
   }, [getTextMessageMarkdownRules]);
 
+  useWatchThread(threadInfo);
+
   return (
     <MessageListContext.Provider value={messageListContext}>
       <ChatMessageList
@@ -443,7 +422,6 @@ export default React.memo<BaseProps>(function ConnectedChatMessageList(
         inputState={inputState}
         dispatchActionPromise={dispatchActionPromise}
         fetchMessagesBeforeCursor={callFetchMessagesBeforeCursor}
-        fetchMostRecentMessages={callFetchMostRecentMessages}
         {...dndProps}
         connectDropTarget={connectDropTarget}
       />
