@@ -1,9 +1,10 @@
 // @flow
 
 import * as React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import * as Progress from 'react-native-progress';
 import Icon from 'react-native-vector-icons/Feather';
+import tinycolor from 'tinycolor2';
 
 import type { MediaInfo } from 'lib/types/media-types';
 
@@ -11,9 +12,6 @@ import GestureTouchableOpacity from '../components/gesture-touchable-opacity.rea
 import type { PendingMultimediaUpload } from '../input/input-state';
 import { KeyboardContext } from '../keyboard/keyboard-state';
 import Multimedia from '../media/multimedia.react';
-
-const formatProgressText = (progress: number) =>
-  `${Math.floor(progress * 100)}%`;
 
 type Props = {|
   +mediaInfo: MediaInfo,
@@ -28,8 +26,9 @@ function InlineMultimedia(props: Props) {
 
   let failed = mediaInfo.id.startsWith('localUpload') && !postInProgress;
   let progressPercent = 1;
+  let processingStep;
   if (pendingUpload) {
-    ({ progressPercent, failed } = pendingUpload);
+    ({ progressPercent, failed, processingStep } = pendingUpload);
   }
 
   let progressIndicator;
@@ -40,21 +39,44 @@ function InlineMultimedia(props: Props) {
       </View>
     );
   } else if (progressPercent !== 1) {
+    const progressOverlay = (
+      <View style={styles.progressOverlay}>
+        <Text style={styles.progressPercentText}>
+          {`${Math.floor(progressPercent * 100).toString()}%`}
+        </Text>
+        <Text style={styles.processingStepText}>
+          {processingStep ? processingStep : 'pending'}
+        </Text>
+      </View>
+    );
+
+    const primaryColor = tinycolor(props.spinnerColor);
+    const secondaryColor = primaryColor.isDark()
+      ? primaryColor.lighten(20).toString()
+      : primaryColor.darken(20).toString();
+
+    const progressSpinnerProps = {
+      size: 120,
+      indeterminate: progressPercent === 0,
+      progress: progressPercent,
+      fill: secondaryColor,
+      unfilledColor: secondaryColor,
+      color: props.spinnerColor,
+      thickness: 10,
+      borderWidth: 0,
+    };
+
+    let progressSpinner;
+    if (processingStep === 'transcoding') {
+      progressSpinner = <Progress.Circle {...progressSpinnerProps} />;
+    } else {
+      progressSpinner = <Progress.Pie {...progressSpinnerProps} />;
+    }
+
     progressIndicator = (
       <View style={styles.centerContainer}>
-        <Progress.Circle
-          size={100}
-          indeterminate={progressPercent === 0}
-          progress={progressPercent}
-          borderWidth={5}
-          fill="#DDDDDD"
-          unfilledColor="#DDDDDD"
-          color="#88BB88"
-          thickness={15}
-          showsText={true}
-          textStyle={styles.progressIndicatorText}
-          formatText={formatProgressText}
-        />
+        {progressSpinner}
+        {progressOverlay}
       </View>
     );
   }
@@ -88,9 +110,23 @@ const styles = StyleSheet.create({
   expand: {
     flex: 1,
   },
-  progressIndicatorText: {
-    color: 'black',
-    fontSize: 21,
+  processingStepText: {
+    color: 'white',
+    fontSize: 12,
+    textShadowColor: '#000',
+    textShadowRadius: 1,
+  },
+  progressOverlay: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+  },
+  progressPercentText: {
+    color: 'white',
+    fontSize: 24,
+    fontWeight: 'bold',
+    textShadowColor: '#000',
+    textShadowRadius: 1,
   },
   uploadError: {
     color: 'white',

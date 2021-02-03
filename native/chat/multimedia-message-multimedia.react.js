@@ -158,7 +158,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
             onLongPress={this.onLongPress}
             postInProgress={postInProgress}
             pendingUpload={pendingUpload}
-            spinnerColor={this.props.colors.listSeparatorLabel}
+            spinnerColor={this.props.item.threadInfo.color}
           />
         </View>
       </Animated.View>

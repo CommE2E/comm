@@ -540,7 +540,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         { ...processedMedia.dimensions, loop: processedMedia.loop },
         {
           onProgress: (percent: number) =>
-            this.setProgress(localMessageID, localID, 'upload', percent),
+            this.setProgress(localMessageID, localID, 'uploading', percent),
           uploadBlob: this.uploadBlob,
         },
       );
@@ -636,7 +636,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   mediaProcessConfig(localMessageID: string, localID: string) {
     const { hasWiFi, viewerID } = this.props;
     const onTranscodingProgress = (percent: number) => {
-      this.setProgress(localMessageID, localID, 'transcode', percent);
+      this.setProgress(localMessageID, localID, 'transcoding', percent);
     };
     if (__DEV__ || (viewerID && isStaff(viewerID))) {
       return {
