@@ -186,9 +186,12 @@ async function updateRepliesCount(
   newMessageDatas: MessageData[],
 ) {
   const updatedThreads = [];
-  const update = SQL`
+
+  const updateThreads = SQL`
     UPDATE threads
     SET replies_count = replies_count + (CASE `;
+
+  const membershipConditions = [];
   for (const [threadID, messages] of threadsToMessageIndices.entries()) {
     const newRepliesIncrease = messages
       .map((i) => newMessageDatas[i].type)
@@ -197,21 +200,39 @@ async function updateRepliesCount(
       continue;
     }
 
-    update.append(SQL`
+    updateThreads.append(SQL`
       WHEN id = ${threadID} THEN ${newRepliesIncrease}
     `);
     updatedThreads.push(threadID);
+
+    const senders = messages.map((i) => newMessageDatas[i].creatorID);
+    membershipConditions.push(
+      SQL`thread = ${threadID} AND user IN (${senders})`,
+    );
   }
-  update.append(SQL`
+  updateThreads.append(SQL`
       ELSE 0
       END)
     WHERE id IN (${updatedThreads})
       AND type = ${threadTypes.SIDEBAR}
   `);
+
+  const updateMemberships = SQL`
+    UPDATE memberships
+    SET sender = 1
+    WHERE sender = 0 
+      AND (
+  `;
+  updateMemberships.append(mergeOrConditions(membershipConditions));
+  updateMemberships.append(SQL`
+      )
+  `);
+
   if (updatedThreads.length > 0) {
     const [{ threadInfos: serverThreadInfos }] = await Promise.all([
       fetchServerThreadInfos(SQL`t.id IN (${updatedThreads})`),
-      dbQuery(update),
+      dbQuery(updateThreads),
+      dbQuery(updateMemberships),
     ]);
 
     const time = Date.now();
