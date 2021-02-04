@@ -82,7 +82,8 @@ async function createTables() {
       creation_time bigint(20) NOT NULL,
       subscription json NOT NULL,
       last_message bigint(20) NOT NULL DEFAULT 0,
-      last_read_message bigint(20) NOT NULL DEFAULT 0
+      last_read_message bigint(20) NOT NULL DEFAULT 0,
+      sender tinyint(1) UNSIGNED NOT NULL DEFAULT 0
     ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
     CREATE TABLE messages (
