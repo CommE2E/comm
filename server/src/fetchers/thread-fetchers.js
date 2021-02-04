@@ -22,7 +22,7 @@ async function fetchServerThreadInfos(
       t.type, t.creation_time, t.default_role, t.source_message, t.replies_count,
       r.id AS role, r.name AS role_name, r.permissions AS role_permissions,
       m.user, m.permissions, m.subscription,
-      m.last_read_message < m.last_message AS unread
+      m.last_read_message < m.last_message AS unread, m.sender
     FROM threads t
     LEFT JOIN (
         SELECT thread, id, name, permissions
@@ -78,6 +78,7 @@ async function fetchServerThreadInfos(
         role: row.role ? role : null,
         subscription: row.subscription,
         unread: row.role ? !!row.unread : null,
+        isSender: !!row.sender,
       });
     }
   }
