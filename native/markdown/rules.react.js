@@ -343,7 +343,7 @@ function useTextMessageRulesFunc(threadID: string) {
 function textMessageRules(
   members: $ReadOnlyArray<RelativeMemberInfo>,
   useDarkStyle: boolean,
-) {
+): MarkdownRules {
   const styles = getMarkdownStyles(useDarkStyle ? 'dark' : 'light');
   const baseRules = fullMarkdownRules(useDarkStyle);
   return {
@@ -371,4 +371,17 @@ function textMessageRules(
   };
 }
 
-export { inlineMarkdownRules, useTextMessageRulesFunc };
+let defaultTextMessageRules = null;
+
+function getDefaultTextMessageRules(): MarkdownRules {
+  if (!defaultTextMessageRules) {
+    defaultTextMessageRules = textMessageRules([], false);
+  }
+  return defaultTextMessageRules;
+}
+
+export {
+  inlineMarkdownRules,
+  useTextMessageRulesFunc,
+  getDefaultTextMessageRules,
+};

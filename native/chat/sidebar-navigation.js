@@ -10,6 +10,7 @@ import type {
 } from 'lib/utils/action-utils';
 
 import type { InputState } from '../input/input-state';
+import { getDefaultTextMessageRules } from '../markdown/rules.react';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import { MessageListRouteName } from '../navigation/route-names';
 import type { TooltipRoute } from '../navigation/tooltip.react';
@@ -80,6 +81,7 @@ function onPressCreateSidebar(
     messageInfo,
     threadInfo,
     viewerID,
+    getDefaultTextMessageRules().simpleMarkdownRules,
   );
   const sourceMessageID = messageInfo.id;
 

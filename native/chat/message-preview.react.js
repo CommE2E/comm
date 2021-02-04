@@ -4,33 +4,43 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text } from 'react-native';
 
-import { messagePreviewText } from 'lib/shared/message-utils';
+import { getMessageTitle } from 'lib/shared/message-utils';
 import { threadIsGroupChat } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
-import { type MessageInfo, messageTypes } from 'lib/types/message-types';
+import {
+  type MessageInfo,
+  messageTypes,
+  type ComposableMessageInfo,
+  type RobotextMessageInfo,
+} from 'lib/types/message-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
 import { connect } from 'lib/utils/redux-utils';
-import { firstLine } from 'lib/utils/string-utils';
 
 import { SingleLine } from '../components/single-line.react';
+import { getDefaultTextMessageRules } from '../markdown/rules.react';
 import type { AppState } from '../redux/redux-setup';
 import { styleSelector } from '../themes/colors';
 
 type Props = {|
-  messageInfo: MessageInfo,
-  threadInfo: ThreadInfo,
+  +messageInfo: MessageInfo,
+  +threadInfo: ThreadInfo,
   // Redux state
-  styles: typeof styles,
+  +styles: typeof styles,
 |};
 class MessagePreview extends React.PureComponent<Props> {
   render() {
-    const messageInfo: MessageInfo =
+    const messageInfo: ComposableMessageInfo | RobotextMessageInfo =
       this.props.messageInfo.type === messageTypes.SIDEBAR_SOURCE
         ? this.props.messageInfo.sourceMessage
         : this.props.messageInfo;
     const unreadStyle = this.props.threadInfo.currentUser.unread
       ? this.props.styles.unread
       : null;
+    const messageTitle = getMessageTitle(
+      messageInfo,
+      this.props.threadInfo,
+      getDefaultTextMessageRules().simpleMarkdownRules,
+    );
     if (messageInfo.type === messageTypes.TEXT) {
       let usernameText = null;
       if (
@@ -46,14 +56,13 @@ class MessagePreview extends React.PureComponent<Props> {
           </Text>
         );
       }
-      const firstMessageLine = firstLine(messageInfo.text);
       return (
         <Text
           style={[this.props.styles.lastMessage, unreadStyle]}
           numberOfLines={1}
         >
           {usernameText}
-          {firstMessageLine}
+          {messageTitle}
         </Text>
       );
     } else {
@@ -61,7 +70,6 @@ class MessagePreview extends React.PureComponent<Props> {
         messageInfo.type !== messageTypes.SIDEBAR_SOURCE,
         'Sidebar source should not be handled here',
       );
-      const preview = messagePreviewText(messageInfo, this.props.threadInfo);
       return (
         <SingleLine
           style={[
@@ -70,7 +78,7 @@ class MessagePreview extends React.PureComponent<Props> {
             unreadStyle,
           ]}
         >
-          {preview}
+          {messageTitle}
         </SingleLine>
       );
     }

@@ -159,7 +159,7 @@ function useTextMessageRulesFunc(threadID: ?string) {
 function textMessageRules(
   members: $ReadOnlyArray<RelativeMemberInfo>,
   useDarkStyle: boolean,
-) {
+): MarkdownRules {
   const baseRules = markdownRules(useDarkStyle);
   return {
     ...baseRules,
@@ -182,4 +182,13 @@ function textMessageRules(
   };
 }
 
-export { linkRules, useTextMessageRulesFunc };
+let defaultTextMessageRules = null;
+
+function getDefaultTextMessageRules(): MarkdownRules {
+  if (!defaultTextMessageRules) {
+    defaultTextMessageRules = textMessageRules([], false);
+  }
+  return defaultTextMessageRules;
+}
+
+export { linkRules, useTextMessageRulesFunc, getDefaultTextMessageRules };

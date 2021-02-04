@@ -16,6 +16,7 @@ import type {
 } from 'lib/types/message-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
+import { getDefaultTextMessageRules } from '../markdown/rules.react';
 import type { AppState } from '../redux/redux-setup';
 import { updateNavInfoActionType } from '../redux/redux-setup';
 import { useSelector } from '../redux/redux-utils';
@@ -159,6 +160,7 @@ function useOnClickPendingSidebar(
         messageInfo,
         threadInfo,
         viewerID,
+        getDefaultTextMessageRules().simpleMarkdownRules,
       );
       dispatch({
         type: updateNavInfoActionType,
