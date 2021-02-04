@@ -46,11 +46,15 @@ function InlineSidebar(props: Props) {
   }
 
   const unreadStyle = threadInfo.currentUser.unread ? styles.unread : null;
+  const repliesCount = threadInfo.repliesCount || 1;
+  const repliesText = `${repliesCount} ${
+    repliesCount > 1 ? 'replies' : 'reply'
+  }`;
   return (
     <View style={[styles.content, alignStyle]}>
       <Button style={styles.sidebar} onPress={onPress}>
         {nonViewerIcon}
-        <Text style={[styles.name, unreadStyle]}>sidebar</Text>
+        <Text style={[styles.name, unreadStyle]}>{repliesText}</Text>
         {viewerIcon}
       </Button>
     </View>
