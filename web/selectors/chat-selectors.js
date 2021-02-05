@@ -139,4 +139,4 @@ const webMessageListData: (
   },
 );
 
-export { webChatListData, webMessageListData };
+export { webChatListData, webMessageListData, activeChatThreadItem };

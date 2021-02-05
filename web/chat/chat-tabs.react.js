@@ -3,8 +3,10 @@
 import * as React from 'react';
 
 import { unreadBackgroundCount } from 'lib/selectors/thread-selectors';
+import { threadIsTopLevel } from 'lib/shared/thread-utils';
 
 import { useSelector } from '../redux/redux-utils';
+import { activeChatThreadItem as activeChatThreadItemSelector } from '../selectors/chat-selectors';
 import css from './chat-tabs.css';
 import ChatThreadBackground from './chat-thread-background.react';
 import ChatThreadHome from './chat-thread-home.react';
@@ -26,6 +28,26 @@ function ChatTabs(props: Props) {
     () => setActiveTab('BACKGROUND'),
     [],
   );
+
+  const activeChatThreadItem = useSelector(activeChatThreadItemSelector);
+  const activeThreadInfo = activeChatThreadItem?.threadInfo;
+  const activeThreadFromHomeTab =
+    activeThreadInfo?.currentUser.subscription.home;
+  const activeThreadID = activeThreadInfo?.id;
+  const activeThreadHasSpecificTab = threadIsTopLevel(activeThreadInfo);
+  const activeThreadIsFromDifferentTab =
+    (activeTab === 'BACKGROUND' && activeThreadFromHomeTab) ||
+    (activeTab === 'HOME' && !activeThreadFromHomeTab);
+  const prevActiveThreadIDRef = React.useRef<?string>();
+  const shouldChangeTab =
+    activeThreadHasSpecificTab && activeThreadIsFromDifferentTab;
+  React.useEffect(() => {
+    const prevActiveThreadID = prevActiveThreadIDRef.current;
+    prevActiveThreadIDRef.current = activeThreadID;
+    if (activeThreadID !== prevActiveThreadID && shouldChangeTab) {
+      setActiveTab(activeThreadFromHomeTab ? 'HOME' : 'BACKGROUND');
+    }
+  }, [activeThreadID, activeThreadFromHomeTab, shouldChangeTab]);
 
   const threadList =
     activeTab === 'HOME' ? (
