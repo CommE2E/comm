@@ -2,6 +2,7 @@
 
 import invariant from 'invariant';
 
+import bots from 'lib/facts/bots';
 import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils';
 import {
   generatePendingThreadColor,
@@ -38,6 +39,8 @@ import createIDs from './id-creator';
 import createMessages from './message-creator';
 import { createInitialRolesForNewThread } from './role-creator';
 import type { UpdatesForCurrentSession } from './update-creator';
+
+const { squadbot } = bots;
 
 type CreateThreadOptions = Shape<{|
   +forceAddMembers: boolean,
@@ -456,4 +459,21 @@ async function createThread(
   };
 }
 
-export { createThread };
+function createPrivateThread(viewer: Viewer): Promise<NewThreadResponse> {
+  return createThread(
+    viewer,
+    {
+      type: threadTypes.PRIVATE,
+      name: viewer.userID,
+      description:
+        'This is your private thread, ' +
+        'where you can set reminders and jot notes in private!',
+      ghostMemberIDs: [squadbot.userID],
+    },
+    {
+      forceAddMembers: true,
+    },
+  );
+}
+
+export { createThread, createPrivateThread };
