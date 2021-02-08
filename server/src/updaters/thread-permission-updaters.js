@@ -61,6 +61,7 @@ type MembershipRowToDelete = {|
   operation: 'delete',
   userID: string,
   threadID: string,
+  forceRowCreation?: boolean,
 |};
 type MembershipRow = MembershipRowToSave | MembershipRowToDelete;
 type Changeset = {|
@@ -74,7 +75,7 @@ type Changeset = {|
 async function changeRole(
   threadID: string,
   userIDs: $ReadOnlyArray<string>,
-  role: string | 0 | null,
+  role: string | -1 | 0 | null,
 ): Promise<?Changeset> {
   const membershipQuery = SQL`
     SELECT m.user, m.role, m.permissions_for_children,
@@ -139,9 +140,15 @@ async function changeRole(
     const permissionsForChildren = makePermissionsForChildrenBlob(permissions);
 
     if (permissions) {
+      if (role === -1) {
+        console.warn(
+          `changeRole called for -1 role, 
+          but found non-null permissions for userID ${userID} and threadID ${threadID}`,
+        );
+      }
       membershipRows.push({
         operation:
-          roleThreadResult.roleColumnValue !== '0' &&
+          Number(roleThreadResult.roleColumnValue) > 0 &&
           (!userRoleInfo || Number(userRoleInfo.oldRole) <= 0)
             ? 'join'
             : 'update',
@@ -149,13 +156,17 @@ async function changeRole(
         threadID,
         permissions,
         permissionsForChildren,
-        role: roleThreadResult.roleColumnValue,
+        role:
+          Number(roleThreadResult.roleColumnValue) >= 0
+            ? roleThreadResult.roleColumnValue
+            : '0',
       });
     } else {
       membershipRows.push({
         operation: 'delete',
         userID,
         threadID,
+        forceRowCreation: role === -1,
       });
     }
 
@@ -197,7 +208,7 @@ type RoleThreadResult = {|
 |};
 async function changeRoleThreadQuery(
   threadID: string,
-  role: string | 0 | null,
+  role: string | -1 | 0 | null,
 ): Promise<?RoleThreadResult> {
   if (role === 0) {
     const query = SQL`SELECT type FROM threads WHERE id = ${threadID}`;
@@ -208,6 +219,18 @@ async function changeRoleThreadQuery(
     const row = result[0];
     return {
       roleColumnValue: '0',
+      threadType: assertThreadType(row.type),
+      rolePermissions: null,
+    };
+  } else if (role === -1) {
+    const query = SQL`SELECT type FROM threads WHERE id = ${threadID}`;
+    const [result] = await dbQuery(query);
+    if (result.length === 0) {
+      return null;
+    }
+    const row = result[0];
+    return {
+      roleColumnValue: '-1',
       threadType: assertThreadType(row.type),
       rolePermissions: null,
     };
@@ -541,19 +564,60 @@ async function deleteMemberships(
   if (toDelete.length === 0) {
     return;
   }
-  const deleteRows = toDelete.map(
-    (rowToDelete) =>
-      SQL`(user = ${rowToDelete.userID} AND thread = ${rowToDelete.threadID})`,
-  );
-  const conditions = mergeOrConditions(deleteRows);
-  const query = SQL`
-    UPDATE memberships 
-    SET role = -1, permissions = NULL, permissions_for_children = NULL, 
-      subscription = ${defaultSubscriptionString}, last_message = 0,
+
+  const time = Date.now();
+  const insertRows = [];
+  const deleteRows = [];
+  for (const rowToDelete of toDelete) {
+    if (rowToDelete.forceRowCreation) {
+      insertRows.push([
+        rowToDelete.userID,
+        rowToDelete.threadID,
+        -1,
+        time,
+        defaultSubscriptionString,
+        null,
+        null,
+        0,
+        0,
+      ]);
+    } else {
+      deleteRows.push(
+        SQL`(user = ${rowToDelete.userID} AND thread = ${rowToDelete.threadID})`,
+      );
+    }
+  }
+
+  const queries = [];
+  if (insertRows.length > 0) {
+    const query = SQL`
+    INSERT INTO memberships (user, thread, role, creation_time, subscription,
+      permissions, permissions_for_children, last_message, last_read_message)
+    VALUES ${insertRows}
+    ON DUPLICATE KEY UPDATE
+      role = -1,
+      permissions = NULL,
+      permissions_for_children = NULL,
+      subscription = ${defaultSubscriptionString},
+      last_message = 0,
       last_read_message = 0
-    WHERE `;
-  query.append(conditions);
-  await dbQuery(query);
+    `;
+    queries.push(dbQuery(query));
+  }
+
+  if (deleteRows.length > 0) {
+    const conditions = mergeOrConditions(deleteRows);
+    const query = SQL`
+      UPDATE memberships 
+      SET role = -1, permissions = NULL, permissions_for_children = NULL, 
+        subscription = ${defaultSubscriptionString}, last_message = 0,
+        last_read_message = 0
+      WHERE `;
+    query.append(conditions);
+    queries.push(dbQuery(query));
+  }
+
+  await Promise.all(queries);
 }
 
 // Specify non-empty changedThreadIDs to force updates to be generated for those
