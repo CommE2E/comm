@@ -58,6 +58,7 @@ class Message extends React.PureComponent<Props> {
           item={item}
           threadInfo={this.props.threadInfo}
           setMouseOverMessagePosition={this.props.setMouseOverMessagePosition}
+          mouseOverMessagePosition={this.props.mouseOverMessagePosition}
           setModal={this.props.setModal}
         />
       );

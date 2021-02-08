@@ -11,7 +11,10 @@ import { type InputState, InputStateContext } from '../input/input-state';
 import Multimedia from '../media/multimedia.react';
 import css from './chat-message-list.css';
 import ComposedMessage from './composed-message.react';
-import type { MessagePositionInfo } from './message-position-types';
+import type {
+  MessagePositionInfo,
+  OnMessagePositionInfo,
+} from './message-position-types';
 import sendFailed from './multimedia-message-send-failed';
 
 type BaseProps = {|
@@ -20,6 +23,7 @@ type BaseProps = {|
   +setMouseOverMessagePosition: (
     messagePositionInfo: MessagePositionInfo,
   ) => void,
+  +mouseOverMessagePosition: ?OnMessagePositionInfo,
   +setModal: (modal: ?React.Node) => void,
 |};
 type Props = {|
@@ -70,6 +74,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
         threadInfo={this.props.threadInfo}
         sendFailed={sendFailed(item, inputState)}
         setMouseOverMessagePosition={this.props.setMouseOverMessagePosition}
+        mouseOverMessagePosition={this.props.mouseOverMessagePosition}
         canReply={false}
         fixedWidth={multimedia.length > 1}
         borderRadius={16}

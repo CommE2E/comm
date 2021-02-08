@@ -23,6 +23,7 @@ import {
   type MessagePositionInfo,
 } from './message-position-types';
 import MessageReplyTooltip from './message-reply-tooltip.react';
+import SidebarTooltip from './sidebar-tooltip.react';
 
 type BaseProps = {|
   +item: ChatMessageInfoItem,
@@ -108,7 +109,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       );
     }
 
-    let viewerTooltip, nonViewerTooltip;
+    let viewerReplyTooltip, nonViewerReplyTooltip;
     if (
       this.props.mouseOverMessagePosition &&
       this.props.mouseOverMessagePosition.item.messageInfo.id === id &&
@@ -124,9 +125,29 @@ class ComposedMessage extends React.PureComponent<Props> {
         />
       );
       if (isViewer) {
-        viewerTooltip = replyTooltip;
+        viewerReplyTooltip = replyTooltip;
       } else {
-        nonViewerTooltip = replyTooltip;
+        nonViewerReplyTooltip = replyTooltip;
+      }
+    }
+
+    let viewerSidebarTooltip, nonViewerSidebarTooltip;
+    if (
+      this.props.mouseOverMessagePosition &&
+      this.props.mouseOverMessagePosition.item.messageInfo.id === id &&
+      this.props.item.threadCreatedFromMessage
+    ) {
+      const sidebarTooltip = (
+        <SidebarTooltip
+          messagePositionInfo={this.props.mouseOverMessagePosition}
+          threadCreatedFromMessage={this.props.item.threadCreatedFromMessage}
+          onClick={this.onMouseLeave}
+        />
+      );
+      if (isViewer) {
+        viewerSidebarTooltip = sidebarTooltip;
+      } else {
+        nonViewerSidebarTooltip = sidebarTooltip;
       }
     }
 
@@ -152,11 +173,13 @@ class ComposedMessage extends React.PureComponent<Props> {
             onMouseEnter={this.onMouseEnter}
             onMouseLeave={this.onMouseLeave}
           >
-            {viewerTooltip}
+            {viewerSidebarTooltip}
+            {viewerReplyTooltip}
             <div className={messageBoxClassName} style={messageBoxStyle}>
               {this.props.children}
             </div>
-            {nonViewerTooltip}
+            {nonViewerReplyTooltip}
+            {nonViewerSidebarTooltip}
           </div>
           {deliveryIcon}
         </div>

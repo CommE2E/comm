@@ -165,19 +165,28 @@ div.messageTimestampBottomRightTooltip:after {
   border-color: transparent transparent black transparent;
 }
 
-div.messageReplyTooltip {
+div.messageTooltip {
   position: relative;
   color: gray;
-  padding: 15px;
   font-size: 14px;
 }
-div.messageReplyTooltipIcon {
-  position: absolute;
+div.tooltipLeftPadding {
+  padding-left: 8px;
+}
+div.tooltipRightPadding {
+  padding-right: 8px;
+}
+div.messageSidebarTooltip {
+  font-size: 16px;
+}
+
+div.messageTooltipIcon {
+  position: relative;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
-div.messageReplyTooltipIcon:hover {
+div.messageTooltipIcon:hover {
   cursor: pointer;
 }
 
@@ -402,4 +411,63 @@ div.sidebarMarginTop {
 }
 svg.inlineSidebarIcon {
   color: #666666;
+}
+
+.menuSidebarContent {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 1;
+  width: max-content;
+  border-radius: 5px;
+  margin-top: 2px;
+  margin-right: -3px;
+  overflow: visible;
+  box-shadow: unset;
+}
+.menuSidebarContentVisible {
+  display: block;
+}
+.menuSidebarContent ul {
+  list-style: none;
+}
+.menuSidebarContent li:not(:last-child) {
+  border-bottom: 1px solid #DDDDDD;
+}
+.menuSidebarContent:after {
+  content: "";
+  position: absolute;
+  border-width: 7px;
+  border-style: solid;
+}
+.menuSidebarContent button {
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  font-size: 14px;
+  outline: none;
+  border-radius: 5px;
+  background-color: black;
+  color: white;
+  text-decoration: underline;
+}
+.menuSidebarContent button:hover {
+  background-color: black;
+  color: #129AFF;
+}
+.menuSidebarNonViewerContent {
+  left: 0;
+  margin-left: -3px;
+}
+.menuSidebarContent:before {
+  height: 15px;
+  width: 55px;
+  content: "";
+  position: absolute;
+  top: -15px;
+  right: 0;
+}
+.menuSidebarNonViewerContent:before {
+  left: 0;
 }
