@@ -100,7 +100,7 @@ const unboundStyles = {
     paddingTop: Platform.OS === 'ios' ? 4 : 1,
   },
   addIcon: {
-    color: '#009900',
+    color: 'link',
   },
   addItemRow: {
     backgroundColor: 'panelForeground',
