@@ -71,6 +71,10 @@ async function createThread(
     request.initialMemberIDs && request.initialMemberIDs.length > 0
       ? request.initialMemberIDs
       : null;
+  const ghostMemberIDs =
+    request.ghostMemberIDs && request.ghostMemberIDs.length > 0
+      ? request.ghostMemberIDs
+      : null;
 
   if (
     threadType !== threadTypes.CHAT_SECRET &&
@@ -102,16 +106,23 @@ async function createThread(
         : threadPermissions.CREATE_SUBTHREADS,
     );
   }
+
+  const memberIDs = [];
   if (initialMemberIDs) {
-    checkPromises.fetchInitialMembers = fetchKnownUserInfos(
-      viewer,
-      initialMemberIDs,
-    );
+    memberIDs.push(...initialMemberIDs);
   }
+  if (ghostMemberIDs) {
+    memberIDs.push(...ghostMemberIDs);
+  }
+
+  if (initialMemberIDs || ghostMemberIDs) {
+    checkPromises.fetchMemberIDs = fetchKnownUserInfos(viewer, memberIDs);
+  }
+
   const {
     parentThreadFetch,
     hasParentPermission,
-    fetchInitialMembers,
+    fetchMemberIDs,
   } = await promiseAll(checkPromises);
 
   let parentThreadMembers;
@@ -127,22 +138,22 @@ async function createThread(
   }
 
   const viewerNeedsRelationshipsWith = [];
-  if (fetchInitialMembers) {
-    invariant(initialMemberIDs, 'should be set');
-    for (const initialMemberID of initialMemberIDs) {
-      const initialMember = fetchInitialMembers[initialMemberID];
+  if (fetchMemberIDs) {
+    invariant(initialMemberIDs || ghostMemberIDs, 'should be set');
+    for (const memberID of memberIDs) {
+      const member = fetchMemberIDs[memberID];
       if (
-        !initialMember &&
+        !member &&
         shouldCreateRelationships &&
         (threadType !== threadTypes.SIDEBAR ||
-          parentThreadMembers?.includes(initialMemberID))
+          parentThreadMembers?.includes(memberID))
       ) {
-        viewerNeedsRelationshipsWith.push(initialMemberID);
+        viewerNeedsRelationshipsWith.push(memberID);
         continue;
-      } else if (!initialMember) {
+      } else if (!member) {
         throw new ServerError('invalid_credentials');
       }
-      const { relationshipStatus } = initialMember;
+      const { relationshipStatus } = member;
       if (
         relationshipStatus === userRelationshipStatus.FRIEND &&
         threadType !== threadTypes.SIDEBAR
@@ -155,7 +166,7 @@ async function createThread(
         throw new ServerError('invalid_credentials');
       } else if (
         parentThreadMembers &&
-        parentThreadMembers.includes(initialMemberID)
+        parentThreadMembers.includes(memberID)
       ) {
         continue;
       } else if (!shouldCreateRelationships) {
@@ -275,10 +286,12 @@ async function createThread(
   const [
     creatorChangeset,
     initialMembersChangeset,
+    ghostMembersChangeset,
     recalculatePermissionsChangeset,
   ] = await Promise.all([
     changeRole(id, [viewer.userID], newRoles.creator.id),
     initialMemberIDs ? changeRole(id, initialMemberIDs, null) : undefined,
+    ghostMemberIDs ? changeRole(id, ghostMemberIDs, -1) : undefined,
     recalculateAllPermissions(id, threadType),
   ]);
 
@@ -290,9 +303,6 @@ async function createThread(
     relationshipRows: creatorRelationshipRows,
   } = creatorChangeset;
 
-  const initialMemberAndCreatorIDs = initialMemberIDs
-    ? [...initialMemberIDs, viewer.userID]
-    : [viewer.userID];
   const {
     membershipRows: recalculateMembershipRows,
     relationshipRows: recalculateRelationshipRows,
@@ -306,8 +316,8 @@ async function createThread(
     ...creatorRelationshipRows,
     ...recalculateRelationshipRows,
   ];
-  if (initialMemberIDs) {
-    if (!initialMembersChangeset) {
+  if (initialMemberIDs || ghostMemberIDs) {
+    if (!initialMembersChangeset && !ghostMembersChangeset) {
       throw new ServerError('unknown_error');
     }
     relationshipRows.push(
@@ -316,21 +326,39 @@ async function createThread(
         viewerNeedsRelationshipsWith,
       ),
     );
-    const {
-      membershipRows: initialMembersMembershipRows,
-      relationshipRows: initialMembersRelationshipRows,
-    } = initialMembersChangeset;
+    const membersMembershipRows = [];
+    const membersRelationshipRows = [];
+    if (initialMembersChangeset) {
+      const {
+        membershipRows: initialMembersMembershipRows,
+        relationshipRows: initialMembersRelationshipRows,
+      } = initialMembersChangeset;
+      membersMembershipRows.push(...initialMembersMembershipRows);
+      membersRelationshipRows.push(...initialMembersRelationshipRows);
+    }
+
+    if (ghostMembersChangeset) {
+      const {
+        membershipRows: ghostMembersMembershipRows,
+        relationshipRows: ghostMembersRelationshipRows,
+      } = ghostMembersChangeset;
+      membersMembershipRows.push(...ghostMembersMembershipRows);
+      membersRelationshipRows.push(...ghostMembersRelationshipRows);
+    }
+
+    const memberAndCreatorIDs = [...memberIDs, viewer.userID];
     const parentRelationshipRows = getParentThreadRelationshipRowsForNewUsers(
       id,
       recalculateMembershipRows,
-      initialMemberAndCreatorIDs,
+      memberAndCreatorIDs,
     );
-    membershipRows.push(...initialMembersMembershipRows);
+    membershipRows.push(...membersMembershipRows);
     relationshipRows.push(
-      ...initialMembersRelationshipRows,
+      ...membersRelationshipRows,
       ...parentRelationshipRows,
     );
   }
+
   setJoinsToUnread(membershipRows, viewer.userID, id);
 
   const changeset = { membershipRows, relationshipRows };
@@ -342,6 +370,9 @@ async function createThread(
     updatesForCurrentSession,
   });
 
+  const initialMemberAndCreatorIDs = initialMemberIDs
+    ? [...initialMemberIDs, viewer.userID]
+    : [viewer.userID];
   const messageDatas = [];
   if (threadType !== threadTypes.SIDEBAR) {
     messageDatas.push({
