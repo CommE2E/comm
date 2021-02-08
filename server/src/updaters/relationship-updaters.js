@@ -19,7 +19,7 @@ import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
 
 import createMessages from '../creators/message-creator';
-import createThread from '../creators/thread-creator';
+import { createThread } from '../creators/thread-creator';
 import { createUpdates } from '../creators/update-creator';
 import { dbQuery, SQL } from '../database/database';
 import { fetchFriendRequestRelationshipOperations } from '../fetchers/relationship-fetchers';

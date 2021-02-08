@@ -456,4 +456,4 @@ async function createThread(
   };
 }
 
-export default createThread;
+export { createThread };

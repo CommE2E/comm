@@ -5,7 +5,7 @@ import invariant from 'invariant';
 import bots from 'lib/facts/bots';
 import { threadTypes } from 'lib/types/thread-types';
 
-import createThread from '../creators/thread-creator';
+import { createThread } from '../creators/thread-creator';
 import { createBotViewer } from '../session/bots';
 
 const { squadbot } = bots;

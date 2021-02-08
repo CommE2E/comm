@@ -18,7 +18,7 @@ import {
 } from 'lib/types/thread-types';
 import { values } from 'lib/utils/objects';
 
-import createThread from '../creators/thread-creator';
+import { createThread } from '../creators/thread-creator';
 import { deleteThread } from '../deleters/thread-deleters';
 import type { Viewer } from '../session/viewer';
 import {

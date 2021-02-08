@@ -29,7 +29,7 @@ import { createNewUserCookie, setNewSession } from '../session/cookies';
 import type { Viewer } from '../session/viewer';
 import createIDs from './id-creator';
 import createMessages from './message-creator';
-import createThread from './thread-creator';
+import { createThread } from './thread-creator';
 
 const ashoatMessages = [
   'welcome to SquadCal! thanks for helping to test the alpha.',
