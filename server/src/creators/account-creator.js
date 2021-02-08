@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import bcrypt from 'twin-bcrypt';
 
 import ashoat from 'lib/facts/ashoat';
+import bots from 'lib/facts/bots';
 import {
   validUsernameRegex,
   oldValidUsernameRegex,
@@ -31,10 +32,16 @@ import createIDs from './id-creator';
 import createMessages from './message-creator';
 import { createThread, createPrivateThread } from './thread-creator';
 
+const { squadbot } = bots;
+
 const ashoatMessages = [
   'welcome to SquadCal! thanks for helping to test the alpha.',
   'as you inevitably discover bugs, have feature requests, or design ' +
     'suggestions, feel free to message them to me in the app.',
+];
+
+const privateMessages = [
+  'This is your private thread, where you can set reminders and jot notes in private!',
 ];
 
 async function createAccount(
@@ -121,8 +128,11 @@ async function createAccount(
   const ashoatThreadID = ashoatThreadResult.newThreadInfo
     ? ashoatThreadResult.newThreadInfo.id
     : ashoatThreadResult.newThreadID;
+  const privateThreadID = privateThreadResult.newThreadInfo
+    ? privateThreadResult.newThreadInfo.id
+    : privateThreadResult.newThreadID;
   invariant(
-    ashoatThreadID,
+    ashoatThreadID && privateThreadID,
     'createThread should return either newThreadInfo or newThreadID',
   );
 
@@ -134,15 +144,23 @@ async function createAccount(
     time: messageTime++,
     text: message,
   }));
-  const [ashoatMessageInfos, threadsResult, userInfos] = await Promise.all([
-    createMessages(viewer, ashoatMessageDatas),
+  const privateMessageDatas = privateMessages.map((message) => ({
+    type: messageTypes.TEXT,
+    threadID: privateThreadID,
+    creatorID: squadbot.userID,
+    time: messageTime++,
+    text: message,
+  }));
+  const messageDatas = [...ashoatMessageDatas, ...privateMessageDatas];
+  const [messageInfos, threadsResult, userInfos] = await Promise.all([
+    createMessages(viewer, messageDatas),
     fetchThreadInfos(viewer),
     fetchKnownUserInfos(viewer),
   ]);
   const rawMessageInfos = [
-    ...privateThreadResult.newMessageInfos,
     ...ashoatThreadResult.newMessageInfos,
-    ...ashoatMessageInfos,
+    ...privateThreadResult.newMessageInfos,
+    ...messageInfos,
   ];
 
   return {
