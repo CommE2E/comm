@@ -19,7 +19,8 @@ import type { BaseNavInfo } from 'lib/types/nav-types';
 import type { BaseAction } from 'lib/types/redux-types';
 import type { ClientReportCreationRequest } from 'lib/types/report-types';
 import type { ConnectionInfo } from 'lib/types/socket-types';
-import type { ThreadStore } from 'lib/types/thread-types';
+import type { ThreadInfo, ThreadStore } from 'lib/types/thread-types';
+import { threadInfoPropType } from 'lib/types/thread-types';
 import type { CurrentUserInfo, UserStore } from 'lib/types/user-types';
 import type { ServerVerificationResult } from 'lib/types/verify-types';
 import { setNewSessionActionType } from 'lib/utils/action-utils';
@@ -33,6 +34,8 @@ export type NavInfo = {|
   +tab: 'calendar' | 'chat',
   +verify: ?string,
   +activeChatThreadID: ?string,
+  +pendingThread?: ThreadInfo,
+  +sourceMessageID?: string,
 |};
 
 export const navInfoPropType = PropTypes.shape({
@@ -41,6 +44,8 @@ export const navInfoPropType = PropTypes.shape({
   tab: PropTypes.oneOf(['calendar', 'chat']).isRequired,
   verify: PropTypes.string,
   activeChatThreadID: PropTypes.string,
+  pendingThread: threadInfoPropType,
+  sourceMessageID: PropTypes.string,
 });
 
 export type WindowDimensions = {| width: number, height: number |};
@@ -146,6 +151,7 @@ export function reducer(oldState: AppState | void, action: Action) {
 function validateState(oldState: AppState, state: AppState): AppState {
   if (
     state.navInfo.activeChatThreadID &&
+    !state.navInfo.pendingThread &&
     !state.threadStore.threadInfos[state.navInfo.activeChatThreadID]
   ) {
     // Makes sure the active thread always exists
@@ -166,6 +172,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
     document &&
     document.hasFocus &&
     document.hasFocus() &&
+    !state.navInfo.pendingThread &&
     state.threadStore.threadInfos[activeThread].currentUser.unread
   ) {
     // Makes sure a currently focused thread is never unread

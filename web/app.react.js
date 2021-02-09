@@ -349,7 +349,7 @@ export default React.memo<BaseProps>(function ConnectedApp(props: BaseProps) {
   const activeThreadCurrentlyUnread = useSelector(
     (state) =>
       !activeChatThreadID ||
-      !!state.threadStore.threadInfos[activeChatThreadID].currentUser.unread,
+      !!state.threadStore.threadInfos[activeChatThreadID]?.currentUser.unread,
   );
 
   const viewerID = useSelector(

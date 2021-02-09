@@ -7,8 +7,14 @@ import { createSelector } from 'reselect';
 
 import { nonThreadCalendarFiltersSelector } from 'lib/selectors/calendar-filter-selectors';
 import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
+import { createPendingSidebar } from 'lib/shared/thread-utils';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { CalendarFilter } from 'lib/types/filter-types';
+import type {
+  ComposableMessageInfo,
+  RobotextMessageInfo,
+} from 'lib/types/message-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 
 import type { AppState } from '../redux/redux-setup';
 import { updateNavInfoActionType } from '../redux/redux-setup';
@@ -137,6 +143,36 @@ function useThreadIsActive(threadID: string) {
   return useSelector((state) => threadID === state.navInfo.activeChatThreadID);
 }
 
+function useOnClickPendingSidebar(
+  messageInfo: ComposableMessageInfo | RobotextMessageInfo,
+  threadInfo: ThreadInfo,
+) {
+  const dispatch = useDispatch();
+  const viewerID = useSelector((state) => state.currentUserInfo?.id);
+  return React.useCallback(
+    (event: SyntheticEvent<HTMLElement>) => {
+      event.preventDefault();
+      if (!viewerID) {
+        return;
+      }
+      const pendingSidebarInfo = createPendingSidebar(
+        messageInfo,
+        threadInfo,
+        viewerID,
+      );
+      dispatch({
+        type: updateNavInfoActionType,
+        payload: {
+          activeChatThreadID: pendingSidebarInfo.id,
+          pendingThread: pendingSidebarInfo,
+          sourceMessageID: messageInfo.id,
+        },
+      });
+    },
+    [viewerID, messageInfo, threadInfo, dispatch],
+  );
+}
+
 export {
   yearExtractor,
   yearAssertingSelector,
@@ -147,4 +183,5 @@ export {
   nonThreadCalendarQuery,
   useOnClickThread,
   useThreadIsActive,
+  useOnClickPendingSidebar,
 };

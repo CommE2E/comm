@@ -365,12 +365,16 @@ export default React.memo<BaseProps>(function ConnectedChatMessageList(
     if (!activeID) {
       return null;
     }
-    return threadInfoSelector(state)[activeID];
+    return threadInfoSelector(state)[activeID] ?? state.navInfo.pendingThread;
   });
   const startReached = useSelector((state) => {
     const activeID = state.navInfo.activeChatThreadID;
     if (!activeID) {
       return null;
+    }
+
+    if (state.navInfo.pendingThread) {
+      return true;
     }
 
     const threadMessageInfo = state.messageStore.threads[activeID];
