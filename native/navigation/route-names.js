@@ -68,17 +68,16 @@ export const RobotextMessageTooltipModalRouteName =
   'RobotextMessageTooltipModal';
 
 export type RootParamList = {|
-  LoggedOutModal: void,
-  VerificationModal: VerificationModalParams,
-  App: void,
-  ThreadPickerModal: ThreadPickerModalParams,
-  AddUsersModal: AddUsersModalParams,
-  CustomServerModal: CustomServerModalParams,
-  ColorPickerModal: ColorPickerModalParams,
-  ComposeSubthreadModal: ComposeSubthreadModalParams,
-  SidebarListModal: SidebarListModalParams,
-  ImagePasteModal: ImagePasteModalParams,
-  VideoPlaybackModal: VideoPlaybackModalParams,
+  +LoggedOutModal: void,
+  +VerificationModal: VerificationModalParams,
+  +App: void,
+  +ThreadPickerModal: ThreadPickerModalParams,
+  +AddUsersModal: AddUsersModalParams,
+  +CustomServerModal: CustomServerModalParams,
+  +ColorPickerModal: ColorPickerModalParams,
+  +ComposeSubthreadModal: ComposeSubthreadModalParams,
+  +SidebarListModal: SidebarListModalParams,
+  +ImagePasteModal: ImagePasteModalParams,
 |};
 
 export type TooltipModalParamList = {|
@@ -90,10 +89,11 @@ export type TooltipModalParamList = {|
 |};
 
 export type OverlayParamList = {|
-  TabNavigator: void,
-  MultimediaModal: MultimediaModalParams,
-  ActionResultModal: ActionResultModalParams,
-  CameraModal: CameraModalParams,
+  +TabNavigator: void,
+  +MultimediaModal: MultimediaModalParams,
+  +ActionResultModal: ActionResultModalParams,
+  +CameraModal: CameraModalParams,
+  +VideoPlaybackModal: VideoPlaybackModalParams,
   ...TooltipModalParamList,
 |};
 
@@ -154,6 +154,7 @@ export const scrollBlockingModals = [
   ThreadSettingsMemberTooltipModalRouteName,
   RelationshipListItemTooltipModalRouteName,
   RobotextMessageTooltipModalRouteName,
+  VideoPlaybackModalRouteName,
 ];
 
 export const chatRootModals = [

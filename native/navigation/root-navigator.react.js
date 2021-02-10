@@ -22,7 +22,6 @@ import AddUsersModal from '../chat/settings/add-users-modal.react';
 import ColorPickerModal from '../chat/settings/color-picker-modal.react';
 import ComposeSubthreadModal from '../chat/settings/compose-subthread-modal.react';
 import SidebarListModal from '../chat/sidebar-list-modal.react';
-import VideoPlaybackModal from '../media/video-playback-modal.react';
 import CustomServerModal from '../more/custom-server-modal.react';
 import AppNavigator from './app-navigator.react';
 import { RootNavigatorContext } from './root-navigator-context';
@@ -40,7 +39,6 @@ import {
   SidebarListModalRouteName,
   type ScreenParamList,
   type RootParamList,
-  VideoPlaybackModalRouteName,
 } from './route-names';
 
 if (Platform.OS !== 'android' || Platform.Version >= 21) {
@@ -156,10 +154,6 @@ const RootComponent = () => {
         name={LoggedOutModalRouteName}
         component={LoggedOutModal}
         options={disableGesturesScreenOptions}
-      />
-      <Root.Screen
-        name={VideoPlaybackModalRouteName}
-        component={VideoPlaybackModal}
       />
       <Root.Screen
         name={VerificationModalRouteName}
