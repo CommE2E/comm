@@ -107,50 +107,26 @@ function VideoPlaybackModal(props: Props) {
     }
   }, [frame, mediaDimensions]);
 
-  const centerXRef = React.useRef<Value>();
-  const centerYRef = React.useRef<Value>();
-  const frameWidthRef = React.useRef<Value>();
-  const frameHeightRef = React.useRef<Value>();
-  const imageWidthRef = React.useRef<Value>();
-  const imageHeightRef = React.useRef<Value>();
+  const centerXRef = React.useRef<Value>(new Value(frame.width / 2));
+  const centerYRef = React.useRef<Value>(new Value(frame.height / 2 + screenDimensions.topInset));
+  const frameWidthRef = React.useRef<Value>(new Value(frame.width));
+  const frameHeightRef = React.useRef<Value>(new Value(frame.height));
+  const imageWidthRef = React.useRef<Value>(new Value(mediaDisplayDimensions.width));
+  const imageHeightRef = React.useRef<Value>(new Value(mediaDisplayDimensions.height));
   React.useEffect(() => {
     const { width: frameWidth, height: frameHeight } = frame;
     const { topInset } = screenDimensions;
-    if (frameWidthRef.current) {
-      frameWidthRef.current.setValue(frameWidth);
-    } else {
-      frameWidthRef.current = new Value(frameWidth);
-    }
-    if (frameHeightRef.current) {
-      frameHeightRef.current.setValue(frameHeight);
-    } else {
-      frameHeightRef.current = new Value(frameHeight);
-    }
+    frameWidthRef.current.setValue(frameWidth);
+    frameHeightRef.current.setValue(frameHeight);
 
     const centerX = frameWidth / 2;
     const centerY = frameHeight / 2 + topInset;
-    if (centerXRef.current) {
-      centerXRef.current.setValue(centerX);
-    } else {
-      centerXRef.current = new Value(centerX);
-    }
-    if (centerYRef.current) {
-      centerYRef.current.setValue(centerY);
-    } else {
-      centerYRef.current = new Value(centerY);
-    }
+    centerXRef.current.setValue(centerX);
+    centerYRef.current.setValue(centerY);
 
     const { width, height } = mediaDisplayDimensions;
-    if (imageWidthRef.current) {
-      imageWidthRef.current.setValue(width);
-    } else {
-      imageWidthRef.current = new Value(width);
-    }
-    if (imageHeightRef.current) {
-      imageHeightRef.current.setValue(height);
-    } else {
-      imageHeightRef.current = new Value(height);
-    }
+    imageWidthRef.current.setValue(width);
+    imageHeightRef.current.setValue(height);
   }, [screenDimensions, frame, mediaDisplayDimensions]);
   const centerX = centerXRef.current;
   const centerY = centerYRef.current;
@@ -179,7 +155,18 @@ function VideoPlaybackModal(props: Props) {
   const curY = new Value(0);
   const curBackdropOpacity = new Value(1);
 
+  const roundedCurScale = divide(round(multiply(curScale, 1000)), 1000);
+
+  const progressiveOpacity = max(
+    min(
+      sub(1, abs(divide(curX, frameWidth))),
+      sub(1, abs(divide(curY, frameHeight))),
+    ),
+    0,
+  );
+
   const updates = [
+    set(curBackdropOpacity, progressiveOpacity),
   ];
   const updatedScale = [updates, curScale];
   const updatedCurX = [updates, curX];
@@ -270,26 +257,43 @@ function VideoPlaybackModal(props: Props) {
     <ConnectedStatusBar hidden />
   );
 
-  const backdropStyle = React.useMemo(() => ({ opacity: backdropOpacity }, [backdropOpacity]));
+  const backdropStyle = React.useMemo(
+    () => ({ opacity: backdropOpacity }),
+    [backdropOpacity],
+  );
+
+  const contentContainerStyle = React.useMemo(() => {
+    const fullScreenHeight = screenDimensions.height;
+    const top = verticalBounds.y;
+    const bottom = fullScreenHeight - verticalBounds.y - verticalBounds.height;
+
+    // margin will clip, but padding won't
+    const verticalStyle = overlayContext.isDismissing
+      ? { marginTop: top, marginBottom: bottom }
+      : { paddingTop: top, paddingBottom: bottom };
+    return [styles.contentContainer, verticalStyle];
+  }, [verticalBounds, screenDimensions.height]);
 
   return (
     <Animated.View style={styles.modal}>
       {statusBar}
       <Animated.View style={[styles.backdrop, backdropStyle]} />
-      <Animated.View style={videoContainerStyle}>
-        <TouchableWithoutFeedback onPress={togglePlaybackControls}>
-          <Video
-            source={{ uri: videoUri }}
-            ref={(ref) => {
-              this.player = ref;
-            }}
-            style={styles.backgroundVideo}
-            paused={paused}
-            onProgress={progressCallback}
-            onEnd={resetVideo}
-          />
-        </TouchableWithoutFeedback>
-      </Animated.View>
+      <View style={contentContainerStyle}>
+        <Animated.View style={videoContainerStyle}>
+          <TouchableWithoutFeedback onPress={togglePlaybackControls}>
+            <Video
+              source={{ uri: videoUri }}
+              ref={(ref) => {
+                this.player = ref;
+              }}
+              style={styles.backgroundVideo}
+              paused={paused}
+              onProgress={progressCallback}
+              onEnd={resetVideo}
+            />
+          </TouchableWithoutFeedback>
+        </Animated.View>
+      </View>
       {controlsVisible && (
         <>
           <View style={styles.header}>
@@ -332,13 +336,7 @@ function VideoPlaybackModal(props: Props) {
 
 const unboundStyles = {
   modal: {
-    backgroundColor: 'black',
-    justifyContent: 'center',
-    marginHorizontal: 0,
-    marginTop: 0,
-    marginBottom: 0,
-    padding: 0,
-    borderRadius: 0,
+    flex: 1,
   },
   backgroundVideo: {
     position: 'absolute',
@@ -399,6 +397,10 @@ const unboundStyles = {
     position: 'absolute',
     right: 0,
     top: 0,
+  },
+  contentContainer: {
+    flex: 1,
+    overflow: 'hidden',
   },
 };
 
