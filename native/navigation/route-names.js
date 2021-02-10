@@ -19,6 +19,7 @@ import type { SidebarListModalParams } from '../chat/sidebar-list-modal.react';
 import type { TextMessageTooltipModalParams } from '../chat/text-message-tooltip-modal.react';
 import type { CameraModalParams } from '../media/camera-modal.react';
 import type { MultimediaModalParams } from '../media/multimedia-modal.react';
+import type { VideoPlaybackModalParams } from '../media/video-playback-modal.react';
 import type { CustomServerModalParams } from '../more/custom-server-modal.react';
 import type { RelationshipListItemTooltipModalParams } from '../more/relationship-list-item-tooltip-modal.react';
 import type { ActionResultModalParams } from './action-result-modal.react';
@@ -58,6 +59,7 @@ export const TextMessageTooltipModalRouteName = 'TextMessageTooltipModal';
 export const ThreadSettingsMemberTooltipModalRouteName =
   'ThreadSettingsMemberTooltipModal';
 export const CameraModalRouteName = 'CameraModal';
+export const VideoPlaybackModalRouteName = 'VideoPlaybackModal';
 export const FriendListRouteName = 'FriendList';
 export const BlockListRouteName = 'BlockList';
 export const SidebarListModalRouteName = 'SidebarListModal';
@@ -76,6 +78,7 @@ export type RootParamList = {|
   ComposeSubthreadModal: ComposeSubthreadModalParams,
   SidebarListModal: SidebarListModalParams,
   ImagePasteModal: ImagePasteModalParams,
+  VideoPlaybackModal: VideoPlaybackModalParams,
 |};
 
 export type TooltipModalParamList = {|

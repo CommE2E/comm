@@ -22,8 +22,9 @@ import {
   OverlayContext,
   type OverlayContextType,
 } from '../navigation/overlay-context';
-import type { NavigationRoute } from '../navigation/route-names';
 import {
+  type NavigationRoute,
+  VideoPlaybackModalRouteName,
   MultimediaModalRouteName,
   MultimediaTooltipModalRouteName,
 } from '../navigation/route-names';
@@ -189,26 +190,34 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     }
     this.clickable = false;
 
-    const overlayContext = MultimediaMessageMultimedia.getOverlayContext(
-      this.props,
-    );
-    overlayContext.setScrollBlockingModalStatus('open');
+    // const overlayContext = MultimediaMessageMultimedia.getOverlayContext(
+    //   this.props,
+    // );
+    // overlayContext.setScrollBlockingModalStatus('open');
 
-    const { mediaInfo, item } = this.props;
-    view.measure((x, y, width, height, pageX, pageY) => {
-      const coordinates = { x: pageX, y: pageY, width, height };
-      this.props.navigation.navigate({
-        name: MultimediaModalRouteName,
-        key: MultimediaMessageMultimedia.getStableKey(this.props),
-        params: {
-          presentedFrom: this.props.route.key,
-          mediaInfo,
-          item,
-          initialCoordinates: coordinates,
-          verticalBounds,
-        },
-      });
+    // const { mediaInfo, item } = this.props;
+    // view.measure((x, y, width, height, pageX, pageY) => {
+    // console.log(this.props.item.threadInfo.color);
+    // const coordinates = { x: pageX, y: pageY, width, height };
+    this.props.navigation.navigate({
+      name: VideoPlaybackModalRouteName,
+      params: {
+        videoUri:
+          'https://blob.sh/atul/filtered-95714C70-7D19-43D5-897A-97022EFF8241.MP4',
+      },
     });
+    // this.props.navigation.navigate({
+    //   name: MultimediaModalRouteName,
+    //   key: MultimediaMessageMultimedia.getStableKey(this.props),
+    //   params: {
+    //     presentedFrom: this.props.route.key,
+    //     mediaInfo,
+    //     item,
+    //     initialCoordinates: coordinates,
+    //     verticalBounds,
+    //   },
+    // });
+    // });
   };
 
   visibleEntryIDs() {
