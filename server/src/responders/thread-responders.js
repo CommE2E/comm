@@ -149,7 +149,10 @@ async function threadCreationResponder(
 ): Promise<NewThreadResponse> {
   const request: NewThreadRequest = input;
   await validateInput(viewer, newThreadRequestInputValidator, request);
-  return await createThread(viewer, request);
+
+  return await createThread(viewer, request, {
+    silentlyFailMembers: request.type === threadTypes.SIDEBAR,
+  });
 }
 
 const joinThreadRequestInputValidator = tShape({

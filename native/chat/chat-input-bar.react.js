@@ -632,6 +632,10 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     try {
       let resultPromise;
       if (threadInfo.type !== threadTypes.SIDEBAR) {
+        invariant(
+          otherMemberIDs.length > 0,
+          'otherMemberIDs should not be empty for threads',
+        );
         resultPromise = this.props.newThread({
           type: pendingThreadType(otherMemberIDs.length),
           initialMemberIDs: otherMemberIDs,
@@ -641,7 +645,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         const sourceMessageID = this.props.route.params.sidebarSourceMessageID;
         invariant(
           sourceMessageID,
-          'sourceMessageID should be set getServerThreadID for sidebar',
+          'sourceMessageID should be set in getServerThreadID for sidebar',
         );
 
         resultPromise = this.props.newThread({

@@ -45,6 +45,7 @@ const { squadbot } = bots;
 type CreateThreadOptions = Shape<{|
   +forceAddMembers: boolean,
   +updatesForCurrentSession: UpdatesForCurrentSession,
+  +silentlyFailMembers: boolean,
 |}>;
 
 // If forceAddMembers is set, we will allow the viewer to add random users who
@@ -65,12 +66,13 @@ async function createThread(
   const forceAddMembers = options?.forceAddMembers ?? false;
   const updatesForCurrentSession =
     options?.updatesForCurrentSession ?? 'return';
+  const silentlyFailMembers = options?.silentlyFailMembers ?? false;
 
   const threadType = request.type;
   const shouldCreateRelationships =
     forceAddMembers || threadType === threadTypes.PERSONAL;
   const parentThreadID = request.parentThreadID ? request.parentThreadID : null;
-  const initialMemberIDs =
+  const initialMemberIDsFromRequest =
     request.initialMemberIDs && request.initialMemberIDs.length > 0
       ? request.initialMemberIDs
       : null;
@@ -78,6 +80,14 @@ async function createThread(
     request.ghostMemberIDs && request.ghostMemberIDs.length > 0
       ? request.ghostMemberIDs
       : null;
+
+  const sourceMessageID = request.sourceMessageID
+    ? request.sourceMessageID
+    : null;
+  invariant(
+    threadType !== threadTypes.SIDEBAR || sourceMessageID,
+    'sourceMessageID should be set for sidebar',
+  );
 
   if (
     threadType !== threadTypes.CHAT_SECRET &&
@@ -111,21 +121,26 @@ async function createThread(
   }
 
   const memberIDs = [];
-  if (initialMemberIDs) {
-    memberIDs.push(...initialMemberIDs);
+  if (initialMemberIDsFromRequest) {
+    memberIDs.push(...initialMemberIDsFromRequest);
   }
   if (ghostMemberIDs) {
     memberIDs.push(...ghostMemberIDs);
   }
 
-  if (initialMemberIDs || ghostMemberIDs) {
+  if (initialMemberIDsFromRequest || ghostMemberIDs) {
     checkPromises.fetchMemberIDs = fetchKnownUserInfos(viewer, memberIDs);
+  }
+
+  if (sourceMessageID) {
+    checkPromises.sourceMessage = fetchMessageInfoByID(viewer, sourceMessageID);
   }
 
   const {
     parentThreadFetch,
     hasParentPermission,
     fetchMemberIDs,
+    sourceMessage,
   } = await promiseAll(checkPromises);
 
   let parentThreadMembers;
@@ -141,8 +156,9 @@ async function createThread(
   }
 
   const viewerNeedsRelationshipsWith = [];
+  const silencedMemberIDs = new Set();
   if (fetchMemberIDs) {
-    invariant(initialMemberIDs || ghostMemberIDs, 'should be set');
+    invariant(initialMemberIDsFromRequest || ghostMemberIDs, 'should be set');
     for (const memberID of memberIDs) {
       const member = fetchMemberIDs[memberID];
       if (
@@ -153,30 +169,47 @@ async function createThread(
       ) {
         viewerNeedsRelationshipsWith.push(memberID);
         continue;
+      } else if (!member && silentlyFailMembers) {
+        silencedMemberIDs.add(memberID);
+        continue;
       } else if (!member) {
         throw new ServerError('invalid_credentials');
       }
+
       const { relationshipStatus } = member;
+      const memberRelationshipHasBlock = !!(
+        relationshipStatus &&
+        relationshipBlockedInEitherDirection(relationshipStatus)
+      );
       if (
         relationshipStatus === userRelationshipStatus.FRIEND &&
         threadType !== threadTypes.SIDEBAR
       ) {
         continue;
-      } else if (
-        relationshipStatus &&
-        relationshipBlockedInEitherDirection(relationshipStatus)
-      ) {
+      } else if (memberRelationshipHasBlock && silentlyFailMembers) {
+        silencedMemberIDs.add(memberID);
+      } else if (memberRelationshipHasBlock) {
         throw new ServerError('invalid_credentials');
       } else if (
         parentThreadMembers &&
         parentThreadMembers.includes(memberID)
       ) {
         continue;
+      } else if (!shouldCreateRelationships && silentlyFailMembers) {
+        silencedMemberIDs.add(memberID);
       } else if (!shouldCreateRelationships) {
         throw new ServerError('invalid_credentials');
       }
     }
   }
+
+  const filteredInitialMemberIDs: ?$ReadOnlyArray<string> = initialMemberIDsFromRequest?.filter(
+    (id) => !silencedMemberIDs.has(id),
+  );
+  const initialMemberIDs =
+    filteredInitialMemberIDs && filteredInitialMemberIDs.length > 0
+      ? filteredInitialMemberIDs
+      : null;
 
   const [id] = await createIDs('threads', 1);
   const newRoles = await createInitialRolesForNewThread(id, threadType);
@@ -192,13 +225,7 @@ async function createThread(
       viewer.id,
     );
   }
-  const sourceMessageID = request.sourceMessageID
-    ? request.sourceMessageID
-    : null;
-  invariant(
-    threadType !== threadTypes.SIDEBAR || sourceMessageID,
-    'sourceMessageID should be set for sidebar',
-  );
+
   const time = Date.now();
 
   const row = [
@@ -393,8 +420,6 @@ async function createThread(
     });
   } else {
     invariant(parentThreadID, 'parentThreadID should be set for sidebar');
-    invariant(sourceMessageID, 'sourceMessageID should be set for sidebar');
-    const sourceMessage = await fetchMessageInfoByID(viewer, sourceMessageID);
     if (!sourceMessage || sourceMessage.type === messageTypes.SIDEBAR_SOURCE) {
       throw new ServerError('invalid_parameters');
     }
