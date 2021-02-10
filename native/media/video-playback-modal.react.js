@@ -217,20 +217,18 @@ function VideoPlaybackModal(props: Props) {
     const { height: frameHeight, width: frameWidth } = frame;
     const top = (frameHeight - height) / 2 + screenDimensions.topInset;
     const left = (frameWidth - width) / 2;
-    const val = {
+    return {
       height,
       width,
       marginTop: top - verticalBounds.y,
       marginLeft: left,
       opacity: imageContainerOpacity,
-      //transform: [
-      //  { translateX: x },
-      //  { translateY: y },
-      //  { scale: scale },
-      //],
+      transform: [
+        { translateX: x },
+        { translateY: y },
+        { scale: scale },
+      ],
     };
-    console.log(val);
-    return val;
   }, [mediaDisplayDimensions, frame, screenDimensions.topInset, verticalBounds.y, imageContainerOpacity, x, y, scale]);
 
   const styles = useStyles(unboundStyles);
@@ -279,7 +277,18 @@ function VideoPlaybackModal(props: Props) {
       {statusBar}
       <Animated.View style={[styles.backdrop, backdropStyle]} />
       <Animated.View style={videoContainerStyle}>
-        <Icon name="close" size={30} style={styles.composeButton} />
+        <TouchableWithoutFeedback onPress={togglePlaybackControls}>
+          <Video
+            source={{ uri: videoUri }}
+            ref={(ref) => {
+              this.player = ref;
+            }}
+            style={styles.backgroundVideo}
+            paused={paused}
+            onProgress={progressCallback}
+            onEnd={resetVideo}
+          />
+        </TouchableWithoutFeedback>
       </Animated.View>
       {controlsVisible && (
         <>
