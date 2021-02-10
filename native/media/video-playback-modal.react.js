@@ -1,5 +1,17 @@
 // @flow
 
+import invariant from 'invariant';
+import { useSelector } from '../redux/redux-utils';
+import ConnectedStatusBar from '../connected-status-bar.react';
+
+import type { MediaInfo } from 'lib/types/media-types';
+import type {
+  VerticalBounds,
+  LayoutCoordinates,
+} from '../types/layout-types';
+import type { ChatMultimediaMessageInfoItem } from '../chat/multimedia-message.react';
+import { derivedDimensionsInfoSelector } from '../selectors/dimensions-selectors';
+
 import * as React from 'react';
 import { useState } from 'react';
 import { View, Text, TouchableWithoutFeedback } from 'react-native';
@@ -8,21 +20,219 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Video from 'react-native-video';
 
 import Button from '../components/button.react';
-import Modal from '../components/modal.react';
-import type { RootNavigationProp } from '../navigation/root-navigator.react';
+import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { NavigationRoute } from '../navigation/route-names';
 import { useStyles } from '../themes/colors';
+import { OverlayContext } from '../navigation/overlay-context';
+import Animated from 'react-native-reanimated';
+
+/* eslint-disable import/no-named-as-default-member */
+const {
+  Value,
+  Clock,
+  event,
+  Extrapolate,
+  set,
+  call,
+  cond,
+  not,
+  and,
+  or,
+  eq,
+  neq,
+  greaterThan,
+  lessThan,
+  add,
+  sub,
+  multiply,
+  divide,
+  pow,
+  max,
+  min,
+  round,
+  abs,
+  interpolate,
+  startClock,
+  stopClock,
+  clockRunning,
+  decay,
+} = Animated;
 
 export type VideoPlaybackModalParams = {|
-  +videoUri: string,
+  +presentedFrom: string,
+  +mediaInfo: MediaInfo,
+  +initialCoordinates: LayoutCoordinates,
+  +verticalBounds: VerticalBounds,
+  +item: ChatMultimediaMessageInfoItem,
 |};
 
-// TODO: AppNavigationProp
 type Props = {|
-  +navigation: RootNavigationProp<'VideoPlaybackModal'>,
+  +navigation: AppNavigationProp<'VideoPlaybackModal'>,
   +route: NavigationRoute<'VideoPlaybackModal'>,
 |};
 function VideoPlaybackModal(props: Props) {
+  const screenDimensions = useSelector(derivedDimensionsInfoSelector);
+  const frame = React.useMemo(() => ({
+    width: screenDimensions.width,
+    height: screenDimensions.safeAreaHeight,
+  }), [screenDimensions]);
+
+  const { mediaInfo } = props.route.params;
+  const mediaDimensions = mediaInfo.dimensions;
+  const mediaDisplayDimensions = React.useMemo(() => {
+    // Make space for the close button
+    let { height: maxHeight, width: maxWidth } = frame;
+    if (maxHeight > maxWidth) {
+      maxHeight -= 100;
+    } else {
+      maxWidth -= 100;
+    }
+
+    if (mediaDimensions.height < maxHeight && mediaDimensions.width < maxWidth) {
+      return mediaDimensions;
+    }
+
+    const heightRatio = maxHeight / mediaDimensions.height;
+    const widthRatio = maxWidth / mediaDimensions.width;
+    if (heightRatio < widthRatio) {
+      return {
+        height: maxHeight,
+        width: mediaDimensions.width * heightRatio,
+      };
+    } else {
+      return {
+        width: maxWidth,
+        height: mediaDimensions.height * widthRatio,
+      };
+    }
+  }, [frame, mediaDimensions]);
+
+  const centerXRef = React.useRef<Value>();
+  const centerYRef = React.useRef<Value>();
+  const frameWidthRef = React.useRef<Value>();
+  const frameHeightRef = React.useRef<Value>();
+  const imageWidthRef = React.useRef<Value>();
+  const imageHeightRef = React.useRef<Value>();
+  React.useEffect(() => {
+    const { width: frameWidth, height: frameHeight } = frame;
+    const { topInset } = screenDimensions;
+    if (frameWidthRef.current) {
+      frameWidthRef.current.setValue(frameWidth);
+    } else {
+      frameWidthRef.current = new Value(frameWidth);
+    }
+    if (frameHeightRef.current) {
+      frameHeightRef.current.setValue(frameHeight);
+    } else {
+      frameHeightRef.current = new Value(frameHeight);
+    }
+
+    const centerX = frameWidth / 2;
+    const centerY = frameHeight / 2 + topInset;
+    if (centerXRef.current) {
+      centerXRef.current.setValue(centerX);
+    } else {
+      centerXRef.current = new Value(centerX);
+    }
+    if (centerYRef.current) {
+      centerYRef.current.setValue(centerY);
+    } else {
+      centerYRef.current = new Value(centerY);
+    }
+
+    const { width, height } = mediaDisplayDimensions;
+    if (imageWidthRef.current) {
+      imageWidthRef.current.setValue(width);
+    } else {
+      imageWidthRef.current = new Value(width);
+    }
+    if (imageHeightRef.current) {
+      imageHeightRef.current.setValue(height);
+    } else {
+      imageHeightRef.current = new Value(height);
+    }
+  }, [screenDimensions, frame, mediaDisplayDimensions]);
+  const centerX = centerXRef.current;
+  const centerY = centerYRef.current;
+  const frameWidth = frameWidthRef.current;
+  const frameHeight = frameHeightRef.current;
+  const imageWidth = imageWidthRef.current;
+  const imageHeight = imageHeightRef.current;
+
+  const left = sub(centerX, divide(imageWidth, 2));
+  const top = sub(centerY, divide(imageHeight, 2));
+
+  const { initialCoordinates } = props.route.params;
+  const initialScale = divide(initialCoordinates.width, imageWidth);
+  const initialTranslateX = sub(
+    initialCoordinates.x + initialCoordinates.width / 2,
+    add(left, divide(imageWidth, 2)),
+  );
+  const initialTranslateY = sub(
+    initialCoordinates.y + initialCoordinates.height / 2,
+    add(top, divide(imageHeight, 2)),
+  );
+
+  // The all-important outputs
+  const curScale = new Value(1);
+  const curX = new Value(0);
+  const curY = new Value(0);
+  const curBackdropOpacity = new Value(1);
+
+  const updates = [
+  ];
+  const updatedScale = [updates, curScale];
+  const updatedCurX = [updates, curX];
+  const updatedCurY = [updates, curY];
+  const updatedBackdropOpacity = [updates, curBackdropOpacity];
+
+  const overlayContext = React.useContext(OverlayContext);
+  invariant(overlayContext, 'MultimediaModal should have OverlayContext');
+  const navigationProgress = overlayContext.position;
+
+  const reverseNavigationProgress = sub(1, navigationProgress);
+  const scale = add(
+    multiply(reverseNavigationProgress, initialScale),
+    multiply(navigationProgress, updatedScale),
+  );
+  const x = add(
+    multiply(reverseNavigationProgress, initialTranslateX),
+    multiply(navigationProgress, updatedCurX),
+  );
+  const y = add(
+    multiply(reverseNavigationProgress, initialTranslateY),
+    multiply(navigationProgress, updatedCurY),
+  );
+
+  const backdropOpacity = multiply(navigationProgress, updatedBackdropOpacity);
+  const imageContainerOpacity = interpolate(navigationProgress, {
+    inputRange: [0, 0.1],
+    outputRange: [0, 1],
+    extrapolate: Extrapolate.CLAMP,
+  });
+  const { verticalBounds } = props.route.params;
+  const verticalBoundsY = verticalBounds.y;
+  const videoContainerStyle = React.useMemo(() => {
+    const { height, width } = mediaDisplayDimensions;
+    const { height: frameHeight, width: frameWidth } = frame;
+    const top = (frameHeight - height) / 2 + screenDimensions.topInset;
+    const left = (frameWidth - width) / 2;
+    const val = {
+      height,
+      width,
+      marginTop: top - verticalBounds.y,
+      marginLeft: left,
+      opacity: imageContainerOpacity,
+      //transform: [
+      //  { translateX: x },
+      //  { translateY: y },
+      //  { scale: scale },
+      //],
+    };
+    console.log(val);
+    return val;
+  }, [mediaDisplayDimensions, frame, screenDimensions.topInset, verticalBounds.y, imageContainerOpacity, x, y, scale]);
+
   const styles = useStyles(unboundStyles);
 
   const [paused, setPaused] = useState(false);
@@ -34,7 +244,7 @@ function VideoPlaybackModal(props: Props) {
   const {
     navigation,
     route: {
-      params: { videoUri },
+      params: { mediaInfo: { uri: videoUri } },
     },
   } = props;
 
@@ -58,24 +268,19 @@ function VideoPlaybackModal(props: Props) {
     setControlsVisible(!controlsVisible);
   }, [controlsVisible]);
 
+  const statusBar = overlayContext.isDismissing ? null : (
+    <ConnectedStatusBar hidden />
+  );
+
+  const backdropStyle = React.useMemo(() => ({ opacity: backdropOpacity }, [backdropOpacity]));
+
   return (
-    <Modal
-      modalStyle={styles.modal}
-      navigation={navigation}
-      safeAreaEdges={['left']}
-    >
-      <TouchableWithoutFeedback onPress={togglePlaybackControls}>
-        <Video
-          source={{ uri: videoUri }}
-          ref={(ref) => {
-            this.player = ref;
-          }}
-          style={styles.backgroundVideo}
-          paused={paused}
-          onProgress={progressCallback}
-          onEnd={resetVideo}
-        />
-      </TouchableWithoutFeedback>
+    <Animated.View style={styles.modal}>
+      {statusBar}
+      <Animated.View style={[styles.backdrop, backdropStyle]} />
+      <Animated.View style={videoContainerStyle}>
+        <Icon name="close" size={30} style={styles.composeButton} />
+      </Animated.View>
       {controlsVisible && (
         <>
           <View style={styles.header}>
@@ -112,7 +317,7 @@ function VideoPlaybackModal(props: Props) {
           </View>
         </>
       )}
-    </Modal>
+    </Animated.View>
   );
 }
 
@@ -177,6 +382,14 @@ const unboundStyles = {
   durationText: {
     color: 'white',
     fontSize: 11,
+  },
+  backdrop: {
+    backgroundColor: 'black',
+    bottom: 0,
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
   },
 };
 

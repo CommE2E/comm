@@ -190,34 +190,40 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     }
     this.clickable = false;
 
-    // const overlayContext = MultimediaMessageMultimedia.getOverlayContext(
-    //   this.props,
-    // );
-    // overlayContext.setScrollBlockingModalStatus('open');
+    const overlayContext = MultimediaMessageMultimedia.getOverlayContext(
+      this.props,
+    );
+    overlayContext.setScrollBlockingModalStatus('open');
 
-    // const { mediaInfo, item } = this.props;
-    // view.measure((x, y, width, height, pageX, pageY) => {
-    // console.log(this.props.item.threadInfo.color);
-    // const coordinates = { x: pageX, y: pageY, width, height };
-    this.props.navigation.navigate({
-      name: VideoPlaybackModalRouteName,
-      params: {
-        videoUri:
-          'https://blob.sh/atul/filtered-95714C70-7D19-43D5-897A-97022EFF8241.MP4',
-      },
+    const { mediaInfo, item } = this.props;
+    view.measure((x, y, width, height, pageX, pageY) => {
+      const coordinates = { x: pageX, y: pageY, width, height };
+      this.props.navigation.navigate(({
+        name: VideoPlaybackModalRouteName,
+        params: {
+          presentedFrom: this.props.route.key,
+          mediaInfo: {
+            ...mediaInfo,
+            uri:
+              'https://blob.sh/atul/filtered-95714C70-7D19-43D5-897A-97022EFF8241.MP4',
+          },
+          item,
+          initialCoordinates: coordinates,
+          verticalBounds,
+        },
+      }: any));
+      //this.props.navigation.navigate({
+      //  name: MultimediaModalRouteName,
+      //  key: MultimediaMessageMultimedia.getStableKey(this.props),
+      //  params: {
+      //    presentedFrom: this.props.route.key,
+      //    mediaInfo,
+      //    item,
+      //    initialCoordinates: coordinates,
+      //    verticalBounds,
+      //  },
+      //});
     });
-    // this.props.navigation.navigate({
-    //   name: MultimediaModalRouteName,
-    //   key: MultimediaMessageMultimedia.getStableKey(this.props),
-    //   params: {
-    //     presentedFrom: this.props.route.key,
-    //     mediaInfo,
-    //     item,
-    //     initialCoordinates: coordinates,
-    //     verticalBounds,
-    //   },
-    // });
-    // });
   };
 
   visibleEntryIDs() {
