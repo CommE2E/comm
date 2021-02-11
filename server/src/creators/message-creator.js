@@ -17,7 +17,7 @@ import {
   type RawMessageInfo,
 } from 'lib/types/message-types';
 import { redisMessageTypes } from 'lib/types/redis-types';
-import { threadPermissions, threadTypes } from 'lib/types/thread-types';
+import { threadPermissions } from 'lib/types/thread-types';
 import { updateTypes } from 'lib/types/update-types';
 
 import {
@@ -214,7 +214,7 @@ async function updateRepliesCount(
       ELSE 0
       END)
     WHERE id IN (${updatedThreads})
-      AND type = ${threadTypes.SIDEBAR}
+      AND source_message IS NOT NULL
   `);
 
   const updateMemberships = SQL`

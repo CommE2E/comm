@@ -2,7 +2,6 @@
 
 import { messageSpecs } from 'lib/shared/messages/message-specs';
 import { messageTypes } from 'lib/types/message-types';
-import { threadTypes } from 'lib/types/thread-types';
 import { updateTypes } from 'lib/types/update-types';
 
 import { createUpdates } from '../creators/update-creator';
@@ -44,7 +43,7 @@ async function computeRepliesCount() {
     SELECT t.id AS threadID, m.user AS userID
     FROM threads t
     INNER JOIN memberships m ON t.id = m.thread
-    WHERE t.type = ${threadTypes.SIDEBAR}
+    WHERE t.source_message IS NOT NULL
       AND m.role >= 0
   `;
   const readCountUpdate = SQL`
@@ -56,7 +55,7 @@ async function computeRepliesCount() {
       GROUP BY thread
     ) c ON c.threadID = t.id
     SET t.replies_count = c.count 
-    WHERE t.type = ${threadTypes.SIDEBAR}
+    WHERE t.source_message IS NOT NULL
   `;
   const [[sidebarMembers]] = await Promise.all([
     dbQuery(sidebarMembersQuery),
