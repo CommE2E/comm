@@ -115,7 +115,7 @@ async function createAccount(
   }
 
   const [privateThreadResult, ashoatThreadResult] = await Promise.all([
-    createPrivateThread(viewer),
+    createPrivateThread(viewer, request.username),
     createThread(
       viewer,
       {

@@ -459,12 +459,15 @@ async function createThread(
   };
 }
 
-function createPrivateThread(viewer: Viewer): Promise<NewThreadResponse> {
+function createPrivateThread(
+  viewer: Viewer,
+  username: string,
+): Promise<NewThreadResponse> {
   return createThread(
     viewer,
     {
       type: threadTypes.PRIVATE,
-      name: viewer.userID,
+      name: username,
       description:
         'This is your private thread, ' +
         'where you can set reminders and jot notes in private!',
