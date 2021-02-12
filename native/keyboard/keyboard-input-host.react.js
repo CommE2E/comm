@@ -3,9 +3,10 @@
 import invariant from 'invariant';
 import PropTypes from 'prop-types';
 import * as React from 'react';
-import { TextInput } from 'react-native';
+import { Alert, TextInput } from 'react-native';
 import { KeyboardAccessoryView } from 'react-native-keyboard-input';
 
+import { useRealThreadCreator } from 'lib/shared/thread-utils';
 import type { MediaLibrarySelection } from 'lib/types/media-types';
 
 import {
@@ -32,9 +33,10 @@ type Props = {|
   +styles: typeof unboundStyles,
   +activeMessageList: ?string,
   // withKeyboardState
-  +keyboardState: ?KeyboardState,
+  +keyboardState: KeyboardState,
   // withInputState
   +inputState: ?InputState,
+  +getServerThreadID: () => Promise<?string>,
 |};
 class KeyboardInputHost extends React.PureComponent<Props> {
   static propTypes = {
@@ -43,6 +45,7 @@ class KeyboardInputHost extends React.PureComponent<Props> {
     activeMessageList: PropTypes.string,
     keyboardState: keyboardStatePropType,
     inputState: inputStatePropType,
+    getServerThreadID: PropTypes.func.isRequired,
   };
 
   componentDidUpdate(prevProps: Props) {
@@ -75,17 +78,13 @@ class KeyboardInputHost extends React.PureComponent<Props> {
     );
   }
 
-  onMediaGalleryItemSelected = (
+  onMediaGalleryItemSelected = async (
     keyboardName: string,
     selections: $ReadOnlyArray<MediaLibrarySelection>,
   ) => {
-    const { keyboardState } = this.props;
-    invariant(
-      keyboardState,
-      'keyboardState should be set in onMediaGalleryItemSelected',
-    );
+    const { keyboardState, getServerThreadID } = this.props;
     keyboardState.dismissKeyboard();
-    const mediaGalleryThreadID = keyboardState.getMediaGalleryThreadID();
+    const mediaGalleryThreadID = await getServerThreadID();
     if (mediaGalleryThreadID === null || mediaGalleryThreadID === undefined) {
       return;
     }
@@ -100,7 +99,6 @@ class KeyboardInputHost extends React.PureComponent<Props> {
 
   hideMediaGallery = () => {
     const { keyboardState } = this.props;
-    invariant(keyboardState, 'keyboardState should be initialized');
     keyboardState.hideMediaGallery();
   };
 }
@@ -111,6 +109,11 @@ const unboundStyles = {
   },
 };
 
+const showErrorAlert = () =>
+  Alert.alert('Unknown error', 'Uhh... try again?', [{ text: 'OK' }], {
+    cancelable: false,
+  });
+
 export default React.memo<BaseProps>(function ConnectedKeyboardInputHost(
   props: BaseProps,
 ) {
@@ -119,6 +122,12 @@ export default React.memo<BaseProps>(function ConnectedKeyboardInputHost(
   const navContext = React.useContext(NavContext);
   const styles = useStyles(unboundStyles);
   const activeMessageList = activeMessageListSelector(navContext);
+
+  invariant(keyboardState, 'keyboardState should be initialized');
+  const getServerThreadID = useRealThreadCreator(
+    keyboardState.getMediaGalleryThread(),
+    showErrorAlert,
+  );
   return (
     <KeyboardInputHost
       {...props}
@@ -126,6 +135,7 @@ export default React.memo<BaseProps>(function ConnectedKeyboardInputHost(
       activeMessageList={activeMessageList}
       keyboardState={keyboardState}
       inputState={inputState}
+      getServerThreadID={getServerThreadID}
     />
   );
 });

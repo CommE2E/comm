@@ -6,6 +6,7 @@ import { Platform } from 'react-native';
 import { KeyboardUtils } from 'react-native-keyboard-input';
 
 import type { Shape } from 'lib/types/core';
+import type { OptimisticThreadInfo } from 'lib/types/thread-types';
 import sleep from 'lib/utils/sleep';
 
 import { tabBarAnimationDuration } from '../navigation/tab-bar.react';
@@ -25,7 +26,7 @@ type Props = {|
 type State = {|
   systemKeyboardShowing: boolean,
   mediaGalleryOpen: boolean,
-  mediaGalleryThreadID: ?string,
+  mediaGalleryThread: ?OptimisticThreadInfo,
   renderKeyboardInputHost: boolean,
 |};
 class KeyboardStateContainer extends React.PureComponent<Props, State> {
@@ -35,7 +36,7 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
   state: State = {
     systemKeyboardShowing: false,
     mediaGalleryOpen: false,
-    mediaGalleryThreadID: null,
+    mediaGalleryThread: null,
     renderKeyboardInputHost: false,
   };
   keyboardShowListener: ?Object;
@@ -98,10 +99,10 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
     return systemKeyboardShowing || mediaGalleryOpen;
   }
 
-  showMediaGallery = (threadID: string) => {
+  showMediaGallery = (thread: OptimisticThreadInfo) => {
     let updates: Shape<State> = {
       mediaGalleryOpen: true,
-      mediaGalleryThreadID: threadID,
+      mediaGalleryThread: thread,
     };
     if (androidKeyboardResizesFrame) {
       updates = { ...updates, renderKeyboardInputHost: true };
@@ -112,12 +113,12 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
   hideMediaGallery = () => {
     this.setState({
       mediaGalleryOpen: false,
-      mediaGalleryThreadID: null,
+      mediaGalleryThread: null,
       renderKeyboardInputHost: false,
     });
   };
 
-  getMediaGalleryThreadID = () => this.state.mediaGalleryThreadID;
+  getMediaGalleryThread = () => this.state.mediaGalleryThread;
 
   render() {
     const {
@@ -131,7 +132,7 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
       dismissKeyboardIfShowing,
       showMediaGallery,
       hideMediaGallery,
-      getMediaGalleryThreadID,
+      getMediaGalleryThread,
     } = this;
     const keyboardState = {
       keyboardShowing,
@@ -141,7 +142,7 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
       mediaGalleryOpen,
       showMediaGallery,
       hideMediaGallery,
-      getMediaGalleryThreadID,
+      getMediaGalleryThread,
     };
     const keyboardInputHost = renderKeyboardInputHost ? (
       <KeyboardInputHost />

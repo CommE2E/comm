@@ -3,15 +3,17 @@
 import PropTypes from 'prop-types';
 import * as React from 'react';
 
+import type { OptimisticThreadInfo } from 'lib/types/thread-types';
+
 export type KeyboardState = {|
   keyboardShowing: boolean,
   dismissKeyboard: () => void,
   dismissKeyboardIfShowing: () => boolean,
   systemKeyboardShowing: boolean,
   mediaGalleryOpen: boolean,
-  showMediaGallery: (threadID: string) => void,
+  showMediaGallery: (thread: OptimisticThreadInfo) => void,
   hideMediaGallery: () => void,
-  getMediaGalleryThreadID: () => ?string,
+  getMediaGalleryThread: () => ?OptimisticThreadInfo,
 |};
 
 const keyboardStatePropType = PropTypes.shape({
@@ -22,7 +24,7 @@ const keyboardStatePropType = PropTypes.shape({
   mediaGalleryOpen: PropTypes.bool.isRequired,
   showMediaGallery: PropTypes.func.isRequired,
   hideMediaGallery: PropTypes.func.isRequired,
-  getMediaGalleryThreadID: PropTypes.func.isRequired,
+  getMediaGalleryThread: PropTypes.func.isRequired,
 });
 
 const KeyboardContext = React.createContext<?KeyboardState>(null);
