@@ -12,6 +12,7 @@ import {
   Image,
   Animated,
   Easing,
+  Alert,
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import filesystem from 'react-native-fs';
@@ -29,8 +30,11 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { useDispatch } from 'react-redux';
 
 import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils';
+import { useRealThreadCreator } from 'lib/shared/thread-utils';
 import type { PhotoCapture } from 'lib/types/media-types';
 import type { Dispatch } from 'lib/types/redux-types';
+import type { OptimisticThreadInfo } from 'lib/types/thread-types';
+import { optimisticThreadInfoPropType } from 'lib/types/thread-types';
 
 import ContentLoading from '../components/content-loading.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
@@ -226,8 +230,8 @@ function runIndicatorAnimation(
 }
 
 export type CameraModalParams = {|
-  presentedFrom: string,
-  threadID: string,
+  +presentedFrom: string,
+  +thread: OptimisticThreadInfo,
 |};
 
 type TouchableOpacityInstance = React.AbstractComponent<
@@ -248,6 +252,7 @@ type Props = {|
   +foreground: boolean,
   // Redux dispatch functions
   +dispatch: Dispatch,
+  +getServerThreadID: () => Promise<?string>,
   // withInputState
   +inputState: ?InputState,
   // withOverlayContext
@@ -273,7 +278,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     }).isRequired,
     route: PropTypes.shape({
       params: PropTypes.shape({
-        threadID: PropTypes.string.isRequired,
+        thread: optimisticThreadInfoPropType.isRequired,
       }).isRequired,
     }).isRequired,
     dimensions: dimensionsInfoPropType.isRequired,
@@ -281,6 +286,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     deviceOrientation: PropTypes.string.isRequired,
     foreground: PropTypes.bool.isRequired,
     dispatch: PropTypes.func.isRequired,
+    getServerThreadID: PropTypes.func.isRequired,
     inputState: inputStatePropType,
     overlayContext: overlayContextPropType,
   };
@@ -953,7 +959,8 @@ class CameraModal extends React.PureComponent<Props, State> {
 
   sendPhoto = async () => {
     const { pendingPhotoCapture } = this.state;
-    if (!pendingPhotoCapture) {
+    const threadID = await this.props.getServerThreadID();
+    if (!pendingPhotoCapture || !threadID) {
       return;
     }
 
@@ -968,9 +975,7 @@ class CameraModal extends React.PureComponent<Props, State> {
 
     const { inputState } = this.props;
     invariant(inputState, 'inputState should be set');
-    inputState.sendMultimediaMessage(this.props.route.params.threadID, [
-      capture,
-    ]);
+    inputState.sendMultimediaMessage(threadID, [capture]);
   };
 
   clearPendingImage = () => {
@@ -1207,6 +1212,11 @@ const styles = StyleSheet.create({
   },
 });
 
+const showErrorAlert = () =>
+  Alert.alert('Unknown error', 'Uhh... try again?', [{ text: 'OK' }], {
+    cancelable: false,
+  });
+
 export default React.memo<BaseProps>(function ConnectedCameraModal(
   props: BaseProps,
 ) {
@@ -1217,6 +1227,10 @@ export default React.memo<BaseProps>(function ConnectedCameraModal(
   const overlayContext = React.useContext(OverlayContext);
   const inputState = React.useContext(InputStateContext);
   const dispatch = useDispatch();
+  const getServerThreadID = useRealThreadCreator(
+    props.route.params.thread,
+    showErrorAlert,
+  );
   return (
     <CameraModal
       {...props}
@@ -1227,6 +1241,7 @@ export default React.memo<BaseProps>(function ConnectedCameraModal(
       dispatch={dispatch}
       overlayContext={overlayContext}
       inputState={inputState}
+      getServerThreadID={getServerThreadID}
     />
   );
 });

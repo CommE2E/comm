@@ -696,7 +696,10 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       name: CameraModalRouteName,
       params: {
         presentedFrom: this.props.route.key,
-        threadID: this.props.threadInfo.id,
+        thread: {
+          threadInfo: this.props.threadInfo,
+          sourceMessageID: this.props.route.params.thread.sourceMessageID,
+        },
       },
     });
   };
