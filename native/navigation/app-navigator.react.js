@@ -18,6 +18,7 @@ import { TextMessageTooltipModal } from '../chat/text-message-tooltip-modal.reac
 import KeyboardStateContainer from '../keyboard/keyboard-state-container.react';
 import CameraModal from '../media/camera-modal.react';
 import MultimediaModal from '../media/multimedia-modal.react';
+import VideoPlaybackModal from '../media/video-playback-modal.react';
 import More from '../more/more.react';
 import RelationshipListItemTooltipModal from '../more/relationship-list-item-tooltip-modal.react';
 import PushHandler from '../push/push-handler.react';
@@ -42,6 +43,7 @@ import {
   RelationshipListItemTooltipModalRouteName,
   RobotextMessageTooltipModalRouteName,
   CameraModalRouteName,
+  VideoPlaybackModalRouteName,
   type ScreenParamList,
   type TabParamList,
   type OverlayParamList,
@@ -195,6 +197,10 @@ function AppNavigator(props: AppNavigatorProps) {
           component={RobotextMessageTooltipModal}
         />
         <App.Screen name={CameraModalRouteName} component={CameraModal} />
+        <App.Screen
+          name={VideoPlaybackModalRouteName}
+          component={VideoPlaybackModal}
+        />
       </App.Navigator>
       {pushHandler}
     </KeyboardStateContainer>

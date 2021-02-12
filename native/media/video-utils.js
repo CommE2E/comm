@@ -215,4 +215,10 @@ async function unlink(path: string) {
   } catch {}
 }
 
-export { processVideo };
+function formatDuration(seconds: number) {
+  const mm = Math.floor(seconds / 60);
+  const ss = (seconds % 60).toFixed(0).padStart(2, '0');
+  return `${mm}:${ss}`;
+}
+
+export { processVideo, formatDuration };

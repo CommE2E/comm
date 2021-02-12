@@ -19,6 +19,7 @@ import type { SidebarListModalParams } from '../chat/sidebar-list-modal.react';
 import type { TextMessageTooltipModalParams } from '../chat/text-message-tooltip-modal.react';
 import type { CameraModalParams } from '../media/camera-modal.react';
 import type { MultimediaModalParams } from '../media/multimedia-modal.react';
+import type { VideoPlaybackModalParams } from '../media/video-playback-modal.react';
 import type { CustomServerModalParams } from '../more/custom-server-modal.react';
 import type { RelationshipListItemTooltipModalParams } from '../more/relationship-list-item-tooltip-modal.react';
 import type { ActionResultModalParams } from './action-result-modal.react';
@@ -58,6 +59,7 @@ export const TextMessageTooltipModalRouteName = 'TextMessageTooltipModal';
 export const ThreadSettingsMemberTooltipModalRouteName =
   'ThreadSettingsMemberTooltipModal';
 export const CameraModalRouteName = 'CameraModal';
+export const VideoPlaybackModalRouteName = 'VideoPlaybackModal';
 export const FriendListRouteName = 'FriendList';
 export const BlockListRouteName = 'BlockList';
 export const SidebarListModalRouteName = 'SidebarListModal';
@@ -66,16 +68,16 @@ export const RobotextMessageTooltipModalRouteName =
   'RobotextMessageTooltipModal';
 
 export type RootParamList = {|
-  LoggedOutModal: void,
-  VerificationModal: VerificationModalParams,
-  App: void,
-  ThreadPickerModal: ThreadPickerModalParams,
-  AddUsersModal: AddUsersModalParams,
-  CustomServerModal: CustomServerModalParams,
-  ColorPickerModal: ColorPickerModalParams,
-  ComposeSubthreadModal: ComposeSubthreadModalParams,
-  SidebarListModal: SidebarListModalParams,
-  ImagePasteModal: ImagePasteModalParams,
+  +LoggedOutModal: void,
+  +VerificationModal: VerificationModalParams,
+  +App: void,
+  +ThreadPickerModal: ThreadPickerModalParams,
+  +AddUsersModal: AddUsersModalParams,
+  +CustomServerModal: CustomServerModalParams,
+  +ColorPickerModal: ColorPickerModalParams,
+  +ComposeSubthreadModal: ComposeSubthreadModalParams,
+  +SidebarListModal: SidebarListModalParams,
+  +ImagePasteModal: ImagePasteModalParams,
 |};
 
 export type TooltipModalParamList = {|
@@ -87,42 +89,43 @@ export type TooltipModalParamList = {|
 |};
 
 export type OverlayParamList = {|
-  TabNavigator: void,
-  MultimediaModal: MultimediaModalParams,
-  ActionResultModal: ActionResultModalParams,
-  CameraModal: CameraModalParams,
+  +TabNavigator: void,
+  +MultimediaModal: MultimediaModalParams,
+  +ActionResultModal: ActionResultModalParams,
+  +CameraModal: CameraModalParams,
+  +VideoPlaybackModal: VideoPlaybackModalParams,
   ...TooltipModalParamList,
 |};
 
 export type TabParamList = {|
-  Calendar: void,
-  Chat: void,
-  More: void,
+  +Calendar: void,
+  +Chat: void,
+  +More: void,
 |};
 
 export type ChatParamList = {|
-  ChatThreadList: void,
-  MessageList: MessageListParams,
-  ComposeThread: ComposeThreadParams,
-  ThreadSettings: ThreadSettingsParams,
-  DeleteThread: DeleteThreadParams,
+  +ChatThreadList: void,
+  +MessageList: MessageListParams,
+  +ComposeThread: ComposeThreadParams,
+  +ThreadSettings: ThreadSettingsParams,
+  +DeleteThread: DeleteThreadParams,
 |};
 
 export type ChatTopTabsParamList = {|
-  HomeChatThreadList: void,
-  BackgroundChatThreadList: void,
+  +HomeChatThreadList: void,
+  +BackgroundChatThreadList: void,
 |};
 
 export type MoreParamList = {|
-  MoreScreen: void,
-  EditEmail: void,
-  EditPassword: void,
-  DeleteAccount: void,
-  BuildInfo: void,
-  DevTools: void,
-  AppearancePreferences: void,
-  FriendList: void,
-  BlockList: void,
+  +MoreScreen: void,
+  +EditEmail: void,
+  +EditPassword: void,
+  +DeleteAccount: void,
+  +BuildInfo: void,
+  +DevTools: void,
+  +AppearancePreferences: void,
+  +FriendList: void,
+  +BlockList: void,
 |};
 
 export type ScreenParamList = {|
@@ -151,6 +154,7 @@ export const scrollBlockingModals = [
   ThreadSettingsMemberTooltipModalRouteName,
   RelationshipListItemTooltipModalRouteName,
   RobotextMessageTooltipModalRouteName,
+  VideoPlaybackModalRouteName,
 ];
 
 export const chatRootModals = [
