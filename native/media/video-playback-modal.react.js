@@ -5,18 +5,45 @@ import * as React from 'react';
 import { useState } from 'react';
 import { View, Text, TouchableWithoutFeedback } from 'react-native';
 import * as Progress from 'react-native-progress';
+import Animated from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Video from 'react-native-video';
 
+import type { MediaInfo } from 'lib/types/media-types';
+
+import type { ChatMultimediaMessageInfoItem } from '../chat/multimedia-message.react';
 import Button from '../components/button.react';
-import Modal from '../components/modal.react';
+import ConnectedStatusBar from '../connected-status-bar.react';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
+import { OverlayContext } from '../navigation/overlay-context';
 import type { NavigationRoute } from '../navigation/route-names';
+import { useSelector } from '../redux/redux-utils';
+import { derivedDimensionsInfoSelector } from '../selectors/dimensions-selectors';
 import { useStyles } from '../themes/colors';
+import type { VerticalBounds, LayoutCoordinates } from '../types/layout-types';
 import { formatDuration } from './video-utils';
 
+/* eslint-disable import/no-named-as-default-member */
+const {
+  Value,
+  Extrapolate,
+  set,
+  add,
+  sub,
+  multiply,
+  divide,
+  max,
+  min,
+  abs,
+  interpolate,
+} = Animated;
+
 export type VideoPlaybackModalParams = {|
-  +videoUri: string,
+  +presentedFrom: string,
+  +mediaInfo: MediaInfo,
+  +initialCoordinates: LayoutCoordinates,
+  +verticalBounds: VerticalBounds,
+  +item: ChatMultimediaMessageInfoItem,
 |};
 
 type Props = {|
@@ -24,6 +51,167 @@ type Props = {|
   +route: NavigationRoute<'VideoPlaybackModal'>,
 |};
 function VideoPlaybackModal(props: Props) {
+  const { mediaInfo } = props.route.params;
+  const mediaDimensions = mediaInfo.dimensions;
+  const screenDimensions = useSelector(derivedDimensionsInfoSelector);
+
+  const frame = React.useMemo(
+    () => ({
+      width: screenDimensions.width,
+      height: screenDimensions.safeAreaHeight,
+    }),
+    [screenDimensions],
+  );
+
+  const mediaDisplayDimensions = React.useMemo(() => {
+    let { height: maxHeight, width: maxWidth } = frame;
+    if (maxHeight > maxWidth) {
+      maxHeight -= 100;
+    } else {
+      maxWidth -= 100;
+    }
+
+    if (
+      mediaDimensions.height < maxHeight &&
+      mediaDimensions.width < maxWidth
+    ) {
+      return mediaDimensions;
+    }
+
+    const heightRatio = maxHeight / mediaDimensions.height;
+    const widthRatio = maxWidth / mediaDimensions.width;
+
+    if (heightRatio < widthRatio) {
+      return {
+        height: maxHeight,
+        width: mediaDimensions.width * heightRatio,
+      };
+    } else {
+      return {
+        width: maxWidth,
+        height: mediaDimensions.height * widthRatio,
+      };
+    }
+  }, [frame, mediaDimensions]);
+
+  const centerXRef = React.useRef<Value>(new Value(frame.width / 2));
+  const centerYRef = React.useRef<Value>(
+    new Value(frame.height / 2 + screenDimensions.topInset),
+  );
+  const frameWidthRef = React.useRef<Value>(new Value(frame.width));
+  const frameHeightRef = React.useRef<Value>(new Value(frame.height));
+  const imageWidthRef = React.useRef<Value>(
+    new Value(mediaDisplayDimensions.width),
+  );
+  const imageHeightRef = React.useRef<Value>(
+    new Value(mediaDisplayDimensions.height),
+  );
+  React.useEffect(() => {
+    const { width: frameWidth, height: frameHeight } = frame;
+    const { topInset } = screenDimensions;
+    frameWidthRef.current.setValue(frameWidth);
+    frameHeightRef.current.setValue(frameHeight);
+
+    const centerX = frameWidth / 2;
+    const centerY = frameHeight / 2 + topInset;
+    centerXRef.current.setValue(centerX);
+    centerYRef.current.setValue(centerY);
+
+    const { width, height } = mediaDisplayDimensions;
+    imageWidthRef.current.setValue(width);
+    imageHeightRef.current.setValue(height);
+  }, [screenDimensions, frame, mediaDisplayDimensions]);
+
+  const centerX = centerXRef.current;
+  const centerY = centerYRef.current;
+  const frameWidth = frameWidthRef.current;
+  const frameHeight = frameHeightRef.current;
+  const imageWidth = imageWidthRef.current;
+  const imageHeight = imageHeightRef.current;
+
+  const left = sub(centerX, divide(imageWidth, 2));
+  const top = sub(centerY, divide(imageHeight, 2));
+
+  const { initialCoordinates } = props.route.params;
+  const initialScale = divide(initialCoordinates.width, imageWidth);
+  const initialTranslateX = sub(
+    initialCoordinates.x + initialCoordinates.width / 2,
+    add(left, divide(imageWidth, 2)),
+  );
+  const initialTranslateY = sub(
+    initialCoordinates.y + initialCoordinates.height / 2,
+    add(top, divide(imageHeight, 2)),
+  );
+
+  // The all-important outputs
+  const curScale = new Value(1);
+  const curX = new Value(0);
+  const curY = new Value(0);
+  const curBackdropOpacity = new Value(1);
+
+  const progressiveOpacity = max(
+    min(
+      sub(1, abs(divide(curX, frameWidth))),
+      sub(1, abs(divide(curY, frameHeight))),
+    ),
+    0,
+  );
+
+  const updates = [set(curBackdropOpacity, progressiveOpacity)];
+  const updatedScale = [updates, curScale];
+  const updatedCurX = [updates, curX];
+  const updatedCurY = [updates, curY];
+  const updatedBackdropOpacity = [updates, curBackdropOpacity];
+
+  const overlayContext = React.useContext(OverlayContext);
+  invariant(overlayContext, 'VideoPlaybackModal should have OverlayContext');
+  const navigationProgress = overlayContext.position;
+
+  const reverseNavigationProgress = sub(1, navigationProgress);
+  const scale = add(
+    multiply(reverseNavigationProgress, initialScale),
+    multiply(navigationProgress, updatedScale),
+  );
+  const x = add(
+    multiply(reverseNavigationProgress, initialTranslateX),
+    multiply(navigationProgress, updatedCurX),
+  );
+  const y = add(
+    multiply(reverseNavigationProgress, initialTranslateY),
+    multiply(navigationProgress, updatedCurY),
+  );
+
+  const backdropOpacity = multiply(navigationProgress, updatedBackdropOpacity);
+  const imageContainerOpacity = interpolate(navigationProgress, {
+    inputRange: [0, 0.1],
+    outputRange: [0, 1],
+    extrapolate: Extrapolate.CLAMP,
+  });
+  const { verticalBounds } = props.route.params;
+  const videoContainerStyle = React.useMemo(() => {
+    const { height, width } = mediaDisplayDimensions;
+    const { height: frameH, width: frameW } = frame;
+
+    return {
+      height,
+      width,
+      marginTop:
+        (frameH - height) / 2 + screenDimensions.topInset - verticalBounds.y,
+      marginLeft: (frameW - width) / 2,
+      opacity: imageContainerOpacity,
+      transform: [{ translateX: x }, { translateY: y }, { scale: scale }],
+    };
+  }, [
+    mediaDisplayDimensions,
+    frame,
+    screenDimensions.topInset,
+    verticalBounds.y,
+    imageContainerOpacity,
+    x,
+    y,
+    scale,
+  ]);
+
   const styles = useStyles(unboundStyles);
 
   const [paused, setPaused] = useState(false);
@@ -36,7 +224,9 @@ function VideoPlaybackModal(props: Props) {
   const {
     navigation,
     route: {
-      params: { videoUri },
+      params: {
+        mediaInfo: { uri: videoUri },
+      },
     },
   } = props;
 
@@ -61,76 +251,93 @@ function VideoPlaybackModal(props: Props) {
     );
   }, []);
 
-  let controls;
-  if (controlsVisible) {
-    controls = (
-      <>
-        <View style={styles.header}>
-          <View style={styles.closeButton}>
-            <Button onPress={navigation.goBackOnce}>
-              <Icon name="close" size={30} style={styles.iconButton} />
-            </Button>
-          </View>
+  const statusBar = overlayContext.isDismissing ? null : (
+    <ConnectedStatusBar hidden />
+  );
+
+  const backdropStyle = React.useMemo(() => ({ opacity: backdropOpacity }), [
+    backdropOpacity,
+  ]);
+
+  const contentContainerStyle = React.useMemo(() => {
+    const fullScreenHeight = screenDimensions.height;
+    const bottom = fullScreenHeight - verticalBounds.y - verticalBounds.height;
+
+    // margin will clip, but padding won't
+    const verticalStyle = overlayContext.isDismissing
+      ? { marginTop: verticalBounds.y, marginBottom: bottom }
+      : { paddingTop: verticalBounds.y, paddingBottom: bottom };
+    return [styles.contentContainer, verticalStyle];
+  }, [
+    screenDimensions.height,
+    verticalBounds.y,
+    verticalBounds.height,
+    overlayContext.isDismissing,
+    styles.contentContainer,
+  ]);
+
+  const controls = (
+    <>
+      <View style={styles.header}>
+        <View style={styles.closeButton}>
+          <Button onPress={navigation.goBackOnce}>
+            <Icon name="close" size={30} style={styles.iconButton} />
+          </Button>
         </View>
+      </View>
+      <View style={styles.footer}>
+        <View style={styles.playPauseButton}>
+          <TouchableWithoutFeedback onPress={togglePlayback}>
+            <Icon
+              name={paused ? 'play' : 'pause'}
+              size={28}
+              style={styles.iconButton}
+            />
+          </TouchableWithoutFeedback>
 
-        <View style={styles.footer}>
-          <View style={styles.playPauseButton}>
-            <TouchableWithoutFeedback onPress={togglePlayback}>
-              <Icon
-                name={paused ? 'play' : 'pause'}
-                size={28}
-                style={styles.iconButton}
-              />
-            </TouchableWithoutFeedback>
-
-            <View style={styles.progressBar}>
-              <Progress.Bar
-                progress={percentElapsed / 100}
-                height={4}
-                width={260}
-                color={styles.progressBar.color}
-              />
-            </View>
-
-            <Text style={styles.durationText}>
-              {timeElapsed} / {totalDuration}
-            </Text>
+          <View style={styles.progressBar}>
+            <Progress.Bar
+              progress={percentElapsed / 100}
+              height={4}
+              width={260}
+              color={styles.progressBar.color}
+            />
           </View>
+
+          <Text style={styles.durationText}>
+            {timeElapsed} / {totalDuration}
+          </Text>
         </View>
-      </>
-    );
-  }
+      </View>
+    </>
+  );
 
   return (
-    <Modal
-      modalStyle={styles.modal}
-      navigation={navigation}
-      safeAreaEdges={['left']}
-    >
-      <TouchableWithoutFeedback onPress={togglePlaybackControls}>
-        <Video
-          source={{ uri: videoUri }}
-          ref={videoRef}
-          style={styles.backgroundVideo}
-          paused={paused}
-          onProgress={progressCallback}
-          onEnd={resetVideo}
-        />
-      </TouchableWithoutFeedback>
-      {controls}
-    </Modal>
+    <Animated.View style={styles.modal}>
+      {statusBar}
+      <Animated.View style={[styles.backdrop, backdropStyle]} />
+      <View style={contentContainerStyle}>
+        <Animated.View style={videoContainerStyle}>
+          <TouchableWithoutFeedback onPress={togglePlaybackControls}>
+            <Video
+              source={{ uri: videoUri }}
+              ref={videoRef}
+              style={styles.backgroundVideo}
+              paused={paused}
+              onProgress={progressCallback}
+              onEnd={resetVideo}
+            />
+          </TouchableWithoutFeedback>
+        </Animated.View>
+      </View>
+      {controlsVisible ? controls : null}
+    </Animated.View>
   );
 }
 
 const unboundStyles = {
   modal: {
-    backgroundColor: 'black',
-    justifyContent: 'center',
-    marginHorizontal: 0,
-    marginTop: 0,
-    marginBottom: 0,
-    padding: 0,
-    borderRadius: 0,
+    flex: 1,
   },
   backgroundVideo: {
     position: 'absolute',
@@ -183,6 +390,18 @@ const unboundStyles = {
   durationText: {
     color: 'white',
     fontSize: 11,
+  },
+  backdrop: {
+    backgroundColor: 'black',
+    bottom: 0,
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+  },
+  contentContainer: {
+    flex: 1,
+    overflow: 'hidden',
   },
 };
 
