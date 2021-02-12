@@ -57,36 +57,25 @@ function ImagePasteModal(props: Props) {
       safeAreaEdges={['top']}
     >
       <Image style={styles.image} source={{ uri: imagePasteStagingInfo.uri }} />
-      <View style={styles.linebreak}></View>
-      <View style={styles.spacer}></View>
+      <View style={styles.linebreak} />
+      <View style={styles.spacer} />
       <Button title="Send" onPress={sendImage} />
-      <View style={styles.linebreak}></View>
-      <View style={styles.spacer}></View>
+      <View style={styles.linebreak} />
+      <View style={styles.spacer} />
       <Button title="Cancel" onPress={cancel} />
-      <View style={styles.spacer}></View>
+      <View style={styles.spacer} />
     </Modal>
   );
 }
 
 const unboundStyles = {
   modal: {
-    backgroundColor: 'modalBackground',
-    flex: 1,
-    justifyContent: 'center',
     marginHorizontal: 0,
     marginTop: 300,
     marginBottom: 0,
-    padding: 12,
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
     borderRadius: 0,
-  },
-  modalBackground: {
-    backgroundColor: 'modalBackground',
-    padding: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 5,
   },
   image: {
     resizeMode: 'contain',
