@@ -27,7 +27,7 @@ function InlineSidebar(props: Props) {
   const onPress = React.useCallback(() => {
     navigation.navigate({
       name: MessageListRouteName,
-      params: { threadInfo },
+      params: { thread: { threadInfo } },
       key: `${MessageListRouteName}${threadInfo.id}`,
     });
   }, [navigation, threadInfo]);

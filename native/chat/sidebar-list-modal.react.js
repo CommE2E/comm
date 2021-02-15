@@ -106,7 +106,7 @@ function SidebarListModal(props: Props) {
       }
       navigate({
         name: MessageListRouteName,
-        params: { threadInfo },
+        params: { thread: { threadInfo } },
         key: `${MessageListRouteName}${threadInfo.id}`,
       });
     },

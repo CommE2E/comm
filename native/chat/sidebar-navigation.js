@@ -44,7 +44,9 @@ function onPressGoToSidebar(
   navigation.navigate({
     name: MessageListRouteName,
     params: {
-      threadInfo: threadCreatedFromMessage,
+      thread: {
+        threadInfo: threadCreatedFromMessage,
+      },
     },
     key: `${MessageListRouteName}${threadCreatedFromMessage.id}`,
   });
@@ -88,8 +90,10 @@ function onPressCreateSidebar(
   navigation.navigate({
     name: MessageListRouteName,
     params: {
-      threadInfo: pendingSidebarInfo,
-      sidebarSourceMessageID: sourceMessageID,
+      thread: {
+        threadInfo: pendingSidebarInfo,
+        sourceMessageID,
+      },
     },
     key: `${MessageListRouteName}${pendingSidebarInfo.id}`,
   });

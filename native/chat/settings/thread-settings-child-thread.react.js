@@ -24,7 +24,7 @@ function ThreadSettingsChildThread(props: Props) {
   const onPress = React.useCallback(() => {
     navigate({
       name: MessageListRouteName,
-      params: { threadInfo },
+      params: { thread: { threadInfo } },
       key: `${MessageListRouteName}${threadInfo.id}`,
     });
   }, [navigate, threadInfo]);

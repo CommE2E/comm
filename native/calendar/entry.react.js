@@ -669,7 +669,7 @@ class InternalEntry extends React.Component<Props, State> {
     const { threadInfo } = this.props;
     this.props.navigation.navigate({
       name: MessageListRouteName,
-      params: { threadInfo },
+      params: { thread: { threadInfo } },
       key: `${MessageListRouteName}${threadInfo.id}`,
     });
   };

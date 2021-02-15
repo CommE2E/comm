@@ -3,26 +3,25 @@
 import PropTypes from 'prop-types';
 import * as React from 'react';
 
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import { optimisticThreadInfoPropType } from 'lib/types/thread-types';
+import type { OptimisticThreadInfo } from 'lib/types/thread-types';
 import { type UserInfo, userInfoPropType } from 'lib/types/user-types';
 
 import type { MarkdownRules } from '../markdown/rules.react';
 import { useTextMessageRulesFunc } from '../markdown/rules.react';
 
 export type MessageListParams = {|
-  threadInfo: ThreadInfo,
-  pendingPersonalThreadUserInfo?: UserInfo,
-  searching?: boolean,
-  sidebarSourceMessageID?: string,
+  +thread: OptimisticThreadInfo,
+  +pendingPersonalThreadUserInfo?: UserInfo,
+  +searching?: boolean,
 |};
 
 const messageListRoutePropType = PropTypes.shape({
   key: PropTypes.string.isRequired,
   params: PropTypes.shape({
-    threadInfo: threadInfoPropType.isRequired,
+    thread: optimisticThreadInfoPropType.isRequired,
     pendingPersonalThreadUserInfo: userInfoPropType,
     searching: PropTypes.bool,
-    sidebarSourceMessageID: PropTypes.string,
   }).isRequired,
 });
 

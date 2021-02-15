@@ -120,7 +120,7 @@ function ThreadEntity(props: ThreadEntityProps) {
     invariant(threadInfo, 'onPressThread should have threadInfo');
     navigate({
       name: MessageListRouteName,
-      params: { threadInfo },
+      params: { thread: { threadInfo } },
       key: `${MessageListRouteName}${threadInfo.id}`,
     });
   }, [threadInfo, navigate]);

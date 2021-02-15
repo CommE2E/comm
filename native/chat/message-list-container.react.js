@@ -352,9 +352,9 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
 
   const threadInfos = useSelector(threadInfoSelector);
   const userInfos = useSelector((state) => state.userStore.userInfos);
-  const threadInfoRef = React.useRef(props.route.params.threadInfo);
+  const threadInfoRef = React.useRef(props.route.params.thread.threadInfo);
   const [originalThreadInfo, setOriginalThreadInfo] = React.useState(
-    props.route.params.threadInfo,
+    props.route.params.thread.threadInfo,
   );
 
   const { searching } = props.route.params;
@@ -390,12 +390,12 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     return infos;
   }, [threadInfos]);
 
-  const { sidebarSourceMessageID } = props.route.params;
+  const { sourceMessageID } = props.route.params.thread;
   const sidebarCandidate = useSelector((state) => {
-    if (!sidebarSourceMessageID) {
+    if (!sourceMessageID) {
       return null;
     }
-    return threadInfoFromSourceMessageIDSelector(state)[sidebarSourceMessageID];
+    return threadInfoFromSourceMessageIDSelector(state)[sourceMessageID];
   });
 
   const latestThreadInfo = React.useMemo((): ?ThreadInfo => {
@@ -453,14 +453,19 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
   const threadInfo = threadInfoRef.current;
   const { setParams } = props.navigation;
   React.useEffect(() => {
-    setParams({ threadInfo });
-  }, [setParams, threadInfo]);
+    setParams({
+      thread: {
+        threadInfo,
+        sourceMessageID,
+      },
+    });
+  }, [setParams, sourceMessageID, threadInfo]);
 
   const threadID = threadInfoRef.current.id;
   const boundMessageListData = useSelector(messageListDataSelector(threadID));
   const sidebarSourceMessageInfo = useSelector((state) =>
-    sidebarSourceMessageID && !sidebarCandidate
-      ? messageInfoSelector(state)[sidebarSourceMessageID]
+    sourceMessageID && !sidebarCandidate
+      ? messageInfoSelector(state)[sourceMessageID]
       : null,
   );
   invariant(

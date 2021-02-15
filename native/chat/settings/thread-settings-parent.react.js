@@ -91,7 +91,7 @@ class ThreadSettingsParent extends React.PureComponent<Props> {
     invariant(threadInfo, 'should be set');
     this.props.navigate({
       name: MessageListRouteName,
-      params: { threadInfo },
+      params: { thread: { threadInfo } },
       key: `${MessageListRouteName}${threadInfo.id}`,
     });
   };

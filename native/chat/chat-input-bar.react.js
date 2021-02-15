@@ -876,8 +876,10 @@ export default React.memo<BaseProps>(function ConnectedChatInputBar(
   }, [imagePastedCallback]);
 
   const getServerThreadID = useRealThreadCreator(
-    props.threadInfo,
-    props.route.params.sidebarSourceMessageID,
+    {
+      threadInfo: props.threadInfo,
+      sourceMessageID: props.route.params.thread.sourceMessageID,
+    },
     showErrorAlert,
   );
 

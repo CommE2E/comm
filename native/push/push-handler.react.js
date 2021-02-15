@@ -474,7 +474,7 @@ class PushHandler extends React.PureComponent<Props, State> {
       this.props.navigation.navigate({
         name: MessageListRouteName,
         key: `${MessageListRouteName}${threadInfo.id}`,
-        params: { threadInfo },
+        params: { thread: { threadInfo } },
       });
     }
   }
