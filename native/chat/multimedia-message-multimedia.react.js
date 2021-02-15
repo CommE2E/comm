@@ -22,8 +22,9 @@ import {
   OverlayContext,
   type OverlayContextType,
 } from '../navigation/overlay-context';
-import type { NavigationRoute } from '../navigation/route-names';
 import {
+  type NavigationRoute,
+  VideoPlaybackModalRouteName,
   MultimediaModalRouteName,
   MultimediaTooltipModalRouteName,
 } from '../navigation/route-names';
@@ -198,7 +199,10 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     view.measure((x, y, width, height, pageX, pageY) => {
       const coordinates = { x: pageX, y: pageY, width, height };
       this.props.navigation.navigate({
-        name: MultimediaModalRouteName,
+        name:
+          mediaInfo.type === 'video'
+            ? VideoPlaybackModalRouteName
+            : MultimediaModalRouteName,
         key: MultimediaMessageMultimedia.getStableKey(this.props),
         params: {
           presentedFrom: this.props.route.key,
