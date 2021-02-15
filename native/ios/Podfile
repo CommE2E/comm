@@ -30,5 +30,11 @@ target 'SquadCal' do
         end
       end
     end
+
+    # M1 Simulator fix
+    installer.pods_project.build_configurations.each do |config|
+      config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
+    end
+
   end
 end
