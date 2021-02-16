@@ -180,7 +180,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       onSubmitEditing: this.onPressAdd,
     };
     return (
-      <Modal navigation={this.props.navigation}>
+      <Modal>
         <TagInput
           value={this.state.userInfoInputArray}
           onChange={this.onChangeTagInput}

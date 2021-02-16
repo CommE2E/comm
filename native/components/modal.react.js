@@ -1,53 +1,47 @@
 // @flow
 
+import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import { View, TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { Edge } from 'react-native-safe-area-context';
 
-import { connect } from 'lib/utils/redux-utils';
-
-import type { RootNavigationProp } from '../navigation/root-navigator.react';
-import type { AppState } from '../redux/redux-setup';
-import { styleSelector } from '../themes/colors';
+import { useStyles } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
 import KeyboardAvoidingView from './keyboard-avoiding-view.react';
 
 type Props = $ReadOnly<{|
-  navigation: RootNavigationProp<>,
-  children: React.Node,
-  containerStyle?: ViewStyle,
-  modalStyle?: ViewStyle,
-  safeAreaEdges?: $ReadOnlyArray<Edge>,
-  // Redux state
-  styles: typeof styles,
+  +children: React.Node,
+  +containerStyle?: ViewStyle,
+  +modalStyle?: ViewStyle,
+  +safeAreaEdges?: $ReadOnlyArray<Edge>,
 |}>;
-class Modal extends React.PureComponent<Props> {
-  close = () => {
-    if (this.props.navigation.isFocused()) {
-      this.props.navigation.goBackOnce();
+function Modal(props: Props) {
+  const navigation = useNavigation();
+  const close = React.useCallback(() => {
+    if (navigation.isFocused()) {
+      navigation.goBack();
     }
-  };
+  }, [navigation]);
 
-  render() {
-    const { containerStyle, modalStyle, children, safeAreaEdges } = this.props;
-    return (
-      <SafeAreaView style={this.props.styles.container} edges={safeAreaEdges}>
-        <KeyboardAvoidingView
-          behavior="padding"
-          style={[this.props.styles.container, containerStyle]}
-        >
-          <TouchableWithoutFeedback onPress={this.close}>
-            <View style={StyleSheet.absoluteFill} />
-          </TouchableWithoutFeedback>
-          <View style={[this.props.styles.modal, modalStyle]}>{children}</View>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    );
-  }
+  const styles = useStyles(unboundStyles);
+  const { containerStyle, modalStyle, children, safeAreaEdges } = props;
+  return (
+    <SafeAreaView style={styles.container} edges={safeAreaEdges}>
+      <KeyboardAvoidingView
+        behavior="padding"
+        style={[styles.container, containerStyle]}
+      >
+        <TouchableWithoutFeedback onPress={close}>
+          <View style={StyleSheet.absoluteFill} />
+        </TouchableWithoutFeedback>
+        <View style={[styles.modal, modalStyle]}>{children}</View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
 }
 
-const styles = {
+const unboundStyles = {
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -64,8 +58,5 @@ const styles = {
     padding: 12,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-export default connect((state: AppState) => ({
-  styles: stylesSelector(state),
-}))(Modal);
+export default Modal;

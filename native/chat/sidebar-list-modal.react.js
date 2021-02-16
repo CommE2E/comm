@@ -128,7 +128,7 @@ function SidebarListModal(props: Props) {
 
   const indicatorStyle = useIndicatorStyle();
   return (
-    <Modal navigation={navigation}>
+    <Modal>
       <Search
         searchText={searchState.text}
         onChangeText={onChangeSearchText}

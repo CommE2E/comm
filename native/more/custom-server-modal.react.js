@@ -53,7 +53,6 @@ class CustomServerModal extends React.PureComponent<Props, State> {
   render() {
     return (
       <Modal
-        navigation={this.props.navigation}
         containerStyle={this.props.styles.container}
         modalStyle={this.props.styles.modal}
       >

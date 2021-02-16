@@ -56,10 +56,7 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
 
   render() {
     return (
-      <Modal
-        navigation={this.props.navigation}
-        modalStyle={this.props.styles.modal}
-      >
+      <Modal modalStyle={this.props.styles.modal}>
         <Text style={this.props.styles.visibility}>Thread type</Text>
         <Button style={this.props.styles.option} onPress={this.onPressOpen}>
           <Icon

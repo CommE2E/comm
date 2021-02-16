@@ -51,11 +51,7 @@ function ImagePasteModal(props: Props) {
   }, [imagePasteStagingInfo.uri, navigation]);
 
   return (
-    <Modal
-      modalStyle={styles.modal}
-      navigation={navigation}
-      safeAreaEdges={['top']}
-    >
+    <Modal modalStyle={styles.modal} safeAreaEdges={['top']}>
       <Image style={styles.image} source={{ uri: imagePasteStagingInfo.uri }} />
       <View style={styles.linebreak} />
       <View style={styles.spacer} />

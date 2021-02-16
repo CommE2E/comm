@@ -77,7 +77,7 @@ function ThreadPickerModal(props: Props) {
     onScreenEntryEditableThreadInfos(state),
   );
   return (
-    <Modal navigation={navigation}>
+    <Modal>
       <ThreadList
         threadInfos={onScreenThreadInfos}
         onSelect={threadPicked}
