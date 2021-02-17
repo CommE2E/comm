@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import invariant from 'invariant';
 import * as React from 'react';
 import {
-  CornerDownRight as CircleIcon,
+  Circle as CircleIcon,
   CheckCircle as CheckCircleIcon,
   XCircle as XCircleIcon,
 } from 'react-feather';
