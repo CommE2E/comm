@@ -2,10 +2,12 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { Button, View, Image } from 'react-native';
+import { Button, View, Image, Alert } from 'react-native';
 import filesystem from 'react-native-fs';
 
+import { useRealThreadCreator } from 'lib/shared/thread-utils';
 import type { PhotoPaste } from 'lib/types/media-types';
+import type { OptimisticThreadInfo } from 'lib/types/thread-types';
 import sleep from 'lib/utils/sleep';
 
 import Modal from '../components/modal.react';
@@ -16,8 +18,13 @@ import { useStyles } from '../themes/colors';
 
 export type ImagePasteModalParams = {|
   +imagePasteStagingInfo: PhotoPaste,
-  +threadID: string,
+  +thread: OptimisticThreadInfo,
 |};
+
+const showErrorAlert = () =>
+  Alert.alert('Unknown error', 'Uhh... try again?', [{ text: 'OK' }], {
+    cancelable: false,
+  });
 
 type Props = {|
   +navigation: RootNavigationProp<'ImagePasteModal'>,
@@ -29,20 +36,26 @@ function ImagePasteModal(props: Props) {
   const {
     navigation,
     route: {
-      params: { imagePasteStagingInfo, threadID },
+      params: { imagePasteStagingInfo, thread },
     },
   } = props;
+
+  const getServerThreadID = useRealThreadCreator(thread, showErrorAlert);
 
   const sendImage = React.useCallback(async () => {
     navigation.goBackOnce();
     const selection: $ReadOnlyArray<PhotoPaste> = [imagePasteStagingInfo];
+    const threadID = await getServerThreadID();
+    if (!threadID) {
+      return;
+    }
     invariant(inputState, 'inputState should be set in ImagePasteModal');
     await inputState.sendMultimediaMessage(threadID, selection);
     invariant(
       imagePasteStagingInfo,
       'imagePasteStagingInfo should be set in ImagePasteModal',
     );
-  }, [imagePasteStagingInfo, inputState, navigation, threadID]);
+  }, [getServerThreadID, imagePasteStagingInfo, inputState, navigation]);
 
   const cancel = React.useCallback(async () => {
     navigation.goBackOnce();
