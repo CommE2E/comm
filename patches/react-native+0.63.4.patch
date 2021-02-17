@@ -30,14 +30,14 @@ index 5dc03df..e526092 100644
          useForeground && TouchableNativeFeedback.canUseNativeForeground()
            ? {nativeForegroundAndroid: background}
 diff --git a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h
-index 7e12add..6979293 100644
+index 7e12add..d21daf8 100644
 --- a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h
 +++ b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h
 @@ -36,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
  // The `caretHidden` property actually is not supported yet;
  // it's declared here only to conform to the interface.
  @property (nonatomic, assign) BOOL caretHidden;
-+@property (nonatomic, assign) NSString *allowImagePasteForThreadID;
++@property (nonatomic, copy, nullable) NSString *allowImagePasteForThreadID;
  
  @end
  
