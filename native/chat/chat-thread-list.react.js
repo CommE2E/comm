@@ -343,7 +343,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     }
     this.props.navigation.navigate({
       name: MessageListRouteName,
-      params: { thread: { threadInfo }, pendingPersonalThreadUserInfo },
+      params: { threadInfo, pendingPersonalThreadUserInfo },
       key: `${MessageListRouteName}${threadInfo.id}`,
     });
   };
@@ -368,12 +368,10 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       this.props.navigation.navigate({
         name: MessageListRouteName,
         params: {
-          thread: {
-            threadInfo: createPendingThread({
-              viewerID: this.props.viewerID,
-              threadType: threadTypes.CHAT_SECRET,
-            }),
-          },
+          threadInfo: createPendingThread({
+            viewerID: this.props.viewerID,
+            threadType: threadTypes.CHAT_SECRET,
+          }),
           searching: true,
         },
       });

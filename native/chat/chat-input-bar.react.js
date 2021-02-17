@@ -698,7 +698,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         presentedFrom: this.props.route.key,
         thread: {
           threadInfo: this.props.threadInfo,
-          sourceMessageID: this.props.route.params.thread.sourceMessageID,
+          sourceMessageID: this.props.route.params.sourceMessageID,
         },
       },
     });
@@ -709,7 +709,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     invariant(keyboardState, 'keyboardState should be initialized');
     keyboardState.showMediaGallery({
       threadInfo: this.props.threadInfo,
-      sourceMessageID: this.props.route.params.thread.sourceMessageID,
+      sourceMessageID: this.props.route.params.sourceMessageID,
     });
   };
 
@@ -868,16 +868,12 @@ export default React.memo<BaseProps>(function ConnectedChatInputBar(
           imagePasteStagingInfo: pastedImage,
           thread: {
             threadInfo: props.threadInfo,
-            sourceMessageID: props.route.params.thread.sourceMessageID,
+            sourceMessageID: props.route.params.sourceMessageID,
           },
         },
       });
     },
-    [
-      props.navigation,
-      props.route.params.thread.sourceMessageID,
-      props.threadInfo,
-    ],
+    [props.navigation, props.route.params.sourceMessageID, props.threadInfo],
   );
 
   React.useEffect(() => {
@@ -891,7 +887,7 @@ export default React.memo<BaseProps>(function ConnectedChatInputBar(
   const getServerThreadID = useRealThreadCreator(
     {
       threadInfo: props.threadInfo,
-      sourceMessageID: props.route.params.thread.sourceMessageID,
+      sourceMessageID: props.route.params.sourceMessageID,
     },
     showErrorAlert,
   );

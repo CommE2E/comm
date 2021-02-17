@@ -352,9 +352,9 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
 
   const threadInfos = useSelector(threadInfoSelector);
   const userInfos = useSelector((state) => state.userStore.userInfos);
-  const threadInfoRef = React.useRef(props.route.params.thread.threadInfo);
+  const threadInfoRef = React.useRef(props.route.params.threadInfo);
   const [originalThreadInfo, setOriginalThreadInfo] = React.useState(
-    props.route.params.thread.threadInfo,
+    props.route.params.threadInfo,
   );
 
   const { searching } = props.route.params;
@@ -390,7 +390,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     return infos;
   }, [threadInfos]);
 
-  const { sourceMessageID } = props.route.params.thread;
+  const { sourceMessageID } = props.route.params;
   const sidebarCandidate = useSelector((state) => {
     if (!sourceMessageID) {
       return null;
@@ -453,13 +453,8 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
   const threadInfo = threadInfoRef.current;
   const { setParams } = props.navigation;
   React.useEffect(() => {
-    setParams({
-      thread: {
-        threadInfo,
-        sourceMessageID,
-      },
-    });
-  }, [setParams, sourceMessageID, threadInfo]);
+    setParams({ threadInfo });
+  }, [setParams, threadInfo]);
 
   const threadID = threadInfoRef.current.id;
   const boundMessageListData = useSelector(messageListDataSelector(threadID));

@@ -172,7 +172,7 @@ const messageListOptions = ({ navigation, route }) => ({
   // eslint-disable-next-line react/display-name
   headerTitle: () => (
     <MessageListHeaderTitle
-      threadInfo={route.params.thread.threadInfo}
+      threadInfo={route.params.threadInfo}
       searching={route.params.searching}
       navigate={navigation.navigate}
     />
@@ -182,13 +182,12 @@ const messageListOptions = ({ navigation, route }) => ({
     flex: 1,
   },
   headerRight:
-    Platform.OS === 'android' &&
-    !threadIsPending(route.params.thread.threadInfo.id)
+    Platform.OS === 'android' && !threadIsPending(route.params.threadInfo.id)
       ? // This is a render prop, not a component
         // eslint-disable-next-line react/display-name
         () => (
           <ThreadSettingsButton
-            threadInfo={route.params.thread.threadInfo}
+            threadInfo={route.params.threadInfo}
             navigate={navigation.navigate}
           />
         )

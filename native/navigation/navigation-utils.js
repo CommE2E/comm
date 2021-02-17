@@ -25,14 +25,13 @@ function getStateFromNavigatorRoute(
 function getThreadIDFromParams(params: ?ScreenParams): string {
   invariant(
     params &&
-      params.thread &&
-      params.thread.threadInfo &&
-      typeof params.thread.threadInfo === 'object' &&
-      params.thread.threadInfo.id &&
-      typeof params.thread.threadInfo.id === 'string',
+      params.threadInfo &&
+      typeof params.threadInfo === 'object' &&
+      params.threadInfo.id &&
+      typeof params.threadInfo.id === 'string',
     "there's no way in react-navigation/Flow to type this",
   );
-  return params.thread.threadInfo.id;
+  return params.threadInfo.id;
 }
 
 function getParentThreadIDFromParams(params: ?ScreenParams): ?string {
