@@ -179,6 +179,7 @@ function getRolePermissionBlobsForChat(
       [threadPermissions.KNOW_OF]: true,
       [threadPermissions.VISIBLE]: true,
       [threadPermissions.VOICED]: true,
+      [threadPermissions.CREATE_SIDEBARS]: true,
     };
     return {
       Members: memberPermissions,
