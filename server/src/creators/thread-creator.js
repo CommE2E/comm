@@ -42,6 +42,10 @@ import type { UpdatesForCurrentSession } from './update-creator';
 
 const { squadbot } = bots;
 
+const privateThreadDescription =
+  'This is your private thread, ' +
+  'where you can set reminders and jot notes in private!';
+
 type CreateThreadOptions = Shape<{|
   +forceAddMembers: boolean,
   +updatesForCurrentSession: UpdatesForCurrentSession,
@@ -493,9 +497,7 @@ function createPrivateThread(
     {
       type: threadTypes.PRIVATE,
       name: username,
-      description:
-        'This is your private thread, ' +
-        'where you can set reminders and jot notes in private!',
+      description: privateThreadDescription,
       ghostMemberIDs: [squadbot.userID],
     },
     {
@@ -504,4 +506,4 @@ function createPrivateThread(
   );
 }
 
-export { createThread, createPrivateThread };
+export { createThread, createPrivateThread, privateThreadDescription };

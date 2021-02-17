@@ -4,6 +4,7 @@ import bots from 'lib/facts/bots.json';
 import { threadTypes } from 'lib/types/thread-types';
 
 import { getRolePermissionBlobsForChat } from '../creators/role-creator';
+import { privateThreadDescription } from '../creators/thread-creator';
 import { dbQuery, SQL } from '../database/database';
 import { createScriptViewer } from '../session/scripts';
 import {
@@ -34,13 +35,9 @@ async function markThreadsAsPrivate() {
     return;
   }
 
-  const description =
-    'This is your private thread, ' +
-    'where you can set reminders and jot notes in private!';
-
   const updateThreads = SQL`
     UPDATE threads
-    SET type = ${threadTypes.PRIVATE}, description = ${description}
+    SET type = ${threadTypes.PRIVATE}, description = ${privateThreadDescription}
     WHERE id IN (${threadIDs})
   `;
 

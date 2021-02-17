@@ -30,7 +30,11 @@ import { createNewUserCookie, setNewSession } from '../session/cookies';
 import type { Viewer } from '../session/viewer';
 import createIDs from './id-creator';
 import createMessages from './message-creator';
-import { createThread, createPrivateThread } from './thread-creator';
+import {
+  createThread,
+  createPrivateThread,
+  privateThreadDescription,
+} from './thread-creator';
 
 const { squadbot } = bots;
 
@@ -40,9 +44,7 @@ const ashoatMessages = [
     'suggestions, feel free to message them to me in the app.',
 ];
 
-const privateMessages = [
-  'This is your private thread, where you can set reminders and jot notes in private!',
-];
+const privateMessages = [privateThreadDescription];
 
 async function createAccount(
   viewer: Viewer,
