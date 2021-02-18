@@ -7,20 +7,20 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 import { threadIsPending } from 'lib/shared/thread-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../components/button.react';
 import { ThreadSettingsRouteName } from '../navigation/route-names';
-import type { AppState } from '../redux/redux-setup';
-import { styleSelector } from '../themes/colors';
+import { useStyles } from '../themes/colors';
 import type { ChatNavigationProp } from './chat.react';
 
-type Props = {|
+type BaseProps = {|
   +threadInfo: ThreadInfo,
-  +searching: boolean,
+  +searching: boolean | void,
   +navigate: $PropertyType<ChatNavigationProp<'MessageList'>, 'navigate'>,
-  // Redux state
-  +styles: typeof styles,
+|};
+type Props = {|
+  ...BaseProps,
+  +styles: typeof unboundStyles,
 |};
 class MessageListHeaderTitle extends React.PureComponent<Props> {
   render() {
@@ -72,7 +72,7 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   button: {
     flex: 1,
   },
@@ -97,8 +97,11 @@ const styles = {
     minWidth: 25,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-export default connect((state: AppState) => ({
-  styles: stylesSelector(state),
-}))(MessageListHeaderTitle);
+export default React.memo<BaseProps>(function ConnectedMessageListHeaderTitle(
+  props: BaseProps,
+) {
+  const styles = useStyles(unboundStyles);
+
+  return <MessageListHeaderTitle {...props} styles={styles} />;
+});
