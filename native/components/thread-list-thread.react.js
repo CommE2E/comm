@@ -1,43 +1,27 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
-import { Text, ViewPropTypes } from 'react-native';
 
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import { connect } from 'lib/utils/redux-utils';
+import { type ThreadInfo } from 'lib/types/thread-types';
 
-import type { AppState } from '../redux/redux-setup';
-import {
-  type Colors,
-  colorsPropType,
-  colorsSelector,
-  styleSelector,
-} from '../themes/colors';
+import { type Colors, useStyles, useColors } from '../themes/colors';
 import type { ViewStyle, TextStyle } from '../types/styles';
 import Button from './button.react';
 import ColorSplotch from './color-splotch.react';
 import { SingleLine } from './single-line.react';
 
+type BaseProps = {|
+  +threadInfo: ThreadInfo,
+  +onSelect: (threadID: string) => void,
+  +style?: ViewStyle,
+  +textStyle?: TextStyle,
+|};
 type Props = {|
-  threadInfo: ThreadInfo,
-  onSelect: (threadID: string) => void,
-  style?: ViewStyle,
-  textStyle?: TextStyle,
-  // Redux state
-  colors: Colors,
-  styles: typeof styles,
+  ...BaseProps,
+  +colors: Colors,
+  +styles: typeof unboundStyles,
 |};
 class ThreadListThread extends React.PureComponent<Props> {
-  static propTypes = {
-    threadInfo: threadInfoPropType.isRequired,
-    onSelect: PropTypes.func.isRequired,
-    style: ViewPropTypes.style,
-    textStyle: Text.propTypes.style,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-  };
-
   render() {
     const { modalIosHighlightUnderlay: underlayColor } = this.props.colors;
     return (
@@ -61,7 +45,7 @@ class ThreadListThread extends React.PureComponent<Props> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   button: {
     alignItems: 'center',
     flexDirection: 'row',
@@ -75,9 +59,12 @@ const styles = {
     paddingVertical: 6,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-export default connect((state: AppState) => ({
-  colors: colorsSelector(state),
-  styles: stylesSelector(state),
-}))(ThreadListThread);
+export default React.memo<BaseProps>(function ConnectedThreadListThread(
+  props: BaseProps,
+) {
+  const styles = useStyles(unboundStyles);
+  const colors = useColors();
+
+  return <ThreadListThread {...props} styles={styles} colors={colors} />;
+});
