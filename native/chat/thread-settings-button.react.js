@@ -1,31 +1,25 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import { connect } from 'lib/utils/redux-utils';
+import { type ThreadInfo } from 'lib/types/thread-types';
 
 import Button from '../components/button.react';
 import { ThreadSettingsRouteName } from '../navigation/route-names';
-import type { AppState } from '../redux/redux-setup';
-import { styleSelector } from '../themes/colors';
+import { useStyles } from '../themes/colors';
 import type { ChatNavigationProp } from './chat.react';
 
-type Props = {|
-  threadInfo: ThreadInfo,
-  navigate: $PropertyType<ChatNavigationProp<'MessageList'>, 'navigate'>,
-  // Redux state
-  styles: typeof styles,
+type BaseProps = {|
+  +threadInfo: ThreadInfo,
+  +navigate: $PropertyType<ChatNavigationProp<'MessageList'>, 'navigate'>,
 |};
-class ThreadSettingsButton extends React.PureComponent<Props> {
-  static propTypes = {
-    threadInfo: threadInfoPropType.isRequired,
-    navigate: PropTypes.func.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-  };
+type Props = {|
+  ...BaseProps,
+  +styles: typeof unboundStyles,
+|};
 
+class ThreadSettingsButton extends React.PureComponent<Props> {
   render() {
     return (
       <Button onPress={this.onPress} androidBorderlessRipple={true}>
@@ -44,14 +38,17 @@ class ThreadSettingsButton extends React.PureComponent<Props> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   button: {
     color: 'link',
     paddingHorizontal: 10,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-export default connect((state: AppState) => ({
-  styles: stylesSelector(state),
-}))(ThreadSettingsButton);
+export default React.memo<BaseProps>(function ConnectedThreadSettingsButton(
+  props: BaseProps,
+) {
+  const styles = useStyles(unboundStyles);
+
+  return <ThreadSettingsButton {...props} styles={styles} />;
+});
