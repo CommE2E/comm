@@ -1,33 +1,23 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
-import { Text, ViewPropTypes } from 'react-native';
+import { Text } from 'react-native';
 
-import { connect } from 'lib/utils/redux-utils';
-
-import type { AppState } from '../redux/redux-setup';
-import { styleSelector } from '../themes/colors';
+import { useStyles } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
 import Button from './button.react';
 
-type Props = {
-  text: string,
-  onPress: () => void,
-  disabled?: boolean,
-  style?: ViewStyle,
-  // Redux state
-  styles: typeof styles,
-};
+type BaseProps = {|
+  +text: string,
+  +onPress: () => void,
+  +disabled?: boolean,
+  +style?: ViewStyle,
+|};
+type Props = {|
+  ...BaseProps,
+  +styles: typeof unboundStyles,
+|};
 class LinkButton extends React.PureComponent<Props> {
-  static propTypes = {
-    text: PropTypes.string.isRequired,
-    onPress: PropTypes.func.isRequired,
-    disabled: PropTypes.bool,
-    style: ViewPropTypes.style,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-  };
-
   render() {
     const disabledStyle = this.props.disabled
       ? this.props.styles.disabled
@@ -48,7 +38,7 @@ class LinkButton extends React.PureComponent<Props> {
   }
 }
 
-const styles = {
+const unboundStyles = {
   disabled: {
     color: 'modalBackgroundSecondaryLabel',
   },
@@ -58,8 +48,11 @@ const styles = {
     paddingHorizontal: 10,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-export default connect((state: AppState) => ({
-  styles: stylesSelector(state),
-}))(LinkButton);
+export default React.memo<BaseProps>(function ConnectedLinkButton(
+  props: BaseProps,
+) {
+  const styles = useStyles(unboundStyles);
+
+  return <LinkButton {...props} styles={styles} />;
+});
