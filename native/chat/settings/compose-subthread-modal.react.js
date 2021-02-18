@@ -1,59 +1,35 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { Text } from 'react-native';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import { threadTypeDescriptions } from 'lib/shared/thread-utils';
-import {
-  type ThreadInfo,
-  threadInfoPropType,
-  threadTypes,
-} from 'lib/types/thread-types';
-import { connect } from 'lib/utils/redux-utils';
+import { type ThreadInfo, threadTypes } from 'lib/types/thread-types';
 
 import Button from '../../components/button.react';
 import Modal from '../../components/modal.react';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react';
 import type { NavigationRoute } from '../../navigation/route-names';
 import { ComposeThreadRouteName } from '../../navigation/route-names';
-import type { AppState } from '../../redux/redux-setup';
-import {
-  type Colors,
-  colorsPropType,
-  colorsSelector,
-  styleSelector,
-} from '../../themes/colors';
+import { type Colors, useStyles, useColors } from '../../themes/colors';
 
 export type ComposeSubthreadModalParams = {|
   presentedFrom: string,
   threadInfo: ThreadInfo,
 |};
 
+type BaseProps = {|
+  +navigation: RootNavigationProp<'ComposeSubthreadModal'>,
+  +route: NavigationRoute<'ComposeSubthreadModal'>,
+|};
 type Props = {|
-  navigation: RootNavigationProp<'ComposeSubthreadModal'>,
-  route: NavigationRoute<'ComposeSubthreadModal'>,
-  // Redux state
-  colors: Colors,
-  styles: typeof styles,
+  ...BaseProps,
+  +colors: Colors,
+  +styles: typeof unboundStyles,
 |};
 class ComposeSubthreadModal extends React.PureComponent<Props> {
-  static propTypes = {
-    navigation: PropTypes.shape({
-      navigate: PropTypes.func.isRequired,
-    }).isRequired,
-    route: PropTypes.shape({
-      params: PropTypes.shape({
-        presentedFrom: PropTypes.string.isRequired,
-        threadInfo: threadInfoPropType.isRequired,
-      }).isRequired,
-    }).isRequired,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-  };
-
   render() {
     return (
       <Modal modalStyle={this.props.styles.modal}>
@@ -119,7 +95,7 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   forwardIcon: {
     color: 'link',
     paddingLeft: 10,
@@ -155,9 +131,12 @@ const styles = {
     paddingRight: 3,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-export default connect((state: AppState) => ({
-  colors: colorsSelector(state),
-  styles: stylesSelector(state),
-}))(ComposeSubthreadModal);
+export default React.memo<BaseProps>(function ConnectedComposeSubthreadModal(
+  props: BaseProps,
+) {
+  const styles = useStyles(unboundStyles);
+  const colors = useColors();
+
+  return <ComposeSubthreadModal {...props} styles={styles} colors={colors} />;
+});
