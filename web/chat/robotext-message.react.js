@@ -15,13 +15,18 @@ import { linkRules } from '../markdown/rules.react';
 import { type AppState, updateNavInfoActionType } from '../redux/redux-setup';
 import css from './chat-message-list.css';
 import { InlineSidebar } from './inline-sidebar.react';
-import type { MessagePositionInfo } from './message-position-types';
+import type {
+  MessagePositionInfo,
+  OnMessagePositionInfo,
+} from './message-position-types';
+import SidebarTooltip from './sidebar-tooltip.react';
 
 type Props = {|
-  item: RobotextChatMessageInfoItem,
-  setMouseOverMessagePosition: (
+  +item: RobotextChatMessageInfoItem,
+  +setMouseOverMessagePosition: (
     messagePositionInfo: MessagePositionInfo,
   ) => void,
+  +mouseOverMessagePosition: ?OnMessagePositionInfo,
 |};
 class RobotextMessage extends React.PureComponent<Props> {
   render() {
@@ -36,11 +41,33 @@ class RobotextMessage extends React.PureComponent<Props> {
         </div>
       );
     }
+
+    const { id } = this.props.item.messageInfo;
+    let sidebarTooltip;
+    if (
+      this.props.mouseOverMessagePosition &&
+      this.props.mouseOverMessagePosition.item.messageInfo.id === id &&
+      this.props.item.threadCreatedFromMessage
+    ) {
+      sidebarTooltip = (
+        <SidebarTooltip
+          threadCreatedFromMessage={this.props.item.threadCreatedFromMessage}
+          onClick={this.onMouseLeave}
+          messagePosition="center"
+        />
+      );
+    }
+
     return (
-      <div className={css.robotext}>
-        <span onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave}>
-          {this.linkedRobotext()}
-        </span>
+      <div className={css.robotextContainer}>
+        <div
+          className={css.innerRobotextContainer}
+          onMouseEnter={this.onMouseEnter}
+          onMouseLeave={this.onMouseLeave}
+        >
+          <span>{this.linkedRobotext()}</span>
+          {sidebarTooltip}
+        </div>
         {inlineSidebar}
       </div>
     );

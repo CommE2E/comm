@@ -131,6 +131,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       }
     }
 
+    const positioning = isViewer ? 'right' : 'left';
     let viewerSidebarTooltip, nonViewerSidebarTooltip;
     if (
       this.props.mouseOverMessagePosition &&
@@ -139,9 +140,9 @@ class ComposedMessage extends React.PureComponent<Props> {
     ) {
       const sidebarTooltip = (
         <SidebarTooltip
-          messagePositionInfo={this.props.mouseOverMessagePosition}
           threadCreatedFromMessage={this.props.item.threadCreatedFromMessage}
           onClick={this.onMouseLeave}
+          messagePosition={positioning}
         />
       );
       if (isViewer) {
@@ -153,7 +154,6 @@ class ComposedMessage extends React.PureComponent<Props> {
 
     let inlineSidebar = null;
     if (item.threadCreatedFromMessage) {
-      const positioning = isViewer ? 'right' : 'left';
       inlineSidebar = (
         <div className={css.sidebarMarginBottom}>
           <InlineSidebar

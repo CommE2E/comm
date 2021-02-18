@@ -107,12 +107,16 @@ div.conversationHeader:last-child {
   padding-top: 6px;
 }
 
-div.robotext {
+div.robotextContainer {
   text-align: center;
   color: #333333;
   padding: 6px 0;
-  margin: 0 24px 5px 24px;
+  margin: 0 40px 5px 40px;
   font-size: 15px;
+}
+div.innerRobotextContainer {
+  display: inline-flex;
+  position: relative;
 }
 
 div.messageTimestampTooltip {
@@ -170,14 +174,27 @@ div.messageTooltip {
   color: gray;
   font-size: 14px;
 }
+div.messageSidebarTooltip {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  bottom: 0;
+  color: gray;
+  font-size: 16px;
+}
+div.viewerMessageSidebarTooltip {
+  left: unset;
+  right: 100%;
+}
 div.tooltipLeftPadding {
   padding-left: 8px;
 }
 div.tooltipRightPadding {
   padding-right: 8px;
 }
-div.messageSidebarTooltip {
-  font-size: 16px;
+div.tooltipLeftRightPadding {
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 div.messageTooltipIcon {
@@ -406,7 +423,7 @@ div.sidebarMarginBottom {
   margin-bottom: 8px;
 }
 div.sidebarMarginTop {
-  margin-top: 5px;
+  margin-top: 4px;
   margin-bottom: -8px;
 }
 svg.inlineSidebarIcon {
@@ -459,6 +476,9 @@ svg.inlineSidebarIcon {
 .menuSidebarNonViewerContent {
   left: 0;
   margin-left: -3px;
+}
+.menuSidebarCenterContent {
+  margin-right: 5px;
 }
 .menuSidebarContent:before {
   height: 15px;

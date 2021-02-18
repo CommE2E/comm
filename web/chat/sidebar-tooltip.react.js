@@ -9,15 +9,14 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 
 import { useOnClickThread } from '../selectors/nav-selectors';
 import css from './chat-message-list.css';
-import type { OnMessagePositionInfo } from './message-position-types';
 
 type Props = {|
-  +messagePositionInfo: OnMessagePositionInfo,
   +threadCreatedFromMessage: ThreadInfo,
   +onClick: () => void,
+  +messagePosition: 'left' | 'center' | 'right',
 |};
 function SidebarTooltip(props: Props) {
-  const { onClick, messagePositionInfo, threadCreatedFromMessage } = props;
+  const { onClick, threadCreatedFromMessage, messagePosition } = props;
   const [tooltipVisible, setTooltipVisible] = React.useState(false);
   const onButtonClick = useOnClickThread(threadCreatedFromMessage.id);
 
@@ -37,26 +36,27 @@ function SidebarTooltip(props: Props) {
     setTooltipVisible(false);
   }, []);
 
-  const { isViewer } = messagePositionInfo.item.messageInfo.creator;
   const sidebarMenuClassName = classNames({
     [css.menuSidebarContent]: true,
     [css.menuSidebarContentVisible]: tooltipVisible,
-    [css.menuSidebarNonViewerContent]: !isViewer,
-    [css.messageTimestampBottomRightTooltip]: isViewer,
-    [css.messageTimestampBottomLeftTooltip]: !isViewer,
+    [css.menuSidebarNonViewerContent]: messagePosition === 'left',
+    [css.menuSidebarCenterContent]: messagePosition === 'center',
+    [css.messageTimestampBottomRightTooltip]: messagePosition !== 'left',
+    [css.messageTimestampBottomLeftTooltip]: messagePosition === 'left',
   });
 
   const sidebarTooltipClassName = classNames({
-    [css.messageTooltip]: true,
     [css.messageSidebarTooltip]: true,
-    [css.tooltipRightPadding]: isViewer,
-    [css.tooltipLeftPadding]: !isViewer,
+    [css.viewerMessageSidebarTooltip]: messagePosition === 'right',
+    [css.tooltipRightPadding]: messagePosition === 'right',
+    [css.tooltipLeftPadding]: messagePosition !== 'right',
   });
 
   const sidebarIconClassName = classNames({
     [css.messageTooltipIcon]: true,
-    [css.tooltipRightPadding]: !isViewer,
-    [css.tooltipLeftPadding]: isViewer,
+    [css.tooltipRightPadding]: messagePosition === 'left',
+    [css.tooltipLeftPadding]: messagePosition === 'right',
+    [css.tooltipLeftRightPadding]: messagePosition === 'center',
   });
 
   return (

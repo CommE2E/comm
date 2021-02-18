@@ -68,6 +68,7 @@ class Message extends React.PureComponent<Props> {
         <RobotextMessage
           item={item}
           setMouseOverMessagePosition={this.props.setMouseOverMessagePosition}
+          mouseOverMessagePosition={this.props.mouseOverMessagePosition}
         />
       );
     }
