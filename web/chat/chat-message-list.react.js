@@ -226,6 +226,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       inputState,
       connectDropTarget,
       isActive,
+      setModal,
     } = this.props;
     if (!messageListData) {
       return <div className={css.container} />;
@@ -255,7 +256,11 @@ class ChatMessageList extends React.PureComponent<Props, State> {
           {messages}
           {tooltip}
         </div>
-        <ChatInputBar threadInfo={threadInfo} inputState={inputState} />
+        <ChatInputBar
+          threadInfo={threadInfo}
+          inputState={inputState}
+          setModal={setModal}
+        />
       </div>,
     );
   }
