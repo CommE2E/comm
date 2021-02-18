@@ -1,22 +1,14 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { Animated, View } from 'react-native';
 import SwipeableComponent from 'react-native-gesture-handler/Swipeable';
+import { useSelector } from 'react-redux';
 
-import { connect } from 'lib/utils/redux-utils';
-
-import type { AppState } from '../redux/redux-setup';
-import {
-  type Colors,
-  colorsPropType,
-  colorsSelector,
-  styleSelector,
-} from '../themes/colors';
+import { type Colors, useColors, useStyles } from '../themes/colors';
 import Button from './button.react';
 
-type Props = {
+type BaseProps = {|
   +buttonWidth: number,
   +rightActions: $ReadOnlyArray<{|
     +key: string,
@@ -29,34 +21,15 @@ type Props = {
     current: ?SwipeableComponent,
   |},
   +children?: React.Node,
-  // Redux state
+|};
+type Props = {|
+  ...BaseProps,
   +windowWidth: number,
   +colors: Colors,
-  +styles: typeof styles,
-  ...
-};
+  +styles: typeof unboundStyles,
+|};
 
 class Swipeable extends React.PureComponent<Props> {
-  static propTypes = {
-    buttonWidth: PropTypes.number.isRequired,
-    rightActions: PropTypes.arrayOf(
-      PropTypes.exact({
-        key: PropTypes.string.isRequired,
-        onPress: PropTypes.func.isRequired,
-        color: PropTypes.string,
-        content: PropTypes.node.isRequired,
-      }),
-    ),
-    onSwipeableRightWillOpen: PropTypes.func,
-    innerRef: PropTypes.exact({
-      current: PropTypes.instanceOf(SwipeableComponent),
-    }),
-    children: PropTypes.node,
-    windowWidth: PropTypes.number.isRequired,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-  };
-
   static defaultProps = {
     rightActions: [],
   };
@@ -113,7 +86,7 @@ class Swipeable extends React.PureComponent<Props> {
   }
 }
 
-const styles = {
+const unboundStyles = {
   action: {
     height: '100%',
     alignItems: 'center',
@@ -123,10 +96,20 @@ const styles = {
     flexDirection: 'row',
   },
 };
-const stylesSelector = styleSelector(styles);
 
-export default connect((state: AppState) => ({
-  windowWidth: state.dimensions.width,
-  colors: colorsSelector(state),
-  styles: stylesSelector(state),
-}))(Swipeable);
+export default React.memo<BaseProps>(function ConnectedSwipeable(
+  props: BaseProps,
+) {
+  const styles = useStyles(unboundStyles);
+  const windowWidth = useSelector((state) => state.dimensions.width);
+  const colors = useColors();
+
+  return (
+    <Swipeable
+      {...props}
+      styles={styles}
+      windowWidth={windowWidth}
+      colors={colors}
+    />
+  );
+});

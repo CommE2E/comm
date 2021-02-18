@@ -30,7 +30,7 @@ type Props = {|
   +children: React.Node,
 |};
 function SwipeableThread(props: Props) {
-  const swipeable = React.useRef<?Swipeable>();
+  const swipeable = React.useRef();
   const navigation = useNavigation();
   React.useEffect(() => {
     return navigation.addListener('blur', () => {
