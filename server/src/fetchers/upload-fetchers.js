@@ -33,6 +33,49 @@ async function fetchUpload(
   return { content, mime };
 }
 
+async function fetchUploadChunk(
+  id: string,
+  secret: string,
+  pos: number,
+  len: number,
+): Promise<UploadInfo> {
+  // We use pos + 1 because SQL is 1-indexed whereas js is 0-indexed
+  const query = SQL`
+    SELECT SUBSTRING(content, ${pos + 1}, ${len}) AS content, mime
+    FROM uploads
+    WHERE id = ${id} AND secret = ${secret}
+  `;
+  const [result] = await dbQuery(query);
+
+  if (result.length === 0) {
+    throw new ServerError('invalid_parameters');
+  }
+  const [row] = result;
+  const { content, mime } = row;
+  return {
+    content,
+    mime,
+  };
+}
+
+// Returns total size in bytes.
+async function getUploadSize(id: string, secret: string): Promise<number> {
+  const query = SQL`
+    SELECT LENGTH(content) AS length
+    FROM uploads
+    WHERE id = ${id} AND secret = ${secret}
+  `;
+  const [result] = await dbQuery(query);
+
+  if (result.length === 0) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const [row] = result;
+  const { length } = row;
+  return length;
+}
+
 function getUploadURL(id: string, secret: string) {
   return `${baseDomain}${basePath}upload/${id}/${secret}`;
 }
@@ -66,4 +109,11 @@ async function fetchMedia(
   return result.map(mediaFromRow);
 }
 
-export { fetchUpload, getUploadURL, mediaFromRow, fetchMedia };
+export {
+  fetchUpload,
+  fetchUploadChunk,
+  getUploadSize,
+  getUploadURL,
+  mediaFromRow,
+  fetchMedia,
+};

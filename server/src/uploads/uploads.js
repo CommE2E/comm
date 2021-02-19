@@ -1,7 +1,9 @@
 // @flow
 
-import type { $Request } from 'express';
+import type { $Request, $Response } from 'express';
+import invariant from 'invariant';
 import multer from 'multer';
+import { Readable } from 'stream';
 
 import type {
   UploadMultimediaResult,
@@ -12,7 +14,11 @@ import { ServerError } from 'lib/utils/errors';
 
 import createUploads from '../creators/upload-creator';
 import { deleteUpload } from '../deleters/upload-deleters';
-import { fetchUpload } from '../fetchers/upload-fetchers';
+import {
+  fetchUpload,
+  fetchUploadChunk,
+  getUploadSize,
+} from '../fetchers/upload-fetchers';
 import type { Viewer } from '../session/viewer';
 import { validateAndConvert } from './media-utils';
 
@@ -87,10 +93,49 @@ async function uploadDownloadResponder(
   if (!uploadID || !secret) {
     throw new ServerError('invalid_parameters');
   }
-  const { content, mime } = await fetchUpload(viewer, uploadID, secret);
-  res.type(mime);
-  res.set('Cache-Control', 'public, max-age=31557600, immutable');
-  res.send(content);
+
+  if (!req.headers.range) {
+    const { content, mime } = await fetchUpload(viewer, uploadID, secret);
+    res.type(mime);
+    res.set('Cache-Control', 'public, max-age=31557600, immutable');
+    res.send(content);
+  } else {
+    const totalUploadSize = await getUploadSize(uploadID, secret);
+    const range = req.range(totalUploadSize);
+    if (typeof range === 'number' && range < 0) {
+      throw new ServerError(
+        range === -1 ? 'unsatisfiable_range' : 'malformed_header_string',
+      );
+    }
+
+    invariant(
+      Array.isArray(range),
+      'range should be Array in uploadDownloadResponder!',
+    );
+    const { start, end } = range[0];
+    const respWidth = end - start + 1;
+    const { content, mime } = await fetchUploadChunk(
+      uploadID,
+      secret,
+      start,
+      respWidth,
+    );
+    const respRange = `${start}-${end}/${totalUploadSize}`;
+    const respHeaders = {
+      'Accept-Ranges': 'bytes',
+      'Content-Range': `bytes ${respRange}`,
+      'Content-Type': mime,
+      'Content-Length': respWidth.toString(),
+    };
+
+    // HTTP 206 Partial Content
+    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/206
+    res.writeHead(206, respHeaders);
+    const stream = new Readable();
+    stream.push(content);
+    stream.push(null);
+    stream.pipe(res);
+  }
 }
 
 async function uploadDeletionResponder(
