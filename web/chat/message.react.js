@@ -67,6 +67,7 @@ class Message extends React.PureComponent<Props> {
       message = (
         <RobotextMessage
           item={item}
+          threadInfo={this.props.threadInfo}
           setMouseOverMessagePosition={this.props.setMouseOverMessagePosition}
           mouseOverMessagePosition={this.props.mouseOverMessagePosition}
         />

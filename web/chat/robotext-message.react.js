@@ -6,6 +6,7 @@ import * as React from 'react';
 import { type RobotextChatMessageInfoItem } from 'lib/selectors/chat-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { splitRobotext, parseRobotextEntity } from 'lib/shared/message-utils';
+import { useSidebarExistsOrCanBeCreated } from 'lib/shared/thread-utils';
 import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
 import type { DispatchActionPayload } from 'lib/utils/action-utils';
 import { connect } from 'lib/utils/redux-utils';
@@ -21,12 +22,18 @@ import type {
 } from './message-position-types';
 import SidebarTooltip from './sidebar-tooltip.react';
 
-type Props = {|
+type BaseProps = {|
   +item: RobotextChatMessageInfoItem,
+  +threadInfo: ThreadInfo,
   +setMouseOverMessagePosition: (
     messagePositionInfo: MessagePositionInfo,
   ) => void,
   +mouseOverMessagePosition: ?OnMessagePositionInfo,
+|};
+type Props = {|
+  ...BaseProps,
+  // Redux state
+  +sidebarExistsOrCanBeCreated: boolean,
 |};
 class RobotextMessage extends React.PureComponent<Props> {
   render() {
@@ -42,17 +49,19 @@ class RobotextMessage extends React.PureComponent<Props> {
       );
     }
 
-    const { id } = this.props.item.messageInfo;
+    const { item, threadInfo, sidebarExistsOrCanBeCreated } = this.props;
+    const { id } = item.messageInfo;
     let sidebarTooltip;
     if (
       this.props.mouseOverMessagePosition &&
       this.props.mouseOverMessagePosition.item.messageInfo.id === id &&
-      this.props.item.threadCreatedFromMessage
+      sidebarExistsOrCanBeCreated
     ) {
       sidebarTooltip = (
         <SidebarTooltip
-          threadCreatedFromMessage={this.props.item.threadCreatedFromMessage}
-          onClick={this.onMouseLeave}
+          threadInfo={threadInfo}
+          item={item}
+          onLeave={this.onMouseLeave}
           messagePosition="center"
         />
       );
@@ -166,4 +175,17 @@ function ColorEntity(props: {| color: string |}) {
   return <span style={colorStyle}>{props.color}</span>;
 }
 
-export default RobotextMessage;
+export default React.memo<BaseProps>(function ConnectedRobotextMessage(
+  props: BaseProps,
+) {
+  const sidebarExistsOrCanBeCreated = useSidebarExistsOrCanBeCreated(
+    props.threadInfo,
+    props.item,
+  );
+  return (
+    <RobotextMessage
+      {...props}
+      sidebarExistsOrCanBeCreated={sidebarExistsOrCanBeCreated}
+    />
+  );
+});

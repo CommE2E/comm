@@ -10,6 +10,7 @@ import {
 } from 'react-feather';
 
 import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
+import { useSidebarExistsOrCanBeCreated } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
 import { assertComposableMessageType } from 'lib/types/message-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
@@ -41,6 +42,8 @@ type BaseProps = {|
 type BaseConfig = React.Config<BaseProps, typeof ComposedMessage.defaultProps>;
 type Props = {|
   ...BaseProps,
+  // Redux state
+  +sidebarExistsOrCanBeCreated: boolean,
   // withInputState
   +inputState: ?InputState,
 |};
@@ -136,15 +139,17 @@ class ComposedMessage extends React.PureComponent<Props> {
     if (
       this.props.mouseOverMessagePosition &&
       this.props.mouseOverMessagePosition.item.messageInfo.id === id &&
-      this.props.item.threadCreatedFromMessage
+      this.props.sidebarExistsOrCanBeCreated
     ) {
       const sidebarTooltip = (
         <SidebarTooltip
-          threadCreatedFromMessage={this.props.item.threadCreatedFromMessage}
-          onClick={this.onMouseLeave}
+          threadInfo={threadInfo}
+          item={item}
+          onLeave={this.onMouseLeave}
           messagePosition={positioning}
         />
       );
+
       if (isViewer) {
         viewerSidebarTooltip = sidebarTooltip;
       } else {
@@ -210,6 +215,16 @@ class ComposedMessage extends React.PureComponent<Props> {
 export default React.memo<BaseConfig>(function ConnectedComposedMessage(
   props: BaseConfig,
 ) {
+  const sidebarExistsOrCanBeCreated = useSidebarExistsOrCanBeCreated(
+    props.threadInfo,
+    props.item,
+  );
   const inputState = React.useContext(InputStateContext);
-  return <ComposedMessage {...props} inputState={inputState} />;
+  return (
+    <ComposedMessage
+      {...props}
+      sidebarExistsOrCanBeCreated={sidebarExistsOrCanBeCreated}
+      inputState={inputState}
+    />
+  );
 });

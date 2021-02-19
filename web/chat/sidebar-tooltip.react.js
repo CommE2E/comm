@@ -5,20 +5,28 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import * as React from 'react';
 
+import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
+import {
+  type ComposableMessageInfo,
+  type RobotextMessageInfo,
+} from 'lib/types/message-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
-import { useOnClickThread } from '../selectors/nav-selectors';
+import {
+  useOnClickThread,
+  useOnClickPendingSidebar,
+} from '../selectors/nav-selectors';
 import css from './chat-message-list.css';
 
 type Props = {|
-  +threadCreatedFromMessage: ThreadInfo,
-  +onClick: () => void,
+  +onLeave: () => void,
+  +onButtonClick: (event: SyntheticEvent<HTMLAnchorElement>) => void,
   +messagePosition: 'left' | 'center' | 'right',
+  +buttonText: string,
 |};
-function SidebarTooltip(props: Props) {
-  const { onClick, threadCreatedFromMessage, messagePosition } = props;
+function SidebarTooltipButton(props: Props) {
+  const { onLeave, onButtonClick, messagePosition, buttonText } = props;
   const [tooltipVisible, setTooltipVisible] = React.useState(false);
-  const onButtonClick = useOnClickThread(threadCreatedFromMessage.id);
 
   const toggleMenu = React.useCallback(() => {
     setTooltipVisible(!tooltipVisible);
@@ -27,9 +35,9 @@ function SidebarTooltip(props: Props) {
   const toggleSidebar = React.useCallback(
     (event: SyntheticEvent<HTMLAnchorElement>) => {
       onButtonClick(event);
-      onClick();
+      onLeave();
     },
-    [onClick, onButtonClick],
+    [onLeave, onButtonClick],
   );
 
   const hideMenu = React.useCallback(() => {
@@ -70,13 +78,79 @@ function SidebarTooltip(props: Props) {
         <div className={sidebarMenuClassName}>
           <ul>
             <li>
-              <button onClick={toggleSidebar}>Go to sidebar</button>
+              <button onClick={toggleSidebar}>{buttonText}</button>
             </li>
           </ul>
         </div>
       </div>
     </div>
   );
+}
+
+type OpenSidebarProps = {|
+  +threadCreatedFromMessage: ThreadInfo,
+  +onLeave: () => void,
+  +messagePosition: 'left' | 'center' | 'right',
+|};
+function OpenSidebar(props: OpenSidebarProps) {
+  const onButtonClick = useOnClickThread(props.threadCreatedFromMessage.id);
+  return (
+    <SidebarTooltipButton
+      onButtonClick={onButtonClick}
+      onLeave={props.onLeave}
+      messagePosition={props.messagePosition}
+      buttonText="Go to sidebar"
+    />
+  );
+}
+
+type CreateSidebarProps = {|
+  +threadInfo: ThreadInfo,
+  +messageInfo: ComposableMessageInfo | RobotextMessageInfo,
+  +onLeave: () => void,
+  +messagePosition: 'left' | 'center' | 'right',
+|};
+function CreateSidebar(props: CreateSidebarProps) {
+  const onButtonClick = useOnClickPendingSidebar(
+    props.messageInfo,
+    props.threadInfo,
+  );
+  return (
+    <SidebarTooltipButton
+      onButtonClick={onButtonClick}
+      onLeave={props.onLeave}
+      messagePosition={props.messagePosition}
+      buttonText="Create sidebar"
+    />
+  );
+}
+
+type SidebarTooltipProps = {|
+  +threadInfo: ThreadInfo,
+  +item: ChatMessageInfoItem,
+  +onLeave: () => void,
+  +messagePosition: 'left' | 'center' | 'right',
+|};
+function SidebarTooltip(props: SidebarTooltipProps) {
+  const { threadInfo, item, onLeave, messagePosition } = props;
+  if (item.threadCreatedFromMessage) {
+    return (
+      <OpenSidebar
+        threadCreatedFromMessage={item.threadCreatedFromMessage}
+        onLeave={onLeave}
+        messagePosition={messagePosition}
+      />
+    );
+  } else {
+    return (
+      <CreateSidebar
+        threadInfo={threadInfo}
+        messageInfo={item.messageInfo}
+        onLeave={onLeave}
+        messagePosition={messagePosition}
+      />
+    );
+  }
 }
 
 export default SidebarTooltip;
