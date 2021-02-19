@@ -4,7 +4,6 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
-import { useSelector } from 'react-redux';
 
 import { messageKey } from 'lib/shared/message-utils';
 import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils';
@@ -28,6 +27,7 @@ import {
   MultimediaModalRouteName,
   MultimediaTooltipModalRouteName,
 } from '../navigation/route-names';
+import { useSelector } from '../redux/redux-utils';
 import { type Colors, useColors } from '../themes/colors';
 import { type VerticalBounds } from '../types/layout-types';
 import type { ViewStyle } from '../types/styles';

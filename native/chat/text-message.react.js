@@ -3,7 +3,6 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { View } from 'react-native';
-import { useSelector } from 'react-redux';
 
 import { messageKey } from 'lib/shared/message-utils';
 import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils';
@@ -24,6 +23,7 @@ import {
 } from '../navigation/overlay-context';
 import type { NavigationRoute } from '../navigation/route-names';
 import { TextMessageTooltipModalRouteName } from '../navigation/route-names';
+import { useSelector } from '../redux/redux-utils';
 import type { VerticalBounds } from '../types/layout-types';
 import type { ChatNavigationProp } from './chat.react';
 import { ComposedMessage, clusterEndHeight } from './composed-message.react';

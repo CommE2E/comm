@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { TouchableHighlight, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useSelector } from 'react-redux';
 
 import {
   changeThreadSettingsActionTypes,
@@ -24,6 +23,7 @@ import ColorPicker from '../../components/color-picker.react';
 import Modal from '../../components/modal.react';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react';
 import type { NavigationRoute } from '../../navigation/route-names';
+import { useSelector } from '../../redux/redux-utils';
 import { type Colors, useStyles, useColors } from '../../themes/colors';
 
 export type ColorPickerModalParams = {|
