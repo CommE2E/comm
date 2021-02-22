@@ -10,10 +10,7 @@ import {
   messageInfoSelector,
   getSourceMessageChatItemForPendingSidebar,
 } from 'lib/selectors/chat-selectors';
-import {
-  threadInfoSelector,
-  threadInfoFromSourceMessageIDSelector,
-} from 'lib/selectors/thread-selectors';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import {
   userInfoSelectorForPotentialMembers,
   userSearchIndexForPotentialMembers,
@@ -21,15 +18,11 @@ import {
 import { messageID } from 'lib/shared/message-utils';
 import { getPotentialMemberItems } from 'lib/shared/search-utils';
 import {
-  createPendingThread,
-  getCurrentUser,
-  getPendingThreadKey,
-  pendingThreadType,
-  threadHasAdminRole,
-  threadIsPending,
+  useLatestThreadInfo,
+  useSidebarCandidate,
 } from 'lib/shared/thread-utils';
 import { messageTypes } from 'lib/types/message-types';
-import { type ThreadInfo, threadTypes } from 'lib/types/thread-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types';
 
 import ContentLoading from '../components/content-loading.react';
@@ -320,10 +313,6 @@ const unboundStyles = {
 export default React.memo<BaseProps>(function ConnectedMessageListContainer(
   props: BaseProps,
 ) {
-  const viewerID = useSelector(
-    (state) => state.currentUserInfo && state.currentUserInfo.id,
-  );
-
   const [usernameInputText, setUsernameInputText] = React.useState('');
   const [userInfoInputArray, setUserInfoInputArray] = React.useState<
     $ReadOnlyArray<AccountUserInfo>,
@@ -351,7 +340,6 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
   );
 
   const threadInfos = useSelector(threadInfoSelector);
-  const userInfos = useSelector((state) => state.userStore.userInfos);
   const threadInfoRef = React.useRef(props.route.params.threadInfo);
   const [originalThreadInfo, setOriginalThreadInfo] = React.useState(
     props.route.params.threadInfo,
@@ -373,78 +361,13 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     return () => inputState?.unregisterSendCallback(hideSearch);
   }, [hideSearch, inputState, searching]);
 
-  const threadCandidates = React.useMemo(() => {
-    const infos = new Map<string, ThreadInfo>();
-    for (const threadID in threadInfos) {
-      const info = threadInfos[threadID];
-      if (info.parentThreadID || threadHasAdminRole(info)) {
-        continue;
-      }
-
-      const key = getPendingThreadKey(info.members.map((member) => member.id));
-      const indexedThread = infos.get(key);
-      if (!indexedThread || info.creationTime < indexedThread.creationTime) {
-        infos.set(key, info);
-      }
-    }
-    return infos;
-  }, [threadInfos]);
-
   const { sourceMessageID } = props.route.params;
-  const sidebarCandidate = useSelector((state) => {
-    if (!sourceMessageID) {
-      return null;
-    }
-    return threadInfoFromSourceMessageIDSelector(state)[sourceMessageID];
-  });
-
-  const latestThreadInfo = React.useMemo((): ?ThreadInfo => {
-    const threadInfoFromParams = originalThreadInfo;
-    const threadInfoFromStore = threadInfos[threadInfoFromParams.id];
-
-    if (threadInfoFromStore) {
-      return threadInfoFromStore;
-    } else if (!viewerID || !threadIsPending(threadInfoFromParams.id)) {
-      return undefined;
-    }
-
-    const pendingThreadMemberIDs = searching
-      ? [...userInfoInputArray.map((user) => user.id), viewerID]
-      : threadInfoFromParams.members.map((member) => member.id);
-    const threadKey = getPendingThreadKey(pendingThreadMemberIDs);
-
-    if (
-      threadInfoFromParams.type !== threadTypes.SIDEBAR &&
-      threadCandidates.get(threadKey)
-    ) {
-      return threadCandidates.get(threadKey);
-    }
-
-    if (sidebarCandidate) {
-      return sidebarCandidate;
-    }
-
-    const updatedThread = searching
-      ? createPendingThread({
-          viewerID,
-          threadType: pendingThreadType(userInfoInputArray.length),
-          members: userInfoInputArray,
-        })
-      : threadInfoFromParams;
-    return {
-      ...updatedThread,
-      currentUser: getCurrentUser(updatedThread, viewerID, userInfos),
-    };
-  }, [
+  const latestThreadInfo = useLatestThreadInfo(
     originalThreadInfo,
-    threadInfos,
-    viewerID,
     searching,
     userInfoInputArray,
-    threadCandidates,
-    sidebarCandidate,
-    userInfos,
-  ]);
+    sourceMessageID,
+  );
 
   if (latestThreadInfo) {
     threadInfoRef.current = latestThreadInfo;
@@ -457,6 +380,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
   }, [setParams, threadInfo]);
 
   const threadID = threadInfoRef.current.id;
+  const sidebarCandidate = useSidebarCandidate(sourceMessageID);
   const boundMessageListData = useSelector(messageListDataSelector(threadID));
   const sidebarSourceMessageInfo = useSelector((state) =>
     sourceMessageID && !sidebarCandidate
