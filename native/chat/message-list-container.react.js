@@ -7,20 +7,15 @@ import { View } from 'react-native';
 import {
   type ChatMessageItem,
   messageListData as messageListDataSelector,
-  messageInfoSelector,
-  getSourceMessageChatItemForPendingSidebar,
+  useMessageListData,
 } from 'lib/selectors/chat-selectors';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import {
   userInfoSelectorForPotentialMembers,
   userSearchIndexForPotentialMembers,
 } from 'lib/selectors/user-selectors';
 import { messageID } from 'lib/shared/message-utils';
 import { getPotentialMemberItems } from 'lib/shared/search-utils';
-import {
-  useLatestThreadInfo,
-  useSidebarCandidate,
-} from 'lib/shared/thread-utils';
+import { useLatestThreadInfo } from 'lib/shared/thread-utils';
 import { messageTypes } from 'lib/types/message-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types';
@@ -339,7 +334,6 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     [usernameInputText, otherUserInfos, userSearchIndex, userInfoInputArray],
   );
 
-  const threadInfos = useSelector(threadInfoSelector);
   const threadInfoRef = React.useRef(props.route.params.threadInfo);
   const [originalThreadInfo, setOriginalThreadInfo] = React.useState(
     props.route.params.threadInfo,
@@ -380,37 +374,13 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
   }, [setParams, threadInfo]);
 
   const threadID = threadInfoRef.current.id;
-  const sidebarCandidate = useSidebarCandidate(sourceMessageID);
   const boundMessageListData = useSelector(messageListDataSelector(threadID));
-  const sidebarSourceMessageInfo = useSelector((state) =>
-    sourceMessageID && !sidebarCandidate
-      ? messageInfoSelector(state)[sourceMessageID]
-      : null,
-  );
-  invariant(
-    !sidebarSourceMessageInfo ||
-      sidebarSourceMessageInfo.type !== messageTypes.SIDEBAR_SOURCE,
-    'sidebars can not be created from sidebar_source message',
-  );
-  const messageListData = React.useMemo(() => {
-    if (searching && userInfoInputArray.length === 0) {
-      return [];
-    } else if (sidebarSourceMessageInfo) {
-      return [
-        getSourceMessageChatItemForPendingSidebar(
-          sidebarSourceMessageInfo,
-          threadInfos,
-        ),
-      ];
-    }
-    return boundMessageListData;
-  }, [
-    searching,
-    userInfoInputArray.length,
-    sidebarSourceMessageInfo,
+  const messageListData = useMessageListData({
     boundMessageListData,
-    threadInfos,
-  ]);
+    sourceMessageID,
+    searching: !!searching,
+    userInfoInputArray,
+  });
   const composedMessageMaxWidth = useSelector(composedMessageMaxWidthSelector);
   const colors = useColors();
   const styles = useStyles(unboundStyles);
