@@ -345,6 +345,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     userInfoInputArray,
     sourceMessageID,
   });
+  invariant(threadInfo, 'threadInfo must be specified in messageListContainer');
 
   const inputState = React.useContext(InputStateContext);
   const hideSearch = React.useCallback(() => {
@@ -373,7 +374,12 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     sourceMessageID,
     searching: !!searching,
     userInfoInputArray,
+    threadInfo,
   });
+  invariant(
+    messageListData,
+    'messageListData must be specified in messageListContainer',
+  );
   const composedMessageMaxWidth = useSelector(composedMessageMaxWidthSelector);
   const colors = useColors();
   const styles = useStyles(unboundStyles);

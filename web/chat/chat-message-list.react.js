@@ -13,10 +13,13 @@ import {
   fetchMostRecentMessagesActionTypes,
 } from 'lib/actions/message-actions';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
-import { type ChatMessageItem } from 'lib/selectors/chat-selectors';
+import {
+  type ChatMessageItem,
+  useMessageListData,
+} from 'lib/selectors/chat-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { messageKey } from 'lib/shared/message-utils';
-import { useWatchThread } from 'lib/shared/thread-utils';
+import { useWatchThread, useCurrentThreadInfo } from 'lib/shared/thread-utils';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
 import {
@@ -359,19 +362,35 @@ export default React.memo<BaseProps>(function ConnectedChatMessageList(
     );
   }, [userAgent]);
 
-  const messageListData = useSelector(webMessageListData);
   const timeZone = useSelector((state) => state.timeZone);
 
   const activeChatThreadID = useSelector(
     (state) => state.navInfo.activeChatThreadID,
   );
-  const threadInfo = useSelector((state) => {
+  const baseThreadInfo = useSelector((state) => {
     const activeID = state.navInfo.activeChatThreadID;
     if (!activeID) {
       return null;
     }
     return threadInfoSelector(state)[activeID] ?? state.navInfo.pendingThread;
   });
+  const sourceMessageID = useSelector((state) => state.navInfo.sourceMessageID);
+  const threadInfo = useCurrentThreadInfo({
+    baseThreadInfo,
+    searching: false,
+    userInfoInputArray: [],
+    sourceMessageID,
+  });
+
+  const boundMessageListData = useSelector(webMessageListData);
+  const messageListData = useMessageListData({
+    boundMessageListData,
+    sourceMessageID,
+    searching: false,
+    userInfoInputArray: [],
+    threadInfo,
+  });
+
   const startReached = useSelector((state) => {
     const activeID = state.navInfo.activeChatThreadID;
     if (!activeID) {
