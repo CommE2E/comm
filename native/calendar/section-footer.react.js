@@ -1,38 +1,23 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, Text, TouchableWithoutFeedback } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-import { connect } from 'lib/utils/redux-utils';
-
 import Button from '../components/button.react';
-import type { AppState } from '../redux/redux-setup';
-import {
-  type Colors,
-  colorsPropType,
-  colorsSelector,
-  styleSelector,
-} from '../themes/colors';
+import { type Colors, useStyles, useColors } from '../themes/colors';
 
+type BaseProps = {|
+  +dateString: string,
+  +onAdd: (dateString: string) => void,
+  +onPressWhitespace: () => void,
+|};
 type Props = {|
-  dateString: string,
-  onAdd: (dateString: string) => void,
-  onPressWhitespace: () => void,
-  // Redux state
-  colors: Colors,
-  styles: typeof styles,
+  ...BaseProps,
+  +colors: Colors,
+  +styles: typeof unboundStyles,
 |};
 class SectionFooter extends React.PureComponent<Props> {
-  static propTypes = {
-    dateString: PropTypes.string.isRequired,
-    onAdd: PropTypes.func.isRequired,
-    onPressWhitespace: PropTypes.func.isRequired,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-  };
-
   render() {
     const { modalIosHighlightUnderlay: underlayColor } = this.props.colors;
     return (
@@ -60,7 +45,7 @@ class SectionFooter extends React.PureComponent<Props> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   actionLinksText: {
     color: 'listSeparatorLabel',
     fontWeight: 'bold',
@@ -89,9 +74,12 @@ const styles = {
     height: 40,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-export default connect((state: AppState) => ({
-  colors: colorsSelector(state),
-  styles: stylesSelector(state),
-}))(SectionFooter);
+export default React.memo<BaseProps>(function ConnectedSectionFooter(
+  props: BaseProps,
+) {
+  const styles = useStyles(unboundStyles);
+  const colors = useColors();
+
+  return <SectionFooter {...props} styles={styles} colors={colors} />;
+});
