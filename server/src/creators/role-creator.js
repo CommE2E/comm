@@ -65,8 +65,8 @@ async function createInitialRolesForNewThread(
 }
 
 type RolePermissionBlobs = {|
-  Members: ThreadRolePermissionsBlob,
-  Admins?: ThreadRolePermissionsBlob,
+  +Members: ThreadRolePermissionsBlob,
+  +Admins?: ThreadRolePermissionsBlob,
 |};
 
 // Originally all chat threads were orgs, but for the alpha launch I decided
@@ -180,6 +180,7 @@ function getRolePermissionBlobsForChat(
       [threadPermissions.VISIBLE]: true,
       [threadPermissions.VOICED]: true,
       [threadPermissions.CREATE_SIDEBARS]: true,
+      [threadPermissions.EDIT_ENTRIES]: true,
     };
     return {
       Members: memberPermissions,
