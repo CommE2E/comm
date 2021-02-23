@@ -8,10 +8,7 @@ import { getRolePermissionBlobsForChat } from '../creators/role-creator';
 import { createThread } from '../creators/thread-creator';
 import { dbQuery, SQL } from '../database/database';
 import { createScriptViewer } from '../session/scripts';
-import {
-  commitMembershipChangeset,
-  recalculateAllPermissions,
-} from '../updaters/thread-permission-updaters';
+import { DEPRECATED_updateRoleAndPermissions } from '../updaters/role-updaters';
 import { endScript } from './utils';
 
 async function main() {
@@ -81,22 +78,16 @@ async function markThreadsAsPersonal() {
   const defaultRolePermissions = getRolePermissionBlobsForChat(
     threadTypes.PERSONAL,
   ).Members;
-  const defaultRolePermissionString = JSON.stringify(defaultRolePermissions);
   const viewer = createScriptViewer(bots.squadbot.userID);
   const permissionPromises = result.map(async ({ id, role }) => {
     console.log(`Updating thread ${id} and role ${role}`);
-    const updatePermissions = SQL`
-      UPDATE roles
-      SET permissions = ${defaultRolePermissionString}
-      WHERE id = ${role}
-    `;
-    await dbQuery(updatePermissions);
-
-    const changeset = await recalculateAllPermissions(
+    return await DEPRECATED_updateRoleAndPermissions(
+      viewer,
       id.toString(),
       threadTypes.PERSONAL,
+      role.toString(),
+      defaultRolePermissions,
     );
-    return await commitMembershipChangeset(viewer, changeset);
   });
 
   await Promise.all([dbQuery(updateThreads), ...permissionPromises]);

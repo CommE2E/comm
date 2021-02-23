@@ -3,13 +3,20 @@
 import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual';
 
-import type { ThreadType } from 'lib/types/thread-types';
+import type {
+  ThreadType,
+  ThreadRolePermissionsBlob,
+} from 'lib/types/thread-types';
 
 import createIDs from '../creators/id-creator';
 import { getRolePermissionBlobsForChat } from '../creators/role-creator';
 import { dbQuery, SQL } from '../database/database';
 import { fetchRoles } from '../fetchers/role-fetchers';
 import type { Viewer } from '../session/viewer';
+import {
+  commitMembershipChangeset,
+  recalculateAllPermissions,
+} from './thread-permission-updaters';
 
 async function updateRoles(
   viewer: Viewer,
@@ -100,4 +107,27 @@ async function updateRoles(
   await Promise.all(promises);
 }
 
-export { updateRoles };
+// Best to avoid this function going forward...
+// It was used in a couple scripts that were meant to convert between thread
+// types, but those scripts didn't properly handle converting between threads
+// with different numbers of roles.
+async function DEPRECATED_updateRoleAndPermissions(
+  viewer: Viewer,
+  threadID: string,
+  threadType: ThreadType,
+  roleID: string,
+  rolePermissionsBlob: ThreadRolePermissionsBlob,
+): Promise<void> {
+  const rolePermissionsString = JSON.stringify(rolePermissionsBlob);
+  const updatePermissions = SQL`
+    UPDATE roles
+    SET permissions = ${rolePermissionsString}
+    WHERE id = ${roleID}
+  `;
+  await dbQuery(updatePermissions);
+
+  const changeset = await recalculateAllPermissions(threadID, threadType);
+  return await commitMembershipChangeset(viewer, changeset);
+}
+
+export { updateRoles, DEPRECATED_updateRoleAndPermissions };
