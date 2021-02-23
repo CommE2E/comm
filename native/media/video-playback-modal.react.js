@@ -25,7 +25,6 @@ import { formatDuration } from './video-utils';
 
 /* eslint-disable import/no-named-as-default-member */
 const {
-  Value,
   Extrapolate,
   set,
   add,
@@ -36,6 +35,7 @@ const {
   min,
   abs,
   interpolate,
+  useValue,
 } = Animated;
 
 export type VideoPlaybackModalParams = {|
@@ -94,40 +94,36 @@ function VideoPlaybackModal(props: Props) {
     }
   }, [frame, mediaDimensions]);
 
-  const centerXRef = React.useRef<Value>(new Value(frame.width / 2));
-  const centerYRef = React.useRef<Value>(
-    new Value(frame.height / 2 + screenDimensions.topInset),
-  );
-  const frameWidthRef = React.useRef<Value>(new Value(frame.width));
-  const frameHeightRef = React.useRef<Value>(new Value(frame.height));
-  const imageWidthRef = React.useRef<Value>(
-    new Value(mediaDisplayDimensions.width),
-  );
-  const imageHeightRef = React.useRef<Value>(
-    new Value(mediaDisplayDimensions.height),
-  );
-  React.useEffect(() => {
-    const { width: frameWidth, height: frameHeight } = frame;
-    const { topInset } = screenDimensions;
-    frameWidthRef.current.setValue(frameWidth);
-    frameHeightRef.current.setValue(frameHeight);
+  const centerX = useValue(frame.width / 2);
+  const centerY = useValue(frame.height / 2 + screenDimensions.topInset);
+  const frameWidth = useValue(frame.width);
+  const frameHeight = useValue(frame.height);
+  const imageWidth = useValue(mediaDisplayDimensions.width);
+  const imageHeight = useValue(mediaDisplayDimensions.height);
 
-    const centerX = frameWidth / 2;
-    const centerY = frameHeight / 2 + topInset;
-    centerXRef.current.setValue(centerX);
-    centerYRef.current.setValue(centerY);
+  React.useEffect(() => {
+    const { width: frameW, height: frameH } = frame;
+    const { topInset } = screenDimensions;
+    frameWidth.setValue(frameW);
+    frameHeight.setValue(frameH);
+
+    centerX.setValue(frameW / 2);
+    centerY.setValue(frameH / 2 + topInset);
 
     const { width, height } = mediaDisplayDimensions;
-    imageWidthRef.current.setValue(width);
-    imageHeightRef.current.setValue(height);
-  }, [screenDimensions, frame, mediaDisplayDimensions]);
-
-  const centerX = centerXRef.current;
-  const centerY = centerYRef.current;
-  const frameWidth = frameWidthRef.current;
-  const frameHeight = frameHeightRef.current;
-  const imageWidth = imageWidthRef.current;
-  const imageHeight = imageHeightRef.current;
+    imageWidth.setValue(width);
+    imageHeight.setValue(height);
+  }, [
+    screenDimensions,
+    frame,
+    mediaDisplayDimensions,
+    frameWidth,
+    frameHeight,
+    centerX,
+    centerY,
+    imageWidth,
+    imageHeight,
+  ]);
 
   const left = sub(centerX, divide(imageWidth, 2));
   const top = sub(centerY, divide(imageHeight, 2));
@@ -144,10 +140,10 @@ function VideoPlaybackModal(props: Props) {
   );
 
   // The all-important outputs
-  const curScale = new Value(1);
-  const curX = new Value(0);
-  const curY = new Value(0);
-  const curBackdropOpacity = new Value(1);
+  const curScale = useValue(1);
+  const curX = useValue(0);
+  const curY = useValue(0);
+  const curBackdropOpacity = useValue(1);
 
   const progressiveOpacity = max(
     min(
