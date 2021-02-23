@@ -1,36 +1,29 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { Text, View, Platform } from 'react-native';
 
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import { connect } from 'lib/utils/redux-utils';
+import { type ThreadInfo } from 'lib/types/thread-types';
 
 import Button from '../../components/button.react';
 import { SingleLine } from '../../components/single-line.react';
 import { MessageListRouteName } from '../../navigation/route-names';
-import type { AppState } from '../../redux/redux-setup';
-import { styleSelector } from '../../themes/colors';
+import { useSelector } from '../../redux/redux-utils';
+import { useStyles } from '../../themes/colors';
 import type { ThreadSettingsNavigate } from './thread-settings.react';
 
+type BaseProps = {|
+  +threadInfo: ThreadInfo,
+  +navigate: ThreadSettingsNavigate,
+|};
 type Props = {|
-  threadInfo: ThreadInfo,
-  navigate: ThreadSettingsNavigate,
-  // Redux state
-  parentThreadInfo?: ?ThreadInfo,
-  styles: typeof styles,
+  ...BaseProps,
+  +styles: typeof unboundStyles,
+  +parentThreadInfo?: ?ThreadInfo,
 |};
 class ThreadSettingsParent extends React.PureComponent<Props> {
-  static propTypes = {
-    threadInfo: threadInfoPropType.isRequired,
-    navigate: PropTypes.func.isRequired,
-    parentThreadInfo: threadInfoPropType,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-  };
-
   render() {
     let parent;
     if (this.props.parentThreadInfo) {
@@ -97,7 +90,7 @@ class ThreadSettingsParent extends React.PureComponent<Props> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   currentValue: {
     flex: 1,
     paddingLeft: 4,
@@ -129,17 +122,22 @@ const styles = {
     paddingHorizontal: 24,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-export default connect(
-  (state: AppState, ownProps: { threadInfo: ThreadInfo }) => {
-    const parsedThreadInfos = threadInfoSelector(state);
-    const parentThreadInfo: ?ThreadInfo = ownProps.threadInfo.parentThreadID
-      ? parsedThreadInfos[ownProps.threadInfo.parentThreadID]
-      : null;
-    return {
-      parentThreadInfo,
-      styles: stylesSelector(state),
-    };
-  },
-)(ThreadSettingsParent);
+export default React.memo<BaseProps>(function ConnectedThreadSettingsParent(
+  props: BaseProps,
+) {
+  const { parentThreadID } = props.threadInfo;
+
+  const styles = useStyles(unboundStyles);
+  const parentThreadInfo: ?ThreadInfo = useSelector((state) =>
+    parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
+  );
+
+  return (
+    <ThreadSettingsParent
+      {...props}
+      styles={styles}
+      parentThreadInfo={parentThreadInfo}
+    />
+  );
+});
