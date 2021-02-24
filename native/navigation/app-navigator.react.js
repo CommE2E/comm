@@ -17,7 +17,7 @@ import ThreadSettingsMemberTooltipModal from '../chat/settings/thread-settings-m
 import { TextMessageTooltipModal } from '../chat/text-message-tooltip-modal.react';
 import KeyboardStateContainer from '../keyboard/keyboard-state-container.react';
 import CameraModal from '../media/camera-modal.react';
-import ImageModal from '../media/image-view-modal.react';
+import ImageModal from '../media/image-modal.react';
 import VideoPlaybackModal from '../media/video-playback-modal.react';
 import More from '../more/more.react';
 import RelationshipListItemTooltipModal from '../more/relationship-list-item-tooltip-modal.react';
