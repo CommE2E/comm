@@ -336,7 +336,10 @@ async function updateThread(
     sqlUpdate.type = threadType;
   }
 
-  if (threadType === threadTypes.PERSONAL) {
+  if (
+    !viewer.isScriptViewer &&
+    (threadType === threadTypes.PERSONAL || threadType === threadTypes.PRIVATE)
+  ) {
     throw new ServerError('invalid_parameters');
   }
 
