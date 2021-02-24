@@ -263,7 +263,9 @@ async function updateFocusedRows(
     `);
   }
 
-  await deleteActivityForViewerSession(viewer, time);
+  if (viewer.hasSessionInfo) {
+    await deleteActivityForViewerSession(viewer, time);
+  }
 }
 
 // To protect against a possible race condition, we reset the thread to unread

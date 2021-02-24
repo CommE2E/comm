@@ -732,11 +732,13 @@ async function updateBadgeCount(
     FROM cookies
     WHERE user = ${userID}
       AND device_token IS NOT NULL
-      AND id != ${viewer.cookieID}
   `;
+  if (viewer.data.cookieID) {
+    deviceTokenQuery.append(SQL`AND id != ${viewer.cookieID} `);
+  }
   if (excludeDeviceTokens.length > 0) {
     deviceTokenQuery.append(
-      SQL`AND device_token NOT IN (${excludeDeviceTokens})`,
+      SQL`AND device_token NOT IN (${excludeDeviceTokens}) `,
     );
   }
   const [unreadCounts, [deviceTokenResult], [dbID]] = await Promise.all([
