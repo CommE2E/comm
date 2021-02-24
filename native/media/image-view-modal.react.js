@@ -136,7 +136,7 @@ function runDecay(
   ];
 }
 
-export type MultimediaModalParams = {|
+export type ImageModalParams = {|
   presentedFrom: string,
   mediaInfo: MediaInfo,
   initialCoordinates: LayoutCoordinates,
@@ -150,8 +150,8 @@ type TouchableOpacityInstance = React.AbstractComponent<
 >;
 
 type BaseProps = {|
-  +navigation: AppNavigationProp<'MultimediaModal'>,
-  +route: NavigationRoute<'MultimediaModal'>,
+  +navigation: AppNavigationProp<'ImageModal'>,
+  +route: NavigationRoute<'ImageModal'>,
 |};
 type Props = {|
   ...BaseProps,
@@ -164,7 +164,7 @@ type State = {|
   +closeButtonEnabled: boolean,
   +actionLinksEnabled: boolean,
 |};
-class MultimediaModal extends React.PureComponent<Props, State> {
+class ImageModal extends React.PureComponent<Props, State> {
   state: State = {
     closeButtonEnabled: true,
     actionLinksEnabled: true,
@@ -236,7 +236,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     );
 
     const { overlayContext } = props;
-    invariant(overlayContext, 'MultimediaModal should have OverlayContext');
+    invariant(overlayContext, 'ImageModal should have OverlayContext');
     const navigationProgress = overlayContext.position;
 
     // The inputs we receive from PanGestureHandler
@@ -914,13 +914,13 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
-    if (MultimediaModal.isActive(this.props)) {
+    if (ImageModal.isActive(this.props)) {
       Orientation.unlockAllOrientations();
     }
   }
 
   componentWillUnmount() {
-    if (MultimediaModal.isActive(this.props)) {
+    if (ImageModal.isActive(this.props)) {
       Orientation.lockToPortrait();
     }
   }
@@ -930,8 +930,8 @@ class MultimediaModal extends React.PureComponent<Props, State> {
       this.updateDimensions();
     }
 
-    const isActive = MultimediaModal.isActive(this.props);
-    const wasActive = MultimediaModal.isActive(prevProps);
+    const isActive = ImageModal.isActive(this.props);
+    const wasActive = ImageModal.isActive(prevProps);
     if (isActive && !wasActive) {
       Orientation.unlockAllOrientations();
     } else if (!isActive && wasActive) {
@@ -995,7 +995,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
 
   static isActive(props) {
     const { overlayContext } = props;
-    invariant(overlayContext, 'MultimediaModal should have OverlayContext');
+    invariant(overlayContext, 'ImageModal should have OverlayContext');
     return !overlayContext.isDismissing;
   }
 
@@ -1006,7 +1006,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     const bottom = fullScreenHeight - verticalBounds.y - verticalBounds.height;
 
     // margin will clip, but padding won't
-    const verticalStyle = MultimediaModal.isActive(this.props)
+    const verticalStyle = ImageModal.isActive(this.props)
       ? { paddingTop: top, paddingBottom: bottom }
       : { marginTop: top, marginBottom: bottom };
     return [styles.contentContainer, verticalStyle];
@@ -1014,7 +1014,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
 
   render() {
     const { mediaInfo } = this.props.route.params;
-    const statusBar = MultimediaModal.isActive(this.props) ? (
+    const statusBar = ImageModal.isActive(this.props) ? (
       <ConnectedStatusBar hidden />
     ) : null;
     const backdropStyle = { opacity: this.backdropOpacity };
@@ -1223,13 +1223,13 @@ const styles = StyleSheet.create({
   },
 });
 
-export default React.memo<BaseProps>(function ConnectedMultimediaModal(
+export default React.memo<BaseProps>(function ConnectedImageModal(
   props: BaseProps,
 ) {
   const dimensions = useSelector(derivedDimensionsInfoSelector);
   const overlayContext = React.useContext(OverlayContext);
   return (
-    <MultimediaModal
+    <ImageModal
       {...props}
       dimensions={dimensions}
       overlayContext={overlayContext}

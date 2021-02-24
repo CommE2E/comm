@@ -24,7 +24,7 @@ import {
 import {
   type NavigationRoute,
   VideoPlaybackModalRouteName,
-  MultimediaModalRouteName,
+  ImageModalRouteName,
   MultimediaTooltipModalRouteName,
 } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
@@ -96,7 +96,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     const { visibleOverlays } = overlayContext;
     for (let overlay of visibleOverlays) {
       if (
-        overlay.routeName === MultimediaModalRouteName &&
+        overlay.routeName === ImageModalRouteName &&
         overlay.presentedFrom === props.route.key &&
         overlay.routeKey === MultimediaMessageMultimedia.getStableKey(props)
       ) {
@@ -202,7 +202,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
         name:
           mediaInfo.type === 'video'
             ? VideoPlaybackModalRouteName
-            : MultimediaModalRouteName,
+            : ImageModalRouteName,
         key: MultimediaMessageMultimedia.getStableKey(this.props),
         params: {
           presentedFrom: this.props.route.key,

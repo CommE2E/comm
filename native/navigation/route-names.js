@@ -18,7 +18,7 @@ import type { ThreadSettingsParams } from '../chat/settings/thread-settings.reac
 import type { SidebarListModalParams } from '../chat/sidebar-list-modal.react';
 import type { TextMessageTooltipModalParams } from '../chat/text-message-tooltip-modal.react';
 import type { CameraModalParams } from '../media/camera-modal.react';
-import type { MultimediaModalParams } from '../media/multimedia-modal.react';
+import type { ImageModalParams } from '../media/image-view-modal.react';
 import type { VideoPlaybackModalParams } from '../media/video-playback-modal.react';
 import type { CustomServerModalParams } from '../more/custom-server-modal.react';
 import type { RelationshipListItemTooltipModalParams } from '../more/relationship-list-item-tooltip-modal.react';
@@ -52,7 +52,7 @@ export const AddUsersModalRouteName = 'AddUsersModal';
 export const CustomServerModalRouteName = 'CustomServerModal';
 export const ColorPickerModalRouteName = 'ColorPickerModal';
 export const ComposeSubthreadModalRouteName = 'ComposeSubthreadModal';
-export const MultimediaModalRouteName = 'MultimediaModal';
+export const ImageModalRouteName = 'ImageModal';
 export const MultimediaTooltipModalRouteName = 'MultimediaTooltipModal';
 export const ActionResultModalRouteName = 'ActionResultModal';
 export const TextMessageTooltipModalRouteName = 'TextMessageTooltipModal';
@@ -90,7 +90,7 @@ export type TooltipModalParamList = {|
 
 export type OverlayParamList = {|
   +TabNavigator: void,
-  +MultimediaModal: MultimediaModalParams,
+  +ImageModal: ImageModalParams,
   +ActionResultModal: ActionResultModalParams,
   +CameraModal: CameraModalParams,
   +VideoPlaybackModal: VideoPlaybackModalParams,
@@ -148,7 +148,7 @@ export const accountModals = [
 ];
 
 export const scrollBlockingModals = [
-  MultimediaModalRouteName,
+  ImageModalRouteName,
   MultimediaTooltipModalRouteName,
   TextMessageTooltipModalRouteName,
   ThreadSettingsMemberTooltipModalRouteName,
