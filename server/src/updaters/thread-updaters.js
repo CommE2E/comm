@@ -439,16 +439,17 @@ async function updateThread(
     throw new ServerError('no_parent_thread_specified');
   }
 
+  const threadRootChanged =
+    nextParentThreadID !== oldParentThreadID ||
+    nextThreadType !== oldThreadType;
+
   let parentThreadMembers;
   if (nextParentThreadID) {
     const promises = [
       fetchThreadInfos(viewer, SQL`t.id = ${nextParentThreadID}`),
     ];
 
-    const threadChanged =
-      nextParentThreadID !== oldParentThreadID ||
-      nextThreadType !== oldThreadType;
-    if (threadChanged) {
+    if (threadRootChanged) {
       promises.push(
         checkThreadPermission(
           viewer,
@@ -468,7 +469,7 @@ async function updateThread(
     if (!parentThreadInfo) {
       throw new ServerError('invalid_parameters');
     }
-    if (threadChanged && !hasParentPermission) {
+    if (threadRootChanged && !hasParentPermission) {
       throw new ServerError('invalid_parameters');
     }
     parentThreadMembers = parentThreadInfo.members.map(
@@ -522,10 +523,7 @@ async function updateThread(
       null,
     );
   }
-  if (
-    nextThreadType !== oldThreadType ||
-    nextParentThreadID !== oldParentThreadID
-  ) {
+  if (threadRootChanged) {
     intermediatePromises.recalculatePermissionsChangeset = (async () => {
       if (nextThreadType !== oldThreadType) {
         await updateRoles(viewer, request.threadID, nextThreadType);
