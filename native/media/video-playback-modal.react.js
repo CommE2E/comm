@@ -366,8 +366,8 @@ const unboundStyles = {
   },
   closeButton: {
     paddingTop: 10,
-    paddingLeft: 20,
-    justifyContent: 'flex-start',
+    paddingRight: 20,
+    justifyContent: 'flex-end',
     alignItems: 'center',
     flexDirection: 'row',
     height: 100,
