@@ -8,6 +8,7 @@ import {
   roleIsAdminRole,
   viewerIsMember,
   getThreadTypeParentRequirement,
+  threadMemberHasPermission,
 } from 'lib/shared/thread-utils';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import type { Shape } from 'lib/types/core';
@@ -24,7 +25,6 @@ import {
   type ThreadJoinResult,
   threadPermissions,
   threadTypes,
-  assertThreadType,
 } from 'lib/types/thread-types';
 import { updateTypes } from 'lib/types/update-types';
 import { ServerError } from 'lib/utils/errors';
@@ -35,7 +35,10 @@ import { createUpdates } from '../creators/update-creator';
 import { dbQuery, SQL } from '../database/database';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
-import { fetchThreadInfos } from '../fetchers/thread-fetchers';
+import {
+  fetchThreadInfos,
+  fetchServerThreadInfos,
+} from '../fetchers/thread-fetchers';
 import {
   checkThreadPermission,
   viewerIsMember as fetchViewerIsMember,
@@ -359,12 +362,9 @@ async function updateThread(
     );
   }
 
-  const validationQuery = SQL`
-    SELECT type, parent_thread_id
-    FROM threads
-    WHERE id = ${request.threadID}
-  `;
-  validationPromises.validationQuery = dbQuery(validationQuery);
+  validationPromises.serverThreadInfos = fetchServerThreadInfos(
+    SQL`t.id = ${request.threadID}`,
+  );
 
   const checks = [];
   if (
@@ -398,23 +398,21 @@ async function updateThread(
 
   const {
     fetchNewMembers,
-    validationQuery: [validationResult],
+    serverThreadInfos,
     hasNecessaryPermissions,
   } = await promiseAll(validationPromises);
 
-  if (validationResult.length === 0) {
+  const serverThreadInfo = serverThreadInfos.threadInfos[request.threadID];
+  if (!serverThreadInfo) {
     throw new ServerError('internal_error');
   }
-  const validationRow = validationResult[0];
 
   if (!hasNecessaryPermissions) {
     throw new ServerError('invalid_credentials');
   }
 
-  const oldThreadType = assertThreadType(validationRow.type);
-  const oldParentThreadID = validationRow.parent_thread_id
-    ? validationRow.parent_thread_id.toString()
-    : null;
+  const oldThreadType = serverThreadInfo.type;
+  const oldParentThreadID = serverThreadInfo.parentThreadID;
 
   const nextThreadType =
     threadType !== null && threadType !== undefined
@@ -449,38 +447,17 @@ async function updateThread(
     nextParentThreadID !== oldParentThreadID ||
     nextThreadType !== oldThreadType;
 
-  let parentThreadMembers;
-  if (nextParentThreadID) {
-    const promises = [
-      fetchThreadInfos(viewer, SQL`t.id = ${nextParentThreadID}`),
-    ];
-
-    if (threadRootChanged) {
-      promises.push(
-        checkThreadPermission(
-          viewer,
-          nextParentThreadID,
-          nextThreadType === threadTypes.SIDEBAR
-            ? threadPermissions.CREATE_SIDEBARS
-            : threadPermissions.CREATE_SUBTHREADS,
-        ),
-      );
-    }
-
-    const [parentFetchResult, hasParentPermission] = await Promise.all(
-      promises,
+  if (threadRootChanged && nextParentThreadID) {
+    const hasParentPermission = await checkThreadPermission(
+      viewer,
+      nextParentThreadID,
+      nextThreadType === threadTypes.SIDEBAR
+        ? threadPermissions.CREATE_SIDEBARS
+        : threadPermissions.CREATE_SUBTHREADS,
     );
-
-    const parentThreadInfo = parentFetchResult.threadInfos[nextParentThreadID];
-    if (!parentThreadInfo) {
+    if (!hasParentPermission) {
       throw new ServerError('invalid_parameters');
     }
-    if (threadRootChanged && !hasParentPermission) {
-      throw new ServerError('invalid_parameters');
-    }
-    parentThreadMembers = parentThreadInfo.members.map(
-      (userInfo) => userInfo.id,
-    );
   }
 
   if (fetchNewMembers) {
@@ -503,12 +480,20 @@ async function updateThread(
       ) {
         continue;
       } else if (
-        parentThreadMembers &&
-        parentThreadMembers.includes(newMemberID) &&
-        relationshipStatus !== userRelationshipStatus.BLOCKED_BY_VIEWER &&
-        relationshipStatus !== userRelationshipStatus.BLOCKED_VIEWER &&
-        relationshipStatus !== userRelationshipStatus.BOTH_BLOCKED
+        relationshipStatus === userRelationshipStatus.BLOCKED_BY_VIEWER ||
+        relationshipStatus === userRelationshipStatus.BLOCKED_VIEWER ||
+        relationshipStatus === userRelationshipStatus.BOTH_BLOCKED
       ) {
+        throw new ServerError('invalid_credentials');
+      } else if (
+        threadMemberHasPermission(
+          serverThreadInfo,
+          newMemberID,
+          threadPermissions.KNOW_OF,
+        )
+      ) {
+        continue;
+      } else if (forceAddMembers && nextThreadType !== threadTypes.SIDEBAR) {
         continue;
       }
       throw new ServerError('invalid_credentials');
