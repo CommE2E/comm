@@ -292,6 +292,7 @@ async function leaveThread(
 
 type UpdateThreadOptions = Shape<{|
   +forceAddMembers: boolean,
+  +forceUpdateRoot: boolean,
 |}>;
 
 async function updateThread(
@@ -303,6 +304,7 @@ async function updateThread(
     throw new ServerError('not_logged_in');
   }
   const forceAddMembers = options?.forceAddMembers ?? false;
+  const forceUpdateRoot = options?.forceUpdateRoot ?? false;
   const validationPromises = {};
 
   const changedFields = {};
@@ -440,6 +442,7 @@ async function updateThread(
   }
 
   const threadRootChanged =
+    forceUpdateRoot ||
     nextParentThreadID !== oldParentThreadID ||
     nextThreadType !== oldThreadType;
 
@@ -525,7 +528,7 @@ async function updateThread(
   }
   if (threadRootChanged) {
     intermediatePromises.recalculatePermissionsChangeset = (async () => {
-      if (nextThreadType !== oldThreadType) {
+      if (forceUpdateRoot || nextThreadType !== oldThreadType) {
         await updateRoles(viewer, request.threadID, nextThreadType);
       }
       return await recalculateAllPermissions(request.threadID, nextThreadType);
