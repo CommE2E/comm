@@ -7,6 +7,7 @@ import {
   threadHasAdminRole,
   roleIsAdminRole,
   viewerIsMember,
+  getThreadTypeParentRequirement,
 } from 'lib/shared/thread-utils';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import type { Shape } from 'lib/types/core';
@@ -414,15 +415,25 @@ async function updateThread(
     threadType !== null && threadType !== undefined
       ? threadType
       : oldThreadType;
-  const nextParentThreadID =
+  let nextParentThreadID =
     parentThreadID !== undefined ? parentThreadID : oldParentThreadID;
 
-  // If the thread is being switched to nested, a parent must be specified
+  // Does the new thread type preclude a parent?
   if (
-    oldThreadType === threadTypes.CHAT_SECRET &&
     threadType !== undefined &&
     threadType !== null &&
-    threadType !== threadTypes.CHAT_SECRET &&
+    getThreadTypeParentRequirement(threadType) === 'disabled' &&
+    nextParentThreadID !== null
+  ) {
+    nextParentThreadID = null;
+    sqlUpdate.parent_thread_id = null;
+  }
+
+  // Does the new thread type require a parent?
+  if (
+    threadType !== undefined &&
+    threadType !== null &&
+    getThreadTypeParentRequirement(threadType) === 'required' &&
     nextParentThreadID === null
   ) {
     throw new ServerError('no_parent_thread_specified');
