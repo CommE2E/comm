@@ -79,6 +79,11 @@ async function checkThreads(
   threadIDs: $ReadOnlyArray<string>,
   checks: $ReadOnlyArray<Check>,
 ): Promise<Set<string>> {
+  if (viewer.isScriptViewer) {
+    // script viewers are all-powerful
+    return new Set(threadIDs);
+  }
+
   const query = SQL`
     SELECT thread, permissions, role
     FROM memberships
