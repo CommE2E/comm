@@ -213,6 +213,7 @@ function VideoPlaybackModal(props: Props) {
   const [paused, setPaused] = useState(false);
   const [percentElapsed, setPercentElapsed] = useState(0);
   const [controlsVisible, setControlsVisible] = useState(true);
+  const [spinnerVisible, setSpinnerVisible] = useState(true);
   const [timeElapsed, setTimeElapsed] = useState('0:00');
   const [totalDuration, setTotalDuration] = useState('0:00');
   const videoRef = React.useRef();
@@ -245,6 +246,10 @@ function VideoPlaybackModal(props: Props) {
     setPercentElapsed(
       Math.ceil((res.currentTime / res.seekableDuration) * 100),
     );
+  }, []);
+
+  const readyForDisplayCallback = React.useCallback(() => {
+    setSpinnerVisible(false);
   }, []);
 
   const statusBar = overlayContext.isDismissing ? null : (
@@ -308,11 +313,24 @@ function VideoPlaybackModal(props: Props) {
     </>
   );
 
+  let spinner;
+  if (spinnerVisible) {
+    spinner = (
+      <Progress.Circle
+        size={80}
+        indeterminate={true}
+        color={'white'}
+        style={styles.progressCircle}
+      />
+    );
+  }
+
   return (
     <Animated.View style={styles.modal}>
       {statusBar}
       <Animated.View style={[styles.backdrop, backdropStyle]} />
       <View style={contentContainerStyle}>
+        {spinner}
         <Animated.View style={videoContainerStyle}>
           <TouchableWithoutFeedback onPress={togglePlaybackControls}>
             <Video
@@ -322,6 +340,7 @@ function VideoPlaybackModal(props: Props) {
               paused={paused}
               onProgress={progressCallback}
               onEnd={resetVideo}
+              onReadyForDisplay={readyForDisplayCallback}
             />
           </TouchableWithoutFeedback>
         </Animated.View>
@@ -378,6 +397,15 @@ const unboundStyles = {
     justifyContent: 'center',
     color: 'white',
     paddingRight: 10,
+  },
+  progressCircle: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   iconButton: {
     paddingRight: 10,
