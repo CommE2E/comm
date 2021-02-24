@@ -15,6 +15,7 @@ import {
   threadInfoSelector,
   threadInfoFromSourceMessageIDSelector,
 } from 'lib/selectors/thread-selectors';
+import { threadIsPending } from 'lib/shared/thread-utils';
 import type { MessageStore, MessageInfo } from 'lib/types/message-types';
 import { type ThreadInfo, threadTypes } from 'lib/types/thread-types';
 
@@ -27,16 +28,22 @@ const activeChatThreadItem: (
   (state: AppState) => state.messageStore,
   messageInfoSelector,
   (state: AppState) => state.navInfo.activeChatThreadID,
+  (state: AppState) => state.navInfo.pendingThread,
   (
     threadInfos: { [id: string]: ThreadInfo },
     messageStore: MessageStore,
     messageInfos: { [id: string]: MessageInfo },
     activeChatThreadID: ?string,
+    pendingThreadInfo: ?ThreadInfo,
   ): ?ChatThreadItem => {
     if (!activeChatThreadID) {
       return null;
     }
-    const threadInfo = threadInfos[activeChatThreadID];
+    const isPending = threadIsPending(activeChatThreadID);
+    const threadInfo = isPending
+      ? pendingThreadInfo
+      : threadInfos[activeChatThreadID];
+
     if (!threadInfo) {
       return null;
     }
@@ -79,24 +86,26 @@ const webChatListData: (state: AppState) => ChatThreadItem[] = createSelector(
         }
       }
 
-      let newSidebarItemInserted = false;
-      const newSidebarItems = [];
-      for (const sidebarItem of item.sidebars) {
-        if (
-          !newSidebarItemInserted &&
-          (sidebarItem.lastUpdatedTime === undefined ||
-            sidebarItem.lastUpdatedTime < activeItem.lastUpdatedTime)
-        ) {
-          newSidebarItemInserted = true;
-          newSidebarItems.push({
-            type: 'sidebar',
-            lastUpdatedTime: activeItem.lastUpdatedTime,
-            mostRecentNonLocalMessage: activeItem.mostRecentNonLocalMessage,
-            threadInfo: activeItem.threadInfo,
-          });
-        }
-        newSidebarItems.push(sidebarItem);
+      let indexToInsert = item.sidebars.findIndex(
+        (sidebar) =>
+          sidebar.lastUpdatedTime === undefined ||
+          sidebar.lastUpdatedTime < activeItem.lastUpdatedTime,
+      );
+      if (indexToInsert === -1) {
+        indexToInsert = item.sidebars.length;
       }
+      const activeSidebar = {
+        type: 'sidebar',
+        lastUpdatedTime: activeItem.lastUpdatedTime,
+        mostRecentNonLocalMessage: activeItem.mostRecentNonLocalMessage,
+        threadInfo: activeItem.threadInfo,
+      };
+      const newSidebarItems = [
+        ...item.sidebars.slice(0, indexToInsert),
+        activeSidebar,
+        ...item.sidebars.slice(indexToInsert),
+      ];
+
       result.push({
         ...item,
         sidebars: newSidebarItems,
