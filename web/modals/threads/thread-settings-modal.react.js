@@ -30,10 +30,13 @@ import {
   type ThreadChanges,
 } from 'lib/types/thread-types';
 import { type UserInfos, userInfoPropType } from 'lib/types/user-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
+import {
+  useDispatchActionPromise,
+  useServerCall,
+  type DispatchActionPromise,
+} from 'lib/utils/action-utils';
 
-import type { AppState } from '../../redux/redux-setup';
+import { useSelector } from '../../redux/redux-utils';
 import css from '../../style.css';
 import Modal from '../modal.react';
 import ColorPicker from './color-picker.react';
@@ -64,24 +67,24 @@ class Tab extends React.PureComponent<TabProps> {
   };
 }
 
-type Props = {
-  threadInfo: ThreadInfo,
-  onClose: () => void,
-  // Redux state
-  inputDisabled: boolean,
-  viewerID: ?string,
-  userInfos: UserInfos,
-  // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
-  deleteThread: (
+type BaseProps = {|
+  +threadInfo: ThreadInfo,
+  +onClose: () => void,
+|};
+type Props = {|
+  ...BaseProps,
+  +inputDisabled: boolean,
+  +viewerID: ?string,
+  +userInfos: UserInfos,
+  +dispatchActionPromise: DispatchActionPromise,
+  +deleteThread: (
     threadID: string,
     currentAccountPassword: string,
   ) => Promise<LeaveThreadPayload>,
-  changeThreadSettings: (
+  +changeThreadSettings: (
     update: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsPayload>,
-};
+|};
 type State = {|
   queuedChanges: ThreadChanges,
   errorMessage: string,
@@ -503,13 +506,31 @@ const changeThreadSettingsLoadingStatusSelector = createLoadingStatusSelector(
   changeThreadSettingsActionTypes,
 );
 
-export default connect(
-  (state: AppState) => ({
-    inputDisabled:
+export default React.memo<BaseProps>(function ConnectedThreadSettingsModal(
+  props: BaseProps,
+) {
+  const inputDisabled = useSelector(
+    (state) =>
       deleteThreadLoadingStatusSelector(state) === 'loading' ||
       changeThreadSettingsLoadingStatusSelector(state) === 'loading',
-    viewerID: state.currentUserInfo && state.currentUserInfo.id,
-    userInfos: state.userStore.userInfos,
-  }),
-  { deleteThread, changeThreadSettings },
-)(ThreadSettingsModal);
+  );
+  const viewerID = useSelector(
+    (state) => state.currentUserInfo && state.currentUserInfo.id,
+  );
+  const userInfos = useSelector((state) => state.userStore.userInfos);
+  const callDeleteThread = useServerCall(deleteThread);
+  const callChangeThreadSettings = useServerCall(changeThreadSettings);
+  const dispatchActionPromise = useDispatchActionPromise();
+
+  return (
+    <ThreadSettingsModal
+      {...props}
+      inputDisabled={inputDisabled}
+      viewerID={viewerID}
+      userInfos={userInfos}
+      deleteThread={callDeleteThread}
+      changeThreadSettings={callChangeThreadSettings}
+      dispatchActionPromise={dispatchActionPromise}
+    />
+  );
+});
