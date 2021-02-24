@@ -4,7 +4,6 @@ import { faFilter } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import dateFormat from 'dateformat';
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
 import {
@@ -13,26 +12,25 @@ import {
 } from 'lib/actions/entry-actions';
 import { currentDaysToEntries } from 'lib/selectors/thread-selectors';
 import {
-  entryInfoPropType,
   type EntryInfo,
   type CalendarQuery,
   type CalendarQueryUpdateResult,
   type CalendarQueryUpdateStartingPayload,
 } from 'lib/types/entry-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import {
+  type DispatchActionPromise,
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils';
 import {
   getDate,
   dateString,
   startDateForYearAndMonth,
   endDateForYearAndMonth,
 } from 'lib/utils/date-utils';
-import { connect } from 'lib/utils/redux-utils';
 
-import {
-  type AppState,
-  type NavInfo,
-  navInfoPropType,
-} from '../redux/redux-setup';
+import { type NavInfo } from '../redux/redux-setup';
+import { useSelector } from '../redux/redux-utils';
 import {
   yearAssertingSelector,
   monthAssertingSelector,
@@ -43,39 +41,27 @@ import css from './calendar.css';
 import Day from './day.react';
 import FilterPanel from './filter-panel.react';
 
-type Props = {
-  setModal: (modal: ?React.Node) => void,
-  url: string,
-  // Redux state
-  year: number,
-  month: number, // 1-indexed
-  daysToEntries: { [dayString: string]: EntryInfo[] },
-  navInfo: NavInfo,
-  currentCalendarQuery: () => CalendarQuery,
-  // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
-  updateCalendarQuery: (
+type BaseProps = {|
+  +setModal: (modal: ?React.Node) => void,
+  +url: string,
+|};
+type Props = {|
+  ...BaseProps,
+  +year: number,
+  +month: number,
+  +daysToEntries: { [dayString: string]: EntryInfo[] },
+  +navInfo: NavInfo,
+  +currentCalendarQuery: () => CalendarQuery,
+  +dispatchActionPromise: DispatchActionPromise,
+  +updateCalendarQuery: (
     calendarQuery: CalendarQuery,
     reduxAlreadyUpdated?: boolean,
   ) => Promise<CalendarQueryUpdateResult>,
-};
+|};
 type State = {|
   filterPanelOpen: boolean,
 |};
 class Calendar extends React.PureComponent<Props, State> {
-  static propTypes = {
-    setModal: PropTypes.func.isRequired,
-    url: PropTypes.string.isRequired,
-    year: PropTypes.number.isRequired,
-    month: PropTypes.number.isRequired,
-    daysToEntries: PropTypes.objectOf(PropTypes.arrayOf(entryInfoPropType))
-      .isRequired,
-    navInfo: navInfoPropType.isRequired,
-    currentCalendarQuery: PropTypes.func.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    updateCalendarQuery: PropTypes.func.isRequired,
-  };
   state: State = {
     filterPanelOpen: false,
   };
@@ -269,13 +255,27 @@ class Calendar extends React.PureComponent<Props, State> {
   };
 }
 
-export default connect(
-  (state: AppState) => ({
-    year: yearAssertingSelector(state),
-    month: monthAssertingSelector(state),
-    daysToEntries: currentDaysToEntries(state),
-    navInfo: state.navInfo,
-    currentCalendarQuery: webCalendarQuery(state),
-  }),
-  { updateCalendarQuery },
-)(Calendar);
+export default React.memo<BaseProps>(function ConnectedCalendar(
+  props: BaseProps,
+) {
+  const year = useSelector(yearAssertingSelector);
+  const month = useSelector(monthAssertingSelector);
+  const daysToEntries = useSelector(currentDaysToEntries);
+  const navInfo = useSelector((state) => state.navInfo);
+  const currentCalendarQuery = useSelector(webCalendarQuery);
+  const callUpdateCalendarQuery = useServerCall(updateCalendarQuery);
+  const dispatchActionPromise = useDispatchActionPromise();
+
+  return (
+    <Calendar
+      {...props}
+      year={year}
+      month={month}
+      daysToEntries={daysToEntries}
+      navInfo={navInfo}
+      currentCalendarQuery={currentCalendarQuery}
+      dispatchActionPromise={dispatchActionPromise}
+      updateCalendarQuery={callUpdateCalendarQuery}
+    />
+  );
+});
