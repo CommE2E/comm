@@ -29,10 +29,13 @@ import {
   type CurrentUserInfo,
   currentUserPropType,
 } from 'lib/types/user-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
+import {
+  type DispatchActionPromise,
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils';
 
-import type { AppState } from '../../redux/redux-setup';
+import { useSelector } from '../../redux/redux-utils';
 import css from '../../style.css';
 import Modal from '../modal.react';
 import VerifyEmailModal from './verify-email-modal.react';
@@ -63,24 +66,24 @@ class Tab extends React.PureComponent<TabProps> {
   };
 }
 
-type Props = {
-  setModal: (modal: ?React.Node) => void,
-  // Redux state
-  currentUserInfo: ?CurrentUserInfo,
-  preRequestUserState: PreRequestUserState,
-  inputDisabled: boolean,
-  // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
-  deleteAccount: (
+type BaseProps = {|
+  +setModal: (modal: ?React.Node) => void,
+|};
+type Props = {|
+  ...BaseProps,
+  +currentUserInfo: ?CurrentUserInfo,
+  +preRequestUserState: PreRequestUserState,
+  +inputDisabled: boolean,
+  +dispatchActionPromise: DispatchActionPromise,
+  +deleteAccount: (
     password: string,
     preRequestUserState: PreRequestUserState,
   ) => Promise<LogOutResult>,
-  changeUserSettings: (
+  +changeUserSettings: (
     accountUpdate: AccountUpdate,
   ) => Promise<ChangeUserSettingsResult>,
-  resendVerificationEmail: () => Promise<void>,
-};
+  +resendVerificationEmail: () => Promise<void>,
+|};
 type State = {
   email: ?string,
   emailVerified: ?boolean,
@@ -506,18 +509,32 @@ const resendVerificationEmailLoadingStatusSelector = createLoadingStatusSelector
   resendVerificationEmailActionTypes,
 );
 
-export default connect(
-  (state: AppState) => ({
-    currentUserInfo: state.currentUserInfo,
-    preRequestUserState: preRequestUserStateSelector(state),
-    inputDisabled:
+export default React.memo<BaseProps>(function ConnectedUserSettingsModal(
+  props: BaseProps,
+) {
+  const currentUserInfo = useSelector((state) => state.currentUserInfo);
+  const preRequestUserState = useSelector(preRequestUserStateSelector);
+  const inputDisabled = useSelector(
+    (state) =>
       deleteAccountLoadingStatusSelector(state) === 'loading' ||
       changeUserSettingsLoadingStatusSelector(state) === 'loading' ||
       resendVerificationEmailLoadingStatusSelector(state) === 'loading',
-  }),
-  {
-    deleteAccount,
-    changeUserSettings,
-    resendVerificationEmail,
-  },
-)(UserSettingsModal);
+  );
+  const callDeleteAccount = useServerCall(deleteAccount);
+  const callChangeUserSettings = useServerCall(changeUserSettings);
+  const callResendVerificationEmail = useServerCall(resendVerificationEmail);
+  const dispatchActionPromise = useDispatchActionPromise();
+
+  return (
+    <UserSettingsModal
+      {...props}
+      currentUserInfo={currentUserInfo}
+      preRequestUserState={preRequestUserState}
+      inputDisabled={inputDisabled}
+      deleteAccount={callDeleteAccount}
+      changeUserSettings={callChangeUserSettings}
+      resendVerificationEmail={callResendVerificationEmail}
+      dispatchActionPromise={dispatchActionPromise}
+    />
+  );
+});
