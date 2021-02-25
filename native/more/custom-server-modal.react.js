@@ -1,47 +1,39 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { Text, TextInput } from 'react-native';
+import { useDispatch } from 'react-redux';
 
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
+import type { Dispatch } from 'lib/types/redux-types';
 import { setURLPrefix } from 'lib/utils/url-utils';
 
 import Button from '../components/button.react';
 import Modal from '../components/modal.react';
 import type { RootNavigationProp } from '../navigation/root-navigator.react';
-import type { AppState } from '../redux/redux-setup';
-import { styleSelector } from '../themes/colors';
+import type { NavigationRoute } from '../navigation/route-names';
+import { useSelector } from '../redux/redux-utils';
+import { useStyles } from '../themes/colors';
 import { setCustomServer } from '../utils/url-utils';
 
 export type CustomServerModalParams = {|
   presentedFrom: string,
 |};
 
+type BaseProps = {|
+  +navigation: RootNavigationProp<'CustomServerModal'>,
+  +route: NavigationRoute<'CustomServerModal'>,
+|};
 type Props = {|
-  navigation: RootNavigationProp<'CustomServerModal'>,
-  // Redux state
-  urlPrefix: string,
-  customServer: ?string,
-  styles: typeof styles,
-  // Redux dispatch functions
-  dispatchActionPayload: DispatchActionPayload,
+  ...BaseProps,
+  +urlPrefix: string,
+  +customServer: ?string,
+  +styles: typeof unboundStyles,
+  +dispatch: Dispatch,
 |};
 type State = {|
   customServer: string,
 |};
 class CustomServerModal extends React.PureComponent<Props, State> {
-  static propTypes = {
-    navigation: PropTypes.shape({
-      goBackOnce: PropTypes.func.isRequired,
-    }).isRequired,
-    urlPrefix: PropTypes.string.isRequired,
-    customServer: PropTypes.string,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    dispatchActionPayload: PropTypes.func.isRequired,
-  };
-
   constructor(props: Props) {
     super(props);
     const { customServer } = props;
@@ -76,16 +68,22 @@ class CustomServerModal extends React.PureComponent<Props, State> {
   onPressGo = () => {
     const { customServer } = this.state;
     if (customServer !== this.props.urlPrefix) {
-      this.props.dispatchActionPayload(setURLPrefix, customServer);
+      this.props.dispatch({
+        type: setURLPrefix,
+        payload: customServer,
+      });
     }
     if (customServer && customServer !== this.props.customServer) {
-      this.props.dispatchActionPayload(setCustomServer, customServer);
+      this.props.dispatch({
+        type: setCustomServer,
+        payload: customServer,
+      });
     }
     this.props.navigation.goBackOnce();
   };
 }
 
-const styles = {
+const unboundStyles = {
   button: {
     backgroundColor: 'greenButton',
     borderRadius: 5,
@@ -115,14 +113,22 @@ const styles = {
     borderBottomColor: 'transparent',
   },
 };
-const stylesSelector = styleSelector(styles);
 
-export default connect(
-  (state: AppState) => ({
-    urlPrefix: state.urlPrefix,
-    customServer: state.customServer,
-    styles: stylesSelector(state),
-  }),
-  null,
-  true,
-)(CustomServerModal);
+export default React.memo<BaseProps>(function ConnectedCustomServerModal(
+  props: BaseProps,
+) {
+  const urlPrefix = useSelector((state) => state.urlPrefix);
+  const customServer = useSelector((state) => state.customServer);
+  const styles = useStyles(unboundStyles);
+  const dispatch = useDispatch();
+
+  return (
+    <CustomServerModal
+      {...props}
+      urlPrefix={urlPrefix}
+      customServer={customServer}
+      styles={styles}
+      dispatch={dispatch}
+    />
+  );
+});
