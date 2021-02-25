@@ -1,21 +1,16 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-import { connect } from 'lib/utils/redux-utils';
 import sleep from 'lib/utils/sleep';
 
-import type { AppState } from '../redux/redux-setup';
+import { useSelector } from '../redux/redux-utils';
 import { runTiming } from '../utils/animation-utils';
-import {
-  type StateContainer,
-  stateContainerPropType,
-} from '../utils/state-container';
+import { type StateContainer } from '../utils/state-container';
 import ForgotPasswordPanel from './forgot-password-panel.react';
 import LogInPanel from './log-in-panel.react';
 import type { InnerLogInPanel, LogInState } from './log-in-panel.react';
@@ -44,28 +39,21 @@ const {
 } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
+type BaseProps = {|
+  +setActiveAlert: (activeAlert: boolean) => void,
+  +opacityValue: Value,
+  +hideForgotPasswordLink: Value,
+  +logInState: StateContainer<LogInState>,
+|};
 type Props = {|
-  setActiveAlert: (activeAlert: boolean) => void,
-  opacityValue: Value,
-  hideForgotPasswordLink: Value,
-  logInState: StateContainer<LogInState>,
-  innerRef: (container: ?LogInPanelContainer) => void,
-  // Redux state
-  windowWidth: number,
+  ...BaseProps,
+  +windowWidth: number,
 |};
 type State = {|
   logInMode: LogInMode,
   nextLogInMode: LogInMode,
 |};
 class LogInPanelContainer extends React.PureComponent<Props, State> {
-  static propTypes = {
-    setActiveAlert: PropTypes.func.isRequired,
-    opacityValue: PropTypes.object.isRequired,
-    hideForgotPasswordLink: PropTypes.instanceOf(Value).isRequired,
-    logInState: stateContainerPropType.isRequired,
-    innerRef: PropTypes.func.isRequired,
-    windowWidth: PropTypes.number.isRequired,
-  };
   logInPanel: ?InnerLogInPanel = null;
 
   panelTransitionTarget: Value;
@@ -108,14 +96,6 @@ class LogInPanelContainer extends React.PureComponent<Props, State> {
       cond(eq(modulo(panelTransition, 1), 0), call([], this.proceedToNextMode)),
       panelTransition,
     ]);
-  }
-
-  componentDidMount() {
-    this.props.innerRef(this);
-  }
-
-  componentWillUnmount() {
-    this.props.innerRef(null);
   }
 
   render() {
@@ -271,6 +251,14 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect((state: AppState) => ({
-  windowWidth: state.dimensions.width,
-}))(LogInPanelContainer);
+export default React.forwardRef<BaseProps, LogInPanelContainer>(
+  function ForwardedConnectedLogInPanelContainer(
+    props: BaseProps,
+    ref: React.Ref<typeof LogInPanelContainer>,
+  ) {
+    const windowWidth = useSelector((state) => state.dimensions.width);
+    return (
+      <LogInPanelContainer {...props} windowWidth={windowWidth} ref={ref} />
+    );
+  },
+);

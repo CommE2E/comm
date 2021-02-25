@@ -127,7 +127,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   mounted = false;
   nextMode: LoggedOutMode = 'loading';
   activeAlert = false;
-  logInPanelContainer: ?LogInPanelContainer = null;
+  logInPanelContainer: ?React.ElementRef<typeof LogInPanelContainer> = null;
 
   contentHeight: Value;
   keyboardHeightValue = new Value(0);
@@ -577,7 +577,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
           opacityValue={this.panelOpacityValue}
           hideForgotPasswordLink={this.hideForgotPasswordLink}
           logInState={this.state.logInState}
-          innerRef={this.logInPanelContainerRef}
+          ref={this.logInPanelContainerRef}
         />
       );
     } else if (this.state.mode === 'register') {
@@ -678,7 +678,9 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     );
   }
 
-  logInPanelContainerRef = (logInPanelContainer: ?LogInPanelContainer) => {
+  logInPanelContainerRef = (
+    logInPanelContainer: ?React.ElementRef<typeof LogInPanelContainer>,
+  ) => {
     this.logInPanelContainer = logInPanelContainer;
   };
 
