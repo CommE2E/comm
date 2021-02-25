@@ -2,7 +2,6 @@
 
 import { CommonActions } from '@react-navigation/native';
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   Text,
@@ -20,55 +19,42 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { validEmailRegex } from 'lib/shared/account-utils';
 import type { ChangeUserSettingsResult } from 'lib/types/account-types';
-import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { AccountUpdate } from 'lib/types/user-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
+import {
+  type DispatchActionPromise,
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils';
 
 import Button from '../components/button.react';
-import type { AppState } from '../redux/redux-setup';
-import {
-  type Colors,
-  colorsPropType,
-  colorsSelector,
-  styleSelector,
-} from '../themes/colors';
-import { type GlobalTheme, globalThemePropType } from '../types/themes';
+import type { NavigationRoute } from '../navigation/route-names';
+import { useSelector } from '../redux/redux-utils';
+import { type Colors, useColors, useStyles } from '../themes/colors';
+import { type GlobalTheme } from '../types/themes';
 import type { MoreNavigationProp } from './more.react';
 
+type BaseProps = {|
+  +navigation: MoreNavigationProp<'EditEmail'>,
+  +route: NavigationRoute<'EditEmail'>,
+|};
 type Props = {|
-  navigation: MoreNavigationProp<'EditEmail'>,
-  // Redux state
-  email: ?string,
-  loadingStatus: LoadingStatus,
-  activeTheme: ?GlobalTheme,
-  colors: Colors,
-  styles: typeof styles,
-  // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
-  changeUserSettings: (
+  ...BaseProps,
+  +email: ?string,
+  +loadingStatus: LoadingStatus,
+  +activeTheme: ?GlobalTheme,
+  +colors: Colors,
+  +styles: typeof unboundStyles,
+  +dispatchActionPromise: DispatchActionPromise,
+  +changeUserSettings: (
     accountUpdate: AccountUpdate,
   ) => Promise<ChangeUserSettingsResult>,
 |};
 type State = {|
-  email: string,
-  password: string,
+  +email: string,
+  +password: string,
 |};
 class EditEmail extends React.PureComponent<Props, State> {
-  static propTypes = {
-    navigation: PropTypes.shape({
-      dispatch: PropTypes.func.isRequired,
-    }).isRequired,
-    email: PropTypes.string,
-    loadingStatus: loadingStatusPropType.isRequired,
-    activeTheme: globalThemePropType,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    changeUserSettings: PropTypes.func.isRequired,
-  };
   mounted = false;
   passwordInput: ?React.ElementRef<typeof TextInput>;
   emailInput: ?React.ElementRef<typeof TextInput>;
@@ -253,7 +239,7 @@ class EditEmail extends React.PureComponent<Props, State> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   header: {
     color: 'panelBackgroundLabel',
     fontSize: 12,
@@ -300,22 +286,36 @@ const styles = {
     paddingVertical: 12,
   },
 };
-const stylesSelector = styleSelector(styles);
 
 const loadingStatusSelector = createLoadingStatusSelector(
   changeUserSettingsActionTypes,
 );
 
-export default connect(
-  (state: AppState) => ({
-    email:
-      state.currentUserInfo && !state.currentUserInfo.anonymous
-        ? state.currentUserInfo.email
-        : undefined,
-    loadingStatus: loadingStatusSelector(state),
-    activeTheme: state.globalThemeInfo.activeTheme,
-    colors: colorsSelector(state),
-    styles: stylesSelector(state),
-  }),
-  { changeUserSettings },
-)(EditEmail);
+export default React.memo<BaseProps>(function ConnectedEditEmail(
+  props: BaseProps,
+) {
+  const email = useSelector((state) =>
+    state.currentUserInfo && !state.currentUserInfo.anonymous
+      ? state.currentUserInfo.email
+      : undefined,
+  );
+  const loadingStatus = useSelector(loadingStatusSelector);
+  const activeTheme = useSelector((state) => state.globalThemeInfo.activeTheme);
+  const colors = useColors();
+  const styles = useStyles(unboundStyles);
+  const callChangeUserSettings = useServerCall(changeUserSettings);
+  const dispatchActionPromise = useDispatchActionPromise();
+
+  return (
+    <EditEmail
+      {...props}
+      email={email}
+      loadingStatus={loadingStatus}
+      activeTheme={activeTheme}
+      colors={colors}
+      styles={styles}
+      changeUserSettings={callChangeUserSettings}
+      dispatchActionPromise={dispatchActionPromise}
+    />
+  );
+});
