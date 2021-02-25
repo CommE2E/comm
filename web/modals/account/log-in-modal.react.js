@@ -16,23 +16,26 @@ import type {
   LogInResult,
   LogInStartingPayload,
 } from 'lib/types/account-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
+import {
+  type DispatchActionPromise,
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils';
 
-import type { AppState } from '../../redux/redux-setup';
+import { useSelector } from '../../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../../selectors/account-selectors';
 import css from '../../style.css';
 import Modal from '../modal.react';
 import ForgotPasswordModal from './forgot-password-modal.react';
 
-type Props = {|
+type BaseProps = {|
   +setModal: (modal: ?React.Node) => void,
-  // Redux state
+|};
+type Props = {|
+  ...BaseProps,
   +inputDisabled: boolean,
   +logInExtraInfo: () => LogInExtraInfo,
-  // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
   +logIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
 |};
 type State = {|
@@ -238,10 +241,21 @@ LogInModal.propTypes = {
 
 const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 
-export default connect(
-  (state: AppState) => ({
-    inputDisabled: loadingStatusSelector(state) === 'loading',
-    logInExtraInfo: webLogInExtraInfoSelector(state),
-  }),
-  { logIn },
-)(LogInModal);
+export default React.memo<BaseProps>(function ConnectedLoginModal(
+  props: BaseProps,
+) {
+  const inputDisabled = useSelector(loadingStatusSelector) === 'loading';
+  const loginExtraInfo = useSelector(webLogInExtraInfoSelector);
+  const callLogIn = useServerCall(logIn);
+  const dispatchActionPromise = useDispatchActionPromise();
+
+  return (
+    <LogInModal
+      {...props}
+      inputDisabled={inputDisabled}
+      logInExtraInfo={loginExtraInfo}
+      logIn={callLogIn}
+      dispatchActionPromise={dispatchActionPromise}
+    />
+  );
+});
