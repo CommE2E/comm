@@ -1,31 +1,29 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, Text, ScrollView, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useDispatch } from 'react-redux';
 
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
+import type { Dispatch } from 'lib/types/redux-types';
 
 import Button from '../components/button.react';
 import { updateThemeInfoActionType } from '../redux/action-types';
-import type { AppState } from '../redux/redux-setup';
-import {
-  type Colors,
-  colorsPropType,
-  colorsSelector,
-  styleSelector,
-} from '../themes/colors';
+import { useSelector } from '../redux/redux-utils';
+import { type Colors, useColors, useStyles } from '../themes/colors';
 import {
   type GlobalThemePreference,
   type GlobalThemeInfo,
-  globalThemeInfoPropType,
   osCanTheme,
 } from '../types/themes';
 
 const CheckIcon = () => (
-  <Icon name="md-checkmark" size={20} color="#008800" style={styles.icon} />
+  <Icon
+    name="md-checkmark"
+    size={20}
+    color="#008800"
+    style={unboundStyles.icon}
+  />
 );
 
 type OptionText = {|
@@ -43,22 +41,14 @@ if (osCanTheme) {
   });
 }
 
-type Props = {|
-  // Redux state
-  globalThemeInfo: GlobalThemeInfo,
-  styles: typeof styles,
-  colors: Colors,
-  // Redux dispatch functions
-  dispatchActionPayload: DispatchActionPayload,
-|};
+type Props = {
+  +globalThemeInfo: GlobalThemeInfo,
+  +styles: typeof unboundStyles,
+  +colors: Colors,
+  +dispatch: Dispatch,
+  ...
+};
 class AppearancePreferences extends React.PureComponent<Props> {
-  static propTypes = {
-    globalThemeInfo: globalThemeInfoPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    colors: colorsPropType.isRequired,
-    dispatchActionPayload: PropTypes.func.isRequired,
-  };
-
   render() {
     const { panelIosHighlightUnderlay: underlay } = this.props.colors;
 
@@ -107,14 +97,17 @@ class AppearancePreferences extends React.PureComponent<Props> {
       themePreference === 'system'
         ? this.props.globalThemeInfo.systemTheme
         : themePreference;
-    this.props.dispatchActionPayload(updateThemeInfoActionType, {
-      preference: themePreference,
-      activeTheme: theme,
+    this.props.dispatch({
+      type: updateThemeInfoActionType,
+      payload: {
+        preference: themePreference,
+        activeTheme: theme,
+      },
     });
   };
 }
 
-const styles = {
+const unboundStyles = {
   header: {
     color: 'panelBackgroundLabel',
     fontSize: 12,
@@ -155,14 +148,22 @@ const styles = {
     paddingVertical: 2,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-export default connect(
-  (state: AppState) => ({
-    globalThemeInfo: state.globalThemeInfo,
-    colors: colorsSelector(state),
-    styles: stylesSelector(state),
-  }),
-  null,
-  true,
-)(AppearancePreferences);
+export default React.memo<{ ... }>(
+  function ConnectedAppearancePreferences(props: { ... }) {
+    const globalThemeInfo = useSelector((state) => state.globalThemeInfo);
+    const styles = useStyles(unboundStyles);
+    const colors = useColors();
+    const dispatch = useDispatch();
+
+    return (
+      <AppearancePreferences
+        {...props}
+        globalThemeInfo={globalThemeInfo}
+        styles={styles}
+        colors={colors}
+        dispatch={dispatch}
+      />
+    );
+  },
+);
