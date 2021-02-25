@@ -1,6 +1,5 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   View,
@@ -9,14 +8,11 @@ import {
   StyleSheet,
   ScrollView,
   LayoutAnimation,
-  ViewPropTypes,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import { connect } from 'lib/utils/redux-utils';
 
 import Button from '../components/button.react';
 import type { KeyboardEvent, EmitterSubscription } from '../keyboard/keyboard';
@@ -25,75 +21,61 @@ import {
   addKeyboardDismissListener,
   removeKeyboardListener,
 } from '../keyboard/keyboard';
-import {
-  type DimensionsInfo,
-  dimensionsInfoPropType,
-} from '../redux/dimensions-updater.react';
-import type { AppState } from '../redux/redux-setup';
+import { type DimensionsInfo } from '../redux/dimensions-updater.react';
+import { useSelector } from '../redux/redux-utils';
 import type { ViewStyle } from '../types/styles';
 
 type ButtonProps = {|
-  text: string,
-  loadingStatus: LoadingStatus,
-  onSubmit: () => void,
+  +text: string,
+  +loadingStatus: LoadingStatus,
+  +onSubmit: () => void,
 |};
-class PanelButton extends React.PureComponent<ButtonProps> {
-  static propTypes = {
-    text: PropTypes.string.isRequired,
-    loadingStatus: loadingStatusPropType.isRequired,
-    onSubmit: PropTypes.func.isRequired,
-  };
-
-  render() {
-    let buttonIcon;
-    if (this.props.loadingStatus === 'loading') {
-      buttonIcon = (
-        <View style={styles.loadingIndicatorContainer}>
-          <ActivityIndicator color="#555" />
-        </View>
-      );
-    } else {
-      buttonIcon = (
-        <View style={styles.submitContentIconContainer}>
-          <Icon name="arrow-right" size={16} color="#555" />
-        </View>
-      );
-    }
-    return (
-      <Button
-        onPress={this.props.onSubmit}
-        disabled={this.props.loadingStatus === 'loading'}
-        topStyle={styles.submitButton}
-        style={styles.submitContentContainer}
-        iosFormat="highlight"
-        iosActiveOpacity={0.85}
-        iosHighlightUnderlayColor="#A0A0A0DD"
-      >
-        <Text style={styles.submitContentText}>{this.props.text}</Text>
-        {buttonIcon}
-      </Button>
+function PanelButton(props: ButtonProps) {
+  let buttonIcon;
+  if (props.loadingStatus === 'loading') {
+    buttonIcon = (
+      <View style={styles.loadingIndicatorContainer}>
+        <ActivityIndicator color="#555" />
+      </View>
+    );
+  } else {
+    buttonIcon = (
+      <View style={styles.submitContentIconContainer}>
+        <Icon name="arrow-right" size={16} color="#555" />
+      </View>
     );
   }
+  return (
+    <Button
+      onPress={props.onSubmit}
+      disabled={props.loadingStatus === 'loading'}
+      topStyle={styles.submitButton}
+      style={styles.submitContentContainer}
+      iosFormat="highlight"
+      iosActiveOpacity={0.85}
+      iosHighlightUnderlayColor="#A0A0A0DD"
+    >
+      <Text style={styles.submitContentText}>{props.text}</Text>
+      {buttonIcon}
+    </Button>
+  );
 }
 
 const scrollViewBelow = 568;
 
+type PanelBaseProps = {|
+  +opacityValue: Animated.Value,
+  +children: React.Node,
+  +style?: ViewStyle,
+|};
 type PanelProps = {|
-  opacityValue: Animated.Value,
-  children: React.Node,
-  style?: ViewStyle,
-  dimensions: DimensionsInfo,
+  ...PanelBaseProps,
+  +dimensions: DimensionsInfo,
 |};
 type PanelState = {|
-  keyboardHeight: number,
+  +keyboardHeight: number,
 |};
 class InnerPanel extends React.PureComponent<PanelProps, PanelState> {
-  static propTypes = {
-    opacityValue: PropTypes.object.isRequired,
-    children: PropTypes.node.isRequired,
-    style: ViewPropTypes.style,
-    dimensions: dimensionsInfoPropType.isRequired,
-  };
   state: PanelState = {
     keyboardHeight: 0,
   };
@@ -172,9 +154,13 @@ class InnerPanel extends React.PureComponent<PanelProps, PanelState> {
   }
 }
 
-const Panel = connect((state: AppState) => ({
-  dimensions: state.dimensions,
-}))(InnerPanel);
+const Panel = React.memo<PanelBaseProps>(function ConnectedPanel(
+  props: PanelBaseProps,
+) {
+  const dimensions = useSelector((state) => state.dimensions);
+
+  return <InnerPanel {...props} dimensions={dimensions} />;
+});
 
 const styles = StyleSheet.create({
   container: {
