@@ -13,21 +13,24 @@ import {
   oldValidUsernameRegex,
   validEmailRegex,
 } from 'lib/shared/account-utils';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
+import {
+  type DispatchActionPromise,
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils';
 
-import type { AppState } from '../../redux/redux-setup';
+import { useSelector } from '../../redux/redux-utils';
 import css from '../../style.css';
 import Modal from '../modal.react';
 import PasswordResetEmailModal from './password-reset-email-modal.react';
 
-type Props = {|
+type BaseProps = {|
   +setModal: (modal: ?React.Node) => void,
-  // Redux state
+|};
+type Props = {|
+  ...BaseProps,
   +inputDisabled: boolean,
-  // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
   +forgotPassword: (usernameOrEmail: string) => Promise<void>,
 |};
 type State = {|
@@ -169,9 +172,19 @@ const loadingStatusSelector = createLoadingStatusSelector(
   forgotPasswordActionTypes,
 );
 
-export default connect(
-  (state: AppState) => ({
-    inputDisabled: loadingStatusSelector(state) === 'loading',
-  }),
-  { forgotPassword },
-)(ForgotPasswordModal);
+export default React.memo<BaseProps>(function ConnectedForgotPasswordModal(
+  props: BaseProps,
+) {
+  const inputDisabled = useSelector(loadingStatusSelector) === 'loading';
+  const callForgotPassword = useServerCall(forgotPassword);
+  const dispatchActionPromise = useDispatchActionPromise();
+
+  return (
+    <ForgotPasswordModal
+      {...props}
+      inputDisabled={inputDisabled}
+      forgotPassword={callForgotPassword}
+      dispatchActionPromise={dispatchActionPromise}
+    />
+  );
+});
