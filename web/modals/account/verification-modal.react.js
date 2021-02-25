@@ -7,17 +7,18 @@ import {
   type ServerVerificationResult,
   verifyField,
 } from 'lib/types/verify-types';
-import { connect } from 'lib/utils/redux-utils';
 
-import type { AppState } from '../../redux/redux-setup';
+import { useSelector } from '../../redux/redux-utils';
 import css from '../../style.css';
 import Modal from '../modal.react';
 
-type Props = {
-  onClose: () => void,
-  // Redux state
-  serverVerificationResult: ?ServerVerificationResult,
-};
+type BaseProps = {|
+  +onClose: () => void,
+|};
+type Props = {|
+  ...BaseProps,
+  +serverVerificationResult: ?ServerVerificationResult,
+|};
 function VerificationModal(props: Props) {
   const { onClose, serverVerificationResult } = props;
   invariant(
@@ -49,6 +50,17 @@ function VerificationModal(props: Props) {
   );
 }
 
-export default connect((state: AppState) => ({
-  serverVerificationResult: state.serverVerificationResult,
-}))(VerificationModal);
+export default React.memo<BaseProps>(function ConnectedVerificationModal(
+  props: BaseProps,
+) {
+  const serverVerificationResult = useSelector(
+    (state) => state.serverVerificationResult,
+  );
+
+  return (
+    <VerificationModal
+      {...props}
+      serverVerificationResult={serverVerificationResult}
+    />
+  );
+});
