@@ -53,7 +53,7 @@ type State = {|
   logInMode: LogInMode,
   nextLogInMode: LogInMode,
 |};
-class LogInPanelContainer extends React.PureComponent<Props, State> {
+class BaseLogInPanelContainer extends React.PureComponent<Props, State> {
   logInPanel: ?InnerLogInPanel = null;
 
   panelTransitionTarget: Value;
@@ -251,14 +251,17 @@ const styles = StyleSheet.create({
   },
 });
 
-export default React.forwardRef<BaseProps, LogInPanelContainer>(
-  function ForwardedConnectedLogInPanelContainer(
-    props: BaseProps,
-    ref: React.Ref<typeof LogInPanelContainer>,
-  ) {
-    const windowWidth = useSelector((state) => state.dimensions.width);
-    return (
-      <LogInPanelContainer {...props} windowWidth={windowWidth} ref={ref} />
-    );
-  },
-);
+const LogInPanelContainer = React.forwardRef<
+  BaseProps,
+  BaseLogInPanelContainer,
+>(function ForwardedConnectedLogInPanelContainer(
+  props: BaseProps,
+  ref: React.Ref<typeof BaseLogInPanelContainer>,
+) {
+  const windowWidth = useSelector((state) => state.dimensions.width);
+  return (
+    <BaseLogInPanelContainer {...props} windowWidth={windowWidth} ref={ref} />
+  );
+});
+
+export { LogInPanelContainer, BaseLogInPanelContainer };

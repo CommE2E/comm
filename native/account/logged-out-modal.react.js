@@ -56,7 +56,10 @@ import {
   setStateForContainer,
 } from '../utils/state-container';
 import { splashBackgroundURI } from './background-info';
-import LogInPanelContainer from './log-in-panel-container.react';
+import {
+  LogInPanelContainer,
+  BaseLogInPanelContainer,
+} from './log-in-panel-container.react';
 import type { LogInState } from './log-in-panel.react';
 import RegisterPanel from './register-panel.react';
 import type { RegisterState } from './register-panel.react';
@@ -127,7 +130,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   mounted = false;
   nextMode: LoggedOutMode = 'loading';
   activeAlert = false;
-  logInPanelContainer: ?React.ElementRef<typeof LogInPanelContainer> = null;
+  logInPanelContainer: ?BaseLogInPanelContainer = null;
 
   contentHeight: Value;
   keyboardHeightValue = new Value(0);
