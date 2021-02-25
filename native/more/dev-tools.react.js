@@ -1,59 +1,45 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, Text, ScrollView, Platform } from 'react-native';
 import ExitApp from 'react-native-exit-app';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useDispatch } from 'react-redux';
 
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
+import type { Dispatch } from 'lib/types/redux-types';
 import { setURLPrefix } from 'lib/utils/url-utils';
 
 import Button from '../components/button.react';
 import type { NavigationRoute } from '../navigation/route-names';
 import { CustomServerModalRouteName } from '../navigation/route-names';
-import type { AppState } from '../redux/redux-setup';
-import {
-  type Colors,
-  colorsPropType,
-  colorsSelector,
-  styleSelector,
-} from '../themes/colors';
+import { useSelector } from '../redux/redux-utils';
+import { useColors, useStyles, type Colors } from '../themes/colors';
 import { wipeAndExit } from '../utils/crash-utils';
 import { serverOptions } from '../utils/url-utils';
 import type { MoreNavigationProp } from './more.react';
 
 const ServerIcon = () => (
-  <Icon name="md-checkmark" size={20} color="#008800" style={styles.icon} />
+  <Icon
+    name="md-checkmark"
+    size={20}
+    color="#008800"
+    style={unboundStyles.icon}
+  />
 );
 
+type BaseProps = {|
+  +navigation: MoreNavigationProp<'DevTools'>,
+  +route: NavigationRoute<'DevTools'>,
+|};
 type Props = {|
-  navigation: MoreNavigationProp<'DevTools'>,
-  route: NavigationRoute<'DevTools'>,
-  // Redux state
-  urlPrefix: string,
-  customServer: ?string,
-  colors: Colors,
-  styles: typeof styles,
-  // Redux dispatch functions
-  dispatchActionPayload: DispatchActionPayload,
+  ...BaseProps,
+  +urlPrefix: string,
+  +customServer: ?string,
+  +colors: Colors,
+  +styles: typeof unboundStyles,
+  +dispatch: Dispatch,
 |};
 class DevTools extends React.PureComponent<Props> {
-  static propTypes = {
-    navigation: PropTypes.shape({
-      navigate: PropTypes.func.isRequired,
-    }).isRequired,
-    route: PropTypes.shape({
-      key: PropTypes.string.isRequired,
-    }).isRequired,
-    urlPrefix: PropTypes.string.isRequired,
-    customServer: PropTypes.string,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    dispatchActionPayload: PropTypes.func.isRequired,
-  };
-
   render() {
     const { panelIosHighlightUnderlay: underlay } = this.props.colors;
 
@@ -167,7 +153,10 @@ class DevTools extends React.PureComponent<Props> {
 
   onSelectServer = (server: string) => {
     if (server !== this.props.urlPrefix) {
-      this.props.dispatchActionPayload(setURLPrefix, server);
+      this.props.dispatch({
+        type: setURLPrefix,
+        payload: server,
+      });
     }
   };
 
@@ -178,7 +167,7 @@ class DevTools extends React.PureComponent<Props> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   container: {
     flex: 1,
   },
@@ -234,14 +223,24 @@ const styles = {
     paddingVertical: 2,
   },
 };
-const stylesSelector = styleSelector(styles);
 
-export default connect(
-  (state: AppState) => ({
-    urlPrefix: state.urlPrefix,
-    colors: colorsSelector(state),
-    styles: stylesSelector(state),
-  }),
-  null,
-  true,
-)(DevTools);
+export default React.memo<BaseProps>(function ConnectedDevTools(
+  props: BaseProps,
+) {
+  const urlPrefix = useSelector((state) => state.urlPrefix);
+  const customServer = useSelector((state) => state.customServer);
+  const colors = useColors();
+  const styles = useStyles(unboundStyles);
+  const dispatch = useDispatch();
+
+  return (
+    <DevTools
+      {...props}
+      urlPrefix={urlPrefix}
+      customServer={customServer}
+      colors={colors}
+      styles={styles}
+      dispatch={dispatch}
+    />
+  );
+});
