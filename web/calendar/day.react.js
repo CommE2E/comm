@@ -3,29 +3,27 @@
 import classNames from 'classnames';
 import invariant from 'invariant';
 import _some from 'lodash/fp/some';
-import PropTypes from 'prop-types';
 import * as React from 'react';
+import { useDispatch } from 'react-redux';
 
 import {
   createLocalEntry,
   createLocalEntryActionType,
 } from 'lib/actions/entry-actions';
-import { onScreenThreadInfos } from 'lib/selectors/thread-selectors';
+import { onScreenThreadInfos as onScreenThreadInfosSelector } from 'lib/selectors/thread-selectors';
 import { entryKey } from 'lib/shared/entry-utils';
 import type { EntryInfo } from 'lib/types/entry-types';
-import { entryInfoPropType } from 'lib/types/entry-types';
+import type { Dispatch } from 'lib/types/redux-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
 import {
   dateString,
   dateFromString,
   currentDateInTimeZone,
 } from 'lib/utils/date-utils';
-import { connect } from 'lib/utils/redux-utils';
 
 import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 import HistoryModal from '../modals/history/history-modal.react';
-import type { AppState } from '../redux/redux-setup';
+import { useSelector } from '../redux/redux-utils';
 import { htmlTargetFromEvent } from '../vector-utils';
 import { AddVector, HistoryVector } from '../vectors.react';
 import css from './calendar.css';
@@ -33,37 +31,26 @@ import type { InnerEntry } from './entry.react';
 import Entry from './entry.react';
 import ThreadPicker from './thread-picker.react';
 
-type Props = {
-  dayString: string,
-  entryInfos: EntryInfo[],
-  setModal: (modal: ?React.Node) => void,
-  startingTabIndex: number,
-  // Redux state
-  onScreenThreadInfos: ThreadInfo[],
-  viewerID: ?string,
-  loggedIn: boolean,
-  nextLocalID: number,
-  timeZone: ?string,
-  // Redux dispatch functions
-  dispatchActionPayload: (actionType: string, payload: *) => void,
-};
-type State = {
-  pickerOpen: boolean,
-  hovered: boolean,
-};
+type BaseProps = {|
+  +dayString: string,
+  +entryInfos: $ReadOnlyArray<EntryInfo>,
+  +setModal: (modal: ?React.Node) => void,
+  +startingTabIndex: number,
+|};
+type Props = {|
+  ...BaseProps,
+  +onScreenThreadInfos: $ReadOnlyArray<ThreadInfo>,
+  +viewerID: ?string,
+  +loggedIn: boolean,
+  +nextLocalID: number,
+  +timeZone: ?string,
+  +dispatch: Dispatch,
+|};
+type State = {|
+  +pickerOpen: boolean,
+  +hovered: boolean,
+|};
 class Day extends React.PureComponent<Props, State> {
-  static propTypes = {
-    dayString: PropTypes.string.isRequired,
-    entryInfos: PropTypes.arrayOf(entryInfoPropType).isRequired,
-    setModal: PropTypes.func.isRequired,
-    startingTabIndex: PropTypes.number.isRequired,
-    onScreenThreadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
-    viewerID: PropTypes.string,
-    loggedIn: PropTypes.bool.isRequired,
-    nextLocalID: PropTypes.number.isRequired,
-    timeZone: PropTypes.string,
-    dispatchActionPayload: PropTypes.func.isRequired,
-  };
   state: State = {
     pickerOpen: false,
     hovered: false,
@@ -239,15 +226,15 @@ class Day extends React.PureComponent<Props, State> {
     }
     const viewerID = this.props.viewerID;
     invariant(viewerID, 'should have viewerID in order to create thread');
-    this.props.dispatchActionPayload(
-      createLocalEntryActionType,
-      createLocalEntry(
+    this.props.dispatch({
+      type: createLocalEntryActionType,
+      payload: createLocalEntry(
         threadID,
         this.props.nextLocalID,
         this.props.dayString,
         viewerID,
       ),
-    );
+    });
   };
 
   onHistory = (event: SyntheticEvent<HTMLAnchorElement>) => {
@@ -277,18 +264,26 @@ class Day extends React.PureComponent<Props, State> {
   };
 }
 
-export default connect(
-  (state: AppState) => ({
-    onScreenThreadInfos: onScreenThreadInfos(state),
-    viewerID: state.currentUserInfo && state.currentUserInfo.id,
-    loggedIn: !!(
-      state.currentUserInfo &&
-      !state.currentUserInfo.anonymous &&
-      true
-    ),
-    nextLocalID: state.nextLocalID,
-    timeZone: state.timeZone,
-  }),
-  null,
-  true,
-)(Day);
+export default React.memo<BaseProps>(function ConnectedDay(props: BaseProps) {
+  const onScreenThreadInfos = useSelector(onScreenThreadInfosSelector);
+  const viewerID = useSelector((state) => state.currentUserInfo?.id);
+  const loggedIn = useSelector(
+    (state) =>
+      !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
+  );
+  const nextLocalID = useSelector((state) => state.nextLocalID);
+  const timeZone = useSelector((state) => state.timeZone);
+  const dispatch = useDispatch();
+
+  return (
+    <Day
+      {...props}
+      onScreenThreadInfos={onScreenThreadInfos}
+      viewerID={viewerID}
+      loggedIn={loggedIn}
+      nextLocalID={nextLocalID}
+      timeZone={timeZone}
+      dispatch={dispatch}
+    />
+  );
+});
