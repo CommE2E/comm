@@ -13,23 +13,26 @@ import type {
   RegisterResult,
   LogInStartingPayload,
 } from 'lib/types/account-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
+import {
+  type DispatchActionPromise,
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils';
 
-import type { AppState } from '../../redux/redux-setup';
+import { useSelector } from '../../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../../selectors/account-selectors';
 import css from '../../style.css';
 import Modal from '../modal.react';
 import VerifyEmailModal from './verify-email-modal.react';
 
-type Props = {|
+type BaseProps = {|
   +setModal: (modal: ?React.Node) => void,
-  // Redux state
+|};
+type Props = {|
+  ...BaseProps,
   +inputDisabled: boolean,
   +logInExtraInfo: () => LogInExtraInfo,
-  // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
   +register: (registerInfo: RegisterInfo) => Promise<RegisterResult>,
 |};
 type State = {|
@@ -306,10 +309,21 @@ RegisterModal.propTypes = {
 
 const loadingStatusSelector = createLoadingStatusSelector(registerActionTypes);
 
-export default connect(
-  (state: AppState) => ({
-    inputDisabled: loadingStatusSelector(state) === 'loading',
-    logInExtraInfo: webLogInExtraInfoSelector(state),
-  }),
-  { register },
-)(RegisterModal);
+export default React.memo<BaseProps>(function ConnectedRegisterModal(
+  props: BaseProps,
+) {
+  const inputDisabled = useSelector(loadingStatusSelector) === 'loading';
+  const loginExtraInfo = useSelector(webLogInExtraInfoSelector);
+  const callRegister = useServerCall(register);
+  const dispatchActionPromise = useDispatchActionPromise();
+
+  return (
+    <RegisterModal
+      {...props}
+      inputDisabled={inputDisabled}
+      logInExtraInfo={loginExtraInfo}
+      register={callRegister}
+      dispatchActionPromise={dispatchActionPromise}
+    />
+  );
+});
