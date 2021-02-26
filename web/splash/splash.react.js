@@ -1,7 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
 import {
@@ -12,44 +11,37 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { validEmailRegex } from 'lib/shared/account-utils';
 import type { AccessRequest } from 'lib/types/account-types';
 import { type DeviceType, assertDeviceType } from 'lib/types/device-types';
+import { type LoadingStatus } from 'lib/types/loading-types';
 import {
-  type LoadingStatus,
-  loadingStatusPropType,
-} from 'lib/types/loading-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
+  type DispatchActionPromise,
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils';
 
 import LoadingIndicator from '../loading-indicator.react';
 import LogInModal from '../modals/account/log-in-modal.react';
-import type { AppState } from '../redux/redux-setup';
+import { useSelector } from '../redux/redux-utils';
 import css from './splash.css';
 
 const defaultRequestAccessScrollHeight = 390;
 
-type Props = {
-  setModal: (modal: ?React.Node) => void,
-  currentModal: ?React.Node,
-  // Redux state
-  loadingStatus: LoadingStatus,
-  // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
-  requestAccess: (accessRequest: AccessRequest) => Promise<void>,
-};
+type BaseProps = {|
+  +setModal: (modal: ?React.Node) => void,
+  +currentModal: ?React.Node,
+|};
+type Props = {|
+  ...BaseProps,
+  +loadingStatus: LoadingStatus,
+  +dispatchActionPromise: DispatchActionPromise,
+  +requestAccess: (accessRequest: AccessRequest) => Promise<void>,
+|};
 type State = {|
-  platform: DeviceType,
-  email: string,
-  error: ?string,
-  success: ?string,
+  +platform: DeviceType,
+  +email: string,
+  +error: ?string,
+  +success: ?string,
 |};
 class Splash extends React.PureComponent<Props, State> {
-  static propTypes = {
-    setModal: PropTypes.func.isRequired,
-    currentModal: PropTypes.node,
-    loadingStatus: loadingStatusPropType.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    requestAccess: PropTypes.func.isRequired,
-  };
   emailInput: ?HTMLInputElement;
   bottomContainer: ?HTMLDivElement;
   state: State = {
@@ -268,9 +260,19 @@ class Splash extends React.PureComponent<Props, State> {
 const loadingStatusSelector = createLoadingStatusSelector(
   requestAccessActionTypes,
 );
-export default connect(
-  (state: AppState) => ({
-    loadingStatus: loadingStatusSelector(state),
-  }),
-  { requestAccess },
-)(Splash);
+export default React.memo<BaseProps>(function ConnectedSplash(
+  props: BaseProps,
+) {
+  const loadingStatus = useSelector(loadingStatusSelector);
+  const callRequestAccess = useServerCall(requestAccess);
+  const dispatchActionPromise = useDispatchActionPromise();
+
+  return (
+    <Splash
+      {...props}
+      loadingStatus={loadingStatus}
+      requestAccess={callRequestAccess}
+      dispatchActionPromise={dispatchActionPromise}
+    />
+  );
+});
