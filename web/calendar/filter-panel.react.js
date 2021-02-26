@@ -8,8 +8,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
 import * as React from 'react';
+import { useDispatch } from 'react-redux';
 import Switch from 'react-switch';
 
 import {
@@ -20,17 +20,15 @@ import SearchIndex from 'lib/shared/search-index';
 import {
   calendarThreadFilterTypes,
   type FilterThreadInfo,
-  filterThreadInfoPropType,
   updateCalendarThreadFilter,
   clearCalendarThreadFilter,
   setCalendarDeletedFilter,
 } from 'lib/types/filter-types';
+import type { Dispatch } from 'lib/types/redux-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
 
 import ThreadSettingsModal from '../modals/threads/thread-settings-modal.react';
-import type { AppState } from '../redux/redux-setup';
+import { useSelector } from '../redux/redux-utils';
 import {
   webFilterThreadInfos,
   webFilterThreadSearchIndex,
@@ -38,30 +36,23 @@ import {
 import { MagnifyingGlass } from '../vectors.react';
 import css from './filter-panel.css';
 
+type BaseProps = {|
+  +setModal: (modal: ?React.Node) => void,
+|};
 type Props = {|
-  setModal: (modal: ?React.Node) => void,
-  // Redux state
-  filterThreadInfos: () => $ReadOnlyArray<FilterThreadInfo>,
-  filterThreadSearchIndex: () => SearchIndex,
-  filteredThreadIDs: ?Set<string>,
-  includeDeleted: boolean,
-  // Redux dispatch functions
-  dispatchActionPayload: DispatchActionPayload,
+  ...BaseProps,
+  +filterThreadInfos: () => $ReadOnlyArray<FilterThreadInfo>,
+  +filterThreadSearchIndex: () => SearchIndex,
+  +filteredThreadIDs: ?Set<string>,
+  +includeDeleted: boolean,
+  +dispatch: Dispatch,
 |};
 type State = {|
-  query: string,
-  searchResults: $ReadOnlyArray<FilterThreadInfo>,
-  collapsed: boolean,
+  +query: string,
+  +searchResults: $ReadOnlyArray<FilterThreadInfo>,
+  +collapsed: boolean,
 |};
 class FilterPanel extends React.PureComponent<Props, State> {
-  static propTypes = {
-    setModal: PropTypes.func.isRequired,
-    filterThreadInfos: PropTypes.func.isRequired,
-    filterThreadSearchIndex: PropTypes.func.isRequired,
-    filteredThreadIDs: PropTypes.instanceOf(Set),
-    includeDeleted: PropTypes.bool.isRequired,
-    dispatchActionPayload: PropTypes.func.isRequired,
-  };
   state: State = {
     query: '',
     searchResults: [],
@@ -199,11 +190,16 @@ class FilterPanel extends React.PureComponent<Props, State> {
 
   setFilterThreads(threadIDs: ?$ReadOnlyArray<string>) {
     if (!threadIDs) {
-      this.props.dispatchActionPayload(clearCalendarThreadFilter);
+      this.props.dispatch({
+        type: clearCalendarThreadFilter,
+      });
     } else {
-      this.props.dispatchActionPayload(updateCalendarThreadFilter, {
-        type: calendarThreadFilterTypes.THREAD_LIST,
-        threadIDs,
+      this.props.dispatch({
+        type: updateCalendarThreadFilter,
+        payload: {
+          type: calendarThreadFilterTypes.THREAD_LIST,
+          threadIDs,
+        },
       });
     }
   }
@@ -236,8 +232,11 @@ class FilterPanel extends React.PureComponent<Props, State> {
   };
 
   onChangeIncludeDeleted = (includeDeleted: boolean) => {
-    this.props.dispatchActionPayload(setCalendarDeletedFilter, {
-      includeDeleted,
+    this.props.dispatch({
+      type: setCalendarDeletedFilter,
+      payload: {
+        includeDeleted,
+      },
     });
   };
 
@@ -247,21 +246,13 @@ class FilterPanel extends React.PureComponent<Props, State> {
 }
 
 type ItemProps = {|
-  filterThreadInfo: FilterThreadInfo,
-  onToggle: (threadID: string, value: boolean) => void,
-  onClickOnly: (threadID: string) => void,
-  onClickSettings: (threadInfo: ThreadInfo) => void,
-  selected: boolean,
+  +filterThreadInfo: FilterThreadInfo,
+  +onToggle: (threadID: string, value: boolean) => void,
+  +onClickOnly: (threadID: string) => void,
+  +onClickSettings: (threadInfo: ThreadInfo) => void,
+  +selected: boolean,
 |};
 class Item extends React.PureComponent<ItemProps> {
-  static propTypes = {
-    filterThreadInfo: filterThreadInfoPropType.isRequired,
-    onToggle: PropTypes.func.isRequired,
-    onClickOnly: PropTypes.func.isRequired,
-    onClickSettings: PropTypes.func.isRequired,
-    selected: PropTypes.bool.isRequired,
-  };
-
   render() {
     const threadInfo = this.props.filterThreadInfo.threadInfo;
     const beforeCheckStyles = { borderColor: `#${threadInfo.color}` };
@@ -323,21 +314,13 @@ class Item extends React.PureComponent<ItemProps> {
 }
 
 type CategoryProps = {|
-  numThreads: number,
-  onToggle: (value: boolean) => void,
-  collapsed: boolean,
-  onCollapse: (value: boolean) => void,
-  selected: boolean,
+  +numThreads: number,
+  +onToggle: (value: boolean) => void,
+  +collapsed: boolean,
+  +onCollapse: (value: boolean) => void,
+  +selected: boolean,
 |};
 class Category extends React.PureComponent<CategoryProps> {
-  static propTypes = {
-    numThreads: PropTypes.number.isRequired,
-    onToggle: PropTypes.func.isRequired,
-    collapsed: PropTypes.bool.isRequired,
-    onCollapse: PropTypes.func.isRequired,
-    selected: PropTypes.bool.isRequired,
-  };
-
   render() {
     const beforeCheckStyles = { borderColor: 'white' };
     let afterCheck = null;
@@ -387,13 +370,23 @@ class Category extends React.PureComponent<CategoryProps> {
   };
 }
 
-export default connect(
-  (state: AppState) => ({
-    filteredThreadIDs: filteredThreadIDsSelector(state),
-    filterThreadInfos: webFilterThreadInfos(state),
-    filterThreadSearchIndex: webFilterThreadSearchIndex(state),
-    includeDeleted: includeDeletedSelector(state),
-  }),
-  null,
-  true,
-)(FilterPanel);
+export default React.memo<BaseProps>(function ConnectedFilterPanel(
+  props: BaseProps,
+) {
+  const filteredThreadIDs = useSelector(filteredThreadIDsSelector);
+  const filterThreadInfos = useSelector(webFilterThreadInfos);
+  const filterThreadSearchIndex = useSelector(webFilterThreadSearchIndex);
+  const includeDeleted = useSelector(includeDeletedSelector);
+  const dispatch = useDispatch();
+
+  return (
+    <FilterPanel
+      {...props}
+      filteredThreadIDs={filteredThreadIDs}
+      filterThreadInfos={filterThreadInfos}
+      filterThreadSearchIndex={filterThreadSearchIndex}
+      includeDeleted={includeDeleted}
+      dispatch={dispatch}
+    />
+  );
+});
