@@ -5,7 +5,11 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import { messageID } from 'lib/shared/message-utils';
-import { messageTypes, type RawMessageInfo } from 'lib/types/message-types';
+import {
+  assertComposableRawMessage,
+  messageTypes,
+} from 'lib/types/message-types';
+import type { RawComposableMessageInfo } from 'lib/types/message-types';
 
 import Button from '../components/button.react';
 import { type InputState, InputStateContext } from '../input/input-state';
@@ -23,7 +27,7 @@ type BaseProps = {|
 type Props = {|
   ...BaseProps,
   // Redux state
-  +rawMessageInfo: ?RawMessageInfo,
+  +rawMessageInfo: ?RawComposableMessageInfo,
   +styles: typeof unboundStyles,
   // withInputState
   +inputState: ?InputState,
@@ -140,9 +144,10 @@ const ConnectedFailedSend = React.memo<BaseProps>(function ConnectedFailedSend(
   props: BaseProps,
 ) {
   const id = messageID(props.item.messageInfo);
-  const rawMessageInfo = useSelector(
-    (state) => state.messageStore.messages[id],
-  );
+  const rawMessageInfo = useSelector((state) => {
+    const message = state.messageStore.messages[id];
+    return message ? assertComposableRawMessage(message) : null;
+  });
   const styles = useStyles(unboundStyles);
   const inputState = React.useContext(InputStateContext);
   return (
