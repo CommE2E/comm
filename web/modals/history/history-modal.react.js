@@ -7,7 +7,6 @@ import _filter from 'lodash/fp/filter';
 import _flow from 'lodash/fp/flow';
 import _map from 'lodash/fp/map';
 import _unionBy from 'lodash/fp/unionBy';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
 import {
@@ -23,49 +22,48 @@ import type {
   CalendarQuery,
   FetchEntryInfosResult,
 } from 'lib/types/entry-types';
-import { entryInfoPropType } from 'lib/types/entry-types';
-import {
-  type CalendarFilter,
-  calendarFilterPropType,
-} from 'lib/types/filter-types';
+import { type CalendarFilter } from 'lib/types/filter-types';
 import type { HistoryMode, HistoryRevisionInfo } from 'lib/types/history-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import {
+  type DispatchActionPromise,
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
 import { dateFromString } from 'lib/utils/date-utils';
-import { connect } from 'lib/utils/redux-utils';
 
 import LoadingIndicator from '../../loading-indicator.react';
-import type { AppState } from '../../redux/redux-setup';
+import { useSelector } from '../../redux/redux-utils';
 import { allDaysToEntries } from '../../selectors/entry-selectors';
 import Modal from '../modal.react';
 import HistoryEntry from './history-entry.react';
 import HistoryRevision from './history-revision.react';
 import css from './history.css';
 
-type Props = {
-  mode: HistoryMode,
-  dayString: string,
-  onClose: () => void,
-  currentEntryID?: ?string,
-  // Redux state
-  entryInfos: ?(EntryInfo[]),
-  dayLoadingStatus: LoadingStatus,
-  entryLoadingStatus: LoadingStatus,
-  calendarFilters: $ReadOnlyArray<CalendarFilter>,
-  // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
-  fetchEntries: (
+type BaseProps = {|
+  +mode: HistoryMode,
+  +dayString: string,
+  +onClose: () => void,
+  +currentEntryID?: ?string,
+|};
+type Props = {|
+  ...BaseProps,
+  +entryInfos: ?(EntryInfo[]),
+  +dayLoadingStatus: LoadingStatus,
+  +entryLoadingStatus: LoadingStatus,
+  +calendarFilters: $ReadOnlyArray<CalendarFilter>,
+  +dispatchActionPromise: DispatchActionPromise,
+  +fetchEntries: (
     calendarQuery: CalendarQuery,
   ) => Promise<FetchEntryInfosResult>,
-  fetchRevisionsForEntry: (entryID: string) => Promise<HistoryRevisionInfo[]>,
-};
-type State = {
-  mode: HistoryMode,
-  animateModeChange: boolean,
-  currentEntryID: ?string,
-  revisions: HistoryRevisionInfo[],
-};
+  +fetchRevisionsForEntry: (entryID: string) => Promise<HistoryRevisionInfo[]>,
+|};
+type State = {|
+  +mode: HistoryMode,
+  +animateModeChange: boolean,
+  +currentEntryID: ?string,
+  +revisions: $ReadOnlyArray<HistoryRevisionInfo>,
+|};
 
 class HistoryModal extends React.PureComponent<Props, State> {
   static defaultProps = { currentEntryID: null };
@@ -243,20 +241,6 @@ class HistoryModal extends React.PureComponent<Props, State> {
   };
 }
 
-HistoryModal.propTypes = {
-  mode: PropTypes.string.isRequired,
-  dayString: PropTypes.string.isRequired,
-  onClose: PropTypes.func.isRequired,
-  currentEntryID: PropTypes.string,
-  entryInfos: PropTypes.arrayOf(entryInfoPropType),
-  dayLoadingStatus: PropTypes.string.isRequired,
-  entryLoadingStatus: PropTypes.string.isRequired,
-  calendarFilters: PropTypes.arrayOf(calendarFilterPropType).isRequired,
-  dispatchActionPromise: PropTypes.func.isRequired,
-  fetchEntries: PropTypes.func.isRequired,
-  fetchRevisionsForEntry: PropTypes.func.isRequired,
-};
-
 const dayLoadingStatusSelector = createLoadingStatusSelector(
   fetchEntriesActionTypes,
 );
@@ -264,13 +248,29 @@ const entryLoadingStatusSelector = createLoadingStatusSelector(
   fetchRevisionsForEntryActionTypes,
 );
 
-type OwnProps = { dayString: string };
-export default connect(
-  (state: AppState, ownProps: OwnProps) => ({
-    entryInfos: allDaysToEntries(state)[ownProps.dayString],
-    dayLoadingStatus: dayLoadingStatusSelector(state),
-    entryLoadingStatus: entryLoadingStatusSelector(state),
-    calendarFilters: nonExcludeDeletedCalendarFiltersSelector(state),
-  }),
-  { fetchEntries, fetchRevisionsForEntry },
-)(HistoryModal);
+export default React.memo<BaseProps>(function ConnectedHistoryModal(
+  props: BaseProps,
+) {
+  const entryInfos = useSelector(
+    (state) => allDaysToEntries(state)[props.dayString],
+  );
+  const dayLoadingStatus = useSelector(dayLoadingStatusSelector);
+  const entryLoadingStatus = useSelector(entryLoadingStatusSelector);
+  const calendarFilters = useSelector(nonExcludeDeletedCalendarFiltersSelector);
+  const callFetchEntries = useServerCall(fetchEntries);
+  const callFetchRevisionsForEntry = useServerCall(fetchRevisionsForEntry);
+  const dispatchActionPromise = useDispatchActionPromise();
+
+  return (
+    <HistoryModal
+      {...props}
+      entryInfos={entryInfos}
+      dayLoadingStatus={dayLoadingStatus}
+      entryLoadingStatus={entryLoadingStatus}
+      calendarFilters={calendarFilters}
+      fetchEntries={callFetchEntries}
+      fetchRevisionsForEntry={callFetchRevisionsForEntry}
+      dispatchActionPromise={dispatchActionPromise}
+    />
+  );
+});
