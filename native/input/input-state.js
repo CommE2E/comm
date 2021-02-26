@@ -47,7 +47,7 @@ export type InputState = {|
   addReplyListener: ((message: string) => void) => void,
   removeReplyListener: ((message: string) => void) => void,
   messageHasUploadFailure: (localMessageID: string) => boolean,
-  retryMultimediaMessage: (localMessageID: string) => Promise<void>,
+  retryMessage: (localMessageID: string) => Promise<void>,
   registerSendCallback: (() => void) => void,
   unregisterSendCallback: (() => void) => void,
   uploadInProgress: () => boolean,
@@ -62,7 +62,7 @@ const inputStatePropType = PropTypes.shape({
   addReplyListener: PropTypes.func.isRequired,
   removeReplyListener: PropTypes.func.isRequired,
   messageHasUploadFailure: PropTypes.func.isRequired,
-  retryMultimediaMessage: PropTypes.func.isRequired,
+  retryMessage: PropTypes.func.isRequired,
   uploadInProgress: PropTypes.func.isRequired,
   reportURIDisplayed: PropTypes.func.isRequired,
 });

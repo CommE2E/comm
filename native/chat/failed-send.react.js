@@ -93,32 +93,30 @@ class FailedSend extends React.PureComponent<Props> {
     if (!rawMessageInfo) {
       return;
     }
-    const { inputState } = this.props;
-    invariant(
-      inputState,
-      'inputState should be initialized before user can hit retry',
-    );
+
     if (rawMessageInfo.type === messageTypes.TEXT) {
       if (this.retryingText) {
         return;
       }
       this.retryingText = true;
-      inputState.sendTextMessage({
-        ...rawMessageInfo,
-        time: Date.now(),
-      });
     } else if (
       rawMessageInfo.type === messageTypes.IMAGES ||
       rawMessageInfo.type === messageTypes.MULTIMEDIA
     ) {
-      const { localID } = rawMessageInfo;
-      invariant(localID, 'failed RawMessageInfo should have localID');
       if (this.retryingMedia) {
         return;
       }
       this.retryingMedia = true;
-      inputState.retryMultimediaMessage(localID);
     }
+
+    const { inputState } = this.props;
+    invariant(
+      inputState,
+      'inputState should be initialized before user can hit retry',
+    );
+    const { localID } = rawMessageInfo;
+    invariant(localID, 'failed RawMessageInfo should have localID');
+    inputState.retryMessage(localID);
   };
 }
 

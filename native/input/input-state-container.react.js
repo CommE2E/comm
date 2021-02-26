@@ -295,7 +295,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       addReplyListener: this.addReplyListener,
       removeReplyListener: this.removeReplyListener,
       messageHasUploadFailure: this.messageHasUploadFailure,
-      retryMultimediaMessage: this.retryMultimediaMessage,
+      retryMessage: this.retryMessage,
       registerSendCallback: this.registerSendCallback,
       unregisterSendCallback: this.unregisterSendCallback,
       uploadInProgress: this.uploadInProgress,
@@ -845,10 +845,17 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     );
   };
 
-  retryMultimediaMessage = async (localMessageID: string) => {
-    const rawMessageInfo = this.props.messageStoreMessages[localMessageID];
-    invariant(rawMessageInfo, `rawMessageInfo ${localMessageID} should exist`);
+  retryTextMessage = (rawMessageInfo: RawTextMessageInfo) => {
+    this.sendTextMessage({
+      ...rawMessageInfo,
+      time: Date.now(),
+    });
+  };
 
+  retryMultimediaMessage = async (
+    rawMessageInfo: RawMultimediaMessageInfo,
+    localMessageID: string,
+  ) => {
     let pendingUploads = this.state.pendingUploads[localMessageID];
     if (!pendingUploads) {
       pendingUploads = {};
@@ -986,6 +993,20 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     });
 
     await this.uploadFiles(localMessageID, selectionsWithIDs);
+  };
+
+  retryMessage = async (localMessageID: string) => {
+    const rawMessageInfo = this.props.messageStoreMessages[localMessageID];
+    invariant(rawMessageInfo, `rawMessageInfo ${localMessageID} should exist`);
+
+    if (rawMessageInfo.type === messageTypes.TEXT) {
+      this.retryTextMessage(rawMessageInfo);
+    } else if (
+      rawMessageInfo.type === messageTypes.IMAGES ||
+      rawMessageInfo.type === messageTypes.MULTIMEDIA
+    ) {
+      await this.retryMultimediaMessage(rawMessageInfo, localMessageID);
+    }
   };
 
   registerSendCallback = (callback: () => void) => {
