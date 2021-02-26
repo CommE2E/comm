@@ -15,7 +15,7 @@ import {
 } from 'lib/selectors/user-selectors';
 import { messageID } from 'lib/shared/message-utils';
 import { getPotentialMemberItems } from 'lib/shared/search-utils';
-import { useLatestThreadInfo } from 'lib/shared/thread-utils';
+import { useCurrentThreadInfo } from 'lib/shared/thread-utils';
 import { messageTypes } from 'lib/types/message-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types';
@@ -334,19 +334,25 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     [usernameInputText, otherUserInfos, userSearchIndex, userInfoInputArray],
   );
 
-  const threadInfoRef = React.useRef(props.route.params.threadInfo);
-  const [originalThreadInfo, setOriginalThreadInfo] = React.useState(
+  const [baseThreadInfo, setBaseThreadInfo] = React.useState(
     props.route.params.threadInfo,
   );
 
-  const { searching } = props.route.params;
+  const { searching, sourceMessageID } = props.route.params;
+  const threadInfo = useCurrentThreadInfo({
+    baseThreadInfo,
+    searching: !!searching,
+    userInfoInputArray,
+    sourceMessageID,
+  });
+
   const inputState = React.useContext(InputStateContext);
   const hideSearch = React.useCallback(() => {
-    setOriginalThreadInfo(threadInfoRef.current);
+    setBaseThreadInfo(threadInfo);
     props.navigation.setParams({
       searching: false,
     });
-  }, [props.navigation]);
+  }, [props.navigation, threadInfo]);
   React.useEffect(() => {
     if (!searching) {
       return;
@@ -355,25 +361,12 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     return () => inputState?.unregisterSendCallback(hideSearch);
   }, [hideSearch, inputState, searching]);
 
-  const { sourceMessageID } = props.route.params;
-  const latestThreadInfo = useLatestThreadInfo(
-    originalThreadInfo,
-    searching,
-    userInfoInputArray,
-    sourceMessageID,
-  );
-
-  if (latestThreadInfo) {
-    threadInfoRef.current = latestThreadInfo;
-  }
-
-  const threadInfo = threadInfoRef.current;
   const { setParams } = props.navigation;
   React.useEffect(() => {
     setParams({ threadInfo });
   }, [setParams, threadInfo]);
 
-  const threadID = threadInfoRef.current.id;
+  const threadID = threadInfo.id;
   const boundMessageListData = useSelector(messageListDataSelector(threadID));
   const messageListData = useMessageListData({
     boundMessageListData,
@@ -396,7 +389,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
         updateTagInput={updateTagInput}
         otherUserInfos={otherUserInfos}
         userSearchResults={userSearchResults}
-        threadInfo={threadInfoRef.current}
+        threadInfo={threadInfo}
         messageListData={messageListData}
         composedMessageMaxWidth={composedMessageMaxWidth}
         colors={colors}
