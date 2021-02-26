@@ -2,7 +2,6 @@
 
 import classNames from 'classnames';
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
 import {
@@ -14,36 +13,37 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { colorIsDark } from 'lib/shared/thread-utils';
 import {
   type EntryInfo,
-  entryInfoPropType,
   type RestoreEntryInfo,
   type RestoreEntryResponse,
   type CalendarQuery,
 } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
+import {
+  type DispatchActionPromise,
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils';
 
 import LoadingIndicator from '../../loading-indicator.react';
-import type { AppState } from '../../redux/redux-setup';
+import { useSelector } from '../../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../../selectors/nav-selectors';
 import css from './history.css';
 
-type Props = {
-  entryInfo: EntryInfo,
-  onClick: (entryID: string) => void,
-  animateAndLoadEntry: (entryID: string) => void,
-  // Redux state
-  threadInfo: ThreadInfo,
-  loggedIn: boolean,
-  restoreLoadingStatus: LoadingStatus,
-  calendarQuery: () => CalendarQuery,
-  // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
-  restoreEntry: (info: RestoreEntryInfo) => Promise<RestoreEntryResponse>,
-};
+type BaseProps = {|
+  +entryInfo: EntryInfo,
+  +onClick: (entryID: string) => void,
+  +animateAndLoadEntry: (entryID: string) => void,
+|};
+type Props = {|
+  ...BaseProps,
+  +threadInfo: ThreadInfo,
+  +loggedIn: boolean,
+  +restoreLoadingStatus: LoadingStatus,
+  +calendarQuery: () => CalendarQuery,
+  +dispatchActionPromise: DispatchActionPromise,
+  +restoreEntry: (info: RestoreEntryInfo) => Promise<RestoreEntryResponse>,
+|};
 
 class HistoryEntry extends React.PureComponent<Props> {
   render() {
@@ -145,35 +145,37 @@ class HistoryEntry extends React.PureComponent<Props> {
   }
 }
 
-HistoryEntry.propTypes = {
-  entryInfo: entryInfoPropType,
-  onClick: PropTypes.func.isRequired,
-  animateAndLoadEntry: PropTypes.func.isRequired,
-  threadInfo: threadInfoPropType,
-  loggedIn: PropTypes.bool.isRequired,
-  restoreLoadingStatus: PropTypes.string.isRequired,
-  calendarQuery: PropTypes.func.isRequired,
-  dispatchActionPromise: PropTypes.func.isRequired,
-  restoreEntry: PropTypes.func.isRequired,
-};
+export default React.memo<BaseProps>(function ConnectedHistoryEntry(
+  props: BaseProps,
+) {
+  const entryID = props.entryInfo.id;
+  invariant(entryID, 'entryInfo.id (serverID) should be set');
+  const threadInfo = useSelector(
+    (state) => threadInfoSelector(state)[props.entryInfo.threadID],
+  );
+  const loggedIn = useSelector(
+    (state) =>
+      !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
+  );
+  const restoreLoadingStatus = useSelector(
+    createLoadingStatusSelector(
+      restoreEntryActionTypes,
+      `${restoreEntryActionTypes.started}:${entryID}`,
+    ),
+  );
+  const calanderQuery = useSelector(nonThreadCalendarQuery);
+  const callRestoreEntry = useServerCall(restoreEntry);
+  const dispatchActionPromise = useDispatchActionPromise();
 
-export default connect(
-  (state: AppState, ownProps: { entryInfo: EntryInfo }) => {
-    const entryID = ownProps.entryInfo.id;
-    invariant(entryID, 'entryInfo.id (serverID) should be set');
-    return {
-      threadInfo: threadInfoSelector(state)[ownProps.entryInfo.threadID],
-      loggedIn: !!(
-        state.currentUserInfo &&
-        !state.currentUserInfo.anonymous &&
-        true
-      ),
-      restoreLoadingStatus: createLoadingStatusSelector(
-        restoreEntryActionTypes,
-        `${restoreEntryActionTypes.started}:${entryID}`,
-      )(state),
-      calendarQuery: nonThreadCalendarQuery(state),
-    };
-  },
-  { restoreEntry },
-)(HistoryEntry);
+  return (
+    <HistoryEntry
+      {...props}
+      threadInfo={threadInfo}
+      loggedIn={loggedIn}
+      restoreLoadingStatus={restoreLoadingStatus}
+      calendarQuery={calanderQuery}
+      restoreEntry={callRestoreEntry}
+      dispatchActionPromise={dispatchActionPromise}
+    />
+  );
+});
