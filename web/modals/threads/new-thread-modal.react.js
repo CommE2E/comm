@@ -1,7 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
 import { newThreadActionTypes, newThread } from 'lib/actions/thread-actions';
@@ -13,49 +12,43 @@ import {
 } from 'lib/shared/thread-utils';
 import {
   type ThreadInfo,
-  threadInfoPropType,
   threadTypes,
   assertThreadType,
   type ThreadType,
   type NewThreadRequest,
   type NewThreadResult,
 } from 'lib/types/thread-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
+import {
+  type DispatchActionPromise,
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils';
 
-import type { AppState } from '../../redux/redux-setup';
+import { useSelector } from '../../redux/redux-utils';
 import css from '../../style.css';
 import Modal from '../modal.react';
 import ColorPicker from './color-picker.react';
 
-type Props = {
-  onClose: () => void,
-  parentThreadID?: ?string,
-  // Redux state
-  inputDisabled: boolean,
-  parentThreadInfo: ?ThreadInfo,
-  // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
-  newThread: (request: NewThreadRequest) => Promise<NewThreadResult>,
-};
-type State = {
-  threadType: ?ThreadType,
-  name: string,
-  description: string,
-  color: string,
-  errorMessage: string,
-};
+type BaseProps = {|
+  +onClose: () => void,
+  +parentThreadID?: ?string,
+|};
+type Props = {|
+  ...BaseProps,
+  +inputDisabled: boolean,
+  +parentThreadInfo: ?ThreadInfo,
+  +dispatchActionPromise: DispatchActionPromise,
+  +newThread: (request: NewThreadRequest) => Promise<NewThreadResult>,
+|};
+type State = {|
+  +threadType: ?ThreadType,
+  +name: string,
+  +description: string,
+  +color: string,
+  +errorMessage: string,
+|};
 
 class NewThreadModal extends React.PureComponent<Props, State> {
-  static propTypes = {
-    onClose: PropTypes.func.isRequired,
-    parentThreadID: PropTypes.string,
-    inputDisabled: PropTypes.bool.isRequired,
-    parentThreadInfo: threadInfoPropType,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    newThread: PropTypes.func.isRequired,
-  };
   nameInput: ?HTMLInputElement;
   openPrivacyInput: ?HTMLInputElement;
   threadPasswordInput: ?HTMLInputElement;
@@ -286,18 +279,25 @@ class NewThreadModal extends React.PureComponent<Props, State> {
 
 const loadingStatusSelector = createLoadingStatusSelector(newThreadActionTypes);
 
-export default connect(
-  (state: AppState, ownProps: { parentThreadID?: ?string }) => {
-    let parentThreadInfo = null;
-    const parentThreadID = ownProps.parentThreadID;
-    if (parentThreadID) {
-      parentThreadInfo = threadInfoSelector(state)[parentThreadID];
-      invariant(parentThreadInfo, 'parent thread should exist');
-    }
-    return {
-      parentThreadInfo,
-      inputDisabled: loadingStatusSelector(state) === 'loading',
-    };
-  },
-  { newThread },
-)(NewThreadModal);
+export default React.memo<BaseProps>(function ConnectedNewThreadModal(
+  props: BaseProps,
+) {
+  const { parentThreadID } = props;
+  const parentThreadInfo: ?ThreadInfo = useSelector((state) =>
+    parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
+  );
+  invariant(!parentThreadID || parentThreadInfo, 'parent thread should exist');
+  const inputDisabled = useSelector(loadingStatusSelector) === 'loading';
+  const callNewThread = useServerCall(newThread);
+  const dispatchActionPromise = useDispatchActionPromise();
+
+  return (
+    <NewThreadModal
+      {...props}
+      parentThreadInfo={parentThreadInfo}
+      inputDisabled={inputDisabled}
+      newThread={callNewThread}
+      dispatchActionPromise={dispatchActionPromise}
+    />
+  );
+});
