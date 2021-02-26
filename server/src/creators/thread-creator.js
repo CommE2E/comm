@@ -430,6 +430,13 @@ async function createThread(
 
     messageDatas.push(
       {
+        type: messageTypes.SIDEBAR_SOURCE,
+        threadID: id,
+        creatorID: viewer.userID,
+        time,
+        sourceMessage,
+      },
+      {
         type: messageTypes.CREATE_SIDEBAR,
         threadID: id,
         creatorID: viewer.userID,
@@ -441,13 +448,6 @@ async function createThread(
           color,
           memberIDs: initialMemberAndCreatorIDs,
         },
-      },
-      {
-        type: messageTypes.SIDEBAR_SOURCE,
-        threadID: id,
-        creatorID: viewer.userID,
-        time,
-        sourceMessage,
       },
     );
   }
