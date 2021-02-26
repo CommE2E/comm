@@ -14,8 +14,7 @@ import {
 } from 'lib/actions/message-actions';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { messageKey } from 'lib/shared/message-utils';
-import { threadInChatList } from 'lib/shared/thread-utils';
-import threadWatcher from 'lib/shared/thread-watcher';
+import { useWatchThread } from 'lib/shared/thread-utils';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types';
 import { type ThreadInfo, threadTypes } from 'lib/types/thread-types';
 import {
@@ -120,24 +119,6 @@ class MessageList extends React.PureComponent<Props, State> {
     return this.flatListExtraDataSelector({ ...this.props, ...this.state });
   }
 
-  componentDidMount() {
-    const { threadInfo } = this.props;
-    if (!threadInChatList(threadInfo)) {
-      threadWatcher.watchID(threadInfo.id);
-      this.props.dispatchActionPromise(
-        fetchMostRecentMessagesActionTypes,
-        this.props.fetchMostRecentMessages(threadInfo.id),
-      );
-    }
-  }
-
-  componentWillUnmount() {
-    const { threadInfo } = this.props;
-    if (!threadInChatList(threadInfo)) {
-      threadWatcher.removeID(threadInfo.id);
-    }
-  }
-
   static getOverlayContext(props: Props) {
     const { overlayContext } = props;
     invariant(overlayContext, 'MessageList should have OverlayContext');
@@ -155,17 +136,6 @@ class MessageList extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const oldThreadInfo = prevProps.threadInfo;
-    const newThreadInfo = this.props.threadInfo;
-    if (oldThreadInfo.id !== newThreadInfo.id) {
-      if (!threadInChatList(oldThreadInfo)) {
-        threadWatcher.removeID(oldThreadInfo.id);
-      }
-      if (!threadInChatList(newThreadInfo)) {
-        threadWatcher.watchID(newThreadInfo.id);
-      }
-    }
-
     const newListData = this.props.messageListData;
     const oldListData = prevProps.messageListData;
     if (
@@ -390,6 +360,8 @@ export default React.memo<BaseProps>(function ConnectedMessageList(
     fetchMessagesBeforeCursor,
   );
   const callFetchMostRecentMessages = useServerCall(fetchMostRecentMessages);
+
+  useWatchThread(props.threadInfo);
 
   return (
     <MessageList
