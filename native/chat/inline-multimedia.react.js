@@ -4,6 +4,7 @@ import * as React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import * as Progress from 'react-native-progress';
 import Icon from 'react-native-vector-icons/Feather';
+import IonIcon from 'react-native-vector-icons/Ionicons';
 import tinycolor from 'tinycolor2';
 
 import type { MediaInfo } from 'lib/types/media-types';
@@ -81,6 +82,15 @@ function InlineMultimedia(props: Props) {
     );
   }
 
+  let playButton;
+  if (mediaInfo.type === 'video') {
+    playButton = (
+      <View style={styles.centerContainer}>
+        <IonIcon name="ios-play-circle" style={styles.playButton} size={80} />
+      </View>
+    );
+  }
+
   const keyboardState = React.useContext(KeyboardContext);
   const keyboardShowing = keyboardState?.keyboardShowing;
 
@@ -92,7 +102,7 @@ function InlineMultimedia(props: Props) {
       style={styles.expand}
     >
       <Multimedia mediaInfo={mediaInfo} spinnerColor={props.spinnerColor} />
-      {progressIndicator}
+      {progressIndicator ? progressIndicator : playButton}
     </GestureTouchableOpacity>
   );
 }
@@ -109,6 +119,13 @@ const styles = StyleSheet.create({
   },
   expand: {
     flex: 1,
+  },
+  playButton: {
+    color: 'white',
+    opacity: 0.9,
+    textShadowColor: '#000',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
   },
   processingStepText: {
     color: 'white',
