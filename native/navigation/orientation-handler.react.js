@@ -1,28 +1,20 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import type { Orientations } from 'react-native-orientation-locker';
 import Orientation from 'react-native-orientation-locker';
+import { useDispatch } from 'react-redux';
 
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
+import type { Dispatch } from 'lib/types/redux-types';
 
 import { updateDeviceOrientationActionType } from '../redux/action-types';
-import type { AppState } from '../redux/redux-setup';
+import { useSelector } from '../redux/redux-utils';
 
-type Props = {
-  // Redux state
-  deviceOrientation: Orientations,
-  // Redux dispatch functions
-  dispatchActionPayload: DispatchActionPayload,
-};
+type Props = {|
+  +deviceOrientation: Orientations,
+  +dispatch: Dispatch,
+|};
 class OrientationHandler extends React.PureComponent<Props> {
-  static propTypes = {
-    deviceOrientation: PropTypes.string.isRequired,
-    dispatchActionPayload: PropTypes.func.isRequired,
-  };
-
   componentDidMount() {
     Orientation.addOrientationListener(this.updateOrientation);
   }
@@ -43,10 +35,10 @@ class OrientationHandler extends React.PureComponent<Props> {
 
   updateOrientation = (orientation) => {
     if (orientation !== this.props.deviceOrientation) {
-      this.props.dispatchActionPayload(
-        updateDeviceOrientationActionType,
-        orientation,
-      );
+      this.props.dispatch({
+        type: updateDeviceOrientationActionType,
+        payload: orientation,
+      });
     }
   };
 
@@ -55,10 +47,14 @@ class OrientationHandler extends React.PureComponent<Props> {
   }
 }
 
-export default connect(
-  (state: AppState) => ({
-    deviceOrientation: state.deviceOrientation,
-  }),
-  null,
-  true,
-)(OrientationHandler);
+export default React.memo<{||}>(function ConnectedOrientationHandler() {
+  const deviceOrientation = useSelector((state) => state.deviceOrientation);
+  const dispatch = useDispatch();
+
+  return (
+    <OrientationHandler
+      deviceOrientation={deviceOrientation}
+      dispatch={dispatch}
+    />
+  );
+});
