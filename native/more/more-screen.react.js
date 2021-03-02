@@ -1,7 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   View,
@@ -22,16 +21,13 @@ import {
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import type { LogOutResult } from 'lib/types/account-types';
+import { type PreRequestUserState } from 'lib/types/session-types';
+import { type CurrentUserInfo } from 'lib/types/user-types';
 import {
-  type PreRequestUserState,
-  preRequestUserStatePropType,
-} from 'lib/types/session-types';
-import {
-  type CurrentUserInfo,
-  currentUserPropType,
-} from 'lib/types/user-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
+  type DispatchActionPromise,
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils';
 import { firstLine } from 'lib/utils/string-utils';
 
 import {
@@ -41,6 +37,7 @@ import {
 import Button from '../components/button.react';
 import EditSettingButton from '../components/edit-setting-button.react';
 import { SingleLine } from '../components/single-line.react';
+import type { NavigationRoute } from '../navigation/route-names';
 import {
   EditEmailRouteName,
   EditPasswordRouteName,
@@ -51,46 +48,27 @@ import {
   FriendListRouteName,
   BlockListRouteName,
 } from '../navigation/route-names';
-import type { AppState } from '../redux/redux-setup';
-import {
-  type Colors,
-  colorsPropType,
-  colorsSelector,
-  styleSelector,
-} from '../themes/colors';
+import { useSelector } from '../redux/redux-utils';
+import { type Colors, useColors, useStyles } from '../themes/colors';
 import type { MoreNavigationProp } from './more.react';
 
-type Props = {
-  navigation: MoreNavigationProp<'MoreScreen'>,
-  // Redux state
-  currentUserInfo: ?CurrentUserInfo,
-  preRequestUserState: PreRequestUserState,
-  resendVerificationLoading: boolean,
-  logOutLoading: boolean,
-  colors: Colors,
-  styles: typeof styles,
-  // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
-  logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
-  resendVerificationEmail: () => Promise<void>,
-};
+type BaseProps = {|
+  +navigation: MoreNavigationProp<'MoreScreen'>,
+  +route: NavigationRoute<'MoreScreen'>,
+|};
+type Props = {|
+  ...BaseProps,
+  +currentUserInfo: ?CurrentUserInfo,
+  +preRequestUserState: PreRequestUserState,
+  +resendVerificationLoading: boolean,
+  +logOutLoading: boolean,
+  +colors: Colors,
+  +styles: typeof unboundStyles,
+  +dispatchActionPromise: DispatchActionPromise,
+  +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
+  +resendVerificationEmail: () => Promise<void>,
+|};
 class MoreScreen extends React.PureComponent<Props> {
-  static propTypes = {
-    navigation: PropTypes.shape({
-      navigate: PropTypes.func.isRequired,
-    }).isRequired,
-    currentUserInfo: currentUserPropType,
-    preRequestUserState: preRequestUserStatePropType.isRequired,
-    resendVerificationLoading: PropTypes.bool.isRequired,
-    logOutLoading: PropTypes.bool.isRequired,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    logOut: PropTypes.func.isRequired,
-    resendVerificationEmail: PropTypes.func.isRequired,
-  };
-
   get username() {
     return this.props.currentUserInfo && !this.props.currentUserInfo.anonymous
       ? this.props.currentUserInfo.username
@@ -409,7 +387,7 @@ class MoreScreen extends React.PureComponent<Props> {
   };
 }
 
-const styles = {
+const unboundStyles = {
   container: {
     flex: 1,
   },
@@ -535,7 +513,6 @@ const styles = {
     fontStyle: 'italic',
   },
 };
-const stylesSelector = styleSelector(styles);
 
 const logOutLoadingStatusSelector = createLoadingStatusSelector(
   logOutActionTypes,
@@ -544,15 +521,32 @@ const resendVerificationLoadingStatusSelector = createLoadingStatusSelector(
   resendVerificationEmailActionTypes,
 );
 
-export default connect(
-  (state: AppState) => ({
-    currentUserInfo: state.currentUserInfo,
-    preRequestUserState: preRequestUserStateSelector(state),
-    resendVerificationLoading:
-      resendVerificationLoadingStatusSelector(state) === 'loading',
-    logOutLoading: logOutLoadingStatusSelector(state) === 'loading',
-    colors: colorsSelector(state),
-    styles: stylesSelector(state),
-  }),
-  { logOut, resendVerificationEmail },
-)(MoreScreen);
+export default React.memo<BaseProps>(function ConnectedMoreScreen(
+  props: BaseProps,
+) {
+  const currentUserInfo = useSelector((state) => state.currentUserInfo);
+  const preRequestUserState = useSelector(preRequestUserStateSelector);
+  const resendVerificationLoading =
+    useSelector(resendVerificationLoadingStatusSelector) === 'loading';
+  const logOutLoading = useSelector(logOutLoadingStatusSelector) === 'loading';
+  const colors = useColors();
+  const styles = useStyles(unboundStyles);
+  const callLogOut = useServerCall(logOut);
+  const callResendVerificationEmail = useServerCall(resendVerificationEmail);
+  const dispatchActionPromise = useDispatchActionPromise();
+
+  return (
+    <MoreScreen
+      {...props}
+      currentUserInfo={currentUserInfo}
+      preRequestUserState={preRequestUserState}
+      resendVerificationLoading={resendVerificationLoading}
+      logOutLoading={logOutLoading}
+      colors={colors}
+      styles={styles}
+      logOut={callLogOut}
+      resendVerificationEmail={callResendVerificationEmail}
+      dispatchActionPromise={dispatchActionPromise}
+    />
+  );
+});
