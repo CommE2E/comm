@@ -1,7 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   View,
@@ -9,16 +8,12 @@ import {
   StyleSheet,
   I18nManager,
   PanResponder,
-  ViewPropTypes,
   Text,
   Keyboard,
 } from 'react-native';
 import tinycolor from 'tinycolor2';
 
-import { connect } from 'lib/utils/redux-utils';
-
-import type { AppState } from '../redux/redux-setup';
-import { type Colors, colorsPropType, colorsSelector } from '../themes/colors';
+import { type Colors, useColors } from '../themes/colors';
 import type { LayoutEvent } from '../types/react-native';
 import type { ViewStyle } from '../types/styles';
 import Button from './button.react';
@@ -31,43 +26,26 @@ type PanEvent = $ReadOnly<{
 }>;
 type HSVColor = {| h: number, s: number, v: number |};
 type PickerContainer = React.ElementRef<typeof View>;
+type BaseProps = {|
+  +color?: string | HSVColor,
+  +defaultColor?: string,
+  +oldColor?: ?string,
+  +onColorChange?: (color: HSVColor) => void,
+  +onColorSelected?: (color: string) => void,
+  +onOldColorSelected?: (color: string) => void,
+  +style?: ViewStyle,
+  +buttonText?: string,
+  +oldButtonText?: string,
+|};
 type Props = {|
-  color?: string | HSVColor,
-  defaultColor?: string,
-  oldColor?: ?string,
-  onColorChange?: (color: HSVColor) => void,
-  onColorSelected?: (color: string) => void,
-  onOldColorSelected?: (color: string) => void,
-  style?: ViewStyle,
-  buttonText: string,
-  oldButtonText: string,
-  // Redux state
-  colors: Colors,
+  ...BaseProps,
+  +colors: Colors,
 |};
 type State = {|
-  color: HSVColor,
-  pickerSize: ?number,
+  +color: HSVColor,
+  +pickerSize: ?number,
 |};
 class ColorPicker extends React.PureComponent<Props, State> {
-  static propTypes = {
-    color: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.shape({
-        h: PropTypes.number,
-        s: PropTypes.number,
-        v: PropTypes.number,
-      }),
-    ]),
-    defaultColor: PropTypes.string,
-    oldColor: PropTypes.string,
-    onColorChange: PropTypes.func,
-    onColorSelected: PropTypes.func,
-    onOldColorSelected: PropTypes.func,
-    style: ViewPropTypes.style,
-    buttonText: PropTypes.string,
-    oldButtonText: PropTypes.string,
-    colors: colorsPropType.isRequired,
-  };
   static defaultProps = {
     buttonText: 'Select',
     oldButtonText: 'Reset',
@@ -656,6 +634,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect((state: AppState) => ({
-  colors: colorsSelector(state),
-}))(ColorPicker);
+export default React.memo<BaseProps>(function ConnectedColorPicker(
+  props: BaseProps,
+) {
+  const colors = useColors();
+  return <ColorPicker {...props} colors={colors} />;
+});
