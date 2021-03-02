@@ -1,49 +1,49 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
 import { onScreenEntryEditableThreadInfos } from 'lib/selectors/thread-selectors';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
-import { connect } from 'lib/utils/redux-utils';
 
-import type { AppState } from '../redux/redux-setup';
+import { useSelector } from '../redux/redux-utils';
 import { htmlTargetFromEvent } from '../vector-utils';
 import { LeftPager, RightPager } from '../vectors.react';
 import css from './thread-picker.css';
 
-type OptionProps = {
-  threadInfo: ThreadInfo,
-  createNewEntry: (threadID: string) => void,
-};
-class ThreadPickerOption extends React.PureComponent<OptionProps> {
-  render() {
-    const colorStyle = { backgroundColor: `#${this.props.threadInfo.color}` };
-    return (
-      <div className={css.option} onClick={this.onClick}>
-        <span className={css.thread}>
-          <div className={css.colorPreview} style={colorStyle} />
-          <span className={css.threadName}>{this.props.threadInfo.uiName}</span>
-        </span>
-      </div>
-    );
-  }
+type OptionProps = {|
+  +threadInfo: ThreadInfo,
+  +createNewEntry: (threadID: string) => void,
+|};
+function ThreadPickerOption(props: OptionProps) {
+  const { threadInfo, createNewEntry } = props;
+  const onClick = React.useCallback(() => createNewEntry(threadInfo.id), [
+    threadInfo.id,
+    createNewEntry,
+  ]);
+  const colorStyle = { backgroundColor: `#${props.threadInfo.color}` };
 
-  onClick = () => {
-    this.props.createNewEntry(this.props.threadInfo.id);
-  };
+  return (
+    <div className={css.option} onClick={onClick}>
+      <span className={css.thread}>
+        <div className={css.colorPreview} style={colorStyle} />
+        <span className={css.threadName}>{props.threadInfo.uiName}</span>
+      </span>
+    </div>
+  );
 }
 
-type Props = {
-  onScreenThreadInfos: ThreadInfo[],
-  createNewEntry: (threadID: string) => void,
-  closePicker: () => void,
-};
-type State = {
-  currentPage: number,
-};
+type BaseProps = {|
+  +createNewEntry: (threadID: string) => void,
+  +closePicker: () => void,
+|};
+type Props = {|
+  ...BaseProps,
+  +onScreenThreadInfos: $ReadOnlyArray<ThreadInfo>,
+|};
+type State = {|
+  +currentPage: number,
+|};
 
 class ThreadPicker extends React.PureComponent<Props, State> {
   static pageSize = 5;
@@ -183,12 +183,9 @@ class ThreadPicker extends React.PureComponent<Props, State> {
   };
 }
 
-ThreadPicker.propTypes = {
-  onScreenThreadInfos: PropTypes.arrayOf(threadInfoPropType).isRequired,
-  createNewEntry: PropTypes.func.isRequired,
-  closePicker: PropTypes.func.isRequired,
-};
-
-export default connect((state: AppState) => ({
-  onScreenThreadInfos: onScreenEntryEditableThreadInfos(state),
-}))(ThreadPicker);
+export default React.memo<BaseProps>(function ConnectedThreadPicker(
+  props: BaseProps,
+) {
+  const onScreenThreadInfos = useSelector(onScreenEntryEditableThreadInfos);
+  return <ThreadPicker {...props} onScreenThreadInfos={onScreenThreadInfos} />;
+});
