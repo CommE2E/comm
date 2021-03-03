@@ -116,7 +116,7 @@ class FailedSend extends React.PureComponent<Props> {
     );
     const { localID } = rawMessageInfo;
     invariant(localID, 'failed RawMessageInfo should have localID');
-    inputState.retryMessage(localID);
+    inputState.retryMessage(localID, this.props.item.threadInfo);
   };
 }
 

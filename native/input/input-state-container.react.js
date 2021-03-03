@@ -15,6 +15,7 @@ import {
   sendTextMessage,
 } from 'lib/actions/message-actions';
 import { queueReportsActionType } from 'lib/actions/report-actions';
+import { newThread } from 'lib/actions/thread-actions';
 import {
   uploadMultimedia,
   updateMultimediaMessageMediaActionType,
@@ -29,6 +30,10 @@ import {
   combineLoadingStatuses,
 } from 'lib/selectors/loading-selectors';
 import { createMediaMessageInfo } from 'lib/shared/message-utils';
+import {
+  createRealThreadFromPendingThread,
+  threadIsPending,
+} from 'lib/shared/thread-utils';
 import { isStaff } from 'lib/shared/user-utils';
 import type {
   UploadMultimediaResult,
@@ -52,6 +57,8 @@ import {
   type MediaMissionReportCreationRequest,
   reportTypes,
 } from 'lib/types/report-types';
+import { type ThreadInfo } from 'lib/types/thread-types';
+import type { NewThreadRequest, NewThreadResult } from 'lib/types/thread-types';
 import {
   type DispatchActionPromise,
   useServerCall,
@@ -110,6 +117,7 @@ type Props = {|
     localID: string,
     text: string,
   ) => Promise<SendMessageResult>,
+  +newThread: (request: NewThreadRequest) => Promise<NewThreadResult>,
 |};
 type State = {|
   +pendingUploads: PendingMultimediaUploads,
@@ -310,13 +318,56 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     return false;
   };
 
-  sendTextMessage = (messageInfo: RawTextMessageInfo) => {
+  sendTextMessage = async (
+    messageInfo: RawTextMessageInfo,
+    threadInfo: ThreadInfo,
+  ) => {
     this.sendCallbacks.forEach((callback) => callback());
+
+    if (!threadIsPending(threadInfo.id)) {
+      this.props.dispatchActionPromise(
+        sendTextMessageActionTypes,
+        this.sendTextMessageAction(messageInfo),
+        undefined,
+        messageInfo,
+      );
+      return;
+    }
+
+    this.props.dispatch({
+      type: sendTextMessageActionTypes.started,
+      payload: messageInfo,
+    });
+
+    let newThreadID;
+    try {
+      newThreadID = await createRealThreadFromPendingThread(
+        threadInfo,
+        this.props.dispatchActionPromise,
+        this.props.newThread,
+        threadInfo.sourceMessageID,
+        this.props.viewerID,
+      );
+    } catch (e) {
+      newThreadID = undefined;
+    }
+    if (!newThreadID) {
+      this.props.dispatch({
+        type: sendTextMessageActionTypes.failed,
+        payload: messageInfo,
+      });
+      return;
+    }
+
+    const newMessageInfo = {
+      ...messageInfo,
+      threadID: newThreadID,
+    };
     this.props.dispatchActionPromise(
       sendTextMessageActionTypes,
-      this.sendTextMessageAction(messageInfo),
+      this.sendTextMessageAction(newMessageInfo),
       undefined,
-      messageInfo,
+      newMessageInfo,
     );
   };
 
@@ -881,11 +932,17 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     );
   };
 
-  retryTextMessage = (rawMessageInfo: RawTextMessageInfo) => {
-    this.sendTextMessage({
-      ...rawMessageInfo,
-      time: Date.now(),
-    });
+  retryTextMessage = async (
+    rawMessageInfo: RawTextMessageInfo,
+    threadInfo: ThreadInfo,
+  ) => {
+    await this.sendTextMessage(
+      {
+        ...rawMessageInfo,
+        time: Date.now(),
+      },
+      threadInfo,
+    );
   };
 
   retryMultimediaMessage = async (
@@ -1095,12 +1152,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     await this.uploadFiles(localMessageID, uploadFileInputs);
   };
 
-  retryMessage = async (localMessageID: string) => {
+  retryMessage = async (localMessageID: string, threadInfo: ThreadInfo) => {
     const rawMessageInfo = this.props.messageStoreMessages[localMessageID];
     invariant(rawMessageInfo, `rawMessageInfo ${localMessageID} should exist`);
 
     if (rawMessageInfo.type === messageTypes.TEXT) {
-      this.retryTextMessage(rawMessageInfo);
+      await this.retryTextMessage(rawMessageInfo, threadInfo);
     } else if (
       rawMessageInfo.type === messageTypes.IMAGES ||
       rawMessageInfo.type === messageTypes.MULTIMEDIA
@@ -1219,6 +1276,7 @@ export default React.memo<BaseProps>(function ConnectedInputStateContainer(
   const callUploadMultimedia = useServerCall(uploadMultimedia);
   const callSendMultimediaMessage = useServerCall(sendMultimediaMessage);
   const callSendTextMessage = useServerCall(sendTextMessage);
+  const callNewThread = useServerCall(newThread);
   const dispatchActionPromise = useDispatchActionPromise();
   const dispatch = useDispatch();
 
@@ -1233,6 +1291,7 @@ export default React.memo<BaseProps>(function ConnectedInputStateContainer(
       uploadMultimedia={callUploadMultimedia}
       sendMultimediaMessage={callSendMultimediaMessage}
       sendTextMessage={callSendTextMessage}
+      newThread={callNewThread}
       dispatchActionPromise={dispatchActionPromise}
       dispatch={dispatch}
     />

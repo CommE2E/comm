@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import type { NativeMediaSelection } from 'lib/types/media-types';
 import type { RawTextMessageInfo } from 'lib/types/messages/text';
+import type { ThreadInfo } from 'lib/types/thread-types';
 
 export type MultimediaProcessingStep = 'transcoding' | 'uploading';
 
@@ -23,7 +24,10 @@ export type PendingMultimediaUploads = {
 
 export type InputState = {|
   +pendingUploads: PendingMultimediaUploads,
-  +sendTextMessage: (messageInfo: RawTextMessageInfo) => void,
+  +sendTextMessage: (
+    messageInfo: RawTextMessageInfo,
+    threadInfo: ThreadInfo,
+  ) => Promise<void>,
   +sendMultimediaMessage: (
     threadID: string,
     selections: $ReadOnlyArray<NativeMediaSelection>,
@@ -32,7 +36,10 @@ export type InputState = {|
   +addReplyListener: ((message: string) => void) => void,
   +removeReplyListener: ((message: string) => void) => void,
   +messageHasUploadFailure: (localMessageID: string) => boolean,
-  +retryMessage: (localMessageID: string) => Promise<void>,
+  +retryMessage: (
+    localMessageID: string,
+    threadInfo: ThreadInfo,
+  ) => Promise<void>,
   +registerSendCallback: (() => void) => void,
   +unregisterSendCallback: (() => void) => void,
   +uploadInProgress: () => boolean,

@@ -11,7 +11,6 @@ import {
   Text,
   ActivityIndicator,
   TouchableWithoutFeedback,
-  Alert,
   NativeAppEventEmitter,
 } from 'react-native';
 import { TextInputKeyboardMangerIOS } from 'react-native-keyboard-input';
@@ -29,7 +28,6 @@ import {
   viewerIsMember,
   threadFrozenDueToViewerBlock,
   threadActualMembers,
-  useRealThreadCreator,
 } from 'lib/shared/thread-utils';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
@@ -125,7 +123,6 @@ type Props = {|
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
-  +getServerThreadID: () => Promise<?string>,
   // withInputState
   +inputState: ?InputState,
 |};
@@ -589,23 +586,23 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
     const localID = `local${this.props.nextLocalID}`;
     const creatorID = this.props.viewerID;
-    const threadID = await this.props.getServerThreadID();
     invariant(creatorID, 'should have viewer ID in order to send a message');
     invariant(
       this.props.inputState,
       'inputState should be set in ChatInputBar.onSend',
     );
 
-    if (threadID) {
-      this.props.inputState.sendTextMessage({
+    this.props.inputState.sendTextMessage(
+      {
         type: messageTypes.TEXT,
         localID,
-        threadID,
+        threadID: this.props.threadInfo.id,
         text,
         creatorID,
         time: Date.now(),
-      });
-    }
+      },
+      this.props.threadInfo,
+    );
   };
 
   onPressJoin = () => {
@@ -768,11 +765,6 @@ const joinThreadLoadingStatusSelector = createLoadingStatusSelector(
   joinThreadActionTypes,
 );
 
-const showErrorAlert = () =>
-  Alert.alert('Unknown error', 'Uhh... try again?', [{ text: 'OK' }], {
-    cancelable: false,
-  });
-
 export default React.memo<BaseProps>(function ConnectedChatInputBar(
   props: BaseProps,
 ) {
@@ -847,14 +839,6 @@ export default React.memo<BaseProps>(function ConnectedChatInputBar(
     return () => imagePasteListener.remove();
   }, [imagePastedCallback]);
 
-  const getServerThreadID = useRealThreadCreator(
-    {
-      threadInfo: props.threadInfo,
-      sourceMessageID: props.route.params.sourceMessageID,
-    },
-    showErrorAlert,
-  );
-
   return (
     <ChatInputBar
       {...props}
@@ -872,7 +856,6 @@ export default React.memo<BaseProps>(function ConnectedChatInputBar(
       dispatchActionPromise={dispatchActionPromise}
       joinThread={callJoinThread}
       inputState={inputState}
-      getServerThreadID={getServerThreadID}
     />
   );
 });
