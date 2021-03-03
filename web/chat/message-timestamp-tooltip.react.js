@@ -1,99 +1,69 @@
 // @flow
 
 import classNames from 'classnames';
-import invariant from 'invariant';
 import * as React from 'react';
 
 import { isComposableMessageType } from 'lib/types/message-types';
 import { longAbsoluteDate } from 'lib/utils/date-utils';
 
-import { calculateTextWidth } from '../utils/text-utils';
 import css from './chat-message-list.css';
-import type { OnMessagePositionInfo } from './message-position-types';
+import type { OnMessagePositionWithContainerInfo } from './position-types';
+import {
+  type TooltipPosition,
+  tooltipPositions,
+  findTooltipPosition,
+  sizeOfTooltipArrow,
+} from './tooltip-utils';
+
+const availablePositionsForComposedViewerMessage = [
+  tooltipPositions.BOTTOM_RIGHT,
+];
+const availablePositionsForNonComposedOrNonViewerMessage = [
+  tooltipPositions.LEFT,
+];
 
 type Props = {|
-  messagePositionInfo: ?OnMessagePositionInfo,
-  timeZone: ?string,
+  +messagePositionInfo: OnMessagePositionWithContainerInfo,
+  +timeZone: ?string,
 |};
 function MessageTimestampTooltip(props: Props) {
-  if (!props.messagePositionInfo) {
-    return null;
-  }
-  const { item, messagePosition } = props.messagePositionInfo;
-  const text = longAbsoluteDate(item.messageInfo.time, props.timeZone);
+  const { messagePositionInfo, timeZone } = props;
+  const { time, creator, type } = messagePositionInfo.item.messageInfo;
 
-  const font =
-    '14px -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", ' +
-    '"Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", ' +
-    '"Helvetica Neue", sans-serif';
-  const textWidth = calculateTextWidth(text, font);
-  const width = textWidth + 10; // 10px padding
-  const sizeOfArrow = 10; // 7px arrow + 3px extra
-  const widthWithArrow = width + sizeOfArrow;
-  const height = 27; // 17px line-height + 10px padding
-  const heightWithArrow = height + sizeOfArrow;
+  const text = React.useMemo(() => longAbsoluteDate(time, timeZone), [
+    time,
+    timeZone,
+  ]);
+  const availableTooltipPositions = React.useMemo(() => {
+    const { isViewer } = creator;
+    const isComposed = isComposableMessageType(type);
+    return isComposed && isViewer
+      ? availablePositionsForComposedViewerMessage
+      : availablePositionsForNonComposedOrNonViewerMessage;
+  }, [creator, type]);
 
-  const { isViewer } = item.messageInfo.creator;
-  const isComposed = isComposableMessageType(item.messageInfo.type);
-  let align = isComposed && isViewer ? 'right' : 'left';
-  if (align === 'right') {
-    if (messagePosition.top < 0) {
-      align = 'bottom-right';
-    } else if (messagePosition.right + width > window.innerWidth) {
-      align = 'top-right';
-    }
-  } else if (align === 'left') {
-    if (messagePosition.top < 0) {
-      align = 'bottom-left';
-    } else if (messagePosition.left - width < 0) {
-      align = 'top-left';
-    }
-  }
+  const { messagePosition, containerPosition } = messagePositionInfo;
+  const pointingToInfo = React.useMemo(() => {
+    return {
+      containerPosition,
+      itemPosition: messagePosition,
+    };
+  }, [messagePosition, containerPosition]);
 
-  let style, className;
-  if (align === 'left') {
-    const centerOfMessage = messagePosition.top + messagePosition.height / 2;
-    const topOfTooltip = centerOfMessage - height / 2;
-    style = {
-      left: messagePosition.left - widthWithArrow,
-      top: topOfTooltip,
-    };
-    className = css.messageTimestampLeftTooltip;
-  } else if (align === 'right') {
-    const centerOfMessage = messagePosition.top + messagePosition.height / 2;
-    const topOfTooltip = centerOfMessage - height / 2;
-    style = {
-      // 10 = 7px arrow + 3px extra
-      left: messagePosition.left + messagePosition.width + 10,
-      top: topOfTooltip,
-    };
-    className = css.messageTimestampRightTooltip;
-  } else if (align === 'top-left') {
-    style = {
-      left: messagePosition.left,
-      top: messagePosition.top - heightWithArrow,
-    };
-    className = css.messageTimestampTopLeftTooltip;
-  } else if (align === 'top-right') {
-    style = {
-      left: messagePosition.right - width,
-      top: messagePosition.top - heightWithArrow,
-    };
-    className = css.messageTimestampTopRightTooltip;
-  } else if (align === 'bottom-left') {
-    style = {
-      left: messagePosition.left,
-      top: messagePosition.top + messagePosition.height + sizeOfArrow,
-    };
-    className = css.messageTimestampBottomLeftTooltip;
-  } else if (align === 'bottom-right') {
-    style = {
-      left: messagePosition.right - width,
-      top: messagePosition.top + messagePosition.height + sizeOfArrow,
-    };
-    className = css.messageTimestampBottomRightTooltip;
-  }
-  invariant(style, 'should be set');
+  const tooltipPosition = React.useMemo(
+    () =>
+      findTooltipPosition({
+        pointingToInfo,
+        text,
+        availablePositions: availableTooltipPositions,
+        layoutPosition: 'absolute',
+      }),
+    [availableTooltipPositions, pointingToInfo, text],
+  );
+  const { style, className } = React.useMemo(
+    () => getTimestampTooltipStyle(messagePositionInfo, tooltipPosition),
+    [messagePositionInfo, tooltipPosition],
+  );
 
   return (
     <div
@@ -103,6 +73,74 @@ function MessageTimestampTooltip(props: Props) {
       {text}
     </div>
   );
+}
+
+function getTimestampTooltipStyle(
+  messagePositionInfo: OnMessagePositionWithContainerInfo,
+  tooltipPosition: TooltipPosition,
+) {
+  const { messagePosition, containerPosition } = messagePositionInfo;
+  const { height: containerHeight, width: containerWidth } = containerPosition;
+
+  let style, className;
+  if (tooltipPosition === tooltipPositions.LEFT) {
+    const centerOfMessage = messagePosition.top + messagePosition.height / 2;
+    const tooltipPointing = Math.max(
+      Math.min(centerOfMessage, containerHeight),
+      0,
+    );
+    style = {
+      right: containerWidth - messagePosition.left + sizeOfTooltipArrow,
+      top: tooltipPointing,
+    };
+    className = css.messageLeftTooltip;
+  } else if (tooltipPosition === tooltipPositions.RIGHT) {
+    const centerOfMessage = messagePosition.top + messagePosition.height / 2;
+    const tooltipPointing = Math.max(
+      Math.min(centerOfMessage, containerHeight),
+      0,
+    );
+    style = {
+      left: messagePosition.right + sizeOfTooltipArrow,
+      top: tooltipPointing,
+    };
+    className = css.messageRightTooltip;
+  } else if (tooltipPosition === tooltipPositions.TOP_LEFT) {
+    const tooltipPointing = Math.min(
+      containerHeight - messagePosition.top,
+      containerHeight,
+    );
+    style = {
+      left: messagePosition.left,
+      bottom: tooltipPointing + sizeOfTooltipArrow,
+    };
+    className = css.messageTopLeftTooltip;
+  } else if (tooltipPosition === tooltipPositions.TOP_RIGHT) {
+    const tooltipPointing = Math.min(
+      containerHeight - messagePosition.top,
+      containerHeight,
+    );
+    style = {
+      right: containerWidth - messagePosition.right,
+      bottom: tooltipPointing + sizeOfTooltipArrow,
+    };
+    className = css.messageTopRightTooltip;
+  } else if (tooltipPosition === tooltipPositions.BOTTOM_LEFT) {
+    const tooltipPointing = Math.min(messagePosition.bottom, containerHeight);
+    style = {
+      left: messagePosition.left,
+      top: tooltipPointing + sizeOfTooltipArrow,
+    };
+    className = css.messageBottomLeftTooltip;
+  } else if (tooltipPosition === tooltipPositions.BOTTOM_RIGHT) {
+    const tooltipPointing = Math.min(messagePosition.bottom, containerHeight);
+    style = {
+      right: containerWidth - messagePosition.right,
+      top: tooltipPointing + sizeOfTooltipArrow,
+    };
+    className = css.messageBottomRightTooltip;
+  }
+  return { style, className };
 }
 
 export default MessageTimestampTooltip;

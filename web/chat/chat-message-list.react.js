@@ -35,12 +35,12 @@ import { useSelector } from '../redux/redux-utils';
 import ChatInputBar from './chat-input-bar.react';
 import css from './chat-message-list.css';
 import { MessageListContext } from './message-list-types';
-import type {
-  OnMessagePositionInfo,
-  MessagePositionInfo,
-} from './message-position-types';
 import MessageTimestampTooltip from './message-timestamp-tooltip.react';
 import Message from './message.react';
+import type {
+  OnMessagePositionWithContainerInfo,
+  MessagePositionInfo,
+} from './position-types';
 
 type BaseProps = {|
   +setModal: (modal: ?React.Node) => void,
@@ -73,7 +73,7 @@ type Props = {|
   ...ReactDnDProps,
 |};
 type State = {|
-  +mouseOverMessagePosition: ?OnMessagePositionInfo,
+  +mouseOverMessagePosition: ?OnMessagePositionWithContainerInfo,
 |};
 type Snapshot = {|
   +scrollTop: number,
@@ -209,13 +209,30 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       this.setState({ mouseOverMessagePosition: null });
       return;
     }
-    const containerTop = this.messageContainer.getBoundingClientRect().top;
+    const {
+      top: containerTop,
+      bottom: containerBottom,
+      left: containerLeft,
+      right: containerRight,
+      height: containerHeight,
+      width: containerWidth,
+    } = this.messageContainer.getBoundingClientRect();
     const mouseOverMessagePosition = {
       ...messagePositionInfo,
       messagePosition: {
         ...messagePositionInfo.messagePosition,
         top: messagePositionInfo.messagePosition.top - containerTop,
         bottom: messagePositionInfo.messagePosition.bottom - containerTop,
+        left: messagePositionInfo.messagePosition.left - containerLeft,
+        right: messagePositionInfo.messagePosition.right - containerLeft,
+      },
+      containerPosition: {
+        top: containerTop,
+        bottom: containerBottom,
+        left: containerLeft,
+        right: containerRight,
+        height: containerHeight,
+        width: containerWidth,
       },
     };
     this.setState({ mouseOverMessagePosition });
@@ -241,12 +258,16 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       [css.activeContainer]: isActive,
     });
 
-    const tooltip = (
-      <MessageTimestampTooltip
-        messagePositionInfo={this.state.mouseOverMessagePosition}
-        timeZone={this.props.timeZone}
-      />
-    );
+    let tooltip;
+    if (this.state.mouseOverMessagePosition) {
+      const messagePositionInfo = this.state.mouseOverMessagePosition;
+      tooltip = (
+        <MessageTimestampTooltip
+          messagePositionInfo={messagePositionInfo}
+          timeZone={this.props.timeZone}
+        />
+      );
+    }
 
     const messageContainerStyle = classNames({
       [css.messageContainer]: true,
@@ -254,8 +275,10 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     });
     return connectDropTarget(
       <div className={containerStyle} ref={this.containerRef}>
-        <div className={messageContainerStyle} ref={this.messageContainerRef}>
-          {messages}
+        <div className={css.outerMessageContainer}>
+          <div className={messageContainerStyle} ref={this.messageContainerRef}>
+            {messages}
+          </div>
           {tooltip}
         </div>
         <ChatInputBar

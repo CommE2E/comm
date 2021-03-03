@@ -19,12 +19,22 @@ import { type InputState, InputStateContext } from '../input/input-state';
 import css from './chat-message-list.css';
 import FailedSend from './failed-send.react';
 import { InlineSidebar } from './inline-sidebar.react';
-import {
-  type OnMessagePositionInfo,
-  type MessagePositionInfo,
-} from './message-position-types';
 import MessageReplyTooltip from './message-reply-tooltip.react';
-import SidebarTooltip from './sidebar-tooltip.react';
+import {
+  type OnMessagePositionWithContainerInfo,
+  type MessagePositionInfo,
+} from './position-types';
+import MessageActionTooltip from './sidebar-tooltip.react';
+import { tooltipPositions } from './tooltip-utils';
+
+const availableTooltipPositionsForViewerMessage = [
+  tooltipPositions.TOP_RIGHT,
+  tooltipPositions.LEFT,
+];
+const availableTooltipPositionsForNonViewerMessage = [
+  tooltipPositions.TOP_LEFT,
+  tooltipPositions.RIGHT,
+];
 
 type BaseProps = {|
   +item: ChatMessageInfoItem,
@@ -33,7 +43,7 @@ type BaseProps = {|
   +setMouseOverMessagePosition: (
     messagePositionInfo: MessagePositionInfo,
   ) => void,
-  +mouseOverMessagePosition?: ?OnMessagePositionInfo,
+  +mouseOverMessagePosition?: ?OnMessagePositionWithContainerInfo,
   +canReply: boolean,
   +children: React.Node,
   +fixedWidth?: boolean,
@@ -129,25 +139,31 @@ class ComposedMessage extends React.PureComponent<Props> {
       );
     }
 
-    const positioning = isViewer ? 'right' : 'left';
-    let sidebarTooltip;
+    let messageActionTooltip;
     if (
       this.props.mouseOverMessagePosition &&
       this.props.mouseOverMessagePosition.item.messageInfo.id === id &&
       this.props.sidebarExistsOrCanBeCreated
     ) {
-      sidebarTooltip = (
-        <SidebarTooltip
+      const availableTooltipPositions = isViewer
+        ? availableTooltipPositionsForViewerMessage
+        : availableTooltipPositionsForNonViewerMessage;
+
+      messageActionTooltip = (
+        <MessageActionTooltip
           threadInfo={threadInfo}
           item={item}
           onLeave={this.onMouseLeave}
-          messagePosition={positioning}
+          containerPosition={
+            this.props.mouseOverMessagePosition.containerPosition
+          }
+          availableTooltipPositions={availableTooltipPositions}
         />
       );
     }
 
     let viewerActionLinks, nonViewerActionLinks;
-    if (isViewer) {
+    if (isViewer && (replyTooltip || messageActionTooltip)) {
       viewerActionLinks = (
         <div
           className={classNames(
@@ -155,11 +171,11 @@ class ComposedMessage extends React.PureComponent<Props> {
             css.viewerMessageActionLinks,
           )}
         >
-          {sidebarTooltip}
+          {messageActionTooltip}
           {replyTooltip}
         </div>
       );
-    } else {
+    } else if (replyTooltip || messageActionTooltip) {
       nonViewerActionLinks = (
         <div
           className={classNames(
@@ -168,13 +184,14 @@ class ComposedMessage extends React.PureComponent<Props> {
           )}
         >
           {replyTooltip}
-          {sidebarTooltip}
+          {messageActionTooltip}
         </div>
       );
     }
 
     let inlineSidebar = null;
     if (item.threadCreatedFromMessage) {
+      const positioning = isViewer ? 'right' : 'left';
       inlineSidebar = (
         <div className={css.sidebarMarginBottom}>
           <InlineSidebar

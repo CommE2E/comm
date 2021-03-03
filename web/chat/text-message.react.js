@@ -16,8 +16,8 @@ import ComposedMessage from './composed-message.react';
 import { MessageListContext } from './message-list-types';
 import type {
   MessagePositionInfo,
-  OnMessagePositionInfo,
-} from './message-position-types';
+  OnMessagePositionWithContainerInfo,
+} from './position-types';
 import textMessageSendFailed from './text-message-send-failed';
 
 type Props = {|
@@ -26,7 +26,7 @@ type Props = {|
   +setMouseOverMessagePosition: (
     messagePositionInfo: MessagePositionInfo,
   ) => void,
-  +mouseOverMessagePosition: ?OnMessagePositionInfo,
+  +mouseOverMessagePosition: ?OnMessagePositionWithContainerInfo,
 |};
 function TextMessage(props: Props) {
   invariant(

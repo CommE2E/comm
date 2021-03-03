@@ -19,9 +19,16 @@ import css from './chat-message-list.css';
 import { InlineSidebar } from './inline-sidebar.react';
 import type {
   MessagePositionInfo,
-  OnMessagePositionInfo,
-} from './message-position-types';
-import SidebarTooltip from './sidebar-tooltip.react';
+  OnMessagePositionWithContainerInfo,
+} from './position-types';
+import MessageActionTooltip from './sidebar-tooltip.react';
+import { tooltipPositions } from './tooltip-utils';
+
+const availableTooltipPositionsForRobotext = [
+  tooltipPositions.TOP_RIGHT,
+  tooltipPositions.RIGHT,
+  tooltipPositions.LEFT,
+];
 
 type BaseProps = {|
   +item: RobotextChatMessageInfoItem,
@@ -29,7 +36,7 @@ type BaseProps = {|
   +setMouseOverMessagePosition: (
     messagePositionInfo: MessagePositionInfo,
   ) => void,
-  +mouseOverMessagePosition: ?OnMessagePositionInfo,
+  +mouseOverMessagePosition: ?OnMessagePositionWithContainerInfo,
 |};
 type Props = {|
   ...BaseProps,
@@ -52,19 +59,36 @@ class RobotextMessage extends React.PureComponent<Props> {
 
     const { item, threadInfo, sidebarExistsOrCanBeCreated } = this.props;
     const { id } = item.messageInfo;
-    let sidebarTooltip;
+    let messageActionTooltip;
     if (
       this.props.mouseOverMessagePosition &&
       this.props.mouseOverMessagePosition.item.messageInfo.id === id &&
       sidebarExistsOrCanBeCreated
     ) {
-      sidebarTooltip = (
-        <SidebarTooltip
+      messageActionTooltip = (
+        <MessageActionTooltip
           threadInfo={threadInfo}
           item={item}
           onLeave={this.onMouseLeave}
-          messagePosition="center"
+          containerPosition={
+            this.props.mouseOverMessagePosition.containerPosition
+          }
+          availableTooltipPositions={availableTooltipPositionsForRobotext}
         />
+      );
+    }
+
+    let messageActionLinks;
+    if (messageActionTooltip) {
+      messageActionLinks = (
+        <div
+          className={classNames(
+            css.messageActionLinks,
+            css.nonViewerMessageActionLinks,
+          )}
+        >
+          {messageActionTooltip}
+        </div>
       );
     }
 
@@ -76,14 +100,7 @@ class RobotextMessage extends React.PureComponent<Props> {
           onMouseLeave={this.onMouseLeave}
         >
           <span>{this.linkedRobotext()}</span>
-          <div
-            className={classNames(
-              css.messageActionLinks,
-              css.nonViewerMessageActionLinks,
-            )}
-          >
-            {sidebarTooltip}
-          </div>
+          {messageActionLinks}
         </div>
         {inlineSidebar}
       </div>

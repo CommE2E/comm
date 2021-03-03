@@ -11,11 +11,11 @@ import { type InputState, InputStateContext } from '../input/input-state';
 import Multimedia from '../media/multimedia.react';
 import css from './chat-message-list.css';
 import ComposedMessage from './composed-message.react';
+import sendFailed from './multimedia-message-send-failed';
 import type {
   MessagePositionInfo,
-  OnMessagePositionInfo,
-} from './message-position-types';
-import sendFailed from './multimedia-message-send-failed';
+  OnMessagePositionWithContainerInfo,
+} from './position-types';
 
 type BaseProps = {|
   +item: ChatMessageInfoItem,
@@ -23,7 +23,7 @@ type BaseProps = {|
   +setMouseOverMessagePosition: (
     messagePositionInfo: MessagePositionInfo,
   ) => void,
-  +mouseOverMessagePosition: ?OnMessagePositionInfo,
+  +mouseOverMessagePosition: ?OnMessagePositionWithContainerInfo,
   +setModal: (modal: ?React.Node) => void,
 |};
 type Props = {|

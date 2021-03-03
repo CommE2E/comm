@@ -10,10 +10,10 @@ import { createMessageReply } from 'lib/shared/message-utils';
 
 import type { InputState } from '../input/input-state';
 import css from './chat-message-list.css';
-import type { OnMessagePositionInfo } from './message-position-types';
+import type { OnMessagePositionWithContainerInfo } from './position-types';
 
 type Props = {|
-  +messagePositionInfo: OnMessagePositionInfo,
+  +messagePositionInfo: OnMessagePositionWithContainerInfo,
   +onReplyClick: () => void,
   +inputState: InputState,
 |};

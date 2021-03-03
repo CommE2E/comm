@@ -10,9 +10,13 @@ div.activeContainer {
   border: 2px solid #5989D6;
   margin-left: 402px;
 }
+div.outerMessageContainer {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+}
 div.messageContainer {
-  flex-grow: 1;
-  flex: 1;
+  height: 100%;
   overflow-y: auto;
   display: flex;
   flex-direction: column-reverse;
@@ -122,7 +126,6 @@ div.innerRobotextContainer {
 
 div.messageTimestampTooltip {
   position: absolute;
-  margin-bottom: 8px;
   background-color: black;
   color: white;
   padding: 5px;
@@ -130,6 +133,7 @@ div.messageTimestampTooltip {
   font-size: 14px;
   z-index: 1;
   pointer-events: none;
+  white-space: nowrap;
 }
 div.messageTimestampTooltip:after {
   content: "";
@@ -139,32 +143,38 @@ div.messageTimestampTooltip:after {
   border-width: 7px;
   border-style: solid;
 }
-div.messageTimestampLeftTooltip:after {
+div.messageLeftTooltip {
+  transform: translate(0%, -50%);
+}
+div.messageRightTooltip {
+  transform: translate(0%, -50%);
+}
+div.messageLeftTooltip:after {
   top: 7px;
   right: -14px;
   border-color: transparent transparent transparent black;
 }
-div.messageTimestampRightTooltip:after {
+div.messageRightTooltip:after {
   top: 7px;
   left: -14px;
   border-color: transparent black transparent transparent;
 }
-div.messageTimestampTopLeftTooltip:after {
+div.messageTopLeftTooltip:after {
   bottom: -14px;
   left: 4px;
   border-color: black transparent transparent transparent;
 }
-div.messageTimestampTopRightTooltip:after {
+div.messageTopRightTooltip:after {
   bottom: -14px;
   right: 4px;
   border-color: black transparent transparent transparent;
 }
-div.messageTimestampBottomLeftTooltip:after {
+div.messageBottomLeftTooltip:after {
   top: -14px;
   left: 4px;
   border-color: transparent transparent black transparent;
 }
-div.messageTimestampBottomRightTooltip:after {
+div.messageBottomRightTooltip:after {
   top: -14px;
   right: 4px;
   border-color: transparent transparent black transparent;
@@ -177,10 +187,7 @@ div.messageActionLinks {
   bottom: 0;
   align-items: center;
   color: gray;
-}
-div.messageBoxContainer:hover div.messageActionLinks,
-div.innerRobotextContainer:hover div.messageActionLinks {
-  padding: 0 8px;
+  padding: 0 6px;
 }
 div.viewerMessageActionLinks {
   right: 100%;
@@ -189,7 +196,7 @@ div.nonViewerMessageActionLinks {
   left: 100%;
 }
 div.messageActionLinks > div + div {
-  margin-left: 8px;
+  margin-left: 4px;
 }
 div.messageReplyTooltip {
   font-size: 14px;
@@ -199,6 +206,7 @@ div.messageSidebarTooltip {
 }
 
 div.messageTooltipIcon {
+  padding: 2px 3px;
   position: relative;
 }
 div.messageTooltipIcon:hover {
@@ -428,35 +436,26 @@ svg.inlineSidebarIcon {
   color: #666666;
 }
 
-.menuSidebarContent {
-  display: none;
+div.menuSidebarContent {
   position: absolute;
-  top: 100%;
-  right: 0;
   z-index: 1;
   width: max-content;
   border-radius: 5px;
-  margin-top: 2px;
-  margin-right: -3px;
   overflow: visible;
-  box-shadow: unset;
 }
-.menuSidebarContentVisible {
-  display: block;
-}
-.menuSidebarContent ul {
+div.menuSidebarContent ul {
   list-style: none;
 }
-.menuSidebarContent li:not(:last-child) {
+div.menuSidebarContent li:not(:last-child) {
   border-bottom: 1px solid #DDDDDD;
 }
-.menuSidebarContent:after {
+div.menuSidebarContent:after {
   content: "";
   position: absolute;
   border-width: 7px;
   border-style: solid;
 }
-.menuSidebarContent button {
+div.menuSidebarContent button {
   border: none;
   cursor: pointer;
   padding: 5px;
@@ -467,22 +466,54 @@ svg.inlineSidebarIcon {
   color: white;
   text-decoration: underline;
 }
-.menuSidebarContent button:hover {
+div.menuSidebarContent button:hover {
   background-color: black;
   color: #129AFF;
 }
-.menuSidebarNonViewerContent {
-  left: 0;
-  margin-left: -3px;
-}
-.menuSidebarContent:before {
+
+div.menuSidebarExtraAreaTop:before {
   height: 15px;
   width: 55px;
   content: "";
   position: absolute;
-  top: -15px;
+  bottom: -15px;
+}
+div.menuSidebarExtraAreaTopRight:before {
   right: 0;
 }
-.menuSidebarNonViewerContent:before {
+div.menuSidebarExtraAreaTopLeft:before {
   left: 0;
+}
+div.menuSidebarExtraArea:before {
+  height: 30px;
+  width: 20px;
+  content: "";
+  position: absolute;
+}
+div.menuSidebarExtraAreaRight:before {
+  left: -20px;
+}
+div.menuSidebarExtraAreaLeft:before {
+  right: -20px;
+}
+
+div.menuSidebarTopRightTooltip {
+  bottom: 100%;
+  margin-bottom: 1px;
+  right: 0;
+}
+div.menuSidebarTopLeftTooltip {
+  bottom: 100%;
+  margin-bottom: 1px;
+  left: 0;
+}
+div.menuSidebarLeftTooltip {
+  top: 50%;
+  right: 100%;
+  margin-right: 7px;
+}
+div.menuSidebarRightTooltip {
+  top: 50%;
+  left: 100%;
+  margin-left: 7px;
 }

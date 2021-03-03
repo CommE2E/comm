@@ -122,7 +122,6 @@ div.main-content-container {
 div.main-content {
   background-color: rgba(255,255,255,0.84);
   height: 100%;
-  overflow-x: hidden;
 }
 
 div.upper-right {

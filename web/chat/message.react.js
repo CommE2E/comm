@@ -9,11 +9,11 @@ import { type ThreadInfo } from 'lib/types/thread-types';
 import { longAbsoluteDate } from 'lib/utils/date-utils';
 
 import css from './chat-message-list.css';
-import {
-  type OnMessagePositionInfo,
-  type MessagePositionInfo,
-} from './message-position-types';
 import MultimediaMessage from './multimedia-message.react';
+import {
+  type OnMessagePositionWithContainerInfo,
+  type MessagePositionInfo,
+} from './position-types';
 import RobotextMessage from './robotext-message.react';
 import TextMessage from './text-message.react';
 
@@ -23,7 +23,7 @@ type Props = {|
   setMouseOverMessagePosition: (
     messagePositionInfo: MessagePositionInfo,
   ) => void,
-  mouseOverMessagePosition: ?OnMessagePositionInfo,
+  mouseOverMessagePosition: ?OnMessagePositionWithContainerInfo,
   setModal: (modal: ?React.Node) => void,
   timeZone: ?string,
 |};
