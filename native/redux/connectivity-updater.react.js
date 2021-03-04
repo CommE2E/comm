@@ -1,65 +1,42 @@
 // @flow
 
 import NetInfo from '@react-native-community/netinfo';
-import PropTypes from 'prop-types';
 import * as React from 'react';
+import { useDispatch } from 'react-redux';
 
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
-
-import {
-  type ConnectivityInfo,
-  connectivityInfoPropType,
-} from '../types/connectivity';
 import { updateConnectivityActiveType } from './action-types';
-import type { AppState } from './redux-setup';
+import { useSelector } from './redux-utils';
 
-type Props = {|
-  // Redux state
-  connectivity: ConnectivityInfo,
-  // Redux dispatch functions
-  dispatchActionPayload: DispatchActionPayload,
-|};
-class ConnectivityUpdater extends React.PureComponent<Props> {
-  static propTypes = {
-    connectivity: connectivityInfoPropType.isRequired,
-    dispatchActionPayload: PropTypes.func.isRequired,
-  };
-  netInfoUnsubscribe: ?() => void;
+export default function ConnectivityUpdater() {
+  const connectivity = useSelector((state) => state.connectivity);
+  const dispatch = useDispatch();
 
-  componentDidMount() {
-    this.netInfoUnsubscribe = NetInfo.addEventListener(this.onConnectionChange);
-    NetInfo.fetch().then(this.onConnectionChange);
-  }
-
-  componentWillUnmount() {
-    this.netInfoUnsubscribe && this.netInfoUnsubscribe();
-  }
-
-  onConnectionChange = ({ type }) => {
-    const connected = type !== 'none' && type !== 'unknown';
-    const hasWiFi = type === 'wifi';
-    if (
-      connected === this.props.connectivity.connected &&
-      hasWiFi === this.props.connectivity.hasWiFi
-    ) {
-      return;
-    }
-    this.props.dispatchActionPayload(updateConnectivityActiveType, {
-      connected,
-      hasWiFi,
-    });
-  };
-
-  render() {
-    return null;
-  }
+  const onConnectionChange = React.useCallback(
+    ({ type }) => {
+      const connected = type !== 'none' && type !== 'unknown';
+      const hasWiFi = type === 'wifi';
+      if (
+        connected === connectivity.connected &&
+        hasWiFi === connectivity.hasWiFi
+      ) {
+        return;
+      }
+      dispatch({
+        type: updateConnectivityActiveType,
+        payload: {
+          connected,
+          hasWiFi,
+        },
+      });
+    },
+    [connectivity, dispatch],
+  );
+  React.useEffect(() => {
+    NetInfo.fetch().then(onConnectionChange);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  React.useEffect(() => NetInfo.addEventListener(onConnectionChange), [
+    onConnectionChange,
+  ]);
+  return null;
 }
-
-export default connect(
-  (state: AppState) => ({
-    connectivity: state.connectivity,
-  }),
-  null,
-  true,
-)(ConnectivityUpdater);
