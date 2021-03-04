@@ -1,40 +1,30 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import FastImage from 'react-native-fast-image';
 
-import {
-  type ConnectionStatus,
-  connectionStatusPropType,
-} from 'lib/types/socket-types';
-import { connect } from 'lib/utils/redux-utils';
+import { type ConnectionStatus } from 'lib/types/socket-types';
 
-import type { AppState } from '../redux/redux-setup';
+import { useSelector } from '../redux/redux-utils';
 import type { ImageStyle } from '../types/styles';
 
+type BaseProps = {|
+  +uri: string,
+  +onLoad: (uri: string) => void,
+  +spinnerColor: string,
+  +style: ImageStyle,
+  +invisibleLoad: boolean,
+|};
 type Props = {|
-  uri: string,
-  onLoad: (uri: string) => void,
-  spinnerColor: string,
-  style: ImageStyle,
-  invisibleLoad: boolean,
-  // Redux state
-  connectionStatus: ConnectionStatus,
+  ...BaseProps,
+  +connectionStatus: ConnectionStatus,
 |};
 type State = {|
-  attempt: number,
-  loaded: boolean,
+  +attempt: number,
+  +loaded: boolean,
 |};
 class RemoteImage extends React.PureComponent<Props, State> {
-  static propTypes = {
-    uri: PropTypes.string.isRequired,
-    onLoad: PropTypes.func.isRequired,
-    spinnerColor: PropTypes.string.isRequired,
-    invisibleLoad: PropTypes.bool.isRequired,
-    connectionStatus: connectionStatusPropType.isRequired,
-  };
   state: State = {
     attempt: 0,
     loaded: false,
@@ -117,6 +107,10 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect((state: AppState) => ({
-  connectionStatus: state.connection.status,
-}))(RemoteImage);
+export default React.memo<BaseProps>(function ConnectedRemoteImage(
+  props: BaseProps,
+) {
+  const connectionStatus = useSelector((state) => state.connection.status);
+
+  return <RemoteImage {...props} connectionStatus={connectionStatus} />;
+});
