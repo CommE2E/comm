@@ -2,8 +2,8 @@
 
 import classNames from 'classnames';
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
+import { useDispatch } from 'react-redux';
 
 import {
   createEntryActionTypes,
@@ -20,7 +20,6 @@ import { colorIsDark, threadHasPermission } from 'lib/shared/thread-utils';
 import type { Shape } from 'lib/types/core';
 import {
   type EntryInfo,
-  entryInfoPropType,
   type CreateEntryInfo,
   type SaveEntryInfo,
   type SaveEntryResponse,
@@ -30,66 +29,51 @@ import {
   type CalendarQuery,
 } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import { threadInfoPropType, threadPermissions } from 'lib/types/thread-types';
+import type { Dispatch } from 'lib/types/redux-types';
+import { threadPermissions } from 'lib/types/thread-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import type {
-  DispatchActionPayload,
-  DispatchActionPromise,
+import {
+  type DispatchActionPromise,
+  useServerCall,
+  useDispatchActionPromise,
 } from 'lib/utils/action-utils';
 import { dateString } from 'lib/utils/date-utils';
 import { ServerError } from 'lib/utils/errors';
-import { connect } from 'lib/utils/redux-utils';
 
 import LoadingIndicator from '../loading-indicator.react';
 import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 import ConcurrentModificationModal from '../modals/concurrent-modification-modal.react';
 import HistoryModal from '../modals/history/history-modal.react';
-import type { AppState } from '../redux/redux-setup';
+import { useSelector } from '../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import { HistoryVector, DeleteVector } from '../vectors.react';
 import css from './calendar.css';
 
+type BaseProps = {|
+  +innerRef: (key: string, me: Entry) => void,
+  +entryInfo: EntryInfo,
+  +focusOnFirstEntryNewerThan: (time: number) => void,
+  +setModal: (modal: ?React.Node) => void,
+  +tabIndex: number,
+|};
 type Props = {|
-  innerRef: (key: string, me: Entry) => void,
-  entryInfo: EntryInfo,
-  focusOnFirstEntryNewerThan: (time: number) => void,
-  setModal: (modal: ?React.Node) => void,
-  tabIndex: number,
-  // Redux state
-  threadInfo: ThreadInfo,
-  loggedIn: boolean,
-  calendarQuery: () => CalendarQuery,
-  online: boolean,
-  // Redux dispatch functions
-  dispatchActionPayload: DispatchActionPayload,
-  dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
-  createEntry: (info: CreateEntryInfo) => Promise<CreateEntryPayload>,
-  saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResponse>,
-  deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResponse>,
+  ...BaseProps,
+  +threadInfo: ThreadInfo,
+  +loggedIn: boolean,
+  +calendarQuery: () => CalendarQuery,
+  +online: boolean,
+  +dispatch: Dispatch,
+  +dispatchActionPromise: DispatchActionPromise,
+  +createEntry: (info: CreateEntryInfo) => Promise<CreateEntryPayload>,
+  +saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResponse>,
+  +deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResponse>,
 |};
 type State = {|
-  focused: boolean,
-  loadingStatus: LoadingStatus,
-  text: string,
+  +focused: boolean,
+  +loadingStatus: LoadingStatus,
+  +text: string,
 |};
 class Entry extends React.PureComponent<Props, State> {
-  static propTypes = {
-    innerRef: PropTypes.func.isRequired,
-    entryInfo: entryInfoPropType.isRequired,
-    focusOnFirstEntryNewerThan: PropTypes.func.isRequired,
-    setModal: PropTypes.func.isRequired,
-    tabIndex: PropTypes.number.isRequired,
-    threadInfo: threadInfoPropType.isRequired,
-    loggedIn: PropTypes.bool.isRequired,
-    calendarQuery: PropTypes.func.isRequired,
-    online: PropTypes.bool.isRequired,
-    dispatchActionPayload: PropTypes.func.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    createEntry: PropTypes.func.isRequired,
-    saveEntry: PropTypes.func.isRequired,
-    deleteEntry: PropTypes.func.isRequired,
-  };
   textarea: ?HTMLTextAreaElement;
   creating: boolean;
   needsUpdateAfterCreation: boolean;
@@ -398,10 +382,10 @@ class Entry extends React.PureComponent<Props, State> {
             { loadingStatus: 'inactive' },
             this.updateHeight.bind(this),
           );
-          this.props.dispatchActionPayload(
-            concurrentModificationResetActionType,
-            { id: entryID, dbText: e.payload.db },
-          );
+          this.props.dispatch({
+            type: concurrentModificationResetActionType,
+            payload: { id: entryID, dbText: e.payload.db },
+          });
           this.clearModal();
         };
         this.props.setModal(
@@ -482,16 +466,37 @@ class Entry extends React.PureComponent<Props, State> {
 
 export type InnerEntry = Entry;
 
-export default connect(
-  (state: AppState, ownProps: { entryInfo: EntryInfo }) => ({
-    threadInfo: threadInfoSelector(state)[ownProps.entryInfo.threadID],
-    loggedIn: !!(
-      state.currentUserInfo &&
-      !state.currentUserInfo.anonymous &&
-      true
-    ),
-    calendarQuery: nonThreadCalendarQuery(state),
-    online: state.connection.status === 'connected',
-  }),
-  { createEntry, saveEntry, deleteEntry },
-)(Entry);
+export default React.memo<BaseProps>(function ConnectedEntry(props: BaseProps) {
+  const { threadID } = props.entryInfo;
+  const threadInfo = useSelector(
+    (state) => threadInfoSelector(state)[threadID],
+  );
+  const loggedIn = useSelector(
+    (state) =>
+      !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
+  );
+  const calanderQuery = useSelector(nonThreadCalendarQuery);
+  const online = useSelector(
+    (state) => state.connection.status === 'connected',
+  );
+  const callCreateEntry = useServerCall(createEntry);
+  const callSaveEntry = useServerCall(saveEntry);
+  const callDeleteEntry = useServerCall(deleteEntry);
+  const dispatchActionPromise = useDispatchActionPromise();
+  const dispatch = useDispatch();
+
+  return (
+    <Entry
+      {...props}
+      threadInfo={threadInfo}
+      loggedIn={loggedIn}
+      calendarQuery={calanderQuery}
+      online={online}
+      createEntry={callCreateEntry}
+      saveEntry={callSaveEntry}
+      deleteEntry={callDeleteEntry}
+      dispatchActionPromise={dispatchActionPromise}
+      dispatch={dispatch}
+    />
+  );
+});
