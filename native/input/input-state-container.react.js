@@ -1,10 +1,10 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { Platform } from 'react-native';
 import * as Upload from 'react-native-background-upload';
+import { useDispatch } from 'react-redux';
 import { createSelector } from 'reselect';
 
 import {
@@ -46,13 +46,15 @@ import {
 import type { RawImagesMessageInfo } from 'lib/types/messages/images';
 import type { RawMediaMessageInfo } from 'lib/types/messages/media';
 import type { RawTextMessageInfo } from 'lib/types/messages/text';
+import type { Dispatch } from 'lib/types/redux-types';
 import {
   type MediaMissionReportCreationRequest,
   reportTypes,
 } from 'lib/types/report-types';
-import type {
-  DispatchActionPayload,
-  DispatchActionPromise,
+import {
+  type DispatchActionPromise,
+  useServerCall,
+  useDispatchActionPromise,
 } from 'lib/utils/action-utils';
 import { getConfig } from 'lib/utils/config';
 import { getMessageForException, cloneError } from 'lib/utils/errors';
@@ -60,12 +62,11 @@ import type {
   FetchJSONOptions,
   FetchJSONServerResponse,
 } from 'lib/utils/fetch-json';
-import { connect } from 'lib/utils/redux-utils';
 
 import { disposeTempFile } from '../media/file-utils';
 import { processMedia } from '../media/media-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
-import type { AppState } from '../redux/redux-setup';
+import { useSelector } from '../redux/redux-utils';
 import {
   InputStateContext,
   type PendingMultimediaUploads,
@@ -78,56 +79,43 @@ function getNewLocalID() {
 }
 
 type SelectionWithID = {|
-  selection: NativeMediaSelection,
-  localID: string,
+  +selection: NativeMediaSelection,
+  +localID: string,
 |};
-type CompletedUploads = { [localMessageID: string]: ?Set<string> };
+type CompletedUploads = { +[localMessageID: string]: ?Set<string> };
 
+type BaseProps = {|
+  +children: React.Node,
+|};
 type Props = {|
-  children: React.Node,
-  // Redux state
-  viewerID: ?string,
-  nextLocalID: number,
-  messageStoreMessages: { [id: string]: RawMessageInfo },
-  ongoingMessageCreation: boolean,
-  hasWiFi: boolean,
-  // Redux dispatch functions
-  dispatchActionPayload: DispatchActionPayload,
-  dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
-  uploadMultimedia: (
+  ...BaseProps,
+  +viewerID: ?string,
+  +nextLocalID: number,
+  +messageStoreMessages: { [id: string]: RawMessageInfo },
+  +ongoingMessageCreation: boolean,
+  +hasWiFi: boolean,
+  +dispatch: Dispatch,
+  +dispatchActionPromise: DispatchActionPromise,
+  +uploadMultimedia: (
     multimedia: Object,
     extras: MultimediaUploadExtras,
     callbacks: MultimediaUploadCallbacks,
   ) => Promise<UploadMultimediaResult>,
-  sendMultimediaMessage: (
+  +sendMultimediaMessage: (
     threadID: string,
     localID: string,
     mediaIDs: $ReadOnlyArray<string>,
   ) => Promise<SendMessageResult>,
-  sendTextMessage: (
+  +sendTextMessage: (
     threadID: string,
     localID: string,
     text: string,
   ) => Promise<SendMessageResult>,
 |};
 type State = {|
-  pendingUploads: PendingMultimediaUploads,
+  +pendingUploads: PendingMultimediaUploads,
 |};
 class InputStateContainer extends React.PureComponent<Props, State> {
-  static propTypes = {
-    children: PropTypes.node.isRequired,
-    viewerID: PropTypes.string,
-    nextLocalID: PropTypes.number.isRequired,
-    messageStoreMessages: PropTypes.object.isRequired,
-    ongoingMessageCreation: PropTypes.bool.isRequired,
-    hasWiFi: PropTypes.bool.isRequired,
-    dispatchActionPayload: PropTypes.func.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    uploadMultimedia: PropTypes.func.isRequired,
-    sendMultimediaMessage: PropTypes.func.isRequired,
-    sendTextMessage: PropTypes.func.isRequired,
-  };
   state: State = {
     pendingUploads: {},
   };
@@ -444,10 +432,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           creatorID,
           media,
         });
-        this.props.dispatchActionPayload(
-          createLocalMessageActionType,
-          messageInfo,
-        );
+        this.props.dispatch({
+          type: createLocalMessageActionType,
+          payload: messageInfo,
+        });
       },
     );
 
@@ -558,16 +546,19 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     if (uploadResult) {
       const { id, mediaType, uri, dimensions, loop } = uploadResult;
       serverID = id;
-      this.props.dispatchActionPayload(updateMultimediaMessageMediaActionType, {
-        messageID: localMessageID,
-        currentMediaID: localID,
-        mediaUpdate: {
-          id,
-          type: mediaType,
-          uri,
-          dimensions,
-          localMediaSelection: undefined,
-          loop,
+      this.props.dispatch({
+        type: updateMultimediaMessageMediaActionType,
+        payload: {
+          messageID: localMessageID,
+          currentMediaID: localID,
+          mediaUpdate: {
+            id,
+            type: mediaType,
+            uri,
+            dimensions,
+            localMediaSelection: undefined,
+            loop,
+          },
         },
       });
       userTime = Date.now() - start;
@@ -816,8 +807,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       uploadLocalID: ids.localID,
       messageLocalID: ids.localMessageID,
     };
-    this.props.dispatchActionPayload(queueReportsActionType, {
-      reports: [report],
+    this.props.dispatch({
+      type: queueReportsActionType,
+      payload: {
+        reports: [report],
+      },
     });
   }
 
@@ -961,10 +955,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     // We're not actually starting the send here,
     // we just use this action to update the message in Redux
-    this.props.dispatchActionPayload(
-      sendMultimediaMessageActionTypes.started,
-      newRawMessageInfo,
-    );
+    this.props.dispatch({
+      type: sendMultimediaMessageActionTypes.started,
+      payload: newRawMessageInfo,
+    });
 
     // We clear out the failed status on individual media here,
     // which makes the UI show pending status instead of error messages
@@ -1083,17 +1077,43 @@ const textCreationLoadingStatusSelector = createLoadingStatusSelector(
   sendTextMessageActionTypes,
 );
 
-export default connect(
-  (state: AppState) => ({
-    viewerID: state.currentUserInfo && state.currentUserInfo.id,
-    nextLocalID: state.nextLocalID,
-    messageStoreMessages: state.messageStore.messages,
-    ongoingMessageCreation:
+export default React.memo<BaseProps>(function ConnectedInputStateContainer(
+  props: BaseProps,
+) {
+  const viewerID = useSelector(
+    (state) => state.currentUserInfo && state.currentUserInfo.id,
+  );
+  const nextLocalID = useSelector((state) => state.nextLocalID);
+  const messageStoreMessages = useSelector(
+    (state) => state.messageStore.messages,
+  );
+  const ongoingMessageCreation = useSelector(
+    (state) =>
       combineLoadingStatuses(
         mediaCreationLoadingStatusSelector(state),
         textCreationLoadingStatusSelector(state),
       ) === 'loading',
-    hasWiFi: state.connectivity.hasWiFi,
-  }),
-  { uploadMultimedia, sendMultimediaMessage, sendTextMessage },
-)(InputStateContainer);
+  );
+  const hasWiFi = useSelector((state) => state.connectivity.hasWiFi);
+  const callUploadMultimedia = useServerCall(uploadMultimedia);
+  const callSendMultimediaMessage = useServerCall(sendMultimediaMessage);
+  const callSendTextMessage = useServerCall(sendTextMessage);
+  const dispatchActionPromise = useDispatchActionPromise();
+  const dispatch = useDispatch();
+
+  return (
+    <InputStateContainer
+      {...props}
+      viewerID={viewerID}
+      nextLocalID={nextLocalID}
+      messageStoreMessages={messageStoreMessages}
+      ongoingMessageCreation={ongoingMessageCreation}
+      hasWiFi={hasWiFi}
+      uploadMultimedia={callUploadMultimedia}
+      sendMultimediaMessage={callSendMultimediaMessage}
+      sendTextMessage={callSendTextMessage}
+      dispatchActionPromise={dispatchActionPromise}
+      dispatch={dispatch}
+    />
+  );
+});
