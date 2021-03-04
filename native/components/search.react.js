@@ -1,20 +1,13 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
-import { View, ViewPropTypes, TouchableOpacity, TextInput } from 'react-native';
+import { View, TouchableOpacity, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { isLoggedIn } from 'lib/selectors/user-selectors';
-import { connect } from 'lib/utils/redux-utils';
 
-import type { AppState } from '../redux/redux-setup';
-import {
-  type Colors,
-  colorsPropType,
-  colorsSelector,
-  styleSelector,
-} from '../themes/colors';
+import { useSelector } from '../redux/redux-utils';
+import { useStyles, useColors } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
 
 type Props = {|
@@ -22,46 +15,33 @@ type Props = {|
   searchText: string,
   onChangeText: (searchText: string) => mixed,
   containerStyle?: ViewStyle,
-  textInputRef?: React.Ref<typeof TextInput>,
-  // Redux state
-  colors: Colors,
-  styles: typeof styles,
-  loggedIn: boolean,
 |};
-class Search extends React.PureComponent<Props> {
-  static propTypes = {
-    searchText: PropTypes.string.isRequired,
-    onChangeText: PropTypes.func.isRequired,
-    containerStyle: ViewPropTypes.style,
-    textInputRef: PropTypes.func,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    loggedIn: PropTypes.bool.isRequired,
-  };
+const Search = React.forwardRef<Props, typeof TextInput>(
+  function ForwardedSearch(props: Props, ref: React.Ref<typeof TextInput>) {
+    const { onChangeText, searchText, containerStyle, ...rest } = props;
 
-  componentDidUpdate(prevProps: Props) {
-    if (!this.props.loggedIn && prevProps.loggedIn) {
-      this.clearSearch();
-    }
-  }
+    const clearSearch = React.useCallback(() => {
+      onChangeText('');
+    }, [onChangeText]);
 
-  render() {
-    const {
-      searchText,
-      onChangeText,
-      containerStyle,
-      textInputRef,
-      colors,
-      styles,
-      loggedIn,
-      ...rest
-    } = this.props;
+    const loggedIn = useSelector(isLoggedIn);
+    const styles = useStyles(unboundStyles);
+    const colors = useColors();
+    const prevLoggedInRef = React.useRef();
+    React.useEffect(() => {
+      const prevLoggedIn = prevLoggedInRef.current;
+      prevLoggedInRef.current = loggedIn;
+      if (!loggedIn && prevLoggedIn) {
+        clearSearch();
+      }
+    }, [loggedIn, clearSearch]);
+
     const { listSearchIcon: iconColor } = colors;
 
     let clearSearchInputIcon = null;
     if (searchText) {
       clearSearchInputIcon = (
-        <TouchableOpacity onPress={this.clearSearch} activeOpacity={0.5}>
+        <TouchableOpacity onPress={clearSearch} activeOpacity={0.5}>
           <Icon name="times-circle" size={18} color={iconColor} />
         </TouchableOpacity>
       );
@@ -76,20 +56,16 @@ class Search extends React.PureComponent<Props> {
     };
 
     return (
-      <View style={[this.props.styles.search, containerStyle]}>
+      <View style={[styles.search, containerStyle]}>
         <Icon name="search" size={18} color={iconColor} />
-        <TextInput {...textInputProps} {...rest} ref={textInputRef} />
+        <TextInput {...textInputProps} {...rest} ref={ref} />
         {clearSearchInputIcon}
       </View>
     );
-  }
+  },
+);
 
-  clearSearch = () => {
-    this.props.onChangeText('');
-  };
-}
-
-const styles = {
+const unboundStyles = {
   search: {
     alignItems: 'center',
     backgroundColor: 'listSearchBackground',
@@ -109,27 +85,5 @@ const styles = {
     borderBottomColor: 'transparent',
   },
 };
-const stylesSelector = styleSelector(styles);
 
-const ConnectedSearch = connect((state: AppState) => ({
-  colors: colorsSelector(state),
-  styles: stylesSelector(state),
-  loggedIn: isLoggedIn(state),
-}))(Search);
-
-type ConnectedProps = $Diff<
-  Props,
-  {|
-    colors: Colors,
-    styles: typeof styles,
-    loggedIn: boolean,
-  |},
->;
-export default React.forwardRef<ConnectedProps, typeof TextInput>(
-  function ForwardedConnectedSearch(
-    props: ConnectedProps,
-    ref: React.Ref<typeof TextInput>,
-  ) {
-    return <ConnectedSearch {...props} textInputRef={ref} />;
-  },
-);
+export default Search;
