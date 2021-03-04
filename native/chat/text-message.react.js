@@ -5,12 +5,13 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import { messageKey } from 'lib/shared/message-utils';
-import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils';
-import { threadHasPermission } from 'lib/shared/thread-utils';
+import {
+  threadHasPermission,
+  useCanCreateSidebarFromMessage,
+} from 'lib/shared/thread-utils';
 import type { LocalMessageInfo } from 'lib/types/message-types';
 import type { TextMessageInfo } from 'lib/types/messages/text';
 import { type ThreadInfo, threadPermissions } from 'lib/types/thread-types';
-import type { UserInfo } from 'lib/types/user-types';
 
 import {
   type KeyboardState,
@@ -23,7 +24,6 @@ import {
 } from '../navigation/overlay-context';
 import type { NavigationRoute } from '../navigation/route-names';
 import { TextMessageTooltipModalRouteName } from '../navigation/route-names';
-import { useSelector } from '../redux/redux-utils';
 import type { VerticalBounds } from '../types/layout-types';
 import type { ChatNavigationProp } from './chat.react';
 import { ComposedMessage, clusterEndHeight } from './composed-message.react';
@@ -83,7 +83,7 @@ type BaseProps = {|
 type Props = {|
   ...BaseProps,
   // Redux state
-  +messageCreatorUserInfo: UserInfo,
+  +canCreateSidebarFromMessage: boolean,
   // withKeyboardState
   +keyboardState: ?KeyboardState,
   // withOverlayContext
@@ -105,7 +105,7 @@ class TextMessage extends React.PureComponent<Props> {
       keyboardState,
       overlayContext,
       linkPressActive,
-      messageCreatorUserInfo,
+      canCreateSidebarFromMessage,
       ...viewProps
     } = this.props;
     const canSwipe = threadHasPermission(
@@ -140,16 +140,6 @@ class TextMessage extends React.PureComponent<Props> {
       this.props.item.threadInfo,
       threadPermissions.VOICED,
     );
-    const canCreateSidebars = threadHasPermission(
-      this.props.item.threadInfo,
-      threadPermissions.CREATE_SIDEBARS,
-    );
-
-    const creatorRelationship = this.props.messageCreatorUserInfo
-      .relationshipStatus;
-    const creatorRelationshipHasBlock =
-      creatorRelationship &&
-      relationshipBlockedInEitherDirection(creatorRelationship);
 
     if (canReply) {
       result.push('reply');
@@ -157,7 +147,7 @@ class TextMessage extends React.PureComponent<Props> {
 
     if (this.props.item.threadCreatedFromMessage) {
       result.push('open_sidebar');
-    } else if (canCreateSidebars && !creatorRelationshipHasBlock) {
+    } else if (this.props.canCreateSidebarFromMessage) {
       result.push('create_sidebar');
     }
 
@@ -243,15 +233,16 @@ const ConnectedTextMessage = React.memo<BaseProps>(
       }),
       [setLinkPressActive],
     );
-    const messageCreatorUserInfo = useSelector(
-      (state) => state.userStore.userInfos[props.item.messageInfo.creator.id],
+    const canCreateSidebarFromMessage = useCanCreateSidebarFromMessage(
+      props.item.threadInfo,
+      props.item.messageInfo,
     );
 
     return (
       <MarkdownLinkContext.Provider value={markdownLinkContext}>
         <TextMessage
           {...props}
-          messageCreatorUserInfo={messageCreatorUserInfo}
+          canCreateSidebarFromMessage={canCreateSidebarFromMessage}
           overlayContext={overlayContext}
           keyboardState={keyboardState}
           linkPressActive={linkPressActive}

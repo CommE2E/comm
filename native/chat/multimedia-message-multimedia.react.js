@@ -6,11 +6,8 @@ import { View, StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { messageKey } from 'lib/shared/message-utils';
-import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils';
-import { threadHasPermission } from 'lib/shared/thread-utils';
+import { useCanCreateSidebarFromMessage } from 'lib/shared/thread-utils';
 import { type MediaInfo } from 'lib/types/media-types';
-import { threadPermissions } from 'lib/types/thread-types';
-import type { UserInfo } from 'lib/types/user-types';
 
 import { type PendingMultimediaUpload } from '../input/input-state';
 import {
@@ -27,7 +24,6 @@ import {
   ImageModalRouteName,
   MultimediaTooltipModalRouteName,
 } from '../navigation/route-names';
-import { useSelector } from '../redux/redux-utils';
 import { type Colors, useColors } from '../themes/colors';
 import { type VerticalBounds } from '../types/layout-types';
 import type { ViewStyle } from '../types/styles';
@@ -57,7 +53,7 @@ type Props = {|
   ...BaseProps,
   // Redux state
   +colors: Colors,
-  +messageCreatorUserInfo: UserInfo,
+  +canCreateSidebarFromMessage: boolean,
   // withKeyboardState
   +keyboardState: ?KeyboardState,
   // withOverlayContext
@@ -218,19 +214,9 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   visibleEntryIDs() {
     const result = ['save'];
 
-    const canCreateSidebars = threadHasPermission(
-      this.props.item.threadInfo,
-      threadPermissions.CREATE_SIDEBARS,
-    );
-    const creatorRelationship = this.props.messageCreatorUserInfo
-      .relationshipStatus;
-    const creatorRelationshipHasBlock =
-      creatorRelationship &&
-      relationshipBlockedInEitherDirection(creatorRelationship);
-
     if (this.props.item.threadCreatedFromMessage) {
       result.push('open_sidebar');
-    } else if (canCreateSidebars && !creatorRelationshipHasBlock) {
+    } else if (this.props.canCreateSidebarFromMessage) {
       result.push('create_sidebar');
     }
 
@@ -334,14 +320,15 @@ export default React.memo<BaseProps>(
     const colors = useColors();
     const keyboardState = React.useContext(KeyboardContext);
     const overlayContext = React.useContext(OverlayContext);
-    const messageCreatorUserInfo = useSelector(
-      (state) => state.userStore.userInfos[props.item.messageInfo.creator.id],
+    const canCreateSidebarFromMessage = useCanCreateSidebarFromMessage(
+      props.item.threadInfo,
+      props.item.messageInfo,
     );
     return (
       <MultimediaMessageMultimedia
         {...props}
         colors={colors}
-        messageCreatorUserInfo={messageCreatorUserInfo}
+        canCreateSidebarFromMessage={canCreateSidebarFromMessage}
         keyboardState={keyboardState}
         overlayContext={overlayContext}
       />

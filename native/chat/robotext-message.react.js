@@ -5,17 +5,14 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import { messageKey } from 'lib/shared/message-utils';
-import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils';
-import { threadHasPermission } from 'lib/shared/thread-utils';
+import { useCanCreateSidebarFromMessage } from 'lib/shared/thread-utils';
 import type { RobotextMessageInfo } from 'lib/types/message-types';
-import { type ThreadInfo, threadPermissions } from 'lib/types/thread-types';
-import type { UserInfo } from 'lib/types/user-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 
 import { KeyboardContext } from '../keyboard/keyboard-state';
 import { OverlayContext } from '../navigation/overlay-context';
 import { RobotextMessageTooltipModalRouteName } from '../navigation/route-names';
 import type { NavigationRoute } from '../navigation/route-names';
-import { useSelector } from '../redux/redux-utils';
 import { useStyles } from '../themes/colors';
 import type { VerticalBounds } from '../types/layout-types';
 import type { ChatNavigationProp } from './chat.react';
@@ -99,26 +96,18 @@ function RobotextMessage(props: Props) {
   const overlayContext = React.useContext(OverlayContext);
   const viewRef = React.useRef<?React.ElementRef<typeof View>>();
 
-  const messageCreatorUserInfo: ?UserInfo = useSelector(
-    (state) => state.userStore.userInfos[props.item.messageInfo.creator.id],
+  const canCreateSidebarFromMessage = useCanCreateSidebarFromMessage(
+    item.threadInfo,
+    item.messageInfo,
   );
-  const creatorRelationship = messageCreatorUserInfo?.relationshipStatus;
   const visibleEntryIDs = React.useMemo(() => {
-    const canCreateSidebars = threadHasPermission(
-      item.threadInfo,
-      threadPermissions.CREATE_SIDEBARS,
-    );
-    const creatorRelationshipHasBlock =
-      creatorRelationship &&
-      relationshipBlockedInEitherDirection(creatorRelationship);
-
     if (item.threadCreatedFromMessage) {
       return ['open_sidebar'];
-    } else if (canCreateSidebars && !creatorRelationshipHasBlock) {
+    } else if (canCreateSidebarFromMessage) {
       return ['create_sidebar'];
     }
     return [];
-  }, [item.threadCreatedFromMessage, item.threadInfo, creatorRelationship]);
+  }, [item.threadCreatedFromMessage, canCreateSidebarFromMessage]);
 
   const openRobotextTooltipModal = React.useCallback(
     (x, y, width, height, pageX, pageY) => {
