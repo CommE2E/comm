@@ -1,7 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
 import {
@@ -16,32 +15,35 @@ import type {
   LogInStartingPayload,
 } from 'lib/types/account-types';
 import { verifyField } from 'lib/types/verify-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
+import {
+  type DispatchActionPromise,
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils';
 
-import type { AppState } from '../../redux/redux-setup';
+import { useSelector } from '../../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../../selectors/account-selectors';
 import css from '../../style.css';
 import Modal from '../modal.react';
 
-type Props = {
-  onClose: () => void,
-  onSuccess: () => void,
-  // Redux state
-  resetPasswordUsername: string,
-  verifyCode: string,
-  inputDisabled: boolean,
-  logInExtraInfo: () => LogInExtraInfo,
-  // Redux dispatch functions
-  dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
-  resetPassword: (info: UpdatePasswordInfo) => Promise<LogInResult>,
-};
-type State = {
-  password: string,
-  confirmPassword: string,
-  errorMessage: string,
-};
+type BaseProps = {|
+  +onClose: () => void,
+  +onSuccess: () => void,
+|};
+type Props = {|
+  ...BaseProps,
+  +resetPasswordUsername: string,
+  +verifyCode: ?string,
+  +inputDisabled: boolean,
+  +logInExtraInfo: () => LogInExtraInfo,
+  +dispatchActionPromise: DispatchActionPromise,
+  +resetPassword: (info: UpdatePasswordInfo) => Promise<LogInResult>,
+|};
+type State = {|
+  +password: string,
+  +confirmPassword: string,
+  +errorMessage: string,
+|};
 
 class ResetPasswordModal extends React.PureComponent<Props, State> {
   passwordInput: ?HTMLInputElement;
@@ -170,6 +172,9 @@ class ResetPasswordModal extends React.PureComponent<Props, State> {
   };
 
   async resetPasswordAction(extraInfo: LogInExtraInfo) {
+    if (!this.props.verifyCode) {
+      return;
+    }
     try {
       const response = await this.props.resetPassword({
         code: this.props.verifyCode,
@@ -195,31 +200,38 @@ class ResetPasswordModal extends React.PureComponent<Props, State> {
   }
 }
 
-ResetPasswordModal.propTypes = {
-  onClose: PropTypes.func.isRequired,
-  onSuccess: PropTypes.func.isRequired,
-  resetPasswordUsername: PropTypes.string.isRequired,
-  verifyCode: PropTypes.string.isRequired,
-  inputDisabled: PropTypes.bool.isRequired,
-  logInExtraInfo: PropTypes.func.isRequired,
-  dispatchActionPromise: PropTypes.func.isRequired,
-  resetPassword: PropTypes.func.isRequired,
-};
-
 const loadingStatusSelector = createLoadingStatusSelector(
   resetPasswordActionTypes,
 );
 
-export default connect(
-  (state: AppState) => ({
-    resetPasswordUsername:
+export default React.memo<BaseProps>(function ConnectedResetPasswordModal(
+  props: BaseProps,
+) {
+  const resetPasswordUsername = useSelector(
+    (state) =>
       state.serverVerificationResult &&
       state.serverVerificationResult.success &&
       state.serverVerificationResult.field === verifyField.RESET_PASSWORD &&
       state.serverVerificationResult.username,
-    verifyCode: state.navInfo.verify,
-    inputDisabled: loadingStatusSelector(state) === 'loading',
-    logInExtraInfo: webLogInExtraInfoSelector(state),
-  }),
-  { resetPassword },
-)(ResetPasswordModal);
+  );
+  const verifyCode = useSelector((state) => state.navInfo.verify);
+  const inputDisabled = useSelector(
+    (state) => loadingStatusSelector(state) === 'loading',
+  );
+  const logInExtraInfo = useSelector(webLogInExtraInfoSelector);
+  const callResetPassword = useServerCall(resetPassword);
+  const dispatchActionPromise = useDispatchActionPromise();
+  invariant(resetPasswordUsername, 'should have reset password username');
+
+  return (
+    <ResetPasswordModal
+      {...props}
+      resetPasswordUsername={resetPasswordUsername}
+      verifyCode={verifyCode}
+      inputDisabled={inputDisabled}
+      logInExtraInfo={logInExtraInfo}
+      resetPassword={callResetPassword}
+      dispatchActionPromise={dispatchActionPromise}
+    />
+  );
+});
