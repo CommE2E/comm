@@ -1,19 +1,19 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
+import { useDispatch } from 'react-redux';
 
 import { type RobotextChatMessageInfoItem } from 'lib/selectors/chat-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { splitRobotext, parseRobotextEntity } from 'lib/shared/message-utils';
 import { useSidebarExistsOrCanBeCreated } from 'lib/shared/thread-utils';
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
-import type { DispatchActionPayload } from 'lib/utils/action-utils';
-import { connect } from 'lib/utils/redux-utils';
+import type { Dispatch } from 'lib/types/redux-types';
+import { type ThreadInfo } from 'lib/types/thread-types';
 
 import Markdown from '../markdown/markdown.react';
 import { linkRules } from '../markdown/rules.react';
-import { type AppState, updateNavInfoActionType } from '../redux/redux-setup';
+import { updateNavInfoActionType } from '../redux/redux-setup';
+import { useSelector } from '../redux/redux-utils';
 import css from './chat-message-list.css';
 import { InlineSidebar } from './inline-sidebar.react';
 import type {
@@ -134,22 +134,16 @@ class RobotextMessage extends React.PureComponent<Props> {
   };
 }
 
-type InnerThreadEntityProps = {
-  id: string,
-  name: string,
-  // Redux state
-  threadInfo: ThreadInfo,
-  // Redux dispatch functions
-  dispatchActionPayload: DispatchActionPayload,
-};
+type BaseInnerThreadEntityProps = {|
+  +id: string,
+  +name: string,
+|};
+type InnerThreadEntityProps = {|
+  ...BaseInnerThreadEntityProps,
+  +threadInfo: ThreadInfo,
+  +dispatch: Dispatch,
+|};
 class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
-  static propTypes = {
-    id: PropTypes.string.isRequired,
-    name: PropTypes.string.isRequired,
-    threadInfo: threadInfoPropType.isRequired,
-    dispatchActionPayload: PropTypes.func.isRequired,
-  };
-
   render() {
     return <a onClick={this.onClickThread}>{this.props.name}</a>;
   }
@@ -157,18 +151,29 @@ class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
   onClickThread = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     const id = this.props.id;
-    this.props.dispatchActionPayload(updateNavInfoActionType, {
-      activeChatThreadID: id,
+    this.props.dispatch({
+      type: updateNavInfoActionType,
+      payload: {
+        activeChatThreadID: id,
+      },
     });
   };
 }
-const ThreadEntity = connect(
-  (state: AppState, ownProps: { id: string }) => ({
-    threadInfo: threadInfoSelector(state)[ownProps.id],
-  }),
-  null,
-  true,
-)(InnerThreadEntity);
+const ThreadEntity = React.memo<BaseInnerThreadEntityProps>(
+  function ConnectedInnerThreadEntity(props: BaseInnerThreadEntityProps) {
+    const { id } = props;
+    const threadInfo = useSelector((state) => threadInfoSelector(state)[id]);
+    const dispatch = useDispatch();
+
+    return (
+      <InnerThreadEntity
+        {...props}
+        threadInfo={threadInfo}
+        dispatch={dispatch}
+      />
+    );
+  },
+);
 
 function ColorEntity(props: {| color: string |}) {
   const colorStyle = { color: props.color };
