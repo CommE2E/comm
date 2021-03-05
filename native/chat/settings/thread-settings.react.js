@@ -670,12 +670,14 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   actionsListDataSelector = createSelector(
     (propsAndState: PropsAndState) =>
       ThreadSettings.getThreadInfo(propsAndState),
+    (propsAndState: PropsAndState) => propsAndState.parentThreadInfo,
     (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
     (propsAndState: PropsAndState) => propsAndState.styles,
     (propsAndState: PropsAndState) => propsAndState.userInfos,
     (propsAndState: PropsAndState) => propsAndState.viewerID,
     (
       threadInfo: ThreadInfo,
+      parentThreadInfo: ?ThreadInfo,
       navigate: ThreadSettingsNavigate,
       styles: typeof unboundStyles,
       userInfos: UserInfos,
@@ -687,8 +689,14 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         threadInfo,
         threadPermissions.EDIT_PERMISSIONS,
       );
+      const canCreateSubthreadsInParent = threadHasPermission(
+        parentThreadInfo,
+        threadPermissions.CREATE_SUBTHREADS,
+      );
       const canPromoteSidebar =
-        threadInfo.type === threadTypes.SIDEBAR && canChangeThreadType;
+        threadInfo.type === threadTypes.SIDEBAR &&
+        canChangeThreadType &&
+        canCreateSubthreadsInParent;
       if (canPromoteSidebar) {
         buttons.push({
           itemType: 'promoteSidebar',
