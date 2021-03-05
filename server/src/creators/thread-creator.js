@@ -20,6 +20,7 @@ import {
 } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
+import { firstLine } from 'lib/utils/string-utils';
 
 import { dbQuery, SQL } from '../database/database';
 import { fetchMessageInfoByID } from '../fetchers/message-fetchers';
@@ -218,7 +219,7 @@ async function createThread(
   const [id] = await createIDs('threads', 1);
   const newRoles = await createInitialRolesForNewThread(id, threadType);
 
-  const name = request.name ? request.name : null;
+  const name = request.name ? firstLine(request.name) : null;
   const description = request.description ? request.description : null;
   let color = request.color
     ? request.color.toLowerCase()

@@ -29,6 +29,7 @@ import {
 import { updateTypes } from 'lib/types/update-types';
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
+import { firstLine } from 'lib/utils/string-utils';
 
 import createMessages from '../creators/message-creator';
 import { createUpdates } from '../creators/update-creator';
@@ -312,8 +313,9 @@ async function updateThread(
 
   const changedFields = {};
   const sqlUpdate = {};
-  const { name } = request.changes;
-  if (name !== undefined && name !== null) {
+  const untrimmedName = request.changes.name;
+  if (untrimmedName !== undefined && untrimmedName !== null) {
+    const name = firstLine(untrimmedName);
     changedFields.name = name;
     sqlUpdate.name = name ?? null;
   }
