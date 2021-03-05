@@ -61,7 +61,7 @@ class ThreadSettingsPromoteSidebar extends React.PureComponent<Props> {
           iosFormat="highlight"
           iosHighlightUnderlayColor={panelIosHighlightUnderlay}
         >
-          <Text style={this.props.styles.text}>Promote to subthread...</Text>
+          <Text style={this.props.styles.text}>Promote to full thread</Text>
           {loadingIndicator}
         </Button>
       </View>
