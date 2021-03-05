@@ -30,7 +30,7 @@ function MessageReplyTooltip(props: Props) {
 
   const { isViewer } = item.messageInfo.creator;
   const replyTooltipClassName = classNames({
-    [css.messageTooltip]: true,
+    [css.messageReplyTooltip]: true,
     [css.tooltipRightPadding]: isViewer,
     [css.tooltipLeftPadding]: !isViewer,
   });

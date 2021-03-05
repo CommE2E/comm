@@ -172,9 +172,14 @@ div.messageTimestampBottomRightTooltip:after {
 div.messageActionLinks {
   position: absolute;
   display: flex;
-  padding: 0 8px;
   top: 0;
   bottom: 0;
+  align-items: center;
+  color: gray;
+}
+div.messageBoxContainer:hover div.messageActionLinks,
+div.innerRobotextContainer:hover div.messageActionLinks {
+  padding: 0 8px;
 }
 div.viewerMessageActionLinks {
   right: 100%;
@@ -185,21 +190,15 @@ div.nonViewerMessageActionLinks {
 div.messageActionLinks > div + div {
   margin-left: 8px;
 }
-div.messageTooltip {
-  position: relative;
-  color: gray;
+div.messageReplyTooltip {
   font-size: 14px;
 }
 div.messageSidebarTooltip {
-  color: gray;
   font-size: 16px;
 }
 
 div.messageTooltipIcon {
   position: relative;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
 }
 div.messageTooltipIcon:hover {
   cursor: pointer;
