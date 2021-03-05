@@ -1,7 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   View,
@@ -11,119 +10,98 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   ScrollView,
-  ViewPropTypes,
   Platform,
 } from 'react-native';
-
-import { connect } from 'lib/utils/redux-utils';
-
-import type { AppState } from '../redux/redux-setup';
-import { type Colors, colorsPropType, colorsSelector } from '../themes/colors';
+import { useSelector } from '../redux/redux-utils';
+import { useColors } from '../themes/colors';
+import { type Colors } from '../themes/colors';
 import type { LayoutEvent } from '../types/react-native';
 import type { ViewStyle, TextStyle } from '../types/styles';
 
-type Props<T> = {|
+type BaseProps<T> = {|
   /**
    * An array of tags, which can be any type, as long as labelExtractor below
    * can extract a string from it.
    */
-  value: $ReadOnlyArray<T>,
+  +value: $ReadOnlyArray<T>,
   /**
    * A handler to be called when array of tags change.
    */
-  onChange: (items: $ReadOnlyArray<T>) => void,
+  +onChange: (items: $ReadOnlyArray<T>) => void,
   /**
    * Function to extract string value for label from item
    */
-  labelExtractor: (tagData: T) => string,
+  +labelExtractor: (tagData: T) => string,
   /**
    * The text currently being displayed in the TextInput following the list of
    * tags.
    */
-  text: string,
+  +text: string,
   /**
    * This callback gets called when the user in the TextInput. The caller should
    * update the text prop when this is called if they want to access input.
    */
-  onChangeText: (text: string) => void,
+  +onChangeText: (text: string) => void,
   /**
    * If `true`, text and tags are not editable. The default value is `false`.
    */
-  disabled?: boolean,
+  +disabled?: boolean,
   /**
    * Background color of tags
    */
-  tagColor?: string,
+  +tagColor?: string,
   /**
    * Text color of tags
    */
-  tagTextColor?: string,
+  +tagTextColor?: string,
   /**
    * Styling override for container surrounding tag text
    */
-  tagContainerStyle?: ViewStyle,
+  +tagContainerStyle?: ViewStyle,
   /**
    * Styling override for tag's text component
    */
-  tagTextStyle?: TextStyle,
+  +tagTextStyle?: TextStyle,
   /**
    * Color of text input
    */
-  inputColor?: string,
+  +inputColor?: string,
   /**
    * Any misc. TextInput props (autoFocus, placeholder, returnKeyType, etc.)
    */
-  inputProps?: React.ElementConfig<typeof TextInput>,
+  +inputProps?: React.ElementConfig<typeof TextInput>,
   /**
    * Min height of the tag input on screen
    */
-  minHeight: number,
+  +minHeight: number,
   /**
    * Max height of the tag input on screen (will scroll if max height reached)
    */
-  maxHeight: number,
+  +maxHeight: number,
   /**
    * Callback that gets passed the new component height when it changes
    */
-  onHeightChange?: (height: number) => void,
+  +onHeightChange?: (height: number) => void,
   /**
    * inputWidth if text === "". we want this number explicitly because if we're
    * forced to measure the component, there can be a short jump between the old
    * value and the new value, which looks sketchy.
    */
-  defaultInputWidth: number,
-  innerRef?: (tagInput: ?TagInput<T>) => void,
-  // Redux state
-  windowWidth: number,
-  colors: Colors,
+  +defaultInputWidth: number,
+  +innerRef?: (tagInput: ?BaseTagInput<T>) => void,
 |};
+type Props<T> = {|
+  ...BaseProps<T>,
+  +windowWidth: number,
+  +colors: Colors,
+|}
 type State = {|
-  wrapperHeight: number,
-  contentHeight: number,
-  wrapperWidth: number,
-  spaceLeft: number,
+  +wrapperHeight: number,
+  +contentHeight: number,
+  +wrapperWidth: number,
+  +spaceLeft: number,
 |};
-class TagInput<T> extends React.PureComponent<Props<T>, State> {
-  static propTypes = {
-    value: PropTypes.array.isRequired,
-    onChange: PropTypes.func.isRequired,
-    labelExtractor: PropTypes.func.isRequired,
-    text: PropTypes.string.isRequired,
-    onChangeText: PropTypes.func.isRequired,
-    tagColor: PropTypes.string,
-    tagTextColor: PropTypes.string,
-    tagContainerStyle: ViewPropTypes.style,
-    tagTextStyle: Text.propTypes.style,
-    inputColor: PropTypes.string,
-    inputProps: PropTypes.shape(TextInput.propTypes),
-    minHeight: PropTypes.number,
-    maxHeight: PropTypes.number,
-    onHeightChange: PropTypes.func,
-    defaultInputWidth: PropTypes.number,
-    innerRef: PropTypes.func,
-    windowWidth: PropTypes.number.isRequired,
-    colors: colorsPropType.isRequired,
-  };
+class BaseTagInput<T> extends React.PureComponent<Props<T>, State> {
   // scroll to bottom
   scrollViewHeight = 0;
   scrollToBottomAfterNextScrollViewLayout = false;
@@ -375,29 +353,18 @@ class TagInput<T> extends React.PureComponent<Props<T>, State> {
 }
 
 type TagProps = {|
-  index: number,
-  label: string,
-  isLastTag: boolean,
-  onLayoutLastTag: (endPosOfTag: number) => void,
-  removeIndex: (index: number) => void,
-  tagColor: string,
-  tagTextColor: string,
-  tagContainerStyle?: ViewStyle,
-  tagTextStyle?: TextStyle,
-  disabled?: boolean,
+  +index: number,
+  +label: string,
+  +isLastTag: boolean,
+  +onLayoutLastTag: (endPosOfTag: number) => void,
+  +removeIndex: (index: number) => void,
+  +tagColor: string,
+  +tagTextColor: string,
+  +tagContainerStyle?: ViewStyle,
+  +tagTextStyle?: TextStyle,
+  +disabled?: boolean,
 |};
 class Tag extends React.PureComponent<TagProps> {
-  static propTypes = {
-    index: PropTypes.number.isRequired,
-    label: PropTypes.string.isRequired,
-    isLastTag: PropTypes.bool.isRequired,
-    onLayoutLastTag: PropTypes.func.isRequired,
-    removeIndex: PropTypes.func.isRequired,
-    tagColor: PropTypes.string.isRequired,
-    tagTextColor: PropTypes.string.isRequired,
-    tagContainerStyle: ViewPropTypes.style,
-    tagTextStyle: Text.propTypes.style,
-  };
   curPos: ?number = null;
 
   componentDidUpdate(prevProps: TagProps) {
@@ -486,7 +453,10 @@ const styles = StyleSheet.create({
   wrapper: {},
 });
 
-export default connect((state: AppState) => ({
-  windowWidth: state.dimensions.width,
-  colors: colorsSelector(state),
-}))(TagInput);
+const TagInput = React.memo<BaseProps>(function ConnectedTagInput<T>(props: BaseProps<T>) {
+  const windowWidth = useSelector((state) => state.dimensions.width);
+  const colors = useColors();
+  return <BaseTagInput {...props} windowWidth={windowWidth} colors={colors}/>
+})
+
+export {TagInput, BaseTagInput}

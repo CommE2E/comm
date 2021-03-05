@@ -39,7 +39,7 @@ import {
 
 import Button from '../../components/button.react';
 import Modal from '../../components/modal.react';
-import TagInput from '../../components/tag-input.react';
+import {TagInput, BaseTagInput} from '../../components/tag-input.react';
 import UserList from '../../components/user-list.react';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react';
 import type { NavigationRoute } from '../../navigation/route-names';
@@ -103,7 +103,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     usernameInputText: '',
     userInfoInputArray: [],
   };
-  tagInput: ?TagInput<AccountUserInfo> = null;
+  tagInput: ?BaseTagInput<AccountUserInfo> = null;
 
   userSearchResultsSelector = createSelector(
     (propsAndState: PropsAndState) => propsAndState.usernameInputText,
@@ -208,7 +208,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     this.props.navigation.goBackOnce();
   };
 
-  tagInputRef = (tagInput: ?TagInput<AccountUserInfo>) => {
+  tagInputRef = (tagInput: ?BaseTagInput<AccountUserInfo>) => {
     this.tagInput = tagInput;
   };
 

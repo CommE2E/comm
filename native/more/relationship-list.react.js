@@ -33,7 +33,7 @@ import {
 } from 'lib/utils/action-utils';
 
 import LinkButton from '../components/link-button.react';
-import TagInput from '../components/tag-input.react';
+import {BaseTagInput} from '../components/tag-input.react';
 import {
   type KeyboardState,
   KeyboardContext,
@@ -112,7 +112,7 @@ type State = {|
 type PropsAndState = {| ...Props, ...State |};
 class RelationshipList extends React.PureComponent<Props, State> {
   flatListContainerRef = React.createRef();
-  tagInput: ?TagInput<GlobalAccountUserInfo> = null;
+  tagInput: ?BaseTagInput<GlobalAccountUserInfo> = null;
   state: State = {
     verticalBounds: null,
     searchInputText: '',
@@ -181,7 +181,7 @@ class RelationshipList extends React.PureComponent<Props, State> {
         <View style={this.props.styles.tagInputContainer}>
           <Text style={this.props.styles.tagInputLabel}>Search:</Text>
           <View style={this.props.styles.tagInput}>
-            <TagInput
+            <connectedTagInput
               value={this.state.currentTags}
               onChange={this.onChangeTagInput}
               text={this.state.searchInputText}
@@ -307,7 +307,7 @@ class RelationshipList extends React.PureComponent<Props, State> {
     },
   );
 
-  tagInputRef = (tagInput: ?TagInput<GlobalAccountUserInfo>) => {
+  tagInputRef = (tagInput: ?BaseTagInput<GlobalAccountUserInfo>) => {
     this.tagInput = tagInput;
   };
 

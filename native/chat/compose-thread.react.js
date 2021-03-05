@@ -41,7 +41,7 @@ import {
 } from 'lib/utils/action-utils';
 
 import LinkButton from '../components/link-button.react';
-import TagInput from '../components/tag-input.react';
+import {TagInput, BaseTagInput} from '../components/tag-input.react';
 import ThreadList from '../components/thread-list.react';
 import ThreadVisibility from '../components/thread-visibility.react';
 import UserList from '../components/user-list.react';
@@ -120,7 +120,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
     usernameInputText: '',
     userInfoInputArray: [],
   };
-  tagInput: ?TagInput<AccountUserInfo>;
+  tagInput: ?BaseTagInput<AccountUserInfo>;
   createThreadPressed = false;
   waitingOnThreadID: ?string;
 
@@ -310,7 +310,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
     );
   }
 
-  tagInputRef = (tagInput: ?TagInput<AccountUserInfo>) => {
+  tagInputRef = (tagInput: ?BaseTagInput<AccountUserInfo>) => {
     this.tagInput = tagInput;
   };
 
