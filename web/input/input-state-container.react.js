@@ -8,8 +8,8 @@ import _omit from 'lodash/fp/omit';
 import _partition from 'lodash/fp/partition';
 import _sortBy from 'lodash/fp/sortBy';
 import _memoize from 'lodash/memoize';
-import PropTypes from 'prop-types';
 import * as React from 'react';
+import { useDispatch } from 'react-redux';
 import { createSelector } from 'reselect';
 
 import {
@@ -45,72 +45,59 @@ import {
 import type { RawImagesMessageInfo } from 'lib/types/messages/images';
 import type { RawMediaMessageInfo } from 'lib/types/messages/media';
 import type { RawTextMessageInfo } from 'lib/types/messages/text';
+import type { Dispatch } from 'lib/types/redux-types';
 import { reportTypes } from 'lib/types/report-types';
-import type {
-  DispatchActionPayload,
-  DispatchActionPromise,
+import {
+  type DispatchActionPromise,
+  useServerCall,
+  useDispatchActionPromise,
 } from 'lib/utils/action-utils';
 import { getConfig } from 'lib/utils/config';
 import { getMessageForException, cloneError } from 'lib/utils/errors';
-import { connect } from 'lib/utils/redux-utils';
 
 import { validateFile, preloadImage } from '../media/media-utils';
 import InvalidUploadModal from '../modals/chat/invalid-upload.react';
-import type { AppState } from '../redux/redux-setup';
+import { useSelector } from '../redux/redux-utils';
 import { type PendingMultimediaUpload, InputStateContext } from './input-state';
 
 let nextLocalUploadID = 0;
 
+type BaseProps = {|
+  +children: React.Node,
+  +setModal: (modal: ?React.Node) => void,
+|};
 type Props = {|
-  children: React.Node,
-  setModal: (modal: ?React.Node) => void,
-  // Redux state
-  activeChatThreadID: ?string,
-  viewerID: ?string,
-  messageStoreMessages: { [id: string]: RawMessageInfo },
-  exifRotate: boolean,
-  // Redux dispatch functions
-  dispatchActionPayload: DispatchActionPayload,
-  dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
-  uploadMultimedia: (
+  ...BaseProps,
+  +activeChatThreadID: ?string,
+  +viewerID: ?string,
+  +messageStoreMessages: { [id: string]: RawMessageInfo },
+  +exifRotate: boolean,
+  +dispatch: Dispatch,
+  +dispatchActionPromise: DispatchActionPromise,
+  +uploadMultimedia: (
     multimedia: Object,
     extras: MultimediaUploadExtras,
     callbacks: MultimediaUploadCallbacks,
   ) => Promise<UploadMultimediaResult>,
-  deleteUpload: (id: string) => Promise<void>,
-  sendMultimediaMessage: (
+  +deleteUpload: (id: string) => Promise<void>,
+  +sendMultimediaMessage: (
     threadID: string,
     localID: string,
     mediaIDs: $ReadOnlyArray<string>,
   ) => Promise<SendMessageResult>,
-  sendTextMessage: (
+  +sendTextMessage: (
     threadID: string,
     localID: string,
     text: string,
   ) => Promise<SendMessageResult>,
 |};
 type State = {|
-  pendingUploads: {
+  +pendingUploads: {
     [threadID: string]: { [localUploadID: string]: PendingMultimediaUpload },
   },
-  drafts: { [threadID: string]: string },
+  +drafts: { [threadID: string]: string },
 |};
 class InputStateContainer extends React.PureComponent<Props, State> {
-  static propTypes = {
-    children: PropTypes.node.isRequired,
-    setModal: PropTypes.func.isRequired,
-    activeChatThreadID: PropTypes.string,
-    viewerID: PropTypes.string,
-    messageStoreMessages: PropTypes.object.isRequired,
-    exifRotate: PropTypes.bool.isRequired,
-    dispatchActionPayload: PropTypes.func.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    uploadMultimedia: PropTypes.func.isRequired,
-    deleteUpload: PropTypes.func.isRequired,
-    sendMultimediaMessage: PropTypes.func.isRequired,
-    sendTextMessage: PropTypes.func.isRequired,
-  };
   state: State = {
     pendingUploads: {},
     drafts: {},
@@ -248,10 +235,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     for (let [, messageInfo] of newMessageInfos) {
-      this.props.dispatchActionPayload(
-        createLocalMessageActionType,
-        messageInfo,
-      );
+      this.props.dispatch({
+        type: createLocalMessageActionType,
+        payload: messageInfo,
+      });
     }
   }
 
@@ -582,11 +569,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         `after upload`,
     );
     if (uploadAfterSuccess.messageID) {
-      this.props.dispatchActionPayload(updateMultimediaMessageMediaActionType, {
-        messageID: uploadAfterSuccess.messageID,
-        currentMediaID: localID,
-        mediaUpdate: {
-          id: result.id,
+      this.props.dispatch({
+        type: updateMultimediaMessageMediaActionType,
+        payload: {
+          messageID: uploadAfterSuccess.messageID,
+          currentMediaID: localID,
+          mediaUpdate: {
+            id: result.id,
+          },
         },
       });
     }
@@ -626,12 +616,15 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     );
     if (uploadAfterPreload.messageID) {
       const { mediaType, uri, dimensions, loop } = result;
-      this.props.dispatchActionPayload(updateMultimediaMessageMediaActionType, {
-        messageID: uploadAfterPreload.messageID,
-        currentMediaID: uploadAfterPreload.serverID
-          ? uploadAfterPreload.serverID
-          : uploadAfterPreload.localID,
-        mediaUpdate: { type: mediaType, uri, dimensions, loop },
+      this.props.dispatch({
+        type: updateMultimediaMessageMediaActionType,
+        payload: {
+          messageID: uploadAfterPreload.messageID,
+          currentMediaID: uploadAfterPreload.serverID
+            ? uploadAfterPreload.serverID
+            : uploadAfterPreload.localID,
+          mediaUpdate: { type: mediaType, uri, dimensions, loop },
+        },
       });
     }
 
@@ -745,7 +738,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         messageLocalID,
       }),
     );
-    this.props.dispatchActionPayload(queueReportsActionType, { reports });
+    this.props.dispatch({ type: queueReportsActionType, payload: { reports } });
   }
 
   cancelPendingUpload(threadID: string, localUploadID: string) {
@@ -942,10 +935,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     // We're not actually starting the send here,
     // we just use this action to update the message's timestamp in Redux
-    this.props.dispatchActionPayload(
-      sendMultimediaMessageActionTypes.started,
-      newRawMessageInfo,
-    );
+    this.props.dispatch({
+      type: sendMultimediaMessageActionTypes.started,
+      payload: newRawMessageInfo,
+    });
 
     const uploadIDsToRetry = new Set();
     const uploadsToRetry = [];
@@ -1025,17 +1018,41 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 }
 
-export default connect(
-  (state: AppState) => {
-    const browser = detectBrowser(state.userAgent);
-    const exifRotate =
-      !browser || (browser.name !== 'safari' && browser.name !== 'chrome');
-    return {
-      activeChatThreadID: state.navInfo.activeChatThreadID,
-      viewerID: state.currentUserInfo && state.currentUserInfo.id,
-      messageStoreMessages: state.messageStore.messages,
-      exifRotate,
-    };
-  },
-  { uploadMultimedia, deleteUpload, sendMultimediaMessage, sendTextMessage },
-)(InputStateContainer);
+export default React.memo<BaseProps>(function ConnectedInputStateContainer(
+  props: BaseProps,
+) {
+  const browser = useSelector(detectBrowser);
+  const exifRotate =
+    !browser || (browser.name !== 'safari' && browser.name !== 'chrome');
+  const activeChatThreadID = useSelector(
+    (state) => state.navInfo.activeChatThreadID,
+  );
+  const viewerID = useSelector(
+    (state) => state.currentUserInfo && state.currentUserInfo.id,
+  );
+  const messageStoreMessages = useSelector(
+    (state) => state.messageStore.messages,
+  );
+  const callUploadMultimedia = useServerCall(uploadMultimedia);
+  const callDeleteUpload = useServerCall(deleteUpload);
+  const callSendMultimediaMessage = useServerCall(sendMultimediaMessage);
+  const callSendTextMessage = useServerCall(sendTextMessage);
+  const dispatch = useDispatch();
+  const dispatchActionPromise = useDispatchActionPromise();
+
+  return (
+    <InputStateContainer
+      {...props}
+      activeChatThreadID={activeChatThreadID}
+      viewerID={viewerID}
+      messageStoreMessages={messageStoreMessages}
+      exifRotate={exifRotate}
+      uploadMultimedia={callUploadMultimedia}
+      deleteUpload={callDeleteUpload}
+      sendMultimediaMessage={callSendMultimediaMessage}
+      sendTextMessage={callSendTextMessage}
+      dispatch={dispatch}
+      dispatchActionPromise={dispatchActionPromise}
+    />
+  );
+});
