@@ -33,7 +33,7 @@ import {
 } from 'lib/utils/action-utils';
 
 import LinkButton from '../components/link-button.react';
-import {BaseTagInput} from '../components/tag-input.react';
+import {BaseTagInput, TagInput} from '../components/tag-input.react';
 import {
   type KeyboardState,
   KeyboardContext,
@@ -181,7 +181,7 @@ class RelationshipList extends React.PureComponent<Props, State> {
         <View style={this.props.styles.tagInputContainer}>
           <Text style={this.props.styles.tagInputLabel}>Search:</Text>
           <View style={this.props.styles.tagInput}>
-            <connectedTagInput
+            <TagInput
               value={this.state.currentTags}
               onChange={this.onChangeTagInput}
               text={this.state.searchInputText}
