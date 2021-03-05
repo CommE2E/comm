@@ -7,6 +7,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 import { threadIsPending } from 'lib/shared/thread-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
+import { firstLine } from 'lib/utils/string-utils';
 
 import Button from '../components/button.react';
 import { ThreadSettingsRouteName } from '../navigation/route-names';
@@ -55,7 +56,7 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
       >
         <View style={this.props.styles.container}>
           {fakeIcon}
-          <HeaderTitle>{title}</HeaderTitle>
+          <HeaderTitle>{firstLine(title)}</HeaderTitle>
           {icon}
         </View>
       </Button>

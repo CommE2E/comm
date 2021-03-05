@@ -41,6 +41,7 @@ import {
 } from 'lib/utils/action-utils';
 
 import LinkButton from '../components/link-button.react';
+import { SingleLine } from '../components/single-line.react';
 import TagInput from '../components/tag-input.react';
 import ThreadList from '../components/thread-list.react';
 import ThreadVisibility from '../components/thread-visibility.react';
@@ -271,9 +272,9 @@ class ComposeThread extends React.PureComponent<Props, State> {
             color={threadVisibilityColor}
           />
           <Text style={this.props.styles.parentThreadLabel}>within</Text>
-          <Text style={this.props.styles.parentThreadName}>
+          <SingleLine style={this.props.styles.parentThreadName}>
             {parentThreadInfo.uiName}
-          </Text>
+          </SingleLine>
         </View>
       );
     }

@@ -20,6 +20,7 @@ import * as React from 'react';
 import { Platform, View } from 'react-native';
 
 import { threadIsPending } from 'lib/shared/thread-utils';
+import { firstLine } from 'lib/utils/string-utils';
 
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 import { InputStateContext } from '../input/input-state';
@@ -199,7 +200,7 @@ const composeThreadOptions = {
   headerBackTitle: 'Back',
 };
 const threadSettingsOptions = ({ route }) => ({
-  headerTitle: route.params.threadInfo.uiName,
+  headerTitle: firstLine(route.params.threadInfo.uiName),
   headerBackTitle: 'Back',
 });
 const deleteThreadOptions = {
