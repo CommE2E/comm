@@ -185,10 +185,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
       i < messageInfo.media.length;
       i += mediaPerRow, verticalOffset += rowHeight
     ) {
-      const rowMedia = [];
-      for (let j = i; j < i + mediaPerRow; j++) {
-        rowMedia.push(messageInfo.media[j]);
-      }
+      const rowMedia = messageInfo.media.slice(i, i + mediaPerRow);
 
       const firstRow = i === 0;
       const lastRow = i + mediaPerRow >= messageInfo.media.length;
