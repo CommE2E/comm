@@ -35,6 +35,7 @@ import {
   useServerCall,
   type DispatchActionPromise,
 } from 'lib/utils/action-utils';
+import { firstLine } from 'lib/utils/string-utils';
 
 import { useSelector } from '../../redux/redux-utils';
 import css from '../../style.css';
@@ -150,7 +151,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
             <div className={css['form-content']}>
               <input
                 type="text"
-                value={this.possiblyChangedValue('name')}
+                value={firstLine(this.possiblyChangedValue('name'))}
                 placeholder={this.namePlaceholder()}
                 onChange={this.onChangeName}
                 disabled={this.props.inputDisabled}
@@ -366,7 +367,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       ...prevState,
       queuedChanges: {
         ...prevState.queuedChanges,
-        name: newValue,
+        name: firstLine(newValue),
       },
     }));
   };

@@ -23,6 +23,7 @@ import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils';
+import { firstLine } from 'lib/utils/string-utils';
 
 import { useSelector } from '../../redux/redux-utils';
 import css from '../../style.css';
@@ -134,7 +135,7 @@ class NewThreadModal extends React.PureComponent<Props, State> {
               <div className={css['form-content']}>
                 <input
                   type="text"
-                  value={this.state.name}
+                  value={firstLine(this.state.name)}
                   placeholder="Thread name"
                   onChange={this.onChangeName}
                   disabled={this.props.inputDisabled}
@@ -195,7 +196,7 @@ class NewThreadModal extends React.PureComponent<Props, State> {
   onChangeName = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, 'target not input');
-    this.setState({ name: target.value });
+    this.setState({ name: firstLine(target.value) });
   };
 
   onChangeDescription = (event: SyntheticEvent<HTMLTextAreaElement>) => {
