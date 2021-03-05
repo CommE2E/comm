@@ -43,7 +43,7 @@ type Props = {|
     request: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsPayload>,
 |};
-class ThreadSettingsPromoteSubthread extends React.PureComponent<Props> {
+class ThreadSettingsPromoteSidebar extends React.PureComponent<Props> {
   render() {
     const {
       panelIosHighlightUnderlay,
@@ -113,14 +113,14 @@ const loadingStatusSelector = createLoadingStatusSelector(
 );
 
 export default React.memo<BaseProps>(
-  function ConnectedThreadSettingsPromoteSubthread(props: BaseProps) {
+  function ConnectedThreadSettingsPromoteSidebar(props: BaseProps) {
     const loadingStatus = useSelector(loadingStatusSelector);
     const colors = useColors();
     const styles = useStyles(unboundStyles);
     const dispatchActionPromise = useDispatchActionPromise();
     const callChangeThreadSettings = useServerCall(changeThreadSettings);
     return (
-      <ThreadSettingsPromoteSubthread
+      <ThreadSettingsPromoteSidebar
         {...props}
         loadingStatus={loadingStatus}
         colors={colors}
