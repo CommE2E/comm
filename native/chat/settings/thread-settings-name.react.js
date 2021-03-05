@@ -20,22 +20,18 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
+import { firstLine } from 'lib/utils/string-utils';
 
 import EditSettingButton from '../../components/edit-setting-button.react';
+import { SingleLine } from '../../components/single-line.react';
 import { useSelector } from '../../redux/redux-utils';
 import { type Colors, useStyles, useColors } from '../../themes/colors';
-import type {
-  LayoutEvent,
-  ContentSizeChangeEvent,
-} from '../../types/react-native';
 import SaveSettingButton from './save-setting-button.react';
 
 type BaseProps = {|
   +threadInfo: ThreadInfo,
   +nameEditValue: ?string,
   +setNameEditValue: (value: ?string, callback?: () => void) => void,
-  +nameTextHeight: ?number,
-  +setNameTextHeight: (number: number) => void,
   +canChangeSettings: boolean,
 |};
 type Props = {|
@@ -70,12 +66,9 @@ class ThreadSettingsName extends React.PureComponent<Props> {
     ) {
       return (
         <React.Fragment>
-          <Text
-            style={this.props.styles.currentValue}
-            onLayout={this.onLayoutText}
-          >
+          <SingleLine style={this.props.styles.currentValue}>
             {this.props.threadInfo.uiName}
-          </Text>
+          </SingleLine>
           <EditSettingButton
             onPress={this.onPressEdit}
             canChangeSettings={this.props.canChangeSettings}
@@ -96,26 +89,16 @@ class ThreadSettingsName extends React.PureComponent<Props> {
       );
     }
 
-    const textInputStyle = {};
-    if (
-      this.props.nameTextHeight !== undefined &&
-      this.props.nameTextHeight !== null
-    ) {
-      textInputStyle.height = this.props.nameTextHeight;
-    }
-
     return (
       <React.Fragment>
         <TextInput
-          style={[this.props.styles.currentValue, textInputStyle]}
+          style={this.props.styles.currentValue}
           value={this.props.nameEditValue}
           onChangeText={this.props.setNameEditValue}
-          multiline={true}
           autoFocus={true}
           selectTextOnFocus={true}
           onBlur={this.onSubmit}
           editable={this.props.loadingStatus !== 'loading'}
-          onContentSizeChange={this.onTextInputContentSizeChange}
           ref={this.textInputRef}
         />
         {button}
@@ -127,16 +110,10 @@ class ThreadSettingsName extends React.PureComponent<Props> {
     this.textInput = textInput;
   };
 
-  onLayoutText = (event: LayoutEvent) => {
-    this.props.setNameTextHeight(event.nativeEvent.layout.height);
-  };
-
-  onTextInputContentSizeChange = (event: ContentSizeChangeEvent) => {
-    this.props.setNameTextHeight(event.nativeEvent.contentSize.height);
-  };
-
   threadEditName() {
-    return this.props.threadInfo.name ? this.props.threadInfo.name : '';
+    return firstLine(
+      this.props.threadInfo.name ? this.props.threadInfo.name : '',
+    );
   }
 
   onPressEdit = () => {
@@ -149,7 +126,7 @@ class ThreadSettingsName extends React.PureComponent<Props> {
         this.props.nameEditValue !== undefined,
       'should be set',
     );
-    const name = this.props.nameEditValue.trim();
+    const name = firstLine(this.props.nameEditValue);
 
     if (name === this.threadEditName()) {
       this.props.setNameEditValue(null);

@@ -110,7 +110,6 @@ type ChatSettingsItem =
       +key: string,
       +threadInfo: ThreadInfo,
       +nameEditValue: ?string,
-      +nameTextHeight: ?number,
       +canChangeSettings: boolean,
     |}
   | {|
@@ -228,7 +227,6 @@ type State = {|
   +numSidebarsShowing: number,
   +nameEditValue: ?string,
   +descriptionEditValue: ?string,
-  +nameTextHeight: ?number,
   +descriptionTextHeight: ?number,
   +colorEditValue: string,
   +verticalBounds: ?VerticalBounds,
@@ -247,7 +245,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       numSidebarsShowing: itemPageLength,
       nameEditValue: null,
       descriptionEditValue: null,
-      nameTextHeight: null,
       descriptionTextHeight: null,
       colorEditValue: threadInfo.color,
       verticalBounds: null,
@@ -340,7 +337,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       ThreadSettings.getThreadInfo(propsAndState),
     (propsAndState: PropsAndState) => propsAndState.parentThreadInfo,
     (propsAndState: PropsAndState) => propsAndState.nameEditValue,
-    (propsAndState: PropsAndState) => propsAndState.nameTextHeight,
     (propsAndState: PropsAndState) => propsAndState.colorEditValue,
     (propsAndState: PropsAndState) => propsAndState.descriptionEditValue,
     (propsAndState: PropsAndState) => propsAndState.descriptionTextHeight,
@@ -351,7 +347,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       threadInfo: ThreadInfo,
       parentThreadInfo: ?ThreadInfo,
       nameEditValue: ?string,
-      nameTextHeight: ?number,
       colorEditValue: string,
       descriptionEditValue: ?string,
       descriptionTextHeight: ?number,
@@ -377,7 +372,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         key: 'name',
         threadInfo,
         nameEditValue,
-        nameTextHeight,
         canChangeSettings,
       });
       listData.push({
@@ -885,8 +879,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           threadInfo={item.threadInfo}
           nameEditValue={item.nameEditValue}
           setNameEditValue={this.setNameEditValue}
-          nameTextHeight={item.nameTextHeight}
-          setNameTextHeight={this.setNameTextHeight}
           canChangeSettings={item.canChangeSettings}
         />
       );
@@ -993,10 +985,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
 
   setNameEditValue = (value: ?string, callback?: () => void) => {
     this.setState({ nameEditValue: value }, callback);
-  };
-
-  setNameTextHeight = (height: number) => {
-    this.setState({ nameTextHeight: height });
   };
 
   setColorEditValue = (color: string) => {
