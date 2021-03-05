@@ -85,7 +85,7 @@ import ThreadSettingsVisibility from './thread-settings-visibility.react';
 const itemPageLength = 5;
 
 export type ThreadSettingsParams = {|
-  threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo,
 |};
 
 export type ThreadSettingsNavigate = $PropertyType<
@@ -134,6 +134,7 @@ type ChatSettingsItem =
       +itemType: 'parent',
       +key: string,
       +threadInfo: ThreadInfo,
+      +parentThreadInfo: ?ThreadInfo,
       +navigate: ThreadSettingsNavigate,
     |}
   | {|
@@ -210,6 +211,7 @@ type Props = {|
   +userInfos: UserInfos,
   +viewerID: ?string,
   +threadInfo: ?ThreadInfo,
+  +parentThreadInfo: ?ThreadInfo,
   +threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
   +childThreadInfos: ?$ReadOnlyArray<ThreadInfo>,
   +somethingIsSaving: boolean,
@@ -336,6 +338,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   threadBasicsListDataSelector = createSelector(
     (propsAndState: PropsAndState) =>
       ThreadSettings.getThreadInfo(propsAndState),
+    (propsAndState: PropsAndState) => propsAndState.parentThreadInfo,
     (propsAndState: PropsAndState) => propsAndState.nameEditValue,
     (propsAndState: PropsAndState) => propsAndState.nameTextHeight,
     (propsAndState: PropsAndState) => propsAndState.colorEditValue,
@@ -346,6 +349,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.route.key,
     (
       threadInfo: ThreadInfo,
+      parentThreadInfo: ?ThreadInfo,
       nameEditValue: ?string,
       nameTextHeight: ?number,
       colorEditValue: string,
@@ -441,6 +445,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         itemType: 'parent',
         key: 'parent',
         threadInfo,
+        parentThreadInfo,
         navigate,
       });
       listData.push({
@@ -903,6 +908,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       return (
         <ThreadSettingsParent
           threadInfo={item.threadInfo}
+          parentThreadInfo={item.parentThreadInfo}
           navigate={item.navigate}
         />
       );
@@ -1104,8 +1110,14 @@ export default React.memo<BaseProps>(function ConnectedThreadSettings(
     (state) => state.currentUserInfo && state.currentUserInfo.id,
   );
   const threadID = props.route.params.threadInfo.id;
-  const threadInfo = useSelector(
+  const threadInfo: ?ThreadInfo = useSelector(
     (state) => threadInfoSelector(state)[threadID],
+  );
+  const parentThreadID = threadInfo
+    ? threadInfo.parentThreadID
+    : props.route.params.threadInfo.parentThreadID;
+  const parentThreadInfo: ?ThreadInfo = useSelector((state) =>
+    parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
   );
   const threadMembers = useSelector(
     relativeMemberInfoSelectorForMembersOfThread(threadID),
@@ -1126,6 +1138,7 @@ export default React.memo<BaseProps>(function ConnectedThreadSettings(
       userInfos={userInfos}
       viewerID={viewerID}
       threadInfo={threadInfo}
+      parentThreadInfo={parentThreadInfo}
       threadMembers={threadMembers}
       childThreadInfos={boundChildThreadInfos}
       somethingIsSaving={boundSomethingIsSaving}

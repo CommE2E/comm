@@ -4,24 +4,22 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View, Platform } from 'react-native';
 
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { type ThreadInfo } from 'lib/types/thread-types';
 
 import Button from '../../components/button.react';
 import { SingleLine } from '../../components/single-line.react';
 import { MessageListRouteName } from '../../navigation/route-names';
-import { useSelector } from '../../redux/redux-utils';
 import { useStyles } from '../../themes/colors';
 import type { ThreadSettingsNavigate } from './thread-settings.react';
 
 type BaseProps = {|
   +threadInfo: ThreadInfo,
+  +parentThreadInfo: ?ThreadInfo,
   +navigate: ThreadSettingsNavigate,
 |};
 type Props = {|
   ...BaseProps,
   +styles: typeof unboundStyles,
-  +parentThreadInfo?: ?ThreadInfo,
 |};
 class ThreadSettingsParent extends React.PureComponent<Props> {
   render() {
@@ -126,18 +124,6 @@ const unboundStyles = {
 export default React.memo<BaseProps>(function ConnectedThreadSettingsParent(
   props: BaseProps,
 ) {
-  const { parentThreadID } = props.threadInfo;
-
   const styles = useStyles(unboundStyles);
-  const parentThreadInfo: ?ThreadInfo = useSelector((state) =>
-    parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
-  );
-
-  return (
-    <ThreadSettingsParent
-      {...props}
-      styles={styles}
-      parentThreadInfo={parentThreadInfo}
-    />
-  );
+  return <ThreadSettingsParent {...props} styles={styles} />;
 });
