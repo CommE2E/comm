@@ -453,7 +453,9 @@ const styles = StyleSheet.create({
   wrapper: {},
 });
 
-const TagInput = React.memo<BaseProps>(function ConnectedTagInput<T>(props: BaseProps<T>) {
+type BaseConfig<T> = React.Config<BaseProps<T>, typeof BaseTagInput.defaultProps>;
+
+const TagInput = React.memo<BaseConfig<*>>(function ConnectedTagInput<T>(props: BaseConfig<T>) {
   const windowWidth = useSelector((state) => state.dimensions.width);
   const colors = useColors();
   return <BaseTagInput {...props} windowWidth={windowWidth} colors={colors}/>
