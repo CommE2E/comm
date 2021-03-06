@@ -112,7 +112,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       );
     }
 
-    let viewerReplyTooltip, nonViewerReplyTooltip;
+    let replyTooltip;
     if (
       this.props.mouseOverMessagePosition &&
       this.props.mouseOverMessagePosition.item.messageInfo.id === id &&
@@ -120,28 +120,23 @@ class ComposedMessage extends React.PureComponent<Props> {
     ) {
       const { inputState } = this.props;
       invariant(inputState, 'inputState should be set in ComposedMessage');
-      const replyTooltip = (
+      replyTooltip = (
         <MessageReplyTooltip
           messagePositionInfo={this.props.mouseOverMessagePosition}
           onReplyClick={this.onMouseLeave}
           inputState={inputState}
         />
       );
-      if (isViewer) {
-        viewerReplyTooltip = replyTooltip;
-      } else {
-        nonViewerReplyTooltip = replyTooltip;
-      }
     }
 
     const positioning = isViewer ? 'right' : 'left';
-    let viewerSidebarTooltip, nonViewerSidebarTooltip;
+    let sidebarTooltip;
     if (
       this.props.mouseOverMessagePosition &&
       this.props.mouseOverMessagePosition.item.messageInfo.id === id &&
       this.props.sidebarExistsOrCanBeCreated
     ) {
-      const sidebarTooltip = (
+      sidebarTooltip = (
         <SidebarTooltip
           threadInfo={threadInfo}
           item={item}
@@ -149,12 +144,33 @@ class ComposedMessage extends React.PureComponent<Props> {
           messagePosition={positioning}
         />
       );
+    }
 
-      if (isViewer) {
-        viewerSidebarTooltip = sidebarTooltip;
-      } else {
-        nonViewerSidebarTooltip = sidebarTooltip;
-      }
+    let viewerActionLinks, nonViewerActionLinks;
+    if (isViewer) {
+      viewerActionLinks = (
+        <div
+          className={classNames(
+            css.messageActionLinks,
+            css.viewerMessageActionLinks,
+          )}
+        >
+          {sidebarTooltip}
+          {replyTooltip}
+        </div>
+      );
+    } else {
+      nonViewerActionLinks = (
+        <div
+          className={classNames(
+            css.messageActionLinks,
+            css.nonViewerMessageActionLinks,
+          )}
+        >
+          {replyTooltip}
+          {sidebarTooltip}
+        </div>
+      );
     }
 
     let inlineSidebar = null;
@@ -178,13 +194,11 @@ class ComposedMessage extends React.PureComponent<Props> {
             onMouseEnter={this.onMouseEnter}
             onMouseLeave={this.onMouseLeave}
           >
-            {viewerSidebarTooltip}
-            {viewerReplyTooltip}
+            {viewerActionLinks}
             <div className={messageBoxClassName} style={messageBoxStyle}>
               {this.props.children}
             </div>
-            {nonViewerReplyTooltip}
-            {nonViewerSidebarTooltip}
+            {nonViewerActionLinks}
           </div>
           {deliveryIcon}
         </div>

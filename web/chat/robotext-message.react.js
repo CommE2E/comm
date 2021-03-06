@@ -1,5 +1,6 @@
 // @flow
 
+import classNames from 'classnames';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -75,7 +76,14 @@ class RobotextMessage extends React.PureComponent<Props> {
           onMouseLeave={this.onMouseLeave}
         >
           <span>{this.linkedRobotext()}</span>
-          {sidebarTooltip}
+          <div
+            className={classNames(
+              css.messageActionLinks,
+              css.nonViewerMessageActionLinks,
+            )}
+          >
+            {sidebarTooltip}
+          </div>
         </div>
         {inlineSidebar}
       </div>

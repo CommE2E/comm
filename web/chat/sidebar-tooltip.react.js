@@ -48,29 +48,14 @@ function SidebarTooltipButton(props: Props) {
     [css.menuSidebarContent]: true,
     [css.menuSidebarContentVisible]: tooltipVisible,
     [css.menuSidebarNonViewerContent]: messagePosition === 'left',
-    [css.menuSidebarCenterContent]: messagePosition === 'center',
     [css.messageTimestampBottomRightTooltip]: messagePosition !== 'left',
     [css.messageTimestampBottomLeftTooltip]: messagePosition === 'left',
   });
 
-  const sidebarTooltipClassName = classNames({
-    [css.messageSidebarTooltip]: true,
-    [css.viewerMessageSidebarTooltip]: messagePosition === 'right',
-    [css.tooltipRightPadding]: messagePosition === 'right',
-    [css.tooltipLeftPadding]: messagePosition !== 'right',
-  });
-
-  const sidebarIconClassName = classNames({
-    [css.messageTooltipIcon]: true,
-    [css.tooltipRightPadding]: messagePosition === 'left',
-    [css.tooltipLeftPadding]: messagePosition === 'right',
-    [css.tooltipLeftRightPadding]: messagePosition === 'center',
-  });
-
   return (
-    <div className={sidebarTooltipClassName}>
+    <div className={css.messageSidebarTooltip}>
       <div
-        className={sidebarIconClassName}
+        className={css.messageTooltipIcon}
         onClick={toggleMenu}
         onMouseLeave={hideMenu}
       >

@@ -169,32 +169,30 @@ div.messageTimestampBottomRightTooltip:after {
   border-color: transparent transparent black transparent;
 }
 
+div.messageActionLinks {
+  position: absolute;
+  display: flex;
+  padding: 0 8px;
+  top: 0;
+  bottom: 0;
+}
+div.viewerMessageActionLinks {
+  right: 100%;
+}
+div.nonViewerMessageActionLinks {
+  left: 100%;
+}
+div.messageActionLinks > div + div {
+  margin-left: 8px;
+}
 div.messageTooltip {
   position: relative;
   color: gray;
   font-size: 14px;
 }
 div.messageSidebarTooltip {
-  position: absolute;
-  left: 100%;
-  top: 0;
-  bottom: 0;
   color: gray;
   font-size: 16px;
-}
-div.viewerMessageSidebarTooltip {
-  left: unset;
-  right: 100%;
-}
-div.tooltipLeftPadding {
-  padding-left: 8px;
-}
-div.tooltipRightPadding {
-  padding-right: 8px;
-}
-div.tooltipLeftRightPadding {
-  padding-left: 8px;
-  padding-right: 8px;
 }
 
 div.messageTooltipIcon {
@@ -476,9 +474,6 @@ svg.inlineSidebarIcon {
 .menuSidebarNonViewerContent {
   left: 0;
   margin-left: -3px;
-}
-.menuSidebarCenterContent {
-  margin-right: 5px;
 }
 .menuSidebarContent:before {
   height: 15px;

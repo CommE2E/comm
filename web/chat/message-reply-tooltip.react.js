@@ -21,14 +21,14 @@ function MessageReplyTooltip(props: Props) {
   const { inputState, onReplyClick, messagePositionInfo } = props;
   const { addReply } = inputState;
 
+  const { item } = messagePositionInfo;
   const replyClicked = React.useCallback(() => {
-    const { item } = messagePositionInfo;
     invariant(item.messageInfo.text, 'text should be set in message clicked');
     addReply(createMessageReply(item.messageInfo.text));
     onReplyClick();
-  }, [addReply, messagePositionInfo, onReplyClick]);
+  }, [addReply, item, onReplyClick]);
 
-  const { isViewer } = messagePositionInfo.item.messageInfo.creator;
+  const { isViewer } = item.messageInfo.creator;
   const replyTooltipClassName = classNames({
     [css.messageTooltip]: true,
     [css.tooltipRightPadding]: isViewer,
