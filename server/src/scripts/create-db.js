@@ -6,6 +6,7 @@ import {
   makePermissionsBlob,
   makePermissionsForChildrenBlob,
 } from 'lib/permissions/thread-permissions';
+import { usernameMaxLength } from 'lib/shared/account-utils';
 import { sortIDs } from 'lib/shared/relationship-utils';
 import { undirectedStatus } from 'lib/types/relationship-types';
 import { threadTypes } from 'lib/types/thread-types';
@@ -184,7 +185,7 @@ async function createTables() {
 
     CREATE TABLE users (
       id bigint(20) NOT NULL,
-      username varchar(191) COLLATE utf8mb4_bin NOT NULL,
+      username varchar(${usernameMaxLength}) COLLATE utf8mb4_bin NOT NULL,
       hash char(60) COLLATE utf8mb4_bin NOT NULL,
       email varchar(191) COLLATE utf8mb4_bin NOT NULL,
       email_verified tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
