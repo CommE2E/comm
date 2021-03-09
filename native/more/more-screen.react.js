@@ -28,7 +28,6 @@ import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils';
-import { firstLine } from 'lib/utils/string-utils';
 
 import {
   getNativeSharedWebCredentials,
@@ -162,12 +161,14 @@ class MoreScreen extends React.PureComponent<Props> {
         >
           <View style={this.props.styles.section}>
             <View style={this.props.styles.row}>
-              <Text style={this.props.styles.label} numberOfLines={1}>
+              <Text style={this.props.styles.loggedInLabel}>
                 {'Logged in as '}
-                <Text style={this.props.styles.username}>
-                  {firstLine(this.username)}
-                </Text>
               </Text>
+              <SingleLine
+                style={[this.props.styles.label, this.props.styles.username]}
+              >
+                {this.username}
+              </SingleLine>
               <Button
                 onPress={this.onPressLogOut}
                 disabled={this.loggedOutOrLoggingOut}
@@ -427,6 +428,10 @@ const unboundStyles = {
     fontSize: 16,
     paddingRight: 12,
   },
+  loggedInLabel: {
+    color: 'panelForegroundTertiaryLabel',
+    fontSize: 16,
+  },
   logOutText: {
     color: 'link',
     fontSize: 16,
@@ -491,6 +496,7 @@ const unboundStyles = {
   },
   username: {
     color: 'panelForegroundLabel',
+    flex: 1,
   },
   value: {
     color: 'panelForegroundLabel',
