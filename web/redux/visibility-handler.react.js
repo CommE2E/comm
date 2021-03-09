@@ -3,10 +3,7 @@
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
-import {
-  backgroundActionType,
-  foregroundActionType,
-} from 'lib/reducers/foreground-reducer';
+import { updateLifecycleStateActionType } from 'lib/reducers/foreground-reducer';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils';
 
 import { useVisibility } from './visibility';
@@ -32,9 +29,12 @@ function VisibilityHandler() {
         return;
       }
       if (foreground) {
-        dispatch({ type: foregroundActionType, payload: null });
+        dispatch({ type: updateLifecycleStateActionType, payload: 'active' });
       } else {
-        dispatch({ type: backgroundActionType, payload: null });
+        dispatch({
+          type: updateLifecycleStateActionType,
+          payload: 'background',
+        });
       }
     },
     [dispatch, curForeground],

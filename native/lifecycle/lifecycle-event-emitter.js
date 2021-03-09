@@ -5,7 +5,8 @@ import { Platform } from 'react-native';
 import NativeEventEmitter from 'react-native/Libraries/EventEmitter/NativeEventEmitter';
 import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport';
 import * as TurboModuleRegistry from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
-// eslint-disable-next-line import/default
+
+import type { LifecycleState } from 'lib/types/lifecycle-state-types';
 
 interface Spec extends TurboModule {
   +getConstants: () => {|
@@ -29,7 +30,7 @@ class LifecycleEventEmitter extends NativeEventEmitter {
     });
   }
 
-  addLifecycleListener = (listener: (state: ?string) => mixed) => {
+  addLifecycleListener = (listener: (state: ?LifecycleState) => mixed) => {
     return this.addListener('LIFECYCLE_CHANGE', (event) => {
       listener(event.status);
     });

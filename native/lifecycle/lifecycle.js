@@ -2,9 +2,11 @@
 
 import { Platform, AppState as NativeAppState } from 'react-native';
 
+import { type LifecycleState } from 'lib/types/lifecycle-state-types';
+
 import { getLifecycleEventEmitter } from './lifecycle-event-emitter';
 
-function addLifecycleListener(listener: (state: ?string) => mixed) {
+function addLifecycleListener(listener: (state: ?LifecycleState) => mixed) {
   if (Platform.OS === 'android') {
     return getLifecycleEventEmitter().addLifecycleListener(listener);
   }

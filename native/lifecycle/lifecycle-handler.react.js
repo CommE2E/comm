@@ -3,10 +3,8 @@
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
-import {
-  backgroundActionType,
-  foregroundActionType,
-} from 'lib/reducers/foreground-reducer';
+import { updateLifecycleStateActionType } from 'lib/reducers/foreground-reducer';
+import type { LifecycleState } from 'lib/types/lifecycle-state-types';
 
 import { appBecameInactive } from '../redux/redux-setup';
 import { addLifecycleListener } from './lifecycle';
@@ -16,16 +14,19 @@ const LifecycleHandler = React.memo<{||}>(() => {
 
   const lastStateRef = React.useRef();
   const onLifecycleChange = React.useCallback(
-    (nextState: ?string) => {
+    (nextState: ?LifecycleState) => {
       if (!nextState || nextState === 'unknown') {
         return;
       }
       const lastState = lastStateRef.current;
       lastStateRef.current = nextState;
       if (lastState === 'background' && nextState === 'active') {
-        dispatch({ type: foregroundActionType, payload: null });
+        dispatch({ type: updateLifecycleStateActionType, payload: 'active' });
       } else if (lastState !== 'background' && nextState === 'background') {
-        dispatch({ type: backgroundActionType, payload: null });
+        dispatch({
+          type: updateLifecycleStateActionType,
+          payload: 'background',
+        });
         appBecameInactive();
       }
     },
