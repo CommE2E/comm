@@ -6,7 +6,6 @@ import { View } from 'react-native';
 
 import {
   type ChatMessageItem,
-  messageListData as messageListDataSelector,
   useMessageListData,
 } from 'lib/selectors/chat-selectors';
 import {
@@ -368,9 +367,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
   }, [setParams, threadInfo]);
 
   const threadID = threadInfo.id;
-  const boundMessageListData = useSelector(messageListDataSelector(threadID));
   const messageListData = useMessageListData({
-    boundMessageListData,
     sourceMessageID,
     searching: !!searching,
     userInfoInputArray,

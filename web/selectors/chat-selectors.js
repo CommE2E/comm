@@ -8,13 +8,8 @@ import {
   type ChatThreadItem,
   createChatThreadItem,
   chatListData,
-  type ChatMessageItem,
-  createChatMessageItems,
 } from 'lib/selectors/chat-selectors';
-import {
-  threadInfoSelector,
-  threadInfoFromSourceMessageIDSelector,
-} from 'lib/selectors/thread-selectors';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { threadIsPending } from 'lib/shared/thread-utils';
 import type { MessageStore, MessageInfo } from 'lib/types/message-types';
 import { type ThreadInfo, threadTypes } from 'lib/types/thread-types';
@@ -120,32 +115,4 @@ const webChatListData: (state: AppState) => ChatThreadItem[] = createSelector(
   },
 );
 
-const webMessageListData: (
-  state: AppState,
-) => ?(ChatMessageItem[]) = createSelector(
-  (state: AppState) => state.navInfo.activeChatThreadID,
-  (state: AppState) => state.messageStore,
-  messageInfoSelector,
-  threadInfoSelector,
-  threadInfoFromSourceMessageIDSelector,
-  (
-    threadID: ?string,
-    messageStore: MessageStore,
-    messageInfos: { [id: string]: MessageInfo },
-    threadInfos: { [id: string]: ThreadInfo },
-    threadInfoFromSourceMessageID: { [id: string]: ThreadInfo },
-  ): ?(ChatMessageItem[]) => {
-    if (!threadID) {
-      return null;
-    }
-    return createChatMessageItems(
-      threadID,
-      messageStore,
-      messageInfos,
-      threadInfos,
-      threadInfoFromSourceMessageID,
-    );
-  },
-);
-
-export { webChatListData, webMessageListData, activeChatThreadItem };
+export { webChatListData, activeChatThreadItem };

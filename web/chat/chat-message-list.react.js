@@ -32,7 +32,6 @@ import { type InputState, InputStateContext } from '../input/input-state';
 import LoadingIndicator from '../loading-indicator.react';
 import { useTextMessageRulesFunc } from '../markdown/rules.react';
 import { useSelector } from '../redux/redux-utils';
-import { webMessageListData } from '../selectors/chat-selectors';
 import ChatInputBar from './chat-input-bar.react';
 import css from './chat-message-list.css';
 import { MessageListContext } from './message-list-types';
@@ -382,9 +381,7 @@ export default React.memo<BaseProps>(function ConnectedChatMessageList(
     sourceMessageID,
   });
 
-  const boundMessageListData = useSelector(webMessageListData);
   const messageListData = useMessageListData({
-    boundMessageListData,
     sourceMessageID,
     searching: false,
     userInfoInputArray: [],
