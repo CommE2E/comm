@@ -1,7 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, Text, ActivityIndicator, Alert } from 'react-native';
 import { createSelector } from 'reselect';
@@ -19,18 +18,13 @@ import {
 import SearchIndex from 'lib/shared/search-index';
 import { getPotentialMemberItems } from 'lib/shared/search-utils';
 import { threadActualMembers } from 'lib/shared/thread-utils';
-import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import {
   type ThreadInfo,
-  threadInfoPropType,
   type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
 } from 'lib/types/thread-types';
-import {
-  type AccountUserInfo,
-  accountUserInfoPropType,
-} from 'lib/types/user-types';
+import { type AccountUserInfo } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import {
   useServerCall,
@@ -39,7 +33,7 @@ import {
 
 import Button from '../../components/button.react';
 import Modal from '../../components/modal.react';
-import TagInput from '../../components/tag-input.react';
+import { TagInput, BaseTagInput } from '../../components/tag-input.react';
 import UserList from '../../components/user-list.react';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react';
 import type { NavigationRoute } from '../../navigation/route-names';
@@ -53,8 +47,8 @@ const tagInputProps = {
 };
 
 export type AddUsersModalParams = {|
-  presentedFrom: string,
-  threadInfo: ThreadInfo,
+  +presentedFrom: string,
+  +threadInfo: ThreadInfo,
 |};
 
 type BaseProps = {|
@@ -82,28 +76,11 @@ type State = {|
 |};
 type PropsAndState = {| ...Props, ...State |};
 class AddUsersModal extends React.PureComponent<Props, State> {
-  static propTypes = {
-    navigation: PropTypes.shape({
-      goBackOnce: PropTypes.func.isRequired,
-    }).isRequired,
-    route: PropTypes.shape({
-      params: PropTypes.shape({
-        threadInfo: threadInfoPropType.isRequired,
-      }).isRequired,
-    }).isRequired,
-    parentThreadInfo: threadInfoPropType,
-    otherUserInfos: PropTypes.objectOf(accountUserInfoPropType).isRequired,
-    userSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
-    changeThreadSettingsLoadingStatus: loadingStatusPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    changeThreadSettings: PropTypes.func.isRequired,
-  };
   state: State = {
     usernameInputText: '',
     userInfoInputArray: [],
   };
-  tagInput: ?TagInput<AccountUserInfo> = null;
+  tagInput: ?BaseTagInput<AccountUserInfo> = null;
 
   userSearchResultsSelector = createSelector(
     (propsAndState: PropsAndState) => propsAndState.usernameInputText,
@@ -190,7 +167,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
           defaultInputWidth={160}
           maxHeight={36}
           inputProps={inputProps}
-          innerRef={this.tagInputRef}
+          ref={this.tagInputRef}
         />
         <UserList
           userInfos={this.userSearchResults}
@@ -208,7 +185,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     this.props.navigation.goBackOnce();
   };
 
-  tagInputRef = (tagInput: ?TagInput<AccountUserInfo>) => {
+  tagInputRef = (tagInput: ?BaseTagInput<AccountUserInfo>) => {
     this.tagInput = tagInput;
   };
 

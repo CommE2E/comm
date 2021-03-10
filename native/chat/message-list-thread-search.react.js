@@ -5,7 +5,7 @@ import { Text, View } from 'react-native';
 
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types';
 
-import TagInput from '../components/tag-input.react';
+import { TagInput } from '../components/tag-input.react';
 import UserList from '../components/user-list.react';
 import { useStyles } from '../themes/colors';
 

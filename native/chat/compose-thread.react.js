@@ -4,7 +4,6 @@ import invariant from 'invariant';
 import _filter from 'lodash/fp/filter';
 import _flow from 'lodash/fp/flow';
 import _sortBy from 'lodash/fp/sortBy';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, Text, Alert } from 'react-native';
 import { createSelector } from 'reselect';
@@ -19,21 +18,15 @@ import {
 import SearchIndex from 'lib/shared/search-index';
 import { getPotentialMemberItems } from 'lib/shared/search-utils';
 import { threadInFilterList, userIsMember } from 'lib/shared/thread-utils';
-import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import {
   type ThreadInfo,
-  threadInfoPropType,
   type ThreadType,
   threadTypes,
-  threadTypePropType,
   type NewThreadRequest,
   type NewThreadResult,
 } from 'lib/types/thread-types';
-import {
-  type AccountUserInfo,
-  accountUserInfoPropType,
-} from 'lib/types/user-types';
+import { type AccountUserInfo } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import {
   useServerCall,
@@ -42,19 +35,14 @@ import {
 
 import LinkButton from '../components/link-button.react';
 import { SingleLine } from '../components/single-line.react';
-import TagInput from '../components/tag-input.react';
+import { TagInput, BaseTagInput } from '../components/tag-input.react';
 import ThreadList from '../components/thread-list.react';
 import ThreadVisibility from '../components/thread-visibility.react';
 import UserList from '../components/user-list.react';
 import type { NavigationRoute } from '../navigation/route-names';
 import { MessageListRouteName } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
-import {
-  type Colors,
-  colorsPropType,
-  useColors,
-  useStyles,
-} from '../themes/colors';
+import { type Colors, useColors, useStyles } from '../themes/colors';
 import type { ChatNavigationProp } from './chat.react';
 
 const tagInputProps = {
@@ -64,8 +52,8 @@ const tagInputProps = {
 };
 
 export type ComposeThreadParams = {|
-  threadType?: ThreadType,
-  parentThreadInfo?: ThreadInfo,
+  +threadType?: ThreadType,
+  +parentThreadInfo?: ThreadInfo,
 |};
 
 type BaseProps = {|
@@ -93,35 +81,11 @@ type State = {|
 |};
 type PropsAndState = {| ...Props, ...State |};
 class ComposeThread extends React.PureComponent<Props, State> {
-  static propTypes = {
-    navigation: PropTypes.shape({
-      setParams: PropTypes.func.isRequired,
-      setOptions: PropTypes.func.isRequired,
-      navigate: PropTypes.func.isRequired,
-      pushNewThread: PropTypes.func.isRequired,
-    }).isRequired,
-    route: PropTypes.shape({
-      key: PropTypes.string.isRequired,
-      params: PropTypes.shape({
-        threadType: threadTypePropType,
-        parentThreadInfo: threadInfoPropType,
-      }).isRequired,
-    }).isRequired,
-    parentThreadInfo: threadInfoPropType,
-    loadingStatus: loadingStatusPropType.isRequired,
-    otherUserInfos: PropTypes.objectOf(accountUserInfoPropType).isRequired,
-    userSearchIndex: PropTypes.instanceOf(SearchIndex).isRequired,
-    threadInfos: PropTypes.objectOf(threadInfoPropType).isRequired,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    newThread: PropTypes.func.isRequired,
-  };
   state: State = {
     usernameInputText: '',
     userInfoInputArray: [],
   };
-  tagInput: ?TagInput<AccountUserInfo>;
+  tagInput: ?BaseTagInput<AccountUserInfo>;
   createThreadPressed = false;
   waitingOnThreadID: ?string;
 
@@ -295,7 +259,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
               onChangeText={this.setUsernameInputText}
               labelExtractor={this.tagDataLabelExtractor}
               inputProps={inputProps}
-              innerRef={this.tagInputRef}
+              ref={this.tagInputRef}
             />
           </View>
         </View>
@@ -311,7 +275,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
     );
   }
 
-  tagInputRef = (tagInput: ?TagInput<AccountUserInfo>) => {
+  tagInputRef = (tagInput: ?BaseTagInput<AccountUserInfo>) => {
     this.tagInput = tagInput;
   };
 
