@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { updateLifecycleStateActionType } from 'lib/reducers/foreground-reducer';
+import { updateLifecycleStateActionType } from 'lib/reducers/lifecycle-state-reducer';
 import type { LifecycleState } from 'lib/types/lifecycle-state-types';
 
 import { appBecameInactive } from '../redux/redux-setup';

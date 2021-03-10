@@ -79,7 +79,6 @@ const migrations = {
     activeServerRequests: undefined,
     connection: defaultConnectionInfo(Platform.OS),
     watchedThreadIDs: [],
-    foreground: true,
     entryStore: {
       ...state.entryStore,
       actualizedCalendarQuery: undefined,
@@ -205,7 +204,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: [
     'loadingStatuses',
-    'foreground',
+    'lifecycleState',
     'dimensions',
     'connectivity',
     'deviceOrientation',

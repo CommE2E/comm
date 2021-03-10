@@ -68,7 +68,7 @@ export type AppState = {|
   baseHref: string,
   connection: ConnectionInfo,
   watchedThreadIDs: $ReadOnlyArray<string>,
-  foreground: boolean,
+  lifecycleState: boolean,
   nextLocalID: number,
   queuedReports: $ReadOnlyArray<ClientReportCreationRequest>,
   timeZone: ?string,
