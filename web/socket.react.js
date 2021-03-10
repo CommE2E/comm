@@ -33,7 +33,7 @@ export default React.memo<BaseSocketProps>(function WebSocket(
     (state) =>
       !!state.currentUserInfo &&
       !state.currentUserInfo.anonymous &&
-      state.lifecycleState,
+      state.lifecycleState !== 'background',
   );
 
   const openSocket = useSelector(openSocketSelector);

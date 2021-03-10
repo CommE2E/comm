@@ -20,12 +20,19 @@ const LifecycleHandler = React.memo<{||}>(() => {
       }
       const lastState = lastStateRef.current;
       lastStateRef.current = nextState;
-      if (lastState === 'background' && nextState === 'active') {
+      if (
+        (lastState === 'background' || lastState === 'inactive') &&
+        nextState === 'active'
+      ) {
         dispatch({ type: updateLifecycleStateActionType, payload: 'active' });
-      } else if (lastState !== 'background' && nextState === 'background') {
+      } else if (
+        lastState !== 'background' &&
+        lastState !== 'inactive' &&
+        (nextState === 'background' || nextState === 'inactive')
+      ) {
         dispatch({
           type: updateLifecycleStateActionType,
-          payload: 'background',
+          payload: nextState,
         });
         appBecameInactive();
       }

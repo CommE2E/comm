@@ -37,7 +37,7 @@ export default React.memo<BaseSocketProps>(function NativeSocket(
   const connection = useSelector((state) => state.connection);
   const frozen = useSelector((state) => state.frozen);
   const active = useSelector(
-    (state) => isLoggedIn(state) && state.lifecycleState,
+    (state) => isLoggedIn(state) && state.lifecycleState !== 'background',
   );
 
   const openSocket = useSelector(openSocketSelector);

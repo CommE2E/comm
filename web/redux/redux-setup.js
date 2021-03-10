@@ -13,6 +13,7 @@ import { invalidSessionDowngrade } from 'lib/shared/account-utils';
 import type { Shape } from 'lib/types/core';
 import type { EntryStore } from 'lib/types/entry-types';
 import type { CalendarFilter } from 'lib/types/filter-types';
+import type { LifecycleState } from 'lib/types/lifecycle-state-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { MessageStore } from 'lib/types/message-types';
 import type { BaseNavInfo } from 'lib/types/nav-types';
@@ -68,7 +69,7 @@ export type AppState = {|
   baseHref: string,
   connection: ConnectionInfo,
   watchedThreadIDs: $ReadOnlyArray<string>,
-  lifecycleState: boolean,
+  lifecycleState: LifecycleState,
   nextLocalID: number,
   queuedReports: $ReadOnlyArray<ClientReportCreationRequest>,
   timeZone: ?string,

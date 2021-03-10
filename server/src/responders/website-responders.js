@@ -256,7 +256,7 @@ async function websiteResponder(
       actualizedCalendarQuery: calendarQuery,
     },
     watchedThreadIDs: [],
-    lifecycleState: true,
+    lifecycleState: 'active',
     nextLocalID: 0,
     queuedReports: [],
     timeZone: viewer.timeZone,

@@ -24,6 +24,7 @@ import {
   type CalendarFilter,
   defaultCalendarFilters,
 } from 'lib/types/filter-types';
+import type { LifecycleState } from 'lib/types/lifecycle-state-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { MessageStore } from 'lib/types/message-types';
 import type { Dispatch } from 'lib/types/redux-types';
@@ -105,7 +106,7 @@ export type AppState = {|
   notifPermissionAlertInfo: NotifPermissionAlertInfo,
   connection: ConnectionInfo,
   watchedThreadIDs: $ReadOnlyArray<string>,
-  lifecycleState: boolean,
+  lifecycleState: LifecycleState,
   nextLocalID: number,
   queuedReports: $ReadOnlyArray<ClientReportCreationRequest>,
   _persist: ?PersistState,
@@ -154,7 +155,7 @@ const defaultState = ({
   notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
   connection: defaultConnectionInfo(Platform.OS),
   watchedThreadIDs: [],
-  lifecycleState: true,
+  lifecycleState: 'active',
   nextLocalID: 0,
   queuedReports: [],
   _persist: null,
