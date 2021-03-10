@@ -1,4 +1,5 @@
 #include "DraftNativeModule.h"
+#include "DatabaseManager.h"
 
 namespace comm {
 
@@ -6,7 +7,8 @@ jsi::String DraftNativeModule::getDraft(
   jsi::Runtime &rt,
   const jsi::String &threadID
 ) {
-  return jsi::String::createFromUtf8(rt, "This draft is working 43110");
+  std::string str = DatabaseManager::getInstance().getDraft(rt);
+  return jsi::String::createFromUtf8(rt, str);
 }
 
 bool DraftNativeModule::updateDraft(

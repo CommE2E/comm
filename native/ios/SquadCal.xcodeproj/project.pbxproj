@@ -14,6 +14,7 @@
 		7106C28B25E7D879005556F0 /* NativeModules.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7106C28A25E7D879005556F0 /* NativeModules.cpp */; };
 		7106C28F25E7D8BD005556F0 /* DraftNativeModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7106C28E25E7D8BD005556F0 /* DraftNativeModule.cpp */; };
 		711B408425DA97F9005F8F06 /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F26E81B24440D87004049C6 /* dummy.swift */; };
+		7185F69725F8EA01008581D4 /* SQLiteManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7185F69625F8EA01008581D4 /* SQLiteManager.cpp */; };
 		7F761E602201141E001B6FB7 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F761E292201141E001B6FB7 /* JavaScriptCore.framework */; };
 		7F788C2C248AA2140098F071 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7F788C2B248AA2130098F071 /* SplashScreen.storyboard */; };
 		7FB58ABE1E7F6BD500B4C1B1 /* Anaheim-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7FB58ABB1E7F6BC600B4C1B1 /* Anaheim-Regular.ttf */; };
@@ -36,6 +37,10 @@
 		7106C28D25E7D8BD005556F0 /* DraftNativeModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DraftNativeModule.h; path = ../../CommonCpp/NativeModules/DraftNativeModule.h; sourceTree = "<group>"; };
 		7106C28E25E7D8BD005556F0 /* DraftNativeModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DraftNativeModule.cpp; path = ../../CommonCpp/NativeModules/DraftNativeModule.cpp; sourceTree = "<group>"; };
 		711CF80E25DC096000A00FBD /* libFolly.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libFolly.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		7185F69425F8EA01008581D4 /* SQLiteManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SQLiteManager.h; path = ../../CommonCpp/DatabaseManagers/SQLiteManager.h; sourceTree = "<group>"; };
+		7185F69525F8EA01008581D4 /* DatabaseManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DatabaseManager.h; path = ../../CommonCpp/DatabaseManagers/DatabaseManager.h; sourceTree = "<group>"; };
+		7185F69625F8EA01008581D4 /* SQLiteManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SQLiteManager.cpp; path = ../../CommonCpp/DatabaseManagers/SQLiteManager.cpp; sourceTree = "<group>"; };
+		7185F69C25F8EE19008581D4 /* DatabaseManagerInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DatabaseManagerInterface.h; path = ../../CommonCpp/DatabaseManagers/DatabaseManagerInterface.h; sourceTree = "<group>"; };
 		7F26E81B24440D87004049C6 /* dummy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = dummy.swift; sourceTree = "<group>"; };
 		7F554F822332D58B007CB9F7 /* Info.debug.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.debug.plist; path = SquadCal/Info.debug.plist; sourceTree = "<group>"; };
 		7F761E292201141E001B6FB7 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -92,6 +97,10 @@
 		7106C28525E7C2E2005556F0 /* CommonCpp */ = {
 			isa = PBXGroup;
 			children = (
+				7185F69C25F8EE19008581D4 /* DatabaseManagerInterface.h */,
+				7185F69525F8EA01008581D4 /* DatabaseManager.h */,
+				7185F69625F8EA01008581D4 /* SQLiteManager.cpp */,
+				7185F69425F8EA01008581D4 /* SQLiteManager.h */,
 				7106C28E25E7D8BD005556F0 /* DraftNativeModule.cpp */,
 				7106C28D25E7D8BD005556F0 /* DraftNativeModule.h */,
 				7106C28A25E7D879005556F0 /* NativeModules.cpp */,
@@ -331,6 +340,7 @@
 				7106C28F25E7D8BD005556F0 /* DraftNativeModule.cpp in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				7106C28B25E7D879005556F0 /* NativeModules.cpp in Sources */,
+				7185F69725F8EA01008581D4 /* SQLiteManager.cpp in Sources */,
 				711B408425DA97F9005F8F06 /* dummy.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 			);

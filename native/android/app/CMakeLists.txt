@@ -22,12 +22,15 @@ include_directories(
   ../../node_modules/react-native/ReactCommon/callinvoker
   ../../node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/turbomodule/core/jni/ReactCommon
   ../../node_modules/react-native/ReactCommon/turbomodule/core
-  ./src/cpp/
+  # comm android specific code
+  ./src/cpp
+  # comm native mutual code
   ../../CommonCpp/NativeModules
+  ../../CommonCpp/DatabaseManagers
 )
 
 # search for all cpp files in this directory
-file(GLOB NATIVE_MODULES "../../CommonCpp/NativeModules/*.cpp")
+file(GLOB COMMON_NATIVE_CODE "../../CommonCpp/**/*.cpp")
 
 add_library(
   # Sets the name of the library.
@@ -39,7 +42,8 @@ add_library(
   ../../node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/turbomodule/core/jni/ReactCommon/CallInvokerHolder.cpp
   ../../node_modules/react-native/ReactCommon/turbomodule/core/TurboModule.cpp
   ./src/cpp/jsiInstaller.cpp
-  ${NATIVE_MODULES}
+  # comm code
+  ${COMMON_NATIVE_CODE}
 )
 
 target_link_libraries(
