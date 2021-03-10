@@ -7,8 +7,8 @@ import {
   backgroundActionType,
   foregroundActionType,
 } from 'lib/reducers/foreground-reducer';
+import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils';
 
-import { useSelector } from './redux-utils';
 import { useVisibility } from './visibility';
 
 function VisibilityHandler() {
@@ -25,7 +25,7 @@ function VisibilityHandler() {
   }, [visibility, onVisibilityChange]);
 
   const dispatch = useDispatch();
-  const curForeground = useSelector((state) => state.foreground);
+  const curForeground = useIsAppForegrounded();
   const updateRedux = React.useCallback(
     (foreground) => {
       if (foreground === curForeground) {

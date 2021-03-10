@@ -16,6 +16,7 @@ import { KeyboardRegistry } from 'react-native-keyboard-input';
 import { Provider } from 'react-redux';
 
 import { extensionFromFilename } from 'lib/media/file-utils';
+import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils';
 import type { MediaLibrarySelection } from 'lib/types/media-types';
 
 import type { DimensionsInfo } from '../redux/dimensions-updater.react';
@@ -526,7 +527,7 @@ const unboundStyles = {
 
 function ConnectedMediaGalleryKeyboard() {
   const dimensions = useSelector((state) => state.dimensions);
-  const foreground = useSelector((state) => state.foreground);
+  const foreground = useIsAppForegrounded();
   const colors = useColors();
   const styles = useStyles(unboundStyles);
   return (

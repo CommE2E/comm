@@ -30,6 +30,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { useDispatch } from 'react-redux';
 
 import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils';
+import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils';
 import { useRealThreadCreator } from 'lib/shared/thread-utils';
 import type { PhotoCapture } from 'lib/types/media-types';
 import type { Dispatch } from 'lib/types/redux-types';
@@ -1223,7 +1224,7 @@ export default React.memo<BaseProps>(function ConnectedCameraModal(
   const dimensions = useSelector((state) => state.dimensions);
   const deviceCameraInfo = useSelector((state) => state.deviceCameraInfo);
   const deviceOrientation = useSelector((state) => state.deviceOrientation);
-  const foreground = useSelector((state) => state.foreground);
+  const foreground = useIsAppForegrounded();
   const overlayContext = React.useContext(OverlayContext);
   const inputState = React.useContext(InputStateContext);
   const dispatch = useDispatch();

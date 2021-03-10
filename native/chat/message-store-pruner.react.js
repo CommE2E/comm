@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
 import { messageStorePruneActionType } from 'lib/actions/message-actions';
+import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils';
 
 import { NavContext } from '../navigation/navigation-context';
 import { useSelector } from '../redux/redux-utils';
@@ -16,7 +17,7 @@ function MessageStorePruner() {
   const nextMessagePruneTime = useSelector(nextMessagePruneTimeSelector);
   const prevNextMessagePruneTimeRef = React.useRef(nextMessagePruneTime);
 
-  const foreground = useSelector((state) => state.foreground);
+  const foreground = useIsAppForegrounded();
   const frozen = useSelector((state) => state.frozen);
 
   const navContext = React.useContext(NavContext);
