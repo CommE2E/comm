@@ -9,6 +9,7 @@ import Animated from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Video from 'react-native-video';
 
+import { useIsAppBackgroundedOrInactive } from 'lib/shared/lifecycle-utils';
 import type { MediaInfo } from 'lib/types/media-types';
 
 import type { ChatMultimediaMessageInfoItem } from '../chat/multimedia-message.react';
@@ -217,6 +218,13 @@ function VideoPlaybackModal(props: Props) {
   const [timeElapsed, setTimeElapsed] = useState('0:00');
   const [totalDuration, setTotalDuration] = useState('0:00');
   const videoRef = React.useRef();
+
+  const backgroundedOrInactive = useIsAppBackgroundedOrInactive();
+  React.useEffect(() => {
+    if (backgroundedOrInactive) {
+      setPaused(true);
+    }
+  }, [backgroundedOrInactive]);
 
   const {
     navigation,
