@@ -117,6 +117,7 @@ div.robotextContainer {
 div.innerRobotextContainer {
   display: inline-flex;
   position: relative;
+  word-break: break-word;
 }
 
 div.messageTimestampTooltip {
