@@ -414,7 +414,13 @@ function appBecameInactive() {
   appLastBecameInactive = Date.now();
 }
 
-const middleware = applyMiddleware(thunk, reduxLoggerMiddleware);
+const middlewares = [thunk, reduxLoggerMiddleware];
+if (__DEV__) {
+  const createDebugger = require('redux-flipper').default;
+  middlewares.push(createDebugger());
+}
+
+const middleware = applyMiddleware(...middlewares);
 const composeFunc = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
   ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({ name: 'Redux' })
   : compose;
