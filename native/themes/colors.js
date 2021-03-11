@@ -13,7 +13,9 @@ import type { GlobalTheme } from '../types/themes';
 
 const light = Object.freeze({
   redButton: '#BB8888',
-  greenButton: '#88BB88',
+  greenButton: '#6EC472',
+  vibrantRedButton: '#F53100',
+  vibrantGreenButton: '#00C853',
   mintButton: '#44CC99',
   redText: '#AA0000',
   greenText: 'green',
@@ -78,7 +80,9 @@ const colorsPropType = PropTypes.objectOf(
 
 const dark: Colors = Object.freeze({
   redButton: '#FF4444',
-  greenButton: '#44BB44',
+  greenButton: '#43A047',
+  vibrantRedButton: '#F53100',
+  vibrantGreenButton: '#00C853',
   mintButton: '#44CC99',
   redText: '#FF4444',
   greenText: '#44FF44',

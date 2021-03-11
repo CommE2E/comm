@@ -40,7 +40,7 @@ function NewMessagesPill(props: Props) {
 const unboundStyles = {
   countBubble: {
     alignItems: 'center',
-    backgroundColor: 'greenButton',
+    backgroundColor: 'vibrantGreenButton',
     borderRadius: 25,
     height: 25,
     justifyContent: 'center',

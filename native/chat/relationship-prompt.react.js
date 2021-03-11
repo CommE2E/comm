@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { Alert, Text, View } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 import {
   updateRelationships as serverUpdateRelationships,
@@ -115,6 +116,7 @@ export default React.memo<Props>(function RelationshipPrompt({
     return (
       <View style={styles.container}>
         <Button style={[styles.button, styles.redButton]} onPress={blockUser}>
+          <Icon name="user-shield" size={12} color="white" />
           <Text style={styles.buttonText}>Block User</Text>
         </Button>
       </View>
@@ -132,6 +134,7 @@ export default React.memo<Props>(function RelationshipPrompt({
           style={[styles.button, styles.greenButton]}
           onPress={unblockUser}
         >
+          <Icon name="user-shield" size={12} color="white" />
           <Text style={styles.buttonText}>Unblock User</Text>
         </Button>
       </View>
@@ -147,12 +150,14 @@ export default React.memo<Props>(function RelationshipPrompt({
           style={[styles.button, styles.greenButton]}
           onPress={friendUser}
         >
+          <Icon name="user-plus" size={12} color="white" />
           <Text style={styles.buttonText}>Accept Friend Request</Text>
         </Button>
         <Button
           style={[styles.button, styles.redButton]}
           onPress={unfriendUser}
         >
+          <Icon name="user-slash" size={12} color="white" />
           <Text style={styles.buttonText}>Reject Friend Request</Text>
         </Button>
       </View>
@@ -168,6 +173,7 @@ export default React.memo<Props>(function RelationshipPrompt({
           style={[styles.button, styles.redButton]}
           onPress={unfriendUser}
         >
+          <Icon name="user-minus" size={12} color="white" />
           <Text style={styles.buttonText}>Withdraw Friend Request</Text>
         </Button>
       </View>
@@ -177,9 +183,11 @@ export default React.memo<Props>(function RelationshipPrompt({
   return (
     <View style={styles.container}>
       <Button style={[styles.button, styles.greenButton]} onPress={friendUser}>
+        <Icon name="user-plus" size={12} color="white" />
         <Text style={styles.buttonText}>Add Friend</Text>
       </Button>
       <Button style={[styles.button, styles.redButton]} onPress={blockUser}>
+        <Icon name="user-shield" size={12} color="white" />
         <Text style={styles.buttonText}>Block User</Text>
       </Button>
     </View>
@@ -197,16 +205,21 @@ const unboundStyles = {
     padding: 10,
     borderRadius: 5,
     flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
     marginHorizontal: 5,
   },
   greenButton: {
-    backgroundColor: 'greenButton',
+    backgroundColor: 'vibrantGreenButton',
   },
   redButton: {
-    backgroundColor: 'redButton',
+    backgroundColor: 'vibrantRedButton',
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: 11,
+    color: 'white',
+    fontWeight: 'bold',
     textAlign: 'center',
+    marginLeft: 5,
   },
 };

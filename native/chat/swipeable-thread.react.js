@@ -85,11 +85,12 @@ function SwipeableThread(props: Props) {
       {
         key: 'action1',
         onPress: toggleUnreadStatus,
-        color: isUnread ? colors.redButton : colors.greenButton,
+        color: isUnread ? colors.vibrantRedButton : colors.vibrantGreenButton,
         content: (
           <MaterialIcon
             name={isUnread ? 'email-open-outline' : 'email-mark-as-unread'}
             size={iconSize}
+            color="white"
           />
         ),
       },
