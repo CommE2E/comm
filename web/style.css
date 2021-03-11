@@ -227,6 +227,10 @@ span.username {
   display: inline-block;
   color: #2A5DB0;
   cursor: pointer;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 200px;
+  vertical-align: bottom;
 }
 svg.account-caret {
   padding-left: 6px;
