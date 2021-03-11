@@ -451,12 +451,18 @@ div.modal-body div.form-footer div.modal-form-error ol {
   padding-left: 20px;
 }
 
+div.form-text {
+  display: flex;
+  align-items: baseline;
+}
 div.form-text > div.form-title {
   vertical-align: initial;
+  flex-shrink: 0;
 }
 div.form-text > div.form-content {
   margin-left: 3px;
   margin-bottom: 3px;
+  word-break: break-word;
 }
 
 div.form-text > div.form-float-title {
