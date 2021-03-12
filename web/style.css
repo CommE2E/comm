@@ -49,7 +49,6 @@ input[type='submit']::-moz-focus-inner {
 }
 
 header.header {
-  flex: 0 1 auto;
   background-image: url(../images/background.png);
   background-size: 3000px 2000px;
   background-attachment: fixed;
@@ -117,7 +116,6 @@ div.chatBadge {
 }
 
 div.main-content-container {
-  flex: 1 0 0;
   position: relative;
   height: calc(100% - 62px);
 }
