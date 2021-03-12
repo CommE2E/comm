@@ -326,9 +326,12 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     if (!oldestMessageServerID) {
       return;
     }
+    if (this.loadingFromScroll) {
+      return;
+    }
+    this.loadingFromScroll = true;
     const threadID = this.props.activeChatThreadID;
     invariant(threadID, 'should be set');
-    this.loadingFromScroll = true;
     this.props.dispatchActionPromise(
       fetchMessagesBeforeCursorActionTypes,
       this.props.fetchMessagesBeforeCursor(threadID, oldestMessageServerID),
