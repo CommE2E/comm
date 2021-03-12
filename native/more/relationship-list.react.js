@@ -33,7 +33,7 @@ import {
 } from 'lib/utils/action-utils';
 
 import LinkButton from '../components/link-button.react';
-import TagInput from '../components/tag-input.react';
+import { createTagInput, BaseTagInput } from '../components/tag-input.react';
 import {
   type KeyboardState,
   KeyboardContext,
@@ -56,6 +56,8 @@ import {
 import type { VerticalBounds } from '../types/layout-types';
 import type { MoreNavigationProp } from './more.react';
 import RelationshipListItem from './relationship-list-item.react';
+
+const TagInput = createTagInput<GlobalAccountUserInfo>();
 
 export type RelationshipListNavigate = $PropertyType<
   MoreNavigationProp<'FriendList' | 'BlockList'>,
@@ -112,7 +114,7 @@ type State = {|
 type PropsAndState = {| ...Props, ...State |};
 class RelationshipList extends React.PureComponent<Props, State> {
   flatListContainerRef = React.createRef();
-  tagInput: ?TagInput<GlobalAccountUserInfo> = null;
+  tagInput: ?BaseTagInput<GlobalAccountUserInfo> = null;
   state: State = {
     verticalBounds: null,
     searchInputText: '',
@@ -187,7 +189,7 @@ class RelationshipList extends React.PureComponent<Props, State> {
               text={this.state.searchInputText}
               onChangeText={this.onChangeSearchText}
               labelExtractor={this.tagDataLabelExtractor}
-              innerRef={this.tagInputRef}
+              ref={this.tagInputRef}
               inputProps={inputProps}
               maxHeight={36}
             />
@@ -307,7 +309,7 @@ class RelationshipList extends React.PureComponent<Props, State> {
     },
   );
 
-  tagInputRef = (tagInput: ?TagInput<GlobalAccountUserInfo>) => {
+  tagInputRef = (tagInput: ?BaseTagInput<GlobalAccountUserInfo>) => {
     this.tagInput = tagInput;
   };
 
