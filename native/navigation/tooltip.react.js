@@ -29,7 +29,6 @@ import {
   type DispatchActionPromise,
   type ActionFunc,
   type DispatchFunctions,
-  type BoundServerCall,
 } from 'lib/utils/action-utils';
 
 import { SingleLine } from '../components/single-line.react';
@@ -69,7 +68,7 @@ export type TooltipEntry<RouteName: $Keys<TooltipModalParamList>> = {|
   +onPress: (
     route: TooltipRoute<RouteName>,
     dispatchFunctions: DispatchFunctions,
-    bindServerCall: (serverCall: ActionFunc) => BoundServerCall,
+    bindServerCall: <F>(serverCall: ActionFunc<F>) => F,
     inputState: ?InputState,
     navigation: AppNavigationProp<RouteName>,
     viewerID: ?string,
@@ -440,7 +439,7 @@ function createTooltip<RouteName: $Keys<TooltipModalParamList>>(
       );
     };
 
-    bindServerCall = (serverCall: ActionFunc) => {
+    bindServerCall = <F>(serverCall: ActionFunc<F>): F => {
       const {
         cookie,
         urlPrefix,

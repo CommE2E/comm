@@ -17,6 +17,7 @@ import SearchIndex from 'lib/shared/search-index';
 import {
   type UserRelationships,
   type RelationshipRequest,
+  type RelationshipErrors,
   userRelationshipStatus,
   relationshipActions,
 } from 'lib/types/relationship-types';
@@ -98,7 +99,9 @@ type Props = {|
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +searchUsers: (usernamePrefix: string) => Promise<UserSearchResult>,
-  +updateRelationships: (request: RelationshipRequest) => Promise<void>,
+  +updateRelationships: (
+    request: RelationshipRequest,
+  ) => Promise<RelationshipErrors>,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
   // withKeyboardState

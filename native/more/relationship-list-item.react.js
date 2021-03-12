@@ -19,6 +19,7 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import {
   type RelationshipRequest,
   type RelationshipAction,
+  type RelationshipErrors,
   userRelationshipStatus,
   relationshipActions,
 } from 'lib/types/relationship-types';
@@ -70,7 +71,9 @@ type Props = {|
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  +updateRelationships: (request: RelationshipRequest) => Promise<void>,
+  +updateRelationships: (
+    request: RelationshipRequest,
+  ) => Promise<RelationshipErrors>,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
   // withKeyboardState

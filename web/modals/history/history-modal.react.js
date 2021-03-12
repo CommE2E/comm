@@ -56,7 +56,9 @@ type Props = {|
   +fetchEntries: (
     calendarQuery: CalendarQuery,
   ) => Promise<FetchEntryInfosResult>,
-  +fetchRevisionsForEntry: (entryID: string) => Promise<HistoryRevisionInfo[]>,
+  +fetchRevisionsForEntry: (
+    entryID: string,
+  ) => Promise<$ReadOnlyArray<HistoryRevisionInfo>>,
 |};
 type State = {|
   +mode: HistoryMode,

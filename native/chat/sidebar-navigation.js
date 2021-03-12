@@ -3,11 +3,7 @@
 import invariant from 'invariant';
 
 import { createPendingSidebar } from 'lib/shared/thread-utils';
-import type {
-  DispatchFunctions,
-  ActionFunc,
-  BoundServerCall,
-} from 'lib/utils/action-utils';
+import type { DispatchFunctions, ActionFunc } from 'lib/utils/action-utils';
 
 import type { InputState } from '../input/input-state';
 import { getDefaultTextMessageRules } from '../markdown/rules.react';
@@ -21,7 +17,7 @@ function onPressGoToSidebar(
     | TooltipRoute<'TextMessageTooltipModal'>
     | TooltipRoute<'MultimediaTooltipModal'>,
   dispatchFunctions: DispatchFunctions,
-  bindServerCall: (serverCall: ActionFunc) => BoundServerCall,
+  bindServerCall: <F>(serverCall: ActionFunc<F>) => F,
   inputState: ?InputState,
   navigation:
     | AppNavigationProp<'RobotextMessageTooltipModal'>
@@ -56,7 +52,7 @@ function onPressCreateSidebar(
     | TooltipRoute<'TextMessageTooltipModal'>
     | TooltipRoute<'MultimediaTooltipModal'>,
   dispatchFunctions: DispatchFunctions,
-  bindServerCall: (serverCall: ActionFunc) => BoundServerCall,
+  bindServerCall: <F>(serverCall: ActionFunc<F>) => F,
   inputState: ?InputState,
   navigation:
     | AppNavigationProp<'RobotextMessageTooltipModal'>

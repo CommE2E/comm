@@ -9,11 +9,7 @@ import {
 } from 'lib/actions/relationship-actions';
 import { stringForUser } from 'lib/shared/user-utils';
 import type { RelativeUserInfo } from 'lib/types/user-types';
-import type {
-  DispatchFunctions,
-  ActionFunc,
-  BoundServerCall,
-} from 'lib/utils/action-utils';
+import type { DispatchFunctions, ActionFunc } from 'lib/utils/action-utils';
 
 import PencilIcon from '../components/pencil-icon.react';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
@@ -32,7 +28,7 @@ type OnRemoveUserProps = {|
 function onRemoveUser(
   props: OnRemoveUserProps,
   dispatchFunctions: DispatchFunctions,
-  bindServerCall: (serverCall: ActionFunc) => BoundServerCall,
+  bindServerCall: <F>(serverCall: ActionFunc<F>) => F,
 ) {
   const boundRemoveRelationships = bindServerCall(updateRelationships);
   const callRemoveRelationships = async () => {
