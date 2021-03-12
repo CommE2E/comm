@@ -21,7 +21,11 @@ import {
   relationshipActions,
 } from 'lib/types/relationship-types';
 import type { UserSearchResult } from 'lib/types/search-types';
-import type { UserInfos, AccountUserInfo } from 'lib/types/user-types';
+import type {
+  UserInfos,
+  GlobalAccountUserInfo,
+  AccountUserInfo,
+} from 'lib/types/user-types';
 import {
   type DispatchActionPromise,
   useServerCall,
@@ -29,7 +33,7 @@ import {
 } from 'lib/utils/action-utils';
 
 import LinkButton from '../components/link-button.react';
-import { TagInput, BaseTagInput } from '../components/tag-input.react';
+import { createTagInput, BaseTagInput } from '../components/tag-input.react';
 import {
   type KeyboardState,
   KeyboardContext,
@@ -52,6 +56,8 @@ import {
 import type { VerticalBounds } from '../types/layout-types';
 import type { MoreNavigationProp } from './more.react';
 import RelationshipListItem from './relationship-list-item.react';
+
+const TagInput = createTagInput<GlobalAccountUserInfo>();
 
 export type RelationshipListNavigate = $PropertyType<
   MoreNavigationProp<'FriendList' | 'BlockList'>,
@@ -101,14 +107,14 @@ type Props = {|
 type State = {|
   +verticalBounds: ?VerticalBounds,
   +searchInputText: string,
-  +serverSearchResults: $ReadOnlyArray<AccountUserInfo>,
-  +currentTags: $ReadOnlyArray<AccountUserInfo>,
+  +serverSearchResults: $ReadOnlyArray<GlobalAccountUserInfo>,
+  +currentTags: $ReadOnlyArray<GlobalAccountUserInfo>,
   +userStoreSearchResults: Set<string>,
 |};
 type PropsAndState = {| ...Props, ...State |};
 class RelationshipList extends React.PureComponent<Props, State> {
   flatListContainerRef = React.createRef();
-  tagInput: ?BaseTagInput<AccountUserInfo> = null;
+  tagInput: ?BaseTagInput<GlobalAccountUserInfo> = null;
   state: State = {
     verticalBounds: null,
     searchInputText: '',
@@ -223,11 +229,11 @@ class RelationshipList extends React.PureComponent<Props, State> {
       routeName: 'FriendList' | 'BlockList',
       verticalBounds: ?VerticalBounds,
       searchInputText: string,
-      serverSearchResults: $ReadOnlyArray<AccountUserInfo>,
+      serverSearchResults: $ReadOnlyArray<GlobalAccountUserInfo>,
       userStoreSearchResults: Set<string>,
       userInfos: UserInfos,
       viewerID: ?string,
-      currentTags: $ReadOnlyArray<AccountUserInfo>,
+      currentTags: $ReadOnlyArray<GlobalAccountUserInfo>,
     ) => {
       const defaultUsers = {
         [FriendListRouteName]: relationships.friends,
@@ -303,13 +309,14 @@ class RelationshipList extends React.PureComponent<Props, State> {
     },
   );
 
-  tagInputRef = (tagInput: ?BaseTagInput<AccountUserInfo>) => {
+  tagInputRef = (tagInput: ?BaseTagInput<GlobalAccountUserInfo>) => {
     this.tagInput = tagInput;
   };
 
-  tagDataLabelExtractor = (userInfo: AccountUserInfo) => userInfo.username;
+  tagDataLabelExtractor = (userInfo: GlobalAccountUserInfo) =>
+    userInfo.username;
 
-  onChangeTagInput = (currentTags: $ReadOnlyArray<AccountUserInfo>) => {
+  onChangeTagInput = (currentTags: $ReadOnlyArray<GlobalAccountUserInfo>) => {
     this.setState({ currentTags });
   };
 
@@ -335,25 +342,14 @@ class RelationshipList extends React.PureComponent<Props, State> {
     });
 
     const serverSearchResults = await this.searchUsers(searchText);
-    const filteredServerSearchResults: $ReadOnlyArray<AccountUserInfo> = serverSearchResults
-      .filter((searchUserInfo) => {
+    const filteredServerSearchResults = serverSearchResults.filter(
+      (searchUserInfo) => {
         const userInfo = this.props.userInfos[searchUserInfo.id];
         return (
           !userInfo || !excludeStatuses.includes(userInfo.relationshipStatus)
         );
-      })
-      .map((searchUserInfo) => {
-        const userInfo = this.props.userInfos[searchUserInfo.id];
-        if (userInfo && userInfo.relationshipStatus) {
-          return {
-            ...searchUserInfo,
-            relationshipStatus: userInfo.relationshipStatus,
-          };
-        } else {
-          return searchUserInfo;
-        }
-      });
-
+      },
+    );
     this.setState({ serverSearchResults: filteredServerSearchResults });
   };
 
@@ -392,7 +388,7 @@ class RelationshipList extends React.PureComponent<Props, State> {
     );
   };
 
-  onSelect = (selectedUser: AccountUserInfo) => {
+  onSelect = (selectedUser: GlobalAccountUserInfo) => {
     this.setState((state) => {
       if (state.currentTags.find((o) => o.id === selectedUser.id)) {
         return null;

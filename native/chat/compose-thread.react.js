@@ -35,7 +35,7 @@ import {
 
 import LinkButton from '../components/link-button.react';
 import { SingleLine } from '../components/single-line.react';
-import { TagInput, BaseTagInput } from '../components/tag-input.react';
+import { createTagInput, BaseTagInput } from '../components/tag-input.react';
 import ThreadList from '../components/thread-list.react';
 import ThreadVisibility from '../components/thread-visibility.react';
 import UserList from '../components/user-list.react';
@@ -44,6 +44,8 @@ import { MessageListRouteName } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { type Colors, useColors, useStyles } from '../themes/colors';
 import type { ChatNavigationProp } from './chat.react';
+
+const TagInput = createTagInput<AccountUserInfo>();
 
 const tagInputProps = {
   placeholder: 'username',

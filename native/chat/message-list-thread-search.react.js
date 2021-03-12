@@ -5,9 +5,11 @@ import { Text, View } from 'react-native';
 
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types';
 
-import { TagInput } from '../components/tag-input.react';
+import { createTagInput } from '../components/tag-input.react';
 import UserList from '../components/user-list.react';
 import { useStyles } from '../themes/colors';
+
+const TagInput = createTagInput<AccountUserInfo>();
 
 type Props = {|
   +usernameInputText: string,

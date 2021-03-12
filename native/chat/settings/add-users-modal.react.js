@@ -33,12 +33,14 @@ import {
 
 import Button from '../../components/button.react';
 import Modal from '../../components/modal.react';
-import { TagInput, BaseTagInput } from '../../components/tag-input.react';
+import { createTagInput, BaseTagInput } from '../../components/tag-input.react';
 import UserList from '../../components/user-list.react';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react';
 import type { NavigationRoute } from '../../navigation/route-names';
 import { useSelector } from '../../redux/redux-utils';
 import { useStyles } from '../../themes/colors';
+
+const TagInput = createTagInput<AccountUserInfo>();
 
 const tagInputProps = {
   placeholder: 'Select users to add',

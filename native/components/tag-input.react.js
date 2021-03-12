@@ -445,22 +445,28 @@ type BaseConfig<T> = React.Config<
   typeof BaseTagInput.defaultProps,
 >;
 
-const TagInput = React.forwardRef<BaseConfig<*>, BaseTagInput<*>>(
-  function ForwardedTagInput<T>(
-    props: BaseConfig<T>,
-    ref: React.Ref<typeof BaseTagInput>,
-  ) {
-    const windowWidth = useSelector((state) => state.dimensions.width);
-    const colors = useColors();
-    return (
-      <BaseTagInput
-        {...props}
-        windowWidth={windowWidth}
-        colors={colors}
-        ref={ref}
-      />
-    );
-  },
-);
+function createTagInput<T>(): React.AbstractComponent<
+  BaseConfig<T>,
+  BaseTagInput<T>,
+> {
+  const val = React.forwardRef<BaseConfig<T>, BaseTagInput<T>>(
+    function ForwardedTagInput(
+      props: BaseConfig<T>,
+      ref: React.Ref<typeof BaseTagInput>,
+    ) {
+      const windowWidth = useSelector((state) => state.dimensions.width);
+      const colors = useColors();
+      return (
+        <BaseTagInput
+          {...props}
+          windowWidth={windowWidth}
+          colors={colors}
+          ref={ref}
+        />
+      );
+    },
+  );
+  return val;
+}
 
-export { TagInput, BaseTagInput };
+export { createTagInput, BaseTagInput };
