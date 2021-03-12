@@ -1,22 +1,22 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { ChromePicker } from 'react-color';
 
 import css from '../../style.css';
 
-type Props = {
-  id: string,
-  value: string,
-  disabled: boolean,
-  onChange: (hex: string) => void,
-};
-type State = {
-  pickerOpen: boolean,
-};
+type Props = {|
+  +id: string,
+  +value: string,
+  +disabled: boolean,
+  +onChange: (hex: string) => void,
+|};
+type State = {|
+  +pickerOpen: boolean,
+|};
 type Color = {
-  hex: string,
+  +hex: string,
+  ...
 };
 
 class ColorPicker extends React.PureComponent<Props, State> {
@@ -32,7 +32,7 @@ class ColorPicker extends React.PureComponent<Props, State> {
 
   render() {
     let picker = null;
-    if (this.state.pickerOpen) {
+    if (this.state.pickerOpen && !this.props.disabled) {
       picker = (
         <div className={css['color-picker-selector']}>
           <ChromePicker
@@ -80,12 +80,5 @@ class ColorPicker extends React.PureComponent<Props, State> {
     this.setState({ pickerOpen: false });
   };
 }
-
-ColorPicker.propTypes = {
-  id: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired,
-  disabled: PropTypes.bool.isRequired,
-  onChange: PropTypes.func.isRequired,
-};
 
 export default ColorPicker;

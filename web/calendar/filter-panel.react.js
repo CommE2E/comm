@@ -25,7 +25,6 @@ import {
   setCalendarDeletedFilter,
 } from 'lib/types/filter-types';
 import type { Dispatch } from 'lib/types/redux-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
 
 import ThreadSettingsModal from '../modals/threads/thread-settings-modal.react';
 import { useSelector } from '../redux/redux-utils';
@@ -204,9 +203,9 @@ class FilterPanel extends React.PureComponent<Props, State> {
     }
   }
 
-  onClickSettings = (threadInfo: ThreadInfo) => {
+  onClickSettings = (threadID: string) => {
     this.props.setModal(
-      <ThreadSettingsModal threadInfo={threadInfo} onClose={this.clearModal} />,
+      <ThreadSettingsModal threadID={threadID} onClose={this.clearModal} />,
     );
   };
 
@@ -249,7 +248,7 @@ type ItemProps = {|
   +filterThreadInfo: FilterThreadInfo,
   +onToggle: (threadID: string, value: boolean) => void,
   +onClickOnly: (threadID: string) => void,
-  +onClickSettings: (threadInfo: ThreadInfo) => void,
+  +onClickSettings: (threadID: string) => void,
   +selected: boolean,
 |};
 class Item extends React.PureComponent<ItemProps> {
@@ -309,7 +308,7 @@ class Item extends React.PureComponent<ItemProps> {
 
   onClickSettings = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.props.onClickSettings(this.props.filterThreadInfo.threadInfo);
+    this.props.onClickSettings(this.props.filterThreadInfo.threadInfo.id);
   };
 }
 
