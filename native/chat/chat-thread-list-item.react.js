@@ -100,22 +100,21 @@ function ChatThreadListItem({
           iosFormat="highlight"
           iosHighlightUnderlayColor={colors.listIosHighlightUnderlay}
           iosActiveOpacity={0.85}
+          style={styles.container}
         >
-          <View style={styles.container}>
-            <View style={styles.row}>
-              <SingleLine style={[styles.threadName, unreadStyle]}>
-                {data.threadInfo.uiName}
-              </SingleLine>
-              <View style={styles.colorSplotch}>
-                <ColorSplotch color={data.threadInfo.color} size="small" />
-              </View>
+          <View style={styles.row}>
+            <SingleLine style={[styles.threadName, unreadStyle]}>
+              {data.threadInfo.uiName}
+            </SingleLine>
+            <View style={styles.colorSplotch}>
+              <ColorSplotch color={data.threadInfo.color} size="small" />
             </View>
-            <View style={styles.row}>
-              {lastMessage}
-              <Text style={[styles.lastActivity, unreadStyle]}>
-                {lastActivity}
-              </Text>
-            </View>
+          </View>
+          <View style={styles.row}>
+            {lastMessage}
+            <Text style={[styles.lastActivity, unreadStyle]}>
+              {lastActivity}
+            </Text>
           </View>
         </Button>
       </SwipeableThread>
