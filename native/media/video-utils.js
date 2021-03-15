@@ -112,7 +112,7 @@ async function processVideo(
     exceptionMessage;
   const start = Date.now();
   try {
-    const { rc, lastStats } = await ffmpeg.process(
+    const { rc, lastStats } = await ffmpeg.transcodeVideo(
       ffmpegCommand,
       duration,
       config.onTranscodingProgress,

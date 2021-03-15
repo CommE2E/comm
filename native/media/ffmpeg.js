@@ -74,7 +74,7 @@ class FFmpeg {
     toRun.forEach(({ runCommand }) => runCommand());
   }
 
-  process(
+  transcodeVideo(
     ffmpegCommand: string,
     inputVideoDuration: number,
     onTranscodingProgress: (percent: number) => void,
@@ -94,6 +94,18 @@ class FFmpeg {
       return { ...ffmpegResult, lastStats };
     };
     return this.queueCommand('process', wrappedCommand);
+  }
+
+  generateThumbnail(videoPath: string, outputPath: string) {
+    const wrappedCommand = () =>
+      FFmpeg.innerGenerateThumbnail(videoPath, outputPath);
+    return this.queueCommand('process', wrappedCommand);
+  }
+
+  static async innerGenerateThumbnail(videoPath: string, outputPath: string) {
+    const thumbnailCommand = `-i ${videoPath} -frames 1 -f singlejpeg ${outputPath}`;
+    const { rc } = await RNFFmpeg.execute(thumbnailCommand);
+    return rc;
   }
 
   getVideoInfo(path: string) {
