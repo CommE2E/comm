@@ -1,15 +1,11 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
 import {
   type MediaType,
-  mediaTypePropType,
   type Dimensions,
-  dimensionsPropType,
   type MediaMissionStep,
-  mediaMissionStepPropType,
 } from 'lib/types/media-types';
 import type { RawTextMessageInfo } from 'lib/types/messages/text';
 
@@ -36,22 +32,6 @@ export type PendingMultimediaUpload = {|
   steps: MediaMissionStep[],
   selectTime: number,
 |};
-const pendingMultimediaUploadPropType = PropTypes.shape({
-  localID: PropTypes.string.isRequired,
-  serverID: PropTypes.string,
-  messageID: PropTypes.string,
-  failed: PropTypes.string,
-  file: PropTypes.object.isRequired,
-  mediaType: mediaTypePropType.isRequired,
-  dimensions: dimensionsPropType,
-  uri: PropTypes.string.isRequired,
-  loop: PropTypes.bool.isRequired,
-  uriIsReal: PropTypes.bool.isRequired,
-  progressPercent: PropTypes.number.isRequired,
-  abort: PropTypes.func,
-  steps: PropTypes.arrayOf(mediaMissionStepPropType).isRequired,
-  selectTime: PropTypes.number.isRequired,
-});
 
 // This type represents the input state for a particular thread
 export type InputState = {|
@@ -71,29 +51,7 @@ export type InputState = {|
   addReplyListener: ((message: string) => void) => void,
   removeReplyListener: ((message: string) => void) => void,
 |};
-const arrayOfUploadsPropType = PropTypes.arrayOf(
-  pendingMultimediaUploadPropType,
-);
-const inputStatePropType = PropTypes.shape({
-  pendingUploads: arrayOfUploadsPropType.isRequired,
-  assignedUploads: PropTypes.objectOf(arrayOfUploadsPropType).isRequired,
-  draft: PropTypes.string.isRequired,
-  appendFiles: PropTypes.func.isRequired,
-  cancelPendingUpload: PropTypes.func.isRequired,
-  sendTextMessage: PropTypes.func.isRequired,
-  createMultimediaMessage: PropTypes.func.isRequired,
-  setDraft: PropTypes.func.isRequired,
-  messageHasUploadFailure: PropTypes.func.isRequired,
-  retryMultimediaMessage: PropTypes.func.isRequired,
-  addReply: PropTypes.func.isRequired,
-  addReplyListener: PropTypes.func.isRequired,
-  removeReplyListener: PropTypes.func.isRequired,
-});
 
 const InputStateContext = React.createContext<?InputState>(null);
 
-export {
-  pendingMultimediaUploadPropType,
-  inputStatePropType,
-  InputStateContext,
-};
+export { InputStateContext };

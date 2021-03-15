@@ -1,7 +1,6 @@
 // @flow
 
 import LottieView from 'lottie-react-native';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   TouchableOpacity,
@@ -19,16 +18,10 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import Video from 'react-native-video';
 
-import {
-  type MediaLibrarySelection,
-  mediaLibrarySelectionPropType,
-} from 'lib/types/media-types';
+import { type MediaLibrarySelection } from 'lib/types/media-types';
 
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
-import {
-  type DimensionsInfo,
-  dimensionsInfoPropType,
-} from '../redux/dimensions-updater.react';
+import { type DimensionsInfo } from '../redux/dimensions-updater.react';
 import type { ViewStyle, ImageStyle } from '../types/styles';
 
 const animatedSpec = {
@@ -53,17 +46,6 @@ type Props = {|
   +dimensions: DimensionsInfo,
 |};
 class MediaGalleryMedia extends React.PureComponent<Props> {
-  static propTypes = {
-    selection: mediaLibrarySelectionPropType.isRequired,
-    containerHeight: PropTypes.number.isRequired,
-    queueModeActive: PropTypes.bool.isRequired,
-    isQueued: PropTypes.bool.isRequired,
-    setMediaQueued: PropTypes.func.isRequired,
-    sendMedia: PropTypes.func.isRequired,
-    isFocused: PropTypes.bool.isRequired,
-    setFocus: PropTypes.func.isRequired,
-    dimensions: dimensionsInfoPropType.isRequired,
-  };
   // eslint-disable-next-line import/no-named-as-default-member
   focusProgress = new Reanimated.Value(0);
   buttonsStyle: ViewStyle;

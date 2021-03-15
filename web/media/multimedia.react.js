@@ -2,7 +2,6 @@
 
 import classNames from 'classnames';
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
@@ -11,10 +10,7 @@ import {
   AlertCircle as AlertCircleIcon,
 } from 'react-feather';
 
-import {
-  type PendingMultimediaUpload,
-  pendingMultimediaUploadPropType,
-} from '../input/input-state';
+import { type PendingMultimediaUpload } from '../input/input-state';
 import css from './media.css';
 import MultimediaModal from './multimedia-modal.react';
 
@@ -27,15 +23,6 @@ type Props = {|
   multimediaImageCSSClass: string,
 |};
 class Multimedia extends React.PureComponent<Props> {
-  static propTypes = {
-    uri: PropTypes.string.isRequired,
-    pendingUpload: pendingMultimediaUploadPropType,
-    remove: PropTypes.func,
-    setModal: PropTypes.func,
-    multimediaCSSClass: PropTypes.string.isRequired,
-    multimediaImageCSSClass: PropTypes.string.isRequired,
-  };
-
   componentDidUpdate(prevProps: Props) {
     const { uri, pendingUpload } = this.props;
     if (uri === prevProps.uri) {

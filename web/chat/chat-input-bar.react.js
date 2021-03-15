@@ -5,7 +5,6 @@ import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import invariant from 'invariant';
 import _difference from 'lodash/fp/difference';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
 import { joinThreadActionTypes, joinThread } from 'lib/actions/thread-actions';
@@ -19,17 +18,15 @@ import {
   useRealThreadCreator,
 } from 'lib/shared/thread-utils';
 import type { CalendarQuery } from 'lib/types/entry-types';
-import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { messageTypes } from 'lib/types/message-types';
 import {
   type ThreadInfo,
-  threadInfoPropType,
   threadPermissions,
   type ClientThreadJoinRequest,
   type ThreadJoinPayload,
 } from 'lib/types/thread-types';
-import { type UserInfos, userInfoPropType } from 'lib/types/user-types';
+import { type UserInfos } from 'lib/types/user-types';
 import {
   type DispatchActionPromise,
   useServerCall,
@@ -37,7 +34,6 @@ import {
 } from 'lib/utils/action-utils';
 
 import {
-  inputStatePropType,
   type InputState,
   type PendingMultimediaUpload,
 } from '../input/input-state';
@@ -70,20 +66,6 @@ type Props = {|
   +getServerThreadID: () => Promise<?string>,
 |};
 class ChatInputBar extends React.PureComponent<Props> {
-  static propTypes = {
-    threadInfo: threadInfoPropType.isRequired,
-    inputState: inputStatePropType.isRequired,
-    setModal: PropTypes.func.isRequired,
-    viewerID: PropTypes.string,
-    joinThreadLoadingStatus: loadingStatusPropType.isRequired,
-    calendarQuery: PropTypes.func.isRequired,
-    nextLocalID: PropTypes.number.isRequired,
-    isThreadActive: PropTypes.bool.isRequired,
-    userInfos: PropTypes.objectOf(userInfoPropType).isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    joinThread: PropTypes.func.isRequired,
-    getServerThreadID: PropTypes.func.isRequired,
-  };
   textarea: ?HTMLTextAreaElement;
   multimediaInput: ?HTMLInputElement;
 

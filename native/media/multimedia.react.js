@@ -1,17 +1,12 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, Image, StyleSheet } from 'react-native';
 
-import { type MediaInfo, mediaInfoPropType } from 'lib/types/media-types';
+import { type MediaInfo } from 'lib/types/media-types';
 
-import {
-  type InputState,
-  inputStatePropType,
-  InputStateContext,
-} from '../input/input-state';
+import { type InputState, InputStateContext } from '../input/input-state';
 import RemoteImage from './remote-image.react';
 
 type BaseProps = {|
@@ -28,11 +23,6 @@ type State = {|
   +departingURI: ?string,
 |};
 class Multimedia extends React.PureComponent<Props, State> {
-  static propTypes = {
-    mediaInfo: mediaInfoPropType.isRequired,
-    spinnerColor: PropTypes.string.isRequired,
-    inputState: inputStatePropType,
-  };
   static defaultProps = {
     spinnerColor: 'black',
   };
