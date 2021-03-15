@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { ChromePicker } from 'react-color';
+import { type ColorResult, ChromePicker } from 'react-color';
 
 import css from '../../style.css';
 
@@ -14,10 +14,6 @@ type Props = {|
 type State = {|
   +pickerOpen: boolean,
 |};
-type Color = {
-  +hex: string,
-  ...
-};
 
 class ColorPicker extends React.PureComponent<Props, State> {
   props: Props;
@@ -68,7 +64,7 @@ class ColorPicker extends React.PureComponent<Props, State> {
     }
   };
 
-  onChangeColor = (color: Color) => {
+  onChangeColor = (color: ColorResult) => {
     this.props.onChange(color.hex.substring(1, 7));
   };
 
