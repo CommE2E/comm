@@ -58,8 +58,8 @@ const unboundStyles = {
     height: 30,
     flexDirection: 'row',
     display: 'flex',
-    marginLeft: 25,
-    marginRight: 10,
+    paddingLeft: 25,
+    paddingRight: 10,
     alignItems: 'center',
   },
   icon: {

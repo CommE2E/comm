@@ -154,8 +154,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   sidebar: {
-    marginLeft: 0,
-    marginRight: 5,
+    paddingLeft: 0,
+    paddingRight: 5,
   },
 });
 
