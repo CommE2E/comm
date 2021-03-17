@@ -551,9 +551,18 @@ export default React.memo<BaseProps>(function ConnectedThreadSettingsModal(
   const callDeleteThread = useServerCall(deleteThread);
   const callChangeThreadSettings = useServerCall(changeThreadSettings);
   const dispatchActionPromise = useDispatchActionPromise();
-  const threadInfo = useSelector(
+  const threadInfo: ?ThreadInfo = useSelector(
     (state) => threadInfoSelector(state)[props.threadID],
   );
+  if (!threadInfo) {
+    return (
+      <Modal onClose={props.onClose} name="Invalid thread">
+        <div className={css['modal-body']}>
+          <p>You no longer have permission to view this thread</p>
+        </div>
+      </Modal>
+    );
+  }
 
   return (
     <ThreadSettingsModal
