@@ -25,12 +25,12 @@ const uploadSpeeds = Object.freeze({
 const clientTranscodeSpeed = 1.15; // in seconds of video transcoded per second
 
 type ProcessVideoInfo = {|
-  uri: string,
-  mime: string,
-  filename: string,
-  fileSize: number,
-  dimensions: Dimensions,
-  hasWiFi: boolean,
+  +uri: string,
+  +mime: string,
+  +filename: string,
+  +fileSize: number,
+  +dimensions: Dimensions,
+  +hasWiFi: boolean,
 |};
 
 type VideoProcessConfig = {|
@@ -38,11 +38,11 @@ type VideoProcessConfig = {|
 |};
 
 type ProcessVideoResponse = {|
-  success: true,
-  uri: string,
-  mime: string,
-  dimensions: Dimensions,
-  loop: boolean,
+  +success: true,
+  +uri: string,
+  +mime: string,
+  +dimensions: Dimensions,
+  +loop: boolean,
 |};
 async function processVideo(
   input: ProcessVideoInfo,

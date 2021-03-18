@@ -18,20 +18,20 @@ import { saveMedia } from './save-media';
 import { processVideo } from './video-utils';
 
 type MediaProcessConfig = {|
-  hasWiFi: boolean,
+  +hasWiFi: boolean,
   // Blocks return until we can confirm result has the correct MIME
-  finalFileHeaderCheck?: boolean,
-  onTranscodingProgress: (percent: number) => void,
+  +finalFileHeaderCheck?: boolean,
+  +onTranscodingProgress: (percent: number) => void,
 |};
 type MediaResult = {|
-  success: true,
-  uploadURI: string,
-  shouldDisposePath: ?string,
-  filename: string,
-  mime: string,
-  mediaType: MediaType,
-  dimensions: Dimensions,
-  loop: boolean,
+  +success: true,
+  +uploadURI: string,
+  +shouldDisposePath: ?string,
+  +filename: string,
+  +mime: string,
+  +mediaType: MediaType,
+  +dimensions: Dimensions,
+  +loop: boolean,
 |};
 function processMedia(
   selection: NativeMediaSelection,
