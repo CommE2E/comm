@@ -425,9 +425,15 @@ async function copyFile(
   };
 }
 
+const temporaryDirectoryPath: string = Platform.select({
+  ios: filesystem.TemporaryDirectoryPath,
+  default: `${filesystem.TemporaryDirectoryPath}/`,
+});
+
 export {
   fetchAssetInfo,
   fetchFileInfo,
+  temporaryDirectoryPath,
   disposeTempFile,
   mkdir,
   androidScanFile,

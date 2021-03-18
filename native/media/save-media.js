@@ -32,6 +32,7 @@ import {
   androidScanFile,
   fetchFileHash,
   copyFile,
+  temporaryDirectoryPath,
 } from './file-utils';
 import { getMediaLibraryIdentifier } from './identifier-utils';
 
@@ -194,10 +195,7 @@ async function saveMediaAndroid(
         const {
           result: tempSaveResult,
           steps: tempSaveSteps,
-        } = await saveRemoteMediaToDisk(
-          uri,
-          `${filesystem.TemporaryDirectoryPath}/`,
-        );
+        } = await saveRemoteMediaToDisk(uri, temporaryDirectoryPath);
         steps.push(...tempSaveSteps);
         if (!tempSaveResult.success) {
           success = false;
@@ -263,7 +261,7 @@ async function saveMediaIOS(
     const {
       result: tempSaveResult,
       steps: tempSaveSteps,
-    } = await saveRemoteMediaToDisk(uri, filesystem.TemporaryDirectoryPath);
+    } = await saveRemoteMediaToDisk(uri, temporaryDirectoryPath);
     steps.push(...tempSaveSteps);
     if (!tempSaveResult.success) {
       sendResult(tempSaveResult);

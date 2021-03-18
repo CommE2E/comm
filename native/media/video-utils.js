@@ -15,6 +15,7 @@ import type {
 import { getMessageForException } from 'lib/utils/errors';
 
 import { ffmpeg } from './ffmpeg';
+import { temporaryDirectoryPath } from './file-utils';
 
 // These are some numbers I sorta kinda made up
 // We should try to calculate them on a per-device basis
@@ -70,10 +71,7 @@ async function processVideo(
     inputFilename: input.filename,
     inputDuration: duration,
     inputDimensions: input.dimensions,
-    outputDirectory: Platform.select({
-      ios: filesystem.TemporaryDirectoryPath,
-      default: `${filesystem.TemporaryDirectoryPath}/`,
-    }),
+    outputDirectory: temporaryDirectoryPath,
     // We want ffmpeg to use hardware-accelerated encoders. On iOS we can do
     // this using VideoToolbox, but ffmpeg on Android is still missing
     // MediaCodec encoding support: https://trac.ffmpeg.org/ticket/6407
