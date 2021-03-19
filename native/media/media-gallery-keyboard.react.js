@@ -344,7 +344,9 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
       );
     } else if (selections && containerHeight) {
       content = (
-        <Text style={this.props.styles.error}>no media was found!</Text>
+        <Text style={[this.props.styles.error, bottomOffsetStyle]}>
+          no media was found!
+        </Text>
       );
     } else if (error) {
       content = (
