@@ -12,6 +12,7 @@ import type {
   MediaMissionFailure,
   VideoProbeMediaMissionStep,
   TranscodeVideoMediaMissionStep,
+  VideoGenerateThumbnailMediaMissionStep,
   Dimensions,
 } from 'lib/types/media-types';
 import { getMessageForException } from 'lib/utils/errors';
@@ -43,6 +44,7 @@ type VideoProcessConfig = {|
 type ProcessVideoResponse = {|
   +success: true,
   +uri: string,
+  +thumbnailURI: string,
   +mime: string,
   +dimensions: Dimensions,
   +loop: boolean,
@@ -92,36 +94,62 @@ async function processVideo(
     return { steps, result: plan.failure };
   }
   if (plan.action === 'none') {
+    const thumbnailStep = await generateThumbnail(path, plan.thumbnailPath);
+    steps.push(thumbnailStep);
+    if (!thumbnailStep.success) {
+      unlink(plan.thumbnailPath);
+      return {
+        steps,
+        result: { success: false, reason: 'video_generate_thumbnail_failed' },
+      };
+    }
     return {
       steps,
       result: {
         success: true,
         uri: input.uri,
+        thumbnailURI: `file://${plan.thumbnailPath}`,
         mime: 'video/mp4',
         dimensions: input.dimensions,
         loop: false,
       },
     };
   }
-  const { outputPath } = plan;
 
-  const transcodeStep = await transcodeVideo(
-    plan,
-    duration,
-    config.onTranscodingProgress,
-  );
-  steps.push(transcodeStep);
-  if (!transcodeStep.success) {
+  const [thumbnailStep, transcodeStep] = await Promise.all([
+    generateThumbnail(path, plan.thumbnailPath),
+    transcodeVideo(plan, duration, config.onTranscodingProgress),
+  ]);
+  steps.push(thumbnailStep, transcodeStep);
+
+  if (!thumbnailStep.success) {
+    unlink(plan.outputPath);
+    unlink(plan.thumbnailPath);
     return {
       steps,
-      result: { success: false, reason: 'video_transcode_failed' },
+      result: {
+        success: false,
+        reason: 'video_generate_thumbnail_failed',
+      },
+    };
+  }
+  if (!transcodeStep.success) {
+    unlink(plan.outputPath);
+    unlink(plan.thumbnailPath);
+    return {
+      steps,
+      result: {
+        success: false,
+        reason: 'video_transcode_failed',
+      },
     };
   }
 
-  const transcodeProbeStep = await checkVideoInfo(outputPath);
+  const transcodeProbeStep = await checkVideoInfo(plan.outputPath);
   steps.push(transcodeProbeStep);
   if (!transcodeProbeStep.validFormat) {
-    unlink(outputPath);
+    unlink(plan.outputPath);
+    unlink(plan.thumbnailPath);
     return {
       steps,
       result: { success: false, reason: 'video_transcode_failed' },
@@ -140,11 +168,31 @@ async function processVideo(
     steps,
     result: {
       success: true,
-      uri: `file://${outputPath}`,
+      uri: `file://${plan.outputPath}`,
+      thumbnailURI: `file://${plan.thumbnailPath}`,
       mime: 'video/mp4',
       dimensions,
       loop,
     },
+  };
+}
+
+async function generateThumbnail(
+  path: string,
+  thumbnailPath: string,
+): Promise<VideoGenerateThumbnailMediaMissionStep> {
+  const thumbnailStart = Date.now();
+  const thumbnailReturnCode = await ffmpeg.generateThumbnail(
+    path,
+    thumbnailPath,
+  );
+  const thumbnailGenerationSuccessful = thumbnailReturnCode === 0;
+  return {
+    step: 'video_generate_thumbnail',
+    success: thumbnailGenerationSuccessful,
+    time: Date.now() - thumbnailStart,
+    returnCode: thumbnailReturnCode,
+    thumbnailURI: thumbnailPath,
   };
 }
 
@@ -173,9 +221,6 @@ async function transcodeVideo(
     }
   } catch (e) {
     exceptionMessage = getMessageForException(e);
-  }
-  if (!success) {
-    unlink(plan.outputPath);
   }
 
   return {

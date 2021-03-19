@@ -2,6 +2,7 @@
 
 import invariant from 'invariant';
 import { Image } from 'react-native';
+import { unlink } from 'react-native-fs';
 
 import { pathFromURI, readableFilename } from 'lib/media/file-utils';
 import type {
@@ -26,6 +27,7 @@ type MediaProcessConfig = {|
 type MediaResult = {|
   +success: true,
   +uploadURI: string,
+  +thumbnailURI: ?string,
   +shouldDisposePath: ?string,
   +filename: string,
   +mime: string,
@@ -62,6 +64,7 @@ async function innerProcessMedia(
 ): Promise<$ReadOnlyArray<MediaMissionStep>> {
   let initialURI = null,
     uploadURI = null,
+    thumbnailURI = null,
     dimensions = selection.dimensions,
     mediaType = null,
     mime = null,
@@ -88,6 +91,7 @@ async function innerProcessMedia(
     sendResult({
       success: true,
       uploadURI,
+      thumbnailURI,
       shouldDisposePath,
       filename,
       mime,
@@ -167,7 +171,10 @@ async function innerProcessMedia(
     if (!videoResult.success) {
       return await finish(videoResult);
     }
-    ({ uri: uploadURI, mime, dimensions, loop } = videoResult);
+    ({ uri: uploadURI, thumbnailURI, mime, dimensions, loop } = videoResult);
+    // unlink the thumbnailURI so we don't clog up temp dir
+    // we use thumbnailURI in subsequent diffs
+    unlink(thumbnailURI);
   } else if (mediaType === 'photo') {
     const { steps: imageSteps, result: imageResult } = await processImage({
       uri: initialURI,
