@@ -47,6 +47,9 @@ type CodeVerification = {|
 async function verifyCode(hex: string): Promise<CodeVerification> {
   const code = hex.substr(0, 8);
   const id = parseInt(hex.substr(8), 16);
+  if (isNaN(id)) {
+    throw new ServerError('invalid_code');
+  }
 
   const query = SQL`
     SELECT hash, user, field, creation_time
@@ -100,8 +103,7 @@ async function handleCodeVerificationRequest(
   viewer: Viewer,
   code: string,
 ): Promise<ServerSuccessfulVerificationResult> {
-  const result = await verifyCode(code);
-  const { userID, field } = result;
+  const { userID, field } = await verifyCode(code);
   if (field === verifyField.EMAIL) {
     const query = SQL`UPDATE users SET email_verified = 1 WHERE id = ${userID}`;
     await dbQuery(query);
