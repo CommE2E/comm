@@ -1,6 +1,5 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { AppRegistry, Platform, Alert, Vibration, LogBox } from 'react-native';
 import type { RemoteMessage, NotificationOpen } from 'react-native-firebase';
@@ -22,11 +21,8 @@ import {
 import { isLoggedIn } from 'lib/selectors/user-selectors';
 import { mergePrefixIntoBody } from 'lib/shared/notif-utils';
 import type { Dispatch } from 'lib/types/redux-types';
-import {
-  type ConnectionInfo,
-  connectionInfoPropType,
-} from 'lib/types/socket-types';
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import { type ConnectionInfo } from 'lib/types/socket-types';
+import { type ThreadInfo } from 'lib/types/thread-types';
 import {
   useServerCall,
   useDispatchActionPromise,
@@ -47,16 +43,9 @@ import {
   clearAndroidNotificationsActionType,
 } from '../redux/action-types';
 import { useSelector } from '../redux/redux-utils';
-import {
-  RootContext,
-  type RootContextType,
-  rootContextPropType,
-} from '../root-context';
-import { type GlobalTheme, globalThemePropType } from '../types/themes';
-import {
-  type NotifPermissionAlertInfo,
-  notifPermissionAlertInfoPropType,
-} from './alerts';
+import { RootContext, type RootContextType } from '../root-context';
+import { type GlobalTheme } from '../types/themes';
+import { type NotifPermissionAlertInfo } from './alerts';
 import {
   androidNotificationChannelID,
   handleAndroidMessage,
@@ -107,30 +96,12 @@ type Props = {|
 |};
 type State = {|
   +inAppNotifProps: ?{|
-    customComponent: React.Node,
-    blurType: ?('xlight' | 'dark'),
-    onPress: () => void,
+    +customComponent: React.Node,
+    +blurType: ?('xlight' | 'dark'),
+    +onPress: () => void,
   |},
 |};
 class PushHandler extends React.PureComponent<Props, State> {
-  static propTypes = {
-    navigation: PropTypes.shape({
-      navigate: PropTypes.func.isRequired,
-    }).isRequired,
-    activeThread: PropTypes.string,
-    unreadCount: PropTypes.number.isRequired,
-    deviceToken: PropTypes.string,
-    threadInfos: PropTypes.objectOf(threadInfoPropType).isRequired,
-    notifPermissionAlertInfo: notifPermissionAlertInfoPropType.isRequired,
-    connection: connectionInfoPropType.isRequired,
-    updatesCurrentAsOf: PropTypes.number.isRequired,
-    activeTheme: globalThemePropType,
-    loggedIn: PropTypes.bool.isRequired,
-    dispatch: PropTypes.func.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    setDeviceToken: PropTypes.func.isRequired,
-    rootContext: rootContextPropType,
-  };
   state: State = {
     inAppNotifProps: null,
   };

@@ -1,7 +1,5 @@
 // @flow
 
-import PropTypes from 'prop-types';
-
 import type { Shape } from 'lib/types/core';
 
 export type SimpleStateSetter<S: {}> = (
@@ -20,11 +18,6 @@ export type StateContainer<S: {}> = {
   setState: SimpleStateSetter<S>,
 };
 
-const stateContainerPropType = PropTypes.shape({
-  state: PropTypes.object.isRequired,
-  setState: PropTypes.func.isRequired,
-});
-
 function setStateForContainer<FullState: {}, OurContainer: {}>(
   setState: StateSetter<FullState>,
   reverseSelector: (ourChange: Shape<OurContainer>) => StateChange<FullState>,
@@ -33,4 +26,4 @@ function setStateForContainer<FullState: {}, OurContainer: {}>(
     setState(reverseSelector(ourChange), callback);
 }
 
-export { setStateForContainer, stateContainerPropType };
+export { setStateForContainer };

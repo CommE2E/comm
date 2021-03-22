@@ -1,7 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
 import {
@@ -160,13 +159,6 @@ class ForgotPasswordModal extends React.PureComponent<Props, State> {
     this.props.setModal(null);
   };
 }
-
-ForgotPasswordModal.propTypes = {
-  setModal: PropTypes.func.isRequired,
-  inputDisabled: PropTypes.bool.isRequired,
-  dispatchActionPromise: PropTypes.func.isRequired,
-  forgotPassword: PropTypes.func.isRequired,
-};
 
 const loadingStatusSelector = createLoadingStatusSelector(
   forgotPasswordActionTypes,

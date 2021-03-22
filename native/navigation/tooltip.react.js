@@ -2,7 +2,6 @@
 
 import type { LeafRoute } from '@react-navigation/native';
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   View,
@@ -10,8 +9,6 @@ import {
   TouchableWithoutFeedback,
   Platform,
   TouchableOpacity,
-  Text,
-  ViewPropTypes,
 } from 'react-native';
 import { TapticFeedback } from 'react-native-in-app-message';
 import Animated from 'react-native-reanimated';
@@ -19,7 +16,6 @@ import { useDispatch } from 'react-redux';
 
 import {
   type ServerCallState,
-  serverCallStatePropType,
   serverCallStateSelector,
 } from 'lib/selectors/server-calls';
 import type { Dispatch } from 'lib/types/redux-types';
@@ -32,30 +28,17 @@ import {
 } from 'lib/utils/action-utils';
 
 import { SingleLine } from '../components/single-line.react';
-import {
-  type InputState,
-  inputStatePropType,
-  InputStateContext,
-} from '../input/input-state';
-import {
-  type DimensionsInfo,
-  dimensionsInfoPropType,
-} from '../redux/dimensions-updater.react';
+import { type InputState, InputStateContext } from '../input/input-state';
+import { type DimensionsInfo } from '../redux/dimensions-updater.react';
 import { useSelector } from '../redux/redux-utils';
 import {
   type VerticalBounds,
-  verticalBoundsPropType,
   type LayoutCoordinates,
-  layoutCoordinatesPropType,
 } from '../types/layout-types';
 import type { LayoutEvent } from '../types/react-native';
 import type { ViewStyle, TextStyle } from '../types/styles';
 import type { AppNavigationProp } from './app-navigator.react';
-import {
-  OverlayContext,
-  type OverlayContextType,
-  overlayContextPropType,
-} from './overlay-context';
+import { OverlayContext, type OverlayContextType } from './overlay-context';
 import type { TooltipModalParamList } from './route-names';
 
 /* eslint-disable import/no-named-as-default-member */
@@ -126,16 +109,6 @@ function createTooltip<RouteName: $Keys<TooltipModalParamList>>(
   tooltipSpec: TooltipSpec<RouteName>,
 ): React.ComponentType<BaseTooltipProps<RouteName>> {
   class TooltipItem extends React.PureComponent<TooltipItemProps<RouteName>> {
-    static propTypes = {
-      spec: PropTypes.shape({
-        text: PropTypes.string.isRequired,
-        onPress: PropTypes.func.isRequired,
-      }).isRequired,
-      onPress: PropTypes.func.isRequired,
-      containerStyle: ViewPropTypes.style,
-      labelStyle: Text.propTypes.style,
-    };
-
     render() {
       return (
         <TouchableOpacity
@@ -154,28 +127,6 @@ function createTooltip<RouteName: $Keys<TooltipModalParamList>>(
     };
   }
   class Tooltip extends React.PureComponent<TooltipProps<RouteName>> {
-    static propTypes = {
-      navigation: PropTypes.shape({
-        goBackOnce: PropTypes.func.isRequired,
-        navigate: PropTypes.func.isRequired,
-      }).isRequired,
-      route: PropTypes.shape({
-        params: PropTypes.shape({
-          initialCoordinates: layoutCoordinatesPropType.isRequired,
-          verticalBounds: verticalBoundsPropType.isRequired,
-          location: PropTypes.oneOf(['above', 'below']),
-          margin: PropTypes.number,
-          visibleEntryIDs: PropTypes.arrayOf(PropTypes.string),
-        }).isRequired,
-      }).isRequired,
-      dimensions: dimensionsInfoPropType.isRequired,
-      serverCallState: serverCallStatePropType.isRequired,
-      viewerID: PropTypes.string,
-      dispatch: PropTypes.func.isRequired,
-      dispatchActionPromise: PropTypes.func.isRequired,
-      overlayContext: overlayContextPropType,
-      inputState: inputStatePropType,
-    };
     backdropOpacity: Value;
     tooltipContainerOpacity: Value;
     tooltipVerticalAbove: Value;

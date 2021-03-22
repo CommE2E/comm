@@ -1,6 +1,5 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import { createSelector } from 'reselect';
@@ -73,10 +72,6 @@ const light = Object.freeze({
   disconnectedBarBackground: '#C6C6C6',
 });
 export type Colors = $Exact<typeof light>;
-
-const colorsPropType = PropTypes.objectOf(
-  PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-);
 
 const dark: Colors = Object.freeze({
   redButton: '#FF4444',
@@ -234,7 +229,6 @@ function getStylesForTheme<IS: Styles>(
 }
 
 export type IndicatorStyle = 'white' | 'black';
-const indicatorStylePropType = PropTypes.oneOf(['white', 'black']);
 function useIndicatorStyle(): IndicatorStyle {
   const theme = useSelector(
     (state: AppState) => state.globalThemeInfo.activeTheme,
@@ -251,7 +245,6 @@ const indicatorStyleSelector: (
 );
 
 export {
-  colorsPropType,
   colors,
   colorsSelector,
   styleSelector,
@@ -259,7 +252,6 @@ export {
   useOverlayStyles,
   useColors,
   getStylesForTheme,
-  indicatorStylePropType,
   useIndicatorStyle,
   indicatorStyleSelector,
 };

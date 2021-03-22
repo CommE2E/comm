@@ -1,21 +1,16 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { XCircle as XCircleIcon } from 'react-feather';
 
 import css from './media.css';
 
 type Props = {|
-  uri: string,
-  setModal: (modal: ?React.Node) => void,
+  +uri: string,
+  +setModal: (modal: ?React.Node) => void,
 |};
 class MultimediaModal extends React.PureComponent<Props> {
-  static propTypes = {
-    uri: PropTypes.string.isRequired,
-    setModal: PropTypes.func.isRequired,
-  };
   overlay: ?HTMLDivElement;
 
   componentDidMount() {

@@ -1,7 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
 import { registerActionTypes, register } from 'lib/actions/user-actions';
@@ -298,14 +297,6 @@ class RegisterModal extends React.PureComponent<Props, State> {
     this.props.setModal(null);
   };
 }
-
-RegisterModal.propTypes = {
-  setModal: PropTypes.func.isRequired,
-  inputDisabled: PropTypes.bool.isRequired,
-  logInExtraInfo: PropTypes.func.isRequired,
-  dispatchActionPromise: PropTypes.func.isRequired,
-  register: PropTypes.func.isRequired,
-};
 
 const loadingStatusSelector = createLoadingStatusSelector(registerActionTypes);
 

@@ -1,7 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
@@ -230,14 +229,6 @@ class LogInModal extends React.PureComponent<Props, State> {
     this.props.setModal(null);
   };
 }
-
-LogInModal.propTypes = {
-  setModal: PropTypes.func.isRequired,
-  inputDisabled: PropTypes.bool.isRequired,
-  logInExtraInfo: PropTypes.func.isRequired,
-  dispatchActionPromise: PropTypes.func.isRequired,
-  logIn: PropTypes.func.isRequired,
-};
 
 const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 

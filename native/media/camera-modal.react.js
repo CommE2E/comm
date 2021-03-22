@@ -1,7 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   View,
@@ -35,33 +34,21 @@ import { useRealThreadCreator } from 'lib/shared/thread-utils';
 import type { PhotoCapture } from 'lib/types/media-types';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { OptimisticThreadInfo } from 'lib/types/thread-types';
-import { optimisticThreadInfoPropType } from 'lib/types/thread-types';
 
 import ContentLoading from '../components/content-loading.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
-import {
-  type InputState,
-  inputStatePropType,
-  InputStateContext,
-} from '../input/input-state';
+import { type InputState, InputStateContext } from '../input/input-state';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import {
   OverlayContext,
   type OverlayContextType,
-  overlayContextPropType,
 } from '../navigation/overlay-context';
 import type { NavigationRoute } from '../navigation/route-names';
 import { updateDeviceCameraInfoActionType } from '../redux/action-types';
-import {
-  type DimensionsInfo,
-  dimensionsInfoPropType,
-} from '../redux/dimensions-updater.react';
+import { type DimensionsInfo } from '../redux/dimensions-updater.react';
 import { useSelector } from '../redux/redux-utils';
 import { colors } from '../themes/colors';
-import {
-  type DeviceCameraInfo,
-  deviceCameraInfoPropType,
-} from '../types/camera';
+import { type DeviceCameraInfo } from '../types/camera';
 import type { NativeMethods } from '../types/react-native';
 import type { ViewStyle } from '../types/styles';
 import { clamp, gestureJustEnded } from '../utils/animation-utils';
@@ -273,24 +260,6 @@ type State = {|
   +pendingPhotoCapture: ?PhotoCapture,
 |};
 class CameraModal extends React.PureComponent<Props, State> {
-  static propTypes = {
-    navigation: PropTypes.shape({
-      goBackOnce: PropTypes.func.isRequired,
-    }).isRequired,
-    route: PropTypes.shape({
-      params: PropTypes.shape({
-        thread: optimisticThreadInfoPropType.isRequired,
-      }).isRequired,
-    }).isRequired,
-    dimensions: dimensionsInfoPropType.isRequired,
-    deviceCameraInfo: deviceCameraInfoPropType.isRequired,
-    deviceOrientation: PropTypes.string.isRequired,
-    foreground: PropTypes.bool.isRequired,
-    dispatch: PropTypes.func.isRequired,
-    getServerThreadID: PropTypes.func.isRequired,
-    inputState: inputStatePropType,
-    overlayContext: overlayContextPropType,
-  };
   camera: ?RNCamera;
 
   pinchEvent;

@@ -2,18 +2,17 @@
 
 import classNames from 'classnames';
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
 import css from '../style.css';
 
 export type ModalSize = 'small' | 'large';
 type Props = {
-  name: string,
-  onClose: () => void,
-  children?: React.Node,
-  size?: ModalSize,
-  fixedHeight?: boolean,
+  +name: string,
+  +onClose: () => void,
+  +children?: React.Node,
+  +size?: ModalSize,
+  +fixedHeight?: boolean,
 };
 
 class Modal extends React.PureComponent<Props> {
@@ -77,11 +76,5 @@ class Modal extends React.PureComponent<Props> {
     }
   };
 }
-
-Modal.propTypes = {
-  name: PropTypes.string.isRequired,
-  onClose: PropTypes.func.isRequired,
-  size: PropTypes.oneOf(['small', 'large']),
-};
 
 export default Modal;

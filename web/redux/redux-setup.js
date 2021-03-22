@@ -1,7 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 
 import {
   logOutActionTypes,
@@ -21,7 +20,6 @@ import type { BaseAction } from 'lib/types/redux-types';
 import type { ClientReportCreationRequest } from 'lib/types/report-types';
 import type { ConnectionInfo } from 'lib/types/socket-types';
 import type { ThreadInfo, ThreadStore } from 'lib/types/thread-types';
-import { threadInfoPropType } from 'lib/types/thread-types';
 import type { CurrentUserInfo, UserStore } from 'lib/types/user-types';
 import type { ServerVerificationResult } from 'lib/types/verify-types';
 import { setNewSessionActionType } from 'lib/utils/action-utils';
@@ -38,16 +36,6 @@ export type NavInfo = {|
   +pendingThread?: ThreadInfo,
   +sourceMessageID?: string,
 |};
-
-export const navInfoPropType = PropTypes.shape({
-  startDate: PropTypes.string.isRequired,
-  endDate: PropTypes.string.isRequired,
-  tab: PropTypes.oneOf(['calendar', 'chat']).isRequired,
-  verify: PropTypes.string,
-  activeChatThreadID: PropTypes.string,
-  pendingThread: threadInfoPropType,
-  sourceMessageID: PropTypes.string,
-});
 
 export type WindowDimensions = {| width: number, height: number |};
 export type AppState = {|

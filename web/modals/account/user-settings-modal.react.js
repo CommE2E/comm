@@ -2,7 +2,6 @@
 
 import classNames from 'classnames';
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
 import {
@@ -20,15 +19,8 @@ import type {
   LogOutResult,
   ChangeUserSettingsResult,
 } from 'lib/types/account-types';
-import {
-  type PreRequestUserState,
-  preRequestUserStatePropType,
-} from 'lib/types/session-types';
-import {
-  type AccountUpdate,
-  type CurrentUserInfo,
-  currentUserPropType,
-} from 'lib/types/user-types';
+import { type PreRequestUserState } from 'lib/types/session-types';
+import { type AccountUpdate, type CurrentUserInfo } from 'lib/types/user-types';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,
@@ -42,10 +34,10 @@ import VerifyEmailModal from './verify-email-modal.react';
 
 type TabType = 'general' | 'delete';
 type TabProps = {
-  name: string,
-  tabType: TabType,
-  selected: boolean,
-  onClick: (tabType: TabType) => void,
+  +name: string,
+  +tabType: TabType,
+  +selected: boolean,
+  +onClick: (tabType: TabType) => void,
 };
 class Tab extends React.PureComponent<TabProps> {
   render() {
@@ -85,26 +77,16 @@ type Props = {|
   +resendVerificationEmail: () => Promise<void>,
 |};
 type State = {
-  email: ?string,
-  emailVerified: ?boolean,
-  newPassword: string,
-  confirmNewPassword: string,
-  currentPassword: string,
-  errorMessage: string,
-  currentTabType: TabType,
+  +email: ?string,
+  +emailVerified: ?boolean,
+  +newPassword: string,
+  +confirmNewPassword: string,
+  +currentPassword: string,
+  +errorMessage: string,
+  +currentTabType: TabType,
 };
 
 class UserSettingsModal extends React.PureComponent<Props, State> {
-  static propTypes = {
-    setModal: PropTypes.func.isRequired,
-    currentUserInfo: currentUserPropType,
-    preRequestUserState: preRequestUserStatePropType.isRequired,
-    inputDisabled: PropTypes.bool.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    deleteAccount: PropTypes.func.isRequired,
-    changeUserSettings: PropTypes.func.isRequired,
-    resendVerificationEmail: PropTypes.func.isRequired,
-  };
   emailInput: ?HTMLInputElement;
   newPasswordInput: ?HTMLInputElement;
   currentPasswordInput: ?HTMLInputElement;

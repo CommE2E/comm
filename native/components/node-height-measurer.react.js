@@ -1,7 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 import shallowequal from 'shallowequal';
@@ -62,14 +61,6 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
   Props<Item, MergedItem>,
   State<Item, MergedItem>,
 > {
-  static propTypes = {
-    listData: PropTypes.arrayOf(PropTypes.object),
-    itemToID: PropTypes.func.isRequired,
-    itemToMeasureKey: PropTypes.func.isRequired,
-    itemToDummy: PropTypes.func.isRequired,
-    mergeItemWithHeight: PropTypes.func.isRequired,
-    allHeightsMeasured: PropTypes.func.isRequired,
-  };
   containerWidth: ?number;
 
   constructor(props: Props<Item, MergedItem>) {

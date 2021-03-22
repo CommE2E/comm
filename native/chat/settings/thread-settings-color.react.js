@@ -1,25 +1,18 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { Text, ActivityIndicator, View, Platform } from 'react-native';
 
 import { changeThreadSettingsActionTypes } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import { type ThreadInfo } from 'lib/types/thread-types';
 
 import ColorSplotch from '../../components/color-splotch.react';
 import EditSettingButton from '../../components/edit-setting-button.react';
 import { ColorPickerModalRouteName } from '../../navigation/route-names';
 import { useSelector } from '../../redux/redux-utils';
-import {
-  type Colors,
-  colorsPropType,
-  useColors,
-  useStyles,
-} from '../../themes/colors';
+import { type Colors, useColors, useStyles } from '../../themes/colors';
 import type { ThreadSettingsNavigate } from './thread-settings.react';
 
 type BaseProps = {|
@@ -38,18 +31,6 @@ type Props = {|
   +styles: typeof unboundStyles,
 |};
 class ThreadSettingsColor extends React.PureComponent<Props> {
-  static propTypes = {
-    threadInfo: threadInfoPropType.isRequired,
-    colorEditValue: PropTypes.string.isRequired,
-    setColorEditValue: PropTypes.func.isRequired,
-    canChangeSettings: PropTypes.bool.isRequired,
-    navigate: PropTypes.func.isRequired,
-    threadSettingsRouteKey: PropTypes.string.isRequired,
-    loadingStatus: loadingStatusPropType.isRequired,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-  };
-
   render() {
     let colorButton;
     if (this.props.loadingStatus !== 'loading') {

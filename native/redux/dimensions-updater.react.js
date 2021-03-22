@@ -1,6 +1,5 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   initialWindowMetrics,
@@ -31,16 +30,6 @@ export type DimensionsInfo = {|
   +tabBarHeight: number,
   +rotated: boolean,
 |};
-
-const dimensionsInfoPropTypeShape = {
-  height: PropTypes.number.isRequired,
-  width: PropTypes.number.isRequired,
-  topInset: PropTypes.number.isRequired,
-  bottomInset: PropTypes.number.isRequired,
-  tabBarHeight: PropTypes.number.isRequired,
-  rotated: PropTypes.bool.isRequired,
-};
-const dimensionsInfoPropType = PropTypes.exact(dimensionsInfoPropTypeShape);
 
 type Metrics = {|
   +frame: {| +x: number, +y: number, +width: number, +height: number |},
@@ -120,9 +109,4 @@ function DimensionsUpdater() {
   return null;
 }
 
-export {
-  dimensionsInfoPropTypeShape,
-  dimensionsInfoPropType,
-  defaultDimensionsInfo,
-  DimensionsUpdater,
-};
+export { defaultDimensionsInfo, DimensionsUpdater };

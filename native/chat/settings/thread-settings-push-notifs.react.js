@@ -1,6 +1,5 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { Text, View, Switch } from 'react-native';
 
@@ -12,7 +11,7 @@ import type {
   SubscriptionUpdateRequest,
   SubscriptionUpdateResult,
 } from 'lib/types/subscription-types';
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import { type ThreadInfo } from 'lib/types/thread-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import {
   useServerCall,
@@ -39,13 +38,6 @@ type State = {|
   +currentValue: boolean,
 |};
 class ThreadSettingsPushNotifs extends React.PureComponent<Props, State> {
-  static propTypes = {
-    threadInfo: threadInfoPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    updateSubscription: PropTypes.func.isRequired,
-  };
-
   constructor(props: Props) {
     super(props);
     this.state = {

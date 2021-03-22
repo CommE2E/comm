@@ -1,6 +1,5 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
 import css from '../../style.css';
@@ -9,8 +8,8 @@ import LogInModal from './log-in-modal.react';
 import RegisterModal from './register-modal.react';
 
 type Props = {
-  inOrderTo: string,
-  setModal: (modal: ?React.Node) => void,
+  +inOrderTo: string,
+  +setModal: (modal: ?React.Node) => void,
 };
 
 class LogInFirstModal extends React.PureComponent<Props> {
@@ -56,10 +55,5 @@ class LogInFirstModal extends React.PureComponent<Props> {
     this.props.setModal(<RegisterModal setModal={this.props.setModal} />);
   };
 }
-
-LogInFirstModal.propTypes = {
-  inOrderTo: PropTypes.string.isRequired,
-  setModal: PropTypes.func.isRequired,
-};
 
 export default LogInFirstModal;

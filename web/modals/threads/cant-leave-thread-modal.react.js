@@ -1,14 +1,13 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
 
-type Props = {
-  onClose: () => void,
-};
+type Props = {|
+  +onClose: () => void,
+|};
 
 class CantLeaveThreadModal extends React.PureComponent<Props> {
   render() {
@@ -24,9 +23,5 @@ class CantLeaveThreadModal extends React.PureComponent<Props> {
     );
   }
 }
-
-CantLeaveThreadModal.propTypes = {
-  onClose: PropTypes.func.isRequired,
-};
 
 export default CantLeaveThreadModal;

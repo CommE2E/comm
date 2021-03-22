@@ -1,14 +1,12 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   Platform,
   View,
   TouchableNativeFeedback,
   TouchableHighlight,
-  ViewPropTypes,
   TouchableOpacity,
 } from 'react-native';
 
@@ -17,34 +15,22 @@ import type { ViewStyle } from '../types/styles';
 const ANDROID_VERSION_LOLLIPOP = 21;
 
 type Props = {
-  onPress: () => *,
-  disabled?: boolean,
-  style?: ViewStyle,
+  +onPress: () => *,
+  +disabled?: boolean,
+  +style?: ViewStyle,
   // style and topStyle just get merged in most cases. The separation only
   // matters in the case of iOS and iosFormat = "highlight", where the
   // topStyle is necessary for layout, and the bottom style is necessary for
   // colors etc.
-  topStyle?: ViewStyle,
-  children?: React.Node,
-  androidBorderlessRipple: boolean,
-  iosFormat: 'highlight' | 'opacity',
-  androidFormat: 'ripple' | 'highlight' | 'opacity',
-  iosHighlightUnderlayColor?: string,
-  iosActiveOpacity: number,
+  +topStyle?: ViewStyle,
+  +children?: React.Node,
+  +androidBorderlessRipple: boolean,
+  +iosFormat: 'highlight' | 'opacity',
+  +androidFormat: 'ripple' | 'highlight' | 'opacity',
+  +iosHighlightUnderlayColor?: string,
+  +iosActiveOpacity: number,
 };
 class Button extends React.PureComponent<Props> {
-  static propTypes = {
-    onPress: PropTypes.func.isRequired,
-    disabled: PropTypes.bool,
-    style: ViewPropTypes.style,
-    topStyle: ViewPropTypes.style,
-    children: PropTypes.node,
-    androidBorderlessRipple: PropTypes.bool,
-    iosFormat: PropTypes.oneOf(['highlight', 'opacity']),
-    androidFormat: PropTypes.oneOf(['ripple', 'highlight', 'opacity']),
-    iosHighlightUnderlayColor: PropTypes.string,
-    iosActiveOpacity: PropTypes.number,
-  };
   static defaultProps = {
     androidBorderlessRipple: false,
     iosFormat: 'opacity',

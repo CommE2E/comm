@@ -1,6 +1,5 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { TouchableOpacity } from 'react-native';
 
@@ -12,12 +11,6 @@ type Props = {
   ...
 };
 class ThreadSettingsMemberTooltipButton extends React.PureComponent<Props> {
-  static propTypes = {
-    navigation: PropTypes.shape({
-      goBackOnce: PropTypes.func.isRequired,
-    }).isRequired,
-  };
-
   render() {
     return (
       <TouchableOpacity onPress={this.onPress}>

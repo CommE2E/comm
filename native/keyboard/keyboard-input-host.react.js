@@ -1,7 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { Alert, TextInput } from 'react-native';
 import { KeyboardAccessoryView } from 'react-native-keyboard-input';
@@ -9,20 +8,12 @@ import { KeyboardAccessoryView } from 'react-native-keyboard-input';
 import { useRealThreadCreator } from 'lib/shared/thread-utils';
 import type { MediaLibrarySelection } from 'lib/types/media-types';
 
-import {
-  type InputState,
-  inputStatePropType,
-  InputStateContext,
-} from '../input/input-state';
+import { type InputState, InputStateContext } from '../input/input-state';
 import { mediaGalleryKeyboardName } from '../media/media-gallery-keyboard.react';
 import { activeMessageListSelector } from '../navigation/nav-selectors';
 import { NavContext } from '../navigation/navigation-context';
 import { useStyles } from '../themes/colors';
-import {
-  type KeyboardState,
-  keyboardStatePropType,
-  KeyboardContext,
-} from './keyboard-state';
+import { type KeyboardState, KeyboardContext } from './keyboard-state';
 
 type BaseProps = {|
   +textInputRef?: React.ElementRef<typeof TextInput>,
@@ -39,15 +30,6 @@ type Props = {|
   +getServerThreadID: () => Promise<?string>,
 |};
 class KeyboardInputHost extends React.PureComponent<Props> {
-  static propTypes = {
-    textInputRef: PropTypes.object,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    activeMessageList: PropTypes.string,
-    keyboardState: keyboardStatePropType,
-    inputState: inputStatePropType,
-    getServerThreadID: PropTypes.func.isRequired,
-  };
-
   componentDidUpdate(prevProps: Props) {
     if (
       prevProps.activeMessageList &&

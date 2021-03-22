@@ -26,7 +26,6 @@
     "file-type": "^12.3.0",
     "invariant": "^2.2.4",
     "lodash": "^4.17.19",
-    "prop-types": "^15.7.2",
     "react": "16.13.1",
     "react-redux": "^7.1.1",
     "reselect": "^4.0.0",

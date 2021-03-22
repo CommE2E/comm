@@ -1,6 +1,5 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import { Platform } from 'react-native';
 import { KeyboardUtils } from 'react-native-keyboard-input';
@@ -21,18 +20,15 @@ import KeyboardInputHost from './keyboard-input-host.react';
 import { KeyboardContext } from './keyboard-state';
 
 type Props = {|
-  children: React.Node,
+  +children: React.Node,
 |};
 type State = {|
-  systemKeyboardShowing: boolean,
-  mediaGalleryOpen: boolean,
-  mediaGalleryThread: ?OptimisticThreadInfo,
-  renderKeyboardInputHost: boolean,
+  +systemKeyboardShowing: boolean,
+  +mediaGalleryOpen: boolean,
+  +mediaGalleryThread: ?OptimisticThreadInfo,
+  +renderKeyboardInputHost: boolean,
 |};
 class KeyboardStateContainer extends React.PureComponent<Props, State> {
-  static propTypes = {
-    children: PropTypes.node.isRequired,
-  };
   state: State = {
     systemKeyboardShowing: false,
     mediaGalleryOpen: false,

@@ -1,18 +1,17 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
-import { type ThreadInfo, threadInfoPropType } from 'lib/types/thread-types';
+import { type ThreadInfo } from 'lib/types/thread-types';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
 
-type Props = {
-  threadInfo: ThreadInfo,
-  onClose: () => void,
-  onConfirm: () => void,
-};
+type Props = {|
+  +threadInfo: ThreadInfo,
+  +onClose: () => void,
+  +onConfirm: () => void,
+|};
 
 class ConfirmLeaveThreadModal extends React.PureComponent<Props> {
   render() {
@@ -38,11 +37,5 @@ class ConfirmLeaveThreadModal extends React.PureComponent<Props> {
     );
   }
 }
-
-ConfirmLeaveThreadModal.propTypes = {
-  threadInfo: threadInfoPropType.isRequired,
-  onClose: PropTypes.func.isRequired,
-  onConfirm: PropTypes.func.isRequired,
-};
 
 export default ConfirmLeaveThreadModal;

@@ -1,19 +1,14 @@
 // @flow
 
-import PropTypes from 'prop-types';
 import * as React from 'react';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
 
 type Props = {|
-  setModal: (modal: ?React.Node) => void,
+  +setModal: (modal: ?React.Node) => void,
 |};
 class InvalidUploadModal extends React.PureComponent<Props> {
-  static propTypes = {
-    setModal: PropTypes.func.isRequired,
-  };
-
   render() {
     return (
       <Modal name="Invalid upload" onClose={this.clearModal}>

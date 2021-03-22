@@ -2,7 +2,6 @@
 
 import invariant from 'invariant';
 import _throttle from 'lodash/throttle';
-import PropTypes from 'prop-types';
 import * as React from 'react';
 import {
   View,
@@ -33,19 +32,17 @@ import {
   useRealThreadCreator,
 } from 'lib/shared/thread-utils';
 import type { CalendarQuery } from 'lib/types/entry-types';
-import { loadingStatusPropType } from 'lib/types/loading-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { PhotoPaste } from 'lib/types/media-types';
 import { messageTypes } from 'lib/types/message-types';
 import type { Dispatch } from 'lib/types/redux-types';
 import {
   type ThreadInfo,
-  threadInfoPropType,
   threadPermissions,
   type ClientThreadJoinRequest,
   type ThreadJoinPayload,
 } from 'lib/types/thread-types';
-import { type UserInfos, userInfoPropType } from 'lib/types/user-types';
+import { type UserInfos } from 'lib/types/user-types';
 import {
   type DispatchActionPromise,
   useServerCall,
@@ -54,16 +51,11 @@ import {
 
 import Button from '../components/button.react';
 import ClearableTextInput from '../components/clearable-text-input.react';
-import {
-  type InputState,
-  inputStatePropType,
-  InputStateContext,
-} from '../input/input-state';
+import { type InputState, InputStateContext } from '../input/input-state';
 import { getKeyboardHeight } from '../keyboard/keyboard';
 import KeyboardInputHost from '../keyboard/keyboard-input-host.react';
 import {
   type KeyboardState,
-  keyboardStatePropType,
   KeyboardContext,
 } from '../keyboard/keyboard-state';
 import {
@@ -77,19 +69,10 @@ import {
   ImagePasteModalRouteName,
 } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
-import {
-  type Colors,
-  colorsPropType,
-  useStyles,
-  useColors,
-} from '../themes/colors';
+import { type Colors, useStyles, useColors } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
 import { runTiming } from '../utils/animation-utils';
 import type { ChatNavigationProp } from './chat.react';
-import {
-  messageListRoutePropType,
-  messageListNavPropType,
-} from './message-list-types';
 
 /* eslint-disable import/no-named-as-default-member */
 const {
@@ -151,26 +134,6 @@ type State = {|
   +buttonsExpanded: boolean,
 |};
 class ChatInputBar extends React.PureComponent<Props, State> {
-  static propTypes = {
-    threadInfo: threadInfoPropType.isRequired,
-    navigation: messageListNavPropType.isRequired,
-    route: messageListRoutePropType.isRequired,
-    isActive: PropTypes.bool.isRequired,
-    viewerID: PropTypes.string,
-    draft: PropTypes.string.isRequired,
-    joinThreadLoadingStatus: loadingStatusPropType.isRequired,
-    calendarQuery: PropTypes.func.isRequired,
-    nextLocalID: PropTypes.number.isRequired,
-    userInfos: PropTypes.objectOf(userInfoPropType).isRequired,
-    colors: colorsPropType.isRequired,
-    styles: PropTypes.objectOf(PropTypes.object).isRequired,
-    keyboardState: keyboardStatePropType,
-    dispatch: PropTypes.func.isRequired,
-    dispatchActionPromise: PropTypes.func.isRequired,
-    joinThread: PropTypes.func.isRequired,
-    inputState: inputStatePropType,
-    getServerThreadID: PropTypes.func.isRequired,
-  };
   textInput: ?React.ElementRef<typeof TextInput>;
   clearableTextInput: ?ClearableTextInput;
 
