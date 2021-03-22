@@ -10,8 +10,7 @@
     "plugin:import/errors",
     "plugin:import/warnings",
     "plugin:prettier/recommended",
-    "prettier/react",
-    "prettier/flowtype"
+    "prettier"
   ],
   "parser": "babel-eslint",
   "plugins": ["react", "react-hooks", "flowtype", "monorepo", "import"],
