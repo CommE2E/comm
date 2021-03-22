@@ -706,7 +706,7 @@ class Calendar extends React.PureComponent<Props, State> {
   onConcludeEntryEditMode = (entryInfo: EntryInfoWithHeight) => {
     const key = entryKey(entryInfo);
     const newCurrentlyEditing = this.state.currentlyEditing.filter(
-      (k) => k !== key,
+      k => k !== key,
     );
     if (newCurrentlyEditing.length < this.state.currentlyEditing.length) {
       this.setState({ currentlyEditing: newCurrentlyEditing });
@@ -879,7 +879,7 @@ class Calendar extends React.PureComponent<Props, State> {
         // and then we could set scrolled-away entries to be inactive without
         // worrying about this edge case. Until then...
         const foundItem = _find(
-          (item) => item.entryInfo && entryKey(item.entryInfo) === key,
+          item => item.entryInfo && entryKey(item.entryInfo) === key,
         )(ldwh);
         return !!foundItem;
       })(this.latestExtraData.activeEntries),
@@ -1059,12 +1059,12 @@ export default React.memo<BaseProps>(function ConnectedCalendar(
     activeTabSelector(navContext) || activeThreadPickerSelector(navContext);
 
   const listData = useSelector(calendarListData);
-  const startDate = useSelector((state) => state.navInfo.startDate);
-  const endDate = useSelector((state) => state.navInfo.endDate);
-  const calendarFilters = useSelector((state) => state.calendarFilters);
+  const startDate = useSelector(state => state.navInfo.startDate);
+  const endDate = useSelector(state => state.navInfo.endDate);
+  const calendarFilters = useSelector(state => state.calendarFilters);
   const dimensions = useSelector(derivedDimensionsInfoSelector);
   const loadingStatus = useSelector(loadingStatusSelector);
-  const connectionStatus = useSelector((state) => state.connection.status);
+  const connectionStatus = useSelector(state => state.connection.status);
   const colors = useColors();
   const styles = useStyles(unboundStyles);
   const indicatorStyle = useIndicatorStyle();

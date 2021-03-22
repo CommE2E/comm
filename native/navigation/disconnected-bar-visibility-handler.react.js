@@ -10,7 +10,7 @@ import { useSelector } from '../redux/redux-utils';
 function DisconnectedBarVisibilityHandler() {
   const dispatch = useDispatch();
   const disconnected = useSelector(
-    (state) => state.connection.showDisconnectedBar,
+    state => state.connection.showDisconnectedBar,
   );
   const setDisconnected = React.useCallback(
     (newDisconnected: boolean) => {
@@ -26,7 +26,7 @@ function DisconnectedBarVisibilityHandler() {
   );
 
   const networkActiveRef = React.useRef(true);
-  const networkConnected = useSelector((state) => state.connectivity.connected);
+  const networkConnected = useSelector(state => state.connectivity.connected);
   React.useEffect(() => {
     networkActiveRef.current = networkConnected;
     if (!networkConnected) {
@@ -35,9 +35,9 @@ function DisconnectedBarVisibilityHandler() {
   }, [setDisconnected, networkConnected]);
 
   const prevConnectionStatusRef = React.useRef();
-  const connectionStatus = useSelector((state) => state.connection.status);
+  const connectionStatus = useSelector(state => state.connection.status);
   const someRequestIsLate = useSelector(
-    (state) => state.connection.lateResponses.length !== 0,
+    state => state.connection.lateResponses.length !== 0,
   );
   React.useEffect(() => {
     const prevConnectionStatus = prevConnectionStatusRef.current;

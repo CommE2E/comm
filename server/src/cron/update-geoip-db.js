@@ -46,7 +46,7 @@ function spawnUpdater(geoipLicense: { key: string }): Promise<void> {
 }
 
 function reloadGeoipDB(): Promise<void> {
-  return new Promise((resolve) => geoip.reloadData(resolve));
+  return new Promise(resolve => geoip.reloadData(resolve));
 }
 
 type IPCMessage = {|

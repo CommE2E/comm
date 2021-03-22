@@ -46,7 +46,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
     const multimedia = [];
     for (const singleMedia of media) {
       const pendingUpload = pendingUploads
-        ? pendingUploads.find((upload) => upload.localID === singleMedia.id)
+        ? pendingUploads.find(upload => upload.localID === singleMedia.id)
         : null;
       multimedia.push(
         <Multimedia

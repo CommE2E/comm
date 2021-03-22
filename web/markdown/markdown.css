@@ -13,19 +13,19 @@ div.markdown h6 {
 
 div.markdown blockquote {
   display: inline-block;
-  padding: .5em 10px;
+  padding: 0.5em 10px;
   margin: 0 0 6px 0;
   box-sizing: border-box;
   width: 100%;
   margin: 6px 0;
 }
 div.darkBackground blockquote {
-  background: #A9A9A9;
+  background: #a9a9a9;
   border-left: 5px solid #808080;
 }
 div.lightBackground blockquote {
-  background: #D3D3D3;
-  border-left: 5px solid #C0C0C0;
+  background: #d3d3d3;
+  border-left: 5px solid #c0c0c0;
 }
 
 div.markdown code {
@@ -34,26 +34,26 @@ div.markdown code {
   border-radius: 3px;
 }
 div.lightBackground code {
-  background: #DCDCDC;
+  background: #dcdcdc;
   color: #222222;
 }
 div.darkBackground code {
   background: #222222;
-  color: #F3F3F3;
+  color: #f3f3f3;
 }
 
 div.markdown pre {
-  padding: .5em 10px;
+  padding: 0.5em 10px;
   border-radius: 5px;
   margin: 6px 0;
 }
 div.lightBackground pre {
-  background: #DCDCDC;
+  background: #dcdcdc;
   color: #222222;
 }
 div.darkBackground pre {
   background: #222222;
-  color: #F3F3F3;
+  color: #f3f3f3;
 }
 div.markdown pre > code {
   width: 100%;

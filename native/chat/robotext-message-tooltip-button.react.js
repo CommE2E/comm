@@ -20,7 +20,7 @@ type Props = {|
 |};
 function RobotextMessageTooltipButton(props: Props) {
   const { progress } = props;
-  const windowWidth = useSelector((state) => state.dimensions.width);
+  const windowWidth = useSelector(state => state.dimensions.width);
   const { initialCoordinates } = props.route.params;
   const headerStyle = React.useMemo(() => {
     const bottom = initialCoordinates.height;

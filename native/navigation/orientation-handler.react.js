@@ -33,7 +33,7 @@ class OrientationHandler extends React.PureComponent<Props> {
     }
   }
 
-  updateOrientation = (orientation) => {
+  updateOrientation = orientation => {
     if (orientation !== this.props.deviceOrientation) {
       this.props.dispatch({
         type: updateDeviceOrientationActionType,
@@ -48,7 +48,7 @@ class OrientationHandler extends React.PureComponent<Props> {
 }
 
 export default React.memo<{||}>(function ConnectedOrientationHandler() {
-  const deviceOrientation = useSelector((state) => state.deviceOrientation);
+  const deviceOrientation = useSelector(state => state.deviceOrientation);
   const dispatch = useDispatch();
 
   return (

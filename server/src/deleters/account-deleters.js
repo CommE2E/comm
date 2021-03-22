@@ -44,7 +44,7 @@ async function deleteAccount(
   await rescindPushNotifs(SQL`n.user = ${deletedUserID}`, SQL`NULL`);
   const knownUserInfos = await fetchKnownUserInfos(viewer);
   const usersToUpdate = values(knownUserInfos).filter(
-    (userID) => userID !== deletedUserID,
+    userID => userID !== deletedUserID,
   );
 
   // TODO: if this results in any orphaned orgs, convert them to chats

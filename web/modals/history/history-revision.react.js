@@ -19,7 +19,7 @@ type Props = {|
 
 export default function HistoryRevision(props: Props) {
   const threadInfo = useSelector(
-    (state) => threadInfoSelector(state)[props.revisionInfo.threadID],
+    state => threadInfoSelector(state)[props.revisionInfo.threadID],
   );
   let change;
   if (props.isDeletionOrRestoration && props.revisionInfo.deleted) {

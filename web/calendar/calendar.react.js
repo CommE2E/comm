@@ -265,7 +265,7 @@ export default React.memo<BaseProps>(function ConnectedCalendar(
   const year = useSelector(yearAssertingSelector);
   const month = useSelector(monthAssertingSelector);
   const daysToEntries = useSelector(currentDaysToEntries);
-  const navInfo = useSelector((state) => state.navInfo);
+  const navInfo = useSelector(state => state.navInfo);
   const currentCalendarQuery = useSelector(webCalendarQuery);
   const loggedIn = useSelector(isLoggedIn);
   const callUpdateCalendarQuery = useServerCall(updateCalendarQuery);

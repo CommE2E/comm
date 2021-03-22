@@ -34,8 +34,12 @@ div.entryHistoryInvisible {
   left: 100%;
 }
 @keyframes entry-history-visible-animation {
-  from { left: 100%; }
-  to { left: 0; }
+  from {
+    left: 100%;
+  }
+  to {
+    left: 0;
+  }
 }
 div.entryHistoryVisibleAnimate {
   left: 0;
@@ -43,8 +47,12 @@ div.entryHistoryVisibleAnimate {
   animation-duration: 0.5s;
 }
 @keyframes entry-history-invisible-animation {
-  from { left: 0; }
-  to { left: 100%; }
+  from {
+    left: 0;
+  }
+  to {
+    left: 100%;
+  }
 }
 div.entryHistoryInvisibleAnimate {
   left: 100%;
@@ -60,7 +68,7 @@ div.header {
   font-size: 12px;
   font-family: 'Open Sans', sans-serif;
   font-weight: 600;
-  background-color: #F4F4F4;
+  background-color: #f4f4f4;
   box-sizing: border-box;
 }
 a.allHistoryButton {
@@ -98,7 +106,7 @@ span.entryAuthor {
   box-sizing: border-box;
 }
 span.entryUsername {
-  color: #2A5DB0;
+  color: #2a5db0;
 }
 time.entryTime {
   float: right;
@@ -149,8 +157,12 @@ div.dayHistoryInvisible {
   left: -100%;
 }
 @keyframes day-history-visible-animation {
-  from { left: -100%; }
-  to { left: 0; }
+  from {
+    left: -100%;
+  }
+  to {
+    left: 0;
+  }
 }
 div.dayHistoryVisibleAnimate {
   left: 0;
@@ -158,8 +170,12 @@ div.dayHistoryVisibleAnimate {
   animation-duration: 0.5s;
 }
 @keyframes day-history-invisible-animation {
-  from { left: 0; }
-  to { left: -100%; }
+  from {
+    left: 0;
+  }
+  to {
+    left: -100%;
+  }
 }
 div.dayHistoryInvisibleAnimate {
   left: -100%;

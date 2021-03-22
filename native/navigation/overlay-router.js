@@ -67,7 +67,7 @@ function OverlayRouter(
         type: clearOverlayModalsActionType,
         payload: { keys },
       }),
-      goBackOnce: () => (state) => ({
+      goBackOnce: () => state => ({
         ...CommonActions.goBack(),
         target: state.key,
       }),

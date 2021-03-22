@@ -32,31 +32,31 @@ export default React.memo<BaseSocketProps>(function NativeSocket(
   const inputState = React.useContext(InputStateContext);
   const navContext = React.useContext(NavContext);
 
-  const cookie = useSelector((state) => state.cookie);
-  const urlPrefix = useSelector((state) => state.urlPrefix);
-  const connection = useSelector((state) => state.connection);
-  const frozen = useSelector((state) => state.frozen);
+  const cookie = useSelector(state => state.cookie);
+  const urlPrefix = useSelector(state => state.urlPrefix);
+  const connection = useSelector(state => state.connection);
+  const frozen = useSelector(state => state.frozen);
   const active = useSelector(
-    (state) => isLoggedIn(state) && state.lifecycleState !== 'background',
+    state => isLoggedIn(state) && state.lifecycleState !== 'background',
   );
 
   const openSocket = useSelector(openSocketSelector);
   const sessionIdentification = useSelector(sessionIdentificationSelector);
   const preRequestUserState = useSelector(preRequestUserStateSelector);
 
-  const getClientResponses = useSelector((state) =>
+  const getClientResponses = useSelector(state =>
     nativeGetClientResponsesSelector({
       redux: state,
       navContext,
     }),
   );
-  const sessionStateFunc = useSelector((state) =>
+  const sessionStateFunc = useSelector(state =>
     nativeSessionStateFuncSelector({
       redux: state,
       navContext,
     }),
   );
-  const currentCalendarQuery = useSelector((state) =>
+  const currentCalendarQuery = useSelector(state =>
     nativeCalendarQuery({
       redux: state,
       navContext,
@@ -64,7 +64,7 @@ export default React.memo<BaseSocketProps>(function NativeSocket(
   );
 
   const canSendReports = useSelector(
-    (state) =>
+    state =>
       !state.frozen &&
       state.connectivity.hasWiFi &&
       (!inputState || !inputState.uploadInProgress()),

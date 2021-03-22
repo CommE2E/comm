@@ -35,7 +35,7 @@ const DevTools = React.memo<{||}>(() => {
   const devTools = devToolsRef.current;
 
   const navContext = React.useContext(NavContext);
-  const initialReduxState = useSelector((state) => state);
+  const initialReduxState = useSelector(state => state);
 
   React.useEffect(() => {
     if (devTools && navContext) {
@@ -79,7 +79,7 @@ const DevTools = React.memo<{||}>(() => {
   );
 
   const setInternalState = React.useCallback(
-    (state) => {
+    state => {
       const { navState, ...reduxState } = state;
       if (navDispatch) {
         navDispatch({
@@ -102,7 +102,7 @@ const DevTools = React.memo<{||}>(() => {
   );
 
   const handleActionFromMonitor = React.useCallback(
-    (monitorAction) => {
+    monitorAction => {
       if (!devTools) {
         return;
       }

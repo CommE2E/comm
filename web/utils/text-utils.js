@@ -12,7 +12,7 @@ function calculateMaxTextWidth(
   const context = canvas.getContext('2d');
   context.font = font;
 
-  const widths = texts.map((text) => context.measureText(text).width);
+  const widths = texts.map(text => context.measureText(text).width);
   return Math.max(...widths);
 }
 

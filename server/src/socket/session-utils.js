@@ -66,7 +66,7 @@ const clientResponseInputValidator = t.union([
   tShape({
     type: t.irreducible(
       'serverRequestTypes.PLATFORM',
-      (x) => x === serverRequestTypes.PLATFORM,
+      x => x === serverRequestTypes.PLATFORM,
     ),
     platform: tPlatform,
   }),
@@ -74,34 +74,34 @@ const clientResponseInputValidator = t.union([
     ...threadInconsistencyReportValidatorShape,
     type: t.irreducible(
       'serverRequestTypes.THREAD_INCONSISTENCY',
-      (x) => x === serverRequestTypes.THREAD_INCONSISTENCY,
+      x => x === serverRequestTypes.THREAD_INCONSISTENCY,
     ),
   }),
   tShape({
     ...entryInconsistencyReportValidatorShape,
     type: t.irreducible(
       'serverRequestTypes.ENTRY_INCONSISTENCY',
-      (x) => x === serverRequestTypes.ENTRY_INCONSISTENCY,
+      x => x === serverRequestTypes.ENTRY_INCONSISTENCY,
     ),
   }),
   tShape({
     type: t.irreducible(
       'serverRequestTypes.PLATFORM_DETAILS',
-      (x) => x === serverRequestTypes.PLATFORM_DETAILS,
+      x => x === serverRequestTypes.PLATFORM_DETAILS,
     ),
     platformDetails: tPlatformDetails,
   }),
   tShape({
     type: t.irreducible(
       'serverRequestTypes.CHECK_STATE',
-      (x) => x === serverRequestTypes.CHECK_STATE,
+      x => x === serverRequestTypes.CHECK_STATE,
     ),
     hashResults: t.dict(t.String, t.Boolean),
   }),
   tShape({
     type: t.irreducible(
       'serverRequestTypes.INITIAL_ACTIVITY_UPDATES',
-      (x) => x === serverRequestTypes.INITIAL_ACTIVITY_UPDATES,
+      x => x === serverRequestTypes.INITIAL_ACTIVITY_UPDATES,
     ),
     activityUpdates: activityUpdatesInputValidator,
   }),
@@ -134,7 +134,7 @@ async function processClientResponses(
   let activityUpdates = [];
   let stateCheckStatus = null;
   const clientSentPlatformDetails = clientResponses.some(
-    (response) => response.type === serverRequestTypes.PLATFORM_DETAILS,
+    response => response.type === serverRequestTypes.PLATFORM_DETAILS,
   );
   for (const clientResponse of clientResponses) {
     if (
@@ -436,7 +436,7 @@ async function checkState(
         ? fetchedData.entriesResult.rawEntryInfos
         : fetchedData.entryInfos;
       const entryInfo = rawEntryInfos.find(
-        (candidate) => candidate.id === entryID,
+        candidate => candidate.id === entryID,
       );
       if (!entryInfo) {
         if (!stateChanges.deleteEntryIDs) {

@@ -1,9 +1,9 @@
 a.filtersButton {
-  font-family: "Open Sans", sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-weight: 600;
   float: left;
   color: white;
-  background-color: rgba(68,68,85,0.67);
+  background-color: rgba(68, 68, 85, 0.67);
   padding: 8px 18px;
   border-radius: 18px;
   margin: 0 15px 5px 15px;
@@ -31,7 +31,7 @@ h2.nav {
   justify-content: space-between;
 }
 h2.nav > a.monthLink {
-  color: #036AFF;
+  color: #036aff;
 }
 h2.nav > div.monthName {
   display: inline-block;
@@ -180,7 +180,7 @@ td.day > h2 {
   font-family: 'Anaheim', sans-serif;
 }
 td.currentDay > h2 {
-  color: #FF944D;
+  color: #ff944d;
 }
 
 div.clear {

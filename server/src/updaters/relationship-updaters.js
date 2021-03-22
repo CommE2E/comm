@@ -143,7 +143,7 @@ async function updateRelationships(
   } else if (action === relationshipActions.UNFRIEND) {
     updateIDs.push(...userIDs);
 
-    const updateRows = userIDs.map((userID) => {
+    const updateRows = userIDs.map(userID => {
       const [user1, user2] = sortIDs(viewer.userID, userID);
       return { user1, user2, status: undirectedStatus.KNOW_OF };
     });
@@ -237,7 +237,7 @@ async function updateUndirectedRelationships(
     return;
   }
 
-  const rows = changeset.map((row) => [row.user1, row.user2, row.status]);
+  const rows = changeset.map(row => [row.user1, row.user2, row.status]);
   const query = SQL`
     INSERT INTO relationships_undirected (user1, user2, status)
     VALUES ${rows}

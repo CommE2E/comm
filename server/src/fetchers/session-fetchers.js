@@ -39,7 +39,7 @@ async function fetchOtherSessionsForViewer(viewer: Viewer): Promise<string[]> {
     WHERE user = ${viewer.userID} AND id != ${viewer.session}
   `;
   const [result] = await dbQuery(query);
-  return result.map((row) => row.id.toString());
+  return result.map(row => row.id.toString());
 }
 
 export { fetchActiveSessionsForThread, fetchOtherSessionsForViewer };

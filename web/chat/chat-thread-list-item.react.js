@@ -27,7 +27,7 @@ function ChatThreadListItem(props: Props) {
 
   const onClick = useOnClickThread(threadID);
 
-  const timeZone = useSelector((state) => state.timeZone);
+  const timeZone = useSelector(state => state.timeZone);
   const lastActivity = shortAbsoluteDate(item.lastUpdatedTime, timeZone);
 
   const active = useThreadIsActive(threadID);
@@ -65,7 +65,7 @@ function ChatThreadListItem(props: Props) {
     [color],
   );
 
-  const sidebars = item.sidebars.map((sidebarItem) => {
+  const sidebars = item.sidebars.map(sidebarItem => {
     if (sidebarItem.type === 'sidebar') {
       const { type, ...sidebarInfo } = sidebarItem;
       return (

@@ -32,9 +32,9 @@ function FocusHandler() {
   }, [onFocus, onBlur]);
 
   const dispatch = useDispatch();
-  const curWindowActive = useSelector((state) => state.windowActive);
+  const curWindowActive = useSelector(state => state.windowActive);
   const updateRedux = React.useCallback(
-    (windowActive) => {
+    windowActive => {
       if (windowActive === curWindowActive) {
         return;
       }

@@ -6,7 +6,7 @@ module.exports = {
   '*.{js,mjs}': function eslint(files) {
     return (
       'eslint --cache --fix --max-warnings=0 ' +
-      files.filter((file) => !cli.isPathIgnored(file)).join(' ')
+      files.filter(file => !cli.isPathIgnored(file)).join(' ')
     );
   },
   '*.{css,html,md,json}': function prettier(files) {

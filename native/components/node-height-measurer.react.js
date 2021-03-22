@@ -22,15 +22,15 @@ type Props<Item, MergedItem> = {
   // Every item should have an ID. We use this ID to cache the result of calling
   // mergeItemWithHeight below, and only update it if the input item changes,
   // mergeItemWithHeight changes, or any extra props we get passed change
-  +itemToID: (Item) => string,
+  +itemToID: Item => string,
   // Only measurable items should return a measureKey.
   // Falsey keys won't get measured, but will still get passed through
   // mergeItemWithHeight with height undefined
   // Make sure that if an item's height changes, its measure key does too!
-  +itemToMeasureKey: (Item) => ?string,
+  +itemToMeasureKey: Item => ?string,
   // The "dummy" is the component whose height we will be measuring
   // We will only call this with items for which itemToMeasureKey returns truthy
-  +itemToDummy: (Item) => React.Element<any>,
+  +itemToDummy: Item => React.Element<any>,
   // Once we have the height, we need to merge it into the item
   +mergeItemWithHeight: (item: Item, height: ?number) => MergedItem,
   // We'll pass our results here when we're done
@@ -431,7 +431,7 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
       this.containerWidth = width;
     } else if (this.containerWidth !== width) {
       this.containerWidth = width;
-      this.setState((innerPrevState) => ({
+      this.setState(innerPrevState => ({
         iteration: innerPrevState.iteration + 1,
         measuredHeights: new Map(),
         measurableItems: new Map(),
@@ -453,7 +453,7 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
     const dummies = currentlyMeasuring.map(({ measureKey, dummy }) => {
       const { children } = dummy.props;
       const style = [dummy.props.style, styles.dummy];
-      const onLayout = (event) =>
+      const onLayout = event =>
         this.onDummyLayout(measureKey, iteration, event);
       const node = React.cloneElement(dummy, {
         style,

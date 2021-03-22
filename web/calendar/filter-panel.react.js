@@ -90,7 +90,7 @@ class FilterPanel extends React.PureComponent<Props, State> {
       );
     }
     if (!this.state.collapsed) {
-      const options = filterThreadInfos.map((filterThreadInfo) => (
+      const options = filterThreadInfos.map(filterThreadInfo => (
         <Item
           filterThreadInfo={filterThreadInfo}
           onToggle={this.onToggle}
@@ -155,14 +155,14 @@ class FilterPanel extends React.PureComponent<Props, State> {
       // No thread filter exists and thread is being removed
       newThreadIDs = this.props
         .filterThreadInfos()
-        .map((filterThreadInfo) => filterThreadInfo.threadInfo.id)
-        .filter((id) => id !== threadID);
+        .map(filterThreadInfo => filterThreadInfo.threadInfo.id)
+        .filter(id => id !== threadID);
     } else if (selectedThreadIDs.has(threadID) && value) {
       // Thread filter already includes thread being added
       return;
     } else if (selectedThreadIDs.has(threadID)) {
       // Thread being removed from current thread filter
-      newThreadIDs = [...selectedThreadIDs].filter((id) => id !== threadID);
+      newThreadIDs = [...selectedThreadIDs].filter(id => id !== threadID);
     } else if (!value) {
       // Thread filter doesn't include thread being removed
       return;
@@ -215,7 +215,7 @@ class FilterPanel extends React.PureComponent<Props, State> {
     const resultIDs = new Set(searchIndex.getSearchResults(query));
     const results = this.props
       .filterThreadInfos()
-      .filter((filterThreadInfo) =>
+      .filter(filterThreadInfo =>
         resultIDs.has(filterThreadInfo.threadInfo.id),
       );
     this.setState({ query, searchResults: results, collapsed: false });

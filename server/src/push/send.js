@@ -89,7 +89,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
         }
         return threadInfoFromRawThreadInfo(rawThreadInfo, userID, userInfos);
       }),
-      _pickBy((threadInfo) => threadInfo),
+      _pickBy(threadInfo => threadInfo),
     )(serverThreadInfos);
     for (const notifInfo of usersToCollapsableNotifInfo[userID]) {
       const hydrateMessageInfo = (rawMessageInfo: RawMessageInfo) =>
@@ -674,7 +674,7 @@ async function removeInvalidTokens(
   invalidTokens: $ReadOnlyArray<InvalidToken>,
 ): Promise<void> {
   const sqlTuples = invalidTokens.map(
-    (invalidTokenUser) =>
+    invalidTokenUser =>
       SQL`(
       user = ${invalidTokenUser.userID} AND
       device_token IN (${invalidTokenUser.tokens})
@@ -709,7 +709,7 @@ async function removeInvalidTokens(
   for (const entry of userCookiePairsToInvalidDeviceTokens) {
     const [userCookiePair, deviceTokens] = entry;
     const [userID, cookieID] = userCookiePair.split('|');
-    const updateDatas = [...deviceTokens].map((deviceToken) => ({
+    const updateDatas = [...deviceTokens].map(deviceToken => ({
       type: updateTypes.BAD_DEVICE_TOKEN,
       userID,
       time,
@@ -758,7 +758,7 @@ async function updateBadgeCount(
   ]);
   const unreadCount = unreadCounts[userID];
 
-  const devices = deviceTokenResult.map((row) => ({
+  const devices = deviceTokenResult.map(row => ({
     deviceType: row.platform,
     deviceToken: row.device_token,
     codeVersion: row.versions?.codeVersion,

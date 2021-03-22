@@ -46,25 +46,25 @@ async function fetchFriendRequestRelationshipOperations(
     const relationships = relationshipsByUserId[userID];
 
     const viewerBlockedTarget = relationships.some(
-      (relationship) =>
+      relationship =>
         relationship.status === directedStatus.BLOCKED &&
         relationship.user1.toString() === viewer.userID,
     );
     const targetBlockedViewer = relationships.some(
-      (relationship) =>
+      relationship =>
         relationship.status === directedStatus.BLOCKED &&
         relationship.user2.toString() === viewer.userID,
     );
     const friendshipExists = relationships.some(
-      (relationship) => relationship.status === undirectedStatus.FRIEND,
+      relationship => relationship.status === undirectedStatus.FRIEND,
     );
     const viewerRequestedTargetFriendship = relationships.some(
-      (relationship) =>
+      relationship =>
         relationship.status === directedStatus.PENDING_FRIEND &&
         relationship.user1.toString() === viewer.userID,
     );
     const targetRequestedViewerFriendship = relationships.some(
-      (relationship) =>
+      relationship =>
         relationship.status === directedStatus.PENDING_FRIEND &&
         relationship.user2.toString() === viewer.userID,
     );

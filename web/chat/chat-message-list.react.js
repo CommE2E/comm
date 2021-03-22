@@ -181,7 +181,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     return messageKey(item.messageInfo);
   }
 
-  renderItem = (item) => {
+  renderItem = item => {
     if (item.itemType === 'loader') {
       return (
         <div key="loader" className={css.loading}>
@@ -377,7 +377,7 @@ registerFetchKey(fetchMostRecentMessagesActionTypes);
 export default React.memo<BaseProps>(function ConnectedChatMessageList(
   props: BaseProps,
 ) {
-  const userAgent = useSelector((state) => state.userAgent);
+  const userAgent = useSelector(state => state.userAgent);
   const supportsReverseFlex = React.useMemo(() => {
     const browser = detectBrowser(userAgent);
     return (
@@ -385,12 +385,12 @@ export default React.memo<BaseProps>(function ConnectedChatMessageList(
     );
   }, [userAgent]);
 
-  const timeZone = useSelector((state) => state.timeZone);
+  const timeZone = useSelector(state => state.timeZone);
 
   const activeChatThreadID = useSelector(
-    (state) => state.navInfo.activeChatThreadID,
+    state => state.navInfo.activeChatThreadID,
   );
-  const baseThreadInfo = useSelector((state) => {
+  const baseThreadInfo = useSelector(state => {
     const activeID = state.navInfo.activeChatThreadID;
     if (!activeID) {
       return null;
@@ -413,7 +413,7 @@ export default React.memo<BaseProps>(function ConnectedChatMessageList(
     userInfoInputArray: [],
   });
 
-  const startReached = useSelector((state) => {
+  const startReached = useSelector(state => {
     const activeID = state.navInfo.activeChatThreadID;
     if (!activeID) {
       return null;
@@ -438,13 +438,13 @@ export default React.memo<BaseProps>(function ConnectedChatMessageList(
   const inputState = React.useContext(InputStateContext);
   const [dndProps, connectDropTarget] = useDrop({
     accept: NativeTypes.FILE,
-    drop: (item) => {
+    drop: item => {
       const { files } = item;
       if (inputState && files.length > 0) {
         inputState.appendFiles(files);
       }
     },
-    collect: (monitor) => ({
+    collect: monitor => ({
       isActive: monitor.isOver() && monitor.canDrop(),
     }),
   });

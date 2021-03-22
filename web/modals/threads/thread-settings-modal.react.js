@@ -168,7 +168,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     return (
       Object.keys(
         _pickBy(
-          (value) => value !== null && value !== undefined,
+          value => value !== null && value !== undefined,
           // the lodash/fp libdef coerces the returned object's properties to the
           // same type, which means it only works for object-as-maps $FlowFixMe
         )(this.state.queuedChanges),
@@ -482,7 +482,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       return response;
     } catch (e) {
       this.setState(
-        (prevState) => ({
+        prevState => ({
           ...prevState,
           queuedChanges: Object.freeze({}),
           accountPassword: '',
@@ -548,19 +548,19 @@ export default React.memo<BaseProps>(function ConnectedThreadSettingsModal(
   props: BaseProps,
 ) {
   const changeInProgress = useSelector(
-    (state) =>
+    state =>
       deleteThreadLoadingStatusSelector(state) === 'loading' ||
       changeThreadSettingsLoadingStatusSelector(state) === 'loading',
   );
   const viewerID = useSelector(
-    (state) => state.currentUserInfo && state.currentUserInfo.id,
+    state => state.currentUserInfo && state.currentUserInfo.id,
   );
-  const userInfos = useSelector((state) => state.userStore.userInfos);
+  const userInfos = useSelector(state => state.userStore.userInfos);
   const callDeleteThread = useServerCall(deleteThread);
   const callChangeThreadSettings = useServerCall(changeThreadSettings);
   const dispatchActionPromise = useDispatchActionPromise();
   const threadInfo: ?ThreadInfo = useSelector(
-    (state) => threadInfoSelector(state)[props.threadID],
+    state => threadInfoSelector(state)[props.threadID],
   );
   if (!threadInfo) {
     return (

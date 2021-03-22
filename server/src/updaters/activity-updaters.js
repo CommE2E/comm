@@ -73,7 +73,7 @@ async function activityUpdater(
   }
 
   const unverifiedThreadIDs: $ReadOnlySet<string> = new Set(
-    request.updates.map((update) => update.threadID),
+    request.updates.map(update => update.threadID),
   );
 
   const verifiedThreadsData = await getValidThreads(
@@ -104,16 +104,16 @@ async function activityUpdater(
   for (const threadID of verifiedThreadIDs) {
     const focusUpdates = focusUpdatesByThreadID.get(threadID);
     invariant(focusUpdates, `no focusUpdate for thread ID ${threadID}`);
-    const focusActive = !focusUpdates.some((update) => !update.focus);
+    const focusActive = !focusUpdates.some(update => !update.focus);
 
     const newLastReadMessage = _max(
       focusUpdates
         .filter(
-          (update) =>
+          update =>
             update.latestMessage &&
             !update.latestMessage.startsWith(localIDPrefix),
         )
-        .map((update) => parseInt(update.latestMessage)),
+        .map(update => parseInt(update.latestMessage)),
     );
 
     partialThreadStatuses.push({
@@ -133,7 +133,7 @@ async function activityUpdater(
   }
 
   const memberPartialThreadStatuses = partialThreadStatuses.filter(
-    (partialStatus) => memberThreadIDs.has(partialStatus.threadID),
+    partialStatus => memberThreadIDs.has(partialStatus.threadID),
   );
   const unfocusedLatestMessages = new Map<string, number>();
   for (const partialThreadStatus of memberPartialThreadStatuses) {
@@ -261,12 +261,12 @@ async function updateFocusedRows(
   partialThreadStatuses: $ReadOnlyArray<PartialThreadStatus>,
 ): Promise<void> {
   const threadIDs = partialThreadStatuses
-    .filter((threadStatus) => threadStatus.focusActive)
+    .filter(threadStatus => threadStatus.focusActive)
     .map(({ threadID }) => threadID);
   const time = Date.now();
 
   if (threadIDs.length > 0) {
-    const focusedInsertRows = threadIDs.map((threadID) => [
+    const focusedInsertRows = threadIDs.map(threadID => [
       viewer.userID,
       viewer.session,
       threadID,

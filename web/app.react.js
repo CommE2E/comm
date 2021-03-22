@@ -263,9 +263,9 @@ const updateCalendarQueryLoadingStatusSelector = createLoadingStatusSelector(
 
 export default React.memo<BaseProps>(function ConnectedApp(props: BaseProps) {
   const activeChatThreadID = useSelector(
-    (state) => state.navInfo.activeChatThreadID,
+    state => state.navInfo.activeChatThreadID,
   );
-  const navInfo = useSelector((state) => state.navInfo);
+  const navInfo = useSelector(state => state.navInfo);
 
   const fetchEntriesLoadingStatus = useSelector(
     fetchEntriesLoadingStatusSelector,
@@ -281,13 +281,13 @@ export default React.memo<BaseProps>(function ConnectedApp(props: BaseProps) {
   const loggedIn = useSelector(isLoggedIn);
   const mostRecentReadThread = useSelector(mostRecentReadThreadSelector);
   const activeThreadCurrentlyUnread = useSelector(
-    (state) =>
+    state =>
       !activeChatThreadID ||
       !!state.threadStore.threadInfos[activeChatThreadID]?.currentUser.unread,
   );
 
   const viewerID = useSelector(
-    (state) => state.currentUserInfo && state.currentUserInfo.id,
+    state => state.currentUserInfo && state.currentUserInfo.id,
   );
   const boundUnreadCount = useSelector(unreadCount);
 

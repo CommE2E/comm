@@ -14,7 +14,7 @@ type Props = {|
 |};
 export default function ConnectedStatusBar(props: Props) {
   const globalLoadingStatus = useSelector(globalLoadingStatusSelector);
-  const activeTheme = useSelector((state) => state.globalThemeInfo.activeTheme);
+  const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
   const { barStyle: inBarStyle, ...statusBarProps } = props;
 
   let barStyle = inBarStyle;

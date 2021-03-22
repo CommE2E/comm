@@ -28,7 +28,7 @@ const migrations = {
     ...state,
     messageSentFromRoute: [],
   }),
-  [3]: (state) => ({
+  [3]: state => ({
     currentUserInfo: state.currentUserInfo,
     entryStore: state.entryStore,
     threadInfos: state.threadInfos,
@@ -56,7 +56,7 @@ const migrations = {
     ...state,
     calendarFilters: defaultCalendarFilters,
   }),
-  [6]: (state) => ({
+  [6]: state => ({
     ...state,
     threadInfos: undefined,
     threadStore: {
@@ -64,7 +64,7 @@ const migrations = {
       inconsistencyResponses: [],
     },
   }),
-  [7]: (state) => ({
+  [7]: state => ({
     ...state,
     lastUserInteraction: undefined,
     sessionID: undefined,
@@ -117,7 +117,7 @@ const migrations = {
     deviceOrientation: Orientation.getInitialOrientation(),
   }),
   [14]: (state: AppState) => state,
-  [15]: (state) => ({
+  [15]: state => ({
     ...state,
     threadStore: {
       ...state.threadStore,
@@ -135,7 +135,7 @@ const migrations = {
     },
     queuedReports: [],
   }),
-  [16]: (state) => {
+  [16]: state => {
     const result = {
       ...state,
       messageSentFromRoute: undefined,
@@ -149,7 +149,7 @@ const migrations = {
     }
     return result;
   },
-  [17]: (state) => ({
+  [17]: state => ({
     ...state,
     userInfos: undefined,
     userStore: {
@@ -157,14 +157,14 @@ const migrations = {
       inconsistencyResponses: [],
     },
   }),
-  [18]: (state) => ({
+  [18]: state => ({
     ...state,
     userStore: {
       userInfos: state.userStore.userInfos,
       inconsistencyReports: [],
     },
   }),
-  [19]: (state) => {
+  [19]: state => {
     const threadInfos = {};
     for (const threadID in state.threadStore.threadInfos) {
       const threadInfo = state.threadStore.threadInfos[threadID];
@@ -192,7 +192,7 @@ const migrations = {
       messageTypes.SIDEBAR_SOURCE,
     ]),
   }),
-  [22]: (state) => {
+  [22]: state => {
     for (const key in state.drafts) {
       const value = state.drafts[key];
       global.CommCoreModule.updateDraft({
@@ -205,19 +205,19 @@ const migrations = {
       drafts: undefined,
     };
   },
-  [23]: (state) => ({
+  [23]: state => ({
     ...state,
     globalThemeInfo: defaultGlobalThemeInfo,
   }),
-  [24]: (state) => ({
+  [24]: state => ({
     ...state,
     enabledApps: defaultEnabledApps,
   }),
-  [25]: (state) => ({
+  [25]: state => ({
     ...state,
     crashReportsEnabled: __DEV__,
   }),
-  [26]: (state) => {
+  [26]: state => {
     const { currentUserInfo } = state;
     if (currentUserInfo.anonymous) {
       return state;
@@ -236,7 +236,7 @@ const migrations = {
       },
     };
   },
-  [27]: (state) => ({
+  [27]: state => ({
     ...state,
     queuedReports: undefined,
     enabledReports: undefined,

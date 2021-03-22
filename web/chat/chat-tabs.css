@@ -4,7 +4,7 @@ div.container {
   top: 0;
   bottom: 0;
   background-color: white;
-  border-right: 2px solid #E4E4E4;
+  border-right: 2px solid #e4e4e4;
   display: flex;
   flex-direction: column;
 }

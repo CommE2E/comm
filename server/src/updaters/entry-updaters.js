@@ -219,7 +219,7 @@ async function createUpdateDatasForChangedEntryInfo(
 
   let replaced = null;
   const { userID } = viewer;
-  const filters = fetchedFilters.map((filter) =>
+  const filters = fetchedFilters.map(filter =>
     filter.session === viewer.session && filter.userID === userID
       ? (replaced = { ...filter, calendarQuery })
       : filter,
@@ -232,12 +232,12 @@ async function createUpdateDatasForChangedEntryInfo(
   const time = Date.now();
   const updateDatas = filters
     .filter(
-      (filter) =>
+      filter =>
         rawEntryInfoWithinCalendarQuery(newEntryInfo, filter.calendarQuery) ||
         (oldEntryInfo &&
           rawEntryInfoWithinCalendarQuery(oldEntryInfo, filter.calendarQuery)),
     )
-    .map((filter) => ({
+    .map(filter => ({
       type: updateTypes.UPDATE_ENTRY,
       userID: filter.userID,
       time,

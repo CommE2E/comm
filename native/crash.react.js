@@ -95,7 +95,7 @@ class Crash extends React.PureComponent<Props, State> {
   render() {
     const errorText = [...this.props.errorData]
       .reverse()
-      .map((errorData) => errorData.error.message)
+      .map(errorData => errorData.error.message)
       .join('\n');
 
     let crashID;
@@ -163,7 +163,7 @@ class Crash extends React.PureComponent<Props, State> {
         codeVersion,
         stateVersion: persistConfig.version,
       },
-      errors: this.props.errorData.map((data) => ({
+      errors: this.props.errorData.map(data => ({
         errorMessage: data.error.message,
         stack: data.error.stack,
         componentStack: data.info && data.info.componentStack,

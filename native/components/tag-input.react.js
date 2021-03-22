@@ -454,7 +454,7 @@ function createTagInput<T>(): React.AbstractComponent<
       props: BaseConfig<T>,
       ref: React.Ref<typeof BaseTagInput>,
     ) {
-      const windowWidth = useSelector((state) => state.dimensions.width);
+      const windowWidth = useSelector(state => state.dimensions.width);
       const colors = useColors();
       return (
         <BaseTagInput

@@ -132,14 +132,14 @@ async function createAccount(
   );
 
   let messageTime = Date.now();
-  const ashoatMessageDatas = ashoatMessages.map((message) => ({
+  const ashoatMessageDatas = ashoatMessages.map(message => ({
     type: messageTypes.TEXT,
     threadID: ashoatThreadID,
     creatorID: ashoat.id,
     time: messageTime++,
     text: message,
   }));
-  const privateMessageDatas = privateMessages.map((message) => ({
+  const privateMessageDatas = privateMessages.map(message => ({
     type: messageTypes.TEXT,
     threadID: privateThreadID,
     creatorID: commbot.userID,

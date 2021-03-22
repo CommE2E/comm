@@ -188,7 +188,7 @@ class ChatInputBar extends React.PureComponent<Props> {
     }
 
     const { pendingUploads, cancelPendingUpload } = this.props.inputState;
-    const multimediaPreviews = pendingUploads.map((pendingUpload) => (
+    const multimediaPreviews = pendingUploads.map(pendingUpload => (
       <Multimedia
         uri={pendingUpload.uri}
         pendingUpload={pendingUpload}
@@ -427,13 +427,13 @@ export default React.memo<BaseProps>(function ConnectedChatInputBar(
   props: BaseProps,
 ) {
   const viewerID = useSelector(
-    (state) => state.currentUserInfo && state.currentUserInfo.id,
+    state => state.currentUserInfo && state.currentUserInfo.id,
   );
-  const nextLocalID = useSelector((state) => state.nextLocalID);
+  const nextLocalID = useSelector(state => state.nextLocalID);
   const isThreadActive = useSelector(
-    (state) => props.threadInfo.id === state.navInfo.activeChatThreadID,
+    state => props.threadInfo.id === state.navInfo.activeChatThreadID,
   );
-  const userInfos = useSelector((state) => state.userStore.userInfos);
+  const userInfos = useSelector(state => state.userStore.userInfos);
   const joinThreadLoadingStatus = useSelector(joinThreadLoadingStatusSelector);
   const createThreadLoadingStatus = useSelector(
     createThreadLoadingStatusSelector,

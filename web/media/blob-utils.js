@@ -14,7 +14,7 @@ import { determineFileType } from './file-utils';
 function blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
   const fileReader = new FileReader();
   return new Promise((resolve, reject) => {
-    fileReader.onerror = (error) => {
+    fileReader.onerror = error => {
       fileReader.abort();
       reject(error);
     };

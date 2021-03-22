@@ -535,7 +535,7 @@ const fetchDescendantsBatchSize = 10;
 async function fetchDescendantsForUpdate(
   ancestors: $ReadOnlyArray<ChangedAncestor>,
 ): Promise<DescendantInfo[]> {
-  const threadIDs = ancestors.map((ancestor) => ancestor.threadID);
+  const threadIDs = ancestors.map(ancestor => ancestor.threadID);
 
   const rows = [];
   while (threadIDs.length > 0) {
@@ -736,7 +736,7 @@ async function recalculateThreadPermissions(
   }
 
   const relationshipChangeset = new RelationshipChangeset();
-  const existingMemberIDs = membershipResults.map((row) => row.user.toString());
+  const existingMemberIDs = membershipResults.map(row => row.user.toString());
   if (threadID !== genesis.id) {
     relationshipChangeset.setAllRelationshipsExist(existingMemberIDs);
   }
@@ -911,7 +911,7 @@ async function deleteMemberships(
   }
 
   const time = Date.now();
-  const insertRows = toDelete.map((rowToDelete) => [
+  const insertRows = toDelete.map(rowToDelete => [
     rowToDelete.userID,
     rowToDelete.threadID,
     -1,

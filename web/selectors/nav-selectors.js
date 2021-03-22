@@ -145,7 +145,7 @@ function useOnClickThread(threadID: ?string) {
 }
 
 function useThreadIsActive(threadID: string) {
-  return useSelector((state) => threadID === state.navInfo.activeChatThreadID);
+  return useSelector(state => threadID === state.navInfo.activeChatThreadID);
 }
 
 function useOnClickPendingSidebar(
@@ -153,7 +153,7 @@ function useOnClickPendingSidebar(
   threadInfo: ThreadInfo,
 ) {
   const dispatch = useDispatch();
-  const viewerID = useSelector((state) => state.currentUserInfo?.id);
+  const viewerID = useSelector(state => state.currentUserInfo?.id);
   return React.useCallback(
     (event: SyntheticEvent<HTMLElement>) => {
       event.preventDefault();

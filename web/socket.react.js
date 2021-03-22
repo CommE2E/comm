@@ -26,11 +26,11 @@ import {
 export default React.memo<BaseSocketProps>(function WebSocket(
   props: BaseSocketProps,
 ) {
-  const cookie = useSelector((state) => state.cookie);
-  const urlPrefix = useSelector((state) => state.urlPrefix);
-  const connection = useSelector((state) => state.connection);
+  const cookie = useSelector(state => state.cookie);
+  const urlPrefix = useSelector(state => state.urlPrefix);
+  const connection = useSelector(state => state.connection);
   const active = useSelector(
-    (state) =>
+    state =>
       !!state.currentUserInfo &&
       !state.currentUserInfo.anonymous &&
       state.lifecycleState !== 'background',
@@ -44,7 +44,7 @@ export default React.memo<BaseSocketProps>(function WebSocket(
   const currentCalendarQuery = useSelector(webCalendarQuery);
 
   const reduxActiveThread = useSelector(activeThreadSelector);
-  const windowActive = useSelector((state) => state.windowActive);
+  const windowActive = useSelector(state => state.windowActive);
   const activeThread = React.useMemo(() => {
     if (!active || !windowActive) {
       return null;

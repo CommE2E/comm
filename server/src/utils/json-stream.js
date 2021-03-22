@@ -42,7 +42,7 @@ function resolvePromisesToStream<T: { [key: string]: Promisable<*> }>(
 }
 
 function waitForStream(readable: stream$Readable): Promise<void> {
-  return new Promise((r) => {
+  return new Promise(r => {
     readable.on('end', r);
   });
 }

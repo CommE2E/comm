@@ -57,7 +57,7 @@ const defaultIsPortrait =
   defaultDimensionsInfo.height >= defaultDimensionsInfo.width;
 
 function DimensionsUpdater() {
-  const dimensions = useSelector((state) => state.dimensions);
+  const dimensions = useSelector(state => state.dimensions);
   const dispatch = useDispatch();
 
   const frame = useSafeAreaFrame();

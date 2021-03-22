@@ -416,7 +416,7 @@ const logOutLoadingStatusSelector = createLoadingStatusSelector(
 export default React.memo<BaseProps>(function ConnectedProfileScreen(
   props: BaseProps,
 ) {
-  const currentUserInfo = useSelector((state) => state.currentUserInfo);
+  const currentUserInfo = useSelector(state => state.currentUserInfo);
   const preRequestUserState = useSelector(preRequestUserStateSelector);
   const logOutLoading = useSelector(logOutLoadingStatusSelector) === 'loading';
   const colors = useColors();

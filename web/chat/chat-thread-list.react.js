@@ -24,7 +24,7 @@ function ChatThreadList(props: Props) {
   const isBackground = activeTab === 'BACKGROUND';
 
   const listData: React.Node[] = React.useMemo(() => {
-    const threads = threadList.map((item) => (
+    const threads = threadList.map(item => (
       <ChatThreadListItem
         item={item}
         key={item.threadInfo.id}

@@ -90,7 +90,7 @@ const clientSocketMessageInputValidator = t.union([
   tShape({
     type: t.irreducible(
       'clientSocketMessageTypes.INITIAL',
-      (x) => x === clientSocketMessageTypes.INITIAL,
+      x => x === clientSocketMessageTypes.INITIAL,
     ),
     id: t.Number,
     payload: tShape({
@@ -110,7 +110,7 @@ const clientSocketMessageInputValidator = t.union([
   tShape({
     type: t.irreducible(
       'clientSocketMessageTypes.RESPONSES',
-      (x) => x === clientSocketMessageTypes.RESPONSES,
+      x => x === clientSocketMessageTypes.RESPONSES,
     ),
     id: t.Number,
     payload: tShape({
@@ -120,14 +120,14 @@ const clientSocketMessageInputValidator = t.union([
   tShape({
     type: t.irreducible(
       'clientSocketMessageTypes.PING',
-      (x) => x === clientSocketMessageTypes.PING,
+      x => x === clientSocketMessageTypes.PING,
     ),
     id: t.Number,
   }),
   tShape({
     type: t.irreducible(
       'clientSocketMessageTypes.ACK_UPDATES',
-      (x) => x === clientSocketMessageTypes.ACK_UPDATES,
+      x => x === clientSocketMessageTypes.ACK_UPDATES,
     ),
     id: t.Number,
     payload: tShape({
@@ -137,7 +137,7 @@ const clientSocketMessageInputValidator = t.union([
   tShape({
     type: t.irreducible(
       'clientSocketMessageTypes.API_REQUEST',
-      (x) => x === clientSocketMessageTypes.API_REQUEST,
+      x => x === clientSocketMessageTypes.API_REQUEST,
     ),
     id: t.Number,
     payload: tShape({
@@ -764,7 +764,7 @@ class Socket {
   }
 
   get stateCheckCanStart() {
-    return Object.values(this.stateCheckConditions).every((cond) => !cond);
+    return Object.values(this.stateCheckConditions).every(cond => !cond);
   }
 
   handleStateCheckConditionsUpdate() {

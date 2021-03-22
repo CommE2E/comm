@@ -473,7 +473,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
 
       const subthreads =
         childThreads?.filter(
-          (childThreadInfo) => childThreadInfo.type !== threadTypes.SIDEBAR,
+          childThreadInfo => childThreadInfo.type !== threadTypes.SIDEBAR,
         ) ?? [];
       const canCreateSubthreads = threadHasPermission(
         threadInfo,
@@ -540,7 +540,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
 
       const sidebars =
         childThreads?.filter(
-          (childThreadInfo) => childThreadInfo.type === threadTypes.SIDEBAR,
+          childThreadInfo => childThreadInfo.type === threadTypes.SIDEBAR,
         ) ?? [];
       if (sidebars.length === 0) {
         return listData;
@@ -1019,19 +1019,19 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   };
 
   onPressSeeMoreMembers = () => {
-    this.setState((prevState) => ({
+    this.setState(prevState => ({
       numMembersShowing: prevState.numMembersShowing + itemPageLength,
     }));
   };
 
   onPressSeeMoreSubthreads = () => {
-    this.setState((prevState) => ({
+    this.setState(prevState => ({
       numSubthreadsShowing: prevState.numSubthreadsShowing + itemPageLength,
     }));
   };
 
   onPressSeeMoreSidebars = () => {
-    this.setState((prevState) => ({
+    this.setState(prevState => ({
       numSidebarsShowing: prevState.numSidebarsShowing + itemPageLength,
     }));
   };
@@ -1104,27 +1104,27 @@ const somethingIsSaving = (
 export default React.memo<BaseProps>(function ConnectedThreadSettings(
   props: BaseProps,
 ) {
-  const userInfos = useSelector((state) => state.userStore.userInfos);
+  const userInfos = useSelector(state => state.userStore.userInfos);
   const viewerID = useSelector(
-    (state) => state.currentUserInfo && state.currentUserInfo.id,
+    state => state.currentUserInfo && state.currentUserInfo.id,
   );
   const threadID = props.route.params.threadInfo.id;
   const threadInfo: ?ThreadInfo = useSelector(
-    (state) => threadInfoSelector(state)[threadID],
+    state => threadInfoSelector(state)[threadID],
   );
   const parentThreadID = threadInfo
     ? threadInfo.parentThreadID
     : props.route.params.threadInfo.parentThreadID;
-  const parentThreadInfo: ?ThreadInfo = useSelector((state) =>
+  const parentThreadInfo: ?ThreadInfo = useSelector(state =>
     parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
   );
   const threadMembers = useSelector(
     relativeMemberInfoSelectorForMembersOfThread(threadID),
   );
   const boundChildThreadInfos = useSelector(
-    (state) => childThreadInfos(state)[threadID],
+    state => childThreadInfos(state)[threadID],
   );
-  const boundSomethingIsSaving = useSelector((state) =>
+  const boundSomethingIsSaving = useSelector(state =>
     somethingIsSaving(state, threadMembers),
   );
   const styles = useStyles(unboundStyles);

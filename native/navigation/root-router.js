@@ -256,7 +256,7 @@ function RootRouter(
         type: setNavStateActionType,
         payload: { state, hideFromMonitor },
       }),
-      goBackOnce: () => (state) => ({
+      goBackOnce: () => state => ({
         ...CommonActions.goBack(),
         target: state.key,
       }),

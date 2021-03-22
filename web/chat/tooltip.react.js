@@ -34,7 +34,7 @@ function TooltipMenu(props: TooltipMenuProps) {
   } = props;
 
   const tooltipTexts = React.useMemo(
-    () => React.Children.map(children, (item) => item.props.text),
+    () => React.Children.map(children, item => item.props.text),
     [children],
   );
 

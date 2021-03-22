@@ -627,10 +627,10 @@ export default React.memo<{ ... }>(function ConnectedLoggedOutModal(props: {
   const isForeground = isForegroundSelector(navContext);
 
   const rehydrateConcluded = useSelector(
-    (state) => !!(state._persist && state._persist.rehydrated && navContext),
+    state => !!(state._persist && state._persist.rehydrated && navContext),
   );
-  const cookie = useSelector((state) => state.cookie);
-  const urlPrefix = useSelector((state) => state.urlPrefix);
+  const cookie = useSelector(state => state.cookie);
+  const urlPrefix = useSelector(state => state.urlPrefix);
   const loggedIn = useSelector(isLoggedIn);
   const dimensions = useSelector(derivedDimensionsInfoSelector);
   const splashStyle = useSelector(splashStyleSelector);

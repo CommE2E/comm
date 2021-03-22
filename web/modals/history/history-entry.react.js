@@ -151,10 +151,10 @@ export default React.memo<BaseProps>(function ConnectedHistoryEntry(
   const entryID = props.entryInfo.id;
   invariant(entryID, 'entryInfo.id (serverID) should be set');
   const threadInfo = useSelector(
-    (state) => threadInfoSelector(state)[props.entryInfo.threadID],
+    state => threadInfoSelector(state)[props.entryInfo.threadID],
   );
   const loggedIn = useSelector(
-    (state) =>
+    state =>
       !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
   );
   const restoreLoadingStatus = useSelector(

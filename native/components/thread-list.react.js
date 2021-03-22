@@ -55,7 +55,7 @@ class ThreadList extends React.PureComponent<Props, State> {
       searchResults: Set<string>,
     ) =>
       text
-        ? threadInfos.filter((threadInfo) => searchResults.has(threadInfo.id))
+        ? threadInfos.filter(threadInfo => searchResults.has(threadInfo.id))
         : // We spread to make sure the result of this selector updates when
           // any input param (namely itemStyle or itemTextStyle) changes
           [...threadInfos],

@@ -35,9 +35,7 @@ type DummyTextNodeProps = {|
 |};
 function DummyTextNode(props: DummyTextNodeProps) {
   const { children, style, ...rest } = props;
-  const maxWidth = useSelector((state) =>
-    composedMessageMaxWidthSelector(state),
-  );
+  const maxWidth = useSelector(state => composedMessageMaxWidthSelector(state));
   const viewStyle = [props.style, styles.dummyMessage, { maxWidth }];
   const rules = useTextMessageMarkdownRules(false);
   return (
@@ -59,7 +57,7 @@ function InnerTextMessage(props: Props) {
   const { text, creator } = item.messageInfo;
   const { isViewer } = creator;
 
-  const activeTheme = useSelector((state) => state.globalThemeInfo.activeTheme);
+  const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
   const boundColors = useColors();
 
   const messageStyle = {};

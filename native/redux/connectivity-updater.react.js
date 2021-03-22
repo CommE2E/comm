@@ -8,7 +8,7 @@ import { updateConnectivityActiveType } from './action-types';
 import { useSelector } from './redux-utils';
 
 export default function ConnectivityUpdater() {
-  const connectivity = useSelector((state) => state.connectivity);
+  const connectivity = useSelector(state => state.connectivity);
   const dispatch = useDispatch();
 
   const onConnectionChange = React.useCallback(

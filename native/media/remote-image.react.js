@@ -36,7 +36,7 @@ class RemoteImage extends React.PureComponent<Props, State> {
       this.props.connectionStatus === 'connected' &&
       prevProps.connectionStatus !== 'connected'
     ) {
-      this.setState((otherPrevState) => ({
+      this.setState(otherPrevState => ({
         attempt: otherPrevState.attempt + 1,
       }));
     }
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
 export default React.memo<BaseProps>(function ConnectedRemoteImage(
   props: BaseProps,
 ) {
-  const connectionStatus = useSelector((state) => state.connection.status);
+  const connectionStatus = useSelector(state => state.connection.status);
 
   return <RemoteImage {...props} connectionStatus={connectionStatus} />;
 });

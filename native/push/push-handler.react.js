@@ -289,7 +289,7 @@ class PushHandler extends React.PureComponent<Props, State> {
       return;
     }
     if (Platform.OS === 'ios') {
-      NotificationsIOS.getDeliveredNotifications((notifications) =>
+      NotificationsIOS.getDeliveredNotifications(notifications =>
         PushHandler.clearDeliveredIOSNotificationsForThread(
           activeThread,
           notifications,
@@ -461,7 +461,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     saveMessageInfos(messageInfosString, this.props.updatesCurrentAsOf);
   }
 
-  iosForegroundNotificationReceived = (notification) => {
+  iosForegroundNotificationReceived = notification => {
     if (
       notification.getData() &&
       notification.getData().managedAps &&
@@ -507,7 +507,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     }
   }
 
-  iosNotificationOpened = (notification) => {
+  iosNotificationOpened = notification => {
     this.onPushNotifBootsApp();
     const threadID = notification.getData().threadID;
     if (!threadID) {
@@ -592,14 +592,14 @@ export default React.memo<BaseProps>(function ConnectedPushHandler(
   const navContext = React.useContext(NavContext);
   const activeThread = activeMessageListSelector(navContext);
   const boundUnreadCount = useSelector(unreadCount);
-  const deviceToken = useSelector((state) => state.deviceToken);
+  const deviceToken = useSelector(state => state.deviceToken);
   const threadInfos = useSelector(threadInfoSelector);
   const notifPermissionAlertInfo = useSelector(
-    (state) => state.notifPermissionAlertInfo,
+    state => state.notifPermissionAlertInfo,
   );
-  const connection = useSelector((state) => state.connection);
-  const updatesCurrentAsOf = useSelector((state) => state.updatesCurrentAsOf);
-  const activeTheme = useSelector((state) => state.globalThemeInfo.activeTheme);
+  const connection = useSelector(state => state.connection);
+  const updatesCurrentAsOf = useSelector(state => state.updatesCurrentAsOf);
+  const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
   const loggedIn = useSelector(isLoggedIn);
   const navigateToThread = useNavigateToThread();
   const dispatch = useDispatch();

@@ -35,7 +35,7 @@ import ProfileScreen from './profile-screen.react';
 import RelationshipList from './relationship-list.react';
 
 const header = (props: StackHeaderProps) => <ProfileHeader {...props} />;
-const headerBackButton = (props) => <HeaderBackButton {...props} />;
+const headerBackButton = props => <HeaderBackButton {...props} />;
 const profileScreenOptions = { headerTitle: 'Profile' };
 const editPasswordOptions = { headerTitle: 'Change password' };
 const deleteAccountOptions = { headerTitle: 'Delete account' };

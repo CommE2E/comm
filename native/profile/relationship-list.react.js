@@ -244,7 +244,7 @@ class RelationshipList extends React.PureComponent<Props, State> {
       }[routeName];
 
       const excludeUserIDsArray = currentTags
-        .map((userInfo) => userInfo.id)
+        .map(userInfo => userInfo.id)
         .concat(viewerID || []);
 
       const excludeUserIDs = new Set(excludeUserIDsArray);
@@ -334,7 +334,7 @@ class RelationshipList extends React.PureComponent<Props, State> {
 
     const results = this.props.userStoreSearchIndex
       .getSearchResults(searchText)
-      .filter((userID) => {
+      .filter(userID => {
         const relationship = this.props.userInfos[userID].relationshipStatus;
         return !excludeStatuses.includes(relationship);
       });
@@ -346,7 +346,7 @@ class RelationshipList extends React.PureComponent<Props, State> {
 
     const serverSearchResults = await this.searchUsers(searchText);
     const filteredServerSearchResults = serverSearchResults.filter(
-      (searchUserInfo) => {
+      searchUserInfo => {
         const userInfo = this.props.userInfos[searchUserInfo.id];
         return (
           !userInfo || !excludeStatuses.includes(userInfo.relationshipStatus)
@@ -392,8 +392,8 @@ class RelationshipList extends React.PureComponent<Props, State> {
   };
 
   onSelect = (selectedUser: GlobalAccountUserInfo) => {
-    this.setState((state) => {
-      if (state.currentTags.find((o) => o.id === selectedUser.id)) {
+    this.setState(state => {
+      if (state.currentTags.find(o => o.id === selectedUser.id)) {
         return null;
       }
       return {
@@ -419,7 +419,7 @@ class RelationshipList extends React.PureComponent<Props, State> {
       [FriendListRouteName]: relationshipActions.FRIEND,
       [BlockListRouteName]: relationshipActions.BLOCK,
     }[routeName];
-    const userIDs = this.state.currentTags.map((userInfo) => userInfo.id);
+    const userIDs = this.state.currentTags.map(userInfo => userInfo.id);
 
     try {
       const result = await this.props.updateRelationships({
@@ -539,9 +539,9 @@ export default React.memo<BaseProps>(function ConnectedRelationshipList(
   props: BaseProps,
 ) {
   const relationships = useSelector(userRelationshipsSelector);
-  const userInfos = useSelector((state) => state.userStore.userInfos);
+  const userInfos = useSelector(state => state.userStore.userInfos);
   const viewerID = useSelector(
-    (state) => state.currentUserInfo && state.currentUserInfo.id,
+    state => state.currentUserInfo && state.currentUserInfo.id,
   );
   const userStoreSearchIndex = useSelector(userStoreSearchIndexSelector);
   const styles = useStyles(unboundStyles);

@@ -15,7 +15,7 @@ export type MarkdownRules = {|
   +useDarkStyle: boolean,
 |};
 
-const linkRules: (boolean) => MarkdownRules = _memoize((useDarkStyle) => {
+const linkRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
   const simpleMarkdownRules = {
     // We are using default simple-markdown rules
     // For more details, look at native/markdown/rules.react
@@ -65,7 +65,7 @@ const linkRules: (boolean) => MarkdownRules = _memoize((useDarkStyle) => {
   };
 });
 
-const markdownRules: (boolean) => MarkdownRules = _memoize((useDarkStyle) => {
+const markdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
   const linkMarkdownRules = linkRules(useDarkStyle);
 
   const simpleMarkdownRules = {

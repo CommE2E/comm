@@ -386,7 +386,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     messageInfo: RawTextMessageInfo,
     threadInfo: ThreadInfo,
   ) => {
-    this.sendCallbacks.forEach((callback) => callback());
+    this.sendCallbacks.forEach(callback => callback());
 
     if (!threadIsPending(threadInfo.id)) {
       this.props.dispatchActionPromise(
@@ -486,7 +486,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     selections: $ReadOnlyArray<NativeMediaSelection>,
     threadInfo: ThreadInfo,
   ) => {
-    this.sendCallbacks.forEach((callback) => callback());
+    this.sendCallbacks.forEach(callback => callback());
     const localMessageID = `${localIDPrefix}${this.props.nextLocalID}`;
     this.startThreadCreation(threadInfo);
 
@@ -560,7 +560,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     this.setState(
-      (prevState) => {
+      prevState => {
         return {
           pendingUploads: {
             ...prevState.pendingUploads,
@@ -592,7 +592,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     uploadFileInputs: $ReadOnlyArray<UploadFileInput>,
   ) {
     const results = await Promise.all(
-      uploadFileInputs.map((uploadFileInput) =>
+      uploadFileInputs.map(uploadFileInput =>
         this.uploadFile(localMessageID, uploadFileInput),
       ),
     );
@@ -818,7 +818,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     processingStep: MultimediaProcessingStep,
     progressPercent: number,
   ) {
-    this.setState((prevState) => {
+    this.setState(prevState => {
       const pendingUploads = prevState.pendingUploads[localMessageID];
       if (!pendingUploads) {
         return {};
@@ -917,13 +917,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       });
     }
     return await new Promise((resolve, reject) => {
-      Upload.addListener('error', uploadID, (data) => {
+      Upload.addListener('error', uploadID, data => {
         reject(data.error);
       });
       Upload.addListener('cancelled', uploadID, () => {
         reject(new Error('request aborted'));
       });
-      Upload.addListener('completed', uploadID, (data) => {
+      Upload.addListener('completed', uploadID, data => {
         try {
           resolve(JSON.parse(data.responseBody));
         } catch (e) {
@@ -932,7 +932,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       });
       if (options && options.onProgress) {
         const { onProgress } = options;
-        Upload.addListener('progress', uploadID, (data) =>
+        Upload.addListener('progress', uploadID, data =>
           onProgress(data.progress / 100),
         );
       }
@@ -944,7 +944,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     localUploadID: string,
     message: string,
   ) {
-    this.setState((prevState) => {
+    this.setState(prevState => {
       const uploads = prevState.pendingUploads[localMessageID];
       const upload = uploads[localUploadID];
       if (!upload) {
@@ -1003,9 +1003,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   };
 
   addReply = (message: string) => {
-    this.replyCallbacks.forEach((addReplyCallback) =>
-      addReplyCallback(message),
-    );
+    this.replyCallbacks.forEach(addReplyCallback => addReplyCallback(message));
   };
 
   addReplyListener = (callbackReply: (message: string) => void) => {
@@ -1014,7 +1012,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   removeReplyListener = (callbackReply: (message: string) => void) => {
     this.replyCallbacks = this.replyCallbacks.filter(
-      (candidate) => candidate !== callbackReply,
+      candidate => candidate !== callbackReply,
     );
   };
 
@@ -1046,7 +1044,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     this.startThreadCreation(threadInfo);
 
     const updateMedia = <T: Media>(media: $ReadOnlyArray<T>): T[] =>
-      media.map((singleMedia) => {
+      media.map(singleMedia => {
         let updatedMedia = singleMedia;
 
         const oldMediaID = updatedMedia.id;
@@ -1162,7 +1160,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
     if (incompleteMedia.length === 0) {
       this.dispatchMultimediaMessageAction(newRawMessageInfo);
-      this.setState((prevState) => ({
+      this.setState(prevState => ({
         pendingUploads: {
           ...prevState.pendingUploads,
           [localMessageID]: {},
@@ -1204,14 +1202,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         };
       }
     }
-    this.setState((prevState) => ({
+    this.setState(prevState => ({
       pendingUploads: {
         ...prevState.pendingUploads,
         [localMessageID]: pendingUploads,
       },
     }));
 
-    const uploadFileInputs = retryMedia.map((singleMedia) => {
+    const uploadFileInputs = retryMedia.map(singleMedia => {
       invariant(
         singleMedia.localMediaSelection,
         'localMediaSelection should be set on locally created Media',
@@ -1265,7 +1263,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   unregisterSendCallback = (callback: () => void) => {
     this.sendCallbacks = this.sendCallbacks.filter(
-      (candidate) => candidate !== callback,
+      candidate => candidate !== callback,
     );
   };
 
@@ -1321,7 +1319,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       return Promise.resolve(getResult());
     }
 
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const finish = () => resolve(getResult());
       const newActiveURI = {
         ...activeURI,
@@ -1352,20 +1350,20 @@ export default React.memo<BaseProps>(function ConnectedInputStateContainer(
   props: BaseProps,
 ) {
   const viewerID = useSelector(
-    (state) => state.currentUserInfo && state.currentUserInfo.id,
+    state => state.currentUserInfo && state.currentUserInfo.id,
   );
-  const nextLocalID = useSelector((state) => state.nextLocalID);
+  const nextLocalID = useSelector(state => state.nextLocalID);
   const messageStoreMessages = useSelector(
-    (state) => state.messageStore.messages,
+    state => state.messageStore.messages,
   );
   const ongoingMessageCreation = useSelector(
-    (state) =>
+    state =>
       combineLoadingStatuses(
         mediaCreationLoadingStatusSelector(state),
         textCreationLoadingStatusSelector(state),
       ) === 'loading',
   );
-  const hasWiFi = useSelector((state) => state.connectivity.hasWiFi);
+  const hasWiFi = useSelector(state => state.connectivity.hasWiFi);
   const calendarQuery = useCalendarQuery();
   const callUploadMultimedia = useServerCall(uploadMultimedia);
   const callSendMultimediaMessage = useServerCall(sendMultimediaMessage);

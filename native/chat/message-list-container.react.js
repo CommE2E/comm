@@ -234,7 +234,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
         usernameInputText,
         otherUserInfos,
         userSearchIndex,
-        userInfoInputArray.map((userInfo) => userInfo.id),
+        userInfoInputArray.map(userInfo => userInfo.id),
       ),
     [usernameInputText, otherUserInfos, userSearchIndex, userInfoInputArray],
   );
@@ -319,7 +319,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
   const measureMessages = useHeightMeasurer();
 
   const genesisThreadInfo = useSelector(
-    (state) => threadInfoSelector(state)[genesis.id],
+    state => threadInfoSelector(state)[genesis.id],
   );
 
   return (

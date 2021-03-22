@@ -80,7 +80,7 @@ function SubscriptionForm(): React.Node {
     inputStyle = `${css.email_input} ${css.email_input_success}`;
   }
 
-  const onEmailChange = React.useCallback((e) => {
+  const onEmailChange = React.useCallback(e => {
     setEmail(e.target.value);
   }, []);
 

@@ -56,7 +56,7 @@ function ChatThreadListItem({
     );
   }, [data.mostRecentMessageInfo, data.threadInfo, styles]);
 
-  const sidebars = data.sidebars.map((sidebarItem) => {
+  const sidebars = data.sidebars.map(sidebarItem => {
     if (sidebarItem.type === 'sidebar') {
       const { type, ...sidebarInfo } = sidebarItem;
       return (

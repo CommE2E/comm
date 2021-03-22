@@ -46,14 +46,14 @@ function processMedia(
   reportPromise: Promise<$ReadOnlyArray<MediaMissionStep>>,
 |} {
   let resolveResult;
-  const sendResult = (result) => {
+  const sendResult = result => {
     if (resolveResult) {
       resolveResult(result);
     }
   };
 
   const reportPromise = innerProcessMedia(selection, config, sendResult);
-  const resultPromise = new Promise((resolve) => {
+  const resultPromise = new Promise(resolve => {
     resolveResult = resolve;
   });
 

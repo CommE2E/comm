@@ -103,7 +103,7 @@ const tabBarOptions = {
 };
 function TabNavigator() {
   const chatBadge = useSelector(unreadCount);
-  const isCalendarEnabled = useSelector((state) => state.enabledApps.calendar);
+  const isCalendarEnabled = useSelector(state => state.enabledApps.calendar);
 
   let calendarTab;
   if (isCalendarEnabled) {

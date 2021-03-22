@@ -199,7 +199,7 @@ async function generateThumbnail(
 async function transcodeVideo(
   plan: ProcessPlan,
   duration: number,
-  onProgressCallback: (number) => void,
+  onProgressCallback: number => void,
 ): Promise<TranscodeVideoMediaMissionStep> {
   const transcodeStart = Date.now();
   let returnCode,

@@ -131,7 +131,7 @@ class HistoryModal extends React.PureComponent<Props, State> {
     }
 
     const revisionInfos = this.state.revisions.filter(
-      (revisionInfo) => revisionInfo.entryID === this.state.currentEntryID,
+      revisionInfo => revisionInfo.entryID === this.state.currentEntryID,
     );
     const revisions = [];
     for (let i = 0; i < revisionInfos.length; i++) {
@@ -212,7 +212,7 @@ class HistoryModal extends React.PureComponent<Props, State> {
 
   async fetchRevisionsForEntryAction(entryID: string) {
     const result = await this.props.fetchRevisionsForEntry(entryID);
-    this.setState((prevState) => {
+    this.setState(prevState => {
       // This merge here will preserve time ordering correctly
       const revisions = _unionBy('id')(result)(prevState.revisions);
       return { ...prevState, revisions };
@@ -254,7 +254,7 @@ export default React.memo<BaseProps>(function ConnectedHistoryModal(
   props: BaseProps,
 ) {
   const entryInfos = useSelector(
-    (state) => allDaysToEntries(state)[props.dayString],
+    state => allDaysToEntries(state)[props.dayString],
   );
   const dayLoadingStatus = useSelector(dayLoadingStatusSelector);
   const entryLoadingStatus = useSelector(entryLoadingStatusSelector);

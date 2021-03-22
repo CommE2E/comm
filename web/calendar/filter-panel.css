@@ -10,8 +10,8 @@ div.container {
   flex-direction: column;
 }
 div.filters {
-  color: #DDDDDD;
-  background-color: rgba(0,0,0,0.89);
+  color: #dddddd;
+  background-color: rgba(0, 0, 0, 0.89);
   overflow-y: auto;
   height: 100%;
 }
@@ -38,7 +38,7 @@ div.optionThread input {
   cursor: pointer;
 }
 div.optionThread label {
-  font-family: "Open Sans", sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-weight: 600 !important;
   font-size: 15px;
   padding-left: 5px;
@@ -60,9 +60,9 @@ div.optionCheckbox {
   top: 0;
 }
 div.checkboxAfterOption {
-  -webkit-transform: scale(.6);
-  -ms-transform: scale(.6);
-  transform: scale(.6);
+  -webkit-transform: scale(0.6);
+  -ms-transform: scale(0.6);
+  transform: scale(0.6);
 }
 a.only {
   color: #888888;
@@ -76,20 +76,20 @@ div.option:hover a.only {
 }
 a.only:hover {
   text-decoration: underline;
-  color: #EEEEEE;
+  color: #eeeeee;
 }
 a.settingsCog {
   display: none;
   margin-left: auto;
   padding-left: 5px;
   cursor: pointer;
-  color: #AAAAAA;
+  color: #aaaaaa;
 }
 div.option:hover a.settingsCog {
   display: inline;
 }
 a.settingsCog:hover {
-  color: #EEEEEE;
+  color: #eeeeee;
 }
 div.optionDetails {
   font-style: italic;
@@ -102,13 +102,13 @@ div.optionDetails {
 }
 div.searchContainer {
   padding: 8px 10px;
-  background-color: rgba(0,0,0,0.89);
+  background-color: rgba(0, 0, 0, 0.89);
 }
 div.search {
   display: flex;
   border-radius: 5px;
   padding: 5px;
-  background-color: rgba(255,255,255,0.27);
+  background-color: rgba(255, 255, 255, 0.27);
   align-items: center;
 }
 svg.searchVector {
@@ -135,7 +135,7 @@ svg.clearQuery {
   font-size: 15px;
   padding-bottom: 1px;
   padding-right: 2px;
-  color: #CCCCCC;
+  color: #cccccc;
 }
 svg.clearQuery:hover {
   font-size: 15px;
@@ -153,14 +153,14 @@ a.collapse {
   margin-left: auto;
   padding-left: 5px;
   cursor: pointer;
-  color: #AAAAAA;
+  color: #aaaaaa;
 }
 div.category {
   margin: 5px 18px 8px 18px;
 }
 div.extras {
-  background-color: rgba(0,0,0,0.89);
-  color: #DDDDDD;
+  background-color: rgba(0, 0, 0, 0.89);
+  color: #dddddd;
   padding: 8px 20px;
   font-size: 14px;
   display: flex;

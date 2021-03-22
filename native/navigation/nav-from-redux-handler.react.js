@@ -9,7 +9,7 @@ import { NavContext } from './navigation-context';
 const NavFromReduxHandler = React.memo<{||}>(() => {
   const navContext = React.useContext(NavContext);
 
-  const navStateInRedux = useSelector((state) => state.navState);
+  const navStateInRedux = useSelector(state => state.navState);
 
   const dispatch = React.useMemo(() => {
     if (!navContext) {

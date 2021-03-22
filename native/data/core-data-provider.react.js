@@ -17,7 +17,7 @@ function CoreDataProvider(props: Props) {
   React.useEffect(() => {
     (async () => {
       const fetchedDrafts = await global.CommCoreModule.getAllDrafts();
-      setDraftCache((prevDrafts) => {
+      setDraftCache(prevDrafts => {
         const mergedDrafts = {};
         for (const draftObj of fetchedDrafts) {
           mergedDrafts[draftObj.key] = draftObj.text;
@@ -46,7 +46,7 @@ function CoreDataProvider(props: Props) {
   }, [draftCache]);
 
   const viewerID = useSelector(
-    (state) => state.currentUserInfo && state.currentUserInfo.id,
+    state => state.currentUserInfo && state.currentUserInfo.id,
   );
   const prevViewerIDRef = React.useRef();
   React.useEffect(() => {
@@ -70,9 +70,9 @@ function CoreDataProvider(props: Props) {
    */
   const setDrafts = React.useCallback(
     (newDrafts: $ReadOnlyArray<{| +key: string, +text: ?string |}>) => {
-      setDraftCache((prevDrafts) => {
+      setDraftCache(prevDrafts => {
         const result = { ...prevDrafts };
-        newDrafts.forEach((draft) => {
+        newDrafts.forEach(draft => {
           if (draft.text) {
             result[draft.key] = draft.text;
           } else {

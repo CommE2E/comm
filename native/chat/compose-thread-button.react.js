@@ -63,7 +63,7 @@ export default React.memo<BaseProps>(function ConnectedComposeThreadButton(
 ) {
   const colors = useColors();
   const viewerID = useSelector(
-    (state) => state.currentUserInfo && state.currentUserInfo.id,
+    state => state.currentUserInfo && state.currentUserInfo.id,
   );
 
   return <ComposeThreadButton {...props} colors={colors} viewerID={viewerID} />;

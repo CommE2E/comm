@@ -253,7 +253,7 @@ const nonThreadCalendarQuery: (
 
 function useCalendarQuery(): () => CalendarQuery {
   const navContext = React.useContext(NavContext);
-  return useSelector((state) =>
+  return useSelector(state =>
     nonThreadCalendarQuery({
       redux: state,
       navContext,

@@ -63,7 +63,7 @@ type PanelProps = {|
   +style?: ViewStyle,
 |};
 function Panel(props: PanelProps): React.Node {
-  const dimensions = useSelector((state) => state.dimensions);
+  const dimensions = useSelector(state => state.dimensions);
   const containerStyle = React.useMemo(
     () => [
       styles.container,

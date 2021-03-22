@@ -76,7 +76,7 @@ function reduceThreadIDsToNotifIDs(
     if (!existingNotifIDs) {
       return state;
     }
-    const filtered = existingNotifIDs.filter((id) => id !== notifID);
+    const filtered = existingNotifIDs.filter(id => id !== notifID);
     if (filtered.length === existingNotifIDs.length) {
       return state;
     }

@@ -757,15 +757,13 @@ const Entry = React.memo<BaseProps>(function ConnectedEntry(props: BaseProps) {
   const navContext = React.useContext(NavContext);
   const threadPickerActive = activeThreadPickerSelector(navContext);
 
-  const calendarQuery = useSelector((state) =>
+  const calendarQuery = useSelector(state =>
     nonThreadCalendarQuery({
       redux: state,
       navContext,
     }),
   );
-  const online = useSelector(
-    (state) => state.connection.status === 'connected',
-  );
+  const online = useSelector(state => state.connection.status === 'connected');
   const styles = useStyles(unboundStyles);
 
   const navigateToThread = useNavigateToThread();

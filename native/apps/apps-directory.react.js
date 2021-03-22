@@ -42,7 +42,7 @@ const APP_DIRECTORY_DATA = [
 
 function AppsDirectory() {
   const styles = useStyles(unboundStyles);
-  const enabledApps = useSelector((state) => state.enabledApps);
+  const enabledApps = useSelector(state => state.enabledApps);
 
   const renderAppCell = React.useCallback(
     ({ item }) => (
@@ -57,7 +57,7 @@ function AppsDirectory() {
     ),
     [enabledApps],
   );
-  const getItemID = React.useCallback((item) => item.id, []);
+  const getItemID = React.useCallback(item => item.id, []);
 
   return (
     <SafeAreaView style={styles.view} edges={safeAreaEdges}>

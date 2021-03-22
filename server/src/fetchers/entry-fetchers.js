@@ -113,7 +113,7 @@ async function fetchEntryInfos(
 ): Promise<FetchEntryInfosBase> {
   const queryConditions = calendarQueries
     .map(sqlConditionForCalendarQuery)
-    .filter((condition) => condition);
+    .filter(condition => condition);
   if (queryConditions.length === 0) {
     return { rawEntryInfos: [] };
   }
@@ -251,7 +251,7 @@ async function fetchEntriesForSession(
     // in order to construct deletedEntryIDs, we get rid of the NOT_DELETED
     // filters before passing the CalendarQueries to fetchEntryInfos. We will
     // filter out the deleted RawEntryInfos in a later step.
-    calendarQueriesForFetch = calendarQueriesForFetch.map((calendarQuery) => ({
+    calendarQueriesForFetch = calendarQueriesForFetch.map(calendarQuery => ({
       ...calendarQuery,
       filters: nonExcludeDeletedCalendarFilters(calendarQuery.filters),
     }));
@@ -262,18 +262,18 @@ async function fetchEntriesForSession(
     calendarQueriesForFetch,
   );
   const entryInfosNotInOldQuery = rawEntryInfos.filter(
-    (rawEntryInfo) =>
+    rawEntryInfo =>
       !rawEntryInfoWithinCalendarQuery(rawEntryInfo, oldCalendarQuery),
   );
   let filteredRawEntryInfos = entryInfosNotInOldQuery;
   let deletedEntryIDs = [];
   if (filterDeleted) {
     filteredRawEntryInfos = entryInfosNotInOldQuery.filter(
-      (rawEntryInfo) => !rawEntryInfo.deleted,
+      rawEntryInfo => !rawEntryInfo.deleted,
     );
     deletedEntryIDs = entryInfosNotInOldQuery
-      .filter((rawEntryInfo) => rawEntryInfo.deleted)
-      .map((rawEntryInfo) => {
+      .filter(rawEntryInfo => rawEntryInfo.deleted)
+      .map(rawEntryInfo => {
         const { id } = rawEntryInfo;
         invariant(
           id !== null && id !== undefined,

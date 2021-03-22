@@ -183,7 +183,7 @@ function createTooltip<RouteName: $Keys<TooltipModalParamList>>(
         return entries;
       }
       const visibleSet = new Set(visibleEntryIDs);
-      return entries.filter((entry) => visibleSet.has(entry.id));
+      return entries.filter(entry => visibleSet.has(entry.id));
     }
 
     get tooltipHeight(): number {
@@ -428,10 +428,10 @@ function createTooltip<RouteName: $Keys<TooltipModalParamList>>(
   return React.memo<BaseTooltipProps<RouteName>>(function ConnectedTooltip(
     props: BaseTooltipProps<RouteName>,
   ) {
-    const dimensions = useSelector((state) => state.dimensions);
+    const dimensions = useSelector(state => state.dimensions);
     const serverCallState = useSelector(serverCallStateSelector);
     const viewerID = useSelector(
-      (state) => state.currentUserInfo && state.currentUserInfo.id,
+      state => state.currentUserInfo && state.currentUserInfo.id,
     );
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();

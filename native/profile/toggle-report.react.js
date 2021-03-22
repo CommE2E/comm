@@ -17,7 +17,7 @@ function ToggleReport(props: Props): React.Node {
   const isReportEnabled = useIsReportEnabled(reportType);
 
   const onReportToggled = React.useCallback(
-    (value) => {
+    value => {
       dispatch({
         type: updateReportsEnabledActionType,
         payload: { [(reportType: string)]: value },

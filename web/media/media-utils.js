@@ -26,7 +26,7 @@ async function preloadImage(
       img.onload = () => {
         resolve(img);
       };
-      img.onerror = (e) => {
+      img.onerror = e => {
         reject(e);
       };
     });
@@ -125,8 +125,8 @@ async function processFile(
     }
 
     context.drawImage(image, 0, 0);
-    reorientedBlob = await new Promise((resolve) =>
-      canvas.toBlob((blobResult) => resolve(blobResult)),
+    reorientedBlob = await new Promise(resolve =>
+      canvas.toBlob(blobResult => resolve(blobResult)),
     );
   } catch (e) {
     reorientExceptionMessage = getMessageForException(e);

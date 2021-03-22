@@ -51,9 +51,9 @@ class ChatContextProvider extends React.PureComponent<Props, State> {
           measurerID,
         ),
       unregister: () => {
-        this.setState((state) => ({
+        this.setState(state => ({
           measurements: state.measurements.filter(
-            (measurement) => measurement.measurerID !== measurerID,
+            measurement => measurement.measurerID !== measurerID,
           ),
         }));
         this.measuredHeights.delete(measurerID);
@@ -79,7 +79,7 @@ class ChatContextProvider extends React.PureComponent<Props, State> {
     const isMeasurementPresent = this.measuredHeights.has(measurerID);
     if (!isMeasurementPresent) {
       const sourceMeasurerID = this.state.measurements.find(
-        (measurement) => measurement.threadInfo.id === threadInfo.id,
+        measurement => measurement.threadInfo.id === threadInfo.id,
       )?.measurerID;
       initialMeasuredHeights = sourceMeasurerID
         ? this.measuredHeights.get(sourceMeasurerID)
@@ -93,9 +93,9 @@ class ChatContextProvider extends React.PureComponent<Props, State> {
       measurerID,
       initialMeasuredHeights,
     };
-    this.setState((state) => {
+    this.setState(state => {
       const withoutCurrentMeasurement = state.measurements.filter(
-        (measurement) => measurement.measurerID !== measurerID,
+        measurement => measurement.measurerID !== measurerID,
       );
       return {
         measurements: [...withoutCurrentMeasurement, newMeasurement],
@@ -108,7 +108,7 @@ class ChatContextProvider extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const heightMeasurers = this.state.measurements.map((measurement) => (
+    const heightMeasurers = this.state.measurements.map(measurement => (
       <ChatItemHeightMeasurer
         key={measurement.measurerID}
         measurement={measurement}

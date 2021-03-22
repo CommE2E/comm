@@ -21,7 +21,7 @@ type Props = {|
   +progress: Value,
 |};
 function MultimediaMessageTooltipButton(props: Props): React.Node {
-  const windowWidth = useSelector((state) => state.dimensions.width);
+  const windowWidth = useSelector(state => state.dimensions.width);
   const { progress } = props;
   const { initialCoordinates } = props.route.params;
   const headerStyle = React.useMemo(() => {

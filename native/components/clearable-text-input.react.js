@@ -31,7 +31,7 @@ class ClearableTextInput extends React.PureComponent<ClearableTextInputProps> {
     if (this.textInput) {
       this.textInput.clear();
     }
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       this.queuedResolve = async () => {
         await waitForInteractions();
         await sleep(5);

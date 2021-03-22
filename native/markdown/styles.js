@@ -96,7 +96,7 @@ const unboundStyles = {
 
 export type MarkdownStyles = typeof unboundStyles;
 
-const getMarkdownStyles: (GlobalTheme) => MarkdownStyles = _memoize(
+const getMarkdownStyles: GlobalTheme => MarkdownStyles = _memoize(
   (theme: GlobalTheme) => {
     return getStylesForTheme(unboundStyles, theme);
   },

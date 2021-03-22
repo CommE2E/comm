@@ -153,7 +153,7 @@ export default React.memo<BaseProps>(function ConnectedColorPickerModal(
 ) {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
-  const windowWidth = useSelector((state) => state.dimensions.width);
+  const windowWidth = useSelector(state => state.dimensions.width);
 
   const dispatchActionPromise = useDispatchActionPromise();
   const callChangeThreadSettings = useServerCall(changeThreadSettings);

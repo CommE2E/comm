@@ -177,7 +177,7 @@ class AccountBar extends React.PureComponent<Props, State> {
 export default React.memo<BaseProps>(function ConnectedAccountBar(
   props: BaseProps,
 ) {
-  const currentUserInfo = useSelector((state) => state.currentUserInfo);
+  const currentUserInfo = useSelector(state => state.currentUserInfo);
   const preRequestUserState = useSelector(preRequestUserStateSelector);
   const dispatchActionPromise = useDispatchActionPromise();
   const boundLogOut = useServerCall(logOut);

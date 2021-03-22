@@ -584,7 +584,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     this.saveDraft(text);
   };
 
-  saveDraft = _throttle((text) => {
+  saveDraft = _throttle(text => {
     this.props.updateDraft({
       key: draftKeyFromThreadID(this.props.threadInfo.id),
       text,
@@ -823,28 +823,28 @@ export default React.memo<BaseProps>(function ConnectedChatInputBar(
   const { draft, updateDraft, moveDraft } = useDrafts(props.threadInfo.id);
 
   const viewerID = useSelector(
-    (state) => state.currentUserInfo && state.currentUserInfo.id,
+    state => state.currentUserInfo && state.currentUserInfo.id,
   );
   const joinThreadLoadingStatus = useSelector(joinThreadLoadingStatusSelector);
   const createThreadLoadingStatus = useSelector(
     createThreadLoadingStatusSelector,
   );
   const threadCreationInProgress = createThreadLoadingStatus === 'loading';
-  const calendarQuery = useSelector((state) =>
+  const calendarQuery = useSelector(state =>
     nonThreadCalendarQuery({
       redux: state,
       navContext,
     }),
   );
-  const nextLocalID = useSelector((state) => state.nextLocalID);
-  const userInfos = useSelector((state) => state.userStore.userInfos);
+  const nextLocalID = useSelector(state => state.nextLocalID);
+  const userInfos = useSelector(state => state.userStore.userInfos);
 
   const dispatch = useDispatch();
   const dispatchActionPromise = useDispatchActionPromise();
   const callJoinThread = useServerCall(joinThread);
 
   const imagePastedCallback = React.useCallback(
-    (imagePastedEvent) => {
+    imagePastedEvent => {
       if (props.threadInfo.id !== imagePastedEvent['threadID']) {
         return;
       }

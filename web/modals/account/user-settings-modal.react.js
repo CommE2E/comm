@@ -378,10 +378,10 @@ const changeUserSettingsLoadingStatusSelector = createLoadingStatusSelector(
 export default React.memo<BaseProps>(function ConnectedUserSettingsModal(
   props: BaseProps,
 ) {
-  const currentUserInfo = useSelector((state) => state.currentUserInfo);
+  const currentUserInfo = useSelector(state => state.currentUserInfo);
   const preRequestUserState = useSelector(preRequestUserStateSelector);
   const inputDisabled = useSelector(
-    (state) =>
+    state =>
       deleteAccountLoadingStatusSelector(state) === 'loading' ||
       changeUserSettingsLoadingStatusSelector(state) === 'loading',
   );

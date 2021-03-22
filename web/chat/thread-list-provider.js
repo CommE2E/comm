@@ -40,7 +40,7 @@ function ThreadListProvider(props: ThreadListProviderProps) {
   const activeThreadInfo = activeChatThreadItem?.threadInfo;
   const activeThreadID = activeThreadInfo?.id;
 
-  const activeSidebarParentThreadInfo = useSelector((state) => {
+  const activeSidebarParentThreadInfo = useSelector(state => {
     if (!activeThreadInfo || activeThreadInfo.type !== threadTypes.SIDEBAR) {
       return null;
     }
@@ -95,7 +95,7 @@ function ThreadListProvider(props: ThreadListProviderProps) {
       }
 
       const sidebarParentIndex = threadListData.findIndex(
-        (thread) =>
+        thread =>
           thread.threadInfo.id ===
           activeChatThreadItem.threadInfo.parentThreadID,
       );
@@ -115,7 +115,7 @@ function ThreadListProvider(props: ThreadListProviderProps) {
       }
 
       let indexToInsert = parentItem.sidebars.findIndex(
-        (sidebar) =>
+        sidebar =>
           sidebar.lastUpdatedTime === undefined ||
           sidebar.lastUpdatedTime < activeChatThreadItem.lastUpdatedTime,
       );
@@ -147,10 +147,10 @@ function ThreadListProvider(props: ThreadListProviderProps) {
     activeTopLevelThreadInfo,
   );
   const { homeThreadList, backgroundThreadList } = React.useMemo(() => {
-    const home = chatListData.filter((item) =>
+    const home = chatListData.filter(item =>
       threadInHomeChatList(item.threadInfo),
     );
-    const background = chatListData.filter((item) =>
+    const background = chatListData.filter(item =>
       threadInBackgroundChatList(item.threadInfo),
     );
     if (activeTopLevelChatThreadItem && !activeTopLevelThreadIsInChatList) {

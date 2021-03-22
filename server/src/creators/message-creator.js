@@ -85,7 +85,7 @@ async function createMessages(
   const messageInfos: RawMessageInfo[] = [];
   const newMessageDatas: MessageData[] = [];
   const existingMessages = await Promise.all(
-    messageDatas.map((messageData) =>
+    messageDatas.map(messageData =>
       fetchMessageInfoForLocalID(viewer, messageDataLocalID(messageData)),
     ),
   );
@@ -194,8 +194,8 @@ async function updateRepliesCount(
   const membershipConditions = [];
   for (const [threadID, messages] of threadsToMessageIndices.entries()) {
     const newRepliesIncrease = messages
-      .map((i) => newMessageDatas[i].type)
-      .filter((type) => messageSpecs[type].includedInRepliesCount).length;
+      .map(i => newMessageDatas[i].type)
+      .filter(type => messageSpecs[type].includedInRepliesCount).length;
     if (newRepliesIncrease === 0) {
       continue;
     }
@@ -205,7 +205,7 @@ async function updateRepliesCount(
     `);
     updatedThreads.push(threadID);
 
-    const senders = messages.map((i) => newMessageDatas[i].creatorID);
+    const senders = messages.map(i => newMessageDatas[i].creatorID);
     membershipConditions.push(
       SQL`thread = ${threadID} AND user IN (${senders})`,
     );
@@ -524,7 +524,7 @@ function flattenLatestMessagesPerUser(
 async function createReadStatusUpdates(latestMessages: LatestMessages) {
   const now = Date.now();
   const readStatusUpdates = latestMessages
-    .filter((message) => !message.latestReadMessage)
+    .filter(message => !message.latestReadMessage)
     .map(({ userID, threadID }) => ({
       type: updateTypes.UPDATE_THREAD_READ_STATUS,
       userID,

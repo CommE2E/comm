@@ -62,7 +62,7 @@ async function getFCMProvider(profile: FCMPushProfile) {
 }
 
 function endFirebase() {
-  fcmAdmin.apps?.forEach((app) => app?.delete());
+  fcmAdmin.apps?.forEach(app => app?.delete());
 }
 
 function endAPNs() {

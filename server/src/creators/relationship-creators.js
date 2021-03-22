@@ -30,8 +30,8 @@ async function createUndirectedRelationships(
   setStatus: UndirectedStatus,
 ) {
   const userPairs = _flow([
-    _groupBy((membership) => membership.thread),
-    _mapValues(_flow([_map((membership) => membership.user), getAllTuples])),
+    _groupBy(membership => membership.thread),
+    _mapValues(_flow([_map(membership => membership.user), getAllTuples])),
     _values,
     _flatten,
     _uniqWith(_isEqual),

@@ -59,7 +59,7 @@ const activeChatThreadItem: (
 function useChatThreadItem(threadInfo: ?ThreadInfo): ?ChatThreadItem {
   const messageInfos = useSelector(messageInfoSelector);
   const sidebarInfos = useSelector(sidebarInfoSelector);
-  const messageStore = useSelector((state) => state.messageStore);
+  const messageStore = useSelector(state => state.messageStore);
 
   return React.useMemo(() => {
     if (!threadInfo) {

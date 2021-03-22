@@ -292,7 +292,7 @@ export default React.memo<BaseProps>(function ConnectedNewThreadModal(
   props: BaseProps,
 ) {
   const { parentThreadID } = props;
-  const parentThreadInfo: ?ThreadInfo = useSelector((state) =>
+  const parentThreadInfo: ?ThreadInfo = useSelector(state =>
     parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
   );
   invariant(!parentThreadID || parentThreadInfo, 'parent thread should exist');

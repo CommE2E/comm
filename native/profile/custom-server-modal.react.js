@@ -117,8 +117,8 @@ const unboundStyles = {
 export default React.memo<BaseProps>(function ConnectedCustomServerModal(
   props: BaseProps,
 ) {
-  const urlPrefix = useSelector((state) => state.urlPrefix);
-  const customServer = useSelector((state) => state.customServer);
+  const urlPrefix = useSelector(state => state.urlPrefix);
+  const customServer = useSelector(state => state.customServer);
   const styles = useStyles(unboundStyles);
   const dispatch = useDispatch();
 

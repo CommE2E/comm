@@ -57,7 +57,7 @@ async function threadDeletionResponder(
 const roleChangeRequestInputValidator = tShape({
   threadID: t.String,
   memberIDs: t.list(t.String),
-  role: t.refinement(t.String, (str) => {
+  role: t.refinement(t.String, str => {
     const int = parseInt(str, 10);
     return int == str && int > 0;
   }),

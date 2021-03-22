@@ -19,7 +19,7 @@ let callbacks = [];
   try {
     const visibilityjs = await import('visibilityjs');
     visibilityModule = visibilityjs.default;
-    callbacks.forEach((callback) => callback(visibilityModule));
+    callbacks.forEach(callback => callback(visibilityModule));
     callbacks = [];
   } catch {}
 })();

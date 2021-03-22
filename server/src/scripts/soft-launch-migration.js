@@ -70,7 +70,7 @@ async function createGenesisCommunity() {
 
   const ashoatViewer = createScriptViewer(ashoat.id);
   const allUserIDs = await fetchAllUserIDs();
-  const nonAshoatUserIDs = allUserIDs.filter((id) => id !== ashoat.id);
+  const nonAshoatUserIDs = allUserIDs.filter(id => id !== ashoat.id);
 
   await createThread(
     ashoatViewer,
@@ -86,7 +86,7 @@ async function createGenesisCommunity() {
 
   await createMessages(
     ashoatViewer,
-    genesis.introMessages.map((message) => ({
+    genesis.introMessages.map(message => ({
       type: messageTypes.TEXT,
       threadID: genesis.id,
       creatorID: ashoat.id,
@@ -98,7 +98,7 @@ async function createGenesisCommunity() {
   console.log('creating testers thread');
 
   const testerUserIDs = nonAshoatUserIDs.filter(
-    (userID) => !excludeFromTestersThread.has(userID),
+    userID => !excludeFromTestersThread.has(userID),
   );
   const { newThreadID } = await createThread(
     ashoatViewer,
@@ -117,7 +117,7 @@ async function createGenesisCommunity() {
 
   await createMessages(
     ashoatViewer,
-    testers.introMessages.map((message) => ({
+    testers.introMessages.map(message => ({
       type: messageTypes.TEXT,
       threadID: newThreadID,
       creatorID: ashoat.id,
@@ -172,7 +172,7 @@ async function convertThreads(
   while (threads.length > 0) {
     const batch = threads.splice(0, batchSize);
     await Promise.all(
-      batch.map(async (thread) => {
+      batch.map(async thread => {
         console.log(`converting ${JSON.stringify(thread)} to ${type}`);
         return await updateThread(
           viewer,
@@ -258,7 +258,7 @@ async function fixThreadsWithMissingParent() {
   while (threadsWithMissingParentResult.length > 0) {
     const batch = threadsWithMissingParentResult.splice(0, batchSize);
     await Promise.all(
-      batch.map(async (thread) => {
+      batch.map(async thread => {
         console.log(`fixing ${JSON.stringify(thread)} with missing parent`);
         return await updateThread(
           botViewer,
@@ -315,7 +315,7 @@ async function moveThreadsToGenesis() {
   while (noParentThreads.length > 0) {
     const batch = noParentThreads.splice(0, batchSize);
     await Promise.all(
-      batch.map(async (thread) => {
+      batch.map(async thread => {
         console.log(`processing ${JSON.stringify(thread)}`);
         return await updateThread(
           botViewer,

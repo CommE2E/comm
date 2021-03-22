@@ -186,7 +186,7 @@ class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
 const ThreadEntity = React.memo<BaseInnerThreadEntityProps>(
   function ConnectedInnerThreadEntity(props: BaseInnerThreadEntityProps) {
     const { id } = props;
-    const threadInfo = useSelector((state) => threadInfoSelector(state)[id]);
+    const threadInfo = useSelector(state => threadInfoSelector(state)[id]);
     const dispatch = useDispatch();
 
     return (

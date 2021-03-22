@@ -36,8 +36,8 @@ async function addSenderColumn() {
 
 async function computeRepliesCount() {
   const includedMessageTypes = Object.keys(messageTypes)
-    .map((key) => messageTypes[key])
-    .filter((type) => messageSpecs[type].includedInRepliesCount);
+    .map(key => messageTypes[key])
+    .filter(type => messageSpecs[type].includedInRepliesCount);
 
   const sidebarMembersQuery = SQL`
     SELECT t.id AS threadID, m.user AS userID
@@ -74,8 +74,8 @@ async function computeRepliesCount() {
 
 export async function determineSenderStatus() {
   const includedMessageTypes = Object.keys(messageTypes)
-    .map((key) => messageTypes[key])
-    .filter((type) => messageSpecs[type].includedInRepliesCount);
+    .map(key => messageTypes[key])
+    .filter(type => messageSpecs[type].includedInRepliesCount);
 
   const sendersQuery = SQL`
     SELECT DISTINCT m.thread AS threadID, m.user AS userID

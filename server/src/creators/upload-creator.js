@@ -32,7 +32,7 @@ async function createUploads(
   }
 
   const ids = await createIDs('uploads', uploadInfos.length);
-  const uploadRows = uploadInfos.map((uploadInfo) => {
+  const uploadRows = uploadInfos.map(uploadInfo => {
     const id = ids.shift();
     const secret = crypto.randomBytes(8).toString('hex');
     const { dimensions, mediaType, loop } = uploadInfo;
@@ -63,7 +63,7 @@ async function createUploads(
   `;
   await dbQuery(insertQuery);
 
-  return uploadRows.map((row) => ({
+  return uploadRows.map(row => ({
     id: row.id,
     uri: shimUploadURI(
       getUploadURL(row.id, row.secret),

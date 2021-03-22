@@ -34,7 +34,7 @@ class Swipeable extends React.PureComponent<Props> {
     rightActions: [],
   };
 
-  renderRightActions = (progress) => {
+  renderRightActions = progress => {
     const actions = this.props.rightActions.map(
       ({ key, content, color, onPress }, i) => {
         const translation = progress.interpolate({
@@ -101,7 +101,7 @@ export default React.memo<BaseProps>(function ConnectedSwipeable(
   props: BaseProps,
 ) {
   const styles = useStyles(unboundStyles);
-  const windowWidth = useSelector((state) => state.dimensions.width);
+  const windowWidth = useSelector(state => state.dimensions.width);
   const colors = useColors();
 
   return (

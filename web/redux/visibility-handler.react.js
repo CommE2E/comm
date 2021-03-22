@@ -24,7 +24,7 @@ function VisibilityHandler() {
   const dispatch = useDispatch();
   const curForeground = useIsAppForegrounded();
   const updateRedux = React.useCallback(
-    (foreground) => {
+    foreground => {
       if (foreground === curForeground) {
         return;
       }

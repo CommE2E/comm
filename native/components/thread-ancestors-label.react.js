@@ -23,7 +23,7 @@ function ThreadAncestorsLabel(props: Props): React.Node {
   const { unread, threadInfo } = props;
   const styles = useStyles(unboundStyles);
   const colors = useColors();
-  const ancestorThreads: $ReadOnlyArray<ThreadInfo> = useSelector((state) => {
+  const ancestorThreads: $ReadOnlyArray<ThreadInfo> = useSelector(state => {
     if (!threadIsPending(threadInfo.id)) {
       return ancestorThreadInfos(threadInfo.id)(state).slice(0, -1);
     }

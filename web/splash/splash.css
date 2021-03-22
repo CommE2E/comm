@@ -84,7 +84,7 @@ div.bottom {
   flex-direction: column;
 }
 div.headerRest {
-  background-color: rgba(255,255,255,0.84);
+  background-color: rgba(255, 255, 255, 0.84);
   flex-grow: 1;
 }
 div.headerOverscroll {
@@ -129,7 +129,7 @@ input.requestAccessEmail {
   padding: 10px 10px 8px 10px;
   font-size: 18px;
   border-radius: 5px;
-  background-color: rgba(119,119,119,0.13);
+  background-color: rgba(119, 119, 119, 0.13);
   color: black;
 }
 input.requestAccessEmail::placeholder,
@@ -141,7 +141,7 @@ button.requestAccessSubmit {
   padding: 10px 10px 8px 10px;
   font-size: 18px;
   border-radius: 5px;
-  background-color: rgba(0,170,0,0.53);
+  background-color: rgba(0, 170, 0, 0.53);
   color: white;
   margin-left: 15px;
   cursor: pointer;
@@ -168,12 +168,12 @@ div.customSelect {
   position: relative;
   display: block;
   border: 1px solid #bbb;
-  border-radius: .3em;
+  border-radius: 0.3em;
   background-color: #f5f5f5;
   margin-left: 15px;
 }
 div.customSelect::after {
-  content: " ";
+  content: ' ';
   position: absolute;
   top: 50%;
   right: 1em;
@@ -191,23 +191,21 @@ div.customSelect select {
   width: 100%;
   margin: 0;
   outline: none;
-  padding: .6em .8em .5em .8em;
+  padding: 0.6em 0.8em 0.5em 0.8em;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
   font-size: 16px;
   font-family: sans-serif;
   color: #444;
-  border-radius: .2em;
+  border-radius: 0.2em;
 }
 div.customSelect select:focus {
   color: #222;
   outline: none;
 }
-@supports (-webkit-appearance: none)
-  or (appearance: none)
-  or ((-moz-appearance: none) and (mask-type: alpha)) {
-
+@supports (-webkit-appearance: none) or (appearance: none) or
+  ((-moz-appearance: none) and (mask-type: alpha)) {
   div.customSelect::after {
     display: block;
   }

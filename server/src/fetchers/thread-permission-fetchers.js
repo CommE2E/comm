@@ -93,7 +93,7 @@ async function checkThreads(
   }
 
   const threadRows = await getValidThreads(viewer, threadIDs, checks);
-  return new Set(threadRows.map((row) => row.threadID));
+  return new Set(threadRows.map(row => row.threadID));
 }
 
 type PartialMembershipRow = {|
@@ -125,9 +125,9 @@ async function getValidThreads(
   ]);
 
   return result
-    .map((row) => ({ ...row, threadID: row.threadID.toString() }))
+    .map(row => ({ ...row, threadID: row.threadID.toString() }))
     .filter(
-      (row) =>
+      row =>
         isThreadValid(row.permissions, row.role, checks) &&
         !disabledThreadIDs.has(row.threadID),
     );
@@ -140,7 +140,7 @@ async function checkThreadsFrozen(
 ) {
   const threadIDsWithDisabledPermissions = new Set();
 
-  const permissionMightBeDisabled = permissionsToCheck.some((permission) =>
+  const permissionMightBeDisabled = permissionsToCheck.some(permission =>
     permissionsDisabledByBlock.has(permission),
   );
   if (!permissionMightBeDisabled) {

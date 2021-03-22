@@ -184,7 +184,7 @@ function assertSingleRow(rows: $ReadOnlyArray<Object>): Object {
   if (rows.length === 0) {
     throw new Error('expected single row, but none present!');
   } else if (rows.length !== 1) {
-    const messageIDs = rows.map((row) => row.id.toString());
+    const messageIDs = rows.map(row => row.id.toString());
     console.warn(
       `expected single row, but there are multiple! ${messageIDs.join(', ')}`,
     );
@@ -208,7 +208,7 @@ function rawMessageInfoFromRows(
   const messageSpec = messageSpecs[type];
 
   if (type === messageTypes.IMAGES || type === messageTypes.MULTIMEDIA) {
-    const media = rows.filter((row) => row.uploadID).map(mediaFromRow);
+    const media = rows.filter(row => row.uploadID).map(mediaFromRow);
     const [row] = rows;
     const localID = localIDFromCreationString(viewer, row.creation);
     return messageSpec.rawMessageInfoFromRow(row, {

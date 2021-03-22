@@ -20,7 +20,7 @@ function SidebarItem(props: Props) {
 
   const onClick = useOnClickThread(threadID);
 
-  const timeZone = useSelector((state) => state.timeZone);
+  const timeZone = useSelector(state => state.timeZone);
   const lastActivity = shortAbsoluteDate(lastUpdatedTime, timeZone);
 
   const { unread } = threadInfo.currentUser;

@@ -34,7 +34,7 @@ function ActionResultModal(props: Props) {
   }, [message, goBackOnce]);
 
   const styles = useOverlayStyles(ourStyles);
-  const bottomInset = useSelector((state) => state.dimensions.bottomInset);
+  const bottomInset = useSelector(state => state.dimensions.bottomInset);
   const containerStyle = {
     ...styles.container,
     opacity: position,

@@ -54,7 +54,7 @@ function InlineSidebar(props: Props) {
   );
   const sendersText = React.useMemo(() => {
     const senders = threadMembers
-      .filter((member) => member.isSender)
+      .filter(member => member.isSender)
       .map(stringForUser);
     return senders.length > 0 ? `${pluralizeAndTrim(senders, 25)} sent ` : '';
   }, [threadMembers]);

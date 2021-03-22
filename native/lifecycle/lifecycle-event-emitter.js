@@ -25,13 +25,13 @@ class LifecycleEventEmitter extends NativeEventEmitter {
   constructor() {
     super(AndroidLifecycle);
     this.currentLifecycleStatus = AndroidLifecycle.getConstants().initialStatus;
-    this.addLifecycleListener((state) => {
+    this.addLifecycleListener(state => {
       this.currentAndroidLifecycle = state;
     });
   }
 
   addLifecycleListener = (listener: (state: ?LifecycleState) => mixed) => {
-    return this.addListener('LIFECYCLE_CHANGE', (event) => {
+    return this.addListener('LIFECYCLE_CHANGE', event => {
       listener(event.status);
     });
   };

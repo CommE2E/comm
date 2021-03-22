@@ -30,7 +30,7 @@ async function updateThreads(threadType: ThreadType) {
     SELECT id FROM threads WHERE type = ${threadType}
   `;
   const [result] = await dbQuery(fetchThreads);
-  const threadIDs = result.map((row) => row.id.toString());
+  const threadIDs = result.map(row => row.id.toString());
 
   const viewer = createScriptViewer(bots.commbot.userID);
   while (threadIDs.length > 0) {
@@ -38,7 +38,7 @@ async function updateThreads(threadType: ThreadType) {
     const membershipRows = [];
     const relationshipChangeset = new RelationshipChangeset();
     await Promise.all(
-      batch.map(async (threadID) => {
+      batch.map(async threadID => {
         console.log(`updating roles for ${threadID}`);
         await updateRoles(viewer, threadID, threadType);
         console.log(`recalculating permissions for ${threadID}`);

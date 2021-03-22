@@ -18,7 +18,7 @@ import {
 } from '../types/themes';
 
 function ThemeHandler() {
-  const globalThemeInfo = useSelector((state) => state.globalThemeInfo);
+  const globalThemeInfo = useSelector(state => state.globalThemeInfo);
   const dispatch = useDispatch();
   const updateSystemTheme = React.useCallback(
     (colorScheme: GlobalTheme) => {

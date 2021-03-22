@@ -142,7 +142,7 @@ const ConnectedFailedSend = React.memo<BaseProps>(function ConnectedFailedSend(
   props: BaseProps,
 ) {
   const id = messageID(props.item.messageInfo);
-  const rawMessageInfo = useSelector((state) => {
+  const rawMessageInfo = useSelector(state => {
     const message = state.messageStore.messages[id];
     return message ? assertComposableRawMessage(message) : null;
   });

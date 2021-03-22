@@ -202,7 +202,7 @@ class ChatList extends React.PureComponent<Props, State> {
     if (newLocalMessage || scrollPos <= 0) {
       flatList.scrollToOffset({ offset: 0 });
     } else if (newRemoteMessageCount > 0) {
-      this.setState((prevState) => ({
+      this.setState(prevState => ({
         newMessageCount: prevState.newMessageCount + newRemoteMessageCount,
       }));
       this.toggleNewMessagesPill(true);
@@ -314,7 +314,7 @@ const ConnectedChatList = React.memo<BaseProps>(function ConnectedChatList(
 ) {
   const keyboardState = React.useContext(KeyboardContext);
   const viewerID = useSelector(
-    (state) => state.currentUserInfo && state.currentUserInfo.id,
+    state => state.currentUserInfo && state.currentUserInfo.id,
   );
   return (
     <ChatList {...props} keyboardState={keyboardState} viewerID={viewerID} />

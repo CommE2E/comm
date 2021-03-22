@@ -468,17 +468,13 @@ export type InnerEntry = Entry;
 
 export default React.memo<BaseProps>(function ConnectedEntry(props: BaseProps) {
   const { threadID } = props.entryInfo;
-  const threadInfo = useSelector(
-    (state) => threadInfoSelector(state)[threadID],
-  );
+  const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
   const loggedIn = useSelector(
-    (state) =>
+    state =>
       !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
   );
   const calanderQuery = useSelector(nonThreadCalendarQuery);
-  const online = useSelector(
-    (state) => state.connection.status === 'connected',
-  );
+  const online = useSelector(state => state.connection.status === 'connected');
   const callCreateEntry = useServerCall(createEntry);
   const callSaveEntry = useServerCall(saveEntry);
   const callDeleteEntry = useServerCall(deleteEntry);

@@ -165,7 +165,7 @@ async function verifyUserIDs(
   }
   const query = SQL`SELECT id FROM users WHERE id IN (${userIDs})`;
   const [result] = await dbQuery(query);
-  return result.map((row) => row.id.toString());
+  return result.map(row => row.id.toString());
 }
 
 async function verifyUserOrCookieIDs(
@@ -179,7 +179,7 @@ async function verifyUserOrCookieIDs(
     UNION SELECT id FROM cookies WHERE id IN (${ids})
   `;
   const [result] = await dbQuery(query);
-  return result.map((row) => row.id.toString());
+  return result.map(row => row.id.toString());
 }
 
 async function fetchCurrentUserInfo(
@@ -213,7 +213,7 @@ async function fetchLoggedInUserInfos(
     WHERE id IN (${userIDs})
   `;
   const [result] = await dbQuery(query);
-  return result.map((row) => ({
+  return result.map(row => ({
     id: row.id.toString(),
     username: row.username,
     email: 'removed from DB',
@@ -224,7 +224,7 @@ async function fetchLoggedInUserInfos(
 async function fetchAllUserIDs(): Promise<string[]> {
   const query = SQL`SELECT id FROM users`;
   const [result] = await dbQuery(query);
-  return result.map((row) => row.id.toString());
+  return result.map(row => row.id.toString());
 }
 
 async function fetchUsername(id: string): Promise<?string> {

@@ -55,7 +55,7 @@ if (cluster.isMaster) {
       '.well-known',
       // Necessary for apple-app-site-association file
       {
-        setHeaders: (res) => res.setHeader('Content-Type', 'application/json'),
+        setHeaders: res => res.setHeader('Content-Type', 'application/json'),
       },
     ),
   );

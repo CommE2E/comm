@@ -22,12 +22,12 @@ span.thread {
   width: 110px;
 }
 div.container > div.option {
-  border-bottom: 1px solid #D3D3D3;
+  border-bottom: 1px solid #d3d3d3;
   padding: 1px 10px 1px 25px;
   position: relative;
 }
 div.container > div.option:hover {
-  background-color: #F2F2F2;
+  background-color: #f2f2f2;
 }
 div.container > div:last-child {
   border-bottom: none;
@@ -49,7 +49,7 @@ div.pagerContainer {
   height: 15px;
   margin-top: -2px;
   cursor: default;
-  background-color: #EAEAEA;
+  background-color: #eaeaea;
   position: relative;
   border-radius: 0 0 3px 3px;
 }
@@ -70,5 +70,5 @@ svg.pagerIcon {
   height: 13px;
 }
 a.pagerButton > svg.pagerIcon {
-  fill: #2A5DB0;
+  fill: #2a5db0;
 }

@@ -48,7 +48,7 @@ export default function codeGen(
   const fullOutDir = path.resolve(outputFolderPath);
   fs.mkdirSync(fullOutDir, { recursive: true });
 
-  generators.forEach((generatorItem) => {
+  generators.forEach(generatorItem => {
     const generator = generatorsMapping[generatorItem];
     // the packageName(the last arg of `generate`) is optional
     // and only for java so can be omitted; todo - check it

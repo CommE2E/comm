@@ -6,7 +6,7 @@ import type { GetOrientationMediaMissionStep } from 'lib/types/media-types';
 import { getMessageForException } from 'lib/utils/errors';
 
 function getEXIFOrientation(file: File): Promise<?number> {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     EXIF.getData(file, function () {
       resolve(EXIF.getTag(this, 'Orientation'));
     });

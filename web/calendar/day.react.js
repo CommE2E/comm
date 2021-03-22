@@ -98,7 +98,7 @@ class Day extends React.PureComponent<Props, State> {
     }
 
     const entries = this.props.entryInfos
-      .filter((entryInfo) =>
+      .filter(entryInfo =>
         _some(['id', entryInfo.threadID])(this.props.onScreenThreadInfos),
       )
       .map((entryInfo, i) => {
@@ -250,7 +250,7 @@ class Day extends React.PureComponent<Props, State> {
 
   focusOnFirstEntryNewerThan = (time: number) => {
     const entryInfo = this.props.entryInfos.find(
-      (candidate) => candidate.creationTime > time,
+      candidate => candidate.creationTime > time,
     );
     if (entryInfo) {
       const entry = this.entries.get(entryKey(entryInfo));
@@ -266,13 +266,13 @@ class Day extends React.PureComponent<Props, State> {
 
 export default React.memo<BaseProps>(function ConnectedDay(props: BaseProps) {
   const onScreenThreadInfos = useSelector(onScreenThreadInfosSelector);
-  const viewerID = useSelector((state) => state.currentUserInfo?.id);
+  const viewerID = useSelector(state => state.currentUserInfo?.id);
   const loggedIn = useSelector(
-    (state) =>
+    state =>
       !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
   );
-  const nextLocalID = useSelector((state) => state.nextLocalID);
-  const timeZone = useSelector((state) => state.timeZone);
+  const nextLocalID = useSelector(state => state.nextLocalID);
+  const timeZone = useSelector(state => state.timeZone);
   const dispatch = useDispatch();
 
   return (

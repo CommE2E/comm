@@ -280,13 +280,13 @@ export default React.memo<BaseProps>(function ConnectedThreadSettingsMember(
   props: BaseProps,
 ) {
   const memberID = props.memberInfo.id;
-  const removeUserLoadingStatus = useSelector((state) =>
+  const removeUserLoadingStatus = useSelector(state =>
     createLoadingStatusSelector(
       removeUsersFromThreadActionTypes,
       `${removeUsersFromThreadActionTypes.started}:${memberID}`,
     )(state),
   );
-  const changeRoleLoadingStatus = useSelector((state) =>
+  const changeRoleLoadingStatus = useSelector(state =>
     createLoadingStatusSelector(
       changeThreadMemberRolesActionTypes,
       `${changeThreadMemberRolesActionTypes.started}:${memberID}`,

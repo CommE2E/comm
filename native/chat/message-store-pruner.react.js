@@ -18,10 +18,10 @@ function MessageStorePruner() {
   const prevNextMessagePruneTimeRef = React.useRef(nextMessagePruneTime);
 
   const foreground = useIsAppForegrounded();
-  const frozen = useSelector((state) => state.frozen);
+  const frozen = useSelector(state => state.frozen);
 
   const navContext = React.useContext(NavContext);
-  const pruneThreadIDs = useSelector((state) =>
+  const pruneThreadIDs = useSelector(state =>
     pruneThreadIDsSelector({
       redux: state,
       navContext,

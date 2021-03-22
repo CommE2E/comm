@@ -18,7 +18,7 @@ type Props = {|
 function CommunityPill(props: Props): React.Node {
   const { community } = props;
 
-  const userInfos = useSelector((state) => state.userStore.userInfos);
+  const userInfos = useSelector(state => state.userStore.userInfos);
   const keyserverOperatorUsername: ?string = React.useMemo(() => {
     for (const member: MemberInfo of community.members) {
       if (memberHasAdminPowers(member)) {

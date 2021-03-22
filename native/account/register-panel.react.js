@@ -442,7 +442,7 @@ export default React.memo<BaseProps>(function ConnectedRegisterPanel(
   const loadingStatus = useSelector(loadingStatusSelector);
 
   const navContext = React.useContext(NavContext);
-  const logInExtraInfo = useSelector((state) =>
+  const logInExtraInfo = useSelector(state =>
     nativeLogInExtraInfoSelector({
       redux: state,
       navContext,

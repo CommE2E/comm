@@ -7,7 +7,7 @@ export type SimpleStateSetter<S: {}> = (
   callback?: () => mixed,
 ) => void;
 
-export type StateChange<S: {}> = Shape<S> | ((S) => Shape<S>);
+export type StateChange<S: {}> = Shape<S> | (S => Shape<S>);
 type StateSetter<S: {}> = (
   newState: StateChange<S>,
   callback?: () => mixed,

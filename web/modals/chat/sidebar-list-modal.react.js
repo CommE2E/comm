@@ -33,22 +33,22 @@ function SidebarListModal(props: Props) {
   }, [setModal]);
 
   const sidebarInfos = useSelector(
-    (state) => sidebarInfoSelector(state)[threadInfo.id] ?? [],
+    state => sidebarInfoSelector(state)[threadInfo.id] ?? [],
   );
-  const userInfos = useSelector((state) => state.userStore.userInfos);
+  const userInfos = useSelector(state => state.userStore.userInfos);
 
   const listData = React.useMemo(() => {
     if (!searchState.text) {
       return sidebarInfos;
     }
-    return sidebarInfos.filter((sidebarInfo) =>
+    return sidebarInfos.filter(sidebarInfo =>
       searchState.results.has(sidebarInfo.threadInfo.id),
     );
   }, [sidebarInfos, searchState]);
 
   const sidebars = React.useMemo(
     () =>
-      listData.map((item) => (
+      listData.map(item => (
         <div
           className={classNames(
             chatThreadListCSS.thread,
@@ -64,7 +64,7 @@ function SidebarListModal(props: Props) {
   );
 
   const viewerID = useSelector(
-    (state) => state.currentUserInfo && state.currentUserInfo.id,
+    state => state.currentUserInfo && state.currentUserInfo.id,
   );
   const searchIndex = React.useMemo(() => {
     const index = new SearchIndex();
@@ -79,7 +79,7 @@ function SidebarListModal(props: Props) {
   }, [sidebarInfos, userInfos, viewerID]);
 
   React.useEffect(() => {
-    setSearchState((curState) => ({
+    setSearchState(curState => ({
       ...curState,
       results: new Set(searchIndex.getSearchResults(curState.text)),
     }));

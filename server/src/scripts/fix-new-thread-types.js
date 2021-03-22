@@ -104,7 +104,7 @@ async function fixNewThreadTypes() {
   while (updateThreadRequests.length > 0) {
     const batch = updateThreadRequests.splice(0, batchSize);
     await Promise.all(
-      batch.map(async (updateThreadRequest) => {
+      batch.map(async updateThreadRequest => {
         console.log(`updating ${JSON.stringify(updateThreadRequest)}`);
         return await updateThread(
           viewer,

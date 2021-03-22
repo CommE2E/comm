@@ -35,7 +35,7 @@ type Props = {|
 export default React.memo<Props>(function ThreadSettingsEditRelationship(
   props: Props,
 ) {
-  const otherUserInfo = useSelector((state) => {
+  const otherUserInfo = useSelector(state => {
     const currentUserID = state.currentUserInfo?.id;
     const otherUserID = getSingleOtherUser(props.threadInfo, currentUserID);
     invariant(otherUserID, 'Other user should be specified');

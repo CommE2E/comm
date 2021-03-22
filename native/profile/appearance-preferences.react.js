@@ -152,7 +152,7 @@ const unboundStyles = {
 
 export default React.memo<{ ... }>(
   function ConnectedAppearancePreferences(props: { ... }) {
-    const globalThemeInfo = useSelector((state) => state.globalThemeInfo);
+    const globalThemeInfo = useSelector(state => state.globalThemeInfo);
     const styles = useStyles(unboundStyles);
     const colors = useColors();
     const dispatch = useDispatch();

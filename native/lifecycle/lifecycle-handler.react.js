@@ -12,7 +12,7 @@ import { addLifecycleListener } from './lifecycle';
 const LifecycleHandler = React.memo<{||}>(() => {
   const dispatch = useDispatch();
 
-  const currentState = useSelector((state) => state.lifecycleState);
+  const currentState = useSelector(state => state.lifecycleState);
   const lastStateRef = React.useRef(currentState);
 
   const onLifecycleChange = React.useCallback(

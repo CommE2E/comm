@@ -280,12 +280,10 @@ export default React.memo<BaseProps>(function ConnectedDeleteThread(
   props: BaseProps,
 ) {
   const threadID = props.route.params.threadInfo.id;
-  const threadInfo = useSelector(
-    (state) => threadInfoSelector(state)[threadID],
-  );
+  const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
 
   const loadingStatus = useSelector(loadingStatusSelector);
-  const activeTheme = useSelector((state) => state.globalThemeInfo.activeTheme);
+  const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
 
   const colors = useColors();
   const styles = useStyles(unboundStyles);

@@ -100,7 +100,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       parentThreadInfo: ?ThreadInfo,
     ) => {
       const excludeUserIDs = userInfoInputArray
-        .map((userInfo) => userInfo.id)
+        .map(userInfo => userInfo.id)
         .concat(threadActualMembers(threadInfo.members));
 
       return getPotentialMemberItems(
@@ -239,7 +239,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
   async addUsersToThread() {
     try {
       const newMemberIDs = this.state.userInfoInputArray.map(
-        (userInfo) => userInfo.id,
+        userInfo => userInfo.id,
       );
       const result = await this.props.changeThreadSettings({
         threadID: this.props.route.params.threadInfo.id,
@@ -311,7 +311,7 @@ export default React.memo<BaseProps>(function ConnectedAddUsersModal(
 ) {
   const { parentThreadID } = props.route.params.threadInfo;
 
-  const parentThreadInfo = useSelector((state) =>
+  const parentThreadInfo = useSelector(state =>
     parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
   );
   const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);

@@ -315,7 +315,7 @@ const unboundStyles = {
 export default React.memo<BaseProps>(function ConnectedRelationshipListItem(
   props: BaseProps,
 ) {
-  const removeUserLoadingStatus = useSelector((state) =>
+  const removeUserLoadingStatus = useSelector(state =>
     createLoadingStatusSelector(
       updateRelationshipsActionTypes,
       `${updateRelationshipsActionTypes.started}:${props.userInfo.id}`,
