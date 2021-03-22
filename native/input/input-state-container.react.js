@@ -341,13 +341,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     let newThreadID;
     try {
-      newThreadID = await createRealThreadFromPendingThread(
+      newThreadID = await createRealThreadFromPendingThread({
         threadInfo,
-        this.props.dispatchActionPromise,
-        this.props.newThread,
-        threadInfo.sourceMessageID,
-        this.props.viewerID,
-      );
+        dispatchActionPromise: this.props.dispatchActionPromise,
+        createNewThread: this.props.newThread,
+        sourceMessageID: threadInfo.sourceMessageID,
+        viewerID: this.props.viewerID,
+      });
     } catch (e) {
       newThreadID = undefined;
     }
