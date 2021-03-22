@@ -19,6 +19,8 @@ module.file_ext=.json
 esproposal.optional_chaining=enable
 esproposal.nullish_coalescing=enable
 
+exact_by_default=true
+
 [lints]
 sketchy-null-number=warn
 sketchy-null-mixed=warn
@@ -29,7 +31,6 @@ deprecated-type=warn
 unsafe-getters-setters=warn
 unnecessary-invariant=warn
 signature-verification-failure=warn
-deprecated-utility=error
 
 [strict]
 deprecated-type

@@ -16,7 +16,7 @@
     "@babel/plugin-transform-runtime": "^7.13.10",
     "@babel/preset-flow": "^7.13.13",
     "@babel/preset-react": "^7.13.13",
-    "flow-bin": "^0.122.0",
+    "flow-bin": "^0.137.0",
     "flow-typed": "^3.2.1"
   },
   "dependencies": {
