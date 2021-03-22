@@ -11,45 +11,53 @@ import { infoFromURL } from 'lib/utils/url-utils';
 import type { NavInfo } from './redux/redux-setup';
 import { yearExtractor, monthExtractor } from './selectors/nav-selectors';
 
-function canonicalURLFromReduxState(navInfo: NavInfo, currentURL: string) {
+function canonicalURLFromReduxState(
+  navInfo: NavInfo,
+  currentURL: string,
+  loggedIn: boolean,
+) {
   const urlInfo = infoFromURL(currentURL);
   const today = new Date();
-  let newURL = `/${navInfo.tab}/`;
+  let newURL = `/`;
 
-  if (navInfo.tab === 'calendar') {
-    const year = yearExtractor(navInfo.startDate, navInfo.endDate);
-    if (urlInfo.year !== undefined) {
-      invariant(
-        year !== null && year !== undefined,
-        `${navInfo.startDate} and ${navInfo.endDate} aren't in the same year`,
-      );
-      newURL += `year/${year}/`;
-    } else if (
-      year !== null &&
-      year !== undefined &&
-      year !== today.getFullYear()
-    ) {
-      newURL += `year/${year}/`;
-    }
+  if (loggedIn) {
+    newURL += `${navInfo.tab}/`;
+    if (navInfo.tab === 'calendar') {
+      const { startDate, endDate } = navInfo;
+      const year = yearExtractor(startDate, endDate);
+      if (urlInfo.year !== undefined) {
+        invariant(
+          year !== null && year !== undefined,
+          `${startDate} and ${endDate} aren't in the same year`,
+        );
+        newURL += `year/${year}/`;
+      } else if (
+        year !== null &&
+        year !== undefined &&
+        year !== today.getFullYear()
+      ) {
+        newURL += `year/${year}/`;
+      }
 
-    const month = monthExtractor(navInfo.startDate, navInfo.endDate);
-    if (urlInfo.month !== undefined) {
-      invariant(
-        month !== null && month !== undefined,
-        `${navInfo.startDate} and ${navInfo.endDate} aren't in the same month`,
-      );
-      newURL += `month/${month}/`;
-    } else if (
-      month !== null &&
-      month !== undefined &&
-      month !== today.getMonth() + 1
-    ) {
-      newURL += `month/${month}/`;
-    }
-  } else if (navInfo.tab === 'chat') {
-    const activeChatThreadID = navInfo.activeChatThreadID;
-    if (activeChatThreadID) {
-      newURL += `thread/${activeChatThreadID}/`;
+      const month = monthExtractor(startDate, endDate);
+      if (urlInfo.month !== undefined) {
+        invariant(
+          month !== null && month !== undefined,
+          `${startDate} and ${endDate} aren't in the same month`,
+        );
+        newURL += `month/${month}/`;
+      } else if (
+        month !== null &&
+        month !== undefined &&
+        month !== today.getMonth() + 1
+      ) {
+        newURL += `month/${month}/`;
+      }
+    } else if (navInfo.tab === 'chat') {
+      const activeChatThreadID = navInfo.activeChatThreadID;
+      if (activeChatThreadID) {
+        newURL += `thread/${activeChatThreadID}/`;
+      }
     }
   }
 

@@ -11,6 +11,7 @@ import {
   updateCalendarQuery,
 } from 'lib/actions/entry-actions';
 import { currentDaysToEntries } from 'lib/selectors/thread-selectors';
+import { isLoggedIn } from 'lib/selectors/user-selectors';
 import {
   type EntryInfo,
   type CalendarQuery,
@@ -52,6 +53,7 @@ type Props = {|
   +daysToEntries: { [dayString: string]: EntryInfo[] },
   +navInfo: NavInfo,
   +currentCalendarQuery: () => CalendarQuery,
+  +loggedIn: boolean,
   +dispatchActionPromise: DispatchActionPromise,
   +updateCalendarQuery: (
     calendarQuery: CalendarQuery,
@@ -106,10 +108,12 @@ class Calendar extends React.PureComponent<Props, State> {
     const prevURL = canonicalURLFromReduxState(
       { ...this.props.navInfo, ...this.prevMonthDates() },
       this.props.url,
+      this.props.loggedIn,
     );
     const nextURL = canonicalURLFromReduxState(
       { ...this.props.navInfo, ...this.nextMonthDates() },
       this.props.url,
+      this.props.loggedIn,
     );
 
     const lastDayOfMonth = this.getDate(0, this.props.month + 1);
@@ -263,6 +267,7 @@ export default React.memo<BaseProps>(function ConnectedCalendar(
   const daysToEntries = useSelector(currentDaysToEntries);
   const navInfo = useSelector((state) => state.navInfo);
   const currentCalendarQuery = useSelector(webCalendarQuery);
+  const loggedIn = useSelector(isLoggedIn);
   const callUpdateCalendarQuery = useServerCall(updateCalendarQuery);
   const dispatchActionPromise = useDispatchActionPromise();
 
@@ -274,6 +279,7 @@ export default React.memo<BaseProps>(function ConnectedCalendar(
       daysToEntries={daysToEntries}
       navInfo={navInfo}
       currentCalendarQuery={currentCalendarQuery}
+      loggedIn={loggedIn}
       dispatchActionPromise={dispatchActionPromise}
       updateCalendarQuery={callUpdateCalendarQuery}
     />

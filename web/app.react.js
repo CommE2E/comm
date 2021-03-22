@@ -102,76 +102,67 @@ class App extends React.PureComponent<Props, State> {
       if (serverVerificationResult.field === verifyField.RESET_PASSWORD) {
         this.showResetPasswordModal();
       } else {
-        const newURL = canonicalURLFromReduxState(
-          { ...navInfo, verify: null },
-          this.props.location.pathname,
+        this.setModal(
+          <VerificationModal onClose={this.clearVerificationModal} />,
         );
-        history.replace(newURL);
-        this.setModal(<VerificationModal onClose={this.clearModal} />);
       }
     }
 
-    if (this.props.loggedIn) {
-      const newURL = canonicalURLFromReduxState(
-        navInfo,
-        this.props.location.pathname,
-      );
-      if (this.props.location.pathname !== newURL) {
-        history.replace(newURL);
-      }
-    } else if (this.props.location.pathname !== '/') {
-      history.replace('/');
+    const newURL = canonicalURLFromReduxState(
+      navInfo,
+      this.props.location.pathname,
+      this.props.loggedIn,
+    );
+    if (this.props.location.pathname !== newURL) {
+      history.replace(newURL);
     }
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (this.props.loggedIn) {
-      if (this.props.location.pathname !== prevProps.location.pathname) {
-        const newNavInfo = navInfoFromURL(this.props.location.pathname, {
-          navInfo: this.props.navInfo,
-        });
-        if (!_isEqual(newNavInfo)(this.props.navInfo)) {
-          this.props.dispatch({
-            type: updateNavInfoActionType,
-            payload: newNavInfo,
-          });
+    if (!_isEqual(this.props.navInfo)(prevProps.navInfo)) {
+      const { navInfo, serverVerificationResult } = this.props;
+      if (
+        navInfo.verify &&
+        !prevProps.navInfo.verify &&
+        serverVerificationResult
+      ) {
+        if (serverVerificationResult.field === verifyField.RESET_PASSWORD) {
+          this.showResetPasswordModal();
+        } else {
+          this.setModal(
+            <VerificationModal onClose={this.clearVerificationModal} />,
+          );
         }
-      } else if (!_isEqual(this.props.navInfo)(prevProps.navInfo)) {
-        const newURL = canonicalURLFromReduxState(
-          this.props.navInfo,
-          this.props.location.pathname,
-        );
-        if (newURL !== this.props.location.pathname) {
-          history.push(newURL);
-        }
+      } else if (!navInfo.verify && prevProps.navInfo.verify) {
+        this.clearModal();
       }
-    }
 
-    const justLoggedIn = this.props.loggedIn && !prevProps.loggedIn;
-    if (justLoggedIn) {
+      const newURL = canonicalURLFromReduxState(
+        navInfo,
+        this.props.location.pathname,
+        this.props.loggedIn,
+      );
+      if (newURL !== this.props.location.pathname) {
+        history.push(newURL);
+      }
+    } else if (this.props.location.pathname !== prevProps.location.pathname) {
+      const newNavInfo = navInfoFromURL(this.props.location.pathname, {
+        navInfo: this.props.navInfo,
+      });
+      if (!_isEqual(newNavInfo)(this.props.navInfo)) {
+        this.props.dispatch({
+          type: updateNavInfoActionType,
+          payload: newNavInfo,
+        });
+      }
+    } else if (this.props.loggedIn !== prevProps.loggedIn) {
       const newURL = canonicalURLFromReduxState(
         this.props.navInfo,
         this.props.location.pathname,
+        this.props.loggedIn,
       );
-      if (this.props.location.pathname !== newURL) {
+      if (newURL !== this.props.location.pathname) {
         history.replace(newURL);
-      }
-    }
-
-    const justLoggedOut = !this.props.loggedIn && prevProps.loggedIn;
-    if (justLoggedOut && this.props.location.pathname !== '/') {
-      history.replace('/');
-    }
-
-    const { navInfo, serverVerificationResult } = this.props;
-    if (
-      serverVerificationResult &&
-      serverVerificationResult.field === verifyField.RESET_PASSWORD
-    ) {
-      if (navInfo.verify && !prevProps.navInfo.verify) {
-        this.showResetPasswordModal();
-      } else if (!navInfo.verify && prevProps.navInfo.verify) {
-        this.clearModal();
       }
     }
   }
@@ -183,6 +174,7 @@ class App extends React.PureComponent<Props, State> {
         verify: null,
       },
       this.props.location.pathname,
+      this.props.loggedIn,
     );
     const onClose = () => history.push(newURL);
     const onSuccess = () => history.replace(newURL);
@@ -291,8 +283,20 @@ class App extends React.PureComponent<Props, State> {
     this.setState({ currentModal: modal });
   };
 
-  clearModal = () => {
+  clearModal() {
     this.setModal(null);
+  }
+
+  clearVerificationModal = () => {
+    const navInfo = { ...this.props.navInfo, verify: null };
+    const newURL = canonicalURLFromReduxState(
+      navInfo,
+      this.props.location.pathname,
+      this.props.loggedIn,
+    );
+    if (newURL !== this.props.location.pathname) {
+      history.push(newURL);
+    }
   };
 
   onClickCalendar = (event: SyntheticEvent<HTMLAnchorElement>) => {
