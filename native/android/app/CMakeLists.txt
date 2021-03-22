@@ -59,9 +59,9 @@ add_library(
   # Provides a relative path to your source file(s).
   ../../node_modules/react-native/ReactCommon/jsi/jsi/jsi.cpp
   ../../node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/turbomodule/core/jni/ReactCommon/CallInvokerHolder.cpp
-  ../../node_modules/react-native/ReactCommon/turbomodule/core/TurboModule.cpp
-  ../../node_modules/react-native/ReactCommon/turbomodule/core/LongLivedObject.cpp
-  ../../node_modules/react-native/ReactCommon/turbomodule/core/TurboModuleUtils.cpp
+  ../../node_modules/react-native/ReactCommon/react/nativemodule/core/ReactCommon/TurboModule.cpp
+  ../../node_modules/react-native/ReactCommon/react/nativemodule/core/ReactCommon/LongLivedObject.cpp
+  ../../node_modules/react-native/ReactCommon/react/nativemodule/core/ReactCommon/TurboModuleUtils.cpp
   ${SQLITE}
 
   # folly

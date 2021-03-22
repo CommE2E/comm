@@ -1,10 +1,10 @@
 <resources>
-  <style name="AppThemeBase" parent="Theme.AppCompat.Light.NoActionBar">
+  <style name="AppThemeBase" parent="Theme.AppCompat.DayNight.NoActionBar">
     <item name="android:editTextBackground">@android:color/transparent</item>
   </style>
   <style name="AppTheme" parent="AppThemeBase">
   </style>
-  <style name="SplashThemeBase" parent="Theme.AppCompat.Light.NoActionBar">
+  <style name="SplashThemeBase" parent="Theme.AppCompat.DayNight.NoActionBar">
     <item name="android:windowNoTitle">true</item>
     <item name="android:windowDrawsSystemBarBackgrounds">false</item>
   </style>
