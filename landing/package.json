@@ -46,8 +46,8 @@
     "invariant": "^2.2.4",
     "isomorphic-fetch": "^2.2.1",
     "lib": "0.0.1",
-    "react": "16.13.1",
-    "react-dom": "16.13.1",
+    "react": "17.0.1",
+    "react-dom": "17.0.1",
     "react-hot-loader": "^4.12.14",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0"
