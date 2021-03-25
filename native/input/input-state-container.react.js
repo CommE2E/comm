@@ -72,6 +72,8 @@ import {
   type PendingMultimediaUploads,
   type MultimediaProcessingStep,
 } from './input-state';
+import { type MediaMessageContent } from 'lib/types/messages/media';
+import { MediaType } from 'expo-media-library';
 
 let nextLocalUploadID = 0;
 function getNewLocalID() {
@@ -104,7 +106,7 @@ type Props = {|
   +sendMultimediaMessage: (
     threadID: string,
     localID: string,
-    mediaIDs: $ReadOnlyArray<string>,
+    mediaIDs: $ReadOnlyArray<MediaMessageContent>,
   ) => Promise<SendMessageResult>,
   +sendTextMessage: (
     threadID: string,
@@ -260,15 +262,26 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       localID !== null && localID !== undefined,
       'localID should be set',
     );
-    const mediaIDs = [];
-    for (let { id } of messageInfo.media) {
-      mediaIDs.push(id);
+
+    const messageContent = [];
+    for (const mediaItem: Media of messageInfo.media) {
+      if (mediaItem.type === 'video') {
+        messageContent.push({
+          mediaID: parseInt(mediaItem.id, 10),
+          thumbnailID: parseInt(mediaItem.thumbnailID, 10),
+        });
+      } else {
+        messageContent.push({
+          mediaID: parseInt(mediaItem.id),
+        });
+      }
     }
+
     try {
       const result = await this.props.sendMultimediaMessage(
         threadID,
         localID,
-        mediaIDs,
+        messageContent,
       );
       return {
         localID,
@@ -533,7 +546,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       thumbnailUploadResult,
       mediaMissionResult;
     try {
-      const [thumbnailUploadResult, uploadResult] = await Promise.all([
+      [thumbnailUploadResult, uploadResult] = await Promise.all([
         this.props.uploadMultimedia(
           {
             uri: thumbnailURI,
@@ -556,6 +569,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       mediaMissionResult = { success: true };
     } catch (e) {
       uploadExceptionMessage = getMessageForException(e);
+      console.log(uploadExceptionMessage);
       fail('upload failed');
       mediaMissionResult = {
         success: false,

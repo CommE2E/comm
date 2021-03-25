@@ -172,9 +172,6 @@ async function innerProcessMedia(
       return await finish(videoResult);
     }
     ({ uri: uploadURI, thumbnailURI, mime, dimensions, loop } = videoResult);
-    // unlink the thumbnailURI so we don't clog up temp dir
-    // we use thumbnailURI in subsequent diffs
-    unlink(thumbnailURI);
   } else if (mediaType === 'photo') {
     const { steps: imageSteps, result: imageResult } = await processImage({
       uri: initialURI,

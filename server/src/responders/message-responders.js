@@ -88,7 +88,12 @@ async function messageFetchResponder(
 const sendMultimediaMessageRequestInputValidator = tShape({
   threadID: t.String,
   localID: t.String,
-  mediaIDs: t.list(t.String),
+  messageContent: t.list(
+    tShape({
+      mediaID: t.Number,
+      thumbnailID: t.maybe(t.Number),
+    }),
+  ),
 });
 async function multimediaMessageCreationResponder(
   viewer: Viewer,
@@ -101,8 +106,8 @@ async function multimediaMessageCreationResponder(
     request,
   );
 
-  const { threadID, localID, mediaIDs } = request;
-  if (mediaIDs.length === 0) {
+  const { threadID, localID, messageContent } = request;
+  if (messageContent.length === 0) {
     throw new ServerError('invalid_parameters');
   }
 
@@ -116,7 +121,7 @@ async function multimediaMessageCreationResponder(
   }
 
   const media = await fetchMedia(viewer, mediaIDs);
-  if (media.length !== mediaIDs.length) {
+  if (media.length !== messageContent.length) {
     throw new ServerError('invalid_parameters');
   }
 
@@ -133,7 +138,7 @@ async function multimediaMessageCreationResponder(
     id !== null && id !== undefined,
     'serverID should be set in createMessages result',
   );
-  await assignMedia(viewer, mediaIDs, id);
+  await assignMedia(viewer, messageContent, id);
 
   return { newMessageInfo };
 }
