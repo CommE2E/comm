@@ -92,7 +92,7 @@ async function updateRole(
 
   let nonMemberUser = false;
   let numResults = 0;
-  for (let row of result) {
+  for (const row of result) {
     if (row.role <= 0) {
       nonMemberUser = true;
       break;
@@ -170,7 +170,7 @@ async function removeMembers(
 
   let nonDefaultRoleUser = false;
   const actualMemberIDs = [];
-  for (let row of result) {
+  for (const row of result) {
     if (row.role <= 0) {
       continue;
     }
@@ -249,7 +249,7 @@ async function leaveThread(
   if (threadHasAdminRole(threadInfo)) {
     let otherUsersExist = false;
     let otherAdminsExist = false;
-    for (let member of threadInfo.members) {
+    for (const member of threadInfo.members) {
       const role = member.role;
       if (!role || member.id === viewerID) {
         continue;
@@ -580,7 +580,7 @@ async function updateThread(
 
   const time = Date.now();
   const messageDatas = [];
-  for (let fieldName in changedFields) {
+  for (const fieldName in changedFields) {
     const newValue = changedFields[fieldName];
     messageDatas.push({
       type: messageTypes.CHANGE_SETTINGS,

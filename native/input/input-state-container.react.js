@@ -125,7 +125,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   static getCompletedUploads(props: Props, state: State): CompletedUploads {
     const completedUploads = {};
-    for (let localMessageID in state.pendingUploads) {
+    for (const localMessageID in state.pendingUploads) {
       const messagePendingUploads = state.pendingUploads[localMessageID];
       const rawMessageInfo = props.messageStoreMessages[localMessageID];
       if (!rawMessageInfo) {
@@ -139,9 +139,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
       const completed = [];
       let allUploadsComplete = true;
-      for (let localUploadID in messagePendingUploads) {
+      for (const localUploadID in messagePendingUploads) {
         let media;
-        for (let singleMedia of rawMessageInfo.media) {
+        for (const singleMedia of rawMessageInfo.media) {
           if (singleMedia.id === localUploadID) {
             media = singleMedia;
             break;
@@ -181,7 +181,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const newPendingUploads = {};
     let pendingUploadsChanged = false;
     const readyMessageIDs = [];
-    for (let localMessageID in this.state.pendingUploads) {
+    for (const localMessageID in this.state.pendingUploads) {
       const messagePendingUploads = this.state.pendingUploads[localMessageID];
       const prevRawMessageInfo = prevProps.messageStoreMessages[localMessageID];
       const rawMessageInfo = this.props.messageStoreMessages[localMessageID];
@@ -207,7 +207,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
       const newUploads = {};
       let uploadsChanged = false;
-      for (let localUploadID in messagePendingUploads) {
+      for (const localUploadID in messagePendingUploads) {
         if (!completedUploadIDs.has(localUploadID)) {
           newUploads[localUploadID] = messagePendingUploads[localUploadID];
         } else if (
@@ -229,7 +229,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       this.setState({ pendingUploads: newPendingUploads });
     }
 
-    for (let localMessageID of readyMessageIDs) {
+    for (const localMessageID of readyMessageIDs) {
       const rawMessageInfo = this.props.messageStoreMessages[localMessageID];
       if (!rawMessageInfo) {
         continue;
@@ -261,7 +261,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       'localID should be set',
     );
     const mediaIDs = [];
-    for (let { id } of messageInfo.media) {
+    for (const { id } of messageInfo.media) {
       mediaIDs.push(id);
     }
     try {
@@ -307,9 +307,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     if (this.props.ongoingMessageCreation) {
       return true;
     }
-    for (let localMessageID in this.state.pendingUploads) {
+    for (const localMessageID in this.state.pendingUploads) {
       const messagePendingUploads = this.state.pendingUploads[localMessageID];
-      for (let localUploadID in messagePendingUploads) {
+      for (const localUploadID in messagePendingUploads) {
         const { failed } = messagePendingUploads[localUploadID];
         if (!failed) {
           return true;
@@ -370,7 +370,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }));
 
     const pendingUploads = {};
-    for (let { localID } of selectionsWithIDs) {
+    for (const { localID } of selectionsWithIDs) {
       pendingUploads[localID] = {
         failed: null,
         progressPercent: 0,
@@ -463,10 +463,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   ): Promise<?string> {
     const { localID, selection } = selectionWithID;
     const start = selection.sendTime;
-    let steps = [selection],
-      serverID,
-      userTime,
-      errorMessage;
+    const steps = [selection];
+    let serverID;
+    let userTime;
+    let errorMessage;
     let reportPromise;
 
     const finish = async (result: MediaMissionResult) => {
@@ -704,7 +704,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     parameters.cookie = cookie;
     parameters.filename = name;
 
-    for (let key in input) {
+    for (const key in input) {
       if (
         key === 'multimedia' ||
         key === 'cookie' ||
@@ -820,7 +820,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     if (!pendingUploads) {
       return false;
     }
-    for (let localUploadID in pendingUploads) {
+    for (const localUploadID in pendingUploads) {
       const { failed } = pendingUploads[localUploadID];
       if (failed) {
         return true;
@@ -936,7 +936,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     const incompleteMedia: Media[] = [];
-    for (let singleMedia of newRawMessageInfo.media) {
+    for (const singleMedia of newRawMessageInfo.media) {
       if (singleMedia.id.startsWith('localUpload')) {
         incompleteMedia.push(singleMedia);
       }
@@ -969,7 +969,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     // We clear out the failed status on individual media here,
     // which makes the UI show pending status instead of error messages
-    for (let { id } of retryMedia) {
+    for (const { id } of retryMedia) {
       pendingUploads[id] = {
         failed: null,
         progressPercent: 0,
@@ -1032,7 +1032,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       return;
     }
     this.activeURIs.delete(uri);
-    for (let callback of onClear) {
+    for (const callback of onClear) {
       callback();
     }
   };

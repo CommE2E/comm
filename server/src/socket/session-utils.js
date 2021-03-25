@@ -136,7 +136,7 @@ async function processClientResponses(
   const clientSentPlatformDetails = clientResponses.some(
     (response) => response.type === serverRequestTypes.PLATFORM_DETAILS,
   );
-  for (let clientResponse of clientResponses) {
+  for (const clientResponse of clientResponses) {
     if (
       clientResponse.type === serverRequestTypes.PLATFORM &&
       !clientSentPlatformDetails
@@ -164,7 +164,7 @@ async function processClientResponses(
       activityUpdates = [...activityUpdates, ...clientResponse.activityUpdates];
     } else if (clientResponse.type === serverRequestTypes.CHECK_STATE) {
       const invalidKeys = [];
-      for (let key in clientResponse.hashResults) {
+      for (const key in clientResponse.hashResults) {
         const result = clientResponse.hashResults[key];
         if (!result) {
           invalidKeys.push(key);
@@ -325,7 +325,7 @@ async function checkState(
   const threadIDsToFetch = [],
     entryIDsToFetch = [],
     userIDsToFetch = [];
-  for (let key of invalidKeys) {
+  for (const key of invalidKeys) {
     if (key === 'threadInfos') {
       fetchAllThreads = true;
     } else if (key === 'entryInfos') {
@@ -373,12 +373,12 @@ async function checkState(
   const hashesToCheck = {},
     failUnmentioned = {},
     stateChanges = {};
-  for (let key of invalidKeys) {
+  for (const key of invalidKeys) {
     if (key === 'threadInfos') {
       // Instead of returning all threadInfos, we want to narrow down and figure
       // out which threadInfos don't match first
       const { threadInfos } = fetchedData.threadsResult;
-      for (let threadID in threadInfos) {
+      for (const threadID in threadInfos) {
         hashesToCheck[`threadInfo|${threadID}`] = hash(threadInfos[threadID]);
       }
       failUnmentioned.threadInfos = true;
@@ -386,7 +386,7 @@ async function checkState(
       // Instead of returning all entryInfos, we want to narrow down and figure
       // out which entryInfos don't match first
       const { rawEntryInfos } = fetchedData.entriesResult;
-      for (let rawEntryInfo of rawEntryInfos) {
+      for (const rawEntryInfo of rawEntryInfos) {
         const entryInfo = serverEntryInfo(rawEntryInfo);
         invariant(entryInfo, 'should be set');
         const { id: entryID } = entryInfo;
@@ -398,7 +398,7 @@ async function checkState(
       // Instead of returning all userInfos, we want to narrow down and figure
       // out which userInfos don't match first
       const { userInfos } = fetchedData;
-      for (let userID in userInfos) {
+      for (const userID in userInfos) {
         hashesToCheck[`userInfo|${userID}`] = hash(userInfos[userID]);
       }
       failUnmentioned.userInfos = true;
@@ -463,14 +463,14 @@ async function checkState(
   if (!shouldCheckUserInfos) {
     const userIDs = new Set();
     if (stateChanges.rawThreadInfos) {
-      for (let threadInfo of stateChanges.rawThreadInfos) {
-        for (let userID of usersInThreadInfo(threadInfo)) {
+      for (const threadInfo of stateChanges.rawThreadInfos) {
+        for (const userID of usersInThreadInfo(threadInfo)) {
           userIDs.add(userID);
         }
       }
     }
     if (stateChanges.rawEntryInfos) {
-      for (let userID of usersInRawEntryInfos(stateChanges.rawEntryInfos)) {
+      for (const userID of usersInRawEntryInfos(stateChanges.rawEntryInfos)) {
         userIDs.add(userID);
       }
     }
@@ -478,7 +478,7 @@ async function checkState(
     const userInfos = [];
     if (userIDs.size > 0) {
       const fetchedUserInfos = await fetchUserInfos([...userIDs]);
-      for (let userID in fetchedUserInfos) {
+      for (const userID in fetchedUserInfos) {
         const userInfo = fetchedUserInfos[userID];
         if (userInfo && userInfo.username) {
           const { id, username } = userInfo;

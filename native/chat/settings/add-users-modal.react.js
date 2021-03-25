@@ -211,7 +211,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     if (this.props.changeThreadSettingsLoadingStatus === 'loading') {
       return;
     }
-    for (let existingUserInfo of this.state.userInfoInputArray) {
+    for (const existingUserInfo of this.state.userInfoInputArray) {
       if (userID === existingUserInfo.id) {
         return;
       }

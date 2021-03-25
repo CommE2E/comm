@@ -22,7 +22,7 @@ async function fetchActiveSessionsForThread(
   `;
   const [result] = await dbQuery(query);
   const filters = [];
-  for (let row of result) {
+  for (const row of result) {
     filters.push({
       userID: row.user.toString(),
       session: row.id.toString(),

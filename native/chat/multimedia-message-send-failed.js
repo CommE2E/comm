@@ -20,7 +20,7 @@ export default function multimediaMessageSendFailed(
     return true;
   }
 
-  for (let media of messageInfo.media) {
+  for (const media of messageInfo.media) {
     const pendingUpload = pendingUploads && pendingUploads[media.id];
     if (pendingUpload && pendingUpload.failed) {
       return true;

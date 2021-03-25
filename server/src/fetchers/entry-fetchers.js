@@ -134,7 +134,7 @@ async function fetchEntryInfos(
   const [result] = await dbQuery(query);
 
   const rawEntryInfos = [];
-  for (let row of result) {
+  for (const row of result) {
     rawEntryInfos.push(rawEntryInfoFromRow(row));
   }
   return { rawEntryInfos };
@@ -201,7 +201,7 @@ async function fetchEntryRevisionInfo(
   const [result] = await dbQuery(query);
 
   const revisions = [];
-  for (let row of result) {
+  for (const row of result) {
     revisions.push({
       id: row.id.toString(),
       author: row.author,
@@ -228,7 +228,7 @@ async function fetchEntriesForSession(
   // If we're not including deleted entries, we will try and set deletedEntryIDs
   // so that the client can catch possibly stale deleted entryInfos
   let filterDeleted = null;
-  for (let calendarQuery of calendarQueries) {
+  for (const calendarQuery of calendarQueries) {
     const notDeletedFilterExists = filterExists(
       calendarQuery.filters,
       calendarThreadFilterTypes.NOT_DELETED,

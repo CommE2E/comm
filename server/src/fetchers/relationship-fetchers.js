@@ -87,7 +87,7 @@ async function fetchFriendRequestRelationshipOperations(
     userRelationshipOperations[userID] = operations;
   }
 
-  for (let userID of userIDs) {
+  for (const userID of userIDs) {
     if (!(userID in userRelationshipOperations)) {
       userRelationshipOperations[userID] = ['know_of', 'pending_friend'];
     }

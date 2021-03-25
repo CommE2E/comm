@@ -63,9 +63,9 @@ function InnerTextMessage(props: Props) {
   const activeTheme = useSelector((state) => state.globalThemeInfo.activeTheme);
   const boundColors = useColors();
 
-  let messageStyle = {},
-    textStyle = {},
-    darkColor;
+  const messageStyle = {};
+  const textStyle = {};
+  let darkColor;
   if (isViewer) {
     const threadColor = item.threadInfo.color;
     messageStyle.backgroundColor = `#${threadColor}`;

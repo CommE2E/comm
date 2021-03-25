@@ -125,7 +125,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
           queuedMediaURIs.size > prevQueuedMediaURIs.size)
       ) {
         const flowMadeMeDoThis = queuedMediaURIs;
-        for (let queuedMediaURI of flowMadeMeDoThis) {
+        for (const queuedMediaURI of flowMadeMeDoThis) {
           if (prevQueuedMediaURIs && prevQueuedMediaURIs.has(queuedMediaURI)) {
             continue;
           }
@@ -411,7 +411,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     changed: ViewToken[],
   }) => {
     const viewableIndices = [];
-    for (let { index } of info.viewableItems) {
+    for (const { index } of info.viewableItems) {
       if (index !== null && index !== undefined) {
         viewableIndices.push(index);
       }
@@ -462,8 +462,8 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
       return;
     }
     const queuedSelections = [];
-    for (let uri of queuedMediaURIs) {
-      for (let selection of selections) {
+    for (const uri of queuedMediaURIs) {
+      for (const selection of selections) {
         if (selection.uri === uri) {
           queuedSelections.push(selection);
           break;

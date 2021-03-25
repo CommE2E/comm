@@ -48,9 +48,9 @@ const calendarListData: (state: AppState) => ?(CalendarItem[]) = createSelector(
       return null;
     }
     const items: CalendarItem[] = [{ itemType: 'loader', key: 'TopLoader' }];
-    for (let dayString in daysToEntries) {
+    for (const dayString in daysToEntries) {
       items.push({ itemType: 'header', dateString: dayString });
-      for (let entryInfo of daysToEntries[dayString]) {
+      for (const entryInfo of daysToEntries[dayString]) {
         const threadInfo = threadInfos[entryInfo.threadID];
         if (threadInfo) {
           items.push({ itemType: 'entryInfo', entryInfo, threadInfo });

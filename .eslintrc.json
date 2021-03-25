@@ -40,7 +40,8 @@
           "internal"
         ]
       }
-    ]
+    ],
+    "prefer-const": "error"
   },
   "settings": {
     "react": {

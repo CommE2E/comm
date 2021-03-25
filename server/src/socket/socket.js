@@ -238,7 +238,7 @@ class Socket {
         throw new ServerError('session_mutated_from_socket');
       }
       handleAsyncPromise(extendCookieLifespan(viewer.cookieID));
-      for (let response of serverResponses) {
+      for (const response of serverResponses) {
         this.sendMessage(response);
       }
       if (clientSocketMessage.type === clientSocketMessageTypes.INITIAL) {
@@ -420,7 +420,7 @@ class Socket {
     );
 
     const threadCursors = {};
-    for (let watchedThreadID of watchedIDs) {
+    for (const watchedThreadID of watchedIDs) {
       threadCursors[watchedThreadID] = null;
     }
     const threadSelectionCriteria = { threadCursors, joinedThreads: true };

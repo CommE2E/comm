@@ -44,7 +44,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
     invariant(inputState, 'inputState should be set in MultimediaMessage');
     const pendingUploads = localID ? inputState.assignedUploads[localID] : null;
     const multimedia = [];
-    for (let singleMedia of media) {
+    for (const singleMedia of media) {
       const pendingUpload = pendingUploads
         ? pendingUploads.find((upload) => upload.localID === singleMedia.id)
         : null;

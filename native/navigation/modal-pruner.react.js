@@ -32,7 +32,7 @@ function collectDependencyInfo(
     ({ state, name: routeName } = route);
   }
   if (state) {
-    for (let child of state.routes) {
+    for (const child of state.routes) {
       collectDependencyInfo(child, dependencyMap, routeName);
     }
     return dependencyMap;
@@ -101,7 +101,7 @@ function ModalPruner(props: Props) {
     const dependencyMap = collectDependencyInfo(state);
     const rootModals = [],
       overlayModals = [];
-    for (let [key, info] of dependencyMap) {
+    for (const [key, info] of dependencyMap) {
       if (info.status !== 'unresolved') {
         continue;
       }

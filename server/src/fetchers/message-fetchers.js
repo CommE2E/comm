@@ -45,10 +45,10 @@ async function fetchCollapsableNotifs(
   // First, we need to fetch any notifications that should be collapsed
   const usersToCollapseKeysToInfo = {};
   const usersToCollapsableNotifInfo = {};
-  for (let userID in pushInfo) {
+  for (const userID in pushInfo) {
     usersToCollapseKeysToInfo[userID] = {};
     usersToCollapsableNotifInfo[userID] = [];
-    for (let rawMessageInfo of pushInfo[userID].messageInfos) {
+    for (const rawMessageInfo of pushInfo[userID].messageInfos) {
       const collapseKey = notifCollapseKeyForRawMessageInfo(rawMessageInfo);
       if (!collapseKey) {
         const collapsableNotifInfo = {
@@ -73,9 +73,9 @@ async function fetchCollapsableNotifs(
   }
 
   const sqlTuples = [];
-  for (let userID in usersToCollapseKeysToInfo) {
+  for (const userID in usersToCollapseKeysToInfo) {
     const collapseKeysToInfo = usersToCollapseKeysToInfo[userID];
-    for (let collapseKey in collapseKeysToInfo) {
+    for (const collapseKey in collapseKeysToInfo) {
       sqlTuples.push(
         SQL`(n.user = ${userID} AND n.collapse_key = ${collapseKey})`,
       );
@@ -130,9 +130,9 @@ async function fetchCollapsableNotifs(
     }
   }
 
-  for (let userID in usersToCollapseKeysToInfo) {
+  for (const userID in usersToCollapseKeysToInfo) {
     const collapseKeysToInfo = usersToCollapseKeysToInfo[userID];
-    for (let collapseKey in collapseKeysToInfo) {
+    for (const collapseKey in collapseKeysToInfo) {
       const info = collapseKeysToInfo[collapseKey];
       usersToCollapsableNotifInfo[userID].push({
         collapseKey: info.collapseKey,
@@ -155,7 +155,7 @@ function parseMessageSQLResult(
   viewer?: Viewer,
 ): MessageSQLResult {
   const rowsByID = new Map();
-  for (let row of rows) {
+  for (const row of rows) {
     const id = row.id.toString();
     const currentRowsForID = rowsByID.get(id);
     if (currentRowsForID) {
@@ -166,7 +166,7 @@ function parseMessageSQLResult(
   }
 
   const messages = [];
-  for (let messageRows of rowsByID.values()) {
+  for (const messageRows of rowsByID.values()) {
     const rawMessageInfo = rawMessageInfoFromRows(
       messageRows,
       viewer,
@@ -337,7 +337,7 @@ function threadSelectionCriteriaToSQLClause(criteria: ThreadSelectionCriteria) {
     conditions.push(SQL`mm.role > 0`);
   }
   if (criteria.threadCursors) {
-    for (let threadID in criteria.threadCursors) {
+    for (const threadID in criteria.threadCursors) {
       const cursor = criteria.threadCursors[threadID];
       if (cursor) {
         conditions.push(SQL`(m.thread = ${threadID} AND m.id < ${cursor})`);
@@ -358,7 +358,7 @@ function threadSelectionCriteriaToInitialTruncationStatuses(
 ) {
   const truncationStatuses = {};
   if (criteria.threadCursors) {
-    for (let threadID in criteria.threadCursors) {
+    for (const threadID in criteria.threadCursors) {
       truncationStatuses[threadID] = defaultTruncationStatus;
     }
   }
@@ -440,7 +440,7 @@ function getMessageFetchResultFromRedisMessages(
   rawMessageInfos: $ReadOnlyArray<RawMessageInfo>,
 ): FetchMessageInfosResult {
   const truncationStatuses = {};
-  for (let rawMessageInfo of rawMessageInfos) {
+  for (const rawMessageInfo of rawMessageInfos) {
     truncationStatuses[rawMessageInfo.threadID] =
       messageTruncationStatus.UNCHANGED;
   }

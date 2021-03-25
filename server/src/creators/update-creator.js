@@ -374,7 +374,7 @@ async function fetchUpdateInfosWithRawUpdateInfos(
   const entryIDsNeedingFetch = new Set();
   const currentUserIDsNeedingFetch = new Set();
   const threadIDsNeedingDetailedFetch = new Set(); // entries and messages
-  for (let rawUpdateInfo of rawUpdateInfos) {
+  for (const rawUpdateInfo of rawUpdateInfos) {
     if (
       !viewerInfo.threadInfos &&
       (rawUpdateInfo.type === updateTypes.UPDATE_THREAD ||
@@ -413,7 +413,7 @@ async function fetchUpdateInfosWithRawUpdateInfos(
   }
   if (threadIDsNeedingDetailedFetch.size > 0) {
     const threadSelectionCriteria = { threadCursors: {} };
-    for (let threadID of threadIDsNeedingDetailedFetch) {
+    for (const threadID of threadIDsNeedingDetailedFetch) {
       threadSelectionCriteria.threadCursors[threadID] = false;
     }
     promises.messageInfosResult = fetchMessageInfos(
@@ -491,7 +491,7 @@ async function updateInfosFromRawUpdateInfos(
   } = rawData;
   const updateInfos = [];
   const userIDsToFetch = new Set();
-  for (let rawUpdateInfo of rawUpdateInfos) {
+  for (const rawUpdateInfo of rawUpdateInfos) {
     if (rawUpdateInfo.type === updateTypes.DELETE_ACCOUNT) {
       updateInfos.push({
         type: updateTypes.DELETE_ACCOUNT,
@@ -540,14 +540,14 @@ async function updateInfosFromRawUpdateInfos(
       }
       const rawEntryInfos = [];
       invariant(calendarResult, 'should be set');
-      for (let entryInfo of calendarResult.rawEntryInfos) {
+      for (const entryInfo of calendarResult.rawEntryInfos) {
         if (entryInfo.threadID === rawUpdateInfo.threadID) {
           rawEntryInfos.push(entryInfo);
         }
       }
       const rawMessageInfos = [];
       invariant(messageInfosResult, 'should be set');
-      for (let messageInfo of messageInfosResult.rawMessageInfos) {
+      for (const messageInfo of messageInfosResult.rawMessageInfos) {
         if (messageInfo.threadID === rawUpdateInfo.threadID) {
           rawMessageInfos.push(messageInfo);
         }
@@ -628,7 +628,7 @@ async function updateInfosFromRawUpdateInfos(
   // Now we'll attempt to merge UpdateInfos so that we only have one per key
   const updateForKey: Map<string, UpdateInfo> = new Map();
   const mergedUpdates: UpdateInfo[] = [];
-  for (let updateInfo of updateInfos) {
+  for (const updateInfo of updateInfos) {
     const key = keyForUpdateInfo(updateInfo);
     if (!key) {
       mergedUpdates.push(updateInfo);
@@ -663,7 +663,7 @@ async function updateInfosFromRawUpdateInfos(
       updateForKey.set(key, updateInfo);
     }
   }
-  for (let [, updateInfo] of updateForKey) {
+  for (const [, updateInfo] of updateForKey) {
     mergedUpdates.push(updateInfo);
   }
   mergedUpdates.sort(sortFunction);
@@ -679,7 +679,7 @@ async function redisPublish(
   publishInfos: Iterator<PublishInfo>,
   dontBroadcastSession: ?string,
 ): Promise<void> {
-  for (let publishInfo of publishInfos) {
+  for (const publishInfo of publishInfos) {
     const { updateTarget, rawUpdateInfos } = publishInfo;
     const redisMessage: NewUpdatesRedisMessage = {
       type: redisMessageTypes.NEW_UPDATES,

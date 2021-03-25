@@ -172,7 +172,7 @@ async function websiteResponder(
       threadInfoPromise,
       messageStorePromise,
     ]);
-    let finalNavInfo = initialNavInfo;
+    const finalNavInfo = initialNavInfo;
 
     const requestedActiveChatThreadID = finalNavInfo.activeChatThreadID;
     if (

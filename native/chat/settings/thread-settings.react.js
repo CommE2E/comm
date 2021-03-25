@@ -1079,7 +1079,7 @@ const somethingIsSaving = (
   ) {
     return true;
   }
-  for (let threadMember of threadMembers) {
+  for (const threadMember of threadMembers) {
     const removeUserLoadingStatus = createLoadingStatusSelector(
       removeUsersFromThreadActionTypes,
       `${removeUsersFromThreadActionTypes.started}:${threadMember.id}`,

@@ -51,7 +51,7 @@ async function rescindPushNotifs(
       threadID,
       messageID: row.message.toString(),
     };
-    for (let delivery of deliveries) {
+    for (const delivery of deliveries) {
       if (delivery.iosID && delivery.iosDeviceTokens) {
         // Old iOS
         const notification = prepareIOSNotification(

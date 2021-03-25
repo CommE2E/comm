@@ -137,7 +137,7 @@ async function handleCodeVerificationRequest(
 
 async function deleteExpiredVerifications(): Promise<void> {
   const creationTimeConditions = [];
-  for (let field in verifyCodeLifetimes) {
+  for (const field in verifyCodeLifetimes) {
     const lifetime = verifyCodeLifetimes[field];
     const earliestInvalid = Date.now() - lifetime;
     creationTimeConditions.push(

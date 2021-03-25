@@ -27,7 +27,7 @@ async function fetchUpdateInfosWithQuery(
   }
   const [result] = await dbQuery(query);
   const rawUpdateInfos = [];
-  for (let row of result) {
+  for (const row of result) {
     rawUpdateInfos.push(rawUpdateInfoFromRow(row));
   }
   return await fetchUpdateInfosWithRawUpdateInfos(rawUpdateInfos, viewerInfo);

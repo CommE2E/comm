@@ -229,7 +229,7 @@ class PushHandler extends React.PureComponent<Props, State> {
       this.updateBadgeCount();
     }
 
-    for (let threadID of this.openThreadOnceReceived) {
+    for (const threadID of this.openThreadOnceReceived) {
       const threadInfo = this.props.threadInfos[threadID];
       if (threadInfo) {
         this.navigateToThread(threadInfo, false);
@@ -304,7 +304,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     notifications: Object[],
   ) {
     const identifiersToClear = [];
-    for (let notification of notifications) {
+    for (const notification of notifications) {
       if (notification['thread-id'] === threadID) {
         identifiersToClear.push(notification.identifier);
       }

@@ -152,7 +152,7 @@ function Root() {
       if (queuedActions.length === 0) {
         queuedActions.push(navUnknownAction);
       }
-      for (let action of queuedActions) {
+      for (const action of queuedActions) {
         actionLogger.addOtherAction('navState', action, prevState, state);
       }
 

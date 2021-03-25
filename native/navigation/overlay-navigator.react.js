@@ -114,7 +114,7 @@ const OverlayNavigator = React.memo<Props>(
     // avoid drags after onLongPress is triggered
     const getScrollBlockingModalStatus = (data) => {
       let status = 'closed';
-      for (let scene of data) {
+      for (const scene of data) {
         if (!scrollBlockingModals.includes(scene.route.name)) {
           continue;
         }
@@ -164,7 +164,7 @@ const OverlayNavigator = React.memo<Props>(
     // We need state to continue rendering screens while they are dismissing
     const [sceneData, setSceneData] = React.useState(() => {
       const newSceneData = {};
-      for (let scene of scenes) {
+      for (const scene of scenes) {
         const { key } = scene.route;
         newSceneData[key] = sceneDataForNewScene(scene);
       }
@@ -192,7 +192,7 @@ const OverlayNavigator = React.memo<Props>(
     let sceneDataChanged = false;
     if (prevScenes && scenes !== prevScenes) {
       const currentKeys = new Set();
-      for (let scene of scenes) {
+      for (const scene of scenes) {
         const { key } = scene.route;
         currentKeys.add(key);
 
@@ -279,7 +279,7 @@ const OverlayNavigator = React.memo<Props>(
                 visibleOverlaysRef.current = newVisibleOverlays;
                 setSceneData((curSceneData) => {
                   const newSceneData = {};
-                  for (let sceneKey in curSceneData) {
+                  for (const sceneKey in curSceneData) {
                     if (sceneKey === key) {
                       continue;
                     }
@@ -305,7 +305,7 @@ const OverlayNavigator = React.memo<Props>(
     if (visibleOverlays !== visibleOverlaysRef.current) {
       // This indicates we have pushed a new route. Let's make sure every
       // sceneData has the updated visibleOverlays
-      for (let sceneKey in updatedSceneData) {
+      for (const sceneKey in updatedSceneData) {
         updatedSceneData[sceneKey] = {
           ...updatedSceneData[sceneKey],
           context: {
@@ -323,7 +323,7 @@ const OverlayNavigator = React.memo<Props>(
       if (Object.keys(pendingAnimations).length === 0) {
         return;
       }
-      for (let key in pendingAnimations) {
+      for (const key in pendingAnimations) {
         const toValue = pendingAnimations[key];
         const position = positions[key];
         invariant(position, `should have position for animating key ${key}`);
@@ -363,7 +363,7 @@ const OverlayNavigator = React.memo<Props>(
       if (newScrollBlockingModalStatus !== scrollBlockingModalStatus) {
         setScrollBlockingModalStatus(newScrollBlockingModalStatus);
       }
-      for (let key in updatedSceneData) {
+      for (const key in updatedSceneData) {
         const data = updatedSceneData[key];
         updatedSceneData[key] = {
           ...data,

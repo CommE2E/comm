@@ -76,7 +76,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
 
   const deliveryPromises = [];
   const notifications: Map<string, NotificationRow> = new Map();
-  for (let userID in usersToCollapsableNotifInfo) {
+  for (const userID in usersToCollapsableNotifInfo) {
     const threadInfos = _flow(
       _mapValues((serverThreadInfo: ServerThreadInfo) => {
         const rawThreadInfo = rawThreadInfoFromServerThreadInfo(
@@ -90,12 +90,12 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       }),
       _pickBy((threadInfo) => threadInfo),
     )(serverThreadInfos);
-    for (let notifInfo of usersToCollapsableNotifInfo[userID]) {
+    for (const notifInfo of usersToCollapsableNotifInfo[userID]) {
       const hydrateMessageInfo = (rawMessageInfo: RawMessageInfo) =>
         createMessageInfo(rawMessageInfo, userID, userInfos, threadInfos);
       const newMessageInfos = [];
       const newRawMessageInfos = [];
-      for (let newRawMessageInfo of notifInfo.newMessageInfos) {
+      for (const newRawMessageInfo of notifInfo.newMessageInfos) {
         const newMessageInfo = hydrateMessageInfo(newRawMessageInfo);
         if (newMessageInfo) {
           newMessageInfos.push(newMessageInfo);
@@ -198,7 +198,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
         }
       }
 
-      for (let newMessageInfo of remainingNewMessageInfos) {
+      for (const newMessageInfo of remainingNewMessageInfos) {
         const newDBID = dbIDs.shift();
         invariant(newDBID, 'should have sufficient DB IDs');
         const messageID = newMessageInfo.id;
@@ -426,7 +426,7 @@ async function fetchNotifUserInfos(
 
 async function createDBIDs(pushInfo: PushInfo): Promise<string[]> {
   let numIDsNeeded = 0;
-  for (let userID in pushInfo) {
+  for (const userID in pushInfo) {
     numIDsNeeded += pushInfo[userID].messageInfos.length;
   }
   return await createIDs('notifications', numIDsNeeded);
@@ -436,7 +436,7 @@ function getDevicesByDeviceType(
   devices: Device[],
 ): Map<DeviceType, Map<number, Set<string>>> {
   const byDeviceType = new Map();
-  for (let device of devices) {
+  for (const device of devices) {
     let innerMap = byDeviceType.get(device.deviceType);
     if (!innerMap) {
       innerMap = new Map();
@@ -681,7 +681,7 @@ async function removeInvalidTokens(
   const [result] = await dbQuery(selectQuery);
 
   const userCookiePairsToInvalidDeviceTokens = new Map();
-  for (let row of result) {
+  for (const row of result) {
     const userCookiePair = `${row.user}|${row.id}`;
     const existing = userCookiePairsToInvalidDeviceTokens.get(userCookiePair);
     if (existing) {
@@ -696,7 +696,7 @@ async function removeInvalidTokens(
 
   const time = Date.now();
   const promises = [];
-  for (let entry of userCookiePairsToInvalidDeviceTokens) {
+  for (const entry of userCookiePairsToInvalidDeviceTokens) {
     const [userCookiePair, deviceTokens] = entry;
     const [userID, cookieID] = userCookiePair.split('|');
     const updateDatas = [...deviceTokens].map((deviceToken) => ({

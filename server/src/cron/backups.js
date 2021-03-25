@@ -145,7 +145,7 @@ async function deleteOldestBackup() {
   invariant(backupConfig, 'backupConfig should be non-null');
   const files = await readdir(backupConfig.directory);
   let oldestFile;
-  for (let file of files) {
+  for (const file of files) {
     if (!file.endsWith('.sql.gz') || !file.startsWith('squadcal.')) {
       continue;
     }

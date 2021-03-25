@@ -64,7 +64,7 @@ function onToggleAdmin(
   const boundChangeThreadMemberRoles = bindServerCall(changeThreadMemberRoles);
   const onConfirmMakeAdmin = () => {
     let newRole = null;
-    for (let roleID in threadInfo.roles) {
+    for (const roleID in threadInfo.roles) {
       const role = threadInfo.roles[roleID];
       if (isCurrentlyAdmin && role.isDefault) {
         newRole = role.id;

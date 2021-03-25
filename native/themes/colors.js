@@ -145,8 +145,8 @@ const colorsSelector: (state: AppState) => Colors = createSelector(
 );
 
 const magicStrings = new Set();
-for (let theme in colors) {
-  for (let magicString in colors[theme]) {
+for (const theme in colors) {
+  for (const magicString in colors[theme]) {
     magicStrings.add(magicString);
   }
 }
@@ -161,10 +161,10 @@ function stylesFromColors<IS: Styles>(
   themeColors: Colors,
 ): StyleSheetOf<IS> {
   const result = {};
-  for (let key in obj) {
+  for (const key in obj) {
     const style = obj[key];
     const filledInStyle = { ...style };
-    for (let styleKey in style) {
+    for (const styleKey in style) {
       const styleValue = style[styleKey];
       if (typeof styleValue !== 'string') {
         continue;

@@ -96,7 +96,7 @@ class RobotextMessage extends React.PureComponent<Props> {
     const robotextParts = splitRobotext(robotext);
     const textParts = [];
     let keyIndex = 0;
-    for (let splitPart of robotextParts) {
+    for (const splitPart of robotextParts) {
       if (splitPart === '') {
         continue;
       }

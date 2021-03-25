@@ -62,7 +62,7 @@ async function botherMonthlyActivesToUpdateAppVersion(): Promise<void> {
   const codeVersions = new Map();
   const squadbotThreads = new Map();
   const usersToSquadbotThreadPromises = {};
-  for (let row of result) {
+  for (const row of result) {
     const userID = row.user.toString();
     const codeVersion = row.code_version;
     codeVersions.set(userID, codeVersion);
@@ -84,7 +84,7 @@ async function botherMonthlyActivesToUpdateAppVersion(): Promise<void> {
 
   const time = Date.now();
   const newMessageDatas = [];
-  for (let [userID, threadID] of squadbotThreads) {
+  for (const [userID, threadID] of squadbotThreads) {
     const codeVersion = codeVersions.get(userID);
     invariant(codeVersion, 'should be set');
     newMessageDatas.push({

@@ -29,14 +29,14 @@ async function fetchUserInfos(
   const [result] = await dbQuery(query);
 
   const userInfos = {};
-  for (let row of result) {
+  for (const row of result) {
     const id = row.id.toString();
     userInfos[id] = {
       id,
       username: row.username,
     };
   }
-  for (let userID of userIDs) {
+  for (const userID of userIDs) {
     if (!userInfos[userID]) {
       userInfos[userID] = {
         id: userID,

@@ -314,7 +314,7 @@ function reducer(state: AppState = defaultState, action: *) {
     };
   } else if (action.type === incrementalStateSyncActionType) {
     let wipeDeviceToken = false;
-    for (let update of action.payload.updatesResult.newUpdates) {
+    for (const update of action.payload.updatesResult.newUpdates) {
       if (
         update.type === updateTypes.BAD_DEVICE_TOKEN &&
         update.deviceToken === state.deviceToken

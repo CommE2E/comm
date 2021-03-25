@@ -16,7 +16,7 @@ const nextMessagePruneTimeSelector: (
   (state: AppState) => state.messageStore.threads,
   (threadMessageInfos: { [id: string]: ThreadMessageInfo }): ?number => {
     let nextTime;
-    for (let threadID in threadMessageInfos) {
+    for (const threadID in threadMessageInfos) {
       const threadMessageInfo = threadMessageInfos[threadID];
       const threadPruneTime = Math.max(
         threadMessageInfo.lastNavigatedTo + msInHour,
@@ -41,7 +41,7 @@ const pruneThreadIDsSelector: (
   ) => (): $ReadOnlyArray<string> => {
     const now = Date.now();
     const threadIDsToPrune = [];
-    for (let threadID in threadMessageInfos) {
+    for (const threadID in threadMessageInfos) {
       if (threadID === activeThread) {
         continue;
       }

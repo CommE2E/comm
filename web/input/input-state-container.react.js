@@ -106,9 +106,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   static completedMessageIDs(state: State) {
     const completed = new Map();
-    for (let threadID in state.pendingUploads) {
+    for (const threadID in state.pendingUploads) {
       const pendingUploads = state.pendingUploads[threadID];
-      for (let localUploadID in pendingUploads) {
+      for (const localUploadID in pendingUploads) {
         const upload = pendingUploads[localUploadID];
         const { messageID, serverID, failed } = upload;
         if (!messageID || !messageID.startsWith('local')) {
@@ -124,7 +124,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       }
     }
     const messageIDs = new Set();
-    for (let [messageID, isCompleted] of completed) {
+    for (const [messageID, isCompleted] of completed) {
       if (isCompleted) {
         messageIDs.add(messageID);
       }
@@ -139,9 +139,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     const previouslyAssignedMessageIDs = new Set();
-    for (let threadID in prevState.pendingUploads) {
+    for (const threadID in prevState.pendingUploads) {
       const pendingUploads = prevState.pendingUploads[threadID];
-      for (let localUploadID in pendingUploads) {
+      for (const localUploadID in pendingUploads) {
         const { messageID } = pendingUploads[localUploadID];
         if (messageID) {
           previouslyAssignedMessageIDs.add(messageID);
@@ -150,9 +150,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     const newlyAssignedUploads = new Map();
-    for (let threadID in this.state.pendingUploads) {
+    for (const threadID in this.state.pendingUploads) {
       const pendingUploads = this.state.pendingUploads[threadID];
-      for (let localUploadID in pendingUploads) {
+      for (const localUploadID in pendingUploads) {
         const upload = pendingUploads[localUploadID];
         const { messageID } = upload;
         if (
@@ -172,7 +172,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     const newMessageInfos = new Map();
-    for (let [messageID, assignedUploads] of newlyAssignedUploads) {
+    for (const [messageID, assignedUploads] of newlyAssignedUploads) {
       const { uploads, threadID } = assignedUploads;
       const creatorID = this.props.viewerID;
       invariant(creatorID, 'need viewer ID in order to send a message');
@@ -221,7 +221,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const previouslyCompleted = InputStateContainer.completedMessageIDs(
       prevState,
     );
-    for (let messageID of currentlyCompleted) {
+    for (const messageID of currentlyCompleted) {
       if (previouslyCompleted.has(messageID)) {
         continue;
       }
@@ -234,7 +234,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       this.sendMultimediaMessage(rawMessageInfo);
     }
 
-    for (let [, messageInfo] of newMessageInfos) {
+    for (const [, messageInfo] of newMessageInfos) {
       this.props.dispatch({
         type: createLocalMessageActionType,
         payload: messageInfo,
@@ -273,7 +273,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       'localID should be set',
     );
     const mediaIDs = [];
-    for (let { id } of messageInfo.media) {
+    for (const { id } of messageInfo.media) {
       mediaIDs.push(id);
     }
     try {
@@ -285,7 +285,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       this.setState((prevState) => {
         const prevUploads = prevState.pendingUploads[threadID];
         const newUploads = {};
-        for (let localUploadID in prevUploads) {
+        for (const localUploadID in prevUploads) {
           const upload = prevUploads[localUploadID];
           if (upload.messageID !== localID) {
             newUploads[localUploadID] = upload;
@@ -336,7 +336,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           const threadAssignedUploads = _groupBy('messageID')(
             uploadsWithMessageIDs,
           );
-          for (let messageID in threadAssignedUploads) {
+          for (const messageID in threadAssignedUploads) {
             // lodash libdefs don't return $ReadOnlyArray
             assignedUploads[messageID] = [...threadAssignedUploads[messageID]];
           }
@@ -386,7 +386,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
       const time = Date.now() - selectionTime;
       const reports = [];
-      for (let { steps, result } of appendResults) {
+      for (const appendResult of appendResults) {
+        const { steps } = appendResult;
+        let { result } = appendResult;
         let uploadLocalID;
         if (result.success) {
           uploadLocalID = result.pendingUpload.localID;
@@ -830,7 +832,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       }
       const newPendingUploads = {};
       let uploadAssigned = false;
-      for (let localUploadID in currentPendingUploads) {
+      for (const localUploadID in currentPendingUploads) {
         const upload = currentPendingUploads[localUploadID];
         if (upload.messageID) {
           newPendingUploads[localUploadID] = upload;
@@ -942,7 +944,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     const uploadIDsToRetry = new Set();
     const uploadsToRetry = [];
-    for (let pendingUpload of pendingUploads) {
+    for (const pendingUpload of pendingUploads) {
       const { serverID, messageID, localID, abort } = pendingUpload;
       if (serverID || messageID !== localMessageID) {
         continue;
@@ -961,7 +963,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       }
       const newPendingUploads = {};
       let pendingUploadChanged = false;
-      for (let localID in prevPendingUploads) {
+      for (const localID in prevPendingUploads) {
         const pendingUpload = prevPendingUploads[localID];
         if (uploadIDsToRetry.has(localID) && !pendingUpload.serverID) {
           newPendingUploads[localID] = {

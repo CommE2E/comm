@@ -90,7 +90,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   static getModalOverlayPosition(props: Props) {
     const overlayContext = MultimediaMessageMultimedia.getOverlayContext(props);
     const { visibleOverlays } = overlayContext;
-    for (let overlay of visibleOverlays) {
+    for (const overlay of visibleOverlays) {
       if (
         overlay.routeName === ImageModalRouteName &&
         overlay.presentedFrom === props.route.key &&

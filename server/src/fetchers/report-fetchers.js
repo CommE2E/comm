@@ -34,7 +34,7 @@ async function fetchErrorReportInfos(
 
   const reports = [];
   const userInfos = {};
-  for (let row of result) {
+  for (const row of result) {
     const viewerID = row.user.toString();
     let { platformDetails } = row.report;
     if (!platformDetails) {

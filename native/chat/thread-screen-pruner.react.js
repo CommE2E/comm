@@ -37,7 +37,7 @@ const ThreadScreenPruner = React.memo<{||}>(() => {
     if (!chatRoute) {
       return threadIDs;
     }
-    for (let route of chatRoute.routes) {
+    for (const route of chatRoute.routes) {
       const threadID = getThreadIDFromRoute(route);
       if (threadID && !threadIsPending(threadID)) {
         threadIDs.add(threadID);
@@ -48,7 +48,7 @@ const ThreadScreenPruner = React.memo<{||}>(() => {
 
   const pruneThreadIDs = React.useMemo(() => {
     const threadIDs = [];
-    for (let threadID of inStackThreadIDs) {
+    for (const threadID of inStackThreadIDs) {
       if (!rawThreadInfos[threadID]) {
         threadIDs.push(threadID);
       }

@@ -38,7 +38,7 @@ async function fetchServerThreadInfos(
   const [result] = await dbQuery(query);
 
   const threadInfos = {};
-  for (let row of result) {
+  for (const row of result) {
     const threadID = row.id.toString();
     if (!threadInfos[threadID]) {
       threadInfos[threadID] = {
@@ -104,7 +104,7 @@ function rawThreadInfosFromServerThreadInfos(
   const viewerID = viewer.id;
   const hasCodeVersionBelow70 = !hasMinCodeVersion(viewer.platformDetails, 70);
   const threadInfos = {};
-  for (let threadID in serverResult.threadInfos) {
+  for (const threadID in serverResult.threadInfos) {
     const serverThreadInfo = serverResult.threadInfos[threadID];
     const threadInfo = rawThreadInfoFromServerThreadInfo(
       serverThreadInfo,
@@ -132,7 +132,7 @@ async function verifyThreadIDs(
   const [result] = await dbQuery(query);
 
   const verified = [];
-  for (let row of result) {
+  for (const row of result) {
     verified.push(row.id.toString());
   }
   return verified;

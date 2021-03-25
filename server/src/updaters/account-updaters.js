@@ -210,7 +210,7 @@ async function updatePassword(
   }
 
   const threadCursors = {};
-  for (let watchedThreadID of request.watchedIDs) {
+  for (const watchedThreadID of request.watchedIDs) {
     threadCursors[watchedThreadID] = null;
   }
   const threadSelectionCriteria = { threadCursors, joinedThreads: true };

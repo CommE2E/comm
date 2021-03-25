@@ -43,7 +43,7 @@ class FFmpeg {
 
   possiblyRunCommands() {
     let openSlots = {};
-    for (let type in this.currentCalls) {
+    for (const type in this.currentCalls) {
       const currentCalls = this.currentCalls[type];
       const maxCalls = maxSimultaneousCalls[type];
       const callsLeft = maxCalls - currentCalls;
@@ -59,7 +59,7 @@ class FFmpeg {
 
     const toDefer = [],
       toRun = [];
-    for (let command of this.queue) {
+    for (const command of this.queue) {
       const type: string = command.type;
       if (openSlots[type]) {
         openSlots = { [type]: openSlots[type] - 1 };
@@ -127,7 +127,7 @@ class FFmpeg {
     if (!info.streams) {
       return null;
     }
-    for (let stream of info.streams) {
+    for (const stream of info.streams) {
       if (stream.type === 'video') {
         const { codec, width, height } = stream;
         return { codec, dimensions: { width, height } };

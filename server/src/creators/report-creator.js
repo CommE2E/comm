@@ -187,12 +187,12 @@ function findInconsistentObjectKeys<O>(
   second: { +[id: string]: O },
 ): Set<string> {
   const nonMatchingIDs = new Set();
-  for (let id in first) {
+  for (const id in first) {
     if (!_isEqual(first[id])(second[id])) {
       nonMatchingIDs.add(id);
     }
   }
-  for (let id in second) {
+  for (const id in second) {
     if (!first[id]) {
       nonMatchingIDs.add(id);
     }

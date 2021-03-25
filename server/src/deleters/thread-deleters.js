@@ -107,7 +107,7 @@ async function deleteThread(
   const serverThreadInfo = serverThreadInfos[threadID];
   const time = Date.now();
   const updateDatas = [];
-  for (let memberInfo of serverThreadInfo.members) {
+  for (const memberInfo of serverThreadInfo.members) {
     updateDatas.push({
       type: updateTypes.DELETE_THREAD,
       userID: memberInfo.id,

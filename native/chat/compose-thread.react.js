@@ -292,7 +292,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
   };
 
   onUserSelect = (userID: string) => {
-    for (let existingUserInfo of this.state.userInfoInputArray) {
+    for (const existingUserInfo of this.state.userInfoInputArray) {
       if (userID === existingUserInfo.id) {
         return;
       }

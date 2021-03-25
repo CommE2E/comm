@@ -41,7 +41,7 @@ async function updateRelationships(
 
   let errors = {};
   const userIDs: string[] = [];
-  for (let userID of uniqueUserIDs) {
+  for (const userID of uniqueUserIDs) {
     if (userID === viewer.userID || !users[userID].username) {
       const acc = errors.invalid_user || [];
       errors.invalid_user = [...acc, userID];

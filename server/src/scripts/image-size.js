@@ -22,7 +22,7 @@ async function addImageSizeToUploadsTable() {
     FROM uploads
     WHERE type = "photo" AND extra IS NULL
   `);
-  for (let row of result) {
+  for (const row of result) {
     const { height, width } = sizeOf(row.content);
     const dimensions = JSON.stringify({ height, width });
     await dbQuery(SQL`

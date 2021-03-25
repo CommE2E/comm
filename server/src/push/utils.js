@@ -80,7 +80,7 @@ async function apnPush(
   const result = await apnProvider.send(notification, deviceTokens);
   const errors = [];
   const invalidTokens = [];
-  for (let error of result.failed) {
+  for (const error of result.failed) {
     errors.push(error);
     if (
       error.status == apnTokenInvalidationErrorCode ||
@@ -122,7 +122,7 @@ async function fcmPush(
   // won't explain which of the device tokens is invalid. So we're forced to
   // avoid the multicast functionality and call it once per deviceToken.
   const promises = [];
-  for (let deviceToken of deviceTokens) {
+  for (const deviceToken of deviceTokens) {
     promises.push(fcmSinglePush(notification, deviceToken, options));
   }
   const pushResults = await Promise.all(promises);
@@ -132,13 +132,13 @@ async function fcmPush(
   const invalidTokens = [];
   for (let i = 0; i < pushResults.length; i++) {
     const pushResult = pushResults[i];
-    for (let error of pushResult.errors) {
+    for (const error of pushResult.errors) {
       errors.push(error);
       if (fcmTokenInvalidationErrors.has(error.errorInfo.code)) {
         invalidTokens.push(deviceTokens[i]);
       }
     }
-    for (let id of pushResult.fcmIDs) {
+    for (const id of pushResult.fcmIDs) {
       ids.push(id);
     }
   }
@@ -169,7 +169,7 @@ async function fcmSinglePush(
       .sendToDevice(deviceToken, notification, options);
     const errors = [];
     const ids = [];
-    for (let fcmResult of deliveryResult.results) {
+    for (const fcmResult of deliveryResult.results) {
       if (fcmResult.error) {
         errors.push(fcmResult.error);
       } else if (fcmResult.messageId) {
@@ -198,10 +198,10 @@ async function getUnreadCounts(
   `;
   const [result] = await dbQuery(query);
   const usersToUnreadCounts = {};
-  for (let row of result) {
+  for (const row of result) {
     usersToUnreadCounts[row.user.toString()] = row.unread_count;
   }
-  for (let userID of userIDs) {
+  for (const userID of userIDs) {
     if (usersToUnreadCounts[userID] === undefined) {
       usersToUnreadCounts[userID] = 0;
     }

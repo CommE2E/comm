@@ -44,7 +44,7 @@ class DevTools extends React.PureComponent<Props> {
     const { panelIosHighlightUnderlay: underlay } = this.props.colors;
 
     const serverButtons = [];
-    for (let server of serverOptions) {
+    for (const server of serverOptions) {
       const icon = server === this.props.urlPrefix ? <ServerIcon /> : null;
       serverButtons.push(
         <Button

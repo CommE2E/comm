@@ -49,7 +49,8 @@ function handleAndroidMessage(
     return;
   }
 
-  let { id, title, prefix, body, threadID, badgeOnly } = data;
+  const { id, title, prefix, threadID, badgeOnly } = data;
+  let { body } = data;
   ({ body } = mergePrefixIntoBody({ body, title, prefix }));
 
   if (handleIfActive) {

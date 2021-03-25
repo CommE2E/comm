@@ -398,7 +398,7 @@ class Calendar extends React.PureComponent<Props, State> {
         'currentScrollPosition should be set',
       );
       const currentScrollPosition = Math.max(this.currentScrollPosition, 0);
-      let offset = currentScrollPosition + heightOfNewItems;
+      const offset = currentScrollPosition + heightOfNewItems;
       flatList.scrollToOffset({
         offset,
         animated: false,
@@ -861,7 +861,7 @@ class Calendar extends React.PureComponent<Props, State> {
     }
 
     const visibleEntries = {};
-    for (let token of info.viewableItems) {
+    for (const token of info.viewableItems) {
       if (token.item.itemType === 'entryInfo') {
         visibleEntries[entryKey(token.item.entryInfo)] = true;
       }

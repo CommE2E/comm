@@ -18,7 +18,7 @@ async function getAndroidPermissions(
   const result = {},
     missing = [];
 
-  for (let permission of permissions) {
+  for (const permission of permissions) {
     if (granted.has(permission)) {
       result[permission] = true;
     } else {
@@ -30,7 +30,7 @@ async function getAndroidPermissions(
   }
 
   if (checkOrRequest === 'check') {
-    for (let permission of missing) {
+    for (const permission of missing) {
       result[permission] = (async () => {
         try {
           return await PermissionsAndroid.check(permission);
@@ -55,7 +55,7 @@ async function getAndroidPermissions(
       throw e;
     }
   }
-  for (let permission of missing) {
+  for (const permission of missing) {
     result[permission] =
       requestResult[permission] === PermissionsAndroid.RESULTS.GRANTED;
   }

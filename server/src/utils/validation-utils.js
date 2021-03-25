@@ -115,7 +115,7 @@ function sanitizeInput(inputValidator: *, input: *) {
     return input;
   }
   const result = {};
-  for (let key in input) {
+  for (const key in input) {
     const value = input[key];
     const validator = inputValidator.meta.props[key];
     result[key] = sanitizeInput(validator, value);
@@ -148,7 +148,7 @@ function findFirstInputMatchingValidator(
     wholeInputValidator.meta.kind === 'interface' &&
     typeof input === 'object'
   ) {
-    for (let key in input) {
+    for (const key in input) {
       const value = input[key];
       const validator = wholeInputValidator.meta.props[key];
       const innerResult = findFirstInputMatchingValidator(
@@ -162,7 +162,7 @@ function findFirstInputMatchingValidator(
     }
   }
   if (wholeInputValidator.meta.kind === 'union') {
-    for (let validator of wholeInputValidator.meta.types) {
+    for (const validator of wholeInputValidator.meta.types) {
       if (validator.is(input)) {
         return findFirstInputMatchingValidator(
           validator,
@@ -174,7 +174,7 @@ function findFirstInputMatchingValidator(
   }
   if (wholeInputValidator.meta.kind === 'list' && Array.isArray(input)) {
     const validator = wholeInputValidator.meta.type;
-    for (let value of input) {
+    for (const value of input) {
       const innerResult = findFirstInputMatchingValidator(
         validator,
         inputValidatorToMatch,

@@ -280,7 +280,7 @@ class MessageList extends React.PureComponent<Props, State> {
   }) => {
     if (this.state.focusedMessageKey) {
       let focusedMessageVisible = false;
-      for (let token of info.viewableItems) {
+      for (const token of info.viewableItems) {
         if (
           token.item.itemType === 'message' &&
           messageKey(token.item.messageInfo) === this.state.focusedMessageKey

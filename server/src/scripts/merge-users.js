@@ -53,7 +53,7 @@ async function mergeUsers(
     if (!needUserInfoUpdate) {
       return;
     }
-    for (let { id } of threadInfo.members) {
+    for (const { id } of threadInfo.members) {
       usersGettingUpdate.add(id);
       usersNeedingUpdate.delete(id);
     }
@@ -62,7 +62,7 @@ async function mergeUsers(
     if (!needUserInfoUpdate) {
       return;
     }
-    for (let { id } of threadInfo.members) {
+    for (const { id } of threadInfo.members) {
       if (!usersGettingUpdate.has(id)) {
         usersNeedingUpdate.add(id);
       }
@@ -71,7 +71,7 @@ async function mergeUsers(
 
   const newThreadRolePairs = [];
   const { threadInfos } = await fetchServerThreadInfos();
-  for (let threadID in threadInfos) {
+  for (const threadID in threadInfos) {
     const threadInfo = threadInfos[threadID];
     const fromUserExistingMember = threadInfo.members.find(
       (memberInfo) => memberInfo.id === fromUserID,
@@ -105,7 +105,7 @@ async function mergeUsers(
   }
 
   const time = Date.now();
-  for (let userID of usersNeedingUpdate) {
+  for (const userID of usersNeedingUpdate) {
     updateDatas.push({
       type: updateTypes.UPDATE_USER,
       userID,
@@ -122,7 +122,7 @@ async function mergeUsers(
   );
   const membershipRows = [];
   const relationshipRows = [];
-  for (let currentChangeset of changesets) {
+  for (const currentChangeset of changesets) {
     if (!currentChangeset) {
       throw new Error('changeRole returned null');
     }

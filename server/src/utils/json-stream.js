@@ -23,7 +23,7 @@ function resolvePromisesToStream<T: { [key: string]: Promisable<*> }>(
   input: T,
 ) {
   const blocking = [];
-  for (let key in input) {
+  for (const key in input) {
     const value = input[key];
     if (value instanceof Promise) {
       blocking.push(
