@@ -1050,6 +1050,7 @@ export default React.memo<BaseProps>(function ConnectedInputStateContainer(
       exifRotate={exifRotate}
       uploadMultimedia={callUploadMultimedia}
       deleteUpload={callDeleteUpload}
+      // $FlowFixMe
       sendMultimediaMessage={callSendMultimediaMessage}
       sendTextMessage={callSendTextMessage}
       dispatch={dispatch}
