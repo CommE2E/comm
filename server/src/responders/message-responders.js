@@ -120,6 +120,11 @@ async function multimediaMessageCreationResponder(
     throw new ServerError('invalid_parameters');
   }
 
+  const mediaIDs = [];
+  for (const mediaItem of messageContent) {
+    mediaIDs.push(mediaItem.mediaID.toString());
+  }
+
   const media = await fetchMedia(viewer, mediaIDs);
   if (media.length !== messageContent.length) {
     throw new ServerError('invalid_parameters');
@@ -138,7 +143,13 @@ async function multimediaMessageCreationResponder(
     id !== null && id !== undefined,
     'serverID should be set in createMessages result',
   );
-  await assignMedia(viewer, messageContent, id);
+
+  for (const mediaItem of messageContent) {
+    if (mediaItem.thumbnailID) {
+      mediaIDs.push(mediaItem.thumbnailID.toString());
+    }
+  }
+  await assignMedia(viewer, mediaIDs, id);
 
   return { newMessageInfo };
 }
