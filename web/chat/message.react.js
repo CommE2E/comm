@@ -18,68 +18,66 @@ import RobotextMessage from './robotext-message.react';
 import TextMessage from './text-message.react';
 
 type Props = {|
-  item: ChatMessageInfoItem,
-  threadInfo: ThreadInfo,
-  setMouseOverMessagePosition: (
+  +item: ChatMessageInfoItem,
+  +threadInfo: ThreadInfo,
+  +setMouseOverMessagePosition: (
     messagePositionInfo: MessagePositionInfo,
   ) => void,
-  mouseOverMessagePosition: ?OnMessagePositionWithContainerInfo,
-  setModal: (modal: ?React.Node) => void,
-  timeZone: ?string,
+  +mouseOverMessagePosition: ?OnMessagePositionWithContainerInfo,
+  +setModal: (modal: ?React.Node) => void,
+  +timeZone: ?string,
 |};
-class Message extends React.PureComponent<Props> {
-  render() {
-    const { item, timeZone } = this.props;
+function Message(props: Props): React.Node {
+  const { item, timeZone } = props;
 
-    let conversationHeader = null;
-    if (item.startsConversation) {
-      conversationHeader = (
-        <div className={css.conversationHeader}>
-          {longAbsoluteDate(item.messageInfo.time, timeZone)}
-        </div>
-      );
-    }
-    let message;
-    if (item.messageInfo.type === messageTypes.TEXT) {
-      message = (
-        <TextMessage
-          item={item}
-          threadInfo={this.props.threadInfo}
-          setMouseOverMessagePosition={this.props.setMouseOverMessagePosition}
-          mouseOverMessagePosition={this.props.mouseOverMessagePosition}
-        />
-      );
-    } else if (
-      item.messageInfo.type === messageTypes.IMAGES ||
-      item.messageInfo.type === messageTypes.MULTIMEDIA
-    ) {
-      message = (
-        <MultimediaMessage
-          item={item}
-          threadInfo={this.props.threadInfo}
-          setMouseOverMessagePosition={this.props.setMouseOverMessagePosition}
-          mouseOverMessagePosition={this.props.mouseOverMessagePosition}
-          setModal={this.props.setModal}
-        />
-      );
-    } else {
-      invariant(item.robotext, "Flow can't handle our fancy types :(");
-      message = (
-        <RobotextMessage
-          item={item}
-          threadInfo={this.props.threadInfo}
-          setMouseOverMessagePosition={this.props.setMouseOverMessagePosition}
-          mouseOverMessagePosition={this.props.mouseOverMessagePosition}
-        />
-      );
-    }
-    return (
-      <div className={css.message}>
-        {conversationHeader}
-        {message}
+  let conversationHeader = null;
+  if (item.startsConversation) {
+    conversationHeader = (
+      <div className={css.conversationHeader}>
+        {longAbsoluteDate(item.messageInfo.time, timeZone)}
       </div>
     );
   }
+  let message;
+  if (item.messageInfo.type === messageTypes.TEXT) {
+    message = (
+      <TextMessage
+        item={item}
+        threadInfo={props.threadInfo}
+        setMouseOverMessagePosition={props.setMouseOverMessagePosition}
+        mouseOverMessagePosition={props.mouseOverMessagePosition}
+      />
+    );
+  } else if (
+    item.messageInfo.type === messageTypes.IMAGES ||
+    item.messageInfo.type === messageTypes.MULTIMEDIA
+  ) {
+    message = (
+      <MultimediaMessage
+        item={item}
+        threadInfo={props.threadInfo}
+        setMouseOverMessagePosition={props.setMouseOverMessagePosition}
+        mouseOverMessagePosition={props.mouseOverMessagePosition}
+        setModal={props.setModal}
+      />
+    );
+  } else {
+    invariant(item.robotext, "Flow can't handle our fancy types :(");
+    message = (
+      <RobotextMessage
+        item={item}
+        threadInfo={props.threadInfo}
+        setMouseOverMessagePosition={props.setMouseOverMessagePosition}
+        mouseOverMessagePosition={props.mouseOverMessagePosition}
+      />
+    );
+  }
+  return (
+    <div className={css.message}>
+      {conversationHeader}
+      {message}
+    </div>
+  );
 }
 
 export default Message;
