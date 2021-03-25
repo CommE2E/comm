@@ -21,52 +21,50 @@ type Props = {|
   +messageInfo: ?MessageInfo,
   +threadInfo: ThreadInfo,
 |};
-class MessagePreview extends React.PureComponent<Props> {
-  render() {
-    if (!this.props.messageInfo) {
-      return (
-        <div className={classNames(css.lastMessage, css.dark, css.italic)}>
-          No messages
-        </div>
-      );
-    }
-    const messageInfo: ComposableMessageInfo | RobotextMessageInfo =
-      this.props.messageInfo.type === messageTypes.SIDEBAR_SOURCE
-        ? this.props.messageInfo.sourceMessage
-        : this.props.messageInfo;
-    const unread = this.props.threadInfo.currentUser.unread;
-    const messageTitle = getMessageTitle(
-      messageInfo,
-      this.props.threadInfo,
-      getDefaultTextMessageRules().simpleMarkdownRules,
+function MessagePreview(props: Props): React.Node {
+  if (!props.messageInfo) {
+    return (
+      <div className={classNames(css.lastMessage, css.dark, css.italic)}>
+        No messages
+      </div>
     );
-    if (messageInfo.type === messageTypes.TEXT) {
-      let usernameText = null;
-      if (
-        threadIsGroupChat(this.props.threadInfo) ||
-        this.props.threadInfo.name !== '' ||
-        messageInfo.creator.isViewer
-      ) {
-        const userString = stringForUser(messageInfo.creator);
-        const username = `${userString}: `;
-        const usernameStyle = unread ? css.black : css.light;
-        usernameText = <span className={usernameStyle}>{username}</span>;
-      }
-      const colorStyle = unread ? css.black : css.dark;
-      return (
-        <div className={classNames(css.lastMessage, colorStyle)}>
-          {usernameText}
-          {messageTitle}
-        </div>
-      );
-    } else {
-      const colorStyle = unread ? css.black : css.light;
-      return (
-        <div className={classNames([css.lastMessage, colorStyle])}>
-          {messageTitle}
-        </div>
-      );
+  }
+  const messageInfo: ComposableMessageInfo | RobotextMessageInfo =
+    props.messageInfo.type === messageTypes.SIDEBAR_SOURCE
+      ? props.messageInfo.sourceMessage
+      : props.messageInfo;
+  const unread = props.threadInfo.currentUser.unread;
+  const messageTitle = getMessageTitle(
+    messageInfo,
+    props.threadInfo,
+    getDefaultTextMessageRules().simpleMarkdownRules,
+  );
+  if (messageInfo.type === messageTypes.TEXT) {
+    let usernameText = null;
+    if (
+      threadIsGroupChat(props.threadInfo) ||
+      props.threadInfo.name !== '' ||
+      messageInfo.creator.isViewer
+    ) {
+      const userString = stringForUser(messageInfo.creator);
+      const username = `${userString}: `;
+      const usernameStyle = unread ? css.black : css.light;
+      usernameText = <span className={usernameStyle}>{username}</span>;
     }
+    const colorStyle = unread ? css.black : css.dark;
+    return (
+      <div className={classNames(css.lastMessage, colorStyle)}>
+        {usernameText}
+        {messageTitle}
+      </div>
+    );
+  } else {
+    const colorStyle = unread ? css.black : css.light;
+    return (
+      <div className={classNames([css.lastMessage, colorStyle])}>
+        {messageTitle}
+      </div>
+    );
   }
 }
 
