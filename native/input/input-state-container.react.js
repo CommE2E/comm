@@ -21,7 +21,7 @@ import {
   type MultimediaUploadCallbacks,
   type MultimediaUploadExtras,
 } from 'lib/actions/upload-actions';
-import { pathFromURI } from 'lib/media/file-utils';
+import { pathFromURI, replaceExtension } from 'lib/media/file-utils';
 import { videoDurationLimit } from 'lib/media/video-utils';
 import {
   createLoadingStatusSelector,
@@ -418,6 +418,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             return {
               id: localID,
               uri: selection.uri,
+              thumbnailURI: selection.uri,
               type: 'video',
               dimensions: selection.dimensions,
               localMediaSelection: selection,
@@ -516,22 +517,42 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       });
     }
 
-    const { uploadURI, shouldDisposePath, filename, mime } = processedMedia;
+    const {
+      uploadURI,
+      thumbnailURI,
+      shouldDisposePath,
+      filename,
+      mime,
+    } = processedMedia;
 
     const { hasWiFi } = this.props;
 
     const uploadStart = Date.now();
-    let uploadExceptionMessage, uploadResult, mediaMissionResult;
+    let uploadExceptionMessage,
+      uploadResult,
+      thumbnailUploadResult,
+      mediaMissionResult;
     try {
-      uploadResult = await this.props.uploadMultimedia(
-        { uri: uploadURI, name: filename, type: mime },
-        { ...processedMedia.dimensions, loop: processedMedia.loop },
-        {
-          onProgress: (percent: number) =>
-            this.setProgress(localMessageID, localID, 'uploading', percent),
-          uploadBlob: this.uploadBlob,
-        },
-      );
+      const [thumbnailUploadResult, uploadResult] = await Promise.all([
+        this.props.uploadMultimedia(
+          {
+            uri: thumbnailURI,
+            name: replaceExtension(`thumb${filename}`, 'jpg'),
+            type: 'image/jpeg',
+          },
+          { ...processedMedia.dimensions, loop: false },
+          { uploadBlob: this.uploadBlob },
+        ),
+        this.props.uploadMultimedia(
+          { uri: uploadURI, name: filename, type: mime },
+          { ...processedMedia.dimensions, loop: processedMedia.loop },
+          {
+            onProgress: (percent: number) =>
+              this.setProgress(localMessageID, localID, 'uploading', percent),
+            uploadBlob: this.uploadBlob,
+          },
+        ),
+      ]);
       mediaMissionResult = { success: true };
     } catch (e) {
       uploadExceptionMessage = getMessageForException(e);
@@ -543,22 +564,34 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       };
     }
 
-    if (uploadResult) {
+    if (uploadResult && thumbnailUploadResult) {
       const { id, mediaType, uri, dimensions, loop } = uploadResult;
+      const { id: thumbnailID, uri: thumbnailURI } = thumbnailUploadResult;
       serverID = id;
+
+      let mediaUpdate = {
+        id,
+        type: mediaType,
+        uri,
+        dimensions,
+        localMediaSelection: undefined,
+        loop,
+      };
+
+      if (mediaType === 'video') {
+        mediaUpdate = {
+          ...mediaUpdate,
+          thumbnailID,
+          thumbnailURI,
+        };
+      }
+
       this.props.dispatch({
         type: updateMultimediaMessageMediaActionType,
         payload: {
           messageID: localMessageID,
           currentMediaID: localID,
-          mediaUpdate: {
-            id,
-            type: mediaType,
-            uri,
-            dimensions,
-            localMediaSelection: undefined,
-            loop,
-          },
+          mediaUpdate,
         },
       });
       userTime = Date.now() - start;
