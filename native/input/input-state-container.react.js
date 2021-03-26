@@ -268,11 +268,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       if (mediaItem.type === 'video') {
         messageContent.push({
           mediaID: parseInt(mediaItem.id, 10),
-          thumbnailID: parseInt(mediaItem.thumbnailID, 10),
-        });
-      } else {
-        messageContent.push({
-          mediaID: parseInt(mediaItem.id),
+          thumbnailID: mediaItem.thumbnailID
+            ? parseInt(mediaItem.thumbnailID, 10)
+            : null,
         });
       }
     }

@@ -6,6 +6,7 @@ import { ServerError } from 'lib/utils/errors';
 import urlFacts from '../../facts/url';
 import { dbQuery, SQL } from '../database/database';
 import type { Viewer } from '../session/viewer';
+import type { MediaMessageContent } from 'lib/types/messages/media';
 
 const { baseDomain, basePath } = urlFacts;
 
@@ -97,8 +98,13 @@ function mediaFromRow(row: Object): Media {
 
 async function fetchMedia(
   viewer: Viewer,
-  mediaIDs: $ReadOnlyArray<string>,
+  messageContent: $ReadOnlyArray<MediaMessageContent>,
 ): Promise<$ReadOnlyArray<Media>> {
+  const mediaIDs = [];
+  for (const mediaItem of messageContent) {
+    mediaIDs.push(mediaItem.mediaID.toString());
+  }
+
   const query = SQL`
     SELECT id AS uploadID, secret AS uploadSecret,
       type AS uploadType, extra AS uploadExtra
@@ -106,7 +112,12 @@ async function fetchMedia(
     WHERE id IN (${mediaIDs}) AND uploader = ${viewer.id} AND container IS NULL
   `;
   const [result] = await dbQuery(query);
-  return result.map(mediaFromRow);
+  let retrievedMedia = result.map(mediaFromRow);
+
+  for (let idx = 0; idx < messageContent.length; idx++) {
+    retrievedMedia[idx].thumbnailID = messageContent[idx].thumbnailID;
+  }
+  return retrievedMedia;
 }
 
 export {
