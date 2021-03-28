@@ -1,18 +1,28 @@
 // @flow
 
-import * as historyModule from 'history';
+import * as HistoryModule from 'history';
+import type { RouterHistory, LocationShape } from 'react-router';
 import invariant from 'invariant';
 
-const { createBrowserHistory } = historyModule;
+const { createBrowserHistory } = HistoryModule;
 
 declare var baseURL: string;
 
+type LocationType = LocationShape;
+type HistoryObject = HistoryModule.History<LocationType> & RouterHistory;
+
 // eslint-disable-next-line no-undef
-const history = process.env.BROWSER
-  ? createBrowserHistory({ basename: baseURL })
+const history: ?HistoryObject = process.env.BROWSER
+  ? (createBrowserHistory({ basename: baseURL }): any)
   : null;
 
-export default {
+type History = {|
+  +getHistoryObject: () => HistoryObject,
+  +push: (location: string) => void,
+  +replace: (location: string) => void,
+|};
+
+const routerHistory: History = {
   getHistoryObject: () => {
     invariant(
       history,
@@ -29,3 +39,5 @@ export default {
     return history.replace(location);
   },
 };
+
+export default routerHistory;

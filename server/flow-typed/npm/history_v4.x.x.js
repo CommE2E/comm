@@ -1,137 +1,109 @@
-// flow-typed signature: e461b9fe923a5f62ed607392b0742c02
-// flow-typed version: c6154227d1/history_v4.x.x/flow_>=v0.25.x <=v0.103.x
+// flow-typed signature: 58cc95d240510cd0f952113ab5fd1910
+// flow-typed version: 72313e0b69/history_v4.x.x/flow_>=v0.104.x
 
-declare module "history/createBrowserHistory" {
-  declare function Unblock(): void;
+declare module 'history' {
+  declare type Unregister = () => void;
 
-  declare export type Action = "PUSH" | "REPLACE" | "POP";
+  declare export type Action = 'PUSH' | 'REPLACE' | 'POP';
 
-  declare export type BrowserLocation = {
+  declare export type Location = {|
     pathname: string,
     search: string,
     hash: string,
-    // Browser and Memory specific
-    state: {},
+    state: { ... },
     key: string,
-  };
+  |};
 
-  declare interface IBrowserHistory {
+  declare type History<HistoryLocation = Location> = {|
     length: number,
-    location: BrowserLocation,
+    location: HistoryLocation,
     action: Action,
-    push(path: string, state?: {}): void,
-    push(location: $Shape<BrowserLocation>): void,
-    replace(path: string, state?: {}): void,
-    replace(location: $Shape<BrowserLocation>): void,
+    push: ((path: string, state?: { ... }) => void) &
+      ((location: $Shape<HistoryLocation>) => void),
+    replace: ((path: string, state?: { ... }) => void) &
+      ((location: $Shape<HistoryLocation>) => void),
     go(n: number): void,
     goBack(): void,
     goForward(): void,
-    listen: Function,
-    block(message: string): typeof Unblock,
-    block((location: BrowserLocation, action: Action) => string): typeof Unblock,
-  }
+    listen((location: HistoryLocation, action: Action) => void): Unregister,
+    block(
+      prompt:
+        | string
+        | boolean
+        | ((location: HistoryLocation, action: Action) => string | false | void)
+    ): Unregister,
+    createHref(location: $Shape<HistoryLocation>): string,
+  |};
 
-  declare export type BrowserHistory = IBrowserHistory;
+  declare export type BrowserHistory = History<>;
 
-  declare type HistoryOpts = {
+  declare type BrowserHistoryOpts = {|
     basename?: string,
     forceRefresh?: boolean,
     getUserConfirmation?: (
       message: string,
-      callback: (willContinue: boolean) => void,
+      callback: (willContinue: boolean) => void
     ) => void,
-  };
+    keyLength?: number,
+  |};
 
-  declare export default (opts?: HistoryOpts) => BrowserHistory;
-}
+  declare function createBrowserHistory(
+    opts?: BrowserHistoryOpts
+  ): BrowserHistory;
 
-declare module "history/createMemoryHistory" {
-  declare function Unblock(): void;
-
-  declare export type Action = "PUSH" | "REPLACE" | "POP";
-
-  declare export type MemoryLocation = {
-    pathname: string,
-    search: string,
-    hash: string,
-    // Browser and Memory specific
-    state: {},
-    key: string,
-  };
-
-  declare interface IMemoryHistory {
-    length: number,
-    location: MemoryLocation,
-    action: Action,
+  declare export type MemoryHistory = {|
+    ...History<>,
     index: number,
-    entries: Array<string>,
-    push(path: string, state?: {}): void,
-    push(location: $Shape<MemoryLocation>): void,
-    replace(path: string, state?: {}): void,
-    replace(location: $Shape<MemoryLocation>): void,
-    go(n: number): void,
-    goBack(): void,
-    goForward(): void,
-    // Memory only
+    entries: Array<string | Location>,
     canGo(n: number): boolean,
-    listen: Function,
-    block(message: string): typeof Unblock,
-    block((location: MemoryLocation, action: Action) => string): typeof Unblock,
-  }
+  |};
 
-  declare export type MemoryHistory = IMemoryHistory;
-
-  declare type HistoryOpts = {
+  declare type MemoryHistoryOpts = {|
     initialEntries?: Array<string>,
     initialIndex?: number,
     keyLength?: number,
     getUserConfirmation?: (
       message: string,
-      callback: (willContinue: boolean) => void,
+      callback: (willContinue: boolean) => void
     ) => void,
-  };
+  |};
 
-  declare export default (opts?: HistoryOpts) => MemoryHistory;
-}
+  declare function createMemoryHistory(opts?: MemoryHistoryOpts): MemoryHistory;
 
-declare module "history/createHashHistory" {
-  declare function Unblock(): void;
+  declare export type HashLocation = {|
+    ...Location,
+    state: void,
+    key: void,
+  |};
 
-  declare export type Action = "PUSH" | "REPLACE" | "POP";
+  declare export type HashHistory = History<HashLocation>;
 
-  declare export type HashLocation = {
-    pathname: string,
-    search: string,
-    hash: string,
-  };
-
-  declare interface IHashHistory {
-    length: number,
-    location: HashLocation,
-    action: Action,
-    push(path: string, state?: {}): void,
-    push(location: $Shape<HashLocation>): void,
-    replace(path: string, state?: {}): void,
-    replace(location: $Shape<HashLocation>): void,
-    go(n: number): void,
-    goBack(): void,
-    goForward(): void,
-    listen: Function,
-    block(message: string): typeof Unblock,
-    block((location: HashLocation, action: Action) => string): typeof Unblock,
-    push(path: string): void,
-  }
-
-  declare export type HashHistory = IHashHistory;
-
-  declare type HistoryOpts = {
+  declare type HashHistoryOpts = {|
     basename?: string,
-    hashType: "slash" | "noslash" | "hashbang",
+    hashType: 'slash' | 'noslash' | 'hashbang',
     getUserConfirmation?: (
       message: string,
-      callback: (willContinue: boolean) => void,
+      callback: (willContinue: boolean) => void
     ) => void,
-  };
+  |};
 
-  declare export default (opts?: HistoryOpts) => HashHistory;
+  declare function createHashHistory(opts?: HashHistoryOpts): HashHistory;
+
+  // PathUtils
+  declare function parsePath(path: string): Location;
+
+  declare function createPath(location: $Shape<Location>): string;
+
+  // LocationUtils
+  declare function locationsAreEqual(
+    a: $Shape<Location>,
+    b: $Shape<Location>
+  ): boolean;
+
+  declare function createLocation(
+    path: string | $Shape<Location>,
+    state?: { ... },
+    key?: string,
+    currentLocation?: Location
+  ): Location;
 }
