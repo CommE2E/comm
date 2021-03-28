@@ -3,18 +3,18 @@
 import mysql from 'mysql2';
 import mysqlPromise from 'mysql2/promise';
 import SQL from 'sql-template-strings';
+import type { QueryResults } from 'mysql';
 
 import dbConfig from '../../secrets/db_config';
 import { getScriptContext } from '../scripts/script-context';
 import { connectionLimit, queryWarnTime } from './consts';
 import DatabaseMonitor from './monitor';
+import type { Pool, SQLOrString, SQLStatementType } from './types';
 
-const SQLStatement = SQL.SQLStatement;
-
-export type QueryResult = [any[] & { insertId?: number }, any[]];
+const SQLStatement: SQLStatementType = SQL.SQLStatement;
 
 let pool, databaseMonitor;
-function getPool() {
+function getPool(): Pool {
   if (pool) {
     return pool;
   }
@@ -30,12 +30,11 @@ function getPool() {
   return pool;
 }
 
-type SQLOrString = SQLStatement | string;
 function appendSQLArray(
-  sql: SQLStatement,
-  sqlArray: $ReadOnlyArray<SQLStatement>,
+  sql: SQLStatementType,
+  sqlArray: $ReadOnlyArray<SQLStatementType>,
   delimeter: SQLOrString,
-) {
+): SQLStatementType {
   if (sqlArray.length === 0) {
     return sql;
   }
@@ -45,27 +44,27 @@ function appendSQLArray(
     return sql;
   }
   return rest.reduce(
-    (prev: SQLStatement, curr: SQLStatement) =>
+    (prev: SQLStatementType, curr: SQLStatementType) =>
       prev.append(delimeter).append(curr),
     sql,
   );
 }
 
 function mergeConditions(
-  conditions: $ReadOnlyArray<SQLStatement>,
-  delimiter: SQLStatement,
-) {
+  conditions: $ReadOnlyArray<SQLStatementType>,
+  delimiter: SQLStatementType,
+): SQLStatementType {
   const sql = SQL` (`;
   appendSQLArray(sql, conditions, delimiter);
   sql.append(SQL`) `);
   return sql;
 }
 
-function mergeAndConditions(andConditions: $ReadOnlyArray<SQLStatement>) {
+function mergeAndConditions(andConditions: $ReadOnlyArray<SQLStatementType>): SQLStatementType {
   return mergeConditions(andConditions, SQL` AND `);
 }
 
-function mergeOrConditions(andConditions: $ReadOnlyArray<SQLStatement>) {
+function mergeOrConditions(andConditions: $ReadOnlyArray<SQLStatementType>): SQLStatementType {
   return mergeConditions(andConditions, SQL` OR `);
 }
 
@@ -74,13 +73,13 @@ function FakeSQLResult() {
   this.insertId = -1;
 }
 FakeSQLResult.prototype = Array.prototype;
-const fakeResult: any = new FakeSQLResult();
+const fakeResult: QueryResults = (new FakeSQLResult(): any);
 
 type QueryOptions = {|
   +triesLeft?: number,
   +multipleStatements?: boolean,
 |};
-async function dbQuery(statement: SQLStatement, options?: QueryOptions) {
+async function dbQuery(statement: SQLStatementType, options?: QueryOptions): Promise<QueryResults> {
   const triesLeft = options?.triesLeft ?? 2;
   const multipleStatements = options?.multipleStatements ?? false;
 
@@ -107,7 +106,7 @@ async function dbQuery(statement: SQLStatement, options?: QueryOptions) {
         sql.startsWith('UPDATE'))
     ) {
       console.log(rawSQL(statement));
-      return [fakeResult];
+      return ([fakeResult]: any);
     }
     return await connection.query(statement);
   } catch (e) {
@@ -125,7 +124,7 @@ async function dbQuery(statement: SQLStatement, options?: QueryOptions) {
   }
 }
 
-function rawSQL(statement: SQLStatement) {
+function rawSQL(statement: SQLStatementType): string {
   return mysql.format(statement.sql, statement.values);
 }
 

@@ -4,15 +4,11 @@ import invariant from 'invariant';
 
 import { cookieLifetime } from 'lib/types/session-types';
 
-import {
-  dbQuery,
-  SQL,
-  SQLStatement,
-  mergeOrConditions,
-} from '../database/database';
+import { dbQuery, SQL, mergeOrConditions } from '../database/database';
+import type { SQLStatementType } from '../database/types';
 
 async function deleteCookiesByConditions(
-  conditions: $ReadOnlyArray<SQLStatement>,
+  conditions: $ReadOnlyArray<SQLStatementType>,
 ) {
   invariant(conditions.length > 0, 'no conditions specified');
   const conditionClause = mergeOrConditions(conditions);

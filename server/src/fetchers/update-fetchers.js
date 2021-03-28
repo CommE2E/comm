@@ -15,14 +15,15 @@ import {
   type FetchUpdatesResult,
   fetchUpdateInfosWithRawUpdateInfos,
 } from '../creators/update-creator';
-import { dbQuery, SQL, SQLStatement } from '../database/database';
+import { dbQuery, SQL } from '../database/database';
+import type { SQLStatementType } from '../database/types';
 import type { Viewer } from '../session/viewer';
 
 const defaultUpdateFetchResult = { updateInfos: [], userInfos: {} };
 
 async function fetchUpdateInfosWithQuery(
   viewerInfo: ViewerInfo,
-  query: SQLStatement,
+  query: SQLStatementType,
 ): Promise<FetchUpdatesResult> {
   if (!viewerInfo.viewer.loggedIn) {
     throw new ServerError('not_logged_in');

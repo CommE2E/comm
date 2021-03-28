@@ -1,15 +1,7 @@
 // @flow
 
 import { queryWarnTime } from './consts';
-
-type Pool = {
-  +on: ('acquire' | 'connection' | 'enqueue' | 'release', () => mixed) => void,
-  +pool: {
-    +_connectionQueue: $ReadOnlyArray<mixed>,
-    ...
-  },
-  ...
-};
+import type { Pool } from './types';
 
 function countDecimals(num: number) {
   return 1 + (num === 0 ? 0 : Math.floor(Math.log10(num)));

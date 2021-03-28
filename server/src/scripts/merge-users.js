@@ -5,7 +5,8 @@ import type { ServerThreadInfo } from 'lib/types/thread-types';
 import { type UpdateData, updateTypes } from 'lib/types/update-types';
 
 import { createUpdates } from '../creators/update-creator';
-import { dbQuery, SQL, SQLStatement } from '../database/database';
+import { dbQuery, SQL } from '../database/database';
+import type { SQLStatementType } from '../database/types';
 import { deleteAccount } from '../deleters/account-deleters';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
 import { createScriptViewer } from '../session/scripts';
@@ -141,7 +142,7 @@ async function mergeUsers(
 }
 
 type ReplaceUserResult = {|
-  sql: ?SQLStatement,
+  sql: ?SQLStatementType,
   updateDatas: UpdateData[],
 |};
 async function replaceUser(

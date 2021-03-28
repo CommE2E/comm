@@ -26,10 +26,10 @@ import { ServerError } from 'lib/utils/errors';
 import {
   dbQuery,
   SQL,
-  SQLStatement,
   mergeAndConditions,
   mergeOrConditions,
 } from '../database/database';
+import type { SQLStatementType } from '../database/types';
 import type { Viewer } from '../session/viewer';
 import { creationString } from '../utils/idempotent';
 import { checkIfThreadIsBlocked } from './thread-permission-fetchers';
@@ -84,7 +84,7 @@ async function fetchEntryInfosByID(
 
 function sqlConditionForCalendarQuery(
   calendarQuery: CalendarQuery,
-): ?SQLStatement {
+): ?SQLStatementType {
   const { filters, startDate, endDate } = calendarQuery;
   const conditions = [];
 
@@ -113,7 +113,7 @@ async function fetchEntryInfos(
 ): Promise<FetchEntryInfosBase> {
   const queryConditions = calendarQueries
     .map(sqlConditionForCalendarQuery)
-    .filter(condition => condition);
+    .filter(Boolean);
   if (queryConditions.length === 0) {
     return { rawEntryInfos: [] };
   }

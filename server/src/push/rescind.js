@@ -8,14 +8,15 @@ import { threadPermissions } from 'lib/types/thread-types';
 import { promiseAll } from 'lib/utils/promises';
 
 import createIDs from '../creators/id-creator';
-import { dbQuery, SQL, SQLStatement } from '../database/database';
+import { dbQuery, SQL } from '../database/database';
 import { getAPNsNotificationTopic } from './providers';
+import type { SQLStatementType } from '../database/types';
 import { apnPush, fcmPush } from './utils';
 
 // Returns list of deviceTokens that have been updated
 async function rescindPushNotifs(
-  notifCondition: SQLStatement,
-  inputCountCondition?: SQLStatement,
+  notifCondition: SQLStatementType,
+  inputCountCondition?: SQLStatementType,
 ): Promise<string[]> {
   const notificationExtractString = `$.${threadSubscriptions.home}`;
   const visPermissionExtractString = `$.${threadPermissions.VISIBLE}.value`;

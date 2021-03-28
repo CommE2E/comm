@@ -2,16 +2,12 @@
 
 import invariant from 'invariant';
 
-import {
-  dbQuery,
-  SQL,
-  SQLStatement,
-  mergeOrConditions,
-} from '../database/database';
+import { dbQuery, SQL, mergeOrConditions } from '../database/database';
+import type { SQLStatementType } from '../database/types';
 import type { Viewer } from '../session/viewer';
 
 async function deleteUpdatesByConditions(
-  conditions: $ReadOnlyArray<SQLStatement>,
+  conditions: $ReadOnlyArray<SQLStatementType>,
 ) {
   invariant(conditions.length > 0, 'no conditions specified');
   const conditionClause = mergeOrConditions(conditions);
