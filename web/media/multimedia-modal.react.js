@@ -18,7 +18,7 @@ class MultimediaModal extends React.PureComponent<Props> {
     this.overlay.focus();
   }
 
-  render() {
+  render(): React.Node {
     return (
       <div
         className={css.multimediaModalOverlay}
@@ -36,23 +36,23 @@ class MultimediaModal extends React.PureComponent<Props> {
     );
   }
 
-  overlayRef = (overlay: ?HTMLDivElement) => {
+  overlayRef: (overlay: ?HTMLDivElement) => void = overlay => {
     this.overlay = overlay;
   };
 
-  onBackgroundClick = (event: SyntheticEvent<HTMLDivElement>) => {
+  onBackgroundClick: (event: SyntheticEvent<HTMLDivElement>) => void = event => {
     if (event.target === this.overlay) {
       this.close();
     }
   };
 
-  onKeyDown = (event: SyntheticKeyboardEvent<HTMLDivElement>) => {
+  onKeyDown: (event: SyntheticKeyboardEvent<HTMLDivElement>) => void = event => {
     if (event.keyCode === 27) {
       this.close();
     }
   };
 
-  close = () => {
+  close: () => void = () => {
     this.props.setModal(null);
   };
 }

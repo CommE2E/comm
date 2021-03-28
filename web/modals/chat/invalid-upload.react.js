@@ -9,7 +9,7 @@ type Props = {|
   +setModal: (modal: ?React.Node) => void,
 |};
 class InvalidUploadModal extends React.PureComponent<Props> {
-  render() {
+  render(): React.Node {
     return (
       <Modal name="Invalid upload" onClose={this.clearModal}>
         <div className={css['modal-body']}>
@@ -19,7 +19,7 @@ class InvalidUploadModal extends React.PureComponent<Props> {
     );
   }
 
-  clearModal = () => {
+  clearModal: () => void = () => {
     this.props.setModal(null);
   };
 }

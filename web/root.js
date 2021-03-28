@@ -19,7 +19,7 @@ const store: Store<AppState, Action> = createStore(
   composeWithDevTools({})(applyMiddleware(thunk, reduxLoggerMiddleware)),
 );
 
-const RootProvider = () => (
+const RootProvider = (): React.Node => (
   <Provider store={store}>
     <HotRoot />
   </Provider>

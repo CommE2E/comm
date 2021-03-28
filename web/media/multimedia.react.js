@@ -36,7 +36,7 @@ class Multimedia extends React.PureComponent<Props> {
     }
   }
 
-  render() {
+  render(): React.Node {
     let progressIndicator, errorIndicator, removeButton;
 
     const { pendingUpload, remove, setModal } = this.props;
@@ -93,7 +93,7 @@ class Multimedia extends React.PureComponent<Props> {
     );
   }
 
-  remove = () => {
+  remove: () => void = () => {
     const { remove, pendingUpload } = this.props;
     invariant(
       remove && pendingUpload,
@@ -103,7 +103,7 @@ class Multimedia extends React.PureComponent<Props> {
     remove(pendingUpload.localID);
   };
 
-  onClick = (event: SyntheticEvent<HTMLSpanElement>) => {
+  onClick: (event: SyntheticEvent<HTMLSpanElement>) => void = event => {
     event.stopPropagation();
 
     const { setModal, uri } = this.props;

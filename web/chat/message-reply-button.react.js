@@ -16,7 +16,7 @@ type Props = {|
   +onReplyClick: () => void,
   +inputState: InputState,
 |};
-function MessageReplyButton(props: Props) {
+function MessageReplyButton(props: Props): React.Node {
   const { inputState, onReplyClick, messagePositionInfo } = props;
   const { addReply } = inputState;
 

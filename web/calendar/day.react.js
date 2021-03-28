@@ -264,7 +264,7 @@ class Day extends React.PureComponent<Props, State> {
   };
 }
 
-export default React.memo<BaseProps>(function ConnectedDay(props: BaseProps) {
+const ConnectedDay: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedDay(props) {
   const onScreenThreadInfos = useSelector(onScreenThreadInfosSelector);
   const viewerID = useSelector(state => state.currentUserInfo?.id);
   const loggedIn = useSelector(
@@ -287,3 +287,5 @@ export default React.memo<BaseProps>(function ConnectedDay(props: BaseProps) {
     />
   );
 });
+
+export default ConnectedDay;

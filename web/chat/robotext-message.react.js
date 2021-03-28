@@ -204,8 +204,8 @@ function ColorEntity(props: {| color: string |}) {
   return <span style={colorStyle}>{props.color}</span>;
 }
 
-export default React.memo<BaseProps>(function ConnectedRobotextMessage(
-  props: BaseProps,
+const ConnectedRobotextMessage: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedRobotextMessage(
+  props
 ) {
   const sidebarExistsOrCanBeCreated = useSidebarExistsOrCanBeCreated(
     props.threadInfo,
@@ -218,3 +218,5 @@ export default React.memo<BaseProps>(function ConnectedRobotextMessage(
     />
   );
 });
+
+export default ConnectedRobotextMessage;

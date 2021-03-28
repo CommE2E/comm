@@ -12,7 +12,7 @@ import { ThreadListContext } from './thread-list-provider';
 type Props = {|
   +setModal: (modal: ?React.Node) => void,
 |};
-function ChatThreadList(props: Props) {
+function ChatThreadList(props: Props): React.Node {
   const { setModal } = props;
 
   const threadListContext = React.useContext(ThreadListContext);

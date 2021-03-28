@@ -8,7 +8,7 @@ import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils';
 
 import { useVisibility } from './visibility';
 
-function VisibilityHandler() {
+function VisibilityHandler(): React.Node {
   const visibility = useVisibility();
   const [visible, setVisible] = React.useState(!visibility.hidden());
   const onVisibilityChange = React.useCallback((event, state: string) => {

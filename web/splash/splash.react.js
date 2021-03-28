@@ -260,8 +260,8 @@ class Splash extends React.PureComponent<Props, State> {
 const loadingStatusSelector = createLoadingStatusSelector(
   requestAccessActionTypes,
 );
-export default React.memo<BaseProps>(function ConnectedSplash(
-  props: BaseProps,
+const ConnectedSplash: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedSplash(
+  props
 ) {
   const loadingStatus = useSelector(loadingStatusSelector);
   const callRequestAccess = useServerCall(requestAccess);
@@ -276,3 +276,5 @@ export default React.memo<BaseProps>(function ConnectedSplash(
     />
   );
 });
+
+export default ConnectedSplash;

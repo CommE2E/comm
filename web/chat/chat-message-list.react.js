@@ -374,8 +374,8 @@ class ChatMessageList extends React.PureComponent<Props, State> {
 registerFetchKey(fetchMessagesBeforeCursorActionTypes);
 registerFetchKey(fetchMostRecentMessagesActionTypes);
 
-export default React.memo<BaseProps>(function ConnectedChatMessageList(
-  props: BaseProps,
+const ConnectedChatMessageList: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedChatMessageList(
+  props
 ) {
   const userAgent = useSelector(state => state.userAgent);
   const supportsReverseFlex = React.useMemo(() => {
@@ -478,3 +478,5 @@ export default React.memo<BaseProps>(function ConnectedChatMessageList(
     </MessageListContext.Provider>
   );
 });
+
+export default ConnectedChatMessageList;

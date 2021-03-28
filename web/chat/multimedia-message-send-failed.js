@@ -10,7 +10,7 @@ import type { InputState } from '../input/input-state';
 export default function multimediaMessageSendFailed(
   item: ChatMessageInfoItem,
   inputState: InputState,
-) {
+): boolean {
   const { messageInfo } = item;
   if (
     !messageInfo.creator.isViewer ||

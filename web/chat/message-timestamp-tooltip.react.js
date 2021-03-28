@@ -30,7 +30,7 @@ type Props = {|
   +messagePositionInfo: OnMessagePositionWithContainerInfo,
   +timeZone: ?string,
 |};
-function MessageTimestampTooltip(props: Props) {
+function MessageTimestampTooltip(props: Props): React.Node {
   const { messagePositionInfo, timeZone } = props;
   const { time, creator, type } = messagePositionInfo.item.messageInfo;
 

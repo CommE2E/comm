@@ -16,8 +16,6 @@ type State = {|
 |};
 
 class ColorPicker extends React.PureComponent<Props, State> {
-  props: Props;
-  state: State;
 
   constructor(props: Props) {
     super(props);
@@ -26,7 +24,7 @@ class ColorPicker extends React.PureComponent<Props, State> {
     };
   }
 
-  render() {
+  render(): React.Node {
     let picker = null;
     if (this.state.pickerOpen && !this.props.disabled) {
       picker = (
@@ -57,22 +55,22 @@ class ColorPicker extends React.PureComponent<Props, State> {
     );
   }
 
-  onPickerKeyDown = (event: SyntheticKeyboardEvent<HTMLTextAreaElement>) => {
+  onPickerKeyDown: (event: SyntheticKeyboardEvent<HTMLTextAreaElement>) => void = event => {
     if (event.keyCode === 27) {
       // Esc
       this.setState({ pickerOpen: false });
     }
   };
 
-  onChangeColor = (color: ColorResult) => {
+  onChangeColor: (color: ColorResult) => void = color => {
     this.props.onChange(color.hex.substring(1, 7));
   };
 
-  onClick = () => {
+  onClick: () => void = () => {
     this.setState({ pickerOpen: true });
   };
 
-  onBlur = () => {
+  onBlur: () => void = () => {
     this.setState({ pickerOpen: false });
   };
 }

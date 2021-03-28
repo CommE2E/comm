@@ -17,7 +17,7 @@ type Props = {|
   +isDeletionOrRestoration: boolean,
 |};
 
-export default function HistoryRevision(props: Props) {
+export default function HistoryRevision(props: Props): React.Node {
   const threadInfo = useSelector(
     state => threadInfoSelector(state)[props.revisionInfo.threadID],
   );

@@ -66,7 +66,6 @@ type State = {|
   +currentEntryID: ?string,
   +revisions: $ReadOnlyArray<HistoryRevisionInfo>,
 |};
-
 class HistoryModal extends React.PureComponent<Props, State> {
   static defaultProps = { currentEntryID: null };
 
@@ -250,8 +249,8 @@ const entryLoadingStatusSelector = createLoadingStatusSelector(
   fetchRevisionsForEntryActionTypes,
 );
 
-export default React.memo<BaseProps>(function ConnectedHistoryModal(
-  props: BaseProps,
+const ConnectedHistoryModal: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedHistoryModal(
+  props
 ) {
   const entryInfos = useSelector(
     state => allDaysToEntries(state)[props.dayString],
@@ -276,3 +275,5 @@ export default React.memo<BaseProps>(function ConnectedHistoryModal(
     />
   );
 });
+
+export default ConnectedHistoryModal;

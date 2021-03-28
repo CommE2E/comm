@@ -124,7 +124,7 @@ const nonThreadCalendarQuery: (
   },
 );
 
-function useOnClickThread(threadID: ?string) {
+function useOnClickThread(threadID: ?string): (event: SyntheticEvent<HTMLElement>) => void {
   const dispatch = useDispatch();
   return React.useCallback(
     (event: SyntheticEvent<HTMLElement>) => {
@@ -144,14 +144,14 @@ function useOnClickThread(threadID: ?string) {
   );
 }
 
-function useThreadIsActive(threadID: string) {
+function useThreadIsActive(threadID: string): boolean {
   return useSelector(state => threadID === state.navInfo.activeChatThreadID);
 }
 
 function useOnClickPendingSidebar(
   messageInfo: ComposableMessageInfo | RobotextMessageInfo,
   threadInfo: ThreadInfo,
-) {
+): (event: SyntheticEvent<HTMLElement>) => void {
   const dispatch = useDispatch();
   const viewerID = useSelector(state => state.currentUserInfo?.id);
   return React.useCallback(

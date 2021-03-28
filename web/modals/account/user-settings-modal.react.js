@@ -375,8 +375,8 @@ const changeUserSettingsLoadingStatusSelector = createLoadingStatusSelector(
   changeUserSettingsActionTypes,
 );
 
-export default React.memo<BaseProps>(function ConnectedUserSettingsModal(
-  props: BaseProps,
+const ConnectedUserSettingsModal: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedUserSettingsModal(
+  props
 ) {
   const currentUserInfo = useSelector(state => state.currentUserInfo);
   const preRequestUserState = useSelector(preRequestUserStateSelector);
@@ -401,3 +401,5 @@ export default React.memo<BaseProps>(function ConnectedUserSettingsModal(
     />
   );
 });
+
+export default ConnectedUserSettingsModal;

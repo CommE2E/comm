@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux';
 import { updateWindowActiveActionType } from './action-types';
 import { useSelector } from './redux-utils';
 
-function FocusHandler() {
+function FocusHandler(): React.Node {
   const [focused, setFocused] = React.useState(
     typeof window === 'undefined' ||
       !window ||

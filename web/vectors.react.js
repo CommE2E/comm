@@ -9,7 +9,7 @@ type SVGProps = {|
   children?: React.Node,
 |};
 
-function SVG(props: SVGProps) {
+function SVG(props: SVGProps): React.Node {
   return (
     <svg
       version="1.1"
@@ -21,7 +21,7 @@ function SVG(props: SVGProps) {
   );
 }
 
-export function LeftPager(props: { className?: string }) {
+export function LeftPager(props: { className?: string }): React.Node {
   return (
     <SVG className={props.className} viewBox="0 0 512 512">
       <polygon
@@ -34,7 +34,7 @@ export function LeftPager(props: { className?: string }) {
   );
 }
 
-export function RightPager(props: { className?: string }) {
+export function RightPager(props: { className?: string }): React.Node {
   return (
     <SVG className={props.className} viewBox="0 0 512 512">
       <polygon
@@ -47,7 +47,7 @@ export function RightPager(props: { className?: string }) {
   );
 }
 
-export function UpCaret(props: { className?: string }) {
+export function UpCaret(props: { className?: string }): React.Node {
   return (
     <SVG
       viewBox="0 0 8 8"
@@ -59,7 +59,7 @@ export function UpCaret(props: { className?: string }) {
   );
 }
 
-export function DownCaret(props: { className?: string }) {
+export function DownCaret(props: { className?: string }): React.Node {
   return (
     <SVG
       viewBox="0 0 8 8"
@@ -71,7 +71,7 @@ export function DownCaret(props: { className?: string }) {
   );
 }
 
-export function DeleteVector(props: { className?: string }) {
+export function DeleteVector(props: { className?: string }): React.Node {
   return (
     <SVG className={props.className} viewBox="0 0 8 8">
       <path
@@ -86,7 +86,7 @@ export function DeleteVector(props: { className?: string }) {
   );
 }
 
-export function AddVector(props: { className?: string }) {
+export function AddVector(props: { className?: string }): React.Node {
   return (
     <SVG className={props.className} viewBox="0 0 8 8">
       <path d="M3 0v3h-3v2h3v3h2v-3h3v-2h-3v-3h-2z" />
@@ -94,7 +94,7 @@ export function AddVector(props: { className?: string }) {
   );
 }
 
-export function HistoryVector(props: { className?: string }) {
+export function HistoryVector(props: { className?: string }): React.Node {
   return (
     <SVG className={props.className} viewBox="0 0 8 8">
       <path
@@ -107,7 +107,7 @@ export function HistoryVector(props: { className?: string }) {
   );
 }
 
-export function MagnifyingGlass(props: { className?: string }) {
+export function MagnifyingGlass(props: { className?: string }): React.Node {
   return (
     <SVG className={props.className} viewBox="0 0 24 24">
       <path

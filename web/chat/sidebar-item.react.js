@@ -14,7 +14,7 @@ import css from './chat-thread-list.css';
 type Props = {|
   +sidebarInfo: SidebarInfo,
 |};
-function SidebarItem(props: Props) {
+function SidebarItem(props: Props): React.Node {
   const { threadInfo, lastUpdatedTime } = props.sidebarInfo;
   const threadID = threadInfo.id;
 

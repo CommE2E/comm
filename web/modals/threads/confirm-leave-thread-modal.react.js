@@ -12,30 +12,27 @@ type Props = {|
   +onClose: () => void,
   +onConfirm: () => void,
 |};
-
-class ConfirmLeaveThreadModal extends React.PureComponent<Props> {
-  render() {
-    return (
-      <Modal name="Confirm leave thread" onClose={this.props.onClose}>
-        <div className={css['modal-body']}>
-          <p>
-            {'Are you sure you want to leave "'}
-            <span className={css['thread-name']}>
-              {this.props.threadInfo.uiName}
-            </span>
-            {'"?'}
-          </p>
-          <div className={css['form-footer']}>
-            <input
-              type="submit"
-              value="Leave thread"
-              onClick={this.props.onConfirm}
-            />
-          </div>
+function ConfirmLeaveThreadModal(props: Props): React.Node {
+  return (
+    <Modal name="Confirm leave thread" onClose={props.onClose}>
+      <div className={css['modal-body']}>
+        <p>
+          {'Are you sure you want to leave "'}
+          <span className={css['thread-name']}>
+            {props.threadInfo.uiName}
+          </span>
+          {'"?'}
+        </p>
+        <div className={css['form-footer']}>
+          <input
+            type="submit"
+            value="Leave thread"
+            onClick={props.onConfirm}
+          />
         </div>
-      </Modal>
-    );
-  }
+      </div>
+    </Modal>
+  );
 }
 
 export default ConfirmLeaveThreadModal;

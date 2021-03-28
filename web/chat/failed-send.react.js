@@ -123,8 +123,8 @@ class FailedSend extends React.PureComponent<Props> {
   };
 }
 
-export default React.memo<BaseProps>(function ConnectedFailedSend(
-  props: BaseProps,
+const ConnectedFailedSend: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedFailedSend(
+  props
 ) {
   const { messageInfo } = props.item;
   assertComposableMessageType(messageInfo.type);
@@ -146,3 +146,5 @@ export default React.memo<BaseProps>(function ConnectedFailedSend(
     />
   );
 });
+
+export default ConnectedFailedSend;

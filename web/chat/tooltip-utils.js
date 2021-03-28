@@ -35,7 +35,7 @@ function findTooltipPosition({
   tooltipTexts,
   availablePositions,
   layoutPosition,
-}: FindTooltipPositionArgs) {
+}: FindTooltipPositionArgs): TooltipPosition {
   const { itemPosition: pointingTo, containerPosition } = pointingToInfo;
   const {
     height: containerHeight,

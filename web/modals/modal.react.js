@@ -7,16 +7,15 @@ import * as React from 'react';
 import css from '../style.css';
 
 export type ModalSize = 'small' | 'large';
-type Props = {
+type Props = {|
   +name: string,
   +onClose: () => void,
   +children?: React.Node,
   +size?: ModalSize,
   +fixedHeight?: boolean,
-};
-
+|};
 class Modal extends React.PureComponent<Props> {
-  static defaultProps = { size: 'small', fixedHeight: true };
+  static defaultProps: {| +size: ModalSize, fixedHeight: boolean |} = { size: 'small', fixedHeight: true };
   overlay: ?HTMLDivElement;
 
   componentDidMount() {
@@ -24,7 +23,7 @@ class Modal extends React.PureComponent<Props> {
     this.overlay.focus();
   }
 
-  render() {
+  render(): React.Node {
     const overlayClasses = classNames(
       css['modal-overlay'],
       { [css['small-modal-overlay']]: this.props.size === 'small' },
@@ -60,17 +59,17 @@ class Modal extends React.PureComponent<Props> {
     );
   }
 
-  overlayRef = (overlay: ?HTMLDivElement) => {
+  overlayRef: (overlay: ?HTMLDivElement) => void = overlay => {
     this.overlay = overlay;
   };
 
-  onBackgroundClick = (event: SyntheticEvent<HTMLDivElement>) => {
+  onBackgroundClick: (event: SyntheticEvent<HTMLDivElement>) => void = event => {
     if (event.target === this.overlay) {
       this.props.onClose();
     }
   };
 
-  onKeyDown = (event: SyntheticKeyboardEvent<HTMLDivElement>) => {
+  onKeyDown: (event: SyntheticKeyboardEvent<HTMLDivElement>) => void = event => {
     if (event.keyCode === 27) {
       this.props.onClose();
     }

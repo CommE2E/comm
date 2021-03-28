@@ -32,7 +32,7 @@ type MessageActionTooltipProps = {|
   +containerPosition: PositionInfo,
   +availableTooltipPositions: $ReadOnlyArray<TooltipPosition>,
 |};
-function MessageActionButton(props: MessageActionTooltipProps) {
+function MessageActionButton(props: MessageActionTooltipProps): React.Node {
   const {
     threadInfo,
     item,

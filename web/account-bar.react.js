@@ -174,8 +174,8 @@ class AccountBar extends React.PureComponent<Props, State> {
   };
 }
 
-export default React.memo<BaseProps>(function ConnectedAccountBar(
-  props: BaseProps,
+const ConnectedAccountBar: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedAccountBar(
+  props
 ) {
   const currentUserInfo = useSelector(state => state.currentUserInfo);
   const preRequestUserState = useSelector(preRequestUserStateSelector);
@@ -191,3 +191,5 @@ export default React.memo<BaseProps>(function ConnectedAccountBar(
     />
   );
 });
+
+export default ConnectedAccountBar;

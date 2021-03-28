@@ -11,7 +11,7 @@ import type { RelativeMemberInfo } from 'lib/types/thread-types';
 import { useSelector } from '../redux/redux-utils';
 
 export type MarkdownRules = {|
-  +simpleMarkdownRules: SimpleMarkdown.Rules,
+  +simpleMarkdownRules: SharedMarkdown.ParserRules,
   +useDarkStyle: boolean,
 |};
 
@@ -24,9 +24,9 @@ const linkRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
       match: () => null,
       // eslint-disable-next-line react/display-name
       react: (
-        node: SimpleMarkdown.SingleASTNode,
-        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
-        state: SimpleMarkdown.State,
+        node: SharedMarkdown.SingleASTNode,
+        output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+        state: SharedMarkdown.State,
       ) => (
         <a
           href={SimpleMarkdown.sanitizeUrl(node.target)}
@@ -44,9 +44,9 @@ const linkRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
       match: SimpleMarkdown.blockRegex(SharedMarkdown.paragraphRegex),
       // eslint-disable-next-line react/display-name
       react: (
-        node: SimpleMarkdown.SingleASTNode,
-        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
-        state: SimpleMarkdown.State,
+        node: SharedMarkdown.SingleASTNode,
+        output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+        state: SharedMarkdown.State,
       ) => (
         <React.Fragment key={state.key}>
           {output(node.content, state)}
@@ -80,9 +80,9 @@ const markdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
       // match end of blockQuote by either \n\n or end of string
       match: SimpleMarkdown.blockRegex(SharedMarkdown.blockQuoteRegex),
       parse(
-        capture: SimpleMarkdown.Capture,
-        parse: SimpleMarkdown.Parser,
-        state: SimpleMarkdown.State,
+        capture: SharedMarkdown.Capture,
+        parse: SharedMarkdown.Parser,
+        state: SharedMarkdown.State,
       ) {
         const content = capture[1].replace(/^ *> ?/gm, '');
         return {
@@ -103,30 +103,33 @@ const markdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
     codeBlock: {
       ...SimpleMarkdown.defaultRules.codeBlock,
       match: SimpleMarkdown.blockRegex(SharedMarkdown.codeBlockRegex),
-      parse: (capture: SimpleMarkdown.Capture) => ({
+      parse: (capture: SharedMarkdown.Capture) => ({
         content: capture[0].replace(/^ {4}/gm, ''),
       }),
     },
     fence: {
       ...SimpleMarkdown.defaultRules.fence,
       match: SimpleMarkdown.blockRegex(SharedMarkdown.fenceRegex),
-      parse: (capture: SimpleMarkdown.Capture) => ({
+      parse: (capture: SharedMarkdown.Capture) => ({
         type: 'codeBlock',
         content: capture[2],
       }),
     },
     json: {
       order: SimpleMarkdown.defaultRules.paragraph.order - 1,
-      match: (source: string, state: SimpleMarkdown.State) => {
+      match: (source: string, state: SharedMarkdown.State) => {
         if (state.inline) {
           return null;
         }
         return SharedMarkdown.jsonMatch(source);
       },
-      parse: (capture: SimpleMarkdown.Capture) => ({
-        type: 'codeBlock',
-        content: SharedMarkdown.jsonPrint(capture),
-      }),
+      parse: (capture: SharedMarkdown.Capture) => {
+        const jsonCapture: SharedMarkdown.JSONCapture = (capture: any);
+        return {
+          type: 'codeBlock',
+          content: SharedMarkdown.jsonPrint(jsonCapture),
+        };
+      },
     },
     list: {
       ...SimpleMarkdown.defaultRules.list,
@@ -142,7 +145,7 @@ const markdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
   };
 });
 
-function useTextMessageRulesFunc(threadID: ?string) {
+function useTextMessageRulesFunc(threadID: ?string): ?(boolean => MarkdownRules) {
   const threadMembers = useSelector(
     relativeMemberInfoSelectorForMembersOfThread(threadID),
   );
@@ -168,14 +171,14 @@ function textMessageRules(
       mention: {
         ...SimpleMarkdown.defaultRules.strong,
         match: SharedMarkdown.matchMentions(members),
-        parse: (capture: SimpleMarkdown.Capture) => ({
+        parse: (capture: SharedMarkdown.Capture) => ({
           content: capture[0],
         }),
         // eslint-disable-next-line react/display-name
         react: (
-          node: SimpleMarkdown.SingleASTNode,
-          output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
-          state: SimpleMarkdown.State,
+          node: SharedMarkdown.SingleASTNode,
+          output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+          state: SharedMarkdown.State,
         ) => <strong key={state.key}>{node.content}</strong>,
       },
     },

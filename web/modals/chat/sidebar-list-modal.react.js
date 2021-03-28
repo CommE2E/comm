@@ -21,7 +21,7 @@ type Props = {|
   +setModal: (modal: ?React.Node) => void,
   +threadInfo: ThreadInfo,
 |};
-function SidebarListModal(props: Props) {
+function SidebarListModal(props: Props): React.Node {
   const { setModal, threadInfo } = props;
   const [searchState, setSearchState] = React.useState({
     text: '',

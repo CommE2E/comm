@@ -261,7 +261,7 @@ const updateCalendarQueryLoadingStatusSelector = createLoadingStatusSelector(
   updateCalendarQueryActionTypes,
 );
 
-export default React.memo<BaseProps>(function ConnectedApp(props: BaseProps) {
+const ConnectedApp: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedApp(props) {
   const activeChatThreadID = useSelector(
     state => state.navInfo.activeChatThreadID,
   );
@@ -311,3 +311,5 @@ export default React.memo<BaseProps>(function ConnectedApp(props: BaseProps) {
     />
   );
 });
+
+export default ConnectedApp;

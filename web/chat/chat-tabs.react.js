@@ -14,7 +14,7 @@ import { ThreadListContext } from './thread-list-provider';
 type Props = {|
   +setModal: (modal: ?React.Node) => void,
 |};
-function ChatTabs(props: Props) {
+function ChatTabs(props: Props): React.Node {
   let backgroundTitle = 'BACKGROUND';
   const unreadBackgroundCountVal = useSelector(unreadBackgroundCount);
   if (unreadBackgroundCountVal) {

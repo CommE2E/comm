@@ -183,9 +183,11 @@ class ThreadPicker extends React.PureComponent<Props, State> {
   };
 }
 
-export default React.memo<BaseProps>(function ConnectedThreadPicker(
-  props: BaseProps,
+const ConnectedThreadPicker: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedThreadPicker(
+  props
 ) {
   const onScreenThreadInfos = useSelector(onScreenEntryEditableThreadInfos);
   return <ThreadPicker {...props} onScreenThreadInfos={onScreenThreadInfos} />;
 });
+
+export default ConnectedThreadPicker;

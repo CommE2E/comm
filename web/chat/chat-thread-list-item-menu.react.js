@@ -25,7 +25,7 @@ type Props = {|
   +threadInfo: ThreadInfo,
   +mostRecentNonLocalMessage: ?string,
 |};
-function ChatThreadListItemMenu(props: Props) {
+function ChatThreadListItemMenu(props: Props): React.Node {
   const [menuVisible, setMenuVisible] = React.useState(false);
 
   const toggleMenu = React.useCallback(() => {

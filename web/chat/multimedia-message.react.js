@@ -85,9 +85,11 @@ class MultimediaMessage extends React.PureComponent<Props> {
   }
 }
 
-export default React.memo<BaseProps>(function ConnectedMultimediaMessage(
-  props: BaseProps,
+const ConnectedMultimediaMessage: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedMultimediaMessage(
+  props
 ) {
   const inputState = React.useContext(InputStateContext);
   return <MultimediaMessage {...props} inputState={inputState} />;
 });
+
+export default ConnectedMultimediaMessage;

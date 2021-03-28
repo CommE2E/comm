@@ -15,7 +15,7 @@ function canonicalURLFromReduxState(
   navInfo: NavInfo,
   currentURL: string,
   loggedIn: boolean,
-) {
+): string {
   const urlInfo = infoFromURL(currentURL);
   const today = new Date();
   let newURL = `/`;

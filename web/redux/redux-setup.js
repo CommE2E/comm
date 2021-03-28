@@ -72,7 +72,7 @@ export type Action =
       payload: boolean,
     |};
 
-export function reducer(oldState: AppState | void, action: Action) {
+export function reducer(oldState: AppState | void, action: Action): AppState {
   invariant(oldState, 'should be set');
   let state = oldState;
 

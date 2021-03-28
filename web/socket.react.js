@@ -23,8 +23,8 @@ import {
   webSessionStateFuncSelector,
 } from './selectors/socket-selectors';
 
-export default React.memo<BaseSocketProps>(function WebSocket(
-  props: BaseSocketProps,
+const WebSocket: React.AbstractComponent<BaseSocketProps, mixed> = React.memo<BaseSocketProps>(function WebSocket(
+  props
 ) {
   const cookie = useSelector(state => state.cookie);
   const urlPrefix = useSelector(state => state.urlPrefix);
@@ -78,3 +78,5 @@ export default React.memo<BaseSocketProps>(function WebSocket(
     />
   );
 });
+
+export default WebSocket;

@@ -14,7 +14,7 @@ type Props = {|
   +loadingClassName?: string,
   +errorClassName?: string,
 |};
-export default function LoadingIndicator(props: Props) {
+export default function LoadingIndicator(props: Props): React.Node {
   const [hasRendered, setHasRendered] = React.useState(false);
   React.useEffect(() => {
     setHasRendered(true);

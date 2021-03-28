@@ -1,16 +1,16 @@
 // @flow
 
-import React from 'react';
+import * as React from 'react';
 
 import css from '../style.css';
 import Modal from './modal.react';
 
-type Props = {
-  onRefresh: () => void,
-  onClose: () => void,
-};
+type Props = {|
+  +onRefresh: () => void,
+  +onClose: () => void,
+|};
 
-export default function ConcurrentModificationModal(props: Props) {
+export default function ConcurrentModificationModal(props: Props): React.Node {
   return (
     <Modal name="Concurrent modification" onClose={props.onClose}>
       <div className={css['modal-body']}>

@@ -21,7 +21,7 @@ type Props = {|
   +item: ChatThreadItem,
   +setModal: (modal: ?React.Node) => void,
 |};
-function ChatThreadListItem(props: Props) {
+function ChatThreadListItem(props: Props): React.Node {
   const { item, setModal } = props;
   const threadID = item.threadInfo.id;
 

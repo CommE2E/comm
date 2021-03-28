@@ -58,11 +58,11 @@ type Props = {|
   +inputState: ?InputState,
 |};
 class ComposedMessage extends React.PureComponent<Props> {
-  static defaultProps = {
+  static defaultProps: {| +borderRadius: number |} = {
     borderRadius: 8,
   };
 
-  render() {
+  render(): React.Node {
     assertComposableMessageType(this.props.item.messageInfo.type);
     const { borderRadius, item, threadInfo } = this.props;
     const { id, creator } = item.messageInfo;
@@ -224,7 +224,7 @@ class ComposedMessage extends React.PureComponent<Props> {
     );
   }
 
-  onMouseEnter = (event: SyntheticEvent<HTMLDivElement>) => {
+  onMouseEnter: (event: SyntheticEvent<HTMLDivElement>) => void = event => {
     const { item } = this.props;
     const rect = event.currentTarget.getBoundingClientRect();
     const { top, bottom, left, right, height, width } = rect;
@@ -236,14 +236,15 @@ class ComposedMessage extends React.PureComponent<Props> {
     });
   };
 
-  onMouseLeave = () => {
+  onMouseLeave: () => void = () => {
     const { item } = this.props;
     this.props.setMouseOverMessagePosition({ type: 'off', item });
   };
 }
 
-export default React.memo<BaseConfig>(function ConnectedComposedMessage(
-  props: BaseConfig,
+type ConnectedConfig = React.Config<BaseProps, typeof ComposedMessage.defaultProps>;
+const ConnectedComposedMessage: React.AbstractComponent<ConnectedConfig, mixed> = React.memo<BaseConfig>(function ConnectedComposedMessage(
+  props
 ) {
   const sidebarExistsOrCanBeCreated = useSidebarExistsOrCanBeCreated(
     props.threadInfo,
@@ -258,3 +259,5 @@ export default React.memo<BaseConfig>(function ConnectedComposedMessage(
     />
   );
 });
+
+export default ConnectedComposedMessage;

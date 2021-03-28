@@ -28,12 +28,12 @@ type ThreadListContextType = {|
   +setActiveTab: (newActiveTab: ChatTabType) => void,
 |};
 
-const ThreadListContext = React.createContext<?ThreadListContextType>();
+const ThreadListContext: React.Context<?ThreadListContextType> = React.createContext<?ThreadListContextType>();
 
 type ThreadListProviderProps = {|
   +children: React.Node,
 |};
-function ThreadListProvider(props: ThreadListProviderProps) {
+function ThreadListProvider(props: ThreadListProviderProps): React.Node {
   const [activeTab, setActiveTab] = React.useState('HOME');
 
   const activeChatThreadItem = useSelector(activeChatThreadItemSelector);

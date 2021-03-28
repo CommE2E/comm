@@ -23,6 +23,7 @@ import {
   type CreateEntryInfo,
   type SaveEntryInfo,
   type SaveEntryResult,
+  type SaveEntryPayload,
   type CreateEntryPayload,
   type DeleteEntryInfo,
   type DeleteEntryResult,
@@ -138,7 +139,7 @@ class Entry extends React.PureComponent<Props, State> {
     this.textarea.focus();
   }
 
-  onMouseDown = (event: SyntheticEvent<HTMLDivElement>) => {
+  onMouseDown: (event: SyntheticEvent<HTMLDivElement>) => void = event => {
     if (this.state.focused && event.target !== this.textarea) {
       // Don't lose focus when some non-textarea part is clicked
       event.preventDefault();
@@ -158,7 +159,7 @@ class Entry extends React.PureComponent<Props, State> {
     this.textarea.style.height = this.textarea.scrollHeight + 'px';
   }
 
-  render() {
+  render(): React.Node {
     let actionLinks = null;
     if (this.state.focused) {
       let historyButton = null;
@@ -227,17 +228,17 @@ class Entry extends React.PureComponent<Props, State> {
     );
   }
 
-  textareaRef = (textarea: ?HTMLTextAreaElement) => {
+  textareaRef: (textarea: ?HTMLTextAreaElement) => void = textarea => {
     this.textarea = textarea;
   };
 
-  onFocus = () => {
+  onFocus: () => void = () => {
     if (!this.state.focused) {
       this.setState({ focused: true });
     }
   };
 
-  onBlur = () => {
+  onBlur: () => void = () => {
     this.setState({ focused: false });
     if (this.state.text.trim() === '') {
       this.delete();
@@ -254,7 +255,7 @@ class Entry extends React.PureComponent<Props, State> {
     this.dispatchSave(this.props.entryInfo.id, this.state.text);
   }
 
-  onChange = (event: SyntheticEvent<HTMLTextAreaElement>) => {
+  onChange: (event: SyntheticEvent<HTMLTextAreaElement>) => void = event => {
     if (!this.props.loggedIn) {
       this.props.setModal(
         <LogInFirstModal
@@ -269,7 +270,7 @@ class Entry extends React.PureComponent<Props, State> {
     this.setState({ text: target.value }, this.updateHeight.bind(this));
   };
 
-  onKeyDown = (event: SyntheticKeyboardEvent<HTMLTextAreaElement>) => {
+  onKeyDown: (event: SyntheticKeyboardEvent<HTMLTextAreaElement>) => void = event => {
     if (event.keyCode === 27) {
       invariant(
         this.textarea instanceof HTMLTextAreaElement,
@@ -315,7 +316,7 @@ class Entry extends React.PureComponent<Props, State> {
     }
   }
 
-  async createAction(text: string) {
+  async createAction(text: string): Promise<CreateEntryPayload> {
     const localID = this.props.entryInfo.localID;
     invariant(localID, "if there's no serverID, there should be a localID");
     const curSaveAttempt = this.nextSaveAttemptIndex++;
@@ -356,7 +357,7 @@ class Entry extends React.PureComponent<Props, State> {
     }
   }
 
-  async saveAction(entryID: string, newText: string) {
+  async saveAction(entryID: string, newText: string): Promise<SaveEntryPayload> {
     const curSaveAttempt = this.nextSaveAttemptIndex++;
     this.guardedSetState({ loadingStatus: 'loading' });
     try {
@@ -399,7 +400,7 @@ class Entry extends React.PureComponent<Props, State> {
     }
   }
 
-  onDelete = (event: SyntheticEvent<HTMLAnchorElement>) => {
+  onDelete: (event: SyntheticEvent<HTMLAnchorElement>) => void = event => {
     event.preventDefault();
     if (!this.props.loggedIn) {
       this.props.setModal(
@@ -423,7 +424,7 @@ class Entry extends React.PureComponent<Props, State> {
     );
   }
 
-  async deleteAction(serverID: ?string, focusOnNextEntry: boolean) {
+  async deleteAction(serverID: ?string, focusOnNextEntry: boolean): Promise<?DeleteEntryResult> {
     invariant(
       this.props.loggedIn,
       'user should be logged in if delete triggered',
@@ -443,7 +444,7 @@ class Entry extends React.PureComponent<Props, State> {
     return null;
   }
 
-  onHistory = (event: SyntheticEvent<HTMLAnchorElement>) => {
+  onHistory: (event: SyntheticEvent<HTMLAnchorElement>) => void = event => {
     event.preventDefault();
     this.props.setModal(
       <HistoryModal
@@ -459,14 +460,14 @@ class Entry extends React.PureComponent<Props, State> {
     );
   };
 
-  clearModal = () => {
+  clearModal: () => void = () => {
     this.props.setModal(null);
   };
 }
 
 export type InnerEntry = Entry;
 
-export default React.memo<BaseProps>(function ConnectedEntry(props: BaseProps) {
+const ConnectedEntry: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedEntry(props) {
   const { threadID } = props.entryInfo;
   const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
   const loggedIn = useSelector(
@@ -496,3 +497,5 @@ export default React.memo<BaseProps>(function ConnectedEntry(props: BaseProps) {
     />
   );
 });
+
+export default ConnectedEntry;

@@ -13,7 +13,7 @@ import SidebarItem from './sidebar-item.react';
 type Props = {|
   +sidebarInfo: SidebarInfo,
 |};
-function ChatThreadListSidebar(props: Props) {
+function ChatThreadListSidebar(props: Props): React.Node {
   const { threadInfo, mostRecentNonLocalMessage } = props.sidebarInfo;
   const threadID = threadInfo.id;
   const active = useThreadIsActive(threadID);

@@ -221,8 +221,8 @@ class LogInModal extends React.PureComponent<Props, State> {
 
 const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 
-export default React.memo<BaseProps>(function ConnectedLoginModal(
-  props: BaseProps,
+const ConnectedLoginModal: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedLoginModal(
+  props
 ) {
   const inputDisabled = useSelector(loadingStatusSelector) === 'loading';
   const loginExtraInfo = useSelector(webLogInExtraInfoSelector);
@@ -239,3 +239,5 @@ export default React.memo<BaseProps>(function ConnectedLoginModal(
     />
   );
 });
+
+export default ConnectedLoginModal;

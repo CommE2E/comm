@@ -2,8 +2,15 @@
 
 import * as React from 'react';
 
+type VisibilityModule = {
+  +hidden: () => boolean,
+  +change: (callback: (event: Object, state: string) => mixed) => number,
+  +unbind: (callbackID: number) => void,
+  ...
+};
+
 /* eslint-disable no-unused-vars */
-let visibilityModule = {
+let visibilityModule: VisibilityModule = {
   hidden: () => false,
   change: (callback: (event: Object, state: string) => mixed) => 0,
   unbind: (callbackID: number) => {},
@@ -24,11 +31,11 @@ let callbacks = [];
   } catch {}
 })();
 
-function getVisibility() {
+function getVisibility(): VisibilityModule {
   return visibilityModule;
 }
 
-function useVisibility() {
+function useVisibility(): VisibilityModule {
   const [visibility, setVisibility] = React.useState(visibilityModule);
   callbacks.push(setVisibility);
   return visibility;

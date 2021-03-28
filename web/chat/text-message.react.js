@@ -28,7 +28,7 @@ type Props = {|
   ) => void,
   +mouseOverMessagePosition: ?OnMessagePositionWithContainerInfo,
 |};
-function TextMessage(props: Props) {
+function TextMessage(props: Props): React.Node {
   invariant(
     props.item.messageInfo.type === messageTypes.TEXT,
     'TextMessage should only be used for messageTypes.TEXT',

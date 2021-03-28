@@ -3,7 +3,7 @@
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types';
 
-export default function textMessageSendFailed(item: ChatMessageInfoItem) {
+export default function textMessageSendFailed(item: ChatMessageInfoItem): boolean {
   const {
     id,
     creator: { isViewer },

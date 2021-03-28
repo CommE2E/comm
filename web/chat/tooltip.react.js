@@ -24,7 +24,7 @@ type TooltipMenuProps = {|
     React.Element<typeof TooltipButton | typeof TooltipTextItem>,
   >,
 |};
-function TooltipMenu(props: TooltipMenuProps) {
+function TooltipMenu(props: TooltipMenuProps): React.Node {
   const {
     availableTooltipPositions,
     targetPositionInfo,
@@ -77,7 +77,7 @@ type TooltipButtonProps = {|
   +onClick: (event: SyntheticEvent<HTMLButtonElement>) => void,
   +text: string,
 |};
-function TooltipButton(props: TooltipButtonProps) {
+function TooltipButton(props: TooltipButtonProps): React.Node {
   const { onClick, text } = props;
   return (
     <li>
@@ -89,7 +89,7 @@ function TooltipButton(props: TooltipButtonProps) {
 type TooltipTextItemProps = {|
   +text: string,
 |};
-function TooltipTextItem(props: TooltipTextItemProps) {
+function TooltipTextItem(props: TooltipTextItemProps): React.Node {
   return (
     <li>
       <span>{props.text}</span>

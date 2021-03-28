@@ -259,8 +259,8 @@ class Calendar extends React.PureComponent<Props, State> {
   };
 }
 
-export default React.memo<BaseProps>(function ConnectedCalendar(
-  props: BaseProps,
+const ConnectedCalendar: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedCalendar(
+  props
 ) {
   const year = useSelector(yearAssertingSelector);
   const month = useSelector(monthAssertingSelector);
@@ -285,3 +285,5 @@ export default React.memo<BaseProps>(function ConnectedCalendar(
     />
   );
 });
+
+export default ConnectedCalendar;

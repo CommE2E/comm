@@ -10,7 +10,7 @@ type Props = {|
   onClick: (title: string) => void,
   tabIsActive: boolean,
 |};
-function ChatThreadTab(props: Props) {
+function ChatThreadTab(props: Props): React.Node {
   const className = classNames({
     [css.tabItem]: true,
     [css.tabItemActive]: props.tabIsActive,

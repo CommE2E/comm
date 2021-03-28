@@ -145,8 +145,8 @@ class HistoryEntry extends React.PureComponent<Props> {
   }
 }
 
-export default React.memo<BaseProps>(function ConnectedHistoryEntry(
-  props: BaseProps,
+const ConnectedHistoryEntry: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedHistoryEntry(
+  props
 ) {
   const entryID = props.entryInfo.id;
   invariant(entryID, 'entryInfo.id (serverID) should be set');
@@ -179,3 +179,5 @@ export default React.memo<BaseProps>(function ConnectedHistoryEntry(
     />
   );
 });
+
+export default ConnectedHistoryEntry;

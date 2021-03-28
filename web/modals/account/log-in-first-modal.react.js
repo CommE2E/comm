@@ -6,13 +6,12 @@ import css from '../../style.css';
 import Modal from '../modal.react';
 import LogInModal from './log-in-modal.react';
 
-type Props = {
+type Props = {|
   +inOrderTo: string,
   +setModal: (modal: ?React.Node) => void,
-};
-
+|};
 class LogInFirstModal extends React.PureComponent<Props> {
-  render() {
+  render(): React.Node {
     return (
       <Modal name="Log in" onClose={this.clearModal}>
         <div className={css['modal-body']}>
@@ -32,11 +31,11 @@ class LogInFirstModal extends React.PureComponent<Props> {
     );
   }
 
-  clearModal = () => {
+  clearModal: () => void = () => {
     this.props.setModal(null);
   };
 
-  onClickLogIn = (event: SyntheticEvent<HTMLAnchorElement>) => {
+  onClickLogIn: (event: SyntheticEvent<HTMLAnchorElement>) => void = event => {
     event.preventDefault();
     this.props.setModal(<LogInModal setModal={this.props.setModal} />);
   };

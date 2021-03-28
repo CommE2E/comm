@@ -369,8 +369,8 @@ class Category extends React.PureComponent<CategoryProps> {
   };
 }
 
-export default React.memo<BaseProps>(function ConnectedFilterPanel(
-  props: BaseProps,
+const ConnectedFilterPanel: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedFilterPanel(
+  props
 ) {
   const filteredThreadIDs = useSelector(filteredThreadIDsSelector);
   const filterThreadInfos = useSelector(webFilterThreadInfos);
@@ -389,3 +389,5 @@ export default React.memo<BaseProps>(function ConnectedFilterPanel(
     />
   );
 });
+
+export default ConnectedFilterPanel;

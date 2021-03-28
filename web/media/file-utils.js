@@ -66,6 +66,6 @@ function determineFileType(
   };
 }
 
-const allowedMimeTypeString = [...serverTranscodableTypes].join(',');
+const allowedMimeTypeString: string = [...serverTranscodableTypes].join(',');
 
 export { deepFileInfoFromData, determineFileType, allowedMimeTypeString };
