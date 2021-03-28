@@ -11,6 +11,7 @@
 
 [libs]
 ../lib/flow-typed
+../web/flow-typed
 
 [options]
 module.file_ext=.js
