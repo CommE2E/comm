@@ -546,6 +546,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     if (uploadResult) {
       const { id, mediaType, uri, dimensions, loop } = uploadResult;
       serverID = id;
+      // When we dispatch this action, it updates Redux and triggers the
+      // componentDidUpdate in this class. componentDidUpdate will handle
+      // calling dispatchMultimediaMessageAction once all the uploads are
+      // complete, and does not wait until this function concludes.
       this.props.dispatch({
         type: updateMultimediaMessageMediaActionType,
         payload: {
@@ -601,7 +605,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       // if we have permission. Even if we fail, this temporary file isn't
       // visible to the user, so there's no point in keeping it around. Since
       // the initial URI is used in rendering paths, we have to wait for it to
-      // be replaced with the remote URI before we can dispose
+      // be replaced with the remote URI before we can dispose. Check out the
+      // Multimedia component to see how the URIs get switched out.
       const captureURI = selection.uri;
       promises.push(
         (async () => {
