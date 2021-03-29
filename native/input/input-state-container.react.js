@@ -410,6 +410,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           dimensions: selection.dimensions,
           localMediaSelection: selection,
           loop: false,
+          thumbnailID: localThumbnailID,
+          thumbnailURI: selection.uri,
         });
         ids = { type: 'video', localMediaID, localThumbnailID };
       }
@@ -423,12 +425,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       pendingUploads[localMediaID] = {
         failed: null,
         progressPercent: 0,
+        processingStep: null,
       };
       if (uploadFileInput.ids.type === 'video') {
         const { localThumbnailID } = uploadFileInput.ids;
         pendingUploads[localThumbnailID] = {
           failed: null,
           progressPercent: 0,
+          processingStep: null,
         };
       }
     }
@@ -890,23 +894,56 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     const updateMedia = <T: Media>(media: $ReadOnlyArray<T>): T[] =>
       media.map((singleMedia) => {
-        const oldID = singleMedia.id;
-        if (!oldID.startsWith('localUpload')) {
-          // already uploaded
-          return singleMedia;
+        let updatedMedia = singleMedia;
+
+        const oldMediaID = updatedMedia.id;
+        if (
+          // not complete
+          oldMediaID.startsWith('localUpload') &&
+          // not still ongoing
+          (!pendingUploads[oldMediaID] || pendingUploads[oldMediaID].failed)
+        ) {
+          // If we have an incomplete upload that isn't in pendingUploads, that
+          // indicates the app has restarted. We'll reassign a new localID to
+          // avoid collisions. Note that this isn't necessary for the message ID
+          // since the localID reducer prevents collisions there
+          const mediaID = pendingUploads[oldMediaID] ? oldMediaID : getNewLocalID();
+          if (updatedMedia.type === 'photo') {
+            updatedMedia = {
+              type: 'photo',
+              ...updatedMedia,
+              id: mediaID,
+            };
+          } else {
+            updatedMedia = {
+              type: 'video',
+              ...updatedMedia,
+              id: mediaID,
+            };
+          }
         }
-        if (pendingUploads[oldID] && !pendingUploads[oldID].failed) {
-          // still being uploaded
+
+        if (updatedMedia.type === 'video') {
+          const oldThumbnailID = updatedMedia.thumbnailID;
+          if (
+            // not complete
+            oldThumbnailID.startsWith('localUpload') &&
+            // not still ongoing
+            (!pendingUploads[oldThumbnailID] || pendingUploads[oldThumbnailID].failed)
+          ) {
+            const thumbnailID = pendingUploads[oldThumbnailID] ? oldThumbnailID : getNewLocalID();
+            updatedMedia = {
+              ...updatedMedia,
+              thumbnailID: thumbnailID,
+            };
+          }
+        }
+
+        if (updatedMedia === singleMedia) {
           return singleMedia;
         }
 
-        // If we have an incomplete upload that isn't in pendingUploads, that
-        // indicates the app has restarted. We'll reassign a new localID to
-        // avoid collisions. Note that this isn't necessary for the message ID
-        // since the localID reducer prevents collisions there
-        const id = pendingUploads[oldID] ? oldID : getNewLocalID();
-
-        const oldSelection = singleMedia.localMediaSelection;
+        const oldSelection = updatedMedia.localMediaSelection;
         invariant(
           oldSelection,
           'localMediaSelection should be set on locally created Media',
@@ -925,18 +962,16 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           selection = { ...oldSelection, sendTime: now, retries };
         }
 
-        if (singleMedia.type === 'photo') {
+        if (updatedMedia.type === 'photo') {
           return {
             type: 'photo',
-            ...singleMedia,
-            id,
+            ...updatedMedia,
             localMediaSelection: selection,
           };
         } else {
           return {
             type: 'video',
-            ...singleMedia,
-            id,
+            ...updatedMedia,
             localMediaSelection: selection,
           };
         }
@@ -994,12 +1029,20 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     // We clear out the failed status on individual media here,
     // which makes the UI show pending status instead of error messages
-    for (const { id } of retryMedia) {
-      pendingUploads[id] = {
+    for (const singleMedia of retryMedia) {
+      pendingUploads[singleMedia.id] = {
         failed: null,
         progressPercent: 0,
         processingStep: null,
       };
+      if (singleMedia.type === 'video') {
+        const { thumbnailID } = singleMedia;
+        pendingUploads[thumbnailID] = {
+          failed: null,
+          progressPercent: 0,
+          processingStep: null,
+        };
+      }
     }
     this.setState((prevState) => ({
       pendingUploads: {
@@ -1009,14 +1052,21 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }));
 
     const uploadFileInputs = retryMedia.map((singleMedia) => {
-      const { id, localMediaSelection } = singleMedia;
       invariant(
-        localMediaSelection && localMediaSelection.step !== 'video_library',
+        singleMedia.localMediaSelection,
         'localMediaSelection should be set on locally created Media',
       );
+
+      let ids;
+      if (singleMedia.type === 'photo') {
+        ids = { type: 'photo', localMediaID: singleMedia.id };
+      } else {
+        ids = { type: 'video', localMediaID: singleMedia.id, localThumbnailID: singleMedia.thumbnailID };
+      }
+
       return {
-        selection: localMediaSelection,
-        ids: { type: 'photo', localMediaID: id },
+        selection: singleMedia.localMediaSelection,
+        ids,
       };
     });
 
