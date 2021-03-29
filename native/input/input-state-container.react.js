@@ -78,9 +78,12 @@ function getNewLocalID() {
   return `localUpload${nextLocalUploadID++}`;
 }
 
-type SelectionWithID = {|
+type MediaIDs =
+  | {| +type: 'photo', +localMediaID: string |}
+  | {| +type: 'video', +localMediaID: string, +localThumbnailID: string |};
+type UploadFileInput = {|
   +selection: NativeMediaSelection,
-  +localID: string,
+  +ids: MediaIDs,
 |};
 type CompletedUploads = { +[localMessageID: string]: ?Set<string> };
 
@@ -364,17 +367,70 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   ) => {
     this.sendCallbacks.forEach((callback) => callback());
     const localMessageID = `local${this.props.nextLocalID}`;
-    const selectionsWithIDs = selections.map((selection) => ({
-      selection,
-      localID: getNewLocalID(),
-    }));
+
+    const uploadFileInputs = [],
+      media = [];
+    for (const selection of selections) {
+      const localMediaID = getNewLocalID();
+      let ids;
+      if (selection.step === 'photo_library') {
+        media.push({
+          id: localMediaID,
+          uri: selection.uri,
+          type: 'photo',
+          dimensions: selection.dimensions,
+          localMediaSelection: selection,
+        });
+        ids = { type: 'photo', localMediaID };
+      } else if (selection.step === 'photo_capture') {
+        media.push({
+          id: localMediaID,
+          uri: selection.uri,
+          type: 'photo',
+          dimensions: selection.dimensions,
+          localMediaSelection: selection,
+        });
+        ids = { type: 'photo', localMediaID };
+      } else if (selection.step === 'photo_paste') {
+        media.push({
+          id: localMediaID,
+          uri: selection.uri,
+          type: 'photo',
+          dimensions: selection.dimensions,
+          localMediaSelection: selection,
+        });
+        ids = { type: 'photo', localMediaID };
+      }
+      const localThumbnailID = getNewLocalID();
+      if (selection.step === 'video_library') {
+        media.push({
+          id: localMediaID,
+          uri: selection.uri,
+          type: 'video',
+          dimensions: selection.dimensions,
+          localMediaSelection: selection,
+          loop: false,
+        });
+        ids = { type: 'video', localMediaID, localThumbnailID };
+      }
+      invariant(ids, `unexpected MediaSelection ${selection.step}`);
+      uploadFileInputs.push({ selection, ids });
+    }
 
     const pendingUploads = {};
-    for (const { localID } of selectionsWithIDs) {
-      pendingUploads[localID] = {
+    for (const uploadFileInput of uploadFileInputs) {
+      const { localMediaID } = uploadFileInput.ids;
+      pendingUploads[localMediaID] = {
         failed: null,
         progressPercent: 0,
       };
+      if (uploadFileInput.ids.type === 'video') {
+        const { localThumbnailID } = uploadFileInput.ids;
+        pendingUploads[localThumbnailID] = {
+          failed: null,
+          progressPercent: 0,
+        };
+      }
     }
 
     this.setState(
@@ -389,43 +445,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       () => {
         const creatorID = this.props.viewerID;
         invariant(creatorID, 'need viewer ID in order to send a message');
-        const media = selectionsWithIDs.map(({ localID, selection }) => {
-          if (selection.step === 'photo_library') {
-            return {
-              id: localID,
-              uri: selection.uri,
-              type: 'photo',
-              dimensions: selection.dimensions,
-              localMediaSelection: selection,
-            };
-          } else if (selection.step === 'photo_capture') {
-            return {
-              id: localID,
-              uri: selection.uri,
-              type: 'photo',
-              dimensions: selection.dimensions,
-              localMediaSelection: selection,
-            };
-          } else if (selection.step === 'photo_paste') {
-            return {
-              id: localID,
-              uri: selection.uri,
-              type: 'photo',
-              dimensions: selection.dimensions,
-              localMediaSelection: selection,
-            };
-          } else if (selection.step === 'video_library') {
-            return {
-              id: localID,
-              uri: selection.uri,
-              type: 'video',
-              dimensions: selection.dimensions,
-              localMediaSelection: selection,
-              loop: false,
-            };
-          }
-          invariant(false, `invalid selection ${JSON.stringify(selection)}`);
-        });
         const messageInfo = createMediaMessageInfo({
           localID: localMessageID,
           threadID,
@@ -439,16 +458,16 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       },
     );
 
-    await this.uploadFiles(localMessageID, selectionsWithIDs);
+    await this.uploadFiles(localMessageID, uploadFileInputs);
   };
 
   async uploadFiles(
     localMessageID: string,
-    selectionsWithIDs: $ReadOnlyArray<SelectionWithID>,
+    uploadFileInputs: $ReadOnlyArray<UploadFileInput>,
   ) {
     const results = await Promise.all(
-      selectionsWithIDs.map((selectionWithID) =>
-        this.uploadFile(localMessageID, selectionWithID),
+      uploadFileInputs.map((uploadFileInput) =>
+        this.uploadFile(localMessageID, uploadFileInput),
       ),
     );
     const errors = [...new Set(results.filter(Boolean))];
@@ -459,9 +478,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   async uploadFile(
     localMessageID: string,
-    selectionWithID: SelectionWithID,
+    uploadFileInput: UploadFileInput,
   ): Promise<?string> {
-    const { localID, selection } = selectionWithID;
+    const { ids, selection } = uploadFileInput;
+    const localID = ids.localMediaID;
     const start = selection.sendTime;
     const steps = [selection];
     let serverID;
@@ -988,16 +1008,19 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       },
     }));
 
-    const selectionsWithIDs = retryMedia.map((singleMedia) => {
+    const uploadFileInputs = retryMedia.map((singleMedia) => {
       const { id, localMediaSelection } = singleMedia;
       invariant(
-        localMediaSelection,
+        localMediaSelection && localMediaSelection.step !== 'video_library',
         'localMediaSelection should be set on locally created Media',
       );
-      return { selection: localMediaSelection, localID: id };
+      return {
+        selection: localMediaSelection,
+        ids: { type: 'photo', localMediaID: id },
+      };
     });
 
-    await this.uploadFiles(localMessageID, selectionsWithIDs);
+    await this.uploadFiles(localMessageID, uploadFileInputs);
   };
 
   retryMessage = async (localMessageID: string) => {
