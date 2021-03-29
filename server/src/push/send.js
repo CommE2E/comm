@@ -6,6 +6,7 @@ import _flow from 'lodash/fp/flow';
 import _mapValues from 'lodash/fp/mapValues';
 import _pickBy from 'lodash/fp/pickBy';
 import uuidv4 from 'uuid/v4';
+import type { ResponseFailure } from '@parse/node-apn';
 
 import { oldValidUsernameRegex } from 'lib/shared/account-utils';
 import {
@@ -583,7 +584,7 @@ type IOSDelivery = {|
   iosID: string,
   deviceTokens: $ReadOnlyArray<string>,
   codeVersion: number,
-  errors?: $ReadOnlyArray<Object>,
+  errors?: $ReadOnlyArray<ResponseFailure>,
 |};
 type IOSResult = {|
   info: NotificationInfo,

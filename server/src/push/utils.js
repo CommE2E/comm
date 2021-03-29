@@ -2,6 +2,8 @@
 
 import apn from '@parse/node-apn';
 import invariant from 'invariant';
+import type { ProviderOptions, ResponseFailure } from '@parse/node-apn';
+import type { FirebaseApp, FirebaseError } from 'firebase-admin';
 
 import { threadSubscriptions } from 'lib/types/subscription-types';
 import { threadPermissions } from 'lib/types/thread-types';
@@ -22,6 +24,12 @@ const apnTokenInvalidationErrorCode = 410;
 const apnBadRequestErrorCode = 400;
 const apnBadTokenErrorString = 'BadDeviceToken';
 
+type APNPushResult =
+  | {| +success: true |}
+  | {|
+      +errors: $ReadOnlyArray<ResponseFailure>,
+      +invalidTokens?: $ReadOnlyArray<string>,
+    |};
 async function apnPush({
   notification,
   deviceTokens,
@@ -30,7 +38,7 @@ async function apnPush({
   +notification: apn.Notification,
   +deviceTokens: $ReadOnlyArray<string>,
   +codeVersion: ?number,
-|}) {
+|}): Promise<APNPushResult> {
   const pushProfile = getAPNPushProfileForCodeVersion(codeVersion);
   const apnProvider = await getAPNProvider(pushProfile);
   if (!apnProvider && process.env.NODE_ENV === 'development') {
@@ -60,6 +68,12 @@ async function apnPush({
   }
 }
 
+type FCMPushResult = {|
+  +success?: true,
+  +fcmIDs?: $ReadOnlyArray<string>,
+  +errors?: $ReadOnlyArray<FirebaseError>,
+  +invalidTokens?: $ReadOnlyArray<string>,
+|};
 async function fcmPush({
   notification,
   deviceTokens,
@@ -70,7 +84,7 @@ async function fcmPush({
   +deviceTokens: $ReadOnlyArray<string>,
   +codeVersion: ?number,
   +collapseKey?: ?string,
-|}) {
+|}): Promise<FCMPushResult> {
   const pushProfile = getFCMPushProfileForCodeVersion(codeVersion);
   const fcmProvider = await getFCMProvider(pushProfile);
   if (!fcmProvider && process.env.NODE_ENV === 'development') {
@@ -125,11 +139,11 @@ async function fcmPush({
   if (invalidTokens.length > 0) {
     result.invalidTokens = invalidTokens;
   }
-  return result;
+  return { ...result };
 }
 
 async function fcmSinglePush(
-  provider: Object,
+  provider: FirebaseApp,
   notification: Object,
   deviceToken: string,
   options: Object,

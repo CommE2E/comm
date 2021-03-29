@@ -2,6 +2,8 @@
 
 import apn from '@parse/node-apn';
 import fcmAdmin from 'firebase-admin';
+import type { Provider as APNProvider } from '@parse/node-apn';
+import type { FirebaseApp } from 'firebase-admin';
 
 type APNPushProfile = 'apn_config' | 'comm_apn_config';
 function getAPNPushProfileForCodeVersion(codeVersion: ?number): APNPushProfile {
@@ -14,7 +16,7 @@ function getFCMPushProfileForCodeVersion(codeVersion: ?number): FCMPushProfile {
 }
 
 const cachedAPNProviders = new Map();
-async function getAPNProvider(profile: APNPushProfile) {
+async function getAPNProvider(profile: APNPushProfile): Promise<?APNProvider> {
   const provider = cachedAPNProviders.get(profile);
   if (provider !== undefined) {
     return provider;
@@ -34,7 +36,7 @@ async function getAPNProvider(profile: APNPushProfile) {
 }
 
 const cachedFCMProviders = new Map();
-async function getFCMProvider(profile: FCMPushProfile) {
+async function getFCMProvider(profile: FCMPushProfile): Promise<?FirebaseApp> {
   const provider = cachedFCMProviders.get(profile);
   if (provider !== undefined) {
     return provider;
