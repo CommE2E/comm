@@ -64,6 +64,7 @@ import {
   defaultURLPrefix,
   natNodeServer,
   setCustomServer,
+  fetchDevServerHostname,
 } from '../utils/url-utils';
 import {
   resetUserStateActionType,
@@ -80,6 +81,7 @@ import {
   backgroundActionTypes,
   setReduxStateActionType,
 } from './action-types';
+import { remoteReduxDevServerConfig } from './dev-tools';
 import {
   defaultDimensionsInfo,
   type DimensionsInfo,
@@ -421,9 +423,20 @@ if (__DEV__) {
 }
 
 const middleware = applyMiddleware(...middlewares);
-const composeFunc = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-  ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({ name: 'Redux' })
-  : compose;
+
+let composeFunc = compose;
+if (__DEV__ && global.HermesInternal) {
+  const { composeWithDevTools } = require('remote-redux-devtools/src');
+  composeFunc = composeWithDevTools(fetchDevServerHostname(), {
+    name: 'Redux',
+    ...remoteReduxDevServerConfig,
+  });
+} else if (global.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
+  composeFunc = global.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
+    name: 'Redux',
+  });
+}
+
 let enhancers;
 if (reactotron) {
   enhancers = composeFunc(middleware, reactotron.createEnhancer());

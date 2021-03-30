@@ -29,9 +29,11 @@
     "patch-package": "^6.2.2",
     "postinstall-postinstall": "^2.0.0",
     "react-test-renderer": "16.13.1",
-    "remotedev-server": "^0.3.1",
     "redux-flipper": "^1.4.2",
-    "react-native-flipper": "^0.79.1"
+    "react-native-flipper": "^0.79.1",
+    "remote-redux-devtools": "git+https://git@github.com/zalmoxisus/remote-redux-devtools.git",
+    "remotedev": "git+https://git@github.com/zalmoxisus/remotedev.git",
+    "remotedev-server": "^0.3.1"
   },
   "dependencies": {
     "@react-native-community/art": "^1.2.0",

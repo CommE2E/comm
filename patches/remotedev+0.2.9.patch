@@ -1,0 +1,36 @@
+diff --git a/node_modules/remotedev/src/devTools.js b/node_modules/remotedev/src/devTools.js
+index 743714b..277262f 100644
+--- a/node_modules/remotedev/src/devTools.js
++++ b/node_modules/remotedev/src/devTools.js
+@@ -90,11 +90,18 @@ export function send(action, state, options, type, instanceId) {
+   }, 0);
+ }
+ 
+-export function connect(options = {}) {
++export function connect(options = {}, hostnamePromise) {
+   const id = generateId(options.instanceId);
+-  start(options);
++  const setHostnamePromise = (async () => {
++    options.hostname = await hostnamePromise;
++  })();
++  (async () => {
++    await setHostnamePromise;
++    start(options);
++  })();
+   return {
+-    init: (state, action) => {
++    init: async (state, action) => {
++      await setHostnamePromise;
+       send(action || {}, state, options, 'INIT', id);
+     },
+     subscribe: (listener) => {
+@@ -110,7 +117,8 @@ export function connect(options = {}) {
+     unsubscribe: () => {
+       delete listeners[id];
+     },
+-    send: (action, payload) => {
++    send: async (action, payload) => {
++      await setHostnamePromise;
+       if (action) {
+         send(action, payload, options, 'ACTION', id);
+       } else {
