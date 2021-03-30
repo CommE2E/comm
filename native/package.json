@@ -6,9 +6,11 @@
   "scripts": {
     "clean": "rm -rf ios/Pods/ && rm -rf node_modules/",
     "postinstall": "cd ../ && yarn patch-package && yarn flow-mono create-symlinks native && cd native && yarn jetify && cd ios && (pod install || true)",
-    "dev": "yarn react-native start",
+    "start": "yarn react-native start",
+    "dev": "yarn concurrently --names=\"REDUX,METRO\" -c \"bgGreen.bold,bgBlue.bold\" \"yarn remotedev\" \"yarn start\"",
     "test": "yarn jest",
-    "logfirebase": "adb shell logcat | grep -E -i 'FIRMessagingModule|firebase'"
+    "logfirebase": "adb shell logcat | grep -E -i 'FIRMessagingModule|firebase'",
+    "remotedev": "remotedev --port=8043"
   },
   "devDependencies": {
     "@babel/core": "^7.13.14",
@@ -26,7 +28,8 @@
     "metro-react-native-babel-preset": "^0.59.0",
     "patch-package": "^6.2.2",
     "postinstall-postinstall": "^2.0.0",
-    "react-test-renderer": "16.13.1"
+    "react-test-renderer": "16.13.1",
+    "remotedev-server": "^0.3.1"
   },
   "dependencies": {
     "@react-native-community/art": "^1.2.0",
