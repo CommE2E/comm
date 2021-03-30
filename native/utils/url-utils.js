@@ -2,35 +2,77 @@
 
 import invariant from 'invariant';
 import { Platform } from 'react-native';
+import DeviceInfo from 'react-native-device-info';
 
-const productionServer = 'https://squadcal.org';
-const localhostServer = 'http://localhost/comm';
-const localhostServerFromAndroidEmulator = 'http://10.0.2.2/comm';
-const natServer = 'http://192.168.1.4/comm';
+import networkSettings from '../facts/network';
 
-function defaultURLPrefix() {
-  if (!__DEV__) {
-    return productionServer;
+const localhostHostname = 'localhost';
+const localhostHostnameFromAndroidEmulator = '10.0.2.2';
+const { natDevHostname } = networkSettings;
+
+const productionNodeServerURL = 'https://squadcal.org';
+
+function getDevServerHostname(isEmulator: boolean): string {
+  invariant(__DEV__, 'getDevServerHostname called from production');
+  if (!isEmulator) {
+    return natDevHostname;
   } else if (Platform.OS === 'android') {
-    // Uncomment below and update IP address if testing on physical device
-    //return natServer;
-    return localhostServerFromAndroidEmulator;
+    return localhostHostnameFromAndroidEmulator;
   } else if (Platform.OS === 'ios') {
-    // Uncomment below and update IP address if testing on physical device
-    //return natServer;
-    return localhostServer;
-  } else {
-    invariant(false, 'unsupported platform');
+    return localhostHostname;
   }
+  invariant(false, `unsupported platform: ${Platform.OS}`);
 }
 
-const serverOptions = [productionServer];
-if (Platform.OS === 'android') {
-  serverOptions.push(localhostServerFromAndroidEmulator);
-} else {
-  serverOptions.push(localhostServer);
+function getDevNodeServerURLFromHostname(hostname: string): string {
+  return `http://${hostname}/comm`;
 }
+
+function getDevNodeServerURL(isEmulator: boolean): string {
+  invariant(__DEV__, 'getDevNodeServerURL called from production');
+  const hostname = getDevServerHostname(isEmulator);
+  return getDevNodeServerURLFromHostname(hostname);
+}
+
+async function fetchNodeServerURL(): Promise<string> {
+  if (!__DEV__) {
+    return productionNodeServerURL;
+  }
+  const isEmulator = await DeviceInfo.isEmulator();
+  return getDevNodeServerURL(isEmulator);
+}
+
+function defaultURLPrefix(): string {
+  if (!__DEV__) {
+    return productionNodeServerURL;
+  }
+  return getDevNodeServerURL(true);
+}
+
+async function fetchDevServerHostname(): Promise<string> {
+  invariant(__DEV__, 'fetchDevServerHostname called from production');
+  const isEmulator = await DeviceInfo.isEmulator();
+  return getDevServerHostname(isEmulator);
+}
+
+const nodeServerOptions = [productionNodeServerURL];
+if (Platform.OS === 'android') {
+  nodeServerOptions.push(
+    getDevNodeServerURLFromHostname(localhostHostnameFromAndroidEmulator),
+  );
+} else {
+  nodeServerOptions.push(getDevNodeServerURLFromHostname(localhostHostname));
+}
+
+const natNodeServer = getDevNodeServerURLFromHostname(natDevHostname);
 
 const setCustomServer = 'SET_CUSTOM_SERVER';
 
-export { defaultURLPrefix, serverOptions, natServer, setCustomServer };
+export {
+  fetchNodeServerURL,
+  defaultURLPrefix,
+  fetchDevServerHostname,
+  nodeServerOptions,
+  natNodeServer,
+  setCustomServer,
+};

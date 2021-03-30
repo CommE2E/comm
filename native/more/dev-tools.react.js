@@ -15,7 +15,7 @@ import { CustomServerModalRouteName } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { useColors, useStyles, type Colors } from '../themes/colors';
 import { wipeAndExit } from '../utils/crash-utils';
-import { serverOptions } from '../utils/url-utils';
+import { nodeServerOptions } from '../utils/url-utils';
 import type { MoreNavigationProp } from './more.react';
 
 const ServerIcon = () => (
@@ -44,7 +44,7 @@ class DevTools extends React.PureComponent<Props> {
     const { panelIosHighlightUnderlay: underlay } = this.props.colors;
 
     const serverButtons = [];
-    for (const server of serverOptions) {
+    for (const server of nodeServerOptions) {
       const icon = server === this.props.urlPrefix ? <ServerIcon /> : null;
       serverButtons.push(
         <Button

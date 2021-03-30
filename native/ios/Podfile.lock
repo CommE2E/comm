@@ -379,6 +379,8 @@ PODS:
     - React-Core
   - RNCMaskedView (0.1.10):
     - React
+  - RNDeviceInfo (8.0.7):
+    - React-Core
   - RNExitApp (1.1.0):
     - React
   - RNFastImage (7.0.2):
@@ -497,6 +499,7 @@ DEPENDENCIES:
   - "RNCAsyncStorage (from `../../node_modules/@react-native-community/async-storage`)"
   - "RNCClipboard (from `../../node_modules/@react-native-community/clipboard`)"
   - "RNCMaskedView (from `../../node_modules/@react-native-community/masked-view`)"
+  - RNDeviceInfo (from `../../node_modules/react-native-device-info`)
   - RNExitApp (from `../../node_modules/react-native-exit-app`)
   - RNFastImage (from `../../node_modules/react-native-fast-image`)
   - RNFS (from `../../node_modules/react-native-fs`)
@@ -642,6 +645,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@react-native-community/clipboard"
   RNCMaskedView:
     :path: "../../node_modules/@react-native-community/masked-view"
+  RNDeviceInfo:
+    :path: "../../node_modules/react-native-device-info"
   RNExitApp:
     :path: "../../node_modules/react-native-exit-app"
   RNFastImage:
@@ -752,6 +757,7 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: 60a80e72d95bf02a01cace55d3697d9724f0d77f
   RNCClipboard: 41d8d918092ae8e676f18adada19104fa3e68495
   RNCMaskedView: 5a8ec07677aa885546a0d98da336457e2bea557f
+  RNDeviceInfo: 55463fa6e252ca3f0e2ba6001a7b82f879914338
   RNExitApp: c4e052df2568b43bec8a37c7cd61194d4cfee2c3
   RNFastImage: 9b0c22643872bb7494c8d87bbbb66cc4c0d9e7a2
   RNFS: 54da03c2b7d862c42ea3ca8c7f86f892760a535a

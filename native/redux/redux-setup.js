@@ -62,7 +62,7 @@ import {
 import { type GlobalThemeInfo, defaultGlobalThemeInfo } from '../types/themes';
 import {
   defaultURLPrefix,
-  natServer,
+  natNodeServer,
   setCustomServer,
 } from '../utils/url-utils';
 import {
@@ -150,7 +150,7 @@ const defaultState = ({
   deviceToken: null,
   dataLoaded: false,
   urlPrefix: defaultURLPrefix(),
-  customServer: natServer,
+  customServer: natNodeServer,
   threadIDsToNotifIDs: {},
   notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
   connection: defaultConnectionInfo(Platform.OS),
