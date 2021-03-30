@@ -8,8 +8,8 @@ import {
 } from 'lib/utils/date-utils';
 import { infoFromURL } from 'lib/utils/url-utils';
 
-import type { NavInfo } from './redux/redux-setup';
 import { yearExtractor, monthExtractor } from './selectors/nav-selectors';
+import type { NavInfo } from './types/nav-types';
 
 function canonicalURLFromReduxState(
   navInfo: NavInfo,

@@ -40,13 +40,13 @@ import LoadingIndicator from './loading-indicator.react';
 import ResetPasswordModal from './modals/account/reset-password-modal.react';
 import VerificationModal from './modals/account/verification-modal.react';
 import FocusHandler from './redux/focus-handler.react';
-import { type NavInfo, updateNavInfoActionType } from './redux/redux-setup';
 import { useSelector } from './redux/redux-utils';
 import VisibilityHandler from './redux/visibility-handler.react';
 import history from './router-history';
 import Splash from './splash/splash.react';
 import css from './style.css';
 import getTitle from './title/getTitle';
+import { type NavInfo, updateNavInfoActionType } from './types/nav-types';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
 
 // We want Webpack's css-loader and style-loader to handle the Fontawesome CSS,

@@ -15,27 +15,19 @@ import type { CalendarFilter } from 'lib/types/filter-types';
 import type { LifecycleState } from 'lib/types/lifecycle-state-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { MessageStore } from 'lib/types/message-types';
-import type { BaseNavInfo } from 'lib/types/nav-types';
 import type { BaseAction } from 'lib/types/redux-types';
 import type { ClientReportCreationRequest } from 'lib/types/report-types';
 import type { ConnectionInfo } from 'lib/types/socket-types';
-import type { ThreadInfo, ThreadStore } from 'lib/types/thread-types';
+import type { ThreadStore } from 'lib/types/thread-types';
 import type { CurrentUserInfo, UserStore } from 'lib/types/user-types';
 import type { ServerVerificationResult } from 'lib/types/verify-types';
 import { setNewSessionActionType } from 'lib/utils/action-utils';
 
 import { activeThreadSelector } from '../selectors/nav-selectors';
+import { type NavInfo, updateNavInfoActionType } from '../types/nav-types';
 import { updateWindowActiveActionType } from './action-types';
+import reduceNavInfo from './nav-reducer';
 import { getVisibility } from './visibility';
-
-export type NavInfo = {|
-  ...$Exact<BaseNavInfo>,
-  +tab: 'calendar' | 'chat',
-  +verify: ?string,
-  +activeChatThreadID: ?string,
-  +pendingThread?: ThreadInfo,
-  +sourceMessageID?: string,
-|};
 
 export type WindowDimensions = {| width: number, height: number |};
 export type AppState = {|
@@ -66,7 +58,6 @@ export type AppState = {|
   windowActive: boolean,
 |};
 
-export const updateNavInfoActionType = 'UPDATE_NAV_INFO';
 export const updateWindowDimensions = 'UPDATE_WINDOW_DIMENSIONS';
 
 export type Action =
@@ -85,15 +76,7 @@ export function reducer(oldState: AppState | void, action: Action) {
   invariant(oldState, 'should be set');
   let state = oldState;
 
-  if (action.type === updateNavInfoActionType) {
-    return validateState(oldState, {
-      ...state,
-      navInfo: {
-        ...state.navInfo,
-        ...action.payload,
-      },
-    });
-  } else if (action.type === updateWindowDimensions) {
+  if (action.type === updateWindowDimensions) {
     return validateState(oldState, {
       ...state,
       windowDimensions: action.payload,
@@ -134,7 +117,16 @@ export function reducer(oldState: AppState | void, action: Action) {
     return oldState;
   }
 
-  return validateState(oldState, baseReducer(state, action));
+  if (action.type !== updateNavInfoActionType) {
+    state = baseReducer(state, action);
+  }
+
+  state = {
+    ...state,
+    navInfo: reduceNavInfo(state.navInfo, action),
+  };
+
+  return validateState(oldState, state);
 }
 
 function validateState(oldState: AppState, state: AppState): AppState {

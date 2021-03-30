@@ -30,13 +30,13 @@ import {
   endDateForYearAndMonth,
 } from 'lib/utils/date-utils';
 
-import { type NavInfo } from '../redux/redux-setup';
 import { useSelector } from '../redux/redux-utils';
 import {
   yearAssertingSelector,
   monthAssertingSelector,
   webCalendarQuery,
 } from '../selectors/nav-selectors';
+import type { NavInfo } from '../types/nav-types';
 import { canonicalURLFromReduxState } from '../url-utils';
 import css from './calendar.css';
 import Day from './day.react';

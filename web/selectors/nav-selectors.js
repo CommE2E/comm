@@ -18,8 +18,8 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 
 import { getDefaultTextMessageRules } from '../markdown/rules.react';
 import type { AppState } from '../redux/redux-setup';
-import { updateNavInfoActionType } from '../redux/redux-setup';
 import { useSelector } from '../redux/redux-utils';
+import { updateNavInfoActionType } from '../types/nav-types';
 
 const dateExtractionRegex = /^([0-9]{4})-([0-9]{2})-[0-9]{2}$/;
 
