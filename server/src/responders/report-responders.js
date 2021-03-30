@@ -2,6 +2,7 @@
 
 import type { $Response, $Request } from 'express';
 import t from 'tcomb';
+import type { TStructProps } from 'tcomb';
 
 import {
   type ReportCreationResponse,
@@ -31,7 +32,7 @@ const tActionSummary = tShape({
   time: t.Number,
   summary: t.String,
 });
-const threadInconsistencyReportValidatorShape = {
+const threadInconsistencyReportValidatorShape: TStructProps = {
   platformDetails: tPlatformDetails,
   beforeAction: t.Object,
   action: t.Object,
@@ -41,7 +42,7 @@ const threadInconsistencyReportValidatorShape = {
   lastActions: t.maybe(t.list(tActionSummary)),
   time: t.maybe(t.Number),
 };
-const entryInconsistencyReportValidatorShape = {
+const entryInconsistencyReportValidatorShape: TStructProps = {
   platformDetails: tPlatformDetails,
   beforeAction: t.Object,
   action: t.Object,

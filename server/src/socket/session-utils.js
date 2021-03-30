@@ -2,6 +2,7 @@
 
 import invariant from 'invariant';
 import t from 'tcomb';
+import type { TUnion, TInterface } from 'tcomb';
 
 import {
   usersInRawEntryInfos,
@@ -62,7 +63,7 @@ import { compareNewCalendarQuery } from '../updaters/entry-updaters';
 import type { SessionUpdate } from '../updaters/session-updaters';
 import { tShape, tPlatform, tPlatformDetails } from '../utils/validation-utils';
 
-const clientResponseInputValidator = t.union([
+const clientResponseInputValidator: TUnion<TInterface> = t.union([
   tShape({
     type: t.irreducible(
       'serverRequestTypes.PLATFORM',

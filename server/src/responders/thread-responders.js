@@ -1,6 +1,7 @@
 // @flow
 
 import t from 'tcomb';
+import type { TUnion, TInterface } from 'tcomb';
 
 import {
   type ThreadDeletionRequest,
@@ -59,7 +60,7 @@ const roleChangeRequestInputValidator = tShape({
   memberIDs: t.list(t.String),
   role: t.refinement(t.String, str => {
     const int = parseInt(str, 10);
-    return int == str && int > 0;
+    return String(int) === str && int > 0;
   }),
 });
 
@@ -129,7 +130,7 @@ const threadRequestValidationShape = {
   initialMemberIDs: t.maybe(t.list(t.String)),
   calendarQuery: t.maybe(entryQueryInputValidator),
 };
-const newThreadRequestInputValidator = t.union([
+const newThreadRequestInputValidator: TUnion<TInterface> = t.union([
   tShape({
     type: tNumEnum([threadTypes.SIDEBAR]),
     sourceMessageID: t.String,

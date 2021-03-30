@@ -1,6 +1,7 @@
 // @flow
 
 import t from 'tcomb';
+import type { TInterface } from 'tcomb';
 
 import type { DeviceTokenUpdateRequest } from 'lib/types/device-types';
 
@@ -12,7 +13,7 @@ import {
   tPlatformDetails,
 } from '../utils/validation-utils';
 
-const deviceTokenUpdateRequestInputValidator = tShape({
+const deviceTokenUpdateRequestInputValidator: TInterface = tShape({
   deviceToken: t.String,
   deviceType: t.maybe(t.enums.of(['ios', 'android'])),
   platformDetails: t.maybe(tPlatformDetails),

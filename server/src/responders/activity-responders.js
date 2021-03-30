@@ -1,6 +1,7 @@
 // @flow
 
 import t from 'tcomb';
+import type { TList, TInterface } from 'tcomb';
 
 import type {
   UpdateActivityResult,
@@ -16,7 +17,7 @@ import {
 } from '../updaters/activity-updaters';
 import { validateInput, tShape } from '../utils/validation-utils';
 
-const activityUpdatesInputValidator = t.list(
+const activityUpdatesInputValidator: TList<TInterface> = t.list(
   tShape({
     focus: t.Bool,
     threadID: t.String,

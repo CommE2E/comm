@@ -1,6 +1,7 @@
 // @flow
 
 import t from 'tcomb';
+import type { TInterface } from 'tcomb';
 
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
 import type {
@@ -43,7 +44,7 @@ import {
   tDate,
 } from '../utils/validation-utils';
 
-const entryQueryInputValidator = tShape({
+const entryQueryInputValidator: TInterface = tShape({
   navID: t.maybe(t.String),
   startDate: tDate,
   endDate: tDate,
@@ -62,7 +63,7 @@ const entryQueryInputValidator = tShape({
     ),
   ),
 });
-const newEntryQueryInputValidator = tShape({
+const newEntryQueryInputValidator: TInterface = tShape({
   startDate: tDate,
   endDate: tDate,
   filters: t.list(
