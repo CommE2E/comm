@@ -22,6 +22,7 @@ import {
   type MultimediaUploadExtras,
 } from 'lib/actions/upload-actions';
 import { pathFromURI } from 'lib/media/file-utils';
+import { isLocalUploadID } from 'lib/media/media-utils';
 import { videoDurationLimit } from 'lib/media/video-utils';
 import {
   createLoadingStatusSelector,
@@ -140,27 +141,19 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         `rawMessageInfo ${localMessageID} should be multimedia`,
       );
 
-      const completed = [];
       let allUploadsComplete = true;
-      for (const localUploadID in messagePendingUploads) {
-        let media;
-        for (const singleMedia of rawMessageInfo.media) {
-          if (singleMedia.id === localUploadID) {
-            media = singleMedia;
-            break;
-          }
-        }
-        if (media) {
+      const completedUploadIDs = new Set(Object.keys(messagePendingUploads));
+      for (const singleMedia of rawMessageInfo.media) {
+        if (isLocalUploadID(singleMedia.id)) {
           allUploadsComplete = false;
-        } else {
-          completed.push(localUploadID);
+          completedUploadIDs.delete(singleMedia.id);
         }
       }
 
       if (allUploadsComplete) {
         completedUploads[localMessageID] = null;
-      } else if (completed.length > 0) {
-        completedUploads[localMessageID] = new Set(completed);
+      } else if (completedUploadIDs.size > 0) {
+        completedUploads[localMessageID] = completedUploadIDs;
       }
     }
     return completedUploads;
@@ -891,7 +884,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const updateMedia = <T: Media>(media: $ReadOnlyArray<T>): T[] =>
       media.map((singleMedia) => {
         const oldID = singleMedia.id;
-        if (!oldID.startsWith('localUpload')) {
+        if (!isLocalUploadID(oldID)) {
           // already uploaded
           return singleMedia;
         }
@@ -962,7 +955,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     const incompleteMedia: Media[] = [];
     for (const singleMedia of newRawMessageInfo.media) {
-      if (singleMedia.id.startsWith('localUpload')) {
+      if (isLocalUploadID(singleMedia.id)) {
         incompleteMedia.push(singleMedia);
       }
     }

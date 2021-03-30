@@ -7,6 +7,7 @@ import filesystem from 'react-native-fs';
 
 import { queueReportsActionType } from 'lib/actions/report-actions';
 import { readableFilename, pathFromURI } from 'lib/media/file-utils';
+import { isLocalUploadID } from 'lib/media/media-utils';
 import type {
   MediaMissionStep,
   MediaMissionResult,
@@ -81,7 +82,7 @@ async function intentionalSaveMedia(
   const mediaMission = { steps, result, userTime, totalTime };
 
   const { uploadID, messageServerID, messageLocalID } = ids;
-  const uploadIDIsLocal = uploadID.startsWith('localUpload');
+  const uploadIDIsLocal = isLocalUploadID(uploadID);
   const report: MediaMissionReportCreationRequest = {
     type: reportTypes.MEDIA_MISSION,
     time: Date.now(),

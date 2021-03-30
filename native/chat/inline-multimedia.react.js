@@ -7,6 +7,7 @@ import Icon from 'react-native-vector-icons/Feather';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import tinycolor from 'tinycolor2';
 
+import { isLocalUploadID } from 'lib/media/media-utils';
 import type { MediaInfo } from 'lib/types/media-types';
 
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
@@ -25,7 +26,7 @@ type Props = {|
 function InlineMultimedia(props: Props) {
   const { mediaInfo, pendingUpload, postInProgress } = props;
 
-  let failed = mediaInfo.id.startsWith('localUpload') && !postInProgress;
+  let failed = isLocalUploadID(mediaInfo.id) && !postInProgress;
   let progressPercent = 1;
   let processingStep;
   if (pendingUpload) {
