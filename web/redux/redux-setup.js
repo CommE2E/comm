@@ -123,7 +123,11 @@ export function reducer(oldState: AppState | void, action: Action) {
 
   state = {
     ...state,
-    navInfo: reduceNavInfo(state.navInfo, action),
+    navInfo: reduceNavInfo(
+      state.navInfo,
+      action,
+      state.threadStore.threadInfos,
+    ),
   };
 
   return validateState(oldState, state);
