@@ -89,8 +89,10 @@ function mediaFromRow(row: Object): Media {
   if (type === 'photo') {
     return { id, type: 'photo', uri, dimensions };
   } else if (loop) {
+    // $FlowFixMe add thumbnailID, thumbnailURI once they're in DB
     return { id, type: 'video', uri, dimensions, loop };
   } else {
+    // $FlowFixMe add thumbnailID, thumbnailURI once they're in DB
     return { id, type: 'video', uri, dimensions };
   }
 }

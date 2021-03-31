@@ -177,7 +177,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       const creatorID = this.props.viewerID;
       invariant(creatorID, 'need viewer ID in order to send a message');
       const media = uploads.map(
-        ({ localID, serverID, uri, mediaType, dimensions, loop }) => {
+        ({ localID, serverID, uri, mediaType, dimensions }) => {
           // We can get into this state where dimensions are null if the user is
           // uploading a file type that the browser can't render. In that case
           // we fake the dimensions here while we wait for the server to tell us
@@ -188,22 +188,16 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           const shimmedDimensions = dimensions
             ? dimensions
             : { height: 0, width: 0 };
-          if (mediaType === 'photo') {
-            return {
-              id: serverID ? serverID : localID,
-              uri,
-              type: 'photo',
-              dimensions: shimmedDimensions,
-            };
-          } else {
-            return {
-              id: serverID ? serverID : localID,
-              uri,
-              type: 'video',
-              dimensions: shimmedDimensions,
-              loop,
-            };
-          }
+          invariant(
+            mediaType === 'photo',
+            "web InputStateContainer can't handle video",
+          );
+          return {
+            id: serverID ? serverID : localID,
+            uri,
+            type: 'photo',
+            dimensions: shimmedDimensions,
+          };
         },
       );
       const messageInfo = createMediaMessageInfo({
