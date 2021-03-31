@@ -535,9 +535,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const uploadStart = Date.now();
     let uploadExceptionMessage, uploadResult, mediaMissionResult;
     try {
+      const loop =
+        processedMedia.mediaType === 'video' ? processedMedia.loop : undefined;
       uploadResult = await this.props.uploadMultimedia(
         { uri: uploadURI, name: filename, type: mime },
-        { ...processedMedia.dimensions, loop: processedMedia.loop },
+        { ...processedMedia.dimensions, loop },
         {
           onProgress: (percent: number) =>
             this.setProgress(
@@ -561,7 +563,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     if (uploadResult) {
-      const { id, mediaType, uri, dimensions, loop } = uploadResult;
+      const { id, uri, dimensions, loop } = uploadResult;
       serverID = id;
       // When we dispatch this action, it updates Redux and triggers the
       // componentDidUpdate in this class. componentDidUpdate will handle
@@ -574,7 +576,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           currentMediaID: localMediaID,
           mediaUpdate: {
             id,
-            type: mediaType,
+            type: uploadResult.mediaType,
             uri,
             dimensions,
             localMediaSelection: undefined,
@@ -611,6 +613,18 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       promises.push(
         (async () => {
           const disposeStep = await disposeTempFile(shouldDisposePath);
+          steps.push(disposeStep);
+        })(),
+      );
+    }
+
+    // if there's a thumbnail we'll temporarily unlink it here
+    // instead of in media-utils, will be changed in later diffs
+    if (processedMedia.mediaType === 'video') {
+      const { uploadThumbnailURI } = processedMedia;
+      promises.push(
+        (async () => {
+          const disposeStep = await disposeTempFile(uploadThumbnailURI);
           steps.push(disposeStep);
         })(),
       );

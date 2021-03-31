@@ -2,12 +2,10 @@
 
 import invariant from 'invariant';
 import { Image } from 'react-native';
-import { unlink } from 'react-native-fs';
 
 import { pathFromURI, readableFilename } from 'lib/media/file-utils';
 import type {
   Dimensions,
-  MediaType,
   MediaMissionStep,
   MediaMissionFailure,
   NativeMediaSelection,
@@ -24,17 +22,22 @@ type MediaProcessConfig = {|
   +finalFileHeaderCheck?: boolean,
   +onTranscodingProgress: (percent: number) => void,
 |};
-type MediaResult = {|
+type SharedMediaResult = {|
   +success: true,
   +uploadURI: string,
-  +thumbnailURI: ?string,
   +shouldDisposePath: ?string,
   +filename: string,
   +mime: string,
-  +mediaType: MediaType,
   +dimensions: Dimensions,
-  +loop: boolean,
 |};
+type MediaResult =
+  | {| +mediaType: 'photo', ...SharedMediaResult |}
+  | {|
+      +mediaType: 'video',
+      ...SharedMediaResult,
+      +uploadThumbnailURI: string,
+      +loop: boolean,
+    |};
 function processMedia(
   selection: NativeMediaSelection,
   config: MediaProcessConfig,
@@ -64,7 +67,7 @@ async function innerProcessMedia(
 ): Promise<$ReadOnlyArray<MediaMissionStep>> {
   let initialURI = null,
     uploadURI = null,
-    thumbnailURI = null,
+    uploadThumbnailURI = null,
     dimensions = selection.dimensions,
     mediaType = null,
     mime = null,
@@ -88,17 +91,30 @@ async function innerProcessMedia(
       initialURI !== uploadURI ? pathFromURI(uploadURI) : null;
     const filename = readableFilename(selection.filename, mime);
     invariant(filename, `could not construct filename for ${mime}`);
-    sendResult({
-      success: true,
-      uploadURI,
-      thumbnailURI,
-      shouldDisposePath,
-      filename,
-      mime,
-      mediaType,
-      dimensions,
-      loop,
-    });
+    if (mediaType === 'video') {
+      invariant(uploadThumbnailURI, 'video should have uploadThumbnailURI');
+      sendResult({
+        success: true,
+        uploadURI,
+        uploadThumbnailURI,
+        shouldDisposePath,
+        filename,
+        mime,
+        mediaType,
+        dimensions,
+        loop,
+      });
+    } else {
+      sendResult({
+        success: true,
+        uploadURI,
+        shouldDisposePath,
+        filename,
+        mime,
+        mediaType,
+        dimensions,
+      });
+    }
   };
 
   const steps = [],
@@ -171,10 +187,13 @@ async function innerProcessMedia(
     if (!videoResult.success) {
       return await finish(videoResult);
     }
-    ({ uri: uploadURI, thumbnailURI, mime, dimensions, loop } = videoResult);
-    // unlink the thumbnailURI so we don't clog up temp dir
-    // we use thumbnailURI in subsequent diffs
-    unlink(thumbnailURI);
+    ({
+      uri: uploadURI,
+      thumbnailURI: uploadThumbnailURI,
+      mime,
+      dimensions,
+      loop,
+    } = videoResult);
   } else if (mediaType === 'photo') {
     const { steps: imageSteps, result: imageResult } = await processImage({
       uri: initialURI,
