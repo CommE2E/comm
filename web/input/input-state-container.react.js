@@ -27,6 +27,7 @@ import {
   type MultimediaUploadCallbacks,
   type MultimediaUploadExtras,
 } from 'lib/actions/upload-actions';
+import { getNextLocalUploadID } from 'lib/media/media-utils';
 import { createMediaMessageInfo } from 'lib/shared/message-utils';
 import type {
   UploadMultimediaResult,
@@ -59,8 +60,6 @@ import { validateFile, preloadImage } from '../media/media-utils';
 import InvalidUploadModal from '../modals/chat/invalid-upload.react';
 import { useSelector } from '../redux/redux-utils';
 import { type PendingMultimediaUpload, InputStateContext } from './input-state';
-
-let nextLocalUploadID = 0;
 
 type BaseProps = {|
   +children: React.Node,
@@ -466,7 +465,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       result: {
         success: true,
         pendingUpload: {
-          localID: `localUpload${nextLocalUploadID++}`,
+          localID: getNextLocalUploadID(),
           serverID: null,
           messageID: null,
           failed: null,
