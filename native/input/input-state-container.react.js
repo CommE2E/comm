@@ -22,7 +22,7 @@ import {
   type MultimediaUploadExtras,
 } from 'lib/actions/upload-actions';
 import { pathFromURI } from 'lib/media/file-utils';
-import { isLocalUploadID } from 'lib/media/media-utils';
+import { isLocalUploadID, getNextLocalUploadID } from 'lib/media/media-utils';
 import { videoDurationLimit } from 'lib/media/video-utils';
 import {
   createLoadingStatusSelector,
@@ -73,11 +73,6 @@ import {
   type PendingMultimediaUploads,
   type MultimediaProcessingStep,
 } from './input-state';
-
-let nextLocalUploadID = 0;
-function getNewLocalID() {
-  return `localUpload${nextLocalUploadID++}`;
-}
 
 type MediaIDs =
   | {| +type: 'photo', +localMediaID: string |}
@@ -364,7 +359,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const uploadFileInputs = [],
       media = [];
     for (const selection of selections) {
-      const localMediaID = getNewLocalID();
+      const localMediaID = getNextLocalUploadID();
       let ids;
       if (selection.step === 'photo_library') {
         media.push({
@@ -394,7 +389,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         });
         ids = { type: 'photo', localMediaID };
       }
-      const localThumbnailID = getNewLocalID();
+      const localThumbnailID = getNextLocalUploadID();
       if (selection.step === 'video_library') {
         media.push({
           id: localMediaID,
@@ -897,7 +892,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         // indicates the app has restarted. We'll reassign a new localID to
         // avoid collisions. Note that this isn't necessary for the message ID
         // since the localID reducer prevents collisions there
-        const id = pendingUploads[oldID] ? oldID : getNewLocalID();
+        const id = pendingUploads[oldID] ? oldID : getNextLocalUploadID();
 
         const oldSelection = singleMedia.localMediaSelection;
         invariant(
