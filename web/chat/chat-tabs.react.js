@@ -3,7 +3,8 @@
 import * as React from 'react';
 
 import { unreadBackgroundCount } from 'lib/selectors/thread-selectors';
-import { threadIsTopLevel } from 'lib/shared/thread-utils';
+import { threadIsTopLevel, threadInChatList } from 'lib/shared/thread-utils';
+import { threadTypes } from 'lib/types/thread-types';
 
 import { useSelector } from '../redux/redux-utils';
 import { activeChatThreadItem as activeChatThreadItemSelector } from '../selectors/chat-selectors';
@@ -49,11 +50,31 @@ function ChatTabs(props: Props) {
     }
   }, [activeThreadID, activeThreadFromHomeTab, shouldChangeTab]);
 
+  const activeThreadIsSidebarOrInChatList = React.useMemo(
+    () =>
+      threadInChatList(activeThreadInfo) ||
+      activeThreadInfo?.type === threadTypes.SIDEBAR,
+    [activeThreadInfo],
+  );
+  const activeThreadOriginalTab = React.useMemo(() => {
+    if (activeThreadIsSidebarOrInChatList) {
+      return null;
+    }
+    return activeTab;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeThreadIsSidebarOrInChatList, activeThreadID]);
+
   const threadList =
     activeTab === 'HOME' ? (
-      <ChatThreadHome setModal={props.setModal} />
+      <ChatThreadHome
+        setModal={props.setModal}
+        forceIncludeActiveThread={activeThreadOriginalTab === 'HOME'}
+      />
     ) : (
-      <ChatThreadBackground setModal={props.setModal} />
+      <ChatThreadBackground
+        setModal={props.setModal}
+        forceIncludeActiveThread={activeThreadOriginalTab === 'BACKGROUND'}
+      />
     );
   return (
     <div className={css.container}>

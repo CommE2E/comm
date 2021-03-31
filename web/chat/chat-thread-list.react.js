@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 
-import { threadInChatList } from 'lib/shared/thread-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import { useSelector } from '../redux/redux-utils';
@@ -13,9 +12,15 @@ type Props = {|
   +filterThreads: (threadItem: ThreadInfo) => boolean,
   +setModal: (modal: ?React.Node) => void,
   +emptyItem?: React.ComponentType<{||}>,
+  +forceIncludeActiveThread: boolean,
 |};
 function ChatThreadList(props: Props) {
-  const { filterThreads, setModal, emptyItem } = props;
+  const {
+    filterThreads,
+    setModal,
+    emptyItem,
+    forceIncludeActiveThread,
+  } = props;
   const activeChatThreadID = useSelector(
     (state) => state.navInfo.activeChatThreadID,
   );
@@ -26,7 +31,7 @@ function ChatThreadList(props: Props) {
         (item) =>
           filterThreads(item.threadInfo) ||
           (item.threadInfo.id === activeChatThreadID &&
-            !threadInChatList(item.threadInfo)),
+            forceIncludeActiveThread),
       )
       .map((item) => (
         <ChatThreadListItem
@@ -40,7 +45,14 @@ function ChatThreadList(props: Props) {
       threads.push(<EmptyItem key="emptyItem" />);
     }
     return threads;
-  }, [activeChatThreadID, chatListData, emptyItem, filterThreads, setModal]);
+  }, [
+    activeChatThreadID,
+    chatListData,
+    emptyItem,
+    filterThreads,
+    forceIncludeActiveThread,
+    setModal,
+  ]);
   return <div>{listData}</div>;
 }
 

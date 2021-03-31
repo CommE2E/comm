@@ -12,6 +12,7 @@ import ChatThreadList from './chat-thread-list.react';
 
 type Props = {|
   +setModal: (modal: ?React.Node) => void,
+  +forceIncludeActiveThread: boolean,
 |};
 export default function ChatThreadBackground(props: Props) {
   return (
@@ -19,6 +20,7 @@ export default function ChatThreadBackground(props: Props) {
       filterThreads={threadInBackgroundChatList}
       setModal={props.setModal}
       emptyItem={EmptyItem}
+      forceIncludeActiveThread={props.forceIncludeActiveThread}
     />
   );
 }
