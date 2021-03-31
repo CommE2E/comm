@@ -473,7 +473,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     uploadFileInput: UploadFileInput,
   ): Promise<?string> {
     const { ids, selection } = uploadFileInput;
-    const localID = ids.localMediaID;
+    const { localMediaID } = ids;
     const start = selection.sendTime;
     const steps = [selection];
     let serverID;
@@ -489,14 +489,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       const totalTime = Date.now() - start;
       userTime = userTime ? userTime : totalTime;
       this.queueMediaMissionReport(
-        { localID, localMessageID, serverID },
+        { localID: localMediaID, localMessageID, serverID },
         { steps, result, totalTime, userTime },
       );
       return errorMessage;
     };
-    const fail = (message: string) => {
+    const fail = (mediaID: string, message: string) => {
       errorMessage = message;
-      this.handleUploadFailure(localMessageID, localID, message);
+      this.handleUploadFailure(localMessageID, mediaID, message);
       userTime = Date.now() - start;
     };
 
@@ -505,7 +505,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     try {
       const processMediaReturn = processMedia(
         selection,
-        this.mediaProcessConfig(localMessageID, localID),
+        this.mediaProcessConfig(localMessageID, localMediaID),
       );
       reportPromise = processMediaReturn.reportPromise;
       const processResult = await processMediaReturn.resultPromise;
@@ -514,12 +514,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           processResult.reason === 'video_too_long'
             ? `can't do vids longer than ${videoDurationLimit}min`
             : 'processing failed';
-        fail(message);
+        fail(localMediaID, message);
         return await finish(processResult);
       }
       processedMedia = processResult;
     } catch (e) {
-      fail('processing failed');
+      fail(localMediaID, 'processing failed');
       return await finish({
         success: false,
         reason: 'processing_exception',
@@ -540,14 +540,19 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         { ...processedMedia.dimensions, loop: processedMedia.loop },
         {
           onProgress: (percent: number) =>
-            this.setProgress(localMessageID, localID, 'uploading', percent),
+            this.setProgress(
+              localMessageID,
+              localMediaID,
+              'uploading',
+              percent,
+            ),
           uploadBlob: this.uploadBlob,
         },
       );
       mediaMissionResult = { success: true };
     } catch (e) {
       uploadExceptionMessage = getMessageForException(e);
-      fail('upload failed');
+      fail(localMediaID, 'upload failed');
       mediaMissionResult = {
         success: false,
         reason: 'http_upload_failed',
@@ -566,7 +571,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         type: updateMultimediaMessageMediaActionType,
         payload: {
           messageID: localMessageID,
-          currentMediaID: localID,
+          currentMediaID: localMediaID,
           mediaUpdate: {
             id,
             type: mediaType,
