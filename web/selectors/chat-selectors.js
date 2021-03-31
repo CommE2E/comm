@@ -9,10 +9,17 @@ import {
   createChatThreadItem,
   chatListData,
 } from 'lib/selectors/chat-selectors';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import {
+  threadInfoSelector,
+  sidebarInfoSelector,
+} from 'lib/selectors/thread-selectors';
 import { threadIsPending } from 'lib/shared/thread-utils';
 import type { MessageStore, MessageInfo } from 'lib/types/message-types';
-import { type ThreadInfo, threadTypes } from 'lib/types/thread-types';
+import {
+  type ThreadInfo,
+  threadTypes,
+  type SidebarInfo,
+} from 'lib/types/thread-types';
 
 import type { AppState } from '../redux/redux-setup';
 
@@ -24,12 +31,14 @@ const activeChatThreadItem: (
   messageInfoSelector,
   (state: AppState) => state.navInfo.activeChatThreadID,
   (state: AppState) => state.navInfo.pendingThread,
+  sidebarInfoSelector,
   (
     threadInfos: { [id: string]: ThreadInfo },
     messageStore: MessageStore,
     messageInfos: { [id: string]: MessageInfo },
     activeChatThreadID: ?string,
     pendingThreadInfo: ?ThreadInfo,
+    sidebarInfos: { [id: string]: $ReadOnlyArray<SidebarInfo> },
   ): ?ChatThreadItem => {
     if (!activeChatThreadID) {
       return null;
@@ -42,7 +51,12 @@ const activeChatThreadItem: (
     if (!threadInfo) {
       return null;
     }
-    return createChatThreadItem(threadInfo, messageStore, messageInfos, null);
+    return createChatThreadItem(
+      threadInfo,
+      messageStore,
+      messageInfos,
+      sidebarInfos[threadInfo.id],
+    );
   },
 );
 
