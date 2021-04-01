@@ -3,15 +3,14 @@
 import * as React from 'react';
 
 import { unreadBackgroundCount } from 'lib/selectors/thread-selectors';
-import { threadIsTopLevel, threadInChatList } from 'lib/shared/thread-utils';
-import { threadTypes } from 'lib/types/thread-types';
+import { threadIsTopLevel } from 'lib/shared/thread-utils';
 
 import { useSelector } from '../redux/redux-utils';
 import { activeChatThreadItem as activeChatThreadItemSelector } from '../selectors/chat-selectors';
 import css from './chat-tabs.css';
-import ChatThreadBackground from './chat-thread-background.react';
-import ChatThreadHome from './chat-thread-home.react';
+import ChatThreadList from './chat-thread-list.react';
 import ChatThreadTab from './chat-thread-tab.react';
+import { ThreadListProvider } from './thread-list-provider';
 
 type Props = {|
   +setModal: (modal: ?React.Node) => void,
@@ -50,32 +49,6 @@ function ChatTabs(props: Props) {
     }
   }, [activeThreadID, activeThreadFromHomeTab, shouldChangeTab]);
 
-  const activeThreadIsSidebarOrInChatList = React.useMemo(
-    () =>
-      threadInChatList(activeThreadInfo) ||
-      activeThreadInfo?.type === threadTypes.SIDEBAR,
-    [activeThreadInfo],
-  );
-  const activeThreadOriginalTab = React.useMemo(() => {
-    if (activeThreadIsSidebarOrInChatList) {
-      return null;
-    }
-    return activeTab;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeThreadIsSidebarOrInChatList, activeThreadID]);
-
-  const threadList =
-    activeTab === 'HOME' ? (
-      <ChatThreadHome
-        setModal={props.setModal}
-        forceIncludeActiveThread={activeThreadOriginalTab === 'HOME'}
-      />
-    ) : (
-      <ChatThreadBackground
-        setModal={props.setModal}
-        forceIncludeActiveThread={activeThreadOriginalTab === 'BACKGROUND'}
-      />
-    );
   return (
     <div className={css.container}>
       <div className={css.tabs}>
@@ -90,7 +63,14 @@ function ChatTabs(props: Props) {
           onClick={onClickBackground}
         />
       </div>
-      <div className={css.threadList}>{threadList}</div>
+      <ThreadListProvider
+        activeTab={activeTab}
+        activeThreadInfo={activeThreadInfo}
+      >
+        <div className={css.threadList}>
+          <ChatThreadList setModal={props.setModal} />
+        </div>
+      </ThreadListProvider>
     </div>
   );
 }

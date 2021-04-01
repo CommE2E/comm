@@ -1,59 +1,46 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 
-import type { ThreadInfo } from 'lib/types/thread-types';
+import { emptyItemText } from 'lib/shared/thread-utils';
 
-import { useSelector } from '../redux/redux-utils';
-import { webChatListData } from '../selectors/chat-selectors';
+import css from './chat-tabs.css';
 import ChatThreadListItem from './chat-thread-list-item.react';
+import { ThreadListContext } from './thread-list-provider';
 
 type Props = {|
-  +filterThreads: (threadItem: ThreadInfo) => boolean,
   +setModal: (modal: ?React.Node) => void,
-  +emptyItem?: React.ComponentType<{||}>,
-  +forceIncludeActiveThread: boolean,
 |};
 function ChatThreadList(props: Props) {
-  const {
-    filterThreads,
-    setModal,
-    emptyItem,
-    forceIncludeActiveThread,
-  } = props;
-  const activeChatThreadID = useSelector(
-    (state) => state.navInfo.activeChatThreadID,
+  const { setModal } = props;
+
+  const threadListContext = React.useContext(ThreadListContext);
+  invariant(
+    threadListContext,
+    'threadListContext should be set in ChatThreadList',
   );
-  const chatListData = useSelector(webChatListData);
+  const { threadList, activeTab } = threadListContext;
+  const isBackground = activeTab === 'BACKGROUND';
+
   const listData: React.Node[] = React.useMemo(() => {
-    const threads = chatListData
-      .filter(
-        (item) =>
-          filterThreads(item.threadInfo) ||
-          (item.threadInfo.id === activeChatThreadID &&
-            forceIncludeActiveThread),
-      )
-      .map((item) => (
-        <ChatThreadListItem
-          item={item}
-          key={item.threadInfo.id}
-          setModal={setModal}
-        />
-      ));
-    if (threads.length === 0 && emptyItem) {
-      const EmptyItem = emptyItem;
+    const threads = threadList.map((item) => (
+      <ChatThreadListItem
+        item={item}
+        key={item.threadInfo.id}
+        setModal={setModal}
+      />
+    ));
+    if (threads.length === 0 && isBackground) {
       threads.push(<EmptyItem key="emptyItem" />);
     }
     return threads;
-  }, [
-    activeChatThreadID,
-    chatListData,
-    emptyItem,
-    filterThreads,
-    forceIncludeActiveThread,
-    setModal,
-  ]);
+  }, [threadList, isBackground, setModal]);
   return <div>{listData}</div>;
+}
+
+function EmptyItem() {
+  return <div className={css.emptyItem}>{emptyItemText}</div>;
 }
 
 export default ChatThreadList;

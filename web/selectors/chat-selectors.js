@@ -1,13 +1,12 @@
 // @flow
 
-import invariant from 'invariant';
+import * as React from 'react';
 import { createSelector } from 'reselect';
 
 import {
   messageInfoSelector,
   type ChatThreadItem,
   createChatThreadItem,
-  chatListData,
 } from 'lib/selectors/chat-selectors';
 import {
   threadInfoSelector,
@@ -15,13 +14,10 @@ import {
 } from 'lib/selectors/thread-selectors';
 import { threadIsPending } from 'lib/shared/thread-utils';
 import type { MessageStore, MessageInfo } from 'lib/types/message-types';
-import {
-  type ThreadInfo,
-  threadTypes,
-  type SidebarInfo,
-} from 'lib/types/thread-types';
+import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types';
 
 import type { AppState } from '../redux/redux-setup';
+import { useSelector } from '../redux/redux-utils';
 
 const activeChatThreadItem: (
   state: AppState,
@@ -60,73 +56,22 @@ const activeChatThreadItem: (
   },
 );
 
-const webChatListData: (state: AppState) => ChatThreadItem[] = createSelector(
-  chatListData,
-  activeChatThreadItem,
-  (data: ChatThreadItem[], activeItem: ?ChatThreadItem): ChatThreadItem[] => {
-    if (!activeItem) {
-      return data;
+function useChatThreadItem(threadInfo: ?ThreadInfo): ?ChatThreadItem {
+  const messageInfos = useSelector(messageInfoSelector);
+  const sidebarInfos = useSelector(sidebarInfoSelector);
+  const messageStore = useSelector((state) => state.messageStore);
+
+  return React.useMemo(() => {
+    if (!threadInfo) {
+      return null;
     }
 
-    const result = [];
-    for (const item of data) {
-      if (item.threadInfo.id === activeItem.threadInfo.id) {
-        return data;
-      }
-      if (
-        activeItem.threadInfo.type !== threadTypes.SIDEBAR ||
-        activeItem.threadInfo.parentThreadID !== item.threadInfo.id
-      ) {
-        result.push(item);
-        continue;
-      }
-
-      const { parentThreadID } = activeItem.threadInfo;
-      invariant(
-        parentThreadID,
-        `thread ID ${activeItem.threadInfo.id} is a sidebar without a parent`,
-      );
-
-      for (const sidebarItem of item.sidebars) {
-        if (sidebarItem.type !== 'sidebar') {
-          continue;
-        } else if (sidebarItem.threadInfo.id === activeItem.threadInfo.id) {
-          return data;
-        }
-      }
-
-      let indexToInsert = item.sidebars.findIndex(
-        (sidebar) =>
-          sidebar.lastUpdatedTime === undefined ||
-          sidebar.lastUpdatedTime < activeItem.lastUpdatedTime,
-      );
-      if (indexToInsert === -1) {
-        indexToInsert = item.sidebars.length;
-      }
-      const activeSidebar = {
-        type: 'sidebar',
-        lastUpdatedTime: activeItem.lastUpdatedTime,
-        mostRecentNonLocalMessage: activeItem.mostRecentNonLocalMessage,
-        threadInfo: activeItem.threadInfo,
-      };
-      const newSidebarItems = [
-        ...item.sidebars.slice(0, indexToInsert),
-        activeSidebar,
-        ...item.sidebars.slice(indexToInsert),
-      ];
-
-      result.push({
-        ...item,
-        sidebars: newSidebarItems,
-      });
-    }
-
-    if (activeItem.threadInfo.type !== threadTypes.SIDEBAR) {
-      result.unshift(activeItem);
-    }
-
-    return result;
-  },
-);
-
-export { webChatListData, activeChatThreadItem };
+    return createChatThreadItem(
+      threadInfo,
+      messageStore,
+      messageInfos,
+      sidebarInfos[threadInfo.id],
+    );
+  }, [messageInfos, messageStore, sidebarInfos, threadInfo]);
+}
+export { useChatThreadItem, activeChatThreadItem };
