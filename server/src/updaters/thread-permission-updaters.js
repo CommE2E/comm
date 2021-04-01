@@ -388,7 +388,7 @@ async function updateDescendantPermissions(
   return { membershipRows, relationshipRows };
 }
 
-async function recalculateAllPermissions(
+async function recalculateThreadPermissions(
   threadID: string,
   threadType: ThreadType,
 ): Promise<Changeset> {
@@ -814,23 +814,23 @@ async function recalculateAllThreadPermissions() {
 
   // We handle each thread one-by-one to avoid a situation where a permission
   // calculation for a child thread, done during a call to
-  // recalculateAllPermissions for the parent thread, can be incorrectly
-  // overriden by a call to recalculateAllPermissions for the child thread. If
-  // the changeset resulting from the parent call isn't committed before the
+  // recalculateThreadPermissions for the parent thread, can be incorrectly
+  // overriden by a call to recalculateThreadPermissions for the child thread.
+  // If the changeset resulting from the parent call isn't committed before the
   // calculation is done for the child, the calculation done for the child can
   // be incorrect.
   const viewer = createScriptViewer(bots.squadbot.userID);
   for (const row of result) {
     const threadID = row.id.toString();
     const threadType = assertThreadType(row.type);
-    const changeset = await recalculateAllPermissions(threadID, threadType);
+    const changeset = await recalculateThreadPermissions(threadID, threadType);
     await commitMembershipChangeset(viewer, changeset);
   }
 }
 
 export {
   changeRole,
-  recalculateAllPermissions,
+  recalculateThreadPermissions,
   saveMemberships,
   commitMembershipChangeset,
   setJoinsToUnread,

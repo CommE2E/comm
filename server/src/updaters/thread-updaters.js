@@ -54,7 +54,7 @@ import type { Viewer } from '../session/viewer';
 import { updateRoles } from './role-updaters';
 import {
   changeRole,
-  recalculateAllPermissions,
+  recalculateThreadPermissions,
   commitMembershipChangeset,
   setJoinsToUnread,
   getParentThreadRelationshipRowsForNewUsers,
@@ -528,7 +528,10 @@ async function updateThread(
       if (forceUpdateRoot || nextThreadType !== oldThreadType) {
         await updateRoles(viewer, request.threadID, nextThreadType);
       }
-      return await recalculateAllPermissions(request.threadID, nextThreadType);
+      return await recalculateThreadPermissions(
+        request.threadID,
+        nextThreadType,
+      );
     })();
   }
   const {

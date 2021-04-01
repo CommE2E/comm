@@ -15,7 +15,7 @@ import { fetchRoles } from '../fetchers/role-fetchers';
 import type { Viewer } from '../session/viewer';
 import {
   commitMembershipChangeset,
-  recalculateAllPermissions,
+  recalculateThreadPermissions,
 } from './thread-permission-updaters';
 
 async function updateRoles(
@@ -126,7 +126,7 @@ async function DEPRECATED_updateRoleAndPermissions(
   `;
   await dbQuery(updatePermissions);
 
-  const changeset = await recalculateAllPermissions(threadID, threadType);
+  const changeset = await recalculateThreadPermissions(threadID, threadType);
   return await commitMembershipChangeset(viewer, changeset);
 }
 

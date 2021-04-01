@@ -30,7 +30,7 @@ import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
 import type { Viewer } from '../session/viewer';
 import {
   changeRole,
-  recalculateAllPermissions,
+  recalculateThreadPermissions,
   commitMembershipChangeset,
   setJoinsToUnread,
   getRelationshipRowsForUsers,
@@ -327,7 +327,7 @@ async function createThread(
     changeRole(id, [viewer.userID], newRoles.creator.id),
     initialMemberIDs ? changeRole(id, initialMemberIDs, null) : undefined,
     ghostMemberIDs ? changeRole(id, ghostMemberIDs, -1) : undefined,
-    recalculateAllPermissions(id, threadType),
+    recalculateThreadPermissions(id, threadType),
   ]);
 
   if (!creatorChangeset) {
