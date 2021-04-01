@@ -425,6 +425,11 @@ async function updateThread(
   let nextParentThreadID =
     parentThreadID !== undefined ? parentThreadID : oldParentThreadID;
 
+  // You can't change the parent thread of a SIDEBAR
+  if (nextThreadType === threadTypes.SIDEBAR && parentThreadID !== undefined) {
+    throw new ServerError('invalid_parameters');
+  }
+
   // Does the new thread type preclude a parent?
   if (
     threadType !== undefined &&
