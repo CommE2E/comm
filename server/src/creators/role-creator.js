@@ -160,8 +160,6 @@ function getRolePermissionBlobsForChat(
 ): RolePermissionBlobs {
   if (threadType === threadTypes.SIDEBAR) {
     const memberPermissions = {
-      [threadPermissions.KNOW_OF]: true,
-      [threadPermissions.VISIBLE]: true,
       [threadPermissions.VOICED]: true,
       [threadPermissions.EDIT_THREAD]: true,
       [threadPermissions.ADD_MEMBERS]: true,
@@ -174,6 +172,13 @@ function getRolePermissionBlobsForChat(
     };
   }
 
+  const openDescendantKnowOf =
+    threadPermissionPrefixes.OPEN_DESCENDANT + threadPermissions.KNOW_OF;
+  const openDescendantVisible =
+    threadPermissionPrefixes.OPEN_DESCENDANT + threadPermissions.VISIBLE;
+  const openDescendantJoinThread =
+    threadPermissionPrefixes.OPEN_DESCENDANT + threadPermissions.JOIN_THREAD;
+
   if (threadType === threadTypes.PRIVATE) {
     const memberPermissions = {
       [threadPermissions.KNOW_OF]: true,
@@ -181,18 +186,14 @@ function getRolePermissionBlobsForChat(
       [threadPermissions.VOICED]: true,
       [threadPermissions.CREATE_SIDEBARS]: true,
       [threadPermissions.EDIT_ENTRIES]: true,
+      [openDescendantKnowOf]: true,
+      [openDescendantVisible]: true,
+      [openDescendantJoinThread]: true,
     };
     return {
       Members: memberPermissions,
     };
   }
-
-  const openDescendantKnowOf =
-    threadPermissionPrefixes.OPEN_DESCENDANT + threadPermissions.KNOW_OF;
-  const openDescendantVisible =
-    threadPermissionPrefixes.OPEN_DESCENDANT + threadPermissions.VISIBLE;
-  const openDescendantJoinThread =
-    threadPermissionPrefixes.OPEN_DESCENDANT + threadPermissions.JOIN_THREAD;
 
   if (threadType === threadTypes.PERSONAL) {
     return {
