@@ -343,7 +343,9 @@ async function updateThread(
 
   if (
     !viewer.isScriptViewer &&
-    (threadType === threadTypes.PERSONAL || threadType === threadTypes.PRIVATE)
+    (threadType === threadTypes.PERSONAL ||
+      threadType === threadTypes.PRIVATE ||
+      threadType === threadTypes.SIDEBAR)
   ) {
     throw new ServerError('invalid_parameters');
   }
