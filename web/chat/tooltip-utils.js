@@ -21,7 +21,7 @@ const tooltipInnerPadding = 10;
 const font =
   '14px -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", ' +
   '"Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", ' +
-  '"Helvetica Neue", sans-serif';
+  '"Helvetica Neue", ui-sans-serif';
 
 type FindTooltipPositionArgs = {|
   +pointingToInfo: ItemAndContainerPositionInfo,

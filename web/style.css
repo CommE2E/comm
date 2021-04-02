@@ -9,7 +9,7 @@ html {
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
     "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-    "Helvetica Neue", sans-serif;
+    "Helvetica Neue", ui-sans-serif;
   background-image: url(../images/background.png);
   background-size: 3000px 2000px;
   background-attachment: fixed;
@@ -31,7 +31,7 @@ input[type='text'], input[type='password'], textarea {
   border-radius: 1px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
     "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-    "Helvetica Neue", sans-serif;
+    "Helvetica Neue", ui-sans-serif;
 }
 input[type='submit'] {
   -webkit-appearance: none;
@@ -385,7 +385,7 @@ div.modal-body div.form-content {
   display: inline-block;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
     "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-    "Helvetica Neue", sans-serif;
+    "Helvetica Neue", ui-sans-serif;
   font-size: 15px;
 }
 div.modal-body div.form-subtitle {
@@ -417,7 +417,7 @@ div.form-enum-selector span.form-enum-description {
   display: block;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
     "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-    "Helvetica Neue", sans-serif;
+    "Helvetica Neue", ui-sans-serif;
   font-weight: normal;
   font-size: 13px;
   max-width: 260px;
@@ -612,7 +612,7 @@ div.intro-modal {
   position: fixed;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
     "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-    "Helvetica Neue", sans-serif;
+    "Helvetica Neue", ui-sans-serif;
   margin-top: 100px;
   box-shadow: 2px 3px 6px 0px rgba(0, 0, 0, 0.1);
 }
