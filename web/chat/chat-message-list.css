@@ -50,7 +50,6 @@ div.inputBarTextInput > textarea {
   flex-grow: 1;
   border: none;
   font-size: 15px;
-  line-height: 15px;
   width: 100%;
   resize: none;
   padding-right: 20px;
