@@ -2,6 +2,9 @@
 
 import html from 'common-tags/lib/html';
 import type { $Response, $Request } from 'express';
+import Landing from 'landing/dist/landing.build.cjs';
+import * as React from 'react';
+import ReactDOMServer from 'react-dom/server';
 
 import { getLandingURLFacts } from '../utils/urls';
 import { getMessageForException } from './utils';
@@ -38,11 +41,13 @@ async function getAssetInfo() {
 }
 
 const { basePath } = getLandingURLFacts();
+const { renderToNodeStream } = ReactDOMServer;
 
 async function landingResponder(req: $Request, res: $Response) {
-  const { jsURL } = await getAssetInfo();
+  const assetInfoPromise = getAssetInfo();
+
   // prettier-ignore
-  res.end(html`
+  res.write(html`
     <!DOCTYPE html>
     <html lang="en">
       <head>
@@ -51,7 +56,17 @@ async function landingResponder(req: $Request, res: $Response) {
         <base href="${basePath}" />
       </head>
       <body>
-        <div id="react-root" />
+        <div id="react-root">
+  `);
+
+  const LandingRoot = Landing.default;
+  const reactStream = renderToNodeStream(<LandingRoot />);
+  reactStream.pipe(res, { end: false });
+
+  const { jsURL } = await assetInfoPromise;
+
+  // prettier-ignore
+  res.end(html`</div>
         <script src="${jsURL}"></script>
       </body>
     </html>

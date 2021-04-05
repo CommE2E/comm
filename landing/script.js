@@ -11,4 +11,4 @@ import Root from './root';
 const root = document.getElementById('react-root');
 invariant(root, "cannot find id='react-root' element!");
 
-ReactDOM.render(<Root />, root);
+ReactDOM.hydrate(<Root />, root);
