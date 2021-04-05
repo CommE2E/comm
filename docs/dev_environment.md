@@ -461,6 +461,22 @@ Your `app_url.json` file should look like this:
 }
 ```
 
+Finally, we'll create a file for the URLs in the landing page.
+
+```
+vim server/facts/landing_url.json
+```
+
+Your `landing_url.json` file should look like this:
+
+```json
+{
+  "baseDomain": "http://localhost",
+  "basePath": "/commlanding/",
+  "https": false
+}
+```
+
 ## Phabricator
 
 The last configuration step is to set up an account on Phabricator, where we handle code review. Start by [logging in to Phabricator](https://phabricator.ashoat.com) using your GitHub account.

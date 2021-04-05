@@ -1,6 +1,7 @@
 // @flow
 
 import appURLFacts from '../../facts/app_url';
+import landingURLFacts from '../../facts/landing_url';
 import baseURLFacts from '../../facts/url';
 
 type GlobalURLFacts = {|
@@ -21,4 +22,8 @@ function getAppURLFacts(): SiteURLFacts {
   return appURLFacts;
 }
 
-export { getGlobalURLFacts, getAppURLFacts };
+function getLandingURLFacts(): SiteURLFacts {
+  return landingURLFacts;
+}
+
+export { getGlobalURLFacts, getAppURLFacts, getLandingURLFacts };
