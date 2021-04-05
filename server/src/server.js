@@ -14,6 +14,7 @@ import {
   htmlHandler,
   uploadHandler,
 } from './responders/handlers';
+import landingHandler from './responders/landing-handler';
 import { errorReportDownloadResponder } from './responders/report-responders';
 import { websiteResponder } from './responders/website-responders';
 import { onConnection } from './socket/socket';
@@ -89,6 +90,7 @@ if (cluster.isMaster) {
 
   // $FlowFixMe express-ws has side effects that can't be typed
   router.ws('/ws', onConnection);
+  router.get('/commlanding/*', landingHandler);
   router.get('*', htmlHandler(websiteResponder));
 
   router.post(

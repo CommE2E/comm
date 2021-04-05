@@ -273,6 +273,7 @@ sudo vim /private/etc/apache2/users/$USER.conf
   ProxyRequests on
   ProxyPass /comm/ws ws://localhost:3000/ws
   ProxyPass /comm/ http://localhost:3000/
+  ProxyPass /commlanding/ http://localhost:3000/commlanding/
 
   RequestHeader set "X-Forwarded-Proto" expr=%{REQUEST_SCHEME}
   RequestHeader set "X-Forwarded-SSL" expr=%{HTTPS}

@@ -13,6 +13,7 @@ import {
   createNewAnonymousCookie,
 } from '../session/cookies';
 import type { Viewer } from '../session/viewer';
+import { getMessageForException } from './utils';
 
 export type JSONResponder = (viewer: Viewer, input: any) => Promise<*>;
 export type DownloadResponder = (
@@ -59,12 +60,6 @@ function downloadHandler(responder: DownloadResponder) {
       await handleException(e, res);
     }
   };
-}
-
-function getMessageForException(error: Error & { sqlMessage?: string }) {
-  return error.sqlMessage !== null && error.sqlMessage !== undefined
-    ? 'database error'
-    : error.message;
 }
 
 async function handleException(
