@@ -3,11 +3,11 @@
 import type { Media } from 'lib/types/media-types';
 import { ServerError } from 'lib/utils/errors';
 
-import urlFacts from '../../facts/url';
 import { dbQuery, SQL } from '../database/database';
 import type { Viewer } from '../session/viewer';
+import { getAppURLFacts } from '../utils/urls';
 
-const { baseDomain, basePath } = urlFacts;
+const { baseDomain, basePath } = getAppURLFacts();
 
 type UploadInfo = {|
   content: Buffer,

@@ -2,9 +2,9 @@
 
 import type { $Request } from 'express';
 
-import urlFacts from '../../facts/url';
+import { getAppURLFacts } from './urls';
 
-const { https } = urlFacts;
+const { https } = getAppURLFacts();
 
 function assertSecureRequest(req: $Request) {
   if (https && req.get('X-Forwarded-SSL') !== 'on') {

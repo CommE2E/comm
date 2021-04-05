@@ -30,7 +30,6 @@ import type { AppState, Action } from 'web/redux/redux-setup';
 import getTitle from 'web/title/getTitle';
 import { navInfoFromURL } from 'web/url-utils';
 
-import urlFacts from '../../facts/url';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
@@ -42,8 +41,9 @@ import { handleCodeVerificationRequest } from '../models/verification';
 import { setNewSession } from '../session/cookies';
 import { Viewer } from '../session/viewer';
 import { streamJSON, waitForStream } from '../utils/json-stream';
+import { getAppURLFacts } from '../utils/urls';
 
-const { basePath, baseDomain } = urlFacts;
+const { basePath, baseDomain } = getAppURLFacts();
 const { renderToNodeStream } = ReactDOMServer;
 
 const baseURL = basePath.replace(/\/$/, '');

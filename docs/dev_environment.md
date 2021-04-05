@@ -441,9 +441,22 @@ Your `url.json` file should look like this:
 
 ```json
 {
+  "baseRoutePath": "/"
+}
+```
+
+Next, we'll create a file for constructing URLs for the main app.
+
+```
+vim server/facts/app_url.json
+```
+
+Your `app_url.json` file should look like this:
+
+```json
+{
   "baseDomain": "http://localhost",
   "basePath": "/comm/",
-  "baseRoutePath": "/",
   "https": false
 }
 ```

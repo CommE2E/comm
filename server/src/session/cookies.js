@@ -24,7 +24,6 @@ import type { UserInfo } from 'lib/types/user-types';
 import { values } from 'lib/utils/objects';
 import { promiseAll } from 'lib/utils/promises';
 
-import urlFacts from '../../facts/url';
 import createIDs from '../creators/id-creator';
 import { createSession } from '../creators/session-creator';
 import { dbQuery, SQL } from '../database/database';
@@ -33,10 +32,11 @@ import { handleAsyncPromise } from '../responders/handlers';
 import { clearDeviceToken } from '../updaters/device-token-updaters';
 import { updateThreadMembers } from '../updaters/thread-updaters';
 import { assertSecureRequest } from '../utils/security-utils';
+import { getAppURLFacts } from '../utils/urls';
 import { Viewer } from './viewer';
 import type { AnonymousViewerData, UserViewerData } from './viewer';
 
-const { baseDomain, basePath, https } = urlFacts;
+const { baseDomain, basePath, https } = getAppURLFacts();
 
 function cookieIsExpired(lastUsed: number) {
   return lastUsed + cookieLifetime <= Date.now();

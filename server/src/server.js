@@ -6,7 +6,6 @@ import express from 'express';
 import expressWs from 'express-ws';
 import os from 'os';
 
-import urlFacts from '../facts/url';
 import './cron/cron';
 import { jsonEndpoints } from './endpoints';
 import {
@@ -23,8 +22,9 @@ import {
   multimediaUploadResponder,
   uploadDownloadResponder,
 } from './uploads/uploads';
+import { getGlobalURLFacts } from './utils/urls';
 
-const { baseRoutePath } = urlFacts;
+const { baseRoutePath } = getGlobalURLFacts();
 
 if (cluster.isMaster) {
   const cpuCount = os.cpus().length;

@@ -5,12 +5,12 @@ import { Item, Span, A, renderEmail } from 'react-html-email';
 
 import { verifyField } from 'lib/types/verify-types';
 
-import urlFacts from '../../facts/url';
 import { createVerificationCode } from '../models/verification';
+import { getAppURLFacts } from '../utils/urls';
 import sendmail from './sendmail';
 import Template from './template.react';
 
-const { baseDomain, basePath } = urlFacts;
+const { baseDomain, basePath } = getAppURLFacts();
 
 async function sendEmailAddressVerificationEmail(
   userID: string,
