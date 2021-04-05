@@ -1,8 +1,10 @@
+const localPackages = ['landing', 'lib', 'web'];
+
 async function resolve(specifier, context, defaultResolve) {
   const defaultResult = defaultResolve(specifier, context, defaultResolve);
 
   // Special hack to use Babel-transpiled lib and web
-  if (specifier.startsWith('lib/') || specifier.startsWith('web/')) {
+  if (localPackages.some(pkg => specifier.startsWith(`${pkg}/`))) {
     const url = defaultResult.url.replace(
       specifier,
       `server/dist/${specifier}`,

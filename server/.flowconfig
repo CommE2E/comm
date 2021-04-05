@@ -5,6 +5,7 @@
 .*/web/flow-typed
 
 [include]
+../landing
 ../lib
 ../web
 
