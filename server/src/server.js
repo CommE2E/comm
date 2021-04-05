@@ -58,7 +58,14 @@ if (cluster.isMaster) {
     process.env.NODE_ENV === 'dev'
       ? undefined
       : { maxAge: '1y', immutable: true };
-  router.use('/compiled', express.static('compiled', compiledFolderOptions));
+  router.use(
+    '/compiled',
+    express.static('app_compiled', compiledFolderOptions),
+  );
+  router.use(
+    '/commlanding/compiled',
+    express.static('landing_compiled', compiledFolderOptions),
+  );
   router.use('/', express.static('icons'));
 
   for (const endpoint in jsonEndpoints) {

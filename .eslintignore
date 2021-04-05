@@ -3,7 +3,8 @@ lib/node_modules
 web/dist
 web/flow-typed
 web/node_modules
-server/compiled
+server/app_compiled
+server/landing_compiled
 server/dist
 server/secrets
 server/facts

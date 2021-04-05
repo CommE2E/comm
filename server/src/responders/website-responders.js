@@ -77,8 +77,8 @@ async function getAssetInfo() {
     };
     return assetInfo;
   }
-  // $FlowFixMe compiled/assets.json doesn't always exist
-  const { default: assets } = await import('../../compiled/assets');
+  // $FlowFixMe app_compiled/assets.json doesn't always exist
+  const { default: assets } = await import('../../app_compiled/assets');
   assetInfo = {
     jsURL: `compiled/${assets.browser.js}`,
     fontsURL: googleFontsURL,
