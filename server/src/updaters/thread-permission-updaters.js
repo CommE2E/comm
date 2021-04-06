@@ -425,7 +425,7 @@ async function recalculateThreadPermissions(
       continue;
     }
     const userID = row.user.toString();
-    const role = row.role.toString();
+    const role = row.role >= 0 ? row.role.toString() : '0';
     const oldPermissions = JSON.parse(row.permissions);
     const oldPermissionsForChildren = JSON.parse(row.permissions_for_children);
     const permissionsFromParent = JSON.parse(row.permissions_from_parent);
