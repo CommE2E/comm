@@ -9,4 +9,6 @@ function RootComponent() {
   return <Landing />;
 }
 
-export default hot(RootComponent);
+const HotReloadingRootComponent: React.ComponentType<{||}> = hot(RootComponent);
+
+export default HotReloadingRootComponent;

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-function Landing() {
+function Landing(): React.Node {
   return <span>Hello World!</span>;
 }
 
