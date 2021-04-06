@@ -37,7 +37,7 @@ function ChatThreadList(props: Props) {
       ));
     if (threads.length === 0 && emptyItem) {
       const EmptyItem = emptyItem;
-      threads.push(<EmptyItem />);
+      threads.push(<EmptyItem key="emptyItem" />);
     }
     return threads;
   }, [activeChatThreadID, chatListData, emptyItem, filterThreads, setModal]);
