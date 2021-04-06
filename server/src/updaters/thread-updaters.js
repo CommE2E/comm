@@ -520,6 +520,13 @@ async function updateThread(
     }
   }
 
+  const rolesNeedUpdate = forceUpdateRoot || nextThreadType !== oldThreadType;
+  const updateRolesPromise = (async () => {
+    if (rolesNeedUpdate) {
+      await updateRoles(viewer, request.threadID, nextThreadType);
+    }
+  })();
+
   const intermediatePromises = {};
   if (Object.keys(sqlUpdate).length > 0) {
     const updateQuery = SQL`
@@ -529,22 +536,17 @@ async function updateThread(
   }
 
   if (newMemberIDs) {
-    intermediatePromises.addMembersChangeset = changeRole(
-      request.threadID,
-      newMemberIDs,
-      null,
-    );
+    intermediatePromises.addMembersChangeset = (async () => {
+      await updateRolesPromise;
+      return await changeRole(request.threadID, newMemberIDs, null);
+    })();
   }
 
   const threadRootChanged =
-    forceUpdateRoot ||
-    nextParentThreadID !== oldParentThreadID ||
-    nextThreadType !== oldThreadType;
+    rolesNeedUpdate || nextParentThreadID !== oldParentThreadID;
   if (threadRootChanged) {
     intermediatePromises.recalculatePermissionsChangeset = (async () => {
-      if (forceUpdateRoot || nextThreadType !== oldThreadType) {
-        await updateRoles(viewer, request.threadID, nextThreadType);
-      }
+      await updateRolesPromise;
       return await recalculateThreadPermissions(
         request.threadID,
         nextThreadType,
