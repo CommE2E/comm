@@ -52,7 +52,7 @@ async function landingResponder(req: $Request, res: $Response) {
     <html lang="en">
       <head>
         <meta charset="utf-8" />
-        <title>Hello world</title>
+        <title>Comm</title>
         <base href="${basePath}" />
       </head>
       <body>
