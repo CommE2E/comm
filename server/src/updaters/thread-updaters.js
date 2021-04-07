@@ -451,12 +451,12 @@ async function updateThread(
     throw new ServerError('no_parent_thread_specified');
   }
 
-  const threadRootChanged =
-    forceUpdateRoot ||
-    nextParentThreadID !== oldParentThreadID ||
-    nextThreadType !== oldThreadType;
-
-  if (threadRootChanged && nextParentThreadID) {
+  if (
+    nextParentThreadID &&
+    (nextParentThreadID !== oldParentThreadID ||
+      (nextThreadType === threadTypes.SIDEBAR) !==
+        (oldThreadType === threadTypes.SIDEBAR))
+  ) {
     const hasParentPermission = await checkThreadPermission(
       viewer,
       nextParentThreadID,
@@ -516,6 +516,7 @@ async function updateThread(
     `;
     intermediatePromises.updateQuery = dbQuery(updateQuery);
   }
+
   if (newMemberIDs) {
     intermediatePromises.addMembersChangeset = changeRole(
       request.threadID,
@@ -523,6 +524,11 @@ async function updateThread(
       null,
     );
   }
+
+  const threadRootChanged =
+    forceUpdateRoot ||
+    nextParentThreadID !== oldParentThreadID ||
+    nextThreadType !== oldThreadType;
   if (threadRootChanged) {
     intermediatePromises.recalculatePermissionsChangeset = (async () => {
       if (forceUpdateRoot || nextThreadType !== oldThreadType) {
@@ -534,6 +540,7 @@ async function updateThread(
       );
     })();
   }
+
   const {
     addMembersChangeset,
     recalculatePermissionsChangeset,
