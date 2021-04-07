@@ -12,7 +12,6 @@ import {
   threadInBackgroundChatList,
   threadInHomeChatList,
   threadInChatList,
-  threadIsTopLevel,
 } from 'lib/shared/thread-utils';
 import { threadTypes } from 'lib/types/thread-types';
 
@@ -39,23 +38,7 @@ function ThreadListProvider(props: ThreadListProviderProps) {
 
   const activeChatThreadItem = useSelector(activeChatThreadItemSelector);
   const activeThreadInfo = activeChatThreadItem?.threadInfo;
-  const activeThreadFromHomeTab =
-    activeThreadInfo?.currentUser.subscription.home;
   const activeThreadID = activeThreadInfo?.id;
-  const activeThreadHasSpecificTab = threadIsTopLevel(activeThreadInfo);
-  const activeThreadIsFromDifferentTab =
-    (activeTab === 'BACKGROUND' && activeThreadFromHomeTab) ||
-    (activeTab === 'HOME' && !activeThreadFromHomeTab);
-  const prevActiveThreadIDRef = React.useRef<?string>();
-  const shouldChangeTab =
-    activeThreadHasSpecificTab && activeThreadIsFromDifferentTab;
-  React.useEffect(() => {
-    const prevActiveThreadID = prevActiveThreadIDRef.current;
-    prevActiveThreadIDRef.current = activeThreadID;
-    if (activeThreadID !== prevActiveThreadID && shouldChangeTab) {
-      setActiveTab(activeThreadFromHomeTab ? 'HOME' : 'BACKGROUND');
-    }
-  }, [activeThreadID, activeThreadFromHomeTab, shouldChangeTab]);
 
   const activeSidebarParentThreadInfo = useSelector((state) => {
     if (!activeThreadInfo || activeThreadInfo.type !== threadTypes.SIDEBAR) {
@@ -65,15 +48,34 @@ function ThreadListProvider(props: ThreadListProviderProps) {
     invariant(parentThreadID, 'sidebar must have parent thread');
     return threadInfoSelector(state)[parentThreadID];
   });
-  const activeTopLevelThread =
+  const activeTopLevelThreadInfo =
     activeThreadInfo?.type === threadTypes.SIDEBAR
       ? activeSidebarParentThreadInfo
       : activeThreadInfo;
 
+  const activeTopLevelThreadIsFromHomeTab =
+    activeTopLevelThreadInfo?.currentUser.subscription.home;
+
+  const activeTopLevelThreadIsFromDifferentTab =
+    (activeTab === 'BACKGROUND' && activeTopLevelThreadIsFromHomeTab) ||
+    (activeTab === 'HOME' && !activeTopLevelThreadIsFromHomeTab);
+
   const activeTopLevelThreadIsInChatList = React.useMemo(
-    () => threadInChatList(activeTopLevelThread),
-    [activeTopLevelThread],
+    () => threadInChatList(activeTopLevelThreadInfo),
+    [activeTopLevelThreadInfo],
   );
+
+  const shouldChangeTab =
+    activeTopLevelThreadIsInChatList && activeTopLevelThreadIsFromDifferentTab;
+
+  const prevActiveThreadIDRef = React.useRef<?string>();
+  React.useEffect(() => {
+    const prevActiveThreadID = prevActiveThreadIDRef.current;
+    prevActiveThreadIDRef.current = activeThreadID;
+    if (activeThreadID !== prevActiveThreadID && shouldChangeTab) {
+      setActiveTab(activeTopLevelThreadIsFromHomeTab ? 'HOME' : 'BACKGROUND');
+    }
+  }, [activeThreadID, shouldChangeTab, activeTopLevelThreadIsFromHomeTab]);
 
   const activeThreadOriginalTab = React.useMemo(() => {
     if (activeTopLevelThreadIsInChatList) {
@@ -150,7 +152,9 @@ function ThreadListProvider(props: ThreadListProviderProps) {
     [activeChatThreadItem],
   );
   const chatListData = useSelector(chatListDataSelector);
-  const activeTopLevelChatThreadItem = useChatThreadItem(activeTopLevelThread);
+  const activeTopLevelChatThreadItem = useChatThreadItem(
+    activeTopLevelThreadInfo,
+  );
   const { homeThreadList, backgroundThreadList } = React.useMemo(() => {
     const home = chatListData.filter((item) =>
       threadInHomeChatList(item.threadInfo),
