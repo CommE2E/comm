@@ -515,7 +515,7 @@ cd lib
 flow
 ```
 
-## Running website
+## Running web app
 
 Open a new terminal and run:
 
@@ -526,20 +526,31 @@ yarn dev
 
 This will start two processes. One is `webpack-dev-server`, which will serve the JS files. `webpack-dev-server` also makes sure the website automatically hot-reloads whenever any of the source files change. The other process is `webpack --watch`, which will build the `app.build.cjs` file, as well as rebuilding it whenever any of the source files change. The `app.build.cjs` file is consumed by the Node server in order to pre-render the initial HTML from the web source (“Server-Side Rendering”).
 
+## Running landing page
+
+Open a new terminal and run:
+
+```
+cd landing
+yarn dev
+```
+
+This runs the same two processes as the web app, but for the landing page. Note that the `landing.build.cjs` file (similar to the web app's `app.build.cjs` file) is consumed by the Node server, and must exist in order for the Node server to start.
+
 ## Running server
 
-First make sure you have `yarn dev` running in `web` first. Next, open a new terminal and run:
+First, make sure you've ran `yarn dev` at least once in both `web` and `landing`. Next, open a new terminal and run:
 
 ```
 cd server
 yarn dev
 ```
 
-You should now be able to load the website in your web browser at http://localhost/comm/.
+You should now be able to load the web app in your web browser at http://localhost/comm/, and the landing page at http://localhost/commlanding/.
 
-This will run three processes. The first two are to keep the `dist` folder updated whenever the `src` folder changes. They are “watch” versions of the same Babel and `rsync` commands we used to initially create the `dist` folder (before running the `create-db.js` script above). The final process is `nodemon`, which is similar to `node` except that it restarts whenever any of its source files (in the `dist` directory) changes.
+Note that this command runs three processes. The first two are to keep the `dist` folder updated whenever the `src` folder changes. They are “watch” versions of the same Babel and `rsync` commands we used to initially create the `dist` folder (before running the `create-db.js` script above). The final process is `nodemon`, which is similar to `node` except that it restarts whenever any of its source files (in the `dist` directory) changes.
 
-Note that if you run `yarn dev` in `server` right after `yarn cleaninstall`, before Webpack is given a chance to build an `app.build.cjs` file, then Node will crash when it attempts to import that file. Just run `yarn dev` (or `yarn prod`) in `web` before attempting to run `yarn dev` in `server`.
+Note that if you run `yarn dev` in `server` right after `yarn cleaninstall`, before Webpack is given a chance to build `app.build.cjs`/`landing.build.cjs` files, then Node will crash when it attempts to import those files. Just make sure to run `yarn dev` (or `yarn prod`) in `web` and `landing` before attempting to run `yarn dev` in `server`.
 
 ## Running iOS
 
