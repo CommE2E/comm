@@ -1,6 +1,8 @@
 // @flow
 
-import { calculateTextWidth } from '../utils/text-utils';
+import invariant from 'invariant';
+
+import { calculateMaxTextWidth } from '../utils/text-utils';
 import type { ItemAndContainerPositionInfo } from './position-types';
 
 export const tooltipPositions = Object.freeze({
@@ -14,8 +16,7 @@ export const tooltipPositions = Object.freeze({
 export type TooltipPosition = $Values<typeof tooltipPositions>;
 
 const sizeOfTooltipArrow = 10; // 7px arrow + 3px extra
-const tooltipHeight = 27; // 17px line-height + 10px padding
-const heightWithArrow = tooltipHeight + sizeOfTooltipArrow;
+const tooltipMenuItemHeight = 27; // 17px line-height + 10px padding
 const tooltipInnerPadding = 10;
 
 const font =
@@ -25,13 +26,13 @@ const font =
 
 type FindTooltipPositionArgs = {|
   +pointingToInfo: ItemAndContainerPositionInfo,
-  +text: string,
+  +tooltipTexts: $ReadOnlyArray<string>,
   +availablePositions: $ReadOnlyArray<TooltipPosition>,
   +layoutPosition: 'relative' | 'absolute',
 |};
 function findTooltipPosition({
   pointingToInfo,
-  text,
+  tooltipTexts,
   availablePositions,
   layoutPosition,
 }: FindTooltipPositionArgs) {
@@ -43,8 +44,11 @@ function findTooltipPosition({
     left: containerLeft,
   } = containerPosition;
 
-  const textWidth = calculateTextWidth(text, font);
+  const textWidth = calculateMaxTextWidth(tooltipTexts, font);
   const width = textWidth + tooltipInnerPadding + sizeOfTooltipArrow;
+  const numberOfTooltipItems = tooltipTexts.length;
+  const tooltipHeight = numberOfTooltipItems * tooltipMenuItemHeight;
+  const heightWithArrow = tooltipHeight + sizeOfTooltipArrow;
 
   const absolutePositionedTooltip = layoutPosition === 'absolute';
 
@@ -88,6 +92,12 @@ function findTooltipPosition({
   }
 
   for (const tooltipPosition of availablePositions) {
+    invariant(
+      numberOfTooltipItems === 1 ||
+        (tooltipPosition !== tooltipPositions.RIGHT &&
+          tooltipPosition !== tooltipPositions.LEFT),
+      `${tooltipPosition} position can be used only for single element tooltip`,
+    );
     if (
       tooltipPosition === tooltipPositions.RIGHT &&
       canBeDisplayedInRightPosition
@@ -123,10 +133,4 @@ function findTooltipPosition({
   return availablePositions[availablePositions.length - 1];
 }
 
-export {
-  findTooltipPosition,
-  sizeOfTooltipArrow,
-  tooltipHeight,
-  heightWithArrow,
-  tooltipInnerPadding,
-};
+export { findTooltipPosition, sizeOfTooltipArrow, tooltipInnerPadding };

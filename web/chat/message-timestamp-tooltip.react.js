@@ -54,7 +54,7 @@ function MessageTimestampTooltip(props: Props) {
     () =>
       findTooltipPosition({
         pointingToInfo,
-        text,
+        tooltipTexts: [text],
         availablePositions: availableTooltipPositions,
         layoutPosition: 'absolute',
       }),

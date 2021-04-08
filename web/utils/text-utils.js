@@ -2,14 +2,18 @@
 
 let canvas;
 
-function calculateTextWidth(text: string, font: string): number {
+function calculateMaxTextWidth(
+  texts: $ReadOnlyArray<string>,
+  font: string,
+): number {
   if (!canvas) {
     canvas = document.createElement('canvas');
   }
   const context = canvas.getContext('2d');
   context.font = font;
-  const { width } = context.measureText(text);
-  return width;
+
+  const widths = texts.map((text) => context.measureText(text).width);
+  return Math.max(...widths);
 }
 
-export { calculateTextWidth };
+export { calculateMaxTextWidth };

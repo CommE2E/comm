@@ -95,7 +95,7 @@ function SidebarTooltipButton(props: Props) {
     }
     return findTooltipPosition({
       pointingToInfo: pointingTo,
-      text: buttonText,
+      tooltipTexts: [buttonText],
       availablePositions: availableTooltipPositions,
       layoutPosition: 'relative',
     });
