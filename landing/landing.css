@@ -3,3 +3,8 @@ html {
   height: 100%;
   background: radial-gradient(ellipse at bottom, #374151, #111827);
 }
+
+h1 {
+  font-family: 'IBM Plex Sans', sans-serif;
+  color: white;
+}

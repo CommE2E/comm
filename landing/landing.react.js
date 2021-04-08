@@ -4,7 +4,7 @@ import * as React from 'react';
 import './landing.css';
 
 function Landing(): React.Node {
-  return <span>Hello World!</span>;
+  return <h1>Hello World!</h1>;
 }
 
 export default Landing;

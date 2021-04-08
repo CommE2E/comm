@@ -126,3 +126,24 @@
   src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(open-sans-latin-600.woff2) format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
 }
+/* ibm plex mono medium */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  src: local('IBM Plex Mono Medium'), local('IBMPlexMono-Medium'), url(IBMPlexMono-Medium.woff2) format('woff2'); 
+}
+/* ibm plex sans regular */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: local('IBM Plex Sans Regular'), local('IBMPlexSans-Regular'), url(IBMPlexSans-Regular.woff2) format('woff2'); 
+}
+/* ibm plex sans medium */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 500;
+  src: local('IBM Plex Sans Medium'), local('IBMPlexSans-Medium'), url(IBMPlexSans-Medium.woff2) format('woff2'); 
+}
