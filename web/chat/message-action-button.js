@@ -34,7 +34,7 @@ type Props = {|
   +containerPosition: PositionInfo,
   +availableTooltipPositions: $ReadOnlyArray<TooltipPosition>,
 |};
-function SidebarTooltipButton(props: Props) {
+function MessageActionMenu(props: Props) {
   const {
     onLeave,
     onButtonClick,
@@ -45,7 +45,7 @@ function SidebarTooltipButton(props: Props) {
   const [tooltipVisible, setTooltipVisible] = React.useState(false);
   const [pointingTo, setPointingTo] = React.useState();
 
-  const toggleMenu = React.useCallback(
+  const toggleTooltip = React.useCallback(
     (event: SyntheticEvent<HTMLDivElement>) => {
       setTooltipVisible(!tooltipVisible);
       if (tooltipVisible) {
@@ -74,7 +74,7 @@ function SidebarTooltipButton(props: Props) {
     [containerPosition, tooltipVisible],
   );
 
-  const toggleSidebar = React.useCallback(
+  const onTooltipButtonClick = React.useCallback(
     (event: SyntheticEvent<HTMLButtonElement>) => {
       onButtonClick(event);
       onLeave();
@@ -82,7 +82,7 @@ function SidebarTooltipButton(props: Props) {
     [onLeave, onButtonClick],
   );
 
-  const hideMenu = React.useCallback(() => {
+  const hideTooltip = React.useCallback(() => {
     setTooltipVisible(false);
   }, []);
 
@@ -93,19 +93,19 @@ function SidebarTooltipButton(props: Props) {
         availableTooltipPositions={availableTooltipPositions}
         targetPositionInfo={pointingTo}
         layoutPosition="relative"
-        getStyle={getSidebarTooltipStyle}
+        getStyle={getMessageActionTooltipStyle}
       >
-        <TooltipButton text={buttonText} onClick={toggleSidebar} />
+        <TooltipButton text={buttonText} onClick={onTooltipButtonClick} />
       </TooltipMenu>
     );
   }
 
   return (
-    <div className={css.messageSidebarTooltip}>
+    <div className={css.messageActionButton}>
       <div
         className={css.messageTooltipIcon}
-        onMouseLeave={hideMenu}
-        onClick={toggleMenu}
+        onMouseLeave={hideTooltip}
+        onClick={toggleTooltip}
       >
         <FontAwesomeIcon icon={faEllipsisH} />
         {tooltipMenu}
@@ -131,7 +131,7 @@ function OpenSidebar(props: OpenSidebarProps) {
   const onButtonClick = useOnClickThread(threadCreatedFromMessage.id);
 
   return (
-    <SidebarTooltipButton
+    <MessageActionMenu
       onButtonClick={onButtonClick}
       onLeave={onLeave}
       buttonText={openSidebarText}
@@ -159,7 +159,7 @@ function CreateSidebar(props: CreateSidebarProps) {
   const onButtonClick = useOnClickPendingSidebar(messageInfo, threadInfo);
 
   return (
-    <SidebarTooltipButton
+    <MessageActionMenu
       onButtonClick={onButtonClick}
       onLeave={props.onLeave}
       buttonText={createSidebarText}
@@ -176,7 +176,7 @@ type MessageActionTooltipProps = {|
   +containerPosition: PositionInfo,
   +availableTooltipPositions: $ReadOnlyArray<TooltipPosition>,
 |};
-function MessageActionTooltip(props: MessageActionTooltipProps) {
+function MessageActionButton(props: MessageActionTooltipProps) {
   const {
     threadInfo,
     item,
@@ -206,42 +206,42 @@ function MessageActionTooltip(props: MessageActionTooltipProps) {
   }
 }
 
-function getSidebarTooltipStyle(
+function getMessageActionTooltipStyle(
   tooltipPosition: TooltipPosition,
 ): TooltipStyle {
   let className;
   if (tooltipPosition === tooltipPositions.TOP_RIGHT) {
     className = classNames(
-      css.menuSidebarTopRightTooltip,
+      css.messageActionTopRightTooltip,
       css.messageTopRightTooltip,
-      css.menuSidebarExtraAreaTop,
-      css.menuSidebarExtraAreaTopRight,
+      css.messageActionExtraAreaTop,
+      css.messageActionExtraAreaTopRight,
     );
   } else if (tooltipPosition === tooltipPositions.TOP_LEFT) {
     className = classNames(
-      css.menuSidebarTopLeftTooltip,
+      css.messageActionTopLeftTooltip,
       css.messageTopLeftTooltip,
-      css.menuSidebarExtraAreaTop,
-      css.menuSidebarExtraAreaTopLeft,
+      css.messageActionExtraAreaTop,
+      css.messageActionExtraAreaTopLeft,
     );
   } else if (tooltipPosition === tooltipPositions.RIGHT) {
     className = classNames(
-      css.menuSidebarRightTooltip,
+      css.messageActionRightTooltip,
       css.messageRightTooltip,
-      css.menuSidebarExtraArea,
-      css.menuSidebarExtraAreaRight,
+      css.messageActionExtraArea,
+      css.messageActionExtraAreaRight,
     );
   } else if (tooltipPosition === tooltipPositions.LEFT) {
     className = classNames(
-      css.menuSidebarLeftTooltip,
+      css.messageActionLeftTooltip,
       css.messageLeftTooltip,
-      css.menuSidebarExtraArea,
-      css.menuSidebarExtraAreaLeft,
+      css.messageActionExtraArea,
+      css.messageActionExtraAreaLeft,
     );
   }
 
-  invariant(className, `${tooltipPosition} is not valid for sidebar tooltip`);
+  invariant(className, `${tooltipPosition} is not valid for message tooltip`);
   return { className };
 }
 
-export default MessageActionTooltip;
+export default MessageActionButton;

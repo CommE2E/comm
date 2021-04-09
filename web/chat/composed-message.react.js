@@ -19,12 +19,12 @@ import { type InputState, InputStateContext } from '../input/input-state';
 import css from './chat-message-list.css';
 import FailedSend from './failed-send.react';
 import { InlineSidebar } from './inline-sidebar.react';
+import MessageActionButton from './message-action-button';
 import MessageReplyButton from './message-reply-button.react';
 import {
   type OnMessagePositionWithContainerInfo,
   type MessagePositionInfo,
 } from './position-types';
-import MessageActionTooltip from './sidebar-tooltip.react';
 import { tooltipPositions } from './tooltip-utils';
 
 const availableTooltipPositionsForViewerMessage = [
@@ -139,7 +139,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       );
     }
 
-    let messageActionTooltip;
+    let messageActionButton;
     if (
       this.props.mouseOverMessagePosition &&
       this.props.mouseOverMessagePosition.item.messageInfo.id === id &&
@@ -149,8 +149,8 @@ class ComposedMessage extends React.PureComponent<Props> {
         ? availableTooltipPositionsForViewerMessage
         : availableTooltipPositionsForNonViewerMessage;
 
-      messageActionTooltip = (
-        <MessageActionTooltip
+      messageActionButton = (
+        <MessageActionButton
           threadInfo={threadInfo}
           item={item}
           onLeave={this.onMouseLeave}
@@ -163,7 +163,7 @@ class ComposedMessage extends React.PureComponent<Props> {
     }
 
     let viewerActionLinks, nonViewerActionLinks;
-    if (isViewer && (replyButton || messageActionTooltip)) {
+    if (isViewer && (replyButton || messageActionButton)) {
       viewerActionLinks = (
         <div
           className={classNames(
@@ -171,11 +171,11 @@ class ComposedMessage extends React.PureComponent<Props> {
             css.viewerMessageActionLinks,
           )}
         >
-          {messageActionTooltip}
+          {messageActionButton}
           {replyButton}
         </div>
       );
-    } else if (replyButton || messageActionTooltip) {
+    } else if (replyButton || messageActionButton) {
       nonViewerActionLinks = (
         <div
           className={classNames(
@@ -184,7 +184,7 @@ class ComposedMessage extends React.PureComponent<Props> {
           )}
         >
           {replyButton}
-          {messageActionTooltip}
+          {messageActionButton}
         </div>
       );
     }
