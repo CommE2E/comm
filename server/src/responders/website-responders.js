@@ -4,7 +4,7 @@ import html from 'common-tags/lib/html';
 import type { $Response, $Request } from 'express';
 import fs from 'fs';
 import _keyBy from 'lodash/fp/keyBy';
-import React from 'react';
+import * as React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { Provider } from 'react-redux';
 import { Route, StaticRouter } from 'react-router';
@@ -24,7 +24,6 @@ import type { ServerVerificationResult } from 'lib/types/verify-types';
 import { currentDateInTimeZone } from 'lib/utils/date-utils';
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
-import App from 'web/dist/app.build.cjs';
 import { reducer } from 'web/redux/redux-setup';
 import type { AppState, Action } from 'web/redux/redux-setup';
 import getTitle from 'web/title/getTitle';
@@ -77,8 +76,8 @@ async function getAssetInfo() {
     };
     return assetInfo;
   }
-  // $FlowFixMe app_compiled/assets.json doesn't always exist
-  const { default: assets } = await import('../../app_compiled/assets');
+  // $FlowFixMe web/dist doesn't always exist
+  const { default: assets } = await import('web/dist/assets');
   assetInfo = {
     jsURL: `compiled/${assets.browser.js}`,
     fontsURL: googleFontsURL,
@@ -93,11 +92,31 @@ async function getAssetInfo() {
   return assetInfo;
 }
 
+let webpackCompiledRootComponent: ?React.ComponentType<{||}> = null;
+async function getWebpackCompiledRootComponentForSSR() {
+  if (webpackCompiledRootComponent) {
+    return webpackCompiledRootComponent;
+  }
+  try {
+    // $FlowFixMe web/dist doesn't always exist
+    const webpackBuild = await import('web/dist/app.build.cjs');
+    webpackCompiledRootComponent = webpackBuild.default.default;
+    return webpackCompiledRootComponent;
+  } catch {
+    throw new Error(
+      'Could not load app.build.cjs. ' +
+        'Did you forget to run `yarn dev` in the web folder?',
+    );
+  }
+}
+
 async function websiteResponder(
   viewer: Viewer,
   req: $Request,
   res: $Response,
 ): Promise<void> {
+  const appPromise = getWebpackCompiledRootComponentForSSR();
+
   let initialNavInfo;
   try {
     initialNavInfo = navInfoFromURL(req.url, {
@@ -267,7 +286,10 @@ async function websiteResponder(
     windowActive: true,
   };
 
-  const stateResult = await promiseAll(statePromises);
+  const [stateResult, App] = await Promise.all([
+    promiseAll(statePromises),
+    appPromise,
+  ]);
   const state: AppState = { ...stateResult };
   const store: Store<AppState, Action> = createStore(reducer, state);
 
@@ -279,7 +301,7 @@ async function websiteResponder(
         basename={baseURL}
         context={routerContext}
       >
-        <Route path="*" component={App.default} />
+        <Route path="*" component={App} />
       </StaticRouter>
     </Provider>,
   );

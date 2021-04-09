@@ -3,7 +3,6 @@
 import html from 'common-tags/lib/html';
 import type { $Response, $Request } from 'express';
 import fs from 'fs';
-import Landing from 'landing/dist/landing.build.cjs';
 import * as React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { promisify } from 'util';
@@ -51,8 +50,8 @@ async function getAssetInfo() {
     };
     return assetInfo;
   }
-  // $FlowFixMe landing_compiled/assets.json doesn't always exist
-  const { default: assets } = await import('../../landing_compiled/assets');
+  // $FlowFixMe landing/dist doesn't always exist
+  const { default: assets } = await import('landing/dist/assets');
   assetInfo = {
     jsURL: `compiled/${assets.browser.js}`,
     fontsURL: googleFontsURL,
@@ -67,11 +66,32 @@ async function getAssetInfo() {
   return assetInfo;
 }
 
+let webpackCompiledRootComponent: ?React.ComponentType<{||}> = null;
+async function getWebpackCompiledRootComponentForSSR() {
+  if (webpackCompiledRootComponent) {
+    return webpackCompiledRootComponent;
+  }
+  try {
+    // $FlowFixMe landing/dist doesn't always exist
+    const webpackBuild = await import('landing/dist/landing.build.cjs');
+    webpackCompiledRootComponent = webpackBuild.default.default;
+    return webpackCompiledRootComponent;
+  } catch {
+    throw new Error(
+      'Could not load landing.build.cjs. ' +
+        'Did you forget to run `yarn dev` in the landing folder?',
+    );
+  }
+}
+
 const { basePath } = getLandingURLFacts();
 const { renderToNodeStream } = ReactDOMServer;
 
 async function landingResponder(req: $Request, res: $Response) {
-  const { jsURL, fontsURL, cssInclude } = await getAssetInfo();
+  const [{ jsURL, fontsURL, cssInclude }, Landing] = await Promise.all([
+    getAssetInfo(),
+    getWebpackCompiledRootComponentForSSR(),
+  ]);
 
   // prettier-ignore
   res.write(html`
@@ -88,8 +108,7 @@ async function landingResponder(req: $Request, res: $Response) {
         <div id="react-root">
   `);
 
-  const LandingRoot = Landing.default;
-  const reactStream = renderToNodeStream(<LandingRoot />);
+  const reactStream = renderToNodeStream(<Landing />);
   reactStream.pipe(res, { end: false });
   await waitForStream(reactStream);
 

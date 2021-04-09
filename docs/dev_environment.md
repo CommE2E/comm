@@ -164,10 +164,10 @@ brew install adoptopenjdk/openjdk/adoptopenjdk8; brew upgrade adoptopenjdk/openj
 
 Start by downloading and installing [Android Studio](https://developer.android.com/studio/index.html). When prompted to choose an installation type, select “Custom”. Make sure you check the boxes for the following:
 
-* `Android SDK`
-* `Android SDK Platform`
-* `Performance (Intel ® HAXM)`
-* `Android Virtual Device`
+- `Android SDK`
+- `Android SDK Platform`
+- `Performance (Intel ® HAXM)`
+- `Android Virtual Device`
 
 ### Android SDK
 
@@ -175,8 +175,8 @@ Android Studio installs the latest Android SDK by default, but since React Nativ
 
 Once you have the SDK Manager open, select the “SDK Platforms” tab, and then check the box for “Show Package Details”. Now expand the “Android 10 (Q)” section, and make sure the following subsections are checked:
 
-* `Android SDK Platform 29`
-* `Intel x86 Atom_64 System Image` or `Google APIs Intel x86 Atom System Image`
+- `Android SDK Platform 29`
+- `Intel x86 Atom_64 System Image` or `Google APIs Intel x86 Atom System Image`
 
 Next, select the “SDK Tools” tab, and check the box for “Show Package Details”. Expand the “Android SDK Build-Tools” section, and make sure that the “29.0.2” subsection is checked.
 
@@ -535,11 +535,11 @@ cd landing
 yarn dev
 ```
 
-This runs the same two processes as the web app, but for the landing page. Note that the `landing.build.cjs` file (similar to the web app's `app.build.cjs` file) is consumed by the Node server, and must exist in order for the Node server to start.
+This runs the same two processes as the web app, but for the landing page. Note that the `landing.build.cjs` file (similar to the web app's `app.build.cjs` file) is consumed by the Node server.
 
 ## Running server
 
-First, make sure you've ran `yarn dev` at least once in both `web` and `landing`. Next, open a new terminal and run:
+Open a new terminal and run:
 
 ```
 cd server
@@ -548,9 +548,9 @@ yarn dev
 
 You should now be able to load the web app in your web browser at http://localhost/comm/, and the landing page at http://localhost/commlanding/.
 
-Note that this command runs three processes. The first two are to keep the `dist` folder updated whenever the `src` folder changes. They are “watch” versions of the same Babel and `rsync` commands we used to initially create the `dist` folder (before running the `create-db.js` script above). The final process is `nodemon`, which is similar to `node` except that it restarts whenever any of its source files (in the `dist` directory) changes.
+This command runs three processes. The first two are to keep the `dist` folder updated whenever the `src` folder changes. They are “watch” versions of the same Babel and `rsync` commands we used to initially create the `dist` folder (before running the `create-db.js` script above). The final process is `nodemon`, which is similar to `node` except that it restarts whenever any of its source files (in the `dist` directory) changes.
 
-Note that if you run `yarn dev` in `server` right after `yarn cleaninstall`, before Webpack is given a chance to build `app.build.cjs`/`landing.build.cjs` files, then Node will crash when it attempts to import those files. Just make sure to run `yarn dev` (or `yarn prod`) in `web` and `landing` before attempting to run `yarn dev` in `server`.
+Note that if you run `yarn dev` in `server` right after `yarn cleaninstall`, before Webpack is given a chance to build `app.build.cjs`/`landing.build.cjs` files, then Node will crash when it attempts to import those files. Just make sure to run `yarn dev` (or `yarn prod`) in `web` or `landing` before attempting to load the corresponding webpages.
 
 ## Running iOS
 
