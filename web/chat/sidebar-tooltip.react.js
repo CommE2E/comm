@@ -22,17 +22,14 @@ import type {
   ItemAndContainerPositionInfo,
   PositionInfo,
 } from './position-types';
-import {
-  findTooltipPosition,
-  tooltipPositions,
-  type TooltipPosition,
-} from './tooltip-utils';
+import { tooltipPositions, type TooltipPosition } from './tooltip-utils';
+import { TooltipMenu, type TooltipStyle, TooltipButton } from './tooltip.react';
 
 const ellipsisIconExcessVerticalWhitespace = 10;
 
 type Props = {|
   +onLeave: () => void,
-  +onButtonClick: (event: SyntheticEvent<HTMLAnchorElement>) => void,
+  +onButtonClick: (event: SyntheticEvent<HTMLButtonElement>) => void,
   +buttonText: string,
   +containerPosition: PositionInfo,
   +availableTooltipPositions: $ReadOnlyArray<TooltipPosition>,
@@ -49,7 +46,7 @@ function SidebarTooltipButton(props: Props) {
   const [pointingTo, setPointingTo] = React.useState();
 
   const toggleMenu = React.useCallback(
-    (event: SyntheticEvent<HTMLAnchorElement>) => {
+    (event: SyntheticEvent<HTMLDivElement>) => {
       setTooltipVisible(!tooltipVisible);
       if (tooltipVisible) {
         return;
@@ -78,7 +75,7 @@ function SidebarTooltipButton(props: Props) {
   );
 
   const toggleSidebar = React.useCallback(
-    (event: SyntheticEvent<HTMLAnchorElement>) => {
+    (event: SyntheticEvent<HTMLButtonElement>) => {
       onButtonClick(event);
       onLeave();
     },
@@ -89,30 +86,19 @@ function SidebarTooltipButton(props: Props) {
     setTooltipVisible(false);
   }, []);
 
-  const tooltipPosition = React.useMemo(() => {
-    if (!pointingTo) {
-      return null;
-    }
-    return findTooltipPosition({
-      pointingToInfo: pointingTo,
-      tooltipTexts: [buttonText],
-      availablePositions: availableTooltipPositions,
-      layoutPosition: 'relative',
-    });
-  }, [availableTooltipPositions, pointingTo, buttonText]);
-
-  const sidebarTooltip = React.useMemo(() => {
-    if (!tooltipVisible || !tooltipPosition) {
-      return null;
-    }
-    return (
-      <TooltipButton
-        onButtonClick={toggleSidebar}
-        buttonText={buttonText}
-        tooltipPosition={tooltipPosition}
-      />
+  let tooltipMenu = null;
+  if (pointingTo && tooltipVisible) {
+    tooltipMenu = (
+      <TooltipMenu
+        availableTooltipPositions={availableTooltipPositions}
+        targetPositionInfo={pointingTo}
+        layoutPosition="relative"
+        getStyle={getSidebarTooltipStyle}
+      >
+        <TooltipButton text={buttonText} onClick={toggleSidebar} />
+      </TooltipMenu>
     );
-  }, [buttonText, toggleSidebar, tooltipPosition, tooltipVisible]);
+  }
 
   return (
     <div className={css.messageSidebarTooltip}>
@@ -122,36 +108,8 @@ function SidebarTooltipButton(props: Props) {
         onClick={toggleMenu}
       >
         <FontAwesomeIcon icon={faEllipsisH} />
-        {sidebarTooltip}
+        {tooltipMenu}
       </div>
-    </div>
-  );
-}
-
-type TooltipButtonProps = {|
-  +onButtonClick: (event: SyntheticEvent<HTMLAnchorElement>) => void,
-  +buttonText: string,
-  +tooltipPosition: TooltipPosition,
-|};
-function TooltipButton(props: TooltipButtonProps) {
-  const { onButtonClick, buttonText, tooltipPosition } = props;
-  const sidebarStyle = React.useMemo(
-    () => getSidebarTooltipStyle(tooltipPosition),
-    [tooltipPosition],
-  );
-
-  const sidebarMenuClassName = React.useMemo(
-    () => classNames(css.menuSidebarContent, sidebarStyle),
-    [sidebarStyle],
-  );
-
-  return (
-    <div className={sidebarMenuClassName}>
-      <ul>
-        <li>
-          <button onClick={onButtonClick}>{buttonText}</button>
-        </li>
-      </ul>
     </div>
   );
 }
@@ -248,7 +206,9 @@ function MessageActionTooltip(props: MessageActionTooltipProps) {
   }
 }
 
-function getSidebarTooltipStyle(tooltipPosition: TooltipPosition): string {
+function getSidebarTooltipStyle(
+  tooltipPosition: TooltipPosition,
+): TooltipStyle {
   let className;
   if (tooltipPosition === tooltipPositions.TOP_RIGHT) {
     className = classNames(
@@ -281,7 +241,7 @@ function getSidebarTooltipStyle(tooltipPosition: TooltipPosition): string {
   }
 
   invariant(className, `${tooltipPosition} is not valid for sidebar tooltip`);
-  return className;
+  return { className };
 }
 
 export default MessageActionTooltip;

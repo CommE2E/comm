@@ -7,7 +7,7 @@ div.container {
   box-sizing: border-box;
 }
 div.activeContainer {
-  border: 2px solid #5989D6;
+  border: 2px solid #5989d6;
   margin-left: 402px;
 }
 div.outerMessageContainer {
@@ -38,7 +38,7 @@ div.message {
 div.inputBar {
   display: flex;
   flex-direction: column;
-  border-top: 2px solid #E4E4E4;
+  border-top: 2px solid #e4e4e4;
 }
 div.inputBarTextInput {
   display: flex;
@@ -70,13 +70,13 @@ a.send {
 svg.sendButton {
   padding: 0 4px;
   font-size: 24px;
-  color: #88BB88;
+  color: #88bb88;
 }
 div.joinButtonContainer > a {
   margin: 3px 12px;
   padding: 3px 0 5px 0;
   display: flex;
-  background-color: #44CC99;
+  background-color: #44cc99;
   border-radius: 5px;
   justify-content: center;
   cursor: pointer;
@@ -122,7 +122,7 @@ div.innerRobotextContainer {
   word-break: break-word;
 }
 
-div.messageTimestampTooltip {
+div.messageTooltipMenu {
   position: absolute;
   background-color: black;
   color: white;
@@ -130,17 +130,36 @@ div.messageTimestampTooltip {
   border-radius: 5px;
   font-size: 14px;
   z-index: 1;
-  pointer-events: none;
   white-space: nowrap;
 }
-div.messageTimestampTooltip:after {
-  content: "";
+div.messageTooltipMenu ul {
+  list-style: none;
+}
+div.messageTooltipMenu li:not(:last-child) {
+  padding-bottom: 5px;
+}
+div.messageTooltipMenu:after {
+  content: '';
   position: absolute;
   width: 0;
   height: 0;
   border-width: 7px;
   border-style: solid;
 }
+div.messageTooltipMenu button {
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  outline: none;
+  background-color: black;
+  color: white;
+  text-decoration: underline;
+}
+div.messageTooltipMenu button:hover {
+  background-color: black;
+  color: #129aff;
+}
+
 div.messageLeftTooltip {
   transform: translate(0%, -50%);
 }
@@ -237,11 +256,11 @@ div.lightTextMessage {
   color: black;
 }
 div.darkTextMessage a {
-  color: #129AFF;
+  color: #129aff;
   text-decoration: underline;
 }
 div.lightTextMessage a {
-  color: #2A5DB0;
+  color: #2a5db0;
   text-decoration: underline;
 }
 
@@ -313,14 +332,14 @@ span.deliveryFailed {
 }
 a.retrySend {
   padding: 0 3px;
-  color: #036AFF;
+  color: #036aff;
   cursor: pointer;
 }
 a.multimediaUpload {
   cursor: pointer;
   position: relative;
 }
-a.multimediaUpload > input[type="file"] {
+a.multimediaUpload > input[type='file'] {
   visibility: hidden;
   position: absolute;
   top: 0;
@@ -333,7 +352,7 @@ a.multimediaUpload > input[type="file"] {
 a.multimediaUpload > svg {
   padding: 0 6px;
   font-size: 20px;
-  color: #8A8A8A;
+  color: #8a8a8a;
   cursor: pointer;
 }
 
@@ -374,7 +393,7 @@ div.imageGrid > span.multimedia > span.multimediaImage {
   flex: 1;
 }
 div.imageGrid > span.multimedia > span.multimediaImage:after {
-  content: "";
+  content: '';
   display: block;
   padding-bottom: calc(min(600px, 100%));
 }
@@ -385,16 +404,16 @@ div.imageGrid > span.multimedia > span.multimediaImage > img {
   object-fit: cover;
 }
 
-div.imageGrid > span.multimedia:nth-last-child(n+3):first-child,
-div.imageGrid > span.multimedia:nth-last-child(n+3):first-child ~ * {
+div.imageGrid > span.multimedia:nth-last-child(n + 3):first-child,
+div.imageGrid > span.multimedia:nth-last-child(n + 3):first-child ~ * {
   grid-column-end: span 2;
 }
-div.imageGrid > span.multimedia:nth-last-child(n+4):first-child,
-div.imageGrid > span.multimedia:nth-last-child(n+4):first-child ~ * {
+div.imageGrid > span.multimedia:nth-last-child(n + 4):first-child,
+div.imageGrid > span.multimedia:nth-last-child(n + 4):first-child ~ * {
   grid-column-end: span 3;
 }
-div.imageGrid > span.multimedia:nth-last-child(n+5):first-child,
-div.imageGrid > span.multimedia:nth-last-child(n+5):first-child ~ * {
+div.imageGrid > span.multimedia:nth-last-child(n + 5):first-child,
+div.imageGrid > span.multimedia:nth-last-child(n + 5):first-child ~ * {
   grid-column-end: span 2;
 }
 
@@ -410,7 +429,7 @@ div.inlineSidebar {
   align-items: center;
 }
 div.inlineSidebarName {
-  padding-Top: 1px;
+  padding-top: 1px;
   color: #666666;
   font-size: 16px;
   padding-left: 4px;
@@ -433,45 +452,10 @@ svg.inlineSidebarIcon {
   color: #666666;
 }
 
-div.menuSidebarContent {
-  position: absolute;
-  z-index: 1;
-  width: max-content;
-  border-radius: 5px;
-  overflow: visible;
-}
-div.menuSidebarContent ul {
-  list-style: none;
-}
-div.menuSidebarContent li:not(:last-child) {
-  border-bottom: 1px solid #DDDDDD;
-}
-div.menuSidebarContent:after {
-  content: "";
-  position: absolute;
-  border-width: 7px;
-  border-style: solid;
-}
-div.menuSidebarContent button {
-  border: none;
-  cursor: pointer;
-  padding: 5px;
-  font-size: 14px;
-  outline: none;
-  border-radius: 5px;
-  background-color: black;
-  color: white;
-  text-decoration: underline;
-}
-div.menuSidebarContent button:hover {
-  background-color: black;
-  color: #129AFF;
-}
-
 div.menuSidebarExtraAreaTop:before {
   height: 15px;
   width: 55px;
-  content: "";
+  content: '';
   position: absolute;
   bottom: -15px;
 }
@@ -484,7 +468,7 @@ div.menuSidebarExtraAreaTopLeft:before {
 div.menuSidebarExtraArea:before {
   height: 30px;
   width: 20px;
-  content: "";
+  content: '';
   position: absolute;
 }
 div.menuSidebarExtraAreaRight:before {

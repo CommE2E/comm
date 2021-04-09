@@ -16,7 +16,8 @@ export const tooltipPositions = Object.freeze({
 export type TooltipPosition = $Values<typeof tooltipPositions>;
 
 const sizeOfTooltipArrow = 10; // 7px arrow + 3px extra
-const tooltipMenuItemHeight = 27; // 17px line-height + 10px padding
+const tooltipMenuItemHeight = 22; // 17px line-height + 5px padding bottom
+const tooltipInnerTopPadding = 5; // 5px bottom is included in last item
 const tooltipInnerPadding = 10;
 
 const font =
@@ -46,7 +47,8 @@ function findTooltipPosition({
   const textWidth = calculateMaxTextWidth(tooltipTexts, font);
   const width = textWidth + tooltipInnerPadding + sizeOfTooltipArrow;
   const numberOfTooltipItems = tooltipTexts.length;
-  const tooltipHeight = numberOfTooltipItems * tooltipMenuItemHeight;
+  const tooltipHeight =
+    numberOfTooltipItems * tooltipMenuItemHeight + tooltipInnerTopPadding;
   const heightWithArrow = tooltipHeight + sizeOfTooltipArrow;
 
   const absolutePositionedTooltip = layoutPosition === 'absolute';
@@ -132,4 +134,4 @@ function findTooltipPosition({
   return availablePositions[availablePositions.length - 1];
 }
 
-export { findTooltipPosition, sizeOfTooltipArrow, tooltipInnerPadding };
+export { findTooltipPosition, sizeOfTooltipArrow };

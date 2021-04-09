@@ -1,6 +1,6 @@
 // @flow
 
-import classNames from 'classnames';
+import invariant from 'invariant';
 import * as React from 'react';
 
 import { isComposableMessageType } from 'lib/types/message-types';
@@ -11,9 +11,13 @@ import type { OnMessagePositionWithContainerInfo } from './position-types';
 import {
   type TooltipPosition,
   tooltipPositions,
-  findTooltipPosition,
   sizeOfTooltipArrow,
 } from './tooltip-utils';
+import {
+  TooltipMenu,
+  type TooltipStyle,
+  TooltipTextItem,
+} from './tooltip.react';
 
 const availablePositionsForComposedViewerMessage = [
   tooltipPositions.BOTTOM_RIGHT,
@@ -50,35 +54,27 @@ function MessageTimestampTooltip(props: Props) {
     };
   }, [messagePosition, containerPosition]);
 
-  const tooltipPosition = React.useMemo(
-    () =>
-      findTooltipPosition({
-        pointingToInfo,
-        tooltipTexts: [text],
-        availablePositions: availableTooltipPositions,
-        layoutPosition: 'absolute',
-      }),
-    [availableTooltipPositions, pointingToInfo, text],
+  const getTooltipStyle = React.useCallback(
+    (tooltipPosition: TooltipPosition) =>
+      getTimestampTooltipStyle(messagePositionInfo, tooltipPosition),
+    [messagePositionInfo],
   );
-  const { style, className } = React.useMemo(
-    () => getTimestampTooltipStyle(messagePositionInfo, tooltipPosition),
-    [messagePositionInfo, tooltipPosition],
-  );
-
   return (
-    <div
-      className={classNames(css.messageTimestampTooltip, className)}
-      style={style}
+    <TooltipMenu
+      availableTooltipPositions={availableTooltipPositions}
+      targetPositionInfo={pointingToInfo}
+      layoutPosition="absolute"
+      getStyle={getTooltipStyle}
     >
-      {text}
-    </div>
+      <TooltipTextItem text={text} />
+    </TooltipMenu>
   );
 }
 
 function getTimestampTooltipStyle(
   messagePositionInfo: OnMessagePositionWithContainerInfo,
   tooltipPosition: TooltipPosition,
-) {
+): TooltipStyle {
   const { messagePosition, containerPosition } = messagePositionInfo;
   const { height: containerHeight, width: containerWidth } = containerPosition;
 
@@ -140,7 +136,11 @@ function getTimestampTooltipStyle(
     };
     className = css.messageBottomRightTooltip;
   }
-  return { style, className };
+  invariant(
+    className && style,
+    `${tooltipPosition} is not valid for timestamp tooltip`,
+  );
+  return { className, style };
 }
 
 export default MessageTimestampTooltip;
