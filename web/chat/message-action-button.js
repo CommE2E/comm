@@ -103,7 +103,7 @@ function MessageActionMenu(props: Props) {
   return (
     <div className={css.messageActionButton}>
       <div
-        className={css.messageTooltipIcon}
+        className={css.messageActionLinkIcon}
         onMouseLeave={hideTooltip}
         onClick={toggleTooltip}
       >

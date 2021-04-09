@@ -37,7 +37,7 @@ function MessageReplyButton(props: Props) {
 
   return (
     <div className={replyButtonClassName}>
-      <div className={css.messageTooltipIcon} onClick={replyClicked}>
+      <div className={css.messageActionLinkIcon} onClick={replyClicked}>
         <FontAwesomeIcon icon={faReply} />
       </div>
     </div>

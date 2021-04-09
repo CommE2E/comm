@@ -222,11 +222,11 @@ div.messageActionButton {
   font-size: 16px;
 }
 
-div.messageTooltipIcon {
+div.messageActionLinkIcon {
   padding: 2px 3px;
   position: relative;
 }
-div.messageTooltipIcon:hover {
+div.messageActionLinkIcon:hover {
   cursor: pointer;
 }
 
