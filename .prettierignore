@@ -1,3 +1,5 @@
+landing/dist
+landing/flow-typed
 lib/flow-typed
 web/dist
 web/flow-typed
@@ -8,4 +10,9 @@ server/secrets
 server/facts
 server/fonts
 server/flow-typed
+server/src/landing
+server/src/lib
+server/src/web
+native/android
 native/flow-typed
+native/ios

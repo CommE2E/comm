@@ -1,3 +1,6 @@
+landing/dist
+landing/flow-typed
+landing/node_modules
 lib/flow-typed
 lib/node_modules
 web/dist
@@ -11,6 +14,7 @@ server/facts
 server/fonts
 server/flow-typed
 server/node_modules
+server/src/landing
 server/src/lib
 server/src/web
 native/flow-typed
