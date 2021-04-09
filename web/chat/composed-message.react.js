@@ -19,7 +19,7 @@ import { type InputState, InputStateContext } from '../input/input-state';
 import css from './chat-message-list.css';
 import FailedSend from './failed-send.react';
 import { InlineSidebar } from './inline-sidebar.react';
-import MessageReplyTooltip from './message-reply-tooltip.react';
+import MessageReplyButton from './message-reply-button.react';
 import {
   type OnMessagePositionWithContainerInfo,
   type MessagePositionInfo,
@@ -122,7 +122,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       );
     }
 
-    let replyTooltip;
+    let replyButton;
     if (
       this.props.mouseOverMessagePosition &&
       this.props.mouseOverMessagePosition.item.messageInfo.id === id &&
@@ -130,8 +130,8 @@ class ComposedMessage extends React.PureComponent<Props> {
     ) {
       const { inputState } = this.props;
       invariant(inputState, 'inputState should be set in ComposedMessage');
-      replyTooltip = (
-        <MessageReplyTooltip
+      replyButton = (
+        <MessageReplyButton
           messagePositionInfo={this.props.mouseOverMessagePosition}
           onReplyClick={this.onMouseLeave}
           inputState={inputState}
@@ -163,7 +163,7 @@ class ComposedMessage extends React.PureComponent<Props> {
     }
 
     let viewerActionLinks, nonViewerActionLinks;
-    if (isViewer && (replyTooltip || messageActionTooltip)) {
+    if (isViewer && (replyButton || messageActionTooltip)) {
       viewerActionLinks = (
         <div
           className={classNames(
@@ -172,10 +172,10 @@ class ComposedMessage extends React.PureComponent<Props> {
           )}
         >
           {messageActionTooltip}
-          {replyTooltip}
+          {replyButton}
         </div>
       );
-    } else if (replyTooltip || messageActionTooltip) {
+    } else if (replyButton || messageActionTooltip) {
       nonViewerActionLinks = (
         <div
           className={classNames(
@@ -183,7 +183,7 @@ class ComposedMessage extends React.PureComponent<Props> {
             css.nonViewerMessageActionLinks,
           )}
         >
-          {replyTooltip}
+          {replyButton}
           {messageActionTooltip}
         </div>
       );

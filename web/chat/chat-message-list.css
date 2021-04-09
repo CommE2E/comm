@@ -215,7 +215,7 @@ div.nonViewerMessageActionLinks {
 div.messageActionLinks > div + div {
   margin-left: 4px;
 }
-div.messageReplyTooltip {
+div.messageReplyButton {
   font-size: 14px;
 }
 div.messageSidebarTooltip {

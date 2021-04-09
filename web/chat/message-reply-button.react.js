@@ -17,7 +17,7 @@ type Props = {|
   +onReplyClick: () => void,
   +inputState: InputState,
 |};
-function MessageReplyTooltip(props: Props) {
+function MessageReplyButton(props: Props) {
   const { inputState, onReplyClick, messagePositionInfo } = props;
   const { addReply } = inputState;
 
@@ -29,13 +29,14 @@ function MessageReplyTooltip(props: Props) {
   }, [addReply, item, onReplyClick]);
 
   const { isViewer } = item.messageInfo.creator;
-  const replyTooltipClassName = classNames({
-    [css.messageReplyTooltip]: true,
+  const replyButtonClassName = classNames({
+    [css.messageReplyButton]: true,
     [css.tooltipRightPadding]: isViewer,
     [css.tooltipLeftPadding]: !isViewer,
   });
+
   return (
-    <div className={replyTooltipClassName}>
+    <div className={replyButtonClassName}>
       <div className={css.messageTooltipIcon} onClick={replyClicked}>
         <FontAwesomeIcon icon={faReply} />
       </div>
@@ -43,4 +44,4 @@ function MessageReplyTooltip(props: Props) {
   );
 }
 
-export default MessageReplyTooltip;
+export default MessageReplyButton;
