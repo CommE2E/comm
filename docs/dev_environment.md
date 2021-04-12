@@ -138,7 +138,7 @@ source ~/.bash_profile
 
 ## React Native Debugger
 
-The React Native Debugger allows you to step through Javascript execution, track Redux state, and inspect the React component tree.
+The React Native Debugger allows you to step through JavaScript execution, track Redux state, and inspect the React component tree. Note that because we are midway through transitioning to a custom Hermes JS runtime, React Native Debugger only works with iOS right now. For Android you should use Flipper (for React Dev Tools and JavaScript debugging) or the Redux Dev Tools Chrome extension (for Redux Dev Tools).
 
 ```
 brew install react-native-debugger; brew upgrade react-native-debugger
@@ -151,6 +151,18 @@ Reactotron is an event tracker and logger that can be used to aid in debugging o
 ```
 brew install reactotron; brew upgrade reactotron
 ```
+
+## Flipper
+
+Flipper is a debugging tool for mobile applications from Facebook. We use it just with Android right now (see context in the React Native Debugger section above). You can download the latest version for MacOS [here](https://www.facebook.com/fbflipper/public/mac).
+
+## React Dev Tools Chrome extension
+
+The React Dev Tools Chrome extension lets you inspect the React component tree for web applications in Chrome. You can install it by navigating [here](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi) on Chrome.
+
+## Redux Dev Tools Chrome extension
+
+The Redux Dev Tools Chrome extension lets you watch for Redux actions and inspect the Redux store state, both for web applications in Chrome, but also for our native applications using the “Remote DevTools” functionality. To install it, navigate [here](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd) on Chrome.
 
 ## JDK
 
@@ -561,6 +573,8 @@ cd native
 yarn dev
 ```
 
+This command runs two processes. The first is the Metro bundler, which handles bundling our app's JavaScript code and communicating with the debug build of the app running on either the simulator or a physical device. The second is the `remotedev-server` for Redux, which is a proxy of sorts through which the Redux monitor (running in the Chrome extension) can communicate with the debug build of the app.
+
 Next, open `native/ios/SquadCal.xcworkspace` in Xcode. Select a simulator and then hit the play button to build and run the project.
 
 ## Running Android
@@ -572,6 +586,8 @@ cd native
 yarn dev
 ```
 
+This commands runs two processes (see previous section for details).
+
 Next, boot up an Android simulator using Android Studio’s AVD Manager. You should have a single Android simulator (or plugged-in device) running at one time.
 
 Finally, use this command to build and run the Android app:
@@ -580,6 +596,26 @@ Finally, use this command to build and run the Android app:
 cd native
 yarn react-native run-android
 ```
+
+# Debugging
+
+## React Developer Tools
+
+- For web, you can access the React Developer Tools through the Chrome extension by opening the Chrome Developer Tools and selecting the “Components” or “Profiler” tabs. This should work in both our development environment and in production.
+- For iOS, you can access the React Developer Tools through React Native Debugger. Just open up the React Native Debugger application, and then select “Debug” from the React Native dev menu. You can open the React Native dev menu on debug builds of React Native apps by hitting Cmd+Ctrl+Z on the iOS Simulator, or shaking the device if it's a physical device.
+- For Android, you can access the React Developer Tools through Flipper. First start a debug build of a React Native app. Next, just open up Flipper and you should be able to see an option for “React DevTools”. Flipper communicates with the app through the Metro bundler that gets started when you run `cd native && yarn dev`.
+
+## Redux Developer Tools
+
+- For web, you can access the Redux Developer Tools through the Chrome extension by opening the Chrome Developer Tools and selecting the “Redux” tab. This should work in both our development environment and in production, although in production you won't be able to see Redux actions from before you opened up the Redux dev tools.
+- For iOS, you can access the Redux Developer Tools through React Native Debugger. Just open up the React Native Debugger application, and then select “Debug” from the React Native dev menu. You can open the React Native dev menu on debug builds of React Native apps by hitting Cmd+Ctrl+Z on the iOS Simulator, or shaking the device if it's a physical device.
+- For Android, you can access the Redux Developer Tools through the Chrome extension's Remote DevTools functionality. First, to open the Remote DevTools, right click on any webpage, go into the “Redux DevTools” menu, and select “Open Remote DevTools”. Then hit “Settings”, select “Use custom (local) server”, and configure it to connect to `localhost` on port 8043. This will connect to the `remotedev-server` instance that you started when you ran `cd native && yarn dev`.
+
+## Debugging JavaScript
+
+- For web, you can just use your browser of choice's dev tools.
+- For iOS, you can use the React Native Debugger. Just open up the React Native Debugger application, and then select “Debug” from the React Native dev menu. You can open the React Native dev menu on debug builds of React Native apps by hitting Cmd+Ctrl+Z on the iOS Simulator, or shaking the device if it's a physical device.
+- For Android, you should use Flipper. First start a debug build of a React Native app. Next, just open up Flipper and you should be able to see an option for “Hermes Debugger (RN)”. Flipper communicates with the app through the Metro bundler that gets started when you run `cd native && yarn dev`.
 
 # Working with Phabricator
 
