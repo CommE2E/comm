@@ -124,10 +124,14 @@ const nonThreadCalendarQuery: (
   },
 );
 
-function useOnClickThread(threadID: string) {
+function useOnClickThread(threadID: ?string) {
   const dispatch = useDispatch();
   return React.useCallback(
-    (event: SyntheticEvent<HTMLAnchorElement>) => {
+    (event: SyntheticEvent<HTMLElement>) => {
+      invariant(
+        threadID,
+        'useOnClickThread should be called with threadID set',
+      );
       event.preventDefault();
       dispatch({
         type: updateNavInfoActionType,
