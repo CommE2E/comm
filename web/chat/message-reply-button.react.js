@@ -2,7 +2,6 @@
 
 import { faReply } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import classNames from 'classnames';
 import invariant from 'invariant';
 import * as React from 'react';
 
@@ -28,15 +27,8 @@ function MessageReplyButton(props: Props) {
     onReplyClick();
   }, [addReply, item, onReplyClick]);
 
-  const { isViewer } = item.messageInfo.creator;
-  const replyButtonClassName = classNames({
-    [css.messageReplyButton]: true,
-    [css.tooltipRightPadding]: isViewer,
-    [css.tooltipLeftPadding]: !isViewer,
-  });
-
   return (
-    <div className={replyButtonClassName}>
+    <div className={css.messageReplyButton}>
       <div className={css.messageActionLinkIcon} onClick={replyClicked}>
         <FontAwesomeIcon icon={faReply} />
       </div>
