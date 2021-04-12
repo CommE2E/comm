@@ -7,10 +7,6 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
-import {
-  type ComposableMessageInfo,
-  type RobotextMessageInfo,
-} from 'lib/types/message-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import {
@@ -27,18 +23,19 @@ import { TooltipMenu, type TooltipStyle, TooltipButton } from './tooltip.react';
 
 const ellipsisIconExcessVerticalWhitespace = 10;
 
-type Props = {|
-  +onLeave: () => void,
-  +onButtonClick: (event: SyntheticEvent<HTMLButtonElement>) => void,
-  +buttonText: string,
+const openSidebarText = 'Go to sidebar';
+const createSidebarText = 'Create sidebar';
+
+type MessageActionTooltipProps = {|
+  +threadInfo: ThreadInfo,
+  +item: ChatMessageInfoItem,
   +containerPosition: PositionInfo,
   +availableTooltipPositions: $ReadOnlyArray<TooltipPosition>,
 |};
-function MessageActionMenu(props: Props) {
+function MessageActionButton(props: MessageActionTooltipProps) {
   const {
-    onLeave,
-    onButtonClick,
-    buttonText,
+    threadInfo,
+    item,
     containerPosition,
     availableTooltipPositions,
   } = props;
@@ -74,17 +71,31 @@ function MessageActionMenu(props: Props) {
     [containerPosition, tooltipVisible],
   );
 
-  const onTooltipButtonClick = React.useCallback(
-    (event: SyntheticEvent<HTMLButtonElement>) => {
-      onButtonClick(event);
-      onLeave();
-    },
-    [onLeave, onButtonClick],
-  );
-
   const hideTooltip = React.useCallback(() => {
     setTooltipVisible(false);
   }, []);
+
+  const { threadCreatedFromMessage, messageInfo } = item;
+
+  const onThreadOpen = useOnClickThread(threadCreatedFromMessage?.id);
+  const onPendingSidebarOpen = useOnClickPendingSidebar(
+    messageInfo,
+    threadInfo,
+  );
+  const onSidebarButtonClick = React.useCallback(
+    (event: SyntheticEvent<HTMLButtonElement>) => {
+      if (threadCreatedFromMessage) {
+        onThreadOpen(event);
+      } else {
+        onPendingSidebarOpen(event);
+      }
+    },
+    [onPendingSidebarOpen, onThreadOpen, threadCreatedFromMessage],
+  );
+
+  const sidebarTooltipButtonText = threadCreatedFromMessage
+    ? openSidebarText
+    : createSidebarText;
 
   let tooltipMenu = null;
   if (pointingTo && tooltipVisible) {
@@ -95,7 +106,10 @@ function MessageActionMenu(props: Props) {
         layoutPosition="relative"
         getStyle={getMessageActionTooltipStyle}
       >
-        <TooltipButton text={buttonText} onClick={onTooltipButtonClick} />
+        <TooltipButton
+          text={sidebarTooltipButtonText}
+          onClick={onSidebarButtonClick}
+        />
       </TooltipMenu>
     );
   }
@@ -112,98 +126,6 @@ function MessageActionMenu(props: Props) {
       </div>
     </div>
   );
-}
-
-const openSidebarText = 'Go to sidebar';
-type OpenSidebarProps = {|
-  +threadCreatedFromMessage: ThreadInfo,
-  +onLeave: () => void,
-  +containerPosition: PositionInfo,
-  +availableTooltipPositions: $ReadOnlyArray<TooltipPosition>,
-|};
-function OpenSidebar(props: OpenSidebarProps) {
-  const {
-    threadCreatedFromMessage,
-    onLeave,
-    containerPosition,
-    availableTooltipPositions,
-  } = props;
-  const onButtonClick = useOnClickThread(threadCreatedFromMessage.id);
-
-  return (
-    <MessageActionMenu
-      onButtonClick={onButtonClick}
-      onLeave={onLeave}
-      buttonText={openSidebarText}
-      containerPosition={containerPosition}
-      availableTooltipPositions={availableTooltipPositions}
-    />
-  );
-}
-
-const createSidebarText = 'Create sidebar';
-type CreateSidebarProps = {|
-  +threadInfo: ThreadInfo,
-  +messageInfo: ComposableMessageInfo | RobotextMessageInfo,
-  +onLeave: () => void,
-  +containerPosition: PositionInfo,
-  +availableTooltipPositions: $ReadOnlyArray<TooltipPosition>,
-|};
-function CreateSidebar(props: CreateSidebarProps) {
-  const {
-    threadInfo,
-    messageInfo,
-    containerPosition,
-    availableTooltipPositions,
-  } = props;
-  const onButtonClick = useOnClickPendingSidebar(messageInfo, threadInfo);
-
-  return (
-    <MessageActionMenu
-      onButtonClick={onButtonClick}
-      onLeave={props.onLeave}
-      buttonText={createSidebarText}
-      containerPosition={containerPosition}
-      availableTooltipPositions={availableTooltipPositions}
-    />
-  );
-}
-
-type MessageActionTooltipProps = {|
-  +threadInfo: ThreadInfo,
-  +item: ChatMessageInfoItem,
-  +onLeave: () => void,
-  +containerPosition: PositionInfo,
-  +availableTooltipPositions: $ReadOnlyArray<TooltipPosition>,
-|};
-function MessageActionButton(props: MessageActionTooltipProps) {
-  const {
-    threadInfo,
-    item,
-    onLeave,
-    containerPosition,
-    availableTooltipPositions,
-  } = props;
-  if (item.threadCreatedFromMessage) {
-    return (
-      <OpenSidebar
-        threadCreatedFromMessage={item.threadCreatedFromMessage}
-        onLeave={onLeave}
-        containerPosition={containerPosition}
-        availableTooltipPositions={availableTooltipPositions}
-      />
-    );
-  } else {
-    return (
-      <CreateSidebar
-        threadInfo={threadInfo}
-        messageInfo={item.messageInfo}
-        onLeave={onLeave}
-        containerPosition={containerPosition}
-        availableTooltipPositions={availableTooltipPositions}
-      />
-    );
-  }
 }
 
 function getMessageActionTooltipStyle(

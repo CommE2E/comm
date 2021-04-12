@@ -69,7 +69,6 @@ class RobotextMessage extends React.PureComponent<Props> {
         <MessageActionTooltip
           threadInfo={threadInfo}
           item={item}
-          onLeave={this.onMouseLeave}
           containerPosition={
             this.props.mouseOverMessagePosition.containerPosition
           }

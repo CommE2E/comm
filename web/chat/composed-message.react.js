@@ -153,7 +153,6 @@ class ComposedMessage extends React.PureComponent<Props> {
         <MessageActionButton
           threadInfo={threadInfo}
           item={item}
-          onLeave={this.onMouseLeave}
           containerPosition={
             this.props.mouseOverMessagePosition.containerPosition
           }
