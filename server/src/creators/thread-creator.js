@@ -7,6 +7,7 @@ import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-ut
 import {
   generatePendingThreadColor,
   generateRandomColor,
+  getThreadTypeParentRequirement,
 } from 'lib/shared/thread-utils';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import type { Shape } from 'lib/types/core';
@@ -94,18 +95,17 @@ async function createThread(
     'sourceMessageID should be set for sidebar',
   );
 
+  const parentRequirement = getThreadTypeParentRequirement(threadType);
   if (
-    threadType !== threadTypes.CHAT_SECRET &&
-    threadType !== threadTypes.PERSONAL &&
-    threadType !== threadTypes.PRIVATE &&
-    !parentThreadID
+    (parentRequirement === 'required' && !parentThreadID) ||
+    (parentRequirement === 'disabled' && parentThreadID)
   ) {
     throw new ServerError('invalid_parameters');
   }
 
   if (
     threadType === threadTypes.PERSONAL &&
-    (request.initialMemberIDs?.length !== 1 || parentThreadID)
+    request.initialMemberIDs?.length !== 1
   ) {
     throw new ServerError('invalid_parameters');
   }
