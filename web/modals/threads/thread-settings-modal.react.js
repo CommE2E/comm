@@ -338,7 +338,16 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
         key="general"
       />,
     ];
-    if (this.possiblyChangedValue('parentThreadID')) {
+
+    // This UI needs to be updated to handle sidebars but we haven't gotten
+    // there yet. We'll probably end up ripping it out anyways, so for now we
+    // are just hiding the privacy tab for any thread that was created as a
+    // sidebar
+    const canSeePrivacyTab =
+      this.possiblyChangedValue('parentThreadID') &&
+      !this.props.threadInfo.sourceMessageID;
+
+    if (canSeePrivacyTab) {
       tabs.push(
         <Tab
           name="Privacy"
