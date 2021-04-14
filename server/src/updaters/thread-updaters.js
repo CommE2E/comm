@@ -415,6 +415,17 @@ async function updateThread(
     throw new ServerError('invalid_credentials');
   }
 
+  // Threads with source message should be visible to everyone, but we can't
+  // guarantee it for CHAT_SECRET threads so we forbid it for now.
+  // In the future, if we want to support this, we would need to unlink the
+  // source message.
+  if (
+    threadType === threadTypes.CHAT_SECRET &&
+    serverThreadInfo.sourceMessageID
+  ) {
+    throw new ServerError('invalid_parameters');
+  }
+
   const oldThreadType = serverThreadInfo.type;
   const oldParentThreadID = serverThreadInfo.parentThreadID;
 
