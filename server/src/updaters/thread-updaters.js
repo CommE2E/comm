@@ -520,6 +520,16 @@ async function updateThread(
     }
   }
 
+  const updateQueryPromise = (async () => {
+    if (Object.keys(sqlUpdate).length === 0) {
+      return;
+    }
+    const updateQuery = SQL`
+      UPDATE threads SET ${sqlUpdate} WHERE id = ${request.threadID}
+    `;
+    await dbQuery(updateQuery);
+  })();
+
   const rolesNeedUpdate = forceUpdateRoot || nextThreadType !== oldThreadType;
   const updateRolesPromise = (async () => {
     if (rolesNeedUpdate) {
@@ -528,16 +538,12 @@ async function updateThread(
   })();
 
   const intermediatePromises = {};
-  if (Object.keys(sqlUpdate).length > 0) {
-    const updateQuery = SQL`
-      UPDATE threads SET ${sqlUpdate} WHERE id = ${request.threadID}
-    `;
-    intermediatePromises.updateQuery = dbQuery(updateQuery);
-  }
+  intermediatePromises.updateQuery = updateQueryPromise;
+  intermediatePromises.updateRoles = updateRolesPromise;
 
   if (newMemberIDs) {
     intermediatePromises.addMembersChangeset = (async () => {
-      await updateRolesPromise;
+      await Promise.all([updateQueryPromise, updateRolesPromise]);
       return await changeRole(request.threadID, newMemberIDs, null);
     })();
   }
@@ -546,7 +552,7 @@ async function updateThread(
     rolesNeedUpdate || nextParentThreadID !== oldParentThreadID;
   if (threadRootChanged) {
     intermediatePromises.recalculatePermissionsChangeset = (async () => {
-      await updateRolesPromise;
+      await Promise.all([updateQueryPromise, updateRolesPromise]);
       return await recalculateThreadPermissions(
         request.threadID,
         nextThreadType,
