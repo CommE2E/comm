@@ -76,12 +76,21 @@ async function changeRole(
 
   const membershipQuery = SQL`
     SELECT m.user, m.role, m.permissions_for_children,
-      pm.permissions_for_children AS permissions_from_parent
+      pm.permissions_for_children AS permissions_from_parent,
+      'existing' AS row_state
     FROM memberships m
     LEFT JOIN threads t ON t.id = m.thread
     LEFT JOIN memberships pm
       ON pm.thread = t.parent_thread_id AND pm.user = m.user
     WHERE m.thread = ${threadID}
+    UNION SELECT pm.user, -1 AS role,
+      NULL AS permissions_for_children,
+      pm.permissions_for_children AS permissions_from_parent,
+      'from_parent' AS row_state
+    FROM threads t
+    LEFT JOIN memberships pm ON pm.thread = t.parent_thread_id
+    LEFT JOIN memberships m ON m.thread = t.id AND m.user = pm.user
+    WHERE t.id = ${threadID} AND m.thread IS NULL
   `;
   const [[membershipResult], roleThreadResult] = await Promise.all([
     dbQuery(membershipQuery),
@@ -93,13 +102,17 @@ async function changeRole(
 
   const roleInfo = new Map();
   for (const row of membershipResult) {
+    if (!row.user) {
+      continue;
+    }
     const userID = row.user.toString();
-    const oldPermissionsForChildren = row.permissions_for_children;
-    const permissionsFromParent = row.permissions_from_parent;
+    const oldPermissionsForChildren = JSON.parse(row.permissions_for_children);
+    const permissionsFromParent = JSON.parse(row.permissions_from_parent);
     roleInfo.set(userID, {
       oldRole: row.role.toString(),
       oldPermissionsForChildren,
       permissionsFromParent,
+      rowState: row.row_state,
     });
   }
 
@@ -115,8 +128,9 @@ async function changeRole(
     let oldRole;
     const userRoleInfo = roleInfo.get(userID);
     if (userRoleInfo) {
+      hadMembershipRow = userRoleInfo.rowState === 'existing';
       oldRole = userRoleInfo.oldRole;
-      if (oldRole === roleThreadResult.roleColumnValue) {
+      if (hadMembershipRow && oldRole === roleThreadResult.roleColumnValue) {
         // If the old role is the same as the new one, we have nothing to update
         continue;
       } else if (Number(oldRole) > 0 && role === null) {
@@ -127,7 +141,6 @@ async function changeRole(
       }
       oldPermissionsForChildren = userRoleInfo.oldPermissionsForChildren;
       permissionsFromParent = userRoleInfo.permissionsFromParent;
-      hadMembershipRow = true;
     }
 
     const permissions = makePermissionsBlob(
@@ -396,7 +409,7 @@ async function recalculateThreadPermissions(
     LEFT JOIN memberships pm ON pm.thread = t.parent_thread_id
       AND pm.user = m.user
     WHERE m.thread = ${threadID}
-    UNION SELECT pm.user, 0 AS role, NULL AS permissions,
+    UNION SELECT pm.user, -1 AS role, NULL AS permissions,
       NULL AS permissions_for_children,
       pm.permissions_for_children AS permissions_from_parent,
       NULL AS role_permissions, 'from_parent' AS row_state
