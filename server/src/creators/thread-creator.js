@@ -34,9 +34,8 @@ import {
   recalculateThreadPermissions,
   commitMembershipChangeset,
   setJoinsToUnread,
-  getRelationshipRowsForUsers,
-  getParentThreadRelationshipRowsForNewUsers,
 } from '../updaters/thread-permission-updaters';
+import RelationshipChangeset from '../utils/relationship-changeset';
 import createIDs from './id-creator';
 import createMessages from './message-creator';
 import { createInitialRolesForNewThread } from './role-creator';
@@ -160,7 +159,7 @@ async function createThread(
     );
   }
 
-  const viewerNeedsRelationshipsWith = [];
+  const relationshipChangeset = new RelationshipChangeset();
   const silencedMemberIDs = new Set();
   if (fetchMemberIDs) {
     invariant(initialMemberIDsFromRequest || ghostMemberIDs, 'should be set');
@@ -172,7 +171,6 @@ async function createThread(
         (threadType !== threadTypes.SIDEBAR ||
           parentThreadMembers?.includes(memberID))
       ) {
-        viewerNeedsRelationshipsWith.push(memberID);
         continue;
       } else if (!member && silentlyFailMembers) {
         silencedMemberIDs.add(memberID);
@@ -180,6 +178,7 @@ async function createThread(
       } else if (!member) {
         throw new ServerError('invalid_credentials');
       }
+      relationshipChangeset.setRelationshipExists(viewer.id, memberID);
 
       const { relationshipStatus } = member;
       const memberRelationshipHasBlock = !!(
@@ -333,68 +332,41 @@ async function createThread(
   }
   const {
     membershipRows: creatorMembershipRows,
-    relationshipRows: creatorRelationshipRows,
+    relationshipChangeset: creatorRelationshipChangeset,
   } = creatorChangeset;
 
   const {
     membershipRows: recalculateMembershipRows,
-    relationshipRows: recalculateRelationshipRows,
+    relationshipChangeset: recalculateRelationshipChangeset,
   } = recalculatePermissionsChangeset;
 
   const membershipRows = [
     ...creatorMembershipRows,
     ...recalculateMembershipRows,
   ];
-  const relationshipRows = [
-    ...creatorRelationshipRows,
-    ...recalculateRelationshipRows,
-  ];
-  if (initialMemberIDs || ghostMemberIDs) {
-    if (!initialMembersChangeset && !ghostMembersChangeset) {
-      throw new ServerError('unknown_error');
-    }
-    relationshipRows.push(
-      ...getRelationshipRowsForUsers(
-        viewer.userID,
-        viewerNeedsRelationshipsWith,
-      ),
-    );
-    const membersMembershipRows = [];
-    const membersRelationshipRows = [];
-    if (initialMembersChangeset) {
-      const {
-        membershipRows: initialMembersMembershipRows,
-        relationshipRows: initialMembersRelationshipRows,
-      } = initialMembersChangeset;
-      membersMembershipRows.push(...initialMembersMembershipRows);
-      membersRelationshipRows.push(...initialMembersRelationshipRows);
-    }
+  relationshipChangeset.addAll(creatorRelationshipChangeset);
+  relationshipChangeset.addAll(recalculateRelationshipChangeset);
 
-    if (ghostMembersChangeset) {
-      const {
-        membershipRows: ghostMembersMembershipRows,
-        relationshipRows: ghostMembersRelationshipRows,
-      } = ghostMembersChangeset;
-      membersMembershipRows.push(...ghostMembersMembershipRows);
-      membersRelationshipRows.push(...ghostMembersRelationshipRows);
-    }
-
-    const memberAndCreatorIDs = [...memberIDs, viewer.userID];
-    const parentRelationshipRows = getParentThreadRelationshipRowsForNewUsers(
-      id,
-      recalculateMembershipRows,
-      memberAndCreatorIDs,
-    );
-    membershipRows.push(...membersMembershipRows);
-    relationshipRows.push(
-      ...membersRelationshipRows,
-      ...parentRelationshipRows,
-    );
+  if (initialMembersChangeset) {
+    const {
+      membershipRows: initialMembersMembershipRows,
+      relationshipChangeset: initialMembersRelationshipChangeset,
+    } = initialMembersChangeset;
+    membershipRows.push(...initialMembersMembershipRows);
+    relationshipChangeset.addAll(initialMembersRelationshipChangeset);
+  }
+  if (ghostMembersChangeset) {
+    const {
+      membershipRows: ghostMembersMembershipRows,
+      relationshipChangeset: ghostMembersRelationshipChangeset,
+    } = ghostMembersChangeset;
+    membershipRows.push(...ghostMembersMembershipRows);
+    relationshipChangeset.addAll(ghostMembersRelationshipChangeset);
   }
 
   setJoinsToUnread(membershipRows, viewer.userID, id);
 
-  const changeset = { membershipRows, relationshipRows };
+  const changeset = { membershipRows, relationshipChangeset };
   const {
     threadInfos,
     viewerUpdates,

@@ -13,6 +13,7 @@ import {
   changeRole,
   commitMembershipChangeset,
 } from '../updaters/thread-permission-updaters';
+import RelationshipChangeset from '../utils/relationship-changeset';
 import { endScript } from './utils';
 
 async function main() {
@@ -121,21 +122,21 @@ async function mergeUsers(
     ),
   );
   const membershipRows = [];
-  const relationshipRows = [];
+  const relationshipChangeset = new RelationshipChangeset();
   for (const currentChangeset of changesets) {
     if (!currentChangeset) {
       throw new Error('changeRole returned null');
     }
     const {
       membershipRows: currentMembershipRows,
-      relationshipRows: currentRelationshipRows,
+      relationshipChangeset: currentRelationshipChangeset,
     } = currentChangeset;
     membershipRows.push(...currentMembershipRows);
-    relationshipRows.push(...currentRelationshipRows);
+    relationshipChangeset.addAll(currentRelationshipChangeset);
   }
-  if (membershipRows.length > 0 || relationshipRows.length > 0) {
+  if (membershipRows.length > 0 || relationshipChangeset.getRowCount() > 0) {
     const toViewer = createScriptViewer(toUserID);
-    const changeset = { membershipRows, relationshipRows };
+    const changeset = { membershipRows, relationshipChangeset };
     await commitMembershipChangeset(toViewer, changeset);
   }
 }

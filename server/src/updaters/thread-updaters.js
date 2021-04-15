@@ -51,13 +51,13 @@ import {
   fetchKnownUserInfos,
 } from '../fetchers/user-fetchers';
 import type { Viewer } from '../session/viewer';
+import RelationshipChangeset from '../utils/relationship-changeset';
 import { updateRoles } from './role-updaters';
 import {
   changeRole,
   recalculateThreadPermissions,
   commitMembershipChangeset,
   setJoinsToUnread,
-  getParentThreadRelationshipRowsForNewUsers,
 } from './thread-permission-updaters';
 
 async function updateRole(
@@ -560,41 +560,26 @@ async function updateThread(
   } = await promiseAll(intermediatePromises);
 
   const membershipRows = [];
-  const relationshipRows = [];
-  if (recalculatePermissionsChangeset && newMemberIDs) {
+  const relationshipChangeset = new RelationshipChangeset();
+  if (recalculatePermissionsChangeset) {
     const {
       membershipRows: recalculateMembershipRows,
-      relationshipRows: recalculateRelationshipRows,
+      relationshipChangeset: recalculateRelationshipChangeset,
     } = recalculatePermissionsChangeset;
     membershipRows.push(...recalculateMembershipRows);
-    const parentRelationshipRows = getParentThreadRelationshipRowsForNewUsers(
-      request.threadID,
-      recalculateMembershipRows,
-      newMemberIDs,
-    );
-    relationshipRows.push(
-      ...recalculateRelationshipRows,
-      ...parentRelationshipRows,
-    );
-  } else if (recalculatePermissionsChangeset) {
-    const {
-      membershipRows: recalculateMembershipRows,
-      relationshipRows: recalculateRelationshipRows,
-    } = recalculatePermissionsChangeset;
-    membershipRows.push(...recalculateMembershipRows);
-    relationshipRows.push(...recalculateRelationshipRows);
+    relationshipChangeset.addAll(recalculateRelationshipChangeset);
   }
   if (addMembersChangeset) {
     const {
       membershipRows: addMembersMembershipRows,
-      relationshipRows: addMembersRelationshipRows,
+      relationshipChangeset: addMembersRelationshipChangeset,
     } = addMembersChangeset;
-    relationshipRows.push(...addMembersRelationshipRows);
     setJoinsToUnread(addMembersMembershipRows, viewer.userID, request.threadID);
     membershipRows.push(...addMembersMembershipRows);
+    relationshipChangeset.addAll(addMembersRelationshipChangeset);
   }
 
-  const changeset = { membershipRows, relationshipRows };
+  const changeset = { membershipRows, relationshipChangeset };
   const { threadInfos, viewerUpdates } = await commitMembershipChangeset(
     viewer,
     changeset,
