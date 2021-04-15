@@ -5,6 +5,8 @@ namespace comm {
 
 SQLiteManager::SQLiteManager() {}
 
+std::string SQLiteManager::sqliteFilePath;
+
 std::string SQLiteManager::getDraft(jsi::Runtime &rt) const {
   return "working draft from SQLiteManager!";
 }

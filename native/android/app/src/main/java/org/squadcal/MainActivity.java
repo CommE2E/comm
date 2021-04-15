@@ -14,7 +14,6 @@ import expo.modules.splashscreen.SplashScreenImageResizeMode;
 
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.bridge.ReactContext;
-import com.facebook.react.turbomodule.core.CallInvokerHolderImpl;
 
 import org.squadcal.fbjni.CommHybrid;
 

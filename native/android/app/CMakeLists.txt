@@ -22,6 +22,8 @@ include_directories(
   ../../node_modules/react-native/ReactCommon/callinvoker
   ../../node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/turbomodule/core/jni/ReactCommon
   ../../node_modules/react-native/ReactCommon/turbomodule/core
+  # sqlite code
+  ../../node_modules/@nozbe/sqlite/sqlite-amalgamation-3310100
   # comm android specific code
   ./src/cpp
   # comm native mutual code
@@ -30,6 +32,7 @@ include_directories(
 )
 
 # search for all cpp files in this directory
+file(GLOB SQLITE "../../node_modules/@nozbe/sqlite/sqlite-amalgamation-3310100/*.c")
 file(GLOB COMMON_NATIVE_CODE "../../CommonCpp/**/*.cpp")
 
 add_library(
@@ -42,6 +45,7 @@ add_library(
   ../../node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/turbomodule/core/jni/ReactCommon/CallInvokerHolder.cpp
   ../../node_modules/react-native/ReactCommon/turbomodule/core/TurboModule.cpp
   ./src/cpp/jsiInstaller.cpp
+  ${SQLITE}
   # comm code
   ${COMMON_NATIVE_CODE}
 )
