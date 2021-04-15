@@ -23,7 +23,7 @@ import {
   createUpdates,
   type UpdatesForCurrentSession,
 } from '../creators/update-creator';
-import { dbQuery, SQL, mergeOrConditions } from '../database/database';
+import { dbQuery, SQL } from '../database/database';
 import {
   fetchServerThreadInfos,
   rawThreadInfosFromServerThreadInfos,
@@ -53,7 +53,6 @@ type MembershipRowToDelete = {|
   +operation: 'delete',
   +userID: string,
   +threadID: string,
-  +forceRowCreation?: boolean,
 |};
 type MembershipRow = MembershipRowToSave | MembershipRowToDelete;
 type Changeset = {|
@@ -159,7 +158,6 @@ async function changeRole(
         operation: 'delete',
         userID,
         threadID,
-        forceRowCreation: role === -1,
       });
     }
 
@@ -540,31 +538,19 @@ async function deleteMemberships(
   }
 
   const time = Date.now();
-  const insertRows = [];
-  const deleteRows = [];
-  for (const rowToDelete of toDelete) {
-    if (rowToDelete.forceRowCreation) {
-      insertRows.push([
-        rowToDelete.userID,
-        rowToDelete.threadID,
-        -1,
-        time,
-        defaultSubscriptionString,
-        null,
-        null,
-        0,
-        0,
-      ]);
-    } else {
-      deleteRows.push(
-        SQL`(user = ${rowToDelete.userID} AND thread = ${rowToDelete.threadID})`,
-      );
-    }
-  }
+  const insertRows = toDelete.map((rowToDelete) => [
+    rowToDelete.userID,
+    rowToDelete.threadID,
+    -1,
+    time,
+    defaultSubscriptionString,
+    null,
+    null,
+    0,
+    0,
+  ]);
 
-  const queries = [];
-  if (insertRows.length > 0) {
-    const query = SQL`
+  const query = SQL`
     INSERT INTO memberships (user, thread, role, creation_time, subscription,
       permissions, permissions_for_children, last_message, last_read_message)
     VALUES ${insertRows}
@@ -575,23 +561,8 @@ async function deleteMemberships(
       subscription = ${defaultSubscriptionString},
       last_message = 0,
       last_read_message = 0
-    `;
-    queries.push(dbQuery(query));
-  }
-
-  if (deleteRows.length > 0) {
-    const conditions = mergeOrConditions(deleteRows);
-    const query = SQL`
-      UPDATE memberships 
-      SET role = -1, permissions = NULL, permissions_for_children = NULL, 
-        subscription = ${defaultSubscriptionString}, last_message = 0,
-        last_read_message = 0
-      WHERE `;
-    query.append(conditions);
-    queries.push(dbQuery(query));
-  }
-
-  await Promise.all(queries);
+  `;
+  await dbQuery(query);
 }
 
 // Specify non-empty changedThreadIDs to force updates to be generated for those
