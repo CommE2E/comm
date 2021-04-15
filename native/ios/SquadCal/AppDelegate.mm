@@ -16,7 +16,11 @@
 #import <React/RCTCxxBridgeDelegate.h>
 #import <cxxreact/JSExecutor.h>
 
+#import <string>
+
+#import "Tools.h"
 #import "DraftNativeModule.h"
+#import "SQLiteManager.h"
 
 #ifdef FB_SONARKIT_ENABLED
 #import <FlipperKit/FlipperClient.h>
@@ -133,7 +137,7 @@ using Runtime = facebook::jsi::Runtime;
 - (std::unique_ptr<ExecutorFactory>)jsExecutorFactoryForBridge
     :(RCTBridge *)bridge {
   __weak __typeof(self) weakSelf = self;
-  return std::make_unique<ExecutorFactory>([=](Runtime &runtime) {
+  return std::make_unique<ExecutorFactory>([=](Runtime &rt) {
     if (!bridge) {
       return;
     }
@@ -142,12 +146,15 @@ using Runtime = facebook::jsi::Runtime;
       std::shared_ptr<comm::DraftNativeModule> nativeModule =
         std::make_shared<comm::DraftNativeModule>(bridge.jsCallInvoker);
       
-      
-      runtime.global().setProperty(
-        runtime,
-        jsi::PropNameID::forAscii(runtime, "draftModule"),
-        jsi::Object::createFromHostObject(runtime, nativeModule)
+      rt.global().setProperty(
+        rt,
+        facebook::jsi::PropNameID::forAscii(rt, "draftModule"),
+        facebook::jsi::Object::createFromHostObject(rt, nativeModule)
       );
+
+      // set sqlite file path
+      comm::SQLiteManager::sqliteFilePath = 
+        std::string([[Tools getSQLiteFilePath] UTF8String]);
     }
   });
 }
