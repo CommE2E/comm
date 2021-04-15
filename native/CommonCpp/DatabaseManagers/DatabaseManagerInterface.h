@@ -3,7 +3,6 @@
 #include <string>
 #include <jsi/jsi.h>
 
-
 namespace comm {
 
 namespace jsi = facebook::jsi;
@@ -16,8 +15,15 @@ namespace jsi = facebook::jsi;
  */
 class DatabaseManagerInterface {
 public:
-  // to be removed
-  virtual std::string getDraft(jsi::Runtime &rt) const = 0;
+  virtual std::string getDraft(
+    jsi::Runtime &rt,
+    std::string threadID
+  ) const = 0;
+  virtual void updateDraft(
+    jsi::Runtime &rt,
+    std::string threadID,
+    std::string text
+  ) const = 0;
 };
 
 } // namespace comm

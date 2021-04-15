@@ -1,14 +1,43 @@
 #include <string>
+#include <memory>
 #include "SQLiteManager.h"
 
 namespace comm {
 
-SQLiteManager::SQLiteManager() {}
-
 std::string SQLiteManager::sqliteFilePath;
 
-std::string SQLiteManager::getDraft(jsi::Runtime &rt) const {
-  return "working draft from SQLiteManager!";
+auto SQLiteManager::getStorage() {
+  static auto storage = make_storage(
+    SQLiteManager::sqliteFilePath,
+    make_table(
+      "drafts",
+      make_column("threadID", &Draft::threadID, unique(), primary_key()),
+      make_column("text", &Draft::text)
+    )
+  );
+  return storage;
+}
+
+SQLiteManager::SQLiteManager() {
+  SQLiteManager::getStorage().sync_schema(true);
+}
+
+std::string SQLiteManager::getDraft(
+  jsi::Runtime &rt,
+  std::string threadID
+) const {
+  std::unique_ptr<Draft> draft = 
+    SQLiteManager::getStorage().get_pointer<Draft>(threadID);
+  return (draft == nullptr) ? "" : draft->text;
+}
+
+void SQLiteManager::updateDraft(
+  jsi::Runtime &rt,
+  std::string threadID,
+  std::string text) const
+{
+  Draft draft = {threadID, text};
+  SQLiteManager::getStorage().replace(draft);
 }
 
 } // namespace comm

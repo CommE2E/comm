@@ -7,16 +7,19 @@ jsi::String DraftNativeModule::getDraft(
   jsi::Runtime &rt,
   const jsi::String &threadID
 ) {
-  std::string str = DatabaseManager::getInstance().getDraft(rt);
-  return jsi::String::createFromUtf8(rt, str);
+  std::string threadIDStr = threadID.utf8(rt);
+  std::string draft = DatabaseManager::getInstance().getDraft(rt, threadIDStr);
+  return jsi::String::createFromUtf8(rt, draft);
 }
 
 bool DraftNativeModule::updateDraft(
   jsi::Runtime &rt,
   const jsi::Object &draft
 ) {
-  jsi::String threadID = draft.getProperty(rt, "threadID").asString(rt);
-  jsi::String newText = draft.getProperty(rt, "text").asString(rt);
+  std::string threadID = 
+    draft.getProperty(rt, "threadID").asString(rt).utf8(rt);
+  std::string text = draft.getProperty(rt, "text").asString(rt).utf8(rt);
+  DatabaseManager::getInstance().updateDraft(rt, threadID, text);
   return true;
 }
 
