@@ -38,9 +38,11 @@ async function createMembershipsForFormerMembers() {
   const rowsToSave = [];
   for (const row of result) {
     rowsToSave.push({
-      operation: 'update',
+      operation: 'save',
       userID: row.user.toString(),
       threadID: row.thread.toString(),
+      userNeedsFullThreadDetails: false,
+      intent: 'none',
       permissions: null,
       permissionsForChildren: null,
       role: '-1',

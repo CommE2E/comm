@@ -39,9 +39,11 @@ import {
 } from './relationship-updaters';
 
 export type MembershipRowToSave = {|
-  +operation: 'update' | 'join',
+  +operation: 'save',
+  +intent: 'join' | 'leave' | 'none',
   +userID: string,
   +threadID: string,
+  +userNeedsFullThreadDetails: boolean,
   +permissions: ?ThreadPermissionsBlob,
   +permissionsForChildren: ?ThreadPermissionsBlob,
   // null role represents by "0"
@@ -51,6 +53,7 @@ export type MembershipRowToSave = {|
 |};
 type MembershipRowToDelete = {|
   +operation: 'delete',
+  +intent: 'join' | 'leave' | 'none',
   +userID: string,
   +threadID: string,
 |};
@@ -63,11 +66,14 @@ type Changeset = {|
 // 0 role means to remove the user from the thread
 // null role means to set the user to the default role
 // string role means to set the user to the role with that ID
+// -1 role means to set the user as a "ghost" (former member)
 async function changeRole(
   threadID: string,
   userIDs: $ReadOnlyArray<string>,
   role: string | -1 | 0 | null,
 ): Promise<?Changeset> {
+  const intent = role === -1 || role === 0 ? 'leave' : 'join';
+
   const membershipQuery = SQL`
     SELECT m.user, m.role, m.permissions_for_children,
       pm.permissions_for_children AS permissions_from_parent
@@ -106,9 +112,10 @@ async function changeRole(
     let oldPermissionsForChildren = null;
     let permissionsFromParent = null;
     let hadMembershipRow = false;
+    let oldRole;
     const userRoleInfo = roleInfo.get(userID);
     if (userRoleInfo) {
-      const oldRole = userRoleInfo.oldRole;
+      oldRole = userRoleInfo.oldRole;
       if (oldRole === roleThreadResult.roleColumnValue) {
         // If the old role is the same as the new one, we have nothing to update
         continue;
@@ -134,28 +141,30 @@ async function changeRole(
     if (permissions) {
       if (role === -1) {
         console.warn(
-          `changeRole called for -1 role, 
-          but found non-null permissions for userID ${userID} and threadID ${threadID}`,
+          `changeRole called for -1 role, but found non-null permissions for ` +
+            `userID ${userID} and threadID ${threadID}`,
         );
       }
+      const newRole =
+        Number(roleThreadResult.roleColumnValue) >= 0
+          ? roleThreadResult.roleColumnValue
+          : '0';
+      const userBecameMember =
+        (!oldRole || Number(oldRole) <= 0) && Number(newRole) > 0;
       membershipRows.push({
-        operation:
-          Number(roleThreadResult.roleColumnValue) > 0 &&
-          (!userRoleInfo || Number(userRoleInfo.oldRole) <= 0)
-            ? 'join'
-            : 'update',
+        operation: 'save',
+        intent,
         userID,
         threadID,
+        userNeedsFullThreadDetails: userBecameMember,
         permissions,
         permissionsForChildren,
-        role:
-          Number(roleThreadResult.roleColumnValue) >= 0
-            ? roleThreadResult.roleColumnValue
-            : '0',
+        role: newRole,
       });
     } else {
       membershipRows.push({
         operation: 'delete',
+        intent,
         userID,
         threadID,
       });
@@ -183,9 +192,9 @@ async function changeRole(
 }
 
 type RoleThreadResult = {|
-  roleColumnValue: string,
-  threadType: ThreadType,
-  rolePermissions: ?ThreadRolePermissionsBlob,
+  +roleColumnValue: string,
+  +threadType: ThreadType,
+  +rolePermissions: ?ThreadRolePermissionsBlob,
 |};
 async function changeRoleThreadQuery(
   threadID: string,
@@ -308,8 +317,8 @@ async function updateDescendantPermissions(
         const userInfo = userInfos.get(userID);
         const role =
           userInfo && Number(userInfo.role) > 0 ? userInfo.role : '0';
-        const rolePermissions = userInfo ? userInfo.rolePermissions : null;
-        const oldPermissions = userInfo ? userInfo.permissions : null;
+        const rolePermissions = userInfo?.rolePermissions;
+        const oldPermissions = userInfo?.permissions;
         const oldPermissionsForChildren = userInfo
           ? userInfo.permissionsForChildren
           : null;
@@ -331,9 +340,11 @@ async function updateDescendantPermissions(
 
         if (permissions) {
           membershipRows.push({
-            operation: 'update',
+            operation: 'save',
+            intent: 'none',
             userID,
             threadID,
+            userNeedsFullThreadDetails: false,
             permissions,
             permissionsForChildren,
             role,
@@ -341,6 +352,7 @@ async function updateDescendantPermissions(
         } else {
           membershipRows.push({
             operation: 'delete',
+            intent: 'none',
             userID,
             threadID,
           });
@@ -430,9 +442,11 @@ async function recalculateThreadPermissions(
 
     if (permissions) {
       membershipRows.push({
-        operation: 'update',
+        operation: 'save',
+        intent: 'none',
         userID,
         threadID,
+        userNeedsFullThreadDetails: false,
         permissions,
         permissionsForChildren,
         role,
@@ -440,6 +454,7 @@ async function recalculateThreadPermissions(
     } else {
       membershipRows.push({
         operation: 'delete',
+        intent: 'none',
         userID,
         threadID,
       });
@@ -492,7 +507,7 @@ async function saveMemberships(toSave: $ReadOnlyArray<MembershipRowToSave>) {
       rowToSave.threadID,
       rowToSave.role,
       time,
-      rowToSave.operation === 'join'
+      rowToSave.intent === 'join'
         ? joinSubscriptionString
         : defaultSubscriptionString,
       rowToSave.permissions ? JSON.stringify(rowToSave.permissions) : null,
@@ -599,12 +614,11 @@ async function commitMembershipChangeset(
 
     const pairString = `${userID}|${threadID}`;
     const existing = membershipRowMap.get(pairString);
-    if (
-      !existing ||
-      (existing.operation !== 'join' &&
-        (row.operation === 'join' ||
-          (row.operation === 'delete' && existing.operation === 'update')))
-    ) {
+    invariant(
+      !existing || existing.intent === 'none' || row.intent === 'none',
+      `multiple intents provided for ${pairString}`,
+    );
+    if (!existing || existing.intent === 'none') {
       membershipRowMap.set(pairString, row);
     }
   }
@@ -615,7 +629,7 @@ async function commitMembershipChangeset(
   for (const row of membershipRowMap.values()) {
     if (
       row.operation === 'delete' ||
-      (row.operation === 'update' && Number(row.role) <= 0)
+      (row.operation === 'save' && Number(row.role) <= 0)
     ) {
       const { userID, threadID } = row;
       rescindPromises.push(
@@ -669,7 +683,11 @@ async function commitMembershipChangeset(
     for (const memberInfo of serverThreadInfo.members) {
       const pairString = `${memberInfo.id}|${serverThreadInfo.id}`;
       const membershipRow = membershipRowMap.get(pairString);
-      if (membershipRow && membershipRow.operation !== 'update') {
+      if (
+        membershipRow &&
+        (membershipRow.operation === 'delete' ||
+          membershipRow.userNeedsFullThreadDetails)
+      ) {
         continue;
       }
       updateDatas.push({
@@ -682,16 +700,16 @@ async function commitMembershipChangeset(
   }
   for (const row of membershipRowMap.values()) {
     const { userID, threadID } = row;
-    if (row.operation === 'join') {
+    if (row.operation === 'delete') {
       updateDatas.push({
-        type: updateTypes.JOIN_THREAD,
+        type: updateTypes.DELETE_THREAD,
         userID,
         time,
         threadID,
       });
-    } else if (row.operation === 'delete') {
+    } else if (row.userNeedsFullThreadDetails) {
       updateDatas.push({
-        type: updateTypes.DELETE_THREAD,
+        type: updateTypes.JOIN_THREAD,
         userID,
         time,
         threadID,
@@ -724,7 +742,7 @@ function setJoinsToUnread(
 ) {
   for (const row of rows) {
     if (
-      row.operation === 'join' &&
+      row.operation === 'save' &&
       (row.userID !== exceptViewerID || row.threadID !== exceptThreadID)
     ) {
       row.lastMessage = 1;
