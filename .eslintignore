@@ -19,3 +19,4 @@ server/src/lib
 server/src/web
 native/flow-typed
 native/node_modules
+native/codegen/dist

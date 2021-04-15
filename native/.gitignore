@@ -54,3 +54,6 @@ yarn-error.log
 
 # unimodules
 **/generated/BasePackageList.java
+
+android/app/.cxx/
+codegen/dist

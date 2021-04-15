@@ -7,11 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
+		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		1A53F0D47E0E927C69B86A06 /* libPods-SquadCal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1B223F3AE00077DC21172C7 /* libPods-SquadCal.a */; };
-		7F26E81C24440D87004049C6 /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F26E81B24440D87004049C6 /* dummy.swift */; };
+		54B457A7302F03F835EC5D92 /* libPods-SquadCal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A75435FBAC0720E8BE857F55 /* libPods-SquadCal.a */; };
+		7106C28B25E7D879005556F0 /* NativeModules.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7106C28A25E7D879005556F0 /* NativeModules.cpp */; };
+		7106C28F25E7D8BD005556F0 /* DraftNativeModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7106C28E25E7D8BD005556F0 /* DraftNativeModule.cpp */; };
+		711B408425DA97F9005F8F06 /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F26E81B24440D87004049C6 /* dummy.swift */; };
 		7F761E602201141E001B6FB7 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F761E292201141E001B6FB7 /* JavaScriptCore.framework */; };
 		7F788C2C248AA2140098F071 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7F788C2B248AA2130098F071 /* SplashScreen.storyboard */; };
 		7FB58ABE1E7F6BD500B4C1B1 /* Anaheim-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7FB58ABB1E7F6BC600B4C1B1 /* Anaheim-Regular.ttf */; };
@@ -23,11 +25,17 @@
 		008F07F21AC5B25A0029DE68 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* SquadCal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SquadCal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = SquadCal/AppDelegate.h; sourceTree = "<group>"; };
-		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = SquadCal/AppDelegate.m; sourceTree = "<group>"; };
+		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = SquadCal/AppDelegate.mm; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = SquadCal/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.release.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.release.plist; path = SquadCal/Info.release.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = SquadCal/main.m; sourceTree = "<group>"; };
-		7EE5A7681B39319D3AF09109 /* Pods-SquadCal.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SquadCal.release.xcconfig"; path = "Target Support Files/Pods-SquadCal/Pods-SquadCal.release.xcconfig"; sourceTree = "<group>"; };
+		47CCD255658AFBDBBBA0DFBA /* Pods-SquadCal.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SquadCal.debug.xcconfig"; path = "Target Support Files/Pods-SquadCal/Pods-SquadCal.debug.xcconfig"; sourceTree = "<group>"; };
+		5D92D07F9695E31E05F88732 /* Pods-SquadCal.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SquadCal.release.xcconfig"; path = "Target Support Files/Pods-SquadCal/Pods-SquadCal.release.xcconfig"; sourceTree = "<group>"; };
+		7106C28925E7D879005556F0 /* NativeModules.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NativeModules.h; path = ../../CommonCpp/NativeModules/NativeModules.h; sourceTree = "<group>"; };
+		7106C28A25E7D879005556F0 /* NativeModules.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NativeModules.cpp; path = ../../CommonCpp/NativeModules/NativeModules.cpp; sourceTree = "<group>"; };
+		7106C28D25E7D8BD005556F0 /* DraftNativeModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DraftNativeModule.h; path = ../../CommonCpp/NativeModules/DraftNativeModule.h; sourceTree = "<group>"; };
+		7106C28E25E7D8BD005556F0 /* DraftNativeModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DraftNativeModule.cpp; path = ../../CommonCpp/NativeModules/DraftNativeModule.cpp; sourceTree = "<group>"; };
+		711CF80E25DC096000A00FBD /* libFolly.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libFolly.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		7F26E81B24440D87004049C6 /* dummy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = dummy.swift; sourceTree = "<group>"; };
 		7F554F822332D58B007CB9F7 /* Info.debug.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.debug.plist; path = SquadCal/Info.debug.plist; sourceTree = "<group>"; };
 		7F761E292201141E001B6FB7 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -37,8 +45,7 @@
 		7FB58ABD1E7F6BC600B4C1B1 /* OpenSans-Semibold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSans-Semibold.ttf"; sourceTree = "<group>"; };
 		7FCEA2DC2444010B004017B1 /* SquadCal-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SquadCal-Bridging-Header.h"; sourceTree = "<group>"; };
 		7FCFD8BD1E81B8DF00629B0E /* SquadCal.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = SquadCal.entitlements; path = SquadCal/SquadCal.entitlements; sourceTree = "<group>"; };
-		8C0A50BD3E650F9A49DACD73 /* Pods-SquadCal.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SquadCal.debug.xcconfig"; path = "Target Support Files/Pods-SquadCal/Pods-SquadCal.debug.xcconfig"; sourceTree = "<group>"; };
-		D1B223F3AE00077DC21172C7 /* libPods-SquadCal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SquadCal.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A75435FBAC0720E8BE857F55 /* libPods-SquadCal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SquadCal.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,7 +54,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7F761E602201141E001B6FB7 /* JavaScriptCore.framework in Frameworks */,
-				1A53F0D47E0E927C69B86A06 /* libPods-SquadCal.a in Frameworks */,
+				54B457A7302F03F835EC5D92 /* libPods-SquadCal.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -61,7 +68,7 @@
 				7FCFD8BD1E81B8DF00629B0E /* SquadCal.entitlements */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
-				13B07FB01A68108700A75B9A /* AppDelegate.m */,
+				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				7F554F822332D58B007CB9F7 /* Info.debug.plist */,
 				13B07FB61A68108700A75B9A /* Info.release.plist */,
@@ -82,11 +89,23 @@
 			name = Resources;
 			sourceTree = "<group>";
 		};
+		7106C28525E7C2E2005556F0 /* CommonCpp */ = {
+			isa = PBXGroup;
+			children = (
+				7106C28E25E7D8BD005556F0 /* DraftNativeModule.cpp */,
+				7106C28D25E7D8BD005556F0 /* DraftNativeModule.h */,
+				7106C28A25E7D879005556F0 /* NativeModules.cpp */,
+				7106C28925E7D879005556F0 /* NativeModules.h */,
+			);
+			path = CommonCpp;
+			sourceTree = "<group>";
+		};
 		7FF0870B1E833C3F000A1ACF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				711CF80E25DC096000A00FBD /* libFolly.a */,
 				7F761E292201141E001B6FB7 /* JavaScriptCore.framework */,
-				D1B223F3AE00077DC21172C7 /* libPods-SquadCal.a */,
+				A75435FBAC0720E8BE857F55 /* libPods-SquadCal.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -94,6 +113,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				7106C28525E7C2E2005556F0 /* CommonCpp */,
 				13B07FAE1A68108700A75B9A /* SquadCal */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				6534411766BE4CA4B0AB0A78 /* Resources */,
@@ -115,8 +135,8 @@
 		D533B93718E3B9684B508006 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				8C0A50BD3E650F9A49DACD73 /* Pods-SquadCal.debug.xcconfig */,
-				7EE5A7681B39319D3AF09109 /* Pods-SquadCal.release.xcconfig */,
+				47CCD255658AFBDBBBA0DFBA /* Pods-SquadCal.debug.xcconfig */,
+				5D92D07F9695E31E05F88732 /* Pods-SquadCal.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -128,12 +148,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "SquadCal" */;
 			buildPhases = (
-				3FE01AD85986FDE151C2E50A /* [CP] Check Pods Manifest.lock */,
+				02DE093B3C1DDF10C1FA3E9C /* [CP] Check Pods Manifest.lock */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				5BAD9F1C6839DB015414C665 /* [CP] Copy Pods Resources */,
+				DB38BFA0686C805CE44F051F /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -229,7 +249,7 @@
 			shellPath = /bin/sh;
 			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
-		3FE01AD85986FDE151C2E50A /* [CP] Check Pods Manifest.lock */ = {
+		02DE093B3C1DDF10C1FA3E9C /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -251,7 +271,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		5BAD9F1C6839DB015414C665 /* [CP] Copy Pods Resources */ = {
+		DB38BFA0686C805CE44F051F /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -308,8 +328,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
-				7F26E81C24440D87004049C6 /* dummy.swift in Sources */,
+				7106C28F25E7D8BD005556F0 /* DraftNativeModule.cpp in Sources */,
+				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
+				7106C28B25E7D879005556F0 /* NativeModules.cpp in Sources */,
+				711B408425DA97F9005F8F06 /* dummy.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -319,9 +341,10 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8C0A50BD3E650F9A49DACD73 /* Pods-SquadCal.debug.xcconfig */;
+			baseConfigurationReference = 47CCD255658AFBDBBBA0DFBA /* Pods-SquadCal.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = SquadCal/SquadCal.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -339,9 +362,18 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native/Libraries/LinkingIOS",
+					"$(PODS_ROOT)/boost-for-react-native",
 				);
 				INFOPLIST_FILE = SquadCal/Info.debug.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_CPLUSPLUSFLAGS = (
+					"-DFOLLY_MOBILE=1",
+					"-DFOLLY_NO_CONFIG",
+					"-DFOLLY_USE_LIBCPP=1",
+					"-DRNVERSION=63",
+					"-fcxx-modules",
+					"-fmodules",
+				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -359,9 +391,10 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7EE5A7681B39319D3AF09109 /* Pods-SquadCal.release.xcconfig */;
+			baseConfigurationReference = 5D92D07F9695E31E05F88732 /* Pods-SquadCal.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = SquadCal/SquadCal.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -372,10 +405,19 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native/Libraries/LinkingIOS",
+					"$(PODS_ROOT)/boost-for-react-native",
 				);
 				INFOPLIST_FILE = SquadCal/Info.release.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CPLUSPLUSFLAGS = (
+					"-DFOLLY_MOBILE=1",
+					"-DFOLLY_NO_CONFIG",
+					"-DFOLLY_USE_LIBCPP=1",
+					"-DRNVERSION=63",
+					"-fcxx-modules",
+					"-fmodules",
+				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

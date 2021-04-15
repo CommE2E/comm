@@ -10,15 +10,20 @@
     "dev": "yarn concurrently --names=\"REDUX,METRO\" -c \"bgGreen.bold,bgBlue.bold\" \"yarn remotedev\" \"yarn start\"",
     "test": "yarn jest",
     "logfirebase": "adb shell logcat | grep -E -i 'FIRMessagingModule|firebase'",
-    "remotedev": "remotedev --port=8043"
+    "remotedev": "remotedev --port=8043",
+    "codegen": "flow && babel codegen/src/ -d codegen/dist/ && node codegen/dist"
   },
   "devDependencies": {
+    "@babel/cli": "^7.8.4",
     "@babel/core": "^7.13.14",
+    "@babel/node": "^7.8.7",
     "@babel/plugin-proposal-nullish-coalescing-operator": "^7.13.8",
     "@babel/plugin-proposal-optional-chaining": "^7.13.12",
+    "@babel/preset-flow": "^7.9.0",
     "babel-jest": "^25.1.0",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "babel-plugin-transform-remove-strict-mode": "0.0.2",
+    "comm-react-native-codegen": "npm:react-native-codegen@0.0.7",
     "flow-bin": "^0.122.0",
     "flow-mono-cli": "^1.5.0",
     "flow-typed": "^3.2.1",
