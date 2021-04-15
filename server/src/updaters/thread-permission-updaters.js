@@ -9,7 +9,6 @@ import {
   makePermissionsForChildrenBlob,
 } from 'lib/permissions/thread-permissions';
 import type { CalendarQuery } from 'lib/types/entry-types';
-import type { ThreadSubscription } from 'lib/types/subscription-types';
 import {
   type ThreadPermissionsBlob,
   type ThreadRolePermissionsBlob,
@@ -47,7 +46,6 @@ export type MembershipRowToSave = {|
   +permissionsForChildren: ?ThreadPermissionsBlob,
   // null role represents by "0"
   +role: string,
-  +subscription?: ThreadSubscription,
   lastMessage?: number,
   lastReadMessage?: number,
 |};
@@ -489,14 +487,6 @@ async function saveMemberships(toSave: $ReadOnlyArray<MembershipRowToSave>) {
   const time = Date.now();
   const insertRows = [];
   for (const rowToSave of toSave) {
-    let subscription;
-    if (rowToSave.subscription) {
-      subscription = JSON.stringify(rowToSave.subscription);
-    } else if (rowToSave.operation === 'join') {
-      subscription = joinSubscriptionString;
-    } else {
-      subscription = defaultSubscriptionString;
-    }
     const lastMessage = rowToSave.lastMessage ?? 0;
     const lastReadMessage = rowToSave.lastReadMessage ?? 0;
     insertRows.push([
@@ -504,7 +494,9 @@ async function saveMemberships(toSave: $ReadOnlyArray<MembershipRowToSave>) {
       rowToSave.threadID,
       rowToSave.role,
       time,
-      subscription,
+      rowToSave.operation === 'join'
+        ? joinSubscriptionString
+        : defaultSubscriptionString,
       rowToSave.permissions ? JSON.stringify(rowToSave.permissions) : null,
       rowToSave.permissionsForChildren
         ? JSON.stringify(rowToSave.permissionsForChildren)
