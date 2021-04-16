@@ -2,10 +2,16 @@ html {
   overflow: hidden;
   height: 100%;
   background: radial-gradient(ellipse at bottom, #374151, #111827);
-}
-
-h1 {
   font-family: 'IBM Plex Sans', sans-serif;
   color: white;
-  font-size: 28px;
+}
+
+h1,
+h2 {
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+canvas.particles {
+  position: fixed;
+  z-index: -1;
 }
