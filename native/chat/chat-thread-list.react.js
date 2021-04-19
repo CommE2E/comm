@@ -234,19 +234,22 @@ class ChatThreadList extends React.PureComponent<Props, State> {
           ),
         );
       } else {
+        const privateThreads = [];
         const personalThreads = [];
-        const nonPersonalThreads = [];
+        const otherThreads = [];
         for (const item of reduxChatListData) {
           if (!threadsSearchResults.has(item.threadInfo.id)) {
             continue;
           }
-          if (item.threadInfo.type === threadTypes.PERSONAL) {
+          if (item.threadInfo.type === threadTypes.PRIVATE) {
+            privateThreads.push({ ...item, sidebars: [] });
+          } else if (item.threadInfo.type === threadTypes.PERSONAL) {
             personalThreads.push({ ...item, sidebars: [] });
           } else {
-            nonPersonalThreads.push({ ...item, sidebars: [] });
+            otherThreads.push({ ...item, sidebars: [] });
           }
         }
-        chatItems.push(...personalThreads, ...nonPersonalThreads);
+        chatItems.push(...privateThreads, ...personalThreads, ...otherThreads);
         const { viewerID } = this.props;
         if (viewerID) {
           chatItems.push(
