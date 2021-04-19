@@ -21,6 +21,21 @@ div.grid {
     'keyserver_copy read_the_docs';
 }
 
+@media (max-width: 1099px) {
+  div.grid {
+    display: grid;
+    padding: 80px;
+    row-gap: 18em;
+    grid-template-areas:
+      'hero_image'
+      'hero_copy'
+      'server_image'
+      'server_copy'
+      'keyserver_copy'
+      'read_the_docs';
+  }
+}
+
 div.hero_copy {
   grid-area: hero_copy;
 }
