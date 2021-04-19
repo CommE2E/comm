@@ -39,7 +39,7 @@
     },
     "move": {
       "enable": true,
-      "speed": 1.5,
+      "speed": 0.75,
       "direction": "top",
       "random": false,
       "straight": true,
@@ -47,8 +47,8 @@
       "bounce": false,
       "attract": {
         "enable": false,
-        "rotateX": 600,
-        "rotateY": 600
+        "rotateX": 0,
+        "rotateY": 0
       }
     }
   },
@@ -56,7 +56,7 @@
     "detect_on": "canvas",
     "events": {
       "onhover": {
-        "enable": true,
+        "enable": false,
         "mode": "grab"
       },
       "resize": true
