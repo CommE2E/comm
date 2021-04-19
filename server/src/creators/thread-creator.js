@@ -223,10 +223,10 @@ async function createThread(
     ? request.color.toLowerCase()
     : generateRandomColor();
   if (threadType === threadTypes.PERSONAL) {
-    color = generatePendingThreadColor(
-      request.initialMemberIDs ?? [],
+    color = generatePendingThreadColor([
+      ...(request.initialMemberIDs ?? []),
       viewer.id,
-    );
+    ]);
   }
 
   const time = Date.now();
