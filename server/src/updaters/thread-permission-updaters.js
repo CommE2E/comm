@@ -167,6 +167,12 @@ async function changeRole(
         Number(roleThreadResult.roleColumnValue) >= 0
           ? roleThreadResult.roleColumnValue
           : '0';
+      if (
+        (intent === 'join' && Number(newRole) === 0) ||
+        (intent === 'leave' && Number(newRole) > 0)
+      ) {
+        throw new ServerError('invalid_parameters');
+      }
       const userBecameMember =
         (!oldRole || Number(oldRole) <= 0) && Number(newRole) > 0;
       membershipRows.push({
@@ -181,6 +187,9 @@ async function changeRole(
         unread: userBecameMember && setNewMembersToUnread,
       });
     } else {
+      if (intent === 'join') {
+        throw new ServerError('invalid_parameters');
+      }
       membershipRows.push({
         operation: 'delete',
         intent,
