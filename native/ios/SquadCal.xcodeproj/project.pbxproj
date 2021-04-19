@@ -16,6 +16,7 @@
 		7173BEB32627035D0089BF7A /* DraftNativeModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7173BEA02627035D0089BF7A /* DraftNativeModule.cpp */; };
 		7173BEB62627035D0089BF7A /* SQLiteManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7173BEAA2627035D0089BF7A /* SQLiteManager.cpp */; };
 		71CA4AEC262F236100835C89 /* Tools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71CA4AEB262F236100835C89 /* Tools.mm */; };
+		71CA4A64262DA8E500835C89 /* Logger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71CA4A63262DA8E500835C89 /* Logger.mm */; };
 		7F761E602201141E001B6FB7 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F761E292201141E001B6FB7 /* JavaScriptCore.framework */; };
 		7F788C2C248AA2140098F071 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7F788C2B248AA2130098F071 /* SplashScreen.storyboard */; };
 		7FB58ABE1E7F6BD500B4C1B1 /* Anaheim-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7FB58ABB1E7F6BC600B4C1B1 /* Anaheim-Regular.ttf */; };
@@ -46,6 +47,8 @@
 		7173BEB12627035D0089BF7A /* sqlite_orm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqlite_orm.h; sourceTree = "<group>"; };
 		71CA4AEA262F230A00835C89 /* Tools.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Tools.h; path = SquadCal/Tools.h; sourceTree = "<group>"; };
 		71CA4AEB262F236100835C89 /* Tools.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = Tools.mm; path = SquadCal/Tools.mm; sourceTree = "<group>"; };
+		71CA4A49262D815E00835C89 /* Logger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Logger.h; sourceTree = "<group>"; };
+		71CA4A63262DA8E500835C89 /* Logger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Logger.mm; path = SquadCal/Logger.mm; sourceTree = "<group>"; };
 		7F26E81B24440D87004049C6 /* dummy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = dummy.swift; sourceTree = "<group>"; };
 		7F554F822332D58B007CB9F7 /* Info.debug.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.debug.plist; path = SquadCal/Info.debug.plist; sourceTree = "<group>"; };
 		7F761E292201141E001B6FB7 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -74,6 +77,7 @@
 		13B07FAE1A68108700A75B9A /* SquadCal */ = {
 			isa = PBXGroup;
 			children = (
+				71CA4A63262DA8E500835C89 /* Logger.mm */,
 				7F788C2B248AA2130098F071 /* SplashScreen.storyboard */,
 				7FCFD8BD1E81B8DF00629B0E /* SquadCal.entitlements */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
@@ -104,6 +108,7 @@
 		7173BE9D2627035D0089BF7A /* CommonCpp */ = {
 			isa = PBXGroup;
 			children = (
+				71CA4A48262D815E00835C89 /* Tools */,
 				7173BE9E2627035D0089BF7A /* NativeModules */,
 				7173BEA82627035D0089BF7A /* DatabaseManagers */,
 				7173BEAF2627035D0089BF7A /* sqlite_orm */,
@@ -149,6 +154,14 @@
 				7173BEB12627035D0089BF7A /* sqlite_orm.h */,
 			);
 			path = sqlite_orm;
+			sourceTree = "<group>";
+		};
+		71CA4A48262D815E00835C89 /* Tools */ = {
+			isa = PBXGroup;
+			children = (
+				71CA4A49262D815E00835C89 /* Logger.h */,
+			);
+			path = Tools;
 			sourceTree = "<group>";
 		};
 		7FF0870B1E833C3F000A1ACF /* Frameworks */ = {
@@ -382,6 +395,7 @@
 				71CA4AEC262F236100835C89 /* Tools.mm in Sources */,
 				7173BEB32627035D0089BF7A /* DraftNativeModule.cpp in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
+				71CA4A64262DA8E500835C89 /* Logger.mm in Sources */,
 				711B408425DA97F9005F8F06 /* dummy.swift in Sources */,
 				7173BEB22627035D0089BF7A /* NativeModules.cpp in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,

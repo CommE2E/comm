@@ -29,11 +29,13 @@ include_directories(
   # comm native mutual code
   ../../CommonCpp/NativeModules
   ../../CommonCpp/DatabaseManagers
+  ../../CommonCpp/Tools
 )
 
 # search for all cpp files in this directory
 file(GLOB SQLITE "../../node_modules/@nozbe/sqlite/sqlite-amalgamation-3310100/*.c")
 file(GLOB COMMON_NATIVE_CODE "../../CommonCpp/**/*.cpp")
+file(GLOB ANDROID_NATIVE_CODE "./src/cpp/*.cpp")
 
 add_library(
   # Sets the name of the library.
@@ -44,17 +46,19 @@ add_library(
   ../../node_modules/react-native/ReactCommon/jsi/jsi/jsi.cpp
   ../../node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/turbomodule/core/jni/ReactCommon/CallInvokerHolder.cpp
   ../../node_modules/react-native/ReactCommon/turbomodule/core/TurboModule.cpp
-  ./src/cpp/jsiInstaller.cpp
   ${SQLITE}
   # comm code
+  ${ANDROID_NATIVE_CODE}
   ${COMMON_NATIVE_CODE}
 )
+
+find_library(log-lib log)
 
 target_link_libraries(
   ${PACKAGE_NAME}
   fbjni::fbjni
   android
-  log
+  ${log-lib}
 )
 
 # add a dummy library which is required by CallInvokerHolderImpl.java
