@@ -20,9 +20,8 @@ const tooltipMenuItemHeight = 27; // 17px line-height + 10px padding
 const tooltipInnerPadding = 10;
 
 const font =
-  '14px -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", ' +
-  '"Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", ' +
-  '"Helvetica Neue", ui-sans-serif';
+  '14px -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", ' +
+  '"Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", ui-sans-serif';
 
 type FindTooltipPositionArgs = {|
   +pointingToInfo: ItemAndContainerPositionInfo,
