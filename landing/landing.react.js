@@ -10,11 +10,14 @@ function Landing(): React.Node {
   return (
     <div>
       <Particles canvasClassName={css.particles} params={particlesConfig} />
-      <h1>Comm</h1>
+      <h1 className={css.title}>Comm</h1>
       <div className={css.grid}>
         <div className={css.hero_image} />
         <div className={css.hero_copy}>
-          <h1>Reclaim your digital identity.</h1>
+          <h2 className={css.lede}>
+            Reclaim your
+            <span className={css.purple}> digital identity.</span>
+          </h2>
           <p>
             The internet is broken today. Private user data is owned by
             mega-corporations and farmed for their benefit.

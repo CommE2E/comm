@@ -10,10 +10,33 @@ h2 {
   font-family: 'IBM Plex Mono', monospace;
 }
 
+h1.title {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 24px;
+  padding-left: 80px;
+}
+
+span.purple {
+  color: #7e57c2;
+}
+
+h2.lede {
+  font-size: 80px;
+}
+
+h2 {
+  font-size: 60px;
+}
+
+p {
+  font-size: 24px;
+}
+
 div.grid {
   display: grid;
   padding: 80px;
   row-gap: 18em;
+  column-gap: 4em;
   grid-template-columns: 1fr 1fr;
   grid-template-areas:
     'hero_copy hero_image'
