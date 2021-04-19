@@ -1,7 +1,6 @@
 html {
-  overflow: hidden;
-  height: 100%;
   background: radial-gradient(ellipse at bottom, #374151, #111827);
+  background-attachment: fixed;
   font-family: 'IBM Plex Sans', sans-serif;
   color: white;
 }
@@ -9,6 +8,18 @@ html {
 h1,
 h2 {
   font-family: 'IBM Plex Mono', monospace;
+}
+
+div.hero {
+  background-image: url(../images/hero_illustration.svg);
+  width: 600px;
+  height: 600px;
+}
+
+div.server {
+  background-image: url(../images/server_illustration.svg);
+  width: 617px;
+  height: 535px;
 }
 
 canvas.particles {
