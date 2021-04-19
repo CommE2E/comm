@@ -17,7 +17,7 @@ async function fetchActiveSessionsForThread(
     SELECT s.id, s.user, s.query
     FROM memberships m
     LEFT JOIN sessions s ON s.user = m.user
-    WHERE m.thread = ${threadID} AND m.role >= 0 
+    WHERE m.thread = ${threadID} AND m.role > 0
       AND s.query IS NOT NULL
   `;
   const [result] = await dbQuery(query);
