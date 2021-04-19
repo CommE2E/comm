@@ -11,9 +11,9 @@ function Landing(): React.Node {
     <div>
       <Particles canvasClassName={css.particles} params={particlesConfig} />
       <h1>Comm</h1>
-      <div>
-        <div className={css.hero} />
-        <div>
+      <div className={css.grid}>
+        <div className={css.hero_image} />
+        <div className={css.hero_copy}>
           <h1>Reclaim your digital identity.</h1>
           <p>
             The internet is broken today. Private user data is owned by
@@ -25,8 +25,8 @@ function Landing(): React.Node {
           </p>
         </div>
 
-        <div className={css.server} />
-        <div>
+        <div className={css.server_image} />
+        <div className={css.server_copy}>
           <h2>Apps need servers.</h2>
           <p>
             Sophisticated applications rely on servers to do things that your
@@ -39,7 +39,7 @@ function Landing(): React.Node {
           </p>
         </div>
 
-        <div>
+        <div className={css.keyserver_copy}>
           <h2>Comm is the keyserver company.</h2>
           <p>In the future, people have their own servers.</p>
           <p>
@@ -48,6 +48,10 @@ function Landing(): React.Node {
             manager, your crypto wallet, your digital surrogate, and your second
             brain.
           </p>
+        </div>
+
+        <div className={css.read_the_docs}>
+          <p>There&apos;s gonna be a button here someday.</p>
         </div>
       </div>
     </div>

@@ -10,16 +10,45 @@ h2 {
   font-family: 'IBM Plex Mono', monospace;
 }
 
-div.hero {
+div.grid {
+  display: grid;
+  padding: 80px;
+  row-gap: 18em;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    'hero_copy hero_image'
+    'server_copy server_image'
+    'keyserver_copy read_the_docs';
+}
+
+div.hero_copy {
+  grid-area: hero_copy;
+}
+
+div.hero_image {
+  grid-area: hero_image;
   background-image: url(../images/hero_illustration.svg);
   width: 600px;
   height: 600px;
 }
 
-div.server {
+div.server_copy {
+  grid-area: server_copy;
+}
+
+div.server_image {
+  grid-area: server_image;
   background-image: url(../images/server_illustration.svg);
   width: 617px;
   height: 535px;
+}
+
+div.keyserver_copy {
+  grid-area: keyserver_copy;
+}
+
+div.read_the_docs {
+  grid-area: read_the_docs;
 }
 
 canvas.particles {
