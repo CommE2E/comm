@@ -48,8 +48,7 @@ export type MembershipRowToSave = {|
   +permissionsForChildren: ?ThreadPermissionsBlob,
   // null role represents by "0"
   +role: string,
-  lastMessage?: number,
-  lastReadMessage?: number,
+  +unread?: boolean,
 |};
 type MembershipRowToDelete = {|
   +operation: 'delete',
@@ -67,12 +66,18 @@ type Changeset = {|
 // null role means to set the user to the default role
 // string role means to set the user to the role with that ID
 // -1 role means to set the user as a "ghost" (former member)
+type ChangeRoleOptions = {|
+  +setNewMembersToUnread?: boolean,
+|};
 async function changeRole(
   threadID: string,
   userIDs: $ReadOnlyArray<string>,
   role: string | -1 | 0 | null,
+  options?: ChangeRoleOptions,
 ): Promise<?Changeset> {
   const intent = role === -1 || role === 0 ? 'leave' : 'join';
+  const setNewMembersToUnread =
+    options?.setNewMembersToUnread && intent === 'join';
 
   const membershipQuery = SQL`
     SELECT m.user, m.role, m.permissions_for_children,
@@ -173,6 +178,7 @@ async function changeRole(
         permissions,
         permissionsForChildren,
         role: newRole,
+        unread: userBecameMember && setNewMembersToUnread,
       });
     } else {
       membershipRows.push({
@@ -513,8 +519,6 @@ async function saveMemberships(toSave: $ReadOnlyArray<MembershipRowToSave>) {
   const time = Date.now();
   const insertRows = [];
   for (const rowToSave of toSave) {
-    const lastMessage = rowToSave.lastMessage ?? 0;
-    const lastReadMessage = rowToSave.lastReadMessage ?? 0;
     insertRows.push([
       rowToSave.userID,
       rowToSave.threadID,
@@ -527,8 +531,8 @@ async function saveMemberships(toSave: $ReadOnlyArray<MembershipRowToSave>) {
       rowToSave.permissionsForChildren
         ? JSON.stringify(rowToSave.permissionsForChildren)
         : null,
-      lastMessage,
-      lastReadMessage,
+      rowToSave.unread ? 1 : 0,
+      0,
     ]);
   }
 
@@ -748,22 +752,6 @@ async function commitMembershipChangeset(
   };
 }
 
-function setJoinsToUnread(
-  rows: MembershipRow[],
-  exceptViewerID: string,
-  exceptThreadID: string,
-) {
-  for (const row of rows) {
-    if (
-      row.operation === 'save' &&
-      (row.userID !== exceptViewerID || row.threadID !== exceptThreadID)
-    ) {
-      row.lastMessage = 1;
-      row.lastReadMessage = 0;
-    }
-  }
-}
-
 async function recalculateAllThreadPermissions() {
   const getAllThreads = SQL`SELECT id, type FROM threads`;
   const [result] = await dbQuery(getAllThreads);
@@ -789,6 +777,5 @@ export {
   recalculateThreadPermissions,
   saveMemberships,
   commitMembershipChangeset,
-  setJoinsToUnread,
   recalculateAllThreadPermissions,
 };

@@ -33,7 +33,6 @@ import {
   changeRole,
   recalculateThreadPermissions,
   commitMembershipChangeset,
-  setJoinsToUnread,
 } from '../updaters/thread-permission-updaters';
 import RelationshipChangeset from '../utils/relationship-changeset';
 import createIDs from './id-creator';
@@ -315,6 +314,17 @@ async function createThread(
     await dbQuery(query);
   }
 
+  let initialMemberPromise;
+  if (initialMemberIDs) {
+    initialMemberPromise = changeRole(id, initialMemberIDs, null, {
+      setNewMembersToUnread: true,
+    });
+  }
+  let ghostMemberPromise;
+  if (ghostMemberIDs) {
+    ghostMemberPromise = changeRole(id, ghostMemberIDs, -1);
+  }
+
   const [
     creatorChangeset,
     initialMembersChangeset,
@@ -322,8 +332,8 @@ async function createThread(
     recalculatePermissionsChangeset,
   ] = await Promise.all([
     changeRole(id, [viewer.userID], newRoles.creator.id),
-    initialMemberIDs ? changeRole(id, initialMemberIDs, null) : undefined,
-    ghostMemberIDs ? changeRole(id, ghostMemberIDs, -1) : undefined,
+    initialMemberPromise,
+    ghostMemberPromise,
     recalculateThreadPermissions(id, threadType),
   ]);
 
@@ -363,8 +373,6 @@ async function createThread(
     membershipRows.push(...ghostMembersMembershipRows);
     relationshipChangeset.addAll(ghostMembersRelationshipChangeset);
   }
-
-  setJoinsToUnread(membershipRows, viewer.userID, id);
 
   const changeset = { membershipRows, relationshipChangeset };
   const {

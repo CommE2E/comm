@@ -57,7 +57,6 @@ import {
   changeRole,
   recalculateThreadPermissions,
   commitMembershipChangeset,
-  setJoinsToUnread,
 } from './thread-permission-updaters';
 
 async function updateRole(
@@ -544,7 +543,9 @@ async function updateThread(
   if (newMemberIDs) {
     intermediatePromises.addMembersChangeset = (async () => {
       await Promise.all([updateQueryPromise, updateRolesPromise]);
-      return await changeRole(request.threadID, newMemberIDs, null);
+      return await changeRole(request.threadID, newMemberIDs, null, {
+        setNewMembersToUnread: true,
+      });
     })();
   }
 
@@ -580,7 +581,6 @@ async function updateThread(
       membershipRows: addMembersMembershipRows,
       relationshipChangeset: addMembersRelationshipChangeset,
     } = addMembersChangeset;
-    setJoinsToUnread(addMembersMembershipRows, viewer.userID, request.threadID);
     membershipRows.push(...addMembersMembershipRows);
     relationshipChangeset.addAll(addMembersRelationshipChangeset);
   }
@@ -673,7 +673,6 @@ async function joinThread(
   if (!changeset) {
     throw new ServerError('unknown_error');
   }
-  setJoinsToUnread(changeset.membershipRows, viewer.userID, request.threadID);
 
   const membershipResult = await commitMembershipChangeset(viewer, changeset, {
     calendarQuery,
