@@ -54,14 +54,20 @@ function SidebarListModal(props: Props) {
   }, [sidebarInfos, searchState]);
 
   const userInfos = useSelector((state) => state.userStore.userInfos);
+  const viewerID = useSelector(
+    (state) => state.currentUserInfo && state.currentUserInfo.id,
+  );
   const searchIndex = React.useMemo(() => {
     const index = new SearchIndex();
     for (const sidebarInfo of sidebarInfos) {
       const { threadInfo } = sidebarInfo;
-      index.addEntry(threadInfo.id, threadSearchText(threadInfo, userInfos));
+      index.addEntry(
+        threadInfo.id,
+        threadSearchText(threadInfo, userInfos, viewerID),
+      );
     }
     return index;
-  }, [sidebarInfos, userInfos]);
+  }, [sidebarInfos, userInfos, viewerID]);
   React.useEffect(() => {
     setSearchState((curState) => ({
       ...curState,
