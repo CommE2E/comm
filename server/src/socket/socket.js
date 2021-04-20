@@ -4,7 +4,7 @@ import type { $Request } from 'express';
 import invariant from 'invariant';
 import _debounce from 'lodash/debounce';
 import t from 'tcomb';
-import type { WebSocket } from 'ws';
+import WebSocket from 'ws';
 
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 import {
@@ -179,7 +179,10 @@ class Socket {
     this.redisPromiseResolver = new SequentialPromiseResolver(this.sendMessage);
   }
 
-  onMessage = async (messageString: string) => {
+  onMessage = async (
+    messageString: string | Buffer | ArrayBuffer | Array<Buffer>,
+  ) => {
+    invariant(typeof messageString === 'string', 'message should be string');
     let clientSocketMessage: ?ClientSocketMessage;
     try {
       this.resetTimeout();
