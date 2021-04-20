@@ -2,8 +2,8 @@
 
 class DepthQueue<T> {
   depthQueues: Map<number, Map<string, T>> = new Map();
-  maxEnqueuedDepth = -1;
-  maxDequeuedDepth = -1;
+  maxEnqueuedDepth: number = -1;
+  maxDequeuedDepth: number = -1;
   getDepth: (a: T) => number;
   getKey: (a: T) => string;
   mergeFunction: (a: T, b: T) => T;

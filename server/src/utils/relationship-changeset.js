@@ -12,7 +12,7 @@ type RelationshipStatus = 'existing' | 'potentially_missing';
 
 class RelationshipChangeset {
   relationships: Map<string, RelationshipStatus> = new Map();
-  finalized = false;
+  finalized: boolean = false;
 
   static _getKey(userA: string, userB: string): string {
     const [user1, user2] = sortIDs(userA, userB);

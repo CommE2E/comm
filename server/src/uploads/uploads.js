@@ -1,6 +1,6 @@
 // @flow
 
-import type { $Request, $Response } from 'express';
+import type { $Request, $Response, Middleware } from 'express';
 import invariant from 'invariant';
 import multer from 'multer';
 import { Readable } from 'stream';
@@ -23,7 +23,7 @@ import type { Viewer } from '../session/viewer';
 import { validateAndConvert } from './media-utils';
 
 const upload = multer();
-const multerProcessor = upload.array('multimedia');
+const multerProcessor: Middleware<> = upload.array('multimedia');
 
 type MulterFile = {|
   fieldname: string,
@@ -39,7 +39,7 @@ type MultimediaUploadResult = {|
 |};
 async function multimediaUploadResponder(
   viewer: Viewer,
-  req: $Request & { files?: $ReadOnlyArray<MulterFile> },
+  req: $Request & { files?: $ReadOnlyArray<MulterFile>, ... },
 ): Promise<MultimediaUploadResult> {
   const { files, body } = req;
   if (!files || !body || typeof body !== 'object') {

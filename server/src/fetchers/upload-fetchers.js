@@ -76,7 +76,7 @@ async function getUploadSize(id: string, secret: string): Promise<number> {
   return length;
 }
 
-function getUploadURL(id: string, secret: string) {
+function getUploadURL(id: string, secret: string): string {
   return `${baseDomain}${basePath}upload/${id}/${secret}`;
 }
 

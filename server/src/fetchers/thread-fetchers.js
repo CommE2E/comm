@@ -201,7 +201,7 @@ async function determineThreadAncestry(
 function getContainingThreadID(
   parentThreadInfo: ?ServerThreadInfo,
   threadType: ThreadType,
-) {
+): ?string {
   if (!parentThreadInfo) {
     return null;
   }
@@ -214,7 +214,7 @@ function getContainingThreadID(
   return parentThreadInfo.containingThreadID;
 }
 
-function getCommunity(parentThreadInfo: ?ServerThreadInfo) {
+function getCommunity(parentThreadInfo: ?ServerThreadInfo): ?string {
   if (!parentThreadInfo) {
     return null;
   }

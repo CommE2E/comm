@@ -9,8 +9,8 @@ function countDecimals(num: number) {
 
 class DatabaseMonitor {
   pool: Pool;
-  activeQueries = 0;
-  lastDecimalCount = 1;
+  activeQueries: number = 0;
+  lastDecimalCount: number = 1;
 
   constructor(pool: Pool) {
     this.pool = pool;
@@ -19,15 +19,15 @@ class DatabaseMonitor {
     pool.on('enqueue', this.onEnqueue);
   }
 
-  get queuedQueries() {
+  get queuedQueries(): number {
     return this.pool.pool._connectionQueue.length;
   }
 
-  get outstandingQueries() {
+  get outstandingQueries(): number {
     return this.activeQueries + this.queuedQueries;
   }
 
-  countOutstandingQueries() {
+  countOutstandingQueries(): number {
     const count = this.outstandingQueries;
     const decimalCount = countDecimals(count);
     if (decimalCount > this.lastDecimalCount) {
@@ -41,21 +41,21 @@ class DatabaseMonitor {
     return count;
   }
 
-  onAcquire = () => {
+  onAcquire: () => void = () => {
     this.activeQueries += 1;
     this.countOutstandingQueries();
   };
 
-  onRelease = () => {
+  onRelease: () => void = () => {
     this.activeQueries -= 1;
     this.countOutstandingQueries();
   };
 
-  onEnqueue = () => {
+  onEnqueue: () => void = () => {
     this.countOutstandingQueries();
   };
 
-  reportLaggingQuery = (query: string) => {
+  reportLaggingQuery: (query: string) => void = query => {
     const count = this.countOutstandingQueries();
     console.log(
       `a query is taking more than ${queryWarnTime}ms to execute. ` +

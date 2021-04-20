@@ -43,7 +43,7 @@ class RedisPublisher {
     this.pub.unref();
   }
 }
-const publisher = new RedisPublisher();
+const publisher: RedisPublisher = new RedisPublisher();
 
 type OnMessage = (message: RedisMessage) => void | Promise<void>;
 class RedisSubscriber {
@@ -77,7 +77,7 @@ class RedisSubscriber {
     }
   }
 
-  onMessage = (channel: string, messageString: string) => {
+  onMessage: (channel: string, messageString: string) => void = (channel, messageString) => {
     const message = RedisSubscriber.messageFromString(messageString);
     if (!message) {
       return;

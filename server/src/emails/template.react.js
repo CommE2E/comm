@@ -1,7 +1,6 @@
 // @flow
 
-import React from 'react';
-import * as React2 from 'react';
+import * as React from 'react';
 import { Email, Box } from 'react-html-email';
 
 const css = `
@@ -10,10 +9,10 @@ const css = `
 }`.trim();
 
 type Props = {|
-  title: string,
-  children: React2.Node,
+  +title: string,
+  +children: React.Node,
 |};
-function Template(props: Props) {
+function Template(props: Props): React.Node {
   return (
     <Email title={props.title} headCSS={css} align="left" width="100%">
       <Box align="left" cellSpacing={10}>

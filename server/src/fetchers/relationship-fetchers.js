@@ -1,5 +1,7 @@
 // @flow
 
+import type { RelationshipErrors } from 'lib/types/relationship-types';
+
 import _groupBy from 'lodash/fp/groupBy';
 
 import { undirectedStatus, directedStatus } from 'lib/types/relationship-types';
@@ -16,10 +18,14 @@ type UserRelationshipOperations = {
   [string]: $ReadOnlyArray<RelationshipOperation>,
 };
 
+type UserRelationshipOperationsResult = {|
+  +errors: RelationshipErrors,
+  +userRelationshipOperations: UserRelationshipOperations,
+|};
 async function fetchFriendRequestRelationshipOperations(
   viewer: Viewer,
   userIDs: string[],
-) {
+): Promise<UserRelationshipOperationsResult> {
   const query = SQL`
     SELECT user1, user2, status
     FROM relationships_directed
@@ -40,7 +46,7 @@ async function fetchFriendRequestRelationshipOperations(
     result,
   );
 
-  const errors = {};
+  const errors: RelationshipErrors = {};
   const userRelationshipOperations: UserRelationshipOperations = {};
   for (const userID in relationshipsByUserId) {
     const relationships = relationshipsByUserId[userID];

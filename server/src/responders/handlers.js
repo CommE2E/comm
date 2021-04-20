@@ -27,7 +27,7 @@ export type UploadResponder = (viewer: Viewer, req: $Request) => Promise<*>;
 function jsonHandler(
   responder: JSONResponder,
   expectCookieInvalidation: boolean,
-) {
+): (req: $Request, res: $Response) => Promise<void> {
   return async (req: $Request, res: $Response) => {
     let viewer;
     try {
@@ -49,7 +49,9 @@ function jsonHandler(
   };
 }
 
-function downloadHandler(responder: DownloadResponder) {
+function downloadHandler(
+  responder: DownloadResponder,
+): (req: $Request, res: $Response) => Promise<void> {
   return async (req: $Request, res: $Response) => {
     try {
       const viewer = await fetchViewerForJSONRequest(req);
@@ -99,7 +101,9 @@ async function handleException(
   res.json(result);
 }
 
-function htmlHandler(responder: HTMLResponder) {
+function htmlHandler(
+  responder: HTMLResponder,
+): (req: $Request, res: $Response) => Promise<void> {
   return async (req: $Request, res: $Response) => {
     try {
       const viewer = await fetchViewerForHomeRequest(req);
@@ -115,7 +119,9 @@ function htmlHandler(responder: HTMLResponder) {
   };
 }
 
-function uploadHandler(responder: UploadResponder) {
+function uploadHandler(
+  responder: UploadResponder,
+): (req: $Request, res: $Response) => Promise<void> {
   return async (req: $Request, res: $Response) => {
     let viewer;
     try {
