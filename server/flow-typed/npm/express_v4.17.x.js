@@ -92,6 +92,7 @@ declare type express$CookieOptions = {
   path?: string,
   secure?: boolean,
   signed?: boolean,
+  sameSite?: boolean | string,
   ...
 };
 
