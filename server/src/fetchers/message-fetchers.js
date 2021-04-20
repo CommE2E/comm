@@ -10,6 +10,8 @@ import { messageSpecs } from 'lib/shared/messages/message-specs';
 import { notifCollapseKeyForRawMessageInfo } from 'lib/shared/notif-utils';
 import {
   type RawMessageInfo,
+  type RawComposableMessageInfo,
+  type RawRobotextMessageInfo,
   messageTypes,
   type MessageType,
   assertMessageType,
@@ -151,7 +153,7 @@ type MessageSQLResult = $ReadOnlyArray<{|
 |}>;
 function parseMessageSQLResult(
   rows: $ReadOnlyArray<Object>,
-  derivedMessages: $ReadOnlyMap<string, RawMessageInfo>,
+  derivedMessages: $ReadOnlyMap<string, RawComposableMessageInfo | RawRobotextMessageInfo>,
   viewer?: Viewer,
 ): MessageSQLResult {
   const rowsByID = new Map();
@@ -202,7 +204,7 @@ function mostRecentRowType(rows: $ReadOnlyArray<Object>): MessageType {
 function rawMessageInfoFromRows(
   rows: $ReadOnlyArray<Object>,
   viewer?: Viewer,
-  derivedMessages: $ReadOnlyMap<string, RawMessageInfo>,
+  derivedMessages: $ReadOnlyMap<string, RawComposableMessageInfo | RawRobotextMessageInfo>,
 ): ?RawMessageInfo {
   const type = mostRecentRowType(rows);
   const messageSpec = messageSpecs[type];
@@ -211,6 +213,10 @@ function rawMessageInfoFromRows(
     const media = rows.filter(row => row.uploadID).map(mediaFromRow);
     const [row] = rows;
     const localID = localIDFromCreationString(viewer, row.creation);
+    invariant(
+      messageSpec.rawMessageInfoFromRow,
+      `multimedia message spec should have rawMessageInfoFromRow`,
+    );
     return messageSpec.rawMessageInfoFromRow(row, {
       media,
       derivedMessages,
@@ -222,7 +228,7 @@ function rawMessageInfoFromRows(
   const localID = localIDFromCreationString(viewer, row.creation);
   invariant(
     messageSpec.rawMessageInfoFromRow,
-    `unrecognized messageType ${type}`,
+    `message spec ${type} should have rawMessageInfoFromRow`,
   );
   return messageSpec.rawMessageInfoFromRow(row, { derivedMessages, localID });
 }
@@ -539,7 +545,7 @@ async function fetchMessageRowsByIDs(messageIDs: $ReadOnlyArray<string>) {
 async function fetchDerivedMessages(
   rows: $ReadOnlyArray<Object>,
   viewer?: Viewer,
-): Promise<$ReadOnlyMap<string, RawMessageInfo>> {
+): Promise<$ReadOnlyMap<string, RawComposableMessageInfo | RawRobotextMessageInfo>> {
   const requiredIDs = new Set<string>();
   for (const row of rows) {
     if (row.type === messageTypes.SIDEBAR_SOURCE) {
@@ -548,7 +554,7 @@ async function fetchDerivedMessages(
     }
   }
 
-  const messagesByID = new Map<string, RawMessageInfo>();
+  const messagesByID = new Map<string, RawComposableMessageInfo | RawRobotextMessageInfo>();
   if (requiredIDs.size === 0) {
     return messagesByID;
   }
@@ -559,6 +565,10 @@ async function fetchDerivedMessages(
   for (const message of messages) {
     const { rawMessageInfo } = message;
     if (rawMessageInfo.id) {
+      invariant(
+        rawMessageInfo.type !== messageTypes.SIDEBAR_SOURCE,
+        'SIDEBAR_SOURCE should not point to a SIDEBAR_SOURCE',
+      );
       messagesByID.set(rawMessageInfo.id, rawMessageInfo);
     }
   }
