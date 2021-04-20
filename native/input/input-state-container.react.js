@@ -129,6 +129,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   sendCallbacks: Array<() => void> = [];
   activeURIs = new Map();
   replyCallbacks: Array<(message: string) => void> = [];
+  pendingThreadCreations = new Map<string, Promise<?string>>();
 
   static getCompletedUploads(props: Props, state: State): CompletedUploads {
     const completedUploads = {};
@@ -339,18 +340,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       payload: messageInfo,
     });
 
-    let newThreadID;
-    try {
-      newThreadID = await createRealThreadFromPendingThread({
-        threadInfo,
-        dispatchActionPromise: this.props.dispatchActionPromise,
-        createNewThread: this.props.newThread,
-        sourceMessageID: threadInfo.sourceMessageID,
-        viewerID: this.props.viewerID,
-      });
-    } catch (e) {
-      newThreadID = undefined;
-    }
+    const newThreadID = await this.createRealizedThread(threadInfo);
     if (!newThreadID) {
       this.props.dispatch({
         type: sendTextMessageActionTypes.failed,
@@ -370,6 +360,31 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       newMessageInfo,
     );
   };
+
+  async createRealizedThread(threadInfo: ThreadInfo): Promise<?string> {
+    try {
+      let threadCreationPromise = this.pendingThreadCreations.get(
+        threadInfo.id,
+      );
+      if (!threadCreationPromise) {
+        threadCreationPromise = createRealThreadFromPendingThread({
+          threadInfo,
+          dispatchActionPromise: this.props.dispatchActionPromise,
+          createNewThread: this.props.newThread,
+          sourceMessageID: threadInfo.sourceMessageID,
+          viewerID: this.props.viewerID,
+        });
+        this.pendingThreadCreations.set(threadInfo.id, threadCreationPromise);
+      }
+      return await threadCreationPromise;
+    } catch (e) {
+      return undefined;
+    } finally {
+      // The promise is settled so we can clean the map to avoid a memory leak
+      // and allow retries
+      this.pendingThreadCreations.delete(threadInfo.id);
+    }
+  }
 
   async sendTextMessageAction(
     messageInfo: RawTextMessageInfo,
