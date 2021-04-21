@@ -12,8 +12,8 @@ import {
   threadInBackgroundChatList,
   threadInHomeChatList,
   threadInChatList,
+  threadIsTopLevel,
 } from 'lib/shared/thread-utils';
-import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadTypes } from 'lib/types/thread-types';
 
 import { useSelector } from '../redux/redux-utils';
@@ -26,17 +26,36 @@ type ChatTabType = 'HOME' | 'BACKGROUND';
 type ThreadListContextType = {|
   +activeTab: ChatTabType,
   +threadList: $ReadOnlyArray<ChatThreadItem>,
+  +setActiveTab: (newActiveTab: ChatTabType) => void,
 |};
 
 const ThreadListContext = React.createContext<?ThreadListContextType>();
 
 type ThreadListProviderProps = {|
-  +activeTab: ChatTabType,
-  +activeThreadInfo: ?ThreadInfo,
   +children: React.Node,
 |};
 function ThreadListProvider(props: ThreadListProviderProps) {
-  const { activeTab, activeThreadInfo, children } = props;
+  const [activeTab, setActiveTab] = React.useState('HOME');
+
+  const activeChatThreadItem = useSelector(activeChatThreadItemSelector);
+  const activeThreadInfo = activeChatThreadItem?.threadInfo;
+  const activeThreadFromHomeTab =
+    activeThreadInfo?.currentUser.subscription.home;
+  const activeThreadID = activeThreadInfo?.id;
+  const activeThreadHasSpecificTab = threadIsTopLevel(activeThreadInfo);
+  const activeThreadIsFromDifferentTab =
+    (activeTab === 'BACKGROUND' && activeThreadFromHomeTab) ||
+    (activeTab === 'HOME' && !activeThreadFromHomeTab);
+  const prevActiveThreadIDRef = React.useRef<?string>();
+  const shouldChangeTab =
+    activeThreadHasSpecificTab && activeThreadIsFromDifferentTab;
+  React.useEffect(() => {
+    const prevActiveThreadID = prevActiveThreadIDRef.current;
+    prevActiveThreadIDRef.current = activeThreadID;
+    if (activeThreadID !== prevActiveThreadID && shouldChangeTab) {
+      setActiveTab(activeThreadFromHomeTab ? 'HOME' : 'BACKGROUND');
+    }
+  }, [activeThreadID, activeThreadFromHomeTab, shouldChangeTab]);
 
   const activeSidebarParentThreadInfo = useSelector((state) => {
     if (!activeThreadInfo || activeThreadInfo.type !== threadTypes.SIDEBAR) {
@@ -55,9 +74,7 @@ function ThreadListProvider(props: ThreadListProviderProps) {
     () => threadInChatList(activeTopLevelThread),
     [activeTopLevelThread],
   );
-  const activeThreadID = useSelector(
-    (state) => state.navInfo.activeChatThreadID,
-  );
+
   const activeThreadOriginalTab = React.useMemo(() => {
     if (activeTopLevelThreadIsInChatList) {
       return null;
@@ -66,30 +83,37 @@ function ThreadListProvider(props: ThreadListProviderProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTopLevelThreadIsInChatList, activeThreadID]);
 
-  const activeItem = useSelector(activeChatThreadItemSelector);
   const makeSureActiveSidebarIsIncluded = React.useCallback(
     (threadListData: $ReadOnlyArray<ChatThreadItem>) => {
-      if (!activeItem || activeItem.threadInfo.type !== threadTypes.SIDEBAR) {
+      if (
+        !activeChatThreadItem ||
+        activeChatThreadItem.threadInfo.type !== threadTypes.SIDEBAR
+      ) {
         return threadListData;
       }
 
       const result = [];
       for (const item of threadListData) {
-        if (activeItem.threadInfo.parentThreadID !== item.threadInfo.id) {
+        if (
+          activeChatThreadItem.threadInfo.parentThreadID !== item.threadInfo.id
+        ) {
           result.push(item);
           continue;
         }
 
-        const { parentThreadID } = activeItem.threadInfo;
+        const { parentThreadID } = activeChatThreadItem.threadInfo;
         invariant(
           parentThreadID,
-          `thread ID ${activeItem.threadInfo.id} is a sidebar without a parent`,
+          `thread ID ${activeChatThreadItem.threadInfo.id} is a sidebar ` +
+            'without a parent',
         );
 
         for (const sidebarItem of item.sidebars) {
           if (sidebarItem.type !== 'sidebar') {
             continue;
-          } else if (sidebarItem.threadInfo.id === activeItem.threadInfo.id) {
+          } else if (
+            sidebarItem.threadInfo.id === activeChatThreadItem.threadInfo.id
+          ) {
             return threadListData;
           }
         }
@@ -97,16 +121,17 @@ function ThreadListProvider(props: ThreadListProviderProps) {
         let indexToInsert = item.sidebars.findIndex(
           (sidebar) =>
             sidebar.lastUpdatedTime === undefined ||
-            sidebar.lastUpdatedTime < activeItem.lastUpdatedTime,
+            sidebar.lastUpdatedTime < activeChatThreadItem.lastUpdatedTime,
         );
         if (indexToInsert === -1) {
           indexToInsert = item.sidebars.length;
         }
         const activeSidebar = {
           type: 'sidebar',
-          lastUpdatedTime: activeItem.lastUpdatedTime,
-          mostRecentNonLocalMessage: activeItem.mostRecentNonLocalMessage,
-          threadInfo: activeItem.threadInfo,
+          lastUpdatedTime: activeChatThreadItem.lastUpdatedTime,
+          mostRecentNonLocalMessage:
+            activeChatThreadItem.mostRecentNonLocalMessage,
+          threadInfo: activeChatThreadItem.threadInfo,
         };
         const newSidebarItems = [
           ...item.sidebars.slice(0, indexToInsert),
@@ -122,7 +147,7 @@ function ThreadListProvider(props: ThreadListProviderProps) {
 
       return result;
     },
-    [activeItem],
+    [activeChatThreadItem],
   );
   const chatListData = useSelector(chatListDataSelector);
   const activeTopLevelChatThreadItem = useChatThreadItem(activeTopLevelThread);
@@ -159,13 +184,14 @@ function ThreadListProvider(props: ThreadListProviderProps) {
     () => ({
       activeTab,
       threadList: currentThreadList,
+      setActiveTab,
     }),
     [activeTab, currentThreadList],
   );
 
   return (
     <ThreadListContext.Provider value={threadListContext}>
-      {children}
+      {props.children}
     </ThreadListContext.Provider>
   );
 }

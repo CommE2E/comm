@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import ChatMessageList from './chat-message-list.react';
 import ChatTabs from './chat-tabs.react';
+import { ThreadListProvider } from './thread-list-provider';
 
 type Props = {|
   +setModal: (modal: ?React.Node) => void,
@@ -11,7 +12,9 @@ type Props = {|
 function Chat(props: Props) {
   return (
     <>
-      <ChatTabs setModal={props.setModal} />
+      <ThreadListProvider>
+        <ChatTabs setModal={props.setModal} />
+      </ThreadListProvider>
       <ChatMessageList setModal={props.setModal} />
     </>
   );
