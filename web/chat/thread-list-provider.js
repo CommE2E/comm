@@ -94,63 +94,54 @@ function ThreadListProvider(props: ThreadListProviderProps) {
         return threadListData;
       }
 
-      const result = [];
-      for (const item of threadListData) {
-        if (
-          activeChatThreadItem.threadInfo.parentThreadID !== item.threadInfo.id
-        ) {
-          result.push(item);
+      const sidebarParentIndex = threadListData.findIndex(
+        (thread) =>
+          thread.threadInfo.id ===
+          activeChatThreadItem.threadInfo.parentThreadID,
+      );
+      if (sidebarParentIndex === -1) {
+        return threadListData;
+      }
+      const parentItem = threadListData[sidebarParentIndex];
+
+      for (const sidebarItem of parentItem.sidebars) {
+        if (sidebarItem.type !== 'sidebar') {
           continue;
+        } else if (
+          sidebarItem.threadInfo.id === activeChatThreadItem.threadInfo.id
+        ) {
+          return threadListData;
         }
-
-        const { parentThreadID } = activeChatThreadItem.threadInfo;
-        invariant(
-          parentThreadID,
-          `thread ID ${activeChatThreadItem.threadInfo.id} is a sidebar ` +
-            'without a parent',
-        );
-
-        for (const sidebarItem of item.sidebars) {
-          if (sidebarItem.type !== 'sidebar') {
-            continue;
-          } else if (
-            sidebarItem.threadInfo.id === activeChatThreadItem.threadInfo.id
-          ) {
-            return threadListData;
-          }
-        }
-
-        let indexToInsert = item.sidebars.findIndex(
-          (sidebar) =>
-            sidebar.lastUpdatedTime === undefined ||
-            sidebar.lastUpdatedTime < activeChatThreadItem.lastUpdatedTime,
-        );
-        if (indexToInsert === -1) {
-          indexToInsert = item.sidebars.length;
-        }
-        const activeSidebar = {
-          type: 'sidebar',
-          lastUpdatedTime: activeChatThreadItem.lastUpdatedTime,
-          mostRecentNonLocalMessage:
-            activeChatThreadItem.mostRecentNonLocalMessage,
-          threadInfo: activeChatThreadItem.threadInfo,
-        };
-        const newSidebarItems = [
-          ...item.sidebars.slice(0, indexToInsert),
-          activeSidebar,
-          ...item.sidebars.slice(indexToInsert),
-        ];
-
-        result.push({
-          ...item,
-          sidebars: newSidebarItems,
-        });
       }
 
-      return result;
+      let indexToInsert = parentItem.sidebars.findIndex(
+        (sidebar) =>
+          sidebar.lastUpdatedTime === undefined ||
+          sidebar.lastUpdatedTime < activeChatThreadItem.lastUpdatedTime,
+      );
+      if (indexToInsert === -1) {
+        indexToInsert = parentItem.sidebars.length;
+      }
+      const activeSidebar = {
+        type: 'sidebar',
+        lastUpdatedTime: activeChatThreadItem.lastUpdatedTime,
+        mostRecentNonLocalMessage:
+          activeChatThreadItem.mostRecentNonLocalMessage,
+        threadInfo: activeChatThreadItem.threadInfo,
+      };
+      const newSidebarItems = [...parentItem.sidebars];
+      newSidebarItems.splice(indexToInsert, 0, activeSidebar);
+
+      const newThreadListData = [...threadListData];
+      newThreadListData[sidebarParentIndex] = {
+        ...parentItem,
+        sidebars: newSidebarItems,
+      };
+      return newThreadListData;
     },
     [activeChatThreadItem],
   );
+
   const chatListData = useSelector(chatListDataSelector);
   const activeTopLevelChatThreadItem = useChatThreadItem(
     activeTopLevelThreadInfo,
