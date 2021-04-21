@@ -7,12 +7,25 @@ import css from './landing.css';
 import particlesConfig from './particles-config.json';
 
 function Landing(): React.Node {
+  React.useEffect(() => {
+    import('@lottiefiles/lottie-player');
+  }, []);
+
   return (
     <div>
       <Particles canvasClassName={css.particles} params={particlesConfig} />
       <h1 className={css.title}>Comm</h1>
       <div className={css.grid}>
-        <div className={css.hero_image} />
+        <div className={css.hero_image}>
+          <lottie-player
+            autoplay
+            loop
+            id="eye-illustration"
+            mode="normal"
+            src="../comm/images/animated_eye.json"
+            speed={0.5}
+          ></lottie-player>
+        </div>
         <div className={css.hero_copy}>
           <h2 className={css.lede}>
             Reclaim your

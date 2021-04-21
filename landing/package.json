@@ -40,6 +40,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.13.10",
+    "@lottiefiles/lottie-player": "^1.0.3",
     "core-js": "^3.6.5",
     "invariant": "^2.2.4",
     "isomorphic-fetch": "^2.2.1",

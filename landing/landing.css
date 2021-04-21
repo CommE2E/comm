@@ -65,9 +65,10 @@ div.hero_copy {
 
 div.hero_image {
   grid-area: hero_image;
-  background-image: url(../images/hero_illustration.svg);
   width: 600px;
   height: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 div.server_copy {
