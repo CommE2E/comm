@@ -3,7 +3,8 @@
 import {
   type RoleInfo,
   threadPermissions,
-  threadPermissionPrefixes,
+  threadPermissionPropagationPrefixes,
+  threadPermissionFilterPrefixes,
   type ThreadRolePermissionsBlob,
   type ThreadType,
   threadTypes,
@@ -69,16 +70,18 @@ type RolePermissionBlobs = {|
   +Admins?: ThreadRolePermissionsBlob,
 |};
 
+const { DESCENDANT } = threadPermissionPropagationPrefixes;
+const { OPEN } = threadPermissionFilterPrefixes;
+const OPEN_DESCENDANT = DESCENDANT + OPEN;
+
 // Originally all chat threads were orgs, but for the alpha launch I decided
 // it's better to keep it simple. I'll probably reintroduce orgs at some point.
 // eslint-disable-next-line no-unused-vars
 function getRolePermissionBlobsForOrg(): RolePermissionBlobs {
-  const openDescendantKnowOf =
-    threadPermissionPrefixes.OPEN_DESCENDANT + threadPermissions.KNOW_OF;
-  const openDescendantVisible =
-    threadPermissionPrefixes.OPEN_DESCENDANT + threadPermissions.VISIBLE;
+  const openDescendantKnowOf = OPEN_DESCENDANT + threadPermissions.KNOW_OF;
+  const openDescendantVisible = OPEN_DESCENDANT + threadPermissions.VISIBLE;
   const openDescendantJoinThread =
-    threadPermissionPrefixes.OPEN_DESCENDANT + threadPermissions.JOIN_THREAD;
+    OPEN_DESCENDANT + threadPermissions.JOIN_THREAD;
   const memberPermissions = {
     [threadPermissions.KNOW_OF]: true,
     [threadPermissions.VISIBLE]: true,
@@ -94,32 +97,22 @@ function getRolePermissionBlobsForOrg(): RolePermissionBlobs {
     [threadPermissions.ADD_MEMBERS]: true,
     [threadPermissions.LEAVE_THREAD]: true,
   };
-  const descendantKnowOf =
-    threadPermissionPrefixes.DESCENDANT + threadPermissions.KNOW_OF;
-  const descendantVisible =
-    threadPermissionPrefixes.DESCENDANT + threadPermissions.VISIBLE;
-  const descendantJoinThread =
-    threadPermissionPrefixes.DESCENDANT + threadPermissions.JOIN_THREAD;
-  const descendantVoiced =
-    threadPermissionPrefixes.DESCENDANT + threadPermissions.VOICED;
-  const descendantEditEntries =
-    threadPermissionPrefixes.DESCENDANT + threadPermissions.EDIT_ENTRIES;
-  const descendantEditThread =
-    threadPermissionPrefixes.DESCENDANT + threadPermissions.EDIT_THREAD;
+  const descendantKnowOf = DESCENDANT + threadPermissions.KNOW_OF;
+  const descendantVisible = DESCENDANT + threadPermissions.VISIBLE;
+  const descendantJoinThread = DESCENDANT + threadPermissions.JOIN_THREAD;
+  const descendantVoiced = DESCENDANT + threadPermissions.VOICED;
+  const descendantEditEntries = DESCENDANT + threadPermissions.EDIT_ENTRIES;
+  const descendantEditThread = DESCENDANT + threadPermissions.EDIT_THREAD;
   const descendantCreateSubthreads =
-    threadPermissionPrefixes.DESCENDANT + threadPermissions.CREATE_SUBTHREADS;
+    DESCENDANT + threadPermissions.CREATE_SUBTHREADS;
   const descendantCreateSidebars =
-    threadPermissionPrefixes.DESCENDANT + threadPermissions.CREATE_SIDEBARS;
-  const descendantAddMembers =
-    threadPermissionPrefixes.DESCENDANT + threadPermissions.ADD_MEMBERS;
-  const descendantDeleteThread =
-    threadPermissionPrefixes.DESCENDANT + threadPermissions.DELETE_THREAD;
+    DESCENDANT + threadPermissions.CREATE_SIDEBARS;
+  const descendantAddMembers = DESCENDANT + threadPermissions.ADD_MEMBERS;
+  const descendantDeleteThread = DESCENDANT + threadPermissions.DELETE_THREAD;
   const descendantEditPermissions =
-    threadPermissionPrefixes.DESCENDANT + threadPermissions.EDIT_PERMISSIONS;
-  const descendantRemoveMembers =
-    threadPermissionPrefixes.DESCENDANT + threadPermissions.REMOVE_MEMBERS;
-  const descendantChangeRole =
-    threadPermissionPrefixes.DESCENDANT + threadPermissions.CHANGE_ROLE;
+    DESCENDANT + threadPermissions.EDIT_PERMISSIONS;
+  const descendantRemoveMembers = DESCENDANT + threadPermissions.REMOVE_MEMBERS;
+  const descendantChangeRole = DESCENDANT + threadPermissions.CHANGE_ROLE;
   const adminPermissions = {
     [threadPermissions.KNOW_OF]: true,
     [threadPermissions.VISIBLE]: true,
@@ -172,12 +165,10 @@ function getRolePermissionBlobsForChat(
     };
   }
 
-  const openDescendantKnowOf =
-    threadPermissionPrefixes.OPEN_DESCENDANT + threadPermissions.KNOW_OF;
-  const openDescendantVisible =
-    threadPermissionPrefixes.OPEN_DESCENDANT + threadPermissions.VISIBLE;
+  const openDescendantKnowOf = OPEN_DESCENDANT + threadPermissions.KNOW_OF;
+  const openDescendantVisible = OPEN_DESCENDANT + threadPermissions.VISIBLE;
   const openDescendantJoinThread =
-    threadPermissionPrefixes.OPEN_DESCENDANT + threadPermissions.JOIN_THREAD;
+    OPEN_DESCENDANT + threadPermissions.JOIN_THREAD;
 
   if (threadType === threadTypes.PRIVATE) {
     const memberPermissions = {

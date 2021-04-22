@@ -2,7 +2,7 @@
 
 import {
   threadPermissions,
-  threadPermissionPrefixes,
+  threadPermissionPropagationPrefixes,
 } from 'lib/types/thread-types';
 
 import { dbQuery, SQL } from '../database/database';
@@ -29,7 +29,7 @@ async function createSidebarPermissions() {
   await dbQuery(updateAllRoles);
 
   const descendantSidebarsString =
-    `$.${threadPermissionPrefixes.DESCENDANT}` +
+    `$.${threadPermissionPropagationPrefixes.DESCENDANT}` +
     threadPermissions.CREATE_SIDEBARS;
   const updateAdminRoles = SQL`
     UPDATE roles
