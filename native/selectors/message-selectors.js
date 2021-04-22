@@ -2,6 +2,7 @@
 
 import { createSelector } from 'reselect';
 
+import { threadIsPending } from 'lib/shared/thread-utils';
 import type { ThreadMessageInfo } from 'lib/types/message-types';
 
 import { activeThreadSelector } from '../navigation/nav-selectors';
@@ -42,7 +43,7 @@ const pruneThreadIDsSelector: (
     const now = Date.now();
     const threadIDsToPrune = [];
     for (const threadID in threadMessageInfos) {
-      if (threadID === activeThread) {
+      if (threadID === activeThread || threadIsPending(threadID)) {
         continue;
       }
       const threadMessageInfo = threadMessageInfos[threadID];
