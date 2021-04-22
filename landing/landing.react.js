@@ -1,15 +1,42 @@
 // @flow
 
+import { create } from '@lottiefiles/lottie-interactivity';
 import * as React from 'react';
 import Particles from 'react-particles-js';
 
 import css from './landing.css';
 import particlesConfig from './particles-config.json';
 
+const useIsomorphicLayoutEffect =
+  typeof window !== 'undefined' ? React.useLayoutEffect : React.useEffect;
+
 function Landing(): React.Node {
   React.useEffect(() => {
     import('@lottiefiles/lottie-player');
   }, []);
+
+  const onEyeIllustrationLoad = React.useCallback(() => {
+    create({
+      mode: 'scroll',
+      player: '#eye-illustration',
+      actions: [
+        {
+          visibility: [0, 1],
+          type: 'seek',
+          frames: [0, 720],
+        },
+      ],
+    });
+  }, []);
+
+  const [eyeNode, setEyeNode] = React.useState(null);
+  useIsomorphicLayoutEffect(() => {
+    if (!eyeNode) {
+      return;
+    }
+    eyeNode.addEventListener('load', onEyeIllustrationLoad);
+    return () => eyeNode.removeEventListener('load', onEyeIllustrationLoad);
+  }, [eyeNode, onEyeIllustrationLoad]);
 
   return (
     <div>
@@ -18,9 +45,8 @@ function Landing(): React.Node {
       <div className={css.grid}>
         <div className={css.hero_image}>
           <lottie-player
-            autoplay
-            loop
             id="eye-illustration"
+            ref={setEyeNode}
             mode="normal"
             src="../comm/images/animated_eye.json"
             speed={0.5}
