@@ -24,6 +24,7 @@ include_directories(
   ../../node_modules/react-native/ReactCommon/turbomodule/core
   # sqlite code
   ../../node_modules/@nozbe/sqlite/sqlite-amalgamation-3310100
+  ../../CommonCpp/sqlite_orm
   # comm android specific code
   ./src/cpp
   # comm native mutual code

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../sqlite_orm/sqlite_orm.h"
+#include "sqlite_orm.h"
 #include "DatabaseManagerInterface.h"
 #include "entities/Draft.h"
 
