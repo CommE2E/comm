@@ -1,0 +1,30 @@
+.button {
+  position: relative;
+  height: 160px;
+  width: 600px;
+  border: 2px solid white;
+  color: white;
+  background: transparent;
+  padding: 28px;
+  cursor: pointer;
+  text-align: left;
+  padding-top: 100px;
+  border-radius: 8px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 24px;
+}
+
+.button:hover {
+  background-color: white;
+  color: black;
+}
+
+.button:hover img {
+  filter: invert(1);
+}
+
+.cornerIcon {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}

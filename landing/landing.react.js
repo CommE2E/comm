@@ -6,6 +6,7 @@ import Particles from 'react-particles-js';
 
 import css from './landing.css';
 import particlesConfig from './particles-config.json';
+import ReadDocsButton from './read-docs-btn.react';
 
 const useIsomorphicLayoutEffect =
   typeof window !== 'undefined' ? React.useLayoutEffect : React.useEffect;
@@ -93,7 +94,7 @@ function Landing(): React.Node {
         </div>
 
         <div className={css.read_the_docs}>
-          <p>There&apos;s gonna be a button here someday.</p>
+          <ReadDocsButton />
         </div>
       </div>
     </div>
