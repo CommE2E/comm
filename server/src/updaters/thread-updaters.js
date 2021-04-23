@@ -689,12 +689,19 @@ async function joinThread(
   const threadSelectionCriteria = {
     threadCursors: { [request.threadID]: false },
   };
+
+  // TODO: determine code version
+  const hasCodeVersionBelow84 = !hasMinCodeVersion(viewer.platformDetails, 84);
+
   const [fetchMessagesResult, fetchEntriesResult] = await Promise.all([
     fetchMessageInfos(viewer, threadSelectionCriteria, defaultNumberPerThread),
-    calendarQuery ? fetchEntryInfos(viewer, [calendarQuery]) : undefined,
+    calendarQuery && hasCodeVersionBelow84
+      ? fetchEntryInfos(viewer, [calendarQuery])
+      : undefined,
   ]);
 
   const rawEntryInfos = fetchEntriesResult && fetchEntriesResult.rawEntryInfos;
+
   const response: ThreadJoinResult = {
     rawMessageInfos: fetchMessagesResult.rawMessageInfos,
     truncationStatuses: fetchMessagesResult.truncationStatuses,
