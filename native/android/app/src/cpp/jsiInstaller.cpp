@@ -1,7 +1,7 @@
 #include <jsi/jsi.h>
 #include <fbjni/fbjni.h>
 #include <CallInvokerHolder.h>
-#include "DraftNativeModule.h"
+#include "CommCoreModule.h"
 #include "SQLiteManager.h"
 #include "jniHelpers.h"
 
@@ -23,18 +23,15 @@ public:
   ) {
     jsi::Runtime *rt = (jsi::Runtime *)jsContext;
     auto jsCallInvoker = jsCallInvokerHolder->cthis()->getCallInvoker();
-    std::shared_ptr<comm::DraftNativeModule> nativeModule =
-      std::make_shared<comm::DraftNativeModule>(jsCallInvoker);
+    std::shared_ptr<comm::CommCoreModule> nativeModule =
+      std::make_shared<comm::CommCoreModule>(jsCallInvoker);
 
-    // patch runtime
-    // - add draft module
     rt->global().setProperty(
       *rt,
-      jsi::PropNameID::forAscii(*rt, "draftModule"),
+      jsi::PropNameID::forAscii(*rt, "CommCoreModule"),
       jsi::Object::createFromHostObject(*rt, nativeModule)
     );
 
-    // set sqlite file path
     jni::local_ref<jni::JObject> sqliteFilePathObj = 
       additionalParameters.get("sqliteFilePath");
     comm::SQLiteManager::sqliteFilePath = sqliteFilePathObj->toString();

@@ -13,7 +13,7 @@
 		54B457A7302F03F835EC5D92 /* libPods-SquadCal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A75435FBAC0720E8BE857F55 /* libPods-SquadCal.a */; };
 		711B408425DA97F9005F8F06 /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F26E81B24440D87004049C6 /* dummy.swift */; };
 		7173BEB22627035D0089BF7A /* NativeModules.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7173BE9F2627035D0089BF7A /* NativeModules.cpp */; };
-		7173BEB32627035D0089BF7A /* DraftNativeModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7173BEA02627035D0089BF7A /* DraftNativeModule.cpp */; };
+		7173BEB32627035D0089BF7A /* CommCoreModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7173BEA02627035D0089BF7A /* CommCoreModule.cpp */; };
 		7173BEB62627035D0089BF7A /* SQLiteManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7173BEAA2627035D0089BF7A /* SQLiteManager.cpp */; };
 		71CA4AEC262F236100835C89 /* Tools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71CA4AEB262F236100835C89 /* Tools.mm */; };
 		71CA4A64262DA8E500835C89 /* Logger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71CA4A63262DA8E500835C89 /* Logger.mm */; };
@@ -36,9 +36,9 @@
 		5D92D07F9695E31E05F88732 /* Pods-SquadCal.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SquadCal.release.xcconfig"; path = "Target Support Files/Pods-SquadCal/Pods-SquadCal.release.xcconfig"; sourceTree = "<group>"; };
 		711CF80E25DC096000A00FBD /* libFolly.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libFolly.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		7173BE9F2627035D0089BF7A /* NativeModules.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NativeModules.cpp; sourceTree = "<group>"; };
-		7173BEA02627035D0089BF7A /* DraftNativeModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DraftNativeModule.cpp; sourceTree = "<group>"; };
+		7173BEA02627035D0089BF7A /* CommCoreModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CommCoreModule.cpp; sourceTree = "<group>"; };
 		7173BEA12627035D0089BF7A /* NativeModules.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeModules.h; sourceTree = "<group>"; };
-		7173BEA22627035D0089BF7A /* DraftNativeModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DraftNativeModule.h; sourceTree = "<group>"; };
+		7173BEA22627035D0089BF7A /* CommCoreModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommCoreModule.h; sourceTree = "<group>"; };
 		7173BEA92627035D0089BF7A /* DatabaseManagerInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatabaseManagerInterface.h; sourceTree = "<group>"; };
 		7173BEAA2627035D0089BF7A /* SQLiteManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SQLiteManager.cpp; sourceTree = "<group>"; };
 		7173BEAB2627035D0089BF7A /* SQLiteManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SQLiteManager.h; sourceTree = "<group>"; };
@@ -121,9 +121,9 @@
 			isa = PBXGroup;
 			children = (
 				7173BE9F2627035D0089BF7A /* NativeModules.cpp */,
-				7173BEA02627035D0089BF7A /* DraftNativeModule.cpp */,
+				7173BEA02627035D0089BF7A /* CommCoreModule.cpp */,
 				7173BEA12627035D0089BF7A /* NativeModules.h */,
-				7173BEA22627035D0089BF7A /* DraftNativeModule.h */,
+				7173BEA22627035D0089BF7A /* CommCoreModule.h */,
 			);
 			path = NativeModules;
 			sourceTree = "<group>";
@@ -393,7 +393,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				71CA4AEC262F236100835C89 /* Tools.mm in Sources */,
-				7173BEB32627035D0089BF7A /* DraftNativeModule.cpp in Sources */,
+				7173BEB32627035D0089BF7A /* CommCoreModule.cpp in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				71CA4A64262DA8E500835C89 /* Logger.mm in Sources */,
 				711B408425DA97F9005F8F06 /* dummy.swift in Sources */,

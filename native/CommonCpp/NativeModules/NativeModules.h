@@ -17,9 +17,9 @@
 
 namespace facebook {
 namespace react {
-class JSI_EXPORT DraftSchemaCxxSpecJSI : public TurboModule {
+class JSI_EXPORT CommCoreModuleSchemaCxxSpecJSI : public TurboModule {
 protected:
-  DraftSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker);
+  CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker);
 
 public:
 virtual jsi::String getDraft(jsi::Runtime &rt, const jsi::String &threadID) = 0;

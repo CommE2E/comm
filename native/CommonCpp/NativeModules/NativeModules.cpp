@@ -12,17 +12,17 @@
 namespace facebook {
 namespace react {
 
-static jsi::Value __hostFunction_DraftSchemaCxxSpecJSI_getDraft(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<DraftSchemaCxxSpecJSI *>(&turboModule)->getDraft(rt, args[0].getString(rt));
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getDraft(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getDraft(rt, args[0].getString(rt));
 }
-static jsi::Value __hostFunction_DraftSchemaCxxSpecJSI_updateDraft(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<DraftSchemaCxxSpecJSI *>(&turboModule)->updateDraft(rt, args[0].getObject(rt));
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_updateDraft(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->updateDraft(rt, args[0].getObject(rt));
 }
 
-DraftSchemaCxxSpecJSI::DraftSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
+CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
   : TurboModule("CommTurboModule", jsInvoker) {
-  methodMap_["getDraft"] = MethodMetadata {1, __hostFunction_DraftSchemaCxxSpecJSI_getDraft};
-  methodMap_["updateDraft"] = MethodMetadata {1, __hostFunction_DraftSchemaCxxSpecJSI_updateDraft};
+  methodMap_["getDraft"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getDraft};
+  methodMap_["updateDraft"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_updateDraft};
 }
 
 

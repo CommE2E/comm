@@ -19,7 +19,7 @@
 #import <string>
 
 #import "Tools.h"
-#import "DraftNativeModule.h"
+#import "CommCoreModule.h"
 #import "SQLiteManager.h"
 
 #ifdef FB_SONARKIT_ENABLED
@@ -143,12 +143,12 @@ using Runtime = facebook::jsi::Runtime;
     }
     __typeof(self) strongSelf = weakSelf;
     if (strongSelf) {
-      std::shared_ptr<comm::DraftNativeModule> nativeModule =
-        std::make_shared<comm::DraftNativeModule>(bridge.jsCallInvoker);
+      std::shared_ptr<comm::CommCoreModule> nativeModule =
+        std::make_shared<comm::CommCoreModule>(bridge.jsCallInvoker);
       
       rt.global().setProperty(
         rt,
-        facebook::jsi::PropNameID::forAscii(rt, "draftModule"),
+        facebook::jsi::PropNameID::forAscii(rt, "CommCoreModule"),
         facebook::jsi::Object::createFromHostObject(rt, nativeModule)
       );
 

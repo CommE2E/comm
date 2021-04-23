@@ -7,12 +7,12 @@ namespace comm {
 
 namespace jsi = facebook::jsi;
 
-class DraftNativeModule : public facebook::react::DraftSchemaCxxSpecJSI {
+class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   jsi::String getDraft(jsi::Runtime &rt, const jsi::String &threadID) override;
   bool updateDraft(jsi::Runtime &rt, const jsi::Object &draft) override;
 public:
-  DraftNativeModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker) :
-    facebook::react::DraftSchemaCxxSpecJSI(jsInvoker) {};
+  CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker) :
+    facebook::react::CommCoreModuleSchemaCxxSpecJSI(jsInvoker) {};
 };
 
 } // namespace comm

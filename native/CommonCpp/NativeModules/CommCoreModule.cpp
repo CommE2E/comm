@@ -1,9 +1,9 @@
-#include "DraftNativeModule.h"
+#include "CommCoreModule.h"
 #include "DatabaseManager.h"
 
 namespace comm {
 
-jsi::String DraftNativeModule::getDraft(
+jsi::String CommCoreModule::getDraft(
   jsi::Runtime &rt,
   const jsi::String &threadID
 ) {
@@ -12,7 +12,7 @@ jsi::String DraftNativeModule::getDraft(
   return jsi::String::createFromUtf8(rt, draft);
 }
 
-bool DraftNativeModule::updateDraft(
+bool CommCoreModule::updateDraft(
   jsi::Runtime &rt,
   const jsi::Object &draft
 ) {
