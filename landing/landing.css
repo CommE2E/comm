@@ -1,5 +1,5 @@
 html {
-  background: radial-gradient(ellipse at bottom, #374151, #111827);
+  background: radial-gradient(ellipse at bottom, #1f252e, #111827);
   background-attachment: fixed;
   font-family: 'IBM Plex Sans', sans-serif;
   color: white;
@@ -8,12 +8,13 @@ html {
 h1,
 h2 {
   font-family: 'IBM Plex Mono', monospace;
+  font-weight: 600;
 }
 
 h1.title {
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 24px;
-  padding-left: 80px;
+  padding-left: 60px;
 }
 
 span.purple {
@@ -21,11 +22,11 @@ span.purple {
 }
 
 h2.lede {
-  font-size: 80px;
+  font-size: 56px;
 }
 
 h2 {
-  font-size: 60px;
+  font-size: 50px;
 }
 
 p {
@@ -34,60 +35,85 @@ p {
 
 div.grid {
   display: grid;
-  padding: 80px;
-  row-gap: 18em;
+  padding-top: 20px;
+  padding-left: 60px;
+  padding-right: 60px;
+  row-gap: 14em;
   column-gap: 4em;
+  grid-template-rows: 1fr 1fr 1fr 1/6fr;
   grid-template-columns: 1fr 1fr;
   grid-template-areas:
     'hero_copy hero_image'
     'server_copy server_image'
-    'keyserver_copy read_the_docs';
+    'keyserver_copy read_the_docs'
+    'footer_logo subscribe_updates';
 }
 
 @media (max-width: 1099px) {
   div.grid {
     display: grid;
-    padding: 80px;
-    row-gap: 18em;
+    padding-left: 60px;
+    padding-right: 60px;
+    row-gap: 2em;
+    grid-template-columns: 1fr;
     grid-template-areas:
       'hero_image'
       'hero_copy'
       'server_image'
       'server_copy'
       'keyserver_copy'
-      'read_the_docs';
+      'read_the_docs'
+      'subscribe_updates'
+      'footer_logo';
   }
 }
 
 div.hero_copy {
   grid-area: hero_copy;
+  align-self: center;
 }
 
 div.hero_image {
   grid-area: hero_image;
-  width: 600px;
-  height: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  object-fit: scale-down;
+  align-self: center;
 }
 
 div.server_copy {
   grid-area: server_copy;
+  align-self: center;
 }
 
 div.server_image {
   grid-area: server_image;
-  background-image: url(../images/server_illustration.svg);
-  width: 617px;
   height: 535px;
+  width: 100%;
+  background-image: url(../images/server_illustration.svg);
+  background-repeat: no-repeat;
+  background-position: center;
+  object-fit: scale-down;
 }
 
 div.keyserver_copy {
   grid-area: keyserver_copy;
+  align-self: center;
 }
 
 div.read_the_docs {
   grid-area: read_the_docs;
+  align-self: flex-end;
+}
+
+div.footer_logo {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 24px;
+  grid-area: footer_logo;
+  align-self: center;
+  font-weight: 600;
+}
+
+div.subscribe_updates {
+  grid-area: subscribe_updates;
 }
 
 canvas.particles {

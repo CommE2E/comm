@@ -7,6 +7,7 @@ import Particles from 'react-particles-js';
 import css from './landing.css';
 import particlesConfig from './particles-config.json';
 import ReadDocsButton from './read-docs-btn.react';
+import SubscriptionForm from './subscription-form.react';
 
 const useIsomorphicLayoutEffect =
   typeof window !== 'undefined' ? React.useLayoutEffect : React.useEffect;
@@ -92,9 +93,13 @@ function Landing(): React.Node {
             brain.
           </p>
         </div>
-
         <div className={css.read_the_docs}>
           <ReadDocsButton />
+        </div>
+
+        <div className={css.footer_logo}>Comm</div>
+        <div className={css.subscribe_updates}>
+          <SubscriptionForm />
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 .button {
   position: relative;
   height: 160px;
-  width: 600px;
+  width: 100%;
   border: 2px solid white;
   color: white;
   background: transparent;
