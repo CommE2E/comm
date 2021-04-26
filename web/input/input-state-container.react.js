@@ -20,6 +20,7 @@ import {
   sendTextMessage,
 } from 'lib/actions/message-actions';
 import { queueReportsActionType } from 'lib/actions/report-actions';
+import { newThread } from 'lib/actions/thread-actions';
 import {
   uploadMultimedia,
   updateMultimediaMessageMediaActionType,
@@ -30,6 +31,7 @@ import {
 import { getNextLocalUploadID } from 'lib/media/media-utils';
 import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors';
 import { createMediaMessageInfo } from 'lib/shared/message-utils';
+import { createRealThreadFromPendingThread } from 'lib/shared/thread-utils';
 import type {
   UploadMultimediaResult,
   MediaMissionStep,
@@ -49,6 +51,11 @@ import type { RawMediaMessageInfo } from 'lib/types/messages/media';
 import type { RawTextMessageInfo } from 'lib/types/messages/text';
 import type { Dispatch } from 'lib/types/redux-types';
 import { reportTypes } from 'lib/types/report-types';
+import type {
+  NewThreadRequest,
+  NewThreadResult,
+  ThreadInfo,
+} from 'lib/types/thread-types';
 import {
   type DispatchActionPromise,
   useServerCall,
@@ -91,6 +98,7 @@ type Props = {|
     localID: string,
     text: string,
   ) => Promise<SendMessageResult>,
+  +newThread: (request: NewThreadRequest) => Promise<NewThreadResult>,
 |};
 type State = {|
   +pendingUploads: {
@@ -104,6 +112,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     drafts: {},
   };
   replyCallbacks: Array<(message: string) => void> = [];
+  pendingThreadCreations = new Map<string, Promise<?string>>();
 
   static getDerivedStateFromProps(props: Props, state: State) {
     const drafts = {};
@@ -324,6 +333,35 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       copy.localID = localID;
       copy.threadID = threadID;
       throw copy;
+    }
+  }
+
+  async createRealizedThread(threadInfo: ThreadInfo): Promise<string> {
+    try {
+      let threadCreationPromise = this.pendingThreadCreations.get(
+        threadInfo.id,
+      );
+      if (!threadCreationPromise) {
+        threadCreationPromise = createRealThreadFromPendingThread({
+          threadInfo,
+          dispatchActionPromise: this.props.dispatchActionPromise,
+          createNewThread: this.props.newThread,
+          sourceMessageID: threadInfo.sourceMessageID,
+          viewerID: this.props.viewerID,
+        });
+        this.pendingThreadCreations.set(threadInfo.id, threadCreationPromise);
+      }
+      const newThreadID = await threadCreationPromise;
+      invariant(
+        newThreadID,
+        'createRealThreadFromPendingThread should return thread id or throw ' +
+          'an exception when handleError argument is not provided',
+      );
+      return newThreadID;
+    } finally {
+      // The promise is settled so we can clean the map to avoid a memory leak
+      // and allow retries
+      this.pendingThreadCreations.delete(threadInfo.id);
     }
   }
 
@@ -1052,6 +1090,7 @@ export default React.memo<BaseProps>(function ConnectedInputStateContainer(
   const callDeleteUpload = useServerCall(deleteUpload);
   const callSendMultimediaMessage = useServerCall(sendMultimediaMessage);
   const callSendTextMessage = useServerCall(sendTextMessage);
+  const callNewThread = useServerCall(newThread);
   const dispatch = useDispatch();
   const dispatchActionPromise = useDispatchActionPromise();
 
@@ -1067,6 +1106,7 @@ export default React.memo<BaseProps>(function ConnectedInputStateContainer(
       deleteUpload={callDeleteUpload}
       sendMultimediaMessage={callSendMultimediaMessage}
       sendTextMessage={callSendTextMessage}
+      newThread={callNewThread}
       dispatch={dispatch}
       dispatchActionPromise={dispatchActionPromise}
     />
