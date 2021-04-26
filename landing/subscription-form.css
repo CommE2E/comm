@@ -1,0 +1,47 @@
+form {
+  display: flex;
+}
+
+.button {
+  position: relative;
+  width: auto;
+  height: 50px;
+  border: 1px solid white;
+  border-radius: 8px;
+  border-left: none;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+
+  padding-left: 20px;
+  padding-right: 20px;
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 18px;
+  color: white;
+
+  background: #7e57c2;
+  box-shadow: -12px 20px 50px rgba(126, 87, 194, 0.5);
+}
+
+.button:hover {
+  background-color: #8c69c9;
+  box-shadow: -12px 20px 50px rgba(139, 107, 194, 0.5);
+}
+
+input.email_input {
+  flex: 1;
+  height: 46px;
+  border-radius: 8px;
+  padding-left: 20px;
+  padding-right: 20px;
+  background: transparent;
+
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 18px;
+  color: white;
+
+  border: 1px solid white;
+  border-right: none;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
