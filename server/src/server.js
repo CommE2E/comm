@@ -70,7 +70,7 @@ if (cluster.isMaster) {
     express.static('landing_compiled', compiledFolderOptions),
   );
   router.use('/', express.static('icons'));
-  router.use('/commlanding', express.static('landing-icons'));
+  router.use('/commlanding', express.static('landing_icons'));
 
   for (const endpoint in jsonEndpoints) {
     // $FlowFixMe Flow thinks endpoint is string
