@@ -49,7 +49,7 @@ function Landing(): React.Node {
             id="eye-illustration"
             ref={setEyeNode}
             mode="normal"
-            src="../comm/images/animated_eye.json"
+            src="images/animated_eye.json"
             speed={0.5}
           ></lottie-player>
         </div>

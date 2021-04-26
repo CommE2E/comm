@@ -41,8 +41,10 @@ if (cluster.isMaster) {
 
   const router = express.Router();
   router.use('/images', express.static('images'));
+  router.use('/commlanding/images', express.static('images'));
   if (process.env.NODE_ENV === 'dev') {
     router.use('/fonts', express.static('fonts'));
+    router.use('/commlanding/fonts', express.static('fonts'));
   }
   router.use('/misc', express.static('misc'));
   router.use(
@@ -68,6 +70,7 @@ if (cluster.isMaster) {
     express.static('landing_compiled', compiledFolderOptions),
   );
   router.use('/', express.static('icons'));
+  router.use('/commlanding', express.static('landing-icons'));
 
   for (const endpoint in jsonEndpoints) {
     // $FlowFixMe Flow thinks endpoint is string
