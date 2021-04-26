@@ -28,6 +28,7 @@ import {
   type MultimediaUploadExtras,
 } from 'lib/actions/upload-actions';
 import { getNextLocalUploadID } from 'lib/media/media-utils';
+import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors';
 import { createMediaMessageInfo } from 'lib/shared/message-utils';
 import type {
   UploadMultimediaResult,
@@ -71,6 +72,7 @@ type Props = {|
   +viewerID: ?string,
   +messageStoreMessages: { [id: string]: RawMessageInfo },
   +exifRotate: boolean,
+  +pendingToRealizedThreadIDs: $ReadOnlyMap<string, string>,
   +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
   +uploadMultimedia: (
@@ -102,6 +104,20 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     drafts: {},
   };
   replyCallbacks: Array<(message: string) => void> = [];
+
+  static getDerivedStateFromProps(props: Props, state: State) {
+    const drafts = {};
+    let updated = false;
+    for (const threadID in state.drafts) {
+      const newThreadID =
+        props.pendingToRealizedThreadIDs.get(threadID) ?? threadID;
+      if (newThreadID !== threadID) {
+        updated = true;
+      }
+      drafts[newThreadID] = state.drafts[threadID];
+    }
+    return updated ? { drafts } : null;
+  }
 
   static completedMessageIDs(state: State) {
     const completed = new Map();
@@ -1029,6 +1045,9 @@ export default React.memo<BaseProps>(function ConnectedInputStateContainer(
   const messageStoreMessages = useSelector(
     (state) => state.messageStore.messages,
   );
+  const pendingToRealizedThreadIDs = useSelector((state) =>
+    pendingToRealizedThreadIDsSelector(state.threadStore.threadInfos),
+  );
   const callUploadMultimedia = useServerCall(uploadMultimedia);
   const callDeleteUpload = useServerCall(deleteUpload);
   const callSendMultimediaMessage = useServerCall(sendMultimediaMessage);
@@ -1043,6 +1062,7 @@ export default React.memo<BaseProps>(function ConnectedInputStateContainer(
       viewerID={viewerID}
       messageStoreMessages={messageStoreMessages}
       exifRotate={exifRotate}
+      pendingToRealizedThreadIDs={pendingToRealizedThreadIDs}
       uploadMultimedia={callUploadMultimedia}
       deleteUpload={callDeleteUpload}
       sendMultimediaMessage={callSendMultimediaMessage}
