@@ -17,12 +17,12 @@ h1.title {
   padding-left: 60px;
 }
 
-span.purple {
-  color: #7e57c2;
+h1 {
+  font-size: 58px;
 }
 
-h2.lede {
-  font-size: 56px;
+span.purple {
+  color: #7e57c2;
 }
 
 h2 {
@@ -49,6 +49,20 @@ div.grid {
     'footer_logo subscribe_updates';
 }
 
+@media (max-width: 1499px) {
+  h1 {
+    font-size: 42px;
+  }
+
+  h2 {
+    font-size: 38px;
+  }
+
+  p {
+    font-size: 20px;
+  }
+}
+
 @media (max-width: 1099px) {
   div.grid {
     display: grid;
@@ -65,6 +79,18 @@ div.grid {
       'read_the_docs'
       'subscribe_updates'
       'footer_logo';
+  }
+
+  h1 {
+    font-size: 32px;
+  }
+
+  h2 {
+    font-size: 26px;
+  }
+
+  p {
+    font-size: 18px;
   }
 }
 

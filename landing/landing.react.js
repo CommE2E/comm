@@ -55,10 +55,10 @@ function Landing(): React.Node {
           ></lottie-player>
         </div>
         <div className={css.hero_copy}>
-          <h2 className={css.lede}>
+          <h1>
             Reclaim your
             <span className={css.purple}> digital identity.</span>
-          </h2>
+          </h1>
           <p>
             The internet is broken today. Private user data is owned by
             mega-corporations and farmed for their benefit.
