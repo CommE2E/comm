@@ -99,6 +99,7 @@ async function landingResponder(req: $Request, res: $Response) {
     <html lang="en">
       <head>
         <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
         <title>Comm</title>
         <base href="${basePath}" />
         <link rel="stylesheet" type="text/css" href="${fontsURL}" />
