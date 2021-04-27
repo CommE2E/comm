@@ -45,3 +45,25 @@ input.email_input {
   border-top-right-radius: 0px;
   border-bottom-right-radius: 0px;
 }
+
+@media (max-width: 1099px) {
+  form {
+    display: block;
+  }
+  .button {
+    width: 100%;
+    height: 50px;
+    border: none;
+    border-radius: 8px;
+  }
+
+  input.email_input {
+    width: 100%;
+    height: 50px;
+    border-radius: 8px;
+    margin-bottom: 0.5em;
+    box-sizing: border-box;
+
+    border: 1px solid white;
+  }
+}
