@@ -92,6 +92,16 @@ div.grid {
   p {
     font-size: 18px;
   }
+
+  div.server_image {
+    grid-area: server_image;
+    height: 401px;
+    width: 100%;
+    background-image: url(../images/server_illustration_small.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+    object-fit: scale-down;
+  }
 }
 
 div.hero_copy {
