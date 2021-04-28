@@ -53,6 +53,8 @@ import {
   tPlatformDetails,
   tDeviceType,
   tPassword,
+  tEmail,
+  tOldValidUsername,
 } from '../utils/validation-utils';
 import {
   entryQueryInputValidator,
@@ -81,7 +83,7 @@ async function userSubscriptionUpdateResponder(
 
 const accountUpdateInputValidator = tShape({
   updatedFields: tShape({
-    email: t.maybe(t.String),
+    email: t.maybe(tEmail),
     password: t.maybe(tPassword),
   }),
   currentPassword: tPassword,
@@ -102,7 +104,7 @@ async function sendVerificationEmailResponder(viewer: Viewer): Promise<void> {
 }
 
 const resetPasswordRequestInputValidator = tShape({
-  usernameOrEmail: t.String,
+  usernameOrEmail: t.union([tEmail, tOldValidUsername]),
 });
 
 async function sendPasswordResetEmailResponder(
@@ -156,7 +158,7 @@ const deviceTokenUpdateRequestInputValidator = tShape({
 
 const registerRequestInputValidator = tShape({
   username: t.String,
-  email: t.String,
+  email: tEmail,
   password: tPassword,
   calendarQuery: t.maybe(newEntryQueryInputValidator),
   deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
@@ -296,7 +298,7 @@ async function passwordUpdateResponder(
 }
 
 const accessRequestInputValidator = tShape({
-  email: t.String,
+  email: tEmail,
   platform: tDeviceType,
 });
 

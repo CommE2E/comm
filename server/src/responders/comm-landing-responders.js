@@ -1,16 +1,15 @@
 // @flow
 
 import type { $Response, $Request } from 'express';
-import t from 'tcomb';
 
 import { type EmailSubscriptionRequest } from 'lib/types/account-types';
 import { ServerError } from 'lib/utils/errors';
 
 import { sendEmailSubscriptionRequestToAshoat } from '../emails/subscribe-email-updates';
-import { checkInputValidator, tShape } from '../utils/validation-utils';
+import { checkInputValidator, tShape, tEmail } from '../utils/validation-utils';
 
 const emailSubscriptionInputValidator = tShape({
-  email: t.String,
+  email: tEmail,
 });
 
 async function emailSubscriptionResponder(

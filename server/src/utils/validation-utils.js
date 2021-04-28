@@ -2,6 +2,10 @@
 
 import t from 'tcomb';
 
+import {
+  validEmailRegex,
+  oldValidUsernameRegex,
+} from 'lib/shared/account-utils';
 import { ServerError } from 'lib/utils/errors';
 
 import { verifyClientSupported } from '../session/version';
@@ -45,6 +49,8 @@ const tPlatformDetails = tShape({
 });
 const tPassword = t.refinement(t.String, (password: string) => password);
 const tCookie = tRegex(/^(user|anonymous)=[0-9]+:[0-9a-f]+$/);
+const tEmail = tRegex(validEmailRegex);
+const tOldValidUsername = tRegex(oldValidUsernameRegex);
 
 async function validateInput(viewer: Viewer, inputValidator: *, input: *) {
   if (!viewer.isSocket) {
@@ -201,6 +207,8 @@ export {
   tPlatformDetails,
   tPassword,
   tCookie,
+  tEmail,
+  tOldValidUsername,
   validateInput,
   checkInputValidator,
   checkClientSupported,
