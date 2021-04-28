@@ -8,6 +8,7 @@ import os from 'os';
 
 import './cron/cron';
 import { jsonEndpoints } from './endpoints';
+import { emailSubscriptionResponder } from './responders/comm-landing-responders';
 import {
   jsonHandler,
   downloadHandler,
@@ -81,6 +82,8 @@ if (cluster.isMaster) {
       jsonHandler(responder, expectCookieInvalidation),
     );
   }
+
+  router.post('/commlanding/subscribe_email', emailSubscriptionResponder);
 
   router.get(
     '/download_error_report/:reportID',
