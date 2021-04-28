@@ -101,10 +101,13 @@ class FailedSend extends React.PureComponent<Props> {
         return;
       }
       this.retryingText = true;
-      inputState.sendTextMessage({
-        ...rawMessageInfo,
-        time: Date.now(),
-      });
+      inputState.sendTextMessage(
+        {
+          ...rawMessageInfo,
+          time: Date.now(),
+        },
+        this.props.threadInfo,
+      );
     } else if (
       rawMessageInfo.type === messageTypes.IMAGES ||
       rawMessageInfo.type === messageTypes.MULTIMEDIA

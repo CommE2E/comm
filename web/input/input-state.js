@@ -8,6 +8,7 @@ import {
   type MediaMissionStep,
 } from 'lib/types/media-types';
 import type { RawTextMessageInfo } from 'lib/types/messages/text';
+import type { ThreadInfo } from 'lib/types/thread-types';
 
 export type PendingMultimediaUpload = {|
   localID: string,
@@ -42,7 +43,10 @@ export type InputState = {|
   draft: string,
   appendFiles: (files: $ReadOnlyArray<File>) => Promise<boolean>,
   cancelPendingUpload: (localUploadID: string) => void,
-  sendTextMessage: (messageInfo: RawTextMessageInfo) => void,
+  sendTextMessage: (
+    messageInfo: RawTextMessageInfo,
+    threadInfo: ThreadInfo,
+  ) => Promise<void>,
   createMultimediaMessage: (localID: number) => void,
   setDraft: (draft: string) => void,
   messageHasUploadFailure: (localMessageID: string) => boolean,

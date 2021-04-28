@@ -31,7 +31,10 @@ import {
 import { getNextLocalUploadID } from 'lib/media/media-utils';
 import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors';
 import { createMediaMessageInfo } from 'lib/shared/message-utils';
-import { createRealThreadFromPendingThread } from 'lib/shared/thread-utils';
+import {
+  createRealThreadFromPendingThread,
+  threadIsPending,
+} from 'lib/shared/thread-utils';
 import type {
   UploadMultimediaResult,
   MediaMissionStep,
@@ -424,8 +427,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             this.appendFiles(threadID, files),
           cancelPendingUpload: (localUploadID: string) =>
             this.cancelPendingUpload(threadID, localUploadID),
-          sendTextMessage: (messageInfo: RawTextMessageInfo) =>
-            this.sendTextMessage(messageInfo),
+          sendTextMessage: (
+            messageInfo: RawTextMessageInfo,
+            threadInfo: ThreadInfo,
+          ) => this.sendTextMessage(messageInfo, threadInfo),
           createMultimediaMessage: (localID: number) =>
             this.createMultimediaMessage(threadID, localID),
           setDraft: (newDraft: string) => this.setDraft(threadID, newDraft),
@@ -875,12 +880,49 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     );
   }
 
-  sendTextMessage(messageInfo: RawTextMessageInfo) {
+  async sendTextMessage(
+    messageInfo: RawTextMessageInfo,
+    threadInfo: ThreadInfo,
+  ) {
+    if (!threadIsPending(threadInfo.id)) {
+      this.props.dispatchActionPromise(
+        sendTextMessageActionTypes,
+        this.sendTextMessageAction(messageInfo),
+        undefined,
+        messageInfo,
+      );
+      return;
+    }
+
+    this.props.dispatch({
+      type: sendTextMessageActionTypes.started,
+      payload: messageInfo,
+    });
+
+    let newThreadID = null;
+    try {
+      newThreadID = await this.createRealizedThread(threadInfo);
+    } catch (e) {
+      const copy = cloneError(e);
+      copy.localID = messageInfo.localID;
+      copy.threadID = messageInfo.threadID;
+      this.props.dispatch({
+        type: sendTextMessageActionTypes.failed,
+        payload: copy,
+        error: true,
+      });
+      return;
+    }
+
+    const newMessageInfo = {
+      ...messageInfo,
+      threadID: newThreadID,
+    };
     this.props.dispatchActionPromise(
       sendTextMessageActionTypes,
-      this.sendTextMessageAction(messageInfo),
+      this.sendTextMessageAction(newMessageInfo),
       undefined,
-      messageInfo,
+      newMessageInfo,
     );
   }
 

@@ -15,7 +15,6 @@ import {
   viewerIsMember,
   threadFrozenDueToViewerBlock,
   threadActualMembers,
-  useRealThreadCreator,
   threadIsPending,
 } from 'lib/shared/thread-utils';
 import type { CalendarQuery } from 'lib/types/entry-types';
@@ -41,7 +40,6 @@ import {
 import LoadingIndicator from '../loading-indicator.react';
 import { allowedMimeTypeString } from '../media/file-utils';
 import Multimedia from '../media/multimedia.react';
-import FailedSendModal from '../modals/chat/failed-send.react';
 import { useSelector } from '../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import css from './chat-message-list.css';
@@ -49,7 +47,6 @@ import css from './chat-message-list.css';
 type BaseProps = {|
   +threadInfo: ThreadInfo,
   +inputState: InputState,
-  +setModal: (modal: ?React.Node) => void,
 |};
 type Props = {|
   ...BaseProps,
@@ -64,7 +61,6 @@ type Props = {|
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
-  +getServerThreadID: () => Promise<?string>,
 |};
 class ChatInputBar extends React.PureComponent<Props> {
   textarea: ?HTMLTextAreaElement;
@@ -338,45 +334,43 @@ class ChatInputBar extends React.PureComponent<Props> {
     }
   };
 
-  onSend = async (event: SyntheticEvent<HTMLAnchorElement>) => {
+  onSend = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    await this.send();
+    this.send();
   };
 
-  async send() {
+  send() {
     let { nextLocalID } = this.props;
 
     const text = trimMessage(this.props.inputState.draft);
     if (text) {
       // TODO we should make the send button appear dynamically
       // iff trimmed text is nonempty, just like native
-      await this.dispatchTextMessageAction(text, nextLocalID);
+      this.dispatchTextMessageAction(text, nextLocalID);
       nextLocalID++;
     }
 
     this.props.inputState.createMultimediaMessage(nextLocalID);
   }
 
-  async dispatchTextMessageAction(text: string, nextLocalID: number) {
+  dispatchTextMessageAction(text: string, nextLocalID: number) {
     this.props.inputState.setDraft('');
 
     const localID = `local${nextLocalID}`;
     const creatorID = this.props.viewerID;
     invariant(creatorID, 'should have viewer ID in order to send a message');
 
-    const threadID = await this.props.getServerThreadID();
-    if (!threadID) {
-      return;
-    }
-
-    this.props.inputState.sendTextMessage({
-      type: messageTypes.TEXT,
-      localID,
-      threadID,
-      text,
-      creatorID,
-      time: Date.now(),
-    });
+    this.props.inputState.sendTextMessage(
+      {
+        type: messageTypes.TEXT,
+        localID,
+        threadID: this.props.threadInfo.id,
+        text,
+        creatorID,
+        time: Date.now(),
+      },
+      this.props.threadInfo,
+    );
   }
 
   multimediaInputRef = (multimediaInput: ?HTMLInputElement) => {
@@ -441,17 +435,6 @@ export default React.memo<BaseProps>(function ConnectedChatInputBar(
   const dispatchActionPromise = useDispatchActionPromise();
   const callJoinThread = useServerCall(joinThread);
 
-  const { setModal } = props;
-  const showErrorModal = React.useCallback(
-    () => setModal(<FailedSendModal setModal={setModal} />),
-    [setModal],
-  );
-  const sourceMessageID = useSelector((state) => state.navInfo.sourceMessageID);
-  const getServerThreadID = useRealThreadCreator(
-    { threadInfo: props.threadInfo, sourceMessageID },
-    showErrorModal,
-  );
-
   return (
     <ChatInputBar
       {...props}
@@ -463,7 +446,6 @@ export default React.memo<BaseProps>(function ConnectedChatInputBar(
       userInfos={userInfos}
       dispatchActionPromise={dispatchActionPromise}
       joinThread={callJoinThread}
-      getServerThreadID={getServerThreadID}
     />
   );
 });
