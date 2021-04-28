@@ -114,18 +114,45 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   replyCallbacks: Array<(message: string) => void> = [];
   pendingThreadCreations = new Map<string, Promise<?string>>();
 
-  static getDerivedStateFromProps(props: Props, state: State) {
-    const drafts = {};
+  static reassignToRealizedThreads<T>(
+    state: { +[threadID: string]: T },
+    props: Props,
+  ): ?{ [threadID: string]: T } {
+    const newState = {};
     let updated = false;
-    for (const threadID in state.drafts) {
+    for (const threadID in state) {
       const newThreadID =
         props.pendingToRealizedThreadIDs.get(threadID) ?? threadID;
       if (newThreadID !== threadID) {
         updated = true;
       }
-      drafts[newThreadID] = state.drafts[threadID];
+      newState[newThreadID] = state[threadID];
     }
-    return updated ? { drafts } : null;
+    return updated ? newState : null;
+  }
+
+  static getDerivedStateFromProps(props: Props, state: State) {
+    const drafts = InputStateContainer.reassignToRealizedThreads(
+      state.drafts,
+      props,
+    );
+    const pendingUploads = InputStateContainer.reassignToRealizedThreads(
+      state.pendingUploads,
+      props,
+    );
+
+    if (!drafts && !pendingUploads) {
+      return null;
+    }
+
+    const stateUpdate = {};
+    if (drafts) {
+      stateUpdate.drafts = drafts;
+    }
+    if (pendingUploads) {
+      stateUpdate.pendingUploads = pendingUploads;
+    }
+    return stateUpdate;
   }
 
   static completedMessageIDs(state: State) {
@@ -301,7 +328,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         mediaIDs,
       );
       this.setState((prevState) => {
-        const prevUploads = prevState.pendingUploads[threadID];
+        const newThreadID = this.getRealizedOrPendingThreadID(threadID);
+        const prevUploads = prevState.pendingUploads[newThreadID];
         const newUploads = {};
         for (const localUploadID in prevUploads) {
           const upload = prevUploads[localUploadID];
@@ -317,7 +345,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         return {
           pendingUploads: {
             ...prevState.pendingUploads,
-            [threadID]: newUploads,
+            [newThreadID]: newUploads,
           },
         };
       });
@@ -417,6 +445,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     ),
   );
 
+  getRealizedOrPendingThreadID(threadID: string): string {
+    return this.props.pendingToRealizedThreadIDs.get(threadID) ?? threadID;
+  }
+
   async appendFiles(
     threadID: string,
     files: $ReadOnlyArray<File>,
@@ -457,14 +489,15 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const newUploadsObject = _keyBy('localID')(newUploads);
     this.setState(
       (prevState) => {
-        const prevUploads = prevState.pendingUploads[threadID];
+        const newThreadID = this.getRealizedOrPendingThreadID(threadID);
+        const prevUploads = prevState.pendingUploads[newThreadID];
         const mergedUploads = prevUploads
           ? { ...prevUploads, ...newUploadsObject }
           : newUploadsObject;
         return {
           pendingUploads: {
             ...prevState.pendingUploads,
-            [threadID]: mergedUploads,
+            [newThreadID]: mergedUploads,
           },
         };
       },
@@ -553,10 +586,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     let userTime;
 
     const sendReport = (missionResult: MediaMissionResult) => {
-      const latestUpload = this.state.pendingUploads[threadID][localID];
+      const newThreadID = this.getRealizedOrPendingThreadID(threadID);
+      const latestUpload = this.state.pendingUploads[newThreadID][localID];
       invariant(
         latestUpload,
-        `pendingUpload ${localID} for ${threadID} missing in sendReport`,
+        `pendingUpload ${localID} for ${newThreadID} missing in sendReport`,
       );
       const { serverID, messageID } = latestUpload;
       const totalTime = Date.now() - selectTime;
@@ -611,10 +645,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
     const result = uploadResult;
 
-    const uploadAfterSuccess = this.state.pendingUploads[threadID][localID];
+    const successThreadID = this.getRealizedOrPendingThreadID(threadID);
+    const uploadAfterSuccess = this.state.pendingUploads[successThreadID][
+      localID
+    ];
     invariant(
       uploadAfterSuccess,
-      `pendingUpload ${localID}/${result.id} for ${threadID} missing ` +
+      `pendingUpload ${localID}/${result.id} for ${successThreadID} missing ` +
         `after upload`,
     );
     if (uploadAfterSuccess.messageID) {
@@ -631,17 +668,18 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     this.setState((prevState) => {
-      const uploads = prevState.pendingUploads[threadID];
+      const newThreadID = this.getRealizedOrPendingThreadID(threadID);
+      const uploads = prevState.pendingUploads[newThreadID];
       const currentUpload = uploads[localID];
       invariant(
         currentUpload,
-        `pendingUpload ${localID}/${result.id} for ${threadID} ` +
+        `pendingUpload ${localID}/${result.id} for ${newThreadID} ` +
           `missing while assigning serverID`,
       );
       return {
         pendingUploads: {
           ...prevState.pendingUploads,
-          [threadID]: {
+          [newThreadID]: {
             ...uploads,
             [localID]: {
               ...currentUpload,
@@ -657,10 +695,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     steps.push(...preloadSteps);
     sendReport({ success: true });
 
-    const uploadAfterPreload = this.state.pendingUploads[threadID][localID];
+    const preloadThreadID = this.getRealizedOrPendingThreadID(threadID);
+    const uploadAfterPreload = this.state.pendingUploads[preloadThreadID][
+      localID
+    ];
     invariant(
       uploadAfterPreload,
-      `pendingUpload ${localID}/${result.id} for ${threadID} missing ` +
+      `pendingUpload ${localID}/${result.id} for ${preloadThreadID} missing ` +
         `after preload`,
     );
     if (uploadAfterPreload.messageID) {
@@ -678,11 +719,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     this.setState((prevState) => {
-      const uploads = prevState.pendingUploads[threadID];
+      const newThreadID = this.getRealizedOrPendingThreadID(threadID);
+      const uploads = prevState.pendingUploads[newThreadID];
       const currentUpload = uploads[localID];
       invariant(
         currentUpload,
-        `pendingUpload ${localID}/${result.id} for ${threadID} ` +
+        `pendingUpload ${localID}/${result.id} for ${newThreadID} ` +
           `missing while assigning URI`,
       );
       const { messageID } = currentUpload;
@@ -691,14 +733,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         return {
           pendingUploads: {
             ...prevState.pendingUploads,
-            [threadID]: newPendingUploads,
+            [newThreadID]: newPendingUploads,
           },
         };
       }
       return {
         pendingUploads: {
           ...prevState.pendingUploads,
-          [threadID]: {
+          [newThreadID]: {
             ...uploads,
             [localID]: {
               ...currentUpload,
@@ -720,7 +762,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     abort: () => void,
   ) {
     this.setState((prevState) => {
-      const uploads = prevState.pendingUploads[threadID];
+      const newThreadID = this.getRealizedOrPendingThreadID(threadID);
+      const uploads = prevState.pendingUploads[newThreadID];
       const upload = uploads[localUploadID];
       if (!upload) {
         // The upload has been cancelled before we were even handed the
@@ -730,7 +773,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       return {
         pendingUploads: {
           ...prevState.pendingUploads,
-          [threadID]: {
+          [newThreadID]: {
             ...uploads,
             [localUploadID]: {
               ...upload,
@@ -744,7 +787,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   handleUploadFailure(threadID: string, localUploadID: string, e: any) {
     this.setState((prevState) => {
-      const uploads = prevState.pendingUploads[threadID];
+      const newThreadID = this.getRealizedOrPendingThreadID(threadID);
+      const uploads = prevState.pendingUploads[newThreadID];
       const upload = uploads[localUploadID];
       if (!upload || !upload.abort || upload.serverID) {
         // The upload has been cancelled or completed before it failed
@@ -754,7 +798,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       return {
         pendingUploads: {
           ...prevState.pendingUploads,
-          [threadID]: {
+          [newThreadID]: {
             ...uploads,
             [localUploadID]: {
               ...upload,
@@ -794,7 +838,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     let revokeURL, abortRequest;
     this.setState(
       (prevState) => {
-        const currentPendingUploads = prevState.pendingUploads[threadID];
+        const newThreadID = this.getRealizedOrPendingThreadID(threadID);
+        const currentPendingUploads = prevState.pendingUploads[newThreadID];
         if (!currentPendingUploads) {
           return {};
         }
@@ -815,7 +860,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         return {
           pendingUploads: {
             ...prevState.pendingUploads,
-            [threadID]: newPendingUploads,
+            [newThreadID]: newPendingUploads,
           },
         };
       },
@@ -873,7 +918,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   createMultimediaMessage(threadID: string, localID: number) {
     const localMessageID = `local${localID}`;
     this.setState((prevState) => {
-      const currentPendingUploads = prevState.pendingUploads[threadID];
+      const newThreadID = this.getRealizedOrPendingThreadID(threadID);
+      const currentPendingUploads = prevState.pendingUploads[newThreadID];
       if (!currentPendingUploads) {
         return {};
       }
@@ -898,19 +944,22 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       return {
         pendingUploads: {
           ...prevState.pendingUploads,
-          [threadID]: newPendingUploads,
+          [newThreadID]: newPendingUploads,
         },
       };
     });
   }
 
   setDraft(threadID: string, draft: string) {
-    this.setState((prevState) => ({
-      drafts: {
-        ...prevState.drafts,
-        [threadID]: draft,
-      },
-    }));
+    this.setState((prevState) => {
+      const newThreadID = this.getRealizedOrPendingThreadID(threadID);
+      return {
+        drafts: {
+          ...prevState.drafts,
+          [newThreadID]: draft,
+        },
+      };
+    });
   }
 
   setProgress(
@@ -919,7 +968,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     progressPercent: number,
   ) {
     this.setState((prevState) => {
-      const pendingUploads = prevState.pendingUploads[threadID];
+      const newThreadID = this.getRealizedOrPendingThreadID(threadID);
+      const pendingUploads = prevState.pendingUploads[newThreadID];
       if (!pendingUploads) {
         return {};
       }
@@ -937,7 +987,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       return {
         pendingUploads: {
           ...prevState.pendingUploads,
-          [threadID]: newPendingUploads,
+          [newThreadID]: newPendingUploads,
         },
       };
     });
@@ -1004,7 +1054,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     this.setState((prevState) => {
-      const prevPendingUploads = prevState.pendingUploads[threadID];
+      const newThreadID = this.getRealizedOrPendingThreadID(threadID);
+      const prevPendingUploads = prevState.pendingUploads[newThreadID];
       if (!prevPendingUploads) {
         return {};
       }
@@ -1030,7 +1081,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       return {
         pendingUploads: {
           ...prevState.pendingUploads,
-          [threadID]: newPendingUploads,
+          [newThreadID]: newPendingUploads,
         },
       };
     });
