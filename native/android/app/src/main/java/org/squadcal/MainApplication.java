@@ -12,6 +12,7 @@ import org.unimodules.core.interfaces.SingletonModule;
 import com.facebook.react.PackageList;
 import com.facebook.hermes.reactexecutor.HermesExecutorFactory;
 import com.facebook.react.bridge.JavaScriptExecutorFactory;
+import com.facebook.react.bridge.JSIModulePackage;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
@@ -57,6 +58,11 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
     @Override
     protected String getJSMainModuleName() {
       return "index";
+    }
+
+    @Override
+    protected JSIModulePackage getJSIModulePackage() {
+      return new CommCoreJSIModulePackage();
     }
   };
 

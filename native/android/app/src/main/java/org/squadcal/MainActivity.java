@@ -1,6 +1,6 @@
 package org.squadcal;
 
-import com.facebook.react.ReactActivity;
+import com.facebook.react.ReactFragmentActivity;
 import android.os.Bundle;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -12,13 +12,7 @@ import com.swmansion.gesturehandler.react.RNGestureHandlerEnabledRootView;
 import expo.modules.splashscreen.SplashScreen;
 import expo.modules.splashscreen.SplashScreenImageResizeMode;
 
-import com.facebook.react.ReactInstanceManager;
-import com.facebook.react.bridge.ReactContext;
-
-import org.squadcal.fbjni.CommHybrid;
-
-public class MainActivity extends ReactActivity
-        implements ReactInstanceManager.ReactInstanceEventListener {
+public class MainActivity extends ReactFragmentActivity {
 
   static {
     System.loadLibrary("comm_jni_module");
@@ -37,18 +31,6 @@ public class MainActivity extends ReactActivity
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     SplashScreen.show(this, SplashScreenImageResizeMode.NATIVE, ReactRootView.class);
-  }
-
-  @Override
-  public void onResume() {
-    super.onResume();
-    getReactInstanceManager().addReactInstanceEventListener(this);
-  }
-
-  @Override
-  public void onPause() {
-    super.onPause();
-    getReactInstanceManager().removeReactInstanceEventListener(this);
   }
 
   @Override
@@ -78,10 +60,5 @@ public class MainActivity extends ReactActivity
   @Override
   public void invokeDefaultOnBackPressed() {
     moveTaskToBack(true);
-  }
-
-  @Override
-  public void onReactContextInitialized(ReactContext context) {
-    CommHybrid.initHybrid(context);
   }
 }
