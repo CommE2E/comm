@@ -65,6 +65,7 @@ import {
   natNodeServer,
   setCustomServer,
   fetchDevServerHostname,
+  updateURLPrefixAfterCheckingIfEmulator,
 } from '../utils/url-utils';
 import {
   resetUserStateActionType,
@@ -151,7 +152,7 @@ const defaultState = ({
   cookie: null,
   deviceToken: null,
   dataLoaded: false,
-  urlPrefix: defaultURLPrefix(),
+  urlPrefix: defaultURLPrefix,
   customServer: natNodeServer,
   threadIDsToNotifIDs: {},
   notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
@@ -454,5 +455,7 @@ setPersistor(persistor);
 
 const unsafeDispatch: any = store.dispatch;
 const dispatch: Dispatch = unsafeDispatch;
+
+updateURLPrefixAfterCheckingIfEmulator(store);
 
 export { store, dispatch, appBecameInactive };

@@ -3,12 +3,16 @@
 import invariant from 'invariant';
 import { Platform } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
+import type { Store } from 'redux';
+
+import { setURLPrefix } from 'lib/utils/url-utils';
 
 import networkSettings from '../facts/network';
+import type { AppState } from '../redux/redux-setup';
 
 const localhostHostname = 'localhost';
 const localhostHostnameFromAndroidEmulator = '10.0.2.2';
-const { natDevHostname } = networkSettings;
+const natDevHostname = networkSettings.natDevHostname ?? '192.168.1.1';
 
 const productionNodeServerURL = 'https://squadcal.org';
 
@@ -34,21 +38,6 @@ function getDevNodeServerURL(isEmulator: boolean): string {
   return getDevNodeServerURLFromHostname(hostname);
 }
 
-async function fetchNodeServerURL(): Promise<string> {
-  if (!__DEV__) {
-    return productionNodeServerURL;
-  }
-  const isEmulator = await DeviceInfo.isEmulator();
-  return getDevNodeServerURL(isEmulator);
-}
-
-function defaultURLPrefix(): string {
-  if (!__DEV__) {
-    return productionNodeServerURL;
-  }
-  return getDevNodeServerURL(true);
-}
-
 async function fetchDevServerHostname(): Promise<string> {
   invariant(__DEV__, 'fetchDevServerHostname called from production');
   const isEmulator = await DeviceInfo.isEmulator();
@@ -64,15 +53,37 @@ if (Platform.OS === 'android') {
   nodeServerOptions.push(getDevNodeServerURLFromHostname(localhostHostname));
 }
 
+const defaultURLPrefix = __DEV__
+  ? getDevNodeServerURL(true)
+  : productionNodeServerURL;
+
+async function updateURLPrefixAfterCheckingIfEmulator(
+  store: Store<AppState, *>,
+) {
+  if (!__DEV__) {
+    return;
+  }
+  const isEmulator = await DeviceInfo.isEmulator();
+  const urlPrefix = getDevNodeServerURL(isEmulator);
+  if (
+    urlPrefix === defaultURLPrefix ||
+    urlPrefix === store.getState().urlPrefix ||
+    store.getState()._persist?.rehydrated
+  ) {
+    return;
+  }
+  store.dispatch({ type: setURLPrefix, payload: urlPrefix });
+}
+
 const natNodeServer = getDevNodeServerURLFromHostname(natDevHostname);
 
 const setCustomServer = 'SET_CUSTOM_SERVER';
 
 export {
-  fetchNodeServerURL,
   defaultURLPrefix,
   fetchDevServerHostname,
   nodeServerOptions,
   natNodeServer,
   setCustomServer,
+  updateURLPrefixAfterCheckingIfEmulator,
 };
