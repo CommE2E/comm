@@ -23,9 +23,31 @@ form {
   box-shadow: -12px 20px 50px rgba(126, 87, 194, 0.5);
 }
 
+.button_success {
+  border: 1px solid #28a747;
+  background: #28a747;
+  box-shadow: -12px 20px 50px #28a747;
+}
+
+.button_failure {
+  border: 1px solid #dc3545;
+  background: #dc3545;
+  box-shadow: -12px 20px 50px #dc3545;
+}
+
 .button:hover {
-  background-color: #8c69c9;
+  background: #8c69c9;
   box-shadow: -12px 20px 50px rgba(139, 107, 194, 0.5);
+}
+
+.button_success:hover {
+  background: #34b855;
+  box-shadow: -12px 20px 50px #28a747;
+}
+
+.button_failure:hover {
+  background: #df3f4f;
+  box-shadow: -12px 20px 50px #dc3545;
 }
 
 input.email_input {
@@ -44,6 +66,17 @@ input.email_input {
   border-right: none;
   border-top-right-radius: 0px;
   border-bottom-right-radius: 0px;
+  outline: none;
+}
+
+input.email_input_success {
+  border: 1px solid #28a747;
+  box-shadow: -12px 20px 50px #28a747;
+}
+
+input.email_input_failure {
+  border: 1px solid #dc3545;
+  box-shadow: -12px 20px 50px #dc3545;
 }
 
 @media (max-width: 1099px) {

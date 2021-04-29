@@ -6,22 +6,35 @@ import { validEmailRegex } from 'lib/shared/account-utils';
 
 import css from './subscription-form.css';
 
+type SubscriptionFormStatus =
+  | {| +status: 'pending' |}
+  | {| +status: 'in_progress' |}
+  | {| +status: 'success' |}
+  | {| +status: 'error', +error: string |};
+
 function SubscriptionForm(): React.Node {
   const [email, setEmail] = React.useState('');
-  // eslint-disable-next-line
-  const [success, setSuccess] = React.useState(null);
-  // eslint-disable-next-line
-  const [errorMsg, setErrorMsg] = React.useState(null);
+  const [
+    subscriptionFormStatus,
+    setSubscriptionFormStatus,
+  ] = React.useState<SubscriptionFormStatus>({ status: 'pending' });
 
   const onEmailSubmitted = React.useCallback(
     async (e: Event) => {
       e.preventDefault();
+
+      if (
+        subscriptionFormStatus.status === 'in_progress' ||
+        subscriptionFormStatus.status === 'success'
+      ) {
+        return;
+      }
       if (email.search(validEmailRegex) === -1) {
-        setSuccess(false);
-        setErrorMsg('Please enter a valid email address!');
+        setSubscriptionFormStatus({ status: 'error', error: 'Invalid email' });
         return;
       }
 
+      setSubscriptionFormStatus({ status: 'in_progress' });
       try {
         const response = await fetch('subscribe_email', {
           method: 'POST',
@@ -34,22 +47,38 @@ function SubscriptionForm(): React.Node {
         });
 
         const respJson = await response.json();
-        setSuccess(respJson.success);
-
         if (!respJson.success) {
-          setErrorMsg('Could not add to email list, please try again later!');
+          setSubscriptionFormStatus({
+            status: 'error',
+            error: 'Request failed',
+          });
+          return;
         }
+        setSubscriptionFormStatus({ status: 'success' });
+        document.activeElement?.blur();
       } catch {
-        setSuccess(false);
-        setErrorMsg('Network request failed, please try again later!');
+        setSubscriptionFormStatus({ status: 'error', error: 'Network failed' });
       }
     },
-    [email],
+    [email, subscriptionFormStatus],
   );
 
   React.useEffect(() => {
-    setSuccess(null);
+    setSubscriptionFormStatus({ status: 'pending' });
   }, [email]);
+
+  let btnText = 'Subscribe for updates';
+  let btnStyle = css.button;
+  let inputStyle = css.email_input;
+  if (subscriptionFormStatus.status === 'error') {
+    btnText = subscriptionFormStatus.error;
+    btnStyle = `${css.button} ${css.button_failure}`;
+    inputStyle = `${css.email_input} ${css.email_input_failure}`;
+  } else if (subscriptionFormStatus.status === 'success') {
+    btnText = 'Subscribed!';
+    btnStyle = `${css.button} ${css.button_success}`;
+    inputStyle = `${css.email_input} ${css.email_input_success}`;
+  }
 
   const onEmailChange = React.useCallback((e) => {
     setEmail(e.target.value);
@@ -61,11 +90,11 @@ function SubscriptionForm(): React.Node {
         type="text"
         value={email}
         onChange={onEmailChange}
-        className={css.email_input}
+        className={inputStyle}
         placeholder="Enter your email"
       />
-      <button className={css.button} onClick={onEmailSubmitted}>
-        Subscribe for updates
+      <button className={btnStyle} onClick={onEmailSubmitted}>
+        {btnText}
       </button>
     </form>
   );
