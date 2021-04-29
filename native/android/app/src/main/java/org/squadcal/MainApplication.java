@@ -5,6 +5,8 @@ import org.squadcal.generated.BasePackageList;
 import androidx.multidex.MultiDexApplication;
 import android.content.Context;
 
+import android.database.CursorWindow;
+
 import org.unimodules.adapters.react.ModuleRegistryAdapter;
 import org.unimodules.adapters.react.ReactModuleRegistryProvider;
 import org.unimodules.core.interfaces.SingletonModule;
@@ -28,6 +30,7 @@ import com.wix.reactnativekeyboardinput.KeyboardInputPackage;
 import java.util.Arrays;
 import java.util.List;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Field;
 import java.security.Security;
 
 public class MainApplication extends MultiDexApplication implements ReactApplication {
@@ -77,6 +80,15 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
     Security.insertProviderAt(new org.conscrypt.OpenSSLProvider(), 1);
     SoLoader.init(this, /* native exopackage */ false);
     initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+    try {
+      Field field = CursorWindow.class.getDeclaredField("sCursorWindowSize");
+      field.setAccessible(true);
+      field.set(null, 100 * 1024 * 1024); // 100 MiB
+    } catch (Exception e) {
+      if (BuildConfig.DEBUG) {
+        e.printStackTrace();
+      }
+    }
   }
 
   /**
