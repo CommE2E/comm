@@ -25,7 +25,7 @@ import {
 import { deleteActivityForViewerSession } from '../deleters/activity-deleters';
 import {
   checkThread,
-  checkThreads,
+  getValidThreads,
 } from '../fetchers/thread-permission-fetchers';
 import { rescindPushNotifs } from '../push/rescind';
 import { updateBadgeCount } from '../push/send';
@@ -74,13 +74,11 @@ async function activityUpdater(
   const unverifiedThreadIDs: $ReadOnlySet<string> = new Set(
     request.updates.map((update) => update.threadID),
   );
-  const verifiedThreadIDs = await checkThreads(
+
+  const verifiedThreadsData = await getValidThreads(
     viewer,
     [...unverifiedThreadIDs],
     [
-      {
-        check: 'is_member',
-      },
       {
         check: 'permission',
         permission: threadPermissions.VISIBLE,
@@ -88,8 +86,17 @@ async function activityUpdater(
     ],
   );
 
-  if (verifiedThreadIDs.size === 0) {
+  if (verifiedThreadsData.length === 0) {
     return { unfocusedToUnread: [] };
+  }
+
+  const memberThreadIDs = new Set();
+  const verifiedThreadIDs = [];
+  for (const threadData of verifiedThreadsData) {
+    if (threadData.role > 0) {
+      memberThreadIDs.add(threadData.threadID);
+    }
+    verifiedThreadIDs.push(threadData.threadID);
   }
 
   const partialThreadStatuses: PartialThreadStatus[] = [];
@@ -119,8 +126,15 @@ async function activityUpdater(
   // we set it to focused are caught and overriden
   await updateFocusedRows(viewer, partialThreadStatuses);
 
+  if (memberThreadIDs.size === 0) {
+    return { unfocusedToUnread: [] };
+  }
+
+  const memberPartialThreadStatuses = partialThreadStatuses.filter(
+    (partialStatus) => memberThreadIDs.has(partialStatus.threadID),
+  );
   const unfocusedLatestMessages = new Map<string, number>();
-  for (const partialThreadStatus of partialThreadStatuses) {
+  for (const partialThreadStatus of memberPartialThreadStatuses) {
     const { threadID, focusActive, newLastReadMessage } = partialThreadStatus;
     if (!focusActive) {
       unfocusedLatestMessages.set(threadID, newLastReadMessage ?? 0);
@@ -131,11 +145,11 @@ async function activityUpdater(
     lastMessageInfos,
   ] = await Promise.all([
     checkForNewerMessages(viewer, unfocusedLatestMessages),
-    fetchLastMessageInfo(viewer, [...verifiedThreadIDs]),
+    fetchLastMessageInfo(viewer, [...memberThreadIDs]),
   ]);
 
   const threadStatuses: ThreadStatus[] = [];
-  for (const partialThreadStatus of partialThreadStatuses) {
+  for (const partialThreadStatus of memberPartialThreadStatuses) {
     const { threadID, focusActive, newLastReadMessage } = partialThreadStatus;
 
     const lastMessageInfo = lastMessageInfos.get(threadID);
