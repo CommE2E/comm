@@ -84,8 +84,22 @@ async function checkThreads(
     return new Set(threadIDs);
   }
 
+  const threadRows = await getValidThreads(viewer, threadIDs, checks);
+  return new Set(threadRows.map((row) => row.threadID));
+}
+
+type PartialMembershipRow = {|
+  +threadID: string,
+  +role: number,
+  +permissions: ThreadPermissionsBlob,
+|};
+async function getValidThreads(
+  viewer: Viewer,
+  threadIDs: $ReadOnlyArray<string>,
+  checks: $ReadOnlyArray<Check>,
+): Promise<PartialMembershipRow[]> {
   const query = SQL`
-    SELECT thread, permissions, role
+    SELECT thread AS threadID, permissions, role
     FROM memberships
     WHERE thread IN (${threadIDs}) AND user = ${viewer.userID}
   `;
@@ -102,15 +116,13 @@ async function checkThreads(
     checkThreadsFrozen(viewer, permissionsToCheck, threadIDs),
   ]);
 
-  return new Set(
-    result
-      .filter(
-        (row) =>
-          isThreadValid(row.permissions, row.role, checks) &&
-          !disabledThreadIDs.has(row.thread.toString()),
-      )
-      .map((row) => row.thread.toString()),
-  );
+  return result
+    .map((row) => ({ ...row, threadID: row.threadID.toString() }))
+    .filter(
+      (row) =>
+        isThreadValid(row.permissions, row.role, checks) &&
+        !disabledThreadIDs.has(row.threadID),
+    );
 }
 
 async function checkThreadsFrozen(
@@ -173,6 +185,7 @@ export {
   checkThreadPermission,
   viewerIsMember,
   checkThreads,
+  getValidThreads,
   checkThread,
   checkIfThreadIsBlocked,
 };
