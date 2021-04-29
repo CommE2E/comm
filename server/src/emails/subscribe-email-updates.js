@@ -24,7 +24,7 @@ async function sendEmailSubscriptionRequestToAshoat(
 
   await sendmail.sendMail({
     from: 'no-reply@squadcal.org',
-    to: ashoat.email,
+    to: ashoat.landing_email,
     subject: title,
     html,
   });
