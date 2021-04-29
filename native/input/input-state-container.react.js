@@ -340,11 +340,17 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       payload: messageInfo,
     });
 
-    const newThreadID = await this.createRealizedThread(threadInfo);
-    if (!newThreadID) {
+    let newThreadID = null;
+    try {
+      newThreadID = await this.createRealizedThread(threadInfo);
+    } catch (e) {
+      const copy = cloneError(e);
+      copy.localID = messageInfo.localID;
+      copy.threadID = messageInfo.threadID;
       this.props.dispatch({
         type: sendTextMessageActionTypes.failed,
-        payload: messageInfo,
+        payload: copy,
+        error: true,
       });
       return;
     }
@@ -361,7 +367,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     );
   };
 
-  async createRealizedThread(threadInfo: ThreadInfo): Promise<?string> {
+  async createRealizedThread(threadInfo: ThreadInfo): Promise<string> {
     try {
       let threadCreationPromise = this.pendingThreadCreations.get(
         threadInfo.id,
@@ -376,9 +382,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         });
         this.pendingThreadCreations.set(threadInfo.id, threadCreationPromise);
       }
-      return await threadCreationPromise;
-    } catch (e) {
-      return undefined;
+      const newThreadID = await threadCreationPromise;
+      invariant(
+        newThreadID,
+        'createRealThreadFromPendingThread should return thread id or throw ' +
+          'an exception when handleError argument is not provided',
+      );
+      return newThreadID;
     } finally {
       // The promise is settled so we can clean the map to avoid a memory leak
       // and allow retries
