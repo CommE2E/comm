@@ -10,7 +10,7 @@ import {
   type LeaveThreadRequest,
   type LeaveThreadResult,
   type UpdateThreadRequest,
-  type NewThreadRequest,
+  type ServerNewThreadRequest,
   type NewThreadResponse,
   type ServerThreadJoinRequest,
   type ThreadJoinResult,
@@ -127,6 +127,7 @@ const threadRequestValidationShape = {
   color: t.maybe(tColor),
   parentThreadID: t.maybe(t.String),
   initialMemberIDs: t.maybe(t.list(t.String)),
+  calendarQuery: t.maybe(entryQueryInputValidator),
 };
 const newThreadRequestInputValidator = t.union([
   tShape({
@@ -147,7 +148,7 @@ async function threadCreationResponder(
   viewer: Viewer,
   input: any,
 ): Promise<NewThreadResponse> {
-  const request: NewThreadRequest = input;
+  const request: ServerNewThreadRequest = input;
   await validateInput(viewer, newThreadRequestInputValidator, request);
 
   return await createThread(viewer, request, {

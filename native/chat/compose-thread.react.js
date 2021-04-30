@@ -18,12 +18,13 @@ import {
 import SearchIndex from 'lib/shared/search-index';
 import { getPotentialMemberItems } from 'lib/shared/search-utils';
 import { threadInFilterList, userIsMember } from 'lib/shared/thread-utils';
+import type { CalendarQuery } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import {
   type ThreadInfo,
   type ThreadType,
   threadTypes,
-  type NewThreadRequest,
+  type ClientNewThreadRequest,
   type NewThreadResult,
 } from 'lib/types/thread-types';
 import { type AccountUserInfo } from 'lib/types/user-types';
@@ -39,6 +40,7 @@ import { createTagInput, BaseTagInput } from '../components/tag-input.react';
 import ThreadList from '../components/thread-list.react';
 import ThreadVisibility from '../components/thread-visibility.react';
 import UserList from '../components/user-list.react';
+import { useCalendarQuery } from '../navigation/nav-selectors';
 import type { NavigationRoute } from '../navigation/route-names';
 import { MessageListRouteName } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
@@ -72,10 +74,11 @@ type Props = {|
   +threadInfos: { [id: string]: ThreadInfo },
   +colors: Colors,
   +styles: typeof unboundStyles,
+  +calendarQuery: () => CalendarQuery,
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  +newThread: (request: NewThreadRequest) => Promise<NewThreadResult>,
+  +newThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
 |};
 type State = {|
   +usernameInputText: string,
@@ -343,6 +346,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
         (userInfo: AccountUserInfo) => userInfo.id,
       );
       const parentThreadInfo = ComposeThread.getParentThreadInfo(this.props);
+      const query = this.props.calendarQuery();
       invariant(
         threadType !== 5,
         'Creating sidebars from thread composer is not yet supported',
@@ -352,6 +356,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
         parentThreadID: parentThreadInfo ? parentThreadInfo.id : null,
         initialMemberIDs,
         color: parentThreadInfo ? parentThreadInfo.color : null,
+        calendarQuery: query,
       });
       this.waitingOnThreadID = result.newThreadID;
       return result;
@@ -475,6 +480,8 @@ export default React.memo<BaseProps>(function ConnectedComposeThread(
   const colors = useColors();
   const styles = useStyles(unboundStyles);
   const dispatchActionPromise = useDispatchActionPromise();
+
+  const calendarQuery = useCalendarQuery();
   const callNewThread = useServerCall(newThread);
   return (
     <ComposeThread
@@ -486,6 +493,7 @@ export default React.memo<BaseProps>(function ConnectedComposeThread(
       threadInfos={threadInfos}
       colors={colors}
       styles={styles}
+      calendarQuery={calendarQuery}
       dispatchActionPromise={dispatchActionPromise}
       newThread={callNewThread}
     />

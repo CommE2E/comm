@@ -10,6 +10,7 @@ import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { CalendarFilter } from 'lib/types/filter-types';
 
+import { useSelector } from '../redux/redux-utils';
 import type { NavPlusRedux } from '../types/selector-types';
 import type { GlobalTheme } from '../types/themes';
 import type { NavContextType } from './navigation-context';
@@ -250,6 +251,15 @@ const nonThreadCalendarQuery: (
   },
 );
 
+function useCalendarQuery(): () => CalendarQuery {
+  const navContext = React.useContext(NavContext);
+  return useSelector((state) =>
+    nonThreadCalendarQuery({
+      redux: state,
+      navContext,
+    }),
+  );
+}
 export {
   createIsForegroundSelector,
   useIsAppLoggedIn,
@@ -263,4 +273,5 @@ export {
   calendarActiveSelector,
   nativeCalendarQuery,
   nonThreadCalendarQuery,
+  useCalendarQuery,
 };

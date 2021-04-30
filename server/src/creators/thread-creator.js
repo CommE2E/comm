@@ -14,7 +14,7 @@ import type { Shape } from 'lib/types/core';
 import { messageTypes } from 'lib/types/message-types';
 import { userRelationshipStatus } from 'lib/types/relationship-types';
 import {
-  type NewThreadRequest,
+  type ServerNewThreadRequest,
   type NewThreadResponse,
   threadTypes,
   threadPermissions,
@@ -60,7 +60,7 @@ type CreateThreadOptions = Shape<{|
 // nonnegative role for the parent thread.
 async function createThread(
   viewer: Viewer,
-  request: NewThreadRequest,
+  request: ServerNewThreadRequest,
   options?: CreateThreadOptions,
 ): Promise<NewThreadResponse> {
   if (!viewer.loggedIn) {

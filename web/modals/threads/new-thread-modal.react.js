@@ -10,12 +10,13 @@ import {
   generateRandomColor,
   threadTypeDescriptions,
 } from 'lib/shared/thread-utils';
+import type { CalendarQuery } from 'lib/types/entry-types';
 import {
   type ThreadInfo,
   threadTypes,
   assertThreadType,
   type ThreadType,
-  type NewThreadRequest,
+  type ClientNewThreadRequest,
   type NewThreadResult,
 } from 'lib/types/thread-types';
 import {
@@ -26,6 +27,7 @@ import {
 import { firstLine } from 'lib/utils/string-utils';
 
 import { useSelector } from '../../redux/redux-utils';
+import { nonThreadCalendarQuery } from '../../selectors/nav-selectors';
 import css from '../../style.css';
 import Modal from '../modal.react';
 import ColorPicker from './color-picker.react';
@@ -37,9 +39,10 @@ type BaseProps = {|
 type Props = {|
   ...BaseProps,
   +inputDisabled: boolean,
+  +calendarQuery: () => CalendarQuery,
   +parentThreadInfo: ?ThreadInfo,
   +dispatchActionPromise: DispatchActionPromise,
-  +newThread: (request: NewThreadRequest) => Promise<NewThreadResult>,
+  +newThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
 |};
 type State = {|
   +threadType: ?ThreadType,
@@ -251,11 +254,13 @@ class NewThreadModal extends React.PureComponent<Props, State> {
         threadType !== 5,
         'Creating sidebars from modal is not yet supported',
       );
+      const query = this.props.calendarQuery();
       const response = await this.props.newThread({
         type: threadType,
         name,
         description: this.state.description,
         color: this.state.color,
+        calendarQuery: query,
       });
       this.props.onClose();
       return response;
@@ -289,6 +294,7 @@ export default React.memo<BaseProps>(function ConnectedNewThreadModal(
   );
   invariant(!parentThreadID || parentThreadInfo, 'parent thread should exist');
   const inputDisabled = useSelector(loadingStatusSelector) === 'loading';
+  const calendarQuery = useSelector(nonThreadCalendarQuery);
   const callNewThread = useServerCall(newThread);
   const dispatchActionPromise = useDispatchActionPromise();
 
@@ -297,6 +303,7 @@ export default React.memo<BaseProps>(function ConnectedNewThreadModal(
       {...props}
       parentThreadInfo={parentThreadInfo}
       inputDisabled={inputDisabled}
+      calendarQuery={calendarQuery}
       newThread={callNewThread}
       dispatchActionPromise={dispatchActionPromise}
     />

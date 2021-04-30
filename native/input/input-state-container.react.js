@@ -38,6 +38,7 @@ import {
   threadIsPending,
 } from 'lib/shared/thread-utils';
 import { isStaff } from 'lib/shared/user-utils';
+import type { CalendarQuery } from 'lib/types/entry-types';
 import type {
   UploadMultimediaResult,
   Media,
@@ -60,8 +61,11 @@ import {
   type MediaMissionReportCreationRequest,
   reportTypes,
 } from 'lib/types/report-types';
-import { type ThreadInfo } from 'lib/types/thread-types';
-import type { NewThreadRequest, NewThreadResult } from 'lib/types/thread-types';
+import type {
+  ClientNewThreadRequest,
+  NewThreadResult,
+  ThreadInfo,
+} from 'lib/types/thread-types';
 import {
   type DispatchActionPromise,
   useServerCall,
@@ -77,6 +81,7 @@ import type {
 import { disposeTempFile } from '../media/file-utils';
 import { processMedia } from '../media/media-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
+import { useCalendarQuery } from '../navigation/nav-selectors';
 import { useSelector } from '../redux/redux-utils';
 import {
   InputStateContext,
@@ -103,6 +108,7 @@ type Props = {|
   +messageStoreMessages: { [id: string]: RawMessageInfo },
   +ongoingMessageCreation: boolean,
   +hasWiFi: boolean,
+  +calendarQuery: () => CalendarQuery,
   +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
   +uploadMultimedia: (
@@ -120,7 +126,7 @@ type Props = {|
     localID: string,
     text: string,
   ) => Promise<SendMessageResult>,
-  +newThread: (request: NewThreadRequest) => Promise<NewThreadResult>,
+  +newThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
 |};
 type State = {|
   +pendingUploads: PendingMultimediaUploads,
@@ -431,12 +437,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
     let threadCreationPromise = this.pendingThreadCreations.get(threadInfo.id);
     if (!threadCreationPromise) {
+      const calendarQuery = this.props.calendarQuery();
       threadCreationPromise = createRealThreadFromPendingThread({
         threadInfo,
         dispatchActionPromise: this.props.dispatchActionPromise,
         createNewThread: this.props.newThread,
         sourceMessageID: threadInfo.sourceMessageID,
         viewerID: this.props.viewerID,
+        calendarQuery,
       });
       this.pendingThreadCreations.set(threadInfo.id, threadCreationPromise);
     }
@@ -1353,6 +1361,7 @@ export default React.memo<BaseProps>(function ConnectedInputStateContainer(
       ) === 'loading',
   );
   const hasWiFi = useSelector((state) => state.connectivity.hasWiFi);
+  const calendarQuery = useCalendarQuery();
   const callUploadMultimedia = useServerCall(uploadMultimedia);
   const callSendMultimediaMessage = useServerCall(sendMultimediaMessage);
   const callSendTextMessage = useServerCall(sendTextMessage);
@@ -1368,6 +1377,7 @@ export default React.memo<BaseProps>(function ConnectedInputStateContainer(
       messageStoreMessages={messageStoreMessages}
       ongoingMessageCreation={ongoingMessageCreation}
       hasWiFi={hasWiFi}
+      calendarQuery={calendarQuery}
       uploadMultimedia={callUploadMultimedia}
       sendMultimediaMessage={callSendMultimediaMessage}
       sendTextMessage={callSendTextMessage}
