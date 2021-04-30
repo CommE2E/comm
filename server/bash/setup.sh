@@ -13,4 +13,5 @@ chmod -R u=rwX,g=,o= server/secrets
 pushd server && nvm install && popd
 yarn cleaninstall
 yarn workspace web prod
+yarn workspace landing prod
 yarn workspace server prod-build
