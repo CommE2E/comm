@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { View, TouchableOpacity, TextInput } from 'react-native';
+import { View, TouchableOpacity, TextInput, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { isLoggedIn } from 'lib/selectors/user-selectors';
@@ -15,10 +15,11 @@ type Props = {|
   +searchText: string,
   +onChangeText: (searchText: string) => mixed,
   +containerStyle?: ViewStyle,
+  +active?: boolean,
 |};
 const Search = React.forwardRef<Props, typeof TextInput>(
   function ForwardedSearch(props: Props, ref: React.Ref<typeof TextInput>) {
-    const { onChangeText, searchText, containerStyle, ...rest } = props;
+    const { onChangeText, searchText, containerStyle, active, ...rest } = props;
 
     const clearSearch = React.useCallback(() => {
       onChangeText('');
@@ -47,18 +48,35 @@ const Search = React.forwardRef<Props, typeof TextInput>(
       );
     }
 
-    const textInputProps: React.ElementProps<typeof TextInput> = {
-      style: styles.searchInput,
-      value: searchText,
-      onChangeText: onChangeText,
-      placeholderTextColor: iconColor,
-      returnKeyType: 'go',
-    };
+    const inactive = active === false;
+    const usingPlaceholder = !searchText && rest.placeholder;
+    const inactiveTextStyle = React.useMemo(
+      () =>
+        inactive && usingPlaceholder
+          ? [styles.searchText, { color: iconColor }]
+          : styles.searchText,
+      [inactive, usingPlaceholder, styles.searchText, iconColor],
+    );
+
+    let textNode;
+    if (!inactive) {
+      const textInputProps: React.ElementProps<typeof TextInput> = {
+        style: styles.searchText,
+        value: searchText,
+        onChangeText: onChangeText,
+        placeholderTextColor: iconColor,
+        returnKeyType: 'go',
+      };
+      textNode = <TextInput {...textInputProps} {...rest} ref={ref} />;
+    } else {
+      const text = usingPlaceholder ? rest.placeholder : searchText;
+      textNode = <Text style={inactiveTextStyle}>{text}</Text>;
+    }
 
     return (
       <View style={[styles.search, containerStyle]}>
         <Icon name="search" size={18} color={iconColor} />
-        <TextInput {...textInputProps} {...rest} ref={ref} />
+        {textNode}
         {clearSearchInputIcon}
       </View>
     );
@@ -75,7 +93,7 @@ const unboundStyles = {
     paddingRight: 12,
     paddingVertical: 6,
   },
-  searchInput: {
+  searchText: {
     color: 'listForegroundLabel',
     flex: 1,
     fontSize: 16,
