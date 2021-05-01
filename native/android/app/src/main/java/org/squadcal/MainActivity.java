@@ -29,7 +29,7 @@ public class MainActivity extends ReactFragmentActivity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
+    super.onCreate(null);
     SplashScreen.show(this, SplashScreenImageResizeMode.NATIVE, ReactRootView.class);
   }
 
