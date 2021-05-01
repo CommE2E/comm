@@ -146,7 +146,6 @@ div.subscribe_updates {
   grid-area: subscribe_updates;
 }
 
-canvas.particles {
-  position: fixed;
+div.particles {
   z-index: -1;
 }

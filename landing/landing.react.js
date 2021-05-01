@@ -2,11 +2,10 @@
 
 import { create } from '@lottiefiles/lottie-interactivity';
 import * as React from 'react';
-import Particles from 'react-particles-js';
 
 import css from './landing.css';
-import particlesConfig from './particles-config.json';
 import ReadDocsButton from './read-docs-btn.react';
+import StarBackground from './star-background.react';
 import SubscriptionForm from './subscription-form.react';
 
 const useIsomorphicLayoutEffect =
@@ -65,7 +64,7 @@ function Landing(): React.Node {
 
   return (
     <div>
-      <Particles canvasClassName={css.particles} params={particlesConfig} />
+      <StarBackground className={css.particles} />
       <h1 className={css.title}>Comm</h1>
       <div className={css.grid}>
         <div className={css.hero_image}>
