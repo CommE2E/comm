@@ -3,7 +3,13 @@
 import invariant from 'invariant';
 import _sum from 'lodash/fp/sum';
 import * as React from 'react';
-import { View, FlatList, Platform, TextInput } from 'react-native';
+import {
+  View,
+  FlatList,
+  Platform,
+  TextInput,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import { FloatingAction } from 'react-native-floating-action';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { createSelector } from 'reselect';
@@ -84,7 +90,9 @@ type Props = {|
   // async functions that hit server APIs
   +searchUsers: (usernamePrefix: string) => Promise<UserSearchResult>,
 |};
+type SearchStatus = 'inactive' | 'activating' | 'active';
 type State = {|
+  +searchStatus: SearchStatus,
   +searchText: string,
   +threadsSearchResults: Set<string>,
   +usersSearchResults: $ReadOnlyArray<GlobalAccountUserInfo>,
@@ -93,6 +101,7 @@ type State = {|
 type PropsAndState = {| ...Props, ...State |};
 class ChatThreadList extends React.PureComponent<Props, State> {
   state: State = {
+    searchStatus: 'inactive',
     searchText: '',
     threadsSearchResults: new Set(),
     usersSearchResults: [],
@@ -126,6 +135,18 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     tabNavigation.removeListener('tabPress', this.onTabPress);
   }
 
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    const { flatList } = this;
+    if (!flatList) {
+      return;
+    }
+    const { searchStatus } = this.state;
+    const prevSearchStatus = prevState.searchStatus;
+    if (searchStatus === 'activating' && prevSearchStatus === 'inactive') {
+      flatList.scrollToOffset({ offset: 0, animated: true });
+    }
+  }
+
   onTabPress = () => {
     if (!this.props.navigation.isFocused()) {
       return;
@@ -137,17 +158,53 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     }
   };
 
-  renderItem = (row: { item: Item }) => {
-    const item = row.item;
-    if (item.type === 'search') {
-      return (
+  onSearchFocus = () => {
+    if (this.state.searchStatus !== 'inactive') {
+      return;
+    }
+    if (this.scrollPos === 0) {
+      this.setState({ searchStatus: 'active' });
+    } else {
+      this.setState({ searchStatus: 'activating' });
+    }
+  };
+
+  onSearchBlur = () => {
+    if (this.state.searchStatus !== 'active') {
+      return;
+    }
+    const { flatList } = this;
+    flatList && flatList.scrollToOffset({ offset: 0, animated: false });
+    this.setState({ searchStatus: 'inactive' });
+  };
+
+  renderSearch(additionalProps?: $Shape<React.ElementConfig<typeof Search>>) {
+    return (
+      <View style={this.props.styles.searchContainer}>
         <Search
           searchText={this.state.searchText}
           onChangeText={this.onChangeSearchText}
           containerStyle={this.props.styles.search}
+          onBlur={this.onSearchBlur}
           placeholder="Search threads"
           ref={this.searchInputRef}
+          {...additionalProps}
         />
+      </View>
+    );
+  }
+
+  searchInputRef = (searchInput: ?React.ElementRef<typeof TextInput>) => {
+    this.searchInput = searchInput;
+  };
+
+  renderItem = (row: { item: Item }) => {
+    const item = row.item;
+    if (item.type === 'search') {
+      return (
+        <TouchableWithoutFeedback onPress={this.onSearchFocus}>
+          {this.renderSearch({ active: false })}
+        </TouchableWithoutFeedback>
       );
     }
     if (item.type === 'empty') {
@@ -163,10 +220,6 @@ class ChatThreadList extends React.PureComponent<Props, State> {
         currentlyOpenedSwipeableId={this.state.openedSwipeableId}
       />
     );
-  };
-
-  searchInputRef = (searchInput: ?React.ElementRef<typeof TextInput>) => {
-    this.searchInput = searchInput;
   };
 
   static keyExtractor(item: Item) {
@@ -212,12 +265,14 @@ class ChatThreadList extends React.PureComponent<Props, State> {
 
   listDataSelector = createSelector(
     (propsAndState: PropsAndState) => propsAndState.chatListData,
+    (propsAndState: PropsAndState) => propsAndState.searchStatus,
     (propsAndState: PropsAndState) => propsAndState.searchText,
     (propsAndState: PropsAndState) => propsAndState.threadsSearchResults,
     (propsAndState: PropsAndState) => propsAndState.emptyItem,
     (propsAndState: PropsAndState) => propsAndState.usersSearchResults,
     (
       reduxChatListData: $ReadOnlyArray<ChatThreadItem>,
+      searchStatus: SearchStatus,
       searchText: string,
       threadsSearchResults: Set<string>,
       emptyItem?: React.ComponentType<{||}>,
@@ -264,7 +319,11 @@ class ChatThreadList extends React.PureComponent<Props, State> {
         chatItems.push({ type: 'empty', emptyItem });
       }
 
-      return [{ type: 'search', searchText }, ...chatItems];
+      if (searchStatus === 'inactive' || searchStatus === 'activating') {
+        chatItems.unshift({ type: 'search', searchText });
+      }
+
+      return chatItems;
     },
   );
 
@@ -273,7 +332,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   }
 
   render() {
-    let floatingAction = null;
+    let floatingAction;
     if (Platform.OS === 'android') {
       floatingAction = (
         <FloatingAction
@@ -284,10 +343,18 @@ class ChatThreadList extends React.PureComponent<Props, State> {
         />
       );
     }
+    let fixedSearch;
+    const { searchStatus } = this.state;
+    if (searchStatus === 'active') {
+      fixedSearch = this.renderSearch({ autoFocus: true });
+    }
+    const scrollEnabled =
+      searchStatus === 'inactive' || searchStatus === 'active';
     // this.props.viewerID is in extraData since it's used by MessagePreview
     // within ChatThreadListItem
     return (
       <View style={this.props.styles.container}>
+        {fixedSearch}
         <FlatList
           data={this.listData}
           renderItem={this.renderItem}
@@ -301,6 +368,8 @@ class ChatThreadList extends React.PureComponent<Props, State> {
           onScroll={this.onScroll}
           style={this.props.styles.flatList}
           indicatorStyle={this.props.indicatorStyle}
+          scrollEnabled={scrollEnabled}
+          removeClippedSubviews={true}
           ref={this.flatListRef}
         />
         {floatingAction}
@@ -313,7 +382,14 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   };
 
   onScroll = (event: { +nativeEvent: { +contentOffset: { +y: number } } }) => {
+    const oldScrollPos = this.scrollPos;
     this.scrollPos = event.nativeEvent.contentOffset.y;
+    if (this.scrollPos !== 0 || oldScrollPos === 0) {
+      return;
+    }
+    if (this.state.searchStatus === 'activating') {
+      this.setState({ searchStatus: 'active' });
+    }
   };
 
   async searchUsers(usernamePrefix: string) {
@@ -388,6 +464,9 @@ const unboundStyles = {
   },
   container: {
     flex: 1,
+  },
+  searchContainer: {
+    backgroundColor: 'listBackground',
   },
   search: {
     marginBottom: 8,
