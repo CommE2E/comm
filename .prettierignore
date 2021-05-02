@@ -8,6 +8,7 @@ server/landing_compiled
 server/dist
 server/secrets
 server/facts
+server/images
 server/fonts
 server/flow-typed
 server/src/landing

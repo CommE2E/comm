@@ -31,6 +31,20 @@ function Landing(): React.Node {
     });
   }, []);
 
+  const onCloudIllustrationLoad = React.useCallback(() => {
+    create({
+      mode: 'scroll',
+      player: '#cloud-illustration',
+      actions: [
+        {
+          visibility: [0, 1],
+          type: 'seek',
+          frames: [0, 120],
+        },
+      ],
+    });
+  }, []);
+
   const [eyeNode, setEyeNode] = React.useState(null);
   useIsomorphicLayoutEffect(() => {
     if (!eyeNode) {
@@ -39,6 +53,15 @@ function Landing(): React.Node {
     eyeNode.addEventListener('load', onEyeIllustrationLoad);
     return () => eyeNode.removeEventListener('load', onEyeIllustrationLoad);
   }, [eyeNode, onEyeIllustrationLoad]);
+
+  const [cloudNode, setCloudNode] = React.useState(null);
+  useIsomorphicLayoutEffect(() => {
+    if (!cloudNode) {
+      return;
+    }
+    cloudNode.addEventListener('load', onCloudIllustrationLoad);
+    return () => cloudNode.removeEventListener('load', onCloudIllustrationLoad);
+  }, [cloudNode, onCloudIllustrationLoad]);
 
   return (
     <div>
@@ -51,8 +74,8 @@ function Landing(): React.Node {
             ref={setEyeNode}
             mode="normal"
             src="images/animated_eye.json"
-            speed={0.5}
-          ></lottie-player>
+            speed={1}
+          />
         </div>
         <div className={css.hero_copy}>
           <h1>
@@ -69,7 +92,15 @@ function Landing(): React.Node {
           </p>
         </div>
 
-        <div className={css.server_image} />
+        <div className={css.server_image}>
+          <lottie-player
+            id="cloud-illustration"
+            ref={setCloudNode}
+            mode="normal"
+            src="images/animated_cloud.json"
+            speed={1}
+          />
+        </div>
         <div className={css.server_copy}>
           <h2>Apps need servers.</h2>
           <p>
