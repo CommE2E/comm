@@ -1,3 +1,16 @@
+diff --git a/node_modules/react-native/Libraries/Blob/React-RCTBlob.podspec b/node_modules/react-native/Libraries/Blob/React-RCTBlob.podspec
+index abd064d..44714e9 100644
+--- a/node_modules/react-native/Libraries/Blob/React-RCTBlob.podspec
++++ b/node_modules/react-native/Libraries/Blob/React-RCTBlob.podspec
+@@ -17,7 +17,7 @@ else
+ end
+ 
+ folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
+-folly_version = '2020.01.13.00'
++folly_version = '2021.04.26.00'
+ 
+ Pod::Spec.new do |s|
+   s.name                   = "React-RCTBlob"
 diff --git a/node_modules/react-native/Libraries/Components/TextInput/TextInput.js b/node_modules/react-native/Libraries/Components/TextInput/TextInput.js
 index b124944..28535ed 100644
 --- a/node_modules/react-native/Libraries/Components/TextInput/TextInput.js
@@ -29,6 +42,97 @@ index 5dc03df..e526092 100644
      ? (background, useForeground) =>
          useForeground && TouchableNativeFeedback.canUseNativeForeground()
            ? {nativeForegroundAndroid: background}
+diff --git a/node_modules/react-native/Libraries/FBReactNativeSpec/FBReactNativeSpec.podspec b/node_modules/react-native/Libraries/FBReactNativeSpec/FBReactNativeSpec.podspec
+index 202ca89..7b3f86a 100644
+--- a/node_modules/react-native/Libraries/FBReactNativeSpec/FBReactNativeSpec.podspec
++++ b/node_modules/react-native/Libraries/FBReactNativeSpec/FBReactNativeSpec.podspec
+@@ -17,7 +17,7 @@ else
+ end
+ 
+ folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
+-folly_version = '2020.01.13.00'
++folly_version = '2021.04.26.00'
+ 
+ Pod::Spec.new do |s|
+   s.name                   = "FBReactNativeSpec"
+diff --git a/node_modules/react-native/Libraries/Image/React-RCTImage.podspec b/node_modules/react-native/Libraries/Image/React-RCTImage.podspec
+index b028297..d512094 100644
+--- a/node_modules/react-native/Libraries/Image/React-RCTImage.podspec
++++ b/node_modules/react-native/Libraries/Image/React-RCTImage.podspec
+@@ -17,7 +17,7 @@ else
+ end
+ 
+ folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
+-folly_version = '2020.01.13.00'
++folly_version = '2021.04.26.00'
+ 
+ Pod::Spec.new do |s|
+   s.name                   = "React-RCTImage"
+diff --git a/node_modules/react-native/Libraries/LinkingIOS/React-RCTLinking.podspec b/node_modules/react-native/Libraries/LinkingIOS/React-RCTLinking.podspec
+index e724ee3..75711d7 100644
+--- a/node_modules/react-native/Libraries/LinkingIOS/React-RCTLinking.podspec
++++ b/node_modules/react-native/Libraries/LinkingIOS/React-RCTLinking.podspec
+@@ -17,7 +17,7 @@ else
+ end
+ 
+ folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
+-folly_version = '2020.01.13.00'
++folly_version = '2021.04.26.00'
+ 
+ Pod::Spec.new do |s|
+   s.name                   = "React-RCTLinking"
+diff --git a/node_modules/react-native/Libraries/NativeAnimation/React-RCTAnimation.podspec b/node_modules/react-native/Libraries/NativeAnimation/React-RCTAnimation.podspec
+index aa6657d..2cc8a34 100644
+--- a/node_modules/react-native/Libraries/NativeAnimation/React-RCTAnimation.podspec
++++ b/node_modules/react-native/Libraries/NativeAnimation/React-RCTAnimation.podspec
+@@ -17,7 +17,7 @@ else
+ end
+ 
+ folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
+-folly_version = '2020.01.13.00'
++folly_version = '2021.04.26.00'
+ 
+ Pod::Spec.new do |s|
+   s.name                   = "React-RCTAnimation"
+diff --git a/node_modules/react-native/Libraries/Network/React-RCTNetwork.podspec b/node_modules/react-native/Libraries/Network/React-RCTNetwork.podspec
+index 28fd6f3..86c69d7 100644
+--- a/node_modules/react-native/Libraries/Network/React-RCTNetwork.podspec
++++ b/node_modules/react-native/Libraries/Network/React-RCTNetwork.podspec
+@@ -17,7 +17,7 @@ else
+ end
+ 
+ folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
+-folly_version = '2020.01.13.00'
++folly_version = '2021.04.26.00'
+ 
+ Pod::Spec.new do |s|
+   s.name                   = "React-RCTNetwork"
+diff --git a/node_modules/react-native/Libraries/PushNotificationIOS/React-RCTPushNotification.podspec b/node_modules/react-native/Libraries/PushNotificationIOS/React-RCTPushNotification.podspec
+index b4faefc..cbf9f0d 100644
+--- a/node_modules/react-native/Libraries/PushNotificationIOS/React-RCTPushNotification.podspec
++++ b/node_modules/react-native/Libraries/PushNotificationIOS/React-RCTPushNotification.podspec
+@@ -17,7 +17,7 @@ else
+ end
+ 
+ folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
+-folly_version = '2020.01.13.00'
++folly_version = '2021.04.26.00'
+ 
+ Pod::Spec.new do |s|
+   s.name                   = "React-RCTPushNotification"
+diff --git a/node_modules/react-native/Libraries/Settings/React-RCTSettings.podspec b/node_modules/react-native/Libraries/Settings/React-RCTSettings.podspec
+index 26fe6d6..c0de676 100644
+--- a/node_modules/react-native/Libraries/Settings/React-RCTSettings.podspec
++++ b/node_modules/react-native/Libraries/Settings/React-RCTSettings.podspec
+@@ -17,7 +17,7 @@ else
+ end
+ 
+ folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
+-folly_version = '2020.01.13.00'
++folly_version = '2021.04.26.00'
+ 
+ Pod::Spec.new do |s|
+   s.name                   = "React-RCTSettings"
 diff --git a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h
 index 7e12add..d21daf8 100644
 --- a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h
@@ -154,3 +258,233 @@ index dca1437..cede0b4 100644
  RCT_REMAP_VIEW_PROPERTY(autoCapitalize, backedTextInputView.autocapitalizationType, UITextAutocapitalizationType)
  RCT_REMAP_VIEW_PROPERTY(autoCorrect, backedTextInputView.autocorrectionType, UITextAutocorrectionType)
  RCT_REMAP_VIEW_PROPERTY(contextMenuHidden, backedTextInputView.contextMenuHidden, BOOL)
+diff --git a/node_modules/react-native/Libraries/TypeSafety/RCTTypeSafety.podspec b/node_modules/react-native/Libraries/TypeSafety/RCTTypeSafety.podspec
+index 9086987..74bbae4 100644
+--- a/node_modules/react-native/Libraries/TypeSafety/RCTTypeSafety.podspec
++++ b/node_modules/react-native/Libraries/TypeSafety/RCTTypeSafety.podspec
+@@ -17,7 +17,7 @@ else
+ end
+ 
+ folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
+-folly_version = '2020.01.13.00'
++folly_version = '2021.04.26.00'
+ 
+ Pod::Spec.new do |s|
+   s.name                   = "RCTTypeSafety"
+diff --git a/node_modules/react-native/Libraries/Vibration/React-RCTVibration.podspec b/node_modules/react-native/Libraries/Vibration/React-RCTVibration.podspec
+index 1712e07..3639715 100644
+--- a/node_modules/react-native/Libraries/Vibration/React-RCTVibration.podspec
++++ b/node_modules/react-native/Libraries/Vibration/React-RCTVibration.podspec
+@@ -17,7 +17,7 @@ else
+ end
+ 
+ folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
+-folly_version = '2020.01.13.00'
++folly_version = '2021.04.26.00'
+ 
+ Pod::Spec.new do |s|
+   s.name                   = "React-RCTVibration"
+diff --git a/node_modules/react-native/React-Core.podspec b/node_modules/react-native/React-Core.podspec
+index bc693e1..caa38d3 100644
+--- a/node_modules/react-native/React-Core.podspec
++++ b/node_modules/react-native/React-Core.podspec
+@@ -17,7 +17,7 @@ else
+ end
+ 
+ folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
+-folly_version = '2020.01.13.00'
++folly_version = '2021.04.26.00'
+ boost_compiler_flags = '-Wno-documentation'
+ 
+ header_subspecs = {
+diff --git a/node_modules/react-native/React/CoreModules/React-CoreModules.podspec b/node_modules/react-native/React/CoreModules/React-CoreModules.podspec
+index 9aaccc1..dfc5d33 100644
+--- a/node_modules/react-native/React/CoreModules/React-CoreModules.podspec
++++ b/node_modules/react-native/React/CoreModules/React-CoreModules.podspec
+@@ -17,7 +17,7 @@ else
+ end
+ 
+ folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
+-folly_version = '2020.01.13.00'
++folly_version = '2021.04.26.00'
+ 
+ Pod::Spec.new do |s|
+   s.name                   = "React-CoreModules"
+diff --git a/node_modules/react-native/React/React-RCTFabric.podspec b/node_modules/react-native/React/React-RCTFabric.podspec
+index 9123da7..7e8e434 100644
+--- a/node_modules/react-native/React/React-RCTFabric.podspec
++++ b/node_modules/react-native/React/React-RCTFabric.podspec
+@@ -18,7 +18,7 @@ end
+ 
+ folly_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1'
+ folly_compiler_flags = folly_flags + ' ' + '-Wno-comma -Wno-shorten-64-to-32'
+-folly_version = '2020.01.13.00'
++folly_version = '2021.04.26.00'
+ boost_compiler_flags = '-Wno-documentation'
+ 
+ Pod::Spec.new do |s|
+diff --git a/node_modules/react-native/React/third-party.xcconfig b/node_modules/react-native/React/third-party.xcconfig
+index ada55f5..579c503 100644
+--- a/node_modules/react-native/React/third-party.xcconfig
++++ b/node_modules/react-native/React/third-party.xcconfig
+@@ -8,5 +8,5 @@
+ // LICENSE file in the root directory of this source tree.
+ //
+ 
+-HEADER_SEARCH_PATHS = $(SRCROOT)/../third-party/boost_1_63_0 $(SRCROOT)/../third-party/folly-2020.01.13.00 $(SRCROOT)/../third-party/glog-0.3.5/src
++HEADER_SEARCH_PATHS = $(SRCROOT)/../third-party/boost_1_63_0 $(SRCROOT)/../third-party/folly-2021.04.26.00 $(SRCROOT)/../third-party/glog-0.3.5/src
+ OTHER_CFLAGS = -DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1
+diff --git a/node_modules/react-native/ReactCommon/React-Fabric.podspec b/node_modules/react-native/ReactCommon/React-Fabric.podspec
+index ce3d2df..726b72c 100644
+--- a/node_modules/react-native/ReactCommon/React-Fabric.podspec
++++ b/node_modules/react-native/ReactCommon/React-Fabric.podspec
+@@ -17,7 +17,7 @@ else
+ end
+ 
+ folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
+-folly_version = '2020.01.13.00'
++folly_version = '2021.04.26.00'
+ folly_dep_name = 'Folly/Fabric'
+ boost_compiler_flags = '-Wno-documentation'
+ 
+diff --git a/node_modules/react-native/ReactCommon/ReactCommon.podspec b/node_modules/react-native/ReactCommon/ReactCommon.podspec
+index 765ec10..2929c85 100644
+--- a/node_modules/react-native/ReactCommon/ReactCommon.podspec
++++ b/node_modules/react-native/ReactCommon/ReactCommon.podspec
+@@ -17,7 +17,7 @@ else
+ end
+ 
+ folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
+-folly_version = '2020.01.13.00'
++folly_version = '2021.04.26.00'
+ boost_compiler_flags = '-Wno-documentation'
+ 
+ Pod::Spec.new do |s|
+diff --git a/node_modules/react-native/ReactCommon/callinvoker/React-callinvoker.podspec b/node_modules/react-native/ReactCommon/callinvoker/React-callinvoker.podspec
+index e2a90d3..5c434a1 100644
+--- a/node_modules/react-native/ReactCommon/callinvoker/React-callinvoker.podspec
++++ b/node_modules/react-native/ReactCommon/callinvoker/React-callinvoker.podspec
+@@ -17,7 +17,7 @@ else
+ end
+ 
+ folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
+-folly_version = '2020.01.13.00'
++folly_version = '2021.04.26.00'
+ boost_compiler_flags = '-Wno-documentation'
+ 
+ Pod::Spec.new do |s|
+diff --git a/node_modules/react-native/ReactCommon/cxxreact/React-cxxreact.podspec b/node_modules/react-native/ReactCommon/cxxreact/React-cxxreact.podspec
+index cb6835b..20dca20 100644
+--- a/node_modules/react-native/ReactCommon/cxxreact/React-cxxreact.podspec
++++ b/node_modules/react-native/ReactCommon/cxxreact/React-cxxreact.podspec
+@@ -17,7 +17,7 @@ else
+ end
+ 
+ folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
+-folly_version = '2020.01.13.00'
++folly_version = '2021.04.26.00'
+ boost_compiler_flags = '-Wno-documentation'
+ 
+ Pod::Spec.new do |s|
+diff --git a/node_modules/react-native/ReactCommon/fabric/graphics/React-graphics.podspec b/node_modules/react-native/ReactCommon/fabric/graphics/React-graphics.podspec
+index 832557c..e0446c6 100644
+--- a/node_modules/react-native/ReactCommon/fabric/graphics/React-graphics.podspec
++++ b/node_modules/react-native/ReactCommon/fabric/graphics/React-graphics.podspec
+@@ -17,7 +17,7 @@ else
+ end
+ 
+ folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
+-folly_version = '2020.01.13.00'
++folly_version = '2021.04.26.00'
+ 
+ Pod::Spec.new do |s|
+   s.name                   = "React-graphics"
+diff --git a/node_modules/react-native/ReactCommon/jsi/React-jsi.podspec b/node_modules/react-native/ReactCommon/jsi/React-jsi.podspec
+index 5cec68c..c096b3d 100644
+--- a/node_modules/react-native/ReactCommon/jsi/React-jsi.podspec
++++ b/node_modules/react-native/ReactCommon/jsi/React-jsi.podspec
+@@ -17,7 +17,7 @@ else
+ end
+ 
+ folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
+-folly_version = '2020.01.13.00'
++folly_version = '2021.04.26.00'
+ boost_compiler_flags = '-Wno-documentation'
+ 
+ Pod::Spec.new do |s|
+diff --git a/node_modules/react-native/ReactCommon/jsiexecutor/React-jsiexecutor.podspec b/node_modules/react-native/ReactCommon/jsiexecutor/React-jsiexecutor.podspec
+index 77a33c2..5618b60 100644
+--- a/node_modules/react-native/ReactCommon/jsiexecutor/React-jsiexecutor.podspec
++++ b/node_modules/react-native/ReactCommon/jsiexecutor/React-jsiexecutor.podspec
+@@ -17,7 +17,7 @@ else
+ end
+ 
+ folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
+-folly_version = '2020.01.13.00'
++folly_version = '2021.04.26.00'
+ boost_compiler_flags = '-Wno-documentation'
+ 
+ Pod::Spec.new do |s|
+diff --git a/node_modules/react-native/scripts/react_native_pods.rb b/node_modules/react-native/scripts/react_native_pods.rb
+index 9ae06db..35cc24e 100644
+--- a/node_modules/react-native/scripts/react_native_pods.rb
++++ b/node_modules/react-native/scripts/react_native_pods.rb
+@@ -60,7 +60,7 @@ end
+ def use_flipper!(versions = {}, configurations: ['Debug'])
+   versions['Flipper'] ||= '~> 0.54.0'
+   versions['Flipper-DoubleConversion'] ||= '1.1.7'
+-  versions['Flipper-Folly'] ||= '~> 2.2'
++  versions['Flipper-Folly'] ||= '~> 2.5.3'
+   versions['Flipper-Glog'] ||= '0.3.6'
+   versions['Flipper-PeerTalk'] ||= '~> 0.0.4'
+   versions['Flipper-RSocket'] ||= '~> 1.1'
+diff --git a/node_modules/react-native/third-party-podspecs/Folly.podspec b/node_modules/react-native/third-party-podspecs/Folly.podspec
+index 35a0522..e7ba3ca 100644
+--- a/node_modules/react-native/third-party-podspecs/Folly.podspec
++++ b/node_modules/react-native/third-party-podspecs/Folly.podspec
+@@ -5,7 +5,7 @@
+ 
+ Pod::Spec.new do |spec|
+   spec.name = 'Folly'
+-  spec.version = '2020.01.13.00'
++  spec.version = '2021.04.26.00'
+   spec.license = { :type => 'Apache License, Version 2.0' }
+   spec.homepage = 'https://github.com/facebook/folly'
+   spec.summary = 'An open-source C++ library developed and used at Facebook.'
+@@ -16,6 +16,7 @@ Pod::Spec.new do |spec|
+   spec.dependency 'boost-for-react-native'
+   spec.dependency 'DoubleConversion'
+   spec.dependency 'glog'
++  spec.dependency 'fmt'
+   spec.compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation'
+   spec.source_files = 'folly/String.cpp',
+                       'folly/Conv.cpp',
+@@ -23,6 +24,7 @@ Pod::Spec.new do |spec|
+                       'folly/FileUtil.cpp',
+                       'folly/Format.cpp',
+                       'folly/lang/SafeAssert.cpp',
++                      'folly/lang/ToAscii.cpp',
+                       'folly/ScopeGuard.cpp',
+                       'folly/Unicode.cpp',
+                       'folly/dynamic.cpp',
+@@ -36,7 +38,9 @@ Pod::Spec.new do |spec|
+                       'folly/lang/CString.cpp',
+                       'folly/memory/detail/MallocImpl.cpp',
+                       'folly/net/NetOps.cpp',
+-                      'folly/portability/SysUio.cpp'
++                      'folly/portability/SysUio.cpp',
++                      'folly/system/ThreadId.h',
++                      'folly/system/ThreadId.cpp'
+ 
+   # workaround for https://github.com/facebook/react-native/issues/14326
+   spec.preserve_paths = 'folly/*.h',
+@@ -74,6 +78,7 @@ Pod::Spec.new do |spec|
+                             'folly/system/ThreadId.h'
+   end
+ 
+-  # Pinning to the same version as React.podspec.
+-  spec.platforms = { :ios => "10.0", :tvos => "10.0" }
++  # Folly has issues when compiled with iOS 10 set as deployment target
++  # See https://github.com/facebook/folly/issues/1470 for details
++  spec.platforms = { :ios => "9.0", :tvos => "9.0" }
+ end
