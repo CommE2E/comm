@@ -36,9 +36,19 @@ function Landing(): React.Node {
       player: '#cloud-illustration',
       actions: [
         {
-          visibility: [0, 1],
+          visibility: [0, 0.3],
+          type: 'stop',
+          frames: [0],
+        },
+        {
+          visibility: [0.3, 0.5],
           type: 'seek',
-          frames: [0, 120],
+          frames: [0, 119],
+        },
+        {
+          visibility: [0.5, 1.0],
+          type: 'stop',
+          frames: [119],
         },
       ],
     });
