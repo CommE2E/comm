@@ -97,6 +97,7 @@ type State = {|
   +threadsSearchResults: Set<string>,
   +usersSearchResults: $ReadOnlyArray<GlobalAccountUserInfo>,
   +openedSwipeableId: string,
+  +numItemsToDisplay: number,
 |};
 type PropsAndState = {| ...Props, ...State |};
 class ChatThreadList extends React.PureComponent<Props, State> {
@@ -106,12 +107,21 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     threadsSearchResults: new Set(),
     usersSearchResults: [],
     openedSwipeableId: '',
+    numItemsToDisplay: 25,
   };
   searchInput: ?React.ElementRef<typeof TextInput>;
   flatList: ?FlatList<Item>;
   scrollPos = 0;
+  clearNavigationBlurListener: ?() => mixed;
 
   componentDidMount() {
+    this.clearNavigationBlurListener = this.props.navigation.addListener(
+      'blur',
+      () => {
+        this.setState({ numItemsToDisplay: 25 });
+      },
+    );
+
     const chatNavigation: ?ChatNavigationProp<
       'ChatThreadList',
     > = this.props.navigation.dangerouslyGetParent();
@@ -124,6 +134,8 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   }
 
   componentWillUnmount() {
+    this.clearNavigationBlurListener && this.clearNavigationBlurListener();
+
     const chatNavigation: ?ChatNavigationProp<
       'ChatThreadList',
     > = this.props.navigation.dangerouslyGetParent();
@@ -140,6 +152,12 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     if (!flatList) {
       return;
     }
+
+    if (this.state.searchText !== prevState.searchText) {
+      flatList.scrollToOffset({ offset: 0, animated: false });
+      return;
+    }
+
     const { searchStatus } = this.state;
     const prevSearchStatus = prevState.searchStatus;
     if (searchStatus === 'activating' && prevSearchStatus === 'inactive') {
@@ -277,7 +295,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       threadsSearchResults: Set<string>,
       emptyItem?: React.ComponentType<{||}>,
       usersSearchResults: $ReadOnlyArray<GlobalAccountUserInfo>,
-    ): Item[] => {
+    ): $ReadOnlyArray<Item> => {
       const chatItems = [];
 
       if (!searchText) {
@@ -327,9 +345,29 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     },
   );
 
-  get listData() {
+  partialListDataSelector = createSelector(
+    this.listDataSelector,
+    (propsAndState: PropsAndState) => propsAndState.numItemsToDisplay,
+    (items: $ReadOnlyArray<Item>, numItemsToDisplay: number) =>
+      items.slice(0, numItemsToDisplay),
+  );
+
+  get fullListData() {
     return this.listDataSelector({ ...this.props, ...this.state });
   }
+
+  get listData() {
+    return this.partialListDataSelector({ ...this.props, ...this.state });
+  }
+
+  onEndReached = () => {
+    if (this.listData.length === this.fullListData.length) {
+      return;
+    }
+    this.setState((prevState) => ({
+      numItemsToDisplay: prevState.numItemsToDisplay + 25,
+    }));
+  };
 
   render() {
     let floatingAction;
@@ -370,6 +408,8 @@ class ChatThreadList extends React.PureComponent<Props, State> {
           indicatorStyle={this.props.indicatorStyle}
           scrollEnabled={scrollEnabled}
           removeClippedSubviews={true}
+          onEndReached={this.onEndReached}
+          onEndReachedThreshold={1}
           ref={this.flatListRef}
         />
         {floatingAction}
@@ -407,7 +447,11 @@ class ChatThreadList extends React.PureComponent<Props, State> {
 
   onChangeSearchText = async (searchText: string) => {
     const results = this.props.threadSearchIndex.getSearchResults(searchText);
-    this.setState({ searchText, threadsSearchResults: new Set(results) });
+    this.setState({
+      searchText,
+      threadsSearchResults: new Set(results),
+      numItemsToDisplay: 25,
+    });
     const usersSearchResults = await this.searchUsers(searchText);
     this.setState({ usersSearchResults });
   };
