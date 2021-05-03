@@ -196,6 +196,19 @@ const migrations = {
       messageTypes.SIDEBAR_SOURCE,
     ]),
   }),
+  [22]: (state) => {
+    for (const key in state.drafts) {
+      const value = state.drafts[key];
+      global.CommCoreModule.updateDraft({
+        threadID: key,
+        text: value,
+      });
+    }
+    return {
+      ...state,
+      drafts: undefined,
+    };
+  },
 };
 
 const persistConfig = {
@@ -210,7 +223,7 @@ const persistConfig = {
     'frozen',
   ],
   debug: __DEV__,
-  version: 21,
+  version: 22,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
   timeout: __DEV__ ? 0 : undefined,
 };
