@@ -1,7 +1,13 @@
 // @flow
 
 import * as React from 'react';
-import { View, TouchableOpacity, TextInput, Text } from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  TextInput,
+  Text,
+  Platform,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { isLoggedIn } from 'lib/selectors/user-selectors';
@@ -53,9 +59,15 @@ const Search = React.forwardRef<Props, typeof TextInput>(
     const inactiveTextStyle = React.useMemo(
       () =>
         inactive && usingPlaceholder
-          ? [styles.searchText, { color: iconColor }]
-          : styles.searchText,
-      [inactive, usingPlaceholder, styles.searchText, iconColor],
+          ? [styles.searchText, styles.inactiveSearchText, { color: iconColor }]
+          : [styles.searchText, styles.inactiveSearchText],
+      [
+        inactive,
+        usingPlaceholder,
+        styles.searchText,
+        styles.inactiveSearchText,
+        iconColor,
+      ],
     );
 
     let textNode;
@@ -92,6 +104,12 @@ const unboundStyles = {
     paddingLeft: 14,
     paddingRight: 12,
     paddingVertical: 6,
+  },
+  inactiveSearchText: {
+    transform: Platform.select({
+      ios: [{ translateY: 1 / 3 }],
+      default: undefined,
+    }),
   },
   searchText: {
     color: 'listForegroundLabel',

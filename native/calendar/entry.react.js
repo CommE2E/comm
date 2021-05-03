@@ -733,6 +733,10 @@ const unboundStyles = {
     paddingLeft: 10,
     paddingRight: 10,
     paddingTop: 5,
+    transform: Platform.select({
+      ios: [{ translateY: -1 / 3 }],
+      default: undefined,
+    }),
   },
   textInput: {
     fontFamily: 'System',
