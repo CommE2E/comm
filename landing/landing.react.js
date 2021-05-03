@@ -57,7 +57,7 @@ function Landing(): React.Node {
         <div className={css.hero_copy}>
           <h1>
             Reclaim your
-            <span className={css.purple}> digital identity.</span>
+            <span className={css.purple}> digital&nbsp;identity.</span>
           </h1>
           <p>
             The internet is broken today. Private user data is owned by
