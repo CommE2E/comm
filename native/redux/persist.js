@@ -36,7 +36,6 @@ const migrations = {
       ...state.messageStore,
       currentAsOf: state.currentAsOf,
     },
-    drafts: state.drafts,
     updatesCurrentAsOf: state.currentAsOf,
     cookie: state.cookie,
     deviceToken: state.deviceToken,

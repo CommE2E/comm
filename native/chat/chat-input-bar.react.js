@@ -19,7 +19,6 @@ import FAIcon from 'react-native-vector-icons/FontAwesome';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useDispatch } from 'react-redux';
 
-import { saveDraftActionType } from 'lib/actions/miscellaneous-action-types';
 import { joinThreadActionTypes, joinThread } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { trimMessage } from 'lib/shared/message-utils';
@@ -545,13 +544,10 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     this.saveDraft(text);
   };
 
-  saveDraft = _throttle((text: string) => {
-    this.props.dispatch({
-      type: saveDraftActionType,
-      payload: {
-        key: draftKeyFromThreadID(this.props.threadInfo.id),
-        draft: text,
-      },
+  saveDraft = _throttle((text) => {
+    global.CommCoreModule.updateDraft({
+      threadID: draftKeyFromThreadID(this.props.threadInfo.id),
+      text,
     });
   }, 400);
 
@@ -781,7 +777,11 @@ export default React.memo<BaseProps>(function ConnectedChatInputBar(
   );
 
   const draftKey = draftKeyFromThreadID(props.threadInfo.id);
-  const draft = useSelector((state) => state.drafts[draftKey] || '');
+  const draft = React.useMemo(
+    () => global.CommCoreModule.getDraft(draftKey),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
 
   const viewerID = useSelector(
     (state) => state.currentUserInfo && state.currentUserInfo.id,

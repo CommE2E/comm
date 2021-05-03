@@ -52,6 +52,13 @@ if (Platform.OS === 'android') {
     UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+if (!global.CommCoreModule) {
+  global.CommCoreModule = {
+    getDraft: () => '',
+    updateDraft: () => {},
+  };
+}
+
 const navInitAction = Object.freeze({ type: 'NAV/@@INIT' });
 const navUnknownAction = Object.freeze({ type: 'NAV/@@UNKNOWN' });
 

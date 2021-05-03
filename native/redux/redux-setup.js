@@ -50,7 +50,6 @@ import {
 } from '../push/alerts';
 import { reduceThreadIDsToNotifIDs } from '../push/reducer';
 import reactotron from '../reactotron';
-import reduceDrafts from '../reducers/draft-reducer';
 import {
   type DeviceCameraInfo,
   defaultDeviceCameraInfo,
@@ -96,7 +95,6 @@ export type AppState = {|
   threadStore: ThreadStore,
   userStore: UserStore,
   messageStore: MessageStore,
-  drafts: { [key: string]: string },
   updatesCurrentAsOf: number,
   loadingStatuses: { [key: string]: { [idx: number]: LoadingStatus } },
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
@@ -145,7 +143,6 @@ const defaultState = ({
     local: {},
     currentAsOf: 0,
   },
-  drafts: {},
   updatesCurrentAsOf: 0,
   loadingStatuses: {},
   calendarFilters: defaultCalendarFilters,
@@ -334,10 +331,7 @@ function reducer(state: AppState = defaultState, action: *) {
     }
   }
 
-  state = {
-    ...baseReducer(state, action),
-    drafts: reduceDrafts(state.drafts, action),
-  };
+  state = baseReducer(state, action);
 
   return fixUnreadActiveThread(state, action);
 }
