@@ -11,6 +11,7 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import { FloatingAction } from 'react-native-floating-action';
+import Animated from 'react-native-reanimated';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { createSelector } from 'reselect';
 
@@ -33,6 +34,7 @@ import { threadTypes } from 'lib/types/thread-types';
 import type { GlobalAccountUserInfo, UserInfo } from 'lib/types/user-types';
 import { useServerCall } from 'lib/utils/action-utils';
 
+import Button from '../components/button.react';
 import Search from '../components/search.react';
 import type { TabNavigationProp } from '../navigation/app-navigator.react';
 import {
@@ -48,6 +50,7 @@ import {
   indicatorStyleSelector,
   useStyles,
 } from '../themes/colors';
+import { animateTowards } from '../utils/animation-utils';
 import ChatThreadListItem from './chat-thread-list-item.react';
 import type {
   ChatTopTabsNavigationProp,
@@ -62,6 +65,10 @@ const floatingActions = [
     position: 1,
   },
 ];
+
+/* eslint-disable import/no-named-as-default-member */
+const { Value, interpolate } = Animated;
+/* eslint-enable import/no-named-as-default-member */
 
 type Item =
   | ChatThreadItem
@@ -113,6 +120,21 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   flatList: ?FlatList<Item>;
   scrollPos = 0;
   clearNavigationBlurListener: ?() => mixed;
+  searchCancelButtonOpen = new Value(0);
+  searchCancelButtonProgress: Value;
+  searchCancelButtonOffset: Value;
+
+  constructor(props: Props) {
+    super(props);
+    this.searchCancelButtonProgress = animateTowards(
+      this.searchCancelButtonOpen,
+      100,
+    );
+    this.searchCancelButtonOffset = interpolate(
+      this.searchCancelButtonProgress,
+      { inputRange: [0, 1], outputRange: [0, 56] },
+    );
+  }
 
   componentDidMount() {
     this.clearNavigationBlurListener = this.props.navigation.addListener(
@@ -148,6 +170,19 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
+    const { searchStatus } = this.state;
+    const prevSearchStatus = prevState.searchStatus;
+
+    const isActiveOrActivating =
+      searchStatus === 'active' || searchStatus === 'activating';
+    const wasActiveOrActivating =
+      prevSearchStatus === 'active' || prevSearchStatus === 'activating';
+    if (isActiveOrActivating && !wasActiveOrActivating) {
+      this.searchCancelButtonOpen.setValue(1);
+    } else if (!isActiveOrActivating && wasActiveOrActivating) {
+      this.searchCancelButtonOpen.setValue(0);
+    }
+
     const { flatList } = this;
     if (!flatList) {
       return;
@@ -158,8 +193,6 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       return;
     }
 
-    const { searchStatus } = this.state;
-    const prevSearchStatus = prevState.searchStatus;
     if (searchStatus === 'activating' && prevSearchStatus === 'inactive') {
       flatList.scrollToOffset({ offset: 0, animated: true });
     }
@@ -197,17 +230,36 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   };
 
   renderSearch(additionalProps?: $Shape<React.ElementConfig<typeof Search>>) {
+    const searchBoxStyle = [
+      this.props.styles.searchBox,
+      { marginRight: this.searchCancelButtonOffset },
+    ];
+    const buttonStyle = [
+      this.props.styles.cancelSearchButtonText,
+      { opacity: this.searchCancelButtonProgress },
+    ];
     return (
       <View style={this.props.styles.searchContainer}>
-        <Search
-          searchText={this.state.searchText}
-          onChangeText={this.onChangeSearchText}
-          containerStyle={this.props.styles.search}
-          onBlur={this.onSearchBlur}
-          placeholder="Search threads"
-          ref={this.searchInputRef}
-          {...additionalProps}
-        />
+        <Button
+          onPress={this.onSearchBlur}
+          disabled={this.state.searchStatus !== 'active'}
+          style={this.props.styles.cancelSearchButton}
+        >
+          {/* eslint-disable react-native/no-raw-text */}
+          <Animated.Text style={buttonStyle}>Cancel</Animated.Text>
+          {/* eslint-enable react-native/no-raw-text */}
+        </Button>
+        <Animated.View style={searchBoxStyle}>
+          <Search
+            searchText={this.state.searchText}
+            onChangeText={this.onChangeSearchText}
+            containerStyle={this.props.styles.search}
+            onBlur={this.onSearchBlur}
+            placeholder="Search threads"
+            ref={this.searchInputRef}
+            {...additionalProps}
+          />
+        </Animated.View>
       </View>
     );
   }
@@ -511,11 +563,30 @@ const unboundStyles = {
   },
   searchContainer: {
     backgroundColor: 'listBackground',
+    display: 'flex',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  searchBox: {
+    flex: 1,
   },
   search: {
     marginBottom: 8,
     marginHorizontal: 12,
     marginTop: Platform.OS === 'android' ? 10 : 8,
+  },
+  cancelSearchButton: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    bottom: 0,
+    display: 'flex',
+    justifyContent: 'center',
+  },
+  cancelSearchButtonText: {
+    color: 'link',
+    fontSize: 16,
+    paddingHorizontal: 10,
   },
   flatList: {
     flex: 1,
