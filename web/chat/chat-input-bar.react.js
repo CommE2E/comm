@@ -15,7 +15,6 @@ import {
   viewerIsMember,
   threadFrozenDueToViewerBlock,
   threadActualMembers,
-  threadIsPending,
 } from 'lib/shared/thread-utils';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
@@ -200,21 +199,6 @@ class ChatInputBar extends React.PureComponent<Props> {
     let content;
     if (threadHasPermission(this.props.threadInfo, threadPermissions.VOICED)) {
       const sendIconStyle = { color: `#${this.props.threadInfo.color}` };
-      let multimediaInput = null;
-      if (!threadIsPending(this.props.threadInfo.id)) {
-        multimediaInput = (
-          <a className={css.multimediaUpload} onClick={this.onMultimediaClick}>
-            <input
-              type="file"
-              onChange={this.onMultimediaFileChange}
-              ref={this.multimediaInputRef}
-              accept={allowedMimeTypeString}
-              multiple
-            />
-            <FontAwesomeIcon icon={faFileImage} />
-          </a>
-        );
-      }
       content = (
         <div className={css.inputBarTextInput}>
           <textarea
@@ -226,7 +210,16 @@ class ChatInputBar extends React.PureComponent<Props> {
             ref={this.textareaRef}
             autoFocus
           />
-          {multimediaInput}
+          <a className={css.multimediaUpload} onClick={this.onMultimediaClick}>
+            <input
+              type="file"
+              onChange={this.onMultimediaFileChange}
+              ref={this.multimediaInputRef}
+              accept={allowedMimeTypeString}
+              multiple
+            />
+            <FontAwesomeIcon icon={faFileImage} />
+          </a>
           <a className={css.send} onClick={this.onSend}>
             <FontAwesomeIcon
               icon={faChevronRight}

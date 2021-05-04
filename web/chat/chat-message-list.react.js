@@ -19,11 +19,7 @@ import {
 } from 'lib/selectors/chat-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { messageKey } from 'lib/shared/message-utils';
-import {
-  useWatchThread,
-  useCurrentThreadInfo,
-  threadIsPending,
-} from 'lib/shared/thread-utils';
+import { useWatchThread, useCurrentThreadInfo } from 'lib/shared/thread-utils';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
 import {
@@ -447,7 +443,6 @@ export default React.memo<BaseProps>(function ConnectedChatMessageList(
     collect: (monitor) => ({
       isActive: monitor.isOver() && monitor.canDrop(),
     }),
-    canDrop: () => !threadIsPending(activeChatThreadID),
   });
 
   const getTextMessageMarkdownRules = useTextMessageRulesFunc(threadInfo?.id);
