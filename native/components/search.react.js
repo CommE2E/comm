@@ -48,7 +48,11 @@ const Search = React.forwardRef<Props, typeof TextInput>(
     let clearSearchInputIcon = null;
     if (searchText) {
       clearSearchInputIcon = (
-        <TouchableOpacity onPress={clearSearch} activeOpacity={0.5}>
+        <TouchableOpacity
+          onPress={clearSearch}
+          activeOpacity={0.5}
+          style={styles.clearSearchButton}
+        >
           <Icon name="times-circle" size={18} color={iconColor} />
         </TouchableOpacity>
       );
@@ -102,8 +106,7 @@ const unboundStyles = {
     borderRadius: 6,
     flexDirection: 'row',
     paddingLeft: 14,
-    paddingRight: 12,
-    paddingVertical: 6,
+    paddingRight: 7,
   },
   inactiveSearchText: {
     transform: Platform.select({
@@ -116,9 +119,12 @@ const unboundStyles = {
     flex: 1,
     fontSize: 16,
     marginLeft: 8,
-    marginVertical: 0,
+    marginVertical: 6,
     padding: 0,
     borderBottomColor: 'transparent',
+  },
+  clearSearchButton: {
+    padding: 5,
   },
 };
 
