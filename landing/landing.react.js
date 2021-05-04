@@ -70,9 +70,11 @@ function Landing(): React.Node {
   return (
     <div>
       <StarBackground className={css.particles} />
-      <h1 className={css.title}>Comm</h1>
       <div className={css.grid}>
-        <div className={css.hero_image}>
+        <div className={css.title_container}>
+          <h1 className={css.title}>Comm</h1>
+        </div>
+        <div className={`${css.hero_image} ${css.starting_section}`}>
           <lottie-player
             id="eye-illustration"
             ref={setEyeNode}
@@ -81,7 +83,7 @@ function Landing(): React.Node {
             speed={1}
           />
         </div>
-        <div className={css.hero_copy}>
+        <div className={`${css.hero_copy} ${css.section}`}>
           <h1>
             Reclaim your
             <span className={css.purple}> digital&nbsp;identity.</span>
@@ -96,7 +98,7 @@ function Landing(): React.Node {
           </p>
         </div>
 
-        <div className={css.server_image}>
+        <div className={`${css.server_image} ${css.starting_section}`}>
           <lottie-player
             id="cloud-illustration"
             ref={setCloudNode}
@@ -105,7 +107,7 @@ function Landing(): React.Node {
             speed={1}
           />
         </div>
-        <div className={css.server_copy}>
+        <div className={`${css.server_copy} ${css.section}`}>
           <h2>Apps need servers.</h2>
           <p>
             Sophisticated applications rely on servers to do things that your
@@ -118,8 +120,13 @@ function Landing(): React.Node {
           </p>
         </div>
 
+        <div className={css.keyserver_company}>
+          <h1>
+            Comm is the <span className={css.purple}>keyserver</span> company.
+          </h1>
+        </div>
+
         <div className={css.keyserver_copy}>
-          <h2>Comm is the keyserver company.</h2>
           <p>In the future, people have their own servers.</p>
           <p>
             Your keyserver is the home of your digital identity. It owns your
@@ -132,8 +139,8 @@ function Landing(): React.Node {
           <ReadDocsButton />
         </div>
 
-        <div className={css.footer_logo}>Comm</div>
-        <div className={css.subscribe_updates}>
+        <div className={`${css.footer_logo} ${css.starting_section}`}>Comm</div>
+        <div className={`${css.subscribe_updates} ${css.starting_section}`}>
           <SubscriptionForm />
         </div>
       </div>

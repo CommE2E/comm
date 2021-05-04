@@ -1,23 +1,25 @@
+.buttonContainer {
+  text-decoration: none;
+}
+
 .button {
-  position: relative;
-  height: 160px;
+  display: flex;
+  justify-content: space-between;
   width: 100%;
   border: 2px solid white;
   color: white;
   background: transparent;
-  padding: 28px;
   cursor: pointer;
   text-align: left;
-  padding-top: 100px;
   border-radius: 8px;
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 24px;
+  padding: 30px;
+  height: 160px;
 }
 
-@media (max-width: 1099px) {
-  .button {
-    font-size: 18px;
-  }
+.buttonText {
+  align-self: flex-end;
 }
 
 .button:hover {
@@ -30,7 +32,20 @@
 }
 
 .cornerIcon {
-  position: absolute;
-  top: 20px;
-  right: 20px;
+  align-self: flex-start;
+  padding-left: 5px;
+}
+
+@media (max-width: 1099px) {
+  .button {
+    font-size: 18px;
+    padding: 15px 20px;
+    height: auto;
+  }
+  .buttonText {
+    align-self: center;
+  }
+  .cornerIcon {
+    align-self: center;
+  }
 }

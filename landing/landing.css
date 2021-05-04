@@ -3,6 +3,8 @@ html {
   background-attachment: fixed;
   font-family: 'IBM Plex Sans', sans-serif;
   color: white;
+  word-break: break-word;
+  max-width: 1920px;
 }
 
 h1,
@@ -11,10 +13,13 @@ h2 {
   font-weight: 600;
 }
 
+div.title_container {
+  grid-area: title_container;
+}
+
 h1.title {
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 24px;
-  padding-left: 60px;
 }
 
 h1 {
@@ -36,70 +41,26 @@ p {
 div.grid {
   display: grid;
   padding-top: 20px;
-  padding-left: 60px;
-  padding-right: 60px;
+  padding-left: 80px;
+  padding-right: 80px;
   padding-bottom: 40px;
-  row-gap: 14em;
-  column-gap: 4em;
-  grid-template-rows: 1fr 1fr 1fr 1/6fr;
+  column-gap: 6em;
   grid-template-columns: 1fr 1fr;
   grid-template-areas:
+    'title_container title_container'
     'hero_copy hero_image'
-    'server_copy server_image'
+    'server_image server_copy'
+    'keyserver_company keyserver_company'
     'keyserver_copy read_the_docs'
     'footer_logo subscribe_updates';
 }
 
-@media (max-width: 1499px) {
-  h1 {
-    font-size: 42px;
-  }
-
-  h2 {
-    font-size: 38px;
-  }
-
-  p {
-    font-size: 20px;
-  }
+div.grid > div + .starting_section {
+  padding-top: 80px;
 }
 
-@media (max-width: 1099px) {
-  div.grid {
-    display: grid;
-    padding-left: 60px;
-    padding-right: 60px;
-    row-gap: 2em;
-    grid-template-columns: minmax(auto, 540px);
-    justify-content: center;
-    grid-template-areas:
-      'hero_image'
-      'hero_copy'
-      'server_image'
-      'server_copy'
-      'keyserver_copy'
-      'read_the_docs'
-      'subscribe_updates'
-      'footer_logo';
-  }
-
-  h1 {
-    font-size: 32px;
-  }
-
-  h2 {
-    font-size: 26px;
-  }
-
-  p {
-    font-size: 18px;
-  }
-
-  div.server_image {
-    grid-area: server_image;
-    object-fit: scale-down;
-    align-self: center;
-  }
+.section {
+  padding-top: 80px;
 }
 
 div.hero_copy {
@@ -124,14 +85,23 @@ div.server_image {
   align-self: center;
 }
 
+div.keyserver_company {
+  grid-area: keyserver_company;
+  align-self: center;
+  text-align: center;
+  padding-top: 80px;
+}
+
 div.keyserver_copy {
   grid-area: keyserver_copy;
   align-self: center;
+  padding-bottom: 40px;
 }
 
 div.read_the_docs {
   grid-area: read_the_docs;
-  align-self: flex-end;
+  align-self: center;
+  padding-bottom: 40px;
 }
 
 div.footer_logo {
@@ -148,4 +118,78 @@ div.subscribe_updates {
 
 div.particles {
   z-index: -1;
+}
+
+@media (max-width: 1499px) {
+  div.grid {
+    padding-left: 60px;
+    padding-right: 60px;
+  }
+
+  h1 {
+    font-size: 42px;
+  }
+
+  h2 {
+    font-size: 38px;
+  }
+
+  p {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 1099px) {
+  div.grid {
+    display: grid;
+    padding-left: 3%;
+    padding-right: 3%;
+    grid-template-columns: minmax(auto, 540px);
+    justify-content: center;
+    grid-template-areas:
+      'title_container'
+      'hero_image'
+      'hero_copy'
+      'server_image'
+      'server_copy'
+      'keyserver_company'
+      'keyserver_copy'
+      'read_the_docs'
+      'subscribe_updates'
+      'footer_logo';
+  }
+
+  h1 {
+    font-size: 28px;
+  }
+
+  h2 {
+    font-size: 24px;
+  }
+
+  p {
+    font-size: 16px;
+  }
+
+  .section {
+    padding-top: 20px;
+  }
+
+  div.keyserver_company {
+    text-align: left;
+    padding-top: 60px;
+  }
+
+  .keyserver_company > h1 {
+    font-size: 24px;
+  }
+
+  div.keyserver_copy {
+    padding-bottom: 0;
+  }
+
+  div.read_the_docs {
+    padding-top: 20px;
+    padding-bottom: 0;
+  }
 }
