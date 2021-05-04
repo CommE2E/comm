@@ -61,6 +61,7 @@ const unboundStyles = {
     paddingLeft: 25,
     paddingRight: 10,
     alignItems: 'center',
+    backgroundColor: 'listBackground',
   },
   icon: {
     paddingLeft: 5,
