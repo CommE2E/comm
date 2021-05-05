@@ -71,9 +71,7 @@ function Landing(): React.Node {
     <div>
       <StarBackground className={css.particles} />
       <div className={css.grid}>
-        <div className={css.title_container}>
-          <h1 className={css.title}>Comm</h1>
-        </div>
+        <h1 className={css.title}>Comm</h1>
         <div className={`${css.hero_image} ${css.starting_section}`}>
           <lottie-player
             id="eye-illustration"
@@ -131,7 +129,7 @@ function Landing(): React.Node {
           <p>
             Your keyserver is the home of your digital identity. It owns your
             private keys and your personal data. It&apos;s your password
-            manager, your crypto wallet, your digital surrogate, and your second
+            manager, your crypto bank, your digital surrogate, and your second
             brain.
           </p>
         </div>

@@ -13,13 +13,10 @@ h2 {
   font-weight: 600;
 }
 
-div.title_container {
-  grid-area: title_container;
-}
-
 h1.title {
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 24px;
+  grid-area: title_container;
 }
 
 h1 {
@@ -36,6 +33,7 @@ h2 {
 
 p {
   font-size: 24px;
+  line-height: 1.6em;
 }
 
 div.grid {
