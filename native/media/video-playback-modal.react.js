@@ -223,6 +223,7 @@ function VideoPlaybackModal(props: Props) {
   React.useEffect(() => {
     if (backgroundedOrInactive) {
       setPaused(true);
+      setControlsVisible(true);
     }
   }, [backgroundedOrInactive]);
 
