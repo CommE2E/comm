@@ -358,6 +358,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const newMessageInfo = {
       ...messageInfo,
       threadID: newThreadID,
+      time: Date.now(),
     };
     this.props.dispatchActionPromise(
       sendTextMessageActionTypes,
