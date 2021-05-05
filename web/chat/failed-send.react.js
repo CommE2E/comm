@@ -118,7 +118,7 @@ class FailedSend extends React.PureComponent<Props> {
         return;
       }
       this.retryingMedia = true;
-      inputState.retryMultimediaMessage(localID);
+      inputState.retryMultimediaMessage(localID, this.props.threadInfo);
     }
   };
 }

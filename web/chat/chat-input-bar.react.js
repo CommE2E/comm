@@ -350,7 +350,10 @@ class ChatInputBar extends React.PureComponent<Props> {
       nextLocalID++;
     }
 
-    this.props.inputState.createMultimediaMessage(nextLocalID);
+    this.props.inputState.createMultimediaMessage(
+      nextLocalID,
+      this.props.threadInfo,
+    );
   }
 
   dispatchTextMessageAction(text: string, nextLocalID: number) {

@@ -303,12 +303,68 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     return rawMessageInfo;
   }
 
-  sendMultimediaMessage(messageInfo: RawMultimediaMessageInfo) {
+  async sendMultimediaMessage(messageInfo: RawMultimediaMessageInfo) {
+    if (!threadIsPending(messageInfo.threadID)) {
+      this.props.dispatchActionPromise(
+        sendMultimediaMessageActionTypes,
+        this.sendMultimediaMessageAction(messageInfo),
+        undefined,
+        messageInfo,
+      );
+      return;
+    }
+
+    this.props.dispatch({
+      type: sendMultimediaMessageActionTypes.started,
+      payload: messageInfo,
+    });
+
+    let newThreadID = null;
+    try {
+      const threadCreationPromise = this.pendingThreadCreations.get(
+        messageInfo.threadID,
+      );
+      if (!threadCreationPromise) {
+        // When we create or retry multimedia message, we add a promise to
+        // pendingThreadCreations map. This promise can be removed in
+        // sendMultimediaMessage and sendTextMessage methods. When any of these
+        // method remove the promise, it has to be settled. If the promise was
+        // fulfilled, this method would be called with realized thread, so we
+        // can conclude that the promise was rejected. We don't have enough info
+        // here to retry the thread creation, but we can mark the message as
+        // failed. Then the retry will be possible and promise will be created
+        // again.
+        throw new Error('Thread creation failed');
+      }
+      newThreadID = await threadCreationPromise;
+      invariant(
+        newThreadID,
+        'createRealThreadFromPendingThread should return thread id or throw ' +
+          'an exception when handleError argument is not provided',
+      );
+    } catch (e) {
+      const copy = cloneError(e);
+      copy.localID = messageInfo.localID;
+      copy.threadID = messageInfo.threadID;
+      this.props.dispatch({
+        type: sendMultimediaMessageActionTypes.failed,
+        payload: copy,
+        error: true,
+      });
+      return;
+    } finally {
+      this.pendingThreadCreations.delete(messageInfo.threadID);
+    }
+
+    const newMessageInfo = {
+      ...messageInfo,
+      threadID: newThreadID,
+    };
     this.props.dispatchActionPromise(
       sendMultimediaMessageActionTypes,
-      this.sendMultimediaMessageAction(messageInfo),
+      this.sendMultimediaMessageAction(newMessageInfo),
       undefined,
-      messageInfo,
+      newMessageInfo,
     );
   }
 
@@ -369,20 +425,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   async createRealizedThread(threadInfo: ThreadInfo): Promise<string> {
     try {
-      let threadCreationPromise = this.pendingThreadCreations.get(
-        threadInfo.id,
-      );
-      if (!threadCreationPromise) {
-        threadCreationPromise = createRealThreadFromPendingThread({
-          threadInfo,
-          dispatchActionPromise: this.props.dispatchActionPromise,
-          createNewThread: this.props.newThread,
-          sourceMessageID: threadInfo.sourceMessageID,
-          viewerID: this.props.viewerID,
-        });
-        this.pendingThreadCreations.set(threadInfo.id, threadCreationPromise);
-      }
-      const newThreadID = await threadCreationPromise;
+      const newThreadID = await this.startThreadCreation(threadInfo);
       invariant(
         newThreadID,
         'createRealThreadFromPendingThread should return thread id or throw ' +
@@ -394,6 +437,24 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       // and allow retries
       this.pendingThreadCreations.delete(threadInfo.id);
     }
+  }
+
+  async startThreadCreation(threadInfo: ThreadInfo): Promise<?string> {
+    if (!threadIsPending(threadInfo.id)) {
+      return threadInfo.id;
+    }
+    let threadCreationPromise = this.pendingThreadCreations.get(threadInfo.id);
+    if (!threadCreationPromise) {
+      threadCreationPromise = createRealThreadFromPendingThread({
+        threadInfo,
+        dispatchActionPromise: this.props.dispatchActionPromise,
+        createNewThread: this.props.newThread,
+        sourceMessageID: threadInfo.sourceMessageID,
+        viewerID: this.props.viewerID,
+      });
+      this.pendingThreadCreations.set(threadInfo.id, threadCreationPromise);
+    }
+    return threadCreationPromise;
   }
 
   inputStateSelector = _memoize((threadID: string) =>
@@ -431,15 +492,18 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             messageInfo: RawTextMessageInfo,
             threadInfo: ThreadInfo,
           ) => this.sendTextMessage(messageInfo, threadInfo),
-          createMultimediaMessage: (localID: number) =>
-            this.createMultimediaMessage(threadID, localID),
+          createMultimediaMessage: (localID: number, threadInfo: ThreadInfo) =>
+            this.createMultimediaMessage(localID, threadInfo),
           setDraft: (newDraft: string) => this.setDraft(threadID, newDraft),
           messageHasUploadFailure: (localMessageID: string) =>
             this.messageHasUploadFailure(assignedUploads[localMessageID]),
-          retryMultimediaMessage: (localMessageID: string) =>
+          retryMultimediaMessage: (
+            localMessageID: string,
+            threadInfo: ThreadInfo,
+          ) =>
             this.retryMultimediaMessage(
-              threadID,
               localMessageID,
+              threadInfo,
               assignedUploads[localMessageID],
             ),
           addReply: (message: string) => this.addReply(message),
@@ -957,10 +1021,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   // Creates a MultimediaMessage from the unassigned pending uploads,
   // if there are any
-  createMultimediaMessage(threadID: string, localID: number) {
+  createMultimediaMessage(localID: number, threadInfo: ThreadInfo) {
     const localMessageID = `local${localID}`;
+    this.startThreadCreation(threadInfo);
+
     this.setState((prevState) => {
-      const newThreadID = this.getRealizedOrPendingThreadID(threadID);
+      const newThreadID = this.getRealizedOrPendingThreadID(threadInfo.id);
       const currentPendingUploads = prevState.pendingUploads[newThreadID];
       if (!currentPendingUploads) {
         return {};
@@ -1045,8 +1111,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 
   retryMultimediaMessage(
-    threadID: string,
     localMessageID: string,
+    threadInfo: ThreadInfo,
     pendingUploads: ?$ReadOnlyArray<PendingMultimediaUpload>,
   ) {
     const rawMessageInfo = this.getRawMultimediaMessageInfo(localMessageID);
@@ -1063,6 +1129,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         time: Date.now(),
       }: RawImagesMessageInfo);
     }
+
+    this.startThreadCreation(threadInfo);
 
     const completed = InputStateContainer.completedMessageIDs(this.state);
     if (completed.has(localMessageID)) {
@@ -1096,7 +1164,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     this.setState((prevState) => {
-      const newThreadID = this.getRealizedOrPendingThreadID(threadID);
+      const newThreadID = this.getRealizedOrPendingThreadID(threadInfo.id);
       const prevPendingUploads = prevState.pendingUploads[newThreadID];
       if (!prevPendingUploads) {
         return {};
@@ -1128,7 +1196,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       };
     });
 
-    this.uploadFiles(threadID, uploadsToRetry);
+    this.uploadFiles(threadInfo.id, uploadsToRetry);
   }
 
   addReply = (message: string) => {
