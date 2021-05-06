@@ -684,24 +684,29 @@ async function joinThread(
     creatorID: viewer.userID,
     time: Date.now(),
   };
-  await createMessages(viewer, [messageData]);
+  const newMessages = await createMessages(viewer, [messageData]);
 
   const threadSelectionCriteria = {
     threadCursors: { [request.threadID]: false },
   };
 
   // TODO: determine code version
-  const hasCodeVersionBelow84 = !hasMinCodeVersion(viewer.platformDetails, 84);
+  if (hasMinCodeVersion(viewer.platformDetails, 84)) {
+    return {
+      rawMessageInfos: newMessages,
+      truncationStatuses: {},
+      userInfos: membershipResult.userInfos,
+      updatesResult: {
+        newUpdates: membershipResult.viewerUpdates,
+      },
+    };
+  }
 
   const [fetchMessagesResult, fetchEntriesResult] = await Promise.all([
     fetchMessageInfos(viewer, threadSelectionCriteria, defaultNumberPerThread),
-    calendarQuery && hasCodeVersionBelow84
-      ? fetchEntryInfos(viewer, [calendarQuery])
-      : undefined,
+    calendarQuery ? fetchEntryInfos(viewer, [calendarQuery]) : undefined,
   ]);
-
   const rawEntryInfos = fetchEntriesResult && fetchEntriesResult.rawEntryInfos;
-
   const response: ThreadJoinResult = {
     rawMessageInfos: fetchMessagesResult.rawMessageInfos,
     truncationStatuses: fetchMessagesResult.truncationStatuses,
