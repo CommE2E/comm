@@ -12,10 +12,12 @@
     "clean": "yarn workspace lib clean && yarn workspace web clean && yarn workspace native clean && yarn workspace server clean && yarn workspace landing clean && rm -rf node_modules/",
     "cleaninstall": "yarn clean && yarn",
     "eslint": "eslint .",
-    "eslint:fix": "eslint --fix ."
+    "eslint:fix": "eslint --fix .",
+    "clang-format-all": "clang-format -i native/cpp/CommonCpp/**/*.cpp native/cpp/CommonCpp/**/*.h native/android/app/src/cpp/*"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
+    "clang-format": "^1.5.0",
     "core-js": "^3.6.5",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.15.0",

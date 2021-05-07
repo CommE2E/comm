@@ -12,9 +12,9 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		54B457A7302F03F835EC5D92 /* libPods-SquadCal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A75435FBAC0720E8BE857F55 /* libPods-SquadCal.a */; };
 		711B408425DA97F9005F8F06 /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F26E81B24440D87004049C6 /* dummy.swift */; };
-		7173BEB22627035D0089BF7A /* NativeModules.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7173BE9F2627035D0089BF7A /* NativeModules.cpp */; };
-		7173BEB32627035D0089BF7A /* CommCoreModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7173BEA02627035D0089BF7A /* CommCoreModule.cpp */; };
-		7173BEB62627035D0089BF7A /* SQLiteManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7173BEAA2627035D0089BF7A /* SQLiteManager.cpp */; };
+		71BE84492636A944002849D2 /* NativeModules.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE843B2636A944002849D2 /* NativeModules.cpp */; };
+		71BE844A2636A944002849D2 /* CommCoreModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE843C2636A944002849D2 /* CommCoreModule.cpp */; };
+		71BE844B2636A944002849D2 /* SQLiteManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE84412636A944002849D2 /* SQLiteManager.cpp */; };
 		71CA4A64262DA8E500835C89 /* Logger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71CA4A63262DA8E500835C89 /* Logger.mm */; };
 		71CA4AEC262F236100835C89 /* Tools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71CA4AEB262F236100835C89 /* Tools.mm */; };
 		7F761E602201141E001B6FB7 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F761E292201141E001B6FB7 /* JavaScriptCore.framework */; };
@@ -35,17 +35,17 @@
 		47CCD255658AFBDBBBA0DFBA /* Pods-SquadCal.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SquadCal.debug.xcconfig"; path = "Target Support Files/Pods-SquadCal/Pods-SquadCal.debug.xcconfig"; sourceTree = "<group>"; };
 		5D92D07F9695E31E05F88732 /* Pods-SquadCal.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SquadCal.release.xcconfig"; path = "Target Support Files/Pods-SquadCal/Pods-SquadCal.release.xcconfig"; sourceTree = "<group>"; };
 		711CF80E25DC096000A00FBD /* libFolly.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libFolly.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		7173BE9F2627035D0089BF7A /* NativeModules.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NativeModules.cpp; sourceTree = "<group>"; };
-		7173BEA02627035D0089BF7A /* CommCoreModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CommCoreModule.cpp; sourceTree = "<group>"; };
-		7173BEA12627035D0089BF7A /* NativeModules.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeModules.h; sourceTree = "<group>"; };
-		7173BEA22627035D0089BF7A /* CommCoreModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommCoreModule.h; sourceTree = "<group>"; };
-		7173BEA92627035D0089BF7A /* DatabaseManagerInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatabaseManagerInterface.h; sourceTree = "<group>"; };
-		7173BEAA2627035D0089BF7A /* SQLiteManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SQLiteManager.cpp; sourceTree = "<group>"; };
-		7173BEAB2627035D0089BF7A /* SQLiteManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SQLiteManager.h; sourceTree = "<group>"; };
-		7173BEAC2627035D0089BF7A /* DatabaseManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatabaseManager.h; sourceTree = "<group>"; };
-		7173BEAE2627035D0089BF7A /* Draft.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Draft.h; sourceTree = "<group>"; };
-		7173BEB12627035D0089BF7A /* sqlite_orm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqlite_orm.h; sourceTree = "<group>"; };
-		71CA4A49262D815E00835C89 /* Logger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Logger.h; sourceTree = "<group>"; };
+		71BE84392636A944002849D2 /* Logger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Logger.h; sourceTree = "<group>"; };
+		71BE843B2636A944002849D2 /* NativeModules.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NativeModules.cpp; sourceTree = "<group>"; };
+		71BE843C2636A944002849D2 /* CommCoreModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CommCoreModule.cpp; sourceTree = "<group>"; };
+		71BE843D2636A944002849D2 /* NativeModules.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeModules.h; sourceTree = "<group>"; };
+		71BE843E2636A944002849D2 /* CommCoreModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommCoreModule.h; sourceTree = "<group>"; };
+		71BE84402636A944002849D2 /* DatabaseManagerInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatabaseManagerInterface.h; sourceTree = "<group>"; };
+		71BE84412636A944002849D2 /* SQLiteManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SQLiteManager.cpp; sourceTree = "<group>"; };
+		71BE84422636A944002849D2 /* SQLiteManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SQLiteManager.h; sourceTree = "<group>"; };
+		71BE84432636A944002849D2 /* DatabaseManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatabaseManager.h; sourceTree = "<group>"; };
+		71BE84452636A944002849D2 /* Draft.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Draft.h; sourceTree = "<group>"; };
+		71BE84482636A944002849D2 /* sqlite_orm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqlite_orm.h; sourceTree = "<group>"; };
 		71CA4A63262DA8E500835C89 /* Logger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Logger.mm; path = SquadCal/Logger.mm; sourceTree = "<group>"; };
 		71CA4AEA262F230A00835C89 /* Tools.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Tools.h; path = SquadCal/Tools.h; sourceTree = "<group>"; };
 		71CA4AEB262F236100835C89 /* Tools.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = Tools.mm; path = SquadCal/Tools.mm; sourceTree = "<group>"; };
@@ -105,63 +105,79 @@
 			name = Resources;
 			sourceTree = "<group>";
 		};
-		7173BE9D2627035D0089BF7A /* CommonCpp */ = {
+		71BE84362636A944002849D2 /* cpp */ = {
 			isa = PBXGroup;
 			children = (
-				71CA4A48262D815E00835C89 /* Tools */,
-				7173BE9E2627035D0089BF7A /* NativeModules */,
-				7173BEA82627035D0089BF7A /* DatabaseManagers */,
-				7173BEAF2627035D0089BF7A /* sqlite_orm */,
+				71BE84372636A944002849D2 /* CommonCpp */,
+				71BE84462636A944002849D2 /* lib */,
 			);
-			name = CommonCpp;
-			path = ../CommonCpp;
+			name = cpp;
+			path = ../cpp;
 			sourceTree = "<group>";
 		};
-		7173BE9E2627035D0089BF7A /* NativeModules */ = {
+		71BE84372636A944002849D2 /* CommonCpp */ = {
 			isa = PBXGroup;
 			children = (
-				7173BE9F2627035D0089BF7A /* NativeModules.cpp */,
-				7173BEA02627035D0089BF7A /* CommCoreModule.cpp */,
-				7173BEA12627035D0089BF7A /* NativeModules.h */,
-				7173BEA22627035D0089BF7A /* CommCoreModule.h */,
+				71BE84382636A944002849D2 /* Tools */,
+				71BE843A2636A944002849D2 /* NativeModules */,
+				71BE843F2636A944002849D2 /* DatabaseManagers */,
+			);
+			path = CommonCpp;
+			sourceTree = "<group>";
+		};
+		71BE84382636A944002849D2 /* Tools */ = {
+			isa = PBXGroup;
+			children = (
+				71BE84392636A944002849D2 /* Logger.h */,
+			);
+			path = Tools;
+			sourceTree = "<group>";
+		};
+		71BE843A2636A944002849D2 /* NativeModules */ = {
+			isa = PBXGroup;
+			children = (
+				71BE843B2636A944002849D2 /* NativeModules.cpp */,
+				71BE843C2636A944002849D2 /* CommCoreModule.cpp */,
+				71BE843D2636A944002849D2 /* NativeModules.h */,
+				71BE843E2636A944002849D2 /* CommCoreModule.h */,
 			);
 			path = NativeModules;
 			sourceTree = "<group>";
 		};
-		7173BEA82627035D0089BF7A /* DatabaseManagers */ = {
+		71BE843F2636A944002849D2 /* DatabaseManagers */ = {
 			isa = PBXGroup;
 			children = (
-				7173BEA92627035D0089BF7A /* DatabaseManagerInterface.h */,
-				7173BEAA2627035D0089BF7A /* SQLiteManager.cpp */,
-				7173BEAB2627035D0089BF7A /* SQLiteManager.h */,
-				7173BEAC2627035D0089BF7A /* DatabaseManager.h */,
-				7173BEAD2627035D0089BF7A /* entities */,
+				71BE84402636A944002849D2 /* DatabaseManagerInterface.h */,
+				71BE84412636A944002849D2 /* SQLiteManager.cpp */,
+				71BE84422636A944002849D2 /* SQLiteManager.h */,
+				71BE84432636A944002849D2 /* DatabaseManager.h */,
+				71BE84442636A944002849D2 /* entities */,
 			);
 			path = DatabaseManagers;
 			sourceTree = "<group>";
 		};
-		7173BEAD2627035D0089BF7A /* entities */ = {
+		71BE84442636A944002849D2 /* entities */ = {
 			isa = PBXGroup;
 			children = (
-				7173BEAE2627035D0089BF7A /* Draft.h */,
+				71BE84452636A944002849D2 /* Draft.h */,
 			);
 			path = entities;
 			sourceTree = "<group>";
 		};
-		7173BEAF2627035D0089BF7A /* sqlite_orm */ = {
+		71BE84462636A944002849D2 /* lib */ = {
 			isa = PBXGroup;
 			children = (
-				7173BEB12627035D0089BF7A /* sqlite_orm.h */,
+				71BE84472636A944002849D2 /* sqlite_orm */,
 			);
-			path = sqlite_orm;
+			path = lib;
 			sourceTree = "<group>";
 		};
-		71CA4A48262D815E00835C89 /* Tools */ = {
+		71BE84472636A944002849D2 /* sqlite_orm */ = {
 			isa = PBXGroup;
 			children = (
-				71CA4A49262D815E00835C89 /* Logger.h */,
+				71BE84482636A944002849D2 /* sqlite_orm.h */,
 			);
-			path = Tools;
+			path = sqlite_orm;
 			sourceTree = "<group>";
 		};
 		7FF0870B1E833C3F000A1ACF /* Frameworks */ = {
@@ -177,7 +193,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				7173BE9D2627035D0089BF7A /* CommonCpp */,
+				71BE84362636A944002849D2 /* cpp */,
 				13B07FAE1A68108700A75B9A /* SquadCal */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				6534411766BE4CA4B0AB0A78 /* Resources */,
@@ -412,13 +428,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				71CA4AEC262F236100835C89 /* Tools.mm in Sources */,
-				7173BEB32627035D0089BF7A /* CommCoreModule.cpp in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
+				71BE84492636A944002849D2 /* NativeModules.cpp in Sources */,
 				71CA4A64262DA8E500835C89 /* Logger.mm in Sources */,
+				71BE844A2636A944002849D2 /* CommCoreModule.cpp in Sources */,
 				711B408425DA97F9005F8F06 /* dummy.swift in Sources */,
-				7173BEB22627035D0089BF7A /* NativeModules.cpp in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
-				7173BEB62627035D0089BF7A /* SQLiteManager.cpp in Sources */,
+				71BE844B2636A944002849D2 /* SQLiteManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

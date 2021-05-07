@@ -24,18 +24,18 @@ include_directories(
   ../../node_modules/react-native/ReactCommon/turbomodule/core
   # sqlite code
   ../../node_modules/@nozbe/sqlite/sqlite-amalgamation-3310100
-  ../../CommonCpp/sqlite_orm
+  ../../cpp/lib/sqlite_orm
   # comm android specific code
   ./src/cpp
   # comm native mutual code
-  ../../CommonCpp/NativeModules
-  ../../CommonCpp/DatabaseManagers
-  ../../CommonCpp/Tools
+  ../../cpp/CommonCpp/NativeModules
+  ../../cpp/CommonCpp/DatabaseManagers
+  ../../cpp/CommonCpp/Tools
 )
 
 # search for all cpp files in this directory
 file(GLOB SQLITE "../../node_modules/@nozbe/sqlite/sqlite-amalgamation-3310100/*.c")
-file(GLOB COMMON_NATIVE_CODE "../../CommonCpp/**/*.cpp")
+file(GLOB COMMON_NATIVE_CODE "../../cpp/CommonCpp/**/*.cpp")
 file(GLOB ANDROID_NATIVE_CODE "./src/cpp/*.cpp")
 
 add_library(

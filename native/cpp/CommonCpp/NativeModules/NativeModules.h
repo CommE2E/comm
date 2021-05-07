@@ -22,9 +22,9 @@ protected:
   CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker);
 
 public:
-virtual jsi::String getDraft(jsi::Runtime &rt, const jsi::String &threadID) = 0;
-virtual bool updateDraft(jsi::Runtime &rt, const jsi::Object &draft) = 0;
-
+  virtual jsi::String
+  getDraft(jsi::Runtime &rt, const jsi::String &threadID) = 0;
+  virtual bool updateDraft(jsi::Runtime &rt, const jsi::Object &draft) = 0;
 };
 
 } // namespace react

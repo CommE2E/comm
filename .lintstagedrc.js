@@ -3,10 +3,15 @@ const { CLIEngine } = require('eslint');
 const cli = new CLIEngine({});
 
 module.exports = {
-  '*.{js,mjs,cjs}': (files) =>
-    'eslint --cache --fix --max-warnings=0 ' +
-    files.filter((file) => !cli.isPathIgnored(file)).join(' '),
-  '*.{css,html,md,json}': 'prettier --write',
+  '*.{js,mjs,cjs}': function eslint(files) {
+    return (
+      'eslint --cache --fix --max-warnings=0 ' +
+      files.filter((file) => !cli.isPathIgnored(file)).join(' ')
+    );
+  },
+  '*.{css,html,md,json}': function prettier(files) {
+    return 'prettier --write ' + files.join(' ');
+  },
   'lib/**/*.js': function libFlow(files) {
     return 'yarn workspace lib flow --quiet';
   },
@@ -21,5 +26,8 @@ module.exports = {
   },
   '{landing,lib}/**/*.js': function serverFlow(files) {
     return 'yarn workspace landing flow --quiet';
+  },
+  'native/**/*.{h,cpp}': function clangFormat(files) {
+    return 'clang-format -i ' + files.join(' ');
   },
 };
