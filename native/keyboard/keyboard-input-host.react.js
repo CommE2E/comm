@@ -64,10 +64,11 @@ class KeyboardInputHost extends React.PureComponent<Props> {
     keyboardName: string,
     selections: $ReadOnlyArray<MediaLibrarySelection>,
   ) => {
-    const { keyboardState, getServerThreadID } = this.props;
+    const { keyboardState } = this.props;
     keyboardState.dismissKeyboard();
-    const mediaGalleryThreadID = await getServerThreadID();
-    if (mediaGalleryThreadID === null || mediaGalleryThreadID === undefined) {
+    const mediaGalleryThread = keyboardState.getMediaGalleryThread()
+      ?.threadInfo;
+    if (!mediaGalleryThread) {
       return;
     }
 
@@ -76,7 +77,7 @@ class KeyboardInputHost extends React.PureComponent<Props> {
       inputState,
       'inputState should be set in onMediaGalleryItemSelected',
     );
-    inputState.sendMultimediaMessage(mediaGalleryThreadID, selections);
+    inputState.sendMultimediaMessage(selections, mediaGalleryThread);
   };
 
   hideMediaGallery = () => {

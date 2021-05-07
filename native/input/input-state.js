@@ -29,8 +29,8 @@ export type InputState = {|
     threadInfo: ThreadInfo,
   ) => Promise<void>,
   +sendMultimediaMessage: (
-    threadID: string,
     selections: $ReadOnlyArray<NativeMediaSelection>,
+    threadInfo: ThreadInfo,
   ) => Promise<void>,
   +addReply: (text: string) => void,
   +addReplyListener: ((message: string) => void) => void,

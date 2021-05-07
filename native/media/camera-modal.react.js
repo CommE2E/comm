@@ -929,8 +929,7 @@ class CameraModal extends React.PureComponent<Props, State> {
 
   sendPhoto = async () => {
     const { pendingPhotoCapture } = this.state;
-    const threadID = await this.props.getServerThreadID();
-    if (!pendingPhotoCapture || !threadID) {
+    if (!pendingPhotoCapture) {
       return;
     }
 
@@ -945,7 +944,10 @@ class CameraModal extends React.PureComponent<Props, State> {
 
     const { inputState } = this.props;
     invariant(inputState, 'inputState should be set');
-    inputState.sendMultimediaMessage(threadID, [capture]);
+    inputState.sendMultimediaMessage(
+      [capture],
+      this.props.route.params.thread.threadInfo,
+    );
   };
 
   clearPendingImage = () => {
