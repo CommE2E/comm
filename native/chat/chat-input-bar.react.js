@@ -19,7 +19,11 @@ import FAIcon from 'react-native-vector-icons/FontAwesome';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useDispatch } from 'react-redux';
 
-import { joinThreadActionTypes, joinThread } from 'lib/actions/thread-actions';
+import {
+  joinThreadActionTypes,
+  joinThread,
+  newThreadActionTypes,
+} from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { localIDPrefix, trimMessage } from 'lib/shared/message-utils';
 import {
@@ -108,6 +112,7 @@ type Props = {|
   +viewerID: ?string,
   +draft: string,
   +joinThreadLoadingStatus: LoadingStatus,
+  +threadCreationInProgress: boolean,
   +calendarQuery: () => CalendarQuery,
   +nextLocalID: number,
   +userInfos: UserInfos,
@@ -358,7 +363,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       threadPermissions.JOIN_THREAD,
     );
     let joinButton = null;
-    if (!isMember && canJoin) {
+    if (!isMember && canJoin && !this.props.threadCreationInProgress) {
       let buttonContent;
       if (this.props.joinThreadLoadingStatus === 'loading') {
         buttonContent = (
@@ -387,7 +392,26 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     }
 
     let content;
-    if (threadHasPermission(this.props.threadInfo, threadPermissions.VOICED)) {
+    const defaultRoleID = Object.keys(this.props.threadInfo.roles).find(
+      (roleID) => this.props.threadInfo.roles[roleID].isDefault,
+    );
+    invariant(
+      defaultRoleID !== undefined,
+      'all threads should have a default role',
+    );
+    const defaultRole = this.props.threadInfo.roles[defaultRoleID];
+    const defaultMembersAreVoiced = !!defaultRole.permissions[
+      threadPermissions.VOICED
+    ];
+    // If the thread is created by somebody else while the viewer is attempting to
+    // create it, the threadInfo might be modified in-place and won't list the
+    // viewer as a member, which will end up hiding the input. In this case, we will
+    // assume that our creation action will get translated into a join, and as long
+    // as members are voiced, we can show the input.
+    if (
+      threadHasPermission(this.props.threadInfo, threadPermissions.VOICED) ||
+      (this.props.threadCreationInProgress && defaultMembersAreVoiced)
+    ) {
       content = this.renderInput();
     } else if (
       threadFrozenDueToViewerBlock(
@@ -408,31 +432,18 @@ class ChatInputBar extends React.PureComponent<Props, State> {
           You don&apos;t have permission to send messages.
         </Text>
       );
+    } else if (defaultMembersAreVoiced && canJoin) {
+      content = (
+        <Text style={this.props.styles.explanation}>
+          Join this thread to send messages.
+        </Text>
+      );
     } else {
-      const defaultRoleID = Object.keys(this.props.threadInfo.roles).find(
-        (roleID) => this.props.threadInfo.roles[roleID].isDefault,
+      content = (
+        <Text style={this.props.styles.explanation}>
+          You don&apos;t have permission to send messages.
+        </Text>
       );
-      invariant(
-        defaultRoleID !== undefined,
-        'all threads should have a default role',
-      );
-      const defaultRole = this.props.threadInfo.roles[defaultRoleID];
-      const membersAreVoiced = !!defaultRole.permissions[
-        threadPermissions.VOICED
-      ];
-      if (membersAreVoiced && canJoin) {
-        content = (
-          <Text style={this.props.styles.explanation}>
-            Join this thread to send messages.
-          </Text>
-        );
-      } else {
-        content = (
-          <Text style={this.props.styles.explanation}>
-            You don&apos;t have permission to send messages.
-          </Text>
-        );
-      }
     }
 
     const keyboardInputHost =
@@ -754,6 +765,9 @@ const unboundStyles = {
 const joinThreadLoadingStatusSelector = createLoadingStatusSelector(
   joinThreadActionTypes,
 );
+const createThreadLoadingStatusSelector = createLoadingStatusSelector(
+  newThreadActionTypes,
+);
 
 export default React.memo<BaseProps>(function ConnectedChatInputBar(
   props: BaseProps,
@@ -781,6 +795,10 @@ export default React.memo<BaseProps>(function ConnectedChatInputBar(
     (state) => state.currentUserInfo && state.currentUserInfo.id,
   );
   const joinThreadLoadingStatus = useSelector(joinThreadLoadingStatusSelector);
+  const createThreadLoadingStatus = useSelector(
+    createThreadLoadingStatusSelector,
+  );
+  const threadCreationInProgress = createThreadLoadingStatus === 'loading';
   const calendarQuery = useSelector((state) =>
     nonThreadCalendarQuery({
       redux: state,
@@ -836,6 +854,7 @@ export default React.memo<BaseProps>(function ConnectedChatInputBar(
       viewerID={viewerID}
       draft={draft}
       joinThreadLoadingStatus={joinThreadLoadingStatus}
+      threadCreationInProgress={threadCreationInProgress}
       calendarQuery={calendarQuery}
       nextLocalID={nextLocalID}
       userInfos={userInfos}
