@@ -31,6 +31,7 @@ import {
   viewerIsMember,
   threadFrozenDueToViewerBlock,
   threadActualMembers,
+  checkIfDefaultMembersAreVoiced,
 } from 'lib/shared/thread-utils';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
@@ -392,22 +393,14 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     }
 
     let content;
-    const defaultRoleID = Object.keys(this.props.threadInfo.roles).find(
-      (roleID) => this.props.threadInfo.roles[roleID].isDefault,
-    );
-    invariant(
-      defaultRoleID !== undefined,
-      'all threads should have a default role',
-    );
-    const defaultRole = this.props.threadInfo.roles[defaultRoleID];
-    const defaultMembersAreVoiced = !!defaultRole.permissions[
-      threadPermissions.VOICED
-    ];
     // If the thread is created by somebody else while the viewer is attempting to
     // create it, the threadInfo might be modified in-place and won't list the
     // viewer as a member, which will end up hiding the input. In this case, we will
     // assume that our creation action will get translated into a join, and as long
     // as members are voiced, we can show the input.
+    const defaultMembersAreVoiced = checkIfDefaultMembersAreVoiced(
+      this.props.threadInfo,
+    );
     if (
       threadHasPermission(this.props.threadInfo, threadPermissions.VOICED) ||
       (this.props.threadCreationInProgress && defaultMembersAreVoiced)
