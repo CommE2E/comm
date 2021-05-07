@@ -30,7 +30,10 @@ import {
 } from 'lib/actions/upload-actions';
 import { getNextLocalUploadID } from 'lib/media/media-utils';
 import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors';
-import { createMediaMessageInfo } from 'lib/shared/message-utils';
+import {
+  createMediaMessageInfo,
+  localIDPrefix,
+} from 'lib/shared/message-utils';
 import {
   createRealThreadFromPendingThread,
   threadIsPending,
@@ -165,7 +168,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       for (const localUploadID in pendingUploads) {
         const upload = pendingUploads[localUploadID];
         const { messageID, serverID, failed } = upload;
-        if (!messageID || !messageID.startsWith('local')) {
+        if (!messageID || !messageID.startsWith(localIDPrefix)) {
           continue;
         }
         if (!serverID || failed) {
@@ -211,7 +214,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         const { messageID } = upload;
         if (
           !messageID ||
-          !messageID.startsWith('local') ||
+          !messageID.startsWith(localIDPrefix) ||
           previouslyAssignedMessageIDs.has(messageID)
         ) {
           continue;
@@ -798,7 +801,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           `missing while assigning URI`,
       );
       const { messageID } = currentUpload;
-      if (messageID && !messageID.startsWith('local')) {
+      if (messageID && !messageID.startsWith(localIDPrefix)) {
         const newPendingUploads = _omit([localID])(uploads);
         return {
           pendingUploads: {
@@ -1024,7 +1027,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   // Creates a MultimediaMessage from the unassigned pending uploads,
   // if there are any
   createMultimediaMessage(localID: number, threadInfo: ThreadInfo) {
-    const localMessageID = `local${localID}`;
+    const localMessageID = `${localIDPrefix}${localID}`;
     this.startThreadCreation(threadInfo);
 
     this.setState((prevState) => {

@@ -21,7 +21,7 @@ import { useDispatch } from 'react-redux';
 
 import { joinThreadActionTypes, joinThread } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { trimMessage } from 'lib/shared/message-utils';
+import { localIDPrefix, trimMessage } from 'lib/shared/message-utils';
 import {
   threadHasPermission,
   viewerIsMember,
@@ -580,7 +580,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       return;
     }
 
-    const localID = `local${this.props.nextLocalID}`;
+    const localID = `${localIDPrefix}${this.props.nextLocalID}`;
     const creatorID = this.props.viewerID;
     invariant(creatorID, 'should have viewer ID in order to send a message');
     invariant(

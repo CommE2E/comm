@@ -17,7 +17,7 @@ import type {
 } from 'react-native/Libraries/Lists/FlatList';
 
 import type { ChatMessageItem } from 'lib/selectors/chat-selectors';
-import { messageKey } from 'lib/shared/message-utils';
+import { localIDPrefix, messageKey } from 'lib/shared/message-utils';
 
 import {
   type KeyboardState,
@@ -161,7 +161,7 @@ class ChatList extends React.PureComponent<Props, State> {
           break;
         }
 
-        if (curItemKey.startsWith('local')) {
+        if (curItemKey.startsWith(localIDPrefix)) {
           newLocalMessage = true;
         } else if (
           curItem.itemType === 'message' &&

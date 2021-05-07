@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import _difference from 'lodash/fp/difference';
 import _max from 'lodash/fp/max';
 
+import { localIDPrefix } from 'lib/shared/message-utils';
 import type {
   UpdateActivityResult,
   UpdateActivityRequest,
@@ -109,7 +110,8 @@ async function activityUpdater(
       focusUpdates
         .filter(
           (update) =>
-            update.latestMessage && !update.latestMessage.startsWith('local'),
+            update.latestMessage &&
+            !update.latestMessage.startsWith(localIDPrefix),
         )
         .map((update) => parseInt(update.latestMessage)),
     );

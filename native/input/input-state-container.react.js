@@ -29,7 +29,10 @@ import {
   createLoadingStatusSelector,
   combineLoadingStatuses,
 } from 'lib/selectors/loading-selectors';
-import { createMediaMessageInfo } from 'lib/shared/message-utils';
+import {
+  createMediaMessageInfo,
+  localIDPrefix,
+} from 'lib/shared/message-utils';
 import {
   createRealThreadFromPendingThread,
   threadIsPending,
@@ -431,7 +434,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     selections: $ReadOnlyArray<NativeMediaSelection>,
   ) => {
     this.sendCallbacks.forEach((callback) => callback());
-    const localMessageID = `local${this.props.nextLocalID}`;
+    const localMessageID = `${localIDPrefix}${this.props.nextLocalID}`;
 
     const uploadFileInputs = [],
       media = [];
