@@ -1,11 +1,7 @@
 #include "CommCoreModule.h"
 #include "DatabaseManager.h"
 
-#if ANDROID
-#include <TurboModuleUtils.h>
-#else
-#include <ReactCommon/TurboModuleUtils.h>
-#endif
+#include "Promise.h"
 
 namespace comm {
 
