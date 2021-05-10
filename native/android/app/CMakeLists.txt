@@ -25,6 +25,8 @@ include_directories(
   # sqlite code
   ../../node_modules/@nozbe/sqlite/sqlite-amalgamation-3310100
   ../../cpp/lib/sqlite_orm
+  # folly
+  ./build/third-party-ndk/folly
   # comm android specific code
   ./src/cpp
   # comm native mutual code
@@ -47,10 +49,20 @@ add_library(
   ../../node_modules/react-native/ReactCommon/jsi/jsi/jsi.cpp
   ../../node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/turbomodule/core/jni/ReactCommon/CallInvokerHolder.cpp
   ../../node_modules/react-native/ReactCommon/turbomodule/core/TurboModule.cpp
+  ../../node_modules/react-native/ReactCommon/turbomodule/core/LongLivedObject.cpp
+  ../../node_modules/react-native/ReactCommon/turbomodule/core/TurboModuleUtils.cpp
   ${SQLITE}
   # comm code
   ${ANDROID_NATIVE_CODE}
   ${COMMON_NATIVE_CODE}
+)
+
+add_definitions(
+  -DFOLLY_NO_CONFIG=1
+  -DFOLLY_HAVE_CLOCK_GETTIME=1
+  -DFOLLY_HAVE_MEMRCHR=1
+  -DFOLLY_USE_LIBCPP=1
+  -DFOLLY_MOBILE=1
 )
 
 find_library(log-lib log)

@@ -1,6 +1,7 @@
 apply plugin: "com.android.application"
 
 import com.android.build.OutputFile
+import de.undercouch.gradle.tasks.download.Download
 
 /**
  * The react.gradle file registers a task for each build variant (e.g. bundleDebugJsAndAssets
@@ -120,6 +121,39 @@ def jscFlavor = 'org.webkit:android-jsc:+'
  * and the benefits of using Hermes will therefore be sharply reduced.
  */
 def enableHermes = project.ext.react.get("enableHermes", false);
+
+/**
+ * Folly
+ */
+def customDownloadsDir = System.getenv("REACT_NATIVE_DOWNLOADS_DIR")
+def dependenciesPath = System.getenv("REACT_NATIVE_DEPENDENCIES")
+def downloadsDir = customDownloadsDir ? new File(customDownloadsDir) : new File("$buildDir/downloads")
+def thirdPartyNdkDir = new File("$buildDir/third-party-ndk")
+
+task createNativeDepsDirectories {
+    downloadsDir.mkdirs()
+    thirdPartyNdkDir.mkdirs()
+}
+
+task downloadFolly(dependsOn: createNativeDepsDirectories, type: Download) {
+    src("https://github.com/facebook/folly/archive/v${FOLLY_VERSION}.tar.gz")
+    onlyIfNewer(true)
+    overwrite(true)
+    dest(new File(downloadsDir, "folly-${FOLLY_VERSION}.tar.gz"))
+}
+
+task prepareFolly(dependsOn: dependenciesPath ? [] : [downloadFolly], type: Copy) {
+    from(dependenciesPath ?: tarTree(downloadFolly.dest))
+    from("./node_modules/react-native/ReactAndroid/src/main/jni/third-party/folly/")
+    include("folly-${FOLLY_VERSION}/folly/**/*", "Android.mk")
+    eachFile { fname -> fname.path = (fname.path - "folly-${FOLLY_VERSION}/") }
+    includeEmptyDirs = false
+    into("$thirdPartyNdkDir/folly")
+}
+
+afterEvaluate {
+  preBuild.dependsOn(prepareFolly)
+}
 
 android {
     buildFeatures {
