@@ -18,6 +18,7 @@ public:
   std::string getDraft(jsi::Runtime &rt, std::string key) const override;
   void updateDraft(jsi::Runtime &rt, std::string key, std::string text)
       const override;
+  std::vector<Draft> getAllDrafts(jsi::Runtime &rt) const override;
 };
 
 } // namespace comm

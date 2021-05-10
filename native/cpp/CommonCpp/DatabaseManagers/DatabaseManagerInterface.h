@@ -1,5 +1,7 @@
 #pragma once
 
+#include "entities/Draft.h"
+
 #include <jsi/jsi.h>
 #include <string>
 
@@ -18,6 +20,7 @@ public:
   virtual std::string getDraft(jsi::Runtime &rt, std::string key) const = 0;
   virtual void
   updateDraft(jsi::Runtime &rt, std::string key, std::string text) const = 0;
+  virtual std::vector<Draft> getAllDrafts(jsi::Runtime &rt) const = 0;
 };
 
 } // namespace comm

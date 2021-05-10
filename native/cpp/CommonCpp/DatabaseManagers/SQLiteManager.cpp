@@ -62,4 +62,8 @@ void SQLiteManager::updateDraft(
   SQLiteManager::getStorage().replace(draft);
 }
 
+std::vector<Draft> SQLiteManager::getAllDrafts(jsi::Runtime &rt) const {
+  return SQLiteManager::getStorage().get_all<Draft>();
+}
+
 } // namespace comm

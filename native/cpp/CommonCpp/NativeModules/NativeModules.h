@@ -24,6 +24,7 @@ protected:
 public:
   virtual jsi::String getDraft(jsi::Runtime &rt, const jsi::String &key) = 0;
   virtual bool updateDraft(jsi::Runtime &rt, const jsi::Object &draft) = 0;
+  virtual jsi::Array getAllDrafts(jsi::Runtime &rt) = 0;
 };
 
 } // namespace react
