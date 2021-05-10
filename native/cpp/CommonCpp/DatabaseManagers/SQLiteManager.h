@@ -2,13 +2,10 @@
 
 #include "DatabaseManagerInterface.h"
 #include "entities/Draft.h"
-#include "sqlite_orm.h"
 
 #include <string>
 
 namespace comm {
-
-using namespace sqlite_orm;
 
 class SQLiteManager : public DatabaseManagerInterface {
   static auto getStorage();

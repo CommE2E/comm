@@ -1,8 +1,12 @@
 #include "SQLiteManager.h"
+#include "sqlite_orm.h"
+
 #include <memory>
 #include <string>
 
 namespace comm {
+
+using namespace sqlite_orm;
 
 std::string SQLiteManager::sqliteFilePath;
 
