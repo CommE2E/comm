@@ -200,7 +200,7 @@ const migrations = {
     for (const key in state.drafts) {
       const value = state.drafts[key];
       global.CommCoreModule.updateDraft({
-        threadID: key,
+        key,
         text: value,
       });
     }

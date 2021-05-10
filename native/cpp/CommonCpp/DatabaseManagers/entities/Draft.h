@@ -5,7 +5,7 @@
 namespace comm {
 
 struct Draft {
-  std::string threadID;
+  std::string key;
   std::string text;
 };
 

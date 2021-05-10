@@ -14,8 +14,8 @@ public:
   static std::string sqliteFilePath;
 
   SQLiteManager();
-  std::string getDraft(jsi::Runtime &rt, std::string threadID) const override;
-  void updateDraft(jsi::Runtime &rt, std::string threadID, std::string text)
+  std::string getDraft(jsi::Runtime &rt, std::string key) const override;
+  void updateDraft(jsi::Runtime &rt, std::string key, std::string text)
       const override;
 };
 

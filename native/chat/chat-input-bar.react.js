@@ -546,7 +546,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   saveDraft = _throttle((text) => {
     global.CommCoreModule.updateDraft({
-      threadID: draftKeyFromThreadID(this.props.threadInfo.id),
+      key: draftKeyFromThreadID(this.props.threadInfo.id),
       text,
     });
   }, 400);

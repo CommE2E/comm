@@ -15,12 +15,9 @@ namespace jsi = facebook::jsi;
  */
 class DatabaseManagerInterface {
 public:
-  virtual std::string
-  getDraft(jsi::Runtime &rt, std::string threadID) const = 0;
-  virtual void updateDraft(
-      jsi::Runtime &rt,
-      std::string threadID,
-      std::string text) const = 0;
+  virtual std::string getDraft(jsi::Runtime &rt, std::string key) const = 0;
+  virtual void
+  updateDraft(jsi::Runtime &rt, std::string key, std::string text) const = 0;
 };
 
 } // namespace comm

@@ -8,7 +8,7 @@ namespace comm {
 namespace jsi = facebook::jsi;
 
 class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
-  jsi::String getDraft(jsi::Runtime &rt, const jsi::String &threadID) override;
+  jsi::String getDraft(jsi::Runtime &rt, const jsi::String &key) override;
   bool updateDraft(jsi::Runtime &rt, const jsi::Object &draft) override;
 
 public:

@@ -15,7 +15,7 @@ auto SQLiteManager::getStorage() {
       SQLiteManager::sqliteFilePath,
       make_table(
           "drafts",
-          make_column("threadID", &Draft::threadID, unique(), primary_key()),
+          make_column("threadID", &Draft::key, unique(), primary_key()),
           make_column("text", &Draft::text)));
   return storage;
 }
@@ -24,18 +24,17 @@ SQLiteManager::SQLiteManager() {
   SQLiteManager::getStorage().sync_schema(true);
 }
 
-std::string
-SQLiteManager::getDraft(jsi::Runtime &rt, std::string threadID) const {
+std::string SQLiteManager::getDraft(jsi::Runtime &rt, std::string key) const {
   std::unique_ptr<Draft> draft =
-      SQLiteManager::getStorage().get_pointer<Draft>(threadID);
+      SQLiteManager::getStorage().get_pointer<Draft>(key);
   return (draft == nullptr) ? "" : draft->text;
 }
 
 void SQLiteManager::updateDraft(
     jsi::Runtime &rt,
-    std::string threadID,
+    std::string key,
     std::string text) const {
-  Draft draft = {threadID, text};
+  Draft draft = {key, text};
   SQLiteManager::getStorage().replace(draft);
 }
 
