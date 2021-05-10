@@ -21,10 +21,11 @@ include_directories(
   ../../node_modules/react-native/ReactCommon/jsi
   ../../node_modules/react-native/ReactCommon/callinvoker
   ../../node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/turbomodule/core/jni/ReactCommon
-  ../../node_modules/react-native/ReactCommon/turbomodule/core
   # sqlite code
   ../../node_modules/@nozbe/sqlite/sqlite-amalgamation-3310100
   ../../cpp/lib/sqlite_orm
+  # symlinked React Native headers
+  ../headers
   # folly
   ./build/third-party-ndk/folly
   # comm android specific code
