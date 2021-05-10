@@ -54,7 +54,7 @@
     "is-svg": "^4.2.2",
     "isomorphic-fetch": "^2.2.1",
     "lib": "0.0.1",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "react": "16.13.1",
     "react-circular-progressbar": "^2.0.2",
     "react-color": "^2.13.0",
