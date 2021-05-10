@@ -8,6 +8,7 @@
 namespace comm {
 
 class SQLiteManager : public DatabaseManagerInterface {
+  void migrate();
   static auto getStorage();
 
 public:
