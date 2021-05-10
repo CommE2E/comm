@@ -41,6 +41,7 @@ import Socket from './socket.react';
 import { DarkTheme, LightTheme } from './themes/navigation';
 import ThemeHandler from './themes/theme-handler.react';
 import './themes/fonts';
+import './data/core-module-shim';
 
 LogBox.ignoreLogs([
   // react-native-reanimated
@@ -50,13 +51,6 @@ LogBox.ignoreLogs([
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental &&
     UIManager.setLayoutAnimationEnabledExperimental(true);
-}
-
-if (!global.CommCoreModule) {
-  global.CommCoreModule = {
-    getDraft: () => '',
-    updateDraft: () => {},
-  };
 }
 
 const navInitAction = Object.freeze({ type: 'NAV/@@INIT' });
