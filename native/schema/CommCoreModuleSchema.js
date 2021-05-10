@@ -13,7 +13,7 @@ type Draft = {|
 export interface Spec extends TurboModule {
   +getDraft: (key: string) => string;
   +updateDraft: (draft: Draft) => boolean;
-  +getAllDrafts: () => $ReadOnlyArray<Draft>;
+  +getAllDrafts: () => Promise<$ReadOnlyArray<Draft>>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('CommTurboModule');

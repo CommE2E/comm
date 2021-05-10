@@ -1,7 +1,15 @@
 #include "CommCoreModule.h"
 #include "DatabaseManager.h"
 
+#if ANDROID
+#include <TurboModuleUtils.h>
+#else
+#include <ReactCommon/TurboModuleUtils.h>
+#endif
+
 namespace comm {
+
+using namespace facebook::react;
 
 jsi::String CommCoreModule::getDraft(jsi::Runtime &rt, const jsi::String &key) {
   std::string keyStr = key.utf8(rt);
@@ -16,26 +24,29 @@ bool CommCoreModule::updateDraft(jsi::Runtime &rt, const jsi::Object &draft) {
   return true;
 }
 
-jsi::Array CommCoreModule::getAllDrafts(jsi::Runtime &rt) {
-  auto draftsVector = DatabaseManager::getInstance().getAllDrafts();
+jsi::Value CommCoreModule::getAllDrafts(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        auto draftsVector = DatabaseManager::getInstance().getAllDrafts();
 
-  size_t numDrafts =
-      count_if(draftsVector.begin(), draftsVector.end(), [](Draft draft) {
-        return !draft.text.empty();
+        size_t numDrafts =
+            count_if(draftsVector.begin(), draftsVector.end(), [](Draft draft) {
+              return !draft.text.empty();
+            });
+        jsi::Array jsiDrafts = jsi::Array(innerRt, numDrafts);
+
+        size_t writeIndex = 0;
+        for (Draft draft : draftsVector) {
+          if (draft.text.empty()) {
+            continue;
+          }
+          auto jsiDraft = jsi::Object(innerRt);
+          jsiDraft.setProperty(innerRt, "key", draft.key);
+          jsiDraft.setProperty(innerRt, "text", draft.text);
+          jsiDrafts.setValueAtIndex(innerRt, writeIndex++, jsiDraft);
+        }
+        promise->resolve(std::move(jsiDrafts));
       });
-  jsi::Array jsiDrafts = jsi::Array(rt, numDrafts);
-
-  size_t writeIndex = 0;
-  for (Draft draft : draftsVector) {
-    if (draft.text.empty()) {
-      continue;
-    }
-    auto jsiDraft = jsi::Object(rt);
-    jsiDraft.setProperty(rt, "key", draft.key);
-    jsiDraft.setProperty(rt, "text", draft.text);
-    jsiDrafts.setValueAtIndex(rt, writeIndex++, jsiDraft);
-  }
-  return jsiDrafts;
 }
 
 } // namespace comm

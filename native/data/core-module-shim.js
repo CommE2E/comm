@@ -4,6 +4,6 @@ if (!global.CommCoreModule) {
   global.CommCoreModule = {
     getDraft: () => '',
     updateDraft: () => {},
-    getAllDrafts: () => [],
+    getAllDrafts: () => Promise.resolve([]),
   };
 }
