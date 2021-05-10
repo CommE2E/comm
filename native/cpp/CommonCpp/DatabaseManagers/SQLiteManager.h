@@ -15,10 +15,9 @@ public:
   static std::string sqliteFilePath;
 
   SQLiteManager();
-  std::string getDraft(jsi::Runtime &rt, std::string key) const override;
-  void updateDraft(jsi::Runtime &rt, std::string key, std::string text)
-      const override;
-  std::vector<Draft> getAllDrafts(jsi::Runtime &rt) const override;
+  std::string getDraft(std::string key) const override;
+  void updateDraft(std::string key, std::string text) const override;
+  std::vector<Draft> getAllDrafts() const override;
 };
 
 } // namespace comm

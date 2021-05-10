@@ -48,21 +48,18 @@ SQLiteManager::SQLiteManager() {
   SQLiteManager::getStorage().sync_schema(true);
 }
 
-std::string SQLiteManager::getDraft(jsi::Runtime &rt, std::string key) const {
+std::string SQLiteManager::getDraft(std::string key) const {
   std::unique_ptr<Draft> draft =
       SQLiteManager::getStorage().get_pointer<Draft>(key);
   return (draft == nullptr) ? "" : draft->text;
 }
 
-void SQLiteManager::updateDraft(
-    jsi::Runtime &rt,
-    std::string key,
-    std::string text) const {
+void SQLiteManager::updateDraft(std::string key, std::string text) const {
   Draft draft = {key, text};
   SQLiteManager::getStorage().replace(draft);
 }
 
-std::vector<Draft> SQLiteManager::getAllDrafts(jsi::Runtime &rt) const {
+std::vector<Draft> SQLiteManager::getAllDrafts() const {
   return SQLiteManager::getStorage().get_all<Draft>();
 }
 
