@@ -31,7 +31,6 @@ include_directories(
   ../../cpp/CommonCpp/NativeModules
   ../../cpp/CommonCpp/DatabaseManagers
   ../../cpp/CommonCpp/Tools
-  ../../cpp/CommonCpp/Utils
 )
 
 # search for all cpp files in this directory
@@ -48,7 +47,6 @@ add_library(
   ../../node_modules/react-native/ReactCommon/jsi/jsi/jsi.cpp
   ../../node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/turbomodule/core/jni/ReactCommon/CallInvokerHolder.cpp
   ../../node_modules/react-native/ReactCommon/turbomodule/core/TurboModule.cpp
-  ../../node_modules/react-native/ReactCommon/turbomodule/core/LongLivedObject.cpp
   ${SQLITE}
   # comm code
   ${ANDROID_NATIVE_CODE}
