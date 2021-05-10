@@ -59,7 +59,7 @@
     "find-root": "^1.1.0",
     "invariant": "^2.2.4",
     "lib": "0.0.1",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "lottie-ios": "3.1.8",
     "lottie-react-native": "^4.0.2",
     "md5": "^2.2.1",
