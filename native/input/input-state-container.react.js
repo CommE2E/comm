@@ -132,7 +132,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   sendCallbacks: Array<() => void> = [];
   activeURIs = new Map();
   replyCallbacks: Array<(message: string) => void> = [];
-  pendingThreadCreations = new Map<string, Promise<?string>>();
+  pendingThreadCreations = new Map<string, Promise<string>>();
 
   static getCompletedUploads(props: Props, state: State): CompletedUploads {
     const completedUploads = {};
@@ -280,11 +280,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         throw new Error('Thread creation failed');
       }
       newThreadID = await threadCreationPromise;
-      invariant(
-        newThreadID,
-        'createRealThreadFromPendingThread should return thread id or throw ' +
-          'an exception when handleError argument is not provided',
-      );
     } catch (e) {
       const copy = cloneError(e);
       copy.localID = messageInfo.localID;
@@ -430,13 +425,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   async createRealizedThread(threadInfo: ThreadInfo): Promise<string> {
     try {
-      const newThreadID = await this.startThreadCreation(threadInfo);
-      invariant(
-        newThreadID,
-        'createRealThreadFromPendingThread should return thread id or throw ' +
-          'an exception when handleError argument is not provided',
-      );
-      return newThreadID;
+      return this.startThreadCreation(threadInfo);
     } finally {
       // The promise is settled so we can clean the map to avoid a memory leak
       // and allow retries
@@ -444,7 +433,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
   }
 
-  async startThreadCreation(threadInfo: ThreadInfo): Promise<?string> {
+  async startThreadCreation(threadInfo: ThreadInfo): Promise<string> {
     if (!threadIsPending(threadInfo.id)) {
       return threadInfo.id;
     }
