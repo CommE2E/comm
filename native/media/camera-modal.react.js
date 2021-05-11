@@ -31,7 +31,7 @@ import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils';
 import type { PhotoCapture } from 'lib/types/media-types';
 import type { Dispatch } from 'lib/types/redux-types';
-import type { OptimisticThreadInfo } from 'lib/types/thread-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 
 import ContentLoading from '../components/content-loading.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
@@ -217,7 +217,7 @@ function runIndicatorAnimation(
 
 export type CameraModalParams = {|
   +presentedFrom: string,
-  +thread: OptimisticThreadInfo,
+  +thread: ThreadInfo,
 |};
 
 type TouchableOpacityInstance = React.AbstractComponent<
@@ -941,10 +941,7 @@ class CameraModal extends React.PureComponent<Props, State> {
 
     const { inputState } = this.props;
     invariant(inputState, 'inputState should be set');
-    inputState.sendMultimediaMessage(
-      [capture],
-      this.props.route.params.thread.threadInfo,
-    );
+    inputState.sendMultimediaMessage([capture], this.props.route.params.thread);
   };
 
   clearPendingImage = () => {
