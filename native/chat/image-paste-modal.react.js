@@ -6,7 +6,7 @@ import { Button, View, Image } from 'react-native';
 import filesystem from 'react-native-fs';
 
 import type { PhotoPaste } from 'lib/types/media-types';
-import type { OptimisticThreadInfo } from 'lib/types/thread-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import sleep from 'lib/utils/sleep';
 
 import Modal from '../components/modal.react';
@@ -17,7 +17,7 @@ import { useStyles } from '../themes/colors';
 
 export type ImagePasteModalParams = {|
   +imagePasteStagingInfo: PhotoPaste,
-  +thread: OptimisticThreadInfo,
+  +thread: ThreadInfo,
 |};
 
 type Props = {|
@@ -30,7 +30,7 @@ function ImagePasteModal(props: Props) {
   const {
     navigation,
     route: {
-      params: { imagePasteStagingInfo, thread },
+      params: { imagePasteStagingInfo, thread: threadInfo },
     },
   } = props;
 
@@ -38,12 +38,12 @@ function ImagePasteModal(props: Props) {
     navigation.goBackOnce();
     const selection: $ReadOnlyArray<PhotoPaste> = [imagePasteStagingInfo];
     invariant(inputState, 'inputState should be set in ImagePasteModal');
-    await inputState.sendMultimediaMessage(selection, thread.threadInfo);
+    await inputState.sendMultimediaMessage(selection, threadInfo);
     invariant(
       imagePasteStagingInfo,
       'imagePasteStagingInfo should be set in ImagePasteModal',
     );
-  }, [imagePasteStagingInfo, inputState, navigation, thread]);
+  }, [imagePasteStagingInfo, inputState, navigation, threadInfo]);
 
   const cancel = React.useCallback(async () => {
     navigation.goBackOnce();

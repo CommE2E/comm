@@ -815,14 +815,11 @@ export default React.memo<BaseProps>(function ConnectedChatInputBar(
         name: ImagePasteModalRouteName,
         params: {
           imagePasteStagingInfo: pastedImage,
-          thread: {
-            threadInfo: props.threadInfo,
-            sourceMessageID: props.route.params.sourceMessageID,
-          },
+          thread: props.threadInfo,
         },
       });
     },
-    [props.navigation, props.route.params.sourceMessageID, props.threadInfo],
+    [props.navigation, props.threadInfo],
   );
 
   React.useEffect(() => {
