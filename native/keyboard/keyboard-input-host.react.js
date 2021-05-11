@@ -2,10 +2,9 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { Alert, TextInput } from 'react-native';
+import { TextInput } from 'react-native';
 import { KeyboardAccessoryView } from 'react-native-keyboard-input';
 
-import { useRealThreadCreator } from 'lib/shared/thread-utils';
 import type { MediaLibrarySelection } from 'lib/types/media-types';
 
 import { type InputState, InputStateContext } from '../input/input-state';
@@ -27,7 +26,6 @@ type Props = {|
   +keyboardState: KeyboardState,
   // withInputState
   +inputState: ?InputState,
-  +getServerThreadID: () => Promise<?string>,
 |};
 class KeyboardInputHost extends React.PureComponent<Props> {
   componentDidUpdate(prevProps: Props) {
@@ -92,25 +90,16 @@ const unboundStyles = {
   },
 };
 
-const showErrorAlert = () =>
-  Alert.alert('Unknown error', 'Uhh... try again?', [{ text: 'OK' }], {
-    cancelable: false,
-  });
-
 export default React.memo<BaseProps>(function ConnectedKeyboardInputHost(
   props: BaseProps,
 ) {
   const inputState = React.useContext(InputStateContext);
   const keyboardState = React.useContext(KeyboardContext);
+  invariant(keyboardState, 'keyboardState should be initialized');
   const navContext = React.useContext(NavContext);
   const styles = useStyles(unboundStyles);
   const activeMessageList = activeMessageListSelector(navContext);
 
-  invariant(keyboardState, 'keyboardState should be initialized');
-  const getServerThreadID = useRealThreadCreator(
-    keyboardState.getMediaGalleryThread(),
-    showErrorAlert,
-  );
   return (
     <KeyboardInputHost
       {...props}
@@ -118,7 +107,6 @@ export default React.memo<BaseProps>(function ConnectedKeyboardInputHost(
       activeMessageList={activeMessageList}
       keyboardState={keyboardState}
       inputState={inputState}
-      getServerThreadID={getServerThreadID}
     />
   );
 });

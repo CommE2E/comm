@@ -11,7 +11,6 @@ import {
   Image,
   Animated,
   Easing,
-  Alert,
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import filesystem from 'react-native-fs';
@@ -30,7 +29,6 @@ import { useDispatch } from 'react-redux';
 
 import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils';
-import { useRealThreadCreator } from 'lib/shared/thread-utils';
 import type { PhotoCapture } from 'lib/types/media-types';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { OptimisticThreadInfo } from 'lib/types/thread-types';
@@ -240,7 +238,6 @@ type Props = {|
   +foreground: boolean,
   // Redux dispatch functions
   +dispatch: Dispatch,
-  +getServerThreadID: () => Promise<?string>,
   // withInputState
   +inputState: ?InputState,
   // withOverlayContext
@@ -1184,11 +1181,6 @@ const styles = StyleSheet.create({
   },
 });
 
-const showErrorAlert = () =>
-  Alert.alert('Unknown error', 'Uhh... try again?', [{ text: 'OK' }], {
-    cancelable: false,
-  });
-
 export default React.memo<BaseProps>(function ConnectedCameraModal(
   props: BaseProps,
 ) {
@@ -1199,10 +1191,7 @@ export default React.memo<BaseProps>(function ConnectedCameraModal(
   const overlayContext = React.useContext(OverlayContext);
   const inputState = React.useContext(InputStateContext);
   const dispatch = useDispatch();
-  const getServerThreadID = useRealThreadCreator(
-    props.route.params.thread,
-    showErrorAlert,
-  );
+
   return (
     <CameraModal
       {...props}
@@ -1213,7 +1202,6 @@ export default React.memo<BaseProps>(function ConnectedCameraModal(
       dispatch={dispatch}
       overlayContext={overlayContext}
       inputState={inputState}
-      getServerThreadID={getServerThreadID}
     />
   );
 });
