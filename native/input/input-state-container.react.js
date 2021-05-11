@@ -397,7 +397,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     let newThreadID = null;
     try {
-      newThreadID = await this.createRealizedThread(threadInfo);
+      newThreadID = await this.startThreadCreation(threadInfo);
     } catch (e) {
       const copy = cloneError(e);
       copy.localID = messageInfo.localID;
@@ -408,6 +408,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         error: true,
       });
       return;
+    } finally {
+      this.pendingThreadCreations.delete(threadInfo.id);
     }
 
     const newMessageInfo = {
@@ -422,16 +424,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       newMessageInfo,
     );
   };
-
-  async createRealizedThread(threadInfo: ThreadInfo): Promise<string> {
-    try {
-      return this.startThreadCreation(threadInfo);
-    } finally {
-      // The promise is settled so we can clean the map to avoid a memory leak
-      // and allow retries
-      this.pendingThreadCreations.delete(threadInfo.id);
-    }
-  }
 
   async startThreadCreation(threadInfo: ThreadInfo): Promise<string> {
     if (!threadIsPending(threadInfo.id)) {
