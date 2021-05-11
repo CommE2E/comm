@@ -3,7 +3,11 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { useState } from 'react';
-import { View, Text, TouchableWithoutFeedback } from 'react-native';
+import { View, Text } from 'react-native';
+import {
+  TapGestureHandler,
+  TouchableWithoutFeedback,
+} from 'react-native-gesture-handler';
 import * as Progress from 'react-native-progress';
 import Animated from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -22,21 +26,25 @@ import { useSelector } from '../redux/redux-utils';
 import { derivedDimensionsInfoSelector } from '../selectors/dimensions-selectors';
 import { useStyles } from '../themes/colors';
 import type { VerticalBounds, LayoutCoordinates } from '../types/layout-types';
+import { gestureJustEnded, animateTowards } from '../utils/animation-utils';
 import { formatDuration } from './video-utils';
 
 /* eslint-disable import/no-named-as-default-member */
 const {
   Extrapolate,
+  cond,
   set,
   add,
   sub,
   multiply,
   divide,
+  not,
   max,
   min,
   abs,
   interpolate,
   useValue,
+  event,
 } = Animated;
 
 export type VideoPlaybackModalParams = {|
@@ -53,6 +61,44 @@ type Props = {|
 |};
 function VideoPlaybackModal(props: Props) {
   const { mediaInfo } = props.route.params;
+
+  /* ===== START FADE CONTROL ANIMATION ===== */
+
+  const singleTapState = useValue(-1);
+  const singleTapX = useValue(0);
+  const singleTapY = useValue(0);
+
+  const singleTapEvent = React.useCallback(
+    event([
+      {
+        nativeEvent: {
+          state: singleTapState,
+          x: singleTapX,
+          y: singleTapY,
+        },
+      },
+    ]),
+    [],
+  );
+
+  const controlsShowing = useValue(1);
+  const controlsOpacity = React.useMemo(
+    () =>
+      animateTowards(
+        [
+          cond(
+            gestureJustEnded(singleTapState),
+            set(controlsShowing, not(controlsShowing)),
+          ),
+          controlsShowing,
+        ],
+        150,
+      ),
+    [singleTapState, controlsShowing],
+  );
+
+  /* ===== END FADE CONTROL ANIMATION ===== */
+
   const mediaDimensions = mediaInfo.dimensions;
   const screenDimensions = useSelector(derivedDimensionsInfoSelector);
 
@@ -213,7 +259,6 @@ function VideoPlaybackModal(props: Props) {
 
   const [paused, setPaused] = useState(false);
   const [percentElapsed, setPercentElapsed] = useState(0);
-  const [controlsVisible, setControlsVisible] = useState(true);
   const [spinnerVisible, setSpinnerVisible] = useState(true);
   const [timeElapsed, setTimeElapsed] = useState('0:00');
   const [totalDuration, setTotalDuration] = useState('0:00');
@@ -223,9 +268,9 @@ function VideoPlaybackModal(props: Props) {
   React.useEffect(() => {
     if (backgroundedOrInactive) {
       setPaused(true);
-      setControlsVisible(true);
+      controlsShowing.setValue(1);
     }
-  }, [backgroundedOrInactive]);
+  }, [backgroundedOrInactive, controlsShowing]);
 
   const {
     navigation,
@@ -239,10 +284,6 @@ function VideoPlaybackModal(props: Props) {
   const togglePlayback = React.useCallback(() => {
     setPaused(!paused);
   }, [paused]);
-
-  const togglePlaybackControls = React.useCallback(() => {
-    setControlsVisible(!controlsVisible);
-  }, [controlsVisible]);
 
   const resetVideo = React.useCallback(() => {
     invariant(videoRef.current, 'videoRef.current should be set in resetVideo');
@@ -287,7 +328,10 @@ function VideoPlaybackModal(props: Props) {
   ]);
 
   const controls = (
-    <>
+    <Animated.View
+      style={[styles.controls, { opacity: controlsOpacity }]}
+      pointerEvents="box-none"
+    >
       <View style={styles.header}>
         <View style={styles.closeButton}>
           <Button onPress={navigation.goBackOnce}>
@@ -319,7 +363,7 @@ function VideoPlaybackModal(props: Props) {
           </Text>
         </View>
       </View>
-    </>
+    </Animated.View>
   );
 
   let spinner;
@@ -340,8 +384,11 @@ function VideoPlaybackModal(props: Props) {
       <Animated.View style={[styles.backdrop, backdropStyle]} />
       <View style={contentContainerStyle}>
         {spinner}
-        <Animated.View style={videoContainerStyle}>
-          <TouchableWithoutFeedback onPress={togglePlaybackControls}>
+        <TapGestureHandler
+          onHandlerStateChange={singleTapEvent}
+          minPointers={1}
+        >
+          <Animated.View style={videoContainerStyle}>
             <Video
               source={{ uri: videoUri }}
               ref={videoRef}
@@ -351,10 +398,10 @@ function VideoPlaybackModal(props: Props) {
               onEnd={resetVideo}
               onReadyForDisplay={readyForDisplayCallback}
             />
-          </TouchableWithoutFeedback>
-        </Animated.View>
+          </Animated.View>
+        </TapGestureHandler>
       </View>
-      {controlsVisible ? controls : null}
+      {controls}
     </Animated.View>
   );
 }
@@ -429,6 +476,13 @@ const unboundStyles = {
     bottom: 0,
     left: 0,
     position: 'absolute',
+    right: 0,
+    top: 0,
+  },
+  controls: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
     right: 0,
     top: 0,
   },
