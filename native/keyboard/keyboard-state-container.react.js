@@ -5,7 +5,7 @@ import { Platform } from 'react-native';
 import { KeyboardUtils } from 'react-native-keyboard-input';
 
 import type { Shape } from 'lib/types/core';
-import type { OptimisticThreadInfo } from 'lib/types/thread-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import sleep from 'lib/utils/sleep';
 
 import { tabBarAnimationDuration } from '../navigation/tab-bar.react';
@@ -25,7 +25,7 @@ type Props = {|
 type State = {|
   +systemKeyboardShowing: boolean,
   +mediaGalleryOpen: boolean,
-  +mediaGalleryThread: ?OptimisticThreadInfo,
+  +mediaGalleryThread: ?ThreadInfo,
   +renderKeyboardInputHost: boolean,
 |};
 class KeyboardStateContainer extends React.PureComponent<Props, State> {
@@ -95,7 +95,7 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
     return systemKeyboardShowing || mediaGalleryOpen;
   }
 
-  showMediaGallery = (thread: OptimisticThreadInfo) => {
+  showMediaGallery = (thread: ThreadInfo) => {
     let updates: Shape<State> = {
       mediaGalleryOpen: true,
       mediaGalleryThread: thread,

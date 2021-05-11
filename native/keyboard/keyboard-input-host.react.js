@@ -64,8 +64,7 @@ class KeyboardInputHost extends React.PureComponent<Props> {
   ) => {
     const { keyboardState } = this.props;
     keyboardState.dismissKeyboard();
-    const mediaGalleryThread = keyboardState.getMediaGalleryThread()
-      ?.threadInfo;
+    const mediaGalleryThread = keyboardState.getMediaGalleryThread();
     if (!mediaGalleryThread) {
       return;
     }

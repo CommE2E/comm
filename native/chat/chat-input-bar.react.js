@@ -663,10 +663,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   showMediaGallery = () => {
     const { keyboardState } = this.props;
     invariant(keyboardState, 'keyboardState should be initialized');
-    keyboardState.showMediaGallery({
-      threadInfo: this.props.threadInfo,
-      sourceMessageID: this.props.route.params.sourceMessageID,
-    });
+    keyboardState.showMediaGallery(this.props.threadInfo);
   };
 
   dismissKeyboard = () => {

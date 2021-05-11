@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import type { OptimisticThreadInfo } from 'lib/types/thread-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 
 export type KeyboardState = {|
   +keyboardShowing: boolean,
@@ -10,9 +10,9 @@ export type KeyboardState = {|
   +dismissKeyboardIfShowing: () => boolean,
   +systemKeyboardShowing: boolean,
   +mediaGalleryOpen: boolean,
-  +showMediaGallery: (thread: OptimisticThreadInfo) => void,
+  +showMediaGallery: (thread: ThreadInfo) => void,
   +hideMediaGallery: () => void,
-  +getMediaGalleryThread: () => ?OptimisticThreadInfo,
+  +getMediaGalleryThread: () => ?ThreadInfo,
 |};
 
 const KeyboardContext = React.createContext<?KeyboardState>(null);
