@@ -10,7 +10,6 @@ import { useTextMessageRulesFunc } from '../markdown/rules.react';
 
 export type MessageListParams = {|
   +threadInfo: ThreadInfo,
-  +sourceMessageID?: string,
   +pendingPersonalThreadUserInfo?: UserInfo,
   +searching?: boolean,
 |};

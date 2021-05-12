@@ -79,13 +79,11 @@ function onPressCreateSidebar(
     viewerID,
     getDefaultTextMessageRules().simpleMarkdownRules,
   );
-  const sourceMessageID = messageInfo.id;
 
   navigation.navigate({
     name: MessageListRouteName,
     params: {
       threadInfo: pendingSidebarInfo,
-      sourceMessageID,
     },
     key: `${MessageListRouteName}${pendingSidebarInfo.id}`,
   });
