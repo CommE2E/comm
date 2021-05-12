@@ -30,7 +30,7 @@ import DeleteAccount from './delete-account.react';
 import DevTools from './dev-tools.react';
 import EditEmail from './edit-email.react';
 import EditPassword from './edit-password.react';
-import MoreHeader from './more-header.react';
+import MoreHeader from './profile-header.react';
 import MoreScreen from './profile-screen.react';
 import RelationshipList from './relationship-list.react';
 
