@@ -20,8 +20,8 @@ import type { TextMessageTooltipModalParams } from '../chat/text-message-tooltip
 import type { CameraModalParams } from '../media/camera-modal.react';
 import type { ImageModalParams } from '../media/image-modal.react';
 import type { VideoPlaybackModalParams } from '../media/video-playback-modal.react';
-import type { CustomServerModalParams } from '../more/custom-server-modal.react';
-import type { RelationshipListItemTooltipModalParams } from '../more/relationship-list-item-tooltip-modal.react';
+import type { CustomServerModalParams } from '../profile/custom-server-modal.react';
+import type { RelationshipListItemTooltipModalParams } from '../profile/relationship-list-item-tooltip-modal.react';
 import type { ActionResultModalParams } from './action-result-modal.react';
 
 export const AppRouteName = 'App';
