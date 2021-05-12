@@ -16,7 +16,7 @@ import { useSelector } from '../redux/redux-utils';
 import { useColors, useStyles, type Colors } from '../themes/colors';
 import { wipeAndExit } from '../utils/crash-utils';
 import { nodeServerOptions } from '../utils/url-utils';
-import type { MoreNavigationProp } from './more.react';
+import type { MoreNavigationProp } from './profile.react';
 
 const ServerIcon = () => (
   <Icon

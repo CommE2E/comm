@@ -19,7 +19,7 @@ import KeyboardStateContainer from '../keyboard/keyboard-state-container.react';
 import CameraModal from '../media/camera-modal.react';
 import ImageModal from '../media/image-modal.react';
 import VideoPlaybackModal from '../media/video-playback-modal.react';
-import More from '../profile/more.react';
+import More from '../profile/profile.react';
 import RelationshipListItemTooltipModal from '../profile/relationship-list-item-tooltip-modal.react';
 import PushHandler from '../push/push-handler.react';
 import { getPersistor } from '../redux/persist';

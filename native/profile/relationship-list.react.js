@@ -55,7 +55,7 @@ import {
   useIndicatorStyle,
 } from '../themes/colors';
 import type { VerticalBounds } from '../types/layout-types';
-import type { MoreNavigationProp } from './more.react';
+import type { MoreNavigationProp } from './profile.react';
 import RelationshipListItem from './relationship-list-item.react';
 
 const TagInput = createTagInput<GlobalAccountUserInfo>();
