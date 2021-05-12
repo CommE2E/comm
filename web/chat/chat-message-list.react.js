@@ -394,7 +394,6 @@ export default React.memo<BaseProps>(function ConnectedChatMessageList(
     }
     return threadInfoSelector(state)[activeID] ?? state.navInfo.pendingThread;
   });
-  const sourceMessageID = useSelector((state) => state.navInfo.sourceMessageID);
   const threadInfo = useCurrentThreadInfo({
     baseThreadInfo,
     searching: false,
@@ -402,10 +401,9 @@ export default React.memo<BaseProps>(function ConnectedChatMessageList(
   });
 
   const messageListData = useMessageListData({
-    sourceMessageID,
+    threadInfo,
     searching: false,
     userInfoInputArray: [],
-    threadInfo,
   });
 
   const startReached = useSelector((state) => {

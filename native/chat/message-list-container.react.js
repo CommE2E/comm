@@ -337,7 +337,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     props.route.params.threadInfo,
   );
 
-  const { searching, sourceMessageID } = props.route.params;
+  const { searching } = props.route.params;
   const threadInfo = useCurrentThreadInfo({
     baseThreadInfo,
     searching: !!searching,
@@ -367,7 +367,6 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
 
   const threadID = threadInfo.id;
   const messageListData = useMessageListData({
-    sourceMessageID,
     searching: !!searching,
     userInfoInputArray,
     threadInfo,
