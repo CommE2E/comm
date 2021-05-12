@@ -31,7 +31,7 @@ import DevTools from './dev-tools.react';
 import EditEmail from './edit-email.react';
 import EditPassword from './edit-password.react';
 import MoreHeader from './more-header.react';
-import MoreScreen from './more-screen.react';
+import MoreScreen from './profile-screen.react';
 import RelationshipList from './relationship-list.react';
 
 const header = (props: StackHeaderProps) => <MoreHeader {...props} />;
