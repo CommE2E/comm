@@ -9,7 +9,6 @@ export type NavInfo = {|
   +verify: ?string,
   +activeChatThreadID: ?string,
   +pendingThread?: ThreadInfo,
-  +sourceMessageID?: string,
 |};
 
 export const updateNavInfoActionType = 'UPDATE_NAV_INFO';

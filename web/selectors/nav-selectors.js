@@ -171,7 +171,6 @@ function useOnClickPendingSidebar(
         payload: {
           activeChatThreadID: pendingSidebarInfo.id,
           pendingThread: pendingSidebarInfo,
-          sourceMessageID: messageInfo.id,
         },
       });
     },
