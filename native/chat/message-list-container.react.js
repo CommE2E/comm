@@ -342,7 +342,6 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     baseThreadInfo,
     searching: !!searching,
     userInfoInputArray,
-    sourceMessageID,
   });
   invariant(threadInfo, 'threadInfo must be specified in messageListContainer');
 

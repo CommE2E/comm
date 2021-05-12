@@ -399,7 +399,6 @@ export default React.memo<BaseProps>(function ConnectedChatMessageList(
     baseThreadInfo,
     searching: false,
     userInfoInputArray: [],
-    sourceMessageID,
   });
 
   const messageListData = useMessageListData({
