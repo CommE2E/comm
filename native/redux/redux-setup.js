@@ -282,7 +282,7 @@ function reducer(state: AppState = defaultState, action: *) {
       ...state,
       deviceOrientation: action.payload,
     };
-  } else if (action.type === setDeviceTokenActionTypes.started) {
+  } else if (action.type === setDeviceTokenActionTypes.success) {
     return {
       ...state,
       deviceToken: action.payload,
