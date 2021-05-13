@@ -382,8 +382,6 @@ class PushHandler extends React.PureComponent<Props, State> {
     this.props.dispatchActionPromise(
       setDeviceTokenActionTypes,
       this.props.setDeviceToken(deviceToken),
-      undefined,
-      deviceToken,
     );
   }
 
