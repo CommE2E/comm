@@ -172,18 +172,38 @@ function VideoPlaybackModal(props: Props) {
     imageHeight,
   ]);
 
-  const left = sub(centerX, divide(imageWidth, 2));
-  const top = sub(centerY, divide(imageHeight, 2));
+  const left = React.useMemo(() => sub(centerX, divide(imageWidth, 2)), [
+    centerX,
+    imageWidth,
+  ]);
+  const top = React.useMemo(() => sub(centerY, divide(imageHeight, 2)), [
+    centerY,
+    imageHeight,
+  ]);
 
   const { initialCoordinates } = props.route.params;
-  const initialScale = divide(initialCoordinates.width, imageWidth);
-  const initialTranslateX = sub(
-    initialCoordinates.x + initialCoordinates.width / 2,
-    add(left, divide(imageWidth, 2)),
+
+  const initialScale = React.useMemo(
+    () => divide(initialCoordinates.width, imageWidth),
+    [initialCoordinates, imageWidth],
   );
-  const initialTranslateY = sub(
-    initialCoordinates.y + initialCoordinates.height / 2,
-    add(top, divide(imageHeight, 2)),
+
+  const initialTranslateX = React.useMemo(
+    () =>
+      sub(
+        initialCoordinates.x + initialCoordinates.width / 2,
+        add(left, divide(imageWidth, 2)),
+      ),
+    [initialCoordinates, left, imageWidth],
+  );
+
+  const initialTranslateY = React.useMemo(
+    () =>
+      sub(
+        initialCoordinates.y + initialCoordinates.height / 2,
+        add(top, divide(imageHeight, 2)),
+      ),
+    [initialCoordinates, top, imageHeight],
   );
 
   // The all-important outputs
@@ -192,44 +212,94 @@ function VideoPlaybackModal(props: Props) {
   const curY = useValue(0);
   const curBackdropOpacity = useValue(1);
 
-  const progressiveOpacity = max(
-    min(
-      sub(1, abs(divide(curX, frameWidth))),
-      sub(1, abs(divide(curY, frameHeight))),
-    ),
-    0,
+  const progressiveOpacity = React.useMemo(
+    () =>
+      max(
+        min(
+          sub(1, abs(divide(curX, frameWidth))),
+          sub(1, abs(divide(curY, frameHeight))),
+        ),
+        0,
+      ),
+    [curX, curY, frameWidth, frameHeight],
   );
 
-  const updates = [set(curBackdropOpacity, progressiveOpacity)];
-  const updatedScale = [updates, curScale];
-  const updatedCurX = [updates, curX];
-  const updatedCurY = [updates, curY];
-  const updatedBackdropOpacity = [updates, curBackdropOpacity];
+  const updates = React.useMemo(
+    () => [set(curBackdropOpacity, progressiveOpacity)],
+    [curBackdropOpacity, progressiveOpacity],
+  );
+  const updatedScale = React.useMemo(() => [updates, curScale], [
+    updates,
+    curScale,
+  ]);
+  const updatedCurX = React.useMemo(() => [updates, curX], [updates, curX]);
+  const updatedCurY = React.useMemo(() => [updates, curY], [updates, curY]);
+  const updatedBackdropOpacity = React.useMemo(
+    () => [updates, curBackdropOpacity],
+    [updates, curBackdropOpacity],
+  );
 
   const overlayContext = React.useContext(OverlayContext);
   invariant(overlayContext, 'VideoPlaybackModal should have OverlayContext');
   const navigationProgress = overlayContext.position;
 
-  const reverseNavigationProgress = sub(1, navigationProgress);
-  const scale = add(
-    multiply(reverseNavigationProgress, initialScale),
-    multiply(navigationProgress, updatedScale),
-  );
-  const x = add(
-    multiply(reverseNavigationProgress, initialTranslateX),
-    multiply(navigationProgress, updatedCurX),
-  );
-  const y = add(
-    multiply(reverseNavigationProgress, initialTranslateY),
-    multiply(navigationProgress, updatedCurY),
+  const reverseNavigationProgress = React.useMemo(
+    () => sub(1, navigationProgress),
+    [navigationProgress],
   );
 
-  const backdropOpacity = multiply(navigationProgress, updatedBackdropOpacity);
-  const imageContainerOpacity = interpolate(navigationProgress, {
-    inputRange: [0, 0.1],
-    outputRange: [0, 1],
-    extrapolate: Extrapolate.CLAMP,
-  });
+  const scale = React.useMemo(
+    () =>
+      add(
+        multiply(reverseNavigationProgress, initialScale),
+        multiply(navigationProgress, updatedScale),
+      ),
+    [reverseNavigationProgress, initialScale, navigationProgress, updatedScale],
+  );
+
+  const x = React.useMemo(
+    () =>
+      add(
+        multiply(reverseNavigationProgress, initialTranslateX),
+        multiply(navigationProgress, updatedCurX),
+      ),
+    [
+      reverseNavigationProgress,
+      initialTranslateX,
+      navigationProgress,
+      updatedCurX,
+    ],
+  );
+
+  const y = React.useMemo(
+    () =>
+      add(
+        multiply(reverseNavigationProgress, initialTranslateY),
+        multiply(navigationProgress, updatedCurY),
+      ),
+    [
+      reverseNavigationProgress,
+      initialTranslateY,
+      navigationProgress,
+      updatedCurY,
+    ],
+  );
+
+  const backdropOpacity = React.useMemo(
+    () => multiply(navigationProgress, updatedBackdropOpacity),
+    [navigationProgress, updatedBackdropOpacity],
+  );
+
+  const imageContainerOpacity = React.useMemo(
+    () =>
+      interpolate(navigationProgress, {
+        inputRange: [0, 0.1],
+        outputRange: [0, 1],
+        extrapolate: Extrapolate.CLAMP,
+      }),
+    [navigationProgress],
+  );
+
   const { verticalBounds } = props.route.params;
   const videoContainerStyle = React.useMemo(() => {
     const { height, width } = mediaDisplayDimensions;
