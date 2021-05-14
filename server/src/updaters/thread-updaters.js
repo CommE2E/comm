@@ -653,11 +653,33 @@ async function joinThread(
       threadPermissions.JOIN_THREAD,
     ),
   ]);
-  if (isMember || !hasPermission) {
+  if (!hasPermission) {
     throw new ServerError('invalid_parameters');
   }
 
+  // TODO: determine code version
+  const hasCodeVersionBelow84 = !hasMinCodeVersion(viewer.platformDetails, 84);
+  const hasCodeVersionBelow62 = !hasMinCodeVersion(viewer.platformDetails, 62);
+
   const { calendarQuery } = request;
+  if (isMember) {
+    const response: ThreadJoinResult = {
+      rawMessageInfos: [],
+      truncationStatuses: {},
+      userInfos: {},
+      updatesResult: {
+        newUpdates: [],
+      },
+    };
+    if (calendarQuery && hasCodeVersionBelow84) {
+      response.rawEntryInfos = [];
+    }
+    if (hasCodeVersionBelow62) {
+      response.threadInfos = {};
+    }
+    return response;
+  }
+
   if (calendarQuery) {
     const threadFilterIDs = filteredThreadIDs(calendarQuery.filters);
     if (
@@ -690,8 +712,7 @@ async function joinThread(
     threadCursors: { [request.threadID]: false },
   };
 
-  // TODO: determine code version
-  if (hasMinCodeVersion(viewer.platformDetails, 84)) {
+  if (!hasCodeVersionBelow84) {
     return {
       rawMessageInfos: newMessages,
       truncationStatuses: {},
@@ -715,7 +736,7 @@ async function joinThread(
       newUpdates: membershipResult.viewerUpdates,
     },
   };
-  if (!hasMinCodeVersion(viewer.platformDetails, 62)) {
+  if (hasCodeVersionBelow62) {
     response.threadInfos = membershipResult.threadInfos;
   }
   if (rawEntryInfos) {
