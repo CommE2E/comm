@@ -19,7 +19,7 @@ import KeyboardStateContainer from '../keyboard/keyboard-state-container.react';
 import CameraModal from '../media/camera-modal.react';
 import ImageModal from '../media/image-modal.react';
 import VideoPlaybackModal from '../media/video-playback-modal.react';
-import More from '../profile/profile.react';
+import Profile from '../profile/profile.react';
 import RelationshipListItemTooltipModal from '../profile/relationship-list-item-tooltip-modal.react';
 import PushHandler from '../push/push-handler.react';
 import { getPersistor } from '../redux/persist';
@@ -33,7 +33,7 @@ import type { RootNavigationProp } from './root-navigator.react';
 import {
   CalendarRouteName,
   ChatRouteName,
-  MoreRouteName,
+  ProfileRouteName,
   TabNavigatorRouteName,
   ImageModalRouteName,
   MultimediaTooltipModalRouteName,
@@ -67,8 +67,8 @@ const getChatTabOptions = (badge: number) => ({
   ),
   tabBarBadge: badge ? badge : undefined,
 });
-const moreTabOptions = {
-  tabBarLabel: 'More',
+const profileTabOptions = {
+  tabBarLabel: 'Profile',
   // eslint-disable-next-line react/display-name
   tabBarIcon: ({ color }) => (
     <Icon name="bars" style={[styles.icon, { color }]} />
@@ -106,9 +106,9 @@ function TabNavigator() {
         options={getChatTabOptions(chatBadge)}
       />
       <Tab.Screen
-        name={MoreRouteName}
-        component={More}
-        options={moreTabOptions}
+        name={ProfileRouteName}
+        component={Profile}
+        options={profileTabOptions}
       />
     </Tab.Navigator>
   );

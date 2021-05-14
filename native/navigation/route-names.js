@@ -32,8 +32,8 @@ export const ThreadSettingsRouteName = 'ThreadSettings';
 export const MessageListRouteName = 'MessageList';
 export const VerificationModalRouteName = 'VerificationModal';
 export const LoggedOutModalRouteName = 'LoggedOutModal';
-export const MoreRouteName = 'More';
-export const MoreScreenRouteName = 'MoreScreen';
+export const ProfileRouteName = 'Profile';
+export const ProfileScreenRouteName = 'ProfileScreen';
 export const RelationshipListItemTooltipModalRouteName =
   'RelationshipListItemTooltipModal';
 export const ChatRouteName = 'Chat';
@@ -100,7 +100,7 @@ export type OverlayParamList = {|
 export type TabParamList = {|
   +Calendar: void,
   +Chat: void,
-  +More: void,
+  +Profile: void,
 |};
 
 export type ChatParamList = {|
@@ -116,8 +116,8 @@ export type ChatTopTabsParamList = {|
   +BackgroundChatThreadList: void,
 |};
 
-export type MoreParamList = {|
-  +MoreScreen: void,
+export type ProfileParamList = {|
+  +ProfileScreen: void,
   +EditEmail: void,
   +EditPassword: void,
   +DeleteAccount: void,
@@ -134,7 +134,7 @@ export type ScreenParamList = {|
   ...TabParamList,
   ...ChatParamList,
   ...ChatTopTabsParamList,
-  ...MoreParamList,
+  ...ProfileParamList,
 |};
 
 export type NavigationRoute<RouteName: string = $Keys<ScreenParamList>> = {|

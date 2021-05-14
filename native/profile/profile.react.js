@@ -11,7 +11,7 @@ import { View } from 'react-native';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 import HeaderBackButton from '../navigation/header-back-button.react';
 import {
-  MoreScreenRouteName,
+  ProfileScreenRouteName,
   EditEmailRouteName,
   EditPasswordRouteName,
   DeleteAccountRouteName,
@@ -21,7 +21,7 @@ import {
   FriendListRouteName,
   BlockListRouteName,
   type ScreenParamList,
-  type MoreParamList,
+  type ProfileParamList,
 } from '../navigation/route-names';
 import { useStyles } from '../themes/colors';
 import AppearancePreferences from './appearance-preferences.react';
@@ -30,17 +30,17 @@ import DeleteAccount from './delete-account.react';
 import DevTools from './dev-tools.react';
 import EditEmail from './edit-email.react';
 import EditPassword from './edit-password.react';
-import MoreHeader from './profile-header.react';
-import MoreScreen from './profile-screen.react';
+import ProfileHeader from './profile-header.react';
+import ProfileScreen from './profile-screen.react';
 import RelationshipList from './relationship-list.react';
 
-const header = (props: StackHeaderProps) => <MoreHeader {...props} />;
+const header = (props: StackHeaderProps) => <ProfileHeader {...props} />;
 const headerBackButton = (props) => <HeaderBackButton {...props} />;
 const screenOptions = {
   header,
   headerLeft: headerBackButton,
 };
-const moreScreenOptions = { headerTitle: 'More' };
+const profileScreenOptions = { headerTitle: 'Profile' };
 const editEmailOptions = { headerTitle: 'Change email' };
 const editPasswordOptions = { headerTitle: 'Change password' };
 const deleteAccountOptions = { headerTitle: 'Delete account' };
@@ -56,16 +56,16 @@ const blockListOptions = {
   headerBackTitle: 'Back',
 };
 
-export type MoreNavigationProp<
-  RouteName: $Keys<MoreParamList> = $Keys<MoreParamList>,
+export type ProfileNavigationProp<
+  RouteName: $Keys<ProfileParamList> = $Keys<ProfileParamList>,
 > = StackNavigationProp<ScreenParamList, RouteName>;
 
-const More = createStackNavigator<
+const Profile = createStackNavigator<
   ScreenParamList,
-  MoreParamList,
-  MoreNavigationProp<>,
+  ProfileParamList,
+  ProfileNavigationProp<>,
 >();
-function MoreComponent() {
+function ProfileComponent() {
   const styles = useStyles(unboundStyles);
   return (
     <View style={styles.view}>
@@ -73,56 +73,56 @@ function MoreComponent() {
         behavior="padding"
         style={styles.keyboardAvoidingView}
       >
-        <More.Navigator
+        <Profile.Navigator
           screenOptions={screenOptions}
           detachInactiveScreens={false}
         >
-          <More.Screen
-            name={MoreScreenRouteName}
-            component={MoreScreen}
-            options={moreScreenOptions}
+          <Profile.Screen
+            name={ProfileScreenRouteName}
+            component={ProfileScreen}
+            options={profileScreenOptions}
           />
-          <More.Screen
+          <Profile.Screen
             name={EditEmailRouteName}
             component={EditEmail}
             options={editEmailOptions}
           />
-          <More.Screen
+          <Profile.Screen
             name={EditPasswordRouteName}
             component={EditPassword}
             options={editPasswordOptions}
           />
-          <More.Screen
+          <Profile.Screen
             name={DeleteAccountRouteName}
             component={DeleteAccount}
             options={deleteAccountOptions}
           />
-          <More.Screen
+          <Profile.Screen
             name={BuildInfoRouteName}
             component={BuildInfo}
             options={buildInfoOptions}
           />
-          <More.Screen
+          <Profile.Screen
             name={DevToolsRouteName}
             component={DevTools}
             options={devToolsOptions}
           />
-          <More.Screen
+          <Profile.Screen
             name={AppearancePreferencesRouteName}
             component={AppearancePreferences}
             options={appearanceOptions}
           />
-          <More.Screen
+          <Profile.Screen
             name={FriendListRouteName}
             component={RelationshipList}
             options={friendListOptions}
           />
-          <More.Screen
+          <Profile.Screen
             name={BlockListRouteName}
             component={RelationshipList}
             options={blockListOptions}
           />
-        </More.Navigator>
+        </Profile.Navigator>
       </KeyboardAvoidingView>
     </View>
   );
@@ -138,4 +138,4 @@ const unboundStyles = {
   },
 };
 
-export default MoreComponent;
+export default ProfileComponent;

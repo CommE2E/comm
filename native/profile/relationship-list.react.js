@@ -55,13 +55,13 @@ import {
   useIndicatorStyle,
 } from '../themes/colors';
 import type { VerticalBounds } from '../types/layout-types';
-import type { MoreNavigationProp } from './profile.react';
+import type { ProfileNavigationProp } from './profile.react';
 import RelationshipListItem from './relationship-list-item.react';
 
 const TagInput = createTagInput<GlobalAccountUserInfo>();
 
 export type RelationshipListNavigate = $PropertyType<
-  MoreNavigationProp<'FriendList' | 'BlockList'>,
+  ProfileNavigationProp<'FriendList' | 'BlockList'>,
   'navigate',
 >;
 
@@ -83,7 +83,7 @@ type ListItem =
     |};
 
 type BaseProps = {|
-  +navigation: MoreNavigationProp<>,
+  +navigation: ProfileNavigationProp<>,
   +route: NavigationRoute<'FriendList' | 'BlockList'>,
 |};
 type Props = {|

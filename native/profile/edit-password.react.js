@@ -32,10 +32,10 @@ import type { NavigationRoute } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { type Colors, useColors, useStyles } from '../themes/colors';
 import type { GlobalTheme } from '../types/themes';
-import type { MoreNavigationProp } from './profile.react';
+import type { ProfileNavigationProp } from './profile.react';
 
 type BaseProps = {|
-  +navigation: MoreNavigationProp<'EditPassword'>,
+  +navigation: ProfileNavigationProp<'EditPassword'>,
   +route: NavigationRoute<'EditPassword'>,
 |};
 type Props = {|

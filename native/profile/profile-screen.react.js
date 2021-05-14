@@ -49,11 +49,11 @@ import {
 } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { type Colors, useColors, useStyles } from '../themes/colors';
-import type { MoreNavigationProp } from './profile.react';
+import type { ProfileNavigationProp } from './profile.react';
 
 type BaseProps = {|
-  +navigation: MoreNavigationProp<'MoreScreen'>,
-  +route: NavigationRoute<'MoreScreen'>,
+  +navigation: ProfileNavigationProp<'ProfileScreen'>,
+  +route: NavigationRoute<'ProfileScreen'>,
 |};
 type Props = {|
   ...BaseProps,
@@ -67,7 +67,7 @@ type Props = {|
   +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
   +resendVerificationEmail: () => Promise<void>,
 |};
-class MoreScreen extends React.PureComponent<Props> {
+class ProfileScreen extends React.PureComponent<Props> {
   get username() {
     return this.props.currentUserInfo && !this.props.currentUserInfo.anonymous
       ? this.props.currentUserInfo.username
@@ -527,7 +527,7 @@ const resendVerificationLoadingStatusSelector = createLoadingStatusSelector(
   resendVerificationEmailActionTypes,
 );
 
-export default React.memo<BaseProps>(function ConnectedMoreScreen(
+export default React.memo<BaseProps>(function ConnectedProfileScreen(
   props: BaseProps,
 ) {
   const currentUserInfo = useSelector((state) => state.currentUserInfo);
@@ -542,7 +542,7 @@ export default React.memo<BaseProps>(function ConnectedMoreScreen(
   const dispatchActionPromise = useDispatchActionPromise();
 
   return (
-    <MoreScreen
+    <ProfileScreen
       {...props}
       currentUserInfo={currentUserInfo}
       preRequestUserState={preRequestUserState}

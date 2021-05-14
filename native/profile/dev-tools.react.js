@@ -16,7 +16,7 @@ import { useSelector } from '../redux/redux-utils';
 import { useColors, useStyles, type Colors } from '../themes/colors';
 import { wipeAndExit } from '../utils/crash-utils';
 import { nodeServerOptions } from '../utils/url-utils';
-import type { MoreNavigationProp } from './profile.react';
+import type { ProfileNavigationProp } from './profile.react';
 
 const ServerIcon = () => (
   <Icon
@@ -28,7 +28,7 @@ const ServerIcon = () => (
 );
 
 type BaseProps = {|
-  +navigation: MoreNavigationProp<'DevTools'>,
+  +navigation: ProfileNavigationProp<'DevTools'>,
   +route: NavigationRoute<'DevTools'>,
 |};
 type Props = {|

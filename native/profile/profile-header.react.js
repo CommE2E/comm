@@ -6,11 +6,11 @@ import * as React from 'react';
 import Header from '../navigation/header.react';
 import { createActiveTabSelector } from '../navigation/nav-selectors';
 import { NavContext } from '../navigation/navigation-context';
-import { MoreRouteName } from '../navigation/route-names';
+import { ProfileRouteName } from '../navigation/route-names';
 
-const activeTabSelector = createActiveTabSelector(MoreRouteName);
+const activeTabSelector = createActiveTabSelector(ProfileRouteName);
 
-export default React.memo<StackHeaderProps>(function MoreHeader(
+export default React.memo<StackHeaderProps>(function ProfileHeader(
   props: StackHeaderProps,
 ) {
   const navContext = React.useContext(NavContext);
