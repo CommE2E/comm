@@ -33,10 +33,7 @@ import {
   TextInput,
   usernamePlaceholderSelector,
 } from './modal-components.react';
-import {
-  fetchNativeCredentials,
-  setNativeCredentials,
-} from './native-credentials';
+import { setNativeCredentials } from './native-credentials';
 import { PanelButton, Panel } from './panel-components.react';
 
 export type LogInState = {|
@@ -66,21 +63,10 @@ class LogInPanel extends React.PureComponent<Props> {
 
   componentDidMount() {
     this.props.innerRef(this);
-    this.attemptToFetchCredentials();
   }
 
   componentWillUnmount() {
     this.props.innerRef(null);
-  }
-
-  async attemptToFetchCredentials() {
-    const credentials = await fetchNativeCredentials();
-    if (credentials) {
-      this.props.state.setState({
-        usernameOrEmailInputText: credentials.username,
-        passwordInputText: credentials.password,
-      });
-    }
   }
 
   render() {
