@@ -34,6 +34,7 @@ import {
   recalculateThreadPermissions,
   commitMembershipChangeset,
 } from '../updaters/thread-permission-updaters';
+import { joinThread } from '../updaters/thread-updaters';
 import RelationshipChangeset from '../utils/relationship-changeset';
 import createIDs from './id-creator';
 import createMessages from './message-creator';
@@ -296,13 +297,44 @@ async function createThread(
       invariant(existingThreadResult.length > 0, 'thread should exist');
       const existingThreadID = existingThreadResult[0].id.toString();
 
+      if (threadType === threadTypes.PERSONAL) {
+        return {
+          newThreadID: existingThreadID,
+          updatesResult: {
+            newUpdates: [],
+          },
+          userInfos: {},
+          newMessageInfos: [],
+        };
+      }
+
+      let joinRequest = {
+        threadID: existingThreadID,
+      };
+      if (hasMinCodeVersion(viewer.platformDetails, 84)) {
+        invariant(request.calendarQuery, 'calendar query should exist');
+        const calendarQuery = {
+          ...request.calendarQuery,
+          filters: [
+            ...request.calendarQuery.filters,
+            { type: 'threads', threadIDs: [existingThreadID] },
+          ],
+        };
+
+        joinRequest = {
+          ...joinRequest,
+          calendarQuery,
+        };
+      }
+
+      const joinThreadResult = await joinThread(viewer, joinRequest);
       return {
         newThreadID: existingThreadID,
         updatesResult: {
-          newUpdates: [],
+          newUpdates: joinThreadResult.updatesResult.newUpdates,
         },
-        userInfos: {},
-        newMessageInfos: [],
+        userInfos: joinThreadResult.userInfos,
+        newMessageInfos: joinThreadResult.rawMessageInfos,
       };
     }
   } else {
