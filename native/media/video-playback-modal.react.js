@@ -32,7 +32,12 @@ import { formatDuration } from './video-utils';
 /* eslint-disable import/no-named-as-default-member */
 const {
   Extrapolate,
+  and,
+  block,
   cond,
+  eq,
+  ceil,
+  call,
   set,
   add,
   sub,
@@ -95,6 +100,41 @@ function VideoPlaybackModal(props: Props) {
         150,
       ),
     [singleTapState, controlsShowing],
+  );
+
+  const [controlsEnabled, setControlsEnabled] = React.useState(true);
+  const enableControls = React.useCallback(() => setControlsEnabled(true), []);
+  const disableControls = React.useCallback(
+    () => setControlsEnabled(false),
+    [],
+  );
+
+  const previousOpacityCeiling = useValue(-1);
+  const opacityCeiling = React.useMemo(() => ceil(controlsOpacity), [
+    controlsOpacity,
+  ]);
+
+  const opacityJustChanged = React.useMemo(
+    () =>
+      cond(eq(previousOpacityCeiling, opacityCeiling), 0, [
+        set(previousOpacityCeiling, opacityCeiling),
+        1,
+      ]),
+    [previousOpacityCeiling, opacityCeiling],
+  );
+
+  const toggleControls = React.useMemo(
+    () => [
+      cond(
+        and(eq(opacityJustChanged, 1), eq(opacityCeiling, 0)),
+        call([], disableControls),
+      ),
+      cond(
+        and(eq(opacityJustChanged, 1), eq(opacityCeiling, 1)),
+        call([], enableControls),
+      ),
+    ],
+    [opacityJustChanged, opacityCeiling, disableControls, enableControls],
   );
 
   /* ===== END FADE CONTROL ANIMATION ===== */
@@ -225,8 +265,8 @@ function VideoPlaybackModal(props: Props) {
   );
 
   const updates = React.useMemo(
-    () => [set(curBackdropOpacity, progressiveOpacity)],
-    [curBackdropOpacity, progressiveOpacity],
+    () => [toggleControls, set(curBackdropOpacity, progressiveOpacity)],
+    [curBackdropOpacity, progressiveOpacity, toggleControls],
   );
   const updatedScale = React.useMemo(() => [updates, curScale], [
     updates,
@@ -237,6 +277,11 @@ function VideoPlaybackModal(props: Props) {
   const updatedBackdropOpacity = React.useMemo(
     () => [updates, curBackdropOpacity],
     [updates, curBackdropOpacity],
+  );
+
+  const updatedControlsOpacity = React.useMemo(
+    () => block([updates, controlsOpacity]),
+    [updates, controlsOpacity],
   );
 
   const overlayContext = React.useContext(OverlayContext);
@@ -399,8 +444,8 @@ function VideoPlaybackModal(props: Props) {
 
   const controls = (
     <Animated.View
-      style={[styles.controls, { opacity: controlsOpacity }]}
-      pointerEvents="box-none"
+      style={[styles.controls, { opacity: updatedControlsOpacity }]}
+      pointerEvents={controlsEnabled ? 'box-none' : 'none'}
     >
       <View style={styles.header}>
         <View style={styles.closeButton}>
