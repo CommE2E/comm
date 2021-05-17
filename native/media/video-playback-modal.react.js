@@ -22,13 +22,20 @@ import { useSelector } from '../redux/redux-utils';
 import { derivedDimensionsInfoSelector } from '../selectors/dimensions-selectors';
 import { useStyles } from '../themes/colors';
 import type { VerticalBounds, LayoutCoordinates } from '../types/layout-types';
+import type { NativeMethods } from '../types/react-native';
 import { gestureJustEnded, animateTowards } from '../utils/animation-utils';
 import { formatDuration } from './video-utils';
+
+type TouchableOpacityInstance = React.AbstractComponent<
+  React.ElementConfig<typeof TouchableOpacity>,
+  NativeMethods,
+>;
 
 /* eslint-disable import/no-named-as-default-member */
 const {
   Extrapolate,
   and,
+  or,
   block,
   cond,
   eq,
@@ -42,6 +49,8 @@ const {
   not,
   max,
   min,
+  lessThan,
+  greaterThan,
   abs,
   interpolate,
   useValue,
@@ -63,6 +72,98 @@ type Props = {|
 function VideoPlaybackModal(props: Props) {
   const { mediaInfo } = props.route.params;
 
+  const closeButtonX = useValue(-1);
+  const closeButtonY = useValue(-1);
+  const closeButtonWidth = useValue(-1);
+  const closeButtonHeight = useValue(-1);
+  const closeButtonRef = React.useRef<?React.ElementRef<TouchableOpacityInstance>>();
+  const closeButton = closeButtonRef.current;
+  const onCloseButtonLayoutCalledRef = React.useRef(false);
+  const onCloseButtonLayout = React.useCallback(() => {
+    onCloseButtonLayoutCalledRef.current = true;
+  }, []);
+  const onCloseButtonLayoutCalled = onCloseButtonLayoutCalledRef.current;
+  React.useEffect(() => {
+    if (!closeButton || !onCloseButtonLayoutCalled) {
+      return;
+    }
+    closeButton.measure((x, y, width, height, pageX, pageY) => {
+      closeButtonX.setValue(pageX);
+      closeButtonY.setValue(pageY);
+      closeButtonWidth.setValue(width);
+      closeButtonHeight.setValue(height);
+    });
+  }, [
+    closeButton,
+    onCloseButtonLayoutCalled,
+    closeButtonX,
+    closeButtonY,
+    closeButtonWidth,
+    closeButtonHeight,
+  ]);
+
+  const footerX = useValue(-1);
+  const footerY = useValue(-1);
+  const footerWidth = useValue(-1);
+  const footerHeight = useValue(-1);
+  const footerRef = React.useRef();
+  const footer = footerRef.current;
+  const onFooterLayoutCalledRef = React.useRef(false);
+  const onFooterLayout = React.useCallback(() => {
+    onFooterLayoutCalledRef.current = true;
+  }, []);
+  const onFooterLayoutCalled = onFooterLayoutCalledRef.current;
+  React.useEffect(() => {
+    if (!footer || !onFooterLayoutCalled) {
+      return;
+    }
+    footer.measure((x, y, width, height, pageX, pageY) => {
+      footerX.setValue(pageX);
+      footerY.setValue(pageY);
+      footerWidth.setValue(width);
+      footerHeight.setValue(height);
+    });
+  }, [
+    footer,
+    onFooterLayoutCalled,
+    footerX,
+    footerY,
+    footerWidth,
+    footerHeight,
+  ]);
+
+  const controlsShowing = useValue(1);
+  const outsideButtons = React.useCallback(
+    (x, y) =>
+      and(
+        or(
+          eq(controlsShowing, 0),
+          lessThan(x, Animated.debug('closeButtonX', closeButtonX)),
+          greaterThan(x, add(closeButtonX, closeButtonWidth)),
+          lessThan(y, closeButtonY),
+          greaterThan(y, add(closeButtonY, closeButtonHeight)),
+        ),
+        or(
+          eq(controlsShowing, 0),
+          lessThan(x, Animated.debug('footerX', footerX)),
+          greaterThan(x, add(footerX, footerWidth)),
+          lessThan(y, footerY),
+          greaterThan(y, add(footerY, footerHeight)),
+        ),
+      ),
+    [
+      controlsShowing,
+      closeButtonX,
+      closeButtonY,
+      closeButtonWidth,
+      closeButtonHeight,
+      footerX,
+      footerY,
+      footerWidth,
+      footerHeight,
+    ],
+  );
+
   /* ===== START FADE CONTROL ANIMATION ===== */
 
   const singleTapState = useValue(-1);
@@ -82,20 +183,35 @@ function VideoPlaybackModal(props: Props) {
     [],
   );
 
-  const controlsShowing = useValue(1);
+  const lastTapX = useValue(-1);
+  const lastTapY = useValue(-1);
+
   const activeControlsOpacity = React.useMemo(
     () =>
       animateTowards(
         [
           cond(
-            gestureJustEnded(singleTapState),
+            and(
+              gestureJustEnded(singleTapState),
+              outsideButtons(lastTapX, lastTapY),
+            ),
             set(controlsShowing, not(controlsShowing)),
           ),
+          set(lastTapX, singleTapX),
+          set(lastTapY, singleTapY),
           controlsShowing,
         ],
         150,
       ),
-    [singleTapState, controlsShowing],
+    [
+      singleTapState,
+      controlsShowing,
+      outsideButtons,
+      lastTapX,
+      lastTapY,
+      singleTapX,
+      singleTapY,
+    ],
   );
 
   const [controlsEnabled, setControlsEnabled] = React.useState(true);
@@ -456,12 +572,16 @@ function VideoPlaybackModal(props: Props) {
     >
       <View style={styles.header}>
         <View style={styles.closeButton}>
-          <TouchableOpacity onPress={navigation.goBackOnce}>
+          <TouchableOpacity
+            onPress={navigation.goBackOnce}
+            ref={(closeButtonRef: any)}
+            onLayout={onCloseButtonLayout}
+          >
             <Icon name="close" size={30} style={styles.iconButton} />
           </TouchableOpacity>
         </View>
       </View>
-      <View style={styles.footer}>
+      <View style={styles.footer} ref={footerRef} onLayout={onFooterLayout}>
         <TouchableOpacity
           onPress={togglePlayback}
           style={styles.playPauseButton}
