@@ -87,7 +87,7 @@ function VideoPlaybackModal(props: Props) {
   );
 
   const controlsShowing = useValue(1);
-  const controlsOpacity = React.useMemo(
+  const activeControlsOpacity = React.useMemo(
     () =>
       animateTowards(
         [
@@ -110,8 +110,8 @@ function VideoPlaybackModal(props: Props) {
   );
 
   const previousOpacityCeiling = useValue(-1);
-  const opacityCeiling = React.useMemo(() => ceil(controlsOpacity), [
-    controlsOpacity,
+  const opacityCeiling = React.useMemo(() => ceil(activeControlsOpacity), [
+    activeControlsOpacity,
   ]);
 
   const opacityJustChanged = React.useMemo(
@@ -279,9 +279,9 @@ function VideoPlaybackModal(props: Props) {
     [updates, curBackdropOpacity],
   );
 
-  const updatedControlsOpacity = React.useMemo(
-    () => block([updates, controlsOpacity]),
-    [updates, controlsOpacity],
+  const updatedActiveControlsOpacity = React.useMemo(
+    () => block([updates, activeControlsOpacity]),
+    [updates, activeControlsOpacity],
   );
 
   const overlayContext = React.useContext(OverlayContext);
@@ -291,6 +291,17 @@ function VideoPlaybackModal(props: Props) {
   const reverseNavigationProgress = React.useMemo(
     () => sub(1, navigationProgress),
     [navigationProgress],
+  );
+
+  const dismissalButtonOpacity = interpolate(updatedBackdropOpacity, {
+    inputRange: [0.95, 1],
+    outputRange: [0, 1],
+    extrapolate: Extrapolate.CLAMP,
+  });
+  const controlsOpacity = multiply(
+    navigationProgress,
+    dismissalButtonOpacity,
+    updatedActiveControlsOpacity,
   );
 
   const scale = React.useMemo(
@@ -444,7 +455,7 @@ function VideoPlaybackModal(props: Props) {
 
   const controls = (
     <Animated.View
-      style={[styles.controls, { opacity: updatedControlsOpacity }]}
+      style={[styles.controls, { opacity: controlsOpacity }]}
       pointerEvents={controlsEnabled ? 'box-none' : 'none'}
     >
       <View style={styles.header}>
