@@ -3,11 +3,8 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { useState } from 'react';
-import { View, Text } from 'react-native';
-import {
-  TapGestureHandler,
-  TouchableWithoutFeedback,
-} from 'react-native-gesture-handler';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { TapGestureHandler } from 'react-native-gesture-handler';
 import * as Progress from 'react-native-progress';
 import Animated from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -17,7 +14,6 @@ import { useIsAppBackgroundedOrInactive } from 'lib/shared/lifecycle-utils';
 import type { MediaInfo } from 'lib/types/media-types';
 
 import type { ChatMultimediaMessageInfoItem } from '../chat/multimedia-message.react';
-import Button from '../components/button.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import { OverlayContext } from '../navigation/overlay-context';
@@ -460,34 +456,34 @@ function VideoPlaybackModal(props: Props) {
     >
       <View style={styles.header}>
         <View style={styles.closeButton}>
-          <Button onPress={navigation.goBackOnce}>
+          <TouchableOpacity onPress={navigation.goBackOnce}>
             <Icon name="close" size={30} style={styles.iconButton} />
-          </Button>
+          </TouchableOpacity>
         </View>
       </View>
       <View style={styles.footer}>
-        <View style={styles.playPauseButton}>
-          <TouchableWithoutFeedback onPress={togglePlayback}>
-            <Icon
-              name={paused ? 'play' : 'pause'}
-              size={28}
-              style={styles.iconButton}
-            />
-          </TouchableWithoutFeedback>
-
-          <View style={styles.progressBar}>
-            <Progress.Bar
-              progress={percentElapsed / 100}
-              height={4}
-              width={260}
-              color={styles.progressBar.color}
-            />
-          </View>
-
-          <Text style={styles.durationText}>
-            {timeElapsed} / {totalDuration}
-          </Text>
+        <TouchableOpacity
+          onPress={togglePlayback}
+          style={styles.playPauseButton}
+        >
+          <Icon
+            name={paused ? 'play' : 'pause'}
+            size={28}
+            style={styles.iconButton}
+          />
+        </TouchableOpacity>
+        <View style={styles.progressBar}>
+          <Progress.Bar
+            progress={percentElapsed / 100}
+            height={4}
+            width={null}
+            color={styles.progressBar.color}
+            style={styles.expand}
+          />
         </View>
+        <Text style={styles.durationText}>
+          {timeElapsed} / {totalDuration}
+        </Text>
       </View>
     </Animated.View>
   );
@@ -505,15 +501,12 @@ function VideoPlaybackModal(props: Props) {
   }
 
   return (
-    <Animated.View style={styles.modal}>
-      {statusBar}
-      <Animated.View style={[styles.backdrop, backdropStyle]} />
-      <View style={contentContainerStyle}>
-        {spinner}
-        <TapGestureHandler
-          onHandlerStateChange={singleTapEvent}
-          minPointers={1}
-        >
+    <TapGestureHandler onHandlerStateChange={singleTapEvent} minPointers={1}>
+      <Animated.View style={styles.expand}>
+        {statusBar}
+        <Animated.View style={[styles.backdrop, backdropStyle]} />
+        <View style={contentContainerStyle}>
+          {spinner}
           <Animated.View style={videoContainerStyle}>
             <Video
               source={{ uri: videoUri }}
@@ -525,15 +518,15 @@ function VideoPlaybackModal(props: Props) {
               onReadyForDisplay={readyForDisplayCallback}
             />
           </Animated.View>
-        </TapGestureHandler>
-      </View>
-      {controls}
-    </Animated.View>
+        </View>
+        {controls}
+      </Animated.View>
+    </TapGestureHandler>
   );
 }
 
 const unboundStyles = {
-  modal: {
+  expand: {
     flex: 1,
   },
   backgroundVideo: {
@@ -545,25 +538,27 @@ const unboundStyles = {
   },
   footer: {
     position: 'absolute',
-    justifyContent: 'flex-end',
     left: 0,
     right: 0,
     bottom: 0,
+    backgroundColor: 'rgba(52,52,52,0.6)',
+    height: 76,
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 8,
   },
   header: {
     position: 'absolute',
-    justifyContent: 'flex-start',
     left: 0,
     right: 0,
     top: 0,
   },
   playPauseButton: {
-    backgroundColor: 'rgba(52,52,52,0.6)',
+    display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    flexDirection: 'row',
-    flex: 0,
-    height: 76,
   },
   closeButton: {
     paddingTop: 10,
@@ -574,11 +569,14 @@ const unboundStyles = {
     height: 100,
   },
   progressBar: {
+    flex: 1,
     position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
     color: 'white',
     paddingRight: 10,
+    display: 'flex',
+    flexDirection: 'row',
   },
   progressCircle: {
     position: 'absolute',
@@ -590,12 +588,13 @@ const unboundStyles = {
     right: 0,
   },
   iconButton: {
-    paddingRight: 10,
+    marginHorizontal: 10,
     color: 'white',
   },
   durationText: {
     color: 'white',
     fontSize: 11,
+    width: 70,
   },
   backdrop: {
     backgroundColor: 'black',
