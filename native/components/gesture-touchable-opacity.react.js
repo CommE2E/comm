@@ -17,7 +17,6 @@ import {
 
 /* eslint-disable import/no-named-as-default-member */
 const {
-  Value,
   Clock,
   block,
   event,
@@ -30,6 +29,7 @@ const {
   eq,
   stopClock,
   clockRunning,
+  useValue,
 } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
@@ -73,40 +73,57 @@ function ForwardedGestureTouchableOpacity(
   const disabledValue = useReanimatedValueForBoolean(!!disabled);
   const stickyActiveEnabled =
     stickyActive !== null && stickyActive !== undefined;
-  const { longPressEvent, tapEvent, transformStyle } = React.useMemo(() => {
-    const longPressState = new Value(-1);
-    const innerLongPressEvent = event([
-      {
-        nativeEvent: {
-          state: longPressState,
+
+  const longPressState = useValue(-1);
+  const tapState = useValue(-1);
+  const longPressEvent = React.useMemo(
+    () =>
+      event([
+        {
+          nativeEvent: {
+            state: longPressState,
+          },
         },
-      },
-    ]);
-    const tapState = new Value(-1);
-    const innerTapEvent = event([
-      {
-        nativeEvent: {
-          state: tapState,
+      ]),
+    [longPressState],
+  );
+  const tapEvent = React.useMemo(
+    () =>
+      event([
+        {
+          nativeEvent: {
+            state: tapState,
+          },
         },
-      },
-    ]);
+      ]),
+    [tapState],
+  );
+  const gestureActive = React.useMemo(
+    () =>
+      or(
+        eq(longPressState, GestureState.ACTIVE),
+        eq(tapState, GestureState.BEGAN),
+        eq(tapState, GestureState.ACTIVE),
+        activeValue,
+      ),
+    [longPressState, tapState, activeValue],
+  );
 
-    const gestureActive = or(
-      eq(longPressState, GestureState.ACTIVE),
-      eq(tapState, GestureState.BEGAN),
-      eq(tapState, GestureState.ACTIVE),
-      activeValue,
-    );
+  const curOpacity = useValue(-1);
 
-    const tapSuccess = eq(tapState, GestureState.END);
-    const prevTapSuccess = new Value(0);
-    const longPressSuccess = eq(longPressState, GestureState.ACTIVE);
-    const prevLongPressSuccess = new Value(0);
+  const pressClockRef = React.useRef();
+  if (!pressClockRef.current) {
+    pressClockRef.current = new Clock();
+  }
+  const pressClock = pressClockRef.current;
+  const resetClockRef = React.useRef();
+  if (!resetClockRef.current) {
+    resetClockRef.current = new Clock();
+  }
+  const resetClock = resetClockRef.current;
 
-    const curOpacity = new Value(1);
-    const pressClock = new Clock();
-    const resetClock = new Clock();
-    const opacity = block([
+  const animationCode = React.useMemo(
+    () => [
       cond(or(gestureActive, clockRunning(pressClock)), [
         set(
           curOpacity,
@@ -131,6 +148,18 @@ function ForwardedGestureTouchableOpacity(
           runTiming(resetClock, curOpacity, 1, true, resetAnimationSpec),
         ),
       ),
+    ],
+    [gestureActive, curOpacity, pressClock, resetClock, activeOpacity],
+  );
+
+  const prevTapSuccess = useValue(0);
+  const prevLongPressSuccess = useValue(0);
+
+  const transformStyle = React.useMemo(() => {
+    const tapSuccess = eq(tapState, GestureState.END);
+    const longPressSuccess = eq(longPressState, GestureState.ACTIVE);
+    const opacity = block([
+      ...animationCode,
       [
         cond(and(tapSuccess, not(prevTapSuccess), not(disabledValue)), [
           stickyActiveEnabled ? set(activeValue, 1) : undefined,
@@ -150,20 +179,16 @@ function ForwardedGestureTouchableOpacity(
       ],
       curOpacity,
     ]);
-    const innerTransformStyle = {
-      flex: 1,
-      opacity,
-    };
-
-    return {
-      longPressEvent: innerLongPressEvent,
-      tapEvent: innerTapEvent,
-      transformStyle: innerTransformStyle,
-    };
+    return { opacity, flex: 1 };
   }, [
+    animationCode,
+    tapState,
+    longPressState,
+    prevTapSuccess,
+    prevLongPressSuccess,
+    curOpacity,
     onPress,
     onLongPress,
-    activeOpacity,
     activeValue,
     disabledValue,
     stickyActiveEnabled,
