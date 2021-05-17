@@ -179,7 +179,7 @@ function ForwardedGestureTouchableOpacity(
       ],
       curOpacity,
     ]);
-    return { opacity, flex: 1 };
+    return { opacity };
   }, [
     animationCode,
     tapState,
@@ -194,13 +194,25 @@ function ForwardedGestureTouchableOpacity(
     stickyActiveEnabled,
   ]);
 
+  const fillStyle = React.useMemo(() => {
+    const result = StyleSheet.flatten(props.style);
+    if (!result) {
+      return undefined;
+    }
+    const { flex } = result;
+    if (flex === null || flex === undefined) {
+      return undefined;
+    }
+    return { flex };
+  }, [props.style]);
+
   const tapHandler = (
     <TapGestureHandler
       onHandlerStateChange={tapEvent}
       maxDurationMs={100000}
       ref={ref}
     >
-      <Animated.View style={styles.fill}>
+      <Animated.View style={fillStyle}>
         <Animated.View style={[transformStyle, props.style]}>
           {props.children}
         </Animated.View>
@@ -217,16 +229,10 @@ function ForwardedGestureTouchableOpacity(
       onHandlerStateChange={longPressEvent}
       minDurationMs={370}
     >
-      <Animated.View style={styles.fill}>{tapHandler}</Animated.View>
+      <Animated.View style={fillStyle}>{tapHandler}</Animated.View>
     </LongPressGestureHandler>
   );
 }
-
-const styles = StyleSheet.create({
-  fill: {
-    flex: 1,
-  },
-});
 
 const GestureTouchableOpacity = React.forwardRef<Props, TapGestureHandler>(
   ForwardedGestureTouchableOpacity,
