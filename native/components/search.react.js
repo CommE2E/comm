@@ -23,81 +23,83 @@ type Props = {|
   +containerStyle?: ViewStyle,
   +active?: boolean,
 |};
-const Search = React.forwardRef<Props, typeof TextInput>(
-  function ForwardedSearch(props: Props, ref: React.Ref<typeof TextInput>) {
-    const { onChangeText, searchText, containerStyle, active, ...rest } = props;
 
-    const clearSearch = React.useCallback(() => {
-      onChangeText('');
-    }, [onChangeText]);
+function ForwardedSearch(props: Props, ref: React.Ref<typeof TextInput>) {
+  const { onChangeText, searchText, containerStyle, active, ...rest } = props;
 
-    const loggedIn = useSelector(isLoggedIn);
-    const styles = useStyles(unboundStyles);
-    const colors = useColors();
-    const prevLoggedInRef = React.useRef();
-    React.useEffect(() => {
-      const prevLoggedIn = prevLoggedInRef.current;
-      prevLoggedInRef.current = loggedIn;
-      if (!loggedIn && prevLoggedIn) {
-        clearSearch();
-      }
-    }, [loggedIn, clearSearch]);
+  const clearSearch = React.useCallback(() => {
+    onChangeText('');
+  }, [onChangeText]);
 
-    const { listSearchIcon: iconColor } = colors;
-
-    let clearSearchInputIcon = null;
-    if (searchText) {
-      clearSearchInputIcon = (
-        <TouchableOpacity
-          onPress={clearSearch}
-          activeOpacity={0.5}
-          style={styles.clearSearchButton}
-        >
-          <Icon name="times-circle" size={18} color={iconColor} />
-        </TouchableOpacity>
-      );
+  const loggedIn = useSelector(isLoggedIn);
+  const styles = useStyles(unboundStyles);
+  const colors = useColors();
+  const prevLoggedInRef = React.useRef();
+  React.useEffect(() => {
+    const prevLoggedIn = prevLoggedInRef.current;
+    prevLoggedInRef.current = loggedIn;
+    if (!loggedIn && prevLoggedIn) {
+      clearSearch();
     }
+  }, [loggedIn, clearSearch]);
 
-    const inactive = active === false;
-    const usingPlaceholder = !searchText && rest.placeholder;
-    const inactiveTextStyle = React.useMemo(
-      () =>
-        inactive && usingPlaceholder
-          ? [styles.searchText, styles.inactiveSearchText, { color: iconColor }]
-          : [styles.searchText, styles.inactiveSearchText],
-      [
-        inactive,
-        usingPlaceholder,
-        styles.searchText,
-        styles.inactiveSearchText,
-        iconColor,
-      ],
+  const { listSearchIcon: iconColor } = colors;
+
+  let clearSearchInputIcon = null;
+  if (searchText) {
+    clearSearchInputIcon = (
+      <TouchableOpacity
+        onPress={clearSearch}
+        activeOpacity={0.5}
+        style={styles.clearSearchButton}
+      >
+        <Icon name="times-circle" size={18} color={iconColor} />
+      </TouchableOpacity>
     );
+  }
 
-    let textNode;
-    if (!inactive) {
-      const textInputProps: React.ElementProps<typeof TextInput> = {
-        style: styles.searchText,
-        value: searchText,
-        onChangeText: onChangeText,
-        placeholderTextColor: iconColor,
-        returnKeyType: 'go',
-      };
-      textNode = <TextInput {...textInputProps} {...rest} ref={ref} />;
-    } else {
-      const text = usingPlaceholder ? rest.placeholder : searchText;
-      textNode = <Text style={inactiveTextStyle}>{text}</Text>;
-    }
+  const inactive = active === false;
+  const usingPlaceholder = !searchText && rest.placeholder;
+  const inactiveTextStyle = React.useMemo(
+    () =>
+      inactive && usingPlaceholder
+        ? [styles.searchText, styles.inactiveSearchText, { color: iconColor }]
+        : [styles.searchText, styles.inactiveSearchText],
+    [
+      inactive,
+      usingPlaceholder,
+      styles.searchText,
+      styles.inactiveSearchText,
+      iconColor,
+    ],
+  );
 
-    return (
-      <View style={[styles.search, containerStyle]}>
-        <Icon name="search" size={18} color={iconColor} />
-        {textNode}
-        {clearSearchInputIcon}
-      </View>
-    );
-  },
-);
+  let textNode;
+  if (!inactive) {
+    const textInputProps: React.ElementProps<typeof TextInput> = {
+      style: styles.searchText,
+      value: searchText,
+      onChangeText: onChangeText,
+      placeholderTextColor: iconColor,
+      returnKeyType: 'go',
+    };
+    textNode = <TextInput {...textInputProps} {...rest} ref={ref} />;
+  } else {
+    const text = usingPlaceholder ? rest.placeholder : searchText;
+    textNode = <Text style={inactiveTextStyle}>{text}</Text>;
+  }
+
+  return (
+    <View style={[styles.search, containerStyle]}>
+      <Icon name="search" size={18} color={iconColor} />
+      {textNode}
+      {clearSearchInputIcon}
+    </View>
+  );
+}
+
+const Search = React.forwardRef<Props, typeof TextInput>(ForwardedSearch);
+Search.displayName = 'Search';
 
 const unboundStyles = {
   search: {
