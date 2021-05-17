@@ -210,6 +210,7 @@ function ForwardedGestureTouchableOpacity(
     <TapGestureHandler
       onHandlerStateChange={tapEvent}
       maxDurationMs={100000}
+      maxDist={50}
       ref={ref}
     >
       <Animated.View style={fillStyle}>
@@ -228,6 +229,7 @@ function ForwardedGestureTouchableOpacity(
     <LongPressGestureHandler
       onHandlerStateChange={longPressEvent}
       minDurationMs={370}
+      maxDist={50}
     >
       <Animated.View style={fillStyle}>{tapHandler}</Animated.View>
     </LongPressGestureHandler>
