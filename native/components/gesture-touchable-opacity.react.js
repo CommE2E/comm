@@ -55,7 +55,10 @@ type Props = {|
   +overlay?: React.Node,
   +disabled?: boolean,
 |};
-function GestureTouchableOpacity(props: Props) {
+function ForwardedGestureTouchableOpacity(
+  props: Props,
+  ref: React.Ref<typeof TapGestureHandler>,
+) {
   const { onPress: innerOnPress, onLongPress: innerOnLongPress } = props;
   const onPress = React.useCallback(() => {
     innerOnPress && innerOnPress();
@@ -167,7 +170,11 @@ function GestureTouchableOpacity(props: Props) {
   ]);
 
   const tapHandler = (
-    <TapGestureHandler onHandlerStateChange={tapEvent} maxDurationMs={100000}>
+    <TapGestureHandler
+      onHandlerStateChange={tapEvent}
+      maxDurationMs={100000}
+      ref={ref}
+    >
       <Animated.View style={styles.fill}>
         <Animated.View style={[transformStyle, props.style]}>
           {props.children}
@@ -195,5 +202,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
+
+const GestureTouchableOpacity = React.forwardRef<Props, TapGestureHandler>(
+  ForwardedGestureTouchableOpacity,
+);
+GestureTouchableOpacity.displayName = 'GestureTouchableOpacity';
 
 export default GestureTouchableOpacity;
