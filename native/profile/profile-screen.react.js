@@ -153,6 +153,24 @@ class ProfileScreen extends React.PureComponent<Props> {
       panelIosHighlightUnderlay: underlay,
       link: linkColor,
     } = this.props.colors;
+
+    const appearancePreferences = (
+      <>
+        <Text style={this.props.styles.header}>PREFERENCES</Text>
+        <View style={this.props.styles.slightlyPaddedSection}>
+          <Button
+            onPress={this.onPressAppearance}
+            style={this.props.styles.submenuButton}
+            iosFormat="highlight"
+            iosHighlightUnderlayColor={underlay}
+          >
+            <Text style={this.props.styles.submenuText}>Appearance</Text>
+            <Icon name="ios-arrow-forward" size={20} color={linkColor} />
+          </Button>
+        </View>
+      </>
+    );
+
     return (
       <View style={this.props.styles.container}>
         <ScrollView
@@ -228,18 +246,10 @@ class ProfileScreen extends React.PureComponent<Props> {
               <Icon name="ios-arrow-forward" size={20} color={linkColor} />
             </Button>
           </View>
-          <Text style={this.props.styles.header}>PREFERENCES</Text>
-          <View style={this.props.styles.slightlyPaddedSection}>
-            <Button
-              onPress={this.onPressAppearance}
-              style={this.props.styles.submenuButton}
-              iosFormat="highlight"
-              iosHighlightUnderlayColor={underlay}
-            >
-              <Text style={this.props.styles.submenuText}>Appearance</Text>
-              <Icon name="ios-arrow-forward" size={20} color={linkColor} />
-            </Button>
-          </View>
+
+          {/* revert the conditional rendering of `appearancePreferences` to re-enable theming */}
+          {__DEV__ ? appearancePreferences : null}
+
           <View style={this.props.styles.slightlyPaddedSection}>
             <Button
               onPress={this.onPressBuildInfo}
