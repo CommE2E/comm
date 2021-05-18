@@ -32,7 +32,7 @@ async function fetchNativeKeychainCredentials(): Promise<?UserCredentials> {
     return storedNativeKeychainCredentials.credentials;
   }
   try {
-    const result = await getInternetCredentials('squadcal.org');
+    const result = await getInternetCredentials('comm.app');
     const credentials = result
       ? { username: result.username, password: result.password }
       : undefined;
@@ -95,7 +95,7 @@ async function setNativeKeychainCredentials(credentials: UserCredentials) {
   }
   try {
     await setInternetCredentials(
-      'squadcal.org',
+      'comm.app',
       credentials.username,
       credentials.password,
     );
@@ -160,7 +160,7 @@ function setNativeCredentials(credentials: UserCredentials) {
 
 async function deleteNativeKeychainCredentials() {
   try {
-    await resetInternetCredentials('squadcal.org');
+    await resetInternetCredentials('comm.app');
     storedNativeKeychainCredentials = {
       state: 'determined',
       credentials: undefined,
