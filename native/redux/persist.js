@@ -209,6 +209,10 @@ const migrations = {
       drafts: undefined,
     };
   },
+  [23]: (state) => ({
+    ...state,
+    globalThemeInfo: defaultGlobalThemeInfo,
+  }),
 };
 
 const persistConfig = {
@@ -223,7 +227,7 @@ const persistConfig = {
     'frozen',
   ],
   debug: __DEV__,
-  version: 22,
+  version: 23,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
   timeout: __DEV__ ? 0 : undefined,
 };
