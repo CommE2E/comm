@@ -7,8 +7,12 @@ import {
   setInternetCredentials,
   setSharedWebCredentials,
   resetInternetCredentials,
-  type UserCredentials,
 } from 'react-native-keychain';
+
+type UserCredentials = {|
+  +username: string,
+  +password: string,
+|};
 
 type StoredCredentials = {|
   state: 'undetermined' | 'determined' | 'unsupported',
@@ -28,8 +32,10 @@ async function fetchNativeKeychainCredentials(): Promise<?UserCredentials> {
     return storedNativeKeychainCredentials.credentials;
   }
   try {
-    let credentials = await getInternetCredentials('squadcal.org');
-    credentials = credentials ? credentials : undefined;
+    const result = await getInternetCredentials('squadcal.org');
+    const credentials = result
+      ? { username: result.username, password: result.password }
+      : undefined;
     storedNativeKeychainCredentials = { state: 'determined', credentials };
     return credentials;
   } catch (e) {
@@ -174,7 +180,7 @@ async function deleteNativeSharedWebCredentialsFor(username: string) {
   try {
     // This native call will display a modal iff credentials are non-null,
     // so we don't need to worry about checking our current state
-    await setSharedWebCredentials('squadcal.org', username, null);
+    await setSharedWebCredentials('squadcal.org', username, undefined);
     storedSharedWebCredentials = {
       state: 'determined',
       credentials: undefined,
