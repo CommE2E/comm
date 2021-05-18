@@ -319,28 +319,28 @@ class ProfileScreen extends React.PureComponent<Props> {
     if (this.loggedOutOrLoggingOut) {
       return;
     }
-    this.props.dispatchActionPromise(logOutActionTypes, this.logOut());
+    this.logOut();
   };
 
-  logOutAndDeleteNativeCredentialsWrapper = () => {
+  logOutAndDeleteNativeCredentialsWrapper = async () => {
     if (this.loggedOutOrLoggingOut) {
       return;
     }
-    this.props.dispatchActionPromise(
-      logOutActionTypes,
-      this.logOutAndDeleteNativeCredentials(),
-    );
+    await this.deleteNativeCredentials();
+    this.logOut();
   };
 
   logOut() {
-    return this.props.logOut(this.props.preRequestUserState);
+    this.props.dispatchActionPromise(
+      logOutActionTypes,
+      this.props.logOut(this.props.preRequestUserState),
+    );
   }
 
-  async logOutAndDeleteNativeCredentials() {
+  async deleteNativeCredentials() {
     const { username } = this;
     invariant(username, "can't log out if not logged in");
     await deleteNativeCredentialsFor(username);
-    return await this.logOut();
   }
 
   onPressResendVerificationEmail = () => {
