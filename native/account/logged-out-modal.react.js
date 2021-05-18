@@ -663,7 +663,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     const animatedContent = (
       <Animated.View style={[styles.animationContainer, padding]}>
         <View>
-          <Text style={styles.header}>SquadCal</Text>
+          <Text style={styles.header}>Comm</Text>
           <Animated.View style={[styles.backButton, buttonStyle]}>
             <TouchableOpacity activeOpacity={0.6} onPress={this.hardwareBack}>
               <Icon name="arrow-circle-o-left" size={36} color="#FFFFFFAA" />
@@ -773,8 +773,10 @@ const styles = StyleSheet.create({
   },
   header: {
     color: 'white',
-    fontFamily: 'Anaheim-Regular',
-    fontSize: 48,
+    fontFamily: 'IBMPlexSans',
+    fontSize: 56,
+    fontWeight: 'bold',
+    lineHeight: 67,
     textAlign: 'center',
   },
   loadingIndicator: {
