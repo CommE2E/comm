@@ -61,7 +61,6 @@ import {
   BaseLogInPanelContainer,
 } from './log-in-panel-container.react';
 import type { LogInState } from './log-in-panel.react';
-import { fetchNativeCredentials } from './native-credentials';
 import RegisterPanel from './register-panel.react';
 import type { RegisterState } from './register-panel.react';
 
@@ -224,17 +223,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     }
     if (this.props.isForeground) {
       this.onForeground();
-    }
-    this.attemptToFetchCredentials();
-  }
-
-  async attemptToFetchCredentials() {
-    const credentials = await fetchNativeCredentials();
-    if (credentials) {
-      this.state.logInState.setState({
-        usernameOrEmailInputText: credentials.username,
-        passwordInputText: credentials.password,
-      });
     }
   }
 
