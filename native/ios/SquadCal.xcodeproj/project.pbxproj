@@ -22,6 +22,8 @@
 		7F8D602126535E060053CB29 /* OpenSans-Semibold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D601E26535E060053CB29 /* OpenSans-Semibold.ttf */; };
 		7F8D602226535E060053CB29 /* Anaheim-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D601F26535E060053CB29 /* Anaheim-Regular.ttf */; };
 		7F8D602326535E060053CB29 /* OpenSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D602026535E060053CB29 /* OpenSans-Regular.ttf */; };
+		7F8D602826535F240053CB29 /* IBMPlexSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D602726535EEE0053CB29 /* IBMPlexSans-Bold.ttf */; };
+		7F8D602926535F2A0053CB29 /* IBMPlexSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D602626535EEE0053CB29 /* IBMPlexSans-Regular.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -56,6 +58,8 @@
 		7F8D601E26535E060053CB29 /* OpenSans-Semibold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OpenSans-Semibold.ttf"; path = "Resources/OpenSans-Semibold.ttf"; sourceTree = "<group>"; };
 		7F8D601F26535E060053CB29 /* Anaheim-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Anaheim-Regular.ttf"; path = "Resources/Anaheim-Regular.ttf"; sourceTree = "<group>"; };
 		7F8D602026535E060053CB29 /* OpenSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OpenSans-Regular.ttf"; path = "Resources/OpenSans-Regular.ttf"; sourceTree = "<group>"; };
+		7F8D602626535EEE0053CB29 /* IBMPlexSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "IBMPlexSans-Regular.ttf"; path = "Resources/IBMPlexSans-Regular.ttf"; sourceTree = "<group>"; };
+		7F8D602726535EEE0053CB29 /* IBMPlexSans-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "IBMPlexSans-Bold.ttf"; path = "Resources/IBMPlexSans-Bold.ttf"; sourceTree = "<group>"; };
 		7FCEA2DC2444010B004017B1 /* SquadCal-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SquadCal-Bridging-Header.h"; sourceTree = "<group>"; };
 		7FCFD8BD1E81B8DF00629B0E /* SquadCal.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = SquadCal.entitlements; path = SquadCal/SquadCal.entitlements; sourceTree = "<group>"; };
 		A75435FBAC0720E8BE857F55 /* libPods-SquadCal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SquadCal.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -101,6 +105,8 @@
 				7F8D601F26535E060053CB29 /* Anaheim-Regular.ttf */,
 				7F8D602026535E060053CB29 /* OpenSans-Regular.ttf */,
 				7F8D601E26535E060053CB29 /* OpenSans-Semibold.ttf */,
+				7F8D602726535EEE0053CB29 /* IBMPlexSans-Bold.ttf */,
+				7F8D602626535EEE0053CB29 /* IBMPlexSans-Regular.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -305,6 +311,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7F8D602926535F2A0053CB29 /* IBMPlexSans-Regular.ttf in Resources */,
+				7F8D602826535F240053CB29 /* IBMPlexSans-Bold.ttf in Resources */,
 				7F8D602126535E060053CB29 /* OpenSans-Semibold.ttf in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				7F788C2C248AA2140098F071 /* SplashScreen.storyboard in Resources */,
