@@ -16,7 +16,9 @@ export const osCanTheme =
   (Platform.OS === 'android' && Platform.Version >= 29);
 
 export const defaultGlobalThemeInfo = {
-  activeTheme: osCanTheme ? null : 'light',
+  // revert to `activeTheme: osCanTheme ? null : 'light'` to re-enable theming
+  activeTheme: 'dark',
   systemTheme: null,
-  preference: osCanTheme ? 'system' : 'light',
+  // revert to `preference: osCanTheme ? 'system' : 'light'` to re-enable theming
+  preference: 'dark',
 };
