@@ -1,4 +1,4 @@
-package org.squadcal.fbjni;
+package app.comm.fbjni;
 
 import android.content.Context;
 

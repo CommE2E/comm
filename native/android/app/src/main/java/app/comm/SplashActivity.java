@@ -1,4 +1,4 @@
-package org.squadcal;
+package app.comm;
 
 import android.content.Intent;
 import android.os.Bundle;

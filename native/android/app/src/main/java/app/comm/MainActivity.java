@@ -1,4 +1,4 @@
-package org.squadcal;
+package app.comm;
 
 import com.facebook.react.ReactFragmentActivity;
 import android.os.Bundle;

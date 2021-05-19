@@ -1,6 +1,6 @@
-package org.squadcal;
+package app.comm;
 
-import org.squadcal.generated.BasePackageList;
+import app.comm.generated.BasePackageList;
 
 import androidx.multidex.MultiDexApplication;
 import android.content.Context;
@@ -48,7 +48,7 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
       packages.add(new RNFirebaseMessagingPackage());
       packages.add(new RNFirebaseNotificationsPackage());
       packages.add(new KeyboardInputPackage(this.getApplication()));
-      packages.add(new SquadCalPackage());
+      packages.add(new CommPackage());
 
       // Add unimodules
       List<ReactPackage> unimodules = Arrays.<ReactPackage>asList(
@@ -107,7 +107,7 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
       try {
         // We use reflection here to pick up the class that initializes Flipper,
         // since Flipper library is not available in release mode
-        Class<?> aClass = Class.forName("org.squadcal.ReactNativeFlipper");
+        Class<?> aClass = Class.forName("app.comm.ReactNativeFlipper");
         aClass
           .getMethod(
             "initializeFlipper",
