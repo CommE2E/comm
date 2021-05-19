@@ -9,6 +9,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 
 import { unreadCount } from 'lib/selectors/thread-selectors';
 
+import AppsDirectory from '../apps/apps-directory.react';
 import Calendar from '../calendar/calendar.react';
 import Chat from '../chat/chat.react';
 import { MultimediaTooltipModal } from '../chat/multimedia-tooltip-modal.react';
@@ -44,6 +45,7 @@ import {
   RobotextMessageTooltipModalRouteName,
   CameraModalRouteName,
   VideoPlaybackModalRouteName,
+  AppsRouteName,
   type ScreenParamList,
   type TabParamList,
   type OverlayParamList,
@@ -72,6 +74,13 @@ const profileTabOptions = {
   // eslint-disable-next-line react/display-name
   tabBarIcon: ({ color }) => (
     <Icon name="bars" style={[styles.icon, { color }]} />
+  ),
+};
+const appsTabOptions = {
+  tabBarLabel: 'Apps',
+  // eslint-disable-next-line react/display-name
+  tabBarIcon: ({ color }) => (
+    <Icon name="wrench" style={[styles.icon, { color }]} />
   ),
 };
 
@@ -109,6 +118,11 @@ function TabNavigator() {
         name={ProfileRouteName}
         component={Profile}
         options={profileTabOptions}
+      />
+      <Tab.Screen
+        name={AppsRouteName}
+        component={AppsDirectory}
+        options={appsTabOptions}
       />
     </Tab.Navigator>
   );

@@ -33,6 +33,7 @@ export const MessageListRouteName = 'MessageList';
 export const VerificationModalRouteName = 'VerificationModal';
 export const LoggedOutModalRouteName = 'LoggedOutModal';
 export const ProfileRouteName = 'Profile';
+export const AppsRouteName = 'Apps';
 export const ProfileScreenRouteName = 'ProfileScreen';
 export const RelationshipListItemTooltipModalRouteName =
   'RelationshipListItemTooltipModal';
@@ -101,6 +102,7 @@ export type TabParamList = {|
   +Calendar: void,
   +Chat: void,
   +Profile: void,
+  +Apps: void,
 |};
 
 export type ChatParamList = {|
