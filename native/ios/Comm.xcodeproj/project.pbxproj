@@ -10,7 +10,6 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		54B457A7302F03F835EC5D92 /* libPods-SquadCal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A75435FBAC0720E8BE857F55 /* libPods-SquadCal.a */; };
 		711B408425DA97F9005F8F06 /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F26E81B24440D87004049C6 /* dummy.swift */; };
 		71BE84492636A944002849D2 /* NativeModules.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE843B2636A944002849D2 /* NativeModules.cpp */; };
 		71BE844A2636A944002849D2 /* CommCoreModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE843C2636A944002849D2 /* CommCoreModule.cpp */; };
@@ -24,18 +23,17 @@
 		7F8D602326535E060053CB29 /* OpenSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D602026535E060053CB29 /* OpenSans-Regular.ttf */; };
 		7F8D602826535F240053CB29 /* IBMPlexSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D602726535EEE0053CB29 /* IBMPlexSans-Bold.ttf */; };
 		7F8D602926535F2A0053CB29 /* IBMPlexSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D602626535EEE0053CB29 /* IBMPlexSans-Regular.ttf */; };
+		D7DB6E0F85B2DBE15B01EC21 /* libPods-Comm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 994BEBDD4E4959F69CEA0BC3 /* libPods-Comm.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		008F07F21AC5B25A0029DE68 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
-		13B07F961A680F5B00A75B9A /* SquadCal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SquadCal.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = SquadCal/AppDelegate.h; sourceTree = "<group>"; };
-		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = SquadCal/AppDelegate.mm; sourceTree = "<group>"; };
-		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = SquadCal/Images.xcassets; sourceTree = "<group>"; };
-		13B07FB61A68108700A75B9A /* Info.release.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.release.plist; path = SquadCal/Info.release.plist; sourceTree = "<group>"; };
-		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = SquadCal/main.m; sourceTree = "<group>"; };
-		47CCD255658AFBDBBBA0DFBA /* Pods-SquadCal.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SquadCal.debug.xcconfig"; path = "Target Support Files/Pods-SquadCal/Pods-SquadCal.debug.xcconfig"; sourceTree = "<group>"; };
-		5D92D07F9695E31E05F88732 /* Pods-SquadCal.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SquadCal.release.xcconfig"; path = "Target Support Files/Pods-SquadCal/Pods-SquadCal.release.xcconfig"; sourceTree = "<group>"; };
+		13B07F961A680F5B00A75B9A /* Comm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Comm.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Comm/AppDelegate.h; sourceTree = "<group>"; };
+		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = Comm/AppDelegate.mm; sourceTree = "<group>"; };
+		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Comm/Images.xcassets; sourceTree = "<group>"; };
+		13B07FB61A68108700A75B9A /* Info.release.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.release.plist; path = Comm/Info.release.plist; sourceTree = "<group>"; };
+		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Comm/main.m; sourceTree = "<group>"; };
 		711CF80E25DC096000A00FBD /* libFolly.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libFolly.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		71BE84392636A944002849D2 /* Logger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Logger.h; sourceTree = "<group>"; };
 		71BE843B2636A944002849D2 /* NativeModules.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NativeModules.cpp; sourceTree = "<group>"; };
@@ -48,11 +46,11 @@
 		71BE84432636A944002849D2 /* DatabaseManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatabaseManager.h; sourceTree = "<group>"; };
 		71BE84452636A944002849D2 /* Draft.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Draft.h; sourceTree = "<group>"; };
 		71BE84482636A944002849D2 /* sqlite_orm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqlite_orm.h; sourceTree = "<group>"; };
-		71CA4A63262DA8E500835C89 /* Logger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Logger.mm; path = SquadCal/Logger.mm; sourceTree = "<group>"; };
-		71CA4AEA262F230A00835C89 /* Tools.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Tools.h; path = SquadCal/Tools.h; sourceTree = "<group>"; };
-		71CA4AEB262F236100835C89 /* Tools.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = Tools.mm; path = SquadCal/Tools.mm; sourceTree = "<group>"; };
+		71CA4A63262DA8E500835C89 /* Logger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Logger.mm; path = Comm/Logger.mm; sourceTree = "<group>"; };
+		71CA4AEA262F230A00835C89 /* Tools.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Tools.h; path = Comm/Tools.h; sourceTree = "<group>"; };
+		71CA4AEB262F236100835C89 /* Tools.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = Tools.mm; path = Comm/Tools.mm; sourceTree = "<group>"; };
 		7F26E81B24440D87004049C6 /* dummy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = dummy.swift; sourceTree = "<group>"; };
-		7F554F822332D58B007CB9F7 /* Info.debug.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.debug.plist; path = SquadCal/Info.debug.plist; sourceTree = "<group>"; };
+		7F554F822332D58B007CB9F7 /* Info.debug.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.debug.plist; path = Comm/Info.debug.plist; sourceTree = "<group>"; };
 		7F761E292201141E001B6FB7 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		7F788C2B248AA2130098F071 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = SplashScreen.storyboard; sourceTree = "<group>"; };
 		7F8D601E26535E060053CB29 /* OpenSans-Semibold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OpenSans-Semibold.ttf"; path = "Resources/OpenSans-Semibold.ttf"; sourceTree = "<group>"; };
@@ -60,9 +58,11 @@
 		7F8D602026535E060053CB29 /* OpenSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OpenSans-Regular.ttf"; path = "Resources/OpenSans-Regular.ttf"; sourceTree = "<group>"; };
 		7F8D602626535EEE0053CB29 /* IBMPlexSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "IBMPlexSans-Regular.ttf"; path = "Resources/IBMPlexSans-Regular.ttf"; sourceTree = "<group>"; };
 		7F8D602726535EEE0053CB29 /* IBMPlexSans-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "IBMPlexSans-Bold.ttf"; path = "Resources/IBMPlexSans-Bold.ttf"; sourceTree = "<group>"; };
-		7FCEA2DC2444010B004017B1 /* SquadCal-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SquadCal-Bridging-Header.h"; sourceTree = "<group>"; };
-		7FCFD8BD1E81B8DF00629B0E /* SquadCal.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = SquadCal.entitlements; path = SquadCal/SquadCal.entitlements; sourceTree = "<group>"; };
-		A75435FBAC0720E8BE857F55 /* libPods-SquadCal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SquadCal.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7FCEA2DC2444010B004017B1 /* Comm-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Comm-Bridging-Header.h"; sourceTree = "<group>"; };
+		7FCFD8BD1E81B8DF00629B0E /* Comm.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = Comm.entitlements; path = Comm/Comm.entitlements; sourceTree = "<group>"; };
+		994BEBDD4E4959F69CEA0BC3 /* libPods-Comm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Comm.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C562A7004903539402D988CE /* Pods-Comm.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Comm.release.xcconfig"; path = "Target Support Files/Pods-Comm/Pods-Comm.release.xcconfig"; sourceTree = "<group>"; };
+		F53DA7B3F26C2798DCE74A94 /* Pods-Comm.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Comm.debug.xcconfig"; path = "Target Support Files/Pods-Comm/Pods-Comm.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,19 +71,19 @@
 			buildActionMask = 2147483647;
 			files = (
 				7F761E602201141E001B6FB7 /* JavaScriptCore.framework in Frameworks */,
-				54B457A7302F03F835EC5D92 /* libPods-SquadCal.a in Frameworks */,
+				D7DB6E0F85B2DBE15B01EC21 /* libPods-Comm.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		13B07FAE1A68108700A75B9A /* SquadCal */ = {
+		13B07FAE1A68108700A75B9A /* Comm */ = {
 			isa = PBXGroup;
 			children = (
 				71CA4A63262DA8E500835C89 /* Logger.mm */,
 				7F788C2B248AA2130098F071 /* SplashScreen.storyboard */,
-				7FCFD8BD1E81B8DF00629B0E /* SquadCal.entitlements */,
+				7FCFD8BD1E81B8DF00629B0E /* Comm.entitlements */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
@@ -91,12 +91,12 @@
 				7F554F822332D58B007CB9F7 /* Info.debug.plist */,
 				13B07FB61A68108700A75B9A /* Info.release.plist */,
 				13B07FB71A68108700A75B9A /* main.m */,
-				7FCEA2DC2444010B004017B1 /* SquadCal-Bridging-Header.h */,
+				7FCEA2DC2444010B004017B1 /* Comm-Bridging-Header.h */,
 				7F26E81B24440D87004049C6 /* dummy.swift */,
 				71CA4AEA262F230A00835C89 /* Tools.h */,
 				71CA4AEB262F236100835C89 /* Tools.mm */,
 			);
-			name = SquadCal;
+			name = Comm;
 			sourceTree = "<group>";
 		};
 		6534411766BE4CA4B0AB0A78 /* Resources */ = {
@@ -191,7 +191,7 @@
 			children = (
 				711CF80E25DC096000A00FBD /* libFolly.a */,
 				7F761E292201141E001B6FB7 /* JavaScriptCore.framework */,
-				A75435FBAC0720E8BE857F55 /* libPods-SquadCal.a */,
+				994BEBDD4E4959F69CEA0BC3 /* libPods-Comm.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -200,7 +200,7 @@
 			isa = PBXGroup;
 			children = (
 				71BE84362636A944002849D2 /* cpp */,
-				13B07FAE1A68108700A75B9A /* SquadCal */,
+				13B07FAE1A68108700A75B9A /* Comm */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				6534411766BE4CA4B0AB0A78 /* Resources */,
 				7FF0870B1E833C3F000A1ACF /* Frameworks */,
@@ -213,7 +213,7 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* SquadCal.app */,
+				13B07F961A680F5B00A75B9A /* Comm.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -221,8 +221,8 @@
 		D533B93718E3B9684B508006 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				47CCD255658AFBDBBBA0DFBA /* Pods-SquadCal.debug.xcconfig */,
-				5D92D07F9695E31E05F88732 /* Pods-SquadCal.release.xcconfig */,
+				F53DA7B3F26C2798DCE74A94 /* Pods-Comm.debug.xcconfig */,
+				C562A7004903539402D988CE /* Pods-Comm.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -230,9 +230,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		13B07F861A680F5B00A75B9A /* SquadCal */ = {
+		13B07F861A680F5B00A75B9A /* Comm */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "SquadCal" */;
+			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Comm" */;
 			buildPhases = (
 				02DE093B3C1DDF10C1FA3E9C /* [CP] Check Pods Manifest.lock */,
 				13B07F871A680F5B00A75B9A /* Sources */,
@@ -246,9 +246,9 @@
 			);
 			dependencies = (
 			);
-			name = SquadCal;
+			name = Comm;
 			productName = "Hello World";
-			productReference = 13B07F961A680F5B00A75B9A /* SquadCal.app */;
+			productReference = 13B07F961A680F5B00A75B9A /* Comm.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -287,7 +287,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "SquadCal" */;
+			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "Comm" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -301,7 +301,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				13B07F861A680F5B00A75B9A /* SquadCal */,
+				13B07F861A680F5B00A75B9A /* Comm */,
 			);
 		};
 /* End PBXProject section */
@@ -353,7 +353,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-SquadCal-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-Comm-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -366,7 +366,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SquadCal/Pods-SquadCal-resources.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-Comm/Pods-Comm-resources.sh",
 				"${PODS_ROOT}/../../../node_modules/react-native-vector-icons/Fonts/AntDesign.ttf",
 				"${PODS_ROOT}/../../../node_modules/react-native-vector-icons/Fonts/Entypo.ttf",
 				"${PODS_ROOT}/../../../node_modules/react-native-vector-icons/Fonts/EvilIcons.ttf",
@@ -407,7 +407,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SquadCal/Pods-SquadCal-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Comm/Pods-Comm-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		EA2E8897D838D7F3E680EACE /* [CP] Embed Pods Frameworks */ = {
@@ -416,7 +416,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SquadCal/Pods-SquadCal-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-Comm/Pods-Comm-frameworks.sh",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL/OpenSSL.framework/OpenSSL",
 			);
 			name = "[CP] Embed Pods Frameworks";
@@ -425,7 +425,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SquadCal/Pods-SquadCal-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Comm/Pods-Comm-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -451,13 +451,13 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 47CCD255658AFBDBBBA0DFBA /* Pods-SquadCal.debug.xcconfig */;
+			baseConfigurationReference = F53DA7B3F26C2798DCE74A94 /* Pods-Comm.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES;
-				CODE_SIGN_ENTITLEMENTS = SquadCal/SquadCal.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Comm/Comm.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = NO;
@@ -475,7 +475,7 @@
 					"$(SRCROOT)/../node_modules/react-native/Libraries/LinkingIOS",
 					"$(PODS_ROOT)/boost-for-react-native",
 				);
-				INFOPLIST_FILE = SquadCal/Info.debug.plist;
+				INFOPLIST_FILE = Comm/Info.debug.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_CPLUSPLUSFLAGS = (
 					"-DFOLLY_MOBILE=1",
@@ -491,8 +491,8 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.squadcal.app;
-				PRODUCT_NAME = SquadCal;
-				SWIFT_OBJC_BRIDGING_HEADER = "SquadCal-Bridging-Header.h";
+				PRODUCT_NAME = Comm;
+				SWIFT_OBJC_BRIDGING_HEADER = "Comm-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -502,13 +502,13 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5D92D07F9695E31E05F88732 /* Pods-SquadCal.release.xcconfig */;
+			baseConfigurationReference = C562A7004903539402D988CE /* Pods-Comm.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES;
-				CODE_SIGN_ENTITLEMENTS = SquadCal/SquadCal.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Comm/Comm.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6BF4H9TU5U;
@@ -519,7 +519,7 @@
 					"$(SRCROOT)/../node_modules/react-native/Libraries/LinkingIOS",
 					"$(PODS_ROOT)/boost-for-react-native",
 				);
-				INFOPLIST_FILE = SquadCal/Info.release.plist;
+				INFOPLIST_FILE = Comm/Info.release.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = (
@@ -536,8 +536,8 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.squadcal.app;
-				PRODUCT_NAME = SquadCal;
-				SWIFT_OBJC_BRIDGING_HEADER = "SquadCal-Bridging-Header.h";
+				PRODUCT_NAME = Comm;
+				SWIFT_OBJC_BRIDGING_HEADER = "Comm-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -650,7 +650,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "SquadCal" */ = {
+		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Comm" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
@@ -659,7 +659,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "SquadCal" */ = {
+		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "Comm" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,

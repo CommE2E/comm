@@ -29,9 +29,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "SquadCal.app"
-               BlueprintName = "SquadCal"
-               ReferencedContainer = "container:SquadCal.xcodeproj">
+               BuildableName = "Comm.app"
+               BlueprintName = "Comm"
+               ReferencedContainer = "container:Comm.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -59,9 +59,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "SquadCal.app"
-            BlueprintName = "SquadCal"
-            ReferencedContainer = "container:SquadCal.xcodeproj">
+            BuildableName = "Comm.app"
+            BlueprintName = "Comm"
+            ReferencedContainer = "container:Comm.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -76,9 +76,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "SquadCal.app"
-            BlueprintName = "SquadCal"
-            ReferencedContainer = "container:SquadCal.xcodeproj">
+            BuildableName = "Comm.app"
+            BlueprintName = "Comm"
+            ReferencedContainer = "container:Comm.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

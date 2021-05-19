@@ -3,5 +3,5 @@
 #import <UIKit/UIKit.h>
 
 @interface Tools : NSObject
-+ (NSString*)getSQLiteFilePath;
++ (NSString *)getSQLiteFilePath;
 @end
