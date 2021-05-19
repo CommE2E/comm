@@ -588,7 +588,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
         <RegisterPanel
           setActiveAlert={this.setActiveAlert}
           opacityValue={this.panelOpacityValue}
-          state={this.state.registerState}
+          registerState={this.state.registerState}
         />
       );
     } else if (this.state.mode === 'prompt') {

@@ -47,7 +47,7 @@ type BaseProps = {|
   +setActiveAlert: (activeAlert: boolean) => void,
   +opacityValue: Animated.Value,
   +innerRef: (logInPanel: ?LogInPanel) => void,
-  +state: StateContainer<LogInState>,
+  +logInState: StateContainer<LogInState>,
 |};
 type Props = {|
   ...BaseProps,
@@ -74,17 +74,17 @@ class LogInPanel extends React.PureComponent<Props> {
   }
 
   get usernameOrEmailInputText(): string {
-    return this.props.state.state.usernameOrEmailInputText || '';
+    return this.props.logInState.state.usernameOrEmailInputText || '';
   }
 
   get passwordInputText(): string {
-    return this.props.state.state.passwordInputText || '';
+    return this.props.logInState.state.passwordInputText || '';
   }
 
   async attemptToFetchCredentials() {
     if (
-      this.props.state.state.usernameOrEmailInputText !== null &&
-      this.props.state.state.usernameOrEmailInputText !== undefined
+      this.props.logInState.state.usernameOrEmailInputText !== null &&
+      this.props.logInState.state.usernameOrEmailInputText !== undefined
     ) {
       return;
     }
@@ -93,12 +93,12 @@ class LogInPanel extends React.PureComponent<Props> {
       return;
     }
     if (
-      this.props.state.state.usernameOrEmailInputText !== null &&
-      this.props.state.state.usernameOrEmailInputText !== undefined
+      this.props.logInState.state.usernameOrEmailInputText !== null &&
+      this.props.logInState.state.usernameOrEmailInputText !== undefined
     ) {
       return;
     }
-    this.props.state.setState({
+    this.props.logInState.setState({
       usernameOrEmailInputText: credentials.username,
       passwordInputText: credentials.password,
     });
@@ -176,7 +176,7 @@ class LogInPanel extends React.PureComponent<Props> {
   };
 
   onChangeUsernameOrEmailInputText = (text: string) => {
-    this.props.state.setState({ usernameOrEmailInputText: text });
+    this.props.logInState.setState({ usernameOrEmailInputText: text });
   };
 
   onUsernameOrEmailKeyPress = (
@@ -194,7 +194,7 @@ class LogInPanel extends React.PureComponent<Props> {
   };
 
   onChangePasswordInputText = (text: string) => {
-    this.props.state.setState({ passwordInputText: text });
+    this.props.logInState.setState({ passwordInputText: text });
   };
 
   onSubmit = () => {
@@ -232,7 +232,7 @@ class LogInPanel extends React.PureComponent<Props> {
 
   onUsernameOrEmailAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
-    this.props.state.setState(
+    this.props.logInState.setState(
       {
         usernameOrEmailInputText: '',
       },
@@ -297,7 +297,7 @@ class LogInPanel extends React.PureComponent<Props> {
 
   onPasswordAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
-    this.props.state.setState(
+    this.props.logInState.setState(
       {
         passwordInputText: '',
       },
@@ -310,7 +310,7 @@ class LogInPanel extends React.PureComponent<Props> {
 
   onUnknownErrorAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
-    this.props.state.setState(
+    this.props.logInState.setState(
       {
         usernameOrEmailInputText: '',
         passwordInputText: '',

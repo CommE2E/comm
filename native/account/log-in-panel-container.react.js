@@ -116,7 +116,7 @@ class BaseLogInPanelContainer extends React.PureComponent<Props, State> {
           setActiveAlert={this.props.setActiveAlert}
           opacityValue={this.props.opacityValue}
           innerRef={this.logInPanelRef}
-          state={this.props.logInState}
+          logInState={this.props.logInState}
         />
       </Animated.View>
     );
