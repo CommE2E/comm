@@ -17,7 +17,7 @@ const DevTools = React.memo<{||}>(() => {
     devToolsRef.current === undefined
   ) {
     devToolsRef.current = global.__REDUX_DEVTOOLS_EXTENSION__.connect({
-      name: 'SquadCal',
+      name: 'Comm',
       features: {
         pause: false,
         lock: false,
@@ -54,7 +54,7 @@ const DevTools = React.memo<{||}>(() => {
         action.payload.hideFromMonitor
       ) {
         // Triggered by handleActionFromMonitor below when somebody is stepping
-        // through actions in the SquadCal monitor in Redux dev tools
+        // through actions in the Comm monitor in Redux dev tools
         return;
       } else if (action.type === setNavStateActionType) {
         // Triggered by NavFromReduxHandler when somebody imports state into the
