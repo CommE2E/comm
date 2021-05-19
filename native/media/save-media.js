@@ -141,7 +141,7 @@ async function innerSaveMedia(
 const androidSavePermission =
   PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
 
-// On Android, we save the media to our own SquadCal folder in the
+// On Android, we save the media to our own Comm folder in the
 // Pictures directory, and then trigger the media scanner to pick it up
 async function saveMediaAndroid(
   inputURI: string,
@@ -176,7 +176,7 @@ async function saveMediaAndroid(
 
   const promises = [];
   let success = true;
-  const saveFolder = `${filesystem.PicturesDirectoryPath}/SquadCal/`;
+  const saveFolder = `${filesystem.PicturesDirectoryPath}/Comm/`;
   promises.push(
     (async () => {
       const makeDirectoryStep = await mkdir(saveFolder);
