@@ -8,6 +8,7 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.UiThreadUtil;
 
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
@@ -39,23 +40,25 @@ public class AndroidLifecycleModule extends ReactContextBaseJavaModule {
       ? ANDROID_LIFECYCLE_ACTIVE
       : ANDROID_LIFECYCLE_BACKGROUND;
 
-    lifecycle.addObserver(
-      (LifecycleEventObserver) (source, event) -> {
-        final String name = event.toString();
-        if (name != "ON_START" && name != "ON_STOP") {
-          return;
+    UiThreadUtil.runOnUiThread(() -> {
+      lifecycle.addObserver(
+        (LifecycleEventObserver) (source, event) -> {
+          final String name = event.toString();
+          if (name != "ON_START" && name != "ON_STOP") {
+            return;
+          }
+          if (!this.isInitialized) {
+            return;
+          }
+          this.currentState = name == "ON_START"
+            ? ANDROID_LIFECYCLE_ACTIVE
+            : ANDROID_LIFECYCLE_BACKGROUND;
+          reactContext
+            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+            .emit("LIFECYCLE_CHANGE", this.createEventMap());
         }
-        if (!this.isInitialized) {
-          return;
-        }
-        this.currentState = name == "ON_START"
-          ? ANDROID_LIFECYCLE_ACTIVE
-          : ANDROID_LIFECYCLE_BACKGROUND;
-        reactContext
-          .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-          .emit("LIFECYCLE_CHANGE", this.createEventMap());
-      }
-    );
+      );
+    });
   }
 
   @Override
