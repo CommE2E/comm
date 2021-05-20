@@ -13,6 +13,8 @@ cmake_minimum_required(VERSION 3.4.1)
 set(PACKAGE_NAME "comm_jni_module")
 
 find_package(fbjni REQUIRED CONFIG)
+set(BUILD_TESTING false)
+add_subdirectory(./build/third-party-ndk/glog/glog-0.5.0/)
 
 include_directories(
   ../../node_modules/react-native/React
@@ -28,7 +30,6 @@ include_directories(
   ../headers
   # external libs
   ./build/third-party-ndk/folly
-  ./build/third-party-ndk/glog/exported
   ./build/third-party-ndk/boost/boost
   ./build/third-party-ndk/double-conversion
   # comm android specific code
@@ -43,6 +44,7 @@ include_directories(
 file(GLOB SQLITE "../../node_modules/@nozbe/sqlite/sqlite-amalgamation-3310100/*.c")
 file(GLOB COMMON_NATIVE_CODE "../../cpp/CommonCpp/**/*.cpp")
 file(GLOB ANDROID_NATIVE_CODE "./src/cpp/*.cpp")
+file(GLOB DOUBLE_CONVERSION_SOURCES "./build/third-party-ndk/double-conversion/double-conversion/*.cc")
 
 add_library(
   # Sets the name of the library.
@@ -56,6 +58,29 @@ add_library(
   ../../node_modules/react-native/ReactCommon/turbomodule/core/LongLivedObject.cpp
   ../../node_modules/react-native/ReactCommon/turbomodule/core/TurboModuleUtils.cpp
   ${SQLITE}
+
+  # folly
+  ./build/third-party-ndk/folly/folly/detail/Futex.cpp
+  ./build/third-party-ndk/folly/folly/synchronization/ParkingLot.cpp
+  ./build/third-party-ndk/folly/folly/lang/SafeAssert.cpp
+  ./build/third-party-ndk/folly/folly/FileUtil.cpp
+  ./build/third-party-ndk/folly/folly/Subprocess.cpp
+  ./build/third-party-ndk/folly/folly/File.cpp
+  ./build/third-party-ndk/folly/folly/Format.cpp
+  ./build/third-party-ndk/folly/folly/Conv.cpp
+  ./build/third-party-ndk/folly/folly/io/IOBuf.cpp
+  ./build/third-party-ndk/folly/folly/memory/detail/MallocImpl.cpp
+  ./build/third-party-ndk/folly/folly/ScopeGuard.cpp
+  ./build/third-party-ndk/folly/folly/hash/SpookyHashV2.cpp
+  ./build/third-party-ndk/folly/folly/io/IOBufQueue.cpp
+  ./build/third-party-ndk/folly/folly/lang/Assume.cpp
+  ./build/third-party-ndk/folly/folly/String.cpp
+  ./build/third-party-ndk/folly/folly/portability/SysUio.cpp
+  ./build/third-party-ndk/folly/folly/net/NetOps.cpp
+
+  # double-conversion
+  ${DOUBLE_CONVERSION_SOURCES}
+
   # comm code
   ${ANDROID_NATIVE_CODE}
   ${COMMON_NATIVE_CODE}
@@ -76,6 +101,7 @@ target_link_libraries(
   fbjni::fbjni
   android
   ${log-lib}
+  glog::glog
 )
 
 # add a dummy library which is required by CallInvokerHolderImpl.java
