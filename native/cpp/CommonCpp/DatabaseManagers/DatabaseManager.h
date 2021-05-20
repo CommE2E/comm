@@ -11,7 +11,7 @@ public:
   static const DatabaseManagerInterface &getInstance() {
     // TODO: conditionally create desired type of db manager
     // maybe basing on some preprocessor flag
-    static SQLiteManager instance;
+    thread_local SQLiteManager instance;
     return instance;
   }
 };
