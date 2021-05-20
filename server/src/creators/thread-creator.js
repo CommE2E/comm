@@ -3,7 +3,6 @@
 import invariant from 'invariant';
 
 import bots from 'lib/facts/bots';
-import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils';
 import {
   generatePendingThreadColor,
   generateRandomColor,
@@ -12,7 +11,6 @@ import {
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import type { Shape } from 'lib/types/core';
 import { messageTypes } from 'lib/types/message-types';
-import { userRelationshipStatus } from 'lib/types/relationship-types';
 import {
   type ServerNewThreadRequest,
   type NewThreadResponse,
@@ -25,9 +23,10 @@ import { firstLine } from 'lib/utils/string-utils';
 
 import { dbQuery, SQL } from '../database/database';
 import { fetchMessageInfoByID } from '../fetchers/message-fetchers';
-import { fetchThreadInfos } from '../fetchers/thread-fetchers';
-import { checkThreadPermission } from '../fetchers/thread-permission-fetchers';
-import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
+import {
+  checkThreadPermission,
+  validateCandidateMembers,
+} from '../fetchers/thread-permission-fetchers';
 import type { Viewer } from '../session/viewer';
 import {
   changeRole,
@@ -38,7 +37,10 @@ import { joinThread } from '../updaters/thread-updaters';
 import RelationshipChangeset from '../utils/relationship-changeset';
 import createIDs from './id-creator';
 import createMessages from './message-creator';
-import { createInitialRolesForNewThread } from './role-creator';
+import {
+  createInitialRolesForNewThread,
+  getRolePermissionBlobsForChat,
+} from './role-creator';
 import type { UpdatesForCurrentSession } from './update-creator';
 
 const { squadbot } = bots;
@@ -81,7 +83,7 @@ async function createThread(
     request.initialMemberIDs && request.initialMemberIDs.length > 0
       ? request.initialMemberIDs
       : null;
-  const ghostMemberIDs =
+  const ghostMemberIDsFromRequest =
     request.ghostMemberIDs && request.ghostMemberIDs.length > 0
       ? request.ghostMemberIDs
       : null;
@@ -109,111 +111,60 @@ async function createThread(
     throw new ServerError('invalid_parameters');
   }
 
-  const checkPromises = {};
-  if (parentThreadID) {
-    checkPromises.parentThreadFetch = fetchThreadInfos(
-      viewer,
-      SQL`t.id = ${parentThreadID}`,
-    );
-    checkPromises.hasParentPermission = checkThreadPermission(
+  const confirmParentPermissionPromise = (async () => {
+    if (!parentThreadID) {
+      return;
+    }
+    const hasParentPermission = await checkThreadPermission(
       viewer,
       parentThreadID,
       threadType === threadTypes.SIDEBAR
         ? threadPermissions.CREATE_SIDEBARS
         : threadPermissions.CREATE_SUBTHREADS,
     );
-  }
-
-  const memberIDs = [];
-  if (initialMemberIDsFromRequest) {
-    memberIDs.push(...initialMemberIDsFromRequest);
-  }
-  if (ghostMemberIDs) {
-    memberIDs.push(...ghostMemberIDs);
-  }
-
-  if (initialMemberIDsFromRequest || ghostMemberIDs) {
-    checkPromises.fetchMemberIDs = fetchKnownUserInfos(viewer, memberIDs);
-  }
-
-  if (sourceMessageID) {
-    checkPromises.sourceMessage = fetchMessageInfoByID(viewer, sourceMessageID);
-  }
-
-  const {
-    parentThreadFetch,
-    hasParentPermission,
-    fetchMemberIDs,
-    sourceMessage,
-  } = await promiseAll(checkPromises);
-
-  let parentThreadMembers;
-  if (parentThreadID) {
-    invariant(parentThreadFetch, 'parentThreadFetch should be set');
-    const parentThreadInfo = parentThreadFetch.threadInfos[parentThreadID];
     if (!hasParentPermission) {
       throw new ServerError('invalid_credentials');
     }
-    parentThreadMembers = parentThreadInfo.members.map(
-      (userInfo) => userInfo.id,
+  })();
+
+  const validateMembersPromise = (async () => {
+    const defaultRolePermissions = getRolePermissionBlobsForChat(threadType)
+      .Members;
+    const { initialMemberIDs, ghostMemberIDs } = await validateCandidateMembers(
+      viewer,
+      {
+        initialMemberIDs: initialMemberIDsFromRequest,
+        ghostMemberIDs: ghostMemberIDsFromRequest,
+      },
+      {
+        threadType,
+        parentThreadID,
+        defaultRolePermissions,
+      },
+      { requireRelationship: !shouldCreateRelationships },
     );
-  }
-
-  const relationshipChangeset = new RelationshipChangeset();
-  const silencedMemberIDs = new Set();
-  if (fetchMemberIDs) {
-    invariant(initialMemberIDsFromRequest || ghostMemberIDs, 'should be set');
-    for (const memberID of memberIDs) {
-      const member = fetchMemberIDs[memberID];
-      if (
-        !member &&
-        shouldCreateRelationships &&
-        (threadType !== threadTypes.SIDEBAR ||
-          parentThreadMembers?.includes(memberID))
-      ) {
-        continue;
-      } else if (!member && silentlyFailMembers) {
-        silencedMemberIDs.add(memberID);
-        continue;
-      } else if (!member) {
-        throw new ServerError('invalid_credentials');
-      }
-      relationshipChangeset.setRelationshipExists(viewer.id, memberID);
-
-      const { relationshipStatus } = member;
-      const memberRelationshipHasBlock = !!(
-        relationshipStatus &&
-        relationshipBlockedInEitherDirection(relationshipStatus)
-      );
-      if (
-        relationshipStatus === userRelationshipStatus.FRIEND &&
-        threadType !== threadTypes.SIDEBAR
-      ) {
-        continue;
-      } else if (memberRelationshipHasBlock && silentlyFailMembers) {
-        silencedMemberIDs.add(memberID);
-      } else if (memberRelationshipHasBlock) {
-        throw new ServerError('invalid_credentials');
-      } else if (
-        parentThreadMembers &&
-        parentThreadMembers.includes(memberID)
-      ) {
-        continue;
-      } else if (!shouldCreateRelationships && silentlyFailMembers) {
-        silencedMemberIDs.add(memberID);
-      } else if (!shouldCreateRelationships) {
-        throw new ServerError('invalid_credentials');
-      }
+    if (
+      !silentlyFailMembers &&
+      (Number(initialMemberIDs?.length) <
+        Number(initialMemberIDsFromRequest?.length) ||
+        Number(ghostMemberIDs?.length) <
+          Number(ghostMemberIDsFromRequest?.length))
+    ) {
+      throw new ServerError('invalid_credentials');
     }
-  }
+    return { initialMemberIDs, ghostMemberIDs };
+  })();
 
-  const filteredInitialMemberIDs: ?$ReadOnlyArray<string> = initialMemberIDsFromRequest?.filter(
-    (id) => !silencedMemberIDs.has(id),
-  );
-  const initialMemberIDs =
-    filteredInitialMemberIDs && filteredInitialMemberIDs.length > 0
-      ? filteredInitialMemberIDs
-      : null;
+  const checkPromises = {};
+  checkPromises.confirmParentPermission = confirmParentPermissionPromise;
+  checkPromises.validateMembers = validateMembersPromise;
+  if (sourceMessageID) {
+    checkPromises.sourceMessage = fetchMessageInfoByID(viewer, sourceMessageID);
+  }
+  const {
+    sourceMessage,
+    validateMembers: { initialMemberIDs, ghostMemberIDs },
+  } = await promiseAll(checkPromises);
 
   const [id] = await createIDs('threads', 1);
   const newRoles = await createInitialRolesForNewThread(id, threadType);
@@ -386,6 +337,7 @@ async function createThread(
     ...creatorMembershipRows,
     ...recalculateMembershipRows,
   ];
+  const relationshipChangeset = new RelationshipChangeset();
   relationshipChangeset.addAll(creatorRelationshipChangeset);
   relationshipChangeset.addAll(recalculateRelationshipChangeset);
 

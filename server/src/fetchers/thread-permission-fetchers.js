@@ -1,13 +1,21 @@
 // @flow
 
-import { permissionLookup } from 'lib/permissions/thread-permissions';
+import {
+  permissionLookup,
+  makePermissionsBlob,
+} from 'lib/permissions/thread-permissions';
+import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils';
 import {
   threadFrozenDueToBlock,
   permissionsDisabledByBlock,
 } from 'lib/shared/thread-utils';
-import type {
-  ThreadPermission,
-  ThreadPermissionsBlob,
+import { userRelationshipStatus } from 'lib/types/relationship-types';
+import {
+  threadPermissions,
+  type ThreadType,
+  type ThreadPermission,
+  type ThreadPermissionsBlob,
+  type ThreadRolePermissionsBlob,
 } from 'lib/types/thread-types';
 
 import { dbQuery, SQL } from '../database/database';
@@ -180,6 +188,117 @@ async function checkThread(
   return validThreads.has(threadID);
 }
 
+type CandidateMembers = {
+  +[key: string]: ?$ReadOnlyArray<string>,
+  ...
+};
+type ValidateCandidateMembersParams = {|
+  +threadType: ThreadType,
+  +parentThreadID: ?string,
+  +defaultRolePermissions: ThreadRolePermissionsBlob,
+|};
+type ValidateCandidateMembersOptions = {| +requireRelationship?: boolean |};
+async function validateCandidateMembers(
+  viewer: Viewer,
+  candidates: CandidateMembers,
+  params: ValidateCandidateMembersParams,
+  options?: ValidateCandidateMembersOptions,
+): Promise<CandidateMembers> {
+  const requireRelationship = options?.requireRelationship ?? true;
+
+  const allCandidatesSet = new Set();
+  for (const key in candidates) {
+    const candidateGroup = candidates[key];
+    if (!candidateGroup) {
+      continue;
+    }
+    for (const candidate of candidateGroup) {
+      allCandidatesSet.add(candidate);
+    }
+  }
+  const allCandidates = [...allCandidatesSet];
+
+  const fetchMembersPromise = fetchKnownUserInfos(viewer, allCandidates);
+
+  const parentPermissionsPromise = (async () => {
+    const parentPermissions = {};
+    if (!params.parentThreadID) {
+      return parentPermissions;
+    }
+    const parentPermissionsQuery = SQL`
+      SELECT user, permissions
+      FROM memberships
+      WHERE thread = ${params.parentThreadID} AND user IN (${allCandidates})
+    `;
+    const [result] = await dbQuery(parentPermissionsQuery);
+    for (const row of result) {
+      parentPermissions[row.user] = row.permissions;
+    }
+    return parentPermissions;
+  })();
+
+  const [fetchedMembers, parentPermissions] = await Promise.all([
+    fetchMembersPromise,
+    parentPermissionsPromise,
+  ]);
+
+  const ignoreMembers = new Set();
+  for (const memberID of allCandidates) {
+    const member = fetchedMembers[memberID];
+    if (!member && requireRelationship) {
+      ignoreMembers.add(memberID);
+      continue;
+    }
+    const relationshipStatus = member?.relationshipStatus;
+    const memberRelationshipHasBlock = !!(
+      relationshipStatus &&
+      relationshipBlockedInEitherDirection(relationshipStatus)
+    );
+    if (memberRelationshipHasBlock) {
+      ignoreMembers.add(memberID);
+      continue;
+    }
+    const permissionsFromParent = parentPermissions[memberID];
+    if (
+      relationshipStatus !== userRelationshipStatus.FRIEND &&
+      !permissionsFromParent &&
+      requireRelationship
+    ) {
+      ignoreMembers.add(memberID);
+      continue;
+    }
+    const permissions = makePermissionsBlob(
+      params.defaultRolePermissions,
+      permissionsFromParent,
+      '-1',
+      params.threadType,
+    );
+    if (!permissionLookup(permissions, threadPermissions.MEMBERSHIP)) {
+      ignoreMembers.add(memberID);
+      continue;
+    }
+  }
+  if (ignoreMembers.size === 0) {
+    return candidates;
+  }
+
+  const result = {};
+  for (const key in candidates) {
+    const candidateGroup = candidates[key];
+    if (!candidateGroup) {
+      result[key] = candidates[key];
+      continue;
+    }
+    result[key] = [];
+    for (const candidate of candidateGroup) {
+      if (!ignoreMembers.has(candidate)) {
+        result[key].push(candidate);
+      }
+    }
+  }
+  return result;
+}
+
 export {
   fetchThreadPermissionsBlob,
   checkThreadPermission,
@@ -188,4 +307,5 @@ export {
   getValidThreads,
   checkThread,
   checkIfThreadIsBlocked,
+  validateCandidateMembers,
 };

@@ -1,19 +1,15 @@
 // @flow
 
-import invariant from 'invariant';
-
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
 import {
   threadHasAdminRole,
   roleIsAdminRole,
   viewerIsMember,
   getThreadTypeParentRequirement,
-  threadMemberHasPermission,
 } from 'lib/shared/thread-utils';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import type { Shape } from 'lib/types/core';
 import { messageTypes, defaultNumberPerThread } from 'lib/types/message-types';
-import { userRelationshipStatus } from 'lib/types/relationship-types';
 import {
   type RoleChangeRequest,
   type ChangeThreadSettingsResult,
@@ -32,6 +28,7 @@ import { promiseAll } from 'lib/utils/promises';
 import { firstLine } from 'lib/utils/string-utils';
 
 import createMessages from '../creators/message-creator';
+import { getRolePermissionBlobsForChat } from '../creators/role-creator';
 import { createUpdates } from '../creators/update-creator';
 import { dbQuery, SQL } from '../database/database';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
@@ -44,11 +41,11 @@ import {
   checkThreadPermission,
   viewerIsMember as fetchViewerIsMember,
   checkThread,
+  validateCandidateMembers,
 } from '../fetchers/thread-permission-fetchers';
 import {
   verifyUserIDs,
   verifyUserOrCookieIDs,
-  fetchKnownUserInfos,
 } from '../fetchers/user-fetchers';
 import type { Viewer } from '../session/viewer';
 import RelationshipChangeset from '../utils/relationship-changeset';
@@ -358,13 +355,6 @@ async function updateThread(
     throw new ServerError('invalid_parameters');
   }
 
-  if (newMemberIDs) {
-    validationPromises.fetchNewMembers = fetchKnownUserInfos(
-      viewer,
-      newMemberIDs,
-    );
-  }
-
   validationPromises.serverThreadInfos = fetchServerThreadInfos(
     SQL`t.id = ${request.threadID}`,
   );
@@ -399,11 +389,9 @@ async function updateThread(
     checks,
   );
 
-  const {
-    fetchNewMembers,
-    serverThreadInfos,
-    hasNecessaryPermissions,
-  } = await promiseAll(validationPromises);
+  const { serverThreadInfos, hasNecessaryPermissions } = await promiseAll(
+    validationPromises,
+  );
 
   const serverThreadInfo = serverThreadInfos.threadInfos[request.threadID];
   if (!serverThreadInfo) {
@@ -461,63 +449,71 @@ async function updateThread(
     throw new ServerError('no_parent_thread_specified');
   }
 
-  if (
-    nextParentThreadID &&
-    (nextParentThreadID !== oldParentThreadID ||
-      (nextThreadType === threadTypes.SIDEBAR) !==
-        (oldThreadType === threadTypes.SIDEBAR))
-  ) {
-    const hasParentPermission = await checkThreadPermission(
-      viewer,
-      nextParentThreadID,
-      nextThreadType === threadTypes.SIDEBAR
-        ? threadPermissions.CREATE_SIDEBARS
-        : threadPermissions.CREATE_SUBTHREADS,
-    );
-    if (!hasParentPermission) {
-      throw new ServerError('invalid_parameters');
+  const confirmParentPermissionPromise = (async () => {
+    if (
+      nextParentThreadID &&
+      (nextParentThreadID !== oldParentThreadID ||
+        (nextThreadType === threadTypes.SIDEBAR) !==
+          (oldThreadType === threadTypes.SIDEBAR))
+    ) {
+      const hasParentPermission = await checkThreadPermission(
+        viewer,
+        nextParentThreadID,
+        nextThreadType === threadTypes.SIDEBAR
+          ? threadPermissions.CREATE_SIDEBARS
+          : threadPermissions.CREATE_SUBTHREADS,
+      );
+      if (!hasParentPermission) {
+        throw new ServerError('invalid_parameters');
+      }
     }
-  }
+  })();
 
-  if (fetchNewMembers) {
-    invariant(newMemberIDs, 'should be set');
-    const newIDs = newMemberIDs; // for Flow
-    for (const newMemberID of newIDs) {
-      if (!fetchNewMembers[newMemberID]) {
-        if (!forceAddMembers) {
-          throw new ServerError('invalid_credentials');
-        } else if (nextThreadType === threadTypes.SIDEBAR) {
-          throw new ServerError('invalid_thread_type');
-        } else {
-          continue;
-        }
+  const validateNewMembersPromise = (async () => {
+    if (!newMemberIDs) {
+      return;
+    }
+
+    let defaultRolePermissions;
+    if (threadType === null || threadType === undefined) {
+      const rolePermissionsQuery = SQL`
+        SELECT r.permissions
+        FROM threads t
+        LEFT JOIN roles r ON r.id = t.default_role
+        WHERE t.id = ${request.threadID}
+      `;
+      const [result] = await dbQuery(rolePermissionsQuery);
+      if (result.length > 0) {
+        defaultRolePermissions = result[0].permissions;
       }
-      const { relationshipStatus } = fetchNewMembers[newMemberID];
-      if (
-        relationshipStatus === userRelationshipStatus.FRIEND &&
-        nextThreadType !== threadTypes.SIDEBAR
-      ) {
-        continue;
-      } else if (
-        relationshipStatus === userRelationshipStatus.BLOCKED_BY_VIEWER ||
-        relationshipStatus === userRelationshipStatus.BLOCKED_VIEWER ||
-        relationshipStatus === userRelationshipStatus.BOTH_BLOCKED
-      ) {
-        throw new ServerError('invalid_credentials');
-      } else if (
-        threadMemberHasPermission(
-          serverThreadInfo,
-          newMemberID,
-          threadPermissions.KNOW_OF,
-        )
-      ) {
-        continue;
-      } else if (forceAddMembers && nextThreadType !== threadTypes.SIDEBAR) {
-        continue;
-      }
+    }
+    if (!defaultRolePermissions) {
+      defaultRolePermissions = getRolePermissionBlobsForChat(nextThreadType)
+        .Members;
+    }
+
+    const { newMemberIDs: validatedIDs } = await validateCandidateMembers(
+      viewer,
+      { newMemberIDs },
+      {
+        threadType: nextThreadType,
+        parentThreadID: nextParentThreadID,
+        defaultRolePermissions,
+      },
+      { requireRelationship: !forceAddMembers },
+    );
+    if (
+      validatedIDs &&
+      Number(validatedIDs?.length) < Number(newMemberIDs?.length)
+    ) {
       throw new ServerError('invalid_credentials');
     }
-  }
+  })();
+
+  await Promise.all([
+    confirmParentPermissionPromise,
+    validateNewMembersPromise,
+  ]);
 
   const updateQueryPromise = (async () => {
     if (Object.keys(sqlUpdate).length === 0) {
