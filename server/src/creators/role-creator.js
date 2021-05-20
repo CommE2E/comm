@@ -85,7 +85,6 @@ function getRolePermissionBlobsForOrg(): RolePermissionBlobs {
   const memberPermissions = {
     [threadPermissions.KNOW_OF]: true,
     [threadPermissions.VISIBLE]: true,
-    [threadPermissions.JOIN_THREAD]: true,
     [openDescendantKnowOf]: true,
     [openDescendantVisible]: true,
     [openDescendantJoinThread]: true,
@@ -116,7 +115,6 @@ function getRolePermissionBlobsForOrg(): RolePermissionBlobs {
   const adminPermissions = {
     [threadPermissions.KNOW_OF]: true,
     [threadPermissions.VISIBLE]: true,
-    [threadPermissions.JOIN_THREAD]: true,
     [threadPermissions.VOICED]: true,
     [threadPermissions.EDIT_ENTRIES]: true,
     [threadPermissions.EDIT_THREAD]: true,
@@ -206,7 +204,6 @@ function getRolePermissionBlobsForChat(
   const memberPermissions = {
     [threadPermissions.KNOW_OF]: true,
     [threadPermissions.VISIBLE]: true,
-    [threadPermissions.JOIN_THREAD]: true,
     [threadPermissions.VOICED]: true,
     [threadPermissions.EDIT_ENTRIES]: true,
     [threadPermissions.EDIT_THREAD]: true,
