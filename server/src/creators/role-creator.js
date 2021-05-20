@@ -192,7 +192,6 @@ function getRolePermissionBlobsForChat(
         [threadPermissions.VOICED]: true,
         [threadPermissions.EDIT_ENTRIES]: true,
         [threadPermissions.EDIT_THREAD]: true,
-        [threadPermissions.CREATE_SUBTHREADS]: true,
         [threadPermissions.CREATE_SIDEBARS]: true,
         [openDescendantKnowOf]: true,
         [openDescendantVisible]: true,
