@@ -26,8 +26,11 @@ include_directories(
   ../../cpp/lib/sqlite_orm
   # symlinked React Native headers
   ../headers
-  # folly
+  # external libs
   ./build/third-party-ndk/folly
+  ./build/third-party-ndk/glog/exported
+  ./build/third-party-ndk/boost/boost
+  ./build/third-party-ndk/double-conversion
   # comm android specific code
   ./src/cpp
   # comm native mutual code
