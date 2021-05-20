@@ -14,7 +14,7 @@ namespace jsi = facebook::jsi;
  * database managers they should appear in constructors/destructors
  * following the RAII pattern
  */
-class DatabaseManagerInterface {
+class DatabaseQueryExecutor {
 public:
   virtual std::string getDraft(std::string key) const = 0;
   virtual void updateDraft(std::string key, std::string text) const = 0;

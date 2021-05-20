@@ -1,17 +1,17 @@
 #pragma once
 
-#include "DatabaseManagerInterface.h"
+#include "DatabaseQueryExecutor.h"
 // TODO: includes may be conditional if we base on the preprocessor
-#include "SQLiteManager.h"
+#include "SQLiteQueryExecutor.h"
 
 namespace comm {
 
 class DatabaseManager {
 public:
-  static const DatabaseManagerInterface &getInstance() {
+  static const DatabaseQueryExecutor &getQueryExecutor() {
     // TODO: conditionally create desired type of db manager
     // maybe basing on some preprocessor flag
-    thread_local SQLiteManager instance;
+    thread_local SQLiteQueryExecutor instance;
     return instance;
   }
 };

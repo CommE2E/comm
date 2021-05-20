@@ -1,5 +1,5 @@
 #include "CommCoreModule.h"
-#include "SQLiteManager.h"
+#include "SQLiteQueryExecutor.h"
 #include "jniHelpers.h"
 #include <CallInvokerHolder.h>
 #include <fbjni/fbjni.h>
@@ -30,7 +30,7 @@ public:
 
     jni::local_ref<jni::JObject> sqliteFilePathObj =
         additionalParameters.get("sqliteFilePath");
-    comm::SQLiteManager::sqliteFilePath = sqliteFilePathObj->toString();
+    comm::SQLiteQueryExecutor::sqliteFilePath = sqliteFilePathObj->toString();
   }
 
   static void registerNatives() {

@@ -20,7 +20,7 @@
 
 #import "Tools.h"
 #import "CommCoreModule.h"
-#import "SQLiteManager.h"
+#import "SQLiteQueryExecutor.h"
 
 #ifdef FB_SONARKIT_ENABLED
 #import <FlipperKit/FlipperClient.h>
@@ -153,7 +153,7 @@ using Runtime = facebook::jsi::Runtime;
       );
 
       // set sqlite file path
-      comm::SQLiteManager::sqliteFilePath = 
+      comm::SQLiteQueryExecutor::sqliteFilePath = 
         std::string([[Tools getSQLiteFilePath] UTF8String]);
     }
   });

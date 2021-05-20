@@ -1,4 +1,4 @@
-#include "SQLiteManager.h"
+#include "SQLiteQueryExecutor.h"
 #include "Logger.h"
 #include "sqlite_orm.h"
 
@@ -11,11 +11,11 @@ namespace comm {
 
 using namespace sqlite_orm;
 
-std::string SQLiteManager::sqliteFilePath;
+std::string SQLiteQueryExecutor::sqliteFilePath;
 
-void SQLiteManager::migrate() {
+void SQLiteQueryExecutor::migrate() {
   sqlite3 *conn;
-  sqlite3_open(SQLiteManager::sqliteFilePath.c_str(), &conn);
+  sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &conn);
   char *error;
   sqlite3_exec(
       conn,
@@ -33,9 +33,9 @@ void SQLiteManager::migrate() {
   sqlite3_close(conn);
 }
 
-auto SQLiteManager::getStorage() {
+auto SQLiteQueryExecutor::getStorage() {
   static auto storage = make_storage(
-      SQLiteManager::sqliteFilePath,
+      SQLiteQueryExecutor::sqliteFilePath,
       make_table(
           "drafts",
           make_column("key", &Draft::key, unique(), primary_key()),
@@ -43,24 +43,24 @@ auto SQLiteManager::getStorage() {
   return storage;
 }
 
-SQLiteManager::SQLiteManager() {
+SQLiteQueryExecutor::SQLiteQueryExecutor() {
   this->migrate();
-  SQLiteManager::getStorage().sync_schema(true);
+  SQLiteQueryExecutor::getStorage().sync_schema(true);
 }
 
-std::string SQLiteManager::getDraft(std::string key) const {
+std::string SQLiteQueryExecutor::getDraft(std::string key) const {
   std::unique_ptr<Draft> draft =
-      SQLiteManager::getStorage().get_pointer<Draft>(key);
+      SQLiteQueryExecutor::getStorage().get_pointer<Draft>(key);
   return (draft == nullptr) ? "" : draft->text;
 }
 
-void SQLiteManager::updateDraft(std::string key, std::string text) const {
+void SQLiteQueryExecutor::updateDraft(std::string key, std::string text) const {
   Draft draft = {key, text};
-  SQLiteManager::getStorage().replace(draft);
+  SQLiteQueryExecutor::getStorage().replace(draft);
 }
 
-std::vector<Draft> SQLiteManager::getAllDrafts() const {
-  return SQLiteManager::getStorage().get_all<Draft>();
+std::vector<Draft> SQLiteQueryExecutor::getAllDrafts() const {
+  return SQLiteQueryExecutor::getStorage().get_all<Draft>();
 }
 
 } // namespace comm
