@@ -222,6 +222,25 @@ function getRolePermissionBlobsForChat(
     };
   }
 
+  if (threadType === threadTypes.CHAT_NESTED_OPEN) {
+    const memberPermissions = {
+      [threadPermissions.VOICED]: true,
+      [threadPermissions.EDIT_ENTRIES]: true,
+      [threadPermissions.EDIT_THREAD]: true,
+      [threadPermissions.CREATE_SUBTHREADS]: true,
+      [threadPermissions.CREATE_SIDEBARS]: true,
+      [threadPermissions.ADD_MEMBERS]: true,
+      [threadPermissions.EDIT_PERMISSIONS]: true,
+      [threadPermissions.REMOVE_MEMBERS]: true,
+      [threadPermissions.LEAVE_THREAD]: true,
+      [openChildMembership]: true,
+      [openChildJoinThread]: true,
+    };
+    return {
+      Members: memberPermissions,
+    };
+  }
+
   const memberPermissions = {
     [threadPermissions.KNOW_OF]: true,
     [threadPermissions.MEMBERSHIP]: true,
