@@ -7,6 +7,7 @@ import bots from 'lib/facts/bots';
 import {
   makePermissionsBlob,
   makePermissionsForChildrenBlob,
+  getRoleForPermissions,
 } from 'lib/permissions/thread-permissions';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import {
@@ -163,12 +164,13 @@ async function changeRole(
             `userID ${userID} and threadID ${threadID}`,
         );
       }
-      const newRole =
+      const candidateRole =
         Number(roleThreadResult.roleColumnValue) >= 0
           ? roleThreadResult.roleColumnValue
           : '0';
+      const newRole = getRoleForPermissions(candidateRole, permissions);
       if (
-        (intent === 'join' && Number(newRole) === 0) ||
+        (intent === 'join' && Number(newRole) <= 0) ||
         (intent === 'leave' && Number(newRole) > 0)
       ) {
         throw new ServerError('invalid_parameters');
@@ -375,7 +377,7 @@ async function updateDescendantPermissions(
             userNeedsFullThreadDetails: false,
             permissions,
             permissionsForChildren,
-            role,
+            role: getRoleForPermissions(role, permissions),
           });
         } else {
           membershipRows.push({
@@ -477,7 +479,7 @@ async function recalculateThreadPermissions(
         userNeedsFullThreadDetails: false,
         permissions,
         permissionsForChildren,
-        role,
+        role: getRoleForPermissions(role, permissions),
       });
     } else {
       membershipRows.push({
@@ -709,11 +711,7 @@ async function commitMembershipChangeset(
     for (const memberInfo of serverThreadInfo.members) {
       const pairString = `${memberInfo.id}|${serverThreadInfo.id}`;
       const membershipRow = membershipRowMap.get(pairString);
-      if (
-        membershipRow &&
-        (membershipRow.operation === 'delete' ||
-          membershipRow.userNeedsFullThreadDetails)
-      ) {
+      if (membershipRow) {
         continue;
       }
       updateDatas.push({
@@ -726,7 +724,7 @@ async function commitMembershipChangeset(
   }
   for (const row of membershipRowMap.values()) {
     const { userID, threadID } = row;
-    if (row.operation === 'delete') {
+    if (row.operation === 'delete' || row.role === '-1') {
       updateDatas.push({
         type: updateTypes.DELETE_THREAD,
         userID,
@@ -736,6 +734,13 @@ async function commitMembershipChangeset(
     } else if (row.userNeedsFullThreadDetails) {
       updateDatas.push({
         type: updateTypes.JOIN_THREAD,
+        userID,
+        time,
+        threadID,
+      });
+    } else {
+      updateDatas.push({
+        type: updateTypes.UPDATE_THREAD,
         userID,
         time,
         threadID,
