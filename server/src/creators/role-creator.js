@@ -70,10 +70,12 @@ type RolePermissionBlobs = {|
   +Admins?: ThreadRolePermissionsBlob,
 |};
 
-const { DESCENDANT } = threadPermissionPropagationPrefixes;
-const { OPEN, TOP_LEVEL } = threadPermissionFilterPrefixes;
+const { CHILD, DESCENDANT } = threadPermissionPropagationPrefixes;
+const { OPEN, TOP_LEVEL, OPEN_TOP_LEVEL } = threadPermissionFilterPrefixes;
+const OPEN_CHILD = CHILD + OPEN;
 const OPEN_DESCENDANT = DESCENDANT + OPEN;
 const TOP_LEVEL_DESCENDANT = DESCENDANT + TOP_LEVEL;
+const OPEN_TOP_LEVEL_DESCENDANT = DESCENDANT + OPEN_TOP_LEVEL;
 
 // Originally all chat threads were orgs, but for the alpha launch I decided
 // it's better to keep it simple. I'll probably reintroduce orgs at some point.
@@ -81,14 +83,22 @@ const TOP_LEVEL_DESCENDANT = DESCENDANT + TOP_LEVEL;
 function getRolePermissionBlobsForOrg(): RolePermissionBlobs {
   const openDescendantKnowOf = OPEN_DESCENDANT + threadPermissions.KNOW_OF;
   const openDescendantVisible = OPEN_DESCENDANT + threadPermissions.VISIBLE;
-  const openDescendantJoinThread =
-    OPEN_DESCENDANT + threadPermissions.JOIN_THREAD;
+  const topLevelDescendantMembership =
+    TOP_LEVEL_DESCENDANT + threadPermissions.MEMBERSHIP;
+  const openTopLevelDescendantJoinThread =
+    OPEN_TOP_LEVEL_DESCENDANT + threadPermissions.JOIN_THREAD;
+  const openChildMembership = OPEN_CHILD + threadPermissions.MEMBERSHIP;
+  const openChildJoinThread = OPEN_CHILD + threadPermissions.JOIN_THREAD;
   const memberPermissions = {
     [threadPermissions.KNOW_OF]: true,
+    [threadPermissions.MEMBERSHIP]: true,
     [threadPermissions.VISIBLE]: true,
     [openDescendantKnowOf]: true,
     [openDescendantVisible]: true,
-    [openDescendantJoinThread]: true,
+    [topLevelDescendantMembership]: true,
+    [openTopLevelDescendantJoinThread]: true,
+    [openChildMembership]: true,
+    [openChildJoinThread]: true,
     [threadPermissions.VOICED]: true,
     [threadPermissions.EDIT_ENTRIES]: true,
     [threadPermissions.EDIT_THREAD]: true,
@@ -99,7 +109,10 @@ function getRolePermissionBlobsForOrg(): RolePermissionBlobs {
   };
   const descendantKnowOf = DESCENDANT + threadPermissions.KNOW_OF;
   const descendantVisible = DESCENDANT + threadPermissions.VISIBLE;
-  const descendantJoinThread = DESCENDANT + threadPermissions.JOIN_THREAD;
+  const topLevelDescendantJoinThread =
+    TOP_LEVEL_DESCENDANT + threadPermissions.JOIN_THREAD;
+  const childMembership = CHILD + threadPermissions.MEMBERSHIP;
+  const childJoinThread = CHILD + threadPermissions.JOIN_THREAD;
   const descendantVoiced = DESCENDANT + threadPermissions.VOICED;
   const descendantEditEntries = DESCENDANT + threadPermissions.EDIT_ENTRIES;
   const descendantEditThread = DESCENDANT + threadPermissions.EDIT_THREAD;
@@ -115,6 +128,7 @@ function getRolePermissionBlobsForOrg(): RolePermissionBlobs {
   const descendantChangeRole = DESCENDANT + threadPermissions.CHANGE_ROLE;
   const adminPermissions = {
     [threadPermissions.KNOW_OF]: true,
+    [threadPermissions.MEMBERSHIP]: true,
     [threadPermissions.VISIBLE]: true,
     [threadPermissions.VOICED]: true,
     [threadPermissions.EDIT_ENTRIES]: true,
@@ -129,7 +143,10 @@ function getRolePermissionBlobsForOrg(): RolePermissionBlobs {
     [threadPermissions.LEAVE_THREAD]: true,
     [descendantKnowOf]: true,
     [descendantVisible]: true,
-    [descendantJoinThread]: true,
+    [topLevelDescendantMembership]: true,
+    [topLevelDescendantJoinThread]: true,
+    [childMembership]: true,
+    [childJoinThread]: true,
     [descendantVoiced]: true,
     [descendantEditEntries]: true,
     [descendantEditThread]: true,
@@ -166,19 +183,21 @@ function getRolePermissionBlobsForChat(
 
   const openDescendantKnowOf = OPEN_DESCENDANT + threadPermissions.KNOW_OF;
   const openDescendantVisible = OPEN_DESCENDANT + threadPermissions.VISIBLE;
-  const openDescendantJoinThread =
-    OPEN_DESCENDANT + threadPermissions.JOIN_THREAD;
+  const openChildMembership = OPEN_CHILD + threadPermissions.MEMBERSHIP;
+  const openChildJoinThread = OPEN_CHILD + threadPermissions.JOIN_THREAD;
 
   if (threadType === threadTypes.PRIVATE) {
     const memberPermissions = {
       [threadPermissions.KNOW_OF]: true,
+      [threadPermissions.MEMBERSHIP]: true,
       [threadPermissions.VISIBLE]: true,
       [threadPermissions.VOICED]: true,
       [threadPermissions.CREATE_SIDEBARS]: true,
       [threadPermissions.EDIT_ENTRIES]: true,
       [openDescendantKnowOf]: true,
       [openDescendantVisible]: true,
-      [openDescendantJoinThread]: true,
+      [openChildMembership]: true,
+      [openChildJoinThread]: true,
     };
     return {
       Members: memberPermissions,
@@ -189,6 +208,7 @@ function getRolePermissionBlobsForChat(
     return {
       Members: {
         [threadPermissions.KNOW_OF]: true,
+        [threadPermissions.MEMBERSHIP]: true,
         [threadPermissions.VISIBLE]: true,
         [threadPermissions.VOICED]: true,
         [threadPermissions.EDIT_ENTRIES]: true,
@@ -196,13 +216,15 @@ function getRolePermissionBlobsForChat(
         [threadPermissions.CREATE_SIDEBARS]: true,
         [openDescendantKnowOf]: true,
         [openDescendantVisible]: true,
-        [openDescendantJoinThread]: true,
+        [openChildMembership]: true,
+        [openChildJoinThread]: true,
       },
     };
   }
 
   const memberPermissions = {
     [threadPermissions.KNOW_OF]: true,
+    [threadPermissions.MEMBERSHIP]: true,
     [threadPermissions.VISIBLE]: true,
     [threadPermissions.VOICED]: true,
     [threadPermissions.EDIT_ENTRIES]: true,
@@ -215,7 +237,8 @@ function getRolePermissionBlobsForChat(
     [threadPermissions.LEAVE_THREAD]: true,
     [openDescendantKnowOf]: true,
     [openDescendantVisible]: true,
-    [openDescendantJoinThread]: true,
+    [openChildMembership]: true,
+    [openChildJoinThread]: true,
   };
   return {
     Members: memberPermissions,
