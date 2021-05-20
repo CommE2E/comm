@@ -1,7 +1,6 @@
 #pragma once
 
 #include <folly/MPMCQueue.h>
-#include <functional>
 #include <memory>
 #include <thread>
 

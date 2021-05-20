@@ -288,6 +288,10 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
+    const { draft } = this.props;
+    if (draft !== prevProps.draft && !this.state.text) {
+      this.setState({ text: draft });
+    }
     if (this.props.isActive && !prevProps.isActive) {
       this.addReplyListener();
     } else if (!this.props.isActive && prevProps.isActive) {
@@ -778,8 +782,14 @@ export default React.memo<BaseProps>(function ConnectedChatInputBar(
   );
 
   const draftKey = draftKeyFromThreadID(props.threadInfo.id);
-  const draft = React.useMemo(
-    () => global.CommCoreModule.getDraft(draftKey),
+  const [draft, setDraft] = React.useState('');
+  React.useEffect(
+    () => {
+      (async () => {
+        const fetchedDraft = await global.CommCoreModule.getDraft(draftKey);
+        setDraft(fetchedDraft);
+      })();
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );

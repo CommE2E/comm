@@ -7,41 +7,64 @@ namespace comm {
 
 using namespace facebook::react;
 
-jsi::String CommCoreModule::getDraft(jsi::Runtime &rt, const jsi::String &key) {
+jsi::Value CommCoreModule::getDraft(jsi::Runtime &rt, const jsi::String &key) {
   std::string keyStr = key.utf8(rt);
-  std::string draft = DatabaseManager::getQueryExecutor().getDraft(keyStr);
-  return jsi::String::createFromUtf8(rt, draft);
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string draftStr =
+              DatabaseManager::getQueryExecutor().getDraft(keyStr);
+          jsInvoker_->invokeAsync([=, &innerRt]() {
+            jsi::String draft = jsi::String::createFromUtf8(innerRt, draftStr);
+            promise->resolve(std::move(draft));
+          });
+        };
+        databaseThread.scheduleTask(job);
+      });
 }
 
-bool CommCoreModule::updateDraft(jsi::Runtime &rt, const jsi::Object &draft) {
-  std::string key = draft.getProperty(rt, "key").asString(rt).utf8(rt);
-  std::string text = draft.getProperty(rt, "text").asString(rt).utf8(rt);
-  DatabaseManager::getQueryExecutor().updateDraft(key, text);
-  return true;
+jsi::Value
+CommCoreModule::updateDraft(jsi::Runtime &rt, const jsi::Object &draft) {
+  std::string keyStr = draft.getProperty(rt, "key").asString(rt).utf8(rt);
+  std::string textStr = draft.getProperty(rt, "text").asString(rt).utf8(rt);
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          DatabaseManager::getQueryExecutor().updateDraft(keyStr, textStr);
+          jsInvoker_->invokeAsync([=, &innerRt]() { promise->resolve(true); });
+        };
+        databaseThread.scheduleTask(job);
+      });
 }
 
 jsi::Value CommCoreModule::getAllDrafts(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
-      rt, [](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        auto draftsVector = DatabaseManager::getQueryExecutor().getAllDrafts();
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          auto draftsVector =
+              DatabaseManager::getQueryExecutor().getAllDrafts();
 
-        size_t numDrafts =
-            count_if(draftsVector.begin(), draftsVector.end(), [](Draft draft) {
-              return !draft.text.empty();
-            });
-        jsi::Array jsiDrafts = jsi::Array(innerRt, numDrafts);
+          size_t numDrafts = count_if(
+              draftsVector.begin(), draftsVector.end(), [](Draft draft) {
+                return !draft.text.empty();
+              });
+          jsInvoker_->invokeAsync([=, &innerRt]() {
+            jsi::Array jsiDrafts = jsi::Array(innerRt, numDrafts);
 
-        size_t writeIndex = 0;
-        for (Draft draft : draftsVector) {
-          if (draft.text.empty()) {
-            continue;
-          }
-          auto jsiDraft = jsi::Object(innerRt);
-          jsiDraft.setProperty(innerRt, "key", draft.key);
-          jsiDraft.setProperty(innerRt, "text", draft.text);
-          jsiDrafts.setValueAtIndex(innerRt, writeIndex++, jsiDraft);
-        }
-        promise->resolve(std::move(jsiDrafts));
+            size_t writeIndex = 0;
+            for (Draft draft : draftsVector) {
+              if (draft.text.empty()) {
+                continue;
+              }
+              auto jsiDraft = jsi::Object(innerRt);
+              jsiDraft.setProperty(innerRt, "key", draft.key);
+              jsiDraft.setProperty(innerRt, "text", draft.text);
+              jsiDrafts.setValueAtIndex(innerRt, writeIndex++, jsiDraft);
+            }
+            promise->resolve(std::move(jsiDrafts));
+          });
+        };
+        databaseThread.scheduleTask(job);
       });
 }
 

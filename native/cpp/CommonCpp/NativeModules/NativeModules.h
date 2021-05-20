@@ -18,8 +18,9 @@ protected:
   CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker);
 
 public:
-  virtual jsi::String getDraft(jsi::Runtime &rt, const jsi::String &key) = 0;
-  virtual bool updateDraft(jsi::Runtime &rt, const jsi::Object &draft) = 0;
+  virtual jsi::Value getDraft(jsi::Runtime &rt, const jsi::String &key) = 0;
+  virtual jsi::Value
+  updateDraft(jsi::Runtime &rt, const jsi::Object &draft) = 0;
   virtual jsi::Value getAllDrafts(jsi::Runtime &rt) = 0;
 };
 

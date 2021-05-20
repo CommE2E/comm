@@ -11,8 +11,8 @@ type Draft = {|
 |};
 
 export interface Spec extends TurboModule {
-  +getDraft: (key: string) => string;
-  +updateDraft: (draft: Draft) => boolean;
+  +getDraft: (key: string) => Promise<string>;
+  +updateDraft: (draft: Draft) => Promise<boolean>;
   +getAllDrafts: () => Promise<$ReadOnlyArray<Draft>>;
 }
 

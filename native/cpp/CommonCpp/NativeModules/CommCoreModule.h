@@ -1,5 +1,6 @@
 #pragma once
 
+#include "DatabaseThread.h"
 #include "NativeModules.h"
 #include <jsi/jsi.h>
 
@@ -8,8 +9,10 @@ namespace comm {
 namespace jsi = facebook::jsi;
 
 class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
-  jsi::String getDraft(jsi::Runtime &rt, const jsi::String &key) override;
-  bool updateDraft(jsi::Runtime &rt, const jsi::Object &draft) override;
+  DatabaseThread databaseThread;
+
+  jsi::Value getDraft(jsi::Runtime &rt, const jsi::String &key) override;
+  jsi::Value updateDraft(jsi::Runtime &rt, const jsi::Object &draft) override;
   jsi::Value getAllDrafts(jsi::Runtime &rt) override;
 
 public:
