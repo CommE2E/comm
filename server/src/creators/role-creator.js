@@ -71,8 +71,9 @@ type RolePermissionBlobs = {|
 |};
 
 const { DESCENDANT } = threadPermissionPropagationPrefixes;
-const { OPEN } = threadPermissionFilterPrefixes;
+const { OPEN, TOP_LEVEL } = threadPermissionFilterPrefixes;
 const OPEN_DESCENDANT = DESCENDANT + OPEN;
+const TOP_LEVEL_DESCENDANT = DESCENDANT + TOP_LEVEL;
 
 // Originally all chat threads were orgs, but for the alpha launch I decided
 // it's better to keep it simple. I'll probably reintroduce orgs at some point.
@@ -102,10 +103,10 @@ function getRolePermissionBlobsForOrg(): RolePermissionBlobs {
   const descendantVoiced = DESCENDANT + threadPermissions.VOICED;
   const descendantEditEntries = DESCENDANT + threadPermissions.EDIT_ENTRIES;
   const descendantEditThread = DESCENDANT + threadPermissions.EDIT_THREAD;
-  const descendantCreateSubthreads =
-    DESCENDANT + threadPermissions.CREATE_SUBTHREADS;
-  const descendantCreateSidebars =
-    DESCENDANT + threadPermissions.CREATE_SIDEBARS;
+  const topLevelDescendantCreateSubthreads =
+    TOP_LEVEL_DESCENDANT + threadPermissions.CREATE_SUBTHREADS;
+  const topLevelDescendantCreateSidebars =
+    TOP_LEVEL_DESCENDANT + threadPermissions.CREATE_SIDEBARS;
   const descendantAddMembers = DESCENDANT + threadPermissions.ADD_MEMBERS;
   const descendantDeleteThread = DESCENDANT + threadPermissions.DELETE_THREAD;
   const descendantEditPermissions =
@@ -132,8 +133,8 @@ function getRolePermissionBlobsForOrg(): RolePermissionBlobs {
     [descendantVoiced]: true,
     [descendantEditEntries]: true,
     [descendantEditThread]: true,
-    [descendantCreateSubthreads]: true,
-    [descendantCreateSidebars]: true,
+    [topLevelDescendantCreateSubthreads]: true,
+    [topLevelDescendantCreateSidebars]: true,
     [descendantAddMembers]: true,
     [descendantDeleteThread]: true,
     [descendantEditPermissions]: true,
