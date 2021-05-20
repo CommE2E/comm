@@ -220,7 +220,7 @@ function AppNavigator(props: AppNavigatorProps) {
 
 const styles = {
   icon: {
-    fontSize: 28,
+    fontSize: 22,
   },
 };
 
