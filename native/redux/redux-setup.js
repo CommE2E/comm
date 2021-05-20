@@ -19,6 +19,7 @@ import {
   invalidSessionDowngrade,
   invalidSessionRecovery,
 } from 'lib/shared/account-utils';
+import { type EnabledApps, defaultEnabledApps } from 'lib/types/enabled-apps';
 import { type EntryStore } from 'lib/types/entry-types';
 import {
   type CalendarFilter,
@@ -108,6 +109,7 @@ export type AppState = {|
   connection: ConnectionInfo,
   watchedThreadIDs: $ReadOnlyArray<string>,
   lifecycleState: LifecycleState,
+  enabledApps: EnabledApps,
   nextLocalID: number,
   queuedReports: $ReadOnlyArray<ClientReportCreationRequest>,
   _persist: ?PersistState,
@@ -156,6 +158,7 @@ const defaultState = ({
   connection: defaultConnectionInfo(Platform.OS),
   watchedThreadIDs: [],
   lifecycleState: 'active',
+  enabledApps: defaultEnabledApps,
   nextLocalID: 0,
   queuedReports: [],
   _persist: null,

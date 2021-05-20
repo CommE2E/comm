@@ -17,6 +17,7 @@ import { defaultNotifPermissionAlertInfo } from '../push/alerts';
 import { defaultDeviceCameraInfo } from '../types/camera';
 import { defaultGlobalThemeInfo } from '../types/themes';
 import type { AppState } from './redux-setup';
+import { defaultEnabledApps } from 'lib/types/enabled-apps';
 
 const migrations = {
   [1]: (state: AppState) => ({
@@ -213,6 +214,10 @@ const migrations = {
     ...state,
     globalThemeInfo: defaultGlobalThemeInfo,
   }),
+  [24]: (state) => ({
+    ...state,
+    enabledApps: defaultEnabledApps,
+  }),
 };
 
 const persistConfig = {
@@ -227,7 +232,7 @@ const persistConfig = {
     'frozen',
   ],
   debug: __DEV__,
-  version: 23,
+  version: 24,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
   timeout: __DEV__ ? 0 : undefined,
 };

@@ -16,6 +16,7 @@ import { freshMessageStore } from 'lib/reducers/message-reducer';
 import { mostRecentReadThread } from 'lib/selectors/thread-selectors';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 import { threadHasPermission } from 'lib/shared/thread-utils';
+import { defaultWebEnabledApps } from 'lib/types/enabled-apps';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 import { defaultConnectionInfo } from 'lib/types/socket-types';
@@ -276,6 +277,7 @@ async function websiteResponder(
     },
     watchedThreadIDs: [],
     lifecycleState: 'active',
+    enabledApps: defaultWebEnabledApps,
     nextLocalID: 0,
     queuedReports: [],
     timeZone: viewer.timeZone,
