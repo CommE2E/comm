@@ -3,7 +3,6 @@
 import cluster from 'cluster';
 import schedule from 'node-schedule';
 
-import { botherMonthlyActivesToUpdateAppVersion } from '../bots/app-version-update';
 import { deleteOrphanedActivity } from '../deleters/activity-deleters';
 import { deleteExpiredCookies } from '../deleters/cookie-deleters';
 import { deleteOrphanedDays } from '../deleters/day-deleters';
@@ -58,19 +57,6 @@ if (cluster.isMaster) {
         await backupDB();
       } catch (e) {
         console.warn('encountered error while trying to backup database', e);
-      }
-    },
-  );
-  schedule.scheduleJob(
-    '30 11 ? * 6', // every Saturday at 11:30 AM Pacific Time
-    async () => {
-      try {
-        await botherMonthlyActivesToUpdateAppVersion();
-      } catch (e) {
-        console.warn(
-          'encountered error while trying to bother monthly actives to update',
-          e,
-        );
       }
     },
   );
