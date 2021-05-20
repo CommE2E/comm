@@ -96,6 +96,19 @@ const Tab = createBottomTabNavigator<
 const tabBarOptions = { keyboardHidesTabBar: false };
 function TabNavigator() {
   const chatBadge = useSelector(unreadCount);
+  const isCalendarEnabled = useSelector((state) => state.enabledApps.calendar);
+
+  let calendarTab;
+  if (isCalendarEnabled) {
+    calendarTab = (
+      <Tab.Screen
+        name={CalendarRouteName}
+        component={Calendar}
+        options={calendarTabOptions}
+      />
+    );
+  }
+
   return (
     <Tab.Navigator
       initialRouteName={ChatRouteName}
@@ -104,11 +117,7 @@ function TabNavigator() {
       backBehavior="none"
       tabBarOptions={tabBarOptions}
     >
-      <Tab.Screen
-        name={CalendarRouteName}
-        component={Calendar}
-        options={calendarTabOptions}
-      />
+      {calendarTab}
       <Tab.Screen
         name={ChatRouteName}
         component={Chat}
