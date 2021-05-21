@@ -87,7 +87,7 @@ function Landing(): React.Node {
             <span className={css.purple}> digital&nbsp;identity.</span>
           </h1>
           <p>
-            The internet is broken today. Private user data is owned by
+            The Internet is broken today. Private user data is owned by
             mega-corporations and farmed for their benefit.
           </p>
           <p>
