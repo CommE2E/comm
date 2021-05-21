@@ -140,6 +140,7 @@ const newThreadRequestInputValidator = t.union([
       threadTypes.COMMUNITY_OPEN_SUBTHREAD,
       threadTypes.COMMUNITY_SECRET_SUBTHREAD,
       threadTypes.PERSONAL,
+      threadTypes.LOCAL,
     ]),
     ...threadRequestValidationShape,
   }),

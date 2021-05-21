@@ -37,14 +37,14 @@ describe('Thread responders', () => {
     it('Should not require sourceMessageID of not a sidebar', () => {
       expect(
         newThreadRequestInputValidator.is({
-          type: threadTypes.COMMUNITY_SECRET_SUBTHREAD,
+          type: threadTypes.LOCAL,
           ...requestWithoutMessageID,
         }),
       ).toBe(true);
 
       expect(
         newThreadRequestInputValidator.is({
-          type: threadTypes.COMMUNITY_SECRET_SUBTHREAD,
+          type: threadTypes.LOCAL,
           ...requestWithMessageID,
         }),
       ).toBe(false);
