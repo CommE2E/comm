@@ -251,8 +251,8 @@ class NewThreadModal extends React.PureComponent<Props, State> {
     const name = this.state.name.trim();
     try {
       invariant(
-        threadType !== 5,
-        'Creating sidebars from modal is not yet supported',
+        threadType !== 5 && threadType !== 8,
+        "Sidebars and communities can't be created from the thread composer",
       );
       const query = this.props.calendarQuery();
       const response = await this.props.newThread({

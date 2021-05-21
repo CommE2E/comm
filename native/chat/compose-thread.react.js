@@ -349,8 +349,8 @@ class ComposeThread extends React.PureComponent<Props, State> {
       const parentThreadInfo = ComposeThread.getParentThreadInfo(this.props);
       const query = this.props.calendarQuery();
       invariant(
-        threadType !== 5,
-        'Creating sidebars from thread composer is not yet supported',
+        threadType !== 5 && threadType !== 8,
+        "Sidebars and communities can't be created from the thread composer",
       );
       const result = await this.props.newThread({
         type: threadType,

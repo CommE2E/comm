@@ -77,10 +77,7 @@ const OPEN_DESCENDANT = DESCENDANT + OPEN;
 const TOP_LEVEL_DESCENDANT = DESCENDANT + TOP_LEVEL;
 const OPEN_TOP_LEVEL_DESCENDANT = DESCENDANT + OPEN_TOP_LEVEL;
 
-// Originally all chat threads were orgs, but for the alpha launch I decided
-// it's better to keep it simple. I'll probably reintroduce orgs at some point.
-// eslint-disable-next-line no-unused-vars
-function getRolePermissionBlobsForOrg(): RolePermissionBlobs {
+function getRolePermissionBlobsForCommunity(): RolePermissionBlobs {
   const openDescendantKnowOf = OPEN_DESCENDANT + threadPermissions.KNOW_OF;
   const openDescendantVisible = OPEN_DESCENDANT + threadPermissions.VISIBLE;
   const topLevelDescendantMembership =
@@ -237,6 +234,10 @@ function getRolePermissionBlobs(threadType: ThreadType): RolePermissionBlobs {
     return {
       Members: memberPermissions,
     };
+  }
+
+  if (threadType === threadTypes.COMMUNITY_ROOT) {
+    return getRolePermissionBlobsForCommunity();
   }
 
   const openTopLevelDescendantJoinThread =
