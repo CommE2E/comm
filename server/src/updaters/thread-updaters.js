@@ -469,13 +469,15 @@ async function updateThread(
     }
   })();
 
+  const rolesNeedUpdate = forceUpdateRoot || nextThreadType !== oldThreadType;
+
   const validateNewMembersPromise = (async () => {
     if (!newMemberIDs) {
       return;
     }
 
     let defaultRolePermissions;
-    if (threadType === null || threadType === undefined) {
+    if (!rolesNeedUpdate) {
       const rolePermissionsQuery = SQL`
         SELECT r.permissions
         FROM threads t
@@ -525,7 +527,6 @@ async function updateThread(
     await dbQuery(updateQuery);
   })();
 
-  const rolesNeedUpdate = forceUpdateRoot || nextThreadType !== oldThreadType;
   const updateRolesPromise = (async () => {
     if (rolesNeedUpdate) {
       await updateRoles(viewer, request.threadID, nextThreadType);
