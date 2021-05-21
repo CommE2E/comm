@@ -10,7 +10,7 @@ html {
 h1,
 h2 {
   font-family: 'IBM Plex Mono', monospace;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 h1.title {
@@ -107,7 +107,7 @@ div.footer_logo {
   font-size: 24px;
   grid-area: footer_logo;
   align-self: center;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 div.subscribe_updates {
