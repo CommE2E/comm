@@ -80,7 +80,7 @@ class ThreadSettingsPromoteSidebar extends React.PureComponent<Props> {
     try {
       return await this.props.changeThreadSettings({
         threadID,
-        changes: { type: threadTypes.CHAT_NESTED_OPEN },
+        changes: { type: threadTypes.COMMUNITY_OPEN_SUBTHREAD },
       });
     } catch (e) {
       Alert.alert('Unknown error', 'Uhh... try again?', undefined, {

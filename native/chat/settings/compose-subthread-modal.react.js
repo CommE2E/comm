@@ -42,7 +42,7 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
           />
           <Text style={this.props.styles.optionText}>Open</Text>
           <Text style={this.props.styles.optionExplanation}>
-            {threadTypeDescriptions[threadTypes.CHAT_NESTED_OPEN]}
+            {threadTypeDescriptions[threadTypes.COMMUNITY_OPEN_SUBTHREAD]}
           </Text>
           <IonIcon
             name="ios-arrow-forward"
@@ -58,7 +58,7 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
           />
           <Text style={this.props.styles.optionText}>Secret</Text>
           <Text style={this.props.styles.optionExplanation}>
-            {threadTypeDescriptions[threadTypes.CHAT_SECRET]}
+            {threadTypeDescriptions[threadTypes.COMMUNITY_SECRET_SUBTHREAD]}
           </Text>
           <IonIcon
             name="ios-arrow-forward"
@@ -75,10 +75,12 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
     this.props.navigation.navigate({
       name: ComposeThreadRouteName,
       params: {
-        threadType: threadTypes.CHAT_NESTED_OPEN,
+        threadType: threadTypes.COMMUNITY_OPEN_SUBTHREAD,
         parentThreadInfo: threadInfo,
       },
-      key: `${ComposeThreadRouteName}|${threadInfo.id}|${threadTypes.CHAT_NESTED_OPEN}`,
+      key:
+        `${ComposeThreadRouteName}|` +
+        `${threadInfo.id}|${threadTypes.COMMUNITY_OPEN_SUBTHREAD}`,
     });
   };
 
@@ -87,10 +89,12 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
     this.props.navigation.navigate({
       name: ComposeThreadRouteName,
       params: {
-        threadType: threadTypes.CHAT_SECRET,
+        threadType: threadTypes.COMMUNITY_SECRET_SUBTHREAD,
         parentThreadInfo: threadInfo,
       },
-      key: `${ComposeThreadRouteName}|${threadInfo.id}|${threadTypes.CHAT_SECRET}`,
+      key:
+        `${ComposeThreadRouteName}|` +
+        `${threadInfo.id}|${threadTypes.COMMUNITY_SECRET_SUBTHREAD}`,
     });
   };
 }

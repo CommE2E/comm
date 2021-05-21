@@ -222,7 +222,7 @@ function getRolePermissionBlobsForChat(
     };
   }
 
-  if (threadType === threadTypes.CHAT_NESTED_OPEN) {
+  if (threadType === threadTypes.COMMUNITY_OPEN_SUBTHREAD) {
     const memberPermissions = {
       [threadPermissions.VOICED]: true,
       [threadPermissions.EDIT_ENTRIES]: true,

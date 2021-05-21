@@ -341,7 +341,8 @@ class ComposeThread extends React.PureComponent<Props, State> {
     this.setLinkButton(false);
     try {
       const threadTypeParam = this.props.route.params.threadType;
-      const threadType = threadTypeParam ?? threadTypes.CHAT_SECRET;
+      const threadType =
+        threadTypeParam ?? threadTypes.COMMUNITY_SECRET_SUBTHREAD;
       const initialMemberIDs = this.state.userInfoInputArray.map(
         (userInfo: AccountUserInfo) => userInfo.id,
       );

@@ -137,8 +137,8 @@ const newThreadRequestInputValidator = t.union([
   }),
   tShape({
     type: tNumEnum([
-      threadTypes.CHAT_NESTED_OPEN,
-      threadTypes.CHAT_SECRET,
+      threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+      threadTypes.COMMUNITY_SECRET_SUBTHREAD,
       threadTypes.PERSONAL,
     ]),
     ...threadRequestValidationShape,

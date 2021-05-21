@@ -545,7 +545,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
         params: {
           threadInfo: createPendingThread({
             viewerID: this.props.viewerID,
-            threadType: threadTypes.CHAT_SECRET,
+            threadType: threadTypes.COMMUNITY_SECRET_SUBTHREAD,
           }),
           searching: true,
         },

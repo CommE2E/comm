@@ -52,6 +52,8 @@ type State = {|
   +errorMessage: string,
 |};
 
+const { COMMUNITY_OPEN_SUBTHREAD, COMMUNITY_SECRET_SUBTHREAD } = threadTypes;
+
 class NewThreadModal extends React.PureComponent<Props, State> {
   nameInput: ?HTMLInputElement;
   openPrivacyInput: ?HTMLInputElement;
@@ -60,7 +62,7 @@ class NewThreadModal extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      threadType: props.parentThreadID ? undefined : threadTypes.CHAT_SECRET,
+      threadType: props.parentThreadID ? undefined : COMMUNITY_SECRET_SUBTHREAD,
       name: '',
       description: '',
       color: props.parentThreadInfo
@@ -88,10 +90,8 @@ class NewThreadModal extends React.PureComponent<Props, State> {
                   type="radio"
                   name="new-thread-type"
                   id="new-thread-open"
-                  value={threadTypes.CHAT_NESTED_OPEN}
-                  checked={
-                    this.state.threadType === threadTypes.CHAT_NESTED_OPEN
-                  }
+                  value={COMMUNITY_OPEN_SUBTHREAD}
+                  checked={this.state.threadType === COMMUNITY_OPEN_SUBTHREAD}
                   onChange={this.onChangeThreadType}
                   disabled={this.props.inputDisabled}
                   ref={this.openPrivacyInputRef}
@@ -100,7 +100,7 @@ class NewThreadModal extends React.PureComponent<Props, State> {
                   <label htmlFor="new-thread-open">
                     Open
                     <span className={css['form-enum-description']}>
-                      {threadTypeDescriptions[threadTypes.CHAT_NESTED_OPEN]}
+                      {threadTypeDescriptions[COMMUNITY_OPEN_SUBTHREAD]}
                     </span>
                   </label>
                 </div>
@@ -110,8 +110,8 @@ class NewThreadModal extends React.PureComponent<Props, State> {
                   type="radio"
                   name="new-thread-type"
                   id="new-thread-closed"
-                  value={threadTypes.CHAT_SECRET}
-                  checked={this.state.threadType === threadTypes.CHAT_SECRET}
+                  value={COMMUNITY_SECRET_SUBTHREAD}
+                  checked={this.state.threadType === COMMUNITY_SECRET_SUBTHREAD}
                   onChange={this.onChangeThreadType}
                   disabled={this.props.inputDisabled}
                 />
@@ -119,7 +119,7 @@ class NewThreadModal extends React.PureComponent<Props, State> {
                   <label htmlFor="new-thread-closed">
                     Secret
                     <span className={css['form-enum-description']}>
-                      {threadTypeDescriptions[threadTypes.CHAT_SECRET]}
+                      {threadTypeDescriptions[COMMUNITY_SECRET_SUBTHREAD]}
                     </span>
                   </label>
                 </div>

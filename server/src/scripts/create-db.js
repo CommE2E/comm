@@ -334,13 +334,13 @@ async function createUsers() {
 async function createThreads() {
   const staffSquadbotThreadRoleID = 118821;
   const defaultRolePermissions = getRolePermissionBlobsForChat(
-    threadTypes.CHAT_SECRET,
+    threadTypes.COMMUNITY_SECRET_SUBTHREAD,
   ).Members;
   const membershipPermissions = makePermissionsBlob(
     defaultRolePermissions,
     null,
     bots.squadbot.staffThreadID,
-    threadTypes.CHAT_SECRET,
+    threadTypes.COMMUNITY_SECRET_SUBTHREAD,
   );
   const membershipPermissionsString = JSON.stringify(membershipPermissions);
   const membershipChildPermissionsString = JSON.stringify(
@@ -359,9 +359,10 @@ async function createThreads() {
     INSERT INTO threads (id, type, name, description, parent_thread_id,
         default_role, creator, creation_time, color)
       VALUES
-        (${bots.squadbot.staffThreadID}, ${threadTypes.CHAT_SECRET}, NULL, NULL,
-          NULL, ${staffSquadbotThreadRoleID}, ${bots.squadbot.userID},
-          1530049901942, 'ef1a63');
+        (${bots.squadbot.staffThreadID},
+          ${threadTypes.COMMUNITY_SECRET_SUBTHREAD}, NULL, NULL, NULL,
+          ${staffSquadbotThreadRoleID}, ${bots.squadbot.userID}, 1530049901942,
+          'ef1a63');
     INSERT INTO memberships (thread, user, role, permissions,
         permissions_for_children, creation_time, subscription)
       VALUES

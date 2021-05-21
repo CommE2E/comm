@@ -94,7 +94,7 @@ async function fixNewThreadTypes() {
     updateThreadRequests.push({
       threadID,
       changes: {
-        type: threadTypes.CHAT_SECRET,
+        type: threadTypes.COMMUNITY_SECRET_SUBTHREAD,
         description: '',
       },
     });

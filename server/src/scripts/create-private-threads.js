@@ -18,7 +18,7 @@ async function markThreadsAsPrivate() {
       FROM threads t
       INNER JOIN memberships m
         ON m.thread = t.id
-      WHERE t.type = ${threadTypes.CHAT_SECRET}
+      WHERE t.type = ${threadTypes.COMMUNITY_SECRET_SUBTHREAD}
       GROUP BY id
       HAVING
         COUNT(m.thread) = 1

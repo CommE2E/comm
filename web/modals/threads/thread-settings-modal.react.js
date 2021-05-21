@@ -41,6 +41,8 @@ import css from '../../style.css';
 import Modal from '../modal.react';
 import ColorPicker from './color-picker.react';
 
+const { COMMUNITY_OPEN_SUBTHREAD, COMMUNITY_SECRET_SUBTHREAD } = threadTypes;
+
 type TabType = 'general' | 'privacy' | 'delete';
 type TabProps = {|
   +name: string,
@@ -236,10 +238,10 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
                   type="radio"
                   name="edit-thread-type"
                   id="edit-thread-open"
-                  value={threadTypes.CHAT_NESTED_OPEN}
+                  value={COMMUNITY_OPEN_SUBTHREAD}
                   checked={
                     this.possiblyChangedValue('type') ===
-                    threadTypes.CHAT_NESTED_OPEN
+                    COMMUNITY_OPEN_SUBTHREAD
                   }
                   onChange={this.onChangeThreadType}
                   disabled={inputDisabled}
@@ -248,7 +250,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
                   <label htmlFor="edit-thread-open">
                     Open
                     <span className={css['form-enum-description']}>
-                      {threadTypeDescriptions[threadTypes.CHAT_NESTED_OPEN]}
+                      {threadTypeDescriptions[COMMUNITY_OPEN_SUBTHREAD]}
                     </span>
                   </label>
                 </div>
@@ -258,10 +260,10 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
                   type="radio"
                   name="edit-thread-type"
                   id="edit-thread-closed"
-                  value={threadTypes.CHAT_SECRET}
+                  value={COMMUNITY_SECRET_SUBTHREAD}
                   checked={
                     this.possiblyChangedValue('type') ===
-                    threadTypes.CHAT_SECRET
+                    COMMUNITY_SECRET_SUBTHREAD
                   }
                   onChange={this.onChangeThreadType}
                   disabled={inputDisabled}
@@ -270,7 +272,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
                   <label htmlFor="edit-thread-closed">
                     Secret
                     <span className={css['form-enum-description']}>
-                      {threadTypeDescriptions[threadTypes.CHAT_SECRET]}
+                      {threadTypeDescriptions[COMMUNITY_SECRET_SUBTHREAD]}
                     </span>
                   </label>
                 </div>

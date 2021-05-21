@@ -403,11 +403,11 @@ async function updateThread(
   }
 
   // Threads with source message should be visible to everyone, but we can't
-  // guarantee it for CHAT_SECRET threads so we forbid it for now.
-  // In the future, if we want to support this, we would need to unlink the
+  // guarantee it for COMMUNITY_SECRET_SUBTHREAD threads so we forbid it for
+  // now. In the future, if we want to support this, we would need to unlink the
   // source message.
   if (
-    threadType === threadTypes.CHAT_SECRET &&
+    threadType === threadTypes.COMMUNITY_SECRET_SUBTHREAD &&
     serverThreadInfo.sourceMessageID
   ) {
     throw new ServerError('invalid_parameters');
