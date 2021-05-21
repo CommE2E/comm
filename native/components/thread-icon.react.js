@@ -13,8 +13,8 @@ type Props = {|
 |};
 function ThreadIcon(props: Props) {
   const { threadType, color } = props;
-  if (threadType === threadTypes.COMMUNITY_SECRET_SUBTHREAD) {
-    return <MaterialIcon name="lock-outline" size={18} color={color} />;
+  if (threadType === threadTypes.COMMUNITY_OPEN_SUBTHREAD) {
+    return <MaterialIcon name="public" size={18} color={color} />;
   } else if (threadType === threadTypes.PRIVATE) {
     return <MaterialIcon name="lock" size={18} color={color} />;
   } else if (threadType === threadTypes.SIDEBAR) {
@@ -29,7 +29,7 @@ function ThreadIcon(props: Props) {
   } else if (threadType === threadTypes.PERSONAL) {
     return <MaterialIcon name="people" size={18} color={color} />;
   } else {
-    return <MaterialIcon name="public" size={18} color={color} />;
+    return <MaterialIcon name="lock-outline" size={18} color={color} />;
   }
 }
 
