@@ -39,7 +39,7 @@ import createIDs from './id-creator';
 import createMessages from './message-creator';
 import {
   createInitialRolesForNewThread,
-  getRolePermissionBlobsForChat,
+  getRolePermissionBlobs,
 } from './role-creator';
 import type { UpdatesForCurrentSession } from './update-creator';
 
@@ -128,8 +128,7 @@ async function createThread(
   })();
 
   const validateMembersPromise = (async () => {
-    const defaultRolePermissions = getRolePermissionBlobsForChat(threadType)
-      .Members;
+    const defaultRolePermissions = getRolePermissionBlobs(threadType).Members;
     const { initialMemberIDs, ghostMemberIDs } = await validateCandidateMembers(
       viewer,
       {

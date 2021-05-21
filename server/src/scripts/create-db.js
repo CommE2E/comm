@@ -11,7 +11,7 @@ import { sortIDs } from 'lib/shared/relationship-utils';
 import { undirectedStatus } from 'lib/types/relationship-types';
 import { threadTypes } from 'lib/types/thread-types';
 
-import { getRolePermissionBlobsForChat } from '../creators/role-creator';
+import { getRolePermissionBlobs } from '../creators/role-creator';
 import { dbQuery, SQL } from '../database/database';
 import { setScriptContext } from './script-context';
 import { endScript } from './utils';
@@ -333,7 +333,7 @@ async function createUsers() {
 
 async function createThreads() {
   const staffSquadbotThreadRoleID = 118821;
-  const defaultRolePermissions = getRolePermissionBlobsForChat(
+  const defaultRolePermissions = getRolePermissionBlobs(
     threadTypes.COMMUNITY_SECRET_SUBTHREAD,
   ).Members;
   const membershipPermissions = makePermissionsBlob(

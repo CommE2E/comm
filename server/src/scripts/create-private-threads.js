@@ -3,7 +3,7 @@
 import bots from 'lib/facts/bots.json';
 import { threadTypes } from 'lib/types/thread-types';
 
-import { getRolePermissionBlobsForChat } from '../creators/role-creator';
+import { getRolePermissionBlobs } from '../creators/role-creator';
 import { privateThreadDescription } from '../creators/thread-creator';
 import { dbQuery, SQL } from '../database/database';
 import { createScriptViewer } from '../session/scripts';
@@ -38,9 +38,8 @@ async function markThreadsAsPrivate() {
     WHERE id IN (${threadIDs})
   `;
 
-  const defaultRolePermissions = getRolePermissionBlobsForChat(
-    threadTypes.PRIVATE,
-  ).Members;
+  const defaultRolePermissions = getRolePermissionBlobs(threadTypes.PRIVATE)
+    .Members;
   const viewer = createScriptViewer(bots.squadbot.userID);
   const permissionPromises = result.map(async ({ id, role }) => {
     console.log(`Updating thread ${id} and role ${role}`);

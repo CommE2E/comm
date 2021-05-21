@@ -28,7 +28,7 @@ import { promiseAll } from 'lib/utils/promises';
 import { firstLine } from 'lib/utils/string-utils';
 
 import createMessages from '../creators/message-creator';
-import { getRolePermissionBlobsForChat } from '../creators/role-creator';
+import { getRolePermissionBlobs } from '../creators/role-creator';
 import { createUpdates } from '../creators/update-creator';
 import { dbQuery, SQL } from '../database/database';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
@@ -490,8 +490,7 @@ async function updateThread(
       }
     }
     if (!defaultRolePermissions) {
-      defaultRolePermissions = getRolePermissionBlobsForChat(nextThreadType)
-        .Members;
+      defaultRolePermissions = getRolePermissionBlobs(nextThreadType).Members;
     }
 
     const { newMemberIDs: validatedIDs } = await validateCandidateMembers(

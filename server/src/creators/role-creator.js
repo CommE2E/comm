@@ -21,7 +21,7 @@ async function createInitialRolesForNewThread(
   threadID: string,
   threadType: ThreadType,
 ): Promise<InitialRoles> {
-  const rolePermissions = getRolePermissionBlobsForChat(threadType);
+  const rolePermissions = getRolePermissionBlobs(threadType);
   const ids = await createIDs('roles', Object.values(rolePermissions).length);
 
   const time = Date.now();
@@ -164,9 +164,7 @@ function getRolePermissionBlobsForOrg(): RolePermissionBlobs {
   };
 }
 
-function getRolePermissionBlobsForChat(
-  threadType: ThreadType,
-): RolePermissionBlobs {
+function getRolePermissionBlobs(threadType: ThreadType): RolePermissionBlobs {
   if (threadType === threadTypes.SIDEBAR) {
     const memberPermissions = {
       [threadPermissions.VOICED]: true,
@@ -266,4 +264,4 @@ function getRolePermissionBlobsForChat(
   };
 }
 
-export { createInitialRolesForNewThread, getRolePermissionBlobsForChat };
+export { createInitialRolesForNewThread, getRolePermissionBlobs };

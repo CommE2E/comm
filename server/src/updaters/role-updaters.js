@@ -9,7 +9,7 @@ import type {
 } from 'lib/types/thread-types';
 
 import createIDs from '../creators/id-creator';
-import { getRolePermissionBlobsForChat } from '../creators/role-creator';
+import { getRolePermissionBlobs } from '../creators/role-creator';
 import { dbQuery, SQL } from '../database/database';
 import { fetchRoles } from '../fetchers/role-fetchers';
 import type { Viewer } from '../session/viewer';
@@ -32,7 +32,7 @@ async function updateRoles(
     currentRoleIDs[roleInfo.name] = roleInfo.id;
   }
 
-  const rolePermissions = getRolePermissionBlobsForChat(threadType);
+  const rolePermissions = getRolePermissionBlobs(threadType);
   if (_isEqual(rolePermissions)(currentRolePermissions)) {
     return;
   }
