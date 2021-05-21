@@ -241,9 +241,10 @@ function getRolePermissionBlobsForChat(
     };
   }
 
+  const openTopLevelDescendantJoinThread =
+    OPEN_TOP_LEVEL_DESCENDANT + threadPermissions.JOIN_THREAD;
   const memberPermissions = {
     [threadPermissions.KNOW_OF]: true,
-    [threadPermissions.MEMBERSHIP]: true,
     [threadPermissions.VISIBLE]: true,
     [threadPermissions.VOICED]: true,
     [threadPermissions.EDIT_ENTRIES]: true,
@@ -256,6 +257,7 @@ function getRolePermissionBlobsForChat(
     [threadPermissions.LEAVE_THREAD]: true,
     [openDescendantKnowOf]: true,
     [openDescendantVisible]: true,
+    [openTopLevelDescendantJoinThread]: true,
     [openChildMembership]: true,
     [openChildJoinThread]: true,
   };
