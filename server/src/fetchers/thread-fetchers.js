@@ -3,7 +3,11 @@
 import { getAllThreadPermissions } from 'lib/permissions/thread-permissions';
 import { rawThreadInfoFromServerThreadInfo } from 'lib/shared/thread-utils';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
-import type { RawThreadInfo, ServerThreadInfo } from 'lib/types/thread-types';
+import {
+  threadTypes,
+  type RawThreadInfo,
+  type ServerThreadInfo,
+} from 'lib/types/thread-types';
 
 import { dbQuery, SQL, SQLStatement } from '../database/database';
 import type { Viewer } from '../session/viewer';
@@ -97,12 +101,17 @@ async function fetchThreadInfos(
   return rawThreadInfosFromServerThreadInfos(viewer, serverResult);
 }
 
+const shimCommunityRoot = {
+  [threadTypes.COMMUNITY_ROOT]: threadTypes.COMMUNITY_SECRET_SUBTHREAD,
+};
+
 function rawThreadInfosFromServerThreadInfos(
   viewer: Viewer,
   serverResult: FetchServerThreadInfosResult,
 ): FetchThreadInfosResult {
   const viewerID = viewer.id;
   const hasCodeVersionBelow70 = !hasMinCodeVersion(viewer.platformDetails, 70);
+  const hasCodeVersionBelow84 = !hasMinCodeVersion(viewer.platformDetails, 84);
   const threadInfos = {};
   for (const threadID in serverResult.threadInfos) {
     const serverThreadInfo = serverResult.threadInfos[threadID];
@@ -112,6 +121,7 @@ function rawThreadInfosFromServerThreadInfos(
       {
         includeVisibilityRules: hasCodeVersionBelow70,
         filterMemberList: hasCodeVersionBelow70,
+        shimThreadTypes: hasCodeVersionBelow84 ? shimCommunityRoot : null,
       },
     );
     if (threadInfo) {
