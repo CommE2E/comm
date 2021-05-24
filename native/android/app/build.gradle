@@ -145,7 +145,7 @@ task createNativeDepsDirectories {
 task downloadFolly(dependsOn: createNativeDepsDirectories, type: Download) {
     src("https://github.com/facebook/folly/archive/v${FOLLY_VERSION}.tar.gz")
     onlyIfNewer(true)
-    overwrite(true)
+    overwrite(false)
     dest(new File(downloadsDir, "folly-${FOLLY_VERSION}.tar.gz"))
 }
 
