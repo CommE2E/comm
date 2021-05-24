@@ -1,62 +1,62 @@
 {
   "images" : [
     {
-      "size" : "20x20",
+      "filename" : "notif2x.png",
       "idiom" : "iphone",
-      "filename" : "app-icon@40x40.png",
-      "scale" : "2x"
+      "scale" : "2x",
+      "size" : "20x20"
     },
     {
-      "size" : "20x20",
+      "filename" : "notif3x.png",
       "idiom" : "iphone",
-      "filename" : "app-icon@60x60.png",
-      "scale" : "3x"
+      "scale" : "3x",
+      "size" : "20x20"
     },
     {
-      "size" : "29x29",
+      "filename" : "settings2x.png",
       "idiom" : "iphone",
-      "filename" : "app-icon@58x58.png",
-      "scale" : "2x"
+      "scale" : "2x",
+      "size" : "29x29"
     },
     {
-      "size" : "29x29",
+      "filename" : "settings3x.png",
       "idiom" : "iphone",
-      "filename" : "app-icon@87x87.png",
-      "scale" : "3x"
+      "scale" : "3x",
+      "size" : "29x29"
     },
     {
-      "size" : "40x40",
+      "filename" : "spotlight2x.png",
       "idiom" : "iphone",
-      "filename" : "app-icon@80x80.png",
-      "scale" : "2x"
+      "scale" : "2x",
+      "size" : "40x40"
     },
     {
-      "size" : "40x40",
+      "filename" : "spotlight3x.png",
       "idiom" : "iphone",
-      "filename" : "app-icon@120x120-1.png",
-      "scale" : "3x"
+      "scale" : "3x",
+      "size" : "40x40"
     },
     {
-      "size" : "60x60",
+      "filename" : "appicon2x.png",
       "idiom" : "iphone",
-      "filename" : "app-icon@120x120.png",
-      "scale" : "2x"
+      "scale" : "2x",
+      "size" : "60x60"
     },
     {
-      "size" : "60x60",
+      "filename" : "appicon3x.png",
       "idiom" : "iphone",
-      "filename" : "app-icon@180x180.png",
-      "scale" : "3x"
+      "scale" : "3x",
+      "size" : "60x60"
     },
     {
-      "size" : "1024x1024",
+      "filename" : "appstore.png",
       "idiom" : "ios-marketing",
-      "filename" : "app-icon-iTunesArtwork.png",
-      "scale" : "1x"
+      "scale" : "1x",
+      "size" : "1024x1024"
     }
   ],
   "info" : {
-    "version" : 1,
-    "author" : "xcode"
+    "author" : "xcode",
+    "version" : 1
   }
 }
