@@ -339,9 +339,8 @@ async function updateThread(
 
   if (
     !viewer.isScriptViewer &&
-    (threadType === threadTypes.PERSONAL ||
-      threadType === threadTypes.PRIVATE ||
-      threadType === threadTypes.SIDEBAR)
+    threadType !== threadTypes.COMMUNITY_OPEN_SUBTHREAD &&
+    threadType !== threadTypes.COMMUNITY_SECRET_SUBTHREAD
   ) {
     throw new ServerError('invalid_parameters');
   }
