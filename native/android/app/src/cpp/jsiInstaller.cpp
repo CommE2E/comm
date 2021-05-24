@@ -23,10 +23,12 @@ public:
     std::shared_ptr<comm::CommCoreModule> nativeModule =
         std::make_shared<comm::CommCoreModule>(jsCallInvoker);
 
-    rt->global().setProperty(
-        *rt,
-        jsi::PropNameID::forAscii(*rt, "CommCoreModule"),
-        jsi::Object::createFromHostObject(*rt, nativeModule));
+    if (rt != nullptr) {
+      rt->global().setProperty(
+          *rt,
+          jsi::PropNameID::forAscii(*rt, "CommCoreModule"),
+          jsi::Object::createFromHostObject(*rt, nativeModule));
+    }
 
     jni::local_ref<jni::JObject> sqliteFilePathObj =
         additionalParameters.get("sqliteFilePath");
