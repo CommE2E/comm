@@ -148,25 +148,36 @@ task downloadFolly(dependsOn: createNativeDepsDirectories, type: Download) {
     overwrite(true)
     dest(new File(downloadsDir, "folly-${FOLLY_VERSION}.tar.gz"))
 }
-def follyReplaceContent = '''
+
+def follyFindWrapNoInt = 'return int\\(wrapNoInt\\(open, name, flags, mode\\)\\);'
+def follyReplaceWrapNoInt = '''
   ssize_t r;
   do {
     r = open(name, flags, mode);
   } while (r == -1 && errno == EINTR);
   return r;
 '''
+def follyFindTableSize = 'for \\(int fd = getdtablesize\\(\\) - 1'
+def follyReplaceTableSize = 'for (int fd = sysconf(_SC_OPEN_MAX) - 1'
+
 task prepareFolly(dependsOn: dependenciesPath ? [] : [downloadFolly], type: Copy) {
+    inputs.properties([
+      'findWrapNoInt': follyFindWrapNoInt,
+      'replaceWrapNoInt': follyReplaceWrapNoInt,
+      'findTableSize': follyFindTableSize,
+      'replaceTableSize': follyReplaceTableSize,
+    ])
     from(dependenciesPath ?: tarTree(downloadFolly.dest))
-    from("./node_modules/react-native/ReactAndroid/src/main/jni/third-party/folly/")
     include("folly-${FOLLY_VERSION}/folly/**/*")
     eachFile { fname -> fname.path = (fname.path - "folly-${FOLLY_VERSION}/") }
+
     // Fixes problem with Folly failing to build on certain systems. See
     // https://github.com/facebook/react-native/issues/28298
-    filter { line -> line.replaceAll('return int\\(wrapNoInt\\(open, name, flags, mode\\)\\);', follyReplaceContent) }
+    filter { line -> line.replaceAll(follyFindWrapNoInt, follyReplaceWrapNoInt) }
     // fix undeclared identifier 'getdtablesize' in Subprocess.cpp
     // https://stackoverflow.com/questions/8225186/portable-equivalent-of-open-max/8225235#8225235
-    filter { line -> line.replaceAll('for \\(int fd = getdtablesize\\(\\) - 1', 'for (int fd = sysconf(_SC_OPEN_MAX) - 1') }
-    
+    filter { line -> line.replaceAll(follyFindTableSize, follyReplaceTableSize) }
+
     includeEmptyDirs = false
     into("$thirdPartyNdkDir/folly")
 }
@@ -224,7 +235,7 @@ task prepareDoubleConversion(dependsOn: dependenciesPath ? [] : [downloadDoubleC
 }
 
 // EXTERNAL LIBS
-task prepareExternaLibs {
+task prepareExternalLibs {
     dependsOn prepareFolly
     dependsOn prepareGlog
     dependsOn prepareBoost
@@ -232,7 +243,7 @@ task prepareExternaLibs {
 }
 
 afterEvaluate {
-    preBuild.dependsOn(prepareExternaLibs)
+    preBuild.dependsOn(prepareExternalLibs)
 }
 
 android {
