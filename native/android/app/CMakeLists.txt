@@ -13,7 +13,10 @@ cmake_minimum_required(VERSION 3.4.1)
 set(PACKAGE_NAME "comm_jni_module")
 
 find_package(fbjni REQUIRED CONFIG)
-set(BUILD_TESTING false)
+
+set(BUILD_TESTING OFF)
+set(WITH_GTEST OFF CACHE BOOL "Use googletest" FORCE)
+set(WITH_GFLAGS OFF CACHE BOOL "Use gflags" FORCE)
 add_subdirectory(./build/third-party-ndk/glog/glog-0.5.0/)
 
 include_directories(
