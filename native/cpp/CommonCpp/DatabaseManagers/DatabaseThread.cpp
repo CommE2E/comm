@@ -16,11 +16,11 @@ DatabaseThread::DatabaseThread()
       (*lastTask)();
     }
   };
-  thread = std::make_unique<std::thread>(job);
+  this->thread = std::make_unique<std::thread>(job);
 }
 
 void DatabaseThread::scheduleTask(const taskType task) {
-  if (!tasks.write(std::make_unique<taskType>(std::move(task)))) {
+  if (!this->tasks.write(std::make_unique<taskType>(std::move(task)))) {
     throw std::runtime_error("Error scheduling task on Database thread");
   }
 }
@@ -28,7 +28,7 @@ void DatabaseThread::scheduleTask(const taskType task) {
 DatabaseThread::~DatabaseThread() {
   this->tasks.blockingWrite(nullptr);
   try {
-    thread->join();
+    this->thread->join();
   } catch (const std::system_error &error) {
     std::ostringstream stringStream;
     stringStream << "Error occurred joining the Database thread: "

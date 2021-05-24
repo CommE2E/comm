@@ -14,12 +14,12 @@ jsi::Value CommCoreModule::getDraft(jsi::Runtime &rt, const jsi::String &key) {
         taskType job = [=, &innerRt]() {
           std::string draftStr =
               DatabaseManager::getQueryExecutor().getDraft(keyStr);
-          jsInvoker_->invokeAsync([=, &innerRt]() {
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
             jsi::String draft = jsi::String::createFromUtf8(innerRt, draftStr);
             promise->resolve(std::move(draft));
           });
         };
-        databaseThread.scheduleTask(job);
+        this->databaseThread.scheduleTask(job);
       });
 }
 
@@ -31,9 +31,10 @@ CommCoreModule::updateDraft(jsi::Runtime &rt, const jsi::Object &draft) {
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
           DatabaseManager::getQueryExecutor().updateDraft(keyStr, textStr);
-          jsInvoker_->invokeAsync([=, &innerRt]() { promise->resolve(true); });
+          this->jsInvoker_->invokeAsync(
+              [=, &innerRt]() { promise->resolve(true); });
         };
-        databaseThread.scheduleTask(job);
+        this->databaseThread.scheduleTask(job);
       });
 }
 
@@ -48,7 +49,7 @@ jsi::Value CommCoreModule::getAllDrafts(jsi::Runtime &rt) {
               draftsVector.begin(), draftsVector.end(), [](Draft draft) {
                 return !draft.text.empty();
               });
-          jsInvoker_->invokeAsync([=, &innerRt]() {
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
             jsi::Array jsiDrafts = jsi::Array(innerRt, numDrafts);
 
             size_t writeIndex = 0;
@@ -64,7 +65,7 @@ jsi::Value CommCoreModule::getAllDrafts(jsi::Runtime &rt) {
             promise->resolve(std::move(jsiDrafts));
           });
         };
-        databaseThread.scheduleTask(job);
+        this->databaseThread.scheduleTask(job);
       });
 }
 
