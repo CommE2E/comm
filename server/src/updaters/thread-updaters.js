@@ -337,6 +337,15 @@ async function updateThread(
     sqlUpdate.type = threadType;
   }
 
+  // We're temporarily blocking changing parent thread IDs. Note that even if we
+  // remove this condition it is only possible for community subthreads (open or
+  // secret). We've disabled it for community subthreads because we don't yet
+  // have any efficient way of checking if the new parent is in the same
+  // community as the old parent.
+  if (parentThreadID !== undefined) {
+    throw new ServerError('invalid_parameters');
+  }
+
   if (
     !viewer.isScriptViewer &&
     threadType !== threadTypes.COMMUNITY_OPEN_SUBTHREAD &&
