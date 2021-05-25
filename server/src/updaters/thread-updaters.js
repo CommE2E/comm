@@ -348,6 +348,8 @@ async function updateThread(
 
   if (
     !viewer.isScriptViewer &&
+    threadType !== null &&
+    threadType !== undefined &&
     threadType !== threadTypes.COMMUNITY_OPEN_SUBTHREAD &&
     threadType !== threadTypes.COMMUNITY_SECRET_SUBTHREAD
   ) {
