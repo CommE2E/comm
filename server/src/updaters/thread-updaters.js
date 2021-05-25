@@ -412,6 +412,11 @@ async function updateThread(
     throw new ServerError('invalid_parameters');
   }
 
+  // You can't change the parent thread of a current or former SIDEBAR
+  if (parentThreadID !== undefined && serverThreadInfo.sourceMessageID) {
+    throw new ServerError('invalid_parameters');
+  }
+
   const oldThreadType = serverThreadInfo.type;
   const oldParentThreadID = serverThreadInfo.parentThreadID;
 
@@ -421,11 +426,6 @@ async function updateThread(
       : oldThreadType;
   let nextParentThreadID =
     parentThreadID !== undefined ? parentThreadID : oldParentThreadID;
-
-  // You can't change the parent thread of a SIDEBAR
-  if (nextThreadType === threadTypes.SIDEBAR && parentThreadID !== undefined) {
-    throw new ServerError('invalid_parameters');
-  }
 
   // Does the new thread type preclude a parent?
   if (
