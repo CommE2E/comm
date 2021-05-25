@@ -462,22 +462,25 @@ async function updateThread(
   }
 
   const confirmParentPermissionPromise = (async () => {
+    if (!nextParentThreadID) {
+      return;
+    }
     if (
-      nextParentThreadID &&
-      (nextParentThreadID !== oldParentThreadID ||
-        (nextThreadType === threadTypes.SIDEBAR) !==
-          (oldThreadType === threadTypes.SIDEBAR))
+      nextParentThreadID === oldParentThreadID &&
+      (nextThreadType === threadTypes.SIDEBAR) ===
+        (oldThreadType === threadTypes.SIDEBAR)
     ) {
-      const hasParentPermission = await checkThreadPermission(
-        viewer,
-        nextParentThreadID,
-        nextThreadType === threadTypes.SIDEBAR
-          ? threadPermissions.CREATE_SIDEBARS
-          : threadPermissions.CREATE_SUBTHREADS,
-      );
-      if (!hasParentPermission) {
-        throw new ServerError('invalid_parameters');
-      }
+      return;
+    }
+    const hasParentPermission = await checkThreadPermission(
+      viewer,
+      nextParentThreadID,
+      nextThreadType === threadTypes.SIDEBAR
+        ? threadPermissions.CREATE_SIDEBARS
+        : threadPermissions.CREATE_SUBTHREADS,
+    );
+    if (!hasParentPermission) {
+      throw new ServerError('invalid_parameters');
     }
   })();
 
