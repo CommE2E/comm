@@ -1,13 +1,16 @@
 // @flow
 
+import { type Spec } from '../schema/CommCoreModuleSchema';
+
 if (!global.CommCoreModule) {
   console.warn(
     'Comm Core Module has not been attached! ' +
       'Some functionalities may not work properly.',
   );
-  global.CommCoreModule = {
-    getDraft: () => '',
-    updateDraft: () => {},
+  const SpecImpl: Spec = {
+    getDraft: () => Promise.resolve(''),
+    updateDraft: () => Promise.resolve(false),
     getAllDrafts: () => Promise.resolve([]),
   };
+  global.CommCoreModule = SpecImpl;
 }
