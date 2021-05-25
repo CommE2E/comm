@@ -134,7 +134,6 @@ function getRolePermissionBlobsForCommunity(): RolePermissionBlobs {
     [threadPermissions.CREATE_SIDEBARS]: true,
     [threadPermissions.ADD_MEMBERS]: true,
     [threadPermissions.DELETE_THREAD]: true,
-    [threadPermissions.EDIT_PERMISSIONS]: true,
     [threadPermissions.REMOVE_MEMBERS]: true,
     [threadPermissions.CHANGE_ROLE]: true,
     [threadPermissions.LEAVE_THREAD]: true,
