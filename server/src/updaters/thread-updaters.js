@@ -293,6 +293,7 @@ async function leaveThread(
 type UpdateThreadOptions = Shape<{|
   +forceAddMembers: boolean,
   +forceUpdateRoot: boolean,
+  +silenceMessages: boolean,
 |}>;
 
 async function updateThread(
@@ -305,6 +306,7 @@ async function updateThread(
   }
   const forceAddMembers = options?.forceAddMembers ?? false;
   const forceUpdateRoot = options?.forceUpdateRoot ?? false;
+  const silenceMessages = options?.silenceMessages ?? false;
   const validationPromises = {};
 
   const changedFields = {};
@@ -605,29 +607,32 @@ async function updateThread(
     },
   );
 
-  const time = Date.now();
-  const messageDatas = [];
-  for (const fieldName in changedFields) {
-    const newValue = changedFields[fieldName];
-    messageDatas.push({
-      type: messageTypes.CHANGE_SETTINGS,
-      threadID: request.threadID,
-      creatorID: viewer.userID,
-      time,
-      field: fieldName,
-      value: newValue,
-    });
+  let newMessageInfos = [];
+  if (!silenceMessages) {
+    const time = Date.now();
+    const messageDatas = [];
+    for (const fieldName in changedFields) {
+      const newValue = changedFields[fieldName];
+      messageDatas.push({
+        type: messageTypes.CHANGE_SETTINGS,
+        threadID: request.threadID,
+        creatorID: viewer.userID,
+        time,
+        field: fieldName,
+        value: newValue,
+      });
+    }
+    if (newMemberIDs) {
+      messageDatas.push({
+        type: messageTypes.ADD_MEMBERS,
+        threadID: request.threadID,
+        creatorID: viewer.userID,
+        time,
+        addedUserIDs: newMemberIDs,
+      });
+    }
+    newMessageInfos = await createMessages(viewer, messageDatas);
   }
-  if (newMemberIDs) {
-    messageDatas.push({
-      type: messageTypes.ADD_MEMBERS,
-      threadID: request.threadID,
-      creatorID: viewer.userID,
-      time,
-      addedUserIDs: newMemberIDs,
-    });
-  }
-  const newMessageInfos = await createMessages(viewer, messageDatas);
 
   if (hasMinCodeVersion(viewer.platformDetails, 62)) {
     return { updatesResult: { newUpdates: viewerUpdates }, newMessageInfos };
