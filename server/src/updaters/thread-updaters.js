@@ -294,6 +294,7 @@ type UpdateThreadOptions = Shape<{|
   +forceAddMembers: boolean,
   +forceUpdateRoot: boolean,
   +silenceMessages: boolean,
+  +ignorePermissions: boolean,
 |}>;
 
 async function updateThread(
@@ -307,6 +308,8 @@ async function updateThread(
   const forceAddMembers = options?.forceAddMembers ?? false;
   const forceUpdateRoot = options?.forceUpdateRoot ?? false;
   const silenceMessages = options?.silenceMessages ?? false;
+  const ignorePermissions =
+    (options?.ignorePermissions && viewer.isScriptViewer) ?? false;
   const validationPromises = {};
 
   const changedFields = {};
@@ -344,12 +347,12 @@ async function updateThread(
   // secret). We've disabled it for community subthreads because we don't yet
   // have any efficient way of checking if the new parent is in the same
   // community as the old parent.
-  if (parentThreadID !== undefined) {
+  if (!ignorePermissions && parentThreadID !== undefined) {
     throw new ServerError('invalid_parameters');
   }
 
   if (
-    !viewer.isScriptViewer &&
+    !ignorePermissions &&
     threadType !== null &&
     threadType !== undefined &&
     threadType !== threadTypes.COMMUNITY_OPEN_SUBTHREAD &&
@@ -371,47 +374,48 @@ async function updateThread(
     SQL`t.id = ${request.threadID}`,
   );
 
-  const checks = [];
-  if (
-    sqlUpdate.name !== undefined ||
-    sqlUpdate.description !== undefined ||
-    sqlUpdate.color !== undefined
-  ) {
-    checks.push({
-      check: 'permission',
-      permission: threadPermissions.EDIT_THREAD,
-    });
-  }
-  if (parentThreadID !== undefined || sqlUpdate.type !== undefined) {
-    checks.push({
-      check: 'permission',
-      permission: threadPermissions.EDIT_PERMISSIONS,
-    });
-  }
-  if (newMemberIDs) {
-    checks.push({
-      check: 'permission',
-      permission: threadPermissions.ADD_MEMBERS,
-    });
-  }
+  validationPromises.hasNecessaryPermissions = (async () => {
+    if (ignorePermissions) {
+      return;
+    }
+    const checks = [];
+    if (
+      sqlUpdate.name !== undefined ||
+      sqlUpdate.description !== undefined ||
+      sqlUpdate.color !== undefined
+    ) {
+      checks.push({
+        check: 'permission',
+        permission: threadPermissions.EDIT_THREAD,
+      });
+    }
+    if (parentThreadID !== undefined || sqlUpdate.type !== undefined) {
+      checks.push({
+        check: 'permission',
+        permission: threadPermissions.EDIT_PERMISSIONS,
+      });
+    }
+    if (newMemberIDs) {
+      checks.push({
+        check: 'permission',
+        permission: threadPermissions.ADD_MEMBERS,
+      });
+    }
+    const hasNecessaryPermissions = await checkThread(
+      viewer,
+      request.threadID,
+      checks,
+    );
+    if (!hasNecessaryPermissions) {
+      throw new ServerError('invalid_credentials');
+    }
+  })();
 
-  validationPromises.hasNecessaryPermissions = checkThread(
-    viewer,
-    request.threadID,
-    checks,
-  );
-
-  const { serverThreadInfos, hasNecessaryPermissions } = await promiseAll(
-    validationPromises,
-  );
+  const { serverThreadInfos } = await promiseAll(validationPromises);
 
   const serverThreadInfo = serverThreadInfos.threadInfos[request.threadID];
   if (!serverThreadInfo) {
     throw new ServerError('internal_error');
-  }
-
-  if (!hasNecessaryPermissions) {
-    throw new ServerError('invalid_credentials');
   }
 
   // Threads with source message should be visible to everyone, but we can't
@@ -462,7 +466,7 @@ async function updateThread(
   }
 
   const confirmParentPermissionPromise = (async () => {
-    if (!nextParentThreadID) {
+    if (ignorePermissions || !nextParentThreadID) {
       return;
     }
     if (
