@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 
 import bots from 'lib/facts/bots';
+import genesis from 'lib/facts/genesis';
 import {
   generatePendingThreadColor,
   generateRandomColor,
@@ -78,7 +79,7 @@ async function createThread(
   const threadType = request.type;
   const shouldCreateRelationships =
     forceAddMembers || threadType === threadTypes.PERSONAL;
-  const parentThreadID = request.parentThreadID ? request.parentThreadID : null;
+  let parentThreadID = request.parentThreadID ? request.parentThreadID : null;
   const initialMemberIDsFromRequest =
     request.initialMemberIDs && request.initialMemberIDs.length > 0
       ? request.initialMemberIDs
@@ -102,6 +103,14 @@ async function createThread(
     (parentRequirement === 'disabled' && parentThreadID)
   ) {
     throw new ServerError('invalid_parameters');
+  }
+
+  // This is a temporary hack until we release actual E2E-encrypted local
+  // conversations. For now we are hosting all root threads on Ashoat's
+  // keyserver, so we set them to the have the Genesis community as their
+  // parent thread.
+  if (!parentThreadID) {
+    parentThreadID = genesis.id;
   }
 
   if (
