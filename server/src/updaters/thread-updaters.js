@@ -366,7 +366,11 @@ async function updateThread(
       ? [...request.changes.newMemberIDs]
       : null;
 
-  if (Object.keys(sqlUpdate).length === 0 && !newMemberIDs) {
+  if (
+    Object.keys(sqlUpdate).length === 0 &&
+    !newMemberIDs &&
+    !forceUpdateRoot
+  ) {
     throw new ServerError('invalid_parameters');
   }
 
