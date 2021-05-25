@@ -174,7 +174,11 @@ async function createThread(
     validateMembers: { initialMemberIDs, ghostMemberIDs },
   } = await promiseAll(checkPromises);
 
-  const [id] = await createIDs('threads', 1);
+  let { id } = request;
+  if (id === null || id === undefined) {
+    const ids = await createIDs('threads', 1);
+    id = ids[0];
+  }
   const newRoles = await createInitialRolesForNewThread(id, threadType);
 
   const name = request.name ? firstLine(request.name) : null;
