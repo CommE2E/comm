@@ -82,7 +82,7 @@ async function deleteThread(
   // TODO: handle descendant thread permission update correctly.
   //       thread-permission-updaters should be used for descendant threads.
   const query = SQL`
-    DELETE t, ic, d, id, e, ie, re, ire, mm, r, ms, im, up, iu, f, n, ino
+    DELETE t, ic, d, id, e, ie, re, ire, mm, r, ir, ms, im, up, iu, f, n, ino
     FROM threads t
     LEFT JOIN ids ic ON ic.id = t.id
     LEFT JOIN days d ON d.thread = t.id
