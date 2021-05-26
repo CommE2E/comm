@@ -531,6 +531,8 @@ const defaultSubscriptionString = JSON.stringify({
 });
 const joinSubscriptionString = JSON.stringify({ home: true, pushNotifs: true });
 
+const membershipInsertBatchSize = 50;
+
 async function saveMemberships(toSave: $ReadOnlyArray<MembershipRowToSave>) {
   if (toSave.length === 0) {
     return;
@@ -564,22 +566,25 @@ async function saveMemberships(toSave: $ReadOnlyArray<MembershipRowToSave>) {
   // column and this is an INSERT, but we don't want to require people to have
   // to know the current `subscription` when they're just using this function to
   // update the permissions of an existing membership row.
-  const query = SQL`
-    INSERT INTO memberships (user, thread, role, creation_time, subscription,
-      permissions, permissions_for_children, last_message, last_read_message)
-    VALUES ${insertRows}
-    ON DUPLICATE KEY UPDATE
-      subscription = IF(
-        (role <= 0 AND VALUES(role) > 0)
-          OR (role > 0 AND VALUES(role) <= 0),
-        VALUES(subscription),
-        subscription
-      ),
-      role = VALUES(role),
-      permissions = VALUES(permissions),
-      permissions_for_children = VALUES(permissions_for_children)
-  `;
-  await dbQuery(query);
+  while (insertRows.length > 0) {
+    const batch = insertRows.splice(0, membershipInsertBatchSize);
+    const query = SQL`
+      INSERT INTO memberships (user, thread, role, creation_time, subscription,
+        permissions, permissions_for_children, last_message, last_read_message)
+      VALUES ${batch}
+      ON DUPLICATE KEY UPDATE
+        subscription = IF(
+          (role <= 0 AND VALUES(role) > 0)
+            OR (role > 0 AND VALUES(role) <= 0),
+          VALUES(subscription),
+          subscription
+        ),
+        role = VALUES(role),
+        permissions = VALUES(permissions),
+        permissions_for_children = VALUES(permissions_for_children)
+    `;
+    await dbQuery(query);
+  }
 }
 
 async function deleteMemberships(
@@ -602,19 +607,22 @@ async function deleteMemberships(
     0,
   ]);
 
-  const query = SQL`
-    INSERT INTO memberships (user, thread, role, creation_time, subscription,
-      permissions, permissions_for_children, last_message, last_read_message)
-    VALUES ${insertRows}
-    ON DUPLICATE KEY UPDATE
-      role = -1,
-      permissions = NULL,
-      permissions_for_children = NULL,
-      subscription = ${defaultSubscriptionString},
-      last_message = 0,
-      last_read_message = 0
-  `;
-  await dbQuery(query);
+  while (insertRows.length > 0) {
+    const batch = insertRows.splice(0, membershipInsertBatchSize);
+    const query = SQL`
+      INSERT INTO memberships (user, thread, role, creation_time, subscription,
+        permissions, permissions_for_children, last_message, last_read_message)
+      VALUES ${batch}
+      ON DUPLICATE KEY UPDATE
+        role = -1,
+        permissions = NULL,
+        permissions_for_children = NULL,
+        subscription = ${defaultSubscriptionString},
+        last_message = 0,
+        last_read_message = 0
+    `;
+    await dbQuery(query);
+  }
 }
 
 // Specify non-empty changedThreadIDs to force updates to be generated for those
@@ -662,19 +670,14 @@ async function commitMembershipChangeset(
 
   const toSave = [],
     toDelete = [],
-    rescindPromises = [];
+    toRescindPushNotifs = [];
   for (const row of membershipRowMap.values()) {
     if (
       row.operation === 'delete' ||
       (row.operation === 'save' && Number(row.role) <= 0)
     ) {
       const { userID, threadID } = row;
-      rescindPromises.push(
-        rescindPushNotifs(
-          SQL`n.thread = ${threadID} AND n.user = ${userID}`,
-          SQL`IF(m.thread = ${threadID}, NULL, m.thread)`,
-        ),
-      );
+      toRescindPushNotifs.push({ userID, threadID });
     }
     if (row.operation === 'delete') {
       toDelete.push(row);
@@ -702,7 +705,7 @@ async function commitMembershipChangeset(
     saveMemberships(toSave),
     deleteMemberships(toDelete),
     updateUndirectedRelationships(relationshipRows),
-    ...rescindPromises,
+    rescindPushNotifsForMemberDeletion(toRescindPushNotifs),
   ]);
 
   // We fetch all threads here because old clients still expect the full list of
@@ -775,6 +778,24 @@ async function commitMembershipChangeset(
     userInfos,
     viewerUpdates,
   };
+}
+
+const rescindPushNotifsBatchSize = 3;
+async function rescindPushNotifsForMemberDeletion(
+  toRescindPushNotifs: $ReadOnlyArray<{| +userID: string, +threadID: string |}>,
+): Promise<void> {
+  const queue = [...toRescindPushNotifs];
+  while (queue.length > 0) {
+    const batch = queue.splice(0, rescindPushNotifsBatchSize);
+    await Promise.all(
+      batch.map(({ userID, threadID }) =>
+        rescindPushNotifs(
+          SQL`n.thread = ${threadID} AND n.user = ${userID}`,
+          SQL`IF(m.thread = ${threadID}, NULL, m.thread)`,
+        ),
+      ),
+    );
+  }
 }
 
 async function recalculateAllThreadPermissions() {
