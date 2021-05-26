@@ -50,6 +50,7 @@ export type MembershipRowToSave = {|
   +permissionsForChildren: ?ThreadPermissionsBlob,
   // null role represents by "0"
   +role: string,
+  +oldRole: string,
   +unread?: boolean,
 |};
 type MembershipRowToDelete = {|
@@ -57,6 +58,7 @@ type MembershipRowToDelete = {|
   +intent: 'join' | 'leave' | 'none',
   +userID: string,
   +threadID: string,
+  +oldRole: string,
 |};
 type MembershipRow = MembershipRowToSave | MembershipRowToDelete;
 type Changeset = {|
@@ -187,6 +189,7 @@ async function changeRole(
         permissions,
         permissionsForChildren,
         role: newRole,
+        oldRole: oldRole ?? '-1',
         unread: userBecameMember && setNewMembersToUnread,
       });
     } else {
@@ -198,6 +201,7 @@ async function changeRole(
         intent,
         userID,
         threadID,
+        oldRole: oldRole ?? '-1',
       });
     }
 
@@ -379,6 +383,7 @@ async function updateDescendantPermissions(
             permissions,
             permissionsForChildren,
             role: getRoleForPermissions(role, permissions),
+            oldRole: userInfo?.role ?? '-1',
           });
         } else {
           membershipRows.push({
@@ -386,6 +391,7 @@ async function updateDescendantPermissions(
             intent: 'none',
             userID,
             threadID,
+            oldRole: userInfo?.role ?? '-1',
           });
         }
 
@@ -481,6 +487,7 @@ async function recalculateThreadPermissions(
         permissions,
         permissionsForChildren,
         role: getRoleForPermissions(role, permissions),
+        oldRole: row.role.toString(),
       });
     } else {
       membershipRows.push({
@@ -488,6 +495,7 @@ async function recalculateThreadPermissions(
         intent: 'none',
         userID,
         threadID,
+        oldRole: row.role.toString(),
       });
     }
 
@@ -726,12 +734,14 @@ async function commitMembershipChangeset(
   for (const row of membershipRowMap.values()) {
     const { userID, threadID } = row;
     if (row.operation === 'delete' || row.role === '-1') {
-      updateDatas.push({
-        type: updateTypes.DELETE_THREAD,
-        userID,
-        time,
-        threadID,
-      });
+      if (row.oldRole !== '-1') {
+        updateDatas.push({
+          type: updateTypes.DELETE_THREAD,
+          userID,
+          time,
+          threadID,
+        });
+      }
     } else if (row.userNeedsFullThreadDetails) {
       updateDatas.push({
         type: updateTypes.JOIN_THREAD,

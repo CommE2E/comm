@@ -46,6 +46,7 @@ async function createMembershipsForFormerMembers() {
       permissions: null,
       permissionsForChildren: null,
       role: '-1',
+      oldRole: '-1',
     });
   }
 
