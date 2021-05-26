@@ -14,7 +14,7 @@
     "prod": "node --trace-warnings --experimental-json-modules --loader=./loader.mjs --experimental-specifier-resolution=node dist/server",
     "dev-rsync": "yarn --silent chokidar --initial --silent -s 'src/**/*.json' 'src/**/*.cjs' -c 'yarn rsync > /dev/null 2>&1'",
     "dev": "yarn concurrently --names=\"BABEL,RSYNC,NODEM\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"yarn babel-build --watch\" \"yarn dev-rsync\" \". bash/source-nvm.sh && NODE_ENV=dev nodemon -e js,json,cjs --watch dist --experimental-json-modules --loader=./loader.mjs --experimental-specifier-resolution=node dist/server\"",
-    "script": ". bash/source-nvm.sh && node --experimental-json-modules --loader=./loader.mjs --experimental-specifier-resolution=node",
+    "script": ". bash/source-nvm.sh && NODE_ENV=dev node --experimental-json-modules --loader=./loader.mjs --experimental-specifier-resolution=node",
     "test": "jest"
   },
   "devDependencies": {
@@ -90,7 +90,7 @@
       "\\.js$": "babel-jest"
     },
     "transformIgnorePatterns": [
-      "/node_modules/(?!@babel\/runtime)"
+      "/node_modules/(?!@babel/runtime)"
     ]
   }
 }
