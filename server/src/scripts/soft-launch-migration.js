@@ -113,27 +113,52 @@ async function convertCertainUnadminnedCommunities() {
 }
 
 async function moveThreadsToGenesis() {
-  const nonCommunityQuery = SQL`
-    SELECT id, name, parent_thread_id
+  const noParentQuery = SQL`
+    SELECT id, name
     FROM threads
-    WHERE type != ${threadTypes.COMMUNITY_ROOT}
+    WHERE type != ${threadTypes.COMMUNITY_ROOT} AND parent_thread_id IS NULL
   `;
-  const [threads] = await dbQuery(nonCommunityQuery);
+  const [noParentThreads] = await dbQuery(noParentQuery);
 
   const botViewer = createScriptViewer(bots.squadbot.userID);
-  for (const thread of threads) {
+  while (noParentThreads.length > 0) {
+    const batch = noParentThreads.splice(0, batchSize);
+    await Promise.all(
+      batch.map(async (thread) => {
+        console.log(`processing ${JSON.stringify(thread)}`);
+        return await updateThread(
+          botViewer,
+          {
+            threadID: thread.id,
+            changes: {
+              parentThreadID: genesis.id,
+            },
+          },
+          updateThreadOptions,
+        );
+      }),
+    );
+  }
+
+  const childQuery = SQL`
+    SELECT id, name
+    FROM threads
+    WHERE type != ${threadTypes.COMMUNITY_ROOT}
+      AND parent_thread_id IS NOT NULL AND parent_thread_id != ${genesis.id}
+  `;
+  const [childThreads] = await dbQuery(childQuery);
+
+  for (const childThread of childThreads) {
     // We go one by one because the changes in a parent thread can affect a
     // child thread. If the child thread update starts at the same time as an
     // update for its parent thread, a race can cause incorrect results for the
     // child thread (in particular for the permissions on the memberships table)
-    console.log(`processing ${JSON.stringify(thread)}`);
+    console.log(`processing ${JSON.stringify(childThread)}`);
     await updateThread(
       botViewer,
       {
-        threadID: thread.id,
-        changes: {
-          parentThreadID: thread.parent_thread_id ? undefined : genesis.id,
-        },
+        threadID: childThread.id,
+        changes: {},
       },
       updateThreadOptions,
     );
