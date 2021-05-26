@@ -306,7 +306,7 @@ android {
         externalNativeBuild {
             cmake {
                 arguments "-DANDROID_STL=c++_shared"
-                targets "comm_jni_module"
+                targets "comm_jni_module", "turbomodulejsijni"
             }
         }
     }
