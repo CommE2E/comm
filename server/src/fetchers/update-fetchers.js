@@ -18,12 +18,17 @@ import {
 import { dbQuery, SQL, SQLStatement } from '../database/database';
 import type { Viewer } from '../session/viewer';
 
+const defaultUpdateFetchResult = { updateInfos: [], userInfos: {} };
+
 async function fetchUpdateInfosWithQuery(
   viewerInfo: ViewerInfo,
   query: SQLStatement,
 ): Promise<FetchUpdatesResult> {
   if (!viewerInfo.viewer.loggedIn) {
     throw new ServerError('not_logged_in');
+  }
+  if (viewerInfo.viewer.isScriptViewer) {
+    return defaultUpdateFetchResult;
   }
   const [result] = await dbQuery(query);
   const rawUpdateInfos = [];
