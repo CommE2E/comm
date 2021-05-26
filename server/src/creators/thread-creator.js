@@ -18,6 +18,7 @@ import {
   threadTypes,
   threadPermissions,
 } from 'lib/types/thread-types';
+import { pushAll } from 'lib/utils/array';
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
 import { firstLine } from 'lib/utils/string-utils';
@@ -358,7 +359,7 @@ async function createThread(
       membershipRows: initialMembersMembershipRows,
       relationshipChangeset: initialMembersRelationshipChangeset,
     } = initialMembersChangeset;
-    membershipRows.push(...initialMembersMembershipRows);
+    pushAll(membershipRows, initialMembersMembershipRows);
     relationshipChangeset.addAll(initialMembersRelationshipChangeset);
   }
   if (ghostMembersChangeset) {
@@ -366,7 +367,7 @@ async function createThread(
       membershipRows: ghostMembersMembershipRows,
       relationshipChangeset: ghostMembersRelationshipChangeset,
     } = ghostMembersChangeset;
-    membershipRows.push(...ghostMembersMembershipRows);
+    pushAll(membershipRows, ghostMembersMembershipRows);
     relationshipChangeset.addAll(ghostMembersRelationshipChangeset);
   }
 

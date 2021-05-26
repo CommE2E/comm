@@ -18,6 +18,7 @@ import {
 } from 'lib/types/thread-types';
 import { updateTypes, type UpdateInfo } from 'lib/types/update-types';
 import type { AccountUserInfo } from 'lib/types/user-types';
+import { pushAll } from 'lib/utils/array';
 import { ServerError } from 'lib/utils/errors';
 
 import {
@@ -214,7 +215,7 @@ async function changeRole(
       membershipRows: descendantMembershipRows,
       relationshipChangeset: descendantRelationshipChangeset,
     } = await updateDescendantPermissions(threadID, toUpdateDescendants);
-    membershipRows.push(...descendantMembershipRows);
+    pushAll(membershipRows, descendantMembershipRows);
     relationshipChangeset.addAll(descendantRelationshipChangeset);
   }
 
@@ -509,7 +510,7 @@ async function recalculateThreadPermissions(
       membershipRows: descendantMembershipRows,
       relationshipChangeset: descendantRelationshipChangeset,
     } = await updateDescendantPermissions(threadID, toUpdateDescendants);
-    membershipRows.push(...descendantMembershipRows);
+    pushAll(membershipRows, descendantMembershipRows);
     relationshipChangeset.addAll(descendantRelationshipChangeset);
   }
 
