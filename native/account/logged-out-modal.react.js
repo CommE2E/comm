@@ -763,8 +763,8 @@ const styles = StyleSheet.create({
     color: 'white',
     fontFamily: 'IBMPlexSans',
     fontSize: 56,
-    fontWeight: 'bold',
-    lineHeight: 67,
+    fontWeight: '500',
+    lineHeight: 66,
     textAlign: 'center',
   },
   loadingIndicator: {
