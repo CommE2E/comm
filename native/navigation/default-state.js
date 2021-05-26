@@ -15,7 +15,7 @@ import {
   ChatThreadListRouteName,
   HomeChatThreadListRouteName,
   BackgroundChatThreadListRouteName,
-  CalendarRouteName,
+  AppsRouteName,
 } from './route-names';
 
 export type NavInfo = $Exact<BaseNavInfo>;
@@ -34,9 +34,8 @@ const defaultNavigationState: StaleNavigationState = {
             name: TabNavigatorRouteName,
             state: {
               type: 'tab',
-              index: 1,
+              index: 0,
               routes: [
-                { name: CalendarRouteName },
                 {
                   name: ChatRouteName,
                   state: {
@@ -65,6 +64,7 @@ const defaultNavigationState: StaleNavigationState = {
                     routes: [{ name: ProfileScreenRouteName }],
                   },
                 },
+                { name: AppsRouteName },
               ],
             },
           },
