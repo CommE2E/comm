@@ -51,8 +51,9 @@ export type AnonymousViewerData = {|
 |};
 
 type SessionInfo = {|
-  lastValidated: number,
-  calendarQuery: CalendarQuery,
+  +lastValidated: number,
+  +lastUpdate: number,
+  +calendarQuery: CalendarQuery,
 |};
 
 export type ViewerData = UserViewerData | AnonymousViewerData;
@@ -249,6 +250,15 @@ class Viewer {
       'Viewer.sessionInfo should be set',
     );
     return sessionInfo.lastValidated;
+  }
+
+  get sessionLastUpdated(): number {
+    const { sessionInfo } = this.data;
+    invariant(
+      sessionInfo !== null && sessionInfo !== undefined,
+      'Viewer.sessionInfo should be set',
+    );
+    return sessionInfo.lastUpdate;
   }
 
   get calendarQuery(): CalendarQuery {

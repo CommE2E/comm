@@ -32,6 +32,7 @@ async function createSession(
   await dbQuery(query);
   viewer.setSessionInfo({
     lastValidated: time,
+    lastUpdate: initialLastUpdate,
     calendarQuery,
   });
 }
