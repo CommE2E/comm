@@ -12,9 +12,18 @@ jsi::Value CommCoreModule::getDraft(jsi::Runtime &rt, const jsi::String &key) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
-          std::string draftStr =
-              DatabaseManager::getQueryExecutor().getDraft(keyStr);
+          std::string error;
+          std::string draftStr;
+          try {
+            draftStr = DatabaseManager::getQueryExecutor().getDraft(keyStr);
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
           this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
             jsi::String draft = jsi::String::createFromUtf8(innerRt, draftStr);
             promise->resolve(std::move(draft));
           });
@@ -30,9 +39,19 @@ CommCoreModule::updateDraft(jsi::Runtime &rt, const jsi::Object &draft) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
-          DatabaseManager::getQueryExecutor().updateDraft(keyStr, textStr);
-          this->jsInvoker_->invokeAsync(
-              [=, &innerRt]() { promise->resolve(true); });
+          std::string error;
+          try {
+            DatabaseManager::getQueryExecutor().updateDraft(keyStr, textStr);
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(true);
+            }
+          });
         };
         this->databaseThread.scheduleTask(job);
       });
@@ -42,14 +61,23 @@ jsi::Value CommCoreModule::getAllDrafts(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
-          auto draftsVector =
-              DatabaseManager::getQueryExecutor().getAllDrafts();
-
-          size_t numDrafts = count_if(
-              draftsVector.begin(), draftsVector.end(), [](Draft draft) {
-                return !draft.text.empty();
-              });
+          std::string error;
+          std::vector<Draft> draftsVector;
+          size_t numDrafts;
+          try {
+            draftsVector = DatabaseManager::getQueryExecutor().getAllDrafts();
+            numDrafts = count_if(
+                draftsVector.begin(), draftsVector.end(), [](Draft draft) {
+                  return !draft.text.empty();
+                });
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
           this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
             jsi::Array jsiDrafts = jsi::Array(innerRt, numDrafts);
 
             size_t writeIndex = 0;
