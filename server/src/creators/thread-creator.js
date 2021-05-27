@@ -275,7 +275,7 @@ async function createThread(
       let joinRequest = {
         threadID: existingThreadID,
       };
-      if (hasMinCodeVersion(viewer.platformDetails, 84)) {
+      if (hasMinCodeVersion(viewer.platformDetails, 85)) {
         invariant(request.calendarQuery, 'calendar query should exist');
         const calendarQuery = {
           ...request.calendarQuery,

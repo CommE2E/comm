@@ -111,7 +111,7 @@ function rawThreadInfosFromServerThreadInfos(
 ): FetchThreadInfosResult {
   const viewerID = viewer.id;
   const hasCodeVersionBelow70 = !hasMinCodeVersion(viewer.platformDetails, 70);
-  const hasCodeVersionBelow84 = !hasMinCodeVersion(viewer.platformDetails, 84);
+  const hasCodeVersionBelow85 = !hasMinCodeVersion(viewer.platformDetails, 85);
   const threadInfos = {};
   for (const threadID in serverResult.threadInfos) {
     const serverThreadInfo = serverResult.threadInfos[threadID];
@@ -121,7 +121,7 @@ function rawThreadInfosFromServerThreadInfos(
       {
         includeVisibilityRules: hasCodeVersionBelow70,
         filterMemberList: hasCodeVersionBelow70,
-        shimThreadTypes: hasCodeVersionBelow84 ? shimCommunityRoot : null,
+        shimThreadTypes: hasCodeVersionBelow85 ? shimCommunityRoot : null,
       },
     );
     if (threadInfo) {
