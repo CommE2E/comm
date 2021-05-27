@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 
 import { updateLifecycleStateActionType } from 'lib/reducers/lifecycle-state-reducer';
 import type { LifecycleState } from 'lib/types/lifecycle-state-types';
@@ -12,7 +12,9 @@ import { addLifecycleListener } from './lifecycle';
 const LifecycleHandler = React.memo<{||}>(() => {
   const dispatch = useDispatch();
 
-  const lastStateRef = React.useRef();
+  const currentState = useSelector((state) => state.lifecycleState);
+  const lastStateRef = React.useRef(currentState);
+
   const onLifecycleChange = React.useCallback(
     (nextState: ?(LifecycleState | 'unknown')) => {
       if (!nextState || nextState === 'unknown') {
@@ -20,20 +22,17 @@ const LifecycleHandler = React.memo<{||}>(() => {
       }
       const lastState = lastStateRef.current;
       lastStateRef.current = nextState;
-      if (
-        (lastState === 'background' || lastState === 'inactive') &&
-        nextState === 'active'
-      ) {
-        dispatch({ type: updateLifecycleStateActionType, payload: 'active' });
-      } else if (
-        lastState !== 'background' &&
-        lastState !== 'inactive' &&
-        (nextState === 'background' || nextState === 'inactive')
-      ) {
+      if (nextState !== lastState) {
         dispatch({
           type: updateLifecycleStateActionType,
           payload: nextState,
         });
+      }
+      if (
+        lastState !== 'background' &&
+        lastState !== 'inactive' &&
+        (nextState === 'background' || nextState === 'inactive')
+      ) {
         appBecameInactive();
       }
     },
