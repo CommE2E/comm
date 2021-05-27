@@ -229,6 +229,11 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     this.setState({ searchStatus: 'inactive' });
   };
 
+  onSearchCancel = () => {
+    this.onChangeSearchText('');
+    this.onSearchBlur();
+  };
+
   renderSearch(additionalProps?: $Shape<React.ElementConfig<typeof Search>>) {
     const searchBoxStyle = [
       this.props.styles.searchBox,
@@ -241,7 +246,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     return (
       <View style={this.props.styles.searchContainer}>
         <Button
-          onPress={this.onSearchBlur}
+          onPress={this.onSearchCancel}
           disabled={this.state.searchStatus !== 'active'}
           style={this.props.styles.cancelSearchButton}
         >
