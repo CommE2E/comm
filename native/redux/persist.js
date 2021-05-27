@@ -9,6 +9,7 @@ import { createMigrate } from 'redux-persist';
 import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors';
 import { inconsistencyResponsesToReports } from 'lib/shared/report-utils';
 import { unshimMessageStore } from 'lib/shared/unshim-utils';
+import { defaultEnabledApps } from 'lib/types/enabled-apps';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
 import { messageTypes } from 'lib/types/message-types';
 import { defaultConnectionInfo } from 'lib/types/socket-types';
@@ -17,7 +18,6 @@ import { defaultNotifPermissionAlertInfo } from '../push/alerts';
 import { defaultDeviceCameraInfo } from '../types/camera';
 import { defaultGlobalThemeInfo } from '../types/themes';
 import type { AppState } from './redux-setup';
-import { defaultEnabledApps } from 'lib/types/enabled-apps';
 
 const migrations = {
   [1]: (state: AppState) => ({
@@ -116,12 +116,7 @@ const migrations = {
     deviceCameraInfo: defaultDeviceCameraInfo,
     deviceOrientation: Orientation.getInitialOrientation(),
   }),
-  [14]: (state: AppState) => ({
-    ...state,
-    messageStore: unshimMessageStore(state.messageStore, [
-      messageTypes.MULTIMEDIA,
-    ]),
-  }),
+  [14]: (state: AppState) => state,
   [15]: (state) => ({
     ...state,
     threadStore: {
