@@ -20,6 +20,7 @@ import {
 } from 'lib/actions/user-actions';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { isStaff } from 'lib/shared/user-utils';
 import type { LogOutResult } from 'lib/types/account-types';
 import { type PreRequestUserState } from 'lib/types/session-types';
 import { type CurrentUserInfo } from 'lib/types/user-types';
@@ -154,22 +155,39 @@ class ProfileScreen extends React.PureComponent<Props> {
       link: linkColor,
     } = this.props.colors;
 
-    const appearancePreferences = (
-      <>
-        <Text style={this.props.styles.header}>PREFERENCES</Text>
-        <View style={this.props.styles.slightlyPaddedSection}>
-          <Button
-            onPress={this.onPressAppearance}
-            style={this.props.styles.submenuButton}
-            iosFormat="highlight"
-            iosHighlightUnderlayColor={underlay}
-          >
-            <Text style={this.props.styles.submenuText}>Appearance</Text>
-            <Icon name="ios-arrow-forward" size={20} color={linkColor} />
-          </Button>
-        </View>
-      </>
-    );
+    let appearancePreferences, developerTools;
+    if (
+      (this.props.currentUserInfo && isStaff(this.props.currentUserInfo.id)) ||
+      __DEV__
+    ) {
+      appearancePreferences = (
+        <>
+          <Text style={this.props.styles.header}>PREFERENCES</Text>
+          <View style={this.props.styles.slightlyPaddedSection}>
+            <Button
+              onPress={this.onPressAppearance}
+              style={this.props.styles.submenuButton}
+              iosFormat="highlight"
+              iosHighlightUnderlayColor={underlay}
+            >
+              <Text style={this.props.styles.submenuText}>Appearance</Text>
+              <Icon name="ios-arrow-forward" size={20} color={linkColor} />
+            </Button>
+          </View>
+        </>
+      );
+      developerTools = (
+        <Button
+          onPress={this.onPressDevTools}
+          style={this.props.styles.submenuButton}
+          iosFormat="highlight"
+          iosHighlightUnderlayColor={underlay}
+        >
+          <Text style={this.props.styles.submenuText}>Developer tools</Text>
+          <Icon name="ios-arrow-forward" size={20} color={linkColor} />
+        </Button>
+      );
+    }
 
     return (
       <View style={this.props.styles.container}>
@@ -247,8 +265,7 @@ class ProfileScreen extends React.PureComponent<Props> {
             </Button>
           </View>
 
-          {/* revert the conditional rendering of `appearancePreferences` to re-enable theming */}
-          {__DEV__ ? appearancePreferences : null}
+          {appearancePreferences}
 
           <View style={this.props.styles.slightlyPaddedSection}>
             <Button
@@ -260,15 +277,7 @@ class ProfileScreen extends React.PureComponent<Props> {
               <Text style={this.props.styles.submenuText}>Build info</Text>
               <Icon name="ios-arrow-forward" size={20} color={linkColor} />
             </Button>
-            <Button
-              onPress={this.onPressDevTools}
-              style={this.props.styles.submenuButton}
-              iosFormat="highlight"
-              iosHighlightUnderlayColor={underlay}
-            >
-              <Text style={this.props.styles.submenuText}>Developer tools</Text>
-              <Icon name="ios-arrow-forward" size={20} color={linkColor} />
-            </Button>
+            {developerTools}
           </View>
           <View style={this.props.styles.unpaddedSection}>
             <Button
