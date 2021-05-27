@@ -251,7 +251,10 @@ class NewThreadModal extends React.PureComponent<Props, State> {
     const name = this.state.name.trim();
     try {
       invariant(
-        threadType !== 5 && threadType !== 8,
+        threadType === 3 ||
+          threadType === 4 ||
+          threadType === 6 ||
+          threadType === 7,
         "Sidebars and communities can't be created from the thread composer",
       );
       const query = this.props.calendarQuery();

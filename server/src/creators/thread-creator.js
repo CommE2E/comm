@@ -110,7 +110,11 @@ async function createThread(
   // conversations. For now we are hosting all root threads on Ashoat's
   // keyserver, so we set them to the have the Genesis community as their
   // parent thread.
-  if (!parentThreadID && threadType !== threadTypes.COMMUNITY_ROOT) {
+  if (
+    !parentThreadID &&
+    threadType !== threadTypes.COMMUNITY_ROOT &&
+    threadType !== threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT
+  ) {
     parentThreadID = genesis.id;
   }
 

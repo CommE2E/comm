@@ -77,7 +77,17 @@ const OPEN_DESCENDANT = DESCENDANT + OPEN;
 const TOP_LEVEL_DESCENDANT = DESCENDANT + TOP_LEVEL;
 const OPEN_TOP_LEVEL_DESCENDANT = DESCENDANT + OPEN_TOP_LEVEL;
 
-function getRolePermissionBlobsForCommunity(): RolePermissionBlobs {
+const voicedPermissions = {
+  [threadPermissions.VOICED]: true,
+  [threadPermissions.EDIT_ENTRIES]: true,
+  [threadPermissions.EDIT_THREAD]: true,
+  [threadPermissions.CREATE_SUBTHREADS]: true,
+  [threadPermissions.ADD_MEMBERS]: true,
+};
+
+function getRolePermissionBlobsForCommunity(
+  threadType: ThreadType,
+): RolePermissionBlobs {
   const openDescendantKnowOf = OPEN_DESCENDANT + threadPermissions.KNOW_OF;
   const openDescendantVisible = OPEN_DESCENDANT + threadPermissions.VISIBLE;
   const topLevelDescendantMembership =
@@ -86,7 +96,8 @@ function getRolePermissionBlobsForCommunity(): RolePermissionBlobs {
     OPEN_TOP_LEVEL_DESCENDANT + threadPermissions.JOIN_THREAD;
   const openChildMembership = OPEN_CHILD + threadPermissions.MEMBERSHIP;
   const openChildJoinThread = OPEN_CHILD + threadPermissions.JOIN_THREAD;
-  const memberPermissions = {
+
+  const baseMemberPermissions = {
     [threadPermissions.KNOW_OF]: true,
     [threadPermissions.MEMBERSHIP]: true,
     [threadPermissions.VISIBLE]: true,
@@ -96,14 +107,14 @@ function getRolePermissionBlobsForCommunity(): RolePermissionBlobs {
     [openTopLevelDescendantJoinThread]: true,
     [openChildMembership]: true,
     [openChildJoinThread]: true,
-    [threadPermissions.VOICED]: true,
-    [threadPermissions.EDIT_ENTRIES]: true,
-    [threadPermissions.EDIT_THREAD]: true,
-    [threadPermissions.CREATE_SUBTHREADS]: true,
     [threadPermissions.CREATE_SIDEBARS]: true,
-    [threadPermissions.ADD_MEMBERS]: true,
     [threadPermissions.LEAVE_THREAD]: true,
   };
+  const memberPermissions =
+    threadType === threadTypes.COMMUNITY_ROOT
+      ? { ...baseMemberPermissions, ...voicedPermissions }
+      : baseMemberPermissions;
+
   const descendantKnowOf = DESCENDANT + threadPermissions.KNOW_OF;
   const descendantVisible = DESCENDANT + threadPermissions.VISIBLE;
   const topLevelDescendantJoinThread =
@@ -123,6 +134,7 @@ function getRolePermissionBlobsForCommunity(): RolePermissionBlobs {
     DESCENDANT + threadPermissions.EDIT_PERMISSIONS;
   const descendantRemoveMembers = DESCENDANT + threadPermissions.REMOVE_MEMBERS;
   const descendantChangeRole = DESCENDANT + threadPermissions.CHANGE_ROLE;
+
   const adminPermissions = {
     [threadPermissions.KNOW_OF]: true,
     [threadPermissions.MEMBERSHIP]: true,
@@ -154,6 +166,7 @@ function getRolePermissionBlobsForCommunity(): RolePermissionBlobs {
     [descendantRemoveMembers]: true,
     [descendantChangeRole]: true,
   };
+
   return {
     Members: memberPermissions,
     Admins: adminPermissions,
@@ -216,52 +229,64 @@ function getRolePermissionBlobs(threadType: ThreadType): RolePermissionBlobs {
     };
   }
 
+  const openSubthreadBasePermissions = {
+    [threadPermissions.CREATE_SIDEBARS]: true,
+    [threadPermissions.LEAVE_THREAD]: true,
+    [openChildMembership]: true,
+    [openChildJoinThread]: true,
+  };
+
   if (threadType === threadTypes.COMMUNITY_OPEN_SUBTHREAD) {
     const memberPermissions = {
-      [threadPermissions.VOICED]: true,
-      [threadPermissions.EDIT_ENTRIES]: true,
-      [threadPermissions.EDIT_THREAD]: true,
-      [threadPermissions.CREATE_SUBTHREADS]: true,
-      [threadPermissions.CREATE_SIDEBARS]: true,
-      [threadPermissions.ADD_MEMBERS]: true,
-      [threadPermissions.EDIT_PERMISSIONS]: true,
       [threadPermissions.REMOVE_MEMBERS]: true,
-      [threadPermissions.LEAVE_THREAD]: true,
-      [openChildMembership]: true,
-      [openChildJoinThread]: true,
+      [threadPermissions.EDIT_PERMISSIONS]: true,
+      ...openSubthreadBasePermissions,
+      ...voicedPermissions,
     };
     return {
       Members: memberPermissions,
     };
   }
+
+  if (threadType === threadTypes.COMMUNITY_OPEN_ANNOUNCEMENT_SUBTHREAD) {
+    return {
+      Members: openSubthreadBasePermissions,
+    };
+  }
+
+  const openTopLevelDescendantJoinThread =
+    OPEN_TOP_LEVEL_DESCENDANT + threadPermissions.JOIN_THREAD;
+  const secretSubthreadBasePermissions = {
+    [threadPermissions.KNOW_OF]: true,
+    [threadPermissions.VISIBLE]: true,
+    [threadPermissions.CREATE_SIDEBARS]: true,
+    [threadPermissions.LEAVE_THREAD]: true,
+    [openDescendantKnowOf]: true,
+    [openDescendantVisible]: true,
+    [openTopLevelDescendantJoinThread]: true,
+    [openChildMembership]: true,
+    [openChildJoinThread]: true,
+  };
 
   if (threadType === threadTypes.COMMUNITY_SECRET_SUBTHREAD) {
-    const openTopLevelDescendantJoinThread =
-      OPEN_TOP_LEVEL_DESCENDANT + threadPermissions.JOIN_THREAD;
     const memberPermissions = {
-      [threadPermissions.KNOW_OF]: true,
-      [threadPermissions.VISIBLE]: true,
-      [threadPermissions.VOICED]: true,
-      [threadPermissions.EDIT_ENTRIES]: true,
-      [threadPermissions.EDIT_THREAD]: true,
-      [threadPermissions.CREATE_SUBTHREADS]: true,
-      [threadPermissions.CREATE_SIDEBARS]: true,
-      [threadPermissions.ADD_MEMBERS]: true,
-      [threadPermissions.EDIT_PERMISSIONS]: true,
       [threadPermissions.REMOVE_MEMBERS]: true,
-      [threadPermissions.LEAVE_THREAD]: true,
-      [openDescendantKnowOf]: true,
-      [openDescendantVisible]: true,
-      [openTopLevelDescendantJoinThread]: true,
-      [openChildMembership]: true,
-      [openChildJoinThread]: true,
+      [threadPermissions.EDIT_PERMISSIONS]: true,
+      ...secretSubthreadBasePermissions,
+      ...voicedPermissions,
     };
     return {
       Members: memberPermissions,
     };
   }
 
-  return getRolePermissionBlobsForCommunity();
+  if (threadType === threadTypes.COMMUNITY_SECRET_ANNOUNCEMENT_SUBTHREAD) {
+    return {
+      Members: secretSubthreadBasePermissions,
+    };
+  }
+
+  return getRolePermissionBlobsForCommunity(threadType);
 }
 
 export { createInitialRolesForNewThread, getRolePermissionBlobs };

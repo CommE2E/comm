@@ -116,7 +116,9 @@ async function moveThreadsToGenesis() {
   const noParentQuery = SQL`
     SELECT id, name
     FROM threads
-    WHERE type != ${threadTypes.COMMUNITY_ROOT} AND parent_thread_id IS NULL
+    WHERE type != ${threadTypes.COMMUNITY_ROOT}
+      AND type != ${threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT}
+      AND parent_thread_id IS NULL
   `;
   const [noParentThreads] = await dbQuery(noParentQuery);
 
@@ -144,7 +146,9 @@ async function moveThreadsToGenesis() {
     SELECT id, name
     FROM threads
     WHERE type != ${threadTypes.COMMUNITY_ROOT}
-      AND parent_thread_id IS NOT NULL AND parent_thread_id != ${genesis.id}
+      AND type != ${threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT}
+      AND parent_thread_id IS NOT NULL
+      AND parent_thread_id != ${genesis.id}
   `;
   const [childThreads] = await dbQuery(childQuery);
 

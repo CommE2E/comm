@@ -103,6 +103,12 @@ async function fetchThreadInfos(
 
 const shimCommunityRoot = {
   [threadTypes.COMMUNITY_ROOT]: threadTypes.COMMUNITY_SECRET_SUBTHREAD,
+  [threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT]:
+    threadTypes.COMMUNITY_SECRET_SUBTHREAD,
+  [threadTypes.COMMUNITY_OPEN_ANNOUNCEMENT_SUBTHREAD]:
+    threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+  [threadTypes.COMMUNITY_SECRET_ANNOUNCEMENT_SUBTHREAD]:
+    threadTypes.COMMUNITY_SECRET_SUBTHREAD,
 };
 
 function rawThreadInfosFromServerThreadInfos(

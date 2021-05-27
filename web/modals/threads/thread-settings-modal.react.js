@@ -177,12 +177,10 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
   }
 
   render() {
+    const { threadInfo } = this.props;
     const inputDisabled =
       this.props.changeInProgress ||
-      !this.hasPermissionForTab(
-        this.props.threadInfo,
-        this.state.currentTabType,
-      );
+      !this.hasPermissionForTab(threadInfo, this.state.currentTabType);
 
     let mainContent = null;
     if (this.state.currentTabType === 'general') {
@@ -347,7 +345,9 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     // sidebar
     const canSeePrivacyTab =
       this.possiblyChangedValue('parentThreadID') &&
-      !this.props.threadInfo.sourceMessageID;
+      threadInfo.sourceMessageID &&
+      (threadInfo.type === threadTypes.COMMUNITY_OPEN_SUBTHREAD ||
+        threadInfo.type === threadTypes.COMMUNITY_SECRET_SUBTHREAD);
 
     if (canSeePrivacyTab) {
       tabs.push(
@@ -360,10 +360,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
         />,
       );
     }
-    const canDeleteThread = this.hasPermissionForTab(
-      this.props.threadInfo,
-      'delete',
-    );
+    const canDeleteThread = this.hasPermissionForTab(threadInfo, 'delete');
     if (canDeleteThread) {
       tabs.push(
         <Tab
