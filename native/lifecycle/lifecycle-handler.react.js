@@ -14,7 +14,7 @@ const LifecycleHandler = React.memo<{||}>(() => {
 
   const lastStateRef = React.useRef();
   const onLifecycleChange = React.useCallback(
-    (nextState: ?LifecycleState) => {
+    (nextState: ?(LifecycleState | 'unknown')) => {
       if (!nextState || nextState === 'unknown') {
         return;
       }
