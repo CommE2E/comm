@@ -28,9 +28,16 @@ async function createGenesisCommunity() {
     SQL`t.id = ${genesis.id}`,
   );
   const genesisThreadInfo = genesisThreadInfos.threadInfos[genesis.id];
-  if (genesisThreadInfo) {
+  if (
+    genesisThreadInfo &&
+    genesisThreadInfo.type === threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT
+  ) {
     return;
+  } else if (genesisThreadInfo) {
+    return await updateGenesisCommunityType();
   }
+
+  console.log('creating GENESIS community');
 
   const idInsertQuery = SQL`
     INSERT INTO ids(id, table_name)
@@ -46,7 +53,7 @@ async function createGenesisCommunity() {
     ashoatViewer,
     {
       id: genesis.id,
-      type: threadTypes.COMMUNITY_ROOT,
+      type: threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT,
       name: 'GENESIS',
       description:
         'This is the first community on Comm. In the future it will be ' +
@@ -56,6 +63,22 @@ async function createGenesisCommunity() {
       initialMemberIDs: nonAshoatUserIDs,
     },
     createThreadOptions,
+  );
+}
+
+async function updateGenesisCommunityType() {
+  console.log('updating GENESIS community to COMMUNITY_ANNOUNCEMENT_ROOT');
+
+  const ashoatViewer = createScriptViewer(ashoat.id);
+  await updateThread(
+    ashoatViewer,
+    {
+      threadID: genesis.id,
+      changes: {
+        type: threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT,
+      },
+    },
+    updateThreadOptions,
   );
 }
 
