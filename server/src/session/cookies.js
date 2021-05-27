@@ -244,9 +244,10 @@ async function fetchAnonymousViewer(
 }
 
 type SessionInfo = {|
-  sessionID: ?string,
-  lastValidated: number,
-  calendarQuery: CalendarQuery,
+  +sessionID: ?string,
+  +lastValidated: number,
+  +lastUpdate: number,
+  +calendarQuery: CalendarQuery,
 |};
 async function fetchSessionInfo(
   sessionParameterInfo: SessionParameterInfo,
@@ -258,7 +259,7 @@ async function fetchSessionInfo(
     return null;
   }
   const query = SQL`
-    SELECT query, last_validated
+    SELECT query, last_validated, last_update
     FROM sessions
     WHERE id = ${session} AND cookie = ${cookieID}
   `;
@@ -269,6 +270,7 @@ async function fetchSessionInfo(
   return {
     sessionID,
     lastValidated: result[0].last_validated,
+    lastUpdate: result[0].last_update,
     calendarQuery: result[0].query,
   };
 }

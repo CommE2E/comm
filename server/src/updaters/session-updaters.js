@@ -31,6 +31,9 @@ async function commitSessionUpdate(
   }
 
   viewer.setSessionInfo({
+    lastUpdate: sessionUpdate.lastUpdate
+      ? sessionUpdate.lastUpdate
+      : viewer.sessionLastUpdated,
     lastValidated: sessionUpdate.lastValidated
       ? sessionUpdate.lastValidated
       : viewer.sessionLastValidated,
