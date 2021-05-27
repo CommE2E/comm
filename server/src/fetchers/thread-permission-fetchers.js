@@ -222,7 +222,7 @@ async function validateCandidateMembers(
 
   const parentPermissionsPromise = (async () => {
     const parentPermissions = {};
-    if (!params.parentThreadID) {
+    if (!params.parentThreadID || allCandidates.length === 0) {
       return parentPermissions;
     }
     const parentPermissionsQuery = SQL`
