@@ -235,33 +235,33 @@ function getRolePermissionBlobs(threadType: ThreadType): RolePermissionBlobs {
     };
   }
 
-  if (threadType === threadTypes.COMMUNITY_ROOT) {
-    return getRolePermissionBlobsForCommunity();
+  if (threadType === threadTypes.COMMUNITY_SECRET_SUBTHREAD) {
+    const openTopLevelDescendantJoinThread =
+      OPEN_TOP_LEVEL_DESCENDANT + threadPermissions.JOIN_THREAD;
+    const memberPermissions = {
+      [threadPermissions.KNOW_OF]: true,
+      [threadPermissions.VISIBLE]: true,
+      [threadPermissions.VOICED]: true,
+      [threadPermissions.EDIT_ENTRIES]: true,
+      [threadPermissions.EDIT_THREAD]: true,
+      [threadPermissions.CREATE_SUBTHREADS]: true,
+      [threadPermissions.CREATE_SIDEBARS]: true,
+      [threadPermissions.ADD_MEMBERS]: true,
+      [threadPermissions.EDIT_PERMISSIONS]: true,
+      [threadPermissions.REMOVE_MEMBERS]: true,
+      [threadPermissions.LEAVE_THREAD]: true,
+      [openDescendantKnowOf]: true,
+      [openDescendantVisible]: true,
+      [openTopLevelDescendantJoinThread]: true,
+      [openChildMembership]: true,
+      [openChildJoinThread]: true,
+    };
+    return {
+      Members: memberPermissions,
+    };
   }
 
-  const openTopLevelDescendantJoinThread =
-    OPEN_TOP_LEVEL_DESCENDANT + threadPermissions.JOIN_THREAD;
-  const memberPermissions = {
-    [threadPermissions.KNOW_OF]: true,
-    [threadPermissions.VISIBLE]: true,
-    [threadPermissions.VOICED]: true,
-    [threadPermissions.EDIT_ENTRIES]: true,
-    [threadPermissions.EDIT_THREAD]: true,
-    [threadPermissions.CREATE_SUBTHREADS]: true,
-    [threadPermissions.CREATE_SIDEBARS]: true,
-    [threadPermissions.ADD_MEMBERS]: true,
-    [threadPermissions.EDIT_PERMISSIONS]: true,
-    [threadPermissions.REMOVE_MEMBERS]: true,
-    [threadPermissions.LEAVE_THREAD]: true,
-    [openDescendantKnowOf]: true,
-    [openDescendantVisible]: true,
-    [openTopLevelDescendantJoinThread]: true,
-    [openChildMembership]: true,
-    [openChildJoinThread]: true,
-  };
-  return {
-    Members: memberPermissions,
-  };
+  return getRolePermissionBlobsForCommunity();
 }
 
 export { createInitialRolesForNewThread, getRolePermissionBlobs };
