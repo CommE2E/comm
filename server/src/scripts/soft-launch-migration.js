@@ -3,7 +3,7 @@
 import ashoat from 'lib/facts/ashoat';
 import bots from 'lib/facts/bots';
 import genesis from 'lib/facts/genesis';
-import { threadTypes } from 'lib/types/thread-types';
+import { threadTypes, type ThreadType } from 'lib/types/thread-types';
 
 import { createThread } from '../creators/thread-creator';
 import { dbQuery, SQL } from '../database/database';
@@ -21,7 +21,9 @@ const updateThreadOptions = {
   silenceMessages: true,
   ignorePermissions: true,
 };
-const convertUnadminnedCommunities = ['311733', '421638'];
+const convertUnadminnedToCommunities = ['311733', '421638'];
+const convertToAnnouncementCommunities = ['375310'];
+const convertToAnnouncementSubthreads = ['82649'];
 
 async function createGenesisCommunity() {
   const genesisThreadInfos = await fetchServerThreadInfos(
@@ -96,23 +98,28 @@ async function convertExistingCommunities() {
   const [convertToCommunity] = await dbQuery(communityQuery);
 
   const botViewer = createScriptViewer(bots.squadbot.userID);
-  await convertCommunities(botViewer, convertToCommunity);
+  await convertThreads(
+    botViewer,
+    convertToCommunity,
+    threadTypes.COMMUNITY_ROOT,
+  );
 }
 
-async function convertCommunities(
+async function convertThreads(
   viewer: Viewer,
   threads: Array<{| +id: string, +name: string |}>,
+  type: ThreadType,
 ) {
   while (threads.length > 0) {
     const batch = threads.splice(0, batchSize);
     await Promise.all(
       batch.map(async (thread) => {
-        console.log(`converting ${JSON.stringify(thread)} to COMMUNITY_ROOT`);
+        console.log(`converting ${JSON.stringify(thread)} to ${type}`);
         return await updateThread(
           viewer,
           {
             threadID: thread.id,
-            changes: { type: threadTypes.COMMUNITY_ROOT },
+            changes: { type },
           },
           updateThreadOptions,
         );
@@ -121,18 +128,60 @@ async function convertCommunities(
   }
 }
 
-async function convertCertainUnadminnedCommunities() {
+async function convertUnadminnedCommunities() {
   const communityQuery = SQL`
     SELECT id, name
     FROM threads
-    WHERE id IN (${convertUnadminnedCommunities}) AND 
+    WHERE id IN (${convertUnadminnedToCommunities}) AND
       type = ${threadTypes.COMMUNITY_SECRET_SUBTHREAD}
   `;
   const [convertToCommunity] = await dbQuery(communityQuery);
 
   // We use ashoat here to make sure he becomes the admin of these communities
   const ashoatViewer = createScriptViewer(ashoat.id);
-  await convertCommunities(ashoatViewer, convertToCommunity);
+  await convertThreads(
+    ashoatViewer,
+    convertToCommunity,
+    threadTypes.COMMUNITY_ROOT,
+  );
+}
+
+async function convertAnnouncementCommunities() {
+  const announcementCommunityQuery = SQL`
+    SELECT id, name
+    FROM threads
+    WHERE id IN (${convertToAnnouncementCommunities}) AND
+      type != ${threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT}
+  `;
+  const [convertToAnnouncementCommunity] = await dbQuery(
+    announcementCommunityQuery,
+  );
+
+  const botViewer = createScriptViewer(bots.squadbot.userID);
+  await convertThreads(
+    botViewer,
+    convertToAnnouncementCommunity,
+    threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT,
+  );
+}
+
+async function convertAnnouncementSubthreads() {
+  const announcementSubthreadQuery = SQL`
+    SELECT id, name
+    FROM threads
+    WHERE id IN (${convertToAnnouncementSubthreads}) AND
+      type != ${threadTypes.COMMUNITY_OPEN_ANNOUNCEMENT_SUBTHREAD}
+  `;
+  const [convertToAnnouncementSubthread] = await dbQuery(
+    announcementSubthreadQuery,
+  );
+
+  const botViewer = createScriptViewer(bots.squadbot.userID);
+  await convertThreads(
+    botViewer,
+    convertToAnnouncementSubthread,
+    threadTypes.COMMUNITY_OPEN_ANNOUNCEMENT_SUBTHREAD,
+  );
 }
 
 async function moveThreadsToGenesis() {
@@ -195,6 +244,8 @@ async function moveThreadsToGenesis() {
 main([
   createGenesisCommunity,
   convertExistingCommunities,
-  convertCertainUnadminnedCommunities,
+  convertUnadminnedCommunities,
+  convertAnnouncementCommunities,
+  convertAnnouncementSubthreads,
   moveThreadsToGenesis,
 ]);
