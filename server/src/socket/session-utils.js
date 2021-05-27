@@ -245,6 +245,17 @@ async function initializeSession(
     return { sessionContinued: false };
   }
 
+  if (oldLastUpdate < viewer.sessionLastUpdated) {
+    // If the client has an older last_update than the server is tracking for
+    // that client, then the client either had some issue persisting its store,
+    // or the user restored the client app from a backup. Either way, we should
+    // invalidate the existing session, since the server has assumed that the
+    // checkpoint is further along than it is on the client, and might not still
+    // have all of the updates necessary to do an incremental update
+    await setNewSession(viewer, calendarQuery, oldLastUpdate);
+    return { sessionContinued: false };
+  }
+
   let comparisonResult = null;
   try {
     comparisonResult = compareNewCalendarQuery(viewer, calendarQuery);
