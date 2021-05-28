@@ -432,7 +432,11 @@ async function createThread(
     );
   }
 
-  if (parentThreadID && threadType !== threadTypes.SIDEBAR) {
+  if (
+    parentThreadID &&
+    threadType !== threadTypes.SIDEBAR &&
+    parentThreadID !== genesis.id
+  ) {
     messageDatas.push({
       type: messageTypes.CREATE_SUB_THREAD,
       threadID: parentThreadID,
