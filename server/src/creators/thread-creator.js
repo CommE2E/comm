@@ -106,6 +106,30 @@ async function createThread(
     throw new ServerError('invalid_parameters');
   }
 
+  if (
+    threadType === threadTypes.PERSONAL &&
+    request.initialMemberIDs?.length !== 1
+  ) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const requestParentThreadID = parentThreadID;
+  const confirmParentPermissionPromise = (async () => {
+    if (!requestParentThreadID) {
+      return;
+    }
+    const hasParentPermission = await checkThreadPermission(
+      viewer,
+      requestParentThreadID,
+      threadType === threadTypes.SIDEBAR
+        ? threadPermissions.CREATE_SIDEBARS
+        : threadPermissions.CREATE_SUBTHREADS,
+    );
+    if (!hasParentPermission) {
+      throw new ServerError('invalid_credentials');
+    }
+  })();
+
   // This is a temporary hack until we release actual E2E-encrypted local
   // conversations. For now we are hosting all root threads on Ashoat's
   // keyserver, so we set them to the have the Genesis community as their
@@ -117,29 +141,6 @@ async function createThread(
   ) {
     parentThreadID = genesis.id;
   }
-
-  if (
-    threadType === threadTypes.PERSONAL &&
-    request.initialMemberIDs?.length !== 1
-  ) {
-    throw new ServerError('invalid_parameters');
-  }
-
-  const confirmParentPermissionPromise = (async () => {
-    if (!parentThreadID) {
-      return;
-    }
-    const hasParentPermission = await checkThreadPermission(
-      viewer,
-      parentThreadID,
-      threadType === threadTypes.SIDEBAR
-        ? threadPermissions.CREATE_SIDEBARS
-        : threadPermissions.CREATE_SUBTHREADS,
-    );
-    if (!hasParentPermission) {
-      throw new ServerError('invalid_credentials');
-    }
-  })();
 
   const validateMembersPromise = (async () => {
     const defaultRolePermissions = getRolePermissionBlobs(threadType).Members;
