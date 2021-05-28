@@ -151,6 +151,7 @@ async function createTables() {
       name varchar(191) COLLATE utf8mb4_bin DEFAULT NULL,
       description mediumtext COLLATE utf8mb4_bin,
       parent_thread_id bigint(20) DEFAULT NULL,
+      containing_thread_id bigint(20) DEFAULT NULL,
       default_role bigint(20) NOT NULL,
       creator bigint(20) NOT NULL,
       creation_time bigint(20) NOT NULL,
@@ -280,7 +281,9 @@ async function createTables() {
       ADD KEY user (user);
 
     ALTER TABLE threads
-      ADD PRIMARY KEY (id);
+      ADD PRIMARY KEY (id),
+      ADD INDEX parent_thread_id (parent_thread_id),
+      ADD INDEX containing_thread_id (containing_thread_id);
 
     ALTER TABLE updates
       ADD PRIMARY KEY (id),
