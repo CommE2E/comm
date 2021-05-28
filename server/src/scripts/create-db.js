@@ -33,6 +33,7 @@ async function main() {
 }
 
 async function createTables() {
+  /* eslint-disable no-irregular-whitespace */
   await dbQuery(SQL`
     CREATE TABLE cookies (
       id bigint(20) NOT NULL,
@@ -247,6 +248,8 @@ async function createTables() {
       ADD UNIQUE KEY thread_user (thread,user) USING BTREE,
       ADD KEY role (role) USING BTREE;
 
+    ALTER TABLE memberships ADD INDEX user (user);
+
     ALTER TABLE messages
       ADD PRIMARY KEY (id),
       ADD UNIQUE KEY user_creation (user,creation),
@@ -259,6 +262,8 @@ async function createTables() {
       ADD KEY thread (thread),
       ADD KEY rescinded_user_thread_message (rescinded,user,thread,message)
         USING BTREE;
+
+    ALTER TABLE notifications ADD INDEX user (user);
 
     ALTER TABLE reports
       ADD PRIMARY KEY (id);
@@ -296,7 +301,8 @@ async function createTables() {
       ADD UNIQUE KEY user2_user1 (user2,user1);
 
     ALTER TABLE relationships_directed
-      ADD UNIQUE KEY user1_user2 (user1,user2);
+      ADD UNIQUE KEY user1_user2 (user1,user2),
+      ADD UNIQUE KEY user2_user1 (user2,user1);
 
     ALTER TABLE verifications
       ADD PRIMARY KEY (id),
@@ -310,6 +316,7 @@ async function createTables() {
     ALTER TABLE ids
       MODIFY id bigint(20) NOT NULL AUTO_INCREMENT;
   `);
+  /* eslint-enable no-irregular-whitespace */
 }
 
 async function createUsers() {
