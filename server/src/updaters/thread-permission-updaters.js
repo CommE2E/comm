@@ -210,7 +210,9 @@ async function changeRole(
     }
 
     if (!_isEqual(permissionsForChildren)(oldPermissionsForChildren)) {
-      toUpdateDescendants.set(userID, permissionsForChildren);
+      toUpdateDescendants.set(userID, {
+        permissionsFromParent: permissionsForChildren,
+      });
     }
   }
 
@@ -218,7 +220,10 @@ async function changeRole(
     const {
       membershipRows: descendantMembershipRows,
       relationshipChangeset: descendantRelationshipChangeset,
-    } = await updateDescendantPermissions(threadID, toUpdateDescendants);
+    } = await updateDescendantPermissions({
+      threadID,
+      changesByUser: toUpdateDescendants,
+    });
     pushAll(membershipRows, descendantMembershipRows);
     relationshipChangeset.addAll(descendantRelationshipChangeset);
   }
@@ -296,15 +301,22 @@ async function changeRoleThreadQuery(
   }
 }
 
+type ChangedAncestor = {|
+  +threadID: string,
+  +changesByUser: Map<string, AncestorChanges>,
+|};
+type AncestorChanges = {|
+  +permissionsFromParent: ?ThreadPermissionsBlob,
+|};
+
 async function updateDescendantPermissions(
-  initialParentThreadID: string,
-  initialUsersToPermissionsFromParent: Map<string, ?ThreadPermissionsBlob>,
+  initialChangedAncestor: ChangedAncestor,
 ): Promise<Changeset> {
-  const stack = [[initialParentThreadID, initialUsersToPermissionsFromParent]];
+  const stack = [initialChangedAncestor];
   const membershipRows = [];
   const relationshipChangeset = new RelationshipChangeset();
   while (stack.length > 0) {
-    const [parentThreadID, usersToPermissionsFromParent] = stack.shift();
+    const { threadID, changesByUser } = stack.shift();
 
     const query = SQL`
       SELECT t.id, m.user, t.type,
@@ -313,15 +325,15 @@ async function updateDescendantPermissions(
       FROM threads t
       LEFT JOIN memberships m ON m.thread = t.id
       LEFT JOIN roles r ON r.id = m.role
-      WHERE t.parent_thread_id = ${parentThreadID}
+      WHERE t.parent_thread_id = ${threadID}
     `;
     const [result] = await dbQuery(query);
 
     const childThreadInfos = new Map();
     for (const row of result) {
-      const threadID = row.id.toString();
-      if (!childThreadInfos.has(threadID)) {
-        childThreadInfos.set(threadID, {
+      const childThreadID = row.id.toString();
+      if (!childThreadInfos.has(childThreadID)) {
+        childThreadInfos.set(childThreadID, {
           threadType: assertThreadType(row.type),
           userInfos: new Map(),
         });
@@ -329,8 +341,8 @@ async function updateDescendantPermissions(
       if (!row.user) {
         continue;
       }
-      const childThreadInfo = childThreadInfos.get(threadID);
-      invariant(childThreadInfo, `value should exist for key ${threadID}`);
+      const childThreadInfo = childThreadInfos.get(childThreadID);
+      invariant(childThreadInfo, `value should exist for key ${childThreadID}`);
       const userID = row.user.toString();
       childThreadInfo.userInfos.set(userID, {
         role: row.role.toString(),
@@ -340,15 +352,14 @@ async function updateDescendantPermissions(
       });
     }
 
-    for (const [threadID, childThreadInfo] of childThreadInfos) {
+    for (const [childThreadID, childThreadInfo] of childThreadInfos) {
       const userInfos = childThreadInfo.userInfos;
       const existingMemberIDs = [...userInfos.keys()];
       relationshipChangeset.setAllRelationshipsExist(existingMemberIDs);
       const usersForNextLayer = new Map();
-      for (const [
-        userID,
-        permissionsFromParent,
-      ] of usersToPermissionsFromParent) {
+      for (const [userID, ancestorChanges] of changesByUser) {
+        const { permissionsFromParent } = ancestorChanges;
+
         const userInfo = userInfos.get(userID);
         const role =
           userInfo && Number(userInfo.role) > 0 ? userInfo.role : '0';
@@ -361,7 +372,7 @@ async function updateDescendantPermissions(
         const permissions = makePermissionsBlob(
           rolePermissions,
           permissionsFromParent,
-          threadID,
+          childThreadID,
           childThreadInfo.threadType,
         );
         if (_isEqual(permissions)(oldPermissions)) {
@@ -378,7 +389,7 @@ async function updateDescendantPermissions(
             operation: 'save',
             intent: 'none',
             userID,
-            threadID,
+            threadID: childThreadID,
             userNeedsFullThreadDetails: false,
             permissions,
             permissionsForChildren,
@@ -390,7 +401,7 @@ async function updateDescendantPermissions(
             operation: 'delete',
             intent: 'none',
             userID,
-            threadID,
+            threadID: childThreadID,
             oldRole: userInfo?.role ?? '-1',
           });
         }
@@ -408,11 +419,16 @@ async function updateDescendantPermissions(
         }
 
         if (!_isEqual(permissionsForChildren)(oldPermissionsForChildren)) {
-          usersForNextLayer.set(userID, permissionsForChildren);
+          usersForNextLayer.set(userID, {
+            permissionsFromParent: permissionsForChildren,
+          });
         }
       }
       if (usersForNextLayer.size > 0) {
-        stack.push([threadID, usersForNextLayer]);
+        stack.push({
+          threadID: childThreadID,
+          changesByUser: usersForNextLayer,
+        });
       }
     }
   }
@@ -509,7 +525,9 @@ async function recalculateThreadPermissions(
     }
 
     if (!_isEqual(permissionsForChildren)(oldPermissionsForChildren)) {
-      toUpdateDescendants.set(userID, permissionsForChildren);
+      toUpdateDescendants.set(userID, {
+        permissionsFromParent: permissionsForChildren,
+      });
     }
   }
 
@@ -517,7 +535,10 @@ async function recalculateThreadPermissions(
     const {
       membershipRows: descendantMembershipRows,
       relationshipChangeset: descendantRelationshipChangeset,
-    } = await updateDescendantPermissions(threadID, toUpdateDescendants);
+    } = await updateDescendantPermissions({
+      threadID,
+      changesByUser: toUpdateDescendants,
+    });
     pushAll(membershipRows, descendantMembershipRows);
     relationshipChangeset.addAll(descendantRelationshipChangeset);
   }
