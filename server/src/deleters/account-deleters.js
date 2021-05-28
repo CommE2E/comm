@@ -49,28 +49,40 @@ async function deleteAccount(
 
   // TODO: if this results in any orphaned orgs, convert them to chats
   const deletionQuery = SQL`
-    DELETE u, iu, v, iv, c, ic, m, f, n, ino, up, iup, s, si, ru, rd
-    FROM users u
-    LEFT JOIN ids iu ON iu.id = u.id
-    LEFT JOIN verifications v ON v.user = u.id
-    LEFT JOIN ids iv ON iv.id = v.id
-    LEFT JOIN cookies c ON c.user = u.id
-    LEFT JOIN ids ic ON ic.id = c.id
-    LEFT JOIN memberships m ON m.user = u.id
-    LEFT JOIN focused f ON f.user = u.id
-    LEFT JOIN notifications n ON n.user = u.id
-    LEFT JOIN ids ino ON ino.id = n.id
-    LEFT JOIN updates up ON up.user = u.id
-    LEFT JOIN ids iup ON iup.id = up.id
-    LEFT JOIN sessions s ON u.id = s.user
-    LEFT JOIN ids si ON si.id = s.id
-    LEFT JOIN relationships_undirected ru ON (ru.user1 = u.id OR ru.user2 = u.id)
-    LEFT JOIN relationships_directed rd ON (rd.user1 = u.id OR rd.user2 = u.id)
-    WHERE u.id = ${deletedUserID}
+    START TRANSACTION;
+    DELETE FROM users WHERE id = ${deletedUserID};
+    DELETE FROM ids WHERE id = ${deletedUserID};
+    DELETE v, i
+      FROM verifications v
+      LEFT JOIN ids i ON i.id = v.id
+      WHERE v.user = ${deletedUserID};
+    DELETE c, i
+      FROM cookies c
+      LEFT JOIN ids i ON i.id = c.id
+      WHERE c.user = ${deletedUserID};
+    DELETE FROM memberships WHERE user = ${deletedUserID};
+    DELETE FROM focused WHERE user = ${deletedUserID};
+    DELETE n, i
+      FROM notifications n
+      LEFT JOIN ids i ON i.id = n.id
+      WHERE n.user = ${deletedUserID};
+    DELETE u, i
+      FROM updates u
+      LEFT JOIN ids i ON i.id = u.id
+      WHERE u.user = ${deletedUserID};
+    DELETE s, i
+      FROM sessions s
+      LEFT JOIN ids i ON i.id = s.id
+      WHERE s.user = ${deletedUserID};
+    DELETE FROM relationships_undirected WHERE user1 = ${deletedUserID};
+    DELETE FROM relationships_undirected WHERE user2 = ${deletedUserID};
+    DELETE FROM relationships_directed WHERE user1 = ${deletedUserID};
+    DELETE FROM relationships_directed WHERE user2 = ${deletedUserID};
+    COMMIT;
   `;
 
   const promises = {};
-  promises.deletion = dbQuery(deletionQuery);
+  promises.deletion = dbQuery(deletionQuery, { multipleStatements: true });
   if (request) {
     promises.anonymousViewerData = createNewAnonymousCookie({
       platformDetails: viewer.platformDetails,
