@@ -683,7 +683,7 @@ async function joinThread(
   }
 
   // TODO: determine code version
-  const hasCodeVersionBelow85 = !hasMinCodeVersion(viewer.platformDetails, 85);
+  const hasCodeVersionBelow86 = !hasMinCodeVersion(viewer.platformDetails, 86);
   const hasCodeVersionBelow62 = !hasMinCodeVersion(viewer.platformDetails, 62);
 
   const { calendarQuery } = request;
@@ -696,7 +696,7 @@ async function joinThread(
         newUpdates: [],
       },
     };
-    if (calendarQuery && hasCodeVersionBelow85) {
+    if (calendarQuery && hasCodeVersionBelow86) {
       response.rawEntryInfos = [];
     }
     if (hasCodeVersionBelow62) {
@@ -737,7 +737,7 @@ async function joinThread(
     threadCursors: { [request.threadID]: false },
   };
 
-  if (!hasCodeVersionBelow85) {
+  if (!hasCodeVersionBelow86) {
     return {
       rawMessageInfos: newMessages,
       truncationStatuses: {},
