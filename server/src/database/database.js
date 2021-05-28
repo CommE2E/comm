@@ -76,7 +76,11 @@ function FakeSQLResult() {
 FakeSQLResult.prototype = Array.prototype;
 const fakeResult: any = new FakeSQLResult();
 
-async function dbQuery(statement: SQLStatement, triesLeft?: number = 2) {
+type QueryOptions = {|
+  +triesLeft?: number,
+|};
+async function dbQuery(statement: SQLStatement, options?: QueryOptions) {
+  const triesLeft = options?.triesLeft ?? 2;
   const connectionPool = getPool();
   const timeoutID = setTimeout(
     () => databaseMonitor.reportLaggingQuery(statement.sql),
@@ -99,7 +103,7 @@ async function dbQuery(statement: SQLStatement, triesLeft?: number = 2) {
   } catch (e) {
     if (e.errno === 1213 && triesLeft > 0) {
       console.log('deadlock occurred, trying again', e);
-      return await dbQuery(statement, triesLeft - 1);
+      return await dbQuery(statement, { ...options, triesLeft: triesLeft - 1 });
     }
     e.query = statement.sql;
     throw e;
