@@ -5,6 +5,7 @@ import bcrypt from 'twin-bcrypt';
 
 import ashoat from 'lib/facts/ashoat';
 import bots from 'lib/facts/bots';
+import genesis from 'lib/facts/genesis';
 import {
   validUsernameRegex,
   oldValidUsernameRegex,
@@ -27,7 +28,9 @@ import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
 import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
 import { createNewUserCookie, setNewSession } from '../session/cookies';
+import { createScriptViewer } from '../session/scripts';
 import type { Viewer } from '../session/viewer';
+import { updateThread } from '../updaters/thread-updaters';
 import createIDs from './id-creator';
 import createMessages from './message-creator';
 import {
@@ -115,6 +118,15 @@ async function createAccount(
   if (calendarQuery) {
     await setNewSession(viewer, calendarQuery, 0);
   }
+
+  await updateThread(
+    createScriptViewer(ashoat.id),
+    {
+      threadID: genesis.id,
+      changes: { newMemberIDs: [id] },
+    },
+    { forceAddMembers: true, silenceMessages: true, ignorePermissions: true },
+  );
 
   const [privateThreadResult, ashoatThreadResult] = await Promise.all([
     createPrivateThread(viewer, request.username),
