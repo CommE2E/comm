@@ -78,10 +78,20 @@ const fakeResult: any = new FakeSQLResult();
 
 type QueryOptions = {|
   +triesLeft?: number,
+  +multipleStatements?: boolean,
 |};
 async function dbQuery(statement: SQLStatement, options?: QueryOptions) {
   const triesLeft = options?.triesLeft ?? 2;
-  const connectionPool = getPool();
+  const multipleStatements = options?.multipleStatements ?? false;
+
+  let connection;
+  if (multipleStatements) {
+    connection = await getMultipleStatementsConnection();
+  }
+  if (!connection) {
+    connection = getPool();
+  }
+
   const timeoutID = setTimeout(
     () => databaseMonitor.reportLaggingQuery(statement.sql),
     queryWarnTime,
@@ -99,7 +109,7 @@ async function dbQuery(statement: SQLStatement, options?: QueryOptions) {
       console.log(rawSQL(statement));
       return [fakeResult];
     }
-    return await connectionPool.query(statement);
+    return await connection.query(statement);
   } catch (e) {
     if (e.errno === 1213 && triesLeft > 0) {
       console.log('deadlock occurred, trying again', e);
@@ -109,11 +119,21 @@ async function dbQuery(statement: SQLStatement, options?: QueryOptions) {
     throw e;
   } finally {
     clearTimeout(timeoutID);
+    if (multipleStatements) {
+      connection.end();
+    }
   }
 }
 
 function rawSQL(statement: SQLStatement) {
   return mysql.format(statement.sql, statement.values);
+}
+
+async function getMultipleStatementsConnection() {
+  return await mysqlPromise.createConnection({
+    ...dbConfig,
+    multipleStatements: true,
+  });
 }
 
 export {
