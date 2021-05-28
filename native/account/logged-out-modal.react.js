@@ -761,7 +761,7 @@ const styles = StyleSheet.create({
   },
   header: {
     color: 'white',
-    fontFamily: 'IBMPlexSans',
+    fontFamily: Platform.OS === 'ios' ? 'IBMPlexSans' : 'IBMPlexSans-Medium',
     fontSize: 56,
     fontWeight: '500',
     lineHeight: 66,
