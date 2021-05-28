@@ -5,9 +5,11 @@ import { rawThreadInfoFromServerThreadInfo } from 'lib/shared/thread-utils';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import {
   threadTypes,
+  type ThreadType,
   type RawThreadInfo,
   type ServerThreadInfo,
 } from 'lib/types/thread-types';
+import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL, SQLStatement } from '../database/database';
 import type { Viewer } from '../session/viewer';
@@ -162,10 +164,34 @@ async function verifyThreadID(threadID: string): Promise<boolean> {
   return result.length !== 0;
 }
 
+async function determineContainingThreadID(
+  parentThreadID: ?string,
+  threadType: ThreadType,
+): Promise<?string> {
+  if (!parentThreadID) {
+    return null;
+  }
+  if (threadType === threadTypes.SIDEBAR) {
+    return parentThreadID;
+  }
+  const parentThreadInfos = await fetchServerThreadInfos(
+    SQL`t.id = ${parentThreadID}`,
+  );
+  const parentThreadInfo = parentThreadInfos.threadInfos[parentThreadID];
+  if (!parentThreadInfo) {
+    throw new ServerError('invalid_parameters');
+  }
+  if (!parentThreadInfo.containingThreadID) {
+    return parentThreadID;
+  }
+  return parentThreadInfo.containingThreadID;
+}
+
 export {
   fetchServerThreadInfos,
   fetchThreadInfos,
   rawThreadInfosFromServerThreadInfos,
   verifyThreadIDs,
   verifyThreadID,
+  determineContainingThreadID,
 };

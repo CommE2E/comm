@@ -25,6 +25,7 @@ import { firstLine } from 'lib/utils/string-utils';
 
 import { dbQuery, SQL } from '../database/database';
 import { fetchMessageInfoByID } from '../fetchers/message-fetchers';
+import { determineContainingThreadID } from '../fetchers/thread-fetchers';
 import {
   checkThreadPermission,
   validateCandidateMembers,
@@ -142,6 +143,11 @@ async function createThread(
     parentThreadID = genesis.id;
   }
 
+  const containingThreadIDPromise = determineContainingThreadID(
+    parentThreadID,
+    threadType,
+  );
+
   const validateMembersPromise = (async () => {
     const defaultRolePermissions = getRolePermissionBlobs(threadType).Members;
     const { initialMemberIDs, ghostMemberIDs } = await validateCandidateMembers(
@@ -171,12 +177,14 @@ async function createThread(
 
   const checkPromises = {};
   checkPromises.confirmParentPermission = confirmParentPermissionPromise;
+  checkPromises.containingThreadID = containingThreadIDPromise;
   checkPromises.validateMembers = validateMembersPromise;
   if (sourceMessageID) {
     checkPromises.sourceMessage = fetchMessageInfoByID(viewer, sourceMessageID);
   }
   const {
     sourceMessage,
+    containingThreadID,
     validateMembers: { initialMemberIDs, ghostMemberIDs },
   } = await promiseAll(checkPromises);
 
@@ -210,6 +218,7 @@ async function createThread(
     time,
     color,
     parentThreadID,
+    containingThreadID,
     newRoles.default.id,
     sourceMessageID,
   ];
@@ -242,8 +251,9 @@ async function createThread(
 
   if (existingThreadQuery) {
     const query = SQL`
-      INSERT INTO threads(id, type, name, description, creator,
-        creation_time, color, parent_thread_id, default_role, source_message)
+      INSERT INTO threads(id, type, name, description, creator, creation_time,
+        color, parent_thread_id, containing_thread_id, default_role,
+        source_message)
       SELECT ${row}
       WHERE NOT EXISTS (`;
     query.append(existingThreadQuery).append(SQL`)`);
@@ -308,8 +318,9 @@ async function createThread(
     }
   } else {
     const query = SQL`
-      INSERT INTO threads(id, type, name, description, creator,
-        creation_time, color, parent_thread_id, default_role, source_message)
+      INSERT INTO threads(id, type, name, description, creator, creation_time,
+        color, parent_thread_id, containing_thread_id, default_role,
+        source_message)
       VALUES ${[row]}
     `;
     await dbQuery(query);
