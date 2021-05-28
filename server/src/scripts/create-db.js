@@ -33,7 +33,6 @@ async function main() {
 }
 
 async function createTables() {
-  /* eslint-disable no-irregular-whitespace */
   await dbQuery(SQL`
     CREATE TABLE cookies (
       id bigint(20) NOT NULL,
@@ -316,7 +315,6 @@ async function createTables() {
     ALTER TABLE ids
       MODIFY id bigint(20) NOT NULL AUTO_INCREMENT;
   `);
-  /* eslint-enable no-irregular-whitespace */
 }
 
 async function createUsers() {
