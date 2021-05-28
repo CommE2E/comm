@@ -9,6 +9,7 @@ import {
   updateRelationships as serverUpdateRelationships,
   updateRelationshipsActionTypes,
 } from 'lib/actions/relationship-actions';
+import { getSingleOtherUser } from 'lib/shared/thread-utils';
 import type { RelationshipAction } from 'lib/types/relationship-types';
 import {
   relationshipActions,
@@ -38,13 +39,9 @@ export default React.memo<Props>(function RelationshipPrompt({
   // relationship status. Additionally, member info does not contain info
   // about relationship.
   const otherUserInfo = useSelector((state) => {
-    const currentUserID = state.currentUserInfo?.id;
     const otherUserID =
-      threadInfo.members
-        .map((member) => member.id)
-        .find((id) => id !== currentUserID) ??
+      getSingleOtherUser(threadInfo, state.currentUserInfo?.id) ??
       pendingPersonalThreadUserInfo?.id;
-
     const { userInfos } = state.userStore;
     return otherUserID && userInfos[otherUserID]
       ? userInfos[otherUserID]
