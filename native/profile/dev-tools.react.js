@@ -15,6 +15,7 @@ import { CustomServerModalRouteName } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { useColors, useStyles, type Colors } from '../themes/colors';
 import { wipeAndExit } from '../utils/crash-utils';
+import { checkForMissingNatDevHostname } from '../utils/dev-hostname';
 import { nodeServerOptions } from '../utils/url-utils';
 import type { ProfileNavigationProp } from './profile.react';
 
@@ -161,6 +162,7 @@ class DevTools extends React.PureComponent<Props> {
   };
 
   onSelectCustomServer = () => {
+    checkForMissingNatDevHostname();
     this.props.navigation.navigate(CustomServerModalRouteName, {
       presentedFrom: this.props.route.key,
     });

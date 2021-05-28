@@ -7,18 +7,18 @@ import type { Store } from 'redux';
 
 import { setURLPrefix } from 'lib/utils/url-utils';
 
-import networkSettings from '../facts/network';
 import type { AppState } from '../redux/redux-setup';
+import { natDevHostname, checkForMissingNatDevHostname } from './dev-hostname';
 
 const localhostHostname = 'localhost';
 const localhostHostnameFromAndroidEmulator = '10.0.2.2';
-const natDevHostname = networkSettings.natDevHostname ?? '192.168.1.1';
 
 const productionNodeServerURL = 'https://squadcal.org';
 
 function getDevServerHostname(isEmulator: boolean): string {
   invariant(__DEV__, 'getDevServerHostname called from production');
   if (!isEmulator) {
+    checkForMissingNatDevHostname();
     return natDevHostname;
   } else if (Platform.OS === 'android') {
     return localhostHostnameFromAndroidEmulator;
