@@ -171,13 +171,14 @@ async function verifyThreadID(threadID: string): Promise<boolean> {
 type ThreadAncestry = {|
   +containingThreadID: ?string,
   +community: ?string,
+  +depth: number,
 |};
 async function determineThreadAncestry(
   parentThreadID: ?string,
   threadType: ThreadType,
 ): Promise<ThreadAncestry> {
   if (!parentThreadID) {
-    return { containingThreadID: null, community: null };
+    return { containingThreadID: null, community: null, depth: 0 };
   }
   const parentThreadInfos = await fetchServerThreadInfos(
     SQL`t.id = ${parentThreadID}`,
@@ -191,7 +192,8 @@ async function determineThreadAncestry(
     threadType,
   );
   const community = getCommunity(parentThreadInfo);
-  return { containingThreadID, community };
+  const depth = parentThreadInfo.depth + 1;
+  return { containingThreadID, community, depth };
 }
 
 function getContainingThreadID(

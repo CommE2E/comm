@@ -437,6 +437,7 @@ async function updateThread(
   const oldParentThreadID = serverThreadInfo.parentThreadID;
   const oldContainingThreadID = serverThreadInfo.containingThreadID;
   const oldCommunity = serverThreadInfo.community;
+  const oldDepth = serverThreadInfo.depth;
 
   const nextThreadType =
     threadType !== null && threadType !== undefined
@@ -549,6 +550,9 @@ async function updateThread(
       throw new ServerError('invalid_parameters');
     }
     sqlUpdate.community = nextThreadAncestry.community;
+  }
+  if (nextThreadAncestry.depth !== oldDepth) {
+    sqlUpdate.depth = nextThreadAncestry.depth;
   }
 
   const updateQueryPromise = (async () => {
