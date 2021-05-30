@@ -6,6 +6,7 @@ import { dbQuery, SQL } from '../database/database';
 import {
   fetchServerThreadInfos,
   getContainingThreadID,
+  getCommunity,
 } from '../fetchers/thread-fetchers';
 import { main } from './utils';
 
@@ -47,22 +48,28 @@ async function setColumnForLayer(
       parentThreadInfo,
       threadInfo.type,
     );
-    if (!containingThreadID) {
-      console.log(`containingThreadID is null for ${threadID}, skipping...`);
+    const community = getCommunity(parentThreadInfo);
+    if (!containingThreadID && !community) {
+      console.log(
+        `containingThreadID and community are null for ${threadID}, ` +
+          'skipping...',
+      );
       updatedThreadInfos.push(threadInfo);
       continue;
     }
     console.log(
-      `setting containingThreadID to ${containingThreadID} for ${threadID}`,
+      `setting containingThreadID to ${containingThreadID ?? 'null'} and ` +
+        `community to ${community ?? 'null'} for ${threadID}`,
     );
     await dbQuery(SQL`
       UPDATE threads
-      SET containing_thread_id = ${containingThreadID}
+      SET containing_thread_id = ${containingThreadID}, community = ${community}
       WHERE id = ${threadID}
     `);
     updatedThreadInfos.push({
       ...threadInfo,
       containingThreadID,
+      community,
     });
   }
   return updatedThreadInfos;
