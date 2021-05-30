@@ -343,15 +343,6 @@ async function updateThread(
     sqlUpdate.type = threadType;
   }
 
-  // We're temporarily blocking changing parent thread IDs. Note that even if we
-  // remove this condition it is only possible for community subthreads (open or
-  // secret). We've disabled it for community subthreads because we don't yet
-  // have any efficient way of checking if the new parent is in the same
-  // community as the old parent.
-  if (!ignorePermissions && parentThreadID !== undefined) {
-    throw new ServerError('invalid_parameters');
-  }
-
   if (
     !ignorePermissions &&
     threadType !== null &&
@@ -445,6 +436,7 @@ async function updateThread(
   const oldThreadType = serverThreadInfo.type;
   const oldParentThreadID = serverThreadInfo.parentThreadID;
   const oldContainingThreadID = serverThreadInfo.containingThreadID;
+  const oldCommunity = serverThreadInfo.community;
 
   const nextThreadType =
     threadType !== null && threadType !== undefined
@@ -551,6 +543,12 @@ async function updateThread(
   });
   if (nextThreadAncestry.containingThreadID !== oldContainingThreadID) {
     sqlUpdate.containing_thread_id = nextThreadAncestry.containingThreadID;
+  }
+  if (nextThreadAncestry.community !== oldCommunity) {
+    if (!ignorePermissions) {
+      throw new ServerError('invalid_parameters');
+    }
+    sqlUpdate.community = nextThreadAncestry.community;
   }
 
   const updateQueryPromise = (async () => {
