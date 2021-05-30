@@ -58,19 +58,24 @@ async function setColumnForLayer(
       updatedThreadInfos.push(threadInfo);
       continue;
     }
+    const depth = parentThreadInfo ? parentThreadInfo.depth + 1 : 0;
     console.log(
-      `setting containingThreadID to ${containingThreadID ?? 'null'} and ` +
-        `community to ${community ?? 'null'} for ${threadID}`,
+      `setting containingThreadID to ${containingThreadID ?? 'null'}, ` +
+        `community to ${community ?? 'null'}, and ` +
+        `depth to ${depth} for ${threadID}`,
     );
     await dbQuery(SQL`
       UPDATE threads
-      SET containing_thread_id = ${containingThreadID}, community = ${community}
+      SET containing_thread_id = ${containingThreadID},
+        community = ${community},
+        depth = ${depth}
       WHERE id = ${threadID}
     `);
     updatedThreadInfos.push({
       ...threadInfo,
       containingThreadID,
       community,
+      depth,
     });
   }
   return updatedThreadInfos;
