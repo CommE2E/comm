@@ -15,6 +15,7 @@ async function addColumnAndIndexes() {
     ALTER TABLE threads
       ADD containing_thread_id BIGINT(20) NULL AFTER parent_thread_id,
       ADD community BIGINT(20) NULL AFTER containing_thread_id,
+      ADD depth INT UNSIGNED NOT NULL DEFAULT 0 AFTER community,
       ADD INDEX parent_thread_id (parent_thread_id),
       ADD INDEX community (community),
       ADD INDEX containing_thread_id (containing_thread_id);

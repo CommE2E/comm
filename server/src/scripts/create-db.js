@@ -153,6 +153,7 @@ async function createTables() {
       parent_thread_id bigint(20) DEFAULT NULL,
       containing_thread_id bigint(20) DEFAULT NULL,
       community bigint(20) DEFAULT NULL,
+      depth int UNSIGNED NOT NULL DEFAULT 0,
       default_role bigint(20) NOT NULL,
       creator bigint(20) NOT NULL,
       creation_time bigint(20) NOT NULL,
