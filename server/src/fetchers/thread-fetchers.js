@@ -24,10 +24,11 @@ async function fetchServerThreadInfos(
   const whereClause = condition ? SQL`WHERE `.append(condition) : '';
 
   const query = SQL`
-    SELECT t.id, t.name, t.parent_thread_id, t.containing_thread_id, t.color,
-      t.description, t.type, t.creation_time, t.default_role, t.source_message,
-      t.replies_count, r.id AS role, r.name AS role_name,
-      r.permissions AS role_permissions, m.user, m.permissions, m.subscription,
+    SELECT t.id, t.name, t.parent_thread_id, t.containing_thread_id,
+      t.community, t.color, t.description, t.type, t.creation_time,
+      t.default_role, t.source_message, t.replies_count, r.id AS role,
+      r.name AS role_name, r.permissions AS role_permissions, m.user,
+      m.permissions, m.subscription,
       m.last_read_message < m.last_message AS unread, m.sender
     FROM threads t
     LEFT JOIN (
@@ -54,12 +55,13 @@ async function fetchServerThreadInfos(
         description: row.description ? row.description : '',
         color: row.color,
         creationTime: row.creation_time,
-        containingThreadID: row.containing_thread_id
-          ? row.containing_thread_id.toString()
-          : null,
         parentThreadID: row.parent_thread_id
           ? row.parent_thread_id.toString()
           : null,
+        containingThreadID: row.containing_thread_id
+          ? row.containing_thread_id.toString()
+          : null,
+        community: row.community ? row.community.toString() : null,
         members: [],
         roles: {},
         repliesCount: row.replies_count,
