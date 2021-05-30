@@ -176,9 +176,6 @@ async function determineThreadAncestry(
   if (!parentThreadID) {
     return { containingThreadID: null };
   }
-  if (threadType === threadTypes.SIDEBAR) {
-    return { containingThreadID: parentThreadID };
-  }
   const parentThreadInfos = await fetchServerThreadInfos(
     SQL`t.id = ${parentThreadID}`,
   );
@@ -186,10 +183,27 @@ async function determineThreadAncestry(
   if (!parentThreadInfo) {
     throw new ServerError('invalid_parameters');
   }
-  if (!parentThreadInfo.containingThreadID) {
-    return { containingThreadID: parentThreadID };
+  const containingThreadID = getContainingThreadID(
+    parentThreadInfo,
+    threadType,
+  );
+  return { containingThreadID };
+}
+
+function getContainingThreadID(
+  parentThreadInfo: ?ServerThreadInfo,
+  threadType: ThreadType,
+) {
+  if (!parentThreadInfo) {
+    return null;
   }
-  return { containingThreadID: parentThreadInfo.containingThreadID };
+  if (threadType === threadTypes.SIDEBAR) {
+    return parentThreadInfo.id;
+  }
+  if (!parentThreadInfo.containingThreadID) {
+    return parentThreadInfo.id;
+  }
+  return parentThreadInfo.containingThreadID;
 }
 
 export {
@@ -199,4 +213,5 @@ export {
   verifyThreadIDs,
   verifyThreadID,
   determineThreadAncestry,
+  getContainingThreadID,
 };

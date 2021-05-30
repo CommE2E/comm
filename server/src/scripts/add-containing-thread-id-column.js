@@ -1,11 +1,12 @@
 // @flow
 
-import invariant from 'invariant';
-
-import { threadTypes, type ServerThreadInfo } from 'lib/types/thread-types';
+import type { ServerThreadInfo } from 'lib/types/thread-types';
 
 import { dbQuery, SQL } from '../database/database';
-import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
+import {
+  fetchServerThreadInfos,
+  getContainingThreadID,
+} from '../fetchers/thread-fetchers';
 import { main } from './utils';
 
 async function addColumnAndIndexes() {
@@ -42,9 +43,9 @@ async function setColumnForLayer(
   const updatedThreadInfos = [];
   for (const threadID in threadInfos) {
     const threadInfo = threadInfos[threadID];
-    const containingThreadID = getContainingThread(
-      threadInfo,
+    const containingThreadID = getContainingThreadID(
       parentThreadInfo,
+      threadInfo.type,
     );
     if (!containingThreadID) {
       console.log(`containingThreadID is null for ${threadID}, skipping...`);
@@ -65,24 +66,6 @@ async function setColumnForLayer(
     });
   }
   return updatedThreadInfos;
-}
-
-function getContainingThread(
-  threadInfo: ServerThreadInfo,
-  parentThreadInfo: ?ServerThreadInfo,
-) {
-  const { type, parentThreadID } = threadInfo;
-  if (!parentThreadID) {
-    return null;
-  }
-  if (type === threadTypes.SIDEBAR) {
-    return parentThreadID;
-  }
-  invariant(parentThreadInfo, 'parentThreadInfo should be set');
-  if (!parentThreadInfo.containingThreadID) {
-    return parentThreadID;
-  }
-  return parentThreadInfo.containingThreadID;
 }
 
 main([addColumnAndIndexes, setColumn]);
