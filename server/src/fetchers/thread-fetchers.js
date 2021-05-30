@@ -26,7 +26,7 @@ async function fetchServerThreadInfos(
 
   const query = SQL`
     SELECT t.id, t.name, t.parent_thread_id, t.containing_thread_id,
-      t.community, t.color, t.description, t.type, t.creation_time,
+      t.community, t.depth, t.color, t.description, t.type, t.creation_time,
       t.default_role, t.source_message, t.replies_count, r.id AS role,
       r.name AS role_name, r.permissions AS role_permissions, m.user,
       m.permissions, m.subscription,
@@ -62,6 +62,7 @@ async function fetchServerThreadInfos(
         containingThreadID: row.containing_thread_id
           ? row.containing_thread_id.toString()
           : null,
+        depth: row.depth,
         community: row.community ? row.community.toString() : null,
         members: [],
         roles: {},
