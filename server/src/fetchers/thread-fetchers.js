@@ -8,6 +8,7 @@ import {
   type ThreadType,
   type RawThreadInfo,
   type ServerThreadInfo,
+  threadTypeIsCommunityRoot,
 } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
 
@@ -168,13 +169,14 @@ async function verifyThreadID(threadID: string): Promise<boolean> {
 
 type ThreadAncestry = {|
   +containingThreadID: ?string,
+  +community: ?string,
 |};
 async function determineThreadAncestry(
   parentThreadID: ?string,
   threadType: ThreadType,
 ): Promise<ThreadAncestry> {
   if (!parentThreadID) {
-    return { containingThreadID: null };
+    return { containingThreadID: null, community: null };
   }
   const parentThreadInfos = await fetchServerThreadInfos(
     SQL`t.id = ${parentThreadID}`,
@@ -187,7 +189,8 @@ async function determineThreadAncestry(
     parentThreadInfo,
     threadType,
   );
-  return { containingThreadID };
+  const community = getCommunity(parentThreadInfo);
+  return { containingThreadID, community };
 }
 
 function getContainingThreadID(
@@ -206,6 +209,20 @@ function getContainingThreadID(
   return parentThreadInfo.containingThreadID;
 }
 
+function getCommunity(parentThreadInfo: ?ServerThreadInfo) {
+  if (!parentThreadInfo) {
+    return null;
+  }
+  const { id, community, type } = parentThreadInfo;
+  if (community !== null && community !== undefined) {
+    return community;
+  }
+  if (threadTypeIsCommunityRoot(type)) {
+    return id;
+  }
+  return null;
+}
+
 export {
   fetchServerThreadInfos,
   fetchThreadInfos,
@@ -213,5 +230,6 @@ export {
   verifyThreadIDs,
   verifyThreadID,
   determineThreadAncestry,
+  getCommunity,
   getContainingThreadID,
 };

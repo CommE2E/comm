@@ -216,6 +216,7 @@ async function createThread(
     color,
     parentThreadID,
     threadAncestry.containingThreadID,
+    threadAncestry.community,
     newRoles.default.id,
     sourceMessageID,
   ];
@@ -249,7 +250,7 @@ async function createThread(
   if (existingThreadQuery) {
     const query = SQL`
       INSERT INTO threads(id, type, name, description, creator, creation_time,
-        color, parent_thread_id, containing_thread_id, default_role,
+        color, parent_thread_id, containing_thread_id, community, default_role,
         source_message)
       SELECT ${row}
       WHERE NOT EXISTS (`;
@@ -316,7 +317,7 @@ async function createThread(
   } else {
     const query = SQL`
       INSERT INTO threads(id, type, name, description, creator, creation_time,
-        color, parent_thread_id, containing_thread_id, default_role,
+        color, parent_thread_id, containing_thread_id, community, default_role,
         source_message)
       VALUES ${[row]}
     `;
