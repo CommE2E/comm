@@ -166,15 +166,18 @@ async function verifyThreadID(threadID: string): Promise<boolean> {
   return result.length !== 0;
 }
 
-async function determineContainingThreadID(
+type ThreadAncestry = {|
+  +containingThreadID: ?string,
+|};
+async function determineThreadAncestry(
   parentThreadID: ?string,
   threadType: ThreadType,
-): Promise<?string> {
+): Promise<ThreadAncestry> {
   if (!parentThreadID) {
-    return null;
+    return { containingThreadID: null };
   }
   if (threadType === threadTypes.SIDEBAR) {
-    return parentThreadID;
+    return { containingThreadID: parentThreadID };
   }
   const parentThreadInfos = await fetchServerThreadInfos(
     SQL`t.id = ${parentThreadID}`,
@@ -184,9 +187,9 @@ async function determineContainingThreadID(
     throw new ServerError('invalid_parameters');
   }
   if (!parentThreadInfo.containingThreadID) {
-    return parentThreadID;
+    return { containingThreadID: parentThreadID };
   }
-  return parentThreadInfo.containingThreadID;
+  return { containingThreadID: parentThreadInfo.containingThreadID };
 }
 
 export {
@@ -195,5 +198,5 @@ export {
   rawThreadInfosFromServerThreadInfos,
   verifyThreadIDs,
   verifyThreadID,
-  determineContainingThreadID,
+  determineThreadAncestry,
 };

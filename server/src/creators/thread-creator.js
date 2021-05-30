@@ -26,7 +26,7 @@ import { firstLine } from 'lib/utils/string-utils';
 
 import { dbQuery, SQL } from '../database/database';
 import { fetchMessageInfoByID } from '../fetchers/message-fetchers';
-import { determineContainingThreadID } from '../fetchers/thread-fetchers';
+import { determineThreadAncestry } from '../fetchers/thread-fetchers';
 import {
   checkThreadPermission,
   validateCandidateMembers,
@@ -140,7 +140,7 @@ async function createThread(
     parentThreadID = genesis.id;
   }
 
-  const containingThreadIDPromise = determineContainingThreadID(
+  const determineThreadAncestryPromise = determineThreadAncestry(
     parentThreadID,
     threadType,
   );
@@ -174,14 +174,14 @@ async function createThread(
 
   const checkPromises = {};
   checkPromises.confirmParentPermission = confirmParentPermissionPromise;
-  checkPromises.containingThreadID = containingThreadIDPromise;
+  checkPromises.threadAncestry = determineThreadAncestryPromise;
   checkPromises.validateMembers = validateMembersPromise;
   if (sourceMessageID) {
     checkPromises.sourceMessage = fetchMessageInfoByID(viewer, sourceMessageID);
   }
   const {
     sourceMessage,
-    containingThreadID,
+    threadAncestry,
     validateMembers: { initialMemberIDs, ghostMemberIDs },
   } = await promiseAll(checkPromises);
 
@@ -215,7 +215,7 @@ async function createThread(
     time,
     color,
     parentThreadID,
-    containingThreadID,
+    threadAncestry.containingThreadID,
     newRoles.default.id,
     sourceMessageID,
   ];

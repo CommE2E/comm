@@ -36,7 +36,7 @@ import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import {
   fetchThreadInfos,
   fetchServerThreadInfos,
-  determineContainingThreadID,
+  determineThreadAncestry,
 } from '../fetchers/thread-fetchers';
 import {
   checkThreadPermission,
@@ -474,7 +474,7 @@ async function updateThread(
     throw new ServerError('no_parent_thread_specified');
   }
 
-  const containingThreadIDPromise = determineContainingThreadID(
+  const determineThreadAncestryPromise = determineThreadAncestry(
     nextParentThreadID,
     nextThreadType,
   );
@@ -544,13 +544,13 @@ async function updateThread(
     }
   })();
 
-  const { nextContainingThreadID } = await promiseAll({
-    nextContainingThreadID: containingThreadIDPromise,
+  const { nextThreadAncestry } = await promiseAll({
+    nextThreadAncestry: determineThreadAncestryPromise,
     confirmParentPermissionPromise,
     validateNewMembersPromise,
   });
-  if (nextContainingThreadID !== oldContainingThreadID) {
-    sqlUpdate.containing_thread_id = nextContainingThreadID;
+  if (nextThreadAncestry.containingThreadID !== oldContainingThreadID) {
+    sqlUpdate.containing_thread_id = nextThreadAncestry.containingThreadID;
   }
 
   const updateQueryPromise = (async () => {
