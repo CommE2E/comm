@@ -30,10 +30,7 @@ async function createGenesisCommunity() {
     SQL`t.id = ${genesis.id}`,
   );
   const genesisThreadInfo = genesisThreadInfos.threadInfos[genesis.id];
-  if (
-    genesisThreadInfo &&
-    genesisThreadInfo.type === threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT
-  ) {
+  if (genesisThreadInfo && genesisThreadInfo.type === threadTypes.GENESIS) {
     return;
   } else if (genesisThreadInfo) {
     return await updateGenesisCommunityType();
@@ -55,7 +52,7 @@ async function createGenesisCommunity() {
     ashoatViewer,
     {
       id: genesis.id,
-      type: threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT,
+      type: threadTypes.GENESIS,
       name: genesis.name,
       description: genesis.description,
       initialMemberIDs: nonAshoatUserIDs,
@@ -65,7 +62,7 @@ async function createGenesisCommunity() {
 }
 
 async function updateGenesisCommunityType() {
-  console.log('updating GENESIS community to COMMUNITY_ANNOUNCEMENT_ROOT');
+  console.log('updating GENESIS community to GENESIS type');
 
   const ashoatViewer = createScriptViewer(ashoat.id);
   await updateThread(
@@ -73,7 +70,7 @@ async function updateGenesisCommunityType() {
     {
       threadID: genesis.id,
       changes: {
-        type: threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT,
+        type: threadTypes.GENESIS,
       },
     },
     updateThreadOptions,
@@ -186,6 +183,7 @@ async function moveThreadsToGenesis() {
     FROM threads
     WHERE type != ${threadTypes.COMMUNITY_ROOT}
       AND type != ${threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT}
+      AND type != ${threadTypes.GENESIS}
       AND parent_thread_id IS NULL
   `;
   const [noParentThreads] = await dbQuery(noParentQuery);
@@ -215,6 +213,7 @@ async function moveThreadsToGenesis() {
     FROM threads
     WHERE type != ${threadTypes.COMMUNITY_ROOT}
       AND type != ${threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT}
+      AND type != ${threadTypes.GENESIS}
       AND parent_thread_id IS NOT NULL
       AND parent_thread_id != ${genesis.id}
   `;

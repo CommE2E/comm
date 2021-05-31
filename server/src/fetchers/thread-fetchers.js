@@ -118,6 +118,7 @@ const shimCommunityRoot = {
     threadTypes.COMMUNITY_OPEN_SUBTHREAD,
   [threadTypes.COMMUNITY_SECRET_ANNOUNCEMENT_SUBTHREAD]:
     threadTypes.COMMUNITY_SECRET_SUBTHREAD,
+  [threadTypes.GENESIS]: threadTypes.COMMUNITY_SECRET_SUBTHREAD,
 };
 
 function rawThreadInfosFromServerThreadInfos(

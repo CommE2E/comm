@@ -355,7 +355,7 @@ async function createThreads() {
     ashoatViewer,
     {
       id: genesis.id,
-      type: threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT,
+      type: threadTypes.GENESIS,
       name: genesis.name,
       description: genesis.description,
       initialMemberIDs: [bots.squadbot.userID],

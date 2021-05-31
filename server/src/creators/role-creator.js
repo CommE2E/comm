@@ -108,12 +108,23 @@ function getRolePermissionBlobsForCommunity(
     [openChildMembership]: true,
     [openChildJoinThread]: true,
     [threadPermissions.CREATE_SIDEBARS]: true,
-    [threadPermissions.LEAVE_THREAD]: true,
   };
-  const memberPermissions =
-    threadType === threadTypes.COMMUNITY_ROOT
-      ? { ...baseMemberPermissions, ...voicedPermissions }
-      : baseMemberPermissions;
+
+  let memberPermissions;
+  if (threadType === threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT) {
+    memberPermissions = {
+      ...baseMemberPermissions,
+      [threadPermissions.LEAVE_THREAD]: true,
+    };
+  } else if (threadType === threadTypes.GENESIS) {
+    memberPermissions = baseMemberPermissions;
+  } else {
+    memberPermissions = {
+      ...baseMemberPermissions,
+      ...voicedPermissions,
+      [threadPermissions.LEAVE_THREAD]: true,
+    };
+  }
 
   const descendantKnowOf = DESCENDANT + threadPermissions.KNOW_OF;
   const descendantVisible = DESCENDANT + threadPermissions.VISIBLE;
@@ -135,7 +146,7 @@ function getRolePermissionBlobsForCommunity(
   const descendantRemoveMembers = DESCENDANT + threadPermissions.REMOVE_MEMBERS;
   const descendantChangeRole = DESCENDANT + threadPermissions.CHANGE_ROLE;
 
-  const adminPermissions = {
+  const baseAdminPermissions = {
     [threadPermissions.KNOW_OF]: true,
     [threadPermissions.MEMBERSHIP]: true,
     [threadPermissions.VISIBLE]: true,
@@ -148,7 +159,6 @@ function getRolePermissionBlobsForCommunity(
     [threadPermissions.DELETE_THREAD]: true,
     [threadPermissions.REMOVE_MEMBERS]: true,
     [threadPermissions.CHANGE_ROLE]: true,
-    [threadPermissions.LEAVE_THREAD]: true,
     [descendantKnowOf]: true,
     [descendantVisible]: true,
     [topLevelDescendantMembership]: true,
@@ -166,6 +176,16 @@ function getRolePermissionBlobsForCommunity(
     [descendantRemoveMembers]: true,
     [descendantChangeRole]: true,
   };
+
+  let adminPermissions;
+  if (threadType === threadTypes.GENESIS) {
+    adminPermissions = baseAdminPermissions;
+  } else {
+    adminPermissions = {
+      ...baseAdminPermissions,
+      [threadPermissions.LEAVE_THREAD]: true,
+    };
+  }
 
   return {
     Members: memberPermissions,
