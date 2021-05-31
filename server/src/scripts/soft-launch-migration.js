@@ -56,12 +56,8 @@ async function createGenesisCommunity() {
     {
       id: genesis.id,
       type: threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT,
-      name: 'GENESIS',
-      description:
-        'This is the first community on Comm. In the future it will be ' +
-        'possible to create threads outside of a community, but for now all ' +
-        'of these threads get set with GENESIS as their parent. GENESIS is ' +
-        "hosted on Ashoat's keyserver.",
+      name: genesis.name,
+      description: genesis.description,
       initialMemberIDs: nonAshoatUserIDs,
     },
     createThreadOptions,
