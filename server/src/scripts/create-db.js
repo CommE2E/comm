@@ -2,17 +2,15 @@
 
 import ashoat from 'lib/facts/ashoat';
 import bots from 'lib/facts/bots';
-import {
-  makePermissionsBlob,
-  makePermissionsForChildrenBlob,
-} from 'lib/permissions/thread-permissions';
+import genesis from 'lib/facts/genesis';
 import { usernameMaxLength } from 'lib/shared/account-utils';
 import { sortIDs } from 'lib/shared/relationship-utils';
 import { undirectedStatus } from 'lib/types/relationship-types';
 import { threadTypes } from 'lib/types/thread-types';
 
-import { getRolePermissionBlobs } from '../creators/role-creator';
+import { createThread } from '../creators/thread-creator';
 import { dbQuery, SQL } from '../database/database';
+import { createScriptViewer } from '../session/scripts';
 import { setScriptContext } from './script-context';
 import { endScript } from './utils';
 
@@ -342,50 +340,40 @@ async function createUsers() {
   `);
 }
 
+const createThreadOptions = { forceAddMembers: true };
+
 async function createThreads() {
-  const staffSquadbotThreadRoleID = 118821;
-  const defaultRolePermissions = getRolePermissionBlobs(
-    threadTypes.COMMUNITY_SECRET_SUBTHREAD,
-  ).Members;
-  const membershipPermissions = makePermissionsBlob(
-    defaultRolePermissions,
-    null,
-    bots.squadbot.staffThreadID,
-    threadTypes.COMMUNITY_SECRET_SUBTHREAD,
-  );
-  const membershipPermissionsString = JSON.stringify(membershipPermissions);
-  const membershipChildPermissionsString = JSON.stringify(
-    makePermissionsForChildrenBlob(membershipPermissions),
-  );
-  const subscriptionString = JSON.stringify({ home: true, pushNotifs: true });
-  await dbQuery(SQL`
+  const insertIDsPromise = dbQuery(SQL`
     INSERT INTO ids (id, table_name)
-      VALUES
-        (${bots.squadbot.staffThreadID}, 'threads'),
-        (${staffSquadbotThreadRoleID}, 'roles');
-    INSERT INTO roles (id, thread, name, permissions, creation_time)
-      VALUES
-        (${staffSquadbotThreadRoleID}, ${bots.squadbot.staffThreadID},
-          'Members', ${JSON.stringify(defaultRolePermissions)}, 1530049901882);
-    INSERT INTO threads (id, type, name, description, parent_thread_id,
-        default_role, creator, creation_time, color)
-      VALUES
-        (${bots.squadbot.staffThreadID},
-          ${threadTypes.COMMUNITY_SECRET_SUBTHREAD}, NULL, NULL, NULL,
-          ${staffSquadbotThreadRoleID}, ${bots.squadbot.userID}, 1530049901942,
-          'ef1a63');
-    INSERT INTO memberships (thread, user, role, permissions,
-        permissions_for_children, creation_time, subscription)
-      VALUES
-        (${bots.squadbot.staffThreadID}, ${bots.squadbot.userID},
-          ${staffSquadbotThreadRoleID}, ${membershipPermissionsString},
-          ${membershipChildPermissionsString}, 1530049902080,
-          ${subscriptionString}),
-        (${bots.squadbot.staffThreadID}, ${ashoat.id},
-          ${staffSquadbotThreadRoleID}, ${membershipPermissionsString},
-          ${membershipChildPermissionsString}, 1530049902080,
-          ${subscriptionString});
+    VALUES
+      (${genesis.id}, 'threads'),
+      (${bots.squadbot.staffThreadID}, 'threads');
   `);
+
+  const ashoatViewer = createScriptViewer(ashoat.id);
+  const createGenesisPromise = createThread(
+    ashoatViewer,
+    {
+      id: genesis.id,
+      type: threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT,
+      name: genesis.name,
+      description: genesis.description,
+      initialMemberIDs: [bots.squadbot.userID],
+    },
+    createThreadOptions,
+  );
+  await Promise.all([insertIDsPromise, createGenesisPromise]);
+
+  const squadbotViewer = createScriptViewer(bots.squadbot.userID);
+  await createThread(
+    squadbotViewer,
+    {
+      id: bots.squadbot.staffThreadID,
+      type: threadTypes.COMMUNITY_SECRET_SUBTHREAD,
+      initialMemberIDs: [ashoat.id],
+    },
+    createThreadOptions,
+  );
 }
 
 main();
