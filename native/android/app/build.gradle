@@ -143,8 +143,8 @@ android {
         applicationId "org.squadcal"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 85
-        versionName "0.0.85"
+        versionCode 86
+        versionName "0.0.86"
         missingDimensionStrategy 'react-native-camera', 'general'
         multiDexEnabled true
     }
