@@ -73,6 +73,10 @@ type Changeset = {|
 type ChangeRoleOptions = {|
   +setNewMembersToUnread?: boolean,
 |};
+type ChangeRoleMemberInfo = {|
+  permissionsFromParent?: ?ThreadPermissionsBlob,
+  memberOfContainingThread?: boolean,
+|};
 async function changeRole(
   threadID: string,
   userIDs: $ReadOnlyArray<string>,
@@ -84,59 +88,87 @@ async function changeRole(
     options?.setNewMembersToUnread && intent === 'join';
 
   const membershipQuery = SQL`
-    SELECT m.user, m.role, m.permissions_for_children,
-      pm.permissions_for_children AS permissions_from_parent,
-      'existing' AS row_state
-    FROM memberships m
-    LEFT JOIN threads t ON t.id = m.thread
-    LEFT JOIN memberships pm
-      ON pm.thread = t.parent_thread_id AND pm.user = m.user
-    WHERE m.thread = ${threadID}
-    UNION SELECT pm.user, -1 AS role,
-      NULL AS permissions_for_children,
-      pm.permissions_for_children AS permissions_from_parent,
-      'from_parent' AS row_state
-    FROM threads t
-    LEFT JOIN memberships pm ON pm.thread = t.parent_thread_id
-    LEFT JOIN memberships m ON m.thread = t.id AND m.user = pm.user
-    WHERE t.id = ${threadID} AND m.thread IS NULL
+    SELECT user, role, permissions_for_children
+    FROM memberships
+    WHERE thread = ${threadID}
   `;
-  const [[membershipResult], roleThreadResult] = await Promise.all([
+  const parentMembershipQuery = SQL`
+    SELECT pm.user, pm.permissions_for_children AS permissions_from_parent
+    FROM threads t
+    INNER JOIN memberships pm ON pm.thread = t.parent_thread_id
+    WHERE t.id = ${threadID} AND pm.user IN (${userIDs})
+  `;
+  const containingMembershipQuery = SQL`
+    SELECT cm.user, cm.role AS containing_role
+    FROM threads t
+    INNER JOIN memberships cm ON cm.thread = t.containing_thread_id
+    WHERE t.id = ${threadID} AND cm.user IN (${userIDs})
+  `;
+  const [
+    [membershipResults],
+    [parentMembershipResults],
+    containingMembershipResults,
+    roleThreadResult,
+  ] = await Promise.all([
     dbQuery(membershipQuery),
+    dbQuery(parentMembershipQuery),
+    (async () => {
+      if (intent === 'leave') {
+        // Membership in the container only needs to be checked for members
+        return [];
+      }
+      const [result] = await dbQuery(containingMembershipQuery);
+      return result;
+    })(),
     changeRoleThreadQuery(threadID, role),
   ]);
 
-  const roleInfo = new Map();
-  for (const row of membershipResult) {
-    if (!row.user) {
-      continue;
-    }
+  const {
+    roleColumnValue: intendedRole,
+    threadType,
+    hasContainingThreadID,
+    rolePermissions: intendedRolePermissions,
+  } = roleThreadResult;
+
+  const existingMembershipInfo = new Map();
+  for (const row of membershipResults) {
     const userID = row.user.toString();
-    const oldPermissionsForChildren = JSON.parse(row.permissions_for_children);
-    const permissionsFromParent = JSON.parse(row.permissions_from_parent);
-    roleInfo.set(userID, {
+    existingMembershipInfo.set(userID, {
       oldRole: row.role.toString(),
-      oldPermissionsForChildren,
-      permissionsFromParent,
-      rowState: row.row_state,
+      oldPermissionsForChildren: row.permissions_for_children,
     });
+  }
+
+  const ancestorMembershipInfo: Map<string, ChangeRoleMemberInfo> = new Map();
+  for (const row of parentMembershipResults) {
+    const userID = row.user.toString();
+    ancestorMembershipInfo.set(userID, {
+      permissionsFromParent: row.permissions_from_parent,
+    });
+  }
+  for (const row of containingMembershipResults) {
+    const userID = row.user.toString();
+    const ancestorMembership = ancestorMembershipInfo.get(userID);
+    if (ancestorMembership) {
+      ancestorMembership.memberOfContainingThread = row.containing_role > 0;
+    } else {
+      ancestorMembershipInfo.set(userID, {
+        memberOfContainingThread: row.containing_role > 0,
+      });
+    }
   }
 
   const membershipRows = [];
   const relationshipChangeset = new RelationshipChangeset();
   const toUpdateDescendants = new Map();
-  const existingMemberIDs = [...new Set(roleInfo.keys())];
+  const existingMemberIDs = [...existingMembershipInfo.keys()];
   relationshipChangeset.setAllRelationshipsExist(existingMemberIDs);
   for (const userID of userIDs) {
-    let oldPermissionsForChildren = null;
-    let permissionsFromParent = null;
-    let hadMembershipRow = false;
     let oldRole;
-    const userRoleInfo = roleInfo.get(userID);
-    if (userRoleInfo) {
-      hadMembershipRow = userRoleInfo.rowState === 'existing';
-      oldRole = userRoleInfo.oldRole;
-      if (hadMembershipRow && oldRole === roleThreadResult.roleColumnValue) {
+    let oldPermissionsForChildren = null;
+    const existingMembership = existingMembershipInfo.get(userID);
+    if (existingMembership) {
+      if (oldRole === intendedRole) {
         // If the old role is the same as the new one, we have nothing to update
         continue;
       } else if (Number(oldRole) > 0 && role === null) {
@@ -145,15 +177,34 @@ async function changeRole(
         // anything
         continue;
       }
-      oldPermissionsForChildren = userRoleInfo.oldPermissionsForChildren;
-      permissionsFromParent = userRoleInfo.permissionsFromParent;
+      oldPermissionsForChildren = existingMembership.oldPermissionsForChildren;
+      oldRole = existingMembership.oldRole;
     }
 
+    let permissionsFromParent = null;
+    let memberOfContainingThread = false;
+    const ancestorMembership = ancestorMembershipInfo.get(userID);
+    if (ancestorMembership) {
+      permissionsFromParent = ancestorMembership.permissionsFromParent;
+      memberOfContainingThread = ancestorMembership.memberOfContainingThread;
+    }
+    if (!hasContainingThreadID) {
+      memberOfContainingThread = true;
+    }
+
+    const rolePermissions = memberOfContainingThread
+      ? intendedRolePermissions
+      : null;
+    const targetRole =
+      memberOfContainingThread || Number(intendedRole) <= 0
+        ? intendedRole
+        : '0';
+
     const permissions = makePermissionsBlob(
-      roleThreadResult.rolePermissions,
+      rolePermissions,
       permissionsFromParent,
       threadID,
-      roleThreadResult.threadType,
+      threadType,
     );
     const permissionsForChildren = makePermissionsForChildrenBlob(permissions);
 
@@ -164,10 +215,7 @@ async function changeRole(
             `userID ${userID} and threadID ${threadID}`,
         );
       }
-      const candidateRole =
-        Number(roleThreadResult.roleColumnValue) >= 0
-          ? roleThreadResult.roleColumnValue
-          : '0';
+      const candidateRole = Number(targetRole) >= 0 ? targetRole : '0';
       const newRole = getRoleForPermissions(candidateRole, permissions);
       if (
         (intent === 'join' && Number(newRole) <= 0) ||
@@ -202,7 +250,7 @@ async function changeRole(
       });
     }
 
-    if (permissions && !hadMembershipRow) {
+    if (permissions && !existingMembership) {
       relationshipChangeset.setRelationshipsNeeded(userID, existingMemberIDs);
     }
 
