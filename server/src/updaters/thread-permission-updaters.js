@@ -234,41 +234,33 @@ async function changeRole(
 type RoleThreadResult = {|
   +roleColumnValue: string,
   +threadType: ThreadType,
+  +hasContainingThreadID: boolean,
   +rolePermissions: ?ThreadRolePermissionsBlob,
 |};
 async function changeRoleThreadQuery(
   threadID: string,
   role: string | -1 | 0 | null,
 ): Promise<?RoleThreadResult> {
-  if (role === 0) {
-    const query = SQL`SELECT type FROM threads WHERE id = ${threadID}`;
+  if (role === 0 || role === -1) {
+    const query = SQL`
+      SELECT type, containing_thread_id FROM threads WHERE id = ${threadID}
+    `;
     const [result] = await dbQuery(query);
     if (result.length === 0) {
       return null;
     }
     const row = result[0];
     return {
-      roleColumnValue: '0',
+      roleColumnValue: role.toString(),
       threadType: assertThreadType(row.type),
-      rolePermissions: null,
-    };
-  } else if (role === -1) {
-    const query = SQL`SELECT type FROM threads WHERE id = ${threadID}`;
-    const [result] = await dbQuery(query);
-    if (result.length === 0) {
-      return null;
-    }
-    const row = result[0];
-    return {
-      roleColumnValue: '-1',
-      threadType: assertThreadType(row.type),
+      hasContainingThreadID: row.containing_thread_id !== null,
       rolePermissions: null,
     };
   } else if (role !== null) {
     const query = SQL`
-      SELECT t.type, r.permissions
+      SELECT t.type, r.permissions, t.containing_thread_id
       FROM threads t
-      LEFT JOIN roles r ON r.id = ${role}
+      INNER JOIN roles r ON r.thread = t.id AND r.id = ${role}
       WHERE t.id = ${threadID}
     `;
     const [result] = await dbQuery(query);
@@ -279,13 +271,14 @@ async function changeRoleThreadQuery(
     return {
       roleColumnValue: role,
       threadType: assertThreadType(row.type),
+      hasContainingThreadID: row.containing_thread_id !== null,
       rolePermissions: row.permissions,
     };
   } else {
     const query = SQL`
-      SELECT t.type, t.default_role, r.permissions
+      SELECT t.type, t.default_role, r.permissions, t.containing_thread_id
       FROM threads t
-      LEFT JOIN roles r ON r.id = t.default_role
+      INNER JOIN roles r ON r.thread = t.id AND r.id = t.default_role
       WHERE t.id = ${threadID}
     `;
     const [result] = await dbQuery(query);
@@ -296,6 +289,7 @@ async function changeRoleThreadQuery(
     return {
       roleColumnValue: row.default_role.toString(),
       threadType: assertThreadType(row.type),
+      hasContainingThreadID: row.containing_thread_id !== null,
       rolePermissions: row.permissions,
     };
   }
