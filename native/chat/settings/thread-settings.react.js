@@ -15,6 +15,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   threadInfoSelector,
   childThreadInfos,
+  ancestorThreadInfos,
 } from 'lib/selectors/thread-selectors';
 import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
 import { getAvailableRelationshipButtons } from 'lib/shared/relationship-utils';
@@ -58,6 +59,7 @@ import {
 import type { VerticalBounds } from '../../types/layout-types';
 import type { ViewStyle } from '../../types/styles';
 import type { ChatNavigationProp } from '../chat.react';
+import ThreadSettingsAncestors from './thread-settings-ancestors.react';
 import type { CategoryType } from './thread-settings-category.react';
 import {
   ThreadSettingsCategoryHeader,
@@ -142,6 +144,11 @@ type ChatSettingsItem =
       +threadInfo: ThreadInfo,
     |}
   | {|
+      +itemType: 'ancestors',
+      +key: string,
+      +ancestorThreads: $ReadOnlyArray<ThreadInfo>,
+    |}
+  | {|
       +itemType: 'pushNotifs',
       +key: string,
       +threadInfo: ThreadInfo,
@@ -210,6 +217,7 @@ type Props = {|
   +userInfos: UserInfos,
   +viewerID: ?string,
   +threadInfo: ?ThreadInfo,
+  +ancestorThreads: $ReadOnlyArray<ThreadInfo>,
   +parentThreadInfo: ?ThreadInfo,
   +threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
   +childThreadInfos: ?$ReadOnlyArray<ThreadInfo>,
@@ -335,6 +343,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   threadBasicsListDataSelector = createSelector(
     (propsAndState: PropsAndState) =>
       ThreadSettings.getThreadInfo(propsAndState),
+    (propsAndState: PropsAndState) => propsAndState.ancestorThreads,
     (propsAndState: PropsAndState) => propsAndState.parentThreadInfo,
     (propsAndState: PropsAndState) => propsAndState.nameEditValue,
     (propsAndState: PropsAndState) => propsAndState.colorEditValue,
@@ -345,6 +354,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.route.key,
     (
       threadInfo: ThreadInfo,
+      ancestorThreads: $ReadOnlyArray<ThreadInfo>,
       parentThreadInfo: ?ThreadInfo,
       nameEditValue: ?string,
       colorEditValue: string,
@@ -436,6 +446,11 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         categoryType: 'full',
       });
       listData.push({
+        itemType: 'visibility',
+        key: 'visibility',
+        threadInfo,
+      });
+      listData.push({
         itemType: 'parent',
         key: 'parent',
         threadInfo,
@@ -443,9 +458,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         navigate,
       });
       listData.push({
-        itemType: 'visibility',
-        key: 'visibility',
-        threadInfo,
+        itemType: 'ancestors',
+        key: 'ancestors',
+        ancestorThreads,
       });
       listData.push({
         itemType: 'footer',
@@ -914,6 +929,8 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       );
     } else if (item.itemType === 'visibility') {
       return <ThreadSettingsVisibility threadInfo={item.threadInfo} />;
+    } else if (item.itemType === 'ancestors') {
+      return <ThreadSettingsAncestors ancestorThreads={item.ancestorThreads} />;
     } else if (item.itemType === 'pushNotifs') {
       return <ThreadSettingsPushNotifs threadInfo={item.threadInfo} />;
     } else if (item.itemType === 'homeNotifs') {
@@ -1115,6 +1132,10 @@ export default React.memo<BaseProps>(function ConnectedThreadSettings(
   const parentThreadInfo: ?ThreadInfo = useSelector((state) =>
     parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
   );
+
+  const ancestorThreads: $ReadOnlyArray<ThreadInfo> = useSelector(
+    ancestorThreadInfos(threadID),
+  );
   const threadMembers = useSelector(
     relativeMemberInfoSelectorForMembersOfThread(threadID),
   );
@@ -1134,6 +1155,7 @@ export default React.memo<BaseProps>(function ConnectedThreadSettings(
       userInfos={userInfos}
       viewerID={viewerID}
       threadInfo={threadInfo}
+      ancestorThreads={ancestorThreads}
       parentThreadInfo={parentThreadInfo}
       threadMembers={threadMembers}
       childThreadInfos={boundChildThreadInfos}
