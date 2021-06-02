@@ -16,6 +16,7 @@
   "parser": "babel-eslint",
   "plugins": ["react", "react-hooks", "flowtype", "monorepo", "import"],
   "rules": {
+    "flowtype/require-valid-file-annotation": ["error", "always"],
     "curly": "error",
     "linebreak-style": "error",
     "semi": "error",
@@ -35,10 +36,7 @@
           "order": "asc",
           "caseInsensitive": true
         },
-        "groups": [
-          ["builtin", "external"],
-          "internal"
-        ]
+        "groups": [["builtin", "external"], "internal"]
       }
     ],
     "prefer-const": "error"
