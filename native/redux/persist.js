@@ -213,6 +213,10 @@ const migrations = {
     ...state,
     enabledApps: defaultEnabledApps,
   }),
+  [25]: (state) => ({
+    ...state,
+    crashReportsEnabled: __DEV__,
+  }),
 };
 
 const persistConfig = {
@@ -227,7 +231,7 @@ const persistConfig = {
     'frozen',
   ],
   debug: __DEV__,
-  version: 24,
+  version: 25,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
   timeout: __DEV__ ? 0 : undefined,
 };

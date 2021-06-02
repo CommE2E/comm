@@ -278,6 +278,7 @@ async function websiteResponder(
     watchedThreadIDs: [],
     lifecycleState: 'active',
     enabledApps: defaultWebEnabledApps,
+    crashReportsEnabled: false,
     nextLocalID: 0,
     queuedReports: [],
     timeZone: viewer.timeZone,
