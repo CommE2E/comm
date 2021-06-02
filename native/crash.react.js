@@ -18,6 +18,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { sendReportActionTypes, sendReport } from 'lib/actions/report-actions';
 import { logOutActionTypes, logOut } from 'lib/actions/user-actions';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
+import { isStaff } from 'lib/shared/user-utils';
 import type { LogOutResult } from 'lib/types/account-types';
 import type { ErrorData } from 'lib/types/report-types';
 import {
@@ -26,6 +27,7 @@ import {
   reportTypes,
 } from 'lib/types/report-types';
 import type { PreRequestUserState } from 'lib/types/session-types';
+import { type CurrentUserInfo } from 'lib/types/user-types';
 import { actionLogger } from 'lib/utils/action-logger';
 import {
   type DispatchActionPromise,
@@ -57,6 +59,7 @@ type Props = {|
     request: ClientReportCreationRequest,
   ) => Promise<ReportCreationResponse>,
   +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
+  +currentUserInfo: ?CurrentUserInfo,
 |};
 type State = {|
   +errorReportID: ?string,
@@ -64,12 +67,22 @@ type State = {|
 |};
 class Crash extends React.PureComponent<Props, State> {
   errorTitle = _shuffle(errorTitles)[0];
-  state: State = {
-    errorReportID: null,
-    doneWaiting: false,
-  };
+
+  constructor(props) {
+    super(props);
+
+    const doneWaiting = !(
+      (props.currentUserInfo && isStaff(props.currentUserInfo.id)) ||
+      __DEV__
+    );
+
+    this.state = { errorReportID: null, doneWaiting };
+  }
 
   componentDidMount() {
+    if (this.state.doneWaiting) {
+      return;
+    }
     this.props.dispatchActionPromise(sendReportActionTypes, this.sendReport());
     this.timeOut();
   }
@@ -87,19 +100,22 @@ class Crash extends React.PureComponent<Props, State> {
       .join('\n');
 
     let crashID;
-    if (this.state.errorReportID) {
-      crashID = (
-        <React.Fragment>
-          <Text style={styles.errorReportIDText}>
-            {this.state.errorReportID}
-          </Text>
-          <Button onPress={this.onCopyCrashReportID}>
-            <Text style={styles.copyCrashReportIDButtonText}>(Copy)</Text>
-          </Button>
-        </React.Fragment>
-      );
-    } else {
+    if (!this.state.doneWaiting) {
       crashID = <ActivityIndicator size="small" color="black" />;
+    } else if (this.state.doneWaiting && this.state.errorReportID) {
+      crashID = (
+        <View style={styles.crashID}>
+          <Text style={styles.crashIDText}>Crash report ID:</Text>
+          <View style={styles.errorReportID}>
+            <Text style={styles.errorReportIDText}>
+              {this.state.errorReportID}
+            </Text>
+            <Button onPress={this.onCopyCrashReportID}>
+              <Text style={styles.copyCrashReportIDButtonText}>(Copy)</Text>
+            </Button>
+          </View>
+        </View>
+      );
     }
 
     const buttonStyle = { opacity: Number(this.state.doneWaiting) };
@@ -110,10 +126,7 @@ class Crash extends React.PureComponent<Props, State> {
         <Icon name="bug" size={32} color="red" />
         <Text style={styles.header}>{this.errorTitle}</Text>
         <Text style={styles.text}>I&apos;m sorry, but the app crashed.</Text>
-        <View style={styles.crashID}>
-          <Text style={styles.crashIDText}>Crash report ID:</Text>
-          <View style={styles.errorReportID}>{crashID}</View>
-        </View>
+        {crashID}
         <Text style={styles.text}>
           Here&apos;s some text that&apos;s probably not helpful:
         </Text>
@@ -254,6 +267,7 @@ export default React.memo<BaseProps>(function ConnectedCrash(props: BaseProps) {
   const dispatchActionPromise = useDispatchActionPromise();
   const callSendReport = useServerCall(sendReport);
   const callLogOut = useServerCall(logOut);
+  const currentUserInfo = useSelector((state) => state.currentUserInfo);
   return (
     <Crash
       {...props}
@@ -261,6 +275,7 @@ export default React.memo<BaseProps>(function ConnectedCrash(props: BaseProps) {
       dispatchActionPromise={dispatchActionPromise}
       sendReport={callSendReport}
       logOut={callLogOut}
+      currentUserInfo={currentUserInfo}
     />
   );
 });
