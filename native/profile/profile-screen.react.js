@@ -51,6 +51,7 @@ import {
 import { useSelector } from '../redux/redux-utils';
 import { type Colors, useColors, useStyles } from '../themes/colors';
 import type { ProfileNavigationProp } from './profile.react';
+import ToggleCrashReports from './toggle-crash-reports.react';
 
 type BaseProps = {|
   +navigation: ProfileNavigationProp<'ProfileScreen'>,
@@ -266,6 +267,11 @@ class ProfileScreen extends React.PureComponent<Props> {
           </View>
 
           {appearancePreferences}
+
+          <Text style={this.props.styles.header}>PRIVACY</Text>
+          <View style={this.props.styles.slightlyPaddedSection}>
+            <ToggleCrashReports />
+          </View>
 
           <View style={this.props.styles.slightlyPaddedSection}>
             <Button
@@ -500,6 +506,7 @@ const unboundStyles = {
     flexDirection: 'row',
     paddingHorizontal: 24,
     paddingVertical: 10,
+    alignItems: 'center',
   },
   submenuText: {
     color: 'panelForegroundLabel',
