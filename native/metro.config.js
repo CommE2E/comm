@@ -1,3 +1,5 @@
+// @flow
+
 const path = require('path');
 
 module.exports = {
@@ -7,7 +9,7 @@ module.exports = {
   ],
 
   server: {
-    enhanceMiddleware: (middleware) => (req, res, next) => {
+    enhanceMiddleware: (middleware: any) => (req: any, res: any, next: any) => {
       // Fix Android dev mode asset resolution for yarn workspaces
       req.url = req.url.replace(/^\/node_modules/, '/assets/../node_modules');
       return middleware(req, res, next);
