@@ -1,4 +1,4 @@
-// @flow
+/* eslint-disable flowtype/require-valid-file-annotation */
 
 const path = require('path');
 
@@ -9,7 +9,7 @@ module.exports = {
   ],
 
   server: {
-    enhanceMiddleware: (middleware: any) => (req: any, res: any, next: any) => {
+    enhanceMiddleware: (middleware) => (req, res, next) => {
       // Fix Android dev mode asset resolution for yarn workspaces
       req.url = req.url.replace(/^\/node_modules/, '/assets/../node_modules');
       return middleware(req, res, next);
