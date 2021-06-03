@@ -18,7 +18,6 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { sendReportActionTypes, sendReport } from 'lib/actions/report-actions';
 import { logOutActionTypes, logOut } from 'lib/actions/user-actions';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
-import { isStaff } from 'lib/shared/user-utils';
 import type { LogOutResult } from 'lib/types/account-types';
 import type { ErrorData } from 'lib/types/report-types';
 import {
@@ -27,7 +26,6 @@ import {
   reportTypes,
 } from 'lib/types/report-types';
 import type { PreRequestUserState } from 'lib/types/session-types';
-import { type CurrentUserInfo } from 'lib/types/user-types';
 import { actionLogger } from 'lib/utils/action-logger';
 import {
   type DispatchActionPromise,
@@ -41,7 +39,7 @@ import Button from './components/button.react';
 import ConnectedStatusBar from './connected-status-bar.react';
 import { persistConfig, codeVersion } from './redux/persist';
 import { useSelector } from './redux/redux-utils';
-import { wipeAndExit } from './utils/crash-utils';
+import { useIsCrashReportingEnabled, wipeAndExit } from './utils/crash-utils';
 
 const errorTitles = ['Oh no!!', 'Womp womp womp...'];
 
@@ -59,7 +57,7 @@ type Props = {|
     request: ClientReportCreationRequest,
   ) => Promise<ReportCreationResponse>,
   +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
-  +currentUserInfo: ?CurrentUserInfo,
+  +crashReportingEnabled: boolean,
 |};
 type State = {|
   +errorReportID: ?string,
@@ -70,13 +68,10 @@ class Crash extends React.PureComponent<Props, State> {
 
   constructor(props) {
     super(props);
-
-    const doneWaiting = !(
-      (props.currentUserInfo && isStaff(props.currentUserInfo.id)) ||
-      __DEV__
-    );
-
-    this.state = { errorReportID: null, doneWaiting };
+    this.state = {
+      errorReportID: null,
+      doneWaiting: !props.crashReportingEnabled,
+    };
   }
 
   componentDidMount() {
@@ -115,6 +110,12 @@ class Crash extends React.PureComponent<Props, State> {
             </Button>
           </View>
         </View>
+      );
+    } else {
+      crashID = (
+        <Text style={styles.text}>
+          Crash reporting can be enabled in the Profile tab.
+        </Text>
       );
     }
 
@@ -267,7 +268,7 @@ export default React.memo<BaseProps>(function ConnectedCrash(props: BaseProps) {
   const dispatchActionPromise = useDispatchActionPromise();
   const callSendReport = useServerCall(sendReport);
   const callLogOut = useServerCall(logOut);
-  const currentUserInfo = useSelector((state) => state.currentUserInfo);
+  const crashReportingEnabled = useIsCrashReportingEnabled();
   return (
     <Crash
       {...props}
@@ -275,7 +276,7 @@ export default React.memo<BaseProps>(function ConnectedCrash(props: BaseProps) {
       dispatchActionPromise={dispatchActionPromise}
       sendReport={callSendReport}
       logOut={callLogOut}
-      currentUserInfo={currentUserInfo}
+      crashReportingEnabled={crashReportingEnabled}
     />
   );
 });
