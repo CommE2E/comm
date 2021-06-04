@@ -3,17 +3,23 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
+import { ancestorThreadInfos } from 'lib/selectors/thread-selectors';
 import { type ThreadInfo } from 'lib/types/thread-types';
 
 import ThreadAncestors from '../../components/thread-ancestors.react';
+import { useSelector } from '../../redux/redux-utils';
 import { useStyles } from '../../themes/colors';
 
 type Props = {|
-  +ancestorThreads: $ReadOnlyArray<ThreadInfo>,
+  +threadInfo: ThreadInfo,
 |};
 function ThreadSettingsAncestors(props: Props) {
-  const { ancestorThreads } = props;
   const styles = useStyles(unboundStyles);
+
+  const { threadInfo } = props;
+  const ancestorThreads: $ReadOnlyArray<ThreadInfo> = useSelector(
+    ancestorThreadInfos(threadInfo.id),
+  );
 
   return (
     <View style={styles.cell}>
