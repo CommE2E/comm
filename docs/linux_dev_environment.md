@@ -28,6 +28,20 @@ If you're not on Ubuntu, you can look for distro-specific binaries using your pr
 
 Follow installation instructions from [react-native-debugger/issues/116#issuecomment-475866514](https://github.com/jhen0409/react-native-debugger/issues/116#issuecomment-475866514)
 
+## Reactotron
+
+Reactotron is an event tracker and logger that can be used to aid in debugging on React Native.
+
+Download and install the Reactotron package from their [release](https://github.com/infinitered/reactotron/blob/master/docs/installing.md) page.
+
+If Reactotron does not connect to the Android Emulator, run the following command and restart the Metro Bundler:
+
+```
+adb reverse tcp:9090 tcp:9090
+```
+
+Read more information in the [Reactotron installation instructions](https://github.com/infinitered/reactotron/blob/master/docs/quick-start-react-native.md#configure-reactotron-with-your-project).
+
 ## phpMyAdmin
 
 Install and run `phpmyadmin`
