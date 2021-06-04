@@ -129,7 +129,7 @@ class ChatList extends React.PureComponent<Props, State> {
 
   componentDidUpdate(prevProps: Props) {
     const { flatList } = this;
-    if (!flatList || this.props.data.length === prevProps.data.length) {
+    if (!flatList || this.props.data === prevProps.data) {
       return;
     }
 
@@ -150,7 +150,7 @@ class ChatList extends React.PureComponent<Props, State> {
       newRemoteMessageCount = 0;
     while (prevDataIndex < prevProps.data.length && heightSoFar <= scrollPos) {
       const prevItem = prevProps.data[prevDataIndex];
-      invariant(prevItem, 'prevDatum should exist');
+      invariant(prevItem, 'prevItem should exist');
       const prevItemKey = chatMessageItemKey(prevItem);
       const prevItemHeight = chatMessageItemHeight(prevItem);
 
@@ -176,7 +176,9 @@ class ChatList extends React.PureComponent<Props, State> {
       }
       if (!curItem) {
         // Should never happen...
-        console.log(`items added to ChatList, but ${prevItemKey} now missing`);
+        console.log(
+          `items not removed from ChatList, but ${prevItemKey} now missing`,
+        );
         return;
       }
 
