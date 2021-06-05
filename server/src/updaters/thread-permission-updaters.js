@@ -474,50 +474,105 @@ async function updateDescendantPermissions(
   return { membershipRows, relationshipChangeset };
 }
 
+type RecalculatePermissionsMemberInfo = {|
+  role?: ?string,
+  permissions?: ?ThreadPermissionsBlob,
+  permissionsForChildren?: ?ThreadPermissionsBlob,
+  rolePermissions?: ?ThreadRolePermissionsBlob,
+  memberOfContainingThread?: boolean,
+  permissionsFromParent?: ?ThreadPermissionsBlob,
+|};
 async function recalculateThreadPermissions(
   threadID: string,
   threadType: ThreadType,
 ): Promise<Changeset> {
-  const selectQuery = SQL`
-    SELECT m.user, m.role, m.permissions, m.permissions_for_children,
-      pm.permissions_for_children AS permissions_from_parent,
-      r.permissions AS role_permissions, 'existing' AS row_state
-    FROM memberships m
-    LEFT JOIN threads t ON t.id = m.thread
-    LEFT JOIN roles r ON r.id = m.role
-    LEFT JOIN memberships pm ON pm.thread = t.parent_thread_id
-      AND pm.user = m.user
-    WHERE m.thread = ${threadID}
-    UNION SELECT pm.user, -1 AS role, NULL AS permissions,
-      NULL AS permissions_for_children,
-      pm.permissions_for_children AS permissions_from_parent,
-      NULL AS role_permissions, 'from_parent' AS row_state
-    FROM threads t
-    LEFT JOIN memberships pm ON pm.thread = t.parent_thread_id
-    LEFT JOIN memberships m ON m.thread = t.id AND m.user = pm.user
-    WHERE t.id = ${threadID} AND m.thread IS NULL
+  const threadQuery = SQL`
+    SELECT containing_thread_id FROM threads WHERE id = ${threadID}
   `;
-  const [selectResult] = await dbQuery(selectQuery);
+  const membershipQuery = SQL`
+    SELECT m.user, m.role, m.permissions, m.permissions_for_children,
+      r.permissions AS role_permissions, cm.role AS containing_role
+    FROM threads t
+    INNER JOIN memberships m ON m.thread = t.id
+    LEFT JOIN roles r ON r.id = m.role
+    LEFT JOIN memberships cm
+      ON cm.user = m.user AND cm.thread = t.containing_thread_id
+    WHERE t.id = ${threadID}
+  `;
+  const parentMembershipQuery = SQL`
+    SELECT pm.user, pm.permissions_for_children AS permissions_from_parent
+    FROM threads t
+    INNER JOIN memberships pm ON pm.thread = t.parent_thread_id
+    WHERE t.id = ${threadID}
+  `;
+  const [
+    [threadResults],
+    [membershipResults],
+    [parentMembershipResults],
+  ] = await Promise.all([
+    dbQuery(threadQuery),
+    dbQuery(membershipQuery),
+    dbQuery(parentMembershipQuery),
+  ]);
+
+  if (threadResults.length !== 1) {
+    throw new ServerError('internal_error');
+  }
+  const hasContainingThreadID = threadResults[0].containing_thread_id !== null;
+
+  const membershipInfo: Map<
+    string,
+    RecalculatePermissionsMemberInfo,
+  > = new Map();
+  for (const row of membershipResults) {
+    const userID = row.user.toString();
+    membershipInfo.set(userID, {
+      role: row.role.toString(),
+      permissions: row.permissions,
+      permissionsForChildren: row.permissions_for_children,
+      rolePermissions: row.role_permissions,
+      memberOfContainingThread: !!(
+        row.containing_role && row.containing_role > 0
+      ),
+    });
+  }
+  for (const row of parentMembershipResults) {
+    const userID = row.user.toString();
+    const membership = membershipInfo.get(userID);
+    if (membership) {
+      membership.permissionsFromParent = row.permissions_from_parent;
+    } else {
+      membershipInfo.set(userID, {
+        permissionsFromParent: row.permissions_from_parent,
+      });
+    }
+  }
 
   const membershipRows = [];
   const relationshipChangeset = new RelationshipChangeset();
   const toUpdateDescendants = new Map();
-  const existingMemberIDs = selectResult
-    .filter((row) => row.user && row.row_state === 'existing')
-    .map((row) => row.user.toString());
+  const existingMemberIDs = membershipResults.map((row) => row.user.toString());
   relationshipChangeset.setAllRelationshipsExist(existingMemberIDs);
+  for (const [userID, membership] of membershipInfo) {
+    const {
+      role: oldRole,
+      permissions: oldPermissions,
+      permissionsForChildren: oldPermissionsForChildren,
+      rolePermissions: intendedRolePermissions,
+      permissionsFromParent,
+    } = membership;
 
-  for (const row of selectResult) {
-    if (!row.user) {
-      continue;
-    }
-    const userID = row.user.toString();
-    const role = row.role >= 0 ? row.role.toString() : '0';
-    const oldPermissions = JSON.parse(row.permissions);
-    const oldPermissionsForChildren = JSON.parse(row.permissions_for_children);
-    const permissionsFromParent = JSON.parse(row.permissions_from_parent);
-    const rolePermissions = JSON.parse(row.role_permissions);
-    const hadMembershipRow = row.row_state === 'existing';
+    const memberOfContainingThread = hasContainingThreadID
+      ? !!membership.memberOfContainingThread
+      : true;
+    const targetRole =
+      memberOfContainingThread && oldRole && Number(oldRole) >= 0
+        ? oldRole
+        : '0';
+    const rolePermissions = memberOfContainingThread
+      ? intendedRolePermissions
+      : null;
+    const existingMembership = oldRole !== undefined;
 
     const permissions = makePermissionsBlob(
       rolePermissions,
@@ -541,8 +596,8 @@ async function recalculateThreadPermissions(
         userNeedsFullThreadDetails: false,
         permissions,
         permissionsForChildren,
-        role: getRoleForPermissions(role, permissions),
-        oldRole: row.role.toString(),
+        role: getRoleForPermissions(targetRole, permissions),
+        oldRole: oldRole ?? '-1',
       });
     } else {
       membershipRows.push({
@@ -550,11 +605,11 @@ async function recalculateThreadPermissions(
         intent: 'none',
         userID,
         threadID,
-        oldRole: row.role.toString(),
+        oldRole: oldRole ?? '-1',
       });
     }
 
-    if (permissions && !hadMembershipRow) {
+    if (permissions && !existingMembership) {
       // If there was no membership row before, and we are creating one,
       // we'll need to make sure the new member has a relationship row with
       // each existing member. We assume all the new members already have
