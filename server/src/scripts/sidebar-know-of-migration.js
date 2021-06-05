@@ -45,7 +45,7 @@ async function updateThreads(threadType: ThreadType) {
         const {
           membershipRows: threadMembershipRows,
           relationshipChangeset: threadRelationshipChangeset,
-        } = await recalculateThreadPermissions(threadID, threadType);
+        } = await recalculateThreadPermissions(threadID);
         membershipRows.push(...threadMembershipRows);
         relationshipChangeset.addAll(threadRelationshipChangeset);
       }),

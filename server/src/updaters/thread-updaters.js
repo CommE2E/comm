@@ -598,10 +598,7 @@ async function updateThread(
   if (threadRootChanged) {
     intermediatePromises.recalculatePermissionsChangeset = (async () => {
       await Promise.all([updateQueryPromise, updateRolesPromise]);
-      return await recalculateThreadPermissions(
-        request.threadID,
-        nextThreadType,
-      );
+      return await recalculateThreadPermissions(request.threadID);
     })();
   }
 

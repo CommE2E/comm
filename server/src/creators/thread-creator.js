@@ -347,7 +347,7 @@ async function createThread(
     changeRole(id, [viewer.userID], newRoles.creator.id),
     initialMemberPromise,
     ghostMemberPromise,
-    recalculateThreadPermissions(id, threadType),
+    recalculateThreadPermissions(id),
   ]);
 
   if (!creatorChangeset) {

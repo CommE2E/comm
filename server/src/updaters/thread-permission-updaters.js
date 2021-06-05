@@ -484,10 +484,9 @@ type RecalculatePermissionsMemberInfo = {|
 |};
 async function recalculateThreadPermissions(
   threadID: string,
-  threadType: ThreadType,
 ): Promise<Changeset> {
   const threadQuery = SQL`
-    SELECT containing_thread_id FROM threads WHERE id = ${threadID}
+    SELECT type, containing_thread_id FROM threads WHERE id = ${threadID}
   `;
   const membershipQuery = SQL`
     SELECT m.user, m.role, m.permissions, m.permissions_for_children,
@@ -519,6 +518,7 @@ async function recalculateThreadPermissions(
     throw new ServerError('internal_error');
   }
   const hasContainingThreadID = threadResults[0].containing_thread_id !== null;
+  const threadType = assertThreadType(threadResults[0].type);
 
   const membershipInfo: Map<
     string,
@@ -914,7 +914,7 @@ async function rescindPushNotifsForMemberDeletion(
 }
 
 async function recalculateAllThreadPermissions() {
-  const getAllThreads = SQL`SELECT id, type FROM threads`;
+  const getAllThreads = SQL`SELECT id FROM threads`;
   const [result] = await dbQuery(getAllThreads);
 
   // We handle each thread one-by-one to avoid a situation where a permission
@@ -927,8 +927,7 @@ async function recalculateAllThreadPermissions() {
   const viewer = createScriptViewer(bots.squadbot.userID);
   for (const row of result) {
     const threadID = row.id.toString();
-    const threadType = assertThreadType(row.type);
-    const changeset = await recalculateThreadPermissions(threadID, threadType);
+    const changeset = await recalculateThreadPermissions(threadID);
     await commitMembershipChangeset(viewer, changeset);
   }
 }
