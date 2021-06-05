@@ -502,22 +502,30 @@ async function updateThread(
       return;
     }
 
-    let defaultRolePermissions;
-    if (!rolesNeedUpdate) {
-      const rolePermissionsQuery = SQL`
-        SELECT r.permissions
-        FROM threads t
-        LEFT JOIN roles r ON r.id = t.default_role
-        WHERE t.id = ${request.threadID}
-      `;
-      const [result] = await dbQuery(rolePermissionsQuery);
-      if (result.length > 0) {
-        defaultRolePermissions = result[0].permissions;
+    const defaultRolePermissionsPromise = (async () => {
+      let rolePermissions;
+      if (!rolesNeedUpdate) {
+        const rolePermissionsQuery = SQL`
+          SELECT r.permissions
+          FROM threads t
+          LEFT JOIN roles r ON r.id = t.default_role
+          WHERE t.id = ${request.threadID}
+        `;
+        const [result] = await dbQuery(rolePermissionsQuery);
+        if (result.length > 0) {
+          rolePermissions = result[0].permissions;
+        }
       }
-    }
-    if (!defaultRolePermissions) {
-      defaultRolePermissions = getRolePermissionBlobs(nextThreadType).Members;
-    }
+      if (!rolePermissions) {
+        rolePermissions = getRolePermissionBlobs(nextThreadType).Members;
+      }
+      return rolePermissions;
+    })();
+
+    const [defaultRolePermissions, nextThreadAncestry] = await Promise.all([
+      defaultRolePermissionsPromise,
+      determineThreadAncestryPromise,
+    ]);
 
     const { newMemberIDs: validatedIDs } = await validateCandidateMembers(
       viewer,
@@ -525,6 +533,7 @@ async function updateThread(
       {
         threadType: nextThreadType,
         parentThreadID: nextParentThreadID,
+        containingThreadID: nextThreadAncestry.containingThreadID,
         defaultRolePermissions,
       },
       { requireRelationship: !forceAddMembers },

@@ -3,6 +3,7 @@
 import {
   permissionLookup,
   makePermissionsBlob,
+  getRoleForPermissions,
 } from 'lib/permissions/thread-permissions';
 import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils';
 import {
@@ -10,12 +11,11 @@ import {
   permissionsDisabledByBlock,
 } from 'lib/shared/thread-utils';
 import { userRelationshipStatus } from 'lib/types/relationship-types';
-import {
-  threadPermissions,
-  type ThreadType,
-  type ThreadPermission,
-  type ThreadPermissionsBlob,
-  type ThreadRolePermissionsBlob,
+import type {
+  ThreadType,
+  ThreadPermission,
+  ThreadPermissionsBlob,
+  ThreadRolePermissionsBlob,
 } from 'lib/types/thread-types';
 
 import { dbQuery, SQL } from '../database/database';
@@ -188,6 +188,11 @@ async function checkThread(
   return validThreads.has(threadID);
 }
 
+// We pass this into getRoleForPermissions in order to check if a hypothetical
+// permissions blob would block membership by returning a non-positive result.
+// It doesn't matter what value we pass in, as long as it's positive.
+const arbitraryPositiveRole = '1';
+
 type CandidateMembers = {
   +[key: string]: ?$ReadOnlyArray<string>,
   ...
@@ -195,6 +200,7 @@ type CandidateMembers = {
 type ValidateCandidateMembersParams = {|
   +threadType: ThreadType,
   +parentThreadID: ?string,
+  +containingThreadID: ?string,
   +defaultRolePermissions: ThreadRolePermissionsBlob,
 |};
 type ValidateCandidateMembersOptions = {| +requireRelationship?: boolean |};
@@ -232,14 +238,42 @@ async function validateCandidateMembers(
     `;
     const [result] = await dbQuery(parentPermissionsQuery);
     for (const row of result) {
-      parentPermissions[row.user] = row.permissions;
+      parentPermissions[row.user.toString()] = row.permissions;
     }
     return parentPermissions;
   })();
 
-  const [fetchedMembers, parentPermissions] = await Promise.all([
+  const memberOfContainingThreadPromise = (async () => {
+    const results = {};
+    if (allCandidates.length === 0) {
+      return results;
+    }
+    if (!params.containingThreadID) {
+      for (const userID of allCandidates) {
+        results[userID] = true;
+      }
+      return results;
+    }
+    const memberOfContainingThreadQuery = SQL`
+      SELECT user, role AS containing_role
+      FROM memberships
+      WHERE thread = ${params.containingThreadID} AND user IN (${allCandidates})
+    `;
+    const [result] = await dbQuery(memberOfContainingThreadQuery);
+    for (const row of result) {
+      results[row.user.toString()] = row.containing_role > 0;
+    }
+    return results;
+  })();
+
+  const [
+    fetchedMembers,
+    parentPermissions,
+    memberOfContainingThread,
+  ] = await Promise.all([
     fetchMembersPromise,
     parentPermissionsPromise,
+    memberOfContainingThreadPromise,
   ]);
 
   const ignoreMembers = new Set();
@@ -267,13 +301,25 @@ async function validateCandidateMembers(
       ignoreMembers.add(memberID);
       continue;
     }
+    if (!memberOfContainingThread[memberID]) {
+      ignoreMembers.add(memberID);
+      continue;
+    }
     const permissions = makePermissionsBlob(
       params.defaultRolePermissions,
       permissionsFromParent,
       '-1',
       params.threadType,
     );
-    if (!permissionLookup(permissions, threadPermissions.MEMBERSHIP)) {
+    if (!permissions) {
+      ignoreMembers.add(memberID);
+      continue;
+    }
+    const targetRole = getRoleForPermissions(
+      arbitraryPositiveRole,
+      permissions,
+    );
+    if (Number(targetRole) <= 0) {
       ignoreMembers.add(memberID);
       continue;
     }

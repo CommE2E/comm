@@ -146,6 +146,7 @@ async function createThread(
   );
 
   const validateMembersPromise = (async () => {
+    const threadAncestry = await determineThreadAncestryPromise;
     const defaultRolePermissions = getRolePermissionBlobs(threadType).Members;
     const { initialMemberIDs, ghostMemberIDs } = await validateCandidateMembers(
       viewer,
@@ -156,6 +157,7 @@ async function createThread(
       {
         threadType,
         parentThreadID,
+        containingThreadID: threadAncestry.containingThreadID,
         defaultRolePermissions,
       },
       { requireRelationship: !shouldCreateRelationships },
