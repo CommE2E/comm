@@ -90,22 +90,16 @@ function getRolePermissionBlobsForCommunity(
 ): RolePermissionBlobs {
   const openDescendantKnowOf = OPEN_DESCENDANT + threadPermissions.KNOW_OF;
   const openDescendantVisible = OPEN_DESCENDANT + threadPermissions.VISIBLE;
-  const topLevelDescendantMembership =
-    TOP_LEVEL_DESCENDANT + threadPermissions.MEMBERSHIP;
   const openTopLevelDescendantJoinThread =
     OPEN_TOP_LEVEL_DESCENDANT + threadPermissions.JOIN_THREAD;
-  const openChildMembership = OPEN_CHILD + threadPermissions.MEMBERSHIP;
   const openChildJoinThread = OPEN_CHILD + threadPermissions.JOIN_THREAD;
 
   const baseMemberPermissions = {
     [threadPermissions.KNOW_OF]: true,
-    [threadPermissions.MEMBERSHIP]: true,
     [threadPermissions.VISIBLE]: true,
     [openDescendantKnowOf]: true,
     [openDescendantVisible]: true,
-    [topLevelDescendantMembership]: true,
     [openTopLevelDescendantJoinThread]: true,
-    [openChildMembership]: true,
     [openChildJoinThread]: true,
     [threadPermissions.CREATE_SIDEBARS]: true,
   };
@@ -130,7 +124,6 @@ function getRolePermissionBlobsForCommunity(
   const descendantVisible = DESCENDANT + threadPermissions.VISIBLE;
   const topLevelDescendantJoinThread =
     TOP_LEVEL_DESCENDANT + threadPermissions.JOIN_THREAD;
-  const childMembership = CHILD + threadPermissions.MEMBERSHIP;
   const childJoinThread = CHILD + threadPermissions.JOIN_THREAD;
   const descendantVoiced = DESCENDANT + threadPermissions.VOICED;
   const descendantEditEntries = DESCENDANT + threadPermissions.EDIT_ENTRIES;
@@ -148,7 +141,6 @@ function getRolePermissionBlobsForCommunity(
 
   const baseAdminPermissions = {
     [threadPermissions.KNOW_OF]: true,
-    [threadPermissions.MEMBERSHIP]: true,
     [threadPermissions.VISIBLE]: true,
     [threadPermissions.VOICED]: true,
     [threadPermissions.EDIT_ENTRIES]: true,
@@ -161,9 +153,7 @@ function getRolePermissionBlobsForCommunity(
     [threadPermissions.CHANGE_ROLE]: true,
     [descendantKnowOf]: true,
     [descendantVisible]: true,
-    [topLevelDescendantMembership]: true,
     [topLevelDescendantJoinThread]: true,
-    [childMembership]: true,
     [childJoinThread]: true,
     [descendantVoiced]: true,
     [descendantEditEntries]: true,
@@ -210,20 +200,17 @@ function getRolePermissionBlobs(threadType: ThreadType): RolePermissionBlobs {
 
   const openDescendantKnowOf = OPEN_DESCENDANT + threadPermissions.KNOW_OF;
   const openDescendantVisible = OPEN_DESCENDANT + threadPermissions.VISIBLE;
-  const openChildMembership = OPEN_CHILD + threadPermissions.MEMBERSHIP;
   const openChildJoinThread = OPEN_CHILD + threadPermissions.JOIN_THREAD;
 
   if (threadType === threadTypes.PRIVATE) {
     const memberPermissions = {
       [threadPermissions.KNOW_OF]: true,
-      [threadPermissions.MEMBERSHIP]: true,
       [threadPermissions.VISIBLE]: true,
       [threadPermissions.VOICED]: true,
       [threadPermissions.CREATE_SIDEBARS]: true,
       [threadPermissions.EDIT_ENTRIES]: true,
       [openDescendantKnowOf]: true,
       [openDescendantVisible]: true,
-      [openChildMembership]: true,
       [openChildJoinThread]: true,
     };
     return {
@@ -235,7 +222,6 @@ function getRolePermissionBlobs(threadType: ThreadType): RolePermissionBlobs {
     return {
       Members: {
         [threadPermissions.KNOW_OF]: true,
-        [threadPermissions.MEMBERSHIP]: true,
         [threadPermissions.VISIBLE]: true,
         [threadPermissions.VOICED]: true,
         [threadPermissions.EDIT_ENTRIES]: true,
@@ -243,7 +229,6 @@ function getRolePermissionBlobs(threadType: ThreadType): RolePermissionBlobs {
         [threadPermissions.CREATE_SIDEBARS]: true,
         [openDescendantKnowOf]: true,
         [openDescendantVisible]: true,
-        [openChildMembership]: true,
         [openChildJoinThread]: true,
       },
     };
@@ -252,7 +237,6 @@ function getRolePermissionBlobs(threadType: ThreadType): RolePermissionBlobs {
   const openSubthreadBasePermissions = {
     [threadPermissions.CREATE_SIDEBARS]: true,
     [threadPermissions.LEAVE_THREAD]: true,
-    [openChildMembership]: true,
     [openChildJoinThread]: true,
   };
 
@@ -284,7 +268,6 @@ function getRolePermissionBlobs(threadType: ThreadType): RolePermissionBlobs {
     [openDescendantKnowOf]: true,
     [openDescendantVisible]: true,
     [openTopLevelDescendantJoinThread]: true,
-    [openChildMembership]: true,
     [openChildJoinThread]: true,
   };
 
