@@ -105,9 +105,6 @@ async function changeRole(
     dbQuery(membershipQuery),
     changeRoleThreadQuery(threadID, role),
   ]);
-  if (!roleThreadResult) {
-    return null;
-  }
 
   const roleInfo = new Map();
   for (const row of membershipResult) {
@@ -240,14 +237,14 @@ type RoleThreadResult = {|
 async function changeRoleThreadQuery(
   threadID: string,
   role: string | -1 | 0 | null,
-): Promise<?RoleThreadResult> {
+): Promise<RoleThreadResult> {
   if (role === 0 || role === -1) {
     const query = SQL`
       SELECT type, containing_thread_id FROM threads WHERE id = ${threadID}
     `;
     const [result] = await dbQuery(query);
     if (result.length === 0) {
-      return null;
+      throw new ServerError('internal_error');
     }
     const row = result[0];
     return {
@@ -265,7 +262,7 @@ async function changeRoleThreadQuery(
     `;
     const [result] = await dbQuery(query);
     if (result.length === 0) {
-      return null;
+      throw new ServerError('internal_error');
     }
     const row = result[0];
     return {
@@ -283,7 +280,7 @@ async function changeRoleThreadQuery(
     `;
     const [result] = await dbQuery(query);
     if (result.length === 0) {
-      return null;
+      throw new ServerError('internal_error');
     }
     const row = result[0];
     return {
