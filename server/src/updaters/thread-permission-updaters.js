@@ -195,10 +195,7 @@ async function changeRole(
     const rolePermissions = memberOfContainingThread
       ? intendedRolePermissions
       : null;
-    const targetRole =
-      memberOfContainingThread || Number(intendedRole) <= 0
-        ? intendedRole
-        : '0';
+    const targetRole = memberOfContainingThread ? intendedRole : '0';
 
     const permissions = makePermissionsBlob(
       rolePermissions,
@@ -215,8 +212,7 @@ async function changeRole(
             `userID ${userID} and threadID ${threadID}`,
         );
       }
-      const candidateRole = Number(targetRole) >= 0 ? targetRole : '0';
-      const newRole = getRoleForPermissions(candidateRole, permissions);
+      const newRole = getRoleForPermissions(targetRole, permissions);
       if (
         (intent === 'join' && Number(newRole) <= 0) ||
         (intent === 'leave' && Number(newRole) > 0)
@@ -400,8 +396,8 @@ async function updateDescendantPermissions(
         const { permissionsFromParent } = ancestorChanges;
 
         const userInfo = userInfos.get(userID);
-        const role =
-          userInfo && Number(userInfo.role) > 0 ? userInfo.role : '0';
+        const oldRole = userInfo?.role;
+        const targetRole = oldRole ?? '0';
         const rolePermissions = userInfo?.rolePermissions;
         const oldPermissions = userInfo?.permissions;
         const oldPermissionsForChildren = userInfo
@@ -432,8 +428,8 @@ async function updateDescendantPermissions(
             userNeedsFullThreadDetails: false,
             permissions,
             permissionsForChildren,
-            role: getRoleForPermissions(role, permissions),
-            oldRole: userInfo?.role ?? '-1',
+            role: getRoleForPermissions(targetRole, permissions),
+            oldRole: oldRole ?? '-1',
           });
         } else {
           membershipRows.push({
@@ -441,7 +437,7 @@ async function updateDescendantPermissions(
             intent: 'none',
             userID,
             threadID: childThreadID,
-            oldRole: userInfo?.role ?? '-1',
+            oldRole: oldRole ?? '-1',
           });
         }
 
@@ -565,10 +561,7 @@ async function recalculateThreadPermissions(
     const memberOfContainingThread = hasContainingThreadID
       ? !!membership.memberOfContainingThread
       : true;
-    const targetRole =
-      memberOfContainingThread && oldRole && Number(oldRole) >= 0
-        ? oldRole
-        : '0';
+    const targetRole = memberOfContainingThread && oldRole ? oldRole : '0';
     const rolePermissions = memberOfContainingThread
       ? intendedRolePermissions
       : null;
