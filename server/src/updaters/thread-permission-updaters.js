@@ -205,22 +205,25 @@ async function changeRole(
     );
     const permissionsForChildren = makePermissionsForChildrenBlob(permissions);
 
+    if (permissions && role === -1) {
+      console.warn(
+        `changeRole called for -1 role, but found non-null permissions for ` +
+          `userID ${userID} and threadID ${threadID}`,
+      );
+    }
+    const newRole = getRoleForPermissions(targetRole, permissions);
+    const userBecameMember =
+      (!oldRole || Number(oldRole) <= 0) && Number(newRole) > 0;
+    const userLostMembership =
+      oldRole && Number(oldRole) > 0 && Number(newRole) <= 0;
+
     if (permissions) {
-      if (role === -1) {
-        console.warn(
-          `changeRole called for -1 role, but found non-null permissions for ` +
-            `userID ${userID} and threadID ${threadID}`,
-        );
-      }
-      const newRole = getRoleForPermissions(targetRole, permissions);
       if (
         (intent === 'join' && Number(newRole) <= 0) ||
         (intent === 'leave' && Number(newRole) > 0)
       ) {
         throw new ServerError('invalid_parameters');
       }
-      const userBecameMember =
-        (!oldRole || Number(oldRole) <= 0) && Number(newRole) > 0;
       membershipRows.push({
         operation: 'save',
         intent,
@@ -250,7 +253,10 @@ async function changeRole(
       relationshipChangeset.setRelationshipsNeeded(userID, existingMemberIDs);
     }
 
-    if (!_isEqual(permissionsForChildren)(oldPermissionsForChildren)) {
+    if (
+      userLostMembership ||
+      !_isEqual(permissionsForChildren)(oldPermissionsForChildren)
+    ) {
       toUpdateDescendants.set(userID, {
         permissionsFromParent: permissionsForChildren,
       });
@@ -419,6 +425,10 @@ async function updateDescendantPermissions(
           permissions,
         );
 
+        const newRole = getRoleForPermissions(targetRole, permissions);
+        const userLostMembership =
+          oldRole && Number(oldRole) > 0 && Number(newRole) <= 0;
+
         if (permissions) {
           membershipRows.push({
             operation: 'save',
@@ -428,7 +438,7 @@ async function updateDescendantPermissions(
             userNeedsFullThreadDetails: false,
             permissions,
             permissionsForChildren,
-            role: getRoleForPermissions(targetRole, permissions),
+            role: newRole,
             oldRole: oldRole ?? '-1',
           });
         } else {
@@ -453,7 +463,10 @@ async function updateDescendantPermissions(
           );
         }
 
-        if (!_isEqual(permissionsForChildren)(oldPermissionsForChildren)) {
+        if (
+          userLostMembership ||
+          !_isEqual(permissionsForChildren)(oldPermissionsForChildren)
+        ) {
           usersForNextLayer.set(userID, {
             permissionsFromParent: permissionsForChildren,
           });
@@ -580,6 +593,10 @@ async function recalculateThreadPermissions(
     }
     const permissionsForChildren = makePermissionsForChildrenBlob(permissions);
 
+    const newRole = getRoleForPermissions(targetRole, permissions);
+    const userLostMembership =
+      oldRole && Number(oldRole) > 0 && Number(newRole) <= 0;
+
     if (permissions) {
       membershipRows.push({
         operation: 'save',
@@ -589,7 +606,7 @@ async function recalculateThreadPermissions(
         userNeedsFullThreadDetails: false,
         permissions,
         permissionsForChildren,
-        role: getRoleForPermissions(targetRole, permissions),
+        role: newRole,
         oldRole: oldRole ?? '-1',
       });
     } else {
@@ -611,7 +628,10 @@ async function recalculateThreadPermissions(
       relationshipChangeset.setRelationshipsNeeded(userID, existingMemberIDs);
     }
 
-    if (!_isEqual(permissionsForChildren)(oldPermissionsForChildren)) {
+    if (
+      userLostMembership ||
+      !_isEqual(permissionsForChildren)(oldPermissionsForChildren)
+    ) {
       toUpdateDescendants.set(userID, {
         permissionsFromParent: permissionsForChildren,
       });
