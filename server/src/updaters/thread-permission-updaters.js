@@ -88,7 +88,7 @@ async function changeRole(
     options?.setNewMembersToUnread && intent === 'join';
 
   const membershipQuery = SQL`
-    SELECT user, role, permissions_for_children
+    SELECT user, role, permissions, permissions_for_children
     FROM memberships
     WHERE thread = ${threadID}
   `;
@@ -135,6 +135,7 @@ async function changeRole(
     const userID = row.user.toString();
     existingMembershipInfo.set(userID, {
       oldRole: row.role.toString(),
+      oldPermissions: row.permissions,
       oldPermissionsForChildren: row.permissions_for_children,
     });
   }
@@ -165,6 +166,7 @@ async function changeRole(
   relationshipChangeset.setAllRelationshipsExist(existingMemberIDs);
   for (const userID of userIDs) {
     let oldRole;
+    let oldPermissions = null;
     let oldPermissionsForChildren = null;
     const existingMembership = existingMembershipInfo.get(userID);
     if (existingMembership) {
@@ -177,6 +179,7 @@ async function changeRole(
         // anything
         continue;
       }
+      oldPermissions = existingMembership.oldPermissions;
       oldPermissionsForChildren = existingMembership.oldPermissionsForChildren;
       oldRole = existingMembership.oldRole;
     }
@@ -216,6 +219,12 @@ async function changeRole(
       (!oldRole || Number(oldRole) <= 0) && Number(newRole) > 0;
     const userLostMembership =
       oldRole && Number(oldRole) > 0 && Number(newRole) <= 0;
+
+    if (_isEqual(permissions)(oldPermissions) && oldRole === newRole) {
+      // This thread and all of its descendants need no updates for this user,
+      // since the corresponding memberships row is unchanged by this operation
+      continue;
+    }
 
     if (permissions) {
       if (
