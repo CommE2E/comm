@@ -586,16 +586,16 @@ async function recalculateThreadPermissions(
       threadID,
       threadType,
     );
-    if (_isEqual(permissions)(oldPermissions)) {
-      // This thread and all of its children need no updates, since its
-      // permissions are unchanged by this operation
-      continue;
-    }
     const permissionsForChildren = makePermissionsForChildrenBlob(permissions);
-
     const newRole = getRoleForPermissions(targetRole, permissions);
     const userLostMembership =
       oldRole && Number(oldRole) > 0 && Number(newRole) <= 0;
+
+    if (_isEqual(permissions)(oldPermissions) && oldRole === newRole) {
+      // This thread and all of its descendants need no updates for this user,
+      // since the corresponding memberships row is unchanged by this operation
+      continue;
+    }
 
     if (permissions) {
       membershipRows.push({
