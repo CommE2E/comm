@@ -207,19 +207,25 @@ async function changeRole(
       threadType,
     );
     const permissionsForChildren = makePermissionsForChildrenBlob(permissions);
-
-    if (permissions && role === -1) {
-      console.warn(
-        `changeRole called for -1 role, but found non-null permissions for ` +
-          `userID ${userID} and threadID ${threadID}`,
-      );
-    }
     const newRole = getRoleForPermissions(targetRole, permissions);
     const userBecameMember =
       (!oldRole || Number(oldRole) <= 0) && Number(newRole) > 0;
     const userLostMembership =
       oldRole && Number(oldRole) > 0 && Number(newRole) <= 0;
 
+    if (
+      (intent === 'join' && Number(newRole) <= 0) ||
+      (intent === 'leave' && Number(newRole) > 0)
+    ) {
+      throw new ServerError('invalid_parameters');
+    } else if (intendedRole !== newRole) {
+      console.warn(
+        `changeRole called for role=${intendedRole}, but ended up setting ` +
+          `role=${newRole} for userID ${userID} and threadID ${threadID}, ` +
+          'probably because KNOW_OF permission was unexpectedly present or ' +
+          'missing',
+      );
+    }
     if (_isEqual(permissions)(oldPermissions) && oldRole === newRole) {
       // This thread and all of its descendants need no updates for this user,
       // since the corresponding memberships row is unchanged by this operation
@@ -227,12 +233,6 @@ async function changeRole(
     }
 
     if (permissions) {
-      if (
-        (intent === 'join' && Number(newRole) <= 0) ||
-        (intent === 'leave' && Number(newRole) > 0)
-      ) {
-        throw new ServerError('invalid_parameters');
-      }
       membershipRows.push({
         operation: 'save',
         intent,
@@ -246,9 +246,6 @@ async function changeRole(
         unread: userBecameMember && setNewMembersToUnread,
       });
     } else {
-      if (intent === 'join') {
-        throw new ServerError('invalid_parameters');
-      }
       membershipRows.push({
         operation: 'delete',
         intent,
