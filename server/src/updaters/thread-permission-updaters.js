@@ -128,6 +128,7 @@ async function changeRole(
     threadType,
     hasContainingThreadID,
     rolePermissions: intendedRolePermissions,
+    depth,
   } = roleThreadResult;
 
   const existingMembershipInfo = new Map();
@@ -275,6 +276,7 @@ async function changeRole(
       relationshipChangeset: descendantRelationshipChangeset,
     } = await updateDescendantPermissions({
       threadID,
+      depth,
       changesByUser: toUpdateDescendants,
     });
     pushAll(membershipRows, descendantMembershipRows);
@@ -289,6 +291,7 @@ type RoleThreadResult = {|
   +threadType: ThreadType,
   +hasContainingThreadID: boolean,
   +rolePermissions: ?ThreadRolePermissionsBlob,
+  +depth: number,
 |};
 async function changeRoleThreadQuery(
   threadID: string,
@@ -296,7 +299,9 @@ async function changeRoleThreadQuery(
 ): Promise<RoleThreadResult> {
   if (role === 0 || role === -1) {
     const query = SQL`
-      SELECT type, containing_thread_id FROM threads WHERE id = ${threadID}
+      SELECT type, depth, containing_thread_id
+      FROM threads
+      WHERE id = ${threadID}
     `;
     const [result] = await dbQuery(query);
     if (result.length === 0) {
@@ -305,13 +310,14 @@ async function changeRoleThreadQuery(
     const row = result[0];
     return {
       roleColumnValue: role.toString(),
+      depth: row.depth,
       threadType: assertThreadType(row.type),
       hasContainingThreadID: row.containing_thread_id !== null,
       rolePermissions: null,
     };
   } else if (role !== null) {
     const query = SQL`
-      SELECT t.type, r.permissions, t.containing_thread_id
+      SELECT t.type, t.depth, t.containing_thread_id, r.permissions
       FROM threads t
       INNER JOIN roles r ON r.thread = t.id AND r.id = ${role}
       WHERE t.id = ${threadID}
@@ -323,13 +329,15 @@ async function changeRoleThreadQuery(
     const row = result[0];
     return {
       roleColumnValue: role,
+      depth: row.depth,
       threadType: assertThreadType(row.type),
       hasContainingThreadID: row.containing_thread_id !== null,
       rolePermissions: row.permissions,
     };
   } else {
     const query = SQL`
-      SELECT t.type, t.default_role, r.permissions, t.containing_thread_id
+      SELECT t.type, t.depth, t.containing_thread_id, t.default_role,
+        r.permissions
       FROM threads t
       INNER JOIN roles r ON r.thread = t.id AND r.id = t.default_role
       WHERE t.id = ${threadID}
@@ -341,6 +349,7 @@ async function changeRoleThreadQuery(
     const row = result[0];
     return {
       roleColumnValue: row.default_role.toString(),
+      depth: row.depth,
       threadType: assertThreadType(row.type),
       hasContainingThreadID: row.containing_thread_id !== null,
       rolePermissions: row.permissions,
@@ -350,6 +359,7 @@ async function changeRoleThreadQuery(
 
 type ChangedAncestor = {|
   +threadID: string,
+  +depth: number,
   +changesByUser: Map<string, AncestorChanges>,
 |};
 type AncestorChanges = {|
@@ -363,7 +373,7 @@ async function updateDescendantPermissions(
   const membershipRows = [];
   const relationshipChangeset = new RelationshipChangeset();
   while (stack.length > 0) {
-    const { threadID, changesByUser } = stack.shift();
+    const { threadID, depth, changesByUser } = stack.shift();
 
     const query = SQL`
       SELECT t.id, m.user, t.type,
@@ -478,6 +488,7 @@ async function updateDescendantPermissions(
       if (usersForNextLayer.size > 0) {
         stack.push({
           threadID: childThreadID,
+          depth: depth + 1,
           changesByUser: usersForNextLayer,
         });
       }
@@ -498,7 +509,7 @@ async function recalculateThreadPermissions(
   threadID: string,
 ): Promise<Changeset> {
   const threadQuery = SQL`
-    SELECT type, containing_thread_id FROM threads WHERE id = ${threadID}
+    SELECT type, depth, containing_thread_id FROM threads WHERE id = ${threadID}
   `;
   const membershipQuery = SQL`
     SELECT m.user, m.role, m.permissions, m.permissions_for_children,
@@ -529,8 +540,9 @@ async function recalculateThreadPermissions(
   if (threadResults.length !== 1) {
     throw new ServerError('internal_error');
   }
-  const hasContainingThreadID = threadResults[0].containing_thread_id !== null;
   const threadType = assertThreadType(threadResults[0].type);
+  const depth = threadResults[0].depth;
+  const hasContainingThreadID = threadResults[0].containing_thread_id !== null;
 
   const membershipInfo: Map<
     string,
@@ -647,6 +659,7 @@ async function recalculateThreadPermissions(
       relationshipChangeset: descendantRelationshipChangeset,
     } = await updateDescendantPermissions({
       threadID,
+      depth,
       changesByUser: toUpdateDescendants,
     });
     pushAll(membershipRows, descendantMembershipRows);
