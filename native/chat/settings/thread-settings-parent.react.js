@@ -2,12 +2,12 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { Text, View, Platform } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { type ThreadInfo } from 'lib/types/thread-types';
 
 import Button from '../../components/button.react';
-import { SingleLine } from '../../components/single-line.react';
+import Pill from '../../components/pill.react';
 import { MessageListRouteName } from '../../navigation/route-names';
 import { useStyles } from '../../themes/colors';
 import type { ThreadSettingsNavigate } from './thread-settings.react';
@@ -26,18 +26,11 @@ class ThreadSettingsParent extends React.PureComponent<Props> {
     let parent;
     if (this.props.parentThreadInfo) {
       parent = (
-        <Button
-          onPress={this.onPressParentThread}
-          style={this.props.styles.currentValue}
-        >
-          <SingleLine
-            style={[
-              this.props.styles.currentValueText,
-              this.props.styles.parentThreadLink,
-            ]}
-          >
-            {this.props.parentThreadInfo.uiName}
-          </SingleLine>
+        <Button onPress={this.onPressParentThread}>
+          <Pill
+            label={this.props.parentThreadInfo.uiName}
+            backgroundColor={`#${this.props.parentThreadInfo.color}`}
+          />
         </Button>
       );
     } else if (this.props.threadInfo.parentThreadID) {
@@ -91,8 +84,6 @@ class ThreadSettingsParent extends React.PureComponent<Props> {
 const unboundStyles = {
   currentValue: {
     flex: 1,
-    paddingLeft: 4,
-    paddingTop: Platform.OS === 'ios' ? 5 : 4,
   },
   currentValueText: {
     color: 'panelForegroundSecondaryLabel',
@@ -111,13 +102,11 @@ const unboundStyles = {
     fontStyle: 'italic',
     paddingLeft: 2,
   },
-  parentThreadLink: {
-    color: 'link',
-  },
   row: {
     backgroundColor: 'panelForeground',
     flexDirection: 'row',
     paddingHorizontal: 24,
+    alignItems: 'center',
   },
 };
 

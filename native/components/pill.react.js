@@ -62,7 +62,9 @@ function Pill(props: Props): React.Node {
   return (
     <View style={combinedContainerStyles}>
       {icon}
-      <Text style={combinedTextStyles}>{props.label}</Text>
+      <Text numberOfLines={1} style={combinedTextStyles}>
+        {props.label}
+      </Text>
     </View>
   );
 }
