@@ -370,7 +370,7 @@ async function updateDescendantPermissions(
         r.permissions AS role_permissions, m.permissions,
         m.permissions_for_children, m.role
       FROM threads t
-      LEFT JOIN memberships m ON m.thread = t.id
+      INNER JOIN memberships m ON m.thread = t.id
       LEFT JOIN roles r ON r.id = m.role
       WHERE t.parent_thread_id = ${threadID}
     `;
@@ -384,9 +384,6 @@ async function updateDescendantPermissions(
           threadType: assertThreadType(row.type),
           userInfos: new Map(),
         });
-      }
-      if (!row.user) {
-        continue;
       }
       const childThreadInfo = childThreadInfos.get(childThreadID);
       invariant(childThreadInfo, `value should exist for key ${childThreadID}`);
