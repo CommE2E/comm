@@ -34,6 +34,7 @@ import {
 } from 'lib/types/thread-types';
 import type { UserInfos } from 'lib/types/user-types';
 
+import ThreadAncesters from '../../components/thread-ancestors.react';
 import {
   type KeyboardState,
   KeyboardContext,
@@ -58,7 +59,6 @@ import {
 import type { VerticalBounds } from '../../types/layout-types';
 import type { ViewStyle } from '../../types/styles';
 import type { ChatNavigationProp } from '../chat.react';
-import ThreadSettingsAncestors from './thread-settings-ancestors.react';
 import type { CategoryType } from './thread-settings-category.react';
 import {
   ThreadSettingsCategoryHeader,
@@ -818,9 +818,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   render() {
     let threadAncestors;
     if (this.props.threadInfo) {
-      threadAncestors = (
-        <ThreadSettingsAncestors threadInfo={this.props.threadInfo} />
-      );
+      threadAncestors = <ThreadAncesters threadInfo={this.props.threadInfo} />;
     }
     return (
       <View

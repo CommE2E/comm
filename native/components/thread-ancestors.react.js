@@ -2,34 +2,40 @@
 
 import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
+import { ancestorThreadInfos } from 'lib/selectors/thread-selectors';
 import { memberHasAdminPowers } from 'lib/shared/thread-utils';
 import { type ThreadInfo, type MemberInfo } from 'lib/types/thread-types';
 
 import { MessageListRouteName } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
-import { useColors } from '../themes/colors';
+import { useColors, useStyles } from '../themes/colors';
 import Button from './button.react';
 import Pill from './pill.react';
 
 type Props = {|
-  +ancestorThreads: $ReadOnlyArray<ThreadInfo>,
+  +threadInfo: ThreadInfo,
 |};
 
 function ThreadAncestors(props: Props): React.Node {
-  const { ancestorThreads } = props;
+  const { threadInfo } = props;
   const navigation = useNavigation();
+  const styles = useStyles(unboundStyles);
   const colors = useColors();
+
   const userInfos = useSelector((state) => state.userStore.userInfos);
+  const ancestorThreads: $ReadOnlyArray<ThreadInfo> = useSelector(
+    ancestorThreadInfos(threadInfo.id),
+  );
 
   const navigateToThread = React.useCallback(
-    (threadInfo) => {
+    (ancestorThreadInfo) => {
       navigation.navigate({
         name: MessageListRouteName,
-        params: { threadInfo },
-        key: `${MessageListRouteName}${threadInfo.id}`,
+        params: { threadInfo: ancestorThreadInfo },
+        key: `${MessageListRouteName}${ancestorThreadInfo.id}`,
       });
     },
     [navigation],
@@ -59,21 +65,21 @@ function ThreadAncestors(props: Props): React.Node {
 
   const pathElements = React.useMemo(() => {
     const elements = [];
-    for (const [idx, threadInfo] of ancestorThreads.entries()) {
+    for (const [idx, ancestorThreadInfo] of ancestorThreads.entries()) {
       const isLastThread = idx === ancestorThreads.length - 1;
-      const backgroundColor = `#${threadInfo.color}`;
+      const backgroundColor = `#${ancestorThreadInfo.color}`;
 
       elements.push(
-        <View key={threadInfo.id} style={styles.pathItem}>
+        <View key={ancestorThreadInfo.id} style={styles.pathItem}>
           <Button
             style={styles.row}
-            onPress={() => navigateToThread(threadInfo)}
+            onPress={() => navigateToThread(ancestorThreadInfo)}
           >
             {idx === 0 ? adminLabel : null}
             <Pill
               backgroundColor={backgroundColor}
               roundCorners={{ left: !(idx === 0), right: true }}
-              label={threadInfo.uiName}
+              label={ancestorThreadInfo.uiName}
             />
           </Button>
           {!isLastThread ? rightArrow : null}
@@ -81,7 +87,13 @@ function ThreadAncestors(props: Props): React.Node {
       );
     }
     return <View style={styles.pathItem}>{elements}</View>;
-  }, [adminLabel, ancestorThreads, navigateToThread]);
+  }, [
+    adminLabel,
+    ancestorThreads,
+    navigateToThread,
+    styles.pathItem,
+    styles.row,
+  ]);
 
   return (
     <View style={styles.container}>
@@ -91,12 +103,14 @@ function ThreadAncestors(props: Props): React.Node {
 }
 
 const height = 48;
-const styles = StyleSheet.create({
+const unboundStyles = {
   arrowIcon: {
     paddingHorizontal: 8,
   },
   container: {
     height,
+    backgroundColor: 'panelSecondaryForeground',
+    paddingHorizontal: 12,
   },
   pathItem: {
     alignItems: 'center',
@@ -106,10 +120,15 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
   },
-});
+};
 
 const rightArrow: React.Node = (
-  <Icon name="chevron-right" size={12} color="white" style={styles.arrowIcon} />
+  <Icon
+    name="chevron-right"
+    size={12}
+    color="white"
+    style={unboundStyles.arrowIcon}
+  />
 );
 
 export default ThreadAncestors;
