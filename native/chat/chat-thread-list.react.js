@@ -578,7 +578,7 @@ const unboundStyles = {
   search: {
     marginBottom: 8,
     marginHorizontal: 12,
-    marginTop: Platform.OS === 'android' ? 10 : 8,
+    marginTop: 12,
   },
   cancelSearchButton: {
     position: 'absolute',
