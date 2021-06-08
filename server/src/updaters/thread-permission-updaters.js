@@ -388,6 +388,9 @@ async function updateDescendantPermissions(
         const {
           curRole,
           curRolePermissions,
+          curPermissionsFromParent,
+          curMemberOfContainingThread,
+          nextMemberOfContainingThread,
           nextPermissionsFromParent,
           potentiallyNeedsUpdate,
         } = user;
@@ -398,17 +401,23 @@ async function updateDescendantPermissions(
         if (!potentiallyNeedsUpdate) {
           continue;
         }
-        invariant(
-          nextPermissionsFromParent,
-          'currently, an update to permissionsFromParent is the only reason ' +
-            'that potentiallyNeedsUpdate should be set',
-        );
 
-        const targetRole = curRole ?? '0';
+        const permissionsFromParent =
+          nextPermissionsFromParent === undefined
+            ? curPermissionsFromParent
+            : nextPermissionsFromParent;
+        const memberOfContainingThread =
+          nextMemberOfContainingThread === undefined
+            ? curMemberOfContainingThread
+            : nextMemberOfContainingThread;
+        const targetRole = memberOfContainingThread && curRole ? curRole : '0';
+        const rolePermissions = memberOfContainingThread
+          ? curRolePermissions
+          : null;
 
         const permissions = makePermissionsBlob(
-          curRolePermissions,
-          nextPermissionsFromParent,
+          rolePermissions,
+          permissionsFromParent,
           threadID,
           threadType,
         );
