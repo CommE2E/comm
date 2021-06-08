@@ -370,13 +370,17 @@ type AncestorChanges = {|
 async function updateDescendantPermissions(
   initialChangedAncestor: ChangedAncestor,
 ): Promise<Changeset> {
-  const stack = [initialChangedAncestor];
   const membershipRows = [];
   const relationshipChangeset = new RelationshipChangeset();
 
+  const initialDescendants = await fetchDescendantsForUpdate([
+    initialChangedAncestor,
+  ]);
+
+  const stack = [initialDescendants];
   while (stack.length > 0) {
-    const ancestor = stack.shift();
-    const descendants = await fetchDescendantsForUpdate([ancestor]);
+    const descendants = stack.shift();
+    const descendantsAsAncestors = [];
     for (const descendant of descendants) {
       const { threadID, threadType, depth, users } = descendant;
 
@@ -480,12 +484,19 @@ async function updateDescendantPermissions(
         }
       }
       if (usersForNextLayer.size > 0) {
-        stack.push({
+        descendantsAsAncestors.push({
           threadID,
           depth,
           changesByUser: usersForNextLayer,
         });
       }
+    }
+
+    const nextDescendants = await fetchDescendantsForUpdate(
+      descendantsAsAncestors,
+    );
+    if (nextDescendants.length > 0) {
+      stack.push(nextDescendants);
     }
   }
   return { membershipRows, relationshipChangeset };
