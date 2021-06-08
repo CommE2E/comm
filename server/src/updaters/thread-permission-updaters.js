@@ -487,11 +487,16 @@ type DescendantUserInfo = $Shape<{|
   curRolePermissions?: ?ThreadRolePermissionsBlob,
   curPermissions?: ?ThreadPermissionsBlob,
   curPermissionsForChildren?: ?ThreadPermissionsBlob,
+  curPermissionsFromParent?: ?ThreadPermissionsBlob,
+  curMemberOfContainingThread?: boolean,
   nextPermissionsFromParent?: ?ThreadPermissionsBlob,
+  nextMemberOfContainingThread?: boolean,
   potentiallyNeedsUpdate?: boolean,
 |}>;
 type DescendantInfo = {|
   +threadID: string,
+  +parentThreadID: string,
+  +containingThreadID: string,
   +threadType: ThreadType,
   +depth: number,
   +users: Map<string, DescendantUserInfo>,
@@ -501,13 +506,20 @@ async function fetchDescendantsForUpdate(
 ): Promise<DescendantInfo[]> {
   const { threadID } = ancestor;
   const query = SQL`
-    SELECT t.id, m.user, t.type, t.depth,
-      r.permissions AS role_permissions, m.permissions,
-      m.permissions_for_children, m.role
+    SELECT t.id, m.user, t.type, t.depth, t.parent_thread_id,
+      t.containing_thread_id, r.permissions AS role_permissions, m.permissions,
+      m.permissions_for_children, m.role,
+      pm.permissions_for_children AS permissions_from_parent,
+      cm.role AS containing_role
     FROM threads t
     INNER JOIN memberships m ON m.thread = t.id
+    LEFT JOIN memberships pm
+      ON pm.thread = t.parent_thread_id AND pm.user = m.user
+    LEFT JOIN memberships cm
+      ON cm.thread = t.containing_thread_id AND cm.user = m.user
     LEFT JOIN roles r ON r.id = m.role
     WHERE t.parent_thread_id = ${threadID}
+      OR t.containing_thread_id = ${threadID}
   `;
   const [result] = await dbQuery(query);
 
@@ -517,6 +529,8 @@ async function fetchDescendantsForUpdate(
     if (!descendantThreadInfos.has(descendantThreadID)) {
       descendantThreadInfos.set(descendantThreadID, {
         threadID: descendantThreadID,
+        parentThreadID: row.parent_thread_id.toString(),
+        containingThreadID: row.containing_thread_id.toString(),
         threadType: assertThreadType(row.type),
         depth: row.depth,
         users: new Map(),
@@ -533,19 +547,34 @@ async function fetchDescendantsForUpdate(
       curRolePermissions: row.role_permissions,
       curPermissions: row.permissions,
       curPermissionsForChildren: row.permissions_for_children,
+      curPermissionsFromParent: row.permissions_from_parent,
+      curMemberOfContainingThread: row.containing_role > 0,
     });
   }
 
   const { changesByUser } = ancestor;
   for (const [userID, changes] of changesByUser) {
     for (const descendantThreadInfo of descendantThreadInfos.values()) {
-      let user = descendantThreadInfo.users.get(userID);
+      const {
+        users,
+        parentThreadID,
+        containingThreadID,
+      } = descendantThreadInfo;
+      let user = users.get(userID);
       if (!user) {
         user = {};
-        descendantThreadInfo.users.set(userID, user);
+        users.set(userID, user);
       }
-      user.nextPermissionsFromParent = changes.permissionsForChildren;
-      user.potentiallyNeedsUpdate = true;
+      if (parentThreadID === threadID) {
+        user.nextPermissionsFromParent = changes.permissionsForChildren;
+        user.potentiallyNeedsUpdate = true;
+      }
+      if (containingThreadID === threadID) {
+        user.nextMemberOfContainingThread = changes.userIsMember;
+        if (!user.nextMemberOfContainingThread) {
+          user.potentiallyNeedsUpdate = true;
+        }
+      }
     }
   }
 
