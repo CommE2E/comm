@@ -265,7 +265,7 @@ async function changeRole(
       !_isEqual(permissionsForChildren)(oldPermissionsForChildren)
     ) {
       toUpdateDescendants.set(userID, {
-        permissionsFromParent: permissionsForChildren,
+        permissionsForChildren,
       });
     }
   }
@@ -363,7 +363,7 @@ type ChangedAncestor = {|
   +changesByUser: Map<string, AncestorChanges>,
 |};
 type AncestorChanges = {|
-  +permissionsFromParent: ?ThreadPermissionsBlob,
+  +permissionsForChildren: ?ThreadPermissionsBlob,
 |};
 async function updateDescendantPermissions(
   initialChangedAncestor: ChangedAncestor,
@@ -463,7 +463,7 @@ async function updateDescendantPermissions(
           !_isEqual(permissionsForChildren)(curPermissionsForChildren)
         ) {
           usersForNextLayer.set(userID, {
-            permissionsFromParent: permissionsForChildren,
+            permissionsForChildren,
           });
         }
       }
@@ -541,7 +541,7 @@ async function fetchDescendantsForUpdate(
         user = {};
         descendantThreadInfo.users.set(userID, user);
       }
-      user.nextPermissionsFromParent = changes.permissionsFromParent;
+      user.nextPermissionsFromParent = changes.permissionsForChildren;
       user.potentiallyNeedsUpdate = true;
     }
   }
@@ -700,7 +700,7 @@ async function recalculateThreadPermissions(
       !_isEqual(permissionsForChildren)(oldPermissionsForChildren)
     ) {
       toUpdateDescendants.set(userID, {
-        permissionsFromParent: permissionsForChildren,
+        permissionsForChildren,
       });
     }
   }
