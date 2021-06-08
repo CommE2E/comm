@@ -510,30 +510,37 @@ type DescendantInfo = {|
   +depth: number,
   +users: Map<string, DescendantUserInfo>,
 |};
+const fetchDescendantsBatchSize = 10;
 async function fetchDescendantsForUpdate(
   ancestors: $ReadOnlyArray<ChangedAncestor>,
 ): Promise<DescendantInfo[]> {
   const threadIDs = ancestors.map((ancestor) => ancestor.threadID);
-  const query = SQL`
-    SELECT t.id, m.user, t.type, t.depth, t.parent_thread_id,
-      t.containing_thread_id, r.permissions AS role_permissions, m.permissions,
-      m.permissions_for_children, m.role,
-      pm.permissions_for_children AS permissions_from_parent,
-      cm.role AS containing_role
-    FROM threads t
-    INNER JOIN memberships m ON m.thread = t.id
-    LEFT JOIN memberships pm
-      ON pm.thread = t.parent_thread_id AND pm.user = m.user
-    LEFT JOIN memberships cm
-      ON cm.thread = t.containing_thread_id AND cm.user = m.user
-    LEFT JOIN roles r ON r.id = m.role
-    WHERE t.parent_thread_id IN (${threadIDs})
-      OR t.containing_thread_id IN (${threadIDs})
-  `;
-  const [result] = await dbQuery(query);
+
+  const rows = [];
+  while (threadIDs.length > 0) {
+    const batch = threadIDs.splice(0, fetchDescendantsBatchSize);
+    const query = SQL`
+      SELECT t.id, m.user, t.type, t.depth, t.parent_thread_id,
+        t.containing_thread_id, r.permissions AS role_permissions, m.permissions,
+        m.permissions_for_children, m.role,
+        pm.permissions_for_children AS permissions_from_parent,
+        cm.role AS containing_role
+      FROM threads t
+      INNER JOIN memberships m ON m.thread = t.id
+      LEFT JOIN memberships pm
+        ON pm.thread = t.parent_thread_id AND pm.user = m.user
+      LEFT JOIN memberships cm
+        ON cm.thread = t.containing_thread_id AND cm.user = m.user
+      LEFT JOIN roles r ON r.id = m.role
+      WHERE t.parent_thread_id IN (${batch})
+        OR t.containing_thread_id IN (${batch})
+    `;
+    const [results] = await dbQuery(query);
+    pushAll(rows, results);
+  }
 
   const descendantThreadInfos: Map<string, DescendantInfo> = new Map();
-  for (const row of result) {
+  for (const row of rows) {
     const descendantThreadID = row.id.toString();
     if (!descendantThreadInfos.has(descendantThreadID)) {
       descendantThreadInfos.set(descendantThreadID, {
