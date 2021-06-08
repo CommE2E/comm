@@ -365,106 +365,88 @@ type ChangedAncestor = {|
 type AncestorChanges = {|
   +permissionsFromParent: ?ThreadPermissionsBlob,
 |};
-
 async function updateDescendantPermissions(
   initialChangedAncestor: ChangedAncestor,
 ): Promise<Changeset> {
   const stack = [initialChangedAncestor];
   const membershipRows = [];
   const relationshipChangeset = new RelationshipChangeset();
+
   while (stack.length > 0) {
-    const { threadID, depth, changesByUser } = stack.shift();
+    const ancestor = stack.shift();
+    const descendants = await fetchDescendantsForUpdate(ancestor);
+    for (const descendant of descendants) {
+      const { threadID, threadType, depth, users } = descendant;
 
-    const query = SQL`
-      SELECT t.id, m.user, t.type,
-        r.permissions AS role_permissions, m.permissions,
-        m.permissions_for_children, m.role
-      FROM threads t
-      INNER JOIN memberships m ON m.thread = t.id
-      LEFT JOIN roles r ON r.id = m.role
-      WHERE t.parent_thread_id = ${threadID}
-    `;
-    const [result] = await dbQuery(query);
-
-    const childThreadInfos = new Map();
-    for (const row of result) {
-      const childThreadID = row.id.toString();
-      if (!childThreadInfos.has(childThreadID)) {
-        childThreadInfos.set(childThreadID, {
-          threadType: assertThreadType(row.type),
-          userInfos: new Map(),
-        });
-      }
-      const childThreadInfo = childThreadInfos.get(childThreadID);
-      invariant(childThreadInfo, `value should exist for key ${childThreadID}`);
-      const userID = row.user.toString();
-      childThreadInfo.userInfos.set(userID, {
-        role: row.role.toString(),
-        rolePermissions: row.role_permissions,
-        permissions: row.permissions,
-        permissionsForChildren: row.permissions_for_children,
-      });
-    }
-
-    for (const [childThreadID, childThreadInfo] of childThreadInfos) {
-      const userInfos = childThreadInfo.userInfos;
-      const existingMemberIDs = [...userInfos.keys()];
+      const existingMemberIDs = [...users.keys()];
       relationshipChangeset.setAllRelationshipsExist(existingMemberIDs);
+
       const usersForNextLayer = new Map();
-      for (const [userID, ancestorChanges] of changesByUser) {
-        const { permissionsFromParent } = ancestorChanges;
+      for (const [userID, user] of users) {
+        const {
+          curRole,
+          curRolePermissions,
+          nextPermissionsFromParent,
+          potentiallyNeedsUpdate,
+        } = user;
+        const curPermissions = user.curPermissions ?? null;
+        const curPermissionsForChildren =
+          user.curPermissionsForChildren ?? null;
 
-        const userInfo = userInfos.get(userID);
-        const oldRole = userInfo?.role;
-        const targetRole = oldRole ?? '0';
-        const rolePermissions = userInfo?.rolePermissions;
-        const oldPermissions = userInfo?.permissions;
-        const oldPermissionsForChildren = userInfo
-          ? userInfo.permissionsForChildren
-          : null;
-
-        const permissions = makePermissionsBlob(
-          rolePermissions,
-          permissionsFromParent,
-          childThreadID,
-          childThreadInfo.threadType,
-        );
-        if (_isEqual(permissions)(oldPermissions)) {
-          // This thread and all of its children need no updates, since its
-          // permissions are unchanged by this operation
+        if (!potentiallyNeedsUpdate) {
           continue;
         }
+        invariant(
+          nextPermissionsFromParent,
+          'currently, an update to permissionsFromParent is the only reason ' +
+            'that potentiallyNeedsUpdate should be set',
+        );
+
+        const targetRole = curRole ?? '0';
+
+        const permissions = makePermissionsBlob(
+          curRolePermissions,
+          nextPermissionsFromParent,
+          threadID,
+          threadType,
+        );
         const permissionsForChildren = makePermissionsForChildrenBlob(
           permissions,
         );
-
         const newRole = getRoleForPermissions(targetRole, permissions);
         const userLostMembership =
-          oldRole && Number(oldRole) > 0 && Number(newRole) <= 0;
+          curRole && Number(curRole) > 0 && Number(newRole) <= 0;
+
+        if (_isEqual(permissions)(curPermissions) && curRole === newRole) {
+          // This thread and all of its descendants need no updates for this
+          // user, since the corresponding memberships row is unchanged by this
+          // operation
+          continue;
+        }
 
         if (permissions) {
           membershipRows.push({
             operation: 'save',
             intent: 'none',
             userID,
-            threadID: childThreadID,
+            threadID,
             userNeedsFullThreadDetails: false,
             permissions,
             permissionsForChildren,
             role: newRole,
-            oldRole: oldRole ?? '-1',
+            oldRole: curRole ?? '-1',
           });
         } else {
           membershipRows.push({
             operation: 'delete',
             intent: 'none',
             userID,
-            threadID: childThreadID,
-            oldRole: oldRole ?? '-1',
+            threadID,
+            oldRole: curRole ?? '-1',
           });
         }
 
-        if (permissions && !userInfo) {
+        if (permissions && !curRole) {
           // If there was no membership row before, and we are creating one,
           // we'll need to make sure the new member has a relationship row with
           // each existing member. We assume whoever called us will handle
@@ -478,7 +460,7 @@ async function updateDescendantPermissions(
 
         if (
           userLostMembership ||
-          !_isEqual(permissionsForChildren)(oldPermissionsForChildren)
+          !_isEqual(permissionsForChildren)(curPermissionsForChildren)
         ) {
           usersForNextLayer.set(userID, {
             permissionsFromParent: permissionsForChildren,
@@ -487,14 +469,84 @@ async function updateDescendantPermissions(
       }
       if (usersForNextLayer.size > 0) {
         stack.push({
-          threadID: childThreadID,
-          depth: depth + 1,
+          threadID,
+          depth,
           changesByUser: usersForNextLayer,
         });
       }
     }
   }
   return { membershipRows, relationshipChangeset };
+}
+
+type DescendantUserInfo = $Shape<{|
+  curRole?: string,
+  curRolePermissions?: ?ThreadRolePermissionsBlob,
+  curPermissions?: ?ThreadPermissionsBlob,
+  curPermissionsForChildren?: ?ThreadPermissionsBlob,
+  nextPermissionsFromParent?: ?ThreadPermissionsBlob,
+  potentiallyNeedsUpdate?: boolean,
+|}>;
+type DescendantInfo = {|
+  +threadID: string,
+  +threadType: ThreadType,
+  +depth: number,
+  +users: Map<string, DescendantUserInfo>,
+|};
+async function fetchDescendantsForUpdate(
+  ancestor: ChangedAncestor,
+): Promise<DescendantInfo[]> {
+  const { threadID, depth } = ancestor;
+  const query = SQL`
+    SELECT t.id, m.user, t.type,
+      r.permissions AS role_permissions, m.permissions,
+      m.permissions_for_children, m.role
+    FROM threads t
+    INNER JOIN memberships m ON m.thread = t.id
+    LEFT JOIN roles r ON r.id = m.role
+    WHERE t.parent_thread_id = ${threadID}
+  `;
+  const [result] = await dbQuery(query);
+
+  const descendantThreadInfos: Map<string, DescendantInfo> = new Map();
+  for (const row of result) {
+    const descendantThreadID = row.id.toString();
+    if (!descendantThreadInfos.has(descendantThreadID)) {
+      descendantThreadInfos.set(descendantThreadID, {
+        threadID: descendantThreadID,
+        threadType: assertThreadType(row.type),
+        depth: depth + 1,
+        users: new Map(),
+      });
+    }
+    const descendantThreadInfo = descendantThreadInfos.get(descendantThreadID);
+    invariant(
+      descendantThreadInfo,
+      `value should exist for key ${descendantThreadID}`,
+    );
+    const userID = row.user.toString();
+    descendantThreadInfo.users.set(userID, {
+      curRole: row.role.toString(),
+      curRolePermissions: row.role_permissions,
+      curPermissions: row.permissions,
+      curPermissionsForChildren: row.permissions_for_children,
+    });
+  }
+
+  const { changesByUser } = ancestor;
+  for (const [userID, changes] of changesByUser) {
+    for (const descendantThreadInfo of descendantThreadInfos.values()) {
+      let user = descendantThreadInfo.users.get(userID);
+      if (!user) {
+        user = {};
+        descendantThreadInfo.users.set(userID, user);
+      }
+      user.nextPermissionsFromParent = changes.permissionsFromParent;
+      user.potentiallyNeedsUpdate = true;
+    }
+  }
+
+  return [...descendantThreadInfos.values()];
 }
 
 type RecalculatePermissionsMemberInfo = {|
