@@ -376,7 +376,7 @@ async function updateDescendantPermissions(
 
   while (stack.length > 0) {
     const ancestor = stack.shift();
-    const descendants = await fetchDescendantsForUpdate(ancestor);
+    const descendants = await fetchDescendantsForUpdate([ancestor]);
     for (const descendant of descendants) {
       const { threadID, threadType, depth, users } = descendant;
 
@@ -511,9 +511,9 @@ type DescendantInfo = {|
   +users: Map<string, DescendantUserInfo>,
 |};
 async function fetchDescendantsForUpdate(
-  ancestor: ChangedAncestor,
+  ancestors: $ReadOnlyArray<ChangedAncestor>,
 ): Promise<DescendantInfo[]> {
-  const { threadID } = ancestor;
+  const threadIDs = ancestors.map((ancestor) => ancestor.threadID);
   const query = SQL`
     SELECT t.id, m.user, t.type, t.depth, t.parent_thread_id,
       t.containing_thread_id, r.permissions AS role_permissions, m.permissions,
@@ -527,8 +527,8 @@ async function fetchDescendantsForUpdate(
     LEFT JOIN memberships cm
       ON cm.thread = t.containing_thread_id AND cm.user = m.user
     LEFT JOIN roles r ON r.id = m.role
-    WHERE t.parent_thread_id = ${threadID}
-      OR t.containing_thread_id = ${threadID}
+    WHERE t.parent_thread_id IN (${threadIDs})
+      OR t.containing_thread_id IN (${threadIDs})
   `;
   const [result] = await dbQuery(query);
 
@@ -561,27 +561,32 @@ async function fetchDescendantsForUpdate(
     });
   }
 
-  const { changesByUser } = ancestor;
-  for (const [userID, changes] of changesByUser) {
-    for (const descendantThreadInfo of descendantThreadInfos.values()) {
-      const {
-        users,
-        parentThreadID,
-        containingThreadID,
-      } = descendantThreadInfo;
-      let user = users.get(userID);
-      if (!user) {
-        user = {};
-        users.set(userID, user);
-      }
-      if (parentThreadID === threadID) {
-        user.nextPermissionsFromParent = changes.permissionsForChildren;
-        user.potentiallyNeedsUpdate = true;
-      }
-      if (containingThreadID === threadID) {
-        user.nextMemberOfContainingThread = changes.userIsMember;
-        if (!user.nextMemberOfContainingThread) {
+  for (const ancestor of ancestors) {
+    const { threadID, changesByUser } = ancestor;
+    for (const [userID, changes] of changesByUser) {
+      for (const descendantThreadInfo of descendantThreadInfos.values()) {
+        const {
+          users,
+          parentThreadID,
+          containingThreadID,
+        } = descendantThreadInfo;
+        if (threadID !== parentThreadID && threadID !== containingThreadID) {
+          continue;
+        }
+        let user = users.get(userID);
+        if (!user) {
+          user = {};
+          users.set(userID, user);
+        }
+        if (threadID === parentThreadID) {
+          user.nextPermissionsFromParent = changes.permissionsForChildren;
           user.potentiallyNeedsUpdate = true;
+        }
+        if (threadID === containingThreadID) {
+          user.nextMemberOfContainingThread = changes.userIsMember;
+          if (!user.nextMemberOfContainingThread) {
+            user.potentiallyNeedsUpdate = true;
+          }
         }
       }
     }
