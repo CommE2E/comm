@@ -265,6 +265,7 @@ async function changeRole(
       !_isEqual(permissionsForChildren)(oldPermissionsForChildren)
     ) {
       toUpdateDescendants.set(userID, {
+        userIsMember: Number(newRole) > 0,
         permissionsForChildren,
       });
     }
@@ -363,6 +364,7 @@ type ChangedAncestor = {|
   +changesByUser: Map<string, AncestorChanges>,
 |};
 type AncestorChanges = {|
+  +userIsMember: boolean,
   +permissionsForChildren: ?ThreadPermissionsBlob,
 |};
 async function updateDescendantPermissions(
@@ -463,6 +465,7 @@ async function updateDescendantPermissions(
           !_isEqual(permissionsForChildren)(curPermissionsForChildren)
         ) {
           usersForNextLayer.set(userID, {
+            userIsMember: Number(newRole) > 0,
             permissionsForChildren,
           });
         }
@@ -700,6 +703,7 @@ async function recalculateThreadPermissions(
       !_isEqual(permissionsForChildren)(oldPermissionsForChildren)
     ) {
       toUpdateDescendants.set(userID, {
+        userIsMember: Number(newRole) > 0,
         permissionsForChildren,
       });
     }
