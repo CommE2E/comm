@@ -499,9 +499,9 @@ type DescendantInfo = {|
 async function fetchDescendantsForUpdate(
   ancestor: ChangedAncestor,
 ): Promise<DescendantInfo[]> {
-  const { threadID, depth } = ancestor;
+  const { threadID } = ancestor;
   const query = SQL`
-    SELECT t.id, m.user, t.type,
+    SELECT t.id, m.user, t.type, t.depth,
       r.permissions AS role_permissions, m.permissions,
       m.permissions_for_children, m.role
     FROM threads t
@@ -518,7 +518,7 @@ async function fetchDescendantsForUpdate(
       descendantThreadInfos.set(descendantThreadID, {
         threadID: descendantThreadID,
         threadType: assertThreadType(row.type),
-        depth: depth + 1,
+        depth: row.depth,
         users: new Map(),
       });
     }
