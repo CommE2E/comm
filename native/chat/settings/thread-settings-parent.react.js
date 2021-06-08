@@ -95,7 +95,6 @@ const unboundStyles = {
   label: {
     color: 'panelForegroundTertiaryLabel',
     fontSize: 16,
-    paddingVertical: 4,
     width: 96,
   },
   noParent: {
@@ -106,6 +105,7 @@ const unboundStyles = {
     backgroundColor: 'panelForeground',
     flexDirection: 'row',
     paddingHorizontal: 24,
+    paddingVertical: 4,
     alignItems: 'center',
   },
 };

@@ -36,7 +36,7 @@ const unboundStyles = {
     backgroundColor: 'panelForeground',
     flexDirection: 'row',
     paddingHorizontal: 24,
-    paddingVertical: 8,
+    paddingVertical: 4,
     alignItems: 'center',
   },
 };

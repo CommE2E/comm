@@ -143,11 +143,6 @@ type ChatSettingsItem =
       +threadInfo: ThreadInfo,
     |}
   | {|
-      +itemType: 'ancestors',
-      +key: string,
-      +threadInfo: ThreadInfo,
-    |}
-  | {|
       +itemType: 'pushNotifs',
       +key: string,
       +threadInfo: ThreadInfo,
@@ -452,11 +447,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         threadInfo,
         parentThreadInfo,
         navigate,
-      });
-      listData.push({
-        itemType: 'ancestors',
-        key: 'ancestors',
-        threadInfo,
       });
       listData.push({
         itemType: 'footer',
@@ -826,18 +816,26 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   }
 
   render() {
+    let threadAncestors;
+    if (this.props.threadInfo) {
+      threadAncestors = (
+        <ThreadSettingsAncestors threadInfo={this.props.threadInfo} />
+      );
+    }
     return (
       <View
         style={this.props.styles.container}
         ref={this.flatListContainerRef}
         onLayout={this.onFlatListContainerLayout}
       >
+        {threadAncestors}
         <FlatList
           data={this.listData}
           contentContainerStyle={this.props.styles.flatList}
           renderItem={this.renderItem}
           scrollEnabled={!ThreadSettings.scrollDisabled(this.props)}
           indicatorStyle={this.props.indicatorStyle}
+          initialNumToRender={20}
         />
       </View>
     );
@@ -925,8 +923,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       );
     } else if (item.itemType === 'visibility') {
       return <ThreadSettingsVisibility threadInfo={item.threadInfo} />;
-    } else if (item.itemType === 'ancestors') {
-      return <ThreadSettingsAncestors threadInfo={item.threadInfo} />;
     } else if (item.itemType === 'pushNotifs') {
       return <ThreadSettingsPushNotifs threadInfo={item.threadInfo} />;
     } else if (item.itemType === 'homeNotifs') {

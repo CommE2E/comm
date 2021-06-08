@@ -83,17 +83,25 @@ function ThreadAncestors(props: Props): React.Node {
     return <View style={styles.pathItem}>{elements}</View>;
   }, [adminLabel, ancestorThreads, navigateToThread]);
 
-  return <ScrollView horizontal={true}>{pathElements}</ScrollView>;
+  return (
+    <View style={styles.container}>
+      <ScrollView horizontal={true}>{pathElements}</ScrollView>
+    </View>
+  );
 }
 
+const height = 48;
 const styles = StyleSheet.create({
   arrowIcon: {
     paddingHorizontal: 8,
   },
+  container: {
+    height,
+  },
   pathItem: {
     alignItems: 'center',
     flexDirection: 'row',
-    height: 40,
+    height,
   },
   row: {
     flexDirection: 'row',

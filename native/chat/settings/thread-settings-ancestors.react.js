@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 
 import { ancestorThreadInfos } from 'lib/selectors/thread-selectors';
 import { type ThreadInfo } from 'lib/types/thread-types';
@@ -23,7 +23,6 @@ function ThreadSettingsAncestors(props: Props) {
 
   return (
     <View style={styles.cell}>
-      <Text style={styles.label}>Path</Text>
       <ThreadAncestors ancestorThreads={ancestorThreads} />
     </View>
   );
@@ -33,13 +32,8 @@ const unboundStyles = {
   cell: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: 12,
     backgroundColor: 'panelForeground',
-  },
-  label: {
-    fontSize: 16,
-    width: 96,
-    color: 'panelForegroundTertiaryLabel',
   },
 };
 
