@@ -1,11 +1,12 @@
 // @flow
 
 import * as React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 
 import { threadLabel } from 'lib/shared/thread-utils';
 import type { ThreadType } from 'lib/types/thread-types';
 
+import Pill from './pill.react';
 import ThreadIcon from './thread-icon.react';
 
 type Props = {|
@@ -14,13 +15,15 @@ type Props = {|
 |};
 function ThreadVisibility(props: Props) {
   const { threadType, color } = props;
-  const visLabelStyle = [styles.visibilityLabel, { color }];
   const label = threadLabel(threadType);
+  const icon = React.useMemo(
+    () => <ThreadIcon threadType={threadType} color="white" />,
+    [threadType],
+  );
 
   return (
     <View style={styles.container}>
-      <ThreadIcon threadType={threadType} color={color} />
-      <Text style={visLabelStyle}>{label}</Text>
+      <Pill icon={icon} label={label} backgroundColor={color} />
     </View>
   );
 }
@@ -29,11 +32,6 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     flexDirection: 'row',
-  },
-  visibilityLabel: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    paddingLeft: 4,
   },
 });
 

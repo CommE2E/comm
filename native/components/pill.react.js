@@ -12,6 +12,7 @@ import { useStyles } from '../themes/colors';
 type Props = {|
   +label: string,
   +backgroundColor: string,
+  +icon?: React.Node,
   +faIcon?: FontAwesome5Glyphs,
   +roundCorners?: {| +left: boolean, +right: boolean |},
 |};
@@ -47,7 +48,9 @@ function Pill(props: Props): React.Node {
   );
 
   const icon = React.useMemo(() => {
-    if (props.faIcon) {
+    if (props.icon) {
+      return <View style={styles.icon}>{props.icon}</View>;
+    } else if (props.faIcon) {
       return (
         <Icon
           name={props.faIcon}
@@ -57,7 +60,8 @@ function Pill(props: Props): React.Node {
         />
       );
     }
-  }, [props.faIcon, styles.icon, textColor]);
+    return undefined;
+  }, [props.faIcon, props.icon, styles.icon, textColor]);
 
   return (
     <View style={combinedContainerStyles}>

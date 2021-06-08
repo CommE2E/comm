@@ -20,7 +20,7 @@ function ThreadSettingsVisibility(props: Props) {
       <Text style={styles.label}>Visibility</Text>
       <ThreadVisibility
         threadType={props.threadInfo.type}
-        color={colors.panelForegroundSecondaryLabel}
+        color={colors.codeBackground}
       />
     </View>
   );
@@ -37,6 +37,7 @@ const unboundStyles = {
     flexDirection: 'row',
     paddingHorizontal: 24,
     paddingVertical: 8,
+    alignItems: 'center',
   },
 };
 
