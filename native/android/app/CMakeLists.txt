@@ -95,6 +95,7 @@ add_definitions(
   -DFOLLY_HAVE_MEMRCHR=1
   -DFOLLY_USE_LIBCPP=1
   -DFOLLY_MOBILE=1
+  -DSQLITE_THREADSAFE=0
 )
 
 find_library(log-lib log)
