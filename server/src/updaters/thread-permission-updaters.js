@@ -34,6 +34,7 @@ import {
 import { rescindPushNotifs } from '../push/rescind';
 import { createScriptViewer } from '../session/scripts';
 import type { Viewer } from '../session/viewer';
+import DepthQueue from '../utils/depth-queue';
 import RelationshipChangeset from '../utils/relationship-changeset';
 import {
   updateDatasForUserPairs,
@@ -377,9 +378,15 @@ async function updateDescendantPermissions(
     initialChangedAncestor,
   ]);
 
-  const stack = [initialDescendants];
-  while (stack.length > 0) {
-    const descendants = stack.shift();
+  const depthQueue = new DepthQueue(
+    getDescendantDepth,
+    getDescendantKey,
+    mergeDescendants,
+  );
+  depthQueue.addInfos(initialDescendants);
+
+  let descendants;
+  while ((descendants = depthQueue.getNextDepth())) {
     const descendantsAsAncestors = [];
     for (const descendant of descendants) {
       const { threadID, threadType, depth, users } = descendant;
@@ -495,9 +502,7 @@ async function updateDescendantPermissions(
     const nextDescendants = await fetchDescendantsForUpdate(
       descendantsAsAncestors,
     );
-    if (nextDescendants.length > 0) {
-      stack.push(nextDescendants);
-    }
+    depthQueue.addInfos(nextDescendants);
   }
   return { membershipRows, relationshipChangeset };
 }
@@ -611,6 +616,39 @@ async function fetchDescendantsForUpdate(
   }
 
   return [...descendantThreadInfos.values()];
+}
+
+function getDescendantDepth(descendant: DescendantInfo): number {
+  return descendant.depth;
+}
+function getDescendantKey(descendant: DescendantInfo): string {
+  return descendant.threadID;
+}
+function mergeDescendants(
+  a: DescendantInfo,
+  b: DescendantInfo,
+): DescendantInfo {
+  const { users: usersA, ...restA } = a;
+  const { users: usersB, ...restB } = b;
+  if (!_isEqual(restA)(restB)) {
+    console.warn(
+      `inconsistent descendantInfos ${JSON.stringify(restA)}, ` +
+        JSON.stringify(restB),
+    );
+    throw new ServerError('internal_error');
+  }
+
+  const newUsers = new Map(usersA);
+  for (const [userID, userFromB] of usersB) {
+    const userFromA = newUsers.get(userID);
+    if (!userFromA) {
+      newUsers.set(userID, userFromB);
+    } else {
+      newUsers.set(userID, { ...userFromA, ...userFromB });
+    }
+  }
+
+  return { ...a, users: newUsers };
 }
 
 type RecalculatePermissionsMemberInfo = {|
