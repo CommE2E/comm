@@ -11,6 +11,11 @@ import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
 import { fetchAllUserIDs } from '../fetchers/user-fetchers';
 import { createScriptViewer } from '../session/scripts';
 import type { Viewer } from '../session/viewer';
+import {
+  recalculateThreadPermissions,
+  commitMembershipChangeset,
+  saveMemberships,
+} from '../updaters/thread-permission-updaters';
 import { updateThread } from '../updaters/thread-updaters';
 import { main } from './utils';
 
@@ -236,6 +241,63 @@ async function moveThreadsToGenesis() {
   }
 }
 
+async function clearMembershipPermissions() {
+  const membershipPermissionQuery = SQL`
+    SELECT DISTINCT thread
+    FROM memberships
+    WHERE JSON_EXTRACT(permissions, '$.membership') IS NOT NULL
+  `;
+  const [membershipPermissionResult] = await dbQuery(membershipPermissionQuery);
+  if (membershipPermissionResult.length === 0) {
+    return;
+  }
+
+  const botViewer = createScriptViewer(bots.squadbot.userID);
+  for (const row of membershipPermissionResult) {
+    const threadID = row.thread;
+    console.log(`clearing membership permissions for ${threadID}`);
+    const changeset = await recalculateThreadPermissions(threadID);
+    await commitMembershipChangeset(botViewer, changeset);
+  }
+
+  console.log('clearing -1 rows...');
+  const emptyMembershipDeletionQuery = SQL`
+    DELETE FROM memberships
+    WHERE role = -1 AND permissions IS NULL
+  `;
+  await dbQuery(emptyMembershipDeletionQuery);
+
+  await createMembershipsForFormerMembers();
+}
+
+async function createMembershipsForFormerMembers() {
+  const [result] = await dbQuery(SQL`
+    SELECT DISTINCT thread, user
+    FROM messages m
+    WHERE NOT EXISTS (
+      SELECT thread, user FROM memberships mm
+      WHERE m.thread = mm.thread AND m.user = mm.user
+    )
+  `);
+
+  const rowsToSave = [];
+  for (const row of result) {
+    rowsToSave.push({
+      operation: 'save',
+      userID: row.user.toString(),
+      threadID: row.thread.toString(),
+      userNeedsFullThreadDetails: false,
+      intent: 'none',
+      permissions: null,
+      permissionsForChildren: null,
+      role: '-1',
+      oldRole: '-1',
+    });
+  }
+
+  await saveMemberships(rowsToSave);
+}
+
 main([
   createGenesisCommunity,
   convertExistingCommunities,
@@ -243,4 +305,5 @@ main([
   convertAnnouncementCommunities,
   convertAnnouncementSubthreads,
   moveThreadsToGenesis,
+  clearMembershipPermissions,
 ]);
