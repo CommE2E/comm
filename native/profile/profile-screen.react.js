@@ -47,11 +47,11 @@ import {
   AppearancePreferencesRouteName,
   FriendListRouteName,
   BlockListRouteName,
+  PrivacyPreferencesRouteName,
 } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { type Colors, useColors, useStyles } from '../themes/colors';
 import type { ProfileNavigationProp } from './profile.react';
-import ToggleCrashReports from './toggle-crash-reports.react';
 
 type BaseProps = {|
   +navigation: ProfileNavigationProp<'ProfileScreen'>,
@@ -162,20 +162,15 @@ class ProfileScreen extends React.PureComponent<Props> {
       __DEV__
     ) {
       appearancePreferences = (
-        <>
-          <Text style={this.props.styles.header}>PREFERENCES</Text>
-          <View style={this.props.styles.slightlyPaddedSection}>
-            <Button
-              onPress={this.onPressAppearance}
-              style={this.props.styles.submenuButton}
-              iosFormat="highlight"
-              iosHighlightUnderlayColor={underlay}
-            >
-              <Text style={this.props.styles.submenuText}>Appearance</Text>
-              <Icon name="ios-arrow-forward" size={20} color={linkColor} />
-            </Button>
-          </View>
-        </>
+        <Button
+          onPress={this.onPressAppearance}
+          style={this.props.styles.submenuButton}
+          iosFormat="highlight"
+          iosHighlightUnderlayColor={underlay}
+        >
+          <Text style={this.props.styles.submenuText}>Appearance</Text>
+          <Icon name="ios-arrow-forward" size={20} color={linkColor} />
+        </Button>
       );
       developerTools = (
         <Button
@@ -266,11 +261,18 @@ class ProfileScreen extends React.PureComponent<Props> {
             </Button>
           </View>
 
-          {appearancePreferences}
-
-          <Text style={this.props.styles.header}>PRIVACY</Text>
+          <Text style={this.props.styles.header}>PREFERENCES</Text>
           <View style={this.props.styles.slightlyPaddedSection}>
-            <ToggleCrashReports />
+            {appearancePreferences}
+            <Button
+              onPress={this.onPressPrivacy}
+              style={this.props.styles.submenuButton}
+              iosFormat="highlight"
+              iosHighlightUnderlayColor={underlay}
+            >
+              <Text style={this.props.styles.submenuText}>Privacy</Text>
+              <Icon name="ios-arrow-forward" size={20} color={linkColor} />
+            </Button>
           </View>
 
           <View style={this.props.styles.slightlyPaddedSection}>
@@ -402,6 +404,10 @@ class ProfileScreen extends React.PureComponent<Props> {
 
   onPressAppearance = () => {
     this.navigateIfActive(AppearancePreferencesRouteName);
+  };
+
+  onPressPrivacy = () => {
+    this.navigateIfActive(PrivacyPreferencesRouteName);
   };
 
   onPressFriendList = () => {

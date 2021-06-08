@@ -48,6 +48,7 @@ export const DevToolsRouteName = 'DevTools';
 export const EditEmailRouteName = 'EditEmail';
 export const EditPasswordRouteName = 'EditPassword';
 export const AppearancePreferencesRouteName = 'AppearancePreferences';
+export const PrivacyPreferencesRouteName = 'PrivacyPreferences';
 export const ThreadPickerModalRouteName = 'ThreadPickerModal';
 export const AddUsersModalRouteName = 'AddUsersModal';
 export const CustomServerModalRouteName = 'CustomServerModal';
@@ -126,6 +127,7 @@ export type ProfileParamList = {|
   +BuildInfo: void,
   +DevTools: void,
   +AppearancePreferences: void,
+  +PrivacyPreferences: void,
   +FriendList: void,
   +BlockList: void,
 |};

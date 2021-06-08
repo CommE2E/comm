@@ -18,6 +18,7 @@ import {
   BuildInfoRouteName,
   DevToolsRouteName,
   AppearancePreferencesRouteName,
+  PrivacyPreferencesRouteName,
   FriendListRouteName,
   BlockListRouteName,
   type ScreenParamList,
@@ -30,6 +31,7 @@ import DeleteAccount from './delete-account.react';
 import DevTools from './dev-tools.react';
 import EditEmail from './edit-email.react';
 import EditPassword from './edit-password.react';
+import PrivacyPreferences from './privacy-preferences.react';
 import ProfileHeader from './profile-header.react';
 import ProfileScreen from './profile-screen.react';
 import RelationshipList from './relationship-list.react';
@@ -47,6 +49,7 @@ const deleteAccountOptions = { headerTitle: 'Delete account' };
 const buildInfoOptions = { headerTitle: 'Build info' };
 const devToolsOptions = { headerTitle: 'Developer tools' };
 const appearanceOptions = { headerTitle: 'Appearance' };
+const privacyOptions = { headerTitle: 'Privacy' };
 const friendListOptions = {
   headerTitle: 'Friend list',
   headerBackTitle: 'Back',
@@ -111,6 +114,11 @@ function ProfileComponent() {
             name={AppearancePreferencesRouteName}
             component={AppearancePreferences}
             options={appearanceOptions}
+          />
+          <Profile.Screen
+            name={PrivacyPreferencesRouteName}
+            component={PrivacyPreferences}
+            options={privacyOptions}
           />
           <Profile.Screen
             name={FriendListRouteName}
