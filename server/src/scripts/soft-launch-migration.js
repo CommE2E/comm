@@ -29,6 +29,7 @@ const updateThreadOptions = {
 const convertUnadminnedToCommunities = ['311733', '421638'];
 const convertToAnnouncementCommunities = ['375310'];
 const convertToAnnouncementSubthreads = ['82649'];
+const threadsWithMissingParent = ['534395'];
 
 async function createGenesisCommunity() {
   const genesisThreadInfos = await fetchServerThreadInfos(
@@ -182,6 +183,39 @@ async function convertAnnouncementSubthreads() {
   );
 }
 
+async function fixThreadsWithMissingParent() {
+  const threadsWithMissingParentQuery = SQL`
+    SELECT id, name
+    FROM threads
+    WHERE id IN (${threadsWithMissingParent}) AND
+      type != ${threadTypes.COMMUNITY_SECRET_SUBTHREAD}
+  `;
+  const [threadsWithMissingParentResult] = await dbQuery(
+    threadsWithMissingParentQuery,
+  );
+
+  const botViewer = createScriptViewer(bots.squadbot.userID);
+  while (threadsWithMissingParentResult.length > 0) {
+    const batch = threadsWithMissingParentResult.splice(0, batchSize);
+    await Promise.all(
+      batch.map(async (thread) => {
+        console.log(`fixing ${JSON.stringify(thread)} with missing parent`);
+        return await updateThread(
+          botViewer,
+          {
+            threadID: thread.id,
+            changes: {
+              parentThreadID: null,
+              type: threadTypes.COMMUNITY_SECRET_SUBTHREAD,
+            },
+          },
+          updateThreadOptions,
+        );
+      }),
+    );
+  }
+}
+
 async function moveThreadsToGenesis() {
   const noParentQuery = SQL`
     SELECT id, name
@@ -304,6 +338,7 @@ main([
   convertUnadminnedCommunities,
   convertAnnouncementCommunities,
   convertAnnouncementSubthreads,
+  fixThreadsWithMissingParent,
   moveThreadsToGenesis,
   clearMembershipPermissions,
 ]);
