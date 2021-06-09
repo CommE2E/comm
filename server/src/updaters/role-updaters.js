@@ -34,7 +34,13 @@ async function updateRoles(
 
   if (rolePermissions.Admins && !currentRolePermissions.Admins) {
     const [id] = await createIDs('roles', 1);
-    const newRow = [id, threadID, 'Admins', rolePermissions.Admins, Date.now()];
+    const newRow = [
+      id,
+      threadID,
+      'Admins',
+      JSON.stringify(rolePermissions.Admins),
+      Date.now(),
+    ];
     const insertQuery = SQL`
       INSERT INTO roles (id, thread, name, permissions, creation_time)
       VALUES ${[newRow]}
