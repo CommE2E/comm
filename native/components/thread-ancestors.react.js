@@ -97,7 +97,13 @@ function ThreadAncestors(props: Props): React.Node {
 
   return (
     <View style={styles.container}>
-      <ScrollView horizontal={true}>{pathElements}</ScrollView>
+      <ScrollView
+        contentContainerStyle={styles.contentContainer}
+        showsHorizontalScrollIndicator={false}
+        horizontal={true}
+      >
+        {pathElements}
+      </ScrollView>
     </View>
   );
 }
@@ -110,6 +116,8 @@ const unboundStyles = {
   container: {
     height,
     backgroundColor: 'panelSecondaryForeground',
+  },
+  contentContainer: {
     paddingHorizontal: 12,
   },
   pathItem: {
