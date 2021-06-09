@@ -331,7 +331,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       return 123;
     }
 
-    return 60 + item.sidebars.length * 30;
+    return 76 + item.sidebars.length * 30;
   }
 
   static heightOfItems(data: $ReadOnlyArray<Item>): number {

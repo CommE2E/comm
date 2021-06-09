@@ -11,6 +11,7 @@ import { shortAbsoluteDate } from 'lib/utils/date-utils';
 import Button from '../components/button.react';
 import ColorSplotch from '../components/color-splotch.react';
 import { SingleLine } from '../components/single-line.react';
+import ThreadAncestorsLabel from '../components/thread-ancestors-label.react';
 import { useColors, useStyles } from '../themes/colors';
 import ChatThreadListSeeMoreSidebars from './chat-thread-list-see-more-sidebars.react';
 import ChatThreadListSidebar from './chat-thread-list-sidebar.react';
@@ -86,6 +87,17 @@ function ChatThreadListItem({
   const lastActivity = shortAbsoluteDate(data.lastUpdatedTime);
   const unreadStyle = data.threadInfo.currentUser.unread ? styles.unread : null;
 
+  const ancestorLabel = React.useMemo(() => {
+    if (!data.threadInfo.parentThreadID) {
+      return undefined;
+    }
+    return (
+      <View style={styles.ancestorLabel}>
+        <ThreadAncestorsLabel threadInfo={data.threadInfo} />
+      </View>
+    );
+  }, [data.threadInfo, styles.ancestorLabel]);
+
   return (
     <>
       <SwipeableThread
@@ -102,6 +114,7 @@ function ChatThreadListItem({
           iosActiveOpacity={0.85}
           style={styles.container}
         >
+          {ancestorLabel}
           <View style={styles.row}>
             <SingleLine style={[styles.threadName, unreadStyle]}>
               {data.threadInfo.uiName}
@@ -124,14 +137,16 @@ function ChatThreadListItem({
 }
 
 const unboundStyles = {
+  ancestorLabel: {
+    paddingRight: 80,
+  },
   colorSplotch: {
     marginLeft: 10,
     marginTop: 2,
   },
   container: {
-    height: 60,
-    paddingLeft: 10,
-    paddingRight: 10,
+    height: 76,
+    paddingHorizontal: 10,
     paddingTop: 5,
     backgroundColor: 'listBackground',
   },
