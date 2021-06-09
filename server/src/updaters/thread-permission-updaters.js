@@ -167,23 +167,20 @@ async function changeRole(
   const existingMemberIDs = [...existingMembershipInfo.keys()];
   relationshipChangeset.setAllRelationshipsExist(existingMemberIDs);
   for (const userID of userIDs) {
-    let oldRole;
-    let oldPermissions = null;
-    let oldPermissionsForChildren = null;
     const existingMembership = existingMembershipInfo.get(userID);
-    if (existingMembership) {
-      if (oldRole === intendedRole) {
-        // If the old role is the same as the new one, we have nothing to update
-        continue;
-      } else if (Number(oldRole) > 0 && role === null) {
-        // In the case where we're just trying to add somebody to a thread, if
-        // they already have a role with a nonzero role then we don't need to do
-        // anything
-        continue;
-      }
-      oldPermissions = existingMembership.oldPermissions;
-      oldPermissionsForChildren = existingMembership.oldPermissionsForChildren;
-      oldRole = existingMembership.oldRole;
+    const oldRole = existingMembership?.oldRole ?? '-1';
+    const oldPermissions = existingMembership?.oldPermissions ?? null;
+    const oldPermissionsForChildren =
+      existingMembership?.oldPermissionsForChildren ?? null;
+
+    if (existingMembership && oldRole === intendedRole) {
+      // If the old role is the same as the new one, we have nothing to update
+      continue;
+    } else if (Number(oldRole) > 0 && role === null) {
+      // In the case where we're just trying to add somebody to a thread, if
+      // they already have a role with a nonzero role then we don't need to do
+      // anything
+      continue;
     }
 
     let permissionsFromParent = null;
@@ -200,7 +197,7 @@ async function changeRole(
     const rolePermissions = memberOfContainingThread
       ? intendedRolePermissions
       : null;
-    const targetRole = memberOfContainingThread ? intendedRole : '0';
+    const targetRole = memberOfContainingThread ? intendedRole : '-1';
 
     const permissions = makePermissionsBlob(
       rolePermissions,
@@ -210,10 +207,8 @@ async function changeRole(
     );
     const permissionsForChildren = makePermissionsForChildrenBlob(permissions);
     const newRole = getRoleForPermissions(targetRole, permissions);
-    const userBecameMember =
-      (!oldRole || Number(oldRole) <= 0) && Number(newRole) > 0;
-    const userLostMembership =
-      oldRole && Number(oldRole) > 0 && Number(newRole) <= 0;
+    const userBecameMember = Number(oldRole) <= 0 && Number(newRole) > 0;
+    const userLostMembership = Number(oldRole) > 0 && Number(newRole) <= 0;
 
     if (
       (intent === 'join' && Number(newRole) <= 0) ||
@@ -228,7 +223,11 @@ async function changeRole(
           'missing',
       );
     }
-    if (_isEqual(permissions)(oldPermissions) && oldRole === newRole) {
+    if (
+      existingMembership &&
+      _isEqual(permissions)(oldPermissions) &&
+      oldRole === newRole
+    ) {
       // This thread and all of its descendants need no updates for this user,
       // since the corresponding memberships row is unchanged by this operation
       continue;
@@ -244,7 +243,7 @@ async function changeRole(
         permissions,
         permissionsForChildren,
         role: newRole,
-        oldRole: oldRole ?? '-1',
+        oldRole,
         unread: userBecameMember && setNewMembersToUnread,
       });
     } else {
@@ -253,7 +252,7 @@ async function changeRole(
         intent,
         userID,
         threadID,
-        oldRole: oldRole ?? '-1',
+        oldRole,
       });
     }
 
@@ -397,7 +396,6 @@ async function updateDescendantPermissions(
       const usersForNextLayer = new Map();
       for (const [userID, user] of users) {
         const {
-          curRole,
           curRolePermissions,
           curPermissionsFromParent,
           curMemberOfContainingThread,
@@ -405,6 +403,8 @@ async function updateDescendantPermissions(
           nextPermissionsFromParent,
           potentiallyNeedsUpdate,
         } = user;
+        const existingMembership = !!user.curRole;
+        const curRole = user.curRole ?? '-1';
         const curPermissions = user.curPermissions ?? null;
         const curPermissionsForChildren =
           user.curPermissionsForChildren ?? null;
@@ -421,7 +421,7 @@ async function updateDescendantPermissions(
           nextMemberOfContainingThread === undefined
             ? curMemberOfContainingThread
             : nextMemberOfContainingThread;
-        const targetRole = memberOfContainingThread && curRole ? curRole : '0';
+        const targetRole = memberOfContainingThread ? curRole : '-1';
         const rolePermissions = memberOfContainingThread
           ? curRolePermissions
           : null;
@@ -436,8 +436,7 @@ async function updateDescendantPermissions(
           permissions,
         );
         const newRole = getRoleForPermissions(targetRole, permissions);
-        const userLostMembership =
-          curRole && Number(curRole) > 0 && Number(newRole) <= 0;
+        const userLostMembership = Number(curRole) > 0 && Number(newRole) <= 0;
 
         if (_isEqual(permissions)(curPermissions) && curRole === newRole) {
           // This thread and all of its descendants need no updates for this
@@ -456,7 +455,7 @@ async function updateDescendantPermissions(
             permissions,
             permissionsForChildren,
             role: newRole,
-            oldRole: curRole ?? '-1',
+            oldRole: curRole,
           });
         } else {
           membershipRows.push({
@@ -464,11 +463,11 @@ async function updateDescendantPermissions(
             intent: 'none',
             userID,
             threadID,
-            oldRole: curRole ?? '-1',
+            oldRole: curRole,
           });
         }
 
-        if (permissions && !curRole) {
+        if (permissions && !existingMembership) {
           // If there was no membership row before, and we are creating one,
           // we'll need to make sure the new member has a relationship row with
           // each existing member. We assume whoever called us will handle
@@ -733,21 +732,22 @@ async function recalculateThreadPermissions(
   relationshipChangeset.setAllRelationshipsExist(existingMemberIDs);
   for (const [userID, membership] of membershipInfo) {
     const {
-      role: oldRole,
-      permissions: oldPermissions,
-      permissionsForChildren: oldPermissionsForChildren,
       rolePermissions: intendedRolePermissions,
       permissionsFromParent,
     } = membership;
+    const oldPermissions = membership?.permissions ?? null;
+    const oldPermissionsForChildren =
+      membership?.permissionsForChildren ?? null;
 
+    const existingMembership = membership.role !== undefined;
+    const oldRole = membership.role ?? '-1';
     const memberOfContainingThread = hasContainingThreadID
       ? !!membership.memberOfContainingThread
       : true;
-    const targetRole = memberOfContainingThread && oldRole ? oldRole : '0';
+    const targetRole = memberOfContainingThread ? oldRole : '-1';
     const rolePermissions = memberOfContainingThread
       ? intendedRolePermissions
       : null;
-    const existingMembership = oldRole !== undefined;
 
     const permissions = makePermissionsBlob(
       rolePermissions,
@@ -757,8 +757,7 @@ async function recalculateThreadPermissions(
     );
     const permissionsForChildren = makePermissionsForChildrenBlob(permissions);
     const newRole = getRoleForPermissions(targetRole, permissions);
-    const userLostMembership =
-      oldRole && Number(oldRole) > 0 && Number(newRole) <= 0;
+    const userLostMembership = Number(oldRole) > 0 && Number(newRole) <= 0;
 
     if (_isEqual(permissions)(oldPermissions) && oldRole === newRole) {
       // This thread and all of its descendants need no updates for this user,
@@ -776,7 +775,7 @@ async function recalculateThreadPermissions(
         permissions,
         permissionsForChildren,
         role: newRole,
-        oldRole: oldRole ?? '-1',
+        oldRole,
       });
     } else {
       membershipRows.push({
@@ -784,7 +783,7 @@ async function recalculateThreadPermissions(
         intent: 'none',
         userID,
         threadID,
-        oldRole: oldRole ?? '-1',
+        oldRole,
       });
     }
 
