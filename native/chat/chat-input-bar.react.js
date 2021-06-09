@@ -32,6 +32,7 @@ import {
   threadFrozenDueToViewerBlock,
   threadActualMembers,
   checkIfDefaultMembersAreVoiced,
+  draftKeyFromThreadID,
 } from 'lib/shared/thread-utils';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
@@ -98,9 +99,6 @@ const sendButtonAnimationConfig = {
   duration: 150,
   easing: Easing.inOut(Easing.ease),
 };
-
-const draftKeyFromThreadID = (threadID: string) =>
-  `${threadID}/message_composer`;
 
 type BaseProps = {|
   +threadInfo: ThreadInfo,
