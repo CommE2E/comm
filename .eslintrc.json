@@ -39,7 +39,11 @@
         "groups": [["builtin", "external"], "internal"]
       }
     ],
-    "prefer-const": "error"
+    "prefer-const": "error",
+    "react/jsx-curly-brace-presence": [
+      "error",
+      { "props": "never", "children": "ignore" }
+    ]
   },
   "settings": {
     "react": {

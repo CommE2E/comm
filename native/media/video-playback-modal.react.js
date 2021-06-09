@@ -614,7 +614,7 @@ function VideoPlaybackModal(props: Props) {
       <Progress.Circle
         size={80}
         indeterminate={true}
-        color={'white'}
+        color="white"
         style={styles.progressCircle}
       />
     );
