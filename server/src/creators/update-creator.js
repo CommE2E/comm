@@ -94,6 +94,7 @@ export type ViewerInfo =
 const defaultUpdateCreationResult = { viewerUpdates: [], userInfos: {} };
 const sortFunction = (a: UpdateData | UpdateInfo, b: UpdateData | UpdateInfo) =>
   a.time - b.time;
+const deleteUpdatesBatchSize = 10000;
 
 // Creates rows in the updates table based on the inputed updateDatas. Returns
 // UpdateInfos pertaining to the provided viewerInfo, as well as related
@@ -341,7 +342,12 @@ async function createUpdates(
   }
 
   if (deleteSQLConditions.length > 0) {
-    promises.delete = deleteUpdatesByConditions(deleteSQLConditions);
+    promises.delete = (async () => {
+      while (deleteSQLConditions.length > 0) {
+        const batch = deleteSQLConditions.splice(0, deleteUpdatesBatchSize);
+        await deleteUpdatesByConditions(batch);
+      }
+    })();
   }
 
   if (viewerRawUpdateInfos.length > 0) {
