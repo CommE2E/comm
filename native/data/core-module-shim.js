@@ -10,6 +10,7 @@ if (!global.CommCoreModule) {
   const SpecImpl: Spec = {
     getDraft: () => Promise.resolve(''),
     updateDraft: () => Promise.resolve(false),
+    moveDraft: () => Promise.resolve(false),
     getAllDrafts: () => Promise.resolve([]),
   };
   global.CommCoreModule = SpecImpl;

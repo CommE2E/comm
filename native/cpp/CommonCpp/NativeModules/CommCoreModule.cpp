@@ -57,6 +57,36 @@ CommCoreModule::updateDraft(jsi::Runtime &rt, const jsi::Object &draft) {
       });
 }
 
+jsi::Value CommCoreModule::moveDraft(
+    jsi::Runtime &rt,
+    const jsi::String &oldKey,
+    const jsi::String &newKey) {
+  std::string oldKeyStr = oldKey.utf8(rt);
+  std::string newKeyStr = newKey.utf8(rt);
+
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          bool result = false;
+          try {
+            result = DatabaseManager::getQueryExecutor().moveDraft(
+                oldKeyStr, newKeyStr);
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(result);
+            }
+          });
+        };
+        this->databaseThread.scheduleTask(job);
+      });
+}
+
 jsi::Value CommCoreModule::getAllDrafts(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {

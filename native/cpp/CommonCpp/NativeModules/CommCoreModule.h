@@ -13,6 +13,10 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
 
   jsi::Value getDraft(jsi::Runtime &rt, const jsi::String &key) override;
   jsi::Value updateDraft(jsi::Runtime &rt, const jsi::Object &draft) override;
+  jsi::Value moveDraft(
+      jsi::Runtime &rt,
+      const jsi::String &oldKey,
+      const jsi::String &newKey) override;
   jsi::Value getAllDrafts(jsi::Runtime &rt) override;
 
 public:

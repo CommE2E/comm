@@ -21,6 +21,10 @@ public:
   virtual jsi::Value getDraft(jsi::Runtime &rt, const jsi::String &key) = 0;
   virtual jsi::Value
   updateDraft(jsi::Runtime &rt, const jsi::Object &draft) = 0;
+  virtual jsi::Value moveDraft(
+      jsi::Runtime &rt,
+      const jsi::String &oldKey,
+      const jsi::String &newKey) = 0;
   virtual jsi::Value getAllDrafts(jsi::Runtime &rt) = 0;
 };
 

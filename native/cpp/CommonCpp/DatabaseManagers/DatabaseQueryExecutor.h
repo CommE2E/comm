@@ -18,6 +18,7 @@ class DatabaseQueryExecutor {
 public:
   virtual std::string getDraft(std::string key) const = 0;
   virtual void updateDraft(std::string key, std::string text) const = 0;
+  virtual bool moveDraft(std::string oldKey, std::string newKey) const = 0;
   virtual std::vector<Draft> getAllDrafts() const = 0;
 };
 

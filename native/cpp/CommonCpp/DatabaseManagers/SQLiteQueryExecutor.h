@@ -17,6 +17,7 @@ public:
   SQLiteQueryExecutor();
   std::string getDraft(std::string key) const override;
   void updateDraft(std::string key, std::string text) const override;
+  bool moveDraft(std::string oldKey, std::string newKey) const override;
   std::vector<Draft> getAllDrafts() const override;
 };
 

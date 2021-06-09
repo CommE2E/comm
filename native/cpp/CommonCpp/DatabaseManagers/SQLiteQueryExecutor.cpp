@@ -59,6 +59,19 @@ void SQLiteQueryExecutor::updateDraft(std::string key, std::string text) const {
   SQLiteQueryExecutor::getStorage().replace(draft);
 }
 
+bool SQLiteQueryExecutor::moveDraft(std::string oldKey, std::string newKey)
+    const {
+  std::unique_ptr<Draft> draft =
+      SQLiteQueryExecutor::getStorage().get_pointer<Draft>(oldKey);
+  if (draft == nullptr) {
+    return false;
+  }
+  draft->key = newKey;
+  SQLiteQueryExecutor::getStorage().replace(*draft);
+  SQLiteQueryExecutor::getStorage().remove<Draft>(oldKey);
+  return true;
+}
+
 std::vector<Draft> SQLiteQueryExecutor::getAllDrafts() const {
   return SQLiteQueryExecutor::getStorage().get_all<Draft>();
 }
