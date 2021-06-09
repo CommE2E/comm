@@ -137,12 +137,15 @@ async function deleteThread(
 async function deleteInaccessibleThreads(): Promise<void> {
   // A thread is considered "inaccessible" if it has no membership rows. Note
   // that membership rows exist whenever a user can see a thread, even if they
-  // are not technically a member (in which case role=0)
+  // are not technically a member (in which case role=0). For now, we're also
+  // excluding threads with children, since to properly delete those we would
+  // need to update their parent_thread_id, and possibly change their type.
   await dbQuery(SQL`
     DELETE t, i, m2, d, id, e, ie, re, ire, r, ir, ms, im, up, iu, f, n, ino
     FROM threads t
     LEFT JOIN ids i ON i.id = t.id
     LEFT JOIN memberships m1 ON m1.thread = t.id AND m1.role > -1
+    LEFT JOIN threads c ON c.parent_thread_id = t.id
     LEFT JOIN memberships m2 ON m2.thread = t.id
     LEFT JOIN days d ON d.thread = t.id
     LEFT JOIN ids id ON id.id = d.id
@@ -159,7 +162,7 @@ async function deleteInaccessibleThreads(): Promise<void> {
     LEFT JOIN focused f ON f.thread = t.id
     LEFT JOIN notifications n ON n.thread = t.id
     LEFT JOIN ids ino ON ino.id = n.id
-    WHERE m1.thread IS NULL
+    WHERE m1.thread IS NULL AND c.id IS NULL
   `);
 }
 
