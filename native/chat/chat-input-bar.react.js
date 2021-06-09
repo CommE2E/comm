@@ -133,6 +133,7 @@ type Props = {|
 |};
 type State = {|
   +text: string,
+  +textEdited: boolean,
   +buttonsExpanded: boolean,
 |};
 class ChatInputBar extends React.PureComponent<Props, State> {
@@ -154,6 +155,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     super(props);
     this.state = {
       text: props.draft,
+      textEdited: false,
       buttonsExpanded: true,
     };
 
@@ -302,7 +304,16 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   componentDidUpdate(prevProps: Props, prevState: State) {
     const { draft } = this.props;
-    if (draft !== prevProps.draft && !this.state.text) {
+    if (
+      this.state.textEdited &&
+      this.state.text &&
+      this.props.threadInfo.id !== prevProps.threadInfo.id
+    ) {
+      global.CommCoreModule.moveDraft(
+        draftKeyFromThreadID(prevProps.threadInfo.id),
+        draftKeyFromThreadID(this.props.threadInfo.id),
+      );
+    } else if (!this.state.textEdited && draft !== prevProps.draft) {
       this.setState({ text: draft });
     }
     if (this.props.isActive && !prevProps.isActive) {
@@ -568,7 +579,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   };
 
   updateText = (text: string) => {
-    this.setState({ text });
+    this.setState({ text, textEdited: true });
     this.saveDraft(text);
   };
 
@@ -803,16 +814,12 @@ export default React.memo<BaseProps>(function ConnectedChatInputBar(
 
   const draftKey = draftKeyFromThreadID(props.threadInfo.id);
   const [draft, setDraft] = React.useState('');
-  React.useEffect(
-    () => {
-      (async () => {
-        const fetchedDraft = await global.CommCoreModule.getDraft(draftKey);
-        setDraft(fetchedDraft);
-      })();
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
+  React.useEffect(() => {
+    (async () => {
+      const fetchedDraft = await global.CommCoreModule.getDraft(draftKey);
+      setDraft(fetchedDraft);
+    })();
+  }, [draftKey]);
 
   const viewerID = useSelector(
     (state) => state.currentUserInfo && state.currentUserInfo.id,
