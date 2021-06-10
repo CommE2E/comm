@@ -1,15 +1,12 @@
 // @flow
 
-import invariant from 'invariant';
-
-import { createPendingSidebar } from 'lib/shared/thread-utils';
 import type { DispatchFunctions, ActionFunc } from 'lib/utils/action-utils';
 
 import type { InputState } from '../input/input-state';
-import { getDefaultTextMessageRules } from '../markdown/rules.react';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import { MessageListRouteName } from '../navigation/route-names';
 import type { TooltipRoute } from '../navigation/tooltip.react';
+import { getSidebarThreadInfo } from './utils';
 
 function onPressGoToSidebar(
   route:
@@ -23,26 +20,20 @@ function onPressGoToSidebar(
     | AppNavigationProp<'RobotextMessageTooltipModal'>
     | AppNavigationProp<'TextMessageTooltipModal'>
     | AppNavigationProp<'MultimediaTooltipModal'>,
+  viewerID: ?string,
 ) {
-  let threadCreatedFromMessage;
+  const threadInfo = getSidebarThreadInfo(route.params.item, viewerID);
   // Necessary for Flow...
+  // eslint-disable-next-line no-empty
   if (route.name === 'RobotextMessageTooltipModal') {
-    threadCreatedFromMessage = route.params.item.threadCreatedFromMessage;
-  } else {
-    threadCreatedFromMessage = route.params.item.threadCreatedFromMessage;
   }
-
-  invariant(
-    threadCreatedFromMessage,
-    'threadCreatedFromMessage should be set in onPressGoToSidebar',
-  );
 
   navigation.navigate({
     name: MessageListRouteName,
     params: {
-      threadInfo: threadCreatedFromMessage,
+      threadInfo,
     },
-    key: `${MessageListRouteName}${threadCreatedFromMessage.id}`,
+    key: `${MessageListRouteName}${threadInfo.id}`,
   });
 }
 
@@ -60,32 +51,18 @@ function onPressCreateSidebar(
     | AppNavigationProp<'MultimediaTooltipModal'>,
   viewerID: ?string,
 ) {
-  invariant(
-    viewerID,
-    'viewerID should be set in TextMessageTooltipModal.onPressCreateSidebar',
-  );
-  let itemFromParams;
+  const threadInfo = getSidebarThreadInfo(route.params.item, viewerID);
   // Necessary for Flow...
+  // eslint-disable-next-line no-empty
   if (route.name === 'RobotextMessageTooltipModal') {
-    itemFromParams = route.params.item;
-  } else {
-    itemFromParams = route.params.item;
   }
-
-  const { messageInfo, threadInfo } = itemFromParams;
-  const pendingSidebarInfo = createPendingSidebar(
-    messageInfo,
-    threadInfo,
-    viewerID,
-    getDefaultTextMessageRules().simpleMarkdownRules,
-  );
 
   navigation.navigate({
     name: MessageListRouteName,
     params: {
-      threadInfo: pendingSidebarInfo,
+      threadInfo,
     },
-    key: `${MessageListRouteName}${pendingSidebarInfo.id}`,
+    key: `${MessageListRouteName}${threadInfo.id}`,
   });
 }
 
