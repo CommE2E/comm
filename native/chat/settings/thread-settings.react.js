@@ -34,7 +34,7 @@ import {
 } from 'lib/types/thread-types';
 import type { UserInfos } from 'lib/types/user-types';
 
-import ThreadAncesters from '../../components/thread-ancestors.react';
+import ThreadAncestors from '../../components/thread-ancestors.react';
 import {
   type KeyboardState,
   KeyboardContext,
@@ -818,7 +818,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   render() {
     let threadAncestors;
     if (this.props.threadInfo) {
-      threadAncestors = <ThreadAncesters threadInfo={this.props.threadInfo} />;
+      threadAncestors = <ThreadAncestors threadInfo={this.props.threadInfo} />;
     }
     return (
       <View
