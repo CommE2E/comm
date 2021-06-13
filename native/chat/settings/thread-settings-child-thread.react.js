@@ -6,8 +6,7 @@ import { View, Platform } from 'react-native';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import Button from '../../components/button.react';
-import ColorSplotch from '../../components/color-splotch.react';
-import { SingleLine } from '../../components/single-line.react';
+import Pill from '../../components/pill.react';
 import ThreadIcon from '../../components/thread-icon.react';
 import { MessageListRouteName } from '../../navigation/route-names';
 import { useColors, useStyles } from '../../themes/colors';
@@ -38,8 +37,10 @@ function ThreadSettingsChildThread(props: Props) {
     <View style={styles.container}>
       <Button onPress={onPress} style={[styles.button, firstItem, lastItem]}>
         <View style={styles.leftSide}>
-          <ColorSplotch color={threadInfo.color} />
-          <SingleLine style={styles.text}>{threadInfo.uiName}</SingleLine>
+          <Pill
+            backgroundColor={`#${threadInfo.color}`}
+            label={threadInfo.uiName}
+          />
         </View>
         <ThreadIcon
           threadType={threadInfo.type}
@@ -76,12 +77,6 @@ const unboundStyles = {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  text: {
-    flex: 1,
-    color: 'link',
-    fontSize: 16,
-    paddingLeft: 8,
   },
 };
 
