@@ -106,7 +106,7 @@ async function convertExistingCommunities() {
 
 async function convertThreads(
   viewer: Viewer,
-  threads: Array<{| +id: string, +name: string |}>,
+  threads: Array<{| +id: number, +name: string |}>,
   type: ThreadType,
 ) {
   while (threads.length > 0) {
@@ -117,7 +117,7 @@ async function convertThreads(
         return await updateThread(
           viewer,
           {
-            threadID: thread.id,
+            threadID: thread.id.toString(),
             changes: { type },
           },
           updateThreadOptions,
@@ -203,7 +203,7 @@ async function fixThreadsWithMissingParent() {
         return await updateThread(
           botViewer,
           {
-            threadID: thread.id,
+            threadID: thread.id.toString(),
             changes: {
               parentThreadID: null,
               type: threadTypes.COMMUNITY_SECRET_SUBTHREAD,
@@ -236,7 +236,7 @@ async function moveThreadsToGenesis() {
         return await updateThread(
           botViewer,
           {
-            threadID: thread.id,
+            threadID: thread.id.toString(),
             changes: {
               parentThreadID: genesis.id,
             },
@@ -267,7 +267,7 @@ async function moveThreadsToGenesis() {
     await updateThread(
       botViewer,
       {
-        threadID: childThread.id,
+        threadID: childThread.id.toString(),
         changes: {},
       },
       updateThreadOptions,
@@ -288,7 +288,7 @@ async function clearMembershipPermissions() {
 
   const botViewer = createScriptViewer(bots.squadbot.userID);
   for (const row of membershipPermissionResult) {
-    const threadID = row.thread;
+    const threadID = row.thread.toString();
     console.log(`clearing membership permissions for ${threadID}`);
     const changeset = await recalculateThreadPermissions(threadID);
     await commitMembershipChangeset(botViewer, changeset);
