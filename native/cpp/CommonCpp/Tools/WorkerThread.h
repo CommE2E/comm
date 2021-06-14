@@ -8,14 +8,14 @@ namespace comm {
 
 using taskType = std::function<void()>;
 
-class DatabaseThread {
+class WorkerThread {
   std::unique_ptr<std::thread> thread;
   folly::MPMCQueue<std::unique_ptr<taskType>> tasks;
 
 public:
-  DatabaseThread();
+  WorkerThread();
   void scheduleTask(const taskType task);
-  ~DatabaseThread();
+  ~WorkerThread();
 };
 
 } // namespace comm

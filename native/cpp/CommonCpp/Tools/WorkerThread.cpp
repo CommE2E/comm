@@ -1,10 +1,10 @@
-#include "DatabaseThread.h"
+#include "WorkerThread.h"
 #include "Logger.h"
 #include <sstream>
 
 namespace comm {
 
-DatabaseThread::DatabaseThread()
+WorkerThread::WorkerThread()
     : tasks(folly::MPMCQueue<std::unique_ptr<taskType>>(20)) {
   auto job = [this]() {
     while (true) {
@@ -19,13 +19,13 @@ DatabaseThread::DatabaseThread()
   this->thread = std::make_unique<std::thread>(job);
 }
 
-void DatabaseThread::scheduleTask(const taskType task) {
+void WorkerThread::scheduleTask(const taskType task) {
   if (!this->tasks.write(std::make_unique<taskType>(std::move(task)))) {
     throw std::runtime_error("Error scheduling task on Database thread");
   }
 }
 
-DatabaseThread::~DatabaseThread() {
+WorkerThread::~WorkerThread() {
   this->tasks.blockingWrite(nullptr);
   try {
     this->thread->join();
