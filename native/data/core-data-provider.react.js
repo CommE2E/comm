@@ -3,18 +3,14 @@
 import './core-module-shim';
 import * as React from 'react';
 
-import {
-  type CoreDataDrafts,
-  defaultCoreData,
-  CoreDataContext,
-} from './core-data';
+import { type CoreData, defaultCoreData, CoreDataContext } from './core-data';
 
 type Props = {|
   +children: React.Node,
 |};
 function CoreDataProvider(props: Props) {
   const [draftCache, setDraftCache] = React.useState<
-    $PropertyType<CoreDataDrafts, 'data'>,
+    $PropertyType<$PropertyType<CoreData, 'drafts'>, 'data'>,
   >(defaultCoreData.drafts.data);
 
   React.useEffect(() => {

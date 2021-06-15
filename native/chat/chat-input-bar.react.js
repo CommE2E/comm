@@ -54,6 +54,7 @@ import {
 
 import Button from '../components/button.react';
 import ClearableTextInput from '../components/clearable-text-input.react';
+import { type UpdateDraft, type MoveDraft, useDrafts } from '../data/core-data';
 import { type InputState, InputStateContext } from '../input/input-state';
 import { getKeyboardHeight } from '../keyboard/keyboard';
 import KeyboardInputHost from '../keyboard/keyboard-input-host.react';
@@ -110,6 +111,8 @@ type Props = {|
   // Redux state
   +viewerID: ?string,
   +draft: string,
+  +updateDraft: UpdateDraft,
+  +moveDraft: MoveDraft,
   +joinThreadLoadingStatus: LoadingStatus,
   +threadCreationInProgress: boolean,
   +calendarQuery: () => CalendarQuery,
@@ -301,18 +304,17 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
-    const { draft } = this.props;
     if (
       this.state.textEdited &&
       this.state.text &&
       this.props.threadInfo.id !== prevProps.threadInfo.id
     ) {
-      global.CommCoreModule.moveDraft(
+      this.props.moveDraft(
         draftKeyFromThreadID(prevProps.threadInfo.id),
         draftKeyFromThreadID(this.props.threadInfo.id),
       );
-    } else if (!this.state.textEdited && draft !== prevProps.draft) {
-      this.setState({ text: draft });
+    } else if (!this.state.textEdited && this.props.draft !== prevProps.draft) {
+      this.setState({ text: this.props.draft });
     }
     if (this.props.isActive && !prevProps.isActive) {
       this.addReplyListener();
@@ -582,7 +584,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   };
 
   saveDraft = _throttle((text) => {
-    global.CommCoreModule.updateDraft({
+    this.props.updateDraft({
       key: draftKeyFromThreadID(this.props.threadInfo.id),
       text,
     });
@@ -810,14 +812,7 @@ export default React.memo<BaseProps>(function ConnectedChatInputBar(
     [props.threadInfo.id, navContext],
   );
 
-  const draftKey = draftKeyFromThreadID(props.threadInfo.id);
-  const [draft, setDraft] = React.useState('');
-  React.useEffect(() => {
-    (async () => {
-      const fetchedDraft = await global.CommCoreModule.getDraft(draftKey);
-      setDraft(fetchedDraft);
-    })();
-  }, [draftKey]);
+  const { draft, updateDraft, moveDraft } = useDrafts(props.threadInfo.id);
 
   const viewerID = useSelector(
     (state) => state.currentUserInfo && state.currentUserInfo.id,
@@ -881,6 +876,8 @@ export default React.memo<BaseProps>(function ConnectedChatInputBar(
       {...props}
       viewerID={viewerID}
       draft={draft}
+      updateDraft={updateDraft}
+      moveDraft={moveDraft}
       joinThreadLoadingStatus={joinThreadLoadingStatus}
       threadCreationInProgress={threadCreationInProgress}
       calendarQuery={calendarQuery}

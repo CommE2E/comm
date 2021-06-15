@@ -19,6 +19,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { actionLogger } from 'lib/utils/action-logger';
 
 import ConnectedStatusBar from './connected-status-bar.react';
+import CoreDataProvider from './data/core-data-provider.react';
 import ErrorBoundary from './error-boundary.react';
 import InputStateContainer from './input/input-state-container.react';
 import LifecycleHandler from './lifecycle/lifecycle-handler.react';
@@ -245,18 +246,20 @@ function Root() {
   }
   return (
     <View style={styles.app}>
-      <NavContext.Provider value={navContext}>
-        <RootContext.Provider value={rootContext}>
-          <InputStateContainer>
-            <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-              <ConnectedStatusBar />
-              <PersistGate persistor={getPersistor()}>{gated}</PersistGate>
-              {navigation}
-              <NavigationHandler />
-            </SafeAreaProvider>
-          </InputStateContainer>
-        </RootContext.Provider>
-      </NavContext.Provider>
+      <CoreDataProvider>
+        <NavContext.Provider value={navContext}>
+          <RootContext.Provider value={rootContext}>
+            <InputStateContainer>
+              <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+                <ConnectedStatusBar />
+                <PersistGate persistor={getPersistor()}>{gated}</PersistGate>
+                {navigation}
+                <NavigationHandler />
+              </SafeAreaProvider>
+            </InputStateContainer>
+          </RootContext.Provider>
+        </NavContext.Provider>
+      </CoreDataProvider>
     </View>
   );
 }
