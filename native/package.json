@@ -99,7 +99,8 @@
     "reselect": "^4.0.0",
     "shallowequal": "^1.0.2",
     "simple-markdown": "^0.7.2",
-    "tinycolor2": "^1.4.1"
+    "tinycolor2": "^1.4.1",
+    "olm": "git+https://gitlab.matrix.org/matrix-org/olm.git#v3.2.4"
   },
   "jest": {
     "preset": "react-native"
