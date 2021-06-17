@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual';
 
 import bots from 'lib/facts/bots';
+import genesis from 'lib/facts/genesis';
 import {
   makePermissionsBlob,
   makePermissionsForChildrenBlob,
@@ -165,7 +166,9 @@ async function changeRole(
   const relationshipChangeset = new RelationshipChangeset();
   const toUpdateDescendants = new Map();
   const existingMemberIDs = [...existingMembershipInfo.keys()];
-  relationshipChangeset.setAllRelationshipsExist(existingMemberIDs);
+  if (threadID !== genesis.id) {
+    relationshipChangeset.setAllRelationshipsExist(existingMemberIDs);
+  }
   for (const userID of userIDs) {
     const existingMembership = existingMembershipInfo.get(userID);
     const oldRole = existingMembership?.oldRole ?? '-1';
@@ -256,7 +259,7 @@ async function changeRole(
       });
     }
 
-    if (permissions && !existingMembership) {
+    if (permissions && !existingMembership && threadID !== genesis.id) {
       relationshipChangeset.setRelationshipsNeeded(userID, existingMemberIDs);
     }
 
@@ -391,7 +394,9 @@ async function updateDescendantPermissions(
       const { threadID, threadType, depth, users } = descendant;
 
       const existingMemberIDs = [...users.keys()];
-      relationshipChangeset.setAllRelationshipsExist(existingMemberIDs);
+      if (threadID !== genesis.id) {
+        relationshipChangeset.setAllRelationshipsExist(existingMemberIDs);
+      }
 
       const usersForNextLayer = new Map();
       for (const [userID, user] of users) {
@@ -467,12 +472,13 @@ async function updateDescendantPermissions(
           });
         }
 
-        if (permissions && !existingMembership) {
+        if (permissions && !existingMembership && threadID !== genesis.id) {
           // If there was no membership row before, and we are creating one,
           // we'll need to make sure the new member has a relationship row with
-          // each existing member. We assume whoever called us will handle
-          // making sure the set of new members all have relationship rows with
-          // each other.
+          // each existing member. We expect that whoever called us already
+          // generated memberships row for the new members, will will lead
+          // saveMemberships to generate relationships rows between those new
+          // users.
           relationshipChangeset.setRelationshipsNeeded(
             userID,
             existingMemberIDs,
@@ -729,7 +735,9 @@ async function recalculateThreadPermissions(
   const relationshipChangeset = new RelationshipChangeset();
   const toUpdateDescendants = new Map();
   const existingMemberIDs = membershipResults.map((row) => row.user.toString());
-  relationshipChangeset.setAllRelationshipsExist(existingMemberIDs);
+  if (threadID !== genesis.id) {
+    relationshipChangeset.setAllRelationshipsExist(existingMemberIDs);
+  }
   for (const [userID, membership] of membershipInfo) {
     const {
       rolePermissions: intendedRolePermissions,
@@ -787,12 +795,11 @@ async function recalculateThreadPermissions(
       });
     }
 
-    if (permissions && !existingMembership) {
+    if (permissions && !existingMembership && threadID !== genesis.id) {
       // If there was no membership row before, and we are creating one,
       // we'll need to make sure the new member has a relationship row with
-      // each existing member. We assume all the new members already have
-      // relationship rows with each other, since they must all share the same
-      // parent thread.
+      // each existing member. We handle guaranteeing that new members have
+      // relationship rows with each other in saveMemberships.
       relationshipChangeset.setRelationshipsNeeded(userID, existingMemberIDs);
     }
 
@@ -994,8 +1001,10 @@ async function commitMembershipChangeset(
     }
     savedUsers.push(userID);
   }
-  for (const savedUsers of threadsToSavedUsers.values()) {
-    relationshipChangeset.setAllRelationshipsNeeded(savedUsers);
+  for (const [threadID, savedUsers] of threadsToSavedUsers) {
+    if (threadID !== genesis.id) {
+      relationshipChangeset.setAllRelationshipsNeeded(savedUsers);
+    }
   }
   const relationshipRows = relationshipChangeset.getRows();
 
