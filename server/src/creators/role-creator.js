@@ -94,29 +94,29 @@ function getRolePermissionBlobsForCommunity(
     OPEN_TOP_LEVEL_DESCENDANT + threadPermissions.JOIN_THREAD;
   const openChildJoinThread = OPEN_CHILD + threadPermissions.JOIN_THREAD;
 
-  const baseMemberPermissions = {
+  const genesisMemberPermissions = {
     [threadPermissions.KNOW_OF]: true,
     [threadPermissions.VISIBLE]: true,
     [openDescendantKnowOf]: true,
     [openDescendantVisible]: true,
     [openTopLevelDescendantJoinThread]: true,
-    [openChildJoinThread]: true,
+  };
+  const baseMemberPermissions = {
+    ...genesisMemberPermissions,
+    [threadPermissions.LEAVE_THREAD]: true,
     [threadPermissions.CREATE_SIDEBARS]: true,
+    [openChildJoinThread]: true,
   };
 
   let memberPermissions;
   if (threadType === threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT) {
-    memberPermissions = {
-      ...baseMemberPermissions,
-      [threadPermissions.LEAVE_THREAD]: true,
-    };
-  } else if (threadType === threadTypes.GENESIS) {
     memberPermissions = baseMemberPermissions;
+  } else if (threadType === threadTypes.GENESIS) {
+    memberPermissions = genesisMemberPermissions;
   } else {
     memberPermissions = {
       ...baseMemberPermissions,
       ...voicedPermissions,
-      [threadPermissions.LEAVE_THREAD]: true,
     };
   }
 
