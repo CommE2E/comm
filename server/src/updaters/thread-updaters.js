@@ -498,7 +498,7 @@ async function updateThread(
   const rolesNeedUpdate = forceUpdateRoot || nextThreadType !== oldThreadType;
 
   const validateNewMembersPromise = (async () => {
-    if (!newMemberIDs) {
+    if (!newMemberIDs || ignorePermissions) {
       return;
     }
 

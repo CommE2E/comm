@@ -30,6 +30,12 @@ const convertUnadminnedToCommunities = ['311733', '421638'];
 const convertToAnnouncementCommunities = ['375310'];
 const convertToAnnouncementSubthreads = ['82649'];
 const threadsWithMissingParent = ['534395'];
+const personalThreadsWithMissingMembers = [
+  '82161',
+  '103111',
+  '210609',
+  '227049',
+];
 
 async function createGenesisCommunity() {
   const genesisThreadInfos = await fetchServerThreadInfos(
@@ -216,6 +222,30 @@ async function fixThreadsWithMissingParent() {
   }
 }
 
+async function fixPersonalThreadsWithMissingMembers() {
+  const missingMembersQuery = SQL`
+    SELECT thread, user
+    FROM memberships
+    WHERE thread IN (${personalThreadsWithMissingMembers}) AND role <= 0
+  `;
+  const [missingMembers] = await dbQuery(missingMembersQuery);
+
+  const botViewer = createScriptViewer(bots.squadbot.userID);
+  for (const row of missingMembers) {
+    console.log(`fixing ${JSON.stringify(row)} with missing member`);
+    await updateThread(
+      botViewer,
+      {
+        threadID: row.thread.toString(),
+        changes: {
+          newMemberIDs: [row.user.toString()],
+        },
+      },
+      updateThreadOptions,
+    );
+  }
+}
+
 async function moveThreadsToGenesis() {
   const noParentQuery = SQL`
     SELECT id, name
@@ -339,6 +369,7 @@ main([
   convertAnnouncementCommunities,
   convertAnnouncementSubthreads,
   fixThreadsWithMissingParent,
+  fixPersonalThreadsWithMissingMembers,
   moveThreadsToGenesis,
   clearMembershipPermissions,
 ]);
