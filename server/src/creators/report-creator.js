@@ -17,7 +17,12 @@ import {
   reportTypes,
 } from 'lib/types/report-types';
 import { values } from 'lib/utils/objects';
-import { sanitizeActionSecrets, sanitizeState } from 'lib/utils/sanitization';
+import {
+  sanitizeActionSecrets,
+  sanitizeState,
+  sanitizeAction,
+  generateSaltedRedactionFn,
+} from 'lib/utils/sanitization';
 
 import { dbQuery, SQL } from '../database/database';
 import { fetchUsername } from '../fetchers/user-fetchers';
@@ -52,12 +57,15 @@ async function createReport(
     ({ type, time, ...report } = request);
   } else {
     ({ type, ...report } = request);
+    const redact = generateSaltedRedactionFn();
     time = Date.now();
     report = {
       ...report,
-      preloadedState: sanitizeState(report.preloadedState),
-      currentState: sanitizeState(report.currentState),
-      actions: report.actions.map(sanitizeActionSecrets),
+      preloadedState: sanitizeState(report.preloadedState, redact),
+      currentState: sanitizeState(report.currentState, redact),
+      actions: report.actions.map((x) =>
+        sanitizeAction(sanitizeActionSecrets(x), redact),
+      ),
     };
   }
   const row = [
