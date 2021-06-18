@@ -1,0 +1,13 @@
+diff --git a/node_modules/olm/OLMKit.podspec b/node_modules/olm/OLMKit.podspec
+index cecbe78..2f48a34 100644
+--- a/node_modules/olm/OLMKit.podspec
++++ b/node_modules/olm/OLMKit.podspec
+@@ -47,7 +47,7 @@ Pod::Spec.new do |s|
+   # For headers search paths, manage first the normal installation. Then, use paths used
+   # when the pod is local
+   s.xcconfig = {
+-    'USER_HEADER_SEARCH_PATHS' =>"${PODS_ROOT}/OLMKit/include ${PODS_ROOT}/OLMKit/lib #{File.join(File.dirname(__FILE__), 'include')} #{File.join(File.dirname(__FILE__), 'lib')}"
++    'USER_HEADER_SEARCH_PATHS' =>"${PODS_ROOT}/OLMKit/include ${PODS_ROOT}/OLMKit/lib ../../node_modules/olm/include ../../node_modules/olm/lib"
+   }
+ 
+   s.subspec 'olmc' do |olmc|

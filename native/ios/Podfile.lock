@@ -747,7 +747,7 @@ SPEC CHECKSUMS:
   lottie-ios: 48fac6be217c76937e36e340e2d09cf7b10b7f5f
   lottie-react-native: 4dff8fe8d10ddef9e7880e770080f4a56121397e
   mobile-ffmpeg-min: d5d22dcef5c8ec56f771258f1f5be245d914f193
-  OLMKit: f416673029edfb152ccc25d9f80961dc42e68600
+  OLMKit: a15f216aa14ba199b4fd827b3d7ef04629b56636
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
   RCTRequired: 082f10cd3f905d6c124597fd1c14f6f2655ff65e
   RCTTypeSafety: 7865795409804cfdf2dd23cda55de651ffa59678
