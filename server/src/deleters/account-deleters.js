@@ -74,6 +74,10 @@ async function deleteAccount(
       FROM sessions s
       LEFT JOIN ids i ON i.id = s.id
       WHERE s.user = ${deletedUserID};
+    DELETE r, i
+      FROM reports r
+      LEFT JOIN ids i ON i.id = r.id
+      WHERE r.user = ${deletedUserID};
     DELETE FROM relationships_undirected WHERE user1 = ${deletedUserID};
     DELETE FROM relationships_undirected WHERE user2 = ${deletedUserID};
     DELETE FROM relationships_directed WHERE user1 = ${deletedUserID};
