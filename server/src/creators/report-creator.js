@@ -17,7 +17,7 @@ import {
   reportTypes,
 } from 'lib/types/report-types';
 import { values } from 'lib/utils/objects';
-import { sanitizeAction, sanitizeState } from 'lib/utils/sanitization';
+import { sanitizeActionSecrets, sanitizeState } from 'lib/utils/sanitization';
 
 import { dbQuery, SQL } from '../database/database';
 import { fetchUsername } from '../fetchers/user-fetchers';
@@ -57,7 +57,7 @@ async function createReport(
       ...report,
       preloadedState: sanitizeState(report.preloadedState),
       currentState: sanitizeState(report.currentState),
-      actions: report.actions.map(sanitizeAction),
+      actions: report.actions.map(sanitizeActionSecrets),
     };
   }
   const row = [

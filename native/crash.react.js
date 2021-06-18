@@ -32,7 +32,7 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
-import { sanitizeAction, sanitizeState } from 'lib/utils/sanitization';
+import { sanitizeActionSecrets, sanitizeState } from 'lib/utils/sanitization';
 import sleep from 'lib/utils/sleep';
 
 import Button from './components/button.react';
@@ -161,7 +161,7 @@ class Crash extends React.PureComponent<Props, State> {
       })),
       preloadedState: sanitizeState(actionLogger.preloadedState),
       currentState: sanitizeState(actionLogger.currentState),
-      actions: actionLogger.actions.map(sanitizeAction),
+      actions: actionLogger.actions.map(sanitizeActionSecrets),
     });
     this.setState({
       errorReportID: result.id,
