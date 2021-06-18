@@ -31,7 +31,7 @@ const activeChatThreadItem: (
   (
     threadInfos: { [id: string]: ThreadInfo },
     messageStore: MessageStore,
-    messageInfos: { [id: string]: MessageInfo },
+    messageInfos: { [id: string]: ?MessageInfo },
     activeChatThreadID: ?string,
     pendingThreadInfo: ?ThreadInfo,
     sidebarInfos: { [id: string]: $ReadOnlyArray<SidebarInfo> },
