@@ -18,7 +18,9 @@ import { StackView, type StackHeaderProps } from '@react-navigation/stack';
 import invariant from 'invariant';
 import * as React from 'react';
 import { Platform, View } from 'react-native';
+import { useSelector } from 'react-redux';
 
+import { isLoggedIn } from 'lib/selectors/user-selectors';
 import { threadIsPending } from 'lib/shared/thread-utils';
 import { firstLine } from 'lib/utils/string-utils';
 
@@ -224,6 +226,11 @@ export default function ChatComponent() {
     android: 'height',
     default: 'padding',
   });
+  const loggedIn = useSelector(isLoggedIn);
+  let draftUpdater = null;
+  if (loggedIn) {
+    draftUpdater = <ThreadDraftUpdater />;
+  }
   return (
     <View style={styles.view}>
       <KeyboardAvoidingView
@@ -259,7 +266,7 @@ export default function ChatComponent() {
         </Chat.Navigator>
         <MessageStorePruner />
         <ThreadScreenPruner />
-        <ThreadDraftUpdater />
+        {draftUpdater}
       </KeyboardAvoidingView>
     </View>
   );
