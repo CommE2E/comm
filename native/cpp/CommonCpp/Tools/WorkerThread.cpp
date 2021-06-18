@@ -21,7 +21,7 @@ WorkerThread::WorkerThread()
 
 void WorkerThread::scheduleTask(const taskType task) {
   if (!this->tasks.write(std::make_unique<taskType>(std::move(task)))) {
-    throw std::runtime_error("Error scheduling task on Database thread");
+    throw std::runtime_error("Error scheduling task on a worker thread");
   }
 }
 
@@ -31,8 +31,7 @@ WorkerThread::~WorkerThread() {
     this->thread->join();
   } catch (const std::system_error &error) {
     std::ostringstream stringStream;
-    stringStream << "Error occurred joining the Database thread: "
-                 << error.what();
+    stringStream << "Error occurred joining a worker thread: " << error.what();
     Logger::log(stringStream.str());
   }
 }
