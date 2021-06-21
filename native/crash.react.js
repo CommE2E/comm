@@ -33,10 +33,8 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
 import {
-  sanitizeActionSecrets,
-  sanitizeAction,
-  sanitizeState,
-  generateSaltedRedactionFn,
+  sanitizeReduxReport,
+  type ReduxCrashReport,
 } from 'lib/utils/sanitization';
 import sleep from 'lib/utils/sleep';
 
@@ -152,7 +150,11 @@ class Crash extends React.PureComponent<Props, State> {
   }
 
   async sendReport() {
-    const redact = generateSaltedRedactionFn();
+    const sanitizedReduxReport: ReduxCrashReport = sanitizeReduxReport({
+      preloadedState: actionLogger.preloadedState,
+      currentState: actionLogger.currentState,
+      actions: actionLogger.actions,
+    });
     const result = await this.props.sendReport({
       type: reportTypes.ERROR,
       platformDetails: {
@@ -165,11 +167,7 @@ class Crash extends React.PureComponent<Props, State> {
         stack: data.error.stack,
         componentStack: data.info && data.info.componentStack,
       })),
-      preloadedState: sanitizeState(actionLogger.preloadedState, redact),
-      currentState: sanitizeState(actionLogger.currentState, redact),
-      actions: actionLogger.actions.map((x) =>
-        sanitizeAction(sanitizeActionSecrets(x), redact),
-      ),
+      ...sanitizedReduxReport,
     });
     this.setState({
       errorReportID: result.id,

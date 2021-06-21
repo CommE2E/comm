@@ -18,10 +18,8 @@ import {
 } from 'lib/types/report-types';
 import { values } from 'lib/utils/objects';
 import {
-  sanitizeActionSecrets,
-  sanitizeState,
-  sanitizeAction,
-  generateSaltedRedactionFn,
+  sanitizeReduxReport,
+  type ReduxCrashReport,
 } from 'lib/utils/sanitization';
 
 import { dbQuery, SQL } from '../database/database';
@@ -57,15 +55,15 @@ async function createReport(
     ({ type, time, ...report } = request);
   } else {
     ({ type, ...report } = request);
-    const redact = generateSaltedRedactionFn();
     time = Date.now();
+    const redactedReduxReport: ReduxCrashReport = sanitizeReduxReport({
+      preloadedState: report.preloadedState,
+      currentState: report.currentState,
+      actions: report.actions,
+    });
     report = {
       ...report,
-      preloadedState: sanitizeState(report.preloadedState, redact),
-      currentState: sanitizeState(report.currentState, redact),
-      actions: report.actions.map((x) =>
-        sanitizeAction(sanitizeActionSecrets(x), redact),
-      ),
+      ...redactedReduxReport,
     };
   }
   const row = [
