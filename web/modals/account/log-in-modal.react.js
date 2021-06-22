@@ -22,7 +22,6 @@ import { useSelector } from '../../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../../selectors/account-selectors';
 import css from '../../style.css';
 import Modal from '../modal.react';
-import ForgotPasswordModal from './forgot-password-modal.react';
 
 type BaseProps = {|
   +setModal: (modal: ?React.Node) => void,
@@ -86,11 +85,6 @@ class LogInModal extends React.PureComponent<Props, State> {
                   ref={this.passwordInputRef}
                   disabled={this.props.inputDisabled}
                 />
-                <div className={css['form-subtitle']}>
-                  <a href="#" onClick={this.onClickForgotPassword}>
-                    Forgot password?
-                  </a>
-                </div>
               </div>
             </div>
             <div className={css['form-footer']}>
@@ -128,11 +122,6 @@ class LogInModal extends React.PureComponent<Props, State> {
     const target = event.target;
     invariant(target instanceof HTMLInputElement, 'target not input');
     this.setState({ password: target.value });
-  };
-
-  onClickForgotPassword = (event: SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.setModal(<ForgotPasswordModal setModal={this.props.setModal} />);
   };
 
   onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
