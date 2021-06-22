@@ -14,7 +14,7 @@ import {
 } from 'lib/selectors/user-selectors';
 import { messageID } from 'lib/shared/message-utils';
 import { getPotentialMemberItems } from 'lib/shared/search-utils';
-import { useCurrentThreadInfo } from 'lib/shared/thread-utils';
+import { useExistingThreadInfoFinder } from 'lib/shared/thread-utils';
 import { messageTypes } from 'lib/types/message-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types';
@@ -337,12 +337,17 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     props.route.params.threadInfo,
   );
 
-  const { searching } = props.route.params;
-  const threadInfo = useCurrentThreadInfo({
-    baseThreadInfo,
-    searching: !!searching,
-    userInfoInputArray,
-  });
+  const existingThreadInfoFinder = useExistingThreadInfoFinder(baseThreadInfo);
+
+  const isSearching = !!props.route.params.searching;
+  const threadInfo = React.useMemo(
+    () =>
+      existingThreadInfoFinder({
+        searching: isSearching,
+        userInfoInputArray,
+      }),
+    [existingThreadInfoFinder, isSearching, userInfoInputArray],
+  );
   invariant(threadInfo, 'threadInfo must be specified in messageListContainer');
 
   const inputState = React.useContext(InputStateContext);
@@ -353,12 +358,12 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     });
   }, [props.navigation, threadInfo]);
   React.useEffect(() => {
-    if (!searching) {
+    if (!isSearching) {
       return;
     }
     inputState?.registerSendCallback(hideSearch);
     return () => inputState?.unregisterSendCallback(hideSearch);
-  }, [hideSearch, inputState, searching]);
+  }, [hideSearch, inputState, isSearching]);
 
   const { setParams } = props.navigation;
   React.useEffect(() => {
@@ -367,7 +372,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
 
   const threadID = threadInfo.id;
   const messageListData = useMessageListData({
-    searching: !!searching,
+    searching: isSearching,
     userInfoInputArray,
     threadInfo,
   });
