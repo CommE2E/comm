@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
+import { notFriendNotice } from 'lib/shared/search-utils';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types';
 
 import { createTagInput } from '../components/tag-input.react';
@@ -16,6 +17,7 @@ type Props = {|
   +updateUsernameInput: (text: string) => void,
   +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
   +updateTagInput: (items: $ReadOnlyArray<AccountUserInfo>) => void,
+  +resolveToUser: (user: AccountUserInfo) => void,
   +otherUserInfos: { [id: string]: AccountUserInfo },
   +userSearchResults: $ReadOnlyArray<UserListItem>,
 |};
@@ -31,10 +33,30 @@ export default React.memo<Props>(function MessageListThreadSearch({
   updateUsernameInput,
   userInfoInputArray,
   updateTagInput,
+  resolveToUser,
   otherUserInfos,
   userSearchResults,
 }) {
   const styles = useStyles(unboundStyles);
+
+  const [userListItems, nonFriends] = React.useMemo(() => {
+    const nonFriendsSet = new Set();
+    if (userInfoInputArray.length > 0) {
+      return [userSearchResults, nonFriendsSet];
+    }
+
+    const userListItemsArr = [];
+    for (const searchResult of userSearchResults) {
+      if (searchResult.notice !== notFriendNotice) {
+        userListItemsArr.push(searchResult);
+        continue;
+      }
+      nonFriendsSet.add(searchResult.id);
+      const { alertText, alertTitle, ...rest } = searchResult;
+      userListItemsArr.push(rest);
+    }
+    return [userListItemsArr, nonFriendsSet];
+  }, [userSearchResults, userInfoInputArray]);
 
   const onUserSelect = React.useCallback(
     (userID: string) => {
@@ -43,14 +65,23 @@ export default React.memo<Props>(function MessageListThreadSearch({
           return;
         }
       }
-      const newUserInfoInputArray = [
-        ...userInfoInputArray,
-        otherUserInfos[userID],
-      ];
+      const userInfo = otherUserInfos[userID];
+      if (nonFriends.has(userID)) {
+        resolveToUser(userInfo);
+        return;
+      }
+      const newUserInfoInputArray = [...userInfoInputArray, userInfo];
       updateUsernameInput('');
       updateTagInput(newUserInfoInputArray);
     },
-    [otherUserInfos, updateTagInput, updateUsernameInput, userInfoInputArray],
+    [
+      userInfoInputArray,
+      nonFriends,
+      otherUserInfos,
+      updateTagInput,
+      resolveToUser,
+      updateUsernameInput,
+    ],
   );
 
   const tagDataLabelExtractor = React.useCallback(
@@ -68,7 +99,7 @@ export default React.memo<Props>(function MessageListThreadSearch({
   if (isSearchResultVisible) {
     userList = (
       <View style={styles.userList}>
-        <UserList userInfos={userSearchResults} onSelect={onUserSelect} />
+        <UserList userInfos={userListItems} onSelect={onUserSelect} />
       </View>
     );
     separator = <View style={styles.separator} />;

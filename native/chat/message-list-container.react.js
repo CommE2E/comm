@@ -58,6 +58,7 @@ type Props = {|
   +updateUsernameInput: (text: string) => void,
   +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
   +updateTagInput: (items: $ReadOnlyArray<AccountUserInfo>) => void,
+  +resolveToUser: (user: AccountUserInfo) => void,
   +otherUserInfos: { [id: string]: AccountUserInfo },
   +userSearchResults: $ReadOnlyArray<UserListItem>,
   +threadInfo: ThreadInfo,
@@ -114,6 +115,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
           updateUsernameInput={this.props.updateUsernameInput}
           userInfoInputArray={this.props.userInfoInputArray}
           updateTagInput={this.props.updateTagInput}
+          resolveToUser={this.props.resolveToUser}
           otherUserInfos={this.props.otherUserInfos}
           userSearchResults={this.props.userSearchResults}
         />
@@ -311,17 +313,9 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
   const [userInfoInputArray, setUserInfoInputArray] = React.useState<
     $ReadOnlyArray<AccountUserInfo>,
   >([]);
-  const updateTagInput = React.useCallback(
-    (input: $ReadOnlyArray<AccountUserInfo>) => setUserInfoInputArray(input),
-    [],
-  );
-  const updateUsernameInput = React.useCallback(
-    (text: string) => setUsernameInputText(text),
-    [],
-  );
+
   const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
   const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
-
   const userSearchResults = React.useMemo(
     () =>
       getPotentialMemberItems(
@@ -370,6 +364,30 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     setParams({ threadInfo });
   }, [setParams, threadInfo]);
 
+  const updateTagInput = React.useCallback(
+    (input: $ReadOnlyArray<AccountUserInfo>) => setUserInfoInputArray(input),
+    [],
+  );
+  const updateUsernameInput = React.useCallback(
+    (text: string) => setUsernameInputText(text),
+    [],
+  );
+  const resolveToUser = React.useCallback(
+    (user: AccountUserInfo) => {
+      const resolvedThreadInfo = existingThreadInfoFinder({
+        searching: true,
+        userInfoInputArray: [user],
+      });
+      invariant(
+        resolvedThreadInfo,
+        'resolvedThreadInfo must be specified in messageListContainer',
+      );
+      setBaseThreadInfo(resolvedThreadInfo);
+      setParams({ searching: false, threadInfo: resolvedThreadInfo });
+    },
+    [setParams, existingThreadInfoFinder],
+  );
+
   const threadID = threadInfo.id;
   const messageListData = useMessageListData({
     searching: isSearching,
@@ -393,6 +411,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
         updateUsernameInput={updateUsernameInput}
         userInfoInputArray={userInfoInputArray}
         updateTagInput={updateTagInput}
+        resolveToUser={resolveToUser}
         otherUserInfos={otherUserInfos}
         userSearchResults={userSearchResults}
         threadInfo={threadInfo}
