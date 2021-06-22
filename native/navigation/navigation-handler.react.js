@@ -8,7 +8,6 @@ import DevTools from '../redux/dev-tools.react';
 import type { AppState } from '../redux/redux-setup';
 import { useSelector } from '../redux/redux-utils';
 import { logInActionType, logOutActionType } from './action-types';
-import LinkingHandler from './linking-handler.react';
 import ModalPruner from './modal-pruner.react';
 import NavFromReduxHandler from './nav-from-redux-handler.react';
 import { useIsAppLoggedIn } from './nav-selectors';
@@ -40,7 +39,6 @@ const NavigationHandler = React.memo<{||}>(() => {
   return (
     <>
       <LogInHandler dispatch={dispatch} />
-      <LinkingHandler dispatch={dispatch} />
       <ThreadScreenTracker />
       <ModalPruner navContext={navContext} />
       {devTools}

@@ -2,7 +2,6 @@
 
 import type { LeafRoute } from '@react-navigation/native';
 
-import type { VerificationModalParams } from '../account/verification-modal.react';
 import type { ThreadPickerModalParams } from '../calendar/thread-picker-modal.react';
 import type { ComposeThreadParams } from '../chat/compose-thread.react';
 import type { ImagePasteModalParams } from '../chat/image-paste-modal.react';
@@ -30,7 +29,6 @@ export const ComposeThreadRouteName = 'ComposeThread';
 export const DeleteThreadRouteName = 'DeleteThread';
 export const ThreadSettingsRouteName = 'ThreadSettings';
 export const MessageListRouteName = 'MessageList';
-export const VerificationModalRouteName = 'VerificationModal';
 export const LoggedOutModalRouteName = 'LoggedOutModal';
 export const ProfileRouteName = 'Profile';
 export const AppsRouteName = 'Apps';
@@ -71,7 +69,6 @@ export const RobotextMessageTooltipModalRouteName =
 
 export type RootParamList = {|
   +LoggedOutModal: void,
-  +VerificationModal: VerificationModalParams,
   +App: void,
   +ThreadPickerModal: ThreadPickerModalParams,
   +AddUsersModal: AddUsersModalParams,
@@ -146,10 +143,7 @@ export type NavigationRoute<RouteName: string = $Keys<ScreenParamList>> = {|
   +params: $ElementType<ScreenParamList, RouteName>,
 |};
 
-export const accountModals = [
-  LoggedOutModalRouteName,
-  VerificationModalRouteName,
-];
+export const accountModals = [LoggedOutModalRouteName];
 
 export const scrollBlockingModals = [
   ImageModalRouteName,

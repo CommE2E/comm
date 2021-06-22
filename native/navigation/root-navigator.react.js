@@ -15,7 +15,6 @@ import { Platform } from 'react-native';
 import { enableScreens } from 'react-native-screens';
 
 import LoggedOutModal from '../account/logged-out-modal.react';
-import VerificationModal from '../account/verification-modal.react';
 import ThreadPickerModal from '../calendar/thread-picker-modal.react';
 import ImagePasteModal from '../chat/image-paste-modal.react';
 import AddUsersModal from '../chat/settings/add-users-modal.react';
@@ -28,7 +27,6 @@ import { RootNavigatorContext } from './root-navigator-context';
 import RootRouter, { type RootRouterNavigationProp } from './root-router';
 import {
   LoggedOutModalRouteName,
-  VerificationModalRouteName,
   AppRouteName,
   ThreadPickerModalRouteName,
   ImagePasteModalRouteName,
@@ -154,10 +152,6 @@ const RootComponent = () => {
         name={LoggedOutModalRouteName}
         component={LoggedOutModal}
         options={disableGesturesScreenOptions}
-      />
-      <Root.Screen
-        name={VerificationModalRouteName}
-        component={VerificationModal}
       />
       <Root.Screen name={AppRouteName} component={AppNavigator} />
       <Root.Screen
