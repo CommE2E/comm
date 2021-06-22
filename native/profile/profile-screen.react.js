@@ -2,22 +2,10 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import {
-  View,
-  Text,
-  Alert,
-  Platform,
-  ScrollView,
-  ActivityIndicator,
-} from 'react-native';
+import { View, Text, Alert, Platform, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-import {
-  logOutActionTypes,
-  logOut,
-  resendVerificationEmailActionTypes,
-  resendVerificationEmail,
-} from 'lib/actions/user-actions';
+import { logOutActionTypes, logOut } from 'lib/actions/user-actions';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { isStaff } from 'lib/shared/user-utils';
@@ -39,7 +27,6 @@ import EditSettingButton from '../components/edit-setting-button.react';
 import { SingleLine } from '../components/single-line.react';
 import type { NavigationRoute } from '../navigation/route-names';
 import {
-  EditEmailRouteName,
   EditPasswordRouteName,
   DeleteAccountRouteName,
   BuildInfoRouteName,
@@ -61,30 +48,16 @@ type Props = {|
   ...BaseProps,
   +currentUserInfo: ?CurrentUserInfo,
   +preRequestUserState: PreRequestUserState,
-  +resendVerificationLoading: boolean,
   +logOutLoading: boolean,
   +colors: Colors,
   +styles: typeof unboundStyles,
   +dispatchActionPromise: DispatchActionPromise,
   +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
-  +resendVerificationEmail: () => Promise<void>,
 |};
 class ProfileScreen extends React.PureComponent<Props> {
   get username() {
     return this.props.currentUserInfo && !this.props.currentUserInfo.anonymous
       ? this.props.currentUserInfo.username
-      : undefined;
-  }
-
-  get email() {
-    return this.props.currentUserInfo && !this.props.currentUserInfo.anonymous
-      ? this.props.currentUserInfo.email
-      : undefined;
-  }
-
-  get emailVerified() {
-    return this.props.currentUserInfo && !this.props.currentUserInfo.anonymous
-      ? this.props.currentUserInfo.emailVerified
       : undefined;
   }
 
@@ -97,60 +70,6 @@ class ProfileScreen extends React.PureComponent<Props> {
   }
 
   render() {
-    const { emailVerified } = this;
-    let emailVerifiedNode = null;
-    if (emailVerified === true) {
-      emailVerifiedNode = (
-        <Text
-          style={[
-            this.props.styles.verification,
-            this.props.styles.verificationText,
-            this.props.styles.emailVerified,
-          ]}
-        >
-          Verified
-        </Text>
-      );
-    } else if (emailVerified === false) {
-      let resendVerificationEmailSpinner;
-      if (this.props.resendVerificationLoading) {
-        resendVerificationEmailSpinner = (
-          <ActivityIndicator
-            size="small"
-            style={this.props.styles.resendVerificationEmailSpinner}
-            color={this.props.colors.panelForegroundSecondaryLabel}
-          />
-        );
-      }
-      emailVerifiedNode = (
-        <View style={this.props.styles.verificationSection}>
-          <Text
-            style={[
-              this.props.styles.verificationText,
-              this.props.styles.emailNotVerified,
-            ]}
-          >
-            Not verified
-          </Text>
-          <Text style={this.props.styles.verificationText}>{' - '}</Text>
-          <Button
-            onPress={this.onPressResendVerificationEmail}
-            style={this.props.styles.resendVerificationEmailButton}
-          >
-            {resendVerificationEmailSpinner}
-            <Text
-              style={[
-                this.props.styles.verificationText,
-                this.props.styles.resendVerificationEmailText,
-              ]}
-            >
-              resend verification email
-            </Text>
-          </Button>
-        </View>
-      );
-    }
-
     const {
       panelIosHighlightUnderlay: underlay,
       link: linkColor,
@@ -191,8 +110,9 @@ class ProfileScreen extends React.PureComponent<Props> {
           contentContainerStyle={this.props.styles.scrollViewContentContainer}
           style={this.props.styles.scrollView}
         >
+          <Text style={this.props.styles.header}>ACCOUNT</Text>
           <View style={this.props.styles.section}>
-            <View style={this.props.styles.row}>
+            <View style={this.props.styles.paddedRow}>
               <Text style={this.props.styles.loggedInLabel}>
                 {'Logged in as '}
               </Text>
@@ -208,24 +128,7 @@ class ProfileScreen extends React.PureComponent<Props> {
                 <Text style={this.props.styles.logOutText}>Log out</Text>
               </Button>
             </View>
-          </View>
-          <Text style={this.props.styles.header}>ACCOUNT</Text>
-          <View style={this.props.styles.section}>
-            <View style={this.props.styles.row}>
-              <Text style={this.props.styles.label}>Email</Text>
-              <View style={this.props.styles.content}>
-                <SingleLine style={this.props.styles.value}>
-                  {this.email}
-                </SingleLine>
-                {emailVerifiedNode}
-              </View>
-              <EditSettingButton
-                onPress={this.onPressEditEmail}
-                canChangeSettings={true}
-                style={this.props.styles.editEmailButton}
-              />
-            </View>
-            <View style={this.props.styles.row}>
+            <View style={this.props.styles.paddedRow}>
               <Text style={this.props.styles.label}>Password</Text>
               <Text
                 style={[this.props.styles.content, this.props.styles.value]}
@@ -240,7 +143,7 @@ class ProfileScreen extends React.PureComponent<Props> {
               />
             </View>
           </View>
-          <View style={this.props.styles.slightlyPaddedSection}>
+          <View style={this.props.styles.section}>
             <Button
               onPress={this.onPressFriendList}
               style={this.props.styles.submenuButton}
@@ -262,7 +165,7 @@ class ProfileScreen extends React.PureComponent<Props> {
           </View>
 
           <Text style={this.props.styles.header}>PREFERENCES</Text>
-          <View style={this.props.styles.slightlyPaddedSection}>
+          <View style={this.props.styles.section}>
             {appearancePreferences}
             <Button
               onPress={this.onPressPrivacy}
@@ -275,7 +178,7 @@ class ProfileScreen extends React.PureComponent<Props> {
             </Button>
           </View>
 
-          <View style={this.props.styles.slightlyPaddedSection}>
+          <View style={this.props.styles.section}>
             <Button
               onPress={this.onPressBuildInfo}
               style={this.props.styles.submenuButton}
@@ -360,31 +263,9 @@ class ProfileScreen extends React.PureComponent<Props> {
     await deleteNativeCredentialsFor(username);
   }
 
-  onPressResendVerificationEmail = () => {
-    this.props.dispatchActionPromise(
-      resendVerificationEmailActionTypes,
-      this.resendVerificationEmailAction(),
-    );
-  };
-
-  async resendVerificationEmailAction() {
-    await this.props.resendVerificationEmail();
-    Alert.alert(
-      'Verify email',
-      "We've sent you an email to verify your email address. Just click on " +
-        'the link in the email to complete the verification process.',
-      undefined,
-      { cancelable: true },
-    );
-  }
-
   navigateIfActive(name) {
     this.props.navigation.navigate({ name });
   }
-
-  onPressEditEmail = () => {
-    this.navigateIfActive(EditEmailRouteName);
-  };
 
   onPressEditPassword = () => {
     this.navigateIfActive(EditPasswordRouteName);
@@ -435,17 +316,8 @@ const unboundStyles = {
     flex: 1,
     fontSize: 16,
   },
-  editEmailButton: {
-    paddingTop: Platform.OS === 'android' ? 9 : 7,
-  },
   editPasswordButton: {
     paddingTop: Platform.OS === 'android' ? 3 : 2,
-  },
-  emailNotVerified: {
-    color: 'redText',
-  },
-  emailVerified: {
-    color: 'greenText',
   },
   header: {
     color: 'panelBackgroundLabel',
@@ -468,18 +340,6 @@ const unboundStyles = {
     fontSize: 16,
     paddingLeft: 6,
   },
-  resendVerificationEmailButton: {
-    flexDirection: 'row',
-    paddingRight: 1,
-  },
-  resendVerificationEmailSpinner: {
-    marginTop: Platform.OS === 'ios' ? -4 : 0,
-    paddingHorizontal: 4,
-  },
-  resendVerificationEmailText: {
-    color: 'link',
-    fontStyle: 'italic',
-  },
   row: {
     flex: 1,
     flexDirection: 'row',
@@ -491,16 +351,14 @@ const unboundStyles = {
   scrollViewContentContainer: {
     paddingTop: 24,
   },
-  section: {
-    backgroundColor: 'panelForeground',
-    borderBottomWidth: 1,
-    borderColor: 'panelForegroundBorder',
-    borderTopWidth: 1,
-    marginBottom: 24,
+  paddedRow: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     paddingHorizontal: 24,
-    paddingVertical: 12,
+    paddingVertical: 10,
   },
-  slightlyPaddedSection: {
+  section: {
     backgroundColor: 'panelForeground',
     borderBottomWidth: 1,
     borderColor: 'panelForegroundBorder',
@@ -535,28 +393,10 @@ const unboundStyles = {
     fontSize: 16,
     textAlign: 'right',
   },
-  verification: {
-    alignSelf: 'flex-end',
-    flexDirection: 'row',
-    height: 20,
-  },
-  verificationSection: {
-    alignSelf: 'flex-end',
-    flexDirection: 'row',
-    height: 20,
-  },
-  verificationText: {
-    color: 'panelForegroundLabel',
-    fontSize: 13,
-    fontStyle: 'italic',
-  },
 };
 
 const logOutLoadingStatusSelector = createLoadingStatusSelector(
   logOutActionTypes,
-);
-const resendVerificationLoadingStatusSelector = createLoadingStatusSelector(
-  resendVerificationEmailActionTypes,
 );
 
 export default React.memo<BaseProps>(function ConnectedProfileScreen(
@@ -564,13 +404,10 @@ export default React.memo<BaseProps>(function ConnectedProfileScreen(
 ) {
   const currentUserInfo = useSelector((state) => state.currentUserInfo);
   const preRequestUserState = useSelector(preRequestUserStateSelector);
-  const resendVerificationLoading =
-    useSelector(resendVerificationLoadingStatusSelector) === 'loading';
   const logOutLoading = useSelector(logOutLoadingStatusSelector) === 'loading';
   const colors = useColors();
   const styles = useStyles(unboundStyles);
   const callLogOut = useServerCall(logOut);
-  const callResendVerificationEmail = useServerCall(resendVerificationEmail);
   const dispatchActionPromise = useDispatchActionPromise();
 
   return (
@@ -578,12 +415,10 @@ export default React.memo<BaseProps>(function ConnectedProfileScreen(
       {...props}
       currentUserInfo={currentUserInfo}
       preRequestUserState={preRequestUserState}
-      resendVerificationLoading={resendVerificationLoading}
       logOutLoading={logOutLoading}
       colors={colors}
       styles={styles}
       logOut={callLogOut}
-      resendVerificationEmail={callResendVerificationEmail}
       dispatchActionPromise={dispatchActionPromise}
     />
   );

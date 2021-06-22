@@ -12,7 +12,6 @@ import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 import HeaderBackButton from '../navigation/header-back-button.react';
 import {
   ProfileScreenRouteName,
-  EditEmailRouteName,
   EditPasswordRouteName,
   DeleteAccountRouteName,
   BuildInfoRouteName,
@@ -29,7 +28,6 @@ import AppearancePreferences from './appearance-preferences.react';
 import BuildInfo from './build-info.react';
 import DeleteAccount from './delete-account.react';
 import DevTools from './dev-tools.react';
-import EditEmail from './edit-email.react';
 import EditPassword from './edit-password.react';
 import PrivacyPreferences from './privacy-preferences.react';
 import ProfileHeader from './profile-header.react';
@@ -43,7 +41,6 @@ const screenOptions = {
   headerLeft: headerBackButton,
 };
 const profileScreenOptions = { headerTitle: 'Profile' };
-const editEmailOptions = { headerTitle: 'Change email' };
 const editPasswordOptions = { headerTitle: 'Change password' };
 const deleteAccountOptions = { headerTitle: 'Delete account' };
 const buildInfoOptions = { headerTitle: 'Build info' };
@@ -84,11 +81,6 @@ function ProfileComponent() {
             name={ProfileScreenRouteName}
             component={ProfileScreen}
             options={profileScreenOptions}
-          />
-          <Profile.Screen
-            name={EditEmailRouteName}
-            component={EditEmail}
-            options={editEmailOptions}
           />
           <Profile.Screen
             name={EditPasswordRouteName}

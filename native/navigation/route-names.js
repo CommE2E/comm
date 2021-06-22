@@ -43,7 +43,6 @@ export const CalendarRouteName = 'Calendar';
 export const BuildInfoRouteName = 'BuildInfo';
 export const DeleteAccountRouteName = 'DeleteAccount';
 export const DevToolsRouteName = 'DevTools';
-export const EditEmailRouteName = 'EditEmail';
 export const EditPasswordRouteName = 'EditPassword';
 export const AppearancePreferencesRouteName = 'AppearancePreferences';
 export const PrivacyPreferencesRouteName = 'PrivacyPreferences';
