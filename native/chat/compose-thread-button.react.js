@@ -43,7 +43,7 @@ class ComposeThreadButton extends React.PureComponent<Props> {
         params: {
           threadInfo: createPendingThread({
             viewerID: this.props.viewerID,
-            threadType: threadTypes.LOCAL,
+            threadType: threadTypes.PRIVATE,
           }),
           searching: true,
         },
