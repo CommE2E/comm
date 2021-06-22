@@ -6,8 +6,6 @@
 	<string>development</string>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>applinks:squadcal.org</string>
-		<string>applinks:*.squadcal.org</string>
 		<string>webcredentials:squadcal.org</string>
 		<string>webcredentials:*.squadcal.org</string>
 	</array>

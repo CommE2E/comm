@@ -41,10 +41,6 @@
         <action android:name="android.intent.action.VIEW" />
         <category android:name="android.intent.category.DEFAULT" />
         <category android:name="android.intent.category.BROWSABLE" />
-        <data android:scheme="http" android:host="squadcal.org" android:pathPrefix="/verify/" />
-        <data android:scheme="https" android:host="squadcal.org" android:pathPrefix="/verify/" />
-        <data android:scheme="http" android:host="www.squadcal.org" android:pathPrefix="/verify/" />
-        <data android:scheme="https" android:host="www.squadcal.org" android:pathPrefix="/verify/" />
       </intent-filter>
     </activity>
     <activity
