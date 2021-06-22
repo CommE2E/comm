@@ -61,10 +61,6 @@ function canonicalURLFromReduxState(
     }
   }
 
-  if (navInfo.verify) {
-    newURL += `verify/${navInfo.verify}/`;
-  }
-
   return newURL;
 }
 
@@ -106,7 +102,6 @@ function navInfoFromURL(
     startDate: startDateForYearAndMonth(year, month),
     endDate: endDateForYearAndMonth(year, month),
     activeChatThreadID,
-    verify: urlInfo.verify ? urlInfo.verify : null,
   };
 }
 

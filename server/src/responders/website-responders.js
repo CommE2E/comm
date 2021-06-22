@@ -21,7 +21,6 @@ import { defaultCalendarFilters } from 'lib/types/filter-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 import { defaultConnectionInfo } from 'lib/types/socket-types';
 import { threadPermissions } from 'lib/types/thread-types';
-import type { ServerVerificationResult } from 'lib/types/verify-types';
 import { currentDateInTimeZone } from 'lib/utils/date-utils';
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
@@ -37,7 +36,6 @@ import {
   fetchCurrentUserInfo,
   fetchKnownUserInfos,
 } from '../fetchers/user-fetchers';
-import { handleCodeVerificationRequest } from '../models/verification';
 import { setNewSession } from '../session/cookies';
 import { Viewer } from '../session/viewer';
 import { streamJSON, waitForStream } from '../utils/json-stream';
@@ -144,10 +142,6 @@ async function websiteResponder(
   );
   const entryInfoPromise = fetchEntryInfos(viewer, [calendarQuery]);
   const currentUserInfoPromise = fetchCurrentUserInfo(viewer);
-  const serverVerificationResultPromise = handleVerificationRequest(
-    viewer,
-    initialNavInfo.verify,
-  );
   const userInfoPromise = fetchKnownUserInfos(viewer);
 
   const sessionIDPromise = (async () => {
@@ -259,7 +253,6 @@ async function websiteResponder(
     navInfo: navInfoPromise,
     currentUserInfo: currentUserInfoPromise,
     sessionID: sessionIDPromise,
-    serverVerificationResult: serverVerificationResultPromise,
     entryStore: entryStorePromise,
     threadStore: threadStorePromise,
     userStore: userStorePromise,
@@ -334,23 +327,6 @@ async function websiteResponder(
       </body>
     </html>
   `);
-}
-
-async function handleVerificationRequest(
-  viewer: Viewer,
-  code: ?string,
-): Promise<?ServerVerificationResult> {
-  if (!code) {
-    return null;
-  }
-  try {
-    return await handleCodeVerificationRequest(viewer, code);
-  } catch (e) {
-    if (e instanceof ServerError && e.message === 'invalid_code') {
-      return { success: false };
-    }
-    throw e;
-  }
 }
 
 export { websiteResponder };

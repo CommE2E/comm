@@ -21,7 +21,6 @@ import type { ClientReportCreationRequest } from 'lib/types/report-types';
 import type { ConnectionInfo } from 'lib/types/socket-types';
 import type { ThreadStore } from 'lib/types/thread-types';
 import type { CurrentUserInfo, UserStore } from 'lib/types/user-types';
-import type { ServerVerificationResult } from 'lib/types/verify-types';
 import { setNewSessionActionType } from 'lib/utils/action-utils';
 
 import { activeThreadSelector } from '../selectors/nav-selectors';
@@ -35,7 +34,6 @@ export type AppState = {|
   navInfo: NavInfo,
   currentUserInfo: ?CurrentUserInfo,
   sessionID: ?string,
-  serverVerificationResult: ?ServerVerificationResult,
   entryStore: EntryStore,
   threadStore: ThreadStore,
   userStore: UserStore,

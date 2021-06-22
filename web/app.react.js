@@ -26,10 +26,6 @@ import {
 import { isLoggedIn } from 'lib/selectors/user-selectors';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { Dispatch } from 'lib/types/redux-types';
-import {
-  verifyField,
-  type ServerVerificationResult,
-} from 'lib/types/verify-types';
 import { registerConfig } from 'lib/utils/config';
 
 import AccountBar from './account-bar.react';
@@ -37,8 +33,6 @@ import Calendar from './calendar/calendar.react';
 import Chat from './chat/chat.react';
 import InputStateContainer from './input/input-state-container.react';
 import LoadingIndicator from './loading-indicator.react';
-import ResetPasswordModal from './modals/account/reset-password-modal.react';
-import VerificationModal from './modals/account/verification-modal.react';
 import FocusHandler from './redux/focus-handler.react';
 import { useSelector } from './redux/redux-utils';
 import VisibilityHandler from './redux/visibility-handler.react';
@@ -78,7 +72,6 @@ type Props = {|
   ...BaseProps,
   // Redux state
   +navInfo: NavInfo,
-  +serverVerificationResult: ?ServerVerificationResult,
   +entriesLoadingStatus: LoadingStatus,
   +loggedIn: boolean,
   +mostRecentReadThread: ?string,
@@ -97,90 +90,42 @@ class App extends React.PureComponent<Props, State> {
   };
 
   componentDidMount() {
-    const { navInfo, serverVerificationResult } = this.props;
-    if (navInfo.verify && serverVerificationResult) {
-      if (serverVerificationResult.field === verifyField.RESET_PASSWORD) {
-        this.showResetPasswordModal();
-      } else {
-        this.setModal(
-          <VerificationModal onClose={this.clearVerificationModal} />,
-        );
-      }
-    }
-
-    const newURL = canonicalURLFromReduxState(
+    const {
       navInfo,
-      this.props.location.pathname,
-      this.props.loggedIn,
-    );
-    if (this.props.location.pathname !== newURL) {
+      location: { pathname },
+      loggedIn,
+    } = this.props;
+    const newURL = canonicalURLFromReduxState(navInfo, pathname, loggedIn);
+    if (pathname !== newURL) {
       history.replace(newURL);
     }
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (!_isEqual(this.props.navInfo)(prevProps.navInfo)) {
-      const { navInfo, serverVerificationResult } = this.props;
-      if (
-        navInfo.verify &&
-        !prevProps.navInfo.verify &&
-        serverVerificationResult
-      ) {
-        if (serverVerificationResult.field === verifyField.RESET_PASSWORD) {
-          this.showResetPasswordModal();
-        } else {
-          this.setModal(
-            <VerificationModal onClose={this.clearVerificationModal} />,
-          );
-        }
-      } else if (!navInfo.verify && prevProps.navInfo.verify) {
-        this.clearModal();
-      }
-
-      const newURL = canonicalURLFromReduxState(
-        navInfo,
-        this.props.location.pathname,
-        this.props.loggedIn,
-      );
-      if (newURL !== this.props.location.pathname) {
+    const {
+      navInfo,
+      location: { pathname },
+      loggedIn,
+    } = this.props;
+    if (!_isEqual(navInfo)(prevProps.navInfo)) {
+      const newURL = canonicalURLFromReduxState(navInfo, pathname, loggedIn);
+      if (newURL !== pathname) {
         history.push(newURL);
       }
-    } else if (this.props.location.pathname !== prevProps.location.pathname) {
-      const newNavInfo = navInfoFromURL(this.props.location.pathname, {
-        navInfo: this.props.navInfo,
-      });
-      if (!_isEqual(newNavInfo)(this.props.navInfo)) {
+    } else if (pathname !== prevProps.location.pathname) {
+      const newNavInfo = navInfoFromURL(pathname, { navInfo });
+      if (!_isEqual(newNavInfo)(navInfo)) {
         this.props.dispatch({
           type: updateNavInfoActionType,
           payload: newNavInfo,
         });
       }
-    } else if (this.props.loggedIn !== prevProps.loggedIn) {
-      const newURL = canonicalURLFromReduxState(
-        this.props.navInfo,
-        this.props.location.pathname,
-        this.props.loggedIn,
-      );
-      if (newURL !== this.props.location.pathname) {
+    } else if (loggedIn !== prevProps.loggedIn) {
+      const newURL = canonicalURLFromReduxState(navInfo, pathname, loggedIn);
+      if (newURL !== pathname) {
         history.replace(newURL);
       }
     }
-  }
-
-  showResetPasswordModal() {
-    const newURL = canonicalURLFromReduxState(
-      {
-        ...this.props.navInfo,
-        verify: null,
-      },
-      this.props.location.pathname,
-      this.props.loggedIn,
-    );
-    const onClose = () => history.push(newURL);
-    const onSuccess = () => history.replace(newURL);
-    this.setModal(
-      <ResetPasswordModal onClose={onClose} onSuccess={onSuccess} />,
-    );
   }
 
   render() {
@@ -287,18 +232,6 @@ class App extends React.PureComponent<Props, State> {
     this.setModal(null);
   }
 
-  clearVerificationModal = () => {
-    const navInfo = { ...this.props.navInfo, verify: null };
-    const newURL = canonicalURLFromReduxState(
-      navInfo,
-      this.props.location.pathname,
-      this.props.loggedIn,
-    );
-    if (newURL !== this.props.location.pathname) {
-      history.push(newURL);
-    }
-  };
-
   onClickCalendar = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.dispatch({
@@ -333,9 +266,6 @@ export default React.memo<BaseProps>(function ConnectedApp(props: BaseProps) {
     (state) => state.navInfo.activeChatThreadID,
   );
   const navInfo = useSelector((state) => state.navInfo);
-  const serverVerificationResult = useSelector(
-    (state) => state.serverVerificationResult,
-  );
 
   const fetchEntriesLoadingStatus = useSelector(
     fetchEntriesLoadingStatusSelector,
@@ -371,7 +301,6 @@ export default React.memo<BaseProps>(function ConnectedApp(props: BaseProps) {
     <App
       {...props}
       navInfo={navInfo}
-      serverVerificationResult={serverVerificationResult}
       entriesLoadingStatus={entriesLoadingStatus}
       loggedIn={loggedIn}
       mostRecentReadThread={mostRecentReadThread}
