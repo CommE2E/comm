@@ -51,7 +51,10 @@ import {
   useStyles,
 } from '../themes/colors';
 import { animateTowards } from '../utils/animation-utils';
-import ChatThreadListItem from './chat-thread-list-item.react';
+import {
+  ChatThreadListItem,
+  chatThreadListItemHeight,
+} from './chat-thread-list-item.react';
 import type {
   ChatTopTabsNavigationProp,
   ChatNavigationProp,
@@ -331,7 +334,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       return 123;
     }
 
-    return 76 + item.sidebars.length * 30;
+    return chatThreadListItemHeight + item.sidebars.length * 30;
   }
 
   static heightOfItems(data: $ReadOnlyArray<Item>): number {
@@ -577,7 +580,7 @@ const unboundStyles = {
   },
   search: {
     marginBottom: 8,
-    marginHorizontal: 12,
+    marginHorizontal: 18,
     marginTop: 12,
   },
   cancelSearchButton: {

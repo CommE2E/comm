@@ -91,12 +91,15 @@ function ChatThreadListItem({
     if (!data.threadInfo.parentThreadID) {
       return undefined;
     }
-    return (
-      <View style={styles.ancestorLabel}>
-        <ThreadAncestorsLabel threadInfo={data.threadInfo} />
-      </View>
-    );
-  }, [data.threadInfo, styles.ancestorLabel]);
+    return <ThreadAncestorsLabel threadInfo={data.threadInfo} />;
+  }, [data.threadInfo]);
+
+  const unreadDotStyle = React.useMemo(() => {
+    return [
+      styles.colorSplotch,
+      { opacity: data.threadInfo.currentUser.unread ? 1 : 0 },
+    ];
+  }, [data.threadInfo.currentUser.unread, styles.colorSplotch]);
 
   return (
     <>
@@ -114,6 +117,12 @@ function ChatThreadListItem({
           iosActiveOpacity={0.85}
           style={styles.row}
         >
+          <View style={unreadDotStyle}>
+            <ColorSplotch
+              color={`${colors.listForegroundSecondaryLabel.slice(1)}`}
+              size="micro"
+            />
+          </View>
           <View style={styles.colorSplotch}>
             <ColorSplotch color={data.threadInfo.color} size="profile" />
           </View>
@@ -138,33 +147,30 @@ function ChatThreadListItem({
   );
 }
 
+const chatThreadListItemHeight = 80;
 const unboundStyles = {
-  ancestorLabel: {
-    paddingRight: 80,
-  },
   colorSplotch: {
-    marginLeft: 12,
+    marginLeft: 6,
   },
   container: {
-    height: 76,
-    paddingHorizontal: 12,
-    paddingTop: 5,
+    height: chatThreadListItemHeight,
+    paddingLeft: 12,
+    paddingRight: 18,
+    justifyContent: 'center',
     flex: 1,
   },
   lastActivity: {
     color: 'listForegroundTertiaryLabel',
-    fontSize: 16,
+    fontSize: 14,
     marginLeft: 10,
   },
   noMessages: {
     color: 'listForegroundTertiaryLabel',
     flex: 1,
-    fontSize: 16,
+    fontSize: 14,
     fontStyle: 'italic',
-    paddingLeft: 10,
   },
   row: {
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -173,7 +179,7 @@ const unboundStyles = {
   threadName: {
     color: 'listForegroundSecondaryLabel',
     flex: 1,
-    fontSize: 20,
+    fontSize: 18,
   },
   unread: {
     color: 'listForegroundLabel',
@@ -181,4 +187,4 @@ const unboundStyles = {
   },
 };
 
-export default ChatThreadListItem;
+export { ChatThreadListItem, chatThreadListItemHeight };

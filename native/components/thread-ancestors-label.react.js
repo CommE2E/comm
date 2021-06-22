@@ -31,7 +31,6 @@ const unboundStyles = {
   pathText: {
     opacity: 0.8,
     fontSize: 12,
-    paddingVertical: 2,
     color: 'listForegroundTertiaryLabel',
   },
 };

@@ -73,7 +73,7 @@ const unboundStyles = {
   lastMessage: {
     color: 'listForegroundTertiaryLabel',
     flex: 1,
-    fontSize: 16,
+    fontSize: 14,
   },
   preview: {
     color: 'listForegroundQuaternaryLabel',
