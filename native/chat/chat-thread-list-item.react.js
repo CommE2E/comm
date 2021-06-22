@@ -112,22 +112,24 @@ function ChatThreadListItem({
           iosFormat="highlight"
           iosHighlightUnderlayColor={colors.listIosHighlightUnderlay}
           iosActiveOpacity={0.85}
-          style={styles.container}
+          style={styles.row}
         >
-          {ancestorLabel}
-          <View style={styles.row}>
-            <SingleLine style={[styles.threadName, unreadStyle]}>
-              {data.threadInfo.uiName}
-            </SingleLine>
-            <View style={styles.colorSplotch}>
-              <ColorSplotch color={data.threadInfo.color} size="small" />
-            </View>
+          <View style={styles.colorSplotch}>
+            <ColorSplotch color={data.threadInfo.color} size="profile" />
           </View>
-          <View style={styles.row}>
-            {lastMessage}
-            <Text style={[styles.lastActivity, unreadStyle]}>
-              {lastActivity}
-            </Text>
+          <View style={styles.container}>
+            {ancestorLabel}
+            <View style={styles.row}>
+              <SingleLine style={[styles.threadName, unreadStyle]}>
+                {data.threadInfo.uiName}
+              </SingleLine>
+            </View>
+            <View style={styles.row}>
+              {lastMessage}
+              <Text style={[styles.lastActivity, unreadStyle]}>
+                {lastActivity}
+              </Text>
+            </View>
           </View>
         </Button>
       </SwipeableThread>
@@ -141,14 +143,13 @@ const unboundStyles = {
     paddingRight: 80,
   },
   colorSplotch: {
-    marginLeft: 10,
-    marginTop: 2,
+    marginLeft: 12,
   },
   container: {
     height: 76,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingTop: 5,
-    backgroundColor: 'listBackground',
+    flex: 1,
   },
   lastActivity: {
     color: 'listForegroundTertiaryLabel',
@@ -166,12 +167,13 @@ const unboundStyles = {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'listBackground',
   },
   threadName: {
     color: 'listForegroundSecondaryLabel',
     flex: 1,
     fontSize: 20,
-    paddingLeft: 10,
   },
   unread: {
     color: 'listForegroundLabel',

@@ -74,7 +74,6 @@ const unboundStyles = {
     color: 'listForegroundTertiaryLabel',
     flex: 1,
     fontSize: 16,
-    paddingLeft: 10,
   },
   preview: {
     color: 'listForegroundQuaternaryLabel',

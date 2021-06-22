@@ -105,7 +105,7 @@ const unboundStyles = {
   search: {
     alignItems: 'center',
     backgroundColor: 'listSearchBackground',
-    borderRadius: 6,
+    borderRadius: 8,
     flexDirection: 'row',
     paddingLeft: 14,
     paddingRight: 7,
