@@ -4,8 +4,8 @@
 
 namespace comm {
 
-WorkerThread::WorkerThread()
-    : tasks(folly::MPMCQueue<std::unique_ptr<taskType>>(20)) {
+WorkerThread::WorkerThread(const std::string name)
+    : tasks(folly::MPMCQueue<std::unique_ptr<taskType>>(20)), name(name) {
   auto job = [this]() {
     while (true) {
       std::unique_ptr<taskType> lastTask;
@@ -21,7 +21,8 @@ WorkerThread::WorkerThread()
 
 void WorkerThread::scheduleTask(const taskType task) {
   if (!this->tasks.write(std::make_unique<taskType>(std::move(task)))) {
-    throw std::runtime_error("Error scheduling task on a worker thread");
+    throw std::runtime_error(
+        "Error scheduling task on the " + this->name + " worker thread");
   }
 }
 
@@ -31,7 +32,9 @@ WorkerThread::~WorkerThread() {
     this->thread->join();
   } catch (const std::system_error &error) {
     std::ostringstream stringStream;
-    stringStream << "Error occurred joining a worker thread: " << error.what();
+    stringStream << "Error occurred joining the " + this->name +
+                        " worker thread: "
+                 << error.what();
     Logger::log(stringStream.str());
   }
 }

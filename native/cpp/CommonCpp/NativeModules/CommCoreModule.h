@@ -20,8 +20,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   jsi::Value getAllDrafts(jsi::Runtime &rt) override;
 
 public:
-  CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker)
-      : facebook::react::CommCoreModuleSchemaCxxSpecJSI(jsInvoker){};
+  CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
 };
 
 } // namespace comm

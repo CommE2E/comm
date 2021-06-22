@@ -127,4 +127,9 @@ jsi::Value CommCoreModule::getAllDrafts(jsi::Runtime &rt) {
       });
 }
 
+CommCoreModule::CommCoreModule(
+    std::shared_ptr<facebook::react::CallInvoker> jsInvoker)
+    : facebook::react::CommCoreModuleSchemaCxxSpecJSI(jsInvoker),
+      databaseThread("database"){};
+
 } // namespace comm
