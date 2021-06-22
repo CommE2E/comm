@@ -175,7 +175,8 @@ async function accountCreationResponder(
 }
 
 const logInRequestInputValidator = tShape({
-  usernameOrEmail: t.String,
+  username: t.maybe(t.String),
+  usernameOrEmail: t.maybe(t.String),
   password: tPassword,
   watchedIDs: t.list(t.String),
   calendarQuery: t.maybe(entryQueryInputValidator),
@@ -199,11 +200,14 @@ async function logInResponder(
       calendarQuery,
     );
   }
+  const username = request.username ?? request.usernameOrEmail;
+  if (!username) {
+    throw new ServerError('invalid_parameters');
+  }
   const userQuery = SQL`
     SELECT id, hash, username, email, email_verified
     FROM users
-    WHERE LCASE(username) = LCASE(${request.usernameOrEmail})
-      OR LCASE(email) = LCASE(${request.usernameOrEmail})
+    WHERE LCASE(username) = LCASE(${username})
   `;
   promises.userQuery = dbQuery(userQuery);
   const {

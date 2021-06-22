@@ -171,7 +171,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       mode: props.rehydrateConcluded ? 'prompt' : 'loading',
       logInState: {
         state: {
-          usernameOrEmailInputText: null,
+          usernameInputText: null,
           passwordInputText: null,
         },
         setState: setLogInState,

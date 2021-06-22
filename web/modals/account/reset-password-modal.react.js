@@ -58,7 +58,7 @@ class ResetPasswordModal extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
-    invariant(this.passwordInput, 'usernameOrEmail ref unset');
+    invariant(this.passwordInput, 'passwordInput ref unset');
     this.passwordInput.focus();
   }
 

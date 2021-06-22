@@ -28,10 +28,9 @@ async function resolveInvalidatedCookie(
     const newCookie = await dispatchRecoveryAttempt(
       logInActionTypes,
       logIn(fetchJSON)({
-        usernameOrEmail: keychainCredentials.username,
-        password: keychainCredentials.password,
-        source,
+        ...keychainCredentials,
         ...extraInfo,
+        source,
       }),
       { calendarQuery },
     );
@@ -49,10 +48,9 @@ async function resolveInvalidatedCookie(
     await dispatchRecoveryAttempt(
       logInActionTypes,
       logIn(fetchJSON)({
-        usernameOrEmail: sharedWebCredentials.username,
-        password: sharedWebCredentials.password,
-        source,
+        ...sharedWebCredentials,
         ...extraInfo,
+        source,
       }),
       { calendarQuery },
     );

@@ -23,10 +23,7 @@ import {
 } from 'lib/utils/action-utils';
 
 import { useSelector } from '../redux/redux-utils';
-import {
-  TextInput,
-  usernamePlaceholderSelector,
-} from './modal-components.react';
+import { TextInput } from './modal-components.react';
 import { PanelButton, Panel } from './panel-components.react';
 
 type BaseProps = {|
@@ -38,7 +35,6 @@ type Props = {|
   ...BaseProps,
   // Redux state
   +loadingStatus: LoadingStatus,
-  +usernamePlaceholder: string,
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -62,7 +58,7 @@ class ForgotPasswordPanel extends React.PureComponent<Props, State> {
             style={styles.input}
             value={this.state.usernameOrEmailInputText}
             onChangeText={this.onChangeUsernameOrEmailInputText}
-            placeholder={this.props.usernamePlaceholder}
+            placeholder="Username"
             autoFocus={true}
             autoCorrect={false}
             autoCapitalize="none"
@@ -172,7 +168,6 @@ export default React.memo<BaseProps>(function ConnectedForgotPasswordPanel(
   props: BaseProps,
 ) {
   const loadingStatus = useSelector(loadingStatusSelector);
-  const usernamePlaceholder = useSelector(usernamePlaceholderSelector);
 
   const dispatchActionPromise = useDispatchActionPromise();
   const callForgotPassword = useServerCall(forgotPassword);
@@ -181,7 +176,6 @@ export default React.memo<BaseProps>(function ConnectedForgotPasswordPanel(
     <ForgotPasswordPanel
       {...props}
       loadingStatus={loadingStatus}
-      usernamePlaceholder={usernamePlaceholder}
       dispatchActionPromise={dispatchActionPromise}
       forgotPassword={callForgotPassword}
     />

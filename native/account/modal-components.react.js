@@ -3,9 +3,6 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { TextInput as BaseTextInput, View, StyleSheet } from 'react-native';
-import { createSelector } from 'reselect';
-
-import type { AppState } from '../redux/redux-setup';
 
 class TextInput extends React.PureComponent<*> {
   innerTextInput: ?React.ElementRef<typeof BaseTextInput>;
@@ -51,10 +48,4 @@ const styles = StyleSheet.create({
   },
 });
 
-const usernamePlaceholderSelector: (state: AppState) => string = createSelector(
-  (state: AppState) => state.dimensions.width,
-  (windowWidth: number): string =>
-    windowWidth < 360 ? 'Username or email' : 'Username or email address',
-);
-
-export { TextInput, usernamePlaceholderSelector };
+export { TextInput };

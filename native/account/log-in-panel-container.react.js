@@ -206,7 +206,7 @@ class BaseLogInPanelContainer extends React.PureComponent<Props, State> {
       nextLogInMode: 'log-in',
     });
     invariant(this.logInPanel, 'ref should be set');
-    this.logInPanel.focusUsernameOrEmailInput();
+    this.logInPanel.focusUsernameInput();
 
     this.props.hideForgotPasswordLink.setValue(0);
     this.panelTransitionTarget.setValue(modeNumbers['log-in']);

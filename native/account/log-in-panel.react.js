@@ -8,10 +8,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import {
-  oldValidUsernameRegex,
-  validEmailRegex,
-} from 'lib/shared/account-utils';
+import { oldValidUsernameRegex } from 'lib/shared/account-utils';
 import type {
   LogInInfo,
   LogInExtraInfo,
@@ -29,10 +26,7 @@ import { NavContext } from '../navigation/navigation-context';
 import { useSelector } from '../redux/redux-utils';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
 import type { StateContainer } from '../utils/state-container';
-import {
-  TextInput,
-  usernamePlaceholderSelector,
-} from './modal-components.react';
+import { TextInput } from './modal-components.react';
 import {
   fetchNativeCredentials,
   setNativeCredentials,
@@ -40,7 +34,7 @@ import {
 import { PanelButton, Panel } from './panel-components.react';
 
 export type LogInState = {|
-  +usernameOrEmailInputText: ?string,
+  +usernameInputText: ?string,
   +passwordInputText: ?string,
 |};
 type BaseProps = {|
@@ -54,14 +48,13 @@ type Props = {|
   // Redux state
   +loadingStatus: LoadingStatus,
   +logInExtraInfo: () => LogInExtraInfo,
-  +usernamePlaceholder: string,
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +logIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
 |};
 class LogInPanel extends React.PureComponent<Props> {
-  usernameOrEmailInput: ?TextInput;
+  usernameInput: ?TextInput;
   passwordInput: ?TextInput;
 
   componentDidMount() {
@@ -73,8 +66,8 @@ class LogInPanel extends React.PureComponent<Props> {
     this.props.innerRef(null);
   }
 
-  get usernameOrEmailInputText(): string {
-    return this.props.logInState.state.usernameOrEmailInputText || '';
+  get usernameInputText(): string {
+    return this.props.logInState.state.usernameInputText || '';
   }
 
   get passwordInputText(): string {
@@ -83,8 +76,8 @@ class LogInPanel extends React.PureComponent<Props> {
 
   async attemptToFetchCredentials() {
     if (
-      this.props.logInState.state.usernameOrEmailInputText !== null &&
-      this.props.logInState.state.usernameOrEmailInputText !== undefined
+      this.props.logInState.state.usernameInputText !== null &&
+      this.props.logInState.state.usernameInputText !== undefined
     ) {
       return;
     }
@@ -93,13 +86,13 @@ class LogInPanel extends React.PureComponent<Props> {
       return;
     }
     if (
-      this.props.logInState.state.usernameOrEmailInputText !== null &&
-      this.props.logInState.state.usernameOrEmailInputText !== undefined
+      this.props.logInState.state.usernameInputText !== null &&
+      this.props.logInState.state.usernameInputText !== undefined
     ) {
       return;
     }
     this.props.logInState.setState({
-      usernameOrEmailInputText: credentials.username,
+      usernameInputText: credentials.username,
       passwordInputText: credentials.password,
     });
   }
@@ -111,10 +104,10 @@ class LogInPanel extends React.PureComponent<Props> {
           <Icon name="user" size={22} color="#777" style={styles.icon} />
           <TextInput
             style={styles.input}
-            value={this.usernameOrEmailInputText}
-            onChangeText={this.onChangeUsernameOrEmailInputText}
-            onKeyPress={this.onUsernameOrEmailKeyPress}
-            placeholder={this.props.usernamePlaceholder}
+            value={this.usernameInputText}
+            onChangeText={this.onChangeUsernameInputText}
+            onKeyPress={this.onUsernameKeyPress}
+            placeholder="Username"
             autoFocus={Platform.OS !== 'ios'}
             autoCorrect={false}
             autoCapitalize="none"
@@ -125,7 +118,7 @@ class LogInPanel extends React.PureComponent<Props> {
             blurOnSubmit={false}
             onSubmitEditing={this.focusPasswordInput}
             editable={this.props.loadingStatus !== 'loading'}
-            ref={this.usernameOrEmailInputRef}
+            ref={this.usernameInputRef}
           />
         </View>
         <View>
@@ -154,16 +147,16 @@ class LogInPanel extends React.PureComponent<Props> {
     );
   }
 
-  usernameOrEmailInputRef = (usernameOrEmailInput: ?TextInput) => {
-    this.usernameOrEmailInput = usernameOrEmailInput;
-    if (Platform.OS === 'ios' && usernameOrEmailInput) {
-      setTimeout(() => usernameOrEmailInput.focus());
+  usernameInputRef = (usernameInput: ?TextInput) => {
+    this.usernameInput = usernameInput;
+    if (Platform.OS === 'ios' && usernameInput) {
+      setTimeout(() => usernameInput.focus());
     }
   };
 
-  focusUsernameOrEmailInput = () => {
-    invariant(this.usernameOrEmailInput, 'ref should be set');
-    this.usernameOrEmailInput.focus();
+  focusUsernameInput = () => {
+    invariant(this.usernameInput, 'ref should be set');
+    this.usernameInput.focus();
   };
 
   passwordInputRef = (passwordInput: ?TextInput) => {
@@ -175,11 +168,11 @@ class LogInPanel extends React.PureComponent<Props> {
     this.passwordInput.focus();
   };
 
-  onChangeUsernameOrEmailInputText = (text: string) => {
-    this.props.logInState.setState({ usernameOrEmailInputText: text });
+  onChangeUsernameInputText = (text: string) => {
+    this.props.logInState.setState({ usernameInputText: text });
   };
 
-  onUsernameOrEmailKeyPress = (
+  onUsernameKeyPress = (
     event: $ReadOnly<{ nativeEvent: $ReadOnly<{ key: string }> }>,
   ) => {
     const { key } = event.nativeEvent;
@@ -199,14 +192,11 @@ class LogInPanel extends React.PureComponent<Props> {
 
   onSubmit = () => {
     this.props.setActiveAlert(true);
-    if (
-      this.usernameOrEmailInputText.search(oldValidUsernameRegex) === -1 &&
-      this.usernameOrEmailInputText.search(validEmailRegex) === -1
-    ) {
+    if (this.usernameInputText.search(oldValidUsernameRegex) === -1) {
       Alert.alert(
         'Invalid username',
-        'Alphanumeric usernames or emails only',
-        [{ text: 'OK', onPress: this.onUsernameOrEmailAlertAcknowledged }],
+        'Alphanumeric usernames only',
+        [{ text: 'OK', onPress: this.onUsernameAlertAcknowledged }],
         { cancelable: false },
       );
       return;
@@ -230,23 +220,20 @@ class LogInPanel extends React.PureComponent<Props> {
     );
   };
 
-  onUsernameOrEmailAlertAcknowledged = () => {
+  onUsernameAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
     this.props.logInState.setState(
       {
-        usernameOrEmailInputText: '',
+        usernameInputText: '',
       },
-      () => {
-        invariant(this.usernameOrEmailInput, 'ref should exist');
-        this.usernameOrEmailInput.focus();
-      },
+      this.focusUsernameInput,
     );
   };
 
   async logInAction(extraInfo: LogInExtraInfo) {
     try {
       const result = await this.props.logIn({
-        usernameOrEmail: this.usernameOrEmailInputText,
+        username: this.usernameInputText,
         password: this.passwordInputText,
         ...extraInfo,
       });
@@ -261,7 +248,7 @@ class LogInPanel extends React.PureComponent<Props> {
         Alert.alert(
           'Invalid username',
           "User doesn't exist",
-          [{ text: 'OK', onPress: this.onUsernameOrEmailAlertAcknowledged }],
+          [{ text: 'OK', onPress: this.onUsernameAlertAcknowledged }],
           { cancelable: false },
         );
       } else if (e.message === 'invalid_credentials') {
@@ -301,10 +288,7 @@ class LogInPanel extends React.PureComponent<Props> {
       {
         passwordInputText: '',
       },
-      () => {
-        invariant(this.passwordInput, 'passwordInput ref unset');
-        this.passwordInput.focus();
-      },
+      this.focusPasswordInput,
     );
   };
 
@@ -312,13 +296,10 @@ class LogInPanel extends React.PureComponent<Props> {
     this.props.setActiveAlert(false);
     this.props.logInState.setState(
       {
-        usernameOrEmailInputText: '',
+        usernameInputText: '',
         passwordInputText: '',
       },
-      () => {
-        invariant(this.usernameOrEmailInput, 'ref should exist');
-        this.usernameOrEmailInput.focus();
-      },
+      this.focusUsernameInput,
     );
   };
 
@@ -346,7 +327,6 @@ export default React.memo<BaseProps>(function ConnectedLogInPanel(
   props: BaseProps,
 ) {
   const loadingStatus = useSelector(loadingStatusSelector);
-  const usernamePlaceholder = useSelector(usernamePlaceholderSelector);
 
   const navContext = React.useContext(NavContext);
   const logInExtraInfo = useSelector((state) =>
@@ -364,7 +344,6 @@ export default React.memo<BaseProps>(function ConnectedLogInPanel(
       {...props}
       loadingStatus={loadingStatus}
       logInExtraInfo={logInExtraInfo}
-      usernamePlaceholder={usernamePlaceholder}
       dispatchActionPromise={dispatchActionPromise}
       logIn={callLogIn}
     />

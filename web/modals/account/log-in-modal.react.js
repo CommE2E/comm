@@ -5,10 +5,7 @@ import * as React from 'react';
 
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import {
-  oldValidUsernameRegex,
-  validEmailRegex,
-} from 'lib/shared/account-utils';
+import { oldValidUsernameRegex } from 'lib/shared/account-utils';
 import type {
   LogInInfo,
   LogInExtraInfo,
@@ -70,7 +67,7 @@ class LogInModal extends React.PureComponent<Props, State> {
               <div className={css['form-content']}>
                 <input
                   type="text"
-                  placeholder="Username or email"
+                  placeholder="Username"
                   value={this.state.usernameOrEmail}
                   onChange={this.onChangeUsernameOrEmail}
                   ref={this.usernameOrEmailInputRef}
@@ -141,14 +138,11 @@ class LogInModal extends React.PureComponent<Props, State> {
   onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
 
-    if (
-      this.state.usernameOrEmail.search(oldValidUsernameRegex) === -1 &&
-      this.state.usernameOrEmail.search(validEmailRegex) === -1
-    ) {
+    if (this.state.usernameOrEmail.search(oldValidUsernameRegex) === -1) {
       this.setState(
         {
           usernameOrEmail: '',
-          errorMessage: 'alphanumeric usernames or emails only',
+          errorMessage: 'alphanumeric usernames only',
         },
         () => {
           invariant(
@@ -173,7 +167,7 @@ class LogInModal extends React.PureComponent<Props, State> {
   async logInAction(extraInfo: LogInExtraInfo) {
     try {
       const result = await this.props.logIn({
-        usernameOrEmail: this.state.usernameOrEmail,
+        username: this.state.usernameOrEmail,
         password: this.state.password,
         ...extraInfo,
       });
