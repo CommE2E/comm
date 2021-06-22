@@ -1,6 +1,5 @@
 // @flow
 
-import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual';
 import * as React from 'react';
 import {
@@ -56,10 +55,7 @@ import {
   setStateForContainer,
 } from '../utils/state-container';
 import { splashBackgroundURI } from './background-info';
-import {
-  LogInPanelContainer,
-  BaseLogInPanelContainer,
-} from './log-in-panel-container.react';
+import LogInPanel from './log-in-panel.react';
 import type { LogInState } from './log-in-panel.react';
 import RegisterPanel from './register-panel.react';
 import type { RegisterState } from './register-panel.react';
@@ -130,18 +126,14 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   mounted = false;
   nextMode: LoggedOutMode = 'loading';
   activeAlert = false;
-  logInPanelContainer: ?BaseLogInPanelContainer = null;
 
   contentHeight: Value;
   keyboardHeightValue = new Value(0);
   modeValue: Value;
-  hideForgotPasswordLink = new Value(0);
 
   buttonOpacity: Value;
   panelPaddingTopValue: Value;
-  footerPaddingTopValue: Value;
   panelOpacityValue: Value;
-  forgotPasswordLinkOpacityValue: Value;
 
   constructor(props: Props) {
     super(props);
@@ -195,9 +187,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
     this.buttonOpacity = new Value(props.rehydrateConcluded ? 1 : 0);
     this.panelPaddingTopValue = this.panelPaddingTop();
-    this.footerPaddingTopValue = this.footerPaddingTop();
     this.panelOpacityValue = this.panelOpacity();
-    this.forgotPasswordLinkOpacityValue = this.forgotPasswordLinkOpacity();
   }
 
   guardedSetState = (change: StateChange<State>, callback?: () => mixed) => {
@@ -321,13 +311,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   }
 
   hardwareBack = () => {
-    if (this.nextMode === 'log-in') {
-      invariant(this.logInPanelContainer, 'ref should be set');
-      const returnValue = this.logInPanelContainer.backFromLogInMode();
-      if (returnValue) {
-        return true;
-      }
-    }
     if (this.nextMode !== 'prompt') {
       this.goBackToPrompt();
       return true;
@@ -342,29 +325,18 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     const registerPanelSize = 246;
 
     // On large enough devices, we want to properly center the panels on screen.
-    // But on smaller devices, this can lead to some issues:
-    // - We need enough space below the log-in panel to render the
-    //   "Forgot password?" link
-    // - On Android, ratchetAlongWithKeyboardHeight won't adjust the panel's
-    //   position when the keyboard size changes
-    // To address these issues, we artifically increase the panel sizes so that
-    // they get positioned a little higher than center on small devices.
+    // But on smaller Android devices, this can lead to an issue, since on
+    // Android, ratchetAlongWithKeyboardHeight won't adjust the panel's position
+    // when the keyboard size changes. To avoid this issue, we artifically
+    // increase the panel sizes so that they get positioned a little higher than
+    // center on small devices.
     const smallDeviceThreshold = 600;
-    const smallDeviceLogInContainerSize = 195;
     const smallDeviceRegisterPanelSize = 261;
 
     const containerSize = add(
       headerHeight,
       cond(not(isPastPrompt(this.modeValue)), promptButtonsSize, 0),
-      cond(
-        eq(this.modeValue, modeNumbers['log-in']),
-        cond(
-          lessThan(this.contentHeight, smallDeviceThreshold),
-          smallDeviceLogInContainerSize,
-          logInContainerSize,
-        ),
-        0,
-      ),
+      cond(eq(this.modeValue, modeNumbers['log-in']), logInContainerSize, 0),
       cond(
         eq(this.modeValue, modeNumbers['register']),
         cond(
@@ -430,42 +402,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     ]);
   }
 
-  footerPaddingTop() {
-    const textHeight = Platform.OS === 'ios' ? 17 : 19;
-    const spacingAboveKeyboard = 15;
-    const potentialFooterPaddingTop = max(
-      sub(
-        this.contentHeight,
-        max(this.keyboardHeightValue, 0),
-        textHeight,
-        spacingAboveKeyboard,
-      ),
-      0,
-    );
-
-    const footerPaddingTop = new Value(-1);
-    const targetFooterPaddingTop = new Value(-1);
-    const clock = new Clock();
-    return block([
-      cond(lessThan(footerPaddingTop, 0), [
-        set(footerPaddingTop, potentialFooterPaddingTop),
-        set(targetFooterPaddingTop, potentialFooterPaddingTop),
-      ]),
-      ratchetAlongWithKeyboardHeight(this.keyboardHeightValue, [
-        stopClock(clock),
-        set(targetFooterPaddingTop, potentialFooterPaddingTop),
-      ]),
-      cond(
-        neq(footerPaddingTop, targetFooterPaddingTop),
-        set(
-          footerPaddingTop,
-          runTiming(clock, footerPaddingTop, targetFooterPaddingTop),
-        ),
-      ),
-      footerPaddingTop,
-    ]);
-  }
-
   panelOpacity() {
     const targetPanelOpacity = isPastPrompt(this.modeValue);
 
@@ -495,46 +431,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       ),
       set(prevPanelOpacity, panelOpacity),
       panelOpacity,
-    ]);
-  }
-
-  forgotPasswordLinkOpacity() {
-    const targetForgotPasswordLinkOpacity = and(
-      eq(this.modeValue, modeNumbers['log-in']),
-      not(this.hideForgotPasswordLink),
-    );
-
-    const forgotPasswordLinkOpacity = new Value(0);
-    const prevTargetForgotPasswordLinkOpacity = new Value(0);
-    const clock = new Clock();
-    return block([
-      cond(greaterOrEq(this.keyboardHeightValue, 0), [
-        cond(
-          neq(
-            targetForgotPasswordLinkOpacity,
-            prevTargetForgotPasswordLinkOpacity,
-          ),
-          [
-            stopClock(clock),
-            set(
-              prevTargetForgotPasswordLinkOpacity,
-              targetForgotPasswordLinkOpacity,
-            ),
-          ],
-        ),
-        cond(
-          neq(forgotPasswordLinkOpacity, targetForgotPasswordLinkOpacity),
-          set(
-            forgotPasswordLinkOpacity,
-            runTiming(
-              clock,
-              forgotPasswordLinkOpacity,
-              targetForgotPasswordLinkOpacity,
-            ),
-          ),
-        ),
-      ]),
-      forgotPasswordLinkOpacity,
     ]);
   }
 
@@ -575,12 +471,10 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     let buttons = null;
     if (this.state.mode === 'log-in') {
       panel = (
-        <LogInPanelContainer
+        <LogInPanel
           setActiveAlert={this.setActiveAlert}
           opacityValue={this.panelOpacityValue}
-          hideForgotPasswordLink={this.hideForgotPasswordLink}
           logInState={this.state.logInState}
-          ref={this.logInPanelContainerRef}
         />
       );
     } else if (this.state.mode === 'register') {
@@ -621,26 +515,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       );
     }
 
-    let forgotPasswordLink = null;
-    if (this.state.mode === 'log-in') {
-      const reanimatedStyle = {
-        top: this.footerPaddingTopValue,
-        opacity: this.forgotPasswordLinkOpacityValue,
-      };
-      forgotPasswordLink = (
-        <Animated.View
-          style={[styles.forgotPasswordTextContainer, reanimatedStyle]}
-        >
-          <TouchableOpacity
-            activeOpacity={0.6}
-            onPress={this.onPressForgotPassword}
-          >
-            <Text style={styles.forgotPasswordText}>Forgot password?</Text>
-          </TouchableOpacity>
-        </Animated.View>
-      );
-    }
-
     const windowWidth = this.props.dimensions.width;
     const buttonStyle = {
       opacity: this.panelOpacityValue,
@@ -674,18 +548,11 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
           <View style={styles.container}>
             {animatedContent}
             {buttons}
-            {forgotPasswordLink}
           </View>
         </SafeAreaView>
       </React.Fragment>
     );
   }
-
-  logInPanelContainerRef = (
-    logInPanelContainer: ?React.ElementRef<typeof LogInPanelContainer>,
-  ) => {
-    this.logInPanelContainer = logInPanelContainer;
-  };
 
   onPressLogIn = () => {
     if (Platform.OS !== 'ios') {
@@ -706,11 +573,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   onPressRegister = () => {
     this.keyboardHeightValue.setValue(-1);
     this.setMode('register');
-  };
-
-  onPressForgotPassword = () => {
-    invariant(this.logInPanelContainer, 'ref should be set');
-    this.logInPanelContainer.onPressForgotPassword();
   };
 }
 
@@ -750,14 +612,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: 'transparent',
     flex: 1,
-  },
-  forgotPasswordText: {
-    color: '#8899FF',
-  },
-  forgotPasswordTextContainer: {
-    alignSelf: 'flex-end',
-    position: 'absolute',
-    right: 20,
   },
   header: {
     color: 'white',

@@ -40,7 +40,6 @@ export type LogInState = {|
 type BaseProps = {|
   +setActiveAlert: (activeAlert: boolean) => void,
   +opacityValue: Animated.Value,
-  +innerRef: (logInPanel: ?LogInPanel) => void,
   +logInState: StateContainer<LogInState>,
 |};
 type Props = {|
@@ -58,12 +57,7 @@ class LogInPanel extends React.PureComponent<Props> {
   passwordInput: ?TextInput;
 
   componentDidMount() {
-    this.props.innerRef(this);
     this.attemptToFetchCredentials();
-  }
-
-  componentWillUnmount() {
-    this.props.innerRef(null);
   }
 
   get usernameInputText(): string {
