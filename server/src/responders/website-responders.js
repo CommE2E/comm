@@ -21,6 +21,7 @@ import { defaultCalendarFilters } from 'lib/types/filter-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 import { defaultConnectionInfo } from 'lib/types/socket-types';
 import { threadPermissions } from 'lib/types/thread-types';
+import type { CurrentUserInfo } from 'lib/types/user-types';
 import { currentDateInTimeZone } from 'lib/utils/date-utils';
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
@@ -251,7 +252,7 @@ async function websiteResponder(
 
   const statePromises = {
     navInfo: navInfoPromise,
-    currentUserInfo: currentUserInfoPromise,
+    currentUserInfo: ((currentUserInfoPromise: any): Promise<CurrentUserInfo>),
     sessionID: sessionIDPromise,
     entryStore: entryStorePromise,
     threadStore: threadStorePromise,

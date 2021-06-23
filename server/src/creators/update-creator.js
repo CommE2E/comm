@@ -31,7 +31,11 @@ import {
   type CreateUpdatesResult,
   updateTypes,
 } from 'lib/types/update-types';
-import type { AccountUserInfo, LoggedInUserInfo } from 'lib/types/user-types';
+import type {
+  AccountUserInfo,
+  LoggedInUserInfo,
+  OldLoggedInUserInfo,
+} from 'lib/types/user-types';
 import { promiseAll } from 'lib/utils/promises';
 
 import {
@@ -483,7 +487,9 @@ export type UpdateInfosRawData = {|
   messageInfosResult: ?FetchMessageInfosResult,
   calendarResult: ?FetchEntryInfosBase,
   entryInfosResult: ?$ReadOnlyArray<RawEntryInfo>,
-  currentUserInfosResult: ?$ReadOnlyArray<LoggedInUserInfo>,
+  currentUserInfosResult: ?$ReadOnlyArray<
+    OldLoggedInUserInfo | LoggedInUserInfo,
+  >,
 |};
 async function updateInfosFromRawUpdateInfos(
   viewer: Viewer,

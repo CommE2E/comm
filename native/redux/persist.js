@@ -217,6 +217,19 @@ const migrations = {
     ...state,
     crashReportsEnabled: __DEV__,
   }),
+  [26]: (state) => {
+    const { currentUserInfo } = state;
+    if (currentUserInfo.anonymous) {
+      return state;
+    }
+    return {
+      ...state,
+      currentUserInfo: {
+        id: currentUserInfo.id,
+        username: currentUserInfo.username,
+      },
+    };
+  },
 };
 
 const persistConfig = {
@@ -231,7 +244,7 @@ const persistConfig = {
     'frozen',
   ],
   debug: __DEV__,
-  version: 25,
+  version: 26,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
   timeout: __DEV__ ? 0 : undefined,
 };

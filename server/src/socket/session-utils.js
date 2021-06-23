@@ -27,7 +27,7 @@ import {
   type EntryInconsistencyClientResponse,
   type ClientResponse,
   type ServerServerRequest,
-  type CheckStateServerRequest,
+  type ServerCheckStateServerRequest,
 } from 'lib/types/request-types';
 import { sessionCheckFrequency } from 'lib/types/session-types';
 import { hash } from 'lib/utils/objects';
@@ -285,7 +285,7 @@ async function initializeSession(
 
 type StateCheckResult = {|
   sessionUpdate?: SessionUpdate,
-  checkStateRequest?: CheckStateServerRequest,
+  checkStateRequest?: ServerCheckStateServerRequest,
 |};
 async function checkState(
   viewer: Viewer,

@@ -1,5 +1,6 @@
 // @flow
 
+import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import {
   undirectedStatus,
   directedStatus,
@@ -8,7 +9,9 @@ import {
 import type {
   UserInfos,
   CurrentUserInfo,
+  OldCurrentUserInfo,
   LoggedInUserInfo,
+  OldLoggedInUserInfo,
   GlobalUserInfo,
 } from 'lib/types/user-types';
 import { ServerError } from 'lib/utils/errors';
@@ -179,20 +182,28 @@ async function verifyUserOrCookieIDs(
   return result.map((row) => row.id.toString());
 }
 
-async function fetchCurrentUserInfo(viewer: Viewer): Promise<CurrentUserInfo> {
+async function fetchCurrentUserInfo(
+  viewer: Viewer,
+): Promise<OldCurrentUserInfo | CurrentUserInfo> {
   if (!viewer.loggedIn) {
-    return { id: viewer.cookieID, anonymous: true };
+    return ({ id: viewer.cookieID, anonymous: true }: CurrentUserInfo);
   }
   const currentUserInfos = await fetchLoggedInUserInfos([viewer.userID]);
   if (currentUserInfos.length === 0) {
     throw new ServerError('unknown_error');
   }
-  return currentUserInfos[0];
+  const currentUserInfo = currentUserInfos[0];
+  const hasCodeVersionBelow87 = !hasMinCodeVersion(viewer.platformDetails, 87);
+  if (hasCodeVersionBelow87) {
+    return currentUserInfo;
+  }
+  const { id, username } = currentUserInfo;
+  return { id, username };
 }
 
 async function fetchLoggedInUserInfos(
   userIDs: $ReadOnlyArray<string>,
-): Promise<LoggedInUserInfo[]> {
+): Promise<Array<OldLoggedInUserInfo | LoggedInUserInfo>> {
   const query = SQL`
     SELECT id, username, email, email_verified
     FROM users
