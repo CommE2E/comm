@@ -18,7 +18,6 @@ import { promiseAll } from 'lib/utils/promises';
 import { createUpdates } from '../creators/update-creator';
 import { dbQuery, SQL } from '../database/database';
 import { sendPasswordResetEmail } from '../emails/reset-password';
-import { sendEmailAddressVerificationEmail } from '../emails/verification';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
@@ -74,30 +73,10 @@ async function accountUpdater(
   });
 }
 
+// eslint-disable-next-line no-unused-vars
 async function checkAndSendVerificationEmail(viewer: Viewer): Promise<void> {
-  if (!viewer.loggedIn) {
-    throw new ServerError('not_logged_in');
-  }
-
-  const query = SQL`
-    SELECT username, email, email_verified
-    FROM users
-    WHERE id = ${viewer.userID}
-  `;
-  const [result] = await dbQuery(query);
-  if (result.length === 0) {
-    throw new ServerError('internal_error');
-  }
-  const row = result[0];
-  if (row.email_verified) {
-    throw new ServerError('already_verified');
-  }
-
-  await sendEmailAddressVerificationEmail(
-    viewer.userID,
-    row.username,
-    row.email,
-  );
+  // We don't want to crash old clients that call this,
+  // but we have nothing we can do because we no longer store email addresses
 }
 
 async function checkAndSendPasswordResetEmail(request: ResetPasswordRequest) {
