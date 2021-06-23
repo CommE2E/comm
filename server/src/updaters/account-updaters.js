@@ -12,7 +12,6 @@ import { ServerError } from 'lib/utils/errors';
 
 import { createUpdates } from '../creators/update-creator';
 import { dbQuery, SQL } from '../database/database';
-import { sendPasswordResetEmail } from '../emails/reset-password';
 import type { Viewer } from '../session/viewer';
 
 async function accountUpdater(
@@ -67,20 +66,12 @@ async function checkAndSendVerificationEmail(viewer: Viewer): Promise<void> {
   // but we have nothing we can do because we no longer store email addresses
 }
 
-async function checkAndSendPasswordResetEmail(request: ResetPasswordRequest) {
-  const query = SQL`
-    SELECT id, username, email
-    FROM users
-    WHERE LCASE(username) = LCASE(${request.usernameOrEmail})
-      OR LCASE(email) = LCASE(${request.usernameOrEmail})
-  `;
-  const [result] = await dbQuery(query);
-  if (result.length === 0) {
-    throw new ServerError('invalid_user');
-  }
-  const row = result[0];
-
-  await sendPasswordResetEmail(row.id.toString(), row.username, row.email);
+async function checkAndSendPasswordResetEmail(
+  // eslint-disable-next-line no-unused-vars
+  request: ResetPasswordRequest,
+): Promise<void> {
+  // We don't want to crash old clients that call this,
+  // but we have nothing we can do because we no longer store email addresses
 }
 
 /* eslint-disable no-unused-vars */
