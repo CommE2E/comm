@@ -479,13 +479,6 @@ div.form-text > div.form-float-content {
   margin-top: 5px;
 }
 
-.verified-status-true {
-  color: green;
-}
-.verified-status-false {
-  color: red;
-}
-
 .hidden {
   display: none;
 }

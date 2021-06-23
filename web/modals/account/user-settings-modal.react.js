@@ -9,12 +9,9 @@ import {
   deleteAccount,
   changeUserSettingsActionTypes,
   changeUserSettings,
-  resendVerificationEmailActionTypes,
-  resendVerificationEmail,
 } from 'lib/actions/user-actions';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { validEmailRegex } from 'lib/shared/account-utils';
 import type {
   LogOutResult,
   ChangeUserSettingsResult,
@@ -30,7 +27,6 @@ import {
 import { useSelector } from '../../redux/redux-utils';
 import css from '../../style.css';
 import Modal from '../modal.react';
-import VerifyEmailModal from './verify-email-modal.react';
 
 type TabType = 'general' | 'delete';
 type TabProps = {
@@ -74,11 +70,8 @@ type Props = {|
   +changeUserSettings: (
     accountUpdate: AccountUpdate,
   ) => Promise<ChangeUserSettingsResult>,
-  +resendVerificationEmail: () => Promise<void>,
 |};
 type State = {
-  +email: ?string,
-  +emailVerified: ?boolean,
   +newPassword: string,
   +confirmNewPassword: string,
   +currentPassword: string,
@@ -87,15 +80,12 @@ type State = {
 };
 
 class UserSettingsModal extends React.PureComponent<Props, State> {
-  emailInput: ?HTMLInputElement;
   newPasswordInput: ?HTMLInputElement;
   currentPasswordInput: ?HTMLInputElement;
 
   constructor(props: Props) {
     super(props);
     this.state = {
-      email: this.email,
-      emailVerified: this.emailVerified,
       newPassword: '',
       confirmNewPassword: '',
       currentPassword: '',
@@ -105,8 +95,8 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
-    invariant(this.emailInput, 'email ref unset');
-    this.emailInput.focus();
+    invariant(this.newPasswordInput, 'newPasswordInput ref unset');
+    this.newPasswordInput.focus();
   }
 
   get username() {
@@ -115,41 +105,9 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
       : undefined;
   }
 
-  get email() {
-    return this.props.currentUserInfo && !this.props.currentUserInfo.anonymous
-      ? this.props.currentUserInfo.email
-      : undefined;
-  }
-
-  get emailVerified() {
-    return this.props.currentUserInfo && !this.props.currentUserInfo.anonymous
-      ? this.props.currentUserInfo.emailVerified
-      : undefined;
-  }
-
   render() {
     let mainContent = null;
     if (this.state.currentTabType === 'general') {
-      let verificationStatus = null;
-      if (this.state.emailVerified === true) {
-        verificationStatus = (
-          <div
-            className={`${css['form-subtitle']} ${css['verified-status-true']}`}
-          >
-            Verified
-          </div>
-        );
-      } else if (this.state.emailVerified === false) {
-        verificationStatus = (
-          <div className={css['form-subtitle']}>
-            <span className={css['verified-status-false']}>Not verified</span>
-            {' - '}
-            <a href="#" onClick={this.onClickResendVerificationEmail}>
-              resend verification email
-            </a>
-          </div>
-        );
-      }
       mainContent = (
         <div>
           <div className={css['form-text']}>
@@ -157,26 +115,12 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
             <div className={css['form-content']}>{this.username}</div>
           </div>
           <div>
-            <div className={css['form-title']}>Email</div>
-            <div className={css['form-content']}>
-              <input
-                type="text"
-                placeholder="Email"
-                value={this.state.email}
-                onChange={this.onChangeEmail}
-                ref={this.emailInputRef}
-                disabled={this.props.inputDisabled}
-              />
-              {verificationStatus}
-            </div>
-          </div>
-          <div>
-            <div className={css['form-title']}>New password (optional)</div>
+            <div className={css['form-title']}>New password</div>
             <div className={css['form-content']}>
               <div>
                 <input
                   type="password"
-                  placeholder="New password (optional)"
+                  placeholder="New password"
                   value={this.state.newPassword}
                   onChange={this.onChangeNewPassword}
                   ref={this.newPasswordInputRef}
@@ -186,7 +130,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
               <div>
                 <input
                   type="password"
-                  placeholder="Confirm new password (optional)"
+                  placeholder="Confirm new password"
                   value={this.state.confirmNewPassword}
                   onChange={this.onChangeConfirmNewPassword}
                   disabled={this.props.inputDisabled}
@@ -275,10 +219,6 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
     );
   }
 
-  emailInputRef = (emailInput: ?HTMLInputElement) => {
-    this.emailInput = emailInput;
-  };
-
   newPasswordInputRef = (newPasswordInput: ?HTMLInputElement) => {
     this.newPasswordInput = newPasswordInput;
   };
@@ -289,15 +229,6 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
 
   setTab = (tabType: TabType) => {
     this.setState({ currentTabType: tabType });
-  };
-
-  onChangeEmail = (event: SyntheticEvent<HTMLInputElement>) => {
-    const target = event.target;
-    invariant(target instanceof HTMLInputElement, 'target not input');
-    this.setState({
-      email: target.value,
-      emailVerified: target.value === this.email ? this.emailVerified : null,
-    });
   };
 
   onChangeNewPassword = (event: SyntheticEvent<HTMLInputElement>) => {
@@ -318,25 +249,23 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
     this.setState({ currentPassword: target.value });
   };
 
-  onClickResendVerificationEmail = (
-    event: SyntheticEvent<HTMLAnchorElement>,
-  ) => {
-    event.preventDefault();
-    this.props.dispatchActionPromise(
-      resendVerificationEmailActionTypes,
-      this.resendVerificationEmailAction(),
-    );
-  };
-
-  async resendVerificationEmailAction() {
-    await this.props.resendVerificationEmail();
-    this.props.setModal(<VerifyEmailModal onClose={this.clearModal} />);
-  }
-
   onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
 
-    if (this.state.newPassword !== this.state.confirmNewPassword) {
+    if (this.state.newPassword === '') {
+      this.setState(
+        {
+          newPassword: '',
+          confirmNewPassword: '',
+          errorMessage: 'empty password',
+          currentTabType: 'general',
+        },
+        () => {
+          invariant(this.newPasswordInput, 'newPasswordInput ref unset');
+          this.newPasswordInput.focus();
+        },
+      );
+    } else if (this.state.newPassword !== this.state.confirmNewPassword) {
       this.setState(
         {
           newPassword: '',
@@ -352,42 +281,21 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
       return;
     }
 
-    const { email } = this.state;
-    if (!email || email.search(validEmailRegex) === -1) {
-      this.setState(
-        {
-          email: '',
-          errorMessage: 'invalid email address',
-          currentTabType: 'general',
-        },
-        () => {
-          invariant(this.emailInput, 'emailInput ref unset');
-          this.emailInput.focus();
-        },
-      );
-      return;
-    }
-
     this.props.dispatchActionPromise(
       changeUserSettingsActionTypes,
-      this.changeUserSettingsAction(email),
+      this.changeUserSettingsAction(),
     );
   };
 
-  async changeUserSettingsAction(email: string) {
+  async changeUserSettingsAction() {
     try {
       const result = await this.props.changeUserSettings({
         updatedFields: {
-          email,
           password: this.state.newPassword,
         },
         currentPassword: this.state.currentPassword,
       });
-      if (email !== this.email) {
-        this.props.setModal(<VerifyEmailModal onClose={this.clearModal} />);
-      } else {
-        this.clearModal();
-      }
+      this.clearModal();
       return result;
     } catch (e) {
       if (e.message === 'invalid_credentials') {
@@ -404,24 +312,9 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
             this.currentPasswordInput.focus();
           },
         );
-      } else if (e.message === 'email_taken') {
-        this.setState(
-          {
-            email: this.email,
-            emailVerified: this.emailVerified,
-            errorMessage: 'email already taken',
-            currentTabType: 'general',
-          },
-          () => {
-            invariant(this.emailInput, 'emailInput ref unset');
-            this.emailInput.focus();
-          },
-        );
       } else {
         this.setState(
           {
-            email: this.email,
-            emailVerified: this.emailVerified,
             newPassword: '',
             confirmNewPassword: '',
             currentPassword: '',
@@ -429,8 +322,8 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
             currentTabType: 'general',
           },
           () => {
-            invariant(this.emailInput, 'emailInput ref unset');
-            this.emailInput.focus();
+            invariant(this.newPasswordInput, 'newPasswordInput ref unset');
+            this.newPasswordInput.focus();
           },
         );
       }
@@ -487,9 +380,6 @@ const deleteAccountLoadingStatusSelector = createLoadingStatusSelector(
 const changeUserSettingsLoadingStatusSelector = createLoadingStatusSelector(
   changeUserSettingsActionTypes,
 );
-const resendVerificationEmailLoadingStatusSelector = createLoadingStatusSelector(
-  resendVerificationEmailActionTypes,
-);
 
 export default React.memo<BaseProps>(function ConnectedUserSettingsModal(
   props: BaseProps,
@@ -499,12 +389,10 @@ export default React.memo<BaseProps>(function ConnectedUserSettingsModal(
   const inputDisabled = useSelector(
     (state) =>
       deleteAccountLoadingStatusSelector(state) === 'loading' ||
-      changeUserSettingsLoadingStatusSelector(state) === 'loading' ||
-      resendVerificationEmailLoadingStatusSelector(state) === 'loading',
+      changeUserSettingsLoadingStatusSelector(state) === 'loading',
   );
   const callDeleteAccount = useServerCall(deleteAccount);
   const callChangeUserSettings = useServerCall(changeUserSettings);
-  const callResendVerificationEmail = useServerCall(resendVerificationEmail);
   const dispatchActionPromise = useDispatchActionPromise();
 
   return (
@@ -515,7 +403,6 @@ export default React.memo<BaseProps>(function ConnectedUserSettingsModal(
       inputDisabled={inputDisabled}
       deleteAccount={callDeleteAccount}
       changeUserSettings={callChangeUserSettings}
-      resendVerificationEmail={callResendVerificationEmail}
       dispatchActionPromise={dispatchActionPromise}
     />
   );
