@@ -18,7 +18,7 @@ import { messageTypes } from 'lib/types/message-types';
 import { threadPermissions } from 'lib/types/thread-types';
 import {
   updateTypes,
-  type CreateUpdatesResponse,
+  type ServerCreateUpdatesResponse,
 } from 'lib/types/update-types';
 import { dateString } from 'lib/utils/date-utils';
 import { ServerError } from 'lib/utils/errors';
@@ -192,7 +192,7 @@ async function createUpdateDatasForChangedEntryInfo(
   oldEntryInfo: ?RawEntryInfo,
   newEntryInfo: RawEntryInfo,
   inputCalendarQuery: ?CalendarQuery,
-): Promise<CreateUpdatesResponse> {
+): Promise<ServerCreateUpdatesResponse> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }

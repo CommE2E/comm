@@ -17,7 +17,7 @@ import {
   type ThreadType,
   assertThreadType,
 } from 'lib/types/thread-types';
-import { updateTypes, type UpdateInfo } from 'lib/types/update-types';
+import { updateTypes, type ServerUpdateInfo } from 'lib/types/update-types';
 import type { AccountUserInfo } from 'lib/types/user-types';
 import { pushAll } from 'lib/utils/array';
 import { ServerError } from 'lib/utils/errors';
@@ -936,7 +936,7 @@ async function deleteMemberships(
 // viewer, in which case it's necessary for knowing the set of entries to fetch.
 type ChangesetCommitResult = {|
   ...FetchThreadInfosResult,
-  viewerUpdates: $ReadOnlyArray<UpdateInfo>,
+  viewerUpdates: $ReadOnlyArray<ServerUpdateInfo>,
   userInfos: { [id: string]: AccountUserInfo },
 |};
 async function commitMembershipChangeset(

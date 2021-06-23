@@ -25,7 +25,7 @@ import {
 } from 'lib/types/redis-types';
 import type { RawThreadInfo } from 'lib/types/thread-types';
 import {
-  type UpdateInfo,
+  type ServerUpdateInfo,
   type UpdateData,
   type RawUpdateInfo,
   type CreateUpdatesResult,
@@ -92,8 +92,10 @@ export type ViewerInfo =
       threadInfos: { [id: string]: RawThreadInfo },
     |};
 const defaultUpdateCreationResult = { viewerUpdates: [], userInfos: {} };
-const sortFunction = (a: UpdateData | UpdateInfo, b: UpdateData | UpdateInfo) =>
-  a.time - b.time;
+const sortFunction = (
+  a: UpdateData | ServerUpdateInfo,
+  b: UpdateData | ServerUpdateInfo,
+) => a.time - b.time;
 const deleteUpdatesBatchSize = 10000;
 
 // Creates rows in the updates table based on the inputed updateDatas. Returns
@@ -367,7 +369,7 @@ async function createUpdates(
 }
 
 export type FetchUpdatesResult = {|
-  updateInfos: $ReadOnlyArray<UpdateInfo>,
+  updateInfos: $ReadOnlyArray<ServerUpdateInfo>,
   userInfos: { [id: string]: AccountUserInfo },
 |};
 async function fetchUpdateInfosWithRawUpdateInfos(
@@ -632,8 +634,8 @@ async function updateInfosFromRawUpdateInfos(
   updateInfos.sort(sortFunction);
 
   // Now we'll attempt to merge UpdateInfos so that we only have one per key
-  const updateForKey: Map<string, UpdateInfo> = new Map();
-  const mergedUpdates: UpdateInfo[] = [];
+  const updateForKey: Map<string, ServerUpdateInfo> = new Map();
+  const mergedUpdates: ServerUpdateInfo[] = [];
   for (const updateInfo of updateInfos) {
     const key = keyForUpdateInfo(updateInfo);
     if (!key) {

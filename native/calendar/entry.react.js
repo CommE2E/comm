@@ -35,10 +35,10 @@ import type { Shape } from 'lib/types/core';
 import type {
   CreateEntryInfo,
   SaveEntryInfo,
-  SaveEntryResponse,
+  SaveEntryResult,
   CreateEntryPayload,
   DeleteEntryInfo,
-  DeleteEntryResponse,
+  DeleteEntryResult,
   CalendarQuery,
 } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
@@ -116,8 +116,8 @@ type Props = {|
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +createEntry: (info: CreateEntryInfo) => Promise<CreateEntryPayload>,
-  +saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResponse>,
-  +deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResponse>,
+  +saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResult>,
+  +deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResult>,
 |};
 type State = {|
   +editing: boolean,

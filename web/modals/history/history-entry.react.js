@@ -14,7 +14,7 @@ import { colorIsDark } from 'lib/shared/thread-utils';
 import {
   type EntryInfo,
   type RestoreEntryInfo,
-  type RestoreEntryResponse,
+  type RestoreEntryResult,
   type CalendarQuery,
 } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
@@ -42,7 +42,7 @@ type Props = {|
   +restoreLoadingStatus: LoadingStatus,
   +calendarQuery: () => CalendarQuery,
   +dispatchActionPromise: DispatchActionPromise,
-  +restoreEntry: (info: RestoreEntryInfo) => Promise<RestoreEntryResponse>,
+  +restoreEntry: (info: RestoreEntryInfo) => Promise<RestoreEntryResult>,
 |};
 
 class HistoryEntry extends React.PureComponent<Props> {

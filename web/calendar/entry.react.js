@@ -22,10 +22,10 @@ import {
   type EntryInfo,
   type CreateEntryInfo,
   type SaveEntryInfo,
-  type SaveEntryResponse,
+  type SaveEntryResult,
   type CreateEntryPayload,
   type DeleteEntryInfo,
-  type DeleteEntryResponse,
+  type DeleteEntryResult,
   type CalendarQuery,
 } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
@@ -65,8 +65,8 @@ type Props = {|
   +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
   +createEntry: (info: CreateEntryInfo) => Promise<CreateEntryPayload>,
-  +saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResponse>,
-  +deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResponse>,
+  +saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResult>,
+  +deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResult>,
 |};
 type State = {|
   +focused: boolean,
