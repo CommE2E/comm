@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import t from 'tcomb';
 import bcrypt from 'twin-bcrypt';
 
+import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import type {
   ResetPasswordRequest,
   LogOutResponse,
@@ -257,14 +258,20 @@ async function logInResponder(
     fetchKnownUserInfos(viewer),
   ]);
 
+  const oldCurrentUserInfo = {
+    id,
+    username: userRow.username,
+    email: userRow.email,
+    emailVerified: !!userRow.email_verified,
+  };
+  const hasCodeVersionBelow87 = !hasMinCodeVersion(viewer.platformDetails, 87);
+  const currentUserInfo = hasCodeVersionBelow87
+    ? oldCurrentUserInfo
+    : { id, username: userRow.username };
+
   const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;
   const response: LogInResponse = {
-    currentUserInfo: {
-      id,
-      username: userRow.username,
-      email: userRow.email,
-      emailVerified: !!userRow.email_verified,
-    },
+    currentUserInfo,
     rawMessageInfos: messagesResult.rawMessageInfos,
     truncationStatuses: messagesResult.truncationStatuses,
     serverTime: newServerTime,
