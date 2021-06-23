@@ -5,7 +5,6 @@ import * as React from 'react';
 import css from '../../style.css';
 import Modal from '../modal.react';
 import LogInModal from './log-in-modal.react';
-import RegisterModal from './register-modal.react';
 
 type Props = {
   +inOrderTo: string,
@@ -15,7 +14,7 @@ type Props = {
 class LogInFirstModal extends React.PureComponent<Props> {
   render() {
     return (
-      <Modal name="Log in or register" onClose={this.clearModal}>
+      <Modal name="Log in" onClose={this.clearModal}>
         <div className={css['modal-body']}>
           <p>
             {`In order to ${this.props.inOrderTo}, you'll first need to `}
@@ -26,15 +25,7 @@ class LogInFirstModal extends React.PureComponent<Props> {
             >
               log in
             </a>
-            {' or '}
-            <a
-              href="#"
-              className={css['show-register-modal']}
-              onClick={this.onClickRegister}
-            >
-              register
-            </a>
-            {' a new account.'}
+            {'.'}
           </p>
         </div>
       </Modal>
@@ -48,11 +39,6 @@ class LogInFirstModal extends React.PureComponent<Props> {
   onClickLogIn = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.setModal(<LogInModal setModal={this.props.setModal} />);
-  };
-
-  onClickRegister = (event: SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.setModal(<RegisterModal setModal={this.props.setModal} />);
   };
 }
 

@@ -15,7 +15,6 @@ import {
 } from 'lib/utils/action-utils';
 
 import LogInModal from './modals/account/log-in-modal.react';
-import RegisterModal from './modals/account/register-modal.react';
 import UserSettingsModal from './modals/account/user-settings-modal.react.js';
 import { useSelector } from './redux/redux-utils';
 import css from './style.css';
@@ -73,10 +72,6 @@ class AccountBar extends React.PureComponent<Props, State> {
             <span>
               <a href="#" onClick={this.onLogIn}>
                 Log in
-              </a>
-              {' · '}
-              <a href="#" onClick={this.onRegister}>
-                Register
               </a>
             </span>
           </div>
@@ -176,11 +171,6 @@ class AccountBar extends React.PureComponent<Props, State> {
   onLogIn = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.setModal(<LogInModal setModal={this.props.setModal} />);
-  };
-
-  onRegister = (event: SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.setModal(<RegisterModal setModal={this.props.setModal} />);
   };
 }
 
