@@ -205,7 +205,7 @@ async function fetchLoggedInUserInfos(
   userIDs: $ReadOnlyArray<string>,
 ): Promise<Array<OldLoggedInUserInfo | LoggedInUserInfo>> {
   const query = SQL`
-    SELECT id, username, email, email_verified
+    SELECT id, username
     FROM users
     WHERE id IN (${userIDs})
   `;
@@ -213,8 +213,8 @@ async function fetchLoggedInUserInfos(
   return result.map((row) => ({
     id: row.id.toString(),
     username: row.username,
-    email: row.email,
-    emailVerified: !!row.email_verified,
+    email: 'removed from DB',
+    emailVerified: true,
   }));
 }
 

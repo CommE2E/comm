@@ -206,7 +206,7 @@ async function logInResponder(
     throw new ServerError('invalid_parameters');
   }
   const userQuery = SQL`
-    SELECT id, hash, username, email, email_verified
+    SELECT id, hash, username
     FROM users
     WHERE LCASE(username) = LCASE(${username})
   `;
@@ -261,8 +261,8 @@ async function logInResponder(
   const oldCurrentUserInfo = {
     id,
     username: userRow.username,
-    email: userRow.email,
-    emailVerified: !!userRow.email_verified,
+    email: 'removed from DB',
+    emailVerified: true,
   };
   const hasCodeVersionBelow87 = !hasMinCodeVersion(viewer.platformDetails, 87);
   const currentUserInfo = hasCodeVersionBelow87
