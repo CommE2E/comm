@@ -26,7 +26,7 @@ import {
   type InitialClientSocketMessage,
   type ResponsesClientSocketMessage,
   type StateSyncFullSocketPayload,
-  type ServerSocketMessage,
+  type ServerServerSocketMessage,
   type ErrorServerSocketMessage,
   type AuthErrorServerSocketMessage,
   type PingClientSocketMessage,
@@ -162,7 +162,7 @@ class Socket {
   httpRequest: $Request;
   viewer: ?Viewer;
   redis: ?RedisSubscriber;
-  redisPromiseResolver: SequentialPromiseResolver<ServerSocketMessage>;
+  redisPromiseResolver: SequentialPromiseResolver<ServerServerSocketMessage>;
 
   stateCheckConditions: StateCheckConditions = {
     activityRecentlyOccurred: true,
@@ -358,7 +358,7 @@ class Socket {
     }
   };
 
-  sendMessage = (message: ServerSocketMessage) => {
+  sendMessage = (message: ServerServerSocketMessage) => {
     invariant(
       this.ws.readyState > 0,
       "shouldn't send message until connection established",
@@ -370,7 +370,7 @@ class Socket {
 
   async handleClientSocketMessage(
     message: ClientSocketMessage,
-  ): Promise<ServerSocketMessage[]> {
+  ): Promise<ServerServerSocketMessage[]> {
     const resultPromise = (async () => {
       if (message.type === clientSocketMessageTypes.INITIAL) {
         this.markActivityOccurred();
@@ -398,7 +398,7 @@ class Socket {
 
   async handleInitialClientSocketMessage(
     message: InitialClientSocketMessage,
-  ): Promise<ServerSocketMessage[]> {
+  ): Promise<ServerServerSocketMessage[]> {
     const { viewer } = this;
     invariant(viewer, 'should be set');
 
@@ -551,7 +551,7 @@ class Socket {
 
   async handleResponsesClientSocketMessage(
     message: ResponsesClientSocketMessage,
-  ): Promise<ServerSocketMessage[]> {
+  ): Promise<ServerServerSocketMessage[]> {
     const { viewer } = this;
     invariant(viewer, 'should be set');
 
@@ -590,7 +590,7 @@ class Socket {
 
   async handlePingClientSocketMessage(
     message: PingClientSocketMessage,
-  ): Promise<ServerSocketMessage[]> {
+  ): Promise<ServerServerSocketMessage[]> {
     this.updateActivityTime();
     return [
       {
@@ -602,7 +602,7 @@ class Socket {
 
   async handleAckUpdatesClientSocketMessage(
     message: AckUpdatesClientSocketMessage,
-  ): Promise<ServerSocketMessage[]> {
+  ): Promise<ServerServerSocketMessage[]> {
     const { viewer } = this;
     invariant(viewer, 'should be set');
     const { currentAsOf } = message.payload;
@@ -615,7 +615,7 @@ class Socket {
 
   async handleAPIRequestClientSocketMessage(
     message: APIRequestClientSocketMessage,
-  ): Promise<ServerSocketMessage[]> {
+  ): Promise<ServerServerSocketMessage[]> {
     if (!endpointIsSocketSafe(message.payload.endpoint)) {
       throw new ServerError('endpoint_unsafe_for_socket');
     }
