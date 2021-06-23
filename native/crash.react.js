@@ -32,6 +32,7 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
+import { useIsReportEnabled } from 'lib/utils/report-utils';
 import {
   sanitizeReduxReport,
   type ReduxCrashReport,
@@ -42,7 +43,7 @@ import Button from './components/button.react';
 import ConnectedStatusBar from './connected-status-bar.react';
 import { persistConfig, codeVersion } from './redux/persist';
 import { useSelector } from './redux/redux-utils';
-import { useIsCrashReportingEnabled, wipeAndExit } from './utils/crash-utils';
+import { wipeAndExit } from './utils/crash-utils';
 
 const errorTitles = ['Oh no!!', 'Womp womp womp...'];
 
@@ -274,7 +275,7 @@ export default React.memo<BaseProps>(function ConnectedCrash(props: BaseProps) {
   const dispatchActionPromise = useDispatchActionPromise();
   const callSendReport = useServerCall(sendReport);
   const callLogOut = useServerCall(logOut);
-  const crashReportingEnabled = useIsCrashReportingEnabled();
+  const crashReportingEnabled = useIsReportEnabled('crashReports');
   return (
     <Crash
       {...props}
