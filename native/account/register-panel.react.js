@@ -8,7 +8,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { registerActionTypes, register } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { validUsernameRegex, validEmailRegex } from 'lib/shared/account-utils';
+import { validUsernameRegex } from 'lib/shared/account-utils';
 import type {
   RegisterInfo,
   LogInExtraInfo,
@@ -32,7 +32,6 @@ import { PanelButton, Panel } from './panel-components.react';
 
 export type RegisterState = {|
   +usernameInputText: string,
-  +emailInputText: string,
   +passwordInputText: string,
   +confirmPasswordInputText: string,
 |};
@@ -59,7 +58,6 @@ class RegisterPanel extends React.PureComponent<Props, State> {
     confirmPasswordFocused: false,
   };
   usernameInput: ?TextInput;
-  emailInput: ?TextInput;
   passwordInput: ?TextInput;
   confirmPasswordInput: ?TextInput;
   passwordBeingAutoFilled = false;
@@ -85,38 +83,13 @@ class RegisterPanel extends React.PureComponent<Props, State> {
     return (
       <Panel opacityValue={this.props.opacityValue} style={styles.container}>
         <View>
-          <Icon
-            name="envelope"
-            size={18}
-            color="#777"
-            style={[styles.icon, styles.envelopeIcon]}
-          />
-          <TextInput
-            style={styles.input}
-            value={this.props.registerState.state.emailInputText}
-            onChangeText={this.onChangeEmailInputText}
-            placeholder="Email address"
-            autoFocus={true}
-            autoCorrect={false}
-            autoCapitalize="none"
-            keyboardType="email-address"
-            textContentType="emailAddress"
-            autoCompleteType="email"
-            returnKeyType="next"
-            blurOnSubmit={false}
-            onSubmitEditing={this.focusUsernameInput}
-            onBlur={this.onEmailBlur}
-            editable={this.props.loadingStatus !== 'loading'}
-            ref={this.emailInputRef}
-          />
-        </View>
-        <View>
           <Icon name="user" size={22} color="#777" style={styles.icon} />
           <TextInput
             style={styles.input}
             value={this.props.registerState.state.usernameInputText}
             onChangeText={this.onChangeUsernameInputText}
             placeholder="Username"
+            autoFocus={true}
             autoCorrect={false}
             autoCapitalize="none"
             keyboardType="ascii-capable"
@@ -176,10 +149,6 @@ class RegisterPanel extends React.PureComponent<Props, State> {
     this.usernameInput = usernameInput;
   };
 
-  emailInputRef = (emailInput: ?TextInput) => {
-    this.emailInput = emailInput;
-  };
-
   passwordInputRef = (passwordInput: ?TextInput) => {
     this.passwordInput = passwordInput;
   };
@@ -205,23 +174,6 @@ class RegisterPanel extends React.PureComponent<Props, State> {
 
   onChangeUsernameInputText = (text: string) => {
     this.props.registerState.setState({ usernameInputText: text });
-  };
-
-  onChangeEmailInputText = (text: string) => {
-    this.props.registerState.setState({ emailInputText: text });
-    if (
-      this.props.registerState.state.emailInputText.length === 0 &&
-      text.length > 1
-    ) {
-      this.focusUsernameInput();
-    }
-  };
-
-  onEmailBlur = () => {
-    const trimmedEmail = this.props.registerState.state.emailInputText.trim();
-    if (trimmedEmail !== this.props.registerState.state.emailInputText) {
-      this.props.registerState.setState({ emailInputText: trimmedEmail });
-    }
   };
 
   onChangePasswordInputText = (text: string) => {
@@ -288,16 +240,6 @@ class RegisterPanel extends React.PureComponent<Props, State> {
         [{ text: 'OK', onPress: this.onUsernameAlertAcknowledged }],
         { cancelable: false },
       );
-    } else if (
-      this.props.registerState.state.emailInputText.search(validEmailRegex) ===
-      -1
-    ) {
-      Alert.alert(
-        'Invalid email address',
-        'Valid email addresses only',
-        [{ text: 'OK', onPress: this.onEmailAlertAcknowledged }],
-        { cancelable: false },
-      );
     } else {
       Keyboard.dismiss();
       const extraInfo = this.props.logInExtraInfo();
@@ -337,24 +279,10 @@ class RegisterPanel extends React.PureComponent<Props, State> {
     );
   };
 
-  onEmailAlertAcknowledged = () => {
-    this.props.setActiveAlert(false);
-    this.props.registerState.setState(
-      {
-        emailInputText: '',
-      },
-      () => {
-        invariant(this.emailInput, 'ref should exist');
-        this.emailInput.focus();
-      },
-    );
-  };
-
   async registerAction(extraInfo: LogInExtraInfo) {
     try {
       const result = await this.props.register({
         username: this.props.registerState.state.usernameInputText,
-        email: this.props.registerState.state.emailInputText,
         password: this.props.registerState.state.passwordInputText,
         ...extraInfo,
       });
@@ -370,13 +298,6 @@ class RegisterPanel extends React.PureComponent<Props, State> {
           'Username taken',
           'An account with that username already exists',
           [{ text: 'OK', onPress: this.onUsernameAlertAcknowledged }],
-          { cancelable: false },
-        );
-      } else if (e.message === 'email_taken') {
-        Alert.alert(
-          'Email taken',
-          'An account with that email already exists',
-          [{ text: 'OK', onPress: this.onEmailAlertAcknowledged }],
           { cancelable: false },
         );
       } else if (e.message === 'client_version_unsupported') {
@@ -408,7 +329,6 @@ class RegisterPanel extends React.PureComponent<Props, State> {
     this.props.registerState.setState(
       {
         usernameInputText: '',
-        emailInputText: '',
         passwordInputText: '',
         confirmPasswordInputText: '',
       },
@@ -428,10 +348,6 @@ const styles = StyleSheet.create({
   container: {
     paddingBottom: Platform.OS === 'ios' ? 37 : 36,
     zIndex: 2,
-  },
-  envelopeIcon: {
-    bottom: 10,
-    left: 3,
   },
   icon: {
     bottom: 8,

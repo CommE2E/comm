@@ -171,7 +171,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       registerState: {
         state: {
           usernameInputText: '',
-          emailInputText: '',
           passwordInputText: '',
           confirmPasswordInputText: '',
         },
@@ -321,31 +320,14 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   panelPaddingTop() {
     const headerHeight = Platform.OS === 'ios' ? 62.33 : 58.54;
     const promptButtonsSize = Platform.OS === 'ios' ? 40 : 61;
-    const logInContainerSize = 165;
-    const registerPanelSize = 246;
-
-    // On large enough devices, we want to properly center the panels on screen.
-    // But on smaller Android devices, this can lead to an issue, since on
-    // Android, ratchetAlongWithKeyboardHeight won't adjust the panel's position
-    // when the keyboard size changes. To avoid this issue, we artifically
-    // increase the panel sizes so that they get positioned a little higher than
-    // center on small devices.
-    const smallDeviceThreshold = 600;
-    const smallDeviceRegisterPanelSize = 261;
+    const logInContainerSize = 140;
+    const registerPanelSize = Platform.OS === 'ios' ? 181 : 180;
 
     const containerSize = add(
       headerHeight,
       cond(not(isPastPrompt(this.modeValue)), promptButtonsSize, 0),
       cond(eq(this.modeValue, modeNumbers['log-in']), logInContainerSize, 0),
-      cond(
-        eq(this.modeValue, modeNumbers['register']),
-        cond(
-          lessThan(this.contentHeight, smallDeviceThreshold),
-          smallDeviceRegisterPanelSize,
-          registerPanelSize,
-        ),
-        0,
-      ),
+      cond(eq(this.modeValue, modeNumbers['register']), registerPanelSize, 0),
     );
     const potentialPanelPaddingTop = divide(
       max(sub(this.contentHeight, this.keyboardHeightValue, containerSize), 0),
