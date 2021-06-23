@@ -274,7 +274,6 @@ async function websiteResponder(
     lifecycleState: 'active',
     enabledApps: defaultWebEnabledApps,
     enabledReports: defaultEnabledReports,
-    crashReportsEnabled: false,
     nextLocalID: 0,
     queuedReports: [],
     timeZone: viewer.timeZone,

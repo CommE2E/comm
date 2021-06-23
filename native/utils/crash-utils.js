@@ -19,7 +19,7 @@ async function wipeAndExit() {
 }
 
 function useIsCrashReportingEnabled(): boolean {
-  return useSelector((state) => state.crashReportsEnabled);
+  return useSelector((state) => state.enabledReports.crashReports);
 }
 
 export { wipeAndExit, useIsCrashReportingEnabled };

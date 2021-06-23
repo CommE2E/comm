@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Text, View, Switch } from 'react-native';
 import { useDispatch } from 'react-redux';
 
-import { updateCrashReportsEnabledActionType } from 'lib/reducers/crash-reports-enabled-reducer';
+import { updateReportsEnabledActionType } from 'lib/reducers/enabled-reports-reducer';
 
 import { useStyles } from '../themes/colors';
 import { useIsCrashReportingEnabled } from '../utils/crash-utils';
@@ -16,7 +16,10 @@ function ToggleCrashReports() {
 
   const onCrashReportsToggled = React.useCallback(
     (value) => {
-      dispatch({ type: updateCrashReportsEnabledActionType, payload: value });
+      dispatch({
+        type: updateReportsEnabledActionType,
+        payload: { crashReports: value },
+      });
     },
     [dispatch],
   );

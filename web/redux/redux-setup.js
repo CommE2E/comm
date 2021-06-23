@@ -52,7 +52,6 @@ export type AppState = {|
   lifecycleState: LifecycleState,
   enabledApps: EnabledApps,
   enabledReports: EnabledReports,
-  crashReportsEnabled: boolean,
   nextLocalID: number,
   queuedReports: $ReadOnlyArray<ClientReportCreationRequest>,
   timeZone: ?string,

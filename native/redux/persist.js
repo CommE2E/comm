@@ -224,6 +224,7 @@ const migrations = {
     }
     return {
       ...state,
+      crashReportsEnabled: undefined,
       currentUserInfo: {
         id: currentUserInfo.id,
         username: currentUserInfo.username,
