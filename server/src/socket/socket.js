@@ -25,7 +25,7 @@ import {
   type ClientSocketMessage,
   type InitialClientSocketMessage,
   type ResponsesClientSocketMessage,
-  type StateSyncFullSocketPayload,
+  type ServerStateSyncFullSocketPayload,
   type ServerServerSocketMessage,
   type ErrorServerSocketMessage,
   type AuthErrorServerSocketMessage,
@@ -457,7 +457,7 @@ class Socket {
         fetchCurrentUserInfo(viewer),
         fetchKnownUserInfos(viewer),
       ]);
-      const payload: StateSyncFullSocketPayload = {
+      const payload: ServerStateSyncFullSocketPayload = {
         type: stateSyncPayloadTypes.FULL,
         messagesResult,
         threadInfos: threadsResult.threadInfos,
