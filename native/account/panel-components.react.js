@@ -129,7 +129,7 @@ class InnerPanel extends React.PureComponent<PanelProps, PanelState> {
     const windowHeight = this.props.dimensions.height;
     const containerStyle = {
       opacity: this.props.opacityValue,
-      marginTop: windowHeight < 600 ? 15 : 40,
+      marginTop: windowHeight < 641 ? 15 : 40,
     };
     const content = (
       <Animated.View
