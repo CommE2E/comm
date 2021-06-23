@@ -8,7 +8,7 @@ import {
 } from 'lib/selectors/socket-selectors';
 import { createOpenSocketFunction } from 'lib/shared/socket-utils';
 import type {
-  ServerRequest,
+  ClientServerRequest,
   ClientClientResponse,
 } from 'lib/types/request-types';
 import type {
@@ -33,17 +33,17 @@ const sessionIdentificationSelector: (
 const webGetClientResponsesSelector: (
   state: AppState,
 ) => (
-  serverRequests: $ReadOnlyArray<ServerRequest>,
+  serverRequests: $ReadOnlyArray<ClientServerRequest>,
 ) => $ReadOnlyArray<ClientClientResponse> = createSelector(
   getClientResponsesSelector,
   (state: AppState) => state.navInfo.tab === 'calendar',
   (
     getClientResponsesFunc: (
       calendarActive: boolean,
-      serverRequests: $ReadOnlyArray<ServerRequest>,
+      serverRequests: $ReadOnlyArray<ClientServerRequest>,
     ) => $ReadOnlyArray<ClientClientResponse>,
     calendarActive: boolean,
-  ) => (serverRequests: $ReadOnlyArray<ServerRequest>) =>
+  ) => (serverRequests: $ReadOnlyArray<ClientServerRequest>) =>
     getClientResponsesFunc(calendarActive, serverRequests),
 );
 

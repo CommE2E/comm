@@ -26,7 +26,7 @@ import {
   type ThreadInconsistencyClientResponse,
   type EntryInconsistencyClientResponse,
   type ClientResponse,
-  type ServerRequest,
+  type ServerServerRequest,
   type CheckStateServerRequest,
 } from 'lib/types/request-types';
 import { sessionCheckFrequency } from 'lib/types/session-types';
@@ -112,7 +112,7 @@ type StateCheckStatus =
   | {| status: 'state_invalid', invalidKeys: $ReadOnlyArray<string> |}
   | {| status: 'state_check' |};
 type ProcessClientResponsesResult = {|
-  serverRequests: ServerRequest[],
+  serverRequests: ServerServerRequest[],
   stateCheckStatus: ?StateCheckStatus,
   activityUpdateResult: ?UpdateActivityResult,
 |};

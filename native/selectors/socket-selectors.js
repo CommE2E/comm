@@ -8,7 +8,7 @@ import {
 } from 'lib/selectors/socket-selectors';
 import { createOpenSocketFunction } from 'lib/shared/socket-utils';
 import type {
-  ServerRequest,
+  ClientServerRequest,
   ClientClientResponse,
 } from 'lib/types/request-types';
 import type {
@@ -41,17 +41,17 @@ const sessionIdentificationSelector: (
 const nativeGetClientResponsesSelector: (
   input: NavPlusRedux,
 ) => (
-  serverRequests: $ReadOnlyArray<ServerRequest>,
+  serverRequests: $ReadOnlyArray<ClientServerRequest>,
 ) => $ReadOnlyArray<ClientClientResponse> = createSelector(
   (input: NavPlusRedux) => getClientResponsesSelector(input.redux),
   (input: NavPlusRedux) => calendarActiveSelector(input.navContext),
   (
     getClientResponsesFunc: (
       calendarActive: boolean,
-      serverRequests: $ReadOnlyArray<ServerRequest>,
+      serverRequests: $ReadOnlyArray<ClientServerRequest>,
     ) => $ReadOnlyArray<ClientClientResponse>,
     calendarActive: boolean,
-  ) => (serverRequests: $ReadOnlyArray<ServerRequest>) =>
+  ) => (serverRequests: $ReadOnlyArray<ClientServerRequest>) =>
     getClientResponsesFunc(calendarActive, serverRequests),
 );
 
