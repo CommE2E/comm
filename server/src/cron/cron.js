@@ -19,7 +19,6 @@ import {
 import { deleteInaccessibleThreads } from '../deleters/thread-deleters';
 import { deleteExpiredUpdates } from '../deleters/update-deleters';
 import { deleteUnassignedUploads } from '../deleters/upload-deleters';
-import { deleteExpiredVerifications } from '../models/verification';
 import { backupDB } from './backups';
 import { updateAndReloadGeoipDB } from './update-geoip-db';
 
@@ -31,7 +30,6 @@ if (cluster.isMaster) {
         // Do everything one at a time to reduce load since we're in no hurry,
         // and since some queries depend on previous ones.
         await deleteExpiredCookies();
-        await deleteExpiredVerifications();
         await deleteInaccessibleThreads();
         await deleteOrphanedMemberships();
         await deleteOrphanedDays();
