@@ -4,27 +4,15 @@ import bcrypt from 'twin-bcrypt';
 
 import type {
   ResetPasswordRequest,
-  LogInResponse,
   UpdatePasswordRequest,
 } from 'lib/types/account-types';
-import { defaultNumberPerThread } from 'lib/types/message-types';
 import { updateTypes } from 'lib/types/update-types';
 import type { AccountUpdate } from 'lib/types/user-types';
-import { verifyField } from 'lib/types/verify-types';
 import { ServerError } from 'lib/utils/errors';
-import { values } from 'lib/utils/objects';
-import { promiseAll } from 'lib/utils/promises';
 
 import { createUpdates } from '../creators/update-creator';
 import { dbQuery, SQL } from '../database/database';
 import { sendPasswordResetEmail } from '../emails/reset-password';
-import { fetchEntryInfos } from '../fetchers/entry-fetchers';
-import { fetchMessageInfos } from '../fetchers/message-fetchers';
-import { fetchThreadInfos } from '../fetchers/thread-fetchers';
-import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
-import { verifyCode, clearVerifyCodes } from '../models/verification';
-import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
-import { createNewUserCookie, setNewSession } from '../session/cookies';
 import type { Viewer } from '../session/viewer';
 
 async function accountUpdater(
@@ -95,98 +83,14 @@ async function checkAndSendPasswordResetEmail(request: ResetPasswordRequest) {
   await sendPasswordResetEmail(row.id.toString(), row.username, row.email);
 }
 
+/* eslint-disable no-unused-vars */
 async function updatePassword(
   viewer: Viewer,
   request: UpdatePasswordRequest,
-): Promise<LogInResponse> {
-  if (request.password.trim() === '') {
-    throw new ServerError('empty_password');
-  }
-
-  const calendarQuery = request.calendarQuery;
-  const promises = {};
-  if (calendarQuery) {
-    promises.verifyCalendarQueryThreadIDs = verifyCalendarQueryThreadIDs(
-      calendarQuery,
-    );
-  }
-  promises.verificationResult = verifyCode(request.code);
-  const { verificationResult } = await promiseAll(promises);
-
-  const { userID, field } = verificationResult;
-  if (field !== verifyField.RESET_PASSWORD) {
-    throw new ServerError('invalid_code');
-  }
-
-  const userQuery = SQL`
-    SELECT username, email, email_verified FROM users WHERE id = ${userID}
-  `;
-  const hash = bcrypt.hashSync(request.password);
-  const updateQuery = SQL`UPDATE users SET hash = ${hash} WHERE id = ${userID}`;
-  const [[userResult]] = await Promise.all([
-    dbQuery(userQuery),
-    dbQuery(updateQuery),
-  ]);
-  if (userResult.length === 0) {
-    throw new ServerError('invalid_parameters');
-  }
-  const userRow = userResult[0];
-
-  const newServerTime = Date.now();
-  const deviceToken = request.deviceTokenUpdateRequest
-    ? request.deviceTokenUpdateRequest.deviceToken
-    : viewer.deviceToken;
-  const [userViewerData] = await Promise.all([
-    createNewUserCookie(userID, {
-      platformDetails: request.platformDetails,
-      deviceToken,
-    }),
-    clearVerifyCodes(verificationResult),
-  ]);
-  viewer.setNewCookie(userViewerData);
-  if (calendarQuery) {
-    await setNewSession(viewer, calendarQuery, newServerTime);
-  }
-
-  const threadCursors = {};
-  for (const watchedThreadID of request.watchedIDs) {
-    threadCursors[watchedThreadID] = null;
-  }
-  const threadSelectionCriteria = { threadCursors, joinedThreads: true };
-
-  const [
-    threadsResult,
-    messagesResult,
-    entriesResult,
-    userInfos,
-  ] = await Promise.all([
-    fetchThreadInfos(viewer),
-    fetchMessageInfos(viewer, threadSelectionCriteria, defaultNumberPerThread),
-    calendarQuery ? fetchEntryInfos(viewer, [calendarQuery]) : undefined,
-    fetchKnownUserInfos(viewer),
-  ]);
-
-  const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;
-  const response: LogInResponse = {
-    currentUserInfo: {
-      id: userID,
-      username: userRow.username,
-      email: userRow.email,
-      emailVerified: !!userRow.email_verified,
-    },
-    rawMessageInfos: messagesResult.rawMessageInfos,
-    truncationStatuses: messagesResult.truncationStatuses,
-    serverTime: newServerTime,
-    userInfos: values(userInfos),
-    cookieChange: {
-      threadInfos: threadsResult.threadInfos,
-      userInfos: [],
-    },
-  };
-  if (rawEntryInfos) {
-    response.rawEntryInfos = rawEntryInfos;
-  }
-  return response;
+): Promise<void> {
+  /* eslint-enable no-unused-vars */
+  // We have no way to handle this request anymore
+  throw new ServerError('deprecated');
 }
 
 export {
