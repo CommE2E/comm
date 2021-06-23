@@ -9,7 +9,6 @@ import genesis from 'lib/facts/genesis';
 import {
   validUsernameRegex,
   oldValidUsernameRegex,
-  validEmailRegex,
 } from 'lib/shared/account-utils';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import type {
@@ -23,7 +22,6 @@ import { values } from 'lib/utils/objects';
 
 import { dbQuery, SQL } from '../database/database';
 import { deleteCookie } from '../deleters/cookie-deleters';
-import { sendEmailAddressVerificationEmail } from '../emails/verification';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
 import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
@@ -62,31 +60,20 @@ async function createAccount(
   if (request.username.search(usernameRegex) === -1) {
     throw new ServerError('invalid_username');
   }
-  if (request.email.search(validEmailRegex) === -1) {
-    throw new ServerError('invalid_email');
-  }
 
   const usernameQuery = SQL`
     SELECT COUNT(id) AS count
     FROM users
     WHERE LCASE(username) = LCASE(${request.username})
   `;
-  const emailQuery = SQL`
-    SELECT COUNT(id) AS count
-    FROM users
-    WHERE LCASE(email) = LCASE(${request.email})
-  `;
-  const promises = [dbQuery(usernameQuery), dbQuery(emailQuery)];
+  const promises = [dbQuery(usernameQuery)];
   const { calendarQuery } = request;
   if (calendarQuery) {
     promises.push(verifyCalendarQueryThreadIDs(calendarQuery));
   }
-  const [[usernameResult], [emailResult]] = await Promise.all(promises);
+  const [[usernameResult]] = await Promise.all(promises);
   if (usernameResult[0].count !== 0) {
     throw new ServerError('username_taken');
-  }
-  if (emailResult[0].count !== 0) {
-    throw new ServerError('email_taken');
   }
 
   const hash = bcrypt.hashSync(request.password);
@@ -95,7 +82,7 @@ async function createAccount(
     ? request.deviceTokenUpdateRequest.deviceToken
     : viewer.deviceToken;
   const [id] = await createIDs('users', 1);
-  const newUserRow = [id, request.username, hash, request.email, time];
+  const newUserRow = [id, request.username, hash, '', time];
   const newUserQuery = SQL`
     INSERT INTO users(id, username, hash, email, creation_time)
     VALUES ${[newUserRow]}
@@ -107,12 +94,6 @@ async function createAccount(
     }),
     deleteCookie(viewer.cookieID),
     dbQuery(newUserQuery),
-    sendEmailAddressVerificationEmail(
-      id,
-      request.username,
-      request.email,
-      true,
-    ),
   ]);
   viewer.setNewCookie(userViewerData);
   if (calendarQuery) {

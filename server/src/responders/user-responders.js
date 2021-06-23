@@ -158,7 +158,7 @@ const deviceTokenUpdateRequestInputValidator = tShape({
 
 const registerRequestInputValidator = tShape({
   username: t.String,
-  email: tEmail,
+  email: t.maybe(tEmail),
   password: tPassword,
   calendarQuery: t.maybe(newEntryQueryInputValidator),
   deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
