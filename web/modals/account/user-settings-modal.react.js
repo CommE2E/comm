@@ -12,10 +12,7 @@ import {
 } from 'lib/actions/user-actions';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import type {
-  LogOutResult,
-  ChangeUserSettingsResult,
-} from 'lib/types/account-types';
+import type { LogOutResult } from 'lib/types/account-types';
 import { type PreRequestUserState } from 'lib/types/session-types';
 import { type AccountUpdate, type CurrentUserInfo } from 'lib/types/user-types';
 import {
@@ -67,9 +64,7 @@ type Props = {|
     password: string,
     preRequestUserState: PreRequestUserState,
   ) => Promise<LogOutResult>,
-  +changeUserSettings: (
-    accountUpdate: AccountUpdate,
-  ) => Promise<ChangeUserSettingsResult>,
+  +changeUserSettings: (accountUpdate: AccountUpdate) => Promise<void>,
 |};
 type State = {
   +newPassword: string,
@@ -289,14 +284,13 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
 
   async changeUserSettingsAction() {
     try {
-      const result = await this.props.changeUserSettings({
+      await this.props.changeUserSettings({
         updatedFields: {
           password: this.state.newPassword,
         },
         currentPassword: this.state.currentPassword,
       });
       this.clearModal();
-      return result;
     } catch (e) {
       if (e.message === 'invalid_credentials') {
         this.setState(

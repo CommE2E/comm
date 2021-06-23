@@ -17,7 +17,6 @@ import {
   changeUserSettings,
 } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import type { ChangeUserSettingsResult } from 'lib/types/account-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { AccountUpdate } from 'lib/types/user-types';
 import {
@@ -49,9 +48,7 @@ type Props = {|
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  +changeUserSettings: (
-    accountUpdate: AccountUpdate,
-  ) => Promise<ChangeUserSettingsResult>,
+  +changeUserSettings: (accountUpdate: AccountUpdate) => Promise<void>,
 |};
 type State = {|
   +currentPassword: string,
@@ -232,7 +229,7 @@ class EditPassword extends React.PureComponent<Props, State> {
       return;
     }
     try {
-      const result = await this.props.changeUserSettings({
+      await this.props.changeUserSettings({
         updatedFields: {
           password: this.state.newPassword,
         },
@@ -243,7 +240,6 @@ class EditPassword extends React.PureComponent<Props, State> {
         password: this.state.newPassword,
       });
       this.goBackOnce();
-      return result;
     } catch (e) {
       if (e.message === 'invalid_credentials') {
         Alert.alert(
