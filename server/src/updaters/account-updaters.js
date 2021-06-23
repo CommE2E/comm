@@ -2,7 +2,6 @@
 
 import bcrypt from 'twin-bcrypt';
 
-import { validEmailRegex } from 'lib/shared/account-utils';
 import type {
   ResetPasswordRequest,
   LogInResponse,
@@ -37,24 +36,17 @@ async function accountUpdater(
     throw new ServerError('not_logged_in');
   }
 
-  const email = update.updatedFields.email;
   const newPassword = update.updatedFields.password;
-
-  const fetchPromises = {};
-  if (email) {
-    if (email.search(validEmailRegex) === -1) {
-      throw new ServerError('invalid_email');
-    }
-    fetchPromises.emailQuery = dbQuery(SQL`
-      SELECT COUNT(id) AS count FROM users WHERE email = ${email}
-    `);
+  if (!newPassword) {
+    // If it's an old client it may have given us an email,
+    // but we don't store those anymore
+    return;
   }
-  fetchPromises.verifyQuery = dbQuery(SQL`
-    SELECT username, email, hash FROM users WHERE id = ${viewer.userID}
-  `);
-  const { verifyQuery, emailQuery } = await promiseAll(fetchPromises);
 
-  const [verifyResult] = verifyQuery;
+  const verifyQuery = SQL`
+    SELECT username, hash FROM users WHERE id = ${viewer.userID}
+  `;
+  const [verifyResult] = await dbQuery(verifyQuery);
   if (verifyResult.length === 0) {
     throw new ServerError('internal_error');
   }
@@ -63,55 +55,23 @@ async function accountUpdater(
     throw new ServerError('invalid_credentials');
   }
 
-  const savePromises = [];
-  const changedFields = {};
-  let currentUserInfoChanged = false;
-  if (email && email !== verifyRow.email) {
-    const [emailResult] = emailQuery;
-    const emailRow = emailResult[0];
-    if (emailRow.count !== 0) {
-      throw new ServerError('email_taken');
-    }
+  const changedFields = { hash: bcrypt.hashSync(newPassword) };
+  const saveQuery = SQL`
+    UPDATE users SET ${changedFields} WHERE id = ${viewer.userID}
+  `;
+  await dbQuery(saveQuery);
 
-    changedFields.email = email;
-    changedFields.email_verified = 0;
-    currentUserInfoChanged = true;
-
-    savePromises.push(
-      sendEmailAddressVerificationEmail(
-        viewer.userID,
-        verifyRow.username,
-        email,
-      ),
-    );
-  }
-  if (newPassword) {
-    changedFields.hash = bcrypt.hashSync(newPassword);
-  }
-
-  if (Object.keys(changedFields).length > 0) {
-    savePromises.push(
-      dbQuery(SQL`
-      UPDATE users SET ${changedFields} WHERE id = ${viewer.userID}
-    `),
-    );
-  }
-
-  await Promise.all(savePromises);
-
-  if (currentUserInfoChanged) {
-    const updateDatas = [
-      {
-        type: updateTypes.UPDATE_CURRENT_USER,
-        userID: viewer.userID,
-        time: Date.now(),
-      },
-    ];
-    await createUpdates(updateDatas, {
-      viewer,
-      updatesForCurrentSession: 'broadcast',
-    });
-  }
+  const updateDatas = [
+    {
+      type: updateTypes.UPDATE_CURRENT_USER,
+      userID: viewer.userID,
+      time: Date.now(),
+    },
+  ];
+  await createUpdates(updateDatas, {
+    viewer,
+    updatesForCurrentSession: 'broadcast',
+  });
 }
 
 async function checkAndSendVerificationEmail(viewer: Viewer): Promise<void> {
