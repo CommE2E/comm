@@ -17,6 +17,7 @@ import { mostRecentReadThread } from 'lib/selectors/thread-selectors';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 import { threadHasPermission } from 'lib/shared/thread-utils';
 import { defaultWebEnabledApps } from 'lib/types/enabled-apps';
+import { defaultEnabledReports } from 'lib/types/enabled-reports';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 import { defaultConnectionInfo } from 'lib/types/socket-types';
@@ -272,6 +273,7 @@ async function websiteResponder(
     watchedThreadIDs: [],
     lifecycleState: 'active',
     enabledApps: defaultWebEnabledApps,
+    enabledReports: defaultEnabledReports,
     crashReportsEnabled: false,
     nextLocalID: 0,
     queuedReports: [],

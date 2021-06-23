@@ -20,6 +20,7 @@ import {
   invalidSessionRecovery,
 } from 'lib/shared/account-utils';
 import { type EnabledApps, defaultEnabledApps } from 'lib/types/enabled-apps';
+import { type EnabledReports } from 'lib/types/enabled-reports';
 import { type EntryStore } from 'lib/types/entry-types';
 import {
   type CalendarFilter,
@@ -110,6 +111,7 @@ export type AppState = {|
   watchedThreadIDs: $ReadOnlyArray<string>,
   lifecycleState: LifecycleState,
   enabledApps: EnabledApps,
+  enabledReports: EnabledReports,
   crashReportsEnabled: boolean,
   nextLocalID: number,
   queuedReports: $ReadOnlyArray<ClientReportCreationRequest>,
@@ -160,6 +162,11 @@ const defaultState = ({
   watchedThreadIDs: [],
   lifecycleState: 'active',
   enabledApps: defaultEnabledApps,
+  enabledReports: {
+    crashReports: __DEV__,
+    inconsistencyReports: __DEV__,
+    mediaReports: __DEV__,
+  },
   crashReportsEnabled: __DEV__,
   nextLocalID: 0,
   queuedReports: [],

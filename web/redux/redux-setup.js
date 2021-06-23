@@ -11,6 +11,7 @@ import { mostRecentReadThreadSelector } from 'lib/selectors/thread-selectors';
 import { invalidSessionDowngrade } from 'lib/shared/account-utils';
 import type { Shape } from 'lib/types/core';
 import type { EnabledApps } from 'lib/types/enabled-apps';
+import type { EnabledReports } from 'lib/types/enabled-reports';
 import type { EntryStore } from 'lib/types/entry-types';
 import type { CalendarFilter } from 'lib/types/filter-types';
 import type { LifecycleState } from 'lib/types/lifecycle-state-types';
@@ -50,6 +51,7 @@ export type AppState = {|
   watchedThreadIDs: $ReadOnlyArray<string>,
   lifecycleState: LifecycleState,
   enabledApps: EnabledApps,
+  enabledReports: EnabledReports,
   crashReportsEnabled: boolean,
   nextLocalID: number,
   queuedReports: $ReadOnlyArray<ClientReportCreationRequest>,
