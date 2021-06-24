@@ -117,7 +117,6 @@ export type ChatTopTabsParamList = {|
 
 export type ProfileParamList = {|
   +ProfileScreen: void,
-  +EditEmail: void,
   +EditPassword: void,
   +DeleteAccount: void,
   +BuildInfo: void,

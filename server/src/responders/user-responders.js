@@ -177,7 +177,7 @@ async function accountCreationResponder(
 
 const logInRequestInputValidator = tShape({
   username: t.maybe(t.String),
-  usernameOrEmail: t.maybe(t.String),
+  usernameOrEmail: t.union([tEmail, tOldValidUsername]),
   password: tPassword,
   watchedIDs: t.list(t.String),
   calendarQuery: t.maybe(entryQueryInputValidator),
