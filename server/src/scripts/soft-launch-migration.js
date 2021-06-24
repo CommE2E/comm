@@ -1,10 +1,15 @@
 // @flow
 
+import invariant from 'invariant';
+
 import ashoat from 'lib/facts/ashoat';
 import bots from 'lib/facts/bots';
 import genesis from 'lib/facts/genesis';
+import testers from 'lib/facts/testers';
+import { messageTypes } from 'lib/types/message-types';
 import { threadTypes, type ThreadType } from 'lib/types/thread-types';
 
+import createMessages from '../creators/message-creator';
 import { createThread } from '../creators/thread-creator';
 import { dbQuery, SQL } from '../database/database';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
@@ -36,6 +41,13 @@ const personalThreadsWithMissingMembers = [
   '210609',
   '227049',
 ];
+const excludeFromTestersThread = new Set([
+  '1402',
+  '39227',
+  '156159',
+  '526973',
+  '740732',
+]);
 
 async function createGenesisCommunity() {
   const genesisThreadInfos = await fetchServerThreadInfos(
@@ -70,6 +82,48 @@ async function createGenesisCommunity() {
       initialMemberIDs: nonAshoatUserIDs,
     },
     createThreadOptions,
+  );
+
+  await createMessages(
+    ashoatViewer,
+    genesis.introMessages.map((message) => ({
+      type: messageTypes.TEXT,
+      threadID: genesis.id,
+      creatorID: ashoat.id,
+      time: Date.now(),
+      text: message,
+    })),
+  );
+
+  console.log('creating testers thread');
+
+  const testerUserIDs = nonAshoatUserIDs.filter(
+    (userID) => !excludeFromTestersThread.has(userID),
+  );
+  const { newThreadID } = await createThread(
+    ashoatViewer,
+    {
+      type: threadTypes.COMMUNITY_SECRET_SUBTHREAD,
+      name: testers.name,
+      description: testers.description,
+      initialMemberIDs: testerUserIDs,
+    },
+    createThreadOptions,
+  );
+  invariant(
+    newThreadID,
+    'newThreadID for tester thread creation should be set',
+  );
+
+  await createMessages(
+    ashoatViewer,
+    testers.introMessages.map((message) => ({
+      type: messageTypes.TEXT,
+      threadID: newThreadID,
+      creatorID: ashoat.id,
+      time: Date.now(),
+      text: message,
+    })),
   );
 }
 
