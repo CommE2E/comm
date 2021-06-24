@@ -4,7 +4,7 @@ import * as React from 'react';
 import { View, Text, ScrollView } from 'react-native';
 
 import { useStyles } from '../themes/colors';
-import ToggleCrashReports from './toggle-crash-reports.react';
+import ToggleReport from './toggle-report.react';
 
 function PrivacyPreferences(): React.Node {
   const styles = useStyles(unboundStyles);
@@ -14,9 +14,22 @@ function PrivacyPreferences(): React.Node {
       contentContainerStyle={styles.scrollViewContentContainer}
       style={styles.scrollView}
     >
-      <Text style={styles.header}>CRASH REPORTS</Text>
+      <Text style={styles.header}>REPORTS</Text>
       <View style={styles.section}>
-        <ToggleCrashReports />
+        <View style={styles.submenuButton}>
+          <Text style={styles.submenuText}>Toggle crash reports</Text>
+          <ToggleReport reportType="crashReports" />
+        </View>
+
+        <View style={styles.submenuButton}>
+          <Text style={styles.submenuText}>Toggle media reports</Text>
+          <ToggleReport reportType="mediaReports" />
+        </View>
+
+        <View style={styles.submenuButton}>
+          <Text style={styles.submenuText}>Toggle inconsistency reports</Text>
+          <ToggleReport reportType="inconsistencyReports" />
+        </View>
       </View>
     </ScrollView>
   );
@@ -43,6 +56,17 @@ const unboundStyles = {
     fontWeight: '400',
     paddingBottom: 3,
     paddingHorizontal: 24,
+  },
+  submenuButton: {
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  submenuText: {
+    color: 'panelForegroundLabel',
+    flex: 1,
+    fontSize: 16,
   },
 };
 
