@@ -5,7 +5,10 @@ import * as React from 'react';
 
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { oldValidUsernameRegex } from 'lib/shared/account-utils';
+import {
+  validEmailRegex,
+  oldValidUsernameRegex,
+} from 'lib/shared/account-utils';
 import type {
   LogInInfo,
   LogInExtraInfo,
@@ -127,7 +130,19 @@ class LogInModal extends React.PureComponent<Props, State> {
   onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
     event.preventDefault();
 
-    if (this.state.username.search(oldValidUsernameRegex) === -1) {
+    if (this.state.username.search(validEmailRegex) > -1) {
+      this.setState(
+        {
+          username: '',
+          errorMessage: 'usernames only, not emails',
+        },
+        () => {
+          invariant(this.usernameInput, 'usernameInput ref unset');
+          this.usernameInput.focus();
+        },
+      );
+      return;
+    } else if (this.state.username.search(oldValidUsernameRegex) === -1) {
       this.setState(
         {
           username: '',

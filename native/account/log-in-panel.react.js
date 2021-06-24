@@ -8,7 +8,10 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { oldValidUsernameRegex } from 'lib/shared/account-utils';
+import {
+  validEmailRegex,
+  oldValidUsernameRegex,
+} from 'lib/shared/account-utils';
 import type {
   LogInInfo,
   LogInExtraInfo,
@@ -186,7 +189,15 @@ class LogInPanel extends React.PureComponent<Props> {
 
   onSubmit = () => {
     this.props.setActiveAlert(true);
-    if (this.usernameInputText.search(oldValidUsernameRegex) === -1) {
+    if (this.usernameInputText.search(validEmailRegex)) {
+      Alert.alert(
+        "Can't log in with email",
+        'You need to log in with your username now',
+        [{ text: 'OK', onPress: this.onUsernameAlertAcknowledged }],
+        { cancelable: false },
+      );
+      return;
+    } else if (this.usernameInputText.search(oldValidUsernameRegex) === -1) {
       Alert.alert(
         'Invalid username',
         'Alphanumeric usernames only',
