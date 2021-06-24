@@ -204,14 +204,6 @@ async function createTables() {
       status tinyint(1) UNSIGNED NOT NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-    CREATE TABLE verifications (
-      id bigint(20) NOT NULL,
-      user bigint(20) NOT NULL,
-      field tinyint(1) UNSIGNED NOT NULL,
-      hash char(60) NOT NULL,
-      creation_time bigint(20) NOT NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
     CREATE TABLE versions (
       id bigint(20) NOT NULL,
       code_version int(11) NOT NULL,
@@ -303,10 +295,6 @@ async function createTables() {
     ALTER TABLE relationships_directed
       ADD UNIQUE KEY user1_user2 (user1,user2),
       ADD UNIQUE KEY user2_user1 (user2,user1);
-
-    ALTER TABLE verifications
-      ADD PRIMARY KEY (id),
-      ADD KEY user_field (user,field);
 
     ALTER TABLE versions
       ADD PRIMARY KEY (id),
