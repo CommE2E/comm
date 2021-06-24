@@ -28,7 +28,6 @@ async function main() {
 
 type ReplaceUserInfo = Shape<{|
   +username: boolean,
-  +email: boolean,
   +password: boolean,
 |}>;
 async function mergeUsers(
@@ -158,7 +157,7 @@ async function replaceUser(
   }
 
   const fromUserQuery = SQL`
-    SELECT username, hash, email, email_verified
+    SELECT username, hash
     FROM users
     WHERE id = ${fromUserID}
   `;
@@ -172,10 +171,6 @@ async function replaceUser(
   if (replaceUserInfo.username) {
     changedFields.username = firstResult.username;
   }
-  if (replaceUserInfo.email) {
-    changedFields.email = firstResult.email;
-    changedFields.email_verified = firstResult.email_verified;
-  }
   if (replaceUserInfo.password) {
     changedFields.hash = firstResult.hash;
   }
@@ -185,7 +180,7 @@ async function replaceUser(
   `;
 
   const updateDatas = [];
-  if (replaceUserInfo.username || replaceUserInfo.email) {
+  if (replaceUserInfo.username) {
     updateDatas.push({
       type: updateTypes.UPDATE_CURRENT_USER,
       userID: toUserID,
