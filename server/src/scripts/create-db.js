@@ -188,8 +188,6 @@ async function createTables() {
       id bigint(20) NOT NULL,
       username varchar(${usernameMaxLength}) COLLATE utf8mb4_bin NOT NULL,
       hash char(60) COLLATE utf8mb4_bin NOT NULL,
-      email varchar(191) COLLATE utf8mb4_bin NOT NULL,
-      email_verified tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
       avatar varchar(191) COLLATE utf8mb4_bin DEFAULT NULL,
       creation_time bigint(20) NOT NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
@@ -296,8 +294,7 @@ async function createTables() {
 
     ALTER TABLE users
       ADD PRIMARY KEY (id),
-      ADD UNIQUE KEY username (username),
-      ADD UNIQUE KEY email (email);
+      ADD UNIQUE KEY username (username);
 
     ALTER TABLE relationships_undirected
       ADD UNIQUE KEY user1_user2 (user1,user2),
@@ -328,13 +325,10 @@ async function createUsers() {
       VALUES
         (${bots.squadbot.userID}, 'users'),
         (${ashoat.id}, 'users');
-    INSERT INTO users (id, username, hash, email, email_verified, avatar,
-        creation_time)
+    INSERT INTO users (id, username, hash, avatar, creation_time)
       VALUES
-        (${bots.squadbot.userID}, 'squadbot', '', 'squadbot@squadcal.org', 1,
-          NULL, 1530049900980),
-        (${ashoat.id}, 'ashoat', '', ${ashoat.email}, 1,
-          NULL, 1463588881886);
+        (${bots.squadbot.userID}, 'squadbot', '', NULL, 1530049900980),
+        (${ashoat.id}, 'ashoat', '', NULL, 1463588881886);
     INSERT INTO relationships_undirected (user1, user2, status)
       VALUES (${user1}, ${user2}, ${undirectedStatus.KNOW_OF});
   `);

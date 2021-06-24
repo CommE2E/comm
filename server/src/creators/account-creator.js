@@ -82,9 +82,9 @@ async function createAccount(
     ? request.deviceTokenUpdateRequest.deviceToken
     : viewer.deviceToken;
   const [id] = await createIDs('users', 1);
-  const newUserRow = [id, request.username, hash, '', time];
+  const newUserRow = [id, request.username, hash, time];
   const newUserQuery = SQL`
-    INSERT INTO users(id, username, hash, email, creation_time)
+    INSERT INTO users(id, username, hash, creation_time)
     VALUES ${[newUserRow]}
   `;
   const [userViewerData] = await Promise.all([
