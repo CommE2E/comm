@@ -50,7 +50,7 @@ type Props = {|
   ...BaseProps,
   +year: number,
   +month: number,
-  +daysToEntries: { [dayString: string]: EntryInfo[] },
+  +daysToEntries: { +[dayString: string]: EntryInfo[] },
   +navInfo: NavInfo,
   +currentCalendarQuery: () => CalendarQuery,
   +loggedIn: boolean,

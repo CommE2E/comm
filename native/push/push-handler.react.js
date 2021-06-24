@@ -80,7 +80,7 @@ type Props = {|
   // Redux state
   +unreadCount: number,
   +deviceToken: ?string,
-  +threadInfos: { [id: string]: ThreadInfo },
+  +threadInfos: { +[id: string]: ThreadInfo },
   +notifPermissionAlertInfo: NotifPermissionAlertInfo,
   +connection: ConnectionInfo,
   +updatesCurrentAsOf: number,

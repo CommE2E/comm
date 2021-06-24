@@ -105,7 +105,7 @@ type Props = {|
   ...BaseProps,
   +viewerID: ?string,
   +nextLocalID: number,
-  +messageStoreMessages: { [id: string]: RawMessageInfo },
+  +messageStoreMessages: { +[id: string]: RawMessageInfo },
   +ongoingMessageCreation: boolean,
   +hasWiFi: boolean,
   +calendarQuery: () => CalendarQuery,

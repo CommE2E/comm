@@ -85,7 +85,7 @@ type Props = {|
   ...BaseProps,
   +activeChatThreadID: ?string,
   +viewerID: ?string,
-  +messageStoreMessages: { [id: string]: RawMessageInfo },
+  +messageStoreMessages: { +[id: string]: RawMessageInfo },
   +exifRotate: boolean,
   +pendingToRealizedThreadIDs: $ReadOnlyMap<string, string>,
   +dispatch: Dispatch,

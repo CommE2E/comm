@@ -15,7 +15,7 @@ const nextMessagePruneTimeSelector: (
   state: AppState,
 ) => ?number = createSelector(
   (state: AppState) => state.messageStore.threads,
-  (threadMessageInfos: { [id: string]: ThreadMessageInfo }): ?number => {
+  (threadMessageInfos: { +[id: string]: ThreadMessageInfo }): ?number => {
     let nextTime;
     for (const threadID in threadMessageInfos) {
       const threadMessageInfo = threadMessageInfos[threadID];
@@ -37,7 +37,7 @@ const pruneThreadIDsSelector: (
   (input: NavPlusRedux) => input.redux.messageStore.threads,
   (input: NavPlusRedux) => activeThreadSelector(input.navContext),
   (
-    threadMessageInfos: { [id: string]: ThreadMessageInfo },
+    threadMessageInfos: { +[id: string]: ThreadMessageInfo },
     activeThread: ?string,
   ) => (): $ReadOnlyArray<string> => {
     const now = Date.now();

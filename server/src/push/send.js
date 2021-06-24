@@ -389,8 +389,8 @@ async function fetchInfos(pushInfo: PushInfo) {
 }
 
 async function fetchNotifUserInfos(
-  serverThreadInfos: { [threadID: string]: ServerThreadInfo },
-  usersToCollapsableNotifInfo: { [userID: string]: CollapsableNotifInfo[] },
+  serverThreadInfos: { +[threadID: string]: ServerThreadInfo },
+  usersToCollapsableNotifInfo: { +[userID: string]: CollapsableNotifInfo[] },
 ) {
   const missingUserIDs = new Set();
 

@@ -40,7 +40,7 @@ async function setColumn() {
 
 async function setColumnForLayer(
   parentThreadInfo: ?ServerThreadInfo,
-  threadInfos: { [id: string]: ServerThreadInfo },
+  threadInfos: { +[id: string]: ServerThreadInfo },
 ): Promise<ServerThreadInfo[]> {
   const updatedThreadInfos = [];
   for (const threadID in threadInfos) {

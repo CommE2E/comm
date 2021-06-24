@@ -9,7 +9,7 @@ import { type NavInfo, updateNavInfoActionType } from '../types/nav-types';
 export default function reduceNavInfo(
   oldState: NavInfo,
   action: Action,
-  newThreadInfos: { [id: string]: RawThreadInfo },
+  newThreadInfos: { +[id: string]: RawThreadInfo },
 ): NavInfo {
   let state = oldState;
   if (action.type === updateNavInfoActionType) {

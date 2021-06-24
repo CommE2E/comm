@@ -69,9 +69,9 @@ type Props = {|
   // Redux state
   +parentThreadInfo: ?ThreadInfo,
   +loadingStatus: LoadingStatus,
-  +otherUserInfos: { [id: string]: AccountUserInfo },
+  +otherUserInfos: { +[id: string]: AccountUserInfo },
   +userSearchIndex: SearchIndex,
-  +threadInfos: { [id: string]: ThreadInfo },
+  +threadInfos: { +[id: string]: ThreadInfo },
   +colors: Colors,
   +styles: typeof unboundStyles,
   +calendarQuery: () => CalendarQuery,
@@ -148,7 +148,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.route.params.threadType,
     (
       text: string,
-      userInfos: { [id: string]: AccountUserInfo },
+      userInfos: { +[id: string]: AccountUserInfo },
       searchIndex: SearchIndex,
       userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
       parentThreadInfo: ?ThreadInfo,
@@ -175,7 +175,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.userInfoInputArray,
     (
       parentThreadInfo: ?ThreadInfo,
-      threadInfos: { [id: string]: ThreadInfo },
+      threadInfos: { +[id: string]: ThreadInfo },
       userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
     ) => {
       const userIDs = userInfoInputArray.map((userInfo) => userInfo.id);

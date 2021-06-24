@@ -29,12 +29,12 @@ const activeChatThreadItem: (
   (state: AppState) => state.navInfo.pendingThread,
   sidebarInfoSelector,
   (
-    threadInfos: { [id: string]: ThreadInfo },
+    threadInfos: { +[id: string]: ThreadInfo },
     messageStore: MessageStore,
-    messageInfos: { [id: string]: ?MessageInfo },
+    messageInfos: { +[id: string]: ?MessageInfo },
     activeChatThreadID: ?string,
     pendingThreadInfo: ?ThreadInfo,
-    sidebarInfos: { [id: string]: $ReadOnlyArray<SidebarInfo> },
+    sidebarInfos: { +[id: string]: $ReadOnlyArray<SidebarInfo> },
   ): ?ChatThreadItem => {
     if (!activeChatThreadID) {
       return null;

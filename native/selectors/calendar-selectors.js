@@ -41,8 +41,8 @@ const calendarListData: (state: AppState) => ?(CalendarItem[]) = createSelector(
   threadInfoSelector,
   (
     loggedIn: boolean,
-    daysToEntries: { [dayString: string]: EntryInfo[] },
-    threadInfos: { [id: string]: ThreadInfo },
+    daysToEntries: { +[dayString: string]: EntryInfo[] },
+    threadInfos: { +[id: string]: ThreadInfo },
   ) => {
     if (!loggedIn || daysToEntries[dateString(new Date())] === undefined) {
       return null;

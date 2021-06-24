@@ -13,12 +13,12 @@ import type { AppState } from '../redux/redux-setup';
 
 const allDaysToEntries: (
   state: AppState,
-) => { [dayString: string]: EntryInfo[] } = createSelector(
+) => { +[dayString: string]: EntryInfo[] } = createSelector(
   entryInfoSelector,
   (state: AppState) => state.entryStore.daysToEntries,
   (
-    entryInfos: { [id: string]: EntryInfo },
-    daysToEntries: { [day: string]: string[] },
+    entryInfos: { +[id: string]: EntryInfo },
+    daysToEntries: { +[day: string]: string[] },
   ) =>
     _mapValues((entryIDs: string[]) =>
       _flow(

@@ -93,7 +93,7 @@ export type ViewerInfo =
       viewer: Viewer,
       calendarQuery: ?CalendarQuery,
       updatesForCurrentSession?: UpdatesForCurrentSession,
-      threadInfos: { [id: string]: RawThreadInfo },
+      threadInfos: { +[id: string]: RawThreadInfo },
     |};
 const defaultUpdateCreationResult = { viewerUpdates: [], userInfos: {} };
 const sortFunction = (

@@ -42,7 +42,7 @@ type Props = {|
   ...BaseProps,
   +filterThreadInfos: () => $ReadOnlyArray<FilterThreadInfo>,
   +filterThreadSearchIndex: () => SearchIndex,
-  +filteredThreadIDs: ?Set<string>,
+  +filteredThreadIDs: ?$ReadOnlySet<string>,
   +includeDeleted: boolean,
   +dispatch: Dispatch,
 |};

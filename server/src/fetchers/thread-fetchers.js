@@ -16,7 +16,7 @@ import { dbQuery, SQL, SQLStatement } from '../database/database';
 import type { Viewer } from '../session/viewer';
 
 type FetchServerThreadInfosResult = {|
-  threadInfos: { [id: string]: ServerThreadInfo },
+  +threadInfos: { +[id: string]: ServerThreadInfo },
 |};
 
 async function fetchServerThreadInfos(
@@ -99,7 +99,7 @@ async function fetchServerThreadInfos(
 }
 
 export type FetchThreadInfosResult = {|
-  threadInfos: { [id: string]: RawThreadInfo },
+  +threadInfos: { +[id: string]: RawThreadInfo },
 |};
 
 async function fetchThreadInfos(
