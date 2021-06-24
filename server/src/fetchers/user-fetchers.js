@@ -193,8 +193,11 @@ async function fetchCurrentUserInfo(
     throw new ServerError('unknown_error');
   }
   const currentUserInfo = currentUserInfos[0];
-  const hasCodeVersionBelow87 = !hasMinCodeVersion(viewer.platformDetails, 87);
-  if (hasCodeVersionBelow87) {
+  const stillExpectsEmailFields = !hasMinCodeVersion(
+    viewer.platformDetails,
+    87,
+  );
+  if (stillExpectsEmailFields) {
     return currentUserInfo;
   }
   const { id, username } = currentUserInfo;
