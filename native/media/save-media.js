@@ -44,6 +44,9 @@ async function intentionalSaveMedia(
     messageServerID: ?string,
     messageLocalID: ?string,
   |},
+  options: {|
+    mediaReportsEnabled: boolean,
+  |},
 ): Promise<void> {
   const start = Date.now();
   const steps = [{ step: 'save_media', uri, time: start }];
@@ -76,6 +79,9 @@ async function intentionalSaveMedia(
   }
   displayActionResultModal(message);
 
+  if (!options.mediaReportsEnabled) {
+    return;
+  }
   const reportSteps = await reportPromise;
   steps.push(...reportSteps);
   const totalTime = Date.now() - start;

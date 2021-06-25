@@ -24,7 +24,7 @@ function onPressSave(route: TooltipRoute<'MultimediaTooltipModal'>) {
   const { id: uploadID, uri } = mediaInfo;
   const { id: messageServerID, localID: messageLocalID } = item.messageInfo;
   const ids = { uploadID, messageServerID, messageLocalID };
-  return intentionalSaveMedia(uri, ids);
+  return intentionalSaveMedia(uri, ids, { mediaReportsEnabled: false });
 }
 
 const spec = {

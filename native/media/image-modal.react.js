@@ -20,6 +20,7 @@ import Animated from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import { type MediaInfo, type Dimensions } from 'lib/types/media-types';
+import { useIsReportEnabled } from 'lib/utils/report-utils';
 
 import type { ChatMultimediaMessageInfoItem } from '../chat/multimedia-message.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
@@ -159,6 +160,7 @@ type Props = {|
   +dimensions: DerivedDimensionsInfo,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
+  +mediaReportsEnabled: boolean,
 |};
 type State = {|
   +closeButtonEnabled: boolean,
@@ -1113,7 +1115,9 @@ class ImageModal extends React.PureComponent<Props, State> {
     const { id: uploadID, uri } = mediaInfo;
     const { id: messageServerID, localID: messageLocalID } = item.messageInfo;
     const ids = { uploadID, messageServerID, messageLocalID };
-    return intentionalSaveMedia(uri, ids);
+    return intentionalSaveMedia(uri, ids, {
+      mediaReportsEnabled: this.props.mediaReportsEnabled,
+    });
   };
 
   setCloseButtonEnabled = ([enabledNum]: [number]) => {
@@ -1228,11 +1232,13 @@ export default React.memo<BaseProps>(function ConnectedImageModal(
 ) {
   const dimensions = useSelector(derivedDimensionsInfoSelector);
   const overlayContext = React.useContext(OverlayContext);
+  const mediaReportsEnabled = useIsReportEnabled('mediaReports');
   return (
     <ImageModal
       {...props}
       dimensions={dimensions}
       overlayContext={overlayContext}
+      mediaReportsEnabled={mediaReportsEnabled}
     />
   );
 });
