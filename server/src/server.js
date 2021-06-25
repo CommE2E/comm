@@ -43,7 +43,7 @@ if (cluster.isMaster) {
   const router = express.Router();
   router.use('/images', express.static('images'));
   router.use('/commlanding/images', express.static('images'));
-  if (process.env.NODE_ENV === 'dev') {
+  if (process.env.NODE_ENV === 'development') {
     router.use('/fonts', express.static('fonts'));
     router.use('/commlanding/fonts', express.static('fonts'));
   }
@@ -59,7 +59,7 @@ if (cluster.isMaster) {
     ),
   );
   const compiledFolderOptions =
-    process.env.NODE_ENV === 'dev'
+    process.env.NODE_ENV === 'development'
       ? undefined
       : { maxAge: '1y', immutable: true };
   router.use(

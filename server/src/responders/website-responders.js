@@ -68,7 +68,7 @@ async function getAssetInfo() {
   if (assetInfo) {
     return assetInfo;
   }
-  if (process.env.NODE_ENV === 'dev') {
+  if (process.env.NODE_ENV === 'development') {
     const fontsURL = await getFontsURL();
     assetInfo = {
       jsURL: 'http://localhost:8080/dev.build.js',

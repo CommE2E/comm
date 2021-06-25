@@ -72,7 +72,7 @@ async function apnPush(
   deviceTokens: $ReadOnlyArray<string>,
 ) {
   const apnProvider = await getAPNProvider();
-  if (!apnProvider && process.env.NODE_ENV === 'dev') {
+  if (!apnProvider && process.env.NODE_ENV === 'development') {
     console.log('no server/secrets/apn_config.json so ignoring notifs');
     return { success: true };
   }
@@ -105,7 +105,7 @@ async function fcmPush(
   collapseKey: ?string,
 ) {
   const initialized = await initializeFCMApp();
-  if (!initialized && process.env.NODE_ENV === 'dev') {
+  if (!initialized && process.env.NODE_ENV === 'development') {
     console.log('no server/secrets/fcm_config.json so ignoring notifs');
     return { success: true };
   }
