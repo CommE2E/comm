@@ -32,7 +32,7 @@ async function updateThreads(threadType: ThreadType) {
   const [result] = await dbQuery(fetchThreads);
   const threadIDs = result.map((row) => row.id.toString());
 
-  const viewer = createScriptViewer(bots.squadbot.userID);
+  const viewer = createScriptViewer(bots.commbot.userID);
   while (threadIDs.length > 0) {
     const batch = threadIDs.splice(0, batchSize);
     const membershipRows = [];

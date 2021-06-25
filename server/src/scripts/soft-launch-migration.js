@@ -156,7 +156,7 @@ async function convertExistingCommunities() {
   `;
   const [convertToCommunity] = await dbQuery(communityQuery);
 
-  const botViewer = createScriptViewer(bots.squadbot.userID);
+  const botViewer = createScriptViewer(bots.commbot.userID);
   await convertThreads(
     botViewer,
     convertToCommunity,
@@ -216,7 +216,7 @@ async function convertAnnouncementCommunities() {
     announcementCommunityQuery,
   );
 
-  const botViewer = createScriptViewer(bots.squadbot.userID);
+  const botViewer = createScriptViewer(bots.commbot.userID);
   await convertThreads(
     botViewer,
     convertToAnnouncementCommunity,
@@ -235,7 +235,7 @@ async function convertAnnouncementSubthreads() {
     announcementSubthreadQuery,
   );
 
-  const botViewer = createScriptViewer(bots.squadbot.userID);
+  const botViewer = createScriptViewer(bots.commbot.userID);
   await convertThreads(
     botViewer,
     convertToAnnouncementSubthread,
@@ -254,7 +254,7 @@ async function fixThreadsWithMissingParent() {
     threadsWithMissingParentQuery,
   );
 
-  const botViewer = createScriptViewer(bots.squadbot.userID);
+  const botViewer = createScriptViewer(bots.commbot.userID);
   while (threadsWithMissingParentResult.length > 0) {
     const batch = threadsWithMissingParentResult.splice(0, batchSize);
     await Promise.all(
@@ -284,7 +284,7 @@ async function fixPersonalThreadsWithMissingMembers() {
   `;
   const [missingMembers] = await dbQuery(missingMembersQuery);
 
-  const botViewer = createScriptViewer(bots.squadbot.userID);
+  const botViewer = createScriptViewer(bots.commbot.userID);
   for (const row of missingMembers) {
     console.log(`fixing ${JSON.stringify(row)} with missing member`);
     await updateThread(
@@ -311,7 +311,7 @@ async function moveThreadsToGenesis() {
   `;
   const [noParentThreads] = await dbQuery(noParentQuery);
 
-  const botViewer = createScriptViewer(bots.squadbot.userID);
+  const botViewer = createScriptViewer(bots.commbot.userID);
   while (noParentThreads.length > 0) {
     const batch = noParentThreads.splice(0, batchSize);
     await Promise.all(
@@ -370,7 +370,7 @@ async function clearMembershipPermissions() {
     return;
   }
 
-  const botViewer = createScriptViewer(bots.squadbot.userID);
+  const botViewer = createScriptViewer(bots.commbot.userID);
   for (const row of membershipPermissionResult) {
     const threadID = row.thread.toString();
     console.log(`clearing membership permissions for ${threadID}`);

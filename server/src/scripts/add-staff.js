@@ -10,9 +10,9 @@ const newStaffIDs = ['518252'];
 
 async function addStaff() {
   await updateThread(
-    createScriptViewer(bots.squadbot.userID),
+    createScriptViewer(bots.commbot.userID),
     {
-      threadID: bots.squadbot.staffThreadID,
+      threadID: bots.commbot.staffThreadID,
       changes: {
         newMemberIDs: newStaffIDs,
       },

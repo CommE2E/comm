@@ -8,8 +8,8 @@ import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
 import { createScriptViewer } from '../session/scripts';
 import { main } from './utils';
 
-const userID = '518252';
-const newUsername = 'atul';
+const userID = '5';
+const newUsername = 'commbot';
 
 async function renameUser() {
   const [adjacentUsers] = await Promise.all([

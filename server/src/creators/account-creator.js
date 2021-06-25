@@ -37,7 +37,7 @@ import {
   privateThreadDescription,
 } from './thread-creator';
 
-const { squadbot } = bots;
+const { commbot } = bots;
 
 const ashoatMessages = [
   'welcome to SquadCal! thanks for helping to test the alpha.',
@@ -142,7 +142,7 @@ async function createAccount(
   const privateMessageDatas = privateMessages.map((message) => ({
     type: messageTypes.TEXT,
     threadID: privateThreadID,
-    creatorID: squadbot.userID,
+    creatorID: commbot.userID,
     time: messageTime++,
     text: message,
   }));

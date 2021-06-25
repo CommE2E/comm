@@ -32,7 +32,7 @@ import createIDs from './id-creator';
 import createMessages from './message-creator';
 
 const { baseDomain, basePath } = getAppURLFacts();
-const { squadbot } = bots;
+const { commbot } = bots;
 
 async function createReport(
   viewer: Viewer,
@@ -98,11 +98,11 @@ async function sendSquadbotMessage(
     return;
   }
   const time = Date.now();
-  await createMessages(createBotViewer(squadbot.userID), [
+  await createMessages(createBotViewer(commbot.userID), [
     {
       type: messageTypes.TEXT,
-      threadID: squadbot.staffThreadID,
-      creatorID: squadbot.userID,
+      threadID: commbot.staffThreadID,
+      creatorID: commbot.userID,
       time,
       text: message,
     },

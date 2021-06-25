@@ -307,15 +307,15 @@ async function createTables() {
 }
 
 async function createUsers() {
-  const [user1, user2] = sortIDs(bots.squadbot.userID, ashoat.id);
+  const [user1, user2] = sortIDs(bots.commbot.userID, ashoat.id);
   await dbQuery(SQL`
     INSERT INTO ids (id, table_name)
       VALUES
-        (${bots.squadbot.userID}, 'users'),
+        (${bots.commbot.userID}, 'users'),
         (${ashoat.id}, 'users');
     INSERT INTO users (id, username, hash, avatar, creation_time)
       VALUES
-        (${bots.squadbot.userID}, 'squadbot', '', NULL, 1530049900980),
+        (${bots.commbot.userID}, 'commbot', '', NULL, 1530049900980),
         (${ashoat.id}, 'ashoat', '', NULL, 1463588881886);
     INSERT INTO relationships_undirected (user1, user2, status)
       VALUES (${user1}, ${user2}, ${undirectedStatus.KNOW_OF});
@@ -329,7 +329,7 @@ async function createThreads() {
     INSERT INTO ids (id, table_name)
     VALUES
       (${genesis.id}, 'threads'),
-      (${bots.squadbot.staffThreadID}, 'threads');
+      (${bots.commbot.staffThreadID}, 'threads');
   `);
 
   const ashoatViewer = createScriptViewer(ashoat.id);
@@ -340,17 +340,17 @@ async function createThreads() {
       type: threadTypes.GENESIS,
       name: genesis.name,
       description: genesis.description,
-      initialMemberIDs: [bots.squadbot.userID],
+      initialMemberIDs: [bots.commbot.userID],
     },
     createThreadOptions,
   );
   await Promise.all([insertIDsPromise, createGenesisPromise]);
 
-  const squadbotViewer = createScriptViewer(bots.squadbot.userID);
+  const commbotViewer = createScriptViewer(bots.commbot.userID);
   await createThread(
-    squadbotViewer,
+    commbotViewer,
     {
-      id: bots.squadbot.staffThreadID,
+      id: bots.commbot.staffThreadID,
       type: threadTypes.COMMUNITY_SECRET_SUBTHREAD,
       initialMemberIDs: [ashoat.id],
     },

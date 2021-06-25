@@ -1116,7 +1116,7 @@ async function recalculateAllThreadPermissions() {
   // If the changeset resulting from the parent call isn't committed before the
   // calculation is done for the child, the calculation done for the child can
   // be incorrect.
-  const viewer = createScriptViewer(bots.squadbot.userID);
+  const viewer = createScriptViewer(bots.commbot.userID);
   for (const row of result) {
     const threadID = row.id.toString();
     const changeset = await recalculateThreadPermissions(threadID);

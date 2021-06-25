@@ -47,7 +47,7 @@ import {
 } from './role-creator';
 import type { UpdatesForCurrentSession } from './update-creator';
 
-const { squadbot } = bots;
+const { commbot } = bots;
 
 const privateThreadDescription =
   'This is your private thread, ' +
@@ -495,7 +495,7 @@ function createPrivateThread(
       type: threadTypes.PRIVATE,
       name: username,
       description: privateThreadDescription,
-      ghostMemberIDs: [squadbot.userID],
+      ghostMemberIDs: [commbot.userID],
     },
     {
       forceAddMembers: true,

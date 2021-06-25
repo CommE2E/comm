@@ -100,7 +100,7 @@ async function fixNewThreadTypes() {
     });
   }
 
-  const viewer = createScriptViewer(bots.squadbot.userID);
+  const viewer = createScriptViewer(bots.commbot.userID);
   while (updateThreadRequests.length > 0) {
     const batch = updateThreadRequests.splice(0, batchSize);
     await Promise.all(
