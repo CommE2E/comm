@@ -77,6 +77,7 @@ import type {
   FetchJSONOptions,
   FetchJSONServerResponse,
 } from 'lib/utils/fetch-json';
+import { useIsReportEnabled } from 'lib/utils/report-utils';
 
 import { disposeTempFile } from '../media/file-utils';
 import { processMedia } from '../media/media-utils';
@@ -108,6 +109,7 @@ type Props = {|
   +messageStoreMessages: { +[id: string]: RawMessageInfo },
   +ongoingMessageCreation: boolean,
   +hasWiFi: boolean,
+  +mediaReportsEnabled: boolean,
   +calendarQuery: () => CalendarQuery,
   +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
@@ -614,6 +616,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     let reportPromise;
 
     const finish = async (result: MediaMissionResult) => {
+      if (!this.props.mediaReportsEnabled) {
+        return errorMessage;
+      }
       if (reportPromise) {
         const finalSteps = await reportPromise;
         steps.push(...finalSteps);
@@ -1368,6 +1373,7 @@ export default React.memo<BaseProps>(function ConnectedInputStateContainer(
   const callNewThread = useServerCall(newThread);
   const dispatchActionPromise = useDispatchActionPromise();
   const dispatch = useDispatch();
+  const mediaReportsEnabled = useIsReportEnabled('mediaReports');
 
   return (
     <InputStateContainer
@@ -1377,6 +1383,7 @@ export default React.memo<BaseProps>(function ConnectedInputStateContainer(
       messageStoreMessages={messageStoreMessages}
       ongoingMessageCreation={ongoingMessageCreation}
       hasWiFi={hasWiFi}
+      mediaReportsEnabled={mediaReportsEnabled}
       calendarQuery={calendarQuery}
       uploadMultimedia={callUploadMultimedia}
       sendMultimediaMessage={callSendMultimediaMessage}
