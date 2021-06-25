@@ -189,7 +189,7 @@ class LogInPanel extends React.PureComponent<Props> {
 
   onSubmit = () => {
     this.props.setActiveAlert(true);
-    if (this.usernameInputText.search(validEmailRegex)) {
+    if (this.usernameInputText.search(validEmailRegex) > -1) {
       Alert.alert(
         "Can't log in with email",
         'You need to log in with your username now',
