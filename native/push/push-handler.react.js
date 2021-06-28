@@ -30,6 +30,10 @@ import {
 } from 'lib/utils/action-utils';
 
 import {
+  type MessageListParams,
+  useNavigateToThread,
+} from '../chat/message-list-types';
+import {
   addLifecycleListener,
   getCurrentLifecycleState,
 } from '../lifecycle/lifecycle';
@@ -37,7 +41,6 @@ import { replaceWithThreadActionType } from '../navigation/action-types';
 import { activeMessageListSelector } from '../navigation/nav-selectors';
 import { NavContext } from '../navigation/navigation-context';
 import type { RootNavigationProp } from '../navigation/root-navigator.react';
-import { MessageListRouteName } from '../navigation/route-names';
 import {
   recordNotifPermissionAlertActionType,
   clearAndroidNotificationsActionType,
@@ -86,6 +89,7 @@ type Props = {|
   +updatesCurrentAsOf: number,
   +activeTheme: ?GlobalTheme,
   +loggedIn: boolean,
+  +navigateToThread: (params: MessageListParams) => void,
   // Redux dispatch functions
   +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
@@ -440,11 +444,7 @@ class PushHandler extends React.PureComponent<Props, State> {
         payload: { threadInfo },
       });
     } else {
-      this.props.navigation.navigate({
-        name: MessageListRouteName,
-        key: `${MessageListRouteName}${threadInfo.id}`,
-        params: { threadInfo },
-      });
+      this.props.navigateToThread({ threadInfo });
     }
   }
 
@@ -601,6 +601,7 @@ export default React.memo<BaseProps>(function ConnectedPushHandler(
   const updatesCurrentAsOf = useSelector((state) => state.updatesCurrentAsOf);
   const activeTheme = useSelector((state) => state.globalThemeInfo.activeTheme);
   const loggedIn = useSelector(isLoggedIn);
+  const navigateToThread = useNavigateToThread();
   const dispatch = useDispatch();
   const dispatchActionPromise = useDispatchActionPromise();
   const boundSetDeviceToken = useServerCall(setDeviceToken);
@@ -617,6 +618,7 @@ export default React.memo<BaseProps>(function ConnectedPushHandler(
       updatesCurrentAsOf={updatesCurrentAsOf}
       activeTheme={activeTheme}
       loggedIn={loggedIn}
+      navigateToThread={navigateToThread}
       dispatch={dispatch}
       dispatchActionPromise={dispatchActionPromise}
       setDeviceToken={boundSetDeviceToken}

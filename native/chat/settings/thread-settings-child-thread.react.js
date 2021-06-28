@@ -8,25 +8,21 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import Button from '../../components/button.react';
 import ThreadIcon from '../../components/thread-icon.react';
 import ThreadPill from '../../components/thread-pill.react';
-import { MessageListRouteName } from '../../navigation/route-names';
 import { useColors, useStyles } from '../../themes/colors';
-import type { ThreadSettingsNavigate } from './thread-settings.react';
+import { useNavigateToThread } from '../message-list-types';
 
 type Props = {|
   +threadInfo: ThreadInfo,
-  +navigate: ThreadSettingsNavigate,
   +firstListItem: boolean,
   +lastListItem: boolean,
 |};
 function ThreadSettingsChildThread(props: Props) {
-  const { navigate, threadInfo } = props;
+  const { threadInfo } = props;
+
+  const navigateToThread = useNavigateToThread();
   const onPress = React.useCallback(() => {
-    navigate({
-      name: MessageListRouteName,
-      params: { threadInfo },
-      key: `${MessageListRouteName}${threadInfo.id}`,
-    });
-  }, [navigate, threadInfo]);
+    navigateToThread({ threadInfo });
+  }, [threadInfo, navigateToThread]);
 
   const styles = useStyles(unboundStyles);
   const colors = useColors();

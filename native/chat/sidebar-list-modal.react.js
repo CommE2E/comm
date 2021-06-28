@@ -12,10 +12,10 @@ import Modal from '../components/modal.react';
 import Search from '../components/search.react';
 import type { RootNavigationProp } from '../navigation/root-navigator.react';
 import type { NavigationRoute } from '../navigation/route-names';
-import { MessageListRouteName } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { useIndicatorStyle } from '../themes/colors';
 import { waitForModalInputFocus } from '../utils/timers';
+import { useNavigateToThread } from './message-list-types';
 import SidebarItem from './sidebar-item.react';
 
 export type SidebarListModalParams = {|
@@ -99,8 +99,7 @@ function SidebarListModal(props: Props) {
     [],
   );
 
-  const { navigation } = props;
-  const { navigate } = navigation;
+  const navigateToThread = useNavigateToThread();
   const onPressItem = React.useCallback(
     (threadInfo: ThreadInfo) => {
       setSearchState({
@@ -110,13 +109,9 @@ function SidebarListModal(props: Props) {
       if (searchTextInputRef.current) {
         searchTextInputRef.current.blur();
       }
-      navigate({
-        name: MessageListRouteName,
-        params: { threadInfo },
-        key: `${MessageListRouteName}${threadInfo.id}`,
-      });
+      navigateToThread({ threadInfo });
     },
-    [navigate],
+    [navigateToThread],
   );
 
   const renderItem = React.useCallback(

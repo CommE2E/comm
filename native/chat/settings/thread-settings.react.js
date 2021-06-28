@@ -135,7 +135,6 @@ type ChatSettingsItem =
       +key: string,
       +threadInfo: ThreadInfo,
       +parentThreadInfo: ?ThreadInfo,
-      +navigate: ThreadSettingsNavigate,
     |}
   | {|
       +itemType: 'visibility',
@@ -161,7 +160,6 @@ type ChatSettingsItem =
       +itemType: 'childThread',
       +key: string,
       +threadInfo: ThreadInfo,
-      +navigate: ThreadSettingsNavigate,
       +firstListItem: boolean,
       +lastListItem: boolean,
     |}
@@ -446,7 +444,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         key: 'parent',
         threadInfo,
         parentThreadInfo,
-        navigate,
       });
       listData.push({
         itemType: 'footer',
@@ -504,7 +501,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           itemType: 'childThread',
           key: `childThread${subthreadInfo.id}`,
           threadInfo: subthreadInfo,
-          navigate,
           firstListItem: i === 0 && !canCreateSubthreads,
           lastListItem: i === numItems - 1 && numItems === subthreads.length,
         });
@@ -561,7 +557,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           itemType: 'childThread',
           key: `childThread${sidebarInfo.id}`,
           threadInfo: sidebarInfo,
-          navigate,
           firstListItem: i === 0,
           lastListItem: i === numItems - 1 && numItems === sidebars.length,
         });
@@ -916,7 +911,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         <ThreadSettingsParent
           threadInfo={item.threadInfo}
           parentThreadInfo={item.parentThreadInfo}
-          navigate={item.navigate}
         />
       );
     } else if (item.itemType === 'visibility') {
@@ -931,7 +925,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       return (
         <ThreadSettingsChildThread
           threadInfo={item.threadInfo}
-          navigate={item.navigate}
           firstListItem={item.firstListItem}
           lastListItem={item.lastListItem}
         />

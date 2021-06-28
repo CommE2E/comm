@@ -1,6 +1,5 @@
 // @flow
 
-import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
@@ -11,10 +10,9 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import { pluralizeAndTrim } from 'lib/utils/text-utils';
 
 import Button from '../components/button.react';
-import { MessageListRouteName } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { useStyles } from '../themes/colors';
-import type { ChatNavigationProp } from './chat.react';
+import { useNavigateToThread } from './message-list-types';
 
 type Props = {|
   +threadInfo: ThreadInfo,
@@ -22,15 +20,11 @@ type Props = {|
 |};
 function InlineSidebar(props: Props) {
   const { threadInfo } = props;
-  const navigation: ChatNavigationProp<'MessageList'> = (useNavigation(): any);
 
+  const navigateToThread = useNavigateToThread();
   const onPress = React.useCallback(() => {
-    navigation.navigate({
-      name: MessageListRouteName,
-      params: { threadInfo },
-      key: `${MessageListRouteName}${threadInfo.id}`,
-    });
-  }, [navigation, threadInfo]);
+    navigateToThread({ threadInfo });
+  }, [navigateToThread, threadInfo]);
 
   const styles = useStyles(unboundStyles);
   let viewerIcon, nonViewerIcon, alignStyle;

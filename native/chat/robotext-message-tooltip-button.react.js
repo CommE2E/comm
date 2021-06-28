@@ -41,11 +41,7 @@ function RobotextMessageTooltipButton(props: Props) {
       <Animated.View style={headerStyle}>
         <Timestamp time={item.messageInfo.time} display="modal" />
       </Animated.View>
-      <InnerRobotextMessage
-        item={item}
-        navigation={navigation}
-        onPress={navigation.goBackOnce}
-      />
+      <InnerRobotextMessage item={item} onPress={navigation.goBackOnce} />
     </React.Fragment>
   );
 }

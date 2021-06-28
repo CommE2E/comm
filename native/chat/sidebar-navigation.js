@@ -4,8 +4,8 @@ import type { DispatchFunctions, ActionFunc } from 'lib/utils/action-utils';
 
 import type { InputState } from '../input/input-state';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
-import { MessageListRouteName } from '../navigation/route-names';
 import type { TooltipRoute } from '../navigation/tooltip.react';
+import { createNavigateToThreadAction } from './message-list-types';
 import { getSidebarThreadInfo } from './utils';
 
 function navigateToSidebar(
@@ -28,13 +28,7 @@ function navigateToSidebar(
   if (route.name === 'RobotextMessageTooltipModal') {
   }
 
-  navigation.navigate({
-    name: MessageListRouteName,
-    params: {
-      threadInfo,
-    },
-    key: `${MessageListRouteName}${threadInfo.id}`,
-  });
+  navigation.navigate(createNavigateToThreadAction({ threadInfo }));
 }
 
 export { navigateToSidebar };

@@ -1,6 +1,5 @@
 // @flow
 
-import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import { View, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
@@ -8,7 +7,7 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 import { ancestorThreadInfos } from 'lib/selectors/thread-selectors';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
-import { MessageListRouteName } from '../navigation/route-names';
+import { useNavigateToThread } from '../chat/message-list-types';
 import { useSelector } from '../redux/redux-utils';
 import { useStyles } from '../themes/colors';
 import Button from './button.react';
@@ -21,24 +20,13 @@ type Props = {|
 
 function ThreadAncestors(props: Props): React.Node {
   const { threadInfo } = props;
-  const navigation = useNavigation();
   const styles = useStyles(unboundStyles);
 
   const ancestorThreads: $ReadOnlyArray<ThreadInfo> = useSelector(
     ancestorThreadInfos(threadInfo.id),
   );
 
-  const navigateToThread = React.useCallback(
-    (ancestorThreadInfo) => {
-      navigation.navigate({
-        name: MessageListRouteName,
-        params: { threadInfo: ancestorThreadInfo },
-        key: `${MessageListRouteName}${ancestorThreadInfo.id}`,
-      });
-    },
-    [navigation],
-  );
-
+  const navigateToThread = useNavigateToThread();
   const pathElements = React.useMemo(() => {
     const elements = [];
     for (const [idx, ancestorThreadInfo] of ancestorThreads.entries()) {
@@ -53,7 +41,7 @@ function ThreadAncestors(props: Props): React.Node {
         <View key={ancestorThreadInfo.id} style={styles.pathItem}>
           <Button
             style={styles.row}
-            onPress={() => navigateToThread(ancestorThreadInfo)}
+            onPress={() => navigateToThread({ threadInfo: ancestorThreadInfo })}
           >
             {pill}
           </Button>

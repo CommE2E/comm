@@ -53,6 +53,10 @@ import { dateString } from 'lib/utils/date-utils';
 import { ServerError } from 'lib/utils/errors';
 import sleep from 'lib/utils/sleep';
 
+import {
+  type MessageListParams,
+  useNavigateToThread,
+} from '../chat/message-list-types';
 import Button from '../components/button.react';
 import { SingleLine } from '../components/single-line.react';
 import Markdown from '../markdown/markdown.react';
@@ -63,10 +67,7 @@ import {
   nonThreadCalendarQuery,
 } from '../navigation/nav-selectors';
 import { NavContext } from '../navigation/navigation-context';
-import {
-  MessageListRouteName,
-  ThreadPickerModalRouteName,
-} from '../navigation/route-names';
+import { ThreadPickerModalRouteName } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { colors, useStyles } from '../themes/colors';
 import type { LayoutEvent } from '../types/react-native';
@@ -111,6 +112,7 @@ type Props = {|
   +styles: typeof unboundStyles,
   // Nav state
   +threadPickerActive: boolean,
+  +navigateToThread: (params: MessageListParams) => void,
   // Redux dispatch functions
   +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
@@ -666,12 +668,7 @@ class InternalEntry extends React.Component<Props, State> {
 
   onPressThreadName = () => {
     Keyboard.dismiss();
-    const { threadInfo } = this.props;
-    this.props.navigation.navigate({
-      name: MessageListRouteName,
-      params: { threadInfo },
-      key: `${MessageListRouteName}${threadInfo.id}`,
-    });
+    this.props.navigateToThread({ threadInfo: this.props.threadInfo });
   };
 }
 
@@ -771,6 +768,8 @@ const Entry = React.memo<BaseProps>(function ConnectedEntry(props: BaseProps) {
   );
   const styles = useStyles(unboundStyles);
 
+  const navigateToThread = useNavigateToThread();
+
   const dispatch = useDispatch();
   const dispatchActionPromise = useDispatchActionPromise();
   const callCreateEntry = useServerCall(createEntry);
@@ -784,6 +783,7 @@ const Entry = React.memo<BaseProps>(function ConnectedEntry(props: BaseProps) {
       calendarQuery={calendarQuery}
       online={online}
       styles={styles}
+      navigateToThread={navigateToThread}
       dispatch={dispatch}
       dispatchActionPromise={dispatchActionPromise}
       createEntry={callCreateEntry}

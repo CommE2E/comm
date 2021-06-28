@@ -8,27 +8,22 @@ import { type ThreadInfo } from 'lib/types/thread-types';
 
 import Button from '../../components/button.react';
 import ThreadPill from '../../components/thread-pill.react';
-import { MessageListRouteName } from '../../navigation/route-names';
 import { useStyles } from '../../themes/colors';
-import type { ThreadSettingsNavigate } from './thread-settings.react';
+import { useNavigateToThread } from '../message-list-types';
 
 type Props = {|
   +threadInfo: ThreadInfo,
   +parentThreadInfo: ?ThreadInfo,
-  +navigate: ThreadSettingsNavigate,
 |};
 function ThreadSettingsParent(props: Props): React.Node {
-  const { threadInfo, parentThreadInfo, navigate } = props;
+  const { threadInfo, parentThreadInfo } = props;
   const styles = useStyles(unboundStyles);
 
+  const navigateToThread = useNavigateToThread();
   const onPressParentThread = React.useCallback(() => {
     invariant(parentThreadInfo, 'should be set');
-    navigate({
-      name: MessageListRouteName,
-      params: { threadInfo: parentThreadInfo },
-      key: `${MessageListRouteName}${parentThreadInfo.id}`,
-    });
-  }, [parentThreadInfo, navigate]);
+    navigateToThread({ threadInfo: parentThreadInfo });
+  }, [parentThreadInfo, navigateToThread]);
 
   let parent;
   if (parentThreadInfo) {

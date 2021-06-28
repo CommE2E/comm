@@ -192,7 +192,6 @@ function RobotextMessage(props: Props) {
       <View onLayout={onLayout} ref={viewRef}>
         <InnerRobotextMessage
           item={item}
-          navigation={navigation}
           onPress={onPress}
           onLongPress={onLongPress}
         />

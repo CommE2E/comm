@@ -27,9 +27,9 @@ import {
 } from '../navigation/navigation-utils';
 import {
   ChatThreadListRouteName,
-  MessageListRouteName,
   ComposeThreadRouteName,
 } from '../navigation/route-names';
+import { createNavigateToThreadAction } from './message-list-types';
 
 type ClearScreensAction = {|
   +type: 'CLEAR_SCREENS',
@@ -107,11 +107,9 @@ function ChatRouter(
           (route: Route<>) =>
             route.name === ChatThreadListRouteName ? 'keep' : 'remove',
         );
-        const navigateAction = CommonActions.navigate({
-          name: MessageListRouteName,
-          key: `${MessageListRouteName}${threadInfo.id}`,
-          params: { threadInfo },
-        });
+        const navigateAction = CommonActions.navigate(
+          createNavigateToThreadAction({ threadInfo }),
+        );
         return baseGetStateForAction(clearedState, navigateAction, options);
       } else if (action.type === clearThreadsActionType) {
         const threadIDs = new Set(action.payload.threadIDs);
@@ -131,11 +129,9 @@ function ChatRouter(
           (route: Route<>) =>
             route.name === ComposeThreadRouteName ? 'remove' : 'break',
         );
-        const navigateAction = CommonActions.navigate({
-          name: MessageListRouteName,
-          key: `${MessageListRouteName}${threadInfo.id}`,
-          params: { threadInfo },
-        });
+        const navigateAction = CommonActions.navigate(
+          createNavigateToThreadAction({ threadInfo }),
+        );
         return baseGetStateForAction(clearedState, navigateAction, options);
       } else {
         return baseGetStateForAction(lastState, action, options);

@@ -38,7 +38,6 @@ import Button from '../components/button.react';
 import Search from '../components/search.react';
 import type { TabNavigationProp } from '../navigation/app-navigator.react';
 import {
-  MessageListRouteName,
   SidebarListModalRouteName,
   HomeChatThreadListRouteName,
   BackgroundChatThreadListRouteName,
@@ -59,6 +58,10 @@ import type {
   ChatTopTabsNavigationProp,
   ChatNavigationProp,
 } from './chat.react';
+import {
+  type MessageListParams,
+  useNavigateToThread,
+} from './message-list-types';
 
 const floatingActions = [
   {
@@ -97,6 +100,7 @@ type Props = {|
   +styles: typeof unboundStyles,
   +indicatorStyle: IndicatorStyle,
   +usersWithPersonalThread: $ReadOnlySet<string>,
+  +navigateToThread: (params: MessageListParams) => void,
   // async functions that hit server APIs
   +searchUsers: (usernamePrefix: string) => Promise<UserSearchResult>,
 |};
@@ -524,11 +528,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     if (this.searchInput) {
       this.searchInput.blur();
     }
-    this.props.navigation.navigate({
-      name: MessageListRouteName,
-      params: { threadInfo, pendingPersonalThreadUserInfo },
-      key: `${MessageListRouteName}${threadInfo.id}`,
-    });
+    this.props.navigateToThread({ threadInfo, pendingPersonalThreadUserInfo });
   };
 
   onPressSeeMoreSidebars = (threadInfo: ThreadInfo) => {
@@ -547,18 +547,14 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   };
 
   composeThread = () => {
-    if (this.props.viewerID) {
-      this.props.navigation.navigate({
-        name: MessageListRouteName,
-        params: {
-          threadInfo: createPendingThread({
-            viewerID: this.props.viewerID,
-            threadType: threadTypes.LOCAL,
-          }),
-          searching: true,
-        },
-      });
+    if (!this.props.viewerID) {
+      return;
     }
+    const threadInfo = createPendingThread({
+      viewerID: this.props.viewerID,
+      threadType: threadTypes.LOCAL,
+    });
+    this.props.navigateToThread({ threadInfo, searching: true });
   };
 }
 
@@ -615,6 +611,8 @@ export default React.memo<BaseProps>(function ConnectedChatThreadList(
   const callSearchUsers = useServerCall(searchUsers);
   const usersWithPersonalThread = useSelector(usersWithPersonalThreadSelector);
 
+  const navigateToThread = useNavigateToThread();
+
   return (
     <ChatThreadList
       {...props}
@@ -625,6 +623,7 @@ export default React.memo<BaseProps>(function ConnectedChatThreadList(
       indicatorStyle={indicatorStyle}
       searchUsers={callSearchUsers}
       usersWithPersonalThread={usersWithPersonalThread}
+      navigateToThread={navigateToThread}
     />
   );
 });

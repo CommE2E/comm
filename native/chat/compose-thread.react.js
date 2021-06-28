@@ -40,10 +40,13 @@ import ThreadList from '../components/thread-list.react';
 import UserList from '../components/user-list.react';
 import { useCalendarQuery } from '../navigation/nav-selectors';
 import type { NavigationRoute } from '../navigation/route-names';
-import { MessageListRouteName } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { useStyles } from '../themes/colors';
 import type { ChatNavigationProp } from './chat.react';
+import {
+  type MessageListParams,
+  useNavigateToThread,
+} from './message-list-types';
 import ParentThreadHeader from './parent-thread-header.react';
 
 const TagInput = createTagInput<AccountUserInfo>();
@@ -73,6 +76,7 @@ type Props = {|
   +threadInfos: { +[id: string]: ThreadInfo },
   +styles: typeof unboundStyles,
   +calendarQuery: () => CalendarQuery,
+  +navigateToThread: (params: MessageListParams) => void,
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -379,11 +383,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
 
   onSelectExistingThread = (threadID: string) => {
     const threadInfo = this.props.threadInfos[threadID];
-    this.props.navigation.navigate({
-      name: MessageListRouteName,
-      params: { threadInfo },
-      key: `${MessageListRouteName}${threadInfo.id}`,
-    });
+    this.props.navigateToThread({ threadInfo });
   };
 }
 
@@ -456,9 +456,11 @@ export default React.memo<BaseProps>(function ConnectedComposeThread(
   const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
   const threadInfos = useSelector(threadInfoSelector);
   const styles = useStyles(unboundStyles);
-  const dispatchActionPromise = useDispatchActionPromise();
 
   const calendarQuery = useCalendarQuery();
+  const navigateToThread = useNavigateToThread();
+
+  const dispatchActionPromise = useDispatchActionPromise();
   const callNewThread = useServerCall(newThread);
   return (
     <ComposeThread
@@ -470,6 +472,7 @@ export default React.memo<BaseProps>(function ConnectedComposeThread(
       threadInfos={threadInfos}
       styles={styles}
       calendarQuery={calendarQuery}
+      navigateToThread={navigateToThread}
       dispatchActionPromise={dispatchActionPromise}
       newThread={callNewThread}
     />

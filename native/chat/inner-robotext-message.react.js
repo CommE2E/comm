@@ -13,11 +13,9 @@ import {
 
 import Markdown from '../markdown/markdown.react';
 import { inlineMarkdownRules } from '../markdown/rules.react';
-import type { AppNavigationProp } from '../navigation/app-navigator.react';
-import { MessageListRouteName } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { useOverlayStyles } from '../themes/colors';
-import type { ChatNavigationProp } from './chat.react';
+import { useNavigateToThread } from './message-list-types';
 import type { ChatRobotextMessageInfoItemWithHeight } from './robotext-message.react';
 
 function dummyNodeForRobotextMessageHeightMeasurement(robotext: string) {
@@ -32,14 +30,11 @@ function dummyNodeForRobotextMessageHeightMeasurement(robotext: string) {
 
 type InnerRobotextMessageProps = {|
   +item: ChatRobotextMessageInfoItemWithHeight,
-  +navigation:
-    | ChatNavigationProp<'MessageList'>
-    | AppNavigationProp<'RobotextMessageTooltipModal'>,
   +onPress: () => void,
   +onLongPress?: () => void,
 |};
 function InnerRobotextMessage(props: InnerRobotextMessageProps) {
-  const { item, navigation, onLongPress, onPress } = props;
+  const { item, onLongPress, onPress } = props;
   const activeTheme = useSelector((state) => state.globalThemeInfo.activeTheme);
   const styles = useOverlayStyles(unboundStyles);
   const { robotext } = item;
@@ -69,14 +64,7 @@ function InnerRobotextMessage(props: InnerRobotextMessageProps) {
     const { rawText, entityType, id } = parseRobotextEntity(splitPart);
 
     if (entityType === 't' && id !== item.messageInfo.threadID) {
-      textParts.push(
-        <ThreadEntity
-          key={id}
-          id={id}
-          name={rawText}
-          navigation={navigation}
-        />,
-      );
+      textParts.push(<ThreadEntity key={id} id={id} name={rawText} />);
     } else if (entityType === 'c') {
       textParts.push(<ColorEntity key={id} color={rawText} />);
     } else {
@@ -103,9 +91,6 @@ function InnerRobotextMessage(props: InnerRobotextMessageProps) {
 type ThreadEntityProps = {|
   +id: string,
   +name: string,
-  +navigation:
-    | ChatNavigationProp<'MessageList'>
-    | AppNavigationProp<'RobotextMessageTooltipModal'>,
 |};
 function ThreadEntity(props: ThreadEntityProps) {
   const threadID = props.id;
@@ -115,15 +100,11 @@ function ThreadEntity(props: ThreadEntityProps) {
 
   const styles = useOverlayStyles(unboundStyles);
 
-  const { navigate } = props.navigation;
+  const navigateToThread = useNavigateToThread();
   const onPressThread = React.useCallback(() => {
     invariant(threadInfo, 'onPressThread should have threadInfo');
-    navigate({
-      name: MessageListRouteName,
-      params: { threadInfo },
-      key: `${MessageListRouteName}${threadInfo.id}`,
-    });
-  }, [threadInfo, navigate]);
+    navigateToThread({ threadInfo });
+  }, [threadInfo, navigateToThread]);
 
   if (!threadInfo) {
     return <Text>{props.name}</Text>;
