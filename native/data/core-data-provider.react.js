@@ -2,6 +2,7 @@
 
 import './core-module-shim';
 import * as React from 'react';
+import { useSelector } from 'react-redux';
 
 import { type CoreData, defaultCoreData, CoreDataContext } from './core-data';
 
@@ -32,6 +33,34 @@ function CoreDataProvider(props: Props) {
       });
     })();
   }, []);
+
+  const removeAllDrafts = React.useCallback(async () => {
+    const oldDrafts = draftCache;
+    setDraftCache({});
+    try {
+      return await global.CommCoreModule.removeAllDrafts();
+    } catch (e) {
+      setDraftCache(oldDrafts);
+      throw e;
+    }
+  }, [draftCache]);
+
+  const viewerID = useSelector(
+    (state) => state.currentUserInfo && state.currentUserInfo.id,
+  );
+  const prevViewerIDRef = React.useRef();
+  React.useEffect(() => {
+    if (!viewerID) {
+      return;
+    }
+    if (prevViewerIDRef.current === viewerID) {
+      return;
+    }
+    if (prevViewerIDRef.current) {
+      removeAllDrafts();
+    }
+    prevViewerIDRef.current = viewerID;
+  }, [viewerID, removeAllDrafts]);
 
   /**
    * wrapper for updating the draft state receiving an array of drafts
