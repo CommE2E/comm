@@ -155,7 +155,7 @@ async function websiteResponder(
 
   const threadStorePromise = (async () => {
     const { threadInfos } = await threadInfoPromise;
-    return { threadInfos, inconsistencyReports: [] };
+    return { threadInfos };
   })();
   const messageStorePromise = (async () => {
     const [
@@ -175,7 +175,6 @@ async function websiteResponder(
       entryInfos: _keyBy('id')(rawEntryInfos),
       daysToEntries: daysToEntriesFromEntryInfos(rawEntryInfos),
       lastUserInteractionCalendar: initialTime,
-      inconsistencyReports: [],
     };
   })();
   const userStorePromise = (async () => {
