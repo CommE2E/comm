@@ -552,7 +552,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     }
     const threadInfo = createPendingThread({
       viewerID: this.props.viewerID,
-      threadType: threadTypes.LOCAL,
+      threadType: threadTypes.PRIVATE,
     });
     this.props.navigateToThread({ threadInfo, searching: true });
   };
