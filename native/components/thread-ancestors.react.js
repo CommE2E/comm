@@ -53,15 +53,18 @@ function ThreadAncestors(props: Props): React.Node {
     if (!parentAdmin) {
       return undefined;
     }
+    const icon = (
+      <Icon name="cloud" size={12} color={colors.panelForegroundLabel} />
+    );
     return (
       <Pill
         backgroundColor={colors.codeBackground}
         roundCorners={{ left: true, right: false }}
         label={parentAdmin}
-        faIcon="cloud"
+        icon={icon}
       />
     );
-  }, [colors.codeBackground, parentAdmin]);
+  }, [colors.codeBackground, colors.panelForegroundLabel, parentAdmin]);
 
   const pathElements = React.useMemo(() => {
     const elements = [];

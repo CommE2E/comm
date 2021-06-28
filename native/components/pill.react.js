@@ -2,9 +2,6 @@
 
 import * as React from 'react';
 import { View, Text } from 'react-native';
-import Icon, {
-  type FontAwesome5Glyphs,
-} from 'react-native-vector-icons/FontAwesome5';
 import tinycolor from 'tinycolor2';
 
 import { useStyles } from '../themes/colors';
@@ -13,7 +10,6 @@ type Props = {|
   +label: string,
   +backgroundColor: string,
   +icon?: React.Node,
-  +faIcon?: FontAwesome5Glyphs,
   +roundCorners?: {| +left: boolean, +right: boolean |},
 |};
 function Pill(props: Props): React.Node {
@@ -47,21 +43,9 @@ function Pill(props: Props): React.Node {
     [styles.label, textColor],
   );
 
-  const icon = React.useMemo(() => {
-    if (props.icon) {
-      return <View style={styles.icon}>{props.icon}</View>;
-    } else if (props.faIcon) {
-      return (
-        <Icon
-          name={props.faIcon}
-          size={12}
-          color={textColor}
-          style={styles.icon}
-        />
-      );
-    }
-    return undefined;
-  }, [props.faIcon, props.icon, styles.icon, textColor]);
+  const icon = props.icon ? (
+    <View style={styles.icon}>{props.icon}</View>
+  ) : undefined;
 
   return (
     <View style={combinedContainerStyles}>
