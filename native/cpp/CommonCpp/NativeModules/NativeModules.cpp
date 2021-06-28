@@ -44,6 +44,14 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getAllDrafts(
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)
       ->getAllDrafts(rt);
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeAllDrafts(
+    jsi::Runtime &rt,
+    TurboModule &turboModule,
+    const jsi::Value *args,
+    size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)
+      ->removeAllDrafts(rt);
+}
 
 CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(
     std::shared_ptr<CallInvoker> jsInvoker)
@@ -56,6 +64,8 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(
       2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_moveDraft};
   methodMap_["getAllDrafts"] = MethodMetadata{
       0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getAllDrafts};
+  methodMap_["removeAllDrafts"] = MethodMetadata{
+      0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeAllDrafts};
 }
 
 } // namespace react

@@ -20,6 +20,7 @@ public:
   virtual void updateDraft(std::string key, std::string text) const = 0;
   virtual bool moveDraft(std::string oldKey, std::string newKey) const = 0;
   virtual std::vector<Draft> getAllDrafts() const = 0;
+  virtual void removeAllDrafts() const = 0;
 };
 
 } // namespace comm

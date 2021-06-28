@@ -26,6 +26,7 @@ public:
       const jsi::String &oldKey,
       const jsi::String &newKey) = 0;
   virtual jsi::Value getAllDrafts(jsi::Runtime &rt) = 0;
+  virtual jsi::Value removeAllDrafts(jsi::Runtime &rt) = 0;
 };
 
 } // namespace react

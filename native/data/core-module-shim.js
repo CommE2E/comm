@@ -12,6 +12,7 @@ if (!global.CommCoreModule) {
     updateDraft: () => Promise.resolve(false),
     moveDraft: () => Promise.resolve(false),
     getAllDrafts: () => Promise.resolve([]),
+    removeAllDrafts: () => Promise.resolve(),
   };
   global.CommCoreModule = SpecImpl;
 }

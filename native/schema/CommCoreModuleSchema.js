@@ -15,6 +15,7 @@ export interface Spec extends TurboModule {
   +updateDraft: (draft: Draft) => Promise<boolean>;
   +moveDraft: (oldKey: string, newKey: string) => Promise<boolean>;
   +getAllDrafts: () => Promise<$ReadOnlyArray<Draft>>;
+  +removeAllDrafts: () => Promise<void>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('CommTurboModule');

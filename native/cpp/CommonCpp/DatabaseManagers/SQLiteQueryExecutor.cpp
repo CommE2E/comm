@@ -76,4 +76,8 @@ std::vector<Draft> SQLiteQueryExecutor::getAllDrafts() const {
   return SQLiteQueryExecutor::getStorage().get_all<Draft>();
 }
 
+void SQLiteQueryExecutor::removeAllDrafts() const {
+  SQLiteQueryExecutor::getStorage().remove_all<Draft>();
+}
+
 } // namespace comm

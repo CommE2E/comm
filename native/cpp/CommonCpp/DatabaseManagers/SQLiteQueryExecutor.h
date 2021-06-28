@@ -19,6 +19,7 @@ public:
   void updateDraft(std::string key, std::string text) const override;
   bool moveDraft(std::string oldKey, std::string newKey) const override;
   std::vector<Draft> getAllDrafts() const override;
+  void removeAllDrafts() const override;
 };
 
 } // namespace comm
