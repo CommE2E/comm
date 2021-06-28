@@ -6,14 +6,13 @@ import { View, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
 import { ancestorThreadInfos } from 'lib/selectors/thread-selectors';
-import { memberHasAdminPowers } from 'lib/shared/thread-utils';
-import { type ThreadInfo, type MemberInfo } from 'lib/types/thread-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 
 import { MessageListRouteName } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
-import { useColors, useStyles } from '../themes/colors';
+import { useStyles } from '../themes/colors';
 import Button from './button.react';
-import Pill from './pill.react';
+import CommunityPill from './community-pill.react';
 import ThreadPill from './thread-pill.react';
 
 type Props = {|
@@ -24,9 +23,7 @@ function ThreadAncestors(props: Props): React.Node {
   const { threadInfo } = props;
   const navigation = useNavigation();
   const styles = useStyles(unboundStyles);
-  const colors = useColors();
 
-  const userInfos = useSelector((state) => state.userStore.userInfos);
   const ancestorThreads: $ReadOnlyArray<ThreadInfo> = useSelector(
     ancestorThreadInfos(threadInfo.id),
   );
@@ -42,59 +39,30 @@ function ThreadAncestors(props: Props): React.Node {
     [navigation],
   );
 
-  const parentAdmin: ?string = React.useMemo(() => {
-    for (const member: MemberInfo of ancestorThreads[0].members) {
-      if (memberHasAdminPowers(member)) {
-        return userInfos[member.id].username;
-      }
-    }
-  }, [ancestorThreads, userInfos]);
-
-  const adminLabel: ?React.Node = React.useMemo(() => {
-    if (!parentAdmin) {
-      return undefined;
-    }
-    const icon = (
-      <Icon name="cloud" size={12} color={colors.panelForegroundLabel} />
-    );
-    return (
-      <Pill
-        backgroundColor={colors.codeBackground}
-        roundCorners={{ left: true, right: false }}
-        label={parentAdmin}
-        icon={icon}
-      />
-    );
-  }, [colors.codeBackground, colors.panelForegroundLabel, parentAdmin]);
-
   const pathElements = React.useMemo(() => {
     const elements = [];
     for (const [idx, ancestorThreadInfo] of ancestorThreads.entries()) {
       const isLastThread = idx === ancestorThreads.length - 1;
+      const pill =
+        idx === 0 ? (
+          <CommunityPill community={ancestorThreadInfo} />
+        ) : (
+          <ThreadPill threadInfo={ancestorThreadInfo} />
+        );
       elements.push(
         <View key={ancestorThreadInfo.id} style={styles.pathItem}>
           <Button
             style={styles.row}
             onPress={() => navigateToThread(ancestorThreadInfo)}
           >
-            {idx === 0 ? adminLabel : null}
-            <ThreadPill
-              threadInfo={ancestorThreadInfo}
-              roundCorners={{ left: !(idx === 0), right: true }}
-            />
+            {pill}
           </Button>
           {!isLastThread ? rightArrow : null}
         </View>,
       );
     }
     return <View style={styles.pathItem}>{elements}</View>;
-  }, [
-    adminLabel,
-    ancestorThreads,
-    navigateToThread,
-    styles.pathItem,
-    styles.row,
-  ]);
+  }, [ancestorThreads, navigateToThread, styles.pathItem, styles.row]);
 
   return (
     <View style={styles.container}>
