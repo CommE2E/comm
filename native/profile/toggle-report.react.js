@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Switch } from 'react-native';
 import { useDispatch } from 'react-redux';
 
-import { updateReportsEnabledActionType } from 'lib/reducers/enabled-reports-reducer';
+import { updateReportsEnabledActionType } from 'lib/reducers/report-store-reducer';
 import { type SupportedReports } from 'lib/types/report-types';
 import { useIsReportEnabled } from 'lib/utils/report-utils';
 

@@ -236,6 +236,18 @@ const migrations = {
       },
     };
   },
+  [27]: (state) => ({
+    ...state,
+    enabledReports: undefined,
+    reportStore: {
+      enabledReports: {
+        crashReports: __DEV__,
+        inconsistencyReports: __DEV__,
+        mediaReports: __DEV__,
+      },
+      queuedReports: [],
+    },
+  }),
 };
 
 const persistConfig = {
@@ -250,7 +262,7 @@ const persistConfig = {
     'frozen',
   ],
   debug: __DEV__,
-  version: 26,
+  version: 27,
   migrate: createMigrate(migrations, { debug: __DEV__ }),
   timeout: __DEV__ ? 0 : undefined,
 };

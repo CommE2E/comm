@@ -273,7 +273,10 @@ async function websiteResponder(
     watchedThreadIDs: [],
     lifecycleState: 'active',
     enabledApps: defaultWebEnabledApps,
-    enabledReports: defaultEnabledReports,
+    reportStore: {
+      enabledReports: defaultEnabledReports,
+      queuedReports: [],
+    },
     nextLocalID: 0,
     queuedReports: [],
     timeZone: viewer.timeZone,

@@ -18,7 +18,7 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import type { MessageStore } from 'lib/types/message-types';
 import type { BaseAction } from 'lib/types/redux-types';
 import type {
-  EnabledReports,
+  ReportStore,
   ClientReportCreationRequest,
 } from 'lib/types/report-types';
 import type { ConnectionInfo } from 'lib/types/socket-types';
@@ -53,7 +53,7 @@ export type AppState = {|
   watchedThreadIDs: $ReadOnlyArray<string>,
   lifecycleState: LifecycleState,
   enabledApps: EnabledApps,
-  enabledReports: EnabledReports,
+  reportStore: ReportStore,
   nextLocalID: number,
   queuedReports: $ReadOnlyArray<ClientReportCreationRequest>,
   timeZone: ?string,

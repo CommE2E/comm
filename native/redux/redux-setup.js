@@ -29,7 +29,7 @@ import type { LifecycleState } from 'lib/types/lifecycle-state-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { MessageStore } from 'lib/types/message-types';
 import type { Dispatch } from 'lib/types/redux-types';
-import { type EnabledReports } from 'lib/types/report-types';
+import { type ReportStore } from 'lib/types/report-types';
 import type { ClientReportCreationRequest } from 'lib/types/report-types';
 import type { SetSessionPayload } from 'lib/types/session-types';
 import {
@@ -111,7 +111,7 @@ export type AppState = {|
   watchedThreadIDs: $ReadOnlyArray<string>,
   lifecycleState: LifecycleState,
   enabledApps: EnabledApps,
-  enabledReports: EnabledReports,
+  reportStore: ReportStore,
   nextLocalID: number,
   queuedReports: $ReadOnlyArray<ClientReportCreationRequest>,
   _persist: ?PersistState,
@@ -161,10 +161,13 @@ const defaultState = ({
   watchedThreadIDs: [],
   lifecycleState: 'active',
   enabledApps: defaultEnabledApps,
-  enabledReports: {
-    crashReports: __DEV__,
-    inconsistencyReports: __DEV__,
-    mediaReports: __DEV__,
+  reportStore: {
+    enabledReports: {
+      crashReports: __DEV__,
+      inconsistencyReports: __DEV__,
+      mediaReports: __DEV__,
+    },
+    queuedReports: [],
   },
   nextLocalID: 0,
   queuedReports: [],
