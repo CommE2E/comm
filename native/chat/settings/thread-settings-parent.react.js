@@ -12,70 +12,59 @@ import { MessageListRouteName } from '../../navigation/route-names';
 import { useStyles } from '../../themes/colors';
 import type { ThreadSettingsNavigate } from './thread-settings.react';
 
-type BaseProps = {|
+type Props = {|
   +threadInfo: ThreadInfo,
   +parentThreadInfo: ?ThreadInfo,
   +navigate: ThreadSettingsNavigate,
 |};
-type Props = {|
-  ...BaseProps,
-  +styles: typeof unboundStyles,
-|};
-class ThreadSettingsParent extends React.PureComponent<Props> {
-  render() {
-    let parent;
-    if (this.props.parentThreadInfo) {
-      parent = (
-        <Button onPress={this.onPressParentThread}>
-          <ThreadPill threadInfo={this.props.parentThreadInfo} />
-        </Button>
-      );
-    } else if (this.props.threadInfo.parentThreadID) {
-      parent = (
-        <Text
-          style={[
-            this.props.styles.currentValue,
-            this.props.styles.currentValueText,
-            this.props.styles.noParent,
-          ]}
-          numberOfLines={1}
-        >
-          Secret parent
-        </Text>
-      );
-    } else {
-      parent = (
-        <Text
-          style={[
-            this.props.styles.currentValue,
-            this.props.styles.currentValueText,
-            this.props.styles.noParent,
-          ]}
-          numberOfLines={1}
-        >
-          No parent
-        </Text>
-      );
-    }
-    return (
-      <View style={this.props.styles.row}>
-        <Text style={this.props.styles.label} numberOfLines={1}>
-          Parent
-        </Text>
-        {parent}
-      </View>
+function ThreadSettingsParent(props: Props): React.Node {
+  const { threadInfo, parentThreadInfo, navigate } = props;
+  const styles = useStyles(unboundStyles);
+
+  const onPressParentThread = React.useCallback(() => {
+    invariant(parentThreadInfo, 'should be set');
+    navigate({
+      name: MessageListRouteName,
+      params: { threadInfo: parentThreadInfo },
+      key: `${MessageListRouteName}${parentThreadInfo.id}`,
+    });
+  }, [parentThreadInfo, navigate]);
+
+  let parent;
+  if (parentThreadInfo) {
+    parent = (
+      <Button onPress={onPressParentThread}>
+        <ThreadPill threadInfo={parentThreadInfo} />
+      </Button>
+    );
+  } else if (threadInfo.parentThreadID) {
+    parent = (
+      <Text
+        style={[styles.currentValue, styles.currentValueText, styles.noParent]}
+        numberOfLines={1}
+      >
+        Secret parent
+      </Text>
+    );
+  } else {
+    parent = (
+      <Text
+        style={[styles.currentValue, styles.currentValueText, styles.noParent]}
+        numberOfLines={1}
+      >
+        No parent
+      </Text>
     );
   }
 
-  onPressParentThread = () => {
-    const threadInfo = this.props.parentThreadInfo;
-    invariant(threadInfo, 'should be set');
-    this.props.navigate({
-      name: MessageListRouteName,
-      params: { threadInfo },
-      key: `${MessageListRouteName}${threadInfo.id}`,
-    });
-  };
+  return (
+    <View style={styles.row}>
+      <Text style={styles.label} numberOfLines={1}>
+        Parent
+      </Text>
+      {parent}
+    </View>
+  );
 }
 
 const unboundStyles = {
@@ -107,9 +96,4 @@ const unboundStyles = {
   },
 };
 
-export default React.memo<BaseProps>(function ConnectedThreadSettingsParent(
-  props: BaseProps,
-) {
-  const styles = useStyles(unboundStyles);
-  return <ThreadSettingsParent {...props} styles={styles} />;
-});
+export default React.memo<Props>(ThreadSettingsParent);
