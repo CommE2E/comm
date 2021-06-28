@@ -35,17 +35,16 @@ import {
 } from 'lib/utils/action-utils';
 
 import LinkButton from '../components/link-button.react';
-import { SingleLine } from '../components/single-line.react';
 import { createTagInput, BaseTagInput } from '../components/tag-input.react';
 import ThreadList from '../components/thread-list.react';
-import ThreadVisibility from '../components/thread-visibility.react';
 import UserList from '../components/user-list.react';
 import { useCalendarQuery } from '../navigation/nav-selectors';
 import type { NavigationRoute } from '../navigation/route-names';
 import { MessageListRouteName } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
-import { type Colors, useColors, useStyles } from '../themes/colors';
+import { useStyles } from '../themes/colors';
 import type { ChatNavigationProp } from './chat.react';
+import ParentThreadHeader from './parent-thread-header.react';
 
 const TagInput = createTagInput<AccountUserInfo>();
 
@@ -72,7 +71,6 @@ type Props = {|
   +otherUserInfos: { +[id: string]: AccountUserInfo },
   +userSearchIndex: SearchIndex,
   +threadInfos: { +[id: string]: ThreadInfo },
-  +colors: Colors,
   +styles: typeof unboundStyles,
   +calendarQuery: () => CalendarQuery,
   // Redux dispatch functions
@@ -233,18 +231,11 @@ class ComposeThread extends React.PureComponent<Props, State> {
         threadType !== undefined && threadType !== null,
         `no threadType provided for ${parentThreadInfo.id}`,
       );
-      const threadVisibilityColor = this.props.colors.modalForegroundLabel;
       parentThreadRow = (
-        <View style={this.props.styles.parentThreadRow}>
-          <ThreadVisibility
-            threadType={threadType}
-            color={threadVisibilityColor}
-          />
-          <Text style={this.props.styles.parentThreadLabel}>within</Text>
-          <SingleLine style={this.props.styles.parentThreadName}>
-            {parentThreadInfo.uiName}
-          </SingleLine>
-        </View>
+        <ParentThreadHeader
+          parentThreadInfo={parentThreadInfo}
+          childThreadType={threadType}
+        />
       );
     }
     const inputProps = {
@@ -424,23 +415,6 @@ const unboundStyles = {
   listItem: {
     color: 'modalForegroundLabel',
   },
-  parentThreadLabel: {
-    color: 'modalSubtextLabel',
-    fontSize: 16,
-    paddingLeft: 6,
-  },
-  parentThreadName: {
-    color: 'modalForegroundLabel',
-    fontSize: 16,
-    paddingLeft: 6,
-  },
-  parentThreadRow: {
-    alignItems: 'center',
-    backgroundColor: 'modalSubtext',
-    flexDirection: 'row',
-    paddingLeft: 12,
-    paddingVertical: 6,
-  },
   tagInputContainer: {
     flex: 1,
     marginLeft: 8,
@@ -481,7 +455,6 @@ export default React.memo<BaseProps>(function ConnectedComposeThread(
   const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
   const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
   const threadInfos = useSelector(threadInfoSelector);
-  const colors = useColors();
   const styles = useStyles(unboundStyles);
   const dispatchActionPromise = useDispatchActionPromise();
 
@@ -495,7 +468,6 @@ export default React.memo<BaseProps>(function ConnectedComposeThread(
       otherUserInfos={otherUserInfos}
       userSearchIndex={userSearchIndex}
       threadInfos={threadInfos}
-      colors={colors}
       styles={styles}
       calendarQuery={calendarQuery}
       dispatchActionPromise={dispatchActionPromise}
