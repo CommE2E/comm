@@ -5,7 +5,7 @@ import { View, Text } from 'react-native';
 
 import type { ThreadInfo, ThreadType } from 'lib/types/thread-types';
 
-import { SingleLine } from '../components/single-line.react';
+import CommunityPill from '../components/community-pill.react';
 import ThreadVisibility from '../components/thread-visibility.react';
 import { useColors, useStyles } from '../themes/colors';
 
@@ -27,9 +27,7 @@ function ParentThreadHeader(props: Props): React.Node {
         color={threadVisibilityColor}
       />
       <Text style={styles.parentThreadLabel}>within</Text>
-      <SingleLine style={styles.parentThreadName}>
-        {parentThreadInfo.uiName}
-      </SingleLine>
+      <CommunityPill community={parentThreadInfo} />
     </View>
   );
 }
@@ -45,7 +43,7 @@ const unboundStyles = {
   parentThreadLabel: {
     color: 'modalSubtextLabel',
     fontSize: 16,
-    paddingLeft: 6,
+    paddingHorizontal: 6,
   },
   parentThreadName: {
     color: 'modalForegroundLabel',
