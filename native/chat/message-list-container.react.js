@@ -4,16 +4,21 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View } from 'react-native';
 
+import genesis from 'lib/facts/genesis';
 import {
   type ChatMessageItem,
   useMessageListData,
 } from 'lib/selectors/chat-selectors';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import {
   userInfoSelectorForPotentialMembers,
   userSearchIndexForPotentialMembers,
 } from 'lib/selectors/user-selectors';
 import { getPotentialMemberItems } from 'lib/shared/search-utils';
-import { useExistingThreadInfoFinder } from 'lib/shared/thread-utils';
+import {
+  useExistingThreadInfoFinder,
+  pendingThreadType,
+} from 'lib/shared/thread-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types';
 
@@ -33,6 +38,7 @@ import MessageListThreadSearch from './message-list-thread-search.react';
 import { MessageListContextProvider } from './message-list-types';
 import MessageList from './message-list.react';
 import type { ChatMessageInfoItemWithHeight } from './message.react';
+import ParentThreadHeader from './parent-thread-header.react';
 
 export type ChatMessageItemWithHeight =
   | {| itemType: 'loader' |}
@@ -53,6 +59,7 @@ type Props = {|
   +otherUserInfos: { [id: string]: AccountUserInfo },
   +userSearchResults: $ReadOnlyArray<UserListItem>,
   +threadInfo: ThreadInfo,
+  +genesisThreadInfo: ?ThreadInfo,
   +messageListData: $ReadOnlyArray<ChatMessageItem>,
   +colors: Colors,
   +styles: typeof unboundStyles,
@@ -118,16 +125,31 @@ class MessageListContainer extends React.PureComponent<Props, State> {
 
     let searchComponent = null;
     if (searching) {
+      const { userInfoInputArray, genesisThreadInfo } = this.props;
+      // It's technically possible for the client to be missing the Genesis
+      // ThreadInfo when it first opens up (before the server delivers it)
+      let parentThreadHeader;
+      if (genesisThreadInfo) {
+        parentThreadHeader = (
+          <ParentThreadHeader
+            parentThreadInfo={genesisThreadInfo}
+            childThreadType={pendingThreadType(userInfoInputArray.length)}
+          />
+        );
+      }
       searchComponent = (
-        <MessageListThreadSearch
-          usernameInputText={this.props.usernameInputText}
-          updateUsernameInput={this.props.updateUsernameInput}
-          userInfoInputArray={this.props.userInfoInputArray}
-          updateTagInput={this.props.updateTagInput}
-          resolveToUser={this.props.resolveToUser}
-          otherUserInfos={this.props.otherUserInfos}
-          userSearchResults={this.props.userSearchResults}
-        />
+        <>
+          {parentThreadHeader}
+          <MessageListThreadSearch
+            usernameInputText={this.props.usernameInputText}
+            updateUsernameInput={this.props.updateUsernameInput}
+            userInfoInputArray={userInfoInputArray}
+            updateTagInput={this.props.updateTagInput}
+            resolveToUser={this.props.resolveToUser}
+            otherUserInfos={this.props.otherUserInfos}
+            userSearchResults={this.props.userSearchResults}
+          />
+        </>
       );
     }
 
@@ -288,6 +310,11 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
   const styles = useStyles(unboundStyles);
   const overlayContext = React.useContext(OverlayContext);
   const measureMessages = useHeightMeasurer();
+
+  const genesisThreadInfo = useSelector(
+    (state) => threadInfoSelector(state)[genesis.id],
+  );
+
   return (
     <MessageListContextProvider threadID={threadID}>
       <MessageListContainer
@@ -300,6 +327,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
         otherUserInfos={otherUserInfos}
         userSearchResults={userSearchResults}
         threadInfo={threadInfo}
+        genesisThreadInfo={genesisThreadInfo}
         messageListData={messageListData}
         colors={colors}
         styles={styles}
