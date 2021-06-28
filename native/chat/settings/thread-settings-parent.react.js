@@ -7,7 +7,7 @@ import { Text, View } from 'react-native';
 import { type ThreadInfo } from 'lib/types/thread-types';
 
 import Button from '../../components/button.react';
-import Pill from '../../components/pill.react';
+import ThreadPill from '../../components/thread-pill.react';
 import { MessageListRouteName } from '../../navigation/route-names';
 import { useStyles } from '../../themes/colors';
 import type { ThreadSettingsNavigate } from './thread-settings.react';
@@ -27,10 +27,7 @@ class ThreadSettingsParent extends React.PureComponent<Props> {
     if (this.props.parentThreadInfo) {
       parent = (
         <Button onPress={this.onPressParentThread}>
-          <Pill
-            label={this.props.parentThreadInfo.uiName}
-            backgroundColor={`#${this.props.parentThreadInfo.color}`}
-          />
+          <ThreadPill threadInfo={this.props.parentThreadInfo} />
         </Button>
       );
     } else if (this.props.threadInfo.parentThreadID) {

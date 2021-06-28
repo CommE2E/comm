@@ -14,6 +14,7 @@ import { useSelector } from '../redux/redux-utils';
 import { useColors, useStyles } from '../themes/colors';
 import Button from './button.react';
 import Pill from './pill.react';
+import ThreadPill from './thread-pill.react';
 
 type Props = {|
   +threadInfo: ThreadInfo,
@@ -70,8 +71,6 @@ function ThreadAncestors(props: Props): React.Node {
     const elements = [];
     for (const [idx, ancestorThreadInfo] of ancestorThreads.entries()) {
       const isLastThread = idx === ancestorThreads.length - 1;
-      const backgroundColor = `#${ancestorThreadInfo.color}`;
-
       elements.push(
         <View key={ancestorThreadInfo.id} style={styles.pathItem}>
           <Button
@@ -79,10 +78,9 @@ function ThreadAncestors(props: Props): React.Node {
             onPress={() => navigateToThread(ancestorThreadInfo)}
           >
             {idx === 0 ? adminLabel : null}
-            <Pill
-              backgroundColor={backgroundColor}
+            <ThreadPill
+              threadInfo={ancestorThreadInfo}
               roundCorners={{ left: !(idx === 0), right: true }}
-              label={ancestorThreadInfo.uiName}
             />
           </Button>
           {!isLastThread ? rightArrow : null}

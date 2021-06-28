@@ -6,8 +6,8 @@ import { View, Platform } from 'react-native';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import Button from '../../components/button.react';
-import Pill from '../../components/pill.react';
 import ThreadIcon from '../../components/thread-icon.react';
+import ThreadPill from '../../components/thread-pill.react';
 import { MessageListRouteName } from '../../navigation/route-names';
 import { useColors, useStyles } from '../../themes/colors';
 import type { ThreadSettingsNavigate } from './thread-settings.react';
@@ -37,10 +37,7 @@ function ThreadSettingsChildThread(props: Props) {
     <View style={styles.container}>
       <Button onPress={onPress} style={[styles.button, firstItem, lastItem]}>
         <View style={styles.leftSide}>
-          <Pill
-            backgroundColor={`#${threadInfo.color}`}
-            label={threadInfo.uiName}
-          />
+          <ThreadPill threadInfo={threadInfo} />
         </View>
         <ThreadIcon
           threadType={threadInfo.type}
