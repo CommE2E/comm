@@ -11,14 +11,16 @@ import { mostRecentReadThreadSelector } from 'lib/selectors/thread-selectors';
 import { invalidSessionDowngrade } from 'lib/shared/account-utils';
 import type { Shape } from 'lib/types/core';
 import type { EnabledApps } from 'lib/types/enabled-apps';
-import type { EnabledReports } from 'lib/types/enabled-reports';
 import type { EntryStore } from 'lib/types/entry-types';
 import type { CalendarFilter } from 'lib/types/filter-types';
 import type { LifecycleState } from 'lib/types/lifecycle-state-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { MessageStore } from 'lib/types/message-types';
 import type { BaseAction } from 'lib/types/redux-types';
-import type { ClientReportCreationRequest } from 'lib/types/report-types';
+import type {
+  EnabledReports,
+  ClientReportCreationRequest,
+} from 'lib/types/report-types';
 import type { ConnectionInfo } from 'lib/types/socket-types';
 import type { ThreadStore } from 'lib/types/thread-types';
 import type { CurrentUserInfo, UserStore } from 'lib/types/user-types';

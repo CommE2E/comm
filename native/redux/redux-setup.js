@@ -20,7 +20,6 @@ import {
   invalidSessionRecovery,
 } from 'lib/shared/account-utils';
 import { type EnabledApps, defaultEnabledApps } from 'lib/types/enabled-apps';
-import { type EnabledReports } from 'lib/types/enabled-reports';
 import { type EntryStore } from 'lib/types/entry-types';
 import {
   type CalendarFilter,
@@ -30,6 +29,7 @@ import type { LifecycleState } from 'lib/types/lifecycle-state-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { MessageStore } from 'lib/types/message-types';
 import type { Dispatch } from 'lib/types/redux-types';
+import { type EnabledReports } from 'lib/types/report-types';
 import type { ClientReportCreationRequest } from 'lib/types/report-types';
 import type { SetSessionPayload } from 'lib/types/session-types';
 import {

@@ -5,7 +5,7 @@ import { Switch } from 'react-native';
 import { useDispatch } from 'react-redux';
 
 import { updateReportsEnabledActionType } from 'lib/reducers/enabled-reports-reducer';
-import { type SupportedReports } from 'lib/types/enabled-reports';
+import { type SupportedReports } from 'lib/types/report-types';
 import { useIsReportEnabled } from 'lib/utils/report-utils';
 
 type Props = {|
