@@ -17,10 +17,7 @@ import type { LifecycleState } from 'lib/types/lifecycle-state-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { MessageStore } from 'lib/types/message-types';
 import type { BaseAction } from 'lib/types/redux-types';
-import type {
-  ReportStore,
-  ClientReportCreationRequest,
-} from 'lib/types/report-types';
+import type { ReportStore } from 'lib/types/report-types';
 import type { ConnectionInfo } from 'lib/types/socket-types';
 import type { ThreadStore } from 'lib/types/thread-types';
 import type { CurrentUserInfo, UserStore } from 'lib/types/user-types';
@@ -55,7 +52,6 @@ export type AppState = {|
   enabledApps: EnabledApps,
   reportStore: ReportStore,
   nextLocalID: number,
-  queuedReports: $ReadOnlyArray<ClientReportCreationRequest>,
   timeZone: ?string,
   userAgent: ?string,
   dataLoaded: boolean,

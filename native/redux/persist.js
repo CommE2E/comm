@@ -238,6 +238,7 @@ const migrations = {
   },
   [27]: (state) => ({
     ...state,
+    queuedReports: undefined,
     enabledReports: undefined,
     reportStore: {
       enabledReports: {

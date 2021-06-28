@@ -30,7 +30,6 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import type { MessageStore } from 'lib/types/message-types';
 import type { Dispatch } from 'lib/types/redux-types';
 import { type ReportStore } from 'lib/types/report-types';
-import type { ClientReportCreationRequest } from 'lib/types/report-types';
 import type { SetSessionPayload } from 'lib/types/session-types';
 import {
   type ConnectionInfo,
@@ -113,7 +112,6 @@ export type AppState = {|
   enabledApps: EnabledApps,
   reportStore: ReportStore,
   nextLocalID: number,
-  queuedReports: $ReadOnlyArray<ClientReportCreationRequest>,
   _persist: ?PersistState,
   sessionID?: void,
   dimensions: DimensionsInfo,
@@ -170,7 +168,6 @@ const defaultState = ({
     queuedReports: [],
   },
   nextLocalID: 0,
-  queuedReports: [],
   _persist: null,
   dimensions: defaultDimensionsInfo,
   connectivity: defaultConnectivityInfo,
