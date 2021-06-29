@@ -9,6 +9,7 @@ import { shortAbsoluteDate } from 'lib/utils/date-utils';
 
 import Button from '../components/button.react';
 import { SingleLine } from '../components/single-line.react';
+import UnreadDot from '../components/unread-dot.react';
 import { useColors, useStyles } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
 
@@ -40,6 +41,7 @@ function SidebarItem(props: Props) {
       style={[styles.sidebar, props.style]}
       onPress={onPress}
     >
+      <UnreadDot unread={threadInfo.currentUser.unread} />
       <Icon name="align-right" style={styles.icon} size={24} />
       <SingleLine style={[styles.name, unreadStyle]}>
         {threadInfo.uiName}
@@ -58,15 +60,15 @@ const unboundStyles = {
     height: 30,
     flexDirection: 'row',
     display: 'flex',
-    paddingLeft: 40,
+    paddingLeft: 6,
     paddingRight: 18,
     alignItems: 'center',
     backgroundColor: 'listBackground',
   },
   icon: {
-    paddingLeft: 5,
+    paddingLeft: 34,
+    paddingRight: 5,
     color: 'listForegroundSecondaryLabel',
-    width: 35,
   },
   name: {
     color: 'listForegroundSecondaryLabel',

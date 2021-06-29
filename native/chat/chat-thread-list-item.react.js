@@ -12,6 +12,7 @@ import Button from '../components/button.react';
 import ColorSplotch from '../components/color-splotch.react';
 import { SingleLine } from '../components/single-line.react';
 import ThreadAncestorsLabel from '../components/thread-ancestors-label.react';
+import UnreadDot from '../components/unread-dot.react';
 import { useColors, useStyles } from '../themes/colors';
 import ChatThreadListSeeMoreSidebars from './chat-thread-list-see-more-sidebars.react';
 import ChatThreadListSidebar from './chat-thread-list-sidebar.react';
@@ -87,13 +88,6 @@ function ChatThreadListItem({
   const lastActivity = shortAbsoluteDate(data.lastUpdatedTime);
   const unreadStyle = data.threadInfo.currentUser.unread ? styles.unread : null;
 
-  const unreadDotStyle = React.useMemo(() => {
-    return [
-      styles.colorSplotch,
-      { opacity: data.threadInfo.currentUser.unread ? 1 : 0 },
-    ];
-  }, [data.threadInfo.currentUser.unread, styles.colorSplotch]);
-
   return (
     <>
       <SwipeableThread
@@ -110,11 +104,8 @@ function ChatThreadListItem({
           iosActiveOpacity={0.85}
           style={styles.row}
         >
-          <View style={unreadDotStyle}>
-            <ColorSplotch
-              color={`${colors.listForegroundSecondaryLabel.slice(1)}`}
-              size="micro"
-            />
+          <View style={styles.colorSplotch}>
+            <UnreadDot unread={data.threadInfo.currentUser.unread} />
           </View>
           <View style={styles.colorSplotch}>
             <ColorSplotch color={data.threadInfo.color} size="profile" />
