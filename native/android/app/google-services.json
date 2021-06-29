@@ -1,52 +1,36 @@
 {
   "project_info": {
-    "project_number": "112225499479",
-    "firebase_url": "https://squadcal0.firebaseio.com",
-    "project_id": "squadcal0",
-    "storage_bucket": "squadcal0.appspot.com"
+    "project_number": "514969426283",
+    "project_id": "app-comm",
+    "storage_bucket": "app-comm.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:112225499479:android:3ec8c4b5ce66e4d6",
+        "mobilesdk_app_id": "1:514969426283:android:7b8abbd750fed8d5ce142e",
         "android_client_info": {
-          "package_name": "org.squadcal"
+          "package_name": "app.comm"
         }
       },
       "oauth_client": [
         {
-          "client_id": "112225499479-96n7hrmcd0p6jrtneq0a9jln2r89njlf.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "org.squadcal",
-            "certificate_hash": "f59f960eeb4350d6d1999acaffb04ad797c5aa9a"
-          }
-        },
-        {
-          "client_id": "112225499479-6o0pb12751igpglor28h4p3ankmulbpr.apps.googleusercontent.com",
+          "client_id": "514969426283-emmp0canqn5mta3i3vrbe2ih3p4d7p0o.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCeKcy0v3rXSqdjixW93kgNVZvGx09CJMc"
+          "current_key": "AIzaSyC6Up7R_kzJVswQW0fwxK8VGMiBj3I8kUE"
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 2,
           "other_platform_oauth_client": [
             {
-              "client_id": "112225499479-6o0pb12751igpglor28h4p3ankmulbpr.apps.googleusercontent.com",
+              "client_id": "514969426283-emmp0canqn5mta3i3vrbe2ih3p4d7p0o.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
-        },
-        "ads_service": {
-          "status": 2
         }
       }
     }
