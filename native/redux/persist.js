@@ -240,13 +240,25 @@ const migrations = {
     ...state,
     queuedReports: undefined,
     enabledReports: undefined,
+    threadStore: {
+      ...state.threadStore,
+      inconsistencyReports: undefined,
+    },
+    entryStore: {
+      ...state.entryStore,
+      inconsistencyReports: undefined,
+    },
     reportStore: {
       enabledReports: {
         crashReports: __DEV__,
         inconsistencyReports: __DEV__,
         mediaReports: __DEV__,
       },
-      queuedReports: [],
+      queuedReports: [
+        ...state.entryStore.inconsistencyReports,
+        ...state.threadStore.inconsistencyReports,
+        ...state.queuedReports,
+      ],
     },
   }),
 };
