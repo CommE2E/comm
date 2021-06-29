@@ -1,5 +1,5 @@
 {
-  "Simulator Target Bundle": "org.squadcal.app",
+  "Simulator Target Bundle": "app.comm",
   "prefix": "somebody:",
   "body": "asdasd",
   "title": "test",
