@@ -8,7 +8,7 @@
 	<array/>
 	<key>keychain-access-groups</key>
 	<array>
-		<string>$(AppIdentifierPrefix)org.squadcal.app</string>
+		<string>$(AppIdentifierPrefix)app.comm</string>
 	</array>
 </dict>
 </plist>

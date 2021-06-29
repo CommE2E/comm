@@ -269,7 +269,7 @@
 				ORGANIZATIONNAME = SquadCal;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
-						DevelopmentTeam = 6BF4H9TU5U;
+						DevelopmentTeam = H98Y8MH53M;
 						LastSwiftMigration = 1140;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
@@ -468,10 +468,12 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES;
 				CODE_SIGN_ENTITLEMENTS = Comm/Comm.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = NO;
-				DEVELOPMENT_TEAM = 6BF4H9TU5U;
+				DEVELOPMENT_TEAM = H98Y8MH53M;
 				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -500,8 +502,9 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.squadcal.app;
+				PRODUCT_BUNDLE_IDENTIFIER = app.comm;
 				PRODUCT_NAME = Comm;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Comm-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -519,9 +522,11 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES;
 				CODE_SIGN_ENTITLEMENTS = Comm/Comm.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6BF4H9TU5U;
+				DEVELOPMENT_TEAM = H98Y8MH53M;
 				ENABLE_BITCODE = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				HEADER_SEARCH_PATHS = (
@@ -545,8 +550,9 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.squadcal.app;
+				PRODUCT_BUNDLE_IDENTIFIER = app.comm;
 				PRODUCT_NAME = Comm;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Comm-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
