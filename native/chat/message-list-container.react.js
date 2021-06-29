@@ -155,35 +155,35 @@ class MessageListContainer extends React.PureComponent<Props, State> {
 
     const showMessageList =
       !searching || this.props.userInfoInputArray.length > 0;
-    let threadContent = null;
-    if (showMessageList) {
-      let messageList;
-      if (listDataWithHeights) {
-        messageList = (
-          <MessageList
-            threadInfo={threadInfo}
-            messageListData={listDataWithHeights}
-            navigation={this.props.navigation}
-            route={this.props.route}
-          />
-        );
-      } else {
-        messageList = (
-          <ContentLoading fillType="flex" colors={this.props.colors} />
-        );
-      }
-
-      threadContent = (
-        <View style={styles.threadContent}>
-          {messageList}
-          <ChatInputBar
-            threadInfo={threadInfo}
-            navigation={this.props.navigation}
-            route={this.props.route}
-          />
-        </View>
+    let messageList;
+    if (showMessageList && listDataWithHeights) {
+      messageList = (
+        <MessageList
+          threadInfo={threadInfo}
+          messageListData={listDataWithHeights}
+          navigation={this.props.navigation}
+          route={this.props.route}
+        />
+      );
+    } else if (showMessageList) {
+      messageList = (
+        <ContentLoading fillType="flex" colors={this.props.colors} />
       );
     }
+    const threadContentStyles = showMessageList
+      ? [styles.threadContent]
+      : [styles.hiddenThreadContent];
+    const pointerEvents = showMessageList ? 'auto' : 'none';
+    const threadContent = (
+      <View style={threadContentStyles} pointerEvents={pointerEvents}>
+        {messageList}
+        <ChatInputBar
+          threadInfo={threadInfo}
+          navigation={this.props.navigation}
+          route={this.props.route}
+        />
+      </View>
+    );
 
     return (
       <View style={styles.container}>
@@ -211,6 +211,10 @@ const unboundStyles = {
   },
   threadContent: {
     flex: 1,
+  },
+  hiddenThreadContent: {
+    height: 0,
+    opacity: 0,
   },
 };
 
@@ -253,6 +257,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
   invariant(threadInfo, 'threadInfo must be specified in messageListContainer');
 
   const inputState = React.useContext(InputStateContext);
+  invariant(inputState, 'inputState should be set in MessageListContainer');
   const hideSearch = React.useCallback(() => {
     setBaseThreadInfo(threadInfo);
     props.navigation.setParams({
@@ -263,8 +268,8 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     if (!isSearching) {
       return;
     }
-    inputState?.registerSendCallback(hideSearch);
-    return () => inputState?.unregisterSendCallback(hideSearch);
+    inputState.registerSendCallback(hideSearch);
+    return () => inputState.unregisterSendCallback(hideSearch);
   }, [hideSearch, inputState, isSearching]);
 
   const { setParams } = props.navigation;
@@ -280,6 +285,7 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
     (text: string) => setUsernameInputText(text),
     [],
   );
+  const { addReply } = inputState;
   const resolveToUser = React.useCallback(
     (user: AccountUserInfo) => {
       const resolvedThreadInfo = existingThreadInfoFinder({
@@ -290,10 +296,11 @@ export default React.memo<BaseProps>(function ConnectedMessageListContainer(
         resolvedThreadInfo,
         'resolvedThreadInfo must be specified in messageListContainer',
       );
+      addReply('');
       setBaseThreadInfo(resolvedThreadInfo);
       setParams({ searching: false, threadInfo: resolvedThreadInfo });
     },
-    [setParams, existingThreadInfoFinder],
+    [setParams, existingThreadInfoFinder, addReply],
   );
 
   const threadID = threadInfo.id;
