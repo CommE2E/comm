@@ -21,7 +21,7 @@ import SwipeableThread from './swipeable-thread.react';
 type Props = {|
   +data: ChatThreadItem,
   +onPressItem: (
-    data: ThreadInfo,
+    threadInfo: ThreadInfo,
     pendingPersonalThreadUserInfo?: UserInfo,
   ) => void,
   +onPressSeeMoreSidebars: (threadInfo: ThreadInfo) => void,
@@ -87,13 +87,6 @@ function ChatThreadListItem({
   const lastActivity = shortAbsoluteDate(data.lastUpdatedTime);
   const unreadStyle = data.threadInfo.currentUser.unread ? styles.unread : null;
 
-  const ancestorLabel = React.useMemo(() => {
-    if (!data.threadInfo.parentThreadID) {
-      return undefined;
-    }
-    return <ThreadAncestorsLabel threadInfo={data.threadInfo} />;
-  }, [data.threadInfo]);
-
   const unreadDotStyle = React.useMemo(() => {
     return [
       styles.colorSplotch,
@@ -127,7 +120,7 @@ function ChatThreadListItem({
             <ColorSplotch color={data.threadInfo.color} size="profile" />
           </View>
           <View style={styles.container}>
-            {ancestorLabel}
+            <ThreadAncestorsLabel threadInfo={data.threadInfo} />
             <View style={styles.row}>
               <SingleLine style={[styles.threadName, unreadStyle]}>
                 {data.threadInfo.uiName}

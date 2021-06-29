@@ -2,7 +2,12 @@
 
 import * as React from 'react';
 
-import { ancestorThreadInfos } from 'lib/selectors/thread-selectors';
+import genesis from 'lib/facts/genesis';
+import {
+  threadInfoSelector,
+  ancestorThreadInfos,
+} from 'lib/selectors/thread-selectors';
+import { threadIsPending } from 'lib/shared/thread-utils';
 import { type ThreadInfo } from 'lib/types/thread-types';
 
 import { useSelector } from '../redux/redux-utils';
@@ -15,14 +20,22 @@ type Props = {|
 function ThreadAncestorsLabel(props: Props): React.Node {
   const { threadInfo } = props;
   const styles = useStyles(unboundStyles);
-  const ancestorThreads: $ReadOnlyArray<ThreadInfo> = useSelector(
-    ancestorThreadInfos(threadInfo.id),
-  );
+  const ancestorThreads: $ReadOnlyArray<ThreadInfo> = useSelector((state) => {
+    if (!threadIsPending(threadInfo.id)) {
+      return ancestorThreadInfos(threadInfo.id)(state).slice(0, -1);
+    }
+    const genesisThreadInfo = threadInfoSelector(state)[genesis.id];
+    return genesisThreadInfo ? [genesisThreadInfo] : [];
+  });
 
   const ancestorPath: string = React.useMemo(() => {
     const path = ancestorThreads.map((each) => each.uiName);
-    return path.slice(0, -1).join(' > ').concat(' > ');
+    return path.join(' > ');
   }, [ancestorThreads]);
+
+  if (!ancestorPath) {
+    return null;
+  }
 
   return <SingleLine style={styles.pathText}>{ancestorPath}</SingleLine>;
 }
