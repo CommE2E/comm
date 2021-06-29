@@ -265,11 +265,11 @@ android {
     }
 
     defaultConfig {
-        applicationId "org.squadcal"
+        applicationId 'app.comm'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 86
-        versionName "0.0.86"
+        versionName '0.0.86'
         missingDimensionStrategy 'react-native-camera', 'general'
         multiDexEnabled true
     }
