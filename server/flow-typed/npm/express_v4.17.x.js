@@ -1,10 +1,11 @@
-// flow-typed signature: 4a2e9d8f7d4830b8f23ef5921e97806d
-// flow-typed version: 2f514ea8dd/express_v4.17.x/flow_>=v0.94.x <=v0.103.x
+// flow-typed signature: b7d2ab903e09911c82af9bd300893dc7
+// flow-typed version: 56d59f6e77/express_v4.17.x/flow_>=v0.104.x
 
 declare type express$RouterOptions = {
   caseSensitive?: boolean,
   mergeParams?: boolean,
-  strict?: boolean
+  strict?: boolean,
+  ...
 };
 
 declare class express$RequestResponseBase {
@@ -21,9 +22,7 @@ declare type express$RangeParserRange = {|
   +end: number,
 |};
 
-declare type express$RequestParams = {
-  [param: string]: string
-};
+declare type express$RequestParams = { [param: string]: string, ... };
 
 /*
   NOTE: Use caution when extending `express$Request` or `express$Response`. When
@@ -55,7 +54,7 @@ declare type express$RequestParams = {
 declare class express$Request extends http$IncomingMessage mixins express$RequestResponseBase {
   baseUrl: string;
   body: mixed;
-  cookies: { [cookie: string]: string };
+  cookies: { [cookie: string]: string, ... };
   connection: net$Socket;
   fresh: boolean;
   hostname: string;
@@ -66,10 +65,10 @@ declare class express$Request extends http$IncomingMessage mixins express$Reques
   params: express$RequestParams;
   path: string;
   protocol: "https" | "http";
-  query: { [name: string]: string | Array<string> };
+  query: { [name: string]: string | Array<string>, ... };
   route: string;
   secure: boolean;
-  signedCookies: { [signedCookie: string]: string };
+  signedCookies: { [signedCookie: string]: string, ... };
   stale: boolean;
   subdomains: Array<string>;
   xhr: boolean;
@@ -92,7 +91,8 @@ declare type express$CookieOptions = {
   maxAge?: number,
   path?: string,
   secure?: boolean,
-  signed?: boolean
+  signed?: boolean,
+  ...
 };
 
 declare type express$Path = string | RegExp;
@@ -106,13 +106,14 @@ declare type express$SendFileOptions = {
   maxAge?: number,
   root?: string,
   lastModified?: boolean,
-  headers?: { [name: string]: string },
-  dotfiles?: "allow" | "deny" | "ignore"
+  headers?: { [name: string]: string, ... },
+  dotfiles?: "allow" | "deny" | "ignore",
+  ...
 };
 
 declare class express$Response extends http$ServerResponse mixins express$RequestResponseBase {
   headersSent: boolean;
-  locals: { [name: string]: mixed };
+  locals: { [name: string]: mixed, ... };
   append(field: string, value?: string): this;
   attachment(filename?: string): this;
   cookie(name: string, value: string, options?: express$CookieOptions): this;
@@ -122,16 +123,16 @@ declare class express$Response extends http$ServerResponse mixins express$Reques
     filename?: string,
     callback?: (err?: ?Error) => void
   ): this;
-  format(typesObject: { [type: string]: Function }): this;
+  format(typesObject: { [type: string]: Function, ... }): this;
   json(body?: mixed): this;
   jsonp(body?: mixed): this;
-  links(links: { [name: string]: string }): this;
+  links(links: { [name: string]: string, ... }): this;
   location(path: string): this;
   redirect(url: string, ...args: Array<void>): this;
   redirect(status: number, url: string, ...args: Array<void>): this;
   render(
     view: string,
-    locals?: { [name: string]: mixed },
+    locals?: { [name: string]: mixed, ... },
     callback?: express$RenderCallback
   ): this;
   send(body?: mixed): this;
@@ -142,9 +143,9 @@ declare class express$Response extends http$ServerResponse mixins express$Reques
   ): this;
   sendStatus(statusCode: number): this;
   header(field: string, value?: string): this;
-  header(headers: { [name: string]: string }): this;
+  header(headers: { [name: string]: string, ... }): this;
   set(field: string, value?: string | string[]): this;
-  set(headers: { [name: string]: string }): this;
+  set(headers: { [name: string]: string, ... }): this;
   status(statusCode: number): this;
   type(type: string): this;
   vary(field: string): this;
@@ -207,6 +208,11 @@ declare class express$Route<
   connect: express$RouteMethodType<this, Req, Res>;
 }
 
+declare type express$RouterUseable<Req: express$Request, Res: express$Response> =
+  | express$Middleware<Req, Res>
+  | express$Router<Req, Res>
+  | $ReadOnlyArray<express$Middleware<Req, Res> | express$Router<Req, Res>>;
+
 declare class express$Router<
   Req: express$Request = express$Request,
   Res: express$Response = express$Response,
@@ -216,13 +222,8 @@ declare class express$Router<
   static <Req2: express$Request, Res2: express$Response>(
     options?: express$RouterOptions,
   ): express$Router<Req2, Res2>;
-  use(middleware: express$Middleware<Req, Res>): this;
-  use(...middleware: Array<express$Middleware<Req, Res>>): this;
-  use(
-    path: express$Path | $ReadOnlyArray<express$Path>,
-    ...middleware: Array<express$Middleware<Req, Res>>
-  ): this;
-  use(path: string, router: express$Router<Req, Res>): this;
+  use(express$RouterUseable<Req, Res>, ...express$RouterUseable<Req, Res>[]): this;
+  use(express$Path, express$RouterUseable<Req, Res>, ...express$RouterUseable<Req, Res>[]): this;
   handle(
     req: http$IncomingMessage<>,
     res: http$ServerResponse,
@@ -258,7 +259,7 @@ declare class express$Application<
   Res: express$Response = express$Response,
 > extends express$Router<Req, Res> mixins events$EventEmitter {
   constructor(): void;
-  locals: { [name: string]: mixed };
+  locals: { [name: string]: mixed, ... };
   mountpath: string;
   listen(
     port: number,
@@ -286,7 +287,7 @@ declare class express$Application<
   set(name: string, value: mixed): mixed;
   render(
     name: string,
-    optionsOrFunction: { [name: string]: mixed },
+    optionsOrFunction: { [name: string]: mixed, ... },
     callback: express$RenderCallback
   ): void;
   handle(
@@ -313,7 +314,8 @@ declare type JsonOptions = {
     res: express$Response,
     buf: Buffer,
     encoding: string
-  ) => mixed
+  ) => mixed,
+  ...
 };
 
 declare type express$UrlEncodedOptions = {
@@ -328,6 +330,7 @@ declare type express$UrlEncodedOptions = {
     buf: Buffer,
     encoding: string
   ) => mixed,
+  ...
 }
 
 declare module "express" {
@@ -355,5 +358,6 @@ declare module "express" {
     // `Router` property on the function
     Router: typeof express$Router,
     urlencoded: (opts: ?express$UrlEncodedOptions) => express$Middleware<>,
+    ...
   };
 }
