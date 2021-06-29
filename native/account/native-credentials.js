@@ -1,6 +1,5 @@
 // @flow
 
-import { Platform } from 'react-native';
 import {
   getInternetCredentials,
   setInternetCredentials,
@@ -20,10 +19,6 @@ let storedNativeKeychainCredentials: StoredCredentials = {
   state: 'undetermined',
   credentials: null,
 };
-const storedSharedWebCredentials: StoredCredentials = {
-  state: Platform.OS === 'ios' ? 'undetermined' : 'unsupported',
-  credentials: null,
-};
 
 async function fetchNativeKeychainCredentials(): Promise<?UserCredentials> {
   if (storedNativeKeychainCredentials.state === 'determined') {
@@ -41,16 +36,6 @@ async function fetchNativeKeychainCredentials(): Promise<?UserCredentials> {
     storedNativeKeychainCredentials = { state: 'unsupported', credentials };
     return credentials;
   }
-}
-
-function getNativeSharedWebCredentials(): ?UserCredentials {
-  if (Platform.OS !== 'ios') {
-    return null;
-  }
-  if (storedSharedWebCredentials.state !== 'determined') {
-    return null;
-  }
-  return storedSharedWebCredentials.credentials;
 }
 
 async function fetchNativeCredentials(): Promise<?UserCredentials> {
@@ -104,15 +89,13 @@ async function deleteNativeKeychainCredentials() {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
-function deleteNativeCredentialsFor(username: string) {
+function deleteNativeCredentialsFor() {
   return deleteNativeKeychainCredentials();
 }
 
 export {
   fetchNativeKeychainCredentials,
   fetchNativeCredentials,
-  getNativeSharedWebCredentials,
   setNativeCredentials,
   deleteNativeCredentialsFor,
 };

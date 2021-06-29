@@ -1,6 +1,5 @@
 // @flow
 
-import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text, Alert, Platform, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -18,10 +17,7 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils';
 
-import {
-  getNativeSharedWebCredentials,
-  deleteNativeCredentialsFor,
-} from '../account/native-credentials';
+import { deleteNativeCredentialsFor } from '../account/native-credentials';
 import Button from '../components/button.react';
 import EditSettingButton from '../components/edit-setting-button.react';
 import { SingleLine } from '../components/single-line.react';
@@ -213,12 +209,9 @@ class ProfileScreen extends React.PureComponent<Props> {
     }
     const alertTitle =
       Platform.OS === 'ios' ? 'Keep Login Info in Keychain' : 'Keep Login Info';
-    const sharedWebCredentials = getNativeSharedWebCredentials();
-    const alertDescription = sharedWebCredentials
-      ? 'We will automatically fill out log-in forms with your credentials ' +
-        'in the app and keep them available on squadcal.org in Safari.'
-      : 'We will automatically fill out log-in forms with your credentials ' +
-        'in the app.';
+    const alertDescription =
+      'We will automatically fill out log-in forms with your credentials ' +
+      'in the app.';
     Alert.alert(
       alertTitle,
       alertDescription,
@@ -258,9 +251,7 @@ class ProfileScreen extends React.PureComponent<Props> {
   }
 
   async deleteNativeCredentials() {
-    const { username } = this;
-    invariant(username, "can't log out if not logged in");
-    await deleteNativeCredentialsFor(username);
+    await deleteNativeCredentialsFor();
   }
 
   navigateIfActive(name) {

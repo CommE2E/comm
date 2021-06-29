@@ -8,10 +8,7 @@ import type { FetchJSON } from 'lib/utils/fetch-json';
 import { getGlobalNavContext } from '../navigation/icky-global';
 import { store } from '../redux/redux-setup';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
-import {
-  fetchNativeKeychainCredentials,
-  getNativeSharedWebCredentials,
-} from './native-credentials';
+import { fetchNativeKeychainCredentials } from './native-credentials';
 
 async function resolveInvalidatedCookie(
   fetchJSON: FetchJSON,
@@ -19,42 +16,23 @@ async function resolveInvalidatedCookie(
   source?: LogInActionSource,
 ) {
   const keychainCredentials = await fetchNativeKeychainCredentials();
-  if (keychainCredentials) {
-    const extraInfo = nativeLogInExtraInfoSelector({
-      redux: store.getState(),
-      navContext: getGlobalNavContext(),
-    })();
-    const { calendarQuery } = extraInfo;
-    const newCookie = await dispatchRecoveryAttempt(
-      logInActionTypes,
-      logIn(fetchJSON)({
-        ...keychainCredentials,
-        ...extraInfo,
-        source,
-      }),
-      { calendarQuery },
-    );
-    if (newCookie) {
-      return;
-    }
+  if (!keychainCredentials) {
+    return;
   }
-  const sharedWebCredentials = getNativeSharedWebCredentials();
-  if (sharedWebCredentials) {
-    const extraInfo = nativeLogInExtraInfoSelector({
-      redux: store.getState(),
-      navContext: getGlobalNavContext(),
-    })();
-    const { calendarQuery } = extraInfo;
-    await dispatchRecoveryAttempt(
-      logInActionTypes,
-      logIn(fetchJSON)({
-        ...sharedWebCredentials,
-        ...extraInfo,
-        source,
-      }),
-      { calendarQuery },
-    );
-  }
+  const extraInfo = nativeLogInExtraInfoSelector({
+    redux: store.getState(),
+    navContext: getGlobalNavContext(),
+  })();
+  const { calendarQuery } = extraInfo;
+  await dispatchRecoveryAttempt(
+    logInActionTypes,
+    logIn(fetchJSON)({
+      ...keychainCredentials,
+      ...extraInfo,
+      source,
+    }),
+    { calendarQuery },
+  );
 }
 
 export { resolveInvalidatedCookie };

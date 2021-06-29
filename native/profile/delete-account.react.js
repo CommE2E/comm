@@ -35,7 +35,6 @@ import type { GlobalTheme } from '../types/themes';
 type Props = {|
   // Redux state
   +loadingStatus: LoadingStatus,
-  +username: ?string,
   +preRequestUserState: PreRequestUserState,
   +activeTheme: ?GlobalTheme,
   +colors: Colors,
@@ -142,9 +141,7 @@ class DeleteAccount extends React.PureComponent<Props, State> {
 
   async deleteAccount() {
     try {
-      if (this.props.username) {
-        await deleteNativeCredentialsFor(this.props.username);
-      }
+      await deleteNativeCredentialsFor();
       const result = await this.props.deleteAccount(
         this.state.password,
         this.props.preRequestUserState,
@@ -237,12 +234,6 @@ const loadingStatusSelector = createLoadingStatusSelector(
 
 export default React.memo<{ ... }>(function ConnectedDeleteAccount() {
   const loadingStatus = useSelector(loadingStatusSelector);
-  const username = useSelector((state) => {
-    if (state.currentUserInfo && !state.currentUserInfo.anonymous) {
-      return state.currentUserInfo.username;
-    }
-    return undefined;
-  });
   const preRequestUserState = useSelector(preRequestUserStateSelector);
   const activeTheme = useSelector((state) => state.globalThemeInfo.activeTheme);
   const colors = useColors();
@@ -254,7 +245,6 @@ export default React.memo<{ ... }>(function ConnectedDeleteAccount() {
   return (
     <DeleteAccount
       loadingStatus={loadingStatus}
-      username={username}
       preRequestUserState={preRequestUserState}
       activeTheme={activeTheme}
       colors={colors}
