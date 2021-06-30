@@ -149,7 +149,7 @@ div.footer_logo a {
 
 div.subscribe_updates {
   grid-area: subscribe_updates;
-  align-self: center;
+  align-self: flex-start;
 }
 
 div.particles {

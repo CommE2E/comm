@@ -44,6 +44,9 @@ function Landing(): React.Node {
           <a href="#" onClick={navigateToPrivacy}>
             Privacy Policy
           </a>
+          <a href="https://www.notion.so/How-Comm-works-d6217941db7c4237b9d08b427aef3234">
+            How Comm works
+          </a>
         </div>
         <div className={`${css.subscribe_updates} ${css.starting_section}`}>
           <SubscriptionForm />
