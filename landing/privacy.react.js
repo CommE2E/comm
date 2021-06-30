@@ -6,7 +6,7 @@ import css from './landing.css';
 
 function Privacy(): React.Node {
   return (
-    <div className={css.legalContainer}>
+    <div className={css.legal_container}>
       <h1 className={css.legal}>Privacy Policy</h1>
 
       <p>

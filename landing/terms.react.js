@@ -6,7 +6,7 @@ import css from './landing.css';
 
 function Terms(): React.Node {
   return (
-    <div className={css.legalContainer}>
+    <div className={css.legal_container}>
       <h1 className={css.legal}>Terms of Use</h1>
       <p>
         Effective date: <strong>June 29, 2021</strong>

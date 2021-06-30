@@ -156,12 +156,22 @@ div.particles {
   z-index: -1;
 }
 
-div.legalContainer {
+div.legal_container {
   max-width: 1920px;
   margin-left: auto;
   margin-right: auto;
   padding-left: 60px;
   padding-right: 60px;
+}
+
+div.legal_container a {
+  color: #7e57c2;
+  text-decoration: none;
+  transition: 0.2s;
+  font-weight: bold;
+}
+div.legal_container a:hover {
+  color: #8c69c9;
 }
 
 @media (max-width: 1499px) {
@@ -212,7 +222,7 @@ div.legalContainer {
       'footer_logo_container';
   }
 
-  div.legalContainer {
+  div.legal_container {
     max-width: 540px;
     margin-left: auto;
     margin-right: auto;
