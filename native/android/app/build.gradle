@@ -246,6 +246,20 @@ afterEvaluate {
     preBuild.dependsOn(prepareExternalLibs)
 }
 
+// Release keystore via macOS Keychain Access
+def getPassword(String keyLabel) {
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'security',
+          'find-generic-password',
+          '-wl', keyLabel,
+          '-a', 'ashoat'
+        standardOutput = stdout
+        ignoreExitValue true
+    }
+    return stdout.toString().strip()
+}
+
 android {
     buildFeatures {
         prefab true
@@ -282,18 +296,34 @@ android {
         }
     }
     signingConfigs {
-        config {
-            keyAlias 'AndroidSigningKey'
-            keyPassword 'daemon-killdeer-steer-shoddy'
-            storeFile file('/Users/ashoat/Dropbox/Downloads/push/android_key_store.jks')
-            storePassword 'typhoid-troupe-yakima-namely'
+        debug {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+        release {
+            if (project.hasProperty('COMM_UPLOAD_STORE_FILE')) {
+                def password = getPassword('CommAndroidKeyPassword')
+                storeFile file(COMM_UPLOAD_STORE_FILE)
+                storePassword password
+                keyAlias COMM_UPLOAD_KEY_ALIAS
+                keyPassword password
+            }
         }
     }
     buildTypes {
         release {
+            if (project.hasProperty('COMM_UPLOAD_STORE_FILE')) {
+                signingConfig signingConfigs.release
+            } else {
+                signingConfig signingConfigs.debug
+            }
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-            signingConfig signingConfigs.config
+        }
+        debug {
+            signingConfig signingConfigs.debug
         }
     }
 
