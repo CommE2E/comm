@@ -18,6 +18,14 @@ h1.title {
   grid-area: title_container;
 }
 
+h1.legal {
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+h2.legal {
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
 h1 {
   font-size: 58px;
 }
