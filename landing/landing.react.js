@@ -30,26 +30,34 @@ function Landing(): React.Node {
 
   return (
     <>
+      <div className={css.header_grid}>
+        <a href="#" onClick={navigateToHome}>
+          <h1 className={css.title}>Comm</h1>
+        </a>
+      </div>
       {visibleNode}
-      <div className={css.footerGrid}>
-        <div className={css.footer_logo_container}>
-          <div className={`${css.footer_logo} ${css.starting_section}`}>
-            <a href="#" onClick={navigateToHome}>
-              Comm
+      <div className={css.footer_container}>
+        <div className={css.footer_grid}>
+          <div className={css.footer_sitemap_container}>
+            <div className={css.footer_logo}>
+              <a href="#" onClick={navigateToHome}>
+                Comm
+              </a>
+            </div>
+
+            <a href="#" onClick={navigateToTerms}>
+              Terms of Use
+            </a>
+            <a href="#" onClick={navigateToPrivacy}>
+              Privacy Policy
+            </a>
+            <a href="https://www.notion.so/How-Comm-works-d6217941db7c4237b9d08b427aef3234">
+              How Comm works
             </a>
           </div>
-          <a href="#" onClick={navigateToTerms}>
-            Terms of Use
-          </a>
-          <a href="#" onClick={navigateToPrivacy}>
-            Privacy Policy
-          </a>
-          <a href="https://www.notion.so/How-Comm-works-d6217941db7c4237b9d08b427aef3234">
-            How Comm works
-          </a>
-        </div>
-        <div className={`${css.subscribe_updates} ${css.starting_section}`}>
-          <SubscriptionForm />
+          <div className={css.subscribe_updates}>
+            <SubscriptionForm />
+          </div>
         </div>
       </div>
     </>

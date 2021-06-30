@@ -70,7 +70,6 @@ function Home(): React.Node {
     <div>
       <StarBackground className={css.particles} />
       <div className={css.grid}>
-        <h1 className={css.title}>Comm</h1>
         <div className={`${css.hero_image} ${css.starting_section}`}>
           <lottie-player
             id="eye-illustration"

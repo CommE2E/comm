@@ -6,6 +6,12 @@ html {
   word-break: break-word;
 }
 
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
 h1,
 h2 {
   font-family: 'IBM Plex Mono', monospace;
@@ -14,8 +20,8 @@ h2 {
 
 h1.title {
   font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 24px;
-  grid-area: title_container;
+  font-size: 32px;
+  grid-area: title;
 }
 
 h1.legal {
@@ -38,7 +44,8 @@ h2 {
   font-size: 50px;
 }
 
-p {
+p,
+li {
   font-size: 24px;
   line-height: 1.6em;
 }
@@ -55,25 +62,52 @@ div.grid {
   column-gap: 6em;
   grid-template-columns: 1fr 1fr;
   grid-template-areas:
-    'title_container title_container'
     'hero_copy hero_image'
     'server_image server_copy'
     'keyserver_company keyserver_company'
     'keyserver_copy read_the_docs';
 }
 
-div.footerGrid {
+div.footer_container {
+  background-color: rgba(255, 255, 255, 0.125);
+  backdrop-filter: blur(3px);
+}
+
+div.footer_grid {
   max-width: 1920px;
   margin-left: auto;
   margin-right: auto;
   display: grid;
-  padding-top: 20px;
+  padding-top: 30px;
   padding-left: 60px;
   padding-right: 60px;
   padding-bottom: 40px;
   column-gap: 6em;
   grid-template-columns: 1fr 1fr;
-  grid-template-areas: 'footer_logo_container subscribe_updates';
+  grid-template-areas: 'footer_sitemap_container subscribe_updates';
+}
+
+div.header_grid {
+  max-width: 1920px;
+  margin-left: auto;
+  margin-right: auto;
+  display: grid;
+  padding-top: 10px;
+  padding-left: 60px;
+  padding-right: 60px;
+  column-gap: 6em;
+  grid-template-columns: 1fr;
+  grid-template-areas: 'title';
+}
+
+div.header_grid a {
+  color: white;
+  text-decoration: none;
+  transition: 0.2s;
+}
+div.header_grid a:hover {
+  color: #7e57c2;
+  text-decoration: none;
 }
 
 div.grid > div + .starting_section {
@@ -108,7 +142,6 @@ div.server_image {
 
 div.keyserver_company {
   grid-area: keyserver_company;
-  align-self: center;
   text-align: center;
   padding-top: 80px;
 }
@@ -125,18 +158,15 @@ div.read_the_docs {
   padding-bottom: 40px;
 }
 
-div.footer_logo_container {
-  grid-area: footer_logo_container;
-}
-
-div.footer_logo_container a {
+div.footer_sitemap_container a {
   display: block;
   color: #8a8f98;
   transition: 0.2s;
   text-decoration: none;
   width: max-content;
+  padding-bottom: 4px;
 }
-div.footer_logo_container a:hover {
+div.footer_sitemap_container > a:hover {
   color: white;
 }
 
@@ -144,12 +174,16 @@ div.footer_logo a {
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 24px;
   font-weight: 500;
-  color: #bababa;
+  color: white;
+  padding-bottom: 8px;
+}
+div.footer_logo a:hover {
+  color: #7e57c2;
 }
 
 div.subscribe_updates {
   grid-area: subscribe_updates;
-  align-self: flex-start;
+  align-self: center;
 }
 
 div.particles {
@@ -174,6 +208,10 @@ div.legal_container a:hover {
   color: #8c69c9;
 }
 
+div.footer_sitemap_container {
+  grid-area: footer_sitemap_container;
+}
+
 @media (max-width: 1499px) {
   div.grid {
     padding-left: 60px;
@@ -188,7 +226,8 @@ div.legal_container a:hover {
     font-size: 38px;
   }
 
-  p {
+  p,
+  li {
     font-size: 20px;
   }
 }
@@ -201,7 +240,6 @@ div.legal_container a:hover {
     grid-template-columns: minmax(auto, 540px);
     justify-content: center;
     grid-template-areas:
-      'title_container'
       'hero_image'
       'hero_copy'
       'server_image'
@@ -210,8 +248,11 @@ div.legal_container a:hover {
       'keyserver_copy'
       'read_the_docs';
   }
+  div.footer_container {
+    padding-top: 5%;
+  }
 
-  div.footerGrid {
+  div.footer_grid {
     display: grid;
     padding-left: 3%;
     padding-right: 3%;
@@ -219,7 +260,16 @@ div.legal_container a:hover {
     justify-content: center;
     grid-template-areas:
       'subscribe_updates'
-      'footer_logo_container';
+      'footer_sitemap_container';
+  }
+
+  div.header_grid {
+    display: grid;
+    padding-left: 3%;
+    padding-right: 3%;
+    grid-template-columns: minmax(auto, 540px);
+    justify-content: center;
+    grid-template-areas: 'title';
   }
 
   div.legal_container {
@@ -230,8 +280,9 @@ div.legal_container a:hover {
     padding-right: 3%;
   }
 
-  div.footer_logo_container {
+  div.footer_sitemap_container {
     padding-top: 60px;
+    grid-area: footer_sitemap_container;
   }
 
   h1 {
@@ -242,7 +293,8 @@ div.legal_container a:hover {
     font-size: 24px;
   }
 
-  p {
+  p,
+  li {
     font-size: 16px;
   }
 
