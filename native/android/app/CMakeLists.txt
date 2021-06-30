@@ -15,9 +15,10 @@ set(PACKAGE_NAME "comm_jni_module")
 find_package(fbjni REQUIRED CONFIG)
 
 set(BUILD_TESTING OFF)
+set(HAVE_SYMBOLIZE OFF)
 set(WITH_GTEST OFF CACHE BOOL "Use googletest" FORCE)
 set(WITH_GFLAGS OFF CACHE BOOL "Use gflags" FORCE)
-add_subdirectory(./build/third-party-ndk/glog/glog-0.5.0/)
+add_subdirectory(./build/third-party-ndk/glog/glog-0.4.0/)
 add_subdirectory(../../node_modules/olm ./build)
 
 include_directories(
