@@ -125,20 +125,31 @@ div.read_the_docs {
   padding-bottom: 40px;
 }
 
-div.footer_logo_container a {
+div.footer_logo_container {
   grid-area: footer_logo_container;
+}
+
+div.footer_logo_container a {
   display: block;
+  color: #8a8f98;
+  transition: 0.2s;
+  text-decoration: none;
+  width: max-content;
+}
+div.footer_logo_container a:hover {
   color: white;
 }
 
-div.footer_logo {
+div.footer_logo a {
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 24px;
   font-weight: 500;
+  color: #bababa;
 }
 
 div.subscribe_updates {
   grid-area: subscribe_updates;
+  align-self: center;
 }
 
 div.particles {

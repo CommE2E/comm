@@ -34,13 +34,12 @@ function Landing(): React.Node {
       <div className={css.footerGrid}>
         <div className={css.footer_logo_container}>
           <div className={`${css.footer_logo} ${css.starting_section}`}>
-            Comm
+            <a href="#" onClick={navigateToHome}>
+              Comm
+            </a>
           </div>
-          <a href="#" onClick={navigateToHome}>
-            Home
-          </a>
           <a href="#" onClick={navigateToTerms}>
-            Terms of Service
+            Terms of Use
           </a>
           <a href="#" onClick={navigateToPrivacy}>
             Privacy Policy
