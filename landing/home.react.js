@@ -69,7 +69,7 @@ function Home(): React.Node {
   return (
     <div>
       <StarBackground className={css.particles} />
-      <div className={css.grid}>
+      <div className={css.body_grid}>
         <div className={`${css.hero_image} ${css.starting_section}`}>
           <lottie-player
             id="eye-illustration"
@@ -82,7 +82,7 @@ function Home(): React.Node {
         <div className={`${css.hero_copy} ${css.section}`}>
           <h1>
             Reclaim your
-            <span className={css.purple}> digital&nbsp;identity.</span>
+            <span className={css.purple_accent}> digital&nbsp;identity.</span>
           </h1>
           <p>
             The Internet is broken today. Private user data is owned by
@@ -118,7 +118,8 @@ function Home(): React.Node {
 
         <div className={css.keyserver_company}>
           <h1>
-            Comm is the <span className={css.purple}>keyserver</span> company.
+            Comm is the <span className={css.purple_accent}>keyserver</span>{' '}
+            company.
           </h1>
         </div>
 

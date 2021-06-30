@@ -1,3 +1,4 @@
+/* ===== GENERAL PAGE STYLES ===== */
 html {
   background: radial-gradient(ellipse at bottom, #1f252e, #111827);
   background-attachment: fixed;
@@ -6,42 +7,35 @@ html {
   word-break: break-word;
 }
 
-html,
+/* Override browser default to achieve edge-to-edge footer translucency effect */
 body {
   margin: 0;
   padding: 0;
 }
 
-h1,
-h2 {
+/* ===== TEXT STYLES ===== */
+h1 {
+  font-size: 58px;
   font-family: 'IBM Plex Mono', monospace;
   font-weight: 500;
 }
 
-h1.title {
+h1.logo {
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 32px;
-  grid-area: title;
-}
-
-h1.legal {
-  font-family: 'IBM Plex Sans', sans-serif;
-}
-
-h2.legal {
-  font-family: 'IBM Plex Sans', sans-serif;
-}
-
-h1 {
-  font-size: 58px;
-}
-
-span.purple {
-  color: #7e57c2;
+  grid-area: logo;
 }
 
 h2 {
   font-size: 50px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+}
+
+/* Use sans-serif headers for legal pages (eg privacy policy) */
+h1.legal,
+h2.legal {
+  font-family: 'IBM Plex Sans', sans-serif;
 }
 
 p,
@@ -50,54 +44,30 @@ li {
   line-height: 1.6em;
 }
 
-div.grid {
-  max-width: 1920px;
-  margin-left: auto;
-  margin-right: auto;
-  display: grid;
-  padding-top: 20px;
-  padding-left: 60px;
-  padding-right: 60px;
-  padding-bottom: 40px;
-  column-gap: 6em;
-  grid-template-columns: 1fr 1fr;
-  grid-template-areas:
-    'hero_copy hero_image'
-    'server_image server_copy'
-    'keyserver_company keyserver_company'
-    'keyserver_copy read_the_docs';
+span.purple_accent {
+  color: #7e57c2;
 }
 
-div.footer_container {
-  background-color: rgba(255, 255, 255, 0.125);
-  backdrop-filter: blur(3px);
-}
-
+/* ===== COMMON CSS GRID LAYOUT ===== */
+div.header_grid,
+div.body_grid,
 div.footer_grid {
   max-width: 1920px;
   margin-left: auto;
   margin-right: auto;
   display: grid;
-  padding-top: 30px;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 6em;
   padding-left: 60px;
   padding-right: 60px;
+  padding-top: 20px;
   padding-bottom: 40px;
-  column-gap: 6em;
-  grid-template-columns: 1fr 1fr;
-  grid-template-areas: 'footer_sitemap_container subscribe_updates';
 }
 
+/* ===== CSS HEADER GRID LAYOUT ===== */
 div.header_grid {
-  max-width: 1920px;
-  margin-left: auto;
-  margin-right: auto;
-  display: grid;
-  padding-top: 10px;
-  padding-left: 60px;
-  padding-right: 60px;
-  column-gap: 6em;
-  grid-template-columns: 1fr;
-  grid-template-areas: 'title';
+  padding-bottom: 0px;
+  grid-template-areas: 'logo logo';
 }
 
 div.header_grid a {
@@ -107,71 +77,67 @@ div.header_grid a {
 }
 div.header_grid a:hover {
   color: #7e57c2;
-  text-decoration: none;
 }
 
-div.grid > div + .starting_section {
-  padding-top: 80px;
-}
-
-.section {
-  padding-top: 80px;
+/* ===== CSS BODY GRID LAYOUT ===== */
+div.body_grid {
+  grid-template-areas:
+    'hero_copy hero_image'
+    'server_image server_copy'
+    'keyserver_company keyserver_company'
+    'keyserver_copy read_the_docs';
 }
 
 div.hero_copy {
   grid-area: hero_copy;
   align-self: center;
 }
-
 div.hero_image {
   grid-area: hero_image;
   object-fit: scale-down;
   align-self: center;
 }
-
-div.server_copy {
-  grid-area: server_copy;
-  align-self: center;
-}
-
 div.server_image {
   grid-area: server_image;
   object-fit: scale-down;
   align-self: center;
 }
-
+div.server_copy {
+  grid-area: server_copy;
+  align-self: center;
+}
 div.keyserver_company {
   grid-area: keyserver_company;
   text-align: center;
   padding-top: 80px;
 }
-
-div.keyserver_copy {
-  grid-area: keyserver_copy;
-  align-self: center;
-  padding-bottom: 40px;
-}
-
 div.read_the_docs {
   grid-area: read_the_docs;
   align-self: center;
   padding-bottom: 40px;
 }
 
-div.footer_sitemap_container a {
+/* ===== CSS FOOTER GRID LAYOUT ===== */
+div.footer_grid {
+  grid-template-areas: 'sitemap subscribe_updates';
+}
+
+div.sitemap {
+  grid-area: sitemap;
+}
+div.sitemap a {
   display: block;
+  padding-bottom: 4px;
   color: #8a8f98;
   transition: 0.2s;
   text-decoration: none;
   width: max-content;
-  padding-bottom: 4px;
 }
-div.footer_sitemap_container > a:hover {
+div.sitemap > a:hover {
   color: white;
 }
 
 div.footer_logo a {
-  font-family: 'IBM Plex Sans', sans-serif;
   font-size: 24px;
   font-weight: 500;
   color: white;
@@ -186,10 +152,7 @@ div.subscribe_updates {
   align-self: center;
 }
 
-div.particles {
-  z-index: -1;
-}
-
+/* ===== LEGAL PAGE STYLING ===== */
 div.legal_container {
   max-width: 1920px;
   margin-left: auto;
@@ -197,48 +160,83 @@ div.legal_container {
   padding-left: 60px;
   padding-right: 60px;
 }
-
 div.legal_container a {
   color: #7e57c2;
   text-decoration: none;
   transition: 0.2s;
-  font-weight: bold;
 }
 div.legal_container a:hover {
   color: #8c69c9;
 }
 
-div.footer_sitemap_container {
-  grid-area: footer_sitemap_container;
+/* ===== VISUAL EFFECTS ===== */
+div.footer_blur {
+  background-color: rgba(255, 255, 255, 0.125);
+  backdrop-filter: blur(3px);
+}
+div.particles {
+  z-index: -1;
 }
 
+/* ===== LAYOUT HACKS ===== */
+div.body_grid > div + .starting_section {
+  padding-top: 80px;
+}
+
+.section {
+  padding-top: 80px;
+}
+
+/* ===== MEDIUM BREAKPOINT ===== */
 @media (max-width: 1499px) {
-  div.grid {
+  div.body_grid {
     padding-left: 60px;
     padding-right: 60px;
   }
-
   h1 {
     font-size: 42px;
   }
-
   h2 {
     font-size: 38px;
   }
-
   p,
   li {
     font-size: 20px;
   }
 }
 
+/* ===== SMALLEST BREAKPOINT ===== */
 @media (max-width: 1099px) {
-  div.grid {
+  /* ===== TEXT STYLES ===== */
+  h1 {
+    font-size: 28px;
+  }
+  h2 {
+    font-size: 24px;
+  }
+  p,
+  li {
+    font-size: 16px;
+  }
+
+  /* ===== COMMON CSS GRID LAYOUT ===== */
+  div.body_grid,
+  div.footer_grid,
+  div.header_grid {
     display: grid;
     padding-left: 3%;
     padding-right: 3%;
     grid-template-columns: minmax(auto, 540px);
     justify-content: center;
+  }
+
+  /* ===== CSS HEADER GRID LAYOUT ===== */
+  div.header_grid {
+    grid-template-areas: 'logo';
+  }
+
+  /* ===== CSS BODY GRID LAYOUT ===== */
+  div.body_grid {
     grid-template-areas:
       'hero_image'
       'hero_copy'
@@ -248,75 +246,47 @@ div.footer_sitemap_container {
       'keyserver_copy'
       'read_the_docs';
   }
+
+  div.keyserver_company {
+    text-align: left;
+    padding-top: 60px;
+  }
+  .keyserver_company > h1 {
+    font-size: 24px;
+  }
+  div.keyserver_copy {
+    padding-bottom: 0;
+  }
+  div.read_the_docs {
+    padding-top: 20px;
+    padding-bottom: 0;
+  }
+
+  /* ===== CSS FOOTER GRID LAYOUT ===== */
+  div.footer_grid {
+    grid-template-areas:
+      'subscribe_updates'
+      'sitemap';
+  }
   div.footer_container {
     padding-top: 5%;
   }
-
-  div.footer_grid {
-    display: grid;
-    padding-left: 3%;
-    padding-right: 3%;
-    grid-template-columns: minmax(auto, 540px);
-    justify-content: center;
-    grid-template-areas:
-      'subscribe_updates'
-      'footer_sitemap_container';
+  div.sitemap {
+    padding-top: 60px;
+    grid-area: sitemap;
   }
 
-  div.header_grid {
-    display: grid;
-    padding-left: 3%;
-    padding-right: 3%;
-    grid-template-columns: minmax(auto, 540px);
-    justify-content: center;
-    grid-template-areas: 'title';
+  /* ===== LAYOUT HACKS ===== */
+  .section {
+    padding-top: 20px;
   }
 
+  /* ===== LEGAL PAGE STYLING ===== */
   div.legal_container {
     max-width: 540px;
     margin-left: auto;
     margin-right: auto;
     padding-left: 3%;
     padding-right: 3%;
-  }
-
-  div.footer_sitemap_container {
-    padding-top: 60px;
-    grid-area: footer_sitemap_container;
-  }
-
-  h1 {
-    font-size: 28px;
-  }
-
-  h2 {
-    font-size: 24px;
-  }
-
-  p,
-  li {
-    font-size: 16px;
-  }
-
-  .section {
-    padding-top: 20px;
-  }
-
-  div.keyserver_company {
-    text-align: left;
-    padding-top: 60px;
-  }
-
-  .keyserver_company > h1 {
-    font-size: 24px;
-  }
-
-  div.keyserver_copy {
-    padding-bottom: 0;
-  }
-
-  div.read_the_docs {
-    padding-top: 20px;
-    padding-bottom: 0;
   }
 }

@@ -32,13 +32,13 @@ function Landing(): React.Node {
     <>
       <div className={css.header_grid}>
         <a href="#" onClick={navigateToHome}>
-          <h1 className={css.title}>Comm</h1>
+          <h1 className={css.logo}>Comm</h1>
         </a>
       </div>
       {visibleNode}
-      <div className={css.footer_container}>
+      <div className={css.footer_blur}>
         <div className={css.footer_grid}>
-          <div className={css.footer_sitemap_container}>
+          <div className={css.sitemap}>
             <div className={css.footer_logo}>
               <a href="#" onClick={navigateToHome}>
                 Comm
