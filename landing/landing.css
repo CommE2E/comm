@@ -223,7 +223,6 @@ div.body_grid > div + .starting_section {
   div.body_grid,
   div.footer_grid,
   div.header_grid {
-    display: grid;
     padding-left: 3%;
     padding-right: 3%;
     grid-template-columns: minmax(auto, 540px);
