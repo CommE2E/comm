@@ -6,7 +6,7 @@ import css from './landing.css';
 
 function Terms(): React.Node {
   return (
-    <div>
+    <div className={css.legalContainer}>
       <h1 className={css.legal}>Terms of Use</h1>
       <p>
         Effective date: <strong>June 29, 2021</strong>
@@ -42,7 +42,7 @@ function Terms(): React.Node {
         <a href="https://comm.app/privacy">click here</a>.
       </p>
 
-      <h2>Minimum Age</h2>
+      <h2 className={css.legal}>Minimum Age</h2>
 
       <p>
         You must be at least 13 years old to use our Services. The minimum age

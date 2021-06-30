@@ -49,8 +49,8 @@ div.grid {
   margin-right: auto;
   display: grid;
   padding-top: 20px;
-  padding-left: 80px;
-  padding-right: 80px;
+  padding-left: 60px;
+  padding-right: 60px;
   padding-bottom: 40px;
   column-gap: 6em;
   grid-template-columns: 1fr 1fr;
@@ -59,8 +59,21 @@ div.grid {
     'hero_copy hero_image'
     'server_image server_copy'
     'keyserver_company keyserver_company'
-    'keyserver_copy read_the_docs'
-    'footer_logo subscribe_updates';
+    'keyserver_copy read_the_docs';
+}
+
+div.footerGrid {
+  max-width: 1920px;
+  margin-left: auto;
+  margin-right: auto;
+  display: grid;
+  padding-top: 20px;
+  padding-left: 60px;
+  padding-right: 60px;
+  padding-bottom: 40px;
+  column-gap: 6em;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas: 'footer_logo_container subscribe_updates';
 }
 
 div.grid > div + .starting_section {
@@ -112,11 +125,15 @@ div.read_the_docs {
   padding-bottom: 40px;
 }
 
+div.footer_logo_container a {
+  grid-area: footer_logo_container;
+  display: block;
+  color: white;
+}
+
 div.footer_logo {
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 24px;
-  grid-area: footer_logo;
-  align-self: center;
   font-weight: 500;
 }
 
@@ -126,6 +143,14 @@ div.subscribe_updates {
 
 div.particles {
   z-index: -1;
+}
+
+div.legalContainer {
+  max-width: 1920px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 60px;
+  padding-right: 60px;
 }
 
 @media (max-width: 1499px) {
@@ -162,9 +187,30 @@ div.particles {
       'server_copy'
       'keyserver_company'
       'keyserver_copy'
-      'read_the_docs'
+      'read_the_docs';
+  }
+
+  div.footerGrid {
+    display: grid;
+    padding-left: 3%;
+    padding-right: 3%;
+    grid-template-columns: minmax(auto, 540px);
+    justify-content: center;
+    grid-template-areas:
       'subscribe_updates'
-      'footer_logo';
+      'footer_logo_container';
+  }
+
+  div.legalContainer {
+    max-width: 540px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 3%;
+    padding-right: 3%;
+  }
+
+  div.footer_logo_container {
+    padding-top: 60px;
   }
 
   h1 {

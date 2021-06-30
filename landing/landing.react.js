@@ -3,7 +3,9 @@
 import * as React from 'react';
 
 import Home from './home.react';
+import css from './landing.css';
 import Privacy from './privacy.react';
+import SubscriptionForm from './subscription-form.react';
 import Terms from './terms.react';
 
 export type ActivePage = 'home' | 'terms' | 'privacy';
@@ -29,15 +31,25 @@ function Landing(): React.Node {
   return (
     <>
       {visibleNode}
-      <a href="#" onClick={navigateToHome}>
-        Home
-      </a>
-      <a href="#" onClick={navigateToTerms}>
-        Terms of Service
-      </a>
-      <a href="#" onClick={navigateToPrivacy}>
-        Privacy Policy
-      </a>
+      <div className={css.footerGrid}>
+        <div className={css.footer_logo_container}>
+          <div className={`${css.footer_logo} ${css.starting_section}`}>
+            Comm
+          </div>
+          <a href="#" onClick={navigateToHome}>
+            Home
+          </a>
+          <a href="#" onClick={navigateToTerms}>
+            Terms of Service
+          </a>
+          <a href="#" onClick={navigateToPrivacy}>
+            Privacy Policy
+          </a>
+        </div>
+        <div className={`${css.subscribe_updates} ${css.starting_section}`}>
+          <SubscriptionForm />
+        </div>
+      </div>
     </>
   );
 }

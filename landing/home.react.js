@@ -6,7 +6,6 @@ import * as React from 'react';
 import css from './landing.css';
 import ReadDocsButton from './read-docs-btn.react';
 import StarBackground from './star-background.react';
-import SubscriptionForm from './subscription-form.react';
 
 const useIsomorphicLayoutEffect =
   typeof window !== 'undefined' ? React.useLayoutEffect : React.useEffect;
@@ -135,11 +134,6 @@ function Home(): React.Node {
         </div>
         <div className={css.read_the_docs}>
           <ReadDocsButton />
-        </div>
-
-        <div className={`${css.footer_logo} ${css.starting_section}`}>Comm</div>
-        <div className={`${css.subscribe_updates} ${css.starting_section}`}>
-          <SubscriptionForm />
         </div>
       </div>
     </div>

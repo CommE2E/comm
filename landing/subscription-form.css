@@ -16,7 +16,7 @@ form {
   padding-right: 20px;
   cursor: pointer;
   font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 18px;
+  font-size: 15px;
   color: white;
 
   background: #7e57c2;
@@ -59,7 +59,7 @@ input.email_input {
   background: transparent;
 
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 18px;
+  font-size: 15px;
   color: white;
 
   border: 1px solid white;
