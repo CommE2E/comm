@@ -283,8 +283,6 @@ div.body_grid > div + .starting_section {
   /* ===== LEGAL PAGE STYLING ===== */
   div.legal_container {
     max-width: 540px;
-    margin-left: auto;
-    margin-right: auto;
     padding-left: 3%;
     padding-right: 3%;
   }
