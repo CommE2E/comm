@@ -18,6 +18,11 @@ a {
   text-decoration: none;
 }
 
+.mono {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+}
+
 /* ===== TEXT STYLES ===== */
 h1 {
   font-size: 58px;
@@ -32,12 +37,6 @@ h1.logo {
 h2 {
   font-size: 50px;
   font-family: 'IBM Plex Sans', sans-serif;
-}
-
-h1.mono,
-h2.mono {
-  font-family: 'IBM Plex Mono', monospace;
-  font-weight: 500;
 }
 
 p,

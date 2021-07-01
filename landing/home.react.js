@@ -117,9 +117,13 @@ function Home(): React.Node {
         </div>
 
         <div className={css.keyserver_company}>
-          <h1 className={css.mono}>
-            Comm is the <span className={css.purple_accent}>keyserver</span>{' '}
-            company.
+          <h1>
+            Comm
+            <span className={css.mono}>
+              {' '}
+              is the <span className={css.purple_accent}>keyserver</span>{' '}
+              company.
+            </span>
           </h1>
         </div>
 
