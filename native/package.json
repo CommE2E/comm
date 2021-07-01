@@ -46,7 +46,7 @@
     "@react-native-community/async-storage": "^1.6.1",
     "@react-native-community/clipboard": "^1.5.1",
     "@react-native-community/masked-view": "^0.1.10",
-    "@react-native-community/netinfo": "^4.4.0",
+    "@react-native-community/netinfo": "^6.0.0",
     "@react-navigation/bottom-tabs": "^5.11.1",
     "@react-navigation/devtools": "^5.1.17",
     "@react-navigation/material-top-tabs": "^5.3.9",
