@@ -154,7 +154,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
               >
                 Terms
               </Text>
-              {' &'}
+              {' & '}
               <Text
                 style={styles.hyperlinkText}
                 onPress={this.onPrivacyPolicyPressed}
