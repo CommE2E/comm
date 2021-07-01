@@ -27,6 +27,7 @@ import type { Shape } from 'lib/types/core';
 import type { Dispatch } from 'lib/types/redux-types';
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
 
+import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import type { KeyboardEvent, EmitterSubscription } from '../keyboard/keyboard';
 import {
@@ -527,10 +528,10 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
           style={[styles.modalBackground, this.props.splashStyle]}
         />
         <SafeAreaView style={styles.container} edges={safeAreaEdges}>
-          <View style={styles.container}>
+          <KeyboardAvoidingView behavior="padding" style={styles.container}>
             {animatedContent}
             {buttons}
-          </View>
+          </KeyboardAvoidingView>
         </SafeAreaView>
       </React.Fragment>
     );

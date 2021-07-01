@@ -7,7 +7,6 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  LayoutAnimation,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -15,13 +14,6 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import type { LoadingStatus } from 'lib/types/loading-types';
 
 import Button from '../components/button.react';
-import type { KeyboardEvent, EmitterSubscription } from '../keyboard/keyboard';
-import {
-  addKeyboardShowListener,
-  addKeyboardDismissListener,
-  removeKeyboardListener,
-} from '../keyboard/keyboard';
-import { type DimensionsInfo } from '../redux/dimensions-updater.react';
 import { useSelector } from '../redux/redux-utils';
 import type { ViewStyle } from '../types/styles';
 
@@ -46,123 +38,49 @@ function PanelButton(props: ButtonProps) {
     );
   }
   return (
-    <View style={styles.submitButtonContainer}>
-      <Button
-        onPress={props.onSubmit}
-        disabled={props.loadingStatus === 'loading'}
-        topStyle={styles.submitButton}
-        style={styles.innerSubmitButton}
-        iosFormat="highlight"
-        iosActiveOpacity={0.85}
-        iosHighlightUnderlayColor="#A0A0A0DD"
-      >
-        <Text style={styles.submitContentText}>{props.text}</Text>
-        {buttonIcon}
-      </Button>
+    <View style={styles.submitButtonHorizontalContainer}>
+      <View style={styles.submitButtonVerticalContainer}>
+        <Button
+          onPress={props.onSubmit}
+          disabled={props.loadingStatus === 'loading'}
+          topStyle={styles.submitButton}
+          style={styles.innerSubmitButton}
+          iosFormat="highlight"
+          iosActiveOpacity={0.85}
+          iosHighlightUnderlayColor="#A0A0A0DD"
+        >
+          <Text style={styles.submitContentText}>{props.text}</Text>
+          {buttonIcon}
+        </Button>
+      </View>
     </View>
   );
 }
 
-const scrollViewBelow = 1000;
-
-type PanelBaseProps = {|
+type PanelProps = {|
   +opacityValue: Animated.Value,
   +children: React.Node,
   +style?: ViewStyle,
 |};
-type PanelProps = {|
-  ...PanelBaseProps,
-  +dimensions: DimensionsInfo,
-|};
-type PanelState = {|
-  +keyboardHeight: number,
-|};
-class InnerPanel extends React.PureComponent<PanelProps, PanelState> {
-  state: PanelState = {
-    keyboardHeight: 0,
-  };
-  keyboardShowListener: ?EmitterSubscription;
-  keyboardHideListener: ?EmitterSubscription;
-
-  componentDidMount() {
-    this.keyboardShowListener = addKeyboardShowListener(this.keyboardHandler);
-    this.keyboardHideListener = addKeyboardDismissListener(
-      this.keyboardHandler,
-    );
-  }
-
-  componentWillUnmount() {
-    if (this.keyboardShowListener) {
-      removeKeyboardListener(this.keyboardShowListener);
-      this.keyboardShowListener = null;
-    }
-    if (this.keyboardHideListener) {
-      removeKeyboardListener(this.keyboardHideListener);
-      this.keyboardHideListener = null;
-    }
-  }
-
-  keyboardHandler = (event: ?KeyboardEvent) => {
-    const frameEdge =
-      this.props.dimensions.height - this.props.dimensions.bottomInset;
-    const keyboardHeight = event ? frameEdge - event.endCoordinates.screenY : 0;
-    if (keyboardHeight === this.state.keyboardHeight) {
-      return;
-    }
-    const windowHeight = this.props.dimensions.height;
-    if (
-      windowHeight < scrollViewBelow &&
-      event &&
-      event.duration &&
-      event.easing
-    ) {
-      LayoutAnimation.configureNext({
-        duration: event.duration,
-        update: {
-          duration: event.duration,
-          type: LayoutAnimation.Types[event.easing] || 'keyboard',
-        },
-      });
-    }
-    this.setState({ keyboardHeight });
-  };
-
-  render() {
-    const windowHeight = this.props.dimensions.height;
-    const containerStyle = {
-      opacity: this.props.opacityValue,
-      marginTop: windowHeight < 641 ? 15 : 40,
-    };
-    const content = (
-      <Animated.View
-        style={[styles.container, containerStyle, this.props.style]}
-      >
-        {this.props.children}
-      </Animated.View>
-    );
-    if (windowHeight >= scrollViewBelow) {
-      return content;
-    }
-    const scrollViewStyle = {
-      paddingBottom: 73.5 + this.state.keyboardHeight,
-    };
-    return (
-      <View style={scrollViewStyle}>
-        <ScrollView bounces={false} keyboardShouldPersistTaps="handled">
-          {content}
-        </ScrollView>
-      </View>
-    );
-  }
-}
-
-const Panel = React.memo<PanelBaseProps>(function ConnectedPanel(
-  props: PanelBaseProps,
-) {
+function Panel(props: PanelProps): React.Node {
   const dimensions = useSelector((state) => state.dimensions);
-
-  return <InnerPanel {...props} dimensions={dimensions} />;
-});
+  const containerStyle = React.useMemo(
+    () => [
+      styles.container,
+      {
+        opacity: props.opacityValue,
+        marginTop: dimensions.height < 641 ? 15 : 40,
+      },
+      props.style,
+    ],
+    [props.opacityValue, props.style, dimensions.height],
+  );
+  return (
+    <ScrollView bounces={false} keyboardShouldPersistTaps="handled">
+      <Animated.View style={containerStyle}>{props.children}</Animated.View>
+    </ScrollView>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -183,13 +101,16 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     borderBottomRightRadius: 6,
-    flexGrow: 1,
     justifyContent: 'center',
     paddingLeft: 10,
     paddingRight: 18,
   },
-  submitButtonContainer: {
+  submitButtonHorizontalContainer: {
     alignSelf: 'flex-end',
+  },
+  submitButtonVerticalContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
   },
   submitContentIconContainer: {
     paddingBottom: 5,
