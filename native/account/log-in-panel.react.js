@@ -97,7 +97,7 @@ class LogInPanel extends React.PureComponent<Props> {
   render() {
     return (
       <Panel opacityValue={this.props.opacityValue}>
-        <View>
+        <View style={styles.row}>
           <Icon name="user" size={22} color="#777" style={styles.icon} />
           <TextInput
             style={styles.input}
@@ -118,7 +118,7 @@ class LogInPanel extends React.PureComponent<Props> {
             ref={this.usernameInputRef}
           />
         </View>
-        <View>
+        <View style={styles.row}>
           <Icon name="lock" size={22} color="#777" style={styles.icon} />
           <TextInput
             style={styles.input}
@@ -135,11 +135,13 @@ class LogInPanel extends React.PureComponent<Props> {
             ref={this.passwordInputRef}
           />
         </View>
-        <PanelButton
-          text="LOG IN"
-          loadingStatus={this.props.loadingStatus}
-          onSubmit={this.onSubmit}
-        />
+        <View style={styles.footer}>
+          <PanelButton
+            text="LOG IN"
+            loadingStatus={this.props.loadingStatus}
+            onSubmit={this.onSubmit}
+          />
+        </View>
       </Panel>
     );
   }
@@ -316,6 +318,10 @@ class LogInPanel extends React.PureComponent<Props> {
 export type InnerLogInPanel = LogInPanel;
 
 const styles = StyleSheet.create({
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
   icon: {
     bottom: 8,
     left: 4,
@@ -323,6 +329,9 @@ const styles = StyleSheet.create({
   },
   input: {
     paddingLeft: 35,
+  },
+  row: {
+    marginHorizontal: 24,
   },
 });
 

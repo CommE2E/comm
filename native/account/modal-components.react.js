@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   textInputWrapperView: {
-    borderBottomColor: '#BBBBBB',
+    borderBottomColor: '#A2A2A2',
     borderBottomWidth: 1,
   },
 });

@@ -46,22 +46,24 @@ function PanelButton(props: ButtonProps) {
     );
   }
   return (
-    <Button
-      onPress={props.onSubmit}
-      disabled={props.loadingStatus === 'loading'}
-      topStyle={styles.submitButton}
-      style={styles.submitContentContainer}
-      iosFormat="highlight"
-      iosActiveOpacity={0.85}
-      iosHighlightUnderlayColor="#A0A0A0DD"
-    >
-      <Text style={styles.submitContentText}>{props.text}</Text>
-      {buttonIcon}
-    </Button>
+    <View style={styles.submitButtonContainer}>
+      <Button
+        onPress={props.onSubmit}
+        disabled={props.loadingStatus === 'loading'}
+        topStyle={styles.submitButton}
+        style={styles.innerSubmitButton}
+        iosFormat="highlight"
+        iosActiveOpacity={0.85}
+        iosHighlightUnderlayColor="#A0A0A0DD"
+      >
+        <Text style={styles.submitContentText}>{props.text}</Text>
+        {buttonIcon}
+      </Button>
+    </View>
   );
 }
 
-const scrollViewBelow = 568;
+const scrollViewBelow = 1000;
 
 type PanelBaseProps = {|
   +opacityValue: Animated.Value,
@@ -168,10 +170,12 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     marginLeft: 20,
     marginRight: 20,
-    paddingBottom: 37,
-    paddingLeft: 18,
-    paddingRight: 18,
     paddingTop: 6,
+  },
+  innerSubmitButton: {
+    alignItems: 'flex-end',
+    flexDirection: 'row',
+    paddingVertical: 6,
   },
   loadingIndicatorContainer: {
     paddingBottom: 2,
@@ -179,15 +183,13 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     borderBottomRightRadius: 6,
-    bottom: 0,
-    position: 'absolute',
-    right: 0,
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingLeft: 10,
+    paddingRight: 18,
   },
-  submitContentContainer: {
-    alignItems: 'flex-end',
-    flexDirection: 'row',
-    paddingHorizontal: 18,
-    paddingVertical: 6,
+  submitButtonContainer: {
+    alignSelf: 'flex-end',
   },
   submitContentIconContainer: {
     paddingBottom: 5,

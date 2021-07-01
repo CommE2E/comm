@@ -2,7 +2,15 @@
 
 import invariant from 'invariant';
 import React from 'react';
-import { View, StyleSheet, Platform, Keyboard, Alert } from 'react-native';
+import {
+  Text,
+  View,
+  StyleSheet,
+  Platform,
+  Keyboard,
+  Alert,
+  Linking,
+} from 'react-native';
 import Animated from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
@@ -82,7 +90,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
 
     return (
       <Panel opacityValue={this.props.opacityValue} style={styles.container}>
-        <View>
+        <View style={styles.row}>
           <Icon name="user" size={22} color="#777" style={styles.icon} />
           <TextInput
             style={styles.input}
@@ -102,7 +110,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
             ref={this.usernameInputRef}
           />
         </View>
-        <View>
+        <View style={styles.row}>
           <Icon name="lock" size={22} color="#777" style={styles.icon} />
           <TextInput
             style={styles.input}
@@ -120,7 +128,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
             ref={this.passwordInputRef}
           />
         </View>
-        <View>
+        <View style={styles.row}>
           <TextInput
             style={styles.input}
             value={this.props.registerState.state.confirmPasswordInputText}
@@ -136,11 +144,32 @@ class RegisterPanel extends React.PureComponent<Props, State> {
             {...confirmPasswordTextInputExtraProps}
           />
         </View>
-        <PanelButton
-          text="SIGN UP"
-          loadingStatus={this.props.loadingStatus}
-          onSubmit={this.onSubmit}
-        />
+        <View style={styles.footer}>
+          <View style={styles.notice}>
+            <Text style={styles.noticeText}>
+              By signing up, you agree to our{' '}
+              <Text
+                style={styles.hyperlinkText}
+                onPress={this.onTermsOfUsePressed}
+              >
+                Terms
+              </Text>
+              {' &'}
+              <Text
+                style={styles.hyperlinkText}
+                onPress={this.onPrivacyPolicyPressed}
+              >
+                Privacy Policy
+              </Text>
+              .
+            </Text>
+          </View>
+          <PanelButton
+            text="SIGN UP"
+            loadingStatus={this.props.loadingStatus}
+            onSubmit={this.onSubmit}
+          />
+        </View>
       </Panel>
     );
   }
@@ -170,6 +199,14 @@ class RegisterPanel extends React.PureComponent<Props, State> {
   focusConfirmPasswordInput = () => {
     invariant(this.confirmPasswordInput, 'ref should be set');
     this.confirmPasswordInput.focus();
+  };
+
+  onTermsOfUsePressed = () => {
+    Linking.openURL('https://comm.app/terms');
+  };
+
+  onPrivacyPolicyPressed = () => {
+    Linking.openURL('https://comm.app/privacy');
   };
 
   onChangeUsernameInputText = (text: string) => {
@@ -346,8 +383,18 @@ class RegisterPanel extends React.PureComponent<Props, State> {
 
 const styles = StyleSheet.create({
   container: {
-    paddingBottom: Platform.OS === 'ios' ? 37 : 36,
     zIndex: 2,
+  },
+  footer: {
+    alignItems: 'stretch',
+    flexDirection: 'row',
+    flexShrink: 1,
+    justifyContent: 'space-between',
+    paddingLeft: 24,
+  },
+  hyperlinkText: {
+    color: '#036AFF',
+    fontWeight: 'bold',
   },
   icon: {
     bottom: 8,
@@ -356,6 +403,24 @@ const styles = StyleSheet.create({
   },
   input: {
     paddingLeft: 35,
+  },
+  notice: {
+    alignSelf: 'center',
+    display: 'flex',
+    flexShrink: 1,
+    maxWidth: 190,
+    paddingBottom: 18,
+    paddingRight: 8,
+    paddingTop: 12,
+  },
+  noticeText: {
+    color: '#444',
+    fontSize: 13,
+    lineHeight: 20,
+    textAlign: 'center',
+  },
+  row: {
+    marginHorizontal: 24,
   },
 });
 
