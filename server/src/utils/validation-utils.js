@@ -5,6 +5,7 @@ import t from 'tcomb';
 import {
   validEmailRegex,
   oldValidUsernameRegex,
+  validHexColorRegex,
 } from 'lib/shared/account-utils';
 import { ServerError } from 'lib/utils/errors';
 
@@ -39,7 +40,7 @@ function tNumEnum(nums: $ReadOnlyArray<number>) {
 }
 
 const tDate = tRegex(/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/);
-const tColor = tRegex(/^[a-fA-F0-9]{6}$/); // we don't include # char
+const tColor = tRegex(validHexColorRegex); // we don't include # char
 const tPlatform = t.enums.of(['ios', 'android', 'web']);
 const tDeviceType = t.enums.of(['ios', 'android']);
 const tPlatformDetails = tShape({
