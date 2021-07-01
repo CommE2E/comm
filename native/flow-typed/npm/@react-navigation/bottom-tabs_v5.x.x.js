@@ -1,5 +1,5 @@
-// flow-typed signature: e37ac5b72f5fe9ae743fbc011032560b
-// flow-typed version: 3c17c8ecd5/@react-navigation/bottom-tabs_v5.x.x/flow_>=v0.104.x
+// flow-typed signature: 6070a4afddfa183e7c7bda53e69c0044
+// flow-typed version: dc2d6a22c7/@react-navigation/bottom-tabs_v5.x.x/flow_>=v0.104.x
 
 declare module '@react-navigation/bottom-tabs' {
 
@@ -266,7 +266,7 @@ declare module '@react-navigation/bottom-tabs' {
   // Copied from
   // react-native/Libraries/Components/Touchable/TouchableWithoutFeedback.js
   declare type Stringish = string;
-  declare type EdgeInsetsProp = $ReadOnly<$Shape<EdgeInsets>>;
+  declare type EdgeInsetsProp = $ReadOnly<$Partial<EdgeInsets>>;
   declare type TouchableWithoutFeedbackProps = $ReadOnly<{|
     accessibilityActions?: ?$ReadOnlyArray<AccessibilityActionInfo>,
     accessibilityElementsHidden?: ?boolean,
@@ -319,6 +319,35 @@ declare module '@react-navigation/bottom-tabs' {
   /**
    * The following is copied from react-native-gesture-handler's libdef
    */
+
+  declare type StateUndetermined = 0;
+  declare type StateFailed = 1;
+  declare type StateBegan = 2;
+  declare type StateCancelled = 3;
+  declare type StateActive = 4;
+  declare type StateEnd = 5;
+
+  declare type GestureHandlerState =
+    | StateUndetermined
+    | StateFailed
+    | StateBegan
+    | StateCancelled
+    | StateActive
+    | StateEnd;
+
+  declare type $SyntheticEvent<T: { ... }> = {
+    +nativeEvent: $ReadOnly<$Exact<T>>,
+    ...
+  };
+
+  declare type $Event<T: { ... }> = $SyntheticEvent<{
+    handlerTag: number,
+    numberOfPointers: number,
+    state: GestureHandlerState,
+    oldState: GestureHandlerState,
+    ...$Exact<T>,
+    ...
+  }>;
 
   declare type $EventHandlers<ExtraProps: {...}> = {|
     onGestureEvent?: ($Event<ExtraProps>) => mixed,
@@ -419,7 +448,7 @@ declare module '@react-navigation/bottom-tabs' {
   >;
   declare type $IsUndefined<X> = $IsA<X, void>;
 
-  declare type $Partial<T> = $Rest<T, {...}>;
+  declare type $Partial<T> = $ReadOnly<$Rest<T, {...}>>;
 
   /**
    * Actions, state, etc.
@@ -570,7 +599,7 @@ declare module '@react-navigation/bottom-tabs' {
     +type: $PropertyType<State, 'type'>,
     +getInitialState: (options: RouterConfigOptions) => State,
     +getRehydratedState: (
-      partialState: PossibleStaleNavigationState,
+      partialState: PossiblyStaleNavigationState,
       options: RouterConfigOptions,
     ) => State,
     +getStateForRouteNamesChange: (
@@ -748,6 +777,10 @@ declare module '@react-navigation/bottom-tabs' {
     ...GlobalEventMap<State>,
     +focus: {| +data: void, +canPreventDefault: false |},
     +blur: {| +data: void, +canPreventDefault: false |},
+    +beforeRemove: {|
+      +data: {| +action: GenericNavigationAction |},
+      +canPreventDefault: true,
+    |},
   |};
   declare type EventListenerCallback<
     EventName: string,
@@ -840,12 +873,12 @@ declare module '@react-navigation/bottom-tabs' {
       State,
       EventMap,
     >>,
-    +setOptions: (options: $Shape<ScreenOptions>) => void,
+    +setOptions: (options: $Partial<ScreenOptions>) => void,
     +setParams: (
       params: $If<
         $IsUndefined<$ElementType<ParamList, RouteName>>,
         empty,
-        $Shape<$NonMaybeType<$ElementType<ParamList, RouteName>>>,
+        $Partial<$NonMaybeType<$ElementType<ParamList, RouteName>>>,
       >,
     ) => void,
     ...
@@ -864,8 +897,8 @@ declare module '@react-navigation/bottom-tabs' {
   |};
 
   declare export type ScreenListeners<
-    EventMap: EventMapBase = EventMapCore<State>,
     State: NavigationState = NavigationState,
+    EventMap: EventMapBase = EventMapCore<State>,
   > = $ObjMapi<
     {| [name: $Keys<EventMap>]: empty |},
     <K: $Keys<EventMap>>(K, empty) => EventListenerCallback<K, State, EventMap>,
@@ -887,12 +920,12 @@ declare module '@react-navigation/bottom-tabs' {
           navigation: NavProp,
         |}) => ScreenOptions,
     +listeners?:
-      | ScreenListeners<EventMap, State>
+      | ScreenListeners<State, EventMap>
       | ({|
           route: RouteProp<ParamList, RouteName>,
           navigation: NavProp,
-        |}) => ScreenListeners<EventMap, State>,
-    +initialParams?: $Shape<$ElementType<ParamList, RouteName>>,
+        |}) => ScreenListeners<State, EventMap>,
+    +initialParams?: $Partial<$ElementType<ParamList, RouteName>>,
   |};
 
   declare export type ScreenProps<
@@ -1175,7 +1208,7 @@ declare module '@react-navigation/bottom-tabs' {
     +styleInterpolator: StackHeaderStyleInterpolator,
   |};
 
-  declare export type StackHeaderLeftButtonProps = $Shape<{|
+  declare export type StackHeaderLeftButtonProps = $Partial<{|
     +onPress: (() => void),
     +pressColorAndroid: string;
     +backImage: (props: {| tintColor: string |}) => React$Node,
@@ -1203,7 +1236,7 @@ declare module '@react-navigation/bottom-tabs' {
   declare export type StackHeaderTitleInputProps =
     $Exact<StackHeaderTitleInputBase>;
 
-  declare export type StackOptions = $Shape<{|
+  declare export type StackOptions = $Partial<{|
     +title: string,
     +header: StackHeaderProps => React$Node,
     +headerShown: boolean,
@@ -1216,7 +1249,7 @@ declare module '@react-navigation/bottom-tabs' {
     +gestureEnabled: boolean,
     +gestureResponseDistance: {| vertical?: number, horizontal?: number |},
     +gestureVelocityImpact: number,
-    +safeAreaInsets: $Shape<EdgeInsets>,
+    +safeAreaInsets: $Partial<EdgeInsets>,
     // Transition
     ...TransitionPreset,
     // Header
@@ -1257,6 +1290,9 @@ declare module '@react-navigation/bottom-tabs' {
       +data: {| +closing: boolean |},
       +canPreventDefault: false,
     |},
+    +gestureStart: {| +data: void, +canPreventDefault: false |},
+    +gestureEnd: {| +data: void, +canPreventDefault: false |},
+    +gestureCancel: {| +data: void, +canPreventDefault: false |},
   |};
 
   declare type InexactStackNavigationProp<
@@ -1329,7 +1365,23 @@ declare module '@react-navigation/bottom-tabs' {
     +onPress?: (MouseEvent | PressEvent) => void,
   |};
 
-  declare export type BottomTabOptions = $Shape<{|
+  declare export type TabBarVisibilityAnimationConfig =
+    | {|
+        +animation: 'spring',
+        +config?: $Diff<
+          SpringAnimationConfigSingle,
+          { toValue: number | AnimatedValue, useNativeDriver: boolean, ... },
+        >,
+      |}
+    | {|
+        +animation: 'timing',
+        +config?: $Diff<
+          TimingAnimationConfigSingle,
+          { toValue: number | AnimatedValue, useNativeDriver: boolean, ... },
+        >,
+      |};
+
+  declare export type BottomTabOptions = $Partial<{|
     +title: string,
     +tabBarLabel:
       | string
@@ -1344,6 +1396,10 @@ declare module '@react-navigation/bottom-tabs' {
     +tabBarAccessibilityLabel: string,
     +tabBarTestID: string,
     +tabBarVisible: boolean,
+    +tabBarVisibilityAnimationConfig: $Partial<{|
+      +show: TabBarVisibilityAnimationConfig,
+      +hide: TabBarVisibilityAnimationConfig,
+    |}>,
     +tabBarButton: BottomTabBarButtonProps => React$Node,
     +unmountOnBlur: boolean,
   |}>;
@@ -1408,7 +1464,7 @@ declare module '@react-navigation/bottom-tabs' {
     BottomTabOptions,
   >;
 
-  declare export type BottomTabBarOptions = $Shape<{|
+  declare export type BottomTabBarOptions = $Partial<{|
     +keyboardHidesTabBar: boolean,
     +activeTintColor: string,
     +inactiveTintColor: string,
@@ -1422,7 +1478,7 @@ declare module '@react-navigation/bottom-tabs' {
     +tabStyle: ViewStyleProp,
     +labelPosition: 'beside-icon' | 'below-icon',
     +adaptive: boolean,
-    +safeAreaInsets: $Shape<EdgeInsets>,
+    +safeAreaInsets: $Partial<EdgeInsets>,
     +style: ViewStyleProp,
   |}>;
 
@@ -1441,6 +1497,7 @@ declare module '@react-navigation/bottom-tabs' {
     +lazy?: boolean,
     +tabBar?: BottomTabBarProps => React$Node,
     +tabBarOptions?: BottomTabBarOptions,
+    +detachInactiveScreens?: boolean,
   |};
 
   declare export type ExtraBottomTabNavigatorProps = {|
@@ -1460,7 +1517,7 @@ declare module '@react-navigation/bottom-tabs' {
    * Material bottom tab options
    */
 
-  declare export type MaterialBottomTabOptions = $Shape<{|
+  declare export type MaterialBottomTabOptions = $Partial<{|
     +title: string,
     +tabBarColor: string,
     +tabBarLabel: string,
@@ -1526,10 +1583,10 @@ declare module '@react-navigation/bottom-tabs' {
   |};
 
   declare export type PaperFonts = {|
-    +regular: Font,
-    +medium: Font,
-    +light: Font,
-    +thin: Font,
+    +regular: PaperFont,
+    +medium: PaperFont,
+    +light: PaperFont,
+    +thin: PaperFont,
   |};
 
   declare export type PaperTheme = {|
@@ -1607,7 +1664,7 @@ declare module '@react-navigation/bottom-tabs' {
    * Material top tab options
    */
 
-  declare export type MaterialTopTabOptions = $Shape<{|
+  declare export type MaterialTopTabOptions = $Partial<{|
     +title: string,
     +tabBarLabel:
       | string
@@ -1662,14 +1719,14 @@ declare module '@react-navigation/bottom-tabs' {
     +swipeEnabled: boolean,
     +swipeVelocityImpact?: number,
     +springVelocityScale?: number,
-    +springConfig: $Shape<{|
+    +springConfig: $Partial<{|
       +damping: number,
       +mass: number,
       +stiffness: number,
       +restSpeedThreshold: number,
       +restDisplacementThreshold: number,
     |}>,
-    +timingConfig: $Shape<{|
+    +timingConfig: $Partial<{|
       +duration: number,
     |}>,
   |};
@@ -1699,7 +1756,7 @@ declare module '@react-navigation/bottom-tabs' {
     +getTabWidth: number => number,
   |};
 
-  declare export type MaterialTopTabBarOptions = $Shape<{|
+  declare export type MaterialTopTabBarOptions = $Partial<{|
     +scrollEnabled: boolean,
     +bounces: boolean,
     +pressColor: string,
@@ -1745,7 +1802,7 @@ declare module '@react-navigation/bottom-tabs' {
     ...$Partial<MaterialTopTabPagerCommonProps>,
     +position?: any, // Reanimated.Value<number>
     +tabBarPosition?: 'top' | 'bottom',
-    +initialLayout?: $Shape<{| +width: number, +height: number |}>,
+    +initialLayout?: $Partial<{| +width: number, +height: number |}>,
     +lazy?: boolean,
     +lazyPreloadDistance?: number,
     +removeClippedSubviews?: boolean,
@@ -1776,7 +1833,7 @@ declare module '@react-navigation/bottom-tabs' {
    * Drawer options
    */
 
-  declare export type DrawerOptions = $Shape<{|
+  declare export type DrawerOptions = $Partial<{|
     title: string,
     drawerLabel:
       | string
@@ -1842,7 +1899,7 @@ declare module '@react-navigation/bottom-tabs' {
     DrawerOptions,
   >;
 
-  declare export type DrawerItemListBaseOptions = $Shape<{|
+  declare export type DrawerItemListBaseOptions = $Partial<{|
     +activeTintColor: string,
     +activeBackgroundColor: string,
     +inactiveTintColor: string,
@@ -1851,7 +1908,7 @@ declare module '@react-navigation/bottom-tabs' {
     +labelStyle: TextStyleProp,
   |}>;
 
-  declare export type DrawerContentOptions = $Shape<{|
+  declare export type DrawerContentOptions = $Partial<{|
     ...DrawerItemListBaseOptions,
     +contentContainerStyle: ViewStyleProp,
     +style: ViewStyleProp,
@@ -1884,6 +1941,7 @@ declare module '@react-navigation/bottom-tabs' {
     +drawerContentOptions?: DrawerContentOptions,
     +sceneContainerStyle?: ViewStyleProp,
     +drawerStyle?: ViewStyleProp,
+    +detachInactiveScreens?: boolean,
   |};
 
   declare export type ExtraDrawerNavigatorProps = {|
