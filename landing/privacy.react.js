@@ -7,13 +7,13 @@ import css from './landing.css';
 function Privacy(): React.Node {
   return (
     <div className={css.legal_container}>
-      <h1 className={css.legal}>Privacy Policy</h1>
+      <h1>Privacy Policy</h1>
 
       <p>
         Effective date: <strong>June 29, 2021</strong>
       </p>
 
-      <h2 className={css.legal}>Introduction</h2>
+      <h2>Introduction</h2>
 
       <p>
         We built Comm as a privacy-focused alternative to the cloud-based
@@ -34,7 +34,7 @@ function Privacy(): React.Node {
         </strong>
       </p>
 
-      <h2 className={css.legal}>Table of Contents</h2>
+      <h2>Table of Contents</h2>
 
       <ul>
         <li>
@@ -63,7 +63,7 @@ function Privacy(): React.Node {
         </li>
       </ul>
 
-      <h2 className={css.legal}>Information We Collect</h2>
+      <h2>Information We Collect</h2>
 
       <p>
         We collect the following categories of information, some of which might
@@ -197,11 +197,9 @@ function Privacy(): React.Node {
         key, as otherwise necessary to provide our Services.
       </p>
 
-      <h1 className={css.legal}>
-        Your Rights in the Personal Data You Provide to Us
-      </h1>
+      <h1>Your Rights in the Personal Data You Provide to Us</h1>
 
-      <h2 className={css.legal}>Your Rights</h2>
+      <h2>Your Rights</h2>
 
       <p>
         Under applicable data protection legislation, in certain circumstances,
@@ -251,14 +249,14 @@ function Privacy(): React.Node {
         </li>
       </ol>
 
-      <h2 className={css.legal}>Exercising Your Rights</h2>
+      <h2>Exercising Your Rights</h2>
 
       <p>
         If you wish to exercise any of these rights, please contact us using the
         details below.
       </p>
 
-      <h2 className={css.legal}>Deleting Your Data</h2>
+      <h2>Deleting Your Data</h2>
 
       <p>
         If you would like to delete your account, you can do this either by
@@ -273,7 +271,7 @@ function Privacy(): React.Node {
         to have access to and control over your Content.
       </p>
 
-      <h2 className={css.legal}>Changes to this Privacy Policy</h2>
+      <h2>Changes to this Privacy Policy</h2>
 
       <p>
         We may update this Privacy Policy from time to time. If you use the
@@ -283,7 +281,7 @@ function Privacy(): React.Node {
         collected.
       </p>
 
-      <h2 className={css.legal}>Terms of Use</h2>
+      <h2>Terms of Use</h2>
 
       <p>
         Remember that your use of Comm Technologies&apos; Services is at all
@@ -293,7 +291,7 @@ function Privacy(): React.Node {
         Use.
       </p>
 
-      <h2 className={css.legal}>Contact Information</h2>
+      <h2>Contact Information</h2>
 
       <p>
         If you have any questions or comments about this Privacy Policy, the

@@ -16,26 +16,23 @@ body {
 /* ===== TEXT STYLES ===== */
 h1 {
   font-size: 58px;
-  font-family: 'IBM Plex Mono', monospace;
-  font-weight: 500;
+  font-family: 'IBM Plex Sans', sans-serif;
 }
 
 h1.logo {
-  font-family: 'IBM Plex Sans', sans-serif;
   font-size: 32px;
   grid-area: logo;
 }
 
 h2 {
   font-size: 50px;
-  font-family: 'IBM Plex Mono', monospace;
-  font-weight: 500;
+  font-family: 'IBM Plex Sans', sans-serif;
 }
 
-/* Use sans-serif headers for legal pages (eg privacy policy) */
-h1.legal,
-h2.legal {
-  font-family: 'IBM Plex Sans', sans-serif;
+h1.mono,
+h2.mono {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
 }
 
 p,

@@ -80,7 +80,7 @@ function Home(): React.Node {
           />
         </div>
         <div className={`${css.hero_copy} ${css.section}`}>
-          <h1>
+          <h1 className={css.mono}>
             Reclaim your
             <span className={css.purple_accent}> digital&nbsp;identity.</span>
           </h1>
@@ -104,7 +104,7 @@ function Home(): React.Node {
           />
         </div>
         <div className={`${css.server_copy} ${css.section}`}>
-          <h2>Apps need servers.</h2>
+          <h2 className={css.mono}>Apps need servers.</h2>
           <p>
             Sophisticated applications rely on servers to do things that your
             devices simply can&apos;t.
@@ -117,7 +117,7 @@ function Home(): React.Node {
         </div>
 
         <div className={css.keyserver_company}>
-          <h1>
+          <h1 className={css.mono}>
             Comm is the <span className={css.purple_accent}>keyserver</span>{' '}
             company.
           </h1>
