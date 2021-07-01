@@ -13,6 +13,11 @@ body {
   padding: 0;
 }
 
+a {
+  transition: 0.2s;
+  text-decoration: none;
+}
+
 /* ===== TEXT STYLES ===== */
 h1 {
   font-size: 58px;
@@ -69,8 +74,6 @@ div.header_grid {
 
 div.header_grid a {
   color: white;
-  text-decoration: none;
-  transition: 0.2s;
 }
 div.header_grid a:hover {
   color: #7e57c2;
@@ -126,8 +129,6 @@ div.sitemap a {
   display: block;
   padding-bottom: 4px;
   color: #8a8f98;
-  transition: 0.2s;
-  text-decoration: none;
   width: max-content;
 }
 div.sitemap > a:hover {
@@ -159,8 +160,6 @@ div.legal_container {
 }
 div.legal_container a {
   color: #7e57c2;
-  text-decoration: none;
-  transition: 0.2s;
 }
 div.legal_container a:hover {
   color: #8c69c9;
