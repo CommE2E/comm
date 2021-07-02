@@ -439,7 +439,7 @@ index 9ae06db..35cc24e 100644
    versions['Flipper-PeerTalk'] ||= '~> 0.0.4'
    versions['Flipper-RSocket'] ||= '~> 1.1'
 diff --git a/node_modules/react-native/third-party-podspecs/Folly.podspec b/node_modules/react-native/third-party-podspecs/Folly.podspec
-index 35a0522..e7ba3ca 100644
+index 35a0522..f64af8b 100644
 --- a/node_modules/react-native/third-party-podspecs/Folly.podspec
 +++ b/node_modules/react-native/third-party-podspecs/Folly.podspec
 @@ -5,7 +5,7 @@
@@ -459,7 +459,7 @@ index 35a0522..e7ba3ca 100644
    spec.compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation'
    spec.source_files = 'folly/String.cpp',
                        'folly/Conv.cpp',
-@@ -23,6 +24,7 @@ Pod::Spec.new do |spec|
+@@ -23,12 +24,14 @@ Pod::Spec.new do |spec|
                        'folly/FileUtil.cpp',
                        'folly/Format.cpp',
                        'folly/lang/SafeAssert.cpp',
@@ -467,18 +467,36 @@ index 35a0522..e7ba3ca 100644
                        'folly/ScopeGuard.cpp',
                        'folly/Unicode.cpp',
                        'folly/dynamic.cpp',
-@@ -36,7 +38,9 @@ Pod::Spec.new do |spec|
+                       'folly/json.cpp',
+                       'folly/json_pointer.cpp',
+                       'folly/container/detail/F14Table.cpp',
++                      'folly/detail/Futex.cpp',
+                       'folly/detail/Demangle.cpp',
+                       'folly/detail/UniqueInstance.cpp',
+                       'folly/hash/SpookyHashV2.cpp',
+@@ -36,7 +39,10 @@ Pod::Spec.new do |spec|
                        'folly/lang/CString.cpp',
                        'folly/memory/detail/MallocImpl.cpp',
                        'folly/net/NetOps.cpp',
 -                      'folly/portability/SysUio.cpp'
 +                      'folly/portability/SysUio.cpp',
++                      'folly/synchronization/ParkingLot.cpp',
 +                      'folly/system/ThreadId.h',
 +                      'folly/system/ThreadId.cpp'
  
    # workaround for https://github.com/facebook/react-native/issues/14326
    spec.preserve_paths = 'folly/*.h',
-@@ -74,6 +78,7 @@ Pod::Spec.new do |spec|
+@@ -50,7 +56,8 @@ Pod::Spec.new do |spec|
+                         'folly/memory/detail/*.h',
+                         'folly/net/*.h',
+                         'folly/net/detail/*.h',
+-                        'folly/portability/*.h'
++                        'folly/portability/*.h',
++                        'folly/synchronization/*.h'
+   spec.libraries           = "stdc++"
+   spec.pod_target_xcconfig = { "USE_HEADERMAP" => "NO",
+                                "CLANG_CXX_LANGUAGE_STANDARD" => "c++14",
+@@ -74,6 +81,7 @@ Pod::Spec.new do |spec|
                              'folly/system/ThreadId.h'
    end
  
