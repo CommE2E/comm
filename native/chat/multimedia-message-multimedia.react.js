@@ -228,6 +228,11 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
       return;
     }
 
+    const visibleEntryIDs = this.visibleEntryIDs();
+    if (visibleEntryIDs.length === 0) {
+      return;
+    }
+
     const {
       view,
       props: { verticalBounds },
@@ -293,7 +298,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
           verticalBounds,
           location,
           margin,
-          visibleEntryIDs: this.visibleEntryIDs(),
+          visibleEntryIDs,
         },
       });
     });
