@@ -74,7 +74,7 @@ function ChatThreadListItem(props: Props) {
           key={sidebarInfo.threadInfo.id}
         />
       );
-    } else {
+    } else if (sidebarItem.type === 'seeMore') {
       return (
         <ChatThreadListSeeMoreSidebars
           threadInfo={item.threadInfo}
@@ -84,6 +84,8 @@ function ChatThreadListItem(props: Props) {
           key="seeMore"
         />
       );
+    } else {
+      return <div className={css.spacer} key="spacer" />;
     }
   });
 

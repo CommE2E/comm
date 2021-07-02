@@ -53,6 +53,7 @@ import { animateTowards } from '../utils/animation-utils';
 import {
   ChatThreadListItem,
   chatThreadListItemHeight,
+  spacerHeight,
 } from './chat-thread-list-item.react';
 import type {
   ChatTopTabsNavigationProp,
@@ -338,7 +339,12 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       return 123;
     }
 
-    return chatThreadListItemHeight + item.sidebars.length * 30;
+    let height = chatThreadListItemHeight;
+    height += item.sidebars.length * 30;
+    if (item.sidebars.length > 0) {
+      height += spacerHeight;
+    }
+    return height;
   }
 
   static heightOfItems(data: $ReadOnlyArray<Item>): number {

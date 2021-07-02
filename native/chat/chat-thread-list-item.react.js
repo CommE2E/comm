@@ -68,7 +68,7 @@ function ChatThreadListItem({
           key={sidebarItem.threadInfo.id}
         />
       );
-    } else {
+    } else if (sidebarItem.type === 'seeMore') {
       return (
         <ChatThreadListSeeMoreSidebars
           threadInfo={data.threadInfo}
@@ -78,6 +78,8 @@ function ChatThreadListItem({
           key="seeMore"
         />
       );
+    } else {
+      return <View style={styles.spacer} key="spacer" />;
     }
   });
 
@@ -137,6 +139,7 @@ function ChatThreadListItem({
 }
 
 const chatThreadListItemHeight = 70;
+const spacerHeight = 6;
 const unboundStyles = {
   container: {
     height: chatThreadListItemHeight,
@@ -184,6 +187,9 @@ const unboundStyles = {
     color: 'listForegroundLabel',
     fontWeight: 'bold',
   },
+  spacer: {
+    height: spacerHeight,
+  },
 };
 
-export { ChatThreadListItem, chatThreadListItemHeight };
+export { ChatThreadListItem, chatThreadListItemHeight, spacerHeight };
