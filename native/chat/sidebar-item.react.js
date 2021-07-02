@@ -60,7 +60,7 @@ const unboundStyles = {
     height: 30,
     flexDirection: 'row',
     display: 'flex',
-    paddingLeft: 40,
+    paddingLeft: 28,
     paddingRight: 18,
     alignItems: 'center',
     backgroundColor: 'listBackground',

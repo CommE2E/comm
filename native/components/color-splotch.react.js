@@ -33,8 +33,8 @@ const styles = StyleSheet.create({
     width: 6,
   },
   profile: {
-    height: 48,
-    width: 48,
+    height: 36,
+    width: 36,
   },
   small: {
     height: 18,
