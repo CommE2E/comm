@@ -82,13 +82,14 @@ function SidebarItem(props: Props) {
   );
 }
 
+const sidebarHeight = 30;
 const unboundStyles = {
   unread: {
     color: 'listForegroundLabel',
     fontWeight: 'bold',
   },
   sidebar: {
-    height: 30,
+    height: sidebarHeight,
     flexDirection: 'row',
     display: 'flex',
     paddingLeft: 28,
@@ -120,4 +121,4 @@ const unboundStyles = {
   },
 };
 
-export default SidebarItem;
+export { SidebarItem, sidebarHeight };

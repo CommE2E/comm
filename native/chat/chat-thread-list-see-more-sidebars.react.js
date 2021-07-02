@@ -8,6 +8,7 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 
 import Button from '../components/button.react';
 import { useColors, useStyles } from '../themes/colors';
+import { sidebarHeight } from './sidebar-item.react';
 
 type Props = {|
   +threadInfo: ThreadInfo,
@@ -46,7 +47,7 @@ const unboundStyles = {
     fontWeight: 'bold',
   },
   button: {
-    height: 30,
+    height: sidebarHeight,
     flexDirection: 'row',
     display: 'flex',
     paddingLeft: 28,

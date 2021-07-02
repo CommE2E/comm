@@ -16,7 +16,7 @@ import { useSelector } from '../redux/redux-utils';
 import { useIndicatorStyle } from '../themes/colors';
 import { waitForModalInputFocus } from '../utils/timers';
 import { useNavigateToThread } from './message-list-types';
-import SidebarItem from './sidebar-item.react';
+import { SidebarItem } from './sidebar-item.react';
 
 export type SidebarListModalParams = {|
   +threadInfo: ThreadInfo,

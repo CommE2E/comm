@@ -63,6 +63,7 @@ import {
   type MessageListParams,
   useNavigateToThread,
 } from './message-list-types';
+import { sidebarHeight } from './sidebar-item.react';
 
 const floatingActions = [
   {
@@ -340,7 +341,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     }
 
     let height = chatThreadListItemHeight;
-    height += item.sidebars.length * 30;
+    height += item.sidebars.length * sidebarHeight;
     if (item.sidebars.length > 0) {
       height += spacerHeight;
     }
