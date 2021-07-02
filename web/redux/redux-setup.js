@@ -152,6 +152,29 @@ function validateState(oldState: AppState, state: AppState): AppState {
   const activeThread = activeThreadSelector(state);
   if (
     activeThread &&
+    state.threadStore.threadInfos[activeThread].currentUser.unread &&
+    getVisibility().hidden()
+  ) {
+    console.warn(
+      `thread ${activeThread} is active and unread, ` +
+        'but visibilityjs reports the window is not visible',
+    );
+  }
+  if (
+    activeThread &&
+    state.threadStore.threadInfos[activeThread].currentUser.unread &&
+    typeof document !== 'undefined' &&
+    document &&
+    document.hasFocus &&
+    !document.hasFocus()
+  ) {
+    console.warn(
+      `thread ${activeThread} is active and unread, ` +
+        'but document.hasFocus() is false',
+    );
+  }
+  if (
+    activeThread &&
     !getVisibility().hidden() &&
     typeof document !== 'undefined' &&
     document &&
