@@ -592,13 +592,14 @@ async function sendIOSNotification(
   deviceTokens: $ReadOnlyArray<string>,
   notificationInfo: NotificationInfo,
 ): Promise<IOSResult> {
-  const response = await apnPush({ notification, deviceTokens });
+  const { source, codeVersion } = notificationInfo;
+  const response = await apnPush({ notification, deviceTokens, codeVersion });
   const delivery: IOSDelivery = {
-    source: notificationInfo.source,
+    source,
     deviceType: 'ios',
     iosID: notification.id,
     deviceTokens,
-    codeVersion: notificationInfo.codeVersion,
+    codeVersion,
   };
   if (response.errors) {
     delivery.errors = response.errors;
@@ -634,14 +635,20 @@ async function sendAndroidNotification(
   const collapseKey = notificationInfo.collapseKey
     ? notificationInfo.collapseKey
     : null; // for Flow...
-  const response = await fcmPush({ notification, deviceTokens, collapseKey });
+  const { source, codeVersion } = notificationInfo;
+  const response = await fcmPush({
+    notification,
+    deviceTokens,
+    collapseKey,
+    codeVersion,
+  });
   const androidIDs = response.fcmIDs ? response.fcmIDs : [];
   const delivery: AndroidDelivery = {
-    source: notificationInfo.source,
+    source,
     deviceType: 'android',
     androidIDs,
     deviceTokens,
-    codeVersion: notificationInfo.codeVersion,
+    codeVersion,
   };
   if (response.errors) {
     delivery.errors = response.errors;

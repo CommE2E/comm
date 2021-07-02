@@ -61,6 +61,7 @@ async function rescindPushNotifs(
         deliveryPromises[id] = apnPush({
           notification,
           deviceTokens: delivery.iosDeviceTokens,
+          codeVersion: null,
         });
         receivingDeviceTokens.push(...delivery.iosDeviceTokens);
       } else if (delivery.androidID) {
@@ -74,13 +75,18 @@ async function rescindPushNotifs(
         deliveryPromises[id] = fcmPush({
           notification,
           deviceTokens: delivery.androidDeviceTokens,
+          codeVersion: null,
         });
         receivingDeviceTokens.push(...delivery.androidDeviceTokens);
       } else if (delivery.deviceType === 'ios') {
         // New iOS
-        const { iosID, deviceTokens } = delivery;
+        const { iosID, deviceTokens, codeVersion } = delivery;
         const notification = prepareIOSNotification(iosID, row.unread_count);
-        deliveryPromises[id] = apnPush({ notification, deviceTokens });
+        deliveryPromises[id] = apnPush({
+          notification,
+          deviceTokens,
+          codeVersion,
+        });
         receivingDeviceTokens.push(...deviceTokens);
       } else if (delivery.deviceType === 'android') {
         // New Android
@@ -91,7 +97,11 @@ async function rescindPushNotifs(
           threadID,
           codeVersion,
         );
-        deliveryPromises[id] = fcmPush({ notification, deviceTokens });
+        deliveryPromises[id] = fcmPush({
+          notification,
+          deviceTokens,
+          codeVersion,
+        });
         receivingDeviceTokens.push(...deviceTokens);
       }
     }

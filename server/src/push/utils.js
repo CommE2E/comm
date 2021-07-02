@@ -1,63 +1,18 @@
 // @flow
 
 import apn from '@parse/node-apn';
-import fcmAdmin from 'firebase-admin';
 import invariant from 'invariant';
 
 import { threadSubscriptions } from 'lib/types/subscription-types';
 import { threadPermissions } from 'lib/types/thread-types';
 
 import { dbQuery, SQL } from '../database/database';
-
-let cachedAPNProvider = undefined;
-async function getAPNProvider() {
-  if (cachedAPNProvider !== undefined) {
-    return cachedAPNProvider;
-  }
-  try {
-    // $FlowFixMe
-    const apnConfig = await import('../../secrets/apn_config');
-    if (cachedAPNProvider === undefined) {
-      cachedAPNProvider = new apn.Provider(apnConfig.default);
-    }
-  } catch {
-    if (cachedAPNProvider === undefined) {
-      cachedAPNProvider = null;
-    }
-  }
-  return cachedAPNProvider;
-}
-
-let fcmAppInitialized = undefined;
-async function initializeFCMApp() {
-  if (fcmAppInitialized !== undefined) {
-    return fcmAppInitialized;
-  }
-  try {
-    // $FlowFixMe
-    const fcmConfig = await import('../../secrets/fcm_config');
-    if (fcmAppInitialized === undefined) {
-      fcmAppInitialized = true;
-      fcmAdmin.initializeApp({
-        credential: fcmAdmin.credential.cert(fcmConfig.default),
-      });
-    }
-  } catch {
-    if (cachedAPNProvider === undefined) {
-      fcmAppInitialized = false;
-    }
-  }
-  return fcmAppInitialized;
-}
-
-function endFirebase() {
-  fcmAdmin.apps?.forEach((app) => app?.delete());
-}
-
-async function endAPNs() {
-  const apnProvider = await getAPNProvider();
-  apnProvider?.shutdown();
-}
+import {
+  getAPNPushProfileForCodeVersion,
+  getFCMPushProfileForCodeVersion,
+  getAPNProvider,
+  getFCMProvider,
+} from './providers';
 
 const fcmTokenInvalidationErrors = new Set([
   'messaging/registration-token-not-registered',
@@ -70,16 +25,19 @@ const apnBadTokenErrorString = 'BadDeviceToken';
 async function apnPush({
   notification,
   deviceTokens,
+  codeVersion,
 }: {|
   +notification: apn.Notification,
   +deviceTokens: $ReadOnlyArray<string>,
+  +codeVersion: ?number,
 |}) {
-  const apnProvider = await getAPNProvider();
+  const pushProfile = getAPNPushProfileForCodeVersion(codeVersion);
+  const apnProvider = await getAPNProvider(pushProfile);
   if (!apnProvider && process.env.NODE_ENV === 'development') {
-    console.log('no server/secrets/apn_config.json so ignoring notifs');
+    console.log(`no server/secrets/${pushProfile}.json so ignoring notifs`);
     return { success: true };
   }
-  invariant(apnProvider, 'server/secrets/apn_config.json should exist');
+  invariant(apnProvider, `server/secrets/${pushProfile}.json should exist`);
   const result = await apnProvider.send(notification, deviceTokens);
   const errors = [];
   const invalidTokens = [];
@@ -106,17 +64,20 @@ async function fcmPush({
   notification,
   deviceTokens,
   collapseKey,
+  codeVersion,
 }: {|
   +notification: Object,
   +deviceTokens: $ReadOnlyArray<string>,
+  +codeVersion: ?number,
   +collapseKey?: ?string,
 |}) {
-  const initialized = await initializeFCMApp();
-  if (!initialized && process.env.NODE_ENV === 'development') {
-    console.log('no server/secrets/fcm_config.json so ignoring notifs');
+  const pushProfile = getFCMPushProfileForCodeVersion(codeVersion);
+  const fcmProvider = await getFCMProvider(pushProfile);
+  if (!fcmProvider && process.env.NODE_ENV === 'development') {
+    console.log(`no server/secrets/${pushProfile}.json so ignoring notifs`);
     return { success: true };
   }
-  invariant(initialized, 'server/secrets/fcm_config.json should exist');
+  invariant(fcmProvider, `server/secrets/${pushProfile}.json should exist`);
   const options: Object = {
     priority: 'high',
   };
@@ -130,7 +91,9 @@ async function fcmPush({
   // avoid the multicast functionality and call it once per deviceToken.
   const promises = [];
   for (const deviceToken of deviceTokens) {
-    promises.push(fcmSinglePush(notification, deviceToken, options));
+    promises.push(
+      fcmSinglePush(fcmProvider, notification, deviceToken, options),
+    );
   }
   const pushResults = await Promise.all(promises);
 
@@ -166,12 +129,13 @@ async function fcmPush({
 }
 
 async function fcmSinglePush(
+  provider: Object,
   notification: Object,
   deviceToken: string,
   options: Object,
 ) {
   try {
-    const deliveryResult = await fcmAdmin
+    const deliveryResult = await provider
       .messaging()
       .sendToDevice(deviceToken, notification, options);
     const errors = [];
@@ -216,4 +180,4 @@ async function getUnreadCounts(
   return usersToUnreadCounts;
 }
 
-export { apnPush, fcmPush, getUnreadCounts, endFirebase, endAPNs };
+export { apnPush, fcmPush, getUnreadCounts };

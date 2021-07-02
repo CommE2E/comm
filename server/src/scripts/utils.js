@@ -1,7 +1,7 @@
 // @flow
 
 import { getPool } from '../database/database';
-import { endFirebase, endAPNs } from '../push/utils';
+import { endFirebase, endAPNs } from '../push/providers';
 import { publisher } from '../socket/redis';
 
 function endScript() {
