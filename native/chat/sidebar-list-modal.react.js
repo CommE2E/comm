@@ -155,6 +155,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   sidebar: {
+    backgroundColor: 'transparent',
     paddingLeft: 0,
     paddingRight: 5,
   },
