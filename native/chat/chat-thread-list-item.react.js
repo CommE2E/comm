@@ -102,29 +102,31 @@ function ChatThreadListItem({
           iosFormat="highlight"
           iosHighlightUnderlayColor={colors.listIosHighlightUnderlay}
           iosActiveOpacity={0.85}
-          style={styles.row}
+          style={styles.container}
         >
-          <View style={styles.colorSplotch}>
-            <UnreadDot unread={data.threadInfo.currentUser.unread} />
-          </View>
-          <View style={styles.colorSplotch}>
-            <ColorSplotch color={data.threadInfo.color} size="profile" />
-          </View>
-          <View style={styles.container}>
-            <ThreadAncestorsLabel
-              threadInfo={data.threadInfo}
-              unread={data.threadInfo.currentUser.unread}
-            />
-            <View style={styles.row}>
-              <SingleLine style={[styles.threadName, unreadStyle]}>
-                {data.threadInfo.uiName}
-              </SingleLine>
+          <View style={styles.content}>
+            <View style={styles.colorSplotch}>
+              <UnreadDot unread={data.threadInfo.currentUser.unread} />
             </View>
-            <View style={styles.row}>
-              {lastMessage}
-              <Text style={[styles.lastActivity, unreadStyle]}>
-                {lastActivity}
-              </Text>
+            <View style={styles.colorSplotch}>
+              <ColorSplotch color={data.threadInfo.color} size="profile" />
+            </View>
+            <View style={styles.threadDetails}>
+              <ThreadAncestorsLabel
+                threadInfo={data.threadInfo}
+                unread={data.threadInfo.currentUser.unread}
+              />
+              <View style={styles.row}>
+                <SingleLine style={[styles.threadName, unreadStyle]}>
+                  {data.threadInfo.uiName}
+                </SingleLine>
+              </View>
+              <View style={styles.row}>
+                {lastMessage}
+                <Text style={[styles.lastActivity, unreadStyle]}>
+                  {lastActivity}
+                </Text>
+              </View>
             </View>
           </View>
         </Button>
@@ -134,18 +136,28 @@ function ChatThreadListItem({
   );
 }
 
-const chatThreadListItemHeight = 80;
+const chatThreadListItemHeight = 70;
 const unboundStyles = {
-  colorSplotch: {
-    marginLeft: 6,
-    marginBottom: 18,
-  },
   container: {
     height: chatThreadListItemHeight,
+    justifyContent: 'center',
+    backgroundColor: 'listBackground',
+  },
+  content: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  colorSplotch: {
+    marginLeft: 6,
+    marginBottom: 12,
+  },
+  threadDetails: {
     paddingLeft: 12,
     paddingRight: 18,
     justifyContent: 'center',
     flex: 1,
+    marginTop: 5,
   },
   lastActivity: {
     color: 'listForegroundTertiaryLabel',
@@ -162,7 +174,6 @@ const unboundStyles = {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'listBackground',
   },
   threadName: {
     color: 'listForegroundSecondaryLabel',
