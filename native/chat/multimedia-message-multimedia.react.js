@@ -212,7 +212,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   };
 
   visibleEntryIDs() {
-    const result = ['save'];
+    const result = [];
 
     if (this.props.item.threadCreatedFromMessage) {
       result.push('open_sidebar');
