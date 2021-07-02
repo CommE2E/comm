@@ -6,7 +6,7 @@ import Animated from 'react-native-reanimated';
 
 import { messageID } from 'lib/shared/message-utils';
 
-import { type InputState, InputStateContext } from '../input/input-state';
+import { InputStateContext } from '../input/input-state';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { TooltipRoute } from '../navigation/tooltip.react';
 import { useSelector } from '../redux/redux-utils';
@@ -19,71 +19,66 @@ import { getRoundedContainerStyle } from './rounded-corners';
 const { Value } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
-type BaseProps = {|
+type Props = {|
   +navigation: AppNavigationProp<'MultimediaTooltipModal'>,
   +route: TooltipRoute<'MultimediaTooltipModal'>,
   +progress: Value,
 |};
-type Props = {|
-  ...BaseProps,
-  // Redux state
-  +windowWidth: number,
-  // withInputState
-  +inputState: ?InputState,
-|};
-class MultimediaTooltipButton extends React.PureComponent<Props> {
-  get headerStyle() {
-    const { initialCoordinates, verticalOffset } = this.props.route.params;
+function MultimediaTooltipButton(props: Props): React.Node {
+  const windowWidth = useSelector((state) => state.dimensions.width);
+  const { progress } = props;
+  const { initialCoordinates, verticalOffset } = props.route.params;
+  const headerStyle = React.useMemo(() => {
     const bottom = initialCoordinates.height + verticalOffset;
     return {
-      opacity: this.props.progress,
+      opacity: progress,
       position: 'absolute',
       left: -initialCoordinates.x,
-      width: this.props.windowWidth,
+      width: windowWidth,
       bottom,
     };
-  }
+  }, [
+    initialCoordinates.height,
+    initialCoordinates.x,
+    progress,
+    verticalOffset,
+    windowWidth,
+  ]);
 
-  render() {
-    const { inputState } = this.props;
-    const { mediaInfo, item } = this.props.route.params;
+  const { mediaInfo, item } = props.route.params;
+  const { id: mediaID } = mediaInfo;
+  const ourMessageID = messageID(item.messageInfo);
+  const inputState = React.useContext(InputStateContext);
+  const pendingUploads =
+    inputState &&
+    inputState.pendingUploads &&
+    inputState.pendingUploads[ourMessageID];
+  const pendingUpload = pendingUploads && pendingUploads[mediaID];
+  const postInProgress = !!pendingUploads;
 
-    const { id: mediaID } = mediaInfo;
-    const ourMessageID = messageID(item.messageInfo);
-    const pendingUploads =
-      inputState &&
-      inputState.pendingUploads &&
-      inputState.pendingUploads[ourMessageID];
-    const pendingUpload = pendingUploads && pendingUploads[mediaID];
-    const postInProgress = !!pendingUploads;
+  const roundedStyle = getRoundedContainerStyle(
+    mediaInfo.corners,
+    multimediaMessageBorderRadius,
+  );
 
-    const roundedStyle = getRoundedContainerStyle(
-      mediaInfo.corners,
-      multimediaMessageBorderRadius,
-    );
-
-    return (
-      <React.Fragment>
-        <Animated.View style={this.headerStyle}>
-          <MessageHeader item={item} focused={true} display="modal" />
-        </Animated.View>
-        <View style={[styles.media, roundedStyle]}>
-          <InlineMultimedia
-            mediaInfo={mediaInfo}
-            onPress={this.onPress}
-            onLongPress={this.onPress}
-            postInProgress={postInProgress}
-            pendingUpload={pendingUpload}
-            spinnerColor="white"
-          />
-        </View>
-      </React.Fragment>
-    );
-  }
-
-  onPress = () => {
-    this.props.navigation.goBackOnce();
-  };
+  const { navigation } = props;
+  return (
+    <React.Fragment>
+      <Animated.View style={headerStyle}>
+        <MessageHeader item={item} focused={true} display="modal" />
+      </Animated.View>
+      <View style={[styles.media, roundedStyle]}>
+        <InlineMultimedia
+          mediaInfo={mediaInfo}
+          onPress={navigation.goBackOnce}
+          onLongPress={navigation.goBackOnce}
+          postInProgress={postInProgress}
+          pendingUpload={pendingUpload}
+          spinnerColor="white"
+        />
+      </View>
+    </React.Fragment>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -93,16 +88,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default React.memo<BaseProps>(function ConnectedMultimediaTooltipButton(
-  props: BaseProps,
-) {
-  const windowWidth = useSelector((state) => state.dimensions.width);
-  const inputState = React.useContext(InputStateContext);
-  return (
-    <MultimediaTooltipButton
-      {...props}
-      windowWidth={windowWidth}
-      inputState={inputState}
-    />
-  );
-});
+export default React.memo<Props>(MultimediaTooltipButton);
