@@ -482,7 +482,7 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - lottie-ios (from `../../node_modules/lottie-ios`)
   - lottie-react-native (from `../../node_modules/lottie-react-native`)
-  - OLMKit (from `../node_modules/olm`)
+  - OLMKit (from `../../node_modules/olm`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
   - React (from `../node_modules/react-native/`)
@@ -599,7 +599,7 @@ EXTERNAL SOURCES:
   lottie-react-native:
     :path: "../../node_modules/lottie-react-native"
   OLMKit:
-    :path: "../node_modules/olm"
+    :path: "../../node_modules/olm"
   RCTRequired:
     :path: "../node_modules/react-native/Libraries/RCTRequired"
   RCTTypeSafety:
@@ -745,7 +745,7 @@ SPEC CHECKSUMS:
   Flipper-RSocket: 127954abe8b162fcaf68d2134d34dc2bd7076154
   FlipperKit: 651f50a42eb95c01b3e89a60996dd6aded529eeb
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
-  Folly: 00d27e2e16cec51d7b55bb9d7224c193f29853c6
+  Folly: c3ac3a75964f7c9dfa0163cc80f5b639a116ca30
   glog: 40a13f7840415b9a77023fbcae0f1e6f43192af3
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   libwebp: e90b9c01d99205d03b6bb8f2c8c415e5a4ef66f0
@@ -820,6 +820,6 @@ SPEC CHECKSUMS:
   Yoga: 4bd86afe9883422a7c4028c00e34790f560923d6
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 8f8059edfc975934a0c3081447c954a2bebeaf07
+PODFILE CHECKSUM: 85fdfbf3b50f1814c23a136e76f57782706c0830
 
 COCOAPODS: 1.10.1
