@@ -67,10 +67,13 @@ const apnTokenInvalidationErrorCode = 410;
 const apnBadRequestErrorCode = 400;
 const apnBadTokenErrorString = 'BadDeviceToken';
 
-async function apnPush(
-  notification: apn.Notification,
-  deviceTokens: $ReadOnlyArray<string>,
-) {
+async function apnPush({
+  notification,
+  deviceTokens,
+}: {|
+  +notification: apn.Notification,
+  +deviceTokens: $ReadOnlyArray<string>,
+|}) {
   const apnProvider = await getAPNProvider();
   if (!apnProvider && process.env.NODE_ENV === 'development') {
     console.log('no server/secrets/apn_config.json so ignoring notifs');
@@ -99,11 +102,15 @@ async function apnPush(
   }
 }
 
-async function fcmPush(
-  notification: Object,
-  deviceTokens: $ReadOnlyArray<string>,
-  collapseKey: ?string,
-) {
+async function fcmPush({
+  notification,
+  deviceTokens,
+  collapseKey,
+}: {|
+  +notification: Object,
+  +deviceTokens: $ReadOnlyArray<string>,
+  +collapseKey?: ?string,
+|}) {
   const initialized = await initializeFCMApp();
   if (!initialized && process.env.NODE_ENV === 'development') {
     console.log('no server/secrets/fcm_config.json so ignoring notifs');
