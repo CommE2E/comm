@@ -73,14 +73,14 @@ const profileTabOptions = {
   tabBarLabel: 'Profile',
   // eslint-disable-next-line react/display-name
   tabBarIcon: ({ color }) => (
-    <Icon name="bars" style={[styles.icon, { color }]} />
+    <Icon name="user-circle" style={[styles.icon, { color }]} />
   ),
 };
 const appsTabOptions = {
   tabBarLabel: 'Apps',
   // eslint-disable-next-line react/display-name
   tabBarIcon: ({ color }) => (
-    <Icon name="wrench" style={[styles.icon, { color }]} />
+    <Icon name="cube" style={[styles.icon, { color }]} />
   ),
 };
 
