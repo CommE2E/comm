@@ -147,7 +147,10 @@ function Privacy(): React.Node {
             to access, view or control your Content.
           </strong>{' '}
           For more information on how Comm works, please{' '}
-          <a href="https://comm.app/how-it-works">click here</a>.
+          <a href="https://www.notion.so/How-Comm-works-d6217941db7c4237b9d08b427aef3234">
+            click here
+          </a>
+          .
         </li>
         <li>
           <strong>Anonymized Data.</strong> We may create aggregated,

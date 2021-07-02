@@ -71,7 +71,10 @@ function Terms(): React.Node {
         </strong>{' '}
         However, other Comm users may have access to and control over your
         Content. For more information on how Comm works, please{' '}
-        <a href="https://comm.app/how-it-works">click here</a>.
+        <a href="https://www.notion.so/How-Comm-works-d6217941db7c4237b9d08b427aef3234">
+          click here
+        </a>
+        .
       </p>
 
       <h2>Are there restrictions in how I can use the Services?</h2>
