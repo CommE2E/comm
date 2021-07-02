@@ -159,6 +159,11 @@ class TextMessage extends React.PureComponent<Props> {
       return;
     }
 
+    const visibleEntryIDs = this.visibleEntryIDs();
+    if (visibleEntryIDs.length === 0) {
+      return;
+    }
+
     const {
       message,
       props: { verticalBounds, linkPressActive },
@@ -206,7 +211,7 @@ class TextMessage extends React.PureComponent<Props> {
           presentedFrom: this.props.route.key,
           initialCoordinates: coordinates,
           verticalBounds,
-          visibleEntryIDs: this.visibleEntryIDs(),
+          visibleEntryIDs,
           location,
           margin,
           item,
