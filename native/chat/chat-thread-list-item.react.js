@@ -111,7 +111,10 @@ function ChatThreadListItem({
             <ColorSplotch color={data.threadInfo.color} size="profile" />
           </View>
           <View style={styles.container}>
-            <ThreadAncestorsLabel threadInfo={data.threadInfo} />
+            <ThreadAncestorsLabel
+              threadInfo={data.threadInfo}
+              unread={data.threadInfo.currentUser.unread}
+            />
             <View style={styles.row}>
               <SingleLine style={[styles.threadName, unreadStyle]}>
                 {data.threadInfo.uiName}

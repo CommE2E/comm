@@ -16,9 +16,10 @@ import { SingleLine } from './single-line.react';
 
 type Props = {|
   +threadInfo: ThreadInfo,
+  +unread: ?boolean,
 |};
 function ThreadAncestorsLabel(props: Props): React.Node {
-  const { threadInfo } = props;
+  const { unread, threadInfo } = props;
   const styles = useStyles(unboundStyles);
   const ancestorThreads: $ReadOnlyArray<ThreadInfo> = useSelector((state) => {
     if (!threadIsPending(threadInfo.id)) {
@@ -33,11 +34,15 @@ function ThreadAncestorsLabel(props: Props): React.Node {
     return path.join(' > ');
   }, [ancestorThreads]);
 
+  const ancestorPathStyle = React.useMemo(() => {
+    return unread ? [styles.pathText, styles.unread] : styles.pathText;
+  }, [styles.pathText, styles.unread, unread]);
+
   if (!ancestorPath) {
     return null;
   }
 
-  return <SingleLine style={styles.pathText}>{ancestorPath}</SingleLine>;
+  return <SingleLine style={ancestorPathStyle}>{ancestorPath}</SingleLine>;
 }
 
 const unboundStyles = {
@@ -45,6 +50,9 @@ const unboundStyles = {
     opacity: 0.8,
     fontSize: 12,
     color: 'listForegroundTertiaryLabel',
+  },
+  unread: {
+    color: 'listForegroundLabel',
   },
 };
 
