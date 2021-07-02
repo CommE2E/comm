@@ -1,26 +1,35 @@
 // @flow
 
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { SquircleView } from 'react-native-figma-squircle';
 
 type Props = {|
   +color: string,
   +size?: 'large' | 'small' | 'profile' | 'micro',
 |};
 function ColorSplotch(props: Props) {
-  const style = React.useMemo(() => {
-    const baseStyles = [styles.splotch, { backgroundColor: `#${props.color}` }];
-    if (props.size === 'small') {
-      return [...baseStyles, styles.small];
-    } else if (props.size === 'profile') {
-      return [...baseStyles, styles.profile];
-    } else if (props.size === 'micro') {
-      return [...baseStyles, styles.micro];
-    }
-    return [...baseStyles, styles.large];
-  }, [props.color, props.size]);
+  const { color, size } = props;
 
-  return <View style={style} />;
+  const style = React.useMemo(() => {
+    if (size === 'profile') {
+      return styles.profile;
+    } else if (size === 'micro') {
+      return styles.micro;
+    }
+    return styles.large;
+  }, [size]);
+
+  return (
+    <SquircleView
+      style={style}
+      squircleParams={{
+        cornerSmoothing: 0.95,
+        cornerRadius: 10,
+        fillColor: `#${color}`,
+      }}
+    />
+  );
 }
 
 const styles = StyleSheet.create({
@@ -35,13 +44,6 @@ const styles = StyleSheet.create({
   profile: {
     height: 36,
     width: 36,
-  },
-  small: {
-    height: 18,
-    width: 18,
-  },
-  splotch: {
-    borderRadius: 8,
   },
 });
 
