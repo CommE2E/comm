@@ -6,7 +6,8 @@ import { hot } from 'react-hot-loader/root';
 import Landing from './landing.react';
 
 function RootComponent() {
-  return <Landing />;
+  const currentURL = window.location.href;
+  return <Landing url={currentURL} />;
 }
 
 const HotReloadingRootComponent: React.ComponentType<{||}> = hot(RootComponent);

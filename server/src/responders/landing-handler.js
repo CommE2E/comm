@@ -7,6 +7,7 @@ import * as React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { promisify } from 'util';
 
+import { type LandingProps } from '../landing/landing.react';
 import { waitForStream } from '../utils/json-stream';
 import { getLandingURLFacts } from '../utils/urls';
 import { getMessageForException } from './utils';
@@ -66,7 +67,8 @@ async function getAssetInfo() {
   return assetInfo;
 }
 
-let webpackCompiledRootComponent: ?React.ComponentType<{||}> = null;
+type LandingApp = React.ComponentType<LandingProps>;
+let webpackCompiledRootComponent: ?LandingApp = null;
 async function getWebpackCompiledRootComponentForSSR() {
   if (webpackCompiledRootComponent) {
     return webpackCompiledRootComponent;
@@ -126,7 +128,7 @@ async function landingResponder(req: $Request, res: $Response) {
         <div id="react-root">
   `);
 
-  const reactStream = renderToNodeStream(<Landing />);
+  const reactStream = renderToNodeStream(<Landing url={req.url} />);
   reactStream.pipe(res, { end: false });
   await waitForStream(reactStream);
 

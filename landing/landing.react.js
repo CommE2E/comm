@@ -8,10 +8,21 @@ import Privacy from './privacy.react';
 import SubscriptionForm from './subscription-form.react';
 import Terms from './terms.react';
 
-export type ActivePage = 'home' | 'terms' | 'privacy';
+const validEndpoints = new Set(['privacy', 'terms']);
 
-function Landing(): React.Node {
-  const [activePage, setActivePage] = React.useState<ActivePage>('home');
+export type LandingProps = {|
+  +url: string,
+|};
+function Landing(props: LandingProps): React.Node {
+  const { url } = props;
+  const lastUrlElement = url.split('/').pop();
+
+  let initialPage = 'home';
+  if (validEndpoints.has(lastUrlElement)) {
+    initialPage = lastUrlElement;
+  }
+
+  const [activePage, setActivePage] = React.useState(initialPage);
   const navigateToHome = React.useCallback(() => setActivePage('home'), []);
   const navigateToTerms = React.useCallback(() => setActivePage('terms'), []);
   const navigateToPrivacy = React.useCallback(
