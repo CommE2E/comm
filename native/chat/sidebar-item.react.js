@@ -17,6 +17,7 @@ type Props = {|
   +sidebarInfo: SidebarInfo,
   +onPressItem: (threadInfo: ThreadInfo) => void,
   +style?: ?ViewStyle,
+  +unreadIndicator?: boolean,
 |};
 function SidebarItem(props: Props) {
   const { lastUpdatedTime } = props.sidebarInfo;
@@ -33,16 +34,46 @@ function SidebarItem(props: Props) {
   ]);
 
   const colors = useColors();
+
+  const { unreadIndicator } = props;
+  const sidebarStyle = React.useMemo(() => {
+    if (unreadIndicator) {
+      return [styles.sidebar, styles.sidebarWithUnreadIndicator, props.style];
+    }
+    return [styles.sidebar, props.style];
+  }, [
+    props.style,
+    styles.sidebar,
+    styles.sidebarWithUnreadIndicator,
+    unreadIndicator,
+  ]);
+
+  const sidebarIconStyle = React.useMemo(() => {
+    if (unreadIndicator) {
+      return [styles.sidebarIcon, styles.sidebarIconWithUnreadIndicator];
+    }
+    return styles.sidebarIcon;
+  }, [
+    styles.sidebarIcon,
+    styles.sidebarIconWithUnreadIndicator,
+    unreadIndicator,
+  ]);
+
+  let unreadDot;
+  if (unreadIndicator) {
+    unreadDot = <UnreadDot unread={threadInfo.currentUser.unread} />;
+  }
+
   return (
     <Button
       iosFormat="highlight"
       iosHighlightUnderlayColor={colors.listIosHighlightUnderlay}
       iosActiveOpacity={0.85}
-      style={[styles.sidebar, props.style]}
+      style={sidebarStyle}
       onPress={onPress}
     >
-      <UnreadDot unread={threadInfo.currentUser.unread} />
-      <Icon name="align-right" style={styles.icon} size={24} />
+      {unreadDot}
+      <Icon name="align-right" style={sidebarIconStyle} size={24} />
       <SingleLine style={[styles.name, unreadStyle]}>
         {threadInfo.uiName}
       </SingleLine>
@@ -65,9 +96,15 @@ const unboundStyles = {
     alignItems: 'center',
     backgroundColor: 'listBackground',
   },
-  icon: {
+  sidebarWithUnreadIndicator: {
+    paddingLeft: 6,
+  },
+  sidebarIcon: {
     paddingRight: 5,
     color: 'listForegroundSecondaryLabel',
+  },
+  sidebarIconWithUnreadIndicator: {
+    paddingLeft: 22,
   },
   name: {
     color: 'listForegroundSecondaryLabel',

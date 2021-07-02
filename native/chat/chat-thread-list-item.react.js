@@ -138,7 +138,7 @@ const chatThreadListItemHeight = 80;
 const unboundStyles = {
   colorSplotch: {
     marginLeft: 6,
-    marginBottom: 14,
+    marginBottom: 18,
   },
   container: {
     height: chatThreadListItemHeight,

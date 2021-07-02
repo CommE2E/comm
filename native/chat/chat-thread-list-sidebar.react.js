@@ -28,7 +28,11 @@ function ChatThreadListSidebar(props: Props) {
       currentlyOpenedSwipeableId={currentlyOpenedSwipeableId}
       iconSize={16}
     >
-      <SidebarItem sidebarInfo={sidebarInfo} onPressItem={onPressItem} />
+      <SidebarItem
+        sidebarInfo={sidebarInfo}
+        onPressItem={onPressItem}
+        unreadIndicator={true}
+      />
     </SwipeableThread>
   );
 }
