@@ -69,7 +69,9 @@ export type RootRouterNavigationProp<
 |};
 
 type ResetStateRoute = {
+  +name: string,
   +state?: { +routes: $ReadOnlyArray<ResetStateRoute> },
+  ...
 };
 function resetState<Route: ResetStateRoute>(
   newPartialRoute: Route,
@@ -86,10 +88,19 @@ function resetState<Route: ResetStateRoute>(
   invariant(oldRoute.state, 'resetState found non-matching state');
 
   const routes = [];
-  for (let i = 0; i < newPartialRoute.state.routes.length; i++) {
-    routes.push(
-      resetState(newPartialRoute.state.routes[i], oldRoute.state.routes[i]),
-    );
+  let newRouteIndex = 0;
+  let oldRouteIndex = 0;
+  while (newRouteIndex < newPartialRoute.state.routes.length) {
+    const newSubroute = newPartialRoute.state.routes[newRouteIndex];
+    let oldSubroute = oldRoute.state.routes[oldRouteIndex];
+    invariant(oldSubroute, 'resetState found a missing oldRoute');
+    while (oldSubroute.name !== newSubroute.name) {
+      oldRouteIndex++;
+      oldSubroute = oldRoute.state.routes[oldRouteIndex];
+    }
+    routes.push(resetState(newSubroute, oldSubroute));
+    newRouteIndex++;
+    oldRouteIndex++;
   }
 
   let newState = {
