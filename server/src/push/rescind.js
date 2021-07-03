@@ -9,6 +9,7 @@ import { promiseAll } from 'lib/utils/promises';
 
 import createIDs from '../creators/id-creator';
 import { dbQuery, SQL, SQLStatement } from '../database/database';
+import { getAPNsNotificationTopic } from './providers';
 import { apnPush, fcmPush } from './utils';
 
 // Returns list of deviceTokens that have been updated
@@ -81,7 +82,11 @@ async function rescindPushNotifs(
       } else if (delivery.deviceType === 'ios') {
         // New iOS
         const { iosID, deviceTokens, codeVersion } = delivery;
-        const notification = prepareIOSNotification(iosID, row.unread_count);
+        const notification = prepareIOSNotification(
+          iosID,
+          row.unread_count,
+          codeVersion,
+        );
         deliveryPromises[id] = apnPush({
           notification,
           deviceTokens,
@@ -160,11 +165,12 @@ async function rescindPushNotifs(
 function prepareIOSNotification(
   iosID: string,
   unreadCount: number,
+  codeVersion: ?number,
 ): apn.Notification {
   const notification = new apn.Notification();
   notification.contentAvailable = true;
   notification.badge = unreadCount;
-  notification.topic = 'org.squadcal.app';
+  notification.topic = getAPNsNotificationTopic(codeVersion);
   notification.payload = {
     managedAps: {
       action: 'CLEAR',

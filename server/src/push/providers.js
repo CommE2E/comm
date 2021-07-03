@@ -71,6 +71,10 @@ function endAPNs() {
   }
 }
 
+function getAPNsNotificationTopic(codeVersion: ?number): string {
+  return codeVersion && codeVersion >= 87 ? 'app.comm' : 'org.squadcal.app';
+}
+
 export {
   getAPNPushProfileForCodeVersion,
   getFCMPushProfileForCodeVersion,
@@ -78,4 +82,5 @@ export {
   getFCMProvider,
   endFirebase,
   endAPNs,
+  getAPNsNotificationTopic,
 };

@@ -37,6 +37,7 @@ import { fetchCollapsableNotifs } from '../fetchers/message-fetchers';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
 import { fetchUserInfos } from '../fetchers/user-fetchers';
 import type { Viewer } from '../session/viewer';
+import { getAPNsNotificationTopic } from './providers';
 import { apnPush, fcmPush, getUnreadCounts } from './utils';
 
 type Device = {|
@@ -162,6 +163,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
             notifInfo.collapseKey,
             badgeOnly,
             unreadCounts[userID],
+            codeVersion,
           );
           deliveryPromises.push(
             sendIOSNotification(notification, [...deviceTokens], {
@@ -463,10 +465,11 @@ function prepareIOSNotification(
   collapseKey: ?string,
   badgeOnly: boolean,
   unreadCount: number,
+  codeVersion: ?number,
 ): apn.Notification {
   const uniqueID = uuidv4();
   const notification = new apn.Notification();
-  notification.topic = 'org.squadcal.app';
+  notification.topic = getAPNsNotificationTopic(codeVersion);
 
   const { merged, ...rest } = notifTextsForMessageInfo(
     allMessageInfos,
@@ -769,7 +772,7 @@ async function updateBadgeCount(
     for (const [codeVer, deviceTokens] of iosVersionsToTokens) {
       const codeVersion = parseInt(codeVer, 10); // only for Flow
       const notification = new apn.Notification();
-      notification.topic = 'org.squadcal.app';
+      notification.topic = getAPNsNotificationTopic(codeVersion);
       notification.badge = unreadCount;
       notification.pushType = 'alert';
       deliveryPromises.push(
