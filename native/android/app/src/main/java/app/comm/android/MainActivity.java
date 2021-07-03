@@ -1,4 +1,4 @@
-package app.comm;
+package app.comm.android;
 
 import com.facebook.react.ReactFragmentActivity;
 import android.os.Bundle;

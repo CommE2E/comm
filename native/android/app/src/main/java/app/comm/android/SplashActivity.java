@@ -1,4 +1,4 @@
-package app.comm;
+package app.comm.android;
 
 import android.content.Intent;
 import android.os.Bundle;

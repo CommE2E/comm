@@ -1,4 +1,4 @@
-package app.comm;
+package app.comm.android;
 
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.NativeModule;

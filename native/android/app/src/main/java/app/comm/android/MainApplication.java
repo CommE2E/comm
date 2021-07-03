@@ -1,6 +1,6 @@
-package app.comm;
+package app.comm.android;
 
-import app.comm.generated.BasePackageList;
+import app.comm.android.generated.BasePackageList;
 
 import androidx.multidex.MultiDexApplication;
 import android.content.Context;
@@ -107,7 +107,7 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
       try {
         // We use reflection here to pick up the class that initializes Flipper,
         // since Flipper library is not available in release mode
-        Class<?> aClass = Class.forName("app.comm.ReactNativeFlipper");
+        Class<?> aClass = Class.forName("app.comm.android.ReactNativeFlipper");
         aClass
           .getMethod(
             "initializeFlipper",

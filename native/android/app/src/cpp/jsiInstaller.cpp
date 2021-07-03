@@ -11,7 +11,7 @@ namespace react = facebook::react;
 
 class CommHybrid : public jni::HybridClass<CommHybrid> {
 public:
-  static auto constexpr kJavaDescriptor = "Lapp/comm/fbjni/CommHybrid;";
+  static auto constexpr kJavaDescriptor = "Lapp/comm/android/fbjni/CommHybrid;";
 
   static void initHybrid(
       jni::alias_ref<jhybridobject> jThis,

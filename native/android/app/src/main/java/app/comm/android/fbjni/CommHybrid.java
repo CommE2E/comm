@@ -1,4 +1,4 @@
-package app.comm.fbjni;
+package app.comm.android.fbjni;
 
 import android.content.Context;
 

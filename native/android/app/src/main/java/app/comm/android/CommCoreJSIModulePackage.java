@@ -1,4 +1,4 @@
-package app.comm;
+package app.comm.android;
 
 import com.facebook.react.bridge.JSIModulePackage;
 import com.facebook.react.bridge.JSIModuleSpec;
@@ -6,7 +6,7 @@ import com.facebook.react.bridge.JavaScriptContextHolder;
 import com.facebook.react.bridge.ReactApplicationContext;
 import java.util.Collections;
 import java.util.List;
-import app.comm.fbjni.CommHybrid;
+import app.comm.android.fbjni.CommHybrid;
 
 public class CommCoreJSIModulePackage implements JSIModulePackage {
   @Override

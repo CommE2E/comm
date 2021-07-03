@@ -279,7 +279,7 @@ android {
     }
 
     defaultConfig {
-        applicationId 'app.comm'
+        applicationId 'app.comm.android'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 88
