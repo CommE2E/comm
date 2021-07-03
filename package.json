@@ -13,7 +13,8 @@
     "cleaninstall": "yarn clean && yarn",
     "eslint": "eslint .",
     "eslint:fix": "eslint --fix .",
-    "clang-format-all": "clang-format -i native/cpp/CommonCpp/**/*.cpp native/cpp/CommonCpp/**/*.h native/android/app/src/cpp/*"
+    "clang-format-all": "clang-format -i native/cpp/CommonCpp/**/*.cpp native/cpp/CommonCpp/**/*.h native/android/app/src/cpp/*",
+    "prepare": "husky install"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
@@ -29,13 +30,8 @@
     "eslint-plugin-react": "^7.19.0",
     "eslint-plugin-react-hooks": "^2.5.1",
     "eslint-plugin-react-native": "^3.8.1",
-    "husky": "^4.2.3",
+    "husky": "^7.0.0",
     "lint-staged": "^10.0.8",
     "prettier": "^2.1.2"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   }
 }
