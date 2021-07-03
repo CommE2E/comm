@@ -6,9 +6,10 @@ import Home from './home.react';
 import css from './landing.css';
 import Privacy from './privacy.react';
 import SubscriptionForm from './subscription-form.react';
+import Support from './support.react';
 import Terms from './terms.react';
 
-const validEndpoints = new Set(['privacy', 'terms']);
+const validEndpoints = new Set(['privacy', 'terms', 'support']);
 
 export type LandingProps = {|
   +url: string,
@@ -29,6 +30,10 @@ function Landing(props: LandingProps): React.Node {
     () => setActivePage('privacy'),
     [],
   );
+  const navigateToSupport = React.useCallback(
+    () => setActivePage('support'),
+    [],
+  );
 
   let visibleNode;
   if (activePage === 'home') {
@@ -37,6 +42,8 @@ function Landing(props: LandingProps): React.Node {
     visibleNode = <Terms />;
   } else if (activePage === 'privacy') {
     visibleNode = <Privacy />;
+  } else if (activePage === 'support') {
+    visibleNode = <Support />;
   }
 
   return (
@@ -56,6 +63,9 @@ function Landing(props: LandingProps): React.Node {
               </a>
             </div>
 
+            <a href="#" onClick={navigateToSupport}>
+              Support
+            </a>
             <a href="#" onClick={navigateToTerms}>
               Terms of Use
             </a>
