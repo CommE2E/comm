@@ -154,7 +154,7 @@ function RootRouter(
           return lastState;
         }
         return removeScreensFromStack(
-          resetFirstRoute(lastState),
+          lastState,
           (route: PossiblyStaleRoute<>) =>
             accountModals.includes(route.name) ? 'remove' : 'keep',
         );
