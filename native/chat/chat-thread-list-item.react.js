@@ -87,8 +87,28 @@ function ChatThreadListItem({
     onPressItem(data.threadInfo, data.pendingPersonalThreadUserInfo);
   }, [onPressItem, data.threadInfo, data.pendingPersonalThreadUserInfo]);
 
+  const threadNameStyle = React.useMemo(() => {
+    if (!data.threadInfo.currentUser.unread) {
+      return styles.threadName;
+    }
+    return [styles.threadName, styles.unreadThreadName];
+  }, [
+    data.threadInfo.currentUser.unread,
+    styles.threadName,
+    styles.unreadThreadName,
+  ]);
+
   const lastActivity = shortAbsoluteDate(data.lastUpdatedTime);
-  const unreadStyle = data.threadInfo.currentUser.unread ? styles.unread : null;
+  const lastActivityStyle = React.useMemo(() => {
+    if (!data.threadInfo.currentUser.unread) {
+      return styles.lastActivity;
+    }
+    return [styles.lastActivity, styles.unreadLastActivity];
+  }, [
+    data.threadInfo.currentUser.unread,
+    styles.lastActivity,
+    styles.unreadLastActivity,
+  ]);
 
   return (
     <>
@@ -119,15 +139,13 @@ function ChatThreadListItem({
                 unread={data.threadInfo.currentUser.unread}
               />
               <View style={styles.row}>
-                <SingleLine style={[styles.threadName, unreadStyle]}>
+                <SingleLine style={threadNameStyle}>
                   {data.threadInfo.uiName}
                 </SingleLine>
               </View>
               <View style={styles.row}>
                 {lastMessage}
-                <Text style={[styles.lastActivity, unreadStyle]}>
-                  {lastActivity}
-                </Text>
+                <Text style={lastActivityStyle}>{lastActivity}</Text>
               </View>
             </View>
           </View>
@@ -167,6 +185,10 @@ const unboundStyles = {
     fontSize: 14,
     marginLeft: 10,
   },
+  unreadLastActivity: {
+    color: 'listForegroundLabel',
+    fontWeight: 'bold',
+  },
   noMessages: {
     color: 'listForegroundTertiaryLabel',
     flex: 1,
@@ -183,9 +205,9 @@ const unboundStyles = {
     flex: 1,
     fontSize: 18,
   },
-  unread: {
+  unreadThreadName: {
     color: 'listForegroundLabel',
-    fontWeight: 'bold',
+    fontWeight: '500',
   },
   spacer: {
     height: spacerHeight,

@@ -86,6 +86,7 @@ const unboundStyles = {
     height: inlineSidebarHeight,
   },
   unread: {
+    color: 'listForegroundLabel',
     fontWeight: 'bold',
   },
   sidebar: {
