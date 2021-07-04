@@ -203,7 +203,7 @@ const unboundStyles = {
   threadName: {
     color: 'listForegroundSecondaryLabel',
     flex: 1,
-    fontSize: 18,
+    fontSize: 21,
   },
   unreadThreadName: {
     color: 'listForegroundLabel',
