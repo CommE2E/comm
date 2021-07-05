@@ -157,6 +157,16 @@ div.legal_container {
   padding-left: 60px;
   padding-right: 60px;
 }
+div.legal_container h1 {
+  font-size: 42px;
+}
+div.legal_container h2 {
+  font-size: 38px;
+}
+div.legal_container p,
+li {
+  font-size: 20px;
+}
 div.legal_container a {
   color: #7e57c2;
 }
@@ -197,6 +207,17 @@ div.body_grid > div + .starting_section {
   p,
   li {
     font-size: 20px;
+  }
+  /* ===== LEGAL PAGE STYLING ===== */
+  div.legal_container h1 {
+    font-size: 28px;
+  }
+  div.legal_container h2 {
+    font-size: 24px;
+  }
+  div.legal_container p,
+  li {
+    font-size: 16px;
   }
 }
 
