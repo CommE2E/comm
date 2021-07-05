@@ -36,11 +36,11 @@ su $DAEMON_USER -c "cd server && PORT=3001 timeout 60 bash/run-prod.sh"
 set -e
 
 # STEP 3: flip it over
-systemctl stop squadcal || true
+systemctl stop comm || true
 rm "$1"
 ln -s "$CHECKOUT_PATH" "$1"
 chown -h $DAEMON_USER:$DAEMON_USER "$1"
-systemctl restart squadcal
+systemctl restart comm
 
 # STEP 4: clean out old checkouts
 checkouts=($(ls -dtr "$1".*))
