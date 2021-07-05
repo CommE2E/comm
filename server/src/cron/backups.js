@@ -40,7 +40,7 @@ async function backupDB() {
   }
 
   const dateString = dateFormat('yyyy-mm-dd-HH:MM');
-  const filename = `squadcal.${dateString}.sql.gz`;
+  const filename = `comm.${dateString}.sql.gz`;
   const filePath = `${backupConfig.directory}/${filename}`;
 
   const mysqlDump = childProcess.spawn(
@@ -146,7 +146,7 @@ async function deleteOldestBackup() {
   const files = await readdir(backupConfig.directory);
   let oldestFile;
   for (const file of files) {
-    if (!file.endsWith('.sql.gz') || !file.startsWith('squadcal.')) {
+    if (!file.endsWith('.sql.gz') || !file.startsWith('comm.')) {
       continue;
     }
     const stat = await lstat(`${backupConfig.directory}/${file}`);
