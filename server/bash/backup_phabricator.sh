@@ -10,7 +10,7 @@ PHABRICATOR_PATH=/var/www/phacility/phabricator
 BACKUP_PATH=/mnt/backup
 
 # The user that will be owning the backup files
-BACKUP_USER=squadcal
+BACKUP_USER=comm
 
 # The maximum amount of space to spend on Phabricator backups
 MAX_DISK_USAGE_KB=204800 # 200 MiB

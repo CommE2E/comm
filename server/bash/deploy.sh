@@ -10,7 +10,7 @@
 MAX_DISK_USAGE_KB=3145728 # 3 GiB
 
 # The user that spawns the Node server
-DAEMON_USER=squadcal
+DAEMON_USER=comm
 
 # Input to git clone
 GIT_CLONE_PARAMS=https://github.com/CommE2E/comm.git
