@@ -155,12 +155,14 @@ function RobotextMessage(props: Props) {
   );
 
   const onLongPress = React.useCallback(() => {
-    if (visibleEntryIDs.length === 0) {
-      return;
-    }
     if (keyboardState && keyboardState.dismissKeyboardIfShowing()) {
       return;
     }
+
+    if (visibleEntryIDs.length === 0) {
+      return;
+    }
+
     if (!viewRef.current || !verticalBounds) {
       return;
     }
