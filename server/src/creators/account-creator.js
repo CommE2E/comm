@@ -40,7 +40,7 @@ import {
 const { commbot } = bots;
 
 const ashoatMessages = [
-  'welcome to SquadCal! thanks for helping to test the alpha.',
+  'welcome to Comm!',
   'as you inevitably discover bugs, have feature requests, or design ' +
     'suggestions, feel free to message them to me in the app.',
 ];
