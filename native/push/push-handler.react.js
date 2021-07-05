@@ -147,7 +147,7 @@ class PushHandler extends React.PureComponent<Props, State> {
         androidNotificationChannelID,
         'Default',
         firebase.notifications.Android.Importance.Max,
-      ).setDescription('SquadCal notifications channel');
+      ).setDescription('Comm notifications channel');
       firebase.notifications().android.createChannel(channel);
       this.androidTokenListener = firebase
         .messaging()
@@ -421,8 +421,8 @@ class PushHandler extends React.PureComponent<Props, State> {
     if (deviceType === 'ios') {
       Alert.alert(
         'Need notif permissions',
-        'SquadCal needs notification permissions to keep you in the loop! ' +
-          'Please enable in Settings App -> Notifications -> SquadCal.',
+        'Comm needs notification permissions to keep you in the loop! ' +
+          'Please enable in Settings App -> Notifications -> Comm.',
         [{ text: 'OK' }],
       );
     } else if (deviceType === 'android') {
