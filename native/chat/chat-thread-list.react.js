@@ -448,7 +448,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
           actions={floatingActions}
           overrideWithAction
           onPressItem={this.composeThread}
-          color="#66AA66"
+          color="#7e57c2"
         />
       );
     }
