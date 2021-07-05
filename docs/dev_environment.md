@@ -496,7 +496,7 @@ Your `landing_url.json` file should look like this:
 
 The last configuration step is to set up an account on Phabricator, where we handle code review. Start by [logging in to Phabricator](https://phabricator.ashoat.com) using your GitHub account.
 
-Next, make sure you’re inside the directory containing the SquadCal Git repository, and run the following command:
+Next, make sure you’re inside the directory containing the Comm Git repository, and run the following command:
 
 ```
 arc install-certificate
@@ -577,7 +577,7 @@ yarn dev
 
 This command runs two processes. The first is the Metro bundler, which handles bundling our app's JavaScript code and communicating with the debug build of the app running on either the simulator or a physical device. The second is the `remotedev-server` for Redux, which is a proxy of sorts through which the Redux monitor (running in the Chrome extension) can communicate with the debug build of the app.
 
-Next, open `native/ios/SquadCal.xcworkspace` in Xcode. Select a simulator and then hit the play button to build and run the project.
+Next, open `native/ios/Comm.xcworkspace` in Xcode. Select a simulator and then hit the play button to build and run the project.
 
 ## Running Android
 
@@ -625,7 +625,7 @@ yarn react-native run-android
 
 The biggest difference between GitHub’s PR workflow and Phabricator’s “diff” workflow is that Phabricator lets you create a diff from any commit, or set of commits. In contrast, GitHub can only create PRs from branches.
 
-When you have a commit ready and want to submit a diff for code review, just run `arc diff` from within the SquadCal Git repo. Arcanist will attempt to determine the “base” for your diff automatically, but by default it will take the single most recent commit. You can see what base Arcanist thinks it should use by running `arc which`. You can also explicitly specify a base by using `arc diff --base`. For instance, `arc diff --base HEAD^` will create a diff from the most recent commit, which should be the default behavior.
+When you have a commit ready and want to submit a diff for code review, just run `arc diff` from within the Comm Git repo. Arcanist will attempt to determine the “base” for your diff automatically, but by default it will take the single most recent commit. You can see what base Arcanist thinks it should use by running `arc which`. You can also explicitly specify a base by using `arc diff --base`. For instance, `arc diff --base HEAD^` will create a diff from the most recent commit, which should be the default behavior.
 
 Keep in mind that `arc diff` always diffs the base against your current working copy. Though this nominally includes any unstashed changes you might have, `arc diff`’s interactive prompts will help you exclude unrelated changes in your working copy.
 
