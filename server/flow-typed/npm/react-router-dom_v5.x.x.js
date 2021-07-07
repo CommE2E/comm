@@ -1,5 +1,5 @@
-// flow-typed signature: 5c3ecc173e04f53b410aa08d80e28aa2
-// flow-typed version: cb4e8f3aa2/react-router-dom_v5.x.x/flow_>=v0.98.x <=v0.103.x
+// flow-typed signature: 2d02538a529a09fdbf202a871fbb5c75
+// flow-typed version: 5f4b3cb313/react-router-dom_v5.x.x/flow_>=v0.104.x
 
 declare module "react-router-dom" {
   declare export var BrowserRouter: React$ComponentType<{|
@@ -18,39 +18,43 @@ declare module "react-router-dom" {
   |}>
 
   declare export var Link: React$ComponentType<{
-    className?: string,
-    to: string | LocationShape,
-    replace?: boolean,
-    children?: React$Node
+    +className?: string,
+    +to: string | LocationShape,
+    +replace?: boolean,
+    +children?: React$Node,
+    ...
   }>
 
   declare export var NavLink: React$ComponentType<{
-    to: string | LocationShape,
-    activeClassName?: string,
-    className?: string,
-    activeStyle?: { +[string]: mixed },
-    style?: { +[string]: mixed },
-    isActive?: (match: Match, location: Location) => boolean,
-    children?: React$Node,
-    exact?: boolean,
-    strict?: boolean
+    +to: string | LocationShape,
+    +activeClassName?: string,
+    +className?: string,
+    +activeStyle?: { +[string]: mixed, ... },
+    +style?: { +[string]: mixed, ... },
+    +isActive?: (match: Match, location: Location) => boolean,
+    +children?: React$Node,
+    +exact?: boolean,
+    +strict?: boolean,
+    ...
   }>
 
   // NOTE: Below are duplicated from react-router. If updating these, please
   // update the react-router and react-router-native types as well.
-  declare export type Location = {
+  declare export type Location = $ReadOnly<{
     pathname: string,
     search: string,
     hash: string,
     state?: any,
-    key?: string
-  };
+    key?: string,
+    ...
+  }>;
 
   declare export type LocationShape = {
     pathname?: string,
     search?: string,
     hash?: string,
-    state?: any
+    state?: any,
+    ...
   };
 
   declare export type HistoryAction = "PUSH" | "REPLACE" | "POP";
@@ -71,16 +75,15 @@ declare module "react-router-dom" {
     block(
       callback: string | (location: Location, action: HistoryAction) => ?string
     ): () => void,
-    // createMemoryHistory
-    index?: number,
-    entries?: Array<Location>
+    ...
   };
 
   declare export type Match = {
-    params: { [key: string]: ?string },
+    params: { [key: string]: ?string, ... },
     isExact: boolean,
     path: string,
-    url: string
+    url: string,
+    ...
   };
 
   declare export type ContextRouter = {|
@@ -94,7 +97,8 @@ declare module "react-router-dom" {
     history: RouterHistory | void,
     location: Location | void,
     match: Match | void,
-    staticContext?: StaticRouterContext | void
+    staticContext?: StaticRouterContext | void,
+    ...
   };
 
   declare export type GetUserConfirmation = (
@@ -102,9 +106,7 @@ declare module "react-router-dom" {
     callback: (confirmed: boolean) => void
   ) => void;
 
-  declare export type StaticRouterContext = {
-    url?: string
-  };
+  declare export type StaticRouterContext = { url?: string, ... };
 
   declare export var StaticRouter: React$ComponentType<{|
     basename?: string,
@@ -155,7 +157,7 @@ declare module "react-router-dom" {
     location?: Location
   |}>
 
-  declare export function withRouter<Props: {}, Component: React$ComponentType<Props>>(
+  declare export function withRouter<Props: {...}, Component: React$ComponentType<Props>>(
     WrappedComponent: Component
   ): React$ComponentType<$Diff<React$ElementConfig<Component>, ContextRouterVoid>>;
 
@@ -163,7 +165,8 @@ declare module "react-router-dom" {
     path?: string | string[],
     exact?: boolean,
     sensitive?: boolean,
-    strict?: boolean
+    strict?: boolean,
+    ...
   };
 
   declare export function matchPath(
@@ -172,5 +175,10 @@ declare module "react-router-dom" {
     parent?: Match
   ): null | Match;
 
-  declare export function generatePath(pattern?: string, params?: { +[string]: mixed }): string;
+  declare export function useHistory(): $PropertyType<ContextRouter, 'history'>;
+  declare export function useLocation(): $PropertyType<ContextRouter, 'location'>;
+  declare export function useParams(): $PropertyType<$PropertyType<ContextRouter, 'match'>, 'params'>;
+  declare export function useRouteMatch(path?: MatchPathOptions | string | string[]): $PropertyType<ContextRouter, 'match'>;
+
+  declare export function generatePath(pattern?: string, params?: { +[string]: mixed, ... }): string;
 }
