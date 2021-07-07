@@ -7,7 +7,7 @@ import * as React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { promisify } from 'util';
 
-import { type LandingProps } from '../landing/landing.react';
+import { type LandingSSRProps } from '../landing/landing-ssr.react';
 import { waitForStream } from '../utils/json-stream';
 import { getLandingURLFacts } from '../utils/urls';
 import { getMessageForException } from './utils';
@@ -67,7 +67,7 @@ async function getAssetInfo() {
   return assetInfo;
 }
 
-type LandingApp = React.ComponentType<LandingProps>;
+type LandingApp = React.ComponentType<LandingSSRProps>;
 let webpackCompiledRootComponent: ?LandingApp = null;
 async function getWebpackCompiledRootComponentForSSR() {
   if (webpackCompiledRootComponent) {
@@ -90,7 +90,7 @@ const { basePath } = getLandingURLFacts();
 const { renderToNodeStream } = ReactDOMServer;
 
 async function landingResponder(req: $Request, res: $Response) {
-  const [{ jsURL, fontsURL, cssInclude }, Landing] = await Promise.all([
+  const [{ jsURL, fontsURL, cssInclude }, LandingSSR] = await Promise.all([
     getAssetInfo(),
     getWebpackCompiledRootComponentForSSR(),
   ]);
@@ -128,7 +128,7 @@ async function landingResponder(req: $Request, res: $Response) {
         <div id="react-root">
   `);
 
-  const reactStream = renderToNodeStream(<Landing url={req.url} />);
+  const reactStream = renderToNodeStream(<LandingSSR url={req.url} />);
   reactStream.pipe(res, { end: false });
   await waitForStream(reactStream);
 

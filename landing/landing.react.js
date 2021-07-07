@@ -10,12 +10,7 @@ import SubscriptionForm from './subscription-form.react';
 import Support from './support.react';
 import Terms from './terms.react';
 
-export type LandingProps = {|
-  +url: string,
-|};
-function Landing(props: LandingProps): React.Node {
-  const { url } = props; // eslint-disable-line
-
+function Landing(): React.Node {
   const { pathname } = useLocation();
   React.useEffect(() => {
     window?.scrollTo(0, 0);

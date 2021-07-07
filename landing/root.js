@@ -9,7 +9,7 @@ import Landing from './landing.react';
 function RootComponent() {
   return (
     <BrowserRouter basename="/commlanding">
-      <Landing url={window.location.href} />
+      <Landing />
     </BrowserRouter>
   );
 }
