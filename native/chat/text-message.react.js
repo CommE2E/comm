@@ -13,10 +13,6 @@ import type { LocalMessageInfo } from 'lib/types/message-types';
 import type { TextMessageInfo } from 'lib/types/messages/text';
 import { type ThreadInfo, threadPermissions } from 'lib/types/thread-types';
 
-import {
-  type KeyboardState,
-  KeyboardContext,
-} from '../keyboard/keyboard-state';
 import { MarkdownLinkContext } from '../markdown/markdown-link-context';
 import {
   OverlayContext,
@@ -84,8 +80,6 @@ type Props = {|
   ...BaseProps,
   // Redux state
   +canCreateSidebarFromMessage: boolean,
-  // withKeyboardState
-  +keyboardState: ?KeyboardState,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
   // MarkdownLinkContext
@@ -102,7 +96,6 @@ class TextMessage extends React.PureComponent<Props> {
       focused,
       toggleFocus,
       verticalBounds,
-      keyboardState,
       overlayContext,
       linkPressActive,
       canCreateSidebarFromMessage,
@@ -155,10 +148,6 @@ class TextMessage extends React.PureComponent<Props> {
   }
 
   onPress = () => {
-    if (this.dismissKeyboardIfShowing()) {
-      return;
-    }
-
     const visibleEntryIDs = this.visibleEntryIDs();
     if (visibleEntryIDs.length === 0) {
       return;
@@ -219,16 +208,10 @@ class TextMessage extends React.PureComponent<Props> {
       });
     });
   };
-
-  dismissKeyboardIfShowing = () => {
-    const { keyboardState } = this.props;
-    return !!(keyboardState && keyboardState.dismissKeyboardIfShowing());
-  };
 }
 
 const ConnectedTextMessage = React.memo<BaseProps>(
   function ConnectedTextMessage(props: BaseProps) {
-    const keyboardState = React.useContext(KeyboardContext);
     const overlayContext = React.useContext(OverlayContext);
 
     const [linkPressActive, setLinkPressActive] = React.useState(false);
@@ -249,7 +232,6 @@ const ConnectedTextMessage = React.memo<BaseProps>(
           {...props}
           canCreateSidebarFromMessage={canCreateSidebarFromMessage}
           overlayContext={overlayContext}
-          keyboardState={keyboardState}
           linkPressActive={linkPressActive}
         />
       </MarkdownLinkContext.Provider>

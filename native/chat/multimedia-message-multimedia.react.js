@@ -224,10 +224,6 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   }
 
   onLongPress = () => {
-    if (this.dismissKeyboardIfShowing()) {
-      return;
-    }
-
     const visibleEntryIDs = this.visibleEntryIDs();
     if (visibleEntryIDs.length === 0) {
       return;
