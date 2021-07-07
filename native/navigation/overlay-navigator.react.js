@@ -399,9 +399,7 @@ const OverlayNavigator = React.memo<Props>(
       return a.ordering.creationTime - b.ordering.creationTime;
     });
 
-    const screens = [];
-    for (let i = sceneList.length - 1; i >= 0; i--) {
-      const scene = sceneList[i];
+    const screens = sceneList.map((scene) => {
       const { route, descriptor, context, listeners } = scene;
       const { render } = descriptor;
 
@@ -411,15 +409,15 @@ const OverlayNavigator = React.memo<Props>(
       // These listeners are used to clear routes after they finish dismissing
       const listenerCode =
         listeners.length > 0 ? <Animated.Code exec={block(listeners)} /> : null;
-      screens.unshift(
+      return (
         <OverlayContext.Provider value={context} key={route.key}>
           <View style={styles.scene} pointerEvents={pointerEvents}>
             {render()}
           </View>
           {listenerCode}
-        </OverlayContext.Provider>,
+        </OverlayContext.Provider>
       );
-    }
+    });
 
     return (
       <NavigationHelpersContext.Provider value={navigation}>
