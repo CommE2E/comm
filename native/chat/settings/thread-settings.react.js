@@ -40,6 +40,7 @@ import {
   KeyboardContext,
 } from '../../keyboard/keyboard-state';
 import type { TabNavigationProp } from '../../navigation/app-navigator.react';
+import { defaultStackScreenOptions } from '../../navigation/options';
 import {
   OverlayContext,
   type OverlayContextType,
@@ -322,12 +323,14 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       this.setState({ colorEditValue: newNavThreadInfo.color });
     }
 
-    const scrollIsDisabled = ThreadSettings.scrollDisabled(this.props);
-    const scrollWasDisabled = ThreadSettings.scrollDisabled(prevProps);
-    if (!scrollWasDisabled && scrollIsDisabled) {
-      this.props.navigation.setOptions({ gestureEnabled: false });
-    } else if (scrollWasDisabled && !scrollIsDisabled) {
-      this.props.navigation.setOptions({ gestureEnabled: true });
+    if (defaultStackScreenOptions.gestureEnabled) {
+      const scrollIsDisabled = ThreadSettings.scrollDisabled(this.props);
+      const scrollWasDisabled = ThreadSettings.scrollDisabled(prevProps);
+      if (!scrollWasDisabled && scrollIsDisabled) {
+        this.props.navigation.setOptions({ gestureEnabled: false });
+      } else if (scrollWasDisabled && !scrollIsDisabled) {
+        this.props.navigation.setOptions({ gestureEnabled: true });
+      }
     }
   }
 

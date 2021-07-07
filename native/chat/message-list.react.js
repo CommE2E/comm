@@ -28,6 +28,7 @@ import {
   type KeyboardState,
   KeyboardContext,
 } from '../keyboard/keyboard-state';
+import { defaultStackScreenOptions } from '../navigation/options';
 import {
   OverlayContext,
   type OverlayContextType,
@@ -151,12 +152,14 @@ class MessageList extends React.PureComponent<Props, State> {
       this.setState({ focusedMessageKey: null });
     }
 
-    const scrollIsDisabled = MessageList.scrollDisabled(this.props);
-    const scrollWasDisabled = MessageList.scrollDisabled(prevProps);
-    if (!scrollWasDisabled && scrollIsDisabled) {
-      this.props.navigation.setOptions({ gestureEnabled: false });
-    } else if (scrollWasDisabled && !scrollIsDisabled) {
-      this.props.navigation.setOptions({ gestureEnabled: true });
+    if (defaultStackScreenOptions.gestureEnabled) {
+      const scrollIsDisabled = MessageList.scrollDisabled(this.props);
+      const scrollWasDisabled = MessageList.scrollDisabled(prevProps);
+      if (!scrollWasDisabled && scrollIsDisabled) {
+        this.props.navigation.setOptions({ gestureEnabled: false });
+      } else if (scrollWasDisabled && !scrollIsDisabled) {
+        this.props.navigation.setOptions({ gestureEnabled: true });
+      }
     }
   }
 

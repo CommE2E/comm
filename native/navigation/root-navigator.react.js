@@ -23,6 +23,7 @@ import ComposeSubthreadModal from '../chat/settings/compose-subthread-modal.reac
 import SidebarListModal from '../chat/sidebar-list-modal.react';
 import CustomServerModal from '../profile/custom-server-modal.react';
 import AppNavigator from './app-navigator.react';
+import { defaultStackScreenOptions } from './options';
 import { RootNavigatorContext } from './root-navigator-context';
 import RootRouter, { type RootRouterNavigationProp } from './root-router';
 import {
@@ -117,11 +118,7 @@ const transitionPreset = {
 };
 
 const defaultScreenOptions = {
-  gestureEnabled: Platform.OS === 'ios',
-  animationEnabled:
-    Platform.OS !== 'web' &&
-    Platform.OS !== 'windows' &&
-    Platform.OS !== 'macos',
+  ...defaultStackScreenOptions,
   cardStyle: { backgroundColor: 'transparent' },
   ...transitionPreset,
 };

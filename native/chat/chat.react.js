@@ -27,6 +27,7 @@ import { firstLine } from 'lib/utils/string-utils';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 import { InputStateContext } from '../input/input-state';
 import HeaderBackButton from '../navigation/header-back-button.react';
+import { defaultStackScreenOptions } from '../navigation/options';
 import {
   ComposeThreadRouteName,
   DeleteThreadRouteName,
@@ -153,13 +154,9 @@ const header = (props: CoreStackHeaderProps) => {
 };
 const headerBackButton = (props) => <HeaderBackButton {...props} />;
 const screenOptions = {
+  ...defaultStackScreenOptions,
   header,
   headerLeft: headerBackButton,
-  gestureEnabled: Platform.OS === 'ios',
-  animationEnabled:
-    Platform.OS !== 'web' &&
-    Platform.OS !== 'windows' &&
-    Platform.OS !== 'macos',
 };
 
 const chatThreadListOptions = ({ navigation }) => ({
