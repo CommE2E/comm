@@ -52,7 +52,7 @@ const baseProdBrowserConfig = {
 const baseNodeServerRenderingConfig = {
   externals: ['react', 'react-dom', 'react-redux'],
   entry: {
-    server: ['./landing.react.js'],
+    server: ['./landing-ssr.react.js'],
   },
   output: {
     filename: 'landing.build.cjs',
@@ -63,9 +63,10 @@ const baseNodeServerRenderingConfig = {
 };
 
 module.exports = function (env) {
-  const browserConfig = env === 'prod'
-    ? createProdBrowserConfig(baseProdBrowserConfig, babelConfig)
-    : createDevBrowserConfig(baseDevBrowserConfig, babelConfig);
+  const browserConfig =
+    env === 'prod'
+      ? createProdBrowserConfig(baseProdBrowserConfig, babelConfig)
+      : createDevBrowserConfig(baseDevBrowserConfig, babelConfig);
   const nodeConfig = createNodeServerRenderingConfig(
     baseNodeServerRenderingConfig,
     babelConfig,
