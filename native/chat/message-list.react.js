@@ -242,6 +242,7 @@ class MessageList extends React.PureComponent<Props, State> {
           scrollEnabled={!MessageList.scrollDisabled(this.props)}
           extraData={this.flatListExtraData}
           indicatorStyle={this.props.indicatorStyle}
+          keyboardShouldPersistTaps="always"
         />
       </View>
     );
