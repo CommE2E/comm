@@ -6,9 +6,11 @@ import { BrowserRouter } from 'react-router-dom';
 
 import Landing from './landing.react';
 
+declare var routerBasename: string;
+
 function RootComponent() {
   return (
-    <BrowserRouter basename="/commlanding">
+    <BrowserRouter basename={routerBasename}>
       <Landing />
     </BrowserRouter>
   );

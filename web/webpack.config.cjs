@@ -63,16 +63,17 @@ const baseNodeServerRenderingConfig = {
 };
 
 module.exports = function (env) {
-  const browserConfig = env === 'prod'
-    ? createProdBrowserConfig(baseProdBrowserConfig, babelConfig)
-    : createDevBrowserConfig(baseDevBrowserConfig, babelConfig);
+  const browserConfig =
+    env === 'prod'
+      ? createProdBrowserConfig(baseProdBrowserConfig, babelConfig)
+      : createDevBrowserConfig(baseDevBrowserConfig, babelConfig);
   const nodeConfig = createNodeServerRenderingConfig(
     baseNodeServerRenderingConfig,
     babelConfig,
   );
   const nodeServerRenderingConfig = {
     ...nodeConfig,
-    mode: env === 'dev' ? 'development' : 'production',
+    mode: env === 'prod' ? 'production' : 'development',
   };
   return [browserConfig, nodeServerRenderingConfig];
 };

@@ -128,12 +128,17 @@ async function landingResponder(req: $Request, res: $Response) {
         <div id="react-root">
   `);
 
-  const reactStream = renderToNodeStream(<LandingSSR url={req.url} />);
+  // We remove trailing slash for `react-router`
+  const routerBasename = basePath.replace(/\/$/, '');
+  const reactStream = renderToNodeStream(
+    <LandingSSR url={req.url} basename={routerBasename} />,
+  );
   reactStream.pipe(res, { end: false });
   await waitForStream(reactStream);
 
   // prettier-ignore
   res.end(html`</div>
+        <script>var routerBasename = "${routerBasename}";</script>
         <script src="${jsURL}"></script>
       </body>
     </html>

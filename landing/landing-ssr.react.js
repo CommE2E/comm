@@ -7,16 +7,13 @@ import Landing from './landing.react';
 
 export type LandingSSRProps = {|
   +url: string,
+  +basename: string,
 |};
 function LandingSSR(props: LandingSSRProps): React.Node {
-  const { url } = props;
+  const { url, basename } = props;
   const routerContext = React.useMemo(() => ({}), []);
   return (
-    <StaticRouter
-      location={url}
-      basename="/commlanding"
-      context={routerContext}
-    >
+    <StaticRouter location={url} basename={basename} context={routerContext}>
       <Landing />
     </StaticRouter>
   );

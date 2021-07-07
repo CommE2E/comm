@@ -73,7 +73,7 @@ module.exports = function (env) {
   );
   const nodeServerRenderingConfig = {
     ...nodeConfig,
-    mode: env === 'dev' ? 'development' : 'production',
+    mode: env === 'prod' ? 'production' : 'development',
   };
   return [browserConfig, nodeServerRenderingConfig];
 };
