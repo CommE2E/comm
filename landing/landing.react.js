@@ -1,6 +1,7 @@
 // @flow
 
 import * as React from 'react';
+import { Switch, Route, Link, useLocation } from 'react-router-dom';
 
 import Home from './home.react';
 import css from './landing.css';
@@ -9,69 +10,41 @@ import SubscriptionForm from './subscription-form.react';
 import Support from './support.react';
 import Terms from './terms.react';
 
-const validEndpoints = new Set(['privacy', 'terms', 'support']);
-
 export type LandingProps = {|
   +url: string,
 |};
 function Landing(props: LandingProps): React.Node {
-  const { url } = props;
-  const lastUrlElement = url.split('/').pop();
+  const { url } = props; // eslint-disable-line
 
-  let initialPage = 'home';
-  if (validEndpoints.has(lastUrlElement)) {
-    initialPage = lastUrlElement;
-  }
-
-  const [activePage, setActivePage] = React.useState(initialPage);
-  const navigateToHome = React.useCallback(() => setActivePage('home'), []);
-  const navigateToTerms = React.useCallback(() => setActivePage('terms'), []);
-  const navigateToPrivacy = React.useCallback(
-    () => setActivePage('privacy'),
-    [],
-  );
-  const navigateToSupport = React.useCallback(
-    () => setActivePage('support'),
-    [],
-  );
-
-  let visibleNode;
-  if (activePage === 'home') {
-    visibleNode = <Home />;
-  } else if (activePage === 'terms') {
-    visibleNode = <Terms />;
-  } else if (activePage === 'privacy') {
-    visibleNode = <Privacy />;
-  } else if (activePage === 'support') {
-    visibleNode = <Support />;
-  }
+  const { pathname } = useLocation();
+  React.useEffect(() => {
+    window?.scrollTo(0, 0);
+  }, [pathname]);
 
   return (
     <>
       <div className={css.header_grid}>
-        <a href="#" onClick={navigateToHome}>
+        <Link to="/">
           <h1 className={css.logo}>Comm</h1>
-        </a>
+        </Link>
       </div>
-      {visibleNode}
+
+      <Switch>
+        <Route path="/support" component={Support} />
+        <Route path="/terms" component={Terms} />
+        <Route path="/privacy" component={Privacy} />
+        <Route path="/" component={Home} />
+      </Switch>
+
       <div className={css.footer_blur}>
         <div className={css.footer_grid}>
           <div className={css.sitemap}>
             <div className={css.footer_logo}>
-              <a href="#" onClick={navigateToHome}>
-                Comm
-              </a>
+              <Link to="/">Comm</Link>
             </div>
-
-            <a href="#" onClick={navigateToSupport}>
-              Support
-            </a>
-            <a href="#" onClick={navigateToTerms}>
-              Terms of Use
-            </a>
-            <a href="#" onClick={navigateToPrivacy}>
-              Privacy Policy
-            </a>
+            <Link to="/support">Support</Link>
+            <Link to="/terms">Terms of Use</Link>
+            <Link to="/privacy">Privacy Policy</Link>
             <a href="https://www.notion.so/How-Comm-works-d6217941db7c4237b9d08b427aef3234">
               How Comm works
             </a>
