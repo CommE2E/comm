@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, TouchableWithoutFeedback } from 'react-native';
 import * as Progress from 'react-native-progress';
 import Icon from 'react-native-vector-icons/Feather';
 import IonIcon from 'react-native-vector-icons/Ionicons';
@@ -96,15 +96,19 @@ function InlineMultimedia(props: Props) {
   const keyboardShowing = keyboardState?.keyboardShowing;
 
   return (
-    <GestureTouchableOpacity
-      onPress={props.onPress}
-      onLongPress={props.onLongPress}
-      disabled={keyboardShowing}
-      style={styles.expand}
-    >
-      <Multimedia mediaInfo={mediaInfo} spinnerColor={props.spinnerColor} />
-      {progressIndicator ? progressIndicator : playButton}
-    </GestureTouchableOpacity>
+    <TouchableWithoutFeedback>
+      <View style={styles.expand}>
+        <GestureTouchableOpacity
+          onPress={props.onPress}
+          onLongPress={props.onLongPress}
+          disabled={keyboardShowing}
+          style={styles.expand}
+        >
+          <Multimedia mediaInfo={mediaInfo} spinnerColor={props.spinnerColor} />
+          {progressIndicator ? progressIndicator : playButton}
+        </GestureTouchableOpacity>
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 

@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
 
@@ -92,17 +92,21 @@ function InnerTextMessage(props: Props) {
   const rules = useTextMessageMarkdownRules(darkColor);
 
   const message = (
-    <GestureTouchableOpacity
-      onPress={props.onPress}
-      onLongPress={props.onPress}
-      activeOpacity={0.6}
-      disabled={keyboardShowing}
-      style={[styles.message, messageStyle, cornerStyle]}
-    >
-      <Markdown style={[styles.text, textStyle]} rules={rules}>
-        {text}
-      </Markdown>
-    </GestureTouchableOpacity>
+    <TouchableWithoutFeedback>
+      <View>
+        <GestureTouchableOpacity
+          onPress={props.onPress}
+          onLongPress={props.onPress}
+          disabled={keyboardShowing}
+          activeOpacity={0.6}
+          style={[styles.message, messageStyle, cornerStyle]}
+        >
+          <Markdown style={[styles.text, textStyle]} rules={rules}>
+            {text}
+          </Markdown>
+        </GestureTouchableOpacity>
+      </View>
+    </TouchableWithoutFeedback>
   );
 
   // We need to set onLayout in order to allow .measure() to be on the ref
