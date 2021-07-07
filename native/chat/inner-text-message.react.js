@@ -7,7 +7,6 @@ import { View, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { colorIsDark } from 'lib/shared/thread-utils';
 
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
-import { KeyboardContext } from '../keyboard/keyboard-state';
 import Markdown from '../markdown/markdown.react';
 import { useSelector } from '../redux/redux-utils';
 import { useColors, colors } from '../themes/colors';
@@ -86,9 +85,6 @@ function InnerTextMessage(props: Props) {
     messageStyle.height = item.contentHeight;
   }
 
-  const keyboardState = React.useContext(KeyboardContext);
-  const keyboardShowing = keyboardState?.keyboardShowing;
-
   const rules = useTextMessageMarkdownRules(darkColor);
 
   const message = (
@@ -97,7 +93,6 @@ function InnerTextMessage(props: Props) {
         <GestureTouchableOpacity
           onPress={props.onPress}
           onLongPress={props.onPress}
-          disabled={keyboardShowing}
           activeOpacity={0.6}
           style={[styles.message, messageStyle, cornerStyle]}
         >

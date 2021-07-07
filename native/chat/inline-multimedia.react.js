@@ -12,7 +12,6 @@ import type { MediaInfo } from 'lib/types/media-types';
 
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
 import type { PendingMultimediaUpload } from '../input/input-state';
-import { KeyboardContext } from '../keyboard/keyboard-state';
 import Multimedia from '../media/multimedia.react';
 
 type Props = {|
@@ -92,16 +91,12 @@ function InlineMultimedia(props: Props) {
     );
   }
 
-  const keyboardState = React.useContext(KeyboardContext);
-  const keyboardShowing = keyboardState?.keyboardShowing;
-
   return (
     <TouchableWithoutFeedback>
       <View style={styles.expand}>
         <GestureTouchableOpacity
           onPress={props.onPress}
           onLongPress={props.onLongPress}
-          disabled={keyboardShowing}
           style={styles.expand}
         >
           <Multimedia mediaInfo={mediaInfo} spinnerColor={props.spinnerColor} />
