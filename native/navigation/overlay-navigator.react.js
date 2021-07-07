@@ -400,29 +400,12 @@ const OverlayNavigator = React.memo<Props>(
     });
 
     const screens = [];
-    let pressableSceneAssigned = false,
-      activeSceneFound = false;
     for (let i = sceneList.length - 1; i >= 0; i--) {
       const scene = sceneList[i];
       const { route, descriptor, context, listeners } = scene;
-
-      if (!context.isDismissing) {
-        activeSceneFound = true;
-      }
-
-      let pressable = false;
-      if (
-        !pressableSceneAssigned &&
-        activeSceneFound &&
-        (!route.params || !route.params.preventPresses)
-      ) {
-        // Only one route can be pressable at a time. We pick the first route that
-        // is not dismissing and doesn't have preventPresses set in its params
-        pressable = true;
-        pressableSceneAssigned = true;
-      }
-
       const { render } = descriptor;
+
+      const pressable = !context.isDismissing && !route.params?.preventPresses;
       const pointerEvents = pressable ? 'auto' : 'none';
 
       // These listeners are used to clear routes after they finish dismissing
