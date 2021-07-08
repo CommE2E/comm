@@ -68,7 +68,7 @@ function Home(): React.Node {
 
   return (
     <div>
-      <StarBackground className={css.particles} />
+      <StarBackground />
       <div className={css.body_grid}>
         <div className={`${css.hero_image} ${css.starting_section}`}>
           <lottie-player

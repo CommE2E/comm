@@ -179,9 +179,6 @@ div.footer_blur {
   background-color: rgba(255, 255, 255, 0.125);
   backdrop-filter: blur(3px);
 }
-div.particles {
-  z-index: -1;
-}
 
 /* ===== LAYOUT HACKS ===== */
 div.body_grid > div + .starting_section {
