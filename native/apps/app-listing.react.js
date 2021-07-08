@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
 import { useDispatch } from 'react-redux';
 
 import {
@@ -11,6 +10,7 @@ import {
 } from 'lib/reducers/enabled-apps-reducer';
 import type { SupportedApps } from 'lib/types/enabled-apps';
 
+import SWMansionIcon from '../components/swmansion-icon.react';
 import { useStyles } from '../themes/colors';
 
 type Props = {|
@@ -18,7 +18,7 @@ type Props = {|
   +available: boolean,
   +enabled: boolean,
   +appName: string,
-  +appIcon: 'calendar' | 'book' | 'tasks' | 'folder',
+  +appIcon: 'calendar' | 'document-filled' | 'check-round' | 'package',
   +appCopy: string,
 |};
 function AppListing(props: Props) {
@@ -42,7 +42,10 @@ function AppListing(props: Props) {
   if (available) {
     callToAction = (
       <TouchableOpacity onPress={enabled ? disableApp : enableApp}>
-        <Icon name={enabled ? 'check' : 'plus'} style={styles.plusIcon} />
+        <SWMansionIcon
+          name={enabled ? 'check-circle' : 'plus-circle'}
+          style={styles.plusIcon}
+        />
       </TouchableOpacity>
     );
   } else {
@@ -52,7 +55,10 @@ function AppListing(props: Props) {
   return (
     <View style={styles.cell}>
       <View style={styles.appContent}>
-        <Icon name={appIcon} style={[styles.appIcon, { color: textColor }]} />
+        <SWMansionIcon
+          name={appIcon}
+          style={[styles.appIcon, { color: textColor }]}
+        />
         <View>
           <Text style={[styles.appName, { color: textColor }]}>{appName}</Text>
           <Text style={[styles.appCopy, { color: textColor }]}>{appCopy}</Text>
@@ -75,11 +81,11 @@ const unboundStyles = {
     alignItems: 'center',
   },
   appIcon: {
-    fontSize: 28,
+    fontSize: 36,
     paddingRight: 18,
   },
   plusIcon: {
-    fontSize: 20,
+    fontSize: 24,
     color: 'white',
   },
   appName: {
