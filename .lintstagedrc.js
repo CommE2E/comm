@@ -24,7 +24,7 @@ module.exports = {
   '{server,web,lib}/**/*.js': function serverFlow(files) {
     return 'yarn workspace server flow --quiet';
   },
-  '{landing,lib}/**/*.js': function serverFlow(files) {
+  '{landing,lib}/**/*.js': function landingFlow(files) {
     return 'yarn workspace landing flow --quiet';
   },
   'native/**/*.{h,cpp}': function clangFormat(files) {
