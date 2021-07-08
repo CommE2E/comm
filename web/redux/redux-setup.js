@@ -152,6 +152,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
   const activeThread = activeThreadSelector(state);
   if (
     activeThread &&
+    !state.navInfo.pendingThread &&
     state.threadStore.threadInfos[activeThread].currentUser.unread &&
     getVisibility().hidden()
   ) {
@@ -162,6 +163,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
   }
   if (
     activeThread &&
+    !state.navInfo.pendingThread &&
     state.threadStore.threadInfos[activeThread].currentUser.unread &&
     typeof document !== 'undefined' &&
     document &&
