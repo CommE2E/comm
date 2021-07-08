@@ -93,7 +93,13 @@ const Tab = createBottomTabNavigator<
   TabParamList,
   TabNavigationProp<>,
 >();
-const tabBarOptions = { keyboardHidesTabBar: false };
+const tabBarOptions = {
+  keyboardHidesTabBar: false,
+  activeTintColor: '#AE94DB',
+  style: {
+    backgroundColor: '#0A0A0A',
+  },
+};
 function TabNavigator() {
   const chatBadge = useSelector(unreadCount);
   const isCalendarEnabled = useSelector((state) => state.enabledApps.calendar);
