@@ -25,6 +25,7 @@
 		7F8D602826535F240053CB29 /* IBMPlexSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D602726535EEE0053CB29 /* IBMPlexSans-Bold.ttf */; };
 		7F8D602926535F2A0053CB29 /* IBMPlexSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D602626535EEE0053CB29 /* IBMPlexSans-Regular.ttf */; };
 		B71AFF1F265EDD8600B22352 /* IBMPlexSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B71AFF1E265EDD8600B22352 /* IBMPlexSans-Medium.ttf */; };
+		B723460726979250009A0709 /* swmansion.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B723460626979250009A0709 /* swmansion.ttf */; };
 		D7DB6E0F85B2DBE15B01EC21 /* libPods-Comm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 994BEBDD4E4959F69CEA0BC3 /* libPods-Comm.a */; };
 /* End PBXBuildFile section */
 
@@ -66,6 +67,7 @@
 		7FCFD8BD1E81B8DF00629B0E /* Comm.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = Comm.entitlements; path = Comm/Comm.entitlements; sourceTree = "<group>"; };
 		994BEBDD4E4959F69CEA0BC3 /* libPods-Comm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Comm.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B71AFF1E265EDD8600B22352 /* IBMPlexSans-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "IBMPlexSans-Medium.ttf"; path = "Resources/IBMPlexSans-Medium.ttf"; sourceTree = "<group>"; };
+		B723460626979250009A0709 /* swmansion.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = swmansion.ttf; path = Resources/swmansion.ttf; sourceTree = "<group>"; };
 		C562A7004903539402D988CE /* Pods-Comm.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Comm.release.xcconfig"; path = "Target Support Files/Pods-Comm/Pods-Comm.release.xcconfig"; sourceTree = "<group>"; };
 		F53DA7B3F26C2798DCE74A94 /* Pods-Comm.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Comm.debug.xcconfig"; path = "Target Support Files/Pods-Comm/Pods-Comm.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -107,6 +109,7 @@
 		6534411766BE4CA4B0AB0A78 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				B723460626979250009A0709 /* swmansion.ttf */,
 				7F8D601F26535E060053CB29 /* Anaheim-Regular.ttf */,
 				7F8D602026535E060053CB29 /* OpenSans-Regular.ttf */,
 				B71AFF1E265EDD8600B22352 /* IBMPlexSans-Medium.ttf */,
@@ -324,6 +327,7 @@
 				7F8D602126535E060053CB29 /* OpenSans-Semibold.ttf in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				7F788C2C248AA2140098F071 /* SplashScreen.storyboard in Resources */,
+				B723460726979250009A0709 /* swmansion.ttf in Resources */,
 				7F8D602226535E060053CB29 /* Anaheim-Regular.ttf in Resources */,
 				B71AFF1F265EDD8600B22352 /* IBMPlexSans-Medium.ttf in Resources */,
 				7F8D602326535E060053CB29 /* OpenSans-Regular.ttf in Resources */,

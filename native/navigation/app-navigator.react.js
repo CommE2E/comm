@@ -4,7 +4,6 @@ import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
-import Icon from 'react-native-vector-icons/FontAwesome';
 import { PersistGate } from 'redux-persist/integration/react';
 
 import { unreadCount } from 'lib/selectors/thread-selectors';
@@ -16,6 +15,7 @@ import { MultimediaTooltipModal } from '../chat/multimedia-tooltip-modal.react';
 import { RobotextMessageTooltipModal } from '../chat/robotext-message-tooltip-modal.react';
 import ThreadSettingsMemberTooltipModal from '../chat/settings/thread-settings-member-tooltip-modal.react';
 import { TextMessageTooltipModal } from '../chat/text-message-tooltip-modal.react';
+import SWMansionIcon from '../components/swmansion-icon.react';
 import KeyboardStateContainer from '../keyboard/keyboard-state-container.react';
 import CameraModal from '../media/camera-modal.react';
 import ImageModal from '../media/image-modal.react';
@@ -58,14 +58,14 @@ const calendarTabOptions = {
   tabBarLabel: 'Calendar',
   // eslint-disable-next-line react/display-name
   tabBarIcon: ({ color }) => (
-    <Icon name="calendar" style={[styles.icon, { color }]} />
+    <SWMansionIcon name="calendar" style={[styles.icon, { color }]} />
   ),
 };
 const getChatTabOptions = (badge: number) => ({
   tabBarLabel: 'Chat',
   // eslint-disable-next-line react/display-name
   tabBarIcon: ({ color }) => (
-    <Icon name="comments-o" style={[styles.icon, { color }]} />
+    <SWMansionIcon name="message-square" style={[styles.icon, { color }]} />
   ),
   tabBarBadge: badge ? badge : undefined,
 });
@@ -73,14 +73,14 @@ const profileTabOptions = {
   tabBarLabel: 'Profile',
   // eslint-disable-next-line react/display-name
   tabBarIcon: ({ color }) => (
-    <Icon name="user-circle" style={[styles.icon, { color }]} />
+    <SWMansionIcon name="user-circle" style={[styles.icon, { color }]} />
   ),
 };
 const appsTabOptions = {
   tabBarLabel: 'Apps',
   // eslint-disable-next-line react/display-name
   tabBarIcon: ({ color }) => (
-    <Icon name="cube" style={[styles.icon, { color }]} />
+    <SWMansionIcon name="globe-1" style={[styles.icon, { color }]} />
   ),
 };
 
@@ -229,7 +229,7 @@ function AppNavigator(props: AppNavigatorProps) {
 
 const styles = {
   icon: {
-    fontSize: 22,
+    fontSize: 28,
   },
 };
 
