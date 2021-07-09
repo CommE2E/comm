@@ -488,6 +488,7 @@ Your `landing_url.json` file should look like this:
 {
   "baseDomain": "http://localhost",
   "basePath": "/commlanding/",
+  "baseRoutePath": "/commlanding/",
   "https": false
 }
 ```
