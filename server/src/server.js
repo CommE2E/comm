@@ -24,9 +24,10 @@ import {
   multimediaUploadResponder,
   uploadDownloadResponder,
 } from './uploads/uploads';
-import { getGlobalURLFacts } from './utils/urls';
+import { getGlobalURLFacts, getLandingURLFacts } from './utils/urls';
 
 const { baseRoutePath } = getGlobalURLFacts();
+const landingBaseRoutePath = getLandingURLFacts().baseRoutePath;
 
 if (cluster.isMaster) {
   const cpuCount = os.cpus().length;
@@ -96,7 +97,7 @@ if (cluster.isMaster) {
 
   // $FlowFixMe express-ws has side effects that can't be typed
   router.ws('/ws', onConnection);
-  router.get('/commlanding/*', landingHandler);
+  router.get(`${landingBaseRoutePath}*`, landingHandler);
   router.get('*', htmlHandler(websiteResponder));
 
   router.post(

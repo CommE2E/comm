@@ -12,17 +12,21 @@ function getGlobalURLFacts(): GlobalURLFacts {
   return baseURLFacts;
 }
 
-type SiteURLFacts = {|
+type AppURLFacts = {|
   +baseDomain: string,
   +basePath: string,
   +https: boolean,
 |};
+type LandingURLFacts = {|
+  ...AppURLFacts,
+  +baseRoutePath: string,
+|};
 
-function getAppURLFacts(): SiteURLFacts {
+function getAppURLFacts(): AppURLFacts {
   return appURLFacts;
 }
 
-function getLandingURLFacts(): SiteURLFacts {
+function getLandingURLFacts(): LandingURLFacts {
   return landingURLFacts;
 }
 
