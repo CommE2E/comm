@@ -1,11 +1,9 @@
 // @flow
 
 import { AppState as NativeAppState, Platform, Alert } from 'react-native';
-import type { Orientations } from 'react-native-orientation-locker';
 import Orientation from 'react-native-orientation-locker';
 import { createStore, applyMiddleware, type Store, compose } from 'redux';
 import { persistStore, persistReducer } from 'redux-persist';
-import type { PersistState } from 'redux-persist/src/types';
 import thunk from 'redux-thunk';
 
 import { setDeviceTokenActionTypes } from 'lib/actions/device-actions';
@@ -19,47 +17,30 @@ import {
   invalidSessionDowngrade,
   invalidSessionRecovery,
 } from 'lib/shared/account-utils';
-import { type EnabledApps, defaultEnabledApps } from 'lib/types/enabled-apps';
-import { type EntryStore } from 'lib/types/entry-types';
-import {
-  type CalendarFilter,
-  defaultCalendarFilters,
-} from 'lib/types/filter-types';
-import type { LifecycleState } from 'lib/types/lifecycle-state-types';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import type { MessageStore } from 'lib/types/message-types';
-import type { Dispatch } from 'lib/types/redux-types';
-import { type ReportStore } from 'lib/types/report-types';
+import { defaultEnabledApps } from 'lib/types/enabled-apps';
+import { defaultCalendarFilters } from 'lib/types/filter-types';
+import type { Dispatch, BaseAction } from 'lib/types/redux-types';
 import type { SetSessionPayload } from 'lib/types/session-types';
 import {
-  type ConnectionInfo,
   defaultConnectionInfo,
   incrementalStateSyncActionType,
 } from 'lib/types/socket-types';
-import type { ThreadStore } from 'lib/types/thread-types';
 import { updateTypes } from 'lib/types/update-types';
-import type { CurrentUserInfo, UserStore } from 'lib/types/user-types';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger';
 import { setNewSessionActionType } from 'lib/utils/action-utils';
 
-import { type NavInfo, defaultNavInfo } from '../navigation/default-state';
+import { defaultNavInfo } from '../navigation/default-state';
 import { getGlobalNavContext } from '../navigation/icky-global';
 import { activeMessageListSelector } from '../navigation/nav-selectors';
-import {
-  type NotifPermissionAlertInfo,
-  defaultNotifPermissionAlertInfo,
-} from '../push/alerts';
+import { defaultNotifPermissionAlertInfo } from '../push/alerts';
 import { reduceThreadIDsToNotifIDs } from '../push/reducer';
 import reactotron from '../reactotron';
-import {
-  type DeviceCameraInfo,
-  defaultDeviceCameraInfo,
-} from '../types/camera';
+import { defaultDeviceCameraInfo } from '../types/camera';
 import {
   type ConnectivityInfo,
   defaultConnectivityInfo,
 } from '../types/connectivity';
-import { type GlobalThemeInfo, defaultGlobalThemeInfo } from '../types/themes';
+import { defaultGlobalThemeInfo } from '../types/themes';
 import {
   defaultURLPrefix,
   natNodeServer,
@@ -81,46 +62,12 @@ import {
   updateThreadLastNavigatedActionType,
   backgroundActionTypes,
   setReduxStateActionType,
+  type Action,
 } from './action-types';
 import { remoteReduxDevServerConfig } from './dev-tools';
-import {
-  defaultDimensionsInfo,
-  type DimensionsInfo,
-} from './dimensions-updater.react';
+import { defaultDimensionsInfo } from './dimensions-updater.react';
 import { persistConfig, setPersistor } from './persist';
-
-export type AppState = {|
-  navInfo: NavInfo,
-  currentUserInfo: ?CurrentUserInfo,
-  entryStore: EntryStore,
-  threadStore: ThreadStore,
-  userStore: UserStore,
-  messageStore: MessageStore,
-  updatesCurrentAsOf: number,
-  loadingStatuses: { [key: string]: { [idx: number]: LoadingStatus } },
-  calendarFilters: $ReadOnlyArray<CalendarFilter>,
-  cookie: ?string,
-  deviceToken: ?string,
-  dataLoaded: boolean,
-  urlPrefix: string,
-  customServer: ?string,
-  threadIDsToNotifIDs: { [threadID: string]: string[] },
-  notifPermissionAlertInfo: NotifPermissionAlertInfo,
-  connection: ConnectionInfo,
-  watchedThreadIDs: $ReadOnlyArray<string>,
-  lifecycleState: LifecycleState,
-  enabledApps: EnabledApps,
-  reportStore: ReportStore,
-  nextLocalID: number,
-  _persist: ?PersistState,
-  sessionID?: void,
-  dimensions: DimensionsInfo,
-  connectivity: ConnectivityInfo,
-  globalThemeInfo: GlobalThemeInfo,
-  deviceCameraInfo: DeviceCameraInfo,
-  deviceOrientation: Orientations,
-  frozen: boolean,
-|};
+import type { AppState } from './state-types';
 
 const defaultState = ({
   navInfo: defaultNavInfo,
@@ -175,10 +122,11 @@ const defaultState = ({
   frozen: false,
 }: AppState);
 
-function reducer(state: AppState = defaultState, action: *) {
+function reducer(state: AppState = defaultState, action: Action) {
   if (action.type === setReduxStateActionType) {
     return action.payload.state;
   }
+
   if (
     (action.type === setNewSessionActionType &&
       invalidSessionDowngrade(
@@ -203,6 +151,7 @@ function reducer(state: AppState = defaultState, action: *) {
   }
   if (
     (action.type === setNewSessionActionType &&
+      action.payload.sessionChange.currentUserInfo &&
       invalidSessionRecovery(
         state,
         action.payload.sessionChange.currentUserInfo,
@@ -217,19 +166,21 @@ function reducer(state: AppState = defaultState, action: *) {
   ) {
     return state;
   }
+
+  const threadIDsToNotifIDs = reduceThreadIDsToNotifIDs(
+    state.threadIDsToNotifIDs,
+    action,
+  );
+  state = { ...state, threadIDsToNotifIDs };
   if (
     action.type === recordAndroidNotificationActionType ||
     action.type === clearAndroidNotificationsActionType ||
     action.type === rescindAndroidNotificationActionType
   ) {
-    return {
-      ...state,
-      threadIDsToNotifIDs: reduceThreadIDsToNotifIDs(
-        state.threadIDsToNotifIDs,
-        action,
-      ),
-    };
-  } else if (action.type === setCustomServer) {
+    return state;
+  }
+
+  if (action.type === setCustomServer) {
     return {
       ...state,
       customServer: action.payload,
@@ -312,6 +263,7 @@ function reducer(state: AppState = defaultState, action: *) {
         },
       };
     }
+    return state;
   }
 
   if (action.type === setNewSessionActionType) {
@@ -339,7 +291,7 @@ function reducer(state: AppState = defaultState, action: *) {
     }
   }
 
-  state = baseReducer(state, action);
+  state = baseReducer(state, (action: BaseAction));
 
   return fixUnreadActiveThread(state, action);
 }

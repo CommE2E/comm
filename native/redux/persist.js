@@ -17,7 +17,7 @@ import { defaultConnectionInfo } from 'lib/types/socket-types';
 import { defaultNotifPermissionAlertInfo } from '../push/alerts';
 import { defaultDeviceCameraInfo } from '../types/camera';
 import { defaultGlobalThemeInfo } from '../types/themes';
-import type { AppState } from './redux-setup';
+import type { AppState } from './state-types';
 
 const migrations = {
   [1]: (state: AppState) => ({

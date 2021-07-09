@@ -11,7 +11,7 @@ import type { EntryInfo } from 'lib/types/entry-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { dateString } from 'lib/utils/date-utils';
 
-import type { AppState } from '../redux/redux-setup';
+import type { AppState } from '../redux/state-types';
 
 export type SectionHeaderItem = {|
   itemType: 'header',

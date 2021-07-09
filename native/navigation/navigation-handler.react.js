@@ -5,7 +5,7 @@ import * as React from 'react';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
 
 import DevTools from '../redux/dev-tools.react';
-import type { AppState } from '../redux/redux-setup';
+import type { AppState } from '../redux/state-types';
 import { useSelector } from '../redux/redux-utils';
 import { logInActionType, logOutActionType } from './action-types';
 import ModalPruner from './modal-pruner.react';

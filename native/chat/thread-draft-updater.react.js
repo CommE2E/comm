@@ -7,7 +7,7 @@ import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selecto
 import { draftKeyFromThreadID } from 'lib/shared/thread-utils';
 
 import { useDrafts } from '../data/core-data';
-import type { AppState } from '../redux/redux-setup';
+import type { AppState } from '../redux/state-types';
 import { useSelector } from '../redux/redux-utils';
 
 type Props = {||};

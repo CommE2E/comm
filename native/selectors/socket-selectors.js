@@ -17,7 +17,7 @@ import type {
 } from 'lib/types/session-types';
 
 import { calendarActiveSelector } from '../navigation/nav-selectors';
-import type { AppState } from '../redux/redux-setup';
+import type { AppState } from '../redux/state-types';
 import type { NavPlusRedux } from '../types/selector-types';
 
 const openSocketSelector: (state: AppState) => () => WebSocket = createSelector(

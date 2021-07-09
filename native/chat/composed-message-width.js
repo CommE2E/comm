@@ -3,7 +3,7 @@
 import { createSelector } from 'reselect';
 
 import type { DimensionsInfo } from '../redux/dimensions-updater.react';
-import type { AppState } from '../redux/redux-setup';
+import type { AppState } from '../redux/state-types';
 
 // Keep sorta synced with styles.alignment/styles.messageBox in ComposedMessage
 const composedMessageMaxWidthSelector: (

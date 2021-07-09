@@ -50,7 +50,7 @@ import {
   AddUsersModalRouteName,
   ComposeSubthreadModalRouteName,
 } from '../../navigation/route-names';
-import type { AppState } from '../../redux/redux-setup';
+import type { AppState } from '../../redux/state-types';
 import { useSelector } from '../../redux/redux-utils';
 import {
   useStyles,

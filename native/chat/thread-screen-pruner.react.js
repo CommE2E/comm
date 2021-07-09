@@ -12,7 +12,7 @@ import {
   getStateFromNavigatorRoute,
   getThreadIDFromRoute,
 } from '../navigation/navigation-utils';
-import type { AppState } from '../redux/redux-setup';
+import type { AppState } from '../redux/state-types';
 import { useSelector } from '../redux/redux-utils';
 
 const ThreadScreenPruner = React.memo<{||}>(() => {

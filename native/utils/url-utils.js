@@ -7,7 +7,7 @@ import type { Store } from 'redux';
 
 import { setURLPrefix } from 'lib/utils/url-utils';
 
-import type { AppState } from '../redux/redux-setup';
+import type { AppState } from '../redux/state-types';
 import { natDevHostname, checkForMissingNatDevHostname } from './dev-hostname';
 
 const localhostHostname = 'localhost';

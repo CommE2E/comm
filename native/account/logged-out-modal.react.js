@@ -303,10 +303,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     }
 
     if (loggedIn || hasUserCookie) {
-      this.props.dispatch({
-        type: resetUserStateActionType,
-        payload: null,
-      });
+      this.props.dispatch({ type: resetUserStateActionType });
     }
   }
 

@@ -10,40 +10,41 @@ import {
   recordAndroidNotificationActionType,
   clearAndroidNotificationsActionType,
   rescindAndroidNotificationActionType,
+  type Action,
 } from '../redux/action-types';
 import { getFirebase } from './firebase';
 
 type RecordAndroidNotificationPayload = {|
-  threadID: string,
-  notifID: string,
+  +threadID: string,
+  +notifID: string,
 |};
 
 type ClearAndroidNotificationsPayload = {|
-  threadID: string,
+  +threadID: string,
 |};
 
 type RescindAndroidNotificationPayload = {|
-  notifID: string,
-  threadID: string,
+  +notifID: string,
+  +threadID: string,
 |};
 
 export type AndroidNotificationActions =
   | {|
-      type: 'RECORD_ANDROID_NOTIFICATION',
-      payload: RecordAndroidNotificationPayload,
+      +type: 'RECORD_ANDROID_NOTIFICATION',
+      +payload: RecordAndroidNotificationPayload,
     |}
   | {|
-      type: 'CLEAR_ANDROID_NOTIFICATIONS',
-      payload: ClearAndroidNotificationsPayload,
+      +type: 'CLEAR_ANDROID_NOTIFICATIONS',
+      +payload: ClearAndroidNotificationsPayload,
     |}
   | {|
-      type: 'RESCIND_ANDROID_NOTIFICATION',
-      payload: RescindAndroidNotificationPayload,
+      +type: 'RESCIND_ANDROID_NOTIFICATION',
+      +payload: RescindAndroidNotificationPayload,
     |};
 
 function reduceThreadIDsToNotifIDs(
   state: { [threadID: string]: string[] },
-  action: AndroidNotificationActions,
+  action: Action,
 ): { [threadID: string]: string[] } {
   if (action.type === recordAndroidNotificationActionType) {
     const existingNotifIDs = state[action.payload.threadID];
