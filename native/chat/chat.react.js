@@ -25,6 +25,7 @@ import { threadIsPending } from 'lib/shared/thread-utils';
 import { firstLine } from 'lib/utils/string-utils';
 
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
+import SWMansionIcon from '../components/swmansion-icon.react';
 import { InputStateContext } from '../input/input-state';
 import HeaderBackButton from '../navigation/header-back-button.react';
 import { defaultStackScreenOptions } from '../navigation/options';
@@ -40,7 +41,7 @@ import {
   type ChatParamList,
   type ChatTopTabsParamList,
 } from '../navigation/route-names';
-import { useStyles } from '../themes/colors';
+import { useColors, useStyles } from '../themes/colors';
 import BackgroundChatThreadList from './background-chat-thread-list.react';
 import ChatHeader from './chat-header.react';
 import ChatRouter, { type ChatRouterNavigationProp } from './chat-router';
@@ -68,6 +69,7 @@ const unboundStyles = {
     elevation: 0,
     shadowOffset: { width: 0, height: 0 },
     borderBottomWidth: 0,
+    backgroundColor: '#0A0A0A',
   },
 };
 
@@ -77,15 +79,41 @@ export type ChatTopTabsNavigationProp<
 
 const homeChatThreadListOptions = {
   title: 'Home',
+  // eslint-disable-next-line react/display-name
+  tabBarIcon: ({ color }) => (
+    <SWMansionIcon name="home-1" size={22} style={{ color }} />
+  ),
 };
 const backgroundChatThreadListOptions = {
   title: 'Background',
+  // eslint-disable-next-line react/display-name
+  tabBarIcon: ({ color }) => (
+    <SWMansionIcon name="bell-disabled" size={22} style={{ color }} />
+  ),
 };
 
 const ChatThreadsTopTab = createMaterialTopTabNavigator();
-const ChatThreadsComponent = () => {
+function ChatThreadsComponent(): React.Node {
+  const colors = useColors();
+  const { tabBarBackground, tabBarAccent } = colors;
+  const tabBarOptions = React.useMemo(
+    () => ({
+      showIcon: true,
+      style: {
+        backgroundColor: tabBarBackground,
+      },
+      tabStyle: {
+        flexDirection: 'row',
+      },
+      indicatorStyle: {
+        borderColor: tabBarAccent,
+        borderBottomWidth: 2,
+      },
+    }),
+    [tabBarAccent, tabBarBackground],
+  );
   return (
-    <ChatThreadsTopTab.Navigator>
+    <ChatThreadsTopTab.Navigator tabBarOptions={tabBarOptions}>
       <ChatThreadsTopTab.Screen
         name={HomeChatThreadListRouteName}
         component={HomeChatThreadList}
@@ -98,7 +126,7 @@ const ChatThreadsComponent = () => {
       />
     </ChatThreadsTopTab.Navigator>
   );
-};
+}
 
 type ChatNavigatorProps = StackNavigatorProps<ChatRouterNavigationProp<>>;
 function ChatNavigator({

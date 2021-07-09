@@ -70,6 +70,9 @@ const light = Object.freeze({
   blockQuoteBorder: '#C0C0C0',
   codeBackground: '#DCDCDC',
   disconnectedBarBackground: '#C6C6C6',
+
+  tabBarBackground: '#F5F5F5',
+  tabBarAccent: '#AE94DB',
 });
 export type Colors = $Exact<typeof light>;
 
@@ -133,6 +136,9 @@ const dark: Colors = Object.freeze({
   blockQuoteBorder: '#808080',
   codeBackground: '#222222',
   disconnectedBarBackground: '#666666',
+
+  tabBarBackground: '#0A0A0A',
+  tabBarAccent: '#AE94DB',
 });
 const colors = { light, dark };
 

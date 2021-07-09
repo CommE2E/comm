@@ -23,14 +23,14 @@ type Props = {|
 |};
 class ComposeThreadButton extends React.PureComponent<Props> {
   render() {
-    const { link: linkColor } = this.props.colors;
+    const { listForegroundSecondaryLabel } = this.props.colors;
     return (
       <Button onPress={this.onPress} androidBorderlessRipple={true}>
         <SWMansionIcon
           name="edit-4"
           size={26}
           style={styles.composeButton}
-          color={linkColor}
+          color={listForegroundSecondaryLabel}
         />
       </Button>
     );
