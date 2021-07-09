@@ -79,6 +79,11 @@ export type RootParamList = {|
   +ImagePasteModal: ImagePasteModalParams,
 |};
 
+export type MessageTooltipRouteNames =
+  | typeof RobotextMessageTooltipModalRouteName
+  | typeof MultimediaMessageTooltipModalRouteName
+  | typeof TextMessageTooltipModalRouteName;
+
 export type TooltipModalParamList = {|
   +MultimediaMessageTooltipModal: MultimediaMessageTooltipModalParams,
   +TextMessageTooltipModal: TextMessageTooltipModalParams,

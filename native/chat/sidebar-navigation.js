@@ -7,27 +7,17 @@ import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { TooltipRoute } from '../navigation/tooltip.react';
 import { createNavigateToThreadAction } from './message-list-types';
 import { getSidebarThreadInfo } from './utils';
+import type { MessageTooltipRouteNames } from '../navigation/route-names';
 
-function navigateToSidebar(
-  route:
-    | TooltipRoute<'RobotextMessageTooltipModal'>
-    | TooltipRoute<'TextMessageTooltipModal'>
-    | TooltipRoute<'MultimediaMessageTooltipModal'>,
+function navigateToSidebar<RouteName: MessageTooltipRouteNames>(
+  route: TooltipRoute<RouteName>,
   dispatchFunctions: DispatchFunctions,
   bindServerCall: <F>(serverCall: ActionFunc<F>) => F,
   inputState: ?InputState,
-  navigation:
-    | AppNavigationProp<'RobotextMessageTooltipModal'>
-    | AppNavigationProp<'TextMessageTooltipModal'>
-    | AppNavigationProp<'MultimediaMessageTooltipModal'>,
+  navigation: AppNavigationProp<RouteName>,
   viewerID: ?string,
 ) {
   const threadInfo = getSidebarThreadInfo(route.params.item, viewerID);
-  // Necessary for Flow...
-  // eslint-disable-next-line no-empty
-  if (route.name === 'RobotextMessageTooltipModal') {
-  }
-
   navigation.navigate(createNavigateToThreadAction({ threadInfo }));
 }
 
