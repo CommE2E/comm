@@ -177,7 +177,7 @@ const defaultState = ({
 
 function reducer(state: AppState = defaultState, action: *) {
   if (action.type === setReduxStateActionType) {
-    return action.state;
+    return action.payload.state;
   }
   if (
     (action.type === setNewSessionActionType &&

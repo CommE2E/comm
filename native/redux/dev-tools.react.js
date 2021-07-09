@@ -94,8 +94,10 @@ const DevTools = React.memo<{||}>(() => {
       }
       reduxDispatch({
         type: setReduxStateActionType,
-        state: reduxState,
-        hideFromMonitor: true,
+        payload: {
+          state: reduxState,
+          hideFromMonitor: true,
+        },
       });
     },
     [reduxDispatch, navDispatch],
