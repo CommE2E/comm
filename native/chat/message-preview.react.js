@@ -10,6 +10,7 @@ import { stringForUser } from 'lib/shared/user-utils';
 import {
   type MessageInfo,
   messageTypes,
+  type MessageType,
   type ComposableMessageInfo,
   type RobotextMessageInfo,
 } from 'lib/types/message-types';
@@ -57,8 +58,9 @@ function MessagePreview(props: Props) {
       </Text>
     );
   } else {
+    const messageType: MessageType = messageInfo.type;
     invariant(
-      messageInfo.type !== messageTypes.SIDEBAR_SOURCE,
+      messageType !== messageTypes.SIDEBAR_SOURCE,
       'Sidebar source should not be handled here',
     );
     return (

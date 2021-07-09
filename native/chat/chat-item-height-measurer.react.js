@@ -5,7 +5,7 @@ import * as React from 'react';
 
 import type { ChatMessageItem } from 'lib/selectors/chat-selectors';
 import { messageID } from 'lib/shared/message-utils';
-import { messageTypes } from 'lib/types/message-types';
+import { messageTypes, type MessageType } from 'lib/types/message-types';
 
 import NodeHeightMeasurer from '../components/node-height-measurer.react';
 import { InputStateContext } from '../input/input-state';
@@ -63,8 +63,9 @@ function ChatItemHeightMeasurer(props: Props) {
       }
 
       const { messageInfo } = item;
+      const messageType: MessageType = messageInfo.type;
       invariant(
-        messageInfo.type !== messageTypes.SIDEBAR_SOURCE,
+        messageType !== messageTypes.SIDEBAR_SOURCE,
         'Sidebar source messages should be replaced by sourceMessage before being measured',
       );
 

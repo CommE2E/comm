@@ -116,7 +116,7 @@ class FFmpeg {
   static async innerGetVideoInfo(path: string) {
     const info = await RNFFprobe.getMediaInformation(path);
     const videoStreamInfo = FFmpeg.getVideoStreamInfo(info);
-    const codec = videoStreamInfo && videoStreamInfo.codec;
+    const codec = videoStreamInfo?.codec;
     const dimensions = videoStreamInfo && videoStreamInfo.dimensions;
     const format = info.format.split(',');
     const duration = info.duration / 1000;
@@ -129,7 +129,9 @@ class FFmpeg {
     }
     for (const stream of info.streams) {
       if (stream.type === 'video') {
-        const { codec, width, height } = stream;
+        const codec: string = stream.codec;
+        const width: number = stream.width;
+        const height: number = stream.height;
         return { codec, dimensions: { width, height } };
       }
     }

@@ -6,7 +6,7 @@ import type { ErrorInfo, ErrorData } from 'lib/types/report-types';
 
 import Crash from './crash.react';
 
-let instance = null;
+let instance: ?ErrorBoundary = null;
 const defaultHandler = global.ErrorUtils.getGlobalHandler();
 global.ErrorUtils.setGlobalHandler(error => {
   defaultHandler(error);

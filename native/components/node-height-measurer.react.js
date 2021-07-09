@@ -109,13 +109,13 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
     };
   }
 
-  static getDerivedStateFromProps(
-    props: Props<Item, MergedItem>,
-    state: State<Item, MergedItem>,
-  ) {
+  static getDerivedStateFromProps<InnerItem, InnerMergedItem>(
+    props: Props<InnerItem, InnerMergedItem>,
+    state: State<InnerItem, InnerMergedItem>,
+  ): ?Shape<State<InnerItem, InnerMergedItem>> {
     return NodeHeightMeasurer.getPossibleStateUpdateForNextBatch<
-      Item,
-      MergedItem,
+      InnerItem,
+      InnerMergedItem,
     >(props, state);
   }
 

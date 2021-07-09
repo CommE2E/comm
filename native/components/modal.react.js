@@ -4,7 +4,6 @@ import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import { View, TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import type { Edge } from 'react-native-safe-area-context';
 
 import { useStyles } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
@@ -14,7 +13,7 @@ type Props = $ReadOnly<{|
   +children: React.Node,
   +containerStyle?: ViewStyle,
   +modalStyle?: ViewStyle,
-  +safeAreaEdges?: $ReadOnlyArray<Edge>,
+  +safeAreaEdges?: $ReadOnlyArray<'top' | 'right' | 'bottom' | 'left'>,
 |}>;
 function Modal(props: Props) {
   const navigation = useNavigation();
