@@ -584,7 +584,7 @@ const unboundStyles = {
   search: {
     marginBottom: 8,
     marginHorizontal: 18,
-    marginTop: 12,
+    marginTop: 16,
   },
   cancelSearchButton: {
     position: 'absolute',
@@ -597,7 +597,8 @@ const unboundStyles = {
   cancelSearchButtonText: {
     color: 'link',
     fontSize: 16,
-    paddingHorizontal: 10,
+    paddingHorizontal: 16,
+    paddingTop: 8,
   },
   flatList: {
     flex: 1,

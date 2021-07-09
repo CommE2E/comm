@@ -8,13 +8,13 @@ import {
   Text,
   Platform,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { isLoggedIn } from 'lib/selectors/user-selectors';
 
 import { useSelector } from '../redux/redux-utils';
 import { useStyles, useColors } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
+import SWMansionIcon from './swmansion-icon.react';
 
 type Props = {|
   ...React.ElementConfig<typeof TextInput>,
@@ -53,7 +53,7 @@ function ForwardedSearch(props: Props, ref: React.Ref<typeof TextInput>) {
         activeOpacity={0.5}
         style={styles.clearSearchButton}
       >
-        <Icon name="times-circle" size={18} color={iconColor} />
+        <SWMansionIcon name="cross-circle" size={20} color={iconColor} />
       </TouchableOpacity>
     );
   }
@@ -91,7 +91,7 @@ function ForwardedSearch(props: Props, ref: React.Ref<typeof TextInput>) {
 
   return (
     <View style={[styles.search, containerStyle]}>
-      <Icon name="search" size={18} color={iconColor} />
+      <SWMansionIcon name="search" size={22} color={iconColor} />
       {textNode}
       {clearSearchInputIcon}
     </View>
@@ -126,7 +126,8 @@ const unboundStyles = {
     borderBottomColor: 'transparent',
   },
   clearSearchButton: {
-    padding: 5,
+    paddingVertical: 5,
+    paddingLeft: 5,
   },
 };
 
