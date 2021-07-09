@@ -63,12 +63,20 @@ div.footer_grid {
   padding-right: 60px;
   padding-top: 20px;
   padding-bottom: 40px;
+  transition-property: max-width;
+  transition: 300ms;
 }
 
 /* ===== CSS HEADER GRID LAYOUT ===== */
 div.header_grid {
   padding-bottom: 0px;
   grid-template-areas: 'logo logo';
+}
+
+div.header_legal {
+  max-width: 1080px;
+  transition-property: max-width;
+  transition: 300ms;
 }
 
 div.header_grid a {
@@ -151,7 +159,7 @@ div.subscribe_updates {
 
 /* ===== LEGAL PAGE STYLING ===== */
 div.legal_container {
-  max-width: 1920px;
+  max-width: 1080px;
   margin-left: auto;
   margin-right: auto;
   padding-left: 60px;

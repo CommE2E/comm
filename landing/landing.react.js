@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { Switch, Route, Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useRouteMatch } from 'react-router-dom';
 
 import Home from './home.react';
 import css from './landing.css';
@@ -16,20 +16,37 @@ function Landing(): React.Node {
     window?.scrollTo(0, 0);
   }, [pathname]);
 
+  const onPrivacy = useRouteMatch({ path: '/privacy' });
+  const onTerms = useRouteMatch({ path: '/terms' });
+  const onSupport = useRouteMatch({ path: '/support' });
+  const headerStyle = React.useMemo(
+    () =>
+      onPrivacy || onTerms || onSupport
+        ? `${css.header_grid} ${css.header_legal}`
+        : css.header_grid,
+    [onPrivacy, onSupport, onTerms],
+  );
+
+  const activeNode = React.useMemo(() => {
+    if (onPrivacy) {
+      return <Privacy />;
+    } else if (onTerms) {
+      return <Terms />;
+    } else if (onSupport) {
+      return <Support />;
+    }
+    return <Home />;
+  }, [onPrivacy, onSupport, onTerms]);
+
   return (
     <>
-      <div className={css.header_grid}>
+      <div className={headerStyle}>
         <Link to="/">
           <h1 className={css.logo}>Comm</h1>
         </Link>
       </div>
 
-      <Switch>
-        <Route path="/support" component={Support} />
-        <Route path="/terms" component={Terms} />
-        <Route path="/privacy" component={Privacy} />
-        <Route path="/" component={Home} />
-      </Switch>
+      {activeNode}
 
       <div className={css.footer_blur}>
         <div className={css.footer_grid}>
