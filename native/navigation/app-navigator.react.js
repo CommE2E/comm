@@ -98,6 +98,7 @@ const tabBarOptions = {
   activeTintColor: '#AE94DB',
   style: {
     backgroundColor: '#0A0A0A',
+    borderTopWidth: 1,
   },
 };
 function TabNavigator() {

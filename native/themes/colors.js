@@ -115,7 +115,7 @@ const dark: Colors = Object.freeze({
   listForegroundSecondaryLabel: '#CCCCCC',
   listForegroundTertiaryLabel: '#999999',
   listForegroundQuaternaryLabel: '#555555',
-  listBackground: '#1C1C1E',
+  listBackground: '#0A0A0A',
   listBackgroundLabel: '#C7C7CC',
   listBackgroundSecondaryLabel: '#BBBBBB',
   listBackgroundTernaryLabel: '#888888',
