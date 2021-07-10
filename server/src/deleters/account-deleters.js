@@ -52,10 +52,6 @@ async function deleteAccount(
     START TRANSACTION;
     DELETE FROM users WHERE id = ${deletedUserID};
     DELETE FROM ids WHERE id = ${deletedUserID};
-    DELETE v, i
-      FROM verifications v
-      LEFT JOIN ids i ON i.id = v.id
-      WHERE v.user = ${deletedUserID};
     DELETE c, i
       FROM cookies c
       LEFT JOIN ids i ON i.id = c.id
