@@ -181,11 +181,6 @@ const header = (props: CoreStackHeaderProps) => {
   return <ChatHeader {...castProps} />;
 };
 const headerBackButton = (props) => <HeaderBackButton {...props} />;
-const screenOptions = {
-  ...defaultStackScreenOptions,
-  header,
-  headerLeft: headerBackButton,
-};
 
 const chatThreadListOptions = ({ navigation }) => ({
   headerTitle: 'Threads',
@@ -193,7 +188,7 @@ const chatThreadListOptions = ({ navigation }) => ({
     Platform.OS === 'ios'
       ? () => <ComposeThreadButton navigate={navigation.navigate} />
       : undefined,
-  headerBackTitle: 'Back',
+  headerBackTitleVisible: false,
   headerStyle: unboundStyles.threadListHeaderStyle,
 });
 const messageListOptions = ({ navigation, route }) => ({
@@ -221,19 +216,19 @@ const messageListOptions = ({ navigation, route }) => ({
           />
         )
       : undefined,
-  headerBackTitle: 'Back',
+  headerBackTitleVisible: false,
 });
 const composeThreadOptions = {
   headerTitle: 'Compose thread',
-  headerBackTitle: 'Back',
+  headerBackTitleVisible: false,
 };
 const threadSettingsOptions = ({ route }) => ({
   headerTitle: firstLine(route.params.threadInfo.uiName),
-  headerBackTitle: 'Back',
+  headerBackTitleVisible: false,
 });
 const deleteThreadOptions = {
   headerTitle: 'Delete thread',
-  headerBackTitle: 'Back',
+  headerBackTitleVisible: false,
 };
 
 export type ChatNavigationProp<
@@ -247,6 +242,7 @@ const Chat = createChatNavigator<
 >();
 export default function ChatComponent() {
   const styles = useStyles(unboundStyles);
+  const colors = useColors();
   const behavior = Platform.select({
     android: 'height',
     default: 'padding',
@@ -256,6 +252,20 @@ export default function ChatComponent() {
   if (loggedIn) {
     draftUpdater = <ThreadDraftUpdater />;
   }
+
+  const screenOptions = React.useMemo(
+    () => ({
+      ...defaultStackScreenOptions,
+      header,
+      headerLeft: headerBackButton,
+      headerStyle: {
+        backgroundColor: colors.tabBarBackground,
+        borderBottomWidth: 1,
+      },
+    }),
+    [colors.tabBarBackground],
+  );
+
   return (
     <View style={styles.view}>
       <KeyboardAvoidingView
