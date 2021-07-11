@@ -278,8 +278,11 @@ async function createTables() {
 
     ALTER TABLE updates
       ADD PRIMARY KEY (id),
-      ADD KEY user_time (user,time),
-      ADD KEY user_key_type (user,\`key\`,type);
+      ADD INDEX user_time (user,time),
+      ADD INDEX target_time (target, time),
+      ADD INDEX user_key_target_type_time (user, \`key\`, target, type, time),
+      ADD INDEX user_key_type_time (user, \`key\`, type, time),
+      ADD INDEX user_key_time (user, \`key\`, time);
 
     ALTER TABLE uploads
       ADD PRIMARY KEY (id);
