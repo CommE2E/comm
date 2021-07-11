@@ -549,6 +549,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
             style={this.props.styles.textInput}
             textInputRef={this.textInputRef}
             ref={this.clearableTextInputRef}
+            selectionColor={`#${this.props.threadInfo.color}`}
           />
           <Animated.View style={this.sendButtonContainerStyle}>
             <TouchableOpacity
