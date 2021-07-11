@@ -54,7 +54,7 @@ class ComposeThreadButton extends React.PureComponent<Props> {
 
 const styles = StyleSheet.create({
   composeButton: {
-    paddingHorizontal: 10,
+    marginRight: 16,
   },
 });
 
