@@ -15,7 +15,6 @@ import {
 } from 'react-native';
 import { TextInputKeyboardMangerIOS } from 'react-native-keyboard-input';
 import Animated, { Easing } from 'react-native-reanimated';
-import FAIcon from 'react-native-vector-icons/FontAwesome';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useDispatch } from 'react-redux';
 
@@ -54,6 +53,7 @@ import {
 
 import Button from '../components/button.react';
 import ClearableTextInput from '../components/clearable-text-input.react';
+import SWMansionIcon from '../components/swmansion-icon.react';
 import { type UpdateDraft, type MoveDraft, useDrafts } from '../data/core-data';
 import { type InputState, InputStateContext } from '../input/input-state';
 import { getKeyboardHeight } from '../keyboard/keyboard';
@@ -93,7 +93,7 @@ const {
 /* eslint-enable import/no-named-as-default-member */
 
 const expandoButtonsAnimationConfig = {
-  duration: 500,
+  duration: 150,
   easing: Easing.inOut(Easing.ease),
 };
 const sendButtonAnimationConfig = {
@@ -201,7 +201,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
     const expandoButtonsWidth = interpolate(expandoButtonsOpen, {
       inputRange: [0, 1],
-      outputRange: [22, 60],
+      outputRange: [22, 66],
     });
     this.expandoButtonsStyle = {
       ...unboundStyles.expandoButtons,
@@ -496,9 +496,9 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         style={this.props.styles.expandButton}
       >
         <Animated.View style={this.expandIconStyle}>
-          <FAIcon
+          <SWMansionIcon
             name="chevron-right"
-            size={19}
+            size={22}
             color={this.props.colors.listInputButton}
           />
         </Animated.View>
@@ -516,9 +516,9 @@ class ChatInputBar extends React.PureComponent<Props, State> {
                 activeOpacity={0.4}
               >
                 <Animated.View style={this.cameraRollIconStyle}>
-                  <Icon
-                    name="md-image"
-                    size={25}
+                  <SWMansionIcon
+                    name="image-1"
+                    size={24}
                     color={this.props.colors.listInputButton}
                   />
                 </Animated.View>
@@ -529,9 +529,9 @@ class ChatInputBar extends React.PureComponent<Props, State> {
                 disabled={!this.state.buttonsExpanded}
               >
                 <Animated.View style={this.cameraIconStyle}>
-                  <FAIcon
+                  <SWMansionIcon
                     name="camera"
-                    size={20}
+                    size={24}
                     color={this.props.colors.listInputButton}
                   />
                 </Animated.View>
@@ -715,12 +715,12 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
 const unboundStyles = {
   cameraIcon: {
-    paddingBottom: Platform.OS === 'android' ? 11 : 10,
-    paddingRight: 3,
+    paddingBottom: Platform.OS === 'android' ? 12 : 11,
+    paddingRight: 4,
   },
   cameraRollIcon: {
-    paddingBottom: Platform.OS === 'android' ? 8 : 7,
-    paddingRight: 8,
+    paddingBottom: Platform.OS === 'android' ? 12 : 11,
+    paddingRight: 6,
   },
   container: {
     backgroundColor: 'listBackground',
@@ -731,7 +731,7 @@ const unboundStyles = {
     right: 0,
   },
   expandIcon: {
-    paddingBottom: Platform.OS === 'android' ? 12 : 10,
+    paddingBottom: Platform.OS === 'android' ? 13 : 11,
   },
   expandoButtons: {
     alignSelf: 'flex-end',
@@ -774,21 +774,23 @@ const unboundStyles = {
   },
   sendButton: {
     position: 'absolute',
-    bottom: Platform.OS === 'android' ? 4 : 3,
+    bottom: 4,
     left: 0,
   },
   sendIcon: {
     paddingLeft: 9,
     paddingRight: 8,
-    paddingVertical: 5,
+    paddingVertical: 6,
   },
   textInput: {
     backgroundColor: 'listInputBackground',
-    borderRadius: 10,
+    borderRadius: 12,
     color: 'listForegroundLabel',
     fontSize: 16,
     marginLeft: 4,
-    marginVertical: 5,
+    marginRight: 4,
+    marginTop: 6,
+    marginBottom: 8,
     maxHeight: 250,
     paddingHorizontal: 10,
     paddingVertical: 5,
