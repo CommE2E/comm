@@ -7,10 +7,10 @@ import { useColors } from '../themes/colors';
 
 type Props = React.ElementConfig<typeof BaseHeaderBackButton>;
 function HeaderBackButton(props: Props) {
-  const { link: tintColor } = useColors();
+  const { headerChevron } = useColors();
   if (!props.canGoBack) {
     return null;
   }
-  return <BaseHeaderBackButton {...props} tintColor={tintColor} />;
+  return <BaseHeaderBackButton {...props} tintColor={headerChevron} />;
 }
 export default HeaderBackButton;

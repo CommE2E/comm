@@ -93,7 +93,7 @@ const unboundStyles = {
   forwardIcon: {
     paddingLeft: 7,
     paddingTop: 3,
-    color: 'link',
+    color: 'headerChevron',
     flex: 1,
     minWidth: 25,
   },
