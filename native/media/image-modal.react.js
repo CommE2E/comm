@@ -17,12 +17,12 @@ import {
 } from 'react-native-gesture-handler';
 import Orientation from 'react-native-orientation-locker';
 import Animated from 'react-native-reanimated';
-import Icon from 'react-native-vector-icons/Ionicons';
 
 import { type MediaInfo, type Dimensions } from 'lib/types/media-types';
 import { useIsReportEnabled } from 'lib/utils/report-utils';
 
 import type { ChatMultimediaMessageInfoItem } from '../chat/multimedia-message.react';
+import SWMansionIcon from '../components/swmansion-icon.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import {
@@ -1055,10 +1055,7 @@ class ImageModal extends React.PureComponent<Props, State> {
             onLayout={this.onSaveButtonLayout}
             ref={this.saveButtonRef}
           >
-            <Icon
-              name={Platform.OS === 'ios' ? 'ios-save' : 'md-save'}
-              style={styles.saveButtonIcon}
-            />
+            <SWMansionIcon name="save" style={styles.saveButtonIcon} />
             <Text style={styles.saveButtonText}>Save</Text>
           </TouchableOpacity>
         </Animated.View>
