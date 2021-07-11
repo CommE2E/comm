@@ -74,6 +74,7 @@ const light = Object.freeze({
   tabBarBackground: '#F5F5F5',
   tabBarAccent: '#AE94DB',
   headerChevron: '#0A0A0A',
+  navigationChevron: '#A4A4A2',
 });
 export type Colors = $Exact<typeof light>;
 
@@ -88,7 +89,7 @@ const dark: Colors = Object.freeze({
   link: '#129AFF',
   panelBackground: '#0A0A0A',
   panelBackgroundLabel: '#C7C7CC',
-  panelForeground: '#3A3A3C',
+  panelForeground: '#1D1D1D',
   panelForegroundBorder: '#2C2C2E',
   panelForegroundLabel: 'white',
   panelForegroundSecondaryLabel: '#CCCCCC',
@@ -135,12 +136,13 @@ const dark: Colors = Object.freeze({
   floatingButtonLabel: 'white',
   blockQuoteBackground: '#A9A9A9',
   blockQuoteBorder: '#808080',
-  codeBackground: '#222222',
+  codeBackground: '#0A0A0A',
   disconnectedBarBackground: '#1D1D1D',
 
   tabBarBackground: '#0A0A0A',
   tabBarAccent: '#AE94DB',
   headerChevron: '#FFFFFF',
+  navigationChevron: '#5B5B5D',
 });
 const colors = { light, dark };
 

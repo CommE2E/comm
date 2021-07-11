@@ -68,7 +68,7 @@ class ProfileScreen extends React.PureComponent<Props> {
   render() {
     const {
       panelIosHighlightUnderlay: underlay,
-      link: linkColor,
+      navigationChevron,
     } = this.props.colors;
 
     let appearancePreferences, developerTools;
@@ -84,7 +84,7 @@ class ProfileScreen extends React.PureComponent<Props> {
           iosHighlightUnderlayColor={underlay}
         >
           <Text style={this.props.styles.submenuText}>Appearance</Text>
-          <Icon name="ios-arrow-forward" size={20} color={linkColor} />
+          <Icon name="ios-arrow-forward" size={20} color={navigationChevron} />
         </Button>
       );
       developerTools = (
@@ -95,7 +95,7 @@ class ProfileScreen extends React.PureComponent<Props> {
           iosHighlightUnderlayColor={underlay}
         >
           <Text style={this.props.styles.submenuText}>Developer tools</Text>
-          <Icon name="ios-arrow-forward" size={20} color={linkColor} />
+          <Icon name="ios-arrow-forward" size={20} color={navigationChevron} />
         </Button>
       );
     }
@@ -147,7 +147,11 @@ class ProfileScreen extends React.PureComponent<Props> {
               iosHighlightUnderlayColor={underlay}
             >
               <Text style={this.props.styles.submenuText}>Friend list</Text>
-              <Icon name="ios-arrow-forward" size={20} color={linkColor} />
+              <Icon
+                name="ios-arrow-forward"
+                size={20}
+                color={navigationChevron}
+              />
             </Button>
             <Button
               onPress={this.onPressBlockList}
@@ -156,7 +160,11 @@ class ProfileScreen extends React.PureComponent<Props> {
               iosHighlightUnderlayColor={underlay}
             >
               <Text style={this.props.styles.submenuText}>Block list</Text>
-              <Icon name="ios-arrow-forward" size={20} color={linkColor} />
+              <Icon
+                name="ios-arrow-forward"
+                size={20}
+                color={navigationChevron}
+              />
             </Button>
           </View>
 
@@ -170,7 +178,11 @@ class ProfileScreen extends React.PureComponent<Props> {
               iosHighlightUnderlayColor={underlay}
             >
               <Text style={this.props.styles.submenuText}>Privacy</Text>
-              <Icon name="ios-arrow-forward" size={20} color={linkColor} />
+              <Icon
+                name="ios-arrow-forward"
+                size={20}
+                color={navigationChevron}
+              />
             </Button>
           </View>
 
@@ -182,7 +194,11 @@ class ProfileScreen extends React.PureComponent<Props> {
               iosHighlightUnderlayColor={underlay}
             >
               <Text style={this.props.styles.submenuText}>Build info</Text>
-              <Icon name="ios-arrow-forward" size={20} color={linkColor} />
+              <Icon
+                name="ios-arrow-forward"
+                size={20}
+                color={navigationChevron}
+              />
             </Button>
             {developerTools}
           </View>

@@ -72,7 +72,9 @@ const unboundStyles = {
   },
   container: {
     height,
-    backgroundColor: 'panelSecondaryForeground',
+    backgroundColor: 'panelForeground',
+    borderBottomWidth: 1,
+    borderColor: 'panelForegroundBorder',
   },
   contentContainer: {
     paddingHorizontal: 12,

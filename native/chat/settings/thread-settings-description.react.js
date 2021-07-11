@@ -248,7 +248,7 @@ const unboundStyles = {
     textAlign: 'right',
   },
   outlineCategory: {
-    backgroundColor: 'panelSecondaryForeground',
+    backgroundColor: 'panelForeground',
     borderColor: 'panelSecondaryForegroundBorder',
     borderRadius: 1,
     borderStyle: 'dashed',
