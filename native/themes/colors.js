@@ -75,6 +75,7 @@ const light = Object.freeze({
   tabBarAccent: '#AE94DB',
   headerChevron: '#0A0A0A',
   navigationChevron: '#A4A4A2',
+  editButton: '#A4A4A2',
 });
 export type Colors = $Exact<typeof light>;
 
@@ -143,6 +144,7 @@ const dark: Colors = Object.freeze({
   tabBarAccent: '#AE94DB',
   headerChevron: '#FFFFFF',
   navigationChevron: '#5B5B5D',
+  editButton: '#5B5B5D',
 });
 const colors = { light, dark };
 

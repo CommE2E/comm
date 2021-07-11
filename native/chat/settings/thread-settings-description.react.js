@@ -3,7 +3,6 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { Text, Alert, ActivityIndicator, TextInput, View } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
 
 import {
   changeThreadSettingsActionTypes,
@@ -26,6 +25,7 @@ import {
 
 import Button from '../../components/button.react';
 import EditSettingButton from '../../components/edit-setting-button.react';
+import SWMansionIcon from '../../components/swmansion-icon.react';
 import { useSelector } from '../../redux/redux-utils';
 import { type Colors, useStyles, useColors } from '../../themes/colors';
 import type {
@@ -146,9 +146,9 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
               <Text style={this.props.styles.addDescriptionText}>
                 Add a description...
               </Text>
-              <Icon
-                name="pencil"
-                size={16}
+              <SWMansionIcon
+                name="edit-1"
+                size={20}
                 style={this.props.styles.editIcon}
               />
             </Button>

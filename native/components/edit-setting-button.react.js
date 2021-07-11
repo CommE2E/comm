@@ -2,10 +2,10 @@
 
 import * as React from 'react';
 import { TouchableOpacity, StyleSheet, Platform } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { useColors } from '../themes/colors';
 import type { TextStyle } from '../types/styles';
+import SWMansionIcon from './swmansion-icon.react';
 
 type Props = {|
   +onPress: () => void,
@@ -21,10 +21,15 @@ function EditSettingButton(props: Props) {
   if (props.style) {
     appliedStyles.push(props.style);
   }
-  const { link: linkColor } = colors;
+  const { modalForegroundSecondaryLabel } = colors;
   return (
     <TouchableOpacity onPress={props.onPress}>
-      <Icon name="pencil" size={16} style={appliedStyles} color={linkColor} />
+      <SWMansionIcon
+        name="edit-1"
+        size={20}
+        style={appliedStyles}
+        color={modalForegroundSecondaryLabel}
+      />
     </TouchableOpacity>
   );
 }
