@@ -23,7 +23,7 @@ import {
   type ScreenParamList,
   type ProfileParamList,
 } from '../navigation/route-names';
-import { useStyles } from '../themes/colors';
+import { useStyles, useColors } from '../themes/colors';
 import AppearancePreferences from './appearance-preferences.react';
 import BuildInfo from './build-info.react';
 import DeleteAccount from './delete-account.react';
@@ -36,10 +36,6 @@ import RelationshipList from './relationship-list.react';
 
 const header = (props: StackHeaderProps) => <ProfileHeader {...props} />;
 const headerBackButton = (props) => <HeaderBackButton {...props} />;
-const screenOptions = {
-  header,
-  headerLeft: headerBackButton,
-};
 const profileScreenOptions = { headerTitle: 'Profile' };
 const editPasswordOptions = { headerTitle: 'Change password' };
 const deleteAccountOptions = { headerTitle: 'Delete account' };
@@ -47,14 +43,8 @@ const buildInfoOptions = { headerTitle: 'Build info' };
 const devToolsOptions = { headerTitle: 'Developer tools' };
 const appearanceOptions = { headerTitle: 'Appearance' };
 const privacyOptions = { headerTitle: 'Privacy' };
-const friendListOptions = {
-  headerTitle: 'Friend list',
-  headerBackTitle: 'Back',
-};
-const blockListOptions = {
-  headerTitle: 'Block list',
-  headerBackTitle: 'Back',
-};
+const friendListOptions = { headerTitle: 'Friend list' };
+const blockListOptions = { headerTitle: 'Block list' };
 
 export type ProfileNavigationProp<
   RouteName: $Keys<ProfileParamList> = $Keys<ProfileParamList>,
@@ -67,6 +57,20 @@ const Profile = createStackNavigator<
 >();
 function ProfileComponent() {
   const styles = useStyles(unboundStyles);
+  const colors = useColors();
+
+  const screenOptions = React.useMemo(
+    () => ({
+      header,
+      headerLeft: headerBackButton,
+      headerStyle: {
+        backgroundColor: colors.tabBarBackground,
+        shadowOpacity: 0,
+      },
+    }),
+    [colors.tabBarBackground],
+  );
+
   return (
     <View style={styles.view}>
       <KeyboardAvoidingView
