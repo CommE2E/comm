@@ -3,13 +3,13 @@
 import * as React from 'react';
 import { Text } from 'react-native';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import { threadTypeDescriptions } from 'lib/shared/thread-utils';
 import { type ThreadInfo, threadTypes } from 'lib/types/thread-types';
 
 import Button from '../../components/button.react';
 import Modal from '../../components/modal.react';
+import SWMansionIcon from '../../components/swmansion-icon.react';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react';
 import type { NavigationRoute } from '../../navigation/route-names';
 import { ComposeThreadRouteName } from '../../navigation/route-names';
@@ -35,8 +35,8 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
       <Modal modalStyle={this.props.styles.modal}>
         <Text style={this.props.styles.visibility}>Thread type</Text>
         <Button style={this.props.styles.option} onPress={this.onPressOpen}>
-          <Icon
-            name="public"
+          <SWMansionIcon
+            name="globe-1"
             size={32}
             style={this.props.styles.visibilityIcon}
           />
@@ -51,8 +51,8 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
           />
         </Button>
         <Button style={this.props.styles.option} onPress={this.onPressSecret}>
-          <Icon
-            name="lock-outline"
+          <SWMansionIcon
+            name="lock-on"
             size={32}
             style={this.props.styles.visibilityIcon}
           />
@@ -101,7 +101,7 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
 
 const unboundStyles = {
   forwardIcon: {
-    color: 'link',
+    color: 'modalForegroundSecondaryLabel',
     paddingLeft: 10,
   },
   modal: {

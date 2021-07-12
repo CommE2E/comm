@@ -3,9 +3,10 @@
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 
 import { threadTypes, type ThreadType } from 'lib/types/thread-types';
+
+import SWMansionIcon from './swmansion-icon.react';
 
 type Props = {|
   +threadType: ThreadType,
@@ -17,9 +18,7 @@ function ThreadIcon(props: Props) {
     threadType === threadTypes.COMMUNITY_OPEN_SUBTHREAD ||
     threadType === threadTypes.COMMUNITY_OPEN_ANNOUNCEMENT_SUBTHREAD
   ) {
-    return <MaterialIcon name="public" size={18} color={color} />;
-  } else if (threadType === threadTypes.PRIVATE) {
-    return <MaterialIcon name="lock" size={18} color={color} />;
+    return <SWMansionIcon name="globe-1" size={18} color={color} />;
   } else if (threadType === threadTypes.SIDEBAR) {
     return (
       <EntypoIcon
@@ -30,9 +29,9 @@ function ThreadIcon(props: Props) {
       />
     );
   } else if (threadType === threadTypes.PERSONAL) {
-    return <MaterialIcon name="people" size={18} color={color} />;
+    return <SWMansionIcon name="users" size={18} color={color} />;
   } else {
-    return <MaterialIcon name="lock-outline" size={18} color={color} />;
+    return <SWMansionIcon name="lock-on" size={18} color={color} />;
   }
 }
 
