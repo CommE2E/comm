@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 import { TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
 
+import SWMansionIcon from '../../components/swmansion-icon.react';
 import { useStyles } from '../../themes/colors';
 
 type Props = {|
@@ -12,21 +12,15 @@ type Props = {|
 function SaveSettingButton(props: Props) {
   const styles = useStyles(unboundStyles);
   return (
-    <TouchableOpacity onPress={props.onPress} style={styles.container}>
-      <Icon name="md-checkbox-outline" size={24} style={styles.editIcon} />
+    <TouchableOpacity onPress={props.onPress}>
+      <SWMansionIcon name="check-circle" size={20} style={styles.saveIcon} />
     </TouchableOpacity>
   );
 }
 
 const unboundStyles = {
-  container: {
-    width: 26,
-  },
-  editIcon: {
-    color: 'greenButton',
-    position: 'absolute',
-    right: 0,
-    top: -3,
+  saveIcon: {
+    color: 'modalForegroundSecondaryLabel',
   },
 };
 
