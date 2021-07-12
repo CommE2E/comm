@@ -51,7 +51,9 @@ const height = 48;
 const unboundStyles = {
   container: {
     height,
-    backgroundColor: 'modalSubtext',
+    backgroundColor: 'panelForeground',
+    borderBottomWidth: 1,
+    borderBottomColor: 'panelForegroundBorder',
   },
   contentContainer: {
     alignItems: 'center',
