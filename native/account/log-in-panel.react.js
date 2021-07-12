@@ -4,7 +4,6 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View, StyleSheet, Alert, Keyboard, Platform } from 'react-native';
 import Animated from 'react-native-reanimated';
-import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -25,6 +24,7 @@ import {
   type DispatchActionPromise,
 } from 'lib/utils/action-utils';
 
+import SWMansionIcon from '../components/swmansion-icon.react';
 import { NavContext } from '../navigation/navigation-context';
 import { useSelector } from '../redux/redux-utils';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
@@ -98,7 +98,12 @@ class LogInPanel extends React.PureComponent<Props> {
     return (
       <Panel opacityValue={this.props.opacityValue}>
         <View style={styles.row}>
-          <Icon name="user" size={22} color="#777" style={styles.icon} />
+          <SWMansionIcon
+            name="user"
+            size={22}
+            color="#555"
+            style={styles.icon}
+          />
           <TextInput
             style={styles.input}
             value={this.usernameInputText}
@@ -119,7 +124,12 @@ class LogInPanel extends React.PureComponent<Props> {
           />
         </View>
         <View style={styles.row}>
-          <Icon name="lock" size={22} color="#777" style={styles.icon} />
+          <SWMansionIcon
+            name="lock-on"
+            size={22}
+            color="#555"
+            style={styles.icon}
+          />
           <TextInput
             style={styles.input}
             value={this.passwordInputText}
@@ -323,7 +333,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   icon: {
-    bottom: 8,
+    bottom: 10,
     left: 4,
     position: 'absolute',
   },

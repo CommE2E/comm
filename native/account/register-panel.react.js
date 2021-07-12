@@ -12,7 +12,6 @@ import {
   Linking,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
-import Icon from 'react-native-vector-icons/FontAwesome';
 
 import { registerActionTypes, register } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -30,6 +29,7 @@ import {
   type DispatchActionPromise,
 } from 'lib/utils/action-utils';
 
+import SWMansionIcon from '../components/swmansion-icon.react';
 import { NavContext } from '../navigation/navigation-context';
 import { useSelector } from '../redux/redux-utils';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
@@ -91,7 +91,12 @@ class RegisterPanel extends React.PureComponent<Props, State> {
     return (
       <Panel opacityValue={this.props.opacityValue} style={styles.container}>
         <View style={styles.row}>
-          <Icon name="user" size={22} color="#777" style={styles.icon} />
+          <SWMansionIcon
+            name="user"
+            size={22}
+            color="#555"
+            style={styles.icon}
+          />
           <TextInput
             style={styles.input}
             value={this.props.registerState.state.usernameInputText}
@@ -111,7 +116,12 @@ class RegisterPanel extends React.PureComponent<Props, State> {
           />
         </View>
         <View style={styles.row}>
-          <Icon name="lock" size={22} color="#777" style={styles.icon} />
+          <SWMansionIcon
+            name="lock-on"
+            size={22}
+            color="#555"
+            style={styles.icon}
+          />
           <TextInput
             style={styles.input}
             value={this.props.registerState.state.passwordInputText}
@@ -397,7 +407,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   icon: {
-    bottom: 8,
+    bottom: 10,
     left: 4,
     position: 'absolute',
   },
