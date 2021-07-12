@@ -142,6 +142,7 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
               style={this.props.styles.addDescriptionButton}
               iosFormat="highlight"
               iosHighlightUnderlayColor={panelIosHighlightUnderlay}
+              iosActiveOpacity={0.85}
             >
               <Text style={this.props.styles.addDescriptionText}>
                 Add a description...
@@ -249,7 +250,7 @@ const unboundStyles = {
   },
   outlineCategory: {
     backgroundColor: 'panelForeground',
-    borderColor: 'panelSecondaryForegroundBorder',
+    borderColor: 'panelForegroundBorder',
     borderRadius: 1,
     borderStyle: 'dashed',
     borderWidth: 1,
