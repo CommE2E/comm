@@ -100,6 +100,7 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
               editable={this.props.loadingStatus !== 'loading'}
               onContentSizeChange={this.onTextInputContentSizeChange}
               ref={this.textInputRef}
+              selectionColor={`#${this.props.threadInfo.color}`}
             />
             {button}
           </View>

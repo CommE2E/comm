@@ -100,6 +100,7 @@ class ThreadSettingsName extends React.PureComponent<Props> {
           onBlur={this.onSubmit}
           editable={this.props.loadingStatus !== 'loading'}
           ref={this.textInputRef}
+          selectionColor={`#${this.props.threadInfo.color}`}
         />
         {button}
       </React.Fragment>
