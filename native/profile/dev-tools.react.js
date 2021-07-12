@@ -3,13 +3,13 @@
 import * as React from 'react';
 import { View, Text, ScrollView, Platform } from 'react-native';
 import ExitApp from 'react-native-exit-app';
-import Icon from 'react-native-vector-icons/Ionicons';
 import { useDispatch } from 'react-redux';
 
 import type { Dispatch } from 'lib/types/redux-types';
 import { setURLPrefix } from 'lib/utils/url-utils';
 
 import Button from '../components/button.react';
+import SWMansionIcon from '../components/swmansion-icon.react';
 import type { NavigationRoute } from '../navigation/route-names';
 import { CustomServerModalRouteName } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
@@ -20,10 +20,10 @@ import { nodeServerOptions } from '../utils/url-utils';
 import type { ProfileNavigationProp } from './profile.react';
 
 const ServerIcon = () => (
-  <Icon
-    name="md-checkmark"
+  <SWMansionIcon
+    name="check"
     size={20}
-    color="#008800"
+    color="#888888"
     style={unboundStyles.icon}
   />
 );

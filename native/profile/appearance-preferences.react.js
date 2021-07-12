@@ -2,12 +2,12 @@
 
 import * as React from 'react';
 import { View, Text, ScrollView, Platform } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
 import { useDispatch } from 'react-redux';
 
 import type { Dispatch } from 'lib/types/redux-types';
 
 import Button from '../components/button.react';
+import SWMansionIcon from '../components/swmansion-icon.react';
 import { updateThemeInfoActionType } from '../redux/action-types';
 import { useSelector } from '../redux/redux-utils';
 import { type Colors, useColors, useStyles } from '../themes/colors';
@@ -18,10 +18,10 @@ import {
 } from '../types/themes';
 
 const CheckIcon = () => (
-  <Icon
-    name="md-checkmark"
+  <SWMansionIcon
+    name="check"
     size={20}
-    color="#008800"
+    color="#888888"
     style={unboundStyles.icon}
   />
 );
