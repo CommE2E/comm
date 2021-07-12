@@ -53,6 +53,7 @@ class DevTools extends React.PureComponent<Props> {
           style={this.props.styles.row}
           iosFormat="highlight"
           iosHighlightUnderlayColor={underlay}
+          iosActiveOpacity={0.85}
           key={`server${server}`}
         >
           <Text style={this.props.styles.serverText}>{server}</Text>
@@ -88,6 +89,7 @@ class DevTools extends React.PureComponent<Props> {
         style={this.props.styles.row}
         iosFormat="highlight"
         iosHighlightUnderlayColor={underlay}
+        iosActiveOpacity={0.85}
         key="customServer"
       >
         {customServerLabel}
@@ -107,6 +109,7 @@ class DevTools extends React.PureComponent<Props> {
               style={this.props.styles.row}
               iosFormat="highlight"
               iosHighlightUnderlayColor={underlay}
+              iosActiveOpacity={0.85}
             >
               <Text style={this.props.styles.redText}>Trigger a crash</Text>
             </Button>
@@ -116,6 +119,7 @@ class DevTools extends React.PureComponent<Props> {
               style={this.props.styles.row}
               iosFormat="highlight"
               iosHighlightUnderlayColor={underlay}
+              iosActiveOpacity={0.85}
             >
               <Text style={this.props.styles.redText}>Kill the app</Text>
             </Button>
@@ -125,6 +129,7 @@ class DevTools extends React.PureComponent<Props> {
               style={this.props.styles.row}
               iosFormat="highlight"
               iosHighlightUnderlayColor={underlay}
+              iosActiveOpacity={0.85}
             >
               <Text style={this.props.styles.redText}>
                 Wipe state and kill app

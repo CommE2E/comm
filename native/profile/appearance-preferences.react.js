@@ -65,6 +65,7 @@ class AppearancePreferences extends React.PureComponent<Props> {
           style={this.props.styles.row}
           iosFormat="highlight"
           iosHighlightUnderlayColor={underlay}
+          iosActiveOpacity={0.85}
           key={`button_${themePreference}`}
         >
           <Text style={this.props.styles.option}>{text}</Text>

@@ -82,6 +82,7 @@ class ProfileScreen extends React.PureComponent<Props> {
           style={this.props.styles.submenuButton}
           iosFormat="highlight"
           iosHighlightUnderlayColor={underlay}
+          iosActiveOpacity={0.85}
         >
           <Text style={this.props.styles.submenuText}>Appearance</Text>
           <Icon name="ios-arrow-forward" size={20} color={navigationChevron} />
@@ -93,6 +94,7 @@ class ProfileScreen extends React.PureComponent<Props> {
           style={this.props.styles.submenuButton}
           iosFormat="highlight"
           iosHighlightUnderlayColor={underlay}
+          iosActiveOpacity={0.85}
         >
           <Text style={this.props.styles.submenuText}>Developer tools</Text>
           <Icon name="ios-arrow-forward" size={20} color={navigationChevron} />
@@ -145,6 +147,7 @@ class ProfileScreen extends React.PureComponent<Props> {
               style={this.props.styles.submenuButton}
               iosFormat="highlight"
               iosHighlightUnderlayColor={underlay}
+              iosActiveOpacity={0.85}
             >
               <Text style={this.props.styles.submenuText}>Friend list</Text>
               <Icon
@@ -158,6 +161,7 @@ class ProfileScreen extends React.PureComponent<Props> {
               style={this.props.styles.submenuButton}
               iosFormat="highlight"
               iosHighlightUnderlayColor={underlay}
+              iosActiveOpacity={0.85}
             >
               <Text style={this.props.styles.submenuText}>Block list</Text>
               <Icon
@@ -176,6 +180,7 @@ class ProfileScreen extends React.PureComponent<Props> {
               style={this.props.styles.submenuButton}
               iosFormat="highlight"
               iosHighlightUnderlayColor={underlay}
+              iosActiveOpacity={0.85}
             >
               <Text style={this.props.styles.submenuText}>Privacy</Text>
               <Icon
@@ -192,6 +197,7 @@ class ProfileScreen extends React.PureComponent<Props> {
               style={this.props.styles.submenuButton}
               iosFormat="highlight"
               iosHighlightUnderlayColor={underlay}
+              iosActiveOpacity={0.85}
             >
               <Text style={this.props.styles.submenuText}>Build info</Text>
               <Icon
@@ -208,6 +214,7 @@ class ProfileScreen extends React.PureComponent<Props> {
               style={this.props.styles.deleteAccountButton}
               iosFormat="highlight"
               iosHighlightUnderlayColor={underlay}
+              iosActiveOpacity={0.85}
             >
               <Text style={this.props.styles.deleteAccountText}>
                 Delete account...
@@ -371,7 +378,7 @@ const unboundStyles = {
     borderColor: 'panelForegroundBorder',
     borderTopWidth: 1,
     marginBottom: 24,
-    paddingVertical: 2,
+    paddingVertical: 1,
   },
   submenuButton: {
     flexDirection: 'row',

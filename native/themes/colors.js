@@ -95,7 +95,7 @@ const dark: Colors = Object.freeze({
   panelForegroundLabel: 'white',
   panelForegroundSecondaryLabel: '#CCCCCC',
   panelForegroundTertiaryLabel: '#AAAAAA',
-  panelIosHighlightUnderlay: '#444444DD',
+  panelIosHighlightUnderlay: '#313035',
   panelSecondaryForeground: '#333333',
   panelSecondaryForegroundBorder: '#666666',
   modalForeground: '#1C1C1E',
