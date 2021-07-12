@@ -1030,7 +1030,7 @@ const unboundStyles = {
     bottom: 0,
   },
   sectionHeader: {
-    backgroundColor: 'listSeparator',
+    backgroundColor: 'panelForeground',
     borderBottomWidth: 2,
     borderColor: 'listBackground',
     height: 31,

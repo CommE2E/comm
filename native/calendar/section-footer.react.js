@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 import { View, Text, TouchableWithoutFeedback } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
 
 import Button from '../components/button.react';
+import SWMansionIcon from '../components/swmansion-icon.react';
 import { type Colors, useStyles, useColors } from '../themes/colors';
 
 type BaseProps = {|
@@ -19,19 +19,15 @@ type Props = {|
 |};
 class SectionFooter extends React.PureComponent<Props> {
   render() {
-    const { modalIosHighlightUnderlay: underlayColor } = this.props.colors;
     return (
       <TouchableWithoutFeedback onPress={this.props.onPressWhitespace}>
         <View style={this.props.styles.sectionFooter}>
-          <Button
-            onPress={this.onSubmit}
-            iosFormat="highlight"
-            iosHighlightUnderlayColor={underlayColor}
-            iosActiveOpacity={0.85}
-            style={this.props.styles.addButton}
-          >
+          <Button onPress={this.onSubmit} style={this.props.styles.addButton}>
             <View style={this.props.styles.addButtonContents}>
-              <Icon name="plus" style={this.props.styles.addIcon} />
+              <SWMansionIcon
+                name="plus-circle"
+                style={this.props.styles.addIcon}
+              />
               <Text style={this.props.styles.actionLinksText}>Add</Text>
             </View>
           </Button>
@@ -51,7 +47,7 @@ const unboundStyles = {
     fontWeight: 'bold',
   },
   addButton: {
-    backgroundColor: 'listSeparator',
+    backgroundColor: 'panelForeground',
     borderRadius: 5,
     margin: 5,
     paddingBottom: 5,
@@ -65,8 +61,8 @@ const unboundStyles = {
   },
   addIcon: {
     color: 'listSeparatorLabel',
-    fontSize: 14,
-    paddingRight: 6,
+    fontSize: 18,
+    paddingRight: 4,
   },
   sectionFooter: {
     alignItems: 'flex-start',
