@@ -16,11 +16,11 @@ const { Value } = Animated;
 function noop() {}
 
 type Props = {|
-  +navigation: AppNavigationProp<'MultimediaTooltipModal'>,
-  +route: TooltipRoute<'MultimediaTooltipModal'>,
+  +navigation: AppNavigationProp<'MultimediaMessageTooltipModal'>,
+  +route: TooltipRoute<'MultimediaMessageTooltipModal'>,
   +progress: Value,
 |};
-function MultimediaTooltipButton(props: Props): React.Node {
+function MultimediaMessageTooltipButton(props: Props): React.Node {
   const windowWidth = useSelector((state) => state.dimensions.width);
   const { progress } = props;
   const { initialCoordinates } = props.route.params;
@@ -54,4 +54,4 @@ function MultimediaTooltipButton(props: Props): React.Node {
   );
 }
 
-export default React.memo<Props>(MultimediaTooltipButton);
+export default React.memo<Props>(MultimediaMessageTooltipButton);

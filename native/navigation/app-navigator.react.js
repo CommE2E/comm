@@ -11,7 +11,7 @@ import { unreadCount } from 'lib/selectors/thread-selectors';
 import AppsDirectory from '../apps/apps-directory.react';
 import Calendar from '../calendar/calendar.react';
 import Chat from '../chat/chat.react';
-import { MultimediaTooltipModal } from '../chat/multimedia-tooltip-modal.react';
+import { MultimediaMessageTooltipModal } from '../chat/multimedia-message-tooltip-modal.react';
 import { RobotextMessageTooltipModal } from '../chat/robotext-message-tooltip-modal.react';
 import ThreadSettingsMemberTooltipModal from '../chat/settings/thread-settings-member-tooltip-modal.react';
 import { TextMessageTooltipModal } from '../chat/text-message-tooltip-modal.react';
@@ -37,7 +37,7 @@ import {
   ProfileRouteName,
   TabNavigatorRouteName,
   ImageModalRouteName,
-  MultimediaTooltipModalRouteName,
+  MultimediaMessageTooltipModalRouteName,
   ActionResultModalRouteName,
   TextMessageTooltipModalRouteName,
   ThreadSettingsMemberTooltipModalRouteName,
@@ -200,8 +200,8 @@ function AppNavigator(props: AppNavigatorProps) {
         <App.Screen name={TabNavigatorRouteName} component={TabNavigator} />
         <App.Screen name={ImageModalRouteName} component={ImageModal} />
         <App.Screen
-          name={MultimediaTooltipModalRouteName}
-          component={MultimediaTooltipModal}
+          name={MultimediaMessageTooltipModalRouteName}
+          component={MultimediaMessageTooltipModal}
         />
         <App.Screen
           name={ActionResultModalRouteName}

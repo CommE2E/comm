@@ -12,14 +12,14 @@ function navigateToSidebar(
   route:
     | TooltipRoute<'RobotextMessageTooltipModal'>
     | TooltipRoute<'TextMessageTooltipModal'>
-    | TooltipRoute<'MultimediaTooltipModal'>,
+    | TooltipRoute<'MultimediaMessageTooltipModal'>,
   dispatchFunctions: DispatchFunctions,
   bindServerCall: <F>(serverCall: ActionFunc<F>) => F,
   inputState: ?InputState,
   navigation:
     | AppNavigationProp<'RobotextMessageTooltipModal'>
     | AppNavigationProp<'TextMessageTooltipModal'>
-    | AppNavigationProp<'MultimediaTooltipModal'>,
+    | AppNavigationProp<'MultimediaMessageTooltipModal'>,
   viewerID: ?string,
 ) {
   const threadInfo = getSidebarThreadInfo(route.params.item, viewerID);

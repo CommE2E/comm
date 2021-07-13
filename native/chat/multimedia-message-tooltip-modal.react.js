@@ -6,11 +6,11 @@ import {
   type TooltipParams,
 } from '../navigation/tooltip.react';
 import type { VerticalBounds } from '../types/layout-types';
+import MultimediaMessageTooltipButton from './multimedia-message-tooltip-button.react';
 import type { ChatMultimediaMessageInfoItem } from './multimedia-message-utils';
-import MultimediaTooltipButton from './multimedia-tooltip-button.react';
 import { navigateToSidebar } from './sidebar-navigation';
 
-export type MultimediaTooltipModalParams = TooltipParams<{|
+export type MultimediaMessageTooltipModalParams = TooltipParams<{|
   +item: ChatMultimediaMessageInfoItem,
   +verticalBounds: VerticalBounds,
 |}>;
@@ -30,11 +30,10 @@ const spec = {
   ],
 };
 
-const MultimediaTooltipModal = createTooltip<'MultimediaTooltipModal'>(
-  MultimediaTooltipButton,
-  spec,
-);
+const MultimediaMessageTooltipModal = createTooltip<
+  'MultimediaMessageTooltipModal',
+>(MultimediaMessageTooltipButton, spec);
 
-const multimediaTooltipHeight = tooltipHeight(spec.entries.length);
+const multimediaMessageTooltipHeight = tooltipHeight(spec.entries.length);
 
-export { MultimediaTooltipModal, multimediaTooltipHeight };
+export { MultimediaMessageTooltipModal, multimediaMessageTooltipHeight };

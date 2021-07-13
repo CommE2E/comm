@@ -6,7 +6,7 @@ import type { ThreadPickerModalParams } from '../calendar/thread-picker-modal.re
 import type { ComposeThreadParams } from '../chat/compose-thread.react';
 import type { ImagePasteModalParams } from '../chat/image-paste-modal.react';
 import type { MessageListParams } from '../chat/message-list-types';
-import type { MultimediaTooltipModalParams } from '../chat/multimedia-tooltip-modal.react';
+import type { MultimediaMessageTooltipModalParams } from '../chat/multimedia-message-tooltip-modal.react';
 import type { RobotextMessageTooltipModalParams } from '../chat/robotext-message-tooltip-modal.react';
 import type { AddUsersModalParams } from '../chat/settings/add-users-modal.react';
 import type { ColorPickerModalParams } from '../chat/settings/color-picker-modal.react';
@@ -52,7 +52,8 @@ export const CustomServerModalRouteName = 'CustomServerModal';
 export const ColorPickerModalRouteName = 'ColorPickerModal';
 export const ComposeSubthreadModalRouteName = 'ComposeSubthreadModal';
 export const ImageModalRouteName = 'ImageModal';
-export const MultimediaTooltipModalRouteName = 'MultimediaTooltipModal';
+export const MultimediaMessageTooltipModalRouteName =
+  'MultimediaMessageTooltipModal';
 export const ActionResultModalRouteName = 'ActionResultModal';
 export const TextMessageTooltipModalRouteName = 'TextMessageTooltipModal';
 export const ThreadSettingsMemberTooltipModalRouteName =
@@ -79,7 +80,7 @@ export type RootParamList = {|
 |};
 
 export type TooltipModalParamList = {|
-  +MultimediaTooltipModal: MultimediaTooltipModalParams,
+  +MultimediaMessageTooltipModal: MultimediaMessageTooltipModalParams,
   +TextMessageTooltipModal: TextMessageTooltipModalParams,
   +ThreadSettingsMemberTooltipModal: ThreadSettingsMemberTooltipModalParams,
   +RelationshipListItemTooltipModal: RelationshipListItemTooltipModalParams,
@@ -145,7 +146,7 @@ export const accountModals = [LoggedOutModalRouteName];
 
 export const scrollBlockingModals = [
   ImageModalRouteName,
-  MultimediaTooltipModalRouteName,
+  MultimediaMessageTooltipModalRouteName,
   TextMessageTooltipModalRouteName,
   ThreadSettingsMemberTooltipModalRouteName,
   RelationshipListItemTooltipModalRouteName,
