@@ -15,7 +15,7 @@ import MarkdownLink from './markdown-link.react';
 import { getMarkdownStyles } from './styles';
 
 export type MarkdownRules = {|
-  +simpleMarkdownRules: SimpleMarkdown.ParserRules,
+  +simpleMarkdownRules: SharedMarkdown.ParserRules,
   +emojiOnlyFactor: ?number,
   // We need to use a Text container for Entry because it needs to match up
   // exactly with TextInput. However, if we use a Text container, we can't
@@ -42,9 +42,9 @@ const inlineMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
       ...SimpleMarkdown.defaultRules.link,
       match: () => null,
       react(
-        node: SimpleMarkdown.SingleASTNode,
-        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
-        state: SimpleMarkdown.State,
+        node: SharedMarkdown.SingleASTNode,
+        output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+        state: SharedMarkdown.State,
       ) {
         return (
           <MarkdownLink
@@ -65,7 +65,7 @@ const inlineMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
       // We want to keep the newlines, but when rendering within a View, we
       // strip just one trailing newline off, since the View adds vertical
       // spacing between its children
-      match: (source: string, state: SimpleMarkdown.State) => {
+      match: (source: string, state: SharedMarkdown.State) => {
         if (state.inline) {
           return null;
         } else if (state.container === 'View') {
@@ -75,9 +75,9 @@ const inlineMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
         }
       },
       parse(
-        capture: SimpleMarkdown.Capture,
-        parse: SimpleMarkdown.Parser,
-        state: SimpleMarkdown.State,
+        capture: SharedMarkdown.Capture,
+        parse: SharedMarkdown.Parser,
+        state: SharedMarkdown.State,
       ) {
         let content = capture[1];
         if (state.container === 'View') {
@@ -92,9 +92,9 @@ const inlineMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
       },
       // eslint-disable-next-line react/display-name
       react: (
-        node: SimpleMarkdown.SingleASTNode,
-        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
-        state: SimpleMarkdown.State,
+        node: SharedMarkdown.SingleASTNode,
+        output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+        state: SharedMarkdown.State,
       ) => (
         <Text key={state.key} style={state.textStyle}>
           {output(node.content, state)}
@@ -132,9 +132,9 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
       ...SimpleMarkdown.defaultRules.em,
       // eslint-disable-next-line react/display-name
       react: (
-        node: SimpleMarkdown.SingleASTNode,
-        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
-        state: SimpleMarkdown.State,
+        node: SharedMarkdown.SingleASTNode,
+        output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+        state: SharedMarkdown.State,
       ) => (
         <Text key={state.key} style={styles.italics}>
           {output(node.content, state)}
@@ -145,9 +145,9 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
       ...SimpleMarkdown.defaultRules.strong,
       // eslint-disable-next-line react/display-name
       react: (
-        node: SimpleMarkdown.SingleASTNode,
-        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
-        state: SimpleMarkdown.State,
+        node: SharedMarkdown.SingleASTNode,
+        output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+        state: SharedMarkdown.State,
       ) => (
         <Text key={state.key} style={styles.bold}>
           {output(node.content, state)}
@@ -158,9 +158,9 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
       ...SimpleMarkdown.defaultRules.u,
       // eslint-disable-next-line react/display-name
       react: (
-        node: SimpleMarkdown.SingleASTNode,
-        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
-        state: SimpleMarkdown.State,
+        node: SharedMarkdown.SingleASTNode,
+        output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+        state: SharedMarkdown.State,
       ) => (
         <Text key={state.key} style={styles.underline}>
           {output(node.content, state)}
@@ -171,9 +171,9 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
       ...SimpleMarkdown.defaultRules.del,
       // eslint-disable-next-line react/display-name
       react: (
-        node: SimpleMarkdown.SingleASTNode,
-        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
-        state: SimpleMarkdown.State,
+        node: SharedMarkdown.SingleASTNode,
+        output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+        state: SharedMarkdown.State,
       ) => (
         <Text key={state.key} style={styles.strikethrough}>
           {output(node.content, state)}
@@ -184,9 +184,9 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
       ...SimpleMarkdown.defaultRules.inlineCode,
       // eslint-disable-next-line react/display-name
       react: (
-        node: SimpleMarkdown.SingleASTNode,
-        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
-        state: SimpleMarkdown.State,
+        node: SharedMarkdown.SingleASTNode,
+        output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+        state: SharedMarkdown.State,
       ) => (
         <Text key={state.key} style={styles.inlineCode}>
           {node.content}
@@ -200,9 +200,9 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
       ),
       // eslint-disable-next-line react/display-name
       react(
-        node: SimpleMarkdown.SingleASTNode,
-        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
-        state: SimpleMarkdown.State,
+        node: SharedMarkdown.SingleASTNode,
+        output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+        state: SharedMarkdown.State,
       ) {
         const headingStyle = styles['h' + node.level];
         return (
@@ -219,9 +219,9 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
         SharedMarkdown.blockQuoteStripFollowingNewlineRegex,
       ),
       parse(
-        capture: SimpleMarkdown.Capture,
-        parse: SimpleMarkdown.Parser,
-        state: SimpleMarkdown.State,
+        capture: SharedMarkdown.Capture,
+        parse: SharedMarkdown.Parser,
+        state: SharedMarkdown.State,
       ) {
         const content = capture[1].replace(/^ *> ?/gm, '');
         return {
@@ -230,9 +230,9 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
       },
       // eslint-disable-next-line react/display-name
       react: (
-        node: SimpleMarkdown.SingleASTNode,
-        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
-        state: SimpleMarkdown.State,
+        node: SharedMarkdown.SingleASTNode,
+        output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+        state: SharedMarkdown.State,
       ) => (
         <View key={state.key} style={styles.blockQuote}>
           {output(node.content, state)}
@@ -244,16 +244,16 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
       match: SimpleMarkdown.blockRegex(
         SharedMarkdown.codeBlockStripTrailingNewlineRegex,
       ),
-      parse(capture: SimpleMarkdown.Capture) {
+      parse(capture: SharedMarkdown.Capture) {
         return {
           content: capture[1].replace(/^ {4}/gm, ''),
         };
       },
       // eslint-disable-next-line react/display-name
       react: (
-        node: SimpleMarkdown.SingleASTNode,
-        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
-        state: SimpleMarkdown.State,
+        node: SharedMarkdown.SingleASTNode,
+        output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+        state: SharedMarkdown.State,
       ) => (
         <View key={state.key} style={styles.codeBlock}>
           <Text style={[state.textStyle, styles.codeBlockText]}>
@@ -267,32 +267,35 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
       match: SimpleMarkdown.blockRegex(
         SharedMarkdown.fenceStripTrailingNewlineRegex,
       ),
-      parse: (capture: SimpleMarkdown.Capture) => ({
+      parse: (capture: SharedMarkdown.Capture) => ({
         type: 'codeBlock',
         content: capture[2],
       }),
     },
     json: {
       order: SimpleMarkdown.defaultRules.paragraph.order - 1,
-      match: (source: string, state: SimpleMarkdown.State) => {
+      match: (source: string, state: SharedMarkdown.State) => {
         if (state.inline) {
           return null;
         }
         return SharedMarkdown.jsonMatch(source);
       },
-      parse: (capture: SimpleMarkdown.Capture) => ({
-        type: 'codeBlock',
-        content: SharedMarkdown.jsonPrint(capture),
-      }),
+      parse: (capture: SharedMarkdown.Capture) => {
+        const jsonCapture: SharedMarkdown.JSONCapture = (capture: any);
+        return {
+          type: 'codeBlock',
+          content: SharedMarkdown.jsonPrint(jsonCapture),
+        };
+      },
     },
     list: {
       ...SimpleMarkdown.defaultRules.list,
       match: SharedMarkdown.matchList,
       parse: SharedMarkdown.parseList,
       react(
-        node: SimpleMarkdown.SingleASTNode,
-        output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
-        state: SimpleMarkdown.State,
+        node: SharedMarkdown.SingleASTNode,
+        output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+        state: SharedMarkdown.State,
       ) {
         const children = node.items.map((item, i) => {
           const content = output(item, state);
@@ -355,14 +358,14 @@ function textMessageRules(
       mention: {
         ...SimpleMarkdown.defaultRules.strong,
         match: SharedMarkdown.matchMentions(members),
-        parse: (capture: SimpleMarkdown.Capture) => ({
+        parse: (capture: SharedMarkdown.Capture) => ({
           content: capture[0],
         }),
         // eslint-disable-next-line react/display-name
         react: (
-          node: SimpleMarkdown.SingleASTNode,
-          output: SimpleMarkdown.Output<SimpleMarkdown.ReactElement>,
-          state: SimpleMarkdown.State,
+          node: SharedMarkdown.SingleASTNode,
+          output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+          state: SharedMarkdown.State,
         ) => (
           <Text key={state.key} style={styles.bold}>
             {node.content}
