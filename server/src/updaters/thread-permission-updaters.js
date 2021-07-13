@@ -37,10 +37,7 @@ import { createScriptViewer } from '../session/scripts';
 import type { Viewer } from '../session/viewer';
 import DepthQueue from '../utils/depth-queue';
 import RelationshipChangeset from '../utils/relationship-changeset';
-import {
-  updateDatasForUserPairs,
-  updateUndirectedRelationships,
-} from './relationship-updaters';
+import { updateChangedUndirectedRelationships } from './relationship-updaters';
 
 export type MembershipRowToSave = {|
   +operation: 'save',
@@ -1019,10 +1016,10 @@ async function commitMembershipChangeset(
   }
   const relationshipRows = relationshipChangeset.getRows();
 
-  await Promise.all([
+  const [updateDatas] = await Promise.all([
+    updateChangedUndirectedRelationships(relationshipRows),
     saveMemberships(toSave),
     deleteMemberships(toDelete),
-    updateUndirectedRelationships(relationshipRows),
     rescindPushNotifsForMemberDeletion(toRescindPushNotifs),
   ]);
 
@@ -1033,9 +1030,6 @@ async function commitMembershipChangeset(
   const { threadInfos: serverThreadInfos } = serverThreadInfoFetchResult;
 
   const time = Date.now();
-  const updateDatas = updateDatasForUserPairs(
-    relationshipRows.map(({ user1, user2 }) => [user1, user2]),
-  );
   for (const changedThreadID of changedThreadIDs) {
     const serverThreadInfo = serverThreadInfos[changedThreadID];
     for (const memberInfo of serverThreadInfo.members) {

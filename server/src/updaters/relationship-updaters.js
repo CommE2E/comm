@@ -21,7 +21,7 @@ import { promiseAll } from 'lib/utils/promises';
 import createMessages from '../creators/message-creator';
 import { createThread } from '../creators/thread-creator';
 import { createUpdates } from '../creators/update-creator';
-import { dbQuery, SQL } from '../database/database';
+import { dbQuery, SQL, mergeOrConditions } from '../database/database';
 import { fetchFriendRequestRelationshipOperations } from '../fetchers/relationship-fetchers';
 import { fetchUserInfos } from '../fetchers/user-fetchers';
 import type { Viewer } from '../session/viewer';
@@ -252,6 +252,49 @@ async function updateUndirectedRelationships(
   await dbQuery(query);
 }
 
+async function updateChangedUndirectedRelationships(
+  changeset: UndirectedRelationshipRow[],
+): Promise<UpdateData[]> {
+  if (!changeset.length) {
+    return [];
+  }
+
+  const selectQuery = SQL`
+    SELECT user1, user2, status
+    FROM relationships_undirected
+    WHERE
+  `;
+  const conditions = [];
+  for (const row of changeset) {
+    conditions.push(SQL`(user1 = ${row.user1} AND user2 = ${row.user2})`);
+  }
+  selectQuery.append(mergeOrConditions(conditions));
+
+  const [result] = await dbQuery(selectQuery);
+  const existingStatuses = new Map();
+  for (const row of result) {
+    existingStatuses.set(`${row.user1}|${row.user2}`, row.status);
+  }
+
+  const insertRows = [];
+  for (const row of changeset) {
+    const existingStatus = existingStatuses.get(`${row.user1}|${row.user2}`);
+    if (existingStatus && existingStatus < row.status) {
+      insertRows.push([row.user1, row.user2, row.status]);
+    }
+  }
+  const insertQuery = SQL`
+    INSERT INTO relationships_undirected (user1, user2, status)
+    VALUES ${insertRows}
+    ON DUPLICATE KEY UPDATE status = GREATEST(status, VALUES(status))
+  `;
+  await dbQuery(insertQuery);
+
+  return updateDatasForUserPairs(
+    insertRows.map(([user1, user2]) => [user1, user2]),
+  );
+}
+
 async function createPersonalThreads(
   viewer: Viewer,
   request: RelationshipRequest,
@@ -312,4 +355,5 @@ export {
   updateRelationships,
   updateDatasForUserPairs,
   updateUndirectedRelationships,
+  updateChangedUndirectedRelationships,
 };
