@@ -19,6 +19,7 @@ import {
   threadPermissions,
   threadTypeIsCommunityRoot,
 } from 'lib/types/thread-types';
+import type { AccountUserInfo } from 'lib/types/user-types';
 import { pushAll } from 'lib/utils/array';
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
@@ -36,6 +37,7 @@ import {
   changeRole,
   recalculateThreadPermissions,
   commitMembershipChangeset,
+  getChangesetCommitResultForExistingThread,
 } from '../updaters/thread-permission-updaters';
 import { joinThread } from '../updaters/thread-updaters';
 import RelationshipChangeset from '../utils/relationship-changeset';
@@ -277,44 +279,49 @@ async function createThread(
       invariant(existingThreadResult.length > 0, 'thread should exist');
       const existingThreadID = existingThreadResult[0].id.toString();
 
-      if (threadType === threadTypes.PERSONAL) {
-        return {
-          newThreadID: existingThreadID,
-          updatesResult: {
-            newUpdates: [],
-          },
-          userInfos: {},
-          newMessageInfos: [],
-        };
-      }
-
-      let joinRequest = {
-        threadID: existingThreadID,
-      };
+      let calendarQuery;
       if (hasMinCodeVersion(viewer.platformDetails, 87)) {
         invariant(request.calendarQuery, 'calendar query should exist');
-        const calendarQuery = {
+        calendarQuery = {
           ...request.calendarQuery,
           filters: [
             ...request.calendarQuery.filters,
             { type: 'threads', threadIDs: [existingThreadID] },
           ],
         };
-
-        joinRequest = {
-          ...joinRequest,
-          calendarQuery,
-        };
       }
 
-      const joinThreadResult = await joinThread(viewer, joinRequest);
+      let joinUpdateInfos = [];
+      let userInfos: { [id: string]: AccountUserInfo } = {};
+      let newMessageInfos = [];
+      if (threadType !== threadTypes.PERSONAL) {
+        const joinThreadResult = await joinThread(viewer, {
+          threadID: existingThreadID,
+          calendarQuery,
+        });
+        joinUpdateInfos = joinThreadResult.updatesResult.newUpdates;
+        userInfos = joinThreadResult.userInfos;
+        newMessageInfos = joinThreadResult.rawMessageInfos;
+      }
+
+      const {
+        viewerUpdates: newUpdates,
+        userInfos: changesetUserInfos,
+      } = await getChangesetCommitResultForExistingThread(
+        viewer,
+        existingThreadID,
+        joinUpdateInfos,
+        { calendarQuery, updatesForCurrentSession },
+      );
+      userInfos = { ...userInfos, ...changesetUserInfos };
+
       return {
         newThreadID: existingThreadID,
         updatesResult: {
-          newUpdates: joinThreadResult.updatesResult.newUpdates,
+          newUpdates,
         },
-        userInfos: joinThreadResult.userInfos,
-        newMessageInfos: joinThreadResult.rawMessageInfos,
+        userInfos,
+        newMessageInfos,
       };
     }
   } else {

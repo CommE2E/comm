@@ -17,8 +17,11 @@ import {
   type ThreadType,
   assertThreadType,
 } from 'lib/types/thread-types';
-import { updateTypes, type ServerUpdateInfo } from 'lib/types/update-types';
-import type { AccountUserInfo } from 'lib/types/user-types';
+import {
+  updateTypes,
+  type ServerUpdateInfo,
+  type CreateUpdatesResult,
+} from 'lib/types/update-types';
 import { pushAll } from 'lib/utils/array';
 import { ServerError } from 'lib/utils/errors';
 
@@ -944,8 +947,7 @@ async function deleteMemberships(
 // viewer, in which case it's necessary for knowing the set of entries to fetch.
 type ChangesetCommitResult = {|
   ...FetchThreadInfosResult,
-  viewerUpdates: $ReadOnlyArray<ServerUpdateInfo>,
-  userInfos: { [id: string]: AccountUserInfo },
+  ...CreateUpdatesResult,
 |};
 async function commitMembershipChangeset(
   viewer: Viewer,
@@ -955,9 +957,9 @@ async function commitMembershipChangeset(
     calendarQuery,
     updatesForCurrentSession = 'return',
   }: {|
-    changedThreadIDs?: Set<string>,
-    calendarQuery?: ?CalendarQuery,
-    updatesForCurrentSession?: UpdatesForCurrentSession,
+    +changedThreadIDs?: Set<string>,
+    +calendarQuery?: ?CalendarQuery,
+    +updatesForCurrentSession?: UpdatesForCurrentSession,
   |} = {},
 ): Promise<ChangesetCommitResult> {
   if (!viewer.loggedIn) {
@@ -1092,6 +1094,79 @@ async function commitMembershipChangeset(
   };
 }
 
+// When the user tries to create a new thread, it's possible for the client to
+// fail the creation even if a row gets added to the threads table. This may
+// occur due to a timeout (on either the client or server side), or due to some
+// error in the server code following the INSERT operation. Handling the error
+// scenario is more challenging since it would require detecting which set of
+// operations failed so we could retry them. As a result, this code is geared at
+// only handling the timeout scenario.
+async function getChangesetCommitResultForExistingThread(
+  viewer: Viewer,
+  threadID: string,
+  otherUpdates: $ReadOnlyArray<ServerUpdateInfo>,
+  {
+    calendarQuery,
+    updatesForCurrentSession = 'return',
+  }: {|
+    +calendarQuery?: ?CalendarQuery,
+    +updatesForCurrentSession?: UpdatesForCurrentSession,
+  |} = {},
+): Promise<CreateUpdatesResult> {
+  for (const update of otherUpdates) {
+    if (
+      update.type === updateTypes.JOIN_THREAD &&
+      update.threadInfo.id === threadID
+    ) {
+      // If the JOIN_THREAD is already there we can expect
+      // the appropriate UPDATE_USERs to be covered as well
+      return { viewerUpdates: otherUpdates, userInfos: {} };
+    }
+  }
+
+  const time = Date.now();
+  const updateDatas = [
+    {
+      type: updateTypes.JOIN_THREAD,
+      userID: viewer.userID,
+      time,
+      threadID,
+      targetSession: viewer.session,
+    },
+  ];
+
+  // To figure out what UserInfos might be missing, we consider the worst case:
+  // the same client previously attempted to create a thread with a non-friend
+  // they found via search results, but the request timed out. In this scenario
+  // the viewer might never have received the UPDATE_USER that would add that
+  // UserInfo to their UserStore, but the server assumed the client had gotten
+  // it because createUpdates was called with UpdatesForCurrentSession=return.
+  // For completeness here we query for the full list of memberships rows in the
+  // thread. We can't use fetchServerThreadInfos because it skips role=-1 rows
+  const membershipsQuery = SQL`
+    SELECT user
+    FROM memberships
+    WHERE thread = ${threadID} AND user != ${viewer.userID}
+  `;
+  const [results] = await dbQuery(membershipsQuery);
+  for (const row of results) {
+    updateDatas.push({
+      type: updateTypes.UPDATE_USER,
+      userID: viewer.userID,
+      time,
+      updatedUserID: row.user.toString(),
+      targetSession: viewer.session,
+    });
+  }
+
+  const { viewerUpdates, userInfos } = await createUpdates(updateDatas, {
+    viewer,
+    calendarQuery,
+    updatesForCurrentSession,
+  });
+  return { viewerUpdates: [...otherUpdates, ...viewerUpdates], userInfos };
+}
+
 const rescindPushNotifsBatchSize = 3;
 async function rescindPushNotifsForMemberDeletion(
   toRescindPushNotifs: $ReadOnlyArray<{| +userID: string, +threadID: string |}>,
@@ -1132,6 +1207,7 @@ async function recalculateAllThreadPermissions() {
 export {
   changeRole,
   recalculateThreadPermissions,
+  getChangesetCommitResultForExistingThread,
   saveMemberships,
   commitMembershipChangeset,
   recalculateAllThreadPermissions,
