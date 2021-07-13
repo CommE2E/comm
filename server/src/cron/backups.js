@@ -5,6 +5,7 @@ import dateFormat from 'dateformat';
 import fs from 'fs';
 import invariant from 'invariant';
 import { ReReadable } from 'rereadable-stream';
+import { PassThrough } from 'stream';
 import { promisify } from 'util';
 import zlib from 'zlib';
 
@@ -43,31 +44,21 @@ async function backupDB() {
   const filename = `comm.${dateString}.sql.gz`;
   const filePath = `${backupConfig.directory}/${filename}`;
 
-  const mysqlDump = childProcess.spawn(
-    'mysqldump',
-    [
-      '-u',
-      dbConfig.user,
-      `-p${dbConfig.password}`,
-      '--single-transaction',
-      dbConfig.database,
-    ],
-    {
-      stdio: ['ignore', 'pipe', 'ignore'],
-    },
-  );
-  const cache = new ReReadable();
-  mysqlDump.on('error', (e: Error) => {
-    console.warn(`error trying to spawn mysqldump for ${filename}`, e);
-  });
-  mysqlDump.on('exit', (code: number | null, signal: string | null) => {
-    if (signal !== null && signal !== undefined) {
-      console.warn(`mysqldump received signal ${signal} for ${filename}`);
-    } else if (code !== null && code !== 0) {
-      console.warn(`mysqldump exited with code ${code} for ${filename}`);
+  const rawStream = new PassThrough();
+  (async () => {
+    try {
+      await mysqldump(filename, rawStream, ['--no-data'], { end: false });
+    } catch {}
+    try {
+      const ignoreReports = `--ignore-table=${dbConfig.database}.reports`;
+      await mysqldump(filename, rawStream, ['--no-create-info', ignoreReports]);
+    } catch {
+      rawStream.end();
     }
-  });
-  mysqlDump.stdout
+  })();
+
+  const gzippedBuffer = new ReReadable();
+  rawStream
     .on('error', (e: Error) => {
       console.warn(`mysqldump stdout stream emitted error for ${filename}`, e);
     })
@@ -75,33 +66,91 @@ async function backupDB() {
     .on('error', (e: Error) => {
       console.warn(`gzip transform stream emitted error for ${filename}`, e);
     })
-    .pipe(cache);
+    .pipe(gzippedBuffer);
 
   try {
-    await saveBackup(filename, filePath, cache);
+    await saveBackup(filename, filePath, gzippedBuffer);
   } catch (e) {
     console.warn(`saveBackup threw for ${filename}`, e);
     await unlink(filePath);
   }
 }
 
+function mysqldump(
+  filename: string,
+  rawStream: PassThrough,
+  extraParams: $ReadOnlyArray<string>,
+  pipeParams?: { end?: boolean, ... },
+): Promise<void> {
+  const mysqlDump = childProcess.spawn(
+    'mysqldump',
+    [
+      '-u',
+      dbConfig.user,
+      `-p${dbConfig.password}`,
+      '--single-transaction',
+      '--no-tablespaces',
+      ...extraParams,
+      dbConfig.database,
+    ],
+    {
+      stdio: ['ignore', 'pipe', 'ignore'],
+    },
+  );
+  const extraParamsString = extraParams.join(' ');
+  return new Promise((resolve, reject) => {
+    mysqlDump.on('error', (e: Error) => {
+      console.warn(
+        `error trying to spawn mysqldump ${extraParamsString} for ${filename}`,
+        e,
+      );
+      reject(e);
+    });
+    mysqlDump.on('exit', (code: number | null, signal: string | null) => {
+      if (signal !== null && signal !== undefined) {
+        console.warn(
+          `mysqldump ${extraParamsString} received signal ${signal} for ` +
+            filename,
+        );
+        reject(new Error(`mysqldump ${JSON.stringify({ code, signal })}`));
+      } else if (code !== null && code !== 0) {
+        console.warn(
+          `mysqldump ${extraParamsString} exited with code ${code} for ` +
+            filename,
+        );
+        reject(new Error(`mysqldump ${JSON.stringify({ code, signal })}`));
+      }
+      resolve();
+    });
+    mysqlDump.stdout.pipe(rawStream, pipeParams);
+  });
+}
+
 async function saveBackup(
   filename: string,
   filePath: string,
-  cache: ReReadable,
+  gzippedBuffer: ReReadable,
   retries: number = 2,
 ): Promise<void> {
   try {
-    await trySaveBackup(filename, filePath, cache);
-  } catch (e) {
-    if (e.code !== 'ENOSPC') {
-      throw e;
+    await trySaveBackup(filename, filePath, gzippedBuffer);
+  } catch (saveError) {
+    if (saveError.code !== 'ENOSPC') {
+      throw saveError;
     }
     if (!retries) {
-      throw e;
+      throw saveError;
     }
-    await deleteOldestBackup();
-    await saveBackup(filename, filePath, cache, retries - 1);
+    try {
+      await deleteOldestBackup();
+    } catch (deleteError) {
+      if (deleteError.message === 'no_backups_left') {
+        throw saveError;
+      } else {
+        throw deleteError;
+      }
+    }
+    await saveBackup(filename, filePath, gzippedBuffer, retries - 1);
   }
 }
 
@@ -109,7 +158,7 @@ const backupWatchFrequency = 60 * 1000;
 function trySaveBackup(
   filename: string,
   filePath: string,
-  cache: ReReadable,
+  gzippedBuffer: ReReadable,
 ): Promise<void> {
   const timeoutObject: {| timeout: ?TimeoutID |} = { timeout: null };
   const setBackupTimeout = (alreadyWaited: number) => {
@@ -125,7 +174,7 @@ function trySaveBackup(
 
   const writeStream = fs.createWriteStream(filePath);
   return new Promise((resolve, reject) => {
-    cache
+    gzippedBuffer
       .rewind()
       .pipe(writeStream)
       .on('finish', () => {
@@ -158,7 +207,7 @@ async function deleteOldestBackup() {
     }
   }
   if (!oldestFile) {
-    return;
+    throw new Error('no_backups_left');
   }
   try {
     await unlink(`${backupConfig.directory}/${oldestFile.file}`);
