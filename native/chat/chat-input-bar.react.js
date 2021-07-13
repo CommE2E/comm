@@ -201,7 +201,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
     const expandoButtonsWidth = interpolate(expandoButtonsOpen, {
       inputRange: [0, 1],
-      outputRange: [22, 66],
+      outputRange: [26, 66],
     });
     this.expandoButtonsStyle = {
       ...unboundStyles.expandoButtons,
@@ -499,7 +499,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
           <SWMansionIcon
             name="chevron-right"
             size={22}
-            color={this.props.colors.listInputButton}
+            color={`#${this.props.threadInfo.color}`}
           />
         </Animated.View>
       </TouchableOpacity>
@@ -519,7 +519,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
                   <SWMansionIcon
                     name="image-1"
                     size={24}
-                    color={this.props.colors.listInputButton}
+                    color={`#${this.props.threadInfo.color}`}
                   />
                 </Animated.View>
               </TouchableOpacity>
@@ -532,7 +532,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
                   <SWMansionIcon
                     name="camera"
                     size={24}
-                    color={this.props.colors.listInputButton}
+                    color={`#${this.props.threadInfo.color}`}
                   />
                 </Animated.View>
               </TouchableOpacity>
