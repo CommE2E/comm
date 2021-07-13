@@ -64,6 +64,7 @@ import {
   useNavigateToThread,
 } from './message-list-types';
 import { sidebarHeight } from './sidebar-item.react';
+import { AnimatedView, type AnimatedStyleObj } from '../types/styles';
 
 const floatingActions = [
   {
@@ -75,7 +76,7 @@ const floatingActions = [
 ];
 
 /* eslint-disable import/no-named-as-default-member */
-const { Value, interpolate } = Animated;
+const { Value, Node, interpolate } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
 type Item =
@@ -129,9 +130,9 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   flatList: ?FlatList<Item>;
   scrollPos = 0;
   clearNavigationBlurListener: ?() => mixed;
-  searchCancelButtonOpen = new Value(0);
-  searchCancelButtonProgress: Value;
-  searchCancelButtonOffset: Value;
+  searchCancelButtonOpen: Value = new Value(0);
+  searchCancelButtonProgress: Node;
+  searchCancelButtonOffset: Node;
 
   constructor(props: Props) {
     super(props);
@@ -244,10 +245,10 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   };
 
   renderSearch(additionalProps?: $Shape<React.ElementConfig<typeof Search>>) {
-    const searchBoxStyle = [
-      this.props.styles.searchBox,
-      { marginRight: this.searchCancelButtonOffset },
-    ];
+    const animatedSearchBoxStyle: AnimatedStyleObj = {
+      marginRight: this.searchCancelButtonOffset,
+    };
+    const searchBoxStyle = [this.props.styles.searchBox, animatedSearchBoxStyle];
     const buttonStyle = [
       this.props.styles.cancelSearchButtonText,
       { opacity: this.searchCancelButtonProgress },
@@ -263,7 +264,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
           <Animated.Text style={buttonStyle}>Cancel</Animated.Text>
           {/* eslint-enable react-native/no-raw-text */}
         </Button>
-        <Animated.View style={searchBoxStyle}>
+        <AnimatedView style={searchBoxStyle}>
           <Search
             searchText={this.state.searchText}
             onChangeText={this.onChangeSearchText}
@@ -273,7 +274,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
             ref={this.searchInputRef}
             {...additionalProps}
           />
-        </Animated.View>
+        </AnimatedView>
       </View>
     );
   }

@@ -10,13 +10,13 @@ import { InnerRobotextMessage } from './inner-robotext-message.react';
 import { Timestamp } from './timestamp.react';
 
 /* eslint-disable import/no-named-as-default-member */
-const { Value } = Animated;
+const { Node } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
 type Props = {|
   +navigation: AppNavigationProp<'RobotextMessageTooltipModal'>,
   +route: TooltipRoute<'RobotextMessageTooltipModal'>,
-  +progress: Value,
+  +progress: Node,
 |};
 function RobotextMessageTooltipButton(props: Props) {
   const { progress } = props;

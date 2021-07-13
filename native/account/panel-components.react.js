@@ -58,7 +58,7 @@ function PanelButton(props: ButtonProps) {
 }
 
 type PanelProps = {|
-  +opacityValue: Animated.Value,
+  +opacityValue: Animated.Node,
   +children: React.Node,
   +style?: ViewStyle,
 |};

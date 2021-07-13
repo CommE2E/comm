@@ -45,7 +45,7 @@ export type RegisterState = {|
 |};
 type BaseProps = {|
   +setActiveAlert: (activeAlert: boolean) => void,
-  +opacityValue: Animated.Value,
+  +opacityValue: Animated.Node,
   +registerState: StateContainer<RegisterState>,
 |};
 type Props = {|

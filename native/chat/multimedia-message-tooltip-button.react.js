@@ -10,7 +10,7 @@ import { InnerMultimediaMessage } from './inner-multimedia-message.react';
 import { MessageHeader } from './message-header.react';
 
 /* eslint-disable import/no-named-as-default-member */
-const { Value } = Animated;
+const { Node } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
 function noop() {}
@@ -18,7 +18,7 @@ function noop() {}
 type Props = {|
   +navigation: AppNavigationProp<'MultimediaMessageTooltipModal'>,
   +route: TooltipRoute<'MultimediaMessageTooltipModal'>,
-  +progress: Value,
+  +progress: Node,
 |};
 function MultimediaMessageTooltipButton(props: Props): React.Node {
   const windowWidth = useSelector(state => state.dimensions.width);

@@ -21,7 +21,12 @@ import { ImageModalRouteName } from '../navigation/route-names';
 import { type Colors, useColors } from '../themes/colors';
 import { type VerticalBounds } from '../types/layout-types';
 import type { LayoutCoordinates } from '../types/layout-types';
-import type { ViewStyle } from '../types/styles';
+import {
+  type ViewStyle,
+  type AnimatedViewStyle,
+  type AnimatedStyleObj,
+  AnimatedView,
+} from '../types/styles';
 import InlineMultimedia from './inline-multimedia.react';
 import {
   type ChatMultimediaMessageInfoItem,
@@ -29,7 +34,7 @@ import {
 } from './multimedia-message-utils';
 
 /* eslint-disable import/no-named-as-default-member */
-const { Value, sub, interpolate, Extrapolate } = Animated;
+const { Value, Node, sub, interpolate, Extrapolate } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
 type BaseProps = {|
@@ -57,7 +62,7 @@ type Props = {|
   +overlayContext: ?OverlayContextType,
 |};
 type State = {|
-  +opacity: number | Value,
+  +opacity: number | Node,
 |};
 class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   view: ?React.ElementRef<typeof View>;
@@ -134,11 +139,16 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
 
   render() {
     const { opacity } = this.state;
-    const wrapperStyles = [styles.container, { opacity }, this.props.style];
+    const animatedWrapperStyle: AnimatedStyleObj = { opacity };
+    const wrapperStyles = [
+      styles.container,
+      animatedWrapperStyle,
+      this.props.style,
+    ];
 
     const { mediaInfo, pendingUpload, postInProgress } = this.props;
     return (
-      <Animated.View style={wrapperStyles}>
+      <AnimatedView style={wrapperStyles}>
         <View style={styles.expand} onLayout={this.onLayout} ref={this.viewRef}>
           <InlineMultimedia
             mediaInfo={mediaInfo}
@@ -148,7 +158,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
             spinnerColor={this.props.item.threadInfo.color}
           />
         </View>
-      </Animated.View>
+      </AnimatedView>
     );
   }
 

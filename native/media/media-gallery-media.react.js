@@ -22,7 +22,12 @@ import { type MediaLibrarySelection } from 'lib/types/media-types';
 
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
 import { type DimensionsInfo } from '../redux/dimensions-updater.react';
-import type { ViewStyle, ImageStyle } from '../types/styles';
+import {
+  AnimatedView,
+  AnimatedImage,
+  type AnimatedViewStyle,
+  type AnimatedStyleObj,
+} from '../types/styles';
 
 const animatedSpec = {
   duration: 400,
@@ -48,8 +53,8 @@ type Props = {|
 class MediaGalleryMedia extends React.PureComponent<Props> {
   // eslint-disable-next-line import/no-named-as-default-member
   focusProgress = new Reanimated.Value(0);
-  buttonsStyle: ViewStyle;
-  mediaStyle: ImageStyle;
+  buttonsStyle: AnimatedViewStyle;
+  mediaStyle: AnimatedStyleObj;
   checkProgress = new Animated.Value(0);
 
   constructor(props: Props) {
@@ -124,7 +129,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     } = selection;
     const active = MediaGalleryMedia.isActive(this.props);
     const scaledWidth = height ? (width * containerHeight) / height : 0;
-    const dimensionsStyle = {
+    const dimensionsStyle: {| +height: number, +width: number |} = {
       height: containerHeight,
       width: Math.max(Math.min(scaledWidth, this.props.dimensions.width), 150),
     };
@@ -167,7 +172,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
         }
       }
       media = (
-        <Reanimated.View style={this.mediaStyle}>
+        <AnimatedView style={this.mediaStyle}>
           <Video
             source={source}
             repeat={true}
@@ -175,11 +180,11 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
             resizeMode={resizeMode}
             style={dimensionsStyle}
           />
-        </Reanimated.View>
+        </AnimatedView>
       );
     } else {
       media = (
-        <Reanimated.Image
+        <AnimatedImage
           source={source}
           style={[this.mediaStyle, dimensionsStyle]}
         />
@@ -187,14 +192,14 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     }
 
     const overlay = (
-      <Reanimated.View style={this.buttonsStyle}>
+      <AnimatedView style={this.buttonsStyle}>
         <LottieView
           source={require('../animations/check.json')}
           progress={this.checkProgress}
           style={styles.checkAnimation}
           resizeMode="cover"
         />
-      </Reanimated.View>
+      </AnimatedView>
     );
 
     return (
@@ -206,12 +211,12 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
         >
           {media}
         </GestureTouchableOpacity>
-        <Reanimated.View
+        <AnimatedView
           style={this.buttonsStyle}
           pointerEvents={active ? 'box-none' : 'none'}
         >
           {buttons}
-        </Reanimated.View>
+        </AnimatedView>
       </View>
     );
   }

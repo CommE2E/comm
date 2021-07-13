@@ -54,9 +54,11 @@ import { intentionalSaveMedia } from './save-media';
 /* eslint-disable import/no-named-as-default-member */
 const {
   Value,
+  Node,
   Clock,
   event,
   Extrapolate,
+  block,
   set,
   call,
   cond,
@@ -84,7 +86,7 @@ const {
 } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
-function scaleDelta(value: Value, gestureActive: Value) {
+function scaleDelta(value: Node, gestureActive: Node): Node {
   const diffThisFrame = new Value(1);
   const prevValue = new Value(1);
   return cond(
@@ -98,7 +100,7 @@ function scaleDelta(value: Value, gestureActive: Value) {
   );
 }
 
-function panDelta(value: Value, gestureActive: Value) {
+function panDelta(value: Node, gestureActive: Node): Node {
   const diffThisFrame = new Value(0);
   const prevValue = new Value(0);
   return cond(
@@ -114,10 +116,10 @@ function panDelta(value: Value, gestureActive: Value) {
 
 function runDecay(
   clock: Clock,
-  velocity: Value,
-  initialPosition: Value,
+  velocity: Node,
+  initialPosition: Node,
   startStopClock: boolean = true,
-): Value {
+): Node {
   const state = {
     finished: new Value(0),
     velocity: new Value(0),
@@ -125,18 +127,18 @@ function runDecay(
     time: new Value(0),
   };
   const config = { deceleration: 0.99 };
-  return [
+  return block([
     cond(not(clockRunning(clock)), [
       set(state.finished, 0),
       set(state.velocity, velocity),
       set(state.position, initialPosition),
       set(state.time, 0),
-      startStopClock && startClock(clock),
+      startStopClock ? startClock(clock) : undefined,
     ]),
     decay(clock, state, config),
-    cond(state.finished, startStopClock && stopClock(clock)),
+    cond(state.finished, startStopClock ? stopClock(clock) : undefined),
     state.position,
-  ];
+  ]);
 }
 
 export type ImageModalParams = {|
@@ -212,13 +214,13 @@ class ImageModal extends React.PureComponent<Props, State> {
   singleTapEvent;
   doubleTapEvent;
 
-  scale: Value;
-  x: Value;
-  y: Value;
-  backdropOpacity: Value;
-  imageContainerOpacity: Value;
-  actionLinksOpacity: Value;
-  closeButtonOpacity: Value;
+  scale: Node;
+  x: Node;
+  y: Node;
+  backdropOpacity: Node;
+  imageContainerOpacity: Node;
+  actionLinksOpacity: Node;
+  closeButtonOpacity: Node;
 
   constructor(props: Props) {
     super(props);
@@ -265,7 +267,7 @@ class ImageModal extends React.PureComponent<Props, State> {
       },
     ]);
     const curPanActive = new Value(0);
-    const panActive = [
+    const panActive = block([
       cond(
         and(
           gestureJustStarted(panState),
@@ -278,7 +280,7 @@ class ImageModal extends React.PureComponent<Props, State> {
       ),
       cond(gestureJustEnded(panState), set(curPanActive, 0)),
       curPanActive,
-    ];
+    ]);
     const lastPanActive = new Value(0);
     const panJustEnded = cond(eq(lastPanActive, panActive), 0, [
       set(lastPanActive, panActive),
@@ -392,9 +394,9 @@ class ImageModal extends React.PureComponent<Props, State> {
         pinchActive,
         panVelocityX,
         panVelocityY,
+        roundedCurScale,
         curX,
         curY,
-        roundedCurScale,
         curBackdropOpacity,
         dismissingFromPan,
       ),
@@ -475,14 +477,14 @@ class ImageModal extends React.PureComponent<Props, State> {
   }
 
   // How much space do we have to pan the image horizontally?
-  horizontalPanSpace(scale: Value) {
+  horizontalPanSpace(scale: Node): Node {
     const apparentWidth = multiply(this.imageWidth, scale);
     const horizPop = divide(sub(apparentWidth, this.frameWidth), 2);
     return max(horizPop, 0);
   }
 
   // How much space do we have to pan the image vertically?
-  verticalPanSpace(scale: Value) {
+  verticalPanSpace(scale: Node): Node {
     const apparentHeight = multiply(this.imageHeight, scale);
     const vertPop = divide(sub(apparentHeight, this.frameHeight), 2);
     return max(vertPop, 0);
@@ -490,15 +492,15 @@ class ImageModal extends React.PureComponent<Props, State> {
 
   pinchUpdate(
     // Inputs
-    pinchActive: Value,
-    pinchScale: Value,
-    pinchFocalX: Value,
-    pinchFocalY: Value,
+    pinchActive: Node,
+    pinchScale: Node,
+    pinchFocalX: Node,
+    pinchFocalY: Node,
     // Outputs
     curScale: Value,
     curX: Value,
     curY: Value,
-  ): Value {
+  ): Node {
     const deltaScale = scaleDelta(pinchScale, pinchActive);
     const deltaPinchX = multiply(
       sub(1, deltaScale),
@@ -519,7 +521,7 @@ class ImageModal extends React.PureComponent<Props, State> {
     );
   }
 
-  outsideButtons(x: Value, y: Value) {
+  outsideButtons(x: Node, y: Node): Node {
     const {
       closeButtonX,
       closeButtonY,
@@ -552,13 +554,13 @@ class ImageModal extends React.PureComponent<Props, State> {
 
   panUpdate(
     // Inputs
-    panActive: Value,
-    panTranslationX: Value,
-    panTranslationY: Value,
+    panActive: Node,
+    panTranslationX: Node,
+    panTranslationY: Node,
     // Outputs
     curX: Value,
     curY: Value,
-  ): Value {
+  ): Node {
     const deltaX = panDelta(panTranslationX, panActive);
     const deltaY = panDelta(panTranslationY, panActive);
     return cond(
@@ -569,14 +571,14 @@ class ImageModal extends React.PureComponent<Props, State> {
 
   singleTapUpdate(
     // Inputs
-    singleTapState: Value,
-    singleTapX: Value,
-    singleTapY: Value,
-    roundedCurScale: Value,
+    singleTapState: Node,
+    singleTapX: Node,
+    singleTapY: Node,
+    roundedCurScale: Node,
     // Outputs
     curCloseButtonOpacity: Value,
     curActionLinksOpacity: Value,
-  ): Value {
+  ): Node {
     const lastTapX = new Value(0);
     const lastTapY = new Value(0);
     const fingerJustReleased = and(
@@ -611,7 +613,7 @@ class ImageModal extends React.PureComponent<Props, State> {
     const closeButtonDisappearClock = new Clock();
     const actionLinksAppearClock = new Clock();
     const actionLinksDisappearClock = new Clock();
-    return [
+    return block([
       fingerJustReleased,
       set(
         curCloseButtonOpacity,
@@ -648,22 +650,22 @@ class ImageModal extends React.PureComponent<Props, State> {
       set(lastTapY, singleTapY),
       call([eq(curCloseButtonOpacity, 1)], this.setCloseButtonEnabled),
       call([eq(curActionLinksOpacity, 1)], this.setActionLinksEnabled),
-    ];
+    ]);
   }
 
   doubleTapUpdate(
     // Inputs
-    doubleTapState: Value,
-    doubleTapX: Value,
-    doubleTapY: Value,
-    roundedCurScale: Value,
+    doubleTapState: Node,
+    doubleTapX: Node,
+    doubleTapY: Node,
+    roundedCurScale: Node,
     zoomClock: Clock,
-    gestureActive: Value,
+    gestureActive: Node,
     // Outputs
     curScale: Value,
     curX: Value,
     curY: Value,
-  ): Value {
+  ): Node {
     const zoomClockRunning = clockRunning(zoomClock);
     const zoomActive = and(not(gestureActive), zoomClockRunning);
     const targetScale = cond(greaterThan(roundedCurScale, 1), 1, 3);
@@ -724,17 +726,17 @@ class ImageModal extends React.PureComponent<Props, State> {
 
   backdropOpacityUpdate(
     // Inputs
-    panJustEnded: Value,
-    pinchActive: Value,
-    panVelocityX: Value,
-    panVelocityY: Value,
+    panJustEnded: Node,
+    pinchActive: Node,
+    panVelocityX: Node,
+    panVelocityY: Node,
+    roundedCurScale: Node,
+    // Outputs
     curX: Value,
     curY: Value,
-    roundedCurScale: Value,
-    // Outputs
     curBackdropOpacity: Value,
     dismissingFromPan: Value,
-  ): Value {
+  ): Node {
     const progressiveOpacity = max(
       min(
         sub(1, abs(divide(curX, this.frameWidth))),
@@ -777,15 +779,15 @@ class ImageModal extends React.PureComponent<Props, State> {
     // Inputs
     resetXClock: Clock,
     resetYClock: Clock,
-    activeInteraction: Value,
-    recenteredScale: Value,
-    horizontalPanSpace: Value,
-    verticalPanSpace: Value,
+    activeInteraction: Node,
+    recenteredScale: Node,
+    horizontalPanSpace: Node,
+    verticalPanSpace: Node,
     // Outputs
     curScale: Value,
     curX: Value,
     curY: Value,
-  ): Value {
+  ): Node {
     const resetScaleClock = new Clock();
 
     const recenteredX = clamp(
@@ -827,16 +829,16 @@ class ImageModal extends React.PureComponent<Props, State> {
     // Inputs
     resetXClock: Clock,
     resetYClock: Clock,
-    activeInteraction: Value,
-    panJustEnded: Value,
-    panVelocityX: Value,
-    panVelocityY: Value,
-    horizontalPanSpace: Value,
-    verticalPanSpace: Value,
+    activeInteraction: Node,
+    panJustEnded: Node,
+    panVelocityX: Node,
+    panVelocityY: Node,
+    horizontalPanSpace: Node,
+    verticalPanSpace: Node,
     // Outputs
     curX: Value,
     curY: Value,
-  ): Value {
+  ): Node {
     const flingXClock = new Clock();
     const flingYClock = new Clock();
 

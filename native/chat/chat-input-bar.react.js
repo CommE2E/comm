@@ -74,7 +74,7 @@ import {
 } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { type Colors, useStyles, useColors } from '../themes/colors';
-import type { ViewStyle } from '../types/styles';
+import { type AnimatedViewStyle, AnimatedView } from '../types/styles';
 import { runTiming } from '../utils/animation-utils';
 import type { ChatNavigationProp } from './chat.react';
 
@@ -143,14 +143,14 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   expandoButtonsOpen: Value;
   targetExpandoButtonsOpen: Value;
-  expandoButtonsStyle: ViewStyle;
-  cameraRollIconStyle: ViewStyle;
-  cameraIconStyle: ViewStyle;
-  expandIconStyle: ViewStyle;
+  expandoButtonsStyle: AnimatedViewStyle;
+  cameraRollIconStyle: AnimatedViewStyle;
+  cameraIconStyle: AnimatedViewStyle;
+  expandIconStyle: AnimatedViewStyle;
 
   sendButtonContainerOpen: Value;
   targetSendButtonContainerOpen: Value;
-  sendButtonContainerStyle: ViewStyle;
+  sendButtonContainerStyle: AnimatedViewStyle;
 
   constructor(props: Props) {
     super(props);
@@ -495,50 +495,50 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         activeOpacity={0.4}
         style={this.props.styles.expandButton}
       >
-        <Animated.View style={this.expandIconStyle}>
+        <AnimatedView style={this.expandIconStyle}>
           <SWMansionIcon
             name="chevron-right"
             size={22}
             color={`#${this.props.threadInfo.color}`}
           />
-        </Animated.View>
+        </AnimatedView>
       </TouchableOpacity>
     );
     const threadColor = `#${this.props.threadInfo.color}`;
     return (
       <TouchableWithoutFeedback onPress={this.dismissKeyboard}>
         <View style={this.props.styles.inputContainer}>
-          <Animated.View style={this.expandoButtonsStyle}>
+          <AnimatedView style={this.expandoButtonsStyle}>
             <View style={this.props.styles.innerExpandoButtons}>
               {this.state.buttonsExpanded ? expandoButton : null}
               <TouchableOpacity
                 onPress={this.showMediaGallery}
                 activeOpacity={0.4}
               >
-                <Animated.View style={this.cameraRollIconStyle}>
+                <AnimatedView style={this.cameraRollIconStyle}>
                   <SWMansionIcon
                     name="image-1"
                     size={24}
                     color={`#${this.props.threadInfo.color}`}
                   />
-                </Animated.View>
+                </AnimatedView>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={this.openCamera}
                 activeOpacity={0.4}
                 disabled={!this.state.buttonsExpanded}
               >
-                <Animated.View style={this.cameraIconStyle}>
+                <AnimatedView style={this.cameraIconStyle}>
                   <SWMansionIcon
                     name="camera"
                     size={24}
                     color={`#${this.props.threadInfo.color}`}
                   />
-                </Animated.View>
+                </AnimatedView>
               </TouchableOpacity>
               {this.state.buttonsExpanded ? null : expandoButton}
             </View>
-          </Animated.View>
+          </AnimatedView>
           <ClearableTextInput
             allowImagePasteForThreadID={this.props.threadInfo.id}
             value={this.state.text}
@@ -551,7 +551,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
             ref={this.clearableTextInputRef}
             selectionColor={`#${this.props.threadInfo.color}`}
           />
-          <Animated.View style={this.sendButtonContainerStyle}>
+          <AnimatedView style={this.sendButtonContainerStyle}>
             <TouchableOpacity
               onPress={this.onSend}
               activeOpacity={0.4}
@@ -565,7 +565,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
                 color={threadColor}
               />
             </TouchableOpacity>
-          </Animated.View>
+          </AnimatedView>
         </View>
       </TouchableWithoutFeedback>
     );

@@ -11,13 +11,13 @@ import { MessageHeader } from './message-header.react';
 import { MessageListContextProvider } from './message-list-types';
 
 /* eslint-disable import/no-named-as-default-member */
-const { Value } = Animated;
+const { Node } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
 type Props = {|
   +navigation: AppNavigationProp<'TextMessageTooltipModal'>,
   +route: TooltipRoute<'TextMessageTooltipModal'>,
-  +progress: Value,
+  +progress: Node,
 |};
 function TextMessageTooltipButton(props: Props) {
   const { progress } = props;

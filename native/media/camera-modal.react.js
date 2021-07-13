@@ -48,13 +48,18 @@ import { useSelector } from '../redux/redux-utils';
 import { colors } from '../themes/colors';
 import { type DeviceCameraInfo } from '../types/camera';
 import type { NativeMethods } from '../types/react-native';
-import type { ViewStyle } from '../types/styles';
+import {
+  AnimatedView,
+  type ViewStyle,
+  type AnimatedViewStyle,
+} from '../types/styles';
 import { clamp, gestureJustEnded } from '../utils/animation-utils';
 import SendMediaButton from './send-media-button.react';
 
 /* eslint-disable import/no-named-as-default-member */
 const {
   Value,
+  Node,
   Clock,
   event,
   Extrapolate,
@@ -123,11 +128,11 @@ function runIndicatorAnimation(
   springClock: Clock,
   delayClock: Clock,
   timingClock: Clock,
-  animationRunning: Value,
+  animationRunning: Node,
   // Outputs
   scale: Value,
   opacity: Value,
-): Value {
+): Node {
   const delayStart = new Value(0);
 
   const springScale = new Value(0.75);
@@ -263,7 +268,7 @@ class CameraModal extends React.PureComponent<Props, State> {
   pinchHandler = React.createRef();
   tapEvent;
   tapHandler = React.createRef();
-  animationCode: Value;
+  animationCode: Node;
 
   closeButton: ?React.ElementRef<TouchableOpacityInstance>;
   closeButtonX = new Value(-1);
@@ -301,7 +306,7 @@ class CameraModal extends React.PureComponent<Props, State> {
   stagingModeProgress = new Value(0);
   sendButtonProgress = new Animated.Value(0);
   sendButtonStyle: ViewStyle;
-  overlayStyle: ViewStyle;
+  overlayStyle: AnimatedViewStyle;
 
   constructor(props: Props) {
     super(props);
@@ -365,7 +370,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     ]);
   }
 
-  zoomAnimationCode(pinchState: Value, pinchScale: Value): Value {
+  zoomAnimationCode(pinchState: Node, pinchScale: Node): Node {
     const pinchJustEnded = gestureJustEnded(pinchState);
 
     const zoomBase = new Value(1);
@@ -387,7 +392,7 @@ class CameraModal extends React.PureComponent<Props, State> {
       zoomBase,
     );
 
-    return [
+    return block([
       cond(pinchJustEnded, set(zoomBase, currentZoom)),
       cond(
         or(
@@ -402,10 +407,10 @@ class CameraModal extends React.PureComponent<Props, State> {
           call([cameraZoomFactor], this.updateZoom),
         ],
       ),
-    ];
+    ]);
   }
 
-  focusAnimationCode(tapState: Value, tapX: Value, tapY: Value): Value {
+  focusAnimationCode(tapState: Node, tapX: Node, tapY: Node): Node {
     const lastTapX = new Value(0);
     const lastTapY = new Value(0);
     const fingerJustReleased = and(
@@ -422,7 +427,7 @@ class CameraModal extends React.PureComponent<Props, State> {
       clockRunning(indicatorTimingClock),
     );
 
-    return [
+    return block([
       cond(fingerJustReleased, [
         call([tapX, tapY], this.focusOnPoint),
         set(this.focusIndicatorX, tapX),
@@ -451,10 +456,10 @@ class CameraModal extends React.PureComponent<Props, State> {
       ),
       set(lastTapX, tapX),
       set(lastTapY, tapY),
-    ];
+    ]);
   }
 
-  outsideButtons(x: Value, y: Value) {
+  outsideButtons(x: Node, y: Node): Node {
     const {
       closeButtonX,
       closeButtonY,
@@ -781,7 +786,7 @@ class CameraModal extends React.PureComponent<Props, State> {
         >
           {this.renderCamera}
         </RNCamera>
-        <Reanimated.View style={this.overlayStyle} pointerEvents="none" />
+        <AnimatedView style={this.overlayStyle} pointerEvents="none" />
       </Reanimated.View>
     );
   }

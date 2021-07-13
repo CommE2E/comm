@@ -42,7 +42,7 @@ export type LogInState = {|
 |};
 type BaseProps = {|
   +setActiveAlert: (activeAlert: boolean) => void,
-  +opacityValue: Animated.Value,
+  +opacityValue: Animated.Node,
   +logInState: StateContainer<LogInState>,
 |};
 type Props = {|

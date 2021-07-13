@@ -36,13 +36,13 @@ import {
   type LayoutCoordinates,
 } from '../types/layout-types';
 import type { LayoutEvent } from '../types/react-native';
-import type { ViewStyle, TextStyle } from '../types/styles';
+import { AnimatedView, type ViewStyle, type TextStyle } from '../types/styles';
 import type { AppNavigationProp } from './app-navigator.react';
 import { OverlayContext, type OverlayContextType } from './overlay-context';
 import type { TooltipModalParamList } from './route-names';
 
 /* eslint-disable import/no-named-as-default-member */
-const { Value, Extrapolate, add, multiply, interpolate } = Animated;
+const { Value, Node, Extrapolate, add, multiply, interpolate } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
 export type TooltipEntry<RouteName: $Keys<TooltipModalParamList>> = {|
@@ -88,7 +88,7 @@ type BaseTooltipProps<RouteName> = {|
 |};
 type ButtonProps<RouteName> = {|
   ...BaseTooltipProps<RouteName>,
-  +progress: Value,
+  +progress: Node,
 |};
 type TooltipProps<RouteName> = {|
   ...BaseTooltipProps<RouteName>,
@@ -127,12 +127,12 @@ function createTooltip<RouteName: $Keys<TooltipModalParamList>>(
     };
   }
   class Tooltip extends React.PureComponent<TooltipProps<RouteName>> {
-    backdropOpacity: Value;
-    tooltipContainerOpacity: Value;
-    tooltipVerticalAbove: Value;
-    tooltipVerticalBelow: Value;
+    backdropOpacity: Node;
+    tooltipContainerOpacity: Node;
+    tooltipVerticalAbove: Node;
+    tooltipVerticalBelow: Node;
     tooltipHorizontalOffset = new Value(0);
-    tooltipHorizontal: Value;
+    tooltipHorizontal: Node;
 
     constructor(props: TooltipProps<RouteName>) {
       super(props);
@@ -347,7 +347,7 @@ function createTooltip<RouteName: $Keys<TooltipModalParamList>>(
       return (
         <TouchableWithoutFeedback onPress={this.onPressBackdrop}>
           <View style={styles.container}>
-            <Animated.View style={this.opacityStyle} />
+            <AnimatedView style={this.opacityStyle} />
             <View style={this.contentContainerStyle}>
               <View style={this.buttonStyle}>
                 <ButtonComponent
@@ -357,14 +357,14 @@ function createTooltip<RouteName: $Keys<TooltipModalParamList>>(
                 />
               </View>
             </View>
-            <Animated.View
+            <AnimatedView
               style={this.tooltipContainerStyle}
               onLayout={this.onTooltipContainerLayout}
             >
               {triangleUp}
               <View style={styles.items}>{items}</View>
               {triangleDown}
-            </Animated.View>
+            </AnimatedView>
           </View>
         </TouchableWithoutFeedback>
       );

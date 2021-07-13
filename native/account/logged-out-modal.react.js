@@ -67,6 +67,7 @@ const safeAreaEdges = ['top', 'bottom'];
 /* eslint-disable import/no-named-as-default-member */
 const {
   Value,
+  Node,
   Clock,
   block,
   set,
@@ -94,7 +95,7 @@ const modeNumbers: { [LoggedOutMode]: number } = {
   'log-in': 2,
   'register': 3,
 };
-function isPastPrompt(modeValue: Animated.Node) {
+function isPastPrompt(modeValue: Node) {
   return and(
     neq(modeValue, modeNumbers['loading']),
     neq(modeValue, modeNumbers['prompt']),
@@ -133,8 +134,8 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   modeValue: Value;
 
   buttonOpacity: Value;
-  panelPaddingTopValue: Value;
-  panelOpacityValue: Value;
+  panelPaddingTopValue: Node;
+  panelOpacityValue: Node;
 
   constructor(props: Props) {
     super(props);

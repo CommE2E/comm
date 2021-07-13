@@ -138,14 +138,14 @@ function VideoPlaybackModal(props: Props) {
       and(
         or(
           eq(controlsShowing, 0),
-          lessThan(x, Animated.debug('closeButtonX', closeButtonX)),
+          lessThan(x, closeButtonX),
           greaterThan(x, add(closeButtonX, closeButtonWidth)),
           lessThan(y, closeButtonY),
           greaterThan(y, add(closeButtonY, closeButtonHeight)),
         ),
         or(
           eq(controlsShowing, 0),
-          lessThan(x, Animated.debug('footerX', footerX)),
+          lessThan(x, footerX),
           greaterThan(x, add(footerX, footerWidth)),
           lessThan(y, footerY),
           greaterThan(y, add(footerY, footerHeight)),
@@ -189,7 +189,7 @@ function VideoPlaybackModal(props: Props) {
   const activeControlsOpacity = React.useMemo(
     () =>
       animateTowards(
-        [
+        block([
           cond(
             and(
               gestureJustEnded(singleTapState),
@@ -200,7 +200,7 @@ function VideoPlaybackModal(props: Props) {
           set(lastTapX, singleTapX),
           set(lastTapY, singleTapY),
           controlsShowing,
-        ],
+        ]),
         150,
       ),
     [
