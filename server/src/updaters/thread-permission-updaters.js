@@ -668,7 +668,9 @@ async function recalculateThreadPermissions(
   threadID: string,
 ): Promise<Changeset> {
   const threadQuery = SQL`
-    SELECT type, depth, containing_thread_id FROM threads WHERE id = ${threadID}
+    SELECT type, depth, parent_thread_id, containing_thread_id
+    FROM threads
+    WHERE id = ${threadID}
   `;
   const membershipQuery = SQL`
     SELECT m.user, m.role, m.permissions, m.permissions_for_children,
@@ -699,9 +701,11 @@ async function recalculateThreadPermissions(
   if (threadResults.length !== 1) {
     throw new ServerError('internal_error');
   }
-  const threadType = assertThreadType(threadResults[0].type);
-  const depth = threadResults[0].depth;
-  const hasContainingThreadID = threadResults[0].containing_thread_id !== null;
+  const [threadResult] = threadResults;
+  const threadType = assertThreadType(threadResult.type);
+  const depth = threadResult.depth;
+  const hasContainingThreadID = threadResult.containing_thread_id !== null;
+  const parentThreadID = threadResult.parent_thread_id?.toString();
 
   const membershipInfo: Map<
     string,
@@ -731,13 +735,20 @@ async function recalculateThreadPermissions(
     }
   }
 
-  const membershipRows = [];
   const relationshipChangeset = new RelationshipChangeset();
-  const toUpdateDescendants = new Map();
   const existingMemberIDs = membershipResults.map((row) => row.user.toString());
   if (threadID !== genesis.id) {
     relationshipChangeset.setAllRelationshipsExist(existingMemberIDs);
   }
+  const parentMemberIDs = parentMembershipResults.map((row) =>
+    row.user.toString(),
+  );
+  if (parentThreadID && parentThreadID !== genesis.id) {
+    relationshipChangeset.setAllRelationshipsExist(parentMemberIDs);
+  }
+
+  const membershipRows = [];
+  const toUpdateDescendants = new Map();
   for (const [userID, membership] of membershipInfo) {
     const {
       rolePermissions: intendedRolePermissions,
