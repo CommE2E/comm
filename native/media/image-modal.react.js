@@ -1,5 +1,6 @@
 // @flow
 
+import Clipboard from '@react-native-community/clipboard';
 import invariant from 'invariant';
 import * as React from 'react';
 import {
@@ -24,6 +25,7 @@ import { useIsReportEnabled } from 'lib/utils/report-utils';
 import type { ChatMultimediaMessageInfoItem } from '../chat/multimedia-message-utils';
 import SWMansionIcon from '../components/swmansion-icon.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
+import { displayActionResultModal } from '../navigation/action-result-modal';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import {
   OverlayContext,
@@ -1028,6 +1030,21 @@ class ImageModal extends React.PureComponent<Props, State> {
       opacity: this.actionLinksOpacity,
       bottom: this.props.dimensions.bottomInset + 8,
     };
+
+    let copyButton;
+    if (Platform.OS === 'ios') {
+      copyButton = (
+        <TouchableOpacity
+          onPress={this.copy}
+          disabled={!this.state.actionLinksEnabled}
+          style={styles.mediaIconButtons}
+        >
+          <SWMansionIcon name="copy" style={styles.mediaIcon} />
+          <Text style={styles.mediaIconText}>Copy</Text>
+        </TouchableOpacity>
+      );
+    }
+
     const view = (
       <Animated.View style={styles.container}>
         {statusBar}
@@ -1050,7 +1067,11 @@ class ImageModal extends React.PureComponent<Props, State> {
         <Animated.View
           style={[styles.mediaIconsContainer, mediaIconsButtonStyle]}
         >
-          <View onLayout={this.onMediaIconsLayout} ref={this.mediaIconsRef}>
+          <View
+            style={styles.mediaIconsRow}
+            onLayout={this.onMediaIconsLayout}
+            ref={this.mediaIconsRef}
+          >
             <TouchableOpacity
               onPress={this.save}
               disabled={!this.state.actionLinksEnabled}
@@ -1059,6 +1080,7 @@ class ImageModal extends React.PureComponent<Props, State> {
               <SWMansionIcon name="save" style={styles.mediaIcon} />
               <Text style={styles.mediaIconText}>Save</Text>
             </TouchableOpacity>
+            {copyButton}
           </View>
         </Animated.View>
       </Animated.View>
@@ -1116,6 +1138,13 @@ class ImageModal extends React.PureComponent<Props, State> {
     const ids = { uploadID, messageServerID, messageLocalID };
     return intentionalSaveMedia(uri, ids, {
       mediaReportsEnabled: this.props.mediaReportsEnabled,
+    });
+  };
+
+  copy = () => {
+    const { uri } = this.props.route.params.mediaInfo;
+    Clipboard.setImageFromURL(uri, (success) => {
+      displayActionResultModal(success ? 'copied!' : 'failed to copy :(');
     });
   };
 
@@ -1224,6 +1253,9 @@ const styles = StyleSheet.create({
   mediaIconsContainer: {
     left: 16,
     position: 'absolute',
+  },
+  mediaIconsRow: {
+    flexDirection: 'row',
   },
 });
 
