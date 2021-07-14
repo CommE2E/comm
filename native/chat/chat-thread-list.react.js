@@ -49,6 +49,7 @@ import {
   indicatorStyleSelector,
   useStyles,
 } from '../themes/colors';
+import type { ScrollEvent } from '../types/react-native';
 import { animateTowards } from '../utils/animation-utils';
 import {
   ChatThreadListItem,
@@ -283,7 +284,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     this.searchInput = searchInput;
   };
 
-  renderItem = (row: { item: Item }) => {
+  renderItem = (row: { item: Item, ... }) => {
     const item = row.item;
     if (item.type === 'search') {
       return (
@@ -493,7 +494,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     this.flatList = flatList;
   };
 
-  onScroll = (event: { +nativeEvent: { +contentOffset: { +y: number } } }) => {
+  onScroll = (event: ScrollEvent) => {
     const oldScrollPos = this.scrollPos;
     this.scrollPos = event.nativeEvent.contentOffset.y;
     if (this.scrollPos !== 0 || oldScrollPos === 0) {

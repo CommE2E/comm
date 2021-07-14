@@ -8,6 +8,7 @@ import type { Store } from 'redux';
 import { setURLPrefix } from 'lib/utils/url-utils';
 
 import type { AppState } from '../redux/state-types';
+import type { Action } from '../redux/action-types';
 import { natDevHostname, checkForMissingNatDevHostname } from './dev-hostname';
 
 const localhostHostname = 'localhost';
@@ -58,7 +59,7 @@ const defaultURLPrefix = __DEV__
   : productionNodeServerURL;
 
 async function updateURLPrefixAfterCheckingIfEmulator(
-  store: Store<AppState, *>,
+  store: Store<AppState, Action>,
 ) {
   if (!__DEV__) {
     return;
@@ -72,7 +73,7 @@ async function updateURLPrefixAfterCheckingIfEmulator(
   ) {
     return;
   }
-  store.dispatch({ type: setURLPrefix, payload: urlPrefix });
+  store.dispatch({ type: (setURLPrefix: typeof setURLPrefix), payload: urlPrefix });
 }
 
 const natNodeServer = getDevNodeServerURLFromHostname(natDevHostname);

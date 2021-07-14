@@ -96,7 +96,7 @@ function findRouteIndexWithKey(
 // will be removed if and only if filterFunc returns "remove" (not "break").
 function removeScreensFromStack<
   Route,
-  State: { +routes: $ReadOnlyArray<Route>, +index: number },
+  State: { +routes: $ReadOnlyArray<Route>, +index: number, ... },
 >(
   state: State,
   filterFunc: (route: Route) => 'keep' | 'remove' | 'break',

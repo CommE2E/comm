@@ -867,7 +867,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     });
   };
 
-  renderItem = (row: { item: ChatSettingsItem }) => {
+  renderItem = (row: { item: ChatSettingsItem, ... }) => {
     const item = row.item;
     if (item.itemType === 'header') {
       return (

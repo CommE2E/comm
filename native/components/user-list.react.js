@@ -40,7 +40,7 @@ class UserList extends React.PureComponent<Props> {
     return userInfo.id;
   }
 
-  renderItem = (row: { item: UserListItem }) => {
+  renderItem = (row: { item: UserListItem, ... }) => {
     return (
       <UserListUser
         userInfo={row.item}

@@ -155,6 +155,7 @@ const App = createOverlayNavigator<
 >();
 type AppNavigatorProps = {
   navigation: RootNavigationProp<'App'>,
+  ...
 };
 function AppNavigator(props: AppNavigatorProps) {
   const { navigation } = props;

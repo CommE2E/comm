@@ -98,7 +98,7 @@ class ThreadList extends React.PureComponent<Props, State> {
     return threadInfo.id;
   }
 
-  renderItem = (row: { item: ThreadInfo }) => {
+  renderItem = (row: { item: ThreadInfo, ... }) => {
     return (
       <ThreadListThread
         threadInfo={row.item}

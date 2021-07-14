@@ -41,7 +41,7 @@ import {
   useIndicatorStyle,
 } from '../themes/colors';
 import type { VerticalBounds } from '../types/layout-types';
-import type { ViewToken } from '../types/react-native';
+import type { ViewableItemsChange } from '../types/react-native';
 import { ChatList } from './chat-list.react';
 import type { ChatNavigationProp } from './chat.react';
 import type { ChatMessageItemWithHeight } from './message-list-container.react';
@@ -168,7 +168,7 @@ class MessageList extends React.PureComponent<Props, State> {
     keyboardState && keyboardState.dismissKeyboard();
   };
 
-  renderItem = (row: { item: ChatMessageItemWithHeight }) => {
+  renderItem = (row: { item: ChatMessageItemWithHeight, ... }) => {
     if (row.item.itemType === 'loader') {
       return (
         <TouchableWithoutFeedback onPress={this.dismissKeyboard}>
@@ -272,10 +272,7 @@ class MessageList extends React.PureComponent<Props, State> {
     });
   };
 
-  onViewableItemsChanged = (info: {
-    viewableItems: ViewToken[],
-    changed: ViewToken[],
-  }) => {
+  onViewableItemsChanged = (info: ViewableItemsChange) => {
     if (this.state.focusedMessageKey) {
       let focusedMessageVisible = false;
       for (const token of info.viewableItems) {

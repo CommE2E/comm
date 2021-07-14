@@ -70,7 +70,7 @@ export type RootRouterNavigationProp<
 
 type ResetStateRoute = {
   +name: string,
-  +state?: { +routes: $ReadOnlyArray<ResetStateRoute> },
+  +state?: { +routes: $ReadOnlyArray<ResetStateRoute>, ... },
   ...
 };
 function resetState<Route: ResetStateRoute>(

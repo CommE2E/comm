@@ -25,6 +25,7 @@ import {
 } from '../keyboard/keyboard-state';
 import type { TabNavigationProp } from '../navigation/app-navigator.react';
 import { useSelector } from '../redux/redux-utils';
+import type { ScrollEvent } from '../types/react-native';
 import type { ViewStyle } from '../types/styles';
 import type { ChatNavigationProp } from './chat.react';
 import type { ChatMessageItemWithHeight } from './message-list-container.react';
@@ -269,12 +270,7 @@ class ChatList extends React.PureComponent<Props, State> {
     });
   }
 
-  onScroll = (event: {
-    +nativeEvent: {
-      +contentOffset: { +y: number },
-      +contentSize: { +height: number },
-    },
-  }) => {
+  onScroll = (event: ScrollEvent) => {
     this.scrollPos = event.nativeEvent.contentOffset.y;
     if (this.scrollPos <= 0) {
       this.toggleNewMessagesPill(false);

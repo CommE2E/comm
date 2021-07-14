@@ -47,6 +47,7 @@ import {
 } from '../redux/action-types';
 import { useSelector } from '../redux/redux-utils';
 import { RootContext, type RootContextType } from '../root-context';
+import type { EmitterSubscription } from '../types/react-native';
 import { type GlobalTheme } from '../types/themes';
 import { type NotifPermissionAlertInfo } from './alerts';
 import {
@@ -116,7 +117,7 @@ class PushHandler extends React.PureComponent<Props, State> {
   androidNotifOpenListener: ?() => void = null;
   initialAndroidNotifHandled = false;
   openThreadOnceReceived: Set<string> = new Set();
-  lifecycleSubscription: ?{ +remove: () => void };
+  lifecycleSubscription: ?EmitterSubscription;
 
   componentDidMount() {
     this.appStarted = Date.now();

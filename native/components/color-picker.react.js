@@ -22,7 +22,9 @@ type PanEvent = $ReadOnly<{
   nativeEvent: $ReadOnly<{
     pageX: number,
     pageY: number,
+    ...
   }>,
+  ...
 }>;
 type HSVColor = {| h: number, s: number, v: number |};
 type PickerContainer = React.ElementRef<typeof View>;

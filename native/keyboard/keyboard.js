@@ -2,6 +2,8 @@
 
 import { Keyboard, Platform, DeviceInfo } from 'react-native';
 
+import type { EmitterSubscription } from '../types/react-native';
+
 export type ScreenRect = $ReadOnly<{|
   screenX: number,
   screenY: number,
@@ -17,10 +19,6 @@ export type KeyboardEvent = $ReadOnly<{|
 
 type ShowKeyboardCallback = (event: KeyboardEvent) => void;
 type HideKeyboardCallback = (event: ?KeyboardEvent) => void;
-
-export type EmitterSubscription = {
-  +remove: () => void,
-};
 
 const isIPhoneX =
   Platform.OS === 'ios' && DeviceInfo.getConstants().isIPhoneX_deprecated;

@@ -15,7 +15,11 @@ import {
 
 import { useSelector } from '../redux/redux-utils';
 import { useColors, type Colors } from '../themes/colors';
-import type { LayoutEvent } from '../types/react-native';
+import type {
+  LayoutEvent,
+  KeyPressEvent,
+  BlurEvent,
+} from '../types/react-native';
 import type { ViewStyle, TextStyle } from '../types/styles';
 
 type TagInputProps<T> = {|
@@ -155,9 +159,7 @@ class BaseTagInput<T> extends React.PureComponent<BaseTagInputProps<T>, State> {
     this.props.onChangeText(text);
   };
 
-  onBlur = (
-    event: $ReadOnly<{ nativeEvent: $ReadOnly<{ target: number }> }>,
-  ) => {
+  onBlur = (event: BlurEvent) => {
     invariant(Platform.OS === 'ios', 'only iOS gets text on TextInput.onBlur');
     const nativeEvent: $ReadOnly<{
       target: number,
@@ -166,9 +168,7 @@ class BaseTagInput<T> extends React.PureComponent<BaseTagInputProps<T>, State> {
     this.onChangeText(nativeEvent.text);
   };
 
-  onKeyPress = (
-    event: $ReadOnly<{ nativeEvent: $ReadOnly<{ key: string }> }>,
-  ) => {
+  onKeyPress = (event: KeyPressEvent) => {
     const { lastChange } = this;
     let { text } = this.props;
     if (

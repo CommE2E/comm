@@ -29,8 +29,9 @@ import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
 
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
-import type { KeyboardEvent, EmitterSubscription } from '../keyboard/keyboard';
+import type { EmitterSubscription } from '../types/react-native';
 import {
+  type KeyboardEvent,
   addKeyboardShowListener,
   addKeyboardDismissListener,
   removeKeyboardListener,

@@ -457,7 +457,7 @@ class RelationshipList extends React.PureComponent<Props, State> {
     );
   };
 
-  renderItem = ({ item }: { item: ListItem }) => {
+  renderItem = ({ item }: { item: ListItem, ... }) => {
     if (item.type === 'empty') {
       const action = {
         [FriendListRouteName]: 'added',

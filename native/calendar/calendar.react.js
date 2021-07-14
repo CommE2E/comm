@@ -49,11 +49,11 @@ import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 import ListLoadingIndicator from '../components/list-loading-indicator.react';
 import NodeHeightMeasurer from '../components/node-height-measurer.react';
 import {
+  type KeyboardEvent,
   addKeyboardShowListener,
   addKeyboardDismissListener,
   removeKeyboardListener,
 } from '../keyboard/keyboard';
-import type { KeyboardEvent } from '../keyboard/keyboard';
 import type { TabNavigationProp } from '../navigation/app-navigator.react';
 import DisconnectedBar from '../navigation/disconnected-bar.react';
 import {
@@ -85,7 +85,7 @@ import {
   type Colors,
   type IndicatorStyle,
 } from '../themes/colors';
-import type { ViewToken } from '../types/react-native';
+import type { EmitterSubscription, ScrollEvent, ViewableItemsChange } from '../types/react-native';
 import CalendarInputBar from './calendar-input-bar.react';
 import {
   Entry,
@@ -165,8 +165,8 @@ class Calendar extends React.PureComponent<Props, State> {
   // When an entry becomes active, we make a note of its key so that once the
   // keyboard event happens, we know where to move the scrollPos to
   lastEntryKeyActive: ?string = null;
-  keyboardShowListener: ?{ +remove: () => void };
-  keyboardDismissListener: ?{ +remove: () => void };
+  keyboardShowListener: ?EmitterSubscription;
+  keyboardDismissListener: ?EmitterSubscription;
   keyboardShownHeight: ?number = null;
   // If the query fails, we try it again
   topLoadingFromScroll: ?CalendarQuery = null;
@@ -428,7 +428,7 @@ class Calendar extends React.PureComponent<Props, State> {
     });
   }
 
-  renderItem = (row: { item: CalendarItemWithHeight }) => {
+  renderItem = (row: { item: CalendarItemWithHeight, ... }) => {
     const item = row.item;
     if (item.itemType === 'loader') {
       return <ListLoadingIndicator />;
@@ -848,10 +848,7 @@ class Calendar extends React.PureComponent<Props, State> {
     this.setState({ listDataWithHeights });
   };
 
-  onViewableItemsChanged = (info: {
-    viewableItems: ViewToken[],
-    changed: ViewToken[],
-  }) => {
+  onViewableItemsChanged = (info: ViewableItemsChange) => {
     const ldwh = this.state.listDataWithHeights;
     if (!ldwh) {
       // This indicates the listData was cleared (set to null) right before this
@@ -972,7 +969,7 @@ class Calendar extends React.PureComponent<Props, State> {
     }
   }, 1000);
 
-  onScroll = (event: { +nativeEvent: { +contentOffset: { +y: number } } }) => {
+  onScroll = (event: ScrollEvent) => {
     this.currentScrollPosition = event.nativeEvent.contentOffset.y;
   };
 

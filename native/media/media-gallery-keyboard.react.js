@@ -23,7 +23,7 @@ import type { DimensionsInfo } from '../redux/dimensions-updater.react';
 import { store } from '../redux/redux-setup';
 import { useSelector } from '../redux/redux-utils';
 import { type Colors, useColors, useStyles } from '../themes/colors';
-import type { ViewToken, LayoutEvent } from '../types/react-native';
+import type { LayoutEvent, ViewableItemsChange } from '../types/react-native';
 import type { ViewStyle } from '../types/styles';
 import { getCompatibleMediaURI } from './identifier-utils';
 import MediaGalleryMedia from './media-gallery-media.react';
@@ -290,7 +290,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     return !!this.state.queuedMediaURIs;
   }
 
-  renderItem = (row: { item: MediaLibrarySelection }) => {
+  renderItem = (row: { item: MediaLibrarySelection, ... }) => {
     const { containerHeight, queuedMediaURIs } = this.state;
     invariant(containerHeight, 'should be set');
     const { uri } = row.item;
@@ -406,10 +406,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     }
   };
 
-  onViewableItemsChanged = (info: {
-    viewableItems: ViewToken[],
-    changed: ViewToken[],
-  }) => {
+  onViewableItemsChanged = (info: ViewableItemsChange) => {
     const viewableIndices = [];
     for (const { index } of info.viewableItems) {
       if (index !== null && index !== undefined) {

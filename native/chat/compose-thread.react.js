@@ -136,6 +136,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
 
   static getParentThreadInfo(props: {
     route: NavigationRoute<'ComposeThread'>,
+    ...
   }): ?ThreadInfo {
     return props.route.params.parentThreadInfo;
   }
