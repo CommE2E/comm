@@ -173,16 +173,16 @@ class ImageModal extends React.PureComponent<Props, State> {
   };
 
   closeButton: ?React.ElementRef<TouchableOpacityInstance>;
-  saveButton: ?React.ElementRef<TouchableOpacityInstance>;
+  mediaIconsContainer: ?React.ElementRef<typeof View>;
   closeButtonX = new Value(-1);
   closeButtonY = new Value(-1);
   closeButtonWidth = new Value(0);
   closeButtonHeight = new Value(0);
   closeButtonLastState = new Value(1);
-  saveButtonX = new Value(-1);
-  saveButtonY = new Value(-1);
-  saveButtonWidth = new Value(0);
-  saveButtonHeight = new Value(0);
+  mediaIconsX = new Value(-1);
+  mediaIconsY = new Value(-1);
+  mediaIconsWidth = new Value(0);
+  mediaIconsHeight = new Value(0);
   actionLinksLastState = new Value(1);
 
   centerX: Value;
@@ -524,10 +524,10 @@ class ImageModal extends React.PureComponent<Props, State> {
       closeButtonWidth,
       closeButtonHeight,
       closeButtonLastState,
-      saveButtonX,
-      saveButtonY,
-      saveButtonWidth,
-      saveButtonHeight,
+      mediaIconsX,
+      mediaIconsY,
+      mediaIconsWidth,
+      mediaIconsHeight,
       actionLinksLastState,
     } = this;
     return and(
@@ -540,10 +540,10 @@ class ImageModal extends React.PureComponent<Props, State> {
       ),
       or(
         eq(actionLinksLastState, 0),
-        lessThan(x, saveButtonX),
-        greaterThan(x, add(saveButtonX, saveButtonWidth)),
-        lessThan(y, saveButtonY),
-        greaterThan(y, add(saveButtonY, saveButtonHeight)),
+        lessThan(x, mediaIconsX),
+        greaterThan(x, add(mediaIconsX, mediaIconsWidth)),
+        lessThan(y, mediaIconsY),
+        greaterThan(y, add(mediaIconsY, mediaIconsHeight)),
       ),
     );
   }
@@ -1024,7 +1024,7 @@ class ImageModal extends React.PureComponent<Props, State> {
       opacity: this.closeButtonOpacity,
       top: Math.max(this.props.dimensions.topInset - 2, 4),
     };
-    const saveButtonStyle = {
+    const mediaIconsButtonStyle = {
       opacity: this.actionLinksOpacity,
       bottom: this.props.dimensions.bottomInset + 8,
     };
@@ -1047,17 +1047,19 @@ class ImageModal extends React.PureComponent<Props, State> {
             <Text style={styles.closeButton}>×</Text>
           </TouchableOpacity>
         </Animated.View>
-        <Animated.View style={[styles.saveButtonContainer, saveButtonStyle]}>
-          <TouchableOpacity
-            onPress={this.save}
-            disabled={!this.state.actionLinksEnabled}
-            style={styles.saveButton}
-            onLayout={this.onSaveButtonLayout}
-            ref={this.saveButtonRef}
-          >
-            <SWMansionIcon name="save" style={styles.saveButtonIcon} />
-            <Text style={styles.saveButtonText}>Save</Text>
-          </TouchableOpacity>
+        <Animated.View
+          style={[styles.mediaIconsContainer, mediaIconsButtonStyle]}
+        >
+          <View onLayout={this.onMediaIconsLayout} ref={this.mediaIconsRef}>
+            <TouchableOpacity
+              onPress={this.save}
+              disabled={!this.state.actionLinksEnabled}
+              style={styles.mediaIconButtons}
+            >
+              <SWMansionIcon name="save" style={styles.mediaIcon} />
+              <Text style={styles.mediaIconText}>Save</Text>
+            </TouchableOpacity>
+          </View>
         </Animated.View>
       </Animated.View>
     );
@@ -1137,8 +1139,8 @@ class ImageModal extends React.PureComponent<Props, State> {
     this.closeButton = (closeButton: any);
   };
 
-  saveButtonRef = (saveButton: ?React.ElementRef<typeof TouchableOpacity>) => {
-    this.saveButton = (saveButton: any);
+  mediaIconsRef = (mediaIconsContainer: ?React.ElementRef<typeof View>) => {
+    this.mediaIconsContainer = mediaIconsContainer;
   };
 
   onCloseButtonLayout = () => {
@@ -1154,16 +1156,17 @@ class ImageModal extends React.PureComponent<Props, State> {
     });
   };
 
-  onSaveButtonLayout = () => {
-    const { saveButton } = this;
-    if (!saveButton) {
+  onMediaIconsLayout = () => {
+    const { mediaIconsContainer } = this;
+    if (!mediaIconsContainer) {
       return;
     }
-    saveButton.measure((x, y, width, height, pageX, pageY) => {
-      this.saveButtonX.setValue(pageX);
-      this.saveButtonY.setValue(pageY);
-      this.saveButtonWidth.setValue(width);
-      this.saveButtonHeight.setValue(height);
+
+    mediaIconsContainer.measure((x, y, width, height, pageX, pageY) => {
+      this.mediaIconsX.setValue(pageX);
+      this.mediaIconsY.setValue(pageY);
+      this.mediaIconsWidth.setValue(width);
+      this.mediaIconsHeight.setValue(height);
     });
   };
 }
@@ -1197,30 +1200,30 @@ const styles = StyleSheet.create({
     flex: 1,
     overflow: 'hidden',
   },
-  saveButton: {
-    alignItems: 'center',
-    paddingBottom: 2,
-    paddingLeft: 8,
-    paddingRight: 8,
-    paddingTop: 2,
-  },
-  saveButtonContainer: {
-    left: 16,
-    position: 'absolute',
-  },
-  saveButtonIcon: {
+  mediaIcon: {
     color: '#D7D7DC',
     fontSize: 36,
     textShadowColor: '#1C1C1E',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,
   },
-  saveButtonText: {
+  mediaIconButtons: {
+    alignItems: 'center',
+    paddingBottom: 2,
+    paddingLeft: 8,
+    paddingRight: 8,
+    paddingTop: 2,
+  },
+  mediaIconText: {
     color: '#D7D7DC',
     fontSize: 14,
     textShadowColor: '#1C1C1E',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 1,
+  },
+  mediaIconsContainer: {
+    left: 16,
+    position: 'absolute',
   },
 });
 
