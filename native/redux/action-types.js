@@ -76,4 +76,8 @@ export type Action =
   | {
       +type: 'UPDATE_THREAD_LAST_NAVIGATED',
       +payload: { +threadID: string, +time: number },
+    }
+  | {
+      +type: 'SET_CURRENT_TRANSITION_SIDEBAR_SOURCE_ID',
+      +payload: ?string,
     };

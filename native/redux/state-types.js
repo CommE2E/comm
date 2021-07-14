@@ -14,10 +14,10 @@ import type { ConnectionInfo } from 'lib/types/socket-types';
 import type { ThreadStore } from 'lib/types/thread-types';
 import type { CurrentUserInfo, UserStore } from 'lib/types/user-types';
 
-import type { NavInfo } from '../navigation/default-state';
 import type { NotifPermissionAlertInfo } from '../push/alerts';
 import type { DeviceCameraInfo } from '../types/camera';
 import type { ConnectivityInfo } from '../types/connectivity';
+import type { NavInfo } from '../types/nav-types';
 import type { GlobalThemeInfo } from '../types/themes';
 import type { DimensionsInfo } from './dimensions-updater.react';
 
