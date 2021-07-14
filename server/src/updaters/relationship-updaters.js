@@ -279,7 +279,7 @@ async function updateChangedUndirectedRelationships(
   const insertRows = [];
   for (const row of changeset) {
     const existingStatus = existingStatuses.get(`${row.user1}|${row.user2}`);
-    if (existingStatus && existingStatus < row.status) {
+    if (!existingStatus || existingStatus < row.status) {
       insertRows.push([row.user1, row.user2, row.status]);
     }
   }
