@@ -396,6 +396,7 @@ PODS:
     - React
   - RNCClipboard (1.5.1):
     - React-Core
+    - SDWebImage (~> 5.8)
   - RNCMaskedView (0.1.10):
     - React
   - RNDeviceInfo (8.0.7):
@@ -789,7 +790,7 @@ SPEC CHECKSUMS:
   ReactNativeKeyboardInput: 266ba27a2e9921f5bdc0b4cc30289b2a2f46b157
   ReactNativeKeyboardTrackingView: 02137fac3b2ebd330d74fa54ead48b14750a2306
   RNCAsyncStorage: 60a80e72d95bf02a01cace55d3697d9724f0d77f
-  RNCClipboard: 41d8d918092ae8e676f18adada19104fa3e68495
+  RNCClipboard: f470a4445c779f99c10201b038ab3f9e24e71dbc
   RNCMaskedView: 5a8ec07677aa885546a0d98da336457e2bea557f
   RNDeviceInfo: 55463fa6e252ca3f0e2ba6001a7b82f879914338
   RNExitApp: c4e052df2568b43bec8a37c7cd61194d4cfee2c3
