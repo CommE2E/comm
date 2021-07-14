@@ -183,7 +183,7 @@ const header = (props: CoreStackHeaderProps) => {
 const headerBackButton = (props) => <HeaderBackButton {...props} />;
 
 const chatThreadListOptions = ({ navigation }) => ({
-  headerTitle: 'Threads',
+  headerTitle: 'Inbox',
   headerRight:
     Platform.OS === 'ios'
       ? () => <ComposeThreadButton navigate={navigation.navigate} />

@@ -62,7 +62,7 @@ const calendarTabOptions = {
   ),
 };
 const getChatTabOptions = (badge: number) => ({
-  tabBarLabel: 'Chat',
+  tabBarLabel: 'Inbox',
   // eslint-disable-next-line react/display-name
   tabBarIcon: ({ color }) => (
     <SWMansionIcon name="message-square" style={[styles.icon, { color }]} />
