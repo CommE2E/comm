@@ -6,6 +6,7 @@ import type { InputState } from '../input/input-state';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { MessageTooltipRouteNames } from '../navigation/route-names';
 import type { TooltipRoute } from '../navigation/tooltip.react';
+import { setCurrentTransitionSidebarSourceIDType } from '../types/nav-types';
 import { createNavigateToThreadAction } from './message-list-types';
 import { getSidebarThreadInfo } from './utils';
 
@@ -18,6 +19,11 @@ function navigateToSidebar<RouteName: MessageTooltipRouteNames>(
   viewerID: ?string,
 ) {
   const threadInfo = getSidebarThreadInfo(route.params.item, viewerID);
+
+  dispatchFunctions.dispatch({
+    type: setCurrentTransitionSidebarSourceIDType,
+    payload: route.params.item.messageInfo.id,
+  });
   navigation.navigate(createNavigateToThreadAction({ threadInfo }));
 }
 
