@@ -9,80 +9,11 @@ index 095b496..b19b07f 100644
 +  s.dependency 'SDWebImage', '~> 5.8'
 +
  end
-diff --git a/node_modules/@react-native-community/clipboard/dist/Clipboard.d.ts b/node_modules/@react-native-community/clipboard/dist/Clipboard.d.ts
-index af27802..bb0cc9c 100644
---- a/node_modules/@react-native-community/clipboard/dist/Clipboard.d.ts
-+++ b/node_modules/@react-native-community/clipboard/dist/Clipboard.d.ts
-@@ -21,6 +21,64 @@ export declare const Clipboard: {
-      * @param the content to be stored in the clipboard.
-      */
-     setString(content: string): void;
-+    /**
-+     * (IOS Only)
-+     * Set clipboard image from Base64 image representation.
-+     * You can use following code to set clipboard content
-+     * ```javascript
-+     * _setContent() {
-+     *   Clipboard.setImageFromBase64('data:image/png;base64,....');
-+     * }
-+     * ```
-+     * @param the image to be stored in the clipboard.
-+     */
-+    setImageFromBase64(image: string): void;
-+    /**
-+     * (IOS Only)
-+     * Get PNG image from clipboard in Base64.
-+     * This method returns a `Promise`, so you can use following code to get clipboard content:
-+     * ```javascript
-+     * async _getContent() {
-+     *   var content = await Clipboard.getPNGImageData();
-+     * }
-+     * ```
-+     */
-+    getPNGImageData(): Promise<string>;
-+    /**
-+     * (IOS Only)
-+     * Get JPG image from clipboard in Base64.
-+     * This method returns a `Promise`, so you can use following code to get clipboard content:
-+     * ```javascript
-+     * async _getContent() {
-+     *   var content = await Clipboard.getJPGImageData();
-+     * }
-+     * ```
-+     */
-+    getJPGImageData(): Promise<string>;
-+    /**
-+     * (IOS Only)
-+     * Get clipboard image data of unknown type.
-+     * The image format can't be determined by MIME-type, but can be found via magic numbers.
-+     * This method returns a `Promise`, so you can use following code to get clipboard content:
-+     * ```javascript
-+     * async _getContent() {
-+     *   var content = await Clipboard.getImageData();
-+     * }
-+     * ```
-+     */
-+    getImageData(): Promise<string>;
-+    /**
-+     * (IOS Only)
-+     * Get filepath (in tmp directory) of clipboard image.
-+     * The image format can't be determined by MIME-type or extension, but can via magic numbers.
-+     * This method returns a `Promise`, so you can use following code to get clipboard content:
-+     * ```javascript
-+     * async _getContent() {
-+     *   var content = await Clipboard.getImageFilePath();
-+     * }
-+     * ```
-+     */
-+    getImageFilePath(): Promise<string>;
-     /**
-      * Returns whether the clipboard has content or is empty.
-      * This method returns a `Promise`, so you can use following code to get clipboard content
 diff --git a/node_modules/@react-native-community/clipboard/dist/Clipboard.js b/node_modules/@react-native-community/clipboard/dist/Clipboard.js
-index c0c652d..38077b6 100644
+index c0c652d..20ef163 100644
 --- a/node_modules/@react-native-community/clipboard/dist/Clipboard.js
 +++ b/node_modules/@react-native-community/clipboard/dist/Clipboard.js
-@@ -32,6 +32,74 @@ exports.Clipboard = {
+@@ -32,6 +32,83 @@ exports.Clipboard = {
      setString: function (content) {
          NativeClipboard_1.default.setString(content);
      },
@@ -95,10 +26,19 @@ index c0c652d..38077b6 100644
 +     *   Clipboard.setImageFromBase64('data:image/png;base64,....');
 +     * }
 +     * ```
-+     * @param the image to be stored in the clipboard.
++     * @param image the image to be stored in the clipboard.
 +     */
 +    setImageFromBase64: function (image) {
 +        NativeClipboard_1.default.setImageFromBase64(image);
++    },
++    /**
++     * (IOS Only)
++     * Set clipboard image from URL.
++     * @param image the image to be stored in the clipboard.
++     * @param callback fn to handle success boolean
++     */
++    setImageFromURL: function (url, callback) {
++        NativeClipboard_1.default.setImageFromURL(url, callback);
 +    },
 +    /**
 +     * (IOS Only)
@@ -158,10 +98,10 @@ index c0c652d..38077b6 100644
       * Returns whether the clipboard has content or is empty.
       * This method returns a `Promise`, so you can use following code to get clipboard content
 diff --git a/node_modules/@react-native-community/clipboard/ios/RNCClipboard.m b/node_modules/@react-native-community/clipboard/ios/RNCClipboard.m
-index 3b848c2..9b7cee9 100644
+index 3b848c2..4d50dba 100644
 --- a/node_modules/@react-native-community/clipboard/ios/RNCClipboard.m
 +++ b/node_modules/@react-native-community/clipboard/ios/RNCClipboard.m
-@@ -1,6 +1,7 @@
+@@ -1,9 +1,11 @@
  #import "RNCClipboard.h"
  
  
@@ -169,7 +109,11 @@ index 3b848c2..9b7cee9 100644
  #import <UIKit/UIKit.h>
  #import <React/RCTBridge.h>
  #import <React/RCTEventDispatcher.h>
-@@ -28,6 +29,83 @@ - (dispatch_queue_t)methodQueue
++#import <SDWebImage/SDWebImageManager.h>
+ 
+ 
+ @implementation RNCClipboard
+@@ -28,6 +30,100 @@ - (dispatch_queue_t)methodQueue
    resolve((clipboard.string ? : @""));
  }
  
@@ -191,6 +135,23 @@ index 3b848c2..9b7cee9 100644
 +  UIImage *uiImage = [UIImage imageWithData: imageData];
 +  UIPasteboard *clipboard = [UIPasteboard generalPasteboard];
 +  clipboard.image = (uiImage ?: NULL);
++}
++
++
++RCT_EXPORT_METHOD(setImageFromURL: (NSString *)url
++                  success:(RCTResponseSenderBlock)success)
++{
++  [SDWebImageManager.sharedManager loadImageWithURL:[NSURL URLWithString: url] options:0 progress:NULL completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, SDImageCacheType cacheType, BOOL finished, NSURL * _Nullable imageURL) {
++    
++    if (error || !finished) {
++      success(@[@NO]);
++      return;
++    }
++    
++    UIPasteboard *clipboard = [UIPasteboard generalPasteboard];
++    clipboard.image = image;
++    success(@[@YES]);
++  }];
 +}
 +
 +RCT_EXPORT_METHOD(getPNGImageData : (RCTPromiseResolveBlock)resolve reject : (__unused RCTPromiseRejectBlock)reject)
