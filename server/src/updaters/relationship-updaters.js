@@ -255,7 +255,7 @@ async function updateUndirectedRelationships(
 async function updateChangedUndirectedRelationships(
   changeset: UndirectedRelationshipRow[],
 ): Promise<UpdateData[]> {
-  if (!changeset.length) {
+  if (changeset.length === 0) {
     return [];
   }
 
@@ -282,6 +282,9 @@ async function updateChangedUndirectedRelationships(
     if (existingStatus && existingStatus < row.status) {
       insertRows.push([row.user1, row.user2, row.status]);
     }
+  }
+  if (insertRows.length === 0) {
+    return [];
   }
   const insertQuery = SQL`
     INSERT INTO relationships_undirected (user1, user2, status)
