@@ -41,7 +41,7 @@ function chatMessageItemKey(
   return messageKey(item.messageInfo);
 }
 
-function chatMessageItemHeight(item: ChatMessageItemWithHeight) {
+function chatMessageItemHeight(item: ChatMessageItemWithHeight): number {
   if (item.itemType === 'loader') {
     return 56;
   }
@@ -319,4 +319,8 @@ const ConnectedChatList: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   },
 );
 
-export { ConnectedChatList as ChatList, chatMessageItemKey };
+export {
+  ConnectedChatList as ChatList,
+  chatMessageItemKey,
+  chatMessageItemHeight,
+};
