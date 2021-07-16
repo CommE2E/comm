@@ -506,10 +506,23 @@ index aed955e..b7096de 100755
    echo >&2 'Done.'
  }
 diff --git a/node_modules/react-native/scripts/react_native_pods.rb b/node_modules/react-native/scripts/react_native_pods.rb
-index 2a8affb..5434997 100644
+index 2a8affb..a4339fc 100644
 --- a/node_modules/react-native/scripts/react_native_pods.rb
 +++ b/node_modules/react-native/scripts/react_native_pods.rb
-@@ -148,33 +148,31 @@ end
+@@ -126,11 +126,7 @@ def exclude_architectures(installer)
+ 
+   projects.each do |project|
+     project.build_configurations.each do |config|
+-      if arm_value == 1 then
+-        config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = excluded_archs_default
+-      else
+-        config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64 " + excluded_archs_default
+-      end
++      config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = excluded_archs_default
+     end
+ 
+     project.save()
+@@ -148,33 +144,31 @@ end
  def use_react_native_codegen!(spec, options={})
    return if ENV['DISABLE_CODEGEN'] == '1'
  
@@ -558,7 +571,7 @@ index 2a8affb..5434997 100644
      components_generated_filenames = [
        "ComponentDescriptors.h",
        "EventEmitters.cpp",
-@@ -185,17 +183,16 @@ def use_react_native_codegen!(spec, options={})
+@@ -185,17 +179,16 @@ def use_react_native_codegen!(spec, options={})
        "ShadowNodes.cpp",
        "ShadowNodes.h"
      ]
